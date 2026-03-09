@@ -61,14 +61,37 @@
 
 ---
 
-## 4. Visual Feedback
+## 4. MIDI Keyboard Support
 
-### 4.1 Key Press State
+### 4.1 Connection
+
+- **Connect MIDI** button triggers browser permission prompt
+- Uses Web MIDI API (`navigator.requestMIDIAccess()`)
+- Works alongside computer keyboard—both can be used simultaneously
+
+### 4.2 Behavior
+
+- **Note On**: Plays note, highlights corresponding piano key
+- **Note Off**: Stops note, removes highlight
+- **Note names**: MIDI note numbers converted via @tonaljs (sharps: C#4, F#3, etc.)
+- **Range**: Full MIDI range (0–127) supported; notes outside displayed octaves play but may not highlight
+
+### 4.3 Requirements
+
+- Browser with Web MIDI API (Chrome, Edge, Opera)
+- HTTPS or localhost (secure context)
+- User grants MIDI permission when prompted
+
+---
+
+## 5. Visual Feedback
+
+### 5.1 Key Press State
 
 - **Pressed**: Amber highlight (amber-200 white, amber-600 black)
 - **Transition**: 75 ms duration
 
-### 4.2 Scale State
+### 5.2 Scale State
 
 - **In scale**: Emerald gradient, degree numeral
 - **Out of scale**: Reduced opacity when highlighting enabled

@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { getScaleNotes, isNoteInScale, getScaleDegree, SCALE_OPTIONS, TONIC_OPTIONS } from "@/lib/musicTheory";
 import { playNote, stopNote, stopAllNotes } from "@/lib/audio";
+import { requestMidiAccess, addMidiListener, getMidiInputs } from "@/lib/midi";
 
 interface PianoKey {
   id: string;
@@ -12,7 +13,14 @@ interface PianoKey {
   octave: number;
 }
 
-const KEY_MAP = ["KeyA", "KeyW", "KeyS", "KeyE", "KeyD", "KeyF", "KeyT", "KeyG", "KeyY", "KeyH", "KeyU", "KeyJ", "KeyK"];
+/**
+ * 24 keyboard keys mapping to 2 octaves (left to right, low to high).
+ * Row 1 (numbers): C1–B1. Row 2 (letters): C2–B2.
+ */
+const KEY_MAP_24 = [
+  "Digit1", "Digit2", "Digit3", "Digit4", "Digit5", "Digit6", "Digit7", "Digit8", "Digit9", "Digit0", "Minus", "Equal",
+  "KeyQ", "KeyW", "KeyE", "KeyR", "KeyT", "KeyY", "KeyU", "KeyI", "KeyO", "KeyP", "BracketLeft", "BracketRight",
+];
 
 const NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
@@ -26,7 +34,7 @@ function buildPianoKeys(maxOctave: number): PianoKey[] {
         id: `${noteName}${oct}`,
         type: isBlack ? "black" : "white",
         note: noteName.replace("#", "♯"),
-        keyCode: KEY_MAP[keyIndex % 13],
+        keyCode: KEY_MAP_24[keyIndex % 24],
         octave: oct,
       });
       keyIndex++;
@@ -51,15 +59,15 @@ const BLACK_KEY_OFFSETS = [
 ];
 
 /**
- * Build keyCode -> noteId mapping for the displayed 2 octaves.
- * 13 keyboard keys map 1-to-1 to C(oct)...C(oct+1) in the visible range.
+ * Build keyCode -> noteId mapping for all 24 displayed keys.
+ * 24 keyboard keys map 1-to-1 to the 2 visible octaves.
  */
 function buildKeyCodeToNote(viewOctave: number): Map<string, string> {
   const map = new Map<string, string>();
-  const noteNames = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B", "C"];
-  KEY_MAP.forEach((keyCode, i) => {
+  const noteNames = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+  KEY_MAP_24.forEach((keyCode, i) => {
     const octave = i < 12 ? viewOctave : viewOctave + 1;
-    const note = noteNames[i];
+    const note = noteNames[i % 12];
     map.set(keyCode, `${note}${octave}`);
   });
   return map;
@@ -71,6 +79,8 @@ export default function Piano() {
   const [scaleTonic, setScaleTonic] = useState("C");
   const [scaleType, setScaleType] = useState("major");
   const [showScaleHighlight, setShowScaleHighlight] = useState(true);
+  const [midiStatus, setMidiStatus] = useState<"disconnected" | "connecting" | "connected" | "error">("disconnected");
+  const [midiError, setMidiError] = useState<string | null>(null);
 
   const scaleName = scaleType ? `${scaleTonic} ${scaleType}`.trim() : "";
   const scaleNotes = useMemo(
@@ -81,7 +91,17 @@ export default function Piano() {
   const keyCodeToNote = useMemo(() => buildKeyCodeToNote(viewOctave), [viewOctave]);
   const noteToKeyCode = useMemo(() => {
     const map = new Map<string, string>();
-    keyCodeToNote.forEach((noteId, code) => map.set(noteId, code.replace("Key", "")));
+    const codeToLabel: Record<string, string> = {
+      Digit1: "1", Digit2: "2", Digit3: "3", Digit4: "4", Digit5: "5",
+      Digit6: "6", Digit7: "7", Digit8: "8", Digit9: "9", Digit0: "0",
+      Minus: "-", Equal: "=",
+      KeyQ: "Q", KeyW: "W", KeyE: "E", KeyR: "R", KeyT: "T", KeyY: "Y",
+      KeyU: "U", KeyI: "I", KeyO: "O", KeyP: "P",
+      BracketLeft: "[", BracketRight: "]",
+    };
+    keyCodeToNote.forEach((noteId, code) => {
+      map.set(noteId, codeToLabel[code] ?? code.replace(/^Key|^Digit/, ""));
+    });
     return map;
   }, [keyCodeToNote]);
 
@@ -104,12 +124,12 @@ export default function Piano() {
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (e.repeat) return;
-      if (e.code === "BracketLeft") {
+      if (e.code === "ArrowLeft") {
         e.preventDefault();
         setViewOctave((o) => Math.max(1, o - 1));
         return;
       }
-      if (e.code === "BracketRight") {
+      if (e.code === "ArrowRight") {
         e.preventDefault();
         setViewOctave((o) => Math.min(3, o + 1));
         return;
@@ -126,7 +146,7 @@ export default function Piano() {
 
   const handleKeyUp = useCallback(
     (e: KeyboardEvent) => {
-      if (e.code === "BracketLeft" || e.code === "BracketRight") return;
+      if (e.code === "ArrowLeft" || e.code === "ArrowRight") return;
       const noteId = keyCodeToNote.get(e.code);
       if (noteId) {
         e.preventDefault();
@@ -155,6 +175,35 @@ export default function Piano() {
     };
   }, [handleKeyDown, handleKeyUp]);
 
+  useEffect(() => {
+    const removeListener = addMidiListener((msg) => {
+      if (msg.type === "noteon") {
+        playNote(msg.noteName);
+        setPressedKeys((prev) => new Set(prev).add(msg.noteName));
+      } else {
+        stopNote(msg.noteName);
+        setPressedKeys((prev) => {
+          const next = new Set(prev);
+          next.delete(msg.noteName);
+          return next;
+        });
+      }
+    });
+    return removeListener;
+  }, []);
+
+  const handleConnectMidi = useCallback(async () => {
+    setMidiStatus("connecting");
+    setMidiError(null);
+    const result = await requestMidiAccess();
+    if (result.success) {
+      setMidiStatus("connected");
+    } else {
+      setMidiStatus("error");
+      setMidiError(result.error ?? "Unknown error");
+    }
+  }, []);
+
   return (
     <div className="flex flex-col items-center">
       <div className="mb-5 flex flex-wrap items-center justify-center gap-4">
@@ -181,6 +230,27 @@ export default function Piano() {
         </div>
         <div className="h-4 w-px bg-white/20" />
         <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={handleConnectMidi}
+            disabled={midiStatus === "connecting"}
+            className="rounded-lg bg-white/10 px-3 py-1.5 text-sm text-white/80 transition hover:bg-white/20 disabled:opacity-50"
+            title="Connect a MIDI keyboard (browser will ask for permission)"
+          >
+            {midiStatus === "connecting"
+              ? "Connecting…"
+              : midiStatus === "connected"
+                ? `MIDI ✓ (${getMidiInputs().length})`
+                : midiStatus === "error"
+                  ? "MIDI failed"
+                  : "Connect MIDI"}
+          </button>
+          {midiError && (
+            <span className="text-xs text-red-400" title={midiError}>
+              {midiError}
+            </span>
+          )}
+          <div className="h-4 w-px bg-white/20" />
           <select
             value={scaleTonic}
             onChange={(e) => setScaleTonic(e.target.value)}
@@ -315,10 +385,11 @@ export default function Piano() {
         </div>
       </div>
 
-      <p className="mt-6 max-w-md text-center text-sm leading-relaxed text-white/50">
-        <span className="text-white/70">A S D F G H J K</span> white ·{" "}
-        <span className="text-white/70">W E T Y U</span> black ·{" "}
-        <span className="text-white/70">[ ]</span> shift octaves
+      <p className="mt-6 max-w-xl text-center text-sm leading-relaxed text-white/50">
+        <span className="text-white/70">1 2 3 4 5 6 7 8 9 0 - =</span> octave 1 ·{" "}
+        <span className="text-white/70">Q W E R T Y U I O P [ ]</span> octave 2 ·{" "}
+        <span className="text-white/70">← →</span> shift ·{" "}
+        <span className="text-white/70">Connect MIDI</span> for hardware keyboard
       </p>
     </div>
   );

@@ -34,8 +34,8 @@ export function playNote(noteName: string): void {
   gainNode.connect(ctx.destination);
 
   gainNode.gain.setValueAtTime(0, ctx.currentTime);
-  gainNode.gain.linearRampToValueAtTime(0.25, ctx.currentTime + 0.01);
-  gainNode.gain.setValueAtTime(0.2, ctx.currentTime + 0.05);
+  gainNode.gain.linearRampToValueAtTime(0.6, ctx.currentTime + 0.01);
+  gainNode.gain.setValueAtTime(0.5, ctx.currentTime + 0.05);
 
   oscillator.start(ctx.currentTime);
   activeNotes.set(noteName, { oscillator, gainNode });

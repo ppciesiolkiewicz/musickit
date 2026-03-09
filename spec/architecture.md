@@ -23,6 +23,7 @@ src/
 │   └── Piano.tsx       # Main piano UI component
 └── lib/
     ├── audio.ts        # Web Audio playback
+    ├── midi.ts         # Web MIDI API, hardware keyboard input
     └── musicTheory.ts  # Tonal utilities, scale helpers
 ```
 
@@ -42,6 +43,13 @@ src/
 - `stopNote(noteName)`: Stop and release
 - `stopAllNotes()`: Stop all active notes
 - Uses `Note.get(noteName).freq` from Tonal for frequency
+
+### `midi` (src/lib/midi.ts)
+
+- `requestMidiAccess()`: Request Web MIDI permission, attach to inputs
+- `addMidiListener(cb)`: Subscribe to MIDI note on/off events
+- `getMidiInputs()`: List connected MIDI input devices
+- Converts MIDI note numbers to note names via Tonal (sharps)
 
 ### `musicTheory` (src/lib/musicTheory.ts)
 
