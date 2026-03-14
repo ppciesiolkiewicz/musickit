@@ -86,6 +86,8 @@ export default function Piano() {
   const [midiError, setMidiError] = useState<string | null>(null);
 
   useEffect(() => {
+    stopAllNotes();
+    setPressedKeys(new Set());
     setInstrument(instrumentId);
     if (instrumentId !== OSCILLATOR_ID) {
       preloadInstrument(instrumentId);
@@ -132,6 +134,8 @@ export default function Piano() {
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (e.repeat) return;
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === "SELECT" || tag === "INPUT") return;
       if (e.code === "ArrowLeft") {
         e.preventDefault();
         setViewOctave((o) => Math.max(1, o - 1));
