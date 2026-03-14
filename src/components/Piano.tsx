@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { getScaleNotes, isNoteInScale, getScaleDegree, SCALE_OPTIONS, TONIC_OPTIONS } from "@/lib/musicTheory";
 import { playNote, stopNote, stopAllNotes, setInstrument, preloadInstrument } from "@/lib/audio";
 import { requestMidiAccess, addMidiListener, getMidiInputs } from "@/lib/midi";
-import { INSTRUMENT_PIANO, INSTRUMENT_OPTIONS, OSCILLATOR_ID } from "@/lib/instruments";
+import { INSTRUMENT_OPTIONS, OSCILLATOR_ID } from "@/lib/instruments";
 
 interface PianoKey {
   id: string;
@@ -82,7 +82,7 @@ export default function Piano() {
   const [scaleType, setScaleType] = useState("major");
   const [showScaleHighlight, setShowScaleHighlight] = useState(true);
   const [midiStatus, setMidiStatus] = useState<"disconnected" | "connecting" | "connected" | "error">("disconnected");
-  const [instrumentId, setInstrumentId] = useState<string>(INSTRUMENT_PIANO);
+  const [instrumentId, setInstrumentId] = useState<string>(OSCILLATOR_ID);
   const [midiError, setMidiError] = useState<string | null>(null);
 
   useEffect(() => {
