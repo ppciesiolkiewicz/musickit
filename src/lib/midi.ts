@@ -13,6 +13,7 @@ let midiAccess: MIDIAccess | null = null;
 const listeners = new Set<MidiEventListener>();
 
 function handleMidiMessage(event: MIDIMessageEvent, input: MIDIInput): void {
+  if (!event.data) return;
   const [status, data1, data2] = event.data;
   const note = data1;
   const velocity = data2 ?? 0;
