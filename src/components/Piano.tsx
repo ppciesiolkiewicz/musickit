@@ -82,7 +82,7 @@ export default function Piano() {
   const [scaleType, setScaleType] = useState("major");
   const [showScaleHighlight, setShowScaleHighlight] = useState(true);
   const [midiStatus, setMidiStatus] = useState<"disconnected" | "connecting" | "connected" | "error">("disconnected");
-  const [instrumentId, setInstrumentId] = useState<string>(OSCILLATOR_ID);
+  const [instrumentId, setInstrumentId] = useState<string>("PIANO");
   const [midiError, setMidiError] = useState<string | null>(null);
 
   useEffect(() => {
