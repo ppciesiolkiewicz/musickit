@@ -17,9 +17,14 @@ interface PianoKey {
  * 24 keyboard keys mapping to 2 octaves (left to right, low to high).
  * Row 1 (numbers): C1–B1. Row 2 (letters): C2–B2.
  */
+/**
+ * Piano-style keyboard mapping: letter rows = white keys, row above = black keys.
+ * Lower octave: Z=C S=C# X=D D=D# C=E V=F G=F# B=G H=G# N=A J=A# M=B
+ * Upper octave: Q=C 2=C# W=D 3=D# E=E R=F 5=F# T=G 6=G# Y=A 7=A# U=B
+ */
 const KEY_MAP_24 = [
-  "Digit1", "Digit2", "Digit3", "Digit4", "Digit5", "Digit6", "Digit7", "Digit8", "Digit9", "Digit0", "Minus", "Equal",
-  "KeyQ", "KeyW", "KeyE", "KeyR", "KeyT", "KeyY", "KeyU", "KeyI", "KeyO", "KeyP", "BracketLeft", "BracketRight",
+  "KeyZ", "KeyS", "KeyX", "KeyD", "KeyC", "KeyV", "KeyG", "KeyB", "KeyH", "KeyN", "KeyJ", "KeyM",
+  "KeyQ", "Digit2", "KeyW", "Digit3", "KeyE", "KeyR", "Digit5", "KeyT", "Digit6", "KeyY", "Digit7", "KeyU",
 ];
 
 const NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
@@ -43,7 +48,7 @@ function buildPianoKeys(maxOctave: number): PianoKey[] {
   return keys;
 }
 
-const ALL_PIANO_KEYS = buildPianoKeys(4);
+const ALL_PIANO_KEYS = buildPianoKeys(7);
 
 const WHITE_KEY_WIDTH = 48;
 const BLACK_KEY_WIDTH = 28;
@@ -75,7 +80,7 @@ function buildKeyCodeToNote(viewOctave: number): Map<string, string> {
 
 export default function Piano() {
   const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
-  const [viewOctave, setViewOctave] = useState(1);
+  const [viewOctave, setViewOctave] = useState(3);
   const [scaleTonic, setScaleTonic] = useState("C");
   const [scaleType, setScaleType] = useState("major");
   const [showScaleHighlight, setShowScaleHighlight] = useState(true);
@@ -92,12 +97,10 @@ export default function Piano() {
   const noteToKeyCode = useMemo(() => {
     const map = new Map<string, string>();
     const codeToLabel: Record<string, string> = {
-      Digit1: "1", Digit2: "2", Digit3: "3", Digit4: "4", Digit5: "5",
-      Digit6: "6", Digit7: "7", Digit8: "8", Digit9: "9", Digit0: "0",
-      Minus: "-", Equal: "=",
-      KeyQ: "Q", KeyW: "W", KeyE: "E", KeyR: "R", KeyT: "T", KeyY: "Y",
-      KeyU: "U", KeyI: "I", KeyO: "O", KeyP: "P",
-      BracketLeft: "[", BracketRight: "]",
+      KeyZ: "Z", KeyS: "S", KeyX: "X", KeyD: "D", KeyC: "C", KeyV: "V",
+      KeyG: "G", KeyB: "B", KeyH: "H", KeyN: "N", KeyJ: "J", KeyM: "M",
+      KeyQ: "Q", Digit2: "2", KeyW: "W", Digit3: "3", KeyE: "E", KeyR: "R",
+      Digit5: "5", KeyT: "T", Digit6: "6", KeyY: "Y", Digit7: "7", KeyU: "U",
     };
     keyCodeToNote.forEach((noteId, code) => {
       map.set(noteId, codeToLabel[code] ?? code.replace(/^Key|^Digit/, ""));
@@ -131,7 +134,7 @@ export default function Piano() {
       }
       if (e.code === "ArrowRight") {
         e.preventDefault();
-        setViewOctave((o) => Math.min(3, o + 1));
+        setViewOctave((o) => Math.min(6, o + 1));
         return;
       }
       const noteId = keyCodeToNote.get(e.code);
@@ -221,9 +224,9 @@ export default function Piano() {
           </span>
           <button
             type="button"
-            onClick={() => setViewOctave((o) => Math.min(3, o + 1))}
+            onClick={() => setViewOctave((o) => Math.min(6, o + 1))}
             className="rounded-lg bg-white/10 px-3 py-1.5 text-sm text-white/80 transition hover:bg-white/20 disabled:opacity-40"
-            disabled={viewOctave >= 3}
+            disabled={viewOctave >= 6}
           >
             Shift up →
           </button>
@@ -386,10 +389,11 @@ export default function Piano() {
       </div>
 
       <p className="mt-6 max-w-xl text-center text-sm leading-relaxed text-white/50">
-        <span className="text-white/70">1 2 3 4 5 6 7 8 9 0 - =</span> octave 1 ·{" "}
-        <span className="text-white/70">Q W E R T Y U I O P [ ]</span> octave 2 ·{" "}
-        <span className="text-white/70">← →</span> shift ·{" "}
-        <span className="text-white/70">Connect MIDI</span> for hardware keyboard
+        <span className="text-white/70">Z X C V B N M</span> white keys ·{" "}
+        <span className="text-white/70">S D G H J</span> black keys ·{" "}
+        <span className="text-white/70">Q W E R T Y U</span> upper octave ·{" "}
+        <span className="text-white/70">2 3 5 6 7</span> upper black keys ·{" "}
+        <span className="text-white/70">← →</span> shift
       </p>
     </div>
   );
