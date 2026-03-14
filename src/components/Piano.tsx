@@ -14,10 +14,6 @@ interface PianoKey {
 }
 
 /**
- * 24 keyboard keys mapping to 2 octaves (left to right, low to high).
- * Row 1 (numbers): C1–B1. Row 2 (letters): C2–B2.
- */
-/**
  * Piano-style keyboard mapping: letter rows = white keys, row above = black keys.
  * Lower octave: Z=C S=C# X=D D=D# C=E V=F G=F# B=G H=G# N=A J=A# M=B
  * Upper octave: Q=C 2=C# W=D 3=D# E=E R=F 5=F# T=G 6=G# Y=A 7=A# U=B
@@ -388,13 +384,7 @@ export default function Piano() {
         </div>
       </div>
 
-      <p className="mt-6 max-w-xl text-center text-sm leading-relaxed text-white/50">
-        <span className="text-white/70">Z X C V B N M</span> white keys ·{" "}
-        <span className="text-white/70">S D G H J</span> black keys ·{" "}
-        <span className="text-white/70">Q W E R T Y U</span> upper octave ·{" "}
-        <span className="text-white/70">2 3 5 6 7</span> upper black keys ·{" "}
-        <span className="text-white/70">← →</span> shift
-      </p>
+      {/* keyboard hint removed */}
     </div>
   );
 }
