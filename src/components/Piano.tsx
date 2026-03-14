@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { getScaleNotes, isNoteInScale, getScaleDegree, SCALE_OPTIONS, TONIC_OPTIONS } from "@/lib/musicTheory";
-import { playNote, stopNote, stopAllNotes } from "@/lib/audio";
+import { playNote, stopNote, stopAllNotes, setInstrument, preloadInstrument } from "@/lib/audio";
 import { requestMidiAccess, addMidiListener, getMidiInputs } from "@/lib/midi";
+import { INSTRUMENT_PIANO, INSTRUMENT_OPTIONS, OSCILLATOR_ID } from "@/lib/instruments";
 
 interface PianoKey {
   id: string;
@@ -81,7 +82,15 @@ export default function Piano() {
   const [scaleType, setScaleType] = useState("major");
   const [showScaleHighlight, setShowScaleHighlight] = useState(true);
   const [midiStatus, setMidiStatus] = useState<"disconnected" | "connecting" | "connected" | "error">("disconnected");
+  const [instrumentId, setInstrumentId] = useState<string>(INSTRUMENT_PIANO);
   const [midiError, setMidiError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setInstrument(instrumentId);
+    if (instrumentId !== OSCILLATOR_ID) {
+      preloadInstrument(instrumentId);
+    }
+  }, [instrumentId]);
 
   const scaleName = scaleType ? `${scaleTonic} ${scaleType}`.trim() : "";
   const scaleNotes = useMemo(
@@ -249,6 +258,18 @@ export default function Piano() {
               {midiError}
             </span>
           )}
+          <div className="h-4 w-px bg-white/20" />
+          <select
+            value={instrumentId}
+            onChange={(e) => setInstrumentId(e.target.value)}
+            className="rounded-lg border border-white/20 bg-white/10 px-2 py-1.5 text-sm text-white/95 backdrop-blur"
+          >
+            {INSTRUMENT_OPTIONS.map(({ value, label }) => (
+              <option key={value} value={value} className="bg-zinc-800 text-white">
+                {label}
+              </option>
+            ))}
+          </select>
           <div className="h-4 w-px bg-white/20" />
           <select
             value={scaleTonic}
