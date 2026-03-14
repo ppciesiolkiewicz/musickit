@@ -134,8 +134,7 @@ export default function Piano() {
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (e.repeat) return;
-      const tag = (e.target as HTMLElement)?.tagName;
-      if (tag === "SELECT" || tag === "INPUT") return;
+      if ((e.target as HTMLElement)?.tagName === "INPUT") return;
       if (e.code === "ArrowLeft") {
         e.preventDefault();
         setViewOctave((o) => Math.max(1, o - 1));
@@ -265,7 +264,7 @@ export default function Piano() {
           <div className="h-4 w-px bg-white/20" />
           <select
             value={instrumentId}
-            onChange={(e) => setInstrumentId(e.target.value)}
+            onChange={(e) => { setInstrumentId(e.target.value); e.target.blur(); }}
             className="rounded-lg border border-white/20 bg-white/10 px-2 py-1.5 text-sm text-white/95 backdrop-blur"
           >
             {INSTRUMENT_OPTIONS.map(({ value, label }) => (
@@ -277,7 +276,7 @@ export default function Piano() {
           <div className="h-4 w-px bg-white/20" />
           <select
             value={scaleTonic}
-            onChange={(e) => setScaleTonic(e.target.value)}
+            onChange={(e) => { setScaleTonic(e.target.value); e.target.blur(); }}
             className="rounded-lg border border-white/20 bg-white/10 px-2 py-1.5 text-sm text-white/95 backdrop-blur"
           >
             {TONIC_OPTIONS.map((t) => (
@@ -288,7 +287,7 @@ export default function Piano() {
           </select>
           <select
             value={scaleType}
-            onChange={(e) => setScaleType(e.target.value)}
+            onChange={(e) => { setScaleType(e.target.value); e.target.blur(); }}
             className="rounded-lg border border-white/20 bg-white/10 px-2 py-1.5 text-sm text-white/95 backdrop-blur"
           >
             {SCALE_OPTIONS.map(({ value, label }) => (
