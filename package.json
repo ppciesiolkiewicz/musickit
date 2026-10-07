@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "npx tsx --test src/lib/chordKit/*.test.ts"
   },
   "dependencies": {
     "@tonaljs/tonal": "^4.10.0",

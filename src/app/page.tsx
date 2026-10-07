@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Piano from "@/components/Piano";
 
 export default function Home() {
@@ -7,6 +8,17 @@ export default function Home() {
         MUSIC KIT
       </h1>
       <Piano />
+      <nav aria-label="Guitar tools" className="mt-10 flex flex-wrap justify-center gap-2 text-sm">
+        {[
+          ["/chords", "Chord explorer"],
+          ["/triads", "Triads by string group"],
+          ["/scales", "Scales and modes"],
+        ].map(([href, label]) => (
+          <Link key={href} href={href} className="rounded-full border border-slate-700 px-4 py-1.5 text-slate-300 transition hover:border-sky-400 hover:text-sky-100">
+            {label}
+          </Link>
+        ))}
+      </nav>
     </div>
   );
 }
