@@ -19,6 +19,14 @@ interface Props {
   forcedTags?: string[];
 }
 
+const ROW_HELP: Record<string, string> = {
+  Difficulty: "How hard the fingering is, worked out from the shape itself: how many frets it spans, whether it needs a barre, whether strings are skipped, and how many different frets are used. Easy shapes fit in about two frets. Tap to include or exclude. The number on each chip is how many shapes you would get by choosing it.",
+  Style: "The kinds of music a shape is typically used in, such as jazz comping, funk or soul. It is a guide, not a rule: any shape can be played in any style.",
+  Shape: "How the shape is built. Barre uses one finger across several strings, compact keeps the fingers close together, shell is only root, 3rd and 7th, drop 3 skips a string above the bass, and top 4 uses the four highest strings.",
+  Mode: "Shows shapes whose notes all belong to a mode, counting the mode from the chord's own root. Choosing Dorian shows every chord that sounds natural over a Dorian scale on its root. A chord can fit several modes at once.",
+  Degree: "The position of the chord in the key, as a Roman numeral. Capitals are major (IV), lower case is minor (ii), ° is diminished, + is augmented, ♭ means the root is lowered relative to the major scale (♭VII).",
+};
+
 /** Tag filters + root-string / chord-type sections + one card per shape. Shared by the Shapes and In key tabs. */
 export default function ShapeBrowser({ entries, ctx, header, forcedTags = [] }: Props) {
   const [selected, setSelected] = useState<string[]>(["x:easy", "x:medium"]);
@@ -42,7 +50,7 @@ export default function ShapeBrowser({ entries, ctx, header, forcedTags = [] }: 
   const degreeTags = ctx ? [...new Set(ctx.chords.map((c) => c.roman))].map((r) => "d:" + r) : [];
 
   const row = (label: string, tags: string[]) => (
-    <ChipRow label={label}>
+    <ChipRow label={label} info={ROW_HELP[label]}>
       {tags.map((t) => (
         <Chip key={t} on={active.includes(t)} onClick={() => toggle(t)} count={tagCount(entries, t, active)}>
           {tagText(t)}

@@ -20,11 +20,15 @@ export const MODE_PAGES: ModePage[] = FAMILIES.flatMap((fam, familyIndex) =>
 
 export const findModePage = (slug: string) => MODE_PAGES.find((m) => m.slug === slug);
 
-/** Rainbow from red (first/lowest degree) to violet (seventh). `n` is 0-based, of `total` steps. */
-export function rainbow(n: number, total = 7): string {
-  const hue = (n / Math.max(1, total - 1)) * 270;
-  return `hsl(${hue.toFixed(0)} 80% 55%)`;
-}
+/**
+ * One colour per scale degree, chosen by harmonic role rather than pitch height:
+ * tonic = white, 3rd = amber (it decides major or minor), 5th = blue, 7th = rose,
+ * and the passing degrees 2, 4, 6 get quieter teal, lime and violet.
+ * Altered degrees (♭3, ♯4 ...) keep the colour of their degree; the accidental is in the label.
+ */
+export const DEGREE_COLOURS = ["#f1f5f9", "#2dd4bf", "#fbbf24", "#a3e635", "#60a5fa", "#c084fc", "#fb7185"];
+export const DEGREE_ROLES = ["tonic", "2nd", "3rd", "4th", "5th", "6th", "7th"];
+export const degreeColour = (n: number): string => DEGREE_COLOURS[((n % 7) + 7) % 7];
 
 export interface ChordNote {
   /** note name, spelled for the key */

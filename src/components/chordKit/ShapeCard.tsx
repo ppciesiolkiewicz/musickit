@@ -69,7 +69,7 @@ export default function ShapeCard({ shape, placements, selectedTags, onToggleTag
           decDisabled={fret <= lowest}
           incDisabled={fret >= highest}
         />
-        <span className="text-[11px] text-slate-500">{STRING_SHORT[shape.rs]} string root</span>
+        <span className="text-[11px] text-slate-500">{STRING_SHORT[shape.rs]} string root<Info label="About the root fret">The fret where the root note sits. The shape is movable: slide it up or down the neck and it becomes the same chord on another root. The stepper moves it one fret at a time. The root is on the {STRING_SHORT[shape.rs]} string.</Info></span>
       </div>
 
       <p className="text-xs text-slate-400">

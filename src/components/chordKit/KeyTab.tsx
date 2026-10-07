@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import ShapeBrowser from "./ShapeBrowser";
 import { KeyPicker, ModePicker } from "./KeyPicker";
-import { Chip } from "./ui";
+import { Chip, Info } from "./ui";
 import { keyEntries } from "@/lib/chordKit/shapeTools";
 import { FAMILIES, makeKeyContext } from "@/lib/chordKit/theory";
 import { MODE_PAGES, chordMidi } from "@/lib/chordKit/scales";
@@ -45,7 +45,7 @@ export default function KeyTab() {
             )}
           </div>
           <div className="flex flex-wrap items-center gap-1.5">
-            <span className="w-24 shrink-0 text-[11px] uppercase tracking-wider text-slate-500">Chords</span>
+            <span className="flex w-28 shrink-0 items-center gap-1 text-[11px] uppercase tracking-wider text-slate-500">Chords<Info label="About the chord strip">The chord the scale builds on each note, stacking every other note. Tap one to hear it and to show only the shapes that play it. Tap it again to clear. The Roman numeral says where it sits in the key.</Info></span>
             {ctx.chords.map((c) => (
               <span key={c.degree} className="inline-flex">
                 <Chip on={degree === c.roman} onClick={() => { setDegree(degree === c.roman ? null : c.roman); playChord(c.degree); }} title="Tap to hear it and filter the shapes to this chord">

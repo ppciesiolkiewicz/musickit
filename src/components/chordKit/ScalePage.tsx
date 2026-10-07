@@ -3,14 +3,14 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { KeyPicker } from "./KeyPicker";
-import { Chip, Info } from "./ui";
+import { Chip, DegreeLegend, Info } from "./ui";
 import { FAMILIES, makeKeyContext } from "@/lib/chordKit/theory";
-import { MODE_PAGES, chordMidi, modeChords, rainbow, relativesOf } from "@/lib/chordKit/scales";
+import { MODE_PAGES, chordMidi, modeChords, degreeColour, relativesOf } from "@/lib/chordKit/scales";
 import { strum } from "@/lib/chordKit/playback";
 
 const STACK_LABELS = ["root", "3rd", "5th", "7th", "9th", "11th", "13th"];
 
-/** Dedicated page for one mode: key picker, relatives, and every chord with its notes in rainbow colours. */
+/** Dedicated page for one mode: key picker, relatives, and every chord with its notes coloured by scale degree. */
 export default function ScalePage({ familyIndex, modeIndex, initialKey }: { familyIndex: number; modeIndex: number; initialKey: number }) {
   const [tonicPc, setTonicPc] = useState(initialKey);
   const [extended, setExtended] = useState(false);
@@ -33,7 +33,7 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey }: { fami
   const info = fam.info[modeIndex];
   const pageFor = (f: number, m: number) => MODE_PAGES.find((p) => p.familyIndex === f && p.modeIndex === m)!;
 
-  const colour = (n: { scaleDegree: number }) => rainbow(n.scaleDegree);
+  const colour = (n: { scaleDegree: number }) => degreeColour(n.scaleDegree);
   const intervalsOf = ctx.steps.map((s, i) => (i === 0 ? 0 : s - ctx.steps[i - 1]));
   const pattern = [...intervalsOf.slice(1), 12 - ctx.steps[6]].map((n) => (n === 1 ? "H" : n === 2 ? "W" : n === 3 ? "W+H" : String(n)));
 
@@ -62,7 +62,7 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey }: { fami
         <div className="flex flex-wrap items-center gap-2" aria-label="Scale notes">
           {ctx.names.map((n, i) => (
             <div key={i} className="flex flex-col items-center gap-0.5">
-              <span className="flex h-11 w-11 items-center justify-center rounded-full text-sm font-semibold text-slate-950" style={{ background: rainbow(i) }}>{n}</span>
+              <span className="flex h-11 w-11 items-center justify-center rounded-full text-sm font-semibold text-slate-950" style={{ background: degreeColour(i) }}>{n}</span>
               <span className="text-[11px] tabular-nums text-slate-500">{degreeName(ctx, i)}</span>
             </div>
           ))}
@@ -119,15 +119,14 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey }: { fami
           <h2 className="text-sm font-medium text-slate-100">Every chord in {ctx.names[0]} {ctx.modeName}</h2>
           <span className="ml-auto flex flex-wrap items-center gap-1.5">
             <Chip on={extended} onClick={() => setExtended((v) => !v)}>Show 9 · 11 · 13</Chip>
+            <Info label="What are 9, 11 and 13?">Keep stacking every other note of the scale above the 7th and you get the 9th, 11th and 13th. They are the same notes as the 2nd, 4th and 6th, one octave up. Jazz and funk chords use them for colour.</Info>
           </span>
         </div>
 
-        <div className="mb-3 flex items-center gap-1 text-[11px] text-slate-500" aria-hidden>
-          1st degree
-          <span className="h-2 w-40 rounded-full" style={{ background: `linear-gradient(90deg, ${[0, 1, 2, 3, 4, 5, 6].map((i) => rainbow(i)).join(",")})` }} />
-          7th
+        <div className="mb-3">
+          <DegreeLegend />
           <Info label="How are the colours chosen?">
-            {"Colours follow the scale: the 1st degree of the key is red and the 7th is violet, so the same note keeps the same colour in every chord."}
+            Colour shows the job a note does in the key, not how high it is. The 1st degree (home) is white, the 3rd is amber because it decides major or minor, the 5th is blue, and the 7th is rose. The 2nd, 4th and 6th are teal, lime and violet. A flattened or raised note keeps the colour of its degree, so the ♭3 is still amber, and its label tells you it is flat. The same note has the same colour in every chord.
           </Info>
         </div>
 

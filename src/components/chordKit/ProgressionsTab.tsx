@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import ChordDiagram from "./ChordDiagram";
 import NeckDiagram from "./NeckDiagram";
-import { Chip, ChipRow } from "./ui";
+import { Chip, ChipRow, Info } from "./ui";
 import { DIFF_CLASS, HUES } from "./palette";
 import {
   PROG_LIST, NECK_HUES, NOTE_FROM_E, chordInstances, firstShapeFor, intervalText, nearestMoves, progressionSteps, resolveProgression,
@@ -125,13 +125,13 @@ function Detail({ D }: { D: ResolvedProgression }) {
           {playing ? "■ Stop" : "▶ Play the main form"}
         </button>
         <label className="flex items-center gap-2 text-xs text-slate-400">
-          Tempo
+          Tempo<Info label="About tempo">Each chord lasts two beats at this speed. Only the main sections play; side trips are skipped. Chords marked ×2 repeat.</Info>
           <input type="range" min={50} max={140} value={bpm} onChange={(e) => setBpm(Number(e.target.value))} className="accent-sky-400" />
           <span className="w-14 tabular-nums">{bpm} bpm</span>
         </label>
       </div>
 
-      <ChipRow label="Show on neck">
+      <ChipRow label="Show on neck" info="Choose which chords are drawn in the neck diagrams below. Side-trip chords start off so the pictures stay readable. At least one chord must stay on.">
         {D.uniq.map((u, i) => (
           <Chip key={u.key} on={!off.includes(u.key)} onClick={() => toggle(u.key)}>
             <span className="inline-block h-2 w-2 rounded-full" style={{ background: HUES[NECK_HUES[i % 4]].hub }} />

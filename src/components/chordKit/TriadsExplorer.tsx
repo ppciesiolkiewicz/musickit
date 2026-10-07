@@ -72,10 +72,10 @@ export default function TriadsExplorer() {
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-2.5 rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
         <KeyPicker tonicPc={tonicPc} onTonic={setTonicPc} />
-        <ChipRow label="Triad">
+        <ChipRow label="Triad" info="A triad is three notes stacked in thirds. Major is root, major 3rd, 5th. Minor lowers the 3rd. Diminished lowers the 3rd and the 5th. Augmented raises the 5th.">
           {TRIAD_QUALITIES.map((t) => <Chip key={t.id} on={t.id === quality} onClick={() => setQuality(t.id)}>{t.label}</Chip>)}
         </ChipRow>
-        <ChipRow label="String group">
+        <ChipRow label="String group" info="Which three neighbouring strings the triad is played on. Pick several to compare. The 3-2-1 group is the brightest, 6-5-4 the deepest. The other strings are not played.">
           {STRING_GROUPS.map((g) => <Chip key={g.id} on={groupIds.includes(g.id)} onClick={() => toggleGroup(g.id)}>{g.label}</Chip>)}
         </ChipRow>
         <p className="text-xs text-slate-400">

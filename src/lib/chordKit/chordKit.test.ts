@@ -120,7 +120,7 @@ describe("progressions", () => {
 });
 
 import { triadVoicings, STRING_GROUPS, TRIAD_QUALITIES, INVERSIONS } from "./triads";
-import { MODE_PAGES, modeChords, relativesOf, rainbow } from "./scales";
+import { MODE_PAGES, modeChords, relativesOf, degreeColour, DEGREE_COLOURS } from "./scales";
 
 describe("triads by string group", () => {
   it("every voicing is closed, has the right chord tones and stays on the neck", () => {
@@ -161,9 +161,9 @@ describe("scale pages", () => {
     assert.equal(rel.siblings.length, 7);
     assert.deepEqual(rel.vsMajor, ["♭3", "♭7"]);
   });
-  it("rainbow goes from red to violet", () => {
-    assert.ok(rainbow(0).startsWith("hsl(0 "));
-    assert.ok(rainbow(6).startsWith("hsl(270 "));
+  it("gives each of the seven degrees its own colour", () => {
+    assert.equal(new Set(DEGREE_COLOURS).size, 7);
+    assert.equal(degreeColour(7), degreeColour(0));
   });
 });
 

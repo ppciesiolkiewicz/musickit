@@ -3,10 +3,10 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { KeyPicker, ModePicker } from "./KeyPicker";
-import { Chip, ChipRow, Info } from "./ui";
+import { Chip, ChipRow, DegreeLegend, Info } from "./ui";
 import { ARP_FRETS, ARP_QUALITIES, WINDOWS, arpeggioMidi, buildArpeggio, neckCells, type Arpeggio, type NeckCell } from "@/lib/chordKit/arpeggios";
 import { FAMILIES, makeKeyContext } from "@/lib/chordKit/theory";
-import { MODE_PAGES, rainbow } from "@/lib/chordKit/scales";
+import { MODE_PAGES, degreeColour } from "@/lib/chordKit/scales";
 import { strum } from "@/lib/chordKit/playback";
 
 type LabelMode = "name" | "degree" | "role";
@@ -43,19 +43,19 @@ function ArpNeck({ cells, arp, overlay, labelMode, window: win, onNote }: { cell
           const x = fx(c.fret), y = sy(c.string);
           if (c.arp) {
             const isRoot = c.arp.role === "R";
-            const fill = c.inScale ? rainbow(c.scaleDegree as number) : "#e2e8f0";
+            const fill = c.inScale ? degreeColour(c.scaleDegree as number) : "#0f172a";
             return (
               <g key={`${c.string}-${c.fret}`} opacity={op} onClick={() => onNote(c)} style={{ cursor: "pointer" }}>
                 <circle cx={x} cy={y} r={13} fill={fill} stroke={isRoot ? "#ffffff" : c.inScale ? "#0f172a" : "#f43f5e"} strokeWidth={isRoot ? 3 : 2} strokeDasharray={c.inScale ? undefined : "3 2"} />
-                <text x={x} y={y} textAnchor="middle" dominantBaseline="central" fontSize={labelFor(c).length > 2 ? 9 : 11} fontWeight={700} fill="#0f172a" pointerEvents="none">{labelFor(c)}</text>
+                <text x={x} y={y} textAnchor="middle" dominantBaseline="central" fontSize={labelFor(c).length > 2 ? 9 : 11} fontWeight={700} fill={c.inScale ? "#0f172a" : "#f8fafc"} pointerEvents="none">{labelFor(c)}</text>
               </g>
             );
           }
           if (overlay && c.inScale) {
             return (
               <g key={`${c.string}-${c.fret}`} opacity={op * 0.75} onClick={() => onNote(c)} style={{ cursor: "pointer" }}>
-                <circle cx={x} cy={y} r={8} fill="none" stroke={rainbow(c.scaleDegree as number)} strokeWidth={2} />
-                <text x={x} y={y} textAnchor="middle" dominantBaseline="central" fontSize={8} fill={rainbow(c.scaleDegree as number)} pointerEvents="none">{labelMode === "degree" ? c.degreeText : labelMode === "name" ? c.name : c.degreeText}</text>
+                <circle cx={x} cy={y} r={8} fill="none" stroke={degreeColour(c.scaleDegree as number)} strokeWidth={2} />
+                <text x={x} y={y} textAnchor="middle" dominantBaseline="central" fontSize={8} fill={degreeColour(c.scaleDegree as number)} pointerEvents="none">{labelMode === "degree" ? c.degreeText : labelMode === "name" ? c.name : c.degreeText}</text>
               </g>
             );
           }
@@ -98,12 +98,12 @@ export default function ArpeggiosExplorer() {
           {page && <> · <Link className="text-sky-300 hover:underline" href={`/scales/${page.slug}?key=${tonicPc}`}>mode page</Link></>}
         </p>
 
-        <ChipRow label="Arpeggio on">
+        <ChipRow label="Arpeggio on" info="Which note of the scale the arpeggio starts on, shown as a Roman numeral and the note name. An arpeggio is a chord played one note at a time.">
           {ctx.chords.map((c) => (
             <Chip key={c.degree} on={degree === c.degree} onClick={() => setDegree(c.degree)}>{c.roman} <span className="text-slate-400">{ctx.names[c.degree]}</span></Chip>
           ))}
         </ChipRow>
-        <ChipRow label="Type">
+        <ChipRow label="Type" info="Uses the chord the scale itself builds on that note: a triad (3 notes), a 7th chord (4 notes) or a 9th chord (5 notes). Every note stays inside the scale.">
           {KINDS.map((k) => <Chip key={k.id} on={kind === k.id} onClick={() => setKind(k.id)}>{k.label}</Chip>)}
         </ChipRow>
         <ChipRow label="Or force">
@@ -112,10 +112,10 @@ export default function ArpeggiosExplorer() {
             By default the arpeggio is the chord the scale itself builds on that note. Forcing a type lays any other arpeggio on the same root, for example a major arpeggio on the 4th note of a minor scale. Notes that are not in the scale get a dashed red outline.
           </Info>
         </ChipRow>
-        <ChipRow label="Position">
+        <ChipRow label="Position" info="Narrows the neck to a window of frets so you can learn one area at a time. Notes outside the window fade out. Whole neck shows everything.">
           {WINDOWS.map((w) => <Chip key={w.id} on={winId === w.id} onClick={() => setWinId(w.id)}>{w.label}</Chip>)}
         </ChipRow>
-        <ChipRow label="Labels">
+        <ChipRow label="Labels" info="Note names show A, B♭ and so on. Scale degrees show each note's number in the key (1, ♭3, 5). Chord tones show its job in the arpeggio: R for root, 3, 5, 7. Overlay the scale adds small rings for the other scale notes behind the arpeggio.">
           <Chip on={labelMode === "name"} onClick={() => setLabelMode("name")}>Note names</Chip>
           <Chip on={labelMode === "degree"} onClick={() => setLabelMode("degree")}>Scale degrees</Chip>
           <Chip on={labelMode === "role"} onClick={() => setLabelMode("role")}>Chord tones</Chip>
@@ -131,7 +131,7 @@ export default function ArpeggiosExplorer() {
           </span>
           <span className="ml-auto flex items-center gap-2">
             <label className="flex items-center gap-1.5 text-xs text-slate-400">
-              Octaves
+              Octaves<Info label="About octaves">How far the played arpeggio climbs. One octave plays the notes up to the next root and back down. Two goes twice as far.</Info>
               <select value={octaves} onChange={(e) => setOctaves(Number(e.target.value))} className="rounded-md border border-slate-700 bg-slate-900 px-1.5 py-0.5 text-slate-200">
                 <option value={1}>1</option>
                 <option value={2}>2</option>
@@ -146,9 +146,12 @@ export default function ArpeggiosExplorer() {
           </p>
         )}
         <ArpNeck cells={cells} arp={arp} overlay={overlay} labelMode={labelMode} window={win} onNote={playNote} />
-        <p className="mt-2 text-xs text-slate-500">
-          Large dots are the arpeggio, the white ring is the root. Small rings are the rest of the scale. Colours follow the scale degree, red (1st) to violet (7th). Tap any note to hear it.
-        </p>
+        <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
+          <DegreeLegend />
+          <Info label="How do I read the neck?">
+            Large filled dots are the notes of the arpeggio, and the one with a white ring is its root. Small rings are the other notes of the scale, so you can see where the arpeggio sits inside it. Colour shows the scale degree: 1 white, 2 teal, 3 amber, 4 lime, 5 blue, 6 violet, 7 rose. A dark dot with a dashed red outline is a note outside the scale. Tap any note to hear it.
+          </Info>
+        </div>
       </section>
     </div>
   );

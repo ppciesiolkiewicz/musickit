@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
+import { DEGREE_COLOURS } from "@/lib/chordKit/scales";
 
 export function Chip({ on, onClick, children, count, title }: { on?: boolean; onClick?: () => void; children: ReactNode; count?: number; title?: string }) {
   return (
@@ -19,12 +20,51 @@ export function Chip({ on, onClick, children, count, title }: { on?: boolean; on
   );
 }
 
-export function ChipRow({ label, children }: { label: string; children: ReactNode }) {
+/** A labelled row of chips. `info` adds an (i) button that opens a plain-language explanation under the row. */
+export function ChipRow({ label, children, info }: { label: string; children: ReactNode; info?: ReactNode }) {
+  const [open, setOpen] = useState(false);
   return (
     <div className="flex flex-wrap items-center gap-1.5">
-      <span className="w-24 shrink-0 text-[11px] uppercase tracking-wider text-slate-500">{label}</span>
+      <span className="flex w-28 shrink-0 items-center gap-1 text-[11px] uppercase tracking-wider text-slate-500">
+        {label}
+        {info && <InfoButton open={open} onClick={() => setOpen((v) => !v)} label={`About ${label.toLowerCase()}`} />}
+      </span>
       {children}
+      {open && info && <InfoBox>{info}</InfoBox>}
     </div>
+  );
+}
+
+export function InfoButton({ open, onClick, label }: { open: boolean; onClick: () => void; label: string }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-expanded={open}
+      aria-label={label}
+      title={label}
+      className={`inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full border text-[10px] normal-case tracking-normal ${open ? "border-sky-400 bg-sky-500/20 text-sky-200" : "border-slate-600 text-slate-400 hover:border-slate-400"}`}
+    >
+      i
+    </button>
+  );
+}
+
+export function InfoBox({ children }: { children: ReactNode }) {
+  return <div className="basis-full rounded-lg border border-slate-700 bg-slate-950/70 p-2.5 text-xs normal-case leading-relaxed tracking-normal text-slate-300">{children}</div>;
+}
+
+/** The seven scale-degree colours, with their names. */
+export function DegreeLegend() {
+  return (
+    <span className="inline-flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-slate-400" aria-label="Colour key: scale degrees">
+      {DEGREE_COLOURS.map((c, i) => (
+        <span key={i} className="inline-flex items-center gap-1">
+          <span className="inline-block h-3 w-3 rounded-full border border-slate-700" style={{ background: c }} />
+          {i + 1}
+        </span>
+      ))}
+    </span>
   );
 }
 
@@ -74,21 +114,12 @@ export function Section({
   );
 }
 
-/** ℹ︎ button that reveals an explanation. */
+/** Inline (i) button that reveals an explanation right after it. */
 export function Info({ children, label = "What does this mean?" }: { children: ReactNode; label?: string }) {
   const [open, setOpen] = useState(false);
   return (
     <span className="inline">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        aria-expanded={open}
-        aria-label={label}
-        title={label}
-        className={`ml-1 inline-flex h-4 w-4 items-center justify-center rounded-full border text-[10px] align-middle ${open ? "border-sky-400 bg-sky-500/20 text-sky-200" : "border-slate-600 text-slate-400 hover:border-slate-400"}`}
-      >
-        i
-      </button>
+      <span className="ml-1 inline-block align-middle"><InfoButton open={open} onClick={() => setOpen((v) => !v)} label={label} /></span>
       {open && <span className="mt-1.5 block rounded-lg border border-slate-700 bg-slate-950/70 p-2.5 text-xs leading-relaxed text-slate-300">{children}</span>}
     </span>
   );
