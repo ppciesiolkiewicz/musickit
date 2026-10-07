@@ -8,14 +8,11 @@ import { FAMILIES, makeKeyContext } from "@/lib/chordKit/theory";
 import { MODE_PAGES, chordMidi, modeChords, rainbow, relativesOf } from "@/lib/chordKit/scales";
 import { strum } from "@/lib/chordKit/playback";
 
-type ColourBy = "stack" | "degree";
-
 const STACK_LABELS = ["root", "3rd", "5th", "7th", "9th", "11th", "13th"];
 
 /** Dedicated page for one mode: key picker, relatives, and every chord with its notes in rainbow colours. */
 export default function ScalePage({ familyIndex, modeIndex, initialKey }: { familyIndex: number; modeIndex: number; initialKey: number }) {
   const [tonicPc, setTonicPc] = useState(initialKey);
-  const [colourBy, setColourBy] = useState<ColourBy>("stack");
   const [extended, setExtended] = useState(false);
   const [playing, setPlaying] = useState<number | null>(null);
 
@@ -36,7 +33,7 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey }: { fami
   const info = fam.info[modeIndex];
   const pageFor = (f: number, m: number) => MODE_PAGES.find((p) => p.familyIndex === f && p.modeIndex === m)!;
 
-  const colour = (n: { scaleDegree: number }, stackIndex: number) => (colourBy === "degree" ? rainbow(n.scaleDegree) : rainbow(stackIndex));
+  const colour = (n: { scaleDegree: number }) => rainbow(n.scaleDegree);
   const intervalsOf = ctx.steps.map((s, i) => (i === 0 ? 0 : s - ctx.steps[i - 1]));
   const pattern = [...intervalsOf.slice(1), 12 - ctx.steps[6]].map((n) => (n === 1 ? "H" : n === 2 ? "W" : n === 3 ? "W+H" : String(n)));
 
@@ -120,20 +117,16 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey }: { fami
         <div className="mb-3 flex flex-wrap items-center gap-2">
           <h2 className="text-sm font-medium text-slate-100">Every chord in {ctx.names[0]} {ctx.modeName}</h2>
           <span className="ml-auto flex flex-wrap items-center gap-1.5">
-            <Chip on={colourBy === "stack"} onClick={() => setColourBy("stack")} title="Red is the chord root, violet is the highest chord tone">Colour by chord tone</Chip>
-            <Chip on={colourBy === "degree"} onClick={() => setColourBy("degree")} title="Red is the scale's 1st degree, violet its 7th">Colour by scale degree</Chip>
             <Chip on={extended} onClick={() => setExtended((v) => !v)}>Show 9 · 11 · 13</Chip>
           </span>
         </div>
 
         <div className="mb-3 flex items-center gap-1 text-[11px] text-slate-500" aria-hidden>
-          low
+          1st degree
           <span className="h-2 w-40 rounded-full" style={{ background: `linear-gradient(90deg, ${[0, 1, 2, 3, 4, 5, 6].map((i) => rainbow(i)).join(",")})` }} />
-          high
+          7th
           <Info label="How are the colours chosen?">
-            {colourBy === "stack"
-              ? "Colours follow the chord: the root is red, then the 3rd, 5th, 7th, and the extensions 9th, 11th and 13th climb through the rainbow to violet."
-              : "Colours follow the scale: the 1st degree of the key is red and the 7th is violet, so the same note keeps the same colour in every chord."}
+            {"Colours follow the scale: the 1st degree of the key is red and the 7th is violet, so the same note keeps the same colour in every chord."}
           </Info>
         </div>
 
@@ -154,9 +147,9 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey }: { fami
                     <span className="block text-xs text-slate-500">triad {c.triadName}</span>
                   </span>
                   <span className="flex flex-wrap gap-1.5">
-                    {shown.map((n, i) => (
-                      <span key={i} className="flex flex-col items-center">
-                        <span className="flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold text-slate-950" style={{ background: colour(n, i) }}>{n.name}</span>
+                    {shown.map((n) => (
+                      <span key={n.role + n.name} className="flex flex-col items-center">
+                        <span className="flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold text-slate-950" style={{ background: colour(n) }}>{n.name}</span>
                         <span className="text-[10px] text-slate-500">{n.role}</span>
                       </span>
                     ))}

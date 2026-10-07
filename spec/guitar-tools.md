@@ -27,7 +27,7 @@ Choose root, triad quality (major, minor, diminished, augmented) and string grou
 
 ## Mode pages (`/scales/[slug]`)
 
-Key picker at the top (stored in `?key=` as a pitch class). Shows the scale in rainbow colours, step pattern, relative major/minor (major family), parent scale, differences from the parallel major/minor, and links to the other modes with the same notes. Every diatonic chord lists its stacked notes (R 3 5 7, optionally 9 11 13) coloured red (low) to violet (high). Toggle colouring by chord tone or by scale degree. Tap a chord to hear it.
+Key picker at the top (stored in `?key=` as a pitch class). Shows the scale in rainbow colours, step pattern, relative major/minor (major family), parent scale, differences from the parallel major/minor, and links to the other modes with the same notes. Every diatonic chord lists its stacked notes (R 3 5 7, optionally 9 11 13) coloured by scale degree, red (1st) to violet (7th), so a note keeps one colour in every chord. Tap a chord to hear it.
 
 ## Library layout
 
