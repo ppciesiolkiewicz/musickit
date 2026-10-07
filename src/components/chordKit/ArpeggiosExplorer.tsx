@@ -11,9 +11,9 @@ import { strum } from "@/lib/chordKit/playback";
 
 type LabelMode = "name" | "degree" | "role";
 const KINDS = [
-  { id: "triad", label: "Scale's triad" },
-  { id: "seventh", label: "Scale's 7th chord" },
-  { id: "ninth", label: "Scale's 9th chord" },
+  { id: "triad", label: "Scale triad" },
+  { id: "seventh", label: "Scale 7th" },
+  { id: "ninth", label: "Scale 9th" },
 ];
 const colW = 52, left = 40, top = 30, rowH = 30;
 
@@ -103,10 +103,9 @@ export default function ArpeggiosExplorer() {
             <Chip key={c.degree} on={degree === c.degree} onClick={() => setDegree(c.degree)}>{c.roman} <span className="text-slate-400">{ctx.names[c.degree]}</span></Chip>
           ))}
         </ChipRow>
-        <ChipRow label="Type" info="Uses the chord the scale itself builds on that note: a triad (3 notes), a 7th chord (4 notes) or a 9th chord (5 notes). Every note stays inside the scale.">
+        <ChipRow label="Arpeggio type" info="The first three buttons use the chord the scale itself builds on that note: a triad (3 notes), a 7th chord (4) or a 9th chord (5), with every note inside the scale. The rest ignore the scale and put any chord type you choose on the same root. For example, a D major arpeggio over C major, where D is the 2nd note and the scale would give you D minor. Notes that are not in the scale get a dashed red outline, so you can see which notes fit and which clash.">
           {KINDS.map((k) => <Chip key={k.id} on={kind === k.id} onClick={() => setKind(k.id)}>{k.label}</Chip>)}
-        </ChipRow>
-        <ChipRow label="Other types" info="Normally the arpeggio is the chord the scale itself builds on that note (the Type row above). These buttons ignore that and put any chord type you choose on the same root. For example, a D major arpeggio over C major, where D is the 2nd note and the scale would give you D minor. Notes that are not in the scale get a dashed red outline, so you can see which notes fit the scale and which clash.">
+          <span className="mx-1 h-4 w-px bg-slate-700" aria-hidden />
           {ARP_QUALITIES.map((q) => <Chip key={q.id} on={kind === q.id} onClick={() => setKind(q.id)}>{q.label}</Chip>)}
         </ChipRow>
         <ChipRow label="Position" info="Narrows the neck to a window of frets so you can learn one area at a time. Notes outside the window fade out. Whole neck shows everything.">

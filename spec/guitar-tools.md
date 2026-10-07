@@ -32,7 +32,7 @@ Key picker at the top (stored in `?key=` as a pitch class). Shows the scale colo
 
 ## Arpeggios (`/arpeggios`)
 
-Pick key and mode (all 21), then an arpeggio on any scale degree: the scale's own triad, 7th or 9th chord, or force any quality (major, minor, dim, aug, maj7, 7, m7, m7♭5, dim7, m(maj7)) on that root. The neck (frets 0–17) shows the arpeggio as large dots with the root ringed in white, and optionally the rest of the scale as small rings; both are coloured by scale degree, using the same palette as the mode pages. Notes outside the scale get a dashed red outline. Options: fret-window positions, labels (note names, scale degrees or chord tones), 1 or 2 octave playback, tap any note to hear it. Logic is in `arpeggios.ts`.
+Pick key and mode (all 21), then an arpeggio on any scale degree: one row of types, the scale's own triad, 7th or 9th chord, or any other quality (major, minor, dim, aug, maj7, 7, m7, m7♭5, dim7, m(maj7)) on that root. The neck (frets 0–17) shows the arpeggio as large dots with the root ringed in white, and optionally the rest of the scale as small rings; both are coloured by scale degree, using the same palette as the mode pages. Notes outside the scale get a dashed red outline. Options: fret-window positions, labels (note names, scale degrees or chord tones), 1 or 2 octave playback, tap any note to hear it. Logic is in `arpeggios.ts`.
 
 ## Library layout
 
