@@ -6,6 +6,7 @@ const LINKS = [
   { href: "/chords", label: "Chords" },
   { href: "/triads", label: "Triads" },
   { href: "/scales", label: "Scales" },
+  { href: "/arpeggios", label: "Arpeggios" },
 ];
 
 /** Dark page frame with the Music Kit nav, shared by the guitar pages. */

@@ -10,6 +10,7 @@ Three pages built on a shared theory library in `src/lib/chordKit/`. All of them
 | `/triads` | Closed triads and inversions by string group |
 | `/scales` | Index of the 21 modes |
 | `/scales/[slug]?key=N` | One mode: key picker, relatives, every chord with its notes |
+| `/arpeggios` | Arpeggios over any key and any of the 21 modes, on the whole neck |
 
 ## Chord explorer (`/chords`)
 
@@ -29,6 +30,10 @@ Choose root, triad quality (major, minor, diminished, augmented) and string grou
 
 Key picker at the top (stored in `?key=` as a pitch class). Shows the scale in rainbow colours, step pattern, relative major/minor (major family), parent scale, differences from the parallel major/minor, and links to the other modes with the same notes. Every diatonic chord lists its stacked notes (R 3 5 7, optionally 9 11 13) coloured by scale degree, red (1st) to violet (7th), so a note keeps one colour in every chord. Tap a chord to hear it.
 
+## Arpeggios (`/arpeggios`)
+
+Pick key and mode (all 21), then an arpeggio on any scale degree: the scale's own triad, 7th or 9th chord, or force any quality (major, minor, dim, aug, maj7, 7, m7, m7♭5, dim7, m(maj7)) on that root. The neck (frets 0–17) shows the arpeggio as large dots with the root ringed in white, and optionally the rest of the scale as small rings; both are coloured by scale degree. Notes outside the scale get a dashed red outline. Options: fret-window positions, labels (note names, scale degrees or chord tones), 1 or 2 octave playback, tap any note to hear it. Logic is in `arpeggios.ts`.
+
 ## Library layout
 
 ```
@@ -39,6 +44,7 @@ src/lib/chordKit/
 ├── progressions.ts  progression data, resolving into keys, neck positions
 ├── triads.ts        generated triad voicings
 ├── scales.ts        mode pages, relatives, rainbow colours
+├── arpeggios.ts     arpeggio notes and neck map
 ├── playback.ts      strumming through audio.ts, MIDI names via tonal
 └── *.test.ts        tests
 ```

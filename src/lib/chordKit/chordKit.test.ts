@@ -166,3 +166,44 @@ describe("scale pages", () => {
     assert.ok(rainbow(6).startsWith("hsl(270 "));
   });
 });
+
+import { buildArpeggio, neckCells, arpeggioMidi, ARP_QUALITIES } from "./arpeggios";
+
+describe("arpeggios", () => {
+  it("builds the diatonic arpeggios of D Dorian", () => {
+    const ctx = makeKeyContext(2, 0, 1);
+    assert.deepEqual(buildArpeggio(ctx, 0, "seventh").notes.map((n) => n.name), ["D", "F", "A", "C"]);
+    assert.deepEqual(buildArpeggio(ctx, 0, "triad").notes.map((n) => n.role), ["R", "♭3", "5"]);
+    assert.deepEqual(buildArpeggio(ctx, 1, "seventh").notes.map((n) => n.name), ["E", "G", "B", "D"]);
+    assert.equal(buildArpeggio(ctx, 0, "ninth").notes.length, 5);
+  });
+  it("spells custom qualities with one letter per chord tone and flags outside notes", () => {
+    const ctx = makeKeyContext(7, 0, 0); // G major
+    const a = buildArpeggio(ctx, 0, "dim7");
+    assert.deepEqual(a.notes.map((n) => n.name), ["G", "B♭", "D♭", "F♭"]);
+    assert.ok(a.notes[1].outside);
+    const m = buildArpeggio(ctx, 3, "maj7"); // Cmaj7
+    assert.deepEqual(m.notes.map((n) => n.name), ["C", "E", "G", "B"]);
+    assert.ok(m.notes.every((n) => !n.outside));
+  });
+  it("covers every quality and mode without bad names", () => {
+    for (let fam = 0; fam < 3; fam++) for (let mode = 0; mode < 7; mode++) {
+      const ctx = makeKeyContext(4, fam, mode);
+      for (let d = 0; d < 7; d++) {
+        for (const kind of ["triad", "seventh", "ninth", ...ARP_QUALITIES.map((q) => q.id)]) {
+          const a = buildArpeggio(ctx, d, kind);
+          for (const n of a.notes) assert.ok(!/\?|undefined/.test(n.name), `${fam}/${mode}/${d}/${kind}: ${n.name}`);
+        }
+      }
+    }
+  });
+  it("marks every neck cell of the arpeggio and plays the notes upward", () => {
+    const ctx = makeKeyContext(0, 0, 0);
+    const a = buildArpeggio(ctx, 0, "triad");
+    const cells = neckCells(ctx, a);
+    assert.equal(cells.length, 6 * 18);
+    assert.ok(cells.filter((c) => c.arp).every((c) => [0, 4, 7].includes(c.pc)));
+    const m = arpeggioMidi(a);
+    for (let i = 1; i <= a.notes.length; i++) assert.ok(m[i] > m[i - 1]);
+  });
+});
