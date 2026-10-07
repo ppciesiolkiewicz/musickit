@@ -106,11 +106,8 @@ export default function ArpeggiosExplorer() {
         <ChipRow label="Type" info="Uses the chord the scale itself builds on that note: a triad (3 notes), a 7th chord (4 notes) or a 9th chord (5 notes). Every note stays inside the scale.">
           {KINDS.map((k) => <Chip key={k.id} on={kind === k.id} onClick={() => setKind(k.id)}>{k.label}</Chip>)}
         </ChipRow>
-        <ChipRow label="Or force">
+        <ChipRow label="Other types" info="Normally the arpeggio is the chord the scale itself builds on that note (the Type row above). These buttons ignore that and put any chord type you choose on the same root. For example, a D major arpeggio over C major, where D is the 2nd note and the scale would give you D minor. Notes that are not in the scale get a dashed red outline, so you can see which notes fit the scale and which clash.">
           {ARP_QUALITIES.map((q) => <Chip key={q.id} on={kind === q.id} onClick={() => setKind(q.id)}>{q.label}</Chip>)}
-          <Info label="What does forcing a type do?">
-            By default the arpeggio is the chord the scale itself builds on that note. Forcing a type lays any other arpeggio on the same root, for example a major arpeggio on the 4th note of a minor scale. Notes that are not in the scale get a dashed red outline.
-          </Info>
         </ChipRow>
         <ChipRow label="Position" info="Narrows the neck to a window of frets so you can learn one area at a time. Notes outside the window fade out. Whole neck shows everything.">
           {WINDOWS.map((w) => <Chip key={w.id} on={winId === w.id} onClick={() => setWinId(w.id)}>{w.label}</Chip>)}
