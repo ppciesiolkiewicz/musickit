@@ -73,19 +73,19 @@ export default function ScalesIndex({ initialKey }: { initialKey: number }) {
                 </p>
 
                 <ul className="space-y-1 text-xs text-slate-300">
-                  {page.modeIndex !== 0 && (
+                  {page.modeIndex !== 0 && !rel.relativeMajor && (
                     <li>
-                      Same notes as <b>{rel.parentTonic} {rel.parentName}</b>, from its {ORD[page.modeIndex]} degree
+                      Parent scale: <b>{rel.parentTonic} {rel.parentName}</b> (starts on its {ORD[page.modeIndex]} degree)
                     </li>
                   )}
                   {rel.relativeMajor && page.modeIndex !== 0 && (
                     <li>
-                      Relative major: <Link className="text-sky-300 hover:underline" href={`/scales/${pageFor(0, 0).slug}?key=${rel.relativeMajor.tonicPc}`}>{rel.relativeMajor.tonic} major</Link>
+                      Relative major: <Link className="text-sky-300 hover:underline" href={`/scales/${pageFor(0, 0).slug}?key=${rel.relativeMajor.tonicPc}`}>{rel.relativeMajor.tonic} major</Link> <span className="text-slate-500">(this mode starts on its {ORD[page.modeIndex]} degree)</span>
                     </li>
                   )}
                   {rel.relativeMinor && page.modeIndex !== 5 && (
                     <li>
-                      Relative minor: <Link className="text-sky-300 hover:underline" href={`/scales/${pageFor(0, 5).slug}?key=${rel.relativeMinor.tonicPc}`}>{rel.relativeMinor.tonic} natural minor</Link>
+                      Relative minor: <Link className="text-sky-300 hover:underline" href={`/scales/${pageFor(0, 5).slug}?key=${rel.relativeMinor.tonicPc}`}>{rel.relativeMinor.tonic} natural minor</Link> <span className="text-slate-500">(starts on the 6th degree of {rel.parentTonic} major)</span>
                     </li>
                   )}
                   {!rel.relativeMajor && (

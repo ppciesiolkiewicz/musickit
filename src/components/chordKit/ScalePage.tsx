@@ -80,20 +80,20 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey }: { fami
       <section className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
         <h2 className="mb-2 text-sm font-medium text-slate-100">Relatives of {ctx.names[0]} {ctx.modeName}</h2>
         <ul className="space-y-1.5 text-sm text-slate-300">
-          {modeIndex !== 0 && (
+          {modeIndex !== 0 && !rel.relativeMajor && (
             <li>
-              Same notes as <b>{rel.parentTonic} {rel.parentName}</b>, started on its {["1st", "2nd", "3rd", "4th", "5th", "6th", "7th"][modeIndex]} degree.
+              Parent scale: <b>{rel.parentTonic} {rel.parentName}</b> (starts on its {["1st", "2nd", "3rd", "4th", "5th", "6th", "7th"][modeIndex]} degree)
             </li>
           )}
           {rel.relativeMajor && modeIndex !== 0 && (
             <li>
-              Relative major: <Link className="text-sky-300 hover:underline" href={`/scales/${pageFor(0, 0).slug}?key=${rel.relativeMajor.tonicPc}`}>{rel.relativeMajor.tonic} major</Link>
+              Relative major: <Link className="text-sky-300 hover:underline" href={`/scales/${pageFor(0, 0).slug}?key=${rel.relativeMajor.tonicPc}`}>{rel.relativeMajor.tonic} major</Link> <span className="text-slate-500">(this mode starts on its {["1st", "2nd", "3rd", "4th", "5th", "6th", "7th"][modeIndex]} degree)</span>
               <Info label="What is a relative major?">The major scale that uses exactly the same notes. Here the notes {ctx.names.join(" ")} also make {rel.relativeMajor.tonic} major when you start on {rel.relativeMajor.tonic}.</Info>
             </li>
           )}
           {rel.relativeMinor && modeIndex !== 5 && (
             <li>
-              Relative minor: <Link className="text-sky-300 hover:underline" href={`/scales/${pageFor(0, 5).slug}?key=${rel.relativeMinor.tonicPc}`}>{rel.relativeMinor.tonic} natural minor</Link>
+              Relative minor: <Link className="text-sky-300 hover:underline" href={`/scales/${pageFor(0, 5).slug}?key=${rel.relativeMinor.tonicPc}`}>{rel.relativeMinor.tonic} natural minor</Link> <span className="text-slate-500">(starts on the 6th degree of {rel.relativeMajor?.tonic ?? rel.parentTonic} major)</span>
               <Info label="What is a relative minor?">The natural minor scale (Aeolian) built on the 6th note of that major scale. Same seven notes, different home note.</Info>
             </li>
           )}
