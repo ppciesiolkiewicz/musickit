@@ -5,7 +5,6 @@ import ChordDiagram from "./ChordDiagram";
 import { DIFF_CLASS } from "./palette";
 import { Info } from "./ui";
 import { carouselStep, shapesForChord } from "@/lib/chordKit/chordShapes";
-import { shapeName } from "@/lib/chordKit/shapeTools";
 import type { KeyContext } from "@/lib/chordKit/theory";
 import { strumShape } from "@/lib/chordKit/playback";
 
@@ -34,7 +33,7 @@ export default function ChordShapeCarousel({ ctx, degree, onShowAll }: { ctx: Ke
         <button type="button" className={arrow} onClick={() => go(1)} aria-label="Next shape">›</button>
       </div>
       <div className="flex flex-wrap items-center justify-center gap-x-1.5 text-[11px] text-slate-400">
-        <span className="text-slate-200">{shapeName(cur.shape.suf)}</span>
+        <span className="text-sm font-medium text-slate-100">{ctx.names[degree]}{cur.shape.suf}</span>
         {cur.shape.v && <span>{cur.shape.v}</span>}
         <span className={`rounded-full border px-1.5 ${DIFF_CLASS[cur.shape.diff]}`}>{cur.shape.diff}</span>
         <span className="tabular-nums">fret {cur.fret}</span>
