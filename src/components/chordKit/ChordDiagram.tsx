@@ -18,9 +18,10 @@ export default function ChordDiagram({ shape, rootFret, onPlay, active }: Props)
   const ss = 18, fsz = 24, left = 36, top = 26;
   const ri = ROOT_INDEX[shape.rs];
   const abs = shape.f.map((v) => (v === null ? null : rootFret + v));
-  const fretted = abs.filter((v): v is number => v !== null);
-  const lo = Math.min(...fretted);
-  const hi = Math.max(...fretted);
+  // open strings (fret 0) sit above the nut, so only fretted notes set the size of the box
+  const fretted = abs.filter((v): v is number => v !== null && v > 0);
+  const lo = fretted.length ? Math.min(...fretted) : 1;
+  const hi = fretted.length ? Math.max(...fretted) : 1;
   const rows = Math.max(4, hi - lo + 1);
   const w = left + 5 * ss + 18;
   const h = top + rows * fsz + 10;
@@ -50,7 +51,7 @@ export default function ChordDiagram({ shape, rootFret, onPlay, active }: Props)
         const semi = (((OPEN_PITCH[i] + (shape.f[i] as number) - OPEN_PITCH[ri]) % 12) + 12) % 12;
         const label = intervalLabel(shape, semi);
         const sw = semi === 0 ? GROUP_SWATCH.root : swatchFor(label);
-        const y = top + (a - lo) * fsz + fsz / 2;
+        const y = a === 0 ? top - 12 : top + (a - lo) * fsz + fsz / 2;
         return (
           <g key={i}>
             <circle cx={x} cy={y} r={9} fill={sw.fill} stroke={sw.line} strokeWidth={1.2} />

@@ -14,6 +14,7 @@ export default function Home() {
           ["/triads", "Triads by string group"],
           ["/scales", "Scales and modes"],
           ["/arpeggios", "Arpeggios"],
+          ["/caged", "CAGED"],
           ["/looper", "Looper"],
         ].map(([href, label]) => (
           <Link key={href} href={href} className="rounded-full border border-slate-700 px-4 py-1.5 text-slate-300 transition hover:border-sky-400 hover:text-sky-100">

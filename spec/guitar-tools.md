@@ -10,6 +10,7 @@ Three pages built on a shared theory library in `src/lib/chordKit/`. All of them
 | `/triads` | Closed triads and inversions by string group |
 | `/scales?key=N` | All 21 modes in the chosen key: every scale degree and note, step pattern, relative major/minor and sibling modes, link to each mode page |
 | `/scales/[slug]?key=N` | One mode: key picker, relatives, every chord with its notes |
+| `/caged` | The CAGED system, major and minor: the five chord forms (C A G E D) in any key, the fret box around each, and its chord, arpeggio, scale and pentatonic as toggleable layers, plus other chords that sit in the box |
 | `/arpeggios` | Arpeggios over any key and any of the 21 modes, on the whole neck |
 
 ## Chord explorer (`/chords`)
@@ -52,3 +53,12 @@ src/lib/chordKit/
 Every filter and option has an (i) button explaining it in plain language.
 
 Run the tests with `npm test` (uses `npx tsx`; `chordKit.tonal.test.ts` also needs the dependencies installed).
+
+
+## CAGED (`/caged`)
+
+- `lib/chordKit/caged.ts` holds the logic. Each of the five forms is stored as fret offsets from its root fret (major: C A G E D; minor: Cm Am Gm Em Dm). `cagedBoxes(root, quality)` places each form at its lowest playable position and returns the boxes ordered up the neck (the order is always C A G E D, rotated to start where the key falls).
+- A box's fret window is the chord shape's span plus one fret either side, so neighbouring boxes overlap and the five cover the neck.
+- Layers inside a box: the chord shape itself, the arpeggio (triad or 7th), the pentatonic (major or minor) and the scale (major, or natural minor). Dot size shows the layer (chord and arpeggio largest, then pentatonic, then scale rings); colour is the scale degree, as on the other pages.
+- Related chords come from the chord explorer's shape library: easy and medium shapes on the same root whose every note lies inside the box.
+- `ChordDiagram` now draws open strings above the nut, which the open CAGED shapes need.

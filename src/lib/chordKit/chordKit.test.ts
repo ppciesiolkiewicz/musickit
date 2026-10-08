@@ -271,3 +271,65 @@ describe("extension degrees and shape tones", () => {
     for (let d = 0; d < 7; d++) shapesForChord(ctx, d).slice(0, 5).forEach((c) => shapeTones(ctx, c).forEach((t) => assert.ok(t.scaleDegree >= 0)));
   });
 });
+
+import { cagedBoxes, boxCells, boxChords, CAGED_LETTERS, formsFor, ladderMidi, layerNotes, cagedContext } from "./caged";
+describe("CAGED boxes", () => {
+  it("every form is the right chord in every key", () => {
+    (["major", "minor"] as const).forEach((q) => {
+      for (let pc = 0; pc < 12; pc++) {
+        const boxes = cagedBoxes(pc, q);
+        assert.equal(boxes.length, 5);
+        boxes.forEach((b) => {
+          const pcs = new Set<number>();
+          b.frets.forEach((f, i) => f !== null && pcs.add((OPEN_MIDI_E[i] + f) % 12));
+          assert.deepEqual([...pcs].sort((x, y) => x - y), (q === "major" ? [0, 4, 7] : [0, 3, 7]).map((s) => (pc + s) % 12).sort((x, y) => x - y), `${q} ${b.letter} in ${pc}`);
+          assert.ok(b.frets.every((f) => f === null || f >= 0));
+          assert.ok(b.to <= 17 && b.from >= 0 && b.from <= b.lo);
+        });
+      }
+    });
+  });
+  it("boxes run C A G E D up the neck from the nut, with no gaps", () => {
+    for (let pc = 0; pc < 12; pc++) {
+      const letters = cagedBoxes(pc, "major").map((b) => b.letter);
+      const start = CAGED_LETTERS.indexOf(letters[0]);
+      assert.deepEqual(letters, [0, 1, 2, 3, 4].map((i) => CAGED_LETTERS[(start + i) % 5]), `key ${pc}`);
+      const bs = cagedBoxes(pc, "major");
+      for (let i = 1; i < bs.length; i++) assert.ok(bs[i].lo <= bs[i - 1].hi + 1, `gap in key ${pc} before ${bs[i].letter}`);
+    }
+  });
+  it("open C and open Am are where you expect", () => {
+    const c = cagedBoxes(0, "major").find((b) => b.letter === "C")!;
+    assert.deepEqual(c.frets, [null, 3, 2, 0, 1, 0]);
+    const am = cagedBoxes(9, "minor").find((b) => b.letter === "A")!;
+    assert.deepEqual(am.frets, [null, 0, 2, 2, 1, 0]);
+    assert.equal(c.chordName, "C");
+    assert.equal(am.chordName, "Am");
+  });
+  it("box cells carry the scale, pentatonic and arpeggio layers", () => {
+    const box = cagedBoxes(0, "major")[0];
+    const cells = boxCells(0, "major", box, "triad");
+    assert.ok(cells.length === 6 * (box.to - box.from + 1));
+    assert.ok(cells.filter((c) => c.inChord).length === box.frets.filter((f) => f !== null).length);
+    cells.filter((c) => c.arpRole).forEach((c) => assert.ok([0, 4, 7].includes(c.pc)));
+    cells.filter((c) => c.inPent).forEach((c) => assert.ok(c.inScale));
+    cells.filter((c) => c.inChord).forEach((c) => assert.ok(c.arpRole));
+    const m = boxCells(9, "minor", cagedBoxes(9, "minor")[0], "seventh");
+    m.filter((c) => c.arpRole).forEach((c) => assert.ok([9, 0, 4, 7].includes(c.pc)));
+  });
+  it("layer notes are spelled for the key", () => {
+    assert.deepEqual(layerNotes(7, "major", "triad").scale, ["G", "A", "B", "C", "D", "E", "F♯"]);
+    assert.deepEqual(layerNotes(9, "minor", "triad").pent, ["A", "C", "D", "E", "G"]);
+    assert.equal(cagedContext(9, "minor").modeName, "Aeolian");
+  });
+  it("related chords stay inside the box and ladder wraps back", () => {
+    const box = cagedBoxes(0, "major")[1];
+    boxChords(0, "major", box).forEach((c) => {
+      const fr = c.shape.f.filter((v): v is number => v !== null).map((v) => c.rootFret + v);
+      assert.ok(Math.max(...fr) <= box.to);
+    });
+    assert.deepEqual(ladderMidi(0, [0, 2, 4]), [48, 50, 52, 60, 52, 50, 48]);
+    assert.equal(formsFor("minor").length, 5);
+  });
+});
+const OPEN_MIDI_E = [40, 45, 50, 55, 59, 64];

@@ -5,6 +5,7 @@ export const SITE_LINKS = [
   { href: "/chords", label: "Chords" },
   { href: "/triads", label: "Triads" },
   { href: "/scales", label: "Scales" },
+  { href: "/caged", label: "CAGED" },
   { href: "/arpeggios", label: "Arpeggios" },
   { href: "/looper", label: "Looper" },
 ];
