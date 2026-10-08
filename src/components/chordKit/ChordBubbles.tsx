@@ -5,7 +5,9 @@ import { HUES, swatchFor } from "./palette";
 import { Info } from "./ui";
 import { type DegreeChord, type KeyContext, type TriadQuality } from "@/lib/chordKit/theory";
 import { chordMidi } from "@/lib/chordKit/scales";
-import { strum } from "@/lib/chordKit/playback";
+import { strum, strumShape } from "@/lib/chordKit/playback";
+import { shapesForTones } from "@/lib/chordKit/chordShapes";
+import ChordDiagram from "./ChordDiagram";
 
 const HUE_OF: Record<TriadQuality, keyof typeof HUES> = { maj: "amber", min: "blue", dim: "coral", aug: "purple", other: "blue" };
 const ANGLES = [0, 90, 180, 270];
@@ -25,6 +27,9 @@ interface Pop {
   notes?: string[];
   text: string;
   warn?: boolean;
+  /** the chord this bubble stands for, so its guitar fingering can be drawn */
+  rootPc?: number;
+  semis?: number[];
 }
 
 const ORD = ["root", "2nd", "3rd", "4th", "5th", "6th", "7th"];
@@ -33,6 +38,9 @@ const ORD = ["root", "2nd", "3rd", "4th", "5th", "6th", "7th"];
 function popovers(ctx: KeyContext, ch: DegreeChord): Record<string, Pop> {
   const at = (off: number) => ctx.names[(ch.degree + off) % 7];
   const out: Record<string, Pop> = {};
+  const rootPc = (ctx.tonic.pc + ctx.steps[ch.degree]) % 12;
+  const semisOf = (offs: number[]) => offs.map((o) => (ctx.steps[(ch.degree + o) % 7] - ctx.steps[ch.degree] + 12) % 12);
+  out.hub = { x: cx, y: cy, title: `${ch.roman} ${ch.seventhName}`, notes: [0, 2, 4, 6].map(at), text: `Click to hear it. Below: ways to finger it on guitar.`, rootPc, semis: semisOf([0, 2, 4, 6]) };
   const roleName = ["root", "3rd", "5th", "7th"];
   ch.formula.forEach((lab, i) => {
     const off = [0, 2, 4, 6][i];
@@ -63,17 +71,21 @@ function popovers(ctx: KeyContext, ch: DegreeChord): Record<string, Pop> {
       const six = i === 2 && /6$/.test(kid.text) && !/13|\(/.test(kid.text);
       let notes: string[];
       let text: string;
+      let offs: number[] = [0, 2, 4, 6];
       if (i === 3) {
         notes = [0, 2, 4, 6].map(at);
         text = `The full seventh chord: root, 3rd, 5th and 7th.`;
       } else if (sus) {
         notes = [at(0), at(off), at(4)];
+        offs = [0, off, 4];
         text = `A suspended chord: the ${ORD[off]} (${slot.note}) replaces the 3rd, so it sounds neither major nor minor and wants to resolve.`;
       } else if (six) {
         notes = [at(0), at(2), at(4), at(5)];
+        offs = [0, 2, 4, 5];
         text = `The triad with the 6th (${slot.note}) added. It stays a triad-sized chord with no 7th.`;
       } else {
         notes = [0, 2, 4, 6].map(at).concat(at(off));
+        offs = [0, 2, 4, 6, off];
         text = `A full ${ch.seventhName} with the ${["", "9th", "", "11th", "", "13th"][off]} (${slot.note}) stacked on top. It is the same note as the ${ORD[off]}, one octave up.`;
       }
       out[`leaf-${i}-${j}`] = {
@@ -82,6 +94,8 @@ function popovers(ctx: KeyContext, ch: DegreeChord): Record<string, Pop> {
         notes,
         text: text + (kid.dashed ? " It clashes with the chord (for example a half step against a chord tone), so use it with care." : ""),
         warn: kid.dashed,
+        rootPc,
+        semis: semisOf(offs),
       };
     });
   });
@@ -156,7 +170,7 @@ function Bubble({ ctx, ch, onPlay }: { ctx: KeyContext; ch: DegreeChord; onPlay:
           );
         })}
 
-        <g onClick={onPlay} style={{ cursor: "pointer" }}>
+        <g onClick={() => { onPlay(); onPin("hub"); }} onMouseEnter={() => setHover("hub")} onMouseLeave={() => setHover(null)} style={{ cursor: "pointer" }}>
           <title>{`${ch.roman}: ${ch.triadName}, built on scale degrees ${ch.degrees.slice(0, 3).join("-")}. Tap to hear it.`}</title>
           <circle cx={cx} cy={cy} r={hubR} fill={hue.hub} stroke={lineCol} strokeWidth={1.5} />
           <text x={cx} y={cy - 7} textAnchor="middle" dominantBaseline="central" fontSize={ch.roman.length > 4 ? 13 : 16} fontWeight={600} fill={hue.onHub}>{ch.roman}</text>
@@ -193,7 +207,7 @@ function Bubble({ ctx, ch, onPlay }: { ctx: KeyContext; ch: DegreeChord; onPlay:
       {pop && (
         <div
           role="tooltip"
-          className={`absolute z-20 w-56 rounded-lg border bg-slate-950 p-2.5 text-xs leading-relaxed text-slate-300 shadow-xl ${pop.warn ? "border-rose-500/60" : "border-slate-600"} ${pin ? "" : "pointer-events-none"}`}
+          className={`absolute z-20 w-60 rounded-lg border bg-slate-950 p-2.5 text-xs leading-relaxed text-slate-300 shadow-xl ${pop.warn ? "border-rose-500/60" : "border-slate-600"} ${pin ? "" : "pointer-events-none"}`}
           style={{
             left: `${Math.min(80, Math.max(20, (pop.x / cellW) * 100))}%`,
             top: `${(pop.y / cellH) * 100}%`,
@@ -206,9 +220,30 @@ function Bubble({ ctx, ch, onPlay }: { ctx: KeyContext; ch: DegreeChord; onPlay:
           </div>
           {pop.notes && <div className="mt-1 text-slate-400">Notes: <span className="text-slate-200">{pop.notes.join(" ")}</span></div>}
           <p className="mt-1">{pop.text}</p>
+          {pop.semis && pop.rootPc !== undefined && <Fingering key={shown ?? ""} rootPc={pop.rootPc} semis={pop.semis} />}
           {!pin && <p className="mt-1 text-[10px] text-slate-500">Click to keep this open.</p>}
         </div>
       )}
+    </div>
+  );
+}
+
+/** Guitar fingering(s) for a chord inside a popover: the best shape as a chord box, with arrows when there are more. Click the box to hear it. */
+function Fingering({ rootPc, semis }: { rootPc: number; semis: number[] }) {
+  const list = useMemo(() => shapesForTones(rootPc, semis), [rootPc, semis]);
+  const [i, setI] = useState(0);
+  if (list.length === 0) return <p className="mt-1 text-[11px] text-slate-500">No common guitar shape for this chord in the library.</p>;
+  const cur = list[i % list.length];
+  const step = (d: number) => (e: { stopPropagation: () => void }) => { e.stopPropagation(); setI((v) => (v + d + list.length) % list.length); };
+  return (
+    <div className="mt-2 flex flex-col items-center gap-1 border-t border-slate-800 pt-2">
+      <div className="w-32"><ChordDiagram shape={cur.choice.shape} rootFret={cur.choice.fret} onPlay={() => strumShape(cur.choice.shape, cur.choice.fret)} /></div>
+      <div className="flex items-center gap-2 text-[11px] text-slate-400">
+        {list.length > 1 && <button type="button" onClick={step(-1)} aria-label="Previous fingering" className="pointer-events-auto rounded border border-slate-700 px-1.5">‹</button>}
+        <span className="tabular-nums">fret {cur.choice.fret}{list.length > 1 ? ` · ${(i % list.length) + 1}/${list.length}` : ""}</span>
+        {list.length > 1 && <button type="button" onClick={step(1)} aria-label="Next fingering" className="pointer-events-auto rounded border border-slate-700 px-1.5">›</button>}
+      </div>
+      {!cur.full && <p className="text-center text-[10px] text-amber-300">Closest shape: leaves out a colour note.</p>}
     </div>
   );
 }

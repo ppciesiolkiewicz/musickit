@@ -64,3 +64,30 @@ export function shapeTones(ctx: KeyContext, choice: ChordShapeChoice): ShapeTone
     return { role: intervalLabel(choice.shape, s), scaleDegree, note: ctx.names[scaleDegree] };
   });
 }
+
+/**
+ * Guitar shapes for any chord given as a root and its semitones above the root (e.g. Cmaj9 = [0,4,7,11,2]).
+ * A shape may leave out the 5th (and the root when the chord is big) but must not play a note outside the chord.
+ * `full` is true when the shape has every note except possibly the 5th; otherwise it is the closest fingering
+ * that still keeps the chord's colour (its 3rd or sus note, and its 7th when the chord has one).
+ */
+export function shapesForTones(rootPc: number, semis: number[], difficulties: Difficulty[] = ["easy", "medium"]): { choice: ChordShapeChoice; full: boolean }[] {
+  const want = new Set(semis.map((s) => ((s % 12) + 12) % 12));
+  const colour = [...want].filter((s) => s !== 0 && s !== 7);
+  const out: { choice: ChordShapeChoice; full: boolean; score: number }[] = [];
+  RICH_SHAPES.forEach((shape) => {
+    const tones = new Set(shapeSemitones(shape).filter((v): v is number => v !== null));
+    if (![...tones].every((t) => want.has(t))) return;
+    const hit = colour.filter((c) => tones.has(c)).length;
+    const third = colour.filter((c) => c >= 2 && c <= 5);
+    if (third.length && !third.some((c) => tones.has(c))) return;
+    const full = hit === colour.length;
+    if (!full && hit < Math.max(1, colour.length - 1)) return;
+    out.push({ choice: { shape, rootPc, fret: rootFretFor(shape, rootPc), exact: tones.size === want.size }, full, score: hit });
+  });
+  const wanted = out.filter((o) => difficulties.includes(o.choice.shape.diff));
+  const list = wanted.length ? wanted : out;
+  return list
+    .sort((a, b) => Number(b.full) - Number(a.full) || b.score - a.score || Number(b.choice.exact) - Number(a.choice.exact) || DIFF_RANK[a.choice.shape.diff] - DIFF_RANK[b.choice.shape.diff] || a.choice.fret - b.choice.fret || a.choice.shape.id - b.choice.shape.id)
+    .map(({ choice, full }) => ({ choice, full }));
+}
