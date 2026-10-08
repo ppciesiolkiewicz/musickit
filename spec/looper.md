@@ -46,3 +46,11 @@ There is no "Start looper" button. The audio engine starts on the first click or
 ## Metronome and quantising
 
 A metronome runs whenever a take is recording or a loop is playing. Tempo (40 to 240 bpm), beats per bar, click volume, audible on/off, beat dots on/off, count-in (0 to 2 bars) and quantise (bar, beat, off) are in Settings, with quick tempo, click and quantise controls in the page header. The click is never recorded. The first take starts on beat 1 after the count-in and is rounded to the nearest whole bar or beat, so the loop is a whole number of bars and every later layer lines up with the click. With quantise off the first take is free length and the beat restarts at the loop start. Tempo and bar length are locked while a loop exists. Settings are saved in localStorage `musickit.looper.metronome`.
+
+## Sequencer
+
+An optional input (Add input, Sequencer) holds a step sequencer, a drum machine by default (kick, snare, clap, hats, tom) with a bass synth as the other instrument. Sounds are synthesised in the browser; nothing is downloaded. The grid is sixteenth notes, one or two bars, in time with the metronome. Click a step to switch it on, again for an accent, again to clear; load a preset pattern, preview it, or switch it off with the power button. It plays while a take records or a loop plays. Its strip in the mixer decides whether it is recorded (mute keeps it out of the take). Pattern and instrument are saved in localStorage `musickit.looper.sequencer`.
+
+## Icons
+
+Icons come from Lucide, copied into `src/components/Icon.tsx` as plain SVG (ISC licence), so there is no extra dependency. Add an icon by copying its markup.

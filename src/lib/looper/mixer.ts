@@ -6,7 +6,7 @@ import { effectiveGain, type InputMode } from "./frames";
  * Like the engine, this file imports nothing outside src/lib/looper.
  */
 
-export type InputKind = "device" | "extra";
+export type InputKind = "device" | "extra" | "sequencer";
 
 export interface InputInfo {
   id: number;
@@ -32,6 +32,8 @@ export interface InputInfo {
 export interface MixerOptions {
   /** an extra source node (e.g. the piano's output) that lives in the same AudioContext */
   getExtraSource?: () => AudioNode;
+  /** the step sequencer's output node; offers a "sequencer" strip */
+  getSequencerSource?: () => AudioNode;
   extraLabel?: string;
   onChange: () => void;
 }
@@ -76,6 +78,7 @@ export class InputMixer {
   private shared = new Map<string, Shared>();
   private nextId = 0;
   private extraNode: AudioNode | null = null;
+  private sequencerNode: AudioNode | null = null;
 
   constructor(private opts: MixerOptions) {
     this.runtimes = this.defaults().map((s) => this.make(s, true));
@@ -91,7 +94,7 @@ export class InputMixer {
 
   private make(s: SavedInput, connected = false): Runtime {
     return {
-      info: { id: this.nextId++, kind: s.kind, name: s.name, deviceId: s.deviceId, mode: s.mode, volume: s.volume, muted: false, solo: false, monitor: false, error: null, channels: 0, live: true, connected: s.kind === "extra" ? true : connected },
+      info: { id: this.nextId++, kind: s.kind, name: s.name, deviceId: s.deviceId, mode: s.mode, volume: s.volume, muted: false, solo: false, monitor: false, error: null, channels: 0, live: true, connected: s.kind === "device" ? connected : true },
       pre: null, summer: null, gain: null, meter: null, monitor: null, shared: null, buf: null,
     };
   }
@@ -103,6 +106,14 @@ export class InputMixer {
 
   hasExtra() {
     return this.runtimes.some((r) => r.info.kind === "extra");
+  }
+
+  has(kind: InputKind) {
+    return this.runtimes.some((r) => r.info.kind === kind);
+  }
+
+  private sourceFor(kind: InputKind): (() => AudioNode) | undefined {
+    return kind === "extra" ? this.opts.getExtraSource : kind === "sequencer" ? this.opts.getSequencerSource : undefined;
   }
 
   /** true when a microphone or interface is feeding the recording, so input latency applies */
@@ -126,7 +137,7 @@ export class InputMixer {
     try {
       const raw = window.localStorage.getItem(STORAGE_KEY);
       if (!raw) return;
-      const saved = (JSON.parse(raw) as SavedInput[]).filter((s) => (s.kind === "device" || (s.kind === "extra" && this.opts.getExtraSource)) && ["left", "right", "stereo", "sum"].includes(s.mode)).slice(0, MAX_INPUTS);
+      const saved = (JSON.parse(raw) as SavedInput[]).filter((s) => (s.kind === "device" || this.sourceFor(s.kind)) && ["left", "right", "stereo", "sum"].includes(s.mode)).slice(0, MAX_INPUTS);
       if (saved.length) {
         this.runtimes = saved.map((s) => this.make({ ...s, volume: Math.min(1.5, Math.max(0, Number(s.volume) || 1)) }));
         this.opts.onChange();
@@ -147,6 +158,7 @@ export class InputMixer {
     this.output.channelCountMode = "explicit";
     this.output.channelInterpretation = "speakers";
     if (this.opts.getExtraSource) this.extraNode = this.opts.getExtraSource();
+    if (this.opts.getSequencerSource) this.sequencerNode = this.opts.getSequencerSource();
     this.runtimes.forEach((r) => this.build(r));
   }
 
@@ -172,6 +184,7 @@ export class InputMixer {
     r.monitor = monitor;
     r.buf = new Float32Array(meter.fftSize) as Float32Array<ArrayBuffer>;
     if (r.info.kind === "extra") this.extraNode?.connect(pre);
+    if (r.info.kind === "sequencer") this.sequencerNode?.connect(pre);
     this.applyGains();
   }
 
@@ -308,8 +321,8 @@ export class InputMixer {
   /** Add a strip. Returns its id, or null when full or when the extra source is already there. */
   async add(spec: { kind: InputKind; name: string; deviceId?: string; mode?: InputMode }): Promise<number | null> {
     if (this.runtimes.length >= MAX_INPUTS) return null;
-    if (spec.kind === "extra" && (this.hasExtra() || !this.opts.getExtraSource)) return null;
-    const r = this.make({ kind: spec.kind, name: spec.name, deviceId: spec.deviceId ?? "", mode: spec.mode ?? (spec.kind === "extra" ? "stereo" : "left"), volume: 1 }, true);
+    if (spec.kind !== "device" && (this.has(spec.kind) || !this.sourceFor(spec.kind))) return null;
+    const r = this.make({ kind: spec.kind, name: spec.name, deviceId: spec.deviceId ?? "", mode: spec.mode ?? (spec.kind === "device" ? "left" : "stereo"), volume: 1 }, true);
     this.runtimes.push(r);
     if (this.ctx) {
       this.build(r);
@@ -335,9 +348,9 @@ export class InputMixer {
     const r = this.find(id);
     if (!r) return;
     this.release(r);
-    if (r.info.kind === "extra") {
+    if (r.info.kind !== "device") {
       try {
-        if (r.pre) this.extraNode?.disconnect(r.pre);
+        if (r.pre) (r.info.kind === "extra" ? this.extraNode : this.sequencerNode)?.disconnect(r.pre);
       } catch {
         /* ignore */
       }

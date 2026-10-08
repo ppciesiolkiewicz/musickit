@@ -25,13 +25,18 @@ The looper is a self-contained feature. Treat it as its own small product that h
 - Tempo and beats per bar are locked while a loop exists or a take is running (the engine ignores those changes). Anything new that depends on tempo (a drum machine, sequencer) must follow the same grid: `gridAnchor` plus `period`.
 - Pure maths (units, rounding, beat position) lives in `frames.ts` with tests; keep new timing logic there.
 
+## Sequencer (drum machine)
+- `sequencer.ts` is a step sequencer with swappable synthesised instruments (drums by default, bass synth too). No sample files are downloaded: add sounds as oscillator and noise recipes and register them in `INSTRUMENTS`. Pure pattern maths and presets live in `sequencerPattern.ts` with tests.
+- It is a mixer input of kind `sequencer` (one at most). It plays in time with the metronome grid while a take records or a loop plays, or while previewing. Its output goes to the speakers and into the strip, so the strip's mute only keeps it out of the recording.
+- Keep the output level modest so a full kit does not clip the recording.
+
 ## State and storage
-- Saved strips live in localStorage `musickit.looper.inputs`; other keys: `musickit.looper.metronome`, `musickit.looper.midi`, `musickit.looper.keyboard`, `musickit.looper.keyboardWindow`. Wrap every read and write in try/catch, validate on load, and keep old saves loading (add fields with defaults).
+- Saved strips live in localStorage `musickit.looper.inputs`; other keys: `musickit.looper.metronome`, `musickit.looper.sequencer`, `musickit.looper.sequencerWindow`, `musickit.looper.midi`, `musickit.looper.keyboard`, `musickit.looper.keyboardWindow`. Wrap every read and write in try/catch, validate on load, and keep old saves loading (add fields with defaults).
 - Restored device strips come back disconnected.
 - Max 8 inputs (`MAX_INPUTS`).
 
 ## UI
-- No "start" button, no explanatory walls of text. Short labels, details in popovers or the spec. Prefer small icon buttons (with `title` and `aria-label`) over text buttons, and keep rows tight.
+- No "start" button, no explanatory walls of text. Short labels, details in popovers or the spec. Use the shared `Icon` component (Lucide icons copied in as SVG, no dependency) rather than emoji. Prefer small icon buttons (with `title` and `aria-label`) over text buttons, and keep rows tight.
 - The keyboard window opens only from the keyboard strip in the mixer. It is draggable and resizable (`FloatingWindow`), keyboard-operable, and remembers its place.
 - Everything is keyboard reachable with visible focus; buttons that toggle use `aria-pressed`; errors use `role="alert"`.
 - Tight side padding; layouts must work at laptop width (13 inch) and phone width.

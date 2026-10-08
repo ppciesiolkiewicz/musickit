@@ -9,6 +9,8 @@ import FloatingWindow from "../FloatingWindow";
 import Piano from "../Piano";
 import { getAudioContext, getOutputBus } from "@/lib/audio";
 import Waveform from "./Waveform";
+import SequencerPanel from "./SequencerPanel";
+import Icon from "../Icon";
 
 const COLOURS = ["#38bdf8", "#fbbf24", "#fb7185", "#a78bfa", "#34d399", "#f472b6", "#2dd4bf", "#a3e635"];
 
@@ -51,6 +53,7 @@ export default function LooperApp() {
   const getLevel = useMemo(() => () => engine.getLevel(), [engine]);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [keyboardOpen, setKeyboardOpen] = useState(false);
+  const [sequencerOpen, setSequencerOpen] = useState(false);
 
   // Start the audio engine on the first touch of the page (browsers need a gesture). This opens no microphone:
   // a device input asks for permission only when the person adds or connects it.
@@ -67,25 +70,30 @@ export default function LooperApp() {
   return (
     <div className="flex flex-col gap-2.5">
       <InputBar engine={engine} snap={snap} getLevel={getLevel} onSettings={() => setSettingsOpen(true)} />
-      <Mixer engine={engine} snap={snap} keyboardOpen={keyboardOpen} onToggleKeyboard={() => setKeyboardOpen((v) => !v)} />
+      <Mixer engine={engine} snap={snap} keyboardOpen={keyboardOpen} onToggleKeyboard={() => setKeyboardOpen((v) => !v)} sequencerOpen={sequencerOpen} onToggleSequencer={() => setSequencerOpen((v) => !v)} />
       {keyboardOpen && (
         <FloatingWindow title="Keyboard" storageKey="musickit.looper.keyboardWindow" fit onClose={() => setKeyboardOpen(false)}>
           <Piano />
+        </FloatingWindow>
+      )}
+      {sequencerOpen && (
+        <FloatingWindow title="Sequencer" storageKey="musickit.looper.sequencerWindow" onClose={() => setSequencerOpen(false)}>
+          <SequencerPanel engine={engine} snap={snap} />
         </FloatingWindow>
       )}
       {settingsOpen && <LooperSettings engine={engine} snap={snap} getLevel={getLevel} onClose={() => setSettingsOpen(false)} />}
 
       <section className="flex flex-wrap items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/40 p-2">
         <button type="button" className={ibtn} disabled={!ready || snap.loopSeconds === null} onClick={() => engine.setPlaying(!snap.playing)} title={snap.playing ? "Stop playback" : "Play from the top"} aria-label={snap.playing ? "Stop playback" : "Play from the top"}>
-          {snap.playing ? "■" : "▶"}
+          <Icon name={snap.playing ? "square" : "play"} fill />
         </button>
-        <button type="button" className={ibtn} disabled={!ready || snap.channels.every((c) => c.state === "empty")} onClick={() => engine.clearAll()} title="Clear everything" aria-label="Clear everything">🗑</button>
+        <button type="button" className={ibtn} disabled={!ready || snap.channels.every((c) => c.state === "empty")} onClick={() => engine.clearAll()} title="Clear everything" aria-label="Clear everything"><Icon name="trash" /></button>
         <span className="text-xs text-slate-400">
           {snap.loopSeconds === null ? "No loop yet" : `${snap.loopSeconds.toFixed(2)} s${loopBars(snap)}`}
         </span>
         <LoopBar getPosition={getPosition} />
-        <button type="button" className={ibtn} disabled={snap.channels.length >= MAX_CHANNELS} onClick={() => engine.addChannel()} title="Add channel" aria-label="Add channel">＋</button>
-        <button type="button" className={ibtn} disabled={snap.channels.length <= 1 || snap.channels[snap.channels.length - 1].state !== "empty"} onClick={() => engine.removeLastChannel()} title="Remove last channel" aria-label="Remove last channel">－</button>
+        <button type="button" className={ibtn} disabled={snap.channels.length >= MAX_CHANNELS} onClick={() => engine.addChannel()} title="Add channel" aria-label="Add channel"><Icon name="plus" /></button>
+        <button type="button" className={ibtn} disabled={snap.channels.length <= 1 || snap.channels[snap.channels.length - 1].state !== "empty"} onClick={() => engine.removeLastChannel()} title="Remove last channel" aria-label="Remove last channel"><Icon name="minus" /></button>
       </section>
 
       <div className="flex flex-col gap-2">
@@ -125,22 +133,22 @@ function InputBar({ engine, snap, getLevel, onSettings }: { engine: LooperEngine
       <div className="flex flex-wrap items-center gap-1.5">
         <span className="px-1 text-sm font-medium text-slate-100">Looper</span>
         <span className="flex items-center gap-1 rounded-lg border border-slate-700 bg-slate-900 px-1" title={m.locked ? "Tempo is locked while there is a loop. Clear everything to change it." : "Tempo"}>
-          <span aria-hidden>♩</span>
+          <Icon name="metronome" className="text-slate-400" />
           <button type="button" className="px-1 text-slate-300 disabled:opacity-40" disabled={m.locked} onClick={() => engine.setMetronome({ bpm: m.bpm - 1 })} aria-label="Slower">−</button>
           <input type="number" min={40} max={240} value={m.bpm} disabled={m.locked} onChange={(e) => engine.setMetronome({ bpm: Number(e.target.value) })} aria-label="Beats per minute" className="h-8 w-12 bg-transparent text-center text-sm tabular-nums text-slate-100 focus:outline-none disabled:opacity-60" />
           <button type="button" className="px-1 text-slate-300 disabled:opacity-40" disabled={m.locked} onClick={() => engine.setMetronome({ bpm: m.bpm + 1 })} aria-label="Faster">+</button>
           <span className="pl-1 text-xs text-slate-500">{m.beatsPerBar}/4</span>
         </span>
-        <button type="button" className={ibtn} onClick={() => engine.setMetronome({ audible: !m.audible })} aria-pressed={m.audible} title={m.audible ? "Click is on (tap to silence)" : "Click is silent (tap to hear it)"} aria-label="Metronome click">{m.audible ? "🔔" : "🔕"}</button>
+        <button type="button" className={ibtn} onClick={() => engine.setMetronome({ audible: !m.audible })} aria-pressed={m.audible} title={m.audible ? "Click is on (tap to silence)" : "Click is silent (tap to hear it)"} aria-label="Metronome click"><Icon name={m.audible ? "bell" : "bell-off"} /></button>
         <button type="button" className={ibtn} onClick={() => engine.setMetronome({ quantise: nextQuant[m.quantise] })} title={`Quantise the first take to: ${m.quantise}. Tap to change.`} aria-label={`Quantise: ${m.quantise}`}>
           <span className="text-[11px]">⌗ {m.quantise}</span>
         </button>
         {m.showBeat && <BeatDots engine={engine} count={m.beatsPerBar} />}
         <div className="ml-auto flex min-w-[6rem] flex-1 items-center gap-2 sm:max-w-[16rem]" title="Level of what is being recorded">
-          <span aria-hidden className="text-xs text-slate-500">🎚</span>
+          <Icon name="activity" className="text-slate-500" />
           <div className="flex-1"><LevelMeter getLevel={getLevel} /></div>
         </div>
-        <button type="button" className={ibtn} onClick={onSettings} title="Settings" aria-label="Settings">⚙</button>
+        <button type="button" className={ibtn} onClick={onSettings} title="Settings" aria-label="Settings"><Icon name="settings" /></button>
       </div>
       {snap.error && <p role="alert" className="rounded-lg border border-rose-500/40 bg-rose-500/10 p-2 text-xs text-rose-200">{snap.error}</p>}
     </section>
@@ -193,13 +201,13 @@ function ChannelStrip({ engine, ch, colour, ready, busy, firstTake, getPosition 
         />
         <span className={`text-[11px] ${stateColour}`} aria-live="polite">{STATE_TEXT[ch.state]}</span>
         <label className="ml-auto flex min-w-[6rem] max-w-[11rem] flex-1 items-center gap-1.5 text-xs text-slate-500" title={`Volume ${Math.round(ch.volume * 100)}%`}>
-          <span aria-hidden>🔈</span>
+          <Icon name="volume-1" />
           <input type="range" min={0} max={1} step={0.01} value={ch.volume} onChange={(e) => engine.setVolume(ch.id, Number(e.target.value))} className="flex-1 accent-sky-400" aria-label={`Volume of ${ch.name}`} />
         </label>
-        <button type="button" className={`${ibtn} ${recording ? "!border-rose-400 !bg-rose-500/20 !text-rose-100" : "!border-rose-500/60 !text-rose-300"}`} disabled={!ready || (busy && !recording)} onClick={onRec} title={label} aria-label={label}>{isFreeTake ? "■" : recording ? "✕" : "●"}</button>
+        <button type="button" className={`${ibtn} ${recording ? "!border-rose-400 !bg-rose-500/20 !text-rose-100" : "!border-rose-500/60 !text-rose-300"}`} disabled={!ready || (busy && !recording)} onClick={onRec} title={label} aria-label={label}><Icon name={isFreeTake ? "square" : recording ? "x" : "circle"} fill={isFreeTake || !recording} /></button>
         <button type="button" className={`${ibtn} ${ch.muted ? "!border-amber-400 !text-amber-200" : ""}`} aria-pressed={ch.muted} disabled={ch.state === "empty"} onClick={() => engine.toggleMute(ch.id)} title="Mute" aria-label={`Mute ${ch.name}`}>M</button>
         <button type="button" className={`${ibtn} ${ch.solo ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={ch.solo} disabled={ch.state === "empty"} onClick={() => engine.toggleSolo(ch.id)} title="Solo" aria-label={`Solo ${ch.name}`}>S</button>
-        <button type="button" className={ibtn} disabled={ch.state === "empty"} onClick={() => engine.clear(ch.id)} title="Clear this channel" aria-label={`Clear ${ch.name}`}>🗑</button>
+        <button type="button" className={ibtn} disabled={ch.state === "empty"} onClick={() => engine.clear(ch.id)} title="Clear this channel" aria-label={`Clear ${ch.name}`}><Icon name="trash" /></button>
       </div>
       <Waveform peaks={ch.peaks} getPosition={getPosition} active={!ch.muted} colour={colour} />
     </article>

@@ -1,11 +1,13 @@
 import { assemble, effectiveGain, loopOffset, msToFrames, nextBoundary, peaks, quantUnitFrames, quantiseLength, type Chunk } from "./frames";
 import { Metronome, type MetronomeSettings } from "./metronome";
+import { Sequencer, type SequencerState } from "./sequencer";
 import { InputMixer, describeError, type InputInfo } from "./mixer";
 import { RECORDER_PROCESSOR_NAME, recorderWorkletUrl } from "./recorderWorklet";
 
 export type { InputInfo } from "./mixer";
 export type { InputMode, Quantise } from "./frames";
 export { BPM_RANGE, type MetronomeSettings } from "./metronome";
+export { INSTRUMENTS, type Instrument, type SequencerState } from "./sequencer";
 
 /**
  * A small multi-channel looper built on the Web Audio API.
@@ -57,6 +59,8 @@ export interface LooperSnapshot {
   latencyMs: number;
   /** metronome settings, whether it is clicking now, and whether the tempo is locked by a loop or a take */
   metronome: MetronomeSettings & { running: boolean; locked: boolean };
+  /** the step sequencer: its pattern, whether it is sounding, how many steps the pattern has, and whether it has an input strip */
+  sequencer: SequencerState & { running: boolean; steps: number; hasStrip: boolean };
   playing: boolean;
   loopSeconds: number | null;
   channels: ChannelInfo[];
@@ -118,15 +122,23 @@ export class LooperEngine {
   /** true when the loop length is a whole number of beats or bars, so loop restarts stay on the grid */
   private loopOnGrid = false;
   readonly metronome: Metronome;
+  /** the step sequencer (drum machine by default) */
+  readonly sequencer: Sequencer;
+  private seqOnGrid = false;
 
   private listeners = new Set<() => void>();
   private snap: LooperSnapshot;
 
   constructor(private options: LooperOptions = {}) {
+    this.sequencer = new Sequencer(() => ({ beatSeconds: this.metronome.period, beatsPerBar: this.metronome.settings.beatsPerBar }), () => this.emit());
     this.mixer = new InputMixer({
       getExtraSource: options.getExternalSource,
       extraLabel: options.externalLabel,
-      onChange: () => this.emit(),
+      getSequencerSource: () => this.sequencer.out!,
+      onChange: () => {
+        this.syncSequencer();
+        this.emit();
+      },
     });
     this.metronome = new Metronome(() => this.emit());
     this.snap = this.buildSnapshot();
@@ -151,6 +163,7 @@ export class LooperEngine {
       ...this.meta,
       inputs: this.mixer.list(),
       metronome: { ...this.metronome.settings, running: this.metronome.running, locked: this.loopLength !== null || this.capture !== null },
+      sequencer: { ...this.sequencer.state, running: this.sequencer.running, steps: this.sequencer.steps, hasStrip: this.mixer.has("sequencer") },
       extraLabel: this.options.getExternalSource ? this.options.externalLabel ?? "Extra source" : null,
       playing: this.playing,
       loopSeconds: this.loopLength,
@@ -168,6 +181,7 @@ export class LooperEngine {
   init() {
     this.mixer.restore();
     this.metronome.restore();
+    this.sequencer.restore();
   }
 
   /** Change metronome settings. The tempo and bar length stay put while a loop exists or a take is running, so everything stays in time. */
@@ -178,6 +192,30 @@ export class LooperEngine {
       delete next.beatsPerBar;
     }
     this.metronome.set(next);
+    this.syncSequencer(true);
+  }
+
+  /** Audition the sequencer pattern without a loop running. */
+  setSequencerPreview(on: boolean) {
+    this.sequencer.setPreview(on);
+    this.syncSequencer(true);
+  }
+
+  /** The sequencer sounds in time with the metronome grid while a take records or a loop plays, or while previewing; it needs its input strip and its power switch. */
+  private syncSequencer(restart = false) {
+    const grid = this.capture !== null || (this.playing && this.loopLength !== null);
+    const st = this.sequencer.state;
+    const want = st.enabled && this.mixer.has("sequencer") && (grid || st.preview);
+    if (!want) {
+      this.sequencer.stop();
+      return;
+    }
+    if (grid) {
+      if (restart || !this.sequencer.running || !this.seqOnGrid) this.sequencer.start(this.gridAnchor);
+    } else if (!this.sequencer.running || restart || this.seqOnGrid) {
+      this.sequencer.start((this.ctx?.currentTime ?? 0) + 0.05);
+    }
+    this.seqOnGrid = grid;
   }
 
   /** Beat position for the display, or null when the metronome is not running. */
@@ -190,6 +228,7 @@ export class LooperEngine {
     const on = this.capture !== null || (this.playing && this.loopLength !== null);
     if (!on) this.metronome.stop();
     else if (restart || !this.metronome.running) this.metronome.start(this.gridAnchor);
+    this.syncSequencer(restart);
   }
 
   /* ------------------------------------------------------------------ start up */
@@ -240,6 +279,7 @@ export class LooperEngine {
     const ctx = this.ctx;
     this.master = ctx.createGain();
     this.master.connect(ctx.destination);
+    this.sequencer.attach(ctx, ctx.destination);
     this.mixer.attach(ctx, this.master);
     this.metronome.attach(ctx, ctx.destination);
     this.analyser = ctx.createAnalyser();
@@ -535,6 +575,7 @@ export class LooperEngine {
     this.capture = null;
     this.runtimes.forEach((r) => this.stopSource(r));
     this.metronome.dispose();
+    this.sequencer.dispose();
     this.mixer.dispose();
     try {
       this.worklet?.disconnect();
