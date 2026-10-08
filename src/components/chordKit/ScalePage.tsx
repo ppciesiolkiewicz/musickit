@@ -7,6 +7,8 @@ import { Chip, DegreeLegend, Info } from "./ui";
 import { FAMILIES, makeKeyContext } from "@/lib/chordKit/theory";
 import { MODE_PAGES, chordMidi, modeChords, degreeColour, degreeLabels, relativesOf, stepPattern } from "@/lib/chordKit/scales";
 import { strum } from "@/lib/chordKit/playback";
+import ChordShapeCarousel from "./ChordShapeCarousel";
+import ChordShapesModal from "./ChordShapesModal";
 
 const STACK_LABELS = ["root", "3rd", "5th", "7th", "9th", "11th", "13th"];
 
@@ -15,6 +17,7 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey }: { fami
   const [tonicPc, setTonicPc] = useState(initialKey);
   const [extended, setExtended] = useState(false);
   const [playing, setPlaying] = useState<number | null>(null);
+  const [modalDegree, setModalDegree] = useState<number | null>(null);
 
   useEffect(() => {
     try {
@@ -134,12 +137,12 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey }: { fami
           {chords.map((c) => {
             const shown = extended ? c.notes : c.notes.slice(0, 4);
             return (
-              <li key={c.degree}>
+              <li key={c.degree} className="flex flex-wrap items-center gap-2 rounded-xl border border-slate-800 bg-slate-950/40 p-1">
                 <button
                   type="button"
                   onClick={() => play(c.degree)}
                   title="Tap to hear it"
-                  className={`flex w-full flex-wrap items-center gap-x-4 gap-y-2 rounded-xl border px-3 py-2.5 text-left transition hover:border-slate-600 ${playing === c.degree ? "border-sky-400 bg-slate-800/80" : "border-slate-800 bg-slate-950/40"}`}
+                  className={`flex min-w-0 flex-1 basis-72 flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border px-3 py-2.5 text-left transition hover:border-slate-600 ${playing === c.degree ? "border-sky-400 bg-slate-800/80" : "border-transparent"}`}
                 >
                   <span className="w-12 shrink-0 text-lg font-light text-sky-300">{c.roman}</span>
                   <span className="min-w-[8rem]">
@@ -155,6 +158,7 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey }: { fami
                     ))}
                   </span>
                 </button>
+                <ChordShapeCarousel ctx={ctx} degree={c.degree} onShowAll={() => setModalDegree(c.degree)} />
               </li>
             );
           })}
@@ -164,11 +168,7 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey }: { fami
         </p>
       </section>
 
-      <section className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4 text-sm text-slate-300">
-        <h2 className="mb-1 text-sm font-medium text-slate-100">Play these chords on guitar</h2>
-        <p className="text-xs text-slate-400">Find the shapes that fit this key, with their fingerings, in the chord explorer.</p>
-        <p className="mt-2"><Link className="text-sky-300 hover:underline" href="/chords">Open the chord explorer →</Link></p>
-      </section>
+      {modalDegree !== null && <ChordShapesModal ctx={ctx} degree={modalDegree} onClose={() => setModalDegree(null)} />}
     </div>
   );
 }

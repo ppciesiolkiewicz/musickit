@@ -220,3 +220,37 @@ describe("degree labels", () => {
     assert.deepEqual(stepPattern(makeKeyContext(0, 1, 0).steps), ["W", "H", "W", "W", "H", "W+H", "H"]);
   });
 });
+
+import { shapesForChord, carouselStep } from "./chordShapes";
+import { shapeSemitones } from "./shapeTools";
+describe("chord shapes for a mode chord", () => {
+  it("every chord of every major-family mode in C has shapes, all containing its 3rd", () => {
+    for (let m = 0; m < 7; m++) {
+      const ctx = makeKeyContext(0, 0, m);
+      const chords = modeChords(ctx);
+      for (let d = 0; d < 7; d++) {
+        const list = shapesForChord(ctx, d, ["easy", "medium", "hard"]);
+        assert.ok(list.length > 0, `mode ${m} degree ${d}`);
+        const third = chords[d].notes[1].semis;
+        list.forEach((c) => assert.ok(shapeSemitones(c.shape).includes(third)));
+      }
+    }
+  });
+  it("puts exact chord-tone shapes first and respects difficulty", () => {
+    const ctx = makeKeyContext(0, 0, 0);
+    const list = shapesForChord(ctx, 0);
+    assert.ok(list.every((c) => c.shape.diff !== "hard"));
+    const firstInexact = list.findIndex((c) => !c.exact);
+    if (firstInexact >= 0) assert.ok(list.slice(firstInexact).every((c) => !c.exact));
+  });
+  it("places the root on the right pitch class", () => {
+    const ctx = makeKeyContext(7, 0, 0);
+    const list = shapesForChord(ctx, 4); // D in G major
+    assert.ok(list.every((c) => c.rootPc === 2));
+  });
+  it("carousel wraps", () => {
+    assert.equal(carouselStep(0, -1, 5), 4);
+    assert.equal(carouselStep(4, 1, 5), 0);
+    assert.equal(carouselStep(0, 1, 0), 0);
+  });
+});
