@@ -30,8 +30,15 @@ The looper is a self-contained feature. Treat it as its own small product that h
 - It is a mixer input of kind `sequencer` (one at most). It plays in time with the metronome grid while a take records or a loop plays, or while previewing. Its output goes to the speakers and into the strip, so the strip's mute only keeps it out of the recording.
 - Keep the output level modest so a full kit does not clip the recording.
 
+## Looping stage, groups, buses and effects
+- The page has two sections: Mixer (inputs) and Looping (loops on a stage). Keep them separate: inputs feed the recorder, loops play back.
+- Loops are circles with a progress ring. Groups are coloured boxes that can be moved and resized. A loop whose circle centre is inside a group plays through that group's bus (`buses.ts`: input, effect chain, volume, speakers); a loop outside every group plays straight to the speakers. Where groups overlap, the one drawn on top wins. Geometry and its tests are in `layout.ts`.
+- Effects (`effects.ts`) are described by `EFFECT_DEFS`; the UI is generated from it. To add one: a def, a case in `createEffect`, a test for any new maths. Saved effect lists go through `sanitiseEffects`.
+- Input (pre-record) effects are not built yet; when they are, reuse `effects.ts`.
+- The metronome can run on its own (`toggleMetronome`), and the sequencer follows it.
+
 ## State and storage
-- Saved strips live in localStorage `musickit.looper.inputs`; other keys: `musickit.looper.metronome`, `musickit.looper.sequencer`, `musickit.looper.sequencerWindow`, `musickit.looper.midi`, `musickit.looper.keyboard`, `musickit.looper.keyboardWindow`. Wrap every read and write in try/catch, validate on load, and keep old saves loading (add fields with defaults).
+- Saved strips live in localStorage `musickit.looper.inputs`; other keys: `musickit.looper.layout` (groups, effects, loop positions), `musickit.looper.metronome`, `musickit.looper.sequencer`, `musickit.looper.sequencerWindow`, `musickit.looper.midi`, `musickit.looper.keyboard`, `musickit.looper.keyboardWindow`. Wrap every read and write in try/catch, validate on load, and keep old saves loading (add fields with defaults).
 - Restored device strips come back disconnected.
 - Max 8 inputs (`MAX_INPUTS`).
 

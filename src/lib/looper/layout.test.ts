@@ -1,0 +1,48 @@
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
+import { LOOP_R, MIN_GROUP_W, STAGE_H, STAGE_W, clampPoint, clampRect, containingGroup, defaultGroups, defaultSpot } from "./layout";
+import { clampParams, defaultParams, sanitiseEffects } from "./effects";
+
+describe("stage layout", () => {
+  const groups = [
+    { id: "a", x: 0, y: 0, w: 300, h: 300 },
+    { id: "b", x: 200, y: 100, w: 300, h: 300 },
+  ];
+  it("finds the group holding a point, topmost first", () => {
+    assert.equal(containingGroup(groups, 50, 50), "a");
+    assert.equal(containingGroup(groups, 250, 150), "b"); // overlap: later wins
+    assert.equal(containingGroup(groups, 450, 50), null);
+  });
+  it("keeps groups and loops on the stage", () => {
+    const r = clampRect({ x: -20, y: 900, w: 10, h: 5000 });
+    assert.equal(r.x, 0);
+    assert.equal(r.w, MIN_GROUP_W);
+    assert.ok(r.y + r.h <= STAGE_H);
+    const p = clampPoint(-5, 99999);
+    assert.equal(p.x, LOOP_R);
+    assert.equal(p.y, STAGE_H - LOOP_R);
+  });
+  it("puts the default loops inside the default groups", () => {
+    const gs = defaultGroups();
+    assert.equal(gs.length, 3);
+    for (let i = 0; i < 6; i++) {
+      const s = defaultSpot(gs, i);
+      assert.equal(containingGroup(gs, s.x, s.y), gs[i % 3].id, `loop ${i}`);
+      assert.ok(s.x <= STAGE_W);
+    }
+  });
+});
+
+describe("effects params", () => {
+  it("clamps and fills defaults", () => {
+    const p = clampParams("tapeDelay", { time: 99999, feedback: -1 });
+    assert.equal(p.time, 900);
+    assert.equal(p.feedback, 0);
+    assert.equal(p.mix, defaultParams("tapeDelay").mix);
+  });
+  it("sanitises a saved list", () => {
+    const list = sanitiseEffects([{ id: "x", kind: "reverb", params: { decay: 100 } }, { kind: "flanger" }, null]);
+    assert.equal(list.length, 1);
+    assert.equal(list[0].params.decay, 6);
+  });
+});
