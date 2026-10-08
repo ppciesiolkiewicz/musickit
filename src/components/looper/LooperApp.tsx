@@ -9,6 +9,7 @@ import FloatingWindow from "../FloatingWindow";
 import Piano from "../Piano";
 import { getAudioContext, getOutputBus } from "@/lib/audio";
 import LoopStage from "./LoopStage";
+import MetronomeBar from "./MetronomeBar";
 import SequencerPanel from "./SequencerPanel";
 import Icon from "../Icon";
 
@@ -58,7 +59,8 @@ export default function LooperApp() {
 
   return (
     <div className="flex flex-col gap-2.5">
-      <InputBar engine={engine} snap={snap} ready={ready} getLevel={getLevel} onSettings={() => setSettingsOpen(true)} />
+      <MetronomeBar engine={engine} snap={snap} ready={ready} />
+      <InputBar snap={snap} getLevel={getLevel} onSettings={() => setSettingsOpen(true)} />
       <Mixer engine={engine} snap={snap} keyboardOpen={keyboardOpen} onToggleKeyboard={() => setKeyboardOpen((v) => !v)} sequencerOpen={sequencerOpen} onToggleSequencer={() => setSequencerOpen((v) => !v)} />
       {keyboardOpen && (
         <FloatingWindow title="Keyboard" storageKey="musickit.looper.keyboardWindow" fit onClose={() => setKeyboardOpen(false)}>
@@ -110,25 +112,11 @@ function LoopBar({ getPosition }: { getPosition: () => number | null }) {
   );
 }
 
-function InputBar({ engine, snap, ready, getLevel, onSettings }: { engine: LooperEngine; snap: LooperSnapshot; ready: boolean; getLevel: () => number; onSettings: () => void }) {
-  const m = snap.metronome;
-  const nextQuant = { off: "beat", beat: "bar", bar: "off" } as const;
+function InputBar({ snap, getLevel, onSettings }: { snap: LooperSnapshot; getLevel: () => number; onSettings: () => void }) {
   return (
     <section className="flex flex-col gap-2 rounded-xl border border-slate-800 bg-slate-900/40 p-2" aria-label="Looper header">
       <div className="flex flex-wrap items-center gap-1.5">
         <span className="px-1 text-sm font-medium text-slate-100">Looper</span>
-        <span className="flex items-center gap-1 rounded-lg border border-slate-700 bg-slate-900 px-1" title={m.locked ? "Tempo is locked while there is a loop. Clear everything to change it." : "Tempo"}>
-          <button type="button" className={`grid h-8 w-7 place-items-center rounded-md ${m.manual ? "text-sky-300" : "text-slate-400 hover:text-slate-200"}`} aria-pressed={m.manual} onClick={() => engine.toggleMetronome()} disabled={!ready} title={m.manual ? "Stop the metronome" : "Start the metronome on its own"} aria-label="Start or stop the metronome"><Icon name="metronome" /></button>
-          <button type="button" className="px-1 text-slate-300 disabled:opacity-40" disabled={m.locked} onClick={() => engine.setMetronome({ bpm: m.bpm - 1 })} aria-label="Slower">−</button>
-          <input type="number" min={40} max={240} value={m.bpm} disabled={m.locked} onChange={(e) => engine.setMetronome({ bpm: Number(e.target.value) })} aria-label="Beats per minute" className="h-8 w-12 bg-transparent text-center text-sm tabular-nums text-slate-100 focus:outline-none disabled:opacity-60" />
-          <button type="button" className="px-1 text-slate-300 disabled:opacity-40" disabled={m.locked} onClick={() => engine.setMetronome({ bpm: m.bpm + 1 })} aria-label="Faster">+</button>
-          <span className="pl-1 text-xs text-slate-500">{m.beatsPerBar}/4</span>
-        </span>
-        <button type="button" className={ibtn} onClick={() => engine.setMetronome({ audible: !m.audible })} aria-pressed={m.audible} title={m.audible ? "Click is on (tap to silence)" : "Click is silent (tap to hear it)"} aria-label="Metronome click"><Icon name={m.audible ? "bell" : "bell-off"} /></button>
-        <button type="button" className={ibtn} onClick={() => engine.setMetronome({ quantise: nextQuant[m.quantise] })} title={`Quantise the first take to: ${m.quantise}. Tap to change.`} aria-label={`Quantise: ${m.quantise}`}>
-          <span className="text-[11px]">⌗ {m.quantise}</span>
-        </button>
-        {m.showBeat && <BeatDots engine={engine} count={m.beatsPerBar} />}
         <div className="ml-auto flex min-w-[6rem] flex-1 items-center gap-2 sm:max-w-[16rem]" title="Level of what is being recorded">
           <Icon name="activity" className="text-slate-500" />
           <div className="flex-1"><LevelMeter getLevel={getLevel} /></div>
@@ -137,34 +125,5 @@ function InputBar({ engine, snap, ready, getLevel, onSettings }: { engine: Loope
       </div>
       {snap.error && <p role="alert" className="rounded-lg border border-rose-500/40 bg-rose-500/10 p-2 text-xs text-rose-200">{snap.error}</p>}
     </section>
-  );
-}
-
-/** One dot per beat of the bar, the current one lit, the downbeat in amber. Hollow dots during the count-in. */
-function BeatDots({ engine, count }: { engine: LooperEngine; count: number }) {
-  const refs = useRef<(HTMLSpanElement | null)[]>([]) as { current: (HTMLSpanElement | null)[] };
-  useEffect(() => {
-    let raf = 0;
-    const tick = () => {
-      const p = engine.getBeat();
-      refs.current.forEach((el, i) => {
-        if (!el) return;
-        const on = p !== null && p.beat === i;
-        el.style.opacity = on ? "1" : "0.35";
-        el.style.transform = on ? "scale(1.25)" : "scale(1)";
-        el.style.background = p?.countIn ? "transparent" : i === 0 ? "#fbbf24" : "#38bdf8";
-        el.style.borderColor = i === 0 ? "#fbbf24" : "#38bdf8";
-      });
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [engine, count]);
-  return (
-    <span className="flex items-center gap-1.5 px-1" role="img" aria-label="Beat indicator">
-      {Array.from({ length: count }, (_, i) => (
-        <span key={i} ref={(el) => { refs.current[i] = el; }} className="h-2.5 w-2.5 rounded-full border opacity-35 transition-transform duration-75" />
-      ))}
-    </span>
   );
 }

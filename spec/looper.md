@@ -58,3 +58,7 @@ Icons come from Lucide, copied into `src/components/Icon.tsx` as plain SVG (ISC 
 ## Looping stage, groups and effects
 
 The page has a Mixer section (inputs) and a Looping section. Each loop is a circle on a stage: click it to record, stop or re-record, drag it to move, and a ring shows progress through the loop (a spinner during the free first take). Small buttons under it mute, solo and clear; a slider sets its volume. Coloured groups are boxes you can drag by their title bar and resize from the corner; three exist by default. A loop whose circle centre is inside a group plays through that group's bus. The bus has its own volume and an effect chain (tape delay, reverb), edited from the group's effects button; loops outside every group play dry. Alt with the arrow keys moves a focused circle or group, Alt+Shift with the arrows resizes a group. The metronome can be started on its own from the tempo box. Layout, groups and effects are saved in localStorage `musickit.looper.layout`.
+
+## Metronome bar
+
+The metronome floats at the top of the page under the main nav (it sticks to the top as you scroll): a start/stop button, tempo as a slider plus a number box with minus and plus, and the beat dots, all in one group. A button opens a popover with every other option: beats per bar, count-in, quantise, click volume, hear the click, show beat dots. Starting the metronome by hand also plays the count-in first.

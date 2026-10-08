@@ -257,7 +257,7 @@ export class LooperEngine {
   toggleMetronome() {
     if (!this.ctx) return;
     this.metroManual = !this.metroManual;
-    if (this.metroManual && this.loopLength === null && this.capture === null) this.gridAnchor = this.ctx.currentTime + 0.05;
+    if (this.metroManual && this.loopLength === null && this.capture === null) this.gridAnchor = this.ctx.currentTime + 0.05 + this.metronome.settings.countInBars * this.metronome.settings.beatsPerBar * this.metronome.period;
     this.syncMetronome(true);
     this.emit();
   }
