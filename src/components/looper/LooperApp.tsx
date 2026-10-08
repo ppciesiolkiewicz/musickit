@@ -10,6 +10,7 @@ import Piano from "../Piano";
 import { getAudioContext, getOutputBus } from "@/lib/audio";
 import LoopStage from "./LoopStage";
 import MetronomeBar from "./MetronomeBar";
+import SignalFlow from "./SignalFlow";
 import SequencerPanel from "./SequencerPanel";
 import Icon from "../Icon";
 
@@ -43,7 +44,8 @@ export default function LooperApp() {
   const getLevel = useMemo(() => () => engine.getLevel(), [engine]);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [keyboardOpen, setKeyboardOpen] = useState(false);
-  const [sequencerOpen, setSequencerOpen] = useState(false);
+  const [openSeqs, setOpenSeqs] = useState<string[]>([]);
+  const toggleSeq = (id: string) => setOpenSeqs((v) => (v.includes(id) ? v.filter((x) => x !== id) : [...v, id]));
 
   // Start the audio engine on the first touch of the page (browsers need a gesture). This opens no microphone:
   // a device input asks for permission only when the person adds or connects it.
@@ -61,17 +63,17 @@ export default function LooperApp() {
     <div className="flex flex-col gap-2.5">
       <MetronomeBar engine={engine} snap={snap} ready={ready} />
       <InputBar snap={snap} getLevel={getLevel} onSettings={() => setSettingsOpen(true)} />
-      <Mixer engine={engine} snap={snap} keyboardOpen={keyboardOpen} onToggleKeyboard={() => setKeyboardOpen((v) => !v)} sequencerOpen={sequencerOpen} onToggleSequencer={() => setSequencerOpen((v) => !v)} />
+      <Mixer engine={engine} snap={snap} keyboardOpen={keyboardOpen} onToggleKeyboard={() => setKeyboardOpen((v) => !v)} openSeqs={openSeqs} onToggleSequencer={toggleSeq} />
       {keyboardOpen && (
         <FloatingWindow title="Keyboard" storageKey="musickit.looper.keyboardWindow" fit onClose={() => setKeyboardOpen(false)}>
           <Piano />
         </FloatingWindow>
       )}
-      {sequencerOpen && (
-        <FloatingWindow title="Sequencer" storageKey="musickit.looper.sequencerWindow" onClose={() => setSequencerOpen(false)}>
-          <SequencerPanel engine={engine} snap={snap} />
+      {openSeqs.filter((id) => snap.sequencers.some((q) => q.id === id)).map((id) => (
+        <FloatingWindow key={id} title={snap.sequencers.find((q) => q.id === id)?.name ?? "Sequencer"} storageKey={`musickit.looper.sequencerWindow.${id}`} onClose={() => toggleSeq(id)}>
+          <SequencerPanel engine={engine} snap={snap} id={id} />
         </FloatingWindow>
-      )}
+      ))}
       {settingsOpen && <LooperSettings engine={engine} snap={snap} getLevel={getLevel} onClose={() => setSettingsOpen(false)} />}
 
       <section className="flex flex-col gap-2 rounded-xl border border-slate-800 bg-slate-900/40 p-2" aria-label="Looping">
@@ -89,6 +91,11 @@ export default function LooperApp() {
         </div>
         <LoopStage engine={engine} snap={snap} getPosition={getPosition} />
       </section>
+
+      <details className="rounded-xl border border-slate-800 bg-slate-900/40 p-2">
+        <summary className="flex cursor-pointer items-center gap-1.5 px-1 text-sm font-medium text-slate-100"><Icon name="audio-lines" className="text-slate-400" />Signal flow</summary>
+        <div className="pt-2"><SignalFlow snap={snap} /></div>
+      </details>
     </div>
   );
 }

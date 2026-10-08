@@ -8,10 +8,14 @@ const ibtn = "grid h-8 min-w-8 place-items-center rounded-lg border border-slate
 const field = "h-8 rounded-md border border-slate-700 bg-slate-900 px-2 text-xs text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 
 /** The step grid for the sequencer input: pick the instrument and a pattern, click steps (click again for an accent, again to clear). */
-export default function SequencerPanel({ engine, snap }: { engine: LooperEngine; snap: LooperSnapshot }) {
-  const sq = snap.sequencer;
-  const seq = engine.sequencer;
-  const inst = INSTRUMENTS.find((i) => i.id === sq.instrumentId) ?? INSTRUMENTS[0];
+export default function SequencerPanel({ engine, snap, id }: { engine: LooperEngine; snap: LooperSnapshot; id: string }) {
+  const sq = snap.sequencers.find((x) => x.id === id);
+  const seq = engine.getSequencer(id);
+  if (!sq || !seq) return null;
+  return <Grid engine={engine} snap={snap} id={id} sq={sq} seq={seq} />;
+}
+
+function Grid({ engine, snap, id, sq, seq }: { engine: LooperEngine; snap: LooperSnapshot; id: string; sq: LooperSnapshot["sequencers"][number]; seq: NonNullable<ReturnType<LooperEngine["getSequencer"]>> }) {  const inst = INSTRUMENTS.find((i) => i.id === sq.instrumentId) ?? INSTRUMENTS[0];
   const steps = sq.steps;
   const bpb = snap.metronome.beatsPerBar;
   const heads = useRef<(HTMLSpanElement | null)[]>([]) as { current: (HTMLSpanElement | null)[] };
@@ -35,7 +39,7 @@ export default function SequencerPanel({ engine, snap }: { engine: LooperEngine;
     <div className="flex min-w-0 flex-col gap-2 p-2">
       <div className="flex flex-wrap items-center gap-1.5">
         <button type="button" className={`${ibtn} ${sq.enabled ? "!border-emerald-500/70 !text-emerald-200" : ""}`} aria-pressed={sq.enabled} onClick={() => seq.setEnabled(!sq.enabled)} title={sq.enabled ? "Sequencer is on (tap to switch off)" : "Sequencer is off (tap to switch on)"} aria-label="Sequencer on or off"><Icon name="power" /></button>
-        <button type="button" className={`${ibtn} ${sq.preview ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={sq.preview} onClick={() => engine.setSequencerPreview(!sq.preview)} title={sq.preview ? "Stop the preview" : "Preview the pattern"} aria-label="Preview the pattern"><Icon name={sq.preview ? "square" : "play"} fill /></button>
+        <button type="button" className={`${ibtn} ${sq.preview ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={sq.preview} onClick={() => engine.setSequencerPreview(id, !sq.preview)} title={sq.preview ? "Stop the preview" : "Preview the pattern"} aria-label="Preview the pattern"><Icon name={sq.preview ? "square" : "play"} fill /></button>
         <select className={field} value={inst.id} onChange={(e) => seq.setInstrument(e.target.value)} aria-label="Instrument">
           {INSTRUMENTS.map((i) => <option key={i.id} value={i.id}>{i.name}</option>)}
         </select>
@@ -46,6 +50,11 @@ export default function SequencerPanel({ engine, snap }: { engine: LooperEngine;
         <select className={field} value={sq.bars} onChange={(e) => seq.setBars(Number(e.target.value))} aria-label="Bars in the pattern">
           <option value={1}>1 bar</option>
           <option value={2}>2 bars</option>
+        </select>
+        <select className={field} value={sq.dest} onChange={(e) => engine.setSequencerDest(id, e.target.value)} aria-label="Where the sound goes" title="Where the sound goes">
+          <option value="master">To master</option>
+          <option value="record">To the recorder (and master)</option>
+          {snap.groups.map((g) => <option key={g.id} value={g.id}>To {g.name}</option>)}
         </select>
         <button type="button" className={ibtn} onClick={() => seq.clearPattern()} title="Clear the pattern" aria-label="Clear the pattern"><Icon name="trash" /></button>
       </div>
@@ -78,7 +87,7 @@ export default function SequencerPanel({ engine, snap }: { engine: LooperEngine;
           ))}
         </div>
       </div>
-      <p className="text-[11px] text-slate-500">Sounds are made in the browser, nothing is downloaded. It plays in time with the click while you record or play. Mute it in the mixer to keep it out of the recording.</p>
+      <p className="text-[11px] text-slate-500">Sounds are made in the browser, nothing is downloaded. It plays in time with the click while you record or play. It goes to the master bus unless you send it to the recorder or a group.</p>
     </div>
   );
 }

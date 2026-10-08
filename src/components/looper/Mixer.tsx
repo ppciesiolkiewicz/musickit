@@ -30,7 +30,7 @@ const PICKS: { id: Pick; label: string; hint: string }[] = [
 ];
 
 /** Two steps: pick the kind of input (hardware or software keyboard), then for hardware pick a device and its channels. */
-function AddInputModal({ engine, snap, hasExtra, hasSequencer, onClose }: { engine: LooperEngine; snap: LooperSnapshot; hasExtra: boolean; hasSequencer: boolean; onClose: () => void }) {
+function AddInputModal({ engine, snap, hasExtra, onClose }: { engine: LooperEngine; snap: LooperSnapshot; hasExtra: boolean; onClose: () => void }) {
   const [step, setStep] = useState<"type" | "hardware">("type");
   const [deviceId, setDeviceId] = useState<string | null>(null);
   const [pick, setPick] = useState<Pick>("left");
@@ -73,10 +73,10 @@ function AddInputModal({ engine, snap, hasExtra, hasSequencer, onClose }: { engi
             <span className="text-sm font-medium text-slate-100">Software keyboard</span>
             <span className="text-xs text-slate-400">{hasExtra ? "Already added. Open it from its strip." : "The on-screen piano and your MIDI keyboard. Plays through the app, no audio device needed."}</span>
           </button>
-          <button type="button" disabled={hasSequencer} onClick={() => { void engine.mixer.add({ kind: "sequencer", name: "Drums" }); onClose(); }} className="flex flex-col gap-1 rounded-xl border border-slate-700 bg-slate-900 p-4 text-left hover:border-sky-400 disabled:cursor-not-allowed disabled:opacity-50">
+          <button type="button" onClick={() => { void engine.addSequencer(); onClose(); }} className="flex flex-col gap-1 rounded-xl border border-slate-700 bg-slate-900 p-4 text-left hover:border-sky-400 disabled:cursor-not-allowed disabled:opacity-50">
             <Icon name="drum" size={28} className="text-sky-300" />
             <span className="text-sm font-medium text-slate-100">Sequencer</span>
-            <span className="text-xs text-slate-400">{hasSequencer ? "Already added. Open it from its strip." : "A step sequencer in time with the click. A drum machine to start with, other instruments can be chosen."}</span>
+            <span className="text-xs text-slate-400">A step sequencer in time with the click: a drum machine to start with. It plays to the master bus; add as many as you like.</span>
           </button>
         </div>
       ) : (
@@ -125,11 +125,10 @@ function DeviceButton({ on, onClick, title, sub }: { on: boolean; onClick: () =>
 }
 
 /** The inputs that feed the recorder: add and remove them, choose channels, mute and solo, watch each level. */
-export default function Mixer({ engine, snap, keyboardOpen, onToggleKeyboard, sequencerOpen, onToggleSequencer }: { engine: LooperEngine; snap: LooperSnapshot; keyboardOpen: boolean; onToggleKeyboard: () => void; sequencerOpen: boolean; onToggleSequencer: () => void }) {
+export default function Mixer({ engine, snap, keyboardOpen, onToggleKeyboard, openSeqs, onToggleSequencer }: { engine: LooperEngine; snap: LooperSnapshot; keyboardOpen: boolean; onToggleKeyboard: () => void; openSeqs: string[]; onToggleSequencer: (id: string) => void }) {
   const { inputs, devices } = snap;
   const full = inputs.length >= MAX_INPUTS;
   const hasExtra = inputs.some((i) => i.kind === "extra");
-  const hasSequencer = inputs.some((i) => i.kind === "sequencer");
   const [adding, setAdding] = useState(false);
   return (
     <section className="flex flex-col gap-1.5 rounded-xl border border-slate-800 bg-slate-900/40 p-2" aria-label="Input mixer">
@@ -142,15 +141,15 @@ export default function Mixer({ engine, snap, keyboardOpen, onToggleKeyboard, se
 
       <ul className="flex flex-col gap-1">
         {inputs.map((inp) => (
-          <InputStrip key={inp.id} engine={engine} inp={inp} devices={devices} anyDevice={snap.devices.length > 0} keyboardOpen={keyboardOpen} onToggleKeyboard={onToggleKeyboard} sequencerOpen={sequencerOpen} onToggleSequencer={onToggleSequencer} />
+          <InputStrip key={inp.id} engine={engine} inp={inp} devices={devices} anyDevice={snap.devices.length > 0} keyboardOpen={keyboardOpen} onToggleKeyboard={onToggleKeyboard} sequencerOpen={!!inp.sourceId && openSeqs.includes(inp.sourceId)} onToggleSequencer={() => inp.sourceId && onToggleSequencer(inp.sourceId)} dest={snap.sequencers.find((q) => q.id === inp.sourceId)?.dest} groups={snap.groups} />
         ))}
       </ul>
-      {adding && <AddInputModal engine={engine} snap={snap} hasExtra={hasExtra} hasSequencer={hasSequencer} onClose={() => setAdding(false)} />}
+      {adding && <AddInputModal engine={engine} snap={snap} hasExtra={hasExtra} onClose={() => setAdding(false)} />}
     </section>
   );
 }
 
-function InputStrip({ engine, inp, devices, anyDevice, keyboardOpen, onToggleKeyboard, sequencerOpen, onToggleSequencer }: { engine: LooperEngine; inp: InputInfo; devices: { id: string; label: string }[]; anyDevice: boolean; keyboardOpen: boolean; onToggleKeyboard: () => void; sequencerOpen: boolean; onToggleSequencer: () => void }) {
+function InputStrip({ engine, inp, devices, anyDevice, keyboardOpen, onToggleKeyboard, sequencerOpen, onToggleSequencer, dest, groups }: { engine: LooperEngine; inp: InputInfo; devices: { id: string; label: string }[]; anyDevice: boolean; keyboardOpen: boolean; onToggleKeyboard: () => void; sequencerOpen: boolean; onToggleSequencer: () => void; dest?: string; groups: { id: string; name: string }[] }) {
   const getLevel = useMemo(() => () => engine.getInputLevel(inp.id), [engine, inp.id]);
   const m = engine.mixer;
   const isDevice = inp.kind === "device";
@@ -160,6 +159,7 @@ function InputStrip({ engine, inp, devices, anyDevice, keyboardOpen, onToggleKey
       <div className="flex flex-wrap items-center gap-1.5">
         <span title={state} className="text-slate-300"><Icon name={isDevice ? "mic" : inp.kind === "sequencer" ? "drum" : "piano"} size={18} /></span>
         <input value={inp.name} onChange={(e) => m.rename(inp.id, e.target.value)} aria-label="Input name" className="w-32 rounded-md border border-transparent bg-transparent px-1.5 py-0.5 text-sm font-medium text-slate-100 hover:border-slate-700 focus:border-slate-500 focus:outline-none" />
+        {inp.kind === "sequencer" && dest && <span className="rounded-md border border-slate-700 px-1.5 py-0.5 text-[10px] text-slate-400" title="Where this sequencer plays">→ {dest === "master" ? "master" : dest === "record" ? "recorder" : groups.find((g) => g.id === dest)?.name ?? "master"}</span>}
         <span aria-hidden title={state} className={`h-2 w-2 rounded-full ${inp.live ? "bg-emerald-400" : "bg-slate-600"}`} />
         <div className="min-w-[5rem] flex-1"><LevelMeter getLevel={getLevel} /></div>
         <input type="range" min={0} max={1.5} step={0.01} value={inp.volume} onChange={(e) => m.setVolume(inp.id, Number(e.target.value))} className="w-24 accent-sky-400" aria-label={`Gain of ${inp.name}`} title={`Gain ${Math.round(inp.volume * 100)}%`} />

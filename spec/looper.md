@@ -62,3 +62,7 @@ The page has a Mixer section (inputs) and a Looping section. Each loop is a circ
 ## Metronome bar
 
 The metronome floats at the top of the page under the main nav (it sticks to the top as you scroll): a start/stop button, tempo as a slider plus a number box with minus and plus, and the beat dots, all in one group. A button opens a popover with every other option: beats per bar, count-in, quantise, click volume, hear the click, show beat dots. Starting the metronome by hand also plays the count-in first.
+
+## Several sequencers and the signal flow
+
+Add input, Sequencer can be used more than once; each sequencer has its own strip, pattern, instrument and window. Each one has a destination menu: master (the default), the recorder (it is still heard on master), or any group bus. The strip shows where it goes. A collapsible Signal flow panel draws the whole path: inputs and sequencers, the recorder, the loops, the group buses with their effects, and the master. Sequencers are saved in localStorage `musickit.looper.sequencers`.

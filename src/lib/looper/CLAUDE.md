@@ -25,10 +25,11 @@ The looper is a self-contained feature. Treat it as its own small product that h
 - Tempo and beats per bar are locked while a loop exists or a take is running (the engine ignores those changes). Anything new that depends on tempo (a drum machine, sequencer) must follow the same grid: `gridAnchor` plus `period`.
 - Pure maths (units, rounding, beat position) lives in `frames.ts` with tests; keep new timing logic there.
 
-## Sequencer (drum machine)
+## Sequencers (drum machine)
 - `sequencer.ts` is a step sequencer with swappable synthesised instruments (drums by default, bass synth too). No sample files are downloaded: add sounds as oscillator and noise recipes and register them in `INSTRUMENTS`. Pure pattern maths and presets live in `sequencerPattern.ts` with tests.
-- It is a mixer input of kind `sequencer` (one at most). It plays in time with the metronome grid while a take records or a loop plays, or while previewing. Its output goes to the speakers and into the strip, so the strip's mute only keeps it out of the recording.
-- Keep the output level modest so a full kit does not clip the recording.
+- There can be several, each with its own pattern, instrument and destination, each with a mixer strip of kind `sequencer` (the strip's `sourceId` is the sequencer id). Destination is `master` (default), `record` (heard on master and fed to the recorder through the strip), or a group id. Routing lives in the engine (`routeSequencer`); a removed group sends its sequencers back to master.
+- They play in time with the metronome grid while a take records, a loop plays or the metronome runs, or while previewing. Keep output levels modest so a full kit does not clip the recording.
+- The Signal flow panel (`SignalFlow.tsx`) draws sources, recorder, loops, group buses and master from the snapshot. When routing changes, keep that picture true.
 
 ## Looping stage, groups, buses and effects
 - The page has two sections: Mixer (inputs) and Looping (loops on a stage). Keep them separate: inputs feed the recorder, loops play back.
@@ -38,7 +39,7 @@ The looper is a self-contained feature. Treat it as its own small product that h
 - The metronome can run on its own (`toggleMetronome`), and the sequencer follows it.
 
 ## State and storage
-- Saved strips live in localStorage `musickit.looper.inputs`; other keys: `musickit.looper.layout` (groups, effects, loop positions), `musickit.looper.metronome`, `musickit.looper.sequencer`, `musickit.looper.sequencerWindow`, `musickit.looper.midi`, `musickit.looper.keyboard`, `musickit.looper.keyboardWindow`. Wrap every read and write in try/catch, validate on load, and keep old saves loading (add fields with defaults).
+- Saved strips live in localStorage `musickit.looper.inputs`; other keys: `musickit.looper.layout` (groups, effects, loop positions), `musickit.looper.metronome`, `musickit.looper.sequencers`, `musickit.looper.sequencerWindow.<id>`, `musickit.looper.midi`, `musickit.looper.keyboard`, `musickit.looper.keyboardWindow`. Wrap every read and write in try/catch, validate on load, and keep old saves loading (add fields with defaults).
 - Restored device strips come back disconnected.
 - Max 8 inputs (`MAX_INPUTS`).
 

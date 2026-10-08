@@ -77,8 +77,8 @@ export interface LooperSnapshot {
   latencyMs: number;
   /** metronome settings, whether it is clicking now, and whether the tempo is locked by a loop or a take */
   metronome: MetronomeSettings & { running: boolean; locked: boolean; manual: boolean };
-  /** the step sequencer: its pattern, whether it is sounding, how many steps the pattern has, and whether it has an input strip */
-  sequencer: SequencerState & { running: boolean; steps: number; hasStrip: boolean };
+  /** every step sequencer: its pattern and destination, whether it is sounding, and how many steps the pattern has */
+  sequencers: (SequencerState & { id: string; name: string; running: boolean; steps: number })[];
   playing: boolean;
   loopSeconds: number | null;
   channels: ChannelInfo[];
@@ -142,9 +142,10 @@ export class LooperEngine {
   /** true when the loop length is a whole number of beats or bars, so loop restarts stay on the grid */
   private loopOnGrid = false;
   readonly metronome: Metronome;
-  /** the step sequencer (drum machine by default) */
-  readonly sequencer: Sequencer;
-  private seqOnGrid = false;
+  /** the step sequencers (a drum machine to start with), by id */
+  private sequencers = new Map<string, Sequencer>();
+  private seqCounter = 0;
+  private seqOnGrid = new Map<string, boolean>();
   /** the person started the metronome by hand, with no take or loop running */
   private metroManual = false;
 
@@ -152,11 +153,13 @@ export class LooperEngine {
   private snap: LooperSnapshot;
 
   constructor(private options: LooperOptions = {}) {
-    this.sequencer = new Sequencer(() => ({ beatSeconds: this.metronome.period, beatsPerBar: this.metronome.settings.beatsPerBar }), () => this.emit());
     this.mixer = new InputMixer({
       getExtraSource: options.getExternalSource,
       extraLabel: options.externalLabel,
-      getSequencerSource: () => this.sequencer.out!,
+      getSequencerSource: (id) => this.sequencers.get(id)?.toRecord,
+      onRemoved: (info) => {
+        if (info.kind === "sequencer" && info.sourceId) this.disposeSequencer(info.sourceId);
+      },
       onChange: () => {
         this.syncSequencer();
         this.emit();
@@ -186,7 +189,10 @@ export class LooperEngine {
       ...this.meta,
       inputs: this.mixer.list(),
       metronome: { ...this.metronome.settings, running: this.metronome.running, locked: this.loopLength !== null || this.capture !== null, manual: this.metroManual },
-      sequencer: { ...this.sequencer.state, running: this.sequencer.running, steps: this.sequencer.steps, hasStrip: this.mixer.has("sequencer") },
+      sequencers: this.mixer.list().filter((i) => i.kind === "sequencer" && i.sourceId && this.sequencers.has(i.sourceId)).map((i) => {
+        const q = this.sequencers.get(i.sourceId!)!;
+        return { ...q.state, id: q.id, name: i.name, running: q.running, steps: q.steps };
+      }),
       extraLabel: this.options.getExternalSource ? this.options.externalLabel ?? "Extra source" : null,
       playing: this.playing,
       loopSeconds: this.loopLength,
@@ -205,7 +211,7 @@ export class LooperEngine {
   init() {
     this.mixer.restore();
     this.metronome.restore();
-    this.sequencer.restore();
+    this.restoreSequencers();
     this.restoreLayout();
   }
 
@@ -220,35 +226,127 @@ export class LooperEngine {
     this.syncSequencer(true);
   }
 
-  /** Audition the sequencer pattern without a loop running. */
-  setSequencerPreview(on: boolean) {
-    this.sequencer.setPreview(on);
-    this.syncSequencer(true);
-  }
-
-  /** The sequencer sounds in time with the metronome grid while a take records or a loop plays, or while previewing; it needs its input strip and its power switch. */
-  private syncSequencer(restart = false) {
-    const grid = this.gridActive();
-    const st = this.sequencer.state;
-    const want = st.enabled && this.mixer.has("sequencer") && (grid || st.preview);
-    if (!want) {
-      this.sequencer.stop();
-      return;
-    }
-    if (grid) {
-      if (restart || !this.sequencer.running || !this.seqOnGrid) this.sequencer.start(this.gridAnchor);
-    } else if (!this.sequencer.running || restart || this.seqOnGrid) {
-      this.sequencer.start((this.ctx?.currentTime ?? 0) + 0.05);
-    }
-    this.seqOnGrid = grid;
-  }
-
   /** Beat position for the display, or null when the metronome is not running. */
   getBeat() {
     return this.metronome.position();
   }
 
-  /** Click while a take is being recorded or a loop is playing; stay quiet otherwise. */
+  /* ------------------------------------------------------------------ sequencers */
+
+  private seqKey = "musickit.looper.sequencers";
+
+  private makeSequencer(id: string): Sequencer {
+    const q = new Sequencer(id, () => ({ beatSeconds: this.metronome.period, beatsPerBar: this.metronome.settings.beatsPerBar }), () => {
+      this.saveSequencers();
+      this.emit();
+    });
+    this.sequencers.set(id, q);
+    if (this.ctx) {
+      q.attach(this.ctx);
+      this.routeSequencer(q);
+    }
+    return q;
+  }
+
+  private restoreSequencers() {
+    let saved: Record<string, Partial<SequencerState>> = {};
+    try {
+      saved = JSON.parse(window.localStorage.getItem(this.seqKey) ?? "{}") ?? {};
+    } catch {
+      /* ignore a corrupt save */
+    }
+    for (const id of this.mixer.sequencerIds()) {
+      if (this.sequencers.has(id)) continue;
+      this.makeSequencer(id).load(saved[id]);
+      this.seqCounter = Math.max(this.seqCounter, Number(id.replace(/\D/g, "")) || 0);
+    }
+    this.emit();
+  }
+
+  private saveSequencers() {
+    try {
+      const data: Record<string, unknown> = {};
+      this.sequencers.forEach((q, id) => (data[id] = q.serialize()));
+      window.localStorage.setItem(this.seqKey, JSON.stringify(data));
+    } catch {
+      /* ignore */
+    }
+  }
+
+  /** Add a sequencer and its mixer strip. Its sound goes to the master bus until you send it elsewhere. */
+  async addSequencer(): Promise<string | null> {
+    const id = `s${++this.seqCounter}`;
+    const q = this.makeSequencer(id);
+    const n = this.mixer.sequencerIds().length;
+    const added = await this.mixer.add({ kind: "sequencer", name: n === 0 ? "Drums" : `Drums ${n + 1}`, sourceId: id });
+    if (added === null) {
+      this.disposeSequencer(id);
+      return null;
+    }
+    void q;
+    this.saveSequencers();
+    return id;
+  }
+
+  private disposeSequencer(id: string) {
+    this.sequencers.get(id)?.dispose();
+    this.sequencers.delete(id);
+    this.seqOnGrid.delete(id);
+    this.saveSequencers();
+    this.emit();
+  }
+
+  /** Where a sequencer's sound goes: the master bus, the recorder (and master), or a group bus. */
+  private routeSequencer(q: Sequencer) {
+    if (!q.toSpeakers || !q.toRecord || !this.master) return;
+    let dest = q.state.dest;
+    if (dest !== "master" && dest !== "record" && !this.buses.has(dest)) dest = "master";
+    try {
+      q.toSpeakers.disconnect();
+    } catch {
+      /* not connected yet */
+    }
+    q.toSpeakers.connect(this.buses.get(dest)?.input ?? this.master);
+    q.toRecord.gain.value = dest === "record" ? 1 : 0;
+  }
+
+  getSequencer(id: string): Sequencer | undefined {
+    return this.sequencers.get(id);
+  }
+
+  setSequencerDest(id: string, dest: string) {
+    const q = this.sequencers.get(id);
+    if (!q) return;
+    q.setDest(dest);
+    this.routeSequencer(q);
+  }
+
+  /** Audition a sequencer's pattern without a loop running. */
+  setSequencerPreview(id: string, on: boolean) {
+    this.sequencers.get(id)?.setPreview(on);
+    this.syncSequencer(true);
+  }
+
+  /** Sequencers sound in time with the metronome grid while a take records, a loop plays or the metronome runs, or while previewing; each also needs its power switch. */
+  private syncSequencer(restart = false) {
+    const grid = this.gridActive();
+    this.sequencers.forEach((q, id) => {
+      const st = q.state;
+      const want = st.enabled && (grid || st.preview);
+      if (!want) {
+        q.stop();
+        return;
+      }
+      const onGrid = this.seqOnGrid.get(id) ?? false;
+      if (grid) {
+        if (restart || !q.running || !onGrid) q.start(this.gridAnchor);
+      } else if (!q.running || restart || onGrid) {
+        q.start((this.ctx?.currentTime ?? 0) + 0.05);
+      }
+      this.seqOnGrid.set(id, grid);
+    });
+  }
+
   private gridActive() {
     return this.capture !== null || (this.playing && this.loopLength !== null) || this.metroManual;
   }
@@ -318,7 +416,10 @@ export class LooperEngine {
     this.master = ctx.createGain();
     this.master.connect(ctx.destination);
     this.groups.forEach((g) => this.makeBus(g));
-    this.sequencer.attach(ctx, ctx.destination);
+    this.sequencers.forEach((q) => {
+      q.attach(ctx);
+      this.routeSequencer(q);
+    });
     this.mixer.attach(ctx, this.master);
     this.metronome.attach(ctx, ctx.destination);
     this.analyser = ctx.createAnalyser();
@@ -504,6 +605,10 @@ export class LooperEngine {
     this.groups = this.groups.filter((x) => x !== g);
     this.buses.get(g.id)?.dispose();
     this.buses.delete(g.id);
+    this.sequencers.forEach((q) => {
+      if (q.state.dest === g.id) q.setDest("master");
+      this.routeSequencer(q);
+    });
     this.runtimes.forEach((r) => {
       if (r.info.groupId === g.id) {
         r.info.groupId = null;
@@ -802,7 +907,7 @@ export class LooperEngine {
     this.capture = null;
     this.runtimes.forEach((r) => this.stopSource(r));
     this.metronome.dispose();
-    this.sequencer.dispose();
+    this.sequencers.forEach((q) => q.dispose());
     this.buses.forEach((b) => b.dispose());
     this.buses.clear();
     this.mixer.dispose();

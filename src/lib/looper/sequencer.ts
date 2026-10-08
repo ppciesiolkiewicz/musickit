@@ -122,6 +122,8 @@ export const BASS: Instrument = {
 export const INSTRUMENTS: Instrument[] = [DRUMS, BASS];
 
 export interface SequencerState {
+  /** where it plays: "master", "record" (heard on master and fed to the recorder), or the id of a group bus */
+  dest: string;
   instrumentId: string;
   bars: number;
   /** false silences the sequencer without removing its input strip */
@@ -131,16 +133,17 @@ export interface SequencerState {
   preview: boolean;
 }
 
-const STORAGE_KEY = "musickit.looper.sequencer";
 const LOOKAHEAD = 0.12;
 const TICK_MS = 25;
 
 const findInstrument = (id: string) => INSTRUMENTS.find((i) => i.id === id) ?? DRUMS;
 
 export class Sequencer {
-  state: SequencerState = { instrumentId: DRUMS.id, bars: 1, enabled: true, cells: fromRows(DRUM_PRESETS[0].rows), preview: false };
-  /** the node the mixer taps for recording; also wired to the speakers */
+  state: SequencerState = { dest: "master", instrumentId: DRUMS.id, bars: 1, enabled: true, cells: fromRows(DRUM_PRESETS[0].rows), preview: false };
+  /** every voice goes into `out`; `toSpeakers` carries it to the master or a group bus, `toRecord` is what the mixer taps */
   out: GainNode | null = null;
+  toSpeakers: GainNode | null = null;
+  toRecord: GainNode | null = null;
   private ctx: AudioContext | null = null;
   private noise: AudioBuffer | null = null;
   private timer: ReturnType<typeof setInterval> | null = null;
@@ -148,7 +151,7 @@ export class Sequencer {
   private next = 0;
 
   /** getTiming gives the metronome's beat length and bar length at any moment, so the grid and the tempo are shared */
-  constructor(private getTiming: () => { beatSeconds: number; beatsPerBar: number }, private onChange: () => void) {}
+  constructor(readonly id: string, private getTiming: () => { beatSeconds: number; beatsPerBar: number }, private onChange: () => void) {}
 
   get instrument() {
     return findInstrument(this.state.instrumentId);
@@ -162,11 +165,15 @@ export class Sequencer {
     return stepsInPattern(this.state.bars, this.getTiming().beatsPerBar);
   }
 
-  attach(ctx: AudioContext, speakers: AudioNode) {
+  attach(ctx: AudioContext) {
     this.ctx = ctx;
     this.out = ctx.createGain();
     this.out.gain.value = 0.5;
-    this.out.connect(speakers);
+    this.toSpeakers = ctx.createGain();
+    this.toRecord = ctx.createGain();
+    this.toRecord.gain.value = 0;
+    this.out.connect(this.toSpeakers);
+    this.out.connect(this.toRecord);
     const len = Math.floor(ctx.sampleRate * 0.6);
     const buf = ctx.createBuffer(1, len, ctx.sampleRate);
     const d = buf.getChannelData(0);
@@ -174,34 +181,24 @@ export class Sequencer {
     this.noise = buf;
   }
 
-  restore() {
-    try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
-      if (!raw) return;
-      const j = JSON.parse(raw) as Partial<SequencerState>;
-      const inst = findInstrument(String(j.instrumentId));
-      const lanes = inst.lanes.length;
-      const cells = Array.isArray(j.cells) && j.cells.length === lanes ? j.cells.map((row) => Array.from({ length: 96 }, (_, i) => (Number(row?.[i]) === 2 ? 2 : Number(row?.[i]) === 1 ? 1 : 0))) : fromRows(inst.presets[0].rows);
-      this.state = { instrumentId: inst.id, bars: j.bars === 2 ? 2 : 1, enabled: j.enabled !== false, cells, preview: false };
-      this.onChange();
-    } catch {
-      /* ignore a corrupt save */
-    }
+  /** The part worth saving. */
+  serialize(): Omit<SequencerState, "preview"> {
+    const { preview: _p, ...rest } = this.state;
+    void _p;
+    return rest;
   }
 
-  private save() {
-    try {
-      const { preview: _p, ...rest } = this.state;
-      void _p;
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(rest));
-    } catch {
-      /* ignore */
-    }
+  /** Load a saved state, checking every field. */
+  load(j: Partial<SequencerState> | null | undefined) {
+    if (!j) return;
+    const inst = findInstrument(String(j.instrumentId));
+    const lanes = inst.lanes.length;
+    const cells = Array.isArray(j.cells) && j.cells.length === lanes ? j.cells.map((row) => Array.from({ length: 96 }, (_, i) => (Number(row?.[i]) === 2 ? 2 : Number(row?.[i]) === 1 ? 1 : 0))) : fromRows(inst.presets[0].rows);
+    this.state = { dest: typeof j.dest === "string" ? j.dest : "master", instrumentId: inst.id, bars: j.bars === 2 ? 2 : 1, enabled: j.enabled !== false, cells, preview: false };
   }
 
   private update(patch: Partial<SequencerState>) {
     this.state = { ...this.state, ...patch };
-    this.save();
     this.onChange();
   }
 
@@ -229,6 +226,10 @@ export class Sequencer {
 
   setBars(bars: number) {
     this.update({ bars: Math.min(MAX_BARS, Math.max(1, Math.round(bars))) });
+  }
+
+  setDest(dest: string) {
+    this.update({ dest });
   }
 
   setEnabled(on: boolean) {
@@ -284,11 +285,13 @@ export class Sequencer {
   dispose() {
     this.stop();
     try {
-      this.out?.disconnect();
+      [this.out, this.toSpeakers, this.toRecord].forEach((n) => n?.disconnect());
     } catch {
       /* already disconnected */
     }
     this.out = null;
+    this.toSpeakers = null;
+    this.toRecord = null;
     this.ctx = null;
   }
 }
