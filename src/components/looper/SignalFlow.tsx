@@ -31,7 +31,10 @@ export default function SignalFlow({ snap }: { snap: LooperSnapshot }) {
   const masterY = mid;
   const recY = mid;
 
-  const seqDest = (id?: string) => snap.sequencers.find((q) => q.id === id)?.dest ?? "master";
+  const seqDest = (id?: string) => {
+    const q = snap.sequencers.find((x) => x.id === id);
+    return !q ? "master" : q.dest === "record" ? "record" : q.groupId ?? "master";
+  };
   const feedsRecorder = (i: (typeof strips)[number]) => (i.kind === "sequencer" ? seqDest(i.sourceId) === "record" : true);
 
   return (

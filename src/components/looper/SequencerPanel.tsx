@@ -38,8 +38,7 @@ function Grid({ engine, snap, id, sq, seq }: { engine: LooperEngine; snap: Loope
   return (
     <div className="flex min-w-0 flex-col gap-2 p-2">
       <div className="flex flex-wrap items-center gap-1.5">
-        <button type="button" className={`${ibtn} ${sq.enabled ? "!border-emerald-500/70 !text-emerald-200" : ""}`} aria-pressed={sq.enabled} onClick={() => seq.setEnabled(!sq.enabled)} title={sq.enabled ? "Sequencer is on (tap to switch off)" : "Sequencer is off (tap to switch on)"} aria-label="Sequencer on or off"><Icon name="power" /></button>
-        <button type="button" className={`${ibtn} ${sq.preview ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={sq.preview} onClick={() => engine.setSequencerPreview(id, !sq.preview)} title={sq.preview ? "Stop the preview" : "Preview the pattern"} aria-label="Preview the pattern"><Icon name={sq.preview ? "square" : "play"} fill /></button>
+        <button type="button" className={`${ibtn} ${sq.playing ? "!border-emerald-500/70 !bg-emerald-500/15 !text-emerald-200" : ""}`} aria-pressed={sq.playing} onClick={() => engine.setSequencerPlaying(id, !sq.playing)} title={sq.playing ? "Stop on the next beat" : "Start on the next beat"} aria-label={sq.playing ? "Stop the sequencer" : "Start the sequencer"}><Icon name={sq.playing ? "square" : "play"} fill /></button>
         <select className={field} value={inst.id} onChange={(e) => seq.setInstrument(e.target.value)} aria-label="Instrument">
           {INSTRUMENTS.map((i) => <option key={i.id} value={i.id}>{i.name}</option>)}
         </select>
@@ -51,10 +50,9 @@ function Grid({ engine, snap, id, sq, seq }: { engine: LooperEngine; snap: Loope
           <option value={1}>1 bar</option>
           <option value={2}>2 bars</option>
         </select>
-        <select className={field} value={sq.dest} onChange={(e) => engine.setSequencerDest(id, e.target.value)} aria-label="Where the sound goes" title="Where the sound goes">
-          <option value="master">To master</option>
+        <select className={field} value={sq.dest} onChange={(e) => engine.setSequencerDest(id, e.target.value as "auto" | "record")} aria-label="Where the sound goes" title="Where the sound goes">
+          <option value="auto">{sq.groupId ? `To ${snap.groups.find((g) => g.id === sq.groupId)?.name ?? "its group"}` : "To master"} (by position)</option>
           <option value="record">To the recorder (and master)</option>
-          {snap.groups.map((g) => <option key={g.id} value={g.id}>To {g.name}</option>)}
         </select>
         <button type="button" className={ibtn} onClick={() => seq.clearPattern()} title="Clear the pattern" aria-label="Clear the pattern"><Icon name="trash" /></button>
       </div>
@@ -87,7 +85,7 @@ function Grid({ engine, snap, id, sq, seq }: { engine: LooperEngine; snap: Loope
           ))}
         </div>
       </div>
-      <p className="text-[11px] text-slate-500">Sounds are made in the browser, nothing is downloaded. It plays in time with the click while you record or play. It goes to the master bus unless you send it to the recorder or a group.</p>
+      <p className="text-[11px] text-slate-500">Sounds are made in the browser, nothing is downloaded. It plays in time with the click while you record or play. It plays on the bus of the group its circle sits in, or master outside every group. Start and stop happen on the next beat.</p>
     </div>
   );
 }

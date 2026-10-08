@@ -122,15 +122,16 @@ export const BASS: Instrument = {
 export const INSTRUMENTS: Instrument[] = [DRUMS, BASS];
 
 export interface SequencerState {
-  /** where it plays: "master", "record" (heard on master and fed to the recorder), or the id of a group bus */
-  dest: string;
+  /** "auto": the bus of the group it sits in, or master when it sits outside every group. "record": heard on master and fed to the recorder. */
+  dest: "auto" | "record";
+  /** place of its circle on the looping stage */
+  x: number;
+  y: number;
   instrumentId: string;
   bars: number;
-  /** false silences the sequencer without removing its input strip */
-  enabled: boolean;
+  /** started by the person: it sounds in time with the metronome, joining and leaving on a beat */
+  playing: boolean;
   cells: Cells;
-  /** the person is auditioning the pattern with no loop running */
-  preview: boolean;
 }
 
 const LOOKAHEAD = 0.12;
@@ -139,7 +140,7 @@ const TICK_MS = 25;
 const findInstrument = (id: string) => INSTRUMENTS.find((i) => i.id === id) ?? DRUMS;
 
 export class Sequencer {
-  state: SequencerState = { dest: "master", instrumentId: DRUMS.id, bars: 1, enabled: true, cells: fromRows(DRUM_PRESETS[0].rows), preview: false };
+  state: SequencerState = { dest: "auto", x: 100, y: 100, instrumentId: DRUMS.id, bars: 1, playing: false, cells: fromRows(DRUM_PRESETS[0].rows) };
   /** every voice goes into `out`; `toSpeakers` carries it to the master or a group bus, `toRecord` is what the mixer taps */
   out: GainNode | null = null;
   toSpeakers: GainNode | null = null;
@@ -182,8 +183,8 @@ export class Sequencer {
   }
 
   /** The part worth saving. */
-  serialize(): Omit<SequencerState, "preview"> {
-    const { preview: _p, ...rest } = this.state;
+  serialize(): Omit<SequencerState, "playing"> {
+    const { playing: _p, ...rest } = this.state;
     void _p;
     return rest;
   }
@@ -194,7 +195,7 @@ export class Sequencer {
     const inst = findInstrument(String(j.instrumentId));
     const lanes = inst.lanes.length;
     const cells = Array.isArray(j.cells) && j.cells.length === lanes ? j.cells.map((row) => Array.from({ length: 96 }, (_, i) => (Number(row?.[i]) === 2 ? 2 : Number(row?.[i]) === 1 ? 1 : 0))) : fromRows(inst.presets[0].rows);
-    this.state = { dest: typeof j.dest === "string" ? j.dest : "master", instrumentId: inst.id, bars: j.bars === 2 ? 2 : 1, enabled: j.enabled !== false, cells, preview: false };
+    this.state = { dest: j.dest === "record" ? "record" : "auto", x: Number.isFinite(j.x) ? Number(j.x) : this.state.x, y: Number.isFinite(j.y) ? Number(j.y) : this.state.y, instrumentId: inst.id, bars: j.bars === 2 ? 2 : 1, playing: false, cells };
   }
 
   private update(patch: Partial<SequencerState>) {
@@ -228,30 +229,50 @@ export class Sequencer {
     this.update({ bars: Math.min(MAX_BARS, Math.max(1, Math.round(bars))) });
   }
 
-  setDest(dest: string) {
+  setDest(dest: "auto" | "record") {
     this.update({ dest });
   }
 
-  setEnabled(on: boolean) {
-    this.update({ enabled: on });
+  setPos(x: number, y: number) {
+    this.update({ x, y });
   }
 
-  setPreview(on: boolean) {
-    this.state = { ...this.state, preview: on };
+  /** Mark it started or stopped (the engine does the timing). */
+  setPlaying(on: boolean) {
+    this.state = { ...this.state, playing: on };
     this.onChange();
   }
 
-  /** Run with step 0 at `anchor` (the metronome's beat 1). Clicks start now. Call again to move the grid. */
-  start(anchor: number) {
+  private startAt = 0;
+  private stopAtTime: number | null = null;
+
+  /** Run with step 0 at `anchor` (the metronome's beat 1). Steps before `startAt` stay silent, so it can join on a beat. Call again to move the grid. */
+  start(anchor: number, startAt = 0) {
     if (!this.ctx) return;
     this.anchor = anchor;
+    this.startAt = startAt;
+    this.stopAtTime = null;
     this.next = Math.ceil((this.ctx.currentTime - anchor) / stepSeconds(this.getTiming().beatSeconds) - 1e-9);
     if (!this.timer) this.timer = setInterval(() => this.schedule(), TICK_MS);
     this.schedule();
     this.onChange();
   }
 
+  get stopping() {
+    return this.stopAtTime !== null;
+  }
+
+  cancelStop() {
+    this.stopAtTime = null;
+  }
+
+  /** Let it play until time `t` (a beat line), then stop. */
+  stopAt(t: number) {
+    this.stopAtTime = t;
+  }
+
   stop() {
+    this.stopAtTime = null;
     if (this.timer) clearInterval(this.timer);
     this.timer = null;
     this.onChange();
@@ -271,7 +292,11 @@ export class Sequencer {
     const steps = this.steps;
     while (this.anchor + this.next * dt < ctx.currentTime + LOOKAHEAD) {
       const t = this.anchor + this.next * dt;
-      if (t >= ctx.currentTime - 0.005) {
+      if (this.stopAtTime !== null && t >= this.stopAtTime - 1e-6) {
+        this.stop();
+        return;
+      }
+      if (t >= ctx.currentTime - 0.005 && t >= this.startAt - 1e-6) {
         const step = ((this.next % steps) + steps) % steps;
         this.state.cells.forEach((row, lane) => {
           const v = row[step];

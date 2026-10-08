@@ -51,6 +51,8 @@ export interface EffectSpec {
   id: string;
   kind: EffectKind;
   bypass: boolean;
+  /** false: before the fader (volume, mute) so the fader also cuts the effect; true: after it, so a tail rings on */
+  post: boolean;
   params: Record<string, number>;
 }
 
@@ -72,7 +74,7 @@ export function sanitiseEffects(raw: unknown): EffectSpec[] {
   const out: EffectSpec[] = [];
   raw.slice(0, 8).forEach((e, i) => {
     if (e && typeof e === "object" && (e.kind === "tapeDelay" || e.kind === "reverb")) {
-      out.push({ id: typeof e.id === "string" ? e.id : `fx${i}`, kind: e.kind, bypass: e.bypass === true, params: clampParams(e.kind, e.params ?? {}) });
+      out.push({ id: typeof e.id === "string" ? e.id : `fx${i}`, kind: e.kind, bypass: e.bypass === true, post: e.post === true, params: clampParams(e.kind, e.params ?? {}) });
     }
   });
   return out;

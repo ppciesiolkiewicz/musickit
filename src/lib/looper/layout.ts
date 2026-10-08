@@ -43,11 +43,13 @@ export function clampPoint(x: number, y: number): { x: number; y: number } {
   return { x: Math.min(STAGE_W - LOOP_R, Math.max(LOOP_R, x)), y: Math.min(STAGE_H - LOOP_R, Math.max(LOOP_R, y)) };
 }
 
-/** Three side-by-side groups filling the stage. */
+export const DEFAULT_GROUPS = 5;
+
+/** Five side-by-side groups (five buses) filling the stage. */
 export function defaultGroups(): GroupLayout[] {
-  const gap = 16;
-  const w = (STAGE_W - gap * 4) / 3;
-  return [0, 1, 2].map((i) => ({ id: `g${i + 1}`, x: gap + i * (w + gap), y: gap, w, h: STAGE_H - gap * 2 }));
+  const gap = 12;
+  const w = (STAGE_W - gap * (DEFAULT_GROUPS + 1)) / DEFAULT_GROUPS;
+  return Array.from({ length: DEFAULT_GROUPS }, (_, i) => i).map((i) => ({ id: `g${i + 1}`, x: gap + i * (w + gap), y: gap, w, h: STAGE_H - gap * 2 }));
 }
 
 /** A spot for loop number `index` of `total`: inside the group `index % groups`, stacked so circles do not overlap. */

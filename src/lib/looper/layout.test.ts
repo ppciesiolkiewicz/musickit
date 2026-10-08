@@ -24,10 +24,10 @@ describe("stage layout", () => {
   });
   it("puts the default loops inside the default groups", () => {
     const gs = defaultGroups();
-    assert.equal(gs.length, 3);
-    for (let i = 0; i < 6; i++) {
+    assert.equal(gs.length, 5);
+    for (let i = 0; i < 8; i++) {
       const s = defaultSpot(gs, i);
-      assert.equal(containingGroup(gs, s.x, s.y), gs[i % 3].id, `loop ${i}`);
+      assert.equal(containingGroup(gs, s.x, s.y), gs[i % 5].id, `loop ${i}`);
       assert.ok(s.x <= STAGE_W);
     }
   });

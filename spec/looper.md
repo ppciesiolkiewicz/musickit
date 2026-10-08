@@ -63,6 +63,20 @@ The page has a Mixer section (inputs) and a Looping section. Each loop is a circ
 
 The metronome floats at the top of the page under the main nav (it sticks to the top as you scroll): a start/stop button, tempo as a slider plus a number box with minus and plus, and the beat dots, all in one group. A button opens a popover with every other option: beats per bar, count-in, quantise, click volume, hear the click, show beat dots. Starting the metronome by hand also plays the count-in first.
 
-## Several sequencers and the signal flow
+## Sequencers on the stage and the signal flow
 
-Add input, Sequencer can be used more than once; each sequencer has its own strip, pattern, instrument and window. Each one has a destination menu: master (the default), the recorder (it is still heard on master), or any group bus. The strip shows where it goes. A collapsible Signal flow panel draws the whole path: inputs and sequencers, the recorder, the loops, the group buses with their effects, and the master. Sequencers are saved in localStorage `musickit.looper.sequencers`.
+Add input, Sequencer can be used more than once; each sequencer has its own strip, pattern, instrument and window. A sequencer is also a circle on the loop stage: drag it into a group and it plays through that group's bus; outside every group it plays to master. Its strip has a destination chip (a group, master, or the recorder, which is set by a switch in its window). Start and stop happen on the next beat of the metronome, so one can be stopped while another is started. Each group box has a start/stop button that starts or stops every loop and sequencer inside it. Sequencers are saved in localStorage `musickit.looper.sequencers`.
+
+## Header
+
+Only a cogwheel sits at the top right (settings), in the same sticky row as the metronome. There is no title bar or master meter; errors show in a banner.
+
+## Buses, master and effects
+
+The Mixer section lists the inputs, then the buses (one per group, five by default) and the master. A bus row shows its colour, name, how many loops and sequencers feed it, a level meter, volume, mute and a + button. The master row has a meter and a volume. Below is the Signal flow diagram, open by default.
+
+Every input, sequencer and bus has a + button that opens an effects dialog: choose Tape delay or Reverb, set each effect before the fader (pre: cut by mute and volume) or after it (post: keeps ringing, so a reverb tail survives a mute), tweak, bypass or remove. Effects are saved with the strip or group.
+
+## Scale Piano
+
+Add input, Scale Piano adds a piano played from the computer keyboard and locked to a key and scale (major, minor, modes, harmonic and melodic minor, pentatonics, blues). Four rows of keys (Z row, A row, Q row, number row) are stacked octaves: each row starts on the root, one octave above the row below. The window shows every key with the note it plays (the roots in blue, the notes being played in amber) and a three-octave piano with the notes of the scale marked. Keys can also be clicked. The window listens to the keyboard only while it is open and never while typing in a field. Octave buttons move the whole range. It is heard on master and recorded through its strip. Saved in localStorage `musickit.looper.scalePianos`.

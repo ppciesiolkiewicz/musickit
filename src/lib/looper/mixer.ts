@@ -1,4 +1,6 @@
 import { effectiveGain, type InputMode } from "./frames";
+import { EffectChain } from "./buses";
+import { EFFECT_DEFS, clampParams, defaultParams, sanitiseEffects, type EffectKind, type EffectSpec } from "./effects";
 
 /**
  * The input side of the looper: a list of input strips (an audio interface input, the built-in mic, or an extra source such
@@ -6,7 +8,7 @@ import { effectiveGain, type InputMode } from "./frames";
  * Like the engine, this file imports nothing outside src/lib/looper.
  */
 
-export type InputKind = "device" | "extra" | "sequencer";
+export type InputKind = "device" | "extra" | "sequencer" | "scalepiano";
 
 export interface InputInfo {
   id: number;
@@ -25,6 +27,8 @@ export interface InputInfo {
   error: string | null;
   /** channels the device reports, 0 if unknown */
   channels: number;
+  /** effects on this input, in order; each is before (post: false) or after the fader */
+  effects: EffectSpec[];
   /** device strips only: false until the person connects it, so the browser never asks for the microphone unprompted */
   connected: boolean;
   /** true when it is actually feeding the recorder (not muted, and not silenced by another strip's solo) */
@@ -36,6 +40,8 @@ export interface MixerOptions {
   getExtraSource?: () => AudioNode;
   /** the node a sequencer feeds the recorder through, by sequencer id; offers "sequencer" strips */
   getSequencerSource?: (sourceId: string) => AudioNode | null | undefined;
+  /** the node a scale piano feeds the recorder through, by scale piano id; offers "scalepiano" strips */
+  getScalePianoSource?: (sourceId: string) => AudioNode | null | undefined;
   /** a strip was removed (the app can dispose whatever stood behind it) */
   onRemoved?: (info: InputInfo) => void;
   extraLabel?: string;
@@ -43,6 +49,7 @@ export interface MixerOptions {
 }
 
 export interface SavedInput {
+  effects?: EffectSpec[];
   kind: InputKind;
   sourceId?: string;
   name: string;
@@ -67,6 +74,8 @@ interface Runtime {
   gain: GainNode | null;
   meter: AnalyserNode | null;
   monitor: GainNode | null;
+  chainPre: EffectChain | null;
+  chainPost: EffectChain | null;
   shared: Shared | null;
   /** the node feeding a sequencer strip */
   src?: AudioNode | null;
@@ -84,6 +93,7 @@ export class InputMixer {
   private runtimes: Runtime[] = [];
   private shared = new Map<string, Shared>();
   private nextId = 0;
+  private nextFx = 1;
   private extraNode: AudioNode | null = null;
 
   constructor(private opts: MixerOptions) {
@@ -100,8 +110,8 @@ export class InputMixer {
 
   private make(s: SavedInput, connected = false): Runtime {
     return {
-      info: { id: this.nextId++, sourceId: s.sourceId, kind: s.kind, name: s.name, deviceId: s.deviceId, mode: s.mode, volume: s.volume, muted: false, solo: false, monitor: false, error: null, channels: 0, live: true, connected: s.kind === "device" ? connected : true },
-      pre: null, summer: null, gain: null, meter: null, monitor: null, shared: null, buf: null,
+      info: { id: this.nextId++, sourceId: s.sourceId, kind: s.kind, name: s.name, deviceId: s.deviceId, mode: s.mode, volume: s.volume, muted: false, solo: false, monitor: false, error: null, channels: 0, live: true, effects: sanitiseEffects(s.effects), connected: s.kind === "device" ? connected : true },
+      pre: null, summer: null, gain: null, meter: null, monitor: null, chainPre: null, chainPost: null, shared: null, buf: null,
     };
   }
 
@@ -119,7 +129,7 @@ export class InputMixer {
   }
 
   private sourceFor(kind: InputKind): boolean {
-    return kind === "extra" ? !!this.opts.getExtraSource : kind === "sequencer" ? !!this.opts.getSequencerSource : false;
+    return kind === "extra" ? !!this.opts.getExtraSource : kind === "sequencer" ? !!this.opts.getSequencerSource : kind === "scalepiano" ? !!this.opts.getScalePianoSource : false;
   }
 
   /** true when a microphone or interface is feeding the recording, so input latency applies */
@@ -130,7 +140,7 @@ export class InputMixer {
 
   private save() {
     try {
-      const data: SavedInput[] = this.runtimes.map((r) => ({ kind: r.info.kind, sourceId: r.info.sourceId, name: r.info.name, deviceId: r.info.deviceId, mode: r.info.mode, volume: r.info.volume }));
+      const data: SavedInput[] = this.runtimes.map((r) => ({ kind: r.info.kind, sourceId: r.info.sourceId, name: r.info.name, deviceId: r.info.deviceId, mode: r.info.mode, volume: r.info.volume, effects: r.info.effects }));
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     } catch {
       /* storage may be unavailable */
@@ -143,9 +153,10 @@ export class InputMixer {
     try {
       const raw = window.localStorage.getItem(STORAGE_KEY);
       if (!raw) return;
-      const saved = (JSON.parse(raw) as SavedInput[]).filter((s) => (s.kind === "device" || (this.sourceFor(s.kind) && (s.kind !== "sequencer" || typeof s.sourceId === "string"))) && ["left", "right", "stereo", "sum"].includes(s.mode)).slice(0, MAX_INPUTS);
+      const saved = (JSON.parse(raw) as SavedInput[]).filter((s) => (s.kind === "device" || (this.sourceFor(s.kind) && ((s.kind !== "sequencer" && s.kind !== "scalepiano") || typeof s.sourceId === "string"))) && ["left", "right", "stereo", "sum"].includes(s.mode)).slice(0, MAX_INPUTS);
       if (saved.length) {
         this.runtimes = saved.map((s) => this.make({ ...s, volume: Math.min(1.5, Math.max(0, Number(s.volume) || 1)) }));
+        this.nextFx = this.runtimes.reduce((m, r) => r.info.effects.reduce((n, e) => Math.max(n, Number(e.id.replace(/\D/g, "")) || 0), m), 0) + 1;
         this.opts.onChange();
       }
     } catch {
@@ -178,10 +189,19 @@ export class InputMixer {
     meter.fftSize = 512;
     const monitor = ctx.createGain();
     monitor.gain.value = r.info.monitor ? 1 : 0;
-    pre.connect(meter);
-    pre.connect(gain);
-    pre.connect(monitor);
-    gain.connect(this.output!);
+    // pre -> pre-fader effects -> (meter, monitor, fader) ; fader -> post-fader effects -> mixer output
+    const chainPre = new EffectChain(ctx);
+    const chainPost = new EffectChain(ctx);
+    chainPre.setEffects(r.info.effects.filter((e) => !e.post));
+    chainPost.setEffects(r.info.effects.filter((e) => e.post));
+    pre.connect(chainPre.input);
+    chainPre.output.connect(meter);
+    chainPre.output.connect(gain);
+    chainPre.output.connect(monitor);
+    gain.connect(chainPost.input);
+    chainPost.output.connect(this.output!);
+    r.chainPre = chainPre;
+    r.chainPost = chainPost;
     monitor.connect(this.monitorDest!);
     r.pre = pre;
     r.gain = gain;
@@ -189,8 +209,8 @@ export class InputMixer {
     r.monitor = monitor;
     r.buf = new Float32Array(meter.fftSize) as Float32Array<ArrayBuffer>;
     if (r.info.kind === "extra") this.extraNode?.connect(pre);
-    if (r.info.kind === "sequencer" && r.info.sourceId) {
-      r.src = this.opts.getSequencerSource?.(r.info.sourceId) ?? null;
+    if ((r.info.kind === "sequencer" || r.info.kind === "scalepiano") && r.info.sourceId) {
+      r.src = (r.info.kind === "sequencer" ? this.opts.getSequencerSource : this.opts.getScalePianoSource)?.(r.info.sourceId) ?? null;
       r.src?.connect(pre);
     }
     this.applyGains();
@@ -329,7 +349,7 @@ export class InputMixer {
   /** Add a strip. Returns its id, or null when full or when the extra source is already there. */
   async add(spec: { kind: InputKind; name: string; deviceId?: string; mode?: InputMode; sourceId?: string }): Promise<number | null> {
     if (this.runtimes.length >= MAX_INPUTS) return null;
-    if (spec.kind !== "device" && ((spec.kind === "extra" && this.has("extra")) || !this.sourceFor(spec.kind) || (spec.kind === "sequencer" && !spec.sourceId))) return null;
+    if (spec.kind !== "device" && ((spec.kind === "extra" && this.has("extra")) || !this.sourceFor(spec.kind) || ((spec.kind === "sequencer" || spec.kind === "scalepiano") && !spec.sourceId))) return null;
     const r = this.make({ kind: spec.kind, name: spec.name, deviceId: spec.deviceId ?? "", mode: spec.mode ?? (spec.kind === "device" ? "left" : "stereo"), volume: 1, sourceId: spec.sourceId }, true);
     this.runtimes.push(r);
     if (this.ctx) {
@@ -363,6 +383,8 @@ export class InputMixer {
         /* ignore */
       }
     }
+    r.chainPre?.dispose();
+    r.chainPost?.dispose();
     [r.gain, r.pre, r.monitor, r.meter].forEach((n) => {
       try {
         n?.disconnect();
@@ -380,6 +402,11 @@ export class InputMixer {
   /** ids of the sequencers that have a strip */
   sequencerIds(): string[] {
     return this.runtimes.filter((r) => r.info.kind === "sequencer" && r.info.sourceId).map((r) => r.info.sourceId!);
+  }
+
+  /** ids of the scale pianos that have a strip */
+  scalePianoIds(): string[] {
+    return this.runtimes.filter((r) => r.info.kind === "scalepiano" && r.info.sourceId).map((r) => r.info.sourceId!);
   }
 
   rename(id: number, name: string) {
@@ -441,6 +468,48 @@ export class InputMixer {
     this.opts.onChange();
   }
 
+  /* -------------------------------------------------------------- effects on an input */
+
+  private fxChanged(r: Runtime) {
+    r.chainPre?.setEffects(r.info.effects.filter((e) => !e.post));
+    r.chainPost?.setEffects(r.info.effects.filter((e) => e.post));
+    this.save();
+    this.opts.onChange();
+  }
+
+  addEffect(id: number, kind: EffectKind, post = false) {
+    const r = this.find(id);
+    if (!r || r.info.effects.length >= 6 || !EFFECT_DEFS[kind]) return;
+    r.info.effects = [...r.info.effects, { id: `i${this.nextFx++}`, kind, bypass: false, post, params: defaultParams(kind) }];
+    this.fxChanged(r);
+  }
+
+  removeEffect(id: number, fxId: string) {
+    const r = this.find(id);
+    if (!r) return;
+    r.info.effects = r.info.effects.filter((e) => e.id !== fxId);
+    this.fxChanged(r);
+  }
+
+  private editEffect(id: number, fxId: string, f: (e: EffectSpec) => EffectSpec) {
+    const r = this.find(id);
+    if (!r) return;
+    r.info.effects = r.info.effects.map((e) => (e.id === fxId ? f(e) : e));
+    this.fxChanged(r);
+  }
+
+  setEffectParam(id: number, fxId: string, key: string, value: number) {
+    this.editEffect(id, fxId, (e) => ({ ...e, params: clampParams(e.kind, { ...e.params, [key]: value }) }));
+  }
+
+  setEffectPost(id: number, fxId: string, post: boolean) {
+    this.editEffect(id, fxId, (e) => ({ ...e, post }));
+  }
+
+  toggleEffectBypass(id: number, fxId: string) {
+    this.editEffect(id, fxId, (e) => ({ ...e, bypass: !e.bypass }));
+  }
+
   /** Peak level of one input, 0..1, measured before mute and volume so you can see signal on a muted strip. */
   getLevel(id: number): number {
     const r = this.find(id);
@@ -464,6 +533,9 @@ export class InputMixer {
           /* ignore */
         }
       });
+      r.chainPre?.dispose();
+      r.chainPost?.dispose();
+      r.chainPre = r.chainPost = null;
       r.gain = r.pre = r.monitor = r.meter = null;
     });
     try {

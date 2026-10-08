@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { LooperEngine, MAX_CHANNELS, type LooperSnapshot } from "@/lib/looper/engine";
-import LevelMeter from "./LevelMeter";
 import LooperSettings from "./LooperSettings";
 import Mixer from "./Mixer";
 import FloatingWindow from "../FloatingWindow";
@@ -10,7 +9,7 @@ import Piano from "../Piano";
 import { getAudioContext, getOutputBus } from "@/lib/audio";
 import LoopStage from "./LoopStage";
 import MetronomeBar from "./MetronomeBar";
-import SignalFlow from "./SignalFlow";
+import ScalePianoPanel from "./ScalePianoPanel";
 import SequencerPanel from "./SequencerPanel";
 import Icon from "../Icon";
 
@@ -45,6 +44,8 @@ export default function LooperApp() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [keyboardOpen, setKeyboardOpen] = useState(false);
   const [openSeqs, setOpenSeqs] = useState<string[]>([]);
+  const [openPianos, setOpenPianos] = useState<string[]>([]);
+  const togglePiano = (id: string) => setOpenPianos((v) => (v.includes(id) ? v.filter((x) => x !== id) : [...v, id]));
   const toggleSeq = (id: string) => setOpenSeqs((v) => (v.includes(id) ? v.filter((x) => x !== id) : [...v, id]));
 
   // Start the audio engine on the first touch of the page (browsers need a gesture). This opens no microphone:
@@ -61,9 +62,12 @@ export default function LooperApp() {
 
   return (
     <div className="flex flex-col gap-2.5">
-      <MetronomeBar engine={engine} snap={snap} ready={ready} />
-      <InputBar snap={snap} getLevel={getLevel} onSettings={() => setSettingsOpen(true)} />
-      <Mixer engine={engine} snap={snap} keyboardOpen={keyboardOpen} onToggleKeyboard={() => setKeyboardOpen((v) => !v)} openSeqs={openSeqs} onToggleSequencer={toggleSeq} />
+      <div className="pointer-events-none sticky top-2 z-30 flex items-start justify-between gap-2">
+        <div className="pointer-events-auto"><MetronomeBar engine={engine} snap={snap} ready={ready} /></div>
+        <button type="button" className={`${ibtn} pointer-events-auto`} onClick={() => setSettingsOpen(true)} title="Settings" aria-label="Settings"><Icon name="settings" /></button>
+      </div>
+      {snap.error && <p role="alert" className="rounded-lg border border-rose-500/40 bg-rose-500/10 p-2 text-xs text-rose-200">{snap.error}</p>}
+      <Mixer engine={engine} snap={snap} keyboardOpen={keyboardOpen} onToggleKeyboard={() => setKeyboardOpen((v) => !v)} openSeqs={openSeqs} onToggleSequencer={toggleSeq} openPianos={openPianos} onTogglePiano={togglePiano} />
       {keyboardOpen && (
         <FloatingWindow title="Keyboard" storageKey="musickit.looper.keyboardWindow" fit onClose={() => setKeyboardOpen(false)}>
           <Piano />
@@ -72,6 +76,11 @@ export default function LooperApp() {
       {openSeqs.filter((id) => snap.sequencers.some((q) => q.id === id)).map((id) => (
         <FloatingWindow key={id} title={snap.sequencers.find((q) => q.id === id)?.name ?? "Sequencer"} storageKey={`musickit.looper.sequencerWindow.${id}`} onClose={() => toggleSeq(id)}>
           <SequencerPanel engine={engine} snap={snap} id={id} />
+        </FloatingWindow>
+      ))}
+      {openPianos.filter((id) => snap.scalePianos.some((q) => q.id === id)).map((id) => (
+        <FloatingWindow key={id} title={snap.scalePianos.find((q) => q.id === id)?.name ?? "Scale Piano"} storageKey={`musickit.looper.scalePianoWindow.${id}`} fit onClose={() => togglePiano(id)}>
+          <ScalePianoPanel engine={engine} snap={snap} id={id} />
         </FloatingWindow>
       ))}
       {settingsOpen && <LooperSettings engine={engine} snap={snap} getLevel={getLevel} onClose={() => setSettingsOpen(false)} />}
@@ -89,13 +98,9 @@ export default function LooperApp() {
           <button type="button" className={ibtn} disabled={snap.channels.length <= 1 || snap.channels[snap.channels.length - 1].state !== "empty"} onClick={() => engine.removeLastChannel()} title="Remove the last loop" aria-label="Remove the last loop"><Icon name="minus" /></button>
           <button type="button" className={`${ibtn} gap-1`} disabled={snap.groups.length >= 8} onClick={() => engine.addGroup()} title="Add a group (a bus with effects)" aria-label="Add a group"><Icon name="plus" size={14} /><span className="text-[11px]">Group</span></button>
         </div>
-        <LoopStage engine={engine} snap={snap} getPosition={getPosition} />
+        <LoopStage engine={engine} snap={snap} getPosition={getPosition} openSeqs={openSeqs} onToggleSeq={toggleSeq} />
       </section>
 
-      <details className="rounded-xl border border-slate-800 bg-slate-900/40 p-2">
-        <summary className="flex cursor-pointer items-center gap-1.5 px-1 text-sm font-medium text-slate-100"><Icon name="audio-lines" className="text-slate-400" />Signal flow</summary>
-        <div className="pt-2"><SignalFlow snap={snap} /></div>
-      </details>
     </div>
   );
 }
@@ -116,21 +121,5 @@ function LoopBar({ getPosition }: { getPosition: () => number | null }) {
     <div className="h-2 min-w-[8rem] flex-1 overflow-hidden rounded-full bg-slate-800" aria-label="Position in the loop">
       <div ref={bar} className="h-full w-0 bg-sky-400" />
     </div>
-  );
-}
-
-function InputBar({ snap, getLevel, onSettings }: { snap: LooperSnapshot; getLevel: () => number; onSettings: () => void }) {
-  return (
-    <section className="flex flex-col gap-2 rounded-xl border border-slate-800 bg-slate-900/40 p-2" aria-label="Looper header">
-      <div className="flex flex-wrap items-center gap-1.5">
-        <span className="px-1 text-sm font-medium text-slate-100">Looper</span>
-        <div className="ml-auto flex min-w-[6rem] flex-1 items-center gap-2 sm:max-w-[16rem]" title="Level of what is being recorded">
-          <Icon name="activity" className="text-slate-500" />
-          <div className="flex-1"><LevelMeter getLevel={getLevel} /></div>
-        </div>
-        <button type="button" className={ibtn} onClick={onSettings} title="Settings" aria-label="Settings"><Icon name="settings" /></button>
-      </div>
-      {snap.error && <p role="alert" className="rounded-lg border border-rose-500/40 bg-rose-500/10 p-2 text-xs text-rose-200">{snap.error}</p>}
-    </section>
   );
 }

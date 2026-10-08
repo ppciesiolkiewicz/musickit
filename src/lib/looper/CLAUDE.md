@@ -2,6 +2,17 @@
 
 The looper is a self-contained feature. Treat it as its own small product that happens to live in this repo. These notes apply to everything in `src/lib/looper/`, `src/components/looper/` and `src/app/looper/`. The behaviour spec is `spec/looper.md`.
 
+## Definitions (the vocabulary of the looper)
+
+Routing: Input → (input effects) → recorder → Loop → Bus (of its Group) → Master bus.
+- **Inputs**: hardware (audio interface, USB or built-in mic), software (the on-screen keyboard, the Scale Piano, which plays the computer keys in a chosen key and scale) and sequencers. Every input has a strip with effects (pre or post fader).
+- **Routed to master by default.** Sequencers and software inputs are heard on master. Status: "routed to all buses by default" is NOT implemented; a loop or sequencer goes to the bus of the group it sits in, or to master outside every group.
+- **Bus**: one per group, with routing (its group), a connection (what feeds it, shown in the Mixer and the Signal flow), effects and a volume. Five groups and so five buses exist by default.
+- **Master bus**: everything ends here. Meter and volume are in the Mixer.
+- **Plugins / effects**: `effects.ts`; on inputs and buses; each effect is pre-fader or post-fader.
+- **Loops**: recorded from the inputs, played into the bus of their group.
+- **Loop groups**: coloured boxes on the stage. Sequencers also live on the stage (circles) and can sit in a group. Every group has a start/stop button. Starting and stopping loops and sequencers must stay easy, and always lands on a beat.
+
 ## Keep it separate
 - `src/lib/looper/*` (engine, mixer, frames, worklet) imports nothing outside `src/lib/looper`. No `@/lib/audio`, no theory, no React.
 - The app injects what the engine needs through options: `getContext` (shared AudioContext) and `getExternalSource` / `externalLabel` (the piano's output bus). Wiring lives only in `LooperApp.tsx`.
@@ -27,7 +38,7 @@ The looper is a self-contained feature. Treat it as its own small product that h
 
 ## Sequencers (drum machine)
 - `sequencer.ts` is a step sequencer with swappable synthesised instruments (drums by default, bass synth too). No sample files are downloaded: add sounds as oscillator and noise recipes and register them in `INSTRUMENTS`. Pure pattern maths and presets live in `sequencerPattern.ts` with tests.
-- There can be several, each with its own pattern, instrument and destination, each with a mixer strip of kind `sequencer` (the strip's `sourceId` is the sequencer id). Destination is `master` (default), `record` (heard on master and fed to the recorder through the strip), or a group id. Routing lives in the engine (`routeSequencer`); a removed group sends its sequencers back to master.
+- There can be several, each with its own pattern, instrument and destination, each with a mixer strip of kind `sequencer` (the strip's `sourceId` is the sequencer id). Destination is automatic: the bus of the group whose box holds the sequencer's circle, or master outside every group. The switch `record` additionally feeds the recorder through the strip. Routing lives in the engine (`routeSequencer`). Start and stop happen on the next beat (`setSequencerPlaying`, `setGroupActive`).
 - They play in time with the metronome grid while a take records, a loop plays or the metronome runs, or while previewing. Keep output levels modest so a full kit does not clip the recording.
 - The Signal flow panel (`SignalFlow.tsx`) draws sources, recorder, loops, group buses and master from the snapshot. When routing changes, keep that picture true.
 
@@ -35,11 +46,12 @@ The looper is a self-contained feature. Treat it as its own small product that h
 - The page has two sections: Mixer (inputs) and Looping (loops on a stage). Keep them separate: inputs feed the recorder, loops play back.
 - Loops are circles with a progress ring. Groups are coloured boxes that can be moved and resized. A loop whose circle centre is inside a group plays through that group's bus (`buses.ts`: input, effect chain, volume, speakers); a loop outside every group plays straight to the speakers. Where groups overlap, the one drawn on top wins. Geometry and its tests are in `layout.ts`.
 - Effects (`effects.ts`) are described by `EFFECT_DEFS`; the UI is generated from it. To add one: a def, a case in `createEffect`, a test for any new maths. Saved effect lists go through `sanitiseEffects`.
-- Input (pre-record) effects are not built yet; when they are, reuse `effects.ts`.
+- Input strips and buses share `effects.ts` and `EffectsModal`. Effects are pre-fader (cut by mute and volume) or post-fader (keep their tail). Add new effects only in `EFFECT_DEFS` and `createEffect`.
+- Scale Piano (`scalePiano.ts`): layout maths is pure and tested; the DOM key handling is in `ScalePianoPanel` and only active while its window is open. Keep key codes (`KeyboardEvent.code`) so non-English layouts work.
 - The metronome can run on its own (`toggleMetronome`), and the sequencer follows it.
 
 ## State and storage
-- Saved strips live in localStorage `musickit.looper.inputs`; other keys: `musickit.looper.layout` (groups, effects, loop positions), `musickit.looper.metronome`, `musickit.looper.sequencers`, `musickit.looper.sequencerWindow.<id>`, `musickit.looper.midi`, `musickit.looper.keyboard`, `musickit.looper.keyboardWindow`. Wrap every read and write in try/catch, validate on load, and keep old saves loading (add fields with defaults).
+- Saved strips live in localStorage `musickit.looper.inputs`; other keys: `musickit.looper.layout` (groups, effects, loop positions), `musickit.looper.metronome`, `musickit.looper.sequencers`, `musickit.looper.scalePianos`, `musickit.looper.scalePianoWindow.<id>`, `musickit.looper.sequencerWindow.<id>`, `musickit.looper.midi`, `musickit.looper.keyboard`, `musickit.looper.keyboardWindow`. Wrap every read and write in try/catch, validate on load, and keep old saves loading (add fields with defaults).
 - Restored device strips come back disconnected.
 - Max 8 inputs (`MAX_INPUTS`).
 
