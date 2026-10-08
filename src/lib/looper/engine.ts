@@ -168,19 +168,6 @@ export class LooperEngine {
     await this.refreshDevices().catch(() => undefined);
   }
 
-  /** How many channels a device delivers, found by opening it for an instant. Null when it cannot be opened. */
-  async probeChannels(deviceId: string): Promise<number | null> {
-    if (!navigator.mediaDevices?.getUserMedia) return null;
-    try {
-      const s = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false, channelCount: { ideal: 2 }, ...(deviceId ? { deviceId: { exact: deviceId } } : {}) } });
-      const n = s.getAudioTracks()[0]?.getSettings?.().channelCount ?? null;
-      s.getTracks().forEach((t) => t.stop());
-      return n;
-    } catch {
-      return null;
-    }
-  }
-
   /** Start the audio engine and open every audio input that is set up in the mixer. */
   async enable(): Promise<void> {
     if (this.meta.status === "starting") return;
