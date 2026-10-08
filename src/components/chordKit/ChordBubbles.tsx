@@ -134,13 +134,14 @@ function Bubble({ ctx, ch, onPlay }: { ctx: KeyContext; ch: DegreeChord; onPlay:
   const [hover, setHover] = useState<string | null>(null);
   const [pin, setPin] = useState<string | null>(null);
   const shown = pin ?? hover;
-  const pop = shown ? pops[shown] : null;
+  // the side panel always shows something: what is hovered or pinned, else the chord itself
+  const pop = pops[shown ?? "hub"];
   const onPin = (id: string) => setPin((p) => (p === id ? null : id));
   const ring = (id: string) => (shown === id ? { stroke: "#f8fafc", strokeWidth: 2.5 } : {});
 
   return (
-    <div className="relative">
-      <svg viewBox={`0 0 ${cellW} ${cellH}`} width="100%" role="group" aria-label={`${ch.seventhName}: sus and extension chords reachable from ${ch.triadName}`}>
+    <div className="flex flex-col items-center gap-3 md:flex-row md:items-start">
+      <svg viewBox={`0 0 ${cellW} ${cellH}`} className="w-full max-w-[34rem] shrink-0 md:w-[34rem]" role="group" aria-label={`${ch.seventhName}: sus and extension chords reachable from ${ch.triadName}`}>
         <text x={cx} y={20} textAnchor="middle" fontSize={13} fontWeight={500} fill="#cbd5e1">{ch.roman} · {ch.triadName}</text>
         {ch.formula.map((lab, i) => {
           const sw = swatchFor(lab);
@@ -204,26 +205,16 @@ function Bubble({ ctx, ch, onPlay }: { ctx: KeyContext; ch: DegreeChord; onPlay:
         })}
       </svg>
 
-      {pop && (
-        <div
-          role="tooltip"
-          className={`absolute z-20 w-60 rounded-lg border bg-slate-950 p-2.5 text-xs leading-relaxed text-slate-300 shadow-xl ${pop.warn ? "border-rose-500/60" : "border-slate-600"} ${pin ? "" : "pointer-events-none"}`}
-          style={{
-            left: `${Math.min(80, Math.max(20, (pop.x / cellW) * 100))}%`,
-            top: `${(pop.y / cellH) * 100}%`,
-            transform: `translate(-50%, ${pop.y > cellH * 0.55 ? "calc(-100% - 2.4rem)" : "2.4rem"})`,
-          }}
-        >
-          <div className="flex items-start gap-2">
-            <b className="text-sm text-slate-100">{pop.title}</b>
-            {pin && <button type="button" onClick={() => setPin(null)} className="ml-auto rounded border border-slate-700 px-1.5 text-[11px] text-slate-400 hover:text-slate-200" aria-label="Close">✕</button>}
-          </div>
-          {pop.notes && <div className="mt-1 text-slate-400">Notes: <span className="text-slate-200">{pop.notes.join(" ")}</span></div>}
-          <p className="mt-1">{pop.text}</p>
-          {pop.semis && pop.rootPc !== undefined && <Fingering key={shown ?? ""} rootPc={pop.rootPc} semis={pop.semis} />}
-          {!pin && <p className="mt-1 text-[10px] text-slate-500">Click to keep this open.</p>}
+      <div role="status" aria-live="polite" className={`min-w-0 w-full max-w-[34rem] flex-1 rounded-xl border bg-slate-950 p-3 text-xs text-slate-300 md:sticky md:top-3 md:max-w-none ${pop.warn ? "border-rose-500/60" : "border-slate-700"}`}>
+        <div className="flex items-start gap-2">
+          <b className="text-base text-slate-100">{pop.title}</b>
+          {pin && <button type="button" onClick={() => setPin(null)} className="ml-auto rounded border border-slate-700 px-1.5 text-[11px] text-slate-400 hover:text-slate-200" aria-label="Release">✕ release</button>}
         </div>
-      )}
+        {pop.notes && <div className="mt-1 text-slate-400">Notes: <span className="text-slate-200">{pop.notes.join(" ")}</span></div>}
+        {pop.warn && <p className="mt-1 text-rose-300">Clashes with the chord, use with care.</p>}
+        {pop.semis && pop.rootPc !== undefined && <Fingering key={shown ?? "hub"} rootPc={pop.rootPc} semis={pop.semis} />}
+        {!pin && <p className="mt-2 text-[10px] text-slate-500">Hover a bubble to see it here; click to keep it.</p>}
+      </div>
     </div>
   );
 }
@@ -237,11 +228,11 @@ function Fingering({ rootPc, semis }: { rootPc: number; semis: number[] }) {
   const step = (d: number) => (e: { stopPropagation: () => void }) => { e.stopPropagation(); setI((v) => (v + d + list.length) % list.length); };
   return (
     <div className="mt-2 flex flex-col items-center gap-1 border-t border-slate-800 pt-2">
-      <div className="w-32"><ChordDiagram shape={cur.choice.shape} rootFret={cur.choice.fret} onPlay={() => strumShape(cur.choice.shape, cur.choice.fret)} /></div>
+      <div className="w-44"><ChordDiagram shape={cur.choice.shape} rootFret={cur.choice.fret} onPlay={() => strumShape(cur.choice.shape, cur.choice.fret)} /></div>
       <div className="flex items-center gap-2 text-[11px] text-slate-400">
-        {list.length > 1 && <button type="button" onClick={step(-1)} aria-label="Previous fingering" className="pointer-events-auto rounded border border-slate-700 px-1.5">‹</button>}
+        {list.length > 1 && <button type="button" onClick={step(-1)} aria-label="Previous fingering" className="rounded border border-slate-700 px-1.5">‹</button>}
         <span className="tabular-nums">fret {cur.choice.fret}{list.length > 1 ? ` · ${(i % list.length) + 1}/${list.length}` : ""}</span>
-        {list.length > 1 && <button type="button" onClick={step(1)} aria-label="Next fingering" className="pointer-events-auto rounded border border-slate-700 px-1.5">›</button>}
+        {list.length > 1 && <button type="button" onClick={step(1)} aria-label="Next fingering" className="rounded border border-slate-700 px-1.5">›</button>}
       </div>
       {!cur.full && <p className="text-center text-[10px] text-amber-300">Closest shape: leaves out a colour note.</p>}
     </div>
@@ -262,7 +253,7 @@ export default function ChordBubbles({ ctx }: { ctx: KeyContext }) {
           The big circle is the chord with its Roman numeral. The four small circles above it are its own notes: 1, 3, 5 and 7, with the scale degrees they come from underneath. Around it, each inner circle is another note of the scale: the 2nd (top), 4th (right), 6th (bottom) and 7th (left) above the chord&rsquo;s root, with the note name. The outer circles are the chords you reach by using that note. The 2nd gives a sus2 (it replaces the 3rd) and a 9th chord (it is stacked on top). The 4th gives sus4 and 11, the 6th gives 6 and 13, the 7th gives the seventh chord. A dashed outline marks a note that clashes with the chord (for example a natural 11 on a major chord) so use it with care. Tap the middle to hear the chord.
         </Info>
       </p>
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="flex flex-col gap-3">
         {ctx.chords.map((ch) => (
           <div key={ch.degree} className="min-w-0 rounded-xl border border-slate-800 bg-slate-950/50 p-2">
             <Bubble ctx={ctx} ch={ch} onPlay={() => strum(chordMidi(ctx, ch.degree, 4), { gapMs: 70, holdMs: 1600 })} />

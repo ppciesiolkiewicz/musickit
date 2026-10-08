@@ -114,12 +114,10 @@ function LoopBar({ getPosition }: { getPosition: () => number | null }) {
 }
 
 function InputBar({ snap, getLevel, onSettings }: { snap: LooperSnapshot; getLevel: () => number; onSettings: () => void }) {
-  const live = snap.inputs.filter((i) => i.live && (i.kind === "extra" || i.connected));
   return (
     <section className="flex flex-col gap-2 rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5" aria-label="Looper level">
       <div className="flex flex-wrap items-center gap-3">
         <h2 className="text-sm font-medium text-slate-100">Looper</h2>
-        <span className="text-xs text-slate-400">Recording from <b className="text-slate-200">{live.length ? live.map((i) => i.name).join(" + ") : "nothing (add or unmute an input)"}</b></span>
         <button type="button" className={`${btnPlain} ml-auto`} onClick={onSettings}>⚙ Settings</button>
       </div>
       {snap.error && <p role="alert" className="rounded-lg border border-rose-500/40 bg-rose-500/10 p-2.5 text-xs text-rose-200">{snap.error}</p>}
