@@ -127,7 +127,9 @@ function Hot({ id, label, active, onHover, onPin, children }: { id: string; labe
   );
 }
 
-function Bubble({ ctx, ch, onPlay }: { ctx: KeyContext; ch: DegreeChord; onPlay: () => void }) {
+interface CompareItem { key: string; title: string; notes?: string[]; rootPc: number; semis: number[] }
+
+function Bubble({ ctx, ch, onPlay, items, onToggle }: { ctx: KeyContext; ch: DegreeChord; onPlay: () => void; items: CompareItem[]; onToggle: (...its: CompareItem[]) => void }) {
   const hue = HUES[HUE_OF[ch.tri]];
   const lineCol = hue.line;
   const pops = useMemo(() => popovers(ctx, ch), [ctx, ch]);
@@ -137,6 +139,12 @@ function Bubble({ ctx, ch, onPlay }: { ctx: KeyContext; ch: DegreeChord; onPlay:
   // the side panel always shows something: what is hovered or pinned, else the chord itself
   const pop = pops[shown ?? "hub"];
   const onPin = (id: string) => setPin((p) => (p === id ? null : id));
+  const itemOf = (id: string): CompareItem | null => {
+    const q = pops[id];
+    return q?.semis && q.rootPc !== undefined ? { key: `${ch.degree}:${id}`, title: q.title, notes: q.notes, rootPc: q.rootPc, semis: q.semis } : null;
+  };
+  const cur = itemOf(shown ?? "hub");
+  const all = Object.keys(pops).filter((k) => k.startsWith("leaf-")).map(itemOf).filter((x): x is CompareItem => x !== null);
   const ring = (id: string) => (shown === id ? { stroke: "#f8fafc", strokeWidth: 2.5 } : {});
 
   return (
@@ -213,6 +221,10 @@ function Bubble({ ctx, ch, onPlay }: { ctx: KeyContext; ch: DegreeChord; onPlay:
         {pop.notes && <div className="mt-1 text-slate-400">Notes: <span className="text-slate-200">{pop.notes.join(" ")}</span></div>}
         {pop.warn && <p className="mt-1 text-rose-300">Clashes with the chord, use with care.</p>}
         {pop.semis && pop.rootPc !== undefined && <Fingering key={shown ?? "hub"} rootPc={pop.rootPc} semis={pop.semis} />}
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {cur && <button type="button" onClick={() => onToggle(cur)} className="rounded-md border border-sky-500/60 px-2 py-1 text-[11px] text-sky-200 hover:bg-sky-500/10">{items.some((x) => x.key === cur.key) ? "✓ In comparison (remove)" : "+ Compare"}</button>}
+          <button type="button" onClick={() => onToggle(...all.filter((a) => !items.some((x) => x.key === a.key)))} className="rounded-md border border-slate-700 px-2 py-1 text-[11px] text-slate-300 hover:border-slate-500">+ Compare all {ch.root} chords</button>
+        </div>
         {!pin && <p className="mt-2 text-[10px] text-slate-500">Hover a bubble to see it here; click to keep it.</p>}
       </div>
     </div>
@@ -220,7 +232,7 @@ function Bubble({ ctx, ch, onPlay }: { ctx: KeyContext; ch: DegreeChord; onPlay:
 }
 
 /** Guitar fingering(s) for a chord inside a popover: the best shape as a chord box, with arrows when there are more. Click the box to hear it. */
-function Fingering({ rootPc, semis }: { rootPc: number; semis: number[] }) {
+function Fingering({ rootPc, semis, small }: { rootPc: number; semis: number[]; small?: boolean }) {
   const list = useMemo(() => shapesForTones(rootPc, semis), [rootPc, semis]);
   const [i, setI] = useState(0);
   if (list.length === 0) return <p className="mt-1 text-[11px] text-slate-500">No common guitar shape for this chord in the library.</p>;
@@ -228,7 +240,7 @@ function Fingering({ rootPc, semis }: { rootPc: number; semis: number[] }) {
   const step = (d: number) => (e: { stopPropagation: () => void }) => { e.stopPropagation(); setI((v) => (v + d + list.length) % list.length); };
   return (
     <div className="mt-2 flex flex-col items-center gap-1 border-t border-slate-800 pt-2">
-      <div className="w-44"><ChordDiagram shape={cur.choice.shape} rootFret={cur.choice.fret} onPlay={() => strumShape(cur.choice.shape, cur.choice.fret)} /></div>
+      <div className={small ? "w-28" : "w-44"}><ChordDiagram shape={cur.choice.shape} rootFret={cur.choice.fret} onPlay={() => strumShape(cur.choice.shape, cur.choice.fret)} /></div>
       <div className="flex items-center gap-2 text-[11px] text-slate-400">
         {list.length > 1 && <button type="button" onClick={step(-1)} aria-label="Previous fingering" className="rounded border border-slate-700 px-1.5">‹</button>}
         <span className="tabular-nums">fret {cur.choice.fret}{list.length > 1 ? ` · ${(i % list.length) + 1}/${list.length}` : ""}</span>
@@ -245,6 +257,14 @@ function Fingering({ rootPc, semis }: { rootPc: number; semis: number[] }) {
  * The cards fill the width available. Hover a small bubble for an explanation; click to keep it open.
  */
 export default function ChordBubbles({ ctx }: { ctx: KeyContext }) {
+  const [items, setItems] = useState<CompareItem[]>([]);
+  const toggle = (...its: CompareItem[]) =>
+    setItems((cur) => {
+      const have = new Set(cur.map((x) => x.key));
+      // one item that is already there: remove it; otherwise add what is missing
+      if (its.length === 1 && have.has(its[0].key)) return cur.filter((x) => x.key !== its[0].key);
+      return [...cur, ...its.filter((x) => !have.has(x.key))].slice(0, 12);
+    });
   return (
     <div className="flex flex-col gap-3">
       <p className="text-xs text-slate-500">
@@ -253,10 +273,30 @@ export default function ChordBubbles({ ctx }: { ctx: KeyContext }) {
           The big circle is the chord with its Roman numeral. The four small circles above it are its own notes: 1, 3, 5 and 7, with the scale degrees they come from underneath. Around it, each inner circle is another note of the scale: the 2nd (top), 4th (right), 6th (bottom) and 7th (left) above the chord&rsquo;s root, with the note name. The outer circles are the chords you reach by using that note. The 2nd gives a sus2 (it replaces the 3rd) and a 9th chord (it is stacked on top). The 4th gives sus4 and 11, the 6th gives 6 and 13, the 7th gives the seventh chord. A dashed outline marks a note that clashes with the chord (for example a natural 11 on a major chord) so use it with care. Tap the middle to hear the chord.
         </Info>
       </p>
+      {items.length > 0 && (
+        <section className="sticky top-0 z-20 max-h-[45vh] overflow-y-auto rounded-xl border border-sky-500/40 bg-slate-950 p-2.5 shadow-lg" aria-label="Chord comparison">
+          <div className="mb-2 flex items-center gap-2">
+            <h3 className="text-sm font-medium text-slate-100">Comparing {items.length} chord{items.length === 1 ? "" : "s"}</h3>
+            <button type="button" onClick={() => setItems([])} className="ml-auto rounded-md border border-slate-700 px-2 py-1 text-[11px] text-slate-300 hover:border-slate-500">Clear</button>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {items.map((it) => (
+              <div key={it.key} className="flex w-44 flex-col rounded-lg border border-slate-800 bg-slate-900/60 p-2">
+                <div className="flex items-start gap-1">
+                  <b className="text-sm text-slate-100">{it.title}</b>
+                  <button type="button" onClick={() => toggle(it)} aria-label={`Remove ${it.title}`} className="ml-auto rounded border border-slate-700 px-1.5 text-[11px] text-slate-400 hover:text-slate-200">✕</button>
+                </div>
+                {it.notes && <div className="text-[11px] text-slate-400">{it.notes.join(" ")}</div>}
+                <Fingering rootPc={it.rootPc} semis={it.semis} small />
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
       <div className="flex flex-col gap-3">
         {ctx.chords.map((ch) => (
           <div key={ch.degree} className="min-w-0 rounded-xl border border-slate-800 bg-slate-950/50 p-2">
-            <Bubble ctx={ctx} ch={ch} onPlay={() => strum(chordMidi(ctx, ch.degree, 4), { gapMs: 70, holdMs: 1600 })} />
+            <Bubble ctx={ctx} ch={ch} items={items} onToggle={toggle} onPlay={() => strum(chordMidi(ctx, ch.degree, 4), { gapMs: 70, holdMs: 1600 })} />
           </div>
         ))}
       </div>
