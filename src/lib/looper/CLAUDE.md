@@ -13,6 +13,9 @@ Routing: Input → (input effects) → recorder → Loop → Bus (of its Group) 
 - **Loops**: recorded from the inputs, played into the bus of their group.
 - **Loop groups**: coloured boxes on the stage. Sequencers also live on the stage (circles) and can sit in a group. Every group has a start/stop button. Starting and stopping loops and sequencers must stay easy, and always lands on a beat.
 
+## Loop lengths (rule, not built yet)
+- A new loop may be 2^n times longer or 2^n times shorter than any other loop (1/4, 1/2, 1, 2, 4 ... times the length of an existing loop), always starting on the grid. Longer loops start when the longest running loop wraps; shorter ones repeat inside it. Status: NOT implemented. Today every later take is exactly one first-loop long, and the loop length is locked by the first take (`loopLength`). When it is built, `frames.ts` holds the maths (with tests), each channel needs its own length, and the position rings and the quantising must follow each loop's own length.
+
 ## Keep it separate
 - `src/lib/looper/*` (engine, mixer, frames, worklet) imports nothing outside `src/lib/looper`. No `@/lib/audio`, no theory, no React.
 - The app injects what the engine needs through options: `getContext` (shared AudioContext) and `getExternalSource` / `externalLabel` (the piano's output bus). Wiring lives only in `LooperApp.tsx`.
@@ -47,6 +50,7 @@ Routing: Input → (input effects) → recorder → Loop → Bus (of its Group) 
 
 ## Looping stage, groups, buses and effects
 - The page has two sections: Mixer (inputs) and Looping (loops on a stage). Keep them separate: inputs feed the recorder, loops play back.
+- The Signal flow diagram is also a control: drag a loop or sequencer onto a bus (puts it in that group), onto the master (a free spot outside every group; `spotOutside`, the default groups leave a free strip for it) or a sequencer onto the recorder (record). It only calls engine actions, so the mixer and the stage follow from the snapshot.
 - Loops are circles with a progress ring. Groups are coloured boxes that can be moved and resized. A loop whose circle centre is inside a group plays through that group's bus (`buses.ts`: input, effect chain, volume, speakers); a loop outside every group plays straight to the speakers. Where groups overlap, the one drawn on top wins. Geometry and its tests are in `layout.ts`.
 - Effects (`effects.ts`) are described by `EFFECT_DEFS`; the UI is generated from it. To add one: a def, a case in `createEffect`, a test for any new maths. Saved effect lists go through `sanitiseEffects`.
 - Input strips and buses share `effects.ts` and `EffectsModal`. Effects are pre-fader (cut by mute and volume) or post-fader (keep their tail). Add new effects only in `EFFECT_DEFS` and `createEffect`.

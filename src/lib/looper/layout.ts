@@ -46,10 +46,13 @@ export function clampPoint(x: number, y: number): { x: number; y: number } {
 export const DEFAULT_GROUPS = 5;
 
 /** Five side-by-side groups (five buses) filling the stage. */
+/** height left free below the default groups: loops and sequencers placed there play straight to the master */
+export const FREE_STRIP = 96;
+
 export function defaultGroups(): GroupLayout[] {
   const gap = 12;
   const w = (STAGE_W - gap * (DEFAULT_GROUPS + 1)) / DEFAULT_GROUPS;
-  return Array.from({ length: DEFAULT_GROUPS }, (_, i) => i).map((i) => ({ id: `g${i + 1}`, x: gap + i * (w + gap), y: gap, w, h: STAGE_H - gap * 2 }));
+  return Array.from({ length: DEFAULT_GROUPS }, (_, i) => i).map((i) => ({ id: `g${i + 1}`, x: gap + i * (w + gap), y: gap, w, h: STAGE_H - gap * 2 - FREE_STRIP }));
 }
 
 /** A spot for loop number `index` of `total`: inside the group `index % groups`, stacked so circles do not overlap. */
@@ -61,4 +64,31 @@ export function defaultSpot(groups: GroupLayout[], index: number): { x: number; 
   const col = slot % perRow;
   const row = Math.floor(slot / perRow);
   return clampPoint(g.x + 20 + LOOP_R + col * (LOOP_R * 2 + 12), g.y + 50 + LOOP_R + row * (LOOP_R * 2 + 56));
+}
+
+const apart = (x: number, y: number, taken: { x: number; y: number }[]) => taken.every((t) => Math.hypot(t.x - x, t.y - y) >= LOOP_R * 1.6);
+
+/** A free spot inside the group, clear of the other circles, or the group centre when it is full. */
+export function spotInGroup(groups: GroupLayout[], groupId: string, taken: { x: number; y: number }[]): { x: number; y: number } {
+  const g = groups.find((x) => x.id === groupId);
+  if (!g) return clampPoint(STAGE_W / 2, STAGE_H / 2);
+  const step = LOOP_R * 1.7;
+  for (let y = g.y + 50 + LOOP_R; y <= g.y + g.h - LOOP_R; y += step) {
+    for (let x = g.x + 20 + LOOP_R; x <= g.x + g.w - LOOP_R; x += step) {
+      const p = clampPoint(x, y);
+      if (containingGroup(groups, p.x, p.y) === groupId && apart(p.x, p.y, taken)) return p;
+    }
+  }
+  return clampPoint(g.x + g.w / 2, g.y + g.h / 2);
+}
+
+/** A spot on the stage outside every group (so a circle there plays straight to the master), or null when the groups cover everything. */
+export function spotOutside(groups: GroupLayout[], taken: { x: number; y: number }[]): { x: number; y: number } | null {
+  const step = LOOP_R * 1.7;
+  for (let y = STAGE_H - LOOP_R; y >= LOOP_R; y -= step) {
+    for (let x = LOOP_R; x <= STAGE_W - LOOP_R; x += step) {
+      if (containingGroup(groups, x, y) === null && apart(x, y, taken)) return { x, y };
+    }
+  }
+  return null;
 }

@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { LOOP_R, MIN_GROUP_W, STAGE_H, STAGE_W, clampPoint, clampRect, containingGroup, defaultGroups, defaultSpot } from "./layout";
+import { spotInGroup, spotOutside, LOOP_R, MIN_GROUP_W, STAGE_H, STAGE_W, clampPoint, clampRect, containingGroup, defaultGroups, defaultSpot } from "./layout";
 import { clampParams, defaultParams, sanitiseEffects } from "./effects";
 
 describe("stage layout", () => {
@@ -44,5 +44,24 @@ describe("effects params", () => {
     const list = sanitiseEffects([{ id: "x", kind: "reverb", params: { decay: 100 } }, { kind: "flanger" }, null]);
     assert.equal(list.length, 1);
     assert.equal(list[0].params.decay, 6);
+  });
+});
+
+describe("placing circles from the diagram", () => {
+  it("finds a spot inside a group that is clear of the others", () => {
+    const groups = defaultGroups();
+    const taken = [{ x: groups[1].x + 20 + LOOP_R, y: groups[1].y + 50 + LOOP_R }];
+    const p = spotInGroup(groups, "g2", taken);
+    assert.equal(containingGroup(groups, p.x, p.y), "g2");
+    assert.ok(Math.hypot(p.x - taken[0].x, p.y - taken[0].y) >= LOOP_R * 1.6);
+  });
+  it("leaves room outside the default groups, for the master", () => {
+    const groups = defaultGroups();
+    const p = spotOutside(groups, []);
+    assert.ok(p);
+    assert.equal(containingGroup(groups, p!.x, p!.y), null);
+  });
+  it("reports no spot when groups cover the stage", () => {
+    assert.equal(spotOutside([{ id: "a", x: 0, y: 0, w: 1000, h: 460 }], []), null);
   });
 });

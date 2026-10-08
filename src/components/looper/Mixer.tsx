@@ -156,7 +156,7 @@ export default function Mixer({ engine, snap, keyboardOpen, onToggleKeyboard, op
       <Buses engine={engine} snap={snap} />
       <details open className="rounded-lg border border-slate-800 bg-slate-950/40 p-1.5">
         <summary className="flex cursor-pointer items-center gap-1.5 px-1 text-xs font-medium text-slate-300"><Icon name="audio-lines" className="text-slate-400" size={16} />How it is connected</summary>
-        <div className="pt-2"><SignalFlow snap={snap} /></div>
+        <div className="pt-2"><SignalFlow snap={snap} engine={engine} /></div>
       </details>
       {adding && <AddInputModal engine={engine} snap={snap} hasExtra={hasExtra} onClose={() => setAdding(false)} />}
     </section>

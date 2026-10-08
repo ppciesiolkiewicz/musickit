@@ -88,3 +88,11 @@ Every input, sequencer and bus row shows its effect stack like a DAW insert chai
 ## Metronome follows what is running
 
 The metronome runs whenever anything runs (a take, a loop, a sequencer). Its button only starts or stops the metronome; when something else is running it only mutes or unmutes the click, and it never starts a sequencer. With the metronome already running a take needs no count-in: it starts on the next bar (or beat) line. With nothing running, recording starts the metronome with the count-in. Quantising recordings (whole bars, whole beats or off) is in Looper settings, Timing.
+
+## Dragging in the diagram
+
+In "How it is connected" a loop or sequencer can be dragged onto a bus (it moves into that group on the stage), onto the master (to a free spot outside the groups; the default groups leave a free strip at the bottom) or, for a sequencer, onto the recorder. The mixer rows, bus counts and the stage update with it. The first take now plays on at once, in phase, when it ends, instead of waiting a round.
+
+## Loop lengths (planned)
+
+New loops may be 2^n times longer or shorter than any other loop. Not built yet.

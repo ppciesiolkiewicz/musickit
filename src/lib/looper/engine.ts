@@ -103,6 +103,8 @@ interface ChannelRuntime {
 
 interface Capture {
   channel: number;
+  /** context time the take is meant to start (before latency compensation) */
+  at: number;
   /** first frame to keep (after latency compensation) */
   startFrame: number;
   /** last frame (exclusive) for loop-synced captures, null for the free-length first take */
@@ -931,7 +933,7 @@ export class LooperEngine {
         startFrame = Math.round(anchor * sr) + comp;
       }
       const fresh = anchor !== this.gridAnchor || !this.gridActive();
-      this.capture = { channel: id, startFrame, endFrame: null, chunks: [], lastFrame: startFrame, started: false, unit, stopping: false };
+      this.capture = { channel: id, at: startFrame / sr - comp / sr, startFrame, endFrame: null, chunks: [], lastFrame: startFrame, started: false, unit, stopping: false };
       rt.info.state = "armed";
       this.gridAnchor = anchor;
       this.loopOnGrid = unit > 0;
@@ -943,7 +945,7 @@ export class LooperEngine {
     const when = nextBoundary(this.ctx.currentTime, this.loopStart, this.loopLength, 0.08);
     const startFrame = Math.round(when * sr) + comp;
     const endFrame = startFrame + Math.round(this.loopLength * sr);
-    this.capture = { channel: id, startFrame, endFrame, chunks: [], lastFrame: startFrame, started: false, unit: 0, stopping: false };
+    this.capture = { channel: id, at: when, startFrame, endFrame, chunks: [], lastFrame: startFrame, started: false, unit: 0, stopping: false };
     rt.info.state = "armed";
     this.syncMetronome();
     this.emit();
@@ -1022,10 +1024,11 @@ export class LooperEngine {
       this.loopLength = buf.duration;
       this.playing = true;
       // on the grid: the loop restarts on a multiple of its length after beat 1, so it stays in time with the clicks
-      this.loopStart = this.loopOnGrid ? nextBoundary(this.ctx.currentTime, this.gridAnchor, this.loopLength, 0.03) : this.ctx.currentTime + 0.05;
+      // on the grid the loop is already running: its start is the end of the take, so it plays on at once, in phase (no wait for the next round)
+      this.loopStart = this.loopOnGrid ? cap.at + Math.floor((this.ctx.currentTime - cap.at) / this.loopLength) * this.loopLength : this.ctx.currentTime + 0.05;
       if (!this.loopOnGrid) this.gridAnchor = this.loopStart;
     }
-    if (this.playing) this.startChannel(rt, firstTake ? this.loopStart : null);
+    if (this.playing) this.startChannel(rt, firstTake && !this.loopOnGrid ? this.loopStart : null);
     this.syncMetronome(firstTake);
     this.emit();
   }
