@@ -5,11 +5,11 @@ import Link from "next/link";
 import { KeyPicker } from "./KeyPicker";
 import { DegreeLegend, Info } from "./ui";
 import { FAMILIES, makeKeyContext } from "@/lib/chordKit/theory";
-import { MODE_PAGES, degreeColour, degreeLabels, relativesOf, stepPattern } from "@/lib/chordKit/scales";
+import { MODE_PAGES, degreeColour, degreeLabels, relativesOf } from "@/lib/chordKit/scales";
 
 const ORD = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th"];
 
-/** Every mode side by side in one key: scale degrees, notes, step pattern and relatives. */
+/** Every mode side by side in one key: scale degrees, notes and relatives. */
 export default function ScalesIndex({ initialKey }: { initialKey: number }) {
   const [tonicPc, setTonicPc] = useState(initialKey);
 
@@ -29,7 +29,7 @@ export default function ScalesIndex({ initialKey }: { initialKey: number }) {
         fam,
         modes: MODE_PAGES.filter((m) => m.familyIndex === fi).map((m) => {
           const ctx = makeKeyContext(tonicPc, fi, m.modeIndex);
-          return { page: m, ctx, rel: relativesOf(ctx), labels: degreeLabels(ctx.steps), pattern: stepPattern(ctx.steps) };
+          return { page: m, ctx, rel: relativesOf(ctx), labels: degreeLabels(ctx.steps) };
         }),
       })),
     [tonicPc],
@@ -43,7 +43,7 @@ export default function ScalesIndex({ initialKey }: { initialKey: number }) {
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
           <DegreeLegend />
           <Info label="How to read the cards">
-            Each card is one mode starting on the key you chose. The coloured circles are its seven notes in order. The small label above each is the scale degree, written against the major scale, so ♭3 means the 3rd is lowered and ♯4 means the 4th is raised. Colour follows the degree: 1 white, 2 teal, 3 amber, 4 lime, 5 blue, 6 violet, 7 rose. The line underneath shows the whole and half steps (W and H). Relative major and relative minor are the major and natural minor scales that use exactly the same seven notes.
+            Each card is one mode starting on the key you chose. The coloured circles are its seven notes in order. The small label above each is the scale degree, written against the major scale, so ♭3 means the 3rd is lowered and ♯4 means the 4th is raised. Colour follows the degree: 1 white, 2 teal, 3 amber, 4 lime, 5 blue, 6 violet, 7 rose. Relative major and relative minor are the major and natural minor scales that use exactly the same seven notes.
           </Info>
         </div>
       </div>
@@ -52,7 +52,7 @@ export default function ScalesIndex({ initialKey }: { initialKey: number }) {
         <section key={fam.id}>
           <h2 className="mb-2 text-sm font-medium text-slate-200">{fam.label}</h2>
           <div className="grid gap-3 lg:grid-cols-2">
-            {modes.map(({ page, ctx, rel, labels, pattern }) => (
+            {modes.map(({ page, ctx, rel, labels }) => (
               <article key={page.slug} className="flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
                 <header className="flex flex-wrap items-baseline gap-x-2">
                   <h3 className="text-base text-slate-100">{ctx.names[0]} {ctx.modeName}</h3>
@@ -69,8 +69,6 @@ export default function ScalesIndex({ initialKey }: { initialKey: number }) {
                 </div>
 
                 <p className="text-xs text-slate-400">
-                  Steps <span className="tabular-nums text-slate-300">{pattern.join(" – ")}</span>
-                  <span className="mx-2 text-slate-700">|</span>
                   Degrees <span className="tabular-nums text-slate-300">{labels.join(" ")}</span>
                 </p>
 
