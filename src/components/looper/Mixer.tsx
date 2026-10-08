@@ -19,12 +19,11 @@ const MODES: { id: InputMode; label: string }[] = [
 const INTERFACE_HINT = /focusrite|scarlett|interface|audient|presonus|behringer|steinberg|motu|universal audio|apollo|rme|usb audio/i;
 
 type Pick = "both" | InputMode;
-const PICKS: { id: Pick; label: string; hint: string }[] = [
-  { id: "both", label: "Input 1 and Input 2", hint: "two separate strips, e.g. both jacks of a Scarlett" },
-  { id: "left", label: "Input 1 only", hint: "left channel, usually the first jack" },
-  { id: "right", label: "Input 2 only", hint: "right channel, usually the second jack (a DI guitar)" },
-  { id: "sum", label: "Mix to mono", hint: "one strip, good for a built-in mic" },
-  { id: "stereo", label: "Stereo", hint: "keep left and right as they are" },
+const PICKS: { id: Pick; label: string; hint: string; needs: number }[] = [
+  { id: "both", label: "Input 1 and Input 2", hint: "two separate strips", needs: 2 },
+  { id: "left", label: "Input 1", hint: "", needs: 1 },
+  { id: "right", label: "Input 2", hint: "e.g. a DI guitar in the second jack", needs: 2 },
+  { id: "sum", label: "Mix to mono", hint: "both channels on one strip", needs: 2 },
 ];
 
 /** Two steps: pick the kind of input (hardware or software keyboard), then for hardware pick a device and its channels. */
@@ -33,10 +32,21 @@ function AddInputModal({ engine, snap, hasExtra, onClose }: { engine: LooperEngi
   const [deviceId, setDeviceId] = useState<string | null>(null);
   const [pick, setPick] = useState<Pick>("left");
   const [busy, setBusy] = useState(false);
+  /** channels the chosen device really delivers: undefined while checking, null when it could not be opened */
+  const [channels, setChannels] = useState<number | null | undefined>(undefined);
   const { devices } = snap;
   const room = MAX_INPUTS - snap.inputs.length;
   const chosen = devices.find((d) => d.id === deviceId);
   const need = pick === "both" ? 2 : 1;
+  const choose = (id: string) => {
+    setDeviceId(id);
+    setChannels(undefined);
+    void engine.probeChannels(id).then((n) => {
+      setChannels(n);
+      setPick(n === 1 ? "sum" : "both");
+    });
+  };
+  const options = channels === 1 ? [{ id: "sum" as Pick, label: "Mono", hint: "this device has one channel", needs: 1 }] : PICKS;
 
   const detect = async () => {
     setBusy(true);
@@ -81,26 +91,27 @@ function AddInputModal({ engine, snap, hasExtra, onClose }: { engine: LooperEngi
           {devices.length === 0 && <p className="rounded-xl border border-dashed border-slate-700 p-3 text-xs text-slate-400">No devices listed yet. Browsers only show device names after you allow microphone access: press &ldquo;Detect devices&rdquo;. You can also use the system default input below.</p>}
           <ul className="grid gap-2 sm:grid-cols-2">
             <li>
-              <DeviceButton on={deviceId === ""} onClick={() => setDeviceId("")} title="System default input" sub="whatever the operating system uses" />
+              <DeviceButton on={deviceId === ""} onClick={() => choose("")} title="System default input" sub="whatever the operating system uses" />
             </li>
             {devices.map((d) => (
-              <li key={d.id}><DeviceButton on={deviceId === d.id} onClick={() => setDeviceId(d.id)} title={d.label} sub={INTERFACE_HINT.test(d.label) ? "audio interface" : "input device"} /></li>
+              <li key={d.id}><DeviceButton on={deviceId === d.id} onClick={() => choose(d.id)} title={d.label} sub={INTERFACE_HINT.test(d.label) ? "audio interface" : "input device"} /></li>
             ))}
           </ul>
           <fieldset className="flex flex-col gap-1.5">
-            <legend className="mb-1 text-sm font-medium text-slate-200">Which channels?</legend>
-            {PICKS.map((p) => (
+            <legend className="mb-1 text-sm font-medium text-slate-200">Channels{deviceId === null ? "" : channels === undefined ? ": checking the device…" : channels === null ? ": could not read the device, assuming two" : `: this device has ${channels}`}</legend>
+            {deviceId === null && <p className="text-xs text-slate-500">Pick a device first. We open it for an instant to see how many channels it really has.</p>}
+            {deviceId !== null && channels !== undefined && options.map((p) => (
               <label key={p.id} className={`flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-xs ${pick === p.id ? "border-sky-400 bg-sky-500/10 text-sky-100" : "border-slate-800 text-slate-300"}`}>
                 <input type="radio" name="pick" className="accent-sky-400" checked={pick === p.id} onChange={() => setPick(p.id)} />
                 <span className="font-medium">{p.label}</span>
-                <span className="text-slate-500">{p.hint}</span>
+                {p.hint && <span className="text-slate-500">{p.hint}</span>}
               </label>
             ))}
           </fieldset>
           {room < need && <p className="text-xs text-amber-200">Not enough room: the mixer holds {MAX_INPUTS} inputs. Remove one first.</p>}
           <div className="flex gap-2">
             <button type="button" className={btnPlain} onClick={() => setStep("type")}>← Back</button>
-            <button type="button" className={`${btn} ml-auto border-emerald-500 bg-emerald-500/15 text-emerald-100 hover:bg-emerald-500/25`} disabled={deviceId === null || room < need} onClick={addHardware}>Add input</button>
+            <button type="button" className={`${btn} ml-auto border-emerald-500 bg-emerald-500/15 text-emerald-100 hover:bg-emerald-500/25`} disabled={deviceId === null || channels === undefined || room < need} onClick={addHardware}>Add input</button>
           </div>
         </div>
       )}
