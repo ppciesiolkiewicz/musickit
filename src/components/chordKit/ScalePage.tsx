@@ -5,7 +5,7 @@ import Link from "next/link";
 import { KeyPicker } from "./KeyPicker";
 import { Chip, DegreeLegend, Info } from "./ui";
 import { FAMILIES, makeKeyContext } from "@/lib/chordKit/theory";
-import { MODE_PAGES, chordMidi, modeChords, degreeColour, degreeLabels, relativesOf, roleWithDegree, stepPattern } from "@/lib/chordKit/scales";
+import { MODE_PAGES, chordMidi, modeChords, degreeColour, degreeLabels, extensionDegree, relativesOf, roleWithDegree, stepPattern } from "@/lib/chordKit/scales";
 import { strum } from "@/lib/chordKit/playback";
 import ChordShapeCarousel from "./ChordShapeCarousel";
 import ChordShapesModal from "./ChordShapesModal";
@@ -166,6 +166,38 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey }: { fami
         <p className="mt-3 text-xs text-slate-500">
           Each chord stacks every other note of the scale ({STACK_LABELS.slice(0, extended ? 7 : 4).join(", ")}). Tap a row to hear it.
         </p>
+      </section>
+
+      <section className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
+        <h2 className="mb-1 text-sm font-medium text-slate-100">Which scale degrees each chord uses</h2>
+        <p className="mb-3 text-xs text-slate-400">
+          Every note of the mode, in scale order, labelled with the job it does in that chord. Solid circles are the chord itself (root, 3rd, 5th, 7th). Outlined circles are the extensions, written as 9 (2): the 9th is the 2nd degree an octave up.
+          <Info label="Reading the bubbles">Under each circle is its role in the chord. Under the chord name you see the same seven notes every time, because a 13th chord uses the whole scale. Only the roles change from chord to chord.</Info>
+        </p>
+        <ul className="flex flex-col gap-3">
+          {chords.map((c) => {
+            const byDegree = [...c.notes].sort((a, b) => a.scaleDegree - b.scaleDegree);
+            return (
+              <li key={c.degree} className="flex flex-wrap items-center gap-x-4 gap-y-1.5">
+                <span className="w-28 shrink-0 text-sm"><span className="text-sky-300">{c.roman}</span> <span className="text-slate-100">{c.seventhName}</span></span>
+                <span className="flex flex-wrap gap-1.5">
+                  {byDegree.map((n) => {
+                    const ext = extensionDegree(n.role) !== null;
+                    return (
+                      <span key={n.scaleDegree} className="flex flex-col items-center" title={`${n.name}: ${roleWithDegree(n.role)}`}>
+                        <span
+                          className="flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold"
+                          style={ext ? { border: `2px solid ${colour(n)}`, color: colour(n) } : { background: colour(n), color: "#020617" }}
+                        >{n.name}</span>
+                        <span className="text-[10px] tabular-nums text-slate-500">{roleWithDegree(n.role)}</span>
+                      </span>
+                    );
+                  })}
+                </span>
+              </li>
+            );
+          })}
+        </ul>
       </section>
 
       {modalDegree !== null && <ChordShapesModal ctx={ctx} degree={modalDegree} onClose={() => setModalDegree(null)} />}

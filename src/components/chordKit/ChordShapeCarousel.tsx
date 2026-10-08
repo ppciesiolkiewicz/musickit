@@ -4,8 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import ChordDiagram from "./ChordDiagram";
 import { DIFF_CLASS } from "./palette";
 import { Info } from "./ui";
-import { carouselStep, shapeTones, shapesForChord } from "@/lib/chordKit/chordShapes";
-import { degreeColour, roleWithDegree } from "@/lib/chordKit/scales";
+import { carouselStep, shapesForChord } from "@/lib/chordKit/chordShapes";
 import type { KeyContext } from "@/lib/chordKit/theory";
 import { strumShape } from "@/lib/chordKit/playback";
 
@@ -41,14 +40,6 @@ export default function ChordShapeCarousel({ ctx, degree, onShowAll }: { ctx: Ke
         <span className="tabular-nums text-slate-500">{Math.min(i, list.length - 1) + 1}/{list.length}</span>
         <Info label="About these shapes">Movable shapes that contain this chord&rsquo;s 3rd and only notes of the mode. Shapes made purely of the chord&rsquo;s own root, 3rd, 5th and 7th come first, then easier fingerings. Use the arrows to flip through, tap the diagram to hear it.</Info>
       </div>
-      <ul className="flex flex-wrap justify-center gap-1" aria-label="Chord tones of this shape">
-        {shapeTones(ctx, cur).map((t) => (
-          <li key={t.role + t.note} className="flex flex-col items-center" title={`${t.note}: ${roleWithDegree(t.role)}`}>
-            <span className="flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-semibold text-slate-950" style={{ background: degreeColour(t.scaleDegree) }}>{t.note}</span>
-            <span className="text-[10px] leading-tight text-slate-500">{roleWithDegree(t.role)}</span>
-          </li>
-        ))}
-      </ul>
       <button type="button" onClick={onShowAll} className="text-center text-xs text-sky-300 hover:underline">All shapes and chords →</button>
     </div>
   );
