@@ -84,3 +84,7 @@ Add input, Scale Piano adds a piano played from the computer keyboard and locked
 ## Effect stack and diagram
 
 Every input, sequencer and bus row shows its effect stack like a DAW insert chain: pre-fader effects, the fader, then post-fader effects, in the order the signal passes through them. Click a name to bypass, use the arrows to reorder, + to add. In the Signal flow diagram sequencers sit with the loops on the stage and connect to their group's bus (or master); they appear under inputs only when switched to record, so no line crosses the recorder.
+
+## Metronome follows what is running
+
+The metronome runs whenever anything runs (a take, a loop, a sequencer). Its button only starts or stops the metronome; when something else is running it only mutes or unmutes the click, and it never starts a sequencer. With the metronome already running a take needs no count-in: it starts on the next bar (or beat) line. With nothing running, recording starts the metronome with the count-in. Quantising recordings (whole bars, whole beats or off) is in Looper settings, Timing.

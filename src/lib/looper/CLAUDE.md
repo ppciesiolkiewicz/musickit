@@ -31,7 +31,9 @@ Routing: Input → (input effects) → recorder → Loop → Bus (of its Group) 
 
 ## Metronome and quantising
 - `metronome.ts` schedules clicks ahead on the AudioContext clock. The click goes to the speakers only, never into the recorder.
+- The metronome runs whenever anything runs: a take, a playing loop, a playing sequencer, or the metronome button. If anything else is running, the button only silences or restores the click. The button never starts a loop or sequencer.
 - The click runs whenever a take is recording or a loop is playing, and stops otherwise. It can be silenced (`audible`) without losing the beat or the quantising.
+- If the grid is already running, a first take has no count-in and starts on the next bar or beat line. Only when nothing runs does it start the metronome with a count-in. The start and stop quantising (bars, beats, off) is a global setting in Looper settings, not in the metronome popover.
 - The first take starts on beat 1 after the count-in; its length is rounded to the nearest whole bar or beat (`quantise`), so the loop restarts on the grid. Later takes already start on loop boundaries.
 - Tempo and beats per bar are locked while a loop exists or a take is running (the engine ignores those changes). Anything new that depends on tempo (a drum machine, sequencer) must follow the same grid: `gridAnchor` plus `period`.
 - Pure maths (units, rounding, beat position) lives in `frames.ts` with tests; keep new timing logic there.

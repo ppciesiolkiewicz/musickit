@@ -39,6 +39,14 @@ export default function LooperSettings({ engine, snap, getLevel, onClose }: { en
         <MidiGroup />
 
         <Group title="Timing">
+          <label className="flex items-center justify-between gap-2 text-xs text-slate-400">
+            Quantise recordings
+            <select className={`${field} !py-1 !text-xs`} value={snap.metronome.quantise} onChange={(e) => engine.setMetronome({ quantise: e.target.value as typeof snap.metronome.quantise })} aria-label="Quantise recordings to the metronome">
+              <option value="bar">start and stop on whole bars</option>
+              <option value="beat">start and stop on whole beats</option>
+              <option value="off">off: start and stop when pressed</option>
+            </select>
+          </label>
           <label className="flex items-center gap-2 text-xs text-slate-400">
             Latency fix
             <input type="range" min={0} max={250} step={1} value={snap.latencyMs} onChange={(e) => engine.setLatencyMs(Number(e.target.value))} className="flex-1 accent-sky-400" aria-label="Latency compensation in milliseconds" />

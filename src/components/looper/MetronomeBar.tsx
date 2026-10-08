@@ -62,14 +62,6 @@ export default function MetronomeBar({ engine, snap, ready }: { engine: LooperEn
               {[0, 1, 2].map((n) => <option key={n} value={n}>{n === 0 ? "none" : `${n} bar${n === 1 ? "" : "s"}`}</option>)}
             </select>
           </label>
-          <label className="flex items-center justify-between gap-2">
-            Quantise first take
-            <select className={field} value={m.quantise} onChange={(e) => set({ quantise: e.target.value as typeof m.quantise })}>
-              <option value="bar">to whole bars</option>
-              <option value="beat">to whole beats</option>
-              <option value="off">off</option>
-            </select>
-          </label>
           <label className="flex items-center gap-2">
             <Icon name="volume-2" />
             <input type="range" min={0} max={1} step={0.01} value={m.volume} onChange={(e) => set({ volume: Number(e.target.value) })} className="flex-1 accent-sky-400" aria-label="Click volume" />

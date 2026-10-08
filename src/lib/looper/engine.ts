@@ -489,12 +489,25 @@ export class LooperEngine {
     return this.capture !== null || (this.playing && this.loopLength !== null) || this.metroManual || [...this.sequencers.values()].some((q) => q.state.playing);
   }
 
-  /** Start or stop the metronome on its own (and the sequencer with it). It also runs by itself while recording or playing. */
+  /** True when something other than the metronome button keeps the grid running: a take, a playing loop or a playing sequencer. */
+  private othersRunning() {
+    return this.capture !== null || (this.playing && this.loopLength !== null) || [...this.sequencers.values()].some((q) => q.state.playing);
+  }
+
+  /**
+   * The metronome button. It only starts or stops the metronome; it never starts a loop or a sequencer.
+   * The metronome always runs while anything else runs, so then the button only silences or restores the click.
+   */
   toggleMetronome() {
     if (!this.ctx) return;
+    if (this.othersRunning() && !this.metroManual) {
+      this.metronome.set({ audible: !this.metronome.settings.audible });
+      this.emit();
+      return;
+    }
     this.metroManual = !this.metroManual;
-    if (this.metroManual && this.loopLength === null && this.capture === null) this.gridAnchor = this.ctx.currentTime + 0.05 + this.metronome.settings.countInBars * this.metronome.settings.beatsPerBar * this.metronome.period;
-    this.syncMetronome(true);
+    if (this.metroManual && !this.othersRunning()) this.gridAnchor = this.ctx.currentTime + 0.05 + this.metronome.settings.countInBars * this.metronome.settings.beatsPerBar * this.metronome.period;
+    this.syncMetronome(this.metroManual && !this.othersRunning());
     this.emit();
   }
 
@@ -903,16 +916,26 @@ export class LooperEngine {
     const rt = this.runtimes[id];
 
     if (!this.loopLength) {
-      // the first take starts on beat 1 of the metronome, after the count-in; its length is rounded to the beat or bar
       const m = this.metronome.settings;
-      const anchor = this.ctx.currentTime + 0.1 + m.countInBars * m.beatsPerBar * this.metronome.period;
-      const startFrame = Math.round(anchor * sr) + comp;
       const unit = quantUnitFrames(m.quantise, m.bpm, m.beatsPerBar, sr);
+      let anchor: number;
+      let startFrame: number;
+      if (this.gridActive() && unit > 0) {
+        // the metronome is already running (a sequencer, a loop or the metronome itself): no count-in, the take starts on the next bar or beat line
+        anchor = this.gridAnchor;
+        const step = (m.quantise === "bar" ? m.beatsPerBar : 1) * this.metronome.period;
+        startFrame = Math.round(nextBoundary(this.ctx.currentTime, anchor, step, 0.1) * sr) + comp;
+      } else {
+        // nothing running: start the metronome with a count-in; the take starts on beat 1
+        anchor = this.ctx.currentTime + 0.1 + m.countInBars * m.beatsPerBar * this.metronome.period;
+        startFrame = Math.round(anchor * sr) + comp;
+      }
+      const fresh = anchor !== this.gridAnchor || !this.gridActive();
       this.capture = { channel: id, startFrame, endFrame: null, chunks: [], lastFrame: startFrame, started: false, unit, stopping: false };
       rt.info.state = "armed";
       this.gridAnchor = anchor;
       this.loopOnGrid = unit > 0;
-      this.syncMetronome(true);
+      this.syncMetronome(fresh);
       this.emit();
       return;
     }
