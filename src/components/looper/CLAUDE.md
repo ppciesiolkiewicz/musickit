@@ -1,0 +1,1 @@
+Looper UI. The rules for the whole feature are in `src/lib/looper/CLAUDE.md`: read them before changing anything here. In short: no imports from other features, no microphone access without a person's action, no start button, keep text short, update tests and `spec/looper.md`, push and check Vercel.
