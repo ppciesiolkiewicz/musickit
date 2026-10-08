@@ -176,7 +176,7 @@ function InputStrip({ engine, inp, devices, anyDevice, keyboardOpen, onToggleKey
         {inp.kind === "sequencer" && seq && <span className="rounded-md border border-slate-700 px-1.5 py-0.5 text-[10px] text-slate-400" title="Where this sequencer plays: by the group its circle sits in">→ {seq.dest === "record" ? "recorder" : groups.find((g) => g.id === seq.groupId)?.name ?? "master"}</span>}
         {inp.kind !== "sequencer" && <span className="flex items-center gap-0.5 rounded-md border border-slate-700 px-1.5 py-0.5 text-[10px] text-slate-400" title="Goes to the recorder, then into the loops"><Icon name="circle" size={10} className="text-rose-400" />rec</span>}
         <span aria-hidden title={state} className={`h-2 w-2 rounded-full ${inp.live ? "bg-emerald-400" : "bg-slate-600"}`} />
-        <div className="min-w-[5rem] flex-1"><LevelMeter getLevel={getLevel} /></div>
+        <LevelMeter vertical getLevel={getLevel} />
         <input type="range" min={0} max={1.5} step={0.01} value={inp.volume} onChange={(e) => m.setVolume(inp.id, Number(e.target.value))} className="w-24 accent-sky-400" aria-label={`Gain of ${inp.name}`} title={`Gain ${Math.round(inp.volume * 100)}%`} />
         {inp.kind === "sequencer" && seq && <button type="button" className={`${ibtn} ${seq.playing ? "!border-emerald-500/70 !bg-emerald-500/15 !text-emerald-200" : ""}`} aria-pressed={seq.playing} onClick={() => engine.setSequencerPlaying(seq.id, !seq.playing)} title={seq.playing ? "Stop on the next beat" : "Start on the next beat"} aria-label={seq.playing ? `Stop ${inp.name}` : `Start ${inp.name}`}><Icon name={seq.playing ? "square" : "play"} fill /></button>}
         {inp.kind === "sequencer" && <button type="button" className={`${ibtn} ${sequencerOpen ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={sequencerOpen} onClick={onToggleSequencer} title={sequencerOpen ? "Close the sequencer" : "Open the sequencer"} aria-label={sequencerOpen ? "Close the sequencer" : "Open the sequencer"}><Icon name="sliders-horizontal" /></button>}
@@ -243,7 +243,7 @@ function Buses({ engine, snap }: { engine: LooperEngine; snap: LooperSnapshot })
           <span className="h-3 w-3 rounded-sm bg-slate-300" aria-hidden />
           <span className="w-24 truncate px-1.5 text-sm font-medium text-slate-100">Master</span>
           <span className="rounded-md border border-slate-700 px-1.5 py-0.5 text-[10px] text-slate-400" title="Everything that is not in a group, and every bus">all buses + loops outside groups</span>
-          <div className="min-w-[5rem] flex-1"><LevelMeter getLevel={getMaster} /></div>
+          <LevelMeter vertical getLevel={getMaster} />
           <input type="range" min={0} max={1.5} step={0.01} value={snap.masterVolume} onChange={(e) => engine.setMasterVolume(Number(e.target.value))} className="w-24 accent-sky-400" aria-label="Master volume" title={`Master ${Math.round(snap.masterVolume * 100)}%`} />
         </li>
       </ul>
@@ -261,7 +261,7 @@ function BusRow({ engine, g, loops, seqs, onFx }: { engine: LooperEngine; g: Loo
       <span className="flex items-center gap-1 rounded-md border border-slate-700 px-1.5 py-0.5 text-[10px] text-slate-400" title={`${loops} loop${loops === 1 ? "" : "s"} and ${seqs} sequencer${seqs === 1 ? "" : "s"} play through this bus`}>
         <Icon name="repeat" size={10} />{loops}<Icon name="drum" size={10} />{seqs}
       </span>
-      <div className="min-w-[5rem] flex-1"><LevelMeter getLevel={getLevel} /></div>
+      <LevelMeter vertical getLevel={getLevel} />
       <input type="range" min={0} max={1.5} step={0.01} value={g.volume} onChange={(e) => engine.updateGroup(g.id, { volume: Number(e.target.value) })} className="w-24 accent-sky-400" aria-label={`Volume of ${g.name}`} title={`Volume ${Math.round(g.volume * 100)}%`} />
       <button type="button" className={`${ibtn} relative ${g.effects.length ? "!border-violet-400/70 !text-violet-200" : ""}`} onClick={onFx} title={g.effects.length ? `${g.effects.length} effect${g.effects.length === 1 ? "" : "s"}` : "Add an effect"} aria-label={`Effects on ${g.name}`}><Icon name="plus" />{g.effects.length > 0 && <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-violet-500 px-1 text-[9px] text-white">{g.effects.length}</span>}</button>
       <button type="button" className={`${ibtn} ${g.muted ? "!border-amber-400 !text-amber-200" : ""}`} aria-pressed={g.muted} onClick={() => engine.updateGroup(g.id, { muted: !g.muted })} title="Mute the bus" aria-label={`Mute ${g.name}`}>M</button>
