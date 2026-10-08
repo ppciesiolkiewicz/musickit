@@ -66,3 +66,8 @@ Run the tests with `npm test` (uses `npx tsx`; `chordKit.tonal.test.ts` also nee
 ## Sus and extension bubbles
 
 `ChordBubbles` (from the original Modes tab) draws one hub per chord of the selected mode: the chord with its Roman numeral, its own tones (1 3 5 7) above it, the scale notes 2, 4, 6 and 7 above its root around it, and the sus and extension chords each one gives (Em through its M2 gives Esus2 and Em9). Dashed outlines mark clashing tones. It appears on every mode page and inside the Chords "In key" tab for the chosen mode.
+
+## Comparing modes and degree badges
+
+- `/scales` has a **Compare modes** matrix (`modeGroups.ts`, `ModeCompare.tsx`). Choose a group (the modes of one parent scale, or every mode with a major, minor, diminished or augmented tonic chord). Rows are modes ordered brightest to darkest; columns are notes in semitones above the tonic. Columns every mode has are the shaded **core**; the other columns show where subsets of modes overlap, and the outlined circles are what each mode adds.
+- **Degree badges** (`DegreeBadge.tsx`): a tiny circle on a fretboard dot giving its scale degree (1, ♭3, 5), coloured by degree. On by default on the CAGED boxes and the arpeggio neck whenever dots are labelled with note names; toggle with "Degree badges".

@@ -1,6 +1,7 @@
 "use client";
 
 import type { CagedBox, CagedCell } from "@/lib/chordKit/caged";
+import DegreeBadge from "./DegreeBadge";
 import { degreeColour } from "@/lib/chordKit/scales";
 
 export interface Layers {
@@ -15,7 +16,7 @@ const colW = 54, left = 34, top = 24, rowH = 28;
 const STRING_NAMES = ["E", "A", "D", "G", "B", "e"];
 
 /** A horizontal slice of the neck for one CAGED box. Chord, arpeggio, pentatonic and scale notes are drawn in layers of decreasing size. */
-export default function BoxNeck({ cells, box, layers, labelMode, onNote }: { cells: CagedCell[]; box: CagedBox; layers: Layers; labelMode: LabelMode; onNote: (c: CagedCell) => void }) {
+export default function BoxNeck({ cells, box, layers, labelMode, badges = true, onNote }: { cells: CagedCell[]; box: CagedBox; layers: Layers; labelMode: LabelMode; badges?: boolean; onNote: (c: CagedCell) => void }) {
   const cols = box.to - box.from + 1;
   const W = left + cols * colW + 8;
   const H = top + 5 * rowH + 36;
@@ -62,12 +63,14 @@ export default function BoxNeck({ cells, box, layers, labelMode, onNote }: { cel
           const x = fx(c.fret), y = sy(c.string);
           const colour = c.scaleDegree === null ? "#f43f5e" : degreeColour(c.scaleDegree);
           const label = labelFor(c);
+          const showBadge = badges && labelMode === "name";
           const key = `${c.string}-${c.fret}`;
           if (t === "scale") {
             return (
               <g key={key} onClick={() => onNote(c)} style={{ cursor: "pointer" }} opacity={0.8}>
                 <circle cx={x} cy={y} r={9} fill="#0f172a" stroke={colour} strokeWidth={1.5} />
                 <text x={x} y={y} textAnchor="middle" dominantBaseline="central" fontSize={8} fill={colour} pointerEvents="none">{label}</text>
+                {showBadge && <DegreeBadge x={x} y={y} text={c.degreeText} degree={c.scaleDegree} offset={9} />}
               </g>
             );
           }
@@ -78,6 +81,7 @@ export default function BoxNeck({ cells, box, layers, labelMode, onNote }: { cel
               {t === "chord" && <circle cx={x} cy={y} r={18} fill="none" stroke="#e2e8f0" strokeWidth={1.5} strokeDasharray="3 2" />}
               <circle cx={x} cy={y} r={r} fill={colour} stroke={c.isRoot ? "#ffffff" : "#0f172a"} strokeWidth={c.isRoot ? 3 : 1.5} />
               <text x={x} y={y} textAnchor="middle" dominantBaseline="central" fontSize={label.length > 2 ? 9 : 11} fontWeight={700} fill="#0f172a" pointerEvents="none">{label}</text>
+              {showBadge && <DegreeBadge x={x} y={y} text={c.degreeText} degree={c.scaleDegree} offset={r} />}
             </g>
           );
         })}

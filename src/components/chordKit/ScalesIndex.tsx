@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { KeyPicker } from "./KeyPicker";
+import ModeCompare from "./ModeCompare";
 import { DegreeLegend, Info } from "./ui";
 import { FAMILIES, makeKeyContext } from "@/lib/chordKit/theory";
 import { MODE_PAGES, degreeColour, degreeLabels, relativesOf } from "@/lib/chordKit/scales";
@@ -47,6 +48,8 @@ export default function ScalesIndex({ initialKey }: { initialKey: number }) {
           </Info>
         </div>
       </div>
+
+      <ModeCompare tonicPc={tonicPc} />
 
       {rows.map(({ fam, modes }, fi) => (
         <section key={fam.id}>

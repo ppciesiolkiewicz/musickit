@@ -23,6 +23,7 @@ export default function CagedExplorer() {
   const [layers, setLayers] = useState<Layers>({ chord: true, arp: true, pent: true, scale: true });
   const [arpKind, setArpKind] = useState<ArpKind>("triad");
   const [labelMode, setLabelMode] = useState<LabelMode>("name");
+  const [badges, setBadges] = useState(true);
 
   const th = CAGED_THEORY[quality];
   const ctx = useMemo(() => cagedContext(rootPc, quality), [rootPc, quality]);
@@ -49,9 +50,10 @@ export default function CagedExplorer() {
           <Chip on={arpKind === "triad"} onClick={() => setArpKind("triad")}>Triad</Chip>
           <Chip on={arpKind === "seventh"} onClick={() => setArpKind("seventh")}>{quality === "major" ? "Maj7" : "Min7"}</Chip>
         </ChipRow>
-        <ChipRow label="Labels" info="Note names (C, E, G) or scale degrees (1, 3, 5, or 1, ♭3, 5 in minor). The colour of a dot is its scale degree either way.">
+        <ChipRow label="Labels" info="Note names (C, E, G) or scale degrees (1, 3, 5, or 1, ♭3, 5 in minor). The colour of a dot is its scale degree either way. Degree badges add a tiny circle on each dot with its scale degree, so you see the note name and its job at the same time.">
           <Chip on={labelMode === "name"} onClick={() => setLabelMode("name")}>Note names</Chip>
           <Chip on={labelMode === "degree"} onClick={() => setLabelMode("degree")}>Scale degrees</Chip>
+          <Chip on={badges && labelMode === "name"} onClick={() => setBadges((v) => !v)}>Degree badges</Chip>
         </ChipRow>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
           <DegreeLegend />
@@ -65,7 +67,7 @@ export default function CagedExplorer() {
 
       <div className="flex flex-col gap-4">
         {boxes.map((box, i) => (
-          <BoxCard key={box.letter} box={box} index={i} rootPc={rootPc} quality={quality} layers={layers} arpKind={arpKind} labelMode={labelMode} notes={notes} />
+          <BoxCard key={box.letter} box={box} index={i} rootPc={rootPc} quality={quality} layers={layers} arpKind={arpKind} labelMode={labelMode} badges={badges} notes={notes} />
         ))}
       </div>
     </div>
@@ -104,8 +106,8 @@ function Overview({ boxes, keyName, quality }: { boxes: CagedBox[]; keyName: str
   );
 }
 
-function BoxCard({ box, index, rootPc, quality, layers, arpKind, labelMode, notes }: {
-  box: CagedBox; index: number; rootPc: number; quality: CagedQuality; layers: Layers; arpKind: ArpKind; labelMode: LabelMode; notes: ReturnType<typeof layerNotes>;
+function BoxCard({ box, index, rootPc, quality, layers, arpKind, labelMode, badges, notes }: {
+  box: CagedBox; index: number; rootPc: number; quality: CagedQuality; layers: Layers; arpKind: ArpKind; labelMode: LabelMode; badges: boolean; notes: ReturnType<typeof layerNotes>;
 }) {
   const th = CAGED_THEORY[quality];
   const ctx = useMemo(() => cagedContext(rootPc, quality), [rootPc, quality]);
@@ -135,7 +137,7 @@ function BoxCard({ box, index, rootPc, quality, layers, arpKind, labelMode, note
             </p>
           </div>
           <div className="flex min-w-0 flex-col gap-2">
-            <BoxNeck cells={cells} box={box} layers={layers} labelMode={labelMode} onNote={onNote} />
+            <BoxNeck cells={cells} box={box} layers={layers} labelMode={labelMode} badges={badges} onNote={onNote} />
             <div className="flex flex-wrap gap-1.5">
               <button type="button" className={play} onClick={hearChord}>▶ Chord</button>
               <button type="button" className={play} onClick={() => strum(arpeggioMidi(boxArpeggio(ctx, arpKind)), { gapMs: 230, holdMs: 700 })}>▶ Arpeggio</button>

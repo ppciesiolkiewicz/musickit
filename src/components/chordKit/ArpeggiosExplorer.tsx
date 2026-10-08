@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { KeyPicker, ModePicker } from "./KeyPicker";
+import DegreeBadge from "./DegreeBadge";
 import { Chip, ChipRow, DegreeLegend, Info } from "./ui";
 import { ARP_FRETS, ARP_QUALITIES, WINDOWS, arpeggioMidi, buildArpeggio, neckCells, type Arpeggio, type NeckCell } from "@/lib/chordKit/arpeggios";
 import { FAMILIES, makeKeyContext } from "@/lib/chordKit/theory";
@@ -17,7 +18,7 @@ const KINDS = [
 ];
 const colW = 52, left = 40, top = 30, rowH = 30;
 
-function ArpNeck({ cells, arp, overlay, labelMode, window: win, onNote }: { cells: NeckCell[]; arp: Arpeggio; overlay: boolean; labelMode: LabelMode; window: { from: number; to: number }; onNote: (c: NeckCell) => void }) {
+function ArpNeck({ cells, arp, overlay, labelMode, badges, window: win, onNote }: { cells: NeckCell[]; arp: Arpeggio; overlay: boolean; labelMode: LabelMode; badges: boolean; window: { from: number; to: number }; onNote: (c: NeckCell) => void }) {
   const W = left + (ARP_FRETS + 1) * colW + 10;
   const H = top + 5 * rowH + 44;
   const fx = (f: number) => left + f * colW + colW / 2;
@@ -48,6 +49,7 @@ function ArpNeck({ cells, arp, overlay, labelMode, window: win, onNote }: { cell
               <g key={`${c.string}-${c.fret}`} opacity={op} onClick={() => onNote(c)} style={{ cursor: "pointer" }}>
                 <circle cx={x} cy={y} r={13} fill={fill} stroke={isRoot ? "#ffffff" : c.inScale ? "#0f172a" : "#f43f5e"} strokeWidth={isRoot ? 3 : 2} strokeDasharray={c.inScale ? undefined : "3 2"} />
                 <text x={x} y={y} textAnchor="middle" dominantBaseline="central" fontSize={labelFor(c).length > 2 ? 9 : 11} fontWeight={700} fill={c.inScale ? "#0f172a" : "#f8fafc"} pointerEvents="none">{labelFor(c)}</text>
+                {badges && labelMode !== "degree" && <DegreeBadge x={x} y={y} text={c.degreeText} degree={c.scaleDegree} offset={13} />}
               </g>
             );
           }
@@ -76,6 +78,7 @@ export default function ArpeggiosExplorer() {
   const [overlay, setOverlay] = useState(true);
   const [labelMode, setLabelMode] = useState<LabelMode>("name");
   const [winId, setWinId] = useState("all");
+  const [badges, setBadges] = useState(true);
   const [octaves, setOctaves] = useState(1);
 
   const ctx = useMemo(() => makeKeyContext(tonicPc, fam, mode), [tonicPc, fam, mode]);
@@ -116,6 +119,7 @@ export default function ArpeggiosExplorer() {
           <Chip on={labelMode === "degree"} onClick={() => setLabelMode("degree")}>Scale degrees</Chip>
           <Chip on={labelMode === "role"} onClick={() => setLabelMode("role")}>Chord tones</Chip>
           <Chip on={overlay} onClick={() => setOverlay((v) => !v)}>Overlay the scale</Chip>
+          <Chip on={badges} onClick={() => setBadges((v) => !v)}>Degree badges</Chip>
         </ChipRow>
       </div>
 
@@ -141,7 +145,7 @@ export default function ArpeggiosExplorer() {
             {outside.map((n) => n.name).join(", ")} {outside.length === 1 ? "is" : "are"} outside {ctx.names[0]} {ctx.modeName}: a chromatic colour note.
           </p>
         )}
-        <ArpNeck cells={cells} arp={arp} overlay={overlay} labelMode={labelMode} window={win} onNote={playNote} />
+        <ArpNeck cells={cells} arp={arp} overlay={overlay} labelMode={labelMode} badges={badges} window={win} onNote={playNote} />
         <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
           <DegreeLegend />
           <Info label="How do I read the neck?">

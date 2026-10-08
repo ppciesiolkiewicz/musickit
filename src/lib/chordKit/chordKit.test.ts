@@ -344,3 +344,30 @@ describe("sus and extension slots", () => {
     assert.deepEqual(em.slots[0]?.kids.map((k) => k.text), ["Esus2", "Em9"]);
   });
 });
+
+import { compareModes, MODE_GROUPS, noteAt } from "./modeGroups";
+describe("mode group comparison", () => {
+  it("major tonic chord modes share 1 3 5 and differ elsewhere", () => {
+    const c = compareModes("tonic-major", 0);
+    const names = c.modes.map((m) => m.name);
+    ["Ionian", "Lydian", "Mixolydian"].forEach((n) => assert.ok(names.includes(n), n));
+    [0, 4, 7].forEach((s) => assert.ok(c.core.includes(s)));
+    assert.ok(!c.core.includes(5) && !c.core.includes(11));
+    assert.equal(names[0] === "Lydian" || c.modes[0].semis.reduce((a, b) => a + b, 0) >= c.modes[c.modes.length - 1].semis.reduce((a, b) => a + b, 0), true);
+  });
+  it("in the seven major modes the natural 4 is in six, the 7 is in Ionian and Lydian only, and only the root is shared by all", () => {
+    const c = compareModes("major", 0);
+    const trio = c.columns;
+    assert.deepEqual(trio.find((x) => x.semi === 5)!.who.sort(), ["Aeolian", "Dorian", "Ionian", "Locrian", "Mixolydian", "Phrygian"].sort());
+    assert.deepEqual(trio.find((x) => x.semi === 6)!.who.sort(), ["Lydian", "Locrian"].sort());
+    assert.deepEqual(trio.find((x) => x.semi === 11)!.who.sort(), ["Ionian", "Lydian"].sort());
+    assert.deepEqual(c.core, [0]);
+  });
+  it("added notes are the set minus the core, and names are spelled for the key", () => {
+    const c = compareModes("tonic-minor", 9);
+    c.modes.forEach((m) => assert.equal(c.added[m.name].length, m.semis.length - c.core.length));
+    const lyd = compareModes("major", 7).modes.find((m) => m.name === "Lydian")!;
+    assert.equal(noteAt(lyd, 6)!.name, "C♯");
+    assert.ok(MODE_GROUPS.every((g) => compareModes(g.id, 0).modes.length >= 1));
+  });
+});
