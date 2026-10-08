@@ -96,3 +96,7 @@ In "How it is connected" a loop or sequencer can be dragged onto a bus (it moves
 ## Loop lengths (planned)
 
 New loops may be 2^n times longer or shorter than any other loop. Not built yet.
+
+## Page chrome
+
+The looper page has no site navigation. The top row holds the metronome on the left and, on the right, the settings cog and an x that returns to the home page. Page padding is minimal. The home page lists every tool as a card with a piano underneath.
