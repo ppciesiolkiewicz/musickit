@@ -4,6 +4,8 @@ import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "reac
 import { LooperEngine, MAX_CHANNELS, type ChannelInfo, type LooperSnapshot } from "@/lib/looper/engine";
 import LevelMeter from "./LevelMeter";
 import LooperSettings from "./LooperSettings";
+import Mixer from "./Mixer";
+import FloatingWindow from "../FloatingWindow";
 import Piano from "../Piano";
 import { getAudioContext, getOutputBus } from "@/lib/audio";
 import Waveform from "./Waveform";
@@ -22,7 +24,10 @@ const btnPlain = `${btn} border-slate-700 bg-slate-900 text-slate-200 hover:bord
 
 function useEngine() {
   const [engine] = useState(() => new LooperEngine({ getContext: getAudioContext, getExternalSource: getOutputBus, externalLabel: "Piano" }));
-  useEffect(() => () => engine.dispose(), [engine]);
+  useEffect(() => {
+    engine.init();
+    return () => engine.dispose();
+  }, [engine]);
   const snap = useSyncExternalStore(engine.subscribe, engine.getSnapshot, engine.getSnapshot);
   return { engine, snap };
 }
@@ -35,10 +40,17 @@ export default function LooperApp() {
   const getPosition = useMemo(() => () => engine.getPosition(), [engine]);
   const getLevel = useMemo(() => () => engine.getLevel(), [engine]);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [keyboardOpen, setKeyboardOpen] = useState(false);
 
   return (
     <div className="flex flex-col gap-4">
-      <InputBar engine={engine} snap={snap} getLevel={getLevel} onSettings={() => setSettingsOpen(true)} />
+      <InputBar engine={engine} snap={snap} getLevel={getLevel} onSettings={() => setSettingsOpen(true)} keyboardOpen={keyboardOpen} onToggleKeyboard={() => setKeyboardOpen((v) => !v)} />
+      <Mixer engine={engine} snap={snap} keyboardOpen={keyboardOpen} onToggleKeyboard={() => setKeyboardOpen((v) => !v)} />
+      {keyboardOpen && (
+        <FloatingWindow title="Keyboard" storageKey="musickit.looper.keyboardWindow" fit onClose={() => setKeyboardOpen(false)}>
+          <Piano />
+        </FloatingWindow>
+      )}
       {settingsOpen && <LooperSettings engine={engine} snap={snap} getLevel={getLevel} onClose={() => setSettingsOpen(false)} />}
 
       <section className="flex flex-wrap items-center gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
@@ -53,8 +65,6 @@ export default function LooperApp() {
         </span>
         <LoopBar getPosition={getPosition} />
       </section>
-
-      <PianoPanel />
 
       {firstTake && ready && <p className="rounded-xl border border-dashed border-slate-700 p-3 text-xs text-slate-400">Press Record on a channel, play, then press Stop. That first take sets the loop length. After that, each Record waits for the loop to come round, then records exactly one loop in time with everything else.</p>}
 
@@ -91,42 +101,33 @@ function LoopBar({ getPosition }: { getPosition: () => number | null }) {
   );
 }
 
-function sourcesText(snap: LooperSnapshot): string {
-  const parts: string[] = [];
-  if (snap.deviceOn) parts.push(snap.devices.find((d) => d.id === snap.deviceId)?.label ?? "Audio interface");
-  if (snap.externalLabel && snap.externalOn) parts.push(snap.externalLabel);
-  return parts.length ? parts.join(" + ") : "nothing selected";
-}
-
-function InputBar({ engine, snap, getLevel, onSettings }: { engine: LooperEngine; snap: LooperSnapshot; getLevel: () => number; onSettings: () => void }) {
+function InputBar({ engine, snap, getLevel, onSettings, keyboardOpen, onToggleKeyboard }: { engine: LooperEngine; snap: LooperSnapshot; getLevel: () => number; onSettings: () => void; keyboardOpen: boolean; onToggleKeyboard: () => void }) {
   const ready = snap.status === "ready";
+  const live = snap.inputs.filter((i) => i.live);
   return (
-    <section className="flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-4" aria-label="Input">
+    <section className="flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-4" aria-label="Looper start and level">
       <div className="flex flex-wrap items-center gap-3">
-        <h2 className="text-sm font-medium text-slate-100">Input</h2>
+        <h2 className="text-sm font-medium text-slate-100">Looper</h2>
         {!ready && (
           <button type="button" className={`${btn} border-emerald-500 bg-emerald-500/15 text-emerald-100 hover:bg-emerald-500/25`} disabled={snap.status === "starting"} onClick={() => void engine.enable()}>
             {snap.status === "starting" ? "Starting…" : "Start looper"}
           </button>
         )}
-        {ready && <span className="text-xs text-slate-400">Recording from <b className="text-slate-200">{sourcesText(snap)}</b></span>}
-        <button type="button" className={`${btnPlain} ml-auto`} onClick={onSettings}>⚙ Settings</button>
+        {ready && <span className="text-xs text-slate-400">Recording from <b className="text-slate-200">{live.length ? live.map((i) => i.name).join(" + ") : "nothing (all inputs muted)"}</b></span>}
+        <span className="ml-auto flex gap-2">
+          {snap.extraLabel && <button type="button" className={`${btnPlain} ${keyboardOpen ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={keyboardOpen} onClick={onToggleKeyboard}>🎹 Keyboard</button>}
+          <button type="button" className={btnPlain} onClick={onSettings}>⚙ Settings</button>
+        </span>
       </div>
-
       {snap.error && <p role="alert" className="rounded-lg border border-rose-500/40 bg-rose-500/10 p-2.5 text-xs text-rose-200">{snap.error}</p>}
-      {snap.deviceError && ready && <p role="alert" className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-2.5 text-xs text-amber-100">Audio interface unavailable: {snap.deviceError} The piano can still be recorded.</p>}
-      {snap.status === "idle" && <p className="text-xs text-slate-400">Start the looper to record the piano below and, if you allow it, your audio interface. The browser asks for microphone access for the interface; nothing is uploaded, everything stays in this tab. Use Settings to choose sources, pick your interface or connect a MIDI keyboard.</p>}
-      {ready && <LevelMeter getLevel={getLevel} />}
+      {snap.status === "idle" && <p className="text-xs text-slate-400">Set up your inputs in the mixer below, then start the looper. If an audio interface or microphone is in the mixer the browser will ask for microphone access; nothing is uploaded, everything stays in this tab. Remove those inputs to record the keyboard alone.</p>}
+      {ready && (
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-slate-500">Mix level</span>
+          <div className="flex-1"><LevelMeter getLevel={getLevel} /></div>
+        </div>
+      )}
     </section>
-  );
-}
-
-function PianoPanel() {
-  return (
-    <details open className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
-      <summary className="cursor-pointer text-sm font-medium text-slate-100">Piano <span className="font-normal text-slate-500">· play with the keys on screen, the computer keyboard or a MIDI keyboard; what you play is recorded into the loop</span></summary>
-      <div className="mt-4 overflow-x-auto"><Piano /></div>
-    </details>
   );
 }
 

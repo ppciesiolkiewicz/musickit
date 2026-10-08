@@ -1,0 +1,149 @@
+"use client";
+
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent as RKeyboardEvent, type PointerEvent as RPointerEvent, type ReactNode } from "react";
+
+interface Rect {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
+const MIN_W = 280, MIN_H = 160, BAR = 36;
+
+function clamp(r: Rect): Rect {
+  const vw = window.innerWidth, vh = window.innerHeight;
+  const w = Math.min(Math.max(r.w, MIN_W), vw);
+  const h = Math.min(Math.max(r.h, MIN_H), vh);
+  return { w, h, x: Math.min(Math.max(r.x, 0), vw - w), y: Math.min(Math.max(r.y, 0), vh - BAR) };
+}
+
+/**
+ * A floating panel you can drag by its title bar and resize from the corner. Its size and place are remembered.
+ * With `fit`, the content is scaled up or down to fill the panel, so resizing the panel resizes what is inside.
+ */
+export default function FloatingWindow({ title, onClose, children, storageKey, fit = false }: { title: ReactNode; onClose: () => void; children: ReactNode; storageKey: string; fit?: boolean }) {
+  const [rect, setRect] = useState<Rect | null>(null);
+  const drag = useRef<{ mode: "move" | "size"; px: number; py: number; start: Rect } | null>(null);
+
+  useLayoutEffect(() => {
+    let saved: Rect | null = null;
+    try {
+      saved = JSON.parse(window.localStorage.getItem(storageKey) ?? "null");
+    } catch {
+      /* ignore */
+    }
+    const w = Math.min(760, window.innerWidth - 16);
+    setRect(clamp(saved ?? { x: Math.max(8, (window.innerWidth - w) / 2), y: Math.max(8, window.innerHeight - 340), w, h: 320 }));
+  }, [storageKey]);
+
+  const save = useCallback(
+    (r: Rect) => {
+      try {
+        window.localStorage.setItem(storageKey, JSON.stringify(r));
+      } catch {
+        /* ignore */
+      }
+    },
+    [storageKey],
+  );
+
+  useEffect(() => {
+    const onResize = () => setRect((r) => (r ? clamp(r) : r));
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  const begin = (mode: "move" | "size") => (e: RPointerEvent) => {
+    if (!rect) return;
+    e.preventDefault();
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    drag.current = { mode, px: e.clientX, py: e.clientY, start: rect };
+  };
+  const move = (e: RPointerEvent) => {
+    const d = drag.current;
+    if (!d) return;
+    const dx = e.clientX - d.px, dy = e.clientY - d.py;
+    setRect(clamp(d.mode === "move" ? { ...d.start, x: d.start.x + dx, y: d.start.y + dy } : { ...d.start, w: d.start.w + dx, h: d.start.h + dy }));
+  };
+  const end = () => {
+    if (drag.current) {
+      drag.current = null;
+      setRect((r) => {
+        if (r) save(r);
+        return r;
+      });
+    }
+  };
+
+  // keyboard: arrows move, shift+arrows resize, when the title bar is focused
+  const onKey = (e: RKeyboardEvent) => {
+    if (!rect || !["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key)) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const step = 20;
+    const dx = e.key === "ArrowLeft" ? -step : e.key === "ArrowRight" ? step : 0;
+    const dy = e.key === "ArrowUp" ? -step : e.key === "ArrowDown" ? step : 0;
+    const next = clamp(e.shiftKey ? { ...rect, w: rect.w + dx, h: rect.h + dy } : { ...rect, x: rect.x + dx, y: rect.y + dy });
+    setRect(next);
+    save(next);
+  };
+
+  if (!rect) return null;
+  return (
+    <div role="dialog" aria-label={typeof title === "string" ? title : "Floating panel"} className="fixed z-40 flex flex-col overflow-hidden rounded-xl border border-slate-600 bg-slate-950 shadow-2xl shadow-black/60" style={{ left: rect.x, top: rect.y, width: rect.w, height: rect.h }}>
+      <div
+        className="flex shrink-0 cursor-grab touch-none select-none items-center gap-2 border-b border-slate-700 bg-slate-900 px-3 text-xs text-slate-300 active:cursor-grabbing focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400"
+        style={{ height: BAR }}
+        tabIndex={0}
+        onPointerDown={begin("move")}
+        onPointerMove={move}
+        onPointerUp={end}
+        onPointerCancel={end}
+        onKeyDown={onKey}
+        title="Drag to move. With the keyboard: arrow keys move, Shift + arrows resize."
+      >
+        <span aria-hidden className="text-slate-500">⠿</span>
+        <span className="font-medium text-slate-100">{title}</span>
+        <button type="button" className="ml-auto rounded-md border border-slate-700 px-2 py-0.5 text-slate-300 hover:border-slate-500" onPointerDown={(e) => e.stopPropagation()} onClick={onClose} aria-label="Close">✕</button>
+      </div>
+      <div className="min-h-0 flex-1 overflow-auto">{fit ? <Fit>{children}</Fit> : children}</div>
+      <div
+        className="absolute bottom-0 right-0 h-5 w-5 cursor-nwse-resize touch-none"
+        style={{ background: "linear-gradient(135deg, transparent 50%, #64748b 50%, #64748b 56%, transparent 56%, transparent 66%, #64748b 66%, #64748b 72%, transparent 72%)" }}
+        onPointerDown={begin("size")}
+        onPointerMove={move}
+        onPointerUp={end}
+        onPointerCancel={end}
+        role="separator"
+        aria-label="Resize"
+      />
+    </div>
+  );
+}
+
+/** Scales its content so it fills the space it is given, keeping its proportions. */
+function Fit({ children }: { children: ReactNode }) {
+  const outer = useRef<HTMLDivElement>(null);
+  const inner = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const o = outer.current, i = inner.current;
+    if (!o || !i) return;
+    const measure = () => {
+      const nw = i.offsetWidth, nh = i.offsetHeight;
+      if (!nw || !nh) return;
+      setScale(Math.min(2.2, Math.max(0.35, Math.min(o.clientWidth / nw, o.clientHeight / nh))));
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(o);
+    ro.observe(i);
+    return () => ro.disconnect();
+  }, []);
+  return (
+    <div ref={outer} className="h-full w-full overflow-hidden">
+      <div ref={inner} style={{ width: "max-content", transform: `scale(${scale})`, transformOrigin: "top left" }}>{children}</div>
+    </div>
+  );
+}

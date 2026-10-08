@@ -29,3 +29,12 @@ A multi-channel audio looper at `/looper`. The engine lives in `src/lib/looper/`
 ## Limits
 
 Microphone permission and a secure context (HTTPS or localhost) are required. The first take is capped at 120 s. Takes are held in memory only; nothing is saved or uploaded. Output device selection and overdubbing onto an existing channel are not implemented.
+
+## Mixer and floating keyboard
+
+- The recorder is fed by an **input mixer** (`src/lib/looper/mixer.ts`): a list of input strips, up to 8. A strip is either an audio device input (an interface such as a Scarlett, or the built-in mic) or the extra source the app provides (the keyboard). Each strip has its own device, channel choice (Input 1, Input 2, stereo, mono mix), gain, mute, solo, "hear it" monitoring and a level meter that reads before mute.
+- Strips can be added and removed at any time (`+ Interface 1 & 2` adds both jacks of an interface as two strips). Several strips can share one device; the stream is opened once. The strip list is remembered in `localStorage`.
+- Mute and solo behave like a mixing desk: muted strips are not recorded, and when any strip is soloed only soloed strips are.
+- The latency fix applies only while a microphone or interface strip is live; a keyboard-only take gets none.
+- The **keyboard** opens from the mixer's keyboard strip or the header button as a floating window (`src/components/FloatingWindow.tsx`): drag the title bar, resize from the corner, scales its content to fit, position and size remembered; arrow keys move it and Shift + arrows resize it when the title bar is focused.
+- Settings now holds the MIDI keyboard choice, the latency fix and the mix level.
