@@ -10,11 +10,9 @@ export const metadata: Metadata = {
 export default function LooperPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-950 text-slate-200">
-      <div className="mx-auto flex w-full max-w-4xl flex-col gap-4 px-1.5 py-4 sm:px-2">
+      <div className="mx-auto flex w-full max-w-4xl flex-col gap-2.5 px-1 py-2">
         <SiteNav active="/looper" />
-        <header>
-          <h1 className="text-xl font-light tracking-wide text-slate-100">Looper</h1>
-        </header>
+        <h1 className="sr-only">Looper</h1>
         <main>
           <LooperApp />
         </main>
