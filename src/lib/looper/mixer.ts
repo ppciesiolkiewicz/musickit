@@ -1,6 +1,6 @@
 import { effectiveGain, type InputMode } from "./frames";
 import { EffectChain } from "./buses";
-import { EFFECT_DEFS, clampParams, defaultParams, sanitiseEffects, type EffectKind, type EffectSpec } from "./effects";
+import { EFFECT_DEFS, clampParams, defaultParams, moveEffect, sanitiseEffects, type EffectKind, type EffectSpec } from "./effects";
 
 /**
  * The input side of the looper: a list of input strips (an audio interface input, the built-in mic, or an extra source such
@@ -504,6 +504,13 @@ export class InputMixer {
 
   setEffectPost(id: number, fxId: string, post: boolean) {
     this.editEffect(id, fxId, (e) => ({ ...e, post }));
+  }
+
+  moveEffect(id: number, fxId: string, dir: -1 | 1) {
+    const r = this.find(id);
+    if (!r) return;
+    r.info.effects = moveEffect(r.info.effects, fxId, dir);
+    this.fxChanged(r);
   }
 
   toggleEffectBypass(id: number, fxId: string) {

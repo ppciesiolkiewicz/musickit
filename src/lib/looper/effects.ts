@@ -195,3 +195,16 @@ export function createEffect(ctx: AudioContext, spec: EffectSpec): FxNode {
   const p = clampParams(spec.kind, spec.params);
   return spec.kind === "tapeDelay" ? tapeDelay(ctx, p) : reverb(ctx, p);
 }
+
+/** Move an effect one place earlier (-1) or later (+1) in its own section (before or after the fader). Order is the order the signal passes through. */
+export function moveEffect(list: EffectSpec[], fxId: string, dir: -1 | 1): EffectSpec[] {
+  const at = list.findIndex((e) => e.id === fxId);
+  if (at < 0) return list;
+  const post = list[at].post;
+  let j = at + dir;
+  while (j >= 0 && j < list.length && list[j].post !== post) j += dir;
+  if (j < 0 || j >= list.length) return list;
+  const next = [...list];
+  [next[at], next[j]] = [next[j], next[at]];
+  return next;
+}

@@ -40,7 +40,8 @@ Routing: Input → (input effects) → recorder → Loop → Bus (of its Group) 
 - `sequencer.ts` is a step sequencer with swappable synthesised instruments (drums by default, bass synth too). No sample files are downloaded: add sounds as oscillator and noise recipes and register them in `INSTRUMENTS`. Pure pattern maths and presets live in `sequencerPattern.ts` with tests.
 - There can be several, each with its own pattern, instrument and destination, each with a mixer strip of kind `sequencer` (the strip's `sourceId` is the sequencer id). Destination is automatic: the bus of the group whose box holds the sequencer's circle, or master outside every group. The switch `record` additionally feeds the recorder through the strip. Routing lives in the engine (`routeSequencer`). Start and stop happen on the next beat (`setSequencerPlaying`, `setGroupActive`).
 - They play in time with the metronome grid while a take records, a loop plays or the metronome runs, or while previewing. Keep output levels modest so a full kit does not clip the recording.
-- The Signal flow panel (`SignalFlow.tsx`) draws sources, recorder, loops, group buses and master from the snapshot. When routing changes, keep that picture true.
+- The Signal flow panel (`SignalFlow.tsx`) draws inputs (what feeds the recorder), the recorder, the loops and sequencers (the stage), group buses and master from the snapshot. A sequencer sits on the stage and only appears under inputs when it is switched to record. When routing changes, keep that picture true.
+- Effect stacks (`EffectStack.tsx`) show pre-fader effects, the fader, then post-fader effects in processing order; `moveEffect` (tested) reorders within a section.
 
 ## Looping stage, groups, buses and effects
 - The page has two sections: Mixer (inputs) and Looping (loops on a stage). Keep them separate: inputs feed the recorder, loops play back.

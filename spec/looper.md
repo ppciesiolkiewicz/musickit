@@ -80,3 +80,7 @@ Every input, sequencer and bus has a + button that opens an effects dialog: choo
 ## Scale Piano
 
 Add input, Scale Piano adds a piano played from the computer keyboard and locked to a key and scale (major, minor, modes, harmonic and melodic minor, pentatonics, blues). Four rows of keys (Z row, A row, Q row, number row) are stacked octaves: each row starts on the root, one octave above the row below. The window shows every key with the note it plays (the roots in blue, the notes being played in amber) and a three-octave piano with the notes of the scale marked. Keys can also be clicked. The window listens to the keyboard only while it is open and never while typing in a field. Octave buttons move the whole range. It is heard on master and recorded through its strip. Saved in localStorage `musickit.looper.scalePianos`.
+
+## Effect stack and diagram
+
+Every input, sequencer and bus row shows its effect stack like a DAW insert chain: pre-fader effects, the fader, then post-fader effects, in the order the signal passes through them. Click a name to bypass, use the arrows to reorder, + to add. In the Signal flow diagram sequencers sit with the loops on the stage and connect to their group's bus (or master); they appear under inputs only when switched to record, so no line crosses the recorder.

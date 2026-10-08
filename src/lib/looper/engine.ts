@@ -3,7 +3,7 @@ import { Metronome, type MetronomeSettings } from "./metronome";
 import { Sequencer, type SequencerState } from "./sequencer";
 import { ScalePiano, clampState as clampScalePiano, type ScalePianoState } from "./scalePiano";
 import { LoopBus, peakOf } from "./buses";
-import { EFFECT_DEFS, defaultParams, clampParams, sanitiseEffects, type EffectKind, type EffectSpec } from "./effects";
+import { EFFECT_DEFS, defaultParams, moveEffect, clampParams, sanitiseEffects, type EffectKind, type EffectSpec } from "./effects";
 import { GROUP_COLOURS, clampPoint, clampRect, containingGroup, defaultGroups, defaultSpot, type GroupLayout } from "./layout";
 import { InputMixer, describeError, type InputInfo } from "./mixer";
 import { RECORDER_PROCESSOR_NAME, recorderWorkletUrl } from "./recorderWorklet";
@@ -832,6 +832,13 @@ export class LooperEngine {
     const e = g?.effects.find((x) => x.id === fxId);
     if (!g || !e) return;
     e.post = post;
+    this.fxChanged(g);
+  }
+
+  moveEffect(groupId: string, fxId: string, dir: -1 | 1) {
+    const g = this.groups.find((x) => x.id === groupId);
+    if (!g) return;
+    g.effects = moveEffect(g.effects, fxId, dir);
     this.fxChanged(g);
   }
 

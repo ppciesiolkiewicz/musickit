@@ -5,6 +5,7 @@ import Modal from "@/components/Modal";
 import Icon from "@/components/Icon";
 import LevelMeter from "./LevelMeter";
 import EffectsModal from "./EffectsModal";
+import EffectStack from "./EffectStack";
 import { GroupEffects } from "./LoopStage";
 import SignalFlow from "./SignalFlow";
 import { MAX_INPUTS, type InputInfo, type InputMode, type LooperEngine, type LooperSnapshot } from "@/lib/looper/engine";
@@ -206,6 +207,7 @@ function InputStrip({ engine, inp, devices, anyDevice, keyboardOpen, onToggleKey
           </select>
         </div>
       )}
+      <EffectStack effects={inp.effects} onOpen={() => setFxOpen(true)} onBypass={(fx) => m.toggleEffectBypass(inp.id, fx)} onMove={(fx, d) => m.moveEffect(inp.id, fx, d)} />
       {fxOpen && (
         <EffectsModal
           title={<span className="flex items-center gap-2"><Icon name={isDevice ? "mic" : "music"} size={16} />{inp.name}: effects</span>}
@@ -265,6 +267,7 @@ function BusRow({ engine, g, loops, seqs, onFx }: { engine: LooperEngine; g: Loo
       <input type="range" min={0} max={1.5} step={0.01} value={g.volume} onChange={(e) => engine.updateGroup(g.id, { volume: Number(e.target.value) })} className="w-24 accent-sky-400" aria-label={`Volume of ${g.name}`} title={`Volume ${Math.round(g.volume * 100)}%`} />
       <button type="button" className={`${ibtn} relative ${g.effects.length ? "!border-violet-400/70 !text-violet-200" : ""}`} onClick={onFx} title={g.effects.length ? `${g.effects.length} effect${g.effects.length === 1 ? "" : "s"}` : "Add an effect"} aria-label={`Effects on ${g.name}`}><Icon name="plus" />{g.effects.length > 0 && <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-violet-500 px-1 text-[9px] text-white">{g.effects.length}</span>}</button>
       <button type="button" className={`${ibtn} ${g.muted ? "!border-amber-400 !text-amber-200" : ""}`} aria-pressed={g.muted} onClick={() => engine.updateGroup(g.id, { muted: !g.muted })} title="Mute the bus" aria-label={`Mute ${g.name}`}>M</button>
+      <div className="basis-full"><EffectStack effects={g.effects} onOpen={onFx} onBypass={(fx) => engine.toggleEffectBypass(g.id, fx)} onMove={(fx, d) => engine.moveEffect(g.id, fx, d)} /></div>
     </li>
   );
 }
