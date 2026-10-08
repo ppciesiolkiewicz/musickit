@@ -3,11 +3,26 @@ import { OSCILLATOR_ID, getInstrumentConfig } from "./instruments";
 
 let audioContext: AudioContext | null = null;
 
-function getAudioContext(): AudioContext {
+export function getAudioContext(): AudioContext {
   if (!audioContext) {
     audioContext = new AudioContext();
   }
   return audioContext;
+}
+
+let outputBus: GainNode | null = null;
+
+/**
+ * Every note passes through this one node on its way to the speakers.
+ * Other features (the looper) can connect to it to record what the piano plays.
+ */
+export function getOutputBus(): GainNode {
+  const ctx = getAudioContext();
+  if (!outputBus) {
+    outputBus = ctx.createGain();
+    outputBus.connect(ctx.destination);
+  }
+  return outputBus;
 }
 
 // --- Sample buffer cache ---
@@ -113,7 +128,7 @@ function playOscillatorNote(noteName: string, ctx: AudioContext): void {
   oscillator.type = "triangle";
   oscillator.frequency.value = freq;
   oscillator.connect(gainNode);
-  gainNode.connect(ctx.destination);
+  gainNode.connect(getOutputBus());
 
   gainNode.gain.setValueAtTime(0, ctx.currentTime);
   gainNode.gain.linearRampToValueAtTime(0.6, ctx.currentTime + 0.01);
@@ -155,7 +170,7 @@ function playSampleBuffer(
   source.buffer = buffer;
   source.playbackRate.value = playbackRate;
   source.connect(gainNode);
-  gainNode.connect(ctx.destination);
+  gainNode.connect(getOutputBus());
 
   const attackTime = attack || 0.01;
   gainNode.gain.setValueAtTime(0, ctx.currentTime);

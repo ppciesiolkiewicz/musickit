@@ -10,10 +10,17 @@ export type Midimessage = {
 export type MidiEventListener = (msg: Midimessage) => void;
 
 let midiAccess: MIDIAccess | null = null;
+/** When set, only messages from this input id are used. */
+let inputFilter: string | null = null;
+
+export function setMidiInputFilter(id: string | null): void {
+  inputFilter = id;
+}
 const listeners = new Set<MidiEventListener>();
 
 function handleMidiMessage(event: MIDIMessageEvent, input: MIDIInput): void {
   if (!event.data) return;
+  if (inputFilter && input.id !== inputFilter) return;
   const [status, data1, data2] = event.data;
   const note = data1;
   const velocity = data2 ?? 0;
@@ -54,6 +61,13 @@ function attachToInputs(access: MIDIAccess): void {
   });
 }
 
+/** Called when a MIDI device is plugged in or removed. */
+const stateListeners = new Set<() => void>();
+export function onMidiDevicesChanged(cb: () => void): () => void {
+  stateListeners.add(cb);
+  return () => stateListeners.delete(cb);
+}
+
 export function addMidiListener(cb: MidiEventListener): () => void {
   listeners.add(cb);
   return () => listeners.delete(cb);
@@ -75,6 +89,7 @@ export async function requestMidiAccess(): Promise<{
 
     access.onstatechange = () => {
       if (midiAccess) attachToInputs(midiAccess);
+      stateListeners.forEach((cb) => cb());
     };
 
     return { success: true, inputCount: access.inputs.size };

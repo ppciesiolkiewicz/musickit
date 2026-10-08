@@ -9,7 +9,17 @@ import { RECORDER_PROCESSOR_NAME, recorderWorkletUrl } from "./recorderWorklet";
  * - All channels play in sync from one shared loop clock.
  *
  * This file is independent of the rest of Music Kit: it imports nothing outside src/lib/looper.
+ * Anything app-specific (for example the piano) is handed in through `LooperOptions`.
  */
+
+export interface LooperOptions {
+  /** Use this AudioContext instead of creating one. Needed when an extra source lives in another part of the app. */
+  getContext?: () => AudioContext;
+  /** An extra audio source (a node in the same context), such as the piano's output. */
+  getExternalSource?: () => AudioNode;
+  /** Name shown for that source, e.g. "Piano". */
+  externalLabel?: string;
+}
 
 export type ChannelState = "empty" | "armed" | "recording" | "playing";
 
@@ -38,6 +48,14 @@ export interface LooperSnapshot {
   inputMode: InputMode;
   monitor: boolean;
   latencyMs: number;
+  /** record from the audio interface */
+  deviceOn: boolean;
+  /** record from the extra source (the piano) */
+  externalOn: boolean;
+  /** null when the app gave the looper no extra source */
+  externalLabel: string | null;
+  /** why the audio interface could not be opened, if it could not */
+  deviceError: string | null;
   playing: boolean;
   loopSeconds: number | null;
   channels: ChannelInfo[];
@@ -66,6 +84,7 @@ interface Capture {
 export const MAX_CHANNELS = 8;
 export const MAX_FIRST_TAKE_SECONDS = 120;
 const STORAGE_KEY = "musickit.looper.input";
+const SOURCES_KEY = "musickit.looper.sources";
 
 const defaultChannel = (id: number): ChannelRuntime => ({
   info: { id, name: `Channel ${id + 1}`, state: "empty", volume: 0.8, muted: false, solo: false, peaks: null },
@@ -76,6 +95,11 @@ const defaultChannel = (id: number): ChannelRuntime => ({
 
 export class LooperEngine {
   private ctx: AudioContext | null = null;
+  private ownsContext = true;
+  private inputBus: GainNode | null = null;
+  private deviceGain: GainNode | null = null;
+  private externalGain: GainNode | null = null;
+  private externalNode: AudioNode | null = null;
   private stream: MediaStream | null = null;
   private sourceNode: MediaStreamAudioSourceNode | null = null;
   private worklet: AudioWorkletNode | null = null;
@@ -94,8 +118,9 @@ export class LooperEngine {
   private listeners = new Set<() => void>();
   private snap: LooperSnapshot;
 
-  constructor() {
-    this.snap = this.buildSnapshot({ status: "idle", error: null, devices: [], deviceId: "", inputChannels: 0, inputMode: "left", monitor: false, latencyMs: 0 });
+  constructor(private options: LooperOptions = {}) {
+    this.meta.externalLabel = options.getExternalSource ? options.externalLabel ?? "Extra source" : null;
+    this.snap = this.buildSnapshot();
   }
 
   /* ------------------------------------------------------------------ store */
@@ -109,7 +134,7 @@ export class LooperEngine {
 
   getSnapshot = () => this.snap;
 
-  private meta = { status: "idle" as LooperSnapshot["status"], error: null as string | null, devices: [] as InputDevice[], deviceId: "", inputChannels: 0, inputMode: "left" as InputMode, monitor: false, latencyMs: 0 };
+  private meta = { status: "idle" as LooperSnapshot["status"], error: null as string | null, devices: [] as InputDevice[], deviceId: "", inputChannels: 0, inputMode: "left" as InputMode, monitor: false, latencyMs: 0, deviceOn: true, externalOn: true, externalLabel: null as string | null, deviceError: null as string | null };
 
   private buildSnapshot(patch: Partial<typeof this.meta> = {}): LooperSnapshot {
     this.meta = { ...this.meta, ...patch };
@@ -129,26 +154,39 @@ export class LooperEngine {
 
   /* ------------------------------------------------------------------ audio input */
 
-  /** Ask for microphone permission (needed before device names are visible) and list inputs. */
+  /** Start the audio engine, then open the audio interface (if it is switched on). */
   async enable(): Promise<void> {
     if (this.meta.status === "starting") return;
     this.emit({ status: "starting", error: null });
     try {
-      if (!navigator.mediaDevices?.getUserMedia) throw new Error("This browser cannot record audio (getUserMedia is missing). Use HTTPS or localhost.");
       this.ensureContext();
       await this.ctx!.resume();
       if (!this.workletReady) {
         await this.ctx!.audioWorklet.addModule(recorderWorkletUrl());
         this.workletReady = true;
       }
+      this.createWorklet();
       let saved = "";
       try {
         saved = window.localStorage.getItem(STORAGE_KEY) ?? "";
+        const src = JSON.parse(window.localStorage.getItem(SOURCES_KEY) ?? "null") as { device?: boolean; external?: boolean } | null;
+        if (src) this.meta = { ...this.meta, deviceOn: src.device ?? true, externalOn: src.external ?? true };
       } catch {
         /* storage may be unavailable */
       }
-      await this.openInput(saved);
-      navigator.mediaDevices.addEventListener?.("devicechange", () => void this.refreshDevices());
+      this.applySourceGains();
+      if (this.meta.deviceOn) {
+        try {
+          await this.openInput(saved);
+        } catch (e) {
+          // the interface is optional when another source is available
+          if (!this.meta.externalLabel) throw e;
+          this.emit({ deviceOn: false, deviceError: describeError(e) });
+        }
+      } else {
+        await this.refreshDevices().catch(() => undefined);
+      }
+      navigator.mediaDevices?.addEventListener?.("devicechange", () => void this.refreshDevices());
       this.emit({ status: "ready" });
     } catch (e) {
       this.emit({ status: "error", error: describeError(e) });
@@ -158,22 +196,90 @@ export class LooperEngine {
   private ensureContext() {
     if (this.ctx) return;
     const Ctor = window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-    this.ctx = new Ctor({ latencyHint: "interactive" });
-    this.master = this.ctx.createGain();
-    this.master.connect(this.ctx.destination);
-    this.monitorGain = this.ctx.createGain();
+    if (this.options.getContext) {
+      this.ctx = this.options.getContext();
+      this.ownsContext = false;
+    } else {
+      this.ctx = new Ctor({ latencyHint: "interactive" });
+    }
+    const ctx = this.ctx;
+    this.master = ctx.createGain();
+    this.master.connect(ctx.destination);
+    this.monitorGain = ctx.createGain();
     this.monitorGain.gain.value = this.meta.monitor ? 1 : 0;
     this.monitorGain.connect(this.master);
-    this.analyser = this.ctx.createAnalyser();
+
+    // everything that can be recorded is summed here, as stereo
+    this.inputBus = ctx.createGain();
+    this.inputBus.channelCount = 2;
+    this.inputBus.channelCountMode = "explicit";
+    this.inputBus.channelInterpretation = "speakers";
+    this.deviceGain = ctx.createGain();
+    this.deviceGain.connect(this.inputBus);
+    this.externalGain = ctx.createGain();
+    this.externalGain.connect(this.inputBus);
+    if (this.options.getExternalSource) {
+      this.externalNode = this.options.getExternalSource();
+      this.externalNode.connect(this.externalGain);
+    }
+
+    this.analyser = ctx.createAnalyser();
     this.analyser.fftSize = 1024;
+    this.inputBus.connect(this.analyser);
     this.levelBuf = new Float32Array(this.analyser.fftSize) as Float32Array<ArrayBuffer>;
-    // a rough latency guess; the user can fine-tune it
-    const guess = Math.round(((this.ctx.baseLatency || 0) + ((this.ctx as unknown as { outputLatency?: number }).outputLatency || 0)) * 1000);
+    // a rough latency guess for the audio interface; the user can fine-tune it
+    const guess = Math.round(((ctx.baseLatency || 0) + ((ctx as unknown as { outputLatency?: number }).outputLatency || 0)) * 1000);
     this.meta.latencyMs = guess;
+  }
+
+  private createWorklet() {
+    if (this.worklet || !this.ctx || !this.inputBus) return;
+    const ctx = this.ctx;
+    this.worklet = new AudioWorkletNode(ctx, RECORDER_PROCESSOR_NAME, { numberOfInputs: 1, numberOfOutputs: 1, channelCount: 2, channelCountMode: "explicit", outputChannelCount: [1] });
+    this.worklet.port.onmessage = (ev: MessageEvent<Chunk>) => this.onChunk(ev.data);
+    // keep the worklet pulled by the graph without making a sound
+    const mute = ctx.createGain();
+    mute.gain.value = 0;
+    this.inputBus.connect(this.worklet);
+    this.worklet.connect(mute);
+    mute.connect(ctx.destination);
+  }
+
+  private applySourceGains() {
+    if (this.deviceGain) this.deviceGain.gain.value = this.meta.deviceOn ? 1 : 0;
+    if (this.externalGain) this.externalGain.gain.value = this.meta.externalOn && this.meta.externalLabel ? 1 : 0;
+  }
+
+  /** Choose what gets recorded: the audio interface, the extra source (piano), or both mixed. */
+  async setSources(next: { device?: boolean; external?: boolean }): Promise<void> {
+    const device = next.device ?? this.meta.deviceOn;
+    const external = next.external ?? this.meta.externalOn;
+    try {
+      window.localStorage.setItem(SOURCES_KEY, JSON.stringify({ device, external }));
+    } catch {
+      /* ignore */
+    }
+    this.meta = { ...this.meta, externalOn: external };
+    this.applySourceGains();
+    if (device && !this.meta.deviceOn) {
+      this.meta = { ...this.meta, deviceOn: true, deviceError: null };
+      try {
+        await this.openInput(this.meta.deviceId);
+      } catch (e) {
+        this.emit({ deviceOn: false, deviceError: describeError(e) });
+        return;
+      }
+    } else if (!device && this.meta.deviceOn) {
+      this.stopStream();
+      this.emit({ deviceOn: false });
+      return;
+    }
+    this.emit();
   }
 
   /** Open (or switch to) an input device. An empty id means the system default. */
   async openInput(deviceId: string): Promise<void> {
+    if (!navigator.mediaDevices?.getUserMedia) throw new Error("This browser cannot record audio (getUserMedia is missing). Use HTTPS or localhost.");
     this.ensureContext();
     this.stopStream();
     // Raw signal wanted: no echo cancelling, noise suppression or auto gain, which would mangle an instrument.
@@ -200,17 +306,9 @@ export class LooperEngine {
     const actualId = settings.deviceId ?? deviceId;
     const ctx = this.ctx!;
     this.sourceNode = ctx.createMediaStreamSource(stream);
-    this.sourceNode.connect(this.analyser!);
+    this.sourceNode.connect(this.deviceGain!);
     this.sourceNode.connect(this.monitorGain!);
-
-    this.worklet = new AudioWorkletNode(ctx, RECORDER_PROCESSOR_NAME, { numberOfInputs: 1, numberOfOutputs: 1, channelCount: 2, channelCountMode: "explicit", outputChannelCount: [1] });
-    this.worklet.port.onmessage = (ev: MessageEvent<Chunk>) => this.onChunk(ev.data);
-    // keep the worklet pulled by the graph without making a sound
-    const mute = ctx.createGain();
-    mute.gain.value = 0;
-    this.sourceNode.connect(this.worklet);
-    this.worklet.connect(mute);
-    mute.connect(ctx.destination);
+    this.meta.deviceOn = true;
 
     try {
       window.localStorage.setItem(STORAGE_KEY, actualId);
@@ -218,24 +316,22 @@ export class LooperEngine {
       /* ignore */
     }
     await this.refreshDevices();
-    this.emit({ deviceId: actualId, inputChannels: settings.channelCount ?? 0 });
+    this.emit({ deviceId: actualId, inputChannels: settings.channelCount ?? 0, deviceOn: true, deviceError: null });
   }
 
   private stopStream() {
     try {
-      this.worklet?.disconnect();
       this.sourceNode?.disconnect();
     } catch {
       /* already disconnected */
     }
-    if (this.worklet) this.worklet.port.onmessage = null;
-    this.worklet = null;
     this.sourceNode = null;
     this.stream?.getTracks().forEach((t) => t.stop());
     this.stream = null;
   }
 
   async refreshDevices(): Promise<void> {
+    if (!navigator.mediaDevices?.enumerateDevices) return;
     const all = await navigator.mediaDevices.enumerateDevices();
     const devices = all.filter((d) => d.kind === "audioinput").map((d, i) => ({ id: d.deviceId, label: d.label || `Input ${i + 1}` }));
     this.emit({ devices });
@@ -327,7 +423,8 @@ export class LooperEngine {
     if (!this.ctx || this.meta.status !== "ready") return;
     if (this.capture) return; // one take at a time
     const sr = this.ctx.sampleRate;
-    const comp = msToFrames(this.meta.latencyMs, sr);
+    // the latency fix is for the audio interface; a digital source such as the piano has none
+    const comp = this.meta.deviceOn ? msToFrames(this.meta.latencyMs, sr) : 0;
     const rt = this.runtimes[id];
 
     if (!this.loopLength) {
@@ -485,8 +582,22 @@ export class LooperEngine {
     this.capture = null;
     this.runtimes.forEach((r) => this.stopSource(r));
     this.stopStream();
-    void this.ctx?.close();
+    try {
+      this.worklet?.disconnect();
+      if (this.externalNode && this.externalGain) this.externalNode.disconnect(this.externalGain);
+      this.inputBus?.disconnect();
+      this.master?.disconnect();
+    } catch {
+      /* already disconnected */
+    }
+    if (this.worklet) this.worklet.port.onmessage = null;
+    this.worklet = null;
+    if (this.ownsContext) {
+      void this.ctx?.close();
+      this.workletReady = false;
+    }
     this.ctx = null;
+    this.externalNode = null;
     this.listeners.clear();
   }
 }

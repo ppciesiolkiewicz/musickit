@@ -2,8 +2,10 @@
 
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { LooperEngine, MAX_CHANNELS, type ChannelInfo, type LooperSnapshot } from "@/lib/looper/engine";
-import type { InputMode } from "@/lib/looper/frames";
 import LevelMeter from "./LevelMeter";
+import LooperSettings from "./LooperSettings";
+import Piano from "../Piano";
+import { getAudioContext, getOutputBus } from "@/lib/audio";
 import Waveform from "./Waveform";
 
 const COLOURS = ["#38bdf8", "#fbbf24", "#fb7185", "#a78bfa", "#34d399", "#f472b6", "#2dd4bf", "#a3e635"];
@@ -19,7 +21,7 @@ const btn = "rounded-lg border px-3 py-1.5 text-xs transition disabled:cursor-no
 const btnPlain = `${btn} border-slate-700 bg-slate-900 text-slate-200 hover:border-slate-500`;
 
 function useEngine() {
-  const [engine] = useState(() => new LooperEngine());
+  const [engine] = useState(() => new LooperEngine({ getContext: getAudioContext, getExternalSource: getOutputBus, externalLabel: "Piano" }));
   useEffect(() => () => engine.dispose(), [engine]);
   const snap = useSyncExternalStore(engine.subscribe, engine.getSnapshot, engine.getSnapshot);
   return { engine, snap };
@@ -32,10 +34,12 @@ export default function LooperApp() {
   const firstTake = snap.loopSeconds === null;
   const getPosition = useMemo(() => () => engine.getPosition(), [engine]);
   const getLevel = useMemo(() => () => engine.getLevel(), [engine]);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   return (
     <div className="flex flex-col gap-4">
-      <DevicePanel engine={engine} snap={snap} getLevel={getLevel} />
+      <InputBar engine={engine} snap={snap} getLevel={getLevel} onSettings={() => setSettingsOpen(true)} />
+      {settingsOpen && <LooperSettings engine={engine} snap={snap} getLevel={getLevel} onClose={() => setSettingsOpen(false)} />}
 
       <section className="flex flex-wrap items-center gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
         <button type="button" className={btnPlain} disabled={!ready || snap.loopSeconds === null} onClick={() => engine.setPlaying(!snap.playing)}>
@@ -49,6 +53,8 @@ export default function LooperApp() {
         </span>
         <LoopBar getPosition={getPosition} />
       </section>
+
+      <PianoPanel />
 
       {firstTake && ready && <p className="rounded-xl border border-dashed border-slate-700 p-3 text-xs text-slate-400">Press Record on a channel, play, then press Stop. That first take sets the loop length. After that, each Record waits for the loop to come round, then records exactly one loop in time with everything else.</p>}
 
@@ -85,67 +91,42 @@ function LoopBar({ getPosition }: { getPosition: () => number | null }) {
   );
 }
 
-function DevicePanel({ engine, snap, getLevel }: { engine: LooperEngine; snap: LooperSnapshot; getLevel: () => number }) {
+function sourcesText(snap: LooperSnapshot): string {
+  const parts: string[] = [];
+  if (snap.deviceOn) parts.push(snap.devices.find((d) => d.id === snap.deviceId)?.label ?? "Audio interface");
+  if (snap.externalLabel && snap.externalOn) parts.push(snap.externalLabel);
+  return parts.length ? parts.join(" + ") : "nothing selected";
+}
+
+function InputBar({ engine, snap, getLevel, onSettings }: { engine: LooperEngine; snap: LooperSnapshot; getLevel: () => number; onSettings: () => void }) {
   const ready = snap.status === "ready";
-  const modes: { id: InputMode; label: string }[] = [
-    { id: "left", label: "Input 1 (left)" },
-    { id: "right", label: "Input 2 (right)" },
-    { id: "stereo", label: "Stereo" },
-    { id: "sum", label: "Mix to mono" },
-  ];
-  const field = "rounded-md border border-slate-700 bg-slate-900 px-2 py-1.5 text-sm text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
   return (
-    <section className="flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-4" aria-label="Audio input">
+    <section className="flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-4" aria-label="Input">
       <div className="flex flex-wrap items-center gap-3">
-        <h2 className="text-sm font-medium text-slate-100">Audio input</h2>
+        <h2 className="text-sm font-medium text-slate-100">Input</h2>
         {!ready && (
           <button type="button" className={`${btn} border-emerald-500 bg-emerald-500/15 text-emerald-100 hover:bg-emerald-500/25`} disabled={snap.status === "starting"} onClick={() => void engine.enable()}>
-            {snap.status === "starting" ? "Starting…" : "Enable audio input"}
+            {snap.status === "starting" ? "Starting…" : "Start looper"}
           </button>
         )}
+        {ready && <span className="text-xs text-slate-400">Recording from <b className="text-slate-200">{sourcesText(snap)}</b></span>}
+        <button type="button" className={`${btnPlain} ml-auto`} onClick={onSettings}>⚙ Settings</button>
       </div>
 
       {snap.error && <p role="alert" className="rounded-lg border border-rose-500/40 bg-rose-500/10 p-2.5 text-xs text-rose-200">{snap.error}</p>}
-      {snap.status === "idle" && <p className="text-xs text-slate-400">The browser will ask for microphone access. That is how it reaches your audio interface; nothing is uploaded, everything stays in this tab.</p>}
-
-      {ready && (
-        <>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <label className="flex flex-col gap-1 text-xs text-slate-400">
-              Input device
-              <select className={field} value={snap.deviceId} onChange={(e) => void engine.openInput(e.target.value)}>
-                {snap.devices.map((d) => <option key={d.id} value={d.id}>{d.label}</option>)}
-              </select>
-            </label>
-            <label className="flex flex-col gap-1 text-xs text-slate-400">
-              Record from
-              <select className={field} value={snap.inputMode} onChange={(e) => engine.setInputMode(e.target.value as InputMode)}>
-                {modes.map((m) => <option key={m.id} value={m.id}>{m.label}</option>)}
-              </select>
-            </label>
-          </div>
-          <p className="text-xs text-slate-500">
-            {snap.inputChannels > 0 ? `This device reports ${snap.inputChannels} input channel${snap.inputChannels === 1 ? "" : "s"}. ` : ""}
-            With a Focusrite Scarlett, pick its name above. Input 1 and 2 are the two jacks on the front. Plug a guitar into Input 2 and choose &ldquo;Input 2 (right)&rdquo;.
-          </p>
-          <LevelMeter getLevel={getLevel} />
-          <div className="grid gap-3 sm:grid-cols-2">
-            <label className="flex items-center gap-2 text-xs text-slate-300">
-              <input type="checkbox" checked={snap.monitor} onChange={(e) => engine.setMonitor(e.target.checked)} className="accent-sky-400" />
-              Hear the input through the browser
-            </label>
-            <label className="flex items-center gap-2 text-xs text-slate-400">
-              Latency fix
-              <input type="range" min={0} max={250} step={1} value={snap.latencyMs} onChange={(e) => engine.setLatencyMs(Number(e.target.value))} className="flex-1 accent-sky-400" aria-label="Latency compensation in milliseconds" />
-              <span className="w-14 tabular-nums">{snap.latencyMs} ms</span>
-            </label>
-          </div>
-          <p className="text-xs text-slate-500">
-            Monitoring through the browser adds delay and can feed back through speakers; use headphones, or use your interface&rsquo;s own direct monitor instead. If new takes sound late against the loop, raise the latency fix until they line up.
-          </p>
-        </>
-      )}
+      {snap.deviceError && ready && <p role="alert" className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-2.5 text-xs text-amber-100">Audio interface unavailable: {snap.deviceError} The piano can still be recorded.</p>}
+      {snap.status === "idle" && <p className="text-xs text-slate-400">Start the looper to record the piano below and, if you allow it, your audio interface. The browser asks for microphone access for the interface; nothing is uploaded, everything stays in this tab. Use Settings to choose sources, pick your interface or connect a MIDI keyboard.</p>}
+      {ready && <LevelMeter getLevel={getLevel} />}
     </section>
+  );
+}
+
+function PianoPanel() {
+  return (
+    <details open className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
+      <summary className="cursor-pointer text-sm font-medium text-slate-100">Piano <span className="font-normal text-slate-500">· play with the keys on screen, the computer keyboard or a MIDI keyboard; what you play is recorded into the loop</span></summary>
+      <div className="mt-4 overflow-x-auto"><Piano /></div>
+    </details>
   );
 }
 
