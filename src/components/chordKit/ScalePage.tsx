@@ -5,7 +5,7 @@ import Link from "next/link";
 import { KeyPicker } from "./KeyPicker";
 import { Chip, DegreeLegend, Info } from "./ui";
 import { FAMILIES, makeKeyContext } from "@/lib/chordKit/theory";
-import { MODE_PAGES, chordMidi, modeChords, degreeColour, degreeLabels, relativesOf, stepPattern } from "@/lib/chordKit/scales";
+import { MODE_PAGES, chordMidi, modeChords, degreeColour, degreeLabels, relativesOf, roleWithDegree, stepPattern } from "@/lib/chordKit/scales";
 import { strum } from "@/lib/chordKit/playback";
 import ChordShapeCarousel from "./ChordShapeCarousel";
 import ChordShapesModal from "./ChordShapesModal";
@@ -153,7 +153,7 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey }: { fami
                     {shown.map((n) => (
                       <span key={n.role + n.name} className="flex flex-col items-center">
                         <span className="flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold text-slate-950" style={{ background: colour(n) }}>{n.name}</span>
-                        <span className="text-[10px] text-slate-500">{n.role}</span>
+                        <span className="text-[10px] text-slate-500">{roleWithDegree(n.role)}</span>
                       </span>
                     ))}
                   </span>

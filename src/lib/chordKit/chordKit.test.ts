@@ -254,3 +254,20 @@ describe("chord shapes for a mode chord", () => {
     assert.equal(carouselStep(0, 1, 0), 0);
   });
 });
+
+import { extensionDegree, roleWithDegree } from "./scales";
+import { shapeTones } from "./chordShapes";
+describe("extension degrees and shape tones", () => {
+  it("maps 9/11/13 to 2/4/6", () => {
+    assert.equal(extensionDegree("9"), "2");
+    assert.equal(extensionDegree("11"), "4");
+    assert.equal(extensionDegree("♭13"), "♭6");
+    assert.equal(extensionDegree("♭3"), null);
+    assert.equal(roleWithDegree("♭9"), "♭9 (♭2)");
+    assert.equal(roleWithDegree("7"), "7");
+  });
+  it("locates every shape tone inside the mode", () => {
+    const ctx = makeKeyContext(0, 0, 1);
+    for (let d = 0; d < 7; d++) shapesForChord(ctx, d).slice(0, 5).forEach((c) => shapeTones(ctx, c).forEach((t) => assert.ok(t.scaleDegree >= 0)));
+  });
+});

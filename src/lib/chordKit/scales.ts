@@ -155,3 +155,15 @@ export function stepPattern(steps: number[]): string[] {
     return d === 1 ? "H" : d === 2 ? "W" : d === 3 ? "W+H" : String(d);
   });
 }
+
+/** The scale degree an extension is built on: "9" -> "2", "♭13" -> "♭6". Other roles return null. */
+export function extensionDegree(role: string): string | null {
+  const m = /^([♭♯]*)(9|11|13)$/.exec(role);
+  return m ? m[1] + (Number(m[2]) - 7) : null;
+}
+
+/** A role with its scale-degree twin in brackets when it is an extension: "9" -> "9 (2)". */
+export const roleWithDegree = (role: string): string => {
+  const d = extensionDegree(role);
+  return d ? `${role} (${d})` : role;
+};

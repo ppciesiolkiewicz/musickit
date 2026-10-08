@@ -1,4 +1,4 @@
-import { RICH_SHAPES, rootFretFor, shapeSemitones, type Difficulty, type RichShape } from "./shapeTools";
+import { RICH_SHAPES, intervalLabel, rootFretFor, shapeSemitones, type Difficulty, type RichShape } from "./shapeTools";
 import { modeChords } from "./scales";
 import type { KeyContext } from "./theory";
 
@@ -44,3 +44,23 @@ export function shapesForChord(ctx: KeyContext, degree: number, difficulties: Di
 /** Wrap-around step for a carousel. */
 export const carouselStep = (index: number, delta: number, length: number): number =>
   length === 0 ? 0 : (((index + delta) % length) + length) % length;
+
+/** One sounding chord tone of a shape, as a bubble: its role in the chord and its place in the mode. */
+export interface ShapeTone {
+  /** role in the chord: R, ♭3, 5, ♭7, 9 ... */
+  role: string;
+  /** scale degree of the mode, 0-based */
+  scaleDegree: number;
+  /** note name spelled for the key */
+  note: string;
+}
+
+/** The distinct chord tones of a placed shape, low to high by interval, named and located in the mode. */
+export function shapeTones(ctx: KeyContext, choice: ChordShapeChoice): ShapeTone[] {
+  const semis = [...new Set(shapeSemitones(choice.shape).filter((v): v is number => v !== null))].sort((a, b) => a - b);
+  return semis.map((s) => {
+    const pc = (choice.rootPc + s) % 12;
+    const scaleDegree = ctx.steps.findIndex((st) => (ctx.tonic.pc + st) % 12 === pc);
+    return { role: intervalLabel(choice.shape, s), scaleDegree, note: ctx.names[scaleDegree] };
+  });
+}
