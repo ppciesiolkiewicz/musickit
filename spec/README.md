@@ -11,6 +11,7 @@ This directory contains the formal specifications for the Music Kit application.
 | [Keyboard Mapping](keyboard-mapping.md) | Keyboard-to-piano key mapping specification |
 | [Architecture](architecture.md) | Technical architecture and component structure |
 | [Guitar tools](guitar-tools.md) | Chord explorer, triads by string group, mode pages |
+| [Looper](looper.md) | Independent multi-channel audio looper |
 
 ## Quick Reference
 

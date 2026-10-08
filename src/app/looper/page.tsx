@@ -1,0 +1,25 @@
+import type { Metadata } from "next";
+import SiteNav from "@/components/SiteNav";
+import LooperApp from "@/components/looper/LooperApp";
+
+export const metadata: Metadata = {
+  title: "Looper · Music Kit",
+  description: "A multi-channel audio looper that records from your audio interface.",
+};
+
+export default function LooperPage() {
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-950 text-slate-200">
+      <div className="mx-auto flex w-full max-w-4xl flex-col gap-5 px-4 py-6">
+        <SiteNav active="/looper" />
+        <header>
+          <h1 className="text-2xl font-light tracking-wide text-slate-100">Looper</h1>
+          <p className="mt-1 max-w-3xl text-sm text-slate-400">Record layers from your audio interface and play them back in a synchronised loop. Everything runs in your browser.</p>
+        </header>
+        <main>
+          <LooperApp />
+        </main>
+      </div>
+    </div>
+  );
+}
