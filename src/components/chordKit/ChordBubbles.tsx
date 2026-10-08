@@ -3,7 +3,7 @@
 import { useMemo, useState, type ReactNode } from "react";
 import { HUES, swatchFor } from "./palette";
 import { Info } from "./ui";
-import { FAMILIES, shortModeName, type DegreeChord, type KeyContext, type TriadQuality } from "@/lib/chordKit/theory";
+import { type DegreeChord, type KeyContext, type TriadQuality } from "@/lib/chordKit/theory";
 import { chordMidi } from "@/lib/chordKit/scales";
 import { strum } from "@/lib/chordKit/playback";
 
@@ -115,7 +115,6 @@ function Hot({ id, label, active, onHover, onPin, children }: { id: string; labe
 
 function Bubble({ ctx, ch, onPlay }: { ctx: KeyContext; ch: DegreeChord; onPlay: () => void }) {
   const hue = HUES[HUE_OF[ch.tri]];
-  const degMode = shortModeName(FAMILIES[ctx.familyIndex].names[(ctx.modeIndex + ch.degree) % 7]);
   const lineCol = hue.line;
   const pops = useMemo(() => popovers(ctx, ch), [ctx, ch]);
   const [hover, setHover] = useState<string | null>(null);
@@ -128,7 +127,7 @@ function Bubble({ ctx, ch, onPlay }: { ctx: KeyContext; ch: DegreeChord; onPlay:
   return (
     <div className="relative">
       <svg viewBox={`0 0 ${cellW} ${cellH}`} width="100%" role="group" aria-label={`${ch.seventhName}: sus and extension chords reachable from ${ch.triadName}`}>
-        <text x={cx} y={20} textAnchor="middle" fontSize={13} fontWeight={500} fill="#cbd5e1">{ch.root} {degMode}</text>
+        <text x={cx} y={20} textAnchor="middle" fontSize={13} fontWeight={500} fill="#cbd5e1">{ch.roman} · {ch.triadName}</text>
         {ch.formula.map((lab, i) => {
           const sw = swatchFor(lab);
           const px = cx + (i - 1.5) * 32;
