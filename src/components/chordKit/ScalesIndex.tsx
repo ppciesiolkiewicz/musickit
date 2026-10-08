@@ -54,9 +54,11 @@ export default function ScalesIndex({ initialKey }: { initialKey: number }) {
           <div className="grid gap-3 lg:grid-cols-2">
             {modes.map(({ page, ctx, rel, labels }) => (
               <article key={page.slug} className="flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
-                <header className="flex flex-wrap items-baseline gap-x-2">
-                  <h3 className="text-base text-slate-100">{ctx.names[0]} {ctx.modeName}</h3>
-                  <span className="text-xs text-slate-500">{fam.info[page.modeIndex].mood}</span>
+                <header>
+                  <Link href={`/scales/${page.slug}?key=${tonicPc}`} className="group flex flex-wrap items-baseline gap-x-2 rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
+                    <h3 className="text-base text-slate-100 group-hover:text-sky-300 group-hover:underline">{ctx.names[0]} {ctx.modeName}</h3>
+                    <span className="text-xs text-slate-500 group-hover:text-slate-300">{fam.info[page.modeIndex].mood}</span>
+                  </Link>
                 </header>
 
                 <div className="flex flex-wrap gap-1.5" aria-label={`Notes of ${ctx.names[0]} ${ctx.modeName}`}>
