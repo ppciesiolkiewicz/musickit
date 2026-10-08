@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { KeyPicker, ModePicker } from "./KeyPicker";
-import DegreeBadge from "./DegreeBadge";
+import { Badge, FretboardBase, fretGeometry } from "./Fretboard";
 import { Chip, ChipRow, DegreeLegend, Info } from "./ui";
 import { ARP_FRETS, ARP_QUALITIES, WINDOWS, arpeggioMidi, buildArpeggio, neckCells, type Arpeggio, type NeckCell } from "@/lib/chordKit/arpeggios";
 import { FAMILIES, makeKeyContext } from "@/lib/chordKit/theory";
@@ -16,53 +16,50 @@ const KINDS = [
   { id: "seventh", label: "Scale 7th" },
   { id: "ninth", label: "Scale 9th" },
 ];
-const colW = 52, left = 40, top = 30, rowH = 30;
+const GEO = fretGeometry(0, ARP_FRETS, 54, 36);
+const OUT = "#f43f5e";
 
-function ArpNeck({ cells, arp, overlay, labelMode, badges, window: win, onNote }: { cells: NeckCell[]; arp: Arpeggio; overlay: boolean; labelMode: LabelMode; badges: boolean; window: { from: number; to: number }; onNote: (c: NeckCell) => void }) {
-  const W = left + (ARP_FRETS + 1) * colW + 10;
-  const H = top + 5 * rowH + 44;
-  const fx = (f: number) => left + f * colW + colW / 2;
-  const sy = (s: number) => top + (5 - s) * rowH;
-  const grid = "#475569";
+export function ArpNeck({ cells, arp, overlay, labelMode, badges, window: win, onNote }: { cells: NeckCell[]; arp: Arpeggio; overlay: boolean; labelMode: LabelMode; badges: boolean; window: { from: number; to: number }; onNote: (c: NeckCell) => void }) {
+  const g = GEO;
   const labelFor = (c: NeckCell) => (labelMode === "name" ? c.name : labelMode === "degree" ? c.degreeText : c.arp?.role ?? c.degreeText);
+  const showBadge = badges && labelMode !== "degree";
+  const isWindow = win.from > 0 || win.to < ARP_FRETS;
+  const colour = (c: NeckCell) => (c.inScale ? degreeColour(c.scaleDegree as number) : OUT);
+  const arpCells = cells.filter((c) => c.arp);
+  const ringCells = overlay ? cells.filter((c) => !c.arp && c.inScale) : [];
+  const op = (c: NeckCell) => (c.fret >= win.from && c.fret <= win.to ? 1 : 0.14);
+
   return (
     <div className="overflow-x-auto">
-      <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ minWidth: 760 }} role="img" aria-label={`${arp.title} on the guitar neck`}>
-        {[3, 5, 7, 9, 15, 17].map((f) => <circle key={f} cx={fx(f)} cy={(sy(2) + sy(3)) / 2} r={5} fill="#1e293b" />)}
-        <circle cx={fx(12)} cy={(sy(1) + sy(2)) / 2} r={5} fill="#1e293b" />
-        <circle cx={fx(12)} cy={(sy(3) + sy(4)) / 2} r={5} fill="#1e293b" />
-        {Array.from({ length: ARP_FRETS + 2 }, (_, f) => (
-          <line key={f} x1={left + f * colW} x2={left + f * colW} y1={sy(5) - 8} y2={sy(0) + 8} stroke={grid} strokeWidth={f === 1 ? 3 : 1} />
-        ))}
-        {Array.from({ length: 6 }, (_, s) => <line key={s} x1={left} x2={left + (ARP_FRETS + 1) * colW} y1={sy(s)} y2={sy(s)} stroke={grid} strokeWidth={1 + (5 - s) * 0.12} />)}
-        {Array.from({ length: ARP_FRETS + 1 }, (_, f) => (
-          <text key={f} x={fx(f)} y={sy(0) + 28} textAnchor="middle" fontSize={11} fill="#94a3b8">{f === 0 ? "open" : f}</text>
-        ))}
-        {cells.map((c) => {
-          const inWin = c.fret >= win.from && c.fret <= win.to;
-          const op = inWin ? 1 : 0.12;
-          const x = fx(c.fret), y = sy(c.string);
-          if (c.arp) {
-            const isRoot = c.arp.role === "R";
-            const fill = c.inScale ? degreeColour(c.scaleDegree as number) : "#0f172a";
-            return (
-              <g key={`${c.string}-${c.fret}`} opacity={op} onClick={() => onNote(c)} style={{ cursor: "pointer" }}>
-                <circle cx={x} cy={y} r={13} fill={fill} stroke={isRoot ? "#ffffff" : c.inScale ? "#0f172a" : "#f43f5e"} strokeWidth={isRoot ? 3 : 2} strokeDasharray={c.inScale ? undefined : "3 2"} />
-                <text x={x} y={y} textAnchor="middle" dominantBaseline="central" fontSize={labelFor(c).length > 2 ? 9 : 11} fontWeight={700} fill={c.inScale ? "#0f172a" : "#f8fafc"} pointerEvents="none">{labelFor(c)}</text>
-                {badges && labelMode !== "degree" && <DegreeBadge x={x} y={y} text={c.degreeText} degree={c.scaleDegree} offset={13} />}
-              </g>
-            );
-          }
-          if (overlay && c.inScale) {
-            return (
-              <g key={`${c.string}-${c.fret}`} opacity={op * 0.75} onClick={() => onNote(c)} style={{ cursor: "pointer" }}>
-                <circle cx={x} cy={y} r={8} fill="none" stroke={degreeColour(c.scaleDegree as number)} strokeWidth={2} />
-                <text x={x} y={y} textAnchor="middle" dominantBaseline="central" fontSize={8} fill={degreeColour(c.scaleDegree as number)} pointerEvents="none">{labelMode === "degree" ? c.degreeText : labelMode === "name" ? c.name : c.degreeText}</text>
-              </g>
-            );
-          }
-          return null;
+      <svg viewBox={`0 0 ${g.W} ${g.H}`} width="100%" style={{ minWidth: 820 }} role="img" aria-label={`${arp.title} on the guitar neck`}>
+        <FretboardBase g={g} />
+        {isWindow && (
+          <rect x={g.left + win.from * g.colW + 1} y={g.sy(5) - 22} width={(win.to - win.from + 1) * g.colW - 2} height={g.sy(0) - g.sy(5) + 44} rx={10} fill="#38bdf8" opacity={0.07} stroke="#38bdf8" strokeOpacity={0.5} strokeDasharray="5 4" pointerEvents="none" />
+        )}
+        {ringCells.map((c) => {
+          const x = g.fx(c.fret), y = g.sy(c.string), col = colour(c);
+          const t = labelMode === "degree" ? c.degreeText : labelMode === "name" ? c.name : c.degreeText;
+          return (
+            <g key={`${c.string}-${c.fret}`} opacity={op(c) * 0.9} onClick={() => onNote(c)} style={{ cursor: "pointer" }}>
+              <circle cx={x} cy={y} r={9} fill="#0d1526" stroke={col} strokeWidth={1.6} />
+              <text x={x} y={y + 0.5} textAnchor="middle" dominantBaseline="central" fontSize={t.length > 2 ? 7 : 8.5} fontWeight={600} fill={col} pointerEvents="none">{t}</text>
+            </g>
+          );
         })}
+        {arpCells.map((c) => {
+          const x = g.fx(c.fret), y = g.sy(c.string), isRoot = c.arp!.role === "R", label = labelFor(c);
+          return (
+            <g key={`${c.string}-${c.fret}`} opacity={op(c)} onClick={() => onNote(c)} style={{ cursor: "pointer" }}>
+              <circle cx={x} cy={y} r={14} fill={c.inScale ? colour(c) : "#1b0b12"} stroke={isRoot ? "#ffffff" : c.inScale ? "#0d1526" : OUT} strokeWidth={isRoot ? 2.8 : c.inScale ? 1.5 : 2} strokeDasharray={c.inScale ? undefined : "3.5 2.5"} />
+              <text x={x} y={y + 0.5} textAnchor="middle" dominantBaseline="central" fontSize={label.length > 2 ? 9.5 : 12} fontWeight={700} fill={c.inScale ? "#0b1220" : "#fecdd3"} pointerEvents="none">{label}</text>
+            </g>
+          );
+        })}
+        {showBadge && arpCells.map((c) => (
+          <g key={`b${c.string}-${c.fret}`} opacity={op(c)}>
+            <Badge x={g.fx(c.fret)} y={g.sy(c.string)} r={14} text={c.degreeText} colour={colour(c)} />
+          </g>
+        ))}
       </svg>
     </div>
   );

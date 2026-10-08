@@ -55,7 +55,7 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey }: { fami
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
+      <div className="flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5">
         <KeyPicker tonicPc={tonicPc} onTonic={setTonicPc} />
         <h2 className="text-2xl font-light tracking-wide text-slate-100">
           {ctx.names[0]} {ctx.modeName}
@@ -78,7 +78,7 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey }: { fami
         </p>
       </div>
 
-      <section className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
+      <section className="rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5">
         <h2 className="mb-2 text-sm font-medium text-slate-100">Relatives of {ctx.names[0]} {ctx.modeName}</h2>
         <ul className="space-y-1.5 text-sm text-slate-300">
           {modeIndex !== 0 && !rel.relativeMajor && (
@@ -118,7 +118,7 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey }: { fami
         </div>
       </section>
 
-      <section className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
+      <section className="rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5">
         <div className="mb-3 flex flex-wrap items-center gap-2">
           <h2 className="text-sm font-medium text-slate-100">Every chord in {ctx.names[0]} {ctx.modeName}</h2>
           <span className="ml-auto flex flex-wrap items-center gap-1.5">
@@ -169,9 +169,9 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey }: { fami
         </p>
       </section>
 
-      <section className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
+      <section className="rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5">
         <h2 className="mb-1 text-sm font-medium text-slate-100">Sus and extension chords from each chord</h2>
-        <p className="mb-3 text-xs text-slate-400">From {ctx.chords[0].triadName} you can go through the 2nd of the scale to sus2 and 9 chords, through the 4th to sus4 and 11, and so on. Swipe sideways to see all seven chords of {ctx.names[0]} {ctx.modeName}.</p>
+        <p className="mb-3 text-xs text-slate-400">From {ctx.chords[0].triadName} you can go through the 2nd of the scale to sus2 and 9 chords, through the 4th to sus4 and 11, and so on. All seven chords of {ctx.names[0]} {ctx.modeName}.</p>
         <ChordBubbles ctx={ctx} />
       </section>
 

@@ -1,7 +1,7 @@
 "use client";
 
+import { Badge, FretboardBase, fretGeometry } from "./Fretboard";
 import type { CagedBox, CagedCell } from "@/lib/chordKit/caged";
-import DegreeBadge from "./DegreeBadge";
 import { degreeColour } from "@/lib/chordKit/scales";
 
 export interface Layers {
@@ -12,80 +12,63 @@ export interface Layers {
 }
 export type LabelMode = "name" | "degree";
 
-const colW = 54, left = 34, top = 24, rowH = 28;
-const STRING_NAMES = ["E", "A", "D", "G", "B", "e"];
+type Tier = "chord" | "arp" | "pent" | "scale";
+const RADIUS: Record<Tier, number> = { chord: 14, arp: 14, pent: 12, scale: 9 };
+const OUT = "#f43f5e";
 
 /** A horizontal slice of the neck for one CAGED box. Chord, arpeggio, pentatonic and scale notes are drawn in layers of decreasing size. */
 export default function BoxNeck({ cells, box, layers, labelMode, badges = true, onNote }: { cells: CagedCell[]; box: CagedBox; layers: Layers; labelMode: LabelMode; badges?: boolean; onNote: (c: CagedCell) => void }) {
-  const cols = box.to - box.from + 1;
-  const W = left + cols * colW + 8;
-  const H = top + 5 * rowH + 36;
-  const fx = (f: number) => left + (f - box.from) * colW + colW / 2;
-  const sy = (s: number) => top + (5 - s) * rowH;
-  const grid = "#475569";
+  const g = fretGeometry(box.from, box.to);
   const labelFor = (c: CagedCell) => (labelMode === "name" ? c.name : c.degreeText);
-  const markers = [3, 5, 7, 9, 15, 17].filter((f) => f >= box.from && f <= box.to);
+  const showBadge = badges && labelMode === "name";
 
-  const tier = (c: CagedCell): "chord" | "arp" | "pent" | "scale" | null => {
+  const tier = (c: CagedCell): Tier | null => {
     if (layers.chord && c.inChord) return "chord";
     if (layers.arp && c.arpRole) return "arp";
     if (layers.pent && c.inPent) return "pent";
     if (layers.scale && c.inScale) return "scale";
     return null;
   };
+  const order: Tier[] = ["scale", "pent", "arp", "chord"];
+  const placed = cells.map((c) => ({ c, t: tier(c) })).filter((x): x is { c: CagedCell; t: Tier } => x.t !== null);
+  placed.sort((a, b) => order.indexOf(a.t) - order.indexOf(b.t));
 
   return (
-    <div className="overflow-x-auto">
-      <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ minWidth: Math.min(W, 420) }} role="img" aria-label={`${box.letter} shape box, frets ${box.from} to ${box.to}`}>
-        {markers.map((f) => <circle key={f} cx={fx(f)} cy={(sy(2) + sy(3)) / 2} r={5} fill="#1e293b" />)}
-        {box.from <= 12 && box.to >= 12 && (
-          <>
-            <circle cx={fx(12)} cy={(sy(1) + sy(2)) / 2} r={5} fill="#1e293b" />
-            <circle cx={fx(12)} cy={(sy(3) + sy(4)) / 2} r={5} fill="#1e293b" />
-          </>
-        )}
-        {Array.from({ length: cols + 1 }, (_, i) => {
-          const isNut = box.from === 0 && i === 1;
-          return <line key={i} x1={left + i * colW} x2={left + i * colW} y1={sy(5) - 8} y2={sy(0) + 8} stroke={grid} strokeWidth={isNut ? 4 : 1} />;
-        })}
-        {Array.from({ length: 6 }, (_, s) => (
-          <g key={s}>
-            <line x1={left} x2={left + cols * colW} y1={sy(s)} y2={sy(s)} stroke={grid} strokeWidth={1 + (5 - s) * 0.12} />
-            <text x={left - 10} y={sy(s)} textAnchor="end" dominantBaseline="central" fontSize={10} fill="#64748b">{STRING_NAMES[s]}</text>
-          </g>
-        ))}
-        {Array.from({ length: cols }, (_, i) => (
-          <text key={i} x={fx(box.from + i)} y={sy(0) + 28} textAnchor="middle" fontSize={11} fill="#94a3b8">{box.from + i === 0 ? "open" : box.from + i}</text>
-        ))}
-        {cells.map((c) => {
-          const t = tier(c);
-          if (!t) return null;
-          const x = fx(c.fret), y = sy(c.string);
-          const colour = c.scaleDegree === null ? "#f43f5e" : degreeColour(c.scaleDegree);
+    <div>
+      <svg viewBox={`0 0 ${g.W} ${g.H}`} style={{ width: Math.round(g.W * 1.2), maxWidth: "100%", height: "auto" }} role="img" aria-label={`${box.letter} shape box, frets ${box.from} to ${box.to}`}>
+        <FretboardBase g={g} />
+        {placed.map(({ c, t }) => {
+          const x = g.fx(c.fret), y = g.sy(c.string), r = RADIUS[t];
+          const colour = c.scaleDegree === null ? OUT : degreeColour(c.scaleDegree);
           const label = labelFor(c);
-          const showBadge = badges && labelMode === "name";
           const key = `${c.string}-${c.fret}`;
           if (t === "scale") {
             return (
-              <g key={key} onClick={() => onNote(c)} style={{ cursor: "pointer" }} opacity={0.8}>
-                <circle cx={x} cy={y} r={9} fill="#0f172a" stroke={colour} strokeWidth={1.5} />
-                <text x={x} y={y} textAnchor="middle" dominantBaseline="central" fontSize={8} fill={colour} pointerEvents="none">{label}</text>
-                {showBadge && <DegreeBadge x={x} y={y} text={c.degreeText} degree={c.scaleDegree} offset={9} />}
+              <g key={key} onClick={() => onNote(c)} style={{ cursor: "pointer" }}>
+                <circle cx={x} cy={y} r={r} fill="#0d1526" stroke={colour} strokeWidth={1.6} opacity={0.95} />
+                <text x={x} y={y + 0.5} textAnchor="middle" dominantBaseline="central" fontSize={label.length > 2 ? 7 : 8.5} fontWeight={600} fill={colour} pointerEvents="none">{label}</text>
               </g>
             );
           }
-          const big = t === "chord" || t === "arp";
-          const r = big ? 13 : 11;
           return (
             <g key={key} onClick={() => onNote(c)} style={{ cursor: "pointer" }}>
-              {t === "chord" && <circle cx={x} cy={y} r={18} fill="none" stroke="#e2e8f0" strokeWidth={1.5} strokeDasharray="3 2" />}
-              <circle cx={x} cy={y} r={r} fill={colour} stroke={c.isRoot ? "#ffffff" : "#0f172a"} strokeWidth={c.isRoot ? 3 : 1.5} />
-              <text x={x} y={y} textAnchor="middle" dominantBaseline="central" fontSize={label.length > 2 ? 9 : 11} fontWeight={700} fill="#0f172a" pointerEvents="none">{label}</text>
-              {showBadge && <DegreeBadge x={x} y={y} text={c.degreeText} degree={c.scaleDegree} offset={r} />}
+              {t === "chord" && <circle cx={x} cy={y} r={r + 4.5} fill="none" stroke="#e2e8f0" strokeWidth={1.4} opacity={0.9} />}
+              <circle cx={x} cy={y} r={r} fill={colour} stroke={c.isRoot ? "#ffffff" : "#0d1526"} strokeWidth={c.isRoot ? 2.5 : 1.5} opacity={t === "pent" ? 0.92 : 1} />
+              <text x={x} y={y + 0.5} textAnchor="middle" dominantBaseline="central" fontSize={label.length > 2 ? 9.5 : t === "pent" ? 11 : 12.5} fontWeight={700} fill="#0b1220" pointerEvents="none">{label}</text>
             </g>
           );
         })}
+        {showBadge && placed.map(({ c, t }) => (
+          <Badge key={`b${c.string}-${c.fret}`} x={g.fx(c.fret)} y={g.sy(c.string)} r={RADIUS[t] + (t === "chord" ? 3 : 0)} text={c.degreeText} colour={c.scaleDegree === null ? OUT : degreeColour(c.scaleDegree)} />
+        ))}
       </svg>
+      <ul className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-slate-500" aria-label="Key to the dots">
+        {layers.chord && <li className="flex items-center gap-1.5"><span className="inline-block h-3.5 w-3.5 rounded-full border border-slate-200 p-[2px]"><span className="block h-full w-full rounded-full bg-slate-400" /></span>chord shape</li>}
+        {layers.arp && <li className="flex items-center gap-1.5"><span className="inline-block h-3.5 w-3.5 rounded-full bg-slate-400" />arpeggio</li>}
+        {layers.pent && <li className="flex items-center gap-1.5"><span className="inline-block h-3 w-3 rounded-full bg-slate-500" />pentatonic</li>}
+        {layers.scale && <li className="flex items-center gap-1.5"><span className="inline-block h-2.5 w-2.5 rounded-full border border-slate-400" />scale</li>}
+        <li className="flex items-center gap-1.5"><span className="inline-block h-3 w-3 rounded-full bg-slate-100 ring-2 ring-white/80 ring-offset-1 ring-offset-slate-900" />root</li>
+      </ul>
     </div>
   );
 }

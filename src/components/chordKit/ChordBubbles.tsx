@@ -1,8 +1,8 @@
 "use client";
 
-import { useRef } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { HUES, swatchFor } from "./palette";
-import { Chip, Info } from "./ui";
+import { Info } from "./ui";
 import { FAMILIES, shortModeName, type DegreeChord, type KeyContext, type TriadQuality } from "@/lib/chordKit/theory";
 import { chordMidi } from "@/lib/chordKit/scales";
 import { strum } from "@/lib/chordKit/playback";
@@ -16,98 +16,221 @@ const polar = (r: number, deg: number): [number, number] => {
 };
 const fontFor = (t: string) => (t.length > 9 ? 8.5 : t.length > 7 ? 9.5 : t.length > 5 ? 10.5 : 11.5);
 
+/* ---------------------------------------------------------------- what each small bubble explains */
+
+interface Pop {
+  x: number;
+  y: number;
+  title: string;
+  notes?: string[];
+  text: string;
+  warn?: boolean;
+}
+
+const ORD = ["root", "2nd", "3rd", "4th", "5th", "6th", "7th"];
+
+/** Words for a popover: one entry per small bubble of one chord, keyed by "pip-i", "node-i" and "leaf-i-j". */
+function popovers(ctx: KeyContext, ch: DegreeChord): Record<string, Pop> {
+  const at = (off: number) => ctx.names[(ch.degree + off) % 7];
+  const out: Record<string, Pop> = {};
+  const roleName = ["root", "3rd", "5th", "7th"];
+  ch.formula.forEach((lab, i) => {
+    const off = [0, 2, 4, 6][i];
+    out[`pip-${i}`] = {
+      x: cx + (i - 1.5) * 32, y: 44,
+      title: `${lab} = ${at(off)}`,
+      text: `The ${roleName[i]} of ${ch.triadName}${i === 3 ? " (as a seventh chord)" : ""}. It is the ${ORD[off]} note of the scale counting from ${ch.root}, which is scale degree ${((ch.degree + off) % 7) + 1} of the mode.`,
+    };
+  });
+  const slotOffset = [1, 3, 5, 6];
+  ch.slots.forEach((slot, i) => {
+    if (!slot) return;
+    const off = slotOffset[i];
+    const [nx, ny] = polar(R1, ANGLES[i]);
+    const dashedAny = slot.kids.some((k) => k.dashed);
+    out[`node-${i}`] = {
+      x: nx, y: ny,
+      title: `${slot.label} above ${ch.root} = ${slot.note}`,
+      notes: [at(off)],
+      text: i === 3
+        ? `The note a ${slot.label} above the root completes the seventh chord: ${ch.seventhName}.`
+        : `${slot.note} is the ${ORD[off]} of the scale above ${ch.root}. Use it to make ${slot.kids.map((k) => k.text).join(" or ")}.${dashedAny ? " A dashed outline means a clash, so use it with care." : ""}`,
+    };
+    const n = slot.kids.length;
+    slot.kids.forEach((kid, j) => {
+      const [lx, ly] = polar(R2, n === 1 ? ANGLES[i] : ANGLES[i] + (j === 0 ? -spread : spread));
+      const sus = /sus/.test(kid.text);
+      const six = i === 2 && /6$/.test(kid.text) && !/13|\(/.test(kid.text);
+      let notes: string[];
+      let text: string;
+      if (i === 3) {
+        notes = [0, 2, 4, 6].map(at);
+        text = `The full seventh chord: root, 3rd, 5th and 7th.`;
+      } else if (sus) {
+        notes = [at(0), at(off), at(4)];
+        text = `A suspended chord: the ${ORD[off]} (${slot.note}) replaces the 3rd, so it sounds neither major nor minor and wants to resolve.`;
+      } else if (six) {
+        notes = [at(0), at(2), at(4), at(5)];
+        text = `The triad with the 6th (${slot.note}) added. It stays a triad-sized chord with no 7th.`;
+      } else {
+        notes = [0, 2, 4, 6].map(at).concat(at(off));
+        text = `A full ${ch.seventhName} with the ${["", "9th", "", "11th", "", "13th"][off]} (${slot.note}) stacked on top. It is the same note as the ${ORD[off]}, one octave up.`;
+      }
+      out[`leaf-${i}-${j}`] = {
+        x: lx, y: ly,
+        title: kid.text,
+        notes,
+        text: text + (kid.dashed ? " It clashes with the chord (for example a half step against a chord tone), so use it with care." : ""),
+        warn: kid.dashed,
+      };
+    });
+  });
+  return out;
+}
+
+function Hot({ id, label, active, onHover, onPin, children }: { id: string; label: string; active: boolean; onHover: (id: string | null) => void; onPin: (id: string) => void; children: ReactNode }) {
+  return (
+    <g
+      role="button"
+      tabIndex={0}
+      aria-label={label}
+      aria-expanded={active}
+      style={{ cursor: "pointer", outline: "none" }}
+      onMouseEnter={() => onHover(id)}
+      onMouseLeave={() => onHover(null)}
+      onFocus={() => onHover(id)}
+      onBlur={() => onHover(null)}
+      onClick={() => onPin(id)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onPin(id);
+        }
+      }}
+    >
+      {children}
+    </g>
+  );
+}
+
 function Bubble({ ctx, ch, onPlay }: { ctx: KeyContext; ch: DegreeChord; onPlay: () => void }) {
   const hue = HUES[HUE_OF[ch.tri]];
   const degMode = shortModeName(FAMILIES[ctx.familyIndex].names[(ctx.modeIndex + ch.degree) % 7]);
   const lineCol = hue.line;
+  const pops = useMemo(() => popovers(ctx, ch), [ctx, ch]);
+  const [hover, setHover] = useState<string | null>(null);
+  const [pin, setPin] = useState<string | null>(null);
+  const shown = pin ?? hover;
+  const pop = shown ? pops[shown] : null;
+  const onPin = (id: string) => setPin((p) => (p === id ? null : id));
+  const ring = (id: string) => (shown === id ? { stroke: "#f8fafc", strokeWidth: 2.5 } : {});
+
   return (
-    <svg viewBox={`0 0 ${cellW} ${cellH}`} width="100%" role="img" aria-label={`${ch.seventhName}: sus and extension chords reachable from ${ch.triadName}`}>
-      <text x={cx} y={20} textAnchor="middle" fontSize={13} fontWeight={500} fill="#cbd5e1">{ch.root} {degMode}</text>
-      {ch.formula.map((lab, i) => {
-        const sw = swatchFor(lab);
-        const px = cx + (i - 1.5) * 32;
-        return (
-          <g key={i}>
-            <title>{`${lab} = ${ctx.names[(ch.degree + [0, 2, 4, 6][i]) % 7]}`}</title>
-            <circle cx={px} cy={44} r={13} fill={sw.fill} stroke={sw.line} strokeWidth={1.2} />
-            <text x={px} y={44} textAnchor="middle" dominantBaseline="central" fontSize={11} fontWeight={600} fill={sw.text}>{lab}</text>
-          </g>
-        );
-      })}
-      <text x={cx} y={68} textAnchor="middle" fontSize={11} fill="#94a3b8">scale degrees {ch.degrees.join(" · ")}</text>
+    <div className="relative">
+      <svg viewBox={`0 0 ${cellW} ${cellH}`} width="100%" role="group" aria-label={`${ch.seventhName}: sus and extension chords reachable from ${ch.triadName}`}>
+        <text x={cx} y={20} textAnchor="middle" fontSize={13} fontWeight={500} fill="#cbd5e1">{ch.root} {degMode}</text>
+        {ch.formula.map((lab, i) => {
+          const sw = swatchFor(lab);
+          const px = cx + (i - 1.5) * 32;
+          const id = `pip-${i}`;
+          return (
+            <Hot key={i} id={id} label={pops[id].title} active={shown === id} onHover={setHover} onPin={onPin}>
+              <circle cx={px} cy={44} r={13} fill={sw.fill} stroke={sw.line} strokeWidth={1.2} {...ring(id)} />
+              <text x={px} y={44} textAnchor="middle" dominantBaseline="central" fontSize={11} fontWeight={600} fill={sw.text} pointerEvents="none">{lab}</text>
+            </Hot>
+          );
+        })}
+        <text x={cx} y={68} textAnchor="middle" fontSize={11} fill="#94a3b8">scale degrees {ch.degrees.join(" · ")}</text>
 
-      {ch.slots.map((b, i) => {
-        if (!b) return null;
-        const [nx, ny] = polar(R1, ANGLES[i]);
-        const n = b.kids.length;
-        return (
-          <g key={i}>
-            <line x1={cx} y1={cy} x2={nx} y2={ny} stroke={lineCol} strokeWidth={1} opacity={0.6} />
-            {b.kids.map((_, j) => {
-              const [lx, ly] = polar(R2, n === 1 ? ANGLES[i] : ANGLES[i] + (j === 0 ? -spread : spread));
-              return <line key={j} x1={nx} y1={ny} x2={lx} y2={ly} stroke={lineCol} strokeWidth={1} opacity={0.6} />;
-            })}
-          </g>
-        );
-      })}
-
-      <g onClick={onPlay} style={{ cursor: "pointer" }}>
-        <title>{`${ch.roman}: ${ch.triadName}, built on scale degrees ${ch.degrees.slice(0, 3).join("-")}. Tap to hear it.`}</title>
-        <circle cx={cx} cy={cy} r={hubR} fill={hue.hub} stroke={lineCol} strokeWidth={1.5} />
-        <text x={cx} y={cy - 7} textAnchor="middle" dominantBaseline="central" fontSize={ch.roman.length > 4 ? 13 : 16} fontWeight={600} fill={hue.onHub}>{ch.roman}</text>
-        <text x={cx} y={cy + 14} textAnchor="middle" dominantBaseline="central" fontSize={12} fontWeight={500} fill={hue.onHub}>{ch.triadName}</text>
-      </g>
-
-      {ch.slots.map((b, i) => {
-        if (!b) return null;
-        const [nx, ny] = polar(R1, ANGLES[i]);
-        const n = b.kids.length;
-        return (
-          <g key={i}>
-            <g>
-              <title>{`${b.label} above the root = ${b.note}`}</title>
-              <circle cx={nx} cy={ny} r={nodeR} fill={hue.leaf} stroke={lineCol} strokeWidth={1.2} />
-              <text x={nx} y={ny - 5} textAnchor="middle" dominantBaseline="central" fontSize={12} fontWeight={600} fill={hue.text}>{b.label}</text>
-              <text x={nx} y={ny + 10} textAnchor="middle" dominantBaseline="central" fontSize={10} fill={hue.text} opacity={0.8}>{b.note}</text>
+        {ch.slots.map((b, i) => {
+          if (!b) return null;
+          const [nx, ny] = polar(R1, ANGLES[i]);
+          const n = b.kids.length;
+          return (
+            <g key={i}>
+              <line x1={cx} y1={cy} x2={nx} y2={ny} stroke={lineCol} strokeWidth={1} opacity={0.6} />
+              {b.kids.map((_, j) => {
+                const [lx, ly] = polar(R2, n === 1 ? ANGLES[i] : ANGLES[i] + (j === 0 ? -spread : spread));
+                return <line key={j} x1={nx} y1={ny} x2={lx} y2={ly} stroke={lineCol} strokeWidth={1} opacity={0.6} />;
+              })}
             </g>
-            {b.kids.map((kid, j) => {
-              const [lx, ly] = polar(R2, n === 1 ? ANGLES[i] : ANGLES[i] + (j === 0 ? -spread : spread));
-              return (
-                <g key={j}>
-                  <circle cx={lx} cy={ly} r={leafR} fill="#0f172a" stroke={lineCol} strokeWidth={1.2} strokeDasharray={kid.dashed ? "4 3" : undefined} />
-                  <text x={lx} y={ly} textAnchor="middle" dominantBaseline="central" fontSize={fontFor(kid.text)} fontWeight={500} fill={hue.text}>{kid.text}</text>
-                </g>
-              );
-            })}
-          </g>
-        );
-      })}
-    </svg>
+          );
+        })}
+
+        <g onClick={onPlay} style={{ cursor: "pointer" }}>
+          <title>{`${ch.roman}: ${ch.triadName}, built on scale degrees ${ch.degrees.slice(0, 3).join("-")}. Tap to hear it.`}</title>
+          <circle cx={cx} cy={cy} r={hubR} fill={hue.hub} stroke={lineCol} strokeWidth={1.5} />
+          <text x={cx} y={cy - 7} textAnchor="middle" dominantBaseline="central" fontSize={ch.roman.length > 4 ? 13 : 16} fontWeight={600} fill={hue.onHub}>{ch.roman}</text>
+          <text x={cx} y={cy + 14} textAnchor="middle" dominantBaseline="central" fontSize={12} fontWeight={500} fill={hue.onHub}>{ch.triadName}</text>
+        </g>
+
+        {ch.slots.map((b, i) => {
+          if (!b) return null;
+          const [nx, ny] = polar(R1, ANGLES[i]);
+          const n = b.kids.length;
+          const nid = `node-${i}`;
+          return (
+            <g key={i}>
+              <Hot id={nid} label={pops[nid].title} active={shown === nid} onHover={setHover} onPin={onPin}>
+                <circle cx={nx} cy={ny} r={nodeR} fill={hue.leaf} stroke={lineCol} strokeWidth={1.2} {...ring(nid)} />
+                <text x={nx} y={ny - 5} textAnchor="middle" dominantBaseline="central" fontSize={12} fontWeight={600} fill={hue.text} pointerEvents="none">{b.label}</text>
+                <text x={nx} y={ny + 10} textAnchor="middle" dominantBaseline="central" fontSize={10} fill={hue.text} opacity={0.8} pointerEvents="none">{b.note}</text>
+              </Hot>
+              {b.kids.map((kid, j) => {
+                const [lx, ly] = polar(R2, n === 1 ? ANGLES[i] : ANGLES[i] + (j === 0 ? -spread : spread));
+                const lid = `leaf-${i}-${j}`;
+                return (
+                  <Hot key={j} id={lid} label={pops[lid].title} active={shown === lid} onHover={setHover} onPin={onPin}>
+                    <circle cx={lx} cy={ly} r={leafR} fill="#0f172a" stroke={lineCol} strokeWidth={1.2} strokeDasharray={kid.dashed ? "4 3" : undefined} {...ring(lid)} />
+                    <text x={lx} y={ly} textAnchor="middle" dominantBaseline="central" fontSize={fontFor(kid.text)} fontWeight={500} fill={hue.text} pointerEvents="none">{kid.text}</text>
+                  </Hot>
+                );
+              })}
+            </g>
+          );
+        })}
+      </svg>
+
+      {pop && (
+        <div
+          role="tooltip"
+          className={`absolute z-20 w-56 rounded-lg border bg-slate-950 p-2.5 text-xs leading-relaxed text-slate-300 shadow-xl ${pop.warn ? "border-rose-500/60" : "border-slate-600"} ${pin ? "" : "pointer-events-none"}`}
+          style={{
+            left: `${Math.min(80, Math.max(20, (pop.x / cellW) * 100))}%`,
+            top: `${(pop.y / cellH) * 100}%`,
+            transform: `translate(-50%, ${pop.y > cellH * 0.55 ? "calc(-100% - 2.4rem)" : "2.4rem"})`,
+          }}
+        >
+          <div className="flex items-start gap-2">
+            <b className="text-sm text-slate-100">{pop.title}</b>
+            {pin && <button type="button" onClick={() => setPin(null)} className="ml-auto rounded border border-slate-700 px-1.5 text-[11px] text-slate-400 hover:text-slate-200" aria-label="Close">✕</button>}
+          </div>
+          {pop.notes && <div className="mt-1 text-slate-400">Notes: <span className="text-slate-200">{pop.notes.join(" ")}</span></div>}
+          <p className="mt-1">{pop.text}</p>
+          {!pin && <p className="mt-1 text-[10px] text-slate-500">Click to keep this open.</p>}
+        </div>
+      )}
+    </div>
   );
 }
 
 /**
  * For every chord of the selected mode: the chord, the notes of the scale that sit 2, 4, 6 and 7 above its root, and the
  * sus and extension chords each of them makes. For example Em: its M2 (F♯) gives Esus2 and Em9.
+ * The cards fill the width available. Hover a small bubble for an explanation; click to keep it open.
  */
 export default function ChordBubbles({ ctx }: { ctx: KeyContext }) {
-  const strip = useRef<HTMLDivElement>(null);
-  const jump = (d: number) => {
-    const card = strip.current?.children[d] as HTMLElement | undefined;
-    card?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
-  };
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-center gap-1.5">
-        <span className="text-[11px] uppercase tracking-wider text-slate-500">Jump to</span>
-        {ctx.chords.map((c) => <Chip key={c.degree} onClick={() => jump(c.degree)}>{c.roman}</Chip>)}
+      <p className="text-xs text-slate-500">
+        Hover or focus a small bubble for what it is, click to keep the note open.
         <Info label="How do I read the bubbles?">
           The big circle is the chord with its Roman numeral. The four small circles above it are its own notes: 1, 3, 5 and 7, with the scale degrees they come from underneath. Around it, each inner circle is another note of the scale: the 2nd (top), 4th (right), 6th (bottom) and 7th (left) above the chord&rsquo;s root, with the note name. The outer circles are the chords you reach by using that note. The 2nd gives a sus2 (it replaces the 3rd) and a 9th chord (it is stacked on top). The 4th gives sus4 and 11, the 6th gives 6 and 13, the 7th gives the seventh chord. A dashed outline marks a note that clashes with the chord (for example a natural 11 on a major chord) so use it with care. Tap the middle to hear the chord.
         </Info>
-      </div>
-      <div ref={strip} className="flex snap-x snap-mandatory gap-2 overflow-x-auto pb-2">
+      </p>
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {ctx.chords.map((ch) => (
-          <div key={ch.degree} className="w-[19rem] shrink-0 snap-center rounded-xl border border-slate-800 bg-slate-950/50 p-1">
+          <div key={ch.degree} className="min-w-0 rounded-xl border border-slate-800 bg-slate-950/50 p-2">
             <Bubble ctx={ctx} ch={ch} onPlay={() => strum(chordMidi(ctx, ch.degree, 4), { gapMs: 70, holdMs: 1600 })} />
           </div>
         ))}

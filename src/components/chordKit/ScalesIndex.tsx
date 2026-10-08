@@ -39,7 +39,7 @@ export default function ScalesIndex({ initialKey }: { initialKey: number }) {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
+      <div className="flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5">
         <KeyPicker tonicPc={tonicPc} onTonic={setTonicPc} />
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
           <DegreeLegend />
@@ -56,7 +56,7 @@ export default function ScalesIndex({ initialKey }: { initialKey: number }) {
           <h2 className="mb-2 text-sm font-medium text-slate-200">{fam.label}</h2>
           <div className="grid gap-3 lg:grid-cols-2">
             {modes.map(({ page, ctx, rel, labels }) => (
-              <article key={page.slug} className="flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
+              <article key={page.slug} className="flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5">
                 <header>
                   <Link href={`/scales/${page.slug}?key=${tonicPc}`} className="group flex flex-wrap items-baseline gap-x-2 rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
                     <h3 className="text-base text-slate-100 group-hover:text-sky-300 group-hover:underline">{ctx.names[0]} {ctx.modeName}</h3>

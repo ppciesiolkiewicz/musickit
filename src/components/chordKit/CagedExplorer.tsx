@@ -34,7 +34,7 @@ export default function CagedExplorer() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-2.5 rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
+      <div className="flex flex-col gap-2.5 rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5">
         <KeyPicker tonicPc={rootPc} onTonic={setRootPc} />
         <ChipRow label="Major / minor" info="CAGED works the same way for major and minor chords. In major you use the C, A, G, E and D chord shapes. In minor you use the minor version of each (Cm, Am, Gm, Em, Dm shapes). The scale and pentatonic change with it: major scale and major pentatonic, or natural minor and minor pentatonic.">
           <Chip on={quality === "major"} onClick={() => setQuality("major")}>Major</Chip>
@@ -81,7 +81,7 @@ function Overview({ boxes, keyName, quality }: { boxes: CagedBox[]; keyName: str
   const H = top + boxes.length * laneH + 26;
   const x = (f: number) => left + f * colW;
   return (
-    <section className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
+    <section className="rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5">
       <h2 className="mb-2 text-sm font-medium text-slate-100">
         {keyName} {quality}: the five boxes up the neck
         <Info label="Reading the map">Each coloured bar is one CAGED box and the frets it covers. Neighbouring boxes overlap by a fret or two, so the five boxes cover the whole neck from the nut to the 17th fret, then the pattern repeats. The letter is the open chord shape the box is built around. Scroll down for each box in detail.</Info>
