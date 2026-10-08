@@ -207,3 +207,16 @@ describe("arpeggios", () => {
     for (let i = 1; i <= a.notes.length; i++) assert.ok(m[i] > m[i - 1]);
   });
 });
+
+import { degreeLabels, stepPattern } from "./scales";
+describe("degree labels", () => {
+  it("labels Dorian and Lydian against the major scale", () => {
+    assert.deepEqual(degreeLabels(makeKeyContext(0, 0, 1).steps), ["1", "2", "♭3", "4", "5", "6", "♭7"]);
+    assert.deepEqual(degreeLabels(makeKeyContext(0, 0, 3).steps), ["1", "2", "3", "♯4", "5", "6", "7"]);
+    assert.deepEqual(degreeLabels(makeKeyContext(0, 1, 6).steps), ["1", "♭2", "♭3", "♭4", "♭5", "♭6", "♭♭7"]);
+  });
+  it("gives the step pattern", () => {
+    assert.deepEqual(stepPattern(makeKeyContext(0, 0, 0).steps), ["W", "W", "H", "W", "W", "W", "H"]);
+    assert.deepEqual(stepPattern(makeKeyContext(0, 1, 0).steps), ["W", "H", "W", "W", "H", "W+H", "H"]);
+  });
+});

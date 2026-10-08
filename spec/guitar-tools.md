@@ -8,7 +8,7 @@ Three pages built on a shared theory library in `src/lib/chordKit/`. All of them
 |-------|---------|
 | `/chords` | Chord explorer with three tabs: **Shapes**, **In a key**, **Progressions** |
 | `/triads` | Closed triads and inversions by string group |
-| `/scales` | Index of the 21 modes |
+| `/scales?key=N` | All 21 modes in the chosen key: every scale degree and note, step pattern, relative major/minor and sibling modes, link to each mode page |
 | `/scales/[slug]?key=N` | One mode: key picker, relatives, every chord with its notes |
 | `/arpeggios` | Arpeggios over any key and any of the 21 modes, on the whole neck |
 

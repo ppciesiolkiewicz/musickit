@@ -5,7 +5,7 @@ import Link from "next/link";
 import { KeyPicker } from "./KeyPicker";
 import { Chip, DegreeLegend, Info } from "./ui";
 import { FAMILIES, makeKeyContext } from "@/lib/chordKit/theory";
-import { MODE_PAGES, chordMidi, modeChords, degreeColour, relativesOf } from "@/lib/chordKit/scales";
+import { MODE_PAGES, chordMidi, modeChords, degreeColour, degreeLabels, relativesOf, stepPattern } from "@/lib/chordKit/scales";
 import { strum } from "@/lib/chordKit/playback";
 
 const STACK_LABELS = ["root", "3rd", "5th", "7th", "9th", "11th", "13th"];
@@ -34,8 +34,8 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey }: { fami
   const pageFor = (f: number, m: number) => MODE_PAGES.find((p) => p.familyIndex === f && p.modeIndex === m)!;
 
   const colour = (n: { scaleDegree: number }) => degreeColour(n.scaleDegree);
-  const intervalsOf = ctx.steps.map((s, i) => (i === 0 ? 0 : s - ctx.steps[i - 1]));
-  const pattern = [...intervalsOf.slice(1), 12 - ctx.steps[6]].map((n) => (n === 1 ? "H" : n === 2 ? "W" : n === 3 ? "W+H" : String(n)));
+  const labels = degreeLabels(ctx.steps);
+  const pattern = stepPattern(ctx.steps);
 
   const play = (d: number) => {
     strum(chordMidi(ctx, d, extended ? 7 : 4), { gapMs: 70, holdMs: 1600 });
@@ -63,7 +63,7 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey }: { fami
           {ctx.names.map((n, i) => (
             <div key={i} className="flex flex-col items-center gap-0.5">
               <span className="flex h-11 w-11 items-center justify-center rounded-full text-sm font-semibold text-slate-950" style={{ background: degreeColour(i) }}>{n}</span>
-              <span className="text-[11px] tabular-nums text-slate-500">{degreeName(ctx, i)}</span>
+              <span className="text-[11px] tabular-nums text-slate-500">{labels[i]}</span>
             </div>
           ))}
           <button type="button" onClick={playScale} className="ml-2 rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25">▶ Play scale</button>
@@ -171,10 +171,4 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey }: { fami
       </section>
     </div>
   );
-}
-
-function degreeName(ctx: ReturnType<typeof makeKeyContext>, i: number): string {
-  const major = [0, 2, 4, 5, 7, 9, 11][i];
-  const diff = ctx.steps[i] - major;
-  return (diff < 0 ? "♭".repeat(-diff) : diff > 0 ? "♯".repeat(diff) : "") + (i + 1);
 }

@@ -138,3 +138,20 @@ export function chordMidi(ctx: KeyContext, d: number, count = 4): number[] {
   });
   return out;
 }
+
+/** Degree numbers of a scale compared with the major scale: ["1","2","♭3","4","5","6","♭7"] for Dorian. */
+export function degreeLabels(steps: number[]): string[] {
+  return steps.map((s, i) => {
+    const diff = s - MAJOR[i];
+    return (diff < 0 ? "♭".repeat(-diff) : diff > 0 ? "♯".repeat(diff) : "") + (i + 1);
+  });
+}
+
+/** Whole/half step pattern, e.g. ["W","H","W","W","W","H","W"]. */
+export function stepPattern(steps: number[]): string[] {
+  return steps.map((s, i) => {
+    const next = i === 6 ? 12 : steps[i + 1];
+    const d = next - s;
+    return d === 1 ? "H" : d === 2 ? "W" : d === 3 ? "W+H" : String(d);
+  });
+}
