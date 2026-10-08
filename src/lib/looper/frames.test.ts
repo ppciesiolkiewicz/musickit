@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { applyInputMode, assemble, effectiveGain, loopOffset, msToFrames, nextBoundary, peaks, type Chunk } from "./frames";
+import { applyInputMode, assemble, beatFrames, beatInBar, effectiveGain, loopOffset, msToFrames, nextBoundary, peaks, quantUnitFrames, quantiseLength, type Chunk } from "./frames";
 
 const chunk = (frame: number, values: number[]): Chunk => ({ frame, l: new Float32Array(values), r: new Float32Array(values.map((v) => -v)) });
 
@@ -54,5 +54,27 @@ describe("misc", () => {
     assert.equal(effectiveGain({ volume: 0.8, muted: false, solo: false }, true), 0);
     assert.equal(effectiveGain({ volume: 0.8, muted: false, solo: true }, true), 0.8);
     assert.equal(msToFrames(10, 48000), 480);
+  });
+});
+
+describe("metronome and quantising", () => {
+  it("counts frames in a beat and a bar", () => {
+    assert.equal(beatFrames(120, 48000), 24000);
+    assert.equal(quantUnitFrames("beat", 120, 4, 48000), 24000);
+    assert.equal(quantUnitFrames("bar", 120, 4, 48000), 96000);
+    assert.equal(quantUnitFrames("off", 120, 4, 48000), 0);
+  });
+  it("rounds a take to whole units, never to zero", () => {
+    assert.equal(quantiseLength(95000, 96000), 96000);
+    assert.equal(quantiseLength(150000, 96000), 192000); // 1.56 bars rounds to 2
+    assert.equal(quantiseLength(130000, 96000), 96000); // 1.35 bars rounds to 1
+    assert.equal(quantiseLength(10, 96000), 96000);
+    assert.equal(quantiseLength(12345, 0), 12345);
+  });
+  it("finds the beat in the bar, including the count-in before the anchor", () => {
+    assert.deepEqual(beatInBar(10.0, 10, 0.5, 4), { beat: 0, index: 0 });
+    assert.deepEqual(beatInBar(11.6, 10, 0.5, 4), { beat: 3, index: 3 });
+    assert.deepEqual(beatInBar(12.0, 10, 0.5, 4), { beat: 0, index: 4 });
+    assert.deepEqual(beatInBar(9.6, 10, 0.5, 4), { beat: 3, index: -1 });
   });
 });

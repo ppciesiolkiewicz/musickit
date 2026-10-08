@@ -7,6 +7,7 @@ import { MAX_INPUTS, type InputInfo, type InputMode, type LooperEngine, type Loo
 
 const btn = "rounded-lg border px-2.5 py-1 text-xs transition disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 const btnPlain = `${btn} border-slate-700 bg-slate-900 text-slate-200 hover:border-slate-500`;
+const ibtn = "grid h-8 min-w-8 place-items-center rounded-lg border border-slate-700 bg-slate-900 px-1.5 text-xs text-slate-200 transition hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 const field = "rounded-md border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 
 const MODES: { id: InputMode; label: string }[] = [
@@ -124,24 +125,20 @@ export default function Mixer({ engine, snap, keyboardOpen, onToggleKeyboard }: 
   const hasExtra = inputs.some((i) => i.kind === "extra");
   const [adding, setAdding] = useState(false);
   return (
-    <section className="flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-4" aria-label="Input mixer">
-      <div className="flex flex-wrap items-center gap-2">
-        <h2 className="text-sm font-medium text-slate-100">Mixer: inputs</h2>
-        <span className="text-xs text-slate-500">what gets recorded</span>
-        <button type="button" className={`${btnPlain} ml-auto`} disabled={full} onClick={() => setAdding(true)}>+ Add input</button>
+    <section className="flex flex-col gap-1.5 rounded-xl border border-slate-800 bg-slate-900/40 p-2" aria-label="Input mixer">
+      <div className="flex items-center gap-2">
+        <h2 className="px-1 text-sm font-medium text-slate-100">Inputs</h2>
+        <button type="button" className={`${ibtn} ml-auto`} disabled={full} onClick={() => setAdding(true)} title="Add an input" aria-label="Add an input">＋</button>
       </div>
 
-      {inputs.length === 0 && <p className="rounded-xl border border-dashed border-slate-700 p-3 text-xs text-slate-400">No inputs. Add one above to have something to record.</p>}
+      {inputs.length === 0 && <p className="rounded-lg border border-dashed border-slate-700 p-2 text-xs text-slate-400">No inputs. Add one with ＋.</p>}
 
-      <ul className="flex flex-col gap-2">
+      <ul className="flex flex-col gap-1">
         {inputs.map((inp) => (
           <InputStrip key={inp.id} engine={engine} inp={inp} devices={devices} anyDevice={snap.devices.length > 0} keyboardOpen={keyboardOpen} onToggleKeyboard={onToggleKeyboard} />
         ))}
       </ul>
       {adding && <AddInputModal engine={engine} snap={snap} hasExtra={hasExtra} onClose={() => setAdding(false)} />}
-      <p className="text-xs text-slate-500">
-        Everything that is not muted is mixed into the next take. Solo one input to record only that. Input level shows even when muted, so you can check a signal before you record it. Plug a guitar into the interface&rsquo;s Input 2 and use &ldquo;Input 2 (right)&rdquo;; the built-in mic is mixed down to mono.
-      </p>
     </section>
   );
 }
@@ -150,52 +147,41 @@ function InputStrip({ engine, inp, devices, anyDevice, keyboardOpen, onToggleKey
   const getLevel = useMemo(() => () => engine.getInputLevel(inp.id), [engine, inp.id]);
   const m = engine.mixer;
   const isDevice = inp.kind === "device";
+  const state = inp.live ? "recording" : inp.muted ? "muted" : "silenced by solo";
   return (
-    <li className={`flex flex-col gap-2 rounded-xl border bg-slate-950/50 p-3 ${inp.live ? "border-slate-800" : "border-slate-800/60 opacity-80"}`}>
-      <div className="flex flex-wrap items-center gap-2">
-        <span aria-hidden className="text-base">{isDevice ? "🎙️" : "🎹"}</span>
-        <input value={inp.name} onChange={(e) => m.rename(inp.id, e.target.value)} aria-label="Input name" className="w-40 rounded-md border border-transparent bg-transparent px-1.5 py-1 text-sm font-medium text-slate-100 hover:border-slate-700 focus:border-slate-500 focus:outline-none" />
-        <span className={`text-[11px] ${inp.live ? "text-emerald-300" : "text-slate-500"}`}>{inp.live ? "recording" : inp.muted ? "muted" : "silenced by solo"}</span>
-        <span className="ml-auto flex flex-wrap items-center gap-1.5">
-          {!isDevice && <button type="button" className={`${btnPlain} ${keyboardOpen ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={keyboardOpen} onClick={onToggleKeyboard}>🎹 {keyboardOpen ? "Close keyboard" : "Open keyboard"}</button>}
-          <button type="button" className={`${btnPlain} ${inp.muted ? "!border-amber-400 !text-amber-200" : ""}`} aria-pressed={inp.muted} onClick={() => m.toggleMute(inp.id)}>Mute</button>
-          <button type="button" className={`${btnPlain} ${inp.solo ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={inp.solo} onClick={() => m.toggleSolo(inp.id)}>Solo</button>
-          <button type="button" className={btnPlain} onClick={() => m.remove(inp.id)} aria-label={`Remove ${inp.name}`} title="Remove this input">✕</button>
-        </span>
+    <li className={`flex flex-col gap-1 rounded-lg border bg-slate-950/50 px-2 py-1.5 ${inp.live ? "border-slate-800" : "border-slate-800/60 opacity-80"}`}>
+      <div className="flex flex-wrap items-center gap-1.5">
+        <span aria-hidden className="text-base" title={state}>{isDevice ? "🎙️" : "🎹"}</span>
+        <input value={inp.name} onChange={(e) => m.rename(inp.id, e.target.value)} aria-label="Input name" className="w-32 rounded-md border border-transparent bg-transparent px-1.5 py-0.5 text-sm font-medium text-slate-100 hover:border-slate-700 focus:border-slate-500 focus:outline-none" />
+        <span aria-hidden title={state} className={`h-2 w-2 rounded-full ${inp.live ? "bg-emerald-400" : "bg-slate-600"}`} />
+        <div className="min-w-[5rem] flex-1"><LevelMeter getLevel={getLevel} /></div>
+        <input type="range" min={0} max={1.5} step={0.01} value={inp.volume} onChange={(e) => m.setVolume(inp.id, Number(e.target.value))} className="w-24 accent-sky-400" aria-label={`Gain of ${inp.name}`} title={`Gain ${Math.round(inp.volume * 100)}%`} />
+        {!isDevice && <button type="button" className={`${ibtn} ${keyboardOpen ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={keyboardOpen} onClick={onToggleKeyboard} title={keyboardOpen ? "Close keyboard" : "Open keyboard"} aria-label={keyboardOpen ? "Close keyboard" : "Open keyboard"}>⌨</button>}
+        {isDevice && inp.connected && <button type="button" className={`${ibtn} ${inp.monitor ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={inp.monitor} onClick={() => m.setMonitor(inp.id, !inp.monitor)} title="Hear this input while it is recorded" aria-label={`Hear ${inp.name}`}>🎧</button>}
+        <button type="button" className={`${ibtn} ${inp.muted ? "!border-amber-400 !text-amber-200" : ""}`} aria-pressed={inp.muted} onClick={() => m.toggleMute(inp.id)} title="Mute" aria-label={`Mute ${inp.name}`}>M</button>
+        <button type="button" className={`${ibtn} ${inp.solo ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={inp.solo} onClick={() => m.toggleSolo(inp.id)} title="Solo" aria-label={`Solo ${inp.name}`}>S</button>
+        <button type="button" className={ibtn} onClick={() => m.remove(inp.id)} aria-label={`Remove ${inp.name}`} title="Remove this input">✕</button>
       </div>
 
       {isDevice && !inp.connected && (
-        <div className="flex flex-wrap items-center gap-2 rounded-lg border border-dashed border-slate-700 p-2 text-xs text-slate-400">
-          Not connected. The browser will ask for microphone access when you connect it.
-          <button type="button" className={`${btnPlain} ml-auto`} onClick={() => void m.connect(inp.id)}>Connect</button>
+        <div className="flex items-center gap-2 text-xs text-slate-400">
+          <span>Not connected</span>
+          <button type="button" className={`${btnPlain} ml-auto`} onClick={() => void m.connect(inp.id)} title="The browser will ask for microphone access">Connect</button>
         </div>
       )}
       {isDevice && inp.connected && (
-        <div className="grid gap-2 sm:grid-cols-[1fr_auto_auto]">
+        <div className="grid gap-1.5 sm:grid-cols-[1fr_auto]">
           <select className={field} value={inp.deviceId} onChange={(e) => void m.setDevice(inp.id, e.target.value)} aria-label="Audio device">
-            <option value="">{anyDevice ? "System default input" : "System default input (start the looper to list devices)"}</option>
+            <option value="">{anyDevice ? "System default input" : "System default input"}</option>
             {devices.map((d) => <option key={d.id} value={d.id}>{d.label}</option>)}
           </select>
           <select className={field} value={inp.mode} onChange={(e) => m.setMode(inp.id, e.target.value as InputMode)} aria-label="Channels to record">
             {MODES.map((x) => <option key={x.id} value={x.id}>{x.label}</option>)}
           </select>
-          <label className="flex items-center gap-1.5 text-xs text-slate-300">
-            <input type="checkbox" className="accent-sky-400" checked={inp.monitor} onChange={(e) => m.setMonitor(inp.id, e.target.checked)} />
-            Hear it
-          </label>
         </div>
       )}
-      {inp.error && <p role="alert" className="rounded-lg border border-rose-500/40 bg-rose-500/10 p-2 text-xs text-rose-200">{inp.error}</p>}
-      {isDevice && inp.channels === 1 && (inp.mode === "right") && <p className="text-xs text-amber-200">This device reports one channel, so &ldquo;Input 2&rdquo; will be silent. Choose Input 1 or Mix to mono.</p>}
-
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="min-w-[8rem] flex-1"><LevelMeter getLevel={getLevel} /></div>
-        <label className="flex items-center gap-2 text-xs text-slate-400">
-          Gain
-          <input type="range" min={0} max={1.5} step={0.01} value={inp.volume} onChange={(e) => m.setVolume(inp.id, Number(e.target.value))} className="w-32 accent-sky-400" aria-label={`Gain of ${inp.name}`} />
-          <span className="w-10 tabular-nums">{Math.round(inp.volume * 100)}%</span>
-        </label>
-      </div>
+      {inp.error && <p role="alert" className="rounded-md border border-rose-500/40 bg-rose-500/10 p-1.5 text-xs text-rose-200">{inp.error}</p>}
+      {isDevice && inp.channels === 1 && inp.mode === "right" && <p className="text-xs text-amber-200">This device has one channel, so Input 2 is silent.</p>}
     </li>
   );
 }

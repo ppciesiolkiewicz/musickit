@@ -95,3 +95,29 @@ export function effectiveGain(c: MixState, anySolo: boolean): number {
 
 /** Convert milliseconds of latency compensation to whole frames. */
 export const msToFrames = (ms: number, sampleRate: number) => Math.max(0, Math.round((ms / 1000) * sampleRate));
+
+/* ---------------------------------------------------------------- metronome and quantising */
+
+export type Quantise = "off" | "beat" | "bar";
+
+/** Frames in one beat at this tempo (rounded to a whole frame). */
+export const beatFrames = (bpm: number, sampleRate: number) => Math.max(1, Math.round((60 / bpm) * sampleRate));
+
+/** Frames in the unit a take is rounded to: one beat, one bar, or 0 when quantising is off. */
+export function quantUnitFrames(mode: Quantise, bpm: number, beatsPerBar: number, sampleRate: number): number {
+  if (mode === "off") return 0;
+  const beat = beatFrames(bpm, sampleRate);
+  return mode === "beat" ? beat : beat * Math.max(1, beatsPerBar);
+}
+
+/** Length of a take rounded to the nearest whole number of units (at least one). A unit of 0 leaves the length alone. */
+export function quantiseLength(frames: number, unit: number): number {
+  if (unit <= 0) return frames;
+  return Math.max(1, Math.round(frames / unit)) * unit;
+}
+
+/** Which beat of the bar the time falls in (0 is the downbeat). Negative times before the anchor count back from the bar end. */
+export function beatInBar(now: number, anchor: number, period: number, beatsPerBar: number): { beat: number; index: number } {
+  const index = Math.floor((now - anchor) / period + 1e-9);
+  return { beat: ((index % beatsPerBar) + beatsPerBar) % beatsPerBar, index };
+}

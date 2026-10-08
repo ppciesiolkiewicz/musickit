@@ -47,5 +47,5 @@ export default function Waveform({ peaks, getPosition, active, colour }: { peaks
     return () => cancelAnimationFrame(raf);
   }, [peaks, getPosition, active, colour]);
 
-  return <canvas ref={ref} className="h-14 w-full rounded-md" aria-hidden />;
+  return <canvas ref={ref} className="h-10 w-full rounded-md" aria-hidden />;
 }

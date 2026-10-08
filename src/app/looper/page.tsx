@@ -13,8 +13,7 @@ export default function LooperPage() {
       <div className="mx-auto flex w-full max-w-4xl flex-col gap-4 px-1.5 py-4 sm:px-2">
         <SiteNav active="/looper" />
         <header>
-          <h1 className="text-2xl font-light tracking-wide text-slate-100">Looper</h1>
-          <p className="mt-1 max-w-3xl text-sm text-slate-400">Record layers from your audio interface and play them back in a synchronised loop. Everything runs in your browser.</p>
+          <h1 className="text-xl font-light tracking-wide text-slate-100">Looper</h1>
         </header>
         <main>
           <LooperApp />

@@ -31,6 +31,8 @@ export default function LooperSettings({ engine, snap, getLevel, onClose }: { en
           <p className="text-xs text-slate-400">Add, remove, mute and solo inputs, and choose the audio interface, in the mixer on the looper page. Each input has its own channel choice, gain and level.</p>
         </Group>
 
+        <MetronomeGroup engine={engine} snap={snap} />
+
         <Group title="Level">
           <LevelMeter getLevel={getLevel} />
           <p className="text-xs text-slate-500">Shows what is about to be recorded, from every source that is switched on.</p>
@@ -48,6 +50,52 @@ export default function LooperSettings({ engine, snap, getLevel, onClose }: { en
         </Group>
       </div>
     </Modal>
+  );
+}
+
+/** Tempo, bar length, click, count-in and quantising. Tempo and bar length lock while a loop exists. */
+function MetronomeGroup({ engine, snap }: { engine: LooperEngine; snap: LooperSnapshot }) {
+  const m = snap.metronome;
+  const set = (p: Partial<typeof m>) => engine.setMetronome(p);
+  return (
+    <Group title="Metronome">
+      <div className="grid gap-2 sm:grid-cols-2">
+        <label className="flex items-center gap-2 text-xs text-slate-400">
+          Tempo
+          <input type="range" min={40} max={240} step={1} value={m.bpm} disabled={m.locked} onChange={(e) => set({ bpm: Number(e.target.value) })} className="flex-1 accent-sky-400" aria-label="Tempo in beats per minute" />
+          <span className="w-16 tabular-nums">{m.bpm} bpm</span>
+        </label>
+        <label className="flex items-center gap-2 text-xs text-slate-400">
+          Beats per bar
+          <select className={field} value={m.beatsPerBar} disabled={m.locked} onChange={(e) => set({ beatsPerBar: Number(e.target.value) })}>
+            {[2, 3, 4, 5, 6, 7].map((n) => <option key={n} value={n}>{n}</option>)}
+          </select>
+        </label>
+        <label className="flex items-center gap-2 text-xs text-slate-400">
+          Quantise first take
+          <select className={field} value={m.quantise} onChange={(e) => set({ quantise: e.target.value as typeof m.quantise })}>
+            <option value="bar">to whole bars</option>
+            <option value="beat">to whole beats</option>
+            <option value="off">off</option>
+          </select>
+        </label>
+        <label className="flex items-center gap-2 text-xs text-slate-400">
+          Count-in
+          <select className={field} value={m.countInBars} onChange={(e) => set({ countInBars: Number(e.target.value) })}>
+            {[0, 1, 2].map((n) => <option key={n} value={n}>{n === 0 ? "none" : `${n} bar${n === 1 ? "" : "s"}`}</option>)}
+          </select>
+        </label>
+        <label className="flex items-center gap-2 text-xs text-slate-400">
+          Click volume
+          <input type="range" min={0} max={1} step={0.01} value={m.volume} onChange={(e) => set({ volume: Number(e.target.value) })} className="flex-1 accent-sky-400" aria-label="Click volume" />
+        </label>
+        <div className="flex flex-wrap items-center gap-4 text-xs text-slate-300">
+          <label className="flex items-center gap-1.5"><input type="checkbox" className="accent-sky-400" checked={m.audible} onChange={(e) => set({ audible: e.target.checked })} /> Hear the click</label>
+          <label className="flex items-center gap-1.5"><input type="checkbox" className="accent-sky-400" checked={m.showBeat} onChange={(e) => set({ showBeat: e.target.checked })} /> Show beat dots</label>
+        </div>
+      </div>
+      <p className="text-xs text-slate-500">The click runs whenever you record or play, and is never recorded. {m.locked ? "Tempo and bar length are locked while there is a loop: clear everything to change them." : "The first take starts on beat 1 after the count-in and is rounded to the nearest whole bar or beat, so every later layer lines up with the click."}</p>
+    </Group>
   );
 }
 

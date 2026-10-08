@@ -42,3 +42,7 @@ Microphone permission and a secure context (HTTPS or localhost) are required. Th
 ## Starting and microphone permission
 
 There is no "Start looper" button. The audio engine starts on the first click or key press on the page (browsers need a gesture) and opens no microphone. A device strip asks for microphone access only when the person adds it in the Add input dialog, presses "Detect devices" there, or presses "Connect" on a saved strip (saved device strips come back disconnected). New installs start with only the software keyboard strip. The keyboard window opens only from the keyboard strip in the mixer.
+
+## Metronome and quantising
+
+A metronome runs whenever a take is recording or a loop is playing. Tempo (40 to 240 bpm), beats per bar, click volume, audible on/off, beat dots on/off, count-in (0 to 2 bars) and quantise (bar, beat, off) are in Settings, with quick tempo, click and quantise controls in the page header. The click is never recorded. The first take starts on beat 1 after the count-in and is rounded to the nearest whole bar or beat, so the loop is a whole number of bars and every later layer lines up with the click. With quantise off the first take is free length and the beat restarts at the loop start. Tempo and bar length are locked while a loop exists. Settings are saved in localStorage `musickit.looper.metronome`.

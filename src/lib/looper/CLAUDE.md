@@ -18,13 +18,20 @@ The looper is a self-contained feature. Treat it as its own small product that h
 - A failing input shows its own error and never stops the others.
 - Recorded audio must stay sample-aligned: do not change the worklet chunking or frame maths in `frames.ts` without updating its tests.
 
+## Metronome and quantising
+- `metronome.ts` schedules clicks ahead on the AudioContext clock. The click goes to the speakers only, never into the recorder.
+- The click runs whenever a take is recording or a loop is playing, and stops otherwise. It can be silenced (`audible`) without losing the beat or the quantising.
+- The first take starts on beat 1 after the count-in; its length is rounded to the nearest whole bar or beat (`quantise`), so the loop restarts on the grid. Later takes already start on loop boundaries.
+- Tempo and beats per bar are locked while a loop exists or a take is running (the engine ignores those changes). Anything new that depends on tempo (a drum machine, sequencer) must follow the same grid: `gridAnchor` plus `period`.
+- Pure maths (units, rounding, beat position) lives in `frames.ts` with tests; keep new timing logic there.
+
 ## State and storage
-- Saved strips live in localStorage `musickit.looper.inputs`; other keys: `musickit.looper.midi`, `musickit.looper.keyboard`, `musickit.looper.keyboardWindow`. Wrap every read and write in try/catch, validate on load, and keep old saves loading (add fields with defaults).
+- Saved strips live in localStorage `musickit.looper.inputs`; other keys: `musickit.looper.metronome`, `musickit.looper.midi`, `musickit.looper.keyboard`, `musickit.looper.keyboardWindow`. Wrap every read and write in try/catch, validate on load, and keep old saves loading (add fields with defaults).
 - Restored device strips come back disconnected.
 - Max 8 inputs (`MAX_INPUTS`).
 
 ## UI
-- No "start" button, no explanatory walls of text. Short labels, details in popovers or the spec.
+- No "start" button, no explanatory walls of text. Short labels, details in popovers or the spec. Prefer small icon buttons (with `title` and `aria-label`) over text buttons, and keep rows tight.
 - The keyboard window opens only from the keyboard strip in the mixer. It is draggable and resizable (`FloatingWindow`), keyboard-operable, and remembers its place.
 - Everything is keyboard reachable with visible focus; buttons that toggle use `aria-pressed`; errors use `role="alert"`.
 - Tight side padding; layouts must work at laptop width (13 inch) and phone width.

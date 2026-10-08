@@ -1,9 +1,11 @@
-import { assemble, effectiveGain, loopOffset, msToFrames, nextBoundary, peaks, type Chunk } from "./frames";
+import { assemble, effectiveGain, loopOffset, msToFrames, nextBoundary, peaks, quantUnitFrames, quantiseLength, type Chunk } from "./frames";
+import { Metronome, type MetronomeSettings } from "./metronome";
 import { InputMixer, describeError, type InputInfo } from "./mixer";
 import { RECORDER_PROCESSOR_NAME, recorderWorkletUrl } from "./recorderWorklet";
 
 export type { InputInfo } from "./mixer";
-export type { InputMode } from "./frames";
+export type { InputMode, Quantise } from "./frames";
+export { BPM_RANGE, type MetronomeSettings } from "./metronome";
 
 /**
  * A small multi-channel looper built on the Web Audio API.
@@ -53,6 +55,8 @@ export interface LooperSnapshot {
   /** name of the extra source the app provided (the piano), or null */
   extraLabel: string | null;
   latencyMs: number;
+  /** metronome settings, whether it is clicking now, and whether the tempo is locked by a loop or a take */
+  metronome: MetronomeSettings & { running: boolean; locked: boolean };
   playing: boolean;
   loopSeconds: number | null;
   channels: ChannelInfo[];
@@ -76,6 +80,10 @@ interface Capture {
   lastFrame: number;
   /** true once the capture window has begun */
   started: boolean;
+  /** frames to round a free-length first take to (a beat or a bar), 0 for none */
+  unit: number;
+  /** the person has pressed stop and the take is running on to the next beat or bar line */
+  stopping: boolean;
 }
 
 export const MAX_CHANNELS = 8;
@@ -105,6 +113,11 @@ export class LooperEngine {
   private loopStart = 0;
   private playing = true;
   private capture: Capture | null = null;
+  /** AudioContext time of beat 1 of the metronome grid */
+  private gridAnchor = 0;
+  /** true when the loop length is a whole number of beats or bars, so loop restarts stay on the grid */
+  private loopOnGrid = false;
+  readonly metronome: Metronome;
 
   private listeners = new Set<() => void>();
   private snap: LooperSnapshot;
@@ -115,6 +128,7 @@ export class LooperEngine {
       extraLabel: options.externalLabel,
       onChange: () => this.emit(),
     });
+    this.metronome = new Metronome(() => this.emit());
     this.snap = this.buildSnapshot();
   }
 
@@ -136,6 +150,7 @@ export class LooperEngine {
     return {
       ...this.meta,
       inputs: this.mixer.list(),
+      metronome: { ...this.metronome.settings, running: this.metronome.running, locked: this.loopLength !== null || this.capture !== null },
       extraLabel: this.options.getExternalSource ? this.options.externalLabel ?? "Extra source" : null,
       playing: this.playing,
       loopSeconds: this.loopLength,
@@ -152,6 +167,29 @@ export class LooperEngine {
   /** Load saved settings. Call once from the browser. */
   init() {
     this.mixer.restore();
+    this.metronome.restore();
+  }
+
+  /** Change metronome settings. The tempo and bar length stay put while a loop exists or a take is running, so everything stays in time. */
+  setMetronome(patch: Partial<MetronomeSettings>) {
+    const next = { ...patch };
+    if (this.loopLength !== null || this.capture) {
+      delete next.bpm;
+      delete next.beatsPerBar;
+    }
+    this.metronome.set(next);
+  }
+
+  /** Beat position for the display, or null when the metronome is not running. */
+  getBeat() {
+    return this.metronome.position();
+  }
+
+  /** Click while a take is being recorded or a loop is playing; stay quiet otherwise. */
+  private syncMetronome(restart = false) {
+    const on = this.capture !== null || (this.playing && this.loopLength !== null);
+    if (!on) this.metronome.stop();
+    else if (restart || !this.metronome.running) this.metronome.start(this.gridAnchor);
   }
 
   /* ------------------------------------------------------------------ start up */
@@ -203,6 +241,7 @@ export class LooperEngine {
     this.master = ctx.createGain();
     this.master.connect(ctx.destination);
     this.mixer.attach(ctx, this.master);
+    this.metronome.attach(ctx, ctx.destination);
     this.analyser = ctx.createAnalyser();
     this.analyser.fftSize = 1024;
     this.mixer.output!.connect(this.analyser);
@@ -319,10 +358,16 @@ export class LooperEngine {
     const rt = this.runtimes[id];
 
     if (!this.loopLength) {
-      // free-length first take starts right now
-      const startFrame = Math.ceil((this.ctx.currentTime + 0.02) * sr) + comp;
-      this.capture = { channel: id, startFrame, endFrame: null, chunks: [], lastFrame: startFrame, started: false };
-      rt.info.state = "recording";
+      // the first take starts on beat 1 of the metronome, after the count-in; its length is rounded to the beat or bar
+      const m = this.metronome.settings;
+      const anchor = this.ctx.currentTime + 0.1 + m.countInBars * m.beatsPerBar * this.metronome.period;
+      const startFrame = Math.round(anchor * sr) + comp;
+      const unit = quantUnitFrames(m.quantise, m.bpm, m.beatsPerBar, sr);
+      this.capture = { channel: id, startFrame, endFrame: null, chunks: [], lastFrame: startFrame, started: false, unit, stopping: false };
+      rt.info.state = "armed";
+      this.gridAnchor = anchor;
+      this.loopOnGrid = unit > 0;
+      this.syncMetronome(true);
       this.emit();
       return;
     }
@@ -330,8 +375,9 @@ export class LooperEngine {
     const when = nextBoundary(this.ctx.currentTime, this.loopStart, this.loopLength, 0.08);
     const startFrame = Math.round(when * sr) + comp;
     const endFrame = startFrame + Math.round(this.loopLength * sr);
-    this.capture = { channel: id, startFrame, endFrame, chunks: [], lastFrame: startFrame, started: false };
+    this.capture = { channel: id, startFrame, endFrame, chunks: [], lastFrame: startFrame, started: false, unit: 0, stopping: false };
     rt.info.state = "armed";
+    this.syncMetronome();
     this.emit();
   }
 
@@ -339,8 +385,17 @@ export class LooperEngine {
   stopRecording() {
     const cap = this.capture;
     if (!cap) return;
+    if (cap.stopping) return; // already running on to the next line
     if (cap.endFrame === null && cap.started && cap.lastFrame > cap.startFrame) {
-      this.finish(cap, cap.lastFrame);
+      const target = cap.startFrame + quantiseLength(cap.lastFrame - cap.startFrame, cap.unit);
+      if (cap.unit === 0 || target <= cap.lastFrame) {
+        this.finish(cap, cap.unit === 0 ? cap.lastFrame : target);
+      } else {
+        // keep recording up to the beat or bar line, then close the take
+        cap.endFrame = target;
+        cap.stopping = true;
+        this.emit();
+      }
     } else {
       this.cancelCapture();
     }
@@ -352,6 +407,7 @@ export class LooperEngine {
     const rt = this.runtimes[cap.channel];
     rt.info.state = rt.buffer ? "playing" : "empty";
     this.capture = null;
+    this.syncMetronome();
     this.emit();
   }
 
@@ -381,6 +437,7 @@ export class LooperEngine {
     const rt = this.runtimes[cap.channel];
     if (l.length < 64) {
       rt.info.state = rt.buffer ? "playing" : "empty";
+      this.syncMetronome();
       this.emit();
       return;
     }
@@ -394,10 +451,13 @@ export class LooperEngine {
     const firstTake = this.loopLength === null;
     if (firstTake) {
       this.loopLength = buf.duration;
-      this.loopStart = this.ctx.currentTime + 0.05;
       this.playing = true;
+      // on the grid: the loop restarts on a multiple of its length after beat 1, so it stays in time with the clicks
+      this.loopStart = this.loopOnGrid ? nextBoundary(this.ctx.currentTime, this.gridAnchor, this.loopLength, 0.03) : this.ctx.currentTime + 0.05;
+      if (!this.loopOnGrid) this.gridAnchor = this.loopStart;
     }
     if (this.playing) this.startChannel(rt, firstTake ? this.loopStart : null);
+    this.syncMetronome(firstTake);
     this.emit();
   }
 
@@ -442,11 +502,13 @@ export class LooperEngine {
     if (!on) {
       this.runtimes.forEach((r) => this.stopSource(r));
     } else {
-      this.loopStart = this.ctx.currentTime + 0.05;
+      this.loopStart = this.loopOnGrid ? nextBoundary(this.ctx.currentTime, this.loopStart, this.loopLength, 0.05) : this.ctx.currentTime + 0.05;
+      if (!this.loopOnGrid) this.gridAnchor = this.loopStart;
       this.runtimes.forEach((r) => {
         if (r.buffer) this.startChannel(r, this.loopStart);
       });
     }
+    this.syncMetronome(on);
     this.emit();
   }
 
@@ -461,6 +523,7 @@ export class LooperEngine {
       this.loopLength = null;
       this.playing = true;
     }
+    this.syncMetronome();
     this.emit();
   }
 
@@ -471,6 +534,7 @@ export class LooperEngine {
   dispose() {
     this.capture = null;
     this.runtimes.forEach((r) => this.stopSource(r));
+    this.metronome.dispose();
     this.mixer.dispose();
     try {
       this.worklet?.disconnect();
