@@ -4,7 +4,8 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import ShapeBrowser from "./ShapeBrowser";
 import { KeyPicker, ModePicker } from "./KeyPicker";
-import { Chip, Info } from "./ui";
+import ChordBubbles from "./ChordBubbles";
+import { Chip, Info, Section } from "./ui";
 import { keyEntries } from "@/lib/chordKit/shapeTools";
 import { FAMILIES, makeKeyContext } from "@/lib/chordKit/theory";
 import { MODE_PAGES, chordMidi } from "@/lib/chordKit/scales";
@@ -44,6 +45,9 @@ export default function KeyTab() {
               </p>
             )}
           </div>
+          <Section level={2} title={`Sus and extension chords in ${ctx.names[0]} ${ctx.modeName}`} defaultOpen={false} meta="from each chord">
+            <ChordBubbles ctx={ctx} />
+          </Section>
           <div className="flex flex-wrap items-center gap-1.5">
             <span className="flex w-28 shrink-0 items-center gap-1 text-[11px] uppercase tracking-wider text-slate-500">Chords<Info label="About the chord strip">The chord the scale builds on each note, stacking every other note. Tap one to hear it and to show only the shapes that play it. Tap it again to clear. The Roman numeral says where it sits in the key.</Info></span>
             {ctx.chords.map((c) => (

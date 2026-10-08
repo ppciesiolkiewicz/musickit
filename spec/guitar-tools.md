@@ -62,3 +62,7 @@ Run the tests with `npm test` (uses `npx tsx`; `chordKit.tonal.test.ts` also nee
 - Layers inside a box: the chord shape itself, the arpeggio (triad or 7th), the pentatonic (major or minor) and the scale (major, or natural minor). Dot size shows the layer (chord and arpeggio largest, then pentatonic, then scale rings); colour is the scale degree, as on the other pages.
 - Related chords come from the chord explorer's shape library: easy and medium shapes on the same root whose every note lies inside the box.
 - `ChordDiagram` now draws open strings above the nut, which the open CAGED shapes need.
+
+## Sus and extension bubbles
+
+`ChordBubbles` (from the original Modes tab) draws one hub per chord of the selected mode: the chord with its Roman numeral, its own tones (1 3 5 7) above it, the scale notes 2, 4, 6 and 7 above its root around it, and the sus and extension chords each one gives (Em through its M2 gives Esus2 and Em9). Dashed outlines mark clashing tones. It appears on every mode page and inside the Chords "In key" tab for the chosen mode.

@@ -333,3 +333,14 @@ describe("CAGED boxes", () => {
   });
 });
 const OPEN_MIDI_E = [40, 45, 50, 55, 59, 64];
+
+describe("sus and extension slots", () => {
+  it("Em in G major reaches Esus2 and Em9 through the M2", () => {
+    const ctx = makeKeyContext(7, 0, 0);
+    const em = ctx.chords[5];
+    assert.equal(em.triadName, "Em");
+    assert.equal(em.slots[0]?.label, "M2");
+    assert.equal(em.slots[0]?.note, "F♯");
+    assert.deepEqual(em.slots[0]?.kids.map((k) => k.text), ["Esus2", "Em9"]);
+  });
+});
