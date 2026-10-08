@@ -38,3 +38,7 @@ Microphone permission and a secure context (HTTPS or localhost) are required. Th
 - The latency fix applies only while a microphone or interface strip is live; a keyboard-only take gets none.
 - The **keyboard** opens from the mixer's keyboard strip or the header button as a floating window (`src/components/FloatingWindow.tsx`): drag the title bar, resize from the corner, scales its content to fit, position and size remembered; arrow keys move it and Shift + arrows resize it when the title bar is focused.
 - Settings now holds the MIDI keyboard choice, the latency fix and the mix level.
+
+## Starting and microphone permission
+
+There is no "Start looper" button. The audio engine starts on the first click or key press on the page (browsers need a gesture) and opens no microphone. A device strip asks for microphone access only when the person adds it in the Add input dialog, presses "Detect devices" there, or presses "Connect" on a saved strip (saved device strips come back disconnected). New installs start with only the software keyboard strip. The keyboard window opens only from the keyboard strip in the mixer.

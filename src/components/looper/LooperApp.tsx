@@ -42,9 +42,21 @@ export default function LooperApp() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [keyboardOpen, setKeyboardOpen] = useState(false);
 
+  // Start the audio engine on the first touch of the page (browsers need a gesture). This opens no microphone:
+  // a device input asks for permission only when the person adds or connects it.
+  useEffect(() => {
+    const go = () => void engine.enable();
+    window.addEventListener("pointerdown", go, { once: true });
+    window.addEventListener("keydown", go, { once: true });
+    return () => {
+      window.removeEventListener("pointerdown", go);
+      window.removeEventListener("keydown", go);
+    };
+  }, [engine]);
+
   return (
     <div className="flex flex-col gap-4">
-      <InputBar engine={engine} snap={snap} getLevel={getLevel} onSettings={() => setSettingsOpen(true)} keyboardOpen={keyboardOpen} onToggleKeyboard={() => setKeyboardOpen((v) => !v)} />
+      <InputBar snap={snap} getLevel={getLevel} onSettings={() => setSettingsOpen(true)} />
       <Mixer engine={engine} snap={snap} keyboardOpen={keyboardOpen} onToggleKeyboard={() => setKeyboardOpen((v) => !v)} />
       {keyboardOpen && (
         <FloatingWindow title="Keyboard" storageKey="musickit.looper.keyboardWindow" fit onClose={() => setKeyboardOpen(false)}>
@@ -101,32 +113,20 @@ function LoopBar({ getPosition }: { getPosition: () => number | null }) {
   );
 }
 
-function InputBar({ engine, snap, getLevel, onSettings, keyboardOpen, onToggleKeyboard }: { engine: LooperEngine; snap: LooperSnapshot; getLevel: () => number; onSettings: () => void; keyboardOpen: boolean; onToggleKeyboard: () => void }) {
-  const ready = snap.status === "ready";
-  const live = snap.inputs.filter((i) => i.live);
+function InputBar({ snap, getLevel, onSettings }: { snap: LooperSnapshot; getLevel: () => number; onSettings: () => void }) {
+  const live = snap.inputs.filter((i) => i.live && (i.kind === "extra" || i.connected));
   return (
-    <section className="flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-4" aria-label="Looper start and level">
+    <section className="flex flex-col gap-2 rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5" aria-label="Looper level">
       <div className="flex flex-wrap items-center gap-3">
         <h2 className="text-sm font-medium text-slate-100">Looper</h2>
-        {!ready && (
-          <button type="button" className={`${btn} border-emerald-500 bg-emerald-500/15 text-emerald-100 hover:bg-emerald-500/25`} disabled={snap.status === "starting"} onClick={() => void engine.enable()}>
-            {snap.status === "starting" ? "Starting…" : "Start looper"}
-          </button>
-        )}
-        {ready && <span className="text-xs text-slate-400">Recording from <b className="text-slate-200">{live.length ? live.map((i) => i.name).join(" + ") : "nothing (all inputs muted)"}</b></span>}
-        <span className="ml-auto flex gap-2">
-          {snap.extraLabel && <button type="button" className={`${btnPlain} ${keyboardOpen ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={keyboardOpen} onClick={onToggleKeyboard}>🎹 Keyboard</button>}
-          <button type="button" className={btnPlain} onClick={onSettings}>⚙ Settings</button>
-        </span>
+        <span className="text-xs text-slate-400">Recording from <b className="text-slate-200">{live.length ? live.map((i) => i.name).join(" + ") : "nothing (add or unmute an input)"}</b></span>
+        <button type="button" className={`${btnPlain} ml-auto`} onClick={onSettings}>⚙ Settings</button>
       </div>
       {snap.error && <p role="alert" className="rounded-lg border border-rose-500/40 bg-rose-500/10 p-2.5 text-xs text-rose-200">{snap.error}</p>}
-      {snap.status === "idle" && <p className="text-xs text-slate-400">Set up your inputs in the mixer below, then start the looper. If an audio interface or microphone is in the mixer the browser will ask for microphone access; nothing is uploaded, everything stays in this tab. Remove those inputs to record the keyboard alone.</p>}
-      {ready && (
-        <div className="flex items-center gap-3">
-          <span className="text-xs text-slate-500">Mix level</span>
-          <div className="flex-1"><LevelMeter getLevel={getLevel} /></div>
-        </div>
-      )}
+      <div className="flex items-center gap-3">
+        <span className="text-xs text-slate-500">Mix level</span>
+        <div className="flex-1"><LevelMeter getLevel={getLevel} /></div>
+      </div>
     </section>
   );
 }

@@ -41,8 +41,7 @@ function AddInputModal({ engine, snap, hasExtra, onClose }: { engine: LooperEngi
   const detect = async () => {
     setBusy(true);
     try {
-      if (snap.status === "ready") await engine.refreshDevices();
-      else await engine.enable();
+      await engine.requestDeviceAccess();
     } finally {
       setBusy(false);
     }
@@ -136,7 +135,7 @@ export default function Mixer({ engine, snap, keyboardOpen, onToggleKeyboard }: 
 
       <ul className="flex flex-col gap-2">
         {inputs.map((inp) => (
-          <InputStrip key={inp.id} engine={engine} inp={inp} devices={devices} anyDevice={snap.status === "ready"} keyboardOpen={keyboardOpen} onToggleKeyboard={onToggleKeyboard} />
+          <InputStrip key={inp.id} engine={engine} inp={inp} devices={devices} anyDevice={snap.devices.length > 0} keyboardOpen={keyboardOpen} onToggleKeyboard={onToggleKeyboard} />
         ))}
       </ul>
       {adding && <AddInputModal engine={engine} snap={snap} hasExtra={hasExtra} onClose={() => setAdding(false)} />}
@@ -165,7 +164,13 @@ function InputStrip({ engine, inp, devices, anyDevice, keyboardOpen, onToggleKey
         </span>
       </div>
 
-      {isDevice && (
+      {isDevice && !inp.connected && (
+        <div className="flex flex-wrap items-center gap-2 rounded-lg border border-dashed border-slate-700 p-2 text-xs text-slate-400">
+          Not connected. The browser will ask for microphone access when you connect it.
+          <button type="button" className={`${btnPlain} ml-auto`} onClick={() => void m.connect(inp.id)}>Connect</button>
+        </div>
+      )}
+      {isDevice && inp.connected && (
         <div className="grid gap-2 sm:grid-cols-[1fr_auto_auto]">
           <select className={field} value={inp.deviceId} onChange={(e) => void m.setDevice(inp.id, e.target.value)} aria-label="Audio device">
             <option value="">{anyDevice ? "System default input" : "System default input (start the looper to list devices)"}</option>

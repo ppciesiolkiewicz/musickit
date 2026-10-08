@@ -156,6 +156,18 @@ export class LooperEngine {
 
   /* ------------------------------------------------------------------ start up */
 
+  /** Ask the browser for microphone access once, so it will name the devices, then list them. Nothing keeps listening. */
+  async requestDeviceAccess(): Promise<void> {
+    if (!navigator.mediaDevices?.getUserMedia) return;
+    try {
+      const s = await navigator.mediaDevices.getUserMedia({ audio: true });
+      s.getTracks().forEach((t) => t.stop());
+    } catch {
+      /* denied: the list will have generic names */
+    }
+    await this.refreshDevices().catch(() => undefined);
+  }
+
   /** Start the audio engine and open every audio input that is set up in the mixer. */
   async enable(): Promise<void> {
     if (this.meta.status === "starting") return;

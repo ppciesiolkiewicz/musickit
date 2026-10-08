@@ -25,7 +25,7 @@ export default function LooperSettings({ engine, snap, getLevel, onClose }: { en
   return (
     <Modal title="Looper settings" onClose={onClose}>
       <div className="flex flex-col gap-3">
-        {!ready && <p className="rounded-lg border border-dashed border-slate-700 p-2.5 text-xs text-slate-400">Press &ldquo;Start looper&rdquo; first. Audio settings apply once it is running.</p>}
+        {!ready && <p className="rounded-lg border border-dashed border-slate-700 p-2.5 text-xs text-slate-400">The audio engine is starting. Settings apply once it is running.</p>}
 
         <Group title="Inputs">
           <p className="text-xs text-slate-400">Add, remove, mute and solo inputs, and choose the audio interface, in the mixer on the looper page. Each input has its own channel choice, gain and level.</p>

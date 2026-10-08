@@ -23,6 +23,8 @@ export interface InputInfo {
   error: string | null;
   /** channels the device reports, 0 if unknown */
   channels: number;
+  /** device strips only: false until the person connects it, so the browser never asks for the microphone unprompted */
+  connected: boolean;
   /** true when it is actually feeding the recorder (not muted, and not silenced by another strip's solo) */
   live: boolean;
 }
@@ -76,7 +78,7 @@ export class InputMixer {
   private extraNode: AudioNode | null = null;
 
   constructor(private opts: MixerOptions) {
-    this.runtimes = this.defaults().map((s) => this.make(s));
+    this.runtimes = this.defaults().map((s) => this.make(s, true));
   }
 
   /* -------------------------------------------------------------- data */
@@ -84,13 +86,12 @@ export class InputMixer {
   private defaults(): SavedInput[] {
     const list: SavedInput[] = [];
     if (this.opts.getExtraSource) list.push({ kind: "extra", name: this.opts.extraLabel ?? "Extra", deviceId: "", mode: "stereo", volume: 1 });
-    list.push({ kind: "device", name: "Input 1", deviceId: "", mode: "left", volume: 1 });
     return list;
   }
 
-  private make(s: SavedInput): Runtime {
+  private make(s: SavedInput, connected = false): Runtime {
     return {
-      info: { id: this.nextId++, kind: s.kind, name: s.name, deviceId: s.deviceId, mode: s.mode, volume: s.volume, muted: false, solo: false, monitor: false, error: null, channels: 0, live: true },
+      info: { id: this.nextId++, kind: s.kind, name: s.name, deviceId: s.deviceId, mode: s.mode, volume: s.volume, muted: false, solo: false, monitor: false, error: null, channels: 0, live: true, connected: s.kind === "extra" ? true : connected },
       pre: null, summer: null, gain: null, meter: null, monitor: null, shared: null, buf: null,
     };
   }
@@ -107,7 +108,7 @@ export class InputMixer {
   /** true when a microphone or interface is feeding the recording, so input latency applies */
   hasLiveDevice(): boolean {
     const anySolo = this.runtimes.some((r) => r.info.solo);
-    return this.runtimes.some((r) => r.info.kind === "device" && !r.info.error && effectiveGain(r.info, anySolo) > 0);
+    return this.runtimes.some((r) => r.info.kind === "device" && r.info.connected && !r.info.error && effectiveGain(r.info, anySolo) > 0);
   }
 
   private save() {
@@ -178,7 +179,7 @@ export class InputMixer {
   async open() {
     if (!this.ctx) return;
     for (const r of this.runtimes) {
-      if (r.info.kind === "device") await this.connectDevice(r);
+      if (r.info.kind === "device" && r.info.connected) await this.connectDevice(r);
     }
     this.opts.onChange();
   }
@@ -308,7 +309,7 @@ export class InputMixer {
   async add(spec: { kind: InputKind; name: string; deviceId?: string; mode?: InputMode }): Promise<number | null> {
     if (this.runtimes.length >= MAX_INPUTS) return null;
     if (spec.kind === "extra" && (this.hasExtra() || !this.opts.getExtraSource)) return null;
-    const r = this.make({ kind: spec.kind, name: spec.name, deviceId: spec.deviceId ?? "", mode: spec.mode ?? (spec.kind === "extra" ? "stereo" : "left"), volume: 1 });
+    const r = this.make({ kind: spec.kind, name: spec.name, deviceId: spec.deviceId ?? "", mode: spec.mode ?? (spec.kind === "extra" ? "stereo" : "left"), volume: 1 }, true);
     this.runtimes.push(r);
     if (this.ctx) {
       this.build(r);
@@ -318,6 +319,16 @@ export class InputMixer {
     this.save();
     this.opts.onChange();
     return r.info.id;
+  }
+
+  /** Open the microphone or interface of a restored strip. This is the only way a saved device strip asks for permission. */
+  async connect(id: number) {
+    const r = this.find(id);
+    if (!r || r.info.kind !== "device") return;
+    r.info.connected = true;
+    this.opts.onChange();
+    if (this.ctx) await this.connectDevice(r);
+    this.opts.onChange();
   }
 
   remove(id: number) {
