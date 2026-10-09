@@ -13,6 +13,7 @@ import Piano from "@/features/sound/keyboard/Piano";
 import { createPlayer, getAudioContext, getOutputBus } from "@/features/sound";
 import LoopStage from "./LoopStage";
 import AddWidgetMenu from "./AddWidgetMenu";
+import { chooseDevice } from "@/lib/looper/deviceChoice";
 import { Modal } from "../Modal";
 import MetronomeBar from "./MetronomeBar";
 import ScalePianoPanel from "./ScalePianoPanel";
@@ -106,6 +107,37 @@ function newProject() {
   window.location.reload();
 }
 
+/** Shown from the start until the engine is ready: detects the devices and says which it will use (an interface over the computer's own parts). */
+function StartupLoader({ engine, snap }: { engine: LooperEngine; snap: LooperSnapshot }) {
+  const inp = chooseDevice(snap.devices, null);
+  const out = chooseDevice(snap.outputs, null);
+  const starting = snap.status === "starting";
+  return (
+    <div className="fixed inset-0 z-[1500] grid place-items-center bg-slate-950/85 p-4 backdrop-blur-sm" role="status" aria-live="polite">
+      <div className="flex w-full max-w-sm flex-col gap-3 rounded-2xl border border-slate-700 bg-slate-950 p-4 shadow-2xl">
+        <div className="flex items-center gap-3">
+          {snap.status === "error" ? <Icon name="x" className="text-rose-300" /> : <span className="h-5 w-5 animate-spin rounded-full border-2 border-slate-600 border-t-sky-400" aria-hidden />}
+          <h2 className="text-sm font-medium text-slate-100">{snap.status === "error" ? "Could not start" : starting ? "Starting audio and connecting your gear…" : "Detecting your devices…"}</h2>
+        </div>
+        {snap.status === "error" ? (
+          <>
+            <p className="text-xs text-rose-200" role="alert">{snap.error}</p>
+            <button type="button" className="self-start rounded-lg border border-slate-700 px-3 py-1.5 text-xs text-slate-200 hover:border-slate-500" onClick={() => void engine.enable()}>Try again</button>
+          </>
+        ) : (
+          <>
+            <ul className="flex flex-col gap-1 text-xs text-slate-300">
+              <li className="flex items-center gap-2"><Icon name="mic" size={14} className="text-slate-400" />{inp ? `Input: ${inp.label}` : snap.devices.length ? "Input: no audio interface found" : "Input: names appear once the browser allows the microphone"}</li>
+              <li className="flex items-center gap-2"><Icon name="volume-2" size={14} className="text-slate-400" />{out ? `Output: ${out.label}` : snap.outputs.length ? "Output: system default" : "Output: system default"}</li>
+            </ul>
+            {!starting && <p className="text-xs text-slate-400">Click anywhere to start. Your last choices are used first.</p>}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function useEngine() {
   const [engine] = useState(() => {
     if (typeof window !== "undefined") wireNam();
@@ -141,6 +173,11 @@ export default function LooperApp() {
   const [openPianos, setOpenPianos] = useState<string[]>([]);
   const togglePiano = (id: string) => setOpenPianos((v) => (v.includes(id) ? v.filter((x) => x !== id) : [...v, id]));
   const toggleSeq = (id: string) => setOpenSeqs((v) => (v.includes(id) ? v.filter((x) => x !== id) : [...v, id]));
+
+  // List the devices right away (no prompt: names appear only if the browser already allows the microphone).
+  useEffect(() => {
+    void engine.refreshDevices().catch(() => undefined);
+  }, [engine]);
 
   // Start the audio engine on the first touch of the page (browsers need a gesture). This opens no microphone:
   // a device input asks for permission only when the person adds or connects it.
@@ -240,6 +277,7 @@ export default function LooperApp() {
           <ScalePianoPanel engine={engine} snap={snap} id={id} />
         </FloatingWindow>
       ))}
+      {snap.status !== "ready" && <StartupLoader engine={engine} snap={snap} />}
       {snap.status === "ready" && snap.gear.length > 0 && !gearDismissed && (
         <Modal title="Connect your gear" onClose={() => setGearDismissed(true)}>
           <ul className="flex flex-col gap-1 text-sm text-slate-200">
