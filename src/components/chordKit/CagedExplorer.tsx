@@ -3,10 +3,11 @@
 import { useMemo, useState } from "react";
 import BoxNeck, { type Layers } from "./BoxNeck";
 import { LabelSelect, useLabelSystem } from "./useLabelSystem";
-import type { LabelSystem } from "@/lib/chordKit/labels";
+import { noteLabel, type LabelSystem } from "@/lib/chordKit/labels";
 import ChordDiagram from "./ChordDiagram";
 import { KeyPicker } from "./KeyPicker";
-import { fretWidthFactor } from "./Fretboard";
+import { FretboardBase, fretGeometry } from "./Fretboard";
+import { degreeColour } from "@/lib/chordKit/scales";
 import { Chip, ChipRow, DegreeLegend, Info, Section } from "./ui";
 import {
   CAGED_THEORY, NECK_END, boxArpeggio, boxCells, boxChords, cagedBoxes, cagedContext, ladderMidi, layerNotes,
@@ -57,7 +58,7 @@ export default function CagedExplorer() {
         </div>
       </div>
 
-      <Overview boxes={boxes} keyName={keyName} quality={quality} />
+      <Overview boxes={boxes} keyName={keyName} quality={quality} rootPc={rootPc} arpKind={arpKind} labelSystem={labelSystem} />
 
       <div className="flex flex-col gap-4">
         {boxes.map((box, i) => (
@@ -68,33 +69,44 @@ export default function CagedExplorer() {
   );
 }
 
-/** The whole neck at a glance: one lane per box showing which frets it covers. */
-function Overview({ boxes, keyName, quality }: { boxes: CagedBox[]; keyName: string; quality: CagedQuality }) {
-  const colW = 40, left = 70, top = 22, laneH = 24;
-  const x = (f: number) => left + Array.from({ length: f }, (_, k) => colW * fretWidthFactor(k)).reduce((a, b) => a + b, 0);
-  const W = x(NECK_END + 1) + 10;
-  const H = top + boxes.length * laneH + 26;
-  const cw = (f: number) => x(f + 1) - x(f);
+/** The whole neck at a glance: every chord tone, with each CAGED box shaded and labelled above its frets. */
+function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem }: { boxes: CagedBox[]; keyName: string; quality: CagedQuality; rootPc: number; arpKind: ArpKind; labelSystem: LabelSystem }) {
+  const g = useMemo(() => fretGeometry(0, NECK_END), []);
+  const cells = useMemo(() => boxCells(rootPc, quality, { ...boxes[0], from: 0, to: NECK_END }, arpKind).filter((c) => c.arpRole), [boxes, rootPc, quality, arpKind]);
+  const lab = (c: CagedCell) => noteLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText, role: c.arpRole });
+  const off = 40;
+  const sorted = [...boxes].sort((p, q) => p.from - q.from);
   return (
     <section className="rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5">
-      <h2 className="mb-2 text-sm font-medium text-slate-100">
-        {keyName} {quality}: the five boxes up the neck
-        <Info label="Reading the map">Each coloured bar is one CAGED box and the frets it covers. Neighbouring boxes overlap by a fret or two, so the five boxes cover the whole neck from the nut to the 17th fret, then the pattern repeats. The letter is the open chord shape the box is built around. Scroll down for each box in detail.</Info>
+      <h2 className="mb-2 flex flex-wrap items-center gap-2 text-sm font-medium text-slate-100">
+        <span>
+          {keyName} {quality}: the five boxes up the neck
+          <Info label="Reading the map">Every note of the chord on the whole neck. Each shaded zone is one CAGED box, named after the open chord shape it is built around and numbered by position up the neck. Neighbouring boxes overlap by a fret or two, and the pattern repeats after the 12th fret. Tap a note to hear it.</Info>
+        </span>
+        <LabelSelect className="ml-auto" />
       </h2>
       <div className="overflow-x-auto">
-        <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ minWidth: 640 }} role="img" aria-label="Map of the five CAGED boxes on the neck">
-          {Array.from({ length: NECK_END + 1 }, (_, f) => (
-            <g key={f}>
-              <line x1={x(f)} x2={x(f)} y1={top - 6} y2={top + boxes.length * laneH} stroke="#334155" strokeWidth={f === 0 ? 3 : 1} />
-              <text x={x(f) + cw(f) / 2} y={top - 9} textAnchor="middle" fontSize={10} fill="#64748b">{f === 0 ? "" : f}</text>
-            </g>
-          ))}
-          {boxes.map((b, i) => (
-            <g key={b.letter}>
-              <text x={left - 8} y={top + i * laneH + laneH / 2} textAnchor="end" dominantBaseline="central" fontSize={12} fill="#cbd5e1">{b.letter} · {b.chordName}</text>
-              <rect x={x(b.from) + 2} y={top + i * laneH + 3} width={x(b.to + 1) - x(b.from) - 4} height={laneH - 6} rx={6} fill={LANE_COLOURS[i % 5]} opacity={0.75} />
-            </g>
-          ))}
+        <svg viewBox={`0 0 ${g.W} ${g.H + off}`} width="100%" style={{ minWidth: 820 }} role="img" aria-label="Chord tones on the whole neck with the five CAGED boxes marked">
+          <g transform={`translate(0, ${off})`}>
+            {sorted.map((b, i) => (
+              <rect key={b.letter} x={g.edge(b.from) + 1} y={g.sy(5) - 20} width={g.edge(b.to + 1) - g.edge(b.from) - 2} height={g.sy(0) - g.sy(5) + 40} rx={10} fill={LANE_COLOURS[boxes.indexOf(b) % 5]} opacity={0.22} stroke={LANE_COLOURS[boxes.indexOf(b) % 5]} strokeOpacity={0.8} />
+            ))}
+            <FretboardBase g={g} />
+            {cells.map((c) => {
+              const x = g.fx(c.fret), y = g.sy(c.string), col = c.scaleDegree === null ? "#f43f5e" : degreeColour(c.scaleDegree), l = lab(c);
+              return (
+                <g key={`${c.string}-${c.fret}`} onClick={() => strum([c.midi], { gapMs: 0, holdMs: 700 })} style={{ cursor: "pointer" }}>
+                  <circle cx={x} cy={y} r={13} fill={col} stroke={c.isRoot ? "#ffffff" : "#0d1526"} strokeWidth={c.isRoot ? 2.5 : 1.5} />
+                  <text x={x} y={y + 0.5} textAnchor="middle" dominantBaseline="central" fontSize={l.length > 2 ? 9.5 : 12} fontWeight={700} fill="#0b1220" pointerEvents="none">{l}</text>
+                </g>
+              );
+            })}
+          </g>
+          {sorted.map((b, i) => {
+            const cx = (g.edge(b.from) + g.edge(b.to + 1)) / 2, col = LANE_COLOURS[boxes.indexOf(b) % 5];
+            const y = i % 2 === 0 ? 14 : 31;
+            return <text key={b.letter} x={cx} y={y} textAnchor="middle" fontSize={12} fontWeight={600} fill={col}>{b.letter} shape · Position {i + 1}</text>;
+          })}
         </svg>
       </div>
     </section>
