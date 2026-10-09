@@ -1,29 +1,35 @@
 /** Colours for the SVG diagrams (the page itself is always dark, like the home page). */
 export interface Swatch { fill: string; line: string; text: string }
 
-export type Group = "root" | "ref" | "2nd" | "4th" | "6th" | "7th";
+import { DEGREE_COLOURS } from "@/lib/chordKit/scales";
 
-export const GROUP_SWATCH: Record<Group, Swatch> = {
-  root: { fill: "#f1f5f9", line: "#f8fafc", text: "#0f172a" },
-  ref: { fill: "#1e3a8a", line: "#60a5fa", text: "#dbeafe" },
-  "2nd": { fill: "#115e59", line: "#2dd4bf", text: "#ccfbf1" },
-  "4th": { fill: "#92400e", line: "#fbbf24", text: "#fef3c7" },
-  "6th": { fill: "#581c87", line: "#c084fc", text: "#f3e8ff" },
-  "7th": { fill: "#9f1239", line: "#fb7185", text: "#ffe4e6" },
+/**
+ * One colour per scale degree for the whole app, defined once as DEGREE_COLOURS in lib/chordKit/scales.ts:
+ * R white, 2 teal, 3 amber, 4 lime, 5 blue, 6 violet, 7 rose. Flat and sharp versions share the colour of their degree (b3 is amber like 3).
+ * Notes outside the scale are red.
+ */
+const OUT_OF_SCALE = "#f43f5e";
+
+export const GROUP_SWATCH = {
+  root: { fill: DEGREE_COLOURS[0], line: "#f8fafc", text: "#0f172a" } as Swatch,
 };
 
-const LABEL_GROUP: Record<string, Group> = {
-  R: "root", "1": "root",
-  "3": "ref", "♭3": "ref", "5": "ref", "♭5": "ref", "♯5": "ref",
-  "2": "2nd", "9": "2nd", "♭9": "2nd", "♯9": "2nd", "♭2": "2nd", "♯2": "2nd",
-  "4": "4th", "11": "4th", "♯11": "4th", "♯4": "4th",
-  "6": "6th", "13": "6th", "♭13": "6th", "♭6": "6th",
-  "♭7": "7th", "7": "7th", "♭♭7": "7th",
+/** Degree index 0-6 for a label such as "R", "b3", "p5", "♯4", "9", "13". Extensions map to their scale degree. */
+export function degreeIndexOf(label: string): number | null {
+  if (label === "R") return 0;
+  const m = /^[b#♭♯p]*(\d+)$/.exec(label);
+  if (!m) return null;
+  const n = Number(m[1]);
+  return n >= 1 ? (n - 1) % 7 : null;
+}
+
+/** The colour of a note label (R, b3, p5, 9 ...). */
+export const labelColour = (label: string): string => {
+  const i = degreeIndexOf(label);
+  return i === null ? OUT_OF_SCALE : DEGREE_COLOURS[i];
 };
 
-/** Accepts both "♭3"/"5" and the display style "b3"/"p5". */
-export const groupOf = (label: string): Group => LABEL_GROUP[label] ?? LABEL_GROUP[label.replace(/b/g, "♭").replace(/#/g, "♯").replace(/^p/, "")] ?? "ref";
-export const swatchFor = (label: string): Swatch => GROUP_SWATCH[groupOf(label)];
+export const swatchFor = (label: string): Swatch => ({ fill: labelColour(label), line: "#0d1526", text: "#0b1220" });
 
 export const HUES = {
   blue: { hub: "#3b82f6", leaf: "#1e3a8a", line: "#93c5fd", onHub: "#eff6ff", text: "#dbeafe" },
