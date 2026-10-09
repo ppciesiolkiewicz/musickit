@@ -9,15 +9,23 @@ export interface ChoiceOption {
   name: string;
 }
 
+/** One file in the online library. Files in the same `group` (folder) are variants of one setup. */
+export interface CloudItem {
+  path: string;
+  group: string | null;
+  variant: string;
+  size: number;
+}
+
 /** An optional private online library next to the local options (the app supplies it; the looper only draws it). */
 export interface CloudSource {
   getPassword(): string;
   setPassword(v: string): void;
-  list(): Promise<{ models: { path: string; name: string; size: number }[] } | { error: string }>;
+  list(): Promise<{ models: CloudItem[] } | { error: string }>;
   /** Bring one model into the local options; resolves to the option id, or an error. */
-  use(m: { path: string; name: string; size: number }): Promise<{ id: number } | { error: string }>;
+  use(m: CloudItem): Promise<{ id: number } | { error: string }>;
   upload(files: File[]): Promise<string | null>;
-  remove(m: { path: string; name: string; size: number }): Promise<string | null>;
+  remove(m: CloudItem): Promise<string | null>;
 }
 
 export interface ChoiceSource {

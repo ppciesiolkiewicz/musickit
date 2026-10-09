@@ -4,7 +4,10 @@ import type { ModelLibrary } from "./library";
 
 export interface CloudModel {
   path: string;
-  name: string;
+  /** the folder: a setup, whose files are variants of it (null for a file at the top) */
+  group: string | null;
+  /** the file name without .nam */
+  variant: string;
   size: number;
   uploadedAt: number;
 }
@@ -47,12 +50,12 @@ export function createCloud(lib: ModelLibrary) {
     },
     /** Download a model into the browser's library. Resolves to the new model id, or an error message. */
     async use(m: CloudModel): Promise<{ id: number } | { error: string }> {
-      const have = lib.list().find((r) => r.name === m.name.replace(/\.nam$/i, "") || r.name === m.name);
+      const have = lib.list().find((r) => r.cloudPath === m.path);
       if (have) return { id: have.id };
       try {
         const res = await fetch(`/api/nam/file?path=${encodeURIComponent(m.path)}`, { headers: headers() });
         if (!res.ok) return { error: await fail(res) };
-        const rec = await lib.addFile(new File([await res.text()], m.name));
+        const rec = await lib.addFile(new File([await res.text()], `${m.variant}.nam`), { name: m.group ? `${m.group} / ${m.variant}` : m.variant, cloudPath: m.path });
         return { id: rec.id };
       } catch (e) {
         return { error: e instanceof Error ? e.message : "Could not load that model." };

@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { blobToken, checkAccess, libraryPath, ownPath } from "./cloud";
+import { blobToken, checkAccess, describePath, libraryPath, ownPath } from "./cloud";
 
 const env = { SAMPLER_SITE_PASSWORD: "pw", MUSICKIT_BLOB_READ_WRITE_TOKEN: "tok" };
 
@@ -35,7 +35,15 @@ describe("library paths", () => {
     assert.equal(ownPath("nam/Fender Twin.nam"), "nam/Fender Twin.nam");
     assert.equal(ownPath("other/x.nam"), null);
     assert.equal(ownPath("nam/../x.nam"), null);
-    assert.equal(ownPath("nam/a/b.nam"), null);
+    assert.equal(ownPath("nam/a/b/c.nam"), null, "one level of folder only");
     assert.equal(ownPath("nam/x.txt"), null);
+    assert.equal(ownPath("nam/../x.nam"), null);
+    assert.equal(ownPath("nam/.hidden/x.nam"), null);
+    assert.equal(ownPath("nam//x.nam"), null);
+  });
+  it("accepts a setup folder and describes it", () => {
+    assert.equal(ownPath("nam/JCM800/Clean.nam"), "nam/JCM800/Clean.nam");
+    assert.deepEqual(describePath("nam/JCM800/Crunch ch2.nam"), { group: "JCM800", variant: "Crunch ch2" });
+    assert.deepEqual(describePath("nam/Twin.nam"), { group: null, variant: "Twin" });
   });
 });

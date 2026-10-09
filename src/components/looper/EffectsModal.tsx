@@ -4,14 +4,21 @@ import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } fro
 import Icon from "../Icon";
 import Modal from "../Modal";
 import { isPinned, togglePin, usePins } from "./fxPins";
-import { EFFECT_DEFS, EFFECT_KINDS, getChoice, type CloudSource, type EffectKind, type EffectSpec, type ParamDef } from "@/lib/looper/engine";
+import { EFFECT_DEFS, EFFECT_KINDS, getChoice, type CloudItem, type CloudSource, type EffectKind, type EffectSpec, type ParamDef } from "@/lib/looper/engine";
 
 const ibtn = "grid h-8 min-w-8 place-items-center rounded-lg border border-slate-700 bg-slate-900 px-1.5 text-xs text-slate-200 transition hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
+
+/** Group library files by setup (folder), top-level files last. */
+function groupItems(items: CloudItem[]): { name: string | null; items: CloudItem[] }[] {
+  const by = new Map<string | null, CloudItem[]>();
+  items.forEach((m) => by.set(m.group, [...(by.get(m.group) ?? []), m]));
+  return [...by.entries()].sort((a, b) => (a[0] === null ? 1 : b[0] === null ? -1 : a[0].localeCompare(b[0]))).map(([name, list]) => ({ name, items: list }));
+}
 
 /** The private online library: sign in with the site password, pick a model to use (it is copied into the browser), add or remove models. */
 function CloudPanel({ cloud, accept, onPick }: { cloud: CloudSource; accept?: string; onPick: (id: number) => void }) {
   const [pw, setPw] = useState(cloud.getPassword());
-  const [items, setItems] = useState<{ path: string; name: string; size: number }[] | null>(null);
+  const [items, setItems] = useState<CloudItem[] | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const file = useRef<HTMLInputElement>(null);
@@ -31,7 +38,7 @@ function CloudPanel({ cloud, accept, onPick }: { cloud: CloudSource; accept?: st
     void load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const use = async (m: { path: string; name: string; size: number }) => {
+  const use = async (m: CloudItem) => {
     setBusy(true);
     const r = await cloud.use(m);
     setBusy(false);
@@ -49,11 +56,17 @@ function CloudPanel({ cloud, accept, onPick }: { cloud: CloudSource; accept?: st
       {busy && <p className="text-[11px] text-slate-500">Working...</p>}
       {msg && <p className="text-[11px] text-rose-300" role="alert">{msg}</p>}
       {items && items.length === 0 && <p className="text-[11px] text-slate-500">The library is empty. Upload a model.</p>}
-      {items && items.map((m) => (
-        <div key={m.path} className="flex items-center gap-1.5">
-          <button type="button" className="min-w-0 flex-1 truncate rounded-md px-1.5 py-1 text-left hover:bg-slate-800" onClick={() => void use(m)} title="Use this model">{m.name.replace(/\.nam$/i, "")}</button>
-          <span className="tabular-nums text-[11px] text-slate-500">{Math.max(1, Math.round(m.size / 1024))} KB</span>
-          <button type="button" className={ibtn} onClick={async () => { setMsg(await cloud.remove(m)); await load(); }} title="Delete from the cloud library" aria-label={`Delete ${m.name}`}><Icon name="trash" size={14} /></button>
+      {items && groupItems(items).map((g) => (
+        <div key={g.name ?? "_"} className="flex flex-col gap-1">
+          {g.name && <p className="px-1 text-[11px] font-medium uppercase tracking-wide text-slate-500">{g.name}</p>}
+          <div className="flex flex-wrap gap-1">
+            {g.items.map((m) => (
+              <span key={m.path} className="inline-flex items-center overflow-hidden rounded-md border border-slate-700 bg-slate-950">
+                <button type="button" className="px-2 py-1 hover:bg-slate-800" onClick={() => void use(m)} title={`Use ${g.name ? `${g.name} / ` : ""}${m.variant} (${Math.max(1, Math.round(m.size / 1024))} KB)`}>{m.variant}</button>
+                <button type="button" className="border-l border-slate-700 px-1.5 py-1 text-slate-500 hover:bg-slate-800 hover:text-rose-300" onClick={async () => { setMsg(await cloud.remove(m)); await load(); }} title="Delete from the cloud library" aria-label={`Delete ${m.variant}`}><Icon name="trash" size={12} /></button>
+              </span>
+            ))}
+          </div>
         </div>
       ))}
     </div>

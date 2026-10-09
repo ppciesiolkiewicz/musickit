@@ -13,6 +13,8 @@ export interface ModelRecord {
   /** how many times faster than real time the model ran on this device when it was added */
   speed: number | null;
   addedAt: number;
+  /** set when the model came from the cloud library: its path there, so it is not downloaded twice */
+  cloudPath?: string;
 }
 
 const DB = "musickit-nam";
@@ -100,13 +102,13 @@ export class ModelLibrary implements ModelSource {
   }
 
   /** Adds a .nam file. Throws an Error with a short message when it cannot be used. */
-  async addFile(file: File): Promise<ModelRecord> {
+  async addFile(file: File, opts: { name?: string; cloudPath?: string } = {}): Promise<ModelRecord> {
     await this.init();
     const text = await file.text();
     const read = readNam(text, file.name);
     if (!read.ok) throw new Error(`${file.name}: ${read.error}`);
     const speed = await measureSpeed(read.spec);
-    const draft = { name: read.info.name, text, info: read.info, speed, addedAt: Date.now() };
+    const draft = { name: opts.name ?? read.info.name, text, info: read.info, speed, addedAt: Date.now(), ...(opts.cloudPath ? { cloudPath: opts.cloudPath } : {}) };
     let id: number;
     try {
       id = Number(await this.store("readwrite", (s) => s.add(draft)));

@@ -26,3 +26,8 @@ Output matches the NeuralAmpModelerCore renderer to about 1e-6 on its example mo
 - Rules (pure, tested in `server/cloud.test.ts`): only `.nam` files, safe names, no folders, 4 MB per file (Vercel's server upload limit).
 - In the picker, the cloud button opens a panel: sign in, list, use (the file is copied into the browser's own library, then selected), upload, delete. Used models stay in the browser, so loading is local and offline.
 - Not verified against a real store yet. Licences still apply to models you did not capture yourself: keep this library private.
+
+## Setups and variants in the cloud library
+- A folder under `nam/` is one setup and the `.nam` files in it are its variants: `nam/JCM800/Clean.nam`, `nam/JCM800/Crunch.nam`. One level of folder only; a file directly in `nam/` is a setup of its own. The list route returns `group` and `variant` for each file.
+- The cloud panel shows each setup as a heading with its variants as buttons. Using one copies it into the browser's library under the name "Setup / Variant" and remembers its cloud path, so it is not downloaded twice.
+- Uploading from the app puts files at the top level; to group variants, put them in a folder in the Blob store (dashboard) with the same layout.

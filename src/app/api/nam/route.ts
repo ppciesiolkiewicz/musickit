@@ -1,5 +1,5 @@
 import { del, list, put } from "@vercel/blob";
-import { MAX_MODEL_BYTES, NAM_PREFIX, blobToken, checkAccess, libraryPath, ownPath } from "@/features/nam/server/cloud";
+import { MAX_MODEL_BYTES, NAM_PREFIX, blobToken, checkAccess, describePath, libraryPath, ownPath } from "@/features/nam/server/cloud";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -15,8 +15,8 @@ export async function GET(req: Request) {
     const res = await list({ prefix: NAM_PREFIX, token: blobToken(process.env) });
     const models = res.blobs
       .filter((b) => ownPath(b.pathname))
-      .map((b) => ({ path: b.pathname, name: b.pathname.slice(NAM_PREFIX.length), size: b.size, uploadedAt: new Date(b.uploadedAt).getTime() }))
-      .sort((x, y) => x.name.localeCompare(y.name));
+      .map((b) => ({ path: b.pathname, ...describePath(b.pathname), size: b.size, uploadedAt: new Date(b.uploadedAt).getTime() }))
+      .sort((x, y) => (x.group ?? "").localeCompare(y.group ?? "") || x.variant.localeCompare(y.variant, undefined, { numeric: true }));
     return json({ models });
   } catch {
     return json({ error: "The library could not be read." }, 502);
