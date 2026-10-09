@@ -119,6 +119,7 @@ function BoxCard({ box, index, rootPc, quality, arpKind, labelSystem, badges, no
   const fretText = `frets ${box.from}–${box.to}`;
   const only = (k: keyof Layers): Layers => ({ chord: false, arp: false, pent: false, scale: false, [k]: true });
   const panels = [
+    { key: "chord", title: "CAGED / Chord", layers: only("chord"), notes: `${box.chordName}, root on the ${STRING_SHORT[box.shape.rs]} string${box.rootFret > 0 ? `, fret ${box.rootFret}` : ", open"}`, onPlay: hearChord },
     { key: "arp", title: notes.arpTitle.replace(" arpeggio", " arpeggio"), layers: only("arp"), notes: notes.arp.join(" "), onPlay: () => strum(arpeggioMidi(boxArpeggio(ctx, arpKind)), { gapMs: 230, holdMs: 700 }) },
     { key: "scale", title: th.scaleName, layers: only("scale"), notes: notes.scale.join(" "), onPlay: () => strum(ladderMidi(rootPc, th.scale), { gapMs: 200, holdMs: 500 }) },
     { key: "pent", title: th.pentName, layers: only("pent"), notes: notes.pent.join(" "), onPlay: () => strum(ladderMidi(rootPc, th.pent), { gapMs: 220, holdMs: 500 }) },
@@ -132,14 +133,6 @@ function BoxCard({ box, index, rootPc, quality, arpKind, labelSystem, badges, no
         meta={fretText}
       >
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          <div className="flex min-w-0 flex-col gap-1.5 rounded-xl border border-slate-800 bg-slate-950/50 p-2">
-            <div className="flex items-center gap-2">
-              <h3 className="text-sm font-medium text-slate-100">CAGED / Chord</h3>
-              <button type="button" className={`${play} ml-auto`} onClick={hearChord} aria-label="Play the chord">▶ Play</button>
-            </div>
-            <div className="mx-auto w-full max-w-[16rem]"><ChordDiagram shape={box.shape} rootFret={box.rootFret} onPlay={hearChord} active={hearing} /></div>
-            <p className="text-xs text-slate-400"><b className="text-slate-200">{box.chordName}</b>, root on the {STRING_SHORT[box.shape.rs]} string{box.rootFret > 0 ? `, fret ${box.rootFret}` : ", open"}</p>
-          </div>
           {panels.map((p) => (
             <div key={p.key} className="flex min-w-0 flex-col gap-1.5 rounded-xl border border-slate-800 bg-slate-950/50 p-2">
               <div className="flex items-center gap-2">
