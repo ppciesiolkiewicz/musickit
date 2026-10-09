@@ -175,11 +175,12 @@ function InputStrip({ engine, inp, devices, anyDevice, keyboardOpen, onToggleKey
       <div className="flex flex-wrap items-center gap-1.5">
         <span title={state} className="text-slate-300"><Icon name={isDevice ? "mic" : inp.kind === "sequencer" ? "drum" : inp.kind === "scalepiano" ? "music" : "piano"} size={18} /></span>
         <input value={inp.name} onChange={(e) => m.rename(inp.id, e.target.value)} aria-label="Input name" className="w-32 rounded-md border border-transparent bg-transparent px-1.5 py-0.5 text-sm font-medium text-slate-100 hover:border-slate-700 focus:border-slate-500 focus:outline-none" />
-        {inp.kind === "sequencer" && seq && <span className="flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[10px] text-slate-300" style={{ borderColor: grp?.colour ?? "#334155" }} title="Where this sequencer plays: by the group its circle sits in">{grp && <span className="h-2 w-2 rounded-full" style={{ background: grp.colour }} />}→ {seq.dest === "record" ? "recorder" : grp?.name ?? "master"}</span>}
-        {inp.kind !== "sequencer" && <span className="flex items-center gap-0.5 rounded-md border border-slate-700 px-1.5 py-0.5 text-[10px] text-slate-400" title="Goes to the recorder, then into the loops"><Icon name="circle" size={10} className="text-rose-400" />rec</span>}
+        {inp.kind === "sequencer" && seq && <span className="flex min-w-[6.5rem] items-center gap-1 rounded-md border px-1.5 py-0.5 text-[10px] text-slate-300" style={{ borderColor: grp?.colour ?? "#334155" }} title="Where this sequencer plays: by the group its circle sits in">{grp && <span className="h-2 w-2 rounded-full" style={{ background: grp.colour }} />}→ {seq.dest === "record" ? "recorder" : grp?.name ?? "master"}</span>}
+        {inp.kind !== "sequencer" && <span className="flex min-w-[6.5rem] items-center gap-0.5 rounded-md border border-slate-700 px-1.5 py-0.5 text-[10px] text-slate-400" title="Goes to the recorder, then into the loops"><Icon name="circle" size={10} className="text-rose-400" />rec</span>}
         <span aria-hidden title={state} className={`h-2 w-2 rounded-full ${inp.live ? "bg-emerald-400" : "bg-slate-600"}`} />
         <LevelMeter vertical getLevel={getLevel} />
         <input type="range" min={0} max={1.5} step={0.01} value={inp.volume} onChange={(e) => m.setVolume(inp.id, Number(e.target.value))} className="w-24 accent-sky-400" aria-label={`Gain of ${inp.name}`} title={`Gain ${Math.round(inp.volume * 100)}%`} />
+        <span className="flex-1" aria-hidden />
         {inp.kind === "sequencer" && seq && <button type="button" className={`${ibtn} ${seq.playing ? "!border-emerald-500/70 !bg-emerald-500/15 !text-emerald-200" : ""}`} aria-pressed={seq.playing} onClick={() => engine.setSequencerPlaying(seq.id, !seq.playing)} title={seq.playing ? "Stop on the next beat" : "Start on the next beat"} aria-label={seq.playing ? `Stop ${inp.name}` : `Start ${inp.name}`}><Icon name={seq.playing ? "square" : "play"} fill /></button>}
         {inp.kind === "sequencer" && <button type="button" className={`${ibtn} ${sequencerOpen ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={sequencerOpen} onClick={onToggleSequencer} title={sequencerOpen ? "Close the sequencer" : "Open the sequencer"} aria-label={sequencerOpen ? "Close the sequencer" : "Open the sequencer"}><Icon name="sliders-horizontal" /></button>}
         {inp.kind === "scalepiano" && <button type="button" className={`${ibtn} ${pianoOpen ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={pianoOpen} onClick={onTogglePiano} title={pianoOpen ? "Close the Scale Piano" : "Open the Scale Piano"} aria-label={pianoOpen ? "Close the Scale Piano" : "Open the Scale Piano"}><Icon name="keyboard" /></button>}
@@ -243,8 +244,8 @@ function Buses({ engine, snap }: { engine: LooperEngine; snap: LooperSnapshot })
         })}
         <li className="flex flex-wrap items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-950/60 px-2 py-1.5">
           <span className="h-3 w-3 rounded-sm bg-slate-300" aria-hidden />
-          <span className="w-24 truncate px-1.5 text-sm font-medium text-slate-100">Master</span>
-          <span className="rounded-md border border-slate-700 px-1.5 py-0.5 text-[10px] text-slate-400" title="Everything that is not in a group, and every bus">all buses + loops outside groups</span>
+          <span className="w-32 truncate px-1.5 text-sm font-medium text-slate-100">Master</span>
+          <span className="min-w-[6.5rem] rounded-md border border-slate-700 px-1.5 py-0.5 text-[10px] text-slate-400" title="Everything that is not in a group, and every bus">all buses</span>
           <LevelMeter vertical getLevel={getMaster} />
           <input type="range" min={0} max={1.5} step={0.01} value={snap.masterVolume} onChange={(e) => engine.setMasterVolume(Number(e.target.value))} className="w-24 accent-sky-400" aria-label="Master volume" title={`Master ${Math.round(snap.masterVolume * 100)}%`} />
         </li>
@@ -259,12 +260,13 @@ function BusRow({ engine, g, loops, seqs, onFx }: { engine: LooperEngine; g: Loo
   return (
     <li className="flex flex-wrap items-center gap-1.5 rounded-lg border bg-slate-950/50 px-2 py-1.5" style={{ borderColor: `${g.colour}66` }}>
       <span className="h-3 w-3 rounded-full" style={{ background: g.colour }} aria-hidden />
-      <input value={g.name} onChange={(e) => engine.updateGroup(g.id, { name: e.target.value })} aria-label="Bus name" className="w-24 rounded-md border border-transparent bg-transparent px-1.5 py-0.5 text-sm font-medium text-slate-100 hover:border-slate-700 focus:border-slate-500 focus:outline-none" />
-      <span className="flex items-center gap-1 rounded-md border border-slate-700 px-1.5 py-0.5 text-[10px] text-slate-400" title={`${loops} loop${loops === 1 ? "" : "s"} and ${seqs} sequencer${seqs === 1 ? "" : "s"} play through this bus`}>
+      <input value={g.name} onChange={(e) => engine.updateGroup(g.id, { name: e.target.value })} aria-label="Bus name" className="w-32 rounded-md border border-transparent bg-transparent px-1.5 py-0.5 text-sm font-medium text-slate-100 hover:border-slate-700 focus:border-slate-500 focus:outline-none" />
+      <span className="flex min-w-[6.5rem] items-center gap-1 rounded-md border border-slate-700 px-1.5 py-0.5 text-[10px] text-slate-400" title={`${loops} loop${loops === 1 ? "" : "s"} and ${seqs} sequencer${seqs === 1 ? "" : "s"} play through this bus`}>
         <Icon name="repeat" size={10} />{loops}<Icon name="drum" size={10} />{seqs}
       </span>
       <LevelMeter vertical getLevel={getLevel} />
       <input type="range" min={0} max={1.5} step={0.01} value={g.volume} onChange={(e) => engine.updateGroup(g.id, { volume: Number(e.target.value) })} className="w-24 accent-sky-400" aria-label={`Volume of ${g.name}`} title={`Volume ${Math.round(g.volume * 100)}%`} />
+      <span className="flex-1" aria-hidden />
       <button type="button" className={`${ibtn} ${g.muted ? "!border-amber-400 !text-amber-200" : ""}`} aria-pressed={g.muted} onClick={() => engine.updateGroup(g.id, { muted: !g.muted })} title="Mute the bus" aria-label={`Mute ${g.name}`}>M</button>
       <div className="basis-full"><EffectStack effects={g.effects} onOpen={onFx} onBypass={(fx) => engine.toggleEffectBypass(g.id, fx)} onMove={(fx, d) => engine.moveEffect(g.id, fx, d)} /></div>
     </li>
