@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 
 /** A simple full-screen dialog: closes on Escape, on the backdrop, or with the close button. */
 export function Modal({ title, onClose, children }: { title: ReactNode; onClose: () => void; children: ReactNode }) {
@@ -14,8 +15,12 @@ export function Modal({ title, onClose, children }: { title: ReactNode; onClose:
       document.body.style.overflow = prev;
     };
   }, [onClose]);
-  return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/70 p-2 sm:p-6" onClick={onClose}>
+  // Drawn on the page itself, not inside whatever opened it: a widget on a zoomed canvas is transformed, which would trap and clip a fixed dialog.
+  const [host, setHost] = useState<HTMLElement | null>(null);
+  useEffect(() => setHost(document.body), []);
+  if (!host) return null;
+  return createPortal(
+    <div className="fixed inset-0 z-[2000] flex items-start justify-center overflow-y-auto bg-black/70 p-2 sm:p-6" onClick={onClose}>
       <div role="dialog" aria-modal="true" aria-label={typeof title === "string" ? title : undefined} onClick={(e) => e.stopPropagation()} className="w-full max-w-5xl rounded-2xl border border-slate-700 bg-slate-950 p-4 shadow-2xl">
         <div className="mb-3 flex items-center gap-2">
           <h2 className="text-base font-medium text-slate-100">{title}</h2>
@@ -23,7 +28,8 @@ export function Modal({ title, onClose, children }: { title: ReactNode; onClose:
         </div>
         {children}
       </div>
-    </div>
+    </div>,
+    host,
   );
 }
 
