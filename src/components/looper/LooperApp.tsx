@@ -108,32 +108,27 @@ function newProject() {
   window.location.reload();
 }
 
-/** Shown from the start until the engine is ready: detects the devices and says which it will use (an interface over the computer's own parts). */
+/** Shown while the audio starts (a moment): where the sound will go. It does not block the page; only an error is a dialog. */
 function StartupLoader({ engine, snap }: { engine: LooperEngine; snap: LooperSnapshot }) {
-  const inp = chooseDevice(snap.devices, null);
   const out = chooseDevice(snap.outputs, null);
-  const starting = snap.status === "starting";
-  return (
-    <div className="fixed inset-0 z-[1500] grid place-items-center bg-slate-950/85 p-4 backdrop-blur-sm" role="status" aria-live="polite">
-      <div className="flex w-full max-w-sm flex-col gap-3 rounded-2xl border border-slate-700 bg-slate-950 p-4 shadow-2xl">
-        <div className="flex items-center gap-3">
-          {snap.status === "error" ? <Icon name="x" className="text-rose-300" /> : <span className="h-5 w-5 animate-spin rounded-full border-2 border-slate-600 border-t-sky-400" aria-hidden />}
-          <h2 className="text-sm font-medium text-slate-100">{snap.status === "error" ? "Could not start" : starting ? "Starting audio and connecting your gear…" : "Detecting your devices…"}</h2>
+  if (snap.status === "error") {
+    return (
+      <div className="fixed inset-0 z-[1500] grid place-items-center bg-slate-950/85 p-4 backdrop-blur-sm" role="alertdialog">
+        <div className="flex w-full max-w-sm flex-col gap-3 rounded-2xl border border-slate-700 bg-slate-950 p-4 shadow-2xl">
+          <div className="flex items-center gap-3"><Icon name="x" className="text-rose-300" /><h2 className="text-sm font-medium text-slate-100">Could not start</h2></div>
+          <p className="text-xs text-rose-200" role="alert">{snap.error}</p>
+          <button type="button" className="self-start rounded-lg border border-slate-700 px-3 py-1.5 text-xs text-slate-200 hover:border-slate-500" onClick={() => void engine.enable()}>Try again</button>
         </div>
-        {snap.status === "error" ? (
-          <>
-            <p className="text-xs text-rose-200" role="alert">{snap.error}</p>
-            <button type="button" className="self-start rounded-lg border border-slate-700 px-3 py-1.5 text-xs text-slate-200 hover:border-slate-500" onClick={() => void engine.enable()}>Try again</button>
-          </>
-        ) : (
-          <>
-            <ul className="flex flex-col gap-1 text-xs text-slate-300">
-              <li className="flex items-center gap-2"><Icon name="mic" size={14} className="text-slate-400" />{inp ? `Input: ${inp.label}` : snap.devices.length ? "Input: no audio interface found" : "Input: names appear once the browser allows the microphone"}</li>
-              <li className="flex items-center gap-2"><Icon name="volume-2" size={14} className="text-slate-400" />{out ? `Output: ${out.label}` : snap.outputs.length ? "Output: system default" : "Output: system default"}</li>
-            </ul>
-            {!starting && <p className="text-xs text-slate-400">Click anywhere to start. Your last choices are used first.</p>}
-          </>
-        )}
+      </div>
+    );
+  }
+  if (snap.status !== "starting") return null;
+  return (
+    <div className="pointer-events-none fixed inset-x-0 top-14 z-[1500] flex justify-center px-4" role="status" aria-live="polite">
+      <div className="flex items-center gap-2 rounded-full border border-slate-700 bg-slate-950/95 px-3 py-1.5 text-xs text-slate-200 shadow-xl">
+        <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-slate-600 border-t-sky-400" aria-hidden />
+        <Icon name="volume-2" size={13} className="text-slate-400" />
+        <span className="truncate">{out ? out.label : "System output"}</span>
       </div>
     </div>
   );
@@ -285,7 +280,7 @@ export default function LooperApp() {
           <ScalePianoPanel engine={engine} snap={snap} id={id} />
         </FloatingWindow>
       ))}
-      {snap.status !== "ready" && <StartupLoader engine={engine} snap={snap} />}
+      <StartupLoader engine={engine} snap={snap} />
       {snap.status === "ready" && snap.gear.length > 0 && !gearDismissed && (
         <Modal title="Connect your gear" onClose={() => setGearDismissed(true)}>
           <ul className="flex flex-col gap-1 text-sm text-slate-200">

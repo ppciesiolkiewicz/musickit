@@ -902,6 +902,17 @@ export class LooperEngine {
     }
   }
 
+  private forgetInput() {
+    const { in: _gone, ...rest } = this.prefs;
+    void _gone;
+    this.prefs = rest;
+    try {
+      window.localStorage.setItem(PREF_KEY, JSON.stringify(this.prefs));
+    } catch {
+      /* ignore */
+    }
+  }
+
   /** True when the browser has already given microphone access, so opening an input shows no prompt. */
   private async micGranted(): Promise<boolean> {
     try {
@@ -1397,7 +1408,11 @@ export class LooperEngine {
   /** Remove a device or built-in input. (Sequencer and Scale Piano strips go with their own remove.) */
   removeInput(id: number) {
     const i = this.mixer.list().find((x) => x.id === id);
-    if (i && (i.kind === "device" || i.kind === "extra")) this.mixer.remove(id);
+    if (i && (i.kind === "device" || i.kind === "extra")) {
+      // taking the last interface away means it is no longer wanted: do not offer it again or wait for it
+      if (i.kind === "device" && !this.mixer.list().some((x) => x.kind === "device" && x.id !== id)) this.forgetInput();
+      this.mixer.remove(id);
+    }
   }
 
   setInput(id: number, p: { name?: string; volume?: number; muted?: boolean; solo?: boolean; monitor?: boolean; mode?: InputMode }) {
