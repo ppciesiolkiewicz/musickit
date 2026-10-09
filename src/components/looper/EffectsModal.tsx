@@ -91,32 +91,21 @@ export default function EffectsModal({ title, effects, volume, onAdd, onRemove, 
   onPost: (id: string, post: boolean) => void;
   onClose: () => void;
 }) {
-  const [post, setPost] = useState(false);
-  const seg = (on: boolean) => `rounded-md px-2 py-1 text-[11px] ${on ? "bg-sky-500/25 text-sky-100" : "text-slate-400 hover:text-slate-200"}`;
-  return (
-    <Modal title={title} onClose={onClose}>
-      <div className="flex flex-col gap-3">
-        {volume && (
-          <label className="flex items-center gap-2 text-xs text-slate-400">
-            <Icon name="volume-2" /> Fader
-            <input type="range" min={0} max={1.5} step={0.01} value={volume.value} onChange={(e) => volume.onChange(Number(e.target.value))} className="flex-1 accent-sky-400" aria-label="Fader" />
-            <span className="w-10 tabular-nums">{Math.round(volume.value * 100)}%</span>
-          </label>
-        )}
-        {effects.length === 0 && <p className="rounded-lg border border-dashed border-slate-700 p-2 text-xs text-slate-400">No effects yet. Pick one below.</p>}
-        {effects.map((fx) => {
-          const def = EFFECT_DEFS[fx.kind];
-          return (
-            <section key={fx.id} className={`flex flex-col gap-1.5 rounded-xl border border-slate-800 bg-slate-900/50 p-2.5 ${fx.bypass ? "opacity-60" : ""}`}>
-              <div className="flex flex-wrap items-center gap-2">
-                <h3 className="text-sm font-medium text-slate-100">{def.name}</h3>
-                <span className="flex rounded-lg border border-slate-700 p-0.5" role="group" aria-label="Position of the effect">
-                  <button type="button" className={seg(!fx.post)} aria-pressed={!fx.post} onClick={() => onPost(fx.id, false)} title="Before the fader: muting or lowering the fader also cuts it">Pre-fader</button>
-                  <button type="button" className={seg(fx.post)} aria-pressed={fx.post} onClick={() => onPost(fx.id, true)} title="After the fader: the effect keeps ringing when the fader is down">Post-fader</button>
-                </span>
-                <button type="button" className={`${ibtn} ml-auto ${fx.bypass ? "" : "!border-emerald-500/70 !text-emerald-200"}`} aria-pressed={!fx.bypass} onClick={() => onBypass(fx.id)} title={fx.bypass ? "Bypassed (tap to switch on)" : "On (tap to bypass)"} aria-label={`${def.name} on or off`}><Icon name="power" /></button>
-                <button type="button" className={ibtn} onClick={() => onRemove(fx.id)} title="Remove" aria-label={`Remove ${def.name}`}><Icon name="trash" /></button>
-              </div>
+  const [adding, setAdding] = useState<null | boolean>(null);
+  const [open, setOpen] = useState<Record<string, boolean>>({});
+  const card = (fx: EffectSpec) => {
+    const def = EFFECT_DEFS[fx.kind];
+    const collapsed = open[fx.id] === false;
+    return (
+      <section key={fx.id} className={`flex flex-col gap-1.5 rounded-xl border border-slate-800 bg-slate-900/50 p-2 ${fx.bypass ? "opacity-60" : ""}`}>
+        <div className="flex items-center gap-1.5">
+          <button type="button" className={ibtn} aria-expanded={!collapsed} onClick={() => setOpen({ ...open, [fx.id]: collapsed })} title={collapsed ? "Show settings" : "Hide settings"} aria-label={`${collapsed ? "Show" : "Hide"} ${def.name} settings`}><Icon name="chevron-right" size={14} className={collapsed ? "" : "rotate-90"} /></button>
+          <h3 className="min-w-0 flex-1 truncate text-sm font-medium text-slate-100">{def.name}</h3>
+          <button type="button" className={ibtn} onClick={() => onPost(fx.id, !fx.post)} title={fx.post ? "After the fader: move before it (the fader then cuts it)" : "Before the fader: move after it (it keeps ringing when the fader is down)"} aria-label={`Move ${def.name} ${fx.post ? "before" : "after"} the fader`}><Icon name="chevron-right" size={14} className={fx.post ? "-rotate-90" : "rotate-90"} /></button>
+          <button type="button" className={`${ibtn} ${fx.bypass ? "" : "!border-emerald-500/70 !text-emerald-200"}`} aria-pressed={!fx.bypass} onClick={() => onBypass(fx.id)} title={fx.bypass ? "Bypassed (tap to switch on)" : "On (tap to bypass)"} aria-label={`${def.name} on or off`}><Icon name="power" /></button>
+          <button type="button" className={ibtn} onClick={() => onRemove(fx.id)} title="Remove" aria-label={`Remove ${def.name}`}><Icon name="trash" /></button>
+        </div>
+        {!collapsed && (
               <div className="grid gap-x-4 gap-y-1 sm:grid-cols-2">
                 {def.params.map((p) => {
                   const label = `${def.name} ${p.label}`;
@@ -139,22 +128,46 @@ export default function EffectsModal({ title, effects, volume, onAdd, onRemove, 
                   );
                 })}
               </div>
-            </section>
-          );
-        })}
-        <div className="flex flex-wrap items-center gap-2 rounded-xl border border-slate-800 p-2">
-          <span className="text-xs text-slate-400">Add</span>
-          {EFFECT_KINDS.map((k) => (
-            <button key={k} type="button" disabled={effects.length >= 6} className="flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs text-slate-200 hover:border-sky-400 disabled:opacity-40" onClick={() => onAdd(k, post)}>
-              <Icon name="plus" size={14} /> {EFFECT_DEFS[k].name}
-            </button>
-          ))}
-          <span className="ml-auto flex rounded-lg border border-slate-700 p-0.5" role="group" aria-label="Where new effects go">
-            <button type="button" className={seg(!post)} aria-pressed={!post} onClick={() => setPost(false)}>Pre-fader</button>
-            <button type="button" className={seg(post)} aria-pressed={post} onClick={() => setPost(true)}>Post-fader</button>
-          </span>
+        )}
+      </section>
+    );
+  };
+  const section = (post: boolean) => {
+    const list = effects.filter((e) => !!e.post === post);
+    return (
+      <div className="flex flex-col gap-1.5" role="group" aria-label={post ? "After the fader" : "Before the fader"}>
+        <div className="flex items-center gap-2 text-[11px] uppercase tracking-wide text-slate-400">
+          <span>{post ? "After fader" : "Before fader"}</span>
+          <span className="normal-case tracking-normal text-slate-500">{post ? "keeps ringing when muted" : "cut by mute and volume"}</span>
+          <button type="button" className={`${ibtn} ml-auto`} disabled={effects.length >= 6} aria-pressed={adding === post} onClick={() => setAdding(adding === post ? null : post)} title="Add an effect here" aria-label={`Add an effect ${post ? "after" : "before"} the fader`}><Icon name="plus" size={14} /></button>
         </div>
-        <p className="text-xs text-slate-500">Effects run in order, top first, within their position.</p>
+        {adding === post && (
+          <div className="flex flex-wrap gap-1.5 rounded-xl border border-slate-800 p-2">
+            {EFFECT_KINDS.map((k) => (
+              <button key={k} type="button" className="rounded-lg border border-slate-700 bg-slate-900 px-2.5 py-1 text-xs text-slate-200 hover:border-sky-400" onClick={() => { onAdd(k, post); setAdding(null); }}>{EFFECT_DEFS[k].name}</button>
+            ))}
+          </div>
+        )}
+        {list.length === 0 && adding !== post && <p className="rounded-lg border border-dashed border-slate-800 p-1.5 text-xs text-slate-500">Empty</p>}
+        {list.map(card)}
+      </div>
+    );
+  };
+  return (
+    <Modal title={title} onClose={onClose}>
+      <div className="flex flex-col gap-3">
+        {section(false)}
+        <label className="flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-800/60 px-2 py-1 text-xs text-slate-300">
+          <Icon name="sliders-horizontal" size={14} /> Fader
+          {volume && (
+            <>
+              <input type="range" min={0} max={1.5} step={0.01} value={volume.value} onChange={(e) => volume.onChange(Number(e.target.value))} className="flex-1 accent-sky-400" aria-label="Fader" />
+              <span className="w-10 tabular-nums">{Math.round(volume.value * 100)}%</span>
+            </>
+          )}
+        </label>
+        {section(true)}
+        <p className="text-xs text-slate-500">Top to bottom is the order the signal passes through.</p>
       </div>
     </Modal>
   );

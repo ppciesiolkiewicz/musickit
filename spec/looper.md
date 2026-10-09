@@ -75,7 +75,7 @@ Only a cogwheel sits at the top right (settings), in the same sticky row as the 
 
 The Mixer section lists the inputs, then the buses (one per group, five by default) and the master. A bus row shows its colour, name, how many loops and sequencers feed it, a level meter, volume, mute and a + button. The master row has a meter and a volume. Below is the Signal flow diagram, open by default.
 
-Every input, sequencer and bus has a + after its fader marker in the effect stack that opens an effects dialog: choose Tape delay or Reverb, set each effect before the fader (pre: cut by mute and volume) or after it (post: keeps ringing, so a reverb tail survives a mute), tweak, bypass or remove. Effects are saved with the strip or group.
+Every input, sequencer and bus has a + after its fader marker in the effect stack that opens an effects dialog: the dialog has a Before-fader section, the fader, and an After-fader section, each with its own + to add an effect. An arrow button moves an effect to the other side (pre: cut by mute and volume; post: keeps ringing, so a reverb tail survives a mute). Settings fold away; bypass or remove from the card. Effects are saved with the strip or group.
 
 ## Scale Piano
 
