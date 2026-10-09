@@ -9,6 +9,7 @@ export const SITE_LINKS = [
   { href: "/caged", label: "CAGED" },
   { href: "/arpeggios", label: "Arpeggios" },
   { href: "/improv", label: "Improv" },
+  { href: "/tuner", label: "Tuner" },
   { href: "/looper", label: "Looper" },
 ];
 
