@@ -79,8 +79,8 @@ function NotesTable({ rootPc, quality, arpKind }: { rootPc: number; quality: Cag
   const fromSemis = (semis: number[]) => semis.map((s) => { const d = th.scale.indexOf(s); return { semi: s, name: d >= 0 ? ctx.names[d] : "?", deg: d >= 0 ? d : null }; });
   const rows = [
     { title: notesTitle(arpKind, quality), notes: arp.notes.map((n) => { const semi = (n.pc - rootPc + 12) % 12; const d = th.scale.indexOf(semi); return { semi, name: n.name, deg: d >= 0 ? d : null }; }) },
-    { title: th.scaleName, notes: fromSemis(th.scale) },
     { title: th.pentName, notes: fromSemis(th.pent) },
+    { title: th.scaleName, notes: fromSemis(th.scale) },
   ];
   return (
     <section className="rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5" aria-label="Notes of the selection">
@@ -227,8 +227,8 @@ function BoxCard({ box, index, rootPc, quality, arpKind, labelSystem, badges, no
   const panels = [
     { key: "chord", title: "CAGED / Chord", layers: only("chord"), notes: `${box.chordName}, root on the ${STRING_SHORT[box.shape.rs]} string${box.rootFret > 0 ? `, fret ${box.rootFret}` : ", open"}`, onPlay: hearChord },
     { key: "arp", title: notes.arpTitle.replace(" arpeggio", " arpeggio"), layers: only("arp"), notes: notes.arp.join(" "), onPlay: () => strum(arpeggioMidi(boxArpeggio(ctx, arpKind)), { gapMs: 230, holdMs: 700 }) },
-    { key: "scale", title: th.scaleName, layers: only("scale"), notes: notes.scale.join(" "), onPlay: () => strum(ladderMidi(rootPc, th.scale), { gapMs: 200, holdMs: 500 }) },
     { key: "pent", title: th.pentName, layers: only("pent"), notes: notes.pent.join(" "), onPlay: () => strum(ladderMidi(rootPc, th.pent), { gapMs: 220, holdMs: 500 }) },
+    { key: "scale", title: th.scaleName, layers: only("scale"), notes: notes.scale.join(" "), onPlay: () => strum(ladderMidi(rootPc, th.scale), { gapMs: 200, holdMs: 500 }) },
   ];
 
   return (
