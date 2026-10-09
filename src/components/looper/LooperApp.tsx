@@ -14,6 +14,7 @@ import FloatingWindow from "../FloatingWindow";
 import Piano from "@/features/sound/keyboard/Piano";
 import { createPlayer, getAudioContext, getOutputBus } from "@/features/sound";
 import LoopStage from "./LoopStage";
+import FreeBoard from "./FreeBoard";
 import AddWidgetMenu from "./AddWidgetMenu";
 import { chooseDevice } from "@/lib/looper/deviceChoice";
 import { Modal } from "../Modal";
@@ -218,10 +219,8 @@ export default function LooperApp() {
   const mixer = (fill: boolean) => (
     <Mixer engine={engine} snap={snap} keyboardOpen={keyboardOpen} onToggleKeyboard={() => setKeyboardOpen((v) => !v)} openSeqs={openSeqs} onToggleSequencer={toggleSeq} openPianos={openPianos} onTogglePiano={togglePiano} align={align} onAlign={setAlign} fill={fill} />
   );
-  const looping = (fill: boolean) => (
-    <section className={`flex flex-col gap-2 rounded-xl border border-slate-800 bg-slate-900/40 p-1.5 ${fill ? "h-full overflow-hidden" : ""}`} aria-label="Looping">
-      <div className="flex flex-wrap items-center gap-2">
-        <h2 className="flex items-center gap-1.5 px-1 text-sm font-medium text-slate-100"><Icon name="repeat" className="text-slate-400" />Looping</h2>
+  const loopControls = (
+    <>
         <button type="button" className={ibtn} disabled={!ready || snap.loopSeconds === null} onClick={() => engine.do({ type: "playback.set", on: !snap.playing })} title={snap.playing ? "Stop playback" : "Play from the top"} aria-label={snap.playing ? "Stop playback" : "Play from the top"}>
           <Icon name={snap.playing ? "square" : "play"} fill />
         </button>
@@ -229,6 +228,12 @@ export default function LooperApp() {
         <span className="text-xs text-slate-400">{snap.loopSeconds === null ? "No loop yet" : `${snap.loopSeconds.toFixed(2)} s${loopBars(snap)}`}</span>
         <LoopBar getPosition={getPosition} />
         <AddWidgetMenu engine={engine} snap={snap} canPatch={widgetMode} names={Object.fromEntries(EFFECT_KINDS.map((k) => [k, EFFECT_DEFS[k].name]))} />
+    </>
+  );
+  const looping = (fill: boolean) => (
+    <section className={`flex flex-col gap-2 rounded-xl border border-slate-800 bg-slate-900/40 p-1.5 ${fill ? "h-full overflow-hidden" : ""}`} aria-label="Looping">
+      <div className="flex flex-wrap items-center gap-2">
+        {loopControls}
       </div>
       <LoopStage engine={engine} snap={snap} getPosition={getPosition} openSeqs={openSeqs} onToggleSeq={toggleSeq} fill={fill} />
     </section>
@@ -252,7 +257,9 @@ export default function LooperApp() {
         </div>
       </div>
       {snap.error && <p role="alert" className="rounded-lg border border-rose-500/40 bg-rose-500/10 p-2 text-xs text-rose-200">{snap.error}</p>}
-      {widgetMode ? (
+      {view === "lines" ? (
+        <FreeBoard engine={engine} snap={snap} controls={loopControls} keyboardOpen={keyboardOpen} onToggleKeyboard={() => setKeyboardOpen((v) => !v)} openSeqs={openSeqs} onToggleSeq={toggleSeq} openPianos={openPianos} onTogglePiano={togglePiano} />
+      ) : widgetMode ? (
         <WidgetBoard
           storageKey="musickit.looper.widgets"
           flush
@@ -312,7 +319,7 @@ export default function LooperApp() {
       )}
       {settingsOpen && <LooperSettings engine={engine} snap={snap} getLevel={getLevel} onClose={() => setSettingsOpen(false)} />}
 
-      {!widgetMode && looping(false)}
+      {view === "fixed" && looping(false)}
 
     </div>
   );

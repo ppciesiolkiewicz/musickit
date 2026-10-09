@@ -38,7 +38,7 @@ const PICKS: { id: Pick; label: string; hint: string }[] = [
 ];
 
 /** Two steps: pick the kind of input (hardware or software keyboard), then for hardware pick a device and its channels. */
-function AddInputModal({ engine, snap, hasExtra, onClose }: { engine: LooperEngine; snap: LooperSnapshot; hasExtra: boolean; onClose: () => void }) {
+export function AddInputModal({ engine, snap, hasExtra, onClose }: { engine: LooperEngine; snap: LooperSnapshot; hasExtra: boolean; onClose: () => void }) {
   const [step, setStep] = useState<"type" | "hardware">("type");
   const [deviceId, setDeviceId] = useState<string | null>(() => chooseDevice(snap.devices, null)?.id ?? null);
   const [role, setRole] = useState<InputRole>("guitar");
@@ -238,7 +238,7 @@ export default function Mixer({ engine, snap, keyboardOpen, onToggleKeyboard, op
   );
 }
 
-function InputStrip({ engine, inp, devices, anyDevice, keyboardOpen, onToggleKeyboard, sequencerOpen, onToggleSequencer, pianoOpen, onTogglePiano, seq, groups }: { engine: LooperEngine; inp: InputInfo; devices: { id: string; label: string }[]; anyDevice: boolean; keyboardOpen: boolean; onToggleKeyboard: () => void; sequencerOpen: boolean; onToggleSequencer: () => void; pianoOpen: boolean; onTogglePiano: () => void; seq?: LooperSnapshot["sequencers"][number]; groups: { id: string; name: string; colour: string }[] }) {
+export function InputStrip({ engine, inp, devices, anyDevice, keyboardOpen, onToggleKeyboard, sequencerOpen, onToggleSequencer, pianoOpen, onTogglePiano, seq, groups }: { engine: LooperEngine; inp: InputInfo; devices: { id: string; label: string }[]; anyDevice: boolean; keyboardOpen: boolean; onToggleKeyboard: () => void; sequencerOpen: boolean; onToggleSequencer: () => void; pianoOpen: boolean; onTogglePiano: () => void; seq?: LooperSnapshot["sequencers"][number]; groups: { id: string; name: string; colour: string }[] }) {
   const getLevel = useMemo(() => () => engine.getInputLevel(inp.id), [engine, inp.id]);
   const m = engine.mixer;
   const isDevice = inp.kind === "device";
@@ -304,6 +304,18 @@ function InputStrip({ engine, inp, devices, anyDevice, keyboardOpen, onToggleKey
   );
 }
 
+/** The master bus as one strip: everything that is not in a group, and every bus, ends here. */
+export function MasterStrip({ engine, snap }: { engine: LooperEngine; snap: LooperSnapshot }) {
+  return (
+  <li data-patch-id="master" className="flex flex-wrap items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-950/60 px-2 py-1.5">
+    <span className="h-3 w-3 rounded-sm bg-slate-300" aria-hidden />
+    <span className="w-32 truncate px-1.5 text-sm font-medium text-slate-100">Master bus</span>
+    <span className="flex h-6 min-w-[6.5rem] items-center justify-center rounded-md border border-slate-700 px-1.5 text-[10px] leading-none text-slate-400" title="Everything that is not in a group, and every bus">all buses</span>
+    <MasterControls engine={engine} snap={snap} />
+  </li>
+  );
+}
+
 /** The buses (one per group) and the master: what feeds each, its effects, level, volume and mute. */
 function Buses({ engine, snap }: { engine: LooperEngine; snap: LooperSnapshot }) {
   const [fxFor, setFxFor] = useState<string | null>(null);
@@ -320,12 +332,7 @@ function Buses({ engine, snap }: { engine: LooperEngine; snap: LooperSnapshot })
       </ul>
       <h3 className="mt-1 flex items-center gap-1.5 border-t border-slate-800 px-1 pt-1.5 text-xs font-medium text-slate-300"><Icon name="audio-lines" size={16} className="text-slate-400" />Master</h3>
       <ul>
-        <li data-patch-id="master" className="flex flex-wrap items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-950/60 px-2 py-1.5">
-          <span className="h-3 w-3 rounded-sm bg-slate-300" aria-hidden />
-          <span className="w-32 truncate px-1.5 text-sm font-medium text-slate-100">Master bus</span>
-          <span className="flex h-6 min-w-[6.5rem] items-center justify-center rounded-md border border-slate-700 px-1.5 text-[10px] leading-none text-slate-400" title="Everything that is not in a group, and every bus">all buses</span>
-          <MasterControls engine={engine} snap={snap} />
-        </li>
+        <MasterStrip engine={engine} snap={snap} />
       </ul>
       {fxGroup && <GroupEffects engine={engine} g={fxGroup} onClose={() => setFxFor(null)} />}
     </div>

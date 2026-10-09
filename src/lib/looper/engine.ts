@@ -1282,7 +1282,24 @@ export class LooperEngine {
     if (patch.muted !== undefined) g.muted = patch.muted;
     if (patch.volume !== undefined || patch.muted !== undefined) this.buses.get(id)?.setVolume(g.muted ? 0 : g.volume);
     if (patch.x !== undefined || patch.y !== undefined || patch.w !== undefined || patch.h !== undefined) {
+      // moving a group (not resizing it) carries the loops and sequencers inside it
+      const carry = patch.w === undefined && patch.h === undefined;
+      const loops = carry ? this.runtimes.filter((r) => r.info.groupId === id) : [];
+      const seqs = carry ? [...this.sequencers.values()].filter((q) => containingGroup(this.groups, q.state.x, q.state.y) === id) : [];
+      const from = { x: g.x, y: g.y };
       Object.assign(g, clampRect({ x: patch.x ?? g.x, y: patch.y ?? g.y, w: patch.w ?? g.w, h: patch.h ?? g.h }));
+      const dx = g.x - from.x, dy = g.y - from.y;
+      if (carry && (dx !== 0 || dy !== 0)) {
+        loops.forEach((r) => {
+          const c = clampPoint(r.info.x + dx, r.info.y + dy);
+          r.info.x = c.x;
+          r.info.y = c.y;
+        });
+        seqs.forEach((q) => {
+          const c = clampPoint(q.state.x + dx, q.state.y + dy);
+          q.setPos(c.x, c.y);
+        });
+      }
     }
     this.layoutChanged();
   }

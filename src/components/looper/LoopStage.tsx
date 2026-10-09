@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent as RKeyboardEvent, type PointerEvent as RPointerEvent, type RefObject } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode, type KeyboardEvent as RKeyboardEvent, type PointerEvent as RPointerEvent, type RefObject } from "react";
 import Icon from "../Icon";
 import EffectsModal from "./EffectsModal";
 import EffectWidgets from "./EffectWidgets";
@@ -42,7 +42,7 @@ const arrowStep = (e: RKeyboardEvent): [number, number] | null => {
 };
 
 /** The looping stage: loops are circles with a progress ring; coloured groups are boxes you can move and resize. A loop inside a group plays through that group's bus. */
-export default function LoopStage({ engine, snap, openSeqs, onToggleSeq, fill = false }: { engine: LooperEngine; snap: LooperSnapshot; getPosition?: () => number | null; openSeqs: string[]; onToggleSeq: (id: string) => void; fill?: boolean }) {
+export default function LoopStage({ engine, snap, openSeqs, onToggleSeq, fill = false, patchSeq = false, cards }: { patchSeq?: boolean; cards?: (scale: number) => ReactNode; engine: LooperEngine; snap: LooperSnapshot; getPosition?: () => number | null; openSeqs: string[]; onToggleSeq: (id: string) => void; fill?: boolean }) {
   const stage = useRef<HTMLDivElement>(null);
   const [fxFor, setFxFor] = useState<string | null>(null);
   const ready = snap.status === "ready";
@@ -107,7 +107,7 @@ export default function LoopStage({ engine, snap, openSeqs, onToggleSeq, fill = 
           window.addEventListener("pointerup", () => window.removeEventListener("pointermove", move), { once: true });
         }}
       >
-        <div data-pan="1" style={{ width: canvasW * scale, height: canvasH * scale }}>
+        <div data-pan="1" className="relative" style={{ width: canvasW * scale, height: canvasH * scale }}>
           <div data-pan="1" className="relative select-none" style={{ width: canvasW, height: canvasH, transform: `scale(${scale})`, transformOrigin: "top left" }}>
             <EffectWidgets engine={engine} snap={snap} drag={(e, onMove) => startDrag(e, stage.current, onMove)} />
       <div ref={stage} data-pan="1" className="relative select-none" style={{ width: STAGE_W, height: STAGE_H }}>
@@ -120,10 +120,11 @@ export default function LoopStage({ engine, snap, openSeqs, onToggleSeq, fill = 
         })}
         {snap.sequencers.map((q) => {
           const g = snap.groups.find((x) => x.id === q.groupId);
-          return <SeqCircle key={q.id} engine={engine} q={q} colour={g?.colour ?? "#94a3b8"} stage={stage} open={openSeqs.includes(q.id)} onOpen={() => onToggleSeq(q.id)} />;
+          return <SeqCircle key={q.id} engine={engine} q={q} colour={g?.colour ?? "#94a3b8"} stage={stage} open={openSeqs.includes(q.id)} onOpen={() => onToggleSeq(q.id)} patchId={patchSeq} />;
         })}
       </div>
           </div>
+          {cards?.(scale)}
         </div>
       </div>
       {fxGroup && <GroupEffects engine={engine} g={fxGroup} onClose={() => setFxFor(null)} />}
@@ -216,7 +217,7 @@ function LoopCircle({ engine, ch, colour, stage, ready, busy, firstTake, baseBar
   );
 }
 
-function SeqCircle({ engine, q, colour, stage, open, onOpen }: { engine: LooperEngine; q: LooperSnapshot["sequencers"][number]; colour: string; stage: RefObject<HTMLDivElement | null>; open: boolean; onOpen: () => void }) {
+function SeqCircle({ engine, q, colour, stage, open, onOpen, patchId = false }: { patchId?: boolean; engine: LooperEngine; q: LooperSnapshot["sequencers"][number]; colour: string; stage: RefObject<HTMLDivElement | null>; open: boolean; onOpen: () => void }) {
   const arc = useRef<SVGCircleElement>(null);
   const toggle = () => engine.setSequencerPlaying(q.id, !q.playing);
   useEffect(() => {
@@ -243,7 +244,7 @@ function SeqCircle({ engine, q, colour, stage, open, onOpen }: { engine: LooperE
   const size = LOOP_R * 2 - 8;
   const ring = q.playing ? "#34d399" : colour;
   return (
-    <div className="absolute z-10 flex w-24 flex-col items-center gap-0.5" style={{ left: `${(q.x / STAGE_W) * 100}%`, top: `${(q.y / STAGE_H) * 100}%`, transform: `translate(-50%, -${LOOP_R - 4}px)` }}>
+    <div data-patch-id={patchId ? `seq:${q.id}` : undefined} className="absolute z-10 flex w-24 flex-col items-center gap-0.5" style={{ left: `${(q.x / STAGE_W) * 100}%`, top: `${(q.y / STAGE_H) * 100}%`, transform: `translate(-50%, -${LOOP_R - 4}px)` }}>
       <button type="button" onPointerDown={onPointerDown} onKeyDown={onKeyDown} onClick={(e) => e.detail === 0 && toggle()} aria-pressed={q.playing} aria-label={`${q.playing ? "Stop" : "Start"} ${q.name} on the next beat. Drag to move; Alt and arrow keys move it.`} title={`${q.playing ? "Stop" : "Start"} on the next beat (drag to move)`} className="relative grid cursor-grab place-items-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-sky-400 active:cursor-grabbing" style={{ width: size, height: size, touchAction: "none" }}>
         <svg viewBox="0 0 100 100" width={size} height={size} aria-hidden>
           <rect x="14" y="14" width="72" height="72" rx="20" fill={q.playing ? `${ring}22` : "none"} stroke="#1e293b" strokeWidth="8" />
