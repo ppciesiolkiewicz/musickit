@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "npx tsx --test src/lib/chordKit/*.test.ts src/lib/looper/*.test.ts"
+    "test": "npx tsx --test src/lib/chordKit/*.test.ts src/lib/looper/*.test.ts src/lib/improv/*.test.ts"
   },
   "dependencies": {
     "@tonaljs/tonal": "^4.10.0",

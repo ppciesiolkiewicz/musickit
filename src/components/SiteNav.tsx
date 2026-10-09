@@ -7,6 +7,7 @@ export const SITE_LINKS = [
   { href: "/scales", label: "Scales" },
   { href: "/caged", label: "CAGED" },
   { href: "/arpeggios", label: "Arpeggios" },
+  { href: "/improv", label: "Improv" },
   { href: "/looper", label: "Looper" },
 ];
 

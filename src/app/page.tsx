@@ -8,6 +8,7 @@ const TOOLS: { href: string; label: string; icon: IconName; text: string }[] = [
   { href: "/scales", label: "Scales and modes", icon: "sliders-horizontal", text: "Scales on the neck, modes side by side." },
   { href: "/arpeggios", label: "Arpeggios", icon: "activity", text: "Arpeggio shapes across the neck." },
   { href: "/caged", label: "CAGED", icon: "piano", text: "The five open shapes up the fretboard." },
+  { href: "/improv", label: "Improvisation", icon: "drum", text: "Schillinger rhythm and motive exercises, with practice games." },
   { href: "/looper", label: "Looper", icon: "repeat", text: "Record loops, add drums and a scale piano, mix with buses and effects." },
 ];
 
