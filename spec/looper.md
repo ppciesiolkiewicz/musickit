@@ -111,3 +111,9 @@ Undo/redo, a history list, recordable macros and a movable/resizable widget layo
 ## Amp model (NAM) effect
 
 A tenth effect kind, `nam`, runs Neural Amp Modeler models (`.nam`, including A2) on a guitar input. The effect is injected by `LooperApp` (`setNamFactory`, `registerChoice("nam-model")`); the looper itself does not import the feature, and the effect passes the signal through until a model is chosen. The model is a numeric library id in the `model` parameter, so actions, undo, macros and AI scripts need no new action type. In the effects dialog the Model row is a picker with an add button; `.nam` files can also be dropped on the row. Parameters: input and output gain (dB), noise gate (-90 = off), level match, size (for slimmable models), mix. Details: `spec/nam.md`.
+
+## Master bus effects, effect widgets and the stage canvas
+
+- The master bus is the global output. Its chain is: everything -> pre-fader effects -> master fader -> post-fader effects -> speakers and meter. The same controls (level, volume, effects button) are in the mixer's Master row and in Looper settings under "Output (master bus)". Master effects are actions (`fx.*` with target `{ master: true }`), so undo, macros and AI scripts cover them, and they are saved in the layout (`masterEffects`).
+- Any effect (on an input, a bus or the master) can be pinned to the stage as a widget with the dashboard button on its card in the effects dialog. A widget is a small panel with the effect's full controls, placed to the right of the stage; drag its title to move it, the x removes the widget (the effect stays). Pins are saved in localStorage `musickit.looper.fxWidgets` and dropped when their effect is removed.
+- The stage canvas zooms from 20% to 250% (buttons, or Ctrl/Cmd and the wheel; "fit" shows everything, including the widget area while any widget is pinned) and pans by scrolling or dragging empty space. The (i) button next to the zoom buttons explains this.

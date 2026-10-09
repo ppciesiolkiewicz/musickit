@@ -59,7 +59,8 @@ export type LooperAction =
   | { type: "batch"; label?: string; actions: LooperAction[] };
 
 /** Where an effect lives: on a group's bus, or on an input strip. */
-export type FxTarget = { group: string } | { input: number };
+/** Where an effect lives: a group's bus, an input strip, or the master bus (the global output). */
+export type FxTarget = { group: string } | { input: number } | { master: true };
 export interface FxSpec {
   kind: EffectKind;
   /** a name for it (a macro replays with the id it recorded); made up when left out */
@@ -99,6 +100,8 @@ export interface ActionState {
   groups: { id: string; name: string; colour: string; volume: number; muted: boolean; x: number; y: number; w: number; h: number; effects: EffectState[] }[];
   inputs: { id: number; kind: string; name: string; deviceId: string; mode: InputMode; volume: number; muted: boolean; solo: boolean; monitor: boolean; effects: EffectState[] }[];
   masterVolume: number;
+  /** effects on the master bus, before (post: false) and after its fader */
+  masterEffects: EffectState[];
   playing: boolean;
   metronome: MetronomeSettings;
   sequencers: { id: string; name: string; x: number; y: number; dest: "auto" | "record"; playing: boolean; instrumentId: string; bars: number; cells: number[][] }[];
@@ -216,7 +219,7 @@ export function applyAction(t: ActionTarget, a: LooperAction): LooperAction | nu
   }
 }
 
-const fxList = (s: ActionState, t: FxTarget): EffectState[] | undefined => ("group" in t ? s.groups.find((g) => g.id === t.group)?.effects : s.inputs.find((i) => i.id === t.input)?.effects);
+const fxList = (s: ActionState, t: FxTarget): EffectState[] | undefined => ("master" in t ? s.masterEffects : "group" in t ? s.groups.find((g) => g.id === t.group)?.effects : s.inputs.find((i) => i.id === t.input)?.effects);
 const specOf = (e: EffectState): FxSpec & { id: string } => ({ id: e.id, kind: e.kind, post: e.post, bypass: e.bypass, params: { ...e.params } });
 
 /**
@@ -396,7 +399,7 @@ export function describeAction(a: LooperAction, s?: ActionState): string {
   }
 }
 
-const fxWhere = (t: FxTarget, s?: ActionState): string => ("group" in t ? s?.groups.find((g) => g.id === t.group)?.name ?? "group" : s?.inputs.find((i) => i.id === t.input)?.name ?? "input");
+const fxWhere = (t: FxTarget, s?: ActionState): string => ("master" in t ? "master" : "group" in t ? s?.groups.find((g) => g.id === t.group)?.name ?? "group" : s?.inputs.find((i) => i.id === t.input)?.name ?? "input");
 
 /**
  * Actions with the same key that follow each other closely are one gesture (a slider drag, a move) and share one history line.
@@ -433,7 +436,7 @@ const SEQ_KEYS: Record<string, (v: unknown) => boolean> = {
   instrument: isStr, preset: isStr, rows: (v) => Array.isArray(v) && v.length <= 16 && v.every(isStr), clear: isBool, cells: isCells, bars: isNum,
   dest: (v) => v === "auto" || v === "record", x: isNum, y: isNum,
 };
-const isTarget = (t: unknown): t is FxTarget => typeof t === "object" && t !== null && (isStr((t as { group?: unknown }).group) || isNum((t as { input?: unknown }).input));
+const isTarget = (t: unknown): t is FxTarget => typeof t === "object" && t !== null && (isStr((t as { group?: unknown }).group) || isNum((t as { input?: unknown }).input) || (t as { master?: unknown }).master === true);
 /** a well-formed effect description of a kind that exists */
 const isFx = (f: unknown): boolean => {
   if (typeof f !== "object" || f === null) return false;

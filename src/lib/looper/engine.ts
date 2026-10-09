@@ -3,13 +3,13 @@ import { Metronome, type MetronomeSettings } from "./metronome";
 import { Sequencer, type SequencerState } from "./sequencer";
 import { fromRows } from "./sequencerPattern";
 import { ScalePiano, clampState as clampScalePiano, type ScalePianoState, type VoiceFactory } from "./scalePiano";
-import { LoopBus, peakOf } from "./buses";
+import { EffectChain, LoopBus, peakOf } from "./buses";
 import { EFFECT_DEFS, defaultParams, moveEffect, clampParams, sanitiseEffects, type EffectKind, type EffectSpec } from "./effects";
 import { GROUP_COLOURS, clampPoint, clampRect, containingGroup, defaultGroups, defaultSpot, type GroupLayout } from "./layout";
 import { InputMixer, describeError, type InputInfo } from "./mixer";
 import { ActionHistory, type DoOptions } from "./history";
 import { MacroRecorder } from "./macros";
-import type { LooperAction } from "./actions";
+import type { FxTarget, LooperAction } from "./actions";
 import { RECORDER_PROCESSOR_NAME, recorderWorkletUrl } from "./recorderWorklet";
 
 export type { InputInfo } from "./mixer";
@@ -100,6 +100,8 @@ export interface LooperSnapshot {
   channels: ChannelInfo[];
   groups: GroupInfo[];
   masterVolume: number;
+  /** effects on the master bus (the global output): before and after its fader */
+  masterEffects: EffectSpec[];
   sampleRate: number;
 }
 
@@ -156,6 +158,10 @@ export class LooperEngine {
   private fxCounter = 0;
   private groupCounter = 5;
   private masterVolume = 1;
+  private masterEffects: EffectSpec[] = [];
+  private masterFader: GainNode | null = null;
+  private masterPre: EffectChain | null = null;
+  private masterPost: EffectChain | null = null;
   private masterMeter: AnalyserNode | null = null;
   private masterBuf: Float32Array<ArrayBuffer> | null = null;
   private runtimes: ChannelRuntime[] = [];
@@ -229,6 +235,7 @@ export class LooperEngine {
       loopSeconds: this.loopLength,
       channels: this.runtimes.map((r) => ({ ...r.info })),
       masterVolume: this.masterVolume,
+      masterEffects: this.masterEffects.map((e) => ({ ...e, params: { ...e.params } })),
       groups: this.groups.map((g) => ({ ...g, effects: g.effects.map((e) => ({ ...e, params: { ...e.params } })) })),
       sampleRate: this.ctx?.sampleRate ?? 0,
     };
@@ -584,12 +591,20 @@ export class LooperEngine {
       this.ownsContext = true;
     }
     const ctx = this.ctx;
+    // master (everything connects here) -> pre-fader effects -> fader (the master volume) -> post-fader effects -> speakers and meter
     this.master = ctx.createGain();
-    this.master.gain.value = this.masterVolume;
-    this.master.connect(ctx.destination);
+    this.masterPre = new EffectChain(ctx);
+    this.masterFader = ctx.createGain();
+    this.masterFader.gain.value = this.masterVolume;
+    this.masterPost = new EffectChain(ctx);
+    this.master.connect(this.masterPre.input);
+    this.masterPre.output.connect(this.masterFader);
+    this.masterFader.connect(this.masterPost.input);
+    this.masterPost.output.connect(ctx.destination);
     this.masterMeter = ctx.createAnalyser();
     this.masterMeter.fftSize = 512;
-    this.master.connect(this.masterMeter);
+    this.masterPost.output.connect(this.masterMeter);
+    this.applyMasterEffects();
     this.masterBuf = new Float32Array(this.masterMeter.fftSize) as Float32Array<ArrayBuffer>;
     this.groups.forEach((g) => this.makeBus(g));
     this.sequencers.forEach((q) => {
@@ -658,7 +673,7 @@ export class LooperEngine {
 
   setMasterVolume(v: number) {
     this.masterVolume = Math.min(1.5, Math.max(0, v));
-    if (this.master && this.ctx) this.master.gain.setTargetAtTime(this.masterVolume, this.ctx.currentTime, 0.02);
+    if (this.masterFader && this.ctx) this.masterFader.gain.setTargetAtTime(this.masterVolume, this.ctx.currentTime, 0.02);
     this.emit();
   }
 
@@ -731,7 +746,9 @@ export class LooperEngine {
     try {
       const raw = window.localStorage.getItem(LAYOUT_KEY);
       if (!raw) return;
-      const j = JSON.parse(raw) as { groups?: Partial<GroupInfo>[]; spots?: Record<string, { x: number; y: number }> };
+      const j = JSON.parse(raw) as { groups?: Partial<GroupInfo>[]; spots?: Record<string, { x: number; y: number }>; masterEffects?: unknown };
+      this.masterEffects = sanitiseEffects(j.masterEffects);
+      this.fxCounter = this.masterEffects.reduce((n, e) => Math.max(n, Number(e.id.replace(/\D/g, "")) || 0), this.fxCounter);
       if (Array.isArray(j.groups) && j.groups.length <= 8) {
         const groups: GroupInfo[] = j.groups.map((g, i) => {
           const r = clampRect({ x: Number(g.x) || 0, y: Number(g.y) || 0, w: Number(g.w) || 300, h: Number(g.h) || 300 });
@@ -760,7 +777,7 @@ export class LooperEngine {
     try {
       const spots: Record<string, { x: number; y: number }> = {};
       this.runtimes.forEach((r) => (spots[r.info.id] = { x: r.info.x, y: r.info.y }));
-      window.localStorage.setItem(LAYOUT_KEY, JSON.stringify({ groups: this.groups, spots }));
+      window.localStorage.setItem(LAYOUT_KEY, JSON.stringify({ groups: this.groups, spots, masterEffects: this.masterEffects }));
     } catch {
       /* ignore */
     }
@@ -956,32 +973,77 @@ export class LooperEngine {
     if (p.mode !== undefined) this.mixer.setMode(id, p.mode);
   }
 
-  /* effects on a group's bus or an input strip, by target */
-  fxAdd(t: { group: string } | { input: number }, fx: { kind: EffectKind; id?: string; post?: boolean; bypass?: boolean; params?: Record<string, number> }): string | null {
+  /* effects on a group's bus, an input strip or the master bus, by target */
+  private applyMasterEffects() {
+    this.masterPre?.setEffects(this.masterEffects.filter((e) => !e.post));
+    this.masterPost?.setEffects(this.masterEffects.filter((e) => e.post));
+  }
+
+  private masterFxChanged() {
+    this.applyMasterEffects();
+    this.saveLayout();
+    this.emit();
+  }
+
+  fxAdd(t: FxTarget, fx: { kind: EffectKind; id?: string; post?: boolean; bypass?: boolean; params?: Record<string, number> }): string | null {
+    if ("master" in t) {
+      if (this.masterEffects.length >= 6 || !EFFECT_DEFS[fx.kind]) return null;
+      let id = fx.id && !this.masterEffects.some((e) => e.id === fx.id) ? fx.id : `fx${++this.fxCounter}`;
+      while (this.masterEffects.some((e) => e.id === id)) id = `fx${++this.fxCounter}`;
+      this.masterEffects.push({ id, kind: fx.kind, bypass: fx.bypass === true, post: fx.post === true, params: clampParams(fx.kind, { ...defaultParams(fx.kind), ...fx.params }) });
+      this.masterFxChanged();
+      return id;
+    }
     return "group" in t ? this.addEffect(t.group, fx.kind, fx.post === true, fx) : this.mixer.addEffect(t.input, fx.kind, fx.post === true, fx);
   }
 
-  fxRemove(t: { group: string } | { input: number }, id: string) {
-    if ("group" in t) this.removeEffect(t.group, id);
+  fxRemove(t: FxTarget, id: string) {
+    if ("master" in t) {
+      this.masterEffects = this.masterEffects.filter((e) => e.id !== id);
+      this.masterFxChanged();
+    } else if ("group" in t) this.removeEffect(t.group, id);
     else this.mixer.removeEffect(t.input, id);
   }
 
-  fxMove(t: { group: string } | { input: number }, id: string, dir: -1 | 1) {
-    if ("group" in t) this.moveEffect(t.group, id, dir);
+  fxMove(t: FxTarget, id: string, dir: -1 | 1) {
+    if ("master" in t) {
+      this.masterEffects = moveEffect(this.masterEffects, id, dir);
+      this.masterFxChanged();
+    } else if ("group" in t) this.moveEffect(t.group, id, dir);
     else this.mixer.moveEffect(t.input, id, dir);
   }
 
-  fxParam(t: { group: string } | { input: number }, id: string, key: string, value: number) {
-    if ("group" in t) this.setEffectParam(t.group, id, key, value);
+  fxParam(t: FxTarget, id: string, key: string, value: number) {
+    if ("master" in t) {
+      const e = this.masterEffects.find((x) => x.id === id);
+      if (!e) return;
+      e.params = clampParams(e.kind, { ...e.params, [key]: value });
+      this.masterFxChanged();
+    } else if ("group" in t) this.setEffectParam(t.group, id, key, value);
     else this.mixer.setEffectParam(t.input, id, key, value);
   }
 
-  fxBypass(t: { group: string } | { input: number }, id: string, bypass: boolean) {
+  fxBypass(t: FxTarget, id: string, bypass: boolean) {
+    if ("master" in t) {
+      const e = this.masterEffects.find((x) => x.id === id);
+      if (!e || e.bypass === bypass) return;
+      e.bypass = bypass;
+      this.masterFxChanged();
+      return;
+    }
     const list = "group" in t ? this.groups.find((g) => g.id === t.group)?.effects : this.mixer.list().find((i) => i.id === t.input)?.effects;
     const e = list?.find((x) => x.id === id);
     if (!e || e.bypass === bypass) return;
     if ("group" in t) this.toggleEffectBypass(t.group, id);
     else this.mixer.toggleEffectBypass(t.input, id);
+  }
+
+  /** Put a master effect before (false) or after (true) the master fader. */
+  setMasterEffectPost(id: string, post: boolean) {
+    const e = this.masterEffects.find((x) => x.id === id);
+    if (!e) return;
+    e.post = post;
+    this.masterFxChanged();
   }
 
   removeLastChannel() {
@@ -1231,6 +1293,11 @@ export class LooperEngine {
     this.scalePianos.forEach((p) => p.dispose());
     this.buses.forEach((b) => b.dispose());
     this.buses.clear();
+    this.masterPre?.dispose();
+    this.masterPost?.dispose();
+    this.masterPre = null;
+    this.masterPost = null;
+    this.masterFader = null;
     this.mixer.dispose();
     try {
       this.worklet?.disconnect();

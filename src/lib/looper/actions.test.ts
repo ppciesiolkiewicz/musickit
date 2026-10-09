@@ -12,6 +12,7 @@ function fake() {
     groups: [{ id: "g1", name: "A", colour: "#fff", volume: 1, muted: false, x: 0, y: 0, w: 100, h: 100, effects: [{ id: "fx1", kind: "reverb", bypass: false, post: false, params: { mix: 0.3 } }] }],
     inputs: [{ id: 0, kind: "device", name: "Guitar", deviceId: "d1", mode: "left", volume: 1, muted: false, solo: false, monitor: false, effects: [] }],
     masterVolume: 1,
+    masterEffects: [],
     playing: false,
     metronome: { bpm: 120, beatsPerBar: 4, volume: 0.5, audible: true, showBeat: true, quantise: "bar", countInBars: 1 },
     sequencers: [{ id: "q1", name: "Drums", x: 5, y: 5, dest: "auto", playing: false, instrumentId: "drums", bars: 1, cells: [[1, 0, 0, 0], [0, 0, 2, 0]] }],
@@ -19,7 +20,7 @@ function fake() {
   const ch = (id: number) => s.channels.find((c) => c.id === id)!;
   const gr = (id: string) => s.groups.find((g) => g.id === id)!;
   const sq = (id: string) => s.sequencers.find((q) => q.id === id)!;
-  const list = (tg: FxTarget) => ("group" in tg ? gr(tg.group)?.effects : s.inputs.find((i) => i.id === tg.input)?.effects);
+  const list = (tg: FxTarget) => ("master" in tg ? s.masterEffects : "group" in tg ? gr(tg.group)?.effects : s.inputs.find((i) => i.id === tg.input)?.effects);
   const t: ActionTarget = {
     getSnapshot: () => s,
     setVolume: (id, v) => { ch(id).volume = v; },
@@ -282,6 +283,20 @@ test("an effect added to an input can be swept, bypassed and removed, and each s
   assert.equal(s.inputs[0].effects[0].params.cutoff, 900);
   h.undo();
   assert.equal(s.inputs[0].effects.length, 0);
+});
+
+test("effects on the master bus are actions too, and validate", () => {
+  const { s, t } = fake();
+  const h = new ActionHistory(t);
+  h.do({ type: "fx.add", target: { master: true }, fx: { kind: "compressor", id: "m1", post: true } });
+  h.do({ type: "fx.param", target: { master: true }, id: "m1", key: "ratio", value: 8 });
+  assert.equal(s.masterEffects[0].params.ratio, 8);
+  assert.equal(describeAction({ type: "fx.bypass", target: { master: true }, id: "m1", bypass: true }, s), "Bypass an effect on master");
+  h.undo();
+  h.undo();
+  assert.equal(s.masterEffects.length, 0);
+  assert.ok(isAction({ type: "fx.remove", target: { master: true }, id: "m1" }));
+  assert.ok(!isAction({ type: "fx.remove", target: { master: false }, id: "m1" }));
 });
 
 test("clearing and recording run but are not on the undo list", () => {

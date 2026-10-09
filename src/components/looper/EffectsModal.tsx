@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import Icon from "../Icon";
 import Modal from "../Modal";
+import { isPinned, togglePin, usePins } from "./fxPins";
 import { EFFECT_DEFS, EFFECT_KINDS, getChoice, type EffectKind, type EffectSpec, type ParamDef } from "@/lib/looper/engine";
 
 const ibtn = "grid h-8 min-w-8 place-items-center rounded-lg border border-slate-700 bg-slate-900 px-1.5 text-xs text-slate-200 transition hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
@@ -76,11 +77,41 @@ function ChoiceParam({ p, value, label, onChange }: { p: ParamDef; value: number
 
 const EMPTY: { id: number; name: string }[] = [];
 
+/** The sliders, switches and pickers of one effect. Used in the dialog and in the widgets on the stage. */
+export function EffectControls({ fx, onParam, columns = true }: { fx: EffectSpec; onParam: (key: string, value: number) => void; columns?: boolean }) {
+  const def = EFFECT_DEFS[fx.kind];
+  return (
+              <div className={`grid gap-x-4 gap-y-1 ${columns ? "sm:grid-cols-2" : ""}`}>
+                {def.params.map((p) => {
+                  const label = `${def.name} ${p.label}`;
+                  const v = fx.params[p.key];
+                  if (p.choice) return <ChoiceParam key={p.key} p={p} value={v} label={label} onChange={(n) => onParam(p.key, n)} />;
+                  if (p.toggle) {
+                    return (
+                      <label key={p.key} className="flex items-center gap-2 text-xs text-slate-400">
+                        <input type="checkbox" checked={v >= 0.5} onChange={(e) => onParam(p.key, e.target.checked ? 1 : 0)} className="accent-sky-400" aria-label={label} />
+                        {p.label}
+                      </label>
+                    );
+                  }
+                  return (
+                    <label key={p.key} className="flex items-center gap-2 text-xs text-slate-400">
+                      <span className="w-14">{p.label}</span>
+                      <input type="range" min={p.min} max={p.max} step={p.step} value={v} onChange={(e) => onParam(p.key, Number(e.target.value))} className="flex-1 accent-sky-400" aria-label={label} />
+                      <span className="w-16 text-right tabular-nums">{p.key === "gate" && v <= -89 ? "off" : p.unit ? `${Math.round(v * 100) / 100} ${p.unit}` : Math.round(v * 100) + "%"}</span>
+                    </label>
+                  );
+                })}
+              </div>
+  );
+}
+
+
 /**
  * The effects on one input or bus: choose an effect to add, set it before or after the fader, tweak, bypass, remove.
  * Pre-fader effects are cut by the fader (mute, volume); post-fader effects keep ringing, so a reverb tail survives a mute.
  */
-export default function EffectsModal({ title, effects, volume, onAdd, onRemove, onParam, onBypass, onPost, onClose }: {
+export default function EffectsModal({ title, effects, volume, onAdd, onRemove, onParam, onBypass, onPost, onClose, pinScope }: {
   title: ReactNode;
   effects: EffectSpec[];
   volume?: { value: number; onChange: (v: number) => void };
@@ -90,7 +121,10 @@ export default function EffectsModal({ title, effects, volume, onAdd, onRemove, 
   onBypass: (id: string) => void;
   onPost: (id: string, post: boolean) => void;
   onClose: () => void;
+  /** "g:<group id>" or "i:<input id>": effects can then be pinned to the stage as widgets */
+  pinScope?: string;
 }) {
+  const pins = usePins();
   const [adding, setAdding] = useState<null | boolean>(null);
   const [open, setOpen] = useState<Record<string, boolean>>({});
   const card = (fx: EffectSpec) => {
@@ -101,33 +135,15 @@ export default function EffectsModal({ title, effects, volume, onAdd, onRemove, 
         <div className="flex items-center gap-1.5">
           <button type="button" className={ibtn} aria-expanded={!collapsed} onClick={() => setOpen({ ...open, [fx.id]: collapsed })} title={collapsed ? "Show settings" : "Hide settings"} aria-label={`${collapsed ? "Show" : "Hide"} ${def.name} settings`}><Icon name="chevron-right" size={14} className={collapsed ? "" : "rotate-90"} /></button>
           <h3 className="min-w-0 flex-1 truncate text-sm font-medium text-slate-100">{def.name}</h3>
+          {pinScope && (
+            <button type="button" className={`${ibtn} ${isPinned(pins, `${pinScope}:${fx.id}`) ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={isPinned(pins, `${pinScope}:${fx.id}`)} onClick={() => togglePin(`${pinScope}:${fx.id}`)} title="Show this effect as a widget on the loop stage" aria-label={`Pin ${def.name} to the stage`}><Icon name="layout-dashboard" size={14} /></button>
+          )}
           <button type="button" className={ibtn} onClick={() => onPost(fx.id, !fx.post)} title={fx.post ? "After the fader: move before it (the fader then cuts it)" : "Before the fader: move after it (it keeps ringing when the fader is down)"} aria-label={`Move ${def.name} ${fx.post ? "before" : "after"} the fader`}><Icon name="chevron-right" size={14} className={fx.post ? "-rotate-90" : "rotate-90"} /></button>
           <button type="button" className={`${ibtn} ${fx.bypass ? "" : "!border-emerald-500/70 !text-emerald-200"}`} aria-pressed={!fx.bypass} onClick={() => onBypass(fx.id)} title={fx.bypass ? "Bypassed (tap to switch on)" : "On (tap to bypass)"} aria-label={`${def.name} on or off`}><Icon name="power" /></button>
           <button type="button" className={ibtn} onClick={() => onRemove(fx.id)} title="Remove" aria-label={`Remove ${def.name}`}><Icon name="trash" /></button>
         </div>
         {!collapsed && (
-              <div className="grid gap-x-4 gap-y-1 sm:grid-cols-2">
-                {def.params.map((p) => {
-                  const label = `${def.name} ${p.label}`;
-                  const v = fx.params[p.key];
-                  if (p.choice) return <ChoiceParam key={p.key} p={p} value={v} label={label} onChange={(n) => onParam(fx.id, p.key, n)} />;
-                  if (p.toggle) {
-                    return (
-                      <label key={p.key} className="flex items-center gap-2 text-xs text-slate-400">
-                        <input type="checkbox" checked={v >= 0.5} onChange={(e) => onParam(fx.id, p.key, e.target.checked ? 1 : 0)} className="accent-sky-400" aria-label={label} />
-                        {p.label}
-                      </label>
-                    );
-                  }
-                  return (
-                    <label key={p.key} className="flex items-center gap-2 text-xs text-slate-400">
-                      <span className="w-14">{p.label}</span>
-                      <input type="range" min={p.min} max={p.max} step={p.step} value={v} onChange={(e) => onParam(fx.id, p.key, Number(e.target.value))} className="flex-1 accent-sky-400" aria-label={label} />
-                      <span className="w-16 text-right tabular-nums">{p.key === "gate" && v <= -89 ? "off" : p.unit ? `${Math.round(v * 100) / 100} ${p.unit}` : Math.round(v * 100) + "%"}</span>
-                    </label>
-                  );
-                })}
-              </div>
+              <EffectControls fx={fx} onParam={(k, v) => onParam(fx.id, k, v)} />
         )}
       </section>
     );

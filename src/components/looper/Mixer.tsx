@@ -7,6 +7,7 @@ import LevelMeter from "./LevelMeter";
 import EffectsModal from "./EffectsModal";
 import EffectStack from "./EffectStack";
 import { GroupEffects } from "./LoopStage";
+import MasterControls from "./MasterOutput";
 import SignalFlow from "./SignalFlow";
 import { MAX_INPUTS, type InputInfo, type InputMode, type LooperEngine, type LooperSnapshot } from "@/lib/looper/engine";
 
@@ -218,6 +219,7 @@ function InputStrip({ engine, inp, devices, anyDevice, keyboardOpen, onToggleKey
         <EffectsModal
           title={<span className="flex items-center gap-2"><Icon name={isDevice ? "mic" : "music"} size={16} />{inp.name}: effects</span>}
           effects={inp.effects}
+          pinScope={`i:${inp.id}`}
           volume={{ value: inp.volume, onChange: (v) => engine.do({ type: "input.set", id: inp.id, patch: { volume: v } }) }}
           onAdd={(k, post) => engine.do({ type: "fx.add", target: { input: inp.id }, fx: { kind: k, post } })}
           onRemove={(fx) => engine.do({ type: "fx.remove", target: { input: inp.id }, id: fx })}
@@ -237,7 +239,6 @@ function InputStrip({ engine, inp, devices, anyDevice, keyboardOpen, onToggleKey
 function Buses({ engine, snap }: { engine: LooperEngine; snap: LooperSnapshot }) {
   const [fxFor, setFxFor] = useState<string | null>(null);
   const fxGroup = snap.groups.find((g) => g.id === fxFor);
-  const getMaster = useMemo(() => () => engine.getMasterLevel(), [engine]);
   return (
     <div className="flex flex-col gap-1 border-t border-slate-800 pt-1.5" aria-label="Buses">
       <h3 className="flex items-center gap-1.5 px-1 text-xs font-medium text-slate-300"><Icon name="plug" size={16} className="text-slate-400" />Buses</h3>
@@ -254,8 +255,7 @@ function Buses({ engine, snap }: { engine: LooperEngine; snap: LooperSnapshot })
           <span className="h-3 w-3 rounded-sm bg-slate-300" aria-hidden />
           <span className="w-32 truncate px-1.5 text-sm font-medium text-slate-100">Master bus</span>
           <span className="flex h-6 min-w-[6.5rem] items-center justify-center rounded-md border border-slate-700 px-1.5 text-[10px] leading-none text-slate-400" title="Everything that is not in a group, and every bus">all buses</span>
-          <LevelMeter vertical getLevel={getMaster} />
-          <input type="range" min={0} max={1.5} step={0.01} value={snap.masterVolume} onChange={(e) => engine.do({ type: "master.volume", value: Number(e.target.value) })} className="w-24 accent-sky-400" aria-label="Master volume" title={`Master ${Math.round(snap.masterVolume * 100)}%`} />
+          <MasterControls engine={engine} snap={snap} />
         </li>
       </ul>
       {fxGroup && <GroupEffects engine={engine} g={fxGroup} onClose={() => setFxFor(null)} />}

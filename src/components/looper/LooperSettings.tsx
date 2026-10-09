@@ -3,6 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import Modal from "../Modal";
 import LevelMeter from "./LevelMeter";
+import MasterControls from "./MasterOutput";
 import type { LooperEngine, LooperSnapshot } from "@/lib/looper/engine";
 import { getMidiInputs, onMidiDevicesChanged, requestMidiAccess, setMidiInputFilter } from "@/features/sound/keyboard/midi";
 
@@ -34,6 +35,13 @@ export default function LooperSettings({ engine, snap, getLevel, onClose }: { en
         <Group title="Level">
           <LevelMeter getLevel={getLevel} />
           <p className="text-xs text-slate-500">Shows what is about to be recorded, from every source that is switched on.</p>
+        </Group>
+
+        <Group title="Output (master bus)">
+          <div className="flex flex-wrap items-center gap-2">
+            <MasterControls engine={engine} snap={snap} />
+          </div>
+          <p className="text-xs text-slate-500">The global output is the master bus: this is the same volume and effect chain as the Master row in the mixer.</p>
         </Group>
 
         <MidiGroup />

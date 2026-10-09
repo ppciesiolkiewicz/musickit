@@ -3,12 +3,16 @@
 import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent as RKeyboardEvent, type PointerEvent as RPointerEvent, type RefObject } from "react";
 import Icon from "../Icon";
 import EffectsModal from "./EffectsModal";
+import EffectWidgets from "./EffectWidgets";
+import { PIN_AREA, usePins } from "./fxPins";
+import InfoTip from "../InfoTip";
 import { GROUP_COLOURS, LOOP_R, STAGE_H, STAGE_W, type ChannelInfo, type GroupInfo, type LooperEngine, type LooperSnapshot } from "@/lib/looper/engine";
 
 const ibtn = "grid h-8 min-w-8 place-items-center rounded-lg border border-slate-700 bg-slate-900 px-1.5 text-xs text-slate-200 transition hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 const tbtn = "grid h-6 min-w-6 place-items-center rounded-md border border-slate-700/80 bg-slate-900/80 px-1 text-[10px] text-slate-300 transition hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 const RING = 40;
 const CIRC = 2 * Math.PI * RING;
+const MIN_ZOOM = 0.2;
 
 /** Drag with the pointer: calls onMove with the distance moved in stage units; calls onClick if it never moved. */
 function startDrag(e: RPointerEvent, stage: HTMLElement | null, onMove: (dx: number, dy: number) => void, onClick?: () => void) {
@@ -49,6 +53,10 @@ export default function LoopStage({ engine, snap, getPosition, openSeqs, onToggl
   // The stage is drawn at its natural size (STAGE_W by STAGE_H) and scaled, so loops, groups and text all scale together.
   // It fits the page width by default; zoom in and the area scrolls.
   const frame = useRef<HTMLDivElement>(null);
+  const pins = usePins();
+  // The canvas is the stage plus a widget area to its right. It only grows to include that area while effects are pinned.
+  const canvasW = pins.length ? PIN_AREA.x + PIN_AREA.w : STAGE_W;
+  const canvasH = pins.length ? Math.max(STAGE_H, PIN_AREA.h) : STAGE_H;
   const [width, setWidth] = useState(STAGE_W);
   const [zoom, setZoom] = useState<number | null>(null);
   useLayoutEffect(() => {
@@ -60,20 +68,47 @@ export default function LoopStage({ engine, snap, getPosition, openSeqs, onToggl
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
-  const fit = Math.max(0.4, Math.min(1.6, (width - 2) / STAGE_W));
+  const fit = Math.max(MIN_ZOOM, Math.min(1.6, (width - 2) / canvasW));
   const scale = zoom ?? fit;
-  const step = (f: number) => setZoom(Math.max(0.4, Math.min(2.5, +(scale * f).toFixed(2))));
+  const step = (f: number) => setZoom(Math.max(MIN_ZOOM, Math.min(2.5, +(scale * f).toFixed(2))));
 
   return (
     <div className="flex flex-col gap-1">
       <div className="flex items-center justify-end gap-1">
+        <InfoTip label="Stage help">
+          <p><b>Zoom:</b> the minus and plus buttons, or Ctrl (Cmd) and the mouse wheel. Fit shows everything.</p>
+          <p><b>Move around:</b> scroll, or drag empty space on the stage.</p>
+          <p><b>Effect widgets:</b> open the effects of a bus or an input and press the dashboard button on an effect. Its controls appear to the right of the stage; drag the title to place it.</p>
+        </InfoTip>
         <button type="button" className={tbtn} onClick={() => step(1 / 1.2)} title="Zoom out" aria-label="Zoom out"><Icon name="minus" size={12} /></button>
         <button type="button" className={`${tbtn} w-12 tabular-nums`} onClick={() => setZoom(null)} title="Fit to the page" aria-label="Fit the stage to the page">{zoom === null ? "fit" : `${Math.round(scale * 100)}%`}</button>
         <button type="button" className={tbtn} onClick={() => step(1.2)} title="Zoom in" aria-label="Zoom in"><Icon name="plus" size={12} /></button>
       </div>
-      <div ref={frame} className="max-h-[75vh] overflow-auto rounded-xl border border-slate-800 bg-slate-950/60">
-        <div style={{ width: STAGE_W * scale, height: STAGE_H * scale }}>
-      <div ref={stage} className="relative select-none" style={{ width: STAGE_W, height: STAGE_H, transform: `scale(${scale})`, transformOrigin: "top left" }}>
+      <div
+        ref={frame}
+        className="max-h-[75vh] overflow-auto rounded-xl border border-slate-800 bg-slate-950/60"
+        onWheel={(e) => {
+          if (!(e.ctrlKey || e.metaKey)) return;
+          e.preventDefault();
+          step(e.deltaY < 0 ? 1.1 : 1 / 1.1);
+        }}
+        onPointerDown={(e) => {
+          // drag empty space to pan
+          const el = frame.current;
+          if (!el || e.button !== 0 || e.target !== e.currentTarget && !(e.target as HTMLElement).dataset.pan) return;
+          const sx = e.clientX, sy = e.clientY, l = el.scrollLeft, t = el.scrollTop;
+          const move = (ev: PointerEvent) => {
+            el.scrollLeft = l - (ev.clientX - sx);
+            el.scrollTop = t - (ev.clientY - sy);
+          };
+          window.addEventListener("pointermove", move);
+          window.addEventListener("pointerup", () => window.removeEventListener("pointermove", move), { once: true });
+        }}
+      >
+        <div data-pan="1" style={{ width: canvasW * scale, height: canvasH * scale }}>
+          <div data-pan="1" className="relative select-none" style={{ width: canvasW, height: canvasH, transform: `scale(${scale})`, transformOrigin: "top left" }}>
+            <EffectWidgets engine={engine} snap={snap} drag={(e, onMove) => startDrag(e, stage.current, onMove)} />
+      <div ref={stage} data-pan="1" className="relative select-none" style={{ width: STAGE_W, height: STAGE_H }}>
         {snap.groups.map((g) => (
           <GroupBox key={g.id} engine={engine} g={g} stage={stage} count={snap.channels.filter((c) => c.groupId === g.id && c.state !== "empty").length + snap.sequencers.filter((q) => q.groupId === g.id).length} running={snap.channels.some((c) => c.groupId === g.id && c.state !== "empty" && c.active && snap.playing) || snap.sequencers.some((q) => q.groupId === g.id && q.playing)} onFx={() => setFxFor(g.id)} />
         ))}
@@ -86,6 +121,7 @@ export default function LoopStage({ engine, snap, getPosition, openSeqs, onToggl
           return <SeqCircle key={q.id} engine={engine} q={q} colour={g?.colour ?? "#94a3b8"} stage={stage} open={openSeqs.includes(q.id)} onOpen={() => onToggleSeq(q.id)} />;
         })}
       </div>
+          </div>
         </div>
       </div>
       {fxGroup && <GroupEffects engine={engine} g={fxGroup} onClose={() => setFxFor(null)} />}
@@ -239,6 +275,7 @@ export function GroupEffects({ engine, g, onClose }: { engine: LooperEngine; g: 
     <EffectsModal
       title={<span className="flex items-center gap-2"><span className="h-3 w-3 rounded-full" style={{ background: g.colour }} />{g.name}: effects</span>}
       effects={g.effects}
+      pinScope={`g:${g.id}`}
       volume={{ value: g.volume, onChange: (v) => engine.do({ type: "group.set", id: g.id, patch: { volume: v } }) }}
       onAdd={(k, post) => engine.do({ type: "fx.add", target: { group: g.id }, fx: { kind: k, post } })}
       onRemove={(id) => engine.do({ type: "fx.remove", target: { group: g.id }, id })}
