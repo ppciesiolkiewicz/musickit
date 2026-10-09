@@ -3,6 +3,8 @@
  * connections into Web Audio connects (see spec/patch.md). Imports nothing outside src/lib/looper.
  */
 
+import { sanitiseEffects, type EffectSpec } from "./effects";
+
 export type PatchKind = "input" | "sequencer" | "piano" | "synth" | "fx" | "switch" | "group" | "loop" | "master";
 
 export interface PatchNode {
@@ -14,6 +16,10 @@ export interface PatchNode {
   muted: boolean;
   /** switch only: which of its outgoing connections is open (0-based, in creation order) */
   selected?: number;
+  /** effect chains and switches can be named */
+  name?: string;
+  /** effect chain only: its effects, in order */
+  effects?: EffectSpec[];
 }
 
 /** A group has two inputs: its recorder (what its loops in recording mode record) and its bus (heard through the group's effects and fader). */
@@ -175,7 +181,16 @@ export function sanitisePatch(raw: unknown): Patch {
   if (Array.isArray(r.nodes)) {
     for (const n of r.nodes.slice(0, 200)) {
       if (!n || typeof n.id !== "string" || !kinds.includes(n.kind) || nodes.some((m) => m.id === n.id)) continue;
-      nodes.push({ id: n.id, kind: n.kind, x: Number.isFinite(n.x) ? n.x : 0, y: Number.isFinite(n.y) ? n.y : 0, muted: n.muted === true, ...(n.kind === "switch" ? { selected: Math.max(0, Math.round(Number(n.selected) || 0)) } : {}) });
+      nodes.push({
+        id: n.id,
+        kind: n.kind,
+        x: Number.isFinite(n.x) ? n.x : 0,
+        y: Number.isFinite(n.y) ? n.y : 0,
+        muted: n.muted === true,
+        ...(n.kind === "switch" ? { selected: Math.max(0, Math.round(Number(n.selected) || 0)) } : {}),
+        ...(typeof n.name === "string" ? { name: n.name.slice(0, 40) } : {}),
+        ...(n.kind === "fx" ? { effects: sanitiseEffects(n.effects) } : {}),
+      });
     }
   }
   let p: Patch = { nodes, links: [] };
@@ -214,3 +229,35 @@ export function defaultPatch(opts: { inputs: { id: number; kind: "device" | "ext
   });
   return p;
 }
+
+/** Where a new element goes on the canvas: a column per kind (sources, effect chains and switches, groups, master), stacked down. */
+export function place(p: Patch, kind: PatchKind): { x: number; y: number } {
+  const col = (k: PatchKind) => (k === "input" || k === "piano" || k === "sequencer" || k === "synth" ? 0 : k === "fx" || k === "switch" ? 1 : k === "group" || k === "loop" ? 2 : 3);
+  const c = col(kind);
+  const n = p.nodes.filter((m) => col(m.kind) === c).length;
+  return { x: 24 + c * 300, y: 24 + n * 150 };
+}
+
+/** Lay every element out afresh in its column (used once for saves made before the canvas existed). */
+export function layoutAll(p: Patch): Patch {
+  let out: Patch = { nodes: [], links: p.links };
+  for (const n of p.nodes) out = { ...out, nodes: [...out.nodes, { ...n, ...place(out, n.kind) }] };
+  return out;
+}
+
+/**
+ * Does this sound maker's sound travel through the patch? Not when its only links go into group recorders (that is the
+ * plain "this input can be recorded" wiring, which also keeps the old "Hear it" monitor). Any link to an effect chain, a
+ * switch, a group's bus or the master makes it patched: then what it records and what is heard is exactly what is drawn.
+ */
+export function isPatched(p: Patch, id: string): boolean {
+  return p.links.some((l) => l.from === id && !(node(p, l.to)?.kind === "group" && l.port === "rec"));
+}
+
+/** Insert a new element (an effect chain or a switch). Ids must be new. */
+export function addNode(p: Patch, n: PatchNode): Patch {
+  if (p.nodes.some((m) => m.id === n.id) || (n.kind !== "fx" && n.kind !== "switch")) return p;
+  return { ...p, nodes: [...p.nodes, { ...n, muted: n.muted === true, ...(n.kind === "switch" ? { selected: n.selected ?? 0 } : { effects: n.effects ?? [] }) }] };
+}
+
+export const moveNode = (p: Patch, id: string, x: number, y: number): Patch => ({ ...p, nodes: p.nodes.map((n) => (n.id === id ? { ...n, x: Math.max(0, Math.min(4000, x)), y: Math.max(0, Math.min(3000, y)) } : n)) });

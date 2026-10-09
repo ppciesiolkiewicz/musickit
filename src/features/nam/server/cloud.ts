@@ -6,19 +6,19 @@
 export const NAM_PREFIX = "nam/";
 export const MAX_MODEL_BYTES = 4 * 1024 * 1024; // a server upload on Vercel is limited to about 4.5 MB
 
-/** The password that unlocks the cloud library. `NAM_LIBRARY_PASSWORD`, or the same site password the sampler uses. */
-export const libraryPassword = (env: Record<string, string | undefined>): string | undefined => (env.NAM_LIBRARY_PASSWORD ?? env.SAMPLER_SITE_PASSWORD ?? env.SAMPLER_ACCESS_CODE)?.trim() || undefined;
+/** An optional password for the library. Only `NAM_LIBRARY_PASSWORD` turns it on; without it the library is open to anyone who reaches the site. */
+export const libraryPassword = (env: Record<string, string | undefined>): string | undefined => env.NAM_LIBRARY_PASSWORD?.trim() || undefined;
 
 /** The token of the private store. Prefixed so it does not clash with another store on the project. */
 export const blobToken = (env: Record<string, string | undefined>): string | undefined => (env.MUSICKIT_BLOB_READ_WRITE_TOKEN ?? env.BLOB_READ_WRITE_TOKEN)?.trim() || undefined;
 
 export type Access = { ok: true } | { ok: false; status: number; error: string };
 
-/** Can this request use the library? Without a server password or token the library is switched off, never open. */
+/** Can this request use the library? It needs the store token; a password is checked only when one is configured. */
 export function checkAccess(env: Record<string, string | undefined>, sent: string | null): Access {
+  if (!blobToken(env)) return { ok: false, status: 404, error: "The cloud library is not set up on this site." };
   const pw = libraryPassword(env);
-  if (!pw || !blobToken(env)) return { ok: false, status: 404, error: "The cloud library is not set up on this site." };
-  if (!sent || !same(sent, pw)) return { ok: false, status: 401, error: "Wrong password." };
+  if (pw && (!sent || !same(sent, pw))) return { ok: false, status: 401, error: "Wrong password." };
   return { ok: true };
 }
 

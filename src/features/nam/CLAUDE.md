@@ -1,3 +1,3 @@
 NAM amp models. DSP is verified against NeuralAmpModelerCore (`fixtures/reference.json`); keep `dsp.test.ts` passing and regenerate `kernelsWasm.ts` with `wasm/build.sh` after any change to `kernels.c`. Never open the microphone here. The looper must not import this feature: wiring is in `LooperApp.tsx`. See `spec/nam.md`.
 
-- Cloud library: server rules in `server/cloud.ts` (pure, tested), routes in `src/app/api/nam`, browser side in `cloud.ts`. The store token and password stay on the server; models used are copied into the local library. Keep the library private (model licences).
+- Cloud library: server rules in `server/cloud.ts` (pure, tested), routes in `src/app/api/nam`, browser side in `cloud.ts`. The store token (and the optional password) stay on the server; models used are copied into the local library. Keep the library private (model licences).

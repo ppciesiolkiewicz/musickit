@@ -2,22 +2,23 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { blobToken, checkAccess, describePath, libraryPath, ownPath } from "./cloud";
 
-const env = { SAMPLER_SITE_PASSWORD: "pw", MUSICKIT_BLOB_READ_WRITE_TOKEN: "tok" };
+const env = { MUSICKIT_BLOB_READ_WRITE_TOKEN: "tok" };
 
 describe("cloud library access", () => {
-  it("is off without a password or token", () => {
-    assert.equal(checkAccess({}, "pw").ok, false);
+  it("is off without a token", () => {
+    assert.equal(checkAccess({}, null).ok, false);
     assert.equal(checkAccess({ SAMPLER_SITE_PASSWORD: "pw" }, "pw").ok, false);
-    assert.equal(checkAccess({ MUSICKIT_BLOB_READ_WRITE_TOKEN: "t" }, "x").ok, false);
   });
-  it("needs the right password", () => {
-    assert.deepEqual(checkAccess(env, "pw"), { ok: true });
-    const bad = checkAccess(env, "nope");
+  it("is open with a token and no library password", () => {
+    assert.deepEqual(checkAccess(env, null), { ok: true });
+    assert.deepEqual(checkAccess({ ...env, SAMPLER_SITE_PASSWORD: "pw" }, null), { ok: true });
+  });
+  it("checks NAM_LIBRARY_PASSWORD when it is set", () => {
+    const locked = { ...env, NAM_LIBRARY_PASSWORD: "own" };
+    assert.deepEqual(checkAccess(locked, "own"), { ok: true });
+    const bad = checkAccess(locked, "nope");
     assert.ok(!bad.ok && bad.status === 401);
-    assert.ok(!checkAccess(env, null).ok);
-  });
-  it("prefers its own password and token names", () => {
-    assert.equal(checkAccess({ ...env, NAM_LIBRARY_PASSWORD: "own" }, "pw").ok, false);
+    assert.ok(!checkAccess(locked, null).ok);
     assert.equal(blobToken({ MUSICKIT_BLOB_READ_WRITE_TOKEN: "a", BLOB_READ_WRITE_TOKEN: "b" }), "a");
   });
 });

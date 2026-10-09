@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { activeLinks, feeds, connect, defaultPatch, disconnect, emptyPatch, pathTo, removeNode, sanitisePatch, setLinkMuted, setNodeMuted, setSwitch, whyNot, type Patch } from "./patch";
+import { activeLinks, addNode, feeds, isPatched, layoutAll, moveNode, place, connect, defaultPatch, disconnect, emptyPatch, pathTo, removeNode, sanitisePatch, setLinkMuted, setNodeMuted, setSwitch, whyNot, type Patch } from "./patch";
 
 const base = (): Patch => {
   let p = emptyPatch();
@@ -102,5 +102,41 @@ describe("saved patches", () => {
     assert.deepEqual(pathTo(p, "seq:s1", "master"), ["seq:s1", "group:g2", "master"]);
     assert.deepEqual(pathTo(p, "seq:s2", "master"), ["seq:s2", "master"]);
     assert.equal(p.nodes.filter((n) => n.kind === "group").length, 2);
+  });
+});
+
+describe("canvas helpers", () => {
+  it("places elements in a column per kind, stacked", () => {
+    let p = emptyPatch();
+    const a = place(p, "input");
+    p = addNode(p, { id: "f1", kind: "fx", x: 0, y: 0, muted: false });
+    assert.ok(place(p, "fx").y > a.y - 1);
+    assert.ok(place(p, "fx").x > a.x);
+    assert.equal(place(p, "master").x > place(p, "fx").x, true);
+  });
+  it("adds effect chains and switches only, with fresh ids", () => {
+    let p = addNode(emptyPatch(), { id: "f1", kind: "fx", x: 1, y: 2, muted: false });
+    assert.deepEqual(p.nodes[0].effects, []);
+    assert.equal(addNode(p, { id: "f1", kind: "fx", x: 0, y: 0, muted: false }), p);
+    assert.equal(addNode(p, { id: "m", kind: "master", x: 0, y: 0, muted: false }), p);
+    p = addNode(p, { id: "s1", kind: "switch", x: 0, y: 0, muted: false });
+    assert.equal(p.nodes[1].selected, 0);
+    assert.equal(moveNode(p, "s1", -5, 99999).nodes[1].y, 3000);
+  });
+  it("lays a whole patch out afresh", () => {
+    const p = layoutAll(base());
+    assert.equal(new Set(p.nodes.map((n) => `${n.x},${n.y}`)).size, p.nodes.length, "no two on the same spot");
+  });
+  it("tells a patched source from one that is only recordable", () => {
+    let p = connect(base(), "gtr", "bus", "r", "rec");
+    assert.equal(isPatched(p, "gtr"), false);
+    p = connect(p, "gtr", "sw", "a");
+    assert.equal(isPatched(p, "gtr"), true);
+    assert.equal(isPatched(connect(base(), "gtr", "master", "m"), "gtr"), true);
+  });
+  it("keeps the effects of a chain when a save is loaded", () => {
+    const p = sanitisePatch({ nodes: [{ id: "f", kind: "fx", x: 1, y: 1, name: "Amp A", effects: [{ id: "e1", kind: "reverb", params: { mix: 0.4 } }, { kind: "nonsense" }] }], links: [] });
+    assert.equal(p.nodes[0].name, "Amp A");
+    assert.equal(p.nodes[0].effects?.length, 1);
   });
 });

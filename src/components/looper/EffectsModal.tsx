@@ -15,12 +15,13 @@ function groupItems(items: CloudItem[]): { name: string | null; items: CloudItem
   return [...by.entries()].sort((a, b) => (a[0] === null ? 1 : b[0] === null ? -1 : a[0].localeCompare(b[0]))).map(([name, list]) => ({ name, items: list }));
 }
 
-/** The private online library: sign in with the site password, pick a model to use (it is copied into the browser), add or remove models. */
+/** The private online library: pick a model to use (it is copied into the browser), add or remove models. */
 function CloudPanel({ cloud, accept, onPick }: { cloud: CloudSource; accept?: string; onPick: (id: number) => void }) {
   const [pw, setPw] = useState(cloud.getPassword());
   const [items, setItems] = useState<CloudItem[] | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [locked, setLocked] = useState(false);
   const file = useRef<HTMLInputElement>(null);
   const load = async () => {
     setBusy(true);
@@ -29,6 +30,7 @@ function CloudPanel({ cloud, accept, onPick }: { cloud: CloudSource; accept?: st
     if ("error" in r) {
       setItems(null);
       setMsg(r.error);
+      setLocked(/password/i.test(r.error));
     } else {
       setItems(r.models);
       setMsg(null);
@@ -48,8 +50,9 @@ function CloudPanel({ cloud, accept, onPick }: { cloud: CloudSource; accept?: st
   return (
     <div className="flex flex-col gap-1.5 rounded-lg border border-slate-700 bg-slate-900/60 p-2 text-xs text-slate-300">
       <div className="flex items-center gap-1.5">
-        <input type="password" value={pw} onChange={(e) => setPw(e.target.value)} placeholder="Site password" aria-label="Site password" className="min-w-0 flex-1 rounded-md border border-slate-700 bg-slate-950 px-2 py-1 text-xs text-slate-200" />
-        <button type="button" className={ibtn} onClick={() => { cloud.setPassword(pw); void load(); }} title="Sign in" aria-label="Sign in"><Icon name="check" /></button>
+        {(locked || pw) && <input type="password" value={pw} onChange={(e) => setPw(e.target.value)} placeholder="Library password" aria-label="Library password" className="min-w-0 flex-1 rounded-md border border-slate-700 bg-slate-950 px-2 py-1 text-xs text-slate-200" />}
+        {(locked || pw) && <button type="button" className={ibtn} onClick={() => { cloud.setPassword(pw); void load(); }} title="Sign in" aria-label="Sign in"><Icon name="check" /></button>}
+        <span className="min-w-0 flex-1" />
         <button type="button" className={ibtn} onClick={() => file.current?.click()} title="Add model files to the cloud library" aria-label="Upload to the cloud library"><Icon name="upload" /></button>
         <input ref={file} type="file" multiple accept={accept} className="hidden" onChange={async (e) => { const f = Array.from(e.target.files ?? []) as File[]; e.target.value = ""; if (!f.length) return; setBusy(true); setMsg(await cloud.upload(f)); await load(); }} />
       </div>

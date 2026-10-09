@@ -4,7 +4,7 @@ import { blobToken, checkAccess, ownPath } from "@/features/nam/server/cloud";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-/** One model's file, read from the private store after the password check. */
+/** One model's file, read from the private store (password only if NAM_LIBRARY_PASSWORD is set). */
 export async function GET(req: Request) {
   const a = checkAccess(process.env, req.headers.get("x-site-password"));
   if (!a.ok) return Response.json({ error: a.error }, { status: a.status });
