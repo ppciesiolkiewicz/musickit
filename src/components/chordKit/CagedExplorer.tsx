@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import BoxNeck, { type Layers } from "./BoxNeck";
 import { LabelSelect, useLabelSystem } from "./useLabelSystem";
-import { noteLabel, type LabelSystem } from "@/lib/chordKit/labels";
+import { intervalName, noteLabel, type LabelSystem } from "@/lib/chordKit/labels";
 import ChordDiagram from "./ChordDiagram";
 import { KeyPicker } from "./KeyPicker";
 import { fretWidthFactor } from "./Fretboard";
@@ -58,6 +58,8 @@ export default function CagedExplorer() {
         </div>
       </div>
 
+      <NotesTable rootPc={rootPc} quality={quality} arpKind={arpKind} />
+
       <Overview boxes={boxes} keyName={keyName} quality={quality} rootPc={rootPc} arpKind={arpKind} labelSystem={labelSystem} />
 
       <div className="flex flex-col gap-4">
@@ -68,6 +70,39 @@ export default function CagedExplorer() {
     </div>
   );
 }
+
+/** The notes of the selection as bubbles: the interval above, the note name inside. One row each for the arpeggio, the scale and the pentatonic. */
+function NotesTable({ rootPc, quality, arpKind }: { rootPc: number; quality: CagedQuality; arpKind: ArpKind }) {
+  const th = CAGED_THEORY[quality];
+  const ctx = useMemo(() => cagedContext(rootPc, quality), [rootPc, quality]);
+  const arp = useMemo(() => boxArpeggio(ctx, arpKind), [ctx, arpKind]);
+  const fromSemis = (semis: number[]) => semis.map((s) => { const d = th.scale.indexOf(s); return { semi: s, name: d >= 0 ? ctx.names[d] : "?", deg: d >= 0 ? d : null }; });
+  const rows = [
+    { title: notesTitle(arpKind, quality), notes: arp.notes.map((n) => { const semi = (n.pc - rootPc + 12) % 12; const d = th.scale.indexOf(semi); return { semi, name: n.name, deg: d >= 0 ? d : null }; }) },
+    { title: th.scaleName, notes: fromSemis(th.scale) },
+    { title: th.pentName, notes: fromSemis(th.pent) },
+  ];
+  return (
+    <section className="rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5" aria-label="Notes of the selection">
+      <div className="flex flex-col divide-y divide-slate-800/80">
+        {rows.map((r) => (
+          <div key={r.title} className="flex flex-wrap items-end gap-x-3 gap-y-1 py-2 first:pt-0 last:pb-0">
+            <span className="w-36 shrink-0 pb-2 text-xs text-slate-400">{r.title}</span>
+            <div className="flex flex-wrap gap-2">
+              {r.notes.map((n) => (
+                <div key={n.semi} className="flex w-10 flex-col items-center gap-1">
+                  <span className="text-[11px] tabular-nums text-slate-400">{intervalName(n.semi)}</span>
+                  <span className={`grid h-9 w-9 place-items-center rounded-full text-sm font-bold text-slate-950 ${n.semi === 0 ? "ring-2 ring-white" : "ring-1 ring-slate-950"}`} style={{ backgroundColor: n.deg === null ? "#f43f5e" : degreeColour(n.deg) }}>{n.name}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+const notesTitle = (kind: ArpKind, q: CagedQuality) => (kind === "triad" ? (q === "major" ? "Major triad" : "Minor triad") : q === "major" ? "Maj7 arpeggio" : "Min7 arpeggio");
 
 const STRING_LETTERS = ["E", "A", "D", "G", "B", "e"];
 
