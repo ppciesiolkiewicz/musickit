@@ -134,6 +134,8 @@ export default function LoopStage({ engine, snap, openSeqs, onToggleSeq, fill = 
 function LoopCircle({ engine, ch, colour, stage, ready, busy, firstTake, baseBars }: { engine: LooperEngine; ch: ChannelInfo; colour: string; stage: RefObject<HTMLDivElement | null>; ready: boolean; busy: boolean; firstTake: boolean; baseBars: number | null }) {
   const arc = useRef<SVGCircleElement>(null);
   const pulse = useRef<SVGCircleElement>(null);
+  const count = useRef<HTMLSpanElement>(null);
+  const iconBox = useRef<HTMLSpanElement>(null);
   const recording = ch.state === "recording" || ch.state === "armed";
   const isFreeTake = recording && ch.plan === 0 && (firstTake || ch.state === "recording");
   const running = ch.state === "recording" && ch.plan > 0; // a planned take runs to its end on its own
@@ -151,6 +153,12 @@ function LoopCircle({ engine, ch, colour, stage, ready, busy, firstTake, baseBar
         const sc = 1 + 0.06 * Math.sin(t * 4) + lv * 0.28 + lv * 0.05 * Math.sin(t * 38);
         pulse.current.style.transform = `scale(${sc})`;
         pulse.current.style.opacity = String(0.35 + lv * 0.6);
+      }
+      const cd = engine.getCaptureCountdown(ch.id);
+      if (count.current && iconBox.current) {
+        count.current.textContent = cd ? String(cd.beats) : "";
+        count.current.style.color = cd?.ending ? "#fb7185" : "#fbbf24";
+        iconBox.current.style.opacity = cd ? "0.25" : "1";
       }
       const p = ch.state === "recording" ? null : engine.getChannelPosition(ch.id);
       if (arc.current) arc.current.style.strokeDashoffset = String(CIRC * (1 - (ch.state === "empty" || isFreeTake || p === null ? 0 : p)));
@@ -183,7 +191,8 @@ function LoopCircle({ engine, ch, colour, stage, ready, busy, firstTake, baseBar
             <circle ref={arc} cx="50" cy="50" r={RING} fill="none" stroke={live} strokeWidth="8" strokeLinecap="round" strokeDasharray={CIRC} strokeDashoffset={CIRC} transform="rotate(-90 50 50)" opacity={ch.muted || !ch.active ? 0.3 : 1} />
           )}
         </svg>
-        <span className="absolute grid place-items-center" style={{ color: live }}>
+        <span ref={count} className="pointer-events-none absolute text-lg font-semibold tabular-nums" aria-hidden />
+        <span ref={iconBox} className="absolute grid place-items-center" style={{ color: live }}>
           <Icon name={isFreeTake ? "square" : running ? "circle" : recording ? "x" : ch.state === "empty" ? "circle" : "repeat"} size={22} fill={isFreeTake || running || ch.state === "empty"} />
         </span>
       </button>

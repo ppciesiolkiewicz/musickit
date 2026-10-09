@@ -154,3 +154,6 @@ Output channels: when the chosen output has more than two channels (an interface
 - A recorded loop shows its length (bars or x n). Each loop plays with its own ring (`getChannelPosition`) counted from its own recording start (`origin`), so a x4 loop stays in phase with the first loop.
 - Not built: loops shorter than the first loop (1/2, 1/4), and the plan is not saved across reloads. A planned take cannot be stopped early (only cancelled while armed).
 - A recording loop shows a pulse, not progress: it swells and shivers with the signal reaching the recorder (`getCaptureLevel`, peak of the recorder chunks).
+
+## Countdown on a loop
+While a take waits to start (count-in or next loop boundary) the loop circle shows the beats left in amber. After stop is pressed on a free take, or on a planned take, it shows the beats left until the take ends in red. `getCaptureCountdown(id)`; shown by the loop circle each frame. Not checked in a browser.

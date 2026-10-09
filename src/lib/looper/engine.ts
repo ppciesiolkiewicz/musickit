@@ -822,6 +822,24 @@ export class LooperEngine {
     this.emit();
   }
 
+  /** Beats left before this loop's take starts (waiting) or ends (after stop was pressed), or null when neither applies. */
+  getCaptureCountdown(id: number): { beats: number; ending: boolean } | null {
+    const cap = this.capture;
+    if (!cap || cap.channel !== id || !this.ctx) return null;
+    const sr = this.ctx.sampleRate;
+    const period = this.metronome.period || 0.5;
+    const now = this.ctx.currentTime;
+    if (!cap.started) {
+      const left = cap.at - now;
+      return left > 0 ? { beats: Math.max(1, Math.ceil(left / period - 1e-6)), ending: false } : null;
+    }
+    if (cap.endFrame !== null) {
+      const left = cap.at + (cap.endFrame - cap.startFrame) / sr - now;
+      return left > 0 ? { beats: Math.max(1, Math.ceil(left / period - 1e-6)), ending: true } : null;
+    }
+    return null;
+  }
+
   /** Peak level of what is being recorded on this loop (0..1), 0 when it is not recording. */
   getCaptureLevel(id: number): number {
     return this.capture?.channel === id && this.capture.started ? Math.min(1, this.captureLevel) : 0;
