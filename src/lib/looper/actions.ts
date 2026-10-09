@@ -23,6 +23,10 @@ export type LooperAction =
   | { type: "loop.move"; id: number; x: number; y: number }
   | { type: "loop.active"; id: number; on: boolean }
   | { type: "loop.plan"; id: number; plan: number }
+  | { type: "patch.link"; link: { id: string; from: string; to: string; port?: "rec" | "bus"; muted?: boolean } }
+  | { type: "patch.unlink"; id: string }
+  | { type: "patch.mute"; what: "link" | "node"; id: string; muted: boolean }
+  | { type: "patch.switch"; id: string; selected: number }
   | { type: "group.set"; id: string; patch: GroupPatch }
   | { type: "group.active"; id: string; on: boolean }
   | { type: "master.volume"; value: number }
@@ -106,6 +110,8 @@ export interface ActionState {
   playing: boolean;
   metronome: MetronomeSettings;
   sequencers: { id: string; name: string; x: number; y: number; dest: "auto" | "record"; playing: boolean; instrumentId: string; bars: number; cells: number[][] }[];
+  /** what is connected to what */
+  patch: { nodes: { id: string; kind: string; muted: boolean; selected?: number }[]; links: { id: string; from: string; to: string; port?: "rec" | "bus"; muted: boolean }[] };
 }
 
 export interface EffectState {
@@ -126,6 +132,10 @@ export interface ActionTarget {
   moveChannel(id: number, x: number, y: number): void;
   setLoopActive(id: number, on: boolean): void;
   setLoopPlan(id: number, plan: number): void;
+  patchLink(link: { id: string; from: string; to: string; port?: "rec" | "bus"; muted?: boolean }): boolean;
+  patchUnlink(id: string): void;
+  patchMute(what: "link" | "node", id: string, muted: boolean): void;
+  patchSwitch(id: string, selected: number): void;
   updateGroup(id: string, patch: GroupPatch): void;
   setGroupActive(id: string, on: boolean): void;
   setMasterVolume(v: number): void;
@@ -174,6 +184,10 @@ export function applyAction(t: ActionTarget, a: LooperAction): LooperAction | nu
     case "loop.move": t.moveChannel(a.id, a.x, a.y); return a;
     case "loop.active": t.setLoopActive(a.id, a.on); return a;
     case "loop.plan": t.setLoopPlan(a.id, a.plan); return a;
+    case "patch.link": return t.patchLink(a.link) ? a : null;
+    case "patch.unlink": t.patchUnlink(a.id); return a;
+    case "patch.mute": t.patchMute(a.what, a.id, a.muted); return a;
+    case "patch.switch": t.patchSwitch(a.id, a.selected); return a;
     case "group.set": t.updateGroup(a.id, a.patch); return a;
     case "group.active": t.setGroupActive(a.id, a.on); return a;
     case "master.volume": t.setMasterVolume(a.value); return a;
@@ -242,6 +256,10 @@ export function inverseOf(a: LooperAction, s: ActionState): LooperAction | null 
     case "loop.move": { const c = ch(a.id); return c ? { type: a.type, id: a.id, x: c.x, y: c.y } : null; }
     case "loop.active": { const c = ch(a.id); return c ? { type: a.type, id: a.id, on: c.active } : null; }
     case "loop.plan": { const c = ch(a.id); return c ? { type: a.type, id: a.id, plan: c.plan } : null; }
+    case "patch.link": return { type: "patch.unlink", id: a.link.id };
+    case "patch.unlink": { const l = s.patch.links.find((x) => x.id === a.id); return l ? { type: "patch.link", link: { ...l } } : null; }
+    case "patch.mute": { const x = a.what === "link" ? s.patch.links.find((l) => l.id === a.id) : s.patch.nodes.find((n) => n.id === a.id); return x ? { ...a, muted: x.muted } : null; }
+    case "patch.switch": { const n = s.patch.nodes.find((m) => m.id === a.id); return n ? { type: a.type, id: a.id, selected: n.selected ?? 0 } : null; }
     case "group.set": {
       const g = gr(a.id);
       if (!g) return null;
@@ -358,6 +376,10 @@ export function describeAction(a: LooperAction, s?: ActionState): string {
     case "loop.move": return `Move ${loop(a.id)}`;
     case "loop.active": return `${a.on ? "Start" : "Stop"} ${loop(a.id)}`;
     case "loop.plan": return `${loop(a.id)} length ${a.plan === 0 ? "free" : a.plan}`;
+    case "patch.link": return `Connect ${a.link.from} to ${a.link.to}${a.link.port === "rec" ? " (recorder)" : ""}`;
+    case "patch.unlink": return "Remove a connection";
+    case "patch.mute": return `${a.muted ? "Mute" : "Unmute"} a ${a.what === "link" ? "connection" : "patch element"}`;
+    case "patch.switch": return "Switch output";
     case "group.set": {
       const k = Object.keys(a.patch);
       if (k.length === 1 && k[0] === "volume") return `${group(a.id)} volume ${pct(a.patch.volume as number)}`;
@@ -416,6 +438,7 @@ export function coalesceKey(a: LooperAction): string | null {
     case "loop.move": return `loop.move:${a.id}`;
     case "loop.rename": return `loop.rename:${a.id}`;
     case "loop.plan": return `loop.plan:${a.id}`;
+    case "patch.switch": return `patch.switch:${a.id}`;
     case "master.volume": return "master.volume";
     case "fx.param": return `fx.param:${JSON.stringify(a.target)}:${a.id}:${a.key}`;
     case "input.set": { const k = Object.keys(a.patch).sort().join(","); return k === "volume" || k === "name" ? `input.set:${a.id}:${k}` : null; }
@@ -465,6 +488,10 @@ export function isAction(v: unknown, depth = 0): v is LooperAction {
     case "loop.move": return isNum(a.id) && isNum(a.x) && isNum(a.y);
     case "loop.active": return isNum(a.id) && isBool(a.on);
     case "loop.plan": return isNum(a.id) && isNum(a.plan);
+    case "patch.link": { const k = a.link as { id?: unknown; from?: unknown; to?: unknown } | undefined; return !!k && isStr(k.id) && isStr(k.from) && isStr(k.to); }
+    case "patch.unlink": return isStr(a.id);
+    case "patch.mute": return (a.what === "link" || a.what === "node") && isStr(a.id) && isBool(a.muted);
+    case "patch.switch": return isStr(a.id) && isNum(a.selected);
     case "group.set": return isStr(a.id) && validPatch(a.patch, GROUP_KEYS);
     case "group.active": return isStr(a.id) && isBool(a.on);
     case "master.volume": return isNum(a.value);

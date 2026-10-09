@@ -7,6 +7,7 @@ import { EffectChain, LoopBus, peakOf } from "./buses";
 import { EFFECT_DEFS, defaultParams, moveEffect, clampParams, sanitiseEffects, type EffectKind, type EffectSpec } from "./effects";
 import { GROUP_COLOURS, clampPoint, clampRect, containingGroup, defaultGroups, defaultSpot, type GroupLayout } from "./layout";
 import { InputMixer, MAX_INPUT_GAIN, describeError, type InputInfo } from "./mixer";
+import { connect as patchConnect, emptyPatch, feeds, removeNode, sanitisePatch, setLinkMuted, setNodeMuted, setSwitch, type Patch, type PatchLink } from "./patch";
 import { ActionHistory, type DoOptions } from "./history";
 import { MacroRecorder } from "./macros";
 import type { FxTarget, LooperAction } from "./actions";
@@ -116,6 +117,8 @@ export interface LooperSnapshot {
   loopSeconds: number | null;
   channels: ChannelInfo[];
   groups: GroupInfo[];
+  /** what is connected to what (see patch.ts) */
+  patch: Patch;
   masterVolume: number;
   /** effects on the master bus (the global output): before and after its fader */
   masterEffects: EffectSpec[];
@@ -157,6 +160,7 @@ export { MAX_INPUTS, MAX_INPUT_GAIN } from "./mixer";
 
 const LAYOUT_KEY = "musickit.looper.layout";
 const OUTPUT_KEY = "musickit.looper.output";
+const PATCH_KEY = "musickit.looper.patch";
 type SinkContext = AudioContext & { setSinkId?: (id: string) => Promise<void> };
 const groupName = (i: number) => `Group ${String.fromCharCode(65 + (i % 26))}`;
 const defaultGroupInfos = (): GroupInfo[] => defaultGroups().map((g, i) => ({ ...g, name: groupName(i), colour: GROUP_COLOURS[i % GROUP_COLOURS.length], volume: 1, muted: false, effects: [] }));
@@ -192,6 +196,7 @@ export class LooperEngine {
   private masterMeter: AnalyserNode | null = null;
   private masterBuf: Float32Array<ArrayBuffer> | null = null;
   private runtimes: ChannelRuntime[] = [];
+  private patch: Patch = emptyPatch();
   private loopLength: number | null = null;
   /** recent peak level of the signal reaching the recorder (0..1), for the pulse on a recording loop */
   private captureLevel = 0;
@@ -265,12 +270,14 @@ export class LooperEngine {
       channels: this.runtimes.map((r) => ({ ...r.info })),
       masterVolume: this.masterVolume,
       masterEffects: this.masterEffects.map((e) => ({ ...e, params: { ...e.params } })),
+      patch: this.patch,
       groups: this.groups.map((g) => ({ ...g, effects: g.effects.map((e) => ({ ...e, params: { ...e.params } })) })),
       sampleRate: this.ctx?.sampleRate ?? 0,
     };
   }
 
   private emit(patch: Partial<typeof this.meta> = {}) {
+    this.syncPatch();
     this.snap = this.buildSnapshot(patch);
     this.listeners.forEach((l) => l());
   }
@@ -287,6 +294,114 @@ export class LooperEngine {
     this.restoreSequencers();
     this.restoreScalePianos();
     this.restoreLayout();
+    try {
+      this.patch = sanitisePatch(JSON.parse(window.localStorage.getItem(PATCH_KEY) ?? "null"));
+    } catch {
+      this.patch = emptyPatch();
+    }
+    this.emit();
+  }
+
+  /* ------------------------------------------------------------------ patch (what is connected to what) */
+
+  /**
+   * Keep the patch in step with what exists: an element for every input, sequencer, group and the master, and none for what is gone.
+   * A new element gets the links today's fixed routing implies (an input records into every group, a group plays into master,
+   * a sequencer plays into the group it sits in), so nothing changes until the person rewires it.
+   */
+  private syncPatch() {
+    const before = this.patch;
+    let p = this.patch;
+    const has = (id: string) => p.nodes.some((n) => n.id === id);
+    const add = (id: string, kind: Patch["nodes"][number]["kind"], x: number, y: number) => {
+      p = { ...p, nodes: [...p.nodes, { id, kind, x, y, muted: false, ...(kind === "switch" ? { selected: 0 } : {}) }] };
+    };
+    const want = new Set<string>(["master"]);
+    if (!has("master")) add("master", "master", 700, 500);
+    const groupIds = this.groups.map((g) => g.id);
+    for (const g of this.groups) {
+      const id = `group:${g.id}`;
+      want.add(id);
+      if (!has(id)) {
+        add(id, "group", g.x, g.y);
+        p = patchConnect(p, id, "master", `to-master:${g.id}`);
+        p.nodes.filter((n) => n.kind === "input" || n.kind === "piano").forEach((n) => (p = patchConnect(p, n.id, id, `rec:${n.id}:${g.id}`, "rec")));
+      }
+    }
+    for (const i of this.mixer.list()) {
+      if (i.kind === "sequencer") continue;
+      const id = `in:${i.id}`;
+      want.add(id);
+      if (!has(id)) {
+        add(id, i.kind === "scalepiano" ? "piano" : "input", 20 + p.nodes.length * 20, 40);
+        groupIds.forEach((g) => (p = patchConnect(p, id, `group:${g}`, `rec:${id}:${g}`, "rec")));
+      }
+    }
+    for (const q of this.sequencers.values()) {
+      const id = `seq:${q.id}`;
+      want.add(id);
+      if (!has(id)) {
+        add(id, "sequencer", q.state.x, q.state.y);
+        const gid = containingGroup(this.groups, q.state.x, q.state.y);
+        p = patchConnect(p, id, gid ? `group:${gid}` : "master");
+      }
+    }
+    // an element whose backing thing is gone (removed input, sequencer or group) leaves with its links
+    p.nodes.forEach((n) => {
+      if (["input", "piano", "sequencer", "group", "master"].includes(n.kind) && !want.has(n.id)) p = removeNode(p, n.id);
+    });
+    if (p !== before) {
+      this.patch = p;
+      try {
+        window.localStorage.setItem(PATCH_KEY, JSON.stringify(p));
+      } catch {
+        /* ignore */
+      }
+    }
+  }
+
+  private savePatch(next: Patch) {
+    if (next === this.patch) return;
+    this.patch = next;
+    try {
+      window.localStorage.setItem(PATCH_KEY, JSON.stringify(next));
+    } catch {
+      /* ignore */
+    }
+    this.emit();
+  }
+
+  /** Add a connection (refused if the rules say no). */
+  patchLink(link: PatchLink): boolean {
+    const before = this.patch;
+    const next = patchConnect(before, link.from, link.to, link.id, link.port ?? "bus");
+    if (next === before) return false;
+    this.savePatch(link.muted ? setLinkMuted(next, link.id, true) : next);
+    return true;
+  }
+
+  patchUnlink(id: string) {
+    this.savePatch({ ...this.patch, links: this.patch.links.filter((l) => l.id !== id) });
+  }
+
+  patchMute(what: "link" | "node", id: string, muted: boolean) {
+    this.savePatch(what === "link" ? setLinkMuted(this.patch, id, muted) : setNodeMuted(this.patch, id, muted));
+  }
+
+  patchSwitch(id: string, selected: number) {
+    this.savePatch(setSwitch(this.patch, id, selected));
+  }
+
+  /** The mixer strips that reach the recorder of a group (all of them for a loop outside every group, as before). */
+  private recordSources(groupId: string | null): Set<number> | null {
+    if (groupId === null) return null;
+    const src = new Set(feeds(this.patch, `group:${groupId}`, "rec"));
+    const out = new Set<number>();
+    for (const i of this.mixer.list()) {
+      // a sequencer strip is switched on and off by the sequencer's own "record" setting, so the gate leaves it alone
+      if (i.kind === "sequencer" || src.has(`in:${i.id}`)) out.add(i.id);
+    }
+    return out;
   }
 
   /** Change metronome settings. The tempo and bar length stay put while a loop exists or a take is running, so everything stays in time. */
@@ -1269,6 +1384,8 @@ export class LooperEngine {
     // the latency fix is for the audio interface; a digital source such as the piano has none
     const comp = this.mixer.hasLiveDevice() ? msToFrames(this.meta.latencyMs, sr) : 0;
     const rt = this.runtimes[id];
+    // only what is patched into this loop's group is recorded
+    this.mixer.setRecordSources(this.recordSources(rt.info.groupId));
 
     if (!this.loopLength) {
       const m = this.metronome.settings;
@@ -1338,6 +1455,7 @@ export class LooperEngine {
     const rt = this.runtimes[cap.channel];
     rt.info.state = rt.buffer ? "playing" : "empty";
     this.capture = null;
+    this.mixer.setRecordSources(null);
     this.syncMetronome();
     this.emit();
   }
@@ -1366,6 +1484,7 @@ export class LooperEngine {
   private finish(cap: Capture, endFrame: number) {
     if (this.capture !== cap || !this.ctx) return;
     this.capture = null;
+    this.mixer.setRecordSources(null);
     const sr = this.ctx.sampleRate;
     const { l, r } = assemble(cap.chunks, cap.startFrame, endFrame);
     const rt = this.runtimes[cap.channel];

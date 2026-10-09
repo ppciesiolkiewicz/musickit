@@ -16,6 +16,7 @@ function fake() {
     playing: false,
     metronome: { bpm: 120, beatsPerBar: 4, volume: 0.5, audible: true, showBeat: true, quantise: "bar", countInBars: 1 },
     sequencers: [{ id: "q1", name: "Drums", x: 5, y: 5, dest: "auto", playing: false, instrumentId: "drums", bars: 1, cells: [[1, 0, 0, 0], [0, 0, 2, 0]] }],
+    patch: { nodes: [{ id: "in:0", kind: "input", muted: false }, { id: "group:g1", kind: "group", muted: false }, { id: "sw", kind: "switch", muted: false, selected: 0 }], links: [{ id: "k1", from: "in:0", to: "group:g1", port: "rec", muted: false }] },
   };
   const ch = (id: number) => s.channels.find((c) => c.id === id)!;
   const gr = (id: string) => s.groups.find((g) => g.id === id)!;
@@ -30,6 +31,10 @@ function fake() {
     moveChannel: (id, x, y) => { Object.assign(ch(id), { x, y }); },
     setLoopActive: (id, on) => { ch(id).active = on; },
     setLoopPlan: (id, plan) => { ch(id).plan = plan; },
+    patchLink: (l) => { if (s.patch.links.some((x) => x.id === l.id)) return false; s.patch.links.push({ ...l, muted: l.muted === true }); return true; },
+    patchUnlink: (id) => { s.patch.links = s.patch.links.filter((l) => l.id !== id); },
+    patchMute: (what, id, muted) => { const x = what === "link" ? s.patch.links.find((l) => l.id === id) : s.patch.nodes.find((n) => n.id === id); if (x) x.muted = muted; },
+    patchSwitch: (id, sel) => { const n = s.patch.nodes.find((m) => m.id === id); if (n) n.selected = sel; },
     updateGroup: (id, p: GroupPatch) => { Object.assign(gr(id), p); },
     setGroupActive: () => undefined,
     setMasterVolume: (v) => { s.masterVolume = v; },
@@ -73,6 +78,11 @@ const SAMPLES: LooperAction[] = [
   { type: "loop.solo", id: 1, solo: true },
   { type: "loop.rename", id: 0, name: "Bass" },
   { type: "loop.plan", id: 0, plan: 4 },
+  { type: "patch.link", link: { id: "k2", from: "in:0", to: "group:g1" } },
+  { type: "patch.unlink", id: "k1" },
+  { type: "patch.mute", what: "link", id: "k1", muted: true },
+  { type: "patch.mute", what: "node", id: "in:0", muted: true },
+  { type: "patch.switch", id: "sw", selected: 2 },
   { type: "loop.move", id: 1, x: 300, y: 40 },
   { type: "loop.active", id: 0, on: false },
   { type: "group.set", id: "g1", patch: { volume: 0.4, muted: true, name: "Drums" } },

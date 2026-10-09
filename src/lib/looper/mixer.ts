@@ -82,6 +82,8 @@ interface Runtime {
   gain: GainNode | null;
   meter: AnalyserNode | null;
   monitor: GainNode | null;
+  /** gate between the strip and the recorder (a group's recorder only takes the strips patched into it) */
+  rec: GainNode | null;
   chainPre: EffectChain | null;
   chainPost: EffectChain | null;
   shared: Shared | null;
@@ -121,7 +123,7 @@ export class InputMixer {
     this.nextId = Math.max(this.nextId, useId + 1);
     return {
       info: { id: useId, sourceId: s.sourceId, kind: s.kind, name: s.name, deviceId: s.deviceId, mode: s.mode, volume: s.volume, muted: false, solo: false, monitor: defaultMonitor(s.kind, s.name), error: null, channels: 0, live: true, effects: sanitiseEffects(s.effects), connected: s.kind === "device" ? connected : true },
-      pre: null, summer: null, gain: null, meter: null, monitor: null, chainPre: null, chainPost: null, shared: null, buf: null,
+      pre: null, summer: null, gain: null, meter: null, monitor: null, rec: null, chainPre: null, chainPost: null, shared: null, buf: null,
     };
   }
 
@@ -208,7 +210,10 @@ export class InputMixer {
     chainPre.output.connect(meter);
     chainPre.output.connect(gain);
     gain.connect(chainPost.input);
-    chainPost.output.connect(this.output!);
+    const rec = ctx.createGain();
+    chainPost.output.connect(rec);
+    rec.connect(this.output!);
+    r.rec = rec;
     // "Hear it" is what the strip sends to the recorder (pre-fader effects, the fader, post-fader effects), so live play sounds like the loop will
     chainPost.output.connect(monitor);
     r.chainPre = chainPre;
@@ -342,6 +347,13 @@ export class InputMixer {
         break;
       }
     }
+  }
+
+  /** Let only these strips reach the recorder (null = all of them). */
+  setRecordSources(ids: Set<number> | null) {
+    this.runtimes.forEach((r) => {
+      if (r.rec) r.rec.gain.value = ids === null || ids.has(r.info.id) ? 1 : 0;
+    });
   }
 
   private applyGains() {

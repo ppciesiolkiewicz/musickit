@@ -17,3 +17,8 @@ Goal: one canvas where every sound source, effect, bus and loop group is an elem
 4. Switch element, effect chains as elements, MIDI keyboard to a `synth` element (sound generator).
 
 Not decided yet: how loops outside a group behave (silent, as stated), and whether the "Hear it" monitor becomes a link from an element to master.
+
+## Stage 2 status (engine)
+- Changed from stage 1: there is no global recorder element. Every group has its own recorder (input port `rec`) and a bus (port `bus`); the loops inside a group record what reaches its recorder (`feeds` in `patch.ts`) and play into its bus. A link into a group carries `port: "rec"` or `"bus"`.
+- Done: the engine keeps the patch (`musickit.looper.patch`, `syncPatch` adds elements and default links for new inputs, sequencers and groups and drops those whose backing thing is gone); actions `patch.link`, `patch.unlink`, `patch.mute`, `patch.switch` (undoable, recordable); recording is gated per group: only the strips patched into the recording loop's group reach the recorder (`InputMixer.setRecordSources`). Defaults connect every input to every group's recorder, so nothing sounds different until you rewire. A loop outside every group still records all inputs (old behaviour). Sequencer strips are still governed by their own "record" setting.
+- Not done: playback follows the patch (sequencers still go to the bus of the group they sit in; buses always go to master), several loops recording at once, the canvas UI, effect chains and switches as elements, MIDI generators. Not tried in a browser.

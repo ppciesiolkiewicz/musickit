@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { activeLinks, connect, defaultPatch, disconnect, emptyPatch, pathTo, removeNode, sanitisePatch, setLinkMuted, setNodeMuted, setSwitch, whyNot, type Patch } from "./patch";
+import { activeLinks, feeds, connect, defaultPatch, disconnect, emptyPatch, pathTo, removeNode, sanitisePatch, setLinkMuted, setNodeMuted, setSwitch, whyNot, type Patch } from "./patch";
 
 const base = (): Patch => {
   let p = emptyPatch();
@@ -9,9 +9,8 @@ const base = (): Patch => {
   add("sw", "switch");
   add("clean", "fx");
   add("lead", "fx");
-  add("bus", "bus");
+  add("bus", "group");
   add("master", "master");
-  add("rec", "recorder");
   add("loop", "loop");
   return p;
 };
@@ -63,6 +62,29 @@ describe("patch rules", () => {
   });
 });
 
+describe("group recorder", () => {
+  it("a group records what reaches its recorder port, through effects and a switch", () => {
+    let p = base();
+    p = connect(p, "gtr", "sw", "a");
+    p = connect(p, "sw", "clean", "b");
+    p = connect(p, "sw", "lead", "c");
+    p = connect(p, "clean", "bus", "d", "rec");
+    p = connect(p, "lead", "bus", "e", "rec");
+    assert.deepEqual(feeds(p, "bus", "rec"), ["gtr"]);
+    assert.deepEqual(feeds(p, "bus", "bus"), [], "the bus port hears nothing yet");
+    assert.deepEqual(feeds(setNodeMuted(p, "gtr", true), "bus", "rec"), []);
+    assert.deepEqual(feeds(setSwitch(p, "sw", 1), "bus", "rec"), ["gtr"]);
+  });
+  it("only a group has a recorder, and ports are separate links", () => {
+    let p = base();
+    assert.ok(whyNot(p, "gtr", "master", "rec"));
+    p = connect(p, "gtr", "bus", "r", "rec");
+    p = connect(p, "gtr", "bus", "b");
+    assert.equal(p.links.length, 2);
+    assert.equal(connect(p, "gtr", "bus", "r2", "rec"), p);
+  });
+});
+
 describe("saved patches", () => {
   it("drops what the rules refuse and keeps the rest", () => {
     const p = sanitisePatch({
@@ -75,9 +97,10 @@ describe("saved patches", () => {
   });
   it("builds the patch that matches today's routing", () => {
     const p = defaultPatch({ inputs: [{ id: 0, kind: "device" }, { id: 1, kind: "scalepiano" }, { id: 2, kind: "sequencer", sourceId: "s1" }], groups: ["g1", "g2"], sequencers: [{ id: "s1", group: "g2" }, { id: "s2", group: null }] });
-    assert.deepEqual(pathTo(p, "in:0", "recorder"), ["in:0", "recorder"]);
-    assert.deepEqual(pathTo(p, "seq:s1", "master"), ["seq:s1", "bus:g2", "master"]);
+    assert.deepEqual(feeds(p, "group:g2", "rec").sort(), ["in:0", "in:1"]);
+    assert.deepEqual(feeds(p, "group:g1", "bus"), []);
+    assert.deepEqual(pathTo(p, "seq:s1", "master"), ["seq:s1", "group:g2", "master"]);
     assert.deepEqual(pathTo(p, "seq:s2", "master"), ["seq:s2", "master"]);
-    assert.equal(p.nodes.filter((n) => n.kind === "bus").length, 2);
+    assert.equal(p.nodes.filter((n) => n.kind === "group").length, 2);
   });
 });
