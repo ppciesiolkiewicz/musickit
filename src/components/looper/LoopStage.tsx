@@ -42,12 +42,17 @@ const arrowStep = (e: RKeyboardEvent): [number, number] | null => {
 };
 
 /** The looping stage: loops are circles with a progress ring; coloured groups are boxes you can move and resize. A loop inside a group plays through that group's bus. */
-export default function LoopStage({ engine, snap, getPosition, openSeqs, onToggleSeq, fill = false }: { engine: LooperEngine; snap: LooperSnapshot; getPosition: () => number | null; openSeqs: string[]; onToggleSeq: (id: string) => void; fill?: boolean }) {
+export default function LoopStage({ engine, snap, openSeqs, onToggleSeq, fill = false }: { engine: LooperEngine; snap: LooperSnapshot; getPosition?: () => number | null; openSeqs: string[]; onToggleSeq: (id: string) => void; fill?: boolean }) {
   const stage = useRef<HTMLDivElement>(null);
   const [fxFor, setFxFor] = useState<string | null>(null);
   const ready = snap.status === "ready";
   const busy = snap.channels.some((c) => c.state === "recording" || c.state === "armed");
   const firstTake = snap.loopSeconds === null;
+  const baseBars = (() => {
+    if (snap.loopSeconds === null) return null;
+    const b = (snap.loopSeconds * snap.metronome.bpm) / 60 / snap.metronome.beatsPerBar;
+    return Math.round(b) >= 1 && Math.abs(b - Math.round(b)) < 0.02 ? Math.round(b) : null;
+  })();
   const fxGroup = snap.groups.find((g) => g.id === fxFor) ?? null;
 
   // The stage is drawn at its natural size (STAGE_W by STAGE_H) and scaled, so loops, groups and text all scale together.
@@ -111,7 +116,7 @@ export default function LoopStage({ engine, snap, getPosition, openSeqs, onToggl
         ))}
         {snap.channels.map((c) => {
           const g = snap.groups.find((x) => x.id === c.groupId);
-          return <LoopCircle key={c.id} engine={engine} ch={c} colour={g?.colour ?? "#94a3b8"} stage={stage} ready={ready} busy={busy} firstTake={firstTake} getPosition={getPosition} />;
+          return <LoopCircle key={c.id} engine={engine} ch={c} colour={g?.colour ?? "#94a3b8"} stage={stage} ready={ready} busy={busy} firstTake={firstTake} baseBars={baseBars} />;
         })}
         {snap.sequencers.map((q) => {
           const g = snap.groups.find((x) => x.id === q.groupId);
@@ -126,11 +131,12 @@ export default function LoopStage({ engine, snap, getPosition, openSeqs, onToggl
   );
 }
 
-function LoopCircle({ engine, ch, colour, stage, ready, busy, firstTake, getPosition }: { engine: LooperEngine; ch: ChannelInfo; colour: string; stage: RefObject<HTMLDivElement | null>; ready: boolean; busy: boolean; firstTake: boolean; getPosition: () => number | null }) {
+function LoopCircle({ engine, ch, colour, stage, ready, busy, firstTake, baseBars }: { engine: LooperEngine; ch: ChannelInfo; colour: string; stage: RefObject<HTMLDivElement | null>; ready: boolean; busy: boolean; firstTake: boolean; baseBars: number | null }) {
   const arc = useRef<SVGCircleElement>(null);
+  const pulse = useRef<SVGCircleElement>(null);
   const recording = ch.state === "recording" || ch.state === "armed";
-  const isFreeTake = recording && firstTake;
-  const running = ch.state === "recording" && !firstTake; // a later take runs to the loop end on its own
+  const isFreeTake = recording && ch.plan === 0 && (firstTake || ch.state === "recording");
+  const running = ch.state === "recording" && ch.plan > 0; // a planned take runs to its end on its own
   const label = isFreeTake ? "Stop the take" : running ? "Recording to the loop end" : recording ? "Cancel" : ch.state === "empty" ? "Record" : "Re-record";
   const act = () => (running ? undefined : recording ? engine.do({ type: "record.stop" }) : engine.do({ type: "loop.record", id: ch.id }));
   const live = ch.state === "recording" ? "#fb7185" : ch.state === "armed" ? "#fbbf24" : colour;
@@ -138,13 +144,21 @@ function LoopCircle({ engine, ch, colour, stage, ready, busy, firstTake, getPosi
   useEffect(() => {
     let raf = 0;
     const tick = () => {
-      const p = getPosition();
+      if (pulse.current) {
+        // recording: a slow pulse that swells and shivers with the signal arriving on this loop
+        const lv = engine.getCaptureLevel(ch.id);
+        const t = performance.now() / 1000;
+        const sc = 1 + 0.06 * Math.sin(t * 4) + lv * 0.28 + lv * 0.05 * Math.sin(t * 38);
+        pulse.current.style.transform = `scale(${sc})`;
+        pulse.current.style.opacity = String(0.35 + lv * 0.6);
+      }
+      const p = ch.state === "recording" ? null : engine.getChannelPosition(ch.id);
       if (arc.current) arc.current.style.strokeDashoffset = String(CIRC * (1 - (ch.state === "empty" || isFreeTake || p === null ? 0 : p)));
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [getPosition, ch.state, isFreeTake]);
+  }, [engine, ch.id, ch.state, isFreeTake]);
 
   const onPointerDown = (e: RPointerEvent) => {
     const base = { x: ch.x, y: ch.y };
@@ -161,10 +175,10 @@ function LoopCircle({ engine, ch, colour, stage, ready, busy, firstTake, getPosi
   return (
     <div className="absolute z-10 flex w-24 flex-col items-center gap-0.5" style={{ left: `${(ch.x / STAGE_W) * 100}%`, top: `${(ch.y / STAGE_H) * 100}%`, transform: `translate(-50%, -${LOOP_R - 4}px)` }}>
       <button type="button" onPointerDown={onPointerDown} onKeyDown={onKeyDown} onClick={(e) => e.detail === 0 && ready && !(busy && !recording) && act()} aria-label={`${label}: ${ch.name}. Drag to move; Alt and arrow keys move it.`} title={`${label} (drag to move)`} className="relative grid cursor-grab place-items-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-sky-400 active:cursor-grabbing" style={{ width: size, height: size, touchAction: "none" }}>
-        <svg viewBox="0 0 100 100" width={size} height={size} className={isFreeTake ? "animate-spin [animation-duration:2.4s]" : ""} aria-hidden>
+        <svg viewBox="0 0 100 100" width={size} height={size} aria-hidden>
           <circle cx="50" cy="50" r={RING} fill={ch.state === "empty" ? "none" : `${live}22`} stroke="#1e293b" strokeWidth="8" strokeDasharray={ch.state === "armed" ? "4 5" : undefined} />
-          {isFreeTake ? (
-            <circle cx="50" cy="50" r={RING} fill="none" stroke={live} strokeWidth="8" strokeLinecap="round" strokeDasharray={`${CIRC * 0.25} ${CIRC}`} />
+          {ch.state === "recording" ? (
+            <circle ref={pulse} cx="50" cy="50" r={RING} fill={`${live}55`} stroke={live} strokeWidth="6" style={{ transformBox: "fill-box", transformOrigin: "center" }} />
           ) : (
             <circle ref={arc} cx="50" cy="50" r={RING} fill="none" stroke={live} strokeWidth="8" strokeLinecap="round" strokeDasharray={CIRC} strokeDashoffset={CIRC} transform="rotate(-90 50 50)" opacity={ch.muted || !ch.active ? 0.3 : 1} />
           )}
@@ -173,6 +187,7 @@ function LoopCircle({ engine, ch, colour, stage, ready, busy, firstTake, getPosi
           <Icon name={isFreeTake ? "square" : running ? "circle" : recording ? "x" : ch.state === "empty" ? "circle" : "repeat"} size={22} fill={isFreeTake || running || ch.state === "empty"} />
         </span>
       </button>
+      <LengthBadge engine={engine} ch={ch} firstTake={firstTake} baseBars={baseBars} />
       <input value={ch.name} onChange={(e) => engine.do({ type: "loop.rename", id: ch.id, name: e.target.value })} aria-label={`Name of ${ch.name}`} className="w-full truncate rounded border border-transparent bg-transparent px-1 text-center text-[11px] font-medium text-slate-200 hover:border-slate-700 focus:border-slate-500 focus:outline-none" />
       <div className="flex items-center gap-0.5">
         <button type="button" className={`${tbtn} ${ch.muted ? "!border-amber-400 !text-amber-200" : ""}`} aria-pressed={ch.muted} disabled={ch.state === "empty"} onClick={() => engine.do({ type: "loop.mute", id: ch.id, muted: !ch.muted })} title="Mute" aria-label={`Mute ${ch.name}`}>M</button>
@@ -282,5 +297,19 @@ export function GroupEffects({ engine, g, onClose }: { engine: LooperEngine; g: 
       onPost={(id, post) => engine.do({ type: "effect.post", groupId: g.id, fxId: id, post })}
       onClose={onClose}
     />
+  );
+}
+
+/** Under a loop: its length once recorded (bars, or times the first loop); before that a menu to plan it. */
+function LengthBadge({ engine, ch, firstTake, baseBars }: { engine: LooperEngine; ch: ChannelInfo; firstTake: boolean; baseBars: number | null }) {
+  const cls = "rounded border border-slate-700 bg-slate-900 px-1 text-[10px] leading-4 text-slate-300";
+  const label = (n: number) => (firstTake ? `${n} bar${n === 1 ? "" : "s"}` : baseBars ? `${n * baseBars} bars` : `x${n}`);
+  if (ch.multiple > 0) return <span className={cls} title="Length of this loop">{firstTake || baseBars === null ? `x${ch.multiple}` : `${ch.multiple * baseBars} bar${ch.multiple * baseBars === 1 ? "" : "s"}`}</span>;
+  if (ch.state !== "empty") return null;
+  return (
+    <select value={ch.plan} onChange={(e) => engine.do({ type: "loop.plan", id: ch.id, plan: Number(e.target.value) })} aria-label={`Length of ${ch.name}`} title="Length of the next take" className={`${cls} cursor-pointer`}>
+      <option value={0}>free</option>
+      {[1, 2, 4, 8, 16].map((n) => <option key={n} value={n}>{label(n)}</option>)}
+    </select>
   );
 }

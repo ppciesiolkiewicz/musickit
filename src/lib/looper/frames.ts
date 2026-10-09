@@ -121,3 +121,14 @@ export function beatInBar(now: number, anchor: number, period: number, beatsPerB
   const index = Math.floor((now - anchor) / period + 1e-9);
   return { beat: ((index % beatsPerBar) + beatsPerBar) % beatsPerBar, index };
 }
+
+/** Loop lengths a later take may have, as multiples of the first loop (and the bar counts offered for the first one). */
+export const LENGTH_STEPS = [1, 2, 4, 8, 16] as const;
+
+/** The smallest allowed multiple (1, 2, 4, 8, 16) of `base` that holds `elapsed`; a little overshoot (2%) still counts as the lower one. */
+export function lengthMultiple(elapsed: number, base: number): number {
+  if (!(base > 0)) return 1;
+  const x = elapsed / base;
+  for (const n of LENGTH_STEPS) if (x <= n * 1.02) return n;
+  return LENGTH_STEPS[LENGTH_STEPS.length - 1];
+}

@@ -8,7 +8,7 @@ import { MacroRecorder, parseMacros, playMacro, serialiseMacros } from "./macros
 /** A tiny in-memory stand-in for the engine. */
 function fake() {
   const s: ActionState = {
-    channels: [0, 1].map((id) => ({ id, name: `Loop ${id + 1}`, volume: 0.8, muted: false, solo: false, x: 10 * id, y: 20, active: true })),
+    channels: [0, 1].map((id) => ({ id, name: `Loop ${id + 1}`, volume: 0.8, muted: false, solo: false, x: 10 * id, y: 20, active: true, plan: 0 })),
     groups: [{ id: "g1", name: "A", colour: "#fff", volume: 1, muted: false, x: 0, y: 0, w: 100, h: 100, effects: [{ id: "fx1", kind: "reverb", bypass: false, post: false, params: { mix: 0.3 } }] }],
     inputs: [{ id: 0, kind: "device", name: "Guitar", deviceId: "d1", mode: "left", volume: 1, muted: false, solo: false, monitor: false, effects: [] }],
     masterVolume: 1,
@@ -29,6 +29,7 @@ function fake() {
     rename: (id, n) => { ch(id).name = n; },
     moveChannel: (id, x, y) => { Object.assign(ch(id), { x, y }); },
     setLoopActive: (id, on) => { ch(id).active = on; },
+    setLoopPlan: (id, plan) => { ch(id).plan = plan; },
     updateGroup: (id, p: GroupPatch) => { Object.assign(gr(id), p); },
     setGroupActive: () => undefined,
     setMasterVolume: (v) => { s.masterVolume = v; },
@@ -47,7 +48,7 @@ function fake() {
       return gid;
     },
     removeGroup: (id) => { s.groups = s.groups.filter((g) => g.id !== id); },
-    addChannel: () => { if (s.channels.length < 8) s.channels.push({ id: s.channels.length, name: `Loop ${s.channels.length + 1}`, volume: 1, muted: false, solo: false, x: 0, y: 0, active: true }); },
+    addChannel: () => { if (s.channels.length < 8) s.channels.push({ id: s.channels.length, name: `Loop ${s.channels.length + 1}`, volume: 1, muted: false, solo: false, x: 0, y: 0, active: true, plan: 0 }); },
     removeLastChannel: () => { if (s.channels.length > 1) s.channels.pop(); },
     clear: () => undefined, clearAll: () => undefined, record: () => undefined, stopRecording: () => undefined,
     addSequencerNow: (id) => { const sid = id && !s.sequencers.some((q) => q.id === id) ? id : `q${s.sequencers.length + 10}`; s.sequencers.push({ id: sid, name: "Drums", x: 0, y: 0, dest: "auto", playing: false, instrumentId: "drums", bars: 1, cells: [[0, 0, 0, 0], [0, 0, 0, 0]] }); return sid; },
@@ -71,6 +72,7 @@ const SAMPLES: LooperAction[] = [
   { type: "loop.mute", id: 1, muted: true },
   { type: "loop.solo", id: 1, solo: true },
   { type: "loop.rename", id: 0, name: "Bass" },
+  { type: "loop.plan", id: 0, plan: 4 },
   { type: "loop.move", id: 1, x: 300, y: 40 },
   { type: "loop.active", id: 0, on: false },
   { type: "group.set", id: "g1", patch: { volume: 0.4, muted: true, name: "Drums" } },

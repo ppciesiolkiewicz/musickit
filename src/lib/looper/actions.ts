@@ -22,6 +22,7 @@ export type LooperAction =
   | { type: "loop.rename"; id: number; name: string }
   | { type: "loop.move"; id: number; x: number; y: number }
   | { type: "loop.active"; id: number; on: boolean }
+  | { type: "loop.plan"; id: number; plan: number }
   | { type: "group.set"; id: string; patch: GroupPatch }
   | { type: "group.active"; id: string; on: boolean }
   | { type: "master.volume"; value: number }
@@ -96,7 +97,7 @@ export type ActionType = LooperAction["type"];
 
 /** The part of the engine snapshot the actions read. The engine's own snapshot satisfies it. */
 export interface ActionState {
-  channels: { id: number; name: string; volume: number; muted: boolean; solo: boolean; x: number; y: number; active: boolean }[];
+  channels: { id: number; name: string; volume: number; muted: boolean; solo: boolean; x: number; y: number; active: boolean; plan: number }[];
   groups: { id: string; name: string; colour: string; volume: number; muted: boolean; x: number; y: number; w: number; h: number; effects: EffectState[] }[];
   inputs: { id: number; kind: string; name: string; deviceId: string; mode: InputMode; volume: number; muted: boolean; solo: boolean; monitor: boolean; effects: EffectState[] }[];
   masterVolume: number;
@@ -124,6 +125,7 @@ export interface ActionTarget {
   rename(id: number, name: string): void;
   moveChannel(id: number, x: number, y: number): void;
   setLoopActive(id: number, on: boolean): void;
+  setLoopPlan(id: number, plan: number): void;
   updateGroup(id: string, patch: GroupPatch): void;
   setGroupActive(id: string, on: boolean): void;
   setMasterVolume(v: number): void;
@@ -171,6 +173,7 @@ export function applyAction(t: ActionTarget, a: LooperAction): LooperAction | nu
     case "loop.rename": t.rename(a.id, a.name); return a;
     case "loop.move": t.moveChannel(a.id, a.x, a.y); return a;
     case "loop.active": t.setLoopActive(a.id, a.on); return a;
+    case "loop.plan": t.setLoopPlan(a.id, a.plan); return a;
     case "group.set": t.updateGroup(a.id, a.patch); return a;
     case "group.active": t.setGroupActive(a.id, a.on); return a;
     case "master.volume": t.setMasterVolume(a.value); return a;
@@ -238,6 +241,7 @@ export function inverseOf(a: LooperAction, s: ActionState): LooperAction | null 
     case "loop.rename": { const c = ch(a.id); return c ? { type: a.type, id: a.id, name: c.name } : null; }
     case "loop.move": { const c = ch(a.id); return c ? { type: a.type, id: a.id, x: c.x, y: c.y } : null; }
     case "loop.active": { const c = ch(a.id); return c ? { type: a.type, id: a.id, on: c.active } : null; }
+    case "loop.plan": { const c = ch(a.id); return c ? { type: a.type, id: a.id, plan: c.plan } : null; }
     case "group.set": {
       const g = gr(a.id);
       if (!g) return null;
@@ -353,6 +357,7 @@ export function describeAction(a: LooperAction, s?: ActionState): string {
     case "loop.rename": return `Rename loop to ${a.name}`;
     case "loop.move": return `Move ${loop(a.id)}`;
     case "loop.active": return `${a.on ? "Start" : "Stop"} ${loop(a.id)}`;
+    case "loop.plan": return `${loop(a.id)} length ${a.plan === 0 ? "free" : a.plan}`;
     case "group.set": {
       const k = Object.keys(a.patch);
       if (k.length === 1 && k[0] === "volume") return `${group(a.id)} volume ${pct(a.patch.volume as number)}`;
@@ -410,6 +415,7 @@ export function coalesceKey(a: LooperAction): string | null {
     case "loop.volume": return `loop.volume:${a.id}`;
     case "loop.move": return `loop.move:${a.id}`;
     case "loop.rename": return `loop.rename:${a.id}`;
+    case "loop.plan": return `loop.plan:${a.id}`;
     case "master.volume": return "master.volume";
     case "fx.param": return `fx.param:${JSON.stringify(a.target)}:${a.id}:${a.key}`;
     case "input.set": { const k = Object.keys(a.patch).sort().join(","); return k === "volume" || k === "name" ? `input.set:${a.id}:${k}` : null; }
@@ -458,6 +464,7 @@ export function isAction(v: unknown, depth = 0): v is LooperAction {
     case "loop.rename": return isNum(a.id) && isStr(a.name);
     case "loop.move": return isNum(a.id) && isNum(a.x) && isNum(a.y);
     case "loop.active": return isNum(a.id) && isBool(a.on);
+    case "loop.plan": return isNum(a.id) && isNum(a.plan);
     case "group.set": return isStr(a.id) && validPatch(a.patch, GROUP_KEYS);
     case "group.active": return isStr(a.id) && isBool(a.on);
     case "master.volume": return isNum(a.value);

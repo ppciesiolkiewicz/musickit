@@ -78,3 +78,16 @@ describe("metronome and quantising", () => {
     assert.deepEqual(beatInBar(9.6, 10, 0.5, 4), { beat: 3, index: -1 });
   });
 });
+
+describe("loop length multiples", () => {
+  it("rounds a free take up to 1, 2, 4, 8 or 16 loops", async () => {
+    const { lengthMultiple } = await import("./frames");
+    assert.equal(lengthMultiple(0.4, 1), 1);
+    assert.equal(lengthMultiple(1.01, 1), 1);
+    assert.equal(lengthMultiple(1.3, 1), 2);
+    assert.equal(lengthMultiple(2.5, 1), 4);
+    assert.equal(lengthMultiple(5, 1), 8);
+    assert.equal(lengthMultiple(99, 1), 16);
+    assert.equal(lengthMultiple(3, 0), 1);
+  });
+});

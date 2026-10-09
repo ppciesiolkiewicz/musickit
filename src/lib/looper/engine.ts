@@ -1,4 +1,4 @@
-import { assemble, effectiveGain, loopOffset, msToFrames, nextBoundary, peaks, quantUnitFrames, quantiseLength, type Chunk, type InputMode } from "./frames";
+import { LENGTH_STEPS, assemble, effectiveGain, lengthMultiple, loopOffset, msToFrames, nextBoundary, peaks, quantUnitFrames, quantiseLength, type Chunk, type InputMode } from "./frames";
 import { Metronome, type MetronomeSettings } from "./metronome";
 import { Sequencer, type SequencerState } from "./sequencer";
 import { fromRows } from "./sequencerPattern";
@@ -72,6 +72,10 @@ export interface ChannelInfo {
   groupId: string | null;
   /** false when the person has stopped this loop (it restarts on a beat); a recorded loop is active by default */
   active: boolean;
+  /** planned length of the next take: 0 = free, else bars (first loop) or times the first loop (later loops) */
+  plan: number;
+  /** recorded length as a multiple of the first loop (1, 2, 4, 8, 16), 0 while empty */
+  multiple: number;
 }
 
 /** An audio output (speakers, headphones, an audio interface) the browser can play to. */
@@ -123,6 +127,8 @@ interface ChannelRuntime {
   buffer: AudioBuffer | null;
   gain: GainNode | null;
   source: AudioBufferSourceNode | null;
+  /** context time of the start of the recording; the loop's phase is counted from here */
+  origin: number;
 }
 
 interface Capture {
@@ -141,6 +147,8 @@ interface Capture {
   unit: number;
   /** the person has pressed stop and the take is running on to the next beat or bar line */
   stopping: boolean;
+  /** length of the first loop in frames for a later take, 0 for the first take */
+  loopFrames: number;
 }
 
 export const MAX_CHANNELS = 8;
@@ -185,6 +193,8 @@ export class LooperEngine {
   private masterBuf: Float32Array<ArrayBuffer> | null = null;
   private runtimes: ChannelRuntime[] = [];
   private loopLength: number | null = null;
+  /** recent peak level of the signal reaching the recorder (0..1), for the pulse on a recording loop */
+  private captureLevel = 0;
   private loopStart = 0;
   private playing = true;
   private capture: Capture | null = null;
@@ -796,11 +806,32 @@ export class LooperEngine {
   private makeChannel(id: number): ChannelRuntime {
     const spot = defaultSpot(this.groups, id);
     return {
-      info: { id, name: `Loop ${id + 1}`, state: "empty", volume: 0.8, muted: false, solo: false, peaks: null, x: spot.x, y: spot.y, groupId: containingGroup(this.groups, spot.x, spot.y), active: true },
+      info: { id, name: `Loop ${id + 1}`, state: "empty", volume: 0.8, muted: false, solo: false, peaks: null, x: spot.x, y: spot.y, groupId: containingGroup(this.groups, spot.x, spot.y), active: true, plan: 0, multiple: 0 },
       buffer: null,
       gain: null,
       source: null,
+      origin: 0,
     };
+  }
+
+  /** Plan the length of the next take on a loop: 0 = free, else bars for the first loop or times the first loop for later ones. */
+  setLoopPlan(id: number, plan: number) {
+    const rt = this.runtimes[id];
+    if (!rt || !(plan === 0 || (LENGTH_STEPS as readonly number[]).includes(plan))) return;
+    rt.info.plan = plan;
+    this.emit();
+  }
+
+  /** Peak level of what is being recorded on this loop (0..1), 0 when it is not recording. */
+  getCaptureLevel(id: number): number {
+    return this.capture?.channel === id && this.capture.started ? Math.min(1, this.captureLevel) : 0;
+  }
+
+  /** Where in its own length a loop is (0..1), or null when it is not playing. */
+  getChannelPosition(id: number): number | null {
+    const rt = this.runtimes[id];
+    if (!this.ctx || !rt?.buffer || !this.playing || !rt.info.active) return null;
+    return loopOffset(this.ctx.currentTime, rt.origin, rt.buffer.duration) / rt.buffer.duration;
   }
 
   addChannel() {
@@ -1218,7 +1249,9 @@ export class LooperEngine {
         startFrame = Math.round(anchor * sr) + comp;
       }
       const fresh = anchor !== this.gridAnchor || !this.gridActive();
-      this.capture = { channel: id, at: startFrame / sr - comp / sr, startFrame, endFrame: null, chunks: [], lastFrame: startFrame, started: false, unit, stopping: false };
+      // a planned first loop is a number of bars (or beats, when quantising to beats)
+      const planned = rt.info.plan > 0 && unit > 0 ? startFrame + rt.info.plan * (m.quantise === "bar" ? m.beatsPerBar : 1) * Math.round(this.metronome.period * sr) : null;
+      this.capture = { channel: id, at: startFrame / sr - comp / sr, startFrame, endFrame: planned, chunks: [], lastFrame: startFrame, started: false, unit, stopping: false, loopFrames: 0 };
       rt.info.state = "armed";
       this.gridAnchor = anchor;
       this.loopOnGrid = unit > 0;
@@ -1229,8 +1262,10 @@ export class LooperEngine {
 
     const when = nextBoundary(this.ctx.currentTime, this.loopStart, this.loopLength, 0.08);
     const startFrame = Math.round(when * sr) + comp;
-    const endFrame = startFrame + Math.round(this.loopLength * sr);
-    this.capture = { channel: id, at: when, startFrame, endFrame, chunks: [], lastFrame: startFrame, started: false, unit: 0, stopping: false };
+    // a planned later take is n times the first loop; a free one runs until stopped and is rounded up to 1, 2, 4, 8 or 16 loops
+    const loopFrames = Math.round(this.loopLength * sr);
+    const endFrame = rt.info.plan > 0 ? startFrame + rt.info.plan * loopFrames : null;
+    this.capture = { channel: id, at: when, startFrame, endFrame, chunks: [], lastFrame: startFrame, started: false, unit: 0, stopping: false, loopFrames };
     rt.info.state = "armed";
     this.syncMetronome();
     this.emit();
@@ -1242,9 +1277,10 @@ export class LooperEngine {
     if (!cap) return;
     if (cap.stopping) return; // already running on to the next line
     if (cap.endFrame === null && cap.started && cap.lastFrame > cap.startFrame) {
-      const target = cap.startFrame + quantiseLength(cap.lastFrame - cap.startFrame, cap.unit);
-      if (cap.unit === 0 || target <= cap.lastFrame) {
-        this.finish(cap, cap.unit === 0 ? cap.lastFrame : target);
+      const later = cap.loopFrames > 0;
+      const target = cap.startFrame + (later ? lengthMultiple(cap.lastFrame - cap.startFrame, cap.loopFrames) * cap.loopFrames : quantiseLength(cap.lastFrame - cap.startFrame, cap.unit));
+      if ((cap.unit === 0 && !later) || target <= cap.lastFrame) {
+        this.finish(cap, !later && cap.unit === 0 ? cap.lastFrame : target);
       } else {
         // keep recording up to the beat or bar line, then close the take
         cap.endFrame = target;
@@ -1274,6 +1310,9 @@ export class LooperEngine {
     if (!cap || !this.ctx) return;
     const n = c.l.length;
     const end = c.frame + n;
+    let pk = 0;
+    for (let i = 0; i < n; i += 4) pk = Math.max(pk, Math.abs(c.l[i]), Math.abs(c.r[i]));
+    this.captureLevel = Math.max(pk, this.captureLevel * 0.8);
     if (end <= cap.startFrame) return;
     const rt = this.runtimes[cap.channel];
     if (!cap.started) {
@@ -1306,6 +1345,7 @@ export class LooperEngine {
     rt.info.peaks = peaks(l, 600);
     rt.info.state = "playing";
     rt.info.active = true;
+    rt.origin = cap.at;
 
     const firstTake = this.loopLength === null;
     if (firstTake) {
@@ -1315,7 +1355,9 @@ export class LooperEngine {
       // on the grid the loop is already running: its start is the end of the take, so it plays on at once, in phase (no wait for the next round)
       this.loopStart = this.loopOnGrid ? cap.at + Math.floor((this.ctx.currentTime - cap.at) / this.loopLength) * this.loopLength : this.ctx.currentTime + 0.05;
       if (!this.loopOnGrid) this.gridAnchor = this.loopStart;
+      if (!this.loopOnGrid) rt.origin = this.loopStart;
     }
+    rt.info.multiple = firstTake ? 1 : Math.max(1, Math.round(buf.duration / (this.loopLength as number)));
     if (this.playing) this.startChannel(rt, firstTake && !this.loopOnGrid ? this.loopStart : null);
     this.syncMetronome(firstTake);
     this.emit();
@@ -1337,7 +1379,7 @@ export class LooperEngine {
     src.connect(gain);
     const when = at ?? joinAt ?? this.ctx.currentTime + 0.02;
     // join the running loop at the right phase
-    const offset = at !== null ? 0 : loopOffset(when, this.loopStart, this.loopLength);
+    const offset = at !== null ? 0 : loopOffset(when, rt.origin, rt.buffer.duration);
     src.start(when, offset % rt.buffer.duration);
     rt.source = src;
     this.applyGains();
@@ -1365,6 +1407,7 @@ export class LooperEngine {
       this.loopStart = this.loopOnGrid ? nextBoundary(this.ctx.currentTime, this.loopStart, this.loopLength, 0.05) : this.ctx.currentTime + 0.05;
       if (!this.loopOnGrid) this.gridAnchor = this.loopStart;
       this.runtimes.forEach((r) => {
+        if (r.buffer) r.origin = this.loopStart;
         if (r.buffer && r.info.active) this.startChannel(r, this.loopStart);
       });
     }
@@ -1380,6 +1423,7 @@ export class LooperEngine {
     rt.info.peaks = null;
     rt.info.state = "empty";
     rt.info.active = true;
+    rt.info.multiple = 0;
     if (!this.runtimes.some((r) => r.buffer)) {
       this.loopLength = null;
       this.playing = true;

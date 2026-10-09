@@ -45,6 +45,7 @@ export const ACTION_CATALOG: CatalogEntry[] = [
   { type: "loop.active", doc: "Start or stop one loop on the next beat.", example: { type: "loop.active", id: 0, on: false } },
   { type: "loop.move", doc: "Move a loop on the stage; inside a group it plays through that group's bus.", example: { type: "loop.move", id: 0, x: 120, y: 120 } },
   { type: "loop.rename", doc: "Rename a loop.", example: { type: "loop.rename", id: 0, name: "Bass" } },
+  { type: "loop.plan", doc: "Plan the length of the next take on a loop: 0 is free, else bars (first loop) or times the first loop (1, 2, 4, 8, 16).", example: { type: "loop.plan", id: 1, plan: 2 } },
   { type: "loop.clear", doc: "Empty one loop (cannot be undone).", example: { type: "loop.clear", id: 0 } },
   { type: "playback.set", doc: "Play everything from the top, or stop.", example: { type: "playback.set", on: true } },
   { type: "master.volume", doc: "Master volume.", example: { type: "master.volume", value: 0.9 } },
