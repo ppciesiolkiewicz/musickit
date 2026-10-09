@@ -5,8 +5,8 @@ import { LooperEngine, MAX_CHANNELS, type LooperSnapshot } from "@/lib/looper/en
 import LooperSettings from "./LooperSettings";
 import Mixer from "./Mixer";
 import FloatingWindow from "../FloatingWindow";
-import Piano from "../Piano";
-import { getAudioContext, getOutputBus } from "@/lib/audio";
+import Piano from "@/features/sound/keyboard/Piano";
+import { createPlayer, getAudioContext, getOutputBus } from "@/features/sound";
 import LoopStage from "./LoopStage";
 import MetronomeBar from "./MetronomeBar";
 import ScalePianoPanel from "./ScalePianoPanel";
@@ -28,7 +28,7 @@ function loopBars(snap: LooperSnapshot): string {
 }
 
 function useEngine() {
-  const [engine] = useState(() => new LooperEngine({ getContext: getAudioContext, getExternalSource: getOutputBus, externalLabel: "Piano" }));
+  const [engine] = useState(() => new LooperEngine({ getContext: getAudioContext, getExternalSource: getOutputBus, externalLabel: "Piano", createVoice: (_ctx, dest) => { const p = createPlayer({ instrumentId: "PIANO", destination: () => dest }); void p.preload().catch(() => undefined); return p; } }));
   useEffect(() => {
     engine.init();
     return () => engine.dispose();

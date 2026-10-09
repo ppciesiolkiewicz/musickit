@@ -4,7 +4,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import Modal from "../Modal";
 import LevelMeter from "./LevelMeter";
 import type { LooperEngine, LooperSnapshot } from "@/lib/looper/engine";
-import { getMidiInputs, onMidiDevicesChanged, requestMidiAccess, setMidiInputFilter } from "@/lib/midi";
+import { getMidiInputs, onMidiDevicesChanged, requestMidiAccess, setMidiInputFilter } from "@/features/sound/keyboard/midi";
 
 const field = "rounded-md border border-slate-700 bg-slate-900 px-2 py-1.5 text-sm text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 const btn = "rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs text-slate-200 transition hover:border-slate-500 disabled:opacity-40";

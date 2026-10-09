@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
-import { getScaleNotes, isNoteInScale, getScaleDegree, SCALE_OPTIONS, TONIC_OPTIONS } from "@/lib/musicTheory";
-import { playNote, stopNote, stopAllNotes, setInstrument, preloadInstrument } from "@/lib/audio";
-import { requestMidiAccess, addMidiListener, getMidiInputs } from "@/lib/midi";
-import { INSTRUMENT_OPTIONS, OSCILLATOR_ID } from "@/lib/instruments";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { getScaleNotes, isNoteInScale, getScaleDegree, SCALE_OPTIONS, TONIC_OPTIONS } from "./musicTheory";
+import { requestMidiAccess, addMidiListener, getMidiInputs } from "./midi";
+import { INSTRUMENT_OPTIONS, OSCILLATOR_ID } from "../engine/instruments";
+import { createPlayer } from "../engine/player";
 
 interface PianoKey {
   id: string;
@@ -85,14 +85,20 @@ export default function Piano() {
   const [instrumentId, setInstrumentId] = useState<string>("PIANO");
   const [midiError, setMidiError] = useState<string | null>(null);
 
+  // This keyboard has its own player, so the instrument chosen here does not change what other pages play.
+  const playerRef = useRef<ReturnType<typeof createPlayer> | null>(null);
+  if (playerRef.current === null) playerRef.current = createPlayer({ instrumentId: "PIANO" });
+  const player = playerRef.current;
+  const playNote = useCallback((n: string) => player.noteOn(n), [player]);
+  const stopNote = useCallback((n: string) => player.noteOff(n), [player]);
+  const stopAllNotes = useCallback(() => player.allOff(), [player]);
+
   useEffect(() => {
     stopAllNotes();
     setPressedKeys(new Set());
-    setInstrument(instrumentId);
-    if (instrumentId !== OSCILLATOR_ID) {
-      preloadInstrument(instrumentId);
-    }
-  }, [instrumentId]);
+    player.setInstrument(instrumentId);
+    if (instrumentId !== OSCILLATOR_ID) void player.preload();
+  }, [instrumentId, player, stopAllNotes]);
 
   const scaleName = scaleType ? `${scaleTonic} ${scaleType}`.trim() : "";
   const scaleNotes = useMemo(
@@ -152,7 +158,7 @@ export default function Piano() {
         setPressedKeys((prev) => new Set(prev).add(noteId));
       }
     },
-    [keyCodeToNote]
+    [keyCodeToNote, playNote]
   );
 
   const handleKeyUp = useCallback(
@@ -169,7 +175,7 @@ export default function Piano() {
         });
       }
     },
-    [keyCodeToNote]
+    [keyCodeToNote, stopNote]
   );
 
   useEffect(() => {
@@ -184,7 +190,7 @@ export default function Piano() {
       window.removeEventListener("keyup", handleKeyUp);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [handleKeyDown, handleKeyUp]);
+  }, [handleKeyDown, handleKeyUp, stopAllNotes]);
 
   useEffect(() => {
     const removeListener = addMidiListener((msg) => {
@@ -201,7 +207,7 @@ export default function Piano() {
       }
     });
     return removeListener;
-  }, []);
+  }, [playNote, stopNote]);
 
   const handleConnectMidi = useCallback(async () => {
     setMidiStatus("connecting");

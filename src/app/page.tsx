@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Piano from "@/components/Piano";
+import Piano from "@/features/sound/keyboard/Piano";
 import Icon, { type IconName } from "@/components/Icon";
 
 /* The words on this page live here so they are easy to change. */

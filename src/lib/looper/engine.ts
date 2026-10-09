@@ -1,7 +1,7 @@
 import { assemble, effectiveGain, loopOffset, msToFrames, nextBoundary, peaks, quantUnitFrames, quantiseLength, type Chunk } from "./frames";
 import { Metronome, type MetronomeSettings } from "./metronome";
 import { Sequencer, type SequencerState } from "./sequencer";
-import { ScalePiano, clampState as clampScalePiano, type ScalePianoState } from "./scalePiano";
+import { ScalePiano, clampState as clampScalePiano, type ScalePianoState, type VoiceFactory } from "./scalePiano";
 import { LoopBus, peakOf } from "./buses";
 import { EFFECT_DEFS, defaultParams, moveEffect, clampParams, sanitiseEffects, type EffectKind, type EffectSpec } from "./effects";
 import { GROUP_COLOURS, clampPoint, clampRect, containingGroup, defaultGroups, defaultSpot, type GroupLayout } from "./layout";
@@ -12,6 +12,7 @@ export type { InputInfo } from "./mixer";
 export type { InputMode, Quantise } from "./frames";
 export { BPM_RANGE, type MetronomeSettings } from "./metronome";
 export { INSTRUMENTS, type Instrument, type SequencerState } from "./sequencer";
+export type { VoiceFactory, NoteVoice } from "./scalePiano";
 export { SCALES, NOTE_NAMES, KEY_ROWS, MIN_OCTAVE, MAX_OCTAVE, buildKeyMap, scalePitchClasses, noteName, type ScalePianoState, type KeyNote } from "./scalePiano";
 export { EFFECT_DEFS, EFFECT_KINDS, type EffectKind, type EffectSpec, type ParamDef } from "./effects";
 export { STAGE_W, STAGE_H, LOOP_R, GROUP_COLOURS } from "./layout";
@@ -44,6 +45,8 @@ export interface LooperOptions {
   getExternalSource?: () => AudioNode;
   /** Name shown for that source, e.g. "Piano". */
   externalLabel?: string;
+  /** Makes the sound of the Scale Piano (the app passes its sample player); a built-in synth is used without it. */
+  createVoice?: VoiceFactory;
 }
 
 export type ChannelState = "empty" | "armed" | "recording" | "playing";
@@ -265,7 +268,7 @@ export class LooperEngine {
     const p = new ScalePiano(id, () => {
       this.saveScalePianos();
       this.emit();
-    });
+    }, this.options.createVoice);
     this.scalePianos.set(id, p);
     this.attachScalePiano(p);
     return p;

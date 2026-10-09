@@ -111,6 +111,14 @@ interface Voice {
 const ATTACK = 0.008;
 const RELEASE = 0.35;
 
+/** Something that can sound notes into a node. The app injects one (its sample player) so the looper uses the same sounds as everything else. */
+export interface NoteVoice {
+  noteOn(midi: number, velocity?: number): void;
+  noteOff(midi: number): void;
+  allOff(): void;
+}
+export type VoiceFactory = (ctx: AudioContext, destination: AudioNode) => NoteVoice;
+
 export class ScalePiano {
   state: ScalePianoState = { ...DEFAULT_SCALE_PIANO };
   out: GainNode | null = null;
@@ -119,7 +127,10 @@ export class ScalePiano {
   private ctx: AudioContext | null = null;
   private voices = new Map<number, Voice>();
 
-  constructor(readonly id: string, private onChange: () => void) {}
+  private voice: NoteVoice | null = null;
+
+  /** `makeVoice` supplies the sound; without one the built-in synth below is used */
+  constructor(readonly id: string, private onChange: () => void, private makeVoice?: VoiceFactory) {}
 
   attach(ctx: AudioContext) {
     this.ctx = ctx;
@@ -129,6 +140,7 @@ export class ScalePiano {
     this.toRecord = ctx.createGain();
     this.out.connect(this.toSpeakers);
     this.out.connect(this.toRecord);
+    this.voice = this.makeVoice?.(ctx, this.out) ?? null;
   }
 
   load(s: Partial<ScalePianoState> | undefined) {
@@ -149,6 +161,7 @@ export class ScalePiano {
   noteOn(midi: number, velocity = 0.8) {
     const ctx = this.ctx;
     if (!ctx || !this.out) return;
+    if (this.voice) return this.voice.noteOn(midi, velocity);
     this.noteOff(midi, true);
     const t = ctx.currentTime;
     const gain = ctx.createGain();
@@ -178,6 +191,7 @@ export class ScalePiano {
   }
 
   noteOff(midi: number, quick = false) {
+    if (this.voice) return this.voice.noteOff(midi);
     const v = this.voices.get(midi);
     const ctx = this.ctx;
     if (!v || !ctx) return;
@@ -197,6 +211,7 @@ export class ScalePiano {
   }
 
   allOff() {
+    this.voice?.allOff();
     [...this.voices.keys()].forEach((m) => this.noteOff(m));
   }
 
@@ -207,6 +222,7 @@ export class ScalePiano {
     } catch {
       /* already disconnected */
     }
+    this.voice = null;
     this.out = this.toSpeakers = this.toRecord = null;
     this.ctx = null;
   }

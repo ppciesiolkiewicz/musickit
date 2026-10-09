@@ -1,6 +1,4 @@
-import { Note } from "@tonaljs/tonal";
-import { getAudioContext } from "@/lib/audio";
-import { playNote, stopNote } from "@/lib/audio";
+import { getAudioContext, getSharedPiano, playMelody as soundMelody, silence as soundSilence } from "@/features/sound";
 
 export interface Hit {
   /** place in the cycle, 0 up to 1 */
@@ -52,29 +50,16 @@ export function startLoop(cycleSeconds: number, hits: Hit[], cycles = Infinity, 
   return { stop, position: () => (((ctx.currentTime - t0) / cycleSeconds) % 1 + 1) % 1 };
 }
 
-let timers: ReturnType<typeof setTimeout>[] = [];
-let sounding: string[] = [];
+export const silence = soundSilence;
 
-export function silence() {
-  timers.forEach(clearTimeout);
-  timers = [];
-  sounding.forEach(stopNote);
-  sounding = [];
-}
-
-/** Play MIDI notes one after another with the app's piano. */
+/** Play MIDI notes one after another on the app's shared piano. */
 export function playMelody(midi: number[], stepMs = 300) {
-  silence();
-  midi.forEach((m, i) => {
-    const name = Note.fromMidiSharps(m);
-    timers.push(setTimeout(() => { playNote(name); sounding.push(name); }, i * stepMs));
-    timers.push(setTimeout(() => { stopNote(name); sounding = sounding.filter((n) => n !== name); }, i * stepMs + stepMs * 0.9));
-  });
+  soundMelody(midi, stepMs);
 }
 
 /** A held root note to improvise over. Returns a function that stops it. */
 export function startDrone(midi: number): () => void {
-  const name = Note.fromMidiSharps(midi);
-  playNote(name);
-  return () => stopNote(name);
+  const piano = getSharedPiano();
+  piano.noteOn(midi);
+  return () => piano.noteOff(midi);
 }
