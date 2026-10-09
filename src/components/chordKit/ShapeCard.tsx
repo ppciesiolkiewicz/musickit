@@ -54,8 +54,8 @@ export default function ShapeCard({ shape, placements, selectedTags, onToggleTag
     <article className="flex min-w-0 flex-col gap-2 rounded-xl border border-slate-800 bg-slate-950/60 p-3">
       <header className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
         <h4 className="text-sm font-medium text-slate-100">{shapeName(shape.suf)}</h4>
-        {shape.v && <span className="rounded bg-slate-800 px-1.5 py-0.5 text-[11px] text-slate-300">{shape.v}</span>}
-        {placements && <span className="ml-auto text-[11px] text-slate-500">{placed.length} chord{placed.length === 1 ? "" : "s"}</span>}
+        {shape.v && <span className="rounded bg-slate-800 px-1.5 py-0.5 text-xs text-slate-300">{shape.v}</span>}
+        {placements && <span className="ml-auto text-xs text-slate-500">{placed.length} chord{placed.length === 1 ? "" : "s"}</span>}
       </header>
 
       <ChordDiagram shape={shape} rootFret={fret} onPlay={play} active={playing} />
@@ -69,7 +69,7 @@ export default function ShapeCard({ shape, placements, selectedTags, onToggleTag
           decDisabled={fret <= lowest}
           incDisabled={fret >= highest}
         />
-        <span className="text-[11px] text-slate-500">{STRING_SHORT[shape.rs]} string root<Info label="About the root fret">The fret where the root note sits. The shape is movable: slide it up or down the neck and it becomes the same chord on another root. The stepper moves it one fret at a time. The root is on the {STRING_SHORT[shape.rs]} string.</Info></span>
+        <span className="text-xs text-slate-500">{STRING_SHORT[shape.rs]} string root<Info label="About the root fret">The fret where the root note sits. The shape is movable: slide it up or down the neck and it becomes the same chord on another root. The stepper moves it one fret at a time. The root is on the {STRING_SHORT[shape.rs]} string.</Info></span>
       </div>
 
       <p className="text-xs text-slate-400">
@@ -92,7 +92,7 @@ export default function ShapeCard({ shape, placements, selectedTags, onToggleTag
                 {p.roman && <span className="text-sky-300">{p.roman}</span>}
                 {p.mode && <span className="text-teal-300">{p.mode}</span>}
                 <span className="ml-auto tabular-nums text-slate-500">fret {p.fret}</span>
-                {p.degrees && <span className="basis-full text-[11px] text-slate-500">degrees {p.degrees}</span>}
+                {p.degrees && <span className="basis-full text-xs text-slate-500">degrees {p.degrees}</span>}
               </button>
             </li>
           ))}
@@ -100,7 +100,7 @@ export default function ShapeCard({ shape, placements, selectedTags, onToggleTag
       )}
 
       <div className="flex flex-wrap gap-1">
-        <span className={`rounded-full border px-2 py-0.5 text-[11px] ${DIFF_CLASS[shape.diff]}`}>
+        <span className={`rounded-full border px-2 py-0.5 text-xs ${DIFF_CLASS[shape.diff]}`}>
           <button type="button" onClick={() => onToggleTag("x:" + shape.diff)} aria-pressed={selectedTags.includes("x:" + shape.diff)}>
             {shape.diff}
           </button>
@@ -136,11 +136,11 @@ function FitLines({ shape, placed }: { shape: RichShape; placed: { name: string;
   if (!first) return null;
   return (
     <div className="mt-1.5">
-      <button type="button" onClick={() => setOpen((v) => !v)} aria-expanded={open} className="text-[11px] text-sky-300 hover:underline">
+      <button type="button" onClick={() => setOpen((v) => !v)} aria-expanded={open} className="text-xs text-sky-300 hover:underline">
         {open ? "Hide" : "Show"} which degree it is in each parent scale
       </button>
       {open && (
-        <ul className="mt-1 space-y-0.5 text-[11px] text-slate-400">
+        <ul className="mt-1 space-y-0.5 text-xs text-slate-400">
           {shape.fit.map((nm) => {
             const m = MODE_LIST.find((x) => x.name === nm)!;
             const parentPc = (first.rootPc - m.family.parent[m.k] + 12) % 12;

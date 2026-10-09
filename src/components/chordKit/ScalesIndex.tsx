@@ -68,7 +68,7 @@ export default function ScalesIndex({ initialKey }: { initialKey: number }) {
                 <div className="flex flex-wrap gap-1.5" aria-label={`Notes of ${ctx.names[0]} ${ctx.modeName}`}>
                   {ctx.names.map((n, i) => (
                     <div key={i} className="flex flex-col items-center gap-0.5">
-                      <span className="text-[11px] tabular-nums text-slate-400">{fmtDegree(labels[i])}</span>
+                      <span className="text-xs tabular-nums text-slate-400">{fmtDegree(labels[i])}</span>
                       <span className="flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold text-slate-950" style={{ background: degreeColour(i) }}>{n}</span>
                     </div>
                   ))}

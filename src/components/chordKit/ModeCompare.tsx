@@ -36,7 +36,7 @@ export default function ModeCompare({ tonicPc }: { tonicPc: number }) {
       <p className="mt-2 text-xs text-slate-400">{cmp.group.why} {n} mode{n === 1 ? "" : "s"}.</p>
 
       <div className="mt-3 flex flex-wrap items-center gap-2" aria-label="Core notes">
-        <span className="text-[11px] uppercase tracking-wider text-slate-500">Core notes</span>
+        <span className="text-xs uppercase tracking-wider text-slate-500">Core notes</span>
         {coreNames.map((c) => (
           <span key={c.semi} className="flex flex-col items-center gap-0.5">
             <span className="flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold text-slate-950" style={{ background: degreeColour(c.index) }}>{c.name}</span>

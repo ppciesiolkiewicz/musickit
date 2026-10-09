@@ -54,7 +54,7 @@ export default function BoxNeck({ cells, box, layers, labelSystem, badges = true
           <Badge key={`b${c.string}-${c.fret}`} x={g.sx(c.string)} y={g.fy(c.fret)} r={RADIUS[t]} text={fmtDegree(c.degreeText)} colour={c.scaleDegree === null ? OUT : degreeColour(c.scaleDegree)} />
         ))}
       </svg>
-      <ul className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-slate-500" aria-label="Key to the dots">
+      <ul className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500" aria-label="Key to the dots">
         <li className="flex items-center gap-1.5"><span className="inline-block h-3 w-3 rounded-full bg-slate-100 ring-2 ring-white/80 ring-offset-1 ring-offset-slate-900" />root</li>
       </ul>
     </div>

@@ -39,7 +39,7 @@ function TriadBox({ v, onPlay, active }: { v: TriadVoicing; onPlay: () => void; 
           );
         })}
       </svg>
-      <div className="text-[11px] tabular-nums text-slate-500">fret {v.lowestFret === 0 ? "0 (open)" : v.lowestFret}</div>
+      <div className="text-xs tabular-nums text-slate-500">fret {v.lowestFret === 0 ? "0 (open)" : v.lowestFret}</div>
     </button>
   );
 }

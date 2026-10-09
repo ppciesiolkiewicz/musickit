@@ -100,7 +100,7 @@ function RhythmLab() {
       <div className="relative flex flex-col gap-1.5 rounded-lg border border-slate-800 bg-slate-950/60 p-2">
         {rows.map((r) => (
           <div key={r.key} className="flex items-center gap-2">
-            <button type="button" className={`grid h-6 w-6 shrink-0 place-items-center rounded-md border text-[11px] ${parts[r.key] ? "border-slate-500 text-slate-100" : "border-slate-800 text-slate-600 line-through"}`} aria-pressed={parts[r.key]} onClick={() => setParts((p) => ({ ...p, [r.key]: !p[r.key] }))} title="Hear this line" aria-label={`Hear ${r.key === "r" ? "the resultant" : `the ${r.label} pulse`}`}>{r.label}</button>
+            <button type="button" className={`grid h-6 w-6 shrink-0 place-items-center rounded-md border text-xs ${parts[r.key] ? "border-slate-500 text-slate-100" : "border-slate-800 text-slate-600 line-through"}`} aria-pressed={parts[r.key]} onClick={() => setParts((p) => ({ ...p, [r.key]: !p[r.key] }))} title="Hear this line" aria-label={`Hear ${r.key === "r" ? "the resultant" : `the ${r.label} pulse`}`}>{r.label}</button>
             <div className="relative h-6 flex-1">
               <div className="absolute inset-x-0 top-1/2 h-px bg-slate-800" />
               {r.pts.map((p) => <span key={p} className="absolute top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full" style={{ left: `${(p / it.length) * 100}%`, background: r.col, opacity: parts[r.key] ? 1 : 0.25 }} />)}

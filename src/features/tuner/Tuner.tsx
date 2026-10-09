@@ -110,7 +110,7 @@ export default function Tuner() {
             <button key={s.midi} type="button" onClick={() => strum([s.midi], { gapMs: 0, holdMs: 1500 })} title={`Hear the open ${s.name} string`}
               className={`flex flex-col items-center gap-0.5 rounded-xl border p-2 transition ${near ? (Math.abs(c) < 5 ? "border-emerald-400 bg-emerald-500/15" : "border-sky-400 bg-sky-500/10") : "border-slate-800 bg-slate-900/40 hover:border-slate-600"}`}>
               <span className="text-lg text-slate-100">{s.name.toUpperCase()}<span className="text-xs text-slate-500">{s.octave}</span></span>
-              <span className="h-4 text-[11px] tabular-nums text-slate-400">{near ? `${c > 0 ? "+" : ""}${Math.round(c)}` : "▶"}</span>
+              <span className="h-4 text-xs tabular-nums text-slate-400">{near ? `${c > 0 ? "+" : ""}${Math.round(c)}` : "▶"}</span>
             </button>
           );
         })}

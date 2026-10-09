@@ -25,7 +25,7 @@ export function ChipRow({ label, children, info }: { label: string; children: Re
   const [open, setOpen] = useState(false);
   return (
     <div className="flex flex-wrap items-center gap-1.5">
-      <span className="flex w-28 shrink-0 items-center gap-1 text-[11px] uppercase tracking-wider text-slate-500">
+      <span className="flex w-28 shrink-0 items-center gap-1 text-xs uppercase tracking-wider text-slate-500">
         {label}
         {info && <InfoButton open={open} onClick={() => setOpen((v) => !v)} label={`About ${label.toLowerCase()}`} />}
       </span>
@@ -57,7 +57,7 @@ export function InfoBox({ children }: { children: ReactNode }) {
 /** The seven scale-degree colours, with their names. */
 export function DegreeLegend() {
   return (
-    <span className="inline-flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-slate-400" aria-label="Colour key: scale degrees">
+    <span className="inline-flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-400" aria-label="Colour key: scale degrees">
       {DEGREE_COLOURS.map((c, i) => (
         <span key={i} className="inline-flex items-center gap-1">
           <span className="inline-block h-3 w-3 rounded-full border border-slate-700" style={{ background: c }} />
@@ -81,7 +81,7 @@ export function Tag({ children, on, onClick, tone = "form" }: { children: ReactN
       type="button"
       onClick={onClick}
       aria-pressed={on}
-      className={`rounded-full border px-2 py-0.5 text-[11px] transition hover:bg-slate-800 ${tones[tone]} ${on ? "bg-sky-500/20 !text-sky-100 !border-sky-400" : ""}`}
+      className={`rounded-full border px-2 py-0.5 text-xs transition hover:bg-slate-800 ${tones[tone]} ${on ? "bg-sky-500/20 !text-sky-100 !border-sky-400" : ""}`}
     >
       {children}
     </button>

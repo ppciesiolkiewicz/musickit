@@ -15,10 +15,11 @@ import {
 } from "@/lib/chordKit/caged";
 import { STRING_SHORT } from "@/lib/chordKit/shapeTools";
 import { arpeggioMidi } from "@/lib/chordKit/arpeggios";
+import { shapesForChord } from "@/lib/chordKit/chordShapes";
 import { strum, strumShape } from "@/lib/chordKit/playback";
 
 const LANE_COLOURS = ["#f87171", "#fb923c", "#facc15", "#4ade80", "#60a5fa"];
-const play = "rounded-full border border-emerald-500/70 bg-emerald-500/10 px-2.5 py-1 text-[11px] text-emerald-100 hover:bg-emerald-500/25";
+const play = "rounded-full border border-emerald-500/70 bg-emerald-500/10 px-2.5 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25";
 
 /** CAGED system: five chord forms, the neck box each one marks out, and the arpeggio, scale and pentatonic inside it. */
 export default function CagedExplorer() {
@@ -60,6 +61,8 @@ export default function CagedExplorer() {
 
       <NotesTable rootPc={rootPc} quality={quality} arpKind={arpKind} />
 
+      <KeyChords rootPc={rootPc} quality={quality} keyName={keyName} />
+
       <Overview boxes={boxes} keyName={keyName} quality={quality} rootPc={rootPc} arpKind={arpKind} labelSystem={labelSystem} />
 
       <div className="flex flex-col gap-4">
@@ -91,11 +94,35 @@ function NotesTable({ rootPc, quality, arpKind }: { rootPc: number; quality: Cag
             <div className="flex flex-wrap gap-2">
               {r.notes.map((n) => (
                 <div key={n.semi} className="flex w-10 flex-col items-center gap-1">
-                  <span className="text-[11px] tabular-nums text-slate-400">{intervalName(n.semi)}</span>
+                  <span className="text-xs tabular-nums text-slate-400">{intervalName(n.semi)}</span>
                   <span className={`grid h-9 w-9 place-items-center rounded-full text-sm font-bold text-slate-950 ${n.semi === 0 ? "ring-2 ring-white" : "ring-1 ring-slate-950"}`} style={{ backgroundColor: n.deg === null ? "#f43f5e" : degreeColour(n.deg) }}>{n.name}</span>
                 </div>
               ))}
             </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+/** The basic chord on every degree of the key, with the easiest shape. */
+function KeyChords({ rootPc, quality, keyName }: { rootPc: number; quality: CagedQuality; keyName: string }) {
+  const ctx = useMemo(() => cagedContext(rootPc, quality), [rootPc, quality]);
+  const items = useMemo(() => ctx.chords.map((c, d) => ({ c, d, pick: shapesForChord(ctx, d)[0] })), [ctx]);
+  return (
+    <section className="rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5" aria-label={`Chords in ${keyName} ${quality}`}>
+      <h2 className="mb-2 text-sm font-medium text-slate-100">
+        Chords in {keyName} {quality}
+        <Info label="About these chords">The chord built on each note of the scale, with the easiest shape for it. The Roman numeral is the degree: capitals are major chords, lower case minor. Tap a diagram to hear it.</Info>
+      </h2>
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-7">
+        {items.map(({ c, d, pick }) => (
+          <div key={d} className={`flex flex-col items-center gap-0.5 rounded-xl border p-2 ${d === 0 ? "border-sky-500/60 bg-sky-500/10" : "border-slate-800 bg-slate-950/50"}`}>
+            <span className="text-xs text-slate-400">{c.roman}</span>
+            <span className="text-base font-medium text-slate-100">{c.triadName}</span>
+            {pick ? (
+              <div className="w-full max-w-[8rem]"><ChordDiagram shape={pick.shape} rootFret={pick.fret} onPlay={() => strumShape(pick.shape, pick.fret)} /></div>
+            ) : <span className="py-6 text-xs text-slate-500">no easy shape</span>}
           </div>
         ))}
       </div>
@@ -152,7 +179,7 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem }: { b
       </h2>
       <div className="overflow-x-auto">
         <div
-          className="grid min-w-[820px] gap-y-0 text-[11px]"
+          className="grid min-w-[820px] gap-y-0 text-xs"
           style={{ gridTemplateColumns: `1.5rem ${frets.map((f) => `${fretWidthFactor(f).toFixed(3)}fr`).join(" ")}`, gridTemplateRows: "auto repeat(6, 2.6rem) auto" }}
           role="group" aria-label="Chord tones on the whole neck with the five CAGED boxes marked"
         >
@@ -188,7 +215,7 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem }: { b
                       type="button"
                       onClick={() => strum([c.midi], { gapMs: 0, holdMs: 700 })}
                       aria-label={`${lab(c)} on string ${STRING_LETTERS[s]}, fret ${f}`}
-                      className={`grid h-7 w-7 place-items-center rounded-full text-[11px] font-bold text-slate-950 ${c.isRoot ? "ring-2 ring-white" : "ring-1 ring-slate-950"}`}
+                      className={`grid h-7 w-7 place-items-center rounded-full text-xs font-bold text-slate-950 ${c.isRoot ? "ring-2 ring-white" : "ring-1 ring-slate-950"}`}
                       style={{ backgroundColor: c.scaleDegree === null ? "#f43f5e" : degreeColour(c.scaleDegree) }}
                     >
                       {lab(c)}
@@ -261,7 +288,7 @@ function BoxCard({ box, index, rootPc, quality, arpKind, labelSystem, badges, no
                 <div key={c.shape.id} className="flex flex-col items-center gap-0.5 rounded-xl border border-slate-800 bg-slate-950/50 p-2">
                   <span className="text-sm font-medium text-slate-100">{c.name}</span>
                   <div className="w-24"><ChordDiagram shape={c.shape} rootFret={c.rootFret} onPlay={() => strumShape(c.shape, c.rootFret)} /></div>
-                  <span className="text-[11px] text-slate-500">{c.shape.v ?? "fret " + c.rootFret}</span>
+                  <span className="text-xs text-slate-500">{c.shape.v ?? "fret " + c.rootFret}</span>
                 </div>
               ))}
             </div>

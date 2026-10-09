@@ -32,7 +32,7 @@ export default function ChordShapeCarousel({ ctx, degree, onShowAll }: { ctx: Ke
         <div className="min-w-0 flex-1"><ChordDiagram shape={cur.shape} rootFret={cur.fret} onPlay={play} active={playing} /></div>
         <button type="button" className={arrow} onClick={() => go(1)} aria-label="Next shape">›</button>
       </div>
-      <div className="flex flex-wrap items-center justify-center gap-x-1.5 text-[11px] text-slate-400">
+      <div className="flex flex-wrap items-center justify-center gap-x-1.5 text-xs text-slate-400">
         <span className="text-sm font-medium text-slate-100">{ctx.names[degree]}{cur.shape.suf}</span>
         {cur.shape.v && <span>{cur.shape.v}</span>}
         <span className={`rounded-full border px-1.5 ${DIFF_CLASS[cur.shape.diff]}`}>{cur.shape.diff}</span>

@@ -151,7 +151,7 @@ function Detail({ D }: { D: ResolvedProgression }) {
                 <div className="flex items-center gap-2 text-sm">
                   <span className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-800 text-xs">{String.fromCharCode(65 + si)}</span>
                   <b className="text-slate-100">{sc.name}</b>
-                  {!sc.loop && <span className="rounded-full border border-violet-500/40 px-2 text-[11px] text-violet-300">side trip</span>}
+                  {!sc.loop && <span className="rounded-full border border-violet-500/40 px-2 text-xs text-violet-300">side trip</span>}
                 </div>
                 {sc.note && <p className="mt-1 text-xs text-slate-400">{sc.note}</p>}
                 <div className="mt-2 flex flex-wrap items-start gap-2">
@@ -163,9 +163,9 @@ function Detail({ D }: { D: ResolvedProgression }) {
                         {ci > 0 && <span className="text-slate-600">→</span>}
                         <div className="w-24 text-center">
                           <div className="text-sm font-medium text-slate-100">{c.name}{c.x > 1 && <span className="ml-1 text-xs text-slate-500">×{c.x}</span>}</div>
-                          <div className="text-[11px] text-slate-500">{c.roman}{sh?.v ? ` · ${sh.v}` : ""}</div>
+                          <div className="text-xs text-slate-500">{c.roman}{sh?.v ? ` · ${sh.v}` : ""}</div>
                           {sh ? <ChordDiagram shape={sh} rootFret={r} onPlay={() => playChord(c)} active={playingKey === c.key} /> : <div className="py-6 text-xs text-slate-600">no shape</div>}
-                          {sh && <div className="text-[11px] text-slate-500">{STRING_SHORT[sh.rs]} string · fret {r}</div>}
+                          {sh && <div className="text-xs text-slate-500">{STRING_SHORT[sh.rs]} string · fret {r}</div>}
                         </div>
                       </div>
                     );
@@ -199,12 +199,12 @@ function Detail({ D }: { D: ResolvedProgression }) {
                     const pick = !!u.v && sh.v === u.v;
                     return (
                       <div key={sh.id} className={`rounded-lg border p-2 ${pick ? "border-sky-500/70" : "border-slate-800"}`}>
-                        <div className="mb-1 flex items-center gap-1.5 text-[11px]">
+                        <div className="mb-1 flex items-center gap-1.5 text-xs">
                           <span className={`rounded-full border px-1.5 ${DIFF_CLASS[sh.diff]}`}>{sh.diff}</span>
                           {sh.v && <span className="text-slate-400">{sh.v}{pick ? " ★" : ""}</span>}
                         </div>
                         <ChordDiagram shape={sh} rootFret={r} onPlay={() => strumShape(sh, r)} />
-                        <div className="text-[11px] text-slate-500">{STRING_SHORT[sh.rs]} string root · fret {r}</div>
+                        <div className="text-xs text-slate-500">{STRING_SHORT[sh.rs]} string root · fret {r}</div>
                       </div>
                     );
                   }) : <p className="col-span-full text-xs text-slate-500">No movable shape for this chord yet.</p>}
