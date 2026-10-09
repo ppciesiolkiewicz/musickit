@@ -96,6 +96,8 @@ export interface CagedCell {
   name: string;
   /** degree in the key: "1", "♭3", "5" */
   degreeText: string;
+  /** semitones above the key root */
+  semi: number;
   /** 0-based index in the 7-note scale, null if outside it */
   scaleDegree: number | null;
   inScale: boolean;
@@ -131,6 +133,7 @@ export function boxCells(rootPc: number, quality: CagedQuality, box: CagedBox, a
         string: s, fret: f, pc, midi,
         name: a ? a.name : deg >= 0 ? ctx.names[deg] : "",
         degreeText: degreeLabel(pc, ctx),
+        semi: (pc - rootPc + 12) % 12,
         scaleDegree: deg >= 0 ? deg : null,
         inScale: deg >= 0,
         inPent: pentPcs.has(pc),

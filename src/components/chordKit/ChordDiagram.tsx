@@ -1,6 +1,7 @@
 "use client";
 
 import type { Shape } from "@/lib/chordKit/shapes";
+import { fmtInterval } from "@/lib/chordKit/labels";
 import { intervalLabel, OPEN_PITCH, ROOT_INDEX } from "@/lib/chordKit/shapeTools";
 import { GROUP_SWATCH, swatchFor } from "./palette";
 
@@ -49,7 +50,7 @@ export default function ChordDiagram({ shape, rootFret, onPlay, active }: Props)
             </text>
           );
         const semi = (((OPEN_PITCH[i] + (shape.f[i] as number) - OPEN_PITCH[ri]) % 12) + 12) % 12;
-        const label = intervalLabel(shape, semi);
+        const label = fmtInterval(intervalLabel(shape, semi));
         const sw = semi === 0 ? GROUP_SWATCH.root : swatchFor(label);
         const y = a === 0 ? top - 12 : top + (a - lo) * fsz + fsz / 2;
         return (

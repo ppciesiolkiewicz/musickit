@@ -3,6 +3,7 @@
 import { Badge, FretboardBase, fretGeometry } from "./Fretboard";
 import type { CagedBox, CagedCell } from "@/lib/chordKit/caged";
 import { degreeColour } from "@/lib/chordKit/scales";
+import { fmtDegree, noteLabel, type LabelSystem } from "@/lib/chordKit/labels";
 
 export interface Layers {
   chord: boolean;
@@ -10,17 +11,16 @@ export interface Layers {
   pent: boolean;
   scale: boolean;
 }
-export type LabelMode = "name" | "degree";
 
 type Tier = "chord" | "arp" | "pent" | "scale";
 const RADIUS: Record<Tier, number> = { chord: 14, arp: 14, pent: 12, scale: 9 };
 const OUT = "#f43f5e";
 
 /** A horizontal slice of the neck for one CAGED box. Chord, arpeggio, pentatonic and scale notes are drawn in layers of decreasing size. */
-export default function BoxNeck({ cells, box, layers, labelMode, badges = true, onNote }: { cells: CagedCell[]; box: CagedBox; layers: Layers; labelMode: LabelMode; badges?: boolean; onNote: (c: CagedCell) => void }) {
+export default function BoxNeck({ cells, box, layers, labelSystem, badges = true, onNote }: { cells: CagedCell[]; box: CagedBox; layers: Layers; labelSystem: LabelSystem; badges?: boolean; onNote: (c: CagedCell) => void }) {
   const g = fretGeometry(box.from, box.to);
-  const labelFor = (c: CagedCell) => (labelMode === "name" ? c.name : c.degreeText);
-  const showBadge = badges && labelMode === "name";
+  const labelFor = (c: CagedCell) => noteLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText, role: c.arpRole });
+  const showBadge = badges && labelSystem === "note";
 
   const tier = (c: CagedCell): Tier | null => {
     if (layers.chord && c.inChord) return "chord";
@@ -59,7 +59,7 @@ export default function BoxNeck({ cells, box, layers, labelMode, badges = true, 
           );
         })}
         {showBadge && placed.map(({ c, t }) => (
-          <Badge key={`b${c.string}-${c.fret}`} x={g.fx(c.fret)} y={g.sy(c.string)} r={RADIUS[t] + (t === "chord" ? 3 : 0)} text={c.degreeText} colour={c.scaleDegree === null ? OUT : degreeColour(c.scaleDegree)} />
+          <Badge key={`b${c.string}-${c.fret}`} x={g.fx(c.fret)} y={g.sy(c.string)} r={RADIUS[t] + (t === "chord" ? 3 : 0)} text={fmtDegree(c.degreeText)} colour={c.scaleDegree === null ? OUT : degreeColour(c.scaleDegree)} />
         ))}
       </svg>
       <ul className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-slate-500" aria-label="Key to the dots">

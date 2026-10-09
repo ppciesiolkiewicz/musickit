@@ -61,7 +61,7 @@ export function DegreeLegend() {
       {DEGREE_COLOURS.map((c, i) => (
         <span key={i} className="inline-flex items-center gap-1">
           <span className="inline-block h-3 w-3 rounded-full border border-slate-700" style={{ background: c }} />
-          {i + 1}
+          {["R", "2", "3", "4", "p5", "6", "7"][i]}
         </span>
       ))}
     </span>
@@ -90,25 +90,30 @@ export function Tag({ children, on, onClick, tone = "form" }: { children: ReactN
 
 /** A collapsible section. Controlled when `open`/`onToggle` are given, otherwise it keeps its own state. */
 export function Section({
-  title, meta, children, level = 1, open, onToggle, defaultOpen = true,
+  title, meta, info, children, level = 1, open, onToggle, defaultOpen = true,
 }: {
-  title: ReactNode; meta?: ReactNode; children: ReactNode; level?: 1 | 2; open?: boolean; onToggle?: () => void; defaultOpen?: boolean;
+  title: ReactNode; meta?: ReactNode; info?: ReactNode; children: ReactNode; level?: 1 | 2; open?: boolean; onToggle?: () => void; defaultOpen?: boolean;
 }) {
   const [own, setOwn] = useState(defaultOpen);
   const isOpen = open ?? own;
   const toggle = onToggle ?? (() => setOwn((v) => !v));
+  const [infoOpen, setInfoOpen] = useState(false);
   return (
     <section className={level === 1 ? "rounded-2xl border border-slate-800 bg-slate-900/40" : ""}>
-      <button
-        type="button"
-        onClick={toggle}
-        aria-expanded={isOpen}
-        className={`flex w-full items-center gap-2 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${level === 1 ? "px-4 py-3 text-sm font-medium text-slate-100" : "py-2 text-xs font-medium uppercase tracking-wider text-slate-400"}`}
-      >
-        <span className={`inline-block transition-transform ${isOpen ? "rotate-90" : ""}`} aria-hidden>▸</span>
-        <span>{title}</span>
-        {meta && <span className="ml-auto text-xs font-normal normal-case tracking-normal text-slate-500">{meta}</span>}
-      </button>
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={toggle}
+          aria-expanded={isOpen}
+          className={`flex min-w-0 flex-1 items-center gap-2 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${level === 1 ? "px-4 py-3 text-sm font-medium text-slate-100" : "py-2 text-xs font-medium uppercase tracking-wider text-slate-400"}`}
+        >
+          <span className={`inline-block transition-transform ${isOpen ? "rotate-90" : ""}`} aria-hidden>▸</span>
+          <span>{title}</span>
+          {meta && <span className="ml-auto text-xs font-normal normal-case tracking-normal text-slate-500">{meta}</span>}
+        </button>
+        {info && <span className={level === 1 ? "pr-4" : ""}><InfoButton open={infoOpen} onClick={() => setInfoOpen((v) => !v)} label="About this section" /></span>}
+      </div>
+      {info && infoOpen && <div className={level === 1 ? "px-4 pb-2" : "pb-2"}><InfoBox>{info}</InfoBox></div>}
       {isOpen && <div className={level === 1 ? "px-4 pb-4" : "pb-2"}>{children}</div>}
     </section>
   );

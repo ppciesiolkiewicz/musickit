@@ -1,5 +1,6 @@
 "use client";
 
+import { fmtDegree } from "@/lib/chordKit/labels";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { KeyPicker } from "./KeyPicker";
@@ -67,7 +68,7 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey }: { fami
           {ctx.names.map((n, i) => (
             <div key={i} className="flex flex-col items-center gap-0.5">
               <span className="flex h-11 w-11 items-center justify-center rounded-full text-sm font-semibold text-slate-950" style={{ background: degreeColour(i) }}>{n}</span>
-              <span className="text-[11px] tabular-nums text-slate-500">{labels[i]}</span>
+              <span className="text-[11px] tabular-nums text-slate-500">{fmtDegree(labels[i])}</span>
             </div>
           ))}
           <button type="button" onClick={playScale} className="ml-2 rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25">▶ Play scale</button>

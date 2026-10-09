@@ -115,6 +115,8 @@ export interface NeckCell {
   name: string;
   /** degree label in the key, e.g. "♭3" */
   degreeText: string;
+  /** semitones above the key root */
+  semi: number;
 }
 
 export function neckCells(ctx: KeyContext, arp: Arpeggio): NeckCell[] {
@@ -133,6 +135,7 @@ export function neckCells(ctx: KeyContext, arp: Arpeggio): NeckCell[] {
         arp: a,
         name: a ? a.name : deg >= 0 ? ctx.names[deg] : "",
         degreeText: degreeLabel(pc, ctx),
+        semi: (pc - ctx.tonic.pc + 12) % 12,
       });
     }
   }

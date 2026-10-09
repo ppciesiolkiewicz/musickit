@@ -1,7 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import BoxNeck, { type Layers, type LabelMode } from "./BoxNeck";
+import BoxNeck, { type Layers } from "./BoxNeck";
+import { LabelSelect, useLabelSystem } from "./useLabelSystem";
+import type { LabelSystem } from "@/lib/chordKit/labels";
 import ChordDiagram from "./ChordDiagram";
 import { KeyPicker } from "./KeyPicker";
 import { fretWidthFactor } from "./Fretboard";
@@ -22,7 +24,7 @@ export default function CagedExplorer() {
   const [rootPc, setRootPc] = useState(0);
   const [quality, setQuality] = useState<CagedQuality>("major");
   const [arpKind, setArpKind] = useState<ArpKind>("triad");
-  const [labelMode, setLabelMode] = useState<LabelMode>("name");
+  const [labelSystem] = useLabelSystem();
   const [badges, setBadges] = useState(true);
 
   const th = CAGED_THEORY[quality];
@@ -43,10 +45,9 @@ export default function CagedExplorer() {
           <Chip on={arpKind === "triad"} onClick={() => setArpKind("triad")}>Triad</Chip>
           <Chip on={arpKind === "seventh"} onClick={() => setArpKind("seventh")}>{quality === "major" ? "Maj7" : "Min7"}</Chip>
         </ChipRow>
-        <ChipRow label="Labels" info="Note names (C, E, G) or scale degrees (1, 3, 5, or 1, ♭3, 5 in minor). The colour of a dot is its scale degree either way. Degree badges add a tiny circle on each dot with its scale degree, so you see the note name and its job at the same time.">
-          <Chip on={labelMode === "name"} onClick={() => setLabelMode("name")}>Note names</Chip>
-          <Chip on={labelMode === "degree"} onClick={() => setLabelMode("degree")}>Scale degrees</Chip>
-          <Chip on={badges && labelMode === "name"} onClick={() => setBadges((v) => !v)}>Degree badges</Chip>
+        <ChipRow label="Labels" info="Pick how notes are labelled: note names, intervals from the root (R, b3, p5), scale degrees or chord tones. It is the same setting as the dropdown at the top of every page. The colour of a dot is its scale degree either way. Badges add the interval on each note-name dot.">
+          <LabelSelect showLabel={false} />
+          <Chip on={badges && labelSystem === "note"} onClick={() => setBadges((v) => !v)}>Badges</Chip>
         </ChipRow>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
           <DegreeLegend />
@@ -60,7 +61,7 @@ export default function CagedExplorer() {
 
       <div className="flex flex-col gap-4">
         {boxes.map((box, i) => (
-          <BoxCard key={box.letter} box={box} index={i} rootPc={rootPc} quality={quality} arpKind={arpKind} labelMode={labelMode} badges={badges} notes={notes} />
+          <BoxCard key={box.letter} box={box} index={i} rootPc={rootPc} quality={quality} arpKind={arpKind} labelSystem={labelSystem} badges={badges} notes={notes} />
         ))}
       </div>
     </div>
@@ -100,8 +101,8 @@ function Overview({ boxes, keyName, quality }: { boxes: CagedBox[]; keyName: str
   );
 }
 
-function BoxCard({ box, index, rootPc, quality, arpKind, labelMode, badges, notes }: {
-  box: CagedBox; index: number; rootPc: number; quality: CagedQuality; arpKind: ArpKind; labelMode: LabelMode; badges: boolean; notes: ReturnType<typeof layerNotes>;
+function BoxCard({ box, index, rootPc, quality, arpKind, labelSystem, badges, notes }: {
+  box: CagedBox; index: number; rootPc: number; quality: CagedQuality; arpKind: ArpKind; labelSystem: LabelSystem; badges: boolean; notes: ReturnType<typeof layerNotes>;
 }) {
   const th = CAGED_THEORY[quality];
   const ctx = useMemo(() => cagedContext(rootPc, quality), [rootPc, quality]);
@@ -126,16 +127,17 @@ function BoxCard({ box, index, rootPc, quality, arpKind, labelMode, badges, note
   return (
     <section id={`box-${box.letter}`} className="scroll-mt-4">
       <Section
-        title={<span><span className="mr-2 inline-block rounded px-1.5 text-slate-950" style={{ background: LANE_COLOURS[index % 5] }}>{box.letter}</span>{box.letter} shape · {box.chordName}</span>}
+        title={<span><span className="mr-2 inline-block rounded px-1.5 text-slate-950" style={{ background: LANE_COLOURS[index % 5] }}>{box.letter}</span>{box.letter} shape · {box.chordName} chord</span>}
+        info={<>The {box.letter} shape is the open {box.letter} chord form moved up the neck as a barre chord. Here it gives {box.chordName}. The box of notes around it, frets {box.from} to {box.to}, holds the arpeggio, scale and pentatonic.</>}
         meta={fretText}
       >
-        <div className="grid gap-3 xl:grid-cols-[10rem_repeat(3,minmax(0,1fr))]">
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <div className="flex min-w-0 flex-col gap-1.5 rounded-xl border border-slate-800 bg-slate-950/50 p-2">
             <div className="flex items-center gap-2">
               <h3 className="text-sm font-medium text-slate-100">CAGED / Chord</h3>
               <button type="button" className={`${play} ml-auto`} onClick={hearChord} aria-label="Play the chord">▶ Play</button>
             </div>
-            <div className="mx-auto w-32"><ChordDiagram shape={box.shape} rootFret={box.rootFret} onPlay={hearChord} active={hearing} /></div>
+            <div className="mx-auto w-full max-w-[16rem]"><ChordDiagram shape={box.shape} rootFret={box.rootFret} onPlay={hearChord} active={hearing} /></div>
             <p className="text-xs text-slate-400"><b className="text-slate-200">{box.chordName}</b>, root on the {STRING_SHORT[box.shape.rs]} string{box.rootFret > 0 ? `, fret ${box.rootFret}` : ", open"}</p>
           </div>
           {panels.map((p) => (
@@ -144,7 +146,7 @@ function BoxCard({ box, index, rootPc, quality, arpKind, labelMode, badges, note
                 <h3 className="text-sm font-medium text-slate-100">{p.title}</h3>
                 <button type="button" className={`${play} ml-auto`} onClick={p.onPlay} aria-label={`Play the ${p.title}`}>▶ Play</button>
               </div>
-              <BoxNeck cells={cells} box={box} layers={p.layers} labelMode={labelMode} badges={badges} onNote={onNote} />
+              <BoxNeck cells={cells} box={box} layers={p.layers} labelSystem={labelSystem} badges={badges} onNote={onNote} />
               <p className="text-xs text-slate-400">{p.notes}</p>
             </div>
           ))}

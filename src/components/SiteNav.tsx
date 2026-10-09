@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { LabelSelect } from "./chordKit/useLabelSystem";
 
 export const SITE_LINKS = [
   { href: "/", label: "Piano" },
@@ -26,6 +27,7 @@ export default function SiteNav({ active }: { active: string }) {
           {l.label}
         </Link>
       ))}
+      <LabelSelect className="ml-auto" />
     </nav>
   );
 }

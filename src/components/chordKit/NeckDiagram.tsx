@@ -2,6 +2,7 @@
 
 import { fretWidthFactor } from "./Fretboard";
 import { HUES } from "./palette";
+import { fmtInterval } from "@/lib/chordKit/labels";
 import { intervalLabel, OPEN_PITCH } from "@/lib/chordKit/shapeTools";
 import { intervalText, NECK_FRETS, type Instance, type Move } from "@/lib/chordKit/progressions";
 
@@ -94,7 +95,7 @@ export default function NeckDiagram({ title, specs, moves, scalePcs, focus = nul
           return (
             <g key={`p${k}`} opacity={dim(sp.ci)}>
               {pts.map((p) => {
-                const lab = intervalLabel(sp.shape, p.semi);
+                const lab = fmtInterval(intervalLabel(sp.shape, p.semi));
                 const root = p.semi === 0;
                 return (
                   <g key={p.i}>
