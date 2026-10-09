@@ -229,7 +229,7 @@ export default function LooperApp() {
         <div className="pointer-events-auto"><MetronomeBar engine={engine} snap={snap} ready={ready} /></div>
         <div className="pointer-events-auto flex gap-1">
           <button type="button" className={ibtn} onClick={() => setNewOpen(true)} title="New project" aria-label="New project"><Icon name="file-plus" /></button>
-          <button type="button" className={`${ibtn} ${patchOpen ? "border-sky-500" : ""}`} aria-pressed={patchOpen} onClick={() => setPatchOpen((v) => !v)} title="Patch: connect inputs, effects, switches and groups" aria-label="Patch"><Icon name="git-merge" /></button>
+          <button type="button" className={`${ibtn} gap-0.5 ${patchOpen ? "border-sky-500" : ""}`} aria-pressed={patchOpen} onClick={() => setPatchOpen((v) => !v)} title="Patch: connect inputs, effects, switches and groups" aria-label="Patch"><Icon name="git-merge" /><span className="ml-1 text-xs">Patch</span></button>
           <button type="button" className={ibtn} disabled={!canUndo} onClick={() => engine.history.undo()} title="Undo (Ctrl+Z)" aria-label="Undo"><Icon name="undo-2" /></button>
           <button type="button" className={ibtn} disabled={!canRedo} onClick={() => engine.history.redo()} title="Redo (Ctrl+Shift+Z)" aria-label="Redo"><Icon name="redo-2" /></button>
           <button type="button" className={`${ibtn} ${historyOpen ? "border-sky-500" : ""}`} aria-pressed={historyOpen} onClick={() => setHistoryOpen((v) => !v)} title="History" aria-label="History"><Icon name="history" /></button>
@@ -251,7 +251,7 @@ export default function LooperApp() {
         />
       ) : mixer(false)}
       {patchOpen && (
-        <FloatingWindow title="Patch" storageKey="musickit.looper.patchWindow" onClose={() => setPatchOpen(false)}>
+        <FloatingWindow title="Patch" storageKey="musickit.looper.patchWindow" initial={{ w: 1040, h: 640 }} onClose={() => setPatchOpen(false)}>
           <PatchWindow engine={engine} snap={snap} />
         </FloatingWindow>
       )}
