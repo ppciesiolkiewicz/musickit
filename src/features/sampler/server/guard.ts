@@ -20,19 +20,22 @@ export function parseGenerate(body: unknown): GenerateRequest | string {
   return { provider, prompt, seconds: Math.min(provider.maxSeconds, Math.max(provider.minSeconds, seconds)) };
 }
 
+/** The one password that unlocks every provider key the site holds. `SAMPLER_ACCESS_CODE` is the old name and still works. */
+export const sitePassword = (env: Record<string, string | undefined>): string | undefined => (env.SAMPLER_SITE_PASSWORD ?? env.SAMPLER_ACCESS_CODE)?.trim() || undefined;
+
 export type KeyChoice = { ok: true; key: string; own: boolean } | { ok: false; status: number; error: string };
 
 /**
  * Which key pays for a call. A person's own key is used as given. The app's key from the environment is used only when
  * the server also has an access code and the caller sent it: without that, anyone who finds the page could spend the app's credit.
  */
-export function chooseKey(args: { ownKey?: string | null; accessCode?: string | null; env: Record<string, string | undefined>; keyEnv: string }): KeyChoice {
+export function chooseKey(args: { ownKey?: string | null; sitePassword?: string | null; env: Record<string, string | undefined>; keyEnv: string }): KeyChoice {
   const own = args.ownKey?.trim();
   if (own) return { ok: true, key: own, own: true };
   const key = args.env[args.keyEnv]?.trim();
-  const code = args.env.SAMPLER_ACCESS_CODE?.trim();
-  if (!key || !code) return { ok: false, status: 403, error: "This site has no sample key set up. Use your own key." };
-  if (!args.accessCode || !sameText(args.accessCode, code)) return { ok: false, status: 401, error: "Wrong access code." };
+  const code = sitePassword(args.env);
+  if (!key || !code) return { ok: false, status: 403, error: `This site has no key set up for this provider. Use your own key.` };
+  if (!args.sitePassword || !sameText(args.sitePassword, code)) return { ok: false, status: 401, error: "Wrong site password." };
   return { ok: true, key, own: false };
 }
 

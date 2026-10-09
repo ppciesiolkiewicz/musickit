@@ -13,8 +13,8 @@ export interface GenerateOptions {
   provider: string;
   prompt: string;
   seconds: number;
-  /** the site's access code, when the site's own key is used */
-  accessCode?: string;
+  /** the site password, when the site's own key is used */
+  sitePassword?: string;
   /** a person's own provider key; sent only to this site's server, which forwards it to the provider and does not keep it */
   ownKey?: string;
 }
@@ -22,7 +22,7 @@ export interface GenerateOptions {
 /** Asks the server for a sample. Throws a short, showable message when it fails. */
 export async function generateSample(o: GenerateOptions): Promise<Blob> {
   const headers: Record<string, string> = { "content-type": "application/json" };
-  if (o.accessCode) headers["x-access-code"] = o.accessCode;
+  if (o.sitePassword) headers["x-site-password"] = o.sitePassword;
   if (o.ownKey) headers["x-provider-key"] = o.ownKey;
   let res: Response;
   try {

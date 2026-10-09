@@ -14,19 +14,23 @@ const btn = "inline-flex items-center justify-center gap-1 rounded-md border bor
 const field = "rounded-md border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-slate-100";
 
 interface Settings {
-  accessCode: string;
-  ownKey: string;
+  sitePassword: string;
+  /** a person's own key for each provider, by provider id */
+  ownKeys: Record<string, string>;
   remember: boolean;
 }
 
 function readSettings(): Settings {
   try {
     const v = JSON.parse(window.localStorage.getItem(SETTINGS) ?? "null");
-    if (v && typeof v === "object") return { accessCode: String(v.accessCode ?? ""), ownKey: String(v.ownKey ?? ""), remember: Boolean(v.remember) };
+    if (v && typeof v === "object") const keys: Record<string, string> = {};
+      if (v.ownKeys && typeof v.ownKeys === "object") for (const [k, x] of Object.entries(v.ownKeys)) keys[k] = String(x);
+      else if (v.ownKey) keys.elevenlabs = String(v.ownKey);
+      return { sitePassword: String(v.sitePassword ?? v.accessCode ?? ""), ownKeys: keys, remember: Boolean(v.remember) };
   } catch {
     /* ignore */
   }
-  return { accessCode: "", ownKey: "", remember: false };
+  return { sitePassword: "", ownKeys: {}, remember: false };
 }
 
 async function preview(blob: Blob) {
@@ -42,8 +46,9 @@ async function preview(blob: Blob) {
 export default function SamplerApp() {
   const s = useSampler();
   const [caps, setCaps] = useState<Capabilities | null>(null);
-  const [settings, setSettings] = useState<Settings>({ accessCode: "", ownKey: "", remember: false });
+  const [settings, setSettings] = useState<Settings>({ sitePassword: "", ownKeys: {}, remember: false });
   const [showKeys, setShowKeys] = useState(false);
+  const [providerId, setProviderId] = useState<string>("");
   const [prompt, setPrompt] = useState("");
   const [seconds, setSeconds] = useState(3);
   const [busy, setBusy] = useState(false);
@@ -61,15 +66,16 @@ export default function SamplerApp() {
   const saveSettings = (next: Settings) => {
     setSettings(next);
     try {
-      window.localStorage.setItem(SETTINGS, JSON.stringify(next.remember ? next : { ...next, ownKey: "" }));
+      window.localStorage.setItem(SETTINGS, JSON.stringify(next.remember ? next : { ...next, ownKeys: {} }));
     } catch {
       /* ignore */
     }
   };
 
   const instrument = s.project.instruments.find((i) => i.id === current) ?? s.project.instruments[0] ?? null;
-  const provider = caps?.providers[0];
-  const canGenerate = Boolean(provider) && (Boolean(settings.ownKey.trim()) || Boolean(provider?.server && settings.accessCode.trim()));
+  const provider = caps?.providers.find((p) => p.id === providerId) ?? caps?.providers[0];
+  const ownKey = (provider && settings.ownKeys[provider.id]) || "";
+  const canGenerate = Boolean(provider) && (Boolean(ownKey.trim()) || Boolean(provider?.server && settings.sitePassword.trim()));
   const sampleName = (id: string) => s.project.samples.find((x) => x.id === id)?.name ?? "?";
 
   const put = (sample: SampleMeta, name?: string) => {
@@ -97,7 +103,7 @@ export default function SamplerApp() {
     setBusy(true);
     setMessage(null);
     try {
-      const blob = await generateSample({ provider: provider.id, prompt, seconds, accessCode: settings.accessCode, ownKey: settings.ownKey });
+      const blob = await generateSample({ provider: provider.id, prompt, seconds, sitePassword: settings.sitePassword, ownKey });
       const meta = await s.addAudio(blob, prompt.slice(0, 40), "elevenlabs", prompt);
       put(meta);
     } catch (e) {
@@ -174,17 +180,27 @@ export default function SamplerApp() {
 
         {showKeys && (
           <div className="grid gap-1 rounded-md border border-slate-800 p-2 text-xs text-slate-400">
+            {caps && caps.providers.length > 1 && (
+              <label className="flex items-center gap-2">
+                Provider
+                <select className={`${field} flex-1`} value={provider?.id ?? ""} onChange={(e) => setProviderId(e.target.value)}>
+                  {caps.providers.map((p) => (
+                    <option key={p.id} value={p.id}>{p.label}</option>
+                  ))}
+                </select>
+              </label>
+            )}
             <label className="flex items-center gap-2">
-              Access code
-              <input className={`${field} flex-1`} type="password" autoComplete="off" value={settings.accessCode} placeholder={provider?.server ? "for this site's key" : "this site has no key set"} disabled={!provider?.server} onChange={(e) => saveSettings({ ...settings, accessCode: e.target.value })} />
+              Site password
+              <input className={`${field} flex-1`} type="password" autoComplete="off" value={settings.sitePassword} placeholder={provider?.server ? `unlocks this site's ${provider.label} key` : "this site holds no key for this provider"} disabled={!provider?.server} onChange={(e) => saveSettings({ ...settings, sitePassword: e.target.value })} />
             </label>
             <label className="flex items-center gap-2">
               Your {provider?.label ?? "provider"} key
-              <input className={`${field} flex-1`} type="password" autoComplete="off" value={settings.ownKey} onChange={(e) => saveSettings({ ...settings, ownKey: e.target.value })} />
+              <input className={`${field} flex-1`} type="password" autoComplete="off" value={ownKey} onChange={(e) => provider && saveSettings({ ...settings, ownKeys: { ...settings.ownKeys, [provider.id]: e.target.value } })} />
             </label>
             <label className="flex items-center gap-2">
               <input type="checkbox" checked={settings.remember} onChange={(e) => saveSettings({ ...settings, remember: e.target.checked })} />
-              Remember my key in this browser
+              Remember my keys in this browser
             </label>
           </div>
         )}

@@ -15,17 +15,17 @@ test("parseGenerate validates and clamps", () => {
   }
 });
 
-test("the app key needs the access code, a person's own key does not", () => {
+test("the app key needs the site password, a person's own key does not", () => {
   const keyEnv = "ELEVENLABS_API_KEY";
-  const env = { ELEVENLABS_API_KEY: "secret", SAMPLER_ACCESS_CODE: "open" };
+  const env = { ELEVENLABS_API_KEY: "secret", SAMPLER_SITE_PASSWORD: "open" };
   assert.deepEqual(chooseKey({ ownKey: "mine", env: {}, keyEnv }), { ok: true, key: "mine", own: true });
-  assert.deepEqual(chooseKey({ env, keyEnv, accessCode: "open" }), { ok: true, key: "secret", own: false });
-  const wrong = chooseKey({ env, keyEnv, accessCode: "nope" });
+  assert.deepEqual(chooseKey({ env, keyEnv, sitePassword: "open" }), { ok: true, key: "secret", own: false });
+  const wrong = chooseKey({ env, keyEnv, sitePassword: "nope" });
   assert.ok(!wrong.ok && wrong.status === 401);
   const none = chooseKey({ env, keyEnv });
   assert.ok(!none.ok && none.status === 401);
   // a key without a code configured is never used
-  const noCode = chooseKey({ env: { ELEVENLABS_API_KEY: "secret" }, keyEnv, accessCode: "" });
+  const noCode = chooseKey({ env: { ELEVENLABS_API_KEY: "secret" }, keyEnv, sitePassword: "" });
   assert.ok(!noCode.ok && noCode.status === 403);
   assert.ok(!chooseKey({ env: {}, keyEnv }).ok);
 });

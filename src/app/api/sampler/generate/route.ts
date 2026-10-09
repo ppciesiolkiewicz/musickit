@@ -1,17 +1,17 @@
 import { generateSoundEffect } from "@/features/sampler/server/elevenlabs";
-import { chooseKey, createLimiter, parseGenerate } from "@/features/sampler/server/guard";
+import { chooseKey, createLimiter, parseGenerate, sitePassword } from "@/features/sampler/server/guard";
 import { PROVIDERS, type Capabilities } from "@/features/sampler/server/providers";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-// Per server instance, so it is a brake on casual abuse rather than a hard quota. The access code is the real gate.
+// Per server instance, so it is a brake on casual abuse rather than a hard quota. The site password is the real gate.
 const limiter = createLimiter(20, 60 * 60 * 1000);
 
-/** What this server can do: which providers have the app's key and an access code. Never the keys. */
+/** What this server can do: which providers have the site's key and a site password. Never the keys. */
 export async function GET() {
   const body: Capabilities = {
-    providers: PROVIDERS.map((p) => ({ id: p.id, label: p.label, minSeconds: p.minSeconds, maxSeconds: p.maxSeconds, server: Boolean(process.env[p.keyEnv]?.trim() && process.env.SAMPLER_ACCESS_CODE?.trim()) })),
+    providers: PROVIDERS.map((p) => ({ id: p.id, label: p.label, minSeconds: p.minSeconds, maxSeconds: p.maxSeconds, server: Boolean(process.env[p.keyEnv]?.trim() && sitePassword(process.env)) })),
   };
   return Response.json(body, { headers: { "cache-control": "no-store" } });
 }
@@ -28,7 +28,7 @@ export async function POST(req: Request) {
 
   const key = chooseKey({
     ownKey: req.headers.get("x-provider-key"),
-    accessCode: req.headers.get("x-access-code"),
+    sitePassword: req.headers.get("x-site-password"),
     env: process.env,
     keyEnv: parsed.provider.keyEnv,
   });

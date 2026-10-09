@@ -11,14 +11,14 @@ Page `/sampler`. Builds instruments from samples and makes them available in eve
 | Source | Status |
 |---|---|
 | Upload | works; a note in the file name (`pad_F#3.wav`) picks the pad |
-| ElevenLabs sound generation | works with the site's key + access code, or a person's own key |
+| ElevenLabs sound generation | works with the site's key + site password, or a person's own key |
 | Splice | not built: no public API known, and its samples are licensed |
 | Login with a provider account | not built: no provider is known to offer OAuth for third-party apps. The option is a person's own API key |
 
 The ElevenLabs endpoint, header and 0.5–22 s duration limits are written from memory and not yet tested against the live service.
 
 ## Keys and abuse
-- Vercel env: `ELEVENLABS_API_KEY` (the site's key) and `SAMPLER_ACCESS_CODE`. Without the code the site key is never used.
+- Vercel env: `ELEVENLABS_API_KEY` (the site's key) and `SAMPLER_SITE_PASSWORD`. Without the password the site key is never used. The old name `SAMPLER_ACCESS_CODE` still works. One key per provider: `<PROVIDER>_API_KEY`.
 - `GET /api/sampler/generate` reports only which providers are usable. `POST` takes `{provider, prompt, seconds}`, headers `x-access-code` or `x-provider-key`.
 - Prompts ≤ 300 characters, 20 site-key calls per hour per address per server instance (a brake, not a quota).
 
