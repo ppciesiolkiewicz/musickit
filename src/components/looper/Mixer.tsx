@@ -163,18 +163,19 @@ export default function Mixer({ engine, snap, keyboardOpen, onToggleKeyboard, op
   );
 }
 
-function InputStrip({ engine, inp, devices, anyDevice, keyboardOpen, onToggleKeyboard, sequencerOpen, onToggleSequencer, pianoOpen, onTogglePiano, seq, groups }: { engine: LooperEngine; inp: InputInfo; devices: { id: string; label: string }[]; anyDevice: boolean; keyboardOpen: boolean; onToggleKeyboard: () => void; sequencerOpen: boolean; onToggleSequencer: () => void; pianoOpen: boolean; onTogglePiano: () => void; seq?: LooperSnapshot["sequencers"][number]; groups: { id: string; name: string }[] }) {
+function InputStrip({ engine, inp, devices, anyDevice, keyboardOpen, onToggleKeyboard, sequencerOpen, onToggleSequencer, pianoOpen, onTogglePiano, seq, groups }: { engine: LooperEngine; inp: InputInfo; devices: { id: string; label: string }[]; anyDevice: boolean; keyboardOpen: boolean; onToggleKeyboard: () => void; sequencerOpen: boolean; onToggleSequencer: () => void; pianoOpen: boolean; onTogglePiano: () => void; seq?: LooperSnapshot["sequencers"][number]; groups: { id: string; name: string; colour: string }[] }) {
   const getLevel = useMemo(() => () => engine.getInputLevel(inp.id), [engine, inp.id]);
   const m = engine.mixer;
   const isDevice = inp.kind === "device";
   const [fxOpen, setFxOpen] = useState(false);
+  const grp = inp.kind === "sequencer" && seq && seq.dest !== "record" ? groups.find((g) => g.id === seq.groupId) : undefined;
   const state = inp.live ? "recording" : inp.muted ? "muted" : "silenced by solo";
   return (
-    <li className={`flex flex-col gap-1 rounded-lg border bg-slate-950/50 px-2 py-1.5 ${inp.live ? "border-slate-800" : "border-slate-800/60 opacity-80"}`}>
+    <li style={grp ? { borderLeft: `4px solid ${grp.colour}`, background: `${grp.colour}12` } : undefined} className={`flex flex-col gap-1 rounded-lg border bg-slate-950/50 px-2 py-1.5 ${inp.live ? "border-slate-800" : "border-slate-800/60 opacity-80"}`}>
       <div className="flex flex-wrap items-center gap-1.5">
         <span title={state} className="text-slate-300"><Icon name={isDevice ? "mic" : inp.kind === "sequencer" ? "drum" : inp.kind === "scalepiano" ? "music" : "piano"} size={18} /></span>
         <input value={inp.name} onChange={(e) => m.rename(inp.id, e.target.value)} aria-label="Input name" className="w-32 rounded-md border border-transparent bg-transparent px-1.5 py-0.5 text-sm font-medium text-slate-100 hover:border-slate-700 focus:border-slate-500 focus:outline-none" />
-        {inp.kind === "sequencer" && seq && <span className="rounded-md border border-slate-700 px-1.5 py-0.5 text-[10px] text-slate-400" title="Where this sequencer plays: by the group its circle sits in">→ {seq.dest === "record" ? "recorder" : groups.find((g) => g.id === seq.groupId)?.name ?? "master"}</span>}
+        {inp.kind === "sequencer" && seq && <span className="flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[10px] text-slate-300" style={{ borderColor: grp?.colour ?? "#334155" }} title="Where this sequencer plays: by the group its circle sits in">{grp && <span className="h-2 w-2 rounded-full" style={{ background: grp.colour }} />}→ {seq.dest === "record" ? "recorder" : grp?.name ?? "master"}</span>}
         {inp.kind !== "sequencer" && <span className="flex items-center gap-0.5 rounded-md border border-slate-700 px-1.5 py-0.5 text-[10px] text-slate-400" title="Goes to the recorder, then into the loops"><Icon name="circle" size={10} className="text-rose-400" />rec</span>}
         <span aria-hidden title={state} className={`h-2 w-2 rounded-full ${inp.live ? "bg-emerald-400" : "bg-slate-600"}`} />
         <LevelMeter vertical getLevel={getLevel} />
