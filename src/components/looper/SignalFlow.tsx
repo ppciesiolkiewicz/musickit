@@ -65,17 +65,17 @@ export default function SignalFlow({ snap, engine }: { snap: LooperSnapshot; eng
     if (!t) return;
     const others = (id: number | string) => taken.filter((_, i) => (d.kind === "loop" ? i !== id : i !== snap.channels.length + snap.sequencers.findIndex((q) => q.id === id)));
     if (t.type === "recorder") {
-      if (d.kind === "seq") engine.setSequencerDest(String(d.id), "record");
+      if (d.kind === "seq") engine.do({ type: "sequencer.dest", id: String(d.id), dest: "record" });
       return;
     }
-    if (d.kind === "seq") engine.setSequencerDest(String(d.id), "auto");
+    if (d.kind === "seq") engine.do({ type: "sequencer.dest", id: String(d.id), dest: "auto" });
     const spot = t.type === "bus" ? spotInGroup(snap.groups, t.id, others(d.id)) : spotOutside(snap.groups, others(d.id));
     if (!spot) {
       setHint("No room outside the groups on the stage: shrink or move a group first.");
       return;
     }
-    if (d.kind === "loop") engine.moveChannel(Number(d.id), spot.x, spot.y);
-    else engine.moveSequencer(String(d.id), spot.x, spot.y);
+    if (d.kind === "loop") engine.do({ type: "loop.move", id: Number(d.id), x: spot.x, y: spot.y });
+    else engine.do({ type: "sequencer.move", id: String(d.id), x: spot.x, y: spot.y });
   };
   const begin = (e: ReactPointerEvent, kind: Drag["kind"], id: number | string) => {
     e.preventDefault();

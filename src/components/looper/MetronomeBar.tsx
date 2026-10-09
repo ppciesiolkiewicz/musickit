@@ -27,7 +27,7 @@ export default function MetronomeBar({ engine, snap, ready }: { engine: LooperEn
     };
   }, [open]);
 
-  const set = (p: Partial<typeof m>) => engine.setMetronome(p);
+  const set = (p: Partial<typeof m>) => engine.do({ type: "metronome.set", patch: p });
   const running = m.running;
   return (
     <div ref={wrap} className="relative">

@@ -41,7 +41,7 @@ export default function LooperSettings({ engine, snap, getLevel, onClose }: { en
         <Group title="Timing">
           <label className="flex items-center justify-between gap-2 text-xs text-slate-400">
             Quantise recordings
-            <select className={`${field} !py-1 !text-xs`} value={snap.metronome.quantise} onChange={(e) => engine.setMetronome({ quantise: e.target.value as typeof snap.metronome.quantise })} aria-label="Quantise recordings to the metronome">
+            <select className={`${field} !py-1 !text-xs`} value={snap.metronome.quantise} onChange={(e) => engine.do({ type: "metronome.set", patch: { quantise: e.target.value as typeof snap.metronome.quantise } })} aria-label="Quantise recordings to the metronome">
               <option value="bar">start and stop on whole bars</option>
               <option value="beat">start and stop on whole beats</option>
               <option value="off">off: start and stop when pressed</option>

@@ -6,9 +6,13 @@ import { LoopBus, peakOf } from "./buses";
 import { EFFECT_DEFS, defaultParams, moveEffect, clampParams, sanitiseEffects, type EffectKind, type EffectSpec } from "./effects";
 import { GROUP_COLOURS, clampPoint, clampRect, containingGroup, defaultGroups, defaultSpot, type GroupLayout } from "./layout";
 import { InputMixer, describeError, type InputInfo } from "./mixer";
+import { ActionHistory, type DoOptions } from "./history";
+import { MacroRecorder } from "./macros";
+import type { LooperAction } from "./actions";
 import { RECORDER_PROCESSOR_NAME, recorderWorkletUrl } from "./recorderWorklet";
 
 export type { InputInfo } from "./mixer";
+export type { LooperAction } from "./actions";
 export type { InputMode, Quantise } from "./frames";
 export { BPM_RANGE, type MetronomeSettings } from "./metronome";
 export { INSTRUMENTS, type Instrument, type SequencerState } from "./sequencer";
@@ -140,6 +144,10 @@ export class LooperEngine {
   private levelBuf: Float32Array<ArrayBuffer> | null = null;
   /** the input strips: mixer.add / remove / setMode / toggleMute / toggleSolo ... */
   readonly mixer: InputMixer;
+  /** undo, redo and the list of changes: send every change a person makes through `do` */
+  readonly history = new ActionHistory(this);
+  /** records the changes a person makes into a macro */
+  readonly macroRecorder = new MacroRecorder(this.history);
 
   private groups: GroupInfo[] = defaultGroupInfos();
   private buses = new Map<string, LoopBus>();
@@ -230,6 +238,11 @@ export class LooperEngine {
   }
 
   /** Load saved settings. Call once from the browser. */
+  /** Make a change that can be undone, listed and recorded. See actions.ts. */
+  do(action: LooperAction, o?: DoOptions): boolean {
+    return this.history.do(action, o);
+  }
+
   init() {
     this.mixer.restore();
     this.metronome.restore();

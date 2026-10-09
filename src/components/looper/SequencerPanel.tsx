@@ -38,7 +38,7 @@ function Grid({ engine, snap, id, sq, seq }: { engine: LooperEngine; snap: Loope
   return (
     <div className="flex min-w-0 flex-col gap-2 p-2">
       <div className="flex flex-wrap items-center gap-1.5">
-        <button type="button" className={`${ibtn} ${sq.playing ? "!border-emerald-500/70 !bg-emerald-500/15 !text-emerald-200" : ""}`} aria-pressed={sq.playing} onClick={() => engine.setSequencerPlaying(id, !sq.playing)} title={sq.playing ? "Stop on the next beat" : "Start on the next beat"} aria-label={sq.playing ? "Stop the sequencer" : "Start the sequencer"}><Icon name={sq.playing ? "square" : "play"} fill /></button>
+        <button type="button" className={`${ibtn} ${sq.playing ? "!border-emerald-500/70 !bg-emerald-500/15 !text-emerald-200" : ""}`} aria-pressed={sq.playing} onClick={() => engine.do({ type: "sequencer.playing", id, on: !sq.playing })} title={sq.playing ? "Stop on the next beat" : "Start on the next beat"} aria-label={sq.playing ? "Stop the sequencer" : "Start the sequencer"}><Icon name={sq.playing ? "square" : "play"} fill /></button>
         <select className={field} value={inst.id} onChange={(e) => seq.setInstrument(e.target.value)} aria-label="Instrument">
           {INSTRUMENTS.map((i) => <option key={i.id} value={i.id}>{i.name}</option>)}
         </select>
@@ -50,7 +50,7 @@ function Grid({ engine, snap, id, sq, seq }: { engine: LooperEngine; snap: Loope
           <option value={1}>1 bar</option>
           <option value={2}>2 bars</option>
         </select>
-        <select className={field} value={sq.dest} onChange={(e) => engine.setSequencerDest(id, e.target.value as "auto" | "record")} aria-label="Where the sound goes" title="Where the sound goes">
+        <select className={field} value={sq.dest} onChange={(e) => engine.do({ type: "sequencer.dest", id, dest: e.target.value as "auto" | "record" })} aria-label="Where the sound goes" title="Where the sound goes">
           <option value="auto">{sq.groupId ? `To ${snap.groups.find((g) => g.id === sq.groupId)?.name ?? "its group"}` : "To master"} (by position)</option>
           <option value="record">To the recorder (and master)</option>
         </select>

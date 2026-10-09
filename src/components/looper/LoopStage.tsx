@@ -114,13 +114,13 @@ function LoopCircle({ engine, ch, colour, stage, ready, busy, firstTake, getPosi
 
   const onPointerDown = (e: RPointerEvent) => {
     const base = { x: ch.x, y: ch.y };
-    startDrag(e, stage.current, (dx, dy) => engine.moveChannel(ch.id, base.x + dx, base.y + dy), () => ready && !(busy && !recording) && act());
+    startDrag(e, stage.current, (dx, dy) => engine.do({ type: "loop.move", id: ch.id, x: base.x + dx, y: base.y + dy }), () => ready && !(busy && !recording) && act());
   };
   const onKeyDown = (e: RKeyboardEvent) => {
     const s = arrowStep(e);
     if (s) {
       e.preventDefault();
-      engine.moveChannel(ch.id, ch.x + s[0], ch.y + s[1]);
+      engine.do({ type: "loop.move", id: ch.id, x: ch.x + s[0], y: ch.y + s[1] });
     }
   };
   const size = LOOP_R * 2 - 8;
@@ -139,14 +139,14 @@ function LoopCircle({ engine, ch, colour, stage, ready, busy, firstTake, getPosi
           <Icon name={isFreeTake ? "square" : recording ? "x" : ch.state === "empty" ? "circle" : "repeat"} size={22} fill={isFreeTake || ch.state === "empty"} />
         </span>
       </button>
-      <input value={ch.name} onChange={(e) => engine.rename(ch.id, e.target.value)} aria-label={`Name of ${ch.name}`} className="w-full truncate rounded border border-transparent bg-transparent px-1 text-center text-[11px] font-medium text-slate-200 hover:border-slate-700 focus:border-slate-500 focus:outline-none" />
+      <input value={ch.name} onChange={(e) => engine.do({ type: "loop.rename", id: ch.id, name: e.target.value })} aria-label={`Name of ${ch.name}`} className="w-full truncate rounded border border-transparent bg-transparent px-1 text-center text-[11px] font-medium text-slate-200 hover:border-slate-700 focus:border-slate-500 focus:outline-none" />
       <div className="flex items-center gap-0.5">
-        <button type="button" className={`${tbtn} ${ch.muted ? "!border-amber-400 !text-amber-200" : ""}`} aria-pressed={ch.muted} disabled={ch.state === "empty"} onClick={() => engine.toggleMute(ch.id)} title="Mute" aria-label={`Mute ${ch.name}`}>M</button>
-        <button type="button" className={`${tbtn} ${ch.solo ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={ch.solo} disabled={ch.state === "empty"} onClick={() => engine.toggleSolo(ch.id)} title="Solo" aria-label={`Solo ${ch.name}`}>S</button>
-        <button type="button" className={`${tbtn} ${ch.active && ch.state !== "empty" ? "" : ""}`} disabled={ch.state === "empty"} onClick={() => engine.setLoopActive(ch.id, !ch.active)} title={ch.active ? "Stop on the next beat" : "Start on the next beat"} aria-label={ch.active ? `Stop ${ch.name}` : `Start ${ch.name}`} aria-pressed={ch.active}><Icon name={ch.active ? "square" : "play"} size={11} fill /></button>
+        <button type="button" className={`${tbtn} ${ch.muted ? "!border-amber-400 !text-amber-200" : ""}`} aria-pressed={ch.muted} disabled={ch.state === "empty"} onClick={() => engine.do({ type: "loop.mute", id: ch.id, muted: !ch.muted })} title="Mute" aria-label={`Mute ${ch.name}`}>M</button>
+        <button type="button" className={`${tbtn} ${ch.solo ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={ch.solo} disabled={ch.state === "empty"} onClick={() => engine.do({ type: "loop.solo", id: ch.id, solo: !ch.solo })} title="Solo" aria-label={`Solo ${ch.name}`}>S</button>
+        <button type="button" className={`${tbtn} ${ch.active && ch.state !== "empty" ? "" : ""}`} disabled={ch.state === "empty"} onClick={() => engine.do({ type: "loop.active", id: ch.id, on: !ch.active })} title={ch.active ? "Stop on the next beat" : "Start on the next beat"} aria-label={ch.active ? `Stop ${ch.name}` : `Start ${ch.name}`} aria-pressed={ch.active}><Icon name={ch.active ? "square" : "play"} size={11} fill /></button>
         <button type="button" className={tbtn} disabled={ch.state === "empty"} onClick={() => engine.clear(ch.id)} title="Clear this loop" aria-label={`Clear ${ch.name}`}><Icon name="trash" size={12} /></button>
       </div>
-      <input type="range" min={0} max={1} step={0.01} value={ch.volume} onChange={(e) => engine.setVolume(ch.id, Number(e.target.value))} className="h-3 w-16 accent-sky-400" aria-label={`Volume of ${ch.name}`} title={`Volume ${Math.round(ch.volume * 100)}%`} />
+      <input type="range" min={0} max={1} step={0.01} value={ch.volume} onChange={(e) => engine.do({ type: "loop.volume", id: ch.id, value: Number(e.target.value) })} className="h-3 w-16 accent-sky-400" aria-label={`Volume of ${ch.name}`} title={`Volume ${Math.round(ch.volume * 100)}%`} />
     </div>
   );
 }
@@ -166,13 +166,13 @@ function SeqCircle({ engine, q, colour, stage, open, onOpen }: { engine: LooperE
   }, [engine, q.id, q.steps]);
   const onPointerDown = (e: RPointerEvent) => {
     const base = { x: q.x, y: q.y };
-    startDrag(e, stage.current, (dx, dy) => engine.moveSequencer(q.id, base.x + dx, base.y + dy), toggle);
+    startDrag(e, stage.current, (dx, dy) => engine.do({ type: "sequencer.move", id: q.id, x: base.x + dx, y: base.y + dy }), toggle);
   };
   const onKeyDown = (e: RKeyboardEvent) => {
     const s = arrowStep(e);
     if (s) {
       e.preventDefault();
-      engine.moveSequencer(q.id, q.x + s[0], q.y + s[1]);
+      engine.do({ type: "sequencer.move", id: q.id, x: q.x + s[0], y: q.y + s[1] });
     }
   };
   const size = LOOP_R * 2 - 8;
@@ -200,28 +200,28 @@ function GroupBox({ engine, g, stage, count, running, onFx }: { engine: LooperEn
     if ((e.target as HTMLElement).closest("button,input,select")) return;
     engine.bringGroupToFront(g.id);
     const base = { x: g.x, y: g.y };
-    startDrag(e, stage.current, (dx, dy) => engine.updateGroup(g.id, { x: base.x + dx, y: base.y + dy }));
+    startDrag(e, stage.current, (dx, dy) => engine.do({ type: "group.set", id: g.id, patch: { x: base.x + dx, y: base.y + dy } }));
   };
   const size = (e: RPointerEvent) => {
     e.stopPropagation();
     engine.bringGroupToFront(g.id);
     const base = { w: g.w, h: g.h };
-    startDrag(e, stage.current, (dx, dy) => engine.updateGroup(g.id, { w: base.w + dx, h: base.h + dy }));
+    startDrag(e, stage.current, (dx, dy) => engine.do({ type: "group.set", id: g.id, patch: { w: base.w + dx, h: base.h + dy } }));
   };
   const onKeyDown = (e: RKeyboardEvent) => {
     const s = arrowStep(e);
     if (!s) return;
     e.preventDefault();
-    if (e.shiftKey) engine.updateGroup(g.id, { w: g.w + s[0], h: g.h + s[1] });
-    else engine.updateGroup(g.id, { x: g.x + s[0], y: g.y + s[1] });
+    if (e.shiftKey) engine.do({ type: "group.set", id: g.id, patch: { w: g.w + s[0], h: g.h + s[1] } });
+    else engine.do({ type: "group.set", id: g.id, patch: { x: g.x + s[0], y: g.y + s[1] } });
   };
   const nextColour = GROUP_COLOURS[(GROUP_COLOURS.indexOf(g.colour) + 1) % GROUP_COLOURS.length];
   return (
     <div className="absolute rounded-xl border-2" style={{ left: `${(g.x / STAGE_W) * 100}%`, top: `${(g.y / STAGE_H) * 100}%`, width: `${(g.w / STAGE_W) * 100}%`, height: `${(g.h / STAGE_H) * 100}%`, borderColor: `${g.colour}99`, background: `${g.colour}14` }}>
       <div onPointerDown={move} onKeyDown={onKeyDown} tabIndex={0} role="group" aria-label={`Group ${g.name}. Alt and arrow keys move it, Alt Shift and arrows resize it.`} className="flex cursor-grab items-center gap-1 rounded-t-lg px-1.5 py-1 outline-none focus-visible:ring-2 focus-visible:ring-sky-400 active:cursor-grabbing" style={{ touchAction: "none", background: `${g.colour}26` }}>
-        <button type="button" onClick={() => engine.updateGroup(g.id, { colour: nextColour })} className="h-4 w-4 shrink-0 rounded-full border border-white/30" style={{ background: g.colour }} title="Change colour" aria-label="Change colour" />
-        <input value={g.name} onChange={(e) => engine.updateGroup(g.id, { name: e.target.value })} aria-label="Group name" className="min-w-0 flex-1 bg-transparent text-xs font-medium text-slate-100 focus:outline-none" />
-        <button type="button" className={`${tbtn} ${running ? "!border-emerald-500/70 !text-emerald-200" : ""}`} disabled={count === 0} onClick={() => engine.setGroupActive(g.id, !running)} title={running ? "Stop everything in this group on the next beat" : "Start everything in this group on the next beat"} aria-label={running ? `Stop ${g.name}` : `Start ${g.name}`} aria-pressed={running}><Icon name={running ? "square" : "play"} size={11} fill /></button>
+        <button type="button" onClick={() => engine.do({ type: "group.set", id: g.id, patch: { colour: nextColour } })} className="h-4 w-4 shrink-0 rounded-full border border-white/30" style={{ background: g.colour }} title="Change colour" aria-label="Change colour" />
+        <input value={g.name} onChange={(e) => engine.do({ type: "group.set", id: g.id, patch: { name: e.target.value } })} aria-label="Group name" className="min-w-0 flex-1 bg-transparent text-xs font-medium text-slate-100 focus:outline-none" />
+        <button type="button" className={`${tbtn} ${running ? "!border-emerald-500/70 !text-emerald-200" : ""}`} disabled={count === 0} onClick={() => engine.do({ type: "group.active", id: g.id, on: !running })} title={running ? "Stop everything in this group on the next beat" : "Start everything in this group on the next beat"} aria-label={running ? `Stop ${g.name}` : `Start ${g.name}`} aria-pressed={running}><Icon name={running ? "square" : "play"} size={11} fill /></button>
         <button type="button" className={`${tbtn} relative`} onClick={onFx} title={`Effects on this bus${g.effects.length ? ` (${g.effects.length})` : ""}`} aria-label={`Effects of ${g.name}`}>
           <Icon name="audio-lines" size={13} />
           {g.effects.length > 0 && <span className="absolute -right-1 -top-1 grid h-3.5 min-w-3.5 place-items-center rounded-full bg-sky-500 px-0.5 text-[9px] font-semibold text-slate-950">{g.effects.length}</span>}
@@ -239,12 +239,12 @@ export function GroupEffects({ engine, g, onClose }: { engine: LooperEngine; g: 
     <EffectsModal
       title={<span className="flex items-center gap-2"><span className="h-3 w-3 rounded-full" style={{ background: g.colour }} />{g.name}: effects</span>}
       effects={g.effects}
-      volume={{ value: g.volume, onChange: (v) => engine.updateGroup(g.id, { volume: v }) }}
+      volume={{ value: g.volume, onChange: (v) => engine.do({ type: "group.set", id: g.id, patch: { volume: v } }) }}
       onAdd={(k, post) => engine.addEffect(g.id, k, post)}
       onRemove={(id) => engine.removeEffect(g.id, id)}
-      onParam={(id, key, v) => engine.setEffectParam(g.id, id, key, v)}
-      onBypass={(id) => engine.toggleEffectBypass(g.id, id)}
-      onPost={(id, post) => engine.setEffectPost(g.id, id, post)}
+      onParam={(id, key, v) => engine.do({ type: "effect.param", groupId: g.id, fxId: id, key, value: v })}
+      onBypass={(id) => engine.do({ type: "effect.bypass", groupId: g.id, fxId: id, bypass: !g.effects.find((e) => e.id === id)?.bypass })}
+      onPost={(id, post) => engine.do({ type: "effect.post", groupId: g.id, fxId: id, post })}
       onClose={onClose}
     />
   );

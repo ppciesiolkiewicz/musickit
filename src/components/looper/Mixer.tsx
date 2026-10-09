@@ -134,21 +134,26 @@ function DeviceButton({ on, onClick, title, sub }: { on: boolean; onClick: () =>
 }
 
 /** The inputs that feed the recorder: add and remove them, choose channels, mute and solo, watch each level. */
-export default function Mixer({ engine, snap, keyboardOpen, onToggleKeyboard, openSeqs, onToggleSequencer, openPianos, onTogglePiano }: { engine: LooperEngine; snap: LooperSnapshot; keyboardOpen: boolean; onToggleKeyboard: () => void; openSeqs: string[]; onToggleSequencer: (id: string) => void; openPianos: string[]; onTogglePiano: (id: string) => void }) {
+export type MixerAlign = "rows" | "columns";
+
+export default function Mixer({ engine, snap, keyboardOpen, onToggleKeyboard, openSeqs, onToggleSequencer, openPianos, onTogglePiano, align = "rows", onAlign, fill = false }: { align?: MixerAlign; onAlign?: (a: MixerAlign) => void; fill?: boolean; engine: LooperEngine; snap: LooperSnapshot; keyboardOpen: boolean; onToggleKeyboard: () => void; openSeqs: string[]; onToggleSequencer: (id: string) => void; openPianos: string[]; onTogglePiano: (id: string) => void }) {
   const { inputs, devices } = snap;
   const full = inputs.length >= MAX_INPUTS;
   const hasExtra = inputs.some((i) => i.kind === "extra");
   const [adding, setAdding] = useState(false);
   return (
-    <section className="flex flex-col gap-1.5 rounded-xl border border-slate-800 bg-slate-900/40 p-1.5" aria-label="Input mixer">
+    <section className={`flex flex-col gap-1.5 rounded-xl border border-slate-800 bg-slate-900/40 p-1.5 ${fill ? "h-full overflow-auto" : ""}`} aria-label="Input mixer">
       <div className="flex items-center gap-2">
         <h2 className="flex items-center gap-1.5 px-1 text-sm font-medium text-slate-100"><Icon name="sliders-horizontal" className="text-slate-400" />Mixer</h2>
-        <button type="button" className={`${ibtn} ml-auto`} disabled={full} onClick={() => setAdding(true)} title="Add an input" aria-label="Add an input"><Icon name="plus" /></button>
+        {onAlign && (
+          <button type="button" className={`${ibtn} ml-auto`} onClick={() => onAlign(align === "rows" ? "columns" : "rows")} title={align === "rows" ? "Strips side by side" : "Strips stacked"} aria-label={align === "rows" ? "Strips side by side" : "Strips stacked"} aria-pressed={align === "columns"}><Icon name={align === "rows" ? "columns-3" : "rows-3"} /></button>
+        )}
+        <button type="button" className={`${ibtn} ${onAlign ? "" : "ml-auto"}`} disabled={full} onClick={() => setAdding(true)} title="Add an input" aria-label="Add an input"><Icon name="plus" /></button>
       </div>
 
       {inputs.length === 0 && <p className="rounded-lg border border-dashed border-slate-700 p-2 text-xs text-slate-400">No inputs. Add one with ＋.</p>}
 
-      <ul className="flex flex-col gap-1">
+      <ul className={align === "columns" ? "flex flex-row flex-wrap items-start gap-1 [&>li]:w-64 [&>li]:shrink-0" : "flex flex-col gap-1"}>
         {inputs.map((inp) => (
           <InputStrip key={inp.id} engine={engine} inp={inp} devices={devices} anyDevice={snap.devices.length > 0} keyboardOpen={keyboardOpen} onToggleKeyboard={onToggleKeyboard} sequencerOpen={!!inp.sourceId && openSeqs.includes(inp.sourceId)} onToggleSequencer={() => inp.sourceId && onToggleSequencer(inp.sourceId)} pianoOpen={!!inp.sourceId && openPianos.includes(inp.sourceId)} onTogglePiano={() => inp.sourceId && onTogglePiano(inp.sourceId)} seq={snap.sequencers.find((q) => q.id === inp.sourceId)} groups={snap.groups} />
         ))}
@@ -181,7 +186,7 @@ function InputStrip({ engine, inp, devices, anyDevice, keyboardOpen, onToggleKey
         <LevelMeter vertical getLevel={getLevel} />
         <input type="range" min={0} max={1.5} step={0.01} value={inp.volume} onChange={(e) => m.setVolume(inp.id, Number(e.target.value))} className="w-24 accent-sky-400" aria-label={`Gain of ${inp.name}`} title={`Gain ${Math.round(inp.volume * 100)}%`} />
         <span className="flex-1" aria-hidden />
-        {inp.kind === "sequencer" && seq && <button type="button" className={`${ibtn} ${seq.playing ? "!border-emerald-500/70 !bg-emerald-500/15 !text-emerald-200" : ""}`} aria-pressed={seq.playing} onClick={() => engine.setSequencerPlaying(seq.id, !seq.playing)} title={seq.playing ? "Stop on the next beat" : "Start on the next beat"} aria-label={seq.playing ? `Stop ${inp.name}` : `Start ${inp.name}`}><Icon name={seq.playing ? "square" : "play"} fill /></button>}
+        {inp.kind === "sequencer" && seq && <button type="button" className={`${ibtn} ${seq.playing ? "!border-emerald-500/70 !bg-emerald-500/15 !text-emerald-200" : ""}`} aria-pressed={seq.playing} onClick={() => engine.do({ type: "sequencer.playing", id: seq.id, on: !seq.playing })} title={seq.playing ? "Stop on the next beat" : "Start on the next beat"} aria-label={seq.playing ? `Stop ${inp.name}` : `Start ${inp.name}`}><Icon name={seq.playing ? "square" : "play"} fill /></button>}
         {inp.kind === "sequencer" && <button type="button" className={`${ibtn} ${sequencerOpen ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={sequencerOpen} onClick={onToggleSequencer} title={sequencerOpen ? "Close the sequencer" : "Open the sequencer"} aria-label={sequencerOpen ? "Close the sequencer" : "Open the sequencer"}><Icon name="sliders-horizontal" /></button>}
         {inp.kind === "scalepiano" && <button type="button" className={`${ibtn} ${pianoOpen ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={pianoOpen} onClick={onTogglePiano} title={pianoOpen ? "Close the Scale Piano" : "Open the Scale Piano"} aria-label={pianoOpen ? "Close the Scale Piano" : "Open the Scale Piano"}><Icon name="keyboard" /></button>}
         {inp.kind === "extra" && <button type="button" className={`${ibtn} ${keyboardOpen ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={keyboardOpen} onClick={onToggleKeyboard} title={keyboardOpen ? "Close keyboard" : "Open keyboard"} aria-label={keyboardOpen ? "Close keyboard" : "Open keyboard"}><Icon name="keyboard" /></button>}
@@ -250,7 +255,7 @@ function Buses({ engine, snap }: { engine: LooperEngine; snap: LooperSnapshot })
           <span className="w-32 truncate px-1.5 text-sm font-medium text-slate-100">Master bus</span>
           <span className="flex h-6 min-w-[6.5rem] items-center justify-center rounded-md border border-slate-700 px-1.5 text-[10px] leading-none text-slate-400" title="Everything that is not in a group, and every bus">all buses</span>
           <LevelMeter vertical getLevel={getMaster} />
-          <input type="range" min={0} max={1.5} step={0.01} value={snap.masterVolume} onChange={(e) => engine.setMasterVolume(Number(e.target.value))} className="w-24 accent-sky-400" aria-label="Master volume" title={`Master ${Math.round(snap.masterVolume * 100)}%`} />
+          <input type="range" min={0} max={1.5} step={0.01} value={snap.masterVolume} onChange={(e) => engine.do({ type: "master.volume", value: Number(e.target.value) })} className="w-24 accent-sky-400" aria-label="Master volume" title={`Master ${Math.round(snap.masterVolume * 100)}%`} />
         </li>
       </ul>
       {fxGroup && <GroupEffects engine={engine} g={fxGroup} onClose={() => setFxFor(null)} />}
@@ -263,15 +268,15 @@ function BusRow({ engine, g, loops, seqs, onFx }: { engine: LooperEngine; g: Loo
   return (
     <li className="flex flex-wrap items-center gap-1.5 rounded-lg border bg-slate-950/50 px-2 py-1.5" style={{ borderColor: `${g.colour}66` }}>
       <span className="h-3 w-3 rounded-full" style={{ background: g.colour }} aria-hidden />
-      <input value={g.name} onChange={(e) => engine.updateGroup(g.id, { name: e.target.value })} aria-label="Bus name" className="w-32 rounded-md border border-transparent bg-transparent px-1.5 py-0.5 text-sm font-medium text-slate-100 hover:border-slate-700 focus:border-slate-500 focus:outline-none" />
+      <input value={g.name} onChange={(e) => engine.do({ type: "group.set", id: g.id, patch: { name: e.target.value } })} aria-label="Bus name" className="w-32 rounded-md border border-transparent bg-transparent px-1.5 py-0.5 text-sm font-medium text-slate-100 hover:border-slate-700 focus:border-slate-500 focus:outline-none" />
       <span className="flex h-6 min-w-[6.5rem] items-center justify-center gap-1 rounded-md border border-slate-700 px-1.5 text-[10px] leading-none text-slate-400" title={`${loops} loop${loops === 1 ? "" : "s"} and ${seqs} sequencer${seqs === 1 ? "" : "s"} play through this bus`}>
         <Icon name="repeat" size={10} />{loops}<Icon name="drum" size={10} />{seqs}
       </span>
       <LevelMeter vertical getLevel={getLevel} />
-      <input type="range" min={0} max={1.5} step={0.01} value={g.volume} onChange={(e) => engine.updateGroup(g.id, { volume: Number(e.target.value) })} className="w-24 accent-sky-400" aria-label={`Volume of ${g.name}`} title={`Volume ${Math.round(g.volume * 100)}%`} />
+      <input type="range" min={0} max={1.5} step={0.01} value={g.volume} onChange={(e) => engine.do({ type: "group.set", id: g.id, patch: { volume: Number(e.target.value) } })} className="w-24 accent-sky-400" aria-label={`Volume of ${g.name}`} title={`Volume ${Math.round(g.volume * 100)}%`} />
       <span className="flex-1" aria-hidden />
-      <button type="button" className={`${ibtn} ${g.muted ? "!border-amber-400 !text-amber-200" : ""}`} aria-pressed={g.muted} onClick={() => engine.updateGroup(g.id, { muted: !g.muted })} title="Mute the bus" aria-label={`Mute ${g.name}`}>M</button>
-      <div className="basis-full"><EffectStack effects={g.effects} onOpen={onFx} onBypass={(fx) => engine.toggleEffectBypass(g.id, fx)} onMove={(fx, d) => engine.moveEffect(g.id, fx, d)} /></div>
+      <button type="button" className={`${ibtn} ${g.muted ? "!border-amber-400 !text-amber-200" : ""}`} aria-pressed={g.muted} onClick={() => engine.do({ type: "group.set", id: g.id, patch: { muted: !g.muted } })} title="Mute the bus" aria-label={`Mute ${g.name}`}>M</button>
+      <div className="basis-full"><EffectStack effects={g.effects} onOpen={onFx} onBypass={(fx) => engine.do({ type: "effect.bypass", groupId: g.id, fxId: fx, bypass: !g.effects.find((e) => e.id === fx)?.bypass })} onMove={(fx, d) => engine.moveEffect(g.id, fx, d)} /></div>
     </li>
   );
 }

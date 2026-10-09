@@ -57,8 +57,12 @@ Routing: Input → (input effects) → recorder → Loop → Bus (of its Group) 
 - Scale Piano (`scalePiano.ts`): layout maths is pure and tested; the DOM key handling is in `ScalePianoPanel` and only active while its window is open. Keep key codes (`KeyboardEvent.code`) so non-English layouts work.
 - The metronome can run on its own (`toggleMetronome`), and the sequencer follows it.
 
+## Actions, history, macros, widgets
+- Every user-driven state change goes through `engine.do(action)` (`actions.ts`), never a direct engine setter from a control: that is what makes undo, the history list and macro recording work. New control = new action type (apply, inverse, describe, validate, test). Format and rules: `spec/looper-actions.md`.
+- Widget mode (`widgets.ts`, `WidgetBoard.tsx`): sections stay inside the board; keep the layout maths pure and tested.
+
 ## State and storage
-- Saved strips live in localStorage `musickit.looper.inputs`; other keys: `musickit.looper.layout` (groups, effects, loop positions), `musickit.looper.metronome`, `musickit.looper.sequencers`, `musickit.looper.scalePianos`, `musickit.looper.scalePianoWindow.<id>`, `musickit.looper.sequencerWindow.<id>`, `musickit.looper.midi`, `musickit.looper.keyboard`, `musickit.looper.keyboardWindow`. Wrap every read and write in try/catch, validate on load, and keep old saves loading (add fields with defaults).
+- Saved strips live in localStorage `musickit.looper.inputs`; other keys: `musickit.looper.layout` (groups, effects, loop positions), `musickit.looper.metronome`, `musickit.looper.sequencers`, `musickit.looper.scalePianos`, `musickit.looper.scalePianoWindow.<id>`, `musickit.looper.sequencerWindow.<id>`, `musickit.looper.midi`, `musickit.looper.keyboard`, `musickit.looper.keyboardWindow`, `musickit.looper.macros`, `musickit.looper.widgets`, `musickit.looper.widgetMode`, `musickit.looper.mixerAlign`, `musickit.looper.historyWindow`, `musickit.looper.macrosWindow`. Wrap every read and write in try/catch, validate on load, and keep old saves loading (add fields with defaults).
 - Restored device strips come back disconnected.
 - Max 8 inputs (`MAX_INPUTS`).
 
