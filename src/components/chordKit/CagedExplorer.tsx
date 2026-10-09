@@ -76,32 +76,16 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem }: { b
   const lab = (c: CagedCell) => noteLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText, role: c.arpRole });
   const off = 40;
   const sorted = [...boxes].sort((p, q) => p.from - q.from);
-  // Each string is coloured on its own: every chord tone belongs to the box that contains it (the nearest centre where two overlap),
-  // and the colour changes halfway between two neighbouring notes that belong to different boxes.
-  const owner = (f: number) => {
-    const inside = sorted.filter((b) => f >= b.from && f <= b.to);
-    const pool = inside.length ? inside : sorted;
-    return pool.reduce((best, b) => (Math.abs(f - (b.from + b.to) / 2) < Math.abs(f - (best.from + best.to) / 2) ? b : best));
-  };
-  const rowH = g.sy(4) - g.sy(5);
-  const boardL = g.left, boardR = g.edge(NECK_END + 1);
-  const bands = Array.from({ length: 6 }, (_, s) => {
-    const row = cells.filter((c) => c.string === s).sort((p, q) => p.fret - q.fret);
-    const y0 = s === 5 ? g.sy(5) - 14 : g.sy(s) - rowH / 2;
-    const y1 = s === 0 ? g.sy(0) + 14 : g.sy(s) + rowH / 2;
-    const runs: { b: CagedBox; x0: number; x1: number }[] = [];
-    row.forEach((c, i) => {
-      const b = owner(c.fret);
-      const last = runs[runs.length - 1];
-      if (last && last.b === b) { last.x1 = i === row.length - 1 ? boardR : last.x1; return; }
-      const x0 = i === 0 ? boardL : (g.fx(row[i - 1].fret) + g.fx(c.fret)) / 2;
-      if (last) last.x1 = x0;
-      runs.push({ b, x0, x1: boardR });
-    });
-    return { y0, y1, runs };
+  // Each box is one colour over the full height of the neck. Neighbouring boxes meet on a fret line in the middle of their overlap,
+  // so the change of colour always falls between two notes and never under one.
+  const cuts = sorted.slice(1).map((nx, i) => {
+    const pv = sorted[i];
+    const k = Math.round((nx.from + pv.to + 1) / 2);
+    return Math.max(Math.min(nx.from, pv.to + 1), Math.min(k, Math.max(nx.from, pv.to + 1)));
   });
-  const zones = sorted.map((b) => {
-    const x0 = g.edge(b.from), x1 = g.edge(b.to + 1);
+  const zones = sorted.map((b, i) => {
+    const x0 = i === 0 ? g.left : g.edge(cuts[i - 1]);
+    const x1 = i === sorted.length - 1 ? g.edge(NECK_END + 1) : g.edge(cuts[i]);
     return { b, x0, x1, col: LANE_COLOURS[boxes.indexOf(b) % 5] };
   });
   return (
@@ -119,7 +103,8 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem }: { b
             <FretboardBase g={g} />
             <clipPath id="overview-board"><rect x={g.left} y={g.sy(5) - 14} width={g.edge(NECK_END + 1) - g.left} height={g.sy(0) - g.sy(5) + 28} rx={8} /></clipPath>
             <g clipPath="url(#overview-board)">
-              {bands.map((bd, si) => bd.runs.map((r) => <rect key={`${si}-${r.x0}`} x={r.x0} y={bd.y0} width={r.x1 - r.x0} height={bd.y1 - bd.y0} fill={LANE_COLOURS[boxes.indexOf(r.b) % 5]} opacity={0.26} />))}
+              {zones.map((z) => <rect key={z.b.letter} x={z.x0} y={g.sy(5) - 14} width={z.x1 - z.x0} height={g.sy(0) - g.sy(5) + 28} fill={z.col} opacity={0.26} />)}
+              {zones.slice(1).map((z) => <line key={`d${z.b.letter}`} x1={z.x0} x2={z.x0} y1={g.sy(5) - 14} y2={g.sy(0) + 14} stroke="#0d1526" strokeWidth={1.5} opacity={0.6} />)}
             </g>
             {cells.map((c) => {
               const x = g.fx(c.fret), y = g.sy(c.string), col = c.scaleDegree === null ? "#f43f5e" : degreeColour(c.scaleDegree), l = lab(c);
