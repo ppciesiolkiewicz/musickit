@@ -105,6 +105,8 @@ export class InputMixer {
   private nextId = 0;
   private nextFx = 1;
   private extraNode: AudioNode | null = null;
+  private recIds: Set<number> | null = null;
+  private patched = new Set<number>();
 
   constructor(private opts: MixerOptions) {
     this.runtimes = this.defaults().map((s) => this.make(s, true));
@@ -223,6 +225,7 @@ export class InputMixer {
     r.gain = gain;
     r.meter = meter;
     r.monitor = monitor;
+    this.applyRoutes();
     r.buf = new Float32Array(meter.fftSize) as Float32Array<ArrayBuffer>;
     if (r.info.kind === "extra") this.extraNode?.connect(pre);
     if ((r.info.kind === "sequencer" || r.info.kind === "scalepiano") && r.info.sourceId) {
@@ -349,10 +352,28 @@ export class InputMixer {
     }
   }
 
-  /** Let only these strips reach the recorder (null = all of them). */
+  /** Let only these strips reach the recorder (null = all of them). Patched strips never do: the patch routes them. */
   setRecordSources(ids: Set<number> | null) {
+    this.recIds = ids;
+    this.applyRoutes();
+  }
+
+  /** Strips whose sound the patch routes: their own recorder gate and "Hear it" stay shut. */
+  setPatched(ids: Set<number>) {
+    this.patched = ids;
+    this.applyRoutes();
+  }
+
+  /** The sound of a strip after its effects and fader, for the patch to take. */
+  tap(id: number): AudioNode | null {
+    return this.find(id)?.chainPost?.output ?? null;
+  }
+
+  private applyRoutes() {
     this.runtimes.forEach((r) => {
-      if (r.rec) r.rec.gain.value = ids === null || ids.has(r.info.id) ? 1 : 0;
+      const p = this.patched.has(r.info.id);
+      if (r.rec) r.rec.gain.value = !p && (this.recIds === null || this.recIds.has(r.info.id)) ? 1 : 0;
+      if (r.monitor) r.monitor.gain.value = !p && r.info.monitor ? 1 : 0;
     });
   }
 
@@ -499,7 +520,7 @@ export class InputMixer {
     const r = this.find(id);
     if (!r) return;
     r.info.monitor = on;
-    if (r.monitor) r.monitor.gain.value = on ? 1 : 0;
+    this.applyRoutes();
     this.opts.onChange();
   }
 

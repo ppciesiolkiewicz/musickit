@@ -190,7 +190,8 @@ export default function EffectsModal({ title, effects, volume, onAdd, onRemove, 
   onRemove: (id: string) => void;
   onParam: (id: string, key: string, value: number) => void;
   onBypass: (id: string) => void;
-  onPost: (id: string, post: boolean) => void;
+  /** left out for an effect chain on the patch canvas, which has no fader to be before or after */
+  onPost?: (id: string, post: boolean) => void;
   onClose: () => void;
   /** "g:<group id>" or "i:<input id>": effects can then be pinned to the stage as widgets */
   pinScope?: string;
@@ -209,7 +210,7 @@ export default function EffectsModal({ title, effects, volume, onAdd, onRemove, 
           {pinScope && (
             <button type="button" className={`${ibtn} ${isPinned(pins, `${pinScope}:${fx.id}`) ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={isPinned(pins, `${pinScope}:${fx.id}`)} onClick={() => togglePin(`${pinScope}:${fx.id}`)} title="Show this effect as a widget on the loop stage" aria-label={`Pin ${def.name} to the stage`}><Icon name="layout-dashboard" size={14} /></button>
           )}
-          <button type="button" className={ibtn} onClick={() => onPost(fx.id, !fx.post)} title={fx.post ? "After the fader: move before it (the fader then cuts it)" : "Before the fader: move after it (it keeps ringing when the fader is down)"} aria-label={`Move ${def.name} ${fx.post ? "before" : "after"} the fader`}><Icon name="chevron-right" size={14} className={fx.post ? "-rotate-90" : "rotate-90"} /></button>
+          {onPost && <button type="button" className={ibtn} onClick={() => onPost(fx.id, !fx.post)} title={fx.post ? "After the fader: move before it (the fader then cuts it)" : "Before the fader: move after it (it keeps ringing when the fader is down)"} aria-label={`Move ${def.name} ${fx.post ? "before" : "after"} the fader`}><Icon name="chevron-right" size={14} className={fx.post ? "-rotate-90" : "rotate-90"} /></button>}
           <button type="button" className={`${ibtn} ${fx.bypass ? "" : "!border-emerald-500/70 !text-emerald-200"}`} aria-pressed={!fx.bypass} onClick={() => onBypass(fx.id)} title={fx.bypass ? "Bypassed (tap to switch on)" : "On (tap to bypass)"} aria-label={`${def.name} on or off`}><Icon name="power" /></button>
           <button type="button" className={ibtn} onClick={() => onRemove(fx.id)} title="Remove" aria-label={`Remove ${def.name}`}><Icon name="trash" /></button>
         </div>

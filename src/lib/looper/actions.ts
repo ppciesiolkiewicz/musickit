@@ -27,6 +27,9 @@ export type LooperAction =
   | { type: "patch.unlink"; id: string }
   | { type: "patch.mute"; what: "link" | "node"; id: string; muted: boolean }
   | { type: "patch.switch"; id: string; selected: number }
+  | { type: "patch.node"; node: PatchNodeSpec }
+  | { type: "patch.removeNode"; id: string }
+  | { type: "patch.move"; id: string; x: number; y: number }
   | { type: "group.set"; id: string; patch: GroupPatch }
   | { type: "group.active"; id: string; on: boolean }
   | { type: "master.volume"; value: number }
@@ -65,7 +68,18 @@ export type LooperAction =
 
 /** Where an effect lives: on a group's bus, or on an input strip. */
 /** Where an effect lives: a group's bus, an input strip, or the master bus (the global output). */
-export type FxTarget = { group: string } | { input: number } | { master: true };
+/** An element that can be added to the patch canvas: an effect chain or a switch. The id is made by the caller so undo and macros stay exact. */
+export interface PatchNodeSpec {
+  id: string;
+  kind: "fx" | "switch";
+  x: number;
+  y: number;
+  name?: string;
+  effects?: (FxSpec & { id: string })[];
+  muted?: boolean;
+}
+
+export type FxTarget = { group: string } | { input: number } | { master: true } | { element: string };
 export interface FxSpec {
   kind: EffectKind;
   /** a name for it (a macro replays with the id it recorded); made up when left out */
@@ -115,7 +129,7 @@ export interface ActionState {
   metronome: MetronomeSettings;
   sequencers: { id: string; name: string; x: number; y: number; dest: "auto" | "record"; playing: boolean; instrumentId: string; bars: number; cells: number[][] }[];
   /** what is connected to what */
-  patch: { nodes: { id: string; kind: string; muted: boolean; selected?: number }[]; links: { id: string; from: string; to: string; port?: "rec" | "bus"; muted: boolean }[] };
+  patch: { nodes: { id: string; kind: string; muted: boolean; x: number; y: number; selected?: number; name?: string; effects?: EffectState[] }[]; links: { id: string; from: string; to: string; port?: "rec" | "bus"; muted: boolean }[] };
 }
 
 export interface EffectState {
@@ -138,6 +152,9 @@ export interface ActionTarget {
   setLoopPlan(id: number, plan: number): void;
   patchLink(link: { id: string; from: string; to: string; port?: "rec" | "bus"; muted?: boolean }): boolean;
   patchUnlink(id: string): void;
+  patchAdd(node: { id: string; kind: "fx" | "switch"; x: number; y: number; muted: boolean; name?: string; effects?: EffectState[] }): boolean;
+  patchRemove(id: string): void;
+  patchMove(id: string, x: number, y: number): void;
   patchMute(what: "link" | "node", id: string, muted: boolean): void;
   patchSwitch(id: string, selected: number): void;
   updateGroup(id: string, patch: GroupPatch): void;
@@ -192,6 +209,9 @@ export function applyAction(t: ActionTarget, a: LooperAction): LooperAction | nu
     case "patch.unlink": t.patchUnlink(a.id); return a;
     case "patch.mute": t.patchMute(a.what, a.id, a.muted); return a;
     case "patch.switch": t.patchSwitch(a.id, a.selected); return a;
+    case "patch.node": return t.patchAdd({ id: a.node.id, kind: a.node.kind, x: a.node.x, y: a.node.y, muted: a.node.muted === true, name: a.node.name, effects: a.node.kind === "fx" ? (a.node.effects ?? []).map((e) => ({ id: e.id, kind: e.kind, bypass: e.bypass === true, post: e.post === true, params: { ...e.params } })) : undefined }) ? a : null;
+    case "patch.removeNode": t.patchRemove(a.id); return a;
+    case "patch.move": t.patchMove(a.id, a.x, a.y); return a;
     case "group.set": t.updateGroup(a.id, a.patch); return a;
     case "group.active": t.setGroupActive(a.id, a.on); return a;
     case "master.volume": t.setMasterVolume(a.value); return a;
@@ -240,7 +260,7 @@ export function applyAction(t: ActionTarget, a: LooperAction): LooperAction | nu
   }
 }
 
-const fxList = (s: ActionState, t: FxTarget): EffectState[] | undefined => ("master" in t ? s.masterEffects : "group" in t ? s.groups.find((g) => g.id === t.group)?.effects : s.inputs.find((i) => i.id === t.input)?.effects);
+const fxList = (s: ActionState, t: FxTarget): EffectState[] | undefined => ("master" in t ? s.masterEffects : "group" in t ? s.groups.find((g) => g.id === t.group)?.effects : "element" in t ? s.patch.nodes.find((n) => n.id === t.element)?.effects : s.inputs.find((i) => i.id === t.input)?.effects);
 const specOf = (e: EffectState): FxSpec & { id: string } => ({ id: e.id, kind: e.kind, post: e.post, bypass: e.bypass, params: { ...e.params } });
 
 /**
@@ -264,6 +284,18 @@ export function inverseOf(a: LooperAction, s: ActionState): LooperAction | null 
     case "patch.unlink": { const l = s.patch.links.find((x) => x.id === a.id); return l ? { type: "patch.link", link: { ...l } } : null; }
     case "patch.mute": { const x = a.what === "link" ? s.patch.links.find((l) => l.id === a.id) : s.patch.nodes.find((n) => n.id === a.id); return x ? { ...a, muted: x.muted } : null; }
     case "patch.switch": { const n = s.patch.nodes.find((m) => m.id === a.id); return n ? { type: a.type, id: a.id, selected: n.selected ?? 0 } : null; }
+    case "patch.node": return { type: "patch.removeNode", id: a.node.id };
+    case "patch.removeNode": {
+      const n = s.patch.nodes.find((m) => m.id === a.id);
+      if (!n || (n.kind !== "fx" && n.kind !== "switch")) return null;
+      const restore: LooperAction[] = [
+        { type: "patch.node", node: { id: n.id, kind: n.kind as "fx" | "switch", x: n.x, y: n.y, name: n.name, muted: n.muted, effects: n.effects?.map(specOf) } },
+        ...s.patch.links.filter((l) => l.from === n.id || l.to === n.id).map((l): LooperAction => ({ type: "patch.link", link: { ...l } })),
+      ];
+      if (n.kind === "switch") restore.push({ type: "patch.switch", id: n.id, selected: n.selected ?? 0 });
+      return { type: "batch", actions: restore };
+    }
+    case "patch.move": { const n = s.patch.nodes.find((m) => m.id === a.id); return n ? { type: a.type, id: a.id, x: n.x, y: n.y } : null; }
     case "group.set": {
       const g = gr(a.id);
       if (!g) return null;
@@ -384,6 +416,9 @@ export function describeAction(a: LooperAction, s?: ActionState): string {
     case "patch.unlink": return "Remove a connection";
     case "patch.mute": return `${a.muted ? "Mute" : "Unmute"} a ${a.what === "link" ? "connection" : "patch element"}`;
     case "patch.switch": return "Switch output";
+    case "patch.node": return `Add ${a.node.kind === "fx" ? "effect chain" : "switch"}`;
+    case "patch.removeNode": return "Remove a patch element";
+    case "patch.move": return "Move a patch element";
     case "group.set": {
       const k = Object.keys(a.patch);
       if (k.length === 1 && k[0] === "volume") return `${group(a.id)} volume ${pct(a.patch.volume as number)}`;
@@ -430,7 +465,7 @@ export function describeAction(a: LooperAction, s?: ActionState): string {
   }
 }
 
-const fxWhere = (t: FxTarget, s?: ActionState): string => ("master" in t ? "master" : "group" in t ? s?.groups.find((g) => g.id === t.group)?.name ?? "group" : s?.inputs.find((i) => i.id === t.input)?.name ?? "input");
+const fxWhere = (t: FxTarget, s?: ActionState): string => ("master" in t ? "master" : "element" in t ? s?.patch.nodes.find((n) => n.id === t.element)?.name ?? "effect chain" : "group" in t ? s?.groups.find((g) => g.id === t.group)?.name ?? "group" : s?.inputs.find((i) => i.id === t.input)?.name ?? "input");
 
 /**
  * Actions with the same key that follow each other closely are one gesture (a slider drag, a move) and share one history line.
@@ -443,6 +478,7 @@ export function coalesceKey(a: LooperAction): string | null {
     case "loop.rename": return `loop.rename:${a.id}`;
     case "loop.plan": return `loop.plan:${a.id}`;
     case "patch.switch": return `patch.switch:${a.id}`;
+    case "patch.move": return `patch.move:${a.id}`;
     case "master.volume": return "master.volume";
     case "fx.param": return `fx.param:${JSON.stringify(a.target)}:${a.id}:${a.key}`;
     case "input.set": { const k = Object.keys(a.patch).sort().join(","); return k === "volume" || k === "name" ? `input.set:${a.id}:${k}` : null; }
@@ -469,7 +505,7 @@ const SEQ_KEYS: Record<string, (v: unknown) => boolean> = {
   instrument: isStr, preset: isStr, rows: (v) => Array.isArray(v) && v.length <= 16 && v.every(isStr), clear: isBool, cells: isCells, bars: isNum,
   dest: (v) => v === "auto" || v === "record", x: isNum, y: isNum,
 };
-const isTarget = (t: unknown): t is FxTarget => typeof t === "object" && t !== null && (isStr((t as { group?: unknown }).group) || isNum((t as { input?: unknown }).input) || (t as { master?: unknown }).master === true);
+const isTarget = (t: unknown): t is FxTarget => typeof t === "object" && t !== null && (isStr((t as { group?: unknown }).group) || isNum((t as { input?: unknown }).input) || (t as { master?: unknown }).master === true || isStr((t as { element?: unknown }).element));
 /** a well-formed effect description of a kind that exists */
 const isFx = (f: unknown): boolean => {
   if (typeof f !== "object" || f === null) return false;
@@ -496,6 +532,9 @@ export function isAction(v: unknown, depth = 0): v is LooperAction {
     case "patch.unlink": return isStr(a.id);
     case "patch.mute": return (a.what === "link" || a.what === "node") && isStr(a.id) && isBool(a.muted);
     case "patch.switch": return isStr(a.id) && isNum(a.selected);
+    case "patch.node": { const k = a.node as { id?: unknown; kind?: unknown; x?: unknown; y?: unknown; effects?: unknown } | undefined; return !!k && isStr(k.id) && (k.kind === "fx" || k.kind === "switch") && isNum(k.x) && isNum(k.y) && (k.effects === undefined || (Array.isArray(k.effects) && k.effects.length <= 12 && k.effects.every(isFx))); }
+    case "patch.removeNode": return isStr(a.id);
+    case "patch.move": return isStr(a.id) && isNum(a.x) && isNum(a.y);
     case "group.set": return isStr(a.id) && validPatch(a.patch, GROUP_KEYS);
     case "group.active": return isStr(a.id) && isBool(a.on);
     case "master.volume": return isNum(a.value);

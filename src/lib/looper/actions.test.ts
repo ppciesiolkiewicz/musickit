@@ -16,12 +16,12 @@ function fake() {
     playing: false,
     metronome: { bpm: 120, beatsPerBar: 4, volume: 0.5, audible: true, showBeat: true, quantise: "bar", countInBars: 1 },
     sequencers: [{ id: "q1", name: "Drums", x: 5, y: 5, dest: "auto", playing: false, instrumentId: "drums", bars: 1, cells: [[1, 0, 0, 0], [0, 0, 2, 0]] }],
-    patch: { nodes: [{ id: "in:0", kind: "input", muted: false }, { id: "group:g1", kind: "group", muted: false }, { id: "sw", kind: "switch", muted: false, selected: 0 }], links: [{ id: "k1", from: "in:0", to: "group:g1", port: "rec", muted: false }] },
+    patch: { nodes: [{ id: "in:0", kind: "input", muted: false, x: 0, y: 0 }, { id: "group:g1", kind: "group", muted: false, x: 300, y: 0 }, { id: "sw", kind: "switch", muted: false, x: 150, y: 0, selected: 0 }, { id: "chain", kind: "fx", muted: false, x: 150, y: 150, name: "Amp", effects: [{ id: "a1", kind: "reverb", bypass: false, post: false, params: { mix: 0.3 } }] }], links: [{ id: "k1", from: "in:0", to: "group:g1", port: "rec", muted: false }] },
   };
   const ch = (id: number) => s.channels.find((c) => c.id === id)!;
   const gr = (id: string) => s.groups.find((g) => g.id === id)!;
   const sq = (id: string) => s.sequencers.find((q) => q.id === id)!;
-  const list = (tg: FxTarget) => ("master" in tg ? s.masterEffects : "group" in tg ? gr(tg.group)?.effects : s.inputs.find((i) => i.id === tg.input)?.effects);
+  const list = (tg: FxTarget) => ("master" in tg ? s.masterEffects : "group" in tg ? gr(tg.group)?.effects : "element" in tg ? s.patch.nodes.find((n) => n.id === tg.element)?.effects : s.inputs.find((i) => i.id === tg.input)?.effects);
   const t: ActionTarget = {
     getSnapshot: () => s,
     setVolume: (id, v) => { ch(id).volume = v; },
@@ -34,6 +34,9 @@ function fake() {
     patchLink: (l) => { if (s.patch.links.some((x) => x.id === l.id)) return false; s.patch.links.push({ ...l, muted: l.muted === true }); return true; },
     patchUnlink: (id) => { s.patch.links = s.patch.links.filter((l) => l.id !== id); },
     patchMute: (what, id, muted) => { const x = what === "link" ? s.patch.links.find((l) => l.id === id) : s.patch.nodes.find((n) => n.id === id); if (x) x.muted = muted; },
+    patchAdd: (n) => { if (s.patch.nodes.some((m) => m.id === n.id)) return false; s.patch.nodes.push({ id: n.id, kind: n.kind, muted: n.muted, x: n.x, y: n.y, ...(n.name ? { name: n.name } : {}), ...(n.effects ? { effects: n.effects } : {}) }); return true; },
+    patchRemove: (id) => { s.patch.nodes = s.patch.nodes.filter((n) => n.id !== id); s.patch.links = s.patch.links.filter((l) => l.from !== id && l.to !== id); },
+    patchMove: (id, x, y) => { const n = s.patch.nodes.find((m) => m.id === id); if (n) Object.assign(n, { x, y }); },
     patchSwitch: (id, sel) => { const n = s.patch.nodes.find((m) => m.id === id); if (n) n.selected = sel; },
     updateGroup: (id, p: GroupPatch) => { Object.assign(gr(id), p); },
     setGroupActive: () => undefined,
@@ -83,6 +86,13 @@ const SAMPLES: LooperAction[] = [
   { type: "patch.mute", what: "link", id: "k1", muted: true },
   { type: "patch.mute", what: "node", id: "in:0", muted: true },
   { type: "patch.switch", id: "sw", selected: 2 },
+  { type: "patch.node", node: { id: "fx9", kind: "fx", x: 200, y: 40, name: "Clean", effects: [{ id: "e1", kind: "eq" }] } },
+  { type: "patch.node", node: { id: "sw9", kind: "switch", x: 220, y: 40 } },
+  { type: "patch.removeNode", id: "chain" },
+  { type: "patch.move", id: "chain", x: 400, y: 90 },
+  { type: "fx.add", target: { element: "chain" }, fx: { kind: "filter", id: "lp" } },
+  { type: "fx.remove", target: { element: "chain" }, id: "a1" },
+  { type: "fx.param", target: { element: "chain" }, id: "a1", key: "mix", value: 0.8 },
   { type: "loop.move", id: 1, x: 300, y: 40 },
   { type: "loop.active", id: 0, on: false },
   { type: "group.set", id: "g1", patch: { volume: 0.4, muted: true, name: "Drums" } },

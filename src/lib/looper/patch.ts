@@ -74,6 +74,9 @@ export function whyNot(p: Patch, from: string, to: string, port: Port = "bus"): 
   if (!hasOut(a.kind)) return `${a.kind} has no output`;
   if (!hasIn(b.kind)) return b.kind === "loop" ? "A loop plays into the bus of its group" : `${b.kind} has no input`;
   if (a.kind === "loop") return "A loop plays into the bus of its group";
+  if (a.kind === "group" && b.kind !== "master") return "A group plays into the master";
+  if (a.kind === "sequencer" && b.kind !== "group" && b.kind !== "master") return "A sequencer keeps its own routing for now";
+  if (a.kind === "synth") return "Sound generators are not wired yet";
   if (b.kind !== "group" && port === "rec") return "Only a group has a recorder";
   if (p.links.some((l) => l.from === from && l.to === to && (l.port ?? "bus") === port)) return "Already connected";
   if (reaches(p, to, from)) return "That would feed sound back into itself";

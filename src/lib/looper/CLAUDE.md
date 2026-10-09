@@ -48,6 +48,9 @@ Routing: Input → (input effects) → recorder → Loop → Bus (of its Group) 
 - The Signal flow panel (`SignalFlow.tsx`) draws inputs (what feeds the recorder), the recorder, the loops and sequencers (the stage), group buses and master from the snapshot. A sequencer sits on the stage and only appears under inputs when it is switched to record. When routing changes, keep that picture true.
 - Effect stacks (`EffectStack.tsx`) show pre-fader effects, the fader, then post-fader effects in processing order; `moveEffect` (tested) reorders within a section.
 
+## Patch (`patch.ts`, `patchAudio.ts`, `PatchWindow.tsx`)
+- The patch is the source of truth for routing of patched sound makers (see `spec/patch.md`). Pure rules live in `patch.ts` (tested); the Web Audio side is only `PatchGraph`. Every change is a `patch.*` action; effects of a chain use `fx.*` with target `{element}`. A connection is a gain node, never a rewire, so muting and switching are click-free. Do not route a patched strip around the patch (its recorder gate and monitor stay shut).
+
 ## Looping stage, groups, buses and effects
 - The page has two sections: Mixer (inputs) and Looping (loops on a stage). Keep them separate: inputs feed the recorder, loops play back.
 - The Signal flow diagram is also a control: drag a loop or sequencer onto a bus (puts it in that group), onto the master (a free spot outside every group; `spotOutside`, the default groups leave a free strip for it) or a sequencer onto the recorder (record). It only calls engine actions, so the mixer and the stage follow from the snapshot.

@@ -174,3 +174,6 @@ While a take waits to start (count-in or next loop boundary) the loop circle sho
 
 ## Startup loader
 - From the first paint until the engine is ready, a loader covers the page: "Detecting your devices…" with the input and output it would pick (interface first; names appear only once the browser allows the microphone), then "Starting audio and connecting your gear…" after the first click or key press (browsers need a gesture to start audio). On an error it shows the message and a Try again button. When the engine is ready the loader goes, and the "Connect your gear" dialog follows if something is still missing.
+
+## Patch window
+- Top bar `Patch` opens a window with every sound maker, effect chain, switch, group and the master as a box and every connection as a wire. Drag from an output dot to an input dot to connect (refusals are named), click a wire to mute or remove it, "chain" and "switch" add elements. A switch lets one output through (radio rows). An input with any connection beyond the plain "can be recorded" wiring is patched and is heard and recorded only as drawn. Saved in `musickit.looper.patch`; details in `spec/patch.md`.

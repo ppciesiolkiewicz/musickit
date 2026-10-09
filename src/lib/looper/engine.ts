@@ -7,7 +7,8 @@ import { EffectChain, LoopBus, peakOf } from "./buses";
 import { EFFECT_DEFS, defaultParams, moveEffect, clampParams, sanitiseEffects, type EffectKind, type EffectSpec } from "./effects";
 import { GROUP_COLOURS, clampPoint, clampRect, containingGroup, defaultGroups, defaultSpot, type GroupLayout } from "./layout";
 import { InputMixer, MAX_INPUT_GAIN, describeError, type InputInfo } from "./mixer";
-import { connect as patchConnect, emptyPatch, feeds, removeNode, sanitisePatch, setLinkMuted, setNodeMuted, setSwitch, type Patch, type PatchLink } from "./patch";
+import { PatchGraph } from "./patchAudio";
+import { activeLinks, addNode as patchAddNode, connect as patchConnect, disconnect as patchDisconnect, emptyPatch, feeds, layoutAll, moveNode as patchMoveNode, place, removeNode, sanitisePatch, setLinkMuted, setNodeMuted, setSwitch, type Patch, type PatchLink } from "./patch";
 import { chooseDevice, gearIssues, type DeviceRef, type GearIssue } from "./deviceChoice";
 import { ActionHistory, type DoOptions } from "./history";
 import { MacroRecorder } from "./macros";
@@ -120,6 +121,8 @@ export interface LooperSnapshot {
   groups: GroupInfo[];
   /** what is connected to what (see patch.ts) */
   patch: Patch;
+  /** ids of the connections that carry sound right now (not muted, not closed by a switch) */
+  patchActive: string[];
   /** devices that are not connected but probably should be (empty when all is well) */
   gear: GearIssue[];
   masterVolume: number;
@@ -164,6 +167,8 @@ export { MAX_INPUTS, MAX_INPUT_GAIN } from "./mixer";
 const LAYOUT_KEY = "musickit.looper.layout";
 const OUTPUT_KEY = "musickit.looper.output";
 const PATCH_KEY = "musickit.looper.patch";
+/** Saves made before the canvas existed have no positions worth keeping: they are laid out once. */
+const PATCH_LAYOUT_KEY = "musickit.looper.patch.layout";
 const PREF_KEY = "musickit.looper.preferred";
 type SinkContext = AudioContext & { setSinkId?: (id: string) => Promise<void> };
 const groupName = (i: number) => `Group ${String.fromCharCode(65 + (i % 26))}`;
@@ -201,6 +206,7 @@ export class LooperEngine {
   private masterBuf: Float32Array<ArrayBuffer> | null = null;
   private runtimes: ChannelRuntime[] = [];
   private patch: Patch = emptyPatch();
+  private pgraph: PatchGraph | null = null;
   /** the last input and output the person used: tried first next time */
   private prefs: { in?: DeviceRef; out?: DeviceRef } = (() => {
     try {
@@ -292,6 +298,7 @@ export class LooperEngine {
       masterVolume: this.masterVolume,
       masterEffects: this.masterEffects.map((e) => ({ ...e, params: { ...e.params } })),
       patch: this.patch,
+      patchActive: activeLinks(this.patch).map((l) => l.id),
       gear: this.meta.status === "ready" ? gearIssues({ strips: this.mixer.list().filter((i) => i.kind === "device").map((i) => ({ id: i.id, name: i.name, deviceId: i.deviceId, connected: i.connected, error: i.error })), devices: this.meta.devices, outputs: this.meta.outputs, outputId: this.meta.outputId, canChooseOutput: this.meta.canChooseOutput, prefIn: this.prefs.in ?? null, prefOut: this.prefs.out ?? null }) : [],
       groups: this.groups.map((g) => ({ ...g, effects: g.effects.map((e) => ({ ...e, params: { ...e.params } })) })),
       sampleRate: this.ctx?.sampleRate ?? 0,
@@ -300,6 +307,7 @@ export class LooperEngine {
 
   private emit(patch: Partial<typeof this.meta> = {}) {
     this.syncPatch();
+    this.syncPatchAudio();
     this.snap = this.buildSnapshot(patch);
     this.listeners.forEach((l) => l());
   }
@@ -318,6 +326,10 @@ export class LooperEngine {
     this.restoreLayout();
     try {
       this.patch = sanitisePatch(JSON.parse(window.localStorage.getItem(PATCH_KEY) ?? "null"));
+      if (window.localStorage.getItem(PATCH_LAYOUT_KEY) !== "2") {
+        this.patch = layoutAll(this.patch);
+        window.localStorage.setItem(PATCH_LAYOUT_KEY, "2");
+      }
     } catch {
       this.patch = emptyPatch();
     }
@@ -335,17 +347,17 @@ export class LooperEngine {
     const before = this.patch;
     let p = this.patch;
     const has = (id: string) => p.nodes.some((n) => n.id === id);
-    const add = (id: string, kind: Patch["nodes"][number]["kind"], x: number, y: number) => {
-      p = { ...p, nodes: [...p.nodes, { id, kind, x, y, muted: false, ...(kind === "switch" ? { selected: 0 } : {}) }] };
+    const add = (id: string, kind: Patch["nodes"][number]["kind"]) => {
+      p = { ...p, nodes: [...p.nodes, { id, kind, ...place(p, kind), muted: false }] };
     };
     const want = new Set<string>(["master"]);
-    if (!has("master")) add("master", "master", 700, 500);
+    if (!has("master")) add("master", "master");
     const groupIds = this.groups.map((g) => g.id);
     for (const g of this.groups) {
       const id = `group:${g.id}`;
       want.add(id);
       if (!has(id)) {
-        add(id, "group", g.x, g.y);
+        add(id, "group");
         p = patchConnect(p, id, "master", `to-master:${g.id}`);
         p.nodes.filter((n) => n.kind === "input" || n.kind === "piano").forEach((n) => (p = patchConnect(p, n.id, id, `rec:${n.id}:${g.id}`, "rec")));
       }
@@ -355,7 +367,7 @@ export class LooperEngine {
       const id = `in:${i.id}`;
       want.add(id);
       if (!has(id)) {
-        add(id, i.kind === "scalepiano" ? "piano" : "input", 20 + p.nodes.length * 20, 40);
+        add(id, i.kind === "scalepiano" ? "piano" : "input");
         groupIds.forEach((g) => (p = patchConnect(p, id, `group:${g}`, `rec:${id}:${g}`, "rec")));
       }
     }
@@ -363,7 +375,7 @@ export class LooperEngine {
       const id = `seq:${q.id}`;
       want.add(id);
       if (!has(id)) {
-        add(id, "sequencer", q.state.x, q.state.y);
+        add(id, "sequencer");
         const gid = containingGroup(this.groups, q.state.x, q.state.y);
         p = patchConnect(p, id, gid ? `group:${gid}` : "master");
       }
@@ -380,6 +392,42 @@ export class LooperEngine {
         /* ignore */
       }
     }
+  }
+
+  /** Build the audio for the patch (see patchAudio.ts). Does nothing until the audio engine runs. */
+  private syncPatchAudio() {
+    if (!this.pgraph || !this.master || !this.mixer.output) return;
+    this.mixer.setPatched(this.pgraph.patchedStrips(this.patch));
+    this.pgraph.sync(this.patch, { tap: (id) => this.mixer.tap(id), bus: (g) => this.buses.get(g)?.input ?? null, master: this.master, recorder: this.mixer.output });
+  }
+
+  /** Add an effect chain or a switch to the canvas. */
+  patchAdd(node: Patch["nodes"][number]): boolean {
+    const before = this.patch;
+    const next = patchAddNode(before, node);
+    if (next === before) return false;
+    this.savePatch(next);
+    return true;
+  }
+
+  /** Remove an effect chain or a switch (with its connections). */
+  patchRemove(id: string) {
+    const n = this.patch.nodes.find((m) => m.id === id);
+    if (!n || (n.kind !== "fx" && n.kind !== "switch")) return;
+    this.savePatch(removeNode(this.patch, id));
+  }
+
+  patchMove(id: string, x: number, y: number) {
+    this.savePatch(patchMoveNode(this.patch, id, x, y));
+  }
+
+  /** Replace the effects of an effect chain element. */
+  patchEffects(id: string, effects: EffectSpec[]) {
+    this.savePatch({ ...this.patch, nodes: this.patch.nodes.map((n) => (n.id === id && n.kind === "fx" ? { ...n, effects } : n)) });
+  }
+
+  patchRename(id: string, name: string) {
+    this.savePatch({ ...this.patch, nodes: this.patch.nodes.map((n) => (n.id === id ? { ...n, name: name.slice(0, 40) } : n)) });
   }
 
   private savePatch(next: Patch) {
@@ -403,7 +451,7 @@ export class LooperEngine {
   }
 
   patchUnlink(id: string) {
-    this.savePatch({ ...this.patch, links: this.patch.links.filter((l) => l.id !== id) });
+    this.savePatch(patchDisconnect(this.patch, id));
   }
 
   patchMute(what: "link" | "node", id: string, muted: boolean) {
@@ -798,6 +846,7 @@ export class LooperEngine {
     });
     this.scalePianos.forEach((p) => this.attachScalePiano(p));
     this.mixer.attach(ctx, this.master);
+    this.pgraph = new PatchGraph(ctx);
     this.metronome.attach(ctx, this.mainOut);
     this.analyser = ctx.createAnalyser();
     this.analyser.fftSize = 1024;
@@ -1360,7 +1409,28 @@ export class LooperEngine {
     this.emit();
   }
 
+  /** Effects of an effect chain on the canvas: the same list rules as the other places, saved in the patch. */
+  private elementFx(id: string, change: (list: EffectSpec[]) => EffectSpec[] | null): boolean {
+    const n = this.patch.nodes.find((m) => m.id === id && m.kind === "fx");
+    if (!n) return false;
+    const next = change((n.effects ?? []).map((e) => ({ ...e, params: { ...e.params } })));
+    if (!next) return false;
+    this.patchEffects(id, next);
+    return true;
+  }
+
   fxAdd(t: FxTarget, fx: { kind: EffectKind; id?: string; post?: boolean; bypass?: boolean; params?: Record<string, number> }): string | null {
+    if ("element" in t) {
+      let made: string | null = null;
+      this.elementFx(t.element, (list) => {
+        if (list.length >= 6 || !EFFECT_DEFS[fx.kind]) return null;
+        let id = fx.id && !list.some((e) => e.id === fx.id) ? fx.id : `fx${++this.fxCounter}`;
+        while (list.some((e) => e.id === id)) id = `fx${++this.fxCounter}`;
+        made = id;
+        return [...list, { id, kind: fx.kind, bypass: fx.bypass === true, post: fx.post === true, params: clampParams(fx.kind, { ...defaultParams(fx.kind), ...fx.params }) }];
+      });
+      return made;
+    }
     if ("master" in t) {
       if (this.masterEffects.length >= 6 || !EFFECT_DEFS[fx.kind]) return null;
       let id = fx.id && !this.masterEffects.some((e) => e.id === fx.id) ? fx.id : `fx${++this.fxCounter}`;
@@ -1373,6 +1443,10 @@ export class LooperEngine {
   }
 
   fxRemove(t: FxTarget, id: string) {
+    if ("element" in t) {
+      this.elementFx(t.element, (list) => list.filter((e) => e.id !== id));
+      return;
+    }
     if ("master" in t) {
       this.masterEffects = this.masterEffects.filter((e) => e.id !== id);
       this.masterFxChanged();
@@ -1381,6 +1455,10 @@ export class LooperEngine {
   }
 
   fxMove(t: FxTarget, id: string, dir: -1 | 1) {
+    if ("element" in t) {
+      this.elementFx(t.element, (list) => moveEffect(list, id, dir));
+      return;
+    }
     if ("master" in t) {
       this.masterEffects = moveEffect(this.masterEffects, id, dir);
       this.masterFxChanged();
@@ -1389,6 +1467,10 @@ export class LooperEngine {
   }
 
   fxParam(t: FxTarget, id: string, key: string, value: number) {
+    if ("element" in t) {
+      this.elementFx(t.element, (list) => list.map((e) => (e.id === id ? { ...e, params: clampParams(e.kind, { ...e.params, [key]: value }) } : e)));
+      return;
+    }
     if ("master" in t) {
       const e = this.masterEffects.find((x) => x.id === id);
       if (!e) return;
@@ -1399,6 +1481,10 @@ export class LooperEngine {
   }
 
   fxBypass(t: FxTarget, id: string, bypass: boolean) {
+    if ("element" in t) {
+      this.elementFx(t.element, (list) => list.map((e) => (e.id === id ? { ...e, bypass } : e)));
+      return;
+    }
     if ("master" in t) {
       const e = this.masterEffects.find((x) => x.id === id);
       if (!e || e.bypass === bypass) return;
@@ -1474,6 +1560,7 @@ export class LooperEngine {
     const rt = this.runtimes[id];
     // only what is patched into this loop's group is recorded
     this.mixer.setRecordSources(this.recordSources(rt.info.groupId));
+    this.pgraph?.setRecording(rt.info.groupId);
 
     if (!this.loopLength) {
       const m = this.metronome.settings;
@@ -1544,6 +1631,7 @@ export class LooperEngine {
     rt.info.state = rt.buffer ? "playing" : "empty";
     this.capture = null;
     this.mixer.setRecordSources(null);
+    this.pgraph?.setRecording(undefined);
     this.syncMetronome();
     this.emit();
   }
@@ -1573,6 +1661,7 @@ export class LooperEngine {
     if (this.capture !== cap || !this.ctx) return;
     this.capture = null;
     this.mixer.setRecordSources(null);
+    this.pgraph?.setRecording(undefined);
     const sr = this.ctx.sampleRate;
     const { l, r } = assemble(cap.chunks, cap.startFrame, endFrame);
     const rt = this.runtimes[cap.channel];
@@ -1686,6 +1775,8 @@ export class LooperEngine {
     this.metronome.dispose();
     this.sequencers.forEach((q) => q.dispose());
     this.scalePianos.forEach((p) => p.dispose());
+    this.pgraph?.dispose();
+    this.pgraph = null;
     this.buses.forEach((b) => b.dispose());
     this.buses.clear();
     this.masterPre?.dispose();

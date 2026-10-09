@@ -139,4 +139,13 @@ describe("canvas helpers", () => {
     assert.equal(p.nodes[0].name, "Amp A");
     assert.equal(p.nodes[0].effects?.length, 1);
   });
+  it("keeps groups, sequencers and generators to the routing that exists", () => {
+    let p = base();
+    p = { ...p, nodes: [...p.nodes, { id: "seq", kind: "sequencer", x: 0, y: 0, muted: false }, { id: "syn", kind: "synth", x: 0, y: 0, muted: false }] };
+    assert.ok(whyNot(p, "bus", "sw"));
+    assert.equal(whyNot(p, "bus", "master"), null);
+    assert.ok(whyNot(p, "seq", "sw"));
+    assert.equal(whyNot(p, "seq", "bus"), null);
+    assert.ok(whyNot(p, "syn", "master"));
+  });
 });
