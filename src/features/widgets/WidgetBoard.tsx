@@ -30,7 +30,7 @@ const clampZoom = (z: number) => Math.min(ZOOM.max, Math.max(ZOOM.min, z));
  * world that you zoom (buttons, Ctrl/Cmd and the wheel) and pan (wheel, or drag empty space). Each widget is dragged by its grip header and
  * resized from the corner. The layout and the view are remembered under `storageKey`. Raise `resetSignal` to put everything back.
  */
-export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout, resetSignal = 0 }: {
+export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout, resetSignal = 0, flush = false }: {
   widgets: BoardWidget[];
   storageKey: string;
   /** kept for older callers; the canvas always fills the space */
@@ -38,6 +38,8 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
   resizableHeight?: boolean;
   defaults?: DefaultLayout;
   resetSignal?: number;
+  /** no border, rounded corners or bottom gap: the canvas meets the window edges */
+  flush?: boolean;
 }) {
   const host = useRef<HTMLDivElement>(null);
   const [vp, setVp] = useState<Bounds | null>(null);
@@ -76,7 +78,7 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
     const measure = () => {
       const t = Math.max(0, Math.round(el.getBoundingClientRect().top + window.scrollY));
       setTop(t);
-      setVp({ w: Math.round(el.clientWidth), h: Math.max(420, Math.round(window.innerHeight - el.getBoundingClientRect().top - 8)) });
+      setVp({ w: Math.round(el.clientWidth), h: Math.max(420, Math.round(window.innerHeight - el.getBoundingClientRect().top - (flush ? 0 : 8))) });
     };
     measure();
     window.addEventListener("resize", measure);
@@ -209,7 +211,7 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
   return (
     <div
       ref={host}
-      className="relative w-full touch-none select-none overflow-hidden rounded-xl border border-slate-800 bg-slate-950/60"
+      className={`relative w-full touch-none select-none overflow-hidden bg-slate-950/60 ${flush ? "" : "rounded-xl border border-slate-800"}`}
       style={{ height: vp?.h ?? 600, backgroundImage: "radial-gradient(circle, #1e293b 1px, transparent 1px)", backgroundSize: `${24 * view.zoom}px ${24 * view.zoom}px`, backgroundPosition: `${view.x}px ${view.y}px` }}
       onPointerDown={beginPan}
       onPointerMove={move}

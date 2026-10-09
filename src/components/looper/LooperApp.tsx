@@ -165,8 +165,8 @@ export default function LooperApp() {
   );
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="pointer-events-none sticky top-2 z-30 flex items-start justify-between gap-2">
+    <div className="flex flex-col">
+      <div className="pointer-events-none sticky top-0 z-30 flex items-start justify-between gap-2 px-1 py-1">
         <div className="pointer-events-auto"><MetronomeBar engine={engine} snap={snap} ready={ready} /></div>
         <div className="pointer-events-auto flex gap-1">
           <button type="button" className={ibtn} disabled={!canUndo} onClick={() => engine.history.undo()} title="Undo (Ctrl+Z)" aria-label="Undo"><Icon name="undo-2" /></button>
@@ -183,6 +183,7 @@ export default function LooperApp() {
       {widgetMode ? (
         <WidgetBoard
           storageKey="musickit.looper.widgets"
+          flush
           defaults={splitLayout(0.42)}
           resetSignal={layoutReset}
           widgets={[{ id: "mixer", title: "Mixer", node: mixer(true) }, { id: "looping", title: "Looping", node: looping(true) }]}
