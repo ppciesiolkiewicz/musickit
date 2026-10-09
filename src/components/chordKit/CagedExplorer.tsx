@@ -111,46 +111,35 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem }: { b
   const cells = useMemo(() => boxCells(rootPc, quality, { ...boxes[0], from: 0, to: NECK_END }, arpKind).filter((c) => c.arpRole), [boxes, rootPc, quality, arpKind]);
   const lab = (c: CagedCell) => noteLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText, role: c.arpRole });
   const sorted = [...boxes].sort((p, q) => p.from - q.from);
-  // neighbouring boxes meet on a fret line in the middle of their overlap
-  const cuts = sorted.slice(1).map((nx, i) => {
-    const pv = sorted[i];
-    const lo = Math.min(nx.from, pv.to + 1), hi = Math.max(nx.from, pv.to + 1);
-    return Math.max(lo, Math.min(Math.round((nx.from + pv.to + 1) / 2), hi));
-  });
-  const zones = sorted.map((b, i) => ({ b, from: i === 0 ? 0 : cuts[i - 1], to: i === sorted.length - 1 ? NECK_END : cuts[i] - 1, col: LANE_COLOURS[boxes.indexOf(b) % 5] }));
-  const zoneOf = (f: number) => zones.find((z) => f >= z.from && f <= z.to) ?? zones[zones.length - 1];
   const frets = Array.from({ length: NECK_END + 1 }, (_, f) => f);
   const cellAt = (s: number, f: number) => cells.find((c) => c.string === s && c.fret === f);
-  // Colour is decided per string. The space between two notes that sit in the same box (R to 3, 3 to p5) is that box's colour.
-  // When no box holds both notes, the colour changes exactly halfway between them.
-  const centre = (b: CagedBox) => (b.from + b.to) / 2;
-  const colOf = (b: CagedBox) => LANE_COLOURS[boxes.indexOf(b) % 5];
-  const nearest = (pool: CagedBox[], x: number) => pool.reduce((best, b) => (Math.abs(x - centre(b)) < Math.abs(x - centre(best)) ? b : best));
-  const ownerCol = (f: number) => {
-    const inside = sorted.filter((b) => f >= b.from && f <= b.to);
-    return colOf(nearest(inside.length ? inside : sorted, f));
-  };
-  const sharedCol = (fa: number, fb: number): string | null => {
-    const both = sorted.filter((b) => fa >= b.from && fb <= b.to);
-    return both.length ? colOf(nearest(both, (fa + fb) / 2)) : null;
-  };
+  // Every string is cut into sections by its own notes: the first note's section is one colour on every string, the second note's section the next, and so on.
+  // A section runs from halfway to the previous note to halfway to the next one.
+  const colour = (k: number) => LANE_COLOURS[k % LANE_COLOURS.length];
+  const rowNotes = (s: number) => cells.filter((c) => c.string === s).sort((p, q) => p.fret - q.fret);
   const fillFor = (s: number, f: number): [string, string] => {
-    const row = cells.filter((c) => c.string === s).sort((p, q) => p.fret - q.fret);
-    const own = row.find((c) => c.fret === f);
-    const prev = [...row].reverse().find((c) => c.fret < f), next = row.find((c) => c.fret > f);
-    if (own) {
-      const l = prev ? sharedCol(prev.fret, f) ?? ownerCol(f) : ownerCol(f);
-      const r = next ? sharedCol(f, next.fret) ?? ownerCol(f) : ownerCol(f);
-      return [l, r];
-    }
-    if (!prev && !next) { const k = ownerCol(f); return [k, k]; }
-    if (!next) { const k = ownerCol(prev!.fret); return [k, k]; }
-    if (!prev) { const k = ownerCol(next.fret); return [k, k]; }
-    const shared = sharedCol(prev.fret, next.fret);
-    if (shared) return [shared, shared];
-    const a = ownerCol(prev.fret), b = ownerCol(next.fret), mid = (prev.fret + next.fret) / 2;
-    return f < mid ? [a, a] : f > mid ? [b, b] : [a, b];
+    const row = rowNotes(s);
+    if (!row.length) return [colour(0), colour(0)];
+    const at = row.findIndex((c) => c.fret === f);
+    if (at >= 0) return [colour(at), colour(at)];
+    const nextI = row.findIndex((c) => c.fret > f);
+    if (nextI < 0) return [colour(row.length - 1), colour(row.length - 1)];
+    if (nextI === 0) return [colour(0), colour(0)];
+    const mid = (row[nextI - 1].fret + row[nextI].fret) / 2;
+    return f < mid ? [colour(nextI - 1), colour(nextI - 1)] : f > mid ? [colour(nextI), colour(nextI)] : [colour(nextI - 1), colour(nextI)];
   };
+  // where each section starts on average, for the labels above
+  const SECTIONS = sorted.length;
+  const starts = Array.from({ length: SECTIONS }, (_, k) => {
+    if (k === 0) return 0;
+    const xs = [0, 1, 2, 3, 4, 5].map((s) => rowNotes(s)).filter((r) => r.length > k).map((r) => (r[k - 1].fret + r[k].fret) / 2 + 0.5);
+    return xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : NECK_END;
+  });
+  const labelSpans = starts.map((st, k) => {
+    const from = Math.min(NECK_END, Math.round(st));
+    const to = k === SECTIONS - 1 ? NECK_END + 1 : Math.max(from + 1, Math.round(starts[k + 1]));
+    return { k, from, to };
+  });
   const COL0 = 2; // grid column 1 holds the string names
   return (
     <section className="rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5">
@@ -167,9 +156,9 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem }: { b
           style={{ gridTemplateColumns: `1.5rem ${frets.map((f) => `${fretWidthFactor(f).toFixed(3)}fr`).join(" ")}`, gridTemplateRows: "auto repeat(6, 2.6rem) auto" }}
           role="group" aria-label="Chord tones on the whole neck with the five CAGED boxes marked"
         >
-          {zones.map((z) => (
-            <div key={z.b.letter} className="px-1 pb-1.5 text-center text-xs font-semibold" style={{ gridRow: 1, gridColumn: `${z.from + COL0} / ${z.to + COL0 + 1}`, color: z.col }}>
-              {z.b.letter} shape · Position {sorted.indexOf(z.b) + 1}
+          {labelSpans.map(({ k, from, to }) => (
+            <div key={k} className="px-1 pb-1.5 text-center text-xs font-semibold" style={{ gridRow: 1, gridColumn: `${from + COL0} / ${to + COL0}`, color: colour(k) }}>
+              {sorted[k].letter} shape · Position {k + 1}
             </div>
           ))}
           {[5, 4, 3, 2, 1, 0].map((s, r) => (
