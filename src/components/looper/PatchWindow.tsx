@@ -3,7 +3,7 @@
 import { useLayoutEffect, useMemo, useRef, useState, type PointerEvent as RPointerEvent } from "react";
 import Icon from "@/components/Icon";
 import EffectsModal from "./EffectsModal";
-import { whyNot, type PatchKind, type PatchLink, type PatchNode, type Port } from "@/lib/looper/patch";
+import { place, whyNot, type PatchKind, type PatchLink, type PatchNode, type Port } from "@/lib/looper/patch";
 import type { LooperEngine, LooperSnapshot } from "@/lib/looper/engine";
 
 const ibtn = "grid h-7 min-w-7 place-items-center rounded-md border border-slate-700 bg-slate-900 px-1 text-xs text-slate-200 transition hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
@@ -129,8 +129,7 @@ export default function PatchWindow({ engine, snap }: { engine: LooperEngine; sn
 
   const addNode = (kind: "fx" | "switch") => {
     const n = patch.nodes.filter((m) => m.kind === kind).length + 1;
-    const root = canvas.current;
-    engine.do({ type: "patch.node", node: { id: newId(kind === "fx" ? "fx:" : "sw:"), kind, x: 24 + (root?.scrollLeft ?? 0) + 280, y: 24 + (root?.scrollTop ?? 0) + (n - 1) * 20, name: kind === "fx" ? `Chain ${n}` : `Switch ${n}` } });
+    engine.do({ type: "patch.node", node: { id: newId(kind === "fx" ? "fx:" : "sw:"), kind, ...place(patch, kind), name: kind === "fx" ? `Chain ${n}` : `Switch ${n}` } });
   };
 
   const wires = patch.links.map((l) => {
