@@ -89,7 +89,7 @@ export default function LooperApp() {
       ))}
       {settingsOpen && <LooperSettings engine={engine} snap={snap} getLevel={getLevel} onClose={() => setSettingsOpen(false)} />}
 
-      <section className="flex flex-col gap-2 rounded-xl border border-slate-800 bg-slate-900/40 p-2" aria-label="Looping">
+      <section className="flex flex-col gap-2 rounded-xl border border-slate-800 bg-slate-900/40 p-1.5" aria-label="Looping">
         <div className="flex flex-wrap items-center gap-2">
           <h2 className="flex items-center gap-1.5 px-1 text-sm font-medium text-slate-100"><Icon name="repeat" className="text-slate-400" />Looping</h2>
           <button type="button" className={ibtn} disabled={!ready || snap.loopSeconds === null} onClick={() => engine.setPlaying(!snap.playing)} title={snap.playing ? "Stop playback" : "Play from the top"} aria-label={snap.playing ? "Stop playback" : "Play from the top"}>

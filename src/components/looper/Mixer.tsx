@@ -140,7 +140,7 @@ export default function Mixer({ engine, snap, keyboardOpen, onToggleKeyboard, op
   const hasExtra = inputs.some((i) => i.kind === "extra");
   const [adding, setAdding] = useState(false);
   return (
-    <section className="flex flex-col gap-1.5 rounded-xl border border-slate-800 bg-slate-900/40 p-2" aria-label="Input mixer">
+    <section className="flex flex-col gap-1.5 rounded-xl border border-slate-800 bg-slate-900/40 p-1.5" aria-label="Input mixer">
       <div className="flex items-center gap-2">
         <h2 className="flex items-center gap-1.5 px-1 text-sm font-medium text-slate-100"><Icon name="sliders-horizontal" className="text-slate-400" />Mixer</h2>
         <button type="button" className={`${ibtn} ml-auto`} disabled={full} onClick={() => setAdding(true)} title="Add an input" aria-label="Add an input"><Icon name="plus" /></button>

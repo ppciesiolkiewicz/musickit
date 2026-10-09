@@ -100,3 +100,7 @@ New loops may be 2^n times longer or shorter than any other loop. Not built yet.
 ## Page chrome
 
 The looper page has no site navigation. The top row holds the metronome on the left and, on the right, the settings cog and an x that returns to the home page. Page padding is minimal. The home page lists every tool as a card with a piano underneath.
+
+## Stage zoom
+
+The looping stage is drawn at a fixed size and scaled as a whole (circles, groups and text together). It fits the page width by default; the − and + buttons zoom (40% to 250%), the middle button returns to fit, and the area scrolls when it is larger than the page. The looper page uses the full width with small margins.

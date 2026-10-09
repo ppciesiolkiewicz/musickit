@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type KeyboardEvent as RKeyboardEvent, type PointerEvent as RPointerEvent, type RefObject } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent as RKeyboardEvent, type PointerEvent as RPointerEvent, type RefObject } from "react";
 import Icon from "../Icon";
 import EffectsModal from "./EffectsModal";
 import { GROUP_COLOURS, LOOP_R, STAGE_H, STAGE_W, type ChannelInfo, type GroupInfo, type LooperEngine, type LooperSnapshot } from "@/lib/looper/engine";
@@ -46,9 +46,34 @@ export default function LoopStage({ engine, snap, getPosition, openSeqs, onToggl
   const firstTake = snap.loopSeconds === null;
   const fxGroup = snap.groups.find((g) => g.id === fxFor) ?? null;
 
+  // The stage is drawn at its natural size (STAGE_W by STAGE_H) and scaled, so loops, groups and text all scale together.
+  // It fits the page width by default; zoom in and the area scrolls.
+  const frame = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState(STAGE_W);
+  const [zoom, setZoom] = useState<number | null>(null);
+  useLayoutEffect(() => {
+    const el = frame.current;
+    if (!el) return;
+    const measure = () => setWidth(el.clientWidth);
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const fit = Math.max(0.4, Math.min(1.6, (width - 2) / STAGE_W));
+  const scale = zoom ?? fit;
+  const step = (f: number) => setZoom(Math.max(0.4, Math.min(2.5, +(scale * f).toFixed(2))));
+
   return (
-    <div className="overflow-x-auto">
-      <div ref={stage} className="relative min-w-[860px] select-none rounded-xl border border-slate-800 bg-slate-950/60" style={{ aspectRatio: `${STAGE_W} / ${STAGE_H}` }}>
+    <div className="flex flex-col gap-1">
+      <div className="flex items-center justify-end gap-1">
+        <button type="button" className={tbtn} onClick={() => step(1 / 1.2)} title="Zoom out" aria-label="Zoom out"><Icon name="minus" size={12} /></button>
+        <button type="button" className={`${tbtn} w-12 tabular-nums`} onClick={() => setZoom(null)} title="Fit to the page" aria-label="Fit the stage to the page">{zoom === null ? "fit" : `${Math.round(scale * 100)}%`}</button>
+        <button type="button" className={tbtn} onClick={() => step(1.2)} title="Zoom in" aria-label="Zoom in"><Icon name="plus" size={12} /></button>
+      </div>
+      <div ref={frame} className="max-h-[75vh] overflow-auto rounded-xl border border-slate-800 bg-slate-950/60">
+        <div style={{ width: STAGE_W * scale, height: STAGE_H * scale }}>
+      <div ref={stage} className="relative select-none" style={{ width: STAGE_W, height: STAGE_H, transform: `scale(${scale})`, transformOrigin: "top left" }}>
         {snap.groups.map((g) => (
           <GroupBox key={g.id} engine={engine} g={g} stage={stage} count={snap.channels.filter((c) => c.groupId === g.id && c.state !== "empty").length + snap.sequencers.filter((q) => q.groupId === g.id).length} running={snap.channels.some((c) => c.groupId === g.id && c.state !== "empty" && c.active && snap.playing) || snap.sequencers.some((q) => q.groupId === g.id && q.playing)} onFx={() => setFxFor(g.id)} />
         ))}
@@ -60,6 +85,8 @@ export default function LoopStage({ engine, snap, getPosition, openSeqs, onToggl
           const g = snap.groups.find((x) => x.id === q.groupId);
           return <SeqCircle key={q.id} engine={engine} q={q} colour={g?.colour ?? "#94a3b8"} stage={stage} open={openSeqs.includes(q.id)} onOpen={() => onToggleSeq(q.id)} />;
         })}
+      </div>
+        </div>
       </div>
       {fxGroup && <GroupEffects engine={engine} g={fxGroup} onClose={() => setFxFor(null)} />}
     </div>
