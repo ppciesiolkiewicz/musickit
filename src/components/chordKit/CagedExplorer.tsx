@@ -187,11 +187,10 @@ function BoxCard({ box, index, rootPc, quality, arpKind, labelSystem, badges, no
         </div>
 
         {related.length > 0 && (
-          <div className="mt-4">
-            <h3 className="mb-1.5 text-xs font-medium uppercase tracking-wider text-slate-500">
-              Other {ctx.names[0]}{quality === "minor" ? " minor" : ""} chords inside this box
-              <Info label="About these chords">Chords on the same root from the chord explorer whose every note falls inside this box, easiest first. They fit the same arpeggio, pentatonic and scale as the main shape. Tap one to hear it.</Info>
-            </h3>
+          <div className="mt-3">
+            <Section level={2} defaultOpen={false}
+              title={`Other ${ctx.names[0]}${quality === "minor" ? " minor" : ""} chords inside this box (${related.length})`}
+              info="Chords on the same root from the chord explorer whose every note falls inside this box, easiest first. They fit the same arpeggio, pentatonic and scale as the main shape. Tap one to hear it.">
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
               {related.map((c) => (
                 <div key={c.shape.id} className="flex flex-col items-center gap-0.5 rounded-xl border border-slate-800 bg-slate-950/50 p-2">
@@ -201,6 +200,7 @@ function BoxCard({ box, index, rootPc, quality, arpKind, labelSystem, badges, no
                 </div>
               ))}
             </div>
+            </Section>
           </div>
         )}
       </Section>
