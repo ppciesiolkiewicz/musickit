@@ -86,18 +86,34 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem }: { b
   const zoneOf = (f: number) => zones.find((z) => f >= z.from && f <= z.to) ?? zones[zones.length - 1];
   const frets = Array.from({ length: NECK_END + 1 }, (_, f) => f);
   const cellAt = (s: number, f: number) => cells.find((c) => c.string === s && c.fret === f);
-  // Colour is decided per string: every note sits in its box's colour and the colour changes exactly halfway between two neighbouring notes of different boxes.
+  // Colour is decided per string. The space between two notes that sit in the same box (R to 3, 3 to p5) is that box's colour.
+  // When no box holds both notes, the colour changes exactly halfway between them.
+  const centre = (b: CagedBox) => (b.from + b.to) / 2;
+  const colOf = (b: CagedBox) => LANE_COLOURS[boxes.indexOf(b) % 5];
+  const nearest = (pool: CagedBox[], x: number) => pool.reduce((best, b) => (Math.abs(x - centre(b)) < Math.abs(x - centre(best)) ? b : best));
+  const ownerCol = (f: number) => {
+    const inside = sorted.filter((b) => f >= b.from && f <= b.to);
+    return colOf(nearest(inside.length ? inside : sorted, f));
+  };
+  const sharedCol = (fa: number, fb: number): string | null => {
+    const both = sorted.filter((b) => fa >= b.from && fb <= b.to);
+    return both.length ? colOf(nearest(both, (fa + fb) / 2)) : null;
+  };
   const fillFor = (s: number, f: number): [string, string] => {
     const row = cells.filter((c) => c.string === s).sort((p, q) => p.fret - q.fret);
     const own = row.find((c) => c.fret === f);
-    if (own) { const k = zoneOf(own.fret).col; return [k, k]; }
     const prev = [...row].reverse().find((c) => c.fret < f), next = row.find((c) => c.fret > f);
-    if (!prev && !next) { const k = zoneOf(f).col; return [k, k]; }
-    if (!next) { const k = zoneOf(prev!.fret).col; return [k, k]; }
-    if (!prev) { const k = zoneOf(next.fret).col; return [k, k]; }
-    const a = zoneOf(prev.fret).col, b = zoneOf(next.fret).col;
-    if (a === b) return [a, a];
-    const mid = (prev.fret + next.fret) / 2;
+    if (own) {
+      const l = prev ? sharedCol(prev.fret, f) ?? ownerCol(f) : ownerCol(f);
+      const r = next ? sharedCol(f, next.fret) ?? ownerCol(f) : ownerCol(f);
+      return [l, r];
+    }
+    if (!prev && !next) { const k = ownerCol(f); return [k, k]; }
+    if (!next) { const k = ownerCol(prev!.fret); return [k, k]; }
+    if (!prev) { const k = ownerCol(next.fret); return [k, k]; }
+    const shared = sharedCol(prev.fret, next.fret);
+    if (shared) return [shared, shared];
+    const a = ownerCol(prev.fret), b = ownerCol(next.fret), mid = (prev.fret + next.fret) / 2;
     return f < mid ? [a, a] : f > mid ? [b, b] : [a, b];
   };
   const COL0 = 2; // grid column 1 holds the string names
