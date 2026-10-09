@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { clampWidget, moveWidget, raise, resizeWidget, sanitiseLayout, splitLayout, tileLayout } from "./board";
+import { clampWidget, moveWidget, raise, resizeFromCorner, resizeWidget, sanitiseLayout, splitLayout, tileLayout } from "./board";
 
 const B = { w: 1000, h: 600 };
 
@@ -55,4 +55,17 @@ test("saved layouts are repaired, new widgets get a place, removed ones are drop
 
 test("raise puts a widget on top", () => {
   assert.deepEqual(raise(["a", "b"], "a"), ["b", "a"]);
+});
+
+test("resizing from a corner keeps the opposite corner fixed and respects the minimum", () => {
+  const r = { x: 100, y: 100, w: 400, h: 300 };
+  assert.deepEqual(resizeFromCorner(r, "se", 50, 20), { x: 100, y: 100, w: 450, h: 320 });
+  assert.deepEqual(resizeFromCorner(r, "nw", -40, -30), { x: 60, y: 70, w: 440, h: 330 });
+  assert.deepEqual(resizeFromCorner(r, "ne", 10, -10), { x: 100, y: 90, w: 410, h: 310 });
+  assert.deepEqual(resizeFromCorner(r, "sw", -10, 10), { x: 90, y: 100, w: 410, h: 310 });
+  // shrinking past the minimum stops at it, and the fixed corner stays where it was
+  const small = resizeFromCorner(r, "nw", 1000, 1000);
+  assert.equal(small.w, 260);
+  assert.equal(small.x + small.w, 500);
+  assert.equal(small.y + small.h, 400);
 });

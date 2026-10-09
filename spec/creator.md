@@ -33,3 +33,5 @@ Write a component in `plugins/` that uses `useCreatorKey()` and handles `ctx ===
 ## Canvas
 
 The plugins sit on a canvas that fills the window below the plugin buttons. It is larger than the screen (8000 x 6000): zoom with the buttons or Ctrl/Cmd and the wheel (15% to 200%), pan with the wheel or by dragging empty space, fit shows every plugin, and the (i) button explains this. Layout and view are saved in `musickit.creator.board`.
+
+Plugins resize from all four corners and can be dragged anywhere on the canvas, including up and left of where they start; a plugin switched on later appears where you are looking.

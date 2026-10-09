@@ -77,3 +77,21 @@ export function sanitiseLayout(raw: unknown, ids: string[], b: Bounds, defaults:
 export function raise(order: string[], id: string): string[] {
   return [...order.filter((x) => x !== id), id];
 }
+
+export type Corner = "nw" | "ne" | "sw" | "se";
+
+/** Resize from any corner: the opposite corner stays put, and the widget never gets smaller than the minimum. Not bounded: the canvas has no edge. */
+export function resizeFromCorner(r: WidgetRect, corner: Corner, dx: number, dy: number, min = WIDGET_MIN): WidgetRect {
+  let { x, y, w, h } = r;
+  if (corner === "ne" || corner === "se") w = Math.max(min.w, r.w + dx);
+  else {
+    w = Math.max(min.w, r.w - dx);
+    x = r.x + (r.w - w);
+  }
+  if (corner === "sw" || corner === "se") h = Math.max(min.h, r.h + dy);
+  else {
+    h = Math.max(min.h, r.h - dy);
+    y = r.y + (r.h - h);
+  }
+  return { x: round(x), y: round(y), w: round(w), h: round(h) };
+}

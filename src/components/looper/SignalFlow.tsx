@@ -20,7 +20,7 @@ const curve = (x1: number, y1: number, x2: number, y2: number) => {
  */
 type Drag = { kind: "loop" | "seq"; id: number | string; x: number; y: number };
 
-export default function SignalFlow({ snap, engine }: { snap: LooperSnapshot; engine: LooperEngine }) {
+export default function SignalFlow({ snap, engine, fill = false }: { snap: LooperSnapshot; engine: LooperEngine; fill?: boolean }) {
   const svg = useRef<SVGSVGElement>(null);
   const [drag, setDrag] = useState<Drag | null>(null);
   const [hint, setHint] = useState<string | null>(null);
@@ -95,7 +95,7 @@ export default function SignalFlow({ snap, engine }: { snap: LooperSnapshot; eng
   const grab = { cursor: "grab", touchAction: "none" } as const;
 
   return (
-    <svg ref={svg} onPointerMove={move} onPointerUp={end} onPointerCancel={() => setDrag(null)} viewBox={`0 0 ${W} ${H}`} className="w-full select-none text-slate-300" role="img" aria-label="Signal flow from inputs through the recorder, loops and group buses to the master output">
+    <svg ref={svg} onPointerMove={move} onPointerUp={end} onPointerCancel={() => setDrag(null)} viewBox={`0 0 ${W} ${H}`} className={`w-full select-none text-slate-300 ${fill ? "h-full min-h-[14rem]" : ""}`} role="img" aria-label="Signal flow from inputs through the recorder, loops and group buses to the master output">
       {[
         ["Inputs", X.src],
         ["Recorder", X.rec],

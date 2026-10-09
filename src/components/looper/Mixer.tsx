@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import Modal from "@/components/Modal";
 import Icon from "@/components/Icon";
 import LevelMeter from "./LevelMeter";
@@ -137,11 +137,53 @@ function DeviceButton({ on, onClick, title, sub }: { on: boolean; onClick: () =>
 /** The inputs that feed the recorder: add and remove them, choose channels, mute and solo, watch each level. */
 export type MixerAlign = "rows" | "columns";
 
+const SECTIONS_KEY = "musickit.looper.mixerSections";
+type SectionId = "inputs" | "buses" | "flow";
+
+/** Which mixer sections are open (all, by default). Remembered; read after mount so the server and the first render agree. */
+function useSections(): [Record<SectionId, boolean>, (id: SectionId) => void] {
+  const [open, setOpen] = useState<Record<SectionId, boolean>>({ inputs: true, buses: true, flow: true });
+  useEffect(() => {
+    try {
+      const j = JSON.parse(window.localStorage.getItem(SECTIONS_KEY) ?? "null");
+      if (j && typeof j === "object") setOpen({ inputs: j.inputs !== false, buses: j.buses !== false, flow: j.flow !== false });
+    } catch {
+      /* ignore */
+    }
+  }, []);
+  const toggle = (id: SectionId) =>
+    setOpen((o) => {
+      const n = { ...o, [id]: !o[id] };
+      try {
+        window.localStorage.setItem(SECTIONS_KEY, JSON.stringify(n));
+      } catch {
+        /* ignore */
+      }
+      return n;
+    });
+  return [open, toggle];
+}
+
+/** A section with a header that folds it away. The open section marked `grow` takes the space that is left in a widget. */
+function Accordion({ title, icon, open, onToggle, grow = false, children }: { title: string; icon: "plug" | "audio-lines" | "mic"; open: boolean; onToggle: () => void; grow?: boolean; children: ReactNode }) {
+  return (
+    <section className={`flex flex-col rounded-lg border border-slate-800 bg-slate-950/40 ${open && grow ? "min-h-0 flex-1" : ""}`}>
+      <button type="button" className="flex items-center gap-1.5 px-2 py-1.5 text-left text-xs font-medium text-slate-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400" aria-expanded={open} onClick={onToggle}>
+        <Icon name="chevron-right" size={14} className={`text-slate-500 transition ${open ? "rotate-90" : ""}`} />
+        <Icon name={icon} size={16} className="text-slate-400" />
+        {title}
+      </button>
+      {open && <div className={`flex flex-col gap-1 p-1.5 pt-0 ${grow ? "min-h-0 flex-1" : ""}`}>{children}</div>}
+    </section>
+  );
+}
+
 export default function Mixer({ engine, snap, keyboardOpen, onToggleKeyboard, openSeqs, onToggleSequencer, openPianos, onTogglePiano, align = "rows", onAlign, fill = false }: { align?: MixerAlign; onAlign?: (a: MixerAlign) => void; fill?: boolean; engine: LooperEngine; snap: LooperSnapshot; keyboardOpen: boolean; onToggleKeyboard: () => void; openSeqs: string[]; onToggleSequencer: (id: string) => void; openPianos: string[]; onTogglePiano: (id: string) => void }) {
   const { inputs, devices } = snap;
   const full = inputs.length >= MAX_INPUTS;
   const hasExtra = inputs.some((i) => i.kind === "extra");
   const [adding, setAdding] = useState(false);
+  const [sections, toggleSection] = useSections();
   return (
     <section className={`flex flex-col gap-1.5 rounded-xl border border-slate-800 bg-slate-900/40 p-1.5 ${fill ? "h-full overflow-auto" : ""}`} aria-label="Input mixer">
       <div className="flex items-center gap-2">
@@ -154,16 +196,19 @@ export default function Mixer({ engine, snap, keyboardOpen, onToggleKeyboard, op
 
       {inputs.length === 0 && <p className="rounded-lg border border-dashed border-slate-700 p-2 text-xs text-slate-400">No inputs. Add one with ＋.</p>}
 
-      <ul className={align === "columns" ? "flex flex-row flex-wrap items-start gap-1 [&>li]:w-64 [&>li]:shrink-0" : "flex flex-col gap-1"}>
-        {inputs.map((inp) => (
-          <InputStrip key={inp.id} engine={engine} inp={inp} devices={devices} anyDevice={snap.devices.length > 0} keyboardOpen={keyboardOpen} onToggleKeyboard={onToggleKeyboard} sequencerOpen={!!inp.sourceId && openSeqs.includes(inp.sourceId)} onToggleSequencer={() => inp.sourceId && onToggleSequencer(inp.sourceId)} pianoOpen={!!inp.sourceId && openPianos.includes(inp.sourceId)} onTogglePiano={() => inp.sourceId && onTogglePiano(inp.sourceId)} seq={snap.sequencers.find((q) => q.id === inp.sourceId)} groups={snap.groups} />
-        ))}
-      </ul>
-      <Buses engine={engine} snap={snap} />
-      <details open className="rounded-lg border border-slate-800 bg-slate-950/40 p-1.5">
-        <summary className="flex cursor-pointer items-center gap-1.5 px-1 text-xs font-medium text-slate-300"><Icon name="audio-lines" className="text-slate-400" size={16} />How it is connected</summary>
-        <div className="pt-2"><SignalFlow snap={snap} engine={engine} /></div>
-      </details>
+      <Accordion title="Inputs" icon="mic" open={sections.inputs} onToggle={() => toggleSection("inputs")}>
+        <ul className={align === "columns" ? "flex flex-row flex-wrap items-start gap-1 [&>li]:w-64 [&>li]:shrink-0" : "flex flex-col gap-1"}>
+          {inputs.map((inp) => (
+            <InputStrip key={inp.id} engine={engine} inp={inp} devices={devices} anyDevice={snap.devices.length > 0} keyboardOpen={keyboardOpen} onToggleKeyboard={onToggleKeyboard} sequencerOpen={!!inp.sourceId && openSeqs.includes(inp.sourceId)} onToggleSequencer={() => inp.sourceId && onToggleSequencer(inp.sourceId)} pianoOpen={!!inp.sourceId && openPianos.includes(inp.sourceId)} onTogglePiano={() => inp.sourceId && onTogglePiano(inp.sourceId)} seq={snap.sequencers.find((q) => q.id === inp.sourceId)} groups={snap.groups} />
+          ))}
+        </ul>
+      </Accordion>
+      <Accordion title="Buses and master" icon="plug" open={sections.buses} onToggle={() => toggleSection("buses")}>
+        <Buses engine={engine} snap={snap} />
+      </Accordion>
+      <Accordion title="How it is connected" icon="audio-lines" open={sections.flow} onToggle={() => toggleSection("flow")} grow={fill}>
+        <div className={fill ? "min-h-0 flex-1" : ""}><SignalFlow snap={snap} engine={engine} fill={fill} /></div>
+      </Accordion>
       {adding && <AddInputModal engine={engine} snap={snap} hasExtra={hasExtra} onClose={() => setAdding(false)} />}
     </section>
   );
@@ -240,7 +285,7 @@ function Buses({ engine, snap }: { engine: LooperEngine; snap: LooperSnapshot })
   const [fxFor, setFxFor] = useState<string | null>(null);
   const fxGroup = snap.groups.find((g) => g.id === fxFor);
   return (
-    <div className="flex flex-col gap-1 border-t border-slate-800 pt-1.5" aria-label="Buses">
+    <div className="flex flex-col gap-1" aria-label="Buses">
       <h3 className="flex items-center gap-1.5 px-1 text-xs font-medium text-slate-300"><Icon name="plug" size={16} className="text-slate-400" />Buses</h3>
       <ul className="flex flex-col gap-1">
         {snap.groups.map((g) => {

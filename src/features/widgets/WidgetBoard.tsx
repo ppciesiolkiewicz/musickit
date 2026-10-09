@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState, type PointerEvent as RPointerEvent, type ReactNode } from "react";
 import Icon from "@/components/Icon";
 import InfoTip from "@/components/InfoTip";
-import { WIDGET_MIN, raise, tileLayout, type Bounds, type DefaultLayout, type Layout, type WidgetRect } from "./board";
+import { WIDGET_MIN, raise, resizeFromCorner, tileLayout, type Corner, type Bounds, type DefaultLayout, type Layout, type WidgetRect } from "./board";
 
 export interface BoardWidget {
   id: string;
@@ -56,7 +56,7 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
   const [view, setView] = useState<View>({ zoom: 1, x: 0, y: 0 });
   const viewRef = useRef(view) as { current: View };
   viewRef.current = view;
-  const drag = useRef<{ id: string; mode: "move" | "size" | "pan"; px: number; py: number; start: { x: number; y: number; w: number; h: number } } | null>(null);
+  const drag = useRef<{ id: string; mode: "move" | Corner | "pan"; px: number; py: number; start: { x: number; y: number; w: number; h: number } } | null>(null);
   const ids = widgets.map((w) => w.id);
   const idKey = ids.join("|");
 
@@ -189,7 +189,7 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
   const layoutRef = useRef<Layout | null>(null) as { current: Layout | null };
   layoutRef.current = layout;
 
-  const begin = (id: string, mode: "move" | "size") => (e: RPointerEvent) => {
+  const begin = (id: string, mode: "move" | Corner) => (e: RPointerEvent) => {
     if (!layout || !layout[id]) return;
     e.preventDefault();
     e.stopPropagation();
@@ -212,7 +212,7 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
       return;
     }
     const z = viewRef.current.zoom;
-    const next = inRange(d.mode === "move" ? { ...d.start, x: d.start.x + dx / z, y: d.start.y + dy / z } : { ...d.start, w: d.start.w + dx / z, h: d.start.h + dy / z });
+    const next = inRange(d.mode === "move" ? { ...d.start, x: d.start.x + dx / z, y: d.start.y + dy / z } : resizeFromCorner(d.start, d.mode, dx / z, dy / z));
     setLayout((l) => (l ? { ...l, [d.id]: next } : l));
   };
   const end = () => {
@@ -280,16 +280,19 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
                   )}
                 </div>
                 <div className="min-h-0 flex-1 touch-auto overflow-auto p-1" onPointerDown={(e) => { e.stopPropagation(); setOrder((o) => raise(o, w.id)); }}>{w.node}</div>
-                <div
-                  className="absolute bottom-0 right-0 h-5 w-5 cursor-nwse-resize touch-none"
-                  style={{ background: "linear-gradient(135deg, transparent 50%, #64748b 50%, #64748b 56%, transparent 56%, transparent 66%, #64748b 66%, #64748b 72%, transparent 72%)" }}
-                  onPointerDown={begin(w.id, "size")}
-                  onPointerMove={move}
-                  onPointerUp={end}
-                  onPointerCancel={end}
-                  role="separator"
-                  aria-label={`Resize ${typeof w.title === "string" ? w.title : "widget"}`}
-                />
+                {(["nw", "ne", "sw", "se"] as Corner[]).map((c) => (
+                  <div
+                    key={c}
+                    className={`absolute z-10 h-5 w-5 touch-none ${c === "nw" ? "left-0 top-0 cursor-nwse-resize" : c === "se" ? "bottom-0 right-0 cursor-nwse-resize" : c === "ne" ? "right-0 top-0 cursor-nesw-resize" : "bottom-0 left-0 cursor-nesw-resize"}`}
+                    style={c === "se" ? { background: "linear-gradient(135deg, transparent 50%, #64748b 50%, #64748b 56%, transparent 56%, transparent 66%, #64748b 66%, #64748b 72%, transparent 72%)" } : undefined}
+                    onPointerDown={begin(w.id, c)}
+                    onPointerMove={move}
+                    onPointerUp={end}
+                    onPointerCancel={end}
+                    role="separator"
+                    aria-label={`Resize ${typeof w.title === "string" ? w.title : "widget"} from the ${c === "nw" ? "top left" : c === "ne" ? "top right" : c === "sw" ? "bottom left" : "bottom right"} corner`}
+                  />
+                ))}
               </div>
             );
           })}

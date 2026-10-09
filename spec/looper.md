@@ -134,3 +134,8 @@ The wheel zoom on the canvas is proportional to the wheel movement (gentle on a 
 
 - The stage is 2000 x 1200 stage units; the default groups sit in the first 1000 x 460 (the part in view at 100%), so the rest is room to grow into. In widget mode the stage fills the Looping widget (it scrolls and pans), and the widget can be resized freely. Older saved layouts keep their places.
 - Pinned effect widgets can sit anywhere on the stage; a new one appears at the visible corner. On the canvas, widgets can be dragged anywhere (including up and left of the starting point), and a widget that is added later appears where you are looking.
+
+## Mixer sections and widget resizing
+
+- The mixer is three accordions: Inputs, Buses and master, and How it is connected. Each folds away (remembered in `musickit.looper.mixerSections`); in widget mode the open connection diagram takes all the space that is left and scales to fit.
+- Canvas widgets resize from all four corners (the opposite corner stays put; minimum 260 x 140). The stage scales up to 4x so a large Looping widget is filled by the stage.

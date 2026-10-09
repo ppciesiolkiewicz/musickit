@@ -66,7 +66,7 @@ export default function LoopStage({ engine, snap, getPosition, openSeqs, onToggl
     return () => ro.disconnect();
   }, []);
   // at 100% the part VIEW_W wide fills the widget; the rest of the stage is room to grow into (scroll or drag to reach it)
-  const fit = Math.max(MIN_ZOOM, Math.min(1.6, (width - 2) / VIEW_W));
+  const fit = Math.max(MIN_ZOOM, Math.min(4, (width - 2) / VIEW_W));
   const scale = fit;
   // new effect widgets appear in the part of the stage you are looking at
   useEffect(() => {
