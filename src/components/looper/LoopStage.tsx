@@ -282,7 +282,7 @@ function GroupBox({ engine, g, stage, count, running, onFx }: { engine: LooperEn
   };
   const nextColour = GROUP_COLOURS[(GROUP_COLOURS.indexOf(g.colour) + 1) % GROUP_COLOURS.length];
   return (
-    <div onPointerDown={move} className="absolute cursor-grab rounded-xl border-2 active:cursor-grabbing" style={{ left: `${(g.x / STAGE_W) * 100}%`, top: `${(g.y / STAGE_H) * 100}%`, width: `${(g.w / STAGE_W) * 100}%`, height: `${(g.h / STAGE_H) * 100}%`, borderColor: `${g.colour}99`, background: `${g.colour}14` }}>
+    <div data-patch-id={`group:${g.id}`} onPointerDown={move} className="absolute cursor-grab rounded-xl border-2 active:cursor-grabbing" style={{ left: `${(g.x / STAGE_W) * 100}%`, top: `${(g.y / STAGE_H) * 100}%`, width: `${(g.w / STAGE_W) * 100}%`, height: `${(g.h / STAGE_H) * 100}%`, borderColor: `${g.colour}99`, background: `${g.colour}14` }}>
       <div onKeyDown={onKeyDown} tabIndex={0} role="group" aria-label={`Group ${g.name}. Alt and arrow keys move it, Alt Shift and arrows resize it.`} className="flex cursor-grab items-center gap-1 rounded-t-lg px-1.5 py-1 outline-none focus-visible:ring-2 focus-visible:ring-sky-400 active:cursor-grabbing" style={{ touchAction: "none", background: `${g.colour}26` }}>
         <button type="button" onClick={() => engine.do({ type: "group.set", id: g.id, patch: { colour: nextColour } })} className="h-4 w-4 shrink-0 rounded-full border border-white/30" style={{ background: g.colour }} title="Change colour" aria-label="Change colour" />
         <input value={g.name} onChange={(e) => engine.do({ type: "group.set", id: g.id, patch: { name: e.target.value } })} aria-label="Group name" className="min-w-0 flex-1 bg-transparent text-xs font-medium text-slate-100 focus:outline-none" />

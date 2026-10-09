@@ -11,6 +11,7 @@ import MasterControls from "./MasterOutput";
 import SignalFlow from "./SignalFlow";
 import { MAX_INPUTS, MAX_INPUT_GAIN, type InputInfo, type InputMode, type LooperEngine, type LooperSnapshot } from "@/lib/looper/engine";
 import { chooseDevice } from "@/lib/looper/deviceChoice";
+import { stripPatchId } from "@/lib/looper/patchView";
 import { INPUT_PRESETS, INPUT_ROLES, presetFor, type InputRole } from "@/lib/looper/inputPresets";
 
 const btn = "rounded-lg border px-2.5 py-1 text-xs transition disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
@@ -245,7 +246,7 @@ function InputStrip({ engine, inp, devices, anyDevice, keyboardOpen, onToggleKey
   const grp = inp.kind === "sequencer" && seq && seq.dest !== "record" ? groups.find((g) => g.id === seq.groupId) : undefined;
   const state = inp.live ? "recording" : inp.muted ? "muted" : "silenced by solo";
   return (
-    <li style={grp ? { borderLeft: `4px solid ${grp.colour}`, background: `${grp.colour}12` } : undefined} className={`flex flex-col gap-1 rounded-lg border bg-slate-950/50 px-2 py-1.5 ${inp.live ? "border-slate-800" : "border-slate-800/60 opacity-80"}`}>
+    <li data-patch-id={stripPatchId(inp)} style={grp ? { borderLeft: `4px solid ${grp.colour}`, background: `${grp.colour}12` } : undefined} className={`flex flex-col gap-1 rounded-lg border bg-slate-950/50 px-2 py-1.5 ${inp.live ? "border-slate-800" : "border-slate-800/60 opacity-80"}`}>
       <div className="flex flex-wrap items-center gap-1.5">
         <span title={state} className="text-slate-300"><Icon name={isDevice ? "mic" : inp.kind === "sequencer" ? "drum" : inp.kind === "scalepiano" ? "music" : "piano"} size={18} /></span>
         <input value={inp.name} onChange={(e) => engine.do({ type: "input.set", id: inp.id, patch: { name: e.target.value } })} aria-label="Input name" className="w-32 rounded-md border border-transparent bg-transparent px-1.5 py-0.5 text-sm font-medium text-slate-100 hover:border-slate-700 focus:border-slate-500 focus:outline-none" />
@@ -319,7 +320,7 @@ function Buses({ engine, snap }: { engine: LooperEngine; snap: LooperSnapshot })
       </ul>
       <h3 className="mt-1 flex items-center gap-1.5 border-t border-slate-800 px-1 pt-1.5 text-xs font-medium text-slate-300"><Icon name="audio-lines" size={16} className="text-slate-400" />Master</h3>
       <ul>
-        <li className="flex flex-wrap items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-950/60 px-2 py-1.5">
+        <li data-patch-id="master" className="flex flex-wrap items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-950/60 px-2 py-1.5">
           <span className="h-3 w-3 rounded-sm bg-slate-300" aria-hidden />
           <span className="w-32 truncate px-1.5 text-sm font-medium text-slate-100">Master bus</span>
           <span className="flex h-6 min-w-[6.5rem] items-center justify-center rounded-md border border-slate-700 px-1.5 text-[10px] leading-none text-slate-400" title="Everything that is not in a group, and every bus">all buses</span>

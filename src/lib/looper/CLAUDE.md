@@ -48,8 +48,8 @@ Routing: Input → (input effects) → recorder → Loop → Bus (of its Group) 
 - The Signal flow panel (`SignalFlow.tsx`) draws inputs (what feeds the recorder), the recorder, the loops and sequencers (the stage), group buses and master from the snapshot. A sequencer sits on the stage and only appears under inputs when it is switched to record. When routing changes, keep that picture true.
 - Effect stacks (`EffectStack.tsx`) show pre-fader effects, the fader, then post-fader effects in processing order; `moveEffect` (tested) reorders within a section.
 
-## Patch (`patch.ts`, `patchAudio.ts`, `PatchWindow.tsx`)
-- The patch is the source of truth for routing of patched sound makers (see `spec/patch.md`). Pure rules live in `patch.ts` (tested); the Web Audio side is only `PatchGraph`. Every change is a `patch.*` action; effects of a chain use `fx.*` with target `{element}`. A connection is a gain node, never a rewire, so muting and switching are click-free. Do not route a patched strip around the patch (its recorder gate and monitor stay shut).
+## Patch (`patch.ts`, `patchAudio.ts`, `patchView.ts`, `ConnectionLayer.tsx`, `ViewMenu.tsx`)
+- The patch is the source of truth for routing of patched sound makers (see `spec/patch.md`). Pure rules live in `patch.ts` (tested); the Web Audio side is only `PatchGraph`. Every change is a `patch.*` action; effects of a chain use `fx.*` with target `{element}`. A connection is a gain node, never a rewire, so muting and switching are click-free. The connections are drawn over the page by `ConnectionLayer` (views: fixed, widgets with coloured connectors, widgets with wires): elements take part by carrying `data-patch-id` (`in:<id>`, `seq:<id>`, `group:<id>`, `master`). Do not route a patched strip around the patch (its recorder gate and monitor stay shut).
 
 ## Looping stage, groups, buses and effects
 - The page has two sections: Mixer (inputs) and Looping (loops on a stage). Keep them separate: inputs feed the recorder, loops play back.
@@ -66,7 +66,7 @@ Routing: Input → (input effects) → recorder → Loop → Bus (of its Group) 
 - Widget mode uses the shared board in `src/features/widgets` (maths in `board.ts`, tested): sections stay inside the board. The looper only supplies the two widgets and their default split.
 
 ## State and storage
-- Saved strips live in localStorage `musickit.looper.inputs`; other keys: `musickit.looper.layout` (groups, effects, loop positions), `musickit.looper.metronome`, `musickit.looper.sequencers`, `musickit.looper.scalePianos`, `musickit.looper.scalePianoWindow.<id>`, `musickit.looper.sequencerWindow.<id>`, `musickit.looper.midi`, `musickit.looper.keyboard`, `musickit.looper.keyboardWindow`, `musickit.looper.macros`, `musickit.looper.widgets`, `musickit.looper.widgetMode`, `musickit.looper.mixerAlign`, `musickit.looper.historyWindow`, `musickit.looper.macrosWindow`. Wrap every read and write in try/catch, validate on load, and keep old saves loading (add fields with defaults).
+- Saved strips live in localStorage `musickit.looper.inputs`; other keys: `musickit.looper.layout` (groups, effects, loop positions), `musickit.looper.metronome`, `musickit.looper.sequencers`, `musickit.looper.scalePianos`, `musickit.looper.scalePianoWindow.<id>`, `musickit.looper.sequencerWindow.<id>`, `musickit.looper.midi`, `musickit.looper.keyboard`, `musickit.looper.keyboardWindow`, `musickit.looper.macros`, `musickit.looper.widgets`, `musickit.looper.view`, `musickit.looper.widgetMode` (old), `musickit.looper.mixerAlign`, `musickit.looper.historyWindow`, `musickit.looper.macrosWindow`. Wrap every read and write in try/catch, validate on load, and keep old saves loading (add fields with defaults).
 - Restored device strips come back disconnected.
 - Max 8 inputs (`MAX_INPUTS`).
 

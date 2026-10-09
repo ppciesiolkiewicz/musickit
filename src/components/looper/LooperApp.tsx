@@ -6,7 +6,8 @@ import { createCloud, createNamEffect, getModelLibrary, speedNote } from "@/feat
 import LooperSettings from "./LooperSettings";
 import Mixer, { type MixerAlign } from "./Mixer";
 import HistoryPanel from "./HistoryPanel";
-import PatchWindow from "./PatchWindow";
+import ConnectionLayer from "./ConnectionLayer";
+import ViewMenu, { type View } from "./ViewMenu";
 import MacroPanel from "./MacroPanel";
 import { WidgetBoard, splitLayout } from "@/features/widgets";
 import FloatingWindow from "../FloatingWindow";
@@ -157,10 +158,20 @@ export default function LooperApp() {
   const [gearDismissed, setGearDismissed] = useState(false);
   const [gearBusy, setGearBusy] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
-  const [patchOpen, setPatchOpen] = useState(false);
+  const pageRef = useRef<HTMLDivElement>(null);
   const [macrosOpen, setMacrosOpen] = useState(false);
   const [layoutReset, setLayoutReset] = useState(0);
-  const [widgetMode, setWidgetMode] = useStored("musickit.looper.widgetMode", true);
+  const [view, setView] = useStored<View>("musickit.looper.view", "widgets");
+  const widgetMode = view !== "fixed";
+  // an older save only knew "widgets on or off"
+  useEffect(() => {
+    try {
+      if (window.localStorage.getItem("musickit.looper.view") === null && window.localStorage.getItem("musickit.looper.widgetMode") === "false") setView("fixed");
+    } catch {
+      /* ignore */
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [align, setAlign] = useStored<MixerAlign>("musickit.looper.mixerAlign", "rows");
   const hist = useSyncExternalStore(engine.history.subscribe, engine.history.getState, engine.history.getState);
   const canUndo = hist.cursor > 0, canRedo = hist.cursor < hist.entries.length;
@@ -217,24 +228,24 @@ export default function LooperApp() {
         <button type="button" className={ibtn} disabled={!ready || snap.channels.every((c) => c.state === "empty")} onClick={() => engine.do({ type: "loop.clearAll" })} title="Clear every loop" aria-label="Clear every loop"><Icon name="trash" /></button>
         <span className="text-xs text-slate-400">{snap.loopSeconds === null ? "No loop yet" : `${snap.loopSeconds.toFixed(2)} s${loopBars(snap)}`}</span>
         <LoopBar getPosition={getPosition} />
-        <AddWidgetMenu engine={engine} snap={snap} names={Object.fromEntries(EFFECT_KINDS.map((k) => [k, EFFECT_DEFS[k].name]))} />
+        <AddWidgetMenu engine={engine} snap={snap} canPatch={widgetMode} names={Object.fromEntries(EFFECT_KINDS.map((k) => [k, EFFECT_DEFS[k].name]))} />
       </div>
       <LoopStage engine={engine} snap={snap} getPosition={getPosition} openSeqs={openSeqs} onToggleSeq={toggleSeq} fill={fill} />
     </section>
   );
 
   return (
-    <div className="flex flex-col">
+    <div ref={pageRef} className="relative flex flex-col">
+      {widgetMode && ready && <ConnectionLayer engine={engine} snap={snap} mode={view === "lines" ? "lines" : "colors"} wrapper={pageRef} />}
       <div className="pointer-events-none sticky top-0 z-30 flex items-start justify-between gap-2 px-1 py-1">
         <div className="pointer-events-auto"><MetronomeBar engine={engine} snap={snap} ready={ready} /></div>
         <div className="pointer-events-auto flex gap-1">
           <button type="button" className={ibtn} onClick={() => setNewOpen(true)} title="New project" aria-label="New project"><Icon name="file-plus" /></button>
-          <button type="button" className={`${ibtn} gap-0.5 ${patchOpen ? "border-sky-500" : ""}`} aria-pressed={patchOpen} onClick={() => setPatchOpen((v) => !v)} title="Patch: connect inputs, effects, switches and groups" aria-label="Patch"><Icon name="git-merge" /><span className="ml-1 text-xs">Patch</span></button>
           <button type="button" className={ibtn} disabled={!canUndo} onClick={() => engine.history.undo()} title="Undo (Ctrl+Z)" aria-label="Undo"><Icon name="undo-2" /></button>
           <button type="button" className={ibtn} disabled={!canRedo} onClick={() => engine.history.redo()} title="Redo (Ctrl+Shift+Z)" aria-label="Redo"><Icon name="redo-2" /></button>
           <button type="button" className={`${ibtn} ${historyOpen ? "border-sky-500" : ""}`} aria-pressed={historyOpen} onClick={() => setHistoryOpen((v) => !v)} title="History" aria-label="History"><Icon name="history" /></button>
           <button type="button" className={`${ibtn} ${macrosOpen || recording ? "border-sky-500" : ""} ${recording ? "text-rose-300" : ""}`} aria-pressed={macrosOpen} onClick={() => setMacrosOpen((v) => !v)} title={recording ? "Macros (recording)" : "Macros"} aria-label="Macros"><Icon name={recording ? "circle-dot" : "zap"} /></button>
-          <button type="button" className={`${ibtn} ${widgetMode ? "border-sky-500" : ""}`} aria-pressed={widgetMode} onClick={() => setWidgetMode(!widgetMode)} title="Widget layout: move and resize the sections" aria-label="Widget layout"><Icon name="layout-dashboard" /></button>
+          <ViewMenu view={view} onChange={setView} btnClass={ibtn} />
           {widgetMode && <button type="button" className={ibtn} onClick={() => setLayoutReset((n) => n + 1)} title="Reset the widget layout" aria-label="Reset the widget layout"><Icon name="rotate-ccw" /></button>}
           <button type="button" className={ibtn} onClick={() => setSettingsOpen(true)} title="Settings" aria-label="Settings"><Icon name="settings" /></button>
           <Link href="/" className={ibtn} title="Back to the home page" aria-label="Back to the home page"><Icon name="x" /></Link>
@@ -250,11 +261,6 @@ export default function LooperApp() {
           widgets={[{ id: "mixer", title: "Mixer", node: mixer(true) }, { id: "looping", title: "Looping", node: looping(true) }]}
         />
       ) : mixer(false)}
-      {patchOpen && (
-        <FloatingWindow title="Patch" storageKey="musickit.looper.patchWindow" initial={{ w: 1040, h: 640 }} onClose={() => setPatchOpen(false)}>
-          <PatchWindow engine={engine} snap={snap} />
-        </FloatingWindow>
-      )}
       {historyOpen && (
         <FloatingWindow title="History" storageKey="musickit.looper.historyWindow" onClose={() => setHistoryOpen(false)}>
           <HistoryPanel engine={engine} />
