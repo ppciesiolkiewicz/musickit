@@ -19,7 +19,8 @@ export { BPM_RANGE, type MetronomeSettings } from "./metronome";
 export { INSTRUMENTS, type Instrument, type SequencerState } from "./sequencer";
 export type { VoiceFactory, NoteVoice } from "./scalePiano";
 export { SCALES, NOTE_NAMES, KEY_ROWS, MIN_OCTAVE, MAX_OCTAVE, buildKeyMap, scalePitchClasses, noteName, type ScalePianoState, type KeyNote } from "./scalePiano";
-export { EFFECT_DEFS, EFFECT_KINDS, type EffectKind, type EffectSpec, type ParamDef } from "./effects";
+export { EFFECT_DEFS, EFFECT_KINDS, setNamFactory, type EffectKind, type EffectSpec, type ParamDef } from "./effects";
+export { registerChoice, getChoice, type ChoiceSource, type ChoiceOption } from "./choices";
 export { STAGE_W, STAGE_H, LOOP_R, GROUP_COLOURS } from "./layout";
 
 /** A coloured group of loops. Loops whose circle centre is inside the rectangle play through the group's bus and its effects. */

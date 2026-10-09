@@ -14,7 +14,8 @@ This directory contains the formal specifications for the Music Kit application.
 | [Looper](looper.md) | Independent multi-channel audio looper |
 | [Looper actions](looper-actions.md) | Actions, history, macros, AI scripts, widget mode |
 | [Creator](creator.md) | Music theory plugins that follow one key |
-| [Sampler](sampler.md) | Instruments from uploaded or generated samples |
+| [Sampler](sampler.md) | Instruments from uploaded or generated samples, dropped files included |
+| [NAM](nam.md) | Neural amp models for guitar, a looper effect |
 
 ## Quick Reference
 

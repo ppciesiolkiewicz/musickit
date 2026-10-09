@@ -26,3 +26,5 @@ The ElevenLabs endpoint, header and 0.5–22 s duration limits are written from 
 - IndexedDB `musickit-sampler`: store `project` (the structure) and `audio` (blobs by sample id). Per browser.
 - Export / import: one JSON file with the structure and all audio (base64).
 - Not built: cloud persistence across devices. It needs a login and storage (for example Vercel Blob and a database); `SamplerStore` is the seam.
+
+Files can also be dropped anywhere on the sampler page; they are handled like the upload button.

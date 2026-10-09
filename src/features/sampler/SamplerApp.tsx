@@ -49,6 +49,7 @@ export default function SamplerApp() {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [current, setCurrent] = useState<string | null>(null);
+  const [over, setOver] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const importRef = useRef<HTMLInputElement>(null);
 
@@ -125,12 +126,27 @@ export default function SamplerApp() {
   const err = message ?? s.error;
 
   return (
-    <div className="grid gap-3 lg:grid-cols-2">
+    <div
+      className={`grid gap-3 rounded-xl lg:grid-cols-2 ${over ? "outline outline-2 outline-dashed outline-sky-400" : ""}`}
+      onDragOver={(e) => {
+        if (!Array.from(e.dataTransfer.types).includes("Files")) return;
+        e.preventDefault();
+        setOver(true);
+      }}
+      onDragLeave={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setOver(false);
+      }}
+      onDrop={(e) => {
+        e.preventDefault();
+        setOver(false);
+        void onFiles(e.dataTransfer.files);
+      }}
+    >
       <section aria-label="Samples" className="flex min-w-0 flex-col gap-2 rounded-xl border border-slate-800 bg-slate-900/50 p-3">
         <div className="flex items-center gap-2">
           <h2 className="text-sm font-medium text-slate-100">Samples</h2>
           <span className="ml-auto flex gap-1">
-            <button type="button" className={btn} title="Upload audio files" aria-label="Upload audio files" onClick={() => fileRef.current?.click()}>
+            <button type="button" className={btn} title="Upload audio files, or drop them anywhere here" aria-label="Upload audio files" onClick={() => fileRef.current?.click()}>
               <Icon name="upload" size={14} />
             </button>
             <button type="button" className={btn} title="Save the whole project to a file" aria-label="Export project" onClick={() => void download()}>

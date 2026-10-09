@@ -1,0 +1,1 @@
+NAM amp models. DSP is verified against NeuralAmpModelerCore (`fixtures/reference.json`); keep `dsp.test.ts` passing and regenerate `kernelsWasm.ts` with `wasm/build.sh` after any change to `kernels.c`. Never open the microphone here. The looper must not import this feature: wiring is in `LooperApp.tsx`. See `spec/nam.md`.

@@ -106,4 +106,8 @@ The looper page has no site navigation. The top row holds the metronome on the l
 The looping stage is drawn at a fixed size and scaled as a whole (circles, groups and text together). It fits the page width by default; the − and + buttons zoom (40% to 250%), the middle button returns to fit, and the area scrolls when it is larger than the page. The looper page uses the full width with small margins.
 
 ## Actions, history, macros, widgets
-Undo/redo, a history list, recordable macros and a movable/resizable widget layout. See `spec/looper-actions.md`. All user changes go through `engine.do`: inputs, drums, groups, loops, effects (nine kinds, incl. filter, distortion, chorus, phaser, tremolo, compressor, EQ), so a macro or an AI script can build a whole setup.
+Undo/redo, a history list, recordable macros and a movable/resizable widget layout. See `spec/looper-actions.md`. All user changes go through `engine.do`: inputs, drums, groups, loops, effects (ten kinds, incl. filter, distortion, chorus, phaser, tremolo, compressor, EQ and the NAM amp model), so a macro or an AI script can build a whole setup.
+
+## Amp model (NAM) effect
+
+A tenth effect kind, `nam`, runs Neural Amp Modeler models (`.nam`, including A2) on a guitar input. The effect is injected by `LooperApp` (`setNamFactory`, `registerChoice("nam-model")`); the looper itself does not import the feature, and the effect passes the signal through until a model is chosen. The model is a numeric library id in the `model` parameter, so actions, undo, macros and AI scripts need no new action type. In the effects dialog the Model row is a picker with an add button; `.nam` files can also be dropped on the row. Parameters: input and output gain (dB), noise gate (-90 = off), level match, size (for slimmable models), mix. Details: `spec/nam.md`.

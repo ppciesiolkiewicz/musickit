@@ -4,7 +4,7 @@
  * in EFFECT_DEFS and a case in createEffect. Imports nothing outside src/lib/looper.
  */
 
-export type EffectKind = "tapeDelay" | "reverb" | "filter" | "distortion" | "chorus" | "phaser" | "tremolo" | "compressor" | "eq";
+export type EffectKind = "tapeDelay" | "reverb" | "filter" | "distortion" | "chorus" | "phaser" | "tremolo" | "compressor" | "eq" | "nam";
 
 export interface ParamDef {
   key: string;
@@ -14,6 +14,10 @@ export interface ParamDef {
   step: number;
   def: number;
   unit?: string;
+  /** the value is the id of an option from the choice source registered under this name (see choices.ts) */
+  choice?: string;
+  /** an on/off switch: off below 0.5 */
+  toggle?: boolean;
 }
 
 export interface EffectDef {
@@ -109,6 +113,19 @@ const DEFS: EffectDef[] = [
       { key: "mid", label: "Mid", min: -18, max: 18, step: 0.5, def: 0, unit: "dB" },
       { key: "high", label: "High", min: -18, max: 18, step: 0.5, def: 0, unit: "dB" },
       { key: "midFreq", label: "Mid freq", min: 300, max: 5000, step: 10, def: 1000, unit: "Hz" },
+    ],
+  },
+  {
+    kind: "nam",
+    name: "Amp model (NAM)",
+    params: [
+      { key: "model", label: "Model", min: 0, max: 1000000, step: 1, def: 0, choice: "nam-model" },
+      { key: "input", label: "Input", min: -24, max: 24, step: 0.5, def: 0, unit: "dB" },
+      { key: "output", label: "Output", min: -24, max: 24, step: 0.5, def: 0, unit: "dB" },
+      { key: "gate", label: "Gate", min: -90, max: -30, step: 1, def: -90, unit: "dB" },
+      { key: "match", label: "Level match", min: 0, max: 1, step: 1, def: 1, toggle: true },
+      { key: "size", label: "Size", min: 0, max: 1, step: 0.01, def: 1 },
+      { key: "mix", label: "Mix", min: 0, max: 1, step: 0.01, def: 1 },
     ],
   },
 ];
@@ -463,7 +480,30 @@ const eq: Factory = (ctx, p) => {
   }, p);
 };
 
-const FACTORIES: Record<EffectKind, Factory> = { tapeDelay, reverb, filter, distortion, chorus, phaser, tremolo, compressor, eq };
+let namFactory: Factory | null = null;
+
+/** The app injects the NAM effect (it lives outside the looper). Until then, and if it throws, the effect passes the signal through. */
+export function setNamFactory(f: Factory | null): void {
+  namFactory = f;
+}
+
+const passthrough: Factory = (ctx, p) => {
+  const g = ctx.createGain();
+  return node(ctx, [], g, g, () => {}, p);
+};
+
+const nam: Factory = (ctx, p) => {
+  if (namFactory) {
+    try {
+      return namFactory(ctx, p);
+    } catch {
+      /* fall through to a transparent effect */
+    }
+  }
+  return passthrough(ctx, p);
+};
+
+const FACTORIES: Record<EffectKind, Factory> = { tapeDelay, reverb, filter, distortion, chorus, phaser, tremolo, compressor, eq, nam };
 
 export function createEffect(ctx: AudioContext, spec: EffectSpec): FxNode {
   return FACTORIES[spec.kind](ctx, clampParams(spec.kind, spec.params));
