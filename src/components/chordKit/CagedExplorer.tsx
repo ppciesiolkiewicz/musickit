@@ -76,6 +76,13 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem }: { b
   const lab = (c: CagedCell) => noteLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText, role: c.arpRole });
   const off = 40;
   const sorted = [...boxes].sort((p, q) => p.from - q.from);
+  // the shaded zones tile the whole board; where two boxes overlap they meet in the middle of the overlap
+  const zones = sorted.map((b, i) => {
+    const prev = sorted[i - 1], next = sorted[i + 1];
+    const x0 = prev ? (g.edge(b.from) + g.edge(prev.to + 1)) / 2 : g.left;
+    const x1 = next ? (g.edge(next.from) + g.edge(b.to + 1)) / 2 : g.edge(NECK_END + 1);
+    return { b, x0, x1, col: LANE_COLOURS[boxes.indexOf(b) % 5] };
+  });
   return (
     <section className="rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5">
       <h2 className="mb-2 flex flex-wrap items-center gap-2 text-sm font-medium text-slate-100">
@@ -88,10 +95,12 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem }: { b
       <div className="overflow-x-auto">
         <svg viewBox={`0 0 ${g.W} ${g.H + off}`} width="100%" style={{ minWidth: 820 }} role="img" aria-label="Chord tones on the whole neck with the five CAGED boxes marked">
           <g transform={`translate(0, ${off})`}>
-            {sorted.map((b, i) => (
-              <rect key={b.letter} x={g.edge(b.from) + 1} y={g.sy(5) - 20} width={g.edge(b.to + 1) - g.edge(b.from) - 2} height={g.sy(0) - g.sy(5) + 40} rx={10} fill={LANE_COLOURS[boxes.indexOf(b) % 5]} opacity={0.22} stroke={LANE_COLOURS[boxes.indexOf(b) % 5]} strokeOpacity={0.8} />
-            ))}
             <FretboardBase g={g} />
+            <clipPath id="overview-board"><rect x={g.left} y={g.sy(5) - 14} width={g.edge(NECK_END + 1) - g.left} height={g.sy(0) - g.sy(5) + 28} rx={8} /></clipPath>
+            <g clipPath="url(#overview-board)">
+              {zones.map((z) => <rect key={z.b.letter} x={z.x0} y={g.sy(5) - 14} width={z.x1 - z.x0} height={g.sy(0) - g.sy(5) + 28} fill={z.col} opacity={0.26} />)}
+              {zones.slice(1).map((z) => <line key={`d${z.b.letter}`} x1={z.x0} x2={z.x0} y1={g.sy(5) - 14} y2={g.sy(0) + 14} stroke="#0d1526" strokeWidth={1.5} opacity={0.6} />)}
+            </g>
             {cells.map((c) => {
               const x = g.fx(c.fret), y = g.sy(c.string), col = c.scaleDegree === null ? "#f43f5e" : degreeColour(c.scaleDegree), l = lab(c);
               return (
@@ -102,8 +111,8 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem }: { b
               );
             })}
           </g>
-          {sorted.map((b, i) => {
-            const cx = (g.edge(b.from) + g.edge(b.to + 1)) / 2, col = LANE_COLOURS[boxes.indexOf(b) % 5];
+          {zones.map(({ b, x0, x1, col }, i) => {
+            const cx = (x0 + x1) / 2;
             const y = i % 2 === 0 ? 14 : 31;
             return <text key={b.letter} x={cx} y={y} textAnchor="middle" fontSize={12} fontWeight={600} fill={col}>{b.letter} shape · Position {i + 1}</text>;
           })}
