@@ -8,10 +8,11 @@ import { EFFECT_DEFS, defaultParams, moveEffect, clampParams, sanitiseEffects, t
 import { GROUP_COLOURS, clampPoint, clampRect, containingGroup, defaultGroups, defaultSpot, type GroupLayout } from "./layout";
 import { InputMixer, MAX_INPUT_GAIN, describeError, type InputInfo } from "./mixer";
 import { PatchGraph } from "./patchAudio";
-import { activeLinks, addNode as patchAddNode, connect as patchConnect, disconnect as patchDisconnect, emptyPatch, feeds, layoutAll, moveNode as patchMoveNode, place, removeNode, sanitisePatch, setLinkMuted, setNodeMuted, setSwitch, type Patch, type PatchLink } from "./patch";
+import { activeLinks, addNode as patchAddNode, connect as patchConnect, disconnect as patchDisconnect, emptyPatch, feeds, layoutAll, moveNode as patchMoveNode, place, removeNode, sanitisePatch, setLinkMuted, setNodeMuted, setSwitchMode, type Patch, type PatchLink } from "./patch";
 import { chooseDevice, gearIssues, type DeviceRef, type GearIssue } from "./deviceChoice";
 import { ActionHistory, type DoOptions } from "./history";
 import { MacroRecorder } from "./macros";
+import { starterRig } from "./rig";
 import type { FxTarget, InputSpec, LooperAction } from "./actions";
 import { RECORDER_PROCESSOR_NAME, recorderWorkletUrl } from "./recorderWorklet";
 
@@ -437,9 +438,9 @@ export class LooperEngine {
   /** Add a connection (refused if the rules say no). */
   patchLink(link: PatchLink): boolean {
     const before = this.patch;
-    const next = patchConnect(before, link.from, link.to, link.id, link.port ?? "bus");
+    const next = patchConnect(before, link.from, link.to, link.id, link.port ?? "bus", link.muted);
     if (next === before) return false;
-    this.savePatch(link.muted ? setLinkMuted(next, link.id, true) : next);
+    this.savePatch(next);
     return true;
   }
 
@@ -451,8 +452,8 @@ export class LooperEngine {
     this.savePatch(what === "link" ? setLinkMuted(this.patch, id, muted) : setNodeMuted(this.patch, id, muted));
   }
 
-  patchSwitch(id: string, selected: number) {
-    this.savePatch(setSwitch(this.patch, id, selected));
+  patchSwitch(id: string, side: "in" | "out", multi: boolean) {
+    this.savePatch(setSwitchMode(this.patch, id, side, multi));
   }
 
   /** The mixer strips that reach the recorder of a group (all of them for a loop outside every group, as before). */
@@ -945,7 +946,10 @@ export class LooperEngine {
       const want = chooseDevice(devices, this.prefs.in);
       if (want) {
         const id = this.addInput({ kind: "device", name: want.label.replace(/\s*\(.*\)\s*$/, ""), deviceId: want.id, mode: "left" });
-        void id;
+        if (id !== null) {
+          this.emit();
+          this.addRig(id);
+        }
       }
     }
     if (ask && this.meta.canChooseOutput) {
@@ -953,6 +957,24 @@ export class LooperEngine {
       if (want && want.id !== this.meta.outputId) await this.setOutputDevice(want.id);
     }
     this.emit();
+  }
+
+  /**
+   * Add the starter guitar rig (effect chains, a switch, wired to the master and every group's recorder) for a hardware input:
+   * the given one, else the first. One undo takes it all away. Returns false when there is no input or the rig is already there.
+   */
+  addRig(inputId?: number): boolean {
+    const strip = this.mixer.list().find((i) => i.kind === "device" && (inputId === undefined || i.id === inputId));
+    if (!strip) return false;
+    const input = `in:${strip.id}`;
+    if (!this.patch.nodes.some((n) => n.id === input)) return false;
+    const rig = starterRig({
+      input,
+      groups: this.groups.map((g) => g.id),
+      directLinks: this.patch.links.filter((l) => l.from === input && l.to.startsWith("group:")).map((l) => l.id),
+      at: { x: 20, y: 660 + 0 },
+    });
+    return this.do({ type: "batch", label: "Guitar rig", actions: rig.actions });
   }
 
   async setOutputDevice(id: string, remember = true): Promise<void> {

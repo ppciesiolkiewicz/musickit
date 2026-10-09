@@ -1,0 +1,141 @@
+"use client";
+
+import { useState, type PointerEvent as RPointerEvent } from "react";
+import Icon from "@/components/Icon";
+import EffectsModal from "./EffectsModal";
+import { switchChoice, type PatchLink, type PatchNode } from "@/lib/looper/patch";
+import type { LooperEngine, LooperSnapshot } from "@/lib/looper/engine";
+
+export const CARD_W = 176;
+
+/** The name an element goes by in the patch. */
+export function patchName(snap: LooperSnapshot, n: PatchNode): string {
+  if (n.name) return n.name;
+  if (n.kind === "input" || n.kind === "piano") return snap.inputs.find((i) => `in:${i.id}` === n.id)?.name ?? "Input";
+  if (n.kind === "sequencer") return snap.sequencers.find((q) => `seq:${q.id}` === n.id)?.name ?? "Sequencer";
+  if (n.kind === "group") return snap.groups.find((g) => `group:${g.id}` === n.id)?.name ?? "Group";
+  if (n.kind === "master") return "Master";
+  return n.kind === "switch" ? "Switch" : "Effects";
+}
+
+/**
+ * The effect chains and switches of the patch, as cards. Positions are the nodes' own x and y. `scale` is how much the
+ * surface they sit on is magnified (a card moves by the pointer distance divided by it): 1 for the page, the zoom of the canvas inside the freeform view.
+ */
+export default function PatchCards({ engine, snap, scale = 1 }: { engine: LooperEngine; snap: LooperSnapshot; scale?: number }) {
+  const patch = snap.patch;
+  const [fxId, setFxId] = useState<string | null>(null);
+  const [pos, setPos] = useState<Record<string, { x: number; y: number }>>({});
+  const nameOf = (id: string) => {
+    const n = patch.nodes.find((m) => m.id === id);
+    return n ? patchName(snap, n) : id;
+  };
+
+  const startMove = (n: PatchNode) => (e: RPointerEvent) => {
+    if ((e.target as HTMLElement).closest("button")) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const origin = pos[n.id] ?? { x: n.x, y: n.y };
+    const sx = e.clientX;
+    const sy = e.clientY;
+    let last = origin;
+    const move = (ev: PointerEvent) => {
+      last = { x: Math.max(0, origin.x + (ev.clientX - sx) / scale), y: Math.max(0, origin.y + (ev.clientY - sy) / scale) };
+      setPos((p) => ({ ...p, [n.id]: last }));
+    };
+    const up = () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+      if (last.x !== origin.x || last.y !== origin.y) engine.do({ type: "patch.move", id: n.id, x: Math.round(last.x), y: Math.round(last.y) });
+      setPos((p) => {
+        const { [n.id]: gone, ...rest } = p;
+        void gone;
+        return rest;
+      });
+    };
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", up);
+  };
+
+  const choose = (sw: PatchNode, linkId: string) => {
+    const changes = switchChoice(patch, sw.id, linkId);
+    if (changes.length) engine.do({ type: "batch", label: "Switch", actions: changes.map((c) => ({ type: "patch.mute", what: "link", id: c.id, muted: c.muted })) });
+  };
+
+  /** One side of a switch: its connections, each open or closed, as radio buttons or checkboxes. */
+  const side = (sw: PatchNode, s: "in" | "out") => {
+    const multi = (s === "in" ? sw.inMulti : sw.outMulti) === true;
+    const links = patch.links.filter((l: PatchLink) => (s === "in" ? l.to : l.from) === sw.id);
+    const mode = (m: boolean, icon: "circle-dot" | "check", title: string) => (
+      <button type="button" className={`grid h-5 w-5 place-items-center rounded border ${multi === m ? "border-sky-400 text-sky-200" : "border-slate-700 text-slate-500 hover:text-slate-300"}`} aria-pressed={multi === m} title={title} aria-label={`${s === "in" ? "Inputs" : "Outputs"}: ${title}`} onClick={() => multi !== m && engine.do({ type: "patch.switch", id: sw.id, side: s, multi: m })}>
+        <Icon name={icon} size={11} />
+      </button>
+    );
+    return (
+      <div className="flex flex-col gap-0.5" role={multi ? "group" : "radiogroup"} aria-label={s === "in" ? "Inputs let through" : "Outputs let through"}>
+        <div className="flex items-center gap-1 text-[10px] uppercase tracking-wide text-slate-500">
+          <span className="flex-1">{s === "in" ? "In" : "Out"}</span>
+          {mode(false, "circle-dot", "One at a time")}
+          {mode(true, "check", "Any combination")}
+        </div>
+        {links.length === 0 && <span className="text-[10px] text-slate-500">{s === "in" ? "Wire something in" : "Drag from the dot on the right"}</span>}
+        {links.map((l) => {
+          const on = !l.muted;
+          return (
+            <button key={l.id} type="button" role={multi ? "checkbox" : "radio"} aria-checked={on} className={`flex items-center gap-1 rounded px-1 py-0.5 text-left text-[11px] ${on ? "bg-emerald-500/20 text-emerald-100" : "text-slate-400 hover:bg-slate-800"}`} onClick={() => choose(sw, l.id)} title={`${nameOf(l.from)} → ${nameOf(l.to)}${l.port === "rec" ? " (record)" : ""}`}>
+              <span className={`grid h-2.5 w-2.5 shrink-0 place-items-center border ${multi ? "rounded-sm" : "rounded-full"} ${on ? "border-emerald-300 bg-emerald-300" : "border-slate-500"}`} />
+              <span className="truncate">{s === "in" ? nameOf(l.from) : nameOf(l.to)}{l.port === "rec" ? " (rec)" : ""}</span>
+            </button>
+          );
+        })}
+      </div>
+    );
+  };
+
+  const cards = patch.nodes.filter((n) => n.kind === "fx" || n.kind === "switch");
+  const fxNode = patch.nodes.find((n) => n.id === fxId && n.kind === "fx");
+
+  return (
+    <>
+      {cards.map((n) => {
+        const p = pos[n.id] ?? { x: n.x, y: n.y };
+        const label = patchName(snap, n);
+        return (
+          <div key={n.id} data-patch-id={n.id} className={`pointer-events-auto absolute z-10 rounded-lg border bg-slate-900 text-xs shadow-xl shadow-black/50 ${n.muted ? "border-slate-700 opacity-60" : "border-slate-500"}`} style={{ left: p.x, top: p.y, width: CARD_W }}>
+            <div className="flex cursor-grab touch-none items-center gap-1 rounded-t-lg border-b border-slate-800 bg-slate-800/70 px-1.5 py-1 active:cursor-grabbing" onPointerDown={startMove(n)}>
+              <Icon name={n.kind === "switch" ? "split" : "sliders-horizontal"} size={13} className="shrink-0 text-slate-400" />
+              <span className="min-w-0 flex-1 truncate font-medium text-slate-100" title={label}>{label}</span>
+              <button type="button" className="text-slate-400 hover:text-slate-100" aria-pressed={n.muted} onClick={() => engine.do({ type: "patch.mute", what: "node", id: n.id, muted: !n.muted })} title={n.muted ? "Unmute" : "Mute"} aria-label={`${n.muted ? "Unmute" : "Mute"} ${label}`}><Icon name={n.muted ? "volume-x" : "volume-2"} size={13} /></button>
+              <button type="button" className="text-slate-500 hover:text-rose-300" onClick={() => engine.do({ type: "patch.removeNode", id: n.id })} title="Remove" aria-label={`Remove ${label}`}><Icon name="x" size={13} /></button>
+            </div>
+            <div className="flex flex-col gap-1.5 px-1.5 py-1.5 pr-3">
+              {n.kind === "fx" && (
+                <button type="button" className="flex items-center gap-1 rounded border border-slate-700 px-1 py-0.5 text-left text-[11px] text-slate-300 hover:border-slate-500" onClick={() => setFxId(n.id)} title="Edit the effects">
+                  <Icon name="sliders-horizontal" size={11} />
+                  <span className="truncate">{n.effects?.length ? n.effects.map((e) => e.kind).join(" + ") : "empty: add effects"}</span>
+                </button>
+              )}
+              {n.kind === "switch" && (
+                <>
+                  {side(n, "in")}
+                  {side(n, "out")}
+                </>
+              )}
+            </div>
+          </div>
+        );
+      })}
+      {fxNode && (
+        <EffectsModal
+          title={<span className="flex items-center gap-2"><Icon name="sliders-horizontal" size={16} />{patchName(snap, fxNode)}: effects</span>}
+          effects={fxNode.effects ?? []}
+          onAdd={(k) => engine.do({ type: "fx.add", target: { element: fxNode.id }, fx: { kind: k } })}
+          onRemove={(id) => engine.do({ type: "fx.remove", target: { element: fxNode.id }, id })}
+          onParam={(id, key, value) => engine.do({ type: "fx.param", target: { element: fxNode.id }, id, key, value })}
+          onBypass={(id) => engine.do({ type: "fx.bypass", target: { element: fxNode.id }, id, bypass: !fxNode.effects?.find((e) => e.id === id)?.bypass })}
+          onClose={() => setFxId(null)}
+        />
+      )}
+    </>
+  );
+}

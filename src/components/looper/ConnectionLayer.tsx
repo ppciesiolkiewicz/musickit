@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, type PointerEvent as RPointerEvent, type RefObject } from "react";
 import Icon from "@/components/Icon";
-import EffectsModal from "./EffectsModal";
+import PatchCards, { patchName } from "./PatchCards";
 import { whyNot, type PatchKind, type PatchLink, type PatchNode, type Port } from "@/lib/looper/patch";
 import { linkColour, sourceColours } from "@/lib/looper/patchView";
 import type { LooperEngine, LooperSnapshot } from "@/lib/looper/engine";
@@ -11,7 +11,6 @@ interface Rect { x: number; y: number; w: number; h: number }
 interface Pt { x: number; y: number }
 
 const MUTED = "#64748b";
-const CARD_W = 168;
 const OUT_KINDS: PatchKind[] = ["input", "piano", "sequencer", "synth", "fx", "switch"];
 const TARGET_KINDS: PatchKind[] = ["fx", "switch", "group", "master"];
 
@@ -41,13 +40,11 @@ function visibleRect(el: HTMLElement): DOMRect | null {
  * record, bottom half: what you hear through it), the master, a chain or a switch. Click a connector or wire to mute or remove it.
  * It only calls engine actions, so everything is undoable.
  */
-export default function ConnectionLayer({ engine, snap, mode, wrapper }: { engine: LooperEngine; snap: LooperSnapshot; mode: "colors" | "lines"; wrapper: RefObject<HTMLElement | null> }) {
+export default function ConnectionLayer({ engine, snap, mode, cards = "float", wrapper }: { engine: LooperEngine; snap: LooperSnapshot; mode: "colors" | "lines"; cards?: "float" | "canvas"; wrapper: RefObject<HTMLElement | null> }) {
   const patch = snap.patch;
   const [rects, setRects] = useState<Record<string, Rect>>({});
   const [drag, setDrag] = useState<{ from: string; at: Pt } | null>(null);
   const [sel, setSel] = useState<string | null>(null);
-  const [fxId, setFxId] = useState<string | null>(null);
-  const [pos, setPos] = useState<Record<string, Pt>>({});
   const [msg, setMsg] = useState<string | null>(null);
 
   // measure the elements every other frame: layouts move (widgets are dragged, windows resize, the page scrolls)
@@ -86,14 +83,7 @@ export default function ConnectionLayer({ engine, snap, mode, wrapper }: { engin
 
   const colours = useMemo(() => sourceColours(patch), [patch]);
   const node = (id: string) => patch.nodes.find((n) => n.id === id);
-  const name = (n: PatchNode): string => {
-    if (n.name) return n.name;
-    if (n.kind === "input" || n.kind === "piano") return snap.inputs.find((i) => `in:${i.id}` === n.id)?.name ?? "Input";
-    if (n.kind === "sequencer") return snap.sequencers.find((q) => `seq:${q.id}` === n.id)?.name ?? "Sequencer";
-    if (n.kind === "group") return snap.groups.find((g) => `group:${g.id}` === n.id)?.name ?? "Group";
-    if (n.kind === "master") return "Master";
-    return n.kind === "switch" ? "Switch" : "Effects";
-  };
+  const name = (n: PatchNode): string => patchName(snap, n);
   const nameOf = (id: string) => {
     const n = node(id);
     return n ? name(n) : id;
@@ -170,38 +160,11 @@ export default function ConnectionLayer({ engine, snap, mode, wrapper }: { engin
     window.addEventListener("pointerup", up);
   };
 
-  const startMove = (n: PatchNode) => (e: RPointerEvent) => {
-    if ((e.target as HTMLElement).closest("button")) return;
-    e.preventDefault();
-    const origin = pos[n.id] ?? { x: n.x, y: n.y };
-    const sx = e.clientX;
-    const sy = e.clientY;
-    let last = origin;
-    const move = (ev: PointerEvent) => {
-      last = { x: Math.max(0, origin.x + ev.clientX - sx), y: Math.max(0, origin.y + ev.clientY - sy) };
-      setPos((p) => ({ ...p, [n.id]: last }));
-    };
-    const up = () => {
-      window.removeEventListener("pointermove", move);
-      window.removeEventListener("pointerup", up);
-      if (last.x !== origin.x || last.y !== origin.y) engine.do({ type: "patch.move", id: n.id, x: Math.round(last.x), y: Math.round(last.y) });
-      setPos((p) => {
-        const { [n.id]: gone, ...rest } = p;
-        void gone;
-        return rest;
-      });
-    };
-    window.addEventListener("pointermove", move);
-    window.addEventListener("pointerup", up);
-  };
-
   const handleColour = (id: string) => {
     const l = patch.links.find((x) => x.from === id);
     return l ? linkColour(patch, l, colours) : colours[id] ?? MUTED;
   };
 
-  const cards = patch.nodes.filter((n) => n.kind === "fx" || n.kind === "switch");
-  const fxNode = patch.nodes.find((n) => n.id === fxId && n.kind === "fx");
 
   return (
     <div className="pointer-events-none absolute inset-0 z-20" aria-label="Connections">
@@ -254,40 +217,8 @@ export default function ConnectionLayer({ engine, snap, mode, wrapper }: { engin
           </span>
         );
       })}
-      {/* effect chains and switches float over the page */}
-      {cards.map((n) => {
-        const p = pos[n.id] ?? { x: n.x, y: n.y };
-        const outs = patch.links.filter((l) => l.from === n.id);
-        return (
-          <div key={n.id} data-patch-id={n.id} className={`pointer-events-auto absolute rounded-lg border bg-slate-900 text-xs shadow-xl shadow-black/50 ${n.muted ? "border-slate-700 opacity-60" : "border-slate-500"}`} style={{ left: p.x, top: p.y, width: CARD_W }}>
-            <div className="flex cursor-grab touch-none items-center gap-1 rounded-t-lg border-b border-slate-800 bg-slate-800/70 px-1.5 py-1 active:cursor-grabbing" onPointerDown={startMove(n)}>
-              <Icon name={n.kind === "switch" ? "split" : "sliders-horizontal"} size={13} className="shrink-0 text-slate-400" />
-              <span className="min-w-0 flex-1 truncate font-medium text-slate-100" title={name(n)}>{name(n)}</span>
-              <button type="button" className="text-slate-400 hover:text-slate-100" aria-pressed={n.muted} onClick={() => engine.do({ type: "patch.mute", what: "node", id: n.id, muted: !n.muted })} title={n.muted ? "Unmute" : "Mute"} aria-label={`${n.muted ? "Unmute" : "Mute"} ${name(n)}`}><Icon name={n.muted ? "volume-x" : "volume-2"} size={13} /></button>
-              <button type="button" className="text-slate-500 hover:text-rose-300" onClick={() => engine.do({ type: "patch.removeNode", id: n.id })} title="Remove" aria-label={`Remove ${name(n)}`}><Icon name="x" size={13} /></button>
-            </div>
-            <div className="flex flex-col gap-0.5 px-1.5 py-1.5 pr-3">
-              {n.kind === "fx" && (
-                <button type="button" className="flex items-center gap-1 rounded border border-slate-700 px-1 py-0.5 text-left text-[11px] text-slate-300 hover:border-slate-500" onClick={() => setFxId(n.id)} title="Edit the effects" aria-label={`Edit ${name(n)}`}>
-                  <Icon name="sliders-horizontal" size={11} />
-                  <span className="truncate">{n.effects?.length ? n.effects.map((e) => e.kind).join(" + ") : "empty: add effects"}</span>
-                </button>
-              )}
-              {n.kind === "switch" && (
-                <div className="flex flex-col gap-0.5" role="radiogroup" aria-label="Open output">
-                  {outs.length === 0 && <span className="text-[10px] text-slate-500">Drag from the dot on the right to a group</span>}
-                  {outs.map((l: PatchLink, i) => (
-                    <button key={l.id} type="button" role="radio" aria-checked={(n.selected ?? 0) === i} className={`flex items-center gap-1 rounded px-1 py-0.5 text-left text-[11px] ${(n.selected ?? 0) === i ? "bg-emerald-500/20 text-emerald-100" : "text-slate-400 hover:bg-slate-800"}`} onClick={() => engine.do({ type: "patch.switch", id: n.id, selected: i })} title={`Open the output to ${nameOf(l.to)}`}>
-                      <span className={`h-2 w-2 shrink-0 rounded-full border ${(n.selected ?? 0) === i ? "border-emerald-300 bg-emerald-300" : "border-slate-500"}`} />
-                      <span className="truncate">{nameOf(l.to)}{l.port === "rec" ? " (rec)" : ""}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        );
-      })}
+      {/* effect chains and switches float over the page, unless the canvas holds them */}
+      {cards === "float" && <PatchCards engine={engine} snap={snap} />}
       {selLink && selDrawn && (
         <div className="pointer-events-auto absolute z-10 flex items-center gap-1.5 rounded-lg border border-slate-600 bg-slate-950 px-2 py-1 text-xs text-slate-200 shadow-xl" style={{ left: Math.max(4, selDrawn.b.x - 260), top: Math.max(4, selDrawn.b.y - 36) }}>
           <span className="max-w-[24ch] truncate">{nameOf(selLink.from)} → {nameOf(selLink.to)}{selLink.port === "rec" ? " (record)" : ""}</span>
@@ -297,19 +228,6 @@ export default function ConnectionLayer({ engine, snap, mode, wrapper }: { engin
         </div>
       )}
       {msg && <p role="alert" className="pointer-events-auto fixed bottom-3 left-1/2 z-50 -translate-x-1/2 rounded-lg border border-amber-400/50 bg-slate-950 px-3 py-1.5 text-xs text-amber-200 shadow-xl">{msg}</p>}
-      {fxNode && (
-        <div className="pointer-events-auto">
-          <EffectsModal
-            title={<span className="flex items-center gap-2"><Icon name="sliders-horizontal" size={16} />{name(fxNode)}: effects</span>}
-            effects={fxNode.effects ?? []}
-            onAdd={(k) => engine.do({ type: "fx.add", target: { element: fxNode.id }, fx: { kind: k } })}
-            onRemove={(id) => engine.do({ type: "fx.remove", target: { element: fxNode.id }, id })}
-            onParam={(id, key, value) => engine.do({ type: "fx.param", target: { element: fxNode.id }, id, key, value })}
-            onBypass={(id) => engine.do({ type: "fx.bypass", target: { element: fxNode.id }, id, bypass: !fxNode.effects?.find((e) => e.id === id)?.bypass })}
-            onClose={() => setFxId(null)}
-          />
-        </div>
-      )}
     </div>
   );
 }

@@ -25,7 +25,7 @@ function effectEntries(snap: LooperSnapshot): Entry[] {
 }
 
 /** The single "+ widget" button of the Looping section: add a loop, a group, or a widget for an effect that already exists. */
-export default function AddWidgetMenu({ engine, snap, names, canPatch = false }: { engine: LooperEngine; snap: LooperSnapshot; names: Record<string, string>; canPatch?: boolean }) {
+export default function AddWidgetMenu({ engine, snap, names, canPatch = false, onStage = false }: { onStage?: boolean; engine: LooperEngine; snap: LooperSnapshot; names: Record<string, string>; canPatch?: boolean }) {
   const [open, setOpen] = useState(false);
   const [sub, setSub] = useState(false);
   const btn = useRef<HTMLButtonElement>(null);
@@ -57,8 +57,9 @@ export default function AddWidgetMenu({ engine, snap, names, canPatch = false }:
     const n = snap.patch.nodes.filter((m) => m.kind === kind).length;
     // into the empty space under the stage, in rows of three
     const total = snap.patch.nodes.filter((m) => m.kind === "fx" || m.kind === "switch").length;
-    const x = Math.round(window.innerWidth * 0.42) + (total % 3) * 184;
-    const y = Math.round(window.scrollY) + 480 + Math.floor(total / 3) * 110;
+    // on the canvas a card goes in stage units below the groups; over the page, in pixels beside the Mixer
+    const x = onStage ? 20 + (total % 4) * 200 : Math.round(window.innerWidth * 0.42) + (total % 3) * 184;
+    const y = onStage ? 640 + Math.floor(total / 4) * 200 : Math.round(window.scrollY) + 480 + Math.floor(total / 3) * 110;
     engine.do({ type: "patch.node", node: { id: `${kind === "fx" ? "fx:" : "sw:"}${Date.now().toString(36)}`, kind, x, y, name: kind === "fx" ? `Chain ${n + 1}` : `Switch ${n + 1}` } });
   };
   const run = (f: () => void) => {
@@ -84,7 +85,8 @@ export default function AddWidgetMenu({ engine, snap, names, canPatch = false }:
       <button type="button" className={item} disabled={snap.channels.length >= MAX_CHANNELS} onClick={() => run(() => engine.do({ type: "loop.add" }))}><Icon name="repeat" size={14} />Loop</button>
       <button type="button" className={item} disabled={snap.groups.length >= 8} onClick={() => run(() => engine.do({ type: "group.add" }))}><Icon name="plus" size={14} />Group (a bus with effects)</button>
       <button type="button" className={item} onClick={() => setSub(true)}><Icon name="sliders-horizontal" size={14} />Effect widget<Icon name="chevron-right" size={14} className="ml-auto" /></button>
-      {canPatch && <button type="button" className={item} onClick={() => run(() => addPatchNode("switch"))}><Icon name="split" size={14} />Switch (one input, several outputs)</button>}
+      {canPatch && <button type="button" className={item} onClick={() => run(() => addPatchNode("switch"))}><Icon name="split" size={14} />Switch (choose inputs and outputs)</button>}
+      {canPatch && <button type="button" className={item} disabled={!snap.inputs.some((i) => i.kind === "device")} onClick={() => run(() => engine.addRig())}><Icon name="mic" size={14} />Guitar rig (chains and a switch)</button>}
       {canPatch && <button type="button" className={item} onClick={() => run(() => addPatchNode("fx"))}><Icon name="sliders-horizontal" size={14} />Effect chain (between connections)</button>}
       <button type="button" className={item} disabled={snap.channels.length <= 1 || last?.state !== "empty"} onClick={() => run(() => engine.do({ type: "loop.removeLast" }))}><Icon name="minus" size={14} />Remove the last loop</button>
     </>

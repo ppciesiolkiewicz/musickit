@@ -22,8 +22,9 @@ describe("device choice", () => {
 
 describe("gear issues", () => {
   const base = { strips: [], devices: [mac, scarlett], outputs: [speakers, { id: "o2", label: "Focusrite USB Audio" }], outputId: "sp", canChooseOutput: true, prefIn: null, prefOut: null };
-  it("suggests the interface for the output, and no input for a fresh project", () => {
-    assert.deepEqual(gearIssues(base).map((i) => i.kind), ["output-suggest"]);
+  it("offers a fresh project the guitar rig on an interface, and nothing for the built-in mic", () => {
+    assert.deepEqual(gearIssues(base).map((i) => i.kind), ["input-suggest", "output-suggest"]);
+    assert.deepEqual(gearIssues({ ...base, devices: [mac] }).map((i) => i.kind), ["output-suggest"]);
   });
   it("offers an input used before, or says it is not plugged in", () => {
     assert.deepEqual(gearIssues({ ...base, prefIn: { id: "s", label: "Scarlett" } }).map((i) => i.kind), ["input-suggest", "output-suggest"]);

@@ -26,7 +26,7 @@ export type LooperAction =
   | { type: "patch.link"; link: { id: string; from: string; to: string; port?: "rec" | "bus"; muted?: boolean } }
   | { type: "patch.unlink"; id: string }
   | { type: "patch.mute"; what: "link" | "node"; id: string; muted: boolean }
-  | { type: "patch.switch"; id: string; selected: number }
+  | { type: "patch.switch"; id: string; side: "in" | "out"; multi: boolean }
   | { type: "patch.node"; node: PatchNodeSpec }
   | { type: "patch.removeNode"; id: string }
   | { type: "patch.move"; id: string; x: number; y: number }
@@ -77,6 +77,9 @@ export interface PatchNodeSpec {
   name?: string;
   effects?: (FxSpec & { id: string })[];
   muted?: boolean;
+  /** switch only: lets any combination of its inputs / outputs through (default one at a time) */
+  inMulti?: boolean;
+  outMulti?: boolean;
 }
 
 export type FxTarget = { group: string } | { input: number } | { master: true } | { element: string };
@@ -129,7 +132,7 @@ export interface ActionState {
   metronome: MetronomeSettings;
   sequencers: { id: string; name: string; x: number; y: number; dest: "auto" | "record"; playing: boolean; instrumentId: string; bars: number; cells: number[][] }[];
   /** what is connected to what */
-  patch: { nodes: { id: string; kind: string; muted: boolean; x: number; y: number; selected?: number; name?: string; effects?: EffectState[] }[]; links: { id: string; from: string; to: string; port?: "rec" | "bus"; muted: boolean }[] };
+  patch: { nodes: { id: string; kind: string; muted: boolean; x: number; y: number; inMulti?: boolean; outMulti?: boolean; name?: string; effects?: EffectState[] }[]; links: { id: string; from: string; to: string; port?: "rec" | "bus"; muted: boolean }[] };
 }
 
 export interface EffectState {
@@ -156,7 +159,7 @@ export interface ActionTarget {
   patchRemove(id: string): void;
   patchMove(id: string, x: number, y: number): void;
   patchMute(what: "link" | "node", id: string, muted: boolean): void;
-  patchSwitch(id: string, selected: number): void;
+  patchSwitch(id: string, side: "in" | "out", multi: boolean): void;
   updateGroup(id: string, patch: GroupPatch): void;
   setGroupActive(id: string, on: boolean): void;
   setMasterVolume(v: number): void;
@@ -208,8 +211,8 @@ export function applyAction(t: ActionTarget, a: LooperAction): LooperAction | nu
     case "patch.link": return t.patchLink(a.link) ? a : null;
     case "patch.unlink": t.patchUnlink(a.id); return a;
     case "patch.mute": t.patchMute(a.what, a.id, a.muted); return a;
-    case "patch.switch": t.patchSwitch(a.id, a.selected); return a;
-    case "patch.node": return t.patchAdd({ id: a.node.id, kind: a.node.kind, x: a.node.x, y: a.node.y, muted: a.node.muted === true, name: a.node.name, effects: a.node.kind === "fx" ? (a.node.effects ?? []).map((e) => ({ id: e.id, kind: e.kind, bypass: e.bypass === true, post: e.post === true, params: { ...e.params } })) : undefined }) ? a : null;
+    case "patch.switch": t.patchSwitch(a.id, a.side, a.multi); return a;
+    case "patch.node": return t.patchAdd({ id: a.node.id, kind: a.node.kind, x: a.node.x, y: a.node.y, muted: a.node.muted === true, ...(a.node.kind === "switch" ? { inMulti: a.node.inMulti === true, outMulti: a.node.outMulti === true } : {}), name: a.node.name, effects: a.node.kind === "fx" ? (a.node.effects ?? []).map((e) => ({ id: e.id, kind: e.kind, bypass: e.bypass === true, post: e.post === true, params: { ...e.params } })) : undefined }) ? a : null;
     case "patch.removeNode": t.patchRemove(a.id); return a;
     case "patch.move": t.patchMove(a.id, a.x, a.y); return a;
     case "group.set": t.updateGroup(a.id, a.patch); return a;
@@ -283,16 +286,22 @@ export function inverseOf(a: LooperAction, s: ActionState): LooperAction | null 
     case "patch.link": return { type: "patch.unlink", id: a.link.id };
     case "patch.unlink": { const l = s.patch.links.find((x) => x.id === a.id); return l ? { type: "patch.link", link: { ...l } } : null; }
     case "patch.mute": { const x = a.what === "link" ? s.patch.links.find((l) => l.id === a.id) : s.patch.nodes.find((n) => n.id === a.id); return x ? { ...a, muted: x.muted } : null; }
-    case "patch.switch": { const n = s.patch.nodes.find((m) => m.id === a.id); return n ? { type: a.type, id: a.id, selected: n.selected ?? 0 } : null; }
+    case "patch.switch": {
+      const n = s.patch.nodes.find((m) => m.id === a.id);
+      if (!n) return null;
+      // going back to one-at-a-time closes links, so the inverse also puts every link of that side back as it was
+      const mine = s.patch.links.filter((l) => (a.side === "in" ? l.to : l.from) === a.id);
+      const back: LooperAction[] = mine.map((l) => ({ type: "patch.mute", what: "link", id: l.id, muted: l.muted }));
+      return { type: "batch", label: "Switch mode", actions: [{ type: "patch.switch", id: a.id, side: a.side, multi: (a.side === "in" ? n.inMulti : n.outMulti) === true }, ...back] };
+    }
     case "patch.node": return { type: "patch.removeNode", id: a.node.id };
     case "patch.removeNode": {
       const n = s.patch.nodes.find((m) => m.id === a.id);
       if (!n || (n.kind !== "fx" && n.kind !== "switch")) return null;
       const restore: LooperAction[] = [
-        { type: "patch.node", node: { id: n.id, kind: n.kind as "fx" | "switch", x: n.x, y: n.y, name: n.name, muted: n.muted, effects: n.effects?.map(specOf) } },
+        { type: "patch.node", node: { id: n.id, kind: n.kind as "fx" | "switch", x: n.x, y: n.y, name: n.name, muted: n.muted, effects: n.effects?.map(specOf), inMulti: n.inMulti, outMulti: n.outMulti } },
         ...s.patch.links.filter((l) => l.from === n.id || l.to === n.id).map((l): LooperAction => ({ type: "patch.link", link: { ...l } })),
       ];
-      if (n.kind === "switch") restore.push({ type: "patch.switch", id: n.id, selected: n.selected ?? 0 });
       return { type: "batch", actions: restore };
     }
     case "patch.move": { const n = s.patch.nodes.find((m) => m.id === a.id); return n ? { type: a.type, id: a.id, x: n.x, y: n.y } : null; }
@@ -415,7 +424,7 @@ export function describeAction(a: LooperAction, s?: ActionState): string {
     case "patch.link": return `Connect ${a.link.from} to ${a.link.to}${a.link.port === "rec" ? " (recorder)" : ""}`;
     case "patch.unlink": return "Remove a connection";
     case "patch.mute": return `${a.muted ? "Mute" : "Unmute"} a ${a.what === "link" ? "connection" : "patch element"}`;
-    case "patch.switch": return "Switch output";
+    case "patch.switch": return "Switch mode";
     case "patch.node": return `Add ${a.node.kind === "fx" ? "effect chain" : "switch"}`;
     case "patch.removeNode": return "Remove a patch element";
     case "patch.move": return "Move a patch element";
@@ -477,7 +486,7 @@ export function coalesceKey(a: LooperAction): string | null {
     case "loop.move": return `loop.move:${a.id}`;
     case "loop.rename": return `loop.rename:${a.id}`;
     case "loop.plan": return `loop.plan:${a.id}`;
-    case "patch.switch": return `patch.switch:${a.id}`;
+    case "patch.switch": return `patch.switch:${a.id}:${a.side}`;
     case "patch.move": return `patch.move:${a.id}`;
     case "master.volume": return "master.volume";
     case "fx.param": return `fx.param:${JSON.stringify(a.target)}:${a.id}:${a.key}`;
@@ -531,7 +540,7 @@ export function isAction(v: unknown, depth = 0): v is LooperAction {
     case "patch.link": { const k = a.link as { id?: unknown; from?: unknown; to?: unknown } | undefined; return !!k && isStr(k.id) && isStr(k.from) && isStr(k.to); }
     case "patch.unlink": return isStr(a.id);
     case "patch.mute": return (a.what === "link" || a.what === "node") && isStr(a.id) && isBool(a.muted);
-    case "patch.switch": return isStr(a.id) && isNum(a.selected);
+    case "patch.switch": return isStr(a.id) && (a.side === "in" || a.side === "out") && typeof a.multi === "boolean";
     case "patch.node": { const k = a.node as { id?: unknown; kind?: unknown; x?: unknown; y?: unknown; effects?: unknown } | undefined; return !!k && isStr(k.id) && (k.kind === "fx" || k.kind === "switch") && isNum(k.x) && isNum(k.y) && (k.effects === undefined || (Array.isArray(k.effects) && k.effects.length <= 12 && k.effects.every(isFx))); }
     case "patch.removeNode": return isStr(a.id);
     case "patch.move": return isStr(a.id) && isNum(a.x) && isNum(a.y);

@@ -49,7 +49,7 @@ export const ACTION_CATALOG: CatalogEntry[] = [
   { type: "patch.link", doc: "Connect an element's output to another's input. port rec = a group's recorder, bus (default) = its bus or an effect or master.", example: { type: "patch.link", link: { id: "mylink", from: "in:0", to: "group:g1", port: "rec" } } },
   { type: "patch.unlink", doc: "Remove a connection.", example: { type: "patch.unlink", id: "mylink" } },
   { type: "patch.mute", doc: "Mute or unmute a connection or an element of the patch.", example: { type: "patch.mute", what: "link", id: "mylink", muted: true } },
-  { type: "patch.switch", doc: "Choose which output of a switch is open (0-based).", example: { type: "patch.switch", id: "sw1", selected: 1 } },
+  { type: "patch.switch", doc: "Set how one side of a switch works: one connection at a time (multi false) or any combination (multi true). Open or close a connection with patch.mute on its link.", example: { type: "patch.switch", id: "sw1", side: "out", multi: true } },
   { type: "patch.node", doc: "Add an effect chain (kind fx, with optional effects) or a switch to the patch canvas. Give it an id. A switch lets one of its outgoing connections through.", example: { type: "patch.node", node: { id: "amp1", kind: "fx", x: 300, y: 40, name: "Amp", effects: [{ id: "e1", kind: "eq" }] } } },
   { type: "patch.removeNode", doc: "Remove an effect chain or a switch with its connections.", example: { type: "patch.removeNode", id: "amp1" } },
   { type: "patch.move", doc: "Move an element on the patch canvas.", example: { type: "patch.move", id: "amp1", x: 320, y: 80 } },

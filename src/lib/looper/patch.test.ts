@@ -1,10 +1,10 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { activeLinks, addNode, feeds, isPatched, layoutAll, moveNode, place, connect, defaultPatch, disconnect, emptyPatch, pathTo, removeNode, sanitisePatch, setLinkMuted, setNodeMuted, setSwitch, whyNot, type Patch } from "./patch";
+import { activeLinks, addNode, feeds, isPatched, layoutAll, moveNode, place, connect, defaultPatch, disconnect, emptyPatch, pathTo, removeNode, sanitisePatch, setLinkMuted, setNodeMuted, setSwitchMode, switchChoice, whyNot, type Patch } from "./patch";
 
 const base = (): Patch => {
   let p = emptyPatch();
-  const add = (id: string, kind: Patch["nodes"][number]["kind"]) => (p = { ...p, nodes: [...p.nodes, { id, kind, x: 0, y: 0, muted: false, ...(kind === "switch" ? { selected: 0 } : {}) }] });
+  const add = (id: string, kind: Patch["nodes"][number]["kind"]) => (p = { ...p, nodes: [...p.nodes, { id, kind, x: 0, y: 0, muted: false, ...(kind === "switch" ? { inMulti: false, outMulti: false } : {}) }] });
   add("gtr", "input");
   add("sw", "switch");
   add("clean", "fx");
@@ -32,18 +32,37 @@ describe("patch rules", () => {
     p = connect(p, "lead", "bus");
     assert.ok(whyNot(p, "bus", "clean"));
   });
-  it("a switch lets one output through", () => {
+  it("a switch lets one output through at a time (radio)", () => {
     let p = base();
     p = connect(p, "gtr", "sw", "a");
     p = connect(p, "sw", "clean", "b");
     p = connect(p, "sw", "lead", "c");
     p = connect(p, "clean", "master", "d");
     p = connect(p, "lead", "master", "e");
-    assert.deepEqual(activeLinks(p).map((l) => l.id), ["a", "b", "d", "e"]);
+    assert.deepEqual(activeLinks(p).map((l) => l.id), ["a", "b", "d", "e"], "the second output starts closed");
     assert.deepEqual(pathTo(p, "gtr", "master"), ["gtr", "sw", "clean", "master"]);
-    p = setSwitch(p, "sw", 1);
+    for (const c of switchChoice(p, "sw", "c")) p = setLinkMuted(p, c.id, c.muted);
     assert.deepEqual(pathTo(p, "gtr", "master"), ["gtr", "sw", "lead", "master"]);
-    assert.equal(setSwitch(p, "sw", 9).nodes.find((n) => n.id === "sw")?.selected, 1, "clamped to the last output");
+    assert.deepEqual(switchChoice(p, "sw", "c"), [], "choosing the open one changes nothing");
+  });
+  it("a switch can let any combination through (checkboxes), on each side by itself", () => {
+    let p = base();
+    p = connect(p, "gtr", "sw", "a");
+    p = connect(p, "sw", "clean", "b");
+    p = connect(p, "sw", "lead", "c");
+    p = setSwitchMode(p, "sw", "out", true);
+    for (const c of switchChoice(p, "sw", "c")) p = setLinkMuted(p, c.id, c.muted);
+    assert.deepEqual(p.links.filter((l) => !l.muted).map((l) => l.id), ["a", "b", "c"]);
+    for (const c of switchChoice(p, "sw", "b")) p = setLinkMuted(p, c.id, c.muted);
+    assert.deepEqual(p.links.filter((l) => !l.muted).map((l) => l.id), ["a", "c"]);
+    // two inputs stay one at a time while the input side is a radio
+    p = { ...p, nodes: [...p.nodes, { id: "gtr2", kind: "input", x: 0, y: 0, muted: false }] };
+    p = connect(p, "gtr2", "sw", "z");
+    assert.equal(p.links.find((l) => l.id === "z")?.muted, true);
+    p = setSwitchMode(p, "sw", "in", true);
+    p = setLinkMuted(p, "z", false);
+    p = setSwitchMode(p, "sw", "in", false);
+    assert.deepEqual(p.links.filter((l) => l.to === "sw" && !l.muted).map((l) => l.id), ["a"], "back to one at a time keeps the first open one");
   });
   it("muting a link or an element cuts the path", () => {
     let p = connect(connect(base(), "gtr", "bus", "a"), "bus", "master", "b");
@@ -52,13 +71,12 @@ describe("patch rules", () => {
     assert.deepEqual(pathTo(setNodeMuted(p, "bus", true), "gtr", "master"), []);
     assert.deepEqual(pathTo(setNodeMuted(p, "gtr", true), "gtr", "master"), []);
   });
-  it("removing an element drops its links; disconnect keeps the switch selection valid", () => {
+  it("removing an element drops its links; disconnect keeps one open on a radio side", () => {
     let p = connect(connect(base(), "gtr", "bus", "a"), "bus", "master", "b");
     assert.deepEqual(removeNode(p, "bus").links, []);
     p = connect(connect(base(), "sw", "clean", "x"), "sw", "lead", "y");
-    p = setSwitch(p, "sw", 1);
-    p = disconnect(p, "y");
-    assert.equal(p.nodes.find((n) => n.id === "sw")?.selected, 0);
+    p = disconnect(p, "x");
+    assert.equal(p.links.find((l) => l.id === "y")?.muted, false);
   });
 });
 
@@ -73,7 +91,8 @@ describe("group recorder", () => {
     assert.deepEqual(feeds(p, "bus", "rec"), ["gtr"]);
     assert.deepEqual(feeds(p, "bus", "bus"), [], "the bus port hears nothing yet");
     assert.deepEqual(feeds(setNodeMuted(p, "gtr", true), "bus", "rec"), []);
-    assert.deepEqual(feeds(setSwitch(p, "sw", 1), "bus", "rec"), ["gtr"]);
+    p = setSwitchMode(p, "sw", "out", true);
+    assert.deepEqual(feeds(p, "bus", "rec"), ["gtr"]);
   });
   it("only a group has a recorder, and ports are separate links", () => {
     let p = base();
@@ -120,7 +139,7 @@ describe("canvas helpers", () => {
     assert.equal(addNode(p, { id: "f1", kind: "fx", x: 0, y: 0, muted: false }), p);
     assert.equal(addNode(p, { id: "m", kind: "master", x: 0, y: 0, muted: false }), p);
     p = addNode(p, { id: "s1", kind: "switch", x: 0, y: 0, muted: false });
-    assert.equal(p.nodes[1].selected, 0);
+    assert.equal(p.nodes[1].inMulti, false);
     assert.equal(moveNode(p, "s1", -5, 99999).nodes[1].y, 3000);
   });
   it("lays a whole patch out afresh", () => {
@@ -147,5 +166,13 @@ describe("canvas helpers", () => {
     assert.ok(whyNot(p, "seq", "sw"));
     assert.equal(whyNot(p, "seq", "bus"), null);
     assert.ok(whyNot(p, "syn", "master"));
+  });
+});
+
+describe("old switch saves", () => {
+  it("keep every input open and only the chosen output", () => {
+    const raw = { nodes: [{ id: "gtr", kind: "input", x: 0, y: 0 }, { id: "sw", kind: "switch", x: 0, y: 0, selected: 1 }, { id: "clean", kind: "fx", x: 0, y: 0 }, { id: "lead", kind: "fx", x: 0, y: 0 }], links: [{ id: "a", from: "gtr", to: "sw" }, { id: "b", from: "sw", to: "clean" }, { id: "c", from: "sw", to: "lead" }] };
+    const p = sanitisePatch(raw);
+    assert.deepEqual(p.links.filter((l) => !l.muted).map((l) => l.id), ["a", "c"]);
   });
 });

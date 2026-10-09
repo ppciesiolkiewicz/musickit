@@ -5,6 +5,7 @@ import Icon from "../Icon";
 import LoopStage from "./LoopStage";
 import { AddInputModal, InputStrip, MasterStrip } from "./Mixer";
 import { MAX_INPUTS, type LooperEngine, type LooperSnapshot } from "@/lib/looper/engine";
+import PatchCards from "./PatchCards";
 import { VIEW_H } from "@/lib/looper/layout";
 
 const KEY = "musickit.looper.board";
@@ -13,7 +14,7 @@ type Spot = { x: number; y: number };
 
 const ibtn = "grid h-8 min-w-8 place-items-center rounded-lg border border-slate-700 bg-slate-900 px-1.5 text-xs text-slate-200 transition hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 
-/** Where the cards were left (pixels on the canvas), remembered in this browser. */
+/** Where the cards were left (stage units on the canvas), remembered in this browser. */
 function useSpots(): [Record<string, Spot>, (id: string, s: Spot) => void] {
   const [spots, setSpots] = useState<Record<string, Spot>>({});
   useEffect(() => {
@@ -49,16 +50,17 @@ export default function FreeBoard({ engine, snap, controls, keyboardOpen, onTogg
   const hasExtra = snap.inputs.some((i) => i.kind === "extra");
   const ids = ["master", ...strips.map((i) => `in:${i.id}`)];
 
-  const cards = (scale: number) =>
-    ids.map((id, n) => {
-      const def: Spot = { x: 16 + (n % 3) * (CARD_W + 16), y: VIEW_H * scale - 40 + Math.floor(n / 3) * 150 };
+  const cards = (scale: number) => (
+    <>
+    {ids.map((id, n) => {
+      const def: Spot = { x: 16 + (n % 3) * (CARD_W + 16), y: VIEW_H - 40 + Math.floor(n / 3) * 150 };
       const at = spots[id] ?? def;
       const grab = (e: RPointerEvent) => {
         if (e.button !== 0) return;
         e.preventDefault();
         e.stopPropagation();
         const sx = e.clientX, sy = e.clientY;
-        const move = (ev: PointerEvent) => put(id, { x: Math.max(0, at.x + ev.clientX - sx), y: Math.max(0, at.y + ev.clientY - sy) });
+        const move = (ev: PointerEvent) => put(id, { x: Math.max(0, at.x + (ev.clientX - sx) / scale), y: Math.max(0, at.y + (ev.clientY - sy) / scale) });
         const up = () => {
           window.removeEventListener("pointermove", move);
         };
@@ -80,7 +82,10 @@ export default function FreeBoard({ engine, snap, controls, keyboardOpen, onTogg
           </ul>
         </div>
       );
-    });
+    })}
+    <PatchCards engine={engine} snap={snap} scale={scale} />
+    </>
+  );
 
   return (
     <section className="flex flex-col gap-1.5 p-1" style={{ height: "calc(100dvh - 3rem)" }} aria-label="Looper board">

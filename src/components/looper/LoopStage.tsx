@@ -72,7 +72,30 @@ export default function LoopStage({ engine, snap, openSeqs, onToggleSeq, fill = 
   }, []);
   // at 100% the part VIEW_W wide fills the widget; the rest of the stage is room to grow into (scroll or drag to reach it)
   const fit = Math.max(MIN_ZOOM, Math.min(4, (width - 2) / VIEW_W));
-  const scale = fit;
+  const [zoom, setZoom] = useState(1);
+  const scale = Math.max(0.2, Math.min(5, fit * zoom));
+  // keep the middle of what you look at in place while the scale changes
+  const prevScale = useRef(scale);
+  useLayoutEffect(() => {
+    const el = frame.current;
+    const k = scale / (prevScale.current ?? scale);
+    prevScale.current = scale;
+    if (!el || k === 1) return;
+    el.scrollLeft = (el.scrollLeft + el.clientWidth / 2) * k - el.clientWidth / 2;
+    el.scrollTop = (el.scrollTop + el.clientHeight / 2) * k - el.clientHeight / 2;
+  }, [scale]);
+  // Ctrl or Cmd with the wheel (or a pinch on a trackpad) zooms the canvas
+  useEffect(() => {
+    const el = frame.current;
+    if (!el) return;
+    const wheel = (e: WheelEvent) => {
+      if (!(e.ctrlKey || e.metaKey)) return;
+      e.preventDefault();
+      setZoom((z) => Math.max(0.3, Math.min(3, z * Math.exp(-e.deltaY * 0.0015))));
+    };
+    el.addEventListener("wheel", wheel, { passive: false });
+    return () => el.removeEventListener("wheel", wheel);
+  }, []);
   // new effect widgets appear in the part of the stage you are looking at
   useEffect(() => {
     setPinSpawn(() => {
@@ -85,8 +108,11 @@ export default function LoopStage({ engine, snap, openSeqs, onToggleSeq, fill = 
   return (
     <div className={`flex flex-col gap-1 ${fill ? "min-h-0 flex-1" : ""}`}>
       <div className="flex items-center justify-end gap-1">
+        <button type="button" className={tbtn} onClick={() => setZoom((z) => Math.max(0.3, z / 1.25))} title="Zoom out" aria-label="Zoom out"><Icon name="minus" size={12} /></button>
+        <button type="button" className={`${tbtn} min-w-10 tabular-nums`} onClick={() => setZoom(1)} title="Fit the width" aria-label="Zoom: fit the width">{Math.round(zoom * 100)}%</button>
+        <button type="button" className={tbtn} onClick={() => setZoom((z) => Math.min(3, z * 1.25))} title="Zoom in" aria-label="Zoom in"><Icon name="plus" size={12} /></button>
         <InfoTip label="Stage help">
-          <p><b>Size:</b> the stage fits its widget. Make the widget bigger or smaller by its corner, or zoom the whole canvas.</p>
+          <p><b>Zoom:</b> the buttons, or Ctrl/Cmd with the mouse wheel or a pinch. Everything on the canvas scales together.</p>
           <p><b>Move around:</b> scroll, or drag empty space on the stage.</p>
           <p><b>Effect widgets:</b> open the effects of a bus or an input and press the dashboard button on an effect. Its controls appear to the right of the stage; drag the title to place it.</p>
         </InfoTip>
@@ -123,8 +149,8 @@ export default function LoopStage({ engine, snap, openSeqs, onToggleSeq, fill = 
           return <SeqCircle key={q.id} engine={engine} q={q} colour={g?.colour ?? "#94a3b8"} stage={stage} open={openSeqs.includes(q.id)} onOpen={() => onToggleSeq(q.id)} patchId={patchSeq} />;
         })}
       </div>
+            {cards?.(scale)}
           </div>
-          {cards?.(scale)}
         </div>
       </div>
       {fxGroup && <GroupEffects engine={engine} g={fxGroup} onClose={() => setFxFor(null)} />}

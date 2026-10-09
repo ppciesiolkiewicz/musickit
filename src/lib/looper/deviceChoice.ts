@@ -59,8 +59,10 @@ export function gearIssues(a: {
     else if (a.devices.length && s.deviceId && !a.devices.some((d) => d.id === s.deviceId)) out.push({ kind: "input-missing", strip: s.id, text: `${s.name} is not plugged in` });
   }
   if (!a.strips.length) {
-    // nothing is suggested for a fresh project; only an input used before is asked for
+    // a fresh project is offered the guitar rig on an audio interface, if one is plugged in; an input used before is asked for first
     const prev = a.prefIn;
+    const iface = chooseDevice(a.devices, null);
+    if (!prev && iface && deviceScore(iface.label) > 0) out.push({ kind: "input-suggest", text: `Start a guitar rig on ${iface.label}` });
     if (prev) {
       const there = a.devices.find((d) => d.id === prev.id) ?? a.devices.find((d) => d.label && d.label === prev.label);
       out.push(there ? { kind: "input-suggest", text: `Use ${there.label} as an input` } : { kind: "input-missing", text: `${prev.label} is not plugged in` });
