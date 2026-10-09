@@ -19,3 +19,10 @@ Output matches the NeuralAmpModelerCore renderer to about 1e-6 on its example mo
 
 ## Tests
 `npx tsx --test src/features/nam/*.test.ts`
+
+## Private cloud library
+- Models can live in a private Vercel Blob store (access private, folder `nam/`). The browser never reads the store: `GET/POST/DELETE /api/nam` and `GET /api/nam/file?path=` check the password, then use the Blob SDK with `MUSICKIT_BLOB_READ_WRITE_TOKEN` (falls back to `BLOB_READ_WRITE_TOKEN`).
+- Password: `NAM_LIBRARY_PASSWORD`, else the sampler's `SAMPLER_SITE_PASSWORD`; sent as `x-site-password`, kept in localStorage `musickit.nam.cloudPassword` after sign-in. Without a password and a token on the server the library is off (404), never open.
+- Rules (pure, tested in `server/cloud.test.ts`): only `.nam` files, safe names, no folders, 4 MB per file (Vercel's server upload limit).
+- In the picker, the cloud button opens a panel: sign in, list, use (the file is copied into the browser's own library, then selected), upload, delete. Used models stay in the browser, so loading is local and offline.
+- Not verified against a real store yet. Licences still apply to models you did not capture yourself: keep this library private.

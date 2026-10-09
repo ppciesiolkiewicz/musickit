@@ -4,9 +4,61 @@ import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } fro
 import Icon from "../Icon";
 import Modal from "../Modal";
 import { isPinned, togglePin, usePins } from "./fxPins";
-import { EFFECT_DEFS, EFFECT_KINDS, getChoice, type EffectKind, type EffectSpec, type ParamDef } from "@/lib/looper/engine";
+import { EFFECT_DEFS, EFFECT_KINDS, getChoice, type CloudSource, type EffectKind, type EffectSpec, type ParamDef } from "@/lib/looper/engine";
 
 const ibtn = "grid h-8 min-w-8 place-items-center rounded-lg border border-slate-700 bg-slate-900 px-1.5 text-xs text-slate-200 transition hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
+
+/** The private online library: sign in with the site password, pick a model to use (it is copied into the browser), add or remove models. */
+function CloudPanel({ cloud, accept, onPick }: { cloud: CloudSource; accept?: string; onPick: (id: number) => void }) {
+  const [pw, setPw] = useState(cloud.getPassword());
+  const [items, setItems] = useState<{ path: string; name: string; size: number }[] | null>(null);
+  const [msg, setMsg] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const file = useRef<HTMLInputElement>(null);
+  const load = async () => {
+    setBusy(true);
+    const r = await cloud.list();
+    setBusy(false);
+    if ("error" in r) {
+      setItems(null);
+      setMsg(r.error);
+    } else {
+      setItems(r.models);
+      setMsg(null);
+    }
+  };
+  useEffect(() => {
+    void load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const use = async (m: { path: string; name: string; size: number }) => {
+    setBusy(true);
+    const r = await cloud.use(m);
+    setBusy(false);
+    if ("error" in r) setMsg(r.error);
+    else onPick(r.id);
+  };
+  return (
+    <div className="flex flex-col gap-1.5 rounded-lg border border-slate-700 bg-slate-900/60 p-2 text-xs text-slate-300">
+      <div className="flex items-center gap-1.5">
+        <input type="password" value={pw} onChange={(e) => setPw(e.target.value)} placeholder="Site password" aria-label="Site password" className="min-w-0 flex-1 rounded-md border border-slate-700 bg-slate-950 px-2 py-1 text-xs text-slate-200" />
+        <button type="button" className={ibtn} onClick={() => { cloud.setPassword(pw); void load(); }} title="Sign in" aria-label="Sign in"><Icon name="check" /></button>
+        <button type="button" className={ibtn} onClick={() => file.current?.click()} title="Add model files to the cloud library" aria-label="Upload to the cloud library"><Icon name="upload" /></button>
+        <input ref={file} type="file" multiple accept={accept} className="hidden" onChange={async (e) => { const f = Array.from(e.target.files ?? []) as File[]; e.target.value = ""; if (!f.length) return; setBusy(true); setMsg(await cloud.upload(f)); await load(); }} />
+      </div>
+      {busy && <p className="text-[11px] text-slate-500">Working...</p>}
+      {msg && <p className="text-[11px] text-rose-300" role="alert">{msg}</p>}
+      {items && items.length === 0 && <p className="text-[11px] text-slate-500">The library is empty. Upload a model.</p>}
+      {items && items.map((m) => (
+        <div key={m.path} className="flex items-center gap-1.5">
+          <button type="button" className="min-w-0 flex-1 truncate rounded-md px-1.5 py-1 text-left hover:bg-slate-800" onClick={() => void use(m)} title="Use this model">{m.name.replace(/\.nam$/i, "")}</button>
+          <span className="tabular-nums text-[11px] text-slate-500">{Math.max(1, Math.round(m.size / 1024))} KB</span>
+          <button type="button" className={ibtn} onClick={async () => { setMsg(await cloud.remove(m)); await load(); }} title="Delete from the cloud library" aria-label={`Delete ${m.name}`}><Icon name="trash" size={14} /></button>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 /** A picker over a registered choice source (the amp models): select, add files with the button or by dropping them. */
 function ChoiceParam({ p, value, label, onChange }: { p: ParamDef; value: number; label: string; onChange: (v: number) => void }) {
@@ -18,6 +70,7 @@ function ChoiceParam({ p, value, label, onChange }: { p: ParamDef; value: number
   );
   const [error, setError] = useState<string | null>(null);
   const [over, setOver] = useState(false);
+  const [cloudOpen, setCloudOpen] = useState(false);
   const pending = useRef<number | null>(null);
   const input = useRef<HTMLInputElement>(null);
   // after files are added, pick the newest one
@@ -62,6 +115,7 @@ function ChoiceParam({ p, value, label, onChange }: { p: ParamDef; value: number
             <option key={o.id} value={o.id}>{o.name}</option>
           ))}
         </select>
+        {source.cloud && <button type="button" className={`${ibtn} ${cloudOpen ? "border-sky-500" : ""}`} aria-pressed={cloudOpen} onClick={() => setCloudOpen((v) => !v)} title="Private cloud library" aria-label="Private cloud library"><Icon name="cloud" /></button>}
         {source.addFiles && (
           <>
             <button type="button" className={ibtn} onClick={() => input.current?.click()} title="Add model files, or drop them here" aria-label="Add model files"><Icon name="upload" /></button>
@@ -69,6 +123,7 @@ function ChoiceParam({ p, value, label, onChange }: { p: ParamDef; value: number
           </>
         )}
       </div>
+      {cloudOpen && source.cloud && <CloudPanel cloud={source.cloud} accept={source.accept} onPick={(id) => { onChange(id); setCloudOpen(false); }} />}
       {note && <p className={`text-[11px] ${note.warn ? "text-amber-300" : "text-slate-500"}`}>{note.text}</p>}
       {error && <p className="text-[11px] text-rose-300" role="alert">{error}</p>}
     </div>

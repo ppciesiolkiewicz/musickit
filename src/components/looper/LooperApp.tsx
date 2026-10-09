@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { LooperEngine, EFFECT_DEFS, EFFECT_KINDS, registerChoice, setNamFactory, type LooperSnapshot } from "@/lib/looper/engine";
-import { createNamEffect, getModelLibrary, speedNote } from "@/features/nam";
+import { createCloud, createNamEffect, getModelLibrary, speedNote } from "@/features/nam";
 import LooperSettings from "./LooperSettings";
 import Mixer, { type MixerAlign } from "./Mixer";
 import HistoryPanel from "./HistoryPanel";
@@ -60,6 +60,7 @@ function wireNam() {
   const lib = getModelLibrary();
   setNamFactory((ctx, p) => createNamEffect(ctx, p, lib));
   registerChoice("nam-model", {
+    cloud: createCloud(lib),
     accept: ".nam",
     // useSyncExternalStore needs the same array back until something changes (a new array every call loops forever: React error 185)
     options: (() => {

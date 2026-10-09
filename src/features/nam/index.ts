@@ -14,3 +14,4 @@
 export { createNamEffect, ensureNamWorklet, type ModelSource, type NamEffectNode } from "./host";
 export { getModelLibrary, type ModelRecord } from "./library";
 export { levelMatchDb, readNam, speedNote, type NamInfo } from "./info";
+export { createCloud, type Cloud, type CloudModel } from "./cloud";

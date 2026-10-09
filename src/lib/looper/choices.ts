@@ -9,7 +9,19 @@ export interface ChoiceOption {
   name: string;
 }
 
+/** An optional private online library next to the local options (the app supplies it; the looper only draws it). */
+export interface CloudSource {
+  getPassword(): string;
+  setPassword(v: string): void;
+  list(): Promise<{ models: { path: string; name: string; size: number }[] } | { error: string }>;
+  /** Bring one model into the local options; resolves to the option id, or an error. */
+  use(m: { path: string; name: string; size: number }): Promise<{ id: number } | { error: string }>;
+  upload(files: File[]): Promise<string | null>;
+  remove(m: { path: string; name: string; size: number }): Promise<string | null>;
+}
+
 export interface ChoiceSource {
+  cloud?: CloudSource;
   options(): ChoiceOption[];
   subscribe(fn: () => void): () => void;
   /** Add files (a drop or the file input); resolves to an error message, or null when all went well. */
