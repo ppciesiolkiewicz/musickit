@@ -23,10 +23,12 @@ interface Settings {
 function readSettings(): Settings {
   try {
     const v = JSON.parse(window.localStorage.getItem(SETTINGS) ?? "null");
-    if (v && typeof v === "object") const keys: Record<string, string> = {};
+    if (v && typeof v === "object") {
+      const keys: Record<string, string> = {};
       if (v.ownKeys && typeof v.ownKeys === "object") for (const [k, x] of Object.entries(v.ownKeys)) keys[k] = String(x);
       else if (v.ownKey) keys.elevenlabs = String(v.ownKey);
       return { sitePassword: String(v.sitePassword ?? v.accessCode ?? ""), ownKeys: keys, remember: Boolean(v.remember) };
+    }
   } catch {
     /* ignore */
   }
