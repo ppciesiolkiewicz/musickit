@@ -139,3 +139,5 @@ The wheel zoom on the canvas is proportional to the wheel movement (gentle on a 
 
 - The mixer is three accordions: Inputs, Buses and master, and How it is connected. Each folds away (remembered in `musickit.looper.mixerSections`); in widget mode the open connection diagram takes all the space that is left and scales to fit.
 - Canvas widgets resize from all four corners (the opposite corner stays put; minimum 260 x 140). The stage scales up to 4x so a large Looping widget is filled by the stage.
+
+Output channels: when the chosen output has more than two channels (an interface such as a Scarlett), Looper settings shows "Output channels" and the whole mix (loops, monitoring, metronome, piano) plays to the chosen pair (1-2, 3-4, ...). The pair is saved in `musickit.looper.output.pair`. Pair 1-2 keeps the plain stereo path. Chrome reports an interface's channel count only after the device is chosen.

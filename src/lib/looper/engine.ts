@@ -93,6 +93,9 @@ export interface LooperSnapshot {
   /** audio outputs the browser lists, the one in use ("" = the system default), and whether this browser can choose one */
   outputs: OutputDevice[];
   outputId: string;
+  /** how many channels the chosen output has, and which pair (0 = 1-2, 1 = 3-4, ...) the looper plays to */
+  outputChannels: number;
+  outputPair: number;
   canChooseOutput: boolean;
   /** the input strips of the mixer */
   inputs: InputInfo[];
@@ -172,6 +175,10 @@ export class LooperEngine {
   private masterVolume = 1;
   private masterEffects: EffectSpec[] = [];
   private masterFader: GainNode | null = null;
+  private mainOut: GainNode | null = null;
+  private outSplit: ChannelSplitterNode | null = null;
+  private outMerger: ChannelMergerNode | null = null;
+  private outputPair = 0;
   private masterPre: EffectChain | null = null;
   private masterPost: EffectChain | null = null;
   private masterMeter: AnalyserNode | null = null;
@@ -229,7 +236,7 @@ export class LooperEngine {
 
   getSnapshot = () => this.snap;
 
-  private meta = { status: "idle" as LooperSnapshot["status"], error: null as string | null, devices: [] as InputDevice[], outputs: [] as OutputDevice[], outputId: "", canChooseOutput: false, latencyMs: 0 };
+  private meta = { status: "idle" as LooperSnapshot["status"], error: null as string | null, devices: [] as InputDevice[], outputs: [] as OutputDevice[], outputId: "", outputChannels: 2, outputPair: 0, canChooseOutput: false, latencyMs: 0 };
 
   private buildSnapshot(patch: Partial<typeof this.meta> = {}): LooperSnapshot {
     this.meta = { ...this.meta, ...patch };
@@ -587,8 +594,10 @@ export class LooperEngine {
       await this.refreshDevices().catch(() => undefined);
       // the output used last time, if it is still there
       try {
+        this.outputPair = Math.max(0, Number(window.localStorage.getItem(OUTPUT_KEY + ".pair")) || 0);
         const saved = window.localStorage.getItem(OUTPUT_KEY);
         if (saved && this.meta.outputs.some((o) => o.id === saved)) await this.setOutputDevice(saved);
+        this.routeMainOut();
       } catch {
         /* ignore */
       }
@@ -619,7 +628,12 @@ export class LooperEngine {
     this.master.connect(this.masterPre.input);
     this.masterPre.output.connect(this.masterFader);
     this.masterFader.connect(this.masterPost.input);
-    this.masterPost.output.connect(ctx.destination);
+    // everything audible ends at mainOut, which is wired to the chosen pair of output channels
+    this.mainOut = ctx.createGain();
+    this.mainOut.channelCount = 2;
+    this.mainOut.channelCountMode = "explicit";
+    this.masterPost.output.connect(this.mainOut);
+    this.routeMainOut();
     this.masterMeter = ctx.createAnalyser();
     this.masterMeter.fftSize = 512;
     this.masterPost.output.connect(this.masterMeter);
@@ -632,7 +646,7 @@ export class LooperEngine {
     });
     this.scalePianos.forEach((p) => this.attachScalePiano(p));
     this.mixer.attach(ctx, this.master);
-    this.metronome.attach(ctx, ctx.destination);
+    this.metronome.attach(ctx, this.mainOut);
     this.analyser = ctx.createAnalyser();
     this.analyser.fftSize = 1024;
     this.mixer.output!.connect(this.analyser);
@@ -674,10 +688,63 @@ export class LooperEngine {
       } catch {
         /* ignore */
       }
+      this.routeMainOut();
       this.emit({ outputId: id });
     } catch {
       this.emit({ outputId: this.meta.outputId });
     }
+  }
+
+  /** Wire mainOut to the chosen pair of the output's channels. Pair 0 (or a stereo output) is the plain stereo path. */
+  private routeMainOut() {
+    const ctx = this.ctx;
+    const out = this.mainOut;
+    if (!ctx || !out) return;
+    try {
+      out.disconnect();
+      this.outSplit?.disconnect();
+      this.outMerger?.disconnect();
+    } catch {
+      /* nothing connected yet */
+    }
+    this.outSplit = this.outMerger = null;
+    const n = Math.max(2, ctx.destination.maxChannelCount || 2);
+    const pair = Math.min(this.outputPair, Math.floor(n / 2) - 1);
+    if (n <= 2 || pair <= 0) {
+      try {
+        ctx.destination.channelCount = 2;
+        ctx.destination.channelInterpretation = "speakers";
+      } catch {
+        /* keep the browser's choice */
+      }
+      out.connect(ctx.destination);
+    } else {
+      try {
+        ctx.destination.channelCount = n;
+        ctx.destination.channelCountMode = "explicit";
+        ctx.destination.channelInterpretation = "discrete";
+      } catch {
+        /* keep the browser's choice */
+      }
+      this.outSplit = ctx.createChannelSplitter(2);
+      this.outMerger = ctx.createChannelMerger(n);
+      out.connect(this.outSplit);
+      this.outSplit.connect(this.outMerger, 0, pair * 2);
+      this.outSplit.connect(this.outMerger, 1, pair * 2 + 1);
+      this.outMerger.connect(ctx.destination);
+    }
+    this.emit({ outputChannels: n, outputPair: Math.max(0, pair) });
+  }
+
+  /** Play to the Nth pair of the output's channels (0 = outputs 1-2, 1 = outputs 3-4 ...). Only a multi-channel interface has more than one. */
+  setOutputPair(pair: number) {
+    this.outputPair = Math.max(0, Math.floor(pair) || 0);
+    try {
+      window.localStorage.setItem(OUTPUT_KEY + ".pair", String(this.outputPair));
+    } catch {
+      /* ignore */
+    }
+    this.routeMainOut();
   }
 
   setLatencyMs(ms: number) {
@@ -1335,6 +1402,7 @@ export class LooperEngine {
     this.masterPre = null;
     this.masterPost = null;
     this.masterFader = null;
+    this.mainOut = this.outSplit = this.outMerger = null;
     this.mixer.dispose();
     try {
       this.worklet?.disconnect();

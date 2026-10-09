@@ -50,6 +50,16 @@ export default function LooperSettings({ engine, snap, getLevel, onClose }: { en
               ))}
             </select>
           </label>
+          {snap.outputChannels > 2 && (
+            <label className="flex items-center gap-2 text-xs text-slate-400">
+              Output channels
+              <select className={`${field} !py-1 !text-xs`} value={snap.outputPair} onChange={(e) => engine.setOutputPair(Number(e.target.value))} aria-label="Pair of output channels">
+                {Array.from({ length: Math.floor(snap.outputChannels / 2) }, (_, i) => (
+                  <option key={i} value={i}>{i * 2 + 1} and {i * 2 + 2}{i === 0 ? " (main)" : ""}</option>
+                ))}
+              </select>
+            </label>
+          )}
           {ready && !snap.canChooseOutput && <p className="text-xs text-amber-300">This browser cannot choose the output. Use Chrome or Edge, or set the interface as the system output.</p>}
           <p className="text-xs text-slate-500">The global output is the master bus: this is the same volume and effect chain as the Master row in the mixer.</p>
         </Group>
