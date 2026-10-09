@@ -104,7 +104,7 @@ export default function LooperApp() {
   const [historyOpen, setHistoryOpen] = useState(false);
   const [macrosOpen, setMacrosOpen] = useState(false);
   const [layoutReset, setLayoutReset] = useState(0);
-  const [widgetMode, setWidgetMode] = useStored("musickit.looper.widgetMode", false);
+  const [widgetMode, setWidgetMode] = useStored("musickit.looper.widgetMode", true);
   const [align, setAlign] = useStored<MixerAlign>("musickit.looper.mixerAlign", "rows");
   const hist = useSyncExternalStore(engine.history.subscribe, engine.history.getState, engine.history.getState);
   const canUndo = hist.cursor > 0, canRedo = hist.cursor < hist.entries.length;
@@ -183,8 +183,6 @@ export default function LooperApp() {
       {widgetMode ? (
         <WidgetBoard
           storageKey="musickit.looper.widgets"
-          height={760}
-          resizableHeight
           defaults={splitLayout(0.42)}
           resetSignal={layoutReset}
           widgets={[{ id: "mixer", title: "Mixer", node: mixer(true) }, { id: "looping", title: "Looping", node: looping(true) }]}

@@ -68,8 +68,22 @@ export default function LoopStage({ engine, snap, getPosition, openSeqs, onToggl
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
+  // Ctrl/Cmd and the wheel zoom the stage (a native listener: React's wheel handlers are passive and could not stop the page zooming)
+  const scaleRef = useRef(1) as { current: number };
+  useEffect(() => {
+    const el = frame.current;
+    if (!el) return;
+    const onWheel = (e: WheelEvent) => {
+      if (!(e.ctrlKey || e.metaKey)) return;
+      e.preventDefault();
+      setZoom(Math.max(MIN_ZOOM, Math.min(2.5, +(scaleRef.current * (e.deltaY < 0 ? 1.1 : 1 / 1.1)).toFixed(2))));
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, []);
   const fit = Math.max(MIN_ZOOM, Math.min(1.6, (width - 2) / canvasW));
   const scale = zoom ?? fit;
+  scaleRef.current = scale;
   const step = (f: number) => setZoom(Math.max(MIN_ZOOM, Math.min(2.5, +(scale * f).toFixed(2))));
 
   return (
@@ -87,11 +101,6 @@ export default function LoopStage({ engine, snap, getPosition, openSeqs, onToggl
       <div
         ref={frame}
         className="max-h-[75vh] overflow-auto rounded-xl border border-slate-800 bg-slate-950/60"
-        onWheel={(e) => {
-          if (!(e.ctrlKey || e.metaKey)) return;
-          e.preventDefault();
-          step(e.deltaY < 0 ? 1.1 : 1 / 1.1);
-        }}
         onPointerDown={(e) => {
           // drag empty space to pan
           const el = frame.current;

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, type PointerEvent as RPointerEvent, type ReactNode } from "react";
 import Icon from "@/components/Icon";
+import InfoTip from "@/components/InfoTip";
 import { clampWidget, moveWidget, raise, resizeWidget, sanitiseLayout, tileLayout, type Bounds, type DefaultLayout, type Layout } from "./board";
 
 export interface BoardWidget {
@@ -12,60 +13,85 @@ export interface BoardWidget {
   onClose?: () => void;
 }
 
-const MIN_HEIGHT = 300, MAX_HEIGHT = 3000;
+/** The canvas is much larger than the screen: zoom out to see it all, pan to move around. */
+export const WORLD: Bounds = { w: 8000, h: 6000 };
+export const ZOOM = { min: 0.15, max: 2 };
+
+interface View {
+  zoom: number;
+  x: number;
+  y: number;
+}
+
+const clampZoom = (z: number) => Math.min(ZOOM.max, Math.max(ZOOM.min, z));
 
 /**
- * A board holding widgets. Each is dragged by its grip header and resized from the corner, and can never leave the board.
- * The layout and the board's height are remembered under `storageKey`. Raise `resetSignal` to put everything back in its default place.
+ * A canvas holding widgets. It fills the space it is given (the viewport below its top edge), and the widgets sit on a much larger
+ * world that you zoom (buttons, Ctrl/Cmd and the wheel) and pan (wheel, or drag empty space). Each widget is dragged by its grip header and
+ * resized from the corner. The layout and the view are remembered under `storageKey`. Raise `resetSignal` to put everything back.
  */
-export default function WidgetBoard({ widgets, storageKey, height = 720, resizableHeight = false, defaults = tileLayout, resetSignal = 0 }: {
+export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout, resetSignal = 0 }: {
   widgets: BoardWidget[];
   storageKey: string;
+  /** kept for older callers; the canvas always fills the space */
   height?: number;
   resizableHeight?: boolean;
   defaults?: DefaultLayout;
   resetSignal?: number;
 }) {
   const host = useRef<HTMLDivElement>(null);
-  const [bounds, setBounds] = useState<Bounds | null>(null);
+  const [vp, setVp] = useState<Bounds | null>(null);
+  const [top, setTop] = useState(0);
   const [layout, setLayout] = useState<Layout | null>(null);
   const [order, setOrder] = useState<string[]>([]);
-  const [h, setH] = useState(height);
-  const drag = useRef<{ id: string; mode: "move" | "size" | "board"; px: number; py: number; start: { x: number; y: number; w: number; h: number } } | null>(null);
+  const [view, setView] = useState<View>({ zoom: 1, x: 0, y: 0 });
+  const viewRef = useRef(view) as { current: View };
+  viewRef.current = view;
+  const drag = useRef<{ id: string; mode: "move" | "size" | "pan"; px: number; py: number; start: { x: number; y: number; w: number; h: number } } | null>(null);
   const ids = widgets.map((w) => w.id);
   const idKey = ids.join("|");
 
-  const save = useCallback((l: Layout | null, boardH: number) => {
+  const save = useCallback((l: Layout | null, v: View) => {
     try {
-      window.localStorage.setItem(storageKey, JSON.stringify({ layout: l, height: boardH }));
+      window.localStorage.setItem(storageKey, JSON.stringify({ layout: l, view: v }));
     } catch {
       /* ignore */
     }
   }, [storageKey]);
 
-  // saved height
+  // saved view
   useEffect(() => {
     try {
-      const j = JSON.parse(window.localStorage.getItem(storageKey) ?? "null");
-      if (resizableHeight && typeof j?.height === "number") setH(Math.min(MAX_HEIGHT, Math.max(MIN_HEIGHT, j.height)));
+      const j = JSON.parse(window.localStorage.getItem(storageKey) ?? "null")?.view;
+      if (j && [j.zoom, j.x, j.y].every((n: unknown) => typeof n === "number" && Number.isFinite(n))) setView({ zoom: clampZoom(j.zoom), x: j.x, y: j.y });
     } catch {
       /* ignore */
     }
-  }, [storageKey, resizableHeight]);
+  }, [storageKey]);
 
+  // the canvas fills the window below its top edge
   useEffect(() => {
     const el = host.current;
     if (!el) return;
-    const measure = () => setBounds({ w: Math.round(el.clientWidth), h: Math.round(el.clientHeight) });
+    const measure = () => {
+      const t = Math.max(0, Math.round(el.getBoundingClientRect().top + window.scrollY));
+      setTop(t);
+      setVp({ w: Math.round(el.clientWidth), h: Math.max(420, Math.round(window.innerHeight - el.getBoundingClientRect().top - 8)) });
+    };
     measure();
+    window.addEventListener("resize", measure);
     const ro = new ResizeObserver(measure);
     ro.observe(el);
-    return () => ro.disconnect();
+    return () => {
+      window.removeEventListener("resize", measure);
+      ro.disconnect();
+    };
   }, []);
 
-  // fit to the board whenever it, or the set of widgets, changes
+  // widgets that have no saved place start tiled to the screen at 100%
   useEffect(() => {
-    if (!bounds || bounds.w < 1 || bounds.h < 1) return;
+    if (!vp || vp.w < 1) return;
+    const screen: DefaultLayout = (list) => defaults(list, vp);
     setLayout((cur) => {
       let raw: unknown = cur;
       if (!raw) {
@@ -75,11 +101,11 @@ export default function WidgetBoard({ widgets, storageKey, height = 720, resizab
           raw = null;
         }
       }
-      return sanitiseLayout(raw, idKey ? idKey.split("|") : [], bounds, defaults);
+      return sanitiseLayout(raw, idKey ? idKey.split("|") : [], WORLD, screen);
     });
     setOrder((o) => [...o.filter((x) => idKey.split("|").includes(x)), ...idKey.split("|").filter((x) => !o.includes(x))]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bounds, idKey, storageKey]);
+  }, [vp?.w === undefined, idKey, storageKey]);
 
   const first = useRef(true);
   useEffect(() => {
@@ -87,55 +113,126 @@ export default function WidgetBoard({ widgets, storageKey, height = 720, resizab
       first.current = false;
       return;
     }
-    if (!bounds) return;
-    const l = defaults(idKey ? idKey.split("|") : [], bounds);
+    if (!vp) return;
+    const l = defaults(idKey ? idKey.split("|") : [], vp);
+    const v = { zoom: 1, x: 0, y: 0 };
     setLayout(l);
-    save(l, h);
+    setView(v);
+    save(l, v);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resetSignal]);
+
+  const zoomAt = useCallback((factor: number, cx?: number, cy?: number) => {
+    const el = host.current;
+    const v = viewRef.current;
+    const z = clampZoom(+(v.zoom * factor).toFixed(3));
+    const px = cx ?? (el ? el.clientWidth / 2 : 0);
+    const py = cy ?? (vp ? vp.h / 2 : 0);
+    // keep the point under the cursor fixed
+    const next = { zoom: z, x: px - ((px - v.x) / v.zoom) * z, y: py - ((py - v.y) / v.zoom) * z };
+    setView(next);
+    return next;
+  }, [vp]);
+
+  // wheel: Ctrl/Cmd zooms at the pointer, a plain wheel over empty canvas pans. (Not passive, so it can stop the page scrolling.)
+  useEffect(() => {
+    const el = host.current;
+    if (!el) return;
+    const onWheel = (e: WheelEvent) => {
+      if (e.defaultPrevented) return;
+      const overWidget = (e.target as HTMLElement).closest("[data-widget]");
+      if (e.ctrlKey || e.metaKey) {
+        e.preventDefault();
+        const r = el.getBoundingClientRect();
+        const next = zoomAt(e.deltaY < 0 ? 1.1 : 1 / 1.1, e.clientX - r.left, e.clientY - r.top);
+        save(layoutRef.current, next);
+      } else if (!overWidget) {
+        e.preventDefault();
+        const v = viewRef.current;
+        const next = { ...v, x: v.x - e.deltaX, y: v.y - e.deltaY };
+        setView(next);
+      }
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, [zoomAt, save]);
+  const layoutRef = useRef<Layout | null>(null) as { current: Layout | null };
+  layoutRef.current = layout;
 
   const begin = (id: string, mode: "move" | "size") => (e: RPointerEvent) => {
     if (!layout || !layout[id]) return;
     e.preventDefault();
+    e.stopPropagation();
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     drag.current = { id, mode, px: e.clientX, py: e.clientY, start: layout[id] };
     setOrder((o) => raise(o, id));
   };
-  const beginBoard = (e: RPointerEvent) => {
-    e.preventDefault();
+  const beginPan = (e: RPointerEvent) => {
+    if (e.target !== e.currentTarget && !(e.target as HTMLElement).dataset.canvas) return;
+    if (e.button !== 0 && e.button !== 1) return;
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-    drag.current = { id: "", mode: "board", px: e.clientX, py: e.clientY, start: { x: 0, y: 0, w: 0, h } };
+    drag.current = { id: "", mode: "pan", px: e.clientX, py: e.clientY, start: { x: viewRef.current.x, y: viewRef.current.y, w: 0, h: 0 } };
   };
   const move = (e: RPointerEvent) => {
     const d = drag.current;
     if (!d) return;
     const dx = e.clientX - d.px, dy = e.clientY - d.py;
-    if (d.mode === "board") {
-      setH(Math.min(MAX_HEIGHT, Math.max(MIN_HEIGHT, d.start.h + dy)));
+    if (d.mode === "pan") {
+      setView((v) => ({ ...v, x: d.start.x + dx, y: d.start.y + dy }));
       return;
     }
-    if (!bounds) return;
-    const next = d.mode === "move" ? moveWidget(d.start, dx, dy, bounds) : resizeWidget(d.start, dx, dy, bounds);
+    const z = viewRef.current.zoom;
+    const next = d.mode === "move" ? moveWidget(d.start, dx / z, dy / z, WORLD) : resizeWidget(d.start, dx / z, dy / z, WORLD);
     setLayout((l) => (l ? { ...l, [d.id]: next } : l));
   };
   const end = () => {
     if (!drag.current) return;
     drag.current = null;
-    setLayout((l) => {
-      save(l, h);
-      return l;
-    });
+    save(layoutRef.current, viewRef.current);
   };
 
+  /** Zoom and move so that every widget is in view. */
+  const fitAll = () => {
+    if (!layout || !vp) return;
+    const rs = widgets.map((w) => layout[w.id]).filter(Boolean);
+    if (!rs.length) return;
+    const x0 = Math.min(...rs.map((r) => r.x)), y0 = Math.min(...rs.map((r) => r.y));
+    const x1 = Math.max(...rs.map((r) => r.x + r.w)), y1 = Math.max(...rs.map((r) => r.y + r.h));
+    const z = clampZoom(Math.min(1.5, (vp.w - 32) / (x1 - x0), (vp.h - 32) / (y1 - y0)));
+    const v = { zoom: z, x: (vp.w - (x1 - x0) * z) / 2 - x0 * z, y: (vp.h - (y1 - y0) * z) / 2 - y0 * z };
+    setView(v);
+    save(layout, v);
+  };
+  const tbtn = "grid h-6 min-w-6 place-items-center rounded-md border border-slate-700/80 bg-slate-900/90 px-1 text-[10px] text-slate-300 hover:border-slate-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
+  void top;
+
   return (
-    <div className="flex flex-col gap-0">
-      <div ref={host} className="relative w-full overflow-hidden rounded-xl border border-dashed border-slate-800" style={{ height: h }}>
+    <div
+      ref={host}
+      className="relative w-full touch-none select-none overflow-hidden rounded-xl border border-slate-800 bg-slate-950/60"
+      style={{ height: vp?.h ?? 600, backgroundImage: "radial-gradient(circle, #1e293b 1px, transparent 1px)", backgroundSize: `${24 * view.zoom}px ${24 * view.zoom}px`, backgroundPosition: `${view.x}px ${view.y}px` }}
+      onPointerDown={beginPan}
+      onPointerMove={move}
+      onPointerUp={end}
+      onPointerCancel={end}
+    >
+      <div className="absolute right-2 top-2 z-[1000] flex items-center gap-1" onPointerDown={(e) => e.stopPropagation()}>
+        <InfoTip label="Canvas help">
+          <p><b>Zoom:</b> the minus and plus buttons, or Ctrl (Cmd) and the mouse wheel or a trackpad pinch. The fit button shows every widget.</p>
+          <p><b>Move around:</b> the wheel or two-finger scroll, or drag empty space.</p>
+          <p><b>Widgets:</b> drag a title to move one, the corner to resize it. The canvas is much bigger than the screen, so zoom out to place more.</p>
+        </InfoTip>
+        <button type="button" className={tbtn} onClick={() => { const v = zoomAt(1 / 1.25); save(layout, v); }} title="Zoom out" aria-label="Zoom out"><Icon name="minus" size={12} /></button>
+        <button type="button" className={`${tbtn} w-12 tabular-nums`} onClick={() => { const v = { zoom: 1, x: 0, y: 0 }; setView(v); save(layout, v); }} title="Back to 100%" aria-label="Zoom to 100%">{Math.round(view.zoom * 100)}%</button>
+        <button type="button" className={tbtn} onClick={() => { const v = zoomAt(1.25); save(layout, v); }} title="Zoom in" aria-label="Zoom in"><Icon name="plus" size={12} /></button>
+        <button type="button" className={tbtn} onClick={fitAll} title="Show every widget" aria-label="Fit all widgets"><Icon name="layout-dashboard" size={12} /></button>
+      </div>
+      <div data-canvas="1" className="absolute left-0 top-0" style={{ width: WORLD.w, height: WORLD.h, transform: `translate(${view.x}px, ${view.y}px) scale(${view.zoom})`, transformOrigin: "0 0" }}>
         {layout &&
           widgets.map((w) => {
-            const r = layout[w.id] ?? (bounds ? clampWidget({ x: 0, y: 0, w: 380, h: 260 }, bounds) : null);
-            if (!r) return null;
+            const r = layout[w.id] ?? clampWidget({ x: 0, y: 0, w: 380, h: 260 }, WORLD);
             return (
-              <div key={w.id} className="absolute flex flex-col overflow-hidden rounded-xl border border-slate-600 bg-slate-950 shadow-lg shadow-black/40" style={{ left: r.x, top: r.y, width: r.w, height: r.h, zIndex: 1 + Math.max(0, order.indexOf(w.id)) }}>
+              <div data-widget="1" key={w.id} className="absolute flex select-text flex-col overflow-hidden rounded-xl border border-slate-600 bg-slate-950 shadow-lg shadow-black/40" style={{ left: r.x, top: r.y, width: r.w, height: r.h, zIndex: 1 + Math.max(0, order.indexOf(w.id)) }}>
                 <div
                   className="flex h-7 shrink-0 cursor-grab touch-none select-none items-center gap-1.5 border-b border-slate-700 bg-slate-900 px-2 text-xs text-slate-300 active:cursor-grabbing"
                   onPointerDown={begin(w.id, "move")}
@@ -152,7 +249,7 @@ export default function WidgetBoard({ widgets, storageKey, height = 720, resizab
                     </button>
                   )}
                 </div>
-                <div className="min-h-0 flex-1 overflow-auto p-1" onPointerDown={() => setOrder((o) => raise(o, w.id))}>{w.node}</div>
+                <div className="min-h-0 flex-1 touch-auto overflow-auto p-1" onPointerDown={(e) => { e.stopPropagation(); setOrder((o) => raise(o, w.id)); }}>{w.node}</div>
                 <div
                   className="absolute bottom-0 right-0 h-5 w-5 cursor-nwse-resize touch-none"
                   style={{ background: "linear-gradient(135deg, transparent 50%, #64748b 50%, #64748b 56%, transparent 56%, transparent 66%, #64748b 66%, #64748b 72%, transparent 72%)" }}
@@ -167,18 +264,6 @@ export default function WidgetBoard({ widgets, storageKey, height = 720, resizab
             );
           })}
       </div>
-      {resizableHeight && (
-        <div
-          className="mx-auto mt-1 h-2 w-24 cursor-ns-resize touch-none rounded-full bg-slate-700 hover:bg-slate-500"
-          onPointerDown={beginBoard}
-          onPointerMove={move}
-          onPointerUp={end}
-          onPointerCancel={end}
-          role="separator"
-          aria-label="Make the board taller or shorter"
-          title="Drag to make the board taller or shorter"
-        />
-      )}
     </div>
   );
 }

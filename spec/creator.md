@@ -29,3 +29,7 @@ Write a component in `plugins/` that uses `useCreatorKey()` and handles `ctx ===
 - `features/sound`: playing notes
 - `features/widgets`: the board
 - `features/creator/model`: key choice, circle maths, voicings, general content (tested)
+
+## Canvas
+
+The plugins sit on a canvas that fills the window below the plugin buttons. It is larger than the screen (8000 x 6000): zoom with the buttons or Ctrl/Cmd and the wheel (15% to 200%), pan with the wheel or by dragging empty space, fit shows every plugin, and the (i) button explains this. Layout and view are saved in `musickit.creator.board`.

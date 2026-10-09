@@ -123,3 +123,7 @@ A tenth effect kind, `nam`, runs Neural Amp Modeler models (`.nam`, including A2
 - "Hear it" plays what the strip sends to the recorder: pre-fader effects, the fader and post-fader effects. (It used to tap before the fader, so post-fader effects and the fader were not heard live.) Muting a strip also silences its monitoring.
 - Input gain goes up to 400% (`MAX_INPUT_GAIN`) because an instrument straight from an audio interface is often quiet; the recording level follows the strip gain.
 - Looper settings, "Output (master bus)", has "Play through": the audio output for everything (loops, monitoring, metronome, piano), set with `AudioContext.setSinkId` in browsers that have it (Chrome, Edge). The choice is saved in `musickit.looper.output` and restored when the device is still listed. Device names need microphone permission to show, which a connected input gives.
+
+## Canvas layout (widget mode, now the default)
+
+The Mixer and Looping sections sit on a canvas that fills the window below the header. The canvas is much larger than the screen (8000 x 6000), zooms from 15% to 200% (buttons, Ctrl/Cmd and the wheel, trackpad pinch) and pans with the wheel or by dragging empty space; the fit button shows every widget and the (i) button explains this. The widget layout button switches back to the stacked page. Layout and view are saved in `musickit.looper.widgets`.

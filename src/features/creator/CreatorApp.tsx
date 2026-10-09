@@ -65,7 +65,7 @@ function Creator() {
         <button type="button" className="ml-auto grid h-8 w-8 place-items-center rounded-lg border border-slate-700 bg-slate-900 text-slate-200 hover:border-slate-500" onClick={() => setReset((n) => n + 1)} title="Arrange the plugins neatly" aria-label="Arrange the plugins neatly"><Icon name="rotate-ccw" /></button>
       </div>
       {widgets.length ? (
-        <WidgetBoard widgets={widgets} storageKey="musickit.creator.board" height={760} resizableHeight resetSignal={reset} />
+        <WidgetBoard widgets={widgets} storageKey="musickit.creator.board" resetSignal={reset} />
       ) : (
         <p className="rounded-xl border border-dashed border-slate-700 p-6 text-center text-sm text-slate-500">No plugins open. Switch some on above.</p>
       )}
