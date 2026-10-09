@@ -1,7 +1,7 @@
 "use client";
 
 import type { Shape } from "@/lib/chordKit/shapes";
-import { fmtInterval } from "@/lib/chordKit/labels";
+import { fmtInterval } from "@/features/theory/labels";
 import { intervalLabel, OPEN_PITCH, ROOT_INDEX } from "@/lib/chordKit/shapeTools";
 import { fretWidthFactor } from "./Fretboard";
 import { GROUP_SWATCH, swatchFor } from "./palette";

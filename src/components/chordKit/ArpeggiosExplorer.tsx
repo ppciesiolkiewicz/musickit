@@ -5,13 +5,13 @@ import Link from "next/link";
 import { VerticalBoard, vGeometry } from "./VerticalFretboard";
 import { KeyPicker, ModePicker } from "./KeyPicker";
 import { Badge, FretboardBase, fretGeometry } from "./Fretboard";
-import { Chip, ChipRow, DegreeLegend, Info } from "./ui";
+import { Chip, ChipRow, DegreeLegend, Info } from "@/components/ui";
 import { ARP_FRETS, ARP_QUALITIES, WINDOWS, arpeggioMidi, buildArpeggio, neckCells, type Arpeggio, type NeckCell } from "@/lib/chordKit/arpeggios";
-import { FAMILIES, makeKeyContext } from "@/lib/chordKit/theory";
-import { MODE_PAGES, degreeColour } from "@/lib/chordKit/scales";
+import { FAMILIES, makeKeyContext } from "@/features/theory/theory";
+import { MODE_PAGES, degreeColour } from "@/features/theory/scales";
 import { strum } from "@/lib/chordKit/playback";
-import { fmtDegree, noteLabel, type LabelSystem } from "@/lib/chordKit/labels";
-import { LabelSelect, useLabelSystem } from "./useLabelSystem";
+import { fmtDegree, noteLabel, type LabelSystem } from "@/features/theory/labels";
+import { LabelSelect, useLabelSystem } from "@/features/theory/useLabelSystem";
 
 const KINDS = [
   { id: "triad", label: "Scale triad" },

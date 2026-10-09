@@ -2,7 +2,7 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { SHAPES } from "./shapes";
 import { RICH_SHAPES, ROOT_INDEX, OPEN_PITCH, rootFretFor, shapeSemitones, keyEntries, matchesTags, tagCount, plainEntries } from "./shapeTools";
-import { FAMILIES, makeKeyContext, rotate, spell, TONICS, MODE_LIST } from "./theory";
+import { FAMILIES, makeKeyContext, rotate, spell, TONICS, MODE_LIST } from "@/features/theory/theory";
 import { PROG_LIST, resolveProgression, progressionSteps, chordInstances, NECK_FRETS } from "./progressions";
 import { STRING_ORDER } from "./shapeTools";
 
@@ -120,7 +120,7 @@ describe("progressions", () => {
 });
 
 import { triadVoicings, STRING_GROUPS, TRIAD_QUALITIES, INVERSIONS } from "./triads";
-import { MODE_PAGES, modeChords, relativesOf, degreeColour, DEGREE_COLOURS } from "./scales";
+import { MODE_PAGES, modeChords, relativesOf, degreeColour, DEGREE_COLOURS } from "@/features/theory/scales";
 
 describe("triads by string group", () => {
   it("every voicing is closed, has the right chord tones and stays on the neck", () => {
@@ -208,7 +208,7 @@ describe("arpeggios", () => {
   });
 });
 
-import { degreeLabels, stepPattern } from "./scales";
+import { degreeLabels, stepPattern } from "@/features/theory/scales";
 describe("degree labels", () => {
   it("labels Dorian and Lydian against the major scale", () => {
     assert.deepEqual(degreeLabels(makeKeyContext(0, 0, 1).steps), ["1", "2", "♭3", "4", "5", "6", "♭7"]);
@@ -255,7 +255,7 @@ describe("chord shapes for a mode chord", () => {
   });
 });
 
-import { extensionDegree, roleWithDegree } from "./scales";
+import { extensionDegree, roleWithDegree } from "@/features/theory/scales";
 import { shapeTones } from "./chordShapes";
 describe("extension degrees and shape tones", () => {
   it("maps 9/11/13 to 2/4/6", () => {
@@ -345,7 +345,7 @@ describe("sus and extension slots", () => {
   });
 });
 
-import { compareModes, MODE_GROUPS, noteAt } from "./modeGroups";
+import { compareModes, MODE_GROUPS, noteAt } from "@/features/theory/modeGroups";
 describe("mode group comparison", () => {
   it("major tonic chord modes share 1 3 5 and differ elsewhere", () => {
     const c = compareModes("tonic-major", 0);

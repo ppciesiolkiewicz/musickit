@@ -1,9 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Chip, ChipRow, Info } from "./ui";
-import { MODE_GROUPS, compareModes, noteAt } from "@/lib/chordKit/modeGroups";
-import { degreeColour } from "@/lib/chordKit/scales";
+import { Chip, ChipRow, Info } from "@/components/ui";
+import { MODE_GROUPS, compareModes, noteAt } from "@/features/theory/modeGroups";
+import { degreeColour } from "@/features/theory/scales";
 
 const colW = 62, rowH = 42, left = 112, top = 62, right = 120;
 

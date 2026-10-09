@@ -1,5 +1,5 @@
 import { SHAPES, type RootString, type Shape } from "./shapes";
-import { FAMILIES, MODE_LIST, type KeyContext, degreeLabel, shortModeName } from "./theory";
+import { FAMILIES, MODE_LIST, type KeyContext, degreeLabel, shortModeName } from "@/features/theory/theory";
 
 export type Difficulty = "easy" | "medium" | "hard";
 

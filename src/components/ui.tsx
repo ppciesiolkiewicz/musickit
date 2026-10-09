@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { DEGREE_COLOURS } from "@/lib/chordKit/scales";
+import { DEGREE_COLOURS } from "@/features/theory/scales";
 
 export function Chip({ on, onClick, children, count, title }: { on?: boolean; onClick?: () => void; children: ReactNode; count?: number; title?: string }) {
   return (
@@ -141,4 +141,4 @@ export function Stepper({ value, onDec, onInc, decDisabled, incDisabled, label }
   );
 }
 
-export { Modal } from "../Modal";
+export { Modal } from "./Modal";

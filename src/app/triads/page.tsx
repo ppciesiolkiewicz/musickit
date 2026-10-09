@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import PageShell from "@/components/chordKit/PageShell";
+import PageShell from "@/components/PageShell";
 import TriadsExplorer from "@/components/chordKit/TriadsExplorer";
 
 export const metadata: Metadata = {

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { LabelSelect } from "./chordKit/useLabelSystem";
+import { LabelSelect } from "@/features/theory/useLabelSystem";
 
 export const SITE_LINKS = [
   { href: "/", label: "Piano" },
@@ -8,6 +8,7 @@ export const SITE_LINKS = [
   { href: "/scales", label: "Scales" },
   { href: "/caged", label: "CAGED" },
   { href: "/arpeggios", label: "Arpeggios" },
+  { href: "/creator", label: "Creator" },
   { href: "/improv", label: "Improv" },
   { href: "/tuner", label: "Tuner" },
   { href: "/looper", label: "Looper" },

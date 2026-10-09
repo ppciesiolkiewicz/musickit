@@ -5,10 +5,10 @@ import Link from "next/link";
 import ShapeBrowser from "./ShapeBrowser";
 import { KeyPicker, ModePicker } from "./KeyPicker";
 import ChordBubbles from "./ChordBubbles";
-import { Chip, Info, Section } from "./ui";
+import { Chip, Info, Section } from "@/components/ui";
 import { keyEntries } from "@/lib/chordKit/shapeTools";
-import { FAMILIES, makeKeyContext } from "@/lib/chordKit/theory";
-import { MODE_PAGES, chordMidi } from "@/lib/chordKit/scales";
+import { FAMILIES, makeKeyContext } from "@/features/theory/theory";
+import { MODE_PAGES, chordMidi } from "@/features/theory/scales";
 import { strum } from "@/lib/chordKit/playback";
 
 /** Pick a key and mode; see every shape that plays a chord of that key, grouped by shape. */

@@ -83,3 +83,23 @@ src/
 - **react**, **react-dom**: UI
 - **@tonaljs/tonal**: Note frequencies, scales, chords
 - **tailwindcss**: Styling
+
+## Current layout (features)
+
+```
+src/
+├── app/                 routes (one thin page each)
+├── components/          shared UI only: Icon, Modal, FloatingWindow, SiteNav, PageShell, ui (chips, sections);
+│                        chordKit/ (guitar pages), looper/, improv/ (their screens)
+├── features/
+│   ├── sound/           one audio engine: context, samples, instruments, players, playback, keyboard
+│   ├── theory/          pure music theory shared by everything: modes, keys, chords, progressions, labels
+│   ├── widgets/         a board of movable, resizable panels (pure maths + view)
+│   ├── creator/         theory plugins on a board, following one optional key
+│   └── tuner/
+└── lib/
+    ├── chordKit/        guitar shapes, CAGED, arpeggios, triads (uses features/theory)
+    ├── looper/          the looper engine (imports nothing outside itself)
+    └── improv/
+```
+Features depend downwards: creator -> theory, sound, widgets. The looper, the guitar tools and the creator do not import each other.

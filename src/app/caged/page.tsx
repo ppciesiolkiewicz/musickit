@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import PageShell from "@/components/chordKit/PageShell";
+import PageShell from "@/components/PageShell";
 import CagedExplorer from "@/components/chordKit/CagedExplorer";
 
 export const metadata: Metadata = {

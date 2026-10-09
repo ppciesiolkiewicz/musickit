@@ -1,13 +1,13 @@
 "use client";
 
-import { fmtDegree } from "@/lib/chordKit/labels";
+import { fmtDegree } from "@/features/theory/labels";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { KeyPicker } from "./KeyPicker";
 import ModeCompare from "./ModeCompare";
-import { DegreeLegend, Info } from "./ui";
-import { FAMILIES, makeKeyContext } from "@/lib/chordKit/theory";
-import { MODE_PAGES, degreeColour, degreeLabels, relativesOf } from "@/lib/chordKit/scales";
+import { DegreeLegend, Info } from "@/components/ui";
+import { FAMILIES, makeKeyContext } from "@/features/theory/theory";
+import { MODE_PAGES, degreeColour, degreeLabels, relativesOf } from "@/features/theory/scales";
 
 const ORD = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th"];
 

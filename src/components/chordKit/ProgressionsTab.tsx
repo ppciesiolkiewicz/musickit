@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import ChordDiagram from "./ChordDiagram";
 import NeckDiagram from "./NeckDiagram";
-import { Chip, ChipRow, Info } from "./ui";
+import { Chip, ChipRow, Info } from "@/components/ui";
 import { DIFF_CLASS, HUES } from "./palette";
 import {
   PROG_LIST, NECK_HUES, NOTE_FROM_E, chordInstances, firstShapeFor, intervalText, nearestMoves, progressionSteps, resolveProgression,

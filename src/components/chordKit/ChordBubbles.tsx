@@ -2,9 +2,9 @@
 
 import { useMemo, useState, type ReactNode } from "react";
 import { HUES, swatchFor } from "./palette";
-import { Info } from "./ui";
-import { type DegreeChord, type KeyContext, type TriadQuality } from "@/lib/chordKit/theory";
-import { chordMidi } from "@/lib/chordKit/scales";
+import { Info } from "@/components/ui";
+import { type DegreeChord, type KeyContext, type TriadQuality } from "@/features/theory/theory";
+import { chordMidi } from "@/features/theory/scales";
 import { strum, strumShape } from "@/lib/chordKit/playback";
 import { shapesForTones } from "@/lib/chordKit/chordShapes";
 import ChordDiagram from "./ChordDiagram";

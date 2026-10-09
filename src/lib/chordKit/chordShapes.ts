@@ -1,6 +1,6 @@
 import { RICH_SHAPES, intervalLabel, rootFretFor, shapeSemitones, type Difficulty, type RichShape } from "./shapeTools";
-import { modeChords } from "./scales";
-import type { KeyContext } from "./theory";
+import { modeChords } from "@/features/theory/scales";
+import type { KeyContext } from "@/features/theory/theory";
 
 /** A guitar shape placed on one chord of a mode, ready to draw. */
 export interface ChordShapeChoice {

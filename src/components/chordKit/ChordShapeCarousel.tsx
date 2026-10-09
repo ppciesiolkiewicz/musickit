@@ -3,9 +3,9 @@
 import { useEffect, useMemo, useState } from "react";
 import ChordDiagram from "./ChordDiagram";
 import { DIFF_CLASS } from "./palette";
-import { Info } from "./ui";
+import { Info } from "@/components/ui";
 import { carouselStep, shapesForChord } from "@/lib/chordKit/chordShapes";
-import type { KeyContext } from "@/lib/chordKit/theory";
+import type { KeyContext } from "@/features/theory/theory";
 import { strumShape } from "@/lib/chordKit/playback";
 
 /** One guitar shape for one chord of the mode, with previous/next arrows and a button for the full list. */

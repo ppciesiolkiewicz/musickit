@@ -2,7 +2,7 @@
 
 import { fretWidthFactor } from "./Fretboard";
 import { HUES } from "./palette";
-import { fmtInterval } from "@/lib/chordKit/labels";
+import { fmtInterval } from "@/features/theory/labels";
 import { intervalLabel, OPEN_PITCH } from "@/lib/chordKit/shapeTools";
 import { intervalText, NECK_FRETS, type Instance, type Move } from "@/lib/chordKit/progressions";
 

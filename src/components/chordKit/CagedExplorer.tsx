@@ -2,13 +2,13 @@
 
 import { useMemo, useState } from "react";
 import BoxNeck, { type Layers } from "./BoxNeck";
-import { LabelSelect, useLabelSystem } from "./useLabelSystem";
-import { intervalName, noteLabel, type LabelSystem } from "@/lib/chordKit/labels";
+import { LabelSelect, useLabelSystem } from "@/features/theory/useLabelSystem";
+import { intervalName, noteLabel, type LabelSystem } from "@/features/theory/labels";
 import ChordDiagram from "./ChordDiagram";
 import { KeyPicker } from "./KeyPicker";
 import { fretWidthFactor } from "./Fretboard";
-import { degreeColour } from "@/lib/chordKit/scales";
-import { Chip, ChipRow, DegreeLegend, Info, Section } from "./ui";
+import { degreeColour } from "@/features/theory/scales";
+import { Chip, ChipRow, DegreeLegend, Info, Section } from "@/components/ui";
 import {
   CAGED_THEORY, NECK_END, boxArpeggio, boxCells, boxChords, cagedBoxes, cagedContext, ladderMidi, layerNotes,
   type ArpKind, type CagedBox, type CagedCell, type CagedQuality,

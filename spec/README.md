@@ -12,6 +12,8 @@ This directory contains the formal specifications for the Music Kit application.
 | [Architecture](architecture.md) | Technical architecture and component structure |
 | [Guitar tools](guitar-tools.md) | Chord explorer, triads by string group, mode pages |
 | [Looper](looper.md) | Independent multi-channel audio looper |
+| [Looper actions](looper-actions.md) | Actions, history, macros, AI scripts, widget mode |
+| [Creator](creator.md) | Music theory plugins that follow one key |
 
 ## Quick Reference
 

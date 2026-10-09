@@ -2,12 +2,12 @@
 
 import { useMemo, useState, type ReactNode } from "react";
 import ShapeCard, { type Placement } from "./ShapeCard";
-import { Chip, ChipRow, Section } from "./ui";
+import { Chip, ChipRow, Section } from "@/components/ui";
 import {
   FAMILY_LABEL, FAMILY_ORDER, STRING_NAMES, STRING_ORDER, STYLE_TAGS, groupByShape, matchesTags, placedDegrees, tagCount, tagText,
   type Entry,
 } from "@/lib/chordKit/shapeTools";
-import { MODE_LIST, type KeyContext } from "@/lib/chordKit/theory";
+import { MODE_LIST, type KeyContext } from "@/features/theory/theory";
 
 interface Props {
   entries: Entry[];

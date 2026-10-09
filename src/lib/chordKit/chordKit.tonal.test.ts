@@ -5,7 +5,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { Mode, Note } from "@tonaljs/tonal";
-import { makeKeyContext, TONICS, FAMILIES, shortModeName } from "./theory";
+import { makeKeyContext, TONICS, FAMILIES, shortModeName } from "@/features/theory/theory";
 import { midiToNames } from "./playback";
 
 const ascii = (s: string) => s.replace(/♭/g, "b").replace(/♯/g, "#");

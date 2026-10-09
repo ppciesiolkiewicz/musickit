@@ -3,8 +3,8 @@
 import { Badge } from "./Fretboard";
 import { VerticalBoard, vGeometry } from "./VerticalFretboard";
 import type { CagedBox, CagedCell } from "@/lib/chordKit/caged";
-import { degreeColour } from "@/lib/chordKit/scales";
-import { fmtDegree, noteLabel, type LabelSystem } from "@/lib/chordKit/labels";
+import { degreeColour } from "@/features/theory/scales";
+import { fmtDegree, noteLabel, type LabelSystem } from "@/features/theory/labels";
 
 export interface Layers {
   chord: boolean;

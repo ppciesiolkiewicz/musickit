@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import PageShell from "@/components/chordKit/PageShell";
+import PageShell from "@/components/PageShell";
 import ScalePage from "@/components/chordKit/ScalePage";
-import { MODE_PAGES, findModePage } from "@/lib/chordKit/scales";
+import { MODE_PAGES, findModePage } from "@/features/theory/scales";
 
 type Params = { slug: string };
 type Search = { key?: string };

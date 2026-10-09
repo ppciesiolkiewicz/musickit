@@ -1,12 +1,12 @@
 "use client";
 
-import { fmtDegree } from "@/lib/chordKit/labels";
+import { fmtDegree } from "@/features/theory/labels";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { KeyPicker } from "./KeyPicker";
-import { Chip, DegreeLegend, Info } from "./ui";
-import { FAMILIES, makeKeyContext } from "@/lib/chordKit/theory";
-import { MODE_PAGES, chordMidi, modeChords, degreeColour, degreeLabels, relativesOf, roleWithDegree, stepPattern } from "@/lib/chordKit/scales";
+import { Chip, DegreeLegend, Info } from "@/components/ui";
+import { FAMILIES, makeKeyContext } from "@/features/theory/theory";
+import { MODE_PAGES, chordMidi, modeChords, degreeColour, degreeLabels, relativesOf, roleWithDegree, stepPattern } from "@/features/theory/scales";
 import { strum } from "@/lib/chordKit/playback";
 import ChordShapeCarousel from "./ChordShapeCarousel";
 import ChordShapesModal from "./ChordShapesModal";

@@ -1,6 +1,6 @@
 # Looper — actions, history, macros, widgets
 
-Code: `src/lib/looper/actions.ts`, `history.ts`, `macros.ts`, `widgets.ts` (tests beside them). UI: `HistoryPanel`, `MacroPanel`, `WidgetBoard`, top buttons in `LooperApp`.
+Code: `src/lib/looper/actions.ts`, `history.ts`, `macros.ts`, `script.ts` (tests beside them). UI: `HistoryPanel`, `MacroPanel`, top buttons in `LooperApp`. The widget board is the shared `src/features/widgets`.
 
 ## Rule
 Every user-driven state change goes through `engine.do(action)`. Never call the engine's setters directly from a control, or undo, history and macros will miss it.
@@ -35,7 +35,7 @@ Format (version 1):
 `t` is ms from the start; max 3000 steps. `engine.macroRecorder` records `do` events with `source: "ui"` (macro playback is ignored, so no loops). `playMacro` replays through the history, at the recorded timing, or instantly. Saved in localStorage `musickit.looper.macros`; the panel imports and exports the JSON (`parseMacros`, `serialiseMacros`; invalid steps are dropped).
 
 ## Widget mode
-Top button toggles `musickit.looper.widgetMode`. Mixer and Looping become widgets on a board: drag by the header, resize from the corner. They can never leave the board (`clampWidget`, minimum 260×140). Layout in `musickit.looper.widgets`; the reset button restores the default (mixer 42% left, looping right). Mixer alignment (`musickit.looper.mixerAlign`): `rows` or `columns` (strips side by side). History and Macros are floating windows (`musickit.looper.historyWindow`, `musickit.looper.macrosWindow`).
+Top button toggles `musickit.looper.widgetMode`. Mixer and Looping become widgets on a board: drag by the header, resize from the corner. They can never leave the board (`clampWidget` in `features/widgets/board.ts`, minimum 260×140). Layout and board height in `musickit.looper.widgets`; the reset button restores the default (mixer 42% left, looping right). Mixer alignment (`musickit.looper.mixerAlign`): `rows` or `columns` (strips side by side). History and Macros are floating windows (`musickit.looper.historyWindow`, `musickit.looper.macrosWindow`).
 
 ## Scripts and AI
 `script.ts`: `ACTION_CATALOG` documents every action with an example; `buildPrompt(snapshot, request)` adds the effects (with ranges), the sequencer sounds and the current ids, for pasting into an AI chat. The reply (a JSON array of actions, `{"actions": [...]}` or `{"steps": [{"t", "action"}]}`, code fences ignored) goes into Macros → Import; `parseScript` checks each action with `isAction` and reports the ones it left out. It becomes a macro that plays as one undoable step.

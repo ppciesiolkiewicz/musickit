@@ -1,7 +1,7 @@
 import { buildArpeggio, type Arpeggio } from "./arpeggios";
 import type { RootString, Shape } from "./shapes";
 import { OPEN_MIDI, OPEN_NOTE, RICH_SHAPES, ROOT_INDEX, rootFretFor, type RichShape } from "./shapeTools";
-import { degreeLabel, makeKeyContext, type KeyContext } from "./theory";
+import { degreeLabel, makeKeyContext, type KeyContext } from "@/features/theory/theory";
 
 /**
  * The CAGED system: five open chord shapes (C, A, G, E, D) that can each be slid up the neck as a barre chord.

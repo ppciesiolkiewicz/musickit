@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { DIFF_CLASS } from "./palette";
 import ChordDiagram from "./ChordDiagram";
-import { Info, Stepper, Tag } from "./ui";
+import { Info, Stepper, Tag } from "@/components/ui";
 import { type RichShape, VARIANT, shapeFormula, shapeName, rootFretFor, STRING_SHORT, STYLE_TAGS, tagText } from "@/lib/chordKit/shapeTools";
-import { MODE_LIST } from "@/lib/chordKit/theory";
+import { MODE_LIST } from "@/features/theory/theory";
 import { strumShape } from "@/lib/chordKit/playback";
 
 export interface Placement {

@@ -1,10 +1,10 @@
 /** Colours for the SVG diagrams (the page itself is always dark, like the home page). */
 export interface Swatch { fill: string; line: string; text: string }
 
-import { DEGREE_COLOURS } from "@/lib/chordKit/scales";
+import { DEGREE_COLOURS } from "@/features/theory/scales";
 
 /**
- * One colour per scale degree for the whole app, defined once as DEGREE_COLOURS in lib/chordKit/scales.ts:
+ * One colour per scale degree for the whole app, defined once as DEGREE_COLOURS in features/theory/scales.ts:
  * R white, 2 teal, 3 amber, 4 lime, 5 blue, 6 violet, 7 rose. Flat and sharp versions share the colour of their degree (b3 is amber like 3).
  * Notes outside the scale are red.
  */

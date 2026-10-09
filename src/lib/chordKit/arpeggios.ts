@@ -1,5 +1,5 @@
 import { OPEN_MIDI } from "./shapeTools";
-import { degreeLabel, type KeyContext } from "./theory";
+import { degreeLabel, type KeyContext } from "@/features/theory/theory";
 
 /** Arpeggio qualities you can lay over any root of a scale. "diatonic" uses the chord the scale itself stacks there. */
 export interface ArpQuality {

@@ -1,12 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Chip, ChipRow, Info } from "./ui";
+import { Chip, ChipRow, Info } from "@/components/ui";
 import { KeyPicker } from "./KeyPicker";
 import { INVERSIONS, STRING_GROUPS, TRIAD_QUALITIES, triadVoicings, type TriadQuality, type TriadVoicing } from "@/lib/chordKit/triads";
 import { GROUP_SWATCH, swatchFor } from "./palette";
 import { strum } from "@/lib/chordKit/playback";
-import { TONICS } from "@/lib/chordKit/theory";
+import { TONICS } from "@/features/theory/theory";
 
 /** Small chord box for three adjacent strings. */
 function TriadBox({ v, onPlay, active }: { v: TriadVoicing; onPlay: () => void; active: boolean }) {

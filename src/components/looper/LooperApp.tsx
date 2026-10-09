@@ -6,7 +6,7 @@ import LooperSettings from "./LooperSettings";
 import Mixer, { type MixerAlign } from "./Mixer";
 import HistoryPanel from "./HistoryPanel";
 import MacroPanel from "./MacroPanel";
-import WidgetBoard from "./WidgetBoard";
+import { WidgetBoard, splitLayout } from "@/features/widgets";
 import FloatingWindow from "../FloatingWindow";
 import Piano from "@/features/sound/keyboard/Piano";
 import { createPlayer, getAudioContext, getOutputBus } from "@/features/sound";
@@ -70,6 +70,7 @@ export default function LooperApp() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [macrosOpen, setMacrosOpen] = useState(false);
+  const [layoutReset, setLayoutReset] = useState(0);
   const [widgetMode, setWidgetMode] = useStored("musickit.looper.widgetMode", false);
   const [align, setAlign] = useStored<MixerAlign>("musickit.looper.mixerAlign", "rows");
   const hist = useSyncExternalStore(engine.history.subscribe, engine.history.getState, engine.history.getState);
@@ -140,12 +141,22 @@ export default function LooperApp() {
           <button type="button" className={`${ibtn} ${historyOpen ? "border-sky-500" : ""}`} aria-pressed={historyOpen} onClick={() => setHistoryOpen((v) => !v)} title="History" aria-label="History"><Icon name="history" /></button>
           <button type="button" className={`${ibtn} ${macrosOpen || recording ? "border-sky-500" : ""} ${recording ? "text-rose-300" : ""}`} aria-pressed={macrosOpen} onClick={() => setMacrosOpen((v) => !v)} title={recording ? "Macros (recording)" : "Macros"} aria-label="Macros"><Icon name={recording ? "circle-dot" : "zap"} /></button>
           <button type="button" className={`${ibtn} ${widgetMode ? "border-sky-500" : ""}`} aria-pressed={widgetMode} onClick={() => setWidgetMode(!widgetMode)} title="Widget layout: move and resize the sections" aria-label="Widget layout"><Icon name="layout-dashboard" /></button>
+          {widgetMode && <button type="button" className={ibtn} onClick={() => setLayoutReset((n) => n + 1)} title="Reset the widget layout" aria-label="Reset the widget layout"><Icon name="rotate-ccw" /></button>}
           <button type="button" className={ibtn} onClick={() => setSettingsOpen(true)} title="Settings" aria-label="Settings"><Icon name="settings" /></button>
           <Link href="/" className={ibtn} title="Back to the home page" aria-label="Back to the home page"><Icon name="x" /></Link>
         </div>
       </div>
       {snap.error && <p role="alert" className="rounded-lg border border-rose-500/40 bg-rose-500/10 p-2 text-xs text-rose-200">{snap.error}</p>}
-      {widgetMode ? <WidgetBoard panels={{ mixer: mixer(true), looping: looping(true) }} /> : mixer(false)}
+      {widgetMode ? (
+        <WidgetBoard
+          storageKey="musickit.looper.widgets"
+          height={760}
+          resizableHeight
+          defaults={splitLayout(0.42)}
+          resetSignal={layoutReset}
+          widgets={[{ id: "mixer", title: "Mixer", node: mixer(true) }, { id: "looping", title: "Looping", node: looping(true) }]}
+        />
+      ) : mixer(false)}
       {historyOpen && (
         <FloatingWindow title="History" storageKey="musickit.looper.historyWindow" onClose={() => setHistoryOpen(false)}>
           <HistoryPanel engine={engine} />

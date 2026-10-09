@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import PageShell from "@/components/chordKit/PageShell";
+import PageShell from "@/components/PageShell";
 import ImprovApp from "@/components/improv/ImprovApp";
 
 export const metadata: Metadata = {

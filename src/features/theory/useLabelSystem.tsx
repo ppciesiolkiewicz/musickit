@@ -1,7 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { DEFAULT_LABEL_SYSTEM, LABEL_SYSTEMS, isLabelSystem, type LabelSystem } from "@/lib/chordKit/labels";
+import { DEFAULT_LABEL_SYSTEM, LABEL_SYSTEMS, isLabelSystem, type LabelSystem } from "./labels";
 
 const KEY = "musickit.labelSystem";
 let current: LabelSystem = DEFAULT_LABEL_SYSTEM;
