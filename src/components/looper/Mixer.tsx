@@ -175,8 +175,8 @@ function InputStrip({ engine, inp, devices, anyDevice, keyboardOpen, onToggleKey
       <div className="flex flex-wrap items-center gap-1.5">
         <span title={state} className="text-slate-300"><Icon name={isDevice ? "mic" : inp.kind === "sequencer" ? "drum" : inp.kind === "scalepiano" ? "music" : "piano"} size={18} /></span>
         <input value={inp.name} onChange={(e) => m.rename(inp.id, e.target.value)} aria-label="Input name" className="w-32 rounded-md border border-transparent bg-transparent px-1.5 py-0.5 text-sm font-medium text-slate-100 hover:border-slate-700 focus:border-slate-500 focus:outline-none" />
-        {inp.kind === "sequencer" && seq && <span className="flex min-w-[6.5rem] items-center gap-1 rounded-md border px-1.5 py-0.5 text-[10px] text-slate-300" style={{ borderColor: grp?.colour ?? "#334155" }} title="Where this sequencer plays: by the group its circle sits in">{grp && <span className="h-2 w-2 rounded-full" style={{ background: grp.colour }} />}→ {seq.dest === "record" ? "recorder" : grp?.name ?? "master"}</span>}
-        {inp.kind !== "sequencer" && <span className="flex min-w-[6.5rem] items-center gap-0.5 rounded-md border border-slate-700 px-1.5 py-0.5 text-[10px] text-slate-400" title="Goes to the recorder, then into the loops"><Icon name="circle" size={10} className="text-rose-400" />rec</span>}
+        {inp.kind === "sequencer" && seq && <span className="flex h-6 min-w-[6.5rem] items-center justify-center gap-1 rounded-md border px-1.5 text-[10px] leading-none text-slate-300" style={{ borderColor: grp?.colour ?? "#334155" }} title="Where this sequencer plays: by the group its circle sits in">{grp && <span className="h-2 w-2 rounded-full" style={{ background: grp.colour }} />}→ {seq.dest === "record" ? "recorder" : grp?.name ?? "master"}</span>}
+        {inp.kind !== "sequencer" && <span className="flex h-6 min-w-[6.5rem] items-center justify-center gap-1 rounded-md border border-slate-700 px-1.5 text-[10px] leading-none text-slate-400" title="Goes to the recorder, then into the loops"><Icon name="circle" size={10} className="text-rose-400" />rec</span>}
         <span aria-hidden title={state} className={`h-2 w-2 rounded-full ${inp.live ? "bg-emerald-400" : "bg-slate-600"}`} />
         <LevelMeter vertical getLevel={getLevel} />
         <input type="range" min={0} max={1.5} step={0.01} value={inp.volume} onChange={(e) => m.setVolume(inp.id, Number(e.target.value))} className="w-24 accent-sky-400" aria-label={`Gain of ${inp.name}`} title={`Gain ${Math.round(inp.volume * 100)}%`} />
@@ -242,10 +242,13 @@ function Buses({ engine, snap }: { engine: LooperEngine; snap: LooperSnapshot })
           const seqs = snap.sequencers.filter((q) => q.groupId === g.id).length;
           return <BusRow key={g.id} engine={engine} g={g} loops={loops} seqs={seqs} onFx={() => setFxFor(g.id)} />;
         })}
+      </ul>
+      <h3 className="mt-1 flex items-center gap-1.5 border-t border-slate-800 px-1 pt-1.5 text-xs font-medium text-slate-300"><Icon name="audio-lines" size={16} className="text-slate-400" />Master</h3>
+      <ul>
         <li className="flex flex-wrap items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-950/60 px-2 py-1.5">
           <span className="h-3 w-3 rounded-sm bg-slate-300" aria-hidden />
-          <span className="w-32 truncate px-1.5 text-sm font-medium text-slate-100">Master</span>
-          <span className="min-w-[6.5rem] rounded-md border border-slate-700 px-1.5 py-0.5 text-[10px] text-slate-400" title="Everything that is not in a group, and every bus">all buses</span>
+          <span className="w-32 truncate px-1.5 text-sm font-medium text-slate-100">Master bus</span>
+          <span className="flex h-6 min-w-[6.5rem] items-center justify-center rounded-md border border-slate-700 px-1.5 text-[10px] leading-none text-slate-400" title="Everything that is not in a group, and every bus">all buses</span>
           <LevelMeter vertical getLevel={getMaster} />
           <input type="range" min={0} max={1.5} step={0.01} value={snap.masterVolume} onChange={(e) => engine.setMasterVolume(Number(e.target.value))} className="w-24 accent-sky-400" aria-label="Master volume" title={`Master ${Math.round(snap.masterVolume * 100)}%`} />
         </li>
@@ -261,7 +264,7 @@ function BusRow({ engine, g, loops, seqs, onFx }: { engine: LooperEngine; g: Loo
     <li className="flex flex-wrap items-center gap-1.5 rounded-lg border bg-slate-950/50 px-2 py-1.5" style={{ borderColor: `${g.colour}66` }}>
       <span className="h-3 w-3 rounded-full" style={{ background: g.colour }} aria-hidden />
       <input value={g.name} onChange={(e) => engine.updateGroup(g.id, { name: e.target.value })} aria-label="Bus name" className="w-32 rounded-md border border-transparent bg-transparent px-1.5 py-0.5 text-sm font-medium text-slate-100 hover:border-slate-700 focus:border-slate-500 focus:outline-none" />
-      <span className="flex min-w-[6.5rem] items-center gap-1 rounded-md border border-slate-700 px-1.5 py-0.5 text-[10px] text-slate-400" title={`${loops} loop${loops === 1 ? "" : "s"} and ${seqs} sequencer${seqs === 1 ? "" : "s"} play through this bus`}>
+      <span className="flex h-6 min-w-[6.5rem] items-center justify-center gap-1 rounded-md border border-slate-700 px-1.5 text-[10px] leading-none text-slate-400" title={`${loops} loop${loops === 1 ? "" : "s"} and ${seqs} sequencer${seqs === 1 ? "" : "s"} play through this bus`}>
         <Icon name="repeat" size={10} />{loops}<Icon name="drum" size={10} />{seqs}
       </span>
       <LevelMeter vertical getLevel={getLevel} />

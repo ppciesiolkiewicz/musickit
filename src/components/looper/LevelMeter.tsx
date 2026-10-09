@@ -24,7 +24,7 @@ export default function LevelMeter({ getLevel, vertical = false }: { getLevel: (
   }, [getLevel, vertical]);
   if (vertical) {
     return (
-      <div className="flex h-8 w-1.5 shrink-0 flex-col justify-end overflow-hidden rounded-full bg-slate-800" role="meter" aria-label="Level" aria-valuemin={0} aria-valuemax={1}>
+      <div className="flex h-8 w-1.5 shrink-0 flex-col self-center justify-end overflow-hidden rounded-full bg-slate-800" role="meter" aria-label="Level" aria-valuemin={0} aria-valuemax={1}>
         <div ref={bar} className="h-0 w-full rounded-full" />
       </div>
     );
