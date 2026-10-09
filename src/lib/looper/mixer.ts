@@ -13,6 +13,11 @@ export type InputKind = "device" | "extra" | "sequencer" | "scalepiano";
 /** Input gain goes well above 100% because an instrument straight from an audio interface is often quiet. */
 export const MAX_INPUT_GAIN = 4;
 
+/** An audio interface input is heard live by default (that is what you want when playing through it); a built-in microphone is not, because it would feed back into the speakers. */
+export function defaultMonitor(kind: string, name: string): boolean {
+  return kind === "device" && !/built-?in|macbook|imac|internal|default|webcam|microphone/i.test(name);
+}
+
 export interface InputInfo {
   id: number;
   /** for "sequencer" strips: the id of the sequencer behind it */
@@ -115,7 +120,7 @@ export class InputMixer {
     const useId = id !== undefined && !this.runtimes.some((r) => r.info.id === id) ? id : this.nextId;
     this.nextId = Math.max(this.nextId, useId + 1);
     return {
-      info: { id: useId, sourceId: s.sourceId, kind: s.kind, name: s.name, deviceId: s.deviceId, mode: s.mode, volume: s.volume, muted: false, solo: false, monitor: false, error: null, channels: 0, live: true, effects: sanitiseEffects(s.effects), connected: s.kind === "device" ? connected : true },
+      info: { id: useId, sourceId: s.sourceId, kind: s.kind, name: s.name, deviceId: s.deviceId, mode: s.mode, volume: s.volume, muted: false, solo: false, monitor: defaultMonitor(s.kind, s.name), error: null, channels: 0, live: true, effects: sanitiseEffects(s.effects), connected: s.kind === "device" ? connected : true },
       pre: null, summer: null, gain: null, meter: null, monitor: null, chainPre: null, chainPost: null, shared: null, buf: null,
     };
   }

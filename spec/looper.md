@@ -141,3 +141,5 @@ The wheel zoom on the canvas is proportional to the wheel movement (gentle on a 
 - Canvas widgets resize from all four corners (the opposite corner stays put; minimum 260 x 140). The stage scales up to 4x so a large Looping widget is filled by the stage.
 
 Output channels: when the chosen output has more than two channels (an interface such as a Scarlett), Looper settings shows "Output channels" and the whole mix (loops, monitoring, metronome, piano) plays to the chosen pair (1-2, 3-4, ...). The pair is saved in `musickit.looper.output.pair`. Pair 1-2 keeps the plain stereo path. Chrome reports an interface's channel count only after the device is chosen.
+
+"Hear it" now starts on for audio interface inputs (a device strip whose name does not look like a built-in or USB microphone) and off for built-in microphones, which would feed back into the speakers. It can still be switched per strip.
