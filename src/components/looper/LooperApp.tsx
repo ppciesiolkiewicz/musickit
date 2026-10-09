@@ -13,6 +13,7 @@ import Piano from "@/features/sound/keyboard/Piano";
 import { createPlayer, getAudioContext, getOutputBus } from "@/features/sound";
 import LoopStage from "./LoopStage";
 import AddWidgetMenu from "./AddWidgetMenu";
+import { Modal } from "../Modal";
 import MetronomeBar from "./MetronomeBar";
 import ScalePianoPanel from "./ScalePianoPanel";
 import SequencerPanel from "./SequencerPanel";
@@ -60,7 +61,15 @@ function wireNam() {
   setNamFactory((ctx, p) => createNamEffect(ctx, p, lib));
   registerChoice("nam-model", {
     accept: ".nam",
-    options: () => lib.list().map((m) => ({ id: m.id, name: m.name })),
+    // useSyncExternalStore needs the same array back until something changes (a new array every call loops forever: React error 185)
+    options: (() => {
+      let last: { id: number; name: string }[] = [];
+      return () => {
+        const next = lib.list().map((m) => ({ id: m.id, name: m.name }));
+        if (next.length !== last.length || next.some((o, i) => o.id !== last[i].id || o.name !== last[i].name)) last = next;
+        return last;
+      };
+    })(),
     subscribe: (fn) => lib.subscribe(fn),
     addFiles: async (files) => {
       const errors: string[] = [];
@@ -83,6 +92,19 @@ function wireNam() {
   void lib.init();
 }
 
+/** What a project is made of in storage. Settings (metronome, output, MIDI, keyboard), macros and amp models stay. */
+const PROJECT_KEYS = ["inputs", "layout", "sequencers", "scalePianos", "patch", "fxWidgets", "widgets"];
+
+function newProject() {
+  try {
+    PROJECT_KEYS.forEach((k) => window.localStorage.removeItem(`musickit.looper.${k}`));
+    Object.keys(window.localStorage).filter((k) => /^musickit\.looper\.(scalePianoWindow|sequencerWindow)\./.test(k)).forEach((k) => window.localStorage.removeItem(k));
+  } catch {
+    /* ignore */
+  }
+  window.location.reload();
+}
+
 function useEngine() {
   const [engine] = useState(() => {
     if (typeof window !== "undefined") wireNam();
@@ -102,6 +124,7 @@ export default function LooperApp() {
   const getPosition = useMemo(() => () => engine.getPosition(), [engine]);
   const getLevel = useMemo(() => () => engine.getLevel(), [engine]);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [newOpen, setNewOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [macrosOpen, setMacrosOpen] = useState(false);
   const [layoutReset, setLayoutReset] = useState(0);
@@ -168,6 +191,7 @@ export default function LooperApp() {
       <div className="pointer-events-none sticky top-0 z-30 flex items-start justify-between gap-2 px-1 py-1">
         <div className="pointer-events-auto"><MetronomeBar engine={engine} snap={snap} ready={ready} /></div>
         <div className="pointer-events-auto flex gap-1">
+          <button type="button" className={ibtn} onClick={() => setNewOpen(true)} title="New project" aria-label="New project"><Icon name="file-plus" /></button>
           <button type="button" className={ibtn} disabled={!canUndo} onClick={() => engine.history.undo()} title="Undo (Ctrl+Z)" aria-label="Undo"><Icon name="undo-2" /></button>
           <button type="button" className={ibtn} disabled={!canRedo} onClick={() => engine.history.redo()} title="Redo (Ctrl+Shift+Z)" aria-label="Redo"><Icon name="redo-2" /></button>
           <button type="button" className={`${ibtn} ${historyOpen ? "border-sky-500" : ""}`} aria-pressed={historyOpen} onClick={() => setHistoryOpen((v) => !v)} title="History" aria-label="History"><Icon name="history" /></button>
@@ -213,6 +237,15 @@ export default function LooperApp() {
           <ScalePianoPanel engine={engine} snap={snap} id={id} />
         </FloatingWindow>
       ))}
+      {newOpen && (
+        <Modal title="New project" onClose={() => setNewOpen(false)}>
+          <p className="text-sm text-slate-300">Start from an empty project: loops, groups, inputs, sequencers, pianos, effects, connections and effect widgets are cleared. Settings, macros and amp models are kept.</p>
+          <div className="mt-3 flex gap-2">
+            <button type="button" className="rounded-lg border border-rose-500 bg-rose-500/10 px-3 py-1.5 text-sm text-rose-200 hover:bg-rose-500/20" onClick={() => newProject()}>Clear and start</button>
+            <button type="button" className="rounded-lg border border-slate-700 px-3 py-1.5 text-sm text-slate-300 hover:border-slate-500" onClick={() => setNewOpen(false)}>Cancel</button>
+          </div>
+        </Modal>
+      )}
       {settingsOpen && <LooperSettings engine={engine} snap={snap} getLevel={getLevel} onClose={() => setSettingsOpen(false)} />}
 
       {!widgetMode && looping(false)}

@@ -160,3 +160,7 @@ While a take waits to start (count-in or next loop boundary) the loop circle sho
 
 ## Take status
 - While a take waits, the circle counts the beats down to its start; after stop (or on a planned take) it counts the beats down to its end. While recording, under the circle: `bar/total · beat`, for example `3/4 · 2`. A free take heads for the next 1, 2, 4, 8, 16 bars, so it reads 3/4 and then 5/8 (`takeStatus` in `frames.ts`, `getTakeStatus` on the engine).
+
+## New project
+- The "New project" button (top bar) asks first, then clears the project from storage (`inputs`, `layout`, `sequencers`, `scalePianos`, `patch`, `fxWidgets`, `widgets`, and the sequencer and scale piano windows) and reloads. Settings, macros and amp models are kept. There is no list of saved projects yet.
+- The NAM model picker returns the same options array until the library changes (a new array on every read made React loop: error 185).
