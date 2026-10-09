@@ -21,7 +21,8 @@ const LABEL_GROUP: Record<string, Group> = {
   "♭7": "7th", "7": "7th", "♭♭7": "7th",
 };
 
-export const groupOf = (label: string): Group => LABEL_GROUP[label] ?? "ref";
+/** Accepts both "♭3"/"5" and the display style "b3"/"p5". */
+export const groupOf = (label: string): Group => LABEL_GROUP[label] ?? LABEL_GROUP[label.replace(/b/g, "♭").replace(/#/g, "♯").replace(/^p/, "")] ?? "ref";
 export const swatchFor = (label: string): Swatch => GROUP_SWATCH[groupOf(label)];
 
 export const HUES = {

@@ -3,6 +3,7 @@
 import type { Shape } from "@/lib/chordKit/shapes";
 import { fmtInterval } from "@/lib/chordKit/labels";
 import { intervalLabel, OPEN_PITCH, ROOT_INDEX } from "@/lib/chordKit/shapeTools";
+import { fretWidthFactor } from "./Fretboard";
 import { GROUP_SWATCH, swatchFor } from "./palette";
 
 interface Props {
@@ -25,19 +26,22 @@ export default function ChordDiagram({ shape, rootFret, onPlay, active }: Props)
   const hi = fretted.length ? Math.max(...fretted) : 1;
   const rows = Math.max(4, hi - lo + 1);
   const w = left + 5 * ss + 18;
-  const h = top + rows * fsz + 10;
+  // frets are closer together up the neck, like the real thing
+  const rowH = (i: number) => (fsz * fretWidthFactor(lo + i)) / 1.2;
+  const edge = (i: number) => Array.from({ length: i }, (_, k) => rowH(k)).reduce((a, b) => a + b, 0);
+  const h = top + edge(rows) + 10;
   const grid = "#64748b";
 
   const svg = (
     <svg viewBox={`0 0 ${w} ${h}`} width="100%" role="img" aria-label="Chord diagram">
       {Array.from({ length: rows + 1 }, (_, i) => (
-        <line key={`f${i}`} x1={left} x2={left + 5 * ss} y1={top + i * fsz} y2={top + i * fsz} stroke={grid} strokeWidth={i === 0 && lo === 1 ? 3 : 1} />
+        <line key={`f${i}`} x1={left} x2={left + 5 * ss} y1={top + edge(i)} y2={top + edge(i)} stroke={grid} strokeWidth={i === 0 && lo === 1 ? 3 : 1} />
       ))}
       {Array.from({ length: 6 }, (_, i) => (
-        <line key={`s${i}`} x1={left + i * ss} x2={left + i * ss} y1={top} y2={top + rows * fsz} stroke={grid} strokeWidth={1 + (5 - i) * 0.12} />
+        <line key={`s${i}`} x1={left + i * ss} x2={left + i * ss} y1={top} y2={top + edge(rows)} stroke={grid} strokeWidth={1 + (5 - i) * 0.12} />
       ))}
       {lo > 1 && (
-        <text x={left - 10} y={top + fsz / 2} textAnchor="end" dominantBaseline="central" fontSize={11} fill="#94a3b8">
+        <text x={left - 10} y={top + rowH(0) / 2} textAnchor="end" dominantBaseline="central" fontSize={11} fill="#94a3b8">
           {lo}fr
         </text>
       )}
@@ -52,7 +56,7 @@ export default function ChordDiagram({ shape, rootFret, onPlay, active }: Props)
         const semi = (((OPEN_PITCH[i] + (shape.f[i] as number) - OPEN_PITCH[ri]) % 12) + 12) % 12;
         const label = fmtInterval(intervalLabel(shape, semi));
         const sw = semi === 0 ? GROUP_SWATCH.root : swatchFor(label);
-        const y = a === 0 ? top - 12 : top + (a - lo) * fsz + fsz / 2;
+        const y = a === 0 ? top - 12 : top + edge(a - lo) + rowH(a - lo) / 2;
         return (
           <g key={i}>
             <circle cx={x} cy={y} r={9} fill={sw.fill} stroke={sw.line} strokeWidth={1.2} />
