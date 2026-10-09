@@ -20,7 +20,6 @@ const play = "rounded-full border border-emerald-500/70 bg-emerald-500/10 px-2.5
 export default function CagedExplorer() {
   const [rootPc, setRootPc] = useState(0);
   const [quality, setQuality] = useState<CagedQuality>("major");
-  const [layers, setLayers] = useState<Layers>({ chord: true, arp: true, pent: true, scale: true });
   const [arpKind, setArpKind] = useState<ArpKind>("triad");
   const [labelMode, setLabelMode] = useState<LabelMode>("name");
   const [badges, setBadges] = useState(true);
@@ -29,7 +28,6 @@ export default function CagedExplorer() {
   const ctx = useMemo(() => cagedContext(rootPc, quality), [rootPc, quality]);
   const boxes = useMemo(() => cagedBoxes(rootPc, quality), [rootPc, quality]);
   const notes = useMemo(() => layerNotes(rootPc, quality, arpKind), [rootPc, quality, arpKind]);
-  const toggle = (k: keyof Layers) => setLayers((l) => ({ ...l, [k]: !l[k] }));
   const keyName = ctx.names[0];
 
   return (
@@ -39,12 +37,6 @@ export default function CagedExplorer() {
         <ChipRow label="Major / minor" info="CAGED works the same way for major and minor chords. In major you use the C, A, G, E and D chord shapes. In minor you use the minor version of each (Cm, Am, Gm, Em, Dm shapes). The scale and pentatonic change with it: major scale and major pentatonic, or natural minor and minor pentatonic.">
           <Chip on={quality === "major"} onClick={() => setQuality("major")}>Major</Chip>
           <Chip on={quality === "minor"} onClick={() => setQuality("minor")}>Minor</Chip>
-        </ChipRow>
-        <ChipRow label="Show" info={`Layers you can switch on and off. Chord shape: the exact notes the CAGED chord plays (dashed ring). Arpeggio: the chord's notes anywhere in the box (large dots). ${th.pentName}: five notes that are safe to play over the chord (medium dots). ${th.scaleName}: all seven notes (small rings). Bigger dots always sit on top of smaller ones.`}>
-          <Chip on={layers.chord} onClick={() => toggle("chord")}>Chord shape</Chip>
-          <Chip on={layers.arp} onClick={() => toggle("arp")}>Arpeggio</Chip>
-          <Chip on={layers.pent} onClick={() => toggle("pent")}>{th.pentName}</Chip>
-          <Chip on={layers.scale} onClick={() => toggle("scale")}>{th.scaleName}</Chip>
         </ChipRow>
         <ChipRow label="Arpeggio" info="Triad uses the three notes of the chord (root, 3rd, 5th). 7th adds the seventh, giving a maj7 chord in major or m7 in minor.">
           <Chip on={arpKind === "triad"} onClick={() => setArpKind("triad")}>Triad</Chip>
@@ -67,7 +59,7 @@ export default function CagedExplorer() {
 
       <div className="flex flex-col gap-4">
         {boxes.map((box, i) => (
-          <BoxCard key={box.letter} box={box} index={i} rootPc={rootPc} quality={quality} layers={layers} arpKind={arpKind} labelMode={labelMode} badges={badges} notes={notes} />
+          <BoxCard key={box.letter} box={box} index={i} rootPc={rootPc} quality={quality} arpKind={arpKind} labelMode={labelMode} badges={badges} notes={notes} />
         ))}
       </div>
     </div>
@@ -106,8 +98,8 @@ function Overview({ boxes, keyName, quality }: { boxes: CagedBox[]; keyName: str
   );
 }
 
-function BoxCard({ box, index, rootPc, quality, layers, arpKind, labelMode, badges, notes }: {
-  box: CagedBox; index: number; rootPc: number; quality: CagedQuality; layers: Layers; arpKind: ArpKind; labelMode: LabelMode; badges: boolean; notes: ReturnType<typeof layerNotes>;
+function BoxCard({ box, index, rootPc, quality, arpKind, labelMode, badges, notes }: {
+  box: CagedBox; index: number; rootPc: number; quality: CagedQuality; arpKind: ArpKind; labelMode: LabelMode; badges: boolean; notes: ReturnType<typeof layerNotes>;
 }) {
   const th = CAGED_THEORY[quality];
   const ctx = useMemo(() => cagedContext(rootPc, quality), [rootPc, quality]);
@@ -122,6 +114,12 @@ function BoxCard({ box, index, rootPc, quality, layers, arpKind, labelMode, badg
   };
   const onNote = (c: CagedCell) => strum([c.midi], { gapMs: 0, holdMs: 700 });
   const fretText = `frets ${box.from}–${box.to}`;
+  const only = (k: keyof Layers): Layers => ({ chord: false, arp: false, pent: false, scale: false, [k]: true });
+  const panels = [
+    { key: "arp", title: notes.arpTitle.replace(" arpeggio", " arpeggio"), layers: only("arp"), notes: notes.arp.join(" "), onPlay: () => strum(arpeggioMidi(boxArpeggio(ctx, arpKind)), { gapMs: 230, holdMs: 700 }) },
+    { key: "scale", title: th.scaleName, layers: only("scale"), notes: notes.scale.join(" "), onPlay: () => strum(ladderMidi(rootPc, th.scale), { gapMs: 200, holdMs: 500 }) },
+    { key: "pent", title: th.pentName, layers: only("pent"), notes: notes.pent.join(" "), onPlay: () => strum(ladderMidi(rootPc, th.pent), { gapMs: 220, holdMs: 500 }) },
+  ];
 
   return (
     <section id={`box-${box.letter}`} className="scroll-mt-4">
@@ -129,27 +127,26 @@ function BoxCard({ box, index, rootPc, quality, layers, arpKind, labelMode, badg
         title={<span><span className="mr-2 inline-block rounded px-1.5 text-slate-950" style={{ background: LANE_COLOURS[index % 5] }}>{box.letter}</span>{box.letter} shape · {box.chordName}</span>}
         meta={fretText}
       >
-        <div className="grid gap-4 md:grid-cols-[11rem_1fr]">
-          <div className="flex flex-col items-center gap-1.5">
-            <div className="w-40"><ChordDiagram shape={box.shape} rootFret={box.rootFret} onPlay={hearChord} active={hearing} /></div>
-            <p className="text-center text-xs text-slate-400">
-              {box.chordName}, root on the {STRING_SHORT[box.shape.rs]} string{box.rootFret > 0 ? `, fret ${box.rootFret}` : ", open"}
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="w-32 shrink-0"><ChordDiagram shape={box.shape} rootFret={box.rootFret} onPlay={hearChord} active={hearing} /></div>
+          <div className="flex flex-col gap-1.5">
+            <p className="text-sm text-slate-300">
+              <b className="text-slate-100">{box.chordName}</b>, root on the {STRING_SHORT[box.shape.rs]} string{box.rootFret > 0 ? `, fret ${box.rootFret}` : ", open"}
             </p>
+            <div><button type="button" className={play} onClick={hearChord}>▶ Chord</button></div>
           </div>
-          <div className="flex min-w-0 flex-col gap-2">
-            <BoxNeck cells={cells} box={box} layers={layers} labelMode={labelMode} badges={badges} onNote={onNote} />
-            <div className="flex flex-wrap gap-1.5">
-              <button type="button" className={play} onClick={hearChord}>▶ Chord</button>
-              <button type="button" className={play} onClick={() => strum(arpeggioMidi(boxArpeggio(ctx, arpKind)), { gapMs: 230, holdMs: 700 })}>▶ Arpeggio</button>
-              <button type="button" className={play} onClick={() => strum(ladderMidi(rootPc, th.pent), { gapMs: 220, holdMs: 500 })}>▶ Pentatonic</button>
-              <button type="button" className={play} onClick={() => strum(ladderMidi(rootPc, th.scale), { gapMs: 200, holdMs: 500 })}>▶ Scale</button>
+        </div>
+        <div className="mt-3 grid gap-3 xl:grid-cols-3">
+          {panels.map((p) => (
+            <div key={p.key} className="flex min-w-0 flex-col gap-1.5 rounded-xl border border-slate-800 bg-slate-950/50 p-2">
+              <div className="flex items-center gap-2">
+                <h3 className="text-sm font-medium text-slate-100">{p.title}</h3>
+                <button type="button" className={`${play} ml-auto`} onClick={p.onPlay} aria-label={`Play the ${p.title}`}>▶ Play</button>
+              </div>
+              <BoxNeck cells={cells} box={box} layers={p.layers} labelMode={labelMode} badges={badges} onNote={onNote} />
+              <p className="text-xs text-slate-400">{p.notes}</p>
             </div>
-            <dl className="grid gap-x-3 gap-y-1 text-xs text-slate-400 sm:grid-cols-[auto_1fr]">
-              <dt className="text-slate-500">Arpeggio</dt><dd><b className="text-slate-200">{notes.arpTitle.replace(" arpeggio", "")}</b>: {notes.arp.join(" ")}</dd>
-              <dt className="text-slate-500">{th.pentName}</dt><dd>{notes.pent.join(" ")}</dd>
-              <dt className="text-slate-500">{th.scaleName}</dt><dd>{notes.scale.join(" ")}</dd>
-            </dl>
-          </div>
+          ))}
         </div>
 
         {related.length > 0 && (

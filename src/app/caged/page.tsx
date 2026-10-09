@@ -12,7 +12,7 @@ export default function CagedPage() {
     <PageShell
       active="/caged"
       title="CAGED system"
-      intro="Five chord shapes (C, A, G, E, D) link up across the neck. Pick a key and major or minor to see each shape, the box of notes around it, and the arpeggio, scale and pentatonic that fit inside."
+      intro="Five chord shapes (C, A, G, E, D) link up across the neck. Pick a key and major or minor to see each shape and, in three separate boxes, its arpeggio, scale and pentatonic."
     >
       <CagedExplorer />
     </PageShell>
