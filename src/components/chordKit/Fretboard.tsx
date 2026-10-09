@@ -12,6 +12,8 @@ export interface FretGeometry {
   top: number;
   W: number;
   H: number;
+  /** x of the left edge of the column of fret f (f from `from` to `to + 1`; the column of fret f is the space just before fret line f) */
+  edge: (f: number) => number;
   /** x of the middle of fret f (fret 0 is the open-string column) */
   fx: (f: number) => number;
   /** y of string s (0 = low E, drawn at the bottom) */
@@ -20,14 +22,26 @@ export interface FretGeometry {
 
 export const STRING_NAMES = ["E", "A", "D", "G", "B", "e"];
 
+/**
+ * How wide the column of fret f is, as a multiple of the base column width. On a real guitar each fret is about 5.6% closer
+ * to the last one (2^(-1/12)), so the low frets are roughly 1.4x the base and the 12th about 0.75x. The open-string column
+ * is as wide as the first fret. Very high frets are kept from getting too narrow for a note dot.
+ */
+export const fretWidthFactor = (f: number): number => Math.max(0.7, 1.41 * 2 ** (-(Math.max(f, 1) - 1) / 12));
+
 export function fretGeometry(from: number, to: number, colW = 56, rowH = 38): FretGeometry {
   const cols = to - from + 1;
   const left = 40, top = 22, right = 14, bottom = 38;
+  const edge = (f: number) => {
+    let x = left;
+    for (let k = from; k < f; k++) x += colW * fretWidthFactor(k);
+    return x;
+  };
   return {
-    from, to, cols, colW, rowH, left, top,
-    W: left + cols * colW + right,
+    from, to, cols, colW, rowH, left, top, edge,
+    W: edge(to + 1) + right,
     H: top + 5 * rowH + bottom,
-    fx: (f) => left + (f - from) * colW + colW / 2,
+    fx: (f) => edge(f) + (colW * fretWidthFactor(f)) / 2,
     sy: (s) => top + (5 - s) * rowH,
   };
 }
@@ -39,8 +53,8 @@ const STRING = ["#a8b3c4", "#a8b3c4", "#98a4b8", "#8693a8", "#7a869b", "#6e7a8f"
 
 /** The board itself. Draw note dots after it, inside the same <svg>. */
 export function FretboardBase({ g, markerSize = 6 }: { g: FretGeometry; markerSize?: number }) {
-  const { from, to, cols, colW, left, fx, sy } = g;
-  const boardL = left, boardR = left + cols * colW, boardT = sy(5) - 14, boardB = sy(0) + 14;
+  const { from, to, cols, left, edge, fx, sy } = g;
+  const boardL = left, boardR = edge(to + 1), boardT = sy(5) - 14, boardB = sy(0) + 14;
   const single = [3, 5, 7, 9, 15, 17].filter((f) => f >= from && f <= to);
   const double = from <= 12 && to >= 12;
   const mid = (a: number, b: number) => (sy(a) + sy(b)) / 2;
@@ -58,7 +72,7 @@ export function FretboardBase({ g, markerSize = 6 }: { g: FretGeometry; markerSi
         const isNut = from === 0 && i === 1;
         // the open-string column of a box that starts at the nut is separated by the nut
         if (from === 0 && i === 0) return null;
-        return <line key={i} x1={boardL + i * colW} x2={boardL + i * colW} y1={boardT + 3} y2={boardB - 3} stroke={isNut ? NUT : FRET} strokeWidth={isNut ? 5 : 1.5} strokeLinecap="round" />;
+        return <line key={i} x1={edge(from + i)} x2={edge(from + i)} y1={boardT + 3} y2={boardB - 3} stroke={isNut ? NUT : FRET} strokeWidth={isNut ? 5 : 1.5} strokeLinecap="round" />;
       })}
       {Array.from({ length: 6 }, (_, s) => (
         <g key={s}>

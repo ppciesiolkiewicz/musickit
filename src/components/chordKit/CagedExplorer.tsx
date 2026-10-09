@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import BoxNeck, { type Layers, type LabelMode } from "./BoxNeck";
 import ChordDiagram from "./ChordDiagram";
 import { KeyPicker } from "./KeyPicker";
+import { fretWidthFactor } from "./Fretboard";
 import { Chip, ChipRow, DegreeLegend, Info, Section } from "./ui";
 import {
   CAGED_THEORY, NECK_END, boxArpeggio, boxCells, boxChords, cagedBoxes, cagedContext, ladderMidi, layerNotes,
@@ -69,9 +70,10 @@ export default function CagedExplorer() {
 /** The whole neck at a glance: one lane per box showing which frets it covers. */
 function Overview({ boxes, keyName, quality }: { boxes: CagedBox[]; keyName: string; quality: CagedQuality }) {
   const colW = 40, left = 70, top = 22, laneH = 24;
-  const W = left + (NECK_END + 1) * colW + 10;
+  const x = (f: number) => left + Array.from({ length: f }, (_, k) => colW * fretWidthFactor(k)).reduce((a, b) => a + b, 0);
+  const W = x(NECK_END + 1) + 10;
   const H = top + boxes.length * laneH + 26;
-  const x = (f: number) => left + f * colW;
+  const cw = (f: number) => x(f + 1) - x(f);
   return (
     <section className="rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5">
       <h2 className="mb-2 text-sm font-medium text-slate-100">
@@ -83,13 +85,13 @@ function Overview({ boxes, keyName, quality }: { boxes: CagedBox[]; keyName: str
           {Array.from({ length: NECK_END + 1 }, (_, f) => (
             <g key={f}>
               <line x1={x(f)} x2={x(f)} y1={top - 6} y2={top + boxes.length * laneH} stroke="#334155" strokeWidth={f === 0 ? 3 : 1} />
-              <text x={x(f) + colW / 2} y={top - 9} textAnchor="middle" fontSize={10} fill="#64748b">{f === 0 ? "" : f}</text>
+              <text x={x(f) + cw(f) / 2} y={top - 9} textAnchor="middle" fontSize={10} fill="#64748b">{f === 0 ? "" : f}</text>
             </g>
           ))}
           {boxes.map((b, i) => (
             <g key={b.letter}>
               <text x={left - 8} y={top + i * laneH + laneH / 2} textAnchor="end" dominantBaseline="central" fontSize={12} fill="#cbd5e1">{b.letter} · {b.chordName}</text>
-              <rect x={x(b.from) + 2} y={top + i * laneH + 3} width={(b.to - b.from + 1) * colW - 4} height={laneH - 6} rx={6} fill={LANE_COLOURS[i % 5]} opacity={0.75} />
+              <rect x={x(b.from) + 2} y={top + i * laneH + 3} width={x(b.to + 1) - x(b.from) - 4} height={laneH - 6} rx={6} fill={LANE_COLOURS[i % 5]} opacity={0.75} />
             </g>
           ))}
         </svg>
@@ -127,16 +129,15 @@ function BoxCard({ box, index, rootPc, quality, arpKind, labelMode, badges, note
         title={<span><span className="mr-2 inline-block rounded px-1.5 text-slate-950" style={{ background: LANE_COLOURS[index % 5] }}>{box.letter}</span>{box.letter} shape · {box.chordName}</span>}
         meta={fretText}
       >
-        <div className="flex flex-wrap items-center gap-4">
-          <div className="w-32 shrink-0"><ChordDiagram shape={box.shape} rootFret={box.rootFret} onPlay={hearChord} active={hearing} /></div>
-          <div className="flex flex-col gap-1.5">
-            <p className="text-sm text-slate-300">
-              <b className="text-slate-100">{box.chordName}</b>, root on the {STRING_SHORT[box.shape.rs]} string{box.rootFret > 0 ? `, fret ${box.rootFret}` : ", open"}
-            </p>
-            <div><button type="button" className={play} onClick={hearChord}>▶ Chord</button></div>
+        <div className="grid gap-3 xl:grid-cols-[10rem_repeat(3,minmax(0,1fr))]">
+          <div className="flex min-w-0 flex-col gap-1.5 rounded-xl border border-slate-800 bg-slate-950/50 p-2">
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm font-medium text-slate-100">CAGED / Chord</h3>
+              <button type="button" className={`${play} ml-auto`} onClick={hearChord} aria-label="Play the chord">▶ Play</button>
+            </div>
+            <div className="mx-auto w-32"><ChordDiagram shape={box.shape} rootFret={box.rootFret} onPlay={hearChord} active={hearing} /></div>
+            <p className="text-xs text-slate-400"><b className="text-slate-200">{box.chordName}</b>, root on the {STRING_SHORT[box.shape.rs]} string{box.rootFret > 0 ? `, fret ${box.rootFret}` : ", open"}</p>
           </div>
-        </div>
-        <div className="mt-3 grid gap-3 xl:grid-cols-3">
           {panels.map((p) => (
             <div key={p.key} className="flex min-w-0 flex-col gap-1.5 rounded-xl border border-slate-800 bg-slate-950/50 p-2">
               <div className="flex items-center gap-2">

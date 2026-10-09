@@ -1,5 +1,6 @@
 "use client";
 
+import { fretWidthFactor } from "./Fretboard";
 import { HUES } from "./palette";
 import { intervalLabel, OPEN_PITCH } from "@/lib/chordKit/shapeTools";
 import { intervalText, NECK_FRETS, type Instance, type Move } from "@/lib/chordKit/progressions";
@@ -18,8 +19,10 @@ const colW = 48, left = 62, top = 92, rowH = 28;
 
 /** The whole neck (frets 0-17) with every position of every chord, plus lanes showing how the root moves between them. */
 export default function NeckDiagram({ title, specs, moves, scalePcs, focus = null }: Props) {
-  const W = left + NECK_FRETS * colW + 30;
-  const fx = (f: number) => (f === 0 ? left - 16 : left + (f - 0.5) * colW);
+  // fret lines are spaced like a real neck: wider at the nut, narrower up the neck
+  const edge = (f: number) => left + Array.from({ length: f }, (_, k) => colW * fretWidthFactor(k + 1)).reduce((a, b) => a + b, 0);
+  const W = edge(NECK_FRETS) + 30;
+  const fx = (f: number) => (f === 0 ? left - 16 : (edge(f - 1) + edge(f)) / 2);
   const sy = (r: number) => top + r * rowH;
 
   const boxes = specs.map((sp) => {
@@ -57,10 +60,10 @@ export default function NeckDiagram({ title, specs, moves, scalePcs, focus = nul
         <circle cx={fx(12)} cy={(sy(1) + sy(2)) / 2} r={6} fill="#334155" opacity={0.8} />
         <circle cx={fx(12)} cy={(sy(3) + sy(4)) / 2} r={6} fill="#334155" opacity={0.8} />
         {Array.from({ length: NECK_FRETS + 1 }, (_, f) => (
-          <line key={`f${f}`} x1={left + f * colW} x2={left + f * colW} y1={sy(0) - 6} y2={sy(5) + 6} stroke={grid} strokeWidth={f === 0 ? 3 : 1} />
+          <line key={`f${f}`} x1={edge(f)} x2={edge(f)} y1={sy(0) - 6} y2={sy(5) + 6} stroke={grid} strokeWidth={f === 0 ? 3 : 1} />
         ))}
         {Array.from({ length: 6 }, (_, r) => (
-          <line key={`s${r}`} x1={left} x2={left + NECK_FRETS * colW} y1={sy(r)} y2={sy(r)} stroke={grid} strokeWidth={1 + r * 0.12} />
+          <line key={`s${r}`} x1={left} x2={edge(NECK_FRETS)} y1={sy(r)} y2={sy(r)} stroke={grid} strokeWidth={1 + r * 0.12} />
         ))}
         {Array.from({ length: NECK_FRETS }, (_, i) => (
           <text key={`n${i}`} x={fx(i + 1)} y={sy(5) + 26} textAnchor="middle" fontSize={11} fill="#94a3b8">{i + 1}</text>

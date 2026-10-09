@@ -34,7 +34,7 @@ export function ArpNeck({ cells, arp, overlay, labelMode, badges, window: win, o
       <svg viewBox={`0 0 ${g.W} ${g.H}`} width="100%" style={{ minWidth: 820 }} role="img" aria-label={`${arp.title} on the guitar neck`}>
         <FretboardBase g={g} />
         {isWindow && (
-          <rect x={g.left + win.from * g.colW + 1} y={g.sy(5) - 22} width={(win.to - win.from + 1) * g.colW - 2} height={g.sy(0) - g.sy(5) + 44} rx={10} fill="#38bdf8" opacity={0.07} stroke="#38bdf8" strokeOpacity={0.5} strokeDasharray="5 4" pointerEvents="none" />
+          <rect x={g.edge(win.from) + 1} y={g.sy(5) - 22} width={g.edge(win.to + 1) - g.edge(win.from) - 2} height={g.sy(0) - g.sy(5) + 44} rx={10} fill="#38bdf8" opacity={0.07} stroke="#38bdf8" strokeOpacity={0.5} strokeDasharray="5 4" pointerEvents="none" />
         )}
         {ringCells.map((c) => {
           const x = g.fx(c.fret), y = g.sy(c.string), col = colour(c);
