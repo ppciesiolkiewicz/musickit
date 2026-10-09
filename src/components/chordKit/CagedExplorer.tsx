@@ -86,6 +86,20 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem }: { b
   const zoneOf = (f: number) => zones.find((z) => f >= z.from && f <= z.to) ?? zones[zones.length - 1];
   const frets = Array.from({ length: NECK_END + 1 }, (_, f) => f);
   const cellAt = (s: number, f: number) => cells.find((c) => c.string === s && c.fret === f);
+  // Colour is decided per string: every note sits in its box's colour and the colour changes exactly halfway between two neighbouring notes of different boxes.
+  const fillFor = (s: number, f: number): [string, string] => {
+    const row = cells.filter((c) => c.string === s).sort((p, q) => p.fret - q.fret);
+    const own = row.find((c) => c.fret === f);
+    if (own) { const k = zoneOf(own.fret).col; return [k, k]; }
+    const prev = [...row].reverse().find((c) => c.fret < f), next = row.find((c) => c.fret > f);
+    if (!prev && !next) { const k = zoneOf(f).col; return [k, k]; }
+    if (!next) { const k = zoneOf(prev!.fret).col; return [k, k]; }
+    if (!prev) { const k = zoneOf(next.fret).col; return [k, k]; }
+    const a = zoneOf(prev.fret).col, b = zoneOf(next.fret).col;
+    if (a === b) return [a, a];
+    const mid = (prev.fret + next.fret) / 2;
+    return f < mid ? [a, a] : f > mid ? [b, b] : [a, b];
+  };
   const COL0 = 2; // grid column 1 holds the string names
   return (
     <section className="rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5">
@@ -112,7 +126,7 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem }: { b
           ))}
           {[5, 4, 3, 2, 1, 0].flatMap((s, r) =>
             frets.map((f) => {
-              const z = zoneOf(f), c = cellAt(s, f);
+              const [fl, fr] = fillFor(s, f), c = cellAt(s, f);
               const line = "#94a3b8";
               return (
                 <div
@@ -120,10 +134,9 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem }: { b
                   className="grid place-items-center"
                   style={{
                     gridRow: r + 2, gridColumn: f + COL0,
-                    backgroundColor: z.col + "42",
-                    backgroundImage: `linear-gradient(${line}, ${line})`,
-                    backgroundSize: `100% ${0.8 + s * 0.32}px`,
-                    backgroundPosition: "center",
+                    backgroundImage: `linear-gradient(${line}, ${line}), linear-gradient(90deg, ${fl}42 50%, ${fr}42 50%)`,
+                    backgroundSize: `100% ${0.8 + s * 0.32}px, 100% 100%`,
+                    backgroundPosition: "center, 0 0",
                     backgroundRepeat: "no-repeat",
                     borderLeft: f === 1 ? "4px solid #cbd5e1" : f > 1 ? "1px solid #3a4a66" : undefined,
                     borderTopLeftRadius: r === 0 && f === 0 ? 8 : undefined, borderBottomLeftRadius: r === 5 && f === 0 ? 8 : undefined,
