@@ -81,6 +81,10 @@ export interface InputSpec {
   name?: string;
   deviceId?: string;
   mode?: InputMode;
+  /** effects to start with (an input preset), added in order */
+  effects?: { kind: EffectKind; post?: boolean; params?: Record<string, number> }[];
+  /** "Hear it" on or off from the start; left out = the default for the device */
+  monitor?: boolean;
 }
 export type InputPatch = { name?: string; volume?: number; muted?: boolean; solo?: boolean; monitor?: boolean; mode?: InputMode };
 /** What can change on a sequencer. Order of application: instrument, preset, rows, clear, cells, then the rest. */

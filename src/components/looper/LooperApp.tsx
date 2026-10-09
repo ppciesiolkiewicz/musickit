@@ -126,6 +126,8 @@ export default function LooperApp() {
   const getLevel = useMemo(() => () => engine.getLevel(), [engine]);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [newOpen, setNewOpen] = useState(false);
+  const [gearDismissed, setGearDismissed] = useState(false);
+  const [gearBusy, setGearBusy] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [macrosOpen, setMacrosOpen] = useState(false);
   const [layoutReset, setLayoutReset] = useState(0);
@@ -238,6 +240,20 @@ export default function LooperApp() {
           <ScalePianoPanel engine={engine} snap={snap} id={id} />
         </FloatingWindow>
       ))}
+      {snap.status === "ready" && snap.gear.length > 0 && !gearDismissed && (
+        <Modal title="Connect your gear" onClose={() => setGearDismissed(true)}>
+          <ul className="flex flex-col gap-1 text-sm text-slate-200">
+            {snap.gear.map((g, i) => (
+              <li key={i} className="flex items-center gap-2"><Icon name={g.kind.startsWith("output") ? "volume-2" : "mic"} size={14} className="text-slate-400" />{g.text}</li>
+            ))}
+          </ul>
+          <p className="mt-2 text-xs text-slate-400">An audio interface is preferred over the computer's own microphone and speakers. Your last choice is remembered.</p>
+          <div className="mt-3 flex gap-2">
+            <button type="button" disabled={gearBusy} className="rounded-lg border border-sky-500 bg-sky-500/10 px-3 py-1.5 text-sm text-sky-100 hover:bg-sky-500/20 disabled:opacity-50" onClick={async () => { setGearBusy(true); try { await engine.connectGear(true); } finally { setGearBusy(false); } }}>{gearBusy ? "Connecting…" : "Connect"}</button>
+            <button type="button" className="rounded-lg border border-slate-700 px-3 py-1.5 text-sm text-slate-300 hover:border-slate-500" onClick={() => setGearDismissed(true)}>Not now</button>
+          </div>
+        </Modal>
+      )}
       {newOpen && (
         <Modal title="New project" onClose={() => setNewOpen(false)}>
           <p className="text-sm text-slate-300">Start from an empty project: loops, groups, inputs, sequencers, pianos, effects, connections and effect widgets are cleared. Settings, macros and amp models are kept.</p>

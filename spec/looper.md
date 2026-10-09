@@ -164,3 +164,10 @@ While a take waits to start (count-in or next loop boundary) the loop circle sho
 ## New project
 - The "New project" button (top bar) asks first, then clears the project from storage (`inputs`, `layout`, `sequencers`, `scalePianos`, `patch`, `fxWidgets`, `widgets`, and the sequencer and scale piano windows) and reloads. Settings, macros and amp models are kept. There is no list of saved projects yet.
 - The NAM model picker returns the same options array until the library changes (a new array on every read made React loop: error 185).
+
+## Gear: auto-connect, remembered choices, input presets
+- `deviceChoice.ts` ranks devices by name: audio interfaces first, the computer's own microphone, speakers, displays and virtual devices last. The last input and output the person chose are saved (`musickit.looper.preferred`), matched by id and then by name (ids can change), and tried first.
+- After the engine starts, the output is set to the remembered one, else the best-looking interface (not when the person chose "system default"). If the browser already allows the microphone, idle saved device strips are connected and a fresh project (no saved inputs) gets the best interface as an input. No prompt is ever shown by this.
+- `snapshot.gear` lists what is still not right (strip not connected or failing, device not plugged in, a better output available, preferred output missing). While it is not empty, the "Connect your gear" dialog shows; its Connect button asks for microphone access, connects the strips, adds a suggested input and switches the output. "Not now" hides it for the session.
+- Adding a hardware input asks what it is (Clean, Guitar, Vocal) and offers preset stacks (`inputPresets.ts`: gate, compressor, EQ, amp model, distortion, delay, reverb as fits). The effects go on the first strip only. Vocal starts with "Hear it" off (a mic near speakers feeds back). "Amp model (NAM)" adds the effect with no model chosen; pick one in it.
+- Not verified in a browser: the permission query, device ranking on real names, the dialog. Ranking is by name patterns, so an unusual interface name may not be recognised.

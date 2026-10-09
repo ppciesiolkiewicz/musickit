@@ -10,6 +10,8 @@ import { GroupEffects } from "./LoopStage";
 import MasterControls from "./MasterOutput";
 import SignalFlow from "./SignalFlow";
 import { MAX_INPUTS, MAX_INPUT_GAIN, type InputInfo, type InputMode, type LooperEngine, type LooperSnapshot } from "@/lib/looper/engine";
+import { chooseDevice } from "@/lib/looper/deviceChoice";
+import { INPUT_PRESETS, INPUT_ROLES, presetFor, type InputRole } from "@/lib/looper/inputPresets";
 
 const btn = "rounded-lg border px-2.5 py-1 text-xs transition disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 const btnPlain = `${btn} border-slate-700 bg-slate-900 text-slate-200 hover:border-slate-500`;
@@ -37,7 +39,9 @@ const PICKS: { id: Pick; label: string; hint: string }[] = [
 /** Two steps: pick the kind of input (hardware or software keyboard), then for hardware pick a device and its channels. */
 function AddInputModal({ engine, snap, hasExtra, onClose }: { engine: LooperEngine; snap: LooperSnapshot; hasExtra: boolean; onClose: () => void }) {
   const [step, setStep] = useState<"type" | "hardware">("type");
-  const [deviceId, setDeviceId] = useState<string | null>(null);
+  const [deviceId, setDeviceId] = useState<string | null>(() => chooseDevice(snap.devices, null)?.id ?? null);
+  const [role, setRole] = useState<InputRole>("guitar");
+  const [presetId, setPresetId] = useState<string>("dry");
   const [pick, setPick] = useState<Pick>("left");
   const [busy, setBusy] = useState(false);
   const { devices } = snap;
@@ -59,7 +63,10 @@ function AddInputModal({ engine, snap, hasExtra, onClose }: { engine: LooperEngi
     const modes: InputMode[] = pick === "both" ? ["left", "right"] : [pick];
     modes.forEach((m) => {
       const suffix = m === "left" ? (pick === "both" ? " input 1" : " input 1") : m === "right" ? " input 2" : "";
-      engine.do({ type: "input.add", spec: { kind: "device", name: `${base}${suffix}`, deviceId, mode: m } });
+      const preset = presetFor(role, presetId);
+      // the effects go on the first strip; a second channel of the same device gets none, so the sound is not doubled
+      const first = m === modes[0];
+      engine.do({ type: "input.add", spec: { kind: "device", name: `${base}${suffix}`, deviceId, mode: m, ...(first && preset ? { effects: preset.effects } : {}), ...(INPUT_ROLES.find((x) => x.id === role)?.monitor === false ? { monitor: false } : {}) } });
     });
     onClose();
   };
@@ -113,6 +120,22 @@ function AddInputModal({ engine, snap, hasExtra, onClose }: { engine: LooperEngi
                 <span className="text-slate-500">{p.hint}</span>
               </label>
             ))}
+          </fieldset>
+          <fieldset className="flex flex-col gap-1.5">
+            <legend className="mb-1 text-sm font-medium text-slate-200">What is it?</legend>
+            <div className="flex flex-wrap gap-1.5">
+              {INPUT_ROLES.map((x) => (
+                <button key={x.id} type="button" aria-pressed={role === x.id} title={x.about} onClick={() => { setRole(x.id); setPresetId(INPUT_PRESETS[x.id][0].id); }} className={`rounded-lg border px-3 py-1.5 text-xs ${role === x.id ? "border-sky-400 bg-sky-500/10 text-sky-100" : "border-slate-700 text-slate-300 hover:border-slate-500"}`}>{x.name}</button>
+              ))}
+            </div>
+            <div className="grid gap-1.5 sm:grid-cols-2">
+              {INPUT_PRESETS[role].map((p) => (
+                <button key={p.id} type="button" aria-pressed={presetId === p.id} onClick={() => setPresetId(p.id)} className={`flex flex-col rounded-lg border px-3 py-1.5 text-left ${presetId === p.id ? "border-sky-400 bg-sky-500/10" : "border-slate-800 hover:border-slate-600"}`}>
+                  <span className="text-xs font-medium text-slate-100">{p.name}</span>
+                  <span className="text-[11px] text-slate-500">{p.about}</span>
+                </button>
+              ))}
+            </div>
           </fieldset>
           {room < need && <p className="text-xs text-amber-200">Not enough room: the mixer holds {MAX_INPUTS} inputs. Remove one first.</p>}
           <div className="flex gap-2">

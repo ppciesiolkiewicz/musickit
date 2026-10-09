@@ -8,9 +8,10 @@ import { EFFECT_DEFS, defaultParams, moveEffect, clampParams, sanitiseEffects, t
 import { GROUP_COLOURS, clampPoint, clampRect, containingGroup, defaultGroups, defaultSpot, type GroupLayout } from "./layout";
 import { InputMixer, MAX_INPUT_GAIN, describeError, type InputInfo } from "./mixer";
 import { connect as patchConnect, emptyPatch, feeds, removeNode, sanitisePatch, setLinkMuted, setNodeMuted, setSwitch, type Patch, type PatchLink } from "./patch";
+import { chooseDevice, gearIssues, type DeviceRef, type GearIssue } from "./deviceChoice";
 import { ActionHistory, type DoOptions } from "./history";
 import { MacroRecorder } from "./macros";
-import type { FxTarget, LooperAction } from "./actions";
+import type { FxTarget, InputSpec, LooperAction } from "./actions";
 import { RECORDER_PROCESSOR_NAME, recorderWorkletUrl } from "./recorderWorklet";
 
 export type { InputInfo } from "./mixer";
@@ -119,6 +120,8 @@ export interface LooperSnapshot {
   groups: GroupInfo[];
   /** what is connected to what (see patch.ts) */
   patch: Patch;
+  /** devices that are not connected but probably should be (empty when all is well) */
+  gear: GearIssue[];
   masterVolume: number;
   /** effects on the master bus (the global output): before and after its fader */
   masterEffects: EffectSpec[];
@@ -161,6 +164,7 @@ export { MAX_INPUTS, MAX_INPUT_GAIN } from "./mixer";
 const LAYOUT_KEY = "musickit.looper.layout";
 const OUTPUT_KEY = "musickit.looper.output";
 const PATCH_KEY = "musickit.looper.patch";
+const PREF_KEY = "musickit.looper.preferred";
 type SinkContext = AudioContext & { setSinkId?: (id: string) => Promise<void> };
 const groupName = (i: number) => `Group ${String.fromCharCode(65 + (i % 26))}`;
 const defaultGroupInfos = (): GroupInfo[] => defaultGroups().map((g, i) => ({ ...g, name: groupName(i), colour: GROUP_COLOURS[i % GROUP_COLOURS.length], volume: 1, muted: false, effects: [] }));
@@ -197,6 +201,23 @@ export class LooperEngine {
   private masterBuf: Float32Array<ArrayBuffer> | null = null;
   private runtimes: ChannelRuntime[] = [];
   private patch: Patch = emptyPatch();
+  /** the last input and output the person used: tried first next time */
+  private prefs: { in?: DeviceRef; out?: DeviceRef } = (() => {
+    try {
+      const j = JSON.parse(window.localStorage.getItem(PREF_KEY) ?? "{}") as { in?: DeviceRef; out?: DeviceRef };
+      const ok = (d: unknown): d is DeviceRef => !!d && typeof (d as DeviceRef).id === "string" && typeof (d as DeviceRef).label === "string";
+      return { ...(ok(j.in) ? { in: j.in } : {}), ...(ok(j.out) ? { out: j.out } : {}) };
+    } catch {
+      return {};
+    }
+  })();
+  private hadSavedInputs = (() => {
+    try {
+      return window.localStorage.getItem("musickit.looper.inputs") !== null;
+    } catch {
+      return false;
+    }
+  })();
   private loopLength: number | null = null;
   /** recent peak level of the signal reaching the recorder (0..1), for the pulse on a recording loop */
   private captureLevel = 0;
@@ -271,6 +292,7 @@ export class LooperEngine {
       masterVolume: this.masterVolume,
       masterEffects: this.masterEffects.map((e) => ({ ...e, params: { ...e.params } })),
       patch: this.patch,
+      gear: this.meta.status === "ready" ? gearIssues({ strips: this.mixer.list().filter((i) => i.kind === "device").map((i) => ({ id: i.id, name: i.name, deviceId: i.deviceId, connected: i.connected, error: i.error })), devices: this.meta.devices, outputs: this.meta.outputs, outputId: this.meta.outputId, canChooseOutput: this.meta.canChooseOutput, prefIn: this.prefs.in ?? null, prefOut: this.prefs.out ?? null }) : [],
       groups: this.groups.map((g) => ({ ...g, effects: g.effects.map((e) => ({ ...e, params: { ...e.params } })) })),
       sampleRate: this.ctx?.sampleRate ?? 0,
     };
@@ -721,13 +743,18 @@ export class LooperEngine {
       try {
         this.outputPair = Math.max(0, Number(window.localStorage.getItem(OUTPUT_KEY + ".pair")) || 0);
         const saved = window.localStorage.getItem(OUTPUT_KEY);
-        if (saved && this.meta.outputs.some((o) => o.id === saved)) await this.setOutputDevice(saved);
+        if (saved && !this.prefs.out) {
+          const o = this.meta.outputs.find((x) => x.id === saved);
+          if (o) this.remember({ out: { id: o.id, label: o.label } });
+        }
         this.routeMainOut();
       } catch {
         /* ignore */
       }
       navigator.mediaDevices?.addEventListener?.("devicechange", () => void this.refreshDevices());
       this.emit({ status: "ready" });
+      await this.autoConnect().catch(() => undefined);
+      this.emit();
     } catch (e) {
       this.emit({ status: "error", error: describeError(e) });
     }
@@ -803,11 +830,63 @@ export class LooperEngine {
   }
 
   /** Play everything (loops, live monitoring, metronome, piano) through this output. "" = the system default. Needs a browser with AudioContext.setSinkId. */
-  async setOutputDevice(id: string): Promise<void> {
+  private remember(p: { in?: DeviceRef; out?: DeviceRef }) {
+    this.prefs = { ...this.prefs, ...p };
+    try {
+      window.localStorage.setItem(PREF_KEY, JSON.stringify(this.prefs));
+    } catch {
+      /* ignore */
+    }
+  }
+
+  /** True when the browser has already given microphone access, so opening an input shows no prompt. */
+  private async micGranted(): Promise<boolean> {
+    try {
+      const st = await navigator.permissions?.query({ name: "microphone" as PermissionName });
+      return st?.state === "granted";
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Connect what looks right without being asked, when that needs no prompt: the last (or best-looking) output, and the saved
+   * inputs when the browser already allows the microphone. An audio interface wins over the computer's own parts.
+   * Anything left over is listed in `snapshot.gear` for the "Connect your gear" dialog, whose button is the person's action.
+   */
+  private async autoConnect(): Promise<void> {
+    if (this.meta.canChooseOutput && this.prefs.out?.id !== "") {
+      const want = chooseDevice(this.meta.outputs, this.prefs.out);
+      if (want && want.id !== this.meta.outputId) await this.setOutputDevice(want.id, false);
+    }
+    if (await this.micGranted()) await this.connectGear(false);
+  }
+
+  /** Connect idle input strips and, with none set up, the best-looking input. `ask` = the person pressed the button (a prompt is fine). */
+  async connectGear(ask = true): Promise<void> {
+    if (ask) await this.requestDeviceAccess();
+    for (const i of this.mixer.list()) if (i.kind === "device" && (!i.connected || i.error)) await this.mixer.connect(i.id);
+    const devices = this.meta.devices;
+    if (!this.mixer.list().some((i) => i.kind === "device") && devices.length && (ask || !this.hadSavedInputs)) {
+      const want = chooseDevice(devices, this.prefs.in);
+      if (want && (ask || this.mixer.list().length === 0)) {
+        const id = this.addInput({ kind: "device", name: want.label.replace(/\s*\(.*\)\s*$/, ""), deviceId: want.id, mode: "left" });
+        void id;
+      }
+    }
+    if (ask && this.meta.canChooseOutput) {
+      const want = chooseDevice(this.meta.outputs, this.prefs.out);
+      if (want && want.id !== this.meta.outputId) await this.setOutputDevice(want.id);
+    }
+    this.emit();
+  }
+
+  async setOutputDevice(id: string, remember = true): Promise<void> {
     const ctx = this.ctx as SinkContext | null;
     if (!ctx || typeof ctx.setSinkId !== "function") return;
     try {
       await ctx.setSinkId(id);
+      if (remember) this.remember({ out: { id, label: this.meta.outputs.find((o) => o.id === id)?.label ?? "System default" } });
       try {
         window.localStorage.setItem(OUTPUT_KEY, id);
       } catch {
@@ -1238,9 +1317,18 @@ export class LooperEngine {
   }
 
   /** Add a hardware or built-in input. The strip exists when this returns; a device asks for the microphone only now, because a person ran the action. */
-  addInput(spec: { kind: "device" | "extra"; name?: string; deviceId?: string; mode?: InputMode }, id?: number): number | null {
+  addInput(spec: InputSpec, id?: number): number | null {
     const name = spec.name?.slice(0, 40) || (spec.kind === "extra" ? this.options.externalLabel ?? "Keyboard" : "Input");
-    return this.mixer.addNow({ kind: spec.kind, name, deviceId: spec.deviceId, mode: spec.mode }, id).id;
+    if (spec.kind === "device" && spec.deviceId) {
+      const d = this.meta.devices.find((x) => x.id === spec.deviceId);
+      if (d) this.remember({ in: { id: d.id, label: d.label } });
+    }
+    const made = this.mixer.addNow({ kind: spec.kind, name, deviceId: spec.deviceId, mode: spec.mode }, id).id;
+    if (made !== null) {
+      spec.effects?.slice(0, 6).forEach((e) => this.mixer.addEffect(made, e.kind, e.post === true, { params: e.params }));
+      if (spec.monitor !== undefined) this.mixer.setMonitor(made, spec.monitor);
+    }
+    return made;
   }
 
   /** Remove a device or built-in input. (Sequencer and Scale Piano strips go with their own remove.) */
