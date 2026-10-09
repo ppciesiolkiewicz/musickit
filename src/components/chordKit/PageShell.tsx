@@ -6,7 +6,7 @@ import PreloadPiano from "@/features/sound/keyboard/PreloadPiano";
 export default function PageShell({ title, intro, active, children }: { title: string; intro?: string; active: string; children: ReactNode }) {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-950 text-slate-200">
-      <div className="mx-auto flex w-full max-w-[96rem] flex-col gap-2.5 px-1 py-1.5">
+      <div className="mx-auto flex w-full max-w-[96rem] flex-col gap-3 px-3 py-3 sm:px-5 sm:py-4">
         <PreloadPiano />
         <SiteNav active={active} />
         <header>
