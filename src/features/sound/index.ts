@@ -8,6 +8,9 @@
  */
 export { getAudioContext, getOutputBus } from "./engine/context";
 export { INSTRUMENTS, INSTRUMENT_OPTIONS, OSCILLATOR_ID } from "./engine/instruments";
+export { allInstrumentOptions } from "./engine/instruments";
+export { useInstrumentOptions } from "./engine/useInstrumentOptions";
+export { registerRuntimeInstrument, replaceRuntimeInstruments, unregisterRuntimeInstrument, type RuntimeInstrument } from "./engine/runtime";
 export { createPlayer, type Player, type PlayerOptions, type Voice } from "./engine/player";
 export { midiToHz, midiToName, noteToMidi, type NoteLike } from "./engine/notes";
 export { preloadInstrument } from "./engine/samples";

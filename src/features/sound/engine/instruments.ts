@@ -1,3 +1,5 @@
+import { getRuntimeInstrument, runtimeInstrumentOptions } from "./runtime";
+
 export interface InstrumentConfig {
   label: string;
   urls: Record<string, string>;
@@ -82,8 +84,14 @@ export const INSTRUMENT_OPTIONS: { label: string; value: string }[] = [
   { label: "Oscillator", value: OSCILLATOR_ID },
 ];
 
+/** Built-in instruments, then the ones added at run time, then the oscillator. */
+export function allInstrumentOptions(): { label: string; value: string }[] {
+  const builtIn = INSTRUMENT_OPTIONS.filter((o) => o.value !== OSCILLATOR_ID);
+  return [...builtIn, ...runtimeInstrumentOptions(), { label: "Oscillator", value: OSCILLATOR_ID }];
+}
+
 export function getInstrumentConfig(id: string): { label: string; urls: Record<string, string>; baseUrl: string; attack: number; release: number } | null {
-  const config = INSTRUMENTS[id as InstrumentId] as InstrumentConfig | undefined;
+  const config = (INSTRUMENTS[id as InstrumentId] as InstrumentConfig | undefined) ?? getRuntimeInstrument(id);
   if (!config) return null;
   return { label: config.label, urls: config.urls, baseUrl: config.baseUrl, attack: config.attack ?? DEFAULT_ATTACK, release: config.release ?? DEFAULT_RELEASE };
 }

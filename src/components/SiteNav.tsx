@@ -12,6 +12,7 @@ export const SITE_LINKS = [
   { href: "/improv", label: "Improv" },
   { href: "/tuner", label: "Tuner" },
   { href: "/looper", label: "Looper" },
+  { href: "/sampler", label: "Sampler" },
 ];
 
 /** The Music Kit top navigation. Shared by every page; knows nothing about any feature. */

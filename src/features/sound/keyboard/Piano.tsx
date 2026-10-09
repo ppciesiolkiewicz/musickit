@@ -3,7 +3,8 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { getScaleNotes, isNoteInScale, getScaleDegree, SCALE_OPTIONS, TONIC_OPTIONS } from "./musicTheory";
 import { requestMidiAccess, addMidiListener, getMidiInputs } from "./midi";
-import { INSTRUMENT_OPTIONS, OSCILLATOR_ID } from "../engine/instruments";
+import { OSCILLATOR_ID } from "../engine/instruments";
+import { useInstrumentOptions } from "../engine/useInstrumentOptions";
 import { createPlayer } from "../engine/player";
 
 interface PianoKey {
@@ -76,6 +77,7 @@ function buildKeyCodeToNote(viewOctave: number): Map<string, string> {
 }
 
 export default function Piano() {
+  const instrumentOptions = useInstrumentOptions();
   const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
   const [viewOctave, setViewOctave] = useState(3);
   const [scaleTonic, setScaleTonic] = useState("C");
@@ -273,7 +275,7 @@ export default function Piano() {
             onChange={(e) => { setInstrumentId(e.target.value); e.target.blur(); }}
             className="rounded-lg border border-white/20 bg-white/10 px-2 py-1.5 text-sm text-white/95 backdrop-blur"
           >
-            {INSTRUMENT_OPTIONS.map(({ value, label }) => (
+            {instrumentOptions.map(({ value, label }) => (
               <option key={value} value={value} className="bg-zinc-800 text-white">
                 {label}
               </option>
