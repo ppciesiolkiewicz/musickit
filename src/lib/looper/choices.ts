@@ -7,6 +7,8 @@
 export interface ChoiceOption {
   id: number;
   name: string;
+  /** set when the option was copied from the online library (its path there) */
+  cloudPath?: string;
 }
 
 /** One file in the online library. Files in the same `group` (folder) are variants of one setup. */

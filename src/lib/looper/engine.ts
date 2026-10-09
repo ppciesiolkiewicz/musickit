@@ -217,13 +217,6 @@ export class LooperEngine {
       return {};
     }
   })();
-  private hadSavedInputs = (() => {
-    try {
-      return window.localStorage.getItem("musickit.looper.inputs") !== null;
-    } catch {
-      return false;
-    }
-  })();
   private loopLength: number | null = null;
   /** recent peak level of the signal reaching the recorder (0..1), for the pulse on a recording loop */
   private captureLevel = 0;
@@ -800,6 +793,7 @@ export class LooperEngine {
         /* ignore */
       }
       navigator.mediaDevices?.addEventListener?.("devicechange", () => void this.refreshDevices());
+      await this.waitForRemembered();
       this.emit({ status: "ready" });
       await this.autoConnect().catch(() => undefined);
       this.emit();
@@ -888,6 +882,26 @@ export class LooperEngine {
     }
   }
 
+  /**
+   * A remembered interface can take a moment to show up after the page loads. When the browser already lets us see device
+   * names, wait (up to a few seconds, while the startup loader shows) for the saved inputs and the remembered input to appear,
+   * rather than carrying on without them.
+   */
+  private async waitForRemembered(maxMs = 5000): Promise<void> {
+    if (!(await this.micGranted())) return;
+    const wanted = (): DeviceRef[] => {
+      const out: DeviceRef[] = this.mixer.list().filter((i) => i.kind === "device" && i.deviceId).map((i) => ({ id: i.deviceId, label: i.name }));
+      if (this.prefs.in?.id) out.push(this.prefs.in);
+      return out;
+    };
+    const missing = () => wanted().some((w) => !this.meta.devices.some((d) => d.id === w.id || (w.label && d.label === w.label)));
+    const t0 = Date.now();
+    while (missing() && Date.now() - t0 < maxMs) {
+      await new Promise((r) => setTimeout(r, 400));
+      await this.refreshDevices().catch(() => undefined);
+    }
+  }
+
   /** True when the browser has already given microphone access, so opening an input shows no prompt. */
   private async micGranted(): Promise<boolean> {
     try {
@@ -916,9 +930,9 @@ export class LooperEngine {
     if (ask) await this.requestDeviceAccess();
     for (const i of this.mixer.list()) if (i.kind === "device" && (!i.connected || i.error)) await this.mixer.connect(i.id);
     const devices = this.meta.devices;
-    if (!this.mixer.list().some((i) => i.kind === "device") && devices.length && (ask || !this.hadSavedInputs)) {
+    if (!this.mixer.list().some((i) => i.kind === "device") && devices.length && ask) {
       const want = chooseDevice(devices, this.prefs.in);
-      if (want && (ask || this.mixer.list().length === 0)) {
+      if (want) {
         const id = this.addInput({ kind: "device", name: want.label.replace(/\s*\(.*\)\s*$/, ""), deviceId: want.id, mode: "left" });
         void id;
       }

@@ -4,77 +4,9 @@ import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } fro
 import Icon from "../Icon";
 import Modal from "../Modal";
 import { isPinned, togglePin, usePins } from "./fxPins";
-import { EFFECT_DEFS, EFFECT_KINDS, getChoice, type CloudItem, type CloudSource, type EffectKind, type EffectSpec, type ParamDef } from "@/lib/looper/engine";
+import { EFFECT_DEFS, EFFECT_KINDS, getChoice, type CloudItem, type EffectKind, type EffectSpec, type ParamDef } from "@/lib/looper/engine";
 
 const ibtn = "grid h-8 min-w-8 place-items-center rounded-lg border border-slate-700 bg-slate-900 px-1.5 text-xs text-slate-200 transition hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
-
-/** Group library files by setup (folder), top-level files last. */
-function groupItems(items: CloudItem[]): { name: string | null; items: CloudItem[] }[] {
-  const by = new Map<string | null, CloudItem[]>();
-  items.forEach((m) => by.set(m.group, [...(by.get(m.group) ?? []), m]));
-  return [...by.entries()].sort((a, b) => (a[0] === null ? 1 : b[0] === null ? -1 : a[0].localeCompare(b[0]))).map(([name, list]) => ({ name, items: list }));
-}
-
-/** The private online library: pick a model to use (it is copied into the browser), add or remove models. */
-function CloudPanel({ cloud, accept, onPick }: { cloud: CloudSource; accept?: string; onPick: (id: number) => void }) {
-  const [pw, setPw] = useState(cloud.getPassword());
-  const [items, setItems] = useState<CloudItem[] | null>(null);
-  const [msg, setMsg] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
-  const [locked, setLocked] = useState(false);
-  const file = useRef<HTMLInputElement>(null);
-  const load = async () => {
-    setBusy(true);
-    const r = await cloud.list();
-    setBusy(false);
-    if ("error" in r) {
-      setItems(null);
-      setMsg(r.error);
-      setLocked(/password/i.test(r.error));
-    } else {
-      setItems(r.models);
-      setMsg(null);
-    }
-  };
-  useEffect(() => {
-    void load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-  const use = async (m: CloudItem) => {
-    setBusy(true);
-    const r = await cloud.use(m);
-    setBusy(false);
-    if ("error" in r) setMsg(r.error);
-    else onPick(r.id);
-  };
-  return (
-    <div className="flex flex-col gap-1.5 rounded-lg border border-slate-700 bg-slate-900/60 p-2 text-xs text-slate-300">
-      <div className="flex items-center gap-1.5">
-        {(locked || pw) && <input type="password" value={pw} onChange={(e) => setPw(e.target.value)} placeholder="Library password" aria-label="Library password" className="min-w-0 flex-1 rounded-md border border-slate-700 bg-slate-950 px-2 py-1 text-xs text-slate-200" />}
-        {(locked || pw) && <button type="button" className={ibtn} onClick={() => { cloud.setPassword(pw); void load(); }} title="Sign in" aria-label="Sign in"><Icon name="check" /></button>}
-        <span className="min-w-0 flex-1" />
-        <button type="button" className={ibtn} onClick={() => file.current?.click()} title="Add model files to the cloud library" aria-label="Upload to the cloud library"><Icon name="upload" /></button>
-        <input ref={file} type="file" multiple accept={accept} className="hidden" onChange={async (e) => { const f = Array.from(e.target.files ?? []) as File[]; e.target.value = ""; if (!f.length) return; setBusy(true); setMsg(await cloud.upload(f)); await load(); }} />
-      </div>
-      {busy && <p className="text-[11px] text-slate-500">Working...</p>}
-      {msg && <p className="text-[11px] text-rose-300" role="alert">{msg}</p>}
-      {items && items.length === 0 && <p className="text-[11px] text-slate-500">The library is empty. Upload a model.</p>}
-      {items && groupItems(items).map((g) => (
-        <div key={g.name ?? "_"} className="flex flex-col gap-1">
-          {g.name && <p className="px-1 text-[11px] font-medium uppercase tracking-wide text-slate-500">{g.name}</p>}
-          <div className="flex flex-wrap gap-1">
-            {g.items.map((m) => (
-              <span key={m.path} className="inline-flex items-center overflow-hidden rounded-md border border-slate-700 bg-slate-950">
-                <button type="button" className="px-2 py-1 hover:bg-slate-800" onClick={() => void use(m)} title={`Use ${g.name ? `${g.name} / ` : ""}${m.variant} (${Math.max(1, Math.round(m.size / 1024))} KB)`}>{m.variant}</button>
-                <button type="button" className="border-l border-slate-700 px-1.5 py-1 text-slate-500 hover:bg-slate-800 hover:text-rose-300" onClick={async () => { setMsg(await cloud.remove(m)); await load(); }} title="Delete from the cloud library" aria-label={`Delete ${m.variant}`}><Icon name="trash" size={12} /></button>
-              </span>
-            ))}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
 
 /** A picker over a registered choice source (the amp models): select, add files with the button or by dropping them. */
 function ChoiceParam({ p, value, label, onChange }: { p: ParamDef; value: number; label: string; onChange: (v: number) => void }) {
@@ -86,7 +18,8 @@ function ChoiceParam({ p, value, label, onChange }: { p: ParamDef; value: number
   );
   const [error, setError] = useState<string | null>(null);
   const [over, setOver] = useState(false);
-  const [cloudOpen, setCloudOpen] = useState(false);
+  const [remote, setRemote] = useState<CloudItem[]>([]);
+  const [loading, setLoading] = useState(false);
   const pending = useRef<number | null>(null);
   const input = useRef<HTMLInputElement>(null);
   // after files are added, pick the newest one
@@ -99,7 +32,39 @@ function ChoiceParam({ p, value, label, onChange }: { p: ParamDef; value: number
       }
     }
   }, [options, onChange]);
+  // the online library, when there is one, is part of the same list
+  useEffect(() => {
+    let alive = true;
+    void source?.cloud?.list().then((r) => alive && "models" in r && setRemote(r.models));
+    return () => {
+      alive = false;
+    };
+  }, [source, options]);
   if (!source) return <p className="text-xs text-slate-500">{label}: not available</p>;
+  const choose = async (raw: string) => {
+    if (!raw.startsWith("c:")) return onChange(Number(raw));
+    const item = remote.find((m) => m.path === raw.slice(2));
+    if (!item || !source.cloud) return;
+    setLoading(true);
+    setError(null);
+    const r = await source.cloud.use(item);
+    setLoading(false);
+    if ("error" in r) setError(r.error);
+    else onChange(r.id);
+  };
+  const folderOf = (path: string) => {
+    const parts = path.replace(/^nam\//, "").split("/");
+    return parts.length > 1 ? parts[0] : "Cloud";
+  };
+  const have = new Set(options.map((o) => o.cloudPath).filter(Boolean));
+  const groups = new Map<string, { value: string; text: string }[]>();
+  const put = (g: string, value: string, text: string) => groups.set(g, [...(groups.get(g) ?? []), { value, text }]);
+  for (const o of options) {
+    if (o.cloudPath) put(folderOf(o.cloudPath), String(o.id), `☁ ${o.name.includes(" / ") ? o.name.split(" / ").slice(1).join(" / ") : o.name}`);
+    else put("This device", String(o.id), o.name);
+  }
+  for (const m of remote) if (!have.has(m.path)) put(m.group ?? "Cloud", `c:${m.path}`, `☁ ${m.variant}`);
+  const order = [...groups.keys()].sort((a, b) => (a === "This device" ? 1 : b === "This device" ? -1 : a.localeCompare(b)));
   const add = async (list: FileList | null) => {
     const files = Array.from(list ?? []);
     if (!files.length || !source.addFiles) return;
@@ -125,13 +90,16 @@ function ChoiceParam({ p, value, label, onChange }: { p: ParamDef; value: number
     >
       <div className="flex items-center gap-2 text-xs text-slate-400">
         <span className="w-14">{p.label}</span>
-        <select className="min-w-0 flex-1 rounded-lg border border-slate-700 bg-slate-900 px-2 py-1.5 text-xs text-slate-200" value={value} onChange={(e) => onChange(Number(e.target.value))} aria-label={label}>
-          <option value={0}>{options.length ? "None (clean)" : "No models yet: add or drop a file"}</option>
-          {options.map((o) => (
-            <option key={o.id} value={o.id}>{o.name}</option>
+        <select className="w-0 min-w-0 flex-1 truncate rounded-lg border border-slate-700 bg-slate-900 px-2 py-1.5 text-xs text-slate-200" value={String(value)} disabled={loading} onChange={(e) => void choose(e.target.value)} aria-label={label}>
+          <option value="0">{loading ? "Loading…" : options.length || remote.length ? "None (clean)" : "No models yet: add or drop a file"}</option>
+          {order.map((g) => (
+            <optgroup key={g} label={g}>
+              {groups.get(g)!.map((o) => (
+                <option key={o.value} value={o.value}>{o.text}</option>
+              ))}
+            </optgroup>
           ))}
         </select>
-        {source.cloud && <button type="button" className={`${ibtn} ${cloudOpen ? "border-sky-500" : ""}`} aria-pressed={cloudOpen} onClick={() => setCloudOpen((v) => !v)} title="Private cloud library" aria-label="Private cloud library"><Icon name="cloud" /></button>}
         {source.addFiles && (
           <>
             <button type="button" className={ibtn} onClick={() => input.current?.click()} title="Add model files, or drop them here" aria-label="Add model files"><Icon name="upload" /></button>
@@ -139,20 +107,19 @@ function ChoiceParam({ p, value, label, onChange }: { p: ParamDef; value: number
           </>
         )}
       </div>
-      {cloudOpen && source.cloud && <CloudPanel cloud={source.cloud} accept={source.accept} onPick={(id) => { onChange(id); setCloudOpen(false); }} />}
       {note && <p className={`text-[11px] ${note.warn ? "text-amber-300" : "text-slate-500"}`}>{note.text}</p>}
       {error && <p className="text-[11px] text-rose-300" role="alert">{error}</p>}
     </div>
   );
 }
 
-const EMPTY: { id: number; name: string }[] = [];
+const EMPTY: { id: number; name: string; cloudPath?: string }[] = [];
 
 /** The sliders, switches and pickers of one effect. Used in the dialog and in the widgets on the stage. */
 export function EffectControls({ fx, onParam, columns = true }: { fx: EffectSpec; onParam: (key: string, value: number) => void; columns?: boolean }) {
   const def = EFFECT_DEFS[fx.kind];
   return (
-              <div className={`grid gap-x-4 gap-y-1 ${columns ? "sm:grid-cols-2" : ""}`}>
+              <div className={`grid grid-cols-1 gap-x-4 gap-y-1 ${columns ? "sm:grid-cols-2" : ""}`}>
                 {def.params.map((p) => {
                   const label = `${def.name} ${p.label}`;
                   const v = fx.params[p.key];

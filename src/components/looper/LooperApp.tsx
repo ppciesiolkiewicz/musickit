@@ -66,10 +66,10 @@ function wireNam() {
     accept: ".nam",
     // useSyncExternalStore needs the same array back until something changes (a new array every call loops forever: React error 185)
     options: (() => {
-      let last: { id: number; name: string }[] = [];
+      let last: { id: number; name: string; cloudPath?: string }[] = [];
       return () => {
-        const next = lib.list().map((m) => ({ id: m.id, name: m.name }));
-        if (next.length !== last.length || next.some((o, i) => o.id !== last[i].id || o.name !== last[i].name)) last = next;
+        const next = lib.list().map((m) => ({ id: m.id, name: m.name, cloudPath: m.cloudPath }));
+        if (next.length !== last.length || next.some((o, i) => o.id !== last[i].id || o.name !== last[i].name || o.cloudPath !== last[i].cloudPath)) last = next;
         return last;
       };
     })(),

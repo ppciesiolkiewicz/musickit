@@ -59,9 +59,12 @@ export function gearIssues(a: {
     else if (a.devices.length && s.deviceId && !a.devices.some((d) => d.id === s.deviceId)) out.push({ kind: "input-missing", strip: s.id, text: `${s.name} is not plugged in` });
   }
   if (!a.strips.length) {
-    const want = chooseDevice(a.devices, a.prefIn);
-    if (want) out.push({ kind: "input-suggest", text: `Use ${want.label} as an input` });
-    else if (a.prefIn) out.push({ kind: "input-missing", text: `${a.prefIn.label} is not plugged in` });
+    // nothing is suggested for a fresh project; only an input used before is asked for
+    const prev = a.prefIn;
+    if (prev) {
+      const there = a.devices.find((d) => d.id === prev.id) ?? a.devices.find((d) => d.label && d.label === prev.label);
+      out.push(there ? { kind: "input-suggest", text: `Use ${there.label} as an input` } : { kind: "input-missing", text: `${prev.label} is not plugged in` });
+    }
   }
   if (a.canChooseOutput) {
     const want = chooseDevice(a.outputs, a.prefOut);

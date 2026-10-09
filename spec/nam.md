@@ -22,12 +22,12 @@ Output matches the NeuralAmpModelerCore renderer to about 1e-6 on its example mo
 
 ## Private cloud library
 - Models can live in a private Vercel Blob store (access private, folder `nam/`). The browser never reads the store: `GET/POST/DELETE /api/nam` and `GET /api/nam/file?path=` use the Blob SDK with `MUSICKIT_BLOB_READ_WRITE_TOKEN` (falls back to `BLOB_READ_WRITE_TOKEN`).
-- Password: none by default (the site is private by obscurity; the store token stays on the server). Set `NAM_LIBRARY_PASSWORD` to require one: sent as `x-site-password`, kept in localStorage `musickit.nam.cloudPassword`, and the panel shows the password field only when the server asks. Without the store token the library is off (404).
+- Password: none by default (the site is private by obscurity; the store token stays on the server). Set `NAM_LIBRARY_PASSWORD` to require one: sent as `x-site-password`, kept in localStorage `musickit.nam.cloudPassword`. The picker has no password field: with a password set, the cloud models are simply not listed. Without the store token the library is off (404).
 - Rules (pure, tested in `server/cloud.test.ts`): only `.nam` files, safe names, no folders, 4 MB per file (Vercel's server upload limit).
-- In the picker, the cloud button opens a panel: sign in, list, use (the file is copied into the browser's own library, then selected), upload, delete. Used models stay in the browser, so loading is local and offline.
+- In the picker there is no cloud button: the one dropdown lists the models on this device and the cloud models together, grouped by setup (folder), cloud ones marked with a ☁ (a native option cannot hold an icon). Choosing a cloud model copies it into the browser's own library, then selects it, so it loads locally and offline from then on. Upload and delete for the cloud library are done in the Vercel dashboard (the routes still exist).
 - Not verified against a real store yet. Licences still apply to models you did not capture yourself: keep this library private.
 
 ## Setups and variants in the cloud library
 - A folder under `nam/` is one setup and the `.nam` files in it are its variants: `nam/JCM800/Clean.nam`, `nam/JCM800/Crunch.nam`. One level of folder only; a file directly in `nam/` is a setup of its own. The list route returns `group` and `variant` for each file.
-- The cloud panel shows each setup as a heading with its variants as buttons. Using one copies it into the browser's library under the name "Setup / Variant" and remembers its cloud path, so it is not downloaded twice.
+- Each setup is a group in the dropdown with its variants as options. A setup folder holds several captures of one amp (a gain setting, a channel, a mic or a DI version); only the one chosen runs, they are never used together. Using one copies it into the browser's library under the name "Setup / Variant" and remembers its cloud path, so it is not downloaded twice.
 - Uploading from the app puts files at the top level; to group variants, put them in a folder in the Blob store (dashboard) with the same layout.
