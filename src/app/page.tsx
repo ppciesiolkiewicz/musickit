@@ -39,7 +39,7 @@ const STEPS: { n: number; title: string; blurb: string; tools: Tool[] }[] = [
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-950 px-2 py-4 text-slate-200">
+    <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-950 px-3 py-6 text-slate-200 sm:px-5">
       <main className="mx-auto flex w-full max-w-4xl flex-col gap-6">
         <header className="flex flex-col gap-3">
           <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Music Kit</p>
