@@ -58,7 +58,6 @@ export default function LoopStage({ engine, snap, getPosition, openSeqs, onToggl
   const canvasW = pins.length ? PIN_AREA.x + PIN_AREA.w : STAGE_W;
   const canvasH = pins.length ? Math.max(STAGE_H, PIN_AREA.h) : STAGE_H;
   const [width, setWidth] = useState(STAGE_W);
-  const [zoom, setZoom] = useState<number | null>(null);
   useLayoutEffect(() => {
     const el = frame.current;
     if (!el) return;
@@ -68,35 +67,17 @@ export default function LoopStage({ engine, snap, getPosition, openSeqs, onToggl
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
-  // Ctrl/Cmd and the wheel zoom the stage (a native listener: React's wheel handlers are passive and could not stop the page zooming)
-  const scaleRef = useRef(1) as { current: number };
-  useEffect(() => {
-    const el = frame.current;
-    if (!el) return;
-    const onWheel = (e: WheelEvent) => {
-      if (!(e.ctrlKey || e.metaKey)) return;
-      e.preventDefault();
-      setZoom(Math.max(MIN_ZOOM, Math.min(2.5, +(scaleRef.current * (e.deltaY < 0 ? 1.1 : 1 / 1.1)).toFixed(2))));
-    };
-    el.addEventListener("wheel", onWheel, { passive: false });
-    return () => el.removeEventListener("wheel", onWheel);
-  }, []);
-  const fit = Math.max(MIN_ZOOM, Math.min(1.6, (width - 2) / canvasW));
-  const scale = zoom ?? fit;
-  scaleRef.current = scale;
-  const step = (f: number) => setZoom(Math.max(MIN_ZOOM, Math.min(2.5, +(scale * f).toFixed(2))));
+  const fit = Math.max(MIN_ZOOM, Math.min(1.6, (width - 2) / STAGE_W));
+  const scale = fit;
 
   return (
     <div className="flex flex-col gap-1">
       <div className="flex items-center justify-end gap-1">
         <InfoTip label="Stage help">
-          <p><b>Zoom:</b> the minus and plus buttons, or Ctrl (Cmd) and the mouse wheel. Fit shows everything.</p>
+          <p><b>Size:</b> the stage fits its widget. Make the widget bigger or smaller by its corner, or zoom the whole canvas.</p>
           <p><b>Move around:</b> scroll, or drag empty space on the stage.</p>
           <p><b>Effect widgets:</b> open the effects of a bus or an input and press the dashboard button on an effect. Its controls appear to the right of the stage; drag the title to place it.</p>
         </InfoTip>
-        <button type="button" className={tbtn} onClick={() => step(1 / 1.2)} title="Zoom out" aria-label="Zoom out"><Icon name="minus" size={12} /></button>
-        <button type="button" className={`${tbtn} w-12 tabular-nums`} onClick={() => setZoom(null)} title="Fit to the page" aria-label="Fit the stage to the page">{zoom === null ? "fit" : `${Math.round(scale * 100)}%`}</button>
-        <button type="button" className={tbtn} onClick={() => step(1.2)} title="Zoom in" aria-label="Zoom in"><Icon name="plus" size={12} /></button>
       </div>
       <div
         ref={frame}

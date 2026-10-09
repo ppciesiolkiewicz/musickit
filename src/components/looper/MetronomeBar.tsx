@@ -42,7 +42,9 @@ export default function MetronomeBar({ engine, snap, ready }: { engine: LooperEn
         </span>
         <input type="range" min={40} max={240} step={1} value={m.bpm} disabled={m.locked} onChange={(e) => set({ bpm: Number(e.target.value) })} className="w-24 accent-sky-400 disabled:opacity-40 sm:w-32" aria-label="Tempo slider" title={m.locked ? "Tempo is locked while there is a loop" : `${m.bpm} bpm`} />
         {m.showBeat && <BeatDots engine={engine} count={m.beatsPerBar} />}
-        {running && m.audible === false && <Icon name="bell-off" className="text-slate-500" label="Click is silent" />}
+        {running && m.audible === false && (
+          <button type="button" className="grid h-9 w-9 place-items-center rounded-lg border border-amber-400/60 bg-slate-900 text-amber-200 hover:border-amber-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400" onClick={() => set({ audible: true })} title="The click is silent: tap to hear it" aria-label="Unmute the click"><Icon name="bell-off" /></button>
+        )}
         <button type="button" className={`grid h-9 w-9 place-items-center rounded-lg border transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${open ? "border-sky-400 text-sky-200" : "border-slate-700 bg-slate-900 text-slate-200 hover:border-slate-500"}`} aria-expanded={open} aria-haspopup="dialog" onClick={() => setOpen((v) => !v)} title="Metronome options" aria-label="Metronome options">
           <Icon name="metronome" />
         </button>

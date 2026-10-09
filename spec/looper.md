@@ -116,7 +116,7 @@ A tenth effect kind, `nam`, runs Neural Amp Modeler models (`.nam`, including A2
 
 - The master bus is the global output. Its chain is: everything -> pre-fader effects -> master fader -> post-fader effects -> speakers and meter. The same controls (level, volume, effects button) are in the mixer's Master row and in Looper settings under "Output (master bus)". Master effects are actions (`fx.*` with target `{ master: true }`), so undo, macros and AI scripts cover them, and they are saved in the layout (`masterEffects`).
 - Any effect (on an input, a bus or the master) can be pinned to the stage as a widget with the dashboard button on its card in the effects dialog. A widget is a small panel with the effect's full controls, placed to the right of the stage; drag its title to move it, the x removes the widget (the effect stays). Pins are saved in localStorage `musickit.looper.fxWidgets` and dropped when their effect is removed.
-- The stage canvas zooms from 20% to 250% (buttons, or Ctrl/Cmd and the wheel; "fit" shows everything, including the widget area while any widget is pinned) and pans by scrolling or dragging empty space. The (i) button next to the zoom buttons explains this.
+- The stage has no zoom of its own: it fits the width of its widget (resize the widget, or zoom the whole canvas), scrolls, and pans by dragging empty space. Pinned effect widgets sit to the right of the stage, reached by scrolling. The (i) button explains this.
 
 ## Live monitoring, input gain and the output device
 
@@ -127,3 +127,5 @@ A tenth effect kind, `nam`, runs Neural Amp Modeler models (`.nam`, including A2
 ## Canvas layout (widget mode, now the default)
 
 The Mixer and Looping sections sit on a canvas that fills the window below the header. The canvas is much larger than the screen (8000 x 6000), zooms from 15% to 200% (buttons, Ctrl/Cmd and the wheel, trackpad pinch) and pans with the wheel or by dragging empty space; the fit button shows every widget and the (i) button explains this. The widget layout button switches back to the stacked page. Layout and view are saved in `musickit.looper.widgets`.
+
+The wheel zoom on the canvas is proportional to the wheel movement (gentle on a trackpad). The metronome bar shows a bell-off button while the click is silenced; pressing it turns the click back on.

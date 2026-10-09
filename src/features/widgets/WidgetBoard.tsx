@@ -146,7 +146,7 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
       if (e.ctrlKey || e.metaKey) {
         e.preventDefault();
         const r = el.getBoundingClientRect();
-        const next = zoomAt(e.deltaY < 0 ? 1.1 : 1 / 1.1, e.clientX - r.left, e.clientY - r.top);
+        const next = zoomAt(Math.exp(-Math.max(-60, Math.min(60, e.deltaY)) * 0.0012), e.clientX - r.left, e.clientY - r.top);
         save(layoutRef.current, next);
       } else if (!overWidget) {
         e.preventDefault();
