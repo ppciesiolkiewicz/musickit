@@ -59,6 +59,7 @@ Routing: Input → (input effects) → recorder → Loop → Bus (of its Group) 
 
 ## Actions, history, macros, widgets
 - Every user-driven state change goes through `engine.do(action)` (`actions.ts`), never a direct engine setter from a control: that is what makes undo, the history list and macro recording work. New control = new action type (apply, inverse, describe, validate, test). Format and rules: `spec/looper-actions.md`.
+- Not yet actions (so not undoable or recordable): effect post-fader switch on inputs, restoring scale pianos, device connect/choose. Effects are native Web Audio nodes only; heavy custom DSP would go in an AudioWorklet, never WebGL.
 - Widget mode (`widgets.ts`, `WidgetBoard.tsx`): sections stay inside the board; keep the layout maths pure and tested.
 
 ## State and storage

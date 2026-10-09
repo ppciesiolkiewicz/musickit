@@ -32,7 +32,7 @@ export default function MetronomeBar({ engine, snap, ready }: { engine: LooperEn
   return (
     <div ref={wrap} className="relative">
       <div className="flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-900/95 p-1.5 shadow-lg backdrop-blur" role="group" aria-label="Metronome">
-        <button type="button" className={`grid h-9 w-9 place-items-center rounded-lg border transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 disabled:opacity-40 ${m.manual ? "border-sky-400 bg-sky-500/20 text-sky-100" : "border-slate-700 bg-slate-900 text-slate-200 hover:border-slate-500"}`} aria-pressed={m.manual} onClick={() => engine.toggleMetronome()} disabled={!ready} title={m.manual ? "Stop the metronome" : "Start the metronome"} aria-label={m.manual ? "Stop the metronome" : "Start the metronome"}>
+        <button type="button" className={`grid h-9 w-9 place-items-center rounded-lg border transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 disabled:opacity-40 ${m.manual ? "border-sky-400 bg-sky-500/20 text-sky-100" : "border-slate-700 bg-slate-900 text-slate-200 hover:border-slate-500"}`} aria-pressed={m.manual} onClick={() => engine.do({ type: "metronome.toggle" })} disabled={!ready} title={m.manual ? "Stop the metronome" : "Start the metronome"} aria-label={m.manual ? "Stop the metronome" : "Start the metronome"}>
           <Icon name={m.manual ? "square" : "play"} fill />
         </button>
         <span className="flex items-center gap-0.5 rounded-lg border border-slate-700 bg-slate-900 px-1" title={m.locked ? "Tempo is locked while there is a loop. Clear every loop to change it." : "Tempo"}>

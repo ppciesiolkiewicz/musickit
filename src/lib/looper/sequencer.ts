@@ -1,4 +1,4 @@
-import { BASS_PRESETS, DRUM_PRESETS, MAX_BARS, fromRows, emptyCells, stepAt, stepSeconds, stepsInPattern, type Cells, type Preset } from "./sequencerPattern";
+import { BASS_PRESETS, DRUM_PRESETS, MAX_BARS, MAX_STEPS, fromRows, emptyCells, stepAt, stepSeconds, stepsInPattern, type Cells, type Preset } from "./sequencerPattern";
 
 /**
  * A step sequencer that plays a synthesised instrument in time with the metronome grid. Nothing is downloaded:
@@ -219,6 +219,20 @@ export class Sequencer {
   loadPreset(id: string) {
     const p = this.instrument.presets.find((x) => x.id === id);
     if (p) this.update({ cells: fromRows(p.rows) });
+  }
+
+  setStep(lane: number, step: number, value: number) {
+    if (!this.state.cells[lane] || !Number.isInteger(step) || step < 0 || step >= MAX_STEPS) return;
+    const cells = this.state.cells.map((r) => r.slice());
+    cells[lane][step] = value === 2 ? 2 : value === 1 ? 1 : 0;
+    this.update({ cells });
+  }
+
+  /** Replace the whole pattern (one row per lane, steps 0 off, 1 normal, 2 accent). Rows are padded or cut to the right size. */
+  setCells(cells: Cells) {
+    const lanes = this.instrument.lanes.length;
+    if (cells.length !== lanes) return;
+    this.update({ cells: cells.map((row) => Array.from({ length: MAX_STEPS }, (_, i) => (Number(row?.[i]) === 2 ? 2 : Number(row?.[i]) === 1 ? 1 : 0))) });
   }
 
   clearPattern() {

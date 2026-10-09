@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { applyAction, describeAction, inverseOf, isAction, type ActionState, type ActionTarget, type GroupPatch, type LooperAction, type MetronomePatch } from "./actions";
+import { applyAction, describeAction, inverseOf, isAction, type ActionState, type ActionTarget, type FxTarget, type GroupPatch, type LooperAction, type MetronomePatch } from "./actions";
+import { moveEffect, type EffectSpec } from "./effects";
 import { ActionHistory } from "./history";
 import { MacroRecorder, parseMacros, playMacro, serialiseMacros } from "./macros";
 
@@ -8,15 +9,17 @@ import { MacroRecorder, parseMacros, playMacro, serialiseMacros } from "./macros
 function fake() {
   const s: ActionState = {
     channels: [0, 1].map((id) => ({ id, name: `Loop ${id + 1}`, volume: 0.8, muted: false, solo: false, x: 10 * id, y: 20, active: true })),
-    groups: [{ id: "g1", name: "A", colour: "#fff", volume: 1, muted: false, x: 0, y: 0, w: 100, h: 100, effects: [{ id: "fx1", bypass: false, post: false, params: { mix: 0.3 } }] }],
+    groups: [{ id: "g1", name: "A", colour: "#fff", volume: 1, muted: false, x: 0, y: 0, w: 100, h: 100, effects: [{ id: "fx1", kind: "reverb", bypass: false, post: false, params: { mix: 0.3 } }] }],
+    inputs: [{ id: 0, kind: "device", name: "Guitar", deviceId: "d1", mode: "left", volume: 1, muted: false, solo: false, monitor: false, effects: [] }],
     masterVolume: 1,
     playing: false,
     metronome: { bpm: 120, beatsPerBar: 4, volume: 0.5, audible: true, showBeat: true, quantise: "bar", countInBars: 1 },
-    sequencers: [{ id: "q1", name: "Drums", x: 5, y: 5, dest: "auto", playing: false }],
+    sequencers: [{ id: "q1", name: "Drums", x: 5, y: 5, dest: "auto", playing: false, instrumentId: "drums", bars: 1, cells: [[1, 0, 0, 0], [0, 0, 2, 0]] }],
   };
   const ch = (id: number) => s.channels.find((c) => c.id === id)!;
   const gr = (id: string) => s.groups.find((g) => g.id === id)!;
   const sq = (id: string) => s.sequencers.find((q) => q.id === id)!;
+  const list = (tg: FxTarget) => ("group" in tg ? gr(tg.group)?.effects : s.inputs.find((i) => i.id === tg.input)?.effects);
   const t: ActionTarget = {
     getSnapshot: () => s,
     setVolume: (id, v) => { ch(id).volume = v; },
@@ -36,6 +39,28 @@ function fake() {
     moveSequencer: (id, x, y) => { Object.assign(sq(id), { x, y }); },
     setSequencerPlaying: (id, on) => { sq(id).playing = on; },
     setSequencerDest: (id, d) => { sq(id).dest = d; },
+    addGroup: (id, patch, effects) => {
+      if (s.groups.length >= 8) return null;
+      const gid = id && !s.groups.some((g) => g.id === id) ? id : `g${s.groups.length + 10}`;
+      s.groups.push({ id: gid, name: "New", colour: "#000", volume: 1, muted: false, x: 0, y: 0, w: 50, h: 50, effects: (effects ?? []).map((e) => ({ id: e.id ?? "fxn", kind: e.kind, bypass: e.bypass === true, post: e.post === true, params: { ...e.params } })), ...patch });
+      return gid;
+    },
+    removeGroup: (id) => { s.groups = s.groups.filter((g) => g.id !== id); },
+    addChannel: () => { if (s.channels.length < 8) s.channels.push({ id: s.channels.length, name: `Loop ${s.channels.length + 1}`, volume: 1, muted: false, solo: false, x: 0, y: 0, active: true }); },
+    removeLastChannel: () => { if (s.channels.length > 1) s.channels.pop(); },
+    clear: () => undefined, clearAll: () => undefined, record: () => undefined, stopRecording: () => undefined,
+    addSequencerNow: (id) => { const sid = id && !s.sequencers.some((q) => q.id === id) ? id : `q${s.sequencers.length + 10}`; s.sequencers.push({ id: sid, name: "Drums", x: 0, y: 0, dest: "auto", playing: false, instrumentId: "drums", bars: 1, cells: [[0, 0, 0, 0], [0, 0, 0, 0]] }); return sid; },
+    removeSequencer: (id) => { s.sequencers = s.sequencers.filter((q) => q.id !== id); },
+    setSequencer: (id, p) => { const q = sq(id); if (p.instrument) q.instrumentId = p.instrument; if (p.cells) q.cells = p.cells; if (p.bars) q.bars = p.bars; if (p.dest) q.dest = p.dest; if (p.x !== undefined) q.x = p.x; if (p.y !== undefined) q.y = p.y; },
+    addInput: (spec, id) => { const iid = id !== undefined && !s.inputs.some((i) => i.id === id) ? id : s.inputs.length + 10; s.inputs.push({ id: iid, kind: spec.kind, name: spec.name ?? "Input", deviceId: spec.deviceId ?? "", mode: spec.mode ?? "left", volume: 1, muted: false, solo: false, monitor: false, effects: [] }); return iid; },
+    removeInput: (id) => { s.inputs = s.inputs.filter((i) => i.id !== id); },
+    setInput: (id, p) => { Object.assign(s.inputs.find((i) => i.id === id)!, p); },
+    fxAdd: (tg, fx) => { const l = list(tg); if (!l || l.length >= 6) return null; const id = fx.id && !l.some((e) => e.id === fx.id) ? fx.id : `n${l.length + 20}`; l.push({ id, kind: fx.kind, bypass: fx.bypass === true, post: fx.post === true, params: { ...fx.params } }); return id; },
+    fxRemove: (tg, id) => { const l = list(tg); if (l) l.splice(0, l.length, ...l.filter((e) => e.id !== id)); },
+    fxMove: (tg, id, dir) => { const l = list(tg); if (l) l.splice(0, l.length, ...moveEffect(l as EffectSpec[], id, dir)); },
+    fxParam: (tg, id, k, v) => { list(tg)!.find((e) => e.id === id)!.params[k] = v; },
+    fxBypass: (tg, id, b) => { list(tg)!.find((e) => e.id === id)!.bypass = b; },
+    toggleMetronome: () => { s.metronome.audible = !s.metronome.audible; },
   };
   return { s, t };
 }
@@ -57,6 +82,21 @@ const SAMPLES: LooperAction[] = [
   { type: "sequencer.move", id: "q1", x: 50, y: 60 },
   { type: "sequencer.playing", id: "q1", on: true },
   { type: "sequencer.dest", id: "q1", dest: "record" },
+  { type: "metronome.toggle" },
+  { type: "group.add", id: "gx", patch: { name: "Wet" } },
+  { type: "group.remove", id: "g1" },
+  { type: "loop.add" },
+  { type: "sequencer.add", id: "qx" },
+  { type: "sequencer.remove", id: "q1" },
+  { type: "sequencer.set", id: "q1", patch: { cells: [[0, 0, 0, 1], [1, 1, 0, 0]], bars: 2, dest: "record" } },
+  { type: "input.add", id: 7, spec: { kind: "device", name: "Mic" } },
+  { type: "input.remove", id: 0 },
+  { type: "input.set", id: 0, patch: { volume: 0.4, muted: true } },
+  { type: "fx.add", target: { group: "g1" }, fx: { kind: "filter", id: "lp", params: { cutoff: 800 } } },
+  { type: "fx.add", target: { input: 0 }, fx: { kind: "eq", id: "e1" } },
+  { type: "fx.remove", target: { group: "g1" }, id: "fx1" },
+  { type: "fx.param", target: { group: "g1" }, id: "fx1", key: "mix", value: 0.8 },
+  { type: "fx.bypass", target: { group: "g1" }, id: "fx1", bypass: true },
   { type: "batch", label: "Duck", actions: [{ type: "loop.volume", id: 0, value: 0.1 }, { type: "master.volume", value: 0.3 }] },
 ];
 
@@ -196,4 +236,65 @@ test("macro playback can be cancelled", () => {
   cancel();
   assert.equal(s.playing, true);
   assert.deepEqual(cancelled, [true, true]);
+});
+
+test("a creator without an id is recorded with the id it was given, and undo/redo use it", () => {
+  const { s, t } = fake();
+  const h = new ActionHistory(t);
+  const events: LooperAction[] = [];
+  h.onEvent((e) => e.kind === "do" && events.push(e.action));
+  assert.ok(h.do({ type: "sequencer.add" }));
+  const added = s.sequencers[s.sequencers.length - 1].id;
+  assert.deepEqual(events[0], { type: "sequencer.add", id: added });
+  h.undo();
+  assert.ok(!s.sequencers.some((q) => q.id === added));
+  h.redo();
+  assert.ok(s.sequencers.some((q) => q.id === added));
+});
+
+test("a refused creator is not recorded", () => {
+  const { s, t } = fake();
+  const h = new ActionHistory(t);
+  while (s.channels.length < 8) h.do({ type: "loop.add" });
+  const n = h.getState().entries.length;
+  assert.equal(h.do({ type: "loop.add" }), false);
+  assert.equal(h.getState().entries.length, n);
+});
+
+test("removing a group puts it back with its effects", () => {
+  const { s, t } = fake();
+  const h = new ActionHistory(t);
+  const before = JSON.stringify(s.groups);
+  h.do({ type: "group.remove", id: "g1" });
+  assert.equal(s.groups.length, 0);
+  h.undo();
+  assert.equal(JSON.stringify(s.groups), before);
+});
+
+test("an effect added to an input can be swept, bypassed and removed, and each step undone", () => {
+  const { s, t } = fake();
+  const h = new ActionHistory(t);
+  h.do({ type: "fx.add", target: { input: 0 }, fx: { kind: "filter", id: "lp", params: { cutoff: 900 } } });
+  h.do({ type: "fx.param", target: { input: 0 }, id: "lp", key: "cutoff", value: 3000 });
+  h.do({ type: "fx.bypass", target: { input: 0 }, id: "lp", bypass: true });
+  assert.deepEqual(s.inputs[0].effects[0], { id: "lp", kind: "filter", bypass: true, post: false, params: { cutoff: 3000 } });
+  h.undo(); h.undo();
+  assert.equal(s.inputs[0].effects[0].params.cutoff, 900);
+  h.undo();
+  assert.equal(s.inputs[0].effects.length, 0);
+});
+
+test("clearing and recording run but are not on the undo list", () => {
+  const { t } = fake();
+  const h = new ActionHistory(t);
+  assert.equal(h.do({ type: "loop.clear", id: 0 }), false);
+  assert.equal(h.getState().entries.length, 0);
+});
+
+test("invalid new actions are rejected", () => {
+  assert.ok(!isAction({ type: "fx.add", target: { group: "g1" }, fx: { kind: "flanger" } }));
+  assert.ok(!isAction({ type: "fx.add", target: {}, fx: { kind: "eq" } }));
+  assert.ok(!isAction({ type: "sequencer.set", id: "q", patch: { bars: "2" } }));
+  assert.ok(!isAction({ type: "input.add", spec: { kind: "sequencer" } }));
+  assert.ok(isAction({ type: "sequencer.set", id: "q", patch: { rows: ["x...x...x...x..."], bars: 1 } }));
 });

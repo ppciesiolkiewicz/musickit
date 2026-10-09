@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Icon from "@/components/Icon";
 import type { LooperEngine } from "@/lib/looper/engine";
+import { buildPrompt, parseScript } from "@/lib/looper/script";
 import { loadMacros, parseMacros, playMacro, saveMacros, serialiseMacros, type Macro } from "@/lib/looper/macros";
 
 const ibtn = "grid h-8 min-w-8 place-items-center rounded-lg border border-slate-700 bg-slate-900 px-1.5 text-xs text-slate-200 transition hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
@@ -46,16 +47,24 @@ export default function MacroPanel({ engine }: { engine: LooperEngine }) {
     setPlaying((p) => ({ ...p, [m.id]: cancel }));
   };
   const importJson = (text: string) => {
-    const found = parseMacros(text);
+    let found = parseMacros(text);
+    let dropped: string[] = [];
     if (!found.length) {
-      setError("No macros found in that text.");
+      // not a saved macro: maybe a plain list of actions, such as an AI's reply
+      const r = parseScript(text, `AI script ${macros.length + 1}`);
+      found = r.macro ? [r.macro] : [];
+      dropped = r.errors;
+    }
+    if (!found.length) {
+      setError(dropped[0] ?? "No macros or actions found in that text.");
       return;
     }
-    setError(null);
+    setError(dropped.length ? `Imported. Left out: ${dropped.slice(0, 3).join("; ")}${dropped.length > 3 ? ` and ${dropped.length - 3} more` : ""}` : null);
     const ids = new Set(macros.map((m) => m.id));
     update([...macros, ...found.map((m) => (ids.has(m.id) ? { ...m, id: `${m.id}-${Date.now().toString(36)}` } : m))]);
-    setIo(null);
+    if (!dropped.length) setIo(null);
   };
+  const copyPrompt = () => void navigator.clipboard?.writeText(buildPrompt(engine.getSnapshot())).catch(() => undefined);
 
   return (
     <div className="flex h-full min-h-0 flex-col gap-2 overflow-auto p-2">
@@ -94,9 +103,10 @@ export default function MacroPanel({ engine }: { engine: LooperEngine }) {
       </div>
       {io !== null && (
         <div className="flex flex-col gap-1.5">
-          <textarea className={`${field} h-32 font-mono`} value={io} onChange={(e) => setIo(e.target.value)} placeholder="Paste macro JSON here, then Import" aria-label="Macro JSON" spellCheck={false} />
+          <textarea className={`${field} h-32 font-mono`} value={io} onChange={(e) => setIo(e.target.value)} placeholder="Paste macro JSON or an AI's list of actions, then Import" aria-label="Macro JSON" spellCheck={false} />
           <div className="flex gap-1.5">
-            <button type="button" className={`${ibtn} !px-2.5`} onClick={() => importJson(io)} disabled={!io.trim()}>Import</button>
+            <button type="button" className={`${ibtn} !px-2.5`} onClick={() => importJson(io)} disabled={!io.trim()} title="Macro JSON, or a list of actions from an AI">Import</button>
+            <button type="button" className={`${ibtn} gap-1 !px-2.5`} onClick={copyPrompt} title="Copy a prompt that tells an AI every action, effect and sound, and your current mix"><Icon name="zap" size={14} />AI prompt</button>
             <button type="button" className={`${ibtn} !px-2.5`} onClick={() => void navigator.clipboard?.writeText(io).catch(() => undefined)} disabled={!io.trim()}>Copy</button>
           </div>
           {error && <p role="alert" className="text-xs text-rose-300">{error}</p>}

@@ -98,7 +98,7 @@ function LoopCircle({ engine, ch, colour, stage, ready, busy, firstTake, getPosi
   const recording = ch.state === "recording" || ch.state === "armed";
   const isFreeTake = recording && firstTake;
   const label = isFreeTake ? "Stop the take" : recording ? "Cancel" : ch.state === "empty" ? "Record" : "Re-record";
-  const act = () => (recording ? engine.stopRecording() : engine.record(ch.id));
+  const act = () => (recording ? engine.do({ type: "record.stop" }) : engine.do({ type: "loop.record", id: ch.id }));
   const live = ch.state === "recording" ? "#fb7185" : ch.state === "armed" ? "#fbbf24" : colour;
 
   useEffect(() => {
@@ -144,7 +144,7 @@ function LoopCircle({ engine, ch, colour, stage, ready, busy, firstTake, getPosi
         <button type="button" className={`${tbtn} ${ch.muted ? "!border-amber-400 !text-amber-200" : ""}`} aria-pressed={ch.muted} disabled={ch.state === "empty"} onClick={() => engine.do({ type: "loop.mute", id: ch.id, muted: !ch.muted })} title="Mute" aria-label={`Mute ${ch.name}`}>M</button>
         <button type="button" className={`${tbtn} ${ch.solo ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={ch.solo} disabled={ch.state === "empty"} onClick={() => engine.do({ type: "loop.solo", id: ch.id, solo: !ch.solo })} title="Solo" aria-label={`Solo ${ch.name}`}>S</button>
         <button type="button" className={`${tbtn} ${ch.active && ch.state !== "empty" ? "" : ""}`} disabled={ch.state === "empty"} onClick={() => engine.do({ type: "loop.active", id: ch.id, on: !ch.active })} title={ch.active ? "Stop on the next beat" : "Start on the next beat"} aria-label={ch.active ? `Stop ${ch.name}` : `Start ${ch.name}`} aria-pressed={ch.active}><Icon name={ch.active ? "square" : "play"} size={11} fill /></button>
-        <button type="button" className={tbtn} disabled={ch.state === "empty"} onClick={() => engine.clear(ch.id)} title="Clear this loop" aria-label={`Clear ${ch.name}`}><Icon name="trash" size={12} /></button>
+        <button type="button" className={tbtn} disabled={ch.state === "empty"} onClick={() => engine.do({ type: "loop.clear", id: ch.id })} title="Clear this loop" aria-label={`Clear ${ch.name}`}><Icon name="trash" size={12} /></button>
       </div>
       <input type="range" min={0} max={1} step={0.01} value={ch.volume} onChange={(e) => engine.do({ type: "loop.volume", id: ch.id, value: Number(e.target.value) })} className="h-3 w-16 accent-sky-400" aria-label={`Volume of ${ch.name}`} title={`Volume ${Math.round(ch.volume * 100)}%`} />
     </div>
@@ -226,7 +226,7 @@ function GroupBox({ engine, g, stage, count, running, onFx }: { engine: LooperEn
           <Icon name="audio-lines" size={13} />
           {g.effects.length > 0 && <span className="absolute -right-1 -top-1 grid h-3.5 min-w-3.5 place-items-center rounded-full bg-sky-500 px-0.5 text-[9px] font-semibold text-slate-950">{g.effects.length}</span>}
         </button>
-        <button type="button" className={tbtn} onClick={() => engine.removeGroup(g.id)} title={count ? "Remove this group (its loops go to the main output)" : "Remove this group"} aria-label={`Remove ${g.name}`}><Icon name="x" size={12} /></button>
+        <button type="button" className={tbtn} onClick={() => engine.do({ type: "group.remove", id: g.id })} title={count ? "Remove this group (its loops go to the main output)" : "Remove this group"} aria-label={`Remove ${g.name}`}><Icon name="x" size={12} /></button>
       </div>
       <span onPointerDown={size} className="absolute bottom-0 right-0 h-4 w-4 cursor-nwse-resize rounded-br-lg border-b-2 border-r-2" style={{ borderColor: g.colour, touchAction: "none" }} role="presentation" />
     </div>
@@ -240,8 +240,8 @@ export function GroupEffects({ engine, g, onClose }: { engine: LooperEngine; g: 
       title={<span className="flex items-center gap-2"><span className="h-3 w-3 rounded-full" style={{ background: g.colour }} />{g.name}: effects</span>}
       effects={g.effects}
       volume={{ value: g.volume, onChange: (v) => engine.do({ type: "group.set", id: g.id, patch: { volume: v } }) }}
-      onAdd={(k, post) => engine.addEffect(g.id, k, post)}
-      onRemove={(id) => engine.removeEffect(g.id, id)}
+      onAdd={(k, post) => engine.do({ type: "fx.add", target: { group: g.id }, fx: { kind: k, post } })}
+      onRemove={(id) => engine.do({ type: "fx.remove", target: { group: g.id }, id })}
       onParam={(id, key, v) => engine.do({ type: "effect.param", groupId: g.id, fxId: id, key, value: v })}
       onBypass={(id) => engine.do({ type: "effect.bypass", groupId: g.id, fxId: id, bypass: !g.effects.find((e) => e.id === id)?.bypass })}
       onPost={(id, post) => engine.do({ type: "effect.post", groupId: g.id, fxId: id, post })}

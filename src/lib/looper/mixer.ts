@@ -108,9 +108,11 @@ export class InputMixer {
     return list;
   }
 
-  private make(s: SavedInput, connected = false): Runtime {
+  private make(s: SavedInput, connected = false, id?: number): Runtime {
+    const useId = id !== undefined && !this.runtimes.some((r) => r.info.id === id) ? id : this.nextId;
+    this.nextId = Math.max(this.nextId, useId + 1);
     return {
-      info: { id: this.nextId++, sourceId: s.sourceId, kind: s.kind, name: s.name, deviceId: s.deviceId, mode: s.mode, volume: s.volume, muted: false, solo: false, monitor: false, error: null, channels: 0, live: true, effects: sanitiseEffects(s.effects), connected: s.kind === "device" ? connected : true },
+      info: { id: useId, sourceId: s.sourceId, kind: s.kind, name: s.name, deviceId: s.deviceId, mode: s.mode, volume: s.volume, muted: false, solo: false, monitor: false, error: null, channels: 0, live: true, effects: sanitiseEffects(s.effects), connected: s.kind === "device" ? connected : true },
       pre: null, summer: null, gain: null, meter: null, monitor: null, chainPre: null, chainPost: null, shared: null, buf: null,
     };
   }
@@ -346,20 +348,32 @@ export class InputMixer {
     return this.runtimes.find((r) => r.info.id === id);
   }
 
-  /** Add a strip. Returns its id, or null when full or when the extra source is already there. */
-  async add(spec: { kind: InputKind; name: string; deviceId?: string; mode?: InputMode; sourceId?: string }): Promise<number | null> {
-    if (this.runtimes.length >= MAX_INPUTS) return null;
-    if (spec.kind !== "device" && ((spec.kind === "extra" && this.has("extra")) || !this.sourceFor(spec.kind) || ((spec.kind === "sequencer" || spec.kind === "scalepiano") && !spec.sourceId))) return null;
-    const r = this.make({ kind: spec.kind, name: spec.name, deviceId: spec.deviceId ?? "", mode: spec.mode ?? (spec.kind === "device" ? "left" : "stereo"), volume: 1, sourceId: spec.sourceId }, true);
+  /**
+   * Add a strip. The strip exists (and has its id) when this returns; `done` settles once a device has been opened.
+   * `id` asks for a particular id (a macro replays with the ids it recorded); it is ignored when taken.
+   */
+  addNow(spec: { kind: InputKind; name: string; deviceId?: string; mode?: InputMode; sourceId?: string }, id?: number): { id: number | null; done: Promise<void> } {
+    const none = { id: null, done: Promise.resolve() };
+    if (this.runtimes.length >= MAX_INPUTS) return none;
+    if (spec.kind !== "device" && ((spec.kind === "extra" && this.has("extra")) || !this.sourceFor(spec.kind) || ((spec.kind === "sequencer" || spec.kind === "scalepiano") && !spec.sourceId))) return none;
+    const r = this.make({ kind: spec.kind, name: spec.name, deviceId: spec.deviceId ?? "", mode: spec.mode ?? (spec.kind === "device" ? "left" : "stereo"), volume: 1, sourceId: spec.sourceId }, true, id);
     this.runtimes.push(r);
+    let connecting: Promise<void> = Promise.resolve();
     if (this.ctx) {
       this.build(r);
       this.opts.onChange();
-      if (r.info.kind === "device") await this.connectDevice(r);
+      if (r.info.kind === "device") connecting = this.connectDevice(r);
     }
     this.save();
     this.opts.onChange();
-    return r.info.id;
+    return { id: r.info.id, done: connecting.then(() => { this.save(); this.opts.onChange(); }) };
+  }
+
+  /** Add a strip. Returns its id, or null when full or when the extra source is already there. */
+  async add(spec: { kind: InputKind; name: string; deviceId?: string; mode?: InputMode; sourceId?: string }): Promise<number | null> {
+    const { id, done } = this.addNow(spec);
+    await done;
+    return id;
   }
 
   /** Open the microphone or interface of a restored strip. This is the only way a saved device strip asks for permission. */
@@ -477,11 +491,15 @@ export class InputMixer {
     this.opts.onChange();
   }
 
-  addEffect(id: number, kind: EffectKind, post = false) {
+  /** Add an effect to an input. `spec` may carry an id, bypass, post and params (a macro replays with the id it recorded). Returns the effect id. */
+  addEffect(id: number, kind: EffectKind, post = false, spec: { id?: string; bypass?: boolean; params?: Record<string, number> } = {}): string | null {
     const r = this.find(id);
-    if (!r || r.info.effects.length >= 6 || !EFFECT_DEFS[kind]) return;
-    r.info.effects = [...r.info.effects, { id: `i${this.nextFx++}`, kind, bypass: false, post, params: defaultParams(kind) }];
+    if (!r || r.info.effects.length >= 6 || !EFFECT_DEFS[kind]) return null;
+    let fxId = spec.id && !r.info.effects.some((e) => e.id === spec.id) ? spec.id : `i${this.nextFx++}`;
+    while (r.info.effects.some((e) => e.id === fxId)) fxId = `i${this.nextFx++}`;
+    r.info.effects = [...r.info.effects, { id: fxId, kind, bypass: spec.bypass === true, post, params: clampParams(kind, { ...defaultParams(kind), ...spec.params }) }];
     this.fxChanged(r);
+    return fxId;
   }
 
   removeEffect(id: number, fxId: string) {

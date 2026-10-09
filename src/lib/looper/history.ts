@@ -54,8 +54,12 @@ export class ActionHistory {
   /** Apply an action and remember it. Returns false when it did nothing (for example its target no longer exists). */
   do(action: LooperAction, o: DoOptions = {}): boolean {
     const snap = this.target.getSnapshot();
-    const inverse = inverseOf(action, snap);
-    applyAction(this.target, action);
+    const early = inverseOf(action, snap);
+    const done = applyAction(this.target, action);
+    if (!done) return false;
+    // a creator learns its id only once it has run, so its inverse is worked out from what was really done
+    const inverse = early ?? inverseOf(done, snap);
+    action = done;
     const at = this.now();
     this.emit({ kind: "do", action, at, source: o.source ?? "ui" });
     if (!inverse) return false;

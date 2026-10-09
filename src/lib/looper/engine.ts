@@ -1,6 +1,7 @@
-import { assemble, effectiveGain, loopOffset, msToFrames, nextBoundary, peaks, quantUnitFrames, quantiseLength, type Chunk } from "./frames";
+import { assemble, effectiveGain, loopOffset, msToFrames, nextBoundary, peaks, quantUnitFrames, quantiseLength, type Chunk, type InputMode } from "./frames";
 import { Metronome, type MetronomeSettings } from "./metronome";
 import { Sequencer, type SequencerState } from "./sequencer";
+import { fromRows } from "./sequencerPattern";
 import { ScalePiano, clampState as clampScalePiano, type ScalePianoState, type VoiceFactory } from "./scalePiano";
 import { LoopBus, peakOf } from "./buses";
 import { EFFECT_DEFS, defaultParams, moveEffect, clampParams, sanitiseEffects, type EffectKind, type EffectSpec } from "./effects";
@@ -780,15 +781,22 @@ export class LooperEngine {
     this.layoutChanged();
   }
 
-  addGroup(): string | null {
+  /** Add a group. `id` asks for a particular id (a macro replays with the id it recorded); `patch` and `effects` restore a removed group. */
+  addGroup(id?: string, patch?: Partial<Pick<GroupInfo, "name" | "colour" | "volume" | "muted" | "x" | "y" | "w" | "h">>, effects?: { kind: EffectKind; id?: string; post?: boolean; bypass?: boolean; params?: Record<string, number> }[]): string | null {
     if (this.groups.length >= 8) return null;
     const n = ++this.groupCounter;
     const i = this.groups.length;
     const r = clampRect({ x: 30 + i * 24, y: 30 + i * 24, w: 300, h: 260 });
-    const g: GroupInfo = { id: `g${n}`, ...r, name: groupName(i), colour: GROUP_COLOURS[i % GROUP_COLOURS.length], volume: 1, muted: false, effects: [] };
+    const gid = id && /^[\w-]{1,24}$/.test(id) && !this.groups.some((x) => x.id === id) ? id : `g${n}`;
+    const g: GroupInfo = { id: gid, ...r, name: groupName(i), colour: GROUP_COLOURS[i % GROUP_COLOURS.length], volume: 1, muted: false, effects: [] };
     this.groups.push(g);
     this.makeBus(g);
-    this.layoutChanged();
+    if (effects?.length) {
+      g.effects = sanitiseEffects(effects.map((e) => ({ ...e, params: clampParams(e.kind, { ...defaultParams(e.kind), ...e.params }) })));
+      this.buses.get(g.id)?.setEffects(g.effects);
+    }
+    if (patch) this.updateGroup(g.id, patch);
+    else this.layoutChanged();
     return g.id;
   }
 
@@ -835,11 +843,14 @@ export class LooperEngine {
     this.emit();
   }
 
-  addEffect(groupId: string, kind: EffectKind, post = false) {
+  addEffect(groupId: string, kind: EffectKind, post = false, spec: { id?: string; bypass?: boolean; params?: Record<string, number> } = {}): string | null {
     const g = this.groups.find((x) => x.id === groupId);
-    if (!g || g.effects.length >= 6 || !EFFECT_DEFS[kind]) return;
-    g.effects.push({ id: `fx${++this.fxCounter}`, kind, bypass: false, post, params: defaultParams(kind) });
+    if (!g || g.effects.length >= 6 || !EFFECT_DEFS[kind]) return null;
+    let id = spec.id && !g.effects.some((e) => e.id === spec.id) ? spec.id : `fx${++this.fxCounter}`;
+    while (g.effects.some((e) => e.id === id)) id = `fx${++this.fxCounter}`;
+    g.effects.push({ id, kind, bypass: spec.bypass === true, post, params: clampParams(kind, { ...defaultParams(kind), ...spec.params }) });
     this.fxChanged(g);
+    return id;
   }
 
   removeEffect(groupId: string, fxId: string) {
@@ -879,6 +890,97 @@ export class LooperEngine {
     if (!g || !e) return;
     e.bypass = !e.bypass;
     this.fxChanged(g);
+  }
+
+  /* ------------------------------------------------------------------ the rest of what an action can do */
+
+  /** Add a sequencer and its strip at once (the strip exists when this returns). `id` asks for a particular id. */
+  addSequencerNow(id?: string): string | null {
+    let sid = id && /^[\w-]{1,24}$/.test(id) && !this.sequencers.has(id) ? id : `s${++this.seqCounter}`;
+    while (this.sequencers.has(sid)) sid = `s${++this.seqCounter}`;
+    this.makeSequencer(sid);
+    const n = this.mixer.sequencerIds().length;
+    const { id: added } = this.mixer.addNow({ kind: "sequencer", name: n === 0 ? "Drums" : `Drums ${n + 1}`, sourceId: sid });
+    if (added === null) {
+      this.disposeSequencer(sid);
+      return null;
+    }
+    this.saveSequencers();
+    return sid;
+  }
+
+  removeSequencer(id: string) {
+    const strip = this.mixer.list().find((i) => i.kind === "sequencer" && i.sourceId === id);
+    if (strip) this.mixer.remove(strip.id);
+  }
+
+  /** Change a sequencer's sound and pattern. Order: instrument, preset, rows, clear, cells, bars, destination, place. */
+  setSequencer(id: string, p: { instrument?: string; preset?: string; rows?: string[]; clear?: boolean; cells?: number[][]; bars?: number; dest?: "auto" | "record"; x?: number; y?: number }) {
+    const q = this.sequencers.get(id);
+    if (!q) return;
+    if (p.instrument !== undefined) q.setInstrument(p.instrument);
+    if (p.preset !== undefined) q.loadPreset(p.preset);
+    if (p.rows !== undefined) q.setCells(fromRows(p.rows.slice(0, q.instrument.lanes.length).concat(Array(Math.max(0, q.instrument.lanes.length - p.rows.length)).fill(""))));
+    if (p.clear) q.clearPattern();
+    if (p.cells !== undefined && p.cells.length === q.instrument.lanes.length) q.setCells(p.cells);
+    if (p.bars !== undefined) q.setBars(p.bars);
+    if (p.dest !== undefined) this.setSequencerDest(id, p.dest);
+    if (p.x !== undefined || p.y !== undefined) this.moveSequencer(id, p.x ?? q.state.x, p.y ?? q.state.y);
+  }
+
+  setSequencerStep(id: string, lane: number, step: number, value: number) {
+    this.sequencers.get(id)?.setStep(lane, step, value);
+  }
+
+  /** Add a hardware or built-in input. The strip exists when this returns; a device asks for the microphone only now, because a person ran the action. */
+  addInput(spec: { kind: "device" | "extra"; name?: string; deviceId?: string; mode?: InputMode }, id?: number): number | null {
+    const name = spec.name?.slice(0, 40) || (spec.kind === "extra" ? this.options.externalLabel ?? "Keyboard" : "Input");
+    return this.mixer.addNow({ kind: spec.kind, name, deviceId: spec.deviceId, mode: spec.mode }, id).id;
+  }
+
+  /** Remove a device or built-in input. (Sequencer and Scale Piano strips go with their own remove.) */
+  removeInput(id: number) {
+    const i = this.mixer.list().find((x) => x.id === id);
+    if (i && (i.kind === "device" || i.kind === "extra")) this.mixer.remove(id);
+  }
+
+  setInput(id: number, p: { name?: string; volume?: number; muted?: boolean; solo?: boolean; monitor?: boolean; mode?: InputMode }) {
+    const i = this.mixer.list().find((x) => x.id === id);
+    if (!i) return;
+    if (p.name !== undefined) this.mixer.rename(id, p.name.slice(0, 40));
+    if (p.volume !== undefined) this.mixer.setVolume(id, Math.min(1.5, Math.max(0, p.volume)));
+    if (p.muted !== undefined && p.muted !== i.muted) this.mixer.toggleMute(id);
+    if (p.solo !== undefined && p.solo !== i.solo) this.mixer.toggleSolo(id);
+    if (p.monitor !== undefined) this.mixer.setMonitor(id, p.monitor);
+    if (p.mode !== undefined) this.mixer.setMode(id, p.mode);
+  }
+
+  /* effects on a group's bus or an input strip, by target */
+  fxAdd(t: { group: string } | { input: number }, fx: { kind: EffectKind; id?: string; post?: boolean; bypass?: boolean; params?: Record<string, number> }): string | null {
+    return "group" in t ? this.addEffect(t.group, fx.kind, fx.post === true, fx) : this.mixer.addEffect(t.input, fx.kind, fx.post === true, fx);
+  }
+
+  fxRemove(t: { group: string } | { input: number }, id: string) {
+    if ("group" in t) this.removeEffect(t.group, id);
+    else this.mixer.removeEffect(t.input, id);
+  }
+
+  fxMove(t: { group: string } | { input: number }, id: string, dir: -1 | 1) {
+    if ("group" in t) this.moveEffect(t.group, id, dir);
+    else this.mixer.moveEffect(t.input, id, dir);
+  }
+
+  fxParam(t: { group: string } | { input: number }, id: string, key: string, value: number) {
+    if ("group" in t) this.setEffectParam(t.group, id, key, value);
+    else this.mixer.setEffectParam(t.input, id, key, value);
+  }
+
+  fxBypass(t: { group: string } | { input: number }, id: string, bypass: boolean) {
+    const list = "group" in t ? this.groups.find((g) => g.id === t.group)?.effects : this.mixer.list().find((i) => i.id === t.input)?.effects;
+    const e = list?.find((x) => x.id === id);
+    if (!e || e.bypass === bypass) return;
+    if ("group" in t) this.toggleEffectBypass(t.group, id);
+    else this.mixer.toggleEffectBypass(t.input, id);
   }
 
   removeLastChannel() {

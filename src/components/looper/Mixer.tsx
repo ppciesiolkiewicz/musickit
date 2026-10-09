@@ -58,7 +58,7 @@ function AddInputModal({ engine, snap, hasExtra, onClose }: { engine: LooperEngi
     const modes: InputMode[] = pick === "both" ? ["left", "right"] : [pick];
     modes.forEach((m) => {
       const suffix = m === "left" ? (pick === "both" ? " input 1" : " input 1") : m === "right" ? " input 2" : "";
-      void engine.mixer.add({ kind: "device", name: `${base}${suffix}`, deviceId, mode: m });
+      engine.do({ type: "input.add", spec: { kind: "device", name: `${base}${suffix}`, deviceId, mode: m } });
     });
     onClose();
   };
@@ -72,7 +72,7 @@ function AddInputModal({ engine, snap, hasExtra, onClose }: { engine: LooperEngi
             <span className="text-sm font-medium text-slate-100">Hardware</span>
             <span className="text-xs text-slate-400">An audio interface (Scarlett, DI guitar), a USB mic or the built-in microphone.</span>
           </button>
-          <button type="button" disabled={hasExtra || !snap.extraLabel} onClick={() => { void engine.mixer.add({ kind: "extra", name: snap.extraLabel ?? "Keyboard" }); onClose(); }} className="flex flex-col gap-1 rounded-xl border border-slate-700 bg-slate-900 p-4 text-left hover:border-sky-400 disabled:cursor-not-allowed disabled:opacity-50">
+          <button type="button" disabled={hasExtra || !snap.extraLabel} onClick={() => { engine.do({ type: "input.add", spec: { kind: "extra", name: snap.extraLabel ?? "Keyboard" } }); onClose(); }} className="flex flex-col gap-1 rounded-xl border border-slate-700 bg-slate-900 p-4 text-left hover:border-sky-400 disabled:cursor-not-allowed disabled:opacity-50">
             <Icon name="piano" size={28} className="text-sky-300" />
             <span className="text-sm font-medium text-slate-100">Software keyboard</span>
             <span className="text-xs text-slate-400">{hasExtra ? "Already added. Open it from its strip." : "The on-screen piano and your MIDI keyboard. Plays through the app, no audio device needed."}</span>
@@ -82,7 +82,7 @@ function AddInputModal({ engine, snap, hasExtra, onClose }: { engine: LooperEngi
             <span className="text-sm font-medium text-slate-100">Scale Piano</span>
             <span className="text-xs text-slate-400">Pick a key and scale: the computer keys play only notes from it.</span>
           </button>
-          <button type="button" onClick={() => { void engine.addSequencer(); onClose(); }} className="flex flex-col gap-1 rounded-xl border border-slate-700 bg-slate-900 p-4 text-left hover:border-sky-400 disabled:cursor-not-allowed disabled:opacity-50">
+          <button type="button" onClick={() => { engine.do({ type: "sequencer.add" }); onClose(); }} className="flex flex-col gap-1 rounded-xl border border-slate-700 bg-slate-900 p-4 text-left hover:border-sky-400 disabled:cursor-not-allowed disabled:opacity-50">
             <Icon name="drum" size={28} className="text-sky-300" />
             <span className="text-sm font-medium text-slate-100">Sequencer</span>
             <span className="text-xs text-slate-400">A step sequencer in time with the click: a drum machine to start with. It plays to the master bus; add as many as you like.</span>
@@ -179,21 +179,21 @@ function InputStrip({ engine, inp, devices, anyDevice, keyboardOpen, onToggleKey
     <li style={grp ? { borderLeft: `4px solid ${grp.colour}`, background: `${grp.colour}12` } : undefined} className={`flex flex-col gap-1 rounded-lg border bg-slate-950/50 px-2 py-1.5 ${inp.live ? "border-slate-800" : "border-slate-800/60 opacity-80"}`}>
       <div className="flex flex-wrap items-center gap-1.5">
         <span title={state} className="text-slate-300"><Icon name={isDevice ? "mic" : inp.kind === "sequencer" ? "drum" : inp.kind === "scalepiano" ? "music" : "piano"} size={18} /></span>
-        <input value={inp.name} onChange={(e) => m.rename(inp.id, e.target.value)} aria-label="Input name" className="w-32 rounded-md border border-transparent bg-transparent px-1.5 py-0.5 text-sm font-medium text-slate-100 hover:border-slate-700 focus:border-slate-500 focus:outline-none" />
+        <input value={inp.name} onChange={(e) => engine.do({ type: "input.set", id: inp.id, patch: { name: e.target.value } })} aria-label="Input name" className="w-32 rounded-md border border-transparent bg-transparent px-1.5 py-0.5 text-sm font-medium text-slate-100 hover:border-slate-700 focus:border-slate-500 focus:outline-none" />
         {inp.kind === "sequencer" && seq && <span className="flex h-6 min-w-[6.5rem] items-center justify-center gap-1 rounded-md border px-1.5 text-[10px] leading-none text-slate-300" style={{ borderColor: grp?.colour ?? "#334155" }} title="Where this sequencer plays: by the group its circle sits in">{grp && <span className="h-2 w-2 rounded-full" style={{ background: grp.colour }} />}→ {seq.dest === "record" ? "recorder" : grp?.name ?? "master"}</span>}
         {inp.kind !== "sequencer" && <span className="flex h-6 min-w-[6.5rem] items-center justify-center gap-1 rounded-md border border-slate-700 px-1.5 text-[10px] leading-none text-slate-400" title="Goes to the recorder, then into the loops"><Icon name="circle" size={10} className="text-rose-400" />rec</span>}
         <span aria-hidden title={state} className={`h-2 w-2 rounded-full ${inp.live ? "bg-emerald-400" : "bg-slate-600"}`} />
         <LevelMeter vertical getLevel={getLevel} />
-        <input type="range" min={0} max={1.5} step={0.01} value={inp.volume} onChange={(e) => m.setVolume(inp.id, Number(e.target.value))} className="w-24 accent-sky-400" aria-label={`Gain of ${inp.name}`} title={`Gain ${Math.round(inp.volume * 100)}%`} />
+        <input type="range" min={0} max={1.5} step={0.01} value={inp.volume} onChange={(e) => engine.do({ type: "input.set", id: inp.id, patch: { volume: Number(e.target.value) } })} className="w-24 accent-sky-400" aria-label={`Gain of ${inp.name}`} title={`Gain ${Math.round(inp.volume * 100)}%`} />
         <span className="flex-1" aria-hidden />
         {inp.kind === "sequencer" && seq && <button type="button" className={`${ibtn} ${seq.playing ? "!border-emerald-500/70 !bg-emerald-500/15 !text-emerald-200" : ""}`} aria-pressed={seq.playing} onClick={() => engine.do({ type: "sequencer.playing", id: seq.id, on: !seq.playing })} title={seq.playing ? "Stop on the next beat" : "Start on the next beat"} aria-label={seq.playing ? `Stop ${inp.name}` : `Start ${inp.name}`}><Icon name={seq.playing ? "square" : "play"} fill /></button>}
         {inp.kind === "sequencer" && <button type="button" className={`${ibtn} ${sequencerOpen ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={sequencerOpen} onClick={onToggleSequencer} title={sequencerOpen ? "Close the sequencer" : "Open the sequencer"} aria-label={sequencerOpen ? "Close the sequencer" : "Open the sequencer"}><Icon name="sliders-horizontal" /></button>}
         {inp.kind === "scalepiano" && <button type="button" className={`${ibtn} ${pianoOpen ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={pianoOpen} onClick={onTogglePiano} title={pianoOpen ? "Close the Scale Piano" : "Open the Scale Piano"} aria-label={pianoOpen ? "Close the Scale Piano" : "Open the Scale Piano"}><Icon name="keyboard" /></button>}
         {inp.kind === "extra" && <button type="button" className={`${ibtn} ${keyboardOpen ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={keyboardOpen} onClick={onToggleKeyboard} title={keyboardOpen ? "Close keyboard" : "Open keyboard"} aria-label={keyboardOpen ? "Close keyboard" : "Open keyboard"}><Icon name="keyboard" /></button>}
-        {isDevice && inp.connected && <button type="button" className={`${ibtn} ${inp.monitor ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={inp.monitor} onClick={() => m.setMonitor(inp.id, !inp.monitor)} title="Hear this input while it is recorded" aria-label={`Hear ${inp.name}`}><Icon name="headphones" /></button>}
-        <button type="button" className={`${ibtn} ${inp.muted ? "!border-amber-400 !text-amber-200" : ""}`} aria-pressed={inp.muted} onClick={() => m.toggleMute(inp.id)} title="Mute" aria-label={`Mute ${inp.name}`}>M</button>
-        <button type="button" className={`${ibtn} ${inp.solo ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={inp.solo} onClick={() => m.toggleSolo(inp.id)} title="Solo" aria-label={`Solo ${inp.name}`}>S</button>
-        <button type="button" className={ibtn} onClick={() => m.remove(inp.id)} aria-label={`Remove ${inp.name}`} title="Remove this input"><Icon name="x" /></button>
+        {isDevice && inp.connected && <button type="button" className={`${ibtn} ${inp.monitor ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={inp.monitor} onClick={() => engine.do({ type: "input.set", id: inp.id, patch: { monitor: !inp.monitor } })} title="Hear this input while it is recorded" aria-label={`Hear ${inp.name}`}><Icon name="headphones" /></button>}
+        <button type="button" className={`${ibtn} ${inp.muted ? "!border-amber-400 !text-amber-200" : ""}`} aria-pressed={inp.muted} onClick={() => engine.do({ type: "input.set", id: inp.id, patch: { muted: !inp.muted } })} title="Mute" aria-label={`Mute ${inp.name}`}>M</button>
+        <button type="button" className={`${ibtn} ${inp.solo ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={inp.solo} onClick={() => engine.do({ type: "input.set", id: inp.id, patch: { solo: !inp.solo } })} title="Solo" aria-label={`Solo ${inp.name}`}>S</button>
+        <button type="button" className={ibtn} onClick={() => (inp.kind === "sequencer" && inp.sourceId ? engine.do({ type: "sequencer.remove", id: inp.sourceId }) : inp.kind === "device" || inp.kind === "extra" ? engine.do({ type: "input.remove", id: inp.id }) : m.remove(inp.id))} aria-label={`Remove ${inp.name}`} title="Remove this input"><Icon name="x" /></button>
       </div>
 
       {isDevice && !inp.connected && (
@@ -208,21 +208,21 @@ function InputStrip({ engine, inp, devices, anyDevice, keyboardOpen, onToggleKey
             <option value="">{anyDevice ? "System default input" : "System default input"}</option>
             {devices.map((d) => <option key={d.id} value={d.id}>{d.label}</option>)}
           </select>
-          <select className={field} value={inp.mode} onChange={(e) => m.setMode(inp.id, e.target.value as InputMode)} aria-label="Channels to record">
+          <select className={field} value={inp.mode} onChange={(e) => engine.do({ type: "input.set", id: inp.id, patch: { mode: e.target.value as InputMode } })} aria-label="Channels to record">
             {MODES.map((x) => <option key={x.id} value={x.id}>{x.label}</option>)}
           </select>
         </div>
       )}
-      <EffectStack effects={inp.effects} onOpen={() => setFxOpen(true)} onBypass={(fx) => m.toggleEffectBypass(inp.id, fx)} onMove={(fx, d) => m.moveEffect(inp.id, fx, d)} />
+      <EffectStack effects={inp.effects} onOpen={() => setFxOpen(true)} onBypass={(fx) => engine.do({ type: "fx.bypass", target: { input: inp.id }, id: fx, bypass: !inp.effects.find((e) => e.id === fx)?.bypass })} onMove={(fx, d) => engine.do({ type: "fx.move", target: { input: inp.id }, id: fx, dir: d })} />
       {fxOpen && (
         <EffectsModal
           title={<span className="flex items-center gap-2"><Icon name={isDevice ? "mic" : "music"} size={16} />{inp.name}: effects</span>}
           effects={inp.effects}
-          volume={{ value: inp.volume, onChange: (v) => m.setVolume(inp.id, v) }}
-          onAdd={(k, post) => m.addEffect(inp.id, k, post)}
-          onRemove={(fx) => m.removeEffect(inp.id, fx)}
-          onParam={(fx, key, v) => m.setEffectParam(inp.id, fx, key, v)}
-          onBypass={(fx) => m.toggleEffectBypass(inp.id, fx)}
+          volume={{ value: inp.volume, onChange: (v) => engine.do({ type: "input.set", id: inp.id, patch: { volume: v } }) }}
+          onAdd={(k, post) => engine.do({ type: "fx.add", target: { input: inp.id }, fx: { kind: k, post } })}
+          onRemove={(fx) => engine.do({ type: "fx.remove", target: { input: inp.id }, id: fx })}
+          onParam={(fx, key, v) => engine.do({ type: "fx.param", target: { input: inp.id }, id: fx, key, value: v })}
+          onBypass={(fx) => engine.do({ type: "fx.bypass", target: { input: inp.id }, id: fx, bypass: !inp.effects.find((e) => e.id === fx)?.bypass })}
           onPost={(fx, post) => m.setEffectPost(inp.id, fx, post)}
           onClose={() => setFxOpen(false)}
         />
@@ -276,7 +276,7 @@ function BusRow({ engine, g, loops, seqs, onFx }: { engine: LooperEngine; g: Loo
       <input type="range" min={0} max={1.5} step={0.01} value={g.volume} onChange={(e) => engine.do({ type: "group.set", id: g.id, patch: { volume: Number(e.target.value) } })} className="w-24 accent-sky-400" aria-label={`Volume of ${g.name}`} title={`Volume ${Math.round(g.volume * 100)}%`} />
       <span className="flex-1" aria-hidden />
       <button type="button" className={`${ibtn} ${g.muted ? "!border-amber-400 !text-amber-200" : ""}`} aria-pressed={g.muted} onClick={() => engine.do({ type: "group.set", id: g.id, patch: { muted: !g.muted } })} title="Mute the bus" aria-label={`Mute ${g.name}`}>M</button>
-      <div className="basis-full"><EffectStack effects={g.effects} onOpen={onFx} onBypass={(fx) => engine.do({ type: "effect.bypass", groupId: g.id, fxId: fx, bypass: !g.effects.find((e) => e.id === fx)?.bypass })} onMove={(fx, d) => engine.moveEffect(g.id, fx, d)} /></div>
+      <div className="basis-full"><EffectStack effects={g.effects} onOpen={onFx} onBypass={(fx) => engine.do({ type: "effect.bypass", groupId: g.id, fxId: fx, bypass: !g.effects.find((e) => e.id === fx)?.bypass })} onMove={(fx, d) => engine.do({ type: "fx.move", target: { group: g.id }, id: fx, dir: d })} /></div>
     </li>
   );
 }

@@ -39,14 +39,14 @@ function Grid({ engine, snap, id, sq, seq }: { engine: LooperEngine; snap: Loope
     <div className="flex min-w-0 flex-col gap-2 p-2">
       <div className="flex flex-wrap items-center gap-1.5">
         <button type="button" className={`${ibtn} ${sq.playing ? "!border-emerald-500/70 !bg-emerald-500/15 !text-emerald-200" : ""}`} aria-pressed={sq.playing} onClick={() => engine.do({ type: "sequencer.playing", id, on: !sq.playing })} title={sq.playing ? "Stop on the next beat" : "Start on the next beat"} aria-label={sq.playing ? "Stop the sequencer" : "Start the sequencer"}><Icon name={sq.playing ? "square" : "play"} fill /></button>
-        <select className={field} value={inst.id} onChange={(e) => seq.setInstrument(e.target.value)} aria-label="Instrument">
+        <select className={field} value={inst.id} onChange={(e) => engine.do({ type: "sequencer.set", id, patch: { instrument: e.target.value } })} aria-label="Instrument">
           {INSTRUMENTS.map((i) => <option key={i.id} value={i.id}>{i.name}</option>)}
         </select>
-        <select className={field} value="" onChange={(e) => e.target.value && seq.loadPreset(e.target.value)} aria-label="Load a pattern">
+        <select className={field} value="" onChange={(e) => e.target.value && engine.do({ type: "sequencer.set", id, patch: { preset: e.target.value } })} aria-label="Load a pattern">
           <option value="">Pattern…</option>
           {inst.presets.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
         </select>
-        <select className={field} value={sq.bars} onChange={(e) => seq.setBars(Number(e.target.value))} aria-label="Bars in the pattern">
+        <select className={field} value={sq.bars} onChange={(e) => engine.do({ type: "sequencer.set", id, patch: { bars: Number(e.target.value) } })} aria-label="Bars in the pattern">
           <option value={1}>1 bar</option>
           <option value={2}>2 bars</option>
         </select>
@@ -54,7 +54,7 @@ function Grid({ engine, snap, id, sq, seq }: { engine: LooperEngine; snap: Loope
           <option value="auto">{sq.groupId ? `To ${snap.groups.find((g) => g.id === sq.groupId)?.name ?? "its group"}` : "To master"} (by position)</option>
           <option value="record">To the recorder (and master)</option>
         </select>
-        <button type="button" className={ibtn} onClick={() => seq.clearPattern()} title="Clear the pattern" aria-label="Clear the pattern"><Icon name="trash" /></button>
+        <button type="button" className={ibtn} onClick={() => engine.do({ type: "sequencer.set", id, patch: { clear: true } })} title="Clear the pattern" aria-label="Clear the pattern"><Icon name="trash" /></button>
       </div>
 
       <div className="overflow-x-auto">
@@ -76,7 +76,7 @@ function Grid({ engine, snap, id, sq, seq }: { engine: LooperEngine; snap: Loope
                     type="button"
                     role="gridcell"
                     aria-label={`${lane.label}, step ${s + 1}: ${v === 0 ? "off" : v === 1 ? "on" : "accent"}`}
-                    onClick={() => seq.cycle(l, s)}
+                    onClick={() => engine.do({ type: "sequencer.step", id, lane: l, step: s, value: (((sq.cells[l]?.[s] ?? 0) + 1) % 3) as 0 | 1 | 2 })}
                     className={`mx-px h-7 rounded transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${s % (bpb * 4) === 0 && s > 0 ? "ml-1.5" : s % 4 === 0 && s > 0 ? "ml-0.5" : ""} ${v === 2 ? "bg-amber-400" : v === 1 ? "bg-sky-500" : s % 8 < 4 ? "bg-slate-800 hover:bg-slate-700" : "bg-slate-800/60 hover:bg-slate-700"}`}
                   />
                 );

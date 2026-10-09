@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
-import type { LooperEngine, LooperSnapshot } from "@/lib/looper/engine";
+import { EFFECT_DEFS, type LooperEngine, type LooperSnapshot } from "@/lib/looper/engine";
 import { spotInGroup, spotOutside } from "@/lib/looper/layout";
 
 const W = 1000;
@@ -165,7 +165,7 @@ export default function SignalFlow({ snap, engine }: { snap: LooperSnapshot; eng
         <g key={g.id} transform={`translate(${X.bus}, ${busY(i) - 16})`}>
           <rect width="140" height="32" rx="8" fill={`${g.colour}22`} stroke={g.colour} strokeWidth={over?.type === "bus" && over.id === g.id ? 4 : 1} />
           <text x="10" y="14" fontSize="12" fill="currentColor">{g.name.slice(0, 16)}</text>
-          <text x="10" y="26" fontSize="9.5" fill="#94a3b8">{g.effects.length ? g.effects.filter((e) => !e.bypass).map((e) => (e.kind === "tapeDelay" ? "delay" : "reverb") + (e.post ? "·post" : "")).join(" → ") || "bypassed" : "dry"}</text>
+          <text x="10" y="26" fontSize="9.5" fill="#94a3b8">{g.effects.length ? g.effects.filter((e) => !e.bypass).map((e) => EFFECT_DEFS[e.kind].name.toLowerCase() + (e.post ? "·post" : "")).join(" → ") || "bypassed" : "dry"}</text>
         </g>
       ))}
 

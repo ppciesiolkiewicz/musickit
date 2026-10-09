@@ -106,4 +106,4 @@ The looper page has no site navigation. The top row holds the metronome on the l
 The looping stage is drawn at a fixed size and scaled as a whole (circles, groups and text together). It fits the page width by default; the − and + buttons zoom (40% to 250%), the middle button returns to fit, and the area scrolls when it is larger than the page. The looper page uses the full width with small margins.
 
 ## Actions, history, macros, widgets
-Undo/redo, a history list, recordable macros and a movable/resizable widget layout. See `spec/looper-actions.md`. All user changes go through `engine.do`.
+Undo/redo, a history list, recordable macros and a movable/resizable widget layout. See `spec/looper-actions.md`. All user changes go through `engine.do`: inputs, drums, groups, loops, effects (nine kinds, incl. filter, distortion, chorus, phaser, tremolo, compressor, EQ), so a macro or an AI script can build a whole setup.
