@@ -6,7 +6,7 @@ import { LabelSelect, useLabelSystem } from "./useLabelSystem";
 import { noteLabel, type LabelSystem } from "@/lib/chordKit/labels";
 import ChordDiagram from "./ChordDiagram";
 import { KeyPicker } from "./KeyPicker";
-import { FretboardBase, fretGeometry } from "./Fretboard";
+import { fretWidthFactor } from "./Fretboard";
 import { degreeColour } from "@/lib/chordKit/scales";
 import { Chip, ChipRow, DegreeLegend, Info, Section } from "./ui";
 import {
@@ -69,59 +69,86 @@ export default function CagedExplorer() {
   );
 }
 
-/** The whole neck at a glance: every chord tone, with each CAGED box shaded and labelled above its frets. */
+const STRING_LETTERS = ["E", "A", "D", "G", "B", "e"];
+
+/** The whole neck at a glance: a CSS grid with one column per fret and one row per string. Each CAGED box is a run of columns with its own colour. */
 function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem }: { boxes: CagedBox[]; keyName: string; quality: CagedQuality; rootPc: number; arpKind: ArpKind; labelSystem: LabelSystem }) {
-  const g = useMemo(() => fretGeometry(0, NECK_END), []);
   const cells = useMemo(() => boxCells(rootPc, quality, { ...boxes[0], from: 0, to: NECK_END }, arpKind).filter((c) => c.arpRole), [boxes, rootPc, quality, arpKind]);
   const lab = (c: CagedCell) => noteLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText, role: c.arpRole });
-  const off = 40;
   const sorted = [...boxes].sort((p, q) => p.from - q.from);
-  // Each box is one colour over the full height of the neck. Neighbouring boxes meet on a fret line in the middle of their overlap,
-  // so the change of colour always falls between two notes and never under one.
+  // neighbouring boxes meet on a fret line in the middle of their overlap
   const cuts = sorted.slice(1).map((nx, i) => {
     const pv = sorted[i];
-    const k = Math.round((nx.from + pv.to + 1) / 2);
-    return Math.max(Math.min(nx.from, pv.to + 1), Math.min(k, Math.max(nx.from, pv.to + 1)));
+    const lo = Math.min(nx.from, pv.to + 1), hi = Math.max(nx.from, pv.to + 1);
+    return Math.max(lo, Math.min(Math.round((nx.from + pv.to + 1) / 2), hi));
   });
-  const zones = sorted.map((b, i) => {
-    const x0 = i === 0 ? g.left : g.edge(cuts[i - 1]);
-    const x1 = i === sorted.length - 1 ? g.edge(NECK_END + 1) : g.edge(cuts[i]);
-    return { b, x0, x1, col: LANE_COLOURS[boxes.indexOf(b) % 5] };
-  });
+  const zones = sorted.map((b, i) => ({ b, from: i === 0 ? 0 : cuts[i - 1], to: i === sorted.length - 1 ? NECK_END : cuts[i] - 1, col: LANE_COLOURS[boxes.indexOf(b) % 5] }));
+  const zoneOf = (f: number) => zones.find((z) => f >= z.from && f <= z.to) ?? zones[zones.length - 1];
+  const frets = Array.from({ length: NECK_END + 1 }, (_, f) => f);
+  const cellAt = (s: number, f: number) => cells.find((c) => c.string === s && c.fret === f);
+  const COL0 = 2; // grid column 1 holds the string names
   return (
     <section className="rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5">
       <h2 className="mb-2 flex flex-wrap items-center gap-2 text-sm font-medium text-slate-100">
         <span>
           {keyName} {quality}: the five boxes up the neck
-          <Info label="Reading the map">Every note of the chord on the whole neck. Each shaded zone is one CAGED box, named after the open chord shape it is built around and numbered by position up the neck. Neighbouring boxes overlap by a fret or two, and the pattern repeats after the 12th fret. Tap a note to hear it.</Info>
+          <Info label="Reading the map">Every note of the chord on the whole neck. Each coloured run of frets is one CAGED box, named after the open chord shape it is built around and numbered by position up the neck. Neighbouring boxes overlap by a fret or two; here they meet in the middle of the overlap. The pattern repeats after the 12th fret. Tap a note to hear it.</Info>
         </span>
         <LabelSelect className="ml-auto" />
       </h2>
       <div className="overflow-x-auto">
-        <svg viewBox={`0 0 ${g.W} ${g.H + off}`} width="100%" style={{ minWidth: 820 }} role="img" aria-label="Chord tones on the whole neck with the five CAGED boxes marked">
-          <g transform={`translate(0, ${off})`}>
-            <FretboardBase g={g} />
-            <clipPath id="overview-board"><rect x={g.left} y={g.sy(5) - 14} width={g.edge(NECK_END + 1) - g.left} height={g.sy(0) - g.sy(5) + 28} rx={8} /></clipPath>
-            <g clipPath="url(#overview-board)">
-              {zones.map((z) => <rect key={z.b.letter} x={z.x0} y={g.sy(5) - 14} width={z.x1 - z.x0} height={g.sy(0) - g.sy(5) + 28} fill={z.col} opacity={0.26} />)}
-              {zones.slice(1).map((z) => <line key={`d${z.b.letter}`} x1={z.x0} x2={z.x0} y1={g.sy(5) - 14} y2={g.sy(0) + 14} stroke="#0d1526" strokeWidth={1.5} opacity={0.6} />)}
-            </g>
-            {cells.map((c) => {
-              const x = g.fx(c.fret), y = g.sy(c.string), col = c.scaleDegree === null ? "#f43f5e" : degreeColour(c.scaleDegree), l = lab(c);
+        <div
+          className="grid min-w-[820px] gap-y-0 text-[11px]"
+          style={{ gridTemplateColumns: `1.5rem ${frets.map((f) => `${fretWidthFactor(f).toFixed(3)}fr`).join(" ")}`, gridTemplateRows: "auto repeat(6, 2.6rem) auto" }}
+          role="group" aria-label="Chord tones on the whole neck with the five CAGED boxes marked"
+        >
+          {zones.map((z) => (
+            <div key={z.b.letter} className="px-1 pb-1.5 text-center text-xs font-semibold" style={{ gridRow: 1, gridColumn: `${z.from + COL0} / ${z.to + COL0 + 1}`, color: z.col }}>
+              {z.b.letter} shape · Position {sorted.indexOf(z.b) + 1}
+            </div>
+          ))}
+          {[5, 4, 3, 2, 1, 0].map((s, r) => (
+            <div key={`n${s}`} className="grid place-items-center text-slate-500" style={{ gridRow: r + 2, gridColumn: 1 }}>{STRING_LETTERS[s]}</div>
+          ))}
+          {[5, 4, 3, 2, 1, 0].flatMap((s, r) =>
+            frets.map((f) => {
+              const z = zoneOf(f), c = cellAt(s, f);
+              const line = "#94a3b8";
               return (
-                <g key={`${c.string}-${c.fret}`} onClick={() => strum([c.midi], { gapMs: 0, holdMs: 700 })} style={{ cursor: "pointer" }}>
-                  <circle cx={x} cy={y} r={13} fill={col} stroke={c.isRoot ? "#ffffff" : "#0d1526"} strokeWidth={c.isRoot ? 2.5 : 1.5} />
-                  <text x={x} y={y + 0.5} textAnchor="middle" dominantBaseline="central" fontSize={l.length > 2 ? 9.5 : 12} fontWeight={700} fill="#0b1220" pointerEvents="none">{l}</text>
-                </g>
+                <div
+                  key={`${s}-${f}`}
+                  className="grid place-items-center"
+                  style={{
+                    gridRow: r + 2, gridColumn: f + COL0,
+                    backgroundColor: z.col + "42",
+                    backgroundImage: `linear-gradient(${line}, ${line})`,
+                    backgroundSize: `100% ${0.8 + s * 0.32}px`,
+                    backgroundPosition: "center",
+                    backgroundRepeat: "no-repeat",
+                    borderLeft: f === 1 ? "4px solid #cbd5e1" : f > 1 ? "1px solid #3a4a66" : undefined,
+                    borderTopLeftRadius: r === 0 && f === 0 ? 8 : undefined, borderBottomLeftRadius: r === 5 && f === 0 ? 8 : undefined,
+                    borderTopRightRadius: r === 0 && f === NECK_END ? 8 : undefined, borderBottomRightRadius: r === 5 && f === NECK_END ? 8 : undefined,
+                  }}
+                >
+                  {c && (
+                    <button
+                      type="button"
+                      onClick={() => strum([c.midi], { gapMs: 0, holdMs: 700 })}
+                      aria-label={`${lab(c)} on string ${STRING_LETTERS[s]}, fret ${f}`}
+                      className={`grid h-7 w-7 place-items-center rounded-full text-[11px] font-bold text-slate-950 ${c.isRoot ? "ring-2 ring-white" : "ring-1 ring-slate-950"}`}
+                      style={{ backgroundColor: c.scaleDegree === null ? "#f43f5e" : degreeColour(c.scaleDegree) }}
+                    >
+                      {lab(c)}
+                    </button>
+                  )}
+                </div>
               );
-            })}
-          </g>
-          {zones.map(({ b, x0, x1, col }, i) => {
-            const cx = (x0 + x1) / 2;
-            const y = i % 2 === 0 ? 14 : 31;
-            return <text key={b.letter} x={cx} y={y} textAnchor="middle" fontSize={12} fontWeight={600} fill={col}>{b.letter} shape · Position {i + 1}</text>;
-          })}
-        </svg>
+            }),
+          )}
+          {frets.map((f) => (
+            <div key={`fn${f}`} className="pt-1.5 text-center text-slate-500" style={{ gridRow: 8, gridColumn: f + COL0 }}>{f === 0 ? "open" : f}</div>
+          ))}
+        </div>
       </div>
     </section>
   );
