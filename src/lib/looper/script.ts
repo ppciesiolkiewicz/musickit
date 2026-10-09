@@ -18,7 +18,7 @@ export interface CatalogEntry {
 
 export const ACTION_CATALOG: CatalogEntry[] = [
   { type: "input.add", doc: "Add an input. kind \"device\" is a microphone or audio interface (mode left/right/stereo/sum picks the channel), \"extra\" is the built-in keyboard. Give it an id you can refer to.", example: { type: "input.add", id: 10, spec: { kind: "device", name: "Guitar", mode: "left" } } },
-  { type: "input.set", doc: "Change an input: name, volume (0 to 1.5), muted, solo, monitor (hear it), mode.", example: { type: "input.set", id: 10, patch: { volume: 0.8, monitor: true } } },
+  { type: "input.set", doc: "Change an input: name, volume (0 to 4; above 1 boosts a quiet input), muted, solo, monitor (hear it), mode.", example: { type: "input.set", id: 10, patch: { volume: 0.8, monitor: true } } },
   { type: "input.remove", doc: "Remove a device or keyboard input.", example: { type: "input.remove", id: 10 } },
   { type: "sequencer.add", doc: "Add a drum machine (with its mixer strip). Give it an id.", example: { type: "sequencer.add", id: "drums1" } },
   { type: "sequencer.set", doc: "Set a sequencer: instrument (drums or bass), preset, rows (one string per lane, 16 characters a bar: x step, X accent, . off), clear, bars (1 or 2), dest (auto or record), x and y on the stage.", example: { type: "sequencer.set", id: "drums1", patch: { preset: "four", bars: 1 } } },

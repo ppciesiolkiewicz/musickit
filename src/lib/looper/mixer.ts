@@ -10,6 +10,9 @@ import { EFFECT_DEFS, clampParams, defaultParams, moveEffect, sanitiseEffects, t
 
 export type InputKind = "device" | "extra" | "sequencer" | "scalepiano";
 
+/** Input gain goes well above 100% because an instrument straight from an audio interface is often quiet. */
+export const MAX_INPUT_GAIN = 4;
+
 export interface InputInfo {
   id: number;
   /** for "sequencer" strips: the id of the sequencer behind it */
@@ -157,7 +160,7 @@ export class InputMixer {
       if (!raw) return;
       const saved = (JSON.parse(raw) as SavedInput[]).filter((s) => (s.kind === "device" || (this.sourceFor(s.kind) && ((s.kind !== "sequencer" && s.kind !== "scalepiano") || typeof s.sourceId === "string"))) && ["left", "right", "stereo", "sum"].includes(s.mode)).slice(0, MAX_INPUTS);
       if (saved.length) {
-        this.runtimes = saved.map((s) => this.make({ ...s, volume: Math.min(1.5, Math.max(0, Number(s.volume) || 1)) }));
+        this.runtimes = saved.map((s) => this.make({ ...s, volume: Math.min(MAX_INPUT_GAIN, Math.max(0, Number(s.volume) || 1)) }));
         this.nextFx = this.runtimes.reduce((m, r) => r.info.effects.reduce((n, e) => Math.max(n, Number(e.id.replace(/\D/g, "")) || 0), m), 0) + 1;
         this.opts.onChange();
       }
@@ -191,7 +194,7 @@ export class InputMixer {
     meter.fftSize = 512;
     const monitor = ctx.createGain();
     monitor.gain.value = r.info.monitor ? 1 : 0;
-    // pre -> pre-fader effects -> (meter, monitor, fader) ; fader -> post-fader effects -> mixer output
+    // pre -> pre-fader effects -> (meter, fader) ; fader -> post-fader effects -> (mixer output, monitor)
     const chainPre = new EffectChain(ctx);
     const chainPost = new EffectChain(ctx);
     chainPre.setEffects(r.info.effects.filter((e) => !e.post));
@@ -199,9 +202,10 @@ export class InputMixer {
     pre.connect(chainPre.input);
     chainPre.output.connect(meter);
     chainPre.output.connect(gain);
-    chainPre.output.connect(monitor);
     gain.connect(chainPost.input);
     chainPost.output.connect(this.output!);
+    // "Hear it" is what the strip sends to the recorder (pre-fader effects, the fader, post-fader effects), so live play sounds like the loop will
+    chainPost.output.connect(monitor);
     r.chainPre = chainPre;
     r.chainPost = chainPost;
     monitor.connect(this.monitorDest!);

@@ -6,7 +6,7 @@ import { ScalePiano, clampState as clampScalePiano, type ScalePianoState, type V
 import { EffectChain, LoopBus, peakOf } from "./buses";
 import { EFFECT_DEFS, defaultParams, moveEffect, clampParams, sanitiseEffects, type EffectKind, type EffectSpec } from "./effects";
 import { GROUP_COLOURS, clampPoint, clampRect, containingGroup, defaultGroups, defaultSpot, type GroupLayout } from "./layout";
-import { InputMixer, describeError, type InputInfo } from "./mixer";
+import { InputMixer, MAX_INPUT_GAIN, describeError, type InputInfo } from "./mixer";
 import { ActionHistory, type DoOptions } from "./history";
 import { MacroRecorder } from "./macros";
 import type { FxTarget, LooperAction } from "./actions";
@@ -74,6 +74,12 @@ export interface ChannelInfo {
   active: boolean;
 }
 
+/** An audio output (speakers, headphones, an audio interface) the browser can play to. */
+export interface OutputDevice {
+  id: string;
+  label: string;
+}
+
 export interface InputDevice {
   id: string;
   label: string;
@@ -84,6 +90,10 @@ export interface LooperSnapshot {
   error: string | null;
   /** audio inputs the browser lists */
   devices: InputDevice[];
+  /** audio outputs the browser lists, the one in use ("" = the system default), and whether this browser can choose one */
+  outputs: OutputDevice[];
+  outputId: string;
+  canChooseOutput: boolean;
   /** the input strips of the mixer */
   inputs: InputInfo[];
   /** name of the extra source the app provided (the piano), or null */
@@ -132,9 +142,11 @@ interface Capture {
 
 export const MAX_CHANNELS = 8;
 export const MAX_FIRST_TAKE_SECONDS = 120;
-export { MAX_INPUTS } from "./mixer";
+export { MAX_INPUTS, MAX_INPUT_GAIN } from "./mixer";
 
 const LAYOUT_KEY = "musickit.looper.layout";
+const OUTPUT_KEY = "musickit.looper.output";
+type SinkContext = AudioContext & { setSinkId?: (id: string) => Promise<void> };
 const groupName = (i: number) => `Group ${String.fromCharCode(65 + (i % 26))}`;
 const defaultGroupInfos = (): GroupInfo[] => defaultGroups().map((g, i) => ({ ...g, name: groupName(i), colour: GROUP_COLOURS[i % GROUP_COLOURS.length], volume: 1, muted: false, effects: [] }));
 
@@ -217,7 +229,7 @@ export class LooperEngine {
 
   getSnapshot = () => this.snap;
 
-  private meta = { status: "idle" as LooperSnapshot["status"], error: null as string | null, devices: [] as InputDevice[], latencyMs: 0 };
+  private meta = { status: "idle" as LooperSnapshot["status"], error: null as string | null, devices: [] as InputDevice[], outputs: [] as OutputDevice[], outputId: "", canChooseOutput: false, latencyMs: 0 };
 
   private buildSnapshot(patch: Partial<typeof this.meta> = {}): LooperSnapshot {
     this.meta = { ...this.meta, ...patch };
@@ -573,6 +585,13 @@ export class LooperEngine {
       this.createWorklet();
       await this.mixer.open();
       await this.refreshDevices().catch(() => undefined);
+      // the output used last time, if it is still there
+      try {
+        const saved = window.localStorage.getItem(OUTPUT_KEY);
+        if (saved && this.meta.outputs.some((o) => o.id === saved)) await this.setOutputDevice(saved);
+      } catch {
+        /* ignore */
+      }
       navigator.mediaDevices?.addEventListener?.("devicechange", () => void this.refreshDevices());
       this.emit({ status: "ready" });
     } catch (e) {
@@ -640,7 +659,25 @@ export class LooperEngine {
     if (!navigator.mediaDevices?.enumerateDevices) return;
     const all = await navigator.mediaDevices.enumerateDevices();
     const devices = all.filter((d) => d.kind === "audioinput" && d.deviceId !== "default" && d.deviceId !== "communications").map((d, i) => ({ id: d.deviceId, label: d.label || `Input ${i + 1}` }));
-    this.emit({ devices });
+    const outputs = all.filter((d) => d.kind === "audiooutput" && d.deviceId !== "default" && d.deviceId !== "communications").map((d, i) => ({ id: d.deviceId, label: d.label || `Output ${i + 1}` }));
+    this.emit({ devices, outputs, canChooseOutput: this.ctx ? typeof (this.ctx as SinkContext).setSinkId === "function" : false });
+  }
+
+  /** Play everything (loops, live monitoring, metronome, piano) through this output. "" = the system default. Needs a browser with AudioContext.setSinkId. */
+  async setOutputDevice(id: string): Promise<void> {
+    const ctx = this.ctx as SinkContext | null;
+    if (!ctx || typeof ctx.setSinkId !== "function") return;
+    try {
+      await ctx.setSinkId(id);
+      try {
+        window.localStorage.setItem(OUTPUT_KEY, id);
+      } catch {
+        /* ignore */
+      }
+      this.emit({ outputId: id });
+    } catch {
+      this.emit({ outputId: this.meta.outputId });
+    }
   }
 
   setLatencyMs(ms: number) {
@@ -966,7 +1003,7 @@ export class LooperEngine {
     const i = this.mixer.list().find((x) => x.id === id);
     if (!i) return;
     if (p.name !== undefined) this.mixer.rename(id, p.name.slice(0, 40));
-    if (p.volume !== undefined) this.mixer.setVolume(id, Math.min(1.5, Math.max(0, p.volume)));
+    if (p.volume !== undefined) this.mixer.setVolume(id, Math.min(MAX_INPUT_GAIN, Math.max(0, p.volume)));
     if (p.muted !== undefined && p.muted !== i.muted) this.mixer.toggleMute(id);
     if (p.solo !== undefined && p.solo !== i.solo) this.mixer.toggleSolo(id);
     if (p.monitor !== undefined) this.mixer.setMonitor(id, p.monitor);
