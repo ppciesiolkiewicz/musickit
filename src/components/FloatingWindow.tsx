@@ -10,6 +10,7 @@ interface Rect {
 }
 
 const MIN_W = 280, MIN_H = 160, BAR = 36;
+type Mode = "move" | "nw" | "ne" | "sw" | "se";
 
 function clamp(r: Rect): Rect {
   const vw = window.innerWidth, vh = window.innerHeight;
@@ -24,7 +25,7 @@ function clamp(r: Rect): Rect {
  */
 export default function FloatingWindow({ title, onClose, children, storageKey, fit = false }: { title: ReactNode; onClose: () => void; children: ReactNode; storageKey: string; fit?: boolean }) {
   const [rect, setRect] = useState<Rect | null>(null);
-  const drag = useRef<{ mode: "move" | "size"; px: number; py: number; start: Rect } | null>(null);
+  const drag = useRef<{ mode: Mode; px: number; py: number; start: Rect } | null>(null);
 
   useLayoutEffect(() => {
     let saved: Rect | null = null;
@@ -54,7 +55,7 @@ export default function FloatingWindow({ title, onClose, children, storageKey, f
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  const begin = (mode: "move" | "size") => (e: RPointerEvent) => {
+  const begin = (mode: Mode) => (e: RPointerEvent) => {
     if (!rect) return;
     e.preventDefault();
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
@@ -64,7 +65,14 @@ export default function FloatingWindow({ title, onClose, children, storageKey, f
     const d = drag.current;
     if (!d) return;
     const dx = e.clientX - d.px, dy = e.clientY - d.py;
-    setRect(clamp(d.mode === "move" ? { ...d.start, x: d.start.x + dx, y: d.start.y + dy } : { ...d.start, w: d.start.w + dx, h: d.start.h + dy }));
+    if (d.mode === "move") return setRect(clamp({ ...d.start, x: d.start.x + dx, y: d.start.y + dy }));
+    // a corner moves; the opposite corner stays where it was
+    const s0 = d.start;
+    const west = d.mode === "nw" || d.mode === "sw";
+    const north = d.mode === "nw" || d.mode === "ne";
+    const w = Math.min(Math.max(west ? s0.w - dx : s0.w + dx, MIN_W), window.innerWidth);
+    const h = Math.min(Math.max(north ? s0.h - dy : s0.h + dy, MIN_H), window.innerHeight);
+    setRect(clamp({ w, h, x: west ? s0.x + s0.w - w : s0.x, y: north ? s0.y + s0.h - h : s0.y }));
   };
   const end = () => {
     if (drag.current) {
@@ -93,7 +101,7 @@ export default function FloatingWindow({ title, onClose, children, storageKey, f
   return (
     <div role="dialog" aria-label={typeof title === "string" ? title : "Floating panel"} className="fixed z-40 flex flex-col overflow-hidden rounded-xl border border-slate-600 bg-slate-950 shadow-2xl shadow-black/60" style={{ left: rect.x, top: rect.y, width: rect.w, height: rect.h }}>
       <div
-        className="flex shrink-0 cursor-grab touch-none select-none items-center gap-2 border-b border-slate-700 bg-slate-900 px-3 text-xs text-slate-300 active:cursor-grabbing focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400"
+        className="flex shrink-0 cursor-grab touch-none select-none items-center gap-2 border-b border-slate-700 bg-slate-900 pl-6 pr-6 text-xs text-slate-300 active:cursor-grabbing focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400"
         style={{ height: BAR }}
         tabIndex={0}
         onPointerDown={begin("move")}
@@ -108,16 +116,19 @@ export default function FloatingWindow({ title, onClose, children, storageKey, f
         <button type="button" className="ml-auto rounded-md border border-slate-700 px-2 py-0.5 text-slate-300 hover:border-slate-500" onPointerDown={(e) => e.stopPropagation()} onClick={onClose} aria-label="Close">✕</button>
       </div>
       <div className="min-h-0 flex-1 overflow-auto">{fit ? <Fit>{children}</Fit> : children}</div>
-      <div
-        className="absolute bottom-0 right-0 h-5 w-5 cursor-nwse-resize touch-none"
-        style={{ background: "linear-gradient(135deg, transparent 50%, #64748b 50%, #64748b 56%, transparent 56%, transparent 66%, #64748b 66%, #64748b 72%, transparent 72%)" }}
-        onPointerDown={begin("size")}
-        onPointerMove={move}
-        onPointerUp={end}
-        onPointerCancel={end}
-        role="separator"
-        aria-label="Resize"
-      />
+      {(["nw", "ne", "sw", "se"] as const).map((c) => (
+        <div
+          key={c}
+          className={`absolute h-5 w-5 touch-none ${c === "nw" || c === "se" ? "cursor-nwse-resize" : "cursor-nesw-resize"} ${c[0] === "n" ? "top-0" : "bottom-0"} ${c[1] === "w" ? "left-0" : "right-0"}`}
+          style={c === "se" ? { background: "linear-gradient(135deg, transparent 50%, #64748b 50%, #64748b 56%, transparent 56%, transparent 66%, #64748b 66%, #64748b 72%, transparent 72%)" } : undefined}
+          onPointerDown={begin(c)}
+          onPointerMove={move}
+          onPointerUp={end}
+          onPointerCancel={end}
+          role="separator"
+          aria-label="Resize"
+        />
+      ))}
     </div>
   );
 }

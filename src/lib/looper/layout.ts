@@ -99,3 +99,26 @@ export function spotOutside(groups: GroupLayout[], taken: { x: number; y: number
   }
   return null;
 }
+
+export type Corner = "nw" | "ne" | "sw" | "se";
+
+/** Resize a group by dragging one corner by (dx, dy): the opposite corner stays put, the minimum size and the stage edges are respected. */
+export function resizeRect(r: Rect, corner: Corner, dx: number, dy: number): Rect {
+  const west = corner === "nw" || corner === "sw";
+  const north = corner === "nw" || corner === "ne";
+  const right = r.x + r.w;
+  const bottom = r.y + r.h;
+  let x = r.x;
+  let y = r.y;
+  let w = r.w;
+  let h = r.h;
+  if (west) {
+    x = Math.min(right - MIN_GROUP_W, Math.max(Math.max(0, right - STAGE_W), r.x + dx));
+    w = right - x;
+  } else w = Math.min(STAGE_W - r.x, Math.max(MIN_GROUP_W, r.w + dx));
+  if (north) {
+    y = Math.min(bottom - MIN_GROUP_H, Math.max(Math.max(0, bottom - STAGE_H), r.y + dy));
+    h = bottom - y;
+  } else h = Math.min(STAGE_H - r.y, Math.max(MIN_GROUP_H, r.h + dy));
+  return { x, y, w, h };
+}

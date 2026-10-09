@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { spotInGroup, spotOutside, LOOP_R, MIN_GROUP_W, STAGE_H, STAGE_W, clampPoint, clampRect, containingGroup, defaultGroups, defaultSpot } from "./layout";
+import { spotInGroup, spotOutside, LOOP_R, MIN_GROUP_W, STAGE_H, STAGE_W, clampPoint, clampRect, containingGroup, defaultGroups, defaultSpot, resizeRect, MIN_GROUP_H } from "./layout";
 import { clampParams, defaultParams, sanitiseEffects } from "./effects";
 
 describe("stage layout", () => {
@@ -76,5 +76,29 @@ describe("noise removal", () => {
     assert.equal(at(1), 1);
     assert.ok(at(0.5) === 1);
     assert.ok(at(-0.5) === at(0.5), "symmetric");
+  });
+});
+
+describe("resizing a group from a corner", () => {
+  const r = { x: 400, y: 300, w: 300, h: 250 };
+  it("keeps the opposite corner fixed", () => {
+    assert.deepEqual(resizeRect(r, "se", 50, 20), { x: 400, y: 300, w: 350, h: 270 });
+    assert.deepEqual(resizeRect(r, "nw", -50, -20), { x: 350, y: 280, w: 350, h: 270 });
+    assert.deepEqual(resizeRect(r, "ne", 50, -20), { x: 400, y: 280, w: 350, h: 270 });
+    assert.deepEqual(resizeRect(r, "sw", -50, 20), { x: 350, y: 300, w: 350, h: 270 });
+  });
+  it("stops at the minimum size without moving the far corner", () => {
+    const a = resizeRect(r, "nw", 900, 900);
+    assert.equal(a.w, MIN_GROUP_W);
+    assert.equal(a.h, MIN_GROUP_H);
+    assert.equal(a.x + a.w, 700);
+    assert.equal(a.y + a.h, 550);
+  });
+  it("stays on the stage", () => {
+    assert.equal(resizeRect(r, "nw", -9999, -9999).x, 0);
+    assert.equal(resizeRect(r, "nw", -9999, -9999).y, 0);
+    const b = resizeRect(r, "se", 9999, 9999);
+    assert.equal(b.x + b.w, STAGE_W);
+    assert.equal(b.y + b.h, STAGE_H);
   });
 });

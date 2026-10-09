@@ -6,7 +6,7 @@ import EffectsModal from "./EffectsModal";
 import EffectWidgets from "./EffectWidgets";
 import { setPinSpawn } from "./fxPins";
 import InfoTip from "../InfoTip";
-import { GROUP_COLOURS, LOOP_R, STAGE_H, STAGE_W, VIEW_W, type ChannelInfo, type GroupInfo, type LooperEngine, type LooperSnapshot } from "@/lib/looper/engine";
+import { GROUP_COLOURS, LOOP_R, STAGE_H, resizeRect, type Corner, STAGE_W, VIEW_W, type ChannelInfo, type GroupInfo, type LooperEngine, type LooperSnapshot } from "@/lib/looper/engine";
 
 const ibtn = "grid h-8 min-w-8 place-items-center rounded-lg border border-slate-700 bg-slate-900 px-1.5 text-xs text-slate-200 transition hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 const tbtn = "grid h-6 min-w-6 place-items-center rounded-md border border-slate-700/80 bg-slate-900/80 px-1 text-[10px] text-slate-300 transition hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
@@ -267,11 +267,11 @@ function GroupBox({ engine, g, stage, count, running, onFx }: { engine: LooperEn
     const base = { x: g.x, y: g.y };
     startDrag(e, stage.current, (dx, dy) => engine.do({ type: "group.set", id: g.id, patch: { x: base.x + dx, y: base.y + dy } }));
   };
-  const size = (e: RPointerEvent) => {
+  const size = (corner: Corner) => (e: RPointerEvent) => {
     e.stopPropagation();
     engine.bringGroupToFront(g.id);
-    const base = { w: g.w, h: g.h };
-    startDrag(e, stage.current, (dx, dy) => engine.do({ type: "group.set", id: g.id, patch: { w: base.w + dx, h: base.h + dy } }));
+    const base = { x: g.x, y: g.y, w: g.w, h: g.h };
+    startDrag(e, stage.current, (dx, dy) => engine.do({ type: "group.set", id: g.id, patch: resizeRect(base, corner, dx, dy) }));
   };
   const onKeyDown = (e: RKeyboardEvent) => {
     const s = arrowStep(e);
@@ -282,8 +282,8 @@ function GroupBox({ engine, g, stage, count, running, onFx }: { engine: LooperEn
   };
   const nextColour = GROUP_COLOURS[(GROUP_COLOURS.indexOf(g.colour) + 1) % GROUP_COLOURS.length];
   return (
-    <div className="absolute rounded-xl border-2" style={{ left: `${(g.x / STAGE_W) * 100}%`, top: `${(g.y / STAGE_H) * 100}%`, width: `${(g.w / STAGE_W) * 100}%`, height: `${(g.h / STAGE_H) * 100}%`, borderColor: `${g.colour}99`, background: `${g.colour}14` }}>
-      <div onPointerDown={move} onKeyDown={onKeyDown} tabIndex={0} role="group" aria-label={`Group ${g.name}. Alt and arrow keys move it, Alt Shift and arrows resize it.`} className="flex cursor-grab items-center gap-1 rounded-t-lg px-1.5 py-1 outline-none focus-visible:ring-2 focus-visible:ring-sky-400 active:cursor-grabbing" style={{ touchAction: "none", background: `${g.colour}26` }}>
+    <div onPointerDown={move} className="absolute cursor-grab rounded-xl border-2 active:cursor-grabbing" style={{ left: `${(g.x / STAGE_W) * 100}%`, top: `${(g.y / STAGE_H) * 100}%`, width: `${(g.w / STAGE_W) * 100}%`, height: `${(g.h / STAGE_H) * 100}%`, borderColor: `${g.colour}99`, background: `${g.colour}14` }}>
+      <div onKeyDown={onKeyDown} tabIndex={0} role="group" aria-label={`Group ${g.name}. Alt and arrow keys move it, Alt Shift and arrows resize it.`} className="flex cursor-grab items-center gap-1 rounded-t-lg px-1.5 py-1 outline-none focus-visible:ring-2 focus-visible:ring-sky-400 active:cursor-grabbing" style={{ touchAction: "none", background: `${g.colour}26` }}>
         <button type="button" onClick={() => engine.do({ type: "group.set", id: g.id, patch: { colour: nextColour } })} className="h-4 w-4 shrink-0 rounded-full border border-white/30" style={{ background: g.colour }} title="Change colour" aria-label="Change colour" />
         <input value={g.name} onChange={(e) => engine.do({ type: "group.set", id: g.id, patch: { name: e.target.value } })} aria-label="Group name" className="min-w-0 flex-1 bg-transparent text-xs font-medium text-slate-100 focus:outline-none" />
         <button type="button" className={`${tbtn} ${running ? "!border-emerald-500/70 !text-emerald-200" : ""}`} disabled={count === 0} onClick={() => engine.do({ type: "group.active", id: g.id, on: !running })} title={running ? "Stop everything in this group on the next beat" : "Start everything in this group on the next beat"} aria-label={running ? `Stop ${g.name}` : `Start ${g.name}`} aria-pressed={running}><Icon name={running ? "square" : "play"} size={11} fill /></button>
@@ -293,7 +293,11 @@ function GroupBox({ engine, g, stage, count, running, onFx }: { engine: LooperEn
         </button>
         <button type="button" className={tbtn} onClick={() => engine.do({ type: "group.remove", id: g.id })} title={count ? "Remove this group (its loops go to the main output)" : "Remove this group"} aria-label={`Remove ${g.name}`}><Icon name="x" size={12} /></button>
       </div>
-      <span onPointerDown={size} className="absolute bottom-0 right-0 h-4 w-4 cursor-nwse-resize rounded-br-lg border-b-2 border-r-2" style={{ borderColor: g.colour, touchAction: "none" }} role="presentation" />
+      {(["nw", "ne", "sw", "se"] as const).map((c) => (
+        <span key={c} onPointerDown={size(c)} className={`absolute z-10 h-5 w-5 ${c === "nw" || c === "se" ? "cursor-nwse-resize" : "cursor-nesw-resize"} ${c[0] === "n" ? "-top-1" : "-bottom-1"} ${c[1] === "w" ? "-left-1" : "-right-1"}`} style={{ touchAction: "none" }} role="presentation">
+          <span className={`absolute h-3 w-3 ${c[0] === "n" ? "top-1 border-t-2" : "bottom-1 border-b-2"} ${c[1] === "w" ? "left-1 border-l-2" : "right-1 border-r-2"} ${c === "nw" ? "rounded-tl-lg" : c === "ne" ? "rounded-tr-lg" : c === "sw" ? "rounded-bl-lg" : "rounded-br-lg"}`} style={{ borderColor: g.colour }} />
+        </span>
+      ))}
     </div>
   );
 }
