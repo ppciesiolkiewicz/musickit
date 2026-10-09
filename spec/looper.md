@@ -157,3 +157,6 @@ Output channels: when the chosen output has more than two channels (an interface
 
 ## Countdown on a loop
 While a take waits to start (count-in or next loop boundary) the loop circle shows the beats left in amber. After stop is pressed on a free take, or on a planned take, it shows the beats left until the take ends in red. `getCaptureCountdown(id)`; shown by the loop circle each frame. Not checked in a browser.
+
+## Take status
+- While a take waits, the circle counts the beats down to its start; after stop (or on a planned take) it counts the beats down to its end. While recording, under the circle: `bar/total · beat`, for example `3/4 · 2`. A free take heads for the next 1, 2, 4, 8, 16 bars, so it reads 3/4 and then 5/8 (`takeStatus` in `frames.ts`, `getTakeStatus` on the engine).

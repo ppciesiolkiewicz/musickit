@@ -1,4 +1,4 @@
-import { LENGTH_STEPS, assemble, effectiveGain, lengthMultiple, loopOffset, msToFrames, nextBoundary, peaks, quantUnitFrames, quantiseLength, type Chunk, type InputMode } from "./frames";
+import { LENGTH_STEPS, assemble, effectiveGain, lengthMultiple, loopOffset, takeStatus, type TakeStatus, msToFrames, nextBoundary, peaks, quantUnitFrames, quantiseLength, type Chunk, type InputMode } from "./frames";
 import { Metronome, type MetronomeSettings } from "./metronome";
 import { Sequencer, type SequencerState } from "./sequencer";
 import { fromRows } from "./sequencerPattern";
@@ -843,6 +843,25 @@ export class LooperEngine {
   /** Peak level of what is being recorded on this loop (0..1), 0 when it is not recording. */
   getCaptureLevel(id: number): number {
     return this.capture?.channel === id && this.capture.started ? Math.min(1, this.captureLevel) : 0;
+  }
+
+  /** Countdown, bar and beat of the take running on this loop, or null. */
+  getTakeStatus(id: number): TakeStatus | null {
+    const cap = this.capture;
+    if (!cap || cap.channel !== id || !this.ctx) return null;
+    const sr = this.ctx.sampleRate;
+    const m = this.metronome.settings;
+    const barSec = m.beatsPerBar * this.metronome.period;
+    return takeStatus({
+      now: this.ctx.currentTime,
+      start: cap.at,
+      end: cap.endFrame === null ? null : cap.endFrame / sr - (cap.startFrame / sr - cap.at),
+      stopping: cap.stopping,
+      started: cap.started,
+      period: this.metronome.period,
+      beatsPerBar: m.beatsPerBar,
+      minBars: cap.loopFrames > 0 ? Math.max(1, Math.round(cap.loopFrames / sr / barSec)) : 1,
+    });
   }
 
   /** Where in its own length a loop is (0..1), or null when it is not playing. */

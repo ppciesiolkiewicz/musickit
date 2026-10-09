@@ -132,3 +132,33 @@ export function lengthMultiple(elapsed: number, base: number): number {
   for (const n of LENGTH_STEPS) if (x <= n * 1.02) return n;
   return LENGTH_STEPS[LENGTH_STEPS.length - 1];
 }
+
+export interface TakeStatus {
+  phase: "armed" | "recording" | "stopping";
+  /** beats until the take starts (armed) or ends (stopping), else 0 */
+  beatsLeft: number;
+  /** the bar being recorded (1-based), the bars the take is planned or heading for, and the beat in that bar (1-based) */
+  bar: number;
+  totalBars: number;
+  beat: number;
+}
+
+/**
+ * What a person should see during a take. Times are in seconds on the audio clock; `period` is one beat.
+ * A free take heads for the next 1, 2, 4, 8, 16 ... bars (3/4, then 5/8), a planned one for its own length.
+ */
+export function takeStatus(o: { now: number; start: number; end: number | null; stopping: boolean; started: boolean; period: number; beatsPerBar: number; minBars?: number }): TakeStatus {
+  const bar = o.period * o.beatsPerBar;
+  if (!o.started && o.now < o.start) return { phase: "armed", beatsLeft: Math.max(1, Math.ceil((o.start - o.now) / o.period - 1e-6)), bar: 0, totalBars: 0, beat: 0 };
+  const el = Math.max(0, o.now - o.start);
+  const barIdx = Math.floor(el / bar + 1e-9) + 1;
+  const beat = Math.floor((el % bar) / o.period + 1e-9) + 1;
+  let total: number;
+  if (o.end !== null) total = Math.max(1, Math.round((o.end - o.start) / bar));
+  else {
+    total = Math.max(1, o.minBars ?? 1);
+    while (total < barIdx) total *= 2;
+  }
+  const left = o.stopping && o.end !== null ? Math.max(1, Math.ceil((o.end - o.now) / o.period - 1e-6)) : 0;
+  return { phase: o.stopping ? "stopping" : "recording", beatsLeft: left, bar: Math.min(barIdx, total), totalBars: total, beat: Math.min(beat, o.beatsPerBar) };
+}

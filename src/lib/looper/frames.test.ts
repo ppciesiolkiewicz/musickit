@@ -91,3 +91,26 @@ describe("loop length multiples", () => {
     assert.equal(lengthMultiple(3, 0), 1);
   });
 });
+
+describe("take status", () => {
+  it("counts beats down while waiting", async () => {
+    const { takeStatus } = await import("./frames");
+    const base = { start: 10, end: null, stopping: false, started: false, period: 0.5, beatsPerBar: 4 };
+    assert.deepEqual(takeStatus({ ...base, now: 8.1 }), { phase: "armed", beatsLeft: 4, bar: 0, totalBars: 0, beat: 0 });
+    assert.equal(takeStatus({ ...base, now: 9.6 }).beatsLeft, 1);
+  });
+  it("shows bar over a total that doubles as the take grows", async () => {
+    const { takeStatus } = await import("./frames");
+    const base = { start: 0, end: null, stopping: false, started: true, period: 0.5, beatsPerBar: 4 };
+    const at = (t: number) => takeStatus({ ...base, now: t });
+    assert.deepEqual([at(0.1).bar, at(0.1).totalBars, at(0.1).beat], [1, 1, 1]);
+    assert.deepEqual([at(5).bar, at(5).totalBars, at(5).beat], [3, 4, 3]);
+    assert.deepEqual([at(8.2).bar, at(8.2).totalBars], [5, 8]);
+  });
+  it("counts beats to the end after stop and knows a planned length", async () => {
+    const { takeStatus } = await import("./frames");
+    const s = takeStatus({ now: 5, start: 0, end: 8, stopping: true, started: true, period: 0.5, beatsPerBar: 4 });
+    assert.deepEqual([s.phase, s.beatsLeft, s.totalBars], ["stopping", 6, 4]);
+    assert.equal(takeStatus({ now: 1, start: 0, end: 8, stopping: false, started: true, period: 0.5, beatsPerBar: 4 }).totalBars, 4);
+  });
+});

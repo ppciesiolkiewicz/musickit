@@ -134,6 +134,7 @@ export default function LoopStage({ engine, snap, openSeqs, onToggleSeq, fill = 
 function LoopCircle({ engine, ch, colour, stage, ready, busy, firstTake, baseBars }: { engine: LooperEngine; ch: ChannelInfo; colour: string; stage: RefObject<HTMLDivElement | null>; ready: boolean; busy: boolean; firstTake: boolean; baseBars: number | null }) {
   const arc = useRef<SVGCircleElement>(null);
   const pulse = useRef<SVGCircleElement>(null);
+  const barEl = useRef<HTMLSpanElement>(null);
   const count = useRef<HTMLSpanElement>(null);
   const iconBox = useRef<HTMLSpanElement>(null);
   const recording = ch.state === "recording" || ch.state === "armed";
@@ -153,6 +154,11 @@ function LoopCircle({ engine, ch, colour, stage, ready, busy, firstTake, baseBar
         const sc = 1 + 0.06 * Math.sin(t * 4) + lv * 0.28 + lv * 0.05 * Math.sin(t * 38);
         pulse.current.style.transform = `scale(${sc})`;
         pulse.current.style.opacity = String(0.35 + lv * 0.6);
+      }
+      if (barEl.current) {
+        const st = engine.getTakeStatus(ch.id);
+        // the bar being recorded over the bars it is heading for (3/4, then 5/8 as a free take grows) and the beat in the bar
+        barEl.current.textContent = st && st.phase !== "armed" ? `${st.bar}/${st.totalBars} \u00b7 ${st.beat}` : "";
       }
       const cd = engine.getCaptureCountdown(ch.id);
       if (count.current && iconBox.current) {
@@ -196,7 +202,8 @@ function LoopCircle({ engine, ch, colour, stage, ready, busy, firstTake, baseBar
           <Icon name={isFreeTake ? "square" : running ? "circle" : recording ? "x" : ch.state === "empty" ? "circle" : "repeat"} size={22} fill={isFreeTake || running || ch.state === "empty"} />
         </span>
       </button>
-      <LengthBadge engine={engine} ch={ch} firstTake={firstTake} baseBars={baseBars} />
+      <span ref={barEl} className="h-4 text-[11px] font-medium tabular-nums text-rose-300" style={{ display: ch.state === "recording" ? "block" : "none" }} title="Bar being recorded / bars it is heading for, and the beat" />
+      {ch.state !== "recording" && ch.state !== "armed" && <LengthBadge engine={engine} ch={ch} firstTake={firstTake} baseBars={baseBars} />}
       <input value={ch.name} onChange={(e) => engine.do({ type: "loop.rename", id: ch.id, name: e.target.value })} aria-label={`Name of ${ch.name}`} className="w-full truncate rounded border border-transparent bg-transparent px-1 text-center text-[11px] font-medium text-slate-200 hover:border-slate-700 focus:border-slate-500 focus:outline-none" />
       <div className="flex items-center gap-0.5">
         <button type="button" className={`${tbtn} ${ch.muted ? "!border-amber-400 !text-amber-200" : ""}`} aria-pressed={ch.muted} disabled={ch.state === "empty"} onClick={() => engine.do({ type: "loop.mute", id: ch.id, muted: !ch.muted })} title="Mute" aria-label={`Mute ${ch.name}`}>M</button>
