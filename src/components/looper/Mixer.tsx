@@ -191,7 +191,7 @@ export default function Mixer({ engine, snap, keyboardOpen, onToggleKeyboard, op
         {onAlign && (
           <button type="button" className={`${ibtn} ml-auto`} onClick={() => onAlign(align === "rows" ? "columns" : "rows")} title={align === "rows" ? "Strips side by side" : "Strips stacked"} aria-label={align === "rows" ? "Strips side by side" : "Strips stacked"} aria-pressed={align === "columns"}><Icon name={align === "rows" ? "columns-3" : "rows-3"} /></button>
         )}
-        <button type="button" className={`${ibtn} ${onAlign ? "" : "ml-auto"}`} disabled={full} onClick={() => setAdding(true)} title="Add an input" aria-label="Add an input"><Icon name="plus" /></button>
+        <button type="button" className={`${ibtn} ${onAlign ? "" : "ml-auto"}`} disabled={full} onClick={() => setAdding(true)} title="Add an instrument or a bus" aria-label="Add an instrument or bus"><Icon name="plus" size={14} /><span className="ml-1 text-[11px]">instrument or bus</span></button>
       </div>
 
       {inputs.length === 0 && <p className="rounded-lg border border-dashed border-slate-700 p-2 text-xs text-slate-400">No inputs. Add one with ＋.</p>}

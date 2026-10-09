@@ -4,7 +4,7 @@
  * in EFFECT_DEFS and a case in createEffect. Imports nothing outside src/lib/looper.
  */
 
-export type EffectKind = "tapeDelay" | "reverb" | "filter" | "distortion" | "chorus" | "phaser" | "tremolo" | "compressor" | "eq" | "nam";
+export type EffectKind = "tapeDelay" | "reverb" | "filter" | "distortion" | "chorus" | "phaser" | "tremolo" | "compressor" | "eq" | "denoise" | "nam";
 
 export interface ParamDef {
   key: string;
@@ -113,6 +113,17 @@ const DEFS: EffectDef[] = [
       { key: "mid", label: "Mid", min: -18, max: 18, step: 0.5, def: 0, unit: "dB" },
       { key: "high", label: "High", min: -18, max: 18, step: 0.5, def: 0, unit: "dB" },
       { key: "midFreq", label: "Mid freq", min: 300, max: 5000, step: 10, def: 1000, unit: "Hz" },
+    ],
+  },
+  {
+    kind: "denoise",
+    name: "Noise removal",
+    params: [
+      { key: "threshold", label: "Threshold", min: -80, max: -30, step: 1, def: -60, unit: "dB" },
+      { key: "reduction", label: "Reduction", min: 0, max: 60, step: 1, def: 40, unit: "dB" },
+      { key: "release", label: "Smooth", min: 10, max: 120, step: 1, def: 30, unit: "ms" },
+      { key: "hum", label: "Hum cut", min: 20, max: 300, step: 1, def: 60, unit: "Hz" },
+      { key: "hiss", label: "Hiss cut", min: 2000, max: 20000, step: 100, def: 16000, unit: "Hz" },
     ],
   },
   {
@@ -480,6 +491,60 @@ const eq: Factory = (ctx, p) => {
   }, p);
 };
 
+/** Gate curve: envelope level (0..1, after the side-chain boost) to gain. Closed below half the threshold, open above it. */
+export function gateCurve(thresholdDb: number, reductionDb: number, size = 4096): Float32Array<ArrayBuffer> {
+  const th = 10 ** ((thresholdDb + GATE_BOOST_DB) / 20);
+  const floor = 10 ** (-reductionDb / 20);
+  const c = new Float32Array(new ArrayBuffer(size * 4));
+  for (let i = 0; i < size; i++) {
+    const e = Math.abs((i / (size - 1)) * 2 - 1);
+    const t = Math.min(1, Math.max(0, (e - th * 0.5) / (th * 0.5)));
+    const s = t * t * (3 - 2 * t);
+    c[i] = floor + (1 - floor) * s;
+  }
+  return c;
+}
+const GATE_BOOST_DB = 30;
+
+/** Noise removal: hum and hiss filters plus a gate that closes between notes. All native nodes; the audio is delayed 10 ms so the gate opens before a note arrives. */
+const denoise: Factory = (ctx, p) => {
+  const input = ctx.createGain();
+  const hp = ctx.createBiquadFilter();
+  hp.type = "highpass";
+  hp.Q.value = 0.7;
+  const lp = ctx.createBiquadFilter();
+  lp.type = "lowpass";
+  lp.Q.value = 0.7;
+  const delay = ctx.createDelay(0.05);
+  delay.delayTime.value = 0.01;
+  const vca = ctx.createGain();
+  vca.gain.value = 0; // the gate curve drives it
+  const boost = ctx.createGain();
+  boost.gain.value = 10 ** (GATE_BOOST_DB / 20);
+  const rect = ctx.createWaveShaper();
+  rect.curve = Float32Array.from({ length: 1025 }, (_, i) => Math.abs((i / 1024) * 2 - 1));
+  const env = ctx.createBiquadFilter();
+  env.type = "lowpass";
+  env.Q.value = 0.5;
+  const shape = ctx.createWaveShaper();
+  input.connect(hp);
+  hp.connect(lp);
+  lp.connect(delay);
+  delay.connect(vca);
+  lp.connect(boost);
+  boost.connect(rect);
+  rect.connect(env);
+  env.connect(shape);
+  shape.connect(vca.gain);
+  return node(ctx, [hp, lp, delay, vca, boost, rect, env, shape], input, vca, (q) => {
+    const t = ctx.currentTime;
+    hp.frequency.setTargetAtTime(q.hum, t, 0.02);
+    lp.frequency.setTargetAtTime(q.hiss, t, 0.02);
+    env.frequency.setTargetAtTime(1000 / (2 * Math.PI * q.release), t, 0.02);
+    shape.curve = gateCurve(q.threshold, q.reduction);
+  }, p);
+};
+
 let namFactory: Factory | null = null;
 
 /** The app injects the NAM effect (it lives outside the looper). Until then, and if it throws, the effect passes the signal through. */
@@ -503,7 +568,7 @@ const nam: Factory = (ctx, p) => {
   return passthrough(ctx, p);
 };
 
-const FACTORIES: Record<EffectKind, Factory> = { tapeDelay, reverb, filter, distortion, chorus, phaser, tremolo, compressor, eq, nam };
+const FACTORIES: Record<EffectKind, Factory> = { tapeDelay, reverb, filter, distortion, chorus, phaser, tremolo, compressor, eq, denoise, nam };
 
 export function createEffect(ctx: AudioContext, spec: EffectSpec): FxNode {
   return FACTORIES[spec.kind](ctx, clampParams(spec.kind, spec.params));

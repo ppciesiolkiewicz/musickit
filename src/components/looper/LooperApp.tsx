@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
-import { LooperEngine, MAX_CHANNELS, registerChoice, setNamFactory, type LooperSnapshot } from "@/lib/looper/engine";
+import { LooperEngine, EFFECT_DEFS, EFFECT_KINDS, registerChoice, setNamFactory, type LooperSnapshot } from "@/lib/looper/engine";
 import { createNamEffect, getModelLibrary, speedNote } from "@/features/nam";
 import LooperSettings from "./LooperSettings";
 import Mixer, { type MixerAlign } from "./Mixer";
@@ -12,6 +12,7 @@ import FloatingWindow from "../FloatingWindow";
 import Piano from "@/features/sound/keyboard/Piano";
 import { createPlayer, getAudioContext, getOutputBus } from "@/features/sound";
 import LoopStage from "./LoopStage";
+import AddWidgetMenu from "./AddWidgetMenu";
 import MetronomeBar from "./MetronomeBar";
 import ScalePianoPanel from "./ScalePianoPanel";
 import SequencerPanel from "./SequencerPanel";
@@ -156,9 +157,7 @@ export default function LooperApp() {
         <button type="button" className={ibtn} disabled={!ready || snap.channels.every((c) => c.state === "empty")} onClick={() => engine.do({ type: "loop.clearAll" })} title="Clear every loop" aria-label="Clear every loop"><Icon name="trash" /></button>
         <span className="text-xs text-slate-400">{snap.loopSeconds === null ? "No loop yet" : `${snap.loopSeconds.toFixed(2)} s${loopBars(snap)}`}</span>
         <LoopBar getPosition={getPosition} />
-        <button type="button" className={ibtn} disabled={snap.channels.length >= MAX_CHANNELS} onClick={() => engine.do({ type: "loop.add" })} title="Add a loop" aria-label="Add a loop"><Icon name="plus" /></button>
-        <button type="button" className={ibtn} disabled={snap.channels.length <= 1 || snap.channels[snap.channels.length - 1].state !== "empty"} onClick={() => engine.do({ type: "loop.removeLast" })} title="Remove the last loop" aria-label="Remove the last loop"><Icon name="minus" /></button>
-        <button type="button" className={`${ibtn} gap-1`} disabled={snap.groups.length >= 8} onClick={() => engine.do({ type: "group.add" })} title="Add a group (a bus with effects)" aria-label="Add a group"><Icon name="plus" size={14} /><span className="text-[11px]">Group</span></button>
+        <AddWidgetMenu engine={engine} snap={snap} names={Object.fromEntries(EFFECT_KINDS.map((k) => [k, EFFECT_DEFS[k].name]))} />
       </div>
       <LoopStage engine={engine} snap={snap} getPosition={getPosition} openSeqs={openSeqs} onToggleSeq={toggleSeq} fill={fill} />
     </section>

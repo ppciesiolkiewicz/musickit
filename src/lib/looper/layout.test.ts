@@ -65,3 +65,16 @@ describe("placing circles from the diagram", () => {
     assert.equal(spotOutside([{ id: "a", x: 0, y: 0, w: STAGE_W, h: STAGE_H }], []), null);
   });
 });
+
+describe("noise removal", () => {
+  it("closes the gate on quiet signal and opens it on loud signal", async () => {
+    const { gateCurve, EFFECT_DEFS } = await import("./effects");
+    assert.ok(EFFECT_DEFS.denoise);
+    const c = gateCurve(-60, 40);
+    const at = (e: number) => c[Math.round(((e + 1) / 2) * (c.length - 1))];
+    assert.ok(Math.abs(at(0) - 0.01) < 1e-6, "silence is cut by the reduction");
+    assert.equal(at(1), 1);
+    assert.ok(at(0.5) === 1);
+    assert.ok(at(-0.5) === at(0.5), "symmetric");
+  });
+});

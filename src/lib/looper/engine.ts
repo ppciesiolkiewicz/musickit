@@ -1251,6 +1251,9 @@ export class LooperEngine {
         cap.stopping = true;
         this.emit();
       }
+    } else if (cap.endFrame !== null && cap.started) {
+      // a later take that has begun runs to the end of the loop (quantised); pressing again must not throw it away
+      return;
     } else {
       this.cancelCapture();
     }

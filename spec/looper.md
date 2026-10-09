@@ -143,3 +143,8 @@ The wheel zoom on the canvas is proportional to the wheel movement (gentle on a 
 Output channels: when the chosen output has more than two channels (an interface such as a Scarlett), Looper settings shows "Output channels" and the whole mix (loops, monitoring, metronome, piano) plays to the chosen pair (1-2, 3-4, ...). The pair is saved in `musickit.looper.output.pair`. Pair 1-2 keeps the plain stereo path. Chrome reports an interface's channel count only after the device is chosen.
 
 "Hear it" now starts on for audio interface inputs (a device strip whose name does not look like a built-in or USB microphone) and off for built-in microphones, which would feed back into the speakers. It can still be switched per strip.
+
+## Later takes, "+ widget" menu, noise removal
+- A later take (armed, then recording) runs to the end of the loop on the next boundary. Pressing its circle while it is armed cancels it (X); once it has started the circle shows a filled dot and the press is ignored, so the take is looped, never thrown away.
+- The Looping toolbar has one "+ widget" button. Its menu adds a loop or a group, opens an "Effect widget" list (pin or unpin any existing input, group or master effect on the stage) and removes the last empty loop. The Mixer's add button reads "+ instrument or bus".
+- Noise removal (`denoise`): hum high-pass, hiss low-pass and a gate built from native nodes (rectifier, smoothing filter, gate curve driving a gain). The audio is delayed 10 ms so the gate opens before a note. Threshold, reduction, smooth (10-120 ms), hum cut, hiss cut. It is a gate and filters, not spectral denoising; verified only by unit test of the curve, not by ear.

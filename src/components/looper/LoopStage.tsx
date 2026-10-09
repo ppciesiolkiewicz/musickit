@@ -130,8 +130,9 @@ function LoopCircle({ engine, ch, colour, stage, ready, busy, firstTake, getPosi
   const arc = useRef<SVGCircleElement>(null);
   const recording = ch.state === "recording" || ch.state === "armed";
   const isFreeTake = recording && firstTake;
-  const label = isFreeTake ? "Stop the take" : recording ? "Cancel" : ch.state === "empty" ? "Record" : "Re-record";
-  const act = () => (recording ? engine.do({ type: "record.stop" }) : engine.do({ type: "loop.record", id: ch.id }));
+  const running = ch.state === "recording" && !firstTake; // a later take runs to the loop end on its own
+  const label = isFreeTake ? "Stop the take" : running ? "Recording to the loop end" : recording ? "Cancel" : ch.state === "empty" ? "Record" : "Re-record";
+  const act = () => (running ? undefined : recording ? engine.do({ type: "record.stop" }) : engine.do({ type: "loop.record", id: ch.id }));
   const live = ch.state === "recording" ? "#fb7185" : ch.state === "armed" ? "#fbbf24" : colour;
 
   useEffect(() => {
@@ -169,7 +170,7 @@ function LoopCircle({ engine, ch, colour, stage, ready, busy, firstTake, getPosi
           )}
         </svg>
         <span className="absolute grid place-items-center" style={{ color: live }}>
-          <Icon name={isFreeTake ? "square" : recording ? "x" : ch.state === "empty" ? "circle" : "repeat"} size={22} fill={isFreeTake || ch.state === "empty"} />
+          <Icon name={isFreeTake ? "square" : running ? "circle" : recording ? "x" : ch.state === "empty" ? "circle" : "repeat"} size={22} fill={isFreeTake || running || ch.state === "empty"} />
         </span>
       </button>
       <input value={ch.name} onChange={(e) => engine.do({ type: "loop.rename", id: ch.id, name: e.target.value })} aria-label={`Name of ${ch.name}`} className="w-full truncate rounded border border-transparent bg-transparent px-1 text-center text-[11px] font-medium text-slate-200 hover:border-slate-700 focus:border-slate-500 focus:outline-none" />
