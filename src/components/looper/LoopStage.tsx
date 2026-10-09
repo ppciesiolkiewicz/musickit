@@ -4,9 +4,9 @@ import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent as RKe
 import Icon from "../Icon";
 import EffectsModal from "./EffectsModal";
 import EffectWidgets from "./EffectWidgets";
-import { PIN_AREA, usePins } from "./fxPins";
+import { setPinSpawn } from "./fxPins";
 import InfoTip from "../InfoTip";
-import { GROUP_COLOURS, LOOP_R, STAGE_H, STAGE_W, type ChannelInfo, type GroupInfo, type LooperEngine, type LooperSnapshot } from "@/lib/looper/engine";
+import { GROUP_COLOURS, LOOP_R, STAGE_H, STAGE_W, VIEW_W, type ChannelInfo, type GroupInfo, type LooperEngine, type LooperSnapshot } from "@/lib/looper/engine";
 
 const ibtn = "grid h-8 min-w-8 place-items-center rounded-lg border border-slate-700 bg-slate-900 px-1.5 text-xs text-slate-200 transition hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 const tbtn = "grid h-6 min-w-6 place-items-center rounded-md border border-slate-700/80 bg-slate-900/80 px-1 text-[10px] text-slate-300 transition hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
@@ -42,7 +42,7 @@ const arrowStep = (e: RKeyboardEvent): [number, number] | null => {
 };
 
 /** The looping stage: loops are circles with a progress ring; coloured groups are boxes you can move and resize. A loop inside a group plays through that group's bus. */
-export default function LoopStage({ engine, snap, getPosition, openSeqs, onToggleSeq }: { engine: LooperEngine; snap: LooperSnapshot; getPosition: () => number | null; openSeqs: string[]; onToggleSeq: (id: string) => void }) {
+export default function LoopStage({ engine, snap, getPosition, openSeqs, onToggleSeq, fill = false }: { engine: LooperEngine; snap: LooperSnapshot; getPosition: () => number | null; openSeqs: string[]; onToggleSeq: (id: string) => void; fill?: boolean }) {
   const stage = useRef<HTMLDivElement>(null);
   const [fxFor, setFxFor] = useState<string | null>(null);
   const ready = snap.status === "ready";
@@ -53,10 +53,8 @@ export default function LoopStage({ engine, snap, getPosition, openSeqs, onToggl
   // The stage is drawn at its natural size (STAGE_W by STAGE_H) and scaled, so loops, groups and text all scale together.
   // It fits the page width by default; zoom in and the area scrolls.
   const frame = useRef<HTMLDivElement>(null);
-  const pins = usePins();
-  // The canvas is the stage plus a widget area to its right. It only grows to include that area while effects are pinned.
-  const canvasW = pins.length ? PIN_AREA.x + PIN_AREA.w : STAGE_W;
-  const canvasH = pins.length ? Math.max(STAGE_H, PIN_AREA.h) : STAGE_H;
+  const canvasW = STAGE_W;
+  const canvasH = STAGE_H;
   const [width, setWidth] = useState(STAGE_W);
   useLayoutEffect(() => {
     const el = frame.current;
@@ -67,11 +65,20 @@ export default function LoopStage({ engine, snap, getPosition, openSeqs, onToggl
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
-  const fit = Math.max(MIN_ZOOM, Math.min(1.6, (width - 2) / STAGE_W));
+  // at 100% the part VIEW_W wide fills the widget; the rest of the stage is room to grow into (scroll or drag to reach it)
+  const fit = Math.max(MIN_ZOOM, Math.min(1.6, (width - 2) / VIEW_W));
   const scale = fit;
+  // new effect widgets appear in the part of the stage you are looking at
+  useEffect(() => {
+    setPinSpawn(() => {
+      const el = frame.current;
+      return el ? { x: el.scrollLeft / scale, y: el.scrollTop / scale } : { x: 0, y: 0 };
+    });
+    return () => setPinSpawn(null);
+  }, [scale]);
 
   return (
-    <div className="flex flex-col gap-1">
+    <div className={`flex flex-col gap-1 ${fill ? "min-h-0 flex-1" : ""}`}>
       <div className="flex items-center justify-end gap-1">
         <InfoTip label="Stage help">
           <p><b>Size:</b> the stage fits its widget. Make the widget bigger or smaller by its corner, or zoom the whole canvas.</p>
@@ -81,7 +88,7 @@ export default function LoopStage({ engine, snap, getPosition, openSeqs, onToggl
       </div>
       <div
         ref={frame}
-        className="max-h-[75vh] overflow-auto rounded-xl border border-slate-800 bg-slate-950/60"
+        className={`overflow-auto rounded-xl border border-slate-800 bg-slate-950/60 ${fill ? "min-h-0 flex-1" : "max-h-[75vh]"}`}
         onPointerDown={(e) => {
           // drag empty space to pan
           const el = frame.current;

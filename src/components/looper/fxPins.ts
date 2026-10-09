@@ -13,7 +13,14 @@ export interface FxPin {
 const STORAGE = "musickit.looper.fxWidgets";
 /** where widgets live on the canvas, in stage units: the area to the right of and below the stage */
 export const PIN_W = 330;
-export const PIN_AREA = { x: 1000, y: 0, w: 700, h: 700 };
+/** effect widgets can sit anywhere on the stage (2000 x 1200 stage units) */
+export const PIN_AREA = { x: 0, y: 0, w: 2000, h: 1200 };
+
+let spawnAt: (() => { x: number; y: number }) | null = null;
+/** The stage tells where its visible corner is, so a new widget appears where you are looking. */
+export function setPinSpawn(f: (() => { x: number; y: number }) | null) {
+  spawnAt = f;
+}
 
 const EMPTY: FxPin[] = [];
 let pins: FxPin[] | null = null;
@@ -62,7 +69,8 @@ export function togglePin(key: string) {
   const cur = get();
   if (isPinned(cur, key)) return set(cur.filter((p) => p.key !== key));
   const n = cur.length;
-  set([...cur, { key, x: PIN_AREA.x + 20 + (n % 2) * (PIN_W + 10), y: 20 + Math.floor(n / 2) * 230 }]);
+  const o = spawnAt?.() ?? { x: 0, y: 0 };
+  set([...cur, { key, x: o.x + 16 + (n % 5) * 24, y: o.y + 16 + (n % 5) * 24 }]);
 }
 
 export function movePin(key: string, x: number, y: number) {

@@ -62,6 +62,6 @@ describe("placing circles from the diagram", () => {
     assert.equal(containingGroup(groups, p!.x, p!.y), null);
   });
   it("reports no spot when groups cover the stage", () => {
-    assert.equal(spotOutside([{ id: "a", x: 0, y: 0, w: 1000, h: 460 }], []), null);
+    assert.equal(spotOutside([{ id: "a", x: 0, y: 0, w: STAGE_W, h: STAGE_H }], []), null);
   });
 });

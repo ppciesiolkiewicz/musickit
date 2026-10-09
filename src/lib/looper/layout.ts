@@ -3,8 +3,12 @@
  * holds the loop's centre. Pure geometry, unit tested. Coordinates are in stage units (STAGE_W by STAGE_H).
  */
 
-export const STAGE_W = 1000;
-export const STAGE_H = 460;
+/** The whole stage: groups and loops can be anywhere on it. */
+export const STAGE_W = 2000;
+export const STAGE_H = 1200;
+/** The part that is in view at 100% and where the default groups sit; the rest is room to grow into. */
+export const VIEW_W = 1000;
+export const VIEW_H = 460;
 export const LOOP_R = 46;
 export const MIN_GROUP_W = 140;
 export const MIN_GROUP_H = 150;
@@ -51,13 +55,13 @@ export const FREE_STRIP = 96;
 
 export function defaultGroups(): GroupLayout[] {
   const gap = 12;
-  const w = (STAGE_W - gap * (DEFAULT_GROUPS + 1)) / DEFAULT_GROUPS;
-  return Array.from({ length: DEFAULT_GROUPS }, (_, i) => i).map((i) => ({ id: `g${i + 1}`, x: gap + i * (w + gap), y: gap, w, h: STAGE_H - gap * 2 - FREE_STRIP }));
+  const w = (VIEW_W - gap * (DEFAULT_GROUPS + 1)) / DEFAULT_GROUPS;
+  return Array.from({ length: DEFAULT_GROUPS }, (_, i) => i).map((i) => ({ id: `g${i + 1}`, x: gap + i * (w + gap), y: gap, w, h: VIEW_H - gap * 2 - FREE_STRIP }));
 }
 
 /** A spot for loop number `index` of `total`: inside the group `index % groups`, stacked so circles do not overlap. */
 export function defaultSpot(groups: GroupLayout[], index: number): { x: number; y: number } {
-  if (groups.length === 0) return clampPoint(LOOP_R + index * (LOOP_R * 2 + 12), STAGE_H / 2);
+  if (groups.length === 0) return clampPoint(LOOP_R + index * (LOOP_R * 2 + 12), VIEW_H / 2);
   const g = groups[index % groups.length];
   const slot = Math.floor(index / groups.length);
   const perRow = Math.max(1, Math.floor((g.w - 20) / (LOOP_R * 2 + 12)));
@@ -71,7 +75,7 @@ const apart = (x: number, y: number, taken: { x: number; y: number }[]) => taken
 /** A free spot inside the group, clear of the other circles, or the group centre when it is full. */
 export function spotInGroup(groups: GroupLayout[], groupId: string, taken: { x: number; y: number }[]): { x: number; y: number } {
   const g = groups.find((x) => x.id === groupId);
-  if (!g) return clampPoint(STAGE_W / 2, STAGE_H / 2);
+  if (!g) return clampPoint(VIEW_W / 2, VIEW_H / 2);
   const step = LOOP_R * 1.7;
   for (let y = g.y + 50 + LOOP_R; y <= g.y + g.h - LOOP_R; y += step) {
     for (let x = g.x + 20 + LOOP_R; x <= g.x + g.w - LOOP_R; x += step) {
@@ -85,9 +89,12 @@ export function spotInGroup(groups: GroupLayout[], groupId: string, taken: { x: 
 /** A spot on the stage outside every group (so a circle there plays straight to the master), or null when the groups cover everything. */
 export function spotOutside(groups: GroupLayout[], taken: { x: number; y: number }[]): { x: number; y: number } | null {
   const step = LOOP_R * 1.7;
-  for (let y = STAGE_H - LOOP_R; y >= LOOP_R; y -= step) {
-    for (let x = LOOP_R; x <= STAGE_W - LOOP_R; x += step) {
-      if (containingGroup(groups, x, y) === null && apart(x, y, taken)) return { x, y };
+  // the part in view first, then the rest of the stage
+  for (const [w, h] of [[VIEW_W, VIEW_H], [STAGE_W, STAGE_H]]) {
+    for (let y = h - LOOP_R; y >= LOOP_R; y -= step) {
+      for (let x = LOOP_R; x <= w - LOOP_R; x += step) {
+        if (containingGroup(groups, x, y) === null && apart(x, y, taken)) return { x, y };
+      }
     }
   }
   return null;

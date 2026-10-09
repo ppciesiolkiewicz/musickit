@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState, type PointerEvent as RPointerEvent, type ReactNode } from "react";
 import Icon from "@/components/Icon";
 import InfoTip from "@/components/InfoTip";
-import { clampWidget, moveWidget, raise, resizeWidget, sanitiseLayout, tileLayout, type Bounds, type DefaultLayout, type Layout } from "./board";
+import { WIDGET_MIN, raise, tileLayout, type Bounds, type DefaultLayout, type Layout, type WidgetRect } from "./board";
 
 export interface BoardWidget {
   id: string;
@@ -13,8 +13,15 @@ export interface BoardWidget {
   onClose?: () => void;
 }
 
-/** The canvas is much larger than the screen: zoom out to see it all, pan to move around. */
-export const WORLD: Bounds = { w: 8000, h: 6000 };
+/** The canvas has no real edge: widgets can go anywhere within this generous range (negative too), and you zoom out to see far. */
+export const WORLD: Bounds = { w: 40000, h: 30000 };
+const LIMIT = 20000;
+const inRange = (r: WidgetRect, min = WIDGET_MIN): WidgetRect => ({
+  w: Math.round(Math.min(Math.max(r.w, min.w), LIMIT)),
+  h: Math.round(Math.min(Math.max(r.h, min.h), LIMIT)),
+  x: Math.round(Math.min(Math.max(r.x, -LIMIT), LIMIT)),
+  y: Math.round(Math.min(Math.max(r.y, -LIMIT), LIMIT)),
+});
 export const ZOOM = { min: 0.15, max: 2 };
 
 interface View {
@@ -103,7 +110,28 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
           raw = null;
         }
       }
-      return sanitiseLayout(raw, idKey ? idKey.split("|") : [], WORLD, screen);
+      const idList = idKey ? idKey.split("|") : [];
+      const d = screen(idList, vp);
+      const src = typeof raw === "object" && raw !== null ? (raw as Record<string, Partial<WidgetRect> | undefined>) : {};
+      const out: Layout = {};
+      idList.forEach((id) => {
+        const r = src[id];
+        out[id] = r && [r.x, r.y, r.w, r.h].every((n) => typeof n === "number" && Number.isFinite(n)) ? inRange(r as WidgetRect) : d[id];
+      });
+      // a widget that is new while the canvas is already showing others appears where you are looking, not at its tile
+      if (cur) {
+        const v = viewRef.current;
+        let n = 0;
+        idList.forEach((id) => {
+          if (cur[id]) return out[id] = cur[id];
+          const r = out[id];
+          const w = Math.min(r.w, Math.max(WIDGET_MIN.w, Math.round((vp.w - 48) / v.zoom)));
+          const h = Math.min(r.h, Math.max(WIDGET_MIN.h, Math.round((vp.h - 48) / v.zoom)));
+          out[id] = { w, h, x: Math.round(-v.x / v.zoom + 24 + n * 28), y: Math.round(-v.y / v.zoom + 24 + n * 28) };
+          n++;
+        });
+      }
+      return out;
     });
     setOrder((o) => [...o.filter((x) => idKey.split("|").includes(x)), ...idKey.split("|").filter((x) => !o.includes(x))]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -184,7 +212,7 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
       return;
     }
     const z = viewRef.current.zoom;
-    const next = d.mode === "move" ? moveWidget(d.start, dx / z, dy / z, WORLD) : resizeWidget(d.start, dx / z, dy / z, WORLD);
+    const next = inRange(d.mode === "move" ? { ...d.start, x: d.start.x + dx / z, y: d.start.y + dy / z } : { ...d.start, w: d.start.w + dx / z, h: d.start.h + dy / z });
     setLayout((l) => (l ? { ...l, [d.id]: next } : l));
   };
   const end = () => {
@@ -229,10 +257,10 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
         <button type="button" className={tbtn} onClick={() => { const v = zoomAt(1.25); save(layout, v); }} title="Zoom in" aria-label="Zoom in"><Icon name="plus" size={12} /></button>
         <button type="button" className={tbtn} onClick={fitAll} title="Show every widget" aria-label="Fit all widgets"><Icon name="layout-dashboard" size={12} /></button>
       </div>
-      <div data-canvas="1" className="absolute left-0 top-0" style={{ width: WORLD.w, height: WORLD.h, transform: `translate(${view.x}px, ${view.y}px) scale(${view.zoom})`, transformOrigin: "0 0" }}>
+      <div data-canvas="1" className="absolute left-0 top-0" style={{ width: 0, height: 0, overflow: "visible", transform: `translate(${view.x}px, ${view.y}px) scale(${view.zoom})`, transformOrigin: "0 0" }}>
         {layout &&
           widgets.map((w) => {
-            const r = layout[w.id] ?? clampWidget({ x: 0, y: 0, w: 380, h: 260 }, WORLD);
+            const r = layout[w.id] ?? inRange({ x: 0, y: 0, w: 380, h: 260 });
             return (
               <div data-widget="1" key={w.id} className="absolute flex select-text flex-col overflow-hidden rounded-xl border border-slate-600 bg-slate-950 shadow-lg shadow-black/40" style={{ left: r.x, top: r.y, width: r.w, height: r.h, zIndex: 1 + Math.max(0, order.indexOf(w.id)) }}>
                 <div

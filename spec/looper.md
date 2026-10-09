@@ -129,3 +129,8 @@ A tenth effect kind, `nam`, runs Neural Amp Modeler models (`.nam`, including A2
 The Mixer and Looping sections sit on a canvas that fills the window below the header. The canvas is much larger than the screen (8000 x 6000), zooms from 15% to 200% (buttons, Ctrl/Cmd and the wheel, trackpad pinch) and pans with the wheel or by dragging empty space; the fit button shows every widget and the (i) button explains this. The widget layout button switches back to the stacked page. Layout and view are saved in `musickit.looper.widgets`.
 
 The wheel zoom on the canvas is proportional to the wheel movement (gentle on a trackpad). The metronome bar shows a bell-off button while the click is silenced; pressing it turns the click back on.
+
+## Stage size and canvas limits
+
+- The stage is 2000 x 1200 stage units; the default groups sit in the first 1000 x 460 (the part in view at 100%), so the rest is room to grow into. In widget mode the stage fills the Looping widget (it scrolls and pans), and the widget can be resized freely. Older saved layouts keep their places.
+- Pinned effect widgets can sit anywhere on the stage; a new one appears at the visible corner. On the canvas, widgets can be dragged anywhere (including up and left of the starting point), and a widget that is added later appears where you are looking.
