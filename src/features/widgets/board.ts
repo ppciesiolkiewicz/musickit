@@ -182,3 +182,45 @@ export function alignLine(layout: Layout, ids: string[], want: Record<string, nu
   });
   return out;
 }
+
+/**
+ * Put widgets next to the one they belong to: under it (vertical) as a row that wraps at the owner's width, or to its right (horizontal)
+ * as a column that wraps at its height. Everything else that starts past the owner is pushed on to make room, keeping `bandGap` after the
+ * attached ones. `attach` maps an owner's id to its widgets (in order); `sizes` gives their sizes. Owners missing from the layout are skipped.
+ */
+export function attachLayout(layout: Layout, attach: Record<string, string[]>, sizes: Record<string, { w: number; h: number }>, direction: "vertical" | "horizontal", gap = 24, bandGap = 64): Layout {
+  const v = direction === "vertical";
+  const along = (r: { w: number; h: number }) => (v ? r.w : r.h);
+  const across = (r: { w: number; h: number }) => (v ? r.h : r.w);
+  const pos = (r: WidgetRect) => (v ? r.y : r.x);
+  const out: Layout = { ...layout };
+  const attached = new Set(Object.values(attach).flat());
+  // owners nearest the start first, so pushing a later band never moves an owner already handled
+  const owners = Object.keys(attach).filter((o) => out[o] && attach[o].some((id) => sizes[id])).sort((a, b) => pos(out[a]) + across(out[a]) - (pos(out[b]) + across(out[b])));
+  owners.forEach((o) => {
+    const r = out[o];
+    const cut = pos(r) + across(r);
+    const room = Math.max(along(r), ...attach[o].filter((id) => sizes[id]).map((id) => along(sizes[id])));
+    let a = 0;
+    let line = cut + gap;
+    let thick = 0;
+    attach[o].forEach((id) => {
+      const s = sizes[id];
+      if (!s) return;
+      if (a && a + along(s) > room) {
+        line += thick + gap;
+        a = 0;
+        thick = 0;
+      }
+      out[id] = v ? { x: round(r.x + a), y: round(line), w: round(s.w), h: round(s.h) } : { x: round(line), y: round(r.y + a), w: round(s.w), h: round(s.h) };
+      a += along(s) + gap;
+      thick = Math.max(thick, across(s));
+    });
+    const end = line + thick;
+    const later = Object.keys(out).filter((id) => id !== o && !attached.has(id) && pos(out[id]) >= cut);
+    if (!later.length) return;
+    const push = Math.max(0, end + bandGap - Math.min(...later.map((id) => pos(out[id]))));
+    if (push) later.forEach((id) => { out[id] = v ? { ...out[id], y: round(out[id].y + push) } : { ...out[id], x: round(out[id].x + push) }; });
+  });
+  return out;
+}

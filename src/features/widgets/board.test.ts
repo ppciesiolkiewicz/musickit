@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { alignLine, bandLayout, clampWidget, findSpot, fitView, moveWidget, raise, resizeFromCorner, resizeWidget, sanitiseLayout, splitLayout, tileLayout } from "./board";
+import { alignLine, attachLayout, bandLayout, clampWidget, findSpot, fitView, moveWidget, raise, resizeFromCorner, resizeWidget, sanitiseLayout, splitLayout, tileLayout } from "./board";
 
 const B = { w: 1000, h: 600 };
 
@@ -116,4 +116,24 @@ test("a line slides each widget under what it wants without overlaps, keeping it
   const out = alignLine(l, ["a", "b", "c"], { a: 500, b: 510 }, "vertical", 20);
   assert.deepEqual([out.a.x, out.b.x, out.c.x], [450, 570, 690]);
   assert.deepEqual(alignLine(l, ["a"], {}, "horizontal").a, l.a);
+});
+
+test("attached widgets sit under their owner (vertical) and push the next band down", () => {
+  const l = { a: { x: 0, y: 0, w: 400, h: 100 }, b: { x: 500, y: 0, w: 300, h: 200 }, c: { x: 0, y: 264, w: 300, h: 100 } };
+  const sizes = { p: { w: 150, h: 80 }, q: { w: 150, h: 80 }, r: { w: 150, h: 80 } };
+  const out = attachLayout(l, { a: ["p", "q", "r"] }, sizes, "vertical", 20, 64);
+  assert.deepEqual([out.p.x, out.p.y, out.q.x, out.q.y], [0, 120, 170, 120]);
+  // the third wraps: 340 + 150 is wider than the owner
+  assert.deepEqual([out.r.x, out.r.y], [0, 220]);
+  // the next band starts bandGap after the attached widgets; the owner's neighbour stays
+  assert.equal(out.c.y, 300 + 64);
+  assert.deepEqual(out.b, l.b);
+});
+
+test("attached widgets sit right of their owner (horizontal); unknown owners are skipped", () => {
+  const l = { a: { x: 0, y: 0, w: 300, h: 400 }, c: { x: 364, y: 0, w: 300, h: 100 } };
+  const out = attachLayout(l, { a: ["p"], gone: ["q"] }, { p: { w: 200, h: 100 }, q: { w: 200, h: 100 } }, "horizontal", 20, 64);
+  assert.deepEqual(out.p, { x: 320, y: 0, w: 200, h: 100 });
+  assert.equal(out.c.x, 520 + 64);
+  assert.equal(out.q, undefined);
 });

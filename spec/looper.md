@@ -141,7 +141,7 @@ The wheel zoom on the canvas is proportional to the wheel movement (gentle on a 
 ## Stage size and canvas limits
 
 - The stage is 2000 x 1200 stage units; the default groups sit in the first 1100 x 620 (the part in view at 100%), tall enough for two rows of loops above the sequencers, so the rest is room to grow into. In widget mode the stage fills the Looping widget (it scrolls and pans), and the widget can be resized freely. Older saved layouts keep their places.
-- In the fixed layout, pinned effect widgets can sit anywhere on the stage; a new one appears at the visible corner. On the canvas, widgets can be dragged anywhere (including up and left of the starting point), and a widget that is added later (an input, a bus, a switch, an effect widget) appears in the centre of the screen, on top.
+- In the fixed layout, pinned effect widgets can sit anywhere on the stage; a new one appears at the visible corner. On the canvas, widgets can be dragged anywhere (including up and left of the starting point), and a widget that is added later (an input, a bus, a switch, an effect widget) appears in the centre of the screen, on top. The Looping widget is always drawn under the other widgets, and clicks in a dialog opened from it (the group effects) do not raise it. Auto position puts each effect widget under (vertical) or to the right of (horizontal) the widget it belongs to: the Looping stage for a group's effects, else its input, bus or the master; what comes after moves on to make room.
 
 ## Mixer sections and widget resizing
 

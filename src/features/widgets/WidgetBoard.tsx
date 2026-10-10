@@ -11,6 +11,8 @@ export interface BoardWidget {
   node: ReactNode;
   /** shows a close button in the header */
   onClose?: () => void;
+  /** always drawn under the other widgets (a big one that the rest sit on) */
+  back?: boolean;
 }
 
 /** One choice of the Auto position menu: where every widget goes. It is given the widgets' current places (for their sizes). */
@@ -329,7 +331,7 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
           widgets.map((w) => {
             const r = layout[w.id] ?? inRange({ x: 0, y: 0, w: 380, h: 260 });
             return (
-              <div data-widget="1" key={w.id} className="absolute flex select-text flex-col overflow-hidden rounded-xl border border-slate-600 bg-slate-950 shadow-lg shadow-black/40" style={{ left: r.x, top: r.y, width: r.w, height: r.h, zIndex: 1 + Math.max(0, order.indexOf(w.id)) }}>
+              <div data-widget="1" key={w.id} className="absolute flex select-text flex-col overflow-hidden rounded-xl border border-slate-600 bg-slate-950 shadow-lg shadow-black/40" style={{ left: r.x, top: r.y, width: r.w, height: r.h, zIndex: 1 + (w.back ? 0 : widgets.length) + Math.max(0, order.indexOf(w.id)) }}>
                 <div
                   className="flex h-7 shrink-0 cursor-grab touch-none select-none items-center gap-1.5 border-b border-slate-700 bg-slate-900 px-2 text-xs text-slate-300 active:cursor-grabbing"
                   onPointerDown={begin(w.id, "move")}
@@ -346,7 +348,11 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
                     </button>
                   )}
                 </div>
-                <div className="min-h-0 flex-1 touch-auto overflow-auto p-2.5" onPointerDown={(e) => { e.stopPropagation(); setOrder((o) => raise(o, w.id)); }}>{w.node}</div>
+                <div className="min-h-0 flex-1 touch-auto overflow-auto p-2.5" onPointerDown={(e) => {
+                  e.stopPropagation();
+                  // a dialog opened from the widget is drawn elsewhere on the page (a portal) but its events still bubble here: those do not raise it
+                  if (e.currentTarget.contains(e.target as Node)) setOrder((o) => raise(o, w.id));
+                }}>{w.node}</div>
                 {(["nw", "ne", "sw", "se"] as Corner[]).map((c) => (
                   <div
                     key={c}
