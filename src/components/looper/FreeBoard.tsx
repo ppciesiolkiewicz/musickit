@@ -156,7 +156,7 @@ export default function FreeBoard({ engine, snap, controls, keyboardOpen, onTogg
 
   return (
     <>
-      <WidgetBoard storageKey="musickit.looper.board2" flush place="center" defaults={freeLayout(kinds, fedBy, feeds, ownerOf)} arrangements={arrangements(kinds, fedBy, feeds, ownerOf)} resetSignal={resetSignal} widgets={widgets} />
+      <WidgetBoard storageKey="musickit.looper.board2" flush place="center" defaults={freeLayout(kinds, fedBy, feeds, ownerOf)} arrangements={arrangements(kinds, fedBy, feeds, ownerOf)} start="vertical" resetSignal={resetSignal} widgets={widgets} />
     </>
   );
 }

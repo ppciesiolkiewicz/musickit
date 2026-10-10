@@ -55,7 +55,7 @@ const clampZoom = (z: number) => Math.min(ZOOM.max, Math.max(ZOOM.min, z));
  * world that you zoom (buttons, Ctrl/Cmd and the wheel) and pan (wheel, or drag empty space). Each widget is dragged by its grip header and
  * resized from the corner. The layout and the view are remembered under `storageKey`. Raise `resetSignal` to put everything back.
  */
-export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout, resetSignal = 0, flush = false, place = "free", arrangements = GRID }: {
+export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout, resetSignal = 0, flush = false, place = "free", arrangements = GRID, start }: {
   widgets: BoardWidget[];
   storageKey: string;
   /** kept for older callers; the canvas always fills the space */
@@ -69,6 +69,8 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
   place?: "free" | "center";
   /** the choices of the Auto position menu (then the view zooms to show them all) */
   arrangements?: Arrangement[];
+  /** the arrangement a board with no saved layout starts in, run just as its Auto position button would (then zoomed to show all) */
+  start?: string;
 }) {
   const host = useRef<HTMLDivElement>(null);
   const [vp, setVp] = useState<Bounds | null>(null);
@@ -140,13 +142,9 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
       });
       if (fresh.current) {
         if (relayout.current) clearTimeout(relayout.current);
+        // exactly what the Auto position button does with the start arrangement: place by the real sizes, then show them all
         relayout.current = setTimeout(() => {
-          const cur = layoutRef.current;
-          if (!fresh.current || !cur || !vpRef.current) return;
-          const ids = Object.keys(cur);
-          const l = { ...cur, ...defaults(ids, vpRef.current, cur) };
-          setLayout(l);
-          save(l, viewRef.current);
+          if (fresh.current) arrangeRef.current(startRef.current);
         }, 200);
       }
     });
@@ -220,6 +218,8 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
     setLayout(l);
     setView(v);
     save(l, v);
+    // then as the start arrangement's button would: by the real sizes, everything in view
+    if (startRef.current) setTimeout(() => arrangeRef.current(startRef.current), 0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resetSignal]);
 
@@ -298,23 +298,27 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
   };
 
   /** Zoom and move so that every widget is in view. */
-  const fitAll = (l = layout) => {
+  const fitAll = (l: Layout | null = layout) => {
     if (!l || !vp) return;
     const v = fitView(widgets.map((w) => l[w.id]).filter(Boolean), vp, ZOOM);
     if (!v) return;
     setView(v);
     save(l, v);
   };
-  /** Put every widget where the arrangement says, then show them all. */
-  const arrange = (a: Arrangement) => {
+  /** Put every widget where the arrangement says, then show them all. Without one: the start arrangement, or the defaults. */
+  const arrange = (a?: Arrangement) => {
+    const layout = layoutRef.current;
     if (!layout || !vp) return;
-    fresh.current = false;
-    const placed = a.layout(widgets.map((w) => w.id), vp, layout);
+    const placed = a ? a.layout(widgets.map((w) => w.id), vp, layout) : defaults(widgets.map((w) => w.id), vp, layout);
     const l: Layout = { ...layout };
     widgets.forEach((w) => { if (placed[w.id]) l[w.id] = inRange(placed[w.id]); });
     setLayout(l);
     fitAll(l);
   };
+  const arrangeRef = useRef(arrange);
+  arrangeRef.current = arrange;
+  const startRef = useRef<Arrangement | undefined>(undefined);
+  startRef.current = arrangements.find((a) => a.id === start);
   const [menu, setMenu] = useState(false);
   useEffect(() => {
     if (!menu) return;
@@ -360,7 +364,7 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
             <div role="menu" aria-label="Auto position" className="absolute right-0 top-7 w-60 rounded-xl border border-slate-700 bg-slate-950 p-1 shadow-xl">
               <div className="px-2 pb-1 pt-0.5 text-[10px] font-medium uppercase tracking-wide text-slate-500">Auto position</div>
               {arrangements.map((a) => (
-                <button key={a.id} type="button" role="menuitem" className={menuItem} onClick={() => { arrange(a); setMenu(false); }}>
+                <button key={a.id} type="button" role="menuitem" className={menuItem} onClick={() => { fresh.current = false; arrange(a); setMenu(false); }}>
                   <Icon name={a.icon} size={15} className="mt-0.5 shrink-0 text-slate-400" />
                   <span className="flex min-w-0 flex-col">
                     <span className="font-medium">{a.label}</span>
