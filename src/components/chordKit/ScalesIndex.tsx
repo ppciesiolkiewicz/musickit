@@ -59,7 +59,7 @@ export default function ScalesIndex({ initialKey }: { initialKey: number }) {
             {modes.map(({ page, ctx, rel, labels }) => (
               <article key={page.slug} className="flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5">
                 <header>
-                  <Link href={`/scales/${page.slug}?key=${tonicPc}`} className="group flex flex-wrap items-baseline gap-x-2 rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
+                  <Link href={`/theory/scales/${page.slug}?key=${tonicPc}`} className="group flex flex-wrap items-baseline gap-x-2 rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
                     <h3 className="text-base text-slate-100 group-hover:text-sky-300 group-hover:underline">{ctx.names[0]} {ctx.modeName}</h3>
                     <span className="text-xs text-slate-500 group-hover:text-slate-300">{fam.info[page.modeIndex].mood}</span>
                   </Link>
@@ -86,12 +86,12 @@ export default function ScalesIndex({ initialKey }: { initialKey: number }) {
                   )}
                   {rel.relativeMajor && page.modeIndex !== 0 && (
                     <li>
-                      Relative major: <Link className="text-sky-300 hover:underline" href={`/scales/${pageFor(0, 0).slug}?key=${rel.relativeMajor.tonicPc}`}>{rel.relativeMajor.tonic} major</Link> <span className="text-slate-500">(this mode starts on its {ORD[page.modeIndex]} degree)</span>
+                      Relative major: <Link className="text-sky-300 hover:underline" href={`/theory/scales/${pageFor(0, 0).slug}?key=${rel.relativeMajor.tonicPc}`}>{rel.relativeMajor.tonic} major</Link> <span className="text-slate-500">(this mode starts on its {ORD[page.modeIndex]} degree)</span>
                     </li>
                   )}
                   {rel.relativeMinor && page.modeIndex !== 5 && (
                     <li>
-                      Relative minor: <Link className="text-sky-300 hover:underline" href={`/scales/${pageFor(0, 5).slug}?key=${rel.relativeMinor.tonicPc}`}>{rel.relativeMinor.tonic} natural minor</Link> <span className="text-slate-500">(starts on the 6th degree of {rel.parentTonic} major)</span>
+                      Relative minor: <Link className="text-sky-300 hover:underline" href={`/theory/scales/${pageFor(0, 5).slug}?key=${rel.relativeMinor.tonicPc}`}>{rel.relativeMinor.tonic} natural minor</Link> <span className="text-slate-500">(starts on the 6th degree of {rel.parentTonic} major)</span>
                     </li>
                   )}
                   {!rel.relativeMajor && (
@@ -103,7 +103,7 @@ export default function ScalesIndex({ initialKey }: { initialKey: number }) {
                   {rel.vsMinor.length > 0 && <li className="text-slate-400">Versus {ctx.names[0]} natural minor: <b className="text-slate-300">{rel.vsMinor.join(" ")}</b> differ</li>}
                 </ul>
 
-                <Link href={`/scales/${page.slug}?key=${tonicPc}`} className="mt-auto self-start rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-300 transition hover:border-sky-400 hover:text-sky-100">
+                <Link href={`/theory/scales/${page.slug}?key=${tonicPc}`} className="mt-auto self-start rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-300 transition hover:border-sky-400 hover:text-sky-100">
                   Every chord in {ctx.names[0]} {ctx.modeName} →
                 </Link>
               </article>

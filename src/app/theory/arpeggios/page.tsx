@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function ArpeggiosPage() {
   return (
     <PageShell
-      active="/arpeggios"
+      active="/theory/arpeggios"
       title="Arpeggios over scales"
       intro="Pick any key and any of the 21 modes, choose an arpeggio (the scale's own chord or any other type), and see it on the whole neck with the scale behind it."
     >

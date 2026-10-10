@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function SamplerPage() {
   return (
-    <PageShell active="/sampler" title="Sampler" intro="Upload or generate sounds, put them on notes, and play them anywhere in the app.">
+    <PageShell active="/theory/sampler" title="Sampler" intro="Upload or generate sounds, put them on notes, and play them anywhere in the app.">
       <SamplerApp />
     </PageShell>
   );

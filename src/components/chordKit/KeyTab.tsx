@@ -41,7 +41,7 @@ export default function KeyTab() {
             <p><b className="text-slate-200">What makes it:</b> {info.char} <b className="text-slate-200">Sound:</b> {info.mood} <b className="text-slate-200">Use:</b> {info.use}</p>
             {page && (
               <p className="mt-1">
-                <Link className="text-sky-300 hover:underline" href={`/scales/${page.slug}?key=${tonicPc}`}>Open the full {ctx.modeName} page with every chord and its notes →</Link>
+                <Link className="text-sky-300 hover:underline" href={`/theory/scales/${page.slug}?key=${tonicPc}`}>Open the full {ctx.modeName} page with every chord and its notes →</Link>
               </p>
             )}
           </div>

@@ -128,7 +128,7 @@ export default function ArpeggiosExplorer() {
         <ModePicker familyIndex={fam} modeIndex={mode} onChange={(f, m) => { setFam(f); setMode(m); setDegree(0); }} />
         <p className="text-xs text-slate-400">
           Scale: <b className="text-slate-200">{ctx.names[0]} {ctx.modeName}</b> · {ctx.names.join(" ")}
-          {page && <> · <Link className="text-sky-300 hover:underline" href={`/scales/${page.slug}?key=${tonicPc}`}>mode page</Link></>}
+          {page && <> · <Link className="text-sky-300 hover:underline" href={`/theory/scales/${page.slug}?key=${tonicPc}`}>mode page</Link></>}
         </p>
 
         <ChipRow label="Arpeggio on" info="Which note of the scale the arpeggio starts on, shown as a Roman numeral and the note name. An arpeggio is a chord played one note at a time.">

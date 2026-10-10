@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Piano from "@/features/sound/keyboard/Piano";
 import Icon, { type IconName } from "@/components/Icon";
+import SiteNav from "@/components/SiteNav";
 
 /* The words on this page live here so they are easy to change. */
 const STORY = {
@@ -16,18 +17,18 @@ const STEPS: { n: number; title: string; blurb: string; tools: Tool[] }[] = [
     title: "Understand it",
     blurb: "The theory, shown on the neck instead of described.",
     tools: [
-      { href: "/chords", label: "Chord explorer", icon: "music", text: "Shapes for the chords of any key and mode." },
-      { href: "/triads", label: "Triads", icon: "audio-lines", text: "Triads on every string group." },
-      { href: "/scales", label: "Scales and modes", icon: "sliders-horizontal", text: "Scales on the neck, modes side by side." },
-      { href: "/arpeggios", label: "Arpeggios", icon: "activity", text: "Arpeggio shapes across the neck." },
-      { href: "/caged", label: "CAGED", icon: "piano", text: "The five open shapes up the fretboard." },
+      { href: "/theory/chords", label: "Chord explorer", icon: "music", text: "Shapes for the chords of any key and mode." },
+      { href: "/theory/triads", label: "Triads", icon: "audio-lines", text: "Triads on every string group." },
+      { href: "/theory/scales", label: "Scales and modes", icon: "sliders-horizontal", text: "Scales on the neck, modes side by side." },
+      { href: "/theory/arpeggios", label: "Arpeggios", icon: "activity", text: "Arpeggio shapes across the neck." },
+      { href: "/theory/caged", label: "CAGED", icon: "piano", text: "The five open shapes up the fretboard." },
     ],
   },
   {
     n: 2,
     title: "Practise it",
     blurb: "Exercises and games that turn an idea into something your hands can do.",
-    tools: [{ href: "/improv", label: "Improvisation", icon: "drum", text: "Schillinger rhythm and motive exercises, with practice games." }],
+    tools: [{ href: "/theory/improv", label: "Improvisation", icon: "drum", text: "Schillinger rhythm and motive exercises, with practice games." }],
   },
   {
     n: 3,
@@ -41,8 +42,8 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-950 px-3 py-6 text-slate-200 sm:px-5">
       <main className="mx-auto flex w-full max-w-4xl flex-col gap-6">
+        <SiteNav active="/" />
         <header className="flex flex-col gap-3">
-          <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Music Kit</p>
           <h1 className="max-w-3xl text-balance text-3xl font-light leading-tight tracking-tight text-slate-50 sm:text-4xl">{STORY.title}</h1>
           <p className="max-w-2xl text-base text-slate-300">{STORY.lead}</p>
           <p className="max-w-2xl text-sm text-slate-400">{STORY.body}</p>

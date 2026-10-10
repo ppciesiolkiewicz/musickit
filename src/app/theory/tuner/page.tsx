@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function TunerPage() {
   return (
-    <PageShell active="/tuner" title="Tuner" intro="Press start, allow the microphone and play one string. Tap a string below to hear its pitch.">
+    <PageShell active="/theory/tuner" title="Tuner" intro="Press start, allow the microphone and play one string. Tap a string below to hear its pitch.">
       <Tuner />
     </PageShell>
   );

@@ -25,7 +25,7 @@ export default async function Page({ params, searchParams }: { params: Promise<P
   const parsed = Number(key);
   const initialKey = Number.isInteger(parsed) && parsed >= 0 && parsed < 12 ? parsed : 0;
   return (
-    <PageShell active="/scales" title="Scales and modes">
+    <PageShell active="/theory/scales" title="Scales and modes">
       <ScalePage familyIndex={page.familyIndex} modeIndex={page.modeIndex} initialKey={initialKey} />
     </PageShell>
   );
