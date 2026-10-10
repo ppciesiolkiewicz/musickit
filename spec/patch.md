@@ -2,8 +2,10 @@
 
 Goal: one canvas where every sound source, effect, bus and loop group is an element, connections are visible lines, and everything is drag and drop. It replaces the Mixer and Looping widgets. Groups stay; a loop must sit inside a group to be connected.
 
+Vocabulary: inputs, sequencers, buses. A Group is a special bus that also holds loops; a Bus is the standalone kind. See "Vocabulary" in `spec/looper.md`.
+
 ## Model (`src/lib/looper/patch.ts`, done)
-- Elements (`PatchKind`): `input` (audio interface or mic), `sequencer`, `piano` (scale piano, standalone), `synth` (sound generator played by MIDI, later), `fx` (an effect chain as its own element), `switch`, `bus` (a group's bus), `loop`, `recorder`, `master`.
+- Elements (`PatchKind`): `input` (audio interface or mic), `sequencer`, `piano` (scale piano, standalone), `synth` (sound generator played by MIDI, later), `fx` (a standalone **Bus**: connect things, add effects), `switch`, `group` (a **Group**: a special bus that holds loops), `loop`, `recorder`, `master`.
 - Links go from an element's output to another's input. Loops have no input (they get sound from the recorder) and join a bus by sitting inside its group. Recorder and master have no output.
 - Rules (`whyNot`): no self links, no duplicates, no feedback loop (a link that would make sound reach itself is refused).
 - Mute: a link or an element can be muted (`activeLinks` leaves them out).
@@ -14,7 +16,7 @@ Goal: one canvas where every sound source, effect, bus and loop group is an elem
 1. Model and rules, with tests. Done.
 2. Engine routes from the patch: connect/disconnect Web Audio nodes from `activeLinks`, actions `patch.connect`, `patch.disconnect`, `patch.mute`, `patch.switch` (undoable, recordable), saved in `musickit.looper.patch`. Default patch reproduces today's sound. Needs a real-browser check of every path (monitor, recorder, buses, master).
 3. Canvas UI: vertical elements (effects stacked, then a decorative fader line, the real fader beside the level meter), drag to move, drag from an output to an input to connect, click a line to mute or delete it, groups with loops inside. Replaces `Mixer.tsx`, `LoopStage` and `SignalFlow`.
-4. Switch element, effect chains as elements, MIDI keyboard to a `synth` element (sound generator).
+4. Switch element, standalone buses as elements, MIDI keyboard to a `synth` element (sound generator).
 
 Not decided yet: how loops outside a group behave (silent, as stated), and whether the "Hear it" monitor becomes a link from an element to master.
 
@@ -32,4 +34,4 @@ Not decided yet: how loops outside a group behave (silent, as stated), and wheth
 - Checked in headless Chromium with the real engine and a fake microphone (the window bundled with React, real mouse drags): wires are made by dragging output dot to input dot; input into a chain into a switch with outputs to the master and a group bus; the radio moves the sound between them; muting the chain silences both; adding an effect to a chain through `fx.add {element}` changes the sound; a loop recorded through the patch plays back after the input path is muted. Not checked: real audio interfaces and amp models (NAM) in a chain, touch screens, looks on a phone, undo of every patch action in the browser.
 - Still to do: replace the Mixer and Looping widgets with the canvas, vertical box design with the fader line, patched sequencers, MIDI generators, several loops recording at once.
 
-- Starter guitar rig (`rig.ts`, `engine.addRig`, one undoable batch): the input feeds four chains (Clean sparkle, Crunch, Lead, Amp model from the guitar presets), a switch named Sound (inputs: one at a time, outputs: any combination) takes them, and plays to the master and into every group's recorder; the direct input-to-group recorder links are removed so only the rig records. It is added from the + widget menu in the Widgets with wires view (chains and switches exist only there; the Widgets view has effects on inputs and buses only). Not verified with a real Scarlett or a real NAM model.
+- Starter guitar rig (`rig.ts`, `engine.addRig`, one undoable batch): the input feeds four buses (Clean sparkle, Crunch, Lead, Amp model: effect presets made from the guitar presets), a switch named Guitar Switch (inputs: one at a time, outputs: any combination) takes them, and plays to the master and into every group's recorder; the direct input-to-group recorder links are removed so only the rig records. It is added from the + widget menu in the Widgets with wires view (standalone buses and switches exist only there; the Widgets view has effects on inputs and buses only). Not verified with a real Scarlett or a real NAM model.

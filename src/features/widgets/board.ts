@@ -95,3 +95,14 @@ export function resizeFromCorner(r: WidgetRect, corner: Corner, dx: number, dy: 
   }
   return { x: round(x), y: round(y), w: round(w), h: round(h) };
 }
+
+/** The first free place for a rectangle of this size inside `area` (scanning rows left to right), clear of `taken`; null when the area has none. */
+export function findSpot(taken: WidgetRect[], size: { w: number; h: number }, area: WidgetRect, gap = 12): { x: number; y: number } | null {
+  const clear = (x: number, y: number) => taken.every((r) => x + size.w + gap <= r.x || r.x + r.w + gap <= x || y + size.h + gap <= r.y || r.y + r.h + gap <= y);
+  for (let y = area.y; y + size.h <= area.y + area.h; y += 24) {
+    for (let x = area.x; x + size.w <= area.x + area.w; x += 24) {
+      if (clear(x, y)) return { x: Math.round(x), y: Math.round(y) };
+    }
+  }
+  return null;
+}

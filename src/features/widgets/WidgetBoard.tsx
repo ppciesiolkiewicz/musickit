@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState, type PointerEvent as RPointerEvent, type ReactNode } from "react";
 import Icon from "@/components/Icon";
 import InfoTip from "@/components/InfoTip";
-import { WIDGET_MIN, raise, resizeFromCorner, tileLayout, type Corner, type Bounds, type DefaultLayout, type Layout, type WidgetRect } from "./board";
+import { WIDGET_MIN, findSpot, raise, resizeFromCorner, tileLayout, type Corner, type Bounds, type DefaultLayout, type Layout, type WidgetRect } from "./board";
 
 export interface BoardWidget {
   id: string;
@@ -118,16 +118,20 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
         const r = src[id];
         out[id] = r && [r.x, r.y, r.w, r.h].every((n) => typeof n === "number" && Number.isFinite(n)) ? inRange(r as WidgetRect) : d[id];
       });
-      // a widget that is new while the canvas is already showing others appears where you are looking, not at its tile
+      // a widget that is new while the canvas is already showing others goes to a free place where you are looking
       if (cur) {
         const v = viewRef.current;
+        const area: WidgetRect = { x: Math.round(-v.x / v.zoom + 12), y: Math.round(-v.y / v.zoom + 12), w: Math.round((vp.w - 24) / v.zoom), h: Math.round((vp.h - 24) / v.zoom) };
+        const taken: WidgetRect[] = idList.filter((id) => cur[id]).map((id) => cur[id]);
         let n = 0;
         idList.forEach((id) => {
           if (cur[id]) return out[id] = cur[id];
           const r = out[id];
           const w = Math.min(r.w, Math.max(WIDGET_MIN.w, Math.round((vp.w - 48) / v.zoom)));
           const h = Math.min(r.h, Math.max(WIDGET_MIN.h, Math.round((vp.h - 48) / v.zoom)));
-          out[id] = { w, h, x: Math.round(-v.x / v.zoom + 24 + n * 28), y: Math.round(-v.y / v.zoom + 24 + n * 28) };
+          const spot = findSpot(taken, { w, h }, area) ?? { x: area.x + 12 + n * 28, y: area.y + 12 + n * 28 };
+          out[id] = { w, h, ...spot };
+          taken.push(out[id]);
           n++;
         });
       }

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { clampWidget, moveWidget, raise, resizeFromCorner, resizeWidget, sanitiseLayout, splitLayout, tileLayout } from "./board";
+import { clampWidget, findSpot, moveWidget, raise, resizeFromCorner, resizeWidget, sanitiseLayout, splitLayout, tileLayout } from "./board";
 
 const B = { w: 1000, h: 600 };
 
@@ -68,4 +68,14 @@ test("resizing from a corner keeps the opposite corner fixed and respects the mi
   assert.equal(small.w, 260);
   assert.equal(small.x + small.w, 500);
   assert.equal(small.y + small.h, 400);
+});
+
+test("findSpot finds the first free place clear of the others", () => {
+  {
+    const area = { x: 0, y: 0, w: 700, h: 400 };
+    assert.deepEqual(findSpot([], { w: 300, h: 150 }, area), { x: 0, y: 0 });
+    const spot = findSpot([{ x: 0, y: 0, w: 300, h: 150 }], { w: 300, h: 150 }, area);
+    assert.ok(spot && (spot.x >= 312 || spot.y >= 162));
+    assert.equal(findSpot([{ x: 0, y: 0, w: 700, h: 400 }], { w: 300, h: 150 }, area), null);
+  }
 });
