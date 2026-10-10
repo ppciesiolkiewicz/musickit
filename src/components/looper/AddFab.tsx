@@ -3,7 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import Icon from "../Icon";
 import { isPinned, togglePin, usePins } from "./fxPins";
-import { patchName } from "./PatchNode";
+import { busPath } from "./PatchNode";
 import { toast } from "./toast";
 import { MAX_CHANNELS, MAX_INPUTS, type LooperEngine, type LooperSnapshot } from "@/lib/looper/engine";
 
@@ -20,7 +20,7 @@ interface Entry {
 export function effectEntries(snap: LooperSnapshot): Entry[] {
   const out: Entry[] = [];
   snap.inputs.forEach((i) => i.effects.forEach((e) => out.push({ key: `i:${i.id}:${e.id}`, label: e.kind, where: i.name })));
-  snap.patch.nodes.forEach((n) => n.kind === "fx" && n.effects?.forEach((e) => out.push({ key: `e:${n.id}:${e.id}`, label: e.kind, where: patchName(snap, n) })));
+  snap.patch.nodes.forEach((n) => n.kind === "fx" && n.effects?.forEach((e) => out.push({ key: `e:${n.id}:${e.id}`, label: e.kind, where: busPath(snap, n) })));
   snap.groups.forEach((g) => g.effects.forEach((e) => out.push({ key: `g:${g.id}:${e.id}`, label: e.kind, where: g.name })));
   snap.masterEffects.forEach((e) => out.push({ key: `m:master:${e.id}`, label: e.kind, where: "Master" }));
   return out;

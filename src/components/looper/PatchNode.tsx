@@ -16,6 +16,12 @@ export function patchName(snap: LooperSnapshot, n: PatchNode): string {
   return n.kind === "switch" ? "Switch" : "Bus";
 }
 
+/** A bus with the input it lives in, so it is clear whose it is: "Piano C major › Room". Other elements: their name. */
+export function busPath(snap: LooperSnapshot, n: PatchNode): string {
+  const owner = n.owner ? snap.patch.nodes.find((m) => m.id === n.owner) : undefined;
+  return owner ? `${patchName(snap, owner)} › ${patchName(snap, n)}` : patchName(snap, n);
+}
+
 /** What is inside the card of an effect chain or a switch: the chain's effects, or the connections a switch lets through. */
 export function NodeBody({ engine, snap, node: n }: { engine: LooperEngine; snap: LooperSnapshot; node: PatchNode }) {
   const patch = snap.patch;
@@ -83,7 +89,7 @@ export function BusEffects({ engine, snap, node: n }: { engine: LooperEngine; sn
       </button>
       {fxOpen && (
         <EffectsModal
-          title={<span className="flex items-center gap-2"><Icon name="sliders-horizontal" size={16} />{patchName(snap, n)}: effects</span>}
+          title={<span className="flex items-center gap-2"><Icon name="sliders-horizontal" size={16} />{busPath(snap, n)}: effects</span>}
           effects={n.effects ?? []}
           onAdd={(k) => engine.do({ type: "fx.add", target: { element: n.id }, fx: { kind: k } })}
           onRemove={(id) => engine.do({ type: "fx.remove", target: { element: n.id }, id })}

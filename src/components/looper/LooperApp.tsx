@@ -19,7 +19,7 @@ import Piano from "@/features/sound/keyboard/Piano";
 import { createPlayer, getAudioContext, getOutputBus } from "@/features/sound";
 import LoopStage from "./LoopStage";
 import FreeBoard from "./FreeBoard";
-import { PinBody, pinTitle, usePinned } from "./EffectWidgets";
+import { PinBody, PinTitle, usePinned } from "./EffectWidgets";
 import { togglePin } from "./fxPins";
 import { Toasts } from "./toast";
 import { Modal } from "../Modal";
@@ -334,7 +334,7 @@ export default function LooperApp() {
             { id: "sequencers", title: "Sequencers", node: <SequencerList engine={engine} snap={snap} openSeqs={openSeqs} onToggleSequencer={toggleSeq} /> },
             { id: "switches", title: "Switches", node: <div className="flex flex-col gap-3 p-2">{snap.patch.nodes.some((n) => n.kind === "switch") ? snap.patch.nodes.filter((n) => n.kind === "switch").map((n) => <div key={n.id}><div className="mb-1 text-xs font-medium text-slate-300">{patchName(snap, n)}</div><NodeBody engine={engine} snap={snap} node={n} /></div>) : <p className="text-xs text-slate-500">No switch yet. Add one with the round + button in Widgets with wires, or connect an audio interface for the guitar rig.</p>}</div> },
             { id: "buses", title: "Buses and master", node: <Buses engine={engine} snap={snap} /> },
-            ...pinned.map((r) => ({ id: `pin:${r.pin.key}`, title: pinTitle(r), node: <PinBody r={r} />, onClose: () => togglePin(r.pin.key) })),
+            ...pinned.map((r) => ({ id: `pin:${r.pin.key}`, title: <PinTitle r={r} />, node: <PinBody r={r} />, onClose: () => togglePin(r.pin.key) })),
           ]}
         />
       ) : mixer(false)}

@@ -6,7 +6,7 @@ import LoopStage from "./LoopStage";
 import { InputStrip, MasterStrip } from "./Mixer";
 import { NodeBody, patchName } from "./PatchNode";
 import InputBundle from "./InputBundle";
-import { PinBody, pinTitle, usePinned } from "./EffectWidgets";
+import { PinBody, PinTitle, usePinned } from "./EffectWidgets";
 import { togglePin } from "./fxPins";
 import { WidgetBoard } from "@/features/widgets";
 import { type LooperEngine, type LooperSnapshot } from "@/lib/looper/engine";
@@ -91,7 +91,7 @@ export default function FreeBoard({ engine, snap, controls, keyboardOpen, onTogg
       node: <NodeBody engine={engine} snap={snap} node={n} />,
       onClose: () => engine.do({ type: "patch.removeNode", id: n.id }),
     })),
-    ...pinned.map((r) => ({ id: `pin:${r.pin.key}`, title: title("sliders-horizontal", pinTitle(r)), node: <PinBody r={r} />, onClose: () => togglePin(r.pin.key) })),
+    ...pinned.map((r) => ({ id: `pin:${r.pin.key}`, title: <PinTitle r={r} />, node: <PinBody r={r} />, onClose: () => togglePin(r.pin.key) })),
   ];
 
   return (

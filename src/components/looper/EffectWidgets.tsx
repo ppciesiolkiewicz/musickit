@@ -3,7 +3,7 @@
 import { useEffect, type PointerEvent as RPointerEvent } from "react";
 import Icon from "../Icon";
 import { EffectControls } from "./EffectsModal";
-import { patchName } from "./PatchNode";
+import { busPath } from "./PatchNode";
 import { dropPins, movePin, togglePin, usePins, type FxPin } from "./fxPins";
 import { EFFECT_DEFS, type EffectSpec, type LooperEngine, type LooperSnapshot } from "@/lib/looper/engine";
 
@@ -60,7 +60,7 @@ function resolve(engine: LooperEngine, snap: LooperSnapshot, pins: FxPin[]): { s
         stale.push(pin.key);
         continue;
       }
-      shown.push({ pin, fx, where: patchName(snap, n), colour: "#94a3b8", param: (key, value) => engine.do({ type: "fx.param", target: { element: n.id }, id: fx.id, key, value }), bypass: () => engine.do({ type: "fx.bypass", target: { element: n.id }, id: fx.id, bypass: !fx.bypass }) });
+      shown.push({ pin, fx, where: busPath(snap, n), colour: "#94a3b8", param: (key, value) => engine.do({ type: "fx.param", target: { element: n.id }, id: fx.id, key, value }), bypass: () => engine.do({ type: "fx.bypass", target: { element: n.id }, id: fx.id, bypass: !fx.bypass }) });
     }
   }
   return { shown, stale };
@@ -77,7 +77,19 @@ export function usePinned(engine: LooperEngine, snap: LooperSnapshot): Resolved[
   return shown;
 }
 
-export const pinTitle = (r: Resolved) => `${EFFECT_DEFS[r.fx.kind].name} · ${r.where}${r.fx.post ? " · after fader" : ""}`;
+/** Whose effect it is first (the input, bus, group or master), then the effect. */
+export const pinTitle = (r: Resolved) => `${r.where} · ${EFFECT_DEFS[r.fx.kind].name}${r.fx.post ? " (after fader)" : ""}`;
+
+/** The title of a pinned effect: a dot in its owner's colour, the owner (input, bus, group or master), then the effect. */
+export function PinTitle({ r }: { r: Resolved }) {
+  return (
+    <span className="flex min-w-0 items-center gap-1.5" title={pinTitle(r)}>
+      <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: r.colour }} aria-hidden />
+      <span className="truncate">{r.where}</span>
+      <span className="shrink-0 font-normal text-slate-400">· {EFFECT_DEFS[r.fx.kind].name}{r.fx.post ? " (after fader)" : ""}</span>
+    </span>
+  );
+}
 
 /** The power switch and the full controls of one pinned effect. */
 export function PinBody({ r }: { r: Resolved }) {
@@ -108,8 +120,7 @@ export default function EffectWidgets({ engine, snap, drag }: { engine: LooperEn
               drag(e, (dx, dy) => movePin(r.pin.key, base.x + dx, base.y + dy));
             }}
           >
-            <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: r.colour }} aria-hidden />
-            <h3 className="min-w-0 flex-1 truncate text-xs font-medium text-slate-100" title={`${EFFECT_DEFS[r.fx.kind].name} on ${r.where}`}>{EFFECT_DEFS[r.fx.kind].name} <span className="font-normal text-slate-400">{r.where}{r.fx.post ? " · after fader" : ""}</span></h3>
+            <h3 className="min-w-0 flex-1 text-xs font-medium text-slate-100"><PinTitle r={r} /></h3>
             <button type="button" className={`${tbtn} ${r.fx.bypass ? "" : "!border-emerald-500/70 !text-emerald-200"}`} aria-pressed={!r.fx.bypass} onClick={r.bypass} title={r.fx.bypass ? "Bypassed (tap to switch on)" : "On (tap to bypass)"} aria-label="Effect on or off"><Icon name="power" size={12} /></button>
             <button type="button" className={tbtn} onClick={() => togglePin(r.pin.key)} title="Remove the widget (the effect stays)" aria-label="Remove the widget"><Icon name="x" size={12} /></button>
           </div>
