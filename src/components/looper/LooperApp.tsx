@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "reac
 import { LooperEngine, EFFECT_DEFS, EFFECT_KINDS, registerChoice, setNamFactory, type LooperSnapshot } from "@/lib/looper/engine";
 import { createCloud, createNamEffect, getModelLibrary, speedNote } from "@/features/nam";
 import LooperSettings from "./LooperSettings";
+import { chooseDevice, deviceKind, deviceName, type DeviceKind } from "@/lib/looper/deviceChoice";
 import { NodeBody, patchName } from "./PatchNode";
 import Mixer, { Buses, InputList, SequencerList, type MixerAlign } from "./Mixer";
 import HistoryPanel from "./HistoryPanel";
@@ -18,7 +19,6 @@ import { createPlayer, getAudioContext, getOutputBus } from "@/features/sound";
 import LoopStage from "./LoopStage";
 import FreeBoard from "./FreeBoard";
 import AddWidgetMenu from "./AddWidgetMenu";
-import { chooseDevice } from "@/lib/looper/deviceChoice";
 import { Modal } from "../Modal";
 import MetronomeBar from "./MetronomeBar";
 import ScalePianoPanel from "./ScalePianoPanel";
@@ -151,6 +151,35 @@ function useEngine() {
   return { engine, snap };
 }
 
+const KIND_BADGE: Record<DeviceKind, { text: string; cls: string } | null> = {
+  interface: { text: "audio interface", cls: "border-sky-400/60 bg-sky-400/10 text-sky-200" },
+  builtin: { text: "built in", cls: "border-slate-600 text-slate-400" },
+  virtual: { text: "virtual", cls: "border-slate-600 text-slate-400" },
+  other: null,
+};
+
+/** One column of the devices dialog: a card per device with its cleaned name and what it is. */
+function DeviceColumn({ icon, title, items, empty }: { icon: "mic" | "volume-2"; title: string; items: { id: string; label: string; used?: string }[]; empty: string }) {
+  return (
+    <section>
+      <h3 className="mb-2 flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-slate-400"><Icon name={icon} size={14} />{title}</h3>
+      <ul className="flex flex-col gap-1.5">
+        {items.map((d) => {
+          const badge = KIND_BADGE[deviceKind(d.label)];
+          return (
+            <li key={d.id} className={`flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border px-3 py-2 ${d.used ? "border-emerald-400/40 bg-emerald-400/5" : "border-slate-800 bg-slate-900/60"}`}>
+              <span className="min-w-0 flex-1 truncate text-sm text-slate-100">{deviceName(d.label)}</span>
+              {badge && <span className={`rounded-full border px-2 py-0.5 text-[10px] ${badge.cls}`}>{badge.text}</span>}
+              {d.used && <span className="rounded-full border border-emerald-400/50 px-2 py-0.5 text-[10px] text-emerald-200">{d.used}</span>}
+            </li>
+          );
+        })}
+        {items.length === 0 && <li className="rounded-lg border border-dashed border-slate-700 px-3 py-2 text-xs text-slate-500">{empty}</li>}
+      </ul>
+    </section>
+  );
+}
+
 /** Where the widget views start: the Looping stage on the left half; inputs, sequencers, buses and the master in two columns to its right. */
 const mixLayout: DefaultLayout = (ids, b) => {
   const half = Math.round(b.w * 0.5), q = Math.round(b.w * 0.25);
@@ -246,7 +275,7 @@ export default function LooperApp() {
     </>
   );
   const looping = (fill: boolean) => (
-    <section className={`flex flex-col gap-2 rounded-xl border border-slate-800 bg-slate-900/40 p-1.5 ${fill ? "h-full overflow-hidden" : ""}`} aria-label="Looping">
+    <section className={`flex flex-col gap-2 rounded-xl border border-slate-800 bg-slate-900/40 p-1.5 ${fill ? "h-full overflow-hidden" : ""}`} aria-label="Looping" data-patch-id="looping">
       <div className="flex flex-wrap items-center gap-2">
         {loopControls}
       </div>
@@ -325,25 +354,14 @@ export default function LooperApp() {
                 ))}
               </ul>
             )}
-            <div>
-              <h3 className="mb-1 flex items-center gap-1.5 text-xs font-medium text-slate-400"><Icon name="mic" size={14} />Inputs</h3>
-              <ul className="flex flex-col gap-0.5">
-                {snap.devices.map((d) => <li key={d.id} className="truncate">{d.label}</li>)}
-                {snap.devices.length === 0 && <li className="text-xs text-slate-500">None listed. Names appear once the browser allows the microphone.</li>}
-              </ul>
-            </div>
-            <div>
-              <h3 className="mb-1 flex items-center gap-1.5 text-xs font-medium text-slate-400"><Icon name="volume-2" size={14} />Outputs</h3>
-              <ul className="flex flex-col gap-0.5">
-                {snap.outputs.map((o) => <li key={o.id} className="flex items-center gap-1.5 truncate">{o.label}{o.id === snap.outputId && <span className="rounded border border-slate-700 px-1 text-[10px] text-slate-400">in use</span>}</li>)}
-                {snap.outputs.length === 0 && <li className="text-xs text-slate-500">The system output.</li>}
-              </ul>
+            <div className="grid gap-5 sm:grid-cols-2">
+              <DeviceColumn icon="mic" title="Inputs" empty="None listed. Names appear once the browser allows the microphone." items={snap.devices.map((d) => ({ id: d.id, label: d.label, used: snap.inputs.some((i) => i.kind === "device" && i.deviceId === d.id) ? "used by an input" : undefined }))} />
+              <DeviceColumn icon="volume-2" title="Outputs" empty="The system output." items={snap.outputs.map((o) => ({ id: o.id, label: o.label, used: o.id === snap.outputId ? "in use" : undefined }))} />
             </div>
             <div className="flex gap-2">
               {(snap.devices.length === 0 || snap.gear.some((g) => g.kind === "input-idle")) && (
                 <button type="button" disabled={gearBusy} className="rounded-lg border border-sky-500 bg-sky-500/10 px-3 py-1.5 text-sm text-sky-100 hover:bg-sky-500/20 disabled:opacity-50" onClick={async () => { setGearBusy(true); try { await engine.connectGear(true); } finally { setGearBusy(false); } }}>{gearBusy ? "Looking…" : snap.gear.some((g) => g.kind === "input-idle") ? "Connect inputs" : "Detect devices"}</button>
               )}
-              <button type="button" className="ml-auto rounded-lg border border-slate-700 px-3 py-1.5 text-sm text-slate-300 hover:border-slate-500" onClick={() => setGearDismissed(true)}>Close</button>
             </div>
           </div>
         </Modal>

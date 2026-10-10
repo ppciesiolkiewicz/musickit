@@ -192,3 +192,9 @@ While a take waits to start (count-in or next loop boundary) the loop circle sho
 - The connections are the patch (`spec/patch.md`): an input with any connection beyond the plain "can be recorded" wiring is heard and recorded only as drawn.
 
 - Moving a group (not resizing it) carries the loops and sequencers inside it; undo moves them back.
+
+## Default rigs, wires into Looping, devices dialog
+
+- Default piano setup (once, `musickit.looper.pianoRigDone`, no device needed): three Scale Pianos with different settings (C major, A minor pentatonic, E blues), five buses (Dry piano, Room, Hall, Cathedral, Dreamy: reverbs, the last with chorus and tape delay) and a **Piano Switch** (buses: one at a time, outputs: any combination) that plays to the master and records into every group. A piano that is patched is heard only through the patch. More pianos can be added any time (Add, Scale Piano); "Piano rig" in + widget (Widgets with wires) builds the buses and switch for the pianos that exist.
+- Wires: a connection into any group ends at the **Looping** widget, in the colour of the group it reaches (several groups: several coloured wires). The Looping widget is always connected to the master bus by one fixed arrow that cannot be selected, muted or removed. A connection that carries sound is bold; one that is muted, closed by a switch, or leads only into a closed switch output is thin, dashed and faint.
+- "Your devices": two columns (inputs, outputs) of device cards with the cleaned-up name and badges (audio interface, built in, virtual, used by an input, in use). It stays open until closed.

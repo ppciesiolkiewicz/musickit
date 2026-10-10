@@ -4,13 +4,15 @@ import { useEffect, useMemo, useRef, useState, type PointerEvent as RPointerEven
 import Icon from "@/components/Icon";
 import { patchName } from "./PatchNode";
 import { whyNot, type PatchKind, type PatchLink, type PatchNode, type Port } from "@/lib/looper/patch";
-import { linkColour, outward, sidePoint, sidesFor, spread } from "@/lib/looper/patchView";
+import { flowingLinks, linkColour, outward, sidePoint, sidesFor, spread } from "@/lib/looper/patchView";
 import type { LooperEngine, LooperSnapshot } from "@/lib/looper/engine";
 
 interface Rect { x: number; y: number; w: number; h: number }
 interface Pt { x: number; y: number }
 
 const MUTED = "#64748b";
+/** The Looping widget always plays into the master: that route is drawn in this colour and cannot be changed. */
+const FIXED = "#cbd5e1";
 const OUT_KINDS: PatchKind[] = ["input", "piano", "sequencer", "synth", "fx", "switch"];
 const TARGET_KINDS: PatchKind[] = ["fx", "switch", "group", "master"];
 
@@ -90,6 +92,8 @@ export default function ConnectionLayer({ engine, snap, mode, wrapper }: { engin
     return n ? name(n) : id;
   };
   const active = useMemo(() => new Set(snap.patchActive), [snap.patchActive]);
+  // bold only where sound really goes: an open link into a bus that a switch has closed leads nowhere
+  const flowing = useMemo(() => flowingLinks(patch, active), [patch, active]);
 
   const outPt = (id: string): Pt | null => {
     const r = rects[id];
@@ -108,16 +112,16 @@ export default function ConnectionLayer({ engine, snap, mode, wrapper }: { engin
     slots.set(key, i + 1);
     return i;
   };
-  const drawn = patch.links.flatMap((l) => {
-    // a group always plays into the master: that fixed route is not drawn
-    if (node(l.from)?.kind === "group") return [];
-    const ra = rects[l.from];
-    const rb = rects[l.to];
+  // every group lives in the Looping widget: a connection into a group ends at that widget (its colour says which group), and the
+  // groups' own fixed route into the master is drawn once, from the Looping widget
+  const looping = rects.looping;
+  const build = (l: PatchLink, fromId: string, toId: string, frac: number, fixed: boolean) => {
+    const ra = rects[fromId];
+    const rb = rects[toId];
     if (!ra || !rb) return [];
     const s = sidesFor(ra, rb);
-    const frac = node(l.to)?.kind === "group" ? ((l.port ?? "bus") === "rec" ? 0.28 : 0.72) : 0.5;
-    const a = sidePoint(ra, s.from, 0.5, spread(take(`${l.from}|${s.from}`)));
-    const b = sidePoint(rb, s.to, frac, spread(take(`${l.to}|${l.port ?? "bus"}|${s.to}`)));
+    const a = sidePoint(ra, s.from, 0.5, spread(take(`${fromId}|${s.from}`)));
+    const b = sidePoint(rb, s.to, frac, spread(take(`${toId}|${fixed ? "fixed" : l.port ?? "bus"}|${s.to}`)));
     // the arrow sits on the edge of the target and points into it; the wire ends at its base
     const n = outward(s.to);
     const be = { x: b.x + n.x * ARROW, y: b.y + n.y * ARROW };
@@ -126,8 +130,17 @@ export default function ConnectionLayer({ engine, snap, mode, wrapper }: { engin
     const path = `M${a.x},${a.y} C${a.x + o.x * k},${a.y + o.y * k} ${be.x + n.x * k},${be.y + n.y * k} ${be.x},${be.y}`;
     const px = -n.y * 5, py = n.x * 5;
     const arrow = `${b.x},${b.y} ${be.x + px},${be.y + py} ${be.x - px},${be.y - py}`;
-    return [{ l, a, b, path, arrow, colour: linkColour(patch, l, groupColours) }];
-  });
+    return [{ l, a, b, path, arrow, fixed, colour: fixed ? FIXED : linkColour(patch, l, groupColours) }];
+  };
+  const drawn = [
+    ...patch.links.flatMap((l) => {
+      if (node(l.from)?.kind === "group") return [];
+      const toGroup = node(l.to)?.kind === "group";
+      if (toGroup && looping) return build(l, l.from, "looping", 0.5, false);
+      return build(l, l.from, l.to, toGroup ? ((l.port ?? "bus") === "rec" ? 0.28 : 0.72) : 0.5, false);
+    }),
+    ...(looping && rects.master ? build({ id: "fixed:master", from: "looping", to: "master", muted: false }, "looping", "master", 0.5, true) : []),
+  ];
   const selLink = patch.links.find((l) => l.id === sel);
   const selDrawn = drawn.find((d) => d.l.id === sel);
 
@@ -180,19 +193,21 @@ export default function ConnectionLayer({ engine, snap, mode, wrapper }: { engin
       <svg className="absolute inset-0 h-full w-full" aria-hidden={false}>
         {drawn.map((d) => {
           const faint = d.l.id.startsWith("rec:");
-          const on = active.has(d.l.id);
-          const op = d.l.muted ? 0.35 : on ? (faint ? 0.5 : 1) : 0.5;
-          const label = `Connection from ${nameOf(d.l.from)} to ${nameOf(d.l.to)}${d.l.port === "rec" ? " (record)" : ""}`;
+          // only what carries sound is drawn bold; closed and muted connections are thin, dashed and quiet
+          const on = d.fixed || flowing.has(d.l.id);
+          const op = on ? (faint ? 0.55 : 1) : 0.4;
+          const label = d.fixed ? "Looping always plays to the master bus (fixed)" : `Connection from ${nameOf(d.l.from)} to ${nameOf(d.l.to)}${d.l.port === "rec" ? " (record)" : ""}${on ? "" : " (off)"}`;
+          const pick = d.fixed ? undefined : (e: RPointerEvent) => { e.stopPropagation(); setSel(d.l.id); };
           return (
             <g key={d.l.id}>
               {mode === "lines" && (
                 <>
-                  <path d={d.path} fill="none" stroke="transparent" strokeWidth={12} style={{ pointerEvents: "stroke", cursor: "pointer" }} onPointerDown={(e) => { e.stopPropagation(); setSel(d.l.id); }} />
-                  <path d={d.path} fill="none" pointerEvents="none" stroke={sel === d.l.id ? "#f8fafc" : d.colour} strokeWidth={sel === d.l.id ? 3 : faint ? 1.25 : 2.25} strokeDasharray={d.l.muted ? "4 4" : undefined} opacity={d.l.muted ? 0.5 : on ? (faint ? 0.45 : 0.95) : 0.3} />
+                  {!d.fixed && <path d={d.path} fill="none" stroke="transparent" strokeWidth={12} style={{ pointerEvents: "stroke", cursor: "pointer" }} onPointerDown={pick} />}
+                  <path d={d.path} fill="none" pointerEvents="none" stroke={sel === d.l.id ? "#f8fafc" : d.colour} strokeWidth={sel === d.l.id ? 3 : on ? (faint ? 1.5 : 2.75) : 1} strokeDasharray={on ? undefined : "3 4"} opacity={on ? (faint ? 0.5 : 0.95) : 0.45} />
                 </>
               )}
-              <circle cx={d.a.x} cy={d.a.y} r={3.5} fill={d.colour} opacity={op} pointerEvents="none" />
-              <polygon points={d.arrow} fill={d.colour} opacity={op} stroke={sel === d.l.id ? "#f8fafc" : "#020617"} strokeWidth={sel === d.l.id ? 1.5 : 0.75} role="button" aria-label={label} style={{ pointerEvents: "auto", cursor: "pointer" }} onPointerDown={(e) => { e.stopPropagation(); setSel(d.l.id); }}>
+              <circle cx={d.a.x} cy={d.a.y} r={on ? 3.5 : 2} fill={d.colour} opacity={op} pointerEvents="none" />
+              <polygon points={d.arrow} fill={d.colour} opacity={op} stroke={sel === d.l.id ? "#f8fafc" : "#020617"} strokeWidth={sel === d.l.id ? 1.5 : 0.75} role={d.fixed ? "img" : "button"} aria-label={label} style={{ pointerEvents: d.fixed ? "none" : "auto", cursor: "pointer" }} onPointerDown={pick}>
                 <title>{label}</title>
               </polygon>
             </g>

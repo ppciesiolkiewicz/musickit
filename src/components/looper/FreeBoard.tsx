@@ -54,7 +54,7 @@ export default function FreeBoard({ engine, snap, controls, keyboardOpen, onTogg
       id: "stage",
       title: title("repeat", "Looping"),
       node: (
-        <section className="flex h-full flex-col gap-1.5 overflow-hidden" aria-label="Looping">
+        <section className="flex h-full flex-col gap-1.5 overflow-hidden" aria-label="Looping" data-patch-id="looping">
           <div className="flex flex-wrap items-center gap-2">
             {controls}
             <button type="button" className={ibtn} disabled={snap.inputs.length >= MAX_INPUTS} onClick={() => setAdding(true)} title="Add an instrument" aria-label="Add an instrument"><Icon name="plus" size={14} /><Icon name="mic" size={14} /></button>

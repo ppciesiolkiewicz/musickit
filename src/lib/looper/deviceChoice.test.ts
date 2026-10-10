@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { chooseDevice, deviceScore, gearIssues } from "./deviceChoice";
+import { chooseDevice, deviceKind, deviceName, deviceScore, gearIssues } from "./deviceChoice";
 
 const mac = { id: "m", label: "MacBook Pro Microphone" };
 const scarlett = { id: "s", label: "Focusrite USB Audio" };
@@ -31,5 +31,16 @@ describe("gear issues", () => {
     assert.deepEqual(gearIssues({ strips: [{ ...strip, connected: false }], devices: [mac] }).map((i) => i.kind), ["input-missing"], "unplugged wins over not connected");
     assert.deepEqual(gearIssues({ strips: [{ ...strip, error: "busy" }], devices: [scarlett] }).map((i) => i.kind), ["input-error"]);
     assert.deepEqual(gearIssues({ strips: [{ ...strip, deviceId: "" , connected: false }], devices: [mac] }).map((i) => i.kind), ["input-idle"], "the system default needs no particular device");
+  });
+});
+
+describe("deviceKind and deviceName", () => {
+  it("describe devices for the dialog", () => {
+  assert.equal(deviceKind("Scarlett 4i4 4th Gen (1235:821a)"), "interface");
+  assert.equal(deviceKind("MacBook Pro Microphone (Built-in)"), "builtin");
+  assert.equal(deviceKind("ZoomAudioDevice (Virtual)"), "virtual");
+  assert.equal(deviceKind("Some headset"), "other");
+  assert.equal(deviceName("Scarlett 4i4 4th Gen (1235:821a)"), "Scarlett 4i4 4th Gen");
+  assert.equal(deviceName("MacBook Pro Speakers (Built-in)"), "MacBook Pro Speakers");
   });
 });

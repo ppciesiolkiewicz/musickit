@@ -51,3 +51,22 @@ describe("patch view sides", () => {
     assert.deepEqual([0, 1, 2, 3].map(spread), [0, 10, -10, 20]);
   });
 });
+
+describe("flowingLinks", () => {
+  it("leaves out open links that lead into a closed switch output", async () => {
+    const { flowingLinks } = await import("./patchView");
+    const node = (id: string, kind: string) => ({ id, kind, x: 0, y: 0, muted: false } as never);
+    const p = {
+      nodes: [node("in:1", "input"), node("fx:a", "fx"), node("fx:b", "fx"), node("sw:1", "switch"), node("master", "master")],
+      links: [
+        { id: "1", from: "in:1", to: "fx:a", muted: false },
+        { id: "2", from: "in:1", to: "fx:b", muted: false },
+        { id: "3", from: "fx:a", to: "sw:1", muted: false },
+        { id: "4", from: "fx:b", to: "sw:1", muted: true },
+        { id: "5", from: "sw:1", to: "master", muted: false },
+      ],
+    };
+    const active = new Set(["1", "2", "3", "5"]);
+    assert.deepEqual([...flowingLinks(p as never, active)].sort(), ["1", "3", "5"]);
+  });
+});

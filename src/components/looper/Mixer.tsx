@@ -89,7 +89,7 @@ export function AddInputModal({ engine, snap, hasExtra, onClose }: { engine: Loo
           <button type="button" onClick={() => { void engine.addScalePiano(); onClose(); }} className="flex flex-col gap-1 rounded-xl border border-slate-700 bg-slate-900 p-4 text-left hover:border-sky-400">
             <Icon name="music" size={28} className="text-sky-300" />
             <span className="text-sm font-medium text-slate-100">Scale Piano</span>
-            <span className="text-xs text-slate-400">Pick a key and scale: the computer keys play only notes from it.</span>
+            <span className="text-xs text-slate-400">Pick a key and scale: the computer keys play only notes from it. Add as many as you like.</span>
           </button>
           <button type="button" onClick={() => { engine.do({ type: "sequencer.add" }); onClose(); }} className="flex flex-col gap-1 rounded-xl border border-slate-700 bg-slate-900 p-4 text-left hover:border-sky-400 disabled:cursor-not-allowed disabled:opacity-50">
             <Icon name="drum" size={28} className="text-sky-300" />

@@ -66,3 +66,24 @@ export const spread = (i: number): number => (i === 0 ? 0 : (i % 2 ? 1 : -1) * M
 
 /** The id the page's elements carry for a mixer strip. */
 export const stripPatchId = (strip: { id: number; kind: string; sourceId?: string }): string => (strip.kind === "sequencer" ? `seq:${strip.sourceId ?? ""}` : `in:${strip.id}`);
+
+/**
+ * The links that really carry sound somewhere: open (`active`), and the block they feed goes on through open links to a group or the
+ * master. A link into a bus whose way on is closed by a switch is open but leads nowhere, so it is not in this set.
+ */
+export function flowingLinks(p: Patch, active: ReadonlySet<string>): Set<string> {
+  const memo = new Map<string, boolean>();
+  const reaches = (id: string, seen: Set<string>): boolean => {
+    const n = p.nodes.find((m) => m.id === id);
+    if (!n) return false;
+    if (n.kind === "group" || n.kind === "master") return true;
+    const hit = memo.get(id);
+    if (hit !== undefined) return hit;
+    if (seen.has(id)) return false;
+    seen.add(id);
+    const ok = p.links.some((l) => l.from === id && active.has(l.id) && reaches(l.to, seen));
+    memo.set(id, ok);
+    return ok;
+  };
+  return new Set(p.links.filter((l) => active.has(l.id) && reaches(l.to, new Set())).map((l) => l.id));
+}

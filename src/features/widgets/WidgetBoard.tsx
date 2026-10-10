@@ -129,7 +129,8 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
           const r = out[id];
           const w = Math.min(r.w, Math.max(WIDGET_MIN.w, Math.round((vp.w - 48) / v.zoom)));
           const h = Math.min(r.h, Math.max(WIDGET_MIN.h, Math.round((vp.h - 48) / v.zoom)));
-          const spot = findSpot(taken, { w, h }, area) ?? { x: area.x + 12 + n * 28, y: area.y + 12 + n * 28 };
+          // a free place in view, else the first free place below everything already on the board (never stacked on top of another)
+          const spot = findSpot(taken, { w, h }, area) ?? findSpot(taken, { w, h }, { x: area.x, y: area.y, w: area.w, h: Math.max(...taken.map((t) => t.y + t.h), area.y) + h + 24 - area.y }) ?? { x: area.x + 12 + n * 28, y: area.y + 12 + n * 28 };
           out[id] = { w, h, ...spot };
           taken.push(out[id]);
           n++;

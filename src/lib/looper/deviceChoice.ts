@@ -58,3 +58,18 @@ export function gearIssues(a: {
   }
   return out;
 }
+
+export type DeviceKind = "interface" | "builtin" | "virtual" | "other";
+
+/** A short description of a device for the devices dialog: an audio interface, the computer's own part, a virtual device, or unknown. */
+export function deviceKind(label: string): DeviceKind {
+  if (/virtual|blackhole|loopback|soundflower|zoomaudiodevice/i.test(label)) return "virtual";
+  if (INTERNAL.test(label)) return "builtin";
+  return INTERFACE.test(label) ? "interface" : "other";
+}
+
+/** The name without the noise browsers add: "(Built-in)", "(Virtual)", "(1235:821a)". */
+export function deviceName(label: string): string {
+  const n = label.replace(/\s*\((?:built-?in|virtual|[0-9a-f]{4}:[0-9a-f]{4})\)\s*/gi, " ").replace(/\s+/g, " ").trim();
+  return n || label;
+}

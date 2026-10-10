@@ -12,7 +12,7 @@ import { activeLinks, addNode as patchAddNode, connect as patchConnect, disconne
 import { chooseDevice, deviceScore, gearIssues, type DeviceRef, type GearIssue } from "./deviceChoice";
 import { ActionHistory, type DoOptions } from "./history";
 import { MacroRecorder } from "./macros";
-import { starterRig } from "./rig";
+import { PIANO_STARTS, pianoRig, starterRig } from "./rig";
 import type { FxTarget, InputSpec, LooperAction } from "./actions";
 import { RECORDER_PROCESSOR_NAME, recorderWorkletUrl } from "./recorderWorklet";
 
@@ -172,6 +172,7 @@ const PATCH_KEY = "musickit.looper.patch";
 const PATCH_LAYOUT_KEY = "musickit.looper.patch.layout";
 const PREF_KEY = "musickit.looper.preferred";
 const RIG_KEY = "musickit.looper.rigDone";
+const PIANO_RIG_KEY = "musickit.looper.pianoRigDone";
 type SinkContext = AudioContext & { setSinkId?: (id: string) => Promise<void> };
 const groupName = (i: number) => `Group ${String.fromCharCode(65 + (i % 26))}`;
 const defaultGroupInfos = (): GroupInfo[] => defaultGroups().map((g, i) => ({ ...g, name: groupName(i), colour: GROUP_COLOURS[i % GROUP_COLOURS.length], volume: 1, muted: false, effects: [] }));
@@ -332,6 +333,24 @@ export class LooperEngine {
     this.restoreScalePianos();
     this.restoreLayout();
     this.emit();
+    this.setupPianos();
+  }
+
+  /**
+   * The default pianos, once: a few Scale Pianos with different keys and scales, reverb buses and a Piano Switch to the master and the
+   * groups (`pianoRig`). Needs no device and opens nothing. Never again after it has run, so removing them sticks. Not part of the history.
+   */
+  private setupPianos(): void {
+    try {
+      if (window.localStorage.getItem(PIANO_RIG_KEY)) return;
+      window.localStorage.setItem(PIANO_RIG_KEY, "1");
+    } catch {
+      return;
+    }
+    if (this.mixer.scalePianoIds().length > 0) return;
+    const ids = PIANO_STARTS.map((st) => this.addScalePianoNow(st)).filter((id): id is number => id !== null);
+    if (ids.length) this.addPianoRig(ids);
+    this.history.clear();
   }
 
   /* ------------------------------------------------------------------ patch (what is connected to what) */
@@ -395,7 +414,15 @@ export class LooperEngine {
   /** Build the audio for the patch (see patchAudio.ts). Does nothing until the audio engine runs. */
   private syncPatchAudio() {
     if (!this.pgraph || !this.master || !this.mixer.output) return;
-    this.mixer.setPatched(this.pgraph.patchedStrips(this.patch));
+    const patched = this.pgraph.patchedStrips(this.patch);
+    this.mixer.setPatched(patched);
+    // a piano that is patched is heard only through the patch: its direct route to the master closes
+    this.mixer.list().forEach((i) => {
+      if (i.kind === "scalepiano" && i.sourceId) {
+        const sp = this.scalePianos.get(i.sourceId);
+        if (sp?.toSpeakers) sp.toSpeakers.gain.value = patched.has(i.id) ? 0 : 1;
+      }
+    });
     this.pgraph.sync(this.patch, { tap: (id) => this.mixer.tap(id), bus: (g) => this.buses.get(g)?.input ?? null, master: this.master, recorder: this.mixer.output });
   }
 
@@ -545,6 +572,36 @@ export class LooperEngine {
     }
     this.saveScalePianos();
     return id;
+  }
+
+  /** Add a scale piano with its strip at once, with these starting settings. Returns the strip id. */
+  addScalePianoNow(start?: Partial<ScalePianoState> & { name?: string }): number | null {
+    const id = `p${++this.spCounter}`;
+    const piano = this.makeScalePiano(id);
+    if (start) piano.set(clampScalePiano({ ...piano.state, ...start }));
+    const n = this.mixer.scalePianoIds().length;
+    const made = this.mixer.addNow({ kind: "scalepiano", name: start?.name ?? (n === 0 ? "Scale Piano" : `Scale Piano ${n + 1}`), sourceId: id }).id;
+    if (made === null) {
+      this.disposeScalePiano(id);
+      return null;
+    }
+    this.saveScalePianos();
+    this.syncPatch();
+    return made;
+  }
+
+  /** Add the starter piano rig (reverb buses, a Piano Switch) for these piano strips, or for every piano when none are given. One batch. */
+  addPianoRig(strips?: number[]): boolean {
+    const ids = strips ?? this.mixer.list().filter((i) => i.kind === "scalepiano").map((i) => i.id);
+    const inputs = ids.map((i) => `in:${i}`).filter((i) => this.patch.nodes.some((n) => n.id === i));
+    if (!inputs.length) return false;
+    const rig = pianoRig({
+      inputs,
+      groups: this.groups.map((g) => g.id),
+      directLinks: this.patch.links.filter((l) => inputs.includes(l.from) && l.to.startsWith("group:")).map((l) => l.id),
+      at: { x: 20, y: 1120 },
+    });
+    return this.do({ type: "batch", label: "Piano rig", actions: rig.actions });
   }
 
   private disposeScalePiano(id: string) {
