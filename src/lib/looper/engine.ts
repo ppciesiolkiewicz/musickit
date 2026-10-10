@@ -914,7 +914,8 @@ export class LooperEngine {
 
   /** Start the audio engine and open every audio input that is set up in the mixer. */
   async enable(): Promise<void> {
-    if (this.meta.status === "starting") return;
+    // the page calls this on the first click and on the first key press: once it runs, a second call must not restart it
+    if (this.meta.status === "starting" || this.meta.status === "ready") return;
     this.emit({ status: "starting", error: null });
     try {
       this.ensureContext();
