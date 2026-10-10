@@ -1,6 +1,6 @@
 # Sampler
 
-Page `/theory/sampler`. Builds instruments from samples and makes them available in every instrument picker (`useInstrumentOptions`).
+Page `/sampler`. Builds instruments from samples and makes them available in every instrument picker (`useInstrumentOptions`).
 
 ## Model
 - **Sample**: audio blob in the store plus `SampleMeta` (name, source `upload` | `elevenlabs`, prompt).

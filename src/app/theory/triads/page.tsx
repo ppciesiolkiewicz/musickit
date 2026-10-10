@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function TriadsPage() {
   return (
-    <PageShell
+    <PageShell labels
       active="/theory/triads"
       title="Triads by string group"
       intro="Pick a root and a triad type, then see every closed voicing and inversion on each set of three neighbouring strings. Tap a shape to hear it."

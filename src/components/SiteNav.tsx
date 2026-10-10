@@ -1,11 +1,10 @@
 import Link from "next/link";
-import { LabelSelect } from "@/features/theory/useLabelSystem";
-
 export const SITE_LINKS = [
   { href: "/", label: "Home" },
   { href: "/creator", label: "Creator" },
   { href: "/looper", label: "Looper" },
   { href: "/theory", label: "Theory" },
+  { href: "/tuner", label: "Tuner" },
 ];
 
 /** Sections under /theory, shown as a second nav row on theory pages. */
@@ -16,8 +15,6 @@ export const THEORY_LINKS = [
   { href: "/theory/caged", label: "CAGED" },
   { href: "/theory/arpeggios", label: "Arpeggios" },
   { href: "/theory/improv", label: "Improv" },
-  { href: "/theory/tuner", label: "Tuner" },
-  { href: "/theory/sampler", label: "Sampler" },
 ];
 
 const isActive = (active: string, href: string) => (href === "/" ? active === "/" : active === href || active.startsWith(`${href}/`));
@@ -44,7 +41,6 @@ export default function SiteNav({ active }: { active: string }) {
         {SITE_LINKS.map((l) => (
           <NavLink key={l.href} {...l} current={isActive(active, l.href)} />
         ))}
-        <LabelSelect className="ml-auto" />
       </nav>
       {inTheory && (
         <nav aria-label="Theory" className="flex flex-wrap items-center gap-1 border-t border-slate-800 pt-1">

@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 /** Pages that moved under /theory; old links keep working. */
-const THEORY_SECTIONS = ["chords", "triads", "scales", "caged", "arpeggios", "improv", "tuner", "sampler"];
+const THEORY_SECTIONS = ["chords", "triads", "scales", "caged", "arpeggios", "improv"];
 
 const nextConfig: NextConfig = {
   async redirects() {

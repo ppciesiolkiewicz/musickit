@@ -14,7 +14,7 @@ export default async function ScalesPage({ searchParams }: { searchParams: Promi
   const parsed = Number(key);
   const initialKey = Number.isInteger(parsed) && parsed >= 0 && parsed < 12 ? parsed : 0;
   return (
-    <PageShell
+    <PageShell labels
       active="/theory/scales"
       title="Scales and modes"
       intro="All 21 modes in the key you choose, with every scale degree, the notes, and the relative major and minor. Open any mode to see its chords."

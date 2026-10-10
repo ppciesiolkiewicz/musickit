@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function ChordsPage() {
   return (
-    <PageShell
+    <PageShell labels
       active="/theory/chords"
       title="Chord explorer"
       intro="Movable guitar shapes labelled by scale degree, the chords of any key and mode, and progressions with the shapes to use and every position on the neck."
