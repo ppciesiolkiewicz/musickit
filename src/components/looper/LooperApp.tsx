@@ -269,13 +269,14 @@ export default function LooperApp() {
 
   // Start the audio engine on the first touch of the page (browsers need a gesture). This opens no microphone:
   // a device input asks for permission only when the person adds or connects it.
+  // Capture phase: the Canvas board stops pointerdown from bubbling, and its first click must still start the engine.
   useEffect(() => {
     const go = () => void engine.enable();
-    window.addEventListener("pointerdown", go, { once: true });
-    window.addEventListener("keydown", go, { once: true });
+    window.addEventListener("pointerdown", go, { once: true, capture: true });
+    window.addEventListener("keydown", go, { once: true, capture: true });
     return () => {
-      window.removeEventListener("pointerdown", go);
-      window.removeEventListener("keydown", go);
+      window.removeEventListener("pointerdown", go, { capture: true });
+      window.removeEventListener("keydown", go, { capture: true });
     };
   }, [engine]);
 
