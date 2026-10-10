@@ -3,7 +3,7 @@
  * of two blocks a wire joins. Imports nothing outside src/lib/looper.
  */
 
-import type { Patch, PatchLink } from "./patch";
+import type { Patch, PatchLink, Port } from "./patch";
 
 /** Neutral colours: a connection that reaches several groups, and one that reaches none (only the master). */
 export const MANY_GROUPS = "#e2e8f0";
@@ -97,4 +97,41 @@ export function flowingLinks(p: Patch, active: ReadonlySet<string>): Set<string>
     });
   }
   return new Set(p.links.filter((l) => active.has(l.id) && live.has(l.from) && reaches(l.to, new Set())).map((l) => l.id));
+}
+
+/** Where an element's sound leaves from: its own buses when it has any (an input with buses sends only through them), else itself. */
+export function outSources(p: Patch, id: string): string[] {
+  const buses = p.nodes.filter((n) => n.owner === id).map((n) => n.id);
+  return buses.length ? buses : [id];
+}
+
+/** One place an element sends to, gathered over all its buses: open when any of its links is. */
+export interface Destination { key: string; to: string; port: Port; links: PatchLink[]; on: boolean }
+
+/** The places an element sends to (one entry per target and port, whichever bus the links leave from), in the order first made. */
+export function destinations(p: Patch, id: string): Destination[] {
+  const from = new Set(outSources(p, id));
+  const out: Destination[] = [];
+  p.links.forEach((l) => {
+    if (!from.has(l.from)) return;
+    const port: Port = l.port ?? "bus";
+    const key = `${l.to}|${port}`;
+    const d = out.find((x) => x.key === key);
+    if (d) {
+      d.links.push(l);
+      d.on ||= !l.muted;
+    } else out.push({ key, to: l.to, port, links: [l], on: !l.muted });
+  });
+  return out;
+}
+
+/** What ticking a destination on or off changes, as link mutes: every link to it, from every bus, follows. */
+export function destinationChoice(p: Patch, id: string, key: string, on: boolean): { id: string; muted: boolean }[] {
+  const d = destinations(p, id).find((x) => x.key === key);
+  return d ? d.links.filter((l) => l.muted === on).map((l) => ({ id: l.id, muted: !on })) : [];
+}
+
+/** The element a link is drawn from: the input that owns the bus it leaves, or its own start. */
+export function drawnFrom(p: Patch, l: PatchLink): string {
+  return p.nodes.find((n) => n.id === l.from)?.owner ?? l.from;
 }

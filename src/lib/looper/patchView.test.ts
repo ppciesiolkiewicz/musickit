@@ -1,7 +1,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { connect, type Patch } from "./patch";
-import { MANY_GROUPS, NO_GROUP, linkColour, reachedGroups, sidePoint, sidesFor, spread, stripPatchId } from "./patchView";
+import { MANY_GROUPS, NO_GROUP, destinationChoice, destinations, drawnFrom, linkColour, outSources, reachedGroups, sidePoint, sidesFor, spread, stripPatchId } from "./patchView";
 
 const node = (id: string, kind: Patch["nodes"][number]["kind"]) => ({ id, kind, x: 0, y: 0, muted: false, ...(kind === "switch" ? { inMulti: false, outMulti: true } : {}) });
 const base = (): Patch => ({ nodes: [node("in:1", "input"), node("sw", "switch"), node("fx", "fx"), node("group:a", "group"), node("group:b", "group"), node("master", "master")], links: [] });
@@ -82,5 +82,37 @@ describe("flowingLinks", () => {
       ],
     };
     assert.deepEqual([...flowingLinks(p as never, new Set(["1", "3", "4"]))].sort(), ["1", "3"]);
+  });
+});
+
+describe("one output per input", () => {
+  const withBuses = (): Patch => {
+    let p: Patch = { ...base(), nodes: [...base().nodes, { ...node("b1", "fx"), owner: "in:1" }, { ...node("b2", "fx"), owner: "in:1" }] };
+    p = connect(p, "in:1", "b1", "i1");
+    p = connect(p, "in:1", "b2", "i2");
+    p = connect(p, "b1", "group:a", "a1", "rec");
+    p = connect(p, "b2", "group:a", "a2", "rec");
+    p = connect(p, "b1", "master", "m1");
+    p = connect(p, "b2", "master", "m2", "bus", true);
+    return p;
+  };
+  it("sends from its buses when it has some, else from itself", () => {
+    assert.deepEqual(outSources(withBuses(), "in:1"), ["b1", "b2"]);
+    assert.deepEqual(outSources(base(), "in:1"), ["in:1"]);
+  });
+  it("gathers the links of every bus into one entry per place", () => {
+    const d = destinations(withBuses(), "in:1");
+    assert.deepEqual(d.map((x) => [x.key, x.links.map((l) => l.id), x.on]), [["group:a|rec", ["a1", "a2"], true], ["master|bus", ["m1", "m2"], true]]);
+  });
+  it("ticking a place off or on sets every link to it", () => {
+    const p = withBuses();
+    assert.deepEqual(destinationChoice(p, "in:1", "master|bus", false), [{ id: "m1", muted: true }]);
+    assert.deepEqual(destinationChoice(p, "in:1", "master|bus", true), [{ id: "m2", muted: false }]);
+    assert.deepEqual(destinationChoice(p, "in:1", "nowhere|bus", true), []);
+  });
+  it("draws a bus's link from its input", () => {
+    const p = withBuses();
+    assert.equal(drawnFrom(p, p.links.find((l) => l.id === "a2")!), "in:1");
+    assert.equal(drawnFrom(p, p.links.find((l) => l.id === "i1")!), "in:1");
   });
 });

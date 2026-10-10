@@ -71,7 +71,8 @@ export default function FreeBoard({ engine, snap, controls, keyboardOpen, onTogg
       id: `in:${inp.id}`,
       title: title("mic", inp.name),
       node: (
-        <div className="h-full overflow-y-auto">
+        // the whole block (strip and buses) is where the input's one output leaves from
+        <div className="h-full overflow-y-auto" data-patch-id={`in:${inp.id}`}>
           <ul>
             <InputStrip engine={engine} inp={inp} devices={snap.devices} anyDevice={snap.devices.length > 0} keyboardOpen={keyboardOpen} onToggleKeyboard={onToggleKeyboard} sequencerOpen={false} onToggleSequencer={() => undefined} pianoOpen={!!inp.sourceId && openPianos.includes(inp.sourceId)} onTogglePiano={() => inp.sourceId && onTogglePiano(inp.sourceId)} seq={undefined} groups={snap.groups} />
           </ul>

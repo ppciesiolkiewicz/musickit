@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type PointerEvent as RPointerEvent, type RefObject } from "react";
+import { useEffect, useId, useMemo, useRef, useState, type PointerEvent as RPointerEvent, type RefObject } from "react";
 import Icon from "@/components/Icon";
 import { patchName } from "./PatchNode";
-import { whyNot, type PatchKind, type PatchLink, type PatchNode, type Port } from "@/lib/looper/patch";
-import { flowingLinks, linkColour, outward, sidePoint, sidesFor, spread } from "@/lib/looper/patchView";
+import { whyNot, type PatchKind, type PatchNode, type Port } from "@/lib/looper/patch";
+import { destinationChoice, destinations, drawnFrom, flowingLinks, linkColour, outSources, outward, sidePoint, sidesFor, spread } from "@/lib/looper/patchView";
 import type { LooperEngine, LooperSnapshot } from "@/lib/looper/engine";
 
 interface Rect { x: number; y: number; w: number; h: number }
@@ -37,16 +37,20 @@ function visibleRect(el: HTMLElement): DOMRect | null {
 
 /**
  * Draws the patch over the page. Every sound maker, group and the master that carries a `data-patch-id` gets connectors:
- * each connection leaves one block and arrives at another on whichever sides face each other, with an arrow into the target, in the colour of the group it reaches. With `mode: "lines"` the connections
- * are drawn as wires as well. Drag from a connector on the right of a strip or card onto a group (top half: what its loops
- * record, bottom half: what you hear through it), the master, a chain or a switch. Click a connector or wire to mute or remove it.
- * It only calls engine actions, so everything is undoable.
+ * only what carries sound is drawn. An input has one output for all its buses: one wire per block it reaches, striped in the colours
+ * of the groups it reaches there, with an arrow into the target. With `mode: "lines"` the connections are drawn as wires as well.
+ * Drag from a connector on the right of a block onto a group (top half: what its loops record, bottom half: what you hear through
+ * it), the master, a chain or a switch; every bus of an input gets the link. Click the connector (or an arrow) for the checkbox list
+ * of where it sends, to switch each place on or off or remove it. It only calls engine actions, so everything is undoable.
  */
 export default function ConnectionLayer({ engine, snap, mode, wrapper }: { engine: LooperEngine; snap: LooperSnapshot; mode: "colors" | "lines"; wrapper: RefObject<HTMLElement | null> }) {
   const patch = snap.patch;
+  const uid = useId().replace(/[^a-zA-Z0-9]/g, "");
   const [rects, setRects] = useState<Record<string, Rect>>({});
   const [drag, setDrag] = useState<{ from: string; at: Pt } | null>(null);
-  const [sel, setSel] = useState<string | null>(null);
+  /** the element whose list of destinations is open */
+  const [menu, setMenu] = useState<string | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   const [msg, setMsg] = useState<string | null>(null);
 
   // measure the elements every other frame: layouts move (widgets are dragged, windows resize, the page scrolls)
@@ -84,6 +88,23 @@ export default function ConnectionLayer({ engine, snap, mode, wrapper }: { engin
     return () => window.clearTimeout(t);
   }, [msg]);
 
+  // the list closes on a click anywhere else or Escape
+  useEffect(() => {
+    if (!menu) return;
+    const down = (e: PointerEvent) => {
+      const t = e.target as Element;
+      // a connector toggles the list itself when the click ends
+      if (!menuRef.current?.contains(t) && !t.closest?.("[data-out]")) setMenu(null);
+    };
+    const key = (e: KeyboardEvent) => e.key === "Escape" && setMenu(null);
+    window.addEventListener("pointerdown", down);
+    window.addEventListener("keydown", key);
+    return () => {
+      window.removeEventListener("pointerdown", down);
+      window.removeEventListener("keydown", key);
+    };
+  }, [menu]);
+
   const groupColours = useMemo(() => Object.fromEntries(snap.groups.map((g) => [`group:${g.id}`, g.colour])), [snap.groups]);
   const node = (id: string) => patch.nodes.find((n) => n.id === id);
   const name = (n: PatchNode): string => patchName(snap, n);
@@ -92,7 +113,7 @@ export default function ConnectionLayer({ engine, snap, mode, wrapper }: { engin
     return n ? name(n) : id;
   };
   const active = useMemo(() => new Set(snap.patchActive), [snap.patchActive]);
-  // bold only where sound really goes: an open link into a bus that a switch has closed leads nowhere
+  // draw only where sound really goes: an open link into a bus that a switch has closed leads nowhere
   const flowing = useMemo(() => flowingLinks(patch, active), [patch, active]);
 
   const outPt = (id: string): Pt | null => {
@@ -115,13 +136,15 @@ export default function ConnectionLayer({ engine, snap, mode, wrapper }: { engin
   // every group lives in the Looping widget: a connection into a group ends at that widget (its colour says which group), and the
   // groups' own fixed route into the master is drawn once, from the Looping widget
   const looping = rects.looping;
-  const build = (l: PatchLink, fromId: string, toId: string, frac: number, fixed: boolean) => {
-    const ra = rects[fromId];
-    const rb = rects[toId];
+  interface Wire { key: string; from: string; to: string; port: Port | "fixed"; frac: number; colours: string[]; faint: boolean; label: string }
+  const build = (w: Wire) => {
+    const ra = rects[w.from];
+    const rb = rects[w.to];
     if (!ra || !rb) return [];
+    const fixed = w.port === "fixed";
     const s = sidesFor(ra, rb);
-    const a = sidePoint(ra, s.from, 0.5, spread(take(`${fromId}|${s.from}`)));
-    const b = sidePoint(rb, s.to, frac, spread(take(`${toId}|${fixed ? "fixed" : l.port ?? "bus"}|${s.to}`)));
+    const a = sidePoint(ra, s.from, 0.5, spread(take(`${w.from}|${s.from}`)));
+    const b = sidePoint(rb, s.to, w.frac, spread(take(`${w.to}|${w.port}|${s.to}`)));
     // the arrow sits on the edge of the target and points into it; the wire ends at its base
     const n = outward(s.to);
     const be = { x: b.x + n.x * ARROW, y: b.y + n.y * ARROW };
@@ -130,26 +153,46 @@ export default function ConnectionLayer({ engine, snap, mode, wrapper }: { engin
     const path = `M${a.x},${a.y} C${a.x + o.x * k},${a.y + o.y * k} ${be.x + n.x * k},${be.y + n.y * k} ${be.x},${be.y}`;
     const px = -n.y * 5, py = n.x * 5;
     const arrow = `${b.x},${b.y} ${be.x + px},${be.y + py} ${be.x - px},${be.y - py}`;
-    return [{ l, a, b, path, arrow, fixed, colour: fixed ? FIXED : linkColour(patch, l, groupColours) }];
+    return [{ ...w, a, b, path, arrow, fixed }];
   };
+  // only links that carry sound are drawn, gathered into one wire per pair of blocks: all the buses of an input leave from the input
+  const wires = new Map<string, Wire>();
+  patch.links.forEach((l) => {
+    if (node(l.from)?.kind === "group" || !flowing.has(l.id)) return;
+    // the link from an input to a bus inside it is shown by the switch rows of its block, not as a wire
+    if (node(l.to)?.owner === l.from) return;
+    const from = drawnFrom(patch, l);
+    const toGroup = node(l.to)?.kind === "group";
+    const port: Port = l.port ?? "bus";
+    const to = toGroup && looping ? "looping" : l.to;
+    const key = `${from}>${to}${toGroup && !looping ? `|${port}` : ""}`;
+    const colour = linkColour(patch, l, groupColours);
+    const w = wires.get(key);
+    if (w) {
+      if (!w.colours.includes(colour)) w.colours.push(colour);
+      w.faint &&= l.id.startsWith("rec:");
+    } else {
+      wires.set(key, { key, from, to, port: toGroup && looping ? "bus" : port, frac: toGroup && !looping ? (port === "rec" ? 0.28 : 0.72) : 0.5, colours: [colour], faint: l.id.startsWith("rec:"), label: `${nameOf(from)} to ${to === "looping" ? "Looping" : nameOf(l.to)}` });
+    }
+  });
   const drawn = [
-    ...patch.links.flatMap((l) => {
-      if (node(l.from)?.kind === "group") return [];
-      // the link from an input to a bus inside it is shown by the switch rows of its block, not as a wire
-      if (node(l.to)?.owner === l.from) return [];
-      const toGroup = node(l.to)?.kind === "group";
-      if (toGroup && looping) return build(l, l.from, "looping", 0.5, false);
-      return build(l, l.from, l.to, toGroup ? ((l.port ?? "bus") === "rec" ? 0.28 : 0.72) : 0.5, false);
-    }),
-    ...(looping && rects.master ? build({ id: "fixed:master", from: "looping", to: "master", muted: false }, "looping", "master", 0.5, true) : []),
+    ...[...wires.values()].flatMap(build),
+    ...(looping && rects.master ? build({ key: "fixed:master", from: "looping", to: "master", port: "fixed", frac: 0.5, colours: [FIXED], faint: false, label: "Looping always plays to the master bus (fixed)" }) : []),
   ];
-  const selLink = patch.links.find((l) => l.id === sel);
-  const selDrawn = drawn.find((d) => d.l.id === sel);
 
+  /** Link every place the element sends from (each bus of an input) to a target. */
   const link = (from: string, to: string, port: Port) => {
-    const why = whyNot(patch, from, to, port);
-    if (why) return setMsg(why);
-    engine.do({ type: "patch.link", link: { id: newId("l"), from, to, ...(port === "rec" ? { port } : {}) } });
+    const srcs = outSources(patch, from);
+    const ok = srcs.filter((s) => !whyNot(patch, s, to, port));
+    if (!ok.length) return setMsg(whyNot(patch, srcs[0], to, port));
+    const actions = ok.map((s) => ({ type: "patch.link" as const, link: { id: newId("l"), from: s, to, ...(port === "rec" ? { port } : {}) } }));
+    engine.do(actions.length === 1 ? actions[0] : { type: "batch", label: "Connect", actions });
+  };
+  // the destination list is for sound makers and chains; a switch chooses its outputs on its own card
+  const hasMenu = (id: string) => !!node(id) && node(id)?.kind !== "switch";
+  const toggleDest = (id: string, key: string, on: boolean) => {
+    const changes = destinationChoice(patch, id, key, on);
+    if (changes.length) engine.do({ type: "batch", label: on ? "Send on" : "Send off", actions: changes.map((c) => ({ type: "patch.mute", what: "link", id: c.id, muted: c.muted })) });
   };
 
   /** The element and port under a point, for dropping a connection. Cards float above the page, so they win. */
@@ -170,13 +213,19 @@ export default function ConnectionLayer({ engine, snap, mode, wrapper }: { engin
       const b = root.getBoundingClientRect();
       return { x: ev.clientX - b.left, y: ev.clientY - b.top };
     };
-    setSel(null);
-    setDrag({ from, at: toPt(e) });
-    const move = (ev: PointerEvent) => setDrag({ from, at: toPt(ev) });
+    const start = toPt(e);
+    let moved = false;
+    const move = (ev: PointerEvent) => {
+      const at = toPt(ev);
+      moved ||= Math.hypot(at.x - start.x, at.y - start.y) > 4;
+      if (moved) setDrag({ from, at });
+    };
     const up = (ev: PointerEvent) => {
       window.removeEventListener("pointermove", move);
       window.removeEventListener("pointerup", up);
       setDrag(null);
+      // a click without a drag opens the list of where it sends
+      if (!moved) return setMenu((m) => (m === from || !hasMenu(from) ? null : from));
       const t = targetAt(toPt(ev));
       if (t) link(from, t.id, t.port);
     };
@@ -184,38 +233,52 @@ export default function ConnectionLayer({ engine, snap, mode, wrapper }: { engin
     window.addEventListener("pointerup", up);
   };
 
-  const handleColour = (id: string) => {
-    const l = patch.links.find((x) => x.from === id);
-    return l ? linkColour(patch, l, groupColours) : MUTED;
+  /** The colours of the places an element sends sound to right now (none when it sends nowhere). */
+  const sendColours = (id: string): string[] => {
+    const out: string[] = [];
+    destinations(patch, id).forEach((d) => {
+      const l = d.links.find((x) => flowing.has(x.id));
+      const c = l && linkColour(patch, l, groupColours);
+      if (c && !out.includes(c)) out.push(c);
+    });
+    return out;
   };
-
+  const handleColour = (id: string) => sendColours(id)[0] ?? MUTED;
+  /** A fill for several colours side by side: hard stops of a gradient. */
+  const stops = (cs: string[], deg: number) => (cs.length < 2 ? cs[0] ?? "#020617" : `linear-gradient(${deg}deg, ${cs.map((c, i) => `${c} ${(i / cs.length) * 100}% ${((i + 1) / cs.length) * 100}%`).join(", ")})`);
+  const sel = drag?.from ?? menu;
+  const menuRect = menu ? rects[menu] : undefined;
+  const menuLeft = menuRect ? Math.max(4, Math.min(menuRect.x + menuRect.w + 14, (wrapper.current?.clientWidth ?? 9999) - 250)) : 0;
+  // one wire with several groups is striped: each colour a dash, the dashes taking turns along it
+  const STRIPE = 10;
 
   return (
     <div className="pointer-events-none absolute inset-0 z-20" aria-label="Connections">
       <svg className="absolute inset-0 h-full w-full" aria-hidden={false}>
-        {drawn.map((d) => {
-          const faint = d.l.id.startsWith("rec:");
-          // only what carries sound is drawn bold; closed and muted connections are thin, dashed and quiet
-          const on = d.fixed || flowing.has(d.l.id);
-          const op = on ? (faint ? 0.55 : 1) : 0.4;
-          const label = d.fixed ? "Looping always plays to the master bus (fixed)" : `Connection from ${nameOf(d.l.from)} to ${nameOf(d.l.to)}${d.l.port === "rec" ? " (record)" : ""}${on ? "" : " (off)"}`;
-          const pick = d.fixed ? undefined : (e: RPointerEvent) => { e.stopPropagation(); setSel(d.l.id); };
+        {drawn.map((d, i) => {
+          const op = d.faint ? 0.55 : 1;
+          const n = d.colours.length;
+          const grad = `${uid}w${i}`;
+          const hot = sel === d.from;
+          const pick = d.fixed ? undefined : (e: RPointerEvent) => { e.stopPropagation(); setMenu(hasMenu(d.from) ? d.from : null); };
           return (
-            <g key={d.l.id}>
-              {mode === "lines" && (
-                <>
-                  {/* a wire is not clickable (it would block the controls under it); select a connection by its arrow */}
-                  <path d={d.path} fill="none" pointerEvents="none" stroke={sel === d.l.id ? "#f8fafc" : d.colour} strokeWidth={sel === d.l.id ? 3 : on ? (faint ? 1.5 : 2.75) : 1} strokeDasharray={on ? undefined : "3 4"} opacity={on ? (faint ? 0.5 : 0.95) : 0.28} />
-                </>
+            <g key={d.key}>
+              {n > 1 && (
+                <defs>
+                  <linearGradient id={grad}>
+                    {d.colours.flatMap((c, k) => [<stop key={`${k}a`} offset={k / n} stopColor={c} />, <stop key={`${k}b`} offset={(k + 1) / n} stopColor={c} />])}
+                  </linearGradient>
+                </defs>
               )}
-              <circle cx={d.a.x} cy={d.a.y} r={on ? 3.5 : 2} fill={d.colour} opacity={op} pointerEvents="none" />
-              {on ? (
-              <polygon points={d.arrow} fill={d.colour} opacity={op} stroke={sel === d.l.id ? "#f8fafc" : "#020617"} strokeWidth={sel === d.l.id ? 1.5 : 0.75} role={d.fixed ? "img" : "button"} aria-label={label} style={{ pointerEvents: d.fixed ? "none" : "auto", cursor: "pointer" }} onPointerDown={pick}>
-                  <title>{label}</title>
-                </polygon>
-              ) : (
-                <circle cx={d.b.x} cy={d.b.y} r={2} fill={d.colour} opacity={0.35} pointerEvents="none" />
-              )}
+              {mode === "lines" &&
+                // a wire is not clickable (it would block the controls under it); open its list by its arrow or connector
+                d.colours.map((c, k) => (
+                  <path key={c} d={d.path} fill="none" pointerEvents="none" stroke={c} strokeWidth={hot ? 3.5 : d.faint ? 1.5 : 2.75} strokeDasharray={n > 1 ? `${STRIPE} ${(n - 1) * STRIPE}` : undefined} strokeDashoffset={-k * STRIPE} opacity={d.faint ? 0.5 : 0.95} />
+                ))}
+              <circle cx={d.a.x} cy={d.a.y} r={3.5} fill={n > 1 ? `url(#${grad})` : d.colours[0]} opacity={op} pointerEvents="none" />
+              <polygon points={d.arrow} fill={n > 1 ? `url(#${grad})` : d.colours[0]} opacity={op} stroke={hot ? "#f8fafc" : "#020617"} strokeWidth={hot ? 1.5 : 0.75} role={d.fixed ? "img" : "button"} aria-label={d.label} style={{ pointerEvents: d.fixed ? "none" : "auto", cursor: "pointer" }} onPointerDown={pick}>
+                <title>{d.label}</title>
+              </polygon>
             </g>
           );
         })}
@@ -231,7 +294,7 @@ export default function ConnectionLayer({ engine, snap, mode, wrapper }: { engin
         if (!n || !TARGET_KINDS.includes(n.kind) || id === drag.from) return null;
         const halves: { port: Port; top: number; h: number; label: string }[] = n.kind === "group" ? [{ port: "rec", top: 0, h: r.h / 2, label: "record" }, { port: "bus", top: r.h / 2, h: r.h / 2, label: "hear" }] : [{ port: "bus", top: 0, h: r.h, label: "" }];
         return halves.map((hf) => {
-          const ok = !whyNot(patch, drag.from, id, hf.port);
+          const ok = outSources(patch, drag.from).some((s) => !whyNot(patch, s, id, hf.port));
           return (
             <div key={`${id}:${hf.port}`} className={`absolute grid place-items-center rounded-lg border-2 text-[11px] font-medium ${ok ? "border-emerald-400/80 bg-emerald-400/15 text-emerald-100" : "border-slate-600/40 bg-slate-950/40 text-slate-500"}`} style={{ left: r.x, top: r.y + hf.top, width: r.w, height: hf.h }}>
               {ok && hf.label}
@@ -239,26 +302,41 @@ export default function ConnectionLayer({ engine, snap, mode, wrapper }: { engin
           );
         });
       })}
-      {/* out connectors: drag from here */}
+      {/* out connectors: drag from here to add a place, click for the list. An input with buses has one for all of them. */}
       {Object.entries(rects).map(([id, r]) => {
         const n = node(id);
-        if (!n || !OUT_KINDS.includes(n.kind)) return null;
-        // an input with buses of its own sends its sound out through them
-        if (patch.nodes.some((m) => m.owner === id)) return null;
-        const c = handleColour(id);
-        const used = patch.links.some((l) => l.from === id);
+        if (!n || !OUT_KINDS.includes(n.kind) || n.owner) return null;
+        const cs = sendColours(id);
+        const ring = cs.length ? stops(cs, 90) : MUTED;
         return (
-          <span key={`out:${id}`} className="pointer-events-auto absolute grid cursor-crosshair place-items-center" style={{ left: r.x + r.w - 6, top: r.y + r.h / 2 - 11, width: 22, height: 22, touchAction: "none" }} onPointerDown={startWire(id)} title={`Drag from ${name(n)} to a group, chain, switch or the master`} role="presentation">
-            <span className="rounded-full border-2" style={{ width: 12, height: 12, borderColor: c, background: used ? c : "#020617" }} />
+          <span key={`out:${id}`} className="pointer-events-auto absolute grid cursor-crosshair place-items-center" style={{ left: r.x + r.w - 7, top: r.y + r.h / 2 - 12, width: 24, height: 24, touchAction: "none" }} onPointerDown={startWire(id)} data-out={id} title={hasMenu(id) ? `${name(n)}: click to choose where it sends, drag to add a place` : `Drag from ${name(n)} to a group, chain, switch or the master`} role="button" aria-label={`Outputs of ${name(n)}`} aria-haspopup={hasMenu(id) ? "true" : undefined} aria-expanded={hasMenu(id) ? menu === id : undefined}>
+            {/* the ring shows every colour it sends in; hollow when it sends nowhere */}
+            <span className="grid place-items-center rounded-full" style={{ width: 14, height: 14, background: ring, outline: menu === id ? "2px solid #f8fafc" : undefined }}>
+              {!cs.length && <span className="rounded-full" style={{ width: 8, height: 8, background: "#020617" }} />}
+            </span>
           </span>
         );
       })}
-      {selLink && selDrawn && (
-        <div className="pointer-events-auto absolute z-10 flex items-center gap-1.5 rounded-lg border border-slate-600 bg-slate-950 px-2 py-1 text-xs text-slate-200 shadow-xl" style={{ left: Math.max(4, selDrawn.b.x - 260), top: Math.max(4, selDrawn.b.y - 36) }}>
-          <span className="max-w-[24ch] truncate">{nameOf(selLink.from)} → {nameOf(selLink.to)}{selLink.port === "rec" ? " (record)" : ""}</span>
-          <button type="button" className="grid h-6 w-6 place-items-center rounded border border-slate-700 hover:border-slate-500" aria-pressed={selLink.muted} onClick={() => engine.do({ type: "patch.mute", what: "link", id: selLink.id, muted: !selLink.muted })} title={selLink.muted ? "Unmute the connection" : "Mute the connection"} aria-label={selLink.muted ? "Unmute the connection" : "Mute the connection"}><Icon name={selLink.muted ? "volume-x" : "volume-2"} size={13} /></button>
-          <button type="button" className="grid h-6 w-6 place-items-center rounded border border-slate-700 hover:border-rose-400" onClick={() => { engine.do({ type: "patch.unlink", id: selLink.id }); setSel(null); }} title="Remove the connection" aria-label="Remove the connection"><Icon name="trash" size={13} /></button>
-          <button type="button" className="grid h-6 w-6 place-items-center rounded border border-slate-700 hover:border-slate-500" onClick={() => setSel(null)} title="Close" aria-label="Close"><Icon name="x" size={13} /></button>
+      {menu && menuRect && (
+        <div ref={menuRef} role="group" aria-label={`Where ${nameOf(menu)} sends`} className="pointer-events-auto absolute z-30 flex w-60 flex-col gap-0.5 rounded-lg border border-slate-600 bg-slate-950 p-1.5 text-xs text-slate-200 shadow-xl" style={{ left: menuLeft, top: Math.max(4, menuRect.y + menuRect.h / 2 - 16) }}>
+          <div className="flex items-center gap-1 px-1 pb-1 text-[10px] uppercase tracking-wide text-slate-500">
+            <span className="min-w-0 flex-1 truncate">{nameOf(menu)} sends to</span>
+            <button type="button" className="grid h-5 w-5 place-items-center rounded text-slate-400 hover:text-slate-100" onClick={() => setMenu(null)} title="Close" aria-label="Close"><Icon name="x" size={12} /></button>
+          </div>
+          {destinations(patch, menu).length === 0 && <span className="px-1 py-0.5 text-[11px] text-slate-500">Nowhere yet: drag from the dot</span>}
+          {destinations(patch, menu).map((d) => {
+            const label = `${nameOf(d.to)}${d.port === "rec" ? " (record)" : ""}`;
+            return (
+              <div key={d.key} className={`flex items-center gap-1 rounded ${d.on ? "bg-emerald-500/15" : "hover:bg-slate-800"}`}>
+                <button type="button" role="checkbox" aria-checked={d.on} className="flex min-w-0 flex-1 items-center gap-1.5 px-1 py-1 text-left" onClick={() => toggleDest(menu, d.key, !d.on)}>
+                  <span className={`grid h-3 w-3 shrink-0 place-items-center rounded-sm border ${d.on ? "border-emerald-300 bg-emerald-300 text-slate-950" : "border-slate-500"}`}>{d.on && <Icon name="check" size={9} />}</span>
+                  <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: linkColour(patch, d.links[0], groupColours) }} />
+                  <span className={`truncate ${d.on ? "text-slate-100" : "text-slate-400"}`}>{label}</span>
+                </button>
+                <button type="button" className="grid h-5 w-5 shrink-0 place-items-center rounded text-slate-500 hover:text-rose-300" onClick={() => engine.do({ type: "batch", label: "Remove a connection", actions: d.links.map((l) => ({ type: "patch.unlink", id: l.id })) })} title="Remove" aria-label={`Stop sending to ${label}`}><Icon name="trash" size={11} /></button>
+              </div>
+            );
+          })}
         </div>
       )}
       {msg && <p role="alert" className="pointer-events-auto fixed bottom-3 left-1/2 z-50 -translate-x-1/2 rounded-lg border border-amber-400/50 bg-slate-950 px-3 py-1.5 text-xs text-amber-200 shadow-xl">{msg}</p>}
