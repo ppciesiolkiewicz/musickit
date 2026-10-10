@@ -633,10 +633,9 @@ export class LooperEngine {
     return this.patch.nodes.filter((n) => !n.owner && /^(fx|sw):(rig|pno)/.test(n.id)).map((n): LooperAction => ({ type: "patch.removeNode", id: n.id }));
   }
 
-  /** Add the starter piano rig (reverb buses, a Piano Switch) for these piano strips, or for every piano when none are given. One batch. */
-  addPianoRig(strips?: number[]): boolean {
-    const ids = strips ?? this.mixer.list().filter((i) => i.kind === "scalepiano").map((i) => i.id);
-    const inputs = ids.map((i) => `in:${i}`).filter((i) => this.patch.nodes.some((n) => n.id === i));
+  /** Add the starter piano rig (reverb buses inside each piano's block) for these piano strips (the default setup). One batch. */
+  addPianoRig(strips: number[]): boolean {
+    const inputs = strips.map((i) => `in:${i}`).filter((i) => this.patch.nodes.some((n) => n.id === i));
     if (!inputs.length) return false;
     const rig = pianoRig({
       inputs,
@@ -1085,11 +1084,11 @@ export class LooperEngine {
   }
 
   /**
-   * Add the starter guitar rig (buses inside the input, wired to the master and every group's recorder) for a hardware input:
-   * the given one, else the first. One undo takes it all away. Returns false when there is no input or the rig is already there.
+   * Add the starter guitar rig (buses inside the input, wired to the master and every group's recorder) for this hardware input
+   * (the default setup). One undo takes it all away. Returns false when there is no such input or the rig is already there.
    */
-  addRig(inputId?: number): boolean {
-    const strip = this.mixer.list().find((i) => i.kind === "device" && (inputId === undefined || i.id === inputId));
+  addRig(inputId: number): boolean {
+    const strip = this.mixer.list().find((i) => i.kind === "device" && i.id === inputId);
     if (!strip) return false;
     const input = `in:${strip.id}`;
     if (!this.patch.nodes.some((n) => n.id === input)) return false;

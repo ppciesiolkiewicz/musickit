@@ -105,12 +105,6 @@ export default function AddFab({ engine, snap, wires, names, onInput }: { engine
                 <button type="button" role="menuitem" className={item} disabled={!wires} title={wiresOnly} onClick={() => run(() => addNode("fx"))}><Icon name="sliders-horizontal" size={15} />Bus<span className={hint}>connect, add effects</span></button>
                 <button type="button" role="menuitem" className={item} disabled={!wires} title={wiresOnly} onClick={() => run(() => addNode("switch"))}><Icon name="split" size={15} />Switch<span className={hint}>pick inputs, outputs</span></button>
               </Section>
-              {wires && (
-                <Section title="Rigs">
-                  <button type="button" role="menuitem" className={item} disabled={!snap.inputs.some((i) => i.kind === "device")} onClick={() => run(() => engine.addRig())}><Icon name="mic" size={15} />Guitar rig<span className={hint}>buses, switch</span></button>
-                  <button type="button" role="menuitem" className={item} disabled={!snap.inputs.some((i) => i.kind === "scalepiano")} onClick={() => run(() => engine.addPianoRig())}><Icon name="music" size={15} />Piano rig<span className={hint}>reverbs, switch</span></button>
-                </Section>
-              )}
               <Section title="Widgets">
                 <button type="button" role="menuitem" className={item} onClick={() => setSub(true)}><Icon name="layout-dashboard" size={15} />Effect widget<span className={hint}>{fx.length ? `${fx.length} effects` : "none yet"}</span><Icon name="chevron-right" size={14} /></button>
               </Section>
