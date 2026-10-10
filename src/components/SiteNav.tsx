@@ -3,8 +3,6 @@ export const SITE_LINKS = [
   { href: "/", label: "Home" },
   { href: "/creator", label: "Creator" },
   { href: "/looper", label: "Looper" },
-  // temporary: the looper routing explainer
-  { href: "/looper/routing", label: "Routing" },
   { href: "/theory", label: "Theory" },
   { href: "/tuner", label: "Tuner" },
 ];
@@ -41,8 +39,7 @@ export default function SiteNav({ active }: { active: string }) {
       <nav aria-label="Music Kit" className="flex flex-wrap items-center gap-1">
         <span className="mr-3 text-sm font-light tracking-widest text-slate-400">MUSIC KIT</span>
         {SITE_LINKS.map((l) => (
-          // a deeper link that matches (Routing under Looper) is the current one, not its parent
-          <NavLink key={l.href} {...l} current={isActive(active, l.href) && !SITE_LINKS.some((o) => o.href.startsWith(`${l.href}/`) && isActive(active, o.href))} />
+          <NavLink key={l.href} {...l} current={isActive(active, l.href)} />
         ))}
       </nav>
       {inTheory && (
