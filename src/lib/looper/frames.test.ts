@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { applyInputMode, assemble, beatFrames, beatInBar, effectiveGain, loopOffset, msToFrames, nextBoundary, peaks, quantUnitFrames, quantiseLength, type Chunk } from "./frames";
+import { applyInputMode, assemble, channelChoices, channelLabel, detectChannels, eachChannel, inputChannels, beatFrames, beatInBar, effectiveGain, loopOffset, msToFrames, nextBoundary, peaks, quantUnitFrames, quantiseLength, type Chunk } from "./frames";
 
 const chunk = (frame: number, values: number[]): Chunk => ({ frame, l: new Float32Array(values), r: new Float32Array(values.map((v) => -v)) });
 
@@ -112,5 +112,37 @@ describe("take status", () => {
     const s = takeStatus({ now: 5, start: 0, end: 8, stopping: true, started: true, period: 0.5, beatsPerBar: 4 });
     assert.deepEqual([s.phase, s.beatsLeft, s.totalBars], ["stopping", 6, 4]);
     assert.equal(takeStatus({ now: 1, start: 0, end: 8, stopping: false, started: true, period: 0.5, beatsPerBar: 4 }).totalBars, 4);
+  });
+});
+
+describe("device channels", () => {
+  it("maps a mode and a pair to the device's channels", () => {
+    assert.deepEqual(inputChannels("left"), { a: 0, b: 0, how: "mono" });
+    assert.deepEqual(inputChannels("right", 1), { a: 3, b: 3, how: "mono" });
+    assert.deepEqual(inputChannels("stereo", 2), { a: 4, b: 5, how: "stereo" });
+    assert.deepEqual(inputChannels("sum", 1), { a: 2, b: 3, how: "sum" });
+    assert.deepEqual(inputChannels("left", -3), { a: 0, b: 0, how: "mono" }, "a bad pair falls back to the first");
+  });
+  it("labels channels from 1", () => {
+    assert.equal(channelLabel("right"), "Input 2");
+    assert.equal(channelLabel("stereo", 1), "Inputs 3-4");
+    assert.equal(channelLabel("sum"), "Inputs 1-2 to mono");
+  });
+  it("reads the channel count from settings, then capabilities", () => {
+    assert.equal(detectChannels(2, 8), 2);
+    assert.equal(detectChannels(undefined, 4), 4);
+    assert.equal(detectChannels(0, undefined), 0, "unknown");
+    assert.equal(detectChannels(undefined, 999), 32, "capped");
+  });
+  it("offers each channel, each pair as stereo and as mono", () => {
+    assert.deepEqual(channelChoices(2).map((c) => c.label), ["Input 1", "Input 2", "Inputs 1-2", "Inputs 1-2 to mono"]);
+    assert.equal(channelChoices(0).length, 4, "unknown counts as stereo");
+    assert.equal(channelChoices(1).length, 4, "a mono device still offers the pair (Input 2 is silent)");
+    assert.deepEqual(channelChoices(3).map((c) => c.label), ["Input 1", "Input 2", "Input 3", "Inputs 1-2", "Inputs 1-2 to mono"], "no pair for the odd last channel");
+    assert.equal(channelChoices(8).length, 16);
+  });
+  it("makes one strip per channel", () => {
+    assert.deepEqual(eachChannel(4), [{ mode: "left", pair: 0 }, { mode: "right", pair: 0 }, { mode: "left", pair: 1 }, { mode: "right", pair: 1 }]);
+    assert.equal(eachChannel(1).length, 2);
   });
 });

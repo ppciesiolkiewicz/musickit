@@ -8,13 +8,20 @@ export interface DeviceRef {
   label: string;
 }
 
-const INTERFACE = /focusrite|scarlett|clarett|\bsolo\b.*usb|behringer|\bumc\b|\bxr18|presonus|audiobox|studio ?\d|motu|universal audio|\bapollo|steinberg|\bur\d{2}|audient|\bid\d{1,2}\b|apogee|\brme\b|babyface|fireface|zoom|\bu-?\d{2}\b|roland|\bquad-?capture|native instruments|komplete audio|traktor|m-audio|\bm-?track|ploytec|\bumik|usb audio|usb pnp|audio interface|interface|\bgo\b.*\bxlr|\bpod\b|line ?6|\bhelix|boss|\bgx-?\d+/i;
+const INTERFACE = /focusrite|scarlett|clarett|\bsolo\b.*usb|behringer|\bumc\b|\bxr18|presonus|audiobox|studio ?\d|motu|universal audio|\bapollo|steinberg|\bur\d{2}|audient|\bid\d{1,2}\b|apogee|\brme\b|babyface|fireface|zoom|\bu-?\d{2}\b|roland|\bquad-?capture|native instruments|komplete audio|traktor|m-audio|\bm-?track|ploytec|\bumik|usb audio|usb pnp|audio interface|interface|\bgo\b.*\bxlr|\bpod\b|line ?6|\bhelix|boss|\bgx-?\d+|\brc-?\d{3}|loop ?station|\bvt-?\d|\bgt-?\d{3}|\bsy-?\d|\bme-?\d{2}|tascam|yamaha|\bag0\d|arturia|minifuse|\baudiofuse|\bssl ?\d|\bevo\b|\bmixer\b/i;
 const INTERNAL = /zoomaudiodevice|virtual|blackhole|loopback|soundflower|built-?in|macbook|imac|mac ?mini|mac ?studio|internal|speakers?\b|webcam|display|airpods|bluetooth|\bhdmi\b|realtek|conexant/i;
+/** not the computer's own, but not music gear either: headsets, cameras, phones */
+const PERSONAL = /headset|headphones?|earbuds|jabra|\bbrio\b|camera|\bc9\d\d\b|iphone|ipad|continuity/i;
 
-/** How much a device looks like the one to use: positive for an audio interface, negative for the computer's own parts, 0 if unknown. */
+/**
+ * How much a device looks like the one to use: 2 for a known audio interface, 1 for any other device that is not the computer's own
+ * part, a headset, camera or phone (an interface, looper or mixer we have no name for: any USB device plugged in for music is more likely wanted than the
+ * built-in mic), -1 for the computer's own parts and virtual devices, 0 for an unnamed one (the browser hides names until access is given).
+ */
 export function deviceScore(label: string): number {
   if (INTERNAL.test(label)) return -1;
-  return INTERFACE.test(label) ? 2 : 0;
+  if (INTERFACE.test(label)) return 2;
+  return !PERSONAL.test(label) && label.trim() && !/^(input|output) \d+$/i.test(label.trim()) ? 1 : 0;
 }
 
 /** The remembered device if it is still there (by id, then by name, since ids can change), else the best-looking interface, else null. */

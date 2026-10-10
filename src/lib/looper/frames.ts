@@ -80,6 +80,59 @@ export function applyInputMode(l: Float32Array, r: Float32Array, mode: InputMode
   }
 }
 
+/** Most channels a strip can pick from (32 covers the largest USB interfaces). */
+export const MAX_DEVICE_CHANNELS = 32;
+
+/**
+ * The channels of a device a strip takes. `pair` counts pairs from 0 (0 = inputs 1-2, 1 = inputs 3-4 ...); within the pair "left" and
+ * "right" take one channel, "stereo" both as they are, "sum" both mixed to mono. Channel numbers count from 0.
+ */
+export function inputChannels(mode: InputMode, pair = 0): { a: number; b: number; how: "mono" | "stereo" | "sum" } {
+  const p = Math.max(0, Math.floor(pair) || 0) * 2;
+  switch (mode) {
+    case "left": return { a: p, b: p, how: "mono" };
+    case "right": return { a: p + 1, b: p + 1, how: "mono" };
+    case "sum": return { a: p, b: p + 1, how: "sum" };
+    default: return { a: p, b: p + 1, how: "stereo" };
+  }
+}
+
+/** A short label for a strip's channels: "Input 3", "Inputs 3-4", "Inputs 3-4 to mono". */
+export function channelLabel(mode: InputMode, pair = 0): string {
+  const c = inputChannels(mode, pair);
+  if (c.how === "mono") return `Input ${c.a + 1}`;
+  return `Inputs ${c.a + 1}-${c.b + 1}${c.how === "sum" ? " to mono" : ""}`;
+}
+
+/** How many channels a device has, from what the browser reports: the track settings first, then its capabilities. 0 = unknown. */
+export function detectChannels(settings?: number, capabilityMax?: number): number {
+  const ok = (n?: number) => (typeof n === "number" && Number.isFinite(n) && n >= 1 ? Math.min(MAX_DEVICE_CHANNELS, Math.floor(n)) : 0);
+  return ok(settings) || ok(capabilityMax);
+}
+
+/** One strip per channel of a device with `n` channels (at least 2), so each channel gets its own effects. */
+export function eachChannel(n: number): { mode: InputMode; pair: number }[] {
+  const have = Math.max(2, Math.min(MAX_DEVICE_CHANNELS, Math.floor(n) || 0));
+  return Array.from({ length: have }, (_, c) => ({ mode: c % 2 === 0 ? "left" : "right", pair: Math.floor(c / 2) }));
+}
+
+export interface ChannelChoice {
+  mode: InputMode;
+  pair: number;
+  label: string;
+}
+
+/** Every way to take channels from a device with `n` channels (unknown or mono counts as 2): each channel alone, then each pair as stereo and mixed to mono. */
+export function channelChoices(n: number): ChannelChoice[] {
+  const pairs = Math.ceil(Math.max(2, Math.min(MAX_DEVICE_CHANNELS, Math.floor(n) || 0)) / 2);
+  const out: ChannelChoice[] = [];
+  for (let p = 0; p < pairs; p++) (["left", "right"] as const).forEach((m) => out.push({ mode: m, pair: p, label: channelLabel(m, p) }));
+  for (let p = 0; p < pairs; p++) (["stereo", "sum"] as const).forEach((m) => out.push({ mode: m, pair: p, label: channelLabel(m, p) }));
+  // an odd count (3, 5 ...) has no partner for its last channel
+  const have = Math.max(2, Math.min(MAX_DEVICE_CHANNELS, Math.floor(n) || 0));
+  return out.filter((c) => inputChannels(c.mode, c.pair).b < have);
+}
+
 export interface MixState {
   volume: number;
   muted: boolean;

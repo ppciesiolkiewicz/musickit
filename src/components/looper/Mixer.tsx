@@ -10,7 +10,8 @@ import { GroupEffects } from "./LoopStage";
 import MasterControls from "./MasterOutput";
 import SignalFlow from "./SignalFlow";
 import { MAX_INPUTS, MAX_INPUT_GAIN, type InputInfo, type InputMode, type LooperEngine, type LooperSnapshot } from "@/lib/looper/engine";
-import { chooseDevice } from "@/lib/looper/deviceChoice";
+import { chooseDevice, deviceKind } from "@/lib/looper/deviceChoice";
+import { channelChoices, channelLabel, eachChannel, inputChannels } from "@/lib/looper/frames";
 import { flowingLinks, masterFeeds, sendColours, stripPatchId } from "@/lib/looper/patchView";
 import { patchName } from "./PatchNode";
 import { INPUT_PRESETS, INPUT_ROLES, presetFor, type InputRole } from "@/lib/looper/inputPresets";
@@ -21,23 +22,63 @@ const btnPlain = `${btn} border-slate-700 bg-slate-900 text-slate-200 hover:bord
 const ibtn = "grid h-8 min-w-8 place-items-center rounded-lg border border-slate-700 bg-slate-900 px-1.5 text-xs text-slate-200 transition hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 const field = "rounded-md border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 
-const MODES: { id: InputMode; label: string }[] = [
-  { id: "left", label: "Input 1 (left)" },
-  { id: "right", label: "Input 2 (right)" },
-  { id: "stereo", label: "Stereo" },
-  { id: "sum", label: "Mix to mono" },
-];
+/** The key of a channel choice in a select or radio group. */
+const chKey = (mode: InputMode, pair: number) => `${mode}:${pair}`;
+const fromKey = (k: string): { mode: InputMode; pair: number } => {
+  const [m, p] = k.split(":");
+  return { mode: m as InputMode, pair: Number(p) || 0 };
+};
+/** a level above this counts as sound on a channel */
+const HEARD = 0.02;
 
-const INTERFACE_HINT = /focusrite|scarlett|interface|audient|presonus|behringer|steinberg|motu|universal audio|apollo|rme|usb audio/i;
+/**
+ * Listen to a device's channels while the dialog is open: how many it gives and the peak of each, refreshed a few times a second.
+ * Nothing when the browser has not allowed the microphone yet (the probe never prompts).
+ */
+function useChannelProbe(engine: LooperEngine, deviceId: string | null, again: number): ChannelProbe | null {
+  const [state, setState] = useState<(ChannelProbe & { dev: string }) | null>(null);
+  useEffect(() => {
+    if (deviceId === null) return;
+    let live = true;
+    let stop = () => undefined as void;
+    let timer: ReturnType<typeof setInterval> | undefined;
+    void engine.probeDevice(deviceId).then((p) => {
+      if (!p) return;
+      if (!live) return p.stop();
+      stop = p.stop;
+      const n = Math.max(1, p.channels);
+      let heard: string | null = null;
+      const read = () => {
+        const levels = p.levels().slice(0, n);
+        heard = heardPick(levels) ?? heard;
+        setState({ dev: deviceId, channels: p.channels, levels, heard });
+      };
+      read();
+      timer = setInterval(read, 120);
+    });
+    return () => {
+      live = false;
+      if (timer) clearInterval(timer);
+      stop();
+    };
+  }, [engine, deviceId, again]);
+  return state && state.dev === deviceId ? state : null;
+}
 
-type Pick = "both" | InputMode;
-const PICKS: { id: Pick; label: string; hint: string }[] = [
-  { id: "both", label: "Input 1 and Input 2", hint: "two separate strips, e.g. both jacks of a Scarlett" },
-  { id: "left", label: "Input 1 only", hint: "left channel, usually the first jack" },
-  { id: "right", label: "Input 2 only", hint: "right channel, usually the second jack (a DI guitar)" },
-  { id: "sum", label: "Mix to mono", hint: "one strip, good for a built-in mic" },
-  { id: "stereo", label: "Stereo", hint: "keep left and right as they are" },
-];
+interface ChannelProbe {
+  channels: number;
+  levels: number[];
+  /** channel detection: the choice the sound points to (one channel heard, or both of a pair), kept after the sound stops */
+  heard: string | null;
+}
+
+/** One channel with sound picks it; the two channels of one pair pick that pair in stereo; anything else says nothing. */
+function heardPick(levels: number[]): string | null {
+  const heard = levels.map((l, i) => (l > HEARD ? i : -1)).filter((i) => i >= 0);
+  if (heard.length === 1) return chKey(heard[0] % 2 === 0 ? "left" : "right", Math.floor(heard[0] / 2));
+  if (heard.length === 2 && heard[1] === heard[0] + 1 && heard[0] % 2 === 0) return chKey("stereo", heard[0] / 2);
+  return null;
+}
 
 /** Two steps: pick the kind of input (hardware or software keyboard), then for hardware pick a device and its channels. */
 export function AddInputModal({ engine, snap, hasExtra, onClose }: { engine: LooperEngine; snap: LooperSnapshot; hasExtra: boolean; onClose: () => void }) {
@@ -45,12 +86,20 @@ export function AddInputModal({ engine, snap, hasExtra, onClose }: { engine: Loo
   const [deviceId, setDeviceId] = useState<string | null>(() => chooseDevice(snap.devices, null)?.id ?? null);
   const [role, setRole] = useState<InputRole>("guitar");
   const [presetId, setPresetId] = useState<string>("dry");
-  const [pick, setPick] = useState<Pick>("left");
+  // the person's own pick (for the device it was made on); until then the channel detection's, else Input 1
+  const [manual, setManual] = useState<{ dev: string | null; key: string } | null>(null);
   const [busy, setBusy] = useState(false);
+  const [again, setAgain] = useState(0);
   const { devices } = snap;
   const room = MAX_INPUTS - snap.inputs.length;
   const chosen = devices.find((d) => d.id === deviceId);
-  const need = pick === "both" ? 2 : 1;
+  const probe = useChannelProbe(engine, step === "hardware" ? deviceId : null, again);
+  const pick = manual && manual.dev === deviceId ? manual.key : probe?.heard ?? chKey("left", 0);
+  const count = probe?.channels ?? 0;
+  const choices = channelChoices(count);
+  const each = eachChannel(count);
+  const need = pick === "each" ? each.length : 1;
+  const choose = (k: string) => setManual({ dev: deviceId, key: k });
 
   const detect = async () => {
     setBusy(true);
@@ -58,19 +107,20 @@ export function AddInputModal({ engine, snap, hasExtra, onClose }: { engine: Loo
       await engine.requestDeviceAccess();
     } finally {
       setBusy(false);
+      setAgain((n) => n + 1);
     }
   };
   const addHardware = () => {
     if (deviceId === null) return;
     const base = (chosen?.label ?? "Audio input").replace(/\s*\(.*\)\s*$/, "");
-    const modes: InputMode[] = pick === "both" ? ["left", "right"] : [pick];
+    const modes = pick === "each" ? each : [fromKey(pick)];
     modes.forEach((m) => {
-      const suffix = m === "left" ? " input 1" : m === "right" ? " input 2" : "";
+      const suffix = m.mode === "stereo" && m.pair === 0 ? "" : ` ${channelLabel(m.mode, m.pair).toLowerCase()}`;
       const preset = presetFor(role, presetId);
       // the effects (or the guitar rig) go on the first strip; a second channel of the same device gets none, so the sound is not doubled
       const first = m === modes[0];
       const name = (role === "clean" ? `${base}${suffix}` : `${role === "guitar" ? "Guitar" : "Vocal"} · ${base}${suffix}`).slice(0, 40);
-      const spec = { kind: "device" as const, name, deviceId, mode: m, ...(INPUT_ROLES.find((x) => x.id === role)?.monitor === false ? { monitor: false } : {}) };
+      const spec = { kind: "device" as const, name, deviceId, mode: m.mode, pair: m.pair, ...(INPUT_ROLES.find((x) => x.id === role)?.monitor === false ? { monitor: false } : {}) };
       // a guitar gets the whole rig: the tone buses inside its block, each to the master and recording into every group
       if (role === "guitar" && first) engine.addInputWithRig(spec, "guitar");
       else engine.do({ type: "input.add", spec: { ...spec, ...(first && preset && role !== "guitar" ? { effects: preset.effects } : {}) } });
@@ -125,18 +175,26 @@ export function AddInputModal({ engine, snap, hasExtra, onClose }: { engine: Loo
               <DeviceButton on={deviceId === ""} onClick={() => setDeviceId("")} title="System default input" sub="whatever the operating system uses" />
             </li>
             {devices.map((d) => (
-              <li key={d.id}><DeviceButton on={deviceId === d.id} onClick={() => setDeviceId(d.id)} title={d.label} sub={INTERFACE_HINT.test(d.label) ? "audio interface" : "input device"} /></li>
+              <li key={d.id}><DeviceButton on={deviceId === d.id} onClick={() => setDeviceId(d.id)} title={d.label} sub={deviceKind(d.label) === "interface" ? "audio interface" : "input device"} /></li>
             ))}
           </ul>
           <fieldset className="flex flex-col gap-1.5">
             <legend className="mb-1 text-sm font-medium text-slate-200">Which channels?</legend>
-            {PICKS.map((p) => (
-              <label key={p.id} className={`flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-xs ${pick === p.id ? "border-sky-400 bg-sky-500/10 text-sky-100" : "border-slate-800 text-slate-300"}`}>
-                <input type="radio" name="pick" className="accent-sky-400" checked={pick === p.id} onChange={() => setPick(p.id)} />
-                <span className="font-medium">{p.label}</span>
-                <span className="text-slate-500">{p.hint}</span>
-              </label>
-            ))}
+            <ChannelMeters probe={probe} />
+            <div className="grid gap-1.5 sm:grid-cols-2">
+              {[{ key: "each", label: `Every channel separately (${each.length} inputs)`, hint: "each with its own effects" }, ...choices.map((c) => ({ key: chKey(c.mode, c.pair), label: c.label, hint: c.mode === "stereo" ? "stereo, as it is" : c.mode === "sum" ? "mixed to mono" : "" }))].map((p) => {
+                const ch = p.key === "each" ? null : inputChannels(fromKey(p.key).mode, fromKey(p.key).pair);
+                const heard = !!ch && !!probe && [ch.a, ch.b].some((i) => (probe.levels[i] ?? 0) > HEARD);
+                return (
+                  <label key={p.key} className={`flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-1.5 text-xs ${pick === p.key ? "border-sky-400 bg-sky-500/10 text-sky-100" : "border-slate-800 text-slate-300"}`}>
+                    <input type="radio" name="pick" className="accent-sky-400" checked={pick === p.key} onChange={() => choose(p.key)} />
+                    <span className="font-medium">{p.label}</span>
+                    {p.hint && <span className="text-slate-500">{p.hint}</span>}
+                    {heard && <span className="ml-auto h-2 w-2 rounded-full bg-emerald-400" title="Sound on this channel" aria-label="sound" />}
+                  </label>
+                );
+              })}
+            </div>
           </fieldset>
           <fieldset className="flex flex-col gap-1.5">
             <legend className="mb-1 text-sm font-medium text-slate-200">What is it?</legend>
@@ -166,6 +224,25 @@ export function AddInputModal({ engine, snap, hasExtra, onClose }: { engine: Loo
         </div>
       )}
     </Modal>
+  );
+}
+
+/** One small meter per channel the device gives, so you can see where your instrument comes in. */
+function ChannelMeters({ probe }: { probe: ChannelProbe | null }) {
+  if (!probe) return <p className="text-[11px] text-slate-500">Channel meters appear once the browser allows the microphone (Detect devices).</p>;
+  return (
+    <div className="flex flex-wrap items-end gap-2 text-[10px] text-slate-400" aria-label="Level of each channel">
+      <span>{probe.channels ? `${probe.channels} channel${probe.channels === 1 ? "" : "s"}` : "channels unknown"}:</span>
+      {probe.levels.map((l, i) => (
+        <span key={i} className="flex flex-col items-center gap-0.5">
+          <span className="relative h-6 w-2 overflow-hidden rounded-sm bg-slate-800">
+            <span className={`absolute bottom-0 left-0 w-full ${l > HEARD ? "bg-emerald-400" : "bg-slate-600"}`} style={{ height: `${Math.min(100, Math.sqrt(l) * 100)}%` }} />
+          </span>
+          {i + 1}
+        </span>
+      ))}
+      <span className="text-slate-500">Play something: the channel with sound is picked for you.</span>
+    </div>
   );
 }
 
@@ -293,8 +370,8 @@ export function InputStrip({ engine, inp, devices, anyDevice, keyboardOpen, onTo
             <option value="">{anyDevice ? "System default input" : "System default input"}</option>
             {devices.map((d) => <option key={d.id} value={d.id}>{d.label}</option>)}
           </select>
-          <select className={field} value={inp.mode} onChange={(e) => engine.do({ type: "input.set", id: inp.id, patch: { mode: e.target.value as InputMode } })} aria-label="Channels to record">
-            {MODES.map((x) => <option key={x.id} value={x.id}>{x.label}</option>)}
+          <select className={field} value={chKey(inp.mode, inp.pair)} onChange={(e) => engine.do({ type: "input.set", id: inp.id, patch: fromKey(e.target.value) })} aria-label="Channels to record" title={inp.channels ? `The device gives ${inp.channels} channel${inp.channels === 1 ? "" : "s"}` : undefined}>
+            {stripChoices(inp).map((x) => <option key={chKey(x.mode, x.pair)} value={chKey(x.mode, x.pair)}>{x.label}</option>)}
           </select>
         </div>
       )}
@@ -314,9 +391,15 @@ export function InputStrip({ engine, inp, devices, anyDevice, keyboardOpen, onTo
         />
       )}
       {inp.error && <p role="alert" className="rounded-md border border-rose-500/40 bg-rose-500/10 p-1.5 text-xs text-rose-200">{inp.error}</p>}
-      {isDevice && inp.channels === 1 && inp.mode === "right" && <p className="text-xs text-amber-200">This device has one channel, so Input 2 is silent.</p>}
+      {isDevice && inp.connected && inp.channels > 0 && inputChannels(inp.mode, inp.pair).a >= inp.channels && <p className="text-xs text-amber-200">The browser gets {inp.channels} channel{inp.channels === 1 ? "" : "s"} from this device, so {channelLabel(inp.mode, inp.pair)} is silent.</p>}
     </li>
   );
+}
+
+/** The channel choices for a strip's device, keeping the strip's own choice even if the device now gives fewer channels. */
+function stripChoices(inp: InputInfo) {
+  const list = channelChoices(inp.channels);
+  return list.some((c) => c.mode === inp.mode && c.pair === inp.pair) ? list : [...list, { mode: inp.mode, pair: inp.pair, label: channelLabel(inp.mode, inp.pair) }];
 }
 
 /** A fill for several colours side by side, like the connector rings on the canvas. */

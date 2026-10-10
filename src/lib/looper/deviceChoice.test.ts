@@ -11,10 +11,16 @@ describe("device choice", () => {
     assert.ok(deviceScore("Scarlett 2i2 USB") > deviceScore("Some mic"));
     assert.ok(deviceScore("Some mic") > deviceScore("MacBook Pro Speakers"));
     assert.ok(deviceScore("Focusrite USB Audio") > 0);
+    assert.equal(deviceScore("RC-505mkII"), 2, "the BOSS looper is an interface");
+    assert.equal(deviceScore("XYZ 8x8"), 1, "an unknown device beats the computer's own");
+    assert.equal(deviceScore("Jabra Evolve headset"), 0, "a headset is not music gear");
+    assert.equal(deviceScore("Input 2"), 0, "a nameless device (no access yet) is unknown");
   });
   it("prefers the interface, and keeps the remembered one", () => {
     assert.equal(chooseDevice([mac, scarlett], null)?.id, "s");
     assert.equal(chooseDevice([mac], null), null, "nothing worth choosing");
+    assert.equal(chooseDevice([mac, { id: "x", label: "XYZ 8x8" }], null)?.id, "x", "any device that is not the computer's own");
+    assert.equal(chooseDevice([{ id: "x", label: "XYZ 8x8" }, { id: "r", label: "RC-505mkII" }], null)?.id, "r", "a known interface first");
     assert.equal(chooseDevice([mac, scarlett], { id: "m", label: mac.label })?.id, "m");
     assert.equal(chooseDevice([{ ...scarlett, id: "new" }, mac], { id: "old", label: scarlett.label })?.id, "new", "matched by name when the id changed");
   });
@@ -40,6 +46,7 @@ describe("deviceKind and deviceName", () => {
   assert.equal(deviceKind("MacBook Pro Microphone (Built-in)"), "builtin");
   assert.equal(deviceKind("ZoomAudioDevice (Virtual)"), "virtual");
   assert.equal(deviceKind("Some headset"), "other");
+  assert.equal(deviceKind("RC-505mkII"), "interface");
   assert.equal(deviceName("Scarlett 4i4 4th Gen (1235:821a)"), "Scarlett 4i4 4th Gen");
   assert.equal(deviceName("MacBook Pro Speakers (Built-in)"), "MacBook Pro Speakers");
   });

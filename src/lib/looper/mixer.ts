@@ -1,4 +1,4 @@
-import { effectiveGain, type InputMode } from "./frames";
+import { MAX_DEVICE_CHANNELS, detectChannels, effectiveGain, inputChannels, type InputMode } from "./frames";
 import { EffectChain } from "./buses";
 import { EFFECT_DEFS, clampParams, defaultParams, moveEffect, sanitiseEffects, type EffectKind, type EffectSpec } from "./effects";
 
@@ -29,6 +29,8 @@ export interface InputInfo {
   /** audio device id for "device" strips; "" means the system default */
   deviceId: string;
   mode: InputMode;
+  /** which pair of the device's channels the mode applies to: 0 = inputs 1-2, 1 = inputs 3-4 ... (see inputChannels) */
+  pair: number;
   volume: number;
   muted: boolean;
   solo: boolean;
@@ -67,12 +69,15 @@ export interface SavedInput {
   name: string;
   deviceId: string;
   mode: InputMode;
+  /** left out in saves from before multi-channel devices: 0 */
+  pair?: number;
   volume: number;
 }
 
 interface Shared {
   stream: MediaStream;
   source: MediaStreamAudioSourceNode;
+  /** one output per channel the device gives (at least 2) */
   splitter: ChannelSplitterNode;
   refs: number;
   channels: number;
@@ -82,7 +87,8 @@ interface Shared {
 interface Runtime {
   info: InputInfo;
   pre: GainNode | null;
-  summer: GainNode | null;
+  /** what joins the device's channels for the strip: a mono summer, or a merger for a stereo pair past the first */
+  summer: AudioNode | null;
   gain: GainNode | null;
   meter: AnalyserNode | null;
   monitor: GainNode | null;
@@ -94,6 +100,11 @@ interface Runtime {
   /** the node feeding a sequencer strip */
   src?: AudioNode | null;
   buf: Float32Array<ArrayBuffer> | null;
+}
+
+/** A saved or asked-for pair index, or 0. */
+function validPair(p: unknown): number {
+  return Number.isInteger(p) && (p as number) >= 0 && (p as number) < MAX_DEVICE_CHANNELS / 2 ? (p as number) : 0;
 }
 
 /** room for the default pianos and a drum and bass sequencer in each default group, plus a few devices */
@@ -128,7 +139,7 @@ export class InputMixer {
     const useId = id !== undefined && !this.runtimes.some((r) => r.info.id === id) ? id : this.nextId;
     this.nextId = Math.max(this.nextId, useId + 1);
     return {
-      info: { id: useId, sourceId: s.sourceId, kind: s.kind, name: s.name, deviceId: s.deviceId, mode: s.mode, volume: s.volume, muted: false, solo: false, monitor: defaultMonitor(s.kind, s.name), error: null, channels: 0, live: true, effects: sanitiseEffects(s.effects), connected: s.kind === "device" ? connected : true },
+      info: { id: useId, sourceId: s.sourceId, kind: s.kind, name: s.name, deviceId: s.deviceId, mode: s.mode, pair: validPair(s.pair), volume: s.volume, muted: false, solo: false, monitor: defaultMonitor(s.kind, s.name), error: null, channels: 0, live: true, effects: sanitiseEffects(s.effects), connected: s.kind === "device" ? connected : true },
       pre: null, summer: null, gain: null, meter: null, monitor: null, rec: null, chainPre: null, chainPost: null, shared: null, buf: null,
     };
   }
@@ -158,7 +169,7 @@ export class InputMixer {
 
   private save() {
     try {
-      const data: SavedInput[] = this.runtimes.map((r) => ({ id: r.info.id, kind: r.info.kind, sourceId: r.info.sourceId, name: r.info.name, deviceId: r.info.deviceId, mode: r.info.mode, volume: r.info.volume, effects: r.info.effects }));
+      const data: SavedInput[] = this.runtimes.map((r) => ({ id: r.info.id, kind: r.info.kind, sourceId: r.info.sourceId, name: r.info.name, deviceId: r.info.deviceId, mode: r.info.mode, pair: r.info.pair, volume: r.info.volume, effects: r.info.effects }));
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     } catch {
       /* storage may be unavailable */
@@ -274,7 +285,8 @@ export class InputMixer {
     // Raw signal wanted: no echo cancelling, noise suppression or auto gain, which would mangle an instrument.
     const audio: MediaTrackConstraints = {
       echoCancellation: false, noiseSuppression: false, autoGainControl: false,
-      channelCount: { ideal: 2 },
+      // ask for every channel: Chrome gives at most 2 whatever is asked, other browsers may give a multi-channel interface's all
+      channelCount: { ideal: MAX_DEVICE_CHANNELS },
       ...(deviceId ? { deviceId: { exact: deviceId } } : {}),
     };
     let stream: MediaStream;
@@ -285,11 +297,20 @@ export class InputMixer {
       stream = await navigator.mediaDevices.getUserMedia({ audio: { ...audio, deviceId: undefined } });
     }
     const ctx = this.ctx!;
-    const settings = stream.getAudioTracks()[0]?.getSettings?.() ?? {};
+    const track = stream.getAudioTracks()[0];
+    const settings = track?.getSettings?.() ?? {};
+    let caps: number | undefined;
+    try {
+      caps = (track?.getCapabilities?.() as { channelCount?: { max?: number } } | undefined)?.channelCount?.max;
+    } catch {
+      /* not every browser has capabilities */
+    }
+    // settings say what was opened; when they do not (some browsers leave it out), the capabilities say what the device can give
+    const channels = detectChannels(settings.channelCount, caps);
     const source = ctx.createMediaStreamSource(stream);
-    const splitter = ctx.createChannelSplitter(2);
+    const splitter = ctx.createChannelSplitter(Math.max(2, channels));
     source.connect(splitter);
-    const sh: Shared = { stream, source, splitter, refs: 1, channels: settings.channelCount ?? 0, actualId: settings.deviceId ?? deviceId };
+    const sh: Shared = { stream, source, splitter, refs: 1, channels, actualId: settings.deviceId ?? deviceId };
     this.shared.set(key, sh);
     return sh;
   }
@@ -299,6 +320,11 @@ export class InputMixer {
     if (!sh) return;
     this.unroute(r);
     r.shared = null;
+    this.drop(sh);
+  }
+
+  /** One user of a shared stream is done; the last one stops the device. */
+  private drop(sh: Shared) {
     sh.refs--;
     if (sh.refs <= 0) {
       try {
@@ -326,6 +352,7 @@ export class InputMixer {
     tryDo(() => sh.source.disconnect(r.pre!));
     if (r.summer) {
       tryDo(() => sh.source.disconnect(r.summer!));
+      tryDo(() => sh.splitter.disconnect(r.summer!));
       tryDo(() => r.summer!.disconnect());
       r.summer = null;
     }
@@ -335,27 +362,82 @@ export class InputMixer {
     const sh = r.shared;
     if (!sh || !r.pre || !this.ctx) return;
     this.unroute(r);
-    switch (r.info.mode) {
-      case "left":
-        sh.splitter.connect(r.pre, 0, 0);
-        break;
-      case "right":
-        sh.splitter.connect(r.pre, 1, 0);
-        break;
-      case "stereo":
-        sh.source.connect(r.pre);
-        break;
-      case "sum": {
-        const s = this.ctx.createGain();
-        s.channelCount = 1;
-        s.channelCountMode = "explicit";
-        s.channelInterpretation = "speakers";
-        sh.source.connect(s);
-        s.connect(r.pre);
-        r.summer = s;
-        break;
+    const c = inputChannels(r.info.mode, r.info.pair);
+    const outs = sh.splitter.numberOfOutputs;
+    // a channel the device does not have (Input 2 of a mono mic, a pair the browser did not give) stays silent
+    if (c.a >= outs) return;
+    const b = c.b < outs ? c.b : -1;
+    // the first pair of a stereo or mono device goes straight from the source, as it always has
+    const plain = c.a === 0 && outs <= 2;
+    if (c.how === "mono") {
+      // a mono channel into the 2-channel strip is heard on both sides
+      sh.splitter.connect(r.pre, c.a, 0);
+    } else if (c.how === "stereo") {
+      if (plain) sh.source.connect(r.pre);
+      else {
+        const m = this.ctx.createChannelMerger(2);
+        sh.splitter.connect(m, c.a, 0);
+        if (b >= 0) sh.splitter.connect(m, b, 1);
+        m.connect(r.pre);
+        r.summer = m;
       }
+    } else {
+      const s = this.ctx.createGain();
+      s.channelCount = 1;
+      s.channelCountMode = "explicit";
+      s.channelInterpretation = "speakers";
+      if (plain) sh.source.connect(s);
+      else {
+        // two mono channels into one mono node add up: halve them, like the speakers downmix does
+        s.gain.value = b >= 0 ? 0.5 : 1;
+        sh.splitter.connect(s, c.a, 0);
+        if (b >= 0) sh.splitter.connect(s, b, 0);
+      }
+      s.connect(r.pre);
+      r.summer = s;
     }
+  }
+
+  /**
+   * Listen to a device without making a strip: how many channels it gives and the level of each, for the Add input dialog.
+   * Shares the stream with any strip on the same device; `stop` lets it go.
+   */
+  async probe(deviceId: string): Promise<{ channels: number; levels: () => number[]; stop: () => void }> {
+    if (!this.ctx) throw new Error("The audio engine is not running yet.");
+    const sh = await this.acquire(deviceId);
+    const ctx = this.ctx;
+    const n = sh.splitter.numberOfOutputs;
+    const meters = Array.from({ length: n }, (_, i) => {
+      const a = ctx.createAnalyser();
+      a.fftSize = 512;
+      sh.splitter.connect(a, i, 0);
+      return a;
+    });
+    const buf = new Float32Array(512);
+    let stopped = false;
+    return {
+      // a mono device reports 1 channel but the splitter still has 2 outputs; only the real ones are shown
+      channels: sh.channels || n,
+      levels: () => meters.map((m) => {
+        if (stopped) return 0;
+        m.getFloatTimeDomainData(buf);
+        let peak = 0;
+        for (let i = 0; i < buf.length; i++) peak = Math.max(peak, Math.abs(buf[i]));
+        return peak;
+      }),
+      stop: () => {
+        if (stopped) return;
+        stopped = true;
+        meters.forEach((m, i) => {
+          try {
+            sh.splitter.disconnect(m, i, 0);
+          } catch {
+            /* already gone */
+          }
+        });
+        this.drop(sh);
+      },
+    };
   }
 
   /** Let only these strips reach the recorder (null = all of them). Patched strips never do: the patch routes them. */
@@ -400,11 +482,11 @@ export class InputMixer {
    * Add a strip. The strip exists (and has its id) when this returns; `done` settles once a device has been opened.
    * `id` asks for a particular id (a macro replays with the ids it recorded); it is ignored when taken.
    */
-  addNow(spec: { kind: InputKind; name: string; deviceId?: string; mode?: InputMode; sourceId?: string; idle?: boolean }, id?: number): { id: number | null; done: Promise<void> } {
+  addNow(spec: { kind: InputKind; name: string; deviceId?: string; mode?: InputMode; pair?: number; sourceId?: string; idle?: boolean }, id?: number): { id: number | null; done: Promise<void> } {
     const none = { id: null, done: Promise.resolve() };
     if (this.runtimes.length >= MAX_INPUTS) return none;
     if (spec.kind !== "device" && ((spec.kind === "extra" && this.has("extra")) || !this.sourceFor(spec.kind) || ((spec.kind === "sequencer" || spec.kind === "scalepiano") && !spec.sourceId))) return none;
-    const r = this.make({ kind: spec.kind, name: spec.name, deviceId: spec.deviceId ?? "", mode: spec.mode ?? (spec.kind === "device" ? "left" : "stereo"), volume: 1, sourceId: spec.sourceId }, !spec.idle, id);
+    const r = this.make({ kind: spec.kind, name: spec.name, deviceId: spec.deviceId ?? "", mode: spec.mode ?? (spec.kind === "device" ? "left" : "stereo"), pair: spec.pair, volume: 1, sourceId: spec.sourceId }, !spec.idle, id);
     this.runtimes.push(r);
     let connecting: Promise<void> = Promise.resolve();
     if (this.ctx) {
@@ -479,10 +561,11 @@ export class InputMixer {
     this.opts.onChange();
   }
 
-  setMode(id: number, mode: InputMode) {
+  setMode(id: number, mode: InputMode, pair?: number) {
     const r = this.find(id);
     if (!r) return;
     r.info.mode = mode;
+    if (pair !== undefined) r.info.pair = validPair(pair);
     if (r.info.kind === "device") this.route(r);
     this.save();
     this.opts.onChange();

@@ -104,12 +104,14 @@ export interface InputSpec {
   name?: string;
   deviceId?: string;
   mode?: InputMode;
+  /** which pair of the device's channels (0 = inputs 1-2, 1 = inputs 3-4 ...); left out = 0 */
+  pair?: number;
   /** effects to start with (an input preset), added in order */
   effects?: { kind: EffectKind; post?: boolean; params?: Record<string, number> }[];
   /** "Hear it" on or off from the start; left out = the default for the device */
   monitor?: boolean;
 }
-export type InputPatch = { name?: string; volume?: number; muted?: boolean; solo?: boolean; monitor?: boolean; mode?: InputMode };
+export type InputPatch = { name?: string; volume?: number; muted?: boolean; solo?: boolean; monitor?: boolean; mode?: InputMode; pair?: number };
 /** What can change on a sequencer. Order of application: instrument, preset, rows, clear, cells, then the rest. */
 export type SeqPatch = {
   instrument?: string;
@@ -130,7 +132,7 @@ export type ActionType = LooperAction["type"];
 export interface ActionState {
   channels: { id: number; name: string; volume: number; muted: boolean; solo: boolean; x: number; y: number; active: boolean; plan: number }[];
   groups: { id: string; name: string; colour: string; volume: number; muted: boolean; x: number; y: number; w: number; h: number; effects: EffectState[] }[];
-  inputs: { id: number; kind: string; name: string; deviceId: string; mode: InputMode; volume: number; muted: boolean; solo: boolean; monitor: boolean; effects: EffectState[] }[];
+  inputs: { id: number; kind: string; name: string; deviceId: string; mode: InputMode; pair?: number; volume: number; muted: boolean; solo: boolean; monitor: boolean; effects: EffectState[] }[];
   masterVolume: number;
   masterMuted: boolean;
   /** effects on the master bus, before (post: false) and after its fader */
@@ -390,7 +392,7 @@ export function inverseOf(a: LooperAction, s: ActionState): LooperAction | null 
         type: "batch",
         label: `Restore ${i.name}`,
         actions: [
-          { type: "input.add", id: i.id, spec: { kind: i.kind, name: i.name, deviceId: i.deviceId, mode: i.mode } },
+          { type: "input.add", id: i.id, spec: { kind: i.kind, name: i.name, deviceId: i.deviceId, mode: i.mode, pair: i.pair } },
           { type: "input.set", id: i.id, patch: { volume: i.volume, muted: i.muted, solo: i.solo, monitor: i.monitor } },
           ...i.effects.map((e): LooperAction => ({ type: "fx.add", target: { input: i.id }, fx: specOf(e) })),
         ],
@@ -526,7 +528,7 @@ const isBool = (v: unknown): v is boolean => typeof v === "boolean";
 const GROUP_KEYS: Record<string, (v: unknown) => boolean> = { name: isStr, colour: isStr, volume: isNum, muted: isBool, x: isNum, y: isNum, w: isNum, h: isNum };
 const METRO_KEYS: Record<string, (v: unknown) => boolean> = { bpm: isNum, beatsPerBar: isNum, volume: isNum, audible: isBool, showBeat: isBool, quantise: isStr, countInBars: isNum };
 const MODES = ["left", "right", "stereo", "sum"];
-const INPUT_KEYS: Record<string, (v: unknown) => boolean> = { name: isStr, volume: isNum, muted: isBool, solo: isBool, monitor: isBool, mode: (v) => MODES.includes(v as string) };
+const INPUT_KEYS: Record<string, (v: unknown) => boolean> = { name: isStr, volume: isNum, muted: isBool, solo: isBool, monitor: isBool, mode: (v) => MODES.includes(v as string), pair: (v) => Number.isInteger(v) && (v as number) >= 0 && (v as number) < 16 };
 const isCells = (v: unknown) => Array.isArray(v) && v.length > 0 && v.length <= 16 && v.every((r) => Array.isArray(r) && r.length <= 96 && r.every((n) => n === 0 || n === 1 || n === 2));
 const SEQ_KEYS: Record<string, (v: unknown) => boolean> = {
   instrument: isStr, preset: isStr, rows: (v) => Array.isArray(v) && v.length <= 16 && v.every(isStr), clear: isBool, cells: isCells, bars: isNum,

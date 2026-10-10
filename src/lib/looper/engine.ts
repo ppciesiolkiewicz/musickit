@@ -1060,6 +1060,19 @@ export class LooperEngine {
     }
   }
 
+  /**
+   * Listen to a device's channels for the Add input dialog (how many there are, and which carry sound) without making a strip.
+   * Only once the engine runs and the browser already allows the microphone, so it never prompts; null otherwise.
+   */
+  async probeDevice(deviceId: string): Promise<{ channels: number; levels: () => number[]; stop: () => void } | null> {
+    if (!this.ctx || this.meta.status !== "ready" || !(await this.micGranted())) return null;
+    try {
+      return await this.mixer.probe(deviceId);
+    } catch {
+      return null;
+    }
+  }
+
   /** True when the browser has already given microphone access, so opening an input shows no prompt. */
   private async micGranted(): Promise<boolean> {
     try {
@@ -1684,7 +1697,7 @@ export class LooperEngine {
       const d = this.meta.devices.find((x) => x.id === spec.deviceId);
       if (d) this.remember({ in: { id: d.id, label: d.label } });
     }
-    const made = this.mixer.addNow({ kind: spec.kind, name, deviceId: spec.deviceId, mode: spec.mode }, id).id;
+    const made = this.mixer.addNow({ kind: spec.kind, name, deviceId: spec.deviceId, mode: spec.mode, pair: spec.pair }, id).id;
     if (made !== null) {
       spec.effects?.slice(0, 6).forEach((e) => this.mixer.addEffect(made, e.kind, e.post === true, { params: e.params }));
       if (spec.monitor !== undefined) this.mixer.setMonitor(made, spec.monitor);
@@ -1702,7 +1715,7 @@ export class LooperEngine {
     }
   }
 
-  setInput(id: number, p: { name?: string; volume?: number; muted?: boolean; solo?: boolean; monitor?: boolean; mode?: InputMode }) {
+  setInput(id: number, p: { name?: string; volume?: number; muted?: boolean; solo?: boolean; monitor?: boolean; mode?: InputMode; pair?: number }) {
     const i = this.mixer.list().find((x) => x.id === id);
     if (!i) return;
     if (p.name !== undefined) this.mixer.rename(id, p.name.slice(0, 40));
@@ -1710,7 +1723,7 @@ export class LooperEngine {
     if (p.muted !== undefined && p.muted !== i.muted) this.mixer.toggleMute(id);
     if (p.solo !== undefined && p.solo !== i.solo) this.mixer.toggleSolo(id);
     if (p.monitor !== undefined) this.mixer.setMonitor(id, p.monitor);
-    if (p.mode !== undefined) this.mixer.setMode(id, p.mode);
+    if (p.mode !== undefined || p.pair !== undefined) this.mixer.setMode(id, p.mode ?? i.mode, p.pair);
   }
 
   /* effects on a group's bus, an input strip or the master bus, by target */
