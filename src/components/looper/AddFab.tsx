@@ -44,7 +44,6 @@ export default function AddFab({ engine, snap, wires, names, onInput }: { engine
   const pins = usePins();
   const fx = effectEntries(snap);
   const owners = [...new Set(fx.map((e) => e.where))];
-  const last = snap.channels[snap.channels.length - 1];
 
   useEffect(() => {
     if (!open) return;
@@ -100,7 +99,6 @@ export default function AddFab({ engine, snap, wires, names, onInput }: { engine
                 <button type="button" role="menuitem" className={item} disabled={snap.channels.length >= MAX_CHANNELS} onClick={() => run(() => onStage(engine.do({ type: "loop.add" }), "Loop"))}><Icon name="repeat" size={15} />Loop</button>
                 <button type="button" role="menuitem" className={item} disabled={snap.inputs.length >= MAX_INPUTS} onClick={() => run(() => onStage(engine.do({ type: "sequencer.add" }), "Sequencer"))}><Icon name="drum" size={15} />Sequencer<span className={hint}>drums, bass</span></button>
                 <button type="button" role="menuitem" className={item} disabled={snap.groups.length >= 8} onClick={() => run(() => onStage(engine.do({ type: "group.add" }), "Group"))}><Icon name="plus" size={15} />Group<span className={hint}>bus with loops</span></button>
-                <button type="button" role="menuitem" className={item} disabled={snap.channels.length <= 1 || last?.state !== "empty"} onClick={() => run(() => engine.do({ type: "loop.removeLast" }))}><Icon name="minus" size={15} />Remove the last loop</button>
               </Section>
               <Section title="Sound">
                 <button type="button" role="menuitem" className={item} disabled={snap.inputs.length >= MAX_INPUTS} onClick={() => run(onInput)}><Icon name="mic" size={15} />Input<span className={hint}>device, piano</span></button>
