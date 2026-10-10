@@ -5,16 +5,32 @@ import { BusEffects, patchName } from "./PatchNode";
 import { busChoice, busLinks, outFrom, whyNot, type PatchNode, type Port } from "@/lib/looper/patch";
 import { destinationPick, destinations, linkColour } from "@/lib/looper/patchView";
 import type { LooperEngine, LooperSnapshot } from "@/lib/looper/engine";
+import { useFold } from "./fold";
 
 const small = "grid h-5 w-5 shrink-0 place-items-center rounded border text-slate-400 hover:text-slate-100";
 let counter = 0;
 const newId = (p: string) => `${p}${Date.now().toString(36)}${(counter++).toString(36)}`;
+
+/** A section title that folds its section: chevron and label, with a short summary of what is on while folded. */
+function FoldHead({ open, onToggle, label, summary, children }: { open: boolean; onToggle: () => void; label: string; summary?: string; children?: React.ReactNode }) {
+  return (
+    <div className="flex items-center gap-1 text-[10px] uppercase tracking-wide text-slate-500">
+      <button type="button" className="flex min-w-0 flex-1 items-center gap-1 text-left uppercase hover:text-slate-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400" aria-expanded={open} onClick={onToggle} title={open ? `Fold ${label.toLowerCase()}` : `Show ${label.toLowerCase()}`}>
+        <Icon name={open ? "chevron-down" : "chevron-right"} size={11} />
+        <span className="shrink-0">{label}</span>
+        {!open && summary && <span className="min-w-0 truncate normal-case tracking-normal text-slate-400">· {summary}</span>}
+      </button>
+      {open && children}
+    </div>
+  );
+}
 
 /**
  * Where the input's sound goes once its buses are mixed together: one output with a row per place, like a switch side. One place
  * at a time (radio) or any combination (checkboxes); x removes a place; the list adds one (a link from every bus).
  */
 function OutputPlaces({ engine, snap, ownerId }: { engine: LooperEngine; snap: LooperSnapshot; ownerId: string }) {
+  const [open, toggle] = useFold(`${ownerId}:out`);
   const patch = snap.patch;
   const owner = patch.nodes.find((n) => n.id === ownerId);
   const groupColours = Object.fromEntries(snap.groups.map((g) => [`group:${g.id}`, g.colour]));
@@ -51,9 +67,11 @@ function OutputPlaces({ engine, snap, ownerId }: { engine: LooperEngine; snap: L
       <Icon name={icon} size={11} />
     </button>
   );
+  const onNames = [...(masterOn ? ["Master"] : []), ...places.filter((d) => d.on).map((d) => label(d.to, d.port))];
+  if (!open) return <FoldHead open={false} onToggle={toggle} label="Output goes to" summary={onNames.join(", ") || "nowhere"} />;
   return (
     <div className="flex flex-col gap-1" role="group" aria-label="Output goes to">
-      <div className="text-[10px] uppercase tracking-wide text-slate-500">Output goes to</div>
+      <FoldHead open onToggle={toggle} label="Output goes to" />
       {master && (
         <button type="button" role="checkbox" aria-checked={masterOn} className={`flex items-center gap-1.5 rounded-lg border px-1.5 py-1 text-left ${masterOn ? "border-slate-400/60 bg-slate-300/10" : "border-slate-800 bg-slate-900/50"}`} onClick={flipMaster} title={masterOn ? "Stop playing to the master bus" : "Play to the master bus too"}>
           <span className="grid h-5 w-5 shrink-0 place-items-center"><span className={`grid h-3 w-3 place-items-center rounded-sm border ${masterOn ? "border-slate-200 bg-slate-200 text-slate-950" : "border-slate-500"}`}>{masterOn && <Icon name="check" size={9} />}</span></span>
@@ -96,6 +114,7 @@ function OutputPlaces({ engine, snap, ownerId }: { engine: LooperEngine; snap: L
  * beside it and the effects under its name. Under the buses, their mixed sound goes out as one output to the places listed there.
  */
 export default function InputBundle({ engine, snap, ownerId }: { engine: LooperEngine; snap: LooperSnapshot; ownerId: string }) {
+  const [open, toggle] = useFold(`${ownerId}:buses`);
   const patch = snap.patch;
   const owner = patch.nodes.find((n) => n.id === ownerId);
   if (!owner) return null;
@@ -125,11 +144,10 @@ export default function InputBundle({ engine, snap, ownerId }: { engine: LooperE
 
   return (
     <div className="flex flex-col gap-1.5 px-1.5 pb-1.5" role={buses.length > 1 ? (multi ? "group" : "radiogroup") : undefined} aria-label="Output buses">
-      <div className="flex items-center gap-1 text-[10px] uppercase tracking-wide text-slate-500">
-        <span className="flex-1">{buses.length > 1 ? "Switch between buses" : "Output bus"}</span>
+      <FoldHead open={open} onToggle={toggle} label={buses.length > 1 ? "Switch between buses" : "Output bus"} summary={buses.filter((b) => buses.length === 1 || links.some((l) => l.to === b.id && !l.muted)).map((b) => patchName(snap, b)).join(", ") || "none on"}>
         {buses.length > 1 && (<>{mode(false, "circle-dot", "One bus at a time")}{mode(true, "check", "Any combination of buses")}</>)}
-      </div>
-      {buses.map((b) => {
+      </FoldHead>
+      {open && buses.map((b) => {
         const link = links.find((l) => l.to === b.id);
         const on = !!link && !link.muted;
         return (
@@ -148,9 +166,11 @@ export default function InputBundle({ engine, snap, ownerId }: { engine: LooperE
           </div>
         );
       })}
-      <button type="button" className="flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-slate-700 px-2 py-1 text-[11px] text-slate-400 hover:border-sky-400 hover:text-sky-200" onClick={() => engine.addBus(ownerId)}>
-        <Icon name="plus" size={12} />Add output bus
-      </button>
+      {open && (
+        <button type="button" className="flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-slate-700 px-2 py-1 text-[11px] text-slate-400 hover:border-sky-400 hover:text-sky-200" onClick={() => engine.addBus(ownerId)}>
+          <Icon name="plus" size={12} />Add output bus
+        </button>
+      )}
       <OutputPlaces engine={engine} snap={snap} ownerId={ownerId} />
     </div>
   );

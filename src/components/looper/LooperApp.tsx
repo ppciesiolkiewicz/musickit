@@ -306,9 +306,10 @@ export default function LooperApp() {
       <Toasts />
       {addingInput && <AddInputModal engine={engine} snap={snap} hasExtra={snap.inputs.some((i) => i.kind === "extra")} onClose={() => setAddingInput(false)} />}
       <div className="pointer-events-none sticky top-0 z-30 flex items-start justify-between gap-2 px-1 py-1">
-        <div className="flex flex-col items-start gap-1.5">
+        <div className="relative">
           <div className="pointer-events-auto"><MetronomeBar engine={engine} snap={snap} ready={ready} /></div>
-          {ready && <div className="pointer-events-auto"><InputsMini engine={engine} snap={snap} keyboardOpen={keyboardOpen} onToggleKeyboard={() => setKeyboardOpen((v) => !v)} openPianos={openPianos} onTogglePiano={togglePiano} /></div>}
+          {/* floats over the page (absolute), so opening it never pushes the canvas down */}
+          {ready && <div className="pointer-events-auto absolute left-0 top-full mt-1.5"><InputsMini engine={engine} snap={snap} keyboardOpen={keyboardOpen} onToggleKeyboard={() => setKeyboardOpen((v) => !v)} openPianos={openPianos} onTogglePiano={togglePiano} /></div>}
         </div>
         <div className="pointer-events-auto flex gap-1">
           <button type="button" className={ibtn} onClick={() => setNewOpen(true)} title="New project" aria-label="New project"><Icon name="file-plus" /></button>
