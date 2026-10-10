@@ -144,9 +144,33 @@ function newProject() {
   window.location.reload();
 }
 
-/** Shown while the audio starts (a moment): where the sound will go. It does not block the page; only an error is a dialog. */
+/**
+ * Covers the page until the audio runs, so nothing half works: a Start screen before the first click or key press (browsers need
+ * one), then a loader while the engine starts and waits for a remembered interface, then the error if it failed.
+ */
 function StartupLoader({ engine, snap }: { engine: LooperEngine; snap: LooperSnapshot }) {
   const out = chooseDevice(snap.outputs, null);
+  if (snap.status === "idle") {
+    return (
+      <div className="fixed inset-0 z-[1500] grid place-items-center bg-slate-950 p-4">
+        <button type="button" className="flex items-center gap-3 rounded-2xl border border-sky-500 bg-sky-500/10 px-6 py-4 text-base text-sky-100 shadow-2xl hover:bg-sky-500/20" onClick={() => void engine.enable()}>
+          <Icon name="play" fill />
+          Start the looper
+        </button>
+      </div>
+    );
+  }
+  if (snap.status === "starting") {
+    return (
+      <div className="fixed inset-0 z-[1500] grid place-items-center bg-slate-950 p-4" role="status" aria-live="polite">
+        <div className="flex items-center gap-2 text-sm text-slate-200">
+          <span className="h-4 w-4 animate-spin rounded-full border-2 border-slate-600 border-t-sky-400" aria-hidden />
+          <Icon name="volume-2" size={14} className="text-slate-400" />
+          <span className="truncate">Starting audio · {out ? out.label : "System output"}</span>
+        </div>
+      </div>
+    );
+  }
   if (snap.status === "error") {
     return (
       <div className="fixed inset-0 z-[1500] grid place-items-center bg-slate-950/85 p-4 backdrop-blur-sm" role="alertdialog">
@@ -158,16 +182,7 @@ function StartupLoader({ engine, snap }: { engine: LooperEngine; snap: LooperSna
       </div>
     );
   }
-  if (snap.status !== "starting") return null;
-  return (
-    <div className="pointer-events-none fixed inset-x-0 top-14 z-[1500] flex justify-center px-4" role="status" aria-live="polite">
-      <div className="flex items-center gap-2 rounded-full border border-slate-700 bg-slate-950/95 px-3 py-1.5 text-xs text-slate-200 shadow-xl">
-        <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-slate-600 border-t-sky-400" aria-hidden />
-        <Icon name="volume-2" size={13} className="text-slate-400" />
-        <span className="truncate">{out ? out.label : "System output"}</span>
-      </div>
-    </div>
-  );
+  return null;
 }
 
 function useEngine() {
