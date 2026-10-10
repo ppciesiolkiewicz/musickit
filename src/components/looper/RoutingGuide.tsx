@@ -27,14 +27,13 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
   );
 }
 
-/** Temporary explainer of the looper's routing, for a BOSS RC-505 (or any interface) feeding the app. */
+/** Temporary explainer of the looper's routing, from an input device (an interface, or a BOSS RC-505 used as one) to the output. */
 export default function RoutingGuide() {
   return (
     <div className="grid max-w-5xl gap-8 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
       <Section title="The path">
-        <Step title="BOSS RC-505" tone="amber">
-          Your mic and instrument, its input and track effects, the five tracks and the rhythm (drum kit) are mixed <em>inside</em> the RC-505
-          by its output mixer. It sends that mix out of MAIN OUT, SUB OUT 1 and 2, the phones, and over USB as an audio device.
+        <Step title="Input device (e.g. BOSS RC-505)" tone="amber">
+          An audio interface, a USB device such as the RC-505, or a mic. Whatever it plays comes into the computer as audio channels.
         </Step>
         <Arrow />
         <Step title="The computer and the browser">
@@ -61,52 +60,15 @@ export default function RoutingGuide() {
       </Section>
 
       <div className="flex flex-col gap-8">
-        <Section title="What the app hears from the RC-505">
+        <Section title="The RC-505 is an input device">
           <p className="text-sm text-slate-300">
-            Over USB (and from MAIN OUT) the RC-505 sends <strong>one finished stereo mix</strong>: drum kit, loops and live input together. The
-            app cannot pull the drums back out of that mix. An effect you add on that strip (say a reverb) goes on everything in it, drums
-            included. Effects inside the RC-505 (input FX, track FX) are already printed into the sound before the app sees it.
+            The app treats the RC-505 like any other input: its stereo sound (over USB or from its outputs into your interface) comes in as
+            one input. Add it with Add, Input, Hardware and pick <strong>Inputs 1-2</strong>. Everything it plays (its loops, its rhythm, its own
+            effects) arrives as that one sound, and the input strip&rsquo;s effects, buses and destinations apply to all of it.
           </p>
         </Section>
 
-        <Section title="Effects on the drums and the loops separately">
-          <ol className="list-decimal space-y-1.5 pl-5 text-sm text-slate-300">
-            <li>On the RC-505, send the rhythm (and any tracks you want apart) to a SUB OUT, and the rest to MAIN, in its output routing settings.</li>
-            <li>
-              Get both pairs into the computer. With Chrome the easy way is two devices: the RC-505&rsquo;s USB audio (one pair) plus SUB OUT
-              cabled into your audio interface (another pair). A browser that gives more than 2 channels per device can also take a
-              4-input interface fed with MAIN and SUB.
-            </li>
-            <li>In the looper: Add, Hardware, pick a device. The channel meters show which channels have sound, and the one you play into is picked for you.</li>
-            <li>
-              Pick <strong>Every channel separately</strong> for one strip per channel, or one stereo pair per strip (Inputs 1-2, Inputs 3-4).
-              Each strip gets its own effects, so the drums can have one chain and the loops another.
-            </li>
-          </ol>
-        </Section>
-
-        <Section title="Hearing it once, without feedback">
-          <ul className="list-disc space-y-1.5 pl-5 text-sm text-slate-300">
-            <li>
-              Listen in <strong>one</strong> place. If the RC-505&rsquo;s MAIN OUT goes to your speakers and the strip&rsquo;s &ldquo;Hear it&rdquo; is on too,
-              you hear everything twice, the app&rsquo;s copy a little late. Either listen to the RC-505 directly and turn &ldquo;Hear it&rdquo; off (the
-              app&rsquo;s effects are then only in what it records), or listen only through the app.
-            </li>
-            <li>
-              If the app&rsquo;s output device is the RC-505 itself, make sure the RC-505 does not send the sound coming from the computer back
-              to the computer (its USB routing), or the sound goes round in a loop.
-            </li>
-          </ul>
-        </Section>
-
-        <Section title="Timing">
-          <p className="text-sm text-slate-300">
-            The RC-505&rsquo;s rhythm and the app&rsquo;s metronome and sequencers run on separate clocks: there is no MIDI clock sync yet. Set the same
-            tempo on both and start them together, or let the RC-505 keep time and record its output into the app as plain loops.
-          </p>
-        </Section>
-
-        <Section title="Any other interface">
+        <Section title="Any interface">
           <p className="text-sm text-slate-300">
             Nothing here is specific to BOSS. Any device that is not the computer&rsquo;s own mic, a headset or a camera is treated as an
             audio interface and preferred. Each jack is a channel: plug in, open Add, Hardware, play, and the meters show which channel is yours.

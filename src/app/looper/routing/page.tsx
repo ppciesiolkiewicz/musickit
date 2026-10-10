@@ -4,13 +4,13 @@ import RoutingGuide from "@/components/looper/RoutingGuide";
 
 export const metadata: Metadata = {
   title: "Looper routing · Music Kit",
-  description: "How sound travels from an audio interface or a BOSS RC-505 through the looper's inputs, effects, buses and groups.",
+  description: "How sound travels from an input device through the looper's inputs, effects, buses and groups.",
 };
 
-/** Temporary: explains the looper's signal path, with the RC-505 as the example. Linked from the main nav for now. */
+/** Temporary: explains the looper's signal path, from an input device to the output. Linked from the main nav for now. */
 export default function LooperRoutingPage() {
   return (
-    <PageShell active="/looper/routing" title="Looper routing" intro="Where the sound goes, from the jack to the speakers, with a BOSS RC-505 as the example. Any audio interface works the same way.">
+    <PageShell active="/looper/routing" title="Looper routing" intro="Where the sound goes, from an input device (an audio interface, or a BOSS RC-505 used as one) to the speakers.">
       <RoutingGuide />
     </PageShell>
   );
