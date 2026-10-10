@@ -4,7 +4,7 @@ import { useEffect, useId, useMemo, useRef, useState, type PointerEvent as RPoin
 import Icon from "@/components/Icon";
 import { patchName } from "./PatchNode";
 import { whyNot, type PatchKind, type PatchNode, type Port } from "@/lib/looper/patch";
-import { destinationChoice, destinations, drawnFrom, flowingLinks, linkColour, outSources, outward, sidePoint, sidesFor, spread } from "@/lib/looper/patchView";
+import { destinationPick, destinations, drawnFrom, flowingLinks, linkColour, outSources, outward, sidePoint, sidesFor, spread } from "@/lib/looper/patchView";
 import type { LooperEngine, LooperSnapshot } from "@/lib/looper/engine";
 
 interface Rect { x: number; y: number; w: number; h: number }
@@ -192,7 +192,7 @@ export default function ConnectionLayer({ engine, snap, mode, wrapper }: { engin
   // the destination list is for sound makers and chains; a switch chooses its outputs on its own card
   const hasMenu = (id: string) => !!node(id) && node(id)?.kind !== "switch";
   const toggleDest = (id: string, key: string, on: boolean) => {
-    const changes = destinationChoice(patch, id, key, on);
+    const changes = destinationPick(patch, id, key);
     if (changes.length) engine.do({ type: "batch", label: on ? "Send on" : "Send off", actions: changes.map((c) => ({ type: "patch.mute", what: "link", id: c.id, muted: c.muted })) });
   };
 
@@ -329,8 +329,8 @@ export default function ConnectionLayer({ engine, snap, mode, wrapper }: { engin
             const label = `${nameOf(d.to)}${d.port === "rec" ? " (record)" : ""}`;
             return (
               <div key={d.key} className={`flex items-center gap-1 rounded ${d.on ? "bg-emerald-500/15" : "hover:bg-slate-800"}`}>
-                <button type="button" role="checkbox" aria-checked={d.on} className="flex min-w-0 flex-1 items-center gap-1.5 px-1 py-1 text-left" onClick={() => toggleDest(menu, d.key, !d.on)}>
-                  <span className={`grid h-3 w-3 shrink-0 place-items-center rounded-sm border ${d.on ? "border-emerald-300 bg-emerald-300 text-slate-950" : "border-slate-500"}`}>{d.on && <Icon name="check" size={9} />}</span>
+                <button type="button" role={node(menu)?.destOne ? "radio" : "checkbox"} aria-checked={d.on} className="flex min-w-0 flex-1 items-center gap-1.5 px-1 py-1 text-left" onClick={() => toggleDest(menu, d.key, !d.on)}>
+                  <span className={`grid h-3 w-3 shrink-0 place-items-center ${node(menu)?.destOne ? "rounded-full" : "rounded-sm"} border ${d.on ? "border-emerald-300 bg-emerald-300 text-slate-950" : "border-slate-500"}`}>{d.on && <Icon name="check" size={9} />}</span>
                   <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: linkColour(patch, d.links[0], groupColours) }} />
                   <span className={`truncate ${d.on ? "text-slate-100" : "text-slate-400"}`}>{label}</span>
                 </button>

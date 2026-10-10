@@ -1,7 +1,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { connect, type Patch } from "./patch";
-import { MANY_GROUPS, NO_GROUP, destinationChoice, destinations, drawnFrom, linkColour, outSources, reachedGroups, sidePoint, sidesFor, spread, stripPatchId } from "./patchView";
+import { connect, disconnect, sanitisePatch, setSwitchMode, type Patch } from "./patch";
+import { MANY_GROUPS, NO_GROUP, destinationChoice, destinationPick, destinations, drawnFrom, linkColour, outSources, reachedGroups, sidePoint, sidesFor, spread, stripPatchId } from "./patchView";
 
 const node = (id: string, kind: Patch["nodes"][number]["kind"]) => ({ id, kind, x: 0, y: 0, muted: false, ...(kind === "switch" ? { inMulti: false, outMulti: true } : {}) });
 const base = (): Patch => ({ nodes: [node("in:1", "input"), node("sw", "switch"), node("fx", "fx"), node("group:a", "group"), node("group:b", "group"), node("master", "master")], links: [] });
@@ -109,6 +109,32 @@ describe("one output per input", () => {
     assert.deepEqual(destinationChoice(p, "in:1", "master|bus", false), [{ id: "m1", muted: true }]);
     assert.deepEqual(destinationChoice(p, "in:1", "master|bus", true), [{ id: "m2", muted: false }]);
     assert.deepEqual(destinationChoice(p, "in:1", "nowhere|bus", true), []);
+  });
+  const mutes = (p: Patch) => Object.fromEntries(p.links.filter((l) => !l.id.startsWith("i")).map((l) => [l.id, l.muted]));
+  it("any combination by default: choosing a place ticks it", () => {
+    assert.deepEqual(destinationPick(withBuses(), "in:1", "master|bus"), [{ id: "m1", muted: true }]);
+  });
+  it("one place at a time keeps the first open place and closes the rest", () => {
+    const p = setSwitchMode(withBuses(), "in:1", "dest", false);
+    assert.equal(p.nodes.find((n) => n.id === "in:1")?.destOne, true);
+    assert.deepEqual(mutes(p), { a1: false, a2: false, m1: true, m2: true });
+  });
+  it("one place at a time: choosing a place opens all its links and closes the others; the open one is a no-op", () => {
+    const p = setSwitchMode(withBuses(), "in:1", "dest", false);
+    assert.deepEqual(destinationPick(p, "in:1", "master|bus").sort((a, b) => a.id.localeCompare(b.id)), [{ id: "a1", muted: true }, { id: "a2", muted: true }, { id: "m1", muted: false }, { id: "m2", muted: false }]);
+    assert.deepEqual(destinationPick(p, "in:1", "group:a|rec"), []);
+  });
+  it("one place at a time: a new place starts closed, removing the open one opens the next", () => {
+    let p = setSwitchMode(withBuses(), "in:1", "dest", false);
+    p = connect(p, "b1", "group:a", "g1");
+    assert.equal(p.links.find((l) => l.id === "g1")?.muted, true);
+    p = disconnect(disconnect(p, "a1"), "a2");
+    assert.deepEqual(destinations(p, "in:1").filter((d) => d.on).map((d) => d.key), ["master|bus"]);
+    assert.deepEqual(mutes(p), { m1: false, m2: false, g1: true });
+  });
+  it("keeps the mode across a save", () => {
+    const p = setSwitchMode(withBuses(), "in:1", "dest", false);
+    assert.equal(sanitisePatch(JSON.parse(JSON.stringify(p))).nodes.find((n) => n.id === "in:1")?.destOne, true);
   });
   it("draws a bus's link from its input", () => {
     const p = withBuses();

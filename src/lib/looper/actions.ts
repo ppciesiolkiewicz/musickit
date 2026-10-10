@@ -26,7 +26,7 @@ export type LooperAction =
   | { type: "patch.link"; link: { id: string; from: string; to: string; port?: "rec" | "bus"; muted?: boolean } }
   | { type: "patch.unlink"; id: string }
   | { type: "patch.mute"; what: "link" | "node"; id: string; muted: boolean }
-  | { type: "patch.switch"; id: string; side: "in" | "out"; multi: boolean }
+  | { type: "patch.switch"; id: string; side: "in" | "out" | "dest"; multi: boolean }
   | { type: "patch.node"; node: PatchNodeSpec }
   | { type: "patch.removeNode"; id: string }
   | { type: "patch.move"; id: string; x: number; y: number }
@@ -134,7 +134,7 @@ export interface ActionState {
   metronome: MetronomeSettings;
   sequencers: { id: string; name: string; x: number; y: number; dest: "auto" | "record"; playing: boolean; instrumentId: string; bars: number; cells: number[][] }[];
   /** what is connected to what */
-  patch: { nodes: { id: string; kind: string; muted: boolean; x: number; y: number; inMulti?: boolean; outMulti?: boolean; owner?: string; busMulti?: boolean; name?: string; effects?: EffectState[] }[]; links: { id: string; from: string; to: string; port?: "rec" | "bus"; muted: boolean }[] };
+  patch: { nodes: { id: string; kind: string; muted: boolean; x: number; y: number; inMulti?: boolean; outMulti?: boolean; owner?: string; busMulti?: boolean; destOne?: boolean; name?: string; effects?: EffectState[] }[]; links: { id: string; from: string; to: string; port?: "rec" | "bus"; muted: boolean }[] };
 }
 
 export interface EffectState {
@@ -161,7 +161,7 @@ export interface ActionTarget {
   patchRemove(id: string): void;
   patchMove(id: string, x: number, y: number): void;
   patchMute(what: "link" | "node", id: string, muted: boolean): void;
-  patchSwitch(id: string, side: "in" | "out", multi: boolean): void;
+  patchSwitch(id: string, side: "in" | "out" | "dest", multi: boolean): void;
   updateGroup(id: string, patch: GroupPatch): void;
   setGroupActive(id: string, on: boolean): void;
   setMasterVolume(v: number): void;
@@ -292,9 +292,13 @@ export function inverseOf(a: LooperAction, s: ActionState): LooperAction | null 
       const n = s.patch.nodes.find((m) => m.id === a.id);
       if (!n) return null;
       // going back to one-at-a-time closes links, so the inverse also puts every link of that side back as it was
-      const mine = s.patch.links.filter((l) => (a.side === "in" ? l.to : l.from) === a.id && (n.kind === "switch" || s.patch.nodes.find((m) => m.id === l.to)?.owner === a.id));
+      const ownBuses = new Set(s.patch.nodes.filter((m) => m.owner === a.id).map((m) => m.id));
+      const mine = a.side === "dest"
+        ? s.patch.links.filter((l) => (ownBuses.size ? ownBuses.has(l.from) : l.from === a.id))
+        : s.patch.links.filter((l) => (a.side === "in" ? l.to : l.from) === a.id && (n.kind === "switch" || s.patch.nodes.find((m) => m.id === l.to)?.owner === a.id));
       const back: LooperAction[] = mine.map((l) => ({ type: "patch.mute", what: "link", id: l.id, muted: l.muted }));
-      return { type: "batch", label: "Switch mode", actions: [{ type: "patch.switch", id: a.id, side: a.side, multi: (a.side === "in" ? n.inMulti : n.kind === "switch" ? n.outMulti : n.busMulti) === true }, ...back] };
+      const was = a.side === "dest" ? n.destOne !== true : (a.side === "in" ? n.inMulti : n.kind === "switch" ? n.outMulti : n.busMulti) === true;
+      return { type: "batch", label: "Switch mode", actions: [{ type: "patch.switch", id: a.id, side: a.side, multi: was }, ...back] };
     }
     case "patch.node": return { type: "patch.removeNode", id: a.node.id };
     case "patch.removeNode": {
@@ -544,7 +548,7 @@ export function isAction(v: unknown, depth = 0): v is LooperAction {
     case "patch.link": { const k = a.link as { id?: unknown; from?: unknown; to?: unknown } | undefined; return !!k && isStr(k.id) && isStr(k.from) && isStr(k.to); }
     case "patch.unlink": return isStr(a.id);
     case "patch.mute": return (a.what === "link" || a.what === "node") && isStr(a.id) && isBool(a.muted);
-    case "patch.switch": return isStr(a.id) && (a.side === "in" || a.side === "out") && typeof a.multi === "boolean";
+    case "patch.switch": return isStr(a.id) && (a.side === "in" || a.side === "out" || a.side === "dest") && typeof a.multi === "boolean";
     case "patch.node": { const k = a.node as { id?: unknown; kind?: unknown; x?: unknown; y?: unknown; effects?: unknown } | undefined; return !!k && isStr(k.id) && (k.kind === "fx" || k.kind === "switch") && isNum(k.x) && isNum(k.y) && (k.effects === undefined || (Array.isArray(k.effects) && k.effects.length <= 12 && k.effects.every(isFx))); }
     case "patch.removeNode": return isStr(a.id);
     case "patch.move": return isStr(a.id) && isNum(a.x) && isNum(a.y);

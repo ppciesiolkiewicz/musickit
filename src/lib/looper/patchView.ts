@@ -131,6 +131,16 @@ export function destinationChoice(p: Patch, id: string, key: string, on: boolean
   return d ? d.links.filter((l) => l.muted === on).map((l) => ({ id: l.id, muted: !on })) : [];
 }
 
+/** What choosing a place does: with one place at a time it opens every link to it and closes the rest (nothing when it is already the one); otherwise it ticks the place on or off. */
+export function destinationPick(p: Patch, id: string, key: string): { id: string; muted: boolean }[] {
+  const all = destinations(p, id);
+  const d = all.find((x) => x.key === key);
+  if (!d) return [];
+  if (!p.nodes.find((n) => n.id === id)?.destOne) return destinationChoice(p, id, key, !d.on);
+  if (d.on && all.every((x) => x.key === key || !x.on) && d.links.every((l) => !l.muted)) return [];
+  return all.flatMap((x) => x.links.filter((l) => l.muted === (x.key === key)).map((l) => ({ id: l.id, muted: x.key !== key })));
+}
+
 /** The element a link is drawn from: the input that owns the bus it leaves, or its own start. */
 export function drawnFrom(p: Patch, l: PatchLink): string {
   return p.nodes.find((n) => n.id === l.from)?.owner ?? l.from;

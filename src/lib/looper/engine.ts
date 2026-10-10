@@ -506,7 +506,7 @@ export class LooperEngine {
     this.savePatch(what === "link" ? setLinkMuted(this.patch, id, muted) : setNodeMuted(this.patch, id, muted));
   }
 
-  patchSwitch(id: string, side: "in" | "out", multi: boolean) {
+  patchSwitch(id: string, side: "in" | "out" | "dest", multi: boolean) {
     this.savePatch(setSwitchMode(this.patch, id, side, multi));
   }
 

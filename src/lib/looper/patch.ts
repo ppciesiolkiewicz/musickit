@@ -22,6 +22,8 @@ export interface PatchNode {
   owner?: string;
   /** a sound maker with buses of its own: false (the default) opens one bus at a time (radio), true any combination (checkboxes) */
   busMulti?: boolean;
+  /** a sound maker: true sends its output (all its buses together) to one place at a time (radio); false or left out, to any combination (checkboxes) */
+  destOne?: boolean;
   /** effect chains and switches can be named */
   name?: string;
   /** effect chain only: its effects, in order */
@@ -100,7 +102,7 @@ const newId = () => `l${Date.now().toString(36)}${(counter++).toString(36)}`;
  */
 export function connect(p: Patch, from: string, to: string, id: string = newId(), port: Port = "bus", muted?: boolean): Patch {
   if (whyNot(p, from, to, port)) return p;
-  const closed = muted ?? (switchSideBusy(p, to, "in") || switchSideBusy(p, from, "out") || ownerBusy(p, from, to));
+  const closed = muted ?? (switchSideBusy(p, to, "in") || switchSideBusy(p, from, "out") || ownerBusy(p, from, to) || destBusy(p, from, to, port));
   return { ...p, links: [...p.links, { id, from, to, ...(port === "rec" ? { port } : {}), muted: closed }] };
 }
 
@@ -113,6 +115,42 @@ function switchSideBusy(p: Patch, id: string, side: "in" | "out"): boolean {
 
 /** The links from a sound maker to the buses that belong to it. */
 export const busLinks = (p: Patch, ownerId: string): PatchLink[] => p.links.filter((l) => l.from === ownerId && node(p, l.to)?.owner === ownerId);
+
+/** Where a sound maker's sound leaves from: its own buses when it has any, else itself. */
+export const outFrom = (p: Patch, id: string): string[] => {
+  const buses = p.nodes.filter((n) => n.owner === id).map((n) => n.id);
+  return buses.length ? buses : [id];
+};
+
+/** The sound maker whose output a link leaves: the owner of the bus it starts at, or its own start. */
+const outOwner = (p: Patch, from: string): string => node(p, from)?.owner ?? from;
+
+/** The links of a sound maker's output (from its buses, or from itself when it has none). */
+export const outLinks = (p: Patch, id: string): PatchLink[] => {
+  const from = new Set(outFrom(p, id));
+  return p.links.filter((l) => from.has(l.from));
+};
+
+const placeKey = (l: PatchLink) => `${l.to}|${l.port ?? "bus"}`;
+
+/** True when a new link out of a one-place-at-a-time output must start closed: another place is already open. */
+function destBusy(p: Patch, from: string, to: string, port: Port): boolean {
+  const o = node(p, outOwner(p, from));
+  if (!o || !o.destOne) return false;
+  const key = `${to}|${port}`;
+  return outLinks(p, o.id).some((l) => !l.muted && placeKey(l) !== key);
+}
+
+/** A one-place-at-a-time output sends to exactly one place (the first open one, or the first), when it has any. */
+function settleDest(p: Patch, id: string): Patch {
+  const o = node(p, id);
+  if (!o || !o.destOne) return p;
+  const mine = outLinks(p, id);
+  if (!mine.length) return p;
+  const keep = placeKey(mine.find((l) => !l.muted) ?? mine[0]);
+  const ids = new Set(mine.map((l) => l.id));
+  return { ...p, links: p.links.map((l) => (ids.has(l.id) ? { ...l, muted: placeKey(l) !== keep } : l)) };
+}
 
 /** True when a new link from `from` to its own bus `to` must start closed: its buses are one-at-a-time and one is open. */
 function ownerBusy(p: Patch, from: string, to: string): boolean {
@@ -153,15 +191,21 @@ export function disconnect(p: Patch, linkId: string): Patch {
   if (!gone) return p;
   let next: Patch = { nodes: p.nodes, links: p.links.filter((l) => l.id !== linkId) };
   for (const id of [gone.from, gone.to]) next = settleOwner(settleSwitch(next, id), id);
-  return next;
+  return settleDest(next, outOwner(next, gone.from));
 }
 
 export const setLinkMuted = (p: Patch, linkId: string, muted: boolean): Patch => ({ ...p, links: p.links.map((l) => (l.id === linkId ? { ...l, muted } : l)) });
 export const setNodeMuted = (p: Patch, id: string, muted: boolean): Patch => ({ ...p, nodes: p.nodes.map((n) => (n.id === id ? { ...n, muted } : n)) });
 
 /** Choose how one side of a switch works: one connection at a time (radio) or any combination (checkboxes). Going to one-at-a-time keeps the first open link. */
-export function setSwitchMode(p: Patch, id: string, side: "in" | "out", multi: boolean): Patch {
+export function setSwitchMode(p: Patch, id: string, side: "in" | "out" | "dest", multi: boolean): Patch {
   const n = node(p, id);
+  // where a sound maker's output goes: one place at a time or any combination
+  if (side === "dest") {
+    if (!n || n.kind === "switch" || n.kind === "fx" || !hasOut(n.kind)) return p;
+    const next = { ...p, nodes: p.nodes.map((m) => (m.id === id ? { ...m, destOne: !multi } : m)) };
+    return multi ? next : settleDest(next, id);
+  }
   // a sound maker's own buses work like the output side of a switch: its mode is `busMulti`
   if (n && n.kind !== "switch" && hasOut(n.kind) && n.kind !== "fx" && side === "out") {
     const next = { ...p, nodes: p.nodes.map((m) => (m.id === id ? { ...m, busMulti: multi } : m)) };
@@ -276,6 +320,7 @@ export function sanitisePatch(raw: unknown): Patch {
         ...(typeof n.name === "string" ? { name: n.name.slice(0, 40) } : {}),
         ...(n.kind === "fx" && typeof n.owner === "string" ? { owner: n.owner } : {}),
         ...(["input", "piano"].includes(n.kind) && n.busMulti === true ? { busMulti: true } : {}),
+        ...(["input", "piano"].includes(n.kind) && n.destOne === true ? { destOne: true } : {}),
         ...(n.kind === "fx" ? { effects: sanitiseEffects(n.effects) } : {}),
       });
     }
