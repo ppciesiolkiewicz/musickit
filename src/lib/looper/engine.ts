@@ -1268,6 +1268,25 @@ export class LooperEngine {
     this.history.clear();
   }
 
+  /**
+   * The person picked the device their instrument is plugged into (the devices dialog), for when its name gives nothing away (the
+   * RC-505 can show up as just "OUT"). It is remembered as the input, and the main input (the first device strip, the default guitar)
+   * uses it and connects now; an auto-made guitar name follows the device. With no device input yet, a guitar input with its rig is added.
+   */
+  async chooseInput(deviceId: string): Promise<void> {
+    const d = this.meta.devices.find((x) => x.id === deviceId);
+    if (!d) return;
+    this.remember({ in: { id: d.id, label: d.label } });
+    const name = `Guitar · ${deviceName(d.label)}`.slice(0, 40);
+    const strip = this.mixer.list().find((i) => i.kind === "device");
+    if (!strip) {
+      this.addInputWithRig({ kind: "device", name, deviceId: d.id, mode: "left" }, "guitar");
+      return;
+    }
+    if (strip.name === GUITAR_NAME || strip.name.startsWith("Guitar · ")) this.mixer.rename(strip.id, name);
+    await this.mixer.useDevice(strip.id, d.id);
+  }
+
   /** A device input that has no device yet (the default guitar) takes the audio interface once one is seen. Nothing is opened. */
   private adoptDevices(): void {
     const pick = chooseDevice(this.meta.devices, this.prefs.in);

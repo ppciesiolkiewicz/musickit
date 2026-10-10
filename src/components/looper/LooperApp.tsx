@@ -212,7 +212,7 @@ function DeviceColumn({ icon, title, items, empty, note, onPick }: { icon: "mic"
           return (
             <li key={d.id}>
               {onPick ? (
-                <button type="button" className={`${cls} hover:border-slate-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400`} aria-pressed={!!d.used} onClick={() => onPick(d.id)} title={`Play through ${deviceName(d.label)}`}>{body}</button>
+                <button type="button" className={`${cls} hover:border-slate-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400`} aria-pressed={!!d.used} onClick={() => onPick(d.id)} title={`${icon === "mic" ? "Play into" : "Play through"} ${deviceName(d.label)}`}>{body}</button>
               ) : (
                 <div className={cls}>{body}</div>
               )}
@@ -381,7 +381,7 @@ export default function LooperApp() {
               </ul>
             )}
             <div className="grid gap-5 sm:grid-cols-2">
-              <DeviceColumn icon="mic" title="Inputs" empty="None listed. Names appear once the browser allows the microphone." note="Listed only. To play one, add it as an Input with the round + button." items={snap.devices.map((d) => ({ id: d.id, label: d.label, used: snap.inputs.some((i) => i.kind === "device" && i.deviceId === d.id) ? "used by an input" : undefined }))} />
+              <DeviceColumn icon="mic" title="Inputs" empty="None listed. Names appear once the browser allows the microphone." note="Click the one your instrument is plugged into: the main input uses it. More inputs come from the round + button." onPick={(id) => void engine.chooseInput(id)} items={snap.devices.map((d) => ({ id: d.id, label: d.label, used: snap.inputs.some((i) => i.kind === "device" && i.deviceId === d.id) ? "used by an input" : undefined }))} />
               <DeviceColumn icon="volume-2" title="Outputs" empty="The system output." note={snap.canChooseOutput ? "Click one to play through it." : "This browser plays to the system output only."} onPick={snap.canChooseOutput ? (id) => void engine.setOutputDevice(id) : undefined} items={[...(snap.canChooseOutput ? [{ id: "", label: "System default" }] : []), ...snap.outputs].map((o) => ({ id: o.id, label: o.label, used: o.id === snap.outputId ? "in use" : undefined }))} />
             </div>
             <div className="flex gap-2">

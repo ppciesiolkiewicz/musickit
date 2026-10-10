@@ -571,6 +571,18 @@ export class InputMixer {
     this.opts.onChange();
   }
 
+  /** The person chose this device for the strip: use it and open it now (a prompt is fine, they asked). */
+  async useDevice(id: number, deviceId: string) {
+    const r = this.find(id);
+    if (!r || r.info.kind !== "device") return;
+    r.info.deviceId = deviceId;
+    r.info.connected = true;
+    this.save();
+    this.opts.onChange();
+    if (this.ctx) await this.connectDevice(r);
+    this.opts.onChange();
+  }
+
   /** Give a strip that has no device yet (the default guitar, made before any interface was seen) its device, without opening it. */
   adoptDevice(id: number, deviceId: string) {
     const r = this.find(id);
