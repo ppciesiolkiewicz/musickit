@@ -40,7 +40,7 @@ Microphone permission and a secure context (HTTPS or localhost) are required. Th
 
 ## Mixer and floating keyboard
 
-- The recorder is fed by an **input mixer** (`src/lib/looper/mixer.ts`): a list of input strips, up to 8. A strip is either an audio device input (an interface such as a Scarlett, or the built-in mic) or the extra source the app provides (the keyboard). Each strip has its own device, channel choice (Input 1, Input 2, stereo, mono mix), gain, mute, solo, "hear it" monitoring and a level meter that reads before mute.
+- The recorder is fed by an **input mixer** (`src/lib/looper/mixer.ts`): a list of input strips, up to 20 (sequencers and Scale Pianos count). A strip is either an audio device input (an interface such as a Scarlett, or the built-in mic) or the extra source the app provides (the keyboard). A new project has no keyboard strip; add it from Add input, Keyboard. Each strip has its own device, channel choice (Input 1, Input 2, stereo, mono mix), gain, mute, solo, "hear it" monitoring and a level meter that reads before mute.
 - Strips can be added and removed at any time (`+ Interface 1 & 2` adds both jacks of an interface as two strips). Several strips can share one device; the stream is opened once. The strip list is remembered in `localStorage`.
 - Mute and solo behave like a mixing desk: muted strips are not recorded, and when any strip is soloed only soloed strips are.
 - The latency fix applies only while a microphone or interface strip is live; a keyboard-only take gets none.
@@ -196,6 +196,7 @@ While a take waits to start (count-in or next loop boundary) the loop circle sho
 ## Default rigs, wires into Looping, devices dialog
 
 - Default piano setup (once, `musickit.looper.pianoRigDone2`, no device needed): three Scale Pianos with different settings (C major, A minor pentatonic, E blues), each with four buses inside its block (Dry piano, Room, Hall, Dreamy: reverbs, the last with chorus and tape delay), one open at a time. More pianos can be added any time (Add, Scale Piano); "Piano rig" in + widget (Widgets with wires) gives the pianos that exist the same buses. A piano that is patched is heard only through the patch.
+- Default sequencers (once, `musickit.looper.seqRigDone`, skipped when sequencers already exist): a drum machine and a bass synth in each of the five default groups, side by side under the loop, each group with its own grooves (A: Rock and Root pulse, B: Four on the floor and Octaves, C: Hip-hop and Walk, D: Eighth groove and Offbeat, E: Half-time and Syncopated). They are named Drums A, Bass A and so on, play through their group's bus and are stopped until started. Removing them sticks.
 - Wires: a connection into any group ends at the **Looping** widget, in the colour of the group it reaches (several groups: several coloured wires). The Looping widget is always connected to the master bus by one fixed arrow that cannot be selected, muted or removed. A connection that carries sound is bold; one that is muted, closed by a switch, or leads only into a closed switch output is thin, dashed and faint.
 - "Your devices": two columns (inputs, outputs) of device cards with the cleaned-up name and badges (audio interface, built in, virtual, used by an input, in use). Output cards are buttons that switch the output. It stays open until closed.
 

@@ -5,14 +5,14 @@ import { fromRows } from "./sequencerPattern";
 import { ScalePiano, clampState as clampScalePiano, type ScalePianoState, type VoiceFactory } from "./scalePiano";
 import { EffectChain, LoopBus, peakOf } from "./buses";
 import { EFFECT_DEFS, defaultParams, moveEffect, clampParams, sanitiseEffects, type EffectKind, type EffectSpec } from "./effects";
-import { GROUP_COLOURS, clampPoint, clampRect, containingGroup, defaultGroups, defaultSpot, type GroupLayout } from "./layout";
+import { GROUP_COLOURS, clampPoint, clampRect, containingGroup, defaultGroups, defaultSpot, bottomRow, type GroupLayout } from "./layout";
 import { InputMixer, MAX_INPUT_GAIN, describeError, type InputInfo } from "./mixer";
 import { PatchGraph } from "./patchAudio";
 import { activeLinks, addNode as patchAddNode, connect as patchConnect, disconnect as patchDisconnect, emptyPatch, feeds, layoutAll, moveNode as patchMoveNode, place, removeNode, sanitisePatch, setLinkMuted, setNodeMuted, setSwitchMode, type Patch, type PatchLink } from "./patch";
 import { chooseDevice, deviceScore, gearIssues, type DeviceRef, type GearIssue } from "./deviceChoice";
 import { ActionHistory, type DoOptions } from "./history";
 import { MacroRecorder } from "./macros";
-import { PIANO_STARTS, addBus, pianoRig, starterRig } from "./rig";
+import { PIANO_STARTS, SEQUENCER_STARTS, addBus, pianoRig, starterRig } from "./rig";
 import type { FxTarget, InputSpec, LooperAction } from "./actions";
 import { RECORDER_PROCESSOR_NAME, recorderWorkletUrl } from "./recorderWorklet";
 
@@ -173,6 +173,7 @@ const PATCH_LAYOUT_KEY = "musickit.looper.patch.layout";
 const PREF_KEY = "musickit.looper.preferred";
 const RIG_KEY = "musickit.looper.rigDone2";
 const PIANO_RIG_KEY = "musickit.looper.pianoRigDone2";
+const SEQ_RIG_KEY = "musickit.looper.seqRigDone";
 type SinkContext = AudioContext & { setSinkId?: (id: string) => Promise<void> };
 const groupName = (i: number) => `Group ${String.fromCharCode(65 + (i % 26))}`;
 const defaultGroupInfos = (): GroupInfo[] => defaultGroups().map((g, i) => ({ ...g, name: groupName(i), colour: GROUP_COLOURS[i % GROUP_COLOURS.length], volume: 1, muted: false, effects: [] }));
@@ -334,6 +335,7 @@ export class LooperEngine {
     this.restoreLayout();
     this.emit();
     this.setupPianos();
+    this.setupSequencers();
   }
 
   /**
@@ -350,6 +352,30 @@ export class LooperEngine {
     const have = this.mixer.list().filter((i) => i.kind === "scalepiano").map((i) => i.id);
     const ids = have.length ? have : PIANO_STARTS.map((st) => this.addScalePianoNow(st)).filter((id): id is number => id !== null);
     if (ids.length) this.addPianoRig(ids);
+    this.history.clear();
+  }
+
+  /**
+   * The default sequencers, once: a drum machine and a bass in every default group, each group with its own patterns (`SEQUENCER_STARTS`),
+   * stopped until started. Skipped when sequencers already exist. Never again after it has run, so removing them sticks. Not part of the history.
+   */
+  private setupSequencers(): void {
+    try {
+      if (window.localStorage.getItem(SEQ_RIG_KEY)) return;
+      window.localStorage.setItem(SEQ_RIG_KEY, "1");
+    } catch {
+      return;
+    }
+    if (this.sequencers.size > 0) return;
+    this.groups.forEach((g, i) => {
+      const start = SEQUENCER_STARTS[i];
+      if (!start) return;
+      const letter = String.fromCharCode(65 + i);
+      const spots = bottomRow(g, 2);
+      ([["drums", start.drums, `Drums ${letter}`], ["bass", start.bass, `Bass ${letter}`]] as const).forEach(([instrument, preset, name], k) => {
+        this.addSequencerNow(undefined, { name, instrument, preset, ...spots[k] });
+      });
+    });
     this.history.clear();
   }
 
@@ -1493,13 +1519,25 @@ export class LooperEngine {
 
   /* ------------------------------------------------------------------ the rest of what an action can do */
 
-  /** Add a sequencer and its strip at once (the strip exists when this returns). `id` asks for a particular id. */
-  addSequencerNow(id?: string): string | null {
+  /**
+   * Add a sequencer and its strip at once (the strip exists when this returns). `id` asks for a particular id; `init` sets its name,
+   * sound and place before its strip and patch element exist, so it is linked to the group it starts in.
+   */
+  addSequencerNow(id?: string, init?: { name?: string; instrument?: string; preset?: string; x?: number; y?: number }): string | null {
     let sid = id && /^[\w-]{1,24}$/.test(id) && !this.sequencers.has(id) ? id : `s${++this.seqCounter}`;
     while (this.sequencers.has(sid)) sid = `s${++this.seqCounter}`;
-    this.makeSequencer(sid);
+    const q = this.makeSequencer(sid);
+    const name = init?.name;
+    // the place first: every change emits, and the first emit gives it its patch link to the group it sits in
+    if (init?.x !== undefined && init.y !== undefined) {
+      const c = clampPoint(init.x, init.y);
+      q.setPos(c.x, c.y);
+      this.routeSequencer(q);
+    }
+    if (init?.instrument !== undefined) q.setInstrument(init.instrument);
+    if (init?.preset !== undefined) q.loadPreset(init.preset);
     const n = this.mixer.sequencerIds().length;
-    const { id: added } = this.mixer.addNow({ kind: "sequencer", name: n === 0 ? "Drums" : `Drums ${n + 1}`, sourceId: sid });
+    const { id: added } = this.mixer.addNow({ kind: "sequencer", name: name ?? (n === 0 ? "Drums" : `Drums ${n + 1}`), sourceId: sid });
     if (added === null) {
       this.disposeSequencer(sid);
       return null;

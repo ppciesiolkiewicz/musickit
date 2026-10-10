@@ -1,6 +1,8 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { PIANO_PRESETS, PIANO_STARTS, pianoRig, starterRig } from "./rig";
+import { PIANO_PRESETS, PIANO_STARTS, SEQUENCER_STARTS, pianoRig, starterRig } from "./rig";
+import { BASS, DRUMS } from "./sequencer";
+import { DEFAULT_GROUPS } from "./layout";
 import { INPUT_PRESETS } from "./inputPresets";
 import { EFFECT_DEFS } from "./effects";
 
@@ -45,5 +47,23 @@ describe("piano rig", () => {
     PIANO_PRESETS.forEach((p) => p.effects.forEach((e) => assert.ok(EFFECT_DEFS[e.kind], e.kind)));
     assert.ok(PIANO_PRESETS.some((p) => p.effects.some((e) => e.kind === "reverb")));
     assert.ok(PIANO_STARTS.length >= 3 && new Set(PIANO_STARTS.map((s) => `${s.root}${s.scale}${s.octave}`)).size === PIANO_STARTS.length, "different settings");
+  });
+});
+
+describe("default sequencers", () => {
+  it("gives every default group its own drum and bass grooves, all of them real presets", () => {
+    assert.equal(SEQUENCER_STARTS.length, DEFAULT_GROUPS);
+    for (const s of SEQUENCER_STARTS) {
+      assert.ok(DRUMS.presets.some((p) => p.id === s.drums && p.id !== "empty"), s.drums);
+      assert.ok(BASS.presets.some((p) => p.id === s.bass && p.id !== "empty"), s.bass);
+    }
+    assert.equal(new Set(SEQUENCER_STARTS.map((s) => s.drums)).size, SEQUENCER_STARTS.length);
+    assert.equal(new Set(SEQUENCER_STARTS.map((s) => s.bass)).size, SEQUENCER_STARTS.length);
+  });
+  it("has presets with one row of sixteen steps per lane", () => {
+    for (const inst of [DRUMS, BASS]) for (const p of inst.presets) {
+      assert.equal(p.rows.length, inst.lanes.length, `${inst.id} ${p.id}`);
+      assert.ok(p.rows.every((r) => r.length === 16), `${inst.id} ${p.id}`);
+    }
   });
 });

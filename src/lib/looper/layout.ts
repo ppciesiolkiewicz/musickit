@@ -70,6 +70,11 @@ export function defaultSpot(groups: GroupLayout[], index: number): { x: number; 
   return clampPoint(g.x + 20 + LOOP_R + col * (LOOP_R * 2 + 12), g.y + 50 + LOOP_R + row * (LOOP_R * 2 + 56));
 }
 
+/** Spots for `n` sequencers side by side along the bottom of a group, under the loops (a loop's controls hang below its circle). */
+export function bottomRow(g: Rect, n: number): { x: number; y: number }[] {
+  return Array.from({ length: n }, (_, i) => clampPoint(g.x + ((i + 0.5) * g.w) / n, g.y + g.h - 88));
+}
+
 const apart = (x: number, y: number, taken: { x: number; y: number }[]) => taken.every((t) => Math.hypot(t.x - x, t.y - y) >= LOOP_R * 1.6);
 
 /** A free spot inside the group, clear of the other circles, or the group centre when it is full. */

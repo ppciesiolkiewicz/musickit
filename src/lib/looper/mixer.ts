@@ -94,7 +94,8 @@ interface Runtime {
   buf: Float32Array<ArrayBuffer> | null;
 }
 
-export const MAX_INPUTS = 8;
+/** room for the default pianos and a drum and bass sequencer in each default group, plus a few devices */
+export const MAX_INPUTS = 20;
 const STORAGE_KEY = "musickit.looper.inputs";
 
 export class InputMixer {
@@ -116,10 +117,9 @@ export class InputMixer {
 
   /* -------------------------------------------------------------- data */
 
+  /** A new project starts with no strips: the on-screen keyboard is added from Add input when wanted. */
   private defaults(): SavedInput[] {
-    const list: SavedInput[] = [];
-    if (this.opts.getExtraSource) list.push({ kind: "extra", name: this.opts.extraLabel ?? "Extra", deviceId: "", mode: "stereo", volume: 1 });
-    return list;
+    return [];
   }
 
   private make(s: SavedInput, connected = false, id?: number): Runtime {

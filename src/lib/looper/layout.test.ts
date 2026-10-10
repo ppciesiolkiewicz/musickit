@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { spotInGroup, spotOutside, LOOP_R, MIN_GROUP_W, STAGE_H, STAGE_W, clampPoint, clampRect, containingGroup, defaultGroups, defaultSpot, resizeRect, MIN_GROUP_H } from "./layout";
+import { bottomRow, spotInGroup, spotOutside, LOOP_R, MIN_GROUP_W, STAGE_H, STAGE_W, clampPoint, clampRect, containingGroup, defaultGroups, defaultSpot, resizeRect, MIN_GROUP_H } from "./layout";
 import { clampParams, defaultParams, sanitiseEffects } from "./effects";
 
 describe("stage layout", () => {
@@ -30,6 +30,17 @@ describe("stage layout", () => {
       assert.equal(containingGroup(gs, s.x, s.y), gs[i % 5].id, `loop ${i}`);
       assert.ok(s.x <= STAGE_W);
     }
+  });
+  it("puts sequencers side by side in each default group, below its first loop", () => {
+    const gs = defaultGroups();
+    gs.forEach((g, i) => {
+      const [a, b] = bottomRow(g, 2);
+      assert.equal(containingGroup(gs, a.x, a.y), g.id);
+      assert.equal(containingGroup(gs, b.x, b.y), g.id);
+      assert.ok(b.x - a.x >= LOOP_R * 1.6, "apart");
+      const loop = defaultSpot(gs, i);
+      assert.ok(a.y - loop.y >= LOOP_R * 3, "under the loop and its controls");
+    });
   });
 });
 

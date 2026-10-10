@@ -62,6 +62,15 @@ export const PIANO_STARTS: { name: string; root: number; scale: string; octave: 
   { name: "Piano E blues", root: 4, scale: "blues", octave: 2 },
 ];
 
+/** The default sequencers of each default group, in group order: a drum machine and a bass, each group with its own groove. */
+export const SEQUENCER_STARTS: { drums: string; bass: string }[] = [
+  { drums: "rock", bass: "root" },
+  { drums: "four", bass: "octave" },
+  { drums: "hiphop", bass: "walk" },
+  { drums: "shuffle", bass: "offbeat" },
+  { drums: "halftime", bass: "syncop" },
+];
+
 /** The starter piano rig: each piano gets the reverb buses (Dry piano open), each playing to the master and into every group's recorder. */
 export function pianoRig(a: {
   /** the patch ids of the pianos, e.g. "in:4" */
