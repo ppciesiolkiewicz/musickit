@@ -241,7 +241,7 @@ export default function LooperApp() {
         <button type="button" className={ibtn} disabled={!ready || snap.channels.every((c) => c.state === "empty")} onClick={() => engine.do({ type: "loop.clearAll" })} title="Clear every loop" aria-label="Clear every loop"><Icon name="trash" /></button>
         <span className="text-xs text-slate-400">{snap.loopSeconds === null ? "No loop yet" : `${snap.loopSeconds.toFixed(2)} s${loopBars(snap)}`}</span>
         <LoopBar getPosition={getPosition} />
-        <AddWidgetMenu engine={engine} snap={snap} canPatch={widgetMode} names={Object.fromEntries(EFFECT_KINDS.map((k) => [k, EFFECT_DEFS[k].name]))} />
+        <AddWidgetMenu engine={engine} snap={snap} canPatch={view === "lines"} names={Object.fromEntries(EFFECT_KINDS.map((k) => [k, EFFECT_DEFS[k].name]))} />
     </>
   );
   const looping = (fill: boolean) => (
@@ -255,7 +255,7 @@ export default function LooperApp() {
 
   return (
     <div ref={pageRef} className="relative flex flex-col">
-      {widgetMode && ready && <ConnectionLayer engine={engine} snap={snap} mode={view === "lines" ? "lines" : "colors"} cards={view === "lines" ? "none" : "float"} wrapper={pageRef} />}
+      {widgetMode && ready && <ConnectionLayer engine={engine} snap={snap} mode={view === "lines" ? "lines" : "colors"} wrapper={pageRef} />}
       <div className="pointer-events-none sticky top-0 z-30 flex items-start justify-between gap-2 px-1 py-1">
         <div className="pointer-events-auto"><MetronomeBar engine={engine} snap={snap} ready={ready} /></div>
         <div className="pointer-events-auto flex gap-1">
@@ -314,17 +314,36 @@ export default function LooperApp() {
         </FloatingWindow>
       ))}
       <StartupLoader engine={engine} snap={snap} />
-      {snap.status === "ready" && snap.gear.length > 0 && !gearDismissed && (
-        <Modal title="Connect your gear" onClose={() => setGearDismissed(true)}>
-          <ul className="flex flex-col gap-1 text-sm text-slate-200">
-            {snap.gear.map((g, i) => (
-              <li key={i} className="flex items-center gap-2"><Icon name={g.kind.startsWith("output") ? "volume-2" : "mic"} size={14} className="text-slate-400" />{g.text}</li>
-            ))}
-          </ul>
-          <p className="mt-2 text-xs text-slate-400">An audio interface is preferred over the computer's own microphone and speakers. Your last choice is remembered.</p>
-          <div className="mt-3 flex gap-2">
-            <button type="button" disabled={gearBusy} className="rounded-lg border border-sky-500 bg-sky-500/10 px-3 py-1.5 text-sm text-sky-100 hover:bg-sky-500/20 disabled:opacity-50" onClick={async () => { setGearBusy(true); try { await engine.connectGear(true); } finally { setGearBusy(false); } }}>{gearBusy ? "Connecting…" : "Connect"}</button>
-            <button type="button" className="rounded-lg border border-slate-700 px-3 py-1.5 text-sm text-slate-300 hover:border-slate-500" onClick={() => setGearDismissed(true)}>Not now</button>
+      {snap.status === "ready" && !gearDismissed && (
+        <Modal title="Your devices" onClose={() => setGearDismissed(true)}>
+          <div className="flex flex-col gap-3 text-sm text-slate-200">
+            {snap.gear.length > 0 && (
+              <ul className="flex flex-col gap-1" role="alert">
+                {snap.gear.map((g, i) => (
+                  <li key={i} className="flex items-center gap-2 rounded-lg border border-amber-400/50 bg-amber-400/10 px-2 py-1.5 text-amber-100"><Icon name="alert-triangle" size={14} className="shrink-0" />{g.text}</li>
+                ))}
+              </ul>
+            )}
+            <div>
+              <h3 className="mb-1 flex items-center gap-1.5 text-xs font-medium text-slate-400"><Icon name="mic" size={14} />Inputs</h3>
+              <ul className="flex flex-col gap-0.5">
+                {snap.devices.map((d) => <li key={d.id} className="truncate">{d.label}</li>)}
+                {snap.devices.length === 0 && <li className="text-xs text-slate-500">None listed. Names appear once the browser allows the microphone.</li>}
+              </ul>
+            </div>
+            <div>
+              <h3 className="mb-1 flex items-center gap-1.5 text-xs font-medium text-slate-400"><Icon name="volume-2" size={14} />Outputs</h3>
+              <ul className="flex flex-col gap-0.5">
+                {snap.outputs.map((o) => <li key={o.id} className="flex items-center gap-1.5 truncate">{o.label}{o.id === snap.outputId && <span className="rounded border border-slate-700 px-1 text-[10px] text-slate-400">in use</span>}</li>)}
+                {snap.outputs.length === 0 && <li className="text-xs text-slate-500">The system output.</li>}
+              </ul>
+            </div>
+            <div className="flex gap-2">
+              {(snap.devices.length === 0 || snap.gear.some((g) => g.kind === "input-idle")) && (
+                <button type="button" disabled={gearBusy} className="rounded-lg border border-sky-500 bg-sky-500/10 px-3 py-1.5 text-sm text-sky-100 hover:bg-sky-500/20 disabled:opacity-50" onClick={async () => { setGearBusy(true); try { await engine.connectGear(true); } finally { setGearBusy(false); } }}>{gearBusy ? "Looking…" : snap.gear.some((g) => g.kind === "input-idle") ? "Connect inputs" : "Detect devices"}</button>
+              )}
+              <button type="button" className="ml-auto rounded-lg border border-slate-700 px-3 py-1.5 text-sm text-slate-300 hover:border-slate-500" onClick={() => setGearDismissed(true)}>Close</button>
+            </div>
           </div>
         </Modal>
       )}

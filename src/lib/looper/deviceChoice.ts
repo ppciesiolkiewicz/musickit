@@ -36,42 +36,25 @@ export function chooseDevice(list: DeviceRef[], remembered?: DeviceRef | null): 
 }
 
 export interface GearIssue {
-  kind: "input-idle" | "input-missing" | "input-error" | "input-suggest" | "output-missing" | "output-suggest";
-  /** the strip, for the input issues that concern one */
-  strip?: number;
+  kind: "input-idle" | "input-missing" | "input-error";
+  /** the strip the issue concerns */
+  strip: number;
   text: string;
 }
 
-/** What is not connected that probably should be: the modal lists these. Empty when everything looks right. */
+/**
+ * What is wrong with the inputs that exist: one that is not connected, one whose device is not plugged in, one that failed.
+ * Nothing is suggested: devices are only connected for inputs that already use them. Empty when everything looks right.
+ */
 export function gearIssues(a: {
   strips: { id: number; name: string; deviceId: string; connected: boolean; error: string | null }[];
   devices: DeviceRef[];
-  outputs: DeviceRef[];
-  outputId: string;
-  canChooseOutput: boolean;
-  prefIn: DeviceRef | null;
-  prefOut: DeviceRef | null;
 }): GearIssue[] {
   const out: GearIssue[] = [];
   for (const s of a.strips) {
     if (s.error) out.push({ kind: "input-error", strip: s.id, text: `${s.name}: ${s.error}` });
+    else if (a.devices.length && s.deviceId && !a.devices.some((d) => d.id === s.deviceId)) out.push({ kind: "input-missing", strip: s.id, text: `${s.name}: its device is not plugged in` });
     else if (!s.connected) out.push({ kind: "input-idle", strip: s.id, text: `${s.name} is not connected` });
-    else if (a.devices.length && s.deviceId && !a.devices.some((d) => d.id === s.deviceId)) out.push({ kind: "input-missing", strip: s.id, text: `${s.name} is not plugged in` });
-  }
-  if (!a.strips.length) {
-    // a fresh project is offered the guitar rig on an audio interface, if one is plugged in; an input used before is asked for first
-    const prev = a.prefIn;
-    const iface = chooseDevice(a.devices, null);
-    if (!prev && iface && deviceScore(iface.label) > 0) out.push({ kind: "input-suggest", text: `Start a guitar rig on ${iface.label}` });
-    if (prev) {
-      const there = a.devices.find((d) => d.id === prev.id) ?? a.devices.find((d) => d.label && d.label === prev.label);
-      out.push(there ? { kind: "input-suggest", text: `Use ${there.label} as an input` } : { kind: "input-missing", text: `${prev.label} is not plugged in` });
-    }
-  }
-  if (a.canChooseOutput) {
-    const want = chooseDevice(a.outputs, a.prefOut);
-    if (want && want.id !== a.outputId) out.push({ kind: "output-suggest", text: `Play through ${want.label}` });
-    else if (!want && a.prefOut && a.outputs.length) out.push({ kind: "output-missing", text: `${a.prefOut.label} is not plugged in, so sound uses ${a.outputs.find((o) => o.id === a.outputId)?.label ?? "the system output"}` });
   }
   return out;
 }

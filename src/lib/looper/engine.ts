@@ -9,7 +9,7 @@ import { GROUP_COLOURS, clampPoint, clampRect, containingGroup, defaultGroups, d
 import { InputMixer, MAX_INPUT_GAIN, describeError, type InputInfo } from "./mixer";
 import { PatchGraph } from "./patchAudio";
 import { activeLinks, addNode as patchAddNode, connect as patchConnect, disconnect as patchDisconnect, emptyPatch, feeds, layoutAll, moveNode as patchMoveNode, place, removeNode, sanitisePatch, setLinkMuted, setNodeMuted, setSwitchMode, type Patch, type PatchLink } from "./patch";
-import { chooseDevice, gearIssues, type DeviceRef, type GearIssue } from "./deviceChoice";
+import { gearIssues, type DeviceRef, type GearIssue } from "./deviceChoice";
 import { ActionHistory, type DoOptions } from "./history";
 import { MacroRecorder } from "./macros";
 import { starterRig } from "./rig";
@@ -293,7 +293,7 @@ export class LooperEngine {
       masterEffects: this.masterEffects.map((e) => ({ ...e, params: { ...e.params } })),
       patch: this.patch,
       patchActive: activeLinks(this.patch).map((l) => l.id),
-      gear: this.meta.status === "ready" ? gearIssues({ strips: this.mixer.list().filter((i) => i.kind === "device").map((i) => ({ id: i.id, name: i.name, deviceId: i.deviceId, connected: i.connected, error: i.error })), devices: this.meta.devices, outputs: this.meta.outputs, outputId: this.meta.outputId, canChooseOutput: this.meta.canChooseOutput, prefIn: this.prefs.in ?? null, prefOut: this.prefs.out ?? null }) : [],
+      gear: this.meta.status === "ready" ? gearIssues({ strips: this.mixer.list().filter((i) => i.kind === "device").map((i) => ({ id: i.id, name: i.name, deviceId: i.deviceId, connected: i.connected, error: i.error })), devices: this.meta.devices }) : [],
       groups: this.groups.map((g) => ({ ...g, effects: g.effects.map((e) => ({ ...e, params: { ...e.params } })) })),
       sampleRate: this.ctx?.sampleRate ?? 0,
     };
@@ -892,7 +892,6 @@ export class LooperEngine {
     if (!(await this.micGranted())) return;
     const wanted = (): DeviceRef[] => {
       const out: DeviceRef[] = this.mixer.list().filter((i) => i.kind === "device" && i.deviceId).map((i) => ({ id: i.deviceId, label: i.name }));
-      if (this.prefs.in?.id) out.push(this.prefs.in);
       return out;
     };
     const missing = () => wanted().some((w) => !this.meta.devices.some((d) => d.id === w.id || (w.label && d.label === w.label)));
@@ -925,37 +924,23 @@ export class LooperEngine {
   }
 
   /**
-   * Connect what looks right without being asked, when that needs no prompt: the last (or best-looking) output, and the saved
-   * inputs when the browser already allows the microphone. An audio interface wins over the computer's own parts.
-   * Anything left over is listed in `snapshot.gear` for the "Connect your gear" dialog, whose button is the person's action.
+   * At start, without a prompt: bring back the output chosen last time, and reconnect the saved inputs when the browser already allows
+   * the microphone. Devices are only connected for inputs that exist. What is still wrong is listed in `snapshot.gear` for the devices dialog.
    */
   private async autoConnect(): Promise<void> {
-    if (this.meta.canChooseOutput && this.prefs.out?.id !== "") {
-      const want = chooseDevice(this.meta.outputs, this.prefs.out);
-      if (want && want.id !== this.meta.outputId) await this.setOutputDevice(want.id, false);
+    // the output chosen last time comes back if it is there; nothing is chosen otherwise
+    const last = this.prefs.out;
+    if (this.meta.canChooseOutput && last && last.id !== "") {
+      const there = this.meta.outputs.find((o) => o.id === last.id);
+      if (there && there.id !== this.meta.outputId) await this.setOutputDevice(there.id, false);
     }
     if (await this.micGranted()) await this.connectGear(false);
   }
 
-  /** Connect idle input strips and, with none set up, the best-looking input. `ask` = the person pressed the button (a prompt is fine). */
+  /** Connect the input strips that are not connected. `ask` = the person pressed the button (a prompt is fine). No input is ever added for them. */
   async connectGear(ask = true): Promise<void> {
     if (ask) await this.requestDeviceAccess();
     for (const i of this.mixer.list()) if (i.kind === "device" && (!i.connected || i.error)) await this.mixer.connect(i.id);
-    const devices = this.meta.devices;
-    if (!this.mixer.list().some((i) => i.kind === "device") && devices.length && ask) {
-      const want = chooseDevice(devices, this.prefs.in);
-      if (want) {
-        const id = this.addInput({ kind: "device", name: want.label.replace(/\s*\(.*\)\s*$/, ""), deviceId: want.id, mode: "left" });
-        if (id !== null) {
-          this.emit();
-          this.addRig(id);
-        }
-      }
-    }
-    if (ask && this.meta.canChooseOutput) {
-      const want = chooseDevice(this.meta.outputs, this.prefs.out);
-      if (want && want.id !== this.meta.outputId) await this.setOutputDevice(want.id);
-    }
     this.emit();
   }
 

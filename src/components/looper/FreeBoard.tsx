@@ -4,7 +4,7 @@ import { useState, type ReactNode } from "react";
 import Icon from "../Icon";
 import LoopStage from "./LoopStage";
 import { AddInputModal, InputStrip, MasterStrip } from "./Mixer";
-import { NodeBody, patchName } from "./PatchCards";
+import { NodeBody, patchName } from "./PatchNode";
 import { WidgetBoard } from "@/features/widgets";
 import { MAX_INPUTS, type LooperEngine, type LooperSnapshot } from "@/lib/looper/engine";
 import type { DefaultLayout, Layout } from "@/features/widgets/board";

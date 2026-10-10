@@ -21,21 +21,15 @@ describe("device choice", () => {
 });
 
 describe("gear issues", () => {
-  const base = { strips: [], devices: [mac, scarlett], outputs: [speakers, { id: "o2", label: "Focusrite USB Audio" }], outputId: "sp", canChooseOutput: true, prefIn: null, prefOut: null };
-  it("offers a fresh project the guitar rig on an interface, and nothing for the built-in mic", () => {
-    assert.deepEqual(gearIssues(base).map((i) => i.kind), ["input-suggest", "output-suggest"]);
-    assert.deepEqual(gearIssues({ ...base, devices: [mac] }).map((i) => i.kind), ["output-suggest"]);
+  const strip = { id: 1, name: "Scarlett", deviceId: "s", connected: true, error: null };
+  it("says nothing when there are no inputs, whatever is plugged in", () => {
+    assert.deepEqual(gearIssues({ strips: [], devices: [mac, scarlett] }), []);
   });
-  it("offers an input used before, or says it is not plugged in", () => {
-    assert.deepEqual(gearIssues({ ...base, prefIn: { id: "s", label: "Scarlett" } }).map((i) => i.kind), ["input-suggest", "output-suggest"]);
-    assert.ok(gearIssues({ ...base, prefIn: { id: "zz", label: "Gone" } }).some((i) => i.kind === "input-missing"));
-  });
-  it("is quiet when things are connected", () => {
-    const ok = { ...base, strips: [{ id: 0, name: "Guitar", deviceId: "s", connected: true, error: null }], outputId: "o2" };
-    assert.deepEqual(gearIssues(ok), []);
-  });
-  it("reports idle, missing and failing inputs and a missing output", () => {
-    const i = gearIssues({ ...base, strips: [{ id: 0, name: "A", deviceId: "s", connected: false, error: null }, { id: 1, name: "B", deviceId: "gone", connected: true, error: null }, { id: 2, name: "C", deviceId: "s", connected: true, error: "busy" }], outputs: [speakers], prefOut: { id: "x", label: "Focusrite USB Audio" } });
-    assert.deepEqual(i.map((x) => x.kind), ["input-idle", "input-missing", "input-error", "output-missing"]);
+  it("flags an input that is not connected, whose device is missing, or that failed", () => {
+    assert.deepEqual(gearIssues({ strips: [strip], devices: [mac, scarlett] }), []);
+    assert.deepEqual(gearIssues({ strips: [{ ...strip, connected: false }], devices: [scarlett] }).map((i) => i.kind), ["input-idle"]);
+    assert.deepEqual(gearIssues({ strips: [{ ...strip, connected: false }], devices: [mac] }).map((i) => i.kind), ["input-missing"], "unplugged wins over not connected");
+    assert.deepEqual(gearIssues({ strips: [{ ...strip, error: "busy" }], devices: [scarlett] }).map((i) => i.kind), ["input-error"]);
+    assert.deepEqual(gearIssues({ strips: [{ ...strip, deviceId: "" , connected: false }], devices: [mac] }).map((i) => i.kind), ["input-idle"], "the system default needs no particular device");
   });
 });

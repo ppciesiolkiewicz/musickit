@@ -1,12 +1,10 @@
 "use client";
 
-import { useState, type PointerEvent as RPointerEvent } from "react";
+import { useState } from "react";
 import Icon from "@/components/Icon";
 import EffectsModal from "./EffectsModal";
 import { switchChoice, type PatchLink, type PatchNode } from "@/lib/looper/patch";
 import type { LooperEngine, LooperSnapshot } from "@/lib/looper/engine";
-
-export const CARD_W = 176;
 
 /** The name an element goes by in the patch. */
 export function patchName(snap: LooperSnapshot, n: PatchNode): string {
@@ -87,61 +85,5 @@ export function NodeBody({ engine, snap, node: n }: { engine: LooperEngine; snap
         />
       )}
     </div>
-  );
-}
-
-/**
- * The effect chains and switches of the patch, as cards floating over the page. Positions are the nodes' own x and y.
- */
-export default function PatchCards({ engine, snap }: { engine: LooperEngine; snap: LooperSnapshot }) {
-  const patch = snap.patch;
-  const [pos, setPos] = useState<Record<string, { x: number; y: number }>>({});
-
-  const startMove = (n: PatchNode) => (e: RPointerEvent) => {
-    if ((e.target as HTMLElement).closest("button")) return;
-    e.preventDefault();
-    e.stopPropagation();
-    const origin = pos[n.id] ?? { x: n.x, y: n.y };
-    const sx = e.clientX;
-    const sy = e.clientY;
-    let last = origin;
-    const move = (ev: PointerEvent) => {
-      last = { x: Math.max(0, origin.x + (ev.clientX - sx)), y: Math.max(0, origin.y + (ev.clientY - sy)) };
-      setPos((p) => ({ ...p, [n.id]: last }));
-    };
-    const up = () => {
-      window.removeEventListener("pointermove", move);
-      window.removeEventListener("pointerup", up);
-      if (last.x !== origin.x || last.y !== origin.y) engine.do({ type: "patch.move", id: n.id, x: Math.round(last.x), y: Math.round(last.y) });
-      setPos((p) => {
-        const { [n.id]: gone, ...rest } = p;
-        void gone;
-        return rest;
-      });
-    };
-    window.addEventListener("pointermove", move);
-    window.addEventListener("pointerup", up);
-  };
-
-  const cards = patch.nodes.filter((n) => n.kind === "fx" || n.kind === "switch");
-
-  return (
-    <>
-      {cards.map((n) => {
-        const p = pos[n.id] ?? { x: n.x, y: n.y };
-        const label = patchName(snap, n);
-        return (
-          <div key={n.id} data-patch-id={n.id} className={`pointer-events-auto absolute z-10 rounded-lg border bg-slate-900 text-xs shadow-xl shadow-black/50 ${n.muted ? "border-slate-700 opacity-60" : "border-slate-500"}`} style={{ left: p.x, top: p.y, width: CARD_W }}>
-            <div className="flex cursor-grab touch-none items-center gap-1 rounded-t-lg border-b border-slate-800 bg-slate-800/70 px-1.5 py-1 active:cursor-grabbing" onPointerDown={startMove(n)}>
-              <Icon name={n.kind === "switch" ? "split" : "sliders-horizontal"} size={13} className="shrink-0 text-slate-400" />
-              <span className="min-w-0 flex-1 truncate font-medium text-slate-100" title={label}>{label}</span>
-              <button type="button" className="text-slate-400 hover:text-slate-100" aria-pressed={n.muted} onClick={() => engine.do({ type: "patch.mute", what: "node", id: n.id, muted: !n.muted })} title={n.muted ? "Unmute" : "Mute"} aria-label={`${n.muted ? "Unmute" : "Mute"} ${label}`}><Icon name={n.muted ? "volume-x" : "volume-2"} size={13} /></button>
-              <button type="button" className="text-slate-500 hover:text-rose-300" onClick={() => engine.do({ type: "patch.removeNode", id: n.id })} title="Remove" aria-label={`Remove ${label}`}><Icon name="x" size={13} /></button>
-            </div>
-            <NodeBody engine={engine} snap={snap} node={n} />
-          </div>
-        );
-      })}
-    </>
   );
 }

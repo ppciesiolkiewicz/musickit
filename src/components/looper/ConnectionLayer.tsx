@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, type PointerEvent as RPointerEvent, type RefObject } from "react";
 import Icon from "@/components/Icon";
-import PatchCards, { patchName } from "./PatchCards";
+import { patchName } from "./PatchNode";
 import { whyNot, type PatchKind, type PatchLink, type PatchNode, type Port } from "@/lib/looper/patch";
 import { linkColour, sourceColours } from "@/lib/looper/patchView";
 import type { LooperEngine, LooperSnapshot } from "@/lib/looper/engine";
@@ -35,12 +35,12 @@ function visibleRect(el: HTMLElement): DOMRect | null {
 
 /**
  * Draws the patch over the page. Every sound maker, group and the master that carries a `data-patch-id` gets coloured
- * connectors; effect chains and switches are small cards that float over the page. With `mode: "lines"` the connections
+ * connectors; With `mode: "lines"` the connections
  * are drawn as wires as well. Drag from a connector on the right of a strip or card onto a group (top half: what its loops
  * record, bottom half: what you hear through it), the master, a chain or a switch. Click a connector or wire to mute or remove it.
  * It only calls engine actions, so everything is undoable.
  */
-export default function ConnectionLayer({ engine, snap, mode, cards = "float", wrapper }: { engine: LooperEngine; snap: LooperSnapshot; mode: "colors" | "lines"; cards?: "float" | "none"; wrapper: RefObject<HTMLElement | null> }) {
+export default function ConnectionLayer({ engine, snap, mode, wrapper }: { engine: LooperEngine; snap: LooperSnapshot; mode: "colors" | "lines"; wrapper: RefObject<HTMLElement | null> }) {
   const patch = snap.patch;
   const [rects, setRects] = useState<Record<string, Rect>>({});
   const [drag, setDrag] = useState<{ from: string; at: Pt } | null>(null);
@@ -218,8 +218,6 @@ export default function ConnectionLayer({ engine, snap, mode, cards = "float", w
           </span>
         );
       })}
-      {/* effect chains and switches float over the page, unless they are widgets of the board */}
-      {cards === "float" && <PatchCards engine={engine} snap={snap} />}
       {selLink && selDrawn && (
         <div className="pointer-events-auto absolute z-10 flex items-center gap-1.5 rounded-lg border border-slate-600 bg-slate-950 px-2 py-1 text-xs text-slate-200 shadow-xl" style={{ left: Math.max(4, selDrawn.b.x - 260), top: Math.max(4, selDrawn.b.y - 36) }}>
           <span className="max-w-[24ch] truncate">{nameOf(selLink.from)} → {nameOf(selLink.to)}{selLink.port === "rec" ? " (record)" : ""}</span>
