@@ -11,6 +11,7 @@ import { InputMixer, MAX_INPUT_GAIN, describeError, type InputInfo } from "./mix
 import { PatchGraph } from "./patchAudio";
 import { EDITABLE, activeLinks, addNode as patchAddNode, connect as patchConnect, disconnect as patchDisconnect, emptyPatch, feeds, layoutAll, moveNode as patchMoveNode, place, removeNode, sanitisePatch, setLinkMuted, setNodeMuted, setSwitchMode, type Patch, type PatchLink } from "./patch";
 import { DEFAULT_CHANNEL, adoptPlan, chooseDevice, defaultInputName, defaultRole, deviceScore, gearIssues, type DefaultRole, type DeviceRef, type GearIssue } from "./deviceChoice";
+import { listDevices, sameDevices, singleFlight } from "./deviceList";
 import { ActionHistory, type DoOptions } from "./history";
 import { MacroRecorder } from "./macros";
 import { GROUP_STARTS, PIANO_STARTS, SEQUENCER_STARTS, addBus, pianoRig, starterRig, vocalRig } from "./rig";
@@ -288,6 +289,17 @@ export class LooperEngine {
   private spCounter = 0;
 
   private listeners = new Set<() => void>();
+  /** the browser says devices changed: it fires in bursts (and again when the tab gets focus back), so list them once it settles */
+  private deviceChangeTimer: ReturnType<typeof setTimeout> | null = null;
+  private deviceWaiters = new Set<() => void>();
+  private readonly onDeviceChange = () => {
+    if (this.deviceChangeTimer) clearTimeout(this.deviceChangeTimer);
+    this.deviceChangeTimer = setTimeout(() => {
+      this.deviceChangeTimer = null;
+      void this.refreshDevices().catch(() => undefined);
+      this.deviceWaiters.forEach((w) => w());
+    }, 300);
+  };
   private snap: LooperSnapshot;
 
   constructor(private options: LooperOptions = {}) {
@@ -1036,7 +1048,7 @@ export class LooperEngine {
     } catch {
       /* denied: the list will have generic names */
     }
-    await this.refreshDevices().catch(() => undefined);
+    await this.refreshDevices(true).catch(() => undefined);
   }
 
   /** Start the audio engine and open every audio input that is set up in the mixer. */
@@ -1066,7 +1078,8 @@ export class LooperEngine {
       } catch {
         /* ignore */
       }
-      navigator.mediaDevices?.addEventListener?.("devicechange", () => void this.refreshDevices());
+      // a listener, not a second one: "Try again" runs this again, and the same function is only added once
+      navigator.mediaDevices?.addEventListener?.("devicechange", this.onDeviceChange);
       await this.waitForRemembered();
       this.emit({ status: "ready" });
       await this.autoConnect().catch(() => undefined);
@@ -1145,13 +1158,35 @@ export class LooperEngine {
     mute.connect(ctx.destination);
   }
 
-  async refreshDevices(): Promise<void> {
+  /**
+   * List the audio devices. Callers that overlap share one listing, and the page re-renders only when the list changed.
+   * `fresh`: a listing already running may have started before access was given (no names yet), so wait for it and list again.
+   */
+  async refreshDevices(fresh = false): Promise<void> {
+    if (fresh) await this.listDevicesOnce().catch(() => undefined);
+    return this.listDevicesOnce();
+  }
+
+  private readonly listDevicesOnce = singleFlight(async () => {
     if (!navigator.mediaDevices?.enumerateDevices) return;
-    const all = await navigator.mediaDevices.enumerateDevices();
-    const devices = all.filter((d) => d.kind === "audioinput" && d.deviceId !== "default" && d.deviceId !== "communications").map((d, i) => ({ id: d.deviceId, label: d.label || `Input ${i + 1}` }));
-    const outputs = all.filter((d) => d.kind === "audiooutput" && d.deviceId !== "default" && d.deviceId !== "communications").map((d, i) => ({ id: d.deviceId, label: d.label || `Output ${i + 1}` }));
-    this.emit({ devices, outputs, canChooseOutput: this.ctx ? typeof (this.ctx as SinkContext).setSinkId === "function" : false });
+    const { devices, outputs } = listDevices(await navigator.mediaDevices.enumerateDevices());
+    const canChooseOutput = this.ctx ? typeof (this.ctx as SinkContext).setSinkId === "function" : false;
+    if (sameDevices(devices, this.meta.devices) && sameDevices(outputs, this.meta.outputs) && canChooseOutput === this.meta.canChooseOutput) return;
+    this.emit({ devices, outputs, canChooseOutput });
     this.adoptDevices();
+  });
+
+  /** Resolves on the next settled device change, or after `ms`. */
+  private nextDeviceChange(ms: number): Promise<void> {
+    return new Promise((resolve) => {
+      const done = () => {
+        clearTimeout(t);
+        this.deviceWaiters.delete(done);
+        resolve();
+      };
+      const t = setTimeout(done, ms);
+      this.deviceWaiters.add(done);
+    });
   }
 
   /** Play everything (loops, live monitoring, metronome, piano) through this output. "" = the system default. Needs a browser with AudioContext.setSinkId. */
@@ -1177,8 +1212,9 @@ export class LooperEngine {
     };
     const missing = () => wanted().some((w) => !this.meta.devices.some((d) => d.id === w.id || (w.label && d.label === w.label)));
     const t0 = Date.now();
+    // a device that arrives fires devicechange (which lists them again); look once a second too, in case it came before the listener
     while (missing() && Date.now() - t0 < maxMs) {
-      await new Promise((r) => setTimeout(r, 400));
+      await this.nextDeviceChange(Math.min(1000, maxMs - (Date.now() - t0)));
       await this.refreshDevices().catch(() => undefined);
     }
   }
@@ -1350,9 +1386,8 @@ export class LooperEngine {
   /** Connect the input strips that are not connected. `ask` = the person pressed the button (a prompt is fine). No input is ever added for them. */
   async connectGear(ask = true): Promise<void> {
     if (ask) {
+      // lists the devices afterwards, so names are visible now: a strip still waiting for its interface can take it (the vocal the computer's mic when there is none)
       await this.requestDeviceAccess();
-      // names are visible now, so a strip still waiting for its interface can take it (the vocal the computer's mic when there is none)
-      await this.refreshDevices().catch(() => undefined);
       this.adoptDevices(true);
     }
     // a strip still waiting for its interface (no device) is never opened: that would be the computer's own mic
@@ -2360,6 +2395,10 @@ export class LooperEngine {
 
   dispose() {
     this.capture = null;
+    navigator.mediaDevices?.removeEventListener?.("devicechange", this.onDeviceChange);
+    if (this.deviceChangeTimer) clearTimeout(this.deviceChangeTimer);
+    this.deviceChangeTimer = null;
+    this.deviceWaiters.forEach((w) => w());
     this.tail = null;
     if (this.transportTimer) clearInterval(this.transportTimer);
     this.transportTimer = null;

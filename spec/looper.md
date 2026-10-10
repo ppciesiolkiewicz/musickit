@@ -57,7 +57,7 @@ Microphone permission and a secure context (HTTPS or localhost) are required. Th
 
 ## Starting and microphone permission
 
-There is no "Start looper" button. The audio engine starts on the first click or key press on the page (browsers need a gesture) and opens no microphone. A device strip asks for microphone access only when the person adds it in the Add input dialog, presses "Detect devices" there, or presses "Connect" on a saved strip (saved device strips come back disconnected). New installs start with only the software keyboard strip. The keyboard window opens only from the keyboard strip in the mixer.
+The page stays covered until the audio runs (browsers need a gesture to start it): a "Start the looper" screen, which a click on it or any key press dismisses, then the startup loader. Starting opens no microphone. A device strip asks for microphone access only when the person adds it in the Add input dialog, presses "Detect devices" there, or presses "Connect" on a saved strip (saved device strips come back disconnected). New installs start with only the software keyboard strip. The keyboard window opens only from the keyboard strip in the mixer.
 
 ## Metronome and quantising
 
@@ -195,7 +195,7 @@ While a take waits to start (count-in or next loop boundary) the loop circle sho
 - Not verified in a browser: the permission query, device ranking on real names, the dialog. Ranking is by name patterns, so an unusual interface name may not be recognised.
 
 ## Startup loader
-- While the audio starts (right after the first click or key press) a small pill at the top shows the output the sound goes to; it goes away as soon as the engine is ready and never blocks the page. Only a start error is a dialog (with "Try again"). It stays a little longer only while it waits for a remembered interface (see above). Removing the last device input forgets it as the preferred input, so the Connect dialog does not offer it again.
+- While the audio starts (right after the Start click or a key press) a full-page loader shows the output the sound goes to, so nothing can be used half started; it goes away as soon as the engine is ready. A start error is a dialog (with "Try again"). It stays a little longer only while it waits for a remembered interface (see above). Removing the last device input forgets it as the preferred input, so the Connect dialog does not offer it again.
 - The metronome bar always shows the click button: a bell when the click is audible, a crossed bell when silenced; it only changes the click, never the beat or quantising.
 
 ## Views and connections
