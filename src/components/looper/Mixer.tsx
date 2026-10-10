@@ -335,8 +335,8 @@ export function BusList({ engine, snap }: { engine: LooperEngine; snap: LooperSn
   );
 }
 
-/** The buses and the master together (the fixed layout's section). */
-function Buses({ engine, snap }: { engine: LooperEngine; snap: LooperSnapshot }) {
+/** The buses and the master together: the fixed layout's section and the Buses widget. */
+export function Buses({ engine, snap }: { engine: LooperEngine; snap: LooperSnapshot }) {
   return (
     <div className="flex flex-col gap-1" aria-label="Buses and master">
       <h3 className="flex items-center gap-1.5 px-1 text-xs font-medium text-slate-300"><Icon name="plug" size={16} className="text-slate-400" />Buses</h3>

@@ -31,7 +31,7 @@ export function starterRig(a: {
     const effects: (FxSpec & { id: string })[] = p.effects.map((e, j) => ({ id: `rig${tag}${i}e${j}`, kind: e.kind, ...(e.post ? { post: true } : {}), ...(e.params ? { params: e.params } : {}) }));
     actions.push({ type: "patch.node", node: { id: chains[i], kind: "fx", x: at.x + i * 196, y: at.y, name: p.name, effects } });
   });
-  actions.push({ type: "patch.node", node: { id: switchId, kind: "switch", x: at.x + 196, y: at.y + 200, name: "Sound", outMulti: true } });
+  actions.push({ type: "patch.node", node: { id: switchId, kind: "switch", x: at.x + 196, y: at.y + 200, name: "Guitar Switch", outMulti: true } });
   chains.forEach((c, i) => actions.push({ type: "patch.link", link: { id: `l${tag}a${i}`, from: a.input, to: c } }));
   chains.forEach((c, i) => actions.push({ type: "patch.link", link: { id: `l${tag}b${i}`, from: c, to: switchId } }));
   actions.push({ type: "patch.link", link: { id: `l${tag}m`, from: switchId, to: "master" } });

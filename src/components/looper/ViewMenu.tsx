@@ -39,9 +39,9 @@ export default function ViewMenu({ view, onChange, btnClass }: { view: View; onC
   const current = VIEWS.find((v) => v.id === view) ?? VIEWS[1];
   return (
     <>
-      <button ref={btn} data-viewmenu type="button" className={`${btnClass} gap-1 ${open ? "border-sky-500" : ""}`} aria-haspopup="menu" aria-expanded={open} onClick={toggle} title={`View: ${current.label}`} aria-label={`View: ${current.label}`}>
+      <button ref={btn} data-viewmenu type="button" className={`${btnClass} !flex items-center justify-center gap-0.5 !px-1.5 ${open ? "border-sky-500" : ""}`} aria-haspopup="menu" aria-expanded={open} onClick={toggle} title={`View: ${current.label}`} aria-label={`View: ${current.label}`}>
         <Icon name={current.icon} />
-        <Icon name="chevron-right" size={12} className="rotate-90 text-slate-400" />
+        <Icon name="chevron-right" size={11} className="rotate-90 text-slate-400" />
       </button>
       {open && typeof document !== "undefined" &&
         createPortal(

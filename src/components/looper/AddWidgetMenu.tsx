@@ -82,11 +82,11 @@ export default function AddWidgetMenu({ engine, snap, names, canPatch = false }:
   ) : (
     <>
       <button type="button" className={item} disabled={snap.channels.length >= MAX_CHANNELS} onClick={() => run(() => engine.do({ type: "loop.add" }))}><Icon name="repeat" size={14} />Loop</button>
-      <button type="button" className={item} disabled={snap.groups.length >= 8} onClick={() => run(() => engine.do({ type: "group.add" }))}><Icon name="plus" size={14} />Group (a bus with effects)</button>
+      <button type="button" className={item} disabled={snap.groups.length >= 8} onClick={() => run(() => engine.do({ type: "group.add" }))}><Icon name="plus" size={14} />Group (loops inside, with effects)</button>
       <button type="button" className={item} onClick={() => setSub(true)}><Icon name="sliders-horizontal" size={14} />Effect widget<Icon name="chevron-right" size={14} className="ml-auto" /></button>
       {canPatch && <button type="button" className={item} onClick={() => run(() => addPatchNode("switch"))}><Icon name="split" size={14} />Switch (choose inputs and outputs)</button>}
       {canPatch && <button type="button" className={item} disabled={!snap.inputs.some((i) => i.kind === "device")} onClick={() => run(() => engine.addRig())}><Icon name="mic" size={14} />Guitar rig (chains and a switch)</button>}
-      {canPatch && <button type="button" className={item} onClick={() => run(() => addPatchNode("fx"))}><Icon name="sliders-horizontal" size={14} />Effect chain (between connections)</button>}
+      {canPatch && <button type="button" className={item} onClick={() => run(() => addPatchNode("fx"))}><Icon name="sliders-horizontal" size={14} />Bus (connect things, add effects)</button>}
       <button type="button" className={item} disabled={snap.channels.length <= 1 || last?.state !== "empty"} onClick={() => run(() => engine.do({ type: "loop.removeLast" }))}><Icon name="minus" size={14} />Remove the last loop</button>
     </>
   );

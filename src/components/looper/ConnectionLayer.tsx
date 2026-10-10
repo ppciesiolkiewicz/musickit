@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState, type PointerEvent as RPointerEven
 import Icon from "@/components/Icon";
 import { patchName } from "./PatchNode";
 import { whyNot, type PatchKind, type PatchLink, type PatchNode, type Port } from "@/lib/looper/patch";
-import { linkColour, sourceColours } from "@/lib/looper/patchView";
+import { linkColour, outward, sidePoint, sidesFor, spread } from "@/lib/looper/patchView";
 import type { LooperEngine, LooperSnapshot } from "@/lib/looper/engine";
 
 interface Rect { x: number; y: number; w: number; h: number }
@@ -34,8 +34,8 @@ function visibleRect(el: HTMLElement): DOMRect | null {
 }
 
 /**
- * Draws the patch over the page. Every sound maker, group and the master that carries a `data-patch-id` gets coloured
- * connectors; With `mode: "lines"` the connections
+ * Draws the patch over the page. Every sound maker, group and the master that carries a `data-patch-id` gets connectors:
+ * each connection leaves one block and arrives at another on whichever sides face each other, with an arrow into the target, in the colour of the group it reaches. With `mode: "lines"` the connections
  * are drawn as wires as well. Drag from a connector on the right of a strip or card onto a group (top half: what its loops
  * record, bottom half: what you hear through it), the master, a chain or a switch. Click a connector or wire to mute or remove it.
  * It only calls engine actions, so everything is undoable.
@@ -82,7 +82,7 @@ export default function ConnectionLayer({ engine, snap, mode, wrapper }: { engin
     return () => window.clearTimeout(t);
   }, [msg]);
 
-  const colours = useMemo(() => sourceColours(patch), [patch]);
+  const groupColours = useMemo(() => Object.fromEntries(snap.groups.map((g) => [`group:${g.id}`, g.colour])), [snap.groups]);
   const node = (id: string) => patch.nodes.find((n) => n.id === id);
   const name = (n: PatchNode): string => patchName(snap, n);
   const nameOf = (id: string) => {
@@ -95,30 +95,38 @@ export default function ConnectionLayer({ engine, snap, mode, wrapper }: { engin
     const r = rects[id];
     return r ? { x: r.x + r.w, y: r.y + r.h / 2 } : null;
   };
-  const inPt = (id: string, port: Port): Pt | null => {
-    const r = rects[id];
-    if (!r) return null;
-    return node(id)?.kind === "group" ? { x: r.x, y: r.y + r.h * (port === "rec" ? 0.28 : 0.72) } : { x: r.x, y: r.y + r.h / 2 };
-  };
-  const curve = (a: Pt, b: Pt) => {
+  const ARROW = 9;
+  const wireCurve = (a: Pt, b: Pt) => {
     const dx = Math.max(40, Math.abs(b.x - a.x) / 2);
     return `M${a.x},${a.y} C${a.x + dx},${a.y} ${b.x - dx},${b.y} ${b.x},${b.y}`;
   };
 
+  // each connection leaves and arrives on the sides of the two blocks that face each other; several on one side are spread along it
+  const slots = new Map<string, number>();
+  const take = (key: string) => {
+    const i = slots.get(key) ?? 0;
+    slots.set(key, i + 1);
+    return i;
+  };
   const drawn = patch.links.flatMap((l) => {
     // a group always plays into the master: that fixed route is not drawn
     if (node(l.from)?.kind === "group") return [];
-    const a = outPt(l.from);
-    const b = inPt(l.to, l.port ?? "bus");
-    return a && b ? [{ l, a, b, colour: linkColour(patch, l, colours) }] : [];
-  });
-  // several connections into one input stack their tabs down the edge
-  const slot = new Map<string, number>();
-  const tabs = drawn.map((d) => {
-    const key = `${d.l.to}|${d.l.port ?? "bus"}`;
-    const i = slot.get(key) ?? 0;
-    slot.set(key, i + 1);
-    return { ...d, i };
+    const ra = rects[l.from];
+    const rb = rects[l.to];
+    if (!ra || !rb) return [];
+    const s = sidesFor(ra, rb);
+    const frac = node(l.to)?.kind === "group" ? ((l.port ?? "bus") === "rec" ? 0.28 : 0.72) : 0.5;
+    const a = sidePoint(ra, s.from, 0.5, spread(take(`${l.from}|${s.from}`)));
+    const b = sidePoint(rb, s.to, frac, spread(take(`${l.to}|${l.port ?? "bus"}|${s.to}`)));
+    // the arrow sits on the edge of the target and points into it; the wire ends at its base
+    const n = outward(s.to);
+    const be = { x: b.x + n.x * ARROW, y: b.y + n.y * ARROW };
+    const o = outward(s.from);
+    const k = Math.max(40, Math.hypot(be.x - a.x, be.y - a.y) / 2.5);
+    const path = `M${a.x},${a.y} C${a.x + o.x * k},${a.y + o.y * k} ${be.x + n.x * k},${be.y + n.y * k} ${be.x},${be.y}`;
+    const px = -n.y * 5, py = n.x * 5;
+    const arrow = `${b.x},${b.y} ${be.x + px},${be.y + py} ${be.x - px},${be.y - py}`;
+    return [{ l, a, b, path, arrow, colour: linkColour(patch, l, groupColours) }];
   });
   const selLink = patch.links.find((l) => l.id === sel);
   const selDrawn = drawn.find((d) => d.l.id === sel);
@@ -163,29 +171,37 @@ export default function ConnectionLayer({ engine, snap, mode, wrapper }: { engin
 
   const handleColour = (id: string) => {
     const l = patch.links.find((x) => x.from === id);
-    return l ? linkColour(patch, l, colours) : colours[id] ?? MUTED;
+    return l ? linkColour(patch, l, groupColours) : MUTED;
   };
 
 
   return (
     <div className="pointer-events-none absolute inset-0 z-20" aria-label="Connections">
-      {mode === "lines" && (
-        <svg className="absolute inset-0 h-full w-full" aria-hidden>
-          {drawn.map((d) => {
-            const faint = d.l.id.startsWith("rec:");
-            const on = active.has(d.l.id);
-            return (
-              <g key={d.l.id}>
-                <path d={curve(d.a, d.b)} fill="none" stroke="transparent" strokeWidth={12} style={{ pointerEvents: "stroke", cursor: "pointer" }} onPointerDown={(e) => { e.stopPropagation(); setSel(d.l.id); }} />
-                <path d={curve(d.a, d.b)} fill="none" pointerEvents="none" stroke={sel === d.l.id ? "#f8fafc" : d.colour} strokeWidth={sel === d.l.id ? 3 : faint ? 1.25 : 2.25} strokeDasharray={d.l.muted ? "4 4" : undefined} opacity={d.l.muted ? 0.5 : on ? (faint ? 0.45 : 0.95) : 0.3} />
-              </g>
-            );
-          })}
-        </svg>
-      )}
+      <svg className="absolute inset-0 h-full w-full" aria-hidden={false}>
+        {drawn.map((d) => {
+          const faint = d.l.id.startsWith("rec:");
+          const on = active.has(d.l.id);
+          const op = d.l.muted ? 0.35 : on ? (faint ? 0.5 : 1) : 0.5;
+          const label = `Connection from ${nameOf(d.l.from)} to ${nameOf(d.l.to)}${d.l.port === "rec" ? " (record)" : ""}`;
+          return (
+            <g key={d.l.id}>
+              {mode === "lines" && (
+                <>
+                  <path d={d.path} fill="none" stroke="transparent" strokeWidth={12} style={{ pointerEvents: "stroke", cursor: "pointer" }} onPointerDown={(e) => { e.stopPropagation(); setSel(d.l.id); }} />
+                  <path d={d.path} fill="none" pointerEvents="none" stroke={sel === d.l.id ? "#f8fafc" : d.colour} strokeWidth={sel === d.l.id ? 3 : faint ? 1.25 : 2.25} strokeDasharray={d.l.muted ? "4 4" : undefined} opacity={d.l.muted ? 0.5 : on ? (faint ? 0.45 : 0.95) : 0.3} />
+                </>
+              )}
+              <circle cx={d.a.x} cy={d.a.y} r={3.5} fill={d.colour} opacity={op} pointerEvents="none" />
+              <polygon points={d.arrow} fill={d.colour} opacity={op} stroke={sel === d.l.id ? "#f8fafc" : "#020617"} strokeWidth={sel === d.l.id ? 1.5 : 0.75} role="button" aria-label={label} style={{ pointerEvents: "auto", cursor: "pointer" }} onPointerDown={(e) => { e.stopPropagation(); setSel(d.l.id); }}>
+                <title>{label}</title>
+              </polygon>
+            </g>
+          );
+        })}
+      </svg>
       {drag && (
         <svg className="absolute inset-0 h-full w-full" aria-hidden>
-          {outPt(drag.from) && <path d={curve(outPt(drag.from) as Pt, drag.at)} fill="none" stroke={handleColour(drag.from)} strokeWidth={2.5} strokeDasharray="4 4" />}
+          {outPt(drag.from) && <path d={wireCurve(outPt(drag.from) as Pt, drag.at)} fill="none" stroke={handleColour(drag.from)} strokeWidth={2.5} strokeDasharray="4 4" />}
         </svg>
       )}
       {/* where a dragged connection can land */}
@@ -202,10 +218,6 @@ export default function ConnectionLayer({ engine, snap, mode, wrapper }: { engin
           );
         });
       })}
-      {/* in connectors: a coloured tab on the left edge for every connection arriving */}
-      {tabs.map((t) => (
-        <button key={`in:${t.l.id}`} type="button" aria-label={`Connection from ${nameOf(t.l.from)} to ${nameOf(t.l.to)}${t.l.port === "rec" ? " (record)" : ""}`} className="pointer-events-auto absolute rounded-l-md border-y border-l border-slate-950/60" style={{ left: t.b.x - 8, top: t.b.y - 5 + t.i * 10, width: 9, height: 9, background: t.colour, opacity: t.l.muted ? 0.35 : active.has(t.l.id) ? 1 : 0.5, outline: sel === t.l.id ? "2px solid #f8fafc" : undefined }} onPointerDown={(e) => { e.stopPropagation(); setSel(t.l.id); }} title={`${nameOf(t.l.from)} → ${nameOf(t.l.to)}${t.l.port === "rec" ? " (record)" : ""}`} />
-      ))}
       {/* out connectors: drag from here */}
       {Object.entries(rects).map(([id, r]) => {
         const n = node(id);

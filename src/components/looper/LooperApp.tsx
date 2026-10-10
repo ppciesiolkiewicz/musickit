@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "reac
 import { LooperEngine, EFFECT_DEFS, EFFECT_KINDS, registerChoice, setNamFactory, type LooperSnapshot } from "@/lib/looper/engine";
 import { createCloud, createNamEffect, getModelLibrary, speedNote } from "@/features/nam";
 import LooperSettings from "./LooperSettings";
-import Mixer, { BusList, InputList, MasterStrip, SequencerList, type MixerAlign } from "./Mixer";
+import Mixer, { Buses, InputList, SequencerList, type MixerAlign } from "./Mixer";
 import HistoryPanel from "./HistoryPanel";
 import ConnectionLayer from "./ConnectionLayer";
 import ViewMenu, { type View } from "./ViewMenu";
@@ -155,10 +155,9 @@ const mixLayout: DefaultLayout = (ids, b) => {
   const half = Math.round(b.w * 0.5), q = Math.round(b.w * 0.25);
   const all = {
     looping: { x: 0, y: 0, w: half, h: b.h },
-    inputs: { x: half + 8, y: 0, w: q - 12, h: Math.round(b.h * 0.6) },
-    master: { x: half + 8, y: Math.round(b.h * 0.6) + 8, w: q - 12, h: Math.max(150, Math.round(b.h * 0.15)) },
-    sequencers: { x: half + q, y: 0, w: q - 8, h: Math.round(b.h * 0.3) },
-    buses: { x: half + q, y: Math.round(b.h * 0.3) + 8, w: q - 8, h: Math.round(b.h * 0.5) },
+    inputs: { x: half + 8, y: 0, w: q - 12, h: b.h },
+    sequencers: { x: half + q, y: 0, w: q - 8, h: Math.round(b.h * 0.28) },
+    buses: { x: half + q, y: Math.round(b.h * 0.28) + 8, w: q - 8, h: Math.round(b.h * 0.72) - 8 },
   } as Record<string, { x: number; y: number; w: number; h: number }>;
   return Object.fromEntries(ids.map((id, i) => [id, all[id] ?? { x: 24 + i * 28, y: 24 + i * 28, w: 380, h: 260 }]));
 };
@@ -283,8 +282,7 @@ export default function LooperApp() {
             { id: "looping", title: "Looping", node: looping(true) },
             { id: "inputs", title: "Inputs", node: <InputList engine={engine} snap={snap} keyboardOpen={keyboardOpen} onToggleKeyboard={() => setKeyboardOpen((v) => !v)} openPianos={openPianos} onTogglePiano={togglePiano} /> },
             { id: "sequencers", title: "Sequencers", node: <SequencerList engine={engine} snap={snap} openSeqs={openSeqs} onToggleSequencer={toggleSeq} /> },
-            { id: "buses", title: "Buses", node: <BusList engine={engine} snap={snap} /> },
-            { id: "master", title: "Master bus", node: <ul><MasterStrip engine={engine} snap={snap} /></ul> },
+            { id: "buses", title: "Buses and master", node: <Buses engine={engine} snap={snap} /> },
           ]}
         />
       ) : mixer(false)}

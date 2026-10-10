@@ -13,7 +13,7 @@ export function patchName(snap: LooperSnapshot, n: PatchNode): string {
   if (n.kind === "sequencer") return snap.sequencers.find((q) => `seq:${q.id}` === n.id)?.name ?? "Sequencer";
   if (n.kind === "group") return snap.groups.find((g) => `group:${g.id}` === n.id)?.name ?? "Group";
   if (n.kind === "master") return "Master";
-  return n.kind === "switch" ? "Switch" : "Effects";
+  return n.kind === "switch" ? "Switch" : "Bus";
 }
 
 /** What is inside the card of an effect chain or a switch: the chain's effects, or the connections a switch lets through. */
@@ -64,7 +64,7 @@ export function NodeBody({ engine, snap, node: n }: { engine: LooperEngine; snap
       {n.kind === "fx" && (
         <button type="button" className="flex items-center gap-1 rounded border border-slate-700 px-1 py-0.5 text-left text-[11px] text-slate-300 hover:border-slate-500" onClick={() => setFxOpen(true)} title="Edit the effects">
           <Icon name="sliders-horizontal" size={11} />
-          <span className="truncate">{n.effects?.length ? n.effects.map((e) => e.kind).join(" + ") : "empty: add effects"}</span>
+          <span className="truncate">{n.effects?.length ? n.effects.map((e) => e.kind).join(" + ") : "no effects yet"}</span>
         </button>
       )}
       {n.kind === "switch" && (
