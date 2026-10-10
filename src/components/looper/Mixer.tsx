@@ -204,7 +204,7 @@ export function AddInputModal({ engine, snap, hasExtra, onClose }: { engine: Loo
               ))}
             </div>
             {role === "guitar" ? (
-              <p className="text-xs text-slate-400">Comes with the guitar rig: Clean sparkle, the amps ({GUITAR_AMPS.map((x) => x.name).join(", ")}), Crunch and Lead, one on at a time, each to the master and every group, with a tuner listening.</p>
+              <p className="text-xs text-slate-400">Comes with the guitar rig: Clean sparkle, the amps ({GUITAR_AMPS.map((x) => x.name).join(", ")}), Crunch and Lead, one on at a time, each to the master and through a tuner into every group.</p>
             ) : (
             <div className="grid gap-1.5 sm:grid-cols-2">
               {INPUT_PRESETS[role].map((p) => (

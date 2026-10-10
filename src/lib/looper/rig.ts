@@ -3,8 +3,8 @@ import { INPUT_PRESETS } from "./inputPresets";
 
 /**
  * Starter rigs. An input (a guitar, a piano) gets a few buses of its own, each with effects; one is open at a time (radio) and each bus
- * plays to the master and records into every group, so the person picks the sound with one click. The guitar's buses also feed a
- * tuner, which only listens. Pure: it only builds the actions; the caller runs them as one batch so one undo takes the whole rig away.
+ * plays to the master and records into every group, so the person picks the sound with one click. The guitar's buses record through a
+ * tuner: bus to master, and bus to tuner to the groups. Pure: it only builds the actions; the caller runs them as one batch so one undo takes the whole rig away.
  */
 export const RIG_PRESETS = ["sparkle", "crunch", "lead"] as const;
 
@@ -45,7 +45,8 @@ interface BusSpec {
 
 /**
  * The nodes and links of one input with its buses: the first bus open, the others closed, every bus to the master and into every group's
- * recorder. With `via` (a tuner's id) every bus also feeds it, so it hears the open bus; the tuner's own output goes nowhere.
+ * recorder. With `via` (a tuner's id) every bus still plays to the master but records through the tuner: the buses feed it, and it goes
+ * into every group's recorder.
  */
 function bundle(a: { input: string; buses: BusSpec[]; groups: string[]; tag: string; at: { x: number; y: number }; via?: string }): { actions: LooperAction[]; ids: string[] } {
   const actions: LooperAction[] = [];
@@ -55,12 +56,13 @@ function bundle(a: { input: string; buses: BusSpec[]; groups: string[]; tag: str
     actions.push({ type: "patch.node", node: { id: ids[i], kind: "fx", owner: a.input, x: a.at.x, y: a.at.y + i * 70, name: b.name, ...(effects.length ? { effects } : {}) } });
   });
   ids.forEach((id, i) => actions.push({ type: "patch.link", link: { id: `l${a.tag}i${i}`, from: a.input, to: id, muted: i > 0 } }));
-  const outs = (from: string, n: string) => {
-    actions.push({ type: "patch.link", link: { id: `l${a.tag}m${n}`, from, to: "master" } });
-    a.groups.forEach((g, k) => actions.push({ type: "patch.link", link: { id: `l${a.tag}g${n}_${k}`, from, to: `group:${g}`, port: "rec" } }));
-  };
-  ids.forEach((id, i) => outs(id, String(i)));
-  if (a.via) ids.forEach((id, i) => actions.push({ type: "patch.link", link: { id: `l${a.tag}t${i}`, from: id, to: a.via! } }));
+  const toMaster = (from: string, n: string) => actions.push({ type: "patch.link", link: { id: `l${a.tag}m${n}`, from, to: "master" } });
+  const toGroups = (from: string, n: string) => a.groups.forEach((g, k) => actions.push({ type: "patch.link", link: { id: `l${a.tag}g${n}_${k}`, from, to: `group:${g}`, port: "rec" } }));
+  ids.forEach((id, i) => toMaster(id, String(i)));
+  if (a.via) {
+    ids.forEach((id, i) => actions.push({ type: "patch.link", link: { id: `l${a.tag}t${i}`, from: id, to: a.via! } }));
+    toGroups(a.via, "t");
+  } else ids.forEach((id, i) => toGroups(id, String(i)));
   return { actions, ids };
 }
 
