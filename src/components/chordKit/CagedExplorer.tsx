@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import BoxNeck, { type Layers } from "./BoxNeck";
 import { LabelSelect, useLabelSystem } from "@/features/theory/useLabelSystem";
+import { LabelsRow } from "@/components/LabelsRow";
 import { intervalName, noteLabel, type LabelSystem } from "@/features/theory/labels";
 import ChordDiagram from "./ChordDiagram";
 import { KeyPicker } from "./KeyPicker";
@@ -47,10 +48,9 @@ export default function CagedExplorer() {
           <Chip on={arpKind === "triad"} onClick={() => setArpKind("triad")}>Triad</Chip>
           <Chip on={arpKind === "seventh"} onClick={() => setArpKind("seventh")}>{quality === "major" ? "Maj7" : "Min7"}</Chip>
         </ChipRow>
-        <ChipRow label="Labels" info="Pick how notes are labelled: note names, intervals from the root (R, b3, p5), scale degrees or chord tones. It is the same setting as the dropdown at the top of every page. The colour of a dot is its scale degree either way. Badges add the interval on each note-name dot.">
-          <LabelSelect showLabel={false} />
+        <LabelsRow info="Pick how notes are labelled: note names, intervals from the root (R, b3, p5), scale degrees or chord tones. One setting for the whole app. The colour of a dot is its scale degree either way. Badges add the interval on each note-name dot.">
           <Chip on={badges && labelSystem === "note"} onClick={() => setBadges((v) => !v)}>Badges</Chip>
-        </ChipRow>
+        </LabelsRow>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
           <DegreeLegend />
           <Info label="What is the CAGED system?">
@@ -121,7 +121,7 @@ function KeyChords({ rootPc, quality, keyName }: { rootPc: number; quality: Cage
             <span className="text-xs text-slate-400">{c.roman}</span>
             <span className="text-base font-medium text-slate-100">{c.triadName}</span>
             {pick ? (
-              <div className="w-full max-w-[8rem]"><ChordDiagram shape={pick.shape} rootFret={pick.fret} onPlay={() => strumShape(pick.shape, pick.fret)} /></div>
+              <div className="w-full max-w-[8rem]"><ChordDiagram shape={pick.shape} rootFret={pick.fret} onPlay={() => strumShape(pick.shape, pick.fret)} ctx={ctx} /></div>
             ) : <span className="py-6 text-xs text-slate-500">no easy shape</span>}
           </div>
         ))}
@@ -287,7 +287,7 @@ function BoxCard({ box, index, rootPc, quality, arpKind, labelSystem, badges, no
               {related.map((c) => (
                 <div key={c.shape.id} className="flex flex-col items-center gap-0.5 rounded-xl border border-slate-800 bg-slate-950/50 p-2">
                   <span className="text-sm font-medium text-slate-100">{c.name}</span>
-                  <div className="w-24"><ChordDiagram shape={c.shape} rootFret={c.rootFret} onPlay={() => strumShape(c.shape, c.rootFret)} /></div>
+                  <div className="w-24"><ChordDiagram shape={c.shape} rootFret={c.rootFret} onPlay={() => strumShape(c.shape, c.rootFret)} ctx={ctx} /></div>
                   <span className="text-xs text-slate-500">{c.shape.v ?? "fret " + c.rootFret}</span>
                 </div>
               ))}

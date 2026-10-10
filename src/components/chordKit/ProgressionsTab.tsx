@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import ChordDiagram from "./ChordDiagram";
 import NeckDiagram from "./NeckDiagram";
 import { Chip, ChipRow, Info } from "@/components/ui";
+import { LabelsRow } from "@/components/LabelsRow";
 import { DIFF_CLASS, HUES } from "./palette";
 import {
   PROG_LIST, NECK_HUES, NOTE_FROM_E, chordInstances, firstShapeFor, intervalText, nearestMoves, progressionSteps, resolveProgression,
@@ -27,6 +28,7 @@ export default function ProgressionsTab() {
 
   return (
     <div className="flex flex-col gap-5">
+      <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5"><LabelsRow /></div>
       {groups.map((g) => (
         <div key={g.heading + g.idx[0]} className="flex flex-col gap-2">
           <h3 className="text-sm font-medium text-slate-200">{g.heading} <span className="font-normal text-slate-500">· {g.sub}</span></h3>
@@ -164,7 +166,7 @@ function Detail({ D }: { D: ResolvedProgression }) {
                         <div className="w-24 text-center">
                           <div className="text-sm font-medium text-slate-100">{c.name}{c.x > 1 && <span className="ml-1 text-xs text-slate-500">×{c.x}</span>}</div>
                           <div className="text-xs text-slate-500">{c.roman}{sh?.v ? ` · ${sh.v}` : ""}</div>
-                          {sh ? <ChordDiagram shape={sh} rootFret={r} onPlay={() => playChord(c)} active={playingKey === c.key} /> : <div className="py-6 text-xs text-slate-600">no shape</div>}
+                          {sh ? <ChordDiagram shape={sh} rootFret={r} onPlay={() => playChord(c)} active={playingKey === c.key} rootName={c.name.slice(0, c.name.length - c.suf.length)} /> : <div className="py-6 text-xs text-slate-600">no shape</div>}
                           {sh && <div className="text-xs text-slate-500">{STRING_SHORT[sh.rs]} string · fret {r}</div>}
                         </div>
                       </div>
@@ -203,7 +205,7 @@ function Detail({ D }: { D: ResolvedProgression }) {
                           <span className={`rounded-full border px-1.5 ${DIFF_CLASS[sh.diff]}`}>{sh.diff}</span>
                           {sh.v && <span className="text-slate-400">{sh.v}{pick ? " ★" : ""}</span>}
                         </div>
-                        <ChordDiagram shape={sh} rootFret={r} onPlay={() => strumShape(sh, r)} />
+                        <ChordDiagram shape={sh} rootFret={r} onPlay={() => strumShape(sh, r)} rootName={u.name.slice(0, u.name.length - u.suf.length)} />
                         <div className="text-xs text-slate-500">{STRING_SHORT[sh.rs]} string root · fret {r}</div>
                       </div>
                     );

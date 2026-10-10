@@ -3,6 +3,7 @@
 import { useMemo, useState, type ReactNode } from "react";
 import ShapeCard, { type Placement } from "./ShapeCard";
 import { Chip, ChipRow, Section } from "@/components/ui";
+import { LabelsRow } from "@/components/LabelsRow";
 import {
   FAMILY_LABEL, FAMILY_ORDER, STRING_NAMES, STRING_ORDER, STYLE_TAGS, groupByShape, matchesTags, placedDegrees, tagCount, tagText,
   type Entry,
@@ -85,6 +86,7 @@ export default function ShapeBrowser({ entries, ctx, header, forcedTags = [] }: 
           <button type="button" className="text-sky-300 hover:underline" onClick={collapseAll}>Collapse all</button>
           <button type="button" className="text-sky-300 hover:underline" onClick={expandAll}>Expand all</button>
         </div>
+        <LabelsRow />
       </div>
 
       {groups.length === 0 && <p className="rounded-xl border border-dashed border-slate-700 p-6 text-center text-sm text-slate-400">No shapes match these tags. Deselect a tag to widen the search.</p>}
@@ -109,6 +111,7 @@ export default function ShapeBrowser({ entries, ctx, header, forcedTags = [] }: 
                           shape={g.shape}
                           selectedTags={active}
                           onToggleTag={toggle}
+                          ctx={ctx}
                           placements={ctx ? g.entries.map((e): Placement => ({
                             name: ctx.names[e.degree ?? 0] + g.shape.suf,
                             roman: e.roman,

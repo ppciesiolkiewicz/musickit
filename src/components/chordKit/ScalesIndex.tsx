@@ -1,6 +1,8 @@
 "use client";
 
-import { fmtDegree } from "@/features/theory/labels";
+import { fmtDegree, scaleToneCaption, scaleToneLabel } from "@/features/theory/labels";
+import { useLabelSystem } from "@/features/theory/useLabelSystem";
+import { LabelsRow } from "@/components/LabelsRow";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { KeyPicker } from "./KeyPicker";
@@ -14,6 +16,7 @@ const ORD = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th"];
 /** Every mode side by side in one key: scale degrees, notes and relatives. */
 export default function ScalesIndex({ initialKey }: { initialKey: number }) {
   const [tonicPc, setTonicPc] = useState(initialKey);
+  const [system] = useLabelSystem();
 
   useEffect(() => {
     try {
@@ -42,6 +45,7 @@ export default function ScalesIndex({ initialKey }: { initialKey: number }) {
     <div className="flex flex-col gap-5">
       <div className="flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5">
         <KeyPicker tonicPc={tonicPc} onTonic={setTonicPc} />
+        <LabelsRow />
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
           <DegreeLegend />
           <Info label="How to read the cards">
@@ -68,8 +72,8 @@ export default function ScalesIndex({ initialKey }: { initialKey: number }) {
                 <div className="flex flex-wrap gap-1.5" aria-label={`Notes of ${ctx.names[0]} ${ctx.modeName}`}>
                   {ctx.names.map((n, i) => (
                     <div key={i} className="flex flex-col items-center gap-0.5">
-                      <span className="text-xs tabular-nums text-slate-400">{fmtDegree(labels[i])}</span>
-                      <span className="flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold text-slate-950" style={{ background: degreeColour(i) }}>{n}</span>
+                      <span className="text-xs tabular-nums text-slate-400">{scaleToneCaption(system, ctx, i)}</span>
+                      <span className="flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold text-slate-950" style={{ background: degreeColour(i) }} title={n}>{scaleToneLabel(system, ctx, i)}</span>
                     </div>
                   ))}
                 </div>

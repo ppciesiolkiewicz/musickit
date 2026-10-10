@@ -220,7 +220,7 @@ function Bubble({ ctx, ch, onPlay, items, onToggle }: { ctx: KeyContext; ch: Deg
         </div>
         {pop.notes && <div className="mt-1 text-slate-400">Notes: <span className="text-slate-200">{pop.notes.join(" ")}</span></div>}
         {pop.warn && <p className="mt-1 text-rose-300">Clashes with the chord, use with care.</p>}
-        {pop.semis && pop.rootPc !== undefined && <Fingering key={shown ?? "hub"} rootPc={pop.rootPc} semis={pop.semis} />}
+        {pop.semis && pop.rootPc !== undefined && <Fingering key={shown ?? "hub"} rootPc={pop.rootPc} semis={pop.semis} ctx={ctx} />}
         <div className="mt-2 flex flex-wrap gap-1.5">
           {cur && <button type="button" onClick={() => onToggle(cur)} className="rounded-md border border-sky-500/60 px-2 py-1 text-xs text-sky-200 hover:bg-sky-500/10">{items.some((x) => x.key === cur.key) ? "✓ In comparison (remove)" : "+ Compare"}</button>}
           <button type="button" onClick={() => onToggle(...all.filter((a) => !items.some((x) => x.key === a.key)))} className="rounded-md border border-slate-700 px-2 py-1 text-xs text-slate-300 hover:border-slate-500">+ Compare all {ch.root} chords</button>
@@ -232,7 +232,7 @@ function Bubble({ ctx, ch, onPlay, items, onToggle }: { ctx: KeyContext; ch: Deg
 }
 
 /** Guitar fingering(s) for a chord inside a popover: the best shape as a chord box, with arrows when there are more. Click the box to hear it. */
-function Fingering({ rootPc, semis, small }: { rootPc: number; semis: number[]; small?: boolean }) {
+function Fingering({ rootPc, semis, small, ctx }: { rootPc: number; semis: number[]; small?: boolean; ctx: KeyContext }) {
   const list = useMemo(() => shapesForTones(rootPc, semis), [rootPc, semis]);
   const [i, setI] = useState(0);
   if (list.length === 0) return <p className="mt-1 text-xs text-slate-500">No common guitar shape for this chord in the library.</p>;
@@ -240,7 +240,7 @@ function Fingering({ rootPc, semis, small }: { rootPc: number; semis: number[]; 
   const step = (d: number) => (e: { stopPropagation: () => void }) => { e.stopPropagation(); setI((v) => (v + d + list.length) % list.length); };
   return (
     <div className="mt-2 flex flex-col items-center gap-1 border-t border-slate-800 pt-2">
-      <div className={small ? "w-28" : "w-44"}><ChordDiagram shape={cur.choice.shape} rootFret={cur.choice.fret} onPlay={() => strumShape(cur.choice.shape, cur.choice.fret)} /></div>
+      <div className={small ? "w-28" : "w-44"}><ChordDiagram shape={cur.choice.shape} rootFret={cur.choice.fret} onPlay={() => strumShape(cur.choice.shape, cur.choice.fret)} ctx={ctx} /></div>
       <div className="flex items-center gap-2 text-xs text-slate-400">
         {list.length > 1 && <button type="button" onClick={step(-1)} aria-label="Previous fingering" className="rounded border border-slate-700 px-1.5">‹</button>}
         <span className="tabular-nums">fret {cur.choice.fret}{list.length > 1 ? ` · ${(i % list.length) + 1}/${list.length}` : ""}</span>
@@ -287,7 +287,7 @@ export default function ChordBubbles({ ctx }: { ctx: KeyContext }) {
                   <button type="button" onClick={() => toggle(it)} aria-label={`Remove ${it.title}`} className="ml-auto rounded border border-slate-700 px-1.5 text-xs text-slate-400 hover:text-slate-200">✕</button>
                 </div>
                 {it.notes && <div className="text-xs text-slate-400">{it.notes.join(" ")}</div>}
-                <Fingering rootPc={it.rootPc} semis={it.semis} small />
+                <Fingering rootPc={it.rootPc} semis={it.semis} small ctx={ctx} />
               </div>
             ))}
           </div>

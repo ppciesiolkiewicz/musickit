@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function ImprovPage() {
   return (
-    <PageShell labels active="/theory/improv" title="Improvisation" intro="Ideas from Joseph Schillinger's system, turned into exercises and games for improvising.">
+    <PageShell active="/theory/improv" title="Improvisation" intro="Ideas from Joseph Schillinger's system, turned into exercises and games for improvising.">
       <div className="max-w-4xl"><ImprovApp /></div>
     </PageShell>
   );

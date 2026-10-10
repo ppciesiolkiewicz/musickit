@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function CreatorPage() {
   return (
-    <PageShell labels active="/creator" title="Creator" intro="Choose a key, or none, and arrange the theory plugins around it.">
+    <PageShell active="/creator" title="Creator" intro="Choose a key, or none, and arrange the theory plugins around it.">
       <CreatorApp />
     </PageShell>
   );

@@ -1,12 +1,14 @@
 "use client";
 
-import { fmtDegree } from "@/features/theory/labels";
+import { chordNoteLabel, scaleToneCaption, scaleToneLabel } from "@/features/theory/labels";
+import { useLabelSystem } from "@/features/theory/useLabelSystem";
+import { LabelsRow } from "@/components/LabelsRow";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { KeyPicker } from "./KeyPicker";
 import { Chip, DegreeLegend, Info } from "@/components/ui";
 import { FAMILIES, makeKeyContext } from "@/features/theory/theory";
-import { MODE_PAGES, chordMidi, modeChords, degreeColour, degreeLabels, relativesOf, roleWithDegree, stepPattern } from "@/features/theory/scales";
+import { MODE_PAGES, chordMidi, modeChords, degreeColour, relativesOf, roleWithDegree, stepPattern } from "@/features/theory/scales";
 import { strum } from "@/lib/chordKit/playback";
 import ChordShapeCarousel from "./ChordShapeCarousel";
 import ChordShapesModal from "./ChordShapesModal";
@@ -39,7 +41,7 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey }: { fami
   const pageFor = (f: number, m: number) => MODE_PAGES.find((p) => p.familyIndex === f && p.modeIndex === m)!;
 
   const colour = (n: { scaleDegree: number }) => degreeColour(n.scaleDegree);
-  const labels = degreeLabels(ctx.steps);
+  const [system] = useLabelSystem();
   const pattern = stepPattern(ctx.steps);
 
   const play = (d: number) => {
@@ -58,6 +60,7 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey }: { fami
     <div className="flex flex-col gap-5">
       <div className="flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5">
         <KeyPicker tonicPc={tonicPc} onTonic={setTonicPc} />
+        <LabelsRow />
         <h2 className="text-2xl font-light tracking-wide text-slate-100">
           {ctx.names[0]} {ctx.modeName}
         </h2>
@@ -67,8 +70,8 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey }: { fami
         <div className="flex flex-wrap items-center gap-2" aria-label="Scale notes">
           {ctx.names.map((n, i) => (
             <div key={i} className="flex flex-col items-center gap-0.5">
-              <span className="flex h-11 w-11 items-center justify-center rounded-full text-sm font-semibold text-slate-950" style={{ background: degreeColour(i) }}>{n}</span>
-              <span className="text-xs tabular-nums text-slate-500">{fmtDegree(labels[i])}</span>
+              <span className="flex h-11 w-11 items-center justify-center rounded-full text-sm font-semibold text-slate-950" style={{ background: degreeColour(i) }} title={n}>{scaleToneLabel(system, ctx, i)}</span>
+              <span className="text-xs tabular-nums text-slate-500">{scaleToneCaption(system, ctx, i)}</span>
             </div>
           ))}
           <button type="button" onClick={playScale} className="ml-2 rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25">▶ Play scale</button>
@@ -154,8 +157,8 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey }: { fami
                   <span className="flex flex-wrap gap-1.5">
                     {shown.map((n) => (
                       <span key={n.role + n.name} className="flex flex-col items-center">
-                        <span className="flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold text-slate-950" style={{ background: colour(n) }}>{n.name}</span>
-                        <span className="text-[10px] text-slate-500">{roleWithDegree(n.role)}</span>
+                        <span className="flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold text-slate-950" style={{ background: colour(n) }} title={n.name}>{chordNoteLabel(system, ctx, n)}</span>
+                        <span className="text-[10px] text-slate-500">{system === "note" ? roleWithDegree(n.role) : n.name}</span>
                       </span>
                     ))}
                   </span>

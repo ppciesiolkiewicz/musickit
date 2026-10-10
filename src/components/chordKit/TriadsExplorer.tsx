@@ -7,10 +7,14 @@ import { INVERSIONS, STRING_GROUPS, TRIAD_QUALITIES, triadVoicings, type TriadQu
 import { GROUP_SWATCH, swatchFor } from "./palette";
 import { strum } from "@/lib/chordKit/playback";
 import { TONICS } from "@/features/theory/theory";
+import { toneLabel } from "@/features/theory/labels";
+import { useLabelSystem } from "@/features/theory/useLabelSystem";
+import { LabelsRow } from "@/components/LabelsRow";
 
 /** Small chord box for three adjacent strings. */
-function TriadBox({ v, onPlay, active }: { v: TriadVoicing; onPlay: () => void; active: boolean }) {
+function TriadBox({ v, rootPc, onPlay, active }: { v: TriadVoicing; rootPc: number; onPlay: () => void; active: boolean }) {
   const q = TRIAD_QUALITIES.find((x) => x.id === v.quality)!;
+  const [system] = useLabelSystem();
   const ss = 20, fsz = 24, left = 34, top = 26;
   const fretted = v.frets.filter((f) => f > 0);
   const lo = fretted.length ? Math.min(...fretted) : 1;
@@ -27,8 +31,9 @@ function TriadBox({ v, onPlay, active }: { v: TriadVoicing; onPlay: () => void; 
           const x = left + si * ss;
           if (gi < 0) return <text key={si} x={x} y={top - 10} textAnchor="middle" dominantBaseline="central" fontSize={12} fill="#475569">×</text>;
           const fret = v.frets[gi];
-          const label = q.labels[v.tones[gi]];
-          const sw = v.tones[gi] === 0 ? GROUP_SWATCH.root : swatchFor(label);
+          const role = q.labels[v.tones[gi]];
+          const label = toneLabel(system, { rootPc, semi: q.semis[v.tones[gi]], role });
+          const sw = v.tones[gi] === 0 ? GROUP_SWATCH.root : swatchFor(role);
           // open strings sit above the nut as a ring
           const y = fret === 0 ? top - 10 : top + (fret - lo) * fsz + fsz / 2;
           return (
@@ -78,6 +83,7 @@ export default function TriadsExplorer() {
         <ChipRow label="String group" info="Which three neighbouring strings the triad is played on. Pick several to compare. The 3-2-1 group is the brightest, 6-5-4 the deepest. The other strings are not played.">
           {STRING_GROUPS.map((g) => <Chip key={g.id} on={groupIds.includes(g.id)} onClick={() => toggleGroup(g.id)}>{g.label}</Chip>)}
         </ChipRow>
+        <LabelsRow />
         <p className="text-xs text-slate-400">
           Showing <b className="text-slate-200">{chordName}</b> ({q.labels.join(" ")}) in every closed voicing on the chosen string groups.
           <Info label="What is a string group?">
@@ -98,7 +104,7 @@ export default function TriadsExplorer() {
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   {list.length === 0 && <p className="col-span-2 text-xs text-slate-500">No closed shape fits within 4 frets.</p>}
-                  {list.map((v, i) => <TriadBox key={i} v={v} active={playing === `${g.id}${iv.id}${i}`} onPlay={() => play(v, `${g.id}${iv.id}${i}`)} />)}
+                  {list.map((v, i) => <TriadBox key={i} v={v} rootPc={tonicPc} active={playing === `${g.id}${iv.id}${i}`} onPlay={() => play(v, `${g.id}${iv.id}${i}`)} />)}
                 </div>
               </div>
             ))}

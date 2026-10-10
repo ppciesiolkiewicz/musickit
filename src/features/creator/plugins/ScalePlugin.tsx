@@ -1,6 +1,7 @@
 "use client";
 
-import { FAMILIES, degreeColour, degreeLabels, rotate, shortModeName, stepPattern, type KeyContext } from "@/features/theory";
+import { FAMILIES, degreeColour, degreeLabels, rotate, scaleToneCaption, scaleToneLabel, shortModeName, stepPattern, type KeyContext } from "@/features/theory";
+import { useLabelSystem } from "@/features/theory/useLabelSystem";
 import { playMelody } from "@/features/sound";
 import { useCreatorKey } from "../KeyProvider";
 import { keySignature, scaleMidis } from "../model/key";
@@ -15,14 +16,15 @@ export default function ScalePlugin() {
 function Key({ ctx, title, sig }: { ctx: KeyContext; title: string; sig: ReturnType<typeof keySignature> }) {
   const info = FAMILIES[ctx.familyIndex].info[ctx.modeIndex];
   const degs = degreeLabels(ctx.steps);
+  const [system] = useLabelSystem();
   const pattern = stepPattern(ctx.steps);
   return (
     <Body title={title} aside={<PlayButton onClick={() => playMelody(scaleMidis(ctx), 320)} label={`Play ${title}`} />}>
       <ol className="flex flex-wrap gap-1.5" aria-label="Notes of the scale">
         {ctx.names.map((n, i) => (
           <li key={i} className="flex w-12 flex-col items-center gap-0.5 rounded-lg border border-slate-800 bg-slate-950/60 py-1.5">
-            <span className="grid h-8 w-8 place-items-center rounded-full text-sm font-semibold text-slate-950" style={{ background: degreeColour(i) }}>{n}</span>
-            <span className="text-xs text-slate-300">{degs[i]}</span>
+            <span className="grid h-8 w-8 place-items-center rounded-full text-sm font-semibold text-slate-950" style={{ background: degreeColour(i) }} title={n}>{scaleToneLabel(system, ctx, i)}</span>
+            <span className="text-xs text-slate-300">{scaleToneCaption(system, ctx, i)}</span>
             <span className="text-[10px] text-slate-500">{pattern[i]}</span>
           </li>
         ))}

@@ -5,7 +5,7 @@ import { DIFF_CLASS } from "./palette";
 import ChordDiagram from "./ChordDiagram";
 import { Info, Stepper, Tag } from "@/components/ui";
 import { type RichShape, VARIANT, shapeFormula, shapeName, rootFretFor, STRING_SHORT, STYLE_TAGS, tagText } from "@/lib/chordKit/shapeTools";
-import { MODE_LIST } from "@/features/theory/theory";
+import { MODE_LIST, type KeyContext } from "@/features/theory/theory";
 import { strumShape } from "@/lib/chordKit/playback";
 
 export interface Placement {
@@ -23,12 +23,14 @@ interface Props {
   placements?: Placement[];
   selectedTags: string[];
   onToggleTag: (tag: string) => void;
+  /** the key the placements are in */
+  ctx?: KeyContext;
 }
 
 const ORD = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th"];
 
 /** One card per shape. Slide the shape with the stepper, tap the diagram to hear it, tap a chord to place it. */
-export default function ShapeCard({ shape, placements, selectedTags, onToggleTag }: Props) {
+export default function ShapeCard({ shape, placements, selectedTags, onToggleTag, ctx }: Props) {
   const minOff = Math.min(...shape.f.filter((v): v is number => v !== null));
   const maxOff = Math.max(...shape.f.filter((v): v is number => v !== null));
   const lowest = 1 - minOff >= 1 ? 1 - minOff : 1;
@@ -58,7 +60,7 @@ export default function ShapeCard({ shape, placements, selectedTags, onToggleTag
         {placements && <span className="ml-auto text-xs text-slate-500">{placed.length} chord{placed.length === 1 ? "" : "s"}</span>}
       </header>
 
-      <ChordDiagram shape={shape} rootFret={fret} onPlay={play} active={playing} />
+      <ChordDiagram shape={shape} rootFret={fret} onPlay={play} active={playing} ctx={ctx} />
 
       <div className="flex flex-wrap items-center justify-between gap-2">
         <Stepper

@@ -4,6 +4,8 @@ import { useMemo, useState } from "react";
 import { Chip, ChipRow, Info } from "@/components/ui";
 import { MODE_GROUPS, compareModes, noteAt } from "@/features/theory/modeGroups";
 import { degreeColour } from "@/features/theory/scales";
+import { scaleToneLabel } from "@/features/theory/labels";
+import { useLabelSystem } from "@/features/theory/useLabelSystem";
 
 const colW = 62, rowH = 42, left = 112, top = 62, right = 120;
 
@@ -13,6 +15,7 @@ const colW = 62, rowH = 42, left = 112, top = 62, right = 120;
  */
 export default function ModeCompare({ tonicPc }: { tonicPc: number }) {
   const [groupId, setGroupId] = useState("tonic-major");
+  const [system] = useLabelSystem();
   const cmp = useMemo(() => compareModes(groupId, tonicPc), [groupId, tonicPc]);
   const n = cmp.modes.length;
   const W = left + cmp.columns.length * colW + right;
@@ -63,10 +66,11 @@ export default function ModeCompare({ tonicPc }: { tonicPc: number }) {
                 const cell = noteAt(m, c.semi);
                 if (!cell) return <circle key={c.semi} cx={cx(i)} cy={ry(r)} r={3} fill="#334155" />;
                 const added = !c.core;
+                const lab = scaleToneLabel(system, m.ctx, cell.index);
                 return (
                   <g key={c.semi}>
                     <circle cx={cx(i)} cy={ry(r)} r={16} fill={degreeColour(cell.index)} opacity={added ? 1 : 0.55} stroke={added ? "#f8fafc" : "none"} strokeWidth={2} />
-                    <text x={cx(i)} y={ry(r)} textAnchor="middle" dominantBaseline="central" fontSize={cell.name.length > 2 ? 10 : 12} fontWeight={700} fill="#0f172a">{cell.name}</text>
+                    <text x={cx(i)} y={ry(r)} textAnchor="middle" dominantBaseline="central" fontSize={lab.length > 2 ? 10 : 12} fontWeight={700} fill="#0f172a">{lab}<title>{cell.name}</title></text>
                   </g>
                 );
               })}

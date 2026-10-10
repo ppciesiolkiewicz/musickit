@@ -11,7 +11,8 @@ import { FAMILIES, makeKeyContext } from "@/features/theory/theory";
 import { MODE_PAGES, degreeColour } from "@/features/theory/scales";
 import { strum } from "@/lib/chordKit/playback";
 import { fmtDegree, noteLabel, type LabelSystem } from "@/features/theory/labels";
-import { LabelSelect, useLabelSystem } from "@/features/theory/useLabelSystem";
+import { useLabelSystem } from "@/features/theory/useLabelSystem";
+import { LabelsRow } from "@/components/LabelsRow";
 
 const KINDS = [
   { id: "triad", label: "Scale triad" },
@@ -141,11 +142,10 @@ export default function ArpeggiosExplorer() {
           <span className="mx-1 h-4 w-px bg-slate-700" aria-hidden />
           {ARP_QUALITIES.map((q) => <Chip key={q.id} on={kind === q.id} onClick={() => setKind(q.id)}>{q.label}</Chip>)}
         </ChipRow>
-        <ChipRow label="Labels" info="Pick how notes are labelled: note names, intervals from the root (R, b3, p5), scale degrees or chord tones. It is the same setting as the dropdown at the top of every page. Overlay the scale adds small rings for the other scale notes behind the arpeggio. Badges add the interval on each note-name dot.">
-          <LabelSelect showLabel={false} />
+        <LabelsRow info="Pick how notes are labelled: note names, intervals from the root (R, b3, p5), scale degrees or chord tones. One setting for the whole app. Overlay the scale adds small rings for the other scale notes behind the arpeggio. Badges add the interval on each note-name dot.">
           <Chip on={overlay} onClick={() => setOverlay((v) => !v)}>Overlay the scale</Chip>
           <Chip on={badges} onClick={() => setBadges((v) => !v)}>Degree badges</Chip>
-        </ChipRow>
+        </LabelsRow>
       </div>
 
       <section className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4">

@@ -3,6 +3,7 @@
 import Icon from "@/components/Icon";
 import { Chip } from "@/components/ui";
 import { FAMILIES, TONICS, shortModeName } from "@/features/theory";
+import { LabelSelect } from "@/features/theory/useLabelSystem";
 import { useCreatorKey } from "./KeyProvider";
 import { keySignature } from "./model/key";
 
@@ -28,6 +29,7 @@ export default function KeyBar() {
           {FAMILIES[choice.family].names.map((n, i) => <option key={n} value={i}>{shortModeName(n)}</option>)}
         </select>
       </div>
+      <LabelSelect />
       <div className="ml-auto flex items-center gap-2 text-sm">
         <span className="font-medium text-slate-100">{title}</span>
         {ctx && <span className="text-slate-500">{ctx.names.join(" ")}</span>}

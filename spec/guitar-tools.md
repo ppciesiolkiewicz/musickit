@@ -2,6 +2,13 @@
 
 Three pages built on a shared theory library in `src/lib/chordKit/`. All of them are scale-degree oriented: shapes are labelled with intervals (R, ♭3, 5, ♭7 ...), not fingers.
 
+## Note labels
+
+One app-wide **Labels** setting (`features/theory/labels.ts`, stored in localStorage) picks what every dot and note circle shows: note names, intervals, scale degrees or chord tones. Every theory page and the creator honour it, and each shows the dropdown in its own controls (`components/LabelsRow.tsx`; the creator's key bar). Dot colours never change with it.
+
+- Chord boxes, triad boxes and the progression neck use `toneLabel`: with a key, intervals and degrees count from the key's tonic; without one, from the chord root. Note names are spelled from the key, or from the chord root's letter.
+- Scale circles (scales index, mode pages, mode comparison, creator scale and keys) use `scaleToneLabel`; the caption under a circle shows the degree when the circle shows names, otherwise the name. Chords of a key use `chordNoteLabel`.
+
 ## Routes
 
 | Route | Purpose |

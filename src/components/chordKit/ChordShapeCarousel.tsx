@@ -29,7 +29,7 @@ export default function ChordShapeCarousel({ ctx, degree, onShowAll }: { ctx: Ke
     <div className="flex w-full flex-col gap-1.5 sm:w-48" aria-roledescription="carousel" aria-label={`Guitar shapes for ${ctx.chords[degree].seventhName}`}>
       <div className="flex items-center gap-1.5">
         <button type="button" className={arrow} onClick={() => go(-1)} aria-label="Previous shape">‹</button>
-        <div className="min-w-0 flex-1"><ChordDiagram shape={cur.shape} rootFret={cur.fret} onPlay={play} active={playing} /></div>
+        <div className="min-w-0 flex-1"><ChordDiagram shape={cur.shape} rootFret={cur.fret} onPlay={play} active={playing} ctx={ctx} /></div>
         <button type="button" className={arrow} onClick={() => go(1)} aria-label="Next shape">›</button>
       </div>
       <div className="flex flex-wrap items-center justify-center gap-x-1.5 text-xs text-slate-400">

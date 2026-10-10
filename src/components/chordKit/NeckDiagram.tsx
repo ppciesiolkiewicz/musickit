@@ -2,7 +2,8 @@
 
 import { fretWidthFactor } from "./Fretboard";
 import { HUES } from "./palette";
-import { fmtInterval } from "@/features/theory/labels";
+import { toneLabel } from "@/features/theory/labels";
+import { useLabelSystem } from "@/features/theory/useLabelSystem";
 import { intervalLabel, OPEN_PITCH } from "@/lib/chordKit/shapeTools";
 import { intervalText, NECK_FRETS, type Instance, type Move } from "@/lib/chordKit/progressions";
 
@@ -20,6 +21,7 @@ const colW = 48, left = 62, top = 92, rowH = 28;
 
 /** The whole neck (frets 0-17) with every position of every chord, plus lanes showing how the root moves between them. */
 export default function NeckDiagram({ title, specs, moves, scalePcs, focus = null }: Props) {
+  const [system] = useLabelSystem();
   // fret lines are spaced like a real neck: wider at the nut, narrower up the neck
   const edge = (f: number) => left + Array.from({ length: f }, (_, k) => colW * fretWidthFactor(k + 1)).reduce((a, b) => a + b, 0);
   const W = edge(NECK_FRETS) + 30;
@@ -95,7 +97,7 @@ export default function NeckDiagram({ title, specs, moves, scalePcs, focus = nul
           return (
             <g key={`p${k}`} opacity={dim(sp.ci)}>
               {pts.map((p) => {
-                const lab = fmtInterval(intervalLabel(sp.shape, p.semi));
+                const lab = toneLabel(system, { rootPc: sp.chord.rootPc, rootName: sp.chord.name.slice(0, sp.chord.name.length - sp.chord.suf.length), semi: p.semi, role: intervalLabel(sp.shape, p.semi) });
                 const root = p.semi === 0;
                 return (
                   <g key={p.i}>

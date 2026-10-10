@@ -1,8 +1,10 @@
 "use client";
 
 import type { Shape } from "@/lib/chordKit/shapes";
-import { fmtInterval } from "@/features/theory/labels";
-import { intervalLabel, OPEN_PITCH, ROOT_INDEX } from "@/lib/chordKit/shapeTools";
+import { fmtInterval, toneLabel } from "@/features/theory/labels";
+import type { KeyContext } from "@/features/theory/theory";
+import { useLabelSystem } from "@/features/theory/useLabelSystem";
+import { intervalLabel, OPEN_NOTE, OPEN_PITCH, ROOT_INDEX } from "@/lib/chordKit/shapeTools";
 import { fretWidthFactor } from "./Fretboard";
 import { GROUP_SWATCH, swatchFor } from "./palette";
 
@@ -13,12 +15,18 @@ interface Props {
   /** called when the diagram is clicked (e.g. to strum it) */
   onPlay?: () => void;
   active?: boolean;
+  /** the key the chord is played in, so degrees and intervals count from its tonic */
+  ctx?: KeyContext;
+  /** how to spell the root ("A♭"), when the caller knows it */
+  rootName?: string;
 }
 
 /** A chord box: six strings, frets, and one labelled dot per sounding string. */
-export default function ChordDiagram({ shape, rootFret, onPlay, active }: Props) {
+export default function ChordDiagram({ shape, rootFret, onPlay, active, ctx, rootName }: Props) {
+  const [system] = useLabelSystem();
   const ss = 18, fsz = 24, left = 36, top = 26;
   const ri = ROOT_INDEX[shape.rs];
+  const rootPc = (OPEN_NOTE[ri] + rootFret) % 12;
   const abs = shape.f.map((v) => (v === null ? null : rootFret + v));
   // open strings (fret 0) sit above the nut, so only fretted notes set the size of the box
   const fretted = abs.filter((v): v is number => v !== null && v > 0);
@@ -54,8 +62,9 @@ export default function ChordDiagram({ shape, rootFret, onPlay, active }: Props)
             </text>
           );
         const semi = (((OPEN_PITCH[i] + (shape.f[i] as number) - OPEN_PITCH[ri]) % 12) + 12) % 12;
-        const label = fmtInterval(intervalLabel(shape, semi));
-        const sw = semi === 0 ? GROUP_SWATCH.root : swatchFor(label);
+        const role = intervalLabel(shape, semi);
+        const label = toneLabel(system, { rootPc, rootName, semi, role, ctx });
+        const sw = semi === 0 ? GROUP_SWATCH.root : swatchFor(fmtInterval(role));
         const y = a === 0 ? top - 12 : top + edge(a - lo) + rowH(a - lo) / 2;
         return (
           <g key={i}>

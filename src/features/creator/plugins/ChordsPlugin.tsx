@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { modeChords, chordMidi, type KeyContext } from "@/features/theory";
+import { modeChords, chordMidi, chordNoteLabel, type KeyContext } from "@/features/theory";
+import { useLabelSystem } from "@/features/theory/useLabelSystem";
 import { strum } from "@/features/sound";
 import { useCreatorKey } from "../KeyProvider";
 import { CHORD_TYPES, C_PC } from "../model/generic";
@@ -18,6 +19,7 @@ export default function ChordsPlugin() {
 
 function Key({ ctx, title, sevenths, onSevenths }: { ctx: KeyContext; title: string; sevenths: boolean; onSevenths: (v: boolean) => void }) {
   const chords = modeChords(ctx);
+  const [system] = useLabelSystem();
   return (
     <Body title={`Chords in ${title}`} aside={<button type="button" className={pbtn} aria-pressed={sevenths} onClick={() => onSevenths(!sevenths)} title="Triads or seventh chords">{sevenths ? "7ths" : "Triads"}</button>}>
       <ul className="grid gap-1 [grid-template-columns:repeat(auto-fill,minmax(8.5rem,1fr))]" aria-label="Chords of the key">
@@ -30,7 +32,7 @@ function Key({ ctx, title, sevenths, onSevenths }: { ctx: KeyContext; title: str
                   <span className="text-base font-medium text-slate-100">{sevenths ? c.seventhName : c.triadName}</span>
                   <span className="text-xs text-slate-500">{c.roman}</span>
                 </span>
-                <span className="text-xs text-slate-400">{notes.map((n) => n.name).join(" ")}</span>
+                <span className="text-xs text-slate-400">{notes.map((n) => chordNoteLabel(system, ctx, n)).join(" ")}</span>
               </button>
             </li>
           );

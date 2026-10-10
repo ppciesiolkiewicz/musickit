@@ -1,6 +1,7 @@
 "use client";
 
-import { degreeColour } from "@/features/theory";
+import { degreeColour, scaleToneLabel } from "@/features/theory";
+import { useLabelSystem } from "@/features/theory/useLabelSystem";
 import { playSequence } from "@/features/sound";
 import { useCreatorKey } from "../KeyProvider";
 import { Body, Hint } from "./common";
@@ -15,6 +16,7 @@ const KW = 22, KH = 100, BW = 13, BH = 62;
 /** A piano with the scale marked on it: each note of the key in its degree colour. Click a key to hear it. */
 export default function KeysPlugin() {
   const { ctx, title } = useCreatorKey();
+  const [system] = useLabelSystem();
   const whites: { midi: number; x: number }[] = [];
   const blacks: { midi: number; x: number }[] = [];
   for (let o = 0; o < OCTAVES; o++) {
@@ -36,7 +38,7 @@ export default function KeysPlugin() {
       <g key={k.midi} role="button" tabIndex={0} aria-label={nameOf(k.midi, deg)} onPointerDown={() => play(k.midi)} onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && play(k.midi)} className="cursor-pointer outline-none focus-visible:[&>rect]:stroke-sky-400">
         <rect x={k.x} y={0} width={w} height={h} rx={2} fill={black ? "#0b1220" : "#e2e8f0"} stroke={black ? "#334155" : "#64748b"} strokeWidth={1} />
         {deg >= 0 && <circle cx={k.x + w / 2} cy={h - 12} r={black ? 4.5 : 6.5} fill={degreeColour(deg)} stroke="#0f172a" />}
-        {deg >= 0 && !black && <text x={k.x + w / 2} y={h - 26} textAnchor="middle" fontSize="7.5" fill="#334155">{nameOf(k.midi, deg)}</text>}
+        {deg >= 0 && !black && <text x={k.x + w / 2} y={h - 26} textAnchor="middle" fontSize="7.5" fill="#334155">{ctx ? scaleToneLabel(system, ctx, deg) : nameOf(k.midi, deg)}</text>}
         {!ctx && !black && k.midi % 12 === 0 && <text x={k.x + w / 2} y={h - 8} textAnchor="middle" fontSize="8" fill="#475569">C{Math.floor(k.midi / 12) - 1}</text>}
       </g>
     );

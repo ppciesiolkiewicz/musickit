@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function CagedPage() {
   return (
-    <PageShell labels
+    <PageShell
       active="/theory/caged"
       title="CAGED system"
       intro="Five chord shapes (C, A, G, E, D) link up across the neck. Pick a key and major or minor to see each shape and, in three separate boxes, its arpeggio, scale and pentatonic."
