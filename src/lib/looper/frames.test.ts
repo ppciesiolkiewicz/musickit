@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { applyInputMode, assemble, beatFrames, beatInBar, effectiveGain, loopOffset, msToFrames, nextBoundary, peaks, quantUnitFrames, quantiseLength, type Chunk } from "./frames";
+import { applyInputMode, assemble, beatFrames, beatInBar, cycleBars, effectiveGain, loopOffset, msToFrames, nextBoundary, peaks, quantUnitFrames, quantiseLength, timelinePosition, type Chunk } from "./frames";
 
 const chunk = (frame: number, values: number[]): Chunk => ({ frame, l: new Float32Array(values), r: new Float32Array(values.map((v) => -v)) });
 
@@ -112,5 +112,28 @@ describe("take status", () => {
     const s = takeStatus({ now: 5, start: 0, end: 8, stopping: true, started: true, period: 0.5, beatsPerBar: 4 });
     assert.deepEqual([s.phase, s.beatsLeft, s.totalBars], ["stopping", 6, 4]);
     assert.equal(takeStatus({ now: 1, start: 0, end: 8, stopping: false, started: true, period: 0.5, beatsPerBar: 4 }).totalBars, 4);
+  });
+});
+
+describe("timeline", () => {
+  it("cycle is the longest loop in bars, at least one", () => {
+    assert.equal(cycleBars([]), 1);
+    assert.equal(cycleBars([2, 4, 1]), 4);
+    assert.equal(cycleBars([0.4]), 1);
+    assert.equal(cycleBars([2.01]), 2);
+  });
+  it("timelinePosition walks bars and beats and wraps at the cycle end", () => {
+    // 120 bpm, 4/4: beat 0.5 s, bar 2 s, cycle of 2 bars = 4 s
+    assert.deepEqual(timelinePosition(10, 10, 0.5, 4, 2), { bar: 0, beat: 0, fraction: 0, countIn: false });
+    assert.deepEqual(timelinePosition(12.75, 10, 0.5, 4, 2), { bar: 1, beat: 1, fraction: 0.6875, countIn: false });
+    assert.deepEqual(timelinePosition(14, 10, 0.5, 4, 2), { bar: 0, beat: 0, fraction: 0, countIn: false });
+  });
+  it("timelinePosition during the count-in", () => {
+    // anchor 10, one count-in bar from 8 to 10
+    const p = timelinePosition(8.6, 10, 0.5, 4, 2);
+    assert.equal(p.countIn, true);
+    assert.equal(p.bar, 0);
+    assert.equal(p.beat, 1);
+    assert.equal(p.fraction, 0);
   });
 });

@@ -162,3 +162,28 @@ export function takeStatus(o: { now: number; start: number; end: number | null; 
   const left = o.stopping && o.end !== null ? Math.max(1, Math.ceil((o.end - o.now) / o.period - 1e-6)) : 0;
   return { phase: o.stopping ? "stopping" : "recording", beatsLeft: left, bar: Math.min(barIdx, total), totalBars: total, beat: Math.min(beat, o.beatsPerBar) };
 }
+
+/** The timeline's length in bars: the longest loop (rounded to whole bars), never less than one bar. */
+export function cycleBars(loopBars: number[]): number {
+  return loopBars.reduce((m, b) => Math.max(m, Math.round(b)), 1);
+}
+
+export interface TimelinePos {
+  /** bar inside the cycle (0-based); during the count-in, count-in bars left minus one */
+  bar: number;
+  /** beat in the bar, 0-based */
+  beat: number;
+  /** 0..1 through the whole cycle (0 during the count-in) */
+  fraction: number;
+  countIn: boolean;
+}
+
+/** Where on the timeline the time falls: bar, beat and how far through the cycle. Before the anchor it is the count-in. */
+export function timelinePosition(now: number, anchor: number, period: number, beatsPerBar: number, cycle: number): TimelinePos {
+  const barSec = period * beatsPerBar;
+  const { beat } = beatInBar(now, anchor, period, beatsPerBar);
+  if (now < anchor) return { bar: Math.max(0, Math.ceil((anchor - now) / barSec - 1e-9) - 1), beat, fraction: 0, countIn: true };
+  const len = barSec * Math.max(1, cycle);
+  const x = loopOffset(now, anchor, len);
+  return { bar: Math.floor(x / barSec + 1e-9), beat, fraction: x / len, countIn: false };
+}
