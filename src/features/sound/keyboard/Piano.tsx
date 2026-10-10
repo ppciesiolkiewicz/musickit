@@ -50,8 +50,16 @@ const ALL_PIANO_KEYS = buildPianoKeys(7);
 
 const WHITE_KEY_WIDTH = 48;
 const BLACK_KEY_WIDTH = 28;
-const WHITE_KEY_HEIGHT = 170;
+const WHITE_KEY_HEIGHT = 180;
 const BLACK_KEY_HEIGHT = 105;
+
+// Padding scales with the keys, so changing a key size keeps the proportions.
+const FRAME_PAD_X = Math.round(WHITE_KEY_WIDTH * 0.25);
+const FRAME_PAD_Y = Math.round(WHITE_KEY_WIDTH * 0.4);
+const KEY_PAD_BOTTOM = Math.round(WHITE_KEY_WIDTH * 0.12);
+// The scale degree on a white key sits just below the black keys, where it is never covered.
+const WHITE_KEY_PAD_TOP = BLACK_KEY_HEIGHT + Math.round(WHITE_KEY_WIDTH * 0.06);
+const BLACK_KEY_PAD_Y = Math.round(BLACK_KEY_WIDTH * 0.12);
 
 const BLACK_KEY_OFFSETS = [
   { offset: 0.5, note: "C#" },
@@ -322,8 +330,8 @@ export default function Piano({ destination }: { destination?: () => AudioNode }
 
       <div className="pb-4">
         <div
-          className="relative mx-auto rounded-2xl border border-white/10 bg-gradient-to-b from-zinc-800/95 to-zinc-900 px-3 py-5 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.06)]"
-          style={{ width: displayedWhiteKeys.length * WHITE_KEY_WIDTH }}
+          className="relative mx-auto box-content rounded-2xl border border-white/10 bg-gradient-to-b from-zinc-800/95 to-zinc-900 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.06)]"
+          style={{ width: displayedWhiteKeys.length * (WHITE_KEY_WIDTH - 1), padding: `${FRAME_PAD_Y}px ${FRAME_PAD_X}px` }}
         >
           {/* White keys */}
           <div className="flex">
@@ -337,7 +345,6 @@ export default function Piano({ destination }: { destination?: () => AudioNode }
                     relative flex flex-shrink-0 flex-col items-center justify-between rounded-b-lg border transition-all duration-75
                     border-l-stone-300/60 border-r-stone-400/80 border-t-stone-200/90
                     shadow-[inset_0_1px_0_rgba(255,255,255,0.95),0_3px_6px_rgba(0,0,0,0.08)]
-                    pb-3 pt-2
                     ${pressedKeys.has(key.id)
                       ? "z-10 bg-amber-200 shadow-[inset_0_3px_16px_rgba(251,191,36,0.45)]"
                       : inScale
@@ -346,11 +353,9 @@ export default function Piano({ destination }: { destination?: () => AudioNode }
                           ? "bg-gradient-to-b from-stone-100/80 via-stone-150/80 to-stone-200/70 opacity-75"
                           : "bg-gradient-to-b from-stone-50 via-stone-100 to-stone-200/95 hover:from-stone-100 hover:via-stone-150 hover:to-stone-300/90"}
                   `}
-                  style={{ width: WHITE_KEY_WIDTH - 1, height: WHITE_KEY_HEIGHT }}
+                  style={{ width: WHITE_KEY_WIDTH - 1, height: WHITE_KEY_HEIGHT, paddingTop: WHITE_KEY_PAD_TOP, paddingBottom: KEY_PAD_BOTTOM }}
                 >
-                  {inScale && degree && (
-                    <span className="text-xs font-semibold text-emerald-700/90">{degree}</span>
-                  )}
+                  <span className="text-xs font-semibold text-emerald-700/90">{inScale && degree ? degree : null}</span>
                   <div className="flex flex-col items-center gap-0.5">
                     <span className="font-mono text-sm font-medium text-zinc-600">
                       {key.id}
@@ -374,9 +379,8 @@ export default function Piano({ destination }: { destination?: () => AudioNode }
               const inScale = showScaleHighlight && scaleNotes.length > 0 && isNoteInScale(key.id, scaleName);
               const degree = getScaleDegree(key.id, scaleName);
               const left =
-                12 +
-                (octave - viewOctave) * 7 * WHITE_KEY_WIDTH +
-                offset * WHITE_KEY_WIDTH -
+                FRAME_PAD_X +
+                ((octave - viewOctave) * 7 + offset) * (WHITE_KEY_WIDTH - 1) -
                 BLACK_KEY_WIDTH / 2;
               return (
                 <div
@@ -384,7 +388,7 @@ export default function Piano({ destination }: { destination?: () => AudioNode }
                   className={`
                     absolute flex flex-col items-center justify-between rounded-b-lg border border-zinc-900/95 transition-all duration-75
                     shadow-[inset_0_-3px_8px_rgba(0,0,0,0.5),0_3px_8px_rgba(0,0,0,0.25)]
-                    z-20 pb-2 pt-1
+                    z-20
                     ${pressedKeys.has(key.id)
                       ? "bg-amber-600 shadow-[inset_0_3px_14px_rgba(217,119,6,0.55)]"
                       : inScale
@@ -395,9 +399,11 @@ export default function Piano({ destination }: { destination?: () => AudioNode }
                   `}
                   style={{
                     left,
-                    top: 20,
+                    top: FRAME_PAD_Y,
                     width: BLACK_KEY_WIDTH,
                     height: BLACK_KEY_HEIGHT,
+                    paddingTop: BLACK_KEY_PAD_Y,
+                    paddingBottom: BLACK_KEY_PAD_Y,
                   }}
                 >
                   {inScale && degree && (
