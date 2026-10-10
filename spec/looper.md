@@ -136,7 +136,7 @@ A tenth effect kind, `nam`, runs Neural Amp Modeler models (`.nam`, including A2
 
 The Mixer and Looping sections sit on a canvas that fills the window below the header. The canvas is much larger than the screen (8000 x 6000), zooms from 15% to 200% (buttons, Ctrl/Cmd and the wheel, trackpad pinch) and pans with the wheel or by dragging empty space; the fit button shows every widget and the (i) button explains this. The widget layout button switches back to the stacked page. Layout and view are saved in `musickit.looper.widgets`.
 
-The wheel zoom on the canvas is proportional to the wheel movement (gentle on a trackpad). The metronome bar shows a bell-off button while the click is silenced; pressing it turns the click back on.
+The wheel zoom on the canvas is proportional to the wheel movement (gentle on a trackpad). The metronome bar shows a bell-off button while the click is silenced; pressing it turns the click back on. Under it a small floating **Inputs** widget lists every input (devices, keyboard, Scale Pianos, sequencers) with a level meter, a volume slider, mute and, for the keyboard and each Scale Piano, a button that opens its keyboard. Its header folds it away (remembered in `musickit.looper.inputsMini`).
 
 ## Stage size and canvas limits
 

@@ -36,6 +36,7 @@ const ICONS = {
   "repeat": '<path d="m17 2 4 4-4 4" /> <path d="M3 11v-1a4 4 0 0 1 4-4h14" /> <path d="m7 22-4-4 4-4" /> <path d="M21 13v1a4 4 0 0 1-4 4H3" />',
   "chevron-left": '<path d="m15 18-6-6 6-6" />',
   "chevron-right": '<path d="m9 18 6-6-6-6" />',
+  "chevron-down": '<path d="m6 9 6 6 6-6" />',
   "info": '<circle cx="12" cy="12" r="10" /> <path d="M12 16v-4" /> <path d="M12 8h.01" />',
   "check": '<path d="M20 6 9 17l-5-5" />',
   "audio-lines": '<path d="M2 10v3" /> <path d="M6 6v11" /> <path d="M10 3v18" /> <path d="M14 8v7" /> <path d="M18 5v13" /> <path d="M22 10v3" />',

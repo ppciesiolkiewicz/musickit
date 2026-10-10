@@ -24,6 +24,7 @@ import { togglePin } from "./fxPins";
 import { Toasts } from "./toast";
 import { Modal } from "../Modal";
 import MetronomeBar from "./MetronomeBar";
+import InputsMini from "./InputsMini";
 import ScalePianoPanel from "./ScalePianoPanel";
 import SequencerPanel from "./SequencerPanel";
 import Link from "next/link";
@@ -305,7 +306,10 @@ export default function LooperApp() {
       <Toasts />
       {addingInput && <AddInputModal engine={engine} snap={snap} hasExtra={snap.inputs.some((i) => i.kind === "extra")} onClose={() => setAddingInput(false)} />}
       <div className="pointer-events-none sticky top-0 z-30 flex items-start justify-between gap-2 px-1 py-1">
-        <div className="pointer-events-auto"><MetronomeBar engine={engine} snap={snap} ready={ready} /></div>
+        <div className="flex flex-col items-start gap-1.5">
+          <div className="pointer-events-auto"><MetronomeBar engine={engine} snap={snap} ready={ready} /></div>
+          {ready && <div className="pointer-events-auto"><InputsMini engine={engine} snap={snap} keyboardOpen={keyboardOpen} onToggleKeyboard={() => setKeyboardOpen((v) => !v)} openPianos={openPianos} onTogglePiano={togglePiano} /></div>}
+        </div>
         <div className="pointer-events-auto flex gap-1">
           <button type="button" className={ibtn} onClick={() => setNewOpen(true)} title="New project" aria-label="New project"><Icon name="file-plus" /></button>
           <button type="button" className={ibtn} disabled={!canUndo} onClick={() => engine.history.undo()} title="Undo (Ctrl+Z)" aria-label="Undo"><Icon name="undo-2" /></button>
