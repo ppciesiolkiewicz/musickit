@@ -87,11 +87,13 @@ function OutputPlaces({ engine, snap, ownerId }: { engine: LooperEngine; snap: L
       {places.length === 0 && <p className="px-1 text-[11px] text-slate-500">No group or bus yet: choose one below.</p>}
       {places.map((d) => {
         const name = label(d.to, d.port);
+        // a place that is on shows in the colour of where it goes (the group's colour), like its wire
+        const c = linkColour(patch, d.links[0], groupColours);
         return (
-          <div key={d.key} className={`flex items-center gap-1.5 rounded-lg border px-1.5 py-1 ${d.on ? "border-emerald-500/40 bg-emerald-500/5" : "border-slate-800 bg-slate-900/50"}`}>
+          <div key={d.key} className={`flex items-center gap-1.5 rounded-lg border px-1.5 py-1 ${d.on ? "" : "border-slate-800 bg-slate-900/50"}`} style={d.on ? { borderColor: `${c}80`, background: `${c}14` } : undefined}>
             <button type="button" role={one ? "radio" : "checkbox"} aria-checked={d.on} className="flex min-w-0 flex-1 items-center gap-1.5 text-left" onClick={() => pick(d.key)}>
-              <span className="grid h-5 w-5 shrink-0 place-items-center"><span className={`block h-3 w-3 border ${one ? "rounded-full" : "rounded-sm"} ${d.on ? "border-emerald-300 bg-emerald-300" : "border-slate-500"}`} /></span>
-              <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: linkColour(patch, d.links[0], groupColours) }} />
+              <span className="grid h-5 w-5 shrink-0 place-items-center"><span className={`block h-3 w-3 border ${one ? "rounded-full" : "rounded-sm"} ${d.on ? "" : "border-slate-500"}`} style={d.on ? { borderColor: c, background: c } : undefined} /></span>
+              <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: c }} />
               <span className={`truncate text-xs ${d.on ? "text-slate-100" : "text-slate-400"}`}>{name}</span>
             </button>
             <button type="button" className={`${small} border-slate-700 hover:!border-rose-400`} title={`Remove ${name}`} aria-label={`Stop sending to ${name}`} onClick={() => engine.do({ type: "batch", label: "Remove a connection", actions: d.links.map((l) => ({ type: "patch.unlink", id: l.id })) })}><Icon name="x" size={12} /></button>

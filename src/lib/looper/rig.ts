@@ -3,8 +3,9 @@ import { INPUT_PRESETS } from "./inputPresets";
 
 /**
  * Starter rigs. An input (a guitar, a piano) gets a few buses of its own, each with effects; one is open at a time (radio) and each bus
- * plays to the master and records into every group, so the person picks the sound with one click. The guitar's buses record through a
- * tuner: bus to master, and bus to tuner to the groups. Pure: it only builds the actions; the caller runs them as one batch so one undo takes the whole rig away.
+ * plays to the master and records into every group, so the person picks the sound with one click. The guitar also feeds a tuner of its
+ * own, straight from the input (the dry signal, before any amp): the tuner only listens, nothing goes on from it. Pure: it only builds the
+ * actions; the caller runs them as one batch so one undo takes the whole rig away.
  */
 export const RIG_PRESETS = ["sparkle", "crunch", "lead"] as const;
 
@@ -43,12 +44,8 @@ interface BusSpec {
   effects: (FxSpec & { post?: boolean })[];
 }
 
-/**
- * The nodes and links of one input with its buses: the first bus open, the others closed, every bus to the master and into every group's
- * recorder. With `via` (a tuner's id) every bus still plays to the master but records through the tuner: the buses feed it, and it goes
- * into every group's recorder.
- */
-function bundle(a: { input: string; buses: BusSpec[]; groups: string[]; tag: string; at: { x: number; y: number }; via?: string }): { actions: LooperAction[]; ids: string[] } {
+/** The nodes and links of one input with its buses: the first bus open, the others closed, every bus to the master and into every group's recorder. */
+function bundle(a: { input: string; buses: BusSpec[]; groups: string[]; tag: string; at: { x: number; y: number } }): { actions: LooperAction[]; ids: string[] } {
   const actions: LooperAction[] = [];
   const ids = a.buses.map((_, i) => `fx:${a.tag}${i}`);
   a.buses.forEach((b, i) => {
@@ -59,10 +56,7 @@ function bundle(a: { input: string; buses: BusSpec[]; groups: string[]; tag: str
   const toMaster = (from: string, n: string) => actions.push({ type: "patch.link", link: { id: `l${a.tag}m${n}`, from, to: "master" } });
   const toGroups = (from: string, n: string) => a.groups.forEach((g, k) => actions.push({ type: "patch.link", link: { id: `l${a.tag}g${n}_${k}`, from, to: `group:${g}`, port: "rec" } }));
   ids.forEach((id, i) => toMaster(id, String(i)));
-  if (a.via) {
-    ids.forEach((id, i) => actions.push({ type: "patch.link", link: { id: `l${a.tag}t${i}`, from: id, to: a.via! } }));
-    toGroups(a.via, "t");
-  } else ids.forEach((id, i) => toGroups(id, String(i)));
+  ids.forEach((id, i) => toGroups(id, String(i)));
   return { actions, ids };
 }
 
@@ -83,12 +77,25 @@ export function starterRig(a: {
   const tag = `rig${stamp()}`;
   const at = a.at ?? { x: 20, y: 660 };
   const tuner = `tuner:${tag}`;
-  const b = bundle({ input: a.input, groups: a.groups, tag, at, buses, via: tuner });
+  const b = bundle({ input: a.input, groups: a.groups, tag, at, buses });
   return {
-    actions: [...a.directLinks.map((id): LooperAction => ({ type: "patch.unlink", id })), { type: "patch.node", node: { id: tuner, kind: "tuner", x: at.x + 360, y: at.y, name: "Tuner" } }, ...b.actions],
+    actions: [
+      ...a.directLinks.map((id): LooperAction => ({ type: "patch.unlink", id })),
+      { type: "patch.node", node: { id: tuner, kind: "tuner", x: at.x + 360, y: at.y, name: "Tuner" } },
+      ...b.actions,
+      // the tuner hears the input itself and sends nowhere: it is not in the way of the sound or the recording
+      { type: "patch.link", link: { id: `l${tag}t`, from: a.input, to: tuner } },
+    ],
     buses: b.ids,
     tuner,
   };
+}
+
+/** The starter vocal rig: every vocal preset as a bus of the input (the first one open), each to the master and into every group's recorder. */
+export function vocalRig(a: { input: string; groups: string[]; directLinks: string[]; at?: { x: number; y: number } }): { actions: LooperAction[]; buses: string[] } {
+  const buses: BusSpec[] = INPUT_PRESETS.vocal.map((p) => ({ name: p.name, effects: p.effects.map((e) => ({ kind: e.kind, ...(e.post ? { post: true } : {}), ...(e.params ? { params: e.params } : {}) })) }));
+  const b = bundle({ input: a.input, groups: a.groups, tag: `voc${stamp()}`, at: a.at ?? { x: 20, y: 900 }, buses });
+  return { actions: [...a.directLinks.map((id): LooperAction => ({ type: "patch.unlink", id })), ...b.actions], buses: b.ids };
 }
 
 /** The buses of every piano in the starter piano rig. A bus with no effects is the dry piano. */

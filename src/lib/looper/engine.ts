@@ -10,10 +10,10 @@ import { GROUP_COLOURS, LOOPS_PER_GROUP, clampPoint, clampRect, containingGroup,
 import { InputMixer, MAX_INPUT_GAIN, describeError, type InputInfo } from "./mixer";
 import { PatchGraph } from "./patchAudio";
 import { EDITABLE, activeLinks, addNode as patchAddNode, connect as patchConnect, disconnect as patchDisconnect, emptyPatch, feeds, layoutAll, moveNode as patchMoveNode, place, removeNode, sanitisePatch, setLinkMuted, setNodeMuted, setSwitchMode, type Patch, type PatchLink } from "./patch";
-import { chooseDevice, deviceName, deviceScore, gearIssues, type DeviceRef, type GearIssue } from "./deviceChoice";
+import { DEFAULT_CHANNEL, adoptPlan, chooseDevice, defaultInputName, defaultRole, deviceScore, gearIssues, type DefaultRole, type DeviceRef, type GearIssue } from "./deviceChoice";
 import { ActionHistory, type DoOptions } from "./history";
 import { MacroRecorder } from "./macros";
-import { GROUP_STARTS, PIANO_STARTS, SEQUENCER_STARTS, addBus, pianoRig, starterRig } from "./rig";
+import { GROUP_STARTS, PIANO_STARTS, SEQUENCER_STARTS, addBus, pianoRig, starterRig, vocalRig } from "./rig";
 import type { FxTarget, InputSpec, LooperAction } from "./actions";
 import { RECORDER_PROCESSOR_NAME, recorderWorkletUrl } from "./recorderWorklet";
 import { DEFAULT_EDIT, TAKE_MARGIN_SECONDS, clampEdit, renderLoop, type LoopEdit, type Take } from "./loopEdit";
@@ -206,8 +206,6 @@ const PATCH_LAYOUT_KEY = "musickit.looper.patch.layout";
 const PREF_KEY = "musickit.looper.preferred";
 const RIG_KEY = "musickit.looper.rigDone3";
 const KEYS_RIG_KEY = "musickit.looper.keysRigDone";
-/** the default guitar input before an audio interface has been seen */
-const GUITAR_NAME = "Scarlett Guitar";
 const PIANO_RIG_KEY = "musickit.looper.pianoRigDone2";
 const SEQ_RIG_KEY = "musickit.looper.seqRigDone";
 type SinkContext = AudioContext & { setSinkId?: (id: string) => Promise<void> };
@@ -708,6 +706,19 @@ export class LooperEngine {
   /** Rigs from before buses lived inside inputs: standalone chains and switches with the old generated ids. A new rig replaces them. */
   private legacyRig(): LooperAction[] {
     return this.patch.nodes.filter((n) => !n.owner && /^(fx|sw):(rig|pno)/.test(n.id)).map((n): LooperAction => ({ type: "patch.removeNode", id: n.id }));
+  }
+
+  /** Add the starter vocal rig (a bus per vocal preset inside the input) for this hardware input. One batch. */
+  addVocalRig(inputId: number): boolean {
+    const input = `in:${inputId}`;
+    if (!this.patch.nodes.some((n) => n.id === input)) return false;
+    const rig = vocalRig({
+      input,
+      groups: this.groups.map((g) => g.id),
+      directLinks: this.patch.links.filter((l) => l.from === input && l.to.startsWith("group:")).map((l) => l.id),
+      at: { x: 20, y: 900 },
+    });
+    return this.do({ type: "batch", label: "Vocal rig", actions: rig.actions });
   }
 
   /** Add the starter piano rig (reverb buses inside each piano's block) for these piano strips (the default setup). One batch. */
@@ -1224,9 +1235,10 @@ export class LooperEngine {
   }
 
   /**
-   * The default guitar, once (flag `musickit.looper.rigDone3`): a guitar input with the starter rig (tone buses inside the input, each to
-   * the master and every group's recorder). It uses a known audio interface (never the computer's own mic) or, before one has been seen,
-   * waits with no device (named "Scarlett Guitar") and takes the interface when it shows up (`adoptDevices`). Opens nothing. Removing it sticks.
+   * The default guitar and vocal, once per project (flag `musickit.looper.rigDone3`): a guitar on Input 1 with the starter rig and a vocal
+   * on Input 2 with the vocal buses (each bus to the master and every group's recorder). Both take a known audio interface (never the
+   * computer's own mic) or, before one has been seen, wait with no device ("Guitar", "Vocal") and take it when it shows up
+   * (`adoptDevices`). Opens nothing. Removing them sticks. An older project's device input is kept as the guitar, with no vocal added.
    */
   private setupGuitar(): void {
     try {
@@ -1235,17 +1247,20 @@ export class LooperEngine {
     } catch {
       return;
     }
-    let strip = this.mixer.list().find((i) => i.kind === "device");
-    if (!strip) {
-      const pick = chooseDevice(this.meta.devices, this.prefs.in);
-      const known = pick && deviceScore(pick.label) > 0 ? pick : null;
-      const id = this.mixer.addNow({ kind: "device", name: known ? `Guitar · ${deviceName(known.label)}`.slice(0, 40) : GUITAR_NAME, deviceId: known?.id ?? "", mode: "left", idle: true }).id;
-      if (id === null) return;
-      this.syncPatch();
-      strip = this.mixer.list().find((i) => i.id === id);
-    }
+    const pick = chooseDevice(this.meta.devices, this.prefs.in);
+    const known = pick && deviceScore(pick.label) > 0 ? pick : null;
+    const make = (role: DefaultRole) => {
+      const id = this.mixer.addNow({ kind: "device", name: defaultInputName(role, known), deviceId: known?.id ?? "", mode: DEFAULT_CHANNEL[role], idle: true }).id;
+      if (id !== null) this.syncPatch();
+      return id;
+    };
+    const had = this.mixer.list().find((i) => i.kind === "device");
+    const guitar = had?.id ?? make("guitar");
+    const vocal = had ? null : make("vocal");
     // an input that already has buses (the rig of an older default) keeps them
-    if (strip && !this.patch.nodes.some((n) => n.owner === `in:${strip.id}`)) this.addRig(strip.id);
+    const bare = (id: number | null): id is number => id !== null && !this.patch.nodes.some((n) => n.owner === `in:${id}`);
+    if (bare(guitar)) this.addRig(guitar);
+    if (bare(vocal)) this.addVocalRig(vocal);
     this.history.clear();
   }
 
@@ -1271,27 +1286,43 @@ export class LooperEngine {
   /**
    * The person picked the device their instrument is plugged into (the devices dialog), for when its name gives nothing away (the
    * RC-505 can show up as just "OUT"). It is remembered as the input, and the main input (the first device strip, the default guitar)
-   * uses it and connects now; an auto-made guitar name follows the device. With no device input yet, a guitar input with its rig is added.
+   * uses it and connects now; an auto-made guitar name follows the device, and a waiting default vocal takes it too. With no device input yet, a guitar input with its rig is added.
    */
   async chooseInput(deviceId: string): Promise<void> {
     const d = this.meta.devices.find((x) => x.id === deviceId);
     if (!d) return;
     this.remember({ in: { id: d.id, label: d.label } });
-    const name = `Guitar · ${deviceName(d.label)}`.slice(0, 40);
+    const name = defaultInputName("guitar", d);
     const strip = this.mixer.list().find((i) => i.kind === "device");
     if (!strip) {
       this.addInputWithRig({ kind: "device", name, deviceId: d.id, mode: "left" }, "guitar");
       return;
     }
-    if (strip.name === GUITAR_NAME || strip.name.startsWith("Guitar · ")) this.mixer.rename(strip.id, name);
+    if (defaultRole(strip.name) === "guitar") this.mixer.rename(strip.id, name);
+    // a default vocal still waiting for its device takes the same one, on Input 2
+    for (const i of this.mixer.list()) {
+      if (i.kind !== "device" || i.id === strip.id || i.deviceId || defaultRole(i.name) !== "vocal") continue;
+      this.mixer.setMode(i.id, DEFAULT_CHANNEL.vocal, 0);
+      this.mixer.adoptDevice(i.id, d.id);
+      this.mixer.rename(i.id, defaultInputName("vocal", d));
+    }
     await this.mixer.useDevice(strip.id, d.id);
   }
 
-  /** A device input that has no device yet (the default guitar) takes the audio interface once one is seen. Nothing is opened. */
-  private adoptDevices(): void {
-    const pick = chooseDevice(this.meta.devices, this.prefs.in);
-    if (!pick || deviceScore(pick.label) <= 0) return;
-    for (const i of this.mixer.list()) if (i.kind === "device" && !i.deviceId) this.mixer.adoptDevice(i.id, pick.id);
+  /**
+   * A default input that has no device yet (the guitar, the vocal) takes the audio interface once one is seen, on its own channel. With
+   * `builtIn` (the person pressed "Detect devices") and no interface, the vocal takes the computer's own mic. Inputs that have a device are
+   * never changed, even when it is missing. Nothing is opened here.
+   */
+  private adoptDevices(builtIn = false): void {
+    const strips = this.mixer.list().filter((i) => i.kind === "device").map((i) => ({ id: i.id, name: i.name, deviceId: i.deviceId, role: defaultRole(i.name) }));
+    for (const a of adoptPlan({ strips, devices: this.meta.devices, remembered: this.prefs.in, builtIn })) {
+      const s = strips.find((x) => x.id === a.id)!;
+      this.mixer.setMode(a.id, a.mode, 0);
+      this.mixer.adoptDevice(a.id, a.device.id);
+      // a waiting name ("Guitar", "Vocal", the old "Scarlett Guitar") says which device it now uses
+      if (/^(scarlett )?(guitar|vocal)$/i.test(s.name)) this.mixer.rename(a.id, defaultInputName(s.role!, a.device));
+    }
   }
 
   /**
@@ -1320,8 +1351,9 @@ export class LooperEngine {
   async connectGear(ask = true): Promise<void> {
     if (ask) {
       await this.requestDeviceAccess();
-      // names are visible now, so a strip still waiting for its interface can take it
+      // names are visible now, so a strip still waiting for its interface can take it (the vocal the computer's mic when there is none)
       await this.refreshDevices().catch(() => undefined);
+      this.adoptDevices(true);
     }
     // a strip still waiting for its interface (no device) is never opened: that would be the computer's own mic
     for (const i of this.mixer.list()) if (i.kind === "device" && i.deviceId && (!i.connected || i.error)) await this.mixer.connect(i.id);

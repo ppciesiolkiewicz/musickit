@@ -340,11 +340,12 @@ export default function ConnectionLayer({ engine, snap, wrapper }: { engine: Loo
           {destinations(patch, menu).length === 0 && <span className="px-1 py-0.5 text-[11px] text-slate-500">Nowhere yet: drag from the dot</span>}
           {destinations(patch, menu).map((d) => {
             const label = `${nameOf(d.to)}${d.port === "rec" ? " (record)" : ""}`;
+            const c = linkColour(patch, d.links[0], groupColours);
             return (
-              <div key={d.key} className={`flex items-center gap-1 rounded ${d.on ? "bg-emerald-500/15" : "hover:bg-slate-800"}`}>
+              <div key={d.key} className={`flex items-center gap-1 rounded ${d.on ? "" : "hover:bg-slate-800"}`} style={d.on ? { background: `${c}26` } : undefined}>
                 <button type="button" role={node(menu)?.destOne ? "radio" : "checkbox"} aria-checked={d.on} className="flex min-w-0 flex-1 items-center gap-1.5 px-1 py-1 text-left" onClick={() => toggleDest(menu, d.key, !d.on)}>
-                  <span className={`grid h-3 w-3 shrink-0 place-items-center ${node(menu)?.destOne ? "rounded-full" : "rounded-sm"} border ${d.on ? "border-emerald-300 bg-emerald-300 text-slate-950" : "border-slate-500"}`}>{d.on && <Icon name="check" size={9} />}</span>
-                  <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: linkColour(patch, d.links[0], groupColours) }} />
+                  <span className={`grid h-3 w-3 shrink-0 place-items-center ${node(menu)?.destOne ? "rounded-full" : "rounded-sm"} border ${d.on ? "text-slate-950" : "border-slate-500"}`} style={d.on ? { borderColor: c, background: c } : undefined}>{d.on && <Icon name="check" size={9} />}</span>
+                  <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: c }} />
                   <span className={`truncate ${d.on ? "text-slate-100" : "text-slate-400"}`}>{label}</span>
                 </button>
                 <button type="button" className="grid h-5 w-5 shrink-0 place-items-center rounded text-slate-500 hover:text-rose-300" onClick={() => engine.do({ type: "batch", label: "Remove a connection", actions: d.links.map((l) => ({ type: "patch.unlink", id: l.id })) })} title="Remove" aria-label={`Stop sending to ${label}`}><Icon name="trash" size={11} /></button>

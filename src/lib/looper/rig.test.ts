@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { GROUP_STARTS, GUITAR_AMPS, PIANO_PRESETS, PIANO_STARTS, RIG_PRESETS, SEQUENCER_STARTS, pianoRig, starterRig } from "./rig";
+import { GROUP_STARTS, GUITAR_AMPS, PIANO_PRESETS, PIANO_STARTS, RIG_PRESETS, SEQUENCER_STARTS, pianoRig, starterRig, vocalRig } from "./rig";
 import { addNode, connect, feeds, type Patch, type PatchNode } from "./patch";
 import { BASS, DRUMS } from "./sequencer";
 import { DEFAULT_GROUPS } from "./layout";
@@ -21,15 +21,15 @@ describe("starter rig", () => {
     assert.equal(buses.length, busCount);
     assert.ok(buses.every((x) => x.owner === "in:3"), "the buses belong to the input");
     assert.ok(n.findIndex((x) => x.kind === "tuner") < n.findIndex((x) => x.kind === "fx"), "the tuner exists before anything links to it");
-    const mine = links(r.actions).filter((x) => x.from === "in:3");
+    const mine = links(r.actions).filter((x) => x.from === "in:3" && x.to !== r.tuner);
     assert.equal(mine.length, busCount);
     assert.deepEqual(mine.map((x) => x.muted), buses.map((_, i) => i > 0), "the first bus is open, the rest closed");
   });
-  it("sends every bus to the master and into the tuner, and the tuner into every group's recorder", () => {
+  it("sends every bus to the master and into every group's recorder; the tuner only listens to the input", () => {
     const l = links(r.actions);
-    r.buses.forEach((b) => assert.deepEqual(l.filter((x) => x.from === b).map((x) => x.to), ["master", r.tuner]));
-    assert.deepEqual(l.filter((x) => x.from === r.tuner).map((x) => x.to), ["group:g1", "group:g2", "group:g3"]);
-    assert.ok(l.filter((x) => x.from === r.tuner).every((x) => x.port === "rec"));
+    r.buses.forEach((b) => assert.deepEqual(l.filter((x) => x.from === b).map((x) => x.to), ["master", "group:g1", "group:g2", "group:g3"]));
+    assert.deepEqual(l.filter((x) => x.to === r.tuner).map((x) => x.from), ["in:3"], "fed by the dry input");
+    assert.deepEqual(l.filter((x) => x.from === r.tuner), [], "the tuner sends nowhere");
     assert.equal(new Set(l.map((x) => x.id)).size, l.length, "unique link ids");
   });
   it("names each amp bus after its amp and asks for that amp's model", () => {
@@ -54,7 +54,20 @@ describe("starter rig", () => {
       if (a.type === "patch.link") p = connect(p, a.link.from, a.link.to, a.link.id, a.link.port ?? "bus", a.link.muted);
     }
     assert.equal(p.links.length, links(r.actions).length);
-    assert.deepEqual(feeds(p, "group:g2", "rec"), ["in:3"], "the guitar records through its bus and the tuner");
+    assert.deepEqual(feeds(p, "group:g2", "rec"), ["in:3"], "the guitar records through its bus");
+  });
+});
+
+describe("vocal rig", () => {
+  it("gives the input a bus per vocal preset, the first open, each to the master and every group's recorder", () => {
+    const r = vocalRig({ input: "in:5", groups: ["g1", "g2"], directLinks: ["rec:5:g1"] });
+    const l = links(r.actions);
+    assert.equal(r.actions[0].type, "patch.unlink");
+    assert.equal(r.buses.length, INPUT_PRESETS.vocal.length);
+    assert.ok(nodes(r.actions).every((n) => n.owner === "in:5"));
+    assert.deepEqual(l.filter((x) => x.from === "in:5").map((x) => x.muted), INPUT_PRESETS.vocal.map((_, i) => i > 0));
+    r.buses.forEach((b) => assert.deepEqual(l.filter((x) => x.from === b).map((x) => x.to), ["master", "group:g1", "group:g2"]));
+    assert.ok(!nodes(r.actions).some((n) => n.kind === "tuner"), "no tuner for a voice");
   });
 });
 

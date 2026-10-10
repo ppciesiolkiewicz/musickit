@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { chooseDevice, deviceKind, deviceName, deviceScore, gearIssues } from "./deviceChoice";
+import { adoptPlan, chooseDevice, defaultInputName, defaultRole, deviceKind, deviceName, deviceScore, gearIssues } from "./deviceChoice";
 
 const mac = { id: "m", label: "MacBook Pro Microphone" };
 const scarlett = { id: "s", label: "Focusrite USB Audio" };
@@ -49,5 +49,36 @@ describe("deviceKind and deviceName", () => {
   assert.equal(deviceKind("RC-505mkII"), "interface");
   assert.equal(deviceName("Scarlett 4i4 4th Gen (1235:821a)"), "Scarlett 4i4 4th Gen");
   assert.equal(deviceName("MacBook Pro Speakers (Built-in)"), "MacBook Pro Speakers");
+  });
+});
+
+describe("more interfaces", () => {
+  it("knows interfaces by other makers' names", () => {
+    ["Universal Audio Volt 2", "Audient EVO 4", "MiniFuse 2", "SSL 2+", "Behringer UMC204HD", "MOTU M2", "PreSonus AudioBox USB 96", "Steinberg UR22C", "M-Audio AIR 192|4", "iRig HD 2", "Zoom U-44", "Line 6 HX Stomp", "Rodecaster Pro II", "Arturia AudioFuse", "Antelope Zen Go", "Apollo Twin X", "Tascam US-2x2", "Mackie Onyx Producer", "Alesis iO 2"].forEach((n) =>
+      assert.equal(deviceKind(n), "interface", n));
+    assert.equal(deviceKind("Linux Webcam"), "builtin", "not a NUX pedal");
+  });
+});
+
+describe("default inputs", () => {
+  const scarlett2 = { id: "s", label: "Scarlett 2i2 USB" };
+  const guitar = { id: 1, deviceId: "", role: "guitar" as const };
+  const vocal = { id: 2, deviceId: "", role: "vocal" as const };
+  it("names them after their role and the device", () => {
+    assert.equal(defaultInputName("guitar", scarlett2), "Guitar · Scarlett 2i2 USB");
+    assert.equal(defaultInputName("vocal", null), "Vocal");
+    assert.equal(defaultRole("Scarlett Guitar"), "guitar", "the old default name");
+    assert.equal(defaultRole("Vocal · Scarlett 2i2"), "vocal");
+    assert.equal(defaultRole("Bass"), null);
+  });
+  it("gives the interface to every waiting input, guitar on Input 1 and vocal on Input 2", () => {
+    assert.deepEqual(adoptPlan({ strips: [guitar, vocal], devices: [mac, scarlett2] }).map((a) => [a.id, a.device.id, a.mode]), [[1, "s", "left"], [2, "s", "right"]]);
+  });
+  it("never moves an input that already has a device, even an unplugged one", () => {
+    assert.deepEqual(adoptPlan({ strips: [{ ...guitar, deviceId: "gone" }, { id: 3, deviceId: "", role: null }], devices: [mac, scarlett2], builtIn: true }), []);
+  });
+  it("without an interface: nothing, or the vocal on the computer's mic once the person asks", () => {
+    assert.deepEqual(adoptPlan({ strips: [guitar, vocal], devices: [mac, speakers] }), []);
+    assert.deepEqual(adoptPlan({ strips: [guitar, vocal], devices: [speakers, mac], builtIn: true }).map((a) => [a.id, a.device.id, a.mode]), [[2, "m", "sum"]]);
   });
 });
