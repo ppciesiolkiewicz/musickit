@@ -2,15 +2,63 @@
 
 import Icon from "../Icon";
 import { BusEffects, patchName } from "./PatchNode";
-import { busChoice, busLinks, type PatchNode } from "@/lib/looper/patch";
+import { busChoice, busLinks, whyNot, type PatchNode, type Port } from "@/lib/looper/patch";
+import { linkColour } from "@/lib/looper/patchView";
 import type { LooperEngine, LooperSnapshot } from "@/lib/looper/engine";
 
 const small = "grid h-5 w-5 shrink-0 place-items-center rounded border text-slate-400 hover:text-slate-100";
+let counter = 0;
+const newId = (p: string) => `${p}${Date.now().toString(36)}${(counter++).toString(36)}`;
+
+/** Where one bus sends: a chip per destination (click switches it on or off, x removes it) and a list to add one. */
+function BusDestinations({ engine, snap, bus }: { engine: LooperEngine; snap: LooperSnapshot; bus: PatchNode }) {
+  const patch = snap.patch;
+  const groupColours = Object.fromEntries(snap.groups.map((g) => [`group:${g.id}`, g.colour]));
+  const nameOf = (id: string) => {
+    const n = patch.nodes.find((x) => x.id === id);
+    return n ? patchName(snap, n) : id;
+  };
+  const label = (to: string, port: Port) => `${nameOf(to)}${port === "rec" ? " (record)" : ""}`;
+  const out = patch.links.filter((l) => l.from === bus.id);
+  const taken = new Set(out.map((l) => `${l.to}|${l.port ?? "bus"}`));
+  const options = patch.nodes
+    .filter((n) => n.id !== bus.id && n.owner !== bus.owner && n.id !== bus.owner)
+    .flatMap((n) => (n.kind === "group" ? (["bus", "rec"] as Port[]) : (["bus"] as Port[])).map((port) => ({ to: n.id, port })))
+    .filter((o) => !taken.has(`${o.to}|${o.port}`) && !whyNot(patch, bus.id, o.to, o.port));
+  const add = (value: string) => {
+    const [to, port] = value.split("|") as [string, Port];
+    engine.do({ type: "patch.link", link: { id: newId("l"), from: bus.id, to, ...(port === "rec" ? { port } : {}) } });
+  };
+  return (
+    <div className="flex flex-wrap items-center gap-1 text-[11px]" aria-label={`Where ${patchName(snap, bus)} sends`}>
+      <span className="text-slate-500">to</span>
+      {out.length === 0 && <span className="text-amber-300/80">nowhere</span>}
+      {out.map((l) => {
+        const name = label(l.to, l.port ?? "bus");
+        return (
+          <span key={l.id} className={`flex items-center rounded-full border ${l.muted ? "border-slate-700 text-slate-500" : "border-emerald-500/50 bg-emerald-500/10 text-slate-100"}`}>
+            <button type="button" role="checkbox" aria-checked={!l.muted} className="flex items-center gap-1 py-0.5 pl-1.5 pr-1" title={l.muted ? `Send to ${name}` : `Stop sending to ${name}`} onClick={() => engine.do({ type: "patch.mute", what: "link", id: l.id, muted: !l.muted })}>
+              <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: linkColour(patch, l, groupColours) }} />
+              <span className={l.muted ? "line-through" : ""}>{name}</span>
+            </button>
+            <button type="button" className="grid h-4 w-4 place-items-center rounded-full pr-0.5 text-slate-500 hover:text-rose-300" title={`Remove ${name}`} aria-label={`Remove ${name}`} onClick={() => engine.do({ type: "patch.unlink", id: l.id })}><Icon name="x" size={10} /></button>
+          </span>
+        );
+      })}
+      {options.length > 0 && (
+        <select className="rounded-full border border-dashed border-slate-600 bg-transparent px-1.5 py-0.5 text-[11px] text-slate-400 hover:border-sky-400 hover:text-sky-200" value="" onChange={(e) => e.target.value && add(e.target.value)} aria-label={`Send ${patchName(snap, bus)} to`}>
+          <option value="">+ send to…</option>
+          {options.map((o) => <option key={`${o.to}|${o.port}`} value={`${o.to}|${o.port}`}>{label(o.to, o.port)}</option>)}
+        </select>
+      )}
+    </div>
+  );
+}
 
 /**
  * The part of an input's block under its strip: its output buses. With none there is one button to add one. With one it is just
  * that bus. With two or more the block is also a switch: each bus has a radio (one at a time) or a checkbox (any combination)
- * beside it, the effects under its name, and its own connector for outputs, so each bus can go to several places.
+ * beside it, the effects under its name, and the places it sends to (chips to switch on or off, a list to add one).
  */
 export default function InputBundle({ engine, snap, ownerId }: { engine: LooperEngine; snap: LooperSnapshot; ownerId: string }) {
   const patch = snap.patch;
@@ -61,6 +109,7 @@ export default function InputBundle({ engine, snap, ownerId }: { engine: LooperE
               <button type="button" className={`${small} hover:!border-rose-400`} title="Remove the bus" aria-label={`Remove ${patchName(snap, b)}`} onClick={() => engine.do({ type: "patch.removeNode", id: b.id })}><Icon name="x" size={12} /></button>
             </div>
             <BusEffects engine={engine} snap={snap} node={b} />
+            <BusDestinations engine={engine} snap={snap} bus={b} />
           </div>
         );
       })}
