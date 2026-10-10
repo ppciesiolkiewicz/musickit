@@ -15,8 +15,8 @@ export interface Bounds {
 }
 
 export type Layout = Record<string, WidgetRect>;
-/** Where widgets start when nothing is saved. */
-export type DefaultLayout = (ids: string[], b: Bounds) => Layout;
+/** Where widgets start when nothing is saved; `current` gives the sizes they have now (a fitted widget's real height). */
+export type DefaultLayout = (ids: string[], b: Bounds, current?: Layout) => Layout;
 
 export const WIDGET_MIN = { w: 260, h: 140 };
 

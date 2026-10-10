@@ -14,9 +14,9 @@ const newId = (p: string) => `${p}${Date.now().toString(36)}${(counter++).toStri
 /** A section title that folds its section: chevron and label, with a short summary of what is on while folded. */
 function FoldHead({ open, onToggle, label, summary, children }: { open: boolean; onToggle: () => void; label: string; summary?: string; children?: React.ReactNode }) {
   return (
-    <div className="flex items-center gap-1 text-[10px] uppercase tracking-wide text-slate-500">
+    <div className="flex min-h-5 items-center gap-1 text-[10px] uppercase tracking-wide text-slate-500">
       <button type="button" className="flex min-w-0 flex-1 items-center gap-1 text-left uppercase hover:text-slate-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400" aria-expanded={open} onClick={onToggle} title={open ? `Fold ${label.toLowerCase()}` : `Show ${label.toLowerCase()}`}>
-        <Icon name={open ? "chevron-down" : "chevron-right"} size={11} />
+        <Icon name={open ? "chevron-down" : "chevron-right"} size={11} className="shrink-0" />
         <span className="shrink-0">{label}</span>
         {!open && summary && <span className="min-w-0 truncate normal-case tracking-normal text-slate-400">· {summary}</span>}
       </button>

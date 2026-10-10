@@ -13,7 +13,12 @@ export interface BoardWidget {
   onClose?: () => void;
   /** always drawn under the other widgets (a big one that the rest sit on) */
   back?: boolean;
+  /** as tall as its content: it grows and shrinks with it (a section folding), and only its width is resized by hand */
+  fit?: boolean;
 }
+
+/** The header (h-7), the body's padding (p-2.5 twice) and the border, around a fitted widget's content. */
+const FIT_CHROME = 28 + 20 + 2;
 
 /** One choice of the Auto position menu: where every widget goes. It is given the widgets' current places (for their sizes). */
 export interface Arrangement {
@@ -114,6 +119,48 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
     };
   }, []);
 
+  // a board with no saved layout lays itself out again once the fitted widgets know their real height, until the person moves something
+  const fresh = useRef(false);
+  const relayout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const fitIds = widgets.filter((w) => w.fit).map((w) => w.id).join("|");
+  useEffect(() => {
+    const el = host.current;
+    if (!el || !fitIds) return;
+    const ro = new ResizeObserver((entries) => {
+      const seen: Record<string, number> = {};
+      entries.forEach((e) => {
+        const id = (e.target as HTMLElement).dataset.fit;
+        if (id) seen[id] = Math.round((e.target as HTMLElement).offsetHeight) + FIT_CHROME;
+      });
+      setLayout((l) => {
+        if (!l || !Object.keys(seen).some((id) => l[id] && Math.abs(l[id].h - seen[id]) > 1)) return l;
+        const next = { ...l };
+        Object.entries(seen).forEach(([id, h]) => { if (next[id]) next[id] = { ...next[id], h: Math.max(h, 40) }; });
+        return next;
+      });
+      if (fresh.current) {
+        if (relayout.current) clearTimeout(relayout.current);
+        relayout.current = setTimeout(() => {
+          const cur = layoutRef.current;
+          if (!fresh.current || !cur || !vpRef.current) return;
+          const ids = Object.keys(cur);
+          const l = { ...cur, ...defaults(ids, vpRef.current, cur) };
+          setLayout(l);
+          save(l, viewRef.current);
+        }, 200);
+      }
+    });
+    el.querySelectorAll<HTMLElement>("[data-fit]").forEach((n) => ro.observe(n));
+    return () => ro.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fitIds, layout === null]);
+  // the fresh layout settles within a few seconds; after that only the person moves things
+  useEffect(() => {
+    if (!fresh.current) return;
+    const t = setTimeout(() => (fresh.current = false), 4000);
+    return () => clearTimeout(t);
+  }, [layout === null]);
+
   // widgets that have no saved place start tiled to the screen at 100%
   useEffect(() => {
     if (!vp || vp.w < 1) return;
@@ -128,6 +175,7 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
         }
       }
       const idList = idKey ? idKey.split("|") : [];
+      if (!cur && (typeof raw !== "object" || raw === null)) fresh.current = true;
       const d = screen(idList, vp);
       const src = typeof raw === "object" && raw !== null ? (raw as Record<string, Partial<WidgetRect> | undefined>) : {};
       const out: Layout = {};
@@ -211,11 +259,14 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
   }, [zoomAt, save]);
   const layoutRef = useRef<Layout | null>(null) as { current: Layout | null };
   layoutRef.current = layout;
+  const vpRef = useRef<Bounds | null>(null) as { current: Bounds | null };
+  vpRef.current = vp;
 
   const begin = (id: string, mode: "move" | Corner) => (e: RPointerEvent) => {
     if (!layout || !layout[id]) return;
     e.preventDefault();
     e.stopPropagation();
+    fresh.current = false;
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     drag.current = { id, mode, px: e.clientX, py: e.clientY, start: layout[id] };
     setOrder((o) => raise(o, id));
@@ -235,7 +286,9 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
       return;
     }
     const z = viewRef.current.zoom;
-    const next = inRange(d.mode === "move" ? { ...d.start, x: d.start.x + dx / z, y: d.start.y + dy / z } : resizeFromCorner(d.start, d.mode, dx / z, dy / z));
+    const fit = widgets.find((w) => w.id === d.id)?.fit;
+    // a fitted widget keeps its height (its content sets it): only the width follows the corner
+    const next = inRange(d.mode === "move" ? { ...d.start, x: d.start.x + dx / z, y: d.start.y + dy / z } : fit ? { ...resizeFromCorner(d.start, d.mode, dx / z, 0), y: d.start.y, h: d.start.h } : resizeFromCorner(d.start, d.mode, dx / z, dy / z), fit ? { w: WIDGET_MIN.w, h: 40 } : WIDGET_MIN);
     setLayout((l) => (l ? { ...l, [d.id]: next } : l));
   };
   const end = () => {
@@ -255,6 +308,7 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
   /** Put every widget where the arrangement says, then show them all. */
   const arrange = (a: Arrangement) => {
     if (!layout || !vp) return;
+    fresh.current = false;
     const placed = a.layout(widgets.map((w) => w.id), vp, layout);
     const l: Layout = { ...layout };
     widgets.forEach((w) => { if (placed[w.id]) l[w.id] = inRange(placed[w.id]); });
@@ -352,7 +406,7 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
                   e.stopPropagation();
                   // a dialog opened from the widget is drawn elsewhere on the page (a portal) but its events still bubble here: those do not raise it
                   if (e.currentTarget.contains(e.target as Node)) setOrder((o) => raise(o, w.id));
-                }}>{w.node}</div>
+                }}>{w.fit ? <div data-fit={w.id}>{w.node}</div> : w.node}</div>
                 {(["nw", "ne", "sw", "se"] as Corner[]).map((c) => (
                   <div
                     key={c}

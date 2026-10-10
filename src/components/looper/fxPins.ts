@@ -79,6 +79,26 @@ export function movePin(key: string, x: number, y: number) {
   set(get().map((p) => (p.key === key ? { ...p, x: cx, y: cy } : p)));
 }
 
+const DEFAULTS_DONE = "musickit.looper.groupPinsDone";
+
+/**
+ * Once per project (flag `musickit.looper.groupPinsDone`): every effect of every group is shown as a widget, laid out in rows so they do
+ * not cover each other on the stage. Pins that already exist stay where they are.
+ */
+export function pinDefaults(keys: string[]) {
+  try {
+    if (window.localStorage.getItem(DEFAULTS_DONE)) return;
+    window.localStorage.setItem(DEFAULTS_DONE, "1");
+  } catch {
+    return;
+  }
+  const cur = get();
+  const add = keys.filter((k) => !isPinned(cur, k)).slice(0, Math.max(0, 24 - cur.length));
+  if (!add.length) return;
+  const per = Math.max(1, Math.floor(PIN_AREA.w / (PIN_W + 10)));
+  set([...cur, ...add.map((key, i) => ({ key, x: (i % per) * (PIN_W + 10), y: Math.floor(i / per) * 290 }))]);
+}
+
 /** Drop pins by key. */
 export function dropPins(keys: string[]) {
   if (!keys.length) return;

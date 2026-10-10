@@ -20,6 +20,7 @@ import { createPlayer, getAudioContext } from "@/features/sound";
 import LoopStage from "./LoopStage";
 import FreeBoard from "./FreeBoard";
 import { Toasts } from "./toast";
+import { pinDefaults } from "./fxPins";
 import { Modal } from "../Modal";
 import MetronomeBar, { TransportButton } from "./MetronomeBar";
 import Timeline from "./Timeline";
@@ -128,9 +129,10 @@ const getKeyboardOut = (): GainNode => (keyboardOut ??= getAudioContext().create
 
 /**
  * What a project is made of in storage. Settings (metronome, output, MIDI, keyboard), macros and amp models stay. The flags of the
- * defaults go too, so a new project starts with the default guitar, keyboard piano, Scale Piano and sequencers again.
+ * defaults go too, so a new project starts with the default guitar, vocal, keyboard piano, Scale Piano, sequencers and group effect
+ * widgets again, and the canvas lays itself out afresh (vertical).
  */
-const PROJECT_KEYS = ["inputs", "layout", "sequencers", "scalePianos", "patch", "fxWidgets", "widgets", "rigDone3", "keysRigDone", "pianoRigDone2", "seqRigDone"];
+const PROJECT_KEYS = ["inputs", "layout", "sequencers", "scalePianos", "patch", "fxWidgets", "groupPinsDone", "widgets", "board2", "rigDone3", "keysRigDone", "pianoRigDone2", "seqRigDone"];
 
 function newProject() {
   try {
@@ -195,6 +197,8 @@ function useEngine() {
   });
   useEffect(() => {
     engine.init();
+    // every group's effects are on show in a new project
+    pinDefaults(engine.getSnapshot().groups.flatMap((g) => g.effects.map((e) => `g:${g.id}:${e.id}`)));
     return () => engine.dispose();
   }, [engine]);
   const snap = useSyncExternalStore(engine.subscribe, engine.getSnapshot, engine.getSnapshot);

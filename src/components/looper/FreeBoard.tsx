@@ -124,13 +124,14 @@ export default function FreeBoard({ engine, snap, controls, keyboardOpen, onTogg
         </section>
       ),
     },
-    { id: "master", title: title("audio-lines", "Master bus"), node: <ul><MasterStrip engine={engine} snap={snap} /></ul> },
+    { id: "master", fit: true, title: title("audio-lines", "Master bus"), node: <ul><MasterStrip engine={engine} snap={snap} /></ul> },
     ...strips.map((inp) => ({
       id: `in:${inp.id}`,
+      fit: true,
       title: title("mic", inp.name),
       node: (
-        // the whole block (strip and buses) is where the input's one output leaves from
-        <div className="h-full overflow-y-auto" data-patch-id={`in:${inp.id}`}>
+        // the whole block (strip and buses) is where the input's one output leaves from; the widget is as tall as it
+        <div data-patch-id={`in:${inp.id}`}>
           <ul>
             <InputStrip engine={engine} inp={inp} devices={snap.devices} anyDevice={snap.devices.length > 0} keyboardOpen={keyboardOpen} onToggleKeyboard={onToggleKeyboard} sequencerOpen={false} onToggleSequencer={() => undefined} pianoOpen={!!inp.sourceId && openPianos.includes(inp.sourceId)} onTogglePiano={() => inp.sourceId && onTogglePiano(inp.sourceId)} seq={undefined} groups={snap.groups} />
           </ul>
@@ -140,6 +141,7 @@ export default function FreeBoard({ engine, snap, controls, keyboardOpen, onTogg
     })),
     ...cards.map((n) => ({
       id: n.id,
+      fit: true,
       title: (
         <span className="flex min-w-0 flex-1 items-center gap-1.5">
           {title(n.kind === "switch" ? "split" : n.kind === "tuner" ? "gauge" : "sliders-horizontal", patchName(snap, n))}
@@ -149,7 +151,7 @@ export default function FreeBoard({ engine, snap, controls, keyboardOpen, onTogg
       node: <NodeBody engine={engine} snap={snap} node={n} />,
       onClose: () => engine.do({ type: "patch.removeNode", id: n.id }),
     })),
-    ...pinned.map((r) => ({ id: `pin:${r.pin.key}`, title: <PinTitle r={r} />, node: <PinBody r={r} />, onClose: () => togglePin(r.pin.key) })),
+    ...pinned.map((r) => ({ id: `pin:${r.pin.key}`, fit: true, title: <PinTitle r={r} />, node: <PinBody r={r} />, onClose: () => togglePin(r.pin.key) })),
   ];
 
   return (
