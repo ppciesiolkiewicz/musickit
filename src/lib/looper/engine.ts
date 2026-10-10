@@ -1,4 +1,4 @@
-import { LENGTH_STEPS, assemble, cycleBars, effectiveGain, lengthMultiple, loopOffset, takeStatus, type TakeStatus, msToFrames, nextBoundary, peaks, quantUnitFrames, quantiseLength, timelinePosition, type Chunk, type InputMode } from "./frames";
+import { LENGTH_STEPS, assemble, cycleBars, timelineOrigin, effectiveGain, lengthMultiple, loopOffset, takeStatus, type TakeStatus, msToFrames, nextBoundary, peaks, quantUnitFrames, quantiseLength, timelinePosition, type Chunk, type InputMode } from "./frames";
 import { Transport, type TransportState } from "./transport";
 import { Metronome, type MetronomeSettings } from "./metronome";
 import { Sequencer, type SequencerState } from "./sequencer";
@@ -260,6 +260,8 @@ export class LooperEngine {
   private transport = new Transport();
   /** Stop was pressed during a take: stop the transport when the take is done */
   private stopAfterTake = false;
+  /** where that take closes (AudioContext time), so the transport stops on that same line; null = the next line after it */
+  private takeEndsAt: number | null = null;
   private transportTimer: ReturnType<typeof setInterval> | null = null;
   /** true when the loop length is a whole number of beats or bars, so loop restarts stay on the grid */
   private loopOnGrid = false;
@@ -834,7 +836,7 @@ export class LooperEngine {
     const when = this.ctx ? this.beatBoundary() : 0;
     this.sequencers.forEach((q) => {
       if (q.state.playing && this.transport.going) {
-        if (restart || !q.running) q.start(this.transport.anchor, restart ? 0 : when);
+        if (restart || !q.running) q.start(this.transport.anchor, this.transport.joinAt(restart, when));
         else if (q.stopping) q.cancelStop();
       } else if (q.running && !q.stopping) {
         q.stopAt(when);
@@ -880,27 +882,32 @@ export class LooperEngine {
         // finish the take first (quantised as usual); the transport stops when it is done
         this.stopAfterTake = true;
         this.stopRecording();
-        if (this.capture) {
+        const cap = this.capture;
+        if (cap) {
+          this.takeEndsAt = cap.endFrame !== null ? cap.at + (cap.endFrame - cap.startFrame) / this.ctx.sampleRate : null;
           this.emit();
           return;
         }
       }
       if (!this.transport.going) return;
-      const at = this.transport.stop(now, this.metronome.settings.quantise);
-      if (this.transport.state === "stopped") this.syncTransport();
-      else {
-        this.metronome.stopAt(at);
-        this.runtimes.forEach((r) => {
-          try {
-            r.source?.stop(at);
-          } catch {
-            /* already stopped */
-          }
-        });
-        this.sequencers.forEach((q) => q.running && q.stopAt(at));
-      }
+      this.applyStop(this.transport.stop(now, this.metronome.settings.quantise));
     }
     this.emit();
+  }
+
+  /** The transport was just told to stop at `at`: stopped now, or everything stops on that line. */
+  private applyStop(at: number) {
+    if (this.transport.state === "stopped") return this.syncTransport();
+    this.metronome.stopAt(at);
+    this.runtimes.forEach((r) => {
+      try {
+        r.source?.stop(at);
+      } catch {
+        /* already stopped */
+      }
+    });
+    // a sequencer already leaving on an earlier beat keeps that beat
+    this.sequencers.forEach((q) => q.running && !q.stopping && q.stopAt(at));
   }
 
   /** Start the transport for something that was just armed (a loop, a sequencer, a group). No count-in. Returns false when it was already going. */
@@ -928,7 +935,9 @@ export class LooperEngine {
    * so armed loops re-join at their current phase (a 20 ms seam); the metronome and sequencers just drop their stop time.
    */
   private resumeAfterStop() {
-    this.metronome.start(this.transport.anchor);
+    // still clicking towards the stop line: drop the line (a restart would schedule the next beats twice)
+    if (this.metronome.running) this.metronome.cancelStop();
+    else this.metronome.start(this.transport.anchor);
     this.runtimes.forEach((r) => {
       if (r.buffer && r.info.active && r.source) this.startChannel(r, null);
     });
@@ -980,7 +989,13 @@ export class LooperEngine {
   private afterTake() {
     if (!this.stopAfterTake) return;
     this.stopAfterTake = false;
-    this.setTransport(false);
+    const at = this.takeEndsAt;
+    this.takeEndsAt = null;
+    if (!this.ctx || !this.transport.going) return;
+    if (at === null) return this.setTransport(false);
+    // the line that closed the take, not the next one: no extra bar after it
+    this.applyStop(this.transport.stopAtTime(this.ctx.currentTime, at));
+    this.emit();
   }
 
   /* ------------------------------------------------------------------ start up */
@@ -1417,7 +1432,10 @@ export class LooperEngine {
     const st = cap ? this.getTakeStatus(cap.channel) : null;
     const take = cap && st && st.phase !== "armed" ? { bar: st.bar, totalBars: st.totalBars, planned: cap.endFrame !== null && !cap.stopping } : null;
     const cycle = Math.max(cycleBars(loopBars), take?.totalBars ?? 1);
-    const pos = this.transport.active ? timelinePosition(this.ctx.currentTime, this.transport.anchor, period, m.beatsPerBar, cycle) : { bar: 0, beat: 0, fraction: 0, countIn: false };
+    // measured from where the take or the longest loop really started, so the playhead matches the rings
+    const longest = this.runtimes.filter((r) => r.buffer && r.info.active).sort((a, b) => b.buffer!.duration - a.buffer!.duration)[0];
+    const origin = timelineOrigin({ countIn: this.transport.state === "countIn", takeAt: cap?.started ? cap.at : null, loopOrigin: longest ? longest.origin : null, anchor: this.transport.anchor });
+    const pos = this.transport.active ? timelinePosition(this.ctx.currentTime, origin, period, m.beatsPerBar, cycle) : { bar: 0, beat: 0, fraction: 0, countIn: false };
     return { state: this.transport.state, cycle, ...pos, take };
   }
 
@@ -1996,7 +2014,7 @@ export class LooperEngine {
       } else if (wasGoing) {
         // running with quantising off: the grid moves to the take, after the count-in
         anchor = this.ctx.currentTime + 0.1 + m.countInBars * m.beatsPerBar * this.metronome.period;
-        this.transport.moveAnchor(anchor);
+        this.transport.recount(anchor, this.ctx.currentTime);
         startFrame = Math.round(anchor * sr) + comp;
       } else {
         // stopped: Play with the count-in; the take starts on beat 1

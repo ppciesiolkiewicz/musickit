@@ -127,6 +127,11 @@ export class Metronome {
     this.until = t;
   }
 
+  /** Forget a pending stop line and keep clicking. */
+  cancelStop() {
+    this.until = null;
+  }
+
   /** Beat position for the display, or null when the metronome is not running. */
   position(): { beat: number; countIn: boolean } | null {
     if (!this.ctx || !this.running) return null;

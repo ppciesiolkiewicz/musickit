@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { applyInputMode, assemble, beatFrames, beatInBar, cycleBars, effectiveGain, loopOffset, msToFrames, nextBoundary, peaks, quantUnitFrames, quantiseLength, timelinePosition, type Chunk } from "./frames";
+import { applyInputMode, assemble, beatFrames, beatInBar, cycleBars, effectiveGain, loopOffset, msToFrames, nextBoundary, peaks, quantUnitFrames, quantiseLength, timelineOrigin, timelinePosition, type Chunk } from "./frames";
 
 const chunk = (frame: number, values: number[]): Chunk => ({ frame, l: new Float32Array(values), r: new Float32Array(values.map((v) => -v)) });
 
@@ -135,5 +135,14 @@ describe("timeline", () => {
     assert.equal(p.bar, 0);
     assert.equal(p.beat, 1);
     assert.equal(p.fraction, 0);
+  });
+  it("timelineOrigin follows the take, then the longest loop, then the grid", () => {
+    // counting in: the grid's beat 1
+    assert.equal(timelineOrigin({ countIn: true, takeAt: 9, loopOrigin: 7, anchor: 12 }), 12);
+    // a take that started bars after beat 1 is measured from where it started
+    assert.equal(timelineOrigin({ countIn: false, takeAt: 9, loopOrigin: 7, anchor: 1 }), 9);
+    // no take: the longest armed loop's own start
+    assert.equal(timelineOrigin({ countIn: false, takeAt: null, loopOrigin: 7, anchor: 1 }), 7);
+    assert.equal(timelineOrigin({ countIn: false, takeAt: null, loopOrigin: null, anchor: 1 }), 1);
   });
 });

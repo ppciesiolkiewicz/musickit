@@ -78,8 +78,32 @@ export class Transport {
     return false;
   }
 
+  /** Stop at a known line (the end of a take), or now when it has already passed. Returns when it stops. */
+  stopAtTime(now: number, at: number): number {
+    if (this.state === "stopped") return now;
+    if (at <= now) {
+      this.state = "stopped";
+      this.stopAt = null;
+      return now;
+    }
+    this.stopAt = at;
+    this.state = "stopping";
+    return at;
+  }
+
   moveAnchor(anchor: number) {
     this.anchor = anchor;
+  }
+
+  /** Move beat 1 to a new anchor; a future one is a fresh count-in. */
+  recount(anchor: number, now: number) {
+    this.anchor = anchor;
+    if (this.going) this.state = anchor > now ? "countIn" : "running";
+  }
+
+  /** When something armed starts: on beat 1 after a restart (silent through the count-in), else on the given next beat. */
+  joinAt(restart: boolean, nextBeat: number): number {
+    return restart ? this.anchor : nextBeat;
   }
 
   /** The next beat or bar line at least `margin` seconds after now. */

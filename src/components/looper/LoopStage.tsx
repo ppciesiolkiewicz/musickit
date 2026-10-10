@@ -48,9 +48,8 @@ export default function LoopStage({ engine, snap, openSeqs, onToggleSeq, fill = 
   const ready = snap.status === "ready";
   const busy = snap.channels.some((c) => c.state === "recording" || c.state === "armed");
   const firstTake = snap.loopSeconds === null;
-  // the transport is heading to play (its button shows Stop); sounding also covers the run-out to a stop line
+  // the transport is heading to play (its button shows Stop); group and item buttons show Stop only for armed things then
   const going = snap.transport.state === "countIn" || snap.transport.state === "running";
-  const sounding = snap.transport.state === "running" || snap.transport.state === "stopping";
   const baseBars = (() => {
     if (snap.loopSeconds === null) return null;
     const b = (snap.loopSeconds * snap.metronome.bpm) / 60 / snap.metronome.beatsPerBar;
@@ -115,7 +114,7 @@ export default function LoopStage({ engine, snap, openSeqs, onToggleSeq, fill = 
             {pins && <EffectWidgets engine={engine} snap={snap} drag={(e, onMove) => startDrag(e, stage.current, onMove)} />}
       <div ref={stage} data-pan="1" className="relative select-none" style={{ width: STAGE_W, height: STAGE_H }}>
         {snap.groups.map((g) => (
-          <GroupBox key={g.id} engine={engine} g={g} stage={stage} count={snap.channels.filter((c) => c.groupId === g.id && c.state !== "empty").length + snap.sequencers.filter((q) => q.groupId === g.id).length} running={snap.channels.some((c) => c.groupId === g.id && c.state !== "empty" && c.active && sounding) || snap.sequencers.some((q) => q.groupId === g.id && q.running)} onFx={() => setFxFor(g.id)} />
+          <GroupBox key={g.id} engine={engine} g={g} stage={stage} count={snap.channels.filter((c) => c.groupId === g.id && c.state !== "empty").length + snap.sequencers.filter((q) => q.groupId === g.id).length} running={snap.channels.some((c) => c.groupId === g.id && c.state !== "empty" && c.active && going) || snap.sequencers.some((q) => q.groupId === g.id && q.playing && going)} onFx={() => setFxFor(g.id)} />
         ))}
         {snap.channels.map((c) => {
           const g = snap.groups.find((x) => x.id === c.groupId);

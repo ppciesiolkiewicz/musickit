@@ -118,4 +118,34 @@ describe("transport", () => {
     assert.equal(t.anchor, 5);
     assert.equal(t.next(5.1, "beat"), 5.5);
   });
+
+  it("stopAtTime stops at a given line, or now when it has passed", () => {
+    const t = make();
+    t.play(0, 0);
+    assert.equal(t.stopAtTime(3, 4.05), 4.05);
+    assert.equal(t.state, "stopping");
+    const u = make();
+    u.play(0, 0);
+    assert.equal(u.stopAtTime(5, 4.05), 5);
+    assert.equal(u.state, "stopped");
+  });
+
+  it("recount puts a future anchor back into the count-in", () => {
+    const t = make();
+    t.play(0, 0);
+    t.recount(5, 3);
+    assert.equal(t.anchor, 5);
+    assert.equal(t.state, "countIn");
+    t.tick(5);
+    assert.equal(t.state, "running");
+    t.recount(4, 6);
+    assert.equal(t.state, "running");
+  });
+
+  it("joinAt: after a restart everything starts on beat 1, else on the next beat", () => {
+    const t = make();
+    const a = t.play(0, 1); // beat 1 is a bar away: armed sequencers must stay silent through the count-in
+    assert.equal(t.joinAt(true, 0.5), a);
+    assert.equal(t.joinAt(false, 0.5), 0.5);
+  });
 });

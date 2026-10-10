@@ -178,6 +178,12 @@ export interface TimelinePos {
   countIn: boolean;
 }
 
+/** Where the timeline is measured from: the grid's beat 1 while counting in, else a running take's start, else the longest armed loop's own start, else the grid. */
+export function timelineOrigin(o: { countIn: boolean; takeAt: number | null; loopOrigin: number | null; anchor: number }): number {
+  if (o.countIn) return o.anchor;
+  return o.takeAt ?? o.loopOrigin ?? o.anchor;
+}
+
 /** Where on the timeline the time falls: bar, beat and how far through the cycle. Before the anchor it is the count-in. */
 export function timelinePosition(now: number, anchor: number, period: number, beatsPerBar: number, cycle: number): TimelinePos {
   const barSec = period * beatsPerBar;
