@@ -100,6 +100,38 @@ export function spotInGroup(groups: GroupLayout[], groupId: string, taken: { x: 
   return clampPoint(g.x + g.w / 2, g.y + g.h / 2);
 }
 
+/** A circle with its controls (they hang below it) needs this much room: no other circle within the box. */
+const CELL = { w: LOOP_R * 2 + 8, h: LOOP_R * 2 + 56 };
+const clear = (x: number, y: number, taken: { x: number; y: number }[]) => taken.every((t) => Math.abs(t.x - x) >= CELL.w || Math.abs(t.y - y) >= CELL.h);
+
+/** The first spot inside a group on its loop grid where a circle and its controls fit, or null when the group is full. */
+function gridSpot(g: GroupLayout, groups: GroupLayout[], taken: { x: number; y: number }[]): { x: number; y: number } | null {
+  const perRow = Math.max(1, Math.floor((g.w - 4) / CELL.w));
+  for (let y = g.y + 50 + LOOP_R; y + LOOP_R <= g.y + g.h; y += CELL.h) {
+    for (let col = 0; col < perRow; col++) {
+      const p = clampPoint(g.x + ((col + 0.5) * g.w) / perRow, y);
+      if (containingGroup(groups, p.x, p.y) === g.id && clear(p.x, p.y, taken)) return p;
+    }
+  }
+  return null;
+}
+
+/**
+ * Where a new loop number `index` goes, never on top of another circle (a loop or a sequencer) or its controls: its default spot if
+ * that is clear, else a free place in that group, then in the other groups, then outside every group (it plays to the master there).
+ */
+export function freeSpot(groups: GroupLayout[], index: number, taken: { x: number; y: number }[]): { x: number; y: number } {
+  const s = defaultSpot(groups, index);
+  if (clear(s.x, s.y, taken)) return s;
+  const home = containingGroup(groups, s.x, s.y);
+  const order = [...groups.filter((g) => g.id === home), ...groups.filter((g) => g.id !== home)];
+  for (const g of order) {
+    const p = gridSpot(g, groups, taken);
+    if (p) return p;
+  }
+  return spotOutside(groups, taken) ?? s;
+}
+
 /** A spot on the stage outside every group (so a circle there plays straight to the master), or null when the groups cover everything. */
 export function spotOutside(groups: GroupLayout[], taken: { x: number; y: number }[]): { x: number; y: number } | null {
   const step = LOOP_R * 1.7;

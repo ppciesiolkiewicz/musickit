@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { LOOPS_PER_GROUP, bottomRow, spotInGroup, spotOutside, LOOP_R, MIN_GROUP_W, STAGE_H, STAGE_W, clampPoint, clampRect, containingGroup, defaultGroups, defaultSpot, resizeRect, MIN_GROUP_H } from "./layout";
+import { LOOPS_PER_GROUP, bottomRow, freeSpot, spotInGroup, spotOutside, LOOP_R, MIN_GROUP_W, STAGE_H, STAGE_W, clampPoint, clampRect, containingGroup, defaultGroups, defaultSpot, resizeRect, MIN_GROUP_H } from "./layout";
 import { clampParams, defaultParams, sanitiseEffects } from "./effects";
 
 describe("stage layout", () => {
@@ -77,6 +77,28 @@ describe("placing circles from the diagram", () => {
     const p = spotInGroup(groups, "g2", taken);
     assert.equal(containingGroup(groups, p.x, p.y), "g2");
     assert.ok(Math.hypot(p.x - taken[0].x, p.y - taken[0].y) >= LOOP_R * 1.6);
+  });
+  it("puts a new loop at its default spot, or elsewhere in that group when a circle is there", () => {
+    const groups = defaultGroups();
+    const index = groups.length * LOOPS_PER_GROUP;
+    const d = defaultSpot(groups, index);
+    assert.deepEqual(freeSpot(groups, index, []), d);
+    const p = freeSpot(groups, index, [d]);
+    assert.equal(containingGroup(groups, p.x, p.y), containingGroup(groups, d.x, d.y));
+    assert.ok(Math.abs(p.x - d.x) >= LOOP_R * 2 + 8 || Math.abs(p.y - d.y) >= LOOP_R * 2 + 56);
+  });
+  it("goes to another group, then outside every group, when a group is full", () => {
+    const groups = defaultGroups();
+    // fill the first group with circles on a fine grid
+    const g = groups[0];
+    const full: { x: number; y: number }[] = [];
+    for (let y = g.y; y <= g.y + g.h; y += 20) for (let x = g.x; x <= g.x + g.w; x += 20) full.push({ x, y });
+    const p = freeSpot(groups, groups.length * LOOPS_PER_GROUP, full);
+    assert.notEqual(containingGroup(groups, p.x, p.y), g.id);
+    const all: { x: number; y: number }[] = [];
+    for (const h of groups) for (let y = h.y; y <= h.y + h.h; y += 20) for (let x = h.x; x <= h.x + h.w; x += 20) all.push({ x, y });
+    const q = freeSpot(groups, groups.length * LOOPS_PER_GROUP, all);
+    assert.equal(containingGroup(groups, q.x, q.y), null);
   });
   it("leaves room outside the default groups, for the master", () => {
     const groups = defaultGroups();

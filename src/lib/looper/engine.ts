@@ -5,7 +5,7 @@ import { fromRows } from "./sequencerPattern";
 import { ScalePiano, clampState as clampScalePiano, type ScalePianoState, type VoiceFactory } from "./scalePiano";
 import { EffectChain, LoopBus, peakOf } from "./buses";
 import { EFFECT_DEFS, defaultParams, moveEffect, clampParams, sanitiseEffects, type EffectKind, type EffectSpec } from "./effects";
-import { GROUP_COLOURS, LOOPS_PER_GROUP, clampPoint, clampRect, containingGroup, defaultGroups, defaultSpot, bottomRow, type GroupLayout } from "./layout";
+import { GROUP_COLOURS, LOOPS_PER_GROUP, clampPoint, clampRect, containingGroup, defaultGroups, defaultSpot, freeSpot, bottomRow, type GroupLayout } from "./layout";
 import { InputMixer, MAX_INPUT_GAIN, describeError, type InputInfo } from "./mixer";
 import { PatchGraph } from "./patchAudio";
 import { EDITABLE, activeLinks, addNode as patchAddNode, connect as patchConnect, disconnect as patchDisconnect, emptyPatch, feeds, layoutAll, moveNode as patchMoveNode, place, removeNode, sanitisePatch, setLinkMuted, setNodeMuted, setSwitchMode, type Patch, type PatchLink } from "./patch";
@@ -1387,7 +1387,12 @@ export class LooperEngine {
 
   addChannel() {
     if (this.runtimes.length >= MAX_CHANNELS) return;
-    this.runtimes.push(this.makeChannel(this.runtimes.length));
+    const ch = this.makeChannel(this.runtimes.length);
+    // never on top of another loop or a sequencer (the default groups have their sequencers along the bottom)
+    const taken = [...this.runtimes.map((r) => ({ x: r.info.x, y: r.info.y })), ...[...this.sequencers.values()].map((q) => ({ x: q.state.x, y: q.state.y }))];
+    const spot = freeSpot(this.groups, ch.info.id, taken);
+    ch.info = { ...ch.info, x: spot.x, y: spot.y, groupId: containingGroup(this.groups, spot.x, spot.y) };
+    this.runtimes.push(ch);
     this.saveLayout();
     this.emit();
   }
