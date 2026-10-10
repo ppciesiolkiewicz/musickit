@@ -151,7 +151,8 @@ export default function InputBundle({ engine, snap, ownerId }: { engine: LooperE
         const link = links.find((l) => l.to === b.id);
         const on = !!link && !link.muted;
         return (
-          <div key={b.id} data-patch-id={b.id} className={`flex flex-col gap-1 rounded-lg border px-1.5 py-1 pr-3 ${on || buses.length === 1 ? "border-emerald-500/40 bg-emerald-500/5" : "border-slate-800 bg-slate-900/50"}`}>
+          <div key={b.id} data-patch-id={b.id} className={`flex flex-col gap-1 rounded-lg border px-1.5 py-1 pr-3 ${on || buses.length === 1 ? "border-emerald-500/40 bg-emerald-500/5" : "border-slate-800 bg-slate-900/50"} ${buses.length > 1 && link ? `cursor-pointer${on ? "" : " hover:border-slate-600"}` : ""}`}
+            onClick={(e) => { if (buses.length > 1 && link && !(e.target as HTMLElement).closest("button,a,input,select,textarea,label")) pick(link.id); }}>
             <div className="flex items-center gap-1.5">
               {buses.length > 1 && link && (
                 <button type="button" role={multi ? "checkbox" : "radio"} aria-checked={on} aria-label={`${patchName(snap, b)}: ${on ? "on" : "off"}`} className="grid h-5 w-5 shrink-0 place-items-center" onClick={() => pick(link.id)}>
