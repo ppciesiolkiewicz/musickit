@@ -162,7 +162,7 @@ export default function ConnectionLayer({ engine, snap, mode, wrapper }: { engin
     if (node(l.from)?.kind === "group" || !flowing.has(l.id)) return;
     // the link from an input to a bus inside it is shown by the switch rows of its block, not as a wire
     if (node(l.to)?.owner === l.from) return;
-    // the master is not wired to: a block that plays to it carries a small "Master bus" tag instead
+    // the master is not wired to: a block that plays to it carries a small master-bus icon tag instead
     if (node(l.to)?.kind === "master") return;
     const from = drawnFrom(patch, l);
     const toGroup = node(l.to)?.kind === "group";
@@ -313,11 +313,11 @@ export default function ConnectionLayer({ engine, snap, mode, wrapper }: { engin
           </span>
         );
       })}
-      {/* instead of a wire across the page: a small tag by the connector of every block that plays to the master */}
+      {/* instead of a wire across the page: a small master-bus icon by the connector of every block that plays to the master */}
       {Object.entries(rects).map(([id, r]) => (toMasterNow.has(id) ? (
         <span key={`master:${id}`} className="absolute flex items-center gap-0.5 text-[10px] text-slate-400" style={{ left: r.x + r.w + 2, top: r.y + r.h / 2 + 13 }} title={`${nameOf(id)} plays to the master bus`}>
           <span aria-hidden>↳</span>
-          <span className="flex items-center gap-1 rounded border border-slate-600 bg-slate-950 px-1.5 py-0.5 text-slate-200"><span className="h-2 w-2 rounded-sm bg-slate-300" aria-hidden />Master bus</span>
+          <span className="grid place-items-center rounded border border-slate-600 bg-slate-950 p-0.5 text-slate-200" role="img" aria-label="Master bus"><Icon name="audio-lines" size={12} /></span>
         </span>
       ) : null))}
       {menu && menuRect && (

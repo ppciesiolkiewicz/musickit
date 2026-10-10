@@ -326,7 +326,7 @@ export function InputStrip({ engine, inp, devices, anyDevice, keyboardOpen, onTo
 /** A fill for several colours side by side, like the connector rings on the canvas. */
 const ringFill = (cs: string[]) => (cs.length < 2 ? cs[0] ?? "#64748b" : `linear-gradient(90deg, ${cs.map((c, i) => `${c} ${(i / cs.length) * 100}% ${((i + 1) / cs.length) * 100}%`).join(", ")})`);
 
-/** What plays into the master: Looping always, and a small block per input, bus or switch that sends to it, in its connector colours. */
+/** What plays into the master: Looping always, then the inputs and the buses (or switches) that send to it, each under its label, a small block in its connector colours. */
 function MasterFeeds({ snap }: { snap: LooperSnapshot }) {
   const patch = snap.patch;
   const { feeds, colours } = useMemo(() => {
@@ -339,9 +339,18 @@ function MasterFeeds({ snap }: { snap: LooperSnapshot }) {
   return (
     <div className="flex w-full flex-wrap items-center gap-1" aria-label="Playing into the master bus">
       <span className={chip} title="Every group plays to the master through Looping (fixed)"><span className="h-2 w-2 rounded-full bg-slate-300" aria-hidden />Looping</span>
-      {feeds.map((id) => {
-        const n = patch.nodes.find((x) => x.id === id);
-        return <span key={id} className={chip}><span className="h-2 w-2 rounded-full" style={{ background: ringFill(colours[id]) }} aria-hidden />{n ? patchName(snap, n) : id}</span>;
+      {(["Inputs", "Buses"] as const).map((label) => {
+        const ids = feeds.filter((id) => ["fx", "switch"].includes(patch.nodes.find((x) => x.id === id)?.kind ?? "") === (label === "Buses"));
+        if (!ids.length) return null;
+        return (
+          <span key={label} className="contents">
+            <span className="ml-1 text-[10px] uppercase tracking-wide text-slate-500">{label}</span>
+            {ids.map((id) => {
+              const n = patch.nodes.find((x) => x.id === id);
+              return <span key={id} className={chip}><span className="h-2 w-2 rounded-full" style={{ background: ringFill(colours[id]) }} aria-hidden />{n ? patchName(snap, n) : id}</span>;
+            })}
+          </span>
+        );
       })}
     </div>
   );
@@ -351,7 +360,7 @@ function MasterFeeds({ snap }: { snap: LooperSnapshot }) {
 export function MasterStrip({ engine, snap }: { engine: LooperEngine; snap: LooperSnapshot }) {
   return (
   <li data-patch-id="master" className="flex flex-wrap items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-950/60 px-2 py-1.5">
-    <span className="h-3 w-3 rounded-sm bg-slate-300" aria-hidden />
+    <Icon name="audio-lines" size={14} className="text-slate-300" />
     <span className="w-32 truncate px-1.5 text-sm font-medium text-slate-100">Master bus</span>
     <MasterControls engine={engine} snap={snap} />
     <MasterFeeds snap={snap} />
