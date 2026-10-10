@@ -213,3 +213,14 @@ While a take waits to start (count-in or next loop boundary) the loop circle sho
 
 - The round **+** button is the only add button (see "Later takes, the add button").
 - The on-screen keyboard in the looper plays into a node of its own (not the app's output, which goes straight to the speakers) and is heard only through its Piano strip, so its mute, volume and effects and the master volume and mute apply to it. Before, the master volume did not change it.
+
+## Loop waveform and edits
+- Every take keeps up to 1 s of sound before it (the count-in or the end of the previous round, whatever reached the recorder while the take was armed) and 1 s after it (the recorder stays open that long after the take ends, or until the next take starts). `TAKE_MARGIN_SECONDS` in `loopEdit.ts`; the take is `getTake(id)` on the engine. Takes are not saved across reloads.
+- The waveform button under a recorded loop opens its editor: the whole take, the loop window in the group colour, the margins dimmed, and a play head. Edits never change the loop's length, so it stays in time:
+  - Slide: drag the waveform or nudge by 1 or 10 ms; the window moves within the kept margins (fixes a take that started early or late).
+  - Gain (dB) and Normalise (loudest peak to 0.95).
+  - Reverse.
+  - Fade in, fade out (0 to 1 s).
+  - Smooth seam: crossfades the loop end into the sound that came just before its start, so the loop wraps without a click (needs sound before the window).
+  - Reset back to the take as recorded. Start, stop and solo are there too, for listening.
+- Edits are plain data on the loop (`ChannelInfo.edit`, `LoopEdit`); the playing buffer is always `renderLoop(take, edit)`, so edits are undoable and recordable: action `loop.edit` with only the fields that change. Re-recording or clearing a loop resets its edit.

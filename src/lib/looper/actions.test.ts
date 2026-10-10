@@ -3,12 +3,13 @@ import assert from "node:assert/strict";
 import { applyAction, describeAction, inverseOf, isAction, type ActionState, type ActionTarget, type FxTarget, type GroupPatch, type LooperAction, type MetronomePatch } from "./actions";
 import { moveEffect, type EffectSpec } from "./effects";
 import { ActionHistory } from "./history";
+import { DEFAULT_EDIT } from "./loopEdit";
 import { MacroRecorder, parseMacros, playMacro, serialiseMacros } from "./macros";
 
 /** A tiny in-memory stand-in for the engine. */
 function fake() {
   const s: ActionState = {
-    channels: [0, 1].map((id) => ({ id, name: `Loop ${id + 1}`, volume: 0.8, muted: false, solo: false, x: 10 * id, y: 20, active: true, plan: 0 })),
+    channels: [0, 1].map((id) => ({ id, name: `Loop ${id + 1}`, volume: 0.8, muted: false, solo: false, x: 10 * id, y: 20, active: true, plan: 0, edit: { ...DEFAULT_EDIT } })),
     groups: [{ id: "g1", name: "A", colour: "#fff", volume: 1, muted: false, x: 0, y: 0, w: 100, h: 100, effects: [{ id: "fx1", kind: "reverb", bypass: false, post: false, params: { mix: 0.3 } }] }],
     inputs: [{ id: 0, kind: "device", name: "Guitar", deviceId: "d1", mode: "left", volume: 1, muted: false, solo: false, monitor: false, effects: [] }],
     masterVolume: 1,
@@ -32,6 +33,7 @@ function fake() {
     moveChannel: (id, x, y) => { Object.assign(ch(id), { x, y }); },
     setLoopActive: (id, on) => { ch(id).active = on; },
     setLoopPlan: (id, plan) => { ch(id).plan = plan; },
+    setLoopEdit: (id, e) => { ch(id).edit = { ...ch(id).edit, ...e }; },
     patchLink: (l) => { if (s.patch.links.some((x) => x.id === l.id)) return false; s.patch.links.push({ ...l, muted: l.muted === true }); return true; },
     patchUnlink: (id) => { s.patch.links = s.patch.links.filter((l) => l.id !== id); },
     patchMute: (what, id, muted) => { const x = what === "link" ? s.patch.links.find((l) => l.id === id) : s.patch.nodes.find((n) => n.id === id); if (x) x.muted = muted; },
@@ -58,7 +60,7 @@ function fake() {
       return gid;
     },
     removeGroup: (id) => { s.groups = s.groups.filter((g) => g.id !== id); },
-    addChannel: () => { if (s.channels.length < 8) s.channels.push({ id: s.channels.length, name: `Loop ${s.channels.length + 1}`, volume: 1, muted: false, solo: false, x: 0, y: 0, active: true, plan: 0 }); },
+    addChannel: () => { if (s.channels.length < 8) s.channels.push({ id: s.channels.length, name: `Loop ${s.channels.length + 1}`, volume: 1, muted: false, solo: false, x: 0, y: 0, active: true, plan: 0, edit: { ...DEFAULT_EDIT } }); },
     removeLastChannel: () => { if (s.channels.length > 1) s.channels.pop(); },
     clear: () => undefined, clearAll: () => undefined, record: () => undefined, stopRecording: () => undefined,
     addSequencerNow: (id) => { const sid = id && !s.sequencers.some((q) => q.id === id) ? id : `q${s.sequencers.length + 10}`; s.sequencers.push({ id: sid, name: "Drums", x: 0, y: 0, dest: "auto", playing: false, instrumentId: "drums", bars: 1, cells: [[0, 0, 0, 0], [0, 0, 0, 0]] }); return sid; },
@@ -83,6 +85,7 @@ const SAMPLES: LooperAction[] = [
   { type: "loop.solo", id: 1, solo: true },
   { type: "loop.rename", id: 0, name: "Bass" },
   { type: "loop.plan", id: 0, plan: 4 },
+  { type: "loop.edit", id: 0, edit: { shift: -120, reverse: true, gain: 1.5 } },
   { type: "patch.link", link: { id: "k2", from: "in:0", to: "group:g1" } },
   { type: "patch.unlink", id: "k1" },
   { type: "patch.mute", what: "link", id: "k1", muted: true },

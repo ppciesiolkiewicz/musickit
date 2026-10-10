@@ -15,6 +15,7 @@ import { MacroRecorder } from "./macros";
 import { GROUP_STARTS, PIANO_STARTS, SEQUENCER_STARTS, addBus, pianoRig, starterRig } from "./rig";
 import type { FxTarget, InputSpec, LooperAction } from "./actions";
 import { RECORDER_PROCESSOR_NAME, recorderWorkletUrl } from "./recorderWorklet";
+import { DEFAULT_EDIT, TAKE_MARGIN_SECONDS, clampEdit, renderLoop, type LoopEdit, type Take } from "./loopEdit";
 
 export type { InputInfo } from "./mixer";
 export type { LooperAction } from "./actions";
@@ -81,6 +82,8 @@ export interface ChannelInfo {
   plan: number;
   /** recorded length as a multiple of the first loop (1, 2, 4, 8, 16), 0 while empty */
   multiple: number;
+  /** how the recorded take is cut and shaped (see loopEdit.ts); the default plays it as recorded */
+  edit: LoopEdit;
 }
 
 /** An audio output (speakers, headphones, an audio interface) the browser can play to. */
@@ -142,6 +145,8 @@ interface ChannelRuntime {
   source: AudioBufferSourceNode | null;
   /** context time of the start of the recording; the loop's phase is counted from here */
   origin: number;
+  /** the take with the sound kept around it, which edits are cut from */
+  take: Take | null;
 }
 
 interface Capture {
@@ -162,6 +167,16 @@ interface Capture {
   stopping: boolean;
   /** length of the first loop in frames for a later take, 0 for the first take */
   loopFrames: number;
+}
+
+/** The sound after a finished take, still being kept for its margin. */
+interface Tail {
+  channel: number;
+  take: Take;
+  /** first frame after the loop, and the frame the margin ends at */
+  from: number;
+  until: number;
+  chunks: Chunk[];
 }
 
 export const MAX_CHANNELS = 32;
@@ -242,6 +257,7 @@ export class LooperEngine {
   private loopStart = 0;
   private playing = true;
   private capture: Capture | null = null;
+  private tail: Tail | null = null;
   /** AudioContext time of beat 1 of the metronome grid */
   private gridAnchor = 0;
   /** true when the loop length is a whole number of beats or bars, so loop restarts stay on the grid */
@@ -306,7 +322,7 @@ export class LooperEngine {
       extraLabel: this.options.getExternalSource ? this.options.externalLabel ?? "Extra source" : null,
       playing: this.playing,
       loopSeconds: this.loopLength,
-      channels: this.runtimes.map((r) => ({ ...r.info })),
+      channels: this.runtimes.map((r) => ({ ...r.info, edit: { ...r.info.edit } })),
       masterVolume: this.masterVolume,
       masterMuted: this.masterMuted,
       masterEffects: this.masterEffects.map((e) => ({ ...e, params: { ...e.params } })),
@@ -1333,11 +1349,12 @@ export class LooperEngine {
   private makeChannel(id: number): ChannelRuntime {
     const spot = defaultSpot(this.groups, id);
     return {
-      info: { id, name: `Loop ${id + 1}`, state: "empty", volume: 0.8, muted: false, solo: false, peaks: null, x: spot.x, y: spot.y, groupId: containingGroup(this.groups, spot.x, spot.y), active: true, plan: 0, multiple: 0 },
+      info: { id, name: `Loop ${id + 1}`, state: "empty", volume: 0.8, muted: false, solo: false, peaks: null, x: spot.x, y: spot.y, groupId: containingGroup(this.groups, spot.x, spot.y), active: true, plan: 0, multiple: 0, edit: { ...DEFAULT_EDIT } },
       buffer: null,
       gain: null,
       source: null,
       origin: 0,
+      take: null,
     };
   }
 
@@ -1884,6 +1901,7 @@ export class LooperEngine {
   record(id: number) {
     if (!this.ctx || this.meta.status !== "ready") return;
     if (this.capture) return; // one take at a time
+    this.closeTail();
     const sr = this.ctx.sampleRate;
     // the latency fix is for the audio interface; a digital source such as the piano has none
     const comp = this.mixer.hasLiveDevice() ? msToFrames(this.meta.latencyMs, sr) : 0;
@@ -1967,6 +1985,7 @@ export class LooperEngine {
   }
 
   private onChunk(c: Chunk) {
+    this.onTailChunk(c);
     const cap = this.capture;
     if (!cap || !this.ctx) return;
     const n = c.l.length;
@@ -1974,6 +1993,9 @@ export class LooperEngine {
     let pk = 0;
     for (let i = 0; i < n; i += 4) pk = Math.max(pk, Math.abs(c.l[i]), Math.abs(c.r[i]));
     this.captureLevel = Math.max(pk, this.captureLevel * 0.8);
+    // a little of the sound before the take is kept too (the count-in or the end of the last round), for editing
+    if (end <= cap.startFrame - Math.round(TAKE_MARGIN_SECONDS * this.ctx.sampleRate)) return;
+    cap.chunks.push({ frame: c.frame, l: c.l, r: c.r });
     if (end <= cap.startFrame) return;
     const rt = this.runtimes[cap.channel];
     if (!cap.started) {
@@ -1981,7 +2003,6 @@ export class LooperEngine {
       rt.info.state = "recording";
       this.emit();
     }
-    cap.chunks.push({ frame: c.frame, l: c.l, r: c.r });
     cap.lastFrame = end;
     const limit = cap.endFrame ?? cap.startFrame + Math.round(MAX_FIRST_TAKE_SECONDS * this.ctx.sampleRate);
     if (end >= limit) this.finish(cap, Math.min(end, limit));
@@ -1990,17 +2011,27 @@ export class LooperEngine {
   private finish(cap: Capture, endFrame: number) {
     if (this.capture !== cap || !this.ctx) return;
     this.capture = null;
-    this.mixer.setRecordSources(null);
-    this.pgraph?.setRecording(undefined);
     const sr = this.ctx.sampleRate;
-    const { l, r } = assemble(cap.chunks, cap.startFrame, endFrame);
+    const margin = Math.round(TAKE_MARGIN_SECONDS * sr);
+    // keep only the part of the margin before the take that was really heard
+    const first = cap.chunks.length ? cap.chunks[0].frame : cap.startFrame;
+    const before = Math.max(0, Math.min(margin, cap.startFrame - first));
+    const raw = assemble(cap.chunks, cap.startFrame - before, endFrame);
     const rt = this.runtimes[cap.channel];
-    if (l.length < 64) {
+    const length = raw.l.length - before;
+    if (length < 64) {
+      this.mixer.setRecordSources(null);
+      this.pgraph?.setRecording(undefined);
       rt.info.state = rt.buffer ? "playing" : "empty";
       this.syncMetronome();
       this.emit();
       return;
     }
+    rt.take = { l: raw.l, r: raw.r, start: before, length };
+    rt.info.edit = { ...DEFAULT_EDIT };
+    // the recorder stays open a moment longer for the margin after the take
+    this.tail = { channel: cap.channel, take: rt.take, from: endFrame, until: endFrame + margin, chunks: cap.chunks.filter((c) => c.frame + c.l.length > endFrame) };
+    const { l, r } = renderLoop(rt.take, rt.info.edit, sr);
     const buf = this.ctx.createBuffer(2, l.length, sr);
     buf.getChannelData(0).set(l);
     buf.getChannelData(1).set(r);
@@ -2023,6 +2054,62 @@ export class LooperEngine {
     rt.info.multiple = firstTake ? 1 : Math.max(1, Math.round(buf.duration / (this.loopLength as number)));
     if (this.playing) this.startChannel(rt, firstTake && !this.loopOnGrid ? this.loopStart : null);
     this.syncMetronome(firstTake);
+    this.emit();
+  }
+
+  private onTailChunk(c: Chunk) {
+    const t = this.tail;
+    if (!t) return;
+    if (c.frame + c.l.length > t.from) t.chunks.push({ frame: c.frame, l: c.l, r: c.r });
+    if (c.frame + c.l.length >= t.until) this.closeTail();
+  }
+
+  /** Add the sound kept after the take to it and shut the recorder (now, if a new take needs it). `keep` false throws the margin away. */
+  private closeTail(keep = true) {
+    const t = this.tail;
+    if (!t) return;
+    this.tail = null;
+    if (!this.capture) {
+      this.mixer.setRecordSources(null);
+      this.pgraph?.setRecording(undefined);
+    }
+    const rt = this.runtimes[t.channel];
+    if (!keep || rt?.take !== t.take) return;
+    const end = Math.min(t.until, t.chunks.reduce((m, c) => Math.max(m, c.frame + c.l.length), t.from));
+    if (end <= t.from) return;
+    const after = assemble(t.chunks, t.from, end);
+    const n = t.take.l.length;
+    const l = new Float32Array(n + after.l.length);
+    const r = new Float32Array(n + after.r.length);
+    l.set(t.take.l);
+    l.set(after.l, n);
+    r.set(t.take.r);
+    r.set(after.r, n);
+    rt.take = { ...t.take, l, r };
+    this.emit();
+  }
+
+  /** The take of a loop with the sound around it, for drawing; null while empty. */
+  getTake(id: number): (Take & { sampleRate: number }) | null {
+    const rt = this.runtimes[id];
+    return rt?.take && this.ctx ? { ...rt.take, sampleRate: this.ctx.sampleRate } : null;
+  }
+
+  /** Change how a loop's take is cut and shaped. Its length never changes, so it stays in time. */
+  setLoopEdit(id: number, patch: Partial<LoopEdit>) {
+    const rt = this.runtimes[id];
+    if (!rt?.take || !this.ctx) return;
+    const edit = clampEdit(rt.take, { ...rt.info.edit, ...patch });
+    rt.info.edit = edit;
+    const sr = this.ctx.sampleRate;
+    const { l, r } = renderLoop(rt.take, edit, sr);
+    const buf = this.ctx.createBuffer(2, l.length, sr);
+    buf.getChannelData(0).set(l);
+    buf.getChannelData(1).set(r);
+    rt.buffer = buf;
+    rt.info.peaks = peaks(l, 600);
+    // a playing loop carries on from the same place in the new sound
+    if (rt.source && this.playing && rt.info.active) this.startChannel(rt, null);
     this.emit();
   }
 
@@ -2080,9 +2167,12 @@ export class LooperEngine {
 
   clear(id: number) {
     if (this.capture?.channel === id) this.cancelCapture();
+    if (this.tail?.channel === id) this.closeTail(false);
     const rt = this.runtimes[id];
     this.stopSource(rt);
     rt.buffer = null;
+    rt.take = null;
+    rt.info.edit = { ...DEFAULT_EDIT };
     rt.info.peaks = null;
     rt.info.state = "empty";
     rt.info.active = true;
@@ -2101,6 +2191,7 @@ export class LooperEngine {
 
   dispose() {
     this.capture = null;
+    this.tail = null;
     this.runtimes.forEach((r) => this.stopSource(r));
     this.metronome.dispose();
     this.sequencers.forEach((q) => q.dispose());

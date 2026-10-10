@@ -11,6 +11,7 @@
 import type { MetronomeSettings } from "./metronome";
 import { EFFECT_DEFS, moveEffect, type EffectKind } from "./effects";
 import type { InputMode } from "./frames";
+import type { LoopEdit } from "./loopEdit";
 
 export type GroupPatch = { name?: string; colour?: string; volume?: number; muted?: boolean; x?: number; y?: number; w?: number; h?: number };
 export type MetronomePatch = Partial<MetronomeSettings>;
@@ -23,6 +24,8 @@ export type LooperAction =
   | { type: "loop.move"; id: number; x: number; y: number }
   | { type: "loop.active"; id: number; on: boolean }
   | { type: "loop.plan"; id: number; plan: number }
+  /** cut and shape a recorded loop (slide, gain, reverse, fades, seam); only the fields given change */
+  | { type: "loop.edit"; id: number; edit: Partial<LoopEdit> }
   | { type: "patch.link"; link: { id: string; from: string; to: string; port?: "rec" | "bus"; muted?: boolean } }
   | { type: "patch.unlink"; id: string }
   | { type: "patch.mute"; what: "link" | "node"; id: string; muted: boolean }
@@ -130,7 +133,7 @@ export type ActionType = LooperAction["type"];
 
 /** The part of the engine snapshot the actions read. The engine's own snapshot satisfies it. */
 export interface ActionState {
-  channels: { id: number; name: string; volume: number; muted: boolean; solo: boolean; x: number; y: number; active: boolean; plan: number }[];
+  channels: { id: number; name: string; volume: number; muted: boolean; solo: boolean; x: number; y: number; active: boolean; plan: number; edit: LoopEdit }[];
   groups: { id: string; name: string; colour: string; volume: number; muted: boolean; x: number; y: number; w: number; h: number; effects: EffectState[] }[];
   inputs: { id: number; kind: string; name: string; deviceId: string; mode: InputMode; pair?: number; volume: number; muted: boolean; solo: boolean; monitor: boolean; effects: EffectState[] }[];
   masterVolume: number;
@@ -163,6 +166,7 @@ export interface ActionTarget {
   moveChannel(id: number, x: number, y: number): void;
   setLoopActive(id: number, on: boolean): void;
   setLoopPlan(id: number, plan: number): void;
+  setLoopEdit(id: number, edit: Partial<LoopEdit>): void;
   patchLink(link: { id: string; from: string; to: string; port?: "rec" | "bus"; muted?: boolean }): boolean;
   patchUnlink(id: string): void;
   patchAdd(node: { id: string; kind: "fx" | "switch" | "tuner"; x: number; y: number; muted: boolean; name?: string; effects?: EffectState[] }): boolean;
@@ -219,6 +223,7 @@ export function applyAction(t: ActionTarget, a: LooperAction): LooperAction | nu
     case "loop.move": t.moveChannel(a.id, a.x, a.y); return a;
     case "loop.active": t.setLoopActive(a.id, a.on); return a;
     case "loop.plan": t.setLoopPlan(a.id, a.plan); return a;
+    case "loop.edit": t.setLoopEdit(a.id, a.edit); return a;
     case "patch.link": return t.patchLink(a.link) ? a : null;
     case "patch.unlink": t.patchUnlink(a.id); return a;
     case "patch.mute": t.patchMute(a.what, a.id, a.muted); return a;
@@ -295,6 +300,13 @@ export function inverseOf(a: LooperAction, s: ActionState): LooperAction | null 
     case "loop.move": { const c = ch(a.id); return c ? { type: a.type, id: a.id, x: c.x, y: c.y } : null; }
     case "loop.active": { const c = ch(a.id); return c ? { type: a.type, id: a.id, on: c.active } : null; }
     case "loop.plan": { const c = ch(a.id); return c ? { type: a.type, id: a.id, plan: c.plan } : null; }
+    case "loop.edit": {
+      const c = ch(a.id);
+      if (!c) return null;
+      const before: Record<string, unknown> = {};
+      (Object.keys(a.edit) as (keyof LoopEdit)[]).forEach((k) => { before[k] = c.edit[k]; });
+      return { type: a.type, id: a.id, edit: before as Partial<LoopEdit> };
+    }
     case "patch.link": return { type: "patch.unlink", id: a.link.id };
     case "patch.unlink": { const l = s.patch.links.find((x) => x.id === a.id); return l ? { type: "patch.link", link: { ...l } } : null; }
     case "patch.mute": { const x = a.what === "link" ? s.patch.links.find((l) => l.id === a.id) : s.patch.nodes.find((n) => n.id === a.id); return x ? { ...a, muted: x.muted } : null; }
@@ -440,6 +452,7 @@ export function describeAction(a: LooperAction, s?: ActionState): string {
     case "loop.move": return `Move ${loop(a.id)}`;
     case "loop.active": return `${a.on ? "Start" : "Stop"} ${loop(a.id)}`;
     case "loop.plan": return `${loop(a.id)} length ${a.plan === 0 ? "free" : a.plan}`;
+    case "loop.edit": return `Edit ${loop(a.id)} (${Object.keys(a.edit).join(", ")})`;
     case "patch.link": return `Connect ${a.link.from} to ${a.link.to}${a.link.port === "rec" ? " (recorder)" : ""}`;
     case "patch.unlink": return "Remove a connection";
     case "patch.mute": return `${a.muted ? "Mute" : "Unmute"} a ${a.what === "link" ? "connection" : "patch element"}`;
@@ -506,6 +519,7 @@ export function coalesceKey(a: LooperAction): string | null {
     case "loop.move": return `loop.move:${a.id}`;
     case "loop.rename": return `loop.rename:${a.id}`;
     case "loop.plan": return `loop.plan:${a.id}`;
+    case "loop.edit": return `loop.edit:${a.id}:${Object.keys(a.edit).sort().join(",")}`;
     case "patch.switch": return `patch.switch:${a.id}:${a.side}`;
     case "patch.move": return `patch.move:${a.id}`;
     case "master.volume": return "master.volume";
@@ -528,6 +542,7 @@ const isBool = (v: unknown): v is boolean => typeof v === "boolean";
 const GROUP_KEYS: Record<string, (v: unknown) => boolean> = { name: isStr, colour: isStr, volume: isNum, muted: isBool, x: isNum, y: isNum, w: isNum, h: isNum };
 const METRO_KEYS: Record<string, (v: unknown) => boolean> = { bpm: isNum, beatsPerBar: isNum, volume: isNum, audible: isBool, showBeat: isBool, quantise: isStr, countInBars: isNum };
 const MODES = ["left", "right", "stereo", "sum"];
+const EDIT_KEYS: Record<string, (v: unknown) => boolean> = { shift: isNum, gain: isNum, reverse: isBool, fadeIn: isNum, fadeOut: isNum, seam: isNum };
 const INPUT_KEYS: Record<string, (v: unknown) => boolean> = { name: isStr, volume: isNum, muted: isBool, solo: isBool, monitor: isBool, mode: (v) => MODES.includes(v as string), pair: (v) => Number.isInteger(v) && (v as number) >= 0 && (v as number) < 16 };
 const isCells = (v: unknown) => Array.isArray(v) && v.length > 0 && v.length <= 16 && v.every((r) => Array.isArray(r) && r.length <= 96 && r.every((n) => n === 0 || n === 1 || n === 2));
 const SEQ_KEYS: Record<string, (v: unknown) => boolean> = {
@@ -557,6 +572,7 @@ export function isAction(v: unknown, depth = 0): v is LooperAction {
     case "loop.move": return isNum(a.id) && isNum(a.x) && isNum(a.y);
     case "loop.active": return isNum(a.id) && isBool(a.on);
     case "loop.plan": return isNum(a.id) && isNum(a.plan);
+    case "loop.edit": return isNum(a.id) && validPatch(a.edit, EDIT_KEYS);
     case "patch.link": { const k = a.link as { id?: unknown; from?: unknown; to?: unknown } | undefined; return !!k && isStr(k.id) && isStr(k.from) && isStr(k.to); }
     case "patch.unlink": return isStr(a.id);
     case "patch.mute": return (a.what === "link" || a.what === "node") && isStr(a.id) && isBool(a.muted);

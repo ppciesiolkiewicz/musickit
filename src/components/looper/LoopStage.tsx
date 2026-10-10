@@ -3,6 +3,7 @@
 import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent as RKeyboardEvent, type PointerEvent as RPointerEvent, type RefObject } from "react";
 import Icon from "../Icon";
 import EffectsModal from "./EffectsModal";
+import LoopEditor from "./LoopEditor";
 import EffectWidgets from "./EffectWidgets";
 import { setPinSpawn } from "./fxPins";
 import InfoTip from "../InfoTip";
@@ -45,6 +46,8 @@ const arrowStep = (e: RKeyboardEvent): [number, number] | null => {
 export default function LoopStage({ engine, snap, openSeqs, onToggleSeq, fill = false, patchSeq = false, pins = true }: { patchSeq?: boolean; /** effect widgets on the stage (the fixed layout); the canvas views show them as canvas widgets */ pins?: boolean; engine: LooperEngine; snap: LooperSnapshot; getPosition?: () => number | null; openSeqs: string[]; onToggleSeq: (id: string) => void; fill?: boolean }) {
   const stage = useRef<HTMLDivElement>(null);
   const [fxFor, setFxFor] = useState<string | null>(null);
+  const [editFor, setEditFor] = useState<number | null>(null);
+  const editCh = snap.channels.find((c) => c.id === editFor && c.state !== "empty") ?? null;
   const ready = snap.status === "ready";
   const busy = snap.channels.some((c) => c.state === "recording" || c.state === "armed");
   const firstTake = snap.loopSeconds === null;
@@ -116,7 +119,7 @@ export default function LoopStage({ engine, snap, openSeqs, onToggleSeq, fill = 
         ))}
         {snap.channels.map((c) => {
           const g = snap.groups.find((x) => x.id === c.groupId);
-          return <LoopCircle key={c.id} engine={engine} ch={c} colour={g?.colour ?? "#94a3b8"} stage={stage} ready={ready} busy={busy} firstTake={firstTake} baseBars={baseBars} />;
+          return <LoopCircle key={c.id} engine={engine} ch={c} colour={g?.colour ?? "#94a3b8"} stage={stage} ready={ready} busy={busy} firstTake={firstTake} baseBars={baseBars} onEdit={() => setEditFor(c.id)} />;
         })}
         {snap.sequencers.map((q) => {
           const g = snap.groups.find((x) => x.id === q.groupId);
@@ -126,12 +129,13 @@ export default function LoopStage({ engine, snap, openSeqs, onToggleSeq, fill = 
           </div>
         </div>
       </div>
+      {editCh && <LoopEditor engine={engine} ch={editCh} colour={snap.groups.find((g) => g.id === editCh.groupId)?.colour ?? "#94a3b8"} onClose={() => setEditFor(null)} />}
       {fxGroup && <GroupEffects engine={engine} g={fxGroup} onClose={() => setFxFor(null)} />}
     </div>
   );
 }
 
-function LoopCircle({ engine, ch, colour, stage, ready, busy, firstTake, baseBars }: { engine: LooperEngine; ch: ChannelInfo; colour: string; stage: RefObject<HTMLDivElement | null>; ready: boolean; busy: boolean; firstTake: boolean; baseBars: number | null }) {
+function LoopCircle({ engine, ch, colour, stage, ready, busy, firstTake, baseBars, onEdit }: { engine: LooperEngine; ch: ChannelInfo; colour: string; stage: RefObject<HTMLDivElement | null>; ready: boolean; busy: boolean; firstTake: boolean; baseBars: number | null; onEdit: () => void }) {
   const arc = useRef<SVGCircleElement>(null);
   const pulse = useRef<SVGCircleElement>(null);
   const barEl = useRef<HTMLSpanElement>(null);
@@ -209,6 +213,7 @@ function LoopCircle({ engine, ch, colour, stage, ready, busy, firstTake, baseBar
         <button type="button" className={`${tbtn} ${ch.muted ? "!border-amber-400 !text-amber-200" : ""}`} aria-pressed={ch.muted} disabled={ch.state === "empty"} onClick={() => engine.do({ type: "loop.mute", id: ch.id, muted: !ch.muted })} title="Mute" aria-label={`Mute ${ch.name}`}>M</button>
         <button type="button" className={`${tbtn} ${ch.solo ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={ch.solo} disabled={ch.state === "empty"} onClick={() => engine.do({ type: "loop.solo", id: ch.id, solo: !ch.solo })} title="Solo" aria-label={`Solo ${ch.name}`}>S</button>
         <button type="button" className={`${tbtn} ${ch.active && ch.state !== "empty" ? "" : ""}`} disabled={ch.state === "empty"} onClick={() => engine.do({ type: "loop.active", id: ch.id, on: !ch.active })} title={ch.active ? "Stop on the next beat" : "Start on the next beat"} aria-label={ch.active ? `Stop ${ch.name}` : `Start ${ch.name}`} aria-pressed={ch.active}><Icon name={ch.active ? "square" : "play"} size={11} fill /></button>
+        <button type="button" className={tbtn} disabled={ch.state === "empty" || recording} onClick={onEdit} title="Waveform and edits" aria-label={`Edit ${ch.name}`}><Icon name="activity" size={12} /></button>
         <button type="button" className={tbtn} disabled={ch.state === "empty"} onClick={() => engine.do({ type: "loop.clear", id: ch.id })} title="Clear this loop" aria-label={`Clear ${ch.name}`}><Icon name="trash" size={12} /></button>
       </div>
       <input type="range" min={0} max={1} step={0.01} value={ch.volume} onChange={(e) => engine.do({ type: "loop.volume", id: ch.id, value: Number(e.target.value) })} className="h-3 w-16 accent-sky-400" aria-label={`Volume of ${ch.name}`} title={`Volume ${Math.round(ch.volume * 100)}%`} />
