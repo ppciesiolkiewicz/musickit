@@ -9,7 +9,7 @@ import { GROUP_COLOURS, clampPoint, clampRect, containingGroup, defaultGroups, d
 import { InputMixer, MAX_INPUT_GAIN, describeError, type InputInfo } from "./mixer";
 import { PatchGraph } from "./patchAudio";
 import { activeLinks, addNode as patchAddNode, connect as patchConnect, disconnect as patchDisconnect, emptyPatch, feeds, layoutAll, moveNode as patchMoveNode, place, removeNode, sanitisePatch, setLinkMuted, setNodeMuted, setSwitchMode, type Patch, type PatchLink } from "./patch";
-import { gearIssues, type DeviceRef, type GearIssue } from "./deviceChoice";
+import { chooseDevice, deviceScore, gearIssues, type DeviceRef, type GearIssue } from "./deviceChoice";
 import { ActionHistory, type DoOptions } from "./history";
 import { MacroRecorder } from "./macros";
 import { starterRig } from "./rig";
@@ -171,6 +171,7 @@ const PATCH_KEY = "musickit.looper.patch";
 /** Saves made before the canvas existed have no positions worth keeping: they are laid out once. */
 const PATCH_LAYOUT_KEY = "musickit.looper.patch.layout";
 const PREF_KEY = "musickit.looper.preferred";
+const RIG_KEY = "musickit.looper.rigDone";
 type SinkContext = AudioContext & { setSinkId?: (id: string) => Promise<void> };
 const groupName = (i: number) => `Group ${String.fromCharCode(65 + (i % 26))}`;
 const defaultGroupInfos = (): GroupInfo[] => defaultGroups().map((g, i) => ({ ...g, name: groupName(i), colour: GROUP_COLOURS[i % GROUP_COLOURS.length], volume: 1, muted: false, effects: [] }));
@@ -313,20 +314,23 @@ export class LooperEngine {
   }
 
   init() {
+    // the saved patch is read first: restoring the strips emits, and an emit syncs (and saves) the patch
+    let saved: Patch = emptyPatch();
+    try {
+      saved = sanitisePatch(JSON.parse(window.localStorage.getItem(PATCH_KEY) ?? "null"));
+      if (window.localStorage.getItem(PATCH_LAYOUT_KEY) !== "2") {
+        saved = layoutAll(saved);
+        window.localStorage.setItem(PATCH_LAYOUT_KEY, "2");
+      }
+    } catch {
+      saved = emptyPatch();
+    }
+    this.patch = saved;
     this.mixer.restore();
     this.metronome.restore();
     this.restoreSequencers();
     this.restoreScalePianos();
     this.restoreLayout();
-    try {
-      this.patch = sanitisePatch(JSON.parse(window.localStorage.getItem(PATCH_KEY) ?? "null"));
-      if (window.localStorage.getItem(PATCH_LAYOUT_KEY) !== "2") {
-        this.patch = layoutAll(this.patch);
-        window.localStorage.setItem(PATCH_LAYOUT_KEY, "2");
-      }
-    } catch {
-      this.patch = emptyPatch();
-    }
     this.emit();
   }
 
@@ -934,13 +938,49 @@ export class LooperEngine {
       const there = this.meta.outputs.find((o) => o.id === last.id);
       if (there && there.id !== this.meta.outputId) await this.setOutputDevice(there.id, false);
     }
-    if (await this.micGranted()) await this.connectGear(false);
+    if (await this.micGranted()) {
+      await this.refreshDevices().catch(() => undefined);
+      await this.connectGear(false);
+      this.setupGuitar();
+    } else if (this.mixer.list().some((i) => i.kind === "device")) this.setupGuitar();
+  }
+
+  /**
+   * The default setup, once: the audio interface's Input 1 (a DI guitar) as an input, with the starter rig (effect presets, the
+   * Guitar Switch, master and every group). Only when a device is known (an interface, never the computer's own mic), and never again
+   * after it has run, so deleting the rig sticks. Runs after a person's action or when the browser already allows the microphone.
+   */
+  private setupGuitar(): void {
+    try {
+      if (window.localStorage.getItem(RIG_KEY)) return;
+    } catch {
+      /* ignore */
+    }
+    let strip = this.mixer.list().find((i) => i.kind === "device");
+    if (!strip) {
+      const pick = chooseDevice(this.meta.devices, this.prefs.in);
+      if (!pick || deviceScore(pick.label) <= 0) return;
+      const id = this.addInput({ kind: "device", name: pick.label.slice(0, 40), deviceId: pick.id, mode: "left" });
+      if (id === null) return;
+      this.syncPatch();
+      strip = this.mixer.list().find((i) => i.id === id);
+    }
+    if (!strip || !this.addRig(strip.id)) return;
+    try {
+      window.localStorage.setItem(RIG_KEY, "1");
+    } catch {
+      /* ignore */
+    }
   }
 
   /** Connect the input strips that are not connected. `ask` = the person pressed the button (a prompt is fine). No input is ever added for them. */
   async connectGear(ask = true): Promise<void> {
     if (ask) await this.requestDeviceAccess();
     for (const i of this.mixer.list()) if (i.kind === "device" && (!i.connected || i.error)) await this.mixer.connect(i.id);
+    if (ask) {
+      await this.refreshDevices().catch(() => undefined);
+      this.setupGuitar();
+    }
     this.emit();
   }
 

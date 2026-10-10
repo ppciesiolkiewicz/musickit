@@ -57,6 +57,8 @@ export interface MixerOptions {
 }
 
 export interface SavedInput {
+  /** the strip id, kept so the patch (which refers to `in:<id>`) still matches after a reload */
+  id?: number;
   effects?: EffectSpec[];
   kind: InputKind;
   sourceId?: string;
@@ -154,7 +156,7 @@ export class InputMixer {
 
   private save() {
     try {
-      const data: SavedInput[] = this.runtimes.map((r) => ({ kind: r.info.kind, sourceId: r.info.sourceId, name: r.info.name, deviceId: r.info.deviceId, mode: r.info.mode, volume: r.info.volume, effects: r.info.effects }));
+      const data: SavedInput[] = this.runtimes.map((r) => ({ id: r.info.id, kind: r.info.kind, sourceId: r.info.sourceId, name: r.info.name, deviceId: r.info.deviceId, mode: r.info.mode, volume: r.info.volume, effects: r.info.effects }));
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     } catch {
       /* storage may be unavailable */
@@ -169,7 +171,9 @@ export class InputMixer {
       if (!raw) return;
       const saved = (JSON.parse(raw) as SavedInput[]).filter((s) => (s.kind === "device" || (this.sourceFor(s.kind) && ((s.kind !== "sequencer" && s.kind !== "scalepiano") || typeof s.sourceId === "string"))) && ["left", "right", "stereo", "sum"].includes(s.mode)).slice(0, MAX_INPUTS);
       if (saved.length) {
-        this.runtimes = saved.map((s) => this.make({ ...s, volume: Math.min(MAX_INPUT_GAIN, Math.max(0, Number(s.volume) || 1)) }));
+        this.runtimes = [];
+        this.nextId = 0;
+        saved.forEach((s) => this.runtimes.push(this.make({ ...s, volume: Math.min(MAX_INPUT_GAIN, Math.max(0, Number(s.volume) || 1)) }, false, Number.isInteger(s.id) ? s.id : undefined)));
         this.nextFx = this.runtimes.reduce((m, r) => r.info.effects.reduce((n, e) => Math.max(n, Number(e.id.replace(/\D/g, "")) || 0), m), 0) + 1;
         this.opts.onChange();
       }

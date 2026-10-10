@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "reac
 import { LooperEngine, EFFECT_DEFS, EFFECT_KINDS, registerChoice, setNamFactory, type LooperSnapshot } from "@/lib/looper/engine";
 import { createCloud, createNamEffect, getModelLibrary, speedNote } from "@/features/nam";
 import LooperSettings from "./LooperSettings";
+import { NodeBody, patchName } from "./PatchNode";
 import Mixer, { Buses, InputList, SequencerList, type MixerAlign } from "./Mixer";
 import HistoryPanel from "./HistoryPanel";
 import ConnectionLayer from "./ConnectionLayer";
@@ -157,7 +158,8 @@ const mixLayout: DefaultLayout = (ids, b) => {
     looping: { x: 0, y: 0, w: half, h: b.h },
     inputs: { x: half + 8, y: 0, w: q - 12, h: b.h },
     sequencers: { x: half + q, y: 0, w: q - 8, h: Math.round(b.h * 0.28) },
-    buses: { x: half + q, y: Math.round(b.h * 0.28) + 8, w: q - 8, h: Math.round(b.h * 0.72) - 8 },
+    switches: { x: half + q, y: Math.round(b.h * 0.28) + 8, w: q - 8, h: Math.round(b.h * 0.34) },
+    buses: { x: half + q, y: Math.round(b.h * 0.62) + 16, w: q - 8, h: Math.round(b.h * 0.38) - 16 },
   } as Record<string, { x: number; y: number; w: number; h: number }>;
   return Object.fromEntries(ids.map((id, i) => [id, all[id] ?? { x: 24 + i * 28, y: 24 + i * 28, w: 380, h: 260 }]));
 };
@@ -282,6 +284,7 @@ export default function LooperApp() {
             { id: "looping", title: "Looping", node: looping(true) },
             { id: "inputs", title: "Inputs", node: <InputList engine={engine} snap={snap} keyboardOpen={keyboardOpen} onToggleKeyboard={() => setKeyboardOpen((v) => !v)} openPianos={openPianos} onTogglePiano={togglePiano} /> },
             { id: "sequencers", title: "Sequencers", node: <SequencerList engine={engine} snap={snap} openSeqs={openSeqs} onToggleSequencer={toggleSeq} /> },
+            { id: "switches", title: "Switches", node: <div className="flex flex-col gap-3 p-2">{snap.patch.nodes.some((n) => n.kind === "switch") ? snap.patch.nodes.filter((n) => n.kind === "switch").map((n) => <div key={n.id}><div className="mb-1 text-xs font-medium text-slate-300">{patchName(snap, n)}</div><NodeBody engine={engine} snap={snap} node={n} /></div>) : <p className="text-xs text-slate-500">No switch yet. Add one from + widget in Widgets with wires, or connect an audio interface for the guitar rig.</p>}</div> },
             { id: "buses", title: "Buses and master", node: <Buses engine={engine} snap={snap} /> },
           ]}
         />

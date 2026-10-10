@@ -73,9 +73,9 @@ export function AddInputModal({ engine, snap, hasExtra, onClose }: { engine: Loo
   };
 
   return (
-    <Modal title={step === "type" ? "Add an input" : "Add a hardware input"} onClose={onClose}>
+    <Modal title={step === "type" ? "Add" : "Add a hardware input"} onClose={onClose}>
       {step === "type" ? (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <button type="button" onClick={() => setStep("hardware")} className="flex flex-col gap-1 rounded-xl border border-slate-700 bg-slate-900 p-4 text-left hover:border-sky-400">
             <Icon name="mic" size={28} className="text-sky-300" />
             <span className="text-sm font-medium text-slate-100">Hardware</span>
@@ -95,6 +95,16 @@ export function AddInputModal({ engine, snap, hasExtra, onClose }: { engine: Loo
             <Icon name="drum" size={28} className="text-sky-300" />
             <span className="text-sm font-medium text-slate-100">Sequencer</span>
             <span className="text-xs text-slate-400">A step sequencer in time with the click: a drum machine to start with. It plays to the master bus; add as many as you like.</span>
+          </button>
+          <button type="button" disabled={snap.groups.length >= 8} onClick={() => { engine.do({ type: "group.add" }); onClose(); }} className="flex flex-col gap-1 rounded-xl border border-slate-700 bg-slate-900 p-4 text-left hover:border-sky-400 disabled:cursor-not-allowed disabled:opacity-50">
+            <Icon name="plus" size={28} className="text-sky-300" />
+            <span className="text-sm font-medium text-slate-100">Group</span>
+            <span className="text-xs text-slate-400">A special bus with loops inside: a coloured box on the stage with its own recorder, volume and effects.</span>
+          </button>
+          <button type="button" onClick={() => { engine.do({ type: "patch.node", node: { id: `fx:${Date.now().toString(36)}`, kind: "fx", x: 20, y: 660, name: `Bus ${snap.patch.nodes.filter((n) => n.kind === "fx").length + 1}` } }); onClose(); }} className="flex flex-col gap-1 rounded-xl border border-slate-700 bg-slate-900 p-4 text-left hover:border-sky-400">
+            <Icon name="sliders-horizontal" size={28} className="text-sky-300" />
+            <span className="text-sm font-medium text-slate-100">Bus</span>
+            <span className="text-xs text-slate-400">Just connects things and holds effects. Shown in Widgets with wires.</span>
           </button>
         </div>
       ) : (
