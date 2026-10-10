@@ -135,6 +135,8 @@ export default function ConnectionLayer({ engine, snap, mode, wrapper }: { engin
   const drawn = [
     ...patch.links.flatMap((l) => {
       if (node(l.from)?.kind === "group") return [];
+      // the link from an input to a bus inside it is shown by the switch rows of its block, not as a wire
+      if (node(l.to)?.owner === l.from) return [];
       const toGroup = node(l.to)?.kind === "group";
       if (toGroup && looping) return build(l, l.from, "looping", 0.5, false);
       return build(l, l.from, l.to, toGroup ? ((l.port ?? "bus") === "rec" ? 0.28 : 0.72) : 0.5, false);
@@ -202,14 +204,18 @@ export default function ConnectionLayer({ engine, snap, mode, wrapper }: { engin
             <g key={d.l.id}>
               {mode === "lines" && (
                 <>
-                  {!d.fixed && <path d={d.path} fill="none" stroke="transparent" strokeWidth={12} style={{ pointerEvents: "stroke", cursor: "pointer" }} onPointerDown={pick} />}
-                  <path d={d.path} fill="none" pointerEvents="none" stroke={sel === d.l.id ? "#f8fafc" : d.colour} strokeWidth={sel === d.l.id ? 3 : on ? (faint ? 1.5 : 2.75) : 1} strokeDasharray={on ? undefined : "3 4"} opacity={on ? (faint ? 0.5 : 0.95) : 0.45} />
+                  {/* a wire is not clickable (it would block the controls under it); select a connection by its arrow */}
+                  <path d={d.path} fill="none" pointerEvents="none" stroke={sel === d.l.id ? "#f8fafc" : d.colour} strokeWidth={sel === d.l.id ? 3 : on ? (faint ? 1.5 : 2.75) : 1} strokeDasharray={on ? undefined : "3 4"} opacity={on ? (faint ? 0.5 : 0.95) : 0.28} />
                 </>
               )}
               <circle cx={d.a.x} cy={d.a.y} r={on ? 3.5 : 2} fill={d.colour} opacity={op} pointerEvents="none" />
+              {on ? (
               <polygon points={d.arrow} fill={d.colour} opacity={op} stroke={sel === d.l.id ? "#f8fafc" : "#020617"} strokeWidth={sel === d.l.id ? 1.5 : 0.75} role={d.fixed ? "img" : "button"} aria-label={label} style={{ pointerEvents: d.fixed ? "none" : "auto", cursor: "pointer" }} onPointerDown={pick}>
-                <title>{label}</title>
-              </polygon>
+                  <title>{label}</title>
+                </polygon>
+              ) : (
+                <circle cx={d.b.x} cy={d.b.y} r={2} fill={d.colour} opacity={0.35} pointerEvents="none" />
+              )}
             </g>
           );
         })}
@@ -237,6 +243,8 @@ export default function ConnectionLayer({ engine, snap, mode, wrapper }: { engin
       {Object.entries(rects).map(([id, r]) => {
         const n = node(id);
         if (!n || !OUT_KINDS.includes(n.kind)) return null;
+        // an input with buses of its own sends its sound out through them
+        if (patch.nodes.some((m) => m.owner === id)) return null;
         const c = handleColour(id);
         const used = patch.links.some((l) => l.from === id);
         return (

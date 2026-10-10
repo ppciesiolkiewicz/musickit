@@ -16,7 +16,7 @@ interface Entry {
 }
 
 /** Every effect that can be shown as a widget, with the pin key the stage uses. */
-function effectEntries(snap: LooperSnapshot): Entry[] {
+export function effectEntries(snap: LooperSnapshot): Entry[] {
   const out: Entry[] = [];
   snap.inputs.forEach((i) => i.effects.forEach((e) => out.push({ key: `i:${i.id}:${e.id}`, label: e.kind, where: i.name })));
   snap.groups.forEach((g) => g.effects.forEach((e) => out.push({ key: `g:${g.id}:${e.id}`, label: e.kind, where: g.name })));

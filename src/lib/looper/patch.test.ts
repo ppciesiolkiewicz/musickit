@@ -176,3 +176,46 @@ describe("old switch saves", () => {
     assert.deepEqual(p.links.filter((l) => !l.muted).map((l) => l.id), ["a", "c"]);
   });
 });
+
+describe("buses inside an input", () => {
+  const base = (): Patch => ({
+    nodes: [
+      { id: "in:1", kind: "input", x: 0, y: 0, muted: false },
+      { id: "fx:a", kind: "fx", x: 0, y: 0, muted: false, owner: "in:1", effects: [] },
+      { id: "fx:b", kind: "fx", x: 0, y: 0, muted: false, owner: "in:1", effects: [] },
+      { id: "master", kind: "master", x: 0, y: 0, muted: false },
+    ],
+    links: [],
+  });
+  it("opens one bus at a time by default and keeps the open one when another is added", () => {
+    let p = connect(base(), "in:1", "fx:a", "l1");
+    p = connect(p, "in:1", "fx:b", "l2");
+    assert.deepEqual(p.links.map((l) => l.muted), [false, true]);
+  });
+  it("choosing a bus closes the others, any combination toggles", async () => {
+    const { busChoice, setSwitchMode } = await import("./patch");
+    let p = connect(connect(base(), "in:1", "fx:a", "l1"), "in:1", "fx:b", "l2");
+    assert.deepEqual(busChoice(p, "in:1", "l2"), [{ id: "l1", muted: true }, { id: "l2", muted: false }]);
+    assert.deepEqual(busChoice(p, "in:1", "l1"), []);
+    p = setSwitchMode(p, "in:1", "out", true);
+    assert.equal(p.nodes[0].busMulti, true);
+    assert.deepEqual(busChoice(p, "in:1", "l2"), [{ id: "l2", muted: false }]);
+  });
+  it("refuses another input's bus, and removing the open bus opens the next", async () => {
+    const { whyNot, removeNode } = await import("./patch");
+    const p0 = base();
+    p0.nodes.push({ id: "in:2", kind: "input", x: 0, y: 0, muted: false });
+    assert.ok(whyNot(p0, "in:2", "fx:a"));
+    const p = connect(connect(p0, "in:1", "fx:a", "l1"), "in:1", "fx:b", "l2");
+    const q = removeNode(p, "fx:a");
+    assert.deepEqual(q.links.map((l) => [l.id, l.muted]), [["l2", false]]);
+    assert.equal(removeNode(p, "in:1").nodes.some((n) => n.owner === "in:1"), false, "its buses go with it");
+  });
+  it("keeps owners and the mode through a save", async () => {
+    const { sanitisePatch, setSwitchMode } = await import("./patch");
+    const p = setSwitchMode(connect(base(), "in:1", "fx:a", "l1"), "in:1", "out", true);
+    const back = sanitisePatch(JSON.parse(JSON.stringify(p)));
+    assert.equal(back.nodes.find((n) => n.id === "fx:a")?.owner, "in:1");
+    assert.equal(back.nodes.find((n) => n.id === "in:1")?.busMulti, true);
+  });
+});

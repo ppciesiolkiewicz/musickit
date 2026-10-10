@@ -18,6 +18,10 @@ export interface PatchNode {
   inMulti?: boolean;
   /** switch only: the same for its outgoing connections */
   outMulti?: boolean;
+  /** fx only: the input (or piano) this bus belongs to. It lives inside that input's block and is fed only by it. */
+  owner?: string;
+  /** a sound maker with buses of its own: false (the default) opens one bus at a time (radio), true any combination (checkboxes) */
+  busMulti?: boolean;
   /** effect chains and switches can be named */
   name?: string;
   /** effect chain only: its effects, in order */
@@ -80,6 +84,7 @@ export function whyNot(p: Patch, from: string, to: string, port: Port = "bus"): 
   if (a.kind === "sequencer" && b.kind !== "group" && b.kind !== "master") return "A sequencer keeps its own routing for now";
   if (a.kind === "synth") return "Sound generators are not wired yet";
   if (b.kind !== "group" && port === "rec") return "Only a group has a recorder";
+  if (b.kind === "fx" && b.owner && b.owner !== from) return "That bus belongs to another input";
   if (p.links.some((l) => l.from === from && l.to === to && (l.port ?? "bus") === port)) return "Already connected";
   if (reaches(p, to, from)) return "That would feed sound back into itself";
   return null;
@@ -94,7 +99,7 @@ const newId = () => `l${Date.now().toString(36)}${(counter++).toString(36)}`;
  */
 export function connect(p: Patch, from: string, to: string, id: string = newId(), port: Port = "bus", muted?: boolean): Patch {
   if (whyNot(p, from, to, port)) return p;
-  const closed = muted ?? (switchSideBusy(p, to, "in") || switchSideBusy(p, from, "out"));
+  const closed = muted ?? (switchSideBusy(p, to, "in") || switchSideBusy(p, from, "out") || ownerBusy(p, from, to));
   return { ...p, links: [...p.links, { id, from, to, ...(port === "rec" ? { port } : {}), muted: closed }] };
 }
 
@@ -103,6 +108,26 @@ function switchSideBusy(p: Patch, id: string, side: "in" | "out"): boolean {
   const n = node(p, id);
   if (!n || n.kind !== "switch" || (side === "in" ? n.inMulti : n.outMulti)) return false;
   return p.links.some((l) => (side === "in" ? l.to : l.from) === id && !l.muted);
+}
+
+/** The links from a sound maker to the buses that belong to it. */
+export const busLinks = (p: Patch, ownerId: string): PatchLink[] => p.links.filter((l) => l.from === ownerId && node(p, l.to)?.owner === ownerId);
+
+/** True when a new link from `from` to its own bus `to` must start closed: its buses are one-at-a-time and one is open. */
+function ownerBusy(p: Patch, from: string, to: string): boolean {
+  const o = node(p, from);
+  if (!o || o.busMulti || node(p, to)?.owner !== from) return false;
+  return busLinks(p, from).some((l) => !l.muted);
+}
+
+/** One-at-a-time buses: exactly one open link to them (the first open one, or the first), when there are any. */
+function settleOwner(p: Patch, id: string): Patch {
+  const o = node(p, id);
+  if (!o || o.busMulti) return p;
+  const mine = busLinks(p, id);
+  if (!mine.length) return p;
+  const keep = (mine.find((l) => !l.muted) ?? mine[0]).id;
+  return { ...p, links: p.links.map((l) => (mine.some((m) => m.id === l.id) ? { ...l, muted: l.id !== keep } : l)) };
 }
 
 const sideLinks = (p: Patch, id: string, side: "in" | "out") => p.links.filter((l) => (side === "in" ? l.to : l.from) === id);
@@ -126,7 +151,7 @@ export function disconnect(p: Patch, linkId: string): Patch {
   const gone = p.links.find((l) => l.id === linkId);
   if (!gone) return p;
   let next: Patch = { nodes: p.nodes, links: p.links.filter((l) => l.id !== linkId) };
-  for (const id of [gone.from, gone.to]) next = settleSwitch(next, id);
+  for (const id of [gone.from, gone.to]) next = settleOwner(settleSwitch(next, id), id);
   return next;
 }
 
@@ -136,6 +161,11 @@ export const setNodeMuted = (p: Patch, id: string, muted: boolean): Patch => ({ 
 /** Choose how one side of a switch works: one connection at a time (radio) or any combination (checkboxes). Going to one-at-a-time keeps the first open link. */
 export function setSwitchMode(p: Patch, id: string, side: "in" | "out", multi: boolean): Patch {
   const n = node(p, id);
+  // a sound maker's own buses work like the output side of a switch: its mode is `busMulti`
+  if (n && n.kind !== "switch" && hasOut(n.kind) && n.kind !== "fx" && side === "out") {
+    const next = { ...p, nodes: p.nodes.map((m) => (m.id === id ? { ...m, busMulti: multi } : m)) };
+    return multi ? next : settleOwner(next, id);
+  }
   if (!n || n.kind !== "switch") return p;
   const next = { ...p, nodes: p.nodes.map((m) => (m.id === id ? { ...m, [side === "in" ? "inMulti" : "outMulti"]: multi } : m)) };
   return multi ? next : settleSwitch(next, id);
@@ -152,9 +182,22 @@ export function switchChoice(p: Patch, id: string, linkId: string): { id: string
   return sideLinks(p, id, side).filter((x) => x.id === l.id || !x.muted).map((x) => ({ id: x.id, muted: x.id !== l.id }));
 }
 
-/** Remove an element and every link that touches it. */
+/** What clicking one of a sound maker's own buses changes, as link mutes (same rules as a switch side). */
+export function busChoice(p: Patch, ownerId: string, linkId: string): { id: string; muted: boolean }[] {
+  const o = node(p, ownerId);
+  const l = busLinks(p, ownerId).find((x) => x.id === linkId);
+  if (!o || !l) return [];
+  if (o.busMulti) return [{ id: l.id, muted: !l.muted }];
+  if (!l.muted) return [];
+  return busLinks(p, ownerId).filter((x) => x.id === l.id || !x.muted).map((x) => ({ id: x.id, muted: x.id !== l.id }));
+}
+
+/** Remove an element and every link that touches it. The buses inside an input go with it; a bus that was the open one hands over to the next. */
 export function removeNode(p: Patch, id: string): Patch {
-  return { nodes: p.nodes.filter((n) => n.id !== id), links: p.links.filter((l) => l.from !== id && l.to !== id) };
+  const gone = new Set([id, ...p.nodes.filter((n) => n.owner === id).map((n) => n.id)]);
+  const owner = node(p, id)?.owner;
+  const next: Patch = { nodes: p.nodes.filter((n) => !gone.has(n.id)), links: p.links.filter((l) => !gone.has(l.from) && !gone.has(l.to)) };
+  return owner ? settleOwner(next, owner) : next;
 }
 
 /** The links that carry sound right now: not muted, neither end muted, and a link a switch has closed is a muted link. Order is creation order. */
@@ -230,11 +273,15 @@ export function sanitisePatch(raw: unknown): Patch {
         muted: n.muted === true,
         ...(n.kind === "switch" ? { inMulti: legacy ? true : n.inMulti === true, outMulti: n.outMulti === true } : {}),
         ...(typeof n.name === "string" ? { name: n.name.slice(0, 40) } : {}),
+        ...(n.kind === "fx" && typeof n.owner === "string" ? { owner: n.owner } : {}),
+        ...(["input", "piano"].includes(n.kind) && n.busMulti === true ? { busMulti: true } : {}),
         ...(n.kind === "fx" ? { effects: sanitiseEffects(n.effects) } : {}),
       });
     }
   }
-  let p: Patch = { nodes, links: [] };
+  // a bus whose input is gone is gone too
+  const alive = nodes.filter((n) => !n.owner || nodes.some((m) => m.id === n.owner));
+  let p: Patch = { nodes: alive, links: [] };
   if (Array.isArray(r.links)) {
     for (const l of r.links.slice(0, 600)) {
       if (!l || typeof l.id !== "string" || typeof l.from !== "string" || typeof l.to !== "string" || p.links.some((m) => m.id === l.id)) continue;
@@ -246,7 +293,7 @@ export function sanitisePatch(raw: unknown): Patch {
     const outs = p.links.filter((l) => l.from === id);
     p = { ...p, links: p.links.map((l) => (outs.includes(l) ? { ...l, muted: l.muted || outs[Math.min(sel, outs.length - 1)]?.id !== l.id } : l)) };
   });
-  return [...p.nodes].reduce((q, n) => (n.kind === "switch" ? settleSwitch(q, n.id) : q), p);
+  return [...p.nodes].reduce((q, n) => (n.kind === "switch" ? settleSwitch(q, n.id) : n.kind === "input" || n.kind === "piano" ? settleOwner(q, n.id) : q), p);
 }
 
 /**
@@ -302,6 +349,7 @@ export function isPatched(p: Patch, id: string): boolean {
 /** Insert a new element (an effect chain or a switch). Ids must be new. */
 export function addNode(p: Patch, n: PatchNode): Patch {
   if (p.nodes.some((m) => m.id === n.id) || (n.kind !== "fx" && n.kind !== "switch")) return p;
+  if (n.owner && !p.nodes.some((m) => m.id === n.owner)) return p;
   return { ...p, nodes: [...p.nodes, { ...n, muted: n.muted === true, ...(n.kind === "switch" ? { inMulti: n.inMulti === true, outMulti: n.outMulti === true } : { effects: n.effects ?? [] }) }] };
 }
 

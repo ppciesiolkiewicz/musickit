@@ -80,6 +80,8 @@ export interface PatchNodeSpec {
   /** switch only: lets any combination of its inputs / outputs through (default one at a time) */
   inMulti?: boolean;
   outMulti?: boolean;
+  /** fx only: the input this bus belongs to (it lives in that input's block) */
+  owner?: string;
 }
 
 export type FxTarget = { group: string } | { input: number } | { master: true } | { element: string };
@@ -132,7 +134,7 @@ export interface ActionState {
   metronome: MetronomeSettings;
   sequencers: { id: string; name: string; x: number; y: number; dest: "auto" | "record"; playing: boolean; instrumentId: string; bars: number; cells: number[][] }[];
   /** what is connected to what */
-  patch: { nodes: { id: string; kind: string; muted: boolean; x: number; y: number; inMulti?: boolean; outMulti?: boolean; name?: string; effects?: EffectState[] }[]; links: { id: string; from: string; to: string; port?: "rec" | "bus"; muted: boolean }[] };
+  patch: { nodes: { id: string; kind: string; muted: boolean; x: number; y: number; inMulti?: boolean; outMulti?: boolean; owner?: string; busMulti?: boolean; name?: string; effects?: EffectState[] }[]; links: { id: string; from: string; to: string; port?: "rec" | "bus"; muted: boolean }[] };
 }
 
 export interface EffectState {
@@ -212,7 +214,7 @@ export function applyAction(t: ActionTarget, a: LooperAction): LooperAction | nu
     case "patch.unlink": t.patchUnlink(a.id); return a;
     case "patch.mute": t.patchMute(a.what, a.id, a.muted); return a;
     case "patch.switch": t.patchSwitch(a.id, a.side, a.multi); return a;
-    case "patch.node": return t.patchAdd({ id: a.node.id, kind: a.node.kind, x: a.node.x, y: a.node.y, muted: a.node.muted === true, ...(a.node.kind === "switch" ? { inMulti: a.node.inMulti === true, outMulti: a.node.outMulti === true } : {}), name: a.node.name, effects: a.node.kind === "fx" ? (a.node.effects ?? []).map((e) => ({ id: e.id, kind: e.kind, bypass: e.bypass === true, post: e.post === true, params: { ...e.params } })) : undefined }) ? a : null;
+    case "patch.node": return t.patchAdd({ id: a.node.id, kind: a.node.kind, x: a.node.x, y: a.node.y, muted: a.node.muted === true, ...(a.node.kind === "switch" ? { inMulti: a.node.inMulti === true, outMulti: a.node.outMulti === true } : {}), ...(a.node.owner ? { owner: a.node.owner } : {}), name: a.node.name, effects: a.node.kind === "fx" ? (a.node.effects ?? []).map((e) => ({ id: e.id, kind: e.kind, bypass: e.bypass === true, post: e.post === true, params: { ...e.params } })) : undefined }) ? a : null;
     case "patch.removeNode": t.patchRemove(a.id); return a;
     case "patch.move": t.patchMove(a.id, a.x, a.y); return a;
     case "group.set": t.updateGroup(a.id, a.patch); return a;
@@ -290,17 +292,19 @@ export function inverseOf(a: LooperAction, s: ActionState): LooperAction | null 
       const n = s.patch.nodes.find((m) => m.id === a.id);
       if (!n) return null;
       // going back to one-at-a-time closes links, so the inverse also puts every link of that side back as it was
-      const mine = s.patch.links.filter((l) => (a.side === "in" ? l.to : l.from) === a.id);
+      const mine = s.patch.links.filter((l) => (a.side === "in" ? l.to : l.from) === a.id && (n.kind === "switch" || s.patch.nodes.find((m) => m.id === l.to)?.owner === a.id));
       const back: LooperAction[] = mine.map((l) => ({ type: "patch.mute", what: "link", id: l.id, muted: l.muted }));
-      return { type: "batch", label: "Switch mode", actions: [{ type: "patch.switch", id: a.id, side: a.side, multi: (a.side === "in" ? n.inMulti : n.outMulti) === true }, ...back] };
+      return { type: "batch", label: "Switch mode", actions: [{ type: "patch.switch", id: a.id, side: a.side, multi: (a.side === "in" ? n.inMulti : n.kind === "switch" ? n.outMulti : n.busMulti) === true }, ...back] };
     }
     case "patch.node": return { type: "patch.removeNode", id: a.node.id };
     case "patch.removeNode": {
       const n = s.patch.nodes.find((m) => m.id === a.id);
       if (!n || (n.kind !== "fx" && n.kind !== "switch")) return null;
       const restore: LooperAction[] = [
-        { type: "patch.node", node: { id: n.id, kind: n.kind as "fx" | "switch", x: n.x, y: n.y, name: n.name, muted: n.muted, effects: n.effects?.map(specOf), inMulti: n.inMulti, outMulti: n.outMulti } },
+        { type: "patch.node", node: { id: n.id, kind: n.kind as "fx" | "switch", x: n.x, y: n.y, name: n.name, muted: n.muted, effects: n.effects?.map(specOf), inMulti: n.inMulti, outMulti: n.outMulti, ...(n.owner ? { owner: n.owner } : {}) } },
         ...s.patch.links.filter((l) => l.from === n.id || l.to === n.id).map((l): LooperAction => ({ type: "patch.link", link: { ...l } })),
+        // the sibling buses of an input's one-at-a-time set were re-settled by the removal: put their mutes back as they were
+        ...(n.owner ? s.patch.links.filter((l) => l.from === n.owner && s.patch.nodes.find((m) => m.id === l.to)?.owner === n.owner && l.to !== n.id).map((l): LooperAction => ({ type: "patch.mute", what: "link", id: l.id, muted: l.muted })) : []),
       ];
       return { type: "batch", actions: restore };
     }

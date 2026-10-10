@@ -6,7 +6,8 @@ import { createCloud, createNamEffect, getModelLibrary, speedNote } from "@/feat
 import LooperSettings from "./LooperSettings";
 import { chooseDevice, deviceKind, deviceName, type DeviceKind } from "@/lib/looper/deviceChoice";
 import { NodeBody, patchName } from "./PatchNode";
-import Mixer, { Buses, InputList, SequencerList, type MixerAlign } from "./Mixer";
+import AddFab from "./AddFab";
+import Mixer, { AddInputModal, Buses, InputList, SequencerList, type MixerAlign } from "./Mixer";
 import HistoryPanel from "./HistoryPanel";
 import ConnectionLayer from "./ConnectionLayer";
 import ViewMenu, { type View } from "./ViewMenu";
@@ -222,6 +223,7 @@ export default function LooperApp() {
   const canUndo = hist.cursor > 0, canRedo = hist.cursor < hist.entries.length;
   const recording = useSyncExternalStore(engine.macroRecorder.subscribe, () => engine.macroRecorder.recording, () => false);
   const [keyboardOpen, setKeyboardOpen] = useState(false);
+  const [addingInput, setAddingInput] = useState(false);
   const [openSeqs, setOpenSeqs] = useState<string[]>([]);
   const [openPianos, setOpenPianos] = useState<string[]>([]);
   const togglePiano = (id: string) => setOpenPianos((v) => (v.includes(id) ? v.filter((x) => x !== id) : [...v, id]));
@@ -286,6 +288,8 @@ export default function LooperApp() {
   return (
     <div ref={pageRef} className="relative flex flex-col">
       {widgetMode && ready && <ConnectionLayer engine={engine} snap={snap} mode={view === "lines" ? "lines" : "colors"} wrapper={pageRef} />}
+      {widgetMode && ready && <AddFab engine={engine} snap={snap} wires={view === "lines"} names={Object.fromEntries(EFFECT_KINDS.map((k) => [k, EFFECT_DEFS[k].name]))} onInput={() => setAddingInput(true)} />}
+      {addingInput && <AddInputModal engine={engine} snap={snap} hasExtra={snap.inputs.some((i) => i.kind === "extra")} onClose={() => setAddingInput(false)} />}
       <div className="pointer-events-none sticky top-0 z-30 flex items-start justify-between gap-2 px-1 py-1">
         <div className="pointer-events-auto"><MetronomeBar engine={engine} snap={snap} ready={ready} /></div>
         <div className="pointer-events-auto flex gap-1">

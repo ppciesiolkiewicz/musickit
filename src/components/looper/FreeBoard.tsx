@@ -5,6 +5,7 @@ import Icon from "../Icon";
 import LoopStage from "./LoopStage";
 import { AddInputModal, InputStrip, MasterStrip } from "./Mixer";
 import { NodeBody, patchName } from "./PatchNode";
+import InputBundle from "./InputBundle";
 import { WidgetBoard } from "@/features/widgets";
 import { MAX_INPUTS, type LooperEngine, type LooperSnapshot } from "@/lib/looper/engine";
 import type { DefaultLayout, Layout } from "@/features/widgets/board";
@@ -13,7 +14,7 @@ const ibtn = "grid h-8 min-w-8 place-items-center rounded-lg border border-slate
 
 const COL_W = 340;
 /** How tall each kind of widget starts. */
-const startHeight = (id: string, kind: string | undefined) => (id === "master" ? 150 : kind === "switch" ? 320 : kind === "fx" ? 150 : 210);
+const startHeight = (id: string, kind: string | undefined) => (id === "master" ? 150 : kind === "switch" ? 320 : kind === "fx" ? 150 : kind?.startsWith("input:") ? 230 + Number(kind.slice(6)) * 72 : 210);
 
 /** The Looping stage on the left, everything else in columns to its right. The wires are drawn over it, so where things start hardly matters. */
 const freeLayout = (kinds: Record<string, string | undefined>): DefaultLayout => (ids, b) => {
@@ -42,8 +43,10 @@ export default function FreeBoard({ engine, snap, controls, keyboardOpen, onTogg
   const [adding, setAdding] = useState(false);
   const strips = snap.inputs.filter((i) => i.kind !== "sequencer");
   const hasExtra = snap.inputs.some((i) => i.kind === "extra");
-  const cards = snap.patch.nodes.filter((n) => n.kind === "fx" || n.kind === "switch");
+  // buses that belong to an input live inside that input's block; only the stand-alone ones are widgets of their own
+  const cards = snap.patch.nodes.filter((n) => (n.kind === "fx" && !n.owner) || n.kind === "switch");
   const kinds: Record<string, string | undefined> = Object.fromEntries(cards.map((n) => [n.id, n.kind]));
+  strips.forEach((i) => { kinds[`in:${i.id}`] = `input:${snap.patch.nodes.filter((n) => n.owner === `in:${i.id}`).length}`; });
 
   const title = (icon: "mic" | "audio-lines" | "split" | "sliders-horizontal" | "repeat", text: string) => (
     <span className="flex min-w-0 items-center gap-1.5"><Icon name={icon} size={13} className="shrink-0 text-slate-400" /><span className="truncate">{text}</span></span>
@@ -68,9 +71,12 @@ export default function FreeBoard({ engine, snap, controls, keyboardOpen, onTogg
       id: `in:${inp.id}`,
       title: title("mic", inp.name),
       node: (
-        <ul>
-          <InputStrip engine={engine} inp={inp} devices={snap.devices} anyDevice={snap.devices.length > 0} keyboardOpen={keyboardOpen} onToggleKeyboard={onToggleKeyboard} sequencerOpen={false} onToggleSequencer={() => undefined} pianoOpen={!!inp.sourceId && openPianos.includes(inp.sourceId)} onTogglePiano={() => inp.sourceId && onTogglePiano(inp.sourceId)} seq={undefined} groups={snap.groups} />
-        </ul>
+        <div className="h-full overflow-y-auto">
+          <ul>
+            <InputStrip engine={engine} inp={inp} devices={snap.devices} anyDevice={snap.devices.length > 0} keyboardOpen={keyboardOpen} onToggleKeyboard={onToggleKeyboard} sequencerOpen={false} onToggleSequencer={() => undefined} pianoOpen={!!inp.sourceId && openPianos.includes(inp.sourceId)} onTogglePiano={() => inp.sourceId && onTogglePiano(inp.sourceId)} seq={undefined} groups={snap.groups} />
+          </ul>
+          <InputBundle engine={engine} snap={snap} ownerId={`in:${inp.id}`} />
+        </div>
       ),
     })),
     ...cards.map((n) => ({

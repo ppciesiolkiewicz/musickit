@@ -7,7 +7,7 @@ A multi-channel audio looper at `/looper`. The engine lives in `src/lib/looper/`
 - **Inputs**: sound makers that feed the rest: an audio device (interface, mic) or the keyboard. Effects belong to an input.
 - **Sequencers**: step sequencers (drums, bass). Each is a circle on the stage and a widget of its own settings.
 - **Buses**: anything sound is sent to and leaves from, with effects and a mute. Two kinds: a **Bus** is a standalone block you connect things to and add effects (the old "effect chain"); a **Group** is a special bus that also holds loops inside (a coloured box on the stage, with a recorder for its loops). The **master bus** is the last bus, bundled with the buses in the Widgets view.
-- **Switch**: takes several inputs and outputs; each side is "one at a time" or "any combination".
+- **Output buses of an input**: an input's block (in Widgets with wires) can hold buses of its own. With none it shows "Add output bus". With one it shows that bus. With two or more the block is also a switch: a radio (one bus at a time) or a checkbox (any combination of buses) beside each bus, its effects under its name, and its own connector, so each bus can go to the master, the Looping groups or other buses. Same behaviour as the earlier separate switch, in one block. A stand-alone **Switch** block still exists for older saves and + widget.
 - Effects are never blocks of their own: they sit on an input or a bus.
 
 ## Behaviour
@@ -195,6 +195,8 @@ While a take waits to start (count-in or next loop boundary) the loop circle sho
 
 ## Default rigs, wires into Looping, devices dialog
 
-- Default piano setup (once, `musickit.looper.pianoRigDone`, no device needed): three Scale Pianos with different settings (C major, A minor pentatonic, E blues), five buses (Dry piano, Room, Hall, Cathedral, Dreamy: reverbs, the last with chorus and tape delay) and a **Piano Switch** (buses: one at a time, outputs: any combination) that plays to the master and records into every group. A piano that is patched is heard only through the patch. More pianos can be added any time (Add, Scale Piano); "Piano rig" in + widget (Widgets with wires) builds the buses and switch for the pianos that exist.
+- Default piano setup (once, `musickit.looper.pianoRigDone2`, no device needed): three Scale Pianos with different settings (C major, A minor pentatonic, E blues), each with four buses inside its block (Dry piano, Room, Hall, Dreamy: reverbs, the last with chorus and tape delay), one open at a time. More pianos can be added any time (Add, Scale Piano); "Piano rig" in + widget (Widgets with wires) gives the pianos that exist the same buses. A piano that is patched is heard only through the patch.
 - Wires: a connection into any group ends at the **Looping** widget, in the colour of the group it reaches (several groups: several coloured wires). The Looping widget is always connected to the master bus by one fixed arrow that cannot be selected, muted or removed. A connection that carries sound is bold; one that is muted, closed by a switch, or leads only into a closed switch output is thin, dashed and faint.
 - "Your devices": two columns (inputs, outputs) of device cards with the cleaned-up name and badges (audio interface, built in, virtual, used by an input, in use). It stays open until closed.
+
+- The round **+** button over the canvas (Widgets and Widgets with wires) adds an Input (device, keyboard, Scale Piano, sequencer), a Bus, a Group, a Switch (the last two only in Widgets with wires) or pins an effect as a Widget.

@@ -69,4 +69,18 @@ describe("flowingLinks", () => {
     const active = new Set(["1", "2", "3", "5"]);
     assert.deepEqual([...flowingLinks(p as never, active)].sort(), ["1", "3", "5"]);
   });
+  it("leaves out the output of a bus nothing reaches", async () => {
+    const { flowingLinks } = await import("./patchView");
+    const node = (id: string, kind: string) => ({ id, kind, x: 0, y: 0, muted: false } as never);
+    const p = {
+      nodes: [node("in:1", "input"), node("fx:a", "fx"), node("fx:b", "fx"), node("master", "master")],
+      links: [
+        { id: "1", from: "in:1", to: "fx:a", muted: false },
+        { id: "2", from: "in:1", to: "fx:b", muted: true },
+        { id: "3", from: "fx:a", to: "master", muted: false },
+        { id: "4", from: "fx:b", to: "master", muted: false },
+      ],
+    };
+    assert.deepEqual([...flowingLinks(p as never, new Set(["1", "3", "4"]))].sort(), ["1", "3"]);
+  });
 });

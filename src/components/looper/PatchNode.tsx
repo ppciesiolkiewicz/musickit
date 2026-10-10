@@ -19,7 +19,6 @@ export function patchName(snap: LooperSnapshot, n: PatchNode): string {
 /** What is inside the card of an effect chain or a switch: the chain's effects, or the connections a switch lets through. */
 export function NodeBody({ engine, snap, node: n }: { engine: LooperEngine; snap: LooperSnapshot; node: PatchNode }) {
   const patch = snap.patch;
-  const [fxOpen, setFxOpen] = useState(false);
   const nameOf = (id: string) => {
     const m = patch.nodes.find((x) => x.id === id);
     return m ? patchName(snap, m) : id;
@@ -61,19 +60,28 @@ export function NodeBody({ engine, snap, node: n }: { engine: LooperEngine; snap
 
   return (
     <div className="flex flex-col gap-1.5 px-1.5 py-1.5 pr-3" data-patch-id={n.id}>
-      {n.kind === "fx" && (
-        <button type="button" className="flex items-center gap-1 rounded border border-slate-700 px-1 py-0.5 text-left text-[11px] text-slate-300 hover:border-slate-500" onClick={() => setFxOpen(true)} title="Edit the effects">
-          <Icon name="sliders-horizontal" size={11} />
-          <span className="truncate">{n.effects?.length ? n.effects.map((e) => e.kind).join(" + ") : "no effects yet"}</span>
-        </button>
-      )}
+      {n.kind === "fx" && <BusEffects engine={engine} snap={snap} node={n} />}
       {n.kind === "switch" && (
         <>
           {side(n, "in")}
           {side(n, "out")}
         </>
       )}
-      {fxOpen && n.kind === "fx" && (
+    </div>
+  );
+}
+
+
+/** The effects of a bus: one line that says what is on it, and the dialog to edit them. */
+export function BusEffects({ engine, snap, node: n }: { engine: LooperEngine; snap: LooperSnapshot; node: PatchNode }) {
+  const [fxOpen, setFxOpen] = useState(false);
+  return (
+    <>
+      <button type="button" className="flex w-full items-center gap-1 rounded border border-slate-700 px-1 py-0.5 text-left text-[11px] text-slate-300 hover:border-slate-500" onClick={() => setFxOpen(true)} title="Edit the effects">
+        <Icon name="sliders-horizontal" size={11} className="shrink-0" />
+        <span className="truncate">{n.effects?.length ? n.effects.map((e) => e.kind).join(" + ") : "no effects yet"}</span>
+      </button>
+      {fxOpen && (
         <EffectsModal
           title={<span className="flex items-center gap-2"><Icon name="sliders-horizontal" size={16} />{patchName(snap, n)}: effects</span>}
           effects={n.effects ?? []}
@@ -84,6 +92,6 @@ export function NodeBody({ engine, snap, node: n }: { engine: LooperEngine; snap
           onClose={() => setFxOpen(false)}
         />
       )}
-    </div>
+    </>
   );
 }

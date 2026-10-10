@@ -85,5 +85,16 @@ export function flowingLinks(p: Patch, active: ReadonlySet<string>): Set<string>
     memo.set(id, ok);
     return ok;
   };
-  return new Set(p.links.filter((l) => active.has(l.id) && reaches(l.to, new Set())).map((l) => l.id));
+  // and sound must arrive at the link's start: a sound maker is always live, anything else only through an open link
+  const live = new Set(p.nodes.filter((n) => n.kind === "input" || n.kind === "piano" || n.kind === "sequencer" || n.kind === "synth").map((n) => n.id));
+  for (let grew = true; grew; ) {
+    grew = false;
+    p.links.forEach((l) => {
+      if (active.has(l.id) && live.has(l.from) && !live.has(l.to)) {
+        live.add(l.to);
+        grew = true;
+      }
+    });
+  }
+  return new Set(p.links.filter((l) => active.has(l.id) && live.has(l.from) && reaches(l.to, new Set())).map((l) => l.id));
 }

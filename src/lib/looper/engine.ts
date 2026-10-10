@@ -12,7 +12,7 @@ import { activeLinks, addNode as patchAddNode, connect as patchConnect, disconne
 import { chooseDevice, deviceScore, gearIssues, type DeviceRef, type GearIssue } from "./deviceChoice";
 import { ActionHistory, type DoOptions } from "./history";
 import { MacroRecorder } from "./macros";
-import { PIANO_STARTS, pianoRig, starterRig } from "./rig";
+import { PIANO_STARTS, addBus, pianoRig, starterRig } from "./rig";
 import type { FxTarget, InputSpec, LooperAction } from "./actions";
 import { RECORDER_PROCESSOR_NAME, recorderWorkletUrl } from "./recorderWorklet";
 
@@ -171,8 +171,8 @@ const PATCH_KEY = "musickit.looper.patch";
 /** Saves made before the canvas existed have no positions worth keeping: they are laid out once. */
 const PATCH_LAYOUT_KEY = "musickit.looper.patch.layout";
 const PREF_KEY = "musickit.looper.preferred";
-const RIG_KEY = "musickit.looper.rigDone";
-const PIANO_RIG_KEY = "musickit.looper.pianoRigDone";
+const RIG_KEY = "musickit.looper.rigDone2";
+const PIANO_RIG_KEY = "musickit.looper.pianoRigDone2";
 type SinkContext = AudioContext & { setSinkId?: (id: string) => Promise<void> };
 const groupName = (i: number) => `Group ${String.fromCharCode(65 + (i % 26))}`;
 const defaultGroupInfos = (): GroupInfo[] => defaultGroups().map((g, i) => ({ ...g, name: groupName(i), colour: GROUP_COLOURS[i % GROUP_COLOURS.length], volume: 1, muted: false, effects: [] }));
@@ -337,8 +337,8 @@ export class LooperEngine {
   }
 
   /**
-   * The default pianos, once: a few Scale Pianos with different keys and scales, reverb buses and a Piano Switch to the master and the
-   * groups (`pianoRig`). Needs no device and opens nothing. Never again after it has run, so removing them sticks. Not part of the history.
+   * The default pianos, once: a few Scale Pianos with different keys and scales, each with reverb buses of its own that play to the master
+   * and the groups (`pianoRig`). Needs no device and opens nothing. Never again after it has run, so removing them sticks. Not part of the history.
    */
   private setupPianos(): void {
     try {
@@ -347,8 +347,8 @@ export class LooperEngine {
     } catch {
       return;
     }
-    if (this.mixer.scalePianoIds().length > 0) return;
-    const ids = PIANO_STARTS.map((st) => this.addScalePianoNow(st)).filter((id): id is number => id !== null);
+    const have = this.mixer.list().filter((i) => i.kind === "scalepiano").map((i) => i.id);
+    const ids = have.length ? have : PIANO_STARTS.map((st) => this.addScalePianoNow(st)).filter((id): id is number => id !== null);
     if (ids.length) this.addPianoRig(ids);
     this.history.clear();
   }
@@ -590,6 +590,26 @@ export class LooperEngine {
     return made;
   }
 
+  /** Add an output bus inside an input (a patch id like "in:3"), with the effects to be put on it afterwards. */
+  addBus(input: string): boolean {
+    const o = this.patch.nodes.find((n) => n.id === input);
+    if (!o || (o.kind !== "input" && o.kind !== "piano")) return false;
+    const n = this.patch.nodes.filter((m) => m.owner === input).length;
+    const made = addBus({
+      input,
+      groups: this.groups.map((g) => g.id),
+      directLinks: this.patch.links.filter((l) => l.from === input && l.to.startsWith("group:")).map((l) => l.id),
+      name: `Bus ${n + 1}`,
+      at: { x: o.x, y: o.y + 80 + n * 70 },
+    });
+    return this.do({ type: "batch", label: "Add output bus", actions: made.actions });
+  }
+
+  /** Rigs from before buses lived inside inputs: standalone chains and switches with the old generated ids. A new rig replaces them. */
+  private legacyRig(): LooperAction[] {
+    return this.patch.nodes.filter((n) => !n.owner && /^(fx|sw):(rig|pno)/.test(n.id)).map((n): LooperAction => ({ type: "patch.removeNode", id: n.id }));
+  }
+
   /** Add the starter piano rig (reverb buses, a Piano Switch) for these piano strips, or for every piano when none are given. One batch. */
   addPianoRig(strips?: number[]): boolean {
     const ids = strips ?? this.mixer.list().filter((i) => i.kind === "scalepiano").map((i) => i.id);
@@ -601,7 +621,7 @@ export class LooperEngine {
       directLinks: this.patch.links.filter((l) => inputs.includes(l.from) && l.to.startsWith("group:")).map((l) => l.id),
       at: { x: 20, y: 1120 },
     });
-    return this.do({ type: "batch", label: "Piano rig", actions: rig.actions });
+    return this.do({ type: "batch", label: "Piano rig", actions: [...this.legacyRig(), ...rig.actions] });
   }
 
   private disposeScalePiano(id: string) {
@@ -1042,7 +1062,7 @@ export class LooperEngine {
   }
 
   /**
-   * Add the starter guitar rig (effect chains, a switch, wired to the master and every group's recorder) for a hardware input:
+   * Add the starter guitar rig (buses inside the input, wired to the master and every group's recorder) for a hardware input:
    * the given one, else the first. One undo takes it all away. Returns false when there is no input or the rig is already there.
    */
   addRig(inputId?: number): boolean {
@@ -1056,7 +1076,7 @@ export class LooperEngine {
       directLinks: this.patch.links.filter((l) => l.from === input && l.to.startsWith("group:")).map((l) => l.id),
       at: { x: 20, y: 660 + 0 },
     });
-    return this.do({ type: "batch", label: "Guitar rig", actions: rig.actions });
+    return this.do({ type: "batch", label: "Guitar rig", actions: [...this.legacyRig(), ...rig.actions] });
   }
 
   async setOutputDevice(id: string, remember = true): Promise<void> {

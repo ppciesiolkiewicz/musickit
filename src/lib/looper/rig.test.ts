@@ -1,40 +1,46 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { starterRig } from "./rig";
+import { PIANO_PRESETS, PIANO_STARTS, pianoRig, starterRig } from "./rig";
 import { INPUT_PRESETS } from "./inputPresets";
 import { EFFECT_DEFS } from "./effects";
 
+const links = (actions: { type: string }[]) => actions.flatMap((a) => (a.type === "patch.link" ? [(a as { link: { id: string; from: string; to: string; port?: string; muted?: boolean } }).link] : []));
+const nodes = (actions: { type: string }[]) => actions.flatMap((a) => (a.type === "patch.node" ? [(a as { node: { id: string; kind: string; owner?: string; effects?: { kind: keyof typeof EFFECT_DEFS }[] } }).node] : []));
+
 describe("starter rig", () => {
   const r = starterRig({ input: "in:3", groups: ["g1", "g2", "g3"], directLinks: ["rec:3:g1", "rec:3:g2", "rec:3:g3"] });
-  it("removes the direct recorder links, then adds chains, a switch and the wiring", () => {
+  it("removes the direct recorder links, then gives the input four buses of its own", () => {
     assert.deepEqual(r.actions.slice(0, 3).map((a) => a.type), ["patch.unlink", "patch.unlink", "patch.unlink"]);
-    assert.equal(r.chains.length, 4);
-    assert.equal(r.actions.filter((a) => a.type === "patch.node").length, 5);
-    const links = r.actions.flatMap((a) => (a.type === "patch.link" ? [a.link] : []));
-    assert.equal(links.filter((l) => l.from === "in:3").length, 4, "the input feeds every chain");
-    assert.equal(links.filter((l) => l.to === r.switchId).length, 4, "every chain feeds the switch");
-    assert.deepEqual(links.filter((l) => l.from === r.switchId).map((l) => l.to), ["master", "group:g1", "group:g2", "group:g3"]);
-    assert.ok(links.filter((l) => l.to.startsWith("group:")).every((l) => l.port === "rec"), "groups record it");
-    assert.equal(new Set(links.map((l) => l.id)).size, links.length, "unique link ids");
+    const n = nodes(r.actions);
+    assert.equal(n.length, 4);
+    assert.ok(n.every((x) => x.kind === "fx" && x.owner === "in:3"), "no separate switch: the buses belong to the input");
+    const l = links(r.actions);
+    const mine = l.filter((x) => x.from === "in:3");
+    assert.equal(mine.length, 4);
+    assert.deepEqual(mine.map((x) => x.muted), [false, true, true, true], "the first bus is open, the rest closed");
+  });
+  it("sends every bus to the master and into every group's recorder", () => {
+    const l = links(r.actions);
+    r.buses.forEach((b) => {
+      assert.deepEqual(l.filter((x) => x.from === b).map((x) => x.to), ["master", "group:g1", "group:g2", "group:g3"]);
+      assert.ok(l.filter((x) => x.from === b && x.to.startsWith("group:")).every((x) => x.port === "rec"));
+    });
+    assert.equal(new Set(l.map((x) => x.id)).size, l.length, "unique link ids");
   });
   it("uses real guitar presets with known effects", () => {
-    const nodes = r.actions.flatMap((a) => (a.type === "patch.node" ? [a.node] : []));
-    nodes.filter((n) => n.kind === "fx").forEach((n) => (n.effects ?? []).forEach((e) => assert.ok(EFFECT_DEFS[e.kind], e.kind)));
+    nodes(r.actions).forEach((n) => (n.effects ?? []).forEach((e) => assert.ok(EFFECT_DEFS[e.kind], e.kind)));
     assert.ok(INPUT_PRESETS.guitar.length >= 4);
-    assert.equal(nodes.find((n) => n.kind === "switch")?.outMulti, true);
   });
 });
 
 describe("piano rig", () => {
-  it("feeds every bus from every piano, then a switch to the master and the groups", async () => {
-    const { pianoRig, PIANO_PRESETS, PIANO_STARTS } = await import("./rig");
+  it("gives each piano the reverb buses, the dry one open", () => {
     const r = pianoRig({ inputs: ["in:2", "in:3", "in:4"], groups: ["g1", "g2"], directLinks: ["rec:2:g1"] });
-    const links = r.actions.flatMap((a) => (a.type === "patch.link" ? [a.link] : []));
-    assert.equal(r.buses.length, PIANO_PRESETS.length);
-    assert.equal(links.filter((l) => l.from.startsWith("in:")).length, 3 * PIANO_PRESETS.length);
-    assert.equal(links.filter((l) => l.to === r.switchId).length, PIANO_PRESETS.length);
-    assert.deepEqual(links.filter((l) => l.from === r.switchId).map((l) => l.to), ["master", "group:g1", "group:g2"]);
-    assert.equal(new Set(links.map((l) => l.id)).size, links.length);
+    const l = links(r.actions);
+    assert.equal(r.buses.length, 3 * PIANO_PRESETS.length);
+    assert.equal(nodes(r.actions).filter((n) => n.owner === "in:3").length, PIANO_PRESETS.length);
+    assert.deepEqual(l.filter((x) => x.from === "in:3").map((x) => x.muted), PIANO_PRESETS.map((_, i) => i > 0));
+    assert.equal(new Set(l.map((x) => x.id)).size, l.length);
     assert.equal(r.actions[0].type, "patch.unlink");
     PIANO_PRESETS.forEach((p) => p.effects.forEach((e) => assert.ok(EFFECT_DEFS[e.kind], e.kind)));
     assert.ok(PIANO_PRESETS.some((p) => p.effects.some((e) => e.kind === "reverb")));
