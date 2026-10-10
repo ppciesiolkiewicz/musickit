@@ -159,24 +159,35 @@ const KIND_BADGE: Record<DeviceKind, { text: string; cls: string } | null> = {
   other: null,
 };
 
-/** One column of the devices dialog: a card per device with its cleaned name and what it is. */
-function DeviceColumn({ icon, title, items, empty }: { icon: "mic" | "volume-2"; title: string; items: { id: string; label: string; used?: string }[]; empty: string }) {
+/** One column of the devices dialog: a card per device with its cleaned name and what it is. With `onPick` the cards are buttons that choose the device. */
+function DeviceColumn({ icon, title, items, empty, note, onPick }: { icon: "mic" | "volume-2"; title: string; items: { id: string; label: string; used?: string }[]; empty: string; note?: string; onPick?: (id: string) => void }) {
   return (
     <section>
       <h3 className="mb-2 flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-slate-400"><Icon name={icon} size={14} />{title}</h3>
       <ul className="flex flex-col gap-1.5">
         {items.map((d) => {
           const badge = KIND_BADGE[deviceKind(d.label)];
-          return (
-            <li key={d.id} className={`flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border px-3 py-2 ${d.used ? "border-emerald-400/40 bg-emerald-400/5" : "border-slate-800 bg-slate-900/60"}`}>
+          const cls = `flex w-full flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border px-3 py-2 text-left ${d.used ? "border-emerald-400/40 bg-emerald-400/5" : "border-slate-800 bg-slate-900/60"}`;
+          const body = (
+            <>
               <span className="min-w-0 flex-1 truncate text-sm text-slate-100">{deviceName(d.label)}</span>
               {badge && <span className={`rounded-full border px-2 py-0.5 text-[10px] ${badge.cls}`}>{badge.text}</span>}
               {d.used && <span className="rounded-full border border-emerald-400/50 px-2 py-0.5 text-[10px] text-emerald-200">{d.used}</span>}
+            </>
+          );
+          return (
+            <li key={d.id}>
+              {onPick ? (
+                <button type="button" className={`${cls} hover:border-slate-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400`} aria-pressed={!!d.used} onClick={() => onPick(d.id)} title={`Play through ${deviceName(d.label)}`}>{body}</button>
+              ) : (
+                <div className={cls}>{body}</div>
+              )}
             </li>
           );
         })}
         {items.length === 0 && <li className="rounded-lg border border-dashed border-slate-700 px-3 py-2 text-xs text-slate-500">{empty}</li>}
       </ul>
+      {note && <p className="mt-2 text-xs text-slate-400">{note}</p>}
     </section>
   );
 }
@@ -359,13 +370,11 @@ export default function LooperApp() {
               </ul>
             )}
             <div className="grid gap-5 sm:grid-cols-2">
-              <DeviceColumn icon="mic" title="Inputs" empty="None listed. Names appear once the browser allows the microphone." items={snap.devices.map((d) => ({ id: d.id, label: d.label, used: snap.inputs.some((i) => i.kind === "device" && i.deviceId === d.id) ? "used by an input" : undefined }))} />
-              <DeviceColumn icon="volume-2" title="Outputs" empty="The system output." items={snap.outputs.map((o) => ({ id: o.id, label: o.label, used: o.id === snap.outputId ? "in use" : undefined }))} />
+              <DeviceColumn icon="mic" title="Inputs" empty="None listed. Names appear once the browser allows the microphone." note="Listed only. To play one, add it as an Input with the round + button." items={snap.devices.map((d) => ({ id: d.id, label: d.label, used: snap.inputs.some((i) => i.kind === "device" && i.deviceId === d.id) ? "used by an input" : undefined }))} />
+              <DeviceColumn icon="volume-2" title="Outputs" empty="The system output." note={snap.canChooseOutput ? "Click one to play through it." : "This browser plays to the system output only."} onPick={snap.canChooseOutput ? (id) => void engine.setOutputDevice(id) : undefined} items={[...(snap.canChooseOutput ? [{ id: "", label: "System default" }] : []), ...snap.outputs].map((o) => ({ id: o.id, label: o.label, used: o.id === snap.outputId ? "in use" : undefined }))} />
             </div>
             <div className="flex gap-2">
-              {(snap.devices.length === 0 || snap.gear.some((g) => g.kind === "input-idle")) && (
-                <button type="button" disabled={gearBusy} className="rounded-lg border border-sky-500 bg-sky-500/10 px-3 py-1.5 text-sm text-sky-100 hover:bg-sky-500/20 disabled:opacity-50" onClick={async () => { setGearBusy(true); try { await engine.connectGear(true); } finally { setGearBusy(false); } }}>{gearBusy ? "Looking…" : snap.gear.some((g) => g.kind === "input-idle") ? "Connect inputs" : "Detect devices"}</button>
-              )}
+              <button type="button" disabled={gearBusy} className="rounded-lg border border-sky-500 bg-sky-500/10 px-3 py-1.5 text-sm text-sky-100 hover:bg-sky-500/20 disabled:opacity-50" onClick={async () => { setGearBusy(true); try { await engine.connectGear(true); } finally { setGearBusy(false); } }}>{gearBusy ? "Looking…" : snap.gear.some((g) => g.kind === "input-idle") ? "Detect devices and connect inputs" : "Detect devices"}</button>
             </div>
           </div>
         </Modal>
