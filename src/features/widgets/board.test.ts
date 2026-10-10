@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { bandLayout, clampWidget, findSpot, fitView, moveWidget, raise, resizeFromCorner, resizeWidget, sanitiseLayout, splitLayout, tileLayout } from "./board";
+import { alignLine, bandLayout, clampWidget, findSpot, fitView, moveWidget, raise, resizeFromCorner, resizeWidget, sanitiseLayout, splitLayout, tileLayout } from "./board";
 
 const B = { w: 1000, h: 600 };
 
@@ -109,4 +109,11 @@ test("fit shows every rectangle centred", () => {
   assert.equal(v.zoom, 0.5);
   assert.deepEqual([v.x, v.y], [16, 141]);
   assert.equal(fitView([], B, { min: 0.1, max: 2 }), null);
+});
+
+test("a line slides each widget under what it wants without overlaps, keeping its order", () => {
+  const l = { a: { x: 0, y: 0, w: 100, h: 50 }, b: { x: 124, y: 0, w: 100, h: 50 }, c: { x: 248, y: 0, w: 100, h: 50 } };
+  const out = alignLine(l, ["a", "b", "c"], { a: 500, b: 510 }, "vertical", 20);
+  assert.deepEqual([out.a.x, out.b.x, out.c.x], [450, 570, 690]);
+  assert.deepEqual(alignLine(l, ["a"], {}, "horizontal").a, l.a);
 });

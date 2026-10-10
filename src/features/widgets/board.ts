@@ -164,3 +164,21 @@ export function fitView(rs: WidgetRect[], b: Bounds, zoom: { min: number; max: n
   const z = Math.min(zoom.max, Math.max(zoom.min, Math.min(1.5, (b.w - 2 * margin) / (x1 - x0), (b.h - 2 * margin) / (y1 - y0))));
   return { zoom: z, x: (b.w - (x1 - x0) * z) / 2 - x0 * z, y: (b.h - (y1 - y0) * z) / 2 - y0 * z };
 }
+
+/**
+ * Slide widgets along their line (x for a row, y for a column) so each one's centre is as near its `want` as it can be without two
+ * overlapping: the line keeps its order, and a widget that would run into the one before it is pushed on. Widgets without a want stay put.
+ */
+export function alignLine(layout: Layout, ids: string[], want: Record<string, number>, direction: "vertical" | "horizontal", gap = 24): Layout {
+  const v = direction === "vertical";
+  const out: Layout = { ...layout };
+  let end = -Infinity;
+  ids.filter((id) => out[id]).forEach((id) => {
+    const r = out[id];
+    const len = v ? r.w : r.h;
+    const start = Math.max(end + gap, want[id] === undefined ? (v ? r.x : r.y) : want[id] - len / 2);
+    out[id] = v ? { ...r, x: round(start) } : { ...r, y: round(start) };
+    end = start + len;
+  });
+  return out;
+}

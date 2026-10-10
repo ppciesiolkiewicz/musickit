@@ -1,7 +1,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { connect, disconnect, sanitisePatch, setSwitchMode, type Patch } from "./patch";
-import { MANY_GROUPS, NO_GROUP, destinationChoice, destinationPick, destinations, masterFeeds, drawnFrom, linkColour, outSources, reachedGroups, sidePoint, sidesFor, spread, stripPatchId } from "./patchView";
+import { MANY_GROUPS, NO_GROUP, destinationChoice, destinationPick, destinations, masterFeeds, drawnFrom, linkColour, outSources, reachedGroups, fanShifts, sidePoint, sidesFor, spread, stripPatchId } from "./patchView";
 
 const node = (id: string, kind: Patch["nodes"][number]["kind"]) => ({ id, kind, x: 0, y: 0, muted: false, ...(kind === "switch" ? { inMulti: false, outMulti: true } : {}) });
 const base = (): Patch => ({ nodes: [node("in:1", "input"), node("sw", "switch"), node("fx", "fx"), node("group:a", "group"), node("group:b", "group"), node("master", "master")], links: [] });
@@ -49,6 +49,12 @@ describe("patch view sides", () => {
     assert.deepEqual(sidePoint(a, "right"), { x: 200, y: 125 });
     assert.deepEqual(sidePoint(a, "top", 0.5, 10), { x: 160, y: 100 });
     assert.deepEqual([0, 1, 2, 3].map(spread), [0, 10, -10, 20]);
+  });
+
+  it("fans wires on one side out in the order their other ends lie, so they do not cross", () => {
+    assert.deepEqual(fanShifts([300, 100, 200]), [10, -10, 0]);
+    assert.deepEqual(fanShifts([5, 5]), [-5, 5]);
+    assert.deepEqual(fanShifts([42]), [0]);
   });
 });
 

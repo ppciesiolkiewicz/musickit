@@ -4,7 +4,7 @@ import { useEffect, useId, useMemo, useRef, useState, type PointerEvent as RPoin
 import Icon from "@/components/Icon";
 import { patchName } from "./PatchNode";
 import { whyNot, type PatchKind, type PatchNode, type Port } from "@/lib/looper/patch";
-import { destinationPick, destinations, drawnFrom, flowingLinks, linkColour, masterFeeds, outSources, sendColours as sendColoursOf, outward, sidePoint, sidesFor, spread } from "@/lib/looper/patchView";
+import { destinationPick, destinations, drawnFrom, fanShifts, flowingLinks, linkColour, masterFeeds, outSources, sendColours as sendColoursOf, outward, sidePoint, sidesFor, type Side } from "@/lib/looper/patchView";
 import type { LooperEngine, LooperSnapshot } from "@/lib/looper/engine";
 
 interface Rect { x: number; y: number; w: number; h: number }
@@ -128,24 +128,36 @@ export default function ConnectionLayer({ engine, snap, mode, wrapper }: { engin
   };
 
   // each connection leaves and arrives on the sides of the two blocks that face each other; several on one side are spread along it
-  const slots = new Map<string, number>();
-  const take = (key: string) => {
-    const i = slots.get(key) ?? 0;
-    slots.set(key, i + 1);
-    return i;
+  // in the order their other ends lie (left to right, top to bottom), so the wires fan out without crossing
+  const centre = (id: string, s: Side) => {
+    const r = rects[id];
+    return s === "top" || s === "bottom" ? r.x + r.w / 2 : r.y + r.h / 2;
+  };
+  const fan = (ws: { key: string; from: string; to: string; port: string }[]) => {
+    const ends = new Map<string, { wire: string; end: "a" | "b"; along: number }[]>();
+    const add = (side: string, wire: string, end: "a" | "b", along: number) => ends.set(side, [...(ends.get(side) ?? []), { wire, end, along }]);
+    ws.forEach((w) => {
+      if (!rects[w.from] || !rects[w.to]) return;
+      const s = sidesFor(rects[w.from], rects[w.to]);
+      add(`${w.from}|${s.from}`, w.key, "a", centre(w.to, s.from));
+      add(`${w.to}|${w.port}|${s.to}`, w.key, "b", centre(w.from, s.to));
+    });
+    const shift = new Map<string, number>();
+    ends.forEach((list) => fanShifts(list.map((e) => e.along)).forEach((d, i) => shift.set(`${list[i].wire}|${list[i].end}`, d)));
+    return (key: string, end: "a" | "b") => shift.get(`${key}|${end}`) ?? 0;
   };
   // every group lives in the Looping widget: a connection into a group ends at that widget (its colour says which group), and the
   // groups' own fixed route into the master is drawn once, from the Looping widget
   const looping = rects.looping;
   interface Wire { key: string; from: string; to: string; port: Port | "fixed"; frac: number; colours: string[]; faint: boolean; label: string }
-  const build = (w: Wire) => {
+  const build = (w: Wire, shift: (key: string, end: "a" | "b") => number) => {
     const ra = rects[w.from];
     const rb = rects[w.to];
     if (!ra || !rb) return [];
     const fixed = w.port === "fixed";
     const s = sidesFor(ra, rb);
-    const a = sidePoint(ra, s.from, 0.5, spread(take(`${w.from}|${s.from}`)));
-    const b = sidePoint(rb, s.to, w.frac, spread(take(`${w.to}|${w.port}|${s.to}`)));
+    const a = sidePoint(ra, s.from, 0.5, shift(w.key, "a"));
+    const b = sidePoint(rb, s.to, w.frac, shift(w.key, "b"));
     // the arrow sits on the edge of the target and points into it; the wire ends at its base
     const n = outward(s.to);
     const be = { x: b.x + n.x * ARROW, y: b.y + n.y * ARROW };
@@ -178,10 +190,12 @@ export default function ConnectionLayer({ engine, snap, mode, wrapper }: { engin
       wires.set(key, { key, from, to, port: toGroup && looping ? "bus" : port, frac: toGroup && !looping ? (port === "rec" ? 0.28 : 0.72) : 0.5, colours: [colour], faint: l.id.startsWith("rec:"), label: `${nameOf(from)} to ${to === "looping" ? "Looping" : nameOf(l.to)}` });
     }
   });
-  const drawn = [
-    ...[...wires.values()].flatMap(build),
-    ...(looping && rects.master ? build({ key: "fixed:master", from: "looping", to: "master", port: "fixed", frac: 0.5, colours: [FIXED], faint: false, label: "Looping always plays to the master bus (fixed)" }) : []),
+  const all: Wire[] = [
+    ...wires.values(),
+    ...(looping && rects.master ? [{ key: "fixed:master", from: "looping", to: "master", port: "fixed" as const, frac: 0.5, colours: [FIXED], faint: false, label: "Looping always plays to the master bus (fixed)" }] : []),
   ];
+  const shift = fan(all);
+  const drawn = all.flatMap((w) => build(w, shift));
 
   /** Link every place the element sends from (each bus of an input) to a target. */
   const link = (from: string, to: string, port: Port) => {

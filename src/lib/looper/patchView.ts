@@ -64,6 +64,17 @@ export function sidePoint(b: Box, s: Side, frac = 0.5, shift = 0): { x: number; 
 /** Shifts for n connections on one side: 0, +10, -10, +20 ... around the middle. */
 export const spread = (i: number): number => (i === 0 ? 0 : (i % 2 ? 1 : -1) * Math.ceil(i / 2) * 10);
 
+/**
+ * Shifts for the connections that share one side of a block, in the order their other ends lie along that side (`along`: x for
+ * a top or bottom side, y for a left or right one), centred on the middle and `step` apart, so wires that fan out never cross.
+ */
+export function fanShifts(along: number[], step = 10): number[] {
+  const order = along.map((v, i) => [v, i] as const).sort((p, q) => p[0] - q[0] || p[1] - q[1]);
+  const out = new Array<number>(along.length);
+  order.forEach(([, i], rank) => { out[i] = (rank - (along.length - 1) / 2) * step; });
+  return out;
+}
+
 /** The id the page's elements carry for a mixer strip. */
 export const stripPatchId = (strip: { id: number; kind: string; sourceId?: string }): string => (strip.kind === "sequencer" ? `seq:${strip.sourceId ?? ""}` : `in:${strip.id}`);
 
