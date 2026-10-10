@@ -2,7 +2,10 @@
 
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { LooperEngine, EFFECT_DEFS, EFFECT_KINDS, registerChoice, setNamFactory, type LooperSnapshot } from "@/lib/looper/engine";
-import { createCloud, createNamEffect, getModelLibrary, speedNote } from "@/features/nam";
+import { createCloud, createNamEffect, getModelLibrary, speedNote, type CloudModel } from "@/features/nam";
+import { nameMatches } from "@/lib/looper/choices";
+import { detectPitch } from "@/features/tuner/pitch";
+import TunerWidget, { setPitchDetector } from "./TunerWidget";
 import LooperSettings from "./LooperSettings";
 import { chooseDevice, deviceKind, deviceName, type DeviceKind } from "@/lib/looper/deviceChoice";
 import { NodeBody, patchName } from "./PatchNode";
@@ -68,9 +71,23 @@ function useStored<T>(key: string, initial: T): [T, (v: T) => void] {
 /** Connect the NAM amp-model effect (a separate feature) to the looper: the effect factory and the model picker. */
 function wireNam() {
   const lib = getModelLibrary();
+  const cloud = createCloud(lib);
+  // the cloud list is read once per page for the rig's amps; a model already fetched is not fetched again
+  let cloudList: Promise<CloudModel[]> | null = null;
+  const fetching = new Map<string, Promise<number | null>>();
   setNamFactory((ctx, p) => createNamEffect(ctx, p, lib));
   registerChoice("nam-model", {
-    cloud: createCloud(lib),
+    cloud,
+    find: async (words) => {
+      await lib.init().catch(() => undefined);
+      const local = lib.list().find((m) => nameMatches(words, `${m.cloudPath ?? ""} ${m.name}`));
+      if (local) return local.id;
+      cloudList ??= cloud.list().then((r) => ("models" in r ? r.models : []));
+      const hit = (await cloudList).find((m) => nameMatches(words, m.path));
+      if (!hit) return null;
+      if (!fetching.has(hit.path)) fetching.set(hit.path, cloud.use(hit).then((r) => ("id" in r ? r.id : null)));
+      return fetching.get(hit.path) ?? null;
+    },
     accept: ".nam",
     // useSyncExternalStore needs the same array back until something changes (a new array every call loops forever: React error 185)
     options: (() => {
@@ -121,6 +138,8 @@ function newProject() {
   try {
     PROJECT_KEYS.forEach((k) => window.localStorage.removeItem(`musickit.looper.${k}`));
     Object.keys(window.localStorage).filter((k) => /^musickit\.looper\.(scalePianoWindow|sequencerWindow)\./.test(k)).forEach((k) => window.localStorage.removeItem(k));
+    // the default rigs are made once per project: forget that they were, so the new project gets them again
+    Object.keys(window.localStorage).filter((k) => /^musickit\.looper\.(rigDone|keysRigDone|pianoRigDone|seqRigDone)/.test(k)).forEach((k) => window.localStorage.removeItem(k));
   } catch {
     /* ignore */
   }
@@ -155,7 +174,10 @@ function StartupLoader({ engine, snap }: { engine: LooperEngine; snap: LooperSna
 
 function useEngine() {
   const [engine] = useState(() => {
-    if (typeof window !== "undefined") wireNam();
+    if (typeof window !== "undefined") {
+      wireNam();
+      setPitchDetector(detectPitch);
+    }
     return new LooperEngine({ getContext: getAudioContext, getExternalSource: getKeyboardOut, externalLabel: "Piano", createVoice: (_ctx, dest) => { const p = createPlayer({ instrumentId: "PIANO", destination: () => dest }); void p.preload().catch(() => undefined); return p; } });
   });
   useEffect(() => {
@@ -216,6 +238,11 @@ const mixLayout: DefaultLayout = (ids, b) => {
     switches: { x: half + q, y: Math.round(b.h * 0.28) + 8, w: q - 8, h: Math.round(b.h * 0.34) },
     buses: { x: half + q, y: Math.round(b.h * 0.62) + 16, w: q - 8, h: Math.round(b.h * 0.38) - 16 },
   } as Record<string, { x: number; y: number; w: number; h: number }>;
+  // tuners start under the Looping stage, side by side
+  const tuners = ids.filter((id) => id.startsWith("tuner:"));
+  const rows = Math.ceil(tuners.length / 3);
+  if (rows) all.looping.h = b.h - rows * 206;
+  tuners.forEach((id, k) => (all[id] = { x: (k % 3) * 268, y: all.looping.h + 8 + Math.floor(k / 3) * 206, w: 260, h: 190 }));
   return Object.fromEntries(ids.map((id, i) => [id, all[id] ?? { x: 24 + i * 28, y: 24 + i * 28, w: 380, h: 260 }]));
 };
 
@@ -350,6 +377,7 @@ export default function LooperApp() {
             { id: "sequencers", title: "Sequencers", node: <SequencerList engine={engine} snap={snap} openSeqs={openSeqs} onToggleSequencer={toggleSeq} /> },
             { id: "switches", title: "Switches", node: <div className="flex flex-col gap-3 p-2">{snap.patch.nodes.some((n) => n.kind === "switch") ? snap.patch.nodes.filter((n) => n.kind === "switch").map((n) => <div key={n.id}><div className="mb-1 text-xs font-medium text-slate-300">{patchName(snap, n)}</div><NodeBody engine={engine} snap={snap} node={n} /></div>) : <p className="text-xs text-slate-500">No switch yet. Add one with the round + button in Widgets with wires, or connect an audio interface for the guitar rig.</p>}</div> },
             { id: "buses", title: "Buses and master", node: <Buses engine={engine} snap={snap} /> },
+            ...snap.patch.nodes.filter((n) => n.kind === "tuner").map((n) => ({ id: n.id, title: patchName(snap, n), node: <TunerWidget engine={engine} snap={snap} node={n} />, onClose: () => engine.do({ type: "patch.removeNode", id: n.id }) })),
             ...pinned.map((r) => ({ id: `pin:${r.pin.key}`, title: <PinTitle r={r} />, node: <PinBody r={r} />, onClose: () => togglePin(r.pin.key) })),
           ]}
         />

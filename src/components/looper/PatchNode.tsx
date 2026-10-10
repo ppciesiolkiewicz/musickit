@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Icon from "@/components/Icon";
 import EffectsModal from "./EffectsModal";
+import TunerWidget from "./TunerWidget";
 import { switchChoice, type PatchLink, type PatchNode } from "@/lib/looper/patch";
 import type { LooperEngine, LooperSnapshot } from "@/lib/looper/engine";
 
@@ -13,7 +14,7 @@ export function patchName(snap: LooperSnapshot, n: PatchNode): string {
   if (n.kind === "sequencer") return snap.sequencers.find((q) => `seq:${q.id}` === n.id)?.name ?? "Sequencer";
   if (n.kind === "group") return snap.groups.find((g) => `group:${g.id}` === n.id)?.name ?? "Group";
   if (n.kind === "master") return "Master";
-  return n.kind === "switch" ? "Switch" : "Bus";
+  return n.kind === "switch" ? "Switch" : n.kind === "tuner" ? "Tuner" : "Bus";
 }
 
 /** A bus with the input it lives in, so it is clear whose it is: "Piano C major › Room". Other elements: their name. */
@@ -22,9 +23,10 @@ export function busPath(snap: LooperSnapshot, n: PatchNode): string {
   return owner ? `${patchName(snap, owner)} › ${patchName(snap, n)}` : patchName(snap, n);
 }
 
-/** What is inside the card of an effect chain or a switch: the chain's effects, or the connections a switch lets through. */
+/** What is inside the card of an effect chain, a switch or a tuner: the chain's effects, the connections a switch lets through, the note. */
 export function NodeBody({ engine, snap, node: n }: { engine: LooperEngine; snap: LooperSnapshot; node: PatchNode }) {
   const patch = snap.patch;
+  if (n.kind === "tuner") return <TunerWidget engine={engine} snap={snap} node={n} />;
   const nameOf = (id: string) => {
     const m = patch.nodes.find((x) => x.id === id);
     return m ? patchName(snap, m) : id;

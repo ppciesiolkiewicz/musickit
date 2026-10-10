@@ -5,7 +5,7 @@ Goal: one canvas where every sound source, effect, bus and loop group is an elem
 Vocabulary: inputs, sequencers, buses. A Group is a special bus that also holds loops; a Bus is the standalone kind. See "Vocabulary" in `spec/looper.md`.
 
 ## Model (`src/lib/looper/patch.ts`, done)
-- Elements (`PatchKind`): `input` (audio interface or mic), `sequencer`, `piano` (scale piano, standalone), `synth` (sound generator played by MIDI, later), `fx` (a standalone **Bus**: connect things, add effects), `switch`, `group` (a **Group**: a special bus that holds loops), `loop`, `recorder`, `master`.
+- Elements (`PatchKind`): `input` (audio interface or mic), `sequencer`, `piano` (scale piano, standalone), `synth` (sound generator played by MIDI, later), `fx` (a standalone **Bus**: connect things, add effects), `switch`, `tuner` (passes sound on and shows its note; muted it listens but lets nothing out), `group` (a **Group**: a special bus that holds loops), `loop`, `recorder`, `master`.
 - Links go from an element's output to another's input. Loops have no input (they get sound from the recorder) and join a bus by sitting inside its group. Recorder and master have no output.
 - Rules (`whyNot`): no self links, no duplicates, no feedback loop (a link that would make sound reach itself is refused).
 - Mute: a link or an element can be muted (`activeLinks` leaves them out).

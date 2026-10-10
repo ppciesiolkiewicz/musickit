@@ -152,6 +152,8 @@ export interface EffectSpec {
   /** false: before the fader (volume, mute) so the fader also cuts the effect; true: after it, so a tail rings on */
   post: boolean;
   params: Record<string, number>;
+  /** an amp model still to find (words of its name, e.g. "jcm800"); the app looks it up and sets `model`. Gone once found or chosen. */
+  amp?: string;
 }
 
 export const defaultParams = (kind: EffectKind): Record<string, number> => Object.fromEntries(EFFECT_DEFS[kind].params.map((p) => [p.key, p.def]));
@@ -172,7 +174,7 @@ export function sanitiseEffects(raw: unknown): EffectSpec[] {
   const out: EffectSpec[] = [];
   raw.slice(0, 8).forEach((e, i) => {
     if (e && typeof e === "object" && typeof e.kind === "string" && e.kind in EFFECT_DEFS) {
-      out.push({ id: typeof e.id === "string" ? e.id : `fx${i}`, kind: e.kind, bypass: e.bypass === true, post: e.post === true, params: clampParams(e.kind, e.params ?? {}) });
+      out.push({ id: typeof e.id === "string" ? e.id : `fx${i}`, kind: e.kind, bypass: e.bypass === true, post: e.post === true, params: clampParams(e.kind, e.params ?? {}), ...(e.kind === "nam" && typeof e.amp === "string" && e.amp ? { amp: e.amp.slice(0, 80) } : {}) });
     }
   });
   return out;

@@ -15,7 +15,7 @@ import type { DefaultLayout, Layout } from "@/features/widgets/board";
 
 const COL_W = 340;
 /** How tall each kind of widget starts. */
-const startHeight = (id: string, kind: string | undefined) => (id === "master" ? 150 : kind === "switch" ? 320 : kind === "fx" ? 150 : kind === "pin" ? 280 : kind?.startsWith("input:") ? 230 + Number(kind.slice(6)) * 72 : 210);
+const startHeight = (id: string, kind: string | undefined) => (id === "master" ? 150 : kind === "switch" ? 320 : kind === "fx" ? 150 : kind === "tuner" ? 170 : kind === "pin" ? 280 : kind?.startsWith("input:") ? 230 + Number(kind.slice(6)) * 72 : 210);
 
 /** The Looping stage on the left, everything else in columns to its right. The wires are drawn over it, so where things start hardly matters. */
 const freeLayout = (kinds: Record<string, string | undefined>): DefaultLayout => (ids, b) => {
@@ -37,19 +37,19 @@ const freeLayout = (kinds: Record<string, string | undefined>): DefaultLayout =>
 
 /**
  * The freeform view, on the same canvas as the Widgets view (zoom at the pointer, pan, fit): the Looping stage (groups, loops and
- * sequencers, whose settings are reached by clicking them), the master bus, every input, and each effect chain and switch are widgets you place anywhere.
+ * sequencers, whose settings are reached by clicking them), the master bus, every input, and each effect chain, switch and tuner are widgets you place anywhere.
  * There are no Mixer or bus sections. The wires between them are drawn over the page by `ConnectionLayer`.
  */
 export default function FreeBoard({ engine, snap, controls, keyboardOpen, onToggleKeyboard, openSeqs, onToggleSeq, openPianos, onTogglePiano, resetSignal }: { engine: LooperEngine; snap: LooperSnapshot; controls: ReactNode; keyboardOpen: boolean; onToggleKeyboard: () => void; openSeqs: string[]; onToggleSeq: (id: string) => void; openPianos: string[]; onTogglePiano: (id: string) => void; resetSignal: number }) {
   const pinned = usePinned(engine, snap);
   const strips = snap.inputs.filter((i) => i.kind !== "sequencer");
   // buses that belong to an input live inside that input's block; only the stand-alone ones are widgets of their own
-  const cards = snap.patch.nodes.filter((n) => (n.kind === "fx" && !n.owner) || n.kind === "switch");
+  const cards = snap.patch.nodes.filter((n) => (n.kind === "fx" && !n.owner) || n.kind === "switch" || n.kind === "tuner");
   const kinds: Record<string, string | undefined> = Object.fromEntries(cards.map((n) => [n.id, n.kind]));
   pinned.forEach((r) => { kinds[`pin:${r.pin.key}`] = "pin"; });
   strips.forEach((i) => { kinds[`in:${i.id}`] = `input:${snap.patch.nodes.filter((n) => n.owner === `in:${i.id}`).length}`; });
 
-  const title = (icon: "mic" | "audio-lines" | "split" | "sliders-horizontal" | "repeat", text: string) => (
+  const title = (icon: "mic" | "audio-lines" | "split" | "sliders-horizontal" | "repeat" | "gauge", text: string) => (
     <span className="flex min-w-0 items-center gap-1.5"><Icon name={icon} size={13} className="shrink-0 text-slate-400" /><span className="truncate">{text}</span></span>
   );
 
@@ -84,7 +84,7 @@ export default function FreeBoard({ engine, snap, controls, keyboardOpen, onTogg
       id: n.id,
       title: (
         <span className="flex min-w-0 flex-1 items-center gap-1.5">
-          {title(n.kind === "switch" ? "split" : "sliders-horizontal", patchName(snap, n))}
+          {title(n.kind === "switch" ? "split" : n.kind === "tuner" ? "gauge" : "sliders-horizontal", patchName(snap, n))}
           <button type="button" className="ml-auto grid h-5 w-5 shrink-0 place-items-center rounded text-slate-400 hover:text-slate-100" aria-pressed={n.muted} onPointerDown={(e) => e.stopPropagation()} onClick={() => engine.do({ type: "patch.mute", what: "node", id: n.id, muted: !n.muted })} title={n.muted ? "Unmute" : "Mute"} aria-label={`${n.muted ? "Unmute" : "Mute"} ${patchName(snap, n)}`}><Icon name={n.muted ? "volume-x" : "volume-2"} size={13} /></button>
         </span>
       ),

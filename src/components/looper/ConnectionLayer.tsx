@@ -14,8 +14,8 @@ const MUTED = "#64748b";
 /** The Looping widget always plays into the master: that route is drawn in this colour and cannot be changed. */
 const FIXED = "#cbd5e1";
 /** Sequencers and loops have no connector: sitting inside a group is their connection. */
-const OUT_KINDS: PatchKind[] = ["input", "piano", "synth", "fx", "switch"];
-const TARGET_KINDS: PatchKind[] = ["fx", "switch", "group", "master"];
+const OUT_KINDS: PatchKind[] = ["input", "piano", "synth", "fx", "switch", "tuner"];
+const TARGET_KINDS: PatchKind[] = ["fx", "switch", "tuner", "group", "master"];
 
 let counter = 0;
 const newId = (p: string) => `${p}${Date.now().toString(36)}${(counter++).toString(36)}`;
@@ -201,7 +201,7 @@ export default function ConnectionLayer({ engine, snap, mode, wrapper }: { engin
   /** The element and port under a point, for dropping a connection. Cards float above the page, so they win. */
   const targetAt = (p: Pt): { id: string; port: Port } | null => {
     const hits = Object.entries(rects).filter(([id, r]) => TARGET_KINDS.includes(node(id)?.kind as PatchKind) && p.x >= r.x && p.x <= r.x + r.w && p.y >= r.y && p.y <= r.y + r.h);
-    const pick = hits.find(([id]) => node(id)?.kind === "fx" || node(id)?.kind === "switch") ?? hits[0];
+    const pick = hits.find(([id]) => ["fx", "switch", "tuner"].includes(node(id)?.kind ?? "")) ?? hits[0];
     if (!pick) return null;
     const [id, r] = pick;
     return { id, port: node(id)?.kind === "group" && p.y < r.y + r.h / 2 ? "rec" : "bus" };

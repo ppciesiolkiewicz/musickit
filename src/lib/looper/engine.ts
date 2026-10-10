@@ -8,7 +8,7 @@ import { EFFECT_DEFS, defaultParams, moveEffect, clampParams, sanitiseEffects, t
 import { GROUP_COLOURS, LOOPS_PER_GROUP, clampPoint, clampRect, containingGroup, defaultGroups, defaultSpot, bottomRow, type GroupLayout } from "./layout";
 import { InputMixer, MAX_INPUT_GAIN, describeError, type InputInfo } from "./mixer";
 import { PatchGraph } from "./patchAudio";
-import { activeLinks, addNode as patchAddNode, connect as patchConnect, disconnect as patchDisconnect, emptyPatch, feeds, layoutAll, moveNode as patchMoveNode, place, removeNode, sanitisePatch, setLinkMuted, setNodeMuted, setSwitchMode, type Patch, type PatchLink } from "./patch";
+import { EDITABLE, activeLinks, addNode as patchAddNode, connect as patchConnect, disconnect as patchDisconnect, emptyPatch, feeds, layoutAll, moveNode as patchMoveNode, place, removeNode, sanitisePatch, setLinkMuted, setNodeMuted, setSwitchMode, type Patch, type PatchLink } from "./patch";
 import { chooseDevice, deviceName, deviceScore, gearIssues, type DeviceRef, type GearIssue } from "./deviceChoice";
 import { ActionHistory, type DoOptions } from "./history";
 import { MacroRecorder } from "./macros";
@@ -24,6 +24,7 @@ export { INSTRUMENTS, type Instrument, type SequencerState } from "./sequencer";
 export type { VoiceFactory, NoteVoice } from "./scalePiano";
 export type { ScalePianoState } from "./scalePiano";
 export { EFFECT_DEFS, EFFECT_KINDS, setNamFactory, type EffectKind, type EffectSpec, type ParamDef } from "./effects";
+import { getChoice } from "./choices";
 export { registerChoice, getChoice, type ChoiceSource, type ChoiceOption, type CloudSource, type CloudItem } from "./choices";
 export { STAGE_W, STAGE_H, VIEW_W, VIEW_H, LOOP_R, GROUP_COLOURS, resizeRect, type Corner } from "./layout";
 
@@ -353,6 +354,7 @@ export class LooperEngine {
     this.setupKeyboardPiano();
     this.setupPianos();
     this.setupSequencers();
+    this.findAmps();
   }
 
   /**
@@ -474,10 +476,10 @@ export class LooperEngine {
     return true;
   }
 
-  /** Remove an effect chain or a switch (with its connections). */
+  /** Remove an effect chain, a switch or a tuner (with its connections). */
   patchRemove(id: string) {
     const n = this.patch.nodes.find((m) => m.id === id);
-    if (!n || (n.kind !== "fx" && n.kind !== "switch")) return;
+    if (!n || !EDITABLE.includes(n.kind)) return;
     this.savePatch(removeNode(this.patch, id));
   }
 
@@ -494,6 +496,11 @@ export class LooperEngine {
     this.savePatch({ ...this.patch, nodes: this.patch.nodes.map((n) => (n.id === id ? { ...n, name: name.slice(0, 40) } : n)) });
   }
 
+  /** What a tuner element hears, for its display; null before the audio has started. */
+  tunerAnalyser(id: string): AnalyserNode | null {
+    return this.pgraph?.tunerAnalyser(id) ?? null;
+  }
+
   private savePatch(next: Patch) {
     if (next === this.patch) return;
     this.patch = next;
@@ -503,6 +510,39 @@ export class LooperEngine {
       /* ignore */
     }
     this.emit();
+    this.findAmps();
+  }
+
+  /** amp names being looked up, or not found this session (not asked again until the page reloads) */
+  private ampSearch = new Set<string>();
+
+  /**
+   * The rig's amp buses name their amp (`amp` on the NAM effect) instead of holding a model. When such a bus is the open one, its model
+   * is looked up through the choice source (the app may fetch it from the online library) and set without a history entry. Only the
+   * open bus is fetched, so a rig with many amps downloads one at a time, when it is chosen.
+   */
+  private findAmps(): void {
+    const source = getChoice("nam-model");
+    if (!source?.find) return;
+    const open = new Set(activeLinks(this.patch).map((l) => l.to));
+    for (const n of this.patch.nodes) {
+      if (n.kind !== "fx" || !open.has(n.id)) continue;
+      for (const e of n.effects ?? []) {
+        const words = e.amp;
+        if (e.kind !== "nam" || !words || e.params.model) continue;
+        const key = `${n.id}/${e.id}`;
+        if (this.ampSearch.has(key)) continue;
+        this.ampSearch.add(key);
+        void source.find(words).then((id) => {
+          if (!id) return;
+          const now = this.patch.nodes.find((m) => m.id === n.id)?.effects?.find((x) => x.id === e.id);
+          // the person may have chosen a model meanwhile, or removed the effect
+          if (!now || now.amp !== words || now.params.model) return;
+          this.elementFx(n.id, (list) => list.map((x) => (x.id === e.id ? { ...x, params: clampParams(x.kind, { ...x.params, model: id }), amp: undefined } : x)));
+          this.ampSearch.delete(key);
+        }, () => undefined);
+      }
+    }
   }
 
   /** Add a connection (refused if the rules say no). */
@@ -1738,7 +1778,8 @@ export class LooperEngine {
 
   fxParam(t: FxTarget, id: string, key: string, value: number) {
     if ("element" in t) {
-      this.elementFx(t.element, (list) => list.map((e) => (e.id === id ? { ...e, params: clampParams(e.kind, { ...e.params, [key]: value }) } : e)));
+      // choosing a model by hand ends the search for the one the rig asked for
+      this.elementFx(t.element, (list) => list.map((e) => (e.id === id ? { ...e, params: clampParams(e.kind, { ...e.params, [key]: value }), amp: key === "model" ? undefined : e.amp } : e)));
       return;
     }
     if ("master" in t) {

@@ -40,6 +40,17 @@ export interface ChoiceSource {
   accept?: string;
   /** A short line about one option (architecture, speed, warnings). */
   describe?(id: number): { text: string; warn?: boolean } | null;
+  /** Find an option by the words of its name (fetching it when it has to come from the online library). Resolves to its id, or null. */
+  find?(words: string): Promise<number | null>;
+}
+
+const squash = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "");
+
+/** Does a name (or a library path) hold every one of these words? Case, spaces and punctuation are ignored: "jcm 800" finds "nam/Jcm800.nam". */
+export function nameMatches(words: string, text: string): boolean {
+  const hay = squash(text);
+  const parts = words.split(/\s+/).map(squash).filter(Boolean);
+  return parts.length > 0 && parts.every((w) => hay.includes(w));
 }
 
 const sources = new Map<string, ChoiceSource>();

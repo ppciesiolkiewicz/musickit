@@ -1,4 +1,4 @@
-import { test } from "node:test";
+import { describe, test as it, test } from "node:test";
 import assert from "node:assert/strict";
 import { clampParams, defaultParams, distortionCurve, EFFECT_DEFS, EFFECT_KINDS, sanitiseEffects } from "./effects";
 
@@ -24,4 +24,13 @@ test("the distortion curve is bounded, odd and rising", () => {
   assert.ok(Math.abs(c[0] + 1) < 1e-9 && Math.abs(c[256] - 1) < 1e-9);
   assert.ok(Math.abs(c[128]) < 1e-9);
   for (let i = 1; i < c.length; i++) assert.ok(c[i] >= c[i - 1]);
+});
+
+describe("amp names in saved effects", () => {
+  it("keeps the amp a NAM effect still has to find, and only there", () => {
+    const [nam, rev] = sanitiseEffects([{ id: "a", kind: "nam", amp: "jcm800" }, { id: "b", kind: "reverb", amp: "jcm800" }]);
+    assert.equal(nam.amp, "jcm800");
+    assert.equal(nam.params.model, 0);
+    assert.equal("amp" in rev, false);
+  });
 });

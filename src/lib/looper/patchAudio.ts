@@ -13,6 +13,16 @@ export interface PatchEnv {
   recorder: AudioNode;
 }
 
+/** A tuner: what comes in is measured, and goes on unless the tuner is muted. */
+interface TunerNodes {
+  input: GainNode;
+  output: GainNode;
+  analyser: AnalyserNode;
+}
+
+/** Samples the tuner looks at each time (about 85 ms at 48 kHz: enough for a low E). */
+export const TUNER_FRAME = 4096;
+
 interface Wire {
   gain: GainNode;
   src: AudioNode | null;
@@ -28,13 +38,14 @@ const stripOf = (n: PatchNode): number | null => {
 
 /**
  * Turns the patch into Web Audio nodes. Every connection is a gain node (1 when it carries sound, 0 when it is muted or a
- * switch has chosen another output), so muting and switching only ramp a gain and never rewire or click. Effect chains and
- * switches are real nodes. Sound makers that are not patched (only wired to group recorders) are left to the mixer's own taps.
+ * switch has chosen another output), so muting and switching only ramp a gain and never rewire or click. Effect chains,
+ * switches and tuners are real nodes. Sound makers that are not patched (only wired to group recorders) are left to the mixer's own taps.
  * Groups keep their fixed routing into the master; sequencers keep theirs. See spec/patch.md.
  */
 export class PatchGraph {
   private chains = new Map<string, { chain: EffectChain; key: string }>();
   private switches = new Map<string, GainNode>();
+  private tuners = new Map<string, TunerNodes>();
   private wires = new Map<string, Wire>();
   private recIn = new Map<string, GainNode>();
   private recording: string | null | undefined = undefined;
@@ -69,6 +80,23 @@ export class PatchGraph {
         }
       } else if (n.kind === "switch" && !this.switches.has(n.id)) {
         this.switches.set(n.id, this.ctx.createGain());
+      } else if (n.kind === "tuner") {
+        let t = this.tuners.get(n.id);
+        if (!t) {
+          t = { input: this.ctx.createGain(), output: this.ctx.createGain(), analyser: this.ctx.createAnalyser() };
+          t.analyser.fftSize = TUNER_FRAME;
+          t.input.connect(t.analyser);
+          t.input.connect(t.output);
+          this.tuners.set(n.id, t);
+        }
+        t.output.gain.setTargetAtTime(n.muted ? 0 : 1, this.ctx.currentTime, RAMP);
+      }
+    }
+    for (const [id, t] of this.tuners) {
+      if (!byId.has(id)) {
+        this.safe(() => t.input.disconnect());
+        this.safe(() => t.output.disconnect());
+        this.tuners.delete(id);
       }
     }
     for (const [id, c] of this.chains) {
@@ -160,12 +188,19 @@ export class PatchGraph {
     }
     if (n.kind === "fx") return this.chains.get(n.id)?.chain.output ?? null;
     if (n.kind === "switch") return this.switches.get(n.id) ?? null;
+    if (n.kind === "tuner") return this.tuners.get(n.id)?.output ?? null;
     return null;
+  }
+
+  /** What a tuner hears (before its mute), for the pitch display. */
+  tunerAnalyser(id: string): AnalyserNode | null {
+    return this.tuners.get(id)?.analyser ?? null;
   }
 
   private inOf(n: PatchNode, port: "rec" | "bus", env: PatchEnv): AudioNode | null {
     if (n.kind === "fx") return this.chains.get(n.id)?.chain.input ?? null;
     if (n.kind === "switch") return this.switches.get(n.id) ?? null;
+    if (n.kind === "tuner") return this.tuners.get(n.id)?.input ?? null;
     if (n.kind === "master") return env.master;
     if (n.kind === "group") {
       const g = n.id.slice("group:".length);
@@ -192,6 +227,11 @@ export class PatchGraph {
     this.chains.clear();
     this.switches.forEach((g) => this.safe(() => g.disconnect()));
     this.switches.clear();
+    this.tuners.forEach((t) => {
+      this.safe(() => t.input.disconnect());
+      this.safe(() => t.output.disconnect());
+    });
+    this.tuners.clear();
     this.recIn.forEach((r) => this.safe(() => r.disconnect()));
     this.recIn.clear();
   }

@@ -5,7 +5,8 @@
 
 import { sanitiseEffects, type EffectSpec } from "./effects";
 
-export type PatchKind = "input" | "sequencer" | "piano" | "synth" | "fx" | "switch" | "group" | "loop" | "master";
+/** A tuner passes its sound on unchanged and shows the note it hears; muted, it still listens but lets nothing through. */
+export type PatchKind = "input" | "sequencer" | "piano" | "synth" | "fx" | "switch" | "tuner" | "group" | "loop" | "master";
 
 export interface PatchNode {
   id: string;
@@ -24,7 +25,7 @@ export interface PatchNode {
   busMulti?: boolean;
   /** a sound maker: true sends its output (all its buses together) to one place at a time (radio); false or left out, to any combination (checkboxes) */
   destOne?: boolean;
-  /** effect chains and switches can be named */
+  /** effect chains, switches and tuners can be named */
   name?: string;
   /** effect chain only: its effects, in order */
   effects?: EffectSpec[];
@@ -48,9 +49,12 @@ export interface Patch {
 }
 
 /** Kinds that make sound or pass it on (they have an audio output). */
-const HAS_OUT: PatchKind[] = ["input", "sequencer", "piano", "synth", "fx", "switch", "group", "loop"];
+const HAS_OUT: PatchKind[] = ["input", "sequencer", "piano", "synth", "fx", "switch", "tuner", "group", "loop"];
 /** Kinds that accept audio. A group has no global recorder: each group starts with its own, and the loops inside it record from it (and play into its bus). A loop has no input of its own. */
-const HAS_IN: PatchKind[] = ["fx", "switch", "group", "master"];
+const HAS_IN: PatchKind[] = ["fx", "switch", "tuner", "group", "master"];
+
+/** The elements a person adds and removes on the canvas (the others follow from inputs, sequencers and groups). */
+export const EDITABLE: PatchKind[] = ["fx", "switch", "tuner"];
 
 export const hasOut = (k: PatchKind) => HAS_OUT.includes(k);
 export const hasIn = (k: PatchKind) => HAS_IN.includes(k);
@@ -205,12 +209,12 @@ export function setSwitchMode(p: Patch, id: string, side: "in" | "out" | "dest",
   const n = node(p, id);
   // where a sound maker's output goes: one place at a time or any combination
   if (side === "dest") {
-    if (!n || n.kind === "switch" || n.kind === "fx" || !hasOut(n.kind)) return p;
+    if (!n || n.kind === "switch" || n.kind === "fx" || n.kind === "tuner" || !hasOut(n.kind)) return p;
     const next = { ...p, nodes: p.nodes.map((m) => (m.id === id ? { ...m, destOne: !multi } : m)) };
     return multi ? next : settleDest(next, id);
   }
   // a sound maker's own buses work like the output side of a switch: its mode is `busMulti`
-  if (n && n.kind !== "switch" && hasOut(n.kind) && n.kind !== "fx" && side === "out") {
+  if (n && n.kind !== "switch" && hasOut(n.kind) && n.kind !== "fx" && n.kind !== "tuner" && side === "out") {
     const next = { ...p, nodes: p.nodes.map((m) => (m.id === id ? { ...m, busMulti: multi } : m)) };
     return multi ? next : settleOwner(next, id);
   }
@@ -248,13 +252,16 @@ export function removeNode(p: Patch, id: string): Patch {
   return owner ? settleOwner(next, owner) : next;
 }
 
-/** The links that carry sound right now: not muted, neither end muted, and a link a switch has closed is a muted link. Order is creation order. */
+/**
+ * The links that carry sound right now: not muted, neither end muted, and a link a switch has closed is a muted link. A muted tuner
+ * still hears what comes in (it only lets nothing out). Order is creation order.
+ */
 export function activeLinks(p: Patch): PatchLink[] {
   return p.links.filter((l) => {
     if (l.muted) return false;
     const a = node(p, l.from);
     const b = node(p, l.to);
-    return !!a && !!b && !a.muted && !b.muted;
+    return !!a && !!b && !a.muted && (!b.muted || b.kind === "tuner");
   });
 }
 
@@ -293,7 +300,7 @@ export function feeds(p: Patch, group: string, port: Port): string[] {
       const src = node(p, l.from);
       if (!src) return;
       if (SOURCES.includes(src.kind)) out.add(src.id);
-      else if (src.kind === "fx" || src.kind === "switch") walk(src.id, null, new Set(seen).add(src.id));
+      else if (src.kind === "fx" || src.kind === "switch" || src.kind === "tuner") walk(src.id, null, new Set(seen).add(src.id));
       // a group's own bus does not feed another group's port in this model
     });
   };
@@ -303,7 +310,7 @@ export function feeds(p: Patch, group: string, port: Port): string[] {
 
 /** Clean up a saved patch: unknown kinds, duplicate ids, dangling links and links the rules refuse are dropped. */
 export function sanitisePatch(raw: unknown): Patch {
-  const kinds: PatchKind[] = ["input", "sequencer", "piano", "synth", "fx", "switch", "group", "loop", "master"];
+  const kinds: PatchKind[] = ["input", "sequencer", "piano", "synth", "fx", "switch", "tuner", "group", "loop", "master"];
   const r = (raw ?? {}) as { nodes?: unknown; links?: unknown };
   const nodes: PatchNode[] = [];
   const legacySel = new Map<string, number>();
@@ -372,7 +379,7 @@ export function defaultPatch(opts: { inputs: { id: number; kind: "device" | "ext
 
 /** Where a new element goes on the canvas: a column per kind (sources, effect chains and switches, groups, master), stacked down. */
 export function place(p: Patch, kind: PatchKind): { x: number; y: number } {
-  const col = (k: PatchKind) => (k === "input" || k === "piano" || k === "sequencer" || k === "synth" ? 0 : k === "fx" || k === "switch" ? 1 : k === "group" || k === "loop" ? 2 : 3);
+  const col = (k: PatchKind) => (k === "input" || k === "piano" || k === "sequencer" || k === "synth" ? 0 : k === "fx" || k === "switch" || k === "tuner" ? 1 : k === "group" || k === "loop" ? 2 : 3);
   const c = col(kind);
   const n = p.nodes.filter((m) => col(m.kind) === c).length;
   return { x: 24 + c * 300, y: 24 + n * 150 };
@@ -394,9 +401,10 @@ export function isPatched(p: Patch, id: string): boolean {
   return p.links.some((l) => l.from === id && !(node(p, l.to)?.kind === "group" && l.port === "rec"));
 }
 
-/** Insert a new element (an effect chain or a switch). Ids must be new. */
+/** Insert a new element (an effect chain, a switch or a tuner). Ids must be new. Only an effect chain belongs to an input. */
 export function addNode(p: Patch, n: PatchNode): Patch {
-  if (p.nodes.some((m) => m.id === n.id) || (n.kind !== "fx" && n.kind !== "switch")) return p;
+  if (p.nodes.some((m) => m.id === n.id) || !EDITABLE.includes(n.kind)) return p;
+  if (n.kind === "tuner") return { ...p, nodes: [...p.nodes, { id: n.id, kind: n.kind, x: n.x, y: n.y, muted: n.muted === true, ...(n.name ? { name: n.name } : {}) }] };
   if (n.owner && !p.nodes.some((m) => m.id === n.owner)) return p;
   return { ...p, nodes: [...p.nodes, { ...n, muted: n.muted === true, ...(n.kind === "switch" ? { inMulti: n.inMulti === true, outMulti: n.outMulti === true } : { effects: n.effects ?? [] }) }] };
 }

@@ -68,9 +68,10 @@ export default function AddFab({ engine, snap, wires, names, onInput }: { engine
   /** an action that puts something on the stage, with a notice of where it went */
   const onStage = (ok: boolean, what: string) => ok && toast(`${what} added in the Looping section`);
   const stamp = () => Date.now().toString(36);
-  const addNode = (kind: "fx" | "switch") => {
+  const addNode = (kind: "fx" | "switch" | "tuner") => {
     const n = snap.patch.nodes.filter((m) => m.kind === kind).length + 1;
-    engine.do({ type: "patch.node", node: { id: `${kind === "fx" ? "fx" : "sw"}:${stamp()}`, kind, x: 20, y: 660, name: kind === "fx" ? `Bus ${n}` : `Switch ${n}` } });
+    const [prefix, name] = kind === "fx" ? ["fx", "Bus"] : kind === "switch" ? ["sw", "Switch"] : ["tuner", "Tuner"];
+    engine.do({ type: "patch.node", node: { id: `${prefix}:${stamp()}`, kind, x: 20, y: 660, name: n > 1 || kind !== "tuner" ? `${name} ${n}` : name } });
   };
   const wiresOnly = wires ? undefined : "Shown in Widgets with wires";
 
@@ -106,13 +107,14 @@ export default function AddFab({ engine, snap, wires, names, onInput }: { engine
                 <button type="button" role="menuitem" className={item} disabled={!wires} title={wiresOnly} onClick={() => run(() => addNode("switch"))}><Icon name="split" size={15} />Switch<span className={hint}>pick inputs, outputs</span></button>
               </Section>
               <Section title="Widgets">
+                <button type="button" role="menuitem" className={item} onClick={() => run(() => addNode("tuner"))}><Icon name="gauge" size={15} />Tuner<span className={hint}>{wires ? "wire a guitar through it" : "wire it in Widgets with wires"}</span></button>
                 <button type="button" role="menuitem" className={item} onClick={() => setSub(true)}><Icon name="layout-dashboard" size={15} />Effect widget<span className={hint}>{fx.length ? `${fx.length} effects` : "none yet"}</span><Icon name="chevron-right" size={14} /></button>
               </Section>
             </>
           )}
         </div>
       )}
-      <button type="button" aria-haspopup="menu" aria-expanded={open} aria-label="Add a loop, sequencer, input, bus or widget" title="Add" onClick={() => { setSub(false); setOpen((v) => !v); }} className="pointer-events-auto grid h-12 w-12 place-items-center rounded-full border border-sky-400/60 bg-sky-500 text-slate-950 shadow-lg shadow-black/50 transition hover:bg-sky-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-200">
+      <button type="button" aria-haspopup="menu" aria-expanded={open} aria-label="Add a loop, sequencer, input, bus, tuner or widget" title="Add" onClick={() => { setSub(false); setOpen((v) => !v); }} className="pointer-events-auto grid h-12 w-12 place-items-center rounded-full border border-sky-400/60 bg-sky-500 text-slate-950 shadow-lg shadow-black/50 transition hover:bg-sky-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-200">
         <Icon name="plus" size={22} className={`transition-transform ${open ? "rotate-45" : ""}`} />
       </button>
     </div>

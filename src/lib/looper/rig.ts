@@ -3,10 +3,37 @@ import { INPUT_PRESETS } from "./inputPresets";
 
 /**
  * Starter rigs. An input (a guitar, a piano) gets a few buses of its own, each with effects; one is open at a time (radio) and each bus
- * plays to the master and records into every group, so the person picks the sound with one click. Pure: it only builds the actions;
- * the caller runs them as one batch so one undo takes the whole rig away.
+ * plays to the master and records into every group, so the person picks the sound with one click. The guitar's buses go through a
+ * tuner first. Pure: it only builds the actions; the caller runs them as one batch so one undo takes the whole rig away.
  */
-export const RIG_PRESETS = ["sparkle", "crunch", "lead", "nam"] as const;
+export const RIG_PRESETS = ["sparkle", "crunch", "lead"] as const;
+
+/**
+ * The amps of the guitar rig, one bus each, named after the amp. `find` holds words of the model's file name in the online amp library
+ * (`nam/` in the Blob store); the app fetches the model when its bus is first chosen. Without the library the bus has an empty amp.
+ */
+export const GUITAR_AMPS: { name: string; find: string; gain: "clean" | "drive" | "high" }[] = [
+  { name: "Fender Twin Reverb", find: "twin reverb clean", gain: "clean" },
+  { name: "Fender Super Reverb", find: "fndr bfsr", gain: "clean" },
+  { name: "Vox AC15 Top Boost", find: "ac15", gain: "drive" },
+  { name: "Marshall JCM800", find: "jcm800", gain: "drive" },
+  { name: "Marshall JCM2000 Crunch", find: "jcm2000 crunch", gain: "drive" },
+  { name: "Mesa Dual Rectifier", find: "dualrec classic", gain: "high" },
+  { name: "5150 Stealth Red", find: "5150 stealth red", gain: "high" },
+  { name: "Mesa Mark IV Lead", find: "mark iv lead", gain: "high" },
+];
+
+const gate = (threshold: number): FxSpec => ({ kind: "denoise", params: { threshold, reduction: 36, release: 30, hum: 70, hiss: 14000 } });
+
+/** The effects of an amp bus: a gate (tighter for more gain), the amp, and a room after the fader. */
+const ampBus = (a: (typeof GUITAR_AMPS)[number]): BusSpec => ({
+  name: a.name,
+  effects: [
+    gate(a.gain === "high" ? -56 : a.gain === "drive" ? -60 : -64),
+    { kind: "nam", amp: a.find },
+    { kind: "reverb", post: true, params: { decay: a.gain === "clean" ? 2 : 1.4, mix: a.gain === "clean" ? 0.2 : 0.14 } },
+  ],
+});
 
 let counter = 0;
 const stamp = () => `${Date.now().toString(36)}${(counter++).toString(36)}`;
@@ -16,8 +43,11 @@ interface BusSpec {
   effects: (FxSpec & { post?: boolean })[];
 }
 
-/** The nodes and links of one input with its buses: the first bus open, the others closed, every bus to the master and into every group's recorder. */
-function bundle(a: { input: string; buses: BusSpec[]; groups: string[]; tag: string; at: { x: number; y: number } }): { actions: LooperAction[]; ids: string[] } {
+/**
+ * The nodes and links of one input with its buses: the first bus open, the others closed, every bus to the master and into every group's
+ * recorder. With `via` (a tuner's id) every bus goes into it instead, and it goes on to the master and the recorders.
+ */
+function bundle(a: { input: string; buses: BusSpec[]; groups: string[]; tag: string; at: { x: number; y: number }; via?: string }): { actions: LooperAction[]; ids: string[] } {
   const actions: LooperAction[] = [];
   const ids = a.buses.map((_, i) => `fx:${a.tag}${i}`);
   a.buses.forEach((b, i) => {
@@ -25,10 +55,14 @@ function bundle(a: { input: string; buses: BusSpec[]; groups: string[]; tag: str
     actions.push({ type: "patch.node", node: { id: ids[i], kind: "fx", owner: a.input, x: a.at.x, y: a.at.y + i * 70, name: b.name, ...(effects.length ? { effects } : {}) } });
   });
   ids.forEach((id, i) => actions.push({ type: "patch.link", link: { id: `l${a.tag}i${i}`, from: a.input, to: id, muted: i > 0 } }));
-  ids.forEach((id, i) => {
-    actions.push({ type: "patch.link", link: { id: `l${a.tag}m${i}`, from: id, to: "master" } });
-    a.groups.forEach((g, k) => actions.push({ type: "patch.link", link: { id: `l${a.tag}g${i}_${k}`, from: id, to: `group:${g}`, port: "rec" } }));
-  });
+  const outs = (from: string, n: string) => {
+    actions.push({ type: "patch.link", link: { id: `l${a.tag}m${n}`, from, to: "master" } });
+    a.groups.forEach((g, k) => actions.push({ type: "patch.link", link: { id: `l${a.tag}g${n}_${k}`, from, to: `group:${g}`, port: "rec" } }));
+  };
+  if (a.via) {
+    ids.forEach((id, i) => actions.push({ type: "patch.link", link: { id: `l${a.tag}t${i}`, from: id, to: a.via! } }));
+    outs(a.via, "t");
+  } else ids.forEach((id, i) => outs(id, String(i)));
   return { actions, ids };
 }
 
@@ -41,10 +75,20 @@ export function starterRig(a: {
   directLinks: string[];
   /** where the buses start, in stage units */
   at?: { x: number; y: number };
-}): { actions: LooperAction[]; buses: string[] } {
-  const presets = RIG_PRESETS.map((id) => INPUT_PRESETS.guitar.find((p) => p.id === id)).filter((p): p is NonNullable<typeof p> => !!p);
-  const b = bundle({ input: a.input, groups: a.groups, tag: `rig${stamp()}`, at: a.at ?? { x: 20, y: 660 }, buses: presets.map((p) => ({ name: p.name, effects: p.effects.map((e) => ({ kind: e.kind, ...(e.post ? { post: true } : {}), ...(e.params ? { params: e.params } : {}) })) })) });
-  return { actions: [...a.directLinks.map((id): LooperAction => ({ type: "patch.unlink", id })), ...b.actions], buses: b.ids };
+}): { actions: LooperAction[]; buses: string[]; tuner: string } {
+  const preset = (id: string): BusSpec[] => INPUT_PRESETS.guitar.filter((p) => p.id === id).map((p) => ({ name: p.name, effects: p.effects.map((e) => ({ kind: e.kind, ...(e.post ? { post: true } : {}), ...(e.params ? { params: e.params } : {}) })) }));
+  const [first, ...rest] = RIG_PRESETS;
+  // the clean sound needs nothing from the library, so it is the one open at first; the amps follow, the built-in drives last
+  const buses = [...preset(first), ...GUITAR_AMPS.map(ampBus), ...rest.flatMap(preset)];
+  const tag = `rig${stamp()}`;
+  const at = a.at ?? { x: 20, y: 660 };
+  const tuner = `tuner:${tag}`;
+  const b = bundle({ input: a.input, groups: a.groups, tag, at, buses, via: tuner });
+  return {
+    actions: [...a.directLinks.map((id): LooperAction => ({ type: "patch.unlink", id })), { type: "patch.node", node: { id: tuner, kind: "tuner", x: at.x + 360, y: at.y, name: "Tuner" } }, ...b.actions],
+    buses: b.ids,
+    tuner,
+  };
 }
 
 /** The buses of every piano in the starter piano rig. A bus with no effects is the dry piano. */

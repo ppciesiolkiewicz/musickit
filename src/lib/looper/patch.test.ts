@@ -223,3 +223,37 @@ describe("buses inside an input", () => {
     assert.equal(back.nodes.find((n) => n.id === "in:1")?.busMulti, true);
   });
 });
+
+describe("tuner", () => {
+  const withTuner = (): Patch => addNode(base(), { id: "tun", kind: "tuner", x: 0, y: 0, muted: false, owner: "gtr", effects: [] });
+  it("is added like a chain, but belongs to no input and has no effects", () => {
+    const p = withTuner();
+    assert.deepEqual(p.nodes.find((n) => n.id === "tun"), { id: "tun", kind: "tuner", x: 0, y: 0, muted: false });
+    assert.equal(removeNode(p, "tun").nodes.some((n) => n.id === "tun"), false);
+  });
+  it("passes sound on: an input records through it, and so does a bus before it", () => {
+    let p = withTuner();
+    p = connect(p, "gtr", "clean", "a");
+    p = connect(p, "clean", "tun", "b");
+    p = connect(p, "tun", "bus", "c", "rec");
+    p = connect(p, "tun", "master", "d");
+    assert.equal(whyNot(p, "tun", "clean"), "That would feed sound back into itself");
+    assert.deepEqual(feeds(p, "bus", "rec"), ["gtr"]);
+    assert.deepEqual(pathTo(p, "gtr", "master"), ["gtr", "clean", "tun", "master"]);
+  });
+  it("muted, it still hears what comes in but lets nothing out", () => {
+    let p = withTuner();
+    p = connect(p, "gtr", "tun", "in");
+    p = connect(p, "tun", "master", "out");
+    p = setNodeMuted(p, "tun", true);
+    assert.deepEqual(activeLinks(p).map((l) => l.id), ["in"]);
+    assert.deepEqual(pathTo(p, "gtr", "master"), []);
+  });
+  it("survives a save, and has no destination mode of its own", () => {
+    let p = connect(withTuner(), "gtr", "tun", "in");
+    p = sanitisePatch(JSON.parse(JSON.stringify(p)));
+    assert.equal(p.nodes.find((n) => n.id === "tun")?.kind, "tuner");
+    assert.equal(p.links.length, 1);
+    assert.equal(setSwitchMode(p, "tun", "dest", false), p);
+  });
+});

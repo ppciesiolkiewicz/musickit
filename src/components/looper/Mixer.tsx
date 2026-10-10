@@ -14,6 +14,7 @@ import { chooseDevice } from "@/lib/looper/deviceChoice";
 import { flowingLinks, masterFeeds, sendColours, stripPatchId } from "@/lib/looper/patchView";
 import { patchName } from "./PatchNode";
 import { INPUT_PRESETS, INPUT_ROLES, presetFor, type InputRole } from "@/lib/looper/inputPresets";
+import { GUITAR_AMPS } from "@/lib/looper/rig";
 
 const btn = "rounded-lg border px-2.5 py-1 text-xs transition disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 const btnPlain = `${btn} border-slate-700 bg-slate-900 text-slate-200 hover:border-slate-500`;
@@ -145,7 +146,7 @@ export function AddInputModal({ engine, snap, hasExtra, onClose }: { engine: Loo
               ))}
             </div>
             {role === "guitar" ? (
-              <p className="text-xs text-slate-400">Comes with the guitar rig: Clean sparkle, Crunch, Lead and Amp model buses, one on at a time, each to the master and every group.</p>
+              <p className="text-xs text-slate-400">Comes with the guitar rig: Clean sparkle, the amps ({GUITAR_AMPS.map((x) => x.name).join(", ")}), Crunch and Lead, one on at a time, all through a tuner to the master and every group.</p>
             ) : (
             <div className="grid gap-1.5 sm:grid-cols-2">
               {INPUT_PRESETS[role].map((p) => (
