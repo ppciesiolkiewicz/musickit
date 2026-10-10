@@ -12,9 +12,11 @@ export interface ScalePianoState {
   scale: string;
   /** octave of the bottom row's root (3 = C3, an octave below middle C) */
   octave: number;
+  /** the sound, an instrument id of the app's sound engine (an unknown one plays as a plain tone) */
+  instrument: string;
 }
 
-export const DEFAULT_SCALE_PIANO: ScalePianoState = { root: 0, scale: "major", octave: 3 };
+export const DEFAULT_SCALE_PIANO: ScalePianoState = { root: 0, scale: "major", octave: 3, instrument: "PIANO" };
 const MIN_OCTAVE = 0;
 const MAX_OCTAVE = 6;
 
@@ -22,7 +24,8 @@ export const clampState = (s: Partial<ScalePianoState> | undefined): ScalePianoS
   const root = Number.isInteger(s?.root) ? ((s!.root as number) % 12 + 12) % 12 : DEFAULT_SCALE_PIANO.root;
   const scale = typeof s?.scale === "string" && s.scale ? s.scale : DEFAULT_SCALE_PIANO.scale;
   const oct = Number.isInteger(s?.octave) ? (s!.octave as number) : DEFAULT_SCALE_PIANO.octave;
-  return { root, scale, octave: Math.max(MIN_OCTAVE, Math.min(MAX_OCTAVE, oct)) };
+  const instrument = typeof s?.instrument === "string" && s.instrument && s.instrument.length <= 64 ? s.instrument : DEFAULT_SCALE_PIANO.instrument;
+  return { root, scale, octave: Math.max(MIN_OCTAVE, Math.min(MAX_OCTAVE, oct)), instrument };
 };
 
 /** Something that can sound notes into a node. The app injects one (its sample player) so the looper uses the same sounds as everything else. */
@@ -30,6 +33,9 @@ export interface NoteVoice {
   noteOn(midi: number, velocity?: number): void;
   noteOff(midi: number): void;
   allOff(): void;
+  /** switch the sound (a sample player does; a voice without it keeps its one sound) */
+  setInstrument?(id: string): void;
+  preload?(): Promise<void>;
 }
 export type VoiceFactory = (ctx: AudioContext, destination: AudioNode) => NoteVoice;
 
@@ -52,10 +58,18 @@ export class ScalePiano implements NoteVoice {
     this.out.connect(this.toSpeakers);
     this.out.connect(this.toRecord);
     this.voice = this.makeVoice?.(ctx, this.out) ?? null;
+    this.applyInstrument();
   }
 
   load(s: Partial<ScalePianoState> | undefined) {
     this.state = clampState(s);
+    this.applyInstrument();
+  }
+
+  private applyInstrument() {
+    if (!this.voice?.setInstrument) return;
+    this.voice.setInstrument(this.state.instrument);
+    void this.voice.preload?.().catch(() => undefined);
   }
 
   serialize(): ScalePianoState {
@@ -64,7 +78,9 @@ export class ScalePiano implements NoteVoice {
 
   set(patch: Partial<ScalePianoState>) {
     this.allOff();
+    const before = this.state.instrument;
     this.state = clampState({ ...this.state, ...patch });
+    if (this.state.instrument !== before) this.applyInstrument();
     this.onChange();
   }
 

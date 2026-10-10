@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Icon from "@/components/Icon";
 import { createPlayer } from "../engine/player";
+import { useInstrumentOptions } from "../engine/useInstrumentOptions";
 import { MAX_OCTAVE, MIN_OCTAVE, NOTE_NAMES, SCALES, buildKeyMap, clampState, scalePitchClasses, type KeyNote, type ScalePianoState } from "./scaleKeys";
 
 const ibtn = "grid h-8 min-w-8 place-items-center rounded-lg border border-slate-700 bg-slate-900 px-1.5 text-xs text-slate-200 transition hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
@@ -24,10 +25,14 @@ export interface ScaleVoice {
   allOff(): void;
 }
 
+/** The keyboard's settings and its sound (an instrument id of the sound engine, the sampled piano when left out). */
+export type ScalePianoSettings = ScalePianoState & { instrument?: string };
+
 export interface ScalePianoProps {
-  state: ScalePianoState;
-  onChange: (patch: Partial<ScalePianoState>) => void;
-  /** the sound; without one the keyboard plays its own sampled piano to the app's output */
+  state: ScalePianoSettings;
+  /** every change, the sound included: the owner stores it and, when it passed a voice, switches that voice's instrument */
+  onChange: (patch: Partial<ScalePianoSettings>) => void;
+  /** the sound; without one the keyboard plays its own sample player to the app's output, in `state.instrument` */
   voice?: ScaleVoice;
 }
 
@@ -44,11 +49,15 @@ export default function ScalePiano({ state: raw, onChange, voice }: ScalePianoPr
   const [down, setDown] = useState<ReadonlySet<number>>(new Set());
   const held = useRef(new Map<string, number>());
 
-  // its own sampled piano, used (and its samples loaded) only when no voice is given
+  const instrumentOptions = useInstrumentOptions();
+  const instrument = raw.instrument ?? "PIANO";
+  // its own sample player, used (and its samples loaded) only when no voice is given
   const [own] = useState(() => createPlayer({ instrumentId: "PIANO" }));
   useEffect(() => {
-    if (!voice) void own.preload().catch(() => undefined);
-  }, [voice, own]);
+    if (voice) return;
+    own.setInstrument(instrument);
+    void own.preload().catch(() => undefined);
+  }, [voice, own, instrument]);
   const piano: ScaleVoice = voice ?? own;
 
   const press = useCallback((tag: string, k: KeyNote) => {
@@ -100,6 +109,10 @@ export default function ScalePiano({ state: raw, onChange, voice }: ScalePianoPr
         </select>
         <select className={field} value={state.scale} onChange={(e) => onChange({ scale: e.target.value })} aria-label="Scale">
           {SCALES.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+        </select>
+        <select className={field} value={instrument} onChange={(e) => { onChange({ instrument: e.target.value }); e.target.blur(); }} aria-label="Sound" title="Sound">
+          {!instrumentOptions.some((o) => o.value === instrument) && <option value={instrument}>{instrument}</option>}
+          {instrumentOptions.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
         </select>
         <div className="ml-auto flex items-center gap-1" role="group" aria-label="Octave">
           <button type="button" className={ibtn} disabled={state.octave <= MIN_OCTAVE} onClick={() => onChange({ octave: state.octave - 1 })} title="Octave down" aria-label="Octave down"><Icon name="chevron-left" /></button>
