@@ -1056,7 +1056,8 @@ export class LooperEngine {
       this.syncPatch();
       strip = this.mixer.list().find((i) => i.id === id);
     }
-    if (strip) this.addRig(strip.id);
+    // an input that already has buses (the rig of an older default) keeps them
+    if (strip && !this.patch.nodes.some((n) => n.owner === `in:${strip.id}`)) this.addRig(strip.id);
     this.history.clear();
   }
 
