@@ -7,8 +7,8 @@
 export const STAGE_W = 2000;
 export const STAGE_H = 1200;
 /** The part that is in view at 100% and where the default groups sit; the rest is room to grow into. */
-export const VIEW_W = 1100;
-export const VIEW_H = 620;
+export const VIEW_W = 1400;
+export const VIEW_H = 760;
 export const LOOP_R = 46;
 export const MIN_GROUP_W = 140;
 export const MIN_GROUP_H = 150;
@@ -50,13 +50,15 @@ export function clampPoint(x: number, y: number): { x: number; y: number } {
 export const DEFAULT_GROUPS = 5;
 /** Loops each default group starts with: two by two, the sequencers below them. */
 export const LOOPS_PER_GROUP = 4;
+/** Room one loop and its controls (length, name, buttons, volume) take: columns and rows of loops are this far apart at least. */
+export const LOOP_CELL = { w: LOOP_R * 2 + 24, h: LOOP_R * 2 + 120 };
 
 /** Five side-by-side groups (five buses) filling the stage. */
 /** height left free below the default groups: loops and sequencers placed there play straight to the master */
 export const FREE_STRIP = 96;
 
 export function defaultGroups(): GroupLayout[] {
-  const gap = 12;
+  const gap = 20;
   const w = (VIEW_W - gap * (DEFAULT_GROUPS + 1)) / DEFAULT_GROUPS;
   return Array.from({ length: DEFAULT_GROUPS }, (_, i) => i).map((i) => ({ id: `g${i + 1}`, x: gap + i * (w + gap), y: gap, w, h: VIEW_H - gap * 2 - FREE_STRIP }));
 }
@@ -70,16 +72,16 @@ export function defaultSpot(groups: GroupLayout[], index: number): { x: number; 
   const first = index < groups.length * LOOPS_PER_GROUP;
   const g = groups[first ? Math.floor(index / LOOPS_PER_GROUP) : index % groups.length];
   const slot = first ? index % LOOPS_PER_GROUP : Math.floor(index / groups.length);
-  // columns spread evenly across the group; a loop's controls are about LOOP_R * 2 + 8 wide
-  const perRow = Math.max(1, Math.floor((g.w - 4) / (LOOP_R * 2 + 8)));
+  // columns spread evenly across the group, as many as there is room for with their controls
+  const perRow = Math.max(1, Math.floor((g.w - 4) / LOOP_CELL.w));
   const col = slot % perRow;
   const row = Math.floor(slot / perRow);
-  return clampPoint(g.x + ((col + 0.5) * g.w) / perRow, g.y + 50 + LOOP_R + row * (LOOP_R * 2 + 56));
+  return clampPoint(g.x + ((col + 0.5) * g.w) / perRow, g.y + 60 + LOOP_R + row * LOOP_CELL.h);
 }
 
 /** Spots for `n` sequencers side by side along the bottom of a group, under the loops (a loop's controls hang below its circle). */
 export function bottomRow(g: Rect, n: number): { x: number; y: number }[] {
-  return Array.from({ length: n }, (_, i) => clampPoint(g.x + ((i + 0.5) * g.w) / n, g.y + g.h - 88));
+  return Array.from({ length: n }, (_, i) => clampPoint(g.x + ((i + 0.5) * g.w) / n, g.y + g.h - 108));
 }
 
 const apart = (x: number, y: number, taken: { x: number; y: number }[]) => taken.every((t) => Math.hypot(t.x - x, t.y - y) >= LOOP_R * 1.6);

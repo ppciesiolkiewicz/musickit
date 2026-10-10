@@ -106,3 +106,61 @@ export function findSpot(taken: WidgetRect[], size: { w: number; h: number }, ar
   }
   return null;
 }
+
+/** How `bandLayout` lays its bands: one under another (each band a row) or side by side (each band a column). */
+export interface BandOptions {
+  direction: "vertical" | "horizontal";
+  /** space between widgets in a band */
+  gap?: number;
+  /** space between bands */
+  bandGap?: number;
+  /** wrap a band into more lines when it would grow past this (width of a row, height of a column) */
+  wrap?: number;
+}
+
+/**
+ * Bands of widgets in order: vertical puts each band in a row under the one before, horizontal puts each in a column right of the one before.
+ * Each widget keeps its size; a band longer than `wrap` breaks into more lines; every line is centred on the longest one, its widgets aligned to its start.
+ */
+export function bandLayout(bands: string[][], sizes: Record<string, { w: number; h: number }>, { direction, gap = 24, bandGap = 64, wrap = Infinity }: BandOptions): Layout {
+  const v = direction === "vertical";
+  // along: the way a line runs (x for rows); across: the way lines stack (y for rows)
+  const along = (s: { w: number; h: number }) => (v ? s.w : s.h);
+  const across = (s: { w: number; h: number }) => (v ? s.h : s.w);
+  const lines: { ids: string[]; len: number; thick: number; band: number }[] = [];
+  bands.forEach((band, bi) => {
+    let cur: (typeof lines)[number] | null = null;
+    band.forEach((id) => {
+      const s = sizes[id];
+      if (!s) return;
+      if (!cur || (cur.ids.length && cur.len + gap + along(s) > wrap)) lines.push((cur = { ids: [], len: 0, thick: 0, band: bi }));
+      cur.len += (cur.ids.length ? gap : 0) + along(s);
+      cur.thick = Math.max(cur.thick, across(s));
+      cur.ids.push(id);
+    });
+  });
+  const longest = Math.max(0, ...lines.map((l) => l.len));
+  const out: Layout = {};
+  let pos = 0;
+  lines.forEach((l, i) => {
+    if (i) pos += lines[i - 1].band === l.band ? gap : bandGap;
+    let a = (longest - l.len) / 2;
+    l.ids.forEach((id) => {
+      const s = sizes[id];
+      // widgets of a line share its top (a row) or its left edge (a column)
+      out[id] = { x: round(v ? a : pos), y: round(v ? pos : a), w: round(s.w), h: round(s.h) };
+      a += along(s) + gap;
+    });
+    pos += l.thick;
+  });
+  return out;
+}
+
+/** Zoom and offset that show all of these rectangles in a view of size `b`, with a margin; null when there are none. */
+export function fitView(rs: WidgetRect[], b: Bounds, zoom: { min: number; max: number }, margin = 16): { zoom: number; x: number; y: number } | null {
+  if (!rs.length) return null;
+  const x0 = Math.min(...rs.map((r) => r.x)), y0 = Math.min(...rs.map((r) => r.y));
+  const x1 = Math.max(...rs.map((r) => r.x + r.w)), y1 = Math.max(...rs.map((r) => r.y + r.h));
+  const z = Math.min(zoom.max, Math.max(zoom.min, Math.min(1.5, (b.w - 2 * margin) / (x1 - x0), (b.h - 2 * margin) / (y1 - y0))));
+  return { zoom: z, x: (b.w - (x1 - x0) * z) / 2 - x0 * z, y: (b.h - (y1 - y0) * z) / 2 - y0 * z };
+}

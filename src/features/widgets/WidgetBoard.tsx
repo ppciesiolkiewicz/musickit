@@ -1,9 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type PointerEvent as RPointerEvent, type ReactNode } from "react";
-import Icon from "@/components/Icon";
+import Icon, { type IconName } from "@/components/Icon";
 import InfoTip from "@/components/InfoTip";
-import { WIDGET_MIN, findSpot, raise, resizeFromCorner, tileLayout, type Corner, type Bounds, type DefaultLayout, type Layout, type WidgetRect } from "./board";
+import { WIDGET_MIN, findSpot, fitView, raise, resizeFromCorner, tileLayout, type Corner, type Bounds, type DefaultLayout, type Layout, type WidgetRect } from "./board";
 
 export interface BoardWidget {
   id: string;
@@ -12,6 +12,17 @@ export interface BoardWidget {
   /** shows a close button in the header */
   onClose?: () => void;
 }
+
+/** One choice of the Auto position menu: where every widget goes. It is given the widgets' current places (for their sizes). */
+export interface Arrangement {
+  id: string;
+  label: string;
+  hint?: string;
+  icon: IconName;
+  layout: (ids: string[], b: Bounds, current: Layout) => Layout;
+}
+
+const GRID: Arrangement[] = [{ id: "grid", label: "Grid", hint: "Tiled to fill the screen", icon: "layout-dashboard", layout: (ids, b) => tileLayout(ids, b) }];
 
 /** The canvas has no real edge: widgets can go anywhere within this generous range (negative too), and you zoom out to see far. */
 export const WORLD: Bounds = { w: 40000, h: 30000 };
@@ -37,7 +48,7 @@ const clampZoom = (z: number) => Math.min(ZOOM.max, Math.max(ZOOM.min, z));
  * world that you zoom (buttons, Ctrl/Cmd and the wheel) and pan (wheel, or drag empty space). Each widget is dragged by its grip header and
  * resized from the corner. The layout and the view are remembered under `storageKey`. Raise `resetSignal` to put everything back.
  */
-export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout, resetSignal = 0, flush = false, place = "free" }: {
+export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout, resetSignal = 0, flush = false, place = "free", arrangements = GRID }: {
   widgets: BoardWidget[];
   storageKey: string;
   /** kept for older callers; the canvas always fills the space */
@@ -49,6 +60,8 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
   flush?: boolean;
   /** where a widget added later appears: the first free place in view, or the centre of the screen (on top of the others) */
   place?: "free" | "center";
+  /** the choices of the Auto position menu (then the view zooms to show them all) */
+  arrangements?: Arrangement[];
 }) {
   const host = useRef<HTMLDivElement>(null);
   const [vp, setVp] = useState<Bounds | null>(null);
@@ -230,17 +243,38 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
   };
 
   /** Zoom and move so that every widget is in view. */
-  const fitAll = () => {
-    if (!layout || !vp) return;
-    const rs = widgets.map((w) => layout[w.id]).filter(Boolean);
-    if (!rs.length) return;
-    const x0 = Math.min(...rs.map((r) => r.x)), y0 = Math.min(...rs.map((r) => r.y));
-    const x1 = Math.max(...rs.map((r) => r.x + r.w)), y1 = Math.max(...rs.map((r) => r.y + r.h));
-    const z = clampZoom(Math.min(1.5, (vp.w - 32) / (x1 - x0), (vp.h - 32) / (y1 - y0)));
-    const v = { zoom: z, x: (vp.w - (x1 - x0) * z) / 2 - x0 * z, y: (vp.h - (y1 - y0) * z) / 2 - y0 * z };
+  const fitAll = (l = layout) => {
+    if (!l || !vp) return;
+    const v = fitView(widgets.map((w) => l[w.id]).filter(Boolean), vp, ZOOM);
+    if (!v) return;
     setView(v);
-    save(layout, v);
+    save(l, v);
   };
+  /** Put every widget where the arrangement says, then show them all. */
+  const arrange = (a: Arrangement) => {
+    if (!layout || !vp) return;
+    const placed = a.layout(widgets.map((w) => w.id), vp, layout);
+    const l: Layout = { ...layout };
+    widgets.forEach((w) => { if (placed[w.id]) l[w.id] = inRange(placed[w.id]); });
+    setLayout(l);
+    fitAll(l);
+  };
+  const [menu, setMenu] = useState(false);
+  useEffect(() => {
+    if (!menu) return;
+    const close = (e: Event) => {
+      if (e.target instanceof Element && e.target.closest("[data-automenu]")) return;
+      setMenu(false);
+    };
+    const key = (e: KeyboardEvent) => e.key === "Escape" && setMenu(false);
+    window.addEventListener("pointerdown", close);
+    window.addEventListener("keydown", key);
+    return () => {
+      window.removeEventListener("pointerdown", close);
+      window.removeEventListener("keydown", key);
+    };
+  }, [menu]);
+  const menuItem = "flex w-full items-start gap-2 rounded-md px-2 py-1.5 text-left text-xs text-slate-200 hover:bg-slate-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
   const tbtn = "grid h-6 min-w-6 place-items-center rounded-md border border-slate-700/80 bg-slate-900/90 px-1 text-[10px] text-slate-300 hover:border-slate-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
   void top;
 
@@ -256,14 +290,39 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
     >
       <div className="absolute right-2 top-2 z-[1000] flex items-center gap-1" onPointerDown={(e) => e.stopPropagation()}>
         <InfoTip label="Canvas help">
-          <p><b>Zoom:</b> the minus and plus buttons, or Ctrl (Cmd) and the mouse wheel or a trackpad pinch. The fit button shows every widget.</p>
+          <p><b>Zoom:</b> the minus and plus buttons, or Ctrl (Cmd) and the mouse wheel or a trackpad pinch.</p>
+          <p><b>Auto position:</b> the last button lines every widget up (choose how) and shows them all, or only zooms to show them where they are.</p>
           <p><b>Move around:</b> the wheel or two-finger scroll, or drag empty space.</p>
           <p><b>Widgets:</b> drag a title to move one, the corner to resize it. The canvas is much bigger than the screen, so zoom out to place more.</p>
         </InfoTip>
         <button type="button" className={tbtn} onClick={() => { const v = zoomAt(1 / 1.25); save(layout, v); }} title="Zoom out" aria-label="Zoom out"><Icon name="minus" size={12} /></button>
         <button type="button" className={`${tbtn} w-12 tabular-nums`} onClick={() => { const v = { zoom: 1, x: 0, y: 0 }; setView(v); save(layout, v); }} title="Back to 100%" aria-label="Zoom to 100%">{Math.round(view.zoom * 100)}%</button>
         <button type="button" className={tbtn} onClick={() => { const v = zoomAt(1.25); save(layout, v); }} title="Zoom in" aria-label="Zoom in"><Icon name="plus" size={12} /></button>
-        <button type="button" className={tbtn} onClick={fitAll} title="Show every widget" aria-label="Fit all widgets"><Icon name="layout-dashboard" size={12} /></button>
+        <div className="relative" data-automenu>
+          <button type="button" className={`${tbtn} ${menu ? "!border-sky-500" : ""}`} onClick={() => setMenu((m) => !m)} title="Auto position" aria-label="Auto position" aria-haspopup="menu" aria-expanded={menu}><Icon name="layout-dashboard" size={12} /></button>
+          {menu && (
+            <div role="menu" aria-label="Auto position" className="absolute right-0 top-7 w-60 rounded-xl border border-slate-700 bg-slate-950 p-1 shadow-xl">
+              <div className="px-2 pb-1 pt-0.5 text-[10px] font-medium uppercase tracking-wide text-slate-500">Auto position</div>
+              {arrangements.map((a) => (
+                <button key={a.id} type="button" role="menuitem" className={menuItem} onClick={() => { arrange(a); setMenu(false); }}>
+                  <Icon name={a.icon} size={15} className="mt-0.5 shrink-0 text-slate-400" />
+                  <span className="flex min-w-0 flex-col">
+                    <span className="font-medium">{a.label}</span>
+                    {a.hint && <span className="text-[11px] text-slate-400">{a.hint}</span>}
+                  </span>
+                </button>
+              ))}
+              <div className="my-1 border-t border-slate-800" />
+              <button type="button" role="menuitem" className={menuItem} onClick={() => { fitAll(); setMenu(false); }}>
+                <Icon name="eye" size={15} className="mt-0.5 shrink-0 text-slate-400" />
+                <span className="flex min-w-0 flex-col">
+                  <span className="font-medium">Show every widget</span>
+                  <span className="text-[11px] text-slate-400">Zoom to fit, leave them where they are</span>
+                </span>
+              </button>
+            </div>
+          )}
+        </div>
       </div>
       <div data-canvas="1" className="absolute left-0 top-0" style={{ width: 0, height: 0, overflow: "visible", transform: `translate(${view.x}px, ${view.y}px) scale(${view.zoom})`, transformOrigin: "0 0" }}>
         {layout &&
@@ -287,7 +346,7 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
                     </button>
                   )}
                 </div>
-                <div className="min-h-0 flex-1 touch-auto overflow-auto p-1" onPointerDown={(e) => { e.stopPropagation(); setOrder((o) => raise(o, w.id)); }}>{w.node}</div>
+                <div className="min-h-0 flex-1 touch-auto overflow-auto p-2.5" onPointerDown={(e) => { e.stopPropagation(); setOrder((o) => raise(o, w.id)); }}>{w.node}</div>
                 {(["nw", "ne", "sw", "se"] as Corner[]).map((c) => (
                   <div
                     key={c}

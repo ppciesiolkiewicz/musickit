@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { clampWidget, findSpot, moveWidget, raise, resizeFromCorner, resizeWidget, sanitiseLayout, splitLayout, tileLayout } from "./board";
+import { bandLayout, clampWidget, findSpot, fitView, moveWidget, raise, resizeFromCorner, resizeWidget, sanitiseLayout, splitLayout, tileLayout } from "./board";
 
 const B = { w: 1000, h: 600 };
 
@@ -78,4 +78,35 @@ test("findSpot finds the first free place clear of the others", () => {
     assert.ok(spot && (spot.x >= 312 || spot.y >= 162));
     assert.equal(findSpot([{ x: 0, y: 0, w: 700, h: 400 }], { w: 300, h: 150 }, area), null);
   }
+});
+
+test("vertical bands stack top to bottom, each row centred on the widest", () => {
+  const s = { a: { w: 300, h: 200 }, b: { w: 300, h: 100 }, stage: { w: 800, h: 400 }, m: { w: 200, h: 100 } };
+  const l = bandLayout([["a", "b"], ["stage"], ["m"]], s, { direction: "vertical", gap: 20, bandGap: 50 });
+  assert.deepEqual(l.stage, { x: 0, y: 250, w: 800, h: 400 });
+  assert.deepEqual(l.a, { x: 90, y: 0, w: 300, h: 200 });
+  assert.deepEqual(l.b, { x: 410, y: 0, w: 300, h: 100 });
+  assert.deepEqual(l.m, { x: 300, y: 700, w: 200, h: 100 });
+});
+
+test("a band longer than the wrap breaks into lines with the small gap", () => {
+  const s = { a: { w: 300, h: 100 }, b: { w: 300, h: 100 }, c: { w: 300, h: 100 } };
+  const l = bandLayout([["a", "b", "c"]], s, { direction: "vertical", gap: 10, bandGap: 99, wrap: 700 });
+  assert.deepEqual([l.a.y, l.b.y, l.c.y], [0, 0, 110]);
+  assert.equal(l.c.x, 155);
+});
+
+test("horizontal bands go left to right", () => {
+  const s = { a: { w: 300, h: 200 }, b: { w: 300, h: 200 }, m: { w: 200, h: 100 } };
+  const l = bandLayout([["a", "b"], ["m"]], s, { direction: "horizontal", gap: 20, bandGap: 50 });
+  assert.deepEqual([l.a.x, l.a.y, l.b.x, l.b.y], [0, 0, 0, 220]);
+  assert.deepEqual([l.m.x, l.m.y], [350, 160]);
+});
+
+test("fit shows every rectangle centred", () => {
+  const v = fitView([{ x: 0, y: 0, w: 1000, h: 500 }], { w: 532, h: 532 }, { min: 0.1, max: 2 });
+  assert.ok(v);
+  assert.equal(v.zoom, 0.5);
+  assert.deepEqual([v.x, v.y], [16, 141]);
+  assert.equal(fitView([], B, { min: 0.1, max: 2 }), null);
 });
