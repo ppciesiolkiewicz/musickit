@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import Icon from "../Icon";
 import { isPinned, togglePin, usePins } from "./fxPins";
+import { patchName } from "./PatchNode";
 import { MAX_CHANNELS, type LooperEngine, type LooperSnapshot } from "@/lib/looper/engine";
 
 const ibtn = "grid h-8 min-w-8 place-items-center rounded-lg border border-slate-700 bg-slate-900 px-1.5 text-xs text-slate-200 transition hover:border-slate-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
@@ -20,6 +21,7 @@ export function effectEntries(snap: LooperSnapshot): Entry[] {
   const out: Entry[] = [];
   snap.inputs.forEach((i) => i.effects.forEach((e) => out.push({ key: `i:${i.id}:${e.id}`, label: e.kind, where: i.name })));
   snap.groups.forEach((g) => g.effects.forEach((e) => out.push({ key: `g:${g.id}:${e.id}`, label: e.kind, where: g.name })));
+  snap.patch.nodes.forEach((n) => n.kind === "fx" && n.effects?.forEach((e) => out.push({ key: `e:${n.id}:${e.id}`, label: e.kind, where: patchName(snap, n) })));
   snap.masterEffects.forEach((e) => out.push({ key: `m:master:${e.id}`, label: e.kind, where: "Master" }));
   return out;
 }
@@ -70,7 +72,7 @@ export default function AddWidgetMenu({ engine, snap, names, canPatch = false }:
   const rows: ReactNode = sub ? (
     <>
       <button type="button" className={item} onClick={() => setSub(false)}><Icon name="chevron-left" size={14} />Effect widget</button>
-      {fx.length === 0 && <p className="px-2 py-1.5 text-xs text-slate-400">No effects yet. Add one to an input, group or the master.</p>}
+      {fx.length === 0 && <p className="px-2 py-1.5 text-xs text-slate-400">No effects yet. Add one to an input, bus, group or the master.</p>}
       {fx.map((e) => (
         <button key={e.key} type="button" className={item} aria-pressed={isPinned(pins, e.key)} onClick={() => togglePin(e.key)}>
           <span className="w-4">{isPinned(pins, e.key) && <Icon name="check" size={14} />}</span>

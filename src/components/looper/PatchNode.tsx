@@ -90,6 +90,7 @@ export function BusEffects({ engine, snap, node: n }: { engine: LooperEngine; sn
           onParam={(id, key, value) => engine.do({ type: "fx.param", target: { element: n.id }, id, key, value })}
           onBypass={(id) => engine.do({ type: "fx.bypass", target: { element: n.id }, id, bypass: !n.effects?.find((e) => e.id === id)?.bypass })}
           onClose={() => setFxOpen(false)}
+          pinScope={`e:${n.id}`}
         />
       )}
     </>

@@ -47,7 +47,7 @@ export default function AddFab({ engine, snap, wires, names, onInput }: { engine
           {sub ? (
             <>
               <button type="button" className={item} onClick={() => setSub(false)}><Icon name="chevron-left" size={14} />Widget</button>
-              {fx.length === 0 && <p className="px-2 py-1.5 text-xs text-slate-400">No effects yet. Add one to an input, bus or the master.</p>}
+              {fx.length === 0 && <p className="px-2 py-1.5 text-xs text-slate-400">No effects yet. Add one to an input, bus, group or the master.</p>}
               {fx.map((e) => (
                 <button key={e.key} type="button" className={item} aria-pressed={isPinned(pins, e.key)} onClick={() => togglePin(e.key)}>
                   <span className="w-4">{isPinned(pins, e.key) && <Icon name="check" size={14} />}</span>

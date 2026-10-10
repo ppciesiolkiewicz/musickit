@@ -2,7 +2,7 @@ import { useSyncExternalStore } from "react";
 
 /**
  * Effects pinned to the loop stage as widgets. Only the layout lives here (which effect, where); the effect itself stays on its input or bus.
- * Key: "g:<group id>:<fx id>" or "i:<input id>:<fx id>". Saved in localStorage `musickit.looper.fxWidgets`.
+ * Key: "g:<group id>:<fx id>", "i:<input id>:<fx id>", "m:master:<fx id>" or "e:<bus id>:<fx id>" (bus ids contain colons). Saved in localStorage `musickit.looper.fxWidgets`.
  */
 export interface FxPin {
   key: string;

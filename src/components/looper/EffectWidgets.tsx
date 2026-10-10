@@ -3,6 +3,7 @@
 import { useEffect, type PointerEvent as RPointerEvent } from "react";
 import Icon from "../Icon";
 import { EffectControls } from "./EffectsModal";
+import { patchName } from "./PatchNode";
 import { dropPins, movePin, togglePin, usePins, type FxPin } from "./fxPins";
 import { EFFECT_DEFS, type EffectSpec, type LooperEngine, type LooperSnapshot } from "@/lib/looper/engine";
 
@@ -22,7 +23,10 @@ function resolve(engine: LooperEngine, snap: LooperSnapshot, pins: FxPin[]): { s
   const shown: Resolved[] = [];
   const stale: string[] = [];
   for (const pin of pins) {
-    const [kind, owner, fxId] = pin.key.split(":");
+    // bus ids carry colons themselves ("fx:abc"), so the kind is before the first colon and the effect after the last
+    const kind = pin.key.slice(0, pin.key.indexOf(":"));
+    const owner = pin.key.slice(kind.length + 1, pin.key.lastIndexOf(":"));
+    const fxId = pin.key.slice(pin.key.lastIndexOf(":") + 1);
     if (kind === "g") {
       const g = snap.groups.find((x) => x.id === owner);
       if (!g) continue;
@@ -48,6 +52,15 @@ function resolve(engine: LooperEngine, snap: LooperSnapshot, pins: FxPin[]): { s
         continue;
       }
       shown.push({ pin, fx, where: inp.name, colour: "#94a3b8", param: (key, value) => engine.do({ type: "fx.param", target: { input: inp.id }, id: fx.id, key, value }), bypass: () => engine.do({ type: "fx.bypass", target: { input: inp.id }, id: fx.id, bypass: !fx.bypass }) });
+    } else if (kind === "e") {
+      const n = snap.patch.nodes.find((x) => x.id === owner && x.kind === "fx");
+      if (!n) continue;
+      const fx = n.effects?.find((e) => e.id === fxId);
+      if (!fx) {
+        stale.push(pin.key);
+        continue;
+      }
+      shown.push({ pin, fx, where: patchName(snap, n), colour: "#94a3b8", param: (key, value) => engine.do({ type: "fx.param", target: { element: n.id }, id: fx.id, key, value }), bypass: () => engine.do({ type: "fx.bypass", target: { element: n.id }, id: fx.id, bypass: !fx.bypass }) });
     }
   }
   return { shown, stale };
