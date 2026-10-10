@@ -89,6 +89,19 @@ describe("flowingLinks", () => {
     };
     assert.deepEqual([...flowingLinks(p as never, new Set(["1", "3", "4"]))].sort(), ["1", "3"]);
   });
+  it("keeps a link into a tuner that goes nowhere: the tuner still shows what it hears", async () => {
+    const { flowingLinks } = await import("./patchView");
+    const node = (id: string, kind: string) => ({ id, kind, x: 0, y: 0, muted: false } as never);
+    const p = {
+      nodes: [node("in:1", "input"), node("fx:a", "fx"), node("tun", "tuner"), node("master", "master")],
+      links: [
+        { id: "1", from: "in:1", to: "fx:a", muted: false },
+        { id: "2", from: "fx:a", to: "master", muted: false },
+        { id: "3", from: "fx:a", to: "tun", muted: false },
+      ],
+    };
+    assert.deepEqual([...flowingLinks(p as never, new Set(["1", "2", "3"]))].sort(), ["1", "2", "3"]);
+  });
 });
 
 describe("one output per input", () => {
