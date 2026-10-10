@@ -58,8 +58,15 @@ export const PIANO_PRESETS: { id: string; name: string; effects: (FxSpec & { pos
 /** The starter settings of the default pianos: different keys and scales, so each one sounds like another instrument to play. */
 export const PIANO_STARTS: { name: string; root: number; scale: string; octave: number }[] = [
   { name: "Piano C major", root: 0, scale: "major", octave: 3 },
-  { name: "Piano A minor pentatonic", root: 9, scale: "minorPentatonic", octave: 3 },
-  { name: "Piano E blues", root: 4, scale: "blues", octave: 2 },
+];
+
+/** The default groups, in order: each bus has its own effects and is named after its sound, so a loop changes colour by moving it. */
+export const GROUP_STARTS: { name: string; effects: (FxSpec & { post?: boolean })[] }[] = [
+  { name: "Room", effects: [{ kind: "reverb", post: true, params: { decay: 1.1, tone: 7000, mix: 0.2 } }] },
+  { name: "Echo", effects: [{ kind: "tapeDelay", post: true, params: { time: 375, feedback: 0.4, tone: 3000, wow: 0.25, mix: 0.3 } }] },
+  { name: "Wide", effects: [{ kind: "chorus", params: { rate: 0.6, depth: 0.6, mix: 0.45 } }, { kind: "reverb", post: true, params: { decay: 2.2, tone: 6500, mix: 0.25 } }] },
+  { name: "Lo-fi", effects: [{ kind: "filter", params: { mode: 0, cutoff: 1800, resonance: 1.2, mix: 1 } }, { kind: "tremolo", params: { rate: 4, depth: 0.35 } }] },
+  { name: "Space", effects: [{ kind: "phaser", params: { rate: 0.3, depth: 0.6, feedback: 0.3, mix: 0.35 } }, { kind: "reverb", post: true, params: { decay: 5, tone: 5000, mix: 0.45 } }] },
 ];
 
 /** The default sequencers of each default group, in group order: a drum machine and a bass, each group with its own groove. */

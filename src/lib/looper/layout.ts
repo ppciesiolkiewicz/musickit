@@ -7,8 +7,8 @@
 export const STAGE_W = 2000;
 export const STAGE_H = 1200;
 /** The part that is in view at 100% and where the default groups sit; the rest is room to grow into. */
-export const VIEW_W = 1000;
-export const VIEW_H = 460;
+export const VIEW_W = 1100;
+export const VIEW_H = 620;
 export const LOOP_R = 46;
 export const MIN_GROUP_W = 140;
 export const MIN_GROUP_H = 150;
@@ -48,6 +48,8 @@ export function clampPoint(x: number, y: number): { x: number; y: number } {
 }
 
 export const DEFAULT_GROUPS = 5;
+/** Loops each default group starts with: two by two, the sequencers below them. */
+export const LOOPS_PER_GROUP = 4;
 
 /** Five side-by-side groups (five buses) filling the stage. */
 /** height left free below the default groups: loops and sequencers placed there play straight to the master */
@@ -59,15 +61,20 @@ export function defaultGroups(): GroupLayout[] {
   return Array.from({ length: DEFAULT_GROUPS }, (_, i) => i).map((i) => ({ id: `g${i + 1}`, x: gap + i * (w + gap), y: gap, w, h: VIEW_H - gap * 2 - FREE_STRIP }));
 }
 
-/** A spot for loop number `index` of `total`: inside the group `index % groups`, stacked so circles do not overlap. */
+/**
+ * A spot for loop number `index`: inside the group `index % groups`, stacked so circles do not overlap. The first
+ * `groups * LOOPS_PER_GROUP` loops fill the groups one after the other instead (loops 1 to 4 in the first group).
+ */
 export function defaultSpot(groups: GroupLayout[], index: number): { x: number; y: number } {
   if (groups.length === 0) return clampPoint(LOOP_R + index * (LOOP_R * 2 + 12), VIEW_H / 2);
-  const g = groups[index % groups.length];
-  const slot = Math.floor(index / groups.length);
-  const perRow = Math.max(1, Math.floor((g.w - 20) / (LOOP_R * 2 + 12)));
+  const first = index < groups.length * LOOPS_PER_GROUP;
+  const g = groups[first ? Math.floor(index / LOOPS_PER_GROUP) : index % groups.length];
+  const slot = first ? index % LOOPS_PER_GROUP : Math.floor(index / groups.length);
+  // columns spread evenly across the group; a loop's controls are about LOOP_R * 2 + 8 wide
+  const perRow = Math.max(1, Math.floor((g.w - 4) / (LOOP_R * 2 + 8)));
   const col = slot % perRow;
   const row = Math.floor(slot / perRow);
-  return clampPoint(g.x + 20 + LOOP_R + col * (LOOP_R * 2 + 12), g.y + 50 + LOOP_R + row * (LOOP_R * 2 + 56));
+  return clampPoint(g.x + ((col + 0.5) * g.w) / perRow, g.y + 50 + LOOP_R + row * (LOOP_R * 2 + 56));
 }
 
 /** Spots for `n` sequencers side by side along the bottom of a group, under the loops (a loop's controls hang below its circle). */

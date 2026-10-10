@@ -5,14 +5,14 @@ import { fromRows } from "./sequencerPattern";
 import { ScalePiano, clampState as clampScalePiano, type ScalePianoState, type VoiceFactory } from "./scalePiano";
 import { EffectChain, LoopBus, peakOf } from "./buses";
 import { EFFECT_DEFS, defaultParams, moveEffect, clampParams, sanitiseEffects, type EffectKind, type EffectSpec } from "./effects";
-import { GROUP_COLOURS, clampPoint, clampRect, containingGroup, defaultGroups, defaultSpot, bottomRow, type GroupLayout } from "./layout";
+import { GROUP_COLOURS, LOOPS_PER_GROUP, clampPoint, clampRect, containingGroup, defaultGroups, defaultSpot, bottomRow, type GroupLayout } from "./layout";
 import { InputMixer, MAX_INPUT_GAIN, describeError, type InputInfo } from "./mixer";
 import { PatchGraph } from "./patchAudio";
 import { activeLinks, addNode as patchAddNode, connect as patchConnect, disconnect as patchDisconnect, emptyPatch, feeds, layoutAll, moveNode as patchMoveNode, place, removeNode, sanitisePatch, setLinkMuted, setNodeMuted, setSwitchMode, type Patch, type PatchLink } from "./patch";
 import { chooseDevice, deviceName, deviceScore, gearIssues, type DeviceRef, type GearIssue } from "./deviceChoice";
 import { ActionHistory, type DoOptions } from "./history";
 import { MacroRecorder } from "./macros";
-import { PIANO_STARTS, SEQUENCER_STARTS, addBus, pianoRig, starterRig } from "./rig";
+import { GROUP_STARTS, PIANO_STARTS, SEQUENCER_STARTS, addBus, pianoRig, starterRig } from "./rig";
 import type { FxTarget, InputSpec, LooperAction } from "./actions";
 import { RECORDER_PROCESSOR_NAME, recorderWorkletUrl } from "./recorderWorklet";
 
@@ -163,7 +163,7 @@ interface Capture {
   loopFrames: number;
 }
 
-export const MAX_CHANNELS = 8;
+export const MAX_CHANNELS = 32;
 export const MAX_FIRST_TAKE_SECONDS = 120;
 export { MAX_INPUTS, MAX_INPUT_GAIN } from "./mixer";
 
@@ -181,7 +181,15 @@ const PIANO_RIG_KEY = "musickit.looper.pianoRigDone2";
 const SEQ_RIG_KEY = "musickit.looper.seqRigDone";
 type SinkContext = AudioContext & { setSinkId?: (id: string) => Promise<void> };
 const groupName = (i: number) => `Group ${String.fromCharCode(65 + (i % 26))}`;
-const defaultGroupInfos = (): GroupInfo[] => defaultGroups().map((g, i) => ({ ...g, name: groupName(i), colour: GROUP_COLOURS[i % GROUP_COLOURS.length], volume: 1, muted: false, effects: [] }));
+/** The default groups, each named after its sound and with its own effects (`GROUP_STARTS`); effect ids run fx1, fx2 ... across them. */
+const defaultGroupInfos = (): GroupInfo[] => {
+  let n = 0;
+  return defaultGroups().map((g, i) => {
+    const start = GROUP_STARTS[i];
+    const effects = sanitiseEffects((start?.effects ?? []).map((e) => ({ ...e, id: `fx${++n}`, params: { ...defaultParams(e.kind), ...e.params } })));
+    return { ...g, name: start?.name ?? groupName(i), colour: GROUP_COLOURS[i % GROUP_COLOURS.length], volume: 1, muted: false, effects };
+  });
+};
 
 export class LooperEngine {
   private ctx: AudioContext | null = null;
@@ -200,7 +208,7 @@ export class LooperEngine {
 
   private groups: GroupInfo[] = defaultGroupInfos();
   private buses = new Map<string, LoopBus>();
-  private fxCounter = 0;
+  private fxCounter = this.groups.reduce((n, g) => n + g.effects.length, 0);
   private groupCounter = 5;
   private masterVolume = 1;
   private masterMuted = false;
@@ -266,7 +274,7 @@ export class LooperEngine {
       },
     });
     this.metronome = new Metronome(() => this.emit());
-    this.runtimes = [0, 1, 2, 3].map((i) => this.makeChannel(i));
+    this.runtimes = Array.from({ length: this.groups.length * LOOPS_PER_GROUP }, (_, i) => this.makeChannel(i));
     this.snap = this.buildSnapshot();
   }
 
@@ -379,9 +387,8 @@ export class LooperEngine {
     this.groups.forEach((g, i) => {
       const start = SEQUENCER_STARTS[i];
       if (!start) return;
-      const letter = String.fromCharCode(65 + i);
       const spots = bottomRow(g, 2);
-      ([["drums", start.drums, `Drums ${letter}`], ["bass", start.bass, `Bass ${letter}`]] as const).forEach(([instrument, preset, name], k) => {
+      ([["drums", start.drums, `${g.name} drums`], ["bass", start.bass, `${g.name} bass`]] as const).forEach(([instrument, preset, name], k) => {
         this.addSequencerNow(undefined, { name, instrument, preset, ...spots[k] });
       });
     });
@@ -1395,6 +1402,13 @@ export class LooperEngine {
         this.groups = groups;
         this.groupCounter = groups.reduce((m, g) => Math.max(m, Number(g.id.replace(/\D/g, "")) || 0), 0);
         this.fxCounter = groups.reduce((m, g) => g.effects.reduce((n, e) => Math.max(n, Number(e.id.replace(/\D/g, "")) || 0), m), 0);
+      }
+      // as many loops as were saved (old saves keep their four)
+      const saved = Object.keys(j.spots ?? {}).filter((k) => /^\d+$/.test(k)).length;
+      if (saved > 0) {
+        const want = Math.min(MAX_CHANNELS, saved);
+        this.runtimes = this.runtimes.slice(0, want);
+        while (this.runtimes.length < want) this.runtimes.push(this.makeChannel(this.runtimes.length));
       }
       this.runtimes.forEach((r) => {
         const sp = j.spots?.[String(r.info.id)];

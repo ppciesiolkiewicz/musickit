@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { PIANO_PRESETS, PIANO_STARTS, SEQUENCER_STARTS, pianoRig, starterRig } from "./rig";
+import { GROUP_STARTS, PIANO_PRESETS, PIANO_STARTS, SEQUENCER_STARTS, pianoRig, starterRig } from "./rig";
 import { BASS, DRUMS } from "./sequencer";
 import { DEFAULT_GROUPS } from "./layout";
 import { INPUT_PRESETS } from "./inputPresets";
@@ -46,7 +46,23 @@ describe("piano rig", () => {
     assert.equal(r.actions[0].type, "patch.unlink");
     PIANO_PRESETS.forEach((p) => p.effects.forEach((e) => assert.ok(EFFECT_DEFS[e.kind], e.kind)));
     assert.ok(PIANO_PRESETS.some((p) => p.effects.some((e) => e.kind === "reverb")));
-    assert.ok(PIANO_STARTS.length >= 3 && new Set(PIANO_STARTS.map((s) => `${s.root}${s.scale}${s.octave}`)).size === PIANO_STARTS.length, "different settings");
+    assert.equal(PIANO_STARTS.length, 1, "one default Scale Piano");
+  });
+});
+
+describe("default groups", () => {
+  it("names every default group and gives each its own real effects", () => {
+    assert.equal(GROUP_STARTS.length, DEFAULT_GROUPS);
+    assert.equal(new Set(GROUP_STARTS.map((g) => g.name)).size, GROUP_STARTS.length, "unique names");
+    assert.equal(new Set(GROUP_STARTS.map((g) => g.effects.map((e) => e.kind).join())).size, GROUP_STARTS.length, "different effects");
+    GROUP_STARTS.forEach((g) => {
+      assert.ok(g.name.length > 0 && g.name.length <= 24, g.name);
+      assert.ok(g.effects.length > 0, g.name);
+      g.effects.forEach((e) => {
+        assert.ok(EFFECT_DEFS[e.kind], e.kind);
+        Object.keys(e.params ?? {}).forEach((k) => assert.ok(EFFECT_DEFS[e.kind].params.some((p) => p.key === k), `${e.kind}.${k}`));
+      });
+    });
   });
 });
 

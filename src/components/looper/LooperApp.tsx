@@ -103,7 +103,6 @@ function wireNam() {
   void lib.init();
 }
 
-/** What a project is made of in storage. Settings (metronome, output, MIDI, keyboard), macros and amp models stay. */
 /**
  * Where the looper's on-screen keyboard plays: a node of its own in the shared AudioContext, not the app's output (which goes
  * straight to the speakers). The engine takes it as the Piano strip's source, so the strip's mute, volume and effects and the
@@ -112,7 +111,11 @@ function wireNam() {
 let keyboardOut: GainNode | null = null;
 const getKeyboardOut = (): GainNode => (keyboardOut ??= getAudioContext().createGain());
 
-const PROJECT_KEYS = ["inputs", "layout", "sequencers", "scalePianos", "patch", "fxWidgets", "widgets"];
+/**
+ * What a project is made of in storage. Settings (metronome, output, MIDI, keyboard), macros and amp models stay. The flags of the
+ * defaults go too, so a new project starts with the default guitar, keyboard piano, Scale Piano and sequencers again.
+ */
+const PROJECT_KEYS = ["inputs", "layout", "sequencers", "scalePianos", "patch", "fxWidgets", "widgets", "rigDone3", "keysRigDone", "pianoRigDone2", "seqRigDone"];
 
 function newProject() {
   try {
