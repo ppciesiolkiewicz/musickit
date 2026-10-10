@@ -44,7 +44,7 @@ function visibleRect(el: HTMLElement): DOMRect | null {
  * it), the master, a chain or a switch; every bus of an input gets the link. Click the connector (or an arrow) for the checkbox list
  * of where it sends, to switch each place on or off or remove it. It only calls engine actions, so everything is undoable.
  */
-export default function ConnectionLayer({ engine, snap, mode, wrapper }: { engine: LooperEngine; snap: LooperSnapshot; mode: "colors" | "lines"; wrapper: RefObject<HTMLElement | null> }) {
+export default function ConnectionLayer({ engine, snap, wrapper }: { engine: LooperEngine; snap: LooperSnapshot; wrapper: RefObject<HTMLElement | null> }) {
   const patch = snap.patch;
   const uid = useId().replace(/[^a-zA-Z0-9]/g, "");
   const [rects, setRects] = useState<Record<string, Rect>>({});
@@ -57,12 +57,10 @@ export default function ConnectionLayer({ engine, snap, mode, wrapper }: { engin
   // measure the elements every other frame: layouts move (widgets are dragged, windows resize, the page scrolls)
   useEffect(() => {
     let raf = 0;
-    let n = 0;
     let last = "";
     const tick = () => {
       raf = requestAnimationFrame(tick);
-      // the wires follow a scroll or zoom without lag in the wires view; the quieter views measure every other frame
-      if (mode !== "lines" && n++ % 2) return;
+      // measured every frame, so the wires follow a scroll or zoom without lag
       const root = wrapper.current;
       if (!root) return;
       const base = root.getBoundingClientRect();
@@ -81,7 +79,7 @@ export default function ConnectionLayer({ engine, snap, mode, wrapper }: { engin
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [wrapper, mode]);
+  }, [wrapper]);
 
   useEffect(() => {
     if (!msg) return;
@@ -266,11 +264,10 @@ export default function ConnectionLayer({ engine, snap, mode, wrapper }: { engin
                   </linearGradient>
                 </defs>
               )}
-              {mode === "lines" &&
-                // a wire is not clickable (it would block the controls under it); open its list by its arrow or connector
-                d.colours.map((c, k) => (
-                  <path key={c} d={d.path} fill="none" pointerEvents="none" stroke={c} strokeWidth={hot ? 3.5 : d.faint ? 1.5 : 2.75} strokeDasharray={n > 1 ? `${STRIPE} ${(n - 1) * STRIPE}` : undefined} strokeDashoffset={-k * STRIPE} opacity={d.faint ? 0.5 : 0.95} />
-                ))}
+              {/* a wire is not clickable (it would block the controls under it); open its list by its arrow or connector */}
+              {d.colours.map((c, k) => (
+                <path key={c} d={d.path} fill="none" pointerEvents="none" stroke={c} strokeWidth={hot ? 3.5 : d.faint ? 1.5 : 2.75} strokeDasharray={n > 1 ? `${STRIPE} ${(n - 1) * STRIPE}` : undefined} strokeDashoffset={-k * STRIPE} opacity={d.faint ? 0.5 : 0.95} />
+              ))}
               <circle cx={d.a.x} cy={d.a.y} r={3.5} fill={n > 1 ? `url(#${grad})` : d.colours[0]} opacity={op} pointerEvents="none" />
               <polygon points={d.arrow} fill={n > 1 ? `url(#${grad})` : d.colours[0]} opacity={op} stroke={hot ? "#f8fafc" : "#020617"} strokeWidth={hot ? 1.5 : 0.75} role={d.fixed ? "img" : "button"} aria-label={d.label} style={{ pointerEvents: d.fixed ? "none" : "auto", cursor: "pointer" }} onPointerDown={pick}>
                 <title>{d.label}</title>

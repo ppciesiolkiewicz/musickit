@@ -5,25 +5,20 @@ import { LooperEngine, EFFECT_DEFS, EFFECT_KINDS, registerChoice, setNamFactory,
 import { createCloud, createNamEffect, getModelLibrary, speedNote, type CloudModel } from "@/features/nam";
 import { nameMatches } from "@/lib/looper/choices";
 import { detectPitch } from "@/features/tuner/pitch";
-import TunerWidget, { setPitchDetector } from "./TunerWidget";
+import { setPitchDetector } from "./TunerWidget";
 import LooperSettings from "./LooperSettings";
 import { chooseDevice, deviceKind, deviceName, type DeviceKind } from "@/lib/looper/deviceChoice";
-import { NodeBody, patchName } from "./PatchNode";
 import AddFab from "./AddFab";
-import Mixer, { AddInputModal, Buses, InputList, SequencerList, type MixerAlign } from "./Mixer";
+import Mixer, { AddInputModal, type MixerAlign } from "./Mixer";
 import HistoryPanel from "./HistoryPanel";
 import ConnectionLayer from "./ConnectionLayer";
-import ViewMenu, { type View } from "./ViewMenu";
+import ViewMenu, { toView } from "./ViewMenu";
 import MacroPanel from "./MacroPanel";
-import { WidgetBoard } from "@/features/widgets";
-import type { DefaultLayout } from "@/features/widgets/board";
 import FloatingWindow from "../FloatingWindow";
 import Piano from "@/features/sound/keyboard/Piano";
 import { createPlayer, getAudioContext } from "@/features/sound";
 import LoopStage from "./LoopStage";
 import FreeBoard from "./FreeBoard";
-import { PinBody, PinTitle, usePinned } from "./EffectWidgets";
-import { togglePin } from "./fxPins";
 import { Toasts } from "./toast";
 import { Modal } from "../Modal";
 import MetronomeBar, { TransportButton } from "./MetronomeBar";
@@ -231,24 +226,6 @@ function DeviceColumn({ icon, title, items, empty, note, onPick }: { icon: "mic"
   );
 }
 
-/** Where the widget views start: the Looping stage on the left half; inputs, sequencers, buses and the master in two columns to its right. */
-const mixLayout: DefaultLayout = (ids, b) => {
-  const half = Math.round(b.w * 0.5), q = Math.round(b.w * 0.25);
-  const all = {
-    looping: { x: 0, y: 0, w: half, h: b.h },
-    inputs: { x: half + 8, y: 0, w: q - 12, h: b.h },
-    sequencers: { x: half + q, y: 0, w: q - 8, h: Math.round(b.h * 0.28) },
-    switches: { x: half + q, y: Math.round(b.h * 0.28) + 8, w: q - 8, h: Math.round(b.h * 0.34) },
-    buses: { x: half + q, y: Math.round(b.h * 0.62) + 16, w: q - 8, h: Math.round(b.h * 0.38) - 16 },
-  } as Record<string, { x: number; y: number; w: number; h: number }>;
-  // tuners start under the Looping stage, side by side
-  const tuners = ids.filter((id) => id.startsWith("tuner:"));
-  const rows = Math.ceil(tuners.length / 3);
-  if (rows) all.looping.h = b.h - rows * 206;
-  tuners.forEach((id, k) => (all[id] = { x: (k % 3) * 268, y: all.looping.h + 8 + Math.floor(k / 3) * 206, w: 260, h: 190 }));
-  return Object.fromEntries(ids.map((id, i) => [id, all[id] ?? { x: 24 + i * 28, y: 24 + i * 28, w: 380, h: 260 }]));
-};
-
 export default function LooperApp() {
   const { engine, snap } = useEngine();
   const ready = snap.status === "ready";
@@ -261,9 +238,10 @@ export default function LooperApp() {
   const pageRef = useRef<HTMLDivElement>(null);
   const [macrosOpen, setMacrosOpen] = useState(false);
   const [layoutReset, setLayoutReset] = useState(0);
-  const [view, setView] = useStored<View>("musickit.looper.view", "widgets");
-  const widgetMode = view !== "fixed";
-  const pinned = usePinned(engine, snap);
+  const [storedView, setView] = useStored<string>("musickit.looper.view", "canvas");
+  // saved views from before Canvas ("widgets", "lines") open as the canvas
+  const view = toView(storedView);
+  const widgetMode = view === "canvas";
   // an older save only knew "widgets on or off"
   useEffect(() => {
     try {
@@ -339,8 +317,8 @@ export default function LooperApp() {
 
   return (
     <div ref={pageRef} className="relative flex flex-col">
-      {widgetMode && ready && <ConnectionLayer engine={engine} snap={snap} mode={view === "lines" ? "lines" : "colors"} wrapper={pageRef} />}
-      {ready && <AddFab engine={engine} snap={snap} wires={view === "lines"} names={Object.fromEntries(EFFECT_KINDS.map((k) => [k, EFFECT_DEFS[k].name]))} onInput={() => setAddingInput(true)} />}
+      {widgetMode && ready && <ConnectionLayer engine={engine} snap={snap} wrapper={pageRef} />}
+      {ready && <AddFab engine={engine} snap={snap} wires={widgetMode} names={Object.fromEntries(EFFECT_KINDS.map((k) => [k, EFFECT_DEFS[k].name]))} onInput={() => setAddingInput(true)} />}
       <Toasts />
       {addingInput && <AddInputModal engine={engine} snap={snap} hasExtra={snap.inputs.some((i) => i.kind === "extra")} onClose={() => setAddingInput(false)} />}
       <div className="pointer-events-none sticky top-0 z-30 flex items-start justify-between gap-2 px-1 py-1">
@@ -362,25 +340,8 @@ export default function LooperApp() {
         </div>
       </div>
       {snap.error && <p role="alert" className="rounded-lg border border-rose-500/40 bg-rose-500/10 p-2 text-xs text-rose-200">{snap.error}</p>}
-      {view === "lines" ? (
+      {view === "canvas" ? (
         <FreeBoard engine={engine} snap={snap} controls={loopControls} keyboardOpen={keyboardOpen} onToggleKeyboard={() => setKeyboardOpen((v) => !v)} openSeqs={openSeqs} onToggleSeq={toggleSeq} openPianos={openPianos} onTogglePiano={togglePiano} resetSignal={layoutReset} />
-      ) : widgetMode ? (
-        <WidgetBoard
-          storageKey="musickit.looper.widgets2"
-          flush
-          place="center"
-          defaults={mixLayout}
-          resetSignal={layoutReset}
-          widgets={[
-            { id: "looping", title: "Looping", node: looping(true) },
-            { id: "inputs", title: "Inputs", node: <InputList engine={engine} snap={snap} keyboardOpen={keyboardOpen} onToggleKeyboard={() => setKeyboardOpen((v) => !v)} openPianos={openPianos} onTogglePiano={togglePiano} /> },
-            { id: "sequencers", title: "Sequencers", node: <SequencerList engine={engine} snap={snap} openSeqs={openSeqs} onToggleSequencer={toggleSeq} /> },
-            { id: "switches", title: "Switches", node: <div className="flex flex-col gap-3 p-2">{snap.patch.nodes.some((n) => n.kind === "switch") ? snap.patch.nodes.filter((n) => n.kind === "switch").map((n) => <div key={n.id}><div className="mb-1 text-xs font-medium text-slate-300">{patchName(snap, n)}</div><NodeBody engine={engine} snap={snap} node={n} /></div>) : <p className="text-xs text-slate-500">No switch yet. Add one with the round + button in Widgets with wires, or connect an audio interface for the guitar rig.</p>}</div> },
-            { id: "buses", title: "Buses and master", node: <Buses engine={engine} snap={snap} /> },
-            ...snap.patch.nodes.filter((n) => n.kind === "tuner").map((n) => ({ id: n.id, title: patchName(snap, n), node: <TunerWidget engine={engine} snap={snap} node={n} />, onClose: () => engine.do({ type: "patch.removeNode", id: n.id }) })),
-            ...pinned.map((r) => ({ id: `pin:${r.pin.key}`, title: <PinTitle r={r} />, node: <PinBody r={r} />, onClose: () => togglePin(r.pin.key) })),
-          ]}
-        />
       ) : mixer(false)}
       {historyOpen && (
         <FloatingWindow title="History" storageKey="musickit.looper.historyWindow" onClose={() => setHistoryOpen(false)}>

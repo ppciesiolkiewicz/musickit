@@ -36,7 +36,7 @@ const Section = ({ title, children }: { title: string; children: ReactNode }) =>
 /**
  * The one add button of the looper: the round + over the page. Loops, sequencers and groups go on the stage inside the Looping section
  * (a notice says so); inputs, buses, switches and effect widgets appear in the middle of the screen. Buses and switches exist only in
- * Widgets with wires, so the menu offers them there.
+ * the Canvas, so the menu offers them there.
  */
 export default function AddFab({ engine, snap, wires, names, onInput }: { engine: LooperEngine; snap: LooperSnapshot; wires: boolean; names: Record<string, string>; onInput: () => void }) {
   const [open, setOpen] = useState(false);
@@ -73,7 +73,7 @@ export default function AddFab({ engine, snap, wires, names, onInput }: { engine
     const [prefix, name] = kind === "fx" ? ["fx", "Bus"] : kind === "switch" ? ["sw", "Switch"] : ["tuner", "Tuner"];
     engine.do({ type: "patch.node", node: { id: `${prefix}:${stamp()}`, kind, x: 20, y: 660, name: n > 1 || kind !== "tuner" ? `${name} ${n}` : name } });
   };
-  const wiresOnly = wires ? undefined : "Shown in Widgets with wires";
+  const wiresOnly = wires ? undefined : "Shown in the Canvas view";
 
   return (
     <div data-addfab className="pointer-events-none fixed bottom-5 right-5 z-[60] flex flex-col items-end gap-2">
@@ -107,7 +107,7 @@ export default function AddFab({ engine, snap, wires, names, onInput }: { engine
                 <button type="button" role="menuitem" className={item} disabled={!wires} title={wiresOnly} onClick={() => run(() => addNode("switch"))}><Icon name="split" size={15} />Switch<span className={hint}>pick inputs, outputs</span></button>
               </Section>
               <Section title="Widgets">
-                <button type="button" role="menuitem" className={item} onClick={() => run(() => addNode("tuner"))}><Icon name="gauge" size={15} />Tuner<span className={hint}>{wires ? "wire a guitar through it" : "wire it in Widgets with wires"}</span></button>
+                <button type="button" role="menuitem" className={item} onClick={() => run(() => addNode("tuner"))}><Icon name="gauge" size={15} />Tuner<span className={hint}>{wires ? "wire a guitar through it" : "wire it in the Canvas view"}</span></button>
                 <button type="button" role="menuitem" className={item} onClick={() => setSub(true)}><Icon name="layout-dashboard" size={15} />Effect widget<span className={hint}>{fx.length ? `${fx.length} effects` : "none yet"}</span><Icon name="chevron-right" size={14} /></button>
               </Section>
             </>
