@@ -136,7 +136,7 @@ export default function LoopStage({ engine, snap, openSeqs, onToggleSeq, fill = 
 
 function LoopCircle({ engine, ch, colour, stage, ready, busy, firstTake, baseBars, going }: { engine: LooperEngine; ch: ChannelInfo; colour: string; stage: RefObject<HTMLDivElement | null>; ready: boolean; busy: boolean; firstTake: boolean; baseBars: number | null; going: boolean }) {
   // armed and the transport playing: the button stops it; otherwise it plays (arming starts the transport)
-  const on = ch.active && going;
+  const on = ch.active && going && ch.state !== "empty";
   const arc = useRef<SVGCircleElement>(null);
   const pulse = useRef<SVGCircleElement>(null);
   const barEl = useRef<HTMLSpanElement>(null);
