@@ -316,13 +316,13 @@ export function MasterStrip({ engine, snap }: { engine: LooperEngine; snap: Loop
   );
 }
 
-/** The buses (one per group) and the master: what feeds each, its effects, level, volume and mute. */
-function Buses({ engine, snap }: { engine: LooperEngine; snap: LooperSnapshot }) {
+/** The buses, one per group: what feeds each, its effects, level, volume and mute. */
+export function BusList({ engine, snap }: { engine: LooperEngine; snap: LooperSnapshot }) {
   const [fxFor, setFxFor] = useState<string | null>(null);
   const fxGroup = snap.groups.find((g) => g.id === fxFor);
   return (
     <div className="flex flex-col gap-1" aria-label="Buses">
-      <h3 className="flex items-center gap-1.5 px-1 text-xs font-medium text-slate-300"><Icon name="plug" size={16} className="text-slate-400" />Buses</h3>
+      {snap.groups.length === 0 && <p className="rounded-lg border border-dashed border-slate-700 p-2 text-xs text-slate-400">No groups, so no buses.</p>}
       <ul className="flex flex-col gap-1">
         {snap.groups.map((g) => {
           const loops = snap.channels.filter((c) => c.groupId === g.id).length;
@@ -330,11 +330,59 @@ function Buses({ engine, snap }: { engine: LooperEngine; snap: LooperSnapshot })
           return <BusRow key={g.id} engine={engine} g={g} loops={loops} seqs={seqs} onFx={() => setFxFor(g.id)} />;
         })}
       </ul>
+      {fxGroup && <GroupEffects engine={engine} g={fxGroup} onClose={() => setFxFor(null)} />}
+    </div>
+  );
+}
+
+/** The buses and the master together (the fixed layout's section). */
+function Buses({ engine, snap }: { engine: LooperEngine; snap: LooperSnapshot }) {
+  return (
+    <div className="flex flex-col gap-1" aria-label="Buses and master">
+      <h3 className="flex items-center gap-1.5 px-1 text-xs font-medium text-slate-300"><Icon name="plug" size={16} className="text-slate-400" />Buses</h3>
+      <BusList engine={engine} snap={snap} />
       <h3 className="mt-1 flex items-center gap-1.5 border-t border-slate-800 px-1 pt-1.5 text-xs font-medium text-slate-300"><Icon name="audio-lines" size={16} className="text-slate-400" />Master</h3>
       <ul>
         <MasterStrip engine={engine} snap={snap} />
       </ul>
-      {fxGroup && <GroupEffects engine={engine} g={fxGroup} onClose={() => setFxFor(null)} />}
+    </div>
+  );
+}
+
+/** The input strips (everything that is not a sequencer) with a button to add one. Its own widget in the widget views. */
+export function InputList({ engine, snap, keyboardOpen, onToggleKeyboard, openPianos, onTogglePiano }: { engine: LooperEngine; snap: LooperSnapshot; keyboardOpen: boolean; onToggleKeyboard: () => void; openPianos: string[]; onTogglePiano: (id: string) => void }) {
+  const [adding, setAdding] = useState(false);
+  const strips = snap.inputs.filter((i) => i.kind !== "sequencer");
+  return (
+    <div className="flex flex-col gap-1" aria-label="Inputs">
+      <div className="flex items-center">
+        <button type="button" className={`${ibtn} ml-auto`} disabled={snap.inputs.length >= MAX_INPUTS} onClick={() => setAdding(true)} title="Add an instrument" aria-label="Add an instrument"><Icon name="plus" size={14} /><Icon name="mic" size={14} className="ml-0.5" /></button>
+      </div>
+      {strips.length === 0 && <p className="rounded-lg border border-dashed border-slate-700 p-2 text-xs text-slate-400">No inputs. Add one with ＋.</p>}
+      <ul className="flex flex-col gap-1">
+        {strips.map((inp) => (
+          <InputStrip key={inp.id} engine={engine} inp={inp} devices={snap.devices} anyDevice={snap.devices.length > 0} keyboardOpen={keyboardOpen} onToggleKeyboard={onToggleKeyboard} sequencerOpen={false} onToggleSequencer={() => undefined} pianoOpen={!!inp.sourceId && openPianos.includes(inp.sourceId)} onTogglePiano={() => inp.sourceId && onTogglePiano(inp.sourceId)} seq={undefined} groups={snap.groups} />
+        ))}
+      </ul>
+      {adding && <AddInputModal engine={engine} snap={snap} hasExtra={snap.inputs.some((i) => i.kind === "extra")} onClose={() => setAdding(false)} />}
+    </div>
+  );
+}
+
+/** The sequencer strips: level, mute, start and stop, the step grid. Its own widget in the widget views. */
+export function SequencerList({ engine, snap, openSeqs, onToggleSequencer }: { engine: LooperEngine; snap: LooperSnapshot; openSeqs: string[]; onToggleSequencer: (id: string) => void }) {
+  const strips = snap.inputs.filter((i) => i.kind === "sequencer");
+  return (
+    <div className="flex flex-col gap-1" aria-label="Sequencers">
+      <div className="flex items-center">
+        <button type="button" className={`${ibtn} ml-auto`} disabled={snap.inputs.length >= MAX_INPUTS} onClick={() => engine.do({ type: "sequencer.add" })} title="Add a sequencer" aria-label="Add a sequencer"><Icon name="plus" size={14} /><Icon name="drum" size={14} className="ml-0.5" /></button>
+      </div>
+      {strips.length === 0 && <p className="rounded-lg border border-dashed border-slate-700 p-2 text-xs text-slate-400">No sequencers. Add one with ＋.</p>}
+      <ul className="flex flex-col gap-1">
+        {strips.map((inp) => (
+          <InputStrip key={inp.id} engine={engine} inp={inp} devices={snap.devices} anyDevice={snap.devices.length > 0} keyboardOpen={false} onToggleKeyboard={() => undefined} sequencerOpen={!!inp.sourceId && openSeqs.includes(inp.sourceId)} onToggleSequencer={() => inp.sourceId && onToggleSequencer(inp.sourceId)} pianoOpen={false} onTogglePiano={() => undefined} seq={snap.sequencers.find((q) => q.id === inp.sourceId)} groups={snap.groups} />
+        ))}
+      </ul>
     </div>
   );
 }

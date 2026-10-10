@@ -4,12 +4,13 @@ import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "reac
 import { LooperEngine, EFFECT_DEFS, EFFECT_KINDS, registerChoice, setNamFactory, type LooperSnapshot } from "@/lib/looper/engine";
 import { createCloud, createNamEffect, getModelLibrary, speedNote } from "@/features/nam";
 import LooperSettings from "./LooperSettings";
-import Mixer, { type MixerAlign } from "./Mixer";
+import Mixer, { BusList, InputList, MasterStrip, SequencerList, type MixerAlign } from "./Mixer";
 import HistoryPanel from "./HistoryPanel";
 import ConnectionLayer from "./ConnectionLayer";
 import ViewMenu, { type View } from "./ViewMenu";
 import MacroPanel from "./MacroPanel";
-import { WidgetBoard, splitLayout } from "@/features/widgets";
+import { WidgetBoard } from "@/features/widgets";
+import type { DefaultLayout } from "@/features/widgets/board";
 import FloatingWindow from "../FloatingWindow";
 import Piano from "@/features/sound/keyboard/Piano";
 import { createPlayer, getAudioContext, getOutputBus } from "@/features/sound";
@@ -149,6 +150,19 @@ function useEngine() {
   return { engine, snap };
 }
 
+/** Where the widget views start: the Looping stage on the left half; inputs, sequencers, buses and the master in two columns to its right. */
+const mixLayout: DefaultLayout = (ids, b) => {
+  const half = Math.round(b.w * 0.5), q = Math.round(b.w * 0.25);
+  const all = {
+    looping: { x: 0, y: 0, w: half, h: b.h },
+    inputs: { x: half + 8, y: 0, w: q - 12, h: Math.round(b.h * 0.6) },
+    master: { x: half + 8, y: Math.round(b.h * 0.6) + 8, w: q - 12, h: Math.max(150, Math.round(b.h * 0.15)) },
+    sequencers: { x: half + q, y: 0, w: q - 8, h: Math.round(b.h * 0.3) },
+    buses: { x: half + q, y: Math.round(b.h * 0.3) + 8, w: q - 8, h: Math.round(b.h * 0.5) },
+  } as Record<string, { x: number; y: number; w: number; h: number }>;
+  return Object.fromEntries(ids.map((id, i) => [id, all[id] ?? { x: 24 + i * 28, y: 24 + i * 28, w: 380, h: 260 }]));
+};
+
 export default function LooperApp() {
   const { engine, snap } = useEngine();
   const ready = snap.status === "ready";
@@ -261,11 +275,17 @@ export default function LooperApp() {
         <FreeBoard engine={engine} snap={snap} controls={loopControls} keyboardOpen={keyboardOpen} onToggleKeyboard={() => setKeyboardOpen((v) => !v)} openSeqs={openSeqs} onToggleSeq={toggleSeq} openPianos={openPianos} onTogglePiano={togglePiano} resetSignal={layoutReset} />
       ) : widgetMode ? (
         <WidgetBoard
-          storageKey="musickit.looper.widgets"
+          storageKey="musickit.looper.widgets2"
           flush
-          defaults={splitLayout(0.42)}
+          defaults={mixLayout}
           resetSignal={layoutReset}
-          widgets={[{ id: "mixer", title: "Mixer", node: mixer(true) }, { id: "looping", title: "Looping", node: looping(true) }]}
+          widgets={[
+            { id: "looping", title: "Looping", node: looping(true) },
+            { id: "inputs", title: "Inputs", node: <InputList engine={engine} snap={snap} keyboardOpen={keyboardOpen} onToggleKeyboard={() => setKeyboardOpen((v) => !v)} openPianos={openPianos} onTogglePiano={togglePiano} /> },
+            { id: "sequencers", title: "Sequencers", node: <SequencerList engine={engine} snap={snap} openSeqs={openSeqs} onToggleSequencer={toggleSeq} /> },
+            { id: "buses", title: "Buses", node: <BusList engine={engine} snap={snap} /> },
+            { id: "master", title: "Master bus", node: <ul><MasterStrip engine={engine} snap={snap} /></ul> },
+          ]}
         />
       ) : mixer(false)}
       {historyOpen && (
