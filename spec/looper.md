@@ -87,7 +87,7 @@ Every input, sequencer and bus has a + after its fader marker in the effect stac
 
 ## Scale Piano
 
-Add input, Scale Piano adds a piano played from the computer keyboard and locked to a key and scale (major, minor, modes, harmonic and melodic minor, pentatonics, blues). Four rows of keys (Z row, A row, Q row, number row) are stacked octaves: each row starts on the root, one octave above the row below. The window shows every key with the note it plays (the roots in blue, the notes being played in amber) and a three-octave piano with the notes of the scale marked. Keys can also be clicked. The window listens to the keyboard only while it is open and never while typing in a field. Octave buttons move the whole range. It is heard on master and recorded through its strip. Saved in localStorage `musickit.looper.scalePianos`.
+Add input, Scale Piano adds a piano played from the computer keyboard and locked to a key and scale (major, minor, modes, harmonic and melodic minor, pentatonics, blues). Four rows of keys (Z row, A row, Q row, number row) are stacked octaves: each row starts on the root, one octave above the row below. The window shows every key with the note it plays (the roots in blue, the notes being played in amber) and a three-octave piano with the notes of the scale marked. Keys can also be clicked. The window listens to the keyboard only while it is open and never while typing in a field. Octave buttons move the whole range. It plays the same sampled piano as the rest of the app (the shared keyboard and sound engine in `src/features/sound`). It is heard on master and recorded through its strip. Saved in localStorage `musickit.looper.scalePianos`.
 
 ## Effect stack and diagram
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { getScaleNotes, isNoteInScale, getScaleDegree, SCALE_OPTIONS, TONIC_OPTIONS } from "./musicTheory";
 import { requestMidiAccess, addMidiListener, getMidiInputs } from "./midi";
 import { OSCILLATOR_ID } from "../engine/instruments";
@@ -88,19 +88,22 @@ export default function Piano() {
   const [midiError, setMidiError] = useState<string | null>(null);
 
   // This keyboard has its own player, so the instrument chosen here does not change what other pages play.
-  const playerRef = useRef<ReturnType<typeof createPlayer> | null>(null);
-  if (playerRef.current === null) playerRef.current = createPlayer({ instrumentId: "PIANO" });
-  const player = playerRef.current;
+  const [player] = useState(() => createPlayer({ instrumentId: "PIANO" }));
   const playNote = useCallback((n: string) => player.noteOn(n), [player]);
   const stopNote = useCallback((n: string) => player.noteOff(n), [player]);
   const stopAllNotes = useCallback(() => player.allOff(), [player]);
 
   useEffect(() => {
+    void player.preload().catch(() => undefined);
+  }, [player]);
+
+  const changeInstrument = (id: string) => {
     stopAllNotes();
     setPressedKeys(new Set());
-    player.setInstrument(instrumentId);
-    if (instrumentId !== OSCILLATOR_ID) void player.preload();
-  }, [instrumentId, player, stopAllNotes]);
+    player.setInstrument(id);
+    if (id !== OSCILLATOR_ID) void player.preload().catch(() => undefined);
+    setInstrumentId(id);
+  };
 
   const scaleName = scaleType ? `${scaleTonic} ${scaleType}`.trim() : "";
   const scaleNotes = useMemo(
@@ -272,7 +275,7 @@ export default function Piano() {
           <div className="h-4 w-px bg-white/20" />
           <select
             value={instrumentId}
-            onChange={(e) => { setInstrumentId(e.target.value); e.target.blur(); }}
+            onChange={(e) => { changeInstrument(e.target.value); e.target.blur(); }}
             className="rounded-lg border border-white/20 bg-white/10 px-2 py-1.5 text-sm text-white/95 backdrop-blur"
           >
             {instrumentOptions.map(({ value, label }) => (

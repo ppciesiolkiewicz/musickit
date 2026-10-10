@@ -22,7 +22,7 @@ export type { InputMode, Quantise } from "./frames";
 export { BPM_RANGE, type MetronomeSettings } from "./metronome";
 export { INSTRUMENTS, type Instrument, type SequencerState } from "./sequencer";
 export type { VoiceFactory, NoteVoice } from "./scalePiano";
-export { SCALES, NOTE_NAMES, KEY_ROWS, MIN_OCTAVE, MAX_OCTAVE, buildKeyMap, scalePitchClasses, noteName, type ScalePianoState, type KeyNote } from "./scalePiano";
+export type { ScalePianoState } from "./scalePiano";
 export { EFFECT_DEFS, EFFECT_KINDS, setNamFactory, type EffectKind, type EffectSpec, type ParamDef } from "./effects";
 export { registerChoice, getChoice, type ChoiceSource, type ChoiceOption, type CloudSource, type CloudItem } from "./choices";
 export { STAGE_W, STAGE_H, VIEW_W, VIEW_H, LOOP_R, GROUP_COLOURS, resizeRect, type Corner } from "./layout";
@@ -55,7 +55,7 @@ export interface LooperOptions {
   getExternalSource?: () => AudioNode;
   /** Name shown for that source, e.g. "Piano". */
   externalLabel?: string;
-  /** Makes the sound of the Scale Piano (the app passes its sample player); a built-in synth is used without it. */
+  /** Makes the sound of the Scale Piano (the app passes its sample player); the piano is silent without it. */
   createVoice?: VoiceFactory;
 }
 

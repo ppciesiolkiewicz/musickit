@@ -4,7 +4,8 @@
  *
  *   engine/    AudioContext and output, sample loading, instruments, players (a voice with an instrument)
  *   playback/  timed notes: sequences, melodies, strums
- *   keyboard/  the piano component, MIDI input and the scale highlighting it needs
+ *   keyboard/  the two keyboards that play it: Piano (chromatic, MIDI input, scale highlighting) and ScalePiano
+ *              (the computer keys locked to a key and scale). Both play the sampled instruments by default.
  */
 export { getAudioContext, getOutputBus } from "./engine/context";
 export { INSTRUMENTS, INSTRUMENT_OPTIONS, OSCILLATOR_ID } from "./engine/instruments";
@@ -15,3 +16,6 @@ export { createPlayer, type Player, type PlayerOptions, type Voice } from "./eng
 export { midiToHz, midiToName, noteToMidi, type NoteLike } from "./engine/notes";
 export { preloadInstrument } from "./engine/samples";
 export { getSharedPiano, playMelody, playSequence, silence, strum, type Step } from "./playback/sequence";
+export { default as Piano } from "./keyboard/Piano";
+export { default as ScalePiano, type ScalePianoProps, type ScaleVoice } from "./keyboard/ScalePiano";
+export { SCALES, NOTE_NAMES, KEY_ROWS, MIN_OCTAVE, MAX_OCTAVE, buildKeyMap, clampState as clampScalePiano, scalePitchClasses, type ScalePianoState, type KeyNote } from "./keyboard/scaleKeys";

@@ -58,7 +58,7 @@ Routing: Input → (input effects) → recorder → Loop → Bus (of its Group) 
 - Loops are circles with a progress ring. Groups are coloured boxes that can be moved and resized. A loop whose circle centre is inside a group plays through that group's bus (`buses.ts`: input, effect chain, volume, speakers); a loop outside every group plays straight to the speakers. Where groups overlap, the one drawn on top wins. Geometry and its tests are in `layout.ts`.
 - Effects (`effects.ts`) are described by `EFFECT_DEFS`; the UI is generated from it. To add one: a def, a case in `createEffect`, a test for any new maths. Saved effect lists go through `sanitiseEffects`.
 - Input strips and buses share `effects.ts` and `EffectsModal`. Effects are pre-fader (cut by mute and volume) or post-fader (keep their tail). Add new effects only in `EFFECT_DEFS` and `createEffect`.
-- Scale Piano (`scalePiano.ts`): layout maths is pure and tested; the DOM key handling is in `ScalePianoPanel` and only active while its window is open. Keep key codes (`KeyboardEvent.code`) so non-English layouts work.
+- Scale Piano: the keyboard (layout maths, scales, key handling, picture) is the shared `ScalePiano` of `src/features/sound/keyboard`, rendered by `ScalePianoPanel` and active only while its window is open. `scalePiano.ts` here keeps only the saved state, the routed nodes and the injected voice (`createVoice`, the sample player; no synth). Keep key codes (`KeyboardEvent.code`) so non-English layouts work.
 - The metronome can run on its own (`toggleMetronome`), and the sequencer follows it.
 
 ## Actions, history, macros, widgets

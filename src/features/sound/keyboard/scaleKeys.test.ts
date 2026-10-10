@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { SCALES, buildKeyMap, clampState, degreeToMidi, scalePitchClasses, noteName, KEY_ROWS } from "./scalePiano";
+import { SCALES, buildKeyMap, clampState, degreeToMidi, scalePitchClasses, noteName, KEY_ROWS } from "./scaleKeys";
 
 test("C major starts on C3 and climbs the scale along a row", () => {
   const s = { root: 0, scale: "major", octave: 3 };
