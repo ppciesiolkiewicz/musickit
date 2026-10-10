@@ -6,6 +6,8 @@
 
 **Architecture:** A pure `Transport` state machine (`transport.ts`) becomes the only owner of the beat grid. The engine replaces `gridAnchor`, `metroManual`, `gridActive()`, `othersRunning()` and `playing` with it, and one `syncTransport()` makes metronome, loops and sequencers follow `transport.state` plus each item's armed flag. UI reads `snap.transport`.
 
+**Base:** `origin/main` 8cae3a4 (tuner commit), clean: no uncommitted work from the main checkout.
+
 **Tech Stack:** TypeScript, React 19 / Next.js, Web Audio, `node:test` via `npx tsx --test`.
 
 **Spec:** `docs/superpowers/specs/2026-10-10-looper-transport-design.md`
@@ -1018,6 +1020,8 @@ const VIEWS: { id: View; label: string; hint: string; icon: "rows-3" | "git-merg
 
 - `ConnectionLayer.tsx:47`: remove `mode` from props and type; replace `{mode === "lines" && (` at line ~269 with the inner content unconditionally (remove the condition and its closing `)}`).
 - `AddFab.tsx`: remove the `wires` prop, `wiresOnly` and any `disabled`/title using it; update the comment at line ~39 to "Canvas".
+- `AddFab.tsx` Tuner item (added on main in 8cae3a4): its hint `{wires ? "wire a guitar through it" : "wire it in Widgets with wires"}` becomes the plain string `"wire a guitar through it"`.
+- `mixLayout` (deleted with the Widgets branch) also placed `tuner:` widgets, and the Widgets branch rendered `TunerWidget` per tuner node. Nothing to move: Canvas already renders tuner cards through `FreeBoard` → `NodeBody` → `TunerWidget`. Keep the `TunerWidget` / `setPitchDetector` / `detectPitch` imports in `LooperApp.tsx` only if still used (`setPitchDetector` wiring stays).
 
 - [ ] **Step 4: Text**
 
