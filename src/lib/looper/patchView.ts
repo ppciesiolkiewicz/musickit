@@ -136,9 +136,35 @@ export function destinationPick(p: Patch, id: string, key: string): { id: string
   const all = destinations(p, id);
   const d = all.find((x) => x.key === key);
   if (!d) return [];
-  if (!p.nodes.find((n) => n.id === id)?.destOne) return destinationChoice(p, id, key, !d.on);
-  if (d.on && all.every((x) => x.key === key || !x.on) && d.links.every((l) => !l.muted)) return [];
-  return all.flatMap((x) => x.links.filter((l) => l.muted === (x.key === key)).map((l) => ({ id: l.id, muted: x.key !== key })));
+  const isMaster = (to: string) => p.nodes.find((n) => n.id === to)?.kind === "master";
+  // the master is always a checkbox of its own
+  if (!p.nodes.find((n) => n.id === id)?.destOne || isMaster(d.to)) return destinationChoice(p, id, key, !d.on);
+  const others = all.filter((x) => !isMaster(x.to));
+  if (d.on && others.every((x) => x.key === key || !x.on) && d.links.every((l) => !l.muted)) return [];
+  return others.flatMap((x) => x.links.filter((l) => l.muted === (x.key === key)).map((l) => ({ id: l.id, muted: x.key !== key })));
+}
+
+/** The colours of the places an element sends sound to right now, over the flowing links (none when it sends nowhere). */
+export function sendColours(p: Patch, id: string, flowing: Set<string>, groups: Record<string, string>): string[] {
+  const out: string[] = [];
+  destinations(p, id).forEach((d) => {
+    const l = d.links.find((x) => flowing.has(x.id));
+    const c = l && linkColour(p, l, groups);
+    if (c && !out.includes(c)) out.push(c);
+  });
+  return out;
+}
+
+/** The blocks whose sound reaches the master directly over a flowing link (an input with buses counts once), in link order. */
+export function masterFeeds(p: Patch, flowing: Set<string>): string[] {
+  const out: string[] = [];
+  p.links.forEach((l) => {
+    if (!flowing.has(l.id) || p.nodes.find((n) => n.id === l.to)?.kind !== "master") return;
+    const from = drawnFrom(p, l);
+    if (p.nodes.find((n) => n.id === from)?.kind === "group") return;
+    if (!out.includes(from)) out.push(from);
+  });
+  return out;
 }
 
 /** The element a link is drawn from: the input that owns the bus it leaves, or its own start. */

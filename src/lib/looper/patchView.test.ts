@@ -1,7 +1,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { connect, disconnect, sanitisePatch, setSwitchMode, type Patch } from "./patch";
-import { MANY_GROUPS, NO_GROUP, destinationChoice, destinationPick, destinations, drawnFrom, linkColour, outSources, reachedGroups, sidePoint, sidesFor, spread, stripPatchId } from "./patchView";
+import { MANY_GROUPS, NO_GROUP, destinationChoice, destinationPick, destinations, masterFeeds, drawnFrom, linkColour, outSources, reachedGroups, sidePoint, sidesFor, spread, stripPatchId } from "./patchView";
 
 const node = (id: string, kind: Patch["nodes"][number]["kind"]) => ({ id, kind, x: 0, y: 0, muted: false, ...(kind === "switch" ? { inMulti: false, outMulti: true } : {}) });
 const base = (): Patch => ({ nodes: [node("in:1", "input"), node("sw", "switch"), node("fx", "fx"), node("group:a", "group"), node("group:b", "group"), node("master", "master")], links: [] });
@@ -117,11 +117,12 @@ describe("one output per input", () => {
   it("one place at a time keeps the first open place and closes the rest", () => {
     const p = setSwitchMode(withBuses(), "in:1", "dest", false);
     assert.equal(p.nodes.find((n) => n.id === "in:1")?.destOne, true);
-    assert.deepEqual(mutes(p), { a1: false, a2: false, m1: true, m2: true });
+    assert.deepEqual(mutes(p), { a1: false, a2: false, m1: false, m2: true });
   });
   it("one place at a time: choosing a place opens all its links and closes the others; the open one is a no-op", () => {
-    const p = setSwitchMode(withBuses(), "in:1", "dest", false);
-    assert.deepEqual(destinationPick(p, "in:1", "master|bus").sort((a, b) => a.id.localeCompare(b.id)), [{ id: "a1", muted: true }, { id: "a2", muted: true }, { id: "m1", muted: false }, { id: "m2", muted: false }]);
+    let p = setSwitchMode(withBuses(), "in:1", "dest", false);
+    p = connect(connect(p, "b1", "group:b", "b1b"), "b2", "group:b", "b2b");
+    assert.deepEqual(destinationPick(p, "in:1", "group:b|bus").sort((a, b) => a.id.localeCompare(b.id)), [{ id: "a1", muted: true }, { id: "a2", muted: true }, { id: "b1b", muted: false }, { id: "b2b", muted: false }]);
     assert.deepEqual(destinationPick(p, "in:1", "group:a|rec"), []);
   });
   it("one place at a time: a new place starts closed, removing the open one opens the next", () => {
@@ -129,8 +130,28 @@ describe("one output per input", () => {
     p = connect(p, "b1", "group:a", "g1");
     assert.equal(p.links.find((l) => l.id === "g1")?.muted, true);
     p = disconnect(disconnect(p, "a1"), "a2");
-    assert.deepEqual(destinations(p, "in:1").filter((d) => d.on).map((d) => d.key), ["master|bus"]);
-    assert.deepEqual(mutes(p), { m1: false, m2: false, g1: true });
+    assert.deepEqual(destinations(p, "in:1").filter((d) => d.on).map((d) => d.key), ["master|bus", "group:a|bus"]);
+    assert.deepEqual(mutes(p), { m1: false, m2: true, g1: false });
+  });
+  it("one place at a time leaves the master alone: it is a checkbox of its own", () => {
+    const p = setSwitchMode(withBuses(), "in:1", "dest", false);
+    // switching to one-at-a-time keeps master as it was (m1 open, m2 closed)
+    assert.deepEqual(mutes(setSwitchMode(withBuses(), "in:1", "dest", false)), { a1: false, a2: false, m1: false, m2: true });
+    // master ticks on its own, the open group stays open
+    assert.deepEqual(destinationPick(p, "in:1", "master|bus"), [{ id: "m1", muted: true }]);
+    // a second group opens and closes group:a, never the master
+    const q = connect(p, "b1", "group:a", "g1");
+    assert.equal(q.links.find((l) => l.id === "g1")?.muted, true);
+    const ch = destinationPick(q, "in:1", "group:a|bus");
+    assert.ok(ch.every((c) => !c.id.startsWith("m")));
+    // a new master link starts open even with a group open
+    const bare = disconnect(disconnect(p, "m1"), "m2");
+    assert.equal(connect(bare, "b2", "master", "m3").links.find((l) => l.id === "m3")?.muted, false);
+  });
+  it("lists what plays into the master once per block, not groups", () => {
+    const p = withBuses();
+    assert.deepEqual(masterFeeds(p, new Set(["m1", "m2"])), ["in:1"]);
+    assert.deepEqual(masterFeeds(p, new Set(["a1"])), []);
   });
   it("keeps the mode across a save", () => {
     const p = setSwitchMode(withBuses(), "in:1", "dest", false);

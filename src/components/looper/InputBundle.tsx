@@ -24,11 +24,14 @@ function OutputPlaces({ engine, snap, ownerId }: { engine: LooperEngine; snap: L
   };
   const label = (to: string, port: Port) => `${nameOf(to)}${port === "rec" ? " (record)" : ""}`;
   const one = owner?.destOne === true;
-  const places = destinations(patch, ownerId);
+  const all = destinations(patch, ownerId);
+  const master = patch.nodes.find((n) => n.kind === "master");
+  const toMaster = master ? all.find((d) => d.to === master.id) : undefined;
+  const places = all.filter((d) => d !== toMaster);
   const from = outFrom(patch, ownerId);
-  const taken = new Set(places.map((d) => d.key));
+  const taken = new Set(all.map((d) => d.key));
   const options = patch.nodes
-    .filter((n) => n.id !== ownerId && n.owner !== ownerId)
+    .filter((n) => n.id !== ownerId && n.owner !== ownerId && n.kind !== "master")
     .flatMap((n) => (n.kind === "group" ? (["bus", "rec"] as Port[]) : (["bus"] as Port[])).map((port) => ({ to: n.id, port })))
     .filter((o) => !taken.has(`${o.to}|${o.port}`) && from.some((f) => !whyNot(patch, f, o.to, o.port)));
   const pick = (key: string) => {
@@ -40,18 +43,30 @@ function OutputPlaces({ engine, snap, ownerId }: { engine: LooperEngine; snap: L
     const actions = from.filter((f) => !whyNot(patch, f, to, port)).map((f) => ({ type: "patch.link" as const, link: { id: newId("l"), from: f, to, ...(port === "rec" ? { port } : {}) } }));
     if (actions.length) engine.do(actions.length === 1 ? actions[0] : { type: "batch", label: "Send to", actions });
   };
+  // the master is a checkbox of its own: on links every bus to it (the first time), off closes those links
+  const masterOn = !!toMaster?.on;
+  const flipMaster = () => (toMaster ? pick(toMaster.key) : master && add(`${master.id}|bus`));
   const mode = (m: boolean, icon: "circle-dot" | "check", title: string) => (
     <button type="button" className={`${small} ${one === m ? "!border-sky-400 !text-sky-200" : "border-slate-700"}`} aria-pressed={one === m} title={title} aria-label={title} onClick={() => one !== m && engine.do({ type: "patch.switch", id: ownerId, side: "dest", multi: !m })}>
       <Icon name={icon} size={11} />
     </button>
   );
   return (
-    <div className="flex flex-col gap-1" role={one ? "radiogroup" : "group"} aria-label="Output goes to">
+    <div className="flex flex-col gap-1" role="group" aria-label="Output goes to">
+      <div className="text-[10px] uppercase tracking-wide text-slate-500">Output goes to</div>
+      {master && (
+        <button type="button" role="checkbox" aria-checked={masterOn} className={`flex items-center gap-1.5 rounded-lg border px-1.5 py-1 text-left ${masterOn ? "border-slate-400/60 bg-slate-300/10" : "border-slate-800 bg-slate-900/50"}`} onClick={flipMaster} title={masterOn ? "Stop playing to the master bus" : "Play to the master bus too"}>
+          <span className="grid h-5 w-5 shrink-0 place-items-center"><span className={`grid h-3 w-3 place-items-center rounded-sm border ${masterOn ? "border-slate-200 bg-slate-200 text-slate-950" : "border-slate-500"}`}>{masterOn && <Icon name="check" size={9} />}</span></span>
+          <span className="h-2 w-2 shrink-0 rounded-sm bg-slate-300" aria-hidden />
+          <span className={`text-xs ${masterOn ? "text-slate-100" : "text-slate-400"}`}>Master bus</span>
+          <span className="ml-auto text-[10px] text-slate-500">always on its own</span>
+        </button>
+      )}
       <div className="flex items-center gap-1 text-[10px] uppercase tracking-wide text-slate-500">
-        <span className="flex-1">Output goes to</span>
+        <span className="flex-1">{one ? "One group or bus at a time" : "Groups and buses"}</span>
         {places.length > 1 && (<>{mode(true, "circle-dot", "One place at a time")}{mode(false, "check", "Any combination of places")}</>)}
       </div>
-      {places.length === 0 && <p className="px-1 text-[11px] text-amber-300/80">Nowhere yet: choose a place below.</p>}
+      {places.length === 0 && <p className="px-1 text-[11px] text-slate-500">No group or bus yet: choose one below.</p>}
       {places.map((d) => {
         const name = label(d.to, d.port);
         return (

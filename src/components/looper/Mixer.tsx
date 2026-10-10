@@ -11,7 +11,8 @@ import MasterControls from "./MasterOutput";
 import SignalFlow from "./SignalFlow";
 import { MAX_INPUTS, MAX_INPUT_GAIN, type InputInfo, type InputMode, type LooperEngine, type LooperSnapshot } from "@/lib/looper/engine";
 import { chooseDevice } from "@/lib/looper/deviceChoice";
-import { stripPatchId } from "@/lib/looper/patchView";
+import { flowingLinks, masterFeeds, sendColours, stripPatchId } from "@/lib/looper/patchView";
+import { patchName } from "./PatchNode";
 import { INPUT_PRESETS, INPUT_ROLES, presetFor, type InputRole } from "@/lib/looper/inputPresets";
 
 const btn = "rounded-lg border px-2.5 py-1 text-xs transition disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
@@ -63,11 +64,15 @@ export function AddInputModal({ engine, snap, hasExtra, onClose }: { engine: Loo
     const base = (chosen?.label ?? "Audio input").replace(/\s*\(.*\)\s*$/, "");
     const modes: InputMode[] = pick === "both" ? ["left", "right"] : [pick];
     modes.forEach((m) => {
-      const suffix = m === "left" ? (pick === "both" ? " input 1" : " input 1") : m === "right" ? " input 2" : "";
+      const suffix = m === "left" ? " input 1" : m === "right" ? " input 2" : "";
       const preset = presetFor(role, presetId);
-      // the effects go on the first strip; a second channel of the same device gets none, so the sound is not doubled
+      // the effects (or the guitar rig) go on the first strip; a second channel of the same device gets none, so the sound is not doubled
       const first = m === modes[0];
-      engine.do({ type: "input.add", spec: { kind: "device", name: `${base}${suffix}`, deviceId, mode: m, ...(first && preset ? { effects: preset.effects } : {}), ...(INPUT_ROLES.find((x) => x.id === role)?.monitor === false ? { monitor: false } : {}) } });
+      const name = (role === "clean" ? `${base}${suffix}` : `${role === "guitar" ? "Guitar" : "Vocal"} · ${base}${suffix}`).slice(0, 40);
+      const spec = { kind: "device" as const, name, deviceId, mode: m, ...(INPUT_ROLES.find((x) => x.id === role)?.monitor === false ? { monitor: false } : {}) };
+      // a guitar gets the whole rig: the tone buses inside its block, each to the master and recording into every group
+      if (role === "guitar" && first) engine.addInputWithRig(spec, "guitar");
+      else engine.do({ type: "input.add", spec: { ...spec, ...(first && preset && role !== "guitar" ? { effects: preset.effects } : {}) } });
     });
     onClose();
   };
@@ -81,15 +86,15 @@ export function AddInputModal({ engine, snap, hasExtra, onClose }: { engine: Loo
             <span className="text-sm font-medium text-slate-100">Hardware</span>
             <span className="text-xs text-slate-400">An audio interface (Scarlett, DI guitar), a USB mic or the built-in microphone.</span>
           </button>
-          <button type="button" disabled={hasExtra || !snap.extraLabel} onClick={() => { engine.do({ type: "input.add", spec: { kind: "extra", name: snap.extraLabel ?? "Keyboard" } }); onClose(); }} className="flex flex-col gap-1 rounded-xl border border-slate-700 bg-slate-900 p-4 text-left hover:border-sky-400 disabled:cursor-not-allowed disabled:opacity-50">
+          <button type="button" disabled={hasExtra || !snap.extraLabel} onClick={() => { engine.addInputWithRig({ kind: "extra", name: snap.extraLabel ?? "Piano" }, "piano"); onClose(); }} className="flex flex-col gap-1 rounded-xl border border-slate-700 bg-slate-900 p-4 text-left hover:border-sky-400 disabled:cursor-not-allowed disabled:opacity-50">
             <Icon name="piano" size={28} className="text-sky-300" />
             <span className="text-sm font-medium text-slate-100">Software keyboard</span>
-            <span className="text-xs text-slate-400">{hasExtra ? "Already added. Open it from its strip." : "The on-screen piano and your MIDI keyboard. Plays through the app, no audio device needed."}</span>
+            <span className="text-xs text-slate-400">{hasExtra ? "Already added. Open it from its strip." : "The on-screen piano and your MIDI keyboard, with the piano buses (dry, room, hall, dreamy)."}</span>
           </button>
-          <button type="button" onClick={() => { void engine.addScalePiano(); onClose(); }} className="flex flex-col gap-1 rounded-xl border border-slate-700 bg-slate-900 p-4 text-left hover:border-sky-400">
+          <button type="button" onClick={() => { engine.addScalePianoWithRig(); onClose(); }} className="flex flex-col gap-1 rounded-xl border border-slate-700 bg-slate-900 p-4 text-left hover:border-sky-400">
             <Icon name="music" size={28} className="text-sky-300" />
             <span className="text-sm font-medium text-slate-100">Scale Piano</span>
-            <span className="text-xs text-slate-400">Pick a key and scale: the computer keys play only notes from it. Add as many as you like.</span>
+            <span className="text-xs text-slate-400">Pick a key and scale: the computer keys play only notes from it. Comes with the piano buses.</span>
           </button>
           <button type="button" onClick={() => { engine.do({ type: "sequencer.add" }); onClose(); }} className="flex flex-col gap-1 rounded-xl border border-slate-700 bg-slate-900 p-4 text-left hover:border-sky-400 disabled:cursor-not-allowed disabled:opacity-50">
             <Icon name="drum" size={28} className="text-sky-300" />
@@ -139,6 +144,9 @@ export function AddInputModal({ engine, snap, hasExtra, onClose }: { engine: Loo
                 <button key={x.id} type="button" aria-pressed={role === x.id} title={x.about} onClick={() => { setRole(x.id); setPresetId(INPUT_PRESETS[x.id][0].id); }} className={`rounded-lg border px-3 py-1.5 text-xs ${role === x.id ? "border-sky-400 bg-sky-500/10 text-sky-100" : "border-slate-700 text-slate-300 hover:border-slate-500"}`}>{x.name}</button>
               ))}
             </div>
+            {role === "guitar" ? (
+              <p className="text-xs text-slate-400">Comes with the guitar rig: Clean sparkle, Crunch, Lead and Amp model buses, one on at a time, each to the master and every group.</p>
+            ) : (
             <div className="grid gap-1.5 sm:grid-cols-2">
               {INPUT_PRESETS[role].map((p) => (
                 <button key={p.id} type="button" aria-pressed={presetId === p.id} onClick={() => setPresetId(p.id)} className={`flex flex-col rounded-lg border px-3 py-1.5 text-left ${presetId === p.id ? "border-sky-400 bg-sky-500/10" : "border-slate-800 hover:border-slate-600"}`}>
@@ -147,6 +155,7 @@ export function AddInputModal({ engine, snap, hasExtra, onClose }: { engine: Loo
                 </button>
               ))}
             </div>
+            )}
           </fieldset>
           {room < need && <p className="text-xs text-amber-200">Not enough room: the mixer holds {MAX_INPUTS} inputs. Remove one first.</p>}
           <div className="flex gap-2">
@@ -314,14 +323,38 @@ export function InputStrip({ engine, inp, devices, anyDevice, keyboardOpen, onTo
   );
 }
 
-/** The master bus as one strip: everything that is not in a group, and every bus, ends here. */
+/** A fill for several colours side by side, like the connector rings on the canvas. */
+const ringFill = (cs: string[]) => (cs.length < 2 ? cs[0] ?? "#64748b" : `linear-gradient(90deg, ${cs.map((c, i) => `${c} ${(i / cs.length) * 100}% ${((i + 1) / cs.length) * 100}%`).join(", ")})`);
+
+/** What plays into the master: Looping always, and a small block per input, bus or switch that sends to it, in its connector colours. */
+function MasterFeeds({ snap }: { snap: LooperSnapshot }) {
+  const patch = snap.patch;
+  const { feeds, colours } = useMemo(() => {
+    const flowing = flowingLinks(patch, new Set(snap.patchActive));
+    const groups = Object.fromEntries(snap.groups.map((g) => [`group:${g.id}`, g.colour]));
+    const ids = masterFeeds(patch, flowing);
+    return { feeds: ids, colours: Object.fromEntries(ids.map((id) => [id, sendColours(patch, id, flowing, groups)])) };
+  }, [patch, snap.patchActive, snap.groups]);
+  const chip = "flex items-center gap-1 rounded border border-slate-700 bg-slate-900 px-1.5 py-0.5 text-[10px] text-slate-200";
+  return (
+    <div className="flex w-full flex-wrap items-center gap-1" aria-label="Playing into the master bus">
+      <span className={chip} title="Every group plays to the master through Looping (fixed)"><span className="h-2 w-2 rounded-full bg-slate-300" aria-hidden />Looping</span>
+      {feeds.map((id) => {
+        const n = patch.nodes.find((x) => x.id === id);
+        return <span key={id} className={chip}><span className="h-2 w-2 rounded-full" style={{ background: ringFill(colours[id]) }} aria-hidden />{n ? patchName(snap, n) : id}</span>;
+      })}
+    </div>
+  );
+}
+
+/** The master bus as one strip: Looping (every group) and whatever is sent to it end here; small blocks show what. */
 export function MasterStrip({ engine, snap }: { engine: LooperEngine; snap: LooperSnapshot }) {
   return (
   <li data-patch-id="master" className="flex flex-wrap items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-950/60 px-2 py-1.5">
     <span className="h-3 w-3 rounded-sm bg-slate-300" aria-hidden />
     <span className="w-32 truncate px-1.5 text-sm font-medium text-slate-100">Master bus</span>
-    <span className="flex h-6 min-w-[6.5rem] items-center justify-center rounded-md border border-slate-700 px-1.5 text-[10px] leading-none text-slate-400" title="Everything that is not in a group, and every bus">all buses</span>
     <MasterControls engine={engine} snap={snap} />
+    <MasterFeeds snap={snap} />
   </li>
   );
 }

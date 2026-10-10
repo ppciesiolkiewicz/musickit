@@ -4,7 +4,7 @@ import { useEffect, useId, useMemo, useRef, useState, type PointerEvent as RPoin
 import Icon from "@/components/Icon";
 import { patchName } from "./PatchNode";
 import { whyNot, type PatchKind, type PatchNode, type Port } from "@/lib/looper/patch";
-import { destinationPick, destinations, drawnFrom, flowingLinks, linkColour, outSources, outward, sidePoint, sidesFor, spread } from "@/lib/looper/patchView";
+import { destinationPick, destinations, drawnFrom, flowingLinks, linkColour, masterFeeds, outSources, sendColours as sendColoursOf, outward, sidePoint, sidesFor, spread } from "@/lib/looper/patchView";
 import type { LooperEngine, LooperSnapshot } from "@/lib/looper/engine";
 
 interface Rect { x: number; y: number; w: number; h: number }
@@ -162,6 +162,8 @@ export default function ConnectionLayer({ engine, snap, mode, wrapper }: { engin
     if (node(l.from)?.kind === "group" || !flowing.has(l.id)) return;
     // the link from an input to a bus inside it is shown by the switch rows of its block, not as a wire
     if (node(l.to)?.owner === l.from) return;
+    // the master is not wired to: a block that plays to it carries a small "Master bus" tag instead
+    if (node(l.to)?.kind === "master") return;
     const from = drawnFrom(patch, l);
     const toGroup = node(l.to)?.kind === "group";
     const port: Port = l.port ?? "bus";
@@ -235,15 +237,8 @@ export default function ConnectionLayer({ engine, snap, mode, wrapper }: { engin
   };
 
   /** The colours of the places an element sends sound to right now (none when it sends nowhere). */
-  const sendColours = (id: string): string[] => {
-    const out: string[] = [];
-    destinations(patch, id).forEach((d) => {
-      const l = d.links.find((x) => flowing.has(x.id));
-      const c = l && linkColour(patch, l, groupColours);
-      if (c && !out.includes(c)) out.push(c);
-    });
-    return out;
-  };
+  const sendColours = (id: string): string[] => sendColoursOf(patch, id, flowing, groupColours);
+  const toMasterNow = useMemo(() => new Set(masterFeeds(patch, flowing)), [patch, flowing]);
   const handleColour = (id: string) => sendColours(id)[0] ?? MUTED;
   /** A fill for several colours side by side: hard stops of a gradient. */
   const stops = (cs: string[], deg: number) => (cs.length < 2 ? cs[0] ?? "#020617" : `linear-gradient(${deg}deg, ${cs.map((c, i) => `${c} ${(i / cs.length) * 100}% ${((i + 1) / cs.length) * 100}%`).join(", ")})`);
@@ -318,6 +313,13 @@ export default function ConnectionLayer({ engine, snap, mode, wrapper }: { engin
           </span>
         );
       })}
+      {/* instead of a wire across the page: a small tag by the connector of every block that plays to the master */}
+      {Object.entries(rects).map(([id, r]) => (toMasterNow.has(id) ? (
+        <span key={`master:${id}`} className="absolute flex items-center gap-0.5 text-[10px] text-slate-400" style={{ left: r.x + r.w + 2, top: r.y + r.h / 2 + 13 }} title={`${nameOf(id)} plays to the master bus`}>
+          <span aria-hidden>↳</span>
+          <span className="flex items-center gap-1 rounded border border-slate-600 bg-slate-950 px-1.5 py-0.5 text-slate-200"><span className="h-2 w-2 rounded-sm bg-slate-300" aria-hidden />Master bus</span>
+        </span>
+      ) : null))}
       {menu && menuRect && (
         <div ref={menuRef} role="group" aria-label={`Where ${nameOf(menu)} sends`} className="pointer-events-auto absolute z-30 flex w-60 flex-col gap-0.5 rounded-lg border border-slate-600 bg-slate-950 p-1.5 text-xs text-slate-200 shadow-xl" style={{ left: menuLeft, top: Math.max(4, menuRect.y + menuRect.h / 2 - 16) }}>
           <div className="flex items-center gap-1 px-1 pb-1 text-[10px] uppercase tracking-wide text-slate-500">

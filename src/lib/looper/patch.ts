@@ -133,19 +133,22 @@ export const outLinks = (p: Patch, id: string): PatchLink[] => {
 
 const placeKey = (l: PatchLink) => `${l.to}|${l.port ?? "bus"}`;
 
+/** The master is a place of its own: always a checkbox, never closed by choosing another place one at a time. */
+export const toMaster = (p: Patch, to: string): boolean => node(p, to)?.kind === "master";
+
 /** True when a new link out of a one-place-at-a-time output must start closed: another place is already open. */
 function destBusy(p: Patch, from: string, to: string, port: Port): boolean {
   const o = node(p, outOwner(p, from));
-  if (!o || !o.destOne) return false;
+  if (!o || !o.destOne || toMaster(p, to)) return false;
   const key = `${to}|${port}`;
-  return outLinks(p, o.id).some((l) => !l.muted && placeKey(l) !== key);
+  return outLinks(p, o.id).some((l) => !l.muted && placeKey(l) !== key && !toMaster(p, l.to));
 }
 
 /** A one-place-at-a-time output sends to exactly one place (the first open one, or the first), when it has any. */
 function settleDest(p: Patch, id: string): Patch {
   const o = node(p, id);
   if (!o || !o.destOne) return p;
-  const mine = outLinks(p, id);
+  const mine = outLinks(p, id).filter((l) => !toMaster(p, l.to));
   if (!mine.length) return p;
   const keep = placeKey(mine.find((l) => !l.muted) ?? mine[0]);
   const ids = new Set(mine.map((l) => l.id));
