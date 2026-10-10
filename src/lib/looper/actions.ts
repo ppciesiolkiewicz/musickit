@@ -11,6 +11,7 @@
 import type { MetronomeSettings } from "./metronome";
 import { EFFECT_DEFS, moveEffect, type EffectKind } from "./effects";
 import type { InputMode } from "./frames";
+import type { TransportState } from "./transport";
 
 export type GroupPatch = { name?: string; colour?: string; volume?: number; muted?: boolean; x?: number; y?: number; w?: number; h?: number };
 export type MetronomePatch = Partial<MetronomeSettings>;
@@ -36,6 +37,8 @@ export type LooperAction =
   /** silence everything at the master fader (the volume is kept for unmuting) */
   | { type: "master.mute"; on: boolean }
   | { type: "metronome.set"; patch: MetronomePatch }
+  | { type: "transport.set"; on: boolean }
+  /** legacy: applied as transport.set */
   | { type: "playback.set"; on: boolean }
   | { type: "effect.param"; groupId: string; fxId: string; key: string; value: number }
   | { type: "effect.bypass"; groupId: string; fxId: string; bypass: boolean }
@@ -64,6 +67,7 @@ export type LooperAction =
   | { type: "fx.move"; target: FxTarget; id: string; dir: -1 | 1 }
   | { type: "fx.param"; target: FxTarget; id: string; key: string; value: number }
   | { type: "fx.bypass"; target: FxTarget; id: string; bypass: boolean }
+  /** legacy: Play or Stop, whichever the transport is not doing */
   | { type: "metronome.toggle" }
   /** several actions as one step (one undo, one history line) */
   | { type: "batch"; label?: string; actions: LooperAction[] };
@@ -135,7 +139,7 @@ export interface ActionState {
   masterMuted: boolean;
   /** effects on the master bus, before (post: false) and after its fader */
   masterEffects: EffectState[];
-  playing: boolean;
+  transport: { state: TransportState };
   metronome: MetronomeSettings;
   sequencers: { id: string; name: string; x: number; y: number; dest: "auto" | "record"; playing: boolean; instrumentId: string; bars: number; cells: number[][] }[];
   /** what is connected to what */
@@ -173,7 +177,7 @@ export interface ActionTarget {
   setMasterVolume(v: number): void;
   setMasterMuted(on: boolean): void;
   setMetronome(patch: MetronomePatch): void;
-  setPlaying(on: boolean): void;
+  setTransport(on: boolean): void;
   setEffectParam(groupId: string, fxId: string, key: string, value: number): void;
   toggleEffectBypass(groupId: string, fxId: string): void;
   setEffectPost(groupId: string, fxId: string, post: boolean): void;
@@ -201,7 +205,6 @@ export interface ActionTarget {
   fxMove(t: FxTarget, id: string, dir: -1 | 1): void;
   fxParam(t: FxTarget, id: string, key: string, value: number): void;
   fxBypass(t: FxTarget, id: string, bypass: boolean): void;
-  toggleMetronome(): void;
 }
 
 /**
@@ -229,8 +232,8 @@ export function applyAction(t: ActionTarget, a: LooperAction): LooperAction | nu
     case "master.volume": t.setMasterVolume(a.value); return a;
     case "master.mute": if (t.getSnapshot().masterMuted === a.on) return null; t.setMasterMuted(a.on); return a;
     case "metronome.set": t.setMetronome(a.patch); return a;
-    case "metronome.toggle": t.toggleMetronome(); return a;
-    case "playback.set": t.setPlaying(a.on); return a;
+    case "metronome.toggle": { const st = t.getSnapshot().transport.state; t.setTransport(!(st === "countIn" || st === "running")); return a; }
+    case "transport.set": case "playback.set": t.setTransport(a.on); return a;
     case "effect.param": t.setEffectParam(a.groupId, a.fxId, a.key, a.value); return a;
     case "effect.bypass": {
       const fx = t.getSnapshot().groups.find((g) => g.id === a.groupId)?.effects.find((e) => e.id === a.fxId);
@@ -337,7 +340,7 @@ export function inverseOf(a: LooperAction, s: ActionState): LooperAction | null 
       return { type: a.type, patch: before as MetronomePatch };
     }
     case "metronome.toggle": return { type: a.type };
-    case "playback.set": return { type: a.type, on: s.playing };
+    case "transport.set": case "playback.set": { const st = s.transport.state; return { type: "transport.set", on: st === "countIn" || st === "running" }; }
     case "effect.param": {
       const fx = gr(a.groupId)?.effects.find((e) => e.id === a.fxId);
       return fx && a.key in fx.params ? { type: a.type, groupId: a.groupId, fxId: a.fxId, key: a.key, value: fx.params[a.key] } : null;
@@ -457,14 +460,14 @@ export function describeAction(a: LooperAction, s?: ActionState): string {
     case "master.volume": return `Master volume ${pct(a.value)}`;
     case "master.mute": return a.on ? "Mute the master" : "Unmute the master";
     case "metronome.set": return `Metronome: ${Object.entries(a.patch).map(([k, v]) => `${k} ${v}`).join(", ")}`;
-    case "playback.set": return a.on ? "Play all" : "Stop all";
+    case "transport.set": case "playback.set": return a.on ? "Play" : "Stop";
     case "effect.param": return `${group(a.groupId)} effect ${a.key} ${Math.round(a.value * 100) / 100}`;
     case "effect.bypass": return `${a.bypass ? "Bypass" : "Enable"} an effect on ${group(a.groupId)}`;
     case "effect.post": return `Effect on ${group(a.groupId)} ${a.post ? "after" : "before"} the fader`;
     case "sequencer.move": return `Move ${seq(a.id)}`;
     case "sequencer.playing": return `${a.on ? "Start" : "Stop"} ${seq(a.id)}`;
     case "sequencer.dest": return `${seq(a.id)} → ${a.dest}`;
-    case "metronome.toggle": return "Metronome on/off";
+    case "metronome.toggle": return "Play/Stop";
     case "group.add": return `Add group${a.patch?.name ? ` ${a.patch.name}` : ""}`;
     case "group.remove": return `Remove ${group(a.id)}`;
     case "loop.add": return "Add a loop";
@@ -567,7 +570,7 @@ export function isAction(v: unknown, depth = 0): v is LooperAction {
     case "master.volume": return isNum(a.value);
     case "master.mute": return typeof a.on === "boolean";
     case "metronome.set": return validPatch(a.patch, METRO_KEYS);
-    case "playback.set": return isBool(a.on);
+    case "transport.set": case "playback.set": return isBool(a.on);
     case "effect.param": return isStr(a.groupId) && isStr(a.fxId) && isStr(a.key) && isNum(a.value);
     case "effect.bypass": return isStr(a.groupId) && isStr(a.fxId) && isBool(a.bypass);
     case "effect.post": return isStr(a.groupId) && isStr(a.fxId) && isBool(a.post);
