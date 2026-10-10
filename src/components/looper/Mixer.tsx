@@ -160,7 +160,7 @@ export function AddInputModal({ engine, snap, hasExtra, onClose }: { engine: Loo
           <button type="button" onClick={() => { engine.do({ type: "patch.node", node: { id: `fx:${Date.now().toString(36)}`, kind: "fx", x: 20, y: 660, name: `Bus ${snap.patch.nodes.filter((n) => n.kind === "fx").length + 1}` } }); onClose(); }} className="flex flex-col gap-1 rounded-xl border border-slate-700 bg-slate-900 p-4 text-left hover:border-sky-400">
             <Icon name="sliders-horizontal" size={28} className="text-sky-300" />
             <span className="text-sm font-medium text-slate-100">Bus</span>
-            <span className="text-xs text-slate-400">Just connects things and holds effects. Shown in Widgets with wires.</span>
+            <span className="text-xs text-slate-400">Just connects things and holds effects. Shown in the Canvas view.</span>
           </button>
         </div>
       ) : (

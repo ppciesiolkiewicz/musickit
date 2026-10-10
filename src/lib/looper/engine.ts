@@ -1,4 +1,5 @@
-import { LENGTH_STEPS, assemble, effectiveGain, lengthMultiple, loopOffset, takeStatus, type TakeStatus, msToFrames, nextBoundary, peaks, quantUnitFrames, quantiseLength, type Chunk, type InputMode } from "./frames";
+import { LENGTH_STEPS, assemble, cycleBars, timelineOrigin, effectiveGain, lengthMultiple, loopOffset, takeStatus, type TakeStatus, msToFrames, nextBoundary, peaks, quantUnitFrames, quantiseLength, timelinePosition, type Chunk, type InputMode } from "./frames";
+import { Transport, type TransportState } from "./transport";
 import { Metronome, type MetronomeSettings } from "./metronome";
 import { Sequencer, type SequencerState } from "./sequencer";
 import { fromRows } from "./sequencerPattern";
@@ -21,6 +22,19 @@ export type { InputInfo } from "./mixer";
 export type { LooperAction } from "./actions";
 export type { InputMode, Quantise } from "./frames";
 export { BPM_RANGE, type MetronomeSettings } from "./metronome";
+export type { TransportState } from "./transport";
+
+/** What the Looping header's timeline shows: the transport, the cycle in bars, where in it we are, and a take that is growing it. */
+export interface Timeline {
+  state: TransportState;
+  /** bars in the cycle: the longest armed loop, at least one, or more while a take grows past it */
+  cycle: number;
+  bar: number;
+  beat: number;
+  fraction: number;
+  countIn: boolean;
+  take: { bar: number; totalBars: number; planned: boolean } | null;
+}
 export { INSTRUMENTS, type Instrument, type SequencerState } from "./sequencer";
 export type { VoiceFactory, NoteVoice } from "./scalePiano";
 export type { ScalePianoState } from "./scalePiano";
@@ -115,12 +129,13 @@ export interface LooperSnapshot {
   extraLabel: string | null;
   latencyMs: number;
   /** metronome settings, whether it is clicking now, and whether the tempo is locked by a loop or a take */
-  metronome: MetronomeSettings & { running: boolean; locked: boolean; manual: boolean };
+  metronome: MetronomeSettings & { locked: boolean };
+  /** the transport: stopped, counting in, running or stopping on the next line; and how many loops and sequencers are armed */
+  transport: { state: TransportState; armed: number };
   /** every step sequencer: its pattern and destination, whether it is sounding, and how many steps the pattern has */
   /** every scale piano: its key, scale and octave */
   scalePianos: (ScalePianoState & { id: string; name: string })[];
   sequencers: (SequencerState & { id: string; name: string; running: boolean; stopping: boolean; steps: number; groupId: string | null })[];
-  playing: boolean;
   loopSeconds: number | null;
   channels: ChannelInfo[];
   groups: GroupInfo[];
@@ -255,11 +270,15 @@ export class LooperEngine {
   /** recent peak level of the signal reaching the recorder (0..1), for the pulse on a recording loop */
   private captureLevel = 0;
   private loopStart = 0;
-  private playing = true;
   private capture: Capture | null = null;
   private tail: Tail | null = null;
-  /** AudioContext time of beat 1 of the metronome grid */
-  private gridAnchor = 0;
+  /** the one owner of the beat grid: Play/Stop, count-in, anchor */
+  private transport = new Transport();
+  /** Stop was pressed during a take: stop the transport when the take is done */
+  private stopAfterTake = false;
+  /** where that take closes (AudioContext time), so the transport stops on that same line; null = the next line after it */
+  private takeEndsAt: number | null = null;
+  private transportTimer: ReturnType<typeof setInterval> | null = null;
   /** true when the loop length is a whole number of beats or bars, so loop restarts stay on the grid */
   private loopOnGrid = false;
   readonly metronome: Metronome;
@@ -269,8 +288,6 @@ export class LooperEngine {
   /** the scale pianos (computer keys locked to a key and scale), by id */
   private scalePianos = new Map<string, ScalePiano>();
   private spCounter = 0;
-  /** the person started the metronome by hand, with no take or loop running */
-  private metroManual = false;
 
   private listeners = new Set<() => void>();
   private snap: LooperSnapshot;
@@ -313,14 +330,14 @@ export class LooperEngine {
     return {
       ...this.meta,
       inputs: this.mixer.list(),
-      metronome: { ...this.metronome.settings, running: this.metronome.running, locked: this.loopLength !== null || this.capture !== null, manual: this.metroManual },
+      metronome: { ...this.metronome.settings, locked: this.loopLength !== null || this.capture !== null },
+      transport: { state: this.transport.state, armed: this.runtimes.filter((r) => r.buffer && r.info.active).length + [...this.sequencers.values()].filter((q) => q.state.playing).length },
       sequencers: this.mixer.list().filter((i) => i.kind === "sequencer" && i.sourceId && this.sequencers.has(i.sourceId)).map((i) => {
         const q = this.sequencers.get(i.sourceId!)!;
         return { ...q.state, id: q.id, name: i.name, running: q.running, stopping: q.stopping, steps: q.steps, groupId: containingGroup(this.groups, q.state.x, q.state.y) };
       }),
       scalePianos: this.mixer.list().filter((i) => i.kind === "scalepiano" && i.sourceId && this.scalePianos.has(i.sourceId)).map((i) => ({ ...this.scalePianos.get(i.sourceId!)!.state, id: i.sourceId!, name: i.name })),
       extraLabel: this.options.getExternalSource ? this.options.externalLabel ?? "Extra source" : null,
-      playing: this.playing,
       loopSeconds: this.loopLength,
       channels: this.runtimes.map((r) => ({ ...r.info, edit: { ...r.info.edit } })),
       masterVolume: this.masterVolume,
@@ -362,6 +379,7 @@ export class LooperEngine {
     this.patch = saved;
     this.mixer.restore();
     this.metronome.restore();
+    this.transport.setTiming(this.metronome.period, this.metronome.settings.beatsPerBar);
     this.restoreSequencers();
     this.restoreScalePianos();
     this.restoreLayout();
@@ -602,6 +620,7 @@ export class LooperEngine {
       delete next.beatsPerBar;
     }
     this.metronome.set(next);
+    this.transport.setTiming(this.metronome.period, this.metronome.settings.beatsPerBar);
     this.syncSequencer(true);
   }
 
@@ -818,22 +837,22 @@ export class LooperEngine {
     this.emit();
   }
 
-  /** Start or stop a sequencer. It joins and leaves on the next beat of the metronome, so you can stop one and start another cleanly. */
+  /** Arm or disarm a sequencer. Armed, it plays while the transport runs, joining and leaving on the next beat; arming while stopped starts the transport. */
   setSequencerPlaying(id: string, on: boolean) {
     const q = this.sequencers.get(id);
     if (!q || !this.ctx) return;
-    if (on && !this.gridActive()) this.gridAnchor = this.ctx.currentTime + 0.05;
     q.setPlaying(on);
-    this.syncMetronome();
+    if (on && this.ensureTransport()) return this.emit();
     this.syncSequencer();
+    this.emit();
   }
 
-  /** Make every sequencer follow its play switch: start on the next beat, or stop on the next beat. `restart` re-joins at once after the grid moved. */
+  /** Make every sequencer follow its armed switch while the transport runs: start on the next beat, or stop on the next beat. `restart` re-joins at once after the grid moved. */
   private syncSequencer(restart = false) {
     const when = this.ctx ? this.beatBoundary() : 0;
     this.sequencers.forEach((q) => {
-      if (q.state.playing) {
-        if (restart || !q.running) q.start(this.gridAnchor, restart ? 0 : when);
+      if (q.state.playing && this.transport.going) {
+        if (restart || !q.running) q.start(this.transport.anchor, this.transport.joinAt(restart, when));
         else if (q.stopping) q.cancelStop();
       } else if (q.running && !q.stopping) {
         q.stopAt(when);
@@ -841,37 +860,22 @@ export class LooperEngine {
     });
   }
 
-  /** The next beat line of the metronome grid. */
+  /** The next beat line of the grid. */
   private beatBoundary(): number {
-    const ctx = this.ctx;
-    if (!ctx) return 0;
-    return nextBoundary(ctx.currentTime, this.gridAnchor, this.metronome.period, 0.03);
+    return this.ctx ? this.transport.next(this.ctx.currentTime, "beat", 0.03) : 0;
   }
 
-  /** Start or stop one loop on the next beat. A stopped loop keeps its recording. */
+  /** Arm or disarm one loop. Armed, it plays while the transport runs, joining and leaving on the next beat; arming while stopped starts the transport. A disarmed loop keeps its recording. */
   setLoopActive(id: number, on: boolean) {
     const rt = this.runtimes[id];
     if (!rt || !this.ctx || !rt.buffer) return;
     rt.info.active = on;
-    if (on) {
-      if (!this.playing) {
-        this.setPlaying(true);
-        return;
-      }
-      this.startChannel(rt, null, this.beatBoundary());
-    } else if (rt.source) {
-      try {
-        rt.source.stop(this.beatBoundary());
-      } catch {
-        /* already stopped */
-      }
-      rt.source = null;
-    }
-    this.syncMetronome();
+    if (on && this.ensureTransport()) return this.emit();
+    if (this.transport.going) this.syncLoops(false);
     this.emit();
   }
 
-  /** Start or stop everything in a group, loops and sequencers, on the next beat. */
+  /** Arm or disarm everything in a group, loops and sequencers, on the next beat. */
   setGroupActive(groupId: string, on: boolean) {
     this.runtimes.forEach((r) => {
       if (r.info.groupId === groupId && r.buffer) this.setLoopActive(r.info.id, on);
@@ -881,37 +885,133 @@ export class LooperEngine {
     });
   }
 
-  private gridActive() {
-    return this.capture !== null || (this.playing && this.loopLength !== null) || this.metroManual || [...this.sequencers.values()].some((q) => q.state.playing);
-  }
-
-  /** True when something other than the metronome button keeps the grid running: a take, a playing loop or a playing sequencer. */
-  private othersRunning() {
-    return this.capture !== null || (this.playing && this.loopLength !== null) || [...this.sequencers.values()].some((q) => q.state.playing);
-  }
-
-  /**
-   * The metronome button. It only starts or stops the metronome; it never starts a loop or a sequencer.
-   * The metronome always runs while anything else runs, so then the button only silences or restores the click.
-   */
-  toggleMetronome() {
+  /** The Play/Stop button. Play starts the clock (with the count-in) and every armed loop and sequencer on beat 1. Stop ends everything on the next line. */
+  setTransport(on: boolean) {
     if (!this.ctx) return;
-    if (this.othersRunning() && !this.metroManual) {
-      this.metronome.set({ audible: !this.metronome.settings.audible });
-      this.emit();
-      return;
+    const now = this.ctx.currentTime;
+    if (on) {
+      this.stopAfterTake = false;
+      if (this.transport.going) return;
+      this.startTransport(this.metronome.settings.countInBars);
+    } else {
+      if (this.capture) {
+        // finish the take first (quantised as usual); the transport stops when it is done
+        this.stopAfterTake = true;
+        this.stopRecording();
+        const cap = this.capture;
+        if (cap) {
+          this.takeEndsAt = cap.endFrame !== null ? cap.at + (cap.endFrame - cap.startFrame) / this.ctx.sampleRate : null;
+          this.emit();
+          return;
+        }
+      }
+      if (!this.transport.going) return;
+      this.applyStop(this.transport.stop(now, this.metronome.settings.quantise));
     }
-    this.metroManual = !this.metroManual;
-    if (this.metroManual && !this.othersRunning()) this.gridAnchor = this.ctx.currentTime + 0.05 + this.metronome.settings.countInBars * this.metronome.settings.beatsPerBar * this.metronome.period;
-    this.syncMetronome(this.metroManual && !this.othersRunning());
     this.emit();
   }
 
-  private syncMetronome(restart = false) {
-    const on = this.gridActive();
-    if (!on) this.metronome.stop();
-    else if (restart || !this.metronome.running) this.metronome.start(this.gridAnchor);
+  /** The transport was just told to stop at `at`: stopped now, or everything stops on that line. */
+  private applyStop(at: number) {
+    if (this.transport.state === "stopped") return this.syncTransport();
+    this.metronome.stopAt(at);
+    this.runtimes.forEach((r) => {
+      try {
+        r.source?.stop(at);
+      } catch {
+        /* already stopped */
+      }
+    });
+    // a sequencer already leaving on an earlier beat keeps that beat
+    this.sequencers.forEach((q) => q.running && !q.stopping && q.stopAt(at));
+  }
+
+  /** Start the transport for something that was just armed (a loop, a sequencer, a group). No count-in. Returns false when it was already going. */
+  private ensureTransport() {
+    if (!this.ctx || this.transport.going) return false;
+    this.startTransport(0);
+    return true;
+  }
+
+  /** Play from stopped (fresh grid, everything armed from its top), or carry on when a stop was pending. */
+  private startTransport(countInBars: number) {
+    if (!this.ctx) return;
+    if (this.transport.state === "stopping") {
+      this.transport.play(this.ctx.currentTime, countInBars);
+      this.resumeAfterStop();
+      this.syncTransport();
+      return;
+    }
+    this.transport.play(this.ctx.currentTime, countInBars);
+    this.syncTransport(true);
+  }
+
+  /**
+   * Play pressed before the stop line: undo the scheduled stops. A buffer source's stop() cannot be cancelled,
+   * so armed loops re-join at their current phase (a 20 ms seam); the metronome and sequencers just drop their stop time.
+   */
+  private resumeAfterStop() {
+    // still clicking towards the stop line: drop the line (a restart would schedule the next beats twice)
+    if (this.metronome.running) this.metronome.cancelStop();
+    else this.metronome.start(this.transport.anchor);
+    this.runtimes.forEach((r) => {
+      if (r.buffer && r.info.active && r.source) this.startChannel(r, null);
+    });
+    this.sequencers.forEach((q) => q.stopping && q.cancelStop());
+  }
+
+  /**
+   * Make the clock, the loops and the sequencers follow the transport and their armed flags.
+   * `restart`: the grid just (re)started at transport.anchor, so everything armed starts from its top there.
+   */
+  private syncTransport(restart = false) {
+    const t = this.transport;
+    if (t.state === "stopped") {
+      this.metronome.stop();
+      this.runtimes.forEach((r) => this.stopSource(r));
+      this.sequencers.forEach((q) => q.running && q.stop());
+      return;
+    }
+    if (t.state === "stopping") return; // everything already stops at t.stopAt
+    if (restart || !this.metronome.running) this.metronome.start(t.anchor);
+    this.syncLoops(restart);
     this.syncSequencer(restart);
+  }
+
+  /** Armed loops play, disarmed ones stop, on the next beat; after a restart they start from their top at the anchor. */
+  private syncLoops(restart: boolean) {
+    if (!this.ctx || !this.loopLength) return;
+    if (restart) this.loopStart = this.transport.anchor;
+    const when = this.beatBoundary();
+    this.runtimes.forEach((r) => {
+      if (!r.buffer) return;
+      if (r.info.active) {
+        if (restart) {
+          r.origin = this.transport.anchor;
+          this.startChannel(r, this.transport.anchor);
+        } else if (!r.source) this.startChannel(r, null, when);
+      } else if (r.source) {
+        try {
+          r.source.stop(when);
+        } catch {
+          /* already stopped */
+        }
+        r.source = null;
+      }
+    });
+  }
+
+  /** A take ended: honour a Stop pressed while it ran. */
+  private afterTake() {
+    if (!this.stopAfterTake) return;
+    this.stopAfterTake = false;
+    const at = this.takeEndsAt;
+    this.takeEndsAt = null;
+    if (!this.ctx || !this.transport.going) return;
+    if (at === null) return this.setTransport(false);
+    // the line that closed the take, not the next one: no extra bar after it
+    this.applyStop(this.transport.stopAtTime(this.ctx.currentTime, at));
+    this.emit();
   }
 
   /* ------------------------------------------------------------------ start up */
@@ -1005,6 +1105,13 @@ export class LooperEngine {
     this.mixer.attach(ctx, this.master);
     this.pgraph = new PatchGraph(ctx);
     this.metronome.attach(ctx, this.mainOut);
+    this.transport.setTiming(this.metronome.period, this.metronome.settings.beatsPerBar);
+    if (!this.transportTimer) this.transportTimer = setInterval(() => {
+      if (!this.ctx || !this.transport.tick(this.ctx.currentTime)) return;
+      // a stop line was reached: drop the finished sources so the next Play starts clean
+      if (this.transport.state === "stopped") this.syncTransport();
+      this.emit();
+    }, 40);
     this.analyser = ctx.createAnalyser();
     this.analyser.fftSize = 1024;
     this.mixer.output!.connect(this.analyser);
@@ -1340,8 +1447,26 @@ export class LooperEngine {
 
   /** Position inside the loop, 0..1, or null when there is no loop or it is stopped. */
   getPosition(): number | null {
-    if (!this.ctx || !this.loopLength || !this.playing) return null;
+    if (!this.ctx || !this.loopLength || !(this.transport.state === "running" || this.transport.state === "stopping")) return null;
     return loopOffset(this.ctx.currentTime, this.loopStart, this.loopLength) / this.loopLength;
+  }
+
+  /** The header timeline: transport state, the cycle in bars, where in it we are, and the take that is growing it. Null before the engine starts. */
+  getTimeline(): Timeline | null {
+    if (!this.ctx) return null;
+    const m = this.metronome.settings;
+    const period = this.metronome.period;
+    const barSec = period * m.beatsPerBar;
+    const loopBars = this.runtimes.filter((r) => r.buffer && r.info.active).map((r) => r.buffer!.duration / barSec);
+    const cap = this.capture;
+    const st = cap ? this.getTakeStatus(cap.channel) : null;
+    const take = cap && st && st.phase !== "armed" ? { bar: st.bar, totalBars: st.totalBars, planned: cap.endFrame !== null && !cap.stopping } : null;
+    const cycle = Math.max(cycleBars(loopBars), take?.totalBars ?? 1);
+    // measured from where the take or the longest loop really started, so the playhead matches the rings
+    const longest = this.runtimes.filter((r) => r.buffer && r.info.active).sort((a, b) => b.buffer!.duration - a.buffer!.duration)[0];
+    const origin = timelineOrigin({ countIn: this.transport.state === "countIn", takeAt: cap?.started ? cap.at : null, loopOrigin: longest ? longest.origin : null, anchor: this.transport.anchor });
+    const pos = this.transport.active ? timelinePosition(this.ctx.currentTime, origin, period, m.beatsPerBar, cycle) : { bar: 0, beat: 0, fraction: 0, countIn: false };
+    return { state: this.transport.state, cycle, ...pos, take };
   }
 
   /* ------------------------------------------------------------------ channels */
@@ -1411,7 +1536,7 @@ export class LooperEngine {
   /** Where in its own length a loop is (0..1), or null when it is not playing. */
   getChannelPosition(id: number): number | null {
     const rt = this.runtimes[id];
-    if (!this.ctx || !rt?.buffer || !this.playing || !rt.info.active) return null;
+    if (!this.ctx || !rt?.buffer || !(this.transport.state === "running" || this.transport.state === "stopping") || !rt.info.active) return null;
     return loopOffset(this.ctx.currentTime, rt.origin, rt.buffer.duration) / rt.buffer.duration;
   }
 
@@ -1915,28 +2040,37 @@ export class LooperEngine {
       const unit = quantUnitFrames(m.quantise, m.bpm, m.beatsPerBar, sr);
       let anchor: number;
       let startFrame: number;
-      if (this.gridActive() && unit > 0) {
-        // the metronome is already running (a sequencer, a loop or the metronome itself): no count-in, the take starts on the next bar or beat line
-        anchor = this.gridAnchor;
+      // a pending stop is cancelled: recording keeps the transport going
+      if (this.transport.state === "stopping") this.startTransport(0);
+      const wasGoing = this.transport.going;
+      if (wasGoing && unit > 0) {
+        // the transport already runs: no count-in, the take starts on the next bar or beat line
+        anchor = this.transport.anchor;
         const step = (m.quantise === "bar" ? m.beatsPerBar : 1) * this.metronome.period;
         startFrame = Math.round(nextBoundary(this.ctx.currentTime, anchor, step, 0.1) * sr) + comp;
-      } else {
-        // nothing running: start the metronome with a count-in; the take starts on beat 1
+      } else if (wasGoing) {
+        // running with quantising off: the grid moves to the take, after the count-in
         anchor = this.ctx.currentTime + 0.1 + m.countInBars * m.beatsPerBar * this.metronome.period;
+        this.transport.recount(anchor, this.ctx.currentTime);
+        startFrame = Math.round(anchor * sr) + comp;
+      } else {
+        // stopped: Play with the count-in; the take starts on beat 1
+        anchor = this.transport.play(this.ctx.currentTime, m.countInBars);
         startFrame = Math.round(anchor * sr) + comp;
       }
-      const fresh = anchor !== this.gridAnchor || !this.gridActive();
+      const fresh = !(wasGoing && unit > 0);
       // a planned first loop is a number of bars (or beats, when quantising to beats)
       const planned = rt.info.plan > 0 && unit > 0 ? startFrame + rt.info.plan * (m.quantise === "bar" ? m.beatsPerBar : 1) * Math.round(this.metronome.period * sr) : null;
       this.capture = { channel: id, at: startFrame / sr - comp / sr, startFrame, endFrame: planned, chunks: [], lastFrame: startFrame, started: false, unit, stopping: false, loopFrames: 0 };
       rt.info.state = "armed";
-      this.gridAnchor = anchor;
       this.loopOnGrid = unit > 0;
-      this.syncMetronome(fresh);
+      this.syncTransport(fresh);
       this.emit();
       return;
     }
 
+    // a later take while stopped starts the transport (no count-in): it begins on the loop boundary
+    this.ensureTransport();
     const when = nextBoundary(this.ctx.currentTime, this.loopStart, this.loopLength, 0.08);
     const startFrame = Math.round(when * sr) + comp;
     // a planned later take is n times the first loop; a free one runs until stopped and is rounded up to 1, 2, 4, 8 or 16 loops
@@ -1944,7 +2078,7 @@ export class LooperEngine {
     const endFrame = rt.info.plan > 0 ? startFrame + rt.info.plan * loopFrames : null;
     this.capture = { channel: id, at: when, startFrame, endFrame, chunks: [], lastFrame: startFrame, started: false, unit: 0, stopping: false, loopFrames };
     rt.info.state = "armed";
-    this.syncMetronome();
+    this.syncTransport();
     this.emit();
   }
 
@@ -1980,7 +2114,8 @@ export class LooperEngine {
     this.capture = null;
     this.mixer.setRecordSources(null);
     this.pgraph?.setRecording(undefined);
-    this.syncMetronome();
+    this.syncTransport();
+    this.afterTake();
     this.emit();
   }
 
@@ -2023,7 +2158,8 @@ export class LooperEngine {
       this.mixer.setRecordSources(null);
       this.pgraph?.setRecording(undefined);
       rt.info.state = rt.buffer ? "playing" : "empty";
-      this.syncMetronome();
+      this.syncTransport();
+      this.afterTake();
       this.emit();
       return;
     }
@@ -2044,16 +2180,17 @@ export class LooperEngine {
     const firstTake = this.loopLength === null;
     if (firstTake) {
       this.loopLength = buf.duration;
-      this.playing = true;
       // on the grid: the loop restarts on a multiple of its length after beat 1, so it stays in time with the clicks
       // on the grid the loop is already running: its start is the end of the take, so it plays on at once, in phase (no wait for the next round)
       this.loopStart = this.loopOnGrid ? cap.at + Math.floor((this.ctx.currentTime - cap.at) / this.loopLength) * this.loopLength : this.ctx.currentTime + 0.05;
-      if (!this.loopOnGrid) this.gridAnchor = this.loopStart;
+      if (!this.loopOnGrid) this.transport.moveAnchor(this.loopStart);
       if (!this.loopOnGrid) rt.origin = this.loopStart;
     }
     rt.info.multiple = firstTake ? 1 : Math.max(1, Math.round(buf.duration / (this.loopLength as number)));
-    if (this.playing) this.startChannel(rt, firstTake && !this.loopOnGrid ? this.loopStart : null);
-    this.syncMetronome(firstTake);
+    if (this.transport.going) this.startChannel(rt, firstTake && !this.loopOnGrid ? this.loopStart : null);
+    // on the grid the first loop already plays in phase; only an off-grid first take moves the anchor, so everything re-joins there
+    this.syncTransport(firstTake && !this.loopOnGrid);
+    this.afterTake();
     this.emit();
   }
 
@@ -2109,7 +2246,7 @@ export class LooperEngine {
     rt.buffer = buf;
     rt.info.peaks = peaks(l, 600);
     // a playing loop carries on from the same place in the new sound
-    if (rt.source && this.playing && rt.info.active) this.startChannel(rt, null);
+    if (rt.source && this.transport.going && rt.info.active) this.startChannel(rt, null);
     this.emit();
   }
 
@@ -2147,24 +2284,6 @@ export class LooperEngine {
     }
   }
 
-  /** Stop or restart playback of everything. Restarting begins the loop again from the top. */
-  setPlaying(on: boolean) {
-    if (!this.ctx || !this.loopLength) return;
-    this.playing = on;
-    if (!on) {
-      this.runtimes.forEach((r) => this.stopSource(r));
-    } else {
-      this.loopStart = this.loopOnGrid ? nextBoundary(this.ctx.currentTime, this.loopStart, this.loopLength, 0.05) : this.ctx.currentTime + 0.05;
-      if (!this.loopOnGrid) this.gridAnchor = this.loopStart;
-      this.runtimes.forEach((r) => {
-        if (r.buffer) r.origin = this.loopStart;
-        if (r.buffer && r.info.active) this.startChannel(r, this.loopStart);
-      });
-    }
-    this.syncMetronome(on);
-    this.emit();
-  }
-
   clear(id: number) {
     if (this.capture?.channel === id) this.cancelCapture();
     if (this.tail?.channel === id) this.closeTail(false);
@@ -2179,9 +2298,8 @@ export class LooperEngine {
     rt.info.multiple = 0;
     if (!this.runtimes.some((r) => r.buffer)) {
       this.loopLength = null;
-      this.playing = true;
     }
-    this.syncMetronome();
+    this.syncTransport();
     this.emit();
   }
 
@@ -2192,6 +2310,8 @@ export class LooperEngine {
   dispose() {
     this.capture = null;
     this.tail = null;
+    if (this.transportTimer) clearInterval(this.transportTimer);
+    this.transportTimer = null;
     this.runtimes.forEach((r) => this.stopSource(r));
     this.metronome.dispose();
     this.sequencers.forEach((q) => q.dispose());

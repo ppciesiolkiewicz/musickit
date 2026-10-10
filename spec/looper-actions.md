@@ -12,7 +12,7 @@ A `LooperAction` is plain JSON, `{ type, ... }`. Types:
 - Drums: `sequencer.add|remove|set|step|playing|move|dest` (set: instrument, preset, rows, clear, cells, bars, dest, x, y).
 - Groups: `group.add|remove|set|active`.
 - Effects, on a group bus or an input (`target` is `{group: id}` or `{input: id}`): `fx.add|remove|move|param|bypass`. The older `effect.param|bypass|post` are the group-only forms.
-- Globals: `master.volume`, `metronome.set|toggle`, `playback.set`, and `batch` (a list of actions as one step).
+- Globals: `master.volume`, `metronome.set`, `transport.set` (legacy `playback.set` and `metronome.toggle` still play/stop), and `batch` (a list of actions as one step).
 
 Creators (`group.add`, `sequencer.add`, `input.add`, `fx.add`) take an optional id. `applyAction` returns the action as really done, with the id filled in, and that form is what the history and macros keep, so a replay uses the same ids. Refused actions (full, missing target) return null and are not recorded. Recording, clearing and `loop.record` run but are not undoable.
 

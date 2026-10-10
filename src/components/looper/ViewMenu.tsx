@@ -4,15 +4,19 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Icon from "../Icon";
 
-export type View = "fixed" | "widgets" | "lines";
+export type View = "fixed" | "canvas";
 
-const VIEWS: { id: View; label: string; hint: string; icon: "rows-3" | "layout-dashboard" | "git-merge" }[] = [
+/** Saved views from before Canvas: "widgets" and "lines" both open as the canvas. */
+export function toView(raw: unknown): View {
+  return raw === "fixed" ? "fixed" : "canvas";
+}
+
+const VIEWS: { id: View; label: string; hint: string; icon: "rows-3" | "git-merge" }[] = [
   { id: "fixed", label: "Fixed layout", hint: "Everything in its place", icon: "rows-3" },
-  { id: "widgets", label: "Widgets", hint: "Drag and resize; connections shown by colour", icon: "layout-dashboard" },
-  { id: "lines", label: "Widgets with wires", hint: "The same, and connections drawn as lines", icon: "git-merge" },
+  { id: "canvas", label: "Canvas", hint: "Drag widgets; connections drawn as wires", icon: "git-merge" },
 ];
 
-/** The view button of the top bar: a dropdown of the three ways to see the looper. */
+/** The view button of the top bar: a dropdown of the two ways to see the looper. */
 export default function ViewMenu({ view, onChange, btnClass }: { view: View; onChange: (v: View) => void; btnClass: string }) {
   const [open, setOpen] = useState(false);
   const btn = useRef<HTMLButtonElement>(null);

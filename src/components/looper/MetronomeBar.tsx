@@ -28,13 +28,10 @@ export default function MetronomeBar({ engine, snap, ready }: { engine: LooperEn
   }, [open]);
 
   const set = (p: Partial<typeof m>) => engine.do({ type: "metronome.set", patch: p });
-  const running = m.running;
   return (
     <div ref={wrap} className="relative">
       <div className="flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-900/95 p-1.5 shadow-lg backdrop-blur" role="group" aria-label="Metronome">
-        <button type="button" className={`grid h-9 w-9 place-items-center rounded-lg border transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 disabled:opacity-40 ${m.manual ? "border-sky-400 bg-sky-500/20 text-sky-100" : "border-slate-700 bg-slate-900 text-slate-200 hover:border-slate-500"}`} aria-pressed={m.manual} onClick={() => engine.do({ type: "metronome.toggle" })} disabled={!ready} title={m.manual ? "Stop the metronome" : "Start the metronome"} aria-label={m.manual ? "Stop the metronome" : "Start the metronome"}>
-          <Icon name={m.manual ? "square" : "play"} fill />
-        </button>
+        <TransportButton engine={engine} snap={snap} ready={ready} />
         <span className="flex items-center gap-0.5 rounded-lg border border-slate-700 bg-slate-900 px-1" title={m.locked ? "Tempo is locked while there is a loop. Clear every loop to change it." : "Tempo"}>
           <button type="button" className="px-1 text-slate-300 disabled:opacity-40" disabled={m.locked} onClick={() => set({ bpm: m.bpm - 1 })} aria-label="Slower">−</button>
           <input type="number" min={40} max={240} value={m.bpm} disabled={m.locked} onChange={(e) => set({ bpm: Number(e.target.value) })} aria-label="Beats per minute" className="h-8 w-11 bg-transparent text-center text-sm tabular-nums text-slate-100 focus:outline-none disabled:opacity-60" />
@@ -68,10 +65,22 @@ export default function MetronomeBar({ engine, snap, ready }: { engine: LooperEn
           </label>
           <label className="flex items-center gap-2"><input type="checkbox" className="accent-sky-400" checked={m.audible} onChange={(e) => set({ audible: e.target.checked })} /> Hear the click</label>
           <label className="flex items-center gap-2"><input type="checkbox" className="accent-sky-400" checked={m.showBeat} onChange={(e) => set({ showBeat: e.target.checked })} /> Show beat dots</label>
-          <p className="text-[11px] text-slate-500">The click runs whenever you record or play and is never recorded. {m.locked ? "Tempo and beats per bar are locked while there is a loop." : "The count-in plays before the first take and before the metronome starts on its own."}</p>
+          <p className="text-[11px] text-slate-500">The click runs while the transport plays and is never recorded. {m.locked ? "Tempo and beats per bar are locked while there is a loop." : "The count-in plays before the first take and before Play."}</p>
         </div>
       )}
     </div>
+  );
+}
+
+/** Play/Stop for everything: the clock and every armed loop and sequencer. Shown in the metronome bar and the Looping header. */
+export function TransportButton({ engine, snap, ready, className = "" }: { engine: LooperEngine; snap: LooperSnapshot; ready: boolean; className?: string }) {
+  const st = snap.transport.state;
+  const going = st === "countIn" || st === "running";
+  const label = going ? "Stop everything" : st === "stopping" ? "Stopping on the next line: play to carry on" : "Play";
+  return (
+    <button type="button" className={`grid h-9 w-9 place-items-center rounded-lg border transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 disabled:opacity-40 ${going ? "border-sky-400 bg-sky-500/20 text-sky-100" : st === "stopping" ? "border-amber-400/60 text-amber-200" : "border-slate-700 bg-slate-900 text-slate-200 hover:border-slate-500"} ${className}`} aria-pressed={going} onClick={() => engine.do({ type: "transport.set", on: !going })} disabled={!ready} title={label} aria-label={label}>
+      <Icon name={going ? "square" : "play"} fill />
+    </button>
   );
 }
 

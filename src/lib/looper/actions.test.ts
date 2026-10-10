@@ -5,6 +5,7 @@ import { moveEffect, type EffectSpec } from "./effects";
 import { ActionHistory } from "./history";
 import { DEFAULT_EDIT } from "./loopEdit";
 import { MacroRecorder, parseMacros, playMacro, serialiseMacros } from "./macros";
+import type { TransportState } from "./transport";
 
 /** A tiny in-memory stand-in for the engine. */
 function fake() {
@@ -15,7 +16,7 @@ function fake() {
     masterVolume: 1,
     masterMuted: false,
     masterEffects: [],
-    playing: false,
+    transport: { state: "stopped" as TransportState },
     metronome: { bpm: 120, beatsPerBar: 4, volume: 0.5, audible: true, showBeat: true, quantise: "bar", countInBars: 1 },
     sequencers: [{ id: "q1", name: "Drums", x: 5, y: 5, dest: "auto", playing: false, instrumentId: "drums", bars: 1, cells: [[1, 0, 0, 0], [0, 0, 2, 0]] }],
     patch: { nodes: [{ id: "in:0", kind: "input", muted: false, x: 0, y: 0 }, { id: "group:g1", kind: "group", muted: false, x: 300, y: 0 }, { id: "sw", kind: "switch", muted: false, x: 150, y: 0, inMulti: false, outMulti: false }, { id: "chain", kind: "fx", muted: false, x: 150, y: 150, name: "Amp", effects: [{ id: "a1", kind: "reverb", bypass: false, post: false, params: { mix: 0.3 } }] }], links: [{ id: "k1", from: "in:0", to: "group:g1", port: "rec", muted: false }] },
@@ -46,7 +47,7 @@ function fake() {
     setMasterVolume: (v) => { s.masterVolume = v; },
     setMasterMuted: (on) => { s.masterMuted = on; },
     setMetronome: (p: MetronomePatch) => { Object.assign(s.metronome, p); },
-    setPlaying: (on) => { s.playing = on; },
+    setTransport: (on) => { s.transport.state = on ? "running" : "stopped"; },
     setEffectParam: (g, f, k, v) => { gr(g).effects.find((e) => e.id === f)!.params[k] = v; },
     toggleEffectBypass: (g, f) => { const e = gr(g).effects.find((x) => x.id === f)!; e.bypass = !e.bypass; },
     setEffectPost: (g, f, p) => { gr(g).effects.find((e) => e.id === f)!.post = p; },
@@ -74,7 +75,6 @@ function fake() {
     fxMove: (tg, id, dir) => { const l = list(tg); if (l) l.splice(0, l.length, ...moveEffect(l as EffectSpec[], id, dir)); },
     fxParam: (tg, id, k, v) => { list(tg)!.find((e) => e.id === id)!.params[k] = v; },
     fxBypass: (tg, id, b) => { list(tg)!.find((e) => e.id === id)!.bypass = b; },
-    toggleMetronome: () => { s.metronome.audible = !s.metronome.audible; },
   };
   return { s, t };
 }
@@ -105,6 +105,7 @@ const SAMPLES: LooperAction[] = [
   { type: "master.volume", value: 0.5 },
   { type: "master.mute", on: true },
   { type: "metronome.set", patch: { bpm: 90, audible: false } },
+  { type: "transport.set", on: true },
   { type: "playback.set", on: true },
   { type: "effect.param", groupId: "g1", fxId: "fx1", key: "mix", value: 0.9 },
   { type: "effect.bypass", groupId: "g1", fxId: "fx1", bypass: true },
@@ -166,10 +167,10 @@ test("history: undo, redo, jump and a dropped redo tail", () => {
   const h = new ActionHistory(t, { now: () => now });
   h.do({ type: "master.volume", value: 0.5 }); now += 5000;
   h.do({ type: "loop.mute", id: 0, muted: true }); now += 5000;
-  h.do({ type: "playback.set", on: true });
+  h.do({ type: "transport.set", on: true });
   assert.equal(h.getState().entries.length, 3);
   h.undo();
-  assert.equal(s.playing, false);
+  assert.equal(s.transport.state, "stopped");
   h.undo();
   assert.equal(s.channels[0].muted, false);
   h.redo();
@@ -178,7 +179,7 @@ test("history: undo, redo, jump and a dropped redo tail", () => {
   assert.equal(s.masterVolume, 1);
   assert.equal(h.getState().cursor, 0);
   h.jumpTo(2);
-  assert.equal(s.playing, true);
+  assert.equal(s.transport.state, "running");
   h.undo();
   h.do({ type: "master.volume", value: 0.1 });
   assert.equal(h.canRedo, false);
@@ -207,7 +208,7 @@ test("history merges a drag into one line that undoes to where it began", () => 
 test("history limit drops the oldest lines", () => {
   const { t } = fake();
   const h = new ActionHistory(t, { limit: 3 });
-  for (let i = 0; i < 6; i++) h.do({ type: "playback.set", on: i % 2 === 0 });
+  for (let i = 0; i < 6; i++) h.do({ type: "transport.set", on: i % 2 === 0 });
   assert.equal(h.getState().entries.length, 3);
 });
 
@@ -219,7 +220,7 @@ test("macros: record, serialise, parse, replay and undo as one", () => {
   rec.start();
   h.do({ type: "loop.mute", id: 0, muted: true }); now += 400;
   h.do({ type: "master.volume", value: 0.4 }); now += 600;
-  h.do({ type: "playback.set", on: true });
+  h.do({ type: "transport.set", on: true });
   const m = rec.stop("Intro", "m1");
   assert.ok(m);
   assert.deepEqual(m.steps.map((x) => x.t), [0, 400, 1000]);
@@ -243,12 +244,12 @@ test("macros: record, serialise, parse, replay and undo as one", () => {
   assert.equal(ended, true);
   assert.equal(rec.stepCount, 0);
   assert.equal(s.masterVolume, 0.4);
-  assert.equal(s.playing, true);
+  assert.equal(s.transport.state, "running");
   assert.equal(s.channels[0].muted, true);
   assert.equal(h.getState().entries.length, 3);
   h.undo();
   assert.equal(s.masterVolume, 1);
-  assert.equal(s.playing, false);
+  assert.equal(s.transport.state, "stopped");
   assert.equal(s.channels[0].muted, false);
   assert.equal(h.getState().cursor, 0);
   assert.equal(rec.stop("x"), null);
@@ -259,12 +260,12 @@ test("macro playback can be cancelled", () => {
   const h = new ActionHistory(t);
   const queue: (() => void)[] = [];
   const cancelled: boolean[] = [];
-  const cancel = playMacro(h, { version: 1, id: "c", name: "c", createdAt: 0, duration: 10, steps: [{ t: 0, action: { type: "playback.set", on: true } }, { t: 10, action: { type: "master.volume", value: 0.2 } }] }, {
+  const cancel = playMacro(h, { version: 1, id: "c", name: "c", createdAt: 0, duration: 10, steps: [{ t: 0, action: { type: "transport.set", on: true } }, { t: 10, action: { type: "master.volume", value: 0.2 } }] }, {
     schedule: (fn) => { queue.push(fn); let dead = false; cancelled.push(false); const i = cancelled.length - 1; return () => { dead = true; cancelled[i] = true; void dead; }; },
   });
   queue[0]();
   cancel();
-  assert.equal(s.playing, true);
+  assert.equal(s.transport.state, "running");
   assert.deepEqual(cancelled, [true, true]);
 });
 
@@ -341,4 +342,27 @@ test("invalid new actions are rejected", () => {
   assert.ok(!isAction({ type: "sequencer.set", id: "q", patch: { bars: "2" } }));
   assert.ok(!isAction({ type: "input.add", spec: { kind: "sequencer" } }));
   assert.ok(isAction({ type: "sequencer.set", id: "q", patch: { rows: ["x...x...x...x..."], bars: 1 } }));
+});
+
+test("transport.set plays and stops, and undoes to where it was", () => {
+  const { s, t } = fake();
+  const h = new ActionHistory(t);
+  h.do({ type: "transport.set", on: true });
+  assert.equal(s.transport.state, "running");
+  h.undo();
+  assert.equal(s.transport.state, "stopped");
+  assert.equal(describeAction({ type: "transport.set", on: true }), "Play");
+  assert.equal(describeAction({ type: "transport.set", on: false }), "Stop");
+});
+
+test("legacy playback.set and metronome.toggle drive the transport", () => {
+  const { s, t } = fake();
+  applyAction(t, { type: "playback.set", on: true });
+  assert.equal(s.transport.state, "running");
+  applyAction(t, { type: "metronome.toggle" });
+  assert.equal(s.transport.state, "stopped");
+  applyAction(t, { type: "metronome.toggle" });
+  assert.equal(s.transport.state, "running");
+  assert.equal(isAction({ type: "transport.set", on: true }), true);
+  assert.equal(isAction({ type: "transport.set" }), false);
 });

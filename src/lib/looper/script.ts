@@ -35,7 +35,6 @@ export const ACTION_CATALOG: CatalogEntry[] = [
   { type: "fx.move", doc: "Move an effect one place earlier (-1) or later (1) in its chain.", example: { type: "fx.move", target: { input: 10 }, id: "lp", dir: -1 } },
   { type: "fx.remove", doc: "Remove an effect.", example: { type: "fx.remove", target: { input: 10 }, id: "lp" } },
   { type: "metronome.set", doc: "Metronome: bpm, beatsPerBar, volume, audible, showBeat, quantise (bars, beats, off), countInBars. Tempo is locked once a loop exists.", example: { type: "metronome.set", patch: { bpm: 100 } } },
-  { type: "metronome.toggle", doc: "Metronome on or off.", example: { type: "metronome.toggle" } },
   { type: "loop.add", doc: "Add a loop slot (max 8). Loops are numbered from 0.", example: { type: "loop.add" } },
   { type: "loop.record", doc: "Record into a loop from the inputs. The first take sets the loop length.", example: { type: "loop.record", id: 0 } },
   { type: "record.stop", doc: "Stop the take in progress.", example: { type: "record.stop" } },
@@ -54,7 +53,7 @@ export const ACTION_CATALOG: CatalogEntry[] = [
   { type: "patch.removeNode", doc: "Remove an effect chain or a switch with its connections.", example: { type: "patch.removeNode", id: "amp1" } },
   { type: "patch.move", doc: "Move an element on the patch canvas.", example: { type: "patch.move", id: "amp1", x: 320, y: 80 } },
   { type: "loop.clear", doc: "Empty one loop (cannot be undone).", example: { type: "loop.clear", id: 0 } },
-  { type: "playback.set", doc: "Play everything from the top, or stop.", example: { type: "playback.set", on: true } },
+  { type: "transport.set", doc: "Play (the clock and every armed loop and sequencer) or stop everything.", example: { type: "transport.set", on: true } },
   { type: "master.volume", doc: "Master volume.", example: { type: "master.volume", value: 0.9 } },
   { type: "batch", doc: "Several actions as one step.", example: { type: "batch", label: "Duck", actions: [{ type: "master.volume", value: 0.5 }] } },
 ];

@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { applyInputMode, assemble, channelChoices, channelLabel, detectChannels, eachChannel, inputChannels, beatFrames, beatInBar, effectiveGain, loopOffset, msToFrames, nextBoundary, peaks, quantUnitFrames, quantiseLength, type Chunk } from "./frames";
+import { applyInputMode, assemble, channelChoices, channelLabel, cycleBars, detectChannels, eachChannel, inputChannels, beatFrames, beatInBar, effectiveGain, loopOffset, msToFrames, nextBoundary, peaks, quantUnitFrames, quantiseLength, timelineOrigin, timelinePosition, type Chunk } from "./frames";
 
 const chunk = (frame: number, values: number[]): Chunk => ({ frame, l: new Float32Array(values), r: new Float32Array(values.map((v) => -v)) });
 
@@ -144,5 +144,37 @@ describe("device channels", () => {
   it("makes one strip per channel", () => {
     assert.deepEqual(eachChannel(4), [{ mode: "left", pair: 0 }, { mode: "right", pair: 0 }, { mode: "left", pair: 1 }, { mode: "right", pair: 1 }]);
     assert.equal(eachChannel(1).length, 2);
+  });
+});
+
+describe("timeline", () => {
+  it("cycle is the longest loop in bars, at least one", () => {
+    assert.equal(cycleBars([]), 1);
+    assert.equal(cycleBars([2, 4, 1]), 4);
+    assert.equal(cycleBars([0.4]), 1);
+    assert.equal(cycleBars([2.01]), 2);
+  });
+  it("timelinePosition walks bars and beats and wraps at the cycle end", () => {
+    // 120 bpm, 4/4: beat 0.5 s, bar 2 s, cycle of 2 bars = 4 s
+    assert.deepEqual(timelinePosition(10, 10, 0.5, 4, 2), { bar: 0, beat: 0, fraction: 0, countIn: false });
+    assert.deepEqual(timelinePosition(12.75, 10, 0.5, 4, 2), { bar: 1, beat: 1, fraction: 0.6875, countIn: false });
+    assert.deepEqual(timelinePosition(14, 10, 0.5, 4, 2), { bar: 0, beat: 0, fraction: 0, countIn: false });
+  });
+  it("timelinePosition during the count-in", () => {
+    // anchor 10, one count-in bar from 8 to 10
+    const p = timelinePosition(8.6, 10, 0.5, 4, 2);
+    assert.equal(p.countIn, true);
+    assert.equal(p.bar, 0);
+    assert.equal(p.beat, 1);
+    assert.equal(p.fraction, 0);
+  });
+  it("timelineOrigin follows the take, then the longest loop, then the grid", () => {
+    // counting in: the grid's beat 1
+    assert.equal(timelineOrigin({ countIn: true, takeAt: 9, loopOrigin: 7, anchor: 12 }), 12);
+    // a take that started bars after beat 1 is measured from where it started
+    assert.equal(timelineOrigin({ countIn: false, takeAt: 9, loopOrigin: 7, anchor: 1 }), 9);
+    // no take: the longest armed loop's own start
+    assert.equal(timelineOrigin({ countIn: false, takeAt: null, loopOrigin: 7, anchor: 1 }), 7);
+    assert.equal(timelineOrigin({ countIn: false, takeAt: null, loopOrigin: null, anchor: 1 }), 1);
   });
 });

@@ -20,7 +20,7 @@ test("a plan from an AI: fences, prose around it, bad lines reported", () => {
 });
 
 test("steps with times are kept in order; objects with actions work too", () => {
-  const r = parseScript(JSON.stringify({ steps: [{ t: 500, action: { type: "master.volume", value: 0.5 } }, { t: 0, action: { type: "playback.set", on: true } }] }));
+  const r = parseScript(JSON.stringify({ steps: [{ t: 500, action: { type: "master.volume", value: 0.5 } }, { t: 0, action: { type: "transport.set", on: true } }] }));
   assert.deepEqual(r.macro?.steps.map((s) => s.t), [0, 500]);
   assert.equal(r.macro?.duration, 500);
   assert.equal(parseScript(JSON.stringify({ actions: [{ type: "loop.add" }] })).macro?.steps.length, 1);

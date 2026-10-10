@@ -43,7 +43,7 @@ const arrowStep = (e: RKeyboardEvent): [number, number] | null => {
 };
 
 /** The looping stage: loops are circles with a progress ring; coloured groups are boxes you can move and resize. A loop inside a group plays through that group's bus. */
-export default function LoopStage({ engine, snap, openSeqs, onToggleSeq, fill = false, patchSeq = false, pins = true }: { patchSeq?: boolean; /** effect widgets on the stage (the fixed layout); the canvas views show them as canvas widgets */ pins?: boolean; engine: LooperEngine; snap: LooperSnapshot; getPosition?: () => number | null; openSeqs: string[]; onToggleSeq: (id: string) => void; fill?: boolean }) {
+export default function LoopStage({ engine, snap, openSeqs, onToggleSeq, fill = false, patchSeq = false, pins = true }: { patchSeq?: boolean; /** effect widgets on the stage (the fixed layout); the canvas views show them as canvas widgets */ pins?: boolean; engine: LooperEngine; snap: LooperSnapshot; openSeqs: string[]; onToggleSeq: (id: string) => void; fill?: boolean }) {
   const stage = useRef<HTMLDivElement>(null);
   const [fxFor, setFxFor] = useState<string | null>(null);
   const [editFor, setEditFor] = useState<number | null>(null);
@@ -51,6 +51,8 @@ export default function LoopStage({ engine, snap, openSeqs, onToggleSeq, fill = 
   const ready = snap.status === "ready";
   const busy = snap.channels.some((c) => c.state === "recording" || c.state === "armed");
   const firstTake = snap.loopSeconds === null;
+  // the transport is heading to play (its button shows Stop); group and item buttons show Stop only for armed things then
+  const going = snap.transport.state === "countIn" || snap.transport.state === "running";
   const baseBars = (() => {
     if (snap.loopSeconds === null) return null;
     const b = (snap.loopSeconds * snap.metronome.bpm) / 60 / snap.metronome.beatsPerBar;
@@ -115,15 +117,15 @@ export default function LoopStage({ engine, snap, openSeqs, onToggleSeq, fill = 
             {pins && <EffectWidgets engine={engine} snap={snap} drag={(e, onMove) => startDrag(e, stage.current, onMove)} />}
       <div ref={stage} data-pan="1" className="relative select-none" style={{ width: STAGE_W, height: STAGE_H }}>
         {snap.groups.map((g) => (
-          <GroupBox key={g.id} engine={engine} g={g} stage={stage} count={snap.channels.filter((c) => c.groupId === g.id && c.state !== "empty").length + snap.sequencers.filter((q) => q.groupId === g.id).length} running={snap.channels.some((c) => c.groupId === g.id && c.state !== "empty" && c.active && snap.playing) || snap.sequencers.some((q) => q.groupId === g.id && q.playing)} onFx={() => setFxFor(g.id)} />
+          <GroupBox key={g.id} engine={engine} g={g} stage={stage} count={snap.channels.filter((c) => c.groupId === g.id && c.state !== "empty").length + snap.sequencers.filter((q) => q.groupId === g.id).length} running={snap.channels.some((c) => c.groupId === g.id && c.state !== "empty" && c.active && going) || snap.sequencers.some((q) => q.groupId === g.id && q.playing && going)} onFx={() => setFxFor(g.id)} />
         ))}
         {snap.channels.map((c) => {
           const g = snap.groups.find((x) => x.id === c.groupId);
-          return <LoopCircle key={c.id} engine={engine} ch={c} colour={g?.colour ?? "#94a3b8"} stage={stage} ready={ready} busy={busy} firstTake={firstTake} baseBars={baseBars} onEdit={() => setEditFor(c.id)} />;
+          return <LoopCircle key={c.id} engine={engine} ch={c} colour={g?.colour ?? "#94a3b8"} stage={stage} ready={ready} busy={busy} firstTake={firstTake} baseBars={baseBars} onEdit={() => setEditFor(c.id)} going={going} />;
         })}
         {snap.sequencers.map((q) => {
           const g = snap.groups.find((x) => x.id === q.groupId);
-          return <SeqCircle key={q.id} engine={engine} q={q} colour={g?.colour ?? "#94a3b8"} stage={stage} open={openSeqs.includes(q.id)} onOpen={() => onToggleSeq(q.id)} patchId={patchSeq} />;
+          return <SeqCircle key={q.id} engine={engine} q={q} colour={g?.colour ?? "#94a3b8"} stage={stage} open={openSeqs.includes(q.id)} onOpen={() => onToggleSeq(q.id)} patchId={patchSeq} going={going} />;
         })}
       </div>
           </div>
@@ -135,7 +137,9 @@ export default function LoopStage({ engine, snap, openSeqs, onToggleSeq, fill = 
   );
 }
 
-function LoopCircle({ engine, ch, colour, stage, ready, busy, firstTake, baseBars, onEdit }: { engine: LooperEngine; ch: ChannelInfo; colour: string; stage: RefObject<HTMLDivElement | null>; ready: boolean; busy: boolean; firstTake: boolean; baseBars: number | null; onEdit: () => void }) {
+function LoopCircle({ engine, ch, colour, stage, ready, busy, firstTake, baseBars, onEdit, going }: { engine: LooperEngine; ch: ChannelInfo; colour: string; stage: RefObject<HTMLDivElement | null>; ready: boolean; busy: boolean; firstTake: boolean; baseBars: number | null; onEdit: () => void; going: boolean }) {
+  // armed and the transport playing: the button stops it; otherwise it plays (arming starts the transport)
+  const on = ch.active && going && ch.state !== "empty";
   const arc = useRef<SVGCircleElement>(null);
   const pulse = useRef<SVGCircleElement>(null);
   const barEl = useRef<HTMLSpanElement>(null);
@@ -212,7 +216,7 @@ function LoopCircle({ engine, ch, colour, stage, ready, busy, firstTake, baseBar
       <div className="flex items-center gap-1">
         <button type="button" className={`${tbtn} ${ch.muted ? "!border-amber-400 !text-amber-200" : ""}`} aria-pressed={ch.muted} disabled={ch.state === "empty"} onClick={() => engine.do({ type: "loop.mute", id: ch.id, muted: !ch.muted })} title="Mute" aria-label={`Mute ${ch.name}`}>M</button>
         <button type="button" className={`${tbtn} ${ch.solo ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={ch.solo} disabled={ch.state === "empty"} onClick={() => engine.do({ type: "loop.solo", id: ch.id, solo: !ch.solo })} title="Solo" aria-label={`Solo ${ch.name}`}>S</button>
-        <button type="button" className={`${tbtn} ${ch.active && ch.state !== "empty" ? "" : ""}`} disabled={ch.state === "empty"} onClick={() => engine.do({ type: "loop.active", id: ch.id, on: !ch.active })} title={ch.active ? "Stop on the next beat" : "Start on the next beat"} aria-label={ch.active ? `Stop ${ch.name}` : `Start ${ch.name}`} aria-pressed={ch.active}><Icon name={ch.active ? "square" : "play"} size={11} fill /></button>
+        <button type="button" className={`${tbtn} ${ch.active && ch.state !== "empty" ? "" : ""}`} disabled={ch.state === "empty"} onClick={() => engine.do({ type: "loop.active", id: ch.id, on: !on })} title={on ? "Stop on the next beat" : "Play"} aria-label={on ? `Stop ${ch.name}` : `Play ${ch.name}`} aria-pressed={on}><Icon name={on ? "square" : "play"} size={11} fill /></button>
         <button type="button" className={tbtn} disabled={ch.state === "empty" || recording} onClick={onEdit} title="Waveform and edits" aria-label={`Edit ${ch.name}`}><Icon name="activity" size={12} /></button>
         <button type="button" className={tbtn} disabled={ch.state === "empty"} onClick={() => engine.do({ type: "loop.clear", id: ch.id })} title="Clear this loop" aria-label={`Clear ${ch.name}`}><Icon name="trash" size={12} /></button>
       </div>
@@ -221,9 +225,11 @@ function LoopCircle({ engine, ch, colour, stage, ready, busy, firstTake, baseBar
   );
 }
 
-function SeqCircle({ engine, q, colour, stage, open, onOpen, patchId = false }: { patchId?: boolean; engine: LooperEngine; q: LooperSnapshot["sequencers"][number]; colour: string; stage: RefObject<HTMLDivElement | null>; open: boolean; onOpen: () => void }) {
+function SeqCircle({ engine, q, colour, stage, open, onOpen, patchId = false, going }: { patchId?: boolean; engine: LooperEngine; q: LooperSnapshot["sequencers"][number]; colour: string; stage: RefObject<HTMLDivElement | null>; open: boolean; onOpen: () => void; going: boolean }) {
+  // armed and the transport playing: the button stops it; otherwise it plays (arming starts the transport)
+  const on = q.playing && going;
   const arc = useRef<SVGCircleElement>(null);
-  const toggle = () => engine.setSequencerPlaying(q.id, !q.playing);
+  const toggle = () => engine.do({ type: "sequencer.playing", id: q.id, on: !on });
   useEffect(() => {
     let raf = 0;
     const tick = () => {
@@ -246,19 +252,19 @@ function SeqCircle({ engine, q, colour, stage, open, onOpen, patchId = false }: 
     }
   };
   const size = LOOP_R * 2 - 8;
-  const ring = q.playing ? "#34d399" : colour;
+  const ring = q.running ? "#34d399" : colour;
   return (
     <div data-patch-id={patchId ? `seq:${q.id}` : undefined} className="absolute z-10 flex w-28 flex-col items-center gap-1.5" style={{ left: `${(q.x / STAGE_W) * 100}%`, top: `${(q.y / STAGE_H) * 100}%`, transform: `translate(-50%, -${LOOP_R - 4}px)` }}>
-      <button type="button" onPointerDown={onPointerDown} onKeyDown={onKeyDown} onClick={(e) => e.detail === 0 && toggle()} aria-pressed={q.playing} aria-label={`${q.playing ? "Stop" : "Start"} ${q.name} on the next beat. Drag to move; Alt and arrow keys move it.`} title={`${q.playing ? "Stop" : "Start"} on the next beat (drag to move)`} className="relative grid cursor-grab place-items-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-sky-400 active:cursor-grabbing" style={{ width: size, height: size, touchAction: "none" }}>
+      <button type="button" onPointerDown={onPointerDown} onKeyDown={onKeyDown} onClick={(e) => e.detail === 0 && toggle()} aria-pressed={on} aria-label={`${on ? "Stop" : "Play"} ${q.name} on the next beat. Drag to move; Alt and arrow keys move it.`} title={`${on ? "Stop" : "Play"} on the next beat (drag to move)`} className="relative grid cursor-grab place-items-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-sky-400 active:cursor-grabbing" style={{ width: size, height: size, touchAction: "none" }}>
         <svg viewBox="0 0 100 100" width={size} height={size} aria-hidden>
-          <rect x="14" y="14" width="72" height="72" rx="20" fill={q.playing ? `${ring}22` : "none"} stroke="#1e293b" strokeWidth="8" />
-          <circle ref={arc} cx="50" cy="50" r={RING} fill="none" stroke={ring} strokeWidth="8" strokeLinecap="round" strokeDasharray={CIRC} strokeDashoffset={CIRC} transform="rotate(-90 50 50)" opacity={q.playing ? 1 : 0.3} />
+          <rect x="14" y="14" width="72" height="72" rx="20" fill={q.running ? `${ring}22` : "none"} stroke="#1e293b" strokeWidth="8" />
+          <circle ref={arc} cx="50" cy="50" r={RING} fill="none" stroke={ring} strokeWidth="8" strokeLinecap="round" strokeDasharray={CIRC} strokeDashoffset={CIRC} transform="rotate(-90 50 50)" opacity={q.running ? 1 : q.playing ? 0.6 : 0.3} />
         </svg>
         <span className="absolute grid place-items-center" style={{ color: ring }}><Icon name="drum" size={24} /></span>
       </button>
       <span className="w-full truncate text-center text-[11px] font-medium text-slate-200" title={q.name}>{q.name}</span>
       <div className="flex items-center gap-1">
-        <button type="button" className={`${tbtn} ${q.playing ? "!border-emerald-500/70 !text-emerald-200" : ""}`} onClick={toggle} aria-pressed={q.playing} title={q.playing ? "Stop on the next beat" : "Start on the next beat"} aria-label={q.playing ? `Stop ${q.name}` : `Start ${q.name}`}><Icon name={q.playing ? "square" : "play"} size={11} fill /></button>
+        <button type="button" className={`${tbtn} ${on ? "!border-emerald-500/70 !text-emerald-200" : ""}`} onClick={toggle} aria-pressed={on} title={on ? "Stop on the next beat" : "Play"} aria-label={on ? `Stop ${q.name}` : `Play ${q.name}`}><Icon name={on ? "square" : "play"} size={11} fill /></button>
         <button type="button" className={`${tbtn} ${open ? "!border-sky-400 !text-sky-200" : ""}`} onClick={onOpen} aria-pressed={open} title="Open the step grid" aria-label={`Open the step grid of ${q.name}`}><Icon name="sliders-horizontal" size={12} /></button>
       </div>
     </div>

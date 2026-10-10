@@ -51,6 +51,8 @@ export class Metronome {
   private anchor = 0;
   /** index of the next beat to schedule, 0 is the downbeat at the anchor */
   private next = 0;
+  /** no click at or after this time (a stopping transport); null = no limit */
+  private until: number | null = null;
 
   constructor(private onChange: () => void) {}
 
@@ -88,7 +90,12 @@ export class Metronome {
       /* ignore */
     }
     // a tempo or bar change while running: carry on from the same anchor with the new spacing
-    if (this.running) this.start(this.anchor);
+    if (this.running) {
+      // keep a pending stop line
+      const until = this.until;
+      this.start(this.anchor);
+      this.until = until;
+    }
     this.onChange();
   }
 
@@ -100,6 +107,7 @@ export class Metronome {
   start(anchor: number) {
     if (!this.ctx) return;
     this.anchor = anchor;
+    this.until = null;
     const first = Math.ceil((this.ctx.currentTime - anchor) / this.period - 1e-9);
     this.next = first;
     if (!this.timer) this.timer = setInterval(() => this.schedule(), TICK_MS);
@@ -110,7 +118,18 @@ export class Metronome {
   stop() {
     if (this.timer) clearInterval(this.timer);
     this.timer = null;
+    this.until = null;
     this.onChange();
+  }
+
+  /** Click up to time `t` (exclusive), then stop. */
+  stopAt(t: number) {
+    this.until = t;
+  }
+
+  /** Forget a pending stop line and keep clicking. */
+  cancelStop() {
+    this.until = null;
   }
 
   /** Beat position for the display, or null when the metronome is not running. */
@@ -125,6 +144,10 @@ export class Metronome {
     if (!ctx || !this.out) return;
     while (this.anchor + this.next * this.period < ctx.currentTime + LOOKAHEAD) {
       const t = this.anchor + this.next * this.period;
+      if (this.until !== null && t >= this.until - 1e-6) {
+        this.stop();
+        return;
+      }
       if (t >= ctx.currentTime - 0.005) this.click(t, (((this.next % this.settings.beatsPerBar) + this.settings.beatsPerBar) % this.settings.beatsPerBar) === 0);
       this.next++;
     }
