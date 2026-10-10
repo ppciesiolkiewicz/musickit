@@ -417,11 +417,8 @@ export class LooperEngine {
     for (const q of this.sequencers.values()) {
       const id = `seq:${q.id}`;
       want.add(id);
-      if (!has(id)) {
-        add(id, "sequencer");
-        const gid = containingGroup(this.groups, q.state.x, q.state.y);
-        p = patchConnect(p, id, gid ? `group:${gid}` : "master");
-      }
+      // no link: sitting inside a group is the route (`routeSequencer`)
+      if (!has(id)) add(id, "sequencer");
     }
     // an element whose backing thing is gone (removed input, sequencer or group) leaves with its links
     p.nodes.forEach((n) => {

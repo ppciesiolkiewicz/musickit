@@ -81,7 +81,8 @@ export function whyNot(p: Patch, from: string, to: string, port: Port = "bus"): 
   if (!hasIn(b.kind)) return b.kind === "loop" ? "A loop plays into the bus of its group" : `${b.kind} has no input`;
   if (a.kind === "loop") return "A loop plays into the bus of its group";
   if (a.kind === "group" && b.kind !== "master") return "A group plays into the master";
-  if (a.kind === "sequencer" && b.kind !== "group" && b.kind !== "master") return "A sequencer keeps its own routing for now";
+  // sitting inside a group's box is the connection: a sequencer plays into that group's bus (the master outside every group)
+  if (a.kind === "sequencer") return "A sequencer plays into the group it sits in";
   if (a.kind === "synth") return "Sound generators are not wired yet";
   if (b.kind !== "group" && port === "rec") return "Only a group has a recorder";
   if (b.kind === "fx" && b.owner && b.owner !== from) return "That bus belongs to another input";
@@ -298,7 +299,7 @@ export function sanitisePatch(raw: unknown): Patch {
 
 /**
  * The patch that matches today's fixed routing, so old saves open unchanged: every hardware and software input feeds the
- * recorder of every group (any loop can record any input), each group is a bus into master, sequencers feed the bus of their group.
+ * recorder of every group (any loop can record any input), each group is a bus into master. Sequencers are elements without links: the group they sit in is their route.
  */
 export function defaultPatch(opts: { inputs: { id: number; kind: "device" | "extra" | "sequencer" | "scalepiano"; sourceId?: string }[]; groups: string[]; sequencers: { id: string; group: string | null }[] }): Patch {
   let p: Patch = emptyPatch();
@@ -317,7 +318,6 @@ export function defaultPatch(opts: { inputs: { id: number; kind: "device" | "ext
   });
   opts.sequencers.forEach((q, i) => {
     add(`seq:${q.id}`, "sequencer", 20 + i * 90, 200);
-    p = connect(p, `seq:${q.id}`, q.group ? `group:${q.group}` : "master");
   });
   return p;
 }

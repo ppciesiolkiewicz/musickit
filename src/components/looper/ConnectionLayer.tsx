@@ -13,7 +13,8 @@ interface Pt { x: number; y: number }
 const MUTED = "#64748b";
 /** The Looping widget always plays into the master: that route is drawn in this colour and cannot be changed. */
 const FIXED = "#cbd5e1";
-const OUT_KINDS: PatchKind[] = ["input", "piano", "sequencer", "synth", "fx", "switch"];
+/** Sequencers and loops have no connector: sitting inside a group is their connection. */
+const OUT_KINDS: PatchKind[] = ["input", "piano", "synth", "fx", "switch"];
 const TARGET_KINDS: PatchKind[] = ["fx", "switch", "group", "master"];
 
 let counter = 0;

@@ -118,8 +118,9 @@ describe("saved patches", () => {
     const p = defaultPatch({ inputs: [{ id: 0, kind: "device" }, { id: 1, kind: "scalepiano" }, { id: 2, kind: "sequencer", sourceId: "s1" }], groups: ["g1", "g2"], sequencers: [{ id: "s1", group: "g2" }, { id: "s2", group: null }] });
     assert.deepEqual(feeds(p, "group:g2", "rec").sort(), ["in:0", "in:1"]);
     assert.deepEqual(feeds(p, "group:g1", "bus"), []);
-    assert.deepEqual(pathTo(p, "seq:s1", "master"), ["seq:s1", "group:g2", "master"]);
-    assert.deepEqual(pathTo(p, "seq:s2", "master"), ["seq:s2", "master"]);
+    // a sequencer has no links: the group it sits in is its route
+    assert.ok(p.nodes.some((n) => n.id === "seq:s1"));
+    assert.ok(!p.links.some((l) => l.from.startsWith("seq:")));
     assert.equal(p.nodes.filter((n) => n.kind === "group").length, 2);
   });
 });
@@ -164,7 +165,10 @@ describe("canvas helpers", () => {
     assert.ok(whyNot(p, "bus", "sw"));
     assert.equal(whyNot(p, "bus", "master"), null);
     assert.ok(whyNot(p, "seq", "sw"));
-    assert.equal(whyNot(p, "seq", "bus"), null);
+    assert.ok(whyNot(p, "seq", "bus"));
+    assert.ok(whyNot(p, "seq", "master"));
+    // old saves lose a sequencer's links
+    assert.deepEqual(sanitisePatch({ nodes: p.nodes, links: [{ id: "x", from: "seq", to: "master" }] }).links, []);
     assert.ok(whyNot(p, "syn", "master"));
   });
 });
