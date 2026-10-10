@@ -15,6 +15,8 @@ export const MAX_INPUT_GAIN = 4;
 
 /** An audio interface input is heard live by default (that is what you want when playing through it); a built-in microphone is not, because it would feed back into the speakers. */
 export function defaultMonitor(kind: string, name: string): boolean {
+  // the keyboard (extra source) is heard only through its strip, so its mute, volume, effects and the master apply to it
+  if (kind === "extra") return true;
   return kind === "device" && !/built-?in|macbook|imac|internal|default|webcam|microphone/i.test(name);
 }
 

@@ -16,7 +16,7 @@ import { WidgetBoard } from "@/features/widgets";
 import type { DefaultLayout } from "@/features/widgets/board";
 import FloatingWindow from "../FloatingWindow";
 import Piano from "@/features/sound/keyboard/Piano";
-import { createPlayer, getAudioContext, getOutputBus } from "@/features/sound";
+import { createPlayer, getAudioContext } from "@/features/sound";
 import LoopStage from "./LoopStage";
 import FreeBoard from "./FreeBoard";
 import { PinBody, PinTitle, usePinned } from "./EffectWidgets";
@@ -104,6 +104,14 @@ function wireNam() {
 }
 
 /** What a project is made of in storage. Settings (metronome, output, MIDI, keyboard), macros and amp models stay. */
+/**
+ * Where the looper's on-screen keyboard plays: a node of its own in the shared AudioContext, not the app's output (which goes
+ * straight to the speakers). The engine takes it as the Piano strip's source, so the strip's mute, volume and effects and the
+ * master bus all apply to what you hear.
+ */
+let keyboardOut: GainNode | null = null;
+const getKeyboardOut = (): GainNode => (keyboardOut ??= getAudioContext().createGain());
+
 const PROJECT_KEYS = ["inputs", "layout", "sequencers", "scalePianos", "patch", "fxWidgets", "widgets"];
 
 function newProject() {
@@ -145,7 +153,7 @@ function StartupLoader({ engine, snap }: { engine: LooperEngine; snap: LooperSna
 function useEngine() {
   const [engine] = useState(() => {
     if (typeof window !== "undefined") wireNam();
-    return new LooperEngine({ getContext: getAudioContext, getExternalSource: getOutputBus, externalLabel: "Piano", createVoice: (_ctx, dest) => { const p = createPlayer({ instrumentId: "PIANO", destination: () => dest }); void p.preload().catch(() => undefined); return p; } });
+    return new LooperEngine({ getContext: getAudioContext, getExternalSource: getKeyboardOut, externalLabel: "Piano", createVoice: (_ctx, dest) => { const p = createPlayer({ instrumentId: "PIANO", destination: () => dest }); void p.preload().catch(() => undefined); return p; } });
   });
   useEffect(() => {
     engine.init();
@@ -355,7 +363,7 @@ export default function LooperApp() {
       )}
       {keyboardOpen && (
         <FloatingWindow title="Keyboard" storageKey="musickit.looper.keyboardWindow" fit onClose={() => setKeyboardOpen(false)}>
-          <Piano />
+          <Piano destination={getKeyboardOut} />
         </FloatingWindow>
       )}
       {openSeqs.filter((id) => snap.sequencers.some((q) => q.id === id)).map((id) => (

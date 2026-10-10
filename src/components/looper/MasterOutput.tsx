@@ -27,7 +27,7 @@ export function MasterEffects({ engine, snap, onClose }: { engine: LooperEngine;
   );
 }
 
-/** Level, volume and effects of the master bus. The same controls appear in the mixer and in the settings, because both are the one master bus. */
+/** Level, volume, mute and effects of the master bus. The same controls appear in the mixer and in the settings, because both are the one master bus. */
 export default function MasterControls({ engine, snap }: { engine: LooperEngine; snap: LooperSnapshot }) {
   const [fx, setFx] = useState(false);
   const getMaster = useMemo(() => () => engine.getMasterLevel(), [engine]);
@@ -36,6 +36,7 @@ export default function MasterControls({ engine, snap }: { engine: LooperEngine;
     <>
       <LevelMeter vertical getLevel={getMaster} />
       <input type="range" min={0} max={1.5} step={0.01} value={snap.masterVolume} onChange={(e) => engine.do({ type: "master.volume", value: Number(e.target.value) })} className="w-24 accent-sky-400" aria-label="Master volume" title={`Master ${Math.round(snap.masterVolume * 100)}%`} />
+      <button type="button" className={`${tbtn} ${snap.masterMuted ? "!border-amber-400 !text-amber-200" : ""}`} aria-pressed={snap.masterMuted} onClick={() => engine.do({ type: "master.mute", on: !snap.masterMuted })} title={snap.masterMuted ? "Unmute the master bus" : "Mute the master bus"} aria-label="Mute the master bus">M</button>
       <button type="button" className={`${tbtn} relative`} onClick={() => setFx(true)} title={`Effects on the master bus${n ? ` (${n})` : ""}`} aria-label="Effects of the master bus">
         <Icon name="audio-lines" size={13} />
         {n > 0 && <span className="absolute -right-1 -top-1 grid h-3.5 min-w-3.5 place-items-center rounded-full bg-sky-500 px-0.5 text-[9px] font-semibold text-slate-950">{n}</span>}

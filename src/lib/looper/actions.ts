@@ -33,6 +33,8 @@ export type LooperAction =
   | { type: "group.set"; id: string; patch: GroupPatch }
   | { type: "group.active"; id: string; on: boolean }
   | { type: "master.volume"; value: number }
+  /** silence everything at the master fader (the volume is kept for unmuting) */
+  | { type: "master.mute"; on: boolean }
   | { type: "metronome.set"; patch: MetronomePatch }
   | { type: "playback.set"; on: boolean }
   | { type: "effect.param"; groupId: string; fxId: string; key: string; value: number }
@@ -128,6 +130,7 @@ export interface ActionState {
   groups: { id: string; name: string; colour: string; volume: number; muted: boolean; x: number; y: number; w: number; h: number; effects: EffectState[] }[];
   inputs: { id: number; kind: string; name: string; deviceId: string; mode: InputMode; volume: number; muted: boolean; solo: boolean; monitor: boolean; effects: EffectState[] }[];
   masterVolume: number;
+  masterMuted: boolean;
   /** effects on the master bus, before (post: false) and after its fader */
   masterEffects: EffectState[];
   playing: boolean;
@@ -165,6 +168,7 @@ export interface ActionTarget {
   updateGroup(id: string, patch: GroupPatch): void;
   setGroupActive(id: string, on: boolean): void;
   setMasterVolume(v: number): void;
+  setMasterMuted(on: boolean): void;
   setMetronome(patch: MetronomePatch): void;
   setPlaying(on: boolean): void;
   setEffectParam(groupId: string, fxId: string, key: string, value: number): void;
@@ -220,6 +224,7 @@ export function applyAction(t: ActionTarget, a: LooperAction): LooperAction | nu
     case "group.set": t.updateGroup(a.id, a.patch); return a;
     case "group.active": t.setGroupActive(a.id, a.on); return a;
     case "master.volume": t.setMasterVolume(a.value); return a;
+    case "master.mute": if (t.getSnapshot().masterMuted === a.on) return null; t.setMasterMuted(a.on); return a;
     case "metronome.set": t.setMetronome(a.patch); return a;
     case "metronome.toggle": t.toggleMetronome(); return a;
     case "playback.set": t.setPlaying(a.on); return a;
@@ -322,6 +327,7 @@ export function inverseOf(a: LooperAction, s: ActionState): LooperAction | null 
     }
     case "group.active": return gr(a.id) ? { type: a.type, id: a.id, on: !a.on } : null;
     case "master.volume": return { type: a.type, value: s.masterVolume };
+    case "master.mute": return { type: a.type, on: s.masterMuted };
     case "metronome.set": {
       const before: Record<string, unknown> = {};
       (Object.keys(a.patch) as (keyof MetronomeSettings)[]).forEach((k) => { before[k] = s.metronome[k]; });
@@ -446,6 +452,7 @@ export function describeAction(a: LooperAction, s?: ActionState): string {
     }
     case "group.active": return `${a.on ? "Start" : "Stop"} ${group(a.id)}`;
     case "master.volume": return `Master volume ${pct(a.value)}`;
+    case "master.mute": return a.on ? "Mute the master" : "Unmute the master";
     case "metronome.set": return `Metronome: ${Object.entries(a.patch).map(([k, v]) => `${k} ${v}`).join(", ")}`;
     case "playback.set": return a.on ? "Play all" : "Stop all";
     case "effect.param": return `${group(a.groupId)} effect ${a.key} ${Math.round(a.value * 100) / 100}`;
@@ -555,6 +562,7 @@ export function isAction(v: unknown, depth = 0): v is LooperAction {
     case "group.set": return isStr(a.id) && validPatch(a.patch, GROUP_KEYS);
     case "group.active": return isStr(a.id) && isBool(a.on);
     case "master.volume": return isNum(a.value);
+    case "master.mute": return typeof a.on === "boolean";
     case "metronome.set": return validPatch(a.patch, METRO_KEYS);
     case "playback.set": return isBool(a.on);
     case "effect.param": return isStr(a.groupId) && isStr(a.fxId) && isStr(a.key) && isNum(a.value);

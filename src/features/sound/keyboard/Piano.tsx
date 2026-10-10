@@ -76,7 +76,8 @@ function buildKeyCodeToNote(viewOctave: number): Map<string, string> {
   return map;
 }
 
-export default function Piano() {
+/** `destination` is where its sound goes (the app's output by default); the looper passes its own node so the sound runs through its mixer. */
+export default function Piano({ destination }: { destination?: () => AudioNode } = {}) {
   const instrumentOptions = useInstrumentOptions();
   const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
   const [viewOctave, setViewOctave] = useState(3);
@@ -88,7 +89,7 @@ export default function Piano() {
   const [midiError, setMidiError] = useState<string | null>(null);
 
   // This keyboard has its own player, so the instrument chosen here does not change what other pages play.
-  const [player] = useState(() => createPlayer({ instrumentId: "PIANO" }));
+  const [player] = useState(() => createPlayer({ instrumentId: "PIANO", destination }));
   const playNote = useCallback((n: string) => player.noteOn(n), [player]);
   const stopNote = useCallback((n: string) => player.noteOff(n), [player]);
   const stopAllNotes = useCallback(() => player.allOff(), [player]);

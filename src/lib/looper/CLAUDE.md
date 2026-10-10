@@ -19,7 +19,7 @@ Routing: Input → (input effects) → recorder → Loop → Bus (of its Group) 
 
 ## Keep it separate
 - `src/lib/looper/*` (engine, mixer, frames, worklet) imports nothing outside `src/lib/looper`. No `@/lib/audio`, no theory, no React.
-- The app injects what the engine needs through options: `getContext` (shared AudioContext) and `getExternalSource` / `externalLabel` (the piano's output bus). Wiring lives only in `LooperApp.tsx`.
+- The app injects what the engine needs through options: `getContext` (shared AudioContext) and `getExternalSource` / `externalLabel` (the looper keyboard's own node, `getKeyboardOut` in `LooperApp`; never the app's output bus, which reaches the speakers around the master). The keyboard strip is monitored by default (`defaultMonitor`), so it is heard through its strip and the master. The master mute (`master.mute`) shuts the master fader and keeps the volume. Wiring lives only in `LooperApp.tsx`.
 - Looper UI lives in `src/components/looper/`. It may use generic shared pieces (`Modal`, `FloatingWindow`, `Piano`) but nothing from chordKit, and no other feature may import from the looper.
 - Never edit non-looper files for looper reasons except the single injection point and the nav link.
 

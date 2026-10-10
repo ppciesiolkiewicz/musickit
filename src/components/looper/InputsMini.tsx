@@ -23,11 +23,17 @@ export default function InputsMini({ engine, snap, keyboardOpen, onToggleKeyboar
   const muted = inputs.filter((i) => i.muted).length;
   return (
     <section className="flex max-h-[calc(100vh-6rem)] w-72 max-w-[calc(100vw-1rem)] flex-col rounded-xl border border-slate-700 bg-slate-900/95 text-xs shadow-lg backdrop-blur" aria-label="Inputs at a glance">
-      <button type="button" onClick={toggle} aria-expanded={open} className="flex w-full shrink-0 items-center gap-1.5 rounded-xl px-2 py-1.5 text-left text-slate-300 hover:text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
-        <Icon name={open ? "chevron-down" : "chevron-right"} size={14} />
-        <span className="font-medium">Inputs</span>
-        <span className="text-slate-500">{inputs.length}{muted ? ` · ${muted} muted` : ""}</span>
-      </button>
+      <div className="flex shrink-0 items-center gap-1 pr-1.5">
+        <button type="button" onClick={toggle} aria-expanded={open} className="flex min-w-0 flex-1 items-center gap-1.5 rounded-xl px-2 py-1.5 text-left text-slate-300 hover:text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
+          <Icon name={open ? "chevron-down" : "chevron-right"} size={14} />
+          <span className="font-medium">Inputs</span>
+          <span className="truncate text-slate-500">{inputs.length}{muted ? ` · ${muted} muted` : ""}</span>
+        </button>
+        {/* the master bus: silences everything you hear (not the metronome click, which has its own bell) */}
+        <button type="button" className={`flex h-6 shrink-0 items-center gap-1 rounded-md border px-1.5 text-[10px] transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${snap.masterMuted ? "border-amber-400 bg-amber-500/15 text-amber-200" : "border-slate-700 bg-slate-900 text-slate-300 hover:border-slate-500"}`} aria-pressed={snap.masterMuted} onClick={() => engine.do({ type: "master.mute", on: !snap.masterMuted })} title={snap.masterMuted ? "Unmute the master bus" : "Mute everything (the master bus)"} aria-label="Mute the master bus">
+          <Icon name={snap.masterMuted ? "volume-x" : "volume-2"} size={12} />Master
+        </button>
+      </div>
       {open && (
         <ul className="flex min-h-0 flex-col gap-0.5 overflow-y-auto px-1.5 pb-1.5">
           {inputs.length === 0 && <li className="px-1 py-1 text-slate-500">No inputs yet.</li>}

@@ -127,6 +127,8 @@ export interface LooperSnapshot {
   /** devices that are not connected but probably should be (empty when all is well) */
   gear: GearIssue[];
   masterVolume: number;
+  /** the master fader is shut (everything silent); the volume is kept for unmuting */
+  masterMuted: boolean;
   /** effects on the master bus (the global output): before and after its fader */
   masterEffects: EffectSpec[];
   sampleRate: number;
@@ -201,6 +203,7 @@ export class LooperEngine {
   private fxCounter = 0;
   private groupCounter = 5;
   private masterVolume = 1;
+  private masterMuted = false;
   private masterEffects: EffectSpec[] = [];
   private masterFader: GainNode | null = null;
   private mainOut: GainNode | null = null;
@@ -296,6 +299,7 @@ export class LooperEngine {
       loopSeconds: this.loopLength,
       channels: this.runtimes.map((r) => ({ ...r.info })),
       masterVolume: this.masterVolume,
+      masterMuted: this.masterMuted,
       masterEffects: this.masterEffects.map((e) => ({ ...e, params: { ...e.params } })),
       patch: this.patch,
       patchActive: activeLinks(this.patch).map((l) => l.id),
@@ -912,7 +916,7 @@ export class LooperEngine {
     this.master = ctx.createGain();
     this.masterPre = new EffectChain(ctx);
     this.masterFader = ctx.createGain();
-    this.masterFader.gain.value = this.masterVolume;
+    this.masterFader.gain.value = this.masterMuted ? 0 : this.masterVolume;
     this.masterPost = new EffectChain(ctx);
     this.master.connect(this.masterPre.input);
     this.masterPre.output.connect(this.masterFader);
@@ -1239,8 +1243,18 @@ export class LooperEngine {
 
   setMasterVolume(v: number) {
     this.masterVolume = Math.min(1.5, Math.max(0, v));
-    if (this.masterFader && this.ctx) this.masterFader.gain.setTargetAtTime(this.masterVolume, this.ctx.currentTime, 0.02);
+    this.applyMasterFader();
     this.emit();
+  }
+
+  setMasterMuted(on: boolean) {
+    this.masterMuted = on;
+    this.applyMasterFader();
+    this.emit();
+  }
+
+  private applyMasterFader() {
+    if (this.masterFader && this.ctx) this.masterFader.gain.setTargetAtTime(this.masterMuted ? 0 : this.masterVolume, this.ctx.currentTime, 0.02);
   }
 
   getInputLevel(id: number): number {
