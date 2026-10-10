@@ -27,6 +27,7 @@ import { togglePin } from "./fxPins";
 import { Toasts } from "./toast";
 import { Modal } from "../Modal";
 import MetronomeBar, { TransportButton } from "./MetronomeBar";
+import Timeline from "./Timeline";
 import InputsMini from "./InputsMini";
 import ScalePianoPanel from "./ScalePianoPanel";
 import SequencerPanel from "./SequencerPanel";
@@ -251,7 +252,6 @@ const mixLayout: DefaultLayout = (ids, b) => {
 export default function LooperApp() {
   const { engine, snap } = useEngine();
   const ready = snap.status === "ready";
-  const getPosition = useMemo(() => () => engine.getPosition(), [engine]);
   const getLevel = useMemo(() => () => engine.getLevel(), [engine]);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [newOpen, setNewOpen] = useState(false);
@@ -325,7 +325,7 @@ export default function LooperApp() {
         <TransportButton engine={engine} snap={snap} ready={ready} className="!h-8 !w-8" />
         <button type="button" className={ibtn} disabled={!ready || snap.channels.every((c) => c.state === "empty")} onClick={() => engine.do({ type: "loop.clearAll" })} title="Clear every loop" aria-label="Clear every loop"><Icon name="trash" /></button>
         <span className="text-xs tabular-nums text-slate-400">{headerLabel(snap)}</span>
-        <LoopBar getPosition={getPosition} />
+        <Timeline engine={engine} beatsPerBar={snap.metronome.beatsPerBar} />
     </>
   );
   const looping = (fill: boolean) => (
@@ -333,7 +333,7 @@ export default function LooperApp() {
       <div className="flex flex-wrap items-center gap-2">
         {loopControls}
       </div>
-      <LoopStage engine={engine} snap={snap} getPosition={getPosition} openSeqs={openSeqs} onToggleSeq={toggleSeq} fill={fill} pins={!fill} />
+      <LoopStage engine={engine} snap={snap} openSeqs={openSeqs} onToggleSeq={toggleSeq} fill={fill} pins={!fill} />
     </section>
   );
 
@@ -441,25 +441,6 @@ export default function LooperApp() {
 
       {view === "fixed" && looping(false)}
 
-    </div>
-  );
-}
-
-function LoopBar({ getPosition }: { getPosition: () => number | null }) {
-  const bar = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    let raf = 0;
-    const tick = () => {
-      const p = getPosition();
-      if (bar.current) bar.current.style.width = p === null ? "0%" : `${p * 100}%`;
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [getPosition]);
-  return (
-    <div className="h-2 min-w-[8rem] flex-1 overflow-hidden rounded-full bg-slate-800" aria-label="Position in the loop">
-      <div ref={bar} className="h-full w-0 bg-sky-400" />
     </div>
   );
 }

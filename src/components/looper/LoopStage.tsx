@@ -42,7 +42,7 @@ const arrowStep = (e: RKeyboardEvent): [number, number] | null => {
 };
 
 /** The looping stage: loops are circles with a progress ring; coloured groups are boxes you can move and resize. A loop inside a group plays through that group's bus. */
-export default function LoopStage({ engine, snap, openSeqs, onToggleSeq, fill = false, patchSeq = false, pins = true }: { patchSeq?: boolean; /** effect widgets on the stage (the fixed layout); the canvas views show them as canvas widgets */ pins?: boolean; engine: LooperEngine; snap: LooperSnapshot; getPosition?: () => number | null; openSeqs: string[]; onToggleSeq: (id: string) => void; fill?: boolean }) {
+export default function LoopStage({ engine, snap, openSeqs, onToggleSeq, fill = false, patchSeq = false, pins = true }: { patchSeq?: boolean; /** effect widgets on the stage (the fixed layout); the canvas views show them as canvas widgets */ pins?: boolean; engine: LooperEngine; snap: LooperSnapshot; openSeqs: string[]; onToggleSeq: (id: string) => void; fill?: boolean }) {
   const stage = useRef<HTMLDivElement>(null);
   const [fxFor, setFxFor] = useState<string | null>(null);
   const ready = snap.status === "ready";
