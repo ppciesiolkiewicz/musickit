@@ -40,7 +40,7 @@ function visibleRect(el: HTMLElement): DOMRect | null {
  * record, bottom half: what you hear through it), the master, a chain or a switch. Click a connector or wire to mute or remove it.
  * It only calls engine actions, so everything is undoable.
  */
-export default function ConnectionLayer({ engine, snap, mode, cards = "float", wrapper }: { engine: LooperEngine; snap: LooperSnapshot; mode: "colors" | "lines"; cards?: "float" | "canvas"; wrapper: RefObject<HTMLElement | null> }) {
+export default function ConnectionLayer({ engine, snap, mode, cards = "float", wrapper }: { engine: LooperEngine; snap: LooperSnapshot; mode: "colors" | "lines"; cards?: "float" | "none"; wrapper: RefObject<HTMLElement | null> }) {
   const patch = snap.patch;
   const [rects, setRects] = useState<Record<string, Rect>>({});
   const [drag, setDrag] = useState<{ from: string; at: Pt } | null>(null);
@@ -54,7 +54,8 @@ export default function ConnectionLayer({ engine, snap, mode, cards = "float", w
     let last = "";
     const tick = () => {
       raf = requestAnimationFrame(tick);
-      if (n++ % 2) return;
+      // the wires follow a scroll or zoom without lag in the wires view; the quieter views measure every other frame
+      if (mode !== "lines" && n++ % 2) return;
       const root = wrapper.current;
       if (!root) return;
       const base = root.getBoundingClientRect();
@@ -73,7 +74,7 @@ export default function ConnectionLayer({ engine, snap, mode, cards = "float", w
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [wrapper]);
+  }, [wrapper, mode]);
 
   useEffect(() => {
     if (!msg) return;
@@ -217,7 +218,7 @@ export default function ConnectionLayer({ engine, snap, mode, cards = "float", w
           </span>
         );
       })}
-      {/* effect chains and switches float over the page, unless the canvas holds them */}
+      {/* effect chains and switches float over the page, unless they are widgets of the board */}
       {cards === "float" && <PatchCards engine={engine} snap={snap} />}
       {selLink && selDrawn && (
         <div className="pointer-events-auto absolute z-10 flex items-center gap-1.5 rounded-lg border border-slate-600 bg-slate-950 px-2 py-1 text-xs text-slate-200 shadow-xl" style={{ left: Math.max(4, selDrawn.b.x - 260), top: Math.max(4, selDrawn.b.y - 36) }}>

@@ -18,45 +18,14 @@ export function patchName(snap: LooperSnapshot, n: PatchNode): string {
   return n.kind === "switch" ? "Switch" : "Effects";
 }
 
-/**
- * The effect chains and switches of the patch, as cards. Positions are the nodes' own x and y. `scale` is how much the
- * surface they sit on is magnified (a card moves by the pointer distance divided by it): 1 for the page, the zoom of the canvas inside the freeform view.
- */
-export default function PatchCards({ engine, snap, scale = 1 }: { engine: LooperEngine; snap: LooperSnapshot; scale?: number }) {
+/** What is inside the card of an effect chain or a switch: the chain's effects, or the connections a switch lets through. */
+export function NodeBody({ engine, snap, node: n }: { engine: LooperEngine; snap: LooperSnapshot; node: PatchNode }) {
   const patch = snap.patch;
-  const [fxId, setFxId] = useState<string | null>(null);
-  const [pos, setPos] = useState<Record<string, { x: number; y: number }>>({});
+  const [fxOpen, setFxOpen] = useState(false);
   const nameOf = (id: string) => {
-    const n = patch.nodes.find((m) => m.id === id);
-    return n ? patchName(snap, n) : id;
+    const m = patch.nodes.find((x) => x.id === id);
+    return m ? patchName(snap, m) : id;
   };
-
-  const startMove = (n: PatchNode) => (e: RPointerEvent) => {
-    if ((e.target as HTMLElement).closest("button")) return;
-    e.preventDefault();
-    e.stopPropagation();
-    const origin = pos[n.id] ?? { x: n.x, y: n.y };
-    const sx = e.clientX;
-    const sy = e.clientY;
-    let last = origin;
-    const move = (ev: PointerEvent) => {
-      last = { x: Math.max(0, origin.x + (ev.clientX - sx) / scale), y: Math.max(0, origin.y + (ev.clientY - sy) / scale) };
-      setPos((p) => ({ ...p, [n.id]: last }));
-    };
-    const up = () => {
-      window.removeEventListener("pointermove", move);
-      window.removeEventListener("pointerup", up);
-      if (last.x !== origin.x || last.y !== origin.y) engine.do({ type: "patch.move", id: n.id, x: Math.round(last.x), y: Math.round(last.y) });
-      setPos((p) => {
-        const { [n.id]: gone, ...rest } = p;
-        void gone;
-        return rest;
-      });
-    };
-    window.addEventListener("pointermove", move);
-    window.addEventListener("pointerup", up);
-  };
-
   const choose = (sw: PatchNode, linkId: string) => {
     const changes = switchChoice(patch, sw.id, linkId);
     if (changes.length) engine.do({ type: "batch", label: "Switch", actions: changes.map((c) => ({ type: "patch.mute", what: "link", id: c.id, muted: c.muted })) });
@@ -92,8 +61,69 @@ export default function PatchCards({ engine, snap, scale = 1 }: { engine: Looper
     );
   };
 
+  return (
+    <div className="flex flex-col gap-1.5 px-1.5 py-1.5 pr-3" data-patch-id={n.id}>
+      {n.kind === "fx" && (
+        <button type="button" className="flex items-center gap-1 rounded border border-slate-700 px-1 py-0.5 text-left text-[11px] text-slate-300 hover:border-slate-500" onClick={() => setFxOpen(true)} title="Edit the effects">
+          <Icon name="sliders-horizontal" size={11} />
+          <span className="truncate">{n.effects?.length ? n.effects.map((e) => e.kind).join(" + ") : "empty: add effects"}</span>
+        </button>
+      )}
+      {n.kind === "switch" && (
+        <>
+          {side(n, "in")}
+          {side(n, "out")}
+        </>
+      )}
+      {fxOpen && n.kind === "fx" && (
+        <EffectsModal
+          title={<span className="flex items-center gap-2"><Icon name="sliders-horizontal" size={16} />{patchName(snap, n)}: effects</span>}
+          effects={n.effects ?? []}
+          onAdd={(k) => engine.do({ type: "fx.add", target: { element: n.id }, fx: { kind: k } })}
+          onRemove={(id) => engine.do({ type: "fx.remove", target: { element: n.id }, id })}
+          onParam={(id, key, value) => engine.do({ type: "fx.param", target: { element: n.id }, id, key, value })}
+          onBypass={(id) => engine.do({ type: "fx.bypass", target: { element: n.id }, id, bypass: !n.effects?.find((e) => e.id === id)?.bypass })}
+          onClose={() => setFxOpen(false)}
+        />
+      )}
+    </div>
+  );
+}
+
+/**
+ * The effect chains and switches of the patch, as cards floating over the page. Positions are the nodes' own x and y.
+ */
+export default function PatchCards({ engine, snap }: { engine: LooperEngine; snap: LooperSnapshot }) {
+  const patch = snap.patch;
+  const [pos, setPos] = useState<Record<string, { x: number; y: number }>>({});
+
+  const startMove = (n: PatchNode) => (e: RPointerEvent) => {
+    if ((e.target as HTMLElement).closest("button")) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const origin = pos[n.id] ?? { x: n.x, y: n.y };
+    const sx = e.clientX;
+    const sy = e.clientY;
+    let last = origin;
+    const move = (ev: PointerEvent) => {
+      last = { x: Math.max(0, origin.x + (ev.clientX - sx)), y: Math.max(0, origin.y + (ev.clientY - sy)) };
+      setPos((p) => ({ ...p, [n.id]: last }));
+    };
+    const up = () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+      if (last.x !== origin.x || last.y !== origin.y) engine.do({ type: "patch.move", id: n.id, x: Math.round(last.x), y: Math.round(last.y) });
+      setPos((p) => {
+        const { [n.id]: gone, ...rest } = p;
+        void gone;
+        return rest;
+      });
+    };
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", up);
+  };
+
   const cards = patch.nodes.filter((n) => n.kind === "fx" || n.kind === "switch");
-  const fxNode = patch.nodes.find((n) => n.id === fxId && n.kind === "fx");
 
   return (
     <>
@@ -108,34 +138,10 @@ export default function PatchCards({ engine, snap, scale = 1 }: { engine: Looper
               <button type="button" className="text-slate-400 hover:text-slate-100" aria-pressed={n.muted} onClick={() => engine.do({ type: "patch.mute", what: "node", id: n.id, muted: !n.muted })} title={n.muted ? "Unmute" : "Mute"} aria-label={`${n.muted ? "Unmute" : "Mute"} ${label}`}><Icon name={n.muted ? "volume-x" : "volume-2"} size={13} /></button>
               <button type="button" className="text-slate-500 hover:text-rose-300" onClick={() => engine.do({ type: "patch.removeNode", id: n.id })} title="Remove" aria-label={`Remove ${label}`}><Icon name="x" size={13} /></button>
             </div>
-            <div className="flex flex-col gap-1.5 px-1.5 py-1.5 pr-3">
-              {n.kind === "fx" && (
-                <button type="button" className="flex items-center gap-1 rounded border border-slate-700 px-1 py-0.5 text-left text-[11px] text-slate-300 hover:border-slate-500" onClick={() => setFxId(n.id)} title="Edit the effects">
-                  <Icon name="sliders-horizontal" size={11} />
-                  <span className="truncate">{n.effects?.length ? n.effects.map((e) => e.kind).join(" + ") : "empty: add effects"}</span>
-                </button>
-              )}
-              {n.kind === "switch" && (
-                <>
-                  {side(n, "in")}
-                  {side(n, "out")}
-                </>
-              )}
-            </div>
+            <NodeBody engine={engine} snap={snap} node={n} />
           </div>
         );
       })}
-      {fxNode && (
-        <EffectsModal
-          title={<span className="flex items-center gap-2"><Icon name="sliders-horizontal" size={16} />{patchName(snap, fxNode)}: effects</span>}
-          effects={fxNode.effects ?? []}
-          onAdd={(k) => engine.do({ type: "fx.add", target: { element: fxNode.id }, fx: { kind: k } })}
-          onRemove={(id) => engine.do({ type: "fx.remove", target: { element: fxNode.id }, id })}
-          onParam={(id, key, value) => engine.do({ type: "fx.param", target: { element: fxNode.id }, id, key, value })}
-          onBypass={(id) => engine.do({ type: "fx.bypass", target: { element: fxNode.id }, id, bypass: !fxNode.effects?.find((e) => e.id === id)?.bypass })}
-          onClose={() => setFxId(null)}
-        />
-      )}
     </>
   );
 }

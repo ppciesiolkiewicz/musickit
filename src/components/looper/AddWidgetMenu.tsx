@@ -25,7 +25,7 @@ function effectEntries(snap: LooperSnapshot): Entry[] {
 }
 
 /** The single "+ widget" button of the Looping section: add a loop, a group, or a widget for an effect that already exists. */
-export default function AddWidgetMenu({ engine, snap, names, canPatch = false, onStage = false }: { onStage?: boolean; engine: LooperEngine; snap: LooperSnapshot; names: Record<string, string>; canPatch?: boolean }) {
+export default function AddWidgetMenu({ engine, snap, names, canPatch = false }: { engine: LooperEngine; snap: LooperSnapshot; names: Record<string, string>; canPatch?: boolean }) {
   const [open, setOpen] = useState(false);
   const [sub, setSub] = useState(false);
   const btn = useRef<HTMLButtonElement>(null);
@@ -57,9 +57,8 @@ export default function AddWidgetMenu({ engine, snap, names, canPatch = false, o
     const n = snap.patch.nodes.filter((m) => m.kind === kind).length;
     // into the empty space under the stage, in rows of three
     const total = snap.patch.nodes.filter((m) => m.kind === "fx" || m.kind === "switch").length;
-    // on the canvas a card goes in stage units below the groups; over the page, in pixels beside the Mixer
-    const x = onStage ? 20 + (total % 4) * 200 : Math.round(window.innerWidth * 0.42) + (total % 3) * 184;
-    const y = onStage ? 640 + Math.floor(total / 4) * 200 : Math.round(window.scrollY) + 480 + Math.floor(total / 3) * 110;
+    const x = Math.round(window.innerWidth * 0.42) + (total % 3) * 184;
+    const y = Math.round(window.scrollY) + 480 + Math.floor(total / 3) * 110;
     engine.do({ type: "patch.node", node: { id: `${kind === "fx" ? "fx:" : "sw:"}${Date.now().toString(36)}`, kind, x, y, name: kind === "fx" ? `Chain ${n + 1}` : `Switch ${n + 1}` } });
   };
   const run = (f: () => void) => {

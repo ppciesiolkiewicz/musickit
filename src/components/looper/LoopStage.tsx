@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState, type ReactNode, type KeyboardEvent as RKeyboardEvent, type PointerEvent as RPointerEvent, type RefObject } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent as RKeyboardEvent, type PointerEvent as RPointerEvent, type RefObject } from "react";
 import Icon from "../Icon";
 import EffectsModal from "./EffectsModal";
 import EffectWidgets from "./EffectWidgets";
@@ -42,7 +42,7 @@ const arrowStep = (e: RKeyboardEvent): [number, number] | null => {
 };
 
 /** The looping stage: loops are circles with a progress ring; coloured groups are boxes you can move and resize. A loop inside a group plays through that group's bus. */
-export default function LoopStage({ engine, snap, openSeqs, onToggleSeq, fill = false, patchSeq = false, cards }: { patchSeq?: boolean; cards?: (scale: number) => ReactNode; engine: LooperEngine; snap: LooperSnapshot; getPosition?: () => number | null; openSeqs: string[]; onToggleSeq: (id: string) => void; fill?: boolean }) {
+export default function LoopStage({ engine, snap, openSeqs, onToggleSeq, fill = false, patchSeq = false }: { patchSeq?: boolean; engine: LooperEngine; snap: LooperSnapshot; getPosition?: () => number | null; openSeqs: string[]; onToggleSeq: (id: string) => void; fill?: boolean }) {
   const stage = useRef<HTMLDivElement>(null);
   const [fxFor, setFxFor] = useState<string | null>(null);
   const ready = snap.status === "ready";
@@ -72,30 +72,7 @@ export default function LoopStage({ engine, snap, openSeqs, onToggleSeq, fill = 
   }, []);
   // at 100% the part VIEW_W wide fills the widget; the rest of the stage is room to grow into (scroll or drag to reach it)
   const fit = Math.max(MIN_ZOOM, Math.min(4, (width - 2) / VIEW_W));
-  const [zoom, setZoom] = useState(1);
-  const scale = Math.max(0.2, Math.min(5, fit * zoom));
-  // keep the middle of what you look at in place while the scale changes
-  const prevScale = useRef(scale);
-  useLayoutEffect(() => {
-    const el = frame.current;
-    const k = scale / (prevScale.current ?? scale);
-    prevScale.current = scale;
-    if (!el || k === 1) return;
-    el.scrollLeft = (el.scrollLeft + el.clientWidth / 2) * k - el.clientWidth / 2;
-    el.scrollTop = (el.scrollTop + el.clientHeight / 2) * k - el.clientHeight / 2;
-  }, [scale]);
-  // Ctrl or Cmd with the wheel (or a pinch on a trackpad) zooms the canvas
-  useEffect(() => {
-    const el = frame.current;
-    if (!el) return;
-    const wheel = (e: WheelEvent) => {
-      if (!(e.ctrlKey || e.metaKey)) return;
-      e.preventDefault();
-      setZoom((z) => Math.max(0.3, Math.min(3, z * Math.exp(-e.deltaY * 0.0015))));
-    };
-    el.addEventListener("wheel", wheel, { passive: false });
-    return () => el.removeEventListener("wheel", wheel);
-  }, []);
+  const scale = fit;
   // new effect widgets appear in the part of the stage you are looking at
   useEffect(() => {
     setPinSpawn(() => {
@@ -108,11 +85,8 @@ export default function LoopStage({ engine, snap, openSeqs, onToggleSeq, fill = 
   return (
     <div className={`flex flex-col gap-1 ${fill ? "min-h-0 flex-1" : ""}`}>
       <div className="flex items-center justify-end gap-1">
-        <button type="button" className={tbtn} onClick={() => setZoom((z) => Math.max(0.3, z / 1.25))} title="Zoom out" aria-label="Zoom out"><Icon name="minus" size={12} /></button>
-        <button type="button" className={`${tbtn} min-w-10 tabular-nums`} onClick={() => setZoom(1)} title="Fit the width" aria-label="Zoom: fit the width">{Math.round(zoom * 100)}%</button>
-        <button type="button" className={tbtn} onClick={() => setZoom((z) => Math.min(3, z * 1.25))} title="Zoom in" aria-label="Zoom in"><Icon name="plus" size={12} /></button>
         <InfoTip label="Stage help">
-          <p><b>Zoom:</b> the buttons, or Ctrl/Cmd with the mouse wheel or a pinch. Everything on the canvas scales together.</p>
+          <p><b>Size:</b> the stage fits its widget. Make the widget bigger or smaller by its corner, or zoom the whole canvas.</p>
           <p><b>Move around:</b> scroll, or drag empty space on the stage.</p>
           <p><b>Effect widgets:</b> open the effects of a bus or an input and press the dashboard button on an effect. Its controls appear to the right of the stage; drag the title to place it.</p>
         </InfoTip>
@@ -133,7 +107,7 @@ export default function LoopStage({ engine, snap, openSeqs, onToggleSeq, fill = 
           window.addEventListener("pointerup", () => window.removeEventListener("pointermove", move), { once: true });
         }}
       >
-        <div data-pan="1" className="relative" style={{ width: canvasW * scale, height: canvasH * scale }}>
+        <div data-pan="1" style={{ width: canvasW * scale, height: canvasH * scale }}>
           <div data-pan="1" className="relative select-none" style={{ width: canvasW, height: canvasH, transform: `scale(${scale})`, transformOrigin: "top left" }}>
             <EffectWidgets engine={engine} snap={snap} drag={(e, onMove) => startDrag(e, stage.current, onMove)} />
       <div ref={stage} data-pan="1" className="relative select-none" style={{ width: STAGE_W, height: STAGE_H }}>
@@ -149,7 +123,6 @@ export default function LoopStage({ engine, snap, openSeqs, onToggleSeq, fill = 
           return <SeqCircle key={q.id} engine={engine} q={q} colour={g?.colour ?? "#94a3b8"} stage={stage} open={openSeqs.includes(q.id)} onOpen={() => onToggleSeq(q.id)} patchId={patchSeq} />;
         })}
       </div>
-            {cards?.(scale)}
           </div>
         </div>
       </div>
