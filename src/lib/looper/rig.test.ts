@@ -25,11 +25,11 @@ describe("starter rig", () => {
     assert.equal(mine.length, busCount);
     assert.deepEqual(mine.map((x) => x.muted), buses.map((_, i) => i > 0), "the first bus is open, the rest closed");
   });
-  it("sends every bus through the tuner, and the tuner to the master and into every group's recorder", () => {
+  it("sends every bus to the master, into every group's recorder and into the tuner, which goes nowhere", () => {
     const l = links(r.actions);
-    r.buses.forEach((b) => assert.deepEqual(l.filter((x) => x.from === b).map((x) => x.to), [r.tuner]));
-    assert.deepEqual(l.filter((x) => x.from === r.tuner).map((x) => x.to), ["master", "group:g1", "group:g2", "group:g3"]);
-    assert.ok(l.filter((x) => x.from === r.tuner && x.to.startsWith("group:")).every((x) => x.port === "rec"));
+    r.buses.forEach((b) => assert.deepEqual(l.filter((x) => x.from === b).map((x) => x.to), ["master", "group:g1", "group:g2", "group:g3", r.tuner]));
+    r.buses.forEach((b) => assert.ok(l.filter((x) => x.from === b && x.to.startsWith("group:")).every((x) => x.port === "rec")));
+    assert.deepEqual(l.filter((x) => x.from === r.tuner), []);
     assert.equal(new Set(l.map((x) => x.id)).size, l.length, "unique link ids");
   });
   it("names each amp bus after its amp and asks for that amp's model", () => {
@@ -54,7 +54,7 @@ describe("starter rig", () => {
       if (a.type === "patch.link") p = connect(p, a.link.from, a.link.to, a.link.id, a.link.port ?? "bus", a.link.muted);
     }
     assert.equal(p.links.length, links(r.actions).length);
-    assert.deepEqual(feeds(p, "group:g2", "rec"), ["in:3"], "the guitar records through its bus and the tuner");
+    assert.deepEqual(feeds(p, "group:g2", "rec"), ["in:3"], "the guitar records through its bus");
   });
 });
 

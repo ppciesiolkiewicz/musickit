@@ -3,8 +3,8 @@ import { INPUT_PRESETS } from "./inputPresets";
 
 /**
  * Starter rigs. An input (a guitar, a piano) gets a few buses of its own, each with effects; one is open at a time (radio) and each bus
- * plays to the master and records into every group, so the person picks the sound with one click. The guitar's buses go through a
- * tuner first. Pure: it only builds the actions; the caller runs them as one batch so one undo takes the whole rig away.
+ * plays to the master and records into every group, so the person picks the sound with one click. The guitar's buses also feed a
+ * tuner, which only listens. Pure: it only builds the actions; the caller runs them as one batch so one undo takes the whole rig away.
  */
 export const RIG_PRESETS = ["sparkle", "crunch", "lead"] as const;
 
@@ -45,7 +45,7 @@ interface BusSpec {
 
 /**
  * The nodes and links of one input with its buses: the first bus open, the others closed, every bus to the master and into every group's
- * recorder. With `via` (a tuner's id) every bus goes into it instead, and it goes on to the master and the recorders.
+ * recorder. With `via` (a tuner's id) every bus also feeds it, so it hears the open bus; the tuner's own output goes nowhere.
  */
 function bundle(a: { input: string; buses: BusSpec[]; groups: string[]; tag: string; at: { x: number; y: number }; via?: string }): { actions: LooperAction[]; ids: string[] } {
   const actions: LooperAction[] = [];
@@ -59,10 +59,8 @@ function bundle(a: { input: string; buses: BusSpec[]; groups: string[]; tag: str
     actions.push({ type: "patch.link", link: { id: `l${a.tag}m${n}`, from, to: "master" } });
     a.groups.forEach((g, k) => actions.push({ type: "patch.link", link: { id: `l${a.tag}g${n}_${k}`, from, to: `group:${g}`, port: "rec" } }));
   };
-  if (a.via) {
-    ids.forEach((id, i) => actions.push({ type: "patch.link", link: { id: `l${a.tag}t${i}`, from: id, to: a.via! } }));
-    outs(a.via, "t");
-  } else ids.forEach((id, i) => outs(id, String(i)));
+  ids.forEach((id, i) => outs(id, String(i)));
+  if (a.via) ids.forEach((id, i) => actions.push({ type: "patch.link", link: { id: `l${a.tag}t${i}`, from: id, to: a.via! } }));
   return { actions, ids };
 }
 
