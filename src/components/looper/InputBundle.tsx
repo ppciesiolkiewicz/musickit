@@ -112,9 +112,11 @@ function OutputPlaces({ engine, snap, ownerId }: { engine: LooperEngine; snap: L
  * The part of an input's block under its strip: its output buses. With none there is one button to add one. With one it is just
  * that bus. With two or more the block is also a switch: each bus has a radio (one at a time) or a checkbox (any combination)
  * beside it and the effects under its name. Under the buses, their mixed sound goes out as one output to the places listed there.
+ * The buses start locked for switching (names and effects only, a click picks); the pencil unlocks effects, mute, remove and add.
  */
 export default function InputBundle({ engine, snap, ownerId }: { engine: LooperEngine; snap: LooperSnapshot; ownerId: string }) {
   const [open, toggle] = useFold(`${ownerId}:buses`);
+  const [editing, toggleEditing] = useFold(`${ownerId}:busEdit`, false);
   const patch = snap.patch;
   const owner = patch.nodes.find((n) => n.id === ownerId);
   if (!owner) return null;
@@ -145,6 +147,9 @@ export default function InputBundle({ engine, snap, ownerId }: { engine: LooperE
   return (
     <div className="flex flex-col gap-1.5 px-1.5 pb-1.5" role={buses.length > 1 ? (multi ? "group" : "radiogroup") : undefined} aria-label="Output buses">
       <FoldHead open={open} onToggle={toggle} label={buses.length > 1 ? "Switch between buses" : "Output bus"} summary={buses.filter((b) => buses.length === 1 || links.some((l) => l.to === b.id && !l.muted)).map((b) => patchName(snap, b)).join(", ") || "none on"}>
+        <button type="button" className={`${small} ${editing ? "!border-sky-400 !text-sky-200" : "border-slate-700"}`} aria-pressed={editing} title={editing ? "Done editing the buses" : "Edit the buses"} aria-label={editing ? "Done editing the buses" : "Edit the buses"} onClick={toggleEditing}>
+          <Icon name="pencil" size={11} />
+        </button>
         {buses.length > 1 && (<>{mode(false, "circle-dot", "One bus at a time")}{mode(true, "check", "Any combination of buses")}</>)}
       </FoldHead>
       {open && buses.map((b) => {
@@ -160,14 +165,17 @@ export default function InputBundle({ engine, snap, ownerId }: { engine: LooperE
                 </button>
               )}
               <span className="min-w-0 flex-1 truncate text-xs text-slate-100">{patchName(snap, b)}</span>
+              {!editing && b.muted && <Icon name="volume-x" size={12} className="shrink-0 text-slate-500" label="Muted" />}
+              {editing && (<>
               <button type="button" className={small} aria-pressed={b.muted} title={b.muted ? "Unmute the bus" : "Mute the bus"} aria-label={`${b.muted ? "Unmute" : "Mute"} ${patchName(snap, b)}`} onClick={() => engine.do({ type: "patch.mute", what: "node", id: b.id, muted: !b.muted })}><Icon name={b.muted ? "volume-x" : "volume-2"} size={12} /></button>
               <button type="button" className={`${small} hover:!border-rose-400`} title="Remove the bus" aria-label={`Remove ${patchName(snap, b)}`} onClick={() => engine.do({ type: "patch.removeNode", id: b.id })}><Icon name="x" size={12} /></button>
+              </>)}
             </div>
-            <BusEffects engine={engine} snap={snap} node={b} />
+            {editing ? <BusEffects engine={engine} snap={snap} node={b} /> : <span className="truncate pl-1 text-[10px] text-slate-500">{b.effects?.length ? b.effects.map((e) => e.kind).join(" + ") : "no effects"}</span>}
           </div>
         );
       })}
-      {open && (
+      {open && editing && (
         <button type="button" className="flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-slate-700 px-2 py-1 text-[11px] text-slate-400 hover:border-sky-400 hover:text-sky-200" onClick={() => engine.addBus(ownerId)}>
           <Icon name="plus" size={12} />Add output bus
         </button>
