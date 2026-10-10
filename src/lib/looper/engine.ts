@@ -9,7 +9,7 @@ import { GROUP_COLOURS, clampPoint, clampRect, containingGroup, defaultGroups, d
 import { InputMixer, MAX_INPUT_GAIN, describeError, type InputInfo } from "./mixer";
 import { PatchGraph } from "./patchAudio";
 import { activeLinks, addNode as patchAddNode, connect as patchConnect, disconnect as patchDisconnect, emptyPatch, feeds, layoutAll, moveNode as patchMoveNode, place, removeNode, sanitisePatch, setLinkMuted, setNodeMuted, setSwitchMode, type Patch, type PatchLink } from "./patch";
-import { chooseDevice, deviceScore, gearIssues, type DeviceRef, type GearIssue } from "./deviceChoice";
+import { chooseDevice, deviceName, deviceScore, gearIssues, type DeviceRef, type GearIssue } from "./deviceChoice";
 import { ActionHistory, type DoOptions } from "./history";
 import { MacroRecorder } from "./macros";
 import { PIANO_STARTS, SEQUENCER_STARTS, addBus, pianoRig, starterRig } from "./rig";
@@ -171,7 +171,10 @@ const PATCH_KEY = "musickit.looper.patch";
 /** Saves made before the canvas existed have no positions worth keeping: they are laid out once. */
 const PATCH_LAYOUT_KEY = "musickit.looper.patch.layout";
 const PREF_KEY = "musickit.looper.preferred";
-const RIG_KEY = "musickit.looper.rigDone2";
+const RIG_KEY = "musickit.looper.rigDone3";
+const KEYS_RIG_KEY = "musickit.looper.keysRigDone";
+/** the default guitar input before an audio interface has been seen */
+const GUITAR_NAME = "Scarlett Guitar";
 const PIANO_RIG_KEY = "musickit.looper.pianoRigDone2";
 const SEQ_RIG_KEY = "musickit.looper.seqRigDone";
 type SinkContext = AudioContext & { setSinkId?: (id: string) => Promise<void> };
@@ -334,6 +337,8 @@ export class LooperEngine {
     this.restoreScalePianos();
     this.restoreLayout();
     this.emit();
+    this.setupGuitar();
+    this.setupKeyboardPiano();
     this.setupPianos();
     this.setupSequencers();
   }
@@ -581,20 +586,6 @@ export class LooperEngine {
     } catch {
       /* ignore */
     }
-  }
-
-  /** Add a scale piano and its mixer strip. It is heard on the master bus and recorded through its strip. */
-  async addScalePiano(): Promise<string | null> {
-    const id = `p${++this.spCounter}`;
-    this.makeScalePiano(id);
-    const n = this.mixer.scalePianoIds().length;
-    const added = await this.mixer.add({ kind: "scalepiano", name: n === 0 ? "Scale Piano" : `Scale Piano ${n + 1}`, sourceId: id });
-    if (added === null) {
-      this.disposeScalePiano(id);
-      return null;
-    }
-    this.saveScalePianos();
-    return id;
   }
 
   /** Add a scale piano with its strip at once, with these starting settings. Returns the strip id. */
@@ -974,6 +965,7 @@ export class LooperEngine {
     const devices = all.filter((d) => d.kind === "audioinput" && d.deviceId !== "default" && d.deviceId !== "communications").map((d, i) => ({ id: d.deviceId, label: d.label || `Input ${i + 1}` }));
     const outputs = all.filter((d) => d.kind === "audiooutput" && d.deviceId !== "default" && d.deviceId !== "communications").map((d, i) => ({ id: d.deviceId, label: d.label || `Output ${i + 1}` }));
     this.emit({ devices, outputs, canChooseOutput: this.ctx ? typeof (this.ctx as SinkContext).setSinkId === "function" : false });
+    this.adoptDevices();
   }
 
   /** Play everything (loops, live monitoring, metronome, piano) through this output. "" = the system default. Needs a browser with AudioContext.setSinkId. */
@@ -1040,46 +1032,91 @@ export class LooperEngine {
     if (await this.micGranted()) {
       await this.refreshDevices().catch(() => undefined);
       await this.connectGear(false);
-      this.setupGuitar();
-    } else if (this.mixer.list().some((i) => i.kind === "device")) this.setupGuitar();
+    }
   }
 
   /**
-   * The default setup, once: the audio interface's Input 1 (a DI guitar) as an input, with the starter rig (effect presets, the
-   * Guitar Switch, master and every group). Only when a device is known (an interface, never the computer's own mic), and never again
-   * after it has run, so deleting the rig sticks. Runs after a person's action or when the browser already allows the microphone.
+   * The default guitar, once (flag `musickit.looper.rigDone3`): a guitar input with the starter rig (tone buses inside the input, each to
+   * the master and every group's recorder). It uses a known audio interface (never the computer's own mic) or, before one has been seen,
+   * waits with no device (named "Scarlett Guitar") and takes the interface when it shows up (`adoptDevices`). Opens nothing. Removing it sticks.
    */
   private setupGuitar(): void {
     try {
       if (window.localStorage.getItem(RIG_KEY)) return;
+      window.localStorage.setItem(RIG_KEY, "1");
     } catch {
-      /* ignore */
+      return;
     }
     let strip = this.mixer.list().find((i) => i.kind === "device");
     if (!strip) {
       const pick = chooseDevice(this.meta.devices, this.prefs.in);
-      if (!pick || deviceScore(pick.label) <= 0) return;
-      const id = this.addInput({ kind: "device", name: pick.label.slice(0, 40), deviceId: pick.id, mode: "left" });
+      const known = pick && deviceScore(pick.label) > 0 ? pick : null;
+      const id = this.mixer.addNow({ kind: "device", name: known ? `Guitar · ${deviceName(known.label)}`.slice(0, 40) : GUITAR_NAME, deviceId: known?.id ?? "", mode: "left", idle: true }).id;
       if (id === null) return;
       this.syncPatch();
       strip = this.mixer.list().find((i) => i.id === id);
     }
-    if (!strip || !this.addRig(strip.id)) return;
+    if (strip) this.addRig(strip.id);
+    this.history.clear();
+  }
+
+  /**
+   * The default keyboard piano, once (flag `musickit.looper.keysRigDone`): the on-screen and MIDI keyboard as an input with the piano
+   * buses (Dry piano, Room, Hall, Dreamy). Needs no device. Removing it sticks. Not part of the history.
+   */
+  private setupKeyboardPiano(): void {
     try {
-      window.localStorage.setItem(RIG_KEY, "1");
+      if (window.localStorage.getItem(KEYS_RIG_KEY)) return;
+      window.localStorage.setItem(KEYS_RIG_KEY, "1");
     } catch {
-      /* ignore */
+      return;
     }
+    const have = this.mixer.list().find((i) => i.kind === "extra");
+    const id = have?.id ?? this.addInput({ kind: "extra" });
+    if (id === null || id === undefined) return;
+    this.syncPatch();
+    if (!this.patch.nodes.some((n) => n.owner === `in:${id}`)) this.addPianoRig([id]);
+    this.history.clear();
+  }
+
+  /** A device input that has no device yet (the default guitar) takes the audio interface once one is seen. Nothing is opened. */
+  private adoptDevices(): void {
+    const pick = chooseDevice(this.meta.devices, this.prefs.in);
+    if (!pick || deviceScore(pick.label) <= 0) return;
+    for (const i of this.mixer.list()) if (i.kind === "device" && !i.deviceId) this.mixer.adoptDevice(i.id, pick.id);
+  }
+
+  /**
+   * Add an input from the Add dialog with its whole rig: a guitar gets the tone buses, the keyboard and a Scale Piano the piano buses,
+   * every bus playing to the master and recording into every group. Returns the strip id.
+   */
+  addInputWithRig(spec: InputSpec, rig: "guitar" | "piano"): number | null {
+    const before = new Set(this.mixer.list().map((i) => i.id));
+    if (!this.do({ type: "input.add", spec })) return null;
+    const id = this.mixer.list().find((i) => !before.has(i.id))?.id ?? null;
+    if (id === null) return null;
+    this.syncPatch();
+    if (rig === "guitar") this.addRig(id);
+    else this.addPianoRig([id]);
+    return id;
+  }
+
+  /** Add a Scale Piano from the Add dialog with the piano buses. */
+  addScalePianoWithRig(): number | null {
+    const id = this.addScalePianoNow();
+    if (id !== null) this.addPianoRig([id]);
+    return id;
   }
 
   /** Connect the input strips that are not connected. `ask` = the person pressed the button (a prompt is fine). No input is ever added for them. */
   async connectGear(ask = true): Promise<void> {
-    if (ask) await this.requestDeviceAccess();
-    for (const i of this.mixer.list()) if (i.kind === "device" && (!i.connected || i.error)) await this.mixer.connect(i.id);
     if (ask) {
+      await this.requestDeviceAccess();
+      // names are visible now, so a strip still waiting for its interface can take it
       await this.refreshDevices().catch(() => undefined);
-      this.setupGuitar();
     }
+    // a strip still waiting for its interface (no device) is never opened: that would be the computer's own mic
+    for (const i of this.mixer.list()) if (i.kind === "device" && i.deviceId && (!i.connected || i.error)) await this.mixer.connect(i.id);
     this.emit();
   }
 

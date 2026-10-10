@@ -398,17 +398,17 @@ export class InputMixer {
    * Add a strip. The strip exists (and has its id) when this returns; `done` settles once a device has been opened.
    * `id` asks for a particular id (a macro replays with the ids it recorded); it is ignored when taken.
    */
-  addNow(spec: { kind: InputKind; name: string; deviceId?: string; mode?: InputMode; sourceId?: string }, id?: number): { id: number | null; done: Promise<void> } {
+  addNow(spec: { kind: InputKind; name: string; deviceId?: string; mode?: InputMode; sourceId?: string; idle?: boolean }, id?: number): { id: number | null; done: Promise<void> } {
     const none = { id: null, done: Promise.resolve() };
     if (this.runtimes.length >= MAX_INPUTS) return none;
     if (spec.kind !== "device" && ((spec.kind === "extra" && this.has("extra")) || !this.sourceFor(spec.kind) || ((spec.kind === "sequencer" || spec.kind === "scalepiano") && !spec.sourceId))) return none;
-    const r = this.make({ kind: spec.kind, name: spec.name, deviceId: spec.deviceId ?? "", mode: spec.mode ?? (spec.kind === "device" ? "left" : "stereo"), volume: 1, sourceId: spec.sourceId }, true, id);
+    const r = this.make({ kind: spec.kind, name: spec.name, deviceId: spec.deviceId ?? "", mode: spec.mode ?? (spec.kind === "device" ? "left" : "stereo"), volume: 1, sourceId: spec.sourceId }, !spec.idle, id);
     this.runtimes.push(r);
     let connecting: Promise<void> = Promise.resolve();
     if (this.ctx) {
       this.build(r);
       this.opts.onChange();
-      if (r.info.kind === "device") connecting = this.connectDevice(r);
+      if (r.info.kind === "device" && !spec.idle) connecting = this.connectDevice(r);
     }
     this.save();
     this.opts.onChange();
@@ -482,6 +482,15 @@ export class InputMixer {
     if (!r) return;
     r.info.mode = mode;
     if (r.info.kind === "device") this.route(r);
+    this.save();
+    this.opts.onChange();
+  }
+
+  /** Give a strip that has no device yet (the default guitar, made before any interface was seen) its device, without opening it. */
+  adoptDevice(id: number, deviceId: string) {
+    const r = this.find(id);
+    if (!r || r.info.kind !== "device" || r.info.deviceId) return;
+    r.info.deviceId = deviceId;
     this.save();
     this.opts.onChange();
   }
