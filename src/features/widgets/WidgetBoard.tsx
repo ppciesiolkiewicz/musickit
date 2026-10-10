@@ -37,7 +37,7 @@ const clampZoom = (z: number) => Math.min(ZOOM.max, Math.max(ZOOM.min, z));
  * world that you zoom (buttons, Ctrl/Cmd and the wheel) and pan (wheel, or drag empty space). Each widget is dragged by its grip header and
  * resized from the corner. The layout and the view are remembered under `storageKey`. Raise `resetSignal` to put everything back.
  */
-export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout, resetSignal = 0, flush = false }: {
+export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout, resetSignal = 0, flush = false, place = "free" }: {
   widgets: BoardWidget[];
   storageKey: string;
   /** kept for older callers; the canvas always fills the space */
@@ -47,6 +47,8 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
   resetSignal?: number;
   /** no border, rounded corners or bottom gap: the canvas meets the window edges */
   flush?: boolean;
+  /** where a widget added later appears: the first free place in view, or the centre of the screen (on top of the others) */
+  place?: "free" | "center";
 }) {
   const host = useRef<HTMLDivElement>(null);
   const [vp, setVp] = useState<Bounds | null>(null);
@@ -129,8 +131,9 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
           const r = out[id];
           const w = Math.min(r.w, Math.max(WIDGET_MIN.w, Math.round((vp.w - 48) / v.zoom)));
           const h = Math.min(r.h, Math.max(WIDGET_MIN.h, Math.round((vp.h - 48) / v.zoom)));
+          const centre = { x: Math.round(area.x - 12 + (vp.w / v.zoom - w) / 2 + n * 28), y: Math.round(area.y - 12 + (vp.h / v.zoom - h) / 2 + n * 28) };
           // a free place in view, else the first free place below everything already on the board (never stacked on top of another)
-          const spot = findSpot(taken, { w, h }, area) ?? findSpot(taken, { w, h }, { x: area.x, y: area.y, w: area.w, h: Math.max(...taken.map((t) => t.y + t.h), area.y) + h + 24 - area.y }) ?? { x: area.x + 12 + n * 28, y: area.y + 12 + n * 28 };
+          const spot = place === "center" ? centre : findSpot(taken, { w, h }, area) ?? findSpot(taken, { w, h }, { x: area.x, y: area.y, w: area.w, h: Math.max(...taken.map((t) => t.y + t.h), area.y) + h + 24 - area.y }) ?? { x: area.x + 12 + n * 28, y: area.y + 12 + n * 28 };
           out[id] = { w, h, ...spot };
           taken.push(out[id]);
           n++;

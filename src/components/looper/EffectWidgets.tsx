@@ -9,7 +9,7 @@ import { EFFECT_DEFS, type EffectSpec, type LooperEngine, type LooperSnapshot } 
 
 const tbtn = "grid h-6 min-w-6 place-items-center rounded-md border border-slate-700/80 bg-slate-900/80 px-1 text-[10px] text-slate-300 transition hover:border-slate-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 
-interface Resolved {
+export interface Resolved {
   pin: FxPin;
   fx: EffectSpec;
   where: string;
@@ -66,17 +66,35 @@ function resolve(engine: LooperEngine, snap: LooperSnapshot, pins: FxPin[]): { s
   return { shown, stale };
 }
 
-/**
- * The effects pinned to the stage. Each is a small panel with the effect's full controls, placed on the canvas to the right of the stage.
- * Drag the title to move it; the controls change the real effect on its bus or input, live. `drag` is the stage's pointer-drag helper (stage units).
- */
-export default function EffectWidgets({ engine, snap, drag }: { engine: LooperEngine; snap: LooperSnapshot; drag: (e: RPointerEvent, onMove: (dx: number, dy: number) => void) => void }) {
+/** Pinned effects that still exist; pins whose effect is gone are dropped. */
+export function usePinned(engine: LooperEngine, snap: LooperSnapshot): Resolved[] {
   const pins = usePins();
   const { shown, stale } = resolve(engine, snap, pins);
   const staleKey = stale.join("|");
   useEffect(() => {
     if (staleKey) dropPins(staleKey.split("|"));
   }, [staleKey]);
+  return shown;
+}
+
+export const pinTitle = (r: Resolved) => `${EFFECT_DEFS[r.fx.kind].name} · ${r.where}${r.fx.post ? " · after fader" : ""}`;
+
+/** The power switch and the full controls of one pinned effect. */
+export function PinBody({ r }: { r: Resolved }) {
+  return (
+    <div className={`flex flex-col gap-1.5 ${r.fx.bypass ? "opacity-70" : ""}`}>
+      <button type="button" className={`${tbtn} self-start gap-1 ${r.fx.bypass ? "" : "!border-emerald-500/70 !text-emerald-200"}`} aria-pressed={!r.fx.bypass} onClick={r.bypass} title={r.fx.bypass ? "Bypassed (tap to switch on)" : "On (tap to bypass)"} aria-label="Effect on or off"><Icon name="power" size={12} />{r.fx.bypass ? "off" : "on"}</button>
+      <EffectControls fx={r.fx} onParam={r.param} columns={false} />
+    </div>
+  );
+}
+
+/**
+ * The effects pinned to the stage, in the fixed layout (the canvas views show them as canvas widgets instead). Each is a small panel with
+ * the effect's full controls. Drag the title to move it; the controls change the real effect on its bus or input, live. `drag` is the stage's pointer-drag helper (stage units).
+ */
+export default function EffectWidgets({ engine, snap, drag }: { engine: LooperEngine; snap: LooperSnapshot; drag: (e: RPointerEvent, onMove: (dx: number, dy: number) => void) => void }) {
+  const shown = usePinned(engine, snap);
   return (
     <>
       {shown.map((r) => (

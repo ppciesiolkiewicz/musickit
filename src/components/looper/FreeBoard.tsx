@@ -1,20 +1,21 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import Icon from "../Icon";
 import LoopStage from "./LoopStage";
-import { AddInputModal, InputStrip, MasterStrip } from "./Mixer";
+import { InputStrip, MasterStrip } from "./Mixer";
 import { NodeBody, patchName } from "./PatchNode";
 import InputBundle from "./InputBundle";
+import { PinBody, pinTitle, usePinned } from "./EffectWidgets";
+import { togglePin } from "./fxPins";
 import { WidgetBoard } from "@/features/widgets";
-import { MAX_INPUTS, type LooperEngine, type LooperSnapshot } from "@/lib/looper/engine";
+import { type LooperEngine, type LooperSnapshot } from "@/lib/looper/engine";
 import type { DefaultLayout, Layout } from "@/features/widgets/board";
 
-const ibtn = "grid h-8 min-w-8 place-items-center rounded-lg border border-slate-700 bg-slate-900 px-1.5 text-xs text-slate-200 transition hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 
 const COL_W = 340;
 /** How tall each kind of widget starts. */
-const startHeight = (id: string, kind: string | undefined) => (id === "master" ? 150 : kind === "switch" ? 320 : kind === "fx" ? 150 : kind?.startsWith("input:") ? 230 + Number(kind.slice(6)) * 72 : 210);
+const startHeight = (id: string, kind: string | undefined) => (id === "master" ? 150 : kind === "switch" ? 320 : kind === "fx" ? 150 : kind === "pin" ? 280 : kind?.startsWith("input:") ? 230 + Number(kind.slice(6)) * 72 : 210);
 
 /** The Looping stage on the left, everything else in columns to its right. The wires are drawn over it, so where things start hardly matters. */
 const freeLayout = (kinds: Record<string, string | undefined>): DefaultLayout => (ids, b) => {
@@ -40,12 +41,12 @@ const freeLayout = (kinds: Record<string, string | undefined>): DefaultLayout =>
  * There are no Mixer or bus sections. The wires between them are drawn over the page by `ConnectionLayer`.
  */
 export default function FreeBoard({ engine, snap, controls, keyboardOpen, onToggleKeyboard, openSeqs, onToggleSeq, openPianos, onTogglePiano, resetSignal }: { engine: LooperEngine; snap: LooperSnapshot; controls: ReactNode; keyboardOpen: boolean; onToggleKeyboard: () => void; openSeqs: string[]; onToggleSeq: (id: string) => void; openPianos: string[]; onTogglePiano: (id: string) => void; resetSignal: number }) {
-  const [adding, setAdding] = useState(false);
+  const pinned = usePinned(engine, snap);
   const strips = snap.inputs.filter((i) => i.kind !== "sequencer");
-  const hasExtra = snap.inputs.some((i) => i.kind === "extra");
   // buses that belong to an input live inside that input's block; only the stand-alone ones are widgets of their own
   const cards = snap.patch.nodes.filter((n) => (n.kind === "fx" && !n.owner) || n.kind === "switch");
   const kinds: Record<string, string | undefined> = Object.fromEntries(cards.map((n) => [n.id, n.kind]));
+  pinned.forEach((r) => { kinds[`pin:${r.pin.key}`] = "pin"; });
   strips.forEach((i) => { kinds[`in:${i.id}`] = `input:${snap.patch.nodes.filter((n) => n.owner === `in:${i.id}`).length}`; });
 
   const title = (icon: "mic" | "audio-lines" | "split" | "sliders-horizontal" | "repeat", text: string) => (
@@ -60,9 +61,8 @@ export default function FreeBoard({ engine, snap, controls, keyboardOpen, onTogg
         <section className="flex h-full flex-col gap-1.5 overflow-hidden" aria-label="Looping" data-patch-id="looping">
           <div className="flex flex-wrap items-center gap-2">
             {controls}
-            <button type="button" className={ibtn} disabled={snap.inputs.length >= MAX_INPUTS} onClick={() => setAdding(true)} title="Add an instrument" aria-label="Add an instrument"><Icon name="plus" size={14} /><Icon name="mic" size={14} /></button>
           </div>
-          <LoopStage engine={engine} snap={snap} openSeqs={openSeqs} onToggleSeq={onToggleSeq} fill patchSeq />
+          <LoopStage engine={engine} snap={snap} openSeqs={openSeqs} onToggleSeq={onToggleSeq} fill patchSeq pins={false} />
         </section>
       ),
     },
@@ -90,12 +90,12 @@ export default function FreeBoard({ engine, snap, controls, keyboardOpen, onTogg
       node: <NodeBody engine={engine} snap={snap} node={n} />,
       onClose: () => engine.do({ type: "patch.removeNode", id: n.id }),
     })),
+    ...pinned.map((r) => ({ id: `pin:${r.pin.key}`, title: title("sliders-horizontal", pinTitle(r)), node: <PinBody r={r} />, onClose: () => togglePin(r.pin.key) })),
   ];
 
   return (
     <>
-      <WidgetBoard storageKey="musickit.looper.board2" flush defaults={freeLayout(kinds)} resetSignal={resetSignal} widgets={widgets} />
-      {adding && <AddInputModal engine={engine} snap={snap} hasExtra={hasExtra} onClose={() => setAdding(false)} />}
+      <WidgetBoard storageKey="musickit.looper.board2" flush place="center" defaults={freeLayout(kinds)} resetSignal={resetSignal} widgets={widgets} />
     </>
   );
 }

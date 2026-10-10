@@ -19,7 +19,9 @@ import Piano from "@/features/sound/keyboard/Piano";
 import { createPlayer, getAudioContext, getOutputBus } from "@/features/sound";
 import LoopStage from "./LoopStage";
 import FreeBoard from "./FreeBoard";
-import AddWidgetMenu from "./AddWidgetMenu";
+import { PinBody, pinTitle, usePinned } from "./EffectWidgets";
+import { togglePin } from "./fxPins";
+import { Toasts } from "./toast";
 import { Modal } from "../Modal";
 import MetronomeBar from "./MetronomeBar";
 import ScalePianoPanel from "./ScalePianoPanel";
@@ -220,6 +222,7 @@ export default function LooperApp() {
   const [layoutReset, setLayoutReset] = useState(0);
   const [view, setView] = useStored<View>("musickit.looper.view", "widgets");
   const widgetMode = view !== "fixed";
+  const pinned = usePinned(engine, snap);
   // an older save only knew "widgets on or off"
   useEffect(() => {
     try {
@@ -284,7 +287,6 @@ export default function LooperApp() {
         <button type="button" className={ibtn} disabled={!ready || snap.channels.every((c) => c.state === "empty")} onClick={() => engine.do({ type: "loop.clearAll" })} title="Clear every loop" aria-label="Clear every loop"><Icon name="trash" /></button>
         <span className="text-xs text-slate-400">{snap.loopSeconds === null ? "No loop yet" : `${snap.loopSeconds.toFixed(2)} s${loopBars(snap)}`}</span>
         <LoopBar getPosition={getPosition} />
-        <AddWidgetMenu engine={engine} snap={snap} canPatch={view === "lines"} names={Object.fromEntries(EFFECT_KINDS.map((k) => [k, EFFECT_DEFS[k].name]))} />
     </>
   );
   const looping = (fill: boolean) => (
@@ -292,14 +294,15 @@ export default function LooperApp() {
       <div className="flex flex-wrap items-center gap-2">
         {loopControls}
       </div>
-      <LoopStage engine={engine} snap={snap} getPosition={getPosition} openSeqs={openSeqs} onToggleSeq={toggleSeq} fill={fill} />
+      <LoopStage engine={engine} snap={snap} getPosition={getPosition} openSeqs={openSeqs} onToggleSeq={toggleSeq} fill={fill} pins={!fill} />
     </section>
   );
 
   return (
     <div ref={pageRef} className="relative flex flex-col">
       {widgetMode && ready && <ConnectionLayer engine={engine} snap={snap} mode={view === "lines" ? "lines" : "colors"} wrapper={pageRef} />}
-      {widgetMode && ready && <AddFab engine={engine} snap={snap} wires={view === "lines"} names={Object.fromEntries(EFFECT_KINDS.map((k) => [k, EFFECT_DEFS[k].name]))} onInput={() => setAddingInput(true)} />}
+      {ready && <AddFab engine={engine} snap={snap} wires={view === "lines"} names={Object.fromEntries(EFFECT_KINDS.map((k) => [k, EFFECT_DEFS[k].name]))} onInput={() => setAddingInput(true)} />}
+      <Toasts />
       {addingInput && <AddInputModal engine={engine} snap={snap} hasExtra={snap.inputs.some((i) => i.kind === "extra")} onClose={() => setAddingInput(false)} />}
       <div className="pointer-events-none sticky top-0 z-30 flex items-start justify-between gap-2 px-1 py-1">
         <div className="pointer-events-auto"><MetronomeBar engine={engine} snap={snap} ready={ready} /></div>
@@ -322,14 +325,16 @@ export default function LooperApp() {
         <WidgetBoard
           storageKey="musickit.looper.widgets2"
           flush
+          place="center"
           defaults={mixLayout}
           resetSignal={layoutReset}
           widgets={[
             { id: "looping", title: "Looping", node: looping(true) },
             { id: "inputs", title: "Inputs", node: <InputList engine={engine} snap={snap} keyboardOpen={keyboardOpen} onToggleKeyboard={() => setKeyboardOpen((v) => !v)} openPianos={openPianos} onTogglePiano={togglePiano} /> },
             { id: "sequencers", title: "Sequencers", node: <SequencerList engine={engine} snap={snap} openSeqs={openSeqs} onToggleSequencer={toggleSeq} /> },
-            { id: "switches", title: "Switches", node: <div className="flex flex-col gap-3 p-2">{snap.patch.nodes.some((n) => n.kind === "switch") ? snap.patch.nodes.filter((n) => n.kind === "switch").map((n) => <div key={n.id}><div className="mb-1 text-xs font-medium text-slate-300">{patchName(snap, n)}</div><NodeBody engine={engine} snap={snap} node={n} /></div>) : <p className="text-xs text-slate-500">No switch yet. Add one from + widget in Widgets with wires, or connect an audio interface for the guitar rig.</p>}</div> },
+            { id: "switches", title: "Switches", node: <div className="flex flex-col gap-3 p-2">{snap.patch.nodes.some((n) => n.kind === "switch") ? snap.patch.nodes.filter((n) => n.kind === "switch").map((n) => <div key={n.id}><div className="mb-1 text-xs font-medium text-slate-300">{patchName(snap, n)}</div><NodeBody engine={engine} snap={snap} node={n} /></div>) : <p className="text-xs text-slate-500">No switch yet. Add one with the round + button in Widgets with wires, or connect an audio interface for the guitar rig.</p>}</div> },
             { id: "buses", title: "Buses and master", node: <Buses engine={engine} snap={snap} /> },
+            ...pinned.map((r) => ({ id: `pin:${r.pin.key}`, title: pinTitle(r), node: <PinBody r={r} />, onClose: () => togglePin(r.pin.key) })),
           ]}
         />
       ) : mixer(false)}

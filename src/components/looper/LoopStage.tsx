@@ -42,7 +42,7 @@ const arrowStep = (e: RKeyboardEvent): [number, number] | null => {
 };
 
 /** The looping stage: loops are circles with a progress ring; coloured groups are boxes you can move and resize. A loop inside a group plays through that group's bus. */
-export default function LoopStage({ engine, snap, openSeqs, onToggleSeq, fill = false, patchSeq = false }: { patchSeq?: boolean; engine: LooperEngine; snap: LooperSnapshot; getPosition?: () => number | null; openSeqs: string[]; onToggleSeq: (id: string) => void; fill?: boolean }) {
+export default function LoopStage({ engine, snap, openSeqs, onToggleSeq, fill = false, patchSeq = false, pins = true }: { patchSeq?: boolean; /** effect widgets on the stage (the fixed layout); the canvas views show them as canvas widgets */ pins?: boolean; engine: LooperEngine; snap: LooperSnapshot; getPosition?: () => number | null; openSeqs: string[]; onToggleSeq: (id: string) => void; fill?: boolean }) {
   const stage = useRef<HTMLDivElement>(null);
   const [fxFor, setFxFor] = useState<string | null>(null);
   const ready = snap.status === "ready";
@@ -88,7 +88,7 @@ export default function LoopStage({ engine, snap, openSeqs, onToggleSeq, fill = 
         <InfoTip label="Stage help">
           <p><b>Size:</b> the stage fits its widget. Make the widget bigger or smaller by its corner, or zoom the whole canvas.</p>
           <p><b>Move around:</b> scroll, or drag empty space on the stage.</p>
-          <p><b>Effect widgets:</b> open the effects of a bus or an input and press the dashboard button on an effect. Its controls appear to the right of the stage; drag the title to place it.</p>
+          <p><b>Effect widgets:</b> the round + button, Widgets, or the dashboard button on an effect.{pins ? " Its controls appear on the stage; drag the title to place it." : " It appears on the canvas."}</p>
         </InfoTip>
       </div>
       <div
@@ -109,7 +109,7 @@ export default function LoopStage({ engine, snap, openSeqs, onToggleSeq, fill = 
       >
         <div data-pan="1" style={{ width: canvasW * scale, height: canvasH * scale }}>
           <div data-pan="1" className="relative select-none" style={{ width: canvasW, height: canvasH, transform: `scale(${scale})`, transformOrigin: "top left" }}>
-            <EffectWidgets engine={engine} snap={snap} drag={(e, onMove) => startDrag(e, stage.current, onMove)} />
+            {pins && <EffectWidgets engine={engine} snap={snap} drag={(e, onMove) => startDrag(e, stage.current, onMove)} />}
       <div ref={stage} data-pan="1" className="relative select-none" style={{ width: STAGE_W, height: STAGE_H }}>
         {snap.groups.map((g) => (
           <GroupBox key={g.id} engine={engine} g={g} stage={stage} count={snap.channels.filter((c) => c.groupId === g.id && c.state !== "empty").length + snap.sequencers.filter((q) => q.groupId === g.id).length} running={snap.channels.some((c) => c.groupId === g.id && c.state !== "empty" && c.active && snap.playing) || snap.sequencers.some((q) => q.groupId === g.id && q.playing)} onFx={() => setFxFor(g.id)} />
