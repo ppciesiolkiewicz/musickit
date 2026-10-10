@@ -26,7 +26,7 @@ import { PinBody, PinTitle, usePinned } from "./EffectWidgets";
 import { togglePin } from "./fxPins";
 import { Toasts } from "./toast";
 import { Modal } from "../Modal";
-import MetronomeBar from "./MetronomeBar";
+import MetronomeBar, { TransportButton } from "./MetronomeBar";
 import InputsMini from "./InputsMini";
 import ScalePianoPanel from "./ScalePianoPanel";
 import SequencerPanel from "./SequencerPanel";
@@ -38,12 +38,14 @@ const btnPlain = `${btn} border-slate-700 bg-slate-900 text-slate-200 hover:bord
 /** a small square icon button */
 const ibtn = "grid h-8 min-w-8 place-items-center rounded-lg border border-slate-700 bg-slate-900 px-1.5 text-xs text-slate-200 transition hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 
-/** " · 2 bars" when the loop is a whole number of bars at the current tempo */
-function loopBars(snap: LooperSnapshot): string {
-  if (snap.loopSeconds === null) return "";
+/** What the Looping header says: what exists when stopped, the take or the count-in while they run. The live bar number is drawn by the Timeline. */
+function headerLabel(snap: LooperSnapshot): string {
+  if (snap.channels.some((c) => c.state === "recording")) return "● rec";
+  if (snap.transport.state === "countIn") return "count-in";
+  if (snap.loopSeconds === null) return snap.sequencers.length === 0 ? "Record or start a sequencer" : "1 bar";
   const bars = (snap.loopSeconds * snap.metronome.bpm) / 60 / snap.metronome.beatsPerBar;
   const r = Math.round(bars);
-  return r >= 1 && Math.abs(bars - r) < 0.02 ? ` · ${r} bar${r === 1 ? "" : "s"}` : "";
+  return `${r >= 1 && Math.abs(bars - r) < 0.02 ? `${r} bar${r === 1 ? "" : "s"} · ` : ""}${snap.loopSeconds.toFixed(2)} s`;
 }
 
 /** A small value kept in localStorage (read after mount so the server and first client render agree). */
@@ -320,11 +322,9 @@ export default function LooperApp() {
   );
   const loopControls = (
     <>
-        <button type="button" className={ibtn} disabled={!ready || snap.loopSeconds === null} onClick={() => engine.do({ type: "playback.set", on: !snap.playing })} title={snap.playing ? "Stop playback" : "Play from the top"} aria-label={snap.playing ? "Stop playback" : "Play from the top"}>
-          <Icon name={snap.playing ? "square" : "play"} fill />
-        </button>
+        <TransportButton engine={engine} snap={snap} ready={ready} className="!h-8 !w-8" />
         <button type="button" className={ibtn} disabled={!ready || snap.channels.every((c) => c.state === "empty")} onClick={() => engine.do({ type: "loop.clearAll" })} title="Clear every loop" aria-label="Clear every loop"><Icon name="trash" /></button>
-        <span className="text-xs text-slate-400">{snap.loopSeconds === null ? "No loop yet" : `${snap.loopSeconds.toFixed(2)} s${loopBars(snap)}`}</span>
+        <span className="text-xs tabular-nums text-slate-400">{headerLabel(snap)}</span>
         <LoopBar getPosition={getPosition} />
     </>
   );
