@@ -408,6 +408,7 @@ export default function LooperApp() {
             </div>
             <div className="flex gap-2">
               <button type="button" disabled={gearBusy} className="rounded-lg border border-sky-500 bg-sky-500/10 px-3 py-1.5 text-sm text-sky-100 hover:bg-sky-500/20 disabled:opacity-50" onClick={async () => { setGearBusy(true); try { await engine.connectGear(true); } finally { setGearBusy(false); } }}>{gearBusy ? "Looking…" : snap.gear.some((g) => g.kind === "input-idle") ? "Detect devices and connect inputs" : "Detect devices"}</button>
+              <button type="button" className="ml-auto rounded-lg bg-sky-500 px-4 py-1.5 text-sm font-medium text-slate-950 hover:bg-sky-400" onClick={() => setGearDismissed(true)}>Continue</button>
             </div>
           </div>
         </Modal>
