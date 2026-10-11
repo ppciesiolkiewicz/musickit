@@ -59,12 +59,12 @@ const flowLayout = (kinds: Record<string, string | undefined>, fedBy: Record<str
 };
 
 /** Inputs on top, Looping below them, the master at the bottom: how the canvas starts. The wires are drawn over it. */
-const freeLayout = (kinds: Record<string, string | undefined>, fedBy: Record<string, number>, feeds: Record<string, string[]>, ownerOf: Record<string, string>): DefaultLayout => flowLayout(kinds, fedBy, feeds, ownerOf, { direction: "vertical", gap: 32, bandGap: 96, wrapBy: 1.5 });
+const freeLayout = (kinds: Record<string, string | undefined>, fedBy: Record<string, number>, feeds: Record<string, string[]>, ownerOf: Record<string, string>): DefaultLayout => flowLayout(kinds, fedBy, feeds, ownerOf, { direction: "vertical", gap: 64, bandGap: 160, wrapBy: 1.5 });
 
 const arrangements = (kinds: Record<string, string | undefined>, fedBy: Record<string, number>, feeds: Record<string, string[]>, ownerOf: Record<string, string>): Arrangement[] => [
-  { id: "vertical", label: "Vertical", hint: "Inputs on top, Looping below, the master at the bottom", icon: "rows-3", layout: flowLayout(kinds, fedBy, feeds, ownerOf, { direction: "vertical", gap: 32, bandGap: 96, wrapBy: 1.5 }) },
+  { id: "vertical", label: "Vertical", hint: "Inputs on top, Looping below, the master at the bottom", icon: "rows-3", layout: flowLayout(kinds, fedBy, feeds, ownerOf, { direction: "vertical", gap: 64, bandGap: 160, wrapBy: 1.5 }) },
   { id: "vertical-tight", label: "Vertical tight", hint: "The same, close together and no wider than Looping", icon: "rows-3", layout: flowLayout(kinds, fedBy, feeds, ownerOf, { direction: "vertical", gap: 12, bandGap: 36, wrapBy: 1 }) },
-  { id: "horizontal", label: "Horizontal", hint: "Inputs on the left, Looping in the middle, the master on the right", icon: "columns-3", layout: flowLayout(kinds, fedBy, feeds, ownerOf, { direction: "horizontal", gap: 32, bandGap: 96, wrapBy: 1.5 }) },
+  { id: "horizontal", label: "Horizontal", hint: "Inputs on the left, Looping in the middle, the master on the right", icon: "columns-3", layout: flowLayout(kinds, fedBy, feeds, ownerOf, { direction: "horizontal", gap: 64, bandGap: 160, wrapBy: 1.5 }) },
   { id: "horizontal-tight", label: "Horizontal tight", hint: "The same, close together and no taller than Looping", icon: "columns-3", layout: flowLayout(kinds, fedBy, feeds, ownerOf, { direction: "horizontal", gap: 12, bandGap: 36, wrapBy: 1 }) },
 ];
 
@@ -151,7 +151,7 @@ export default function FreeBoard({ engine, snap, controls, keyboardOpen, onTogg
 
   return (
     <>
-      <WidgetBoard storageKey="musickit.looper.board2" flush place="center" defaults={freeLayout(kinds, fedBy, feeds, ownerOf)} arrangements={arrangements(kinds, fedBy, feeds, ownerOf)} start="vertical" widgets={widgets} />
+      <WidgetBoard storageKey="musickit.looper.board2" flush place="center" defaults={freeLayout(kinds, fedBy, feeds, ownerOf)} arrangements={arrangements(kinds, fedBy, feeds, ownerOf)} start="vertical" fitMargin={56} widgets={widgets} />
     </>
   );
 }

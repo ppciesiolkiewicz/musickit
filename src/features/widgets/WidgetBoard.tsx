@@ -59,7 +59,7 @@ const clampZoom = (z: number) => Math.min(ZOOM.max, Math.max(ZOOM.min, z));
  * world that you zoom (buttons, Ctrl/Cmd and the wheel) and pan (wheel, or drag empty space). Each widget is dragged by its grip header and
  * resized from the corner. The layout and the view are remembered under `storageKey`. Raise `resetSignal` to put everything back.
  */
-export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout, resetSignal = 0, flush = false, place = "free", arrangements = GRID, start }: {
+export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout, resetSignal = 0, flush = false, place = "free", arrangements = GRID, start, fitMargin = 16 }: {
   widgets: BoardWidget[];
   storageKey: string;
   /** kept for older callers; the canvas always fills the space */
@@ -75,6 +75,8 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
   arrangements?: Arrangement[];
   /** the arrangement a board with no saved layout starts in, run just as its Auto position button would (then zoomed to show all) */
   start?: string;
+  /** the empty space (in screen pixels) left around the widgets when the view zooms to show them all */
+  fitMargin?: number;
 }) {
   const host = useRef<HTMLDivElement>(null);
   const [vp, setVp] = useState<Bounds | null>(null);
@@ -322,7 +324,7 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
   /** Zoom and move so that every widget is in view. */
   const fitAll = (l: Layout | null = layout) => {
     if (!l || !vp) return;
-    const v = fitView(widgets.map((w) => l[w.id]).filter(Boolean), vp, ZOOM);
+    const v = fitView(widgets.map((w) => l[w.id]).filter(Boolean), vp, ZOOM, fitMargin);
     if (!v) return;
     setView(v);
     save(l, v);

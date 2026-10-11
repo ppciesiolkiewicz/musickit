@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import Icon from "../Icon";
 import { INSTRUMENTS, type LooperEngine, type LooperSnapshot } from "@/lib/looper/engine";
 import { ibtn } from "@/components/controls";
+import Slider from "@/components/Slider";
 
 const field = "h-8 rounded-md border border-slate-700 bg-slate-900 px-2 text-xs text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 
@@ -17,6 +18,7 @@ export default function SequencerPanel({ engine, snap, id }: { engine: LooperEng
 
 function Grid({ engine, snap, id, sq, seq }: { engine: LooperEngine; snap: LooperSnapshot; id: string; sq: LooperSnapshot["sequencers"][number]; seq: NonNullable<ReturnType<LooperEngine["getSequencer"]>> }) {  const inst = INSTRUMENTS.find((i) => i.id === sq.instrumentId) ?? INSTRUMENTS[0];
   const steps = sq.steps;
+  const strip = snap.inputs.find((i) => i.kind === "sequencer" && i.sourceId === id);
   const bpb = snap.metronome.beatsPerBar;
   const heads = useRef<(HTMLSpanElement | null)[]>([]) as { current: (HTMLSpanElement | null)[] };
 
@@ -54,6 +56,12 @@ function Grid({ engine, snap, id, sq, seq }: { engine: LooperEngine; snap: Loope
           <option value="auto">{sq.groupId ? `To ${snap.groups.find((g) => g.id === sq.groupId)?.name ?? "its group"}` : "To master"} (by position)</option>
           <option value="record">To the recorder (and master)</option>
         </select>
+        {strip && (
+          <span className="flex items-center gap-1.5">
+            <button type="button" className={`${ibtn} ${strip.muted ? "!border-amber-400 !text-amber-200" : ""}`} aria-pressed={strip.muted} onClick={() => engine.do({ type: "input.set", id: strip.id, patch: { muted: !strip.muted } })} title="Mute" aria-label={`Mute ${sq.name}`}>M</button>
+            <Slider min={0} max={1} step={0.01} value={Math.min(1, strip.volume)} onChange={(v) => engine.do({ type: "input.set", id: strip.id, patch: { volume: v } })} className="w-24" aria-label={`Volume of ${sq.name}`} title={`Volume ${Math.round(strip.volume * 100)}%`} />
+          </span>
+        )}
         <button type="button" className={ibtn} onClick={() => engine.do({ type: "sequencer.set", id, patch: { clear: true } })} title="Clear the pattern" aria-label="Clear the pattern"><Icon name="trash" /></button>
       </div>
 

@@ -11,6 +11,11 @@ import { GROUP_COLOURS, LOOP_R, STAGE_H, resizeRect, type Corner, STAGE_W, VIEW_
 import Slider from "@/components/Slider";
 import { tbtn } from "@/components/controls";
 
+/** Loops and sequencers sit on a bordered card so they stand out from the stage and the group colours. */
+const CARD_PAD = 7;
+const card = "absolute z-10 flex flex-col items-center gap-1.5 rounded-xl border border-slate-500/80 bg-slate-950/85 p-1.5 shadow-md shadow-black/50";
+const controlsBox = "flex w-full flex-col gap-1 rounded-lg border border-slate-700 bg-slate-900/70 p-1";
+
 const RING = 40;
 const CIRC = 2 * Math.PI * RING;
 const MIN_ZOOM = 0.2;
@@ -125,7 +130,7 @@ export default function LoopStage({ engine, snap, openSeqs, onToggleSeq, fill = 
         })}
         {snap.sequencers.map((q) => {
           const g = snap.groups.find((x) => x.id === q.groupId);
-          return <SeqCircle key={q.id} engine={engine} q={q} colour={g?.colour ?? "#94a3b8"} stage={stage} open={openSeqs.includes(q.id)} onOpen={() => onToggleSeq(q.id)} patchId={patchSeq} going={going} />;
+          return <SeqCircle key={q.id} engine={engine} q={q} strip={snap.inputs.find((i) => i.kind === "sequencer" && i.sourceId === q.id)} colour={g?.colour ?? "#94a3b8"} stage={stage} open={openSeqs.includes(q.id)} onOpen={() => onToggleSeq(q.id)} patchId={patchSeq} going={going} />;
         })}
       </div>
           </div>
@@ -195,7 +200,7 @@ function LoopCircle({ engine, ch, colour, stage, ready, busy, firstTake, baseBar
   };
   const size = LOOP_R * 2 - 8;
   return (
-    <div className="absolute z-10 flex w-[7.5rem] flex-col items-center gap-1.5" style={{ left: `${(ch.x / STAGE_W) * 100}%`, top: `${(ch.y / STAGE_H) * 100}%`, transform: `translate(-50%, -${LOOP_R - 4}px)` }}>
+    <div className={`${card} w-[8.25rem]`} style={{ left: `${(ch.x / STAGE_W) * 100}%`, top: `${(ch.y / STAGE_H) * 100}%`, transform: `translate(-50%, -${LOOP_R - 4 + CARD_PAD}px)` }}>
       <button type="button" onPointerDown={onPointerDown} onKeyDown={onKeyDown} onClick={(e) => e.detail === 0 && ready && !(busy && !recording) && act()} aria-label={`${label}: ${ch.name}. Drag to move; Alt and arrow keys move it.`} title={`${label} (drag to move)`} className="relative grid cursor-grab place-items-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-sky-400 active:cursor-grabbing" style={{ width: size, height: size, touchAction: "none" }}>
         <svg viewBox="0 0 100 100" width={size} height={size} aria-hidden>
           <circle cx="50" cy="50" r={RING} fill={ch.state === "empty" ? "none" : `color-mix(in oklab, ${live} 13%, transparent)`} className="stroke-slate-800" strokeWidth="8" strokeDasharray={ch.state === "armed" ? "4 5" : undefined} />
@@ -213,7 +218,7 @@ function LoopCircle({ engine, ch, colour, stage, ready, busy, firstTake, baseBar
       <span ref={barEl} className="h-4 text-[11px] font-medium tabular-nums text-rose-300" style={{ display: ch.state === "recording" ? "block" : "none" }} title="Bar being recorded / bars it is heading for, and the beat" />
       {ch.state !== "recording" && ch.state !== "armed" && <LengthBadge engine={engine} ch={ch} firstTake={firstTake} baseBars={baseBars} />}
       <input value={ch.name} onChange={(e) => engine.do({ type: "loop.rename", id: ch.id, name: e.target.value })} aria-label={`Name of ${ch.name}`} className="w-full truncate rounded border border-transparent bg-transparent px-1 text-center text-[11px] font-medium text-slate-200 hover:border-slate-700 focus:border-slate-500 focus:outline-none" />
-      <div className="flex w-full flex-col gap-1 rounded-lg border border-slate-800/80 bg-slate-950/50 p-1 backdrop-blur-sm">
+      <div className={controlsBox}>
         <div className="flex items-center gap-1">
           <button type="button" className={`${tbtn} ${ch.muted ? "!border-amber-400/80 !bg-amber-400/15 !text-amber-200" : ""}`} aria-pressed={ch.muted} disabled={ch.state === "empty"} onClick={() => engine.do({ type: "loop.mute", id: ch.id, muted: !ch.muted })} title="Mute" aria-label={`Mute ${ch.name}`}>M</button>
           <button type="button" className={`${tbtn} ${ch.solo ? "!border-sky-400/80 !bg-sky-400/15 !text-sky-200" : ""}`} aria-pressed={ch.solo} disabled={ch.state === "empty"} onClick={() => engine.do({ type: "loop.solo", id: ch.id, solo: !ch.solo })} title="Solo" aria-label={`Solo ${ch.name}`}>S</button>
@@ -229,7 +234,7 @@ function LoopCircle({ engine, ch, colour, stage, ready, busy, firstTake, baseBar
   );
 }
 
-function SeqCircle({ engine, q, colour, stage, open, onOpen, patchId = false, going }: { patchId?: boolean; engine: LooperEngine; q: LooperSnapshot["sequencers"][number]; colour: string; stage: RefObject<HTMLDivElement | null>; open: boolean; onOpen: () => void; going: boolean }) {
+function SeqCircle({ engine, q, strip, colour, stage, open, onOpen, patchId = false, going }: { patchId?: boolean; engine: LooperEngine; q: LooperSnapshot["sequencers"][number]; strip: LooperSnapshot["inputs"][number] | undefined; colour: string; stage: RefObject<HTMLDivElement | null>; open: boolean; onOpen: () => void; going: boolean }) {
   // armed and the transport playing: the button stops it; otherwise it plays (arming starts the transport)
   const on = q.playing && going;
   const arc = useRef<SVGCircleElement>(null);
@@ -258,7 +263,7 @@ function SeqCircle({ engine, q, colour, stage, open, onOpen, patchId = false, go
   const size = LOOP_R * 2 - 8;
   const ring = q.running ? "var(--color-emerald-400)" : colour;
   return (
-    <div data-patch-id={patchId ? `seq:${q.id}` : undefined} className="absolute z-10 flex w-28 flex-col items-center gap-1.5" style={{ left: `${(q.x / STAGE_W) * 100}%`, top: `${(q.y / STAGE_H) * 100}%`, transform: `translate(-50%, -${LOOP_R - 4}px)` }}>
+    <div data-patch-id={patchId ? `seq:${q.id}` : undefined} className={`${card} w-[8.25rem]`} style={{ left: `${(q.x / STAGE_W) * 100}%`, top: `${(q.y / STAGE_H) * 100}%`, transform: `translate(-50%, -${LOOP_R - 4 + CARD_PAD}px)` }}>
       <button type="button" onPointerDown={onPointerDown} onKeyDown={onKeyDown} onClick={(e) => e.detail === 0 && toggle()} aria-pressed={on} aria-label={`${on ? "Stop" : "Play"} ${q.name} on the next beat. Drag to move; Alt and arrow keys move it.`} title={`${on ? "Stop" : "Play"} on the next beat (drag to move)`} className="relative grid cursor-grab place-items-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-sky-400 active:cursor-grabbing" style={{ width: size, height: size, touchAction: "none" }}>
         <svg viewBox="0 0 100 100" width={size} height={size} aria-hidden>
           <rect x="14" y="14" width="72" height="72" rx="20" fill={q.running ? `color-mix(in oklab, ${ring} 13%, transparent)` : "none"} className="stroke-slate-800" strokeWidth="8" />
@@ -267,9 +272,17 @@ function SeqCircle({ engine, q, colour, stage, open, onOpen, patchId = false, go
         <span className="absolute grid place-items-center" style={{ color: ring }}><Icon name="drum" size={24} /></span>
       </button>
       <span className="w-full truncate text-center text-[11px] font-medium text-slate-200" title={q.name}>{q.name}</span>
-      <div className="flex items-center gap-1 rounded-lg border border-slate-800/80 bg-slate-950/50 p-1 backdrop-blur-sm">
-        <button type="button" className={`${tbtn} ${on ? "!border-emerald-500/70 !text-emerald-200" : ""}`} onClick={toggle} aria-pressed={on} title={on ? "Stop on the next beat" : "Play"} aria-label={on ? `Stop ${q.name}` : `Play ${q.name}`}><Icon name={on ? "square" : "play"} size={11} fill /></button>
-        <button type="button" className={`${tbtn} ${open ? "!border-sky-400 !text-sky-200" : ""}`} onClick={onOpen} aria-pressed={open} title="Open the step grid" aria-label={`Open the step grid of ${q.name}`}><Icon name="sliders-horizontal" size={12} /></button>
+      <div className={controlsBox}>
+        {strip && (
+          <div className="flex items-center gap-1">
+            <button type="button" className={`${tbtn} ${strip.muted ? "!border-amber-400/80 !bg-amber-400/15 !text-amber-200" : ""}`} aria-pressed={strip.muted} onClick={() => engine.do({ type: "input.set", id: strip.id, patch: { muted: !strip.muted } })} title="Mute" aria-label={`Mute ${q.name}`}>M</button>
+            <Slider min={0} max={1} step={0.01} value={Math.min(1, strip.volume)} onChange={(v) => engine.do({ type: "input.set", id: strip.id, patch: { volume: v } })} className="min-w-0 flex-1" aria-label={`Volume of ${q.name}`} title={`Volume ${Math.round(strip.volume * 100)}%`} size="sm" />
+          </div>
+        )}
+        <div className="flex items-center justify-between gap-1">
+        <button type="button" className={`${tbtn} flex-1 ${on ? "!border-emerald-500/70 !text-emerald-200" : ""}`} onClick={toggle} aria-pressed={on} title={on ? "Stop on the next beat" : "Play"} aria-label={on ? `Stop ${q.name}` : `Play ${q.name}`}><Icon name={on ? "square" : "play"} size={11} fill /></button>
+        <button type="button" className={`${tbtn} flex-1 ${open ? "!border-sky-400 !text-sky-200" : ""}`} onClick={onOpen} aria-pressed={open} title="Open the step grid" aria-label={`Open the step grid of ${q.name}`}><Icon name="sliders-horizontal" size={12} /></button>
+        </div>
       </div>
     </div>
   );

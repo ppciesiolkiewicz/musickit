@@ -838,6 +838,14 @@ export class LooperEngine {
     }
     q.toSpeakers.connect((q.state.dest === "auto" ? this.busFor(gid)?.input : null) ?? this.master);
     q.toRecord.gain.value = q.state.dest === "record" ? 1 : 0;
+    this.levelSequencer(q);
+  }
+
+  /** What is heard of a sequencer follows its strip's volume and mute (the recorded part already goes through the strip). */
+  private levelSequencer(q: Sequencer) {
+    if (!q.toSpeakers || !this.ctx) return;
+    const strip = this.mixer.list().find((i) => i.kind === "sequencer" && i.sourceId === q.id);
+    q.toSpeakers.gain.setTargetAtTime(strip ? (strip.muted ? 0 : strip.volume) : 1, this.ctx.currentTime, 0.01);
   }
 
   getSequencer(id: string): Sequencer | undefined {
@@ -1952,6 +1960,8 @@ export class LooperEngine {
     if (p.solo !== undefined && p.solo !== i.solo) this.mixer.toggleSolo(id);
     if (p.monitor !== undefined) this.mixer.setMonitor(id, p.monitor);
     if (p.mode !== undefined || p.pair !== undefined) this.mixer.setMode(id, p.mode ?? i.mode, p.pair);
+    const q = i.kind === "sequencer" && i.sourceId ? this.sequencers.get(i.sourceId) : undefined;
+    if (q) this.levelSequencer(q);
   }
 
   /* effects on a group's bus, an input strip or the master bus, by target */
