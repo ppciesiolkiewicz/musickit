@@ -3,7 +3,8 @@ import { Transport, type TransportState } from "./transport";
 import { Metronome, type MetronomeSettings } from "./metronome";
 import { Sequencer, type SequencerState } from "./sequencer";
 import { fromRows } from "./sequencerPattern";
-import { ScalePiano, clampState as clampScalePiano, type ScalePianoState, type VoiceFactory } from "./scalePiano";
+import { InstrumentInput, type VoiceFactory } from "./instrument";
+import { CONTROLLER_NAMES, migrateSaves, type Controller, type InstrumentState } from "./instrumentModel";
 import { EffectChain, LoopBus, peakOf } from "./buses";
 import { EFFECT_DEFS, defaultParams, moveEffect, clampParams, sanitiseEffects, type EffectKind, type EffectSpec } from "./effects";
 import { GROUP_COLOURS, LOOPS_PER_GROUP, clampPoint, clampRect, containingGroup, defaultGroups, defaultSpot, freeSpot, bottomRow, type GroupLayout } from "./layout";
@@ -15,7 +16,7 @@ import { listDevices, sameDevices, singleFlight } from "./deviceList";
 import { ActionHistory, type DoOptions } from "./history";
 import { MacroRecorder } from "./macros";
 import { GROUP_STARTS, PIANO_STARTS, SEQUENCER_STARTS, addBus, pianoRig, starterRig, vocalRig } from "./rig";
-import type { FxTarget, InputSpec, LooperAction } from "./actions";
+import type { FxTarget, InputSpec, InstrumentPatch, LooperAction } from "./actions";
 import { RECORDER_PROCESSOR_NAME, recorderWorkletUrl } from "./recorderWorklet";
 import { DEFAULT_EDIT, TAKE_MARGIN_SECONDS, clampEdit, renderLoop, type LoopEdit, type Take } from "./loopEdit";
 
@@ -37,8 +38,8 @@ export interface Timeline {
   take: { bar: number; totalBars: number; planned: boolean } | null;
 }
 export { INSTRUMENTS, type Instrument, type SequencerState } from "./sequencer";
-export type { VoiceFactory, NoteVoice } from "./scalePiano";
-export type { ScalePianoState } from "./scalePiano";
+export type { VoiceFactory, NoteVoice } from "./instrument";
+export type { InstrumentState, Controller, Generator, VoiceSpec } from "./instrumentModel";
 export { EFFECT_DEFS, EFFECT_KINDS, setNamFactory, type EffectKind, type EffectSpec, type ParamDef } from "./effects";
 import { getChoice } from "./choices";
 export { registerChoice, getChoice, type ChoiceSource, type ChoiceOption, type CloudSource, type CloudItem } from "./choices";
@@ -66,13 +67,9 @@ export interface GroupInfo extends GroupLayout {
  */
 
 export interface LooperOptions {
-  /** Use this AudioContext instead of creating one. Needed when an extra source lives in another part of the app. */
+  /** Use this AudioContext instead of creating one (the app's shared one, so its instruments play into the looper). */
   getContext?: () => AudioContext;
-  /** An extra audio source (a node in the same context), such as the piano's output. */
-  getExternalSource?: () => AudioNode;
-  /** Name shown for that source, e.g. "Piano". */
-  externalLabel?: string;
-  /** Makes the sound of the Scale Piano (the app passes its sample player); the piano is silent without it. */
+  /** Makes the sound of an instrument input (the app passes its sample player and sampler); instruments are silent without it. */
   createVoice?: VoiceFactory;
 }
 
@@ -126,16 +123,14 @@ export interface LooperSnapshot {
   canChooseOutput: boolean;
   /** the input strips of the mixer */
   inputs: InputInfo[];
-  /** name of the extra source the app provided (the piano), or null */
-  extraLabel: string | null;
   latencyMs: number;
   /** metronome settings, whether it is clicking now, and whether the tempo is locked by a loop or a take */
   metronome: MetronomeSettings & { locked: boolean };
   /** the transport: stopped, counting in, running or stopping on the next line; and how many loops and sequencers are armed */
   transport: { state: TransportState; armed: number };
   /** every step sequencer: its pattern and destination, whether it is sounding, and how many steps the pattern has */
-  /** every scale piano: its key, scale and octave */
-  scalePianos: (ScalePianoState & { id: string; name: string })[];
+  /** every instrument input: its settings, name and strip id */
+  instruments: (InstrumentState & { id: string; name: string; stripId: number })[];
   sequencers: (SequencerState & { id: string; name: string; running: boolean; stopping: boolean; steps: number; groupId: string | null })[];
   loopSeconds: number | null;
   channels: ChannelInfo[];
@@ -284,9 +279,9 @@ export class LooperEngine {
   /** the step sequencers (a drum machine to start with), by id */
   private sequencers = new Map<string, Sequencer>();
   private seqCounter = 0;
-  /** the scale pianos (computer keys locked to a key and scale), by id */
-  private scalePianos = new Map<string, ScalePiano>();
-  private spCounter = 0;
+  /** the instrument inputs (a controller and a sound generator each), by id */
+  private instruments = new Map<string, InstrumentInput>();
+  private instCounter = 0;
 
   private listeners = new Set<() => void>();
   /** the browser says devices changed: it fires in bursts (and again when the tab gets focus back), so list them once it settles */
@@ -304,12 +299,10 @@ export class LooperEngine {
 
   constructor(private options: LooperOptions = {}) {
     this.mixer = new InputMixer({
-      getExtraSource: options.getExternalSource,
-      extraLabel: options.externalLabel,
       getSequencerSource: (id) => this.sequencers.get(id)?.toRecord,
-      getScalePianoSource: (id) => this.scalePianos.get(id)?.toRecord,
+      getInstrumentSource: (id) => this.instruments.get(id)?.toRecord,
       onRemoved: (info) => {
-        if (info.kind === "scalepiano" && info.sourceId) this.disposeScalePiano(info.sourceId);
+        if (info.kind === "instrument" && info.sourceId) this.disposeInstrument(info.sourceId);
         if (info.kind === "sequencer" && info.sourceId) this.disposeSequencer(info.sourceId);
       },
       onChange: () => {
@@ -346,8 +339,7 @@ export class LooperEngine {
         const q = this.sequencers.get(i.sourceId!)!;
         return { ...q.state, id: q.id, name: i.name, running: q.running, stopping: q.stopping, steps: q.steps, groupId: containingGroup(this.groups, q.state.x, q.state.y) };
       }),
-      scalePianos: this.mixer.list().filter((i) => i.kind === "scalepiano" && i.sourceId && this.scalePianos.has(i.sourceId)).map((i) => ({ ...this.scalePianos.get(i.sourceId!)!.state, id: i.sourceId!, name: i.name })),
-      extraLabel: this.options.getExternalSource ? this.options.externalLabel ?? "Extra source" : null,
+      instruments: this.mixer.list().filter((i) => i.kind === "instrument" && i.sourceId && this.instruments.has(i.sourceId)).map((i) => ({ ...this.instruments.get(i.sourceId!)!.serialize(), id: i.sourceId!, name: i.name, stripId: i.id })),
       loopSeconds: this.loopLength,
       channels: this.runtimes.map((r) => ({ ...r.info, edit: { ...r.info.edit } })),
       masterVolume: this.masterVolume,
@@ -387,11 +379,12 @@ export class LooperEngine {
       saved = emptyPatch();
     }
     this.patch = saved;
+    this.migrateInstruments();
     this.mixer.restore();
     this.metronome.restore();
     this.transport.setTiming(this.metronome.period, this.metronome.settings.beatsPerBar);
     this.restoreSequencers();
-    this.restoreScalePianos();
+    this.restoreInstruments();
     this.restoreLayout();
     this.emit();
     this.setupGuitar();
@@ -412,8 +405,8 @@ export class LooperEngine {
     } catch {
       return;
     }
-    const have = this.mixer.list().filter((i) => i.kind === "scalepiano").map((i) => i.id);
-    const ids = have.length ? have : PIANO_STARTS.map((st) => this.addScalePianoNow(st)).filter((id): id is number => id !== null);
+    const have = this.mixer.list().filter((i) => i.kind === "instrument" && i.sourceId && this.instruments.get(i.sourceId)?.state.controller === "scalepiano").map((i) => i.id);
+    const ids = have.length ? have : PIANO_STARTS.map((st) => this.addInstrumentNow({ controller: "scalepiano", ...st })).filter((id): id is number => id !== null);
     if (ids.length) this.addPianoRig(ids);
     this.history.clear();
   }
@@ -472,7 +465,7 @@ export class LooperEngine {
       const id = `in:${i.id}`;
       want.add(id);
       if (!has(id)) {
-        add(id, i.kind === "scalepiano" ? "piano" : "input");
+        add(id, i.kind === "instrument" ? "piano" : "input");
         groupIds.forEach((g) => (p = patchConnect(p, id, `group:${g}`, `rec:${id}:${g}`, "rec")));
       }
     }
@@ -501,11 +494,11 @@ export class LooperEngine {
     if (!this.pgraph || !this.master || !this.mixer.output) return;
     const patched = this.pgraph.patchedStrips(this.patch);
     this.mixer.setPatched(patched);
-    // a piano that is patched is heard only through the patch: its direct route to the master closes
+    // an instrument that is patched is heard only through the patch: its direct route to the master closes
     this.mixer.list().forEach((i) => {
-      if (i.kind === "scalepiano" && i.sourceId) {
-        const sp = this.scalePianos.get(i.sourceId);
-        if (sp?.toSpeakers) sp.toSpeakers.gain.value = patched.has(i.id) ? 0 : 1;
+      if (i.kind === "instrument" && i.sourceId) {
+        const inst = this.instruments.get(i.sourceId);
+        if (inst?.toSpeakers) inst.toSpeakers.gain.value = patched.has(i.id) ? 0 : 1;
       }
     });
     this.pgraph.sync(this.patch, { tap: (id) => this.mixer.tap(id), bus: (g) => this.buses.get(g)?.input ?? null, master: this.master, recorder: this.mixer.output });
@@ -639,65 +632,88 @@ export class LooperEngine {
     return this.metronome.position();
   }
 
-  /* ------------------------------------------------------------------ scale pianos */
+  /* ------------------------------------------------------------------ instruments */
 
-  private spKey = "musickit.looper.scalePianos";
+  private instKey = "musickit.looper.instruments";
 
-  private attachScalePiano(p: ScalePiano) {
+  /** Old projects had a keyboard strip (`extra`) and Scale Piano strips: they become instruments with the same strip ids, once (`migrateSaves`). */
+  private migrateInstruments() {
+    try {
+      const read = (k: string) => JSON.parse(window.localStorage.getItem(k) ?? "null");
+      const done = migrateSaves({ inputs: read("musickit.looper.inputs"), scalePianos: read("musickit.looper.scalePianos"), instruments: read(this.instKey) });
+      if (!done) return;
+      window.localStorage.setItem("musickit.looper.inputs", JSON.stringify(done.inputs));
+      window.localStorage.setItem(this.instKey, JSON.stringify(done.instruments));
+      window.localStorage.removeItem("musickit.looper.scalePianos");
+    } catch {
+      /* a corrupt save loads as well as it can */
+    }
+  }
+
+  private attachInstrument(p: InstrumentInput) {
     if (!this.ctx || !this.master) return;
     p.attach(this.ctx);
     p.toSpeakers?.connect(this.master);
   }
 
-  private makeScalePiano(id: string): ScalePiano {
-    const p = new ScalePiano(id, () => {
-      this.saveScalePianos();
+  private makeInstrument(id: string, state?: unknown): InstrumentInput {
+    const p = new InstrumentInput(id, () => {
+      this.saveInstruments();
       this.emit();
     }, this.options.createVoice);
-    this.scalePianos.set(id, p);
-    this.attachScalePiano(p);
+    p.load(state);
+    this.instruments.set(id, p);
+    this.attachInstrument(p);
     return p;
   }
 
-  private restoreScalePianos() {
-    let saved: Record<string, Partial<ScalePianoState>> = {};
+  private restoreInstruments() {
+    let saved: Record<string, unknown> = {};
     try {
-      saved = JSON.parse(window.localStorage.getItem(this.spKey) ?? "{}") ?? {};
+      saved = JSON.parse(window.localStorage.getItem(this.instKey) ?? "{}") ?? {};
     } catch {
       /* ignore a corrupt save */
     }
-    for (const id of this.mixer.scalePianoIds()) {
-      if (this.scalePianos.has(id)) continue;
-      this.makeScalePiano(id).load(saved[id]);
-      this.spCounter = Math.max(this.spCounter, Number(id.replace(/\D/g, "")) || 0);
+    for (const id of this.mixer.instrumentIds()) {
+      if (this.instruments.has(id)) continue;
+      this.makeInstrument(id, saved[id]);
+      this.instCounter = Math.max(this.instCounter, Number(id.replace(/\D/g, "")) || 0);
     }
     this.emit();
   }
 
-  private saveScalePianos() {
+  private saveInstruments() {
     try {
-      const data: Record<string, ScalePianoState> = {};
-      this.scalePianos.forEach((p, id) => (data[id] = p.serialize()));
-      window.localStorage.setItem(this.spKey, JSON.stringify(data));
+      const data: Record<string, InstrumentState> = {};
+      this.instruments.forEach((p, id) => (data[id] = p.serialize()));
+      window.localStorage.setItem(this.instKey, JSON.stringify(data));
     } catch {
       /* ignore */
     }
   }
 
-  /** Add a scale piano with its strip at once, with these starting settings. Returns the strip id. */
-  addScalePianoNow(start?: Partial<ScalePianoState> & { name?: string }): number | null {
-    const id = `p${++this.spCounter}`;
-    const piano = this.makeScalePiano(id);
-    if (start) piano.set(clampScalePiano({ ...piano.state, ...start }));
-    const n = this.mixer.scalePianoIds().length;
-    const made = this.mixer.addNow({ kind: "scalepiano", name: start?.name ?? (n === 0 ? "Scale Piano" : `Scale Piano ${n + 1}`), sourceId: id }).id;
+  /** Add an instrument with its strip at once, with these starting settings. Named after its controller ("Piano", "Scale Piano 2"). Returns the strip id. */
+  addInstrumentNow(start: Partial<InstrumentState> & { name?: string } = {}): number | null {
+    const { name, ...state } = start;
+    const id = `p${++this.instCounter}`;
+    const inst = this.makeInstrument(id, state);
+    const c = inst.state.controller;
+    const n = this.mixer.list().filter((i) => i.kind === "instrument" && i.sourceId && this.instruments.get(i.sourceId)?.state.controller === c).length;
+    const made = this.mixer.addNow({ kind: "instrument", name: name ?? (n === 0 ? CONTROLLER_NAMES[c] : `${CONTROLLER_NAMES[c]} ${n + 1}`), sourceId: id }).id;
     if (made === null) {
-      this.disposeScalePiano(id);
+      this.disposeInstrument(id);
       return null;
     }
-    this.saveScalePianos();
+    this.saveInstruments();
     this.syncPatch();
     return made;
+  }
+
+  /** Add an instrument from the Add dialog with the piano buses. */
+  addInstrumentWithRig(controller: Controller): number | null {
+    const id = this.addInstrumentNow({ controller });
+    if (id !== null) this.addPianoRig([id]);
+    return id;
   }
 
   /** Add an output bus inside an input (a patch id like "in:3"), with the effects to be put on it afterwards. */
@@ -746,19 +762,19 @@ export class LooperEngine {
     return this.do({ type: "batch", label: "Piano rig", actions: [...this.legacyRig(), ...rig.actions] });
   }
 
-  private disposeScalePiano(id: string) {
-    this.scalePianos.get(id)?.dispose();
-    this.scalePianos.delete(id);
-    this.saveScalePianos();
+  private disposeInstrument(id: string) {
+    this.instruments.get(id)?.dispose();
+    this.instruments.delete(id);
+    this.saveInstruments();
     this.emit();
   }
 
-  getScalePiano(id: string): ScalePiano | undefined {
-    return this.scalePianos.get(id);
+  getInstrument(id: string): InstrumentInput | undefined {
+    return this.instruments.get(id);
   }
 
-  setScalePiano(id: string, patch: Partial<ScalePianoState>) {
-    this.scalePianos.get(id)?.set(clampScalePiano({ ...this.scalePianos.get(id)!.state, ...patch }));
+  setInstrument(id: string, patch: InstrumentPatch) {
+    this.instruments.get(id)?.set(patch);
   }
 
   /* ------------------------------------------------------------------ sequencers */
@@ -1133,7 +1149,7 @@ export class LooperEngine {
       q.attach(ctx);
       this.routeSequencer(q);
     });
-    this.scalePianos.forEach((p) => this.attachScalePiano(p));
+    this.instruments.forEach((p) => this.attachInstrument(p));
     this.mixer.attach(ctx, this.master);
     this.pgraph = new PatchGraph(ctx);
     this.metronome.attach(ctx, this.mainOut);
@@ -1309,7 +1325,7 @@ export class LooperEngine {
   }
 
   /**
-   * The default keyboard piano, once (flag `musickit.looper.keysRigDone`): the on-screen and MIDI keyboard as an input with the piano
+   * The default keyboard piano, once (flag `musickit.looper.keysRigDone`): a Piano instrument (on-screen and MIDI keyboard) with the piano
    * buses (Dry piano, Room, Hall, Dreamy). Needs no device. Removing it sticks. Not part of the history.
    */
   private setupKeyboardPiano(): void {
@@ -1319,8 +1335,8 @@ export class LooperEngine {
     } catch {
       return;
     }
-    const have = this.mixer.list().find((i) => i.kind === "extra");
-    const id = have?.id ?? this.addInput({ kind: "extra" });
+    const have = this.mixer.list().find((i) => i.kind === "instrument" && i.sourceId && this.instruments.get(i.sourceId)?.state.controller === "piano");
+    const id = have?.id ?? this.addInstrumentNow({ controller: "piano", name: "Piano" });
     if (id === null || id === undefined) return;
     this.syncPatch();
     if (!this.patch.nodes.some((n) => n.owner === `in:${id}`)) this.addPianoRig([id]);
@@ -1370,7 +1386,7 @@ export class LooperEngine {
   }
 
   /**
-   * Add an input from the Add dialog with its whole rig: a guitar gets the tone buses, the keyboard and a Scale Piano the piano buses,
+   * Add an input from the Add dialog with its whole rig: a guitar gets the tone buses (instruments come with `addInstrumentWithRig`),
    * every bus playing to the master and recording into every group. Returns the strip id.
    */
   addInputWithRig(spec: InputSpec, rig: "guitar" | "piano"): number | null {
@@ -1381,13 +1397,6 @@ export class LooperEngine {
     this.syncPatch();
     if (rig === "guitar") this.addRig(id);
     else this.addPianoRig([id]);
-    return id;
-  }
-
-  /** Add a Scale Piano from the Add dialog with the piano buses. */
-  addScalePianoWithRig(): number | null {
-    const id = this.addScalePianoNow();
-    if (id !== null) this.addPianoRig([id]);
     return id;
   }
 
@@ -1928,7 +1937,7 @@ export class LooperEngine {
 
   /** Add a hardware or built-in input. The strip exists when this returns; a device asks for the microphone only now, because a person ran the action. */
   addInput(spec: InputSpec, id?: number): number | null {
-    const name = spec.name?.slice(0, 40) || (spec.kind === "extra" ? this.options.externalLabel ?? "Keyboard" : "Input");
+    const name = spec.name?.slice(0, 40) || "Input";
     if (spec.kind === "device" && spec.deviceId) {
       const d = this.meta.devices.find((x) => x.id === spec.deviceId);
       if (d) this.remember({ in: { id: d.id, label: d.label } });
@@ -1941,10 +1950,10 @@ export class LooperEngine {
     return made;
   }
 
-  /** Remove a device or built-in input. (Sequencer and Scale Piano strips go with their own remove.) */
+  /** Remove a device input. (Instrument and sequencer strips go with their own remove.) */
   removeInput(id: number) {
     const i = this.mixer.list().find((x) => x.id === id);
-    if (i && (i.kind === "device" || i.kind === "extra")) {
+    if (i && i.kind === "device") {
       // taking the last interface away means it is no longer wanted: do not offer it again or wait for it
       if (i.kind === "device" && !this.mixer.list().some((x) => x.kind === "device" && x.id !== id)) this.forgetInput();
       this.mixer.remove(id);
@@ -2415,7 +2424,7 @@ export class LooperEngine {
     this.runtimes.forEach((r) => this.stopSource(r));
     this.metronome.dispose();
     this.sequencers.forEach((q) => q.dispose());
-    this.scalePianos.forEach((p) => p.dispose());
+    this.instruments.forEach((p) => p.dispose());
     this.pgraph?.dispose();
     this.pgraph = null;
     this.buses.forEach((b) => b.dispose());

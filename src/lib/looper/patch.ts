@@ -356,7 +356,7 @@ export function sanitisePatch(raw: unknown): Patch {
  * The patch that matches today's fixed routing, so old saves open unchanged: every hardware and software input feeds the
  * recorder of every group (any loop can record any input), each group is a bus into master. Sequencers are elements without links: the group they sit in is their route.
  */
-export function defaultPatch(opts: { inputs: { id: number; kind: "device" | "extra" | "sequencer" | "scalepiano"; sourceId?: string }[]; groups: string[]; sequencers: { id: string; group: string | null }[] }): Patch {
+export function defaultPatch(opts: { inputs: { id: number; kind: "device" | "sequencer" | "instrument"; sourceId?: string }[]; groups: string[]; sequencers: { id: string; group: string | null }[] }): Patch {
   let p: Patch = emptyPatch();
   const add = (id: string, kind: PatchKind, x: number, y: number) => {
     p = { ...p, nodes: [...p.nodes, { id, kind, x, y, muted: false, ...(kind === "switch" ? { inMulti: false, outMulti: false } : {}) }] };
@@ -368,7 +368,7 @@ export function defaultPatch(opts: { inputs: { id: number; kind: "device" | "ext
   });
   opts.inputs.forEach((inp, i) => {
     if (inp.kind === "sequencer") return; // a sequencer is its own element below
-    add(`in:${inp.id}`, inp.kind === "scalepiano" ? "piano" : "input", 20 + i * 90, 40);
+    add(`in:${inp.id}`, inp.kind === "instrument" ? "piano" : "input", 20 + i * 90, 40);
     opts.groups.forEach((g) => (p = connect(p, `in:${inp.id}`, `group:${g}`, `rec:${inp.id}:${g}`, "rec")));
   });
   opts.sequencers.forEach((q, i) => {

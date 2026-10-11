@@ -115,13 +115,16 @@ describe("saved patches", () => {
     assert.deepEqual(sanitisePatch(null), { nodes: [], links: [] });
   });
   it("builds the patch that matches today's routing", () => {
-    const p = defaultPatch({ inputs: [{ id: 0, kind: "device" }, { id: 1, kind: "scalepiano" }, { id: 2, kind: "sequencer", sourceId: "s1" }], groups: ["g1", "g2"], sequencers: [{ id: "s1", group: "g2" }, { id: "s2", group: null }] });
+    const p = defaultPatch({ inputs: [{ id: 0, kind: "device" }, { id: 1, kind: "instrument", sourceId: "p1" }, { id: 2, kind: "sequencer", sourceId: "s1" }], groups: ["g1", "g2"], sequencers: [{ id: "s1", group: "g2" }, { id: "s2", group: null }] });
     assert.deepEqual(feeds(p, "group:g2", "rec").sort(), ["in:0", "in:1"]);
     assert.deepEqual(feeds(p, "group:g1", "bus"), []);
     // a sequencer has no links: the group it sits in is its route
     assert.ok(p.nodes.some((n) => n.id === "seq:s1"));
     assert.ok(!p.links.some((l) => l.from.startsWith("seq:")));
     assert.equal(p.nodes.filter((n) => n.kind === "group").length, 2);
+    // an instrument is a piano block, a device an input block
+    assert.equal(p.nodes.find((n) => n.id === "in:1")?.kind, "piano");
+    assert.equal(p.nodes.find((n) => n.id === "in:0")?.kind, "input");
   });
 });
 

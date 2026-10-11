@@ -3,20 +3,18 @@ import { EffectChain } from "./buses";
 import { EFFECT_DEFS, clampParams, defaultParams, moveEffect, sanitiseEffects, type EffectKind, type EffectSpec } from "./effects";
 
 /**
- * The input side of the looper: a list of input strips (an audio interface input, the built-in mic, or an extra source such
- * as the piano), each with its own channel choice, volume, mute, solo and level meter, summed into one stereo output.
+ * The input side of the looper: a list of input strips (an audio interface input, the built-in mic, an instrument or a
+ * sequencer), each with its own channel choice, volume, mute, solo and level meter, summed into one stereo output.
  * Like the engine, this file imports nothing outside src/lib/looper.
  */
 
-export type InputKind = "device" | "extra" | "sequencer" | "scalepiano";
+export type InputKind = "device" | "sequencer" | "instrument";
 
 /** Input gain goes well above 100% because an instrument straight from an audio interface is often quiet. */
 export const MAX_INPUT_GAIN = 4;
 
 /** An audio interface input is heard live by default (that is what you want when playing through it); a built-in microphone is not, because it would feed back into the speakers. */
 export function defaultMonitor(kind: string, name: string): boolean {
-  // the keyboard (extra source) is heard only through its strip, so its mute, volume, effects and the master apply to it
-  if (kind === "extra") return true;
   return kind === "device" && !/built-?in|macbook|imac|internal|default|webcam|microphone/i.test(name);
 }
 
@@ -48,15 +46,12 @@ export interface InputInfo {
 }
 
 export interface MixerOptions {
-  /** an extra source node (e.g. the piano's output) that lives in the same AudioContext */
-  getExtraSource?: () => AudioNode;
   /** the node a sequencer feeds the recorder through, by sequencer id; offers "sequencer" strips */
   getSequencerSource?: (sourceId: string) => AudioNode | null | undefined;
-  /** the node a scale piano feeds the recorder through, by scale piano id; offers "scalepiano" strips */
-  getScalePianoSource?: (sourceId: string) => AudioNode | null | undefined;
+  /** the node an instrument feeds the recorder through, by instrument id; offers "instrument" strips */
+  getInstrumentSource?: (sourceId: string) => AudioNode | null | undefined;
   /** a strip was removed (the app can dispose whatever stood behind it) */
   onRemoved?: (info: InputInfo) => void;
-  extraLabel?: string;
   onChange: () => void;
 }
 
@@ -120,7 +115,6 @@ export class InputMixer {
   private shared = new Map<string, Shared>();
   private nextId = 0;
   private nextFx = 1;
-  private extraNode: AudioNode | null = null;
   private recIds: Set<number> | null = null;
   private patched = new Set<number>();
 
@@ -149,16 +143,12 @@ export class InputMixer {
     return this.runtimes.map((r) => ({ ...r.info, live: effectiveGain(r.info, anySolo) > 0 }));
   }
 
-  hasExtra() {
-    return this.runtimes.some((r) => r.info.kind === "extra");
-  }
-
   has(kind: InputKind) {
     return this.runtimes.some((r) => r.info.kind === kind);
   }
 
   private sourceFor(kind: InputKind): boolean {
-    return kind === "extra" ? !!this.opts.getExtraSource : kind === "sequencer" ? !!this.opts.getSequencerSource : kind === "scalepiano" ? !!this.opts.getScalePianoSource : false;
+    return kind === "sequencer" ? !!this.opts.getSequencerSource : kind === "instrument" ? !!this.opts.getInstrumentSource : false;
   }
 
   /** true when a microphone or interface is feeding the recording, so input latency applies */
@@ -182,7 +172,7 @@ export class InputMixer {
     try {
       const raw = window.localStorage.getItem(STORAGE_KEY);
       if (!raw) return;
-      const saved = (JSON.parse(raw) as SavedInput[]).filter((s) => (s.kind === "device" || (this.sourceFor(s.kind) && ((s.kind !== "sequencer" && s.kind !== "scalepiano") || typeof s.sourceId === "string"))) && ["left", "right", "stereo", "sum"].includes(s.mode)).slice(0, MAX_INPUTS);
+      const saved = (JSON.parse(raw) as SavedInput[]).filter((s) => (s.kind === "device" || (this.sourceFor(s.kind) && typeof s.sourceId === "string")) && ["left", "right", "stereo", "sum"].includes(s.mode)).slice(0, MAX_INPUTS);
       if (saved.length) {
         this.runtimes = [];
         this.nextId = 0;
@@ -205,7 +195,6 @@ export class InputMixer {
     this.output.channelCount = 2;
     this.output.channelCountMode = "explicit";
     this.output.channelInterpretation = "speakers";
-    if (this.opts.getExtraSource) this.extraNode = this.opts.getExtraSource();
     this.runtimes.forEach((r) => this.build(r));
   }
 
@@ -244,9 +233,8 @@ export class InputMixer {
     r.monitor = monitor;
     this.applyRoutes();
     r.buf = new Float32Array(meter.fftSize) as Float32Array<ArrayBuffer>;
-    if (r.info.kind === "extra") this.extraNode?.connect(pre);
-    if ((r.info.kind === "sequencer" || r.info.kind === "scalepiano") && r.info.sourceId) {
-      r.src = (r.info.kind === "sequencer" ? this.opts.getSequencerSource : this.opts.getScalePianoSource)?.(r.info.sourceId) ?? null;
+    if ((r.info.kind === "sequencer" || r.info.kind === "instrument") && r.info.sourceId) {
+      r.src = (r.info.kind === "sequencer" ? this.opts.getSequencerSource : this.opts.getInstrumentSource)?.(r.info.sourceId) ?? null;
       r.src?.connect(pre);
     }
     this.applyGains();
@@ -485,7 +473,7 @@ export class InputMixer {
   addNow(spec: { kind: InputKind; name: string; deviceId?: string; mode?: InputMode; pair?: number; sourceId?: string; idle?: boolean }, id?: number): { id: number | null; done: Promise<void> } {
     const none = { id: null, done: Promise.resolve() };
     if (this.runtimes.length >= MAX_INPUTS) return none;
-    if (spec.kind !== "device" && ((spec.kind === "extra" && this.has("extra")) || !this.sourceFor(spec.kind) || ((spec.kind === "sequencer" || spec.kind === "scalepiano") && !spec.sourceId))) return none;
+    if (spec.kind !== "device" && (!this.sourceFor(spec.kind) || !spec.sourceId)) return none;
     const r = this.make({ kind: spec.kind, name: spec.name, deviceId: spec.deviceId ?? "", mode: spec.mode ?? (spec.kind === "device" ? "left" : "stereo"), pair: spec.pair, volume: 1, sourceId: spec.sourceId }, !spec.idle, id);
     this.runtimes.push(r);
     let connecting: Promise<void> = Promise.resolve();
@@ -499,7 +487,7 @@ export class InputMixer {
     return { id: r.info.id, done: connecting.then(() => { this.save(); this.opts.onChange(); }) };
   }
 
-  /** Add a strip. Returns its id, or null when full or when the extra source is already there. */
+  /** Add a strip. Returns its id, or null when full. */
   async add(spec: { kind: InputKind; name: string; deviceId?: string; mode?: InputMode; sourceId?: string }): Promise<number | null> {
     const { id, done } = this.addNow(spec);
     await done;
@@ -522,7 +510,7 @@ export class InputMixer {
     this.release(r);
     if (r.info.kind !== "device") {
       try {
-        if (r.pre) (r.info.kind === "extra" ? this.extraNode : r.src)?.disconnect(r.pre);
+        if (r.pre) r.src?.disconnect(r.pre);
       } catch {
         /* ignore */
       }
@@ -548,9 +536,9 @@ export class InputMixer {
     return this.runtimes.filter((r) => r.info.kind === "sequencer" && r.info.sourceId).map((r) => r.info.sourceId!);
   }
 
-  /** ids of the scale pianos that have a strip */
-  scalePianoIds(): string[] {
-    return this.runtimes.filter((r) => r.info.kind === "scalepiano" && r.info.sourceId).map((r) => r.info.sourceId!);
+  /** ids of the instruments that have a strip */
+  instrumentIds(): string[] {
+    return this.runtimes.filter((r) => r.info.kind === "instrument" && r.info.sourceId).map((r) => r.info.sourceId!);
   }
 
   rename(id: number, name: string) {
