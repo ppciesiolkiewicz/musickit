@@ -7,73 +7,89 @@ import * as P from "./model/project";
 import type { SampleMeta, SampleSource } from "./model/types";
 import { forgetSample } from "./sampleUrls";
 import { getStore } from "./store/idb";
+import type { SamplerStore } from "./store/types";
 
 /** The sample library: one per browser (IndexedDB), shared by every panel on the page. */
 interface LibraryState { samples: SampleMeta[]; ready: boolean; error: string | null }
 
-let project = P.emptyProject();
-let state: LibraryState = { samples: [], ready: false, error: null };
-const listeners = new Set<() => void>();
 const SERVER: LibraryState = { samples: [], ready: false, error: null };
-
-const emit = (patch: Partial<LibraryState> = {}) => {
-  state = { ...state, samples: project.samples, ...patch };
-  listeners.forEach((l) => l());
-};
-
-let loading: Promise<void> | null = null;
-const load = () =>
-  (loading ??= getStore()
-    .loadProject()
-    .then((raw) => {
-      project = P.sanitiseProject(raw);
-      emit({ ready: true });
-    })
-    .catch(() => emit({ ready: true, error: "Could not open saved samples." })));
-
-const commit = (next: typeof project) => {
-  project = next;
-  emit();
-  getStore().saveProject(next).catch(() => emit({ error: "Could not save." }));
-};
 
 const decode = async (blob: Blob): Promise<AudioBuffer> => getAudioContext().decodeAudioData(await blob.arrayBuffer());
 
-export const sampleLibrary = {
-  subscribe(fn: () => void) {
-    listeners.add(fn);
-    void load();
-    return () => {
-      listeners.delete(fn);
-    };
-  },
-  get: () => state,
-  async addAudio(blob: Blob, name: string, source: SampleSource, prompt?: string): Promise<SampleMeta> {
-    await load();
-    const id = P.uniqueId("s", project.samples.map((s) => s.id));
-    const meta: SampleMeta = { id, name: name.replace(/\.[^.]+$/, "").slice(0, 60) || "Sample", source, prompt, mime: blob.type || "audio/mpeg", bytes: blob.size, createdAt: Date.now() };
-    await getStore().putAudio(id, blob);
-    commit(P.addSample(project, meta));
-    return meta;
-  },
-  /** A dropped or uploaded file. Throws a message to show when the browser cannot play it; then nothing is stored. */
-  async addFile(file: File): Promise<SampleMeta> {
-    try {
-      await decode(file);
-    } catch {
-      throw new Error(`${file.name} is not audio this browser can play.`);
-    }
-    return sampleLibrary.addAudio(file, file.name, "upload");
-  },
-  /** Audio first, then the list: instruments that rebuild on the change find the sample gone. */
-  async remove(id: string) {
-    await getStore().deleteAudio(id);
-    forgetSample(id);
-    commit(P.removeSample(project, id));
-  },
-  rename: (id: string, name: string) => commit(P.renameSample(project, id, name)),
-  clearError: () => emit({ error: null }),
-};
+/** A library over a store. While its saved list could not be opened it refuses to add, so it never overwrites that list. */
+export function createSampleLibrary(store: () => SamplerStore) {
+  let project = P.emptyProject();
+  let state: LibraryState = { samples: [], ready: false, error: null };
+  let failed = false;
+  const listeners = new Set<() => void>();
+
+  const emit = (patch: Partial<LibraryState> = {}) => {
+    state = { ...state, samples: project.samples, ...patch };
+    listeners.forEach((l) => l());
+  };
+
+  let loading: Promise<void> | null = null;
+  const load = () =>
+    (loading ??= store()
+      .loadProject()
+      .then((raw) => {
+        project = P.sanitiseProject(raw);
+        emit({ ready: true });
+      })
+      .catch(() => {
+        failed = true;
+        emit({ ready: true, error: "Could not open saved samples." });
+      }));
+
+  const commit = (next: typeof project) => {
+    project = next;
+    emit();
+    store().saveProject(next).catch(() => emit({ error: "Could not save." }));
+  };
+
+  const lib = {
+    subscribe(fn: () => void) {
+      listeners.add(fn);
+      void load();
+      return () => {
+        listeners.delete(fn);
+      };
+    },
+    get: () => state,
+    async addAudio(blob: Blob, name: string, source: SampleSource, prompt?: string): Promise<SampleMeta> {
+      await load();
+      if (failed) throw new Error("Saved samples could not be opened. Reload the page before adding new ones.");
+      const id = P.uniqueId("s", project.samples.map((s) => s.id));
+      const meta: SampleMeta = { id, name: name.replace(/\.[^.]+$/, "").slice(0, 60) || "Sample", source, prompt, mime: blob.type || "audio/mpeg", bytes: blob.size, createdAt: Date.now() };
+      await store().putAudio(id, blob);
+      commit(P.addSample(project, meta));
+      return meta;
+    },
+    /** A dropped or uploaded file. Throws a message to show when the browser cannot play it; then nothing is stored. */
+    async addFile(file: File): Promise<SampleMeta> {
+      try {
+        await decode(file);
+      } catch {
+        throw new Error(`${file.name} is not audio this browser can play.`);
+      }
+      return lib.addAudio(file, file.name, "upload");
+    },
+    /** Audio first, then the list: instruments that rebuild on the change find the sample gone. */
+    async remove(id: string) {
+      if (failed) return;
+      await store().deleteAudio(id);
+      forgetSample(id);
+      commit(P.removeSample(project, id));
+    },
+    rename: (id: string, name: string) => {
+      if (!failed) commit(P.renameSample(project, id, name));
+    },
+    clearError: () => emit({ error: null }),
+  };
+  return lib;
+}
+
+export const sampleLibrary = createSampleLibrary(getStore);
 
 export function useSampleLibrary(): LibraryState {
   return useSyncExternalStore(sampleLibrary.subscribe, sampleLibrary.get, () => SERVER);
