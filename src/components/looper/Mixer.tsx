@@ -16,6 +16,8 @@ import { flowingLinks, masterFeeds, sendColours, stripPatchId } from "@/lib/loop
 import { patchName } from "./PatchNode";
 import { INPUT_PRESETS, INPUT_ROLES, presetFor, type InputRole } from "@/lib/looper/inputPresets";
 import { GUITAR_AMPS } from "@/lib/looper/rig";
+import InstrumentEdit from "./InstrumentEdit";
+import { useFold } from "./fold";
 import { CONTROLLER_ICON, generatorChip, type Inst } from "./instrumentView";
 import Slider from "@/components/Slider";
 import { btnBaseSm as btn, btnSm as btnPlain, ibtn } from "@/components/controls";
@@ -146,6 +148,11 @@ export function AddInputModal({ engine, snap, onClose }: { engine: LooperEngine;
             <Icon name="music" size={28} className="text-sky-300" />
             <span className="text-sm font-medium text-slate-100">Scale Piano</span>
             <span className="text-xs text-slate-400">Pick a key and scale: the computer keys play only notes from it. Comes with the piano buses.</span>
+          </button>
+          <button type="button" onClick={() => { engine.addInstrumentWithRig("soundboard"); onClose(); }} className="flex flex-col gap-1 rounded-xl border border-slate-700 bg-slate-900 p-4 text-left hover:border-sky-400">
+            <Icon name="layout-dashboard" size={28} className="text-sky-300" />
+            <span className="text-sm font-medium text-slate-100">Soundboard</span>
+            <span className="text-xs text-slate-400">Pads played by click or by the number and letter keys. Each pad plays a note or its own sample. Comes with the piano buses.</span>
           </button>
           <button type="button" onClick={() => { engine.do({ type: "sequencer.add" }); onClose(); }} className="flex flex-col gap-1 rounded-xl border border-slate-700 bg-slate-900 p-4 text-left hover:border-sky-400 disabled:cursor-not-allowed disabled:opacity-50">
             <Icon name="drum" size={28} className="text-sky-300" />
@@ -335,6 +342,7 @@ export function InputStrip({ engine, inp, devices, anyDevice, sequencerOpen, onT
   const m = engine.mixer;
   const isDevice = inp.kind === "device";
   const [fxOpen, setFxOpen] = useState(false);
+  const [editOpen, toggleEdit] = useFold(`in:${inp.id}:instrument`, false);
   const grp = inp.kind === "sequencer" && seq && seq.dest !== "record" ? groups.find((g) => g.id === seq.groupId) : undefined;
   const state = inp.live ? "recording" : inp.muted ? "muted" : "silenced by solo";
   return (
@@ -352,11 +360,13 @@ export function InputStrip({ engine, inp, devices, anyDevice, sequencerOpen, onT
         {inp.kind === "sequencer" && seq && <button type="button" className={`${ibtn} ${seq.playing ? "!border-emerald-500/70 !bg-emerald-500/15 !text-emerald-200" : ""}`} aria-pressed={seq.playing} onClick={() => engine.do({ type: "sequencer.playing", id: seq.id, on: !seq.playing })} title={seq.playing ? "Stop on the next beat" : "Start on the next beat"} aria-label={seq.playing ? `Stop ${inp.name}` : `Start ${inp.name}`}><Icon name={seq.playing ? "square" : "play"} fill /></button>}
         {inp.kind === "sequencer" && <button type="button" className={`${ibtn} ${sequencerOpen ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={sequencerOpen} onClick={onToggleSequencer} title={sequencerOpen ? "Close the sequencer" : "Open the sequencer"} aria-label={sequencerOpen ? "Close the sequencer" : "Open the sequencer"}><Icon name="sliders-horizontal" /></button>}
         {inp.kind === "instrument" && <button type="button" className={`${ibtn} ${pianoOpen ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={pianoOpen} onClick={onTogglePiano} title={pianoOpen ? `Close ${inp.name}` : `Play ${inp.name}`} aria-label={pianoOpen ? `Close ${inp.name}` : `Play ${inp.name}`}><Icon name="keyboard" /></button>}
+        {inst && <button type="button" className={ibtn} aria-pressed={editOpen} onClick={toggleEdit} title={editOpen ? "Done" : "Controller and sound"} aria-label={editOpen ? `Done editing ${inp.name}` : `Edit ${inp.name}`}><Icon name="pencil" /></button>}
         {isDevice && inp.connected && <button type="button" className={`${ibtn} ${inp.monitor ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={inp.monitor} onClick={() => engine.do({ type: "input.set", id: inp.id, patch: { monitor: !inp.monitor } })} title="Hear this input while it is recorded" aria-label={`Hear ${inp.name}`}><Icon name="headphones" /></button>}
         <button type="button" className={`${ibtn} ${inp.muted ? "!border-amber-400 !text-amber-200" : ""}`} aria-pressed={inp.muted} onClick={() => engine.do({ type: "input.set", id: inp.id, patch: { muted: !inp.muted } })} title="Mute" aria-label={`Mute ${inp.name}`}>M</button>
         <button type="button" className={`${ibtn} ${inp.solo ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={inp.solo} onClick={() => engine.do({ type: "input.set", id: inp.id, patch: { solo: !inp.solo } })} title="Solo" aria-label={`Solo ${inp.name}`}>S</button>
         <button type="button" className={ibtn} onClick={() => (inp.kind === "sequencer" && inp.sourceId ? engine.do({ type: "sequencer.remove", id: inp.sourceId }) : inp.kind === "device" ? engine.do({ type: "input.remove", id: inp.id }) : m.remove(inp.id))} aria-label={`Remove ${inp.name}`} title="Remove this input"><Icon name="x" /></button>
       </div>
+      {inst && editOpen && <InstrumentEdit engine={engine} inst={inst} />}
 
       {isDevice && !inp.connected && (
         <div className="flex items-center gap-2 text-xs text-slate-400">
