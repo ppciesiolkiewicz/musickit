@@ -8,7 +8,8 @@ Every user-driven state change goes through `engine.do(action)`. Never call the 
 ## Actions
 A `LooperAction` is plain JSON, `{ type, ... }`. Types:
 - Loops: `loop.add|removeLast|clear|clearAll|record`, `record.stop`, `loop.volume|mute|solo|rename|move|active|plan`, `loop.edit` (slide, gain, reverse, fades, seam of a recorded take; only the given fields).
-- Inputs: `input.add|remove|set` (hardware `device` or the built-in `extra` keyboard; set: name, volume, muted, solo, monitor, mode).
+- Instruments: `instrument.set {id, patch}` (controller, root, scale, octave, pads, generator; a generator is replaced whole; undoing a pad count also restores the pad arrays).
+- Inputs: `input.add|remove|set` (hardware `device`; set: name, volume, muted, solo, monitor, mode).
 - Drums: `sequencer.add|remove|set|step|playing|move|dest` (set: instrument, preset, rows, clear, cells, bars, dest, x, y).
 - Groups: `group.add|remove|set|active`.
 - Effects, on a group bus or an input (`target` is `{group: id}` or `{input: id}`): `fx.add|remove|move|param|bypass`. The older `effect.param|bypass|post` are the group-only forms.
