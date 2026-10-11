@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { alignLine, attachLayout, bandLayout, clampWidget, findSpot, fitView, moveWidget, raise, resizeFromCorner, resizeWidget, sanitiseLayout, splitLayout, tileLayout } from "./board";
+import { alignLine, attachLayout, bandLayout, boxBetween, clampWidget, findSpot, fitView, moveWidget, raise, resizeFromCorner, resizeWidget, sanitiseLayout, splitLayout, tileLayout, widgetsInBox } from "./board";
 
 const B = { w: 1000, h: 600 };
 
@@ -136,4 +136,11 @@ test("attached widgets sit right of their owner (horizontal); unknown owners are
   assert.deepEqual(out.p, { x: 320, y: 0, w: 200, h: 100 });
   assert.equal(out.c.x, 520 + 64);
   assert.equal(out.q, undefined);
+});
+
+test("a selection box is the same whichever way it is dragged, and takes every widget it touches", () => {
+  assert.deepEqual(boxBetween({ x: 300, y: 200 }, { x: 100, y: 50 }), { x: 100, y: 50, w: 200, h: 150 });
+  const l = { a: { x: 0, y: 0, w: 100, h: 100 }, b: { x: 150, y: 0, w: 100, h: 100 }, c: { x: 0, y: 300, w: 100, h: 100 } };
+  assert.deepEqual(widgetsInBox(l, ["a", "b", "c", "gone"], boxBetween({ x: 90, y: 90 }, { x: 160, y: 10 })), ["a", "b"]);
+  assert.deepEqual(widgetsInBox(l, ["a", "b", "c"], { x: 100, y: 100, w: 40, h: 40 }), []);
 });

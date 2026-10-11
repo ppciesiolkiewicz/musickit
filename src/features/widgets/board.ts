@@ -107,6 +107,16 @@ export function findSpot(taken: WidgetRect[], size: { w: number; h: number }, ar
   return null;
 }
 
+/** The rectangle between two corner points, whichever way the drag went. */
+export const boxBetween = (a: { x: number; y: number }, b: { x: number; y: number }): WidgetRect => ({ x: Math.min(a.x, b.x), y: Math.min(a.y, b.y), w: Math.abs(a.x - b.x), h: Math.abs(a.y - b.y) });
+
+/** The widgets a selection box touches (any overlap counts), in the order of `ids`. */
+export const widgetsInBox = (layout: Layout, ids: string[], box: WidgetRect): string[] =>
+  ids.filter((id) => {
+    const r = layout[id];
+    return !!r && r.x < box.x + box.w && box.x < r.x + r.w && r.y < box.y + box.h && box.y < r.y + r.h;
+  });
+
 /** How `bandLayout` lays its bands: one under another (each band a row) or side by side (each band a column). */
 export interface BandOptions {
   direction: "vertical" | "horizontal";

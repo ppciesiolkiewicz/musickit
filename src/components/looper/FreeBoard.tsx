@@ -149,9 +149,17 @@ export default function FreeBoard({ engine, snap, controls, openSeqs, onToggleSe
     ...pinned.map((r) => ({ id: `pin:${r.pin.key}`, fit: true, title: <PinTitle r={r} />, node: <PinBody r={r} />, onClose: () => togglePin(r.pin.key) })),
   ];
 
+  // Delete on several selected blocks: the buses, switches and tuners go in one undo step; pinned effect widgets are unpinned
+  const onDelete = (ids: string[]) => {
+    const nodes = ids.filter((id) => cards.some((n) => n.id === id));
+    if (nodes.length === 1) engine.do({ type: "patch.removeNode", id: nodes[0] });
+    else if (nodes.length) engine.do({ type: "batch", label: `Remove ${nodes.length} blocks`, actions: nodes.map((id) => ({ type: "patch.removeNode", id })) });
+    ids.filter((id) => id.startsWith("pin:")).forEach((id) => togglePin(id.slice(4)));
+  };
+
   return (
     <>
-      <WidgetBoard storageKey="musickit.looper.board2" flush place="center" defaults={freeLayout(kinds, fedBy, feeds, ownerOf)} arrangements={arrangements(kinds, fedBy, feeds, ownerOf)} start="vertical" fitMargin={56} widgets={widgets} />
+      <WidgetBoard onDelete={onDelete} storageKey="musickit.looper.board2" flush place="center" defaults={freeLayout(kinds, fedBy, feeds, ownerOf)} arrangements={arrangements(kinds, fedBy, feeds, ownerOf)} start="vertical" fitMargin={56} widgets={widgets} />
     </>
   );
 }

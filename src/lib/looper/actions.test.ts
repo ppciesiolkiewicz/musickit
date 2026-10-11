@@ -405,3 +405,20 @@ test("instrument.set is refused for a missing instrument and validated", () => {
   assert.ok(!isAction({ type: "instrument.set", id: "p1", patch: { generator: { kind: "theremin" } } }));
   assert.ok(!isAction({ type: "input.add", spec: { kind: "extra" } }));
 });
+
+test("removing several linked blocks in one batch undoes as one, with their link back once", () => {
+  const { s, t } = fake();
+  s.patch.links.push({ id: "k9", from: "sw", to: "chain", muted: false });
+  const ids = (x: { id: string }[]) => x.map((n) => n.id).sort();
+  const nodes = ids(s.patch.nodes), links = ids(s.patch.links);
+  const a: LooperAction = { type: "batch", label: "Remove 2 blocks", actions: [{ type: "patch.removeNode", id: "sw" }, { type: "patch.removeNode", id: "chain" }] };
+  const inv = inverseOf(a, s);
+  assert.ok(inv);
+  applyAction(t, a);
+  assert.deepEqual(ids(s.patch.nodes), ["group:g1", "in:0"]);
+  assert.deepEqual(ids(s.patch.links), ["k1"]);
+  applyAction(t, inv);
+  assert.deepEqual(ids(s.patch.nodes), nodes);
+  assert.deepEqual(ids(s.patch.links), links);
+  assert.equal(describeAction(a, s), "Remove 2 blocks");
+});

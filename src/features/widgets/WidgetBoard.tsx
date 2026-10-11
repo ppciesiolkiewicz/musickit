@@ -3,13 +3,13 @@
 import { useCallback, useEffect, useRef, useState, type PointerEvent as RPointerEvent, type ReactNode } from "react";
 import Icon, { type IconName } from "@/components/Icon";
 import InfoTip from "@/components/InfoTip";
-import { WIDGET_MIN, findSpot, fitView, raise, resizeFromCorner, tileLayout, type Corner, type Bounds, type DefaultLayout, type Layout, type WidgetRect } from "./board";
+import { WIDGET_MIN, boxBetween, findSpot, fitView, raise, resizeFromCorner, tileLayout, widgetsInBox, type Corner, type Bounds, type DefaultLayout, type Layout, type WidgetRect } from "./board";
 
 export interface BoardWidget {
   id: string;
   title: ReactNode;
   node: ReactNode;
-  /** shows a close button in the header */
+  /** shows a close button in the header; also what Delete does to it when it is selected */
   onClose?: () => void;
   /** always drawn under the other widgets (a big one that the rest sit on) */
   back?: boolean;
@@ -58,8 +58,10 @@ const clampZoom = (z: number) => Math.min(ZOOM.max, Math.max(ZOOM.min, z));
  * A canvas holding widgets. It fills the space it is given (the viewport below its top edge), and the widgets sit on a much larger
  * world that you zoom (buttons, Ctrl/Cmd and the wheel) and pan (wheel, or drag empty space). Each widget is dragged by its grip header and
  * resized from the corner. The layout and the view are remembered under `storageKey`. Raise `resetSignal` to put everything back.
+ * Dragging empty space draws a selection box (Shift adds to it); a selected widget's title moves every selected one, and Delete or
+ * Backspace closes the selected widgets that have `onClose` (all at once through `onDelete` when given). Escape or a click on empty space clears it.
  */
-export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout, resetSignal = 0, flush = false, place = "free", arrangements = GRID, start, fitMargin = 16 }: {
+export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout, resetSignal = 0, flush = false, place = "free", arrangements = GRID, start, fitMargin = 16, onDelete }: {
   widgets: BoardWidget[];
   storageKey: string;
   /** kept for older callers; the canvas always fills the space */
@@ -77,6 +79,8 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
   start?: string;
   /** the empty space (in screen pixels) left around the widgets when the view zooms to show them all */
   fitMargin?: number;
+  /** Delete pressed with these closable widgets selected: remove them in one go (else each one's `onClose` is called) */
+  onDelete?: (ids: string[]) => void;
 }) {
   const host = useRef<HTMLDivElement>(null);
   const [vp, setVp] = useState<Bounds | null>(null);
@@ -86,7 +90,12 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
   const [view, setView] = useState<View>({ zoom: 1, x: 0, y: 0 });
   const viewRef = useRef(view) as { current: View };
   viewRef.current = view;
-  const drag = useRef<{ id: string; mode: "move" | Corner | "pan"; px: number; py: number; start: { x: number; y: number; w: number; h: number } } | null>(null);
+  const drag = useRef<{ id: string; mode: "move" | Corner | "pan" | "box"; px: number; py: number; start: { x: number; y: number; w: number; h: number }; group?: Layout; keep?: string[] } | null>(null);
+  const [selected, setSelected] = useState<string[]>([]);
+  const selectedRef = useRef(selected) as { current: string[] };
+  /** the selection box being dragged, in pixels of the canvas element */
+  const [box, setBox] = useState<WidgetRect | null>(null);
+  const space = useRef(false) as { current: boolean };
   const ids = widgets.map((w) => w.id);
   const idKey = ids.join("|");
 
@@ -292,13 +301,26 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
     e.stopPropagation();
     fresh.current = false;
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-    drag.current = { id, mode, px: e.clientX, py: e.clientY, start: layout[id] };
+    const sel = selectedRef.current;
+    if (mode === "move" && e.shiftKey) setSelected(sel.includes(id) ? sel.filter((x) => x !== id) : [...sel, id]);
+    else if (!sel.includes(id)) setSelected([]);
+    // a selected widget's title drags all the selected ones together
+    const group = mode === "move" && sel.includes(id) && sel.length > 1 && !e.shiftKey ? Object.fromEntries(sel.filter((x) => layout[x]).map((x) => [x, layout[x]])) : undefined;
+    drag.current = { id, mode, px: e.clientX, py: e.clientY, start: layout[id], group };
     setOrder((o) => raise(o, id));
   };
+  /** Empty space: a mouse or pen draws a selection box; the middle button, Space held, or a finger pans. */
   const beginPan = (e: RPointerEvent) => {
     if (e.target !== e.currentTarget && !(e.target as HTMLElement).dataset.canvas) return;
     if (e.button !== 0 && e.button !== 1) return;
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    if (e.button === 0 && !space.current && e.pointerType !== "touch") {
+      const r = e.currentTarget.getBoundingClientRect();
+      const keep = e.shiftKey ? selectedRef.current : [];
+      drag.current = { id: "", mode: "box", px: e.clientX, py: e.clientY, start: { x: e.clientX - r.left, y: e.clientY - r.top, w: 0, h: 0 }, keep };
+      setSelected(keep);
+      return;
+    }
     drag.current = { id: "", mode: "pan", px: e.clientX, py: e.clientY, start: { x: viewRef.current.x, y: viewRef.current.y, w: 0, h: 0 } };
   };
   const move = (e: RPointerEvent) => {
@@ -310,6 +332,19 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
       return;
     }
     const z = viewRef.current.zoom;
+    if (d.mode === "box") {
+      const b = boxBetween(d.start, { x: d.start.x + dx, y: d.start.y + dy });
+      setBox(b);
+      const v = viewRef.current;
+      const hit = layoutRef.current ? widgetsInBox(layoutRef.current, widgets.map((w) => w.id), { x: (b.x - v.x) / z, y: (b.y - v.y) / z, w: b.w / z, h: b.h / z }) : [];
+      setSelected([...(d.keep ?? []), ...hit.filter((id) => !d.keep?.includes(id))]);
+      return;
+    }
+    if (d.group) {
+      const g = d.group;
+      setLayout((l) => (l ? { ...l, ...Object.fromEntries(Object.entries(g).map(([id, r]) => [id, inRange({ ...r, x: r.x + dx / z, y: r.y + dy / z }, { w: 0, h: 0 })])) } : l));
+      return;
+    }
     const fit = widgets.find((w) => w.id === d.id)?.fit;
     // a fitted widget keeps its height (its content sets it): only the width follows the corner
     const next = inRange(d.mode === "move" ? { ...d.start, x: d.start.x + dx / z, y: d.start.y + dy / z } : fit ? { ...resizeFromCorner(d.start, d.mode, dx / z, 0), y: d.start.y, h: d.start.h } : resizeFromCorner(d.start, d.mode, dx / z, dy / z), fit ? { w: WIDGET_MIN.w, h: 40 } : WIDGET_MIN);
@@ -317,9 +352,49 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
   };
   const end = () => {
     if (!drag.current) return;
+    const was = drag.current.mode;
     drag.current = null;
-    save(layoutRef.current, viewRef.current);
+    if (was === "box") setBox(null);
+    else save(layoutRef.current, viewRef.current);
   };
+
+  // Delete or Backspace closes the selected widgets, Escape lets go of them, Space held makes a drag on empty space pan. Not while typing.
+  const widgetsRef = useRef(widgets) as { current: BoardWidget[] };
+  const onDeleteRef = useRef(onDelete) as { current: typeof onDelete };
+  // the key and pointer handlers read the latest selection, widgets and onDelete
+  useEffect(() => {
+    selectedRef.current = selected;
+    widgetsRef.current = widgets;
+    onDeleteRef.current = onDelete;
+  });
+  useEffect(() => {
+    const typing = (t: EventTarget | null) => t instanceof HTMLElement && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName));
+    const down = (e: KeyboardEvent) => {
+      if (typing(e.target)) return;
+      if (e.code === "Space") space.current = true;
+      const sel = selectedRef.current;
+      if (!sel.length) return;
+      if (e.key === "Escape") setSelected([]);
+      else if ((e.key === "Delete" || e.key === "Backspace") && !e.repeat) {
+        const gone = widgetsRef.current.filter((w) => w.onClose && sel.includes(w.id));
+        if (!gone.length) return;
+        e.preventDefault();
+        if (onDeleteRef.current) onDeleteRef.current(gone.map((w) => w.id));
+        else gone.forEach((w) => w.onClose?.());
+        setSelected(sel.filter((id) => !gone.some((w) => w.id === id)));
+      }
+    };
+    const up = (e: KeyboardEvent) => { if (e.code === "Space") space.current = false; };
+    const blur = () => (space.current = false);
+    window.addEventListener("keydown", down);
+    window.addEventListener("keyup", up);
+    window.addEventListener("blur", blur);
+    return () => {
+      window.removeEventListener("keydown", down);
+      window.removeEventListener("keyup", up);
+      window.removeEventListener("blur", blur);
+    };
+  }, []);
 
   /** Zoom and move so that every widget is in view. */
   const fitAll = (l: Layout | null = layout) => {
@@ -376,7 +451,8 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
         <InfoTip label="Canvas help">
           <p><b>Zoom:</b> the minus and plus buttons, or Ctrl (Cmd) and the mouse wheel or a trackpad pinch.</p>
           <p><b>Auto position:</b> the last button lines every widget up (choose how) and shows them all, or only zooms to show them where they are.</p>
-          <p><b>Move around:</b> the wheel or two-finger scroll, or drag empty space.</p>
+          <p><b>Move around:</b> the wheel or two-finger scroll, or drag empty space with Space held, the middle button or a finger.</p>
+          <p><b>Select:</b> drag a box over empty space (Shift adds). Drag a selected title to move them all; Delete removes them, Escape lets go.</p>
           <p><b>Widgets:</b> drag a title to move one, the corner to resize it. The canvas is much bigger than the screen, so zoom out to place more.</p>
         </InfoTip>
         <button type="button" className={tbtn} onClick={() => { const v = zoomAt(1 / 1.25); save(layout, v); }} title="Zoom out" aria-label="Zoom out"><Icon name="minus" size={12} /></button>
@@ -413,7 +489,7 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
           widgets.map((w) => {
             const r = layout[w.id] ?? inRange({ x: 0, y: 0, w: 380, h: 260 });
             return (
-              <div data-widget="1" key={w.id} className="absolute flex select-text flex-col overflow-hidden rounded-xl border border-slate-600 bg-slate-950 shadow-lg shadow-black/40" style={{ left: r.x, top: r.y, width: r.w, height: r.h, zIndex: 1 + (w.back ? 0 : widgets.length) + Math.max(0, order.indexOf(w.id)) }}>
+              <div data-widget="1" key={w.id} aria-selected={selected.includes(w.id) || undefined} className={`absolute flex select-text flex-col overflow-hidden rounded-xl border bg-slate-950 shadow-lg shadow-black/40 ${selected.includes(w.id) ? "border-sky-400 ring-2 ring-sky-400/60" : "border-slate-600"}`} style={{ left: r.x, top: r.y, width: r.w, height: r.h, zIndex: 1 + (w.back ? 0 : widgets.length) + Math.max(0, order.indexOf(w.id)) }}>
                 <div
                   className="flex h-7 shrink-0 cursor-grab touch-none select-none items-center gap-1.5 border-b border-slate-700 bg-slate-900 px-2 text-xs text-slate-300 active:cursor-grabbing"
                   onPointerDown={begin(w.id, "move")}
@@ -433,6 +509,8 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
                 </div>
                 <div className="min-h-0 flex-1 touch-auto overflow-auto p-2.5" onPointerDown={(e) => {
                   e.stopPropagation();
+                  // working in a widget that is not selected lets go of the selection, so a later Delete does not surprise
+                  if (!selectedRef.current.includes(w.id) && selectedRef.current.length) setSelected([]);
                   // a dialog opened from the widget is drawn elsewhere on the page (a portal) but its events still bubble here: those do not raise it
                   if (e.currentTarget.contains(e.target as Node)) setOrder((o) => raise(o, w.id));
                 }}>{w.fit ? <div data-fit={w.id}>{w.node}</div> : w.node}</div>
@@ -453,6 +531,7 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
             );
           })}
       </div>
+      {box && <div aria-hidden className="pointer-events-none absolute z-[999] rounded-sm border border-sky-400 bg-sky-400/10" style={{ left: box.x, top: box.y, width: box.w, height: box.h }} />}
     </div>
   );
 }
