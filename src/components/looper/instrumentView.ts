@@ -7,15 +7,18 @@ export type Inst = LooperSnapshot["instruments"][number];
 
 export const CONTROLLER_ICON: Record<Controller, IconName> = { piano: "piano", scalepiano: "music", soundboard: "layout-dashboard" };
 
-/** "Piano · Cello", "Sampler · Glass hit", "Sampler · 5 pads". `names` maps sample ids to names. */
-export function generatorChip(inst: Inst, names: Record<string, string> = {}): string {
+/** The sound generators, as people see them. */
+export const GENERATOR_NAMES = { piano: "Built-in instruments", sampler: "ElevenLabs sampler" } as const;
+
+/** What the generator plays now: "Cello", "Glass hit", "5 pads", "no sample". `names` maps sample ids to names. */
+export function generatorDetail(inst: Inst, names: Record<string, string> = {}): string {
   const g = inst.generator;
-  if (g.kind === "piano") return `Piano · ${allInstrumentOptions().find((o) => o.value === g.instrument)?.label ?? g.instrument}`;
+  if (g.kind === "piano") return allInstrumentOptions().find((o) => o.value === g.instrument)?.label ?? g.instrument;
   if (inst.controller === "soundboard") {
     const n = g.padSamples.filter(Boolean).length;
-    return `Sampler · ${n} pad${n === 1 ? "" : "s"}`;
+    return `${n} pad${n === 1 ? "" : "s"}`;
   }
-  return `Sampler · ${g.sample ? names[g.sample] ?? "missing sample" : "no sample"}`;
+  return g.sample ? names[g.sample] ?? "missing sample" : "no sample";
 }
 
 /** Which pads (Soundboard) point at a sample the library no longer has. */

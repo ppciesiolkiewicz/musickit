@@ -18,10 +18,11 @@ import { INPUT_PRESETS, INPUT_ROLES, presetFor, type InputRole } from "@/lib/loo
 import { GUITAR_AMPS } from "@/lib/looper/rig";
 import InstrumentEdit from "./InstrumentEdit";
 import { useFold } from "./fold";
-import { CONTROLLER_ICON, generatorChip, instrumentMissing, type Inst } from "./instrumentView";
+import { CONTROLLER_ICON, GENERATOR_NAMES, generatorDetail, instrumentMissing, type Inst } from "./instrumentView";
+import { withGenerator } from "@/lib/looper/instrumentModel";
 import { useSampleLibrary } from "@/features/sampler";
 import Slider from "@/components/Slider";
-import { btnBaseSm as btn, btnSm as btnPlain, ibtn } from "@/components/controls";
+import { btnBaseSm as btn, btnSm as btnPlain, ibtn, sbtn } from "@/components/controls";
 
 const field = "rounded-md border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 
@@ -354,12 +355,6 @@ export function InputStrip({ engine, inp, devices, anyDevice, sequencerOpen, onT
       <div className="flex flex-wrap items-center gap-1.5">
         <span title={state} className="text-slate-300"><Icon name={isDevice ? "mic" : inp.kind === "sequencer" ? "drum" : inst ? CONTROLLER_ICON[inst.controller] : "piano"} size={18} /></span>
         <input value={inp.name} onChange={(e) => engine.do({ type: "input.set", id: inp.id, patch: { name: e.target.value } })} aria-label="Input name" className="w-32 rounded-md border border-transparent bg-transparent px-1.5 py-0.5 text-sm font-medium text-slate-100 hover:border-slate-700 focus:border-slate-500 focus:outline-none" />
-        {inst && (
-          <span className="flex max-w-[9rem] items-center gap-1 truncate rounded-md border border-slate-700 px-1.5 py-0.5 text-[10px] text-slate-400" title="Sound generator">
-            {lib.ready && instrumentMissing(inst, haveSamples) && <span className="h-2 w-2 shrink-0 rounded-full bg-amber-400" title="A sample is missing" />}
-            <span className="truncate">{generatorChip(inst, sampleNames)}</span>
-          </span>
-        )}
         {inp.kind === "sequencer" && seq && <span className="flex h-6 min-w-[6.5rem] items-center justify-center gap-1 rounded-md border px-1.5 text-[10px] leading-none text-slate-300" style={{ borderColor: grp?.colour ?? "#334155" }} title="Where this sequencer plays: by the group its circle sits in">{grp && <span className="h-2 w-2 rounded-full" style={{ background: grp.colour }} />}→ {seq.dest === "record" ? "recorder" : grp?.name ?? "master"}</span>}
         {inp.kind !== "sequencer" && <span className="flex h-6 min-w-[6.5rem] items-center justify-center gap-1 rounded-md border border-slate-700 px-1.5 text-[10px] leading-none text-slate-400" title="Goes to the recorder, then into the loops"><Icon name="circle" size={10} className="text-rose-400" />rec</span>}
         <span aria-hidden title={state} className={`h-2 w-2 rounded-full ${inp.live ? "bg-emerald-400" : "bg-slate-600"}`} />
@@ -369,13 +364,30 @@ export function InputStrip({ engine, inp, devices, anyDevice, sequencerOpen, onT
         {inp.kind === "sequencer" && seq && <button type="button" className={`${ibtn} ${seq.playing ? "!border-emerald-500/70 !bg-emerald-500/15 !text-emerald-200" : ""}`} aria-pressed={seq.playing} onClick={() => engine.do({ type: "sequencer.playing", id: seq.id, on: !seq.playing })} title={seq.playing ? "Stop on the next beat" : "Start on the next beat"} aria-label={seq.playing ? `Stop ${inp.name}` : `Start ${inp.name}`}><Icon name={seq.playing ? "square" : "play"} fill /></button>}
         {inp.kind === "sequencer" && <button type="button" className={`${ibtn} ${sequencerOpen ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={sequencerOpen} onClick={onToggleSequencer} title={sequencerOpen ? "Close the sequencer" : "Open the sequencer"} aria-label={sequencerOpen ? "Close the sequencer" : "Open the sequencer"}><Icon name="sliders-horizontal" /></button>}
         {inp.kind === "instrument" && <button type="button" className={`${ibtn} ${pianoOpen ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={pianoOpen} onClick={onTogglePiano} title={pianoOpen ? `Close ${inp.name}` : `Play ${inp.name}`} aria-label={pianoOpen ? `Close ${inp.name}` : `Play ${inp.name}`}><Icon name="keyboard" /></button>}
-        {inst && <button type="button" className={ibtn} aria-pressed={editOpen} onClick={toggleEdit} title={editOpen ? "Done" : "Controller and sound"} aria-label={editOpen ? `Done editing ${inp.name}` : `Edit ${inp.name}`}><Icon name="pencil" /></button>}
+        {inst && <button type="button" className={ibtn} aria-pressed={editOpen} onClick={toggleEdit} title={editOpen ? "Done" : "What you play with"} aria-label={editOpen ? `Done editing ${inp.name}` : `Edit ${inp.name}`}><Icon name="pencil" /></button>}
         {isDevice && inp.connected && <button type="button" className={`${ibtn} ${inp.monitor ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={inp.monitor} onClick={() => engine.do({ type: "input.set", id: inp.id, patch: { monitor: !inp.monitor } })} title="Hear this input while it is recorded" aria-label={`Hear ${inp.name}`}><Icon name="headphones" /></button>}
         <button type="button" className={`${ibtn} ${inp.muted ? "!border-amber-400 !text-amber-200" : ""}`} aria-pressed={inp.muted} onClick={() => engine.do({ type: "input.set", id: inp.id, patch: { muted: !inp.muted } })} title="Mute" aria-label={`Mute ${inp.name}`}>M</button>
         <button type="button" className={`${ibtn} ${inp.solo ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={inp.solo} onClick={() => engine.do({ type: "input.set", id: inp.id, patch: { solo: !inp.solo } })} title="Solo" aria-label={`Solo ${inp.name}`}>S</button>
         <button type="button" className={ibtn} onClick={() => (inp.kind === "sequencer" && inp.sourceId ? engine.do({ type: "sequencer.remove", id: inp.sourceId }) : inp.kind === "device" ? engine.do({ type: "input.remove", id: inp.id }) : m.remove(inp.id))} aria-label={`Remove ${inp.name}`} title="Remove this input"><Icon name="x" /></button>
       </div>
       {inst && editOpen && <InstrumentEdit engine={engine} inst={inst} />}
+      {inst && (
+        <div role="group" aria-label={`Sound generator of ${inp.name}`} className="flex flex-wrap items-center gap-1.5 rounded-lg border border-slate-700/80 bg-slate-900/60 px-2 py-1">
+          <Icon name="audio-lines" size={14} className="shrink-0 text-sky-300" />
+          <span className="text-[10px] font-medium uppercase tracking-wide text-slate-400">Sound generator</span>
+          <select className="h-6 rounded-md border border-slate-700 bg-slate-900 px-1.5 text-xs text-slate-100" value={inst.generator.kind} aria-label="Sound generator" onChange={(e) => { engine.do({ type: "instrument.set", id: inst.id, patch: { generator: withGenerator(inst, e.target.value as "piano" | "sampler").generator } }); e.target.blur(); }}>
+            <option value="piano">{GENERATOR_NAMES.piano}</option>
+            <option value="sampler">{GENERATOR_NAMES.sampler}</option>
+          </select>
+          <span data-role="generator-detail" className="flex min-w-0 flex-1 items-center gap-1 truncate text-xs text-slate-300">
+            {lib.ready && instrumentMissing(inst, haveSamples) && <span className="h-2 w-2 shrink-0 rounded-full bg-amber-400" title="A sample is missing" />}
+            <span className="truncate">{generatorDetail(inst, sampleNames)}</span>
+          </span>
+          <button type="button" className={sbtn} aria-pressed={pianoOpen} onClick={onTogglePiano} title={inst.generator.kind === "sampler" ? "Samples: generate, upload, choose" : "Sound settings"} aria-label={`Sound settings of ${inp.name}`}>
+            <Icon name={inst.generator.kind === "sampler" ? "sparkles" : "sliders-horizontal"} size={13} />
+          </button>
+        </div>
+      )}
 
       {isDevice && !inp.connected && (
         <div className="flex items-center gap-2 text-xs text-slate-400">

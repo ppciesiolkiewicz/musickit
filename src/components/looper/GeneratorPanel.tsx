@@ -7,7 +7,7 @@ import { AddSample, SamplePicker, detectSampleRoot, sampleLibrary } from "@/feat
 import { midiToName, useInstrumentOptions } from "@/features/sound";
 import type { InstrumentPatch } from "@/lib/looper/actions";
 import { MAX_PADS, MIN_PADS } from "@/lib/looper/instrumentModel";
-import type { Inst } from "./instrumentView";
+import { GENERATOR_NAMES, type Inst } from "./instrumentView";
 
 export const field = "h-7 rounded-md border border-slate-700 bg-slate-900 px-1.5 text-xs text-slate-100";
 /** C2 to C7 */
@@ -50,6 +50,9 @@ export default function GeneratorPanel({ inst, latest, set, selected, onSelect }
 
   return (
     <div className="flex flex-col gap-1.5 border-t border-slate-800 px-2 py-2 text-xs text-slate-400">
+      <div className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-wide text-slate-400">
+        <Icon name="audio-lines" size={13} className="text-sky-300" />Sound generator<span className="normal-case tracking-normal text-slate-200">· {GENERATOR_NAMES[g.kind]}</span>
+      </div>
       <div className="flex flex-wrap items-center gap-1.5">
         {inst.controller === "soundboard" && (
           <label className="flex items-center gap-1">Pads
