@@ -58,7 +58,7 @@ const clampZoom = (z: number) => Math.min(ZOOM.max, Math.max(ZOOM.min, z));
  * A canvas holding widgets. It fills the space it is given (the viewport below its top edge), and the widgets sit on a much larger
  * world that you zoom (buttons, Ctrl/Cmd and the wheel) and pan (wheel, or drag empty space). Each widget is dragged by its grip header and
  * resized from the corner. The layout and the view are remembered under `storageKey`. Raise `resetSignal` to put everything back.
- * Dragging empty space draws a selection box (Shift adds to it); a selected widget's title moves every selected one, and Delete or
+ * Shift-dragging empty space draws a selection box (adding to the selection); a selected widget's title moves every selected one, and Delete or
  * Backspace closes the selected widgets that have `onClose` (all at once through `onDelete` when given). Escape or a click on empty space clears it.
  */
 export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout, resetSignal = 0, flush = false, place = "free", arrangements = GRID, start, fitMargin = 16, onDelete }: {
@@ -95,7 +95,6 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
   const selectedRef = useRef(selected) as { current: string[] };
   /** the selection box being dragged, in pixels of the canvas element */
   const [box, setBox] = useState<WidgetRect | null>(null);
-  const space = useRef(false) as { current: boolean };
   const ids = widgets.map((w) => w.id);
   const idKey = ids.join("|");
 
@@ -309,18 +308,19 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
     drag.current = { id, mode, px: e.clientX, py: e.clientY, start: layout[id], group };
     setOrder((o) => raise(o, id));
   };
-  /** Empty space: a mouse or pen draws a selection box; the middle button, Space held, or a finger pans. */
+  /** Empty space: Shift with a mouse or pen draws a selection box; otherwise a drag pans. */
   const beginPan = (e: RPointerEvent) => {
     if (e.target !== e.currentTarget && !(e.target as HTMLElement).dataset.canvas) return;
     if (e.button !== 0 && e.button !== 1) return;
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-    if (e.button === 0 && !space.current && e.pointerType !== "touch") {
+    if (e.button === 0 && e.shiftKey && e.pointerType !== "touch") {
       const r = e.currentTarget.getBoundingClientRect();
-      const keep = e.shiftKey ? selectedRef.current : [];
+      const keep = selectedRef.current;
       drag.current = { id: "", mode: "box", px: e.clientX, py: e.clientY, start: { x: e.clientX - r.left, y: e.clientY - r.top, w: 0, h: 0 }, keep };
       setSelected(keep);
       return;
     }
+    if (selectedRef.current.length) setSelected([]);
     drag.current = { id: "", mode: "pan", px: e.clientX, py: e.clientY, start: { x: viewRef.current.x, y: viewRef.current.y, w: 0, h: 0 } };
   };
   const move = (e: RPointerEvent) => {
@@ -358,7 +358,7 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
     else save(layoutRef.current, viewRef.current);
   };
 
-  // Delete or Backspace closes the selected widgets, Escape lets go of them, Space held makes a drag on empty space pan. Not while typing.
+  // Delete or Backspace closes the selected widgets, Escape lets go of them. Not while typing.
   const widgetsRef = useRef(widgets) as { current: BoardWidget[] };
   const onDeleteRef = useRef(onDelete) as { current: typeof onDelete };
   // the key and pointer handlers read the latest selection, widgets and onDelete
@@ -371,7 +371,6 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
     const typing = (t: EventTarget | null) => t instanceof HTMLElement && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName));
     const down = (e: KeyboardEvent) => {
       if (typing(e.target)) return;
-      if (e.code === "Space") space.current = true;
       const sel = selectedRef.current;
       if (!sel.length) return;
       if (e.key === "Escape") setSelected([]);
@@ -384,16 +383,8 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
         setSelected(sel.filter((id) => !gone.some((w) => w.id === id)));
       }
     };
-    const up = (e: KeyboardEvent) => { if (e.code === "Space") space.current = false; };
-    const blur = () => (space.current = false);
     window.addEventListener("keydown", down);
-    window.addEventListener("keyup", up);
-    window.addEventListener("blur", blur);
-    return () => {
-      window.removeEventListener("keydown", down);
-      window.removeEventListener("keyup", up);
-      window.removeEventListener("blur", blur);
-    };
+    return () => window.removeEventListener("keydown", down);
   }, []);
 
   /** Zoom and move so that every widget is in view. */
@@ -451,8 +442,8 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
         <InfoTip label="Canvas help">
           <p><b>Zoom:</b> the minus and plus buttons, or Ctrl (Cmd) and the mouse wheel or a trackpad pinch.</p>
           <p><b>Auto position:</b> the last button lines every widget up (choose how) and shows them all, or only zooms to show them where they are.</p>
-          <p><b>Move around:</b> the wheel or two-finger scroll, or drag empty space with Space held, the middle button or a finger.</p>
-          <p><b>Select:</b> drag a box over empty space (Shift adds). Drag a selected title to move them all; Delete removes them, Escape lets go.</p>
+          <p><b>Move around:</b> drag empty space, or the wheel or two-finger scroll.</p>
+          <p><b>Select:</b> hold Shift and drag a box over empty space (it adds to what is selected); Shift-click a title to add or remove one. Drag a selected title to move them all; Delete removes them, Escape or a click on empty space lets go.</p>
           <p><b>Widgets:</b> drag a title to move one, the corner to resize it. The canvas is much bigger than the screen, so zoom out to place more.</p>
         </InfoTip>
         <button type="button" className={tbtn} onClick={() => { const v = zoomAt(1 / 1.25); save(layout, v); }} title="Zoom out" aria-label="Zoom out"><Icon name="minus" size={12} /></button>
