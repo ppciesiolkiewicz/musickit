@@ -13,6 +13,7 @@ import { EFFECT_DEFS, moveEffect, type EffectKind } from "./effects";
 import type { InputMode } from "./frames";
 import type { LoopEdit } from "./loopEdit";
 import type { TransportState } from "./transport";
+import type { InstrumentState } from "./instrumentModel";
 
 export type GroupPatch = { name?: string; colour?: string; volume?: number; muted?: boolean; x?: number; y?: number; w?: number; h?: number };
 export type MetronomePatch = Partial<MetronomeSettings>;
@@ -65,6 +66,8 @@ export type LooperAction =
   | { type: "input.add"; id?: number; spec: InputSpec }
   | { type: "input.remove"; id: number }
   | { type: "input.set"; id: number; patch: InputPatch }
+  /** change an instrument input: controller, generator, scale settings, pad count; only the fields given change (a generator is replaced whole) */
+  | { type: "instrument.set"; id: string; patch: InstrumentPatch }
   | { type: "fx.add"; target: FxTarget; fx: FxSpec }
   | { type: "fx.remove"; target: FxTarget; id: string }
   | { type: "fx.move"; target: FxTarget; id: string; dir: -1 | 1 }
@@ -105,9 +108,9 @@ export interface FxSpec {
   /** an amp model to look up by name (NAM only), see EffectSpec */
   amp?: string;
 }
-/** A hardware or built-in input. (Sequencer and Scale Piano strips come with `sequencer.add`.) */
+/** A hardware input. (Instruments come with the engine's `addInstrumentWithRig`, sequencer strips with `sequencer.add`.) */
 export interface InputSpec {
-  kind: "device" | "extra";
+  kind: "device";
   name?: string;
   deviceId?: string;
   mode?: InputMode;
@@ -118,6 +121,7 @@ export interface InputSpec {
   /** "Hear it" on or off from the start; left out = the default for the device */
   monitor?: boolean;
 }
+export type InstrumentPatch = Partial<InstrumentState>;
 export type InputPatch = { name?: string; volume?: number; muted?: boolean; solo?: boolean; monitor?: boolean; mode?: InputMode; pair?: number };
 /** What can change on a sequencer. Order of application: instrument, preset, rows, clear, cells, then the rest. */
 export type SeqPatch = {
@@ -147,6 +151,7 @@ export interface ActionState {
   transport: { state: TransportState };
   metronome: MetronomeSettings;
   sequencers: { id: string; name: string; x: number; y: number; dest: "auto" | "record"; playing: boolean; instrumentId: string; bars: number; cells: number[][] }[];
+  instruments: ({ id: string; name: string } & InstrumentState)[];
   /** what is connected to what */
   patch: { nodes: { id: string; kind: string; muted: boolean; x: number; y: number; inMulti?: boolean; outMulti?: boolean; owner?: string; busMulti?: boolean; destOne?: boolean; name?: string; effects?: EffectState[] }[]; links: { id: string; from: string; to: string; port?: "rec" | "bus"; muted: boolean }[] };
 }
@@ -206,6 +211,7 @@ export interface ActionTarget {
   addInput(spec: InputSpec, id?: number): number | null;
   removeInput(id: number): void;
   setInput(id: number, patch: InputPatch): void;
+  setInstrument(id: string, patch: InstrumentPatch): void;
   fxAdd(t: FxTarget, fx: FxSpec): string | null;
   fxRemove(t: FxTarget, id: string): void;
   fxMove(t: FxTarget, id: string, dir: -1 | 1): void;
@@ -269,6 +275,7 @@ export function applyAction(t: ActionTarget, a: LooperAction): LooperAction | nu
     case "input.add": { const id = t.addInput(a.spec, a.id); return id === null ? null : { ...a, id }; }
     case "input.remove": t.removeInput(a.id); return a;
     case "input.set": t.setInput(a.id, a.patch); return a;
+    case "instrument.set": if (!t.getSnapshot().instruments.some((i) => i.id === a.id)) return null; t.setInstrument(a.id, a.patch); return a;
 
     case "fx.add": { const id = t.fxAdd(a.target, a.fx); return id === null ? null : { ...a, fx: { ...a.fx, id } }; }
     case "fx.remove": t.fxRemove(a.target, a.id); return a;
@@ -402,12 +409,12 @@ export function inverseOf(a: LooperAction, s: ActionState): LooperAction | null 
     case "input.add": return a.id !== undefined ? { type: "input.remove", id: a.id } : null;
     case "input.remove": {
       const i = inp(a.id);
-      if (!i || (i.kind !== "device" && i.kind !== "extra")) return null;
+      if (!i || i.kind !== "device") return null;
       return {
         type: "batch",
         label: `Restore ${i.name}`,
         actions: [
-          { type: "input.add", id: i.id, spec: { kind: i.kind, name: i.name, deviceId: i.deviceId, mode: i.mode, pair: i.pair } },
+          { type: "input.add", id: i.id, spec: { kind: "device", name: i.name, deviceId: i.deviceId, mode: i.mode, pair: i.pair } },
           { type: "input.set", id: i.id, patch: { volume: i.volume, muted: i.muted, solo: i.solo, monitor: i.monitor } },
           ...i.effects.map((e): LooperAction => ({ type: "fx.add", target: { input: i.id }, fx: specOf(e) })),
         ],
@@ -419,6 +426,15 @@ export function inverseOf(a: LooperAction, s: ActionState): LooperAction | null 
       const before: Record<string, unknown> = {};
       (Object.keys(a.patch) as (keyof InputPatch)[]).forEach((k) => { before[k] = i[k]; });
       return { type: a.type, id: a.id, patch: before as InputPatch };
+    }
+    case "instrument.set": {
+      const i = s.instruments.find((x) => x.id === a.id);
+      if (!i) return null;
+      const before: Record<string, unknown> = {};
+      (Object.keys(a.patch) as (keyof InstrumentPatch)[]).forEach((k) => { before[k] = JSON.parse(JSON.stringify(i[k])); });
+      // a pad count resizes the generator's pad arrays: the old ones come back with it
+      if ("pads" in a.patch) before.generator = JSON.parse(JSON.stringify(i.generator));
+      return { type: a.type, id: a.id, patch: before as InstrumentPatch };
     }
 
     case "fx.add": return a.fx.id ? { type: "fx.remove", target: a.target, id: a.fx.id } : null;
@@ -501,6 +517,7 @@ export function describeAction(a: LooperAction, s?: ActionState): string {
     case "input.add": return `Add input${a.spec.name ? ` ${a.spec.name}` : ""}`;
     case "input.remove": return `Remove ${s?.inputs.find((i) => i.id === a.id)?.name ?? "input"}`;
     case "input.set": return `Change ${s?.inputs.find((i) => i.id === a.id)?.name ?? "input"} (${Object.keys(a.patch).join(", ")})`;
+    case "instrument.set": return `Change ${s?.instruments.find((i) => i.id === a.id)?.name ?? "instrument"} (${Object.keys(a.patch).join(", ")})`;
     case "fx.add": return `Add ${a.fx.kind} to ${fxWhere(a.target, s)}`;
     case "fx.remove": return `Remove effect from ${fxWhere(a.target, s)}`;
     case "fx.move": return `Move effect on ${fxWhere(a.target, s)}`;
@@ -548,6 +565,10 @@ const MODES = ["left", "right", "stereo", "sum"];
 const EDIT_KEYS: Record<string, (v: unknown) => boolean> = { shift: isNum, gain: isNum, reverse: isBool, fadeIn: isNum, fadeOut: isNum, seam: isNum };
 const INPUT_KEYS: Record<string, (v: unknown) => boolean> = { name: isStr, volume: isNum, muted: isBool, solo: isBool, monitor: isBool, mode: (v) => MODES.includes(v as string), pair: (v) => Number.isInteger(v) && (v as number) >= 0 && (v as number) < 16 };
 const isCells = (v: unknown) => Array.isArray(v) && v.length > 0 && v.length <= 16 && v.every((r) => Array.isArray(r) && r.length <= 96 && r.every((n) => n === 0 || n === 1 || n === 2));
+const INSTRUMENT_KEYS: Record<string, (v: unknown) => boolean> = {
+  controller: isStr, root: isNum, scale: isStr, octave: isNum, pads: isNum,
+  generator: (v) => typeof v === "object" && v !== null && ["piano", "sampler"].includes((v as { kind?: unknown }).kind as string),
+};
 const SEQ_KEYS: Record<string, (v: unknown) => boolean> = {
   instrument: isStr, preset: isStr, rows: (v) => Array.isArray(v) && v.length <= 16 && v.every(isStr), clear: isBool, cells: isCells, bars: isNum,
   dest: (v) => v === "auto" || v === "record", x: isNum, y: isNum,
@@ -603,9 +624,10 @@ export function isAction(v: unknown, depth = 0): v is LooperAction {
     case "sequencer.remove": return isStr(a.id);
     case "sequencer.set": return isStr(a.id) && validPatch(a.patch, SEQ_KEYS);
     case "sequencer.step": return isStr(a.id) && isNum(a.lane) && isNum(a.step) && (a.value === 0 || a.value === 1 || a.value === 2);
-    case "input.add": return (a.id === undefined || isNum(a.id)) && typeof a.spec === "object" && a.spec !== null && ((a.spec as { kind?: unknown }).kind === "device" || (a.spec as { kind?: unknown }).kind === "extra");
+    case "input.add": return (a.id === undefined || isNum(a.id)) && typeof a.spec === "object" && a.spec !== null && (a.spec as { kind?: unknown }).kind === "device";
     case "input.remove": return isNum(a.id);
     case "input.set": return isNum(a.id) && validPatch(a.patch, INPUT_KEYS);
+    case "instrument.set": return isStr(a.id) && validPatch(a.patch, INSTRUMENT_KEYS);
     case "fx.add": return isTarget(a.target) && isFx(a.fx);
     case "fx.remove": return isTarget(a.target) && isStr(a.id);
     case "fx.move": return isTarget(a.target) && isStr(a.id) && (a.dir === 1 || a.dir === -1);

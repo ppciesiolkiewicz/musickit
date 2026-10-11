@@ -1,9 +1,10 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { applyAction, describeAction, inverseOf, isAction, type ActionState, type ActionTarget, type FxTarget, type GroupPatch, type LooperAction, type MetronomePatch } from "./actions";
+import { applyAction, describeAction, inverseOf, isAction, type ActionState, type ActionTarget, type FxTarget, type GroupPatch, type InstrumentPatch, type LooperAction, type MetronomePatch } from "./actions";
 import { moveEffect, type EffectSpec } from "./effects";
 import { ActionHistory } from "./history";
 import { DEFAULT_EDIT } from "./loopEdit";
+import { clampInstrument } from "./instrumentModel";
 import { MacroRecorder, parseMacros, playMacro, serialiseMacros } from "./macros";
 import type { TransportState } from "./transport";
 
@@ -19,6 +20,7 @@ function fake() {
     transport: { state: "stopped" as TransportState },
     metronome: { bpm: 120, beatsPerBar: 4, volume: 0.5, audible: true, showBeat: true, quantise: "bar", countInBars: 1 },
     sequencers: [{ id: "q1", name: "Drums", x: 5, y: 5, dest: "auto", playing: false, instrumentId: "drums", bars: 1, cells: [[1, 0, 0, 0], [0, 0, 2, 0]] }],
+    instruments: [{ id: "p1", name: "Piano C", ...clampInstrument({ controller: "scalepiano", generator: { kind: "piano", instrument: "CELLO" } }) }],
     patch: { nodes: [{ id: "in:0", kind: "input", muted: false, x: 0, y: 0 }, { id: "group:g1", kind: "group", muted: false, x: 300, y: 0 }, { id: "sw", kind: "switch", muted: false, x: 150, y: 0, inMulti: false, outMulti: false }, { id: "chain", kind: "fx", muted: false, x: 150, y: 150, name: "Amp", effects: [{ id: "a1", kind: "reverb", bypass: false, post: false, params: { mix: 0.3 } }] }], links: [{ id: "k1", from: "in:0", to: "group:g1", port: "rec", muted: false }] },
   };
   const ch = (id: number) => s.channels.find((c) => c.id === id)!;
@@ -28,6 +30,7 @@ function fake() {
   const t: ActionTarget = {
     getSnapshot: () => s,
     setSequencerStep: () => {},
+    setInstrument: (id, p: InstrumentPatch) => { const i = s.instruments.find((x) => x.id === id)!; Object.assign(i, clampInstrument({ ...i, ...p })); },
     setVolume: (id, v) => { ch(id).volume = v; },
     toggleMute: (id) => { ch(id).muted = !ch(id).muted; },
     toggleSolo: (id) => { ch(id).solo = !ch(id).solo; },
@@ -366,4 +369,39 @@ test("legacy playback.set and metronome.toggle drive the transport", () => {
   assert.equal(s.transport.state, "running");
   assert.equal(isAction({ type: "transport.set", on: true }), true);
   assert.equal(isAction({ type: "transport.set" }), false);
+});
+
+test("instrument.set changes an instrument and undo puts it back", () => {
+  const { s, t } = fake();
+  const a: LooperAction = { type: "instrument.set", id: "p1", patch: { root: 7, generator: { kind: "sampler", root: 60, sample: "x", padSamples: [] } } };
+  const inv = inverseOf(a, s)!;
+  assert.ok(applyAction(t, a));
+  assert.equal(s.instruments[0].root, 7);
+  assert.equal(s.instruments[0].generator.kind, "sampler");
+  applyAction(t, inv);
+  assert.equal(s.instruments[0].root, 0);
+  assert.deepEqual(s.instruments[0].generator, { kind: "piano", instrument: "CELLO", padNotes: [60, 61, 62, 63, 64, 65, 66, 67] });
+  assert.equal(describeAction(a, s), "Change Piano C (root, generator)");
+});
+
+test("undoing a smaller pad count brings the cut pads back", () => {
+  const { s, t } = fake();
+  applyAction(t, { type: "instrument.set", id: "p1", patch: { controller: "soundboard", generator: { kind: "piano", instrument: "CELLO", padNotes: [40, 41, 42, 43, 44, 45, 46, 47] } } });
+  const shrink: LooperAction = { type: "instrument.set", id: "p1", patch: { pads: 2 } };
+  const inv = inverseOf(shrink, s)!;
+  applyAction(t, shrink);
+  assert.deepEqual(s.instruments[0].generator.kind === "piano" && s.instruments[0].generator.padNotes, [40, 41]);
+  applyAction(t, inv);
+  assert.equal(s.instruments[0].pads, 8);
+  assert.deepEqual(s.instruments[0].generator.kind === "piano" && s.instruments[0].generator.padNotes, [40, 41, 42, 43, 44, 45, 46, 47]);
+});
+
+test("instrument.set is refused for a missing instrument and validated", () => {
+  const { t } = fake();
+  assert.equal(applyAction(t, { type: "instrument.set", id: "nope", patch: { root: 1 } }), null);
+  assert.ok(isAction({ type: "instrument.set", id: "p1", patch: { pads: 4, generator: { kind: "sampler" } } }));
+  assert.ok(!isAction({ type: "instrument.set", id: "p1", patch: {} }));
+  assert.ok(!isAction({ type: "instrument.set", id: "p1", patch: { colour: "red" } }));
+  assert.ok(!isAction({ type: "instrument.set", id: "p1", patch: { generator: { kind: "theremin" } } }));
+  assert.ok(!isAction({ type: "input.add", spec: { kind: "extra" } }));
 });

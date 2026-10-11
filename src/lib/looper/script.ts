@@ -17,9 +17,10 @@ export interface CatalogEntry {
 }
 
 export const ACTION_CATALOG: CatalogEntry[] = [
-  { type: "input.add", doc: "Add an input. kind \"device\" is a microphone or audio interface (mode left/right/stereo/sum picks the channel), \"extra\" is the built-in keyboard. Give it an id you can refer to.", example: { type: "input.add", id: 10, spec: { kind: "device", name: "Guitar", mode: "left" } } },
+  { type: "input.add", doc: "Add a hardware input. kind \"device\" is a microphone or audio interface (mode left/right/stereo/sum picks the channel). Give it an id you can refer to.", example: { type: "input.add", id: 10, spec: { kind: "device", name: "Guitar", mode: "left" } } },
   { type: "input.set", doc: "Change an input: name, volume (0 to 4; above 1 boosts a quiet input), muted, solo, monitor (hear it), mode.", example: { type: "input.set", id: 10, patch: { volume: 0.8, monitor: true } } },
-  { type: "input.remove", doc: "Remove a device or keyboard input.", example: { type: "input.remove", id: 10 } },
+  { type: "instrument.set", doc: "Change an instrument input (its id is in the mix's instruments). controller: piano, scalepiano or soundboard; root (key, 0 = C), scale, octave; pads (1-32); generator {kind:\"piano\", instrument} or {kind:\"sampler\", root, sample, padSamples}.", example: { type: "instrument.set", id: "p1", patch: { root: 2, scale: "dorian" } } },
+  { type: "input.remove", doc: "Remove a device input.", example: { type: "input.remove", id: 10 } },
   { type: "sequencer.add", doc: "Add a drum machine (with its mixer strip). Give it an id.", example: { type: "sequencer.add", id: "drums1" } },
   { type: "sequencer.set", doc: "Set a sequencer: instrument (drums or bass), preset, rows (one string per lane, 16 characters a bar: x step, X accent, . off), clear, bars (1 or 2), dest (auto or record), x and y on the stage.", example: { type: "sequencer.set", id: "drums1", patch: { preset: "four", bars: 1 } } },
   { type: "sequencer.step", doc: "Set one step: lane 0 is the top row, step 0 is the first of 16 a bar, value 0 off, 1 step, 2 accent.", example: { type: "sequencer.step", id: "drums1", lane: 0, step: 4, value: 2 } },
@@ -70,6 +71,7 @@ export function describeState(s: ActionState): string {
   const lines = [
     `inputs: ${s.inputs.map((i) => `${i.id} "${i.name}" (${i.kind}${i.effects.length ? `, effects ${i.effects.map((e) => `${e.id}=${e.kind}`).join(" ")}` : ""})`).join("; ") || "none"}`,
     `sequencers: ${s.sequencers.map((q) => `${q.id} "${q.name}" ${q.instrumentId}${q.playing ? " playing" : ""}`).join("; ") || "none"}`,
+    `instruments: ${(s.instruments ?? []).map((i) => `${i.id} "${i.name}" ${i.controller} ${i.generator.kind}`).join("; ") || "none"}`,
     `groups: ${s.groups.map((g) => `${g.id} "${g.name}"${g.effects.length ? ` (effects ${g.effects.map((e) => `${e.id}=${e.kind}`).join(" ")})` : ""}`).join("; ") || "none"}`,
     `loops: ${s.channels.length} (ids 0 to ${s.channels.length - 1})`,
     `tempo: ${s.metronome.bpm} bpm, ${s.metronome.beatsPerBar} beats a bar`,
