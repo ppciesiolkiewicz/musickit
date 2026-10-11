@@ -11,6 +11,8 @@ One app-wide **Labels** setting (`features/theory/labels.ts`, stored in localSto
 
 ## Routes
 
+Top nav (`components/SiteNav.tsx`): Home, Theory articles and Tuner on the left; Cheatsheet and the outlined Looper on the right, then the theme switcher. Theory pages add a second row with every `/theory/*` article. Every page but the looper and the cheatsheet keeps the padded page frame (`PageShell`); the cheatsheet uses `bleed` so its board runs edge to edge.
+
 | Route | Purpose |
 |-------|---------|
 | `/theory/chords` | Chord explorer with three tabs: **Shapes**, **In a key**, **Progressions** |
@@ -22,7 +24,7 @@ One app-wide **Labels** setting (`features/theory/labels.ts`, stored in localSto
 | `/theory/circle` | Circle of fifths: majors with their key signatures, relative minors, diminished chords; pick a key to light its seven chords (with numerals) and see its signature, relative, parallel, dominant and subdominant; click to hear chords and the scale. Maths in `features/theory/circle.ts`, page in `components/theory/CircleOfFifths.tsx` |
 | `/theory/tunings` | Tunings article: the A4 reference (440, 442/444 orchestral, 415 Baroque, 432) with cents and low-E Hz, then standard and alternate tunings of guitar (lowered, drop, open, modal), bass, ukulele (re-entrant), violin/viola/cello/mandolin (fifths) and banjo, and tuning tips. Each tuning card plays its strings and opens the tuner on it (`/tuner?instrument=&tuning=`). Data in `features/theory/tunings.ts`, page in `components/theory/TuningsArticle.tsx` |
 | `/tuner` | Tuner (`features/tuner`): instrument icons (Chromatic, Guitar, Bass, Ukulele, Violin, Viola, Cello, Mandolin, Banjo, `InstrumentIcon.tsx`), a tuning dropdown for instruments with several, and A4 presets (415/432/440/442/444) or any value 400–480 Hz. Chromatic shows the nearest note; an instrument shows the nearest open string of the tuning, its cents and "Tune up/down", and lights it in the string row (tap a string to hear it). The lowest pitch listened for follows the instrument (25 Hz for bass). Restores from `?instrument=&tuning=&a4=`, then `musickit.tuner` |
-| `/theory/cheatsheet` | Cheatsheet builder: see [creator.md](creator.md) |
+| `/cheatsheet` | Cheatsheet builder, outside Theory (`/theory/cheatsheet` redirects): see [creator.md](creator.md) |
 
 ## Chord explorer (`/theory/chords`)
 

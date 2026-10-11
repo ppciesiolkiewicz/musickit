@@ -2,9 +2,14 @@ import Link from "next/link";
 import ThemeSwitcher from "./ThemeSwitcher";
 export const SITE_LINKS = [
   { href: "/", label: "Home" },
-  { href: "/looper", label: "Looper" },
-  { href: "/theory", label: "Theory" },
+  { href: "/theory", label: "Theory articles" },
   { href: "/tuner", label: "Tuner" },
+];
+
+/** The tools, on the right of the nav; the looper last and outlined. */
+export const SITE_TOOLS = [
+  { href: "/cheatsheet", label: "Cheatsheet" },
+  { href: "/looper", label: "Looper", outlined: true },
 ];
 
 /** Sections under /theory, shown as a second nav row on theory pages. */
@@ -17,17 +22,16 @@ export const THEORY_LINKS = [
   { href: "/theory/arpeggios", label: "Arpeggios" },
   { href: "/theory/improv", label: "Improv" },
   { href: "/theory/tunings", label: "Tunings" },
-  { href: "/theory/cheatsheet", label: "Cheatsheet builder" },
 ];
 
 const isActive = (active: string, href: string) => (href === "/" ? active === "/" : active === href || active.startsWith(`${href}/`));
 
-function NavLink({ href, label, current, small }: { href: string; label: string; current: boolean; small?: boolean }) {
+function NavLink({ href, label, current, small, outlined }: { href: string; label: string; current: boolean; small?: boolean; outlined?: boolean }) {
   return (
     <Link
       href={href}
       aria-current={current ? "page" : undefined}
-      className={`rounded-lg transition ${small ? "px-2.5 py-1 text-xs" : "px-3 py-1.5 text-sm"} ${current ? "bg-sky-500/20 text-sky-100" : "text-slate-400 hover:text-slate-200"}`}
+      className={`rounded-lg transition ${small ? "px-2.5 py-1 text-xs" : "px-3 py-1.5 text-sm"} ${outlined ? "border border-sky-500/60" : ""} ${current ? "bg-sky-500/20 text-sky-100" : outlined ? "text-sky-200 hover:bg-sky-500/10" : "text-slate-400 hover:text-slate-200"}`}
     >
       {label}
     </Link>
@@ -44,7 +48,11 @@ export default function SiteNav({ active }: { active: string }) {
         {SITE_LINKS.map((l) => (
           <NavLink key={l.href} {...l} current={isActive(active, l.href)} />
         ))}
-        <ThemeSwitcher className="ml-auto" />
+        <span className="ml-auto" />
+        {SITE_TOOLS.map((l) => (
+          <NavLink key={l.href} {...l} current={isActive(active, l.href)} />
+        ))}
+        <ThemeSwitcher className="ml-1" />
       </nav>
       {inTheory && (
         <nav aria-label="Theory" className="flex flex-wrap items-center gap-1 border-t border-slate-800 pt-1">

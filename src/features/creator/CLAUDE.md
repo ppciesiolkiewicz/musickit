@@ -1,6 +1,6 @@
 # Creator: rules
 
-The creator (shown as the "Cheatsheet builder" at `/theory/cheatsheet`) is every theory page as a plugin on a board, all following one key that can also be empty. Behaviour spec: `spec/creator.md`.
+The creator (shown as the "Cheatsheet builder" at `/cheatsheet`) is every theory page as a plugin on a board, all following one key that can also be empty. Behaviour spec: `spec/creator.md`.
 
 ## Keep it separate
 - Imports `@/features/theory`, `@/features/sound`, `@/features/widgets`, the shared `@/components`, and the theory pages it shows (`components/chordKit`, `components/improv`, `components/theory`, `lib/chordKit`, `lib/improv`). Never the looper (`src/lib/looper`, `src/components/looper`) or the instruments. Nothing imports from the creator except its page.

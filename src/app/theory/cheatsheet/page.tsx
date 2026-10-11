@@ -1,16 +1,9 @@
-import type { Metadata } from "next";
-import PageShell from "@/components/PageShell";
-import { CreatorApp } from "@/features/creator";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: "Cheatsheet builder · Music Kit",
-  description: "Build your own theory cheatsheet: every theory page as a panel that follows one key, compact or in full.",
-};
-
-export default function CheatsheetPage() {
-  return (
-    <PageShell active="/theory/cheatsheet" title="Cheatsheet builder" intro="Choose a key, or none, then switch on the panels you want and arrange them. Every theory page is here: each panel has a compact view and a full one.">
-      <CreatorApp />
-    </PageShell>
-  );
+/** The cheatsheet builder moved out of Theory to /cheatsheet; old links (with their ?key=) still land there. */
+export default async function OldCheatsheetPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  const params = new URLSearchParams();
+  for (const [k, v] of Object.entries(await searchParams)) if (typeof v === "string") params.set(k, v);
+  const qs = params.toString();
+  redirect(`/cheatsheet${qs ? `?${qs}` : ""}`);
 }

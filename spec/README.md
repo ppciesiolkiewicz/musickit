@@ -13,7 +13,7 @@ This directory contains the formal specifications for the Music Kit application.
 | [Guitar tools](guitar-tools.md) | Chord explorer, triads by string group, mode pages |
 | [Looper](looper.md) | Independent multi-channel audio looper |
 | [Looper actions](looper-actions.md) | Actions, history, macros, AI scripts, widget mode |
-| [Creator](creator.md) | Cheatsheet builder (`/theory/cheatsheet`): every theory page as a panel following one key, compact or full |
+| [Creator](creator.md) | Cheatsheet builder (`/cheatsheet`): every theory page as a panel following one key, compact or full |
 | [Sampler](sampler.md) | Instruments from uploaded or generated samples, dropped files included |
 | [NAM](nam.md) | Neural amp models for guitar, a looper effect |
 

@@ -1,6 +1,6 @@
 # Music Kit — Cheatsheet builder (the creator)
 
-Page: `/theory/cheatsheet` ("Cheatsheet builder" in the Theory nav). `/creator` redirects there, keeping its query. Code: `src/features/creator`. Rules: `src/features/creator/CLAUDE.md`.
+Page: `/cheatsheet` ("Cheatsheet" on the right of the top nav, before the Looper), full width like the looper: the board runs edge to edge, the key bar and plugin chips keep the page padding. `/creator` and the old `/theory/cheatsheet` redirect there, keeping their query. Code: `src/features/creator`. Rules: `src/features/creator/CLAUDE.md`.
 
 ## What it is
 Every theory page as a plugin (panel) on one board, all following one key. One key selector sits on top (a tonic, a scale family and a mode); every plugin follows it. The key can be empty ("Any"): each plugin then shows a general page about its subject.
