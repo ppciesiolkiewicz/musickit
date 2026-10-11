@@ -5,7 +5,8 @@ import { exportBundle, importBundle } from "./bundle";
 import * as P from "./model/project";
 import type { SampleMeta, SampleSource, SamplerProject } from "./model/types";
 import { getStore } from "./store/idb";
-import { forgetSample, syncInstruments } from "./sync";
+import { forgetSample } from "./sampleUrls";
+import { syncInstruments } from "./sync";
 
 /** The sampler's project: loaded from the store, saved on every change, and kept playable in the sound engine. */
 export function useSampler() {

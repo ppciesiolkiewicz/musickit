@@ -2,26 +2,9 @@ import { replaceRuntimeInstruments, type RuntimeInstrument } from "@/features/so
 import { engineId } from "./model/project";
 import { INSTRUMENT_PREFIX, type SamplerProject } from "./model/types";
 import type { SamplerStore } from "./store/types";
+import { urlFor } from "./sampleUrls";
 
-const urls = new Map<string, string>();
 let token = 0;
-
-async function urlFor(store: SamplerStore, sampleId: string): Promise<string | null> {
-  const hit = urls.get(sampleId);
-  if (hit) return hit;
-  const blob = await store.getAudio(sampleId);
-  if (!blob) return null;
-  const url = URL.createObjectURL(blob);
-  urls.set(sampleId, url);
-  return url;
-}
-
-/** Forgets the object url of a deleted sample. */
-export function forgetSample(sampleId: string) {
-  const url = urls.get(sampleId);
-  if (url) URL.revokeObjectURL(url);
-  urls.delete(sampleId);
-}
 
 /**
  * Makes the project's instruments playable in the sound engine, so every picker and player in the app can use them.

@@ -15,7 +15,8 @@ import ConnectionLayer from "./ConnectionLayer";
 import ViewMenu, { toView } from "./ViewMenu";
 import MacroPanel from "./MacroPanel";
 import FloatingWindow from "../FloatingWindow";
-import { createPlayer, getAudioContext } from "@/features/sound";
+import { getAudioContext } from "@/features/sound";
+import { makeGeneratorVoice } from "@/features/sampler";
 import LoopStage from "./LoopStage";
 import FreeBoard from "./FreeBoard";
 import { Toasts } from "./toast";
@@ -183,14 +184,7 @@ function useEngine() {
       wireNam();
       setPitchDetector(detectPitch);
     }
-    return new LooperEngine({
-      getContext: getAudioContext,
-      // the sample player for now; the sampler's voice replaces it in a later step
-      createVoice: (_ctx, dest, spec) => {
-        const p = createPlayer({ instrumentId: spec.kind === "piano" ? spec.instrument : "PIANO", destination: () => dest });
-        return { noteOn: (m, v) => p.noteOn(m, v), noteOff: (m) => p.noteOff(m), allOff: () => p.allOff(), setSound: (sp) => { if (sp.kind === "piano") p.setInstrument(sp.instrument); }, preload: () => p.preload() };
-      },
-    });
+    return new LooperEngine({ getContext: getAudioContext, createVoice: (_ctx, dest, spec) => makeGeneratorVoice(dest, spec) });
   });
   useEffect(() => {
     engine.init();

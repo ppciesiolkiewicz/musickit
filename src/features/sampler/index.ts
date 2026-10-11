@@ -10,3 +10,5 @@
  */
 export { default as SamplerApp } from "./SamplerApp";
 export { default as SamplerSync } from "./SamplerSync";
+export { makeGeneratorVoice, type GeneratorVoice } from "./generatorVoice";
+export type { SoundSpec } from "./model/sound";
