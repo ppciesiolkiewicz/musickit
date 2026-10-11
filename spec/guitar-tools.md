@@ -76,6 +76,7 @@ Run the tests with `npm test` (uses `npx tsx`; `chordKit.tonal.test.ts` also nee
 - Whole-neck map: every chord tone on frets 0–17, with the five boxes as coloured lanes. Each string is coloured on its own: a lane starts at one of that string's notes and runs until the next (`laneAt`), frets before the first note take the first lane. The shape labels sit over the median start of each lane across the strings (`laneStarts`). Lanes are tinted more strongly on the light themes (`--lane-alpha` in `globals.css`).
 - Each box is a section framed in its lane colour (`Section` with `accent`): a coloured left edge and the title on its own band.
 - Related chords come from the chord explorer's shape library: easy and medium shapes on the same root whose every note lies inside the box.
+- Fret spacing: small diagrams (chord boxes, CAGED and arpeggio boxes) size rows by their place in the diagram (`boxRowFactor`): the first row is always tallest, each next one 12% shorter, down to 0.75. The whole-neck views use the real-neck spacing (`fretWidthFactor`).
 - `ChordDiagram` now draws open strings above the nut, which the open CAGED shapes need.
 
 ## Sus and extension bubbles

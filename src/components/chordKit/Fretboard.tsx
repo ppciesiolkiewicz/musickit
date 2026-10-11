@@ -29,6 +29,13 @@ export const STRING_NAMES = ["E", "A", "D", "G", "B", "e"];
  */
 export const fretWidthFactor = (f: number): number => Math.max(0.7, 1.41 * 2 ** (-(Math.max(f, 1) - 1) / 12));
 
+/**
+ * Row height in a small diagram (a chord box, a CAGED box), by the row's place in the diagram, not its fret: the first row is always the
+ * tallest and each one after is 12% shorter, down to 0.75. So fret 14 is tall as the first row of a box and short as the last.
+ * The whole-neck views keep `fretWidthFactor`.
+ */
+export const boxRowFactor = (i: number): number => Math.max(0.75, 1.4 * 0.88 ** Math.max(i, 0));
+
 export function fretGeometry(from: number, to: number, colW = 56, rowH = 38): FretGeometry {
   const cols = to - from + 1;
   const left = 40, top = 22, right = 14, bottom = 38;

@@ -1,6 +1,6 @@
 "use client";
 
-import { STRING_NAMES, fretWidthFactor } from "./Fretboard";
+import { STRING_NAMES, boxRowFactor } from "./Fretboard";
 
 /** Vertical fretboard for one box or position: strings run top to bottom (low E on the left, like a chord diagram), frets run down the page. */
 export interface VGeometry {
@@ -22,7 +22,7 @@ export function vGeometry(from: number, to: number, stringW = 38, rowH = 40): VG
   const left = 30, top = 30, right = 16, bottom = 10;
   const edge = (f: number) => {
     let y = top;
-    for (let k = from; k < f; k++) y += rowH * fretWidthFactor(k);
+    for (let k = from; k < f; k++) y += rowH * boxRowFactor(k - from);
     return y;
   };
   return {
@@ -30,7 +30,7 @@ export function vGeometry(from: number, to: number, stringW = 38, rowH = 40): VG
     W: left + 5 * stringW + right + 14,
     H: edge(to + 1) + bottom,
     edge,
-    fy: (f) => edge(f) + (rowH * fretWidthFactor(f)) / 2,
+    fy: (f) => edge(f) + (rowH * boxRowFactor(f - from)) / 2,
     sx: (s) => left + 14 + s * stringW,
   };
 }

@@ -5,7 +5,7 @@ import { fmtInterval, toneLabel } from "@/features/theory/labels";
 import type { KeyContext } from "@/features/theory/theory";
 import { useLabelSystem } from "@/features/theory/useLabelSystem";
 import { intervalLabel, OPEN_NOTE, OPEN_PITCH, ROOT_INDEX } from "@/lib/chordKit/shapeTools";
-import { fretWidthFactor } from "./Fretboard";
+import { boxRowFactor } from "./Fretboard";
 import { GROUP_SWATCH, swatchFor } from "./palette";
 
 interface Props {
@@ -34,8 +34,8 @@ export default function ChordDiagram({ shape, rootFret, onPlay, active, ctx, roo
   const hi = fretted.length ? Math.max(...fretted) : 1;
   const rows = Math.max(4, hi - lo + 1);
   const w = left + 5 * ss + 18;
-  // frets are closer together up the neck, like the real thing
-  const rowH = (i: number) => (fsz * fretWidthFactor(lo + i)) / 1.2;
+  // frets get closer together down the diagram, like the real neck, starting tall wherever the box sits
+  const rowH = (i: number) => (fsz * boxRowFactor(i)) / 1.2;
   const edge = (i: number) => Array.from({ length: i }, (_, k) => rowH(k)).reduce((a, b) => a + b, 0);
   const h = top + edge(rows) + 10;
   const grid = "var(--color-slate-500)";
