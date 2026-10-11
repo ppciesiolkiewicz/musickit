@@ -5,8 +5,9 @@ import Icon from "../Icon";
 import Modal from "../Modal";
 import { isPinned, togglePin, usePins } from "./fxPins";
 import { EFFECT_DEFS, EFFECT_KINDS, getChoice, type CloudItem, type EffectKind, type EffectSpec, type ParamDef } from "@/lib/looper/engine";
+import Slider from "@/components/Slider";
+import { ibtn } from "@/components/controls";
 
-const ibtn = "grid h-8 min-w-8 place-items-center rounded-lg border border-slate-700 bg-slate-900 px-1.5 text-xs text-slate-200 transition hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 
 /** A picker over a registered choice source (the amp models): select, add files with the button or by dropping them. */
 function ChoiceParam({ p, value, label, onChange }: { p: ParamDef; value: number; label: string; onChange: (v: number) => void }) {
@@ -135,7 +136,7 @@ export function EffectControls({ fx, onParam, columns = true }: { fx: EffectSpec
                   return (
                     <label key={p.key} className="flex items-center gap-2 text-xs text-slate-400">
                       <span className="w-14">{p.label}</span>
-                      <input type="range" min={p.min} max={p.max} step={p.step} value={v} onChange={(e) => onParam(p.key, Number(e.target.value))} className="flex-1 accent-sky-400" aria-label={label} />
+                      <Slider min={p.min} max={p.max} step={p.step} value={v} onChange={(x) => onParam(p.key, x)} className="flex-1" aria-label={label} />
                       <span className="w-16 text-right tabular-nums">{p.key === "gate" && v <= -89 ? "off" : p.unit ? `${Math.round(v * 100) / 100} ${p.unit}` : Math.round(v * 100) + "%"}</span>
                     </label>
                   );
@@ -216,7 +217,7 @@ export default function EffectsModal({ title, effects, volume, onAdd, onRemove, 
           <Icon name="sliders-horizontal" size={14} /> Fader
           {volume && (
             <>
-              <input type="range" min={0} max={1.5} step={0.01} value={volume.value} onChange={(e) => volume.onChange(Number(e.target.value))} className="flex-1 accent-sky-400" aria-label="Fader" />
+              <Slider min={0} max={1.5} step={0.01} value={volume.value} onChange={volume.onChange} className="flex-1" aria-label="Fader" />
               <span className="w-10 tabular-nums">{Math.round(volume.value * 100)}%</span>
             </>
           )}

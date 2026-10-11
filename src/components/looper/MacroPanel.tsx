@@ -5,8 +5,8 @@ import Icon from "@/components/Icon";
 import type { LooperEngine } from "@/lib/looper/engine";
 import { buildPrompt, parseScript } from "@/lib/looper/script";
 import { loadMacros, parseMacros, playMacro, saveMacros, serialiseMacros, type Macro } from "@/lib/looper/macros";
+import { ibtn } from "@/components/controls";
 
-const ibtn = "grid h-8 min-w-8 place-items-center rounded-lg border border-slate-700 bg-slate-900 px-1.5 text-xs text-slate-200 transition hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 const field = "rounded-md border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 
 const secs = (ms: number) => `${(ms / 1000).toFixed(ms < 10000 ? 1 : 0)} s`;

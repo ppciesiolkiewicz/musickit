@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Icon from "../Icon";
 import type { LooperEngine, LooperSnapshot } from "@/lib/looper/engine";
+import Slider from "@/components/Slider";
 
 const field = "h-8 rounded-md border border-slate-700 bg-slate-900 px-2 text-xs text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 
@@ -37,7 +38,7 @@ export default function MetronomeBar({ engine, snap, ready }: { engine: LooperEn
           <input type="number" min={40} max={240} value={m.bpm} disabled={m.locked} onChange={(e) => set({ bpm: Number(e.target.value) })} aria-label="Beats per minute" className="h-8 w-11 bg-transparent text-center text-sm tabular-nums text-slate-100 focus:outline-none disabled:opacity-60" />
           <button type="button" className="px-1 text-slate-300 disabled:opacity-40" disabled={m.locked} onClick={() => set({ bpm: m.bpm + 1 })} aria-label="Faster">+</button>
         </span>
-        <input type="range" min={40} max={240} step={1} value={m.bpm} disabled={m.locked} onChange={(e) => set({ bpm: Number(e.target.value) })} className="w-24 accent-sky-400 disabled:opacity-40 sm:w-32" aria-label="Tempo slider" title={m.locked ? "Tempo is locked while there is a loop" : `${m.bpm} bpm`} />
+        <Slider min={40} max={240} step={1} value={m.bpm} disabled={m.locked} onChange={(v) => set({ bpm: v })} className="w-24 sm:w-32" aria-label="Tempo slider" title={m.locked ? "Tempo is locked while there is a loop" : `${m.bpm} bpm`} />
         {m.showBeat && <BeatDots engine={engine} count={m.beatsPerBar} />}
         <button type="button" className={`grid h-9 w-9 place-items-center rounded-lg border bg-slate-900 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${m.audible === false ? "border-amber-400/60 text-amber-200 hover:border-amber-300" : "border-slate-700 text-slate-200 hover:border-slate-500"}`} aria-pressed={m.audible !== false} onClick={() => set({ audible: m.audible === false })} title={m.audible === false ? "The click is silent: tap to hear it" : "Silence the click (the beat and quantising keep going)"} aria-label={m.audible === false ? "Unmute the click" : "Silence the click"}><Icon name={m.audible === false ? "bell-off" : "bell"} /></button>
         <button type="button" className={`grid h-9 w-9 place-items-center rounded-lg border transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${open ? "border-sky-400 text-sky-200" : "border-slate-700 bg-slate-900 text-slate-200 hover:border-slate-500"}`} aria-expanded={open} aria-haspopup="dialog" onClick={() => setOpen((v) => !v)} title="Metronome options" aria-label="Metronome options">
@@ -61,7 +62,7 @@ export default function MetronomeBar({ engine, snap, ready }: { engine: LooperEn
           </label>
           <label className="flex items-center gap-2">
             <Icon name="volume-2" />
-            <input type="range" min={0} max={1} step={0.01} value={m.volume} onChange={(e) => set({ volume: Number(e.target.value) })} className="flex-1 accent-sky-400" aria-label="Click volume" />
+            <Slider min={0} max={1} step={0.01} value={m.volume} onChange={(v) => set({ volume: v })} className="flex-1" aria-label="Click volume" />
           </label>
           <label className="flex items-center gap-2"><input type="checkbox" className="accent-sky-400" checked={m.audible} onChange={(e) => set({ audible: e.target.checked })} /> Hear the click</label>
           <label className="flex items-center gap-2"><input type="checkbox" className="accent-sky-400" checked={m.showBeat} onChange={(e) => set({ showBeat: e.target.checked })} /> Show beat dots</label>
@@ -96,8 +97,8 @@ function BeatDots({ engine, count }: { engine: LooperEngine; count: number }) {
         const on = p !== null && p.beat === i;
         el.style.opacity = on ? "1" : "0.35";
         el.style.transform = on ? "scale(1.25)" : "scale(1)";
-        el.style.background = p?.countIn ? "transparent" : i === 0 ? "#fbbf24" : "#38bdf8";
-        el.style.borderColor = i === 0 ? "#fbbf24" : "#38bdf8";
+        el.style.background = p?.countIn ? "transparent" : i === 0 ? "var(--color-amber-400)" : "var(--color-sky-400)";
+        el.style.borderColor = i === 0 ? "var(--color-amber-400)" : "var(--color-sky-400)";
       });
       raf = requestAnimationFrame(tick);
     };

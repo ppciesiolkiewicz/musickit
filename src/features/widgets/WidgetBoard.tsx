@@ -342,7 +342,7 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
     <div
       ref={host}
       className={`relative w-full touch-none select-none overflow-hidden bg-slate-950/60 ${flush ? "" : "rounded-xl border border-slate-800"}`}
-      style={{ height: vp?.h ?? 600, backgroundImage: "radial-gradient(circle, #1e293b 1px, transparent 1px)", backgroundSize: `${24 * view.zoom}px ${24 * view.zoom}px`, backgroundPosition: `${view.x}px ${view.y}px` }}
+      style={{ height: vp?.h ?? 600, backgroundImage: "radial-gradient(circle, var(--color-slate-800) 1px, transparent 1px)", backgroundSize: `${24 * view.zoom}px ${24 * view.zoom}px`, backgroundPosition: `${view.x}px ${view.y}px` }}
       onPointerDown={beginPan}
       onPointerMove={move}
       onPointerUp={end}

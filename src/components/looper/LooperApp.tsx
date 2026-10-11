@@ -28,12 +28,11 @@ import InputsMini from "./InputsMini";
 import ScalePianoPanel from "./ScalePianoPanel";
 import SequencerPanel from "./SequencerPanel";
 import Link from "next/link";
+import ThemeSwitcher from "../ThemeSwitcher";
 import Icon from "../Icon";
+import { btn as btnPlain, btnBase as btn, ibtn } from "@/components/controls";
 
-const btn = "rounded-lg border px-3 py-1.5 text-xs transition disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
-const btnPlain = `${btn} border-slate-700 bg-slate-900 text-slate-200 hover:border-slate-500`;
 /** a small square icon button */
-const ibtn = "grid h-8 min-w-8 place-items-center rounded-lg border border-slate-700 bg-slate-900 px-1.5 text-xs text-slate-200 transition hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 
 /** What the Looping header says: what exists when stopped, the take or the count-in while they run. The live bar number is drawn by the Timeline. */
 function headerLabel(snap: LooperSnapshot): string {
@@ -256,7 +255,6 @@ export default function LooperApp() {
   const [historyOpen, setHistoryOpen] = useState(false);
   const pageRef = useRef<HTMLDivElement>(null);
   const [macrosOpen, setMacrosOpen] = useState(false);
-  const [layoutReset, setLayoutReset] = useState(0);
   const [storedView, setView] = useStored<string>("musickit.looper.view", "canvas");
   // saved views from before Canvas ("widgets", "lines") open as the canvas
   const view = toView(storedView);
@@ -331,7 +329,7 @@ export default function LooperApp() {
       <div className="flex flex-wrap items-center gap-2">
         {loopControls}
       </div>
-      <LoopStage engine={engine} snap={snap} openSeqs={openSeqs} onToggleSeq={toggleSeq} fill={fill} pins={!fill} />
+      <LoopStage engine={engine} snap={snap} openSeqs={openSeqs} onToggleSeq={toggleSeq} fill={fill} pins={false} />
     </section>
   );
 
@@ -341,11 +339,11 @@ export default function LooperApp() {
       {ready && <AddFab engine={engine} snap={snap} wires={widgetMode} names={Object.fromEntries(EFFECT_KINDS.map((k) => [k, EFFECT_DEFS[k].name]))} onInput={() => setAddingInput(true)} />}
       <Toasts />
       {addingInput && <AddInputModal engine={engine} snap={snap} hasExtra={snap.inputs.some((i) => i.kind === "extra")} onClose={() => setAddingInput(false)} />}
-      <div className="pointer-events-none sticky top-0 z-30 flex items-start justify-between gap-2 px-1 py-1">
+      <div className="pointer-events-none sticky top-0 z-[1100] flex items-start justify-between gap-2 px-1 py-1">
         <div className="relative">
           <div className="pointer-events-auto"><MetronomeBar engine={engine} snap={snap} ready={ready} /></div>
           {/* floats over the page (absolute), so opening it never pushes the canvas down */}
-          {ready && <div className="pointer-events-auto absolute left-0 top-full mt-1.5"><InputsMini engine={engine} snap={snap} keyboardOpen={keyboardOpen} onToggleKeyboard={() => setKeyboardOpen((v) => !v)} openPianos={openPianos} onTogglePiano={togglePiano} /></div>}
+          {ready && widgetMode && <div className="pointer-events-auto absolute left-0 top-full mt-1.5"><InputsMini engine={engine} snap={snap} keyboardOpen={keyboardOpen} onToggleKeyboard={() => setKeyboardOpen((v) => !v)} openPianos={openPianos} onTogglePiano={togglePiano} /></div>}
         </div>
         <div className="pointer-events-auto flex gap-1">
           <button type="button" className={ibtn} onClick={() => setNewOpen(true)} title="New project" aria-label="New project"><Icon name="file-plus" /></button>
@@ -354,15 +352,20 @@ export default function LooperApp() {
           <button type="button" className={`${ibtn} ${historyOpen ? "border-sky-500" : ""}`} aria-pressed={historyOpen} onClick={() => setHistoryOpen((v) => !v)} title="History" aria-label="History"><Icon name="history" /></button>
           <button type="button" className={`${ibtn} ${macrosOpen || recording ? "border-sky-500" : ""} ${recording ? "text-rose-300" : ""}`} aria-pressed={macrosOpen} onClick={() => setMacrosOpen((v) => !v)} title={recording ? "Macros (recording)" : "Macros"} aria-label="Macros"><Icon name={recording ? "circle-dot" : "zap"} /></button>
           <ViewMenu view={view} onChange={setView} btnClass={ibtn} />
-          {widgetMode && <button type="button" className={ibtn} onClick={() => setLayoutReset((n) => n + 1)} title="Reset the widget layout" aria-label="Reset the widget layout"><Icon name="rotate-ccw" /></button>}
           <button type="button" className={ibtn} onClick={() => setSettingsOpen(true)} title="Settings" aria-label="Settings"><Icon name="settings" /></button>
+          <ThemeSwitcher />
           <Link href="/" className={ibtn} title="Back to the home page" aria-label="Back to the home page"><Icon name="x" /></Link>
         </div>
       </div>
       {snap.error && <p role="alert" className="rounded-lg border border-rose-500/40 bg-rose-500/10 p-2 text-xs text-rose-200">{snap.error}</p>}
       {view === "canvas" ? (
-        <FreeBoard engine={engine} snap={snap} controls={loopControls} keyboardOpen={keyboardOpen} onToggleKeyboard={() => setKeyboardOpen((v) => !v)} openSeqs={openSeqs} onToggleSeq={toggleSeq} openPianos={openPianos} onTogglePiano={togglePiano} resetSignal={layoutReset} />
-      ) : mixer(false)}
+        <FreeBoard engine={engine} snap={snap} controls={loopControls} keyboardOpen={keyboardOpen} onToggleKeyboard={() => setKeyboardOpen((v) => !v)} openSeqs={openSeqs} onToggleSeq={toggleSeq} openPianos={openPianos} onTogglePiano={togglePiano} />
+      ) : (
+        <div className="flex flex-col gap-2 px-1 pb-2">
+          {looping(false)}
+          {mixer(false)}
+        </div>
+      )}
       {historyOpen && (
         <FloatingWindow title="History" storageKey="musickit.looper.historyWindow" onClose={() => setHistoryOpen(false)}>
           <HistoryPanel engine={engine} />
@@ -420,7 +423,6 @@ export default function LooperApp() {
       )}
       {settingsOpen && <LooperSettings engine={engine} snap={snap} getLevel={getLevel} onClose={() => setSettingsOpen(false)} />}
 
-      {view === "fixed" && looping(false)}
 
     </div>
   );

@@ -16,10 +16,9 @@ import { flowingLinks, masterFeeds, sendColours, stripPatchId } from "@/lib/loop
 import { patchName } from "./PatchNode";
 import { INPUT_PRESETS, INPUT_ROLES, presetFor, type InputRole } from "@/lib/looper/inputPresets";
 import { GUITAR_AMPS } from "@/lib/looper/rig";
+import Slider from "@/components/Slider";
+import { btnBaseSm as btn, btnSm as btnPlain, ibtn } from "@/components/controls";
 
-const btn = "rounded-lg border px-2.5 py-1 text-xs transition disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
-const btnPlain = `${btn} border-slate-700 bg-slate-900 text-slate-200 hover:border-slate-500`;
-const ibtn = "grid h-8 min-w-8 place-items-center rounded-lg border border-slate-700 bg-slate-900 px-1.5 text-xs text-slate-200 transition hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 const field = "rounded-md border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 
 /** The key of a channel choice in a select or radio group. */
@@ -346,7 +345,7 @@ export function InputStrip({ engine, inp, devices, anyDevice, keyboardOpen, onTo
         {inp.kind !== "sequencer" && <span className="flex h-6 min-w-[6.5rem] items-center justify-center gap-1 rounded-md border border-slate-700 px-1.5 text-[10px] leading-none text-slate-400" title="Goes to the recorder, then into the loops"><Icon name="circle" size={10} className="text-rose-400" />rec</span>}
         <span aria-hidden title={state} className={`h-2 w-2 rounded-full ${inp.live ? "bg-emerald-400" : "bg-slate-600"}`} />
         <LevelMeter vertical getLevel={getLevel} />
-        <input type="range" min={0} max={MAX_INPUT_GAIN} step={0.01} value={inp.volume} onChange={(e) => engine.do({ type: "input.set", id: inp.id, patch: { volume: Number(e.target.value) } })} className="w-24 accent-sky-400" aria-label={`Gain of ${inp.name}`} title={`Gain ${Math.round(inp.volume * 100)}%`} />
+        <Slider min={0} max={MAX_INPUT_GAIN} step={0.01} value={inp.volume} onChange={(v) => engine.do({ type: "input.set", id: inp.id, patch: { volume: v } })} className="w-24" aria-label={`Gain of ${inp.name}`} title={`Gain ${Math.round(inp.volume * 100)}%`} />
         <span className="flex-1" aria-hidden />
         {inp.kind === "sequencer" && seq && <button type="button" className={`${ibtn} ${seq.playing ? "!border-emerald-500/70 !bg-emerald-500/15 !text-emerald-200" : ""}`} aria-pressed={seq.playing} onClick={() => engine.do({ type: "sequencer.playing", id: seq.id, on: !seq.playing })} title={seq.playing ? "Stop on the next beat" : "Start on the next beat"} aria-label={seq.playing ? `Stop ${inp.name}` : `Start ${inp.name}`}><Icon name={seq.playing ? "square" : "play"} fill /></button>}
         {inp.kind === "sequencer" && <button type="button" className={`${ibtn} ${sequencerOpen ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={sequencerOpen} onClick={onToggleSequencer} title={sequencerOpen ? "Close the sequencer" : "Open the sequencer"} aria-label={sequencerOpen ? "Close the sequencer" : "Open the sequencer"}><Icon name="sliders-horizontal" /></button>}
@@ -403,7 +402,7 @@ function stripChoices(inp: InputInfo) {
 }
 
 /** A fill for several colours side by side, like the connector rings on the canvas. */
-const ringFill = (cs: string[]) => (cs.length < 2 ? cs[0] ?? "#64748b" : `linear-gradient(90deg, ${cs.map((c, i) => `${c} ${(i / cs.length) * 100}% ${((i + 1) / cs.length) * 100}%`).join(", ")})`);
+const ringFill = (cs: string[]) => (cs.length < 2 ? cs[0] ?? "var(--color-slate-500)" : `linear-gradient(90deg, ${cs.map((c, i) => `${c} ${(i / cs.length) * 100}% ${((i + 1) / cs.length) * 100}%`).join(", ")})`);
 
 /** What plays into the master: Looping always, then the inputs and the buses (or switches) that send to it, each under its label, a small block in its connector colours. */
 function MasterFeeds({ snap }: { snap: LooperSnapshot }) {
@@ -520,7 +519,7 @@ function BusRow({ engine, g, loops, seqs, onFx }: { engine: LooperEngine; g: Loo
         <Icon name="repeat" size={10} />{loops}<Icon name="drum" size={10} />{seqs}
       </span>
       <LevelMeter vertical getLevel={getLevel} />
-      <input type="range" min={0} max={1.5} step={0.01} value={g.volume} onChange={(e) => engine.do({ type: "group.set", id: g.id, patch: { volume: Number(e.target.value) } })} className="w-24 accent-sky-400" aria-label={`Volume of ${g.name}`} title={`Volume ${Math.round(g.volume * 100)}%`} />
+      <Slider min={0} max={1.5} step={0.01} value={g.volume} onChange={(v) => engine.do({ type: "group.set", id: g.id, patch: { volume: v } })} className="w-24" aria-label={`Volume of ${g.name}`} title={`Volume ${Math.round(g.volume * 100)}%`} />
       <span className="flex-1" aria-hidden />
       <button type="button" className={`${ibtn} ${g.muted ? "!border-amber-400 !text-amber-200" : ""}`} aria-pressed={g.muted} onClick={() => engine.do({ type: "group.set", id: g.id, patch: { muted: !g.muted } })} title="Mute the bus" aria-label={`Mute ${g.name}`}>M</button>
       <div className="basis-full"><EffectStack effects={g.effects} onOpen={onFx} onBypass={(fx) => engine.do({ type: "effect.bypass", groupId: g.id, fxId: fx, bypass: !g.effects.find((e) => e.id === fx)?.bypass })} onMove={(fx, d) => engine.do({ type: "fx.move", target: { group: g.id }, id: fx, dir: d })} /></div>

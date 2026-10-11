@@ -38,7 +38,7 @@ export default function ChordDiagram({ shape, rootFret, onPlay, active, ctx, roo
   const rowH = (i: number) => (fsz * fretWidthFactor(lo + i)) / 1.2;
   const edge = (i: number) => Array.from({ length: i }, (_, k) => rowH(k)).reduce((a, b) => a + b, 0);
   const h = top + edge(rows) + 10;
-  const grid = "#64748b";
+  const grid = "var(--color-slate-500)";
 
   const svg = (
     <svg viewBox={`0 0 ${w} ${h}`} width="100%" role="img" aria-label="Chord diagram">
@@ -49,7 +49,7 @@ export default function ChordDiagram({ shape, rootFret, onPlay, active, ctx, roo
         <line key={`s${i}`} x1={left + i * ss} x2={left + i * ss} y1={top} y2={top + edge(rows)} stroke={grid} strokeWidth={1 + (5 - i) * 0.12} />
       ))}
       {lo > 1 && (
-        <text x={left - 10} y={top + rowH(0) / 2} textAnchor="end" dominantBaseline="central" fontSize={11} fill="#94a3b8">
+        <text x={left - 10} y={top + rowH(0) / 2} textAnchor="end" dominantBaseline="central" fontSize={11} fill="var(--color-slate-400)">
           {lo}fr
         </text>
       )}

@@ -12,6 +12,7 @@ import {
 } from "@/lib/chordKit/progressions";
 import { RICH_SHAPES, STRING_NAMES, STRING_ORDER, STRING_SHORT, rootFretFor } from "@/lib/chordKit/shapeTools";
 import { strumShape, silence } from "@/lib/chordKit/playback";
+import Slider from "@/components/Slider";
 
 const DIFF_ORDER = { easy: 0, medium: 1, hard: 2 } as const;
 
@@ -128,7 +129,7 @@ function Detail({ D }: { D: ResolvedProgression }) {
         </button>
         <label className="flex items-center gap-2 text-xs text-slate-400">
           Tempo<Info label="About tempo">Each chord lasts two beats at this speed. Only the main sections play; side trips are skipped. Chords marked ×2 repeat.</Info>
-          <input type="range" min={50} max={140} value={bpm} onChange={(e) => setBpm(Number(e.target.value))} className="accent-sky-400" />
+          <Slider min={50} max={140} value={bpm} onChange={(v) => setBpm(v)} aria-label="Tempo" />
           <span className="w-14 tabular-nums">{bpm} bpm</span>
         </label>
       </div>

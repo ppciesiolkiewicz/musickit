@@ -36,10 +36,10 @@ export default function KeysPlugin() {
     const w = black ? BW : KW, h = black ? BH : KH;
     return (
       <g key={k.midi} role="button" tabIndex={0} aria-label={nameOf(k.midi, deg)} onPointerDown={() => play(k.midi)} onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && play(k.midi)} className="cursor-pointer outline-none focus-visible:[&>rect]:stroke-sky-400">
-        <rect x={k.x} y={0} width={w} height={h} rx={2} fill={black ? "#0b1220" : "#e2e8f0"} stroke={black ? "#334155" : "#64748b"} strokeWidth={1} />
-        {deg >= 0 && <circle cx={k.x + w / 2} cy={h - 12} r={black ? 4.5 : 6.5} fill={degreeColour(deg)} stroke="#0f172a" />}
-        {deg >= 0 && !black && <text x={k.x + w / 2} y={h - 26} textAnchor="middle" fontSize="7.5" fill="#334155">{ctx ? scaleToneLabel(system, ctx, deg) : nameOf(k.midi, deg)}</text>}
-        {!ctx && !black && k.midi % 12 === 0 && <text x={k.x + w / 2} y={h - 8} textAnchor="middle" fontSize="8" fill="#475569">C{Math.floor(k.midi / 12) - 1}</text>}
+        <rect x={k.x} y={0} width={w} height={h} rx={2} fill={black ? "var(--color-slate-950)" : "var(--color-slate-200)"} stroke={black ? "var(--color-slate-700)" : "var(--color-slate-500)"} strokeWidth={1} />
+        {deg >= 0 && <circle cx={k.x + w / 2} cy={h - 12} r={black ? 4.5 : 6.5} fill={degreeColour(deg)} stroke="var(--color-slate-900)" />}
+        {deg >= 0 && !black && <text x={k.x + w / 2} y={h - 26} textAnchor="middle" fontSize="7.5" fill="var(--color-slate-700)">{ctx ? scaleToneLabel(system, ctx, deg) : nameOf(k.midi, deg)}</text>}
+        {!ctx && !black && k.midi % 12 === 0 && <text x={k.x + w / 2} y={h - 8} textAnchor="middle" fontSize="8" fill="var(--color-slate-600)">C{Math.floor(k.midi / 12) - 1}</text>}
       </g>
     );
   };

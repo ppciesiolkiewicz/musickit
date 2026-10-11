@@ -33,8 +33,8 @@ export default function CirclePlugin() {
     <Body title={ctx ? `Circle of fifths · ${title}` : "Circle of fifths"} general={!ctx}>
       {!ctx && <Hint>Click a key to choose it. Neighbours share almost all their notes.</Hint>}
       <svg viewBox="0 0 300 300" className="mx-auto w-full max-w-[26rem] flex-1" role="group" aria-label="Circle of fifths">
-        <circle cx="150" cy="150" r={R_OUT + 20} fill="none" stroke="#1e293b" />
-        <circle cx="150" cy="150" r={R_IN - 22} fill="none" stroke="#1e293b" />
+        <circle cx="150" cy="150" r={R_OUT + 20} fill="none" stroke="var(--color-slate-800)" />
+        <circle cx="150" cy="150" r={R_IN - 22} fill="none" stroke="var(--color-slate-800)" />
         {CIRCLE.map((t, pos) => {
           const out = at(pos, R_MID + 20), inn = at(pos, R_IN - 2 + 0);
           const minorPc = (t.pc + 9) % 12;
@@ -44,18 +44,18 @@ export default function CirclePlugin() {
           return (
             <g key={t.pc}>
               <g role="button" tabIndex={0} aria-label={`${t.name} major`} aria-pressed={!!isTonicOut} onClick={() => pick(t.pc, false)} onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && pick(t.pc, false)} className="cursor-pointer outline-none focus-visible:[&>circle]:stroke-sky-400">
-                <circle cx={out.x} cy={out.y} r={17} fill={isTonicOut ? "#0ea5e9" : hot ? "#1e3a5f" : "#0f172a"} stroke={isTonicOut ? "#e0f2fe" : hot ? "#38bdf8" : "#334155"} strokeWidth={isTonicOut ? 2 : 1} />
-                <text x={out.x} y={out.y} textAnchor="middle" dominantBaseline="central" fontSize="12" fontWeight={600} fill={isTonicOut ? "#082f49" : "#e2e8f0"}>{t.name}</text>
+                <circle cx={out.x} cy={out.y} r={17} fill={isTonicOut ? "var(--color-sky-500)" : hot ? "#1e3a5f" : "var(--color-slate-900)"} stroke={isTonicOut ? "var(--color-sky-100)" : hot ? "var(--color-sky-400)" : "var(--color-slate-700)"} strokeWidth={isTonicOut ? 2 : 1} />
+                <text x={out.x} y={out.y} textAnchor="middle" dominantBaseline="central" fontSize="12" fontWeight={600} fill={isTonicOut ? "#082f49" : "var(--color-slate-200)"}>{t.name}</text>
               </g>
               <g role="button" tabIndex={0} aria-label={`${tonicName(minorPc)} minor`} aria-pressed={!!isTonicIn} onClick={() => pick(minorPc, true)} onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && pick(minorPc, true)} className="cursor-pointer outline-none focus-visible:[&>circle]:stroke-sky-400">
-                <circle cx={inn.x} cy={inn.y} r={13.5} fill={isTonicIn ? "#0ea5e9" : hot ? "#1e3a5f" : "#0f172a"} stroke={isTonicIn ? "#e0f2fe" : hot ? "#38bdf8" : "#334155"} strokeWidth={isTonicIn ? 2 : 1} />
-                <text x={inn.x} y={inn.y} textAnchor="middle" dominantBaseline="central" fontSize="9.5" fill={isTonicIn ? "#082f49" : "#94a3b8"}>{tonicName(minorPc)}m</text>
+                <circle cx={inn.x} cy={inn.y} r={13.5} fill={isTonicIn ? "var(--color-sky-500)" : hot ? "#1e3a5f" : "var(--color-slate-900)"} stroke={isTonicIn ? "var(--color-sky-100)" : hot ? "var(--color-sky-400)" : "var(--color-slate-700)"} strokeWidth={isTonicIn ? 2 : 1} />
+                <text x={inn.x} y={inn.y} textAnchor="middle" dominantBaseline="central" fontSize="9.5" fill={isTonicIn ? "#082f49" : "var(--color-slate-400)"}>{tonicName(minorPc)}m</text>
               </g>
             </g>
           );
         })}
-        <text x="150" y="146" textAnchor="middle" fontSize="13" fontWeight={600} fill="#e2e8f0">{ctx ? ctx.tonic.name : "Key"}</text>
-        <text x="150" y="163" textAnchor="middle" fontSize="9" fill="#94a3b8">{sig ? (sig.kind === "none" ? "no ♯ ♭" : `${sig.count}${sig.kind === "sharps" ? "♯" : "♭"}`) : ctx ? ctx.modeName : "of fifths"}</text>
+        <text x="150" y="146" textAnchor="middle" fontSize="13" fontWeight={600} fill="var(--color-slate-200)">{ctx ? ctx.tonic.name : "Key"}</text>
+        <text x="150" y="163" textAnchor="middle" fontSize="9" fill="var(--color-slate-400)">{sig ? (sig.kind === "none" ? "no ♯ ♭" : `${sig.count}${sig.kind === "sharps" ? "♯" : "♭"}`) : ctx ? ctx.modeName : "of fifths"}</text>
       </svg>
     </Body>
   );

@@ -67,7 +67,7 @@ export default function Tuner() {
 
   const cents = reading?.note.cents ?? 0;
   const inTune = reading !== null && Math.abs(cents) < 5;
-  const colour = reading === null ? "#475569" : inTune ? "#34d399" : Math.abs(cents) < 20 ? "#fbbf24" : "#fb7185";
+  const colour = reading === null ? "var(--color-slate-600)" : inTune ? "var(--color-emerald-400)" : Math.abs(cents) < 20 ? "var(--color-amber-400)" : "var(--color-rose-400)";
   const needle = Math.max(-50, Math.min(50, cents));
 
   return (
@@ -80,10 +80,10 @@ export default function Tuner() {
         <svg viewBox="-110 -6 220 46" className="w-full max-w-md" role="img" aria-label={reading ? `${Math.round(cents)} cents ${cents > 0 ? "sharp" : "flat"}` : "No note detected"}>
           {Array.from({ length: 11 }, (_, i) => {
             const c = (i - 5) * 10;
-            return <line key={c} x1={c * 2} x2={c * 2} y1={c === 0 ? 0 : 6} y2={c === 0 ? 26 : 20} stroke={c === 0 ? "#34d399" : "#475569"} strokeWidth={c === 0 ? 2 : 1} />;
+            return <line key={c} x1={c * 2} x2={c * 2} y1={c === 0 ? 0 : 6} y2={c === 0 ? 26 : 20} stroke={c === 0 ? "var(--color-emerald-400)" : "var(--color-slate-600)"} strokeWidth={c === 0 ? 2 : 1} />;
           })}
-          <text x={-100} y={36} fontSize={9} fill="#64748b" textAnchor="middle">flat</text>
-          <text x={100} y={36} fontSize={9} fill="#64748b" textAnchor="middle">sharp</text>
+          <text x={-100} y={36} fontSize={9} fill="var(--color-slate-500)" textAnchor="middle">flat</text>
+          <text x={100} y={36} fontSize={9} fill="var(--color-slate-500)" textAnchor="middle">sharp</text>
           {reading && <polygon points={`${needle * 2 - 5},-4 ${needle * 2 + 5},-4 ${needle * 2},8`} fill={colour} />}
         </svg>
         <p className="h-5 text-sm tabular-nums text-slate-400">

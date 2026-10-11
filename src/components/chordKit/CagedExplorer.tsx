@@ -194,7 +194,7 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem }: { b
           {[5, 4, 3, 2, 1, 0].flatMap((s, r) =>
             frets.map((f) => {
               const [fl, fr] = fillFor(s, f), c = cellAt(s, f);
-              const line = "#94a3b8";
+              const line = "var(--color-slate-400)";
               return (
                 <div
                   key={`${s}-${f}`}

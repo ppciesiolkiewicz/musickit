@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 
 // Buttons, selects, sliders and checkboxes. Text and number fields keep focus so they can be typed in.
-const CONTROLS = 'button, select, input[type="range"], input[type="checkbox"], input[type="radio"], [role="button"]';
+const CONTROLS = 'button, select, input[type="range"], input[type="checkbox"], input[type="radio"], [role="button"], [role="slider"]';
 
 function untab(root: ParentNode) {
   root.querySelectorAll<HTMLElement>(CONTROLS).forEach((el) => {

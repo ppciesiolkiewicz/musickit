@@ -6,7 +6,7 @@ import PreloadPiano from "@/features/sound/keyboard/PreloadPiano";
 /** Dark page frame with the Music Kit nav, shared by the guitar pages. */
 export default function PageShell({ title, intro, active, children }: { title: string; intro?: string; active: string; children: ReactNode }) {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-950 text-slate-200">
+    <div className="app-bg min-h-screen text-slate-200">
       <div className="mx-auto flex w-full max-w-[96rem] flex-col gap-3 px-3 py-3 sm:px-5 sm:py-4">
         <PreloadPiano />
         <SamplerSync />

@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function LooperPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-950 text-slate-200">
+    <div className="app-bg min-h-screen text-slate-200">
       <div className="flex w-full flex-col">
         <h1 className="sr-only">Looper</h1>
         <main>

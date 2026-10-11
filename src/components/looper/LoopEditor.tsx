@@ -5,8 +5,9 @@ import Icon from "../Icon";
 import { Modal } from "../Modal";
 import type { ChannelInfo, LooperEngine } from "@/lib/looper/engine";
 import { DEFAULT_EDIT, isDefaultEdit, minMax, normaliseGain, seamFrames, shiftRange, type LoopEdit } from "@/lib/looper/loopEdit";
+import RangeSlider from "@/components/Slider";
+import { sbtn as btn } from "@/components/controls";
 
-const btn = "grid h-7 min-w-7 place-items-center rounded-md border border-slate-700 bg-slate-900 px-1.5 text-[11px] text-slate-200 transition hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-40";
 const H = 150;
 const toDb = (g: number) => (g <= 0 ? -60 : 20 * Math.log10(g));
 const fromDb = (db: number) => (db <= -60 ? 0 : Math.pow(10, db / 20));
@@ -162,7 +163,7 @@ function Slider({ label, value, min, max, step, text, onChange, disabled, title 
   return (
     <label className={`flex items-center gap-2 text-[11px] text-slate-400 ${disabled ? "opacity-40" : ""}`} title={title}>
       <span className="w-20 shrink-0">{label}</span>
-      <input type="range" min={min} max={max} step={step} value={value} disabled={disabled} onChange={(e) => onChange(Number(e.target.value))} className="h-3 min-w-0 flex-1 accent-sky-400" aria-label={label} />
+      <RangeSlider min={min} max={max} step={step} value={value} disabled={disabled} onChange={onChange} className="min-w-0 flex-1" aria-label={label} size="sm" />
       <span className="w-14 shrink-0 text-right tabular-nums text-slate-200">{text}</span>
     </label>
   );

@@ -6,6 +6,7 @@ import LevelMeter from "./LevelMeter";
 import InputBundle from "./InputBundle";
 import { useFold } from "./fold";
 import { MAX_INPUT_GAIN, type InputInfo, type LooperEngine, type LooperSnapshot } from "@/lib/looper/engine";
+import Slider from "@/components/Slider";
 
 const mini = "grid h-6 w-6 shrink-0 place-items-center rounded-md border border-slate-700 bg-slate-900 text-[10px] text-slate-300 transition hover:border-slate-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 
@@ -61,7 +62,7 @@ function Row({ engine, snap, inp, keyOpen, onKeys }: { engine: LooperEngine; sna
           <span className="min-w-0 truncate">{inp.name}</span>
         </button>
         <LevelMeter vertical small getLevel={getLevel} />
-        <input type="range" min={0} max={MAX_INPUT_GAIN} step={0.01} value={inp.volume} onChange={(e) => set({ volume: Number(e.target.value) })} className="h-3 w-14 shrink-0 accent-sky-400" aria-label={`Volume of ${inp.name}`} title={`Volume ${Math.round(inp.volume * 100)}%`} />
+        <Slider min={0} max={MAX_INPUT_GAIN} step={0.01} value={inp.volume} onChange={(v) => set({ volume: v })} className="w-14 shrink-0" aria-label={`Volume of ${inp.name}`} title={`Volume ${Math.round(inp.volume * 100)}%`} size="sm" />
         <button type="button" className={`${mini} ${inp.muted ? "!border-amber-400 !text-amber-200" : ""}`} aria-pressed={inp.muted} onClick={() => set({ muted: !inp.muted })} title={inp.muted ? "Unmute" : "Mute"} aria-label={`Mute ${inp.name}`}>M</button>
         {onKeys ? (
           <button type="button" className={`${mini} ${keyOpen ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={keyOpen} onClick={onKeys} title={keyOpen ? "Close the keyboard" : "Open the keyboard"} aria-label={`${keyOpen ? "Close" : "Open"} the keyboard of ${inp.name}`}><Icon name="keyboard" size={12} /></button>

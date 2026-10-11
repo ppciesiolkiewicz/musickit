@@ -26,7 +26,7 @@ export default function LevelMeter({ getLevel, vertical = false, small = false }
         const pct = `${meterFill(shown) * 100}%`;
         if (vertical) bar.current.style.height = pct;
         else bar.current.style.width = pct;
-        bar.current.style.background = shown > 0.95 ? "#f43f5e" : shown > 0.7 ? "#fbbf24" : "#34d399";
+        bar.current.style.background = shown > 0.95 ? "#f43f5e" : shown > 0.7 ? "var(--color-amber-400)" : "var(--color-emerald-400)";
       }
       raf = requestAnimationFrame(tick);
     };

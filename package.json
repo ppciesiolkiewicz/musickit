@@ -10,20 +10,21 @@
     "test": "npx tsx --test src/lib/chordKit/*.test.ts src/lib/looper/*.test.ts src/lib/improv/*.test.ts src/features/sound/engine/*.test.ts src/features/tuner/*.test.ts src/features/theory/*.test.ts src/features/widgets/*.test.ts src/features/creator/model/*.test.ts src/features/sampler/model/*.test.ts src/features/sampler/server/*.test.ts src/features/nam/*.test.ts src/features/nam/server/*.test.ts"
   },
   "dependencies": {
+    "@radix-ui/react-slider": "^1.5.0",
     "@tonaljs/tonal": "^4.10.0",
-    "@vercel/blob": "^2.3.0",
-    "next": "16.1.6",
-    "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "@vercel/blob": "^2.8.1",
+    "next": "^16.4.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "16.1.6",
-    "tailwindcss": "^4",
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^20.19.43",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.4.0",
+    "tailwindcss": "^4.3.3",
     "typescript": "^5"
   }
 }

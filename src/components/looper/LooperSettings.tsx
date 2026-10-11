@@ -6,9 +6,10 @@ import LevelMeter from "./LevelMeter";
 import MasterControls from "./MasterOutput";
 import type { LooperEngine, LooperSnapshot } from "@/lib/looper/engine";
 import { getMidiInputs, onMidiDevicesChanged, requestMidiAccess, setMidiInputFilter } from "@/features/sound/keyboard/midi";
+import Slider from "@/components/Slider";
+import { btn } from "@/components/controls";
 
 const field = "rounded-md border border-slate-700 bg-slate-900 px-2 py-1.5 text-sm text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
-const btn = "rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs text-slate-200 transition hover:border-slate-500 disabled:opacity-40";
 const MIDI_KEY = "musickit.looper.midi";
 
 function Group({ title, children }: { title: string; children: ReactNode }) {
@@ -77,7 +78,7 @@ export default function LooperSettings({ engine, snap, getLevel, onClose }: { en
           </label>
           <label className="flex items-center gap-2 text-xs text-slate-400">
             Latency fix
-            <input type="range" min={0} max={250} step={1} value={snap.latencyMs} onChange={(e) => engine.setLatencyMs(Number(e.target.value))} className="flex-1 accent-sky-400" aria-label="Latency compensation in milliseconds" />
+            <Slider min={0} max={250} step={1} value={snap.latencyMs} onChange={(v) => engine.setLatencyMs(v)} className="flex-1" aria-label="Latency compensation in milliseconds" />
             <span className="w-14 tabular-nums">{snap.latencyMs} ms</span>
           </label>
           <p className="text-xs text-slate-500">Applies to microphones and audio interfaces, not to the keyboard. If new takes sound late against the loop, raise it until they line up.</p>

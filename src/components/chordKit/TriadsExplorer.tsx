@@ -23,13 +23,13 @@ function TriadBox({ v, rootPc, onPlay, active }: { v: TriadVoicing; rootPc: numb
   return (
     <button type="button" onClick={onPlay} title="Click to hear it" className={`rounded-lg p-1 text-center transition hover:bg-slate-800/60 ${active ? "bg-slate-800/80 ring-1 ring-sky-400" : ""}`}>
       <svg viewBox={`0 0 ${w} ${h}`} width="100%" role="img" aria-label={`Triad at fret ${v.lowestFret}`}>
-        {Array.from({ length: rows + 1 }, (_, i) => <line key={i} x1={left} x2={left + 5 * ss} y1={top + i * fsz} y2={top + i * fsz} stroke="#64748b" strokeWidth={i === 0 && lo === 1 ? 3 : 1} />)}
-        {Array.from({ length: 6 }, (_, i) => <line key={i} x1={left + i * ss} x2={left + i * ss} y1={top} y2={top + rows * fsz} stroke="#64748b" strokeWidth={1 + (5 - i) * 0.12} />)}
-        {lo > 1 && <text x={left - 8} y={top + fsz / 2} textAnchor="end" dominantBaseline="central" fontSize={11} fill="#94a3b8">{lo}fr</text>}
+        {Array.from({ length: rows + 1 }, (_, i) => <line key={i} x1={left} x2={left + 5 * ss} y1={top + i * fsz} y2={top + i * fsz} stroke="var(--color-slate-500)" strokeWidth={i === 0 && lo === 1 ? 3 : 1} />)}
+        {Array.from({ length: 6 }, (_, i) => <line key={i} x1={left + i * ss} x2={left + i * ss} y1={top} y2={top + rows * fsz} stroke="var(--color-slate-500)" strokeWidth={1 + (5 - i) * 0.12} />)}
+        {lo > 1 && <text x={left - 8} y={top + fsz / 2} textAnchor="end" dominantBaseline="central" fontSize={11} fill="var(--color-slate-400)">{lo}fr</text>}
         {Array.from({ length: 6 }, (_, si) => {
           const gi = v.group.strings.indexOf(si);
           const x = left + si * ss;
-          if (gi < 0) return <text key={si} x={x} y={top - 10} textAnchor="middle" dominantBaseline="central" fontSize={12} fill="#475569">×</text>;
+          if (gi < 0) return <text key={si} x={x} y={top - 10} textAnchor="middle" dominantBaseline="central" fontSize={12} fill="var(--color-slate-600)">×</text>;
           const fret = v.frets[gi];
           const role = q.labels[v.tones[gi]];
           const label = toneLabel(system, { rootPc, semi: q.semis[v.tones[gi]], role });

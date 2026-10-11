@@ -48,7 +48,7 @@ export default function NeckDiagram({ title, specs, moves, scalePcs, focus = nul
     return { b, w, x0, cy: top - (row === 0 ? 66 : row === 1 ? 45 : 24) };
   });
 
-  const grid = "#475569";
+  const grid = "var(--color-slate-600)";
   const dots = [3, 5, 7, 9, 15, 17];
 
   return (
@@ -56,12 +56,12 @@ export default function NeckDiagram({ title, specs, moves, scalePcs, focus = nul
       <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ minWidth: Math.round(W * 0.8) }} role="img" aria-label={title}>
         <defs>
           <marker id="neck-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
-            <path d="M0,0 L10,5 L0,10 z" fill="#94a3b8" />
+            <path d="M0,0 L10,5 L0,10 z" fill="var(--color-slate-400)" />
           </marker>
         </defs>
-        {dots.map((f) => <circle key={f} cx={fx(f)} cy={(sy(2) + sy(3)) / 2} r={6} fill="#334155" opacity={0.8} />)}
-        <circle cx={fx(12)} cy={(sy(1) + sy(2)) / 2} r={6} fill="#334155" opacity={0.8} />
-        <circle cx={fx(12)} cy={(sy(3) + sy(4)) / 2} r={6} fill="#334155" opacity={0.8} />
+        {dots.map((f) => <circle key={f} cx={fx(f)} cy={(sy(2) + sy(3)) / 2} r={6} fill="var(--color-slate-700)" opacity={0.8} />)}
+        <circle cx={fx(12)} cy={(sy(1) + sy(2)) / 2} r={6} fill="var(--color-slate-700)" opacity={0.8} />
+        <circle cx={fx(12)} cy={(sy(3) + sy(4)) / 2} r={6} fill="var(--color-slate-700)" opacity={0.8} />
         {Array.from({ length: NECK_FRETS + 1 }, (_, f) => (
           <line key={`f${f}`} x1={edge(f)} x2={edge(f)} y1={sy(0) - 6} y2={sy(5) + 6} stroke={grid} strokeWidth={f === 0 ? 3 : 1} />
         ))}
@@ -69,11 +69,11 @@ export default function NeckDiagram({ title, specs, moves, scalePcs, focus = nul
           <line key={`s${r}`} x1={left} x2={edge(NECK_FRETS)} y1={sy(r)} y2={sy(r)} stroke={grid} strokeWidth={1 + r * 0.12} />
         ))}
         {Array.from({ length: NECK_FRETS }, (_, i) => (
-          <text key={`n${i}`} x={fx(i + 1)} y={sy(5) + 26} textAnchor="middle" fontSize={11} fill="#94a3b8">{i + 1}</text>
+          <text key={`n${i}`} x={fx(i + 1)} y={sy(5) + 26} textAnchor="middle" fontSize={11} fill="var(--color-slate-400)">{i + 1}</text>
         ))}
         {Array.from({ length: 6 }, (_, i) =>
           Array.from({ length: NECK_FRETS + 1 }, (_, f) =>
-            scalePcs.includes((OPEN_PITCH[i] + f) % 12) ? <circle key={`d${i}-${f}`} cx={fx(f)} cy={sy(5 - i)} r={3.2} fill="#64748b" opacity={0.6} /> : null,
+            scalePcs.includes((OPEN_PITCH[i] + f) % 12) ? <circle key={`d${i}-${f}`} cx={fx(f)} cy={sy(5 - i)} r={3.2} fill="var(--color-slate-500)" opacity={0.6} /> : null,
           ),
         )}
 
@@ -128,13 +128,13 @@ export default function NeckDiagram({ title, specs, moves, scalePcs, focus = nul
           const hA = HUES[A.hue], hB = HUES[B.hue];
           return (
             <g key={`m${ti}`}>
-              <line x1={xa + (dir * wA) / 2} x2={xb - (dir * wB) / 2 - 2} y1={y} y2={y} stroke="#94a3b8" strokeWidth={1.7} markerEnd="url(#neck-arrow)" />
+              <line x1={xa + (dir * wA) / 2} x2={xb - (dir * wB) / 2 - 2} y1={y} y2={y} stroke="var(--color-slate-400)" strokeWidth={1.7} markerEnd="url(#neck-arrow)" />
               <rect x={xa - wA / 2} y={y - 12} width={wA} height={24} rx={12} fill={hA.hub} />
               <text x={xa} y={y} textAnchor="middle" dominantBaseline="central" fill={hA.onHub} fontSize={11.5} fontWeight={600}>{A.chord.name}</text>
               <rect x={xb - wB / 2} y={y - 12} width={wB} height={24} rx={12} fill={hB.hub} />
               <text x={xb} y={y} textAnchor="middle" dominantBaseline="central" fill={hB.onHub} fontSize={11.5} fontWeight={600}>{B.chord.name}</text>
-              <rect x={mx - pw / 2} y={y - 36} width={pw} height={20} rx={10} fill="#0f172a" stroke="#334155" />
-              <text x={mx} y={y - 26} textAnchor="middle" dominantBaseline="central" fill="#e2e8f0" fontSize={11.5} fontWeight={500}>{text}</text>
+              <rect x={mx - pw / 2} y={y - 36} width={pw} height={20} rx={10} fill="var(--color-slate-900)" stroke="var(--color-slate-700)" />
+              <text x={mx} y={y - 26} textAnchor="middle" dominantBaseline="central" fill="var(--color-slate-200)" fontSize={11.5} fontWeight={500}>{text}</text>
             </g>
           );
         })}

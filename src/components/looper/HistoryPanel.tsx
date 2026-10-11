@@ -3,8 +3,8 @@
 import { useSyncExternalStore } from "react";
 import Icon from "@/components/Icon";
 import type { LooperEngine } from "@/lib/looper/engine";
+import { ibtn } from "@/components/controls";
 
-const ibtn = "grid h-8 min-w-8 place-items-center rounded-lg border border-slate-700 bg-slate-900 px-1.5 text-xs text-slate-200 transition hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 
 const clock = (t: number) => new Date(t).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
 

@@ -8,9 +8,10 @@ import { engineId, guessNote, NOTE_RANGE, nextFreeNote } from "./model/project";
 import type { SampleMeta } from "./model/types";
 import type { Capabilities } from "./server/providers";
 import { useSampler } from "./useSampler";
+import Slider from "@/components/Slider";
+import { btnSm as btn } from "@/components/controls";
 
 const SETTINGS = "musickit.sampler.settings";
-const btn = "inline-flex items-center justify-center gap-1 rounded-md border border-slate-700 px-2 py-1 text-xs text-slate-200 hover:border-slate-500 disabled:opacity-40";
 const field = "rounded-md border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-slate-100";
 
 interface Settings {
@@ -254,11 +255,11 @@ export default function SamplerApp() {
               <input className={`${field} w-40`} value={instrument.label} aria-label="Instrument name" onChange={(e) => s.renameInstrument(instrument.id, e.target.value)} />
               <label className="flex items-center gap-1" title="Fade in, seconds">
                 <Icon name="activity" size={12} />
-                <input type="range" min={0} max={1} step={0.01} value={instrument.attack} aria-label="Attack" onChange={(e) => s.setEnvelope(instrument.id, Number(e.target.value), instrument.release)} />
+                <Slider min={0} max={1} step={0.01} value={instrument.attack} aria-label="Attack" onChange={(v) => s.setEnvelope(instrument.id, v, instrument.release)} />
               </label>
               <label className="flex items-center gap-1" title="Fade out, seconds">
                 <Icon name="volume-1" size={12} />
-                <input type="range" min={0.02} max={3} step={0.01} value={instrument.release} aria-label="Release" onChange={(e) => s.setEnvelope(instrument.id, instrument.attack, Number(e.target.value))} />
+                <Slider min={0.02} max={3} step={0.01} value={instrument.release} aria-label="Release" onChange={(v) => s.setEnvelope(instrument.id, instrument.attack, v)} />
               </label>
             </div>
             <ul className="flex max-h-[28rem] flex-col gap-1 overflow-auto">

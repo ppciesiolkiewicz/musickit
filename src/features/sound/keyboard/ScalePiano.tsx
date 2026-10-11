@@ -5,8 +5,8 @@ import Icon from "@/components/Icon";
 import { createPlayer } from "../engine/player";
 import { useInstrumentOptions } from "../engine/useInstrumentOptions";
 import { MAX_OCTAVE, MIN_OCTAVE, NOTE_NAMES, SCALES, buildKeyMap, clampState, scalePitchClasses, type KeyNote, type ScalePianoState } from "./scaleKeys";
+import { ibtn } from "@/components/controls";
 
-const ibtn = "grid h-8 min-w-8 place-items-center rounded-lg border border-slate-700 bg-slate-900 px-1.5 text-xs text-slate-200 transition hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 const field = "h-8 rounded-md border border-slate-700 bg-slate-900 px-2 text-xs text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 
 /** indent of each keyboard row, in key widths, like a real keyboard */
@@ -160,17 +160,17 @@ function MiniPiano({ lowest, inScale, root, down }: { lowest: number; inScale: S
   const w = 100 / whites.length;
   const fill = (semi: number, black: boolean) => {
     const pc = semi % 12;
-    if (down.has(lowest + semi)) return "#fbbf24";
-    if (pc === root) return "#38bdf8";
-    if (inScale.has(pc)) return black ? "#64748b" : "#cbd5e1";
-    return black ? "#0f172a" : "#1e293b";
+    if (down.has(lowest + semi)) return "var(--color-amber-400)";
+    if (pc === root) return "var(--color-sky-400)";
+    if (inScale.has(pc)) return black ? "var(--color-slate-500)" : "var(--color-slate-300)";
+    return black ? "var(--color-slate-900)" : "var(--color-slate-800)";
   };
   return (
     <svg viewBox="0 0 100 18" className="w-full" role="img" aria-label="Notes of the scale on a piano" preserveAspectRatio="none" height={56}>
-      {whites.map((s, i) => <rect key={s} x={i * w + 0.1} y={0} width={w - 0.2} height={18} rx={0.8} fill={fill(s, false)} stroke="#334155" strokeWidth={0.15} />)}
+      {whites.map((s, i) => <rect key={s} x={i * w + 0.1} y={0} width={w - 0.2} height={18} rx={0.8} fill={fill(s, false)} stroke="var(--color-slate-700)" strokeWidth={0.15} />)}
       {Array.from({ length: span }, (_, s) => s).filter((s) => BLACK.has(s % 12)).map((s) => {
         const left = whites.indexOf(s - 1);
-        return <rect key={s} x={(left + 1) * w - w * 0.3} y={0} width={w * 0.6} height={11} rx={0.6} fill={fill(s, true)} stroke="#020617" strokeWidth={0.15} />;
+        return <rect key={s} x={(left + 1) * w - w * 0.3} y={0} width={w * 0.6} height={11} rx={0.6} fill={fill(s, true)} stroke="var(--color-slate-950)" strokeWidth={0.15} />;
       })}
     </svg>
   );

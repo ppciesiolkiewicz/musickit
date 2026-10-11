@@ -40,7 +40,7 @@ const STEPS: { n: number; title: string; blurb: string; tools: Tool[] }[] = [
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-950 px-3 py-6 text-slate-200 sm:px-5">
+    <div className="app-bg min-h-screen px-3 py-6 text-slate-200 sm:px-5">
       <main className="mx-auto flex w-full max-w-4xl flex-col gap-6">
         <SiteNav active="/" />
         <header className="flex flex-col gap-3">

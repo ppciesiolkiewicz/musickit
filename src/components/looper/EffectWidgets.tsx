@@ -6,8 +6,8 @@ import { EffectControls } from "./EffectsModal";
 import { busPath } from "./PatchNode";
 import { dropPins, movePin, togglePin, usePins, type FxPin } from "./fxPins";
 import { EFFECT_DEFS, type EffectSpec, type LooperEngine, type LooperSnapshot } from "@/lib/looper/engine";
+import { tbtn } from "@/components/controls";
 
-const tbtn = "grid h-6 min-w-6 place-items-center rounded-md border border-slate-700/80 bg-slate-900/80 px-1 text-[10px] text-slate-300 transition hover:border-slate-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 
 export interface Resolved {
   pin: FxPin;
@@ -42,7 +42,7 @@ function resolve(engine: LooperEngine, snap: LooperSnapshot, pins: FxPin[]): { s
         stale.push(pin.key);
         continue;
       }
-      shown.push({ pin, fx, where: "Master", colour: "#e2e8f0", param: (key, value) => engine.do({ type: "fx.param", target: { master: true }, id: fx.id, key, value }), bypass: () => engine.do({ type: "fx.bypass", target: { master: true }, id: fx.id, bypass: !fx.bypass }) });
+      shown.push({ pin, fx, where: "Master", colour: "var(--color-slate-200)", param: (key, value) => engine.do({ type: "fx.param", target: { master: true }, id: fx.id, key, value }), bypass: () => engine.do({ type: "fx.bypass", target: { master: true }, id: fx.id, bypass: !fx.bypass }) });
     } else if (kind === "i") {
       const inp = snap.inputs.find((x) => String(x.id) === owner);
       if (!inp) continue;
@@ -51,7 +51,7 @@ function resolve(engine: LooperEngine, snap: LooperSnapshot, pins: FxPin[]): { s
         stale.push(pin.key);
         continue;
       }
-      shown.push({ pin, fx, where: inp.name, colour: "#94a3b8", param: (key, value) => engine.do({ type: "fx.param", target: { input: inp.id }, id: fx.id, key, value }), bypass: () => engine.do({ type: "fx.bypass", target: { input: inp.id }, id: fx.id, bypass: !fx.bypass }) });
+      shown.push({ pin, fx, where: inp.name, colour: "var(--color-slate-400)", param: (key, value) => engine.do({ type: "fx.param", target: { input: inp.id }, id: fx.id, key, value }), bypass: () => engine.do({ type: "fx.bypass", target: { input: inp.id }, id: fx.id, bypass: !fx.bypass }) });
     } else if (kind === "e") {
       const n = snap.patch.nodes.find((x) => x.id === owner && x.kind === "fx");
       if (!n) continue;
@@ -60,7 +60,7 @@ function resolve(engine: LooperEngine, snap: LooperSnapshot, pins: FxPin[]): { s
         stale.push(pin.key);
         continue;
       }
-      shown.push({ pin, fx, where: busPath(snap, n), colour: "#94a3b8", param: (key, value) => engine.do({ type: "fx.param", target: { element: n.id }, id: fx.id, key, value }), bypass: () => engine.do({ type: "fx.bypass", target: { element: n.id }, id: fx.id, bypass: !fx.bypass }) });
+      shown.push({ pin, fx, where: busPath(snap, n), colour: "var(--color-slate-400)", param: (key, value) => engine.do({ type: "fx.param", target: { element: n.id }, id: fx.id, key, value }), bypass: () => engine.do({ type: "fx.bypass", target: { element: n.id }, id: fx.id, bypass: !fx.bypass }) });
     }
   }
   return { shown, stale };
@@ -102,7 +102,7 @@ export function PinBody({ r }: { r: Resolved }) {
 }
 
 /**
- * The effects pinned to the stage, in the fixed layout (the canvas views show them as canvas widgets instead). Each is a small panel with
+ * The effects pinned to a stage (no view uses this now: the fixed layout leaves them out and the canvas shows them as canvas widgets). Each is a small panel with
  * the effect's full controls. Drag the title to move it; the controls change the real effect on its bus or input, live. `drag` is the stage's pointer-drag helper (stage units).
  */
 export default function EffectWidgets({ engine, snap, drag }: { engine: LooperEngine; snap: LooperSnapshot; drag: (e: RPointerEvent, onMove: (dx: number, dy: number) => void) => void }) {
@@ -110,7 +110,7 @@ export default function EffectWidgets({ engine, snap, drag }: { engine: LooperEn
   return (
     <>
       {shown.map((r) => (
-        <section key={r.pin.key} className={`absolute z-10 flex w-[330px] flex-col gap-1.5 rounded-xl border bg-slate-900/95 p-2 shadow-lg ${r.fx.bypass ? "opacity-70" : ""}`} style={{ left: r.pin.x, top: r.pin.y, borderColor: `${r.colour}99` }} aria-label={`${EFFECT_DEFS[r.fx.kind].name} on ${r.where}`}>
+        <section key={r.pin.key} className={`absolute z-10 flex w-[330px] flex-col gap-1.5 rounded-xl border bg-slate-900/95 p-2 shadow-lg ${r.fx.bypass ? "opacity-70" : ""}`} style={{ left: r.pin.x, top: r.pin.y, borderColor: `color-mix(in oklab, ${r.colour} 60%, transparent)` }} aria-label={`${EFFECT_DEFS[r.fx.kind].name} on ${r.where}`}>
           <div
             className="flex cursor-grab items-center gap-1.5 active:cursor-grabbing"
             style={{ touchAction: "none" }}

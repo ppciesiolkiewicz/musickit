@@ -222,7 +222,6 @@ describe("degree labels", () => {
 });
 
 import { shapesForChord, carouselStep } from "./chordShapes";
-import { shapeSemitones } from "./shapeTools";
 describe("chord shapes for a mode chord", () => {
   it("every chord of every major-family mode in C has shapes, all containing its 3rd", () => {
     for (let m = 0; m < 7; m++) {

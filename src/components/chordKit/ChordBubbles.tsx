@@ -145,12 +145,12 @@ function Bubble({ ctx, ch, onPlay, items, onToggle }: { ctx: KeyContext; ch: Deg
   };
   const cur = itemOf(shown ?? "hub");
   const all = Object.keys(pops).filter((k) => k.startsWith("leaf-")).map(itemOf).filter((x): x is CompareItem => x !== null);
-  const ring = (id: string) => (shown === id ? { stroke: "#f8fafc", strokeWidth: 2.5 } : {});
+  const ring = (id: string) => (shown === id ? { stroke: "var(--color-slate-50)", strokeWidth: 2.5 } : {});
 
   return (
     <div className="flex flex-col items-center gap-3 md:flex-row md:items-start">
       <svg viewBox={`0 0 ${cellW} ${cellH}`} className="w-full max-w-[34rem] shrink-0 md:w-[34rem]" role="group" aria-label={`${ch.seventhName}: sus and extension chords reachable from ${ch.triadName}`}>
-        <text x={cx} y={20} textAnchor="middle" fontSize={13} fontWeight={500} fill="#cbd5e1">{ch.roman} · {ch.triadName}</text>
+        <text x={cx} y={20} textAnchor="middle" fontSize={13} fontWeight={500} fill="var(--color-slate-300)">{ch.roman} · {ch.triadName}</text>
         {ch.formula.map((lab, i) => {
           const sw = swatchFor(lab);
           const px = cx + (i - 1.5) * 32;
@@ -162,7 +162,7 @@ function Bubble({ ctx, ch, onPlay, items, onToggle }: { ctx: KeyContext; ch: Deg
             </Hot>
           );
         })}
-        <text x={cx} y={68} textAnchor="middle" fontSize={11} fill="#94a3b8">scale degrees {ch.degrees.join(" · ")}</text>
+        <text x={cx} y={68} textAnchor="middle" fontSize={11} fill="var(--color-slate-400)">scale degrees {ch.degrees.join(" · ")}</text>
 
         {ch.slots.map((b, i) => {
           if (!b) return null;
@@ -203,7 +203,7 @@ function Bubble({ ctx, ch, onPlay, items, onToggle }: { ctx: KeyContext; ch: Deg
                 const lid = `leaf-${i}-${j}`;
                 return (
                   <Hot key={j} id={lid} label={pops[lid].title} active={shown === lid} onHover={setHover} onPin={onPin}>
-                    <circle cx={lx} cy={ly} r={leafR} fill="#0f172a" stroke={lineCol} strokeWidth={1.2} strokeDasharray={kid.dashed ? "4 3" : undefined} {...ring(lid)} />
+                    <circle cx={lx} cy={ly} r={leafR} fill="var(--color-slate-900)" stroke={lineCol} strokeWidth={1.2} strokeDasharray={kid.dashed ? "4 3" : undefined} {...ring(lid)} />
                     <text x={lx} y={ly} textAnchor="middle" dominantBaseline="central" fontSize={fontFor(kid.text)} fontWeight={500} fill={hue.text} pointerEvents="none">{kid.text}</text>
                   </Hot>
                 );

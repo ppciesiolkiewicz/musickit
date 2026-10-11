@@ -5,8 +5,9 @@ import Icon from "../Icon";
 import EffectsModal from "./EffectsModal";
 import LevelMeter from "./LevelMeter";
 import type { LooperEngine, LooperSnapshot } from "@/lib/looper/engine";
+import Slider from "@/components/Slider";
+import { tbtn } from "@/components/controls";
 
-const tbtn = "grid h-6 min-w-6 place-items-center rounded-md border border-slate-700/80 bg-slate-900/80 px-1 text-[10px] text-slate-300 transition hover:border-slate-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 const MASTER = { master: true } as const;
 
 /** The effects of the master bus, which is the global output: everything the looper plays passes through it. */
@@ -35,7 +36,7 @@ export default function MasterControls({ engine, snap }: { engine: LooperEngine;
   return (
     <>
       <LevelMeter vertical getLevel={getMaster} />
-      <input type="range" min={0} max={1.5} step={0.01} value={snap.masterVolume} onChange={(e) => engine.do({ type: "master.volume", value: Number(e.target.value) })} className="w-24 accent-sky-400" aria-label="Master volume" title={`Master ${Math.round(snap.masterVolume * 100)}%`} />
+      <Slider min={0} max={1.5} step={0.01} value={snap.masterVolume} onChange={(v) => engine.do({ type: "master.volume", value: v })} className="w-24" aria-label="Master volume" title={`Master ${Math.round(snap.masterVolume * 100)}%`} />
       <button type="button" className={`${tbtn} ${snap.masterMuted ? "!border-amber-400 !text-amber-200" : ""}`} aria-pressed={snap.masterMuted} onClick={() => engine.do({ type: "master.mute", on: !snap.masterMuted })} title={snap.masterMuted ? "Unmute the master bus" : "Mute the master bus"} aria-label="Mute the master bus">M</button>
       <button type="button" className={`${tbtn} relative`} onClick={() => setFx(true)} title={`Effects on the master bus${n ? ` (${n})` : ""}`} aria-label="Effects of the master bus">
         <Icon name="audio-lines" size={13} />

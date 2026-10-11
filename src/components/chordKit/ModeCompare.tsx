@@ -53,28 +53,28 @@ export default function ModeCompare({ tonicPc }: { tonicPc: number }) {
         <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ minWidth: Math.min(W, 640) }} role="img" aria-label="Which notes each mode has">
           {cmp.columns.map((c, i) => (
             <g key={c.semi}>
-              {c.core && <rect x={left + i * colW + 2} y={top - 30} width={colW - 4} height={n * rowH + 36} rx={10} fill="#1e293b" opacity={0.7} />}
-              <text x={cx(i)} y={top - 36} textAnchor="middle" fontSize={11} fontWeight={600} fill={c.core ? "#e2e8f0" : "#94a3b8"}>{c.label}</text>
-              <text x={cx(i)} y={top - 20} textAnchor="middle" fontSize={9.5} fill={c.core ? "#94a3b8" : "#64748b"}>{c.core ? "core" : `${c.count} of ${n}`}</text>
+              {c.core && <rect x={left + i * colW + 2} y={top - 30} width={colW - 4} height={n * rowH + 36} rx={10} fill="var(--color-slate-800)" opacity={0.7} />}
+              <text x={cx(i)} y={top - 36} textAnchor="middle" fontSize={11} fontWeight={600} fill={c.core ? "var(--color-slate-200)" : "var(--color-slate-400)"}>{c.label}</text>
+              <text x={cx(i)} y={top - 20} textAnchor="middle" fontSize={9.5} fill={c.core ? "var(--color-slate-400)" : "var(--color-slate-500)"}>{c.core ? "core" : `${c.count} of ${n}`}</text>
               <title>{`${c.label}: ${c.who.join(", ")}`}</title>
             </g>
           ))}
           {cmp.modes.map((m, r) => (
             <g key={m.name}>
-              <text x={left - 10} y={ry(r)} textAnchor="end" dominantBaseline="central" fontSize={12} fill="#e2e8f0">{m.ctx.names[0]} {m.name}</text>
+              <text x={left - 10} y={ry(r)} textAnchor="end" dominantBaseline="central" fontSize={12} fill="var(--color-slate-200)">{m.ctx.names[0]} {m.name}</text>
               {cmp.columns.map((c, i) => {
                 const cell = noteAt(m, c.semi);
-                if (!cell) return <circle key={c.semi} cx={cx(i)} cy={ry(r)} r={3} fill="#334155" />;
+                if (!cell) return <circle key={c.semi} cx={cx(i)} cy={ry(r)} r={3} fill="var(--color-slate-700)" />;
                 const added = !c.core;
                 const lab = scaleToneLabel(system, m.ctx, cell.index);
                 return (
                   <g key={c.semi}>
-                    <circle cx={cx(i)} cy={ry(r)} r={16} fill={degreeColour(cell.index)} opacity={added ? 1 : 0.55} stroke={added ? "#f8fafc" : "none"} strokeWidth={2} />
+                    <circle cx={cx(i)} cy={ry(r)} r={16} fill={degreeColour(cell.index)} opacity={added ? 1 : 0.55} stroke={added ? "var(--color-slate-50)" : "none"} strokeWidth={2} />
                     <text x={cx(i)} y={ry(r)} textAnchor="middle" dominantBaseline="central" fontSize={lab.length > 2 ? 10 : 12} fontWeight={700} fill="#0f172a">{lab}<title>{cell.name}</title></text>
                   </g>
                 );
               })}
-              <text x={left + cmp.columns.length * colW + 10} y={ry(r)} dominantBaseline="central" fontSize={10.5} fill="#94a3b8">
+              <text x={left + cmp.columns.length * colW + 10} y={ry(r)} dominantBaseline="central" fontSize={10.5} fill="var(--color-slate-400)">
                 {cmp.added[m.name].length ? "adds " + cmp.added[m.name].map((s) => cmp.columns.find((c) => c.semi === s)!.label).join(" ") : "core only"}
               </text>
             </g>

@@ -46,9 +46,9 @@ export function fretGeometry(from: number, to: number, colW = 56, rowH = 38): Fr
   };
 }
 
-const BOARD = "#0d1526";
+const BOARD = "var(--color-slate-950)";
 const FRET = "#3a4a66";
-const NUT = "#cbd5e1";
+const NUT = "var(--color-slate-300)";
 const STRING = ["#a8b3c4", "#a8b3c4", "#98a4b8", "#8693a8", "#7a869b", "#6e7a8f"];
 
 /** The board itself. Draw note dots after it, inside the same <svg>. */
@@ -77,12 +77,12 @@ export function FretboardBase({ g, markerSize = 6 }: { g: FretGeometry; markerSi
       {Array.from({ length: 6 }, (_, s) => (
         <g key={s}>
           <line x1={boardL + 4} x2={boardR - 4} y1={sy(s)} y2={sy(s)} stroke={STRING[s]} strokeWidth={0.8 + (5 - s) * 0.32} opacity={0.75} />
-          <text x={left - 14} y={sy(s)} textAnchor="middle" dominantBaseline="central" fontSize={11} fill="#64748b">{STRING_NAMES[s]}</text>
+          <text x={left - 14} y={sy(s)} textAnchor="middle" dominantBaseline="central" fontSize={11} fill="var(--color-slate-500)">{STRING_NAMES[s]}</text>
         </g>
       ))}
       {Array.from({ length: cols }, (_, i) => {
         const f = from + i;
-        return <text key={f} x={fx(f)} y={boardB + 18} textAnchor="middle" fontSize={11} fill={f === 0 ? "#64748b" : "#94a3b8"}>{f === 0 ? "open" : f}</text>;
+        return <text key={f} x={fx(f)} y={boardB + 18} textAnchor="middle" fontSize={11} fill={f === 0 ? "var(--color-slate-500)" : "var(--color-slate-400)"}>{f === 0 ? "open" : f}</text>;
       })}
     </g>
   );

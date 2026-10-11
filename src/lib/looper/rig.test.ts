@@ -7,8 +7,8 @@ import { DEFAULT_GROUPS } from "./layout";
 import { INPUT_PRESETS } from "./inputPresets";
 import { EFFECT_DEFS } from "./effects";
 
-const links = (actions: { type: string }[]) => actions.flatMap((a) => (a.type === "patch.link" ? [(a as { link: { id: string; from: string; to: string; port?: string; muted?: boolean } }).link] : []));
-const nodes = (actions: { type: string }[]) => actions.flatMap((a) => (a.type === "patch.node" ? [(a as { node: { id: string; kind: string; owner?: string; effects?: { kind: keyof typeof EFFECT_DEFS }[] } }).node] : []));
+const links = (actions: { type: string }[]) => actions.flatMap((a) => (a.type === "patch.link" ? [(a as unknown as { link: { id: string; from: string; to: string; port?: string; muted?: boolean } }).link] : []));
+const nodes = (actions: { type: string }[]) => actions.flatMap((a) => (a.type === "patch.node" ? [(a as unknown as { node: { id: string; kind: string; owner?: string; effects?: { kind: keyof typeof EFFECT_DEFS }[] } }).node] : []));
 
 describe("starter rig", () => {
   const r = starterRig({ input: "in:3", groups: ["g1", "g2", "g3"], directLinks: ["rec:3:g1", "rec:3:g2", "rec:3:g3"] });

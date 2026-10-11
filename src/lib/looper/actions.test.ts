@@ -27,6 +27,7 @@ function fake() {
   const list = (tg: FxTarget) => ("master" in tg ? s.masterEffects : "group" in tg ? gr(tg.group)?.effects : "element" in tg ? s.patch.nodes.find((n) => n.id === tg.element)?.effects : s.inputs.find((i) => i.id === tg.input)?.effects);
   const t: ActionTarget = {
     getSnapshot: () => s,
+    setSequencerStep: () => {},
     setVolume: (id, v) => { ch(id).volume = v; },
     toggleMute: (id) => { ch(id).muted = !ch(id).muted; },
     toggleSolo: (id) => { ch(id).solo = !ch(id).solo; },
@@ -38,7 +39,7 @@ function fake() {
     patchLink: (l) => { if (s.patch.links.some((x) => x.id === l.id)) return false; s.patch.links.push({ ...l, muted: l.muted === true }); return true; },
     patchUnlink: (id) => { s.patch.links = s.patch.links.filter((l) => l.id !== id); },
     patchMute: (what, id, muted) => { const x = what === "link" ? s.patch.links.find((l) => l.id === id) : s.patch.nodes.find((n) => n.id === id); if (x) x.muted = muted; },
-    patchAdd: (n) => { if (s.patch.nodes.some((m) => m.id === n.id)) return false; s.patch.nodes.push({ id: n.id, kind: n.kind, muted: n.muted, x: n.x, y: n.y, ...(n.name ? { name: n.name } : {}), ...(n.effects ? { effects: n.effects } : {}), ...(n.kind === "switch" ? { inMulti: n.inMulti === true, outMulti: n.outMulti === true } : {}) }); return true; },
+    patchAdd: (n) => { if (s.patch.nodes.some((m) => m.id === n.id)) return false; s.patch.nodes.push({ id: n.id, kind: n.kind, muted: n.muted, x: n.x, y: n.y, ...(n.name ? { name: n.name } : {}), ...(n.effects ? { effects: n.effects } : {}) }); return true; },
     patchRemove: (id) => { s.patch.nodes = s.patch.nodes.filter((n) => n.id !== id); s.patch.links = s.patch.links.filter((l) => l.from !== id && l.to !== id); },
     patchMove: (id, x, y) => { const n = s.patch.nodes.find((m) => m.id === id); if (n) Object.assign(n, { x, y }); },
     patchSwitch: (id, side, multi) => { const n = s.patch.nodes.find((m) => m.id === id); if (n) n[side === "in" ? "inMulti" : "outMulti"] = multi; },

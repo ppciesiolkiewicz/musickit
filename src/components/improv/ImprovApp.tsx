@@ -4,8 +4,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Icon from "../Icon";
 import { NOTE_NAMES, RHYTHM_RATIOS, SCALES, degreeMidi, findScale, interference, invert, makeChallenge, noteName, permutations, retrograde, rotations, type Challenge } from "@/lib/improv/schillinger";
 import { playMelody, silence, startDrone, startLoop, type Hit, type Loop } from "./sound";
+import Slider from "@/components/Slider";
+import { ibtn } from "@/components/controls";
 
-const ibtn = "grid h-8 min-w-8 place-items-center rounded-lg border border-slate-700 bg-slate-900 px-2 text-xs text-slate-200 transition hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 const field = "h-8 rounded-md border border-slate-700 bg-slate-900 px-2 text-xs text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 const card = "flex flex-col gap-2 rounded-xl border border-slate-800 bg-slate-900/40 p-3";
 const H2 = ({ icon, children }: { icon: Parameters<typeof Icon>[0]["name"]; children: string }) => <h2 className="flex items-center gap-2 text-sm font-medium text-slate-100"><Icon name={icon} className="text-sky-300" />{children}</h2>;
@@ -81,8 +82,8 @@ function RhythmLab() {
   }, [loop]);
 
   const rows: { label: string; pts: number[]; col: string; key: keyof typeof parts }[] = [
-    { label: `${a}`, pts: it.a, col: "#38bdf8", key: "a" },
-    { label: `${b}`, pts: it.b, col: "#fbbf24", key: "b" },
+    { label: `${a}`, pts: it.a, col: "var(--color-sky-400)", key: "a" },
+    { label: `${b}`, pts: it.b, col: "var(--color-amber-400)", key: "b" },
     { label: "=", pts: it.r, col: "#f472b6", key: "r" },
   ];
   return (
@@ -93,7 +94,7 @@ function RhythmLab() {
         <span>against</span>
         <select className={field} value={b} onChange={(e) => setB(Number(e.target.value))} aria-label="Second pulse">{[2, 3, 4, 5, 6, 7, 8, 9].map((n) => <option key={n}>{n}</option>)}</select>
         <span className="ml-2">one bar of 4 beats at</span>
-        <input type="range" min={50} max={160} value={bpm} onChange={(e) => setBpm(Number(e.target.value))} className="w-28 accent-sky-400" aria-label="Tempo" />
+        <Slider min={50} max={160} value={bpm} onChange={(v) => setBpm(v)} className="w-28" aria-label="Tempo" />
         <span className="w-14 tabular-nums">{bpm} bpm</span>
         <button type="button" className={`${ibtn} ml-auto`} onClick={() => (on ? stop() : start(cycleSeconds, hitsFor(a, b, parts)))} aria-pressed={on} title={on ? "Stop" : "Play"} aria-label={on ? "Stop" : "Play"}><Icon name={on ? "square" : "play"} fill /></button>
       </div>

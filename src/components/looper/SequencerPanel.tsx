@@ -3,8 +3,8 @@
 import { useEffect, useRef } from "react";
 import Icon from "../Icon";
 import { INSTRUMENTS, type LooperEngine, type LooperSnapshot } from "@/lib/looper/engine";
+import { ibtn } from "@/components/controls";
 
-const ibtn = "grid h-8 min-w-8 place-items-center rounded-lg border border-slate-700 bg-slate-900 px-1.5 text-xs text-slate-200 transition hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 const field = "h-8 rounded-md border border-slate-700 bg-slate-900 px-2 text-xs text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 
 /** The step grid for the sequencer input: pick the instrument and a pattern, click steps (click again for an accent, again to clear). */
@@ -26,7 +26,7 @@ function Grid({ engine, snap, id, sq, seq }: { engine: LooperEngine; snap: Loope
       const p = seq.position();
       heads.current.forEach((el, i) => {
         if (!el) return;
-        el.style.background = p === i ? "#fbbf24" : "";
+        el.style.background = p === i ? "var(--color-amber-400)" : "";
         el.style.color = p === i ? "#0f172a" : "";
       });
       raf = requestAnimationFrame(tick);

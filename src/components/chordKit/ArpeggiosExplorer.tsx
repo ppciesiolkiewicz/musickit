@@ -40,7 +40,7 @@ export function ArpNeck({ cells, arp, overlay, labelSystem, badges, onNote }: { 
           const t = labelSystem === "note" ? c.name : noteLabel(labelSystem === "chord" ? "interval" : labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText });
           return (
             <g key={`${c.string}-${c.fret}`} opacity={op() * 0.9} onClick={() => onNote(c)} style={{ cursor: "pointer" }}>
-              <circle cx={x} cy={y} r={9} fill="#0d1526" stroke={col} strokeWidth={1.6} />
+              <circle cx={x} cy={y} r={9} fill="var(--color-slate-950)" stroke={col} strokeWidth={1.6} />
               <text x={x} y={y + 0.5} textAnchor="middle" dominantBaseline="central" fontSize={t.length > 2 ? 7 : 8.5} fontWeight={600} fill={col} pointerEvents="none">{t}</text>
             </g>
           );
@@ -49,8 +49,8 @@ export function ArpNeck({ cells, arp, overlay, labelSystem, badges, onNote }: { 
           const x = g.fx(c.fret), y = g.sy(c.string), isRoot = c.arp!.role === "R", label = labelFor(c);
           return (
             <g key={`${c.string}-${c.fret}`} opacity={op()} onClick={() => onNote(c)} style={{ cursor: "pointer" }}>
-              <circle cx={x} cy={y} r={14} fill={c.inScale ? colour(c) : "#1b0b12"} stroke={isRoot ? "#ffffff" : c.inScale ? "#0d1526" : OUT} strokeWidth={isRoot ? 2.8 : c.inScale ? 1.5 : 2} strokeDasharray={c.inScale ? undefined : "3.5 2.5"} />
-              <text x={x} y={y + 0.5} textAnchor="middle" dominantBaseline="central" fontSize={label.length > 2 ? 9.5 : 12} fontWeight={700} fill={c.inScale ? "#0b1220" : "#fecdd3"} pointerEvents="none">{label}</text>
+              <circle cx={x} cy={y} r={14} fill={c.inScale ? colour(c) : "#1b0b12"} stroke={isRoot ? "#ffffff" : c.inScale ? "var(--color-slate-950)" : OUT} strokeWidth={isRoot ? 2.8 : c.inScale ? 1.5 : 2} strokeDasharray={c.inScale ? undefined : "3.5 2.5"} />
+              <text x={x} y={y + 0.5} textAnchor="middle" dominantBaseline="central" fontSize={label.length > 2 ? 9.5 : 12} fontWeight={700} fill={c.inScale ? "#0d1526" : "#fecdd3"} pointerEvents="none">{label}</text>
             </g>
           );
         })}
@@ -82,7 +82,7 @@ function ArpBox({ cells, win, overlay, labelSystem, badges, onNote }: { cells: N
           const t = labelSystem === "note" ? c.name : noteLabel(labelSystem === "chord" ? "interval" : labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText });
           return (
             <g key={`${c.string}-${c.fret}`} opacity={0.9} onClick={() => onNote(c)} style={{ cursor: "pointer" }}>
-              <circle cx={x} cy={y} r={9} fill="#0d1526" stroke={col} strokeWidth={1.6} />
+              <circle cx={x} cy={y} r={9} fill="var(--color-slate-950)" stroke={col} strokeWidth={1.6} />
               <text x={x} y={y + 0.5} textAnchor="middle" dominantBaseline="central" fontSize={t.length > 2 ? 7 : 8.5} fontWeight={600} fill={col} pointerEvents="none">{t}</text>
             </g>
           );
@@ -91,8 +91,8 @@ function ArpBox({ cells, win, overlay, labelSystem, badges, onNote }: { cells: N
           const x = g.sx(c.string), y = g.fy(c.fret), isRoot = c.arp!.role === "R", label = lab(c);
           return (
             <g key={`${c.string}-${c.fret}`} onClick={() => onNote(c)} style={{ cursor: "pointer" }}>
-              <circle cx={x} cy={y} r={14} fill={c.inScale ? colour(c) : "#1b0b12"} stroke={isRoot ? "#ffffff" : c.inScale ? "#0d1526" : OUT} strokeWidth={isRoot ? 2.8 : c.inScale ? 1.5 : 2} strokeDasharray={c.inScale ? undefined : "3.5 2.5"} />
-              <text x={x} y={y + 0.5} textAnchor="middle" dominantBaseline="central" fontSize={label.length > 2 ? 9.5 : 12} fontWeight={700} fill={c.inScale ? "#0b1220" : "#fecdd3"} pointerEvents="none">{label}</text>
+              <circle cx={x} cy={y} r={14} fill={c.inScale ? colour(c) : "#1b0b12"} stroke={isRoot ? "#ffffff" : c.inScale ? "var(--color-slate-950)" : OUT} strokeWidth={isRoot ? 2.8 : c.inScale ? 1.5 : 2} strokeDasharray={c.inScale ? undefined : "3.5 2.5"} />
+              <text x={x} y={y + 0.5} textAnchor="middle" dominantBaseline="central" fontSize={label.length > 2 ? 9.5 : 12} fontWeight={700} fill={c.inScale ? "#0d1526" : "#fecdd3"} pointerEvents="none">{label}</text>
             </g>
           );
         })}

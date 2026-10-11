@@ -10,9 +10,9 @@ import type { LooperEngine, LooperSnapshot } from "@/lib/looper/engine";
 interface Rect { x: number; y: number; w: number; h: number }
 interface Pt { x: number; y: number }
 
-const MUTED = "#64748b";
+const MUTED = "var(--color-slate-500)";
 /** The Looping widget always plays into the master: that route is drawn in this colour and cannot be changed. */
-const FIXED = "#cbd5e1";
+const FIXED = "var(--color-slate-300)";
 /** Sequencers and loops have no connector: sitting inside a group is their connection. */
 const OUT_KINDS: PatchKind[] = ["input", "piano", "synth", "fx", "switch", "tuner"];
 const TARGET_KINDS: PatchKind[] = ["fx", "switch", "tuner", "group", "master"];
@@ -253,7 +253,7 @@ export default function ConnectionLayer({ engine, snap, wrapper }: { engine: Loo
   const toMasterNow = useMemo(() => new Set(masterFeeds(patch, flowing)), [patch, flowing]);
   const handleColour = (id: string) => sendColours(id)[0] ?? MUTED;
   /** A fill for several colours side by side: hard stops of a gradient. */
-  const stops = (cs: string[], deg: number) => (cs.length < 2 ? cs[0] ?? "#020617" : `linear-gradient(${deg}deg, ${cs.map((c, i) => `${c} ${(i / cs.length) * 100}% ${((i + 1) / cs.length) * 100}%`).join(", ")})`);
+  const stops = (cs: string[], deg: number) => (cs.length < 2 ? cs[0] ?? "var(--color-slate-950)" : `linear-gradient(${deg}deg, ${cs.map((c, i) => `${c} ${(i / cs.length) * 100}% ${((i + 1) / cs.length) * 100}%`).join(", ")})`);
   const sel = drag?.from ?? menu;
   const menuRect = menu ? rects[menu] : undefined;
   const menuLeft = menuRect ? Math.max(4, Math.min(menuRect.x + menuRect.w + 14, (wrapper.current?.clientWidth ?? 9999) - 250)) : 0;
@@ -283,7 +283,7 @@ export default function ConnectionLayer({ engine, snap, wrapper }: { engine: Loo
                 <path key={c} d={d.path} fill="none" pointerEvents="none" stroke={c} strokeWidth={hot ? 3.5 : d.faint ? 1.5 : 2.75} strokeDasharray={n > 1 ? `${STRIPE} ${(n - 1) * STRIPE}` : undefined} strokeDashoffset={-k * STRIPE} opacity={d.faint ? 0.5 : 0.95} />
               ))}
               <circle cx={d.a.x} cy={d.a.y} r={3.5} fill={n > 1 ? `url(#${grad})` : d.colours[0]} opacity={op} pointerEvents="none" />
-              <polygon points={d.arrow} fill={n > 1 ? `url(#${grad})` : d.colours[0]} opacity={op} stroke={hot ? "#f8fafc" : "#020617"} strokeWidth={hot ? 1.5 : 0.75} role={d.fixed ? "img" : "button"} aria-label={d.label} style={{ pointerEvents: d.fixed ? "none" : "auto", cursor: "pointer" }} onPointerDown={pick}>
+              <polygon points={d.arrow} fill={n > 1 ? `url(#${grad})` : d.colours[0]} opacity={op} stroke={hot ? "var(--color-slate-50)" : "var(--color-slate-950)"} strokeWidth={hot ? 1.5 : 0.75} role={d.fixed ? "img" : "button"} aria-label={d.label} style={{ pointerEvents: d.fixed ? "none" : "auto", cursor: "pointer" }} onPointerDown={pick}>
                 <title>{d.label}</title>
               </polygon>
             </g>
@@ -319,7 +319,7 @@ export default function ConnectionLayer({ engine, snap, wrapper }: { engine: Loo
           <span key={`out:${id}`} className="pointer-events-auto absolute grid cursor-crosshair place-items-center" style={{ left: r.x + r.w - 7, top: r.y + r.h / 2 - 12, width: 24, height: 24, touchAction: "none" }} onPointerDown={startWire(id)} data-out={id} title={hasMenu(id) ? `${name(n)}: click to choose where it sends, drag to add a place` : `Drag from ${name(n)} to a group, chain, switch or the master`} role="button" aria-label={`Outputs of ${name(n)}`} aria-haspopup={hasMenu(id) ? "true" : undefined} aria-expanded={hasMenu(id) ? menu === id : undefined}>
             {/* the ring shows every colour it sends in; hollow when it sends nowhere */}
             <span className="grid place-items-center rounded-full" style={{ width: 14, height: 14, background: ring, outline: menu === id ? "2px solid #f8fafc" : undefined }}>
-              {!cs.length && <span className="rounded-full" style={{ width: 8, height: 8, background: "#020617" }} />}
+              {!cs.length && <span className="rounded-full" style={{ width: 8, height: 8, background: "var(--color-slate-950)" }} />}
             </span>
           </span>
         );

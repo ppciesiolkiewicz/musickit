@@ -73,7 +73,7 @@ const arrangements = (kinds: Record<string, string | undefined>, fedBy: Record<s
  * sequencers, whose settings are reached by clicking them), the master bus, every input, and each effect chain, switch and tuner are widgets you place anywhere.
  * There are no Mixer or bus sections. The wires between them are drawn over the page by `ConnectionLayer`.
  */
-export default function FreeBoard({ engine, snap, controls, keyboardOpen, onToggleKeyboard, openSeqs, onToggleSeq, openPianos, onTogglePiano, resetSignal }: { engine: LooperEngine; snap: LooperSnapshot; controls: ReactNode; keyboardOpen: boolean; onToggleKeyboard: () => void; openSeqs: string[]; onToggleSeq: (id: string) => void; openPianos: string[]; onTogglePiano: (id: string) => void; resetSignal: number }) {
+export default function FreeBoard({ engine, snap, controls, keyboardOpen, onToggleKeyboard, openSeqs, onToggleSeq, openPianos, onTogglePiano }: { engine: LooperEngine; snap: LooperSnapshot; controls: ReactNode; keyboardOpen: boolean; onToggleKeyboard: () => void; openSeqs: string[]; onToggleSeq: (id: string) => void; openPianos: string[]; onTogglePiano: (id: string) => void }) {
   const pinned = usePinned(engine, snap);
   const strips = snap.inputs.filter((i) => i.kind !== "sequencer");
   // buses that belong to an input live inside that input's block; only the stand-alone ones are widgets of their own
@@ -156,7 +156,7 @@ export default function FreeBoard({ engine, snap, controls, keyboardOpen, onTogg
 
   return (
     <>
-      <WidgetBoard storageKey="musickit.looper.board2" flush place="center" defaults={freeLayout(kinds, fedBy, feeds, ownerOf)} arrangements={arrangements(kinds, fedBy, feeds, ownerOf)} start="vertical" resetSignal={resetSignal} widgets={widgets} />
+      <WidgetBoard storageKey="musickit.looper.board2" flush place="center" defaults={freeLayout(kinds, fedBy, feeds, ownerOf)} arrangements={arrangements(kinds, fedBy, feeds, ownerOf)} start="vertical" widgets={widgets} />
     </>
   );
 }
