@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useMemo, useRef, useState, type PointerEvent as RPointerEvent, type RefObject } from "react";
 import Icon from "@/components/Icon";
+import { MasterEffects } from "./MasterOutput";
 import { patchName } from "./PatchNode";
 import { whyNot, type PatchKind, type PatchNode, type Port } from "@/lib/looper/patch";
 import { destinationPick, destinations, drawnFrom, fanShifts, flowingLinks, linkColour, masterFeeds, outSources, sendColours as sendColoursOf, outward, sidePoint, sidesFor, type Side } from "@/lib/looper/patchView";
@@ -53,6 +54,7 @@ export default function ConnectionLayer({ engine, snap, wrapper }: { engine: Loo
   const [menu, setMenu] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const [msg, setMsg] = useState<string | null>(null);
+  const [masterOpen, setMasterOpen] = useState(false);
 
   // measure the elements every other frame: layouts move (widgets are dragged, windows resize, the page scrolls)
   useEffect(() => {
@@ -328,9 +330,10 @@ export default function ConnectionLayer({ engine, snap, wrapper }: { engine: Loo
       {Object.entries(rects).map(([id, r]) => (toMasterNow.has(id) ? (
         <span key={`master:${id}`} className="absolute flex items-center gap-0.5 text-[10px] text-slate-400" style={{ left: r.x + r.w + 2, top: r.y + r.h / 2 + 13 }} title={`${nameOf(id)} plays to the master bus`}>
           <span aria-hidden>↳</span>
-          <span className="grid place-items-center rounded border border-slate-600 bg-slate-950 p-0.5 text-slate-200" role="img" aria-label="Master bus"><Icon name="audio-lines" size={12} /></span>
+          <button type="button" className="pointer-events-auto grid place-items-center rounded border border-slate-600 bg-slate-950 p-0.5 text-slate-200 hover:border-slate-400 hover:text-slate-50" onClick={() => setMasterOpen(true)} title="Open the master bus" aria-label="Open the master bus"><Icon name="audio-lines" size={12} /></button>
         </span>
       ) : null))}
+      {masterOpen && <MasterEffects engine={engine} snap={snap} onClose={() => setMasterOpen(false)} />}
       {menu && menuRect && (
         <div ref={menuRef} role="group" aria-label={`Where ${nameOf(menu)} sends`} className="pointer-events-auto absolute z-30 flex w-60 flex-col gap-0.5 rounded-lg border border-slate-600 bg-slate-950 p-1.5 text-xs text-slate-200 shadow-xl" style={{ left: menuLeft, top: Math.max(4, menuRect.y + menuRect.h / 2 - 16) }}>
           <div className="flex items-center gap-1 px-1 pb-1 text-[10px] uppercase tracking-wide text-slate-500">
