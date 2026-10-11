@@ -73,6 +73,8 @@ Run the tests with `npm test` (uses `npx tsx`; `chordKit.tonal.test.ts` also nee
 - `lib/chordKit/caged.ts` holds the logic. Each of the five forms is stored as fret offsets from its root fret (major: C A G E D; minor: Cm Am Gm Em Dm). `cagedBoxes(root, quality)` places each form at its lowest playable position and returns the boxes ordered up the neck (the order is always C A G E D, rotated to start where the key falls).
 - A box's fret window is the chord shape's span plus one fret either side, so neighbouring boxes overlap and the five cover the neck.
 - Layers inside a box: the chord shape itself, the arpeggio (triad or 7th), the pentatonic (major or minor) and the scale (major, or natural minor). Dot size shows the layer (chord and arpeggio largest, then pentatonic, then scale rings); colour is the scale degree, as on the other pages.
+- Whole-neck map: every chord tone on frets 0–17, with the five boxes as coloured lanes. Each string is coloured on its own: a lane starts at one of that string's notes and runs until the next (`laneAt`), frets before the first note take the first lane. The shape labels sit over the median start of each lane across the strings (`laneStarts`). Lanes are tinted more strongly on the light themes (`--lane-alpha` in `globals.css`).
+- Each box is a section framed in its lane colour (`Section` with `accent`): a coloured left edge and the title on its own band.
 - Related chords come from the chord explorer's shape library: easy and medium shapes on the same root whose every note lies inside the box.
 - `ChordDiagram` now draws open strings above the nut, which the open CAGED shapes need.
 

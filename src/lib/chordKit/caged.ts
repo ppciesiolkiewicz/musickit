@@ -197,3 +197,24 @@ export function boxChords(rootPc: number, quality: CagedQuality, box: CagedBox):
   return out.sort((a, b) => rank[a.shape.diff] - rank[b.shape.diff] || SUFFIXES[quality].indexOf(a.shape.suf) - SUFFIXES[quality].indexOf(b.shape.suf) || a.shape.id - b.shape.id);
 }
 
+
+/**
+ * The colour lane of fret `f` on one string of the whole-neck map, given the frets of that string's notes (ascending). Lane k starts at
+ * the string's k-th note and runs until the next one; frets before the first note are lane 0. Each string is counted on its own.
+ */
+export function laneAt(noteFrets: number[], f: number): number {
+  let lane = 0;
+  for (let k = 0; k < noteFrets.length && noteFrets[k] <= f; k++) lane = k;
+  return lane;
+}
+
+/** Where each of `lanes` lanes begins, for labelling the map: lane 0 at the nut, lane k at the median fret of the k-th note over the strings that have one. */
+export function laneStarts(strings: number[][], lanes: number, neckEnd = NECK_END): number[] {
+  return Array.from({ length: lanes }, (_, k) => {
+    if (k === 0) return 0;
+    const xs = strings.filter((r) => r.length > k).map((r) => r[k]).sort((a, b) => a - b);
+    if (!xs.length) return neckEnd;
+    const m = xs.length >> 1;
+    return xs.length % 2 ? xs[m] : Math.round((xs[m - 1] + xs[m]) / 2);
+  });
+}

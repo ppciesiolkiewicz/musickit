@@ -49,3 +49,8 @@ html.theme-fade *, html.theme-fade *::before, html.theme-fade *::after {
     outline-color: var(--color-sky-400);
   }
 }
+
+/* CAGED neck map lanes: light pages need a stronger tint for each lane to read as its colour. */
+:root[data-theme="light"], :root[data-theme="sandstorm"] {
+  --lane-alpha: 42%;
+}

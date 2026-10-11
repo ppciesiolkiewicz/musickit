@@ -11,7 +11,7 @@ import { fretWidthFactor } from "./Fretboard";
 import { DOT_INK, degreeColour } from "@/features/theory/scales";
 import { Chip, ChipRow, DegreeLegend, Info, Section } from "@/components/ui";
 import {
-  CAGED_THEORY, NECK_END, boxArpeggio, boxCells, boxChords, cagedBoxes, cagedContext, ladderMidi, layerNotes,
+  CAGED_THEORY, NECK_END, boxArpeggio, boxCells, boxChords, cagedBoxes, cagedContext, ladderMidi, laneAt, laneStarts, layerNotes,
   type ArpKind, type CagedBox, type CagedCell, type CagedQuality,
 } from "@/lib/chordKit/caged";
 import { STRING_SHORT } from "@/lib/chordKit/shapeTools";
@@ -140,31 +140,14 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem }: { b
   const sorted = [...boxes].sort((p, q) => p.from - q.from);
   const frets = Array.from({ length: NECK_END + 1 }, (_, f) => f);
   const cellAt = (s: number, f: number) => cells.find((c) => c.string === s && c.fret === f);
-  // Every string is cut into sections by its own notes: the first note's section is one colour on every string, the second note's section the next, and so on.
-  // A section runs from halfway to the previous note to halfway to the next one.
+  // Every string is cut into lanes by its own notes: lane k starts at the string's k-th note and runs until the next one (laneAt).
   const colour = (k: number) => LANE_COLOURS[k % LANE_COLOURS.length];
-  const rowNotes = (s: number) => cells.filter((c) => c.string === s).sort((p, q) => p.fret - q.fret);
-  const fillFor = (s: number, f: number): [string, string] => {
-    const row = rowNotes(s);
-    if (!row.length) return [colour(0), colour(0)];
-    const at = row.findIndex((c) => c.fret === f);
-    if (at >= 0) return [colour(at), colour(at)];
-    const nextI = row.findIndex((c) => c.fret > f);
-    if (nextI < 0) return [colour(row.length - 1), colour(row.length - 1)];
-    if (nextI === 0) return [colour(0), colour(0)];
-    const mid = (row[nextI - 1].fret + row[nextI].fret) / 2;
-    return f < mid ? [colour(nextI - 1), colour(nextI - 1)] : f > mid ? [colour(nextI), colour(nextI)] : [colour(nextI - 1), colour(nextI)];
-  };
-  // where each section starts on average, for the labels above
+  const rowFrets = useMemo(() => [0, 1, 2, 3, 4, 5].map((s) => cells.filter((c) => c.string === s).map((c) => c.fret).sort((p, q) => p - q)), [cells]);
   const SECTIONS = sorted.length;
-  const starts = Array.from({ length: SECTIONS }, (_, k) => {
-    if (k === 0) return 0;
-    const xs = [0, 1, 2, 3, 4, 5].map((s) => rowNotes(s)).filter((r) => r.length > k).map((r) => (r[k - 1].fret + r[k].fret) / 2 + 0.5);
-    return xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : NECK_END;
-  });
+  const starts = laneStarts(rowFrets, SECTIONS);
   const labelSpans = starts.map((st, k) => {
-    const from = Math.min(NECK_END, Math.round(st));
-    const to = k === SECTIONS - 1 ? NECK_END + 1 : Math.max(from + 1, Math.round(starts[k + 1]));
+    const from = Math.min(NECK_END, st);
+    const to = k === SECTIONS - 1 ? NECK_END + 1 : Math.max(from + 1, starts[k + 1]);
     return { k, from, to };
   });
   const COL0 = 2; // grid column 1 holds the string names
@@ -173,7 +156,7 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem }: { b
       <h2 className="mb-2 flex flex-wrap items-center gap-2 text-sm font-medium text-slate-100">
         <span>
           {keyName} {quality}: the five boxes up the neck
-          <Info label="Reading the map">Every note of the chord on the whole neck. Each coloured run of frets is one CAGED box, named after the open chord shape it is built around and numbered by position up the neck. Neighbouring boxes overlap by a fret or two; here they meet in the middle of the overlap. The pattern repeats after the 12th fret. Tap a note to hear it.</Info>
+          <Info label="Reading the map">Every note of the chord on the whole neck. Each colour is one CAGED box, named after the open chord shape it is built around and numbered by position up the neck. On every string a colour starts at a chord note and runs until the next one, so the first note on a string starts the first colour, the second note the second colour, and so on. The pattern repeats after the 12th fret. Tap a note to hear it.</Info>
         </span>
         <LabelSelect className="ml-auto" />
       </h2>
@@ -193,7 +176,7 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem }: { b
           ))}
           {[5, 4, 3, 2, 1, 0].flatMap((s, r) =>
             frets.map((f) => {
-              const [fl, fr] = fillFor(s, f), c = cellAt(s, f);
+              const fill = colour(laneAt(rowFrets[s], f)), c = cellAt(s, f);
               const line = "var(--color-slate-400)";
               return (
                 <div
@@ -201,7 +184,7 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem }: { b
                   className="grid place-items-center"
                   style={{
                     gridRow: r + 2, gridColumn: f + COL0,
-                    backgroundImage: `linear-gradient(${line}, ${line}), linear-gradient(90deg, ${fl}42 50%, ${fr}42 50%)`,
+                    backgroundImage: `linear-gradient(${line}, ${line}), linear-gradient(color-mix(in srgb, ${fill} var(--lane-alpha, 26%), transparent), color-mix(in srgb, ${fill} var(--lane-alpha, 26%), transparent))`,
                     backgroundSize: `100% ${0.8 + s * 0.32}px, 100% 100%`,
                     backgroundPosition: "center, 0 0",
                     backgroundRepeat: "no-repeat",
