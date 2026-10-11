@@ -37,7 +37,7 @@ export const resizeWidget = (r: WidgetRect, dw: number, dh: number, b: Bounds): 
 
 /** Tile the widgets into a grid that fills the board: as many columns as fit at a comfortable width, equal cells. */
 export const tileLayout: DefaultLayout = (ids, b) => {
-  const gap = 8;
+  const gap = 16;
   const n = Math.max(1, ids.length);
   const cols = Math.max(1, Math.min(n, Math.floor((b.w + gap) / (380 + gap))));
   const rows = Math.ceil(n / cols);
@@ -53,7 +53,7 @@ export const tileLayout: DefaultLayout = (ids, b) => {
 /** Side by side with the first taking a share of the width (the looper's Mixer and Looping). */
 export const splitLayout = (share: number): DefaultLayout => (ids, b) => {
   if (ids.length !== 2) return tileLayout(ids, b);
-  const gap = 8;
+  const gap = 16;
   const left = Math.round((b.w - gap) * share);
   return {
     [ids[0]]: clampWidget({ x: 0, y: 0, w: left, h: b.h }, b),

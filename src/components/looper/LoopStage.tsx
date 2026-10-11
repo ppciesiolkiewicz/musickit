@@ -48,7 +48,7 @@ const arrowStep = (e: RKeyboardEvent): [number, number] | null => {
 };
 
 /** The looping stage: loops are circles with a progress ring; coloured groups are boxes you can move and resize. A loop inside a group plays through that group's bus. */
-export default function LoopStage({ engine, snap, openSeqs, onToggleSeq, fill = false, patchSeq = false, pins = false }: { patchSeq?: boolean; /** effect widgets on the stage (the fixed layout); the canvas views show them as canvas widgets */ pins?: boolean; engine: LooperEngine; snap: LooperSnapshot; openSeqs: string[]; onToggleSeq: (id: string) => void; fill?: boolean }) {
+export default function LoopStage({ engine, snap, openSeqs, onToggleSeq, fill = false, patchSeq = false, pins = false, natural = false }: { patchSeq?: boolean; /** drawn at 100% whatever the widget size: resizing the widget shows more or less of the stage, never scales it (the canvas zoom does that) */ natural?: boolean; /** effect widgets on the stage (the fixed layout); the canvas views show them as canvas widgets */ pins?: boolean; engine: LooperEngine; snap: LooperSnapshot; openSeqs: string[]; onToggleSeq: (id: string) => void; fill?: boolean }) {
   const stage = useRef<HTMLDivElement>(null);
   const [fxFor, setFxFor] = useState<string | null>(null);
   const [editFor, setEditFor] = useState<number | null>(null);
@@ -82,7 +82,7 @@ export default function LoopStage({ engine, snap, openSeqs, onToggleSeq, fill = 
   }, []);
   // at 100% the part VIEW_W wide fills the widget; the rest of the stage is room to grow into (scroll or drag to reach it)
   const fit = Math.max(MIN_ZOOM, Math.min(4, (width - 2) / VIEW_W));
-  const scale = fit;
+  const scale = natural ? 1 : fit;
   // new effect widgets appear in the part of the stage you are looking at
   useEffect(() => {
     setPinSpawn(() => {
@@ -96,7 +96,7 @@ export default function LoopStage({ engine, snap, openSeqs, onToggleSeq, fill = 
     <div className={`flex flex-col gap-1 ${fill ? "min-h-0 flex-1" : ""}`}>
       <div className="flex items-center justify-end gap-1">
         <InfoTip label="Stage help">
-          <p><b>Size:</b> the stage fits its widget. Make the widget bigger or smaller by its corner, or zoom the whole canvas.</p>
+          <p><b>Size:</b> {natural ? "make the widget bigger or smaller by its corner to show more or less of the stage; zoom the canvas to make it all bigger." : "the stage fits its widget. Make the widget bigger or smaller by its corner, or zoom the whole canvas."}</p>
           <p><b>Move around:</b> scroll, or drag empty space on the stage.</p>
           <p><b>Effect widgets:</b> the round + button, Widgets, or the dashboard button on an effect.{pins ? " Its controls appear on the stage; drag the title to place it." : " It appears on the canvas."}</p>
         </InfoTip>

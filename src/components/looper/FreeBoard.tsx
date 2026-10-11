@@ -18,11 +18,8 @@ const COL_W = 340;
 /** How tall each kind of widget starts. */
 const startHeight = (id: string, kind: string | undefined) => (id === "master" ? 150 : kind === "switch" ? 320 : kind === "fx" ? 150 : kind === "tuner" ? 170 : kind === "pin" ? 280 : kind?.startsWith("input:") ? 230 + Number(kind.slice(6)) * 72 : 210);
 
-/** The Looping stage starts as wide as the screen (within reason) and tall enough to show its default groups whole. */
-const stageSize = (b: Bounds) => {
-  const w = Math.round(Math.max(900, Math.min(b.w, 1400)));
-  return { w, h: Math.round((w * VIEW_H) / VIEW_W) + 90 };
-};
+/** The Looping stage starts big enough to show its default groups whole at 100% (the stage never scales with its widget), plus its controls and padding. */
+const stageSize = () => ({ w: VIEW_W + 32, h: VIEW_H + 110 });
 
 /**
  * The widgets in the order the sound goes: inputs, then buses, switches and effects, then the Looping stage, then the master.
@@ -40,7 +37,7 @@ const flowBands = (ids: string[], kinds: Record<string, string | undefined>, fed
  * go under (vertical) or right of (horizontal) the widget they belong to (`ownerOf`: the Looping stage for a group's, the input, bus or master).
  */
 const flowLayout = (kinds: Record<string, string | undefined>, fedBy: Record<string, number>, feeds: Record<string, string[]>, ownerOf: Record<string, string>, opts: BandOptions & { wrapBy: number }) => (ids: string[], b: Bounds, current?: Layout): Layout => {
-  const stage = current?.stage ?? stageSize(b);
+  const stage = current?.stage ?? stageSize();
   const sizes = Object.fromEntries(ids.map((id) => [id, current?.[id] ?? (id === "stage" ? stage : { w: COL_W, h: startHeight(id, kinds[id]) })]));
   const owned = (id: string) => !!ownerOf[id] && ids.includes(ownerOf[id]);
   const bands = flowBands(ids, kinds, fedBy, owned);
@@ -59,13 +56,13 @@ const flowLayout = (kinds: Record<string, string | undefined>, fedBy: Record<str
 };
 
 /** Inputs on top, Looping below them, the master at the bottom: how the canvas starts. The wires are drawn over it. */
-const freeLayout = (kinds: Record<string, string | undefined>, fedBy: Record<string, number>, feeds: Record<string, string[]>, ownerOf: Record<string, string>): DefaultLayout => flowLayout(kinds, fedBy, feeds, ownerOf, { direction: "vertical", gap: 64, bandGap: 160, wrapBy: 1.5 });
+const freeLayout = (kinds: Record<string, string | undefined>, fedBy: Record<string, number>, feeds: Record<string, string[]>, ownerOf: Record<string, string>): DefaultLayout => flowLayout(kinds, fedBy, feeds, ownerOf, { direction: "vertical", gap: 96, bandGap: 200, wrapBy: 1.5 });
 
 const arrangements = (kinds: Record<string, string | undefined>, fedBy: Record<string, number>, feeds: Record<string, string[]>, ownerOf: Record<string, string>): Arrangement[] => [
-  { id: "vertical", label: "Vertical", hint: "Inputs on top, Looping below, the master at the bottom", icon: "rows-3", layout: flowLayout(kinds, fedBy, feeds, ownerOf, { direction: "vertical", gap: 64, bandGap: 160, wrapBy: 1.5 }) },
-  { id: "vertical-tight", label: "Vertical tight", hint: "The same, close together and no wider than Looping", icon: "rows-3", layout: flowLayout(kinds, fedBy, feeds, ownerOf, { direction: "vertical", gap: 12, bandGap: 36, wrapBy: 1 }) },
-  { id: "horizontal", label: "Horizontal", hint: "Inputs on the left, Looping in the middle, the master on the right", icon: "columns-3", layout: flowLayout(kinds, fedBy, feeds, ownerOf, { direction: "horizontal", gap: 64, bandGap: 160, wrapBy: 1.5 }) },
-  { id: "horizontal-tight", label: "Horizontal tight", hint: "The same, close together and no taller than Looping", icon: "columns-3", layout: flowLayout(kinds, fedBy, feeds, ownerOf, { direction: "horizontal", gap: 12, bandGap: 36, wrapBy: 1 }) },
+  { id: "vertical", label: "Vertical", hint: "Inputs on top, Looping below, the master at the bottom", icon: "rows-3", layout: flowLayout(kinds, fedBy, feeds, ownerOf, { direction: "vertical", gap: 96, bandGap: 200, wrapBy: 1.5 }) },
+  { id: "vertical-tight", label: "Vertical tight", hint: "The same, close together and no wider than Looping", icon: "rows-3", layout: flowLayout(kinds, fedBy, feeds, ownerOf, { direction: "vertical", gap: 32, bandGap: 72, wrapBy: 1 }) },
+  { id: "horizontal", label: "Horizontal", hint: "Inputs on the left, Looping in the middle, the master on the right", icon: "columns-3", layout: flowLayout(kinds, fedBy, feeds, ownerOf, { direction: "horizontal", gap: 96, bandGap: 200, wrapBy: 1.5 }) },
+  { id: "horizontal-tight", label: "Horizontal tight", hint: "The same, close together and no taller than Looping", icon: "columns-3", layout: flowLayout(kinds, fedBy, feeds, ownerOf, { direction: "horizontal", gap: 32, bandGap: 72, wrapBy: 1 }) },
 ];
 
 /**
@@ -120,7 +117,7 @@ export default function FreeBoard({ engine, snap, controls, openSeqs, onToggleSe
           <div className="flex flex-wrap items-center gap-2">
             {controls}
           </div>
-          <LoopStage engine={engine} snap={snap} openSeqs={openSeqs} onToggleSeq={onToggleSeq} fill patchSeq pins={false} />
+          <LoopStage engine={engine} snap={snap} openSeqs={openSeqs} onToggleSeq={onToggleSeq} fill natural patchSeq pins={false} />
         </section>
       ),
     },

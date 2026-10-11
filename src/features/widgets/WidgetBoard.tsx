@@ -399,7 +399,15 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
   const arrange = (a?: Arrangement) => {
     const layout = layoutRef.current;
     if (!layout || !vp) return;
-    const placed = a ? a.layout(widgets.map((w) => w.id), vp, layout) : defaults(widgets.map((w) => w.id), vp, layout);
+    // each widget at least as big as what it shows (content wider or taller than its box would sit under its neighbours)
+    const sized: Layout = { ...layout };
+    host.current?.querySelectorAll<HTMLElement>("[data-body]").forEach((el) => {
+      const id = el.dataset.body!;
+      const r = sized[id];
+      if (!r) return;
+      sized[id] = { ...r, w: Math.max(r.w, el.scrollWidth + 2), h: Math.max(r.h, el.scrollHeight + FIT_CHROME - 20) };
+    });
+    const placed = a ? a.layout(widgets.map((w) => w.id), vp, sized) : defaults(widgets.map((w) => w.id), vp, sized);
     const l: Layout = { ...layout };
     widgets.forEach((w) => { if (placed[w.id]) l[w.id] = inRange(placed[w.id]); });
     setLayout(l);
@@ -498,7 +506,7 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
                     </button>
                   )}
                 </div>
-                <div className="min-h-0 flex-1 touch-auto overflow-auto p-2.5" onPointerDown={(e) => {
+                <div data-body={w.id} className="min-h-0 flex-1 touch-auto overflow-auto p-2.5" onPointerDown={(e) => {
                   e.stopPropagation();
                   // working in a widget that is not selected lets go of the selection, so a later Delete does not surprise
                   if (!selectedRef.current.includes(w.id) && selectedRef.current.length) setSelected([]);

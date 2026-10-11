@@ -67,11 +67,10 @@ export default function ThemeSwitcher({ className = "" }: { className?: string }
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label={`Theme: ${current.label}`}
-        title="Theme"
-        className="flex h-8 items-center gap-1.5 rounded-lg border border-slate-700/80 sm:w-[7.5rem] bg-slate-900/70 px-2 text-xs text-slate-300 backdrop-blur transition hover:border-slate-500 hover:text-slate-100"
+        title={`Theme: ${current.label}`}
+        className="grid h-8 w-8 place-items-center rounded-lg border border-slate-700/80 bg-slate-900/70 text-xs text-slate-300 backdrop-blur transition hover:border-slate-500 hover:text-slate-100"
       >
         <Icon name="palette" size={14} />
-        <span className="hidden sm:inline">{current.label}</span>
       </button>
       {open && (
         <div role="menu" aria-label="Theme" className="absolute right-0 top-full z-[3000] mt-1.5 w-44 rounded-xl border border-slate-700 bg-slate-900/95 p-1 shadow-xl shadow-black/30 backdrop-blur">
