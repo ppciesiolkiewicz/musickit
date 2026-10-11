@@ -43,3 +43,6 @@ next-env.d.ts
 
 # local scratch (NAM zips etc.)
 /tmp
+
+# local NAM amp models
+/nam/
