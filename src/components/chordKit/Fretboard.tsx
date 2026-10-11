@@ -101,7 +101,7 @@ export function Badge({ x, y, r, text, colour }: { x: number; y: number; r: numb
   return (
     <g pointerEvents="none">
       <circle cx={bx} cy={by} r={6.5} fill={BOARD} stroke={colour} strokeWidth={1.5} />
-      <text x={bx} y={by + 0.5} textAnchor="middle" dominantBaseline="central" fontSize={text.length > 1 ? 6.8 : 8.2} fontWeight={700} fill="#f1f5f9">{text}</text>
+      <text x={bx} y={by + 0.5} textAnchor="middle" dominantBaseline="central" fontSize={text.length > 1 ? 6.8 : 8.2} fontWeight={700} fill="var(--color-slate-50)">{text}</text>
     </g>
   );
 }

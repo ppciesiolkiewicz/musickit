@@ -167,7 +167,7 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem }: { b
           role="group" aria-label="Chord tones on the whole neck with the five CAGED boxes marked"
         >
           {labelSpans.map(({ k, from, to }) => (
-            <div key={k} className="px-1 pb-1.5 text-center text-xs font-semibold" style={{ gridRow: 1, gridColumn: `${from + COL0} / ${to + COL0}`, color: colour(k) }}>
+            <div key={k} className={`flex whitespace-nowrap px-1 pb-1.5 text-xs font-semibold ${k === SECTIONS - 1 ? "justify-end" : "justify-center"}`} style={{ gridRow: 1, gridColumn: `${from + COL0} / ${to + COL0}`, color: colour(k) }}>
               {sorted[k].letter} shape · Position {k + 1}
             </div>
           ))}
