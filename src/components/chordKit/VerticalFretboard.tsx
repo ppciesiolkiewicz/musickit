@@ -18,8 +18,9 @@ export interface VGeometry {
   sx: (s: number) => number;
 }
 
-export function vGeometry(from: number, to: number, stringW = 38, rowH = 40): VGeometry {
-  const left = 30, top = 30, right = 16, bottom = 10;
+/** `right` leaves room for a second column of fret numbers (about 32). */
+export function vGeometry(from: number, to: number, stringW = 38, rowH = 40, right = 16): VGeometry {
+  const left = 30, top = 30, bottom = 10;
   const edge = (f: number) => {
     let y = top;
     for (let k = from; k < f; k++) y += rowH * boxRowFactor(k - from);
@@ -41,7 +42,8 @@ const NUT = "var(--color-slate-300)";
 const STRING = ["#a8b3c4", "#a8b3c4", "#98a4b8", "#8693a8", "#7a869b", "#6e7a8f"];
 
 /** The board. Draw note dots after it inside the same <svg>. */
-export function VerticalBoard({ g }: { g: VGeometry }) {
+/** `numbersRight` repeats the fret numbers on the right of the board (needs a geometry made with a wider `right`). */
+export function VerticalBoard({ g, numbersRight = false }: { g: VGeometry; numbersRight?: boolean }) {
   const { from, to, sx, edge, fy } = g;
   const boardL = sx(0) - 14, boardR = sx(5) + 14, boardT = edge(from), boardB = edge(to + 1);
   const single = [3, 5, 7, 9, 15, 17].filter((f) => f >= from && f <= to);
@@ -71,7 +73,13 @@ export function VerticalBoard({ g }: { g: VGeometry }) {
       ))}
       {Array.from({ length: to - from + 1 }, (_, i) => {
         const f = from + i;
-        return <text key={f} x={g.left - 4} y={fy(f)} textAnchor="end" dominantBaseline="central" fontSize={11} fill={f === 0 ? "var(--color-slate-500)" : "var(--color-slate-400)"}>{f === 0 ? "0" : f}</text>;
+        const fill = f === 0 ? "var(--color-slate-500)" : "var(--color-slate-400)";
+        return (
+          <g key={f}>
+            <text x={g.left - 4} y={fy(f)} textAnchor="end" dominantBaseline="central" fontSize={11} fill={fill}>{f}</text>
+            {numbersRight && <text x={boardR + 6} y={fy(f)} textAnchor="start" dominantBaseline="central" fontSize={11} fill={fill}>{f}</text>}
+          </g>
+        );
       })}
     </g>
   );

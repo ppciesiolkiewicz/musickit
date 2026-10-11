@@ -36,9 +36,9 @@ export const fretWidthFactor = (f: number): number => Math.max(0.7, 1.41 * 2 ** 
  */
 export const boxRowFactor = (i: number): number => Math.max(0.75, 1.4 * 0.88 ** Math.max(i, 0));
 
-export function fretGeometry(from: number, to: number, colW = 56, rowH = 38): FretGeometry {
+export function fretGeometry(from: number, to: number, colW = 56, rowH = 38, top = 22): FretGeometry {
   const cols = to - from + 1;
-  const left = 40, top = 22, right = 14, bottom = 38;
+  const left = 40, right = 14, bottom = 38;
   const edge = (f: number) => {
     let x = left;
     for (let k = from; k < f; k++) x += colW * fretWidthFactor(k);
@@ -59,7 +59,8 @@ const NUT = "var(--color-slate-300)";
 const STRING = ["#a8b3c4", "#a8b3c4", "#98a4b8", "#8693a8", "#7a869b", "#6e7a8f"];
 
 /** The board itself. Draw note dots after it, inside the same <svg>. */
-export function FretboardBase({ g, markerSize = 6 }: { g: FretGeometry; markerSize?: number }) {
+/** `numbersTop` repeats the fret numbers above the board (give the geometry a `top` of about 40 to make room). */
+export function FretboardBase({ g, markerSize = 6, numbersTop = false }: { g: FretGeometry; markerSize?: number; numbersTop?: boolean }) {
   const { from, to, cols, left, edge, fx, sy } = g;
   const boardL = left, boardR = edge(to + 1), boardT = sy(5) - 14, boardB = sy(0) + 14;
   const single = [3, 5, 7, 9, 15, 17].filter((f) => f >= from && f <= to);
@@ -89,7 +90,13 @@ export function FretboardBase({ g, markerSize = 6 }: { g: FretGeometry; markerSi
       ))}
       {Array.from({ length: cols }, (_, i) => {
         const f = from + i;
-        return <text key={f} x={fx(f)} y={boardB + 18} textAnchor="middle" fontSize={11} fill={f === 0 ? "var(--color-slate-500)" : "var(--color-slate-400)"}>{f === 0 ? "open" : f}</text>;
+        const fill = f === 0 ? "var(--color-slate-500)" : "var(--color-slate-400)";
+        return (
+          <g key={f}>
+            <text x={fx(f)} y={boardB + 18} textAnchor="middle" fontSize={11} fill={fill}>{f === 0 ? "open" : f}</text>
+            {numbersTop && <text x={fx(f)} y={boardT - 8} textAnchor="middle" fontSize={11} fill={fill}>{f === 0 ? "open" : f}</text>}
+          </g>
+        );
       })}
     </g>
   );

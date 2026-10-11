@@ -4,8 +4,9 @@ import { useMemo, useState } from "react";
 import { Chip, ChipRow, DegreeLegend, Info } from "@/components/ui";
 import { useLabelSystem } from "@/features/theory/useLabelSystem";
 import type { KeyContext } from "@/features/theory/theory";
-import { pentatonicOf, positionsFor, scaleCells, type PositionKind, type ScaleCell, type ScalePosition } from "@/lib/chordKit/scalePositions";
+import { pentatonicOf, positionLine, positionsFor, rootStrings, scaleCells, type PositionKind, type ScaleCell, type ScalePosition } from "@/lib/chordKit/scalePositions";
 import { PositionBox, ScaleNeck, cellKey } from "./ScaleNeck";
+import { STRING_NAMES } from "./Fretboard";
 import type { NotePlayer } from "./useNotePlayer";
 
 const playBtn = "rounded-full border border-emerald-500/70 bg-emerald-500/10 px-2.5 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25";
@@ -32,7 +33,8 @@ export default function ScaleOnGuitar({ ctx, player }: { ctx: KeyContext; player
   const onNote = (c: ScaleCell) => tap(cellKey(c), c.midi);
   const playPosition = (p: ScalePosition) => {
     setFocus(p.number);
-    const line = [...p.notes, ...p.notes.slice(0, -1).reverse()];
+    const up = positionLine(p);
+    const line = [...up, ...up.slice(0, -1).reverse()];
     play(line.map((c) => ({ key: cellKey(c), midi: c.midi })), 220);
   };
 
@@ -46,9 +48,9 @@ export default function ScaleOnGuitar({ ctx, player }: { ctx: KeyContext; player
       </h2>
 
       <div className="mb-3 flex flex-col gap-2">
-        <ChipRow label="Positions" info="Pentatonic boxes are the five shapes most players learn first: two notes on every string, so each is easy to finger. Three notes per string covers the full seven-note scale in seven positions; it suits fast runs. Either way, position 1 starts on the root on the low E string and each next position starts on the next note, so the shapes join up along the neck.">
+        <ChipRow label="Positions" info="Five positions cover the neck, and each is named by the strings its root is on (counting from the low E): 1 has it on E, D and high e; 2 on D and B; 3 on A and B; 4 on A and G; 5 on G, E and high e. Position 1 starts on the root on the low E string and the others climb from it, wrapping back down when they would run off the neck. Pentatonic boxes are the five-note shapes most players learn first, two notes per string. Full scale fills the mode's other two notes into the same five boxes (the CAGED scale shapes).">
           <Chip on={kind === "pentatonic"} onClick={() => { setKind("pentatonic"); setFocus(null); }}>{pent.name} boxes</Chip>
-          <Chip on={kind === "threeNps"} onClick={() => { setKind("threeNps"); setFocus(null); }}>Full scale, 3 notes per string</Chip>
+          <Chip on={kind === "scale"} onClick={() => { setKind("scale"); setFocus(null); }}>Full scale</Chip>
           <span className="mx-1 h-4 w-px bg-slate-700" aria-hidden />
           <Chip on={rings} onClick={() => setRings((v) => !v)}>Other scale notes</Chip>
         </ChipRow>
@@ -56,7 +58,7 @@ export default function ScaleOnGuitar({ ctx, player }: { ctx: KeyContext; player
           {kind === "pentatonic" ? (
             <>{pent.name}: <b className="text-slate-200">{pent.degrees.map((d) => ctx.names[d]).join(" ")}</b> <span className="tabular-nums">({pent.formula.join(" ")})</span>. {ctx.modeName} adds {[0, 1, 2, 3, 4, 5, 6].filter((d) => !pentDegrees.has(d)).map((d) => ctx.names[d]).join(" and ")}.</>
           ) : (
-            <>All seven notes, three on each string: <b className="text-slate-200">{ctx.names.join(" ")}</b>.</>
+            <>All seven notes, <b className="text-slate-200">{ctx.names.join(" ")}</b>, in the same five boxes as the {pent.name.toLowerCase()}.</>
           )}
         </p>
       </div>
@@ -71,7 +73,7 @@ export default function ScaleOnGuitar({ ctx, player }: { ctx: KeyContext; player
         )}
       </div>
 
-      <div className={`mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 ${kind === "pentatonic" ? "xl:grid-cols-5" : "xl:grid-cols-4"}`}>
+      <div className={`mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5`}>
         {positions.map((p) => {
           const on = focus === p.number;
           return (
@@ -79,7 +81,8 @@ export default function ScaleOnGuitar({ ctx, player }: { ctx: KeyContext; player
               <div className="flex flex-wrap items-center gap-2">
                 <button type="button" onClick={() => setFocus(on ? null : p.number)} aria-pressed={on} className="text-left text-sm font-medium text-slate-100 hover:text-sky-300" title="Light it up on the neck">
                   Position {p.number}
-                  <span className="block text-xs font-normal text-slate-500">frets {p.from}–{p.to} · from {ctx.names[p.startDegree]}</span>
+                  <span className="block text-xs font-normal text-slate-300">root on {rootStrings(p).map((s) => STRING_NAMES[s]).join(", ")}</span>
+                  <span className="block text-xs font-normal text-slate-500">frets {p.from}–{p.to}</span>
                 </button>
                 <button type="button" onClick={() => playPosition(p)} className={`${playBtn} ml-auto`}>▶ Play</button>
               </div>
@@ -88,7 +91,11 @@ export default function ScaleOnGuitar({ ctx, player }: { ctx: KeyContext; player
           );
         })}
       </div>
-      <p className="mt-2 text-xs text-slate-500">Play runs up the position from the lowest note and back down. Tap a position&apos;s name to see where it sits on the neck.</p>
+      <p className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
+        <span className="inline-flex items-center gap-1.5"><span className="inline-block h-3 w-3 rounded-full bg-slate-300" />{kind === "pentatonic" ? `in the ${pent.name.toLowerCase()}: played` : "in the position: played"}</span>
+        {rings && <span className="inline-flex items-center gap-1.5"><span className="inline-block h-3 w-3 rounded-full border-2 border-slate-400" />{kind === "pentatonic" ? `other notes of ${ctx.modeName}: not played` : "scale notes outside the position: not played"}</span>}
+        <span>Play runs up the position from its lowest note and back down. Tap a position&apos;s name to see it on the neck.</span>
+      </p>
     </section>
   );
 }

@@ -47,7 +47,7 @@ const isActive = (active: string | null, c: ScaleCell) => active !== null && (ac
 /** The whole neck, frets 0-17 (0-12 when compact), with every note of the scale. Tap a note to hear it. */
 export function ScaleNeck({ cells, big, rings = true, focus = null, active, labelSystem, onNote, compact = false, title }: NeckProps) {
   const to = compact ? 12 : SCALE_NECK_FRETS;
-  const g = compact ? fretGeometry(0, to, 34, 22) : fretGeometry(0, to, 54, 36);
+  const g = compact ? fretGeometry(0, to, 34, 22, 36) : fretGeometry(0, to, 54, 36, 42);
   const r = compact ? 8.5 : 14;
   const inFocus = new Set(focus?.notes.map(cellKey));
   const shown = cells.filter((c) => c.fret <= to && (big(c) || rings));
@@ -56,7 +56,7 @@ export function ScaleNeck({ cells, big, rings = true, focus = null, active, labe
   return (
     <div className="overflow-x-auto">
       <svg viewBox={`0 0 ${g.W} ${g.H}`} width="100%" style={{ minWidth: compact ? 440 : 820 }} role="img" aria-label={title}>
-        <FretboardBase g={g} markerSize={compact ? 4 : 6} />
+        <FretboardBase g={g} markerSize={compact ? 4 : 6} numbersTop />
         {shown.map((c) => (
           <Dot
             key={cellKey(c)} c={c} x={g.fx(c.fret)} y={g.sy(c.string)} r={r} ring={!big(c)}
@@ -71,13 +71,15 @@ export function ScaleNeck({ cells, big, rings = true, focus = null, active, labe
 
 /** One position as a vertical box: its notes as dots, and (optionally) the other scale notes inside its frets as rings. */
 export function PositionBox({ position, cells, rings, active, labelSystem, onNote }: { position: ScalePosition; cells: ScaleCell[]; rings: boolean; active: string | null; labelSystem: LabelSystem; onNote: (c: ScaleCell) => void }) {
-  const g = vGeometry(position.from, position.to);
+  // a box at the first fret also shows the open strings
+  const from = position.from <= 1 ? 0 : position.from;
+  const g = vGeometry(from, position.to, 38, 40, 34);
   const mine = new Set(position.notes.map(cellKey));
-  const extra = rings ? cells.filter((c) => c.fret >= position.from && c.fret <= position.to && !mine.has(cellKey(c))) : [];
+  const extra = rings ? cells.filter((c) => c.fret >= from && c.fret <= position.to && !mine.has(cellKey(c))) : [];
   const label = (c: ScaleCell) => noteLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText });
   return (
     <svg viewBox={`0 0 ${g.W} ${g.H}`} style={{ width: "100%", maxWidth: 260, height: "auto" }} className="mx-auto" role="img" aria-label={`Position ${position.number}, frets ${position.from} to ${position.to}`}>
-      <VerticalBoard g={g} />
+      <VerticalBoard g={g} numbersRight />
       {extra.map((c) => <Dot key={cellKey(c)} c={c} x={g.sx(c.string)} y={g.fy(c.fret)} r={14} ring label={label(c)} active={isActive(active, c)} dim={false} onNote={onNote} />)}
       {position.notes.map((c) => <Dot key={cellKey(c)} c={c} x={g.sx(c.string)} y={g.fy(c.fret)} r={14} ring={false} label={label(c)} active={isActive(active, c)} dim={false} onNote={onNote} />)}
     </svg>

@@ -1,7 +1,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { makeKeyContext } from "@/features/theory/theory";
-import { pentatonicOf, positionMidi, positionsFor, scaleCells, scaleLineMidi, scalePositions } from "./scalePositions";
+import { pentatonicOf, positionLine, positionMidi, positionsFor, rootStrings, scaleCells, scaleLineMidi } from "./scalePositions";
 
 const frets = (p: { notes: { string: number; fret: number }[] }) => [0, 1, 2, 3, 4, 5].map((s) => p.notes.filter((n) => n.string === s).map((n) => n.fret));
 
@@ -19,41 +19,57 @@ describe("pentatonicOf: the five-note scale inside a mode", () => {
   });
 });
 
-describe("scalePositions", () => {
+describe("five positions, named by the strings the root is on", () => {
   const aMinor = makeKeyContext(9, 0, 5);
+  const ROOTS = [[0, 2, 5], [2, 4], [1, 4], [1, 3], [0, 3, 5]]; // E D e · D B · A B · A G · E G e
 
-  it("A minor pentatonic position 1 is the classic box at the 5th fret", () => {
-    const [p1] = positionsFor(aMinor, "pentatonic");
-    assert.deepEqual(frets(p1), [[5, 8], [5, 7], [5, 7], [5, 7], [5, 8], [5, 8]]);
-    assert.equal(p1.from, 5);
-    assert.equal(p1.to, 8);
-  });
-
-  it("the five pentatonic boxes start on each note of the pentatonic, climbing the neck", () => {
+  it("A minor pentatonic: the classic five boxes, climbing from the 5th fret", () => {
     const boxes = positionsFor(aMinor, "pentatonic");
-    assert.equal(boxes.length, 5);
-    assert.deepEqual(boxes.map((b) => b.notes[0].fret), [5, 8, 10, 12, 15]);
-    assert.deepEqual(frets(boxes[1]), [[8, 10], [7, 10], [7, 10], [7, 9], [8, 10], [8, 10]]);
+    assert.deepEqual(boxes.map((b) => `${b.from}-${b.to}`), ["5-8", "7-10", "9-13", "12-15", "14-17"]);
+    assert.deepEqual(frets(boxes[0]), [[5, 8], [5, 7], [5, 7], [5, 7], [5, 8], [5, 8]]);
+    assert.deepEqual(boxes.map(rootStrings), ROOTS);
   });
 
-  it("three notes per string gives seven positions of 18 notes, all in the scale", () => {
-    const ps = positionsFor(makeKeyContext(0, 0, 0), "threeNps");
-    assert.equal(ps.length, 7);
-    for (const p of ps) {
-      assert.equal(p.notes.length, 18);
-      assert.ok(p.notes.every((n) => n.fret >= 0));
-      for (let k = 1; k < p.notes.length; k++) assert.ok(p.notes[k].midi > p.notes[k - 1].midi);
+  it("A minor scale position 1 is the 5th-position shape", () => {
+    assert.deepEqual(frets(positionsFor(aMinor, "scale")[0]), [[5, 7, 8], [5, 7, 8], [5, 7, 9], [5, 7], [5, 6, 8], [5, 7, 8]]);
+  });
+
+  it("major and minor pentatonic keep the root pattern in every key, and stay at two notes per string away from the nut", () => {
+    for (let pc = 0; pc < 12; pc++) for (const m of [0, 1, 2, 3, 4, 5]) {
+      positionsFor(makeKeyContext(pc, 0, m), "pentatonic").forEach((p, i) => {
+        assert.ok(ROOTS[i].every((s) => rootStrings(p).includes(s)), `${pc} ${m} position ${i + 1}`);
+        if (p.from > 2) for (let s = 0; s < 6; s++) assert.equal(p.notes.filter((n) => n.string === s).length, 2);
+      });
     }
-    // G major position starting on G (3rd fret)
-    assert.deepEqual(frets(scalePositions(makeKeyContext(7, 0, 0), [0, 1, 2, 3, 4, 5, 6], 3)[0]), [[3, 5, 7], [3, 5, 7], [4, 5, 7], [4, 5, 7], [5, 7, 8], [5, 7, 8]]);
   });
 
-  it("no fret is ever negative and every box fits a playable span", () => {
+  it("next to the nut the open strings are part of the shape (E major position 1)", () => {
+    const [p1] = positionsFor(makeKeyContext(4, 0, 0), "pentatonic");
+    assert.deepEqual(frets(p1), [[0, 2, 4], [2, 4], [2, 4], [1, 4], [0, 2, 5], [0, 2, 4]]);
+  });
+
+  it("an odd pentatonic's box takes in the note one fret below it, so the root is not left out", () => {
+    const boxes = positionsFor(makeKeyContext(7, 1, 4), "pentatonic"); // G Phrygian dominant
+    assert.deepEqual(frets(boxes[1]), [[3, 4, 7], [5, 6], [5, 6], [4, 7], [3, 4, 8], [3, 4, 7]]);
+  });
+
+  it("in every key and mode: five positions, no fret below the nut or past 17, a playable span, the root pattern away from the nut", () => {
     for (let pc = 0; pc < 12; pc++) for (let f = 0; f < 3; f++) for (let m = 0; m < 7; m++) {
       const ctx = makeKeyContext(pc, f, m);
-      for (const kind of ["pentatonic", "threeNps"] as const) for (const p of positionsFor(ctx, kind)) {
-        assert.ok(p.from >= 0, `${pc} ${f} ${m} ${kind}`);
-        assert.ok(p.to - p.from <= 7, `${pc} ${f} ${m} ${kind} spans ${p.from}-${p.to}`);
+      for (const kind of ["pentatonic", "scale"] as const) {
+        const ps = positionsFor(ctx, kind);
+        const tag = `${pc} ${f} ${m} ${kind}`;
+        assert.equal(ps.length, 5, tag);
+        const places = ps.map((p) => p.notes.map((n) => `${n.string}-${n.fret}`).join(" "));
+        assert.equal(new Set(places).size, 5, `${tag} two positions are the same`);
+        ps.forEach((p, i) => {
+          assert.ok(p.from >= 0 && p.to <= 17, tag);
+          assert.ok(p.to - p.from <= 7, `${tag} spans ${p.from}-${p.to}`);
+          if (p.from > 2) assert.ok(ROOTS[i].every((s) => rootStrings(p).includes(s)), `${tag} position ${i + 1} roots ${rootStrings(p)}`);
+          if (kind === "scale") assert.equal(new Set(positionLine(p).map((n) => n.degree)).size, 7, `${tag} position ${i + 1} misses a note`);
+          const line = positionLine(p);
+          for (let k = 1; k < line.length; k++) assert.ok(line[k].midi > line[k - 1].midi, tag);
+        });
       }
     }
   });
