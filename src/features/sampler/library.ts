@@ -65,10 +65,11 @@ export const sampleLibrary = {
     }
     return sampleLibrary.addAudio(file, file.name, "upload");
   },
+  /** Audio first, then the list: instruments that rebuild on the change find the sample gone. */
   async remove(id: string) {
-    commit(P.removeSample(project, id));
-    forgetSample(id);
     await getStore().deleteAudio(id);
+    forgetSample(id);
+    commit(P.removeSample(project, id));
   },
   rename: (id: string, name: string) => commit(P.renameSample(project, id, name)),
   clearError: () => emit({ error: null }),

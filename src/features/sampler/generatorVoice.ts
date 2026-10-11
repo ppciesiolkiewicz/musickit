@@ -1,5 +1,6 @@
 import { createPlayer, registerRuntimeInstrument, unregisterRuntimeInstrument } from "@/features/sound";
 import { runtimeFor, sampleIds, type SoundSpec } from "./model/sound";
+import { sampleLibrary } from "./library";
 import { urlFor } from "./sampleUrls";
 import { getStore } from "./store/idb";
 import type { SamplerStore } from "./store/types";
@@ -18,14 +19,16 @@ let count = 0;
 /**
  * The looper's injected voice: a sample player into `destination` whose sound follows the spec. A piano spec plays a built-in
  * instrument; a sampler spec gets a hidden runtime instrument of its own, built from the library's audio (silent until it loads,
- * and for any sample that is missing).
+ * and for any sample that is missing). It rebuilds when the library changes, so a deleted sample goes silent at once.
  */
-export function makeGeneratorVoice(destination: AudioNode, spec: SoundSpec, store: SamplerStore = getStore()): GeneratorVoice {
+export function makeGeneratorVoice(destination: AudioNode, spec: SoundSpec, store: SamplerStore = getStore(), onLibraryChange: (fn: () => void) => () => void = sampleLibrary.subscribe): GeneratorVoice {
   const rid = `sampler:voice${++count}`;
   const player = createPlayer({ destination: () => destination });
   let token = 0;
   let ready: Promise<void> = Promise.resolve();
+  let current = spec;
   const setSound = (s: SoundSpec) => {
+    current = s;
     const mine = ++token;
     if (s.kind === "piano") {
       player.setInstrument(s.instrument);
@@ -41,6 +44,9 @@ export function makeGeneratorVoice(destination: AudioNode, spec: SoundSpec, stor
     })();
   };
   setSound(spec);
+  const unsubscribe = onLibraryChange(() => {
+    if (current.kind !== "piano") setSound(current);
+  });
   return {
     noteOn: (m, v) => player.noteOn(m, v),
     noteOff: (m) => player.noteOff(m),
@@ -52,6 +58,7 @@ export function makeGeneratorVoice(destination: AudioNode, spec: SoundSpec, stor
     },
     dispose: () => {
       token++;
+      unsubscribe();
       player.allOff();
       unregisterRuntimeInstrument(rid);
     },

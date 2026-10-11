@@ -11,3 +11,4 @@ export { makeGeneratorVoice, type GeneratorVoice } from "./generatorVoice";
 export { detectSampleRoot, previewSample, sampleLibrary, useSampleLibrary } from "./library";
 export type { SoundSpec } from "./model/sound";
 export type { SampleMeta } from "./model/types";
+export { default as SamplePicker } from "./SamplePicker";

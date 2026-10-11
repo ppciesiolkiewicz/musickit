@@ -18,7 +18,8 @@ import { INPUT_PRESETS, INPUT_ROLES, presetFor, type InputRole } from "@/lib/loo
 import { GUITAR_AMPS } from "@/lib/looper/rig";
 import InstrumentEdit from "./InstrumentEdit";
 import { useFold } from "./fold";
-import { CONTROLLER_ICON, generatorChip, type Inst } from "./instrumentView";
+import { CONTROLLER_ICON, generatorChip, instrumentMissing, type Inst } from "./instrumentView";
+import { useSampleLibrary } from "@/features/sampler";
 import Slider from "@/components/Slider";
 import { btnBaseSm as btn, btnSm as btnPlain, ibtn } from "@/components/controls";
 
@@ -343,6 +344,9 @@ export function InputStrip({ engine, inp, devices, anyDevice, sequencerOpen, onT
   const isDevice = inp.kind === "device";
   const [fxOpen, setFxOpen] = useState(false);
   const [editOpen, toggleEdit] = useFold(`in:${inp.id}:instrument`, false);
+  const lib = useSampleLibrary();
+  const haveSamples = new Set(lib.samples.map((x) => x.id));
+  const sampleNames = Object.fromEntries(lib.samples.map((x) => [x.id, x.name]));
   const grp = inp.kind === "sequencer" && seq && seq.dest !== "record" ? groups.find((g) => g.id === seq.groupId) : undefined;
   const state = inp.live ? "recording" : inp.muted ? "muted" : "silenced by solo";
   return (
@@ -350,7 +354,12 @@ export function InputStrip({ engine, inp, devices, anyDevice, sequencerOpen, onT
       <div className="flex flex-wrap items-center gap-1.5">
         <span title={state} className="text-slate-300"><Icon name={isDevice ? "mic" : inp.kind === "sequencer" ? "drum" : inst ? CONTROLLER_ICON[inst.controller] : "piano"} size={18} /></span>
         <input value={inp.name} onChange={(e) => engine.do({ type: "input.set", id: inp.id, patch: { name: e.target.value } })} aria-label="Input name" className="w-32 rounded-md border border-transparent bg-transparent px-1.5 py-0.5 text-sm font-medium text-slate-100 hover:border-slate-700 focus:border-slate-500 focus:outline-none" />
-        {inst && <span className="max-w-[9rem] truncate rounded-md border border-slate-700 px-1.5 py-0.5 text-[10px] text-slate-400" title="Sound generator">{generatorChip(inst)}</span>}
+        {inst && (
+          <span className="flex max-w-[9rem] items-center gap-1 truncate rounded-md border border-slate-700 px-1.5 py-0.5 text-[10px] text-slate-400" title="Sound generator">
+            {lib.ready && instrumentMissing(inst, haveSamples) && <span className="h-2 w-2 shrink-0 rounded-full bg-amber-400" title="A sample is missing" />}
+            <span className="truncate">{generatorChip(inst, sampleNames)}</span>
+          </span>
+        )}
         {inp.kind === "sequencer" && seq && <span className="flex h-6 min-w-[6.5rem] items-center justify-center gap-1 rounded-md border px-1.5 text-[10px] leading-none text-slate-300" style={{ borderColor: grp?.colour ?? "#334155" }} title="Where this sequencer plays: by the group its circle sits in">{grp && <span className="h-2 w-2 rounded-full" style={{ background: grp.colour }} />}→ {seq.dest === "record" ? "recorder" : grp?.name ?? "master"}</span>}
         {inp.kind !== "sequencer" && <span className="flex h-6 min-w-[6.5rem] items-center justify-center gap-1 rounded-md border border-slate-700 px-1.5 text-[10px] leading-none text-slate-400" title="Goes to the recorder, then into the loops"><Icon name="circle" size={10} className="text-rose-400" />rec</span>}
         <span aria-hidden title={state} className={`h-2 w-2 rounded-full ${inp.live ? "bg-emerald-400" : "bg-slate-600"}`} />
