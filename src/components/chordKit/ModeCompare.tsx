@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { Chip, ChipRow, Info } from "@/components/ui";
 import { MODE_GROUPS, compareModes, noteAt } from "@/features/theory/modeGroups";
-import { degreeColour } from "@/features/theory/scales";
+import { degreeColour, DOT_INK } from "@/features/theory/scales";
 import { scaleToneLabel } from "@/features/theory/labels";
 import { useLabelSystem } from "@/features/theory/useLabelSystem";
 
@@ -42,7 +42,7 @@ export default function ModeCompare({ tonicPc }: { tonicPc: number }) {
         <span className="text-xs uppercase tracking-wider text-slate-500">Core notes</span>
         {coreNames.map((c) => (
           <span key={c.semi} className="flex flex-col items-center gap-0.5">
-            <span className="flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold text-slate-950" style={{ background: degreeColour(c.index) }}>{c.name}</span>
+            <span className="flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold" style={{ background: degreeColour(c.index), color: DOT_INK }}>{c.name}</span>
             <span className="text-[10px] text-slate-500">{cmp.columns.find((x) => x.semi === c.semi)?.label}</span>
           </span>
         ))}

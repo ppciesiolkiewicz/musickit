@@ -8,7 +8,7 @@ import { intervalName, noteLabel, type LabelSystem } from "@/features/theory/lab
 import ChordDiagram from "./ChordDiagram";
 import { KeyPicker } from "./KeyPicker";
 import { fretWidthFactor } from "./Fretboard";
-import { degreeColour } from "@/features/theory/scales";
+import { DOT_INK, degreeColour } from "@/features/theory/scales";
 import { Chip, ChipRow, DegreeLegend, Info, Section } from "@/components/ui";
 import {
   CAGED_THEORY, NECK_END, boxArpeggio, boxCells, boxChords, cagedBoxes, cagedContext, ladderMidi, layerNotes,
@@ -95,7 +95,7 @@ function NotesTable({ rootPc, quality, arpKind }: { rootPc: number; quality: Cag
               {r.notes.map((n) => (
                 <div key={n.semi} className="flex w-10 flex-col items-center gap-1">
                   <span className="text-xs tabular-nums text-slate-400">{intervalName(n.semi)}</span>
-                  <span className={`grid h-9 w-9 place-items-center rounded-full text-sm font-bold text-slate-950 ${n.semi === 0 ? "ring-2 ring-white" : "ring-1 ring-slate-950"}`} style={{ backgroundColor: n.deg === null ? "#f43f5e" : degreeColour(n.deg) }}>{n.name}</span>
+                  <span className={`grid h-9 w-9 place-items-center rounded-full text-sm font-bold ${n.semi === 0 ? "ring-2 ring-slate-50" : "ring-1 ring-slate-950"}`} style={{ backgroundColor: n.deg === null ? "#f43f5e" : degreeColour(n.deg), color: DOT_INK }}>{n.name}</span>
                 </div>
               ))}
             </div>
@@ -215,8 +215,8 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem }: { b
                       type="button"
                       onClick={() => strum([c.midi], { gapMs: 0, holdMs: 700 })}
                       aria-label={`${lab(c)} on string ${STRING_LETTERS[s]}, fret ${f}`}
-                      className={`grid h-7 w-7 place-items-center rounded-full text-xs font-bold text-slate-950 ${c.isRoot ? "ring-2 ring-white" : "ring-1 ring-slate-950"}`}
-                      style={{ backgroundColor: c.scaleDegree === null ? "#f43f5e" : degreeColour(c.scaleDegree) }}
+                      className={`grid h-7 w-7 place-items-center rounded-full text-xs font-bold ${c.isRoot ? "ring-2 ring-slate-50" : "ring-1 ring-slate-950"}`}
+                      style={{ backgroundColor: c.scaleDegree === null ? "#f43f5e" : degreeColour(c.scaleDegree), color: DOT_INK }}
                     >
                       {lab(c)}
                     </button>
@@ -261,13 +261,14 @@ function BoxCard({ box, index, rootPc, quality, arpKind, labelSystem, badges, no
   return (
     <section id={`box-${box.letter}`} className="scroll-mt-4">
       <Section
-        title={<span><span className="mr-2 inline-block rounded px-1.5 text-slate-950" style={{ background: LANE_COLOURS[index % 5] }}>{box.letter}</span>{box.letter} shape · {box.chordName} chord</span>}
+        title={<span><span className="mr-2 inline-block rounded px-1.5" style={{ background: LANE_COLOURS[index % 5], color: DOT_INK }}>{box.letter}</span>{box.letter} shape · {box.chordName} chord</span>}
         info={<>The {box.letter} shape is the open {box.letter} chord form moved up the neck as a barre chord. Here it gives {box.chordName}. The box of notes around it, frets {box.from} to {box.to}, holds the arpeggio, scale and pentatonic.</>}
         meta={fretText}
+        accent={LANE_COLOURS[index % 5]}
       >
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {panels.map((p) => (
-            <div key={p.key} className="flex min-w-0 flex-col gap-1.5 rounded-xl border border-slate-800 bg-slate-950/50 p-2">
+            <div key={p.key} className="flex min-w-0 flex-col gap-1.5 rounded-xl border border-slate-800 bg-slate-950/70 p-2">
               <div className="flex items-center gap-2">
                 <h3 className="text-sm font-medium text-slate-100">{p.title}</h3>
                 <button type="button" className={`${play} ml-auto`} onClick={p.onPlay} aria-label={`Play the ${p.title}`}>▶ Play</button>

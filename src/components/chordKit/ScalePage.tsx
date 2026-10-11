@@ -8,7 +8,7 @@ import Link from "next/link";
 import { KeyPicker } from "./KeyPicker";
 import { Chip, DegreeLegend, Info } from "@/components/ui";
 import { FAMILIES, makeKeyContext } from "@/features/theory/theory";
-import { MODE_PAGES, chordMidi, modeChords, degreeColour, relativesOf, roleWithDegree, stepPattern } from "@/features/theory/scales";
+import { MODE_PAGES, chordMidi, modeChords, degreeColour, relativesOf, roleWithDegree, stepPattern, DOT_INK } from "@/features/theory/scales";
 import { strum } from "@/lib/chordKit/playback";
 import ChordShapeCarousel from "./ChordShapeCarousel";
 import ChordShapesModal from "./ChordShapesModal";
@@ -71,7 +71,7 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
         <div className="flex flex-wrap items-center gap-2" aria-label="Scale notes">
           {ctx.names.map((n, i) => (
             <div key={i} className="flex flex-col items-center gap-0.5">
-              <span className="flex h-11 w-11 items-center justify-center rounded-full text-sm font-semibold text-slate-950" style={{ background: degreeColour(i) }} title={n}>{scaleToneLabel(system, ctx, i)}</span>
+              <span className="flex h-11 w-11 items-center justify-center rounded-full text-sm font-semibold" style={{ background: degreeColour(i), color: DOT_INK }} title={n}>{scaleToneLabel(system, ctx, i)}</span>
               <span className="text-xs tabular-nums text-slate-500">{scaleToneCaption(system, ctx, i)}</span>
             </div>
           ))}
@@ -158,7 +158,7 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
                   <span className="flex flex-wrap gap-1.5">
                     {shown.map((n) => (
                       <span key={n.role + n.name} className="flex flex-col items-center">
-                        <span className="flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold text-slate-950" style={{ background: colour(n) }} title={n.name}>{chordNoteLabel(system, ctx, n)}</span>
+                        <span className="flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold" style={{ background: colour(n), color: DOT_INK }} title={n.name}>{chordNoteLabel(system, ctx, n)}</span>
                         <span className="text-[10px] text-slate-500">{system === "note" ? roleWithDegree(n.role) : n.name}</span>
                       </span>
                     ))}

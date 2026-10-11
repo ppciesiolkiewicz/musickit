@@ -9,7 +9,7 @@ import { KeyPicker } from "./KeyPicker";
 import ModeCompare from "./ModeCompare";
 import { DegreeLegend, Info } from "@/components/ui";
 import { FAMILIES, makeKeyContext } from "@/features/theory/theory";
-import { MODE_PAGES, degreeColour, degreeLabels, relativesOf } from "@/features/theory/scales";
+import { MODE_PAGES, degreeColour, degreeLabels, relativesOf, DOT_INK } from "@/features/theory/scales";
 
 const ORD = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th"];
 
@@ -74,7 +74,7 @@ export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey
                   {ctx.names.map((n, i) => (
                     <div key={i} className="flex flex-col items-center gap-0.5">
                       <span className="text-xs tabular-nums text-slate-400">{scaleToneCaption(system, ctx, i)}</span>
-                      <span className="flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold text-slate-950" style={{ background: degreeColour(i) }} title={n}>{scaleToneLabel(system, ctx, i)}</span>
+                      <span className="flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold" style={{ background: degreeColour(i), color: DOT_INK }} title={n}>{scaleToneLabel(system, ctx, i)}</span>
                     </div>
                   ))}
                 </div>

@@ -3,7 +3,7 @@
 import { Badge } from "./Fretboard";
 import { VerticalBoard, vGeometry } from "./VerticalFretboard";
 import type { CagedBox, CagedCell } from "@/lib/chordKit/caged";
-import { degreeColour } from "@/features/theory/scales";
+import { DOT_INK, degreeColour } from "@/features/theory/scales";
 import { fmtDegree, noteLabel, type LabelSystem } from "@/features/theory/labels";
 
 export interface Layers {
@@ -45,8 +45,8 @@ export default function BoxNeck({ cells, box, layers, labelSystem, badges = true
           const key = `${c.string}-${c.fret}`;
           return (
             <g key={key} onClick={() => onNote(c)} style={{ cursor: "pointer" }}>
-              <circle cx={x} cy={y} r={r} fill={colour} stroke={c.isRoot ? "#ffffff" : "var(--color-slate-950)"} strokeWidth={c.isRoot ? 2.5 : 1.5} />
-              <text x={x} y={y + 0.5} textAnchor="middle" dominantBaseline="central" fontSize={label.length > 2 ? 9.5 : 12.5} fontWeight={700} fill="#0d1526" pointerEvents="none">{label}</text>
+              <circle cx={x} cy={y} r={r} fill={colour} stroke={c.isRoot ? "var(--color-slate-50)" : "var(--color-slate-950)"} strokeWidth={c.isRoot ? 2.5 : 1.5} />
+              <text x={x} y={y + 0.5} textAnchor="middle" dominantBaseline="central" fontSize={label.length > 2 ? 9.5 : 12.5} fontWeight={700} fill={DOT_INK} pointerEvents="none">{label}</text>
             </g>
           );
         })}
@@ -55,7 +55,7 @@ export default function BoxNeck({ cells, box, layers, labelSystem, badges = true
         ))}
       </svg>
       <ul className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500" aria-label="Key to the dots">
-        <li className="flex items-center gap-1.5"><span className="inline-block h-3 w-3 rounded-full bg-slate-100 ring-2 ring-white/80 ring-offset-1 ring-offset-slate-900" />root</li>
+        <li className="flex items-center gap-1.5"><span className="inline-block h-3 w-3 rounded-full ring-2 ring-slate-50 ring-offset-1 ring-offset-slate-900" style={{ background: degreeColour(0) }} />root</li>
       </ul>
     </div>
   );

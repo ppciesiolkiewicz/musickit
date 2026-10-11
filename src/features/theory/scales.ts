@@ -29,6 +29,8 @@ export const findModePage = (slug: string) => MODE_PAGES.find((m) => m.slug === 
 export const DEGREE_COLOURS = ["#f1f5f9", "#2dd4bf", "#fbbf24", "#a3e635", "#60a5fa", "#c084fc", "#fb7185"];
 export const DEGREE_ROLES = ["tonic", "2nd", "3rd", "4th", "5th", "6th", "7th"];
 export const degreeColour = (n: number): string => DEGREE_COLOURS[((n % 7) + 7) % 7];
+/** Text on a degree-coloured dot. The dot colours are the same in every theme, so the ink is too (a theme colour turns white in light themes). */
+export const DOT_INK = "#0d1526";
 
 export interface ChordNote {
   /** note name, spelled for the key */
