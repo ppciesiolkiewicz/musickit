@@ -6,6 +6,7 @@
  *   modeGroups   comparing modes that share a tonic
  *   circle       the circle of fifths: order, key signatures, the chords of a key on the circle
  *   progressions the written progressions and what they become in a key
+ *   tunings      instruments and their open-string tunings, A4 reference pitches
  *   labels       how a note is shown: name, interval, degree or chord (the app-wide choice)
  *   useLabelSystem  the React store and dropdown for that choice
  */
@@ -15,3 +16,4 @@ export * from "./modeGroups";
 export * from "./circle";
 export * from "./progressions";
 export * from "./labels";
+export * from "./tunings";

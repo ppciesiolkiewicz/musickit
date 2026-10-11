@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Icon from "@/components/Icon";
 import type { PatchNode } from "@/lib/looper/patch";
 import type { LooperEngine, LooperSnapshot } from "@/lib/looper/engine";
 
@@ -26,7 +25,7 @@ const EVERY_MS = 80;
 
 /**
  * A tuner element of the patch: the note it hears, how many cents off, and a needle. Muted, it still listens but lets nothing through,
- * so you can tune in silence. Reads the engine's analyser for this element; opens no device.
+ * so you can tune in silence (the card's M button). Reads the engine's analyser for this element; opens no device.
  */
 export default function TunerWidget({ engine, snap, node: n }: { engine: LooperEngine; snap: LooperSnapshot; node: PatchNode }) {
   const [reading, setReading] = useState<{ hz: number; note: ReturnType<typeof noteOf> } | null>(null);
@@ -76,9 +75,7 @@ export default function TunerWidget({ engine, snap, node: n }: { engine: LooperE
         {reading && <polygon points={`${needle * 2 - 5},-4 ${needle * 2 + 5},-4 ${needle * 2},8`} fill={colour} />}
       </svg>
       <p className="h-4 text-[11px] tabular-nums text-slate-400">{reading ? `${reading.hz.toFixed(1)} Hz · ${cents > 0 ? "+" : ""}${Math.round(cents)} cents` : fed ? "Play a note" : "Wire something in"}</p>
-      <button type="button" className={`flex items-center gap-1 rounded border px-2 py-0.5 text-[11px] ${n.muted ? "border-amber-400/70 text-amber-200" : "border-slate-700 text-slate-300 hover:border-slate-500"}`} aria-pressed={n.muted} onClick={() => engine.do({ type: "patch.mute", what: "node", id: n.id, muted: !n.muted })} title={n.muted ? "Silent while you tune: click to let the sound through" : "Silence the output while you tune"}>
-        <Icon name={n.muted ? "volume-x" : "volume-2"} size={12} />{n.muted ? "Muted: tuning" : "Mute to tune"}
-      </button>
+      {n.muted && <p className="text-[10px] text-amber-200/80">Muted: tuning in silence</p>}
     </div>
   );
 }

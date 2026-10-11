@@ -9,6 +9,7 @@ import ScalesIndex from "@/components/chordKit/ScalesIndex";
 import TriadsExplorer from "@/components/chordKit/TriadsExplorer";
 import ImprovApp from "@/components/improv/ImprovApp";
 import CircleOfFifths from "@/components/theory/CircleOfFifths";
+import TuningsArticle from "@/components/theory/TuningsArticle";
 import { PROG_LIST } from "@/features/theory";
 import { useCreatorKey } from "../KeyProvider";
 
@@ -67,4 +68,8 @@ export function ArpeggiosFull() {
 
 export function ImprovFull() {
   return <ImprovApp />;
+}
+
+export function TuningsFull() {
+  return <TuningsArticle />;
 }

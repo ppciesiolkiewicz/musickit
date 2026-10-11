@@ -1,5 +1,7 @@
 /** Pitch detection (YIN) and note maths for the tuner. Pure functions, no browser APIs. */
 
+import { INSTRUMENTS, type TunerString } from "@/features/theory/tunings";
+
 export interface Pitch { freq: number; clarity: number }
 
 /** Fundamental frequency of a mono buffer, or null when it is too quiet or not clearly pitched. */
@@ -59,19 +61,12 @@ export function hzToNote(hz: number, a4 = 440): NoteReading {
   return { midi, name: NAMES[((midi % 12) + 12) % 12], octave: Math.floor(midi / 12) - 1, cents: (exact - midi) * 100, target: a4 * 2 ** ((midi - 69) / 12) };
 }
 
-export const GUITAR_STRINGS = [
-  { name: "E", octave: 2, midi: 40 },
-  { name: "A", octave: 2, midi: 45 },
-  { name: "D", octave: 3, midi: 50 },
-  { name: "G", octave: 3, midi: 55 },
-  { name: "B", octave: 3, midi: 59 },
-  { name: "e", octave: 4, midi: 64 },
-];
+export const GUITAR_STRINGS: TunerString[] = INSTRUMENTS.find((i) => i.id === "guitar")!.tunings[0].strings;
 
 /** The open string closest to a frequency, and the cents away from it. */
-export function nearestString(hz: number, a4 = 440): { index: number; cents: number } {
+export function nearestString(hz: number, a4 = 440, strings: TunerString[] = GUITAR_STRINGS): { index: number; cents: number } {
   let best = 0, bestAbs = Infinity, cents = 0;
-  GUITAR_STRINGS.forEach((s, i) => {
+  strings.forEach((s, i) => {
     const c = 1200 * Math.log2(hz / (a4 * 2 ** ((s.midi - 69) / 12)));
     if (Math.abs(c) < bestAbs) { bestAbs = Math.abs(c); best = i; cents = c; }
   });

@@ -10,7 +10,8 @@ import TriadsPlugin from "./TriadsPlugin";
 import CagedPlugin from "./CagedPlugin";
 import ArpeggiosPlugin from "./ArpeggiosPlugin";
 import ImprovPlugin from "./ImprovPlugin";
-import { ArpeggiosFull, CagedFull, ChordsFull, CircleFull, ImprovFull, ModesFull, ProgressionsFull, ScaleFull, TriadsFull } from "./full";
+import TuningsPlugin from "./TuningsPlugin";
+import { ArpeggiosFull, CagedFull, ChordsFull, CircleFull, ImprovFull, ModesFull, ProgressionsFull, ScaleFull, TriadsFull, TuningsFull } from "./full";
 
 /**
  * A creator plugin: a panel that follows the shared key (useCreatorKey) and shows a general page when there is none.
@@ -38,6 +39,7 @@ export const PLUGINS: PluginDef[] = [
   { id: "caged", title: "CAGED", icon: "rows-3", Component: CagedPlugin, Full: CagedFull },
   { id: "arpeggios", title: "Arpeggios", icon: "activity", Component: ArpeggiosPlugin, Full: ArpeggiosFull },
   { id: "improv", title: "Improvisation", icon: "drum", Component: ImprovPlugin, Full: ImprovFull },
+  { id: "tunings", title: "Tunings", icon: "gauge", Component: TuningsPlugin, Full: TuningsFull },
 ];
 
 export const DEFAULT_OPEN = ["scale", "chords", "circle", "keys"];

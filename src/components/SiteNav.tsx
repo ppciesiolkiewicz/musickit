@@ -16,6 +16,7 @@ export const THEORY_LINKS = [
   { href: "/theory/caged", label: "CAGED" },
   { href: "/theory/arpeggios", label: "Arpeggios" },
   { href: "/theory/improv", label: "Improv" },
+  { href: "/theory/tunings", label: "Tunings" },
   { href: "/theory/cheatsheet", label: "Cheatsheet builder" },
 ];
 

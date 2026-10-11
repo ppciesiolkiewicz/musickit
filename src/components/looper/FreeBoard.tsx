@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import Icon from "../Icon";
+import { tbtn } from "../controls";
 import LoopStage from "./LoopStage";
 import { InputStrip, MasterStrip } from "./Mixer";
 import { NodeBody, patchName } from "./PatchNode";
@@ -145,7 +146,7 @@ export default function FreeBoard({ engine, snap, controls, keyboardOpen, onTogg
       title: (
         <span className="flex min-w-0 flex-1 items-center gap-1.5">
           {title(n.kind === "switch" ? "split" : n.kind === "tuner" ? "gauge" : "sliders-horizontal", patchName(snap, n))}
-          <button type="button" className="ml-auto grid h-5 w-5 shrink-0 place-items-center rounded text-slate-400 hover:text-slate-100" aria-pressed={n.muted} onPointerDown={(e) => e.stopPropagation()} onClick={() => engine.do({ type: "patch.mute", what: "node", id: n.id, muted: !n.muted })} title={n.muted ? "Unmute" : "Mute"} aria-label={`${n.muted ? "Unmute" : "Mute"} ${patchName(snap, n)}`}><Icon name={n.muted ? "volume-x" : "volume-2"} size={13} /></button>
+          <button type="button" className={`${tbtn} ml-auto !h-5 !min-w-5 shrink-0 ${n.muted ? "!border-amber-400 !text-amber-200" : ""}`} aria-pressed={n.muted} onPointerDown={(e) => e.stopPropagation()} onClick={() => engine.do({ type: "patch.mute", what: "node", id: n.id, muted: !n.muted })} title={n.muted ? "Unmute" : n.kind === "tuner" ? "Mute: tune in silence" : "Mute"} aria-label={`Mute ${patchName(snap, n)}`}>M</button>
         </span>
       ),
       node: <NodeBody engine={engine} snap={snap} node={n} />,
