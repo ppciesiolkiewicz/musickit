@@ -17,8 +17,8 @@ Top nav (`components/SiteNav.tsx`): Home, Theory articles and Tuner on the left;
 |-------|---------|
 | `/theory/chords` | Chord explorer with three tabs: **Shapes**, **In a key**, **Progressions** |
 | `/theory/triads` | Closed triads and inversions by string group |
-| `/theory/scales?key=N` | All 21 modes in the chosen key: every scale degree and note, step pattern, relative major/minor and sibling modes, link to each mode page |
-| `/theory/scales/[slug]?key=N` | One mode: key picker, relatives, every chord with its notes |
+| `/theory/scales?key=N` | All 21 modes in the chosen key: every scale degree and note (tap to hear, Play runs the scale up and down), a fretboard of frets 0–12 per mode (toggle Fretboards), step pattern, relative major/minor and sibling modes, links to each mode page and its neck positions |
+| `/theory/scales/[slug]?key=N` | One mode: key picker, the scale on the guitar (whole neck and positions), relatives, every chord with its notes |
 | `/theory/caged` | The CAGED system, major and minor: the five chord forms (C A G E D) in any key, the fret box around each, and its chord, arpeggio, scale and pentatonic as toggleable layers, plus other chords that sit in the box |
 | `/theory/arpeggios` | Arpeggios over any key and any of the 21 modes, on the whole neck |
 | `/theory/circle` | Circle of fifths: majors with their key signatures, relative minors, diminished chords; pick a key to light its seven chords (with numerals) and see its signature, relative, parallel, dominant and subdominant; click to hear chords and the scale. Maths in `features/theory/circle.ts`, page in `components/theory/CircleOfFifths.tsx` |
@@ -44,6 +44,8 @@ Choose root, triad quality (major, minor, diminished, augmented) and string grou
 
 Key picker at the top (stored in `?key=` as a pitch class). Shows the scale coloured by degree, step pattern, relative major/minor (major family), parent scale, differences from the parallel major/minor, and links to the other modes with the same notes. Every diatonic chord lists its stacked notes (R 3 5 7, optionally 9 11 13) coloured by scale degree (1 white, 2 teal, 3 amber, 4 lime, 5 blue, 6 violet, 7 rose), so a note keeps one colour in every chord. Tap a chord to hear it.
 
+**On the guitar** (`#guitar`, `ScaleOnGuitar.tsx`, logic in `scalePositions.ts`): the whole neck (frets 0–17) with every note of the mode, coloured by degree, root ringed in white; tap a note to hear it. Two kinds of positions: **pentatonic boxes** (two notes per string, five boxes; the mode's pentatonic is 1 2 3 5 6 with a major 3rd, 1 ♭3 4 5 ♭7 with a minor 3rd, the same cut named by its formula when the mode has neither) and **three notes per string** (seven positions, the full scale). Position 1 starts on the root on the low E string, each next one on the next note, moving up an octave when that keeps them climbing the neck and still fits by fret 17. In pentatonic mode the other notes of the mode are rings (toggle "Other scale notes"). Each position is a vertical box with a Play button (up and back down, the sounding note lit on the box and the neck); tapping a position's name lights it up on the neck and fades the rest. Scale bubbles at the top are tappable and Play scale lights each one in turn.
+
 ## Arpeggios (`/theory/arpeggios`)
 
 Pick key and mode (all 21), then an arpeggio on any scale degree: one row of types, the scale's own triad, 7th or 9th chord, or any other quality (major, minor, dim, aug, maj7, 7, m7, m7♭5, dim7, m(maj7)) on that root. The neck (frets 0–17) shows the arpeggio as large dots with the root ringed in white, and optionally the rest of the scale as small rings; both are coloured by scale degree, using the same palette as the mode pages. Notes outside the scale get a dashed red outline. Options: fret-window positions, labels (note names, scale degrees or chord tones), 1 or 2 octave playback, tap any note to hear it. Logic is in `arpeggios.ts`.
@@ -59,6 +61,7 @@ src/lib/chordKit/
 ├── triads.ts        generated triad voicings
 ├── scales.ts        mode pages, relatives, degree colours
 ├── arpeggios.ts     arpeggio notes and neck map
+├── scalePositions.ts scale notes on the neck, pentatonic and 3-notes-per-string positions
 ├── playback.ts      strumming through audio.ts, MIDI names via tonal
 └── *.test.ts        tests
 ```

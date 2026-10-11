@@ -13,6 +13,9 @@ import { strum } from "@/lib/chordKit/playback";
 import ChordShapeCarousel from "./ChordShapeCarousel";
 import ChordShapesModal from "./ChordShapesModal";
 import ChordBubbles from "./ChordBubbles";
+import ScaleOnGuitar from "./ScaleOnGuitar";
+import { useNotePlayer } from "./useNotePlayer";
+import { scaleLineMidi } from "@/lib/chordKit/scalePositions";
 
 const STACK_LABELS = ["root", "3rd", "5th", "7th", "9th", "11th", "13th"];
 
@@ -50,10 +53,10 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
     setPlaying(d);
     setTimeout(() => setPlaying((p) => (p === d ? null : p)), 700);
   };
-  const playScale = () => {
-    const base = 60 + ((ctx.tonic.pc) % 12);
-    strum([...ctx.steps.map((s) => base + s), base + 12], { gapMs: 220, holdMs: 500 });
-  };
+  const player = useNotePlayer();
+  const line = scaleLineMidi(ctx);
+  const degreeOf = (midi: number) => ctx.steps.indexOf((midi - ctx.tonic.pc + 120) % 12);
+  const playScale = () => player.play(line.map((m) => ({ key: `d${degreeOf(m)}`, midi: m })), 240);
 
   const siblingLink = (s: { modeIndex: number; tonicPc: number }) => `/theory/scales/${pageFor(familyIndex, s.modeIndex).slug}?key=${s.tonicPc}`;
 
@@ -70,18 +73,21 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
 
         <div className="flex flex-wrap items-center gap-2" aria-label="Scale notes">
           {ctx.names.map((n, i) => (
-            <div key={i} className="flex flex-col items-center gap-0.5">
-              <span className="flex h-11 w-11 items-center justify-center rounded-full text-sm font-semibold" style={{ background: degreeColour(i), color: DOT_INK }} title={n}>{scaleToneLabel(system, ctx, i)}</span>
+            <button key={i} type="button" onClick={() => player.tap(`d${i}`, line[i])} title={`${n}: tap to hear it`} className="flex flex-col items-center gap-0.5 rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
+              <span className={`flex h-11 w-11 items-center justify-center rounded-full text-sm font-semibold transition ${player.active === `d${i}` ? "scale-110 ring-[3px] ring-sky-400" : ""}`} style={{ background: degreeColour(i), color: DOT_INK }}>{scaleToneLabel(system, ctx, i)}</span>
               <span className="text-xs tabular-nums text-slate-500">{scaleToneCaption(system, ctx, i)}</span>
-            </div>
+            </button>
           ))}
           <button type="button" onClick={playScale} className="ml-2 rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25">▶ Play scale</button>
+          <a href="#guitar" className="rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-300 hover:border-sky-400 hover:text-sky-100">On the guitar ↓</a>
         </div>
         <p className="text-xs text-slate-400">
           Step pattern <span className="tabular-nums text-slate-300">{pattern.join(" – ")}</span>
           <Info label="What is the step pattern?">W is a whole step (two frets), H a half step (one fret). Every mode is the same set of steps starting from a different place, which is why the seven modes of one parent scale share their notes.</Info>
         </p>
       </div>
+
+      <ScaleOnGuitar ctx={ctx} player={player} />
 
       <section className="rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5">
         <h2 className="mb-2 text-sm font-medium text-slate-100">Relatives of {ctx.names[0]} {ctx.modeName}</h2>
