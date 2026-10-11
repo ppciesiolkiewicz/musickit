@@ -24,3 +24,10 @@ export function closestSample<T extends { midi: number }>(target: number, sample
   for (const s of samples) if (best === null || Math.abs(s.midi - target) < Math.abs(best.midi - target)) best = s;
   return best ? { sample: best, rate: 2 ** ((target - best.midi) / 12) } : null;
 }
+
+/** The sample a note plays: the closest one tuned to it, or with `strict` only a sample recorded at exactly that note (untuned). */
+export function pickSample<T extends { midi: number }>(target: number, samples: readonly T[], strict = false): { sample: T; rate: number } | null {
+  if (!strict) return closestSample(target, samples);
+  const s = samples.find((x) => x.midi === target);
+  return s ? { sample: s, rate: 1 } : null;
+}

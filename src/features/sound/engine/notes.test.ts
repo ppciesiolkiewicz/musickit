@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { closestSample, midiToHz, midiToName, noteToMidi } from "./notes";
+import { closestSample, midiToHz, midiToName, noteToMidi, pickSample } from "./notes";
 
 test("note names and numbers convert both ways", () => {
   assert.equal(noteToMidi("C4"), 60);
@@ -23,4 +23,12 @@ test("the nearest sample is tuned to the note", () => {
   assert.equal(b.sample.midi, 67);
   assert.ok(b.rate < 1);
   assert.equal(closestSample(60, []), null);
+});
+
+test("strict: only a sample at exactly the note plays, untuned", () => {
+  const samples = [{ midi: 36 }, { midi: 38 }];
+  assert.deepEqual(pickSample(38, samples, true), { sample: { midi: 38 }, rate: 1 });
+  assert.equal(pickSample(37, samples, true), null);
+  assert.equal(pickSample(60, [], true), null);
+  assert.equal(pickSample(37, samples)!.sample.midi, 36);
 });

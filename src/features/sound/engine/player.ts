@@ -1,6 +1,6 @@
 import { getAudioContext, getOutputBus } from "./context";
 import { getInstrumentConfig, OSCILLATOR_ID } from "./instruments";
-import { closestSample, midiToHz, noteToMidi, type NoteLike } from "./notes";
+import { midiToHz, noteToMidi, pickSample, type NoteLike } from "./notes";
 import { cachedSample, instrumentSamples, loadSample, preloadInstrument } from "./samples";
 
 /** Something that can sound notes. The looper's instruments, the keyboards and the chord pages all use this one shape. */
@@ -99,7 +99,8 @@ export function createPlayer(options: PlayerOptions = {}): Player {
       if (ctx.state === "suspended") void ctx.resume();
       release(midi, true);
       const config = getInstrumentConfig(instrumentId);
-      const match = config ? closestSample(midi, instrumentSamples(instrumentId)) : null;
+      const match = config ? pickSample(midi, instrumentSamples(instrumentId), config.strict) : null;
+      if (config?.strict && !match) return; // a pad without a sample, or a sampler with none, stays silent
       if (!config || !match) return start(midi, velocity, null, 1, 0, 0.15);
       const buffer = cachedSample(match.sample.url);
       if (buffer) return start(midi, velocity, buffer, match.rate, config.attack, config.release);

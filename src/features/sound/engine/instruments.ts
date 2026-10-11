@@ -90,8 +90,8 @@ export function allInstrumentOptions(): { label: string; value: string }[] {
   return [...builtIn, ...runtimeInstrumentOptions(), { label: "Oscillator", value: OSCILLATOR_ID }];
 }
 
-export function getInstrumentConfig(id: string): { label: string; urls: Record<string, string>; baseUrl: string; attack: number; release: number } | null {
+export function getInstrumentConfig(id: string): { label: string; urls: Record<string, string>; baseUrl: string; attack: number; release: number; strict: boolean } | null {
   const config = (INSTRUMENTS[id as InstrumentId] as InstrumentConfig | undefined) ?? getRuntimeInstrument(id);
   if (!config) return null;
-  return { label: config.label, urls: config.urls, baseUrl: config.baseUrl, attack: config.attack ?? DEFAULT_ATTACK, release: config.release ?? DEFAULT_RELEASE };
+  return { label: config.label, urls: config.urls, baseUrl: config.baseUrl, attack: config.attack ?? DEFAULT_ATTACK, release: config.release ?? DEFAULT_RELEASE, strict: (config as { strict?: boolean }).strict === true };
 }

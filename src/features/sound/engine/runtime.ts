@@ -10,6 +10,10 @@ export interface RuntimeInstrument {
   baseUrl: string;
   attack?: number;
   release?: number;
+  /** a note with no sample of its own is silent instead of tuned from a neighbour (pads); with no samples at all it is silent too */
+  strict?: boolean;
+  /** not offered in instrument pickers (a looper instrument's own sound) */
+  hidden?: boolean;
 }
 
 const registry = new Map<string, RuntimeInstrument>();
@@ -39,7 +43,7 @@ export function replaceRuntimeInstruments(prefix: string, next: Record<string, R
 
 export const getRuntimeInstrument = (id: string): RuntimeInstrument | undefined => registry.get(id);
 
-export const runtimeInstrumentOptions = (): { label: string; value: string }[] => [...registry.entries()].map(([value, i]) => ({ label: i.label, value }));
+export const runtimeInstrumentOptions = (): { label: string; value: string }[] => [...registry.entries()].filter(([, i]) => !i.hidden).map(([value, i]) => ({ label: i.label, value }));
 
 export const runtimeInstrumentVersion = () => version;
 
