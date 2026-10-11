@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Icon from "../Icon";
 import { btnSm } from "../controls";
-import { SamplePicker, detectSampleRoot, sampleLibrary } from "@/features/sampler";
+import { AddSample, SamplePicker, detectSampleRoot, sampleLibrary } from "@/features/sampler";
 import { midiToName, useInstrumentOptions } from "@/features/sound";
 import type { InstrumentPatch } from "@/lib/looper/actions";
 import { MAX_PADS, MIN_PADS } from "@/lib/looper/instrumentModel";
@@ -61,30 +61,34 @@ export default function GeneratorPanel({ inst, set, selected, onSelect }: { inst
           ))}
         </div>
       )}
-      {g.kind === "sampler" && inst.controller !== "soundboard" && (
-        <div className="flex flex-wrap items-center gap-1.5">
-          <SamplePicker label="Sample" value={g.sample ?? null} onChange={(id) => set({ generator: { ...g, sample: id ?? undefined } })} />
-          <select className={field} value={g.root} aria-label="Root note" title="The note the sample sounds at" onChange={(e) => { set({ generator: { ...g, root: Number(e.target.value) } }); e.target.blur(); }}>
-            {NOTE_CHOICES.map((m) => <option key={m} value={m}>{midiToName(m)}</option>)}
-          </select>
-          <button type="button" className={btnSm} disabled={!g.sample} title="Find the note the sample sounds at" onClick={() => void detect()}>
-            <Icon name="activity" size={12} />Detect
-          </button>
-        </div>
-      )}
-      {g.kind === "sampler" && inst.controller === "soundboard" && (
-        <div className="grid grid-cols-2 gap-1 sm:grid-cols-4">
-          {g.padSamples.map((sid, i) => (
-            <div key={i}
-              className={`flex items-center gap-1 rounded-md border p-1 ${selected === i ? "border-sky-400" : "border-slate-800"}`}
-              onPointerDown={() => onSelect(i)}
-              onDragOver={(e) => { if (Array.from(e.dataTransfer.types).includes("Files")) e.preventDefault(); }}
-              onDrop={(e) => { e.preventDefault(); e.stopPropagation(); const f = e.dataTransfer.files[0]; if (f) void dropOnPad(i, f); }}>
-              <span className="w-5 text-center text-[10px] text-slate-500">{i + 1}</span>
-              <SamplePicker compact label={`Pad ${i + 1} sample`} value={sid} onChange={(id) => set({ generator: { ...g, padSamples: g.padSamples.map((x, j) => (j === i ? id : x)) } })} />
+      {g.kind === "sampler" && (
+        <AddSample onAdded={(meta) => set({ generator: inst.controller === "soundboard" ? { ...g, padSamples: g.padSamples.map((x, j) => (j === selected ? meta.id : x)) } : { ...g, sample: meta.id } })}>
+          {inst.controller !== "soundboard" && (
+            <div className="flex flex-wrap items-center gap-1.5">
+              <SamplePicker label="Sample" value={g.sample ?? null} onChange={(id) => set({ generator: { ...g, sample: id ?? undefined } })} />
+              <select className={field} value={g.root} aria-label="Root note" title="The note the sample sounds at" onChange={(e) => { set({ generator: { ...g, root: Number(e.target.value) } }); e.target.blur(); }}>
+                {NOTE_CHOICES.map((m) => <option key={m} value={m}>{midiToName(m)}</option>)}
+              </select>
+              <button type="button" className={btnSm} disabled={!g.sample} title="Find the note the sample sounds at" onClick={() => void detect()}>
+                <Icon name="activity" size={12} />Detect
+              </button>
             </div>
-          ))}
-        </div>
+          )}
+          {inst.controller === "soundboard" && (
+            <div className="grid grid-cols-2 gap-1 sm:grid-cols-4">
+              {g.padSamples.map((sid, i) => (
+                <div key={i}
+                  className={`flex items-center gap-1 rounded-md border p-1 ${selected === i ? "border-sky-400" : "border-slate-800"}`}
+                  onPointerDown={() => onSelect(i)}
+                  onDragOver={(e) => { if (Array.from(e.dataTransfer.types).includes("Files")) e.preventDefault(); }}
+                  onDrop={(e) => { e.preventDefault(); e.stopPropagation(); const f = e.dataTransfer.files[0]; if (f) void dropOnPad(i, f); }}>
+                  <span className="w-5 text-center text-[10px] text-slate-500">{i + 1}</span>
+                  <SamplePicker compact label={`Pad ${i + 1} sample`} value={sid} onChange={(id) => set({ generator: { ...g, padSamples: g.padSamples.map((x, j) => (j === i ? id : x)) } })} />
+                </div>
+              ))}
+            </div>
+          )}
+        </AddSample>
       )}
       {msg && <p role="alert" className="text-xs text-rose-300">{msg}</p>}
     </div>

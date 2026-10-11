@@ -12,3 +12,4 @@ export { detectSampleRoot, previewSample, sampleLibrary, useSampleLibrary } from
 export type { SoundSpec } from "./model/sound";
 export type { SampleMeta } from "./model/types";
 export { default as SamplePicker } from "./SamplePicker";
+export { default as AddSample } from "./AddSample";
