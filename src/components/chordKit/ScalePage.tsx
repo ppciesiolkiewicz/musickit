@@ -17,13 +17,14 @@ import ChordBubbles from "./ChordBubbles";
 const STACK_LABELS = ["root", "3rd", "5th", "7th", "9th", "11th", "13th"];
 
 /** Dedicated page for one mode: key picker, relatives, and every chord with its notes coloured by scale degree. */
-export default function ScalePage({ familyIndex, modeIndex, initialKey }: { familyIndex: number; modeIndex: number; initialKey: number }) {
+export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl = true }: { familyIndex: number; modeIndex: number; initialKey: number; /** write ?key= to the address bar (off when embedded in another page) */ syncUrl?: boolean }) {
   const [tonicPc, setTonicPc] = useState(initialKey);
   const [extended, setExtended] = useState(false);
   const [playing, setPlaying] = useState<number | null>(null);
   const [modalDegree, setModalDegree] = useState<number | null>(null);
 
   useEffect(() => {
+    if (!syncUrl) return;
     try {
       const url = new URL(window.location.href);
       url.searchParams.set("key", String(tonicPc));
@@ -31,7 +32,7 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey }: { fami
     } catch {
       /* ignore */
     }
-  }, [tonicPc]);
+  }, [tonicPc, syncUrl]);
 
   const ctx = useMemo(() => makeKeyContext(tonicPc, familyIndex, modeIndex), [tonicPc, familyIndex, modeIndex]);
   const chords = useMemo(() => modeChords(ctx), [ctx]);

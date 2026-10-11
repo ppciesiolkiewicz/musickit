@@ -11,8 +11,11 @@ const TABS = [
   { id: "prog", label: "Progressions", hint: "Forms in modes with shapes to use and neck positions" },
 ] as const;
 
-export default function ChordKit() {
-  const [tab, setTab] = useState<(typeof TABS)[number]["id"]>("shapes");
+type TabId = (typeof TABS)[number]["id"];
+
+/** `initialTab` and `initialKey` start it somewhere else (the cheatsheet builder opens it on its key). */
+export default function ChordKit({ initialTab = "shapes", initialKey }: { initialTab?: TabId; initialKey?: { tonicPc: number; family: number; mode: number } } = {}) {
+  const [tab, setTab] = useState<TabId>(initialTab);
   const current = TABS.find((t) => t.id === tab)!;
   return (
     <div className="flex flex-col gap-4">
@@ -31,7 +34,7 @@ export default function ChordKit() {
       </div>
       <p className="text-xs text-slate-500">{current.hint}</p>
       {tab === "shapes" && <ShapesTab />}
-      {tab === "key" && <KeyTab />}
+      {tab === "key" && <KeyTab initialTonic={initialKey?.tonicPc} initialFamily={initialKey?.family} initialMode={initialKey?.mode} />}
       {tab === "prog" && <ProgressionsTab />}
     </div>
   );

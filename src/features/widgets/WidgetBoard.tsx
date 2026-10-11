@@ -15,6 +15,10 @@ export interface BoardWidget {
   back?: boolean;
   /** as tall as its content: it grows and shrinks with it (a section folding), and only its width is resized by hand */
   fit?: boolean;
+  /** buttons drawn in the header, right after the title */
+  actions?: ReactNode;
+  /** when this changes, a smaller widget grows to at least this size (it never shrinks it) */
+  minSize?: { w: number; h: number };
 }
 
 /** The header (h-7), the body's padding (p-2.5 twice) and the border, around a fitted widget's content. */
@@ -120,6 +124,24 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
       ro.disconnect();
     };
   }, []);
+
+  // a widget asking for more room (a panel switched to its full view) grows to it, once per change of the request
+  const minKey = widgets.map((w) => (w.minSize ? `${w.id}:${w.minSize.w}x${w.minSize.h}` : "")).join("|");
+  useEffect(() => {
+    setLayout((l) => {
+      if (!l) return l;
+      let next = null as Layout | null;
+      widgets.forEach((w) => {
+        const r = l[w.id];
+        if (!w.minSize || !r || (r.w >= w.minSize.w && r.h >= w.minSize.h)) return;
+        next = next ?? { ...l };
+        next[w.id] = inRange({ ...r, w: Math.max(r.w, w.minSize.w), h: w.fit ? r.h : Math.max(r.h, w.minSize.h) });
+      });
+      if (next) save(next, viewRef.current);
+      return next ?? l;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [minKey, layout === null]);
 
   // a board with no saved layout lays itself out again once the fitted widgets know their real height, until the person moves something
   const fresh = useRef(false);
@@ -400,6 +422,7 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
                 >
                   <Icon name="grip" size={14} className="text-slate-500" />
                   <span className="min-w-0 truncate font-medium text-slate-100">{w.title}</span>
+                  {w.actions && <span className="flex shrink-0 items-center gap-1" onPointerDown={(e) => e.stopPropagation()}>{w.actions}</span>}
                   {w.onClose && (
                     <button type="button" className="ml-auto grid h-5 w-5 place-items-center rounded text-slate-400 hover:text-slate-100" onPointerDown={(e) => e.stopPropagation()} onClick={w.onClose} title="Close" aria-label={`Close ${typeof w.title === "string" ? w.title : "widget"}`}>
                       <Icon name="x" size={14} />

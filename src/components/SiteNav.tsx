@@ -12,9 +12,11 @@ export const THEORY_LINKS = [
   { href: "/theory/chords", label: "Chords" },
   { href: "/theory/triads", label: "Triads" },
   { href: "/theory/scales", label: "Scales" },
+  { href: "/theory/circle", label: "Circle of fifths" },
   { href: "/theory/caged", label: "CAGED" },
   { href: "/theory/arpeggios", label: "Arpeggios" },
   { href: "/theory/improv", label: "Improv" },
+  { href: "/theory/cheatsheet", label: "Cheatsheet builder" },
 ];
 
 const isActive = (active: string, href: string) => (href === "/" ? active === "/" : active === href || active.startsWith(`${href}/`));

@@ -23,9 +23,9 @@ const LANE_COLOURS = ["#f87171", "#fb923c", "#facc15", "#4ade80", "#60a5fa"];
 const play = "rounded-full border border-emerald-500/70 bg-emerald-500/10 px-2.5 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25";
 
 /** CAGED system: five chord forms, the neck box each one marks out, and the arpeggio, scale and pentatonic inside it. */
-export default function CagedExplorer() {
-  const [rootPc, setRootPc] = useState(0);
-  const [quality, setQuality] = useState<CagedQuality>("major");
+export default function CagedExplorer({ initialRoot = 0, initialQuality = "major" }: { initialRoot?: number; initialQuality?: CagedQuality } = {}) {
+  const [rootPc, setRootPc] = useState(initialRoot);
+  const [quality, setQuality] = useState<CagedQuality>(initialQuality);
   const [arpKind, setArpKind] = useState<ArpKind>("triad");
   const [labelSystem] = useLabelSystem();
   const [badges, setBadges] = useState(true);

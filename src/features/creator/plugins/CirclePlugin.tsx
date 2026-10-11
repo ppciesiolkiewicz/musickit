@@ -10,7 +10,8 @@ import { Body, Hint } from "./common";
 const R_OUT = 118, R_IN = 78, R_MID = 98;
 const at = (pos: number, r: number) => {
   const a = (pos / 12) * Math.PI * 2 - Math.PI / 2;
-  return { x: 150 + r * Math.cos(a), y: 150 + r * Math.sin(a) };
+  // rounded so the server and the browser print the same numbers (hydration)
+  return { x: Math.round((150 + r * Math.cos(a)) * 100) / 100, y: Math.round((150 + r * Math.sin(a)) * 100) / 100 };
 };
 
 /**

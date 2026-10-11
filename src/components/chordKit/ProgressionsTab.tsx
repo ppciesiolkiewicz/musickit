@@ -17,9 +17,9 @@ import Slider from "@/components/Slider";
 const DIFF_ORDER = { easy: 0, medium: 1, hard: 2 } as const;
 
 /** Progressions in modes, as an accordion. Open one to see the form, shapes to use and neck positions. */
-export default function ProgressionsTab() {
+export default function ProgressionsTab({ initialSel = 0 }: { initialSel?: number } = {}) {
   const resolved = useMemo(() => PROG_LIST.map(resolveProgression), []);
-  const [sel, setSel] = useState(0);
+  const [sel, setSel] = useState(initialSel);
   const groups: { heading: string; sub: string; idx: number[] }[] = [];
   resolved.forEach((D, i) => {
     const last = groups[groups.length - 1];

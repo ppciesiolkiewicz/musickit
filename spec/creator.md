@@ -1,9 +1,11 @@
-# Music Kit — Creator
+# Music Kit — Cheatsheet builder (the creator)
 
-Page: `/creator`. Code: `src/features/creator`. Rules: `src/features/creator/CLAUDE.md`.
+Page: `/theory/cheatsheet` ("Cheatsheet builder" in the Theory nav). `/creator` redirects there, keeping its query. Code: `src/features/creator`. Rules: `src/features/creator/CLAUDE.md`.
 
 ## What it is
-Music theory as plugins. One key selector sits on top (a tonic, a scale family and a mode); every plugin follows it. The key can be empty ("Any"): each plugin then shows a general page about its subject.
+Every theory page as a plugin (panel) on one board, all following one key. One key selector sits on top (a tonic, a scale family and a mode); every plugin follows it. The key can be empty ("Any"): each plugin then shows a general page about its subject.
+
+Each plugin has a **compact** view (a cheatsheet card) and, for the plugins that come from a theory page, a **full** view: that page itself, started on the board's key. The **Full / Compact** button next to the panel's title switches them. Switching to full grows the panel to at least 960 x 680 (never shrinks it). Views are saved in `musickit.creator.views`. A full view keeps its own pickers; changing the board's key starts it again on the new key. With no key the full views start on C.
 
 ## Key
 `KeyChoice { tonicPc: number | null, family, mode }`. Chosen with the tonic chips, the family and mode selects, or by a plugin (the circle of fifths). Shown with its notes and key signature (the signature of the parent major scale, for the major family). Kept in the URL (`?key=7&family=0&mode=1`, so a link shares it) and in `musickit.creator.key`.
@@ -17,18 +19,26 @@ Music theory as plugins. One key selector sits on top (a tonic, a scale family a
 | Keys | a piano with the scale marked in degree colours; click to play | a plain piano, click to play |
 | Progressions | written progressions for the mode, in the key, with numerals; plays | the mode's progressions as numerals, played from C |
 | Modes | the modes that share the key's notes; click to move there, and how it differs from major and minor | the major modes from bright to dark |
+| Triads | the triad on a chosen degree in root position and both inversions on one string group (cycled with the strings button); click to hear | C major |
+| CAGED | the five CAGED shapes of the tonic chord (minor forms when the key has a minor 3rd), with fret boxes, pentatonic and scale notes | C major |
+| Arpeggios | the triad, 7th or 9th arpeggio on every degree, notes with chord tones; click to hear | C major |
+| Improvisation | an interference rhythm (a against b) and a motive with its reverse, mirror and rotations, spelled in the key | the motive as scale degrees |
+
+Full views: Scale → the mode page (`/theory/scales/[slug]`), Chords → the chord explorer (on its In a key tab when a key is set), Circle of fifths → the circle page (picking a key there sets the board's key), Progressions → the progressions accordion (opened on the mode's first one), Modes → the scales index, Triads, CAGED, Arpeggios, Improvisation → their pages. Keys has no full view.
 
 ## Board
 Plugins are widgets (`features/widgets`): drag by the header, resize from the corner, close with the ×. They stay inside the board; the board's height is adjustable. Switch plugins on and off with the chips; the arrange button tiles them. Open plugins: `musickit.creator.plugins`; layout and height: `musickit.creator.board`.
 
 ## Adding a plugin
-Write a component in `plugins/` that uses `useCreatorKey()` and handles `ctx === null`, then add it to `plugins/registry.tsx`.
+Write a component in `plugins/` that uses `useCreatorKey()` and handles `ctx === null`, then add it to `plugins/registry.tsx`. For a full view, add a wrapper in `plugins/full.tsx` that starts the page component on the key, and set `Full` in the registry.
 
 ## Where things live
 - `features/theory`: modes, key contexts, chords of a key, progressions, labels (shared with the guitar pages and the games)
 - `features/sound`: playing notes
 - `features/widgets`: the board
-- `features/creator/model`: key choice, circle maths, voicings, general content (tested)
+- `features/theory/circle.ts`: circle of fifths maths (shared with `/theory/circle`)
+- `components/chordKit`, `components/improv`, `components/theory`: the theory pages used as full views
+- `features/creator/model`: key choice, voicings, general content (tested)
 
 ## Canvas
 

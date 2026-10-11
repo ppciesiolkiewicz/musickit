@@ -1,16 +1,9 @@
-import type { Metadata } from "next";
-import PageShell from "@/components/PageShell";
-import { CreatorApp } from "@/features/creator";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: "Creator · Music Kit",
-  description: "Music theory plugins that follow one key: scale, chords, circle of fifths, keys, progressions and modes.",
-};
-
-export default function CreatorPage() {
-  return (
-    <PageShell active="/creator" title="Creator" intro="Choose a key, or none, and arrange the theory plugins around it.">
-      <CreatorApp />
-    </PageShell>
-  );
+/** The creator moved under Theory as the cheatsheet builder; old links (with their ?key=) still land there. */
+export default async function CreatorPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  const params = new URLSearchParams();
+  for (const [k, v] of Object.entries(await searchParams)) if (typeof v === "string") params.set(k, v);
+  const qs = params.toString();
+  redirect(`/theory/cheatsheet${qs ? `?${qs}` : ""}`);
 }

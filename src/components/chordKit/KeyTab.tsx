@@ -12,10 +12,10 @@ import { MODE_PAGES, chordMidi } from "@/features/theory/scales";
 import { strum } from "@/lib/chordKit/playback";
 
 /** Pick a key and mode; see every shape that plays a chord of that key, grouped by shape. */
-export default function KeyTab() {
-  const [tonicPc, setTonicPc] = useState(7);
-  const [fam, setFam] = useState(0);
-  const [mode, setMode] = useState(0);
+export default function KeyTab({ initialTonic = 7, initialFamily = 0, initialMode = 0 }: { initialTonic?: number; initialFamily?: number; initialMode?: number } = {}) {
+  const [tonicPc, setTonicPc] = useState(initialTonic);
+  const [fam, setFam] = useState(initialFamily);
+  const [mode, setMode] = useState(initialMode);
   const [degree, setDegree] = useState<string | null>(null);
 
   const ctx = useMemo(() => makeKeyContext(tonicPc, fam, mode), [tonicPc, fam, mode]);

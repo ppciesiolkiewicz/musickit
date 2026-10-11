@@ -4,6 +4,7 @@
  *   theory       families and modes (21), tonics and their spelling, key contexts (notes, chords of a key), degree labels
  *   scales       mode pages, chord stacks, relatives, step patterns, the degree colours
  *   modeGroups   comparing modes that share a tonic
+ *   circle       the circle of fifths: order, key signatures, the chords of a key on the circle
  *   progressions the written progressions and what they become in a key
  *   labels       how a note is shown: name, interval, degree or chord (the app-wide choice)
  *   useLabelSystem  the React store and dropdown for that choice
@@ -11,5 +12,6 @@
 export * from "./theory";
 export * from "./scales";
 export * from "./modeGroups";
+export * from "./circle";
 export * from "./progressions";
 export * from "./labels";

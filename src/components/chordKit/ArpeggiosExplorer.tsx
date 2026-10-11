@@ -102,10 +102,10 @@ function ArpBox({ cells, win, overlay, labelSystem, badges, onNote }: { cells: N
   );
 }
 /** Arpeggios over any scale or mode: pick the scale, then the arpeggio, and see both on the whole neck. */
-export default function ArpeggiosExplorer() {
-  const [tonicPc, setTonicPc] = useState(0);
-  const [fam, setFam] = useState(0);
-  const [mode, setMode] = useState(0);
+export default function ArpeggiosExplorer({ initialTonic = 0, initialFamily = 0, initialMode = 0 }: { initialTonic?: number; initialFamily?: number; initialMode?: number } = {}) {
+  const [tonicPc, setTonicPc] = useState(initialTonic);
+  const [fam, setFam] = useState(initialFamily);
+  const [mode, setMode] = useState(initialMode);
   const [degree, setDegree] = useState(0);
   const [kind, setKind] = useState<string>("seventh");
   const [overlay, setOverlay] = useState(true);

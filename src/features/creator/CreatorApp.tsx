@@ -5,11 +5,14 @@ import Icon from "@/components/Icon";
 import { WidgetBoard } from "@/features/widgets";
 import { CreatorKeyProvider } from "./KeyProvider";
 import KeyBar from "./KeyBar";
-import { DEFAULT_OPEN, PLUGINS, sanitiseOpen } from "./plugins/registry";
+import { DEFAULT_OPEN, PLUGINS, sanitiseOpen, sanitiseViews, type View } from "./plugins/registry";
 
 const OPEN_KEY = "musickit.creator.plugins";
+const VIEWS_KEY = "musickit.creator.views";
+/** room a panel asks for when switched to its full view (the whole theory page) */
+const FULL_SIZE = { w: 960, h: 680 };
 
-/** The creator: pick a key (or none), switch theory plugins on and off, and arrange them on the board. */
+/** The cheatsheet builder: pick a key (or none), switch theory panels on and off, show each compact or in full, and arrange them on the board. */
 export default function CreatorApp() {
   return (
     <CreatorKeyProvider>
@@ -20,6 +23,7 @@ export default function CreatorApp() {
 
 function Creator() {
   const [open, setOpen] = useState<string[]>(DEFAULT_OPEN);
+  const [views, setViews] = useState<Record<string, View>>({});
   const [loaded, setLoaded] = useState(false);
   const [reset, setReset] = useState(0);
 
@@ -27,6 +31,7 @@ function Creator() {
     try {
       const raw = window.localStorage.getItem(OPEN_KEY);
       if (raw) setOpen(sanitiseOpen(JSON.parse(raw)));
+      setViews(sanitiseViews(JSON.parse(window.localStorage.getItem(VIEWS_KEY) ?? "null")));
     } catch {
       /* use the defaults */
     }
@@ -36,18 +41,30 @@ function Creator() {
     if (!loaded) return;
     try {
       window.localStorage.setItem(OPEN_KEY, JSON.stringify(open));
+      window.localStorage.setItem(VIEWS_KEY, JSON.stringify(views));
     } catch {
       /* ignore */
     }
-  }, [open, loaded]);
+  }, [open, views, loaded]);
 
   const toggle = (id: string) => setOpen((o) => sanitiseOpen(o.includes(id) ? o.filter((x) => x !== id) : [...o, id]));
-  const widgets = PLUGINS.filter((p) => open.includes(p.id)).map((p) => ({
-    id: p.id,
-    title: p.title,
-    node: <p.Component />,
-    onClose: () => toggle(p.id),
-  }));
+  const flip = (id: string) => setViews((v) => ({ ...v, [id]: v[id] === "full" ? "compact" : "full" }));
+  const widgets = PLUGINS.filter((p) => open.includes(p.id)).map((p) => {
+    const full = !!p.Full && views[p.id] === "full";
+    const Panel = full && p.Full ? p.Full : p.Component;
+    return {
+      id: p.id,
+      title: p.title,
+      node: <Panel />,
+      onClose: () => toggle(p.id),
+      minSize: full ? FULL_SIZE : undefined,
+      actions: p.Full && (
+        <button type="button" aria-pressed={full} onClick={() => flip(p.id)} title={full ? "Show the compact view" : "Show the full page"} className={`rounded border px-1.5 py-px text-[10px] uppercase tracking-wider transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${full ? "border-sky-500/60 bg-sky-500/20 text-sky-100" : "border-slate-700 text-slate-400 hover:border-slate-500 hover:text-slate-100"}`}>
+          {full ? "Compact" : "Full"}
+        </button>
+      ),
+    };
+  });
 
   return (
     <div className="flex flex-col gap-3">

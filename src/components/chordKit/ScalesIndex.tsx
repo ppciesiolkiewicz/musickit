@@ -14,11 +14,12 @@ import { MODE_PAGES, degreeColour, degreeLabels, relativesOf } from "@/features/
 const ORD = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th"];
 
 /** Every mode side by side in one key: scale degrees, notes and relatives. */
-export default function ScalesIndex({ initialKey }: { initialKey: number }) {
+export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey: number; /** write ?key= to the address bar (off when embedded in another page) */ syncUrl?: boolean }) {
   const [tonicPc, setTonicPc] = useState(initialKey);
   const [system] = useLabelSystem();
 
   useEffect(() => {
+    if (!syncUrl) return;
     try {
       const url = new URL(window.location.href);
       url.searchParams.set("key", String(tonicPc));
@@ -26,7 +27,7 @@ export default function ScalesIndex({ initialKey }: { initialKey: number }) {
     } catch {
       /* ignore */
     }
-  }, [tonicPc]);
+  }, [tonicPc, syncUrl]);
 
   const rows = useMemo(
     () =>

@@ -19,6 +19,8 @@ One app-wide **Labels** setting (`features/theory/labels.ts`, stored in localSto
 | `/theory/scales/[slug]?key=N` | One mode: key picker, relatives, every chord with its notes |
 | `/theory/caged` | The CAGED system, major and minor: the five chord forms (C A G E D) in any key, the fret box around each, and its chord, arpeggio, scale and pentatonic as toggleable layers, plus other chords that sit in the box |
 | `/theory/arpeggios` | Arpeggios over any key and any of the 21 modes, on the whole neck |
+| `/theory/circle` | Circle of fifths: majors with their key signatures, relative minors, diminished chords; pick a key to light its seven chords (with numerals) and see its signature, relative, parallel, dominant and subdominant; click to hear chords and the scale. Maths in `features/theory/circle.ts`, page in `components/theory/CircleOfFifths.tsx` |
+| `/theory/cheatsheet` | Cheatsheet builder: see [creator.md](creator.md) |
 
 ## Chord explorer (`/theory/chords`)
 

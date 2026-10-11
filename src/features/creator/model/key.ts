@@ -2,7 +2,7 @@
  * The creator's one shared choice: a key (tonic + scale family + mode) that can also be empty.
  * Pure functions on top of the theory feature; no React, no sound. Every plugin reads this and nothing else about "the key".
  */
-import { FAMILIES, TONICS, makeKeyContext, shortModeName, type KeyContext, type Tonic } from "@/features/theory";
+import { FAMILIES, TONICS, majorSignature, makeKeyContext, shortModeName, type KeyContext } from "@/features/theory";
 
 export interface KeyChoice {
   /** 0..11 (C = 0), or null when no key is chosen: plugins then show their general page */
@@ -55,17 +55,7 @@ export function fromQuery(search: string): KeyChoice | null {
   return k.tonicPc === null ? null : k;
 }
 
-/** Position of a tonic on the circle of fifths: C 0, G 1, D 2 ... F♯ 6 ... D♭ 11. */
-export const fifthsPosition = (pc: number): number => (((pc * 7) % 12) + 12) % 12;
-
-/** The twelve tonics in circle-of-fifths order, starting at C. (F♯ and D♭ are the two spellings kept by TONICS.) */
-export const CIRCLE: Tonic[] = [...TONICS].sort((a, b) => fifthsPosition(a.pc) - fifthsPosition(b.pc));
-
-/** Sharps (+) or flats (-) in the key signature of a major key on this tonic. */
-export function majorSignature(pc: number): number {
-  const p = fifthsPosition(pc);
-  return p <= 6 ? p : p - 12;
-}
+export { CIRCLE, fifthsPosition, majorSignature } from "@/features/theory";
 
 /** Key signature of the chosen key: the signature of the major scale it shares its notes with (its parent). */
 export function keySignature(c: KeyChoice): { count: number; kind: "sharps" | "flats" | "none" } | null {

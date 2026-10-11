@@ -12,7 +12,7 @@ import { useLabelSystem } from "@/features/theory/useLabelSystem";
 import { LabelsRow } from "@/components/LabelsRow";
 
 /** Small chord box for three adjacent strings. */
-function TriadBox({ v, rootPc, onPlay, active }: { v: TriadVoicing; rootPc: number; onPlay: () => void; active: boolean }) {
+export function TriadBox({ v, rootPc, onPlay, active }: { v: TriadVoicing; rootPc: number; onPlay: () => void; active: boolean }) {
   const q = TRIAD_QUALITIES.find((x) => x.id === v.quality)!;
   const [system] = useLabelSystem();
   const ss = 20, fsz = 24, left = 34, top = 26;
@@ -49,9 +49,9 @@ function TriadBox({ v, rootPc, onPlay, active }: { v: TriadVoicing; rootPc: numb
   );
 }
 
-export default function TriadsExplorer() {
-  const [tonicPc, setTonicPc] = useState(0);
-  const [quality, setQuality] = useState<TriadQuality>("maj");
+export default function TriadsExplorer({ initialTonic = 0, initialQuality = "maj" }: { initialTonic?: number; initialQuality?: TriadQuality } = {}) {
+  const [tonicPc, setTonicPc] = useState(initialTonic);
+  const [quality, setQuality] = useState<TriadQuality>(initialQuality);
   const [groupIds, setGroupIds] = useState<string[]>(STRING_GROUPS.map((g) => g.id));
   const [playing, setPlaying] = useState<string | null>(null);
 

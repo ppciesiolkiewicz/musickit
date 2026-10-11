@@ -95,11 +95,11 @@ src/
 │   ├── sound/           one audio engine: context, samples, instruments, players, playback, keyboard
 │   ├── theory/          pure music theory shared by everything: modes, keys, chords, progressions, labels
 │   ├── widgets/         a board of movable, resizable panels (pure maths + view)
-│   ├── creator/         theory plugins on a board, following one optional key
+│   ├── creator/         the cheatsheet builder: every theory page as a plugin on a board, following one optional key
 │   └── tuner/
 └── lib/
     ├── chordKit/        guitar shapes, CAGED, arpeggios, triads (uses features/theory)
     ├── looper/          the looper engine (imports nothing outside itself)
     └── improv/
 ```
-Features depend downwards: creator -> theory, sound, widgets. The looper, the guitar tools and the creator do not import each other.
+Features depend downwards: creator -> theory, sound, widgets, and the theory pages (guitar tools, improv, circle) it shows as full views. The looper does not import the guitar tools or the creator, and nothing imports the creator.
