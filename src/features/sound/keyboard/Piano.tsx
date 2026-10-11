@@ -6,6 +6,8 @@ import { requestMidiAccess, addMidiListener, getMidiInputs } from "./midi";
 import { OSCILLATOR_ID } from "../engine/instruments";
 import { useInstrumentOptions } from "../engine/useInstrumentOptions";
 import { createPlayer } from "../engine/player";
+import { noteToMidi } from "../engine/notes";
+import type { ScaleVoice } from "./ScalePiano";
 
 interface PianoKey {
   id: string;
@@ -84,8 +86,8 @@ function buildKeyCodeToNote(viewOctave: number): Map<string, string> {
   return map;
 }
 
-/** `destination` is where its sound goes (the app's output by default); the looper passes its own node so the sound runs through its mixer. */
-export default function Piano({ destination }: { destination?: () => AudioNode } = {}) {
+/** `destination` is where its sound goes (the app's output by default). With `voice` (the looper's instrument) it plays that instead and has no Sound picker. */
+export default function Piano({ destination, voice }: { destination?: () => AudioNode; voice?: ScaleVoice } = {}) {
   const instrumentOptions = useInstrumentOptions();
   const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
   const [viewOctave, setViewOctave] = useState(3);
@@ -98,13 +100,21 @@ export default function Piano({ destination }: { destination?: () => AudioNode }
 
   // This keyboard has its own player, so the instrument chosen here does not change what other pages play.
   const [player] = useState(() => createPlayer({ instrumentId: "PIANO", destination }));
-  const playNote = useCallback((n: string) => player.noteOn(n), [player]);
-  const stopNote = useCallback((n: string) => player.noteOff(n), [player]);
-  const stopAllNotes = useCallback(() => player.allOff(), [player]);
+  const playNote = useCallback((n: string) => {
+    if (!voice) return player.noteOn(n);
+    const m = noteToMidi(n);
+    if (m !== null) voice.noteOn(m);
+  }, [player, voice]);
+  const stopNote = useCallback((n: string) => {
+    if (!voice) return player.noteOff(n);
+    const m = noteToMidi(n);
+    if (m !== null) voice.noteOff(m);
+  }, [player, voice]);
+  const stopAllNotes = useCallback(() => (voice ?? player).allOff(), [player, voice]);
 
   useEffect(() => {
-    void player.preload().catch(() => undefined);
-  }, [player]);
+    if (!voice) void player.preload().catch(() => undefined);
+  }, [player, voice]);
 
   const changeInstrument = (id: string) => {
     stopAllNotes();
@@ -281,6 +291,7 @@ export default function Piano({ destination }: { destination?: () => AudioNode }
               {midiError}
             </span>
           )}
+          {!voice && (<>
           <div className="h-4 w-px bg-white/20" />
           <select
             value={instrumentId}
@@ -293,6 +304,7 @@ export default function Piano({ destination }: { destination?: () => AudioNode }
               </option>
             ))}
           </select>
+          </>)}
           <div className="h-4 w-px bg-white/20" />
           <select
             value={scaleTonic}

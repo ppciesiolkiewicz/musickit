@@ -73,7 +73,7 @@ const arrangements = (kinds: Record<string, string | undefined>, fedBy: Record<s
  * sequencers, whose settings are reached by clicking them), the master bus, every input, and each effect chain, switch and tuner are widgets you place anywhere.
  * There are no Mixer or bus sections. The wires between them are drawn over the page by `ConnectionLayer`.
  */
-export default function FreeBoard({ engine, snap, controls, keyboardOpen, onToggleKeyboard, openSeqs, onToggleSeq, openPianos, onTogglePiano }: { engine: LooperEngine; snap: LooperSnapshot; controls: ReactNode; keyboardOpen: boolean; onToggleKeyboard: () => void; openSeqs: string[]; onToggleSeq: (id: string) => void; openPianos: string[]; onTogglePiano: (id: string) => void }) {
+export default function FreeBoard({ engine, snap, controls, openSeqs, onToggleSeq, openPianos, onTogglePiano }: { engine: LooperEngine; snap: LooperSnapshot; controls: ReactNode; openSeqs: string[]; onToggleSeq: (id: string) => void; openPianos: string[]; onTogglePiano: (id: string) => void }) {
   const pinned = usePinned(engine, snap);
   const strips = snap.inputs.filter((i) => i.kind !== "sequencer");
   // buses that belong to an input live inside that input's block; only the stand-alone ones are widgets of their own
@@ -106,7 +106,7 @@ export default function FreeBoard({ engine, snap, controls, keyboardOpen, onTogg
     feeds[id] = [...new Set(at)].map((i) => `in:${strips[i].id}`);
   });
 
-  const title = (icon: "mic" | "audio-lines" | "split" | "sliders-horizontal" | "repeat" | "gauge", text: string) => (
+  const title = (icon: "mic" | "piano" | "audio-lines" | "split" | "sliders-horizontal" | "repeat" | "gauge", text: string) => (
     <span className="flex min-w-0 items-center gap-1.5"><Icon name={icon} size={13} className="shrink-0 text-slate-400" /><span className="truncate">{text}</span></span>
   );
 
@@ -128,12 +128,12 @@ export default function FreeBoard({ engine, snap, controls, keyboardOpen, onTogg
     ...strips.map((inp) => ({
       id: `in:${inp.id}`,
       fit: true,
-      title: title("mic", inp.name),
+      title: title(inp.kind === "instrument" ? "piano" : "mic", inp.name),
       node: (
         // the whole block (strip and buses) is where the input's one output leaves from; the widget is as tall as it
         <div data-patch-id={`in:${inp.id}`}>
           <ul>
-            <InputStrip engine={engine} inp={inp} devices={snap.devices} anyDevice={snap.devices.length > 0} keyboardOpen={keyboardOpen} onToggleKeyboard={onToggleKeyboard} sequencerOpen={false} onToggleSequencer={() => undefined} pianoOpen={!!inp.sourceId && openPianos.includes(inp.sourceId)} onTogglePiano={() => inp.sourceId && onTogglePiano(inp.sourceId)} seq={undefined} groups={snap.groups} />
+            <InputStrip engine={engine} inp={inp} devices={snap.devices} anyDevice={snap.devices.length > 0} sequencerOpen={false} onToggleSequencer={() => undefined} pianoOpen={!!inp.sourceId && openPianos.includes(inp.sourceId)} onTogglePiano={() => inp.sourceId && onTogglePiano(inp.sourceId)} seq={undefined} inst={snap.instruments.find((q) => q.id === inp.sourceId)} groups={snap.groups} />
           </ul>
           <InputBundle engine={engine} snap={snap} ownerId={`in:${inp.id}`} />
         </div>

@@ -34,13 +34,15 @@ export interface ScalePianoProps {
   onChange: (patch: Partial<ScalePianoSettings>) => void;
   /** the sound; without one the keyboard plays its own sample player to the app's output, in `state.instrument` */
   voice?: ScaleVoice;
+  /** the owner shows the sound elsewhere (the looper's generator panel) */
+  hideSound?: boolean;
 }
 
 /**
  * The Scale Piano: pick a key and scale, then play it from the computer keyboard (or click the keys).
  * The picture shows which key plays which note. It listens to the keyboard only while mounted and never while typing in a field.
  */
-export default function ScalePiano({ state: raw, onChange, voice }: ScalePianoProps) {
+export default function ScalePiano({ state: raw, onChange, voice, hideSound = false }: ScalePianoProps) {
   // keyed on the values, so a new object with the same settings does not rebuild the keys (and cut held notes)
   const state = useMemo(() => clampState({ root: raw.root, scale: raw.scale, octave: raw.octave }), [raw.root, raw.scale, raw.octave]);
   const keys = useMemo(() => buildKeyMap(state), [state]);
@@ -110,10 +112,12 @@ export default function ScalePiano({ state: raw, onChange, voice }: ScalePianoPr
         <select className={field} value={state.scale} onChange={(e) => onChange({ scale: e.target.value })} aria-label="Scale">
           {SCALES.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
         </select>
+        {!hideSound && (
         <select className={field} value={instrument} onChange={(e) => { onChange({ instrument: e.target.value }); e.target.blur(); }} aria-label="Sound" title="Sound">
           {!instrumentOptions.some((o) => o.value === instrument) && <option value={instrument}>{instrument}</option>}
           {instrumentOptions.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
         </select>
+        )}
         <div className="ml-auto flex items-center gap-1" role="group" aria-label="Octave">
           <button type="button" className={ibtn} disabled={state.octave <= MIN_OCTAVE} onClick={() => onChange({ octave: state.octave - 1 })} title="Octave down" aria-label="Octave down"><Icon name="chevron-left" /></button>
           <span className="w-8 text-center text-xs tabular-nums text-slate-300" title="Octave of the bottom row">C{state.octave}</span>

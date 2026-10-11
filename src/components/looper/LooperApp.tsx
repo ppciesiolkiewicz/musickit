@@ -15,7 +15,6 @@ import ConnectionLayer from "./ConnectionLayer";
 import ViewMenu, { toView } from "./ViewMenu";
 import MacroPanel from "./MacroPanel";
 import FloatingWindow from "../FloatingWindow";
-import Piano from "@/features/sound/keyboard/Piano";
 import { createPlayer, getAudioContext } from "@/features/sound";
 import LoopStage from "./LoopStage";
 import FreeBoard from "./FreeBoard";
@@ -25,7 +24,7 @@ import { Modal } from "../Modal";
 import MetronomeBar, { TransportButton } from "./MetronomeBar";
 import Timeline from "./Timeline";
 import InputsMini from "./InputsMini";
-import ScalePianoPanel from "./ScalePianoPanel";
+import InstrumentPanel from "./InstrumentPanel";
 import SequencerPanel from "./SequencerPanel";
 import Link from "next/link";
 import ThemeSwitcher from "../ThemeSwitcher";
@@ -119,24 +118,16 @@ function wireNam() {
 }
 
 /**
- * Where the looper's on-screen keyboard plays: a node of its own in the shared AudioContext, not the app's output (which goes
- * straight to the speakers). The engine takes it as the Piano strip's source, so the strip's mute, volume and effects and the
- * master bus all apply to what you hear.
- */
-let keyboardOut: GainNode | null = null;
-const getKeyboardOut = (): GainNode => (keyboardOut ??= getAudioContext().createGain());
-
-/**
  * What a project is made of in storage. Settings (metronome, output, MIDI, keyboard), macros and amp models stay. The flags of the
  * defaults go too, so a new project starts with the default guitar, vocal, keyboard piano, Scale Piano, sequencers and group effect
  * widgets again, and the canvas lays itself out afresh (vertical).
  */
-const PROJECT_KEYS = ["inputs", "layout", "sequencers", "scalePianos", "patch", "fxWidgets", "groupPinsDone", "widgets", "board2", "rigDone3", "keysRigDone", "pianoRigDone2", "seqRigDone"];
+const PROJECT_KEYS = ["inputs", "layout", "sequencers", "scalePianos", "instruments", "patch", "fxWidgets", "groupPinsDone", "widgets", "board2", "rigDone3", "keysRigDone", "pianoRigDone2", "seqRigDone"];
 
 function newProject() {
   try {
     PROJECT_KEYS.forEach((k) => window.localStorage.removeItem(`musickit.looper.${k}`));
-    Object.keys(window.localStorage).filter((k) => /^musickit\.looper\.(scalePianoWindow|sequencerWindow)\./.test(k)).forEach((k) => window.localStorage.removeItem(k));
+    Object.keys(window.localStorage).filter((k) => /^musickit\.looper\.(scalePianoWindow|sequencerWindow|instrumentWindow)\./.test(k)).forEach((k) => window.localStorage.removeItem(k));
     // the default rigs are made once per project: forget that they were, so the new project gets them again
     Object.keys(window.localStorage).filter((k) => /^musickit\.looper\.(rigDone|keysRigDone|pianoRigDone|seqRigDone)/.test(k)).forEach((k) => window.localStorage.removeItem(k));
   } catch {
@@ -192,7 +183,14 @@ function useEngine() {
       wireNam();
       setPitchDetector(detectPitch);
     }
-    return new LooperEngine({ getContext: getAudioContext, getExternalSource: getKeyboardOut, externalLabel: "Piano", createVoice: (_ctx, dest) => { const p = createPlayer({ instrumentId: "PIANO", destination: () => dest }); void p.preload().catch(() => undefined); return p; } });
+    return new LooperEngine({
+      getContext: getAudioContext,
+      // the sample player for now; the sampler's voice replaces it in a later step
+      createVoice: (_ctx, dest, spec) => {
+        const p = createPlayer({ instrumentId: spec.kind === "piano" ? spec.instrument : "PIANO", destination: () => dest });
+        return { noteOn: (m, v) => p.noteOn(m, v), noteOff: (m) => p.noteOff(m), allOff: () => p.allOff(), setSound: (sp) => { if (sp.kind === "piano") p.setInstrument(sp.instrument); }, preload: () => p.preload() };
+      },
+    });
   });
   useEffect(() => {
     engine.init();
@@ -272,7 +270,6 @@ export default function LooperApp() {
   const hist = useSyncExternalStore(engine.history.subscribe, engine.history.getState, engine.history.getState);
   const canUndo = hist.cursor > 0, canRedo = hist.cursor < hist.entries.length;
   const recording = useSyncExternalStore(engine.macroRecorder.subscribe, () => engine.macroRecorder.recording, () => false);
-  const [keyboardOpen, setKeyboardOpen] = useState(false);
   const [addingInput, setAddingInput] = useState(false);
   const [openSeqs, setOpenSeqs] = useState<string[]>([]);
   const [openPianos, setOpenPianos] = useState<string[]>([]);
@@ -314,7 +311,7 @@ export default function LooperApp() {
   }, [engine]);
 
   const mixer = (fill: boolean) => (
-    <Mixer engine={engine} snap={snap} keyboardOpen={keyboardOpen} onToggleKeyboard={() => setKeyboardOpen((v) => !v)} openSeqs={openSeqs} onToggleSequencer={toggleSeq} openPianos={openPianos} onTogglePiano={togglePiano} align={align} onAlign={setAlign} fill={fill} />
+    <Mixer engine={engine} snap={snap} openSeqs={openSeqs} onToggleSequencer={toggleSeq} openPianos={openPianos} onTogglePiano={togglePiano} align={align} onAlign={setAlign} fill={fill} />
   );
   const loopControls = (
     <>
@@ -338,12 +335,12 @@ export default function LooperApp() {
       {widgetMode && ready && <ConnectionLayer engine={engine} snap={snap} wrapper={pageRef} />}
       {ready && <AddFab engine={engine} snap={snap} wires={widgetMode} names={Object.fromEntries(EFFECT_KINDS.map((k) => [k, EFFECT_DEFS[k].name]))} onInput={() => setAddingInput(true)} />}
       <Toasts />
-      {addingInput && <AddInputModal engine={engine} snap={snap} hasExtra={snap.inputs.some((i) => i.kind === "extra")} onClose={() => setAddingInput(false)} />}
+      {addingInput && <AddInputModal engine={engine} snap={snap} onClose={() => setAddingInput(false)} />}
       <div className="pointer-events-none sticky top-0 z-[1100] flex items-start justify-between gap-2 px-1 py-1">
         <div className="relative">
           <div className="pointer-events-auto"><MetronomeBar engine={engine} snap={snap} ready={ready} /></div>
           {/* floats over the page (absolute), so opening it never pushes the canvas down */}
-          {ready && widgetMode && <div className="pointer-events-auto absolute left-0 top-full mt-1.5"><InputsMini engine={engine} snap={snap} keyboardOpen={keyboardOpen} onToggleKeyboard={() => setKeyboardOpen((v) => !v)} openPianos={openPianos} onTogglePiano={togglePiano} /></div>}
+          {ready && widgetMode && <div className="pointer-events-auto absolute left-0 top-full mt-1.5"><InputsMini engine={engine} snap={snap} openPianos={openPianos} onTogglePiano={togglePiano} /></div>}
         </div>
         <div className="pointer-events-auto flex gap-1">
           <button type="button" className={ibtn} onClick={() => setNewOpen(true)} title="New project" aria-label="New project"><Icon name="file-plus" /></button>
@@ -359,7 +356,7 @@ export default function LooperApp() {
       </div>
       {snap.error && <p role="alert" className="rounded-lg border border-rose-500/40 bg-rose-500/10 p-2 text-xs text-rose-200">{snap.error}</p>}
       {view === "canvas" ? (
-        <FreeBoard engine={engine} snap={snap} controls={loopControls} keyboardOpen={keyboardOpen} onToggleKeyboard={() => setKeyboardOpen((v) => !v)} openSeqs={openSeqs} onToggleSeq={toggleSeq} openPianos={openPianos} onTogglePiano={togglePiano} />
+        <FreeBoard engine={engine} snap={snap} controls={loopControls} openSeqs={openSeqs} onToggleSeq={toggleSeq} openPianos={openPianos} onTogglePiano={togglePiano} />
       ) : (
         <div className="flex flex-col gap-2 px-1 pb-2">
           {looping(false)}
@@ -376,19 +373,14 @@ export default function LooperApp() {
           <MacroPanel engine={engine} />
         </FloatingWindow>
       )}
-      {keyboardOpen && (
-        <FloatingWindow title="Keyboard" storageKey="musickit.looper.keyboardWindow" fit onClose={() => setKeyboardOpen(false)}>
-          <Piano destination={getKeyboardOut} />
-        </FloatingWindow>
-      )}
       {openSeqs.filter((id) => snap.sequencers.some((q) => q.id === id)).map((id) => (
         <FloatingWindow key={id} title={snap.sequencers.find((q) => q.id === id)?.name ?? "Sequencer"} storageKey={`musickit.looper.sequencerWindow.${id}`} onClose={() => toggleSeq(id)}>
           <SequencerPanel engine={engine} snap={snap} id={id} />
         </FloatingWindow>
       ))}
-      {openPianos.filter((id) => snap.scalePianos.some((q) => q.id === id)).map((id) => (
-        <FloatingWindow key={id} title={snap.scalePianos.find((q) => q.id === id)?.name ?? "Scale Piano"} storageKey={`musickit.looper.scalePianoWindow.${id}`} fit onClose={() => togglePiano(id)}>
-          <ScalePianoPanel engine={engine} snap={snap} id={id} />
+      {openPianos.filter((id) => snap.instruments.some((q) => q.id === id)).map((id) => (
+        <FloatingWindow key={id} title={snap.instruments.find((q) => q.id === id)?.name ?? "Instrument"} storageKey={`musickit.looper.instrumentWindow.${id}`} fit onClose={() => togglePiano(id)}>
+          <InstrumentPanel engine={engine} snap={snap} id={id} />
         </FloatingWindow>
       ))}
       <StartupLoader engine={engine} snap={snap} />

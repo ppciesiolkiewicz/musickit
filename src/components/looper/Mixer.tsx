@@ -16,6 +16,7 @@ import { flowingLinks, masterFeeds, sendColours, stripPatchId } from "@/lib/loop
 import { patchName } from "./PatchNode";
 import { INPUT_PRESETS, INPUT_ROLES, presetFor, type InputRole } from "@/lib/looper/inputPresets";
 import { GUITAR_AMPS } from "@/lib/looper/rig";
+import { CONTROLLER_ICON, generatorChip, type Inst } from "./instrumentView";
 import Slider from "@/components/Slider";
 import { btnBaseSm as btn, btnSm as btnPlain, ibtn } from "@/components/controls";
 
@@ -80,7 +81,7 @@ function heardPick(levels: number[]): string | null {
 }
 
 /** Two steps: pick the kind of input (hardware or software keyboard), then for hardware pick a device and its channels. */
-export function AddInputModal({ engine, snap, hasExtra, onClose }: { engine: LooperEngine; snap: LooperSnapshot; hasExtra: boolean; onClose: () => void }) {
+export function AddInputModal({ engine, snap, onClose }: { engine: LooperEngine; snap: LooperSnapshot; onClose: () => void }) {
   const [step, setStep] = useState<"type" | "hardware">("type");
   const [deviceId, setDeviceId] = useState<string | null>(() => chooseDevice(snap.devices, null)?.id ?? null);
   const [role, setRole] = useState<InputRole>("guitar");
@@ -136,12 +137,12 @@ export function AddInputModal({ engine, snap, hasExtra, onClose }: { engine: Loo
             <span className="text-sm font-medium text-slate-100">Hardware</span>
             <span className="text-xs text-slate-400">An audio interface (Scarlett, DI guitar), a USB mic or the built-in microphone.</span>
           </button>
-          <button type="button" disabled={hasExtra || !snap.extraLabel} onClick={() => { engine.addInputWithRig({ kind: "extra", name: snap.extraLabel ?? "Piano" }, "piano"); onClose(); }} className="flex flex-col gap-1 rounded-xl border border-slate-700 bg-slate-900 p-4 text-left hover:border-sky-400 disabled:cursor-not-allowed disabled:opacity-50">
+          <button type="button" onClick={() => { engine.addInstrumentWithRig("piano"); onClose(); }} className="flex flex-col gap-1 rounded-xl border border-slate-700 bg-slate-900 p-4 text-left hover:border-sky-400">
             <Icon name="piano" size={28} className="text-sky-300" />
-            <span className="text-sm font-medium text-slate-100">Software keyboard</span>
-            <span className="text-xs text-slate-400">{hasExtra ? "Already added. Open it from its strip." : "The on-screen piano and your MIDI keyboard, with the piano buses (dry, room, hall, dreamy)."}</span>
+            <span className="text-sm font-medium text-slate-100">Piano</span>
+            <span className="text-xs text-slate-400">The on-screen piano and your MIDI keyboard, with the piano buses (dry, room, hall, dreamy).</span>
           </button>
-          <button type="button" onClick={() => { engine.addScalePianoWithRig(); onClose(); }} className="flex flex-col gap-1 rounded-xl border border-slate-700 bg-slate-900 p-4 text-left hover:border-sky-400">
+          <button type="button" onClick={() => { engine.addInstrumentWithRig("scalepiano"); onClose(); }} className="flex flex-col gap-1 rounded-xl border border-slate-700 bg-slate-900 p-4 text-left hover:border-sky-400">
             <Icon name="music" size={28} className="text-sky-300" />
             <span className="text-sm font-medium text-slate-100">Scale Piano</span>
             <span className="text-xs text-slate-400">Pick a key and scale: the computer keys play only notes from it. Comes with the piano buses.</span>
@@ -298,7 +299,7 @@ function Accordion({ title, icon, open, onToggle, grow = false, children }: { ti
   );
 }
 
-export default function Mixer({ engine, snap, keyboardOpen, onToggleKeyboard, openSeqs, onToggleSequencer, openPianos, onTogglePiano, align = "rows", onAlign, fill = false }: { align?: MixerAlign; onAlign?: (a: MixerAlign) => void; fill?: boolean; engine: LooperEngine; snap: LooperSnapshot; keyboardOpen: boolean; onToggleKeyboard: () => void; openSeqs: string[]; onToggleSequencer: (id: string) => void; openPianos: string[]; onTogglePiano: (id: string) => void }) {
+export default function Mixer({ engine, snap, openSeqs, onToggleSequencer, openPianos, onTogglePiano, align = "rows", onAlign, fill = false }: { align?: MixerAlign; onAlign?: (a: MixerAlign) => void; fill?: boolean; engine: LooperEngine; snap: LooperSnapshot; openSeqs: string[]; onToggleSequencer: (id: string) => void; openPianos: string[]; onTogglePiano: (id: string) => void }) {
   const { inputs, devices } = snap;
   const [sections, toggleSection] = useSections();
   return (
@@ -315,7 +316,7 @@ export default function Mixer({ engine, snap, keyboardOpen, onToggleKeyboard, op
       <Accordion title="Inputs" icon="mic" open={sections.inputs} onToggle={() => toggleSection("inputs")}>
         <ul className={align === "columns" ? "flex flex-row flex-wrap items-start gap-1 [&>li]:w-64 [&>li]:shrink-0" : "flex flex-col gap-1"}>
           {inputs.map((inp) => (
-            <InputStrip key={inp.id} engine={engine} inp={inp} devices={devices} anyDevice={snap.devices.length > 0} keyboardOpen={keyboardOpen} onToggleKeyboard={onToggleKeyboard} sequencerOpen={!!inp.sourceId && openSeqs.includes(inp.sourceId)} onToggleSequencer={() => inp.sourceId && onToggleSequencer(inp.sourceId)} pianoOpen={!!inp.sourceId && openPianos.includes(inp.sourceId)} onTogglePiano={() => inp.sourceId && onTogglePiano(inp.sourceId)} seq={snap.sequencers.find((q) => q.id === inp.sourceId)} groups={snap.groups} />
+            <InputStrip key={inp.id} engine={engine} inp={inp} devices={devices} anyDevice={snap.devices.length > 0} sequencerOpen={!!inp.sourceId && openSeqs.includes(inp.sourceId)} onToggleSequencer={() => inp.sourceId && onToggleSequencer(inp.sourceId)} pianoOpen={!!inp.sourceId && openPianos.includes(inp.sourceId)} onTogglePiano={() => inp.sourceId && onTogglePiano(inp.sourceId)} seq={snap.sequencers.find((q) => q.id === inp.sourceId)} inst={snap.instruments.find((q) => q.id === inp.sourceId)} groups={snap.groups} />
           ))}
         </ul>
       </Accordion>
@@ -329,7 +330,7 @@ export default function Mixer({ engine, snap, keyboardOpen, onToggleKeyboard, op
   );
 }
 
-export function InputStrip({ engine, inp, devices, anyDevice, keyboardOpen, onToggleKeyboard, sequencerOpen, onToggleSequencer, pianoOpen, onTogglePiano, seq, groups }: { engine: LooperEngine; inp: InputInfo; devices: { id: string; label: string }[]; anyDevice: boolean; keyboardOpen: boolean; onToggleKeyboard: () => void; sequencerOpen: boolean; onToggleSequencer: () => void; pianoOpen: boolean; onTogglePiano: () => void; seq?: LooperSnapshot["sequencers"][number]; groups: { id: string; name: string; colour: string }[] }) {
+export function InputStrip({ engine, inp, devices, anyDevice, sequencerOpen, onToggleSequencer, pianoOpen, onTogglePiano, seq, inst, groups }: { engine: LooperEngine; inp: InputInfo; devices: { id: string; label: string }[]; anyDevice: boolean; sequencerOpen: boolean; onToggleSequencer: () => void; pianoOpen: boolean; onTogglePiano: () => void; seq?: LooperSnapshot["sequencers"][number]; inst?: Inst; groups: { id: string; name: string; colour: string }[] }) {
   const getLevel = useMemo(() => () => engine.getInputLevel(inp.id), [engine, inp.id]);
   const m = engine.mixer;
   const isDevice = inp.kind === "device";
@@ -339,8 +340,9 @@ export function InputStrip({ engine, inp, devices, anyDevice, keyboardOpen, onTo
   return (
     <li data-patch-id={stripPatchId(inp)} style={grp ? { borderLeft: `4px solid ${grp.colour}`, background: `${grp.colour}12` } : undefined} className={`flex flex-col gap-1 rounded-lg border bg-slate-950/50 px-2 py-1.5 ${inp.live ? "border-slate-800" : "border-slate-800/60 opacity-80"}`}>
       <div className="flex flex-wrap items-center gap-1.5">
-        <span title={state} className="text-slate-300"><Icon name={isDevice ? "mic" : inp.kind === "sequencer" ? "drum" : inp.kind === "scalepiano" ? "music" : "piano"} size={18} /></span>
+        <span title={state} className="text-slate-300"><Icon name={isDevice ? "mic" : inp.kind === "sequencer" ? "drum" : inst ? CONTROLLER_ICON[inst.controller] : "piano"} size={18} /></span>
         <input value={inp.name} onChange={(e) => engine.do({ type: "input.set", id: inp.id, patch: { name: e.target.value } })} aria-label="Input name" className="w-32 rounded-md border border-transparent bg-transparent px-1.5 py-0.5 text-sm font-medium text-slate-100 hover:border-slate-700 focus:border-slate-500 focus:outline-none" />
+        {inst && <span className="max-w-[9rem] truncate rounded-md border border-slate-700 px-1.5 py-0.5 text-[10px] text-slate-400" title="Sound generator">{generatorChip(inst)}</span>}
         {inp.kind === "sequencer" && seq && <span className="flex h-6 min-w-[6.5rem] items-center justify-center gap-1 rounded-md border px-1.5 text-[10px] leading-none text-slate-300" style={{ borderColor: grp?.colour ?? "#334155" }} title="Where this sequencer plays: by the group its circle sits in">{grp && <span className="h-2 w-2 rounded-full" style={{ background: grp.colour }} />}→ {seq.dest === "record" ? "recorder" : grp?.name ?? "master"}</span>}
         {inp.kind !== "sequencer" && <span className="flex h-6 min-w-[6.5rem] items-center justify-center gap-1 rounded-md border border-slate-700 px-1.5 text-[10px] leading-none text-slate-400" title="Goes to the recorder, then into the loops"><Icon name="circle" size={10} className="text-rose-400" />rec</span>}
         <span aria-hidden title={state} className={`h-2 w-2 rounded-full ${inp.live ? "bg-emerald-400" : "bg-slate-600"}`} />
@@ -349,12 +351,11 @@ export function InputStrip({ engine, inp, devices, anyDevice, keyboardOpen, onTo
         <span className="flex-1" aria-hidden />
         {inp.kind === "sequencer" && seq && <button type="button" className={`${ibtn} ${seq.playing ? "!border-emerald-500/70 !bg-emerald-500/15 !text-emerald-200" : ""}`} aria-pressed={seq.playing} onClick={() => engine.do({ type: "sequencer.playing", id: seq.id, on: !seq.playing })} title={seq.playing ? "Stop on the next beat" : "Start on the next beat"} aria-label={seq.playing ? `Stop ${inp.name}` : `Start ${inp.name}`}><Icon name={seq.playing ? "square" : "play"} fill /></button>}
         {inp.kind === "sequencer" && <button type="button" className={`${ibtn} ${sequencerOpen ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={sequencerOpen} onClick={onToggleSequencer} title={sequencerOpen ? "Close the sequencer" : "Open the sequencer"} aria-label={sequencerOpen ? "Close the sequencer" : "Open the sequencer"}><Icon name="sliders-horizontal" /></button>}
-        {inp.kind === "scalepiano" && <button type="button" className={`${ibtn} ${pianoOpen ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={pianoOpen} onClick={onTogglePiano} title={pianoOpen ? "Close the Scale Piano" : "Open the Scale Piano"} aria-label={pianoOpen ? "Close the Scale Piano" : "Open the Scale Piano"}><Icon name="keyboard" /></button>}
-        {inp.kind === "extra" && <button type="button" className={`${ibtn} ${keyboardOpen ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={keyboardOpen} onClick={onToggleKeyboard} title={keyboardOpen ? "Close keyboard" : "Open keyboard"} aria-label={keyboardOpen ? "Close keyboard" : "Open keyboard"}><Icon name="keyboard" /></button>}
+        {inp.kind === "instrument" && <button type="button" className={`${ibtn} ${pianoOpen ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={pianoOpen} onClick={onTogglePiano} title={pianoOpen ? `Close ${inp.name}` : `Play ${inp.name}`} aria-label={pianoOpen ? `Close ${inp.name}` : `Play ${inp.name}`}><Icon name="keyboard" /></button>}
         {isDevice && inp.connected && <button type="button" className={`${ibtn} ${inp.monitor ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={inp.monitor} onClick={() => engine.do({ type: "input.set", id: inp.id, patch: { monitor: !inp.monitor } })} title="Hear this input while it is recorded" aria-label={`Hear ${inp.name}`}><Icon name="headphones" /></button>}
         <button type="button" className={`${ibtn} ${inp.muted ? "!border-amber-400 !text-amber-200" : ""}`} aria-pressed={inp.muted} onClick={() => engine.do({ type: "input.set", id: inp.id, patch: { muted: !inp.muted } })} title="Mute" aria-label={`Mute ${inp.name}`}>M</button>
         <button type="button" className={`${ibtn} ${inp.solo ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={inp.solo} onClick={() => engine.do({ type: "input.set", id: inp.id, patch: { solo: !inp.solo } })} title="Solo" aria-label={`Solo ${inp.name}`}>S</button>
-        <button type="button" className={ibtn} onClick={() => (inp.kind === "sequencer" && inp.sourceId ? engine.do({ type: "sequencer.remove", id: inp.sourceId }) : inp.kind === "device" || inp.kind === "extra" ? engine.do({ type: "input.remove", id: inp.id }) : m.remove(inp.id))} aria-label={`Remove ${inp.name}`} title="Remove this input"><Icon name="x" /></button>
+        <button type="button" className={ibtn} onClick={() => (inp.kind === "sequencer" && inp.sourceId ? engine.do({ type: "sequencer.remove", id: inp.sourceId }) : inp.kind === "device" ? engine.do({ type: "input.remove", id: inp.id }) : m.remove(inp.id))} aria-label={`Remove ${inp.name}`} title="Remove this input"><Icon name="x" /></button>
       </div>
 
       {isDevice && !inp.connected && (
@@ -480,14 +481,14 @@ export function Buses({ engine, snap }: { engine: LooperEngine; snap: LooperSnap
 }
 
 /** The input strips (everything that is not a sequencer); new ones come from the round + button. Its own widget in the widget views. */
-export function InputList({ engine, snap, keyboardOpen, onToggleKeyboard, openPianos, onTogglePiano }: { engine: LooperEngine; snap: LooperSnapshot; keyboardOpen: boolean; onToggleKeyboard: () => void; openPianos: string[]; onTogglePiano: (id: string) => void }) {
+export function InputList({ engine, snap, openPianos, onTogglePiano }: { engine: LooperEngine; snap: LooperSnapshot; openPianos: string[]; onTogglePiano: (id: string) => void }) {
   const strips = snap.inputs.filter((i) => i.kind !== "sequencer");
   return (
     <div className="flex flex-col gap-1" aria-label="Inputs">
       {strips.length === 0 && <p className="rounded-lg border border-dashed border-slate-700 p-2 text-xs text-slate-400">No inputs. Add one with the round + button.</p>}
       <ul className="flex flex-col gap-1">
         {strips.map((inp) => (
-          <InputStrip key={inp.id} engine={engine} inp={inp} devices={snap.devices} anyDevice={snap.devices.length > 0} keyboardOpen={keyboardOpen} onToggleKeyboard={onToggleKeyboard} sequencerOpen={false} onToggleSequencer={() => undefined} pianoOpen={!!inp.sourceId && openPianos.includes(inp.sourceId)} onTogglePiano={() => inp.sourceId && onTogglePiano(inp.sourceId)} seq={undefined} groups={snap.groups} />
+          <InputStrip key={inp.id} engine={engine} inp={inp} devices={snap.devices} anyDevice={snap.devices.length > 0} sequencerOpen={false} onToggleSequencer={() => undefined} pianoOpen={!!inp.sourceId && openPianos.includes(inp.sourceId)} onTogglePiano={() => inp.sourceId && onTogglePiano(inp.sourceId)} seq={undefined} inst={snap.instruments.find((q) => q.id === inp.sourceId)} groups={snap.groups} />
         ))}
       </ul>
     </div>
@@ -502,7 +503,7 @@ export function SequencerList({ engine, snap, openSeqs, onToggleSequencer }: { e
       {strips.length === 0 && <p className="rounded-lg border border-dashed border-slate-700 p-2 text-xs text-slate-400">No sequencers. Add one with the round + button.</p>}
       <ul className="flex flex-col gap-1">
         {strips.map((inp) => (
-          <InputStrip key={inp.id} engine={engine} inp={inp} devices={snap.devices} anyDevice={snap.devices.length > 0} keyboardOpen={false} onToggleKeyboard={() => undefined} sequencerOpen={!!inp.sourceId && openSeqs.includes(inp.sourceId)} onToggleSequencer={() => inp.sourceId && onToggleSequencer(inp.sourceId)} pianoOpen={false} onTogglePiano={() => undefined} seq={snap.sequencers.find((q) => q.id === inp.sourceId)} groups={snap.groups} />
+          <InputStrip key={inp.id} engine={engine} inp={inp} devices={snap.devices} anyDevice={snap.devices.length > 0} sequencerOpen={!!inp.sourceId && openSeqs.includes(inp.sourceId)} onToggleSequencer={() => inp.sourceId && onToggleSequencer(inp.sourceId)} pianoOpen={false} onTogglePiano={() => undefined} seq={snap.sequencers.find((q) => q.id === inp.sourceId)} inst={snap.instruments.find((q) => q.id === inp.sourceId)} groups={snap.groups} />
         ))}
       </ul>
     </div>
