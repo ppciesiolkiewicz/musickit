@@ -31,7 +31,7 @@ describe("five positions, named by the strings the root is on", () => {
   });
 
   it("A minor scale position 1 is the 5th-position shape", () => {
-    assert.deepEqual(frets(positionsFor(aMinor, "scale")[0]), [[5, 7, 8], [5, 7, 8], [5, 7, 9], [5, 7], [5, 6, 8], [5, 7, 8]]);
+    assert.deepEqual(frets(positionsFor(aMinor, "scale")[0]), [[5, 7, 8], [5, 7, 8], [5, 7], [4, 5, 7], [5, 6, 8], [5, 7, 8]]);
   });
 
   it("major and minor pentatonic keep the root pattern in every key, and stay at two notes per string away from the nut", () => {
@@ -48,12 +48,14 @@ describe("five positions, named by the strings the root is on", () => {
     assert.deepEqual(frets(p1), [[0, 2, 4], [2, 4], [2, 4], [1, 4], [0, 2, 5], [0, 2, 4]]);
   });
 
-  it("an odd pentatonic's box takes in the note one fret below it, so the root is not left out", () => {
-    const boxes = positionsFor(makeKeyContext(7, 1, 4), "pentatonic"); // G Phrygian dominant
-    assert.deepEqual(frets(boxes[1]), [[3, 4, 7], [5, 6], [5, 6], [4, 7], [3, 4, 8], [3, 4, 7]]);
+  it("every mode is laid out on the major or minor pentatonic boxes: G Phrygian dominant position 1 keeps B and C on the A string", () => {
+    const [p1] = positionsFor(makeKeyContext(7, 1, 4), "scale");
+    assert.deepEqual(frets(p1), [[3, 4], [2, 3, 5], [1, 3, 5], [1, 4, 5], [3, 4, 6], [3, 4]]);
+    const [pent] = positionsFor(makeKeyContext(7, 1, 4), "pentatonic");
+    assert.deepEqual(frets(pent), [[3, 4], [2, 5], [1, 5], [1, 4], [3, 4], [3, 4]]);
   });
 
-  it("in every key and mode: five positions, no fret below the nut or past 17, a playable span, the root pattern away from the nut", () => {
+  it("in every key and mode: five different positions, frets 0-17, at most a 5-fret span, the root pattern, every note", () => {
     for (let pc = 0; pc < 12; pc++) for (let f = 0; f < 3; f++) for (let m = 0; m < 7; m++) {
       const ctx = makeKeyContext(pc, f, m);
       for (const kind of ["pentatonic", "scale"] as const) {
@@ -64,9 +66,9 @@ describe("five positions, named by the strings the root is on", () => {
         assert.equal(new Set(places).size, 5, `${tag} two positions are the same`);
         ps.forEach((p, i) => {
           assert.ok(p.from >= 0 && p.to <= 17, tag);
-          assert.ok(p.to - p.from <= 7, `${tag} spans ${p.from}-${p.to}`);
-          if (p.from > 2) assert.ok(ROOTS[i].every((s) => rootStrings(p).includes(s)), `${tag} position ${i + 1} roots ${rootStrings(p)}`);
-          if (kind === "scale") assert.equal(new Set(positionLine(p).map((n) => n.degree)).size, 7, `${tag} position ${i + 1} misses a note`);
+          assert.ok(p.to - p.from <= 5, `${tag} spans ${p.from}-${p.to}`);
+          assert.ok(ROOTS[i].every((s) => rootStrings(p).includes(s)), `${tag} position ${i + 1} roots ${rootStrings(p)}`);
+          assert.equal(new Set(positionLine(p).map((n) => n.degree)).size, kind === "scale" ? 7 : 5, `${tag} position ${i + 1} misses a note`);
           const line = positionLine(p);
           for (let k = 1; k < line.length; k++) assert.ok(line[k].midi > line[k - 1].midi, tag);
         });

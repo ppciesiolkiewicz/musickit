@@ -64,9 +64,9 @@ export function scaleCells(ctx: KeyContext, to = SCALE_NECK_FRETS): ScaleCell[] 
 }
 
 export interface ScalePosition {
-  /** 1 to 5: position 1 starts on the root on the low E string, each next one on the next pentatonic note */
+  /** 1 to 5: position 1 has the root on the low E string, D and high e; see `frames` */
   number: number;
-  /** scale degree it starts on (on the low E string); 0 is position 1 */
+  /** degree of its lowest note on the low E string */
   startDegree: number;
   /** low string to high, low note to high on each string */
   notes: ScaleCell[];
@@ -76,89 +76,86 @@ export interface ScalePosition {
 
 export type PositionKind = "pentatonic" | "scale";
 
-const inDegrees = (ctx: KeyContext, degrees: Set<number>) => (midi: number) => {
-  const d = ctx.steps.indexOf((midi - ctx.tonic.pc + 120) % 12);
-  return d >= 0 && degrees.has(d);
-};
+interface Spot {
+  string: number;
+  fret: number;
+  midi: number;
+}
+
+/** The regular pentatonic every mode's positions are laid out on: major (1 2 3 5 6) with a major 3rd, minor (1 ♭3 4 5 ♭7) without. */
+const frameSemis = (steps: number[]) => (steps[2] === 4 ? [0, 2, 4, 7, 9] : [0, 3, 5, 7, 10]);
 
 /**
- * The five pentatonic boxes, two notes per string. Box k starts on the k-th pentatonic note on the low E string and climbs string by
- * string, so the root always falls on the same strings: 1 on E, D and e; 2 on D and B; 3 on A and B; 4 on A and G; 5 on G, E and e.
- * Box 1 sits where the root is on the low E string (frets 0-11); the others climb from it, and one that would run past fret 17 is
- * played an octave lower. Next to the nut the open strings join the shape. A note too low for the next string stays on its string, so nothing goes below the nut. A pentatonic with
- * half steps (1 ♭2 3 5 ♭6) can leave a note one fret below a string's lowest note, such as the root or an open string: it belongs to
- * the box. Major and minor pentatonic have no half steps.
+ * The five boxes of the regular pentatonic on the key's root, two notes per string. Box k starts on the k-th note on the low E
+ * string and climbs string by string, so the root falls on the same strings in every key: 1 on E, D and e; 2 on D and B; 3 on A
+ * and B; 4 on A and G; 5 on G, E and e. Box 1 sits where the root is on the low E string (frets 0-11); the others climb from it,
+ * and one that would run past fret 17 is played an octave lower. A note too low for the next string stays on its string, and
+ * a box that starts at the nut (low E fret 0 or 1) takes in the open strings.
  */
-export function pentatonicBoxes(ctx: KeyContext): ScalePosition[] {
-  const degrees = pentatonicOf(ctx.steps).degrees;
-  const inSet = inDegrees(ctx, new Set(degrees));
-  const rootLow = (ctx.tonic.pc - OPEN_MIDI[0] + 120) % 12;
+function frames(ctx: KeyContext): Spot[][] {
+  const semis = frameSemis(ctx.steps);
+  const pcs = new Set(semis.map((x) => (ctx.tonic.pc + x) % 12));
+  const inSet = (midi: number) => pcs.has(midi % 12);
+  const spot = (string: number, fret: number): Spot => ({ string, fret, midi: OPEN_MIDI[string] + fret });
   const build = (lowFret: number) => {
     const line: number[] = [];
     for (let m = OPEN_MIDI[0] + lowFret; line.length < 24; m++) if (inSet(m)) line.push(m);
-    const notes: ScaleCell[] = [];
+    const spots: Spot[] = [];
     let k = 0;
     for (let s = 0; s < 6; s++) {
-      for (let n = 0; n < 2 || (s < 5 && line[k] < OPEN_MIDI[s + 1]); n++, k++) notes.push(cellAt(ctx, s, line[k] - OPEN_MIDI[s])!);
+      for (let n = 0; n < 2 || (s < 5 && line[k] < OPEN_MIDI[s + 1]); n++, k++) spots.push(spot(s, line[k] - OPEN_MIDI[s]));
+      const lowest = Math.min(...spots.filter((x) => x.string === s).map((x) => x.fret));
+      if (lowFret <= 1 && lowest > 0 && lowest <= 2 && inSet(OPEN_MIDI[s])) spots.push(spot(s, 0));
     }
-    for (let s = 0; s < 6; s++) {
-      const lowest = Math.min(...notes.filter((n) => n.string === s).map((n) => n.fret));
-      if (lowest > 0 && inSet(OPEN_MIDI[s] + lowest - 1)) notes.push(cellAt(ctx, s, lowest - 1)!);
-      // next to the nut the open string is part of the shape
-      else if (lowest > 0 && lowest <= 2 && inSet(OPEN_MIDI[s])) notes.push(cellAt(ctx, s, 0)!);
-    }
-    return notes;
+    return spots;
   };
-  const fits = (notes: ScaleCell[]) => notes.every((n) => n.fret <= SCALE_NECK_FRETS);
-  const key = (notes: ScaleCell[]) => new Set(notes.map((n) => `${n.string}-${n.fret}`));
-  const boxes: ScalePosition[] = [];
-  degrees.forEach((startDegree, i) => {
-    let low = (ctx.tonic.pc + ctx.steps[startDegree] - OPEN_MIDI[0] + 120) % 12;
+  const rootLow = (ctx.tonic.pc - OPEN_MIDI[0] + 120) % 12;
+  return semis.map((semi) => {
+    let low = (ctx.tonic.pc + semi - OPEN_MIDI[0] + 120) % 12;
     if (low < rootLow) low += 12;
-    let notes = build(low);
-    if (low >= 12 && !fits(notes)) notes = build((low -= 12));
-    // at the nut a box of a pentatonic with half steps can come out the same as the one before: play it an octave away
-    const mine = key(notes);
-    if (boxes.some((b) => [...mine].every((k) => key(b.notes).has(k)))) {
-      const up = build(low + 12);
-      notes = fits(up) ? up : low >= 12 ? build(low - 12) : notes;
-    }
-    boxes.push(withSpan({ number: i + 1, startDegree, notes, from: 0, to: 0 }));
+    const spots = build(low);
+    return low >= 12 && spots.some((x) => x.fret > SCALE_NECK_FRETS) ? build(low - 12) : spots;
   });
-  return boxes;
 }
 
 /**
- * The five positions of the full scale: each pentatonic box with the scale's other notes filled in where they fall inside it
- * (or one fret either side), each on the string next to its neighbours in pitch. These are the CAGED scale shapes.
+ * Put the given degrees of the mode into each of the five boxes. Each string keeps the frets the regular pentatonic box uses on it,
+ * one either side: the box's own notes stay where they are when the mode has them, and every other note of the mode that falls in
+ * those frets is placed once, on the string where it sits inside the box's frets (then the string with fewer notes, then the lower).
  */
-export function scaleBoxes(ctx: KeyContext): ScalePosition[] {
-  const pentDegrees = new Set(pentatonicOf(ctx.steps).degrees);
-  const isExtra = inDegrees(ctx, new Set([0, 1, 2, 3, 4, 5, 6].filter((d) => !pentDegrees.has(d))));
-  return pentatonicBoxes(ctx).map((box) => {
-    const line = positionLine(box);
-    const notes = [...box.notes];
-    // a narrow box can borrow a fret either side; a wide one stays inside its frets
-    const reach = box.to - box.from <= 4 ? 1 : 0;
-    for (let m = line[0].midi - 4; m <= line[line.length - 1].midi + 4; m++) {
-      if (!isExtra(m)) continue;
-      const below = [...line].reverse().find((n) => n.midi < m);
-      const near = below ? below.string : 0;
-      const options = [0, 1, 2, 3, 4, 5]
-        .map((s) => ({ s, f: m - OPEN_MIDI[s] }))
-        .filter(({ f }) => f >= 0 && f <= SCALE_NECK_FRETS && f >= box.from - reach && f <= box.to + reach)
-        .map(({ s, f }) => ({ s, f, cost: (f < box.from || f > box.to ? 10 : 0) + (s === near ? 0 : s === near + 1 ? 1 : 2 + Math.abs(s - near)) }))
-        .sort((a, b) => a.cost - b.cost);
-      if (options.length) notes.push(cellAt(ctx, options[0].s, options[0].f)!);
+export function boxesFor(ctx: KeyContext, degrees: number[]): ScalePosition[] {
+  const keep = new Set(degrees);
+  return frames(ctx).map((frame, i) => {
+    const notes: ScaleCell[] = [];
+    const taken = new Set<number>();
+    for (const sp of frame) {
+      const c = cellAt(ctx, sp.string, sp.fret);
+      if (c && keep.has(c.degree)) {
+        notes.push(c);
+        taken.add(c.midi);
+      }
     }
-    return withSpan({ ...box, notes });
+    const range = [0, 1, 2, 3, 4, 5].map((s) => {
+      const fr = frame.filter((x) => x.string === s).map((x) => x.fret);
+      return { lo: Math.min(...fr), hi: Math.max(...fr) };
+    });
+    const options = new Map<number, { c: ScaleCell; inside: boolean }[]>();
+    range.forEach(({ lo, hi }, s) => {
+      for (let f = Math.max(0, lo - 1); f <= Math.min(SCALE_NECK_FRETS, hi + 1); f++) {
+        const c = cellAt(ctx, s, f);
+        if (!c || !keep.has(c.degree) || taken.has(c.midi)) continue;
+        options.set(c.midi, [...(options.get(c.midi) ?? []), { c, inside: f >= lo && f <= hi }]);
+      }
+    });
+    [...options.keys()].sort((a, b) => a - b).forEach((midi) => {
+      const count = (s: number) => notes.filter((n) => n.string === s).length;
+      const [best] = options.get(midi)!.sort((a, b) => Number(b.inside) - Number(a.inside) || count(a.c.string) - count(b.c.string) || a.c.string - b.c.string);
+      notes.push(best.c);
+    });
+    notes.sort((a, b) => a.string - b.string || a.fret - b.fret);
+    const frets = notes.map((n) => n.fret);
+    return { number: i + 1, startDegree: notes[0].degree, notes, from: Math.min(...frets), to: Math.max(...frets) };
   });
-}
-
-function withSpan(p: ScalePosition): ScalePosition {
-  const notes = p.notes.slice().sort((a, b) => a.string - b.string || a.fret - b.fret);
-  const frets = notes.map((n) => n.fret);
-  return { ...p, notes, from: Math.min(...frets), to: Math.max(...frets) };
 }
 
 /** The strings (0 = low E) a position has the root on: the quickest way to tell the boxes apart and find where each one sits. */
@@ -172,7 +169,7 @@ export function positionLine(p: ScalePosition): ScaleCell[] {
 
 /** The five positions for one kind: pentatonic boxes, or the full scale filled into them. */
 export function positionsFor(ctx: KeyContext, kind: PositionKind): ScalePosition[] {
-  return kind === "pentatonic" ? pentatonicBoxes(ctx) : scaleBoxes(ctx);
+  return boxesFor(ctx, kind === "pentatonic" ? pentatonicOf(ctx.steps).degrees : [0, 1, 2, 3, 4, 5, 6]);
 }
 
 /** A position played up and back down, as MIDI. */
