@@ -14,10 +14,22 @@ export const field = "h-7 rounded-md border border-slate-700 bg-slate-900 px-1.5
 export const NOTE_CHOICES = Array.from({ length: 61 }, (_, i) => 36 + i);
 
 /** Under the keys or pads: the sound generator's settings (the controller and generator are chosen behind the strip's pencil). */
-export default function GeneratorPanel({ inst, set, selected, onSelect }: { inst: Inst; set: (p: InstrumentPatch) => void; selected: number; onSelect: (i: number) => void }) {
+export default function GeneratorPanel({ inst, latest, set, selected, onSelect }: { inst: Inst; latest: () => Inst | undefined; set: (p: InstrumentPatch) => void; selected: number; onSelect: (i: number) => void }) {
   const options = useInstrumentOptions();
   const [msg, setMsg] = useState<string | null>(null);
+  /** the pad count being typed: saved on blur or Enter, so "12" never passes through 1 pad */
+  const [padDraft, setPadDraft] = useState<string | null>(null);
   const g = inst.generator;
+  /** A sample that arrives after a wait (a drop, a generation) changes the instrument as it is then, not as it was when the wait began. */
+  const assign = (sampleId: string, pad: number | null) => {
+    const now = latest()?.generator;
+    if (now?.kind !== "sampler") return;
+    set({ generator: pad === null ? { ...now, sample: sampleId } : { ...now, padSamples: now.padSamples.map((x, j) => (j === pad ? sampleId : x)) } });
+  };
+  const commitPads = () => {
+    if (padDraft !== null && padDraft.trim()) set({ pads: Number(padDraft) });
+    setPadDraft(null);
+  };
 
   const detect = async () => {
     if (g.kind !== "sampler" || !g.sample) return;
@@ -30,8 +42,7 @@ export default function GeneratorPanel({ inst, set, selected, onSelect }: { inst
     if (g.kind !== "sampler") return;
     setMsg(null);
     try {
-      const meta = await sampleLibrary.addFile(file);
-      set({ generator: { ...g, padSamples: g.padSamples.map((x, j) => (j === i ? meta.id : x)) } });
+      assign((await sampleLibrary.addFile(file)).id, i);
     } catch (e) {
       setMsg(e instanceof Error ? e.message : "Could not add the file.");
     }
@@ -42,7 +53,7 @@ export default function GeneratorPanel({ inst, set, selected, onSelect }: { inst
       <div className="flex flex-wrap items-center gap-1.5">
         {inst.controller === "soundboard" && (
           <label className="flex items-center gap-1">Pads
-            <input type="number" className={`${field} w-14`} aria-label="Pad count" min={MIN_PADS} max={MAX_PADS} value={inst.pads} onChange={(e) => e.target.value && set({ pads: Number(e.target.value) })} />
+            <input type="number" className={`${field} w-14`} aria-label="Pad count" min={MIN_PADS} max={MAX_PADS} value={padDraft ?? inst.pads} onChange={(e) => setPadDraft(e.target.value)} onBlur={commitPads} onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()} />
           </label>
         )}
         {g.kind === "piano" && (
@@ -62,7 +73,7 @@ export default function GeneratorPanel({ inst, set, selected, onSelect }: { inst
         </div>
       )}
       {g.kind === "sampler" && (
-        <AddSample onAdded={(meta) => set({ generator: inst.controller === "soundboard" ? { ...g, padSamples: g.padSamples.map((x, j) => (j === selected ? meta.id : x)) } : { ...g, sample: meta.id } })}>
+        <AddSample onAdded={(meta) => assign(meta.id, inst.controller === "soundboard" ? selected : null)}>
           {inst.controller !== "soundboard" && (
             <div className="flex flex-wrap items-center gap-1.5">
               <SamplePicker label="Sample" value={g.sample ?? null} onChange={(id) => set({ generator: { ...g, sample: id ?? undefined } })} />

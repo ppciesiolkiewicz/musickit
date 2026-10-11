@@ -32,7 +32,7 @@ export default function InstrumentPanel({ engine, snap, id }: { engine: LooperEn
           labels={g.kind === "piano" ? g.padNotes.map((n) => midiToName(n)) : g.padSamples.map((s) => (s ? names[s] ?? "missing" : null))}
           warn={lib.ready ? missingIn(inst, have) : Array.from({ length: inst.pads }, () => false)} />
       )}
-      <GeneratorPanel inst={inst} set={set} selected={pad} onSelect={setSelected} />
+      <GeneratorPanel inst={inst} latest={() => engine.getSnapshot().instruments.find((x) => x.id === id)} set={set} selected={pad} onSelect={setSelected} />
     </div>
   );
 }
