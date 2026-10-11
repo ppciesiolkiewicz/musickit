@@ -8,7 +8,9 @@
 
 **Tech Stack:** Next.js 16 (App Router, read `node_modules/next/dist/docs/` before touching routing), React 19, TypeScript, Web Audio, IndexedDB, `node:test` via `npx tsx --test`.
 
-**Spec:** `docs/superpowers/specs/2026-10-11-instrument-inputs-design.md`
+**Spec:** `docs/superpowers/specs/2026-10-11-instrument-inputs-design.md` (section 7 records main's later changes: shared controls, themes, the instrument header in the strip, and the `VoiceSpec` correction)
+
+**Base:** branch `worktree-instrument-inputs` rebased on main `520121e`. Line references below were taken before that rebase: locate code by the quoted snippets, not by line numbers. `LooperApp` now renders `InputsMini` only in Canvas (`widgetMode`) and `FreeBoard` has no `resetSignal` prop.
 
 ## Global Constraints
 
@@ -16,6 +18,7 @@
 - `features/sampler` imports only `@/features/sound`, `@/features/tuner/pitch` (pure) and shared components. It never imports the looper. Looper UI may import the public index `@/features/sampler` (rule widened in Task 13).
 - Every user-driven state change goes through `engine.do(action)`. New control = new action (apply, inverse, describe, validate, test).
 - localStorage reads and writes are wrapped in try/catch, validated on load, and old saves keep loading.
+- Spec section 7 applies: buttons use `src/components/controls.ts` (`ibtn` 32 px toolbars, `sbtn` 28 px panels, `tbtn` 24 px dense rows, `btnSm` small text button); any slider is `@/components/Slider`; colours are Tailwind theme scales or `var(--color-…)`, never hex. Check new UI in at least the Dark and Light themes.
 - Buttons, selects and sliders are not tabbable (`tabIndex={-1}` on pads; `NoControlFocus` handles the rest); text and number fields take focus. Toggles use `aria-pressed`; errors use `role="alert"`. Icons via the shared `Icon` (no emoji, no new dependency).
 - Keyboard handling uses `KeyboardEvent.code` and ignores events while typing in INPUT/SELECT/TEXTAREA/contentEditable.
 - Soundboard pad `i` (0-based) emits MIDI note `36 + i`. Pads: 1–32, default 8. Sampler root default 60 (C4).
@@ -44,7 +47,8 @@ Create:
 - `src/lib/looper/instrumentModel.ts` (+ `.test.ts`): types, defaults, `clampInstrument`, `withGenerator`, `soundingNote`, `voiceSpec`, `migrateSaves`, pad keys.
 - `src/lib/looper/instrument.ts` (+ `.test.ts`): `InstrumentInput`, `NoteVoice`, `VoiceFactory`. Replaces `scalePiano.ts`.
 - `src/components/looper/InstrumentPanel.tsx`: the play window (controller + generator panel). Replaces `ScalePianoPanel.tsx`.
-- `src/components/looper/GeneratorPanel.tsx`: controller/generator pickers and generator settings.
+- `src/components/looper/GeneratorPanel.tsx`: generator settings in the play window (sound, pad count, pad notes, sample, root, Detect, pad samples, adding samples).
+- `src/components/looper/InstrumentEdit.tsx`: the controller and generator pickers behind the strip's pencil (spec section 7).
 - `src/components/looper/Soundboard.tsx`: the pad grid.
 - `src/components/looper/instrumentView.ts`: controller icons, generator chip text, missing-sample check.
 - `src/features/sampler/model/sound.ts` (+ `.test.ts`): `SoundSpec`, `runtimeFor`, `sampleIds`.
@@ -1837,6 +1841,43 @@ export default function GeneratorPanel({ inst, set, selected, onSelect }: { inst
   );
 }
 ```
+
+- [ ] **Step 2b: Move the two pickers into the strip (spec section 7)**
+
+Remove the Controller and Sound generator `<select>`s from `GeneratorPanel` (keep the pad count, the Sound select and the pad notes there). Create `src/components/looper/InstrumentEdit.tsx`:
+```tsx
+"use client";
+
+import type { LooperEngine } from "@/lib/looper/engine";
+import { CONTROLLERS, CONTROLLER_NAMES, withGenerator, type Controller } from "@/lib/looper/instrumentModel";
+import { field } from "./GeneratorPanel";
+import type { Inst } from "./instrumentView";
+
+/** Behind an instrument strip's pencil: what you play and what makes the sound. */
+export default function InstrumentEdit({ engine, inst }: { engine: LooperEngine; inst: Inst }) {
+  const set = (patch: Parameters<LooperEngine["setInstrument"]>[1]) => engine.do({ type: "instrument.set", id: inst.id, patch });
+  return (
+    <div className="flex flex-wrap items-center gap-1.5 text-xs text-slate-400">
+      <label className="flex items-center gap-1">Play with
+        <select className={field} value={inst.controller} aria-label="Controller" onChange={(e) => { set({ controller: e.target.value as Controller }); e.target.blur(); }}>
+          {CONTROLLERS.map((c) => <option key={c} value={c}>{CONTROLLER_NAMES[c]}</option>)}
+        </select>
+      </label>
+      <label className="flex items-center gap-1">Sound
+        <select className={field} value={inst.generator.kind} aria-label="Sound generator" onChange={(e) => { set({ generator: withGenerator(inst, e.target.value as "piano" | "sampler").generator }); e.target.blur(); }}>
+          <option value="piano">Piano</option>
+          <option value="sampler">Sampler</option>
+        </select>
+      </label>
+    </div>
+  );
+}
+```
+In `InputStrip` (Mixer.tsx), for instruments add a pencil after the play button, folding with `useFold(\`in:${inp.id}:instrument\`, false)` from `./fold`:
+```tsx
+        {inst && <button type="button" className={ibtn} aria-pressed={editOpen} onClick={toggleEdit} title={editOpen ? "Done" : "Controller and sound"} aria-label={editOpen ? `Done editing ${inp.name}` : `Edit ${inp.name}`}><Icon name="pencil" /></button>}
+```
+and under the strip's top row: `{inst && editOpen && <InstrumentEdit engine={engine} inst={inst} />}`. (`useFold` is a hook: call it unconditionally at the top of `InputStrip`.)
 
 - [ ] **Step 3: `InstrumentPanel.tsx` shows the Soundboard and holds the selected pad**
 

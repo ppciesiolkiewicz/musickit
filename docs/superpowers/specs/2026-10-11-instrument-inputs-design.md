@@ -1,6 +1,6 @@
 # Instrument inputs: controllers + sound generators (design)
 
-Date: 2026-10-11. Status: approved in conversation, awaiting spec review.
+Date: 2026-10-11. Status: approved; section 7 records main's later changes and corrections.
 
 ## Goal
 
@@ -98,3 +98,14 @@ All generators are `createPlayer` over an instrument definition; the sampler bui
 2. Generator voice (piano, sampler pitched/pads, strict runtime instruments) and `detectRoot`.
 3. Soundboard controller, generator panel, Add input entries.
 4. Generation/upload in the looper, remove `/sampler`, update `spec/looper.md`, `spec/sampler.md`, `spec/sound.md` and the looper/sampler `CLAUDE.md` rules.
+
+## 7. Since this spec (main at `520121e`, approved 2026-10-11)
+
+Main gained themes, shared control styles and Radix sliders (`e772c0c`) after this spec was written. They constrain the build:
+
+- Buttons use the shared classes of `src/components/controls.ts` (`ibtn`, `sbtn`, `tbtn`, `btnSm`, …); any slider is the shared `Slider`. Colours are Tailwind theme scales or `var(--color-…)` tokens, never hex, so the Soundboard, sample picker and sampler panel work in all five themes.
+- The Fixed layout has no floating Inputs widget; the Mixer strips are where an instrument's play window opens there. `InputBundle` renders only on the Canvas, so the input block's instrument header lives in the strip (`InputStrip`), which every view shows: controller icon, name, generator chip and a pencil. The pencil opens the controller picker and the generator picker (section 3). Generator settings (sound, pad notes, sample, root, Detect, pad samples, adding samples) and the pad count stay in the play window.
+
+Correction to section 1 (voice injection): the injected voice cannot play the right thing from the generator alone, because a Sampler plays one pitched sample under a Piano or Scale Piano and one sample per pad under a Soundboard. The engine therefore hands the voice a `VoiceSpec` derived from controller + generator (`{piano, instrument}`, `{pitched, sample, root}`, `{pads, samples}`) through `VoiceFactory(ctx, destination, spec)` and `NoteVoice.setSound(spec)`. The Soundboard → `padNotes[i]` mapping for the Piano generator is done by the engine's pure model (`soundingNote`), not the voice. The engine still never touches samples or storage.
+
+Smaller decisions: `detectRoot` lives in `src/features/sampler/model/` (covered by the test command); there was no `/sampler` nav link; removing an instrument is not undoable (as with Scale Pianos before); old macros with `input.add` of kind `extra` no longer validate; runtime instruments gain `hidden` (left out of pickers) next to `strict`.
