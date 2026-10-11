@@ -4,6 +4,7 @@ import { useState } from "react";
 import Icon from "@/components/Icon";
 import EffectsModal from "./EffectsModal";
 import TunerWidget from "./TunerWidget";
+import NodeMute from "./NodeMute";
 import { switchChoice, type PatchLink, type PatchNode } from "@/lib/looper/patch";
 import type { LooperEngine, LooperSnapshot } from "@/lib/looper/engine";
 
@@ -26,7 +27,8 @@ export function busPath(snap: LooperSnapshot, n: PatchNode): string {
 /** What is inside the card of an effect chain, a switch or a tuner: the chain's effects, the connections a switch lets through, the note. */
 export function NodeBody({ engine, snap, node: n }: { engine: LooperEngine; snap: LooperSnapshot; node: PatchNode }) {
   const patch = snap.patch;
-  if (n.kind === "tuner") return <TunerWidget engine={engine} snap={snap} node={n} />;
+  const mute = <NodeMute engine={engine} node={n} name={patchName(snap, n)} title={n.kind === "tuner" ? "Mute: tune in silence" : "Mute"} />;
+  if (n.kind === "tuner") return <TunerWidget engine={engine} snap={snap} node={n} mute={mute} />;
   const nameOf = (id: string) => {
     const m = patch.nodes.find((x) => x.id === id);
     return m ? patchName(snap, m) : id;
@@ -68,7 +70,10 @@ export function NodeBody({ engine, snap, node: n }: { engine: LooperEngine; snap
 
   return (
     <div className="flex flex-col gap-1.5 px-1.5 py-1.5 pr-3" data-patch-id={n.id}>
-      {n.kind === "fx" && <BusEffects engine={engine} snap={snap} node={n} />}
+      <div className="flex items-center gap-1.5">
+        {n.kind === "fx" ? <div className="min-w-0 flex-1"><BusEffects engine={engine} snap={snap} node={n} /></div> : <span className="flex-1" aria-hidden />}
+        {mute}
+      </div>
       {n.kind === "switch" && (
         <>
           {side(n, "in")}

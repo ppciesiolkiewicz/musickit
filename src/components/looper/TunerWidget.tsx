@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import type { PatchNode } from "@/lib/looper/patch";
 import type { LooperEngine, LooperSnapshot } from "@/lib/looper/engine";
 
@@ -25,9 +25,9 @@ const EVERY_MS = 80;
 
 /**
  * A tuner element of the patch: the note it hears, how many cents off, and a needle. Muted, it still listens but lets nothing through,
- * so you can tune in silence (the card's M button). Reads the engine's analyser for this element; opens no device.
+ * so you can tune in silence (its M button). Reads the engine's analyser for this element; opens no device.
  */
-export default function TunerWidget({ engine, snap, node: n }: { engine: LooperEngine; snap: LooperSnapshot; node: PatchNode }) {
+export default function TunerWidget({ engine, snap, node: n, mute }: { engine: LooperEngine; snap: LooperSnapshot; node: PatchNode; mute: ReactNode }) {
   const [reading, setReading] = useState<{ hz: number; note: ReturnType<typeof noteOf> } | null>(null);
   const fed = snap.patch.links.some((l) => l.to === n.id);
 
@@ -63,6 +63,10 @@ export default function TunerWidget({ engine, snap, node: n }: { engine: LooperE
 
   return (
     <div className="flex flex-col items-center gap-1 px-2 py-1.5" data-patch-id={n.id}>
+      <div className="flex w-full items-center gap-1.5">
+        <span className="flex-1 text-[10px] text-amber-200/80">{n.muted ? "Muted: tuning in silence" : ""}</span>
+        {mute}
+      </div>
       <div className="flex items-baseline gap-1" aria-live="polite">
         <span className="text-4xl font-light tabular-nums" style={{ color: colour }}>{reading ? reading.note.name : "–"}</span>
         <span className="w-5 text-sm text-slate-400">{reading ? reading.note.octave : ""}</span>
@@ -75,7 +79,6 @@ export default function TunerWidget({ engine, snap, node: n }: { engine: LooperE
         {reading && <polygon points={`${needle * 2 - 5},-4 ${needle * 2 + 5},-4 ${needle * 2},8`} fill={colour} />}
       </svg>
       <p className="h-4 text-[11px] tabular-nums text-slate-400">{reading ? `${reading.hz.toFixed(1)} Hz · ${cents > 0 ? "+" : ""}${Math.round(cents)} cents` : fed ? "Play a note" : "Wire something in"}</p>
-      {n.muted && <p className="text-[10px] text-amber-200/80">Muted: tuning in silence</p>}
     </div>
   );
 }
