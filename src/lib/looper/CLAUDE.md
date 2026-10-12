@@ -20,7 +20,7 @@ Routing: Input → (input effects) → recorder → Loop → Bus (of its Group) 
 ## Keep it separate
 - `src/lib/looper/*` (engine, mixer, frames, worklet) imports nothing outside `src/lib/looper`. No `@/lib/audio`, no theory, no React.
 - The app injects what the engine needs through options: `getContext` (shared AudioContext) and `createVoice` (an instrument's sound, told what to play as a `VoiceSpec`: a built-in instrument, one pitched sample or one sample per pad; the engine never touches samples or storage). Instruments are heard on master through `toSpeakers` unless patched. The master mute (`master.mute`) shuts the master fader and keeps the volume. Wiring lives only in `LooperApp.tsx`.
-- Looper UI lives in `src/components/looper/`. It may use generic shared pieces (`Modal`, `FloatingWindow`, `Slider`, `controls.ts`, the `Piano` and `ScalePiano` keyboards) and the public index of `@/features/sound` and `@/features/sampler`, but nothing from chordKit, and no other feature may import from the looper.
+- Looper UI lives in `src/components/looper/`. It may use generic shared pieces (`Modal`, `FloatingWindow`, `Slider`, `controls.ts`, the `Piano` and `ScalePiano` keyboards) and the public index of `@/features/sound`, `@/features/sampler` and `@/features/tuner` (the tuner widget shares the tuner page's detector and settings), but nothing from chordKit, and no other feature may import from the looper.
 - Never edit non-looper files for looper reasons except the single injection point and the nav link.
 
 ## Audio and permissions

@@ -4,8 +4,6 @@ import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "reac
 import { LooperEngine, EFFECT_DEFS, EFFECT_KINDS, registerChoice, setNamFactory, type LooperSnapshot } from "@/lib/looper/engine";
 import { createCloud, createNamEffect, getModelLibrary, speedNote, type CloudModel } from "@/features/nam";
 import { nameMatches } from "@/lib/looper/choices";
-import { detectPitch } from "@/features/tuner/pitch";
-import { setPitchDetector } from "./TunerWidget";
 import LooperSettings from "./LooperSettings";
 import { chooseDevice, deviceKind, deviceName, type DeviceKind } from "@/lib/looper/deviceChoice";
 import AddFab from "./AddFab";
@@ -182,7 +180,6 @@ function useEngine() {
   const [engine] = useState(() => {
     if (typeof window !== "undefined") {
       wireNam();
-      setPitchDetector(detectPitch);
     }
     return new LooperEngine({ getContext: getAudioContext, createVoice: (_ctx, dest, spec) => makeGeneratorVoice(dest, spec) });
   });

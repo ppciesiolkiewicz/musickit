@@ -1,82 +1,98 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { getAudioContext, strum } from "@/features/sound";
-import { btnSm } from "@/components/controls";
-import { detectPitch, hzToNote, nearestString, type NoteReading } from "./pitch";
-import { A4_PRESETS, INSTRUMENTS, instrumentById, type InstrumentId, type TunerString } from "@/features/theory";
-import InstrumentIcon from "./InstrumentIcon";
+import { getAudioContext } from "@/features/sound";
+import { midiToHz } from "@/features/theory/tunings";
+import { detectPitch } from "./pitch";
+import { readHz, resolveChoice, sanitiseChoice } from "./choice";
+import { useTunerChoice } from "./useTunerChoice";
+import { playReference } from "./reference";
+import { createSmoother } from "./smooth";
+import { useThrottled } from "./useThrottled";
+import TunerSettings from "./TunerSettings";
 
-interface Reading { hz: number; note: NoteReading }
-interface Choice { instrument: InstrumentId; tuning: string; a4: number }
+/** Which microphone or interface, and which of its inputs: "mix" for all of them, or one channel (0 = Input 1). */
+interface InputChoice { deviceId: string; channel: "mix" | number }
 
 const FRAME = 4096;
 const STORE = "musickit.tuner";
-const DEFAULT: Choice = { instrument: "guitar", tuning: "standard", a4: 440 };
+const INPUT_STORE = "musickit.tuner.input";
+const DEFAULT_INPUT: InputChoice = { deviceId: "", channel: "mix" };
+const ALIAS = new Set(["default", "communications"]);
 const field = "h-8 rounded-md border border-slate-700 bg-slate-900 px-2 text-xs text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 
-const clampA4 = (n: number) => Math.max(400, Math.min(480, Math.round(n * 10) / 10));
+const fromQuery = () => {
+  const q = new URLSearchParams(window.location.search);
+  return q.has("instrument") ? sanitiseChoice({ instrument: q.get("instrument"), tuning: q.get("tuning"), a4: q.get("a4") ?? undefined }) : null;
+};
 
-/** A valid choice from loose input (query string or storage), or null. */
-function sanitise(raw: Partial<Record<keyof Choice, unknown>> | null): Choice | null {
-  const inst = instrumentById(typeof raw?.instrument === "string" ? raw.instrument : null);
-  if (!inst) return null;
-  const tuning = inst.tunings.find((t) => t.id === raw?.tuning)?.id ?? inst.tunings[0]?.id ?? "";
-  const a4 = Number(raw?.a4);
-  return { instrument: inst.id, tuning, a4: Number.isFinite(a4) && a4 > 0 ? clampA4(a4) : 440 };
+function loadInput(): InputChoice {
+  try {
+    const raw = JSON.parse(window.localStorage.getItem(INPUT_STORE) ?? "null") as Partial<InputChoice> | null;
+    return { deviceId: typeof raw?.deviceId === "string" ? raw.deviceId : "", channel: typeof raw?.channel === "number" && raw.channel >= 0 ? raw.channel : "mix" };
+  } catch { return DEFAULT_INPUT; }
 }
 
-/** A tuner for many instruments. Pick an instrument (and its tuning) or Chromatic; the microphone opens only after Start. */
+/** A tuner. Pick an instrument (and its tuning) or Chromatic, and the input to listen to; the microphone opens only after Start. */
 export default function Tuner() {
   const [running, setRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [reading, setReading] = useState<Reading | null>(null);
-  const [choice, setChoice] = useState<Choice>(DEFAULT);
-  const loaded = useRef(false);
+  const [hz, setHz] = useState<number | null>(null);
+  const [choice, setChoice] = useTunerChoice(STORE, fromQuery);
+  const [input, setInput] = useState<InputChoice>(DEFAULT_INPUT);
+  const [devices, setDevices] = useState<{ id: string; label: string }[]>([]);
+  const [channels, setChannels] = useState(0);
   const stop = useRef<(() => void) | null>(null);
 
-  const instrument = instrumentById(choice.instrument)!;
-  const tuning = instrument.tunings.find((t) => t.id === choice.tuning) ?? instrument.tunings[0];
-  const strings: TunerString[] = tuning?.strings ?? [];
-  // the detection loop reads these without restarting
+  const { instrument, tuning } = resolveChoice(choice);
+  const strings = tuning?.strings ?? [];
+  // the detection loop reads this without restarting
   const minHzRef = useRef(instrument.minHz);
-  const a4Ref = useRef(choice.a4);
-  useEffect(() => {
-    minHzRef.current = instrument.minHz;
-    a4Ref.current = choice.a4;
-  }, [instrument.minHz, choice.a4]);
+  useEffect(() => { minHzRef.current = instrument.minHz; }, [instrument.minHz]);
 
-  useEffect(() => {
-    let start: Choice | null = null;
+  const listDevices = useCallback(async () => {
     try {
-      const q = new URLSearchParams(window.location.search);
-      start = q.has("instrument") ? sanitise({ instrument: q.get("instrument"), tuning: q.get("tuning"), a4: q.get("a4") ?? undefined }) : null;
-      start ??= sanitise(JSON.parse(window.localStorage.getItem(STORE) ?? "null"));
-    } catch { /* storage blocked */ }
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- restoring the saved choice after hydration
-    if (start) setChoice(start);
-    loaded.current = true;
+      const all = await navigator.mediaDevices.enumerateDevices();
+      setDevices(all.filter((d) => d.kind === "audioinput" && !ALIAS.has(d.deviceId)).map((d, i) => ({ id: d.deviceId, label: d.label || `Input ${i + 1}` })));
+    } catch { /* no media devices */ }
   }, []);
 
   useEffect(() => {
-    if (!loaded.current) return;
-    try { window.localStorage.setItem(STORE, JSON.stringify(choice)); } catch { /* storage blocked */ }
-  }, [choice]);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- restoring the saved input after hydration
+    setInput(loadInput());
+    void listDevices();
+    navigator.mediaDevices?.addEventListener?.("devicechange", listDevices);
+    return () => navigator.mediaDevices?.removeEventListener?.("devicechange", listDevices);
+  }, [listDevices]);
 
-  const pickInstrument = (id: InstrumentId) => setChoice((c) => ({ ...c, instrument: id, tuning: instrumentById(id)!.tunings[0]?.id ?? "" }));
+  const pickInput = (next: InputChoice) => {
+    setInput(next);
+    try { window.localStorage.setItem(INPUT_STORE, JSON.stringify(next)); } catch { /* storage blocked */ }
+  };
 
-  const start = useCallback(async () => {
+  const start = useCallback(async (inp: InputChoice) => {
     setError(null);
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: { deviceId: inp.deviceId ? { exact: inp.deviceId } : undefined, channelCount: { ideal: 2 }, echoCancellation: false, noiseSuppression: false, autoGainControl: false },
+      });
       const ctx = getAudioContext();
       await ctx.resume();
+      const n = stream.getAudioTracks()[0]?.getSettings().channelCount ?? 1;
+      setChannels(n);
+      void listDevices(); // names appear once the microphone is allowed
       const src = ctx.createMediaStreamSource(stream);
       const an = ctx.createAnalyser();
       an.fftSize = FRAME;
-      src.connect(an);
+      // one input of an interface (Focusrite Input 1) is one channel of its stream; the analyser mixes the rest down to mono
+      let split: ChannelSplitterNode | null = null;
+      if (inp.channel !== "mix" && n > 1) {
+        split = ctx.createChannelSplitter(n);
+        src.connect(split);
+        split.connect(an, Math.min(inp.channel, n - 1));
+      } else src.connect(an);
       const buf = new Float32Array(FRAME);
-      const recent: number[] = [];
+      const smooth = createSmoother();
       let raf = 0, quiet = 0, alive = true;
       const tick = () => {
         if (!alive) return;
@@ -84,13 +100,10 @@ export default function Tuner() {
         const p = detectPitch(buf, ctx.sampleRate, { minHz: minHzRef.current });
         if (p && p.clarity > 0.85) {
           quiet = 0;
-          recent.push(p.freq);
-          if (recent.length > 5) recent.shift();
-          const hz = [...recent].sort((x, y) => x - y)[Math.floor(recent.length / 2)];
-          setReading({ hz, note: hzToNote(hz, a4Ref.current) });
+          setHz(smooth.push(p.freq));
         } else if (++quiet > 30) {
-          recent.length = 0;
-          setReading(null);
+          smooth.reset();
+          setHz(null);
         }
         raf = requestAnimationFrame(tick);
       };
@@ -99,89 +112,85 @@ export default function Tuner() {
         alive = false;
         cancelAnimationFrame(raf);
         src.disconnect();
+        split?.disconnect();
         stream.getTracks().forEach((t) => t.stop());
-        setReading(null);
+        setHz(null);
         setRunning(false);
         stop.current = null;
       };
       setRunning(true);
-    } catch {
-      setError("The microphone could not be opened. Allow microphone access for this site and try again.");
+    } catch (e) {
+      setError((e as Error)?.name === "OverconstrainedError" || (e as Error)?.name === "NotFoundError"
+        ? "That input is not connected. Pick another one and try again."
+        : "The microphone could not be opened. Allow microphone access for this site and try again.");
     }
-  }, []);
+  }, [listDevices]);
 
   useEffect(() => () => stop.current?.(), []);
 
-  // Chromatic: cents to the nearest note. Instrument: cents to the nearest open string of the tuning.
-  const target = reading && strings.length ? nearestString(reading.hz, choice.a4, strings) : null;
-  const targetString = target ? strings[target.index] : null;
-  const cents = target?.cents ?? reading?.note.cents ?? 0;
-  const inTune = reading !== null && Math.abs(cents) < 5;
-  const colour = reading === null ? "var(--color-slate-600)" : inTune ? "var(--color-emerald-400)" : Math.abs(cents) < 20 ? "var(--color-amber-400)" : "var(--color-rose-400)";
+  // a new input while listening: reopen on it
+  const switchInput = (next: InputChoice) => {
+    pickInput(next);
+    if (stop.current) { stop.current(); void start(next); }
+  };
+
+  const read = hz !== null ? readHz(hz, choice) : null;
+  const cents = read?.cents ?? 0;
+  const inTune = read !== null && Math.abs(cents) < 5;
+  const colour = read === null ? "var(--color-slate-600)" : inTune ? "var(--color-emerald-400)" : Math.abs(cents) < 20 ? "var(--color-amber-400)" : "var(--color-rose-400)";
   const needle = Math.max(-50, Math.min(50, cents));
-  const bigName = targetString ? targetString.name : reading?.note.name;
-  const bigOctave = targetString ? targetString.octave : reading?.note.octave;
-  const hint = !reading ? (running ? "Play a note" : "") : targetString && Math.abs(cents) >= 5 ? (cents > 0 ? "Tune down" : "Tune up") : inTune ? "In tune" : "";
+  // the text changes a few times a second, the needle every frame
+  const textHz = useThrottled(hz, 250);
+  const text = textHz !== null ? readHz(textHz, choice) : null;
+  const tc = text?.cents ?? 0;
+  const hint = !text ? (running ? "Play a note" : "") : text.string !== null && Math.abs(tc) >= 5 ? (tc > 0 ? "Tune down" : "Tune up") : Math.abs(tc) < 5 ? "In tune" : "";
+  const knownDevice = !input.deviceId || devices.some((d) => d.id === input.deviceId);
 
   return (
     <div className="flex flex-col gap-3">
-      <div role="radiogroup" aria-label="Instrument" className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1">
-        {INSTRUMENTS.map((inst) => {
-          const on = inst.id === choice.instrument;
-          return (
-            <button key={inst.id} type="button" role="radio" aria-checked={on} onClick={() => pickInstrument(inst.id)}
-              className={`flex min-w-16 shrink-0 flex-col items-center gap-1 rounded-xl border px-2 py-2 text-[11px] transition focus-visible:outline-2 focus-visible:outline-sky-400 ${on ? "border-sky-500/60 bg-sky-500/15 text-sky-100" : "border-slate-800 bg-slate-900/40 text-slate-400 hover:border-slate-600 hover:text-slate-200"}`}>
-              <InstrumentIcon id={inst.id} size={28} />
-              {inst.name}
-            </button>
-          );
-        })}
-      </div>
+      <TunerSettings choice={choice} onChange={setChoice} />
 
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-slate-400">
-        {instrument.tunings.length > 1 && (
+        <label className="flex min-w-0 items-center gap-1.5">
+          Input
+          <select className={`${field} min-w-0 max-w-64`} value={knownDevice ? input.deviceId : ""} onChange={(e) => switchInput({ deviceId: e.target.value, channel: "mix" })}>
+            <option value="">System default</option>
+            {devices.map((d) => <option key={d.id} value={d.id}>{d.label}</option>)}
+          </select>
+        </label>
+        {(channels > 1 || input.channel !== "mix") && (
           <label className="flex items-center gap-1.5">
-            Tuning
-            <select className={field} value={tuning.id} onChange={(e) => setChoice((c) => ({ ...c, tuning: e.target.value }))}>
-              {instrument.tunings.map((t) => (
-                <option key={t.id} value={t.id}>{t.name} · {t.strings.map((x) => x.name).join(" ")}</option>
-              ))}
+            Channel
+            <select className={field} value={String(input.channel)} onChange={(e) => switchInput({ ...input, channel: e.target.value === "mix" ? "mix" : Number(e.target.value) })}>
+              <option value="mix">All inputs</option>
+              {Array.from({ length: Math.max(2, channels) }, (_, i) => <option key={i} value={i}>Input {i + 1}</option>)}
             </select>
           </label>
         )}
-        <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label="Reference pitch">
-          A4 =
-          {A4_PRESETS.map((p) => (
-            <button key={p.hz} type="button" aria-pressed={choice.a4 === p.hz} title={p.note} onClick={() => setChoice((c) => ({ ...c, a4: p.hz }))} className={btnSm}>{p.label}</button>
-          ))}
-          <input type="number" min={400} max={480} step={0.1} value={choice.a4} aria-label="A4 frequency in hertz"
-            onChange={(e) => { const n = Number(e.target.value); if (n > 0) setChoice((c) => ({ ...c, a4: clampA4(n) })); }}
-            className={`${field} w-20`} />
-          Hz
-        </div>
       </div>
-      {tuning?.note && <p className="-mt-1 text-xs text-slate-500">{tuning.note}</p>}
 
       <div className="flex flex-col items-center gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
         <div className="flex items-baseline gap-2" aria-live="polite">
-          <span className="text-7xl font-light tabular-nums" style={{ color: colour }}>{bigName ?? "–"}</span>
-          <span className="w-10 text-xl text-slate-400">{bigOctave ?? ""}</span>
+          <span className="text-7xl font-light tabular-nums" style={{ color: colour }}>{read?.name ?? "–"}</span>
+          <span className="w-10 text-xl text-slate-400">{read?.octave ?? ""}</span>
         </div>
-        <svg viewBox="-110 -6 220 46" className="w-full max-w-md" role="img" aria-label={reading ? `${Math.round(cents)} cents ${cents > 0 ? "sharp" : "flat"}` : "No note detected"}>
+        <svg viewBox="-110 -6 220 46" className="w-full max-w-md" role="img" aria-label={read ? `${Math.round(cents)} cents ${cents > 0 ? "sharp" : "flat"}` : "No note detected"}>
           {Array.from({ length: 11 }, (_, i) => {
             const c = (i - 5) * 10;
             return <line key={c} x1={c * 2} x2={c * 2} y1={c === 0 ? 0 : 6} y2={c === 0 ? 26 : 20} stroke={c === 0 ? "var(--color-emerald-400)" : "var(--color-slate-600)"} strokeWidth={c === 0 ? 2 : 1} />;
           })}
           <text x={-100} y={36} fontSize={9} fill="var(--color-slate-500)" textAnchor="middle">flat</text>
           <text x={100} y={36} fontSize={9} fill="var(--color-slate-500)" textAnchor="middle">sharp</text>
-          {reading && <polygon points={`${needle * 2 - 5},-4 ${needle * 2 + 5},-4 ${needle * 2},8`} fill={colour} />}
+          {/* the needle glides to each reading and fades out while nothing is heard */}
+          <polygon points="-5,-4 5,-4 0,8" fill={colour}
+            style={{ transform: `translateX(${needle * 2}px)`, opacity: read ? 1 : 0, transition: "transform 180ms ease-out, opacity 200ms, fill 200ms" }} />
         </svg>
         <p className="h-5 text-sm tabular-nums text-slate-400">
-          {reading
-            ? `${reading.hz.toFixed(1)} Hz${targetString ? ` · hearing ${reading.note.name}${reading.note.octave}` : ""} · ${cents > 0 ? "+" : ""}${Math.round(cents)} cents${hint ? ` · ${hint}` : ""}`
+          {text && textHz !== null
+            ? `${textHz.toFixed(1)} Hz${text.string !== null ? ` · hearing ${text.heard.name}${text.heard.octave}` : ""} · ${tc > 0 ? "+" : ""}${Math.round(tc)} cents${hint ? ` · ${hint}` : ""}`
             : hint}
         </p>
-        <button type="button" onClick={running ? () => stop.current?.() : start} className={`rounded-full border px-5 py-2 text-sm ${running ? "border-rose-500 bg-rose-500/15 text-rose-100" : "border-emerald-500 bg-emerald-500/15 text-emerald-100 hover:bg-emerald-500/25"}`}>
+        <button type="button" onClick={running ? () => stop.current?.() : () => start(input)} className={`rounded-full border px-5 py-2 text-sm ${running ? "border-rose-500 bg-rose-500/15 text-rose-100" : "border-emerald-500 bg-emerald-500/15 text-emerald-100 hover:bg-emerald-500/25"}`}>
           {running ? "■ Stop" : "● Start tuner"}
         </button>
         {error && <p role="alert" className="text-xs text-rose-300">{error}</p>}
@@ -190,13 +199,12 @@ export default function Tuner() {
       {strings.length > 0 && (
         <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${strings.length}, minmax(0, 1fr))` }}>
           {strings.map((s, i) => {
-            const near = target?.index === i;
-            const c = near ? target!.cents : 0;
+            const near = read?.string === i;
             return (
-              <button key={i} type="button" onClick={() => strum([s.midi], { gapMs: 0, holdMs: 1500 })} title={`Hear the open ${s.name}${s.octave} string`}
-                className={`flex flex-col items-center gap-0.5 rounded-xl border p-2 transition ${near ? (Math.abs(c) < 5 ? "border-emerald-400 bg-emerald-500/15" : "border-sky-400 bg-sky-500/10") : "border-slate-800 bg-slate-900/40 hover:border-slate-600"}`}>
+              <button key={i} type="button" onClick={() => playReference(midiToHz(s.midi, choice.a4))} title={`Hear ${s.name}${s.octave} at A4 = ${choice.a4} Hz`}
+                className={`flex flex-col items-center gap-0.5 rounded-xl border p-2 transition ${near ? (inTune ? "border-emerald-400 bg-emerald-500/15" : "border-sky-400 bg-sky-500/10") : "border-slate-800 bg-slate-900/40 hover:border-slate-600"}`}>
                 <span className="text-lg text-slate-100">{s.name}<span className="text-xs text-slate-500">{s.octave}</span></span>
-                <span className="h-4 text-xs tabular-nums text-slate-400">{near ? `${c > 0 ? "+" : ""}${Math.round(c)}` : "▶"}</span>
+                <span className="h-4 text-xs tabular-nums text-slate-400">{near && text?.string === i ? `${tc > 0 ? "+" : ""}${Math.round(tc)}` : "▶"}</span>
               </button>
             );
           })}
