@@ -54,14 +54,11 @@ export default function TunerWidget({ engine, snap, node: n, mute }: { engine: L
   const tc = text?.cents ?? 0;
 
   return (
-    <div className="flex flex-col items-center gap-1 px-2 py-1.5" data-patch-id={n.id}>
-      <div className="flex w-full items-center gap-1.5">
-        <span className="flex-1 text-[10px] text-amber-200/80">{n.muted ? "Muted: tuning in silence" : ""}</span>
-        {mute}
-      </div>
-      <TunerSettings choice={choice} onChange={setChoice} compact />
-      <div className="flex items-baseline gap-1" aria-live="polite">
-        <span className="text-4xl font-light tabular-nums" style={{ color: colour }}>{reading ? reading.name : "–"}</span>
+    <div className="flex flex-col items-center gap-2 px-3 py-2" data-patch-id={n.id}>
+      <TunerSettings choice={choice} onChange={setChoice} compact trailing={mute}
+        aside={n.muted && <span className="ml-auto truncate text-[10px] text-amber-200/80">Muted: tuning in silence</span>} />
+      <div className="flex items-baseline gap-1 pt-1" aria-live="polite">
+        <span className="text-4xl font-light leading-none tabular-nums" style={{ color: colour }}>{reading ? reading.name : "–"}</span>
         <span className="w-5 text-sm text-slate-400">{reading ? reading.octave : ""}</span>
       </div>
       <svg viewBox="-110 -6 220 34" className="w-full max-w-[16rem]" role="img" aria-label={reading ? `${Math.round(cents)} cents ${cents > 0 ? "sharp" : "flat"}` : "No note"}>
@@ -70,7 +67,7 @@ export default function TunerWidget({ engine, snap, node: n, mute }: { engine: L
           return <line key={c} x1={c * 2} x2={c * 2} y1={c === 0 ? 0 : 6} y2={c === 0 ? 26 : 20} stroke={c === 0 ? "var(--color-emerald-400)" : "var(--color-slate-600)"} strokeWidth={c === 0 ? 2 : 1} />;
         })}
         {/* the needle glides to each reading and fades out while nothing is heard */}
-          <polygon points="-5,-4 5,-4 0,8" fill={colour}
+        <polygon points="-5,-4 5,-4 0,8" fill={colour}
             style={{ transform: `translateX(${needle * 2}px)`, opacity: reading ? 1 : 0, transition: "transform 180ms ease-out, opacity 200ms, fill 200ms" }} />
       </svg>
       <p className="h-4 text-[11px] tabular-nums text-slate-400">{text && textHz !== null ? `${textHz.toFixed(1)} Hz${text.string !== null ? ` · ${text.heard.name}${text.heard.octave}` : ""} · ${tc > 0 ? "+" : ""}${Math.round(tc)} cents` : fed ? "Play a note" : "Wire something in"}</p>

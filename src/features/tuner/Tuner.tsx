@@ -158,11 +158,12 @@ export default function Tuner() {
             {devices.map((d) => <option key={d.id} value={d.id}>{d.label}</option>)}
           </select>
         </label>
-        {(channels > 1 || input.channel !== "mix") && (
+        {/* an interface's inputs: pick one (a DI guitar on Input 1) or both; offered before Start, when the channel count is not known yet */}
+        {(input.deviceId !== "" || channels > 1 || input.channel !== "mix") && (
           <label className="flex items-center gap-1.5">
             Channel
             <select className={field} value={String(input.channel)} onChange={(e) => switchInput({ ...input, channel: e.target.value === "mix" ? "mix" : Number(e.target.value) })}>
-              <option value="mix">All inputs</option>
+              <option value="mix">{channels > 2 ? "All inputs" : "Input 1 + 2"}</option>
               {Array.from({ length: Math.max(2, channels) }, (_, i) => <option key={i} value={i}>Input {i + 1}</option>)}
             </select>
           </label>
