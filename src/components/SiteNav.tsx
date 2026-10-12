@@ -1,8 +1,9 @@
 import Link from "next/link";
 import ThemeSwitcher from "./ThemeSwitcher";
+import TheoryMenu from "./TheoryMenu";
+import { sectionFor } from "@/features/theory/sections";
 export const SITE_LINKS = [
   { href: "/", label: "Home" },
-  { href: "/theory", label: "Theory articles" },
   { href: "/tuner", label: "Tuner" },
 ];
 
@@ -10,19 +11,6 @@ export const SITE_LINKS = [
 export const SITE_TOOLS = [
   { href: "/cheatsheet", label: "Cheatsheet" },
   { href: "/looper", label: "Looper", outlined: true },
-];
-
-/** Sections under /theory, shown as a second nav row on theory pages. */
-export const THEORY_LINKS = [
-  { href: "/theory/chords", label: "Chords" },
-  { href: "/theory/triads", label: "Triads" },
-  { href: "/theory/scales", label: "Scales" },
-  { href: "/theory/circle", label: "Circle of fifths" },
-  { href: "/theory/caged", label: "CAGED" },
-  { href: "/theory/arpeggios", label: "Arpeggios" },
-  { href: "/theory/drone", label: "Drone" },
-  { href: "/theory/improv", label: "Improv" },
-  { href: "/theory/tunings", label: "Tunings" },
 ];
 
 const isActive = (active: string, href: string) => (href === "/" ? active === "/" : active === href || active.startsWith(`${href}/`));
@@ -41,12 +29,15 @@ function NavLink({ href, label, current, small, outlined }: { href: string; labe
 
 /** The Music Kit top navigation. Shared by every page; knows nothing about any feature. */
 export default function SiteNav({ active }: { active: string }) {
-  const inTheory = isActive(active, "/theory");
+  const section = active.startsWith("/theory/") ? sectionFor(active) : undefined;
+  const [home, ...rest] = SITE_LINKS;
   return (
     <div className="flex flex-col gap-1">
       <nav aria-label="Music Kit" className="flex flex-wrap items-center gap-1">
         <span className="mr-3 text-sm font-light tracking-widest text-slate-400">MUSIC KIT</span>
-        {SITE_LINKS.map((l) => (
+        <NavLink {...home} current={isActive(active, home.href)} />
+        <TheoryMenu active={active} />
+        {rest.map((l) => (
           <NavLink key={l.href} {...l} current={isActive(active, l.href)} />
         ))}
         <span className="ml-auto" />
@@ -55,11 +46,11 @@ export default function SiteNav({ active }: { active: string }) {
         ))}
         <ThemeSwitcher className="ml-1" />
       </nav>
-      {inTheory && (
-        <nav aria-label="Theory" className="flex flex-wrap items-center gap-1 border-t border-slate-800 pt-1">
-          {THEORY_LINKS.map((l) => (
-            <NavLink key={l.href} {...l} current={isActive(active, l.href)} small />
-          ))}
+      {section && (
+        <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 px-3 text-xs text-slate-500">
+          <Link href="/theory" className="hover:text-slate-300">Theory</Link>
+          <span aria-hidden>›</span>
+          <span className="text-slate-300">{section.label}</span>
         </nav>
       )}
     </div>
