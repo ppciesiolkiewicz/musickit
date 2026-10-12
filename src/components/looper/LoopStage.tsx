@@ -1,24 +1,24 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent as RKeyboardEvent, type PointerEvent as RPointerEvent, type RefObject } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent as RKeyboardEvent, type PointerEvent as RPointerEvent, type RefObject } from "react";
 import Icon from "../Icon";
 import EffectsModal from "./EffectsModal";
 import LoopEditor from "./LoopEditor";
 import EffectWidgets from "./EffectWidgets";
 import { setWidgetSpawn } from "./widgets";
 import InfoTip from "../InfoTip";
-import { GROUP_COLOURS, LOOP_R, STAGE_H, resizeRect, type Corner, STAGE_W, VIEW_W, type ChannelInfo, type GroupInfo, type LooperEngine, type LooperSnapshot } from "@/lib/looper/engine";
+import { GROUP_COLOURS, LOOP_R, STAGE_H, resizeRect, type Corner, STAGE_W, type ChannelInfo, type GroupInfo, type LooperEngine, type LooperSnapshot } from "@/lib/looper/engine";
+import { CARD_TOP, CARD_W, arrangeStage } from "@/lib/looper/layout";
+import type { LooperAction } from "@/lib/looper/actions";
 import Slider from "@/components/Slider";
 import { tbtn } from "@/components/controls";
 
-/** Loops and sequencers sit on a bordered card so they stand out from the stage and the group colours. */
-const CARD_PAD = 7;
+/** Loops and sequencers sit on a bordered card so they stand out from the stage and the group colours (its size: `layout.ts`). */
 const card = "absolute z-10 flex flex-col items-center gap-1.5 rounded-xl border border-slate-500/80 bg-slate-950/85 p-1.5 shadow-md shadow-black/50";
 const controlsBox = "flex w-full flex-col gap-1 rounded-lg border border-slate-700 bg-slate-900/70 p-1";
 
 const RING = 40;
 const CIRC = 2 * Math.PI * RING;
-const MIN_ZOOM = 0.2;
 
 /** Drag with the pointer: calls onMove with the distance moved in stage units; calls onClick if it never moved. */
 function startDrag(e: RPointerEvent, stage: HTMLElement | null, onMove: (dx: number, dy: number) => void, onClick?: () => void) {
@@ -48,7 +48,7 @@ const arrowStep = (e: RKeyboardEvent): [number, number] | null => {
 };
 
 /** The looping stage: loops are circles with a progress ring; coloured groups are boxes you can move and resize. A loop inside a group plays through that group's bus. */
-export default function LoopStage({ engine, snap, openSeqs, onToggleSeq, fill = false, patchSeq = false, pins = false, natural = false }: { patchSeq?: boolean; /** drawn at 100% whatever the widget size: resizing the widget shows more or less of the stage, never scales it (the canvas zoom does that) */ natural?: boolean; /** effect widgets on the stage (the fixed layout); the canvas views show them as canvas widgets */ pins?: boolean; engine: LooperEngine; snap: LooperSnapshot; openSeqs: string[]; onToggleSeq: (id: string) => void; fill?: boolean }) {
+export default function LoopStage({ engine, snap, openSeqs, onToggleSeq, fill = false, patchSeq = false, pins = false }: { patchSeq?: boolean; /** effect widgets on the stage (the fixed layout); the canvas views show them as canvas widgets */ pins?: boolean; engine: LooperEngine; snap: LooperSnapshot; openSeqs: string[]; onToggleSeq: (id: string) => void; fill?: boolean }) {
   const stage = useRef<HTMLDivElement>(null);
   const [fxFor, setFxFor] = useState<string | null>(null);
   const [editFor, setEditFor] = useState<number | null>(null);
@@ -65,38 +65,38 @@ export default function LoopStage({ engine, snap, openSeqs, onToggleSeq, fill = 
   })();
   const fxGroup = snap.groups.find((g) => g.id === fxFor) ?? null;
 
-  // The stage is drawn at its natural size (STAGE_W by STAGE_H) and scaled, so loops, groups and text all scale together.
-  // It fits the page width by default; zoom in and the area scrolls.
+  // The stage is drawn at 100% whatever the size of its widget or of a group: resizing shows more or less of it and never scales
+  // loops, sequencers or text (the canvas zoom does that). The part past the widget scrolls.
   const frame = useRef<HTMLDivElement>(null);
-  const canvasW = STAGE_W;
-  const canvasH = STAGE_H;
-  const [width, setWidth] = useState(STAGE_W);
-  useLayoutEffect(() => {
-    const el = frame.current;
-    if (!el) return;
-    const measure = () => setWidth(el.clientWidth);
-    measure();
-    const ro = new ResizeObserver(measure);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
-  // at 100% the part VIEW_W wide fills the widget; the rest of the stage is room to grow into (scroll or drag to reach it)
-  const fit = Math.max(MIN_ZOOM, Math.min(4, (width - 2) / VIEW_W));
-  const scale = natural ? 1 : fit;
+  // Auto layout: groups side by side, each one's loops on its grid and its sequencers below them, in one undo step
+  const arrange = () => {
+    const items = [
+      ...snap.channels.map((c) => ({ kind: "loop" as const, id: c.id, groupId: c.groupId })),
+      ...snap.sequencers.map((q) => ({ kind: "seq" as const, id: q.id, groupId: q.groupId })),
+    ];
+    const plan = arrangeStage(snap.groups, items);
+    const actions: LooperAction[] = [
+      ...plan.groups.map((g): LooperAction => ({ type: "group.set", id: g.id, patch: { x: g.x, y: g.y, w: g.w, h: g.h } })),
+      ...plan.spots.map((p): LooperAction => (p.kind === "loop" ? { type: "loop.move", id: Number(p.id), x: p.x, y: p.y } : { type: "sequencer.move", id: String(p.id), x: p.x, y: p.y })),
+    ];
+    if (actions.length) engine.do({ type: "batch", label: "Auto layout", actions });
+  };
   // new effect widgets appear in the part of the stage you are looking at
   useEffect(() => {
     setWidgetSpawn(() => {
       const el = frame.current;
-      return el ? { x: el.scrollLeft / scale, y: el.scrollTop / scale } : { x: 0, y: 0 };
+      return el ? { x: el.scrollLeft, y: el.scrollTop } : { x: 0, y: 0 };
     });
     return () => setWidgetSpawn(null);
-  }, [scale]);
+  }, []);
 
   return (
     <div className={`flex flex-col gap-1 ${fill ? "min-h-0 flex-1" : ""}`}>
       <div className="flex items-center justify-end gap-1">
+        <button type="button" className={tbtn} onClick={arrange} disabled={!snap.groups.length && !snap.channels.length && !snap.sequencers.length} title="Auto layout: groups side by side, loops in a grid, sequencers below them" aria-label="Auto layout the stage"><Icon name="layout-dashboard" size={13} /></button>
         <InfoTip label="Stage help">
-          <p><b>Size:</b> {natural ? "make the widget bigger or smaller by its corner to show more or less of the stage; zoom the canvas to make it all bigger." : "the stage fits its widget. Make the widget bigger or smaller by its corner, or zoom the whole canvas."}</p>
+          <p><b>Size:</b> make the {fill ? "widget" : "section"} bigger or smaller to show more or less of the stage; loops and groups keep their size.</p>
+          <p><b>Auto layout:</b> the grid button lines up the groups with their loops and sequencers.</p>
           <p><b>Move around:</b> scroll, or drag empty space on the stage.</p>
           <p><b>Effect widgets:</b> the round + button, Widgets, or the dashboard button on an effect.{pins ? " Its controls appear on the stage; drag the title to place it." : " It appears on the canvas."}</p>
         </InfoTip>
@@ -117,8 +117,8 @@ export default function LoopStage({ engine, snap, openSeqs, onToggleSeq, fill = 
           window.addEventListener("pointerup", () => window.removeEventListener("pointermove", move), { once: true });
         }}
       >
-        <div data-pan="1" style={{ width: canvasW * scale, height: canvasH * scale }}>
-          <div data-pan="1" className="relative select-none" style={{ width: canvasW, height: canvasH, transform: `scale(${scale})`, transformOrigin: "top left" }}>
+        <div data-pan="1" style={{ width: STAGE_W, height: STAGE_H }}>
+          <div data-pan="1" className="relative select-none" style={{ width: STAGE_W, height: STAGE_H }}>
             {pins && <EffectWidgets engine={engine} snap={snap} drag={(e, onMove) => startDrag(e, stage.current, onMove)} />}
       <div ref={stage} data-pan="1" className="relative select-none" style={{ width: STAGE_W, height: STAGE_H }}>
         {snap.groups.map((g) => (
@@ -200,7 +200,7 @@ function LoopCircle({ engine, ch, colour, stage, ready, busy, firstTake, baseBar
   };
   const size = LOOP_R * 2 - 8;
   return (
-    <div className={`${card} w-[8.25rem]`} style={{ left: `${(ch.x / STAGE_W) * 100}%`, top: `${(ch.y / STAGE_H) * 100}%`, transform: `translate(-50%, -${LOOP_R - 4 + CARD_PAD}px)` }}>
+    <div className={card} style={{ width: CARD_W, left: `${(ch.x / STAGE_W) * 100}%`, top: `${(ch.y / STAGE_H) * 100}%`, transform: `translate(-50%, -${CARD_TOP}px)` }}>
       <button type="button" onPointerDown={onPointerDown} onKeyDown={onKeyDown} onClick={(e) => e.detail === 0 && ready && !(busy && !recording) && act()} aria-label={`${label}: ${ch.name}. Drag to move; Alt and arrow keys move it.`} title={`${label} (drag to move)`} className="relative grid cursor-grab place-items-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-sky-400 active:cursor-grabbing" style={{ width: size, height: size, touchAction: "none" }}>
         <svg viewBox="0 0 100 100" width={size} height={size} aria-hidden>
           <circle cx="50" cy="50" r={RING} fill={ch.state === "empty" ? "none" : `color-mix(in oklab, ${live} 13%, transparent)`} className="stroke-slate-800" strokeWidth="8" strokeDasharray={ch.state === "armed" ? "4 5" : undefined} />
@@ -263,7 +263,7 @@ function SeqCircle({ engine, q, strip, colour, stage, open, onOpen, patchId = fa
   const size = LOOP_R * 2 - 8;
   const ring = q.running ? "var(--color-emerald-400)" : colour;
   return (
-    <div data-patch-id={patchId ? `seq:${q.id}` : undefined} className={`${card} w-[8.25rem]`} style={{ left: `${(q.x / STAGE_W) * 100}%`, top: `${(q.y / STAGE_H) * 100}%`, transform: `translate(-50%, -${LOOP_R - 4 + CARD_PAD}px)` }}>
+    <div data-patch-id={patchId ? `seq:${q.id}` : undefined} className={card} style={{ width: CARD_W, left: `${(q.x / STAGE_W) * 100}%`, top: `${(q.y / STAGE_H) * 100}%`, transform: `translate(-50%, -${CARD_TOP}px)` }}>
       <button type="button" onPointerDown={onPointerDown} onKeyDown={onKeyDown} onClick={(e) => e.detail === 0 && toggle()} aria-pressed={on} aria-label={`${on ? "Stop" : "Play"} ${q.name} on the next beat. Drag to move; Alt and arrow keys move it.`} title={`${on ? "Stop" : "Play"} on the next beat (drag to move)`} className="relative grid cursor-grab place-items-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-sky-400 active:cursor-grabbing" style={{ width: size, height: size, touchAction: "none" }}>
         <svg viewBox="0 0 100 100" width={size} height={size} aria-hidden>
           <rect x="14" y="14" width="72" height="72" rx="20" fill={q.running ? `color-mix(in oklab, ${ring} 13%, transparent)` : "none"} className="stroke-slate-800" strokeWidth="8" />

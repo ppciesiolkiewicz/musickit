@@ -133,7 +133,7 @@ export default function FreeBoard({ engine, snap, controls, openSeqs, onToggleSe
           <div className="flex flex-wrap items-center gap-2">
             {controls}
           </div>
-          <LoopStage engine={engine} snap={snap} openSeqs={openSeqs} onToggleSeq={onToggleSeq} fill natural patchSeq pins={false} />
+          <LoopStage engine={engine} snap={snap} openSeqs={openSeqs} onToggleSeq={onToggleSeq} fill patchSeq pins={false} />
         </section>
       ),
     },

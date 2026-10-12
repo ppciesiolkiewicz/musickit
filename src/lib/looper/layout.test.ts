@@ -1,6 +1,11 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { LOOPS_PER_GROUP, bottomRow, freeSpot, spotInGroup, spotOutside, LOOP_R, MIN_GROUP_W, STAGE_H, STAGE_W, clampPoint, clampRect, containingGroup, defaultGroups, defaultSpot, resizeRect, MIN_GROUP_H } from "./layout";
+import { LOOPS_PER_GROUP, bottomRow, freeSpot, spotInGroup, spotOutside, LOOP_R, MIN_GROUP_W, STAGE_H, STAGE_W, clampPoint, clampRect, containingGroup, defaultGroups, defaultSpot, resizeRect, MIN_GROUP_H, CARD_W, CARD_TOP, LOOP_CARD_H, SEQ_CARD_H, VIEW_W, VIEW_H, arrangeStage, type GroupLayout } from "./layout";
+
+/** The box a card covers on the stage, from its circle centre. */
+const cardBox = (p: { x: number; y: number }, h = LOOP_CARD_H) => ({ x: p.x - CARD_W / 2, y: p.y - CARD_TOP, w: CARD_W, h });
+const overlap = (a: { x: number; y: number; w: number; h: number }, b: { x: number; y: number; w: number; h: number }) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
+const inside = (a: { x: number; y: number; w: number; h: number }, g: { x: number; y: number; w: number; h: number }) => a.x >= g.x && a.y >= g.y && a.x + a.w <= g.x + g.w && a.y + a.h <= g.y + g.h;
 import { clampParams, defaultParams, sanitiseEffects } from "./effects";
 
 describe("stage layout", () => {
@@ -19,8 +24,8 @@ describe("stage layout", () => {
     assert.equal(r.w, MIN_GROUP_W);
     assert.ok(r.y + r.h <= STAGE_H);
     const p = clampPoint(-5, 99999);
-    assert.equal(p.x, LOOP_R);
-    assert.equal(p.y, STAGE_H - LOOP_R);
+    assert.equal(p.x, CARD_W / 2);
+    assert.equal(p.y + LOOP_CARD_H - CARD_TOP, STAGE_H, "the whole card stays on the stage");
   });
   it("puts the default loops inside the default groups, group after group, clear of each other", () => {
     const gs = defaultGroups();
@@ -51,8 +56,21 @@ describe("stage layout", () => {
       assert.equal(containingGroup(gs, b.x, b.y), g.id);
       assert.ok(b.x - a.x >= LOOP_R * 1.6, "apart");
       const loop = defaultSpot(gs, i * LOOPS_PER_GROUP + LOOPS_PER_GROUP - 1);
-      assert.ok(a.y - loop.y >= LOOP_R * 3, "under the last loop and its controls");
+      assert.ok(a.y - loop.y >= LOOP_CARD_H, "under the last loop and its controls");
     });
+  });
+  it("gives every default card its own room, whole inside its group, and the groups fit the view", () => {
+    const gs = defaultGroups();
+    const cards = gs.flatMap((g, i) => [
+      ...Array.from({ length: LOOPS_PER_GROUP }, (_, k) => ({ g, box: cardBox(defaultSpot(gs, i * LOOPS_PER_GROUP + k)) })),
+      ...bottomRow(g, 2).map((p) => ({ g, box: cardBox(p, SEQ_CARD_H) })),
+    ]);
+    cards.forEach((c, i) => {
+      assert.ok(inside(c.box, c.g), `card ${i} inside its group`);
+      cards.slice(i + 1).forEach((d, j) => assert.ok(!overlap(c.box, d.box), `cards ${i} and ${i + 1 + j} apart`));
+    });
+    gs.forEach((g, i) => gs.slice(i + 1).forEach((h) => assert.ok(!overlap(g, h), "groups apart")));
+    gs.forEach((g) => assert.ok(g.x + g.w <= VIEW_W && g.y + g.h <= VIEW_H, "in view"));
   });
 });
 
@@ -73,10 +91,10 @@ describe("effects params", () => {
 describe("placing circles from the diagram", () => {
   it("finds a spot inside a group that is clear of the others", () => {
     const groups = defaultGroups();
-    const taken = [{ x: groups[1].x + 20 + LOOP_R, y: groups[1].y + 50 + LOOP_R }];
+    const taken = [defaultSpot(groups, LOOPS_PER_GROUP)];
     const p = spotInGroup(groups, "g2", taken);
     assert.equal(containingGroup(groups, p.x, p.y), "g2");
-    assert.ok(Math.hypot(p.x - taken[0].x, p.y - taken[0].y) >= LOOP_R * 1.6);
+    assert.ok(!overlap(cardBox(p), cardBox(taken[0])));
   });
   it("puts a new loop at its default spot, or elsewhere in that group when a circle is there", () => {
     const groups = defaultGroups();
@@ -85,7 +103,7 @@ describe("placing circles from the diagram", () => {
     assert.deepEqual(freeSpot(groups, index, []), d);
     const p = freeSpot(groups, index, [d]);
     assert.equal(containingGroup(groups, p.x, p.y), containingGroup(groups, d.x, d.y));
-    assert.ok(Math.abs(p.x - d.x) >= LOOP_R * 2 + 8 || Math.abs(p.y - d.y) >= LOOP_R * 2 + 56);
+    assert.ok(!overlap(cardBox(p), cardBox(d)));
   });
   it("goes to another group, then outside every group, when a group is full", () => {
     const groups = defaultGroups();
@@ -105,6 +123,8 @@ describe("placing circles from the diagram", () => {
     const p = spotOutside(groups, []);
     assert.ok(p);
     assert.equal(containingGroup(groups, p!.x, p!.y), null);
+    groups.forEach((g) => assert.ok(!overlap(cardBox(p!), g), "the whole card is clear of the groups"));
+    assert.ok(p!.y - CARD_TOP + LOOP_CARD_H <= VIEW_H, "in view");
   });
   it("reports no spot when groups cover the stage", () => {
     assert.equal(spotOutside([{ id: "a", x: 0, y: 0, w: STAGE_W, h: STAGE_H }], []), null);
@@ -145,5 +165,57 @@ describe("resizing a group from a corner", () => {
     const b = resizeRect(r, "se", 9999, 9999);
     assert.equal(b.x + b.w, STAGE_W);
     assert.equal(b.y + b.h, STAGE_H);
+  });
+});
+
+describe("auto layout of the stage", () => {
+  // a cramped stage: groups overlapping, loops and sequencers piled up, one loop outside every group
+  const groups: GroupLayout[] = [
+    { id: "b", x: 400, y: 40, w: 200, h: 300 },
+    { id: "a", x: 10, y: 10, w: 500, h: 200 },
+  ];
+  const items = [
+    ...[0, 1, 2, 3, 4].map((id) => ({ kind: "loop" as const, id, groupId: "a" })),
+    { kind: "loop" as const, id: 5, groupId: "b" },
+    { kind: "seq" as const, id: "s1", groupId: "a" },
+    { kind: "seq" as const, id: "s2", groupId: "a" },
+    { kind: "seq" as const, id: "s3", groupId: "b" },
+    { kind: "loop" as const, id: 6, groupId: null },
+  ];
+  const plan = arrangeStage(groups, items);
+  const g = (id: string) => plan.groups.find((x) => x.id === id)!;
+  const box = (id: string | number) => {
+    const s = plan.spots.find((p) => p.id === id)!;
+    return cardBox(s, s.kind === "seq" ? SEQ_CARD_H : LOOP_CARD_H);
+  };
+  it("puts the groups side by side in their order on the stage, apart", () => {
+    assert.deepEqual(plan.groups.map((x) => x.id), ["a", "b"]);
+    assert.ok(g("a").x + g("a").w < g("b").x);
+    assert.equal(g("a").y, g("b").y);
+    assert.equal(g("a").h, g("b").h, "a row of groups shares its height");
+  });
+  it("keeps every card whole in its own group, never on another card", () => {
+    items.filter((i) => i.groupId).forEach((i) => {
+      assert.ok(inside(box(i.id), g(i.groupId!)), `${i.id} inside ${i.groupId}`);
+      const s = plan.spots.find((p) => p.id === i.id)!;
+      assert.equal(containingGroup(plan.groups, s.x, s.y), i.groupId);
+    });
+    const all = items.map((i) => box(i.id));
+    all.forEach((a, i) => all.slice(i + 1).forEach((b, j) => assert.ok(!overlap(a, b), `cards ${i} and ${i + 1 + j}`)));
+  });
+  it("grows a group to fit its cards: loops in rows, sequencers below them", () => {
+    assert.ok(Math.max(...[0, 1, 2, 3, 4].map((id) => box(id).y)) < box("s1").y);
+    assert.equal(box("s1").y, box("s2").y);
+  });
+  it("puts a card that was outside every group under the groups, still outside", () => {
+    const s = plan.spots.find((p) => p.id === 6)!;
+    assert.equal(containingGroup(plan.groups, s.x, s.y), null);
+    plan.groups.forEach((x) => assert.ok(!overlap(box(6), x)));
+  });
+  it("matches the default layout for the default groups", () => {
+    const gs = defaultGroups();
+    const def = arrangeStage(gs, gs.flatMap((x, i) => Array.from({ length: LOOPS_PER_GROUP }, (_, k) => ({ kind: "loop" as const, id: i * LOOPS_PER_GROUP + k, groupId: x.id }))));
+    assert.deepEqual(def.groups, gs);
+    def.spots.forEach((p) => assert.deepEqual({ x: p.x, y: p.y }, defaultSpot(gs, Number(p.id))));
   });
 });

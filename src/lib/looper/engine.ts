@@ -8,7 +8,7 @@ import { InstrumentInput, type VoiceFactory } from "./instrument";
 import { CONTROLLER_NAMES, migrateSaves, type Controller, type InstrumentState } from "./instrumentModel";
 import { EffectChain, LoopBus, peakOf } from "./buses";
 import { EFFECT_DEFS, defaultParams, moveEffect, clampParams, sanitiseEffects, type EffectKind, type EffectSpec } from "./effects";
-import { GROUP_COLOURS, LOOPS_PER_GROUP, clampPoint, clampRect, containingGroup, defaultGroups, defaultSpot, freeSpot, bottomRow, type GroupLayout } from "./layout";
+import { GROUP_COLOURS, GROUP_H, GROUP_W, LOOPS_PER_GROUP, clampPoint, clampRect, containingGroup, defaultGroups, defaultSpot, freeSpot, bottomRow, type GroupLayout } from "./layout";
 import { InputMixer, MAX_INPUT_GAIN, describeError, type InputInfo } from "./mixer";
 import { PatchGraph } from "./patchAudio";
 import { EDITABLE, activeLinks, addNode as patchAddNode, connect as patchConnect, disconnect as patchDisconnect, emptyPatch, feeds, layoutAll, moveNode as patchMoveNode, place, removeNode, sanitisePatch, setLinkMuted, setNodeMuted, setSwitchMode, type Patch, type PatchLink } from "./patch";
@@ -1761,7 +1761,7 @@ export class LooperEngine {
     if (this.groups.length >= 8) return null;
     const n = ++this.groupCounter;
     const i = this.groups.length;
-    const r = clampRect({ x: 30 + i * 24, y: 30 + i * 24, w: 300, h: 260 });
+    const r = clampRect({ x: 30 + i * 24, y: 30 + i * 24, w: GROUP_W, h: GROUP_H });
     const gid = id && /^[\w-]{1,24}$/.test(id) && !this.groups.some((x) => x.id === id) ? id : `g${n}`;
     const g: GroupInfo = { id: gid, ...r, name: groupName(i), colour: GROUP_COLOURS[i % GROUP_COLOURS.length], volume: 1, muted: false, effects: [] };
     this.groups.push(g);
