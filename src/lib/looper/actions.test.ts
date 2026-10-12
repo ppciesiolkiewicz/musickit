@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { applyAction, describeAction, inverseOf, isAction, type ActionState, type ActionTarget, type FxTarget, type GroupPatch, type InstrumentPatch, type LooperAction, type MetronomePatch } from "./actions";
+import { DEFAULT_DRONE } from "./drone";
 import { moveEffect, type EffectSpec } from "./effects";
 import { ActionHistory } from "./history";
 import { DEFAULT_EDIT } from "./loopEdit";
@@ -19,7 +20,7 @@ function fake() {
     masterEffects: [],
     transport: { state: "stopped" as TransportState },
     metronome: { bpm: 120, beatsPerBar: 4, volume: 0.5, audible: true, showBeat: true, quantise: "bar", countInBars: 1 },
-    sequencers: [{ id: "q1", name: "Drums", x: 5, y: 5, dest: "auto", playing: false, instrumentId: "drums", bars: 1, cells: [[1, 0, 0, 0], [0, 0, 2, 0]] }],
+    sequencers: [{ id: "q1", name: "Drums", x: 5, y: 5, dest: "auto", playing: false, instrumentId: "drums", bars: 1, cells: [[1, 0, 0, 0], [0, 0, 2, 0]], drone: DEFAULT_DRONE }],
     instruments: [{ id: "p1", name: "Piano C", ...clampInstrument({ controller: "scalepiano", generator: { kind: "piano", instrument: "CELLO" } }) }],
     patch: { nodes: [{ id: "in:0", kind: "input", muted: false, x: 0, y: 0 }, { id: "group:g1", kind: "group", muted: false, x: 300, y: 0 }, { id: "sw", kind: "switch", muted: false, x: 150, y: 0, inMulti: false, outMulti: false }, { id: "chain", kind: "fx", muted: false, x: 150, y: 150, name: "Amp", effects: [{ id: "a1", kind: "reverb", bypass: false, post: false, params: { mix: 0.3 } }] }], links: [{ id: "k1", from: "in:0", to: "group:g1", port: "rec", muted: false }] },
   };
@@ -68,7 +69,7 @@ function fake() {
     addChannel: () => { if (s.channels.length < 8) s.channels.push({ id: s.channels.length, name: `Loop ${s.channels.length + 1}`, volume: 1, muted: false, solo: false, x: 0, y: 0, active: true, plan: 0, edit: { ...DEFAULT_EDIT } }); },
     removeLastChannel: () => { if (s.channels.length > 1) s.channels.pop(); },
     clear: () => undefined, clearAll: () => undefined, record: () => undefined, stopRecording: () => undefined,
-    addSequencerNow: (id) => { const sid = id && !s.sequencers.some((q) => q.id === id) ? id : `q${s.sequencers.length + 10}`; s.sequencers.push({ id: sid, name: "Drums", x: 0, y: 0, dest: "auto", playing: false, instrumentId: "drums", bars: 1, cells: [[0, 0, 0, 0], [0, 0, 0, 0]] }); return sid; },
+    addSequencerNow: (id) => { const sid = id && !s.sequencers.some((q) => q.id === id) ? id : `q${s.sequencers.length + 10}`; s.sequencers.push({ id: sid, name: "Drums", x: 0, y: 0, dest: "auto", playing: false, instrumentId: "drums", bars: 1, cells: [[0, 0, 0, 0], [0, 0, 0, 0]], drone: DEFAULT_DRONE }); return sid; },
     removeSequencer: (id) => { s.sequencers = s.sequencers.filter((q) => q.id !== id); },
     setSequencer: (id, p) => { const q = sq(id); if (p.instrument) q.instrumentId = p.instrument; if (p.cells) q.cells = p.cells; if (p.bars) q.bars = p.bars; if (p.dest) q.dest = p.dest; if (p.x !== undefined) q.x = p.x; if (p.y !== undefined) q.y = p.y; },
     addInput: (spec, id) => { const iid = id !== undefined && !s.inputs.some((i) => i.id === id) ? id : s.inputs.length + 10; s.inputs.push({ id: iid, kind: spec.kind, name: spec.name ?? "Input", deviceId: spec.deviceId ?? "", mode: spec.mode ?? "left", volume: 1, muted: false, solo: false, monitor: false, effects: [] }); return iid; },
