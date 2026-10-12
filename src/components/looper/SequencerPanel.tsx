@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import Icon from "../Icon";
+import DroneControls from "./DroneControls";
 import { INSTRUMENTS, type LooperEngine, type LooperSnapshot } from "@/lib/looper/engine";
 import { ibtn } from "@/components/controls";
 import Slider from "@/components/Slider";
@@ -13,6 +14,7 @@ export default function SequencerPanel({ engine, snap, id }: { engine: LooperEng
   const sq = snap.sequencers.find((x) => x.id === id);
   const seq = engine.getSequencer(id);
   if (!sq || !seq) return null;
+  if (sq.instrumentId === "drone") return <DronePanel engine={engine} snap={snap} id={id} sq={sq} />;
   return <Grid engine={engine} snap={snap} id={id} sq={sq} seq={seq} />;
 }
 
@@ -94,6 +96,26 @@ function Grid({ engine, snap, id, sq, seq }: { engine: LooperEngine; snap: Loope
         </div>
       </div>
       <p className="text-[11px] text-slate-500">Sounds are made in the browser, nothing is downloaded. It plays in time with the click while you record or play. It plays on the bus of the group its circle sits in, or master outside every group. Start and stop happen on the next beat.</p>
+    </div>
+  );
+}
+
+/** The drone: pick the note and the sound. It starts and stops on the next beat like any sequencer and plays through the bus of the group its circle sits in. */
+function DronePanel({ engine, snap, id, sq }: { engine: LooperEngine; snap: LooperSnapshot; id: string; sq: LooperSnapshot["sequencers"][number] }) {
+  return (
+    <div className="flex min-w-0 flex-col gap-3 p-2">
+      <div className="flex flex-wrap items-center gap-1.5">
+        <button type="button" className={`${ibtn} ${sq.playing ? "!border-emerald-500/70 !bg-emerald-500/15 !text-emerald-200" : ""}`} aria-pressed={sq.playing} onClick={() => engine.do({ type: "sequencer.playing", id, on: !sq.playing })} title={sq.playing ? "Stop on the next beat" : "Start on the next beat"} aria-label={sq.playing ? "Stop the drone" : "Start the drone"}><Icon name={sq.playing ? "square" : "play"} fill /></button>
+        <select className={field} value="drone" onChange={(e) => engine.do({ type: "sequencer.set", id, patch: { instrument: e.target.value } })} aria-label="Instrument">
+          {INSTRUMENTS.map((i) => <option key={i.id} value={i.id}>{i.name}</option>)}
+        </select>
+        <select className={field} value={sq.dest} onChange={(e) => engine.do({ type: "sequencer.dest", id, dest: e.target.value as "auto" | "record" })} aria-label="Where the sound goes" title="Where the sound goes">
+          <option value="auto">{sq.groupId ? `To ${snap.groups.find((g) => g.id === sq.groupId)?.name ?? "its group"}` : "To master"} (by position)</option>
+          <option value="record">To the recorder (and master)</option>
+        </select>
+      </div>
+      <DroneControls value={sq.drone} onChange={(drone) => engine.do({ type: "sequencer.set", id, patch: { drone } })} />
+      <p className="text-[11px] text-slate-500">One held note made in the browser. It plays on the bus of the group its circle sits in, or master outside every group. Start and stop happen on the next beat, with a slow fade.</p>
     </div>
   );
 }

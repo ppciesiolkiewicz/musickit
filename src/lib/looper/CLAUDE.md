@@ -20,7 +20,7 @@ Routing: Input → (input effects) → recorder → Loop → Bus (of its Group) 
 ## Keep it separate
 - `src/lib/looper/*` (engine, mixer, frames, worklet) imports nothing outside `src/lib/looper`. No `@/lib/audio`, no theory, no React.
 - The app injects what the engine needs through options: `getContext` (shared AudioContext) and `createVoice` (an instrument's sound, told what to play as a `VoiceSpec`: a built-in instrument, one pitched sample or one sample per pad; the engine never touches samples or storage). Instruments are heard on master through `toSpeakers` unless patched. The master mute (`master.mute`) shuts the master fader and keeps the volume. Wiring lives only in `LooperApp.tsx`.
-- Looper UI lives in `src/components/looper/`. It may use generic shared pieces (`Modal`, `FloatingWindow`, `Slider`, `controls.ts`, the `Piano` and `ScalePiano` keyboards) and the public index of `@/features/sound`, `@/features/sampler` and `@/features/tuner` (the tuner widget shares the tuner page's detector and settings), but nothing from chordKit, and no other feature may import from the looper.
+- Looper UI lives in `src/components/looper/`. It may use generic shared pieces (`Modal`, `FloatingWindow`, `Slider`, `controls.ts`, the `Piano` and `ScalePiano` keyboards) and the public index of `@/features/sound`, `@/features/sampler` and `@/features/tuner` (the tuner widget shares the tuner page's detector and settings), but nothing from chordKit, and no other feature may import from the looper (the one exception is `drone.ts`, see Drone).
 - Never edit non-looper files for looper reasons except the single injection point and the nav link.
 
 ## Audio and permissions
@@ -41,6 +41,9 @@ Routing: Input → (input effects) → recorder → Loop → Bus (of its Group) 
 - The first take starts on beat 1 after the count-in; its length is rounded to the nearest whole bar or beat (`quantise`), so the loop restarts on the grid. Later takes already start on loop boundaries.
 - Tempo and beats per bar are locked while a loop exists or a take is running (the engine ignores those changes). Anything new that depends on tempo (a drum machine, sequencer) must follow the same grid: `transport.anchor` plus `period`. The Looping header timeline reads `getTimeline()` (maths: `cycleBars`, `timelinePosition` in `frames.ts`; a growing take via `takeStatus`).
 - Pure maths (units, rounding, beat position) lives in `frames.ts` with tests; keep new timing logic there.
+
+## Drone
+- `drone.ts` is the one looper file other features may import: the Drone voice (`DroneVoice`), its params (`clampDrone`) and its maths, with no imports of its own. The theory page `/drone` (`src/components/DroneWidget.tsx`) and the looper share it, and also `DroneControls.tsx` (the note and sound controls). In the looper the drone is the sequencer instrument `drone` (no pattern, `SequencerState.drone`): it is a stage circle in a group, routed, saved and started/stopped on the beat exactly like a sequencer. Its changes are `sequencer.set` with `patch.drone`.
 
 ## Sequencers (drum machine)
 - `sequencer.ts` is a step sequencer with swappable synthesised instruments (drums by default, bass synth too). No sample files are downloaded: add sounds as oscillator and noise recipes and register them in `INSTRUMENTS`. Pure pattern maths and presets live in `sequencerPattern.ts` with tests.

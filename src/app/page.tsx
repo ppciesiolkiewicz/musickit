@@ -23,6 +23,7 @@ const STEPS: { n: number; title: string; blurb: string; tools: Tool[] }[] = [
       { href: "/theory/arpeggios", label: "Arpeggios", icon: "activity", text: "Arpeggio shapes across the neck." },
       { href: "/theory/caged", label: "CAGED", icon: "piano", text: "The five open shapes up the fretboard." },
       { href: "/theory/circle", label: "Circle of fifths", icon: "circle-dot", text: "Every key, its signature and its chords." },
+      { href: "/theory/drone", label: "Drone", icon: "audio-lines", text: "Hold one note and play a mode against it." },
       { href: "/cheatsheet", label: "Cheatsheet builder", icon: "puzzle", text: "All the theory in one key, as panels you arrange." },
     ],
   },

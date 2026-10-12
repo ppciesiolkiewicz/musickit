@@ -243,12 +243,12 @@ function SeqCircle({ engine, q, strip, colour, stage, open, onOpen, patchId = fa
     let raf = 0;
     const tick = () => {
       const p = engine.getSequencer(q.id)?.position();
-      if (arc.current) arc.current.style.strokeDashoffset = String(CIRC * (1 - (p === null || p === undefined ? 0 : (p + 1) / q.steps)));
+      if (arc.current) arc.current.style.strokeDashoffset = String(CIRC * (1 - (q.instrumentId === "drone" ? (q.running ? 1 : 0) : p === null || p === undefined ? 0 : (p + 1) / q.steps)));
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [engine, q.id, q.steps]);
+  }, [engine, q.id, q.steps, q.instrumentId, q.running]);
   const onPointerDown = (e: RPointerEvent) => {
     const base = { x: q.x, y: q.y };
     startDrag(e, stage.current, (dx, dy) => engine.do({ type: "sequencer.move", id: q.id, x: base.x + dx, y: base.y + dy }), toggle);
@@ -269,7 +269,7 @@ function SeqCircle({ engine, q, strip, colour, stage, open, onOpen, patchId = fa
           <rect x="14" y="14" width="72" height="72" rx="20" fill={q.running ? `color-mix(in oklab, ${ring} 13%, transparent)` : "none"} className="stroke-slate-800" strokeWidth="8" />
           <circle ref={arc} cx="50" cy="50" r={RING} fill="none" stroke={ring} strokeWidth="8" strokeLinecap="round" strokeDasharray={CIRC} strokeDashoffset={CIRC} transform="rotate(-90 50 50)" opacity={q.running ? 1 : q.playing ? 0.6 : 0.3} />
         </svg>
-        <span className="absolute grid place-items-center" style={{ color: ring }}><Icon name="drum" size={24} /></span>
+        <span className="absolute grid place-items-center" style={{ color: ring }}><Icon name={q.instrumentId === "drone" ? "audio-lines" : "drum"} size={24} /></span>
       </button>
       <span className="w-full truncate text-center text-[11px] font-medium text-slate-200" title={q.name}>{q.name}</span>
       <div className={controlsBox}>
@@ -281,7 +281,7 @@ function SeqCircle({ engine, q, strip, colour, stage, open, onOpen, patchId = fa
         )}
         <div className="flex items-center justify-between gap-1">
         <button type="button" className={`${tbtn} flex-1 ${on ? "!border-emerald-500/70 !text-emerald-200" : ""}`} onClick={toggle} aria-pressed={on} title={on ? "Stop on the next beat" : "Play"} aria-label={on ? `Stop ${q.name}` : `Play ${q.name}`}><Icon name={on ? "square" : "play"} size={11} fill /></button>
-        <button type="button" className={`${tbtn} flex-1 ${open ? "!border-sky-400 !text-sky-200" : ""}`} onClick={onOpen} aria-pressed={open} title="Open the step grid" aria-label={`Open the step grid of ${q.name}`}><Icon name="sliders-horizontal" size={12} /></button>
+        <button type="button" className={`${tbtn} flex-1 ${open ? "!border-sky-400 !text-sky-200" : ""}`} onClick={onOpen} aria-pressed={open} title={q.instrumentId === "drone" ? "Open the drone settings" : "Open the step grid"} aria-label={`Open the ${q.instrumentId === "drone" ? "settings" : "step grid"} of ${q.name}`}><Icon name="sliders-horizontal" size={12} /></button>
         </div>
       </div>
     </div>

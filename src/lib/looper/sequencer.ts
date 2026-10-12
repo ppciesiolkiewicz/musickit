@@ -1,3 +1,4 @@
+import { DEFAULT_DRONE, DroneVoice, clampDrone, type DroneParams } from "./drone";
 import { BASS_PRESETS, DRUM_PRESETS, MAX_BARS, MAX_STEPS, fromRows, emptyCells, stepAt, stepSeconds, stepsInPattern, type Cells, type Preset } from "./sequencerPattern";
 
 /**
@@ -119,7 +120,11 @@ export const BASS: Instrument = {
   },
 };
 
-export const INSTRUMENTS: Instrument[] = [DRUMS, BASS];
+/** The drone is not a pattern: it holds one note while it plays. It has no lanes; its settings are `SequencerState.drone`. */
+export const DRONE_ID = "drone";
+export const DRONE: Instrument = { id: DRONE_ID, name: "Drone", lanes: [], presets: [{ id: "hold", name: "Hold a note", rows: [] }], trigger() {} };
+
+export const INSTRUMENTS: Instrument[] = [DRUMS, BASS, DRONE];
 
 export interface SequencerState {
   /** "auto": the bus of the group it sits in, or master when it sits outside every group. "record": heard on master and fed to the recorder. */
@@ -132,6 +137,8 @@ export interface SequencerState {
   /** started by the person: it sounds in time with the metronome, joining and leaving on a beat */
   playing: boolean;
   cells: Cells;
+  /** the note and sound, used when the instrument is the drone */
+  drone: DroneParams;
 }
 
 const LOOKAHEAD = 0.12;
@@ -140,13 +147,14 @@ const TICK_MS = 25;
 const findInstrument = (id: string) => INSTRUMENTS.find((i) => i.id === id) ?? DRUMS;
 
 export class Sequencer {
-  state: SequencerState = { dest: "auto", x: 100, y: 100, instrumentId: DRUMS.id, bars: 1, playing: false, cells: fromRows(DRUM_PRESETS[0].rows) };
+  state: SequencerState = { dest: "auto", x: 100, y: 100, instrumentId: DRUMS.id, bars: 1, playing: false, cells: fromRows(DRUM_PRESETS[0].rows), drone: DEFAULT_DRONE };
   /** every voice goes into `out`; `toSpeakers` carries it to the master or a group bus, `toRecord` is what the mixer taps */
   out: GainNode | null = null;
   toSpeakers: GainNode | null = null;
   toRecord: GainNode | null = null;
   private ctx: AudioContext | null = null;
   private noise: AudioBuffer | null = null;
+  private voice: DroneVoice | null = null;
   private timer: ReturnType<typeof setInterval> | null = null;
   private anchor = 0;
   private next = 0;
@@ -180,6 +188,11 @@ export class Sequencer {
     const d = buf.getChannelData(0);
     for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
     this.noise = buf;
+    this.voice = new DroneVoice(ctx, this.out);
+  }
+
+  get isDrone() {
+    return this.state.instrumentId === DRONE_ID;
   }
 
   /** The part worth saving. */
@@ -195,12 +208,19 @@ export class Sequencer {
     const inst = findInstrument(String(j.instrumentId));
     const lanes = inst.lanes.length;
     const cells = Array.isArray(j.cells) && j.cells.length === lanes ? j.cells.map((row) => Array.from({ length: 96 }, (_, i) => (Number(row?.[i]) === 2 ? 2 : Number(row?.[i]) === 1 ? 1 : 0))) : fromRows(inst.presets[0].rows);
-    this.state = { dest: j.dest === "record" ? "record" : "auto", x: Number.isFinite(j.x) ? Number(j.x) : this.state.x, y: Number.isFinite(j.y) ? Number(j.y) : this.state.y, instrumentId: inst.id, bars: j.bars === 2 ? 2 : 1, playing: false, cells };
+    this.state = { dest: j.dest === "record" ? "record" : "auto", x: Number.isFinite(j.x) ? Number(j.x) : this.state.x, y: Number.isFinite(j.y) ? Number(j.y) : this.state.y, instrumentId: inst.id, bars: j.bars === 2 ? 2 : 1, playing: false, cells, drone: clampDrone(j.drone) };
   }
 
   private update(patch: Partial<SequencerState>) {
     this.state = { ...this.state, ...patch };
     this.onChange();
+  }
+
+  /** Change the drone's note or sound (any field); it follows at once while it plays. */
+  setDrone(p: Partial<DroneParams>) {
+    const drone = clampDrone(p, this.state.drone);
+    this.update({ drone });
+    if (this.isDrone) this.voice?.update(drone);
   }
 
   /** Cycle a step: off, normal, accent, off. */
@@ -213,7 +233,9 @@ export class Sequencer {
   setInstrument(id: string) {
     const inst = findInstrument(id);
     if (inst.id === this.state.instrumentId) return;
+    if (this.isDrone) this.voice?.stop();
     this.update({ instrumentId: inst.id, cells: fromRows(inst.presets[0].rows) });
+    if (this.isDrone && this.running && !this.stopping) this.voice?.start(this.state.drone);
   }
 
   loadPreset(id: string) {
@@ -268,6 +290,7 @@ export class Sequencer {
     this.stopAtTime = null;
     this.next = Math.ceil((this.ctx.currentTime - anchor) / stepSeconds(this.getTiming().beatSeconds) - 1e-9);
     if (!this.timer) this.timer = setInterval(() => this.schedule(), TICK_MS);
+    if (this.isDrone) this.voice?.start(this.state.drone, startAt);
     this.schedule();
     this.onChange();
   }
@@ -278,15 +301,18 @@ export class Sequencer {
 
   cancelStop() {
     this.stopAtTime = null;
+    if (this.isDrone) this.voice?.start(this.state.drone);
   }
 
   /** Let it play until time `t` (a beat line), then stop. */
   stopAt(t: number) {
     this.stopAtTime = t;
+    if (this.isDrone) this.voice?.stop(t);
   }
 
   stop() {
     this.stopAtTime = null;
+    this.voice?.stop();
     if (this.timer) clearInterval(this.timer);
     this.timer = null;
     this.onChange();
@@ -323,6 +349,8 @@ export class Sequencer {
 
   dispose() {
     this.stop();
+    this.voice?.dispose();
+    this.voice = null;
     try {
       [this.out, this.toSpeakers, this.toRecord].forEach((n) => n?.disconnect());
     } catch {

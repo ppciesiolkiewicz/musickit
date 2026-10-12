@@ -9,6 +9,7 @@
  * This file imports only types from inside src/lib/looper.
  */
 import type { MetronomeSettings } from "./metronome";
+import { DEFAULT_DRONE, type DroneParams } from "./drone";
 import { EFFECT_DEFS, moveEffect, type EffectKind } from "./effects";
 import type { InputMode } from "./frames";
 import type { LoopEdit } from "./loopEdit";
@@ -58,7 +59,7 @@ export type LooperAction =
   | { type: "loop.clearAll" }
   | { type: "loop.record"; id: number }
   | { type: "record.stop" }
-  | { type: "sequencer.add"; id?: string }
+  | { type: "sequencer.add"; id?: string; instrument?: string }
   | { type: "sequencer.remove"; id: string }
   | { type: "sequencer.set"; id: string; patch: SeqPatch }
   /** one step of the pattern: lane 0 is the top row, value 0 off, 1 step, 2 accent */
@@ -135,6 +136,8 @@ export type SeqPatch = {
   dest?: "auto" | "record";
   x?: number;
   y?: number;
+  /** the drone's note and sound: root (0 = C), octave, wave, fifth, upper, sub, detune, tone, level */
+  drone?: Partial<DroneParams>;
 };
 
 export type ActionType = LooperAction["type"];
@@ -150,7 +153,7 @@ export interface ActionState {
   masterEffects: EffectState[];
   transport: { state: TransportState };
   metronome: MetronomeSettings;
-  sequencers: { id: string; name: string; x: number; y: number; dest: "auto" | "record"; playing: boolean; instrumentId: string; bars: number; cells: number[][] }[];
+  sequencers: { id: string; name: string; x: number; y: number; dest: "auto" | "record"; playing: boolean; instrumentId: string; bars: number; cells: number[][]; drone: DroneParams }[];
   instruments: ({ id: string; name: string } & InstrumentState)[];
   /** what is connected to what */
   patch: { nodes: { id: string; kind: string; muted: boolean; x: number; y: number; inMulti?: boolean; outMulti?: boolean; owner?: string; busMulti?: boolean; destOne?: boolean; name?: string; effects?: EffectState[] }[]; links: { id: string; from: string; to: string; port?: "rec" | "bus"; muted: boolean }[] };
@@ -204,7 +207,7 @@ export interface ActionTarget {
   clearAll(): void;
   record(id: number): void;
   stopRecording(): void;
-  addSequencerNow(id?: string): string | null;
+  addSequencerNow(id?: string, init?: { instrument?: string }): string | null;
   removeSequencer(id: string): void;
   setSequencer(id: string, patch: SeqPatch): void;
   setSequencerStep(id: string, lane: number, step: number, value: number): void;
@@ -267,7 +270,7 @@ export function applyAction(t: ActionTarget, a: LooperAction): LooperAction | nu
     case "loop.record": t.record(a.id); return a;
     case "record.stop": t.stopRecording(); return a;
 
-    case "sequencer.add": { const id = t.addSequencerNow(a.id); return id === null ? null : { ...a, id }; }
+    case "sequencer.add": { const id = t.addSequencerNow(a.id, a.instrument ? { instrument: a.instrument } : undefined); return id === null ? null : { ...a, id }; }
     case "sequencer.remove": if (!t.getSnapshot().sequencers.some((q) => q.id === a.id)) return null; t.removeSequencer(a.id); return a;
     case "sequencer.set": t.setSequencer(a.id, a.patch); return a;
     case "sequencer.step": t.setSequencerStep(a.id, a.lane, a.step, a.value); return a;
@@ -386,14 +389,15 @@ export function inverseOf(a: LooperAction, s: ActionState): LooperAction | null 
     case "sequencer.remove": {
       const q = sq(a.id);
       if (!q) return null;
-      return { type: "batch", label: `Restore ${q.name}`, actions: [{ type: "sequencer.add", id: q.id }, { type: "sequencer.set", id: q.id, patch: { instrument: q.instrumentId, cells: q.cells, bars: q.bars, dest: q.dest, x: q.x, y: q.y } }] };
+      return { type: "batch", label: `Restore ${q.name}`, actions: [{ type: "sequencer.add", id: q.id }, { type: "sequencer.set", id: q.id, patch: { instrument: q.instrumentId, ...(q.cells.length ? { cells: q.cells } : {}), bars: q.bars, dest: q.dest, x: q.x, y: q.y, drone: q.drone } }] };
     }
     case "sequencer.set": {
       const q = sq(a.id);
       if (!q) return null;
       const p = a.patch;
       const before: SeqPatch = {};
-      if (p.instrument !== undefined || p.preset !== undefined || p.rows !== undefined || p.clear !== undefined || p.cells !== undefined) { before.instrument = q.instrumentId; before.cells = q.cells.map((r) => r.slice()); }
+      if (p.instrument !== undefined || p.preset !== undefined || p.rows !== undefined || p.clear !== undefined || p.cells !== undefined) { before.instrument = q.instrumentId; if (q.cells.length) before.cells = q.cells.map((r) => r.slice()); }
+      if (p.drone !== undefined) before.drone = q.drone;
       if (p.bars !== undefined) before.bars = q.bars;
       if (p.dest !== undefined) before.dest = q.dest;
       if (p.x !== undefined) before.x = q.x;
@@ -507,11 +511,11 @@ export function describeAction(a: LooperAction, s?: ActionState): string {
     case "loop.clearAll": return "Clear every loop";
     case "loop.record": return `Record ${loop(a.id)}`;
     case "record.stop": return "Stop recording";
-    case "sequencer.add": return "Add drums";
+    case "sequencer.add": return a.instrument === "drone" ? "Add drone" : "Add drums";
     case "sequencer.remove": return `Remove ${seq(a.id)}`;
     case "sequencer.set": {
       const p = a.patch;
-      return p.preset || p.rows || p.cells || p.clear ? `${seq(a.id)} pattern${p.preset ? ` ${p.preset}` : ""}` : p.instrument ? `${seq(a.id)} → ${p.instrument}` : p.bars ? `${seq(a.id)} ${p.bars} bar${p.bars === 1 ? "" : "s"}` : `Change ${seq(a.id)}`;
+      return p.drone ? `${seq(a.id)} drone` : p.preset || p.rows || p.cells || p.clear ? `${seq(a.id)} pattern${p.preset ? ` ${p.preset}` : ""}` : p.instrument ? `${seq(a.id)} → ${p.instrument}` : p.bars ? `${seq(a.id)} ${p.bars} bar${p.bars === 1 ? "" : "s"}` : `Change ${seq(a.id)}`;
     }
     case "sequencer.step": return `${seq(a.id)} step ${a.step + 1}`;
     case "input.add": return `Add input${a.spec.name ? ` ${a.spec.name}` : ""}`;
@@ -572,6 +576,7 @@ const INSTRUMENT_KEYS: Record<string, (v: unknown) => boolean> = {
 const SEQ_KEYS: Record<string, (v: unknown) => boolean> = {
   instrument: isStr, preset: isStr, rows: (v) => Array.isArray(v) && v.length <= 16 && v.every(isStr), clear: isBool, cells: isCells, bars: isNum,
   dest: (v) => v === "auto" || v === "record", x: isNum, y: isNum,
+  drone: (v) => typeof v === "object" && v !== null && !Array.isArray(v) && Object.keys(v).length > 0 && Object.entries(v).every(([k, x]) => (k === "wave" ? isStr(x) : k in DEFAULT_DRONE && isNum(x))),
 };
 const isTarget = (t: unknown): t is FxTarget => typeof t === "object" && t !== null && (isStr((t as { group?: unknown }).group) || isNum((t as { input?: unknown }).input) || (t as { master?: unknown }).master === true || isStr((t as { element?: unknown }).element));
 /** a well-formed effect description of a kind that exists */
@@ -620,7 +625,7 @@ export function isAction(v: unknown, depth = 0): v is LooperAction {
     case "group.add": return (a.id === undefined || isStr(a.id)) && (a.patch === undefined || validPatch(a.patch, GROUP_KEYS)) && (a.effects === undefined || (Array.isArray(a.effects) && a.effects.every((e) => isFx(e) && isStr((e as { id?: unknown }).id))));
     case "group.remove": return isStr(a.id);
     case "loop.clear": case "loop.record": return isNum(a.id);
-    case "sequencer.add": return a.id === undefined || isStr(a.id);
+    case "sequencer.add": return (a.id === undefined || isStr(a.id)) && (a.instrument === undefined || isStr(a.instrument));
     case "sequencer.remove": return isStr(a.id);
     case "sequencer.set": return isStr(a.id) && validPatch(a.patch, SEQ_KEYS);
     case "sequencer.step": return isStr(a.id) && isNum(a.lane) && isNum(a.step) && (a.value === 0 || a.value === 1 || a.value === 2);

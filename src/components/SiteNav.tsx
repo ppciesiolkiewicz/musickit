@@ -20,6 +20,7 @@ export const THEORY_LINKS = [
   { href: "/theory/circle", label: "Circle of fifths" },
   { href: "/theory/caged", label: "CAGED" },
   { href: "/theory/arpeggios", label: "Arpeggios" },
+  { href: "/theory/drone", label: "Drone" },
   { href: "/theory/improv", label: "Improv" },
   { href: "/theory/tunings", label: "Tunings" },
 ];

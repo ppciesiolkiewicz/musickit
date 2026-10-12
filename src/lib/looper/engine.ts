@@ -1,6 +1,7 @@
 import { LENGTH_STEPS, assemble, cycleBars, timelineOrigin, effectiveGain, lengthMultiple, loopOffset, takeStatus, type TakeStatus, msToFrames, nextBoundary, peaks, quantUnitFrames, quantiseLength, timelinePosition, type Chunk, type InputMode } from "./frames";
 import { Transport, type TransportState } from "./transport";
 import { Metronome, type MetronomeSettings } from "./metronome";
+import type { DroneParams } from "./drone";
 import { Sequencer, type SequencerState } from "./sequencer";
 import { fromRows } from "./sequencerPattern";
 import { InstrumentInput, type VoiceFactory } from "./instrument";
@@ -1902,8 +1903,10 @@ export class LooperEngine {
     }
     if (init?.instrument !== undefined) q.setInstrument(init.instrument);
     if (init?.preset !== undefined) q.loadPreset(init.preset);
-    const n = this.mixer.sequencerIds().length;
-    const { id: added } = this.mixer.addNow({ kind: "sequencer", name: name ?? (n === 0 ? "Drums" : `Drums ${n + 1}`), sourceId: sid });
+    const drone = q.isDrone;
+    const base = drone ? "Drone" : "Drums";
+    const n = this.mixer.list().filter((i) => i.kind === "sequencer" && (this.sequencers.get(i.sourceId ?? "")?.isDrone ?? false) === drone).length;
+    const { id: added } = this.mixer.addNow({ kind: "sequencer", name: name ?? (n === 0 ? base : `${base} ${n + 1}`), sourceId: sid });
     if (added === null) {
       this.disposeSequencer(sid);
       return null;
@@ -1918,10 +1921,11 @@ export class LooperEngine {
   }
 
   /** Change a sequencer's sound and pattern. Order: instrument, preset, rows, clear, cells, bars, destination, place. */
-  setSequencer(id: string, p: { instrument?: string; preset?: string; rows?: string[]; clear?: boolean; cells?: number[][]; bars?: number; dest?: "auto" | "record"; x?: number; y?: number }) {
+  setSequencer(id: string, p: { drone?: Partial<DroneParams>; instrument?: string; preset?: string; rows?: string[]; clear?: boolean; cells?: number[][]; bars?: number; dest?: "auto" | "record"; x?: number; y?: number }) {
     const q = this.sequencers.get(id);
     if (!q) return;
     if (p.instrument !== undefined) q.setInstrument(p.instrument);
+    if (p.drone !== undefined) q.setDrone(p.drone);
     if (p.preset !== undefined) q.loadPreset(p.preset);
     if (p.rows !== undefined) q.setCells(fromRows(p.rows.slice(0, q.instrument.lanes.length).concat(Array(Math.max(0, q.instrument.lanes.length - p.rows.length)).fill(""))));
     if (p.clear) q.clearPattern();

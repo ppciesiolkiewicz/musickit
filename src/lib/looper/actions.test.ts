@@ -422,3 +422,12 @@ test("removing several linked blocks in one batch undoes as one, with their link
   assert.deepEqual(ids(s.patch.links), links);
   assert.equal(describeAction(a, s), "Remove 2 blocks");
 });
+
+test("a drone is added, set and checked like any sequencer action", () => {
+  assert.ok(isAction({ type: "sequencer.add", id: "d1", instrument: "drone" }));
+  assert.ok(isAction({ type: "sequencer.set", id: "d1", patch: { drone: { root: 9, octave: 2, wave: "sine", level: 0.4 } } }));
+  assert.ok(!isAction({ type: "sequencer.set", id: "d1", patch: { drone: { cutoff: 3 } } }));
+  assert.ok(!isAction({ type: "sequencer.set", id: "d1", patch: { drone: {} } }));
+  assert.ok(!isAction({ type: "sequencer.add", instrument: 4 }));
+  assert.equal(describeAction({ type: "sequencer.add", instrument: "drone" }), "Add drone");
+});

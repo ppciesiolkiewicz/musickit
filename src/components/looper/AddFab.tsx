@@ -99,6 +99,7 @@ export default function AddFab({ engine, snap, wires, names, onInput }: { engine
               <Section title="Looping">
                 <button type="button" role="menuitem" className={item} disabled={snap.channels.length >= MAX_CHANNELS} onClick={() => run(() => onStage(engine.do({ type: "loop.add" }), "Loop"))}><Icon name="repeat" size={15} />Loop</button>
                 <button type="button" role="menuitem" className={item} disabled={snap.inputs.length >= MAX_INPUTS} onClick={() => run(() => onStage(engine.do({ type: "sequencer.add" }), "Sequencer"))}><Icon name="drum" size={15} />Sequencer<span className={hint}>drums, bass</span></button>
+                <button type="button" role="menuitem" className={item} disabled={snap.inputs.length >= MAX_INPUTS} onClick={() => run(() => onStage(engine.do({ type: "sequencer.add", instrument: "drone" }), "Drone"))}><Icon name="audio-lines" size={15} />Drone<span className={hint}>one held note</span></button>
                 <button type="button" role="menuitem" className={item} disabled={snap.groups.length >= 8} onClick={() => run(() => onStage(engine.do({ type: "group.add" }), "Group"))}><Icon name="plus" size={15} />Group<span className={hint}>bus with loops</span></button>
               </Section>
               <Section title="Sound">

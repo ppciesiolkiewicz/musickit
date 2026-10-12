@@ -161,6 +161,11 @@ export function AddInputModal({ engine, snap, onClose }: { engine: LooperEngine;
             <span className="text-sm font-medium text-slate-100">Sequencer</span>
             <span className="text-xs text-slate-400">A step sequencer in time with the click: a drum machine to start with. It plays to the master bus; add as many as you like.</span>
           </button>
+          <button type="button" onClick={() => { engine.do({ type: "sequencer.add", instrument: "drone" }); onClose(); }} className="flex flex-col gap-1 rounded-xl border border-slate-700 bg-slate-900 p-4 text-left hover:border-sky-400 disabled:cursor-not-allowed disabled:opacity-50">
+            <Icon name="audio-lines" size={28} className="text-sky-300" />
+            <span className="text-sm font-medium text-slate-100">Drone</span>
+            <span className="text-xs text-slate-400">One held note to play over: pick the note and the sound. It lives on the stage and plays through the group it sits in.</span>
+          </button>
           <button type="button" disabled={snap.groups.length >= 8} onClick={() => { engine.do({ type: "group.add" }); onClose(); }} className="flex flex-col gap-1 rounded-xl border border-slate-700 bg-slate-900 p-4 text-left hover:border-sky-400 disabled:cursor-not-allowed disabled:opacity-50">
             <Icon name="plus" size={28} className="text-sky-300" />
             <span className="text-sm font-medium text-slate-100">Group</span>
@@ -353,7 +358,7 @@ export function InputStrip({ engine, inp, devices, anyDevice, sequencerOpen, onT
   return (
     <li data-patch-id={stripPatchId(inp)} style={grp ? { borderLeft: `4px solid ${grp.colour}`, background: `${grp.colour}12` } : undefined} className={`flex flex-col gap-1 rounded-lg border bg-slate-950/50 px-2 py-1.5 ${inp.live ? "border-slate-800" : "border-slate-800/60 opacity-80"}`}>
       <div className="flex flex-wrap items-center gap-1.5">
-        <span title={state} className="text-slate-300"><Icon name={isDevice ? "mic" : inp.kind === "sequencer" ? "drum" : inst ? CONTROLLER_ICON[inst.controller] : "piano"} size={18} /></span>
+        <span title={state} className="text-slate-300"><Icon name={isDevice ? "mic" : inp.kind === "sequencer" ? (inp.name.startsWith("Drone") ? "audio-lines" : "drum") : inst ? CONTROLLER_ICON[inst.controller] : "piano"} size={18} /></span>
         <input value={inp.name} onChange={(e) => engine.do({ type: "input.set", id: inp.id, patch: { name: e.target.value } })} aria-label="Input name" className="w-32 rounded-md border border-transparent bg-transparent px-1.5 py-0.5 text-sm font-medium text-slate-100 hover:border-slate-700 focus:border-slate-500 focus:outline-none" />
         {inp.kind === "sequencer" && seq && <span className="flex h-6 min-w-[6.5rem] items-center justify-center gap-1 rounded-md border px-1.5 text-[10px] leading-none text-slate-300" style={{ borderColor: grp?.colour ?? "#334155" }} title="Where this sequencer plays: by the group its circle sits in">{grp && <span className="h-2 w-2 rounded-full" style={{ background: grp.colour }} />}→ {seq.dest === "record" ? "recorder" : grp?.name ?? "master"}</span>}
         {inp.kind !== "sequencer" && <span className="flex h-6 min-w-[6.5rem] items-center justify-center gap-1 rounded-md border border-slate-700 px-1.5 text-[10px] leading-none text-slate-400" title="Goes to the recorder, then into the loops"><Icon name="circle" size={10} className="text-rose-400" />rec</span>}

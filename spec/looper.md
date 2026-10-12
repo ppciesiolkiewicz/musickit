@@ -5,7 +5,7 @@ A multi-channel audio looper at `/looper`. The engine lives in `src/lib/looper/`
 ## Vocabulary
 
 - **Inputs**: sound makers that feed the rest: an audio device (interface, mic) or the keyboard. Effects belong to an input.
-- **Sequencers**: step sequencers (drums, bass). Each is a circle on the stage and a widget of its own settings.
+- **Sequencers**: step sequencers (drums, bass) and the **Drone**, a third instrument of the same kind. Each is a circle on the stage and a widget of its own settings.
 - **Buses**: anything sound is sent to and leaves from, with effects and a mute. Two kinds: a **Bus** is a standalone block you connect things to and add effects (the old "effect chain"); a **Group** is a special bus that also holds loops inside (a coloured box on the stage, with a recorder for its loops). The **master bus** is the last bus, bundled with the buses in the Widgets view.
 - **Output buses of an input**: an input's block (in Canvas) can hold buses of its own. With none it shows "Add output bus". With one it shows that bus. With two or more the block is also a switch: a radio (one bus at a time) or a checkbox (any combination of buses) beside each bus, its effects under its name; a click anywhere on a bus card (not on its buttons) picks it like its radio or checkbox. The buses start locked for switching: each card shows only its name and its effects as text, so a click always switches. The pencil in the header unlocks editing (the effects button, mute, remove and "Add output bus"); it is remembered per input (`musickit.looper.folds`, key `<input>:busEdit`). The input has one output for all its buses: one connector on the right of its block. Click it for a checkbox list of where it sends (the master, each group's recorder, other buses), each place on or off for every bus at once, with a remove button; drag from it to add a place (every bus gets the link). Same behaviour as the earlier separate switch, in one block. A stand-alone **Switch** block still exists for older saves and the round + button.
 - Effects are never blocks of their own: they sit on an input or a bus.
@@ -78,6 +78,10 @@ The page has a Mixer section (inputs) and a Looping section. Each loop is a circ
 ## Metronome bar
 
 The metronome floats at the top of the page under the main nav (it sticks to the top as you scroll): the transport's Play/Stop button, tempo as a slider plus a number box with minus and plus, and the beat dots, all in one group. A button opens a popover with every other option: beats per bar, count-in, quantise, click volume, hear the click, show beat dots. Play also plays the count-in first.
+
+## Drone
+
+The Drone is a sequencer instrument (`instrumentId: "drone"`, `drone.ts`) with no pattern: one held note made from a few oscillators (the note twice, detuned a little each way so it breathes, plus a fifth, the octave above and the octave below, each with its own level), a low-pass filter and a volume. Settings: note (C to B), octave 1 to 5, waveform (sine, triangle, saw, square), volume, tone, octave below, fifth, octave above, detune (0 to 30 cents). It is added from the round + button (Looping section, Drone), from the Add dialog or with `sequencer.add` with `instrument: "drone"`; it is a circle on the stage that lives in a group like any sequencer and plays through the bus of the group it sits in (master outside every group, or the recorder as well when switched). Start and stop happen on the next beat with a 1.2 s fade; changing the note while it sounds glides to it. Its settings are saved in `musickit.looper.sequencers` (`drone`). The same sound is the Drone page of the theory section (`/drone`, `DroneWidget`): standalone, straight to the speakers, no group, settings in `musickit.drone`.
 
 ## Sequencers on the stage and the signal flow
 
@@ -178,7 +182,7 @@ Output channels: when the chosen output has more than two channels (an interface
 
 ## Later takes, the add button, noise removal
 - A later take (armed, then recording) runs to the end of the loop on the next boundary. Pressing its circle while it is armed cancels it (X); once it has started the circle shows a filled dot and the press is ignored, so the take is looped, never thrown away.
-- One add button for everything: the round + at the bottom right (every view). Its menu is grouped: Looping (loop, sequencer, group), Sound (input; bus and switch in Canvas), and Widgets (Effect widget, a list of every effect grouped by owner, to pin or unpin). Loops, sequencers and groups always go on the stage inside the Looping section and a toast says so (`toast.tsx`: short notices at the bottom, three at most, gone after a few seconds). Everything else appears in the centre of the screen.
+- One add button for everything: the round + at the bottom right (every view). Its menu is grouped: Looping (loop, sequencer, drone, group), Sound (input; bus and switch in Canvas), and Widgets (Effect widget, a list of every effect grouped by owner, to pin or unpin). Loops, sequencers and groups always go on the stage inside the Looping section and a toast says so (`toast.tsx`: short notices at the bottom, three at most, gone after a few seconds). Everything else appears in the centre of the screen.
 - Noise removal (`denoise`): hum high-pass, hiss low-pass and a gate built from native nodes (rectifier, smoothing filter, gate curve driving a gain). The audio is delayed 10 ms so the gate opens before a note. Threshold, reduction, smooth (10-120 ms), hum cut, hiss cut. It is a gate and filters, not spectral denoising; verified only by unit test of the curve, not by ear.
 
 ## Loop lengths, badges, recording pulse
