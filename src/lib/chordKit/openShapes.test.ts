@@ -106,3 +106,23 @@ describe("open chords in the browsers", () => {
     assert.ok(names.has("I:") && names.has("IV:") && names.has("V:") && names.has("vi:m"));
   });
 });
+
+import { diagramLowFret } from "./shapeTools";
+import { filterChoices } from "./chordSearch";
+
+describe("review fixes", () => {
+  it("a diagram with an open string starts at the nut", () => {
+    assert.equal(diagramLowFret([0, 2, 2, 0, 0, 0]), 1); // open Em
+    assert.equal(diagramLowFret([null, null, 0, 2, 3, 2]), 1); // open D
+    assert.equal(diagramLowFret([null, 5, 7, 7, 7, 5]), 5); // D, A-shape barre at 5
+    assert.equal(diagramLowFret([null, null, null, null, null, null]), 1);
+  });
+  it("chord search results combine with the tag filters", () => {
+    const am7 = shapesForTones(9, [0, 3, 7, 10], ["easy", "medium", "hard"]).filter((r) => r.full).map((r) => r.choice);
+    const jazz = filterChoices(am7, ["jazz"]);
+    assert.ok(jazz.length > 0 && jazz.length < am7.length);
+    assert.ok(jazz.every((c) => c.shape.tags.includes("jazz")));
+    assert.deepEqual(filterChoices(am7, []), am7);
+    assert.ok(filterChoices(am7, ["x:easy"]).every((c) => c.shape.diff === "easy"));
+  });
+});

@@ -4,7 +4,7 @@ import type { Shape } from "@/lib/chordKit/shapes";
 import { fmtInterval, toneLabel } from "@/features/theory/labels";
 import type { KeyContext } from "@/features/theory/theory";
 import { useLabelSystem } from "@/features/theory/useLabelSystem";
-import { intervalLabel, OPEN_NOTE, OPEN_PITCH, ROOT_INDEX } from "@/lib/chordKit/shapeTools";
+import { diagramLowFret, intervalLabel, OPEN_NOTE, OPEN_PITCH, ROOT_INDEX } from "@/lib/chordKit/shapeTools";
 import { boxRowFactor } from "./Fretboard";
 import { GROUP_SWATCH, swatchFor } from "./palette";
 
@@ -30,7 +30,8 @@ export default function ChordDiagram({ shape, rootFret, onPlay, active, ctx, roo
   const abs = shape.f.map((v) => (v === null ? null : rootFret + v));
   // open strings (fret 0) sit above the nut, so only fretted notes set the size of the box
   const fretted = abs.filter((v): v is number => v !== null && v > 0);
-  const lo = fretted.length ? Math.min(...fretted) : 1;
+  // any open string pins the box to the nut, so open chords never read as a shape up the neck
+  const lo = diagramLowFret(abs);
   const hi = fretted.length ? Math.max(...fretted) : 1;
   const rows = Math.max(4, hi - lo + 1);
   const w = left + 5 * ss + 18;

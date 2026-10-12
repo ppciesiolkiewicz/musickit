@@ -67,6 +67,13 @@ export function rootFretFor(sh: Shape, rootPc: number): number {
   return r;
 }
 
+/** First fret row of a chord box: the nut (1) when any string is open, otherwise the lowest fretted note. */
+export function diagramLowFret(abs: (number | null)[]): number {
+  if (abs.some((v) => v === 0)) return 1;
+  const fretted = abs.filter((v): v is number => v !== null && v > 0);
+  return fretted.length ? Math.min(...fretted) : 1;
+}
+
 /** The root pitch class of an open chord, or null for a movable shape. */
 export const openRootPc = (sh: Shape): number | null => (sh.at === undefined ? null : (OPEN_NOTE[ROOT_INDEX[sh.rs]] + sh.at) % 12);
 

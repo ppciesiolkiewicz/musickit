@@ -1,5 +1,6 @@
 import { Chord, Interval, Note } from "@tonaljs/tonal";
-import { shapeName, type Entry } from "./shapeTools";
+import { matchesTags, shapeName, type Entry } from "./shapeTools";
+import type { ChordShapeChoice } from "./chordShapes";
 
 /**
  * Read a chord symbol typed by a person ("am7", "Bb maj7", "F♯m") with tonal.
@@ -25,3 +26,7 @@ export function matchesText(e: Entry, q: string): boolean {
   const hay = [shapeName(sh.suf), sh.suf, sh.v ?? "", ...sh.tags, sh.note ?? ""].join(" ").toLowerCase();
   return words.every((w) => hay.includes(w));
 }
+
+/** Chord search results narrowed by the explorer's tag chips (OR within a row, AND between rows), order kept. */
+export const filterChoices = (choices: ChordShapeChoice[], selected: string[]): ChordShapeChoice[] =>
+  choices.filter((c) => matchesTags({ shape: c.shape }, selected));
