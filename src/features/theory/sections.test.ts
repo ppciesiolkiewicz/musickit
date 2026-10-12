@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import { GROUP_LABEL, THEORY_SECTIONS, sectionFor } from "./sections";
 
-const NOT_YET: string[] = ["/theory/basics", "/theory/notes", "/theory/ears"];
+const NOT_YET: string[] = [];
 
 describe("theory sections", () => {
   it("hrefs are unique and every group has sections", () => {
