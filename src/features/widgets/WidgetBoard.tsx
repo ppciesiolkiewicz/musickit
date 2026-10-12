@@ -3,14 +3,23 @@
 import { useCallback, useEffect, useRef, useState, type PointerEvent as RPointerEvent, type ReactNode } from "react";
 import Icon, { type IconName } from "@/components/Icon";
 import InfoTip from "@/components/InfoTip";
-import { WIDGET_MIN, boxBetween, findSpot, fitView, raise, resizeFromCorner, tileLayout, widgetsInBox, type Corner, type Bounds, type DefaultLayout, type Layout, type WidgetRect } from "./board";
+import { WIDGET_MIN, boxBetween, findSpot, fitView, keepOnScreen, raise, resizeFromCorner, screenToWorld, tileLayout, widgetsInBox, worldToScreen, type Corner, type Bounds, type DefaultLayout, type Layout, type WidgetRect } from "./board";
 
 export interface BoardWidget {
   id: string;
   title: ReactNode;
+  /** the title as words, for the buttons' labels when `title` is not plain text */
+  name?: string;
   node: ReactNode;
   /** shows a close button in the header; also what Delete does to it when it is selected */
   onClose?: () => void;
+  /** shows a delete button (trash) in the header instead; its title says what goes ("Delete widget (the effect stays)") */
+  onDelete?: () => void;
+  deleteTitle?: string;
+  /** has a pin button: pinned, it stays in place on the screen while the canvas pans and zooms (drawn at 100%) */
+  pinnable?: boolean;
+  /** a pinnable widget new to the board starts pinned at this place on the screen */
+  pinStart?: { x: number; y: number };
   /** always drawn under the other widgets (a big one that the rest sit on) */
   back?: boolean;
   /** as tall as its content: it grows and shrinks with it (a section folding), and only its width is resized by hand */
@@ -59,7 +68,7 @@ const clampZoom = (z: number) => Math.min(ZOOM.max, Math.max(ZOOM.min, z));
  * world that you zoom (buttons, Ctrl/Cmd and the wheel) and pan (wheel, or drag empty space). Each widget is dragged by its grip header and
  * resized from the corner. The layout and the view are remembered under `storageKey`. Raise `resetSignal` to put everything back.
  * Shift-dragging empty space draws a selection box (adding to the selection); a selected widget's title moves every selected one, and Delete or
- * Backspace closes the selected widgets that have `onClose` (all at once through `onDelete` when given). Escape or a click on empty space clears it.
+ * Backspace deletes the selected widgets that have `onDelete` or `onClose` (all at once through the board's `onDelete` when given). Escape or a click on empty space clears it.
  */
 export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout, resetSignal = 0, flush = false, place = "free", arrangements = GRID, start, fitMargin = 16, onDelete }: {
   widgets: BoardWidget[];
@@ -88,6 +97,10 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
   const [layout, setLayout] = useState<Layout | null>(null);
   const [order, setOrder] = useState<string[]>([]);
   const [view, setView] = useState<View>({ zoom: 1, x: 0, y: 0 });
+  /** pinned widgets: their place on the screen (their size stays in the layout) */
+  const [pins, setPins] = useState<Record<string, { x: number; y: number }>>({});
+  const pinsRef = useRef(pins) as { current: Record<string, { x: number; y: number }> };
+  pinsRef.current = pins;
   const viewRef = useRef(view) as { current: View };
   viewRef.current = view;
   const drag = useRef<{ id: string; mode: "move" | Corner | "pan" | "box"; px: number; py: number; start: { x: number; y: number; w: number; h: number }; group?: Layout; keep?: string[] } | null>(null);
@@ -96,21 +109,30 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
   /** the selection box being dragged, in pixels of the canvas element */
   const [box, setBox] = useState<WidgetRect | null>(null);
   const ids = widgets.map((w) => w.id);
+  const pinStarts = Object.fromEntries(widgets.filter((w) => w.pinnable && w.pinStart).map((w) => [w.id, w.pinStart!]));
   const idKey = ids.join("|");
 
-  const save = useCallback((l: Layout | null, v: View) => {
+  const save = useCallback((l: Layout | null, v: View, p: Record<string, { x: number; y: number }> = pinsRef.current) => {
     try {
-      window.localStorage.setItem(storageKey, JSON.stringify({ layout: l, view: v }));
+      window.localStorage.setItem(storageKey, JSON.stringify({ layout: l, view: v, pins: p }));
     } catch {
       /* ignore */
     }
   }, [storageKey]);
 
-  // saved view
+  // saved view and pins
   useEffect(() => {
     try {
-      const j = JSON.parse(window.localStorage.getItem(storageKey) ?? "null")?.view;
+      const saved = JSON.parse(window.localStorage.getItem(storageKey) ?? "null");
+      const j = saved?.view;
       if (j && [j.zoom, j.x, j.y].every((n: unknown) => typeof n === "number" && Number.isFinite(n))) setView({ zoom: clampZoom(j.zoom), x: j.x, y: j.y });
+      const p = saved?.pins;
+      if (p && typeof p === "object") {
+        const ok = Object.entries(p as Record<string, { x?: unknown; y?: unknown }>).filter(([, q]) => q && Number.isFinite(q.x) && Number.isFinite(q.y));
+        const next = Object.fromEntries(ok.map(([id, q]) => [id, { x: Number(q.x), y: Number(q.y) }]));
+        pinsRef.current = { ...next, ...pinsRef.current };
+        setPins(pinsRef.current);
+      }
     } catch {
       /* ignore */
     }
@@ -157,6 +179,8 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
   const fresh = useRef(false);
   const relayout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const fitIds = widgets.filter((w) => w.fit).map((w) => w.id).join("|");
+  // pinning moves a widget to another layer (a new element), which must be watched again
+  const pinKey = Object.keys(pins).sort().join("|");
   useEffect(() => {
     const el = host.current;
     if (!el || !fitIds) return;
@@ -183,7 +207,7 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
     el.querySelectorAll<HTMLElement>("[data-fit]").forEach((n) => ro.observe(n));
     return () => ro.disconnect();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fitIds, layout === null]);
+  }, [fitIds, layout === null, pinKey]);
   // the fresh layout settles within a few seconds; after that only the person moves things
   useEffect(() => {
     if (!fresh.current) return;
@@ -195,7 +219,10 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
   useEffect(() => {
     if (!vp || vp.w < 1) return;
     const screen: DefaultLayout = (list) => defaults(list, vp);
-    setLayout((cur) => {
+    let starting: string[] = [];
+    {
+      // worked out here, not in a state updater, so the pins below see which widgets are new
+      const cur = layoutRef.current;
       let raw: unknown = cur;
       if (!raw) {
         try {
@@ -206,6 +233,8 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
       }
       const idList = idKey ? idKey.split("|") : [];
       if (!cur && (typeof raw !== "object" || raw === null)) fresh.current = true;
+      const src0 = typeof raw === "object" && raw !== null ? (raw as Record<string, unknown>) : {};
+      starting = idList.filter((id) => !src0[id] && pinStarts[id] && !pinsRef.current[id]);
       const d = screen(idList, vp);
       const src = typeof raw === "object" && raw !== null ? (raw as Record<string, Partial<WidgetRect> | undefined>) : {};
       const out: Layout = {};
@@ -232,8 +261,15 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
           n++;
         });
       }
-      return out;
-    });
+      setLayout(out);
+    }
+    // a pinnable widget new to the board starts pinned where it asks to (the Inputs list under the metronome); pins of widgets gone are dropped
+    const kept = Object.fromEntries(Object.entries(pinsRef.current).filter(([id]) => idKey.split("|").includes(id)));
+    const started = Object.fromEntries(starting.map((id) => [id, pinStarts[id]]));
+    if (starting.length || Object.keys(kept).length !== Object.keys(pinsRef.current).length) {
+      pinsRef.current = { ...kept, ...started };
+      setPins(pinsRef.current);
+    }
     setOrder((o) => [...o.filter((x) => idKey.split("|").includes(x)), ...idKey.split("|").filter((x) => !o.includes(x))]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vp?.w === undefined, idKey, storageKey]);
@@ -303,9 +339,10 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
     const sel = selectedRef.current;
     if (mode === "move" && e.shiftKey) setSelected(sel.includes(id) ? sel.filter((x) => x !== id) : [...sel, id]);
     else if (!sel.includes(id)) setSelected([]);
-    // a selected widget's title drags all the selected ones together
-    const group = mode === "move" && sel.includes(id) && sel.length > 1 && !e.shiftKey ? Object.fromEntries(sel.filter((x) => layout[x]).map((x) => [x, layout[x]])) : undefined;
-    drag.current = { id, mode, px: e.clientX, py: e.clientY, start: layout[id], group };
+    // a selected widget's title drags all the selected ones together (not the pinned ones: they stay on the screen)
+    const pin = pinsRef.current[id];
+    const group = !pin && mode === "move" && sel.includes(id) && sel.length > 1 && !e.shiftKey ? Object.fromEntries(sel.filter((x) => layout[x] && !pinsRef.current[x]).map((x) => [x, layout[x]])) : undefined;
+    drag.current = { id, mode, px: e.clientX, py: e.clientY, start: pin ? { ...layout[id], ...pin } : layout[id], group };
     setOrder((o) => raise(o, id));
   };
   /** Empty space: Shift with a mouse or pen draws a selection box; otherwise a drag pans. */
@@ -336,7 +373,8 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
       const b = boxBetween(d.start, { x: d.start.x + dx, y: d.start.y + dy });
       setBox(b);
       const v = viewRef.current;
-      const hit = layoutRef.current ? widgetsInBox(layoutRef.current, widgets.map((w) => w.id), { x: (b.x - v.x) / z, y: (b.y - v.y) / z, w: b.w / z, h: b.h / z }) : [];
+      // pinned widgets are not on the canvas: the box does not take them
+      const hit = layoutRef.current ? widgetsInBox(layoutRef.current, widgets.map((w) => w.id).filter((id) => !pinsRef.current[id]), { x: (b.x - v.x) / z, y: (b.y - v.y) / z, w: b.w / z, h: b.h / z }) : [];
       setSelected([...(d.keep ?? []), ...hit.filter((id) => !d.keep?.includes(id))]);
       return;
     }
@@ -345,10 +383,39 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
       setLayout((l) => (l ? { ...l, ...Object.fromEntries(Object.entries(g).map(([id, r]) => [id, inRange({ ...r, x: r.x + dx / z, y: r.y + dy / z }, { w: 0, h: 0 })])) } : l));
       return;
     }
+    const pinned = !!pinsRef.current[d.id];
+    // a pinned widget is on the screen at 100%: it follows the pointer pixel for pixel
+    const k = pinned ? 1 : z;
     const fit = widgets.find((w) => w.id === d.id)?.fit;
     // a fitted widget keeps its height (its content sets it): only the width follows the corner
-    const next = inRange(d.mode === "move" ? { ...d.start, x: d.start.x + dx / z, y: d.start.y + dy / z } : fit ? { ...resizeFromCorner(d.start, d.mode, dx / z, 0), y: d.start.y, h: d.start.h } : resizeFromCorner(d.start, d.mode, dx / z, dy / z), fit ? { w: WIDGET_MIN.w, h: 40 } : WIDGET_MIN);
+    const next = inRange(d.mode === "move" ? { ...d.start, x: d.start.x + dx / k, y: d.start.y + dy / k } : fit ? { ...resizeFromCorner(d.start, d.mode, dx / k, 0), y: d.start.y, h: d.start.h } : resizeFromCorner(d.start, d.mode, dx / k, dy / k), fit ? { w: WIDGET_MIN.w, h: 40 } : WIDGET_MIN);
+    if (pinned && vpRef.current) {
+      const at = keepOnScreen(next, next.w, vpRef.current);
+      pinsRef.current = { ...pinsRef.current, [d.id]: at };
+      setPins(pinsRef.current);
+      setLayout((l) => (l && l[d.id] ? { ...l, [d.id]: { ...l[d.id], w: next.w, h: next.h } } : l));
+      return;
+    }
     setLayout((l) => (l ? { ...l, [d.id]: next } : l));
+  };
+  /** Pin a widget where it is on the screen, or unpin it back into the canvas where it is now shown. */
+  const togglePin = (id: string) => {
+    const l = layoutRef.current;
+    if (!l || !l[id] || !vp) return;
+    const v = viewRef.current;
+    const cur = pinsRef.current;
+    let nextLayout = l;
+    if (cur[id]) {
+      const { [id]: at, ...rest } = cur;
+      nextLayout = { ...l, [id]: { ...l[id], ...screenToWorld(at, v) } };
+      pinsRef.current = rest;
+      setLayout(nextLayout);
+    } else {
+      pinsRef.current = { ...cur, [id]: keepOnScreen(worldToScreen(l[id], v), l[id].w, vp) };
+    }
+    setPins(pinsRef.current);
+    setOrder((o) => raise(o, id));
+    save(nextLayout, v, pinsRef.current);
   };
   const end = () => {
     if (!drag.current) return;
@@ -358,7 +425,7 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
     else save(layoutRef.current, viewRef.current);
   };
 
-  // Delete or Backspace closes the selected widgets, Escape lets go of them. Not while typing.
+  // Delete or Backspace deletes (or closes) the selected widgets, Escape lets go of them. Not while typing.
   const widgetsRef = useRef(widgets) as { current: BoardWidget[] };
   const onDeleteRef = useRef(onDelete) as { current: typeof onDelete };
   // the key and pointer handlers read the latest selection, widgets and onDelete
@@ -375,11 +442,11 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
       if (!sel.length) return;
       if (e.key === "Escape") setSelected([]);
       else if ((e.key === "Delete" || e.key === "Backspace") && !e.repeat) {
-        const gone = widgetsRef.current.filter((w) => w.onClose && sel.includes(w.id));
+        const gone = widgetsRef.current.filter((w) => (w.onDelete || w.onClose) && sel.includes(w.id));
         if (!gone.length) return;
         e.preventDefault();
         if (onDeleteRef.current) onDeleteRef.current(gone.map((w) => w.id));
-        else gone.forEach((w) => w.onClose?.());
+        else gone.forEach((w) => (w.onDelete ?? w.onClose)?.());
         setSelected(sel.filter((id) => !gone.some((w) => w.id === id)));
       }
     };
@@ -390,7 +457,8 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
   /** Zoom and move so that every widget is in view. */
   const fitAll = (l: Layout | null = layout) => {
     if (!l || !vp) return;
-    const v = fitView(widgets.map((w) => l[w.id]).filter(Boolean), vp, ZOOM, fitMargin);
+    // pinned widgets are on the screen already: only the others are fitted
+    const v = fitView(widgets.filter((w) => !pinsRef.current[w.id]).map((w) => l[w.id]).filter(Boolean), vp, ZOOM, fitMargin);
     if (!v) return;
     setView(v);
     save(l, v);
@@ -407,9 +475,11 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
       if (!r) return;
       sized[id] = { ...r, w: Math.max(r.w, el.scrollWidth + 2), h: Math.max(r.h, el.scrollHeight + FIT_CHROME - 20) };
     });
-    const placed = a ? a.layout(widgets.map((w) => w.id), vp, sized) : defaults(widgets.map((w) => w.id), vp, sized);
+    // pinned widgets stay where they are on the screen
+    const free = widgets.filter((w) => !pinsRef.current[w.id]).map((w) => w.id);
+    const placed = a ? a.layout(free, vp, sized) : defaults(free, vp, sized);
     const l: Layout = { ...layout };
-    widgets.forEach((w) => { if (placed[w.id]) l[w.id] = inRange(placed[w.id]); });
+    widgets.forEach((w) => { if (placed[w.id] && !pinsRef.current[w.id]) l[w.id] = inRange(placed[w.id]); });
     setLayout(l);
     fitAll(l);
   };
@@ -435,6 +505,63 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
   const menuItem = "flex w-full items-start gap-2 rounded-md px-2 py-1.5 text-left text-xs text-slate-200 hover:bg-slate-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
   const tbtn = "grid h-6 min-w-6 place-items-center rounded-md border border-slate-700/80 bg-slate-900/90 px-1 text-[10px] text-slate-300 hover:border-slate-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
   void top;
+  const hbtn = "grid h-5 w-5 shrink-0 place-items-center rounded text-slate-400 hover:text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
+  const nameOf = (w: BoardWidget) => w.name ?? (typeof w.title === "string" ? w.title : "widget");
+
+  /** One widget: its grip header (title, actions, pin, delete or close), its body and its resize corners. */
+  const frame = (w: BoardWidget, r: WidgetRect, pinned: boolean) => (
+    <div data-widget="1" key={w.id} aria-selected={selected.includes(w.id) || undefined} className={`absolute flex select-text flex-col overflow-hidden rounded-xl border bg-slate-950 shadow-lg shadow-black/40 ${pinned ? "pointer-events-auto" : ""} ${selected.includes(w.id) ? "border-sky-400 ring-2 ring-sky-400/60" : pinned ? "border-sky-500/60" : "border-slate-600"}`} style={{ left: r.x, top: r.y, width: r.w, height: r.h, zIndex: 1 + (w.back ? 0 : widgets.length) + Math.max(0, order.indexOf(w.id)) }}>
+      <div
+        className="flex h-7 shrink-0 cursor-grab touch-none select-none items-center gap-1.5 border-b border-slate-700 bg-slate-900 px-2 text-xs text-slate-300 active:cursor-grabbing"
+        onPointerDown={begin(w.id, "move")}
+        onPointerMove={move}
+        onPointerUp={end}
+        onPointerCancel={end}
+        title="Drag to move"
+      >
+        <Icon name="grip" size={14} className="text-slate-500" />
+        <span className="min-w-0 truncate font-medium text-slate-100">{w.title}</span>
+        {w.actions && <span className="flex shrink-0 items-center gap-1" onPointerDown={(e) => e.stopPropagation()}>{w.actions}</span>}
+        <span className="ml-auto flex shrink-0 items-center gap-0.5" onPointerDown={(e) => e.stopPropagation()}>
+          {w.pinnable && (
+            <button type="button" className={`${hbtn} ${pinned ? "!text-sky-300" : ""}`} aria-pressed={pinned} onClick={() => togglePin(w.id)} title={pinned ? "Unpin (moves with the canvas again)" : "Pin to the screen (stays put while the canvas pans and zooms)"} aria-label={`${pinned ? "Unpin" : "Pin"} ${nameOf(w)}`}>
+              <Icon name="pin" size={13} className={pinned ? "" : "rotate-45"} />
+            </button>
+          )}
+          {w.onDelete && (
+            <button type="button" className={`${hbtn} hover:!text-rose-300`} onClick={w.onDelete} title={w.deleteTitle ?? "Delete"} aria-label={w.deleteTitle ?? `Delete ${nameOf(w)}`}>
+              <Icon name="trash" size={13} />
+            </button>
+          )}
+          {w.onClose && (
+            <button type="button" className={hbtn} onClick={w.onClose} title="Close" aria-label={`Close ${nameOf(w)}`}>
+              <Icon name="x" size={14} />
+            </button>
+          )}
+        </span>
+      </div>
+      <div data-body={w.id} className="min-h-0 flex-1 touch-auto overflow-auto p-2.5" onPointerDown={(e) => {
+        e.stopPropagation();
+        // working in a widget that is not selected lets go of the selection, so a later Delete does not surprise
+        if (!selectedRef.current.includes(w.id) && selectedRef.current.length) setSelected([]);
+        // a dialog opened from the widget is drawn elsewhere on the page (a portal) but its events still bubble here: those do not raise it
+        if (e.currentTarget.contains(e.target as Node)) setOrder((o) => raise(o, w.id));
+      }}>{w.fit ? <div data-fit={w.id}>{w.node}</div> : w.node}</div>
+      {(["nw", "ne", "sw", "se"] as Corner[]).map((c) => (
+        <div
+          key={c}
+          className={`absolute z-10 h-5 w-5 touch-none ${c === "nw" ? "left-0 top-0 cursor-nwse-resize" : c === "se" ? "bottom-0 right-0 cursor-nwse-resize" : c === "ne" ? "right-0 top-0 cursor-nesw-resize" : "bottom-0 left-0 cursor-nesw-resize"}`}
+          style={c === "se" ? { background: "linear-gradient(135deg, transparent 50%, #64748b 50%, #64748b 56%, transparent 56%, transparent 66%, #64748b 66%, #64748b 72%, transparent 72%)" } : undefined}
+          onPointerDown={begin(w.id, c)}
+          onPointerMove={move}
+          onPointerUp={end}
+          onPointerCancel={end}
+          role="separator"
+          aria-label={`Resize ${nameOf(w)} from the ${c === "nw" ? "top left" : c === "ne" ? "top right" : c === "sw" ? "bottom left" : "bottom right"} corner`}
+        />
+      ))}
+    </div>
+  );
 
   return (
     <div
@@ -453,6 +580,7 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
           <p><b>Move around:</b> drag empty space, or the wheel or two-finger scroll.</p>
           <p><b>Select:</b> hold Shift and drag a box over empty space (it adds to what is selected); Shift-click a title to add or remove one. Drag a selected title to move them all; Delete removes them, Escape or a click on empty space lets go.</p>
           <p><b>Widgets:</b> drag a title to move one, the corner to resize it. The canvas is much bigger than the screen, so zoom out to place more.</p>
+          <p><b>Pin:</b> the pin in a title keeps that block in place on the screen while you pan and zoom.</p>
         </InfoTip>
         <button type="button" className={tbtn} onClick={() => { const v = zoomAt(1 / 1.25); save(layout, v); }} title="Zoom out" aria-label="Zoom out"><Icon name="minus" size={12} /></button>
         <button type="button" className={`${tbtn} w-12 tabular-nums`} onClick={() => { const v = { zoom: 1, x: 0, y: 0 }; setView(v); save(layout, v); }} title="Back to 100%" aria-label="Zoom to 100%">{Math.round(view.zoom * 100)}%</button>
@@ -484,51 +612,11 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
         </div>
       </div>
       <div data-canvas="1" className="absolute left-0 top-0" style={{ width: 0, height: 0, overflow: "visible", transform: `translate(${view.x}px, ${view.y}px) scale(${view.zoom})`, transformOrigin: "0 0" }}>
-        {layout &&
-          widgets.map((w) => {
-            const r = layout[w.id] ?? inRange({ x: 0, y: 0, w: 380, h: 260 });
-            return (
-              <div data-widget="1" key={w.id} aria-selected={selected.includes(w.id) || undefined} className={`absolute flex select-text flex-col overflow-hidden rounded-xl border bg-slate-950 shadow-lg shadow-black/40 ${selected.includes(w.id) ? "border-sky-400 ring-2 ring-sky-400/60" : "border-slate-600"}`} style={{ left: r.x, top: r.y, width: r.w, height: r.h, zIndex: 1 + (w.back ? 0 : widgets.length) + Math.max(0, order.indexOf(w.id)) }}>
-                <div
-                  className="flex h-7 shrink-0 cursor-grab touch-none select-none items-center gap-1.5 border-b border-slate-700 bg-slate-900 px-2 text-xs text-slate-300 active:cursor-grabbing"
-                  onPointerDown={begin(w.id, "move")}
-                  onPointerMove={move}
-                  onPointerUp={end}
-                  onPointerCancel={end}
-                  title="Drag to move"
-                >
-                  <Icon name="grip" size={14} className="text-slate-500" />
-                  <span className="min-w-0 truncate font-medium text-slate-100">{w.title}</span>
-                  {w.actions && <span className="flex shrink-0 items-center gap-1" onPointerDown={(e) => e.stopPropagation()}>{w.actions}</span>}
-                  {w.onClose && (
-                    <button type="button" className="ml-auto grid h-5 w-5 place-items-center rounded text-slate-400 hover:text-slate-100" onPointerDown={(e) => e.stopPropagation()} onClick={w.onClose} title="Close" aria-label={`Close ${typeof w.title === "string" ? w.title : "widget"}`}>
-                      <Icon name="x" size={14} />
-                    </button>
-                  )}
-                </div>
-                <div data-body={w.id} className="min-h-0 flex-1 touch-auto overflow-auto p-2.5" onPointerDown={(e) => {
-                  e.stopPropagation();
-                  // working in a widget that is not selected lets go of the selection, so a later Delete does not surprise
-                  if (!selectedRef.current.includes(w.id) && selectedRef.current.length) setSelected([]);
-                  // a dialog opened from the widget is drawn elsewhere on the page (a portal) but its events still bubble here: those do not raise it
-                  if (e.currentTarget.contains(e.target as Node)) setOrder((o) => raise(o, w.id));
-                }}>{w.fit ? <div data-fit={w.id}>{w.node}</div> : w.node}</div>
-                {(["nw", "ne", "sw", "se"] as Corner[]).map((c) => (
-                  <div
-                    key={c}
-                    className={`absolute z-10 h-5 w-5 touch-none ${c === "nw" ? "left-0 top-0 cursor-nwse-resize" : c === "se" ? "bottom-0 right-0 cursor-nwse-resize" : c === "ne" ? "right-0 top-0 cursor-nesw-resize" : "bottom-0 left-0 cursor-nesw-resize"}`}
-                    style={c === "se" ? { background: "linear-gradient(135deg, transparent 50%, #64748b 50%, #64748b 56%, transparent 56%, transparent 66%, #64748b 66%, #64748b 72%, transparent 72%)" } : undefined}
-                    onPointerDown={begin(w.id, c)}
-                    onPointerMove={move}
-                    onPointerUp={end}
-                    onPointerCancel={end}
-                    role="separator"
-                    aria-label={`Resize ${typeof w.title === "string" ? w.title : "widget"} from the ${c === "nw" ? "top left" : c === "ne" ? "top right" : c === "sw" ? "bottom left" : "bottom right"} corner`}
-                  />
-                ))}
-              </div>
-            );
-          })}
+        {layout && widgets.filter((w) => !pins[w.id]).map((w) => frame(w, layout[w.id] ?? inRange({ x: 0, y: 0, w: 380, h: 260 }), false))}
+      </div>
+      {/* pinned widgets: on the screen, at 100%, over the canvas and out of its pan and zoom */}
+      <div className="pointer-events-none absolute inset-0 z-[900]">
+        {layout && widgets.filter((w) => pins[w.id] && layout[w.id]).map((w) => frame(w, { ...layout[w.id], ...pins[w.id] }, true))}
       </div>
       {box && <div aria-hidden className="pointer-events-none absolute z-[999] rounded-sm border border-sky-400 bg-sky-400/10" style={{ left: box.x, top: box.y, width: box.w, height: box.h }} />}
     </div>

@@ -18,11 +18,10 @@ import { makeGeneratorVoice } from "@/features/sampler";
 import LoopStage from "./LoopStage";
 import FreeBoard from "./FreeBoard";
 import { Toasts } from "./toast";
-import { pinDefaults } from "./fxPins";
+import { inputsWidgetDefault, widgetDefaults } from "./widgets";
 import { Modal } from "../Modal";
 import MetronomeBar, { TransportButton } from "./MetronomeBar";
 import Timeline from "./Timeline";
-import InputsMini from "./InputsMini";
 import InstrumentPanel from "./InstrumentPanel";
 import SequencerPanel from "./SequencerPanel";
 import Link from "next/link";
@@ -186,7 +185,9 @@ function useEngine() {
   useEffect(() => {
     engine.init();
     // every group's effects are on show in a new project
-    pinDefaults(engine.getSnapshot().groups.flatMap((g) => g.effects.map((e) => `g:${g.id}:${e.id}`)));
+    widgetDefaults(engine.getSnapshot().groups.flatMap((g) => g.effects.map((e) => `g:${g.id}:${e.id}`)));
+    // the Inputs list starts on show (a Canvas widget pinned under the metronome)
+    inputsWidgetDefault();
     return () => engine.dispose();
   }, [engine]);
   const snap = useSyncExternalStore(engine.subscribe, engine.getSnapshot, engine.getSnapshot);
@@ -328,11 +329,7 @@ export default function LooperApp() {
       <Toasts />
       {addingInput && <AddInputModal engine={engine} snap={snap} onClose={() => setAddingInput(false)} />}
       <div className="pointer-events-none sticky top-0 z-[1100] flex items-start justify-between gap-2 px-1 py-1">
-        <div className="relative">
-          <div className="pointer-events-auto"><MetronomeBar engine={engine} snap={snap} ready={ready} /></div>
-          {/* floats over the page (absolute), so opening it never pushes the canvas down */}
-          {ready && widgetMode && <div className="pointer-events-auto absolute left-0 top-full mt-1.5"><InputsMini engine={engine} snap={snap} openPianos={openPianos} onTogglePiano={togglePiano} /></div>}
-        </div>
+        <div className="pointer-events-auto"><MetronomeBar engine={engine} snap={snap} ready={ready} /></div>
         <div className="pointer-events-auto flex gap-1">
           <button type="button" className={ibtn} onClick={() => setNewOpen(true)} title="New project" aria-label="New project"><Icon name="file-plus" /></button>
           <button type="button" className={ibtn} disabled={!canUndo} onClick={() => engine.history.undo()} title="Undo (Ctrl+Z)" aria-label="Undo"><Icon name="undo-2" /></button>

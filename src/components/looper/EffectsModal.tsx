@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import Icon from "../Icon";
 import Modal from "../Modal";
-import { isPinned, togglePin, usePins } from "./fxPins";
+import { hasWidget, toggleWidget, useWidgetRefs } from "./widgets";
 import { EFFECT_DEFS, EFFECT_KINDS, getChoice, type CloudItem, type EffectKind, type EffectSpec, type ParamDef } from "@/lib/looper/engine";
 import Slider from "@/components/Slider";
 import { ibtn } from "@/components/controls";
@@ -164,7 +164,7 @@ export default function EffectsModal({ title, effects, volume, onAdd, onRemove, 
   /** "g:<group id>" or "i:<input id>": effects can then be pinned to the stage as widgets */
   pinScope?: string;
 }) {
-  const pins = usePins();
+  const pins = useWidgetRefs();
   const [adding, setAdding] = useState<null | boolean>(null);
   const [open, setOpen] = useState<Record<string, boolean>>({});
   const card = (fx: EffectSpec) => {
@@ -176,7 +176,7 @@ export default function EffectsModal({ title, effects, volume, onAdd, onRemove, 
           <button type="button" className={ibtn} aria-expanded={!collapsed} onClick={() => setOpen({ ...open, [fx.id]: collapsed })} title={collapsed ? "Show settings" : "Hide settings"} aria-label={`${collapsed ? "Show" : "Hide"} ${def.name} settings`}><Icon name="chevron-right" size={14} className={collapsed ? "" : "rotate-90"} /></button>
           <h3 className="min-w-0 flex-1 truncate text-sm font-medium text-slate-100">{def.name}</h3>
           {pinScope && (
-            <button type="button" className={`${ibtn} ${isPinned(pins, `${pinScope}:${fx.id}`) ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={isPinned(pins, `${pinScope}:${fx.id}`)} onClick={() => togglePin(`${pinScope}:${fx.id}`)} title="Show this effect as a widget on the loop stage" aria-label={`Pin ${def.name} to the stage`}><Icon name="layout-dashboard" size={14} /></button>
+            <button type="button" className={`${ibtn} ${hasWidget(pins, `${pinScope}:${fx.id}`) ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={hasWidget(pins, `${pinScope}:${fx.id}`)} onClick={() => toggleWidget(`${pinScope}:${fx.id}`)} title="Show this effect as a widget on the loop stage" aria-label={`Pin ${def.name} to the stage`}><Icon name="layout-dashboard" size={14} /></button>
           )}
           {onPost && <button type="button" className={ibtn} onClick={() => onPost(fx.id, !fx.post)} title={fx.post ? "After the fader: move before it (the fader then cuts it)" : "Before the fader: move after it (it keeps ringing when the fader is down)"} aria-label={`Move ${def.name} ${fx.post ? "before" : "after"} the fader`}><Icon name="chevron-right" size={14} className={fx.post ? "-rotate-90" : "rotate-90"} /></button>}
           <button type="button" className={`${ibtn} ${fx.bypass ? "" : "!border-emerald-500/70 !text-emerald-200"}`} aria-pressed={!fx.bypass} onClick={() => onBypass(fx.id)} title={fx.bypass ? "Bypassed (tap to switch on)" : "On (tap to bypass)"} aria-label={`${def.name} on or off`}><Icon name="power" /></button>

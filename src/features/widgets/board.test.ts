@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { alignLine, attachLayout, bandLayout, boxBetween, clampWidget, findSpot, fitView, moveWidget, raise, resizeFromCorner, resizeWidget, sanitiseLayout, splitLayout, tileLayout, widgetsInBox } from "./board";
+import { alignLine, attachLayout, bandLayout, boxBetween, clampWidget, findSpot, fitView, keepOnScreen, moveWidget, raise, resizeFromCorner, resizeWidget, sanitiseLayout, screenToWorld, splitLayout, tileLayout, widgetsInBox, worldToScreen } from "./board";
 
 const B = { w: 1000, h: 600 };
 
@@ -143,4 +143,17 @@ test("a selection box is the same whichever way it is dragged, and takes every w
   const l = { a: { x: 0, y: 0, w: 100, h: 100 }, b: { x: 150, y: 0, w: 100, h: 100 }, c: { x: 0, y: 300, w: 100, h: 100 } };
   assert.deepEqual(widgetsInBox(l, ["a", "b", "c", "gone"], boxBetween({ x: 90, y: 90 }, { x: 160, y: 10 })), ["a", "b"]);
   assert.deepEqual(widgetsInBox(l, ["a", "b", "c"], { x: 100, y: 100, w: 40, h: 40 }), []);
+});
+
+test("pinning keeps a widget where it is on the screen, unpinning puts it back in the world", () => {
+  const v = { zoom: 0.5, x: 100, y: -40 };
+  const s = worldToScreen({ x: 200, y: 300 }, v);
+  assert.deepEqual(s, { x: 200, y: 110 });
+  assert.deepEqual(screenToWorld(s, v), { x: 200, y: 300 });
+});
+
+test("a pinned widget keeps its header on the screen", () => {
+  assert.deepEqual(keepOnScreen({ x: -500, y: -20 }, 300, B), { x: -252, y: 0 });
+  assert.deepEqual(keepOnScreen({ x: 2000, y: 900 }, 300, B), { x: 952, y: 572 });
+  assert.deepEqual(keepOnScreen({ x: 40, y: 50 }, 300, B), { x: 40, y: 50 });
 });

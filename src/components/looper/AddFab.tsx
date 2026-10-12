@@ -2,8 +2,8 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import Icon from "../Icon";
-import { isPinned, togglePin, usePins } from "./fxPins";
-import { busPath } from "./PatchNode";
+import { INPUTS_KEY, hasWidget, outKey, switchKey, toggleWidget, useWidgetRefs } from "./widgets";
+import { busPath, patchName } from "./PatchNode";
 import { toast } from "./toast";
 import { MAX_CHANNELS, MAX_INPUTS, type LooperEngine, type LooperSnapshot } from "@/lib/looper/engine";
 
@@ -16,7 +16,7 @@ interface Entry {
   where: string;
 }
 
-/** Every effect that can be shown as a widget, with its pin key (see `fxPins.ts`). */
+/** Every effect that can be shown as a widget, with its pin key (see `widgets.ts`). */
 export function effectEntries(snap: LooperSnapshot): Entry[] {
   const out: Entry[] = [];
   snap.inputs.forEach((i) => i.effects.forEach((e) => out.push({ key: `i:${i.id}:${e.id}`, label: e.kind, where: i.name })));
@@ -35,13 +35,14 @@ const Section = ({ title, children }: { title: string; children: ReactNode }) =>
 
 /**
  * The one add button of the looper: the round + over the page. Loops, sequencers and groups go on the stage inside the Looping section
- * (a notice says so); inputs, buses, switches and effect widgets appear in the middle of the screen. Buses and switches exist only in
- * the Canvas, so the menu offers them there.
+ * (a notice says so); inputs, buses, switches and widgets appear in the middle of the screen. Buses, switches and the widgets of
+ * inputs (their buses switch, their outputs, the Inputs list) exist only in the Canvas, so the menu offers them there. Widgets are
+ * called "Controls" on screen.
  */
 export default function AddFab({ engine, snap, wires, names, onInput }: { engine: LooperEngine; snap: LooperSnapshot; wires: boolean; names: Record<string, string>; onInput: () => void }) {
   const [open, setOpen] = useState(false);
-  const [sub, setSub] = useState(false);
-  const pins = usePins();
+  const [sub, setSub] = useState<null | "fx" | "inputs">(null);
+  const pins = useWidgetRefs();
   const fx = effectEntries(snap);
   const owners = [...new Set(fx.map((e) => e.where))];
 
@@ -63,8 +64,11 @@ export default function AddFab({ engine, snap, wires, names, onInput }: { engine
   const run = (f: () => void) => {
     f();
     setOpen(false);
-    setSub(false);
+    setSub(null);
   };
+  // the inputs that have a block in the Canvas, for their buses switch and outputs widgets
+  const blocks = snap.patch.nodes.filter((n) => n.kind === "input" || n.kind === "piano");
+  const check = (on: boolean) => <span className="w-4">{on && <Icon name="check" size={14} />}</span>;
   /** an action that puts something on the stage, with a notice of where it went */
   const onStage = (ok: boolean, what: string) => ok && toast(`${what} added in the Looping section`);
   const stamp = () => Date.now().toString(36);
@@ -79,15 +83,26 @@ export default function AddFab({ engine, snap, wires, names, onInput }: { engine
     <div data-addfab className="pointer-events-none fixed bottom-5 right-5 z-[60] flex flex-col items-end gap-2">
       {open && (
         <div role="menu" aria-label="Add" className="pointer-events-auto max-h-[75vh] w-64 overflow-auto rounded-xl border border-slate-700 bg-slate-950 p-1 shadow-xl">
-          {sub ? (
+          {sub === "inputs" ? (
             <>
-              <button type="button" className={item} onClick={() => setSub(false)}><Icon name="chevron-left" size={14} />Effect widget</button>
+              <button type="button" className={item} onClick={() => setSub(null)}><Icon name="chevron-left" size={14} />Input buses and outputs</button>
+              {blocks.length === 0 && <p className="px-2 py-1.5 text-xs text-slate-400">No inputs yet.</p>}
+              {blocks.map((n) => (
+                <Section key={n.id} title={patchName(snap, n)}>
+                  <button type="button" className={item} aria-pressed={hasWidget(pins, switchKey(n.id))} onClick={() => toggleWidget(switchKey(n.id))}>{check(hasWidget(pins, switchKey(n.id)))}<span className="truncate">Switch between buses</span></button>
+                  <button type="button" className={item} aria-pressed={hasWidget(pins, outKey(n.id))} onClick={() => toggleWidget(outKey(n.id))}>{check(hasWidget(pins, outKey(n.id)))}<span className="truncate">Groups and buses</span><span className={hint}>outputs</span></button>
+                </Section>
+              ))}
+            </>
+          ) : sub === "fx" ? (
+            <>
+              <button type="button" className={item} onClick={() => setSub(null)}><Icon name="chevron-left" size={14} />Effect widget</button>
               {fx.length === 0 && <p className="px-2 py-1.5 text-xs text-slate-400">No effects yet. Add one to an input, bus, group or the master.</p>}
               {owners.map((w) => (
                 <Section key={w} title={w}>
                   {fx.filter((e) => e.where === w).map((e) => (
-                    <button key={e.key} type="button" className={item} aria-pressed={isPinned(pins, e.key)} onClick={() => togglePin(e.key)}>
-                      <span className="w-4">{isPinned(pins, e.key) && <Icon name="check" size={14} />}</span>
+                    <button key={e.key} type="button" className={item} aria-pressed={hasWidget(pins, e.key)} onClick={() => toggleWidget(e.key)}>
+                      {check(hasWidget(pins, e.key))}
                       <span className="truncate">{names[e.label] ?? e.label}</span>
                     </button>
                   ))}
@@ -107,15 +122,17 @@ export default function AddFab({ engine, snap, wires, names, onInput }: { engine
                 <button type="button" role="menuitem" className={item} disabled={!wires} title={wiresOnly} onClick={() => run(() => addNode("fx"))}><Icon name="sliders-horizontal" size={15} />Bus<span className={hint}>connect, add effects</span></button>
                 <button type="button" role="menuitem" className={item} disabled={!wires} title={wiresOnly} onClick={() => run(() => addNode("switch"))}><Icon name="split" size={15} />Switch<span className={hint}>pick inputs, outputs</span></button>
               </Section>
-              <Section title="Widgets">
+              <Section title="Controls">
                 <button type="button" role="menuitem" className={item} onClick={() => run(() => addNode("tuner"))}><Icon name="gauge" size={15} />Tuner<span className={hint}>{wires ? "wire a guitar through it" : "wire it in the Canvas view"}</span></button>
-                <button type="button" role="menuitem" className={item} onClick={() => setSub(true)}><Icon name="layout-dashboard" size={15} />Effect widget<span className={hint}>{fx.length ? `${fx.length} effects` : "none yet"}</span><Icon name="chevron-right" size={14} /></button>
+                <button type="button" role="menuitem" className={item} onClick={() => setSub("fx")}><Icon name="layout-dashboard" size={15} />Effect widget<span className={hint}>{fx.length ? `${fx.length} effects` : "none yet"}</span><Icon name="chevron-right" size={14} /></button>
+                <button type="button" role="menuitem" className={item} disabled={!wires} title={wiresOnly} onClick={() => setSub("inputs")}><Icon name="split" size={15} />Input buses and outputs<Icon name="chevron-right" size={14} className="ml-auto" /></button>
+                <button type="button" role="menuitemcheckbox" className={item} disabled={!wires} title={wiresOnly} aria-checked={hasWidget(pins, INPUTS_KEY)} onClick={() => run(() => toggleWidget(INPUTS_KEY))}><Icon name="list" size={15} />Inputs list<span className={hint}>{hasWidget(pins, INPUTS_KEY) ? "on show" : "levels, mute"}</span></button>
               </Section>
             </>
           )}
         </div>
       )}
-      <button type="button" aria-haspopup="menu" aria-expanded={open} aria-label="Add a loop, sequencer, input, bus, tuner or widget" title="Add" onClick={() => { setSub(false); setOpen((v) => !v); }} className="pointer-events-auto grid h-12 w-12 place-items-center rounded-full border border-sky-400/60 bg-sky-500 text-slate-950 shadow-lg shadow-black/50 transition hover:bg-sky-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-200">
+      <button type="button" aria-haspopup="menu" aria-expanded={open} aria-label="Add a loop, sequencer, input, bus, tuner or control" title="Add" onClick={() => { setSub(null); setOpen((v) => !v); }} className="pointer-events-auto grid h-12 w-12 place-items-center rounded-full border border-sky-400/60 bg-sky-500 text-slate-950 shadow-lg shadow-black/50 transition hover:bg-sky-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-200">
         <Icon name="plus" size={22} className={`transition-transform ${open ? "rotate-45" : ""}`} />
       </button>
     </div>

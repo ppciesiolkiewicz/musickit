@@ -234,3 +234,13 @@ export function attachLayout(layout: Layout, attach: Record<string, string[]>, s
   });
   return out;
 }
+
+/** Where a point of the world is on the screen, for a view (zoom and offset). */
+export const worldToScreen = (p: { x: number; y: number }, v: { zoom: number; x: number; y: number }) => ({ x: Math.round(p.x * v.zoom + v.x), y: Math.round(p.y * v.zoom + v.y) });
+/** Where a point of the screen is in the world, for a view (zoom and offset). */
+export const screenToWorld = (p: { x: number; y: number }, v: { zoom: number; x: number; y: number }) => ({ x: Math.round((p.x - v.x) / v.zoom), y: Math.round((p.y - v.y) / v.zoom) });
+
+/** A widget pinned to the screen stays reachable: at least `keep` pixels of it (its header) inside the screen of size `b`. */
+export function keepOnScreen(p: { x: number; y: number }, w: number, b: Bounds, keep = 48): { x: number; y: number } {
+  return { x: Math.round(Math.min(Math.max(p.x, keep - w), b.w - keep)), y: Math.round(Math.min(Math.max(p.y, 0), b.h - 28)) };
+}

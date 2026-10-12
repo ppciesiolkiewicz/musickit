@@ -15,15 +15,16 @@ const mini = "grid h-6 w-6 shrink-0 place-items-center rounded-md border border-
 /**
  * A small floating list of the played inputs (devices and instruments; not the sequencers) under the metronome:
  * level, volume, mute and, for an input with a keyboard, a button that brings that keyboard on screen. Each row unfolds to its
- * switch options (its output buses and where the output goes, the same controls as its canvas block). The widget floats over
- * the page, so opening it or a row never moves the canvas. Folds are shared with the canvas blocks (`useFold`).
+ * switch options (its output buses and where the output goes, the same controls as its canvas block). It is the Inputs list widget
+ * of the Canvas (pinned under the metronome to start with); `embedded` drops its own frame for the widget's. Folds are shared with
+ * the canvas blocks (`useFold`).
  */
-export default function InputsMini({ engine, snap, openPianos, onTogglePiano }: { engine: LooperEngine; snap: LooperSnapshot; openPianos: string[]; onTogglePiano: (id: string) => void }) {
+export default function InputsMini({ engine, snap, openPianos, onTogglePiano, embedded = false }: { engine: LooperEngine; snap: LooperSnapshot; openPianos: string[]; onTogglePiano: (id: string) => void; embedded?: boolean }) {
   const [open, toggle] = useFold("inputs-widget");
   const inputs = snap.inputs.filter((i) => i.kind !== "sequencer");
   const muted = inputs.filter((i) => i.muted).length;
   return (
-    <section className="flex max-h-[calc(100vh-6rem)] w-72 max-w-[calc(100vw-1rem)] flex-col rounded-xl border border-slate-700 bg-slate-900/95 text-xs shadow-lg backdrop-blur" aria-label="Inputs at a glance">
+    <section className={embedded ? "-m-1.5 flex flex-col text-xs" : "flex max-h-[calc(100vh-6rem)] w-72 max-w-[calc(100vw-1rem)] flex-col rounded-xl border border-slate-700 bg-slate-900/95 text-xs shadow-lg backdrop-blur"} aria-label="Inputs at a glance">
       <div className="flex shrink-0 items-center gap-1 pr-1.5">
         <button type="button" onClick={toggle} aria-expanded={open} className="flex min-w-0 flex-1 items-center gap-1.5 rounded-xl px-2 py-1.5 text-left text-slate-300 hover:text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
           <Icon name={open ? "chevron-down" : "chevron-right"} size={14} />
@@ -70,7 +71,7 @@ function Row({ engine, snap, inp, keyOpen, onKeys }: { engine: LooperEngine; sna
           <span className="w-6 shrink-0" aria-hidden />
         )}
       </div>
-      {open && hasBlock && <div className="pt-1"><InputBundle engine={engine} snap={snap} ownerId={ownerId} /></div>}
+      {open && hasBlock && <div className="pt-1"><InputBundle engine={engine} snap={snap} ownerId={ownerId} patchIds={false} /></div>}
     </li>
   );
 }

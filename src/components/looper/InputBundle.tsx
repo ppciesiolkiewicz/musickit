@@ -12,7 +12,9 @@ let counter = 0;
 const newId = (p: string) => `${p}${Date.now().toString(36)}${(counter++).toString(36)}`;
 
 /** A section title that folds its section: chevron and label, with a short summary of what is on while folded. */
-function FoldHead({ open, onToggle, label, summary, children }: { open: boolean; onToggle: () => void; label: string; summary?: string; children?: React.ReactNode }) {
+function FoldHead({ open, onToggle, label, summary, children, bare = false }: { open: boolean; onToggle: () => void; label: string; summary?: string; children?: React.ReactNode; bare?: boolean }) {
+  // in a widget of its own the section never folds (the widget's title names it): only its buttons are left
+  if (bare) return children ? <div className="flex min-h-5 items-center justify-end gap-1">{children}</div> : null;
   return (
     <div className="flex min-h-5 items-center gap-1 text-[10px] uppercase tracking-wide text-slate-500">
       <button type="button" className="flex min-w-0 flex-1 items-center gap-1 text-left uppercase hover:text-slate-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400" aria-expanded={open} onClick={onToggle} title={open ? `Fold ${label.toLowerCase()}` : `Show ${label.toLowerCase()}`}>
@@ -29,8 +31,9 @@ function FoldHead({ open, onToggle, label, summary, children }: { open: boolean;
  * Where the input's sound goes once its buses are mixed together: one output with a row per place, like a switch side. One place
  * at a time (radio) or any combination (checkboxes); x removes a place; the list adds one (a link from every bus).
  */
-function OutputPlaces({ engine, snap, ownerId }: { engine: LooperEngine; snap: LooperSnapshot; ownerId: string }) {
-  const [open, toggle] = useFold(`${ownerId}:out`);
+export function OutputPlaces({ engine, snap, ownerId, bare = false }: { engine: LooperEngine; snap: LooperSnapshot; ownerId: string; bare?: boolean }) {
+  const [unfolded, toggle] = useFold(`${ownerId}:out`);
+  const open = bare || unfolded;
   const patch = snap.patch;
   const owner = patch.nodes.find((n) => n.id === ownerId);
   const groupColours = Object.fromEntries(snap.groups.map((g) => [`group:${g.id}`, g.colour]));
@@ -71,7 +74,7 @@ function OutputPlaces({ engine, snap, ownerId }: { engine: LooperEngine; snap: L
   if (!open) return <FoldHead open={false} onToggle={toggle} label="Output goes to" summary={onNames.join(", ") || "nowhere"} />;
   return (
     <div className="flex flex-col gap-1" role="group" aria-label="Output goes to">
-      <FoldHead open onToggle={toggle} label="Output goes to" />
+      <FoldHead open onToggle={toggle} label="Output goes to" bare={bare} />
       {master && (
         <button type="button" role="checkbox" aria-checked={masterOn} className={`flex items-center gap-1.5 rounded-lg border px-1.5 py-1 text-left ${masterOn ? "border-slate-400/60 bg-slate-300/10" : "border-slate-800 bg-slate-900/50"}`} onClick={flipMaster} title={masterOn ? "Stop playing to the master bus" : "Play to the master bus too"}>
           <span className="grid h-5 w-5 shrink-0 place-items-center"><span className={`grid h-3 w-3 place-items-center rounded-sm border ${masterOn ? "border-slate-200 bg-slate-200 text-slate-950" : "border-slate-500"}`}>{masterOn && <Icon name="check" size={9} />}</span></span>
@@ -111,13 +114,28 @@ function OutputPlaces({ engine, snap, ownerId }: { engine: LooperEngine; snap: L
 }
 
 /**
- * The part of an input's block under its strip: its output buses. With none there is one button to add one. With one it is just
- * that bus. With two or more the block is also a switch: each bus has a radio (one at a time) or a checkbox (any combination)
- * beside it and the effects under its name. Under the buses, their mixed sound goes out as one output to the places listed there.
+ * The part of an input's block under its strip: its output buses ("Switch between buses"), then where their mixed sound goes
+ * ("Output goes to"). Each part can also be a widget of its own (`bare`). `patchIds` marks the bus cards for the wires: only the
+ * input's block does, so a wire never ends on a copy in a widget.
+ */
+export default function InputBundle({ engine, snap, ownerId, patchIds = true }: { engine: LooperEngine; snap: LooperSnapshot; ownerId: string; patchIds?: boolean }) {
+  if (!snap.patch.nodes.some((n) => n.id === ownerId)) return null;
+  return (
+    <div className="flex flex-col gap-1.5 px-1.5 pb-1.5">
+      <BusSwitch engine={engine} snap={snap} ownerId={ownerId} patchIds={patchIds} />
+      <OutputPlaces engine={engine} snap={snap} ownerId={ownerId} />
+    </div>
+  );
+}
+
+/**
+ * An input's output buses. With none there is one button to add one. With one it is just that bus. With two or more it is a
+ * switch: each bus has a radio (one at a time) or a checkbox (any combination) beside it and the effects under its name.
  * The buses start locked for switching (names and effects only, a click picks); the pencil unlocks effects, mute, remove and add.
  */
-export default function InputBundle({ engine, snap, ownerId }: { engine: LooperEngine; snap: LooperSnapshot; ownerId: string }) {
-  const [open, toggle] = useFold(`${ownerId}:buses`);
+export function BusSwitch({ engine, snap, ownerId, patchIds = true, bare = false }: { engine: LooperEngine; snap: LooperSnapshot; ownerId: string; patchIds?: boolean; bare?: boolean }) {
+  const [unfolded, toggle] = useFold(`${ownerId}:buses`);
+  const open = bare || unfolded;
   const [editing, toggleEditing] = useFold(`${ownerId}:busEdit`, false);
   const patch = snap.patch;
   const owner = patch.nodes.find((n) => n.id === ownerId);
@@ -137,18 +155,15 @@ export default function InputBundle({ engine, snap, ownerId }: { engine: LooperE
 
   if (buses.length === 0) {
     return (
-      <div className="px-1.5 pb-1.5">
-        <button type="button" className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-slate-600 px-2 py-1.5 text-xs text-slate-300 hover:border-sky-400 hover:text-sky-200" onClick={() => engine.addBus(ownerId)}>
-          <Icon name="plus" size={13} />Add output bus
-        </button>
-        <div className="mt-1.5"><OutputPlaces engine={engine} snap={snap} ownerId={ownerId} /></div>
-      </div>
+      <button type="button" className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-slate-600 px-2 py-1.5 text-xs text-slate-300 hover:border-sky-400 hover:text-sky-200" onClick={() => engine.addBus(ownerId)}>
+        <Icon name="plus" size={13} />Add output bus
+      </button>
     );
   }
 
   return (
-    <div className="flex flex-col gap-1.5 px-1.5 pb-1.5" role={buses.length > 1 ? (multi ? "group" : "radiogroup") : undefined} aria-label="Output buses">
-      <FoldHead open={open} onToggle={toggle} label={buses.length > 1 ? "Switch between buses" : "Output bus"} summary={buses.filter((b) => buses.length === 1 || links.some((l) => l.to === b.id && !l.muted)).map((b) => patchName(snap, b)).join(", ") || "none on"}>
+    <div className="flex flex-col gap-1.5" role={buses.length > 1 ? (multi ? "group" : "radiogroup") : undefined} aria-label="Output buses">
+      <FoldHead bare={bare} open={open} onToggle={toggle} label={buses.length > 1 ? "Switch between buses" : "Output bus"} summary={buses.filter((b) => buses.length === 1 || links.some((l) => l.to === b.id && !l.muted)).map((b) => patchName(snap, b)).join(", ") || "none on"}>
         <button type="button" className={`${small} ${editing ? "!border-sky-400 !text-sky-200" : "border-slate-700"}`} aria-pressed={editing} title={editing ? "Done editing the buses" : "Edit the buses"} aria-label={editing ? "Done editing the buses" : "Edit the buses"} onClick={toggleEditing}>
           <Icon name="pencil" size={11} />
         </button>
@@ -158,7 +173,7 @@ export default function InputBundle({ engine, snap, ownerId }: { engine: LooperE
         const link = links.find((l) => l.to === b.id);
         const on = !!link && !link.muted;
         return (
-          <div key={b.id} data-patch-id={b.id} className={`flex flex-col gap-1 rounded-lg border px-1.5 py-1 pr-3 ${on || buses.length === 1 ? "border-emerald-500/40 bg-emerald-500/5" : "border-slate-800 bg-slate-900/50"} ${buses.length > 1 && link ? `cursor-pointer${on ? "" : " hover:border-slate-600"}` : ""}`}
+          <div key={b.id} data-patch-id={patchIds ? b.id : undefined} className={`flex flex-col gap-1 rounded-lg border px-1.5 py-1 pr-3 ${on || buses.length === 1 ? "border-emerald-500/40 bg-emerald-500/5" : "border-slate-800 bg-slate-900/50"} ${buses.length > 1 && link ? `cursor-pointer${on ? "" : " hover:border-slate-600"}` : ""}`}
             onClick={(e) => { if (buses.length > 1 && link && !(e.target as HTMLElement).closest("button,a,input,select,textarea,label")) pick(link.id); }}>
             <div className="flex items-center gap-1.5">
               {buses.length > 1 && link && (
@@ -182,7 +197,6 @@ export default function InputBundle({ engine, snap, ownerId }: { engine: LooperE
           <Icon name="plus" size={12} />Add output bus
         </button>
       )}
-      <OutputPlaces engine={engine} snap={snap} ownerId={ownerId} />
     </div>
   );
 }

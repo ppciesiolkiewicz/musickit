@@ -5,7 +5,7 @@ import Icon from "../Icon";
 import EffectsModal from "./EffectsModal";
 import LoopEditor from "./LoopEditor";
 import EffectWidgets from "./EffectWidgets";
-import { setPinSpawn } from "./fxPins";
+import { setWidgetSpawn } from "./widgets";
 import InfoTip from "../InfoTip";
 import { GROUP_COLOURS, LOOP_R, STAGE_H, resizeRect, type Corner, STAGE_W, VIEW_W, type ChannelInfo, type GroupInfo, type LooperEngine, type LooperSnapshot } from "@/lib/looper/engine";
 import Slider from "@/components/Slider";
@@ -85,11 +85,11 @@ export default function LoopStage({ engine, snap, openSeqs, onToggleSeq, fill = 
   const scale = natural ? 1 : fit;
   // new effect widgets appear in the part of the stage you are looking at
   useEffect(() => {
-    setPinSpawn(() => {
+    setWidgetSpawn(() => {
       const el = frame.current;
       return el ? { x: el.scrollLeft / scale, y: el.scrollTop / scale } : { x: 0, y: 0 };
     });
-    return () => setPinSpawn(null);
+    return () => setWidgetSpawn(null);
   }, [scale]);
 
   return (

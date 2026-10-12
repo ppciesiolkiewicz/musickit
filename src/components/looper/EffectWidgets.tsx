@@ -4,13 +4,13 @@ import { useEffect, type PointerEvent as RPointerEvent } from "react";
 import Icon from "../Icon";
 import { EffectControls } from "./EffectsModal";
 import { busPath } from "./PatchNode";
-import { dropPins, movePin, togglePin, usePins, type FxPin } from "./fxPins";
+import { dropWidgets, moveWidget, toggleWidget, useWidgetRefs, type WidgetRef } from "./widgets";
 import { EFFECT_DEFS, type EffectSpec, type LooperEngine, type LooperSnapshot } from "@/lib/looper/engine";
 import { tbtn } from "@/components/controls";
 
 
 export interface Resolved {
-  pin: FxPin;
+  pin: WidgetRef;
   fx: EffectSpec;
   where: string;
   colour: string;
@@ -19,7 +19,7 @@ export interface Resolved {
 }
 
 /** Match pins to the effects they show. A pin whose bus or input still exists but whose effect is gone is stale. */
-function resolve(engine: LooperEngine, snap: LooperSnapshot, pins: FxPin[]): { shown: Resolved[]; stale: string[] } {
+function resolve(engine: LooperEngine, snap: LooperSnapshot, pins: WidgetRef[]): { shown: Resolved[]; stale: string[] } {
   const shown: Resolved[] = [];
   const stale: string[] = [];
   for (const pin of pins) {
@@ -68,11 +68,11 @@ function resolve(engine: LooperEngine, snap: LooperSnapshot, pins: FxPin[]): { s
 
 /** Pinned effects that still exist; pins whose effect is gone are dropped. */
 export function usePinned(engine: LooperEngine, snap: LooperSnapshot): Resolved[] {
-  const pins = usePins();
+  const pins = useWidgetRefs();
   const { shown, stale } = resolve(engine, snap, pins);
   const staleKey = stale.join("|");
   useEffect(() => {
-    if (staleKey) dropPins(staleKey.split("|"));
+    if (staleKey) dropWidgets(staleKey.split("|"));
   }, [staleKey]);
   return shown;
 }
@@ -117,12 +117,12 @@ export default function EffectWidgets({ engine, snap, drag }: { engine: LooperEn
             onPointerDown={(e) => {
               if ((e.target as HTMLElement).closest("button")) return;
               const base = { x: r.pin.x, y: r.pin.y };
-              drag(e, (dx, dy) => movePin(r.pin.key, base.x + dx, base.y + dy));
+              drag(e, (dx, dy) => moveWidget(r.pin.key, base.x + dx, base.y + dy));
             }}
           >
             <h3 className="min-w-0 flex-1 text-xs font-medium text-slate-100"><PinTitle r={r} /></h3>
             <button type="button" className={`${tbtn} ${r.fx.bypass ? "" : "!border-emerald-500/70 !text-emerald-200"}`} aria-pressed={!r.fx.bypass} onClick={r.bypass} title={r.fx.bypass ? "Bypassed (tap to switch on)" : "On (tap to bypass)"} aria-label="Effect on or off"><Icon name="power" size={12} /></button>
-            <button type="button" className={tbtn} onClick={() => togglePin(r.pin.key)} title="Remove the widget (the effect stays)" aria-label="Remove the widget"><Icon name="x" size={12} /></button>
+            <button type="button" className={tbtn} onClick={() => toggleWidget(r.pin.key)} title="Remove the widget (the effect stays)" aria-label="Remove the widget"><Icon name="x" size={12} /></button>
           </div>
           <EffectControls fx={r.fx} onParam={r.param} columns={false} />
         </section>
