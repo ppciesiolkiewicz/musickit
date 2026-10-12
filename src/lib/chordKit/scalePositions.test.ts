@@ -43,9 +43,19 @@ describe("five positions, named by the strings the root is on", () => {
     }
   });
 
-  it("next to the nut the open strings are part of the shape (E major position 1)", () => {
-    const [p1] = positionsFor(makeKeyContext(4, 0, 0), "pentatonic");
-    assert.deepEqual(frets(p1), [[0, 2, 4], [2, 4], [2, 4], [1, 4], [0, 2, 5], [0, 2, 4]]);
+  it("boxes keep their classic shape: one that would go below the nut is played an octave up (E major box 1 at the 12th fret)", () => {
+    const [p1, p2] = positionsFor(makeKeyContext(4, 0, 0), "pentatonic");
+    assert.deepEqual(frets(p1), [[12, 14], [11, 14], [11, 14], [11, 13], [12, 14], [12, 14]]);
+    assert.deepEqual(frets(p2), [[2, 4], [2, 4], [2, 4], [1, 4], [2, 5], [2, 4]]);
+  });
+
+  it("E minor box 1 is the open position", () => {
+    assert.deepEqual(frets(positionsFor(makeKeyContext(4, 0, 5), "pentatonic")[0]), [[0, 3], [0, 2], [0, 2], [0, 2], [0, 3], [0, 3]]);
+  });
+
+  it("C major pentatonic: the classic boxes, box 1 at the 7th fret with the root on E, D and e", () => {
+    const boxes = positionsFor(makeKeyContext(0, 0, 0), "pentatonic");
+    assert.deepEqual(boxes.map((b) => `${b.from}-${b.to}`), ["7-10", "9-13", "12-15", "14-17", "5-8"]);
   });
 
   it("every mode is laid out on the major or minor pentatonic boxes: G Phrygian dominant position 1 keeps B and C on the A string", () => {

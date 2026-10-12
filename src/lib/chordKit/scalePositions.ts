@@ -82,39 +82,42 @@ interface Spot {
   midi: number;
 }
 
-/** The regular pentatonic every mode's positions are laid out on: major (1 2 3 5 6) with a major 3rd, minor (1 ♭3 4 5 ♭7) without. */
-const frameSemis = (steps: number[]) => (steps[2] === 4 ? [0, 2, 4, 7, 9] : [0, 3, 5, 7, 10]);
+/**
+ * The five classic minor pentatonic boxes, as fret offsets from the root on the low E string, two per string (low E to high e).
+ * In A minor (root at fret 5) they are the boxes at frets 5-8, 7-10, 9-13, 12-15 and 14-17. The root falls on the same strings in
+ * every key: 1 on E, D and e; 2 on D and B; 3 on A and B; 4 on A and G; 5 on G, E and e.
+ */
+export const MINOR_PENTATONIC_BOXES: [number, number][][] = [
+  [[0, 3], [0, 2], [0, 2], [0, 2], [0, 3], [0, 3]],
+  [[3, 5], [2, 5], [2, 5], [2, 4], [3, 5], [3, 5]],
+  [[5, 7], [5, 7], [5, 7], [4, 7], [5, 8], [5, 7]],
+  [[7, 10], [7, 10], [7, 9], [7, 9], [8, 10], [7, 10]],
+  [[10, 12], [10, 12], [9, 12], [9, 12], [10, 12], [10, 12]],
+];
 
 /**
- * The five boxes of the regular pentatonic on the key's root, two notes per string. Box k starts on the k-th note on the low E
- * string and climbs string by string, so the root falls on the same strings in every key: 1 on E, D and e; 2 on D and B; 3 on A
- * and B; 4 on A and G; 5 on G, E and e. Box 1 sits where the root is on the low E string (frets 0-11); the others climb from it,
- * and one that would run past fret 17 is played an octave lower. A note too low for the next string stays on its string, and
- * a box that starts at the nut (low E fret 0 or 1) takes in the open strings.
+ * The five classic major pentatonic boxes, the same way. They are the minor boxes of the relative minor (three frets lower), taken
+ * from its second box so that box 1 again has the root on E, D and e: in C major (root at fret 8) the boxes at frets 7-10, 9-13,
+ * 12-15, 14-17 and 17-20.
+ */
+export const MAJOR_PENTATONIC_BOXES: [number, number][][] = [1, 2, 3, 4, 0].map((k, i) =>
+  MINOR_PENTATONIC_BOXES[k].map(([a, b]): [number, number] => [a - 3 + (i === 4 ? 12 : 0), b - 3 + (i === 4 ? 12 : 0)]),
+);
+
+/**
+ * The frets of the five boxes for this key: the major pentatonic boxes when the mode has a major 3rd, the minor ones when not.
+ * Each sits at the root's fret on the low E string, moved an octave up when it would go below the nut or down when it would run past
+ * fret 17, so the shapes are never bent.
  */
 function frames(ctx: KeyContext): Spot[][] {
-  const semis = frameSemis(ctx.steps);
-  const pcs = new Set(semis.map((x) => (ctx.tonic.pc + x) % 12));
-  const inSet = (midi: number) => pcs.has(midi % 12);
-  const spot = (string: number, fret: number): Spot => ({ string, fret, midi: OPEN_MIDI[string] + fret });
-  const build = (lowFret: number) => {
-    const line: number[] = [];
-    for (let m = OPEN_MIDI[0] + lowFret; line.length < 24; m++) if (inSet(m)) line.push(m);
-    const spots: Spot[] = [];
-    let k = 0;
-    for (let s = 0; s < 6; s++) {
-      for (let n = 0; n < 2 || (s < 5 && line[k] < OPEN_MIDI[s + 1]); n++, k++) spots.push(spot(s, line[k] - OPEN_MIDI[s]));
-      const lowest = Math.min(...spots.filter((x) => x.string === s).map((x) => x.fret));
-      if (lowFret <= 1 && lowest > 0 && lowest <= 2 && inSet(OPEN_MIDI[s])) spots.push(spot(s, 0));
-    }
-    return spots;
-  };
-  const rootLow = (ctx.tonic.pc - OPEN_MIDI[0] + 120) % 12;
-  return semis.map((semi) => {
-    let low = (ctx.tonic.pc + semi - OPEN_MIDI[0] + 120) % 12;
-    if (low < rootLow) low += 12;
-    const spots = build(low);
-    return low >= 12 && spots.some((x) => x.fret > SCALE_NECK_FRETS) ? build(low - 12) : spots;
+  const boxes = ctx.steps[2] === 4 ? MAJOR_PENTATONIC_BOXES : MINOR_PENTATONIC_BOXES;
+  const root = (ctx.tonic.pc - OPEN_MIDI[0] + 120) % 12;
+  return boxes.map((box) => {
+    const offs = box.flat();
+    let base = root;
+    if (base + Math.min(...offs) < 0) base += 12;
+    if (base + Math.max(...offs) > SCALE_NECK_FRETS && base - 12 + Math.min(...offs) >= 0) base -= 12;
+    return box.flatMap(([a, b], s) => [a, b].map((o) => ({ string: s, fret: base + o, midi: OPEN_MIDI[s] + base + o })));
   });
 }
 
