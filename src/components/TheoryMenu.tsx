@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
 import Icon from "./Icon";
+import { menuClick } from "@/lib/practice/menu";
 import { GROUP_LABEL, THEORY_SECTIONS, type SectionGroup, type TheorySection } from "@/features/theory/sections";
 
 const GROUPS = Object.keys(GROUP_LABEL) as SectionGroup[];
@@ -31,6 +32,7 @@ export default function TheoryMenu({ active }: { active: string }) {
   const root = useRef<HTMLDivElement>(null);
   const button = useRef<HTMLButtonElement>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hoverOpenedAt = useRef<number | null>(null);
   const panelId = useId();
   const inTheory = active === "/theory" || active.startsWith("/theory/");
 
@@ -72,6 +74,7 @@ export default function TheoryMenu({ active }: { active: string }) {
       onPointerEnter={(e) => {
         if (e.pointerType !== "mouse") return;
         cancelClose();
+        if (!open) hoverOpenedAt.current = performance.now();
         setOpen(true);
       }}
       onPointerLeave={(e) => e.pointerType === "mouse" && closeSoon()}
@@ -81,7 +84,11 @@ export default function TheoryMenu({ active }: { active: string }) {
         type="button"
         aria-expanded={open}
         aria-controls={panelId}
-        onClick={() => setOpen((v) => !v)}
+        onClick={(e) => {
+          const pointerType = (e.nativeEvent as PointerEvent).pointerType || "keyboard";
+          setOpen(menuClick({ open, hoverOpenedAt: hoverOpenedAt.current, now: performance.now(), pointerType }));
+          hoverOpenedAt.current = null;
+        }}
         className={`flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm transition ${inTheory ? "bg-sky-500/20 text-sky-100" : "text-slate-400 hover:text-slate-200"}`}
       >
         Theory

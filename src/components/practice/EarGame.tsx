@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Chip, ChipRow } from "@/components/ui";
 import MiniPiano from "@/components/theory/MiniPiano";
-import { INTERVALS } from "@/lib/chordKit/intervals";
+import { INTERVALS, pianoFrom } from "@/lib/chordKit/intervals";
 import { playMelody, strum } from "@/features/sound";
 import { CHORD_QUALITIES, EAR_LEVELS, activeAnswers, nextEarQuestion, recordScore, type Direction, type EarQuestion, type EarSettings, type Score } from "@/lib/practice/earGame";
 import { btn, btnPrimary, panel, writeQuery } from "./shared";
@@ -57,7 +57,6 @@ export default function EarGame({ initial }: { initial: EarSettings }) {
     if (set.length) update({ custom: set });
   };
   const info = q && s.kind === "interval" ? INTERVALS.find((i) => i.short === q.answer) : undefined;
-  const low = q ? Math.min(...q.midi) : 48;
 
   return (
     <div className="flex flex-col gap-4">
@@ -100,7 +99,7 @@ export default function EarGame({ initial }: { initial: EarSettings }) {
           <div className="mt-3 flex flex-col gap-2 text-sm text-slate-300">
             <p className={answered.ok ? "text-emerald-300" : "text-rose-300"}>{answered.ok ? "Right" : "Not quite"}: {labelOf(q.answer)}.</p>
             {info && <p>Memory hook: the start of <i>{info.song}</i>. <Link className="text-sky-300 hover:underline" href={`/theory/basics?interval=${info.semis}#intervals`}>See it on the guitar →</Link></p>}
-            <div className="max-w-md"><MiniPiano from={low < 48 ? 36 : 48} lit={q.midi.map((m, i) => ({ midi: m, label: i === 0 ? "1st" : "", colour: i === 0 ? "#f8fafc" : "#f59e0b" }))} /></div>
+            <div className="max-w-md"><MiniPiano from={pianoFrom(q.midi)} lit={q.midi.map((m, i) => ({ midi: m, label: i === 0 ? "1st" : "", colour: i === 0 ? "#f8fafc" : "#f59e0b" }))} /></div>
           </div>
         )}
       </section>

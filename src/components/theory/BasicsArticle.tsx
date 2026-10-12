@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Chip, ChipRow, Stepper } from "@/components/ui";
 import MiniPiano from "./MiniPiano";
 import NoteNeck, { type NeckDot } from "./NoteNeck";
-import { INTERVALS, describeMove, intervalPositions } from "@/lib/chordKit/intervals";
+import { INTERVALS, describeMove, intervalPositions, pianoFrom } from "@/lib/chordKit/intervals";
 import { OPEN_MIDI } from "@/lib/chordKit/shapeTools";
 import { playMelody, strum } from "@/features/sound";
 
@@ -53,7 +53,6 @@ function IntervalViewer({ semis, setSemis }: { semis: number; setSemis: (n: numb
     playMelody([startMidi, startMidi + semis], 450);
     setTimeout(() => strum([startMidi, startMidi + semis], { gapMs: 0, holdMs: 1200 }), 1000);
   };
-  const pianoFrom = startMidi < 48 ? 36 : 48;
   const dots: NeckDot[] = [
     { string, fret, label: "R", fill: ROOT, big: true },
     ...pos.map((p): NeckDot => ({ string: p.string, fret: p.fret, label: info.short, fill: TARGET, outline: p.strings > 0 })),
@@ -77,7 +76,7 @@ function IntervalViewer({ semis, setSemis }: { semis: number; setSemis: (n: numb
         <b className="text-slate-100">{info.name}</b> = {semis} semitone{semis === 1 ? "" : "s"} = {semis} fret{semis === 1 ? "" : "s"} up the same string. Sounds like the start of <i>{info.song}</i>.
       </p>
       <div className="mt-2 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
-        <MiniPiano from={pianoFrom} lit={[{ midi: startMidi, label: "R", colour: ROOT }, { midi: startMidi + semis, label: info.short, colour: TARGET }]} />
+        <MiniPiano from={pianoFrom([startMidi, startMidi + semis])} lit={[{ midi: startMidi, label: "R", colour: ROOT }, { midi: startMidi + semis, label: info.short, colour: TARGET }]} />
         <div className="overflow-x-auto"><NoteNeck to={15} dots={dots} /></div>
       </div>
       <ul className="mt-2 space-y-0.5 text-sm text-slate-300">

@@ -30,7 +30,7 @@ const FAMILY_TEACH: Record<string, Teach> = {
     from: "Melodic minor is the major scale with a ♭3, or natural minor with a raised 6th and 7th. Jazz uses it in both directions, and its modes include Lydian dominant and the altered scale.",
     sound: "A minor tonic that still has the bright major 6th and 7th: smooth, modern and a little unresolved.",
     listen: "Listen for a minor 3rd sitting next to a major 7th; that pairing is what sets melodic minor apart from every major-family mode.",
-    practise: "Play a Cm(maj7) chord, then run C melodic minor over it. Next, play D7♯11 and try the same notes from F (Lydian dominant).",
+    practise: "Play a Cm(maj7) chord, then run C melodic minor over it. Next, play F7♯11 and run the same notes from F (Lydian dominant).",
   },
 };
 

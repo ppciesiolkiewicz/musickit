@@ -69,7 +69,7 @@ export const STAGE_CONTENT: Stage[] = [
         explore: [{ href: "/theory/basics", label: "Piano → guitar, part 1" }],
         practise: [
           { href: "/theory/notes?strings=E,A&naturals=1", label: "Find the notes on E and A" },
-          { href: "/theory/ears?kind=chord", label: "Major or minor?", note: "start by naming only Major and Minor" },
+          { href: "/theory/ears?kind=chord", label: "Major or minor?", note: "listen for the 3rd: bright is major, dark is minor; the 7th chords can wait" },
           { href: "/theory/ears?level=1", label: "Ear level 1: 5th and octave" },
         ],
       },
@@ -94,7 +94,7 @@ export const STAGE_CONTENT: Stage[] = [
           { title: "Free Fallin'", artist: "Tom Petty", chords: ["D", "Dsus4", "A"], progression: "D Dsus4 D A" },
           { title: "Wonderwall", artist: "Oasis", chords: ["Em7", "G", "Dsus4", "A7sus4", "Cadd9"], progression: "Em7 G Dsus4 A7sus4", note: "capo 2 on the record" },
           { title: "12-bar blues in A", artist: "the blues form (Johnny B. Goode and many more)", chords: ["A7", "D7", "E7"], progression: "A7 ×4 · D7 ×2 A7 ×2 · E7 D7 A7 E7" },
-          { title: "Smoke on the Water", artist: "Deep Purple", chords: ["G5", "B♭5", "C5"], progression: "riff in power chords" },
+          { title: "Smoke on the Water", artist: "Deep Purple", chords: ["G5", "B♭5", "C5", "D♭5"], progression: "riff in power chords" },
         ],
       },
       {
@@ -118,7 +118,7 @@ export const STAGE_CONTENT: Stage[] = [
           { href: "/theory/basics?interval=12", label: "Octave shapes" },
         ],
         practise: [
-          { href: "/theory/ears?level=3", label: "Ear level 3" },
+          { href: "/theory/ears?set=5,7,12", label: "Ear: P4, P5 and octave" },
           { href: "/theory/notes?strings=E,A,D,G,B,e&naturals=1", label: "Natural notes on every string" },
         ],
       },

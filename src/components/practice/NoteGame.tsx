@@ -10,6 +10,7 @@ import {
   type Heat, type NoteMode, type NoteQuestion, type NoteSettings,
 } from "@/lib/practice/noteGame";
 import { useMicPitch } from "./useMicPitch";
+import { micGate } from "@/lib/practice/mic";
 import { btn, btnPrimary, panel, readBest, writeBest, writeQuery } from "./shared";
 
 const STRING_LETTERS = ["E", "A", "D", "G", "B", "e"];
@@ -37,7 +38,7 @@ export default function NoteGame({ initial }: { initial: NoteSettings }) {
   const [now, setNow] = useState(0);
   const [best, setBest] = useState(0);
   const asked = useRef(0);
-  const lastHit = useRef(0);
+  const gate = useRef(micGate.initial);
 
   useEffect(() => setBest(readBest(BEST_KEY)), []); // eslint-disable-line react-hooks/set-state-in-effect -- localStorage is only readable after mount
 
@@ -99,14 +100,15 @@ export default function NoteGame({ initial }: { initial: NoteSettings }) {
     }
   };
 
-  const onPlayed = useCallback((pc: number) => {
-    if (!q || s.mode === "every" || performance.now() - lastHit.current < 600) return;
-    if (pc !== q.pc) return;
-    lastHit.current = performance.now();
+  const onPlayed = useCallback((pc: number | null) => {
+    if (!q || s.mode === "every") return;
+    const r = micGate.step(gate.current, pc, q.pc);
+    gate.current = r.state;
+    if (!r.score) return;
     const pos = q.fret !== undefined ? { string: q.string, fret: q.fret } : positionsOf(q.pc, s).find((p) => p.string === q.string)!;
     hit(pos.string, pos.fret, q);
   }, [q, s, hit]);
-  const { status, heard } = useMicPitch(mic && !!q, onPlayed);
+  const { status, heard } = useMicPitch(mic && !!q && s.mode !== "every", onPlayed);
 
   useEffect(() => {
     if (!sprint) return;

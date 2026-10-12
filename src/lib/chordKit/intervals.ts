@@ -32,7 +32,7 @@ export interface IntervalPos {
   gb: boolean;
 }
 
-/** Every place an interval above (startString, startFret) can be played on the same or a higher string, within five frets of the start hand position. Strings: 0 = low E … 5 = high e. */
+/** Every place an interval above (startString, startFret) can be played on the same or a higher string, within five frets of the start on other strings (anywhere up to 12 frets on the same string). Strings: 0 = low E … 5 = high e. */
 export function intervalPositions(startString: number, startFret: number, semis: number, maxFret = 15): IntervalPos[] {
   const target = OPEN_PITCH[startString] + startFret + semis;
   const out: IntervalPos[] = [];
@@ -51,4 +51,9 @@ export function describeMove(p: IntervalPos): string {
   const frets = p.frets === 0 ? "same fret" : `${plural(Math.abs(p.frets), "fret")} ${p.frets > 0 ? "up" : "back"}`;
   const where = p.strings === 0 ? "same string" : `${plural(p.strings, "string")} over`;
   return `${where}, ${frets}${p.gb ? " (crosses G–B)" : ""}`;
+}
+
+/** First key (a C) of a two-octave piano that shows every one of these notes. */
+export function pianoFrom(midi: number[]): number {
+  return Math.floor(Math.min(...midi) / 12) * 12;
 }
