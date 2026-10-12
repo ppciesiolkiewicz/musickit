@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import PageShell from "@/components/PageShell";
+import Lesson from "@/components/theory/Lesson";
 import CagedExplorer from "@/components/chordKit/CagedExplorer";
 import NeighboursView from "@/components/chordKit/NeighboursView";
 
@@ -15,6 +16,7 @@ export default function CagedPage() {
       title="CAGED system"
       intro="Five chord shapes (C, A, G, E, D) link up across the neck. Pick a key and major or minor to see each shape and, in three separate boxes, its arpeggio, scale and pentatonic."
     >
+      <Lesson stage={4} why="CAGED links five shapes of one chord across the neck, so you can play any chord, scale or arpeggio in any position without jumping." tryThis="Pick C major and play the five shapes one after another up the neck. Then scroll to shape neighbours and play I–IV–V–I in one region." />
       <div className="flex flex-col gap-4">
         <CagedExplorer />
         <NeighboursView />

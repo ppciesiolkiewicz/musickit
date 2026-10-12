@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { Chip, ChipRow, Info } from "@/components/ui";
 import { MODE_GROUPS, compareModes, noteAt } from "@/features/theory/modeGroups";
-import { degreeColour, DOT_INK } from "@/features/theory/scales";
+import { degreeColour } from "@/features/theory/scales";
 import { scaleToneLabel } from "@/features/theory/labels";
 import { useLabelSystem } from "@/features/theory/useLabelSystem";
 
@@ -37,12 +37,20 @@ export default function ModeCompare({ tonicPc }: { tonicPc: number }) {
         {MODE_GROUPS.map((g) => <Chip key={g.id} on={g.id === groupId} onClick={() => setGroupId(g.id)}>{g.label}</Chip>)}
       </ChipRow>
       <p className="mt-2 text-xs text-slate-400">{cmp.group.why} {n} mode{n === 1 ? "" : "s"}.</p>
+      <dl className="mt-2 grid gap-x-4 gap-y-1.5 text-sm sm:grid-cols-2">
+        {([["Where they come from", cmp.group.teach.from], ["How they sound", cmp.group.teach.sound], ["Listen for", cmp.group.teach.listen], ["Try this", cmp.group.teach.practise]] as const).map(([k, v]) => (
+          <div key={k}>
+            <dt className="text-xs uppercase tracking-wider text-slate-500">{k}</dt>
+            <dd className="text-slate-300">{v}</dd>
+          </div>
+        ))}
+      </dl>
 
       <div className="mt-3 flex flex-wrap items-center gap-2" aria-label="Core notes">
         <span className="text-xs uppercase tracking-wider text-slate-500">Core notes</span>
         {coreNames.map((c) => (
           <span key={c.semi} className="flex flex-col items-center gap-0.5">
-            <span className="flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold" style={{ background: degreeColour(c.index), color: DOT_INK }}>{c.name}</span>
+            <span className="flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold ring-1 ring-slate-500" style={{ background: degreeColour(c.index), color: "#0f172a" }}>{c.name}</span>
             <span className="text-[10px] text-slate-500">{cmp.columns.find((x) => x.semi === c.semi)?.label}</span>
           </span>
         ))}

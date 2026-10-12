@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import PageShell from "@/components/PageShell";
+import Lesson from "@/components/theory/Lesson";
 import TuningsArticle from "@/components/theory/TuningsArticle";
 
 export const metadata: Metadata = {
@@ -14,6 +15,7 @@ export default function TuningsPage() {
       title="Tunings"
       intro="How instruments are tuned: the A4 reference pitch, then the standard and alternate tunings of each instrument. Hear any tuning, or open the tuner on it."
     >
+      <Lesson stage={4} why="Alternate tunings change which notes ring open, opening new chord voicings and drone-heavy sounds used in folk, rock and blues." tryThis="Try Drop D: lower the low E to D and play a D power chord with one finger across the bottom three strings." />
       <TuningsArticle />
     </PageShell>
   );
