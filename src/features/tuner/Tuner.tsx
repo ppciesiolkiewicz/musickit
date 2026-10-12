@@ -3,13 +3,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getAudioContext } from "@/features/sound";
 import { midiToHz } from "@/features/theory/tunings";
-import { detectPitch } from "./pitch";
+import { FRAME_MS } from "./pitch";
+import { createDetector } from "./detector";
 import { readHz, resolveChoice, sanitiseChoice } from "./choice";
 import { useTunerChoice } from "./useTunerChoice";
 import { playReference } from "./reference";
-import { createSmoother } from "./smooth";
-import { FRAME_MS, useThrottled } from "./useThrottled";
 import TunerSettings from "./TunerSettings";
+import Needle from "./Needle";
 
 /** Which microphone or interface, and which of its inputs: "mix" for all of them, or one channel (0 = Input 1). */
 interface InputChoice { deviceId: string; channel: "mix" | number }
@@ -92,20 +92,22 @@ export default function Tuner() {
         split.connect(an, Math.min(inp.channel, n - 1));
       } else src.connect(an);
       const buf = new Float32Array(FRAME);
-      const smooth = createSmoother();
-      let raf = 0, quiet = 0, alive = true;
-      const tick = () => {
+      const detect = createDetector();
+      let raf = 0, quiet = 0, last = 0, alive = true;
+      // measured at most 30 times a second, each reading shown as heard
+      const tick = (now: number) => {
         if (!alive) return;
-        an.getFloatTimeDomainData(buf);
-        const p = detectPitch(buf, ctx.sampleRate, { minHz: minHzRef.current });
-        if (p && p.clarity > 0.85) {
-          quiet = 0;
-          setHz(smooth.push(p.freq));
-        } else if (++quiet > 30) {
-          smooth.reset();
-          setHz(null);
-        }
         raf = requestAnimationFrame(tick);
+        if (now - last < FRAME_MS) return;
+        last = now;
+        an.getFloatTimeDomainData(buf);
+        void detect(buf, ctx.sampleRate, minHzRef.current).then((p) => {
+          if (!alive || p === undefined) return;
+          if (p) {
+            quiet = 0;
+            setHz(p.freq);
+          } else if (++quiet > 15) setHz(null);
+        });
       };
       raf = requestAnimationFrame(tick);
       stop.current = () => {
@@ -138,12 +140,7 @@ export default function Tuner() {
   const cents = read?.cents ?? 0;
   const inTune = read !== null && Math.abs(cents) < 5;
   const colour = read === null ? "var(--color-slate-600)" : inTune ? "var(--color-emerald-400)" : Math.abs(cents) < 20 ? "var(--color-amber-400)" : "var(--color-rose-400)";
-  const needle = Math.max(-50, Math.min(50, cents));
-  // the text changes at most 30 times a second, the needle every frame
-  const textHz = useThrottled(hz, FRAME_MS);
-  const text = textHz !== null ? readHz(textHz, choice) : null;
-  const tc = text?.cents ?? 0;
-  const hint = !text ? (running ? "Play a note" : "") : text.string !== null && Math.abs(tc) >= 5 ? (tc > 0 ? "Tune down" : "Tune up") : Math.abs(tc) < 5 ? "In tune" : "";
+  const hint = !read ? (running ? "Play a note" : "") : read.string !== null && Math.abs(cents) >= 5 ? (cents > 0 ? "Tune down" : "Tune up") : Math.abs(cents) < 5 ? "In tune" : "";
   const knownDevice = !input.deviceId || devices.some((d) => d.id === input.deviceId);
 
   return (
@@ -182,13 +179,11 @@ export default function Tuner() {
           })}
           <text x={-100} y={36} fontSize={9} fill="var(--color-slate-500)" textAnchor="middle">flat</text>
           <text x={100} y={36} fontSize={9} fill="var(--color-slate-500)" textAnchor="middle">sharp</text>
-          {/* the needle glides to each reading and fades out while nothing is heard */}
-          <polygon points="-5,-4 5,-4 0,8" fill={colour}
-            style={{ transform: `translateX(${needle * 2}px)`, opacity: read ? 1 : 0, transition: "transform 60ms linear, opacity 200ms, fill 200ms" }} />
+          <Needle cents={cents} visible={read !== null} colour={colour} />
         </svg>
         <p className="h-5 text-sm tabular-nums text-slate-400">
-          {text && textHz !== null
-            ? `${textHz.toFixed(1)} Hz${text.string !== null ? ` · hearing ${text.heard.name}${text.heard.octave}` : ""} · ${tc > 0 ? "+" : ""}${Math.round(tc)} cents${hint ? ` · ${hint}` : ""}`
+          {read && hz !== null
+            ? `${hz.toFixed(1)} Hz${read.string !== null ? ` · hearing ${read.heard.name}${read.heard.octave}` : ""} · ${Math.round(cents) > 0 ? "+" : ""}${Math.round(cents) || 0} cents${hint ? ` · ${hint}` : ""}`
             : hint}
         </p>
         <button type="button" onClick={running ? () => stop.current?.() : () => start(input)} className={`rounded-full border px-5 py-2 text-sm ${running ? "border-rose-500 bg-rose-500/15 text-rose-100" : "border-emerald-500 bg-emerald-500/15 text-emerald-100 hover:bg-emerald-500/25"}`}>
@@ -205,7 +200,7 @@ export default function Tuner() {
               <button key={i} type="button" onClick={() => playReference(midiToHz(s.midi, choice.a4))} title={`Hear ${s.name}${s.octave} at A4 = ${choice.a4} Hz`}
                 className={`flex flex-col items-center gap-0.5 rounded-xl border p-2 transition ${near ? (inTune ? "border-emerald-400 bg-emerald-500/15" : "border-sky-400 bg-sky-500/10") : "border-slate-800 bg-slate-900/40 hover:border-slate-600"}`}>
                 <span className="text-lg text-slate-100">{s.name}<span className="text-xs text-slate-500">{s.octave}</span></span>
-                <span className="h-4 text-xs tabular-nums text-slate-400">{near && text?.string === i ? `${tc > 0 ? "+" : ""}${Math.round(tc)}` : "▶"}</span>
+                <span className="h-4 text-xs tabular-nums text-slate-400">{near && read?.string === i ? `${Math.round(cents) > 0 ? "+" : ""}${Math.round(cents) || 0}` : "▶"}</span>
               </button>
             );
           })}

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { detectPitch, hzToNote, nearestString } from "./pitch";
+import { detectPitch, hzToNote, nearestString, refinePitch } from "./pitch";
 import { INSTRUMENTS } from "@/features/theory/tunings";
 
 const SR = 44100;
@@ -20,6 +20,17 @@ test("detects guitar string pitches", () => {
 test("harmonic-rich tone still gives the fundamental", () => {
   const p = detectPitch(tone(110, 6), SR);
   assert.ok(p && Math.abs(p.freq - 110) < 0.5);
+});
+test("a quiet, decaying note still reads", () => {
+  const p = detectPitch(tone(110).map((x) => x / 40), SR);
+  assert.ok(p && Math.abs(p.freq - 110) < 0.5);
+});
+test("refining a coarse guess gives the exact pitch, never another octave", () => {
+  for (const hz of [82.41, 110, 196, 440]) {
+    const got = refinePitch(tone(hz, 5), SR, hz * 2 ** (-6 / 1200));
+    assert.ok(Math.abs(1200 * Math.log2(got / hz)) < 0.5, `${hz} got ${got}`);
+  }
+  assert.ok(Math.abs(refinePitch(tone(110, 5), SR, 113) - 110) < 0.1);
 });
 test("silence and noise give nothing", () => {
   assert.equal(detectPitch(new Float32Array(4096), SR), null);

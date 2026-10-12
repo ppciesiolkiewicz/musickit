@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { PatchNode } from "@/lib/looper/patch";
 import type { LooperEngine, LooperSnapshot } from "@/lib/looper/engine";
-import { createSmoother, detectPitch, FRAME_MS, readHz, resolveChoice, TunerSettings, useThrottled, useTunerChoice } from "@/features/tuner";
+import { createDetector, FRAME_MS, Needle, readHz, resolveChoice, TunerSettings, useTunerChoice } from "@/features/tuner";
 
 /**
  * A tuner element of the patch: the note it hears, how many cents off, and a needle. Muted, it still listens but lets nothing through,
@@ -20,35 +20,29 @@ export default function TunerWidget({ engine, snap, node: n, mute }: { engine: L
   const fed = snap.patch.links.some((l) => l.to === n.id);
 
   useEffect(() => {
-    const smooth = createSmoother();
-    let quiet = 0;
+    const detect = createDetector();
+    let quiet = 0, alive = true;
     let buf: Float32Array<ArrayBuffer> | null = null;
     const id = window.setInterval(() => {
       const an = engine.tunerAnalyser(n.id);
       if (!an) return;
       if (!buf || buf.length !== an.fftSize) buf = new Float32Array(an.fftSize);
       an.getFloatTimeDomainData(buf);
-      const p = detectPitch(buf, an.context.sampleRate, { minHz: minHz.current });
-      if (p && p.clarity > 0.85) {
-        quiet = 0;
-        setHz(smooth.push(p.freq));
-      } else if (++quiet > 20) {
-        smooth.reset();
-        setHz(null);
-      }
+      void detect(buf, an.context.sampleRate, minHz.current).then((p) => {
+        if (!alive || p === undefined) return;
+        if (p) {
+          quiet = 0;
+          setHz(p.freq);
+        } else if (++quiet > 15) setHz(null);
+      });
     }, FRAME_MS);
-    return () => window.clearInterval(id);
+    return () => { alive = false; window.clearInterval(id); };
   }, [engine, n.id]);
 
   const reading = hz !== null ? readHz(hz, choice) : null;
   const cents = reading?.cents ?? 0;
   const inTune = reading !== null && Math.abs(cents) < 5;
   const colour = reading === null ? "var(--color-slate-600)" : inTune ? "var(--color-emerald-400)" : Math.abs(cents) < 20 ? "var(--color-amber-400)" : "var(--color-rose-400)";
-  const needle = Math.max(-50, Math.min(50, cents));
-  // the text and the needle both change at most 30 times a second
-  const textHz = useThrottled(hz, FRAME_MS);
-  const text = textHz !== null ? readHz(textHz, choice) : null;
-  const tc = text?.cents ?? 0;
 
   return (
     <div className="flex flex-col items-center gap-2 px-3 py-2" data-patch-id={n.id}>
@@ -63,11 +57,9 @@ export default function TunerWidget({ engine, snap, node: n, mute }: { engine: L
           const c = (i - 5) * 10;
           return <line key={c} x1={c * 2} x2={c * 2} y1={c === 0 ? 0 : 6} y2={c === 0 ? 26 : 20} stroke={c === 0 ? "var(--color-emerald-400)" : "var(--color-slate-600)"} strokeWidth={c === 0 ? 2 : 1} />;
         })}
-        {/* the needle glides to each reading and fades out while nothing is heard */}
-        <polygon points="-5,-4 5,-4 0,8" fill={colour}
-            style={{ transform: `translateX(${needle * 2}px)`, opacity: reading ? 1 : 0, transition: "transform 60ms linear, opacity 200ms, fill 200ms" }} />
+        <Needle cents={cents} visible={reading !== null} colour={colour} />
       </svg>
-      <p className="h-4 text-[11px] tabular-nums text-slate-400">{text && textHz !== null ? `${textHz.toFixed(1)} Hz${text.string !== null ? ` · ${text.heard.name}${text.heard.octave}` : ""} · ${tc > 0 ? "+" : ""}${Math.round(tc)} cents` : fed ? "Play a note" : "Wire something in"}</p>
+      <p className="h-4 text-[11px] tabular-nums text-slate-400">{reading && hz !== null ? `${hz.toFixed(1)} Hz${reading.string !== null ? ` · ${reading.heard.name}${reading.heard.octave}` : ""} · ${Math.round(cents) > 0 ? "+" : ""}${Math.round(cents) || 0} cents` : fed ? "Play a note" : "Wire something in"}</p>
     </div>
   );
 }
