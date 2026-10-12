@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import PageShell from "@/components/PageShell";
 import CagedExplorer from "@/components/chordKit/CagedExplorer";
+import NeighboursView from "@/components/chordKit/NeighboursView";
 
 export const metadata: Metadata = {
   title: "CAGED system · Music Kit",
@@ -14,7 +15,10 @@ export default function CagedPage() {
       title="CAGED system"
       intro="Five chord shapes (C, A, G, E, D) link up across the neck. Pick a key and major or minor to see each shape and, in three separate boxes, its arpeggio, scale and pentatonic."
     >
-      <CagedExplorer />
+      <div className="flex flex-col gap-4">
+        <CagedExplorer />
+        <NeighboursView />
+      </div>
     </PageShell>
   );
 }
