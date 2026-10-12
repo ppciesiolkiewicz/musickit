@@ -108,12 +108,12 @@ function NotesTable({ rootPc, quality, arpKind }: { rootPc: number; quality: Cag
 /** The basic chord on every degree of the key, with the easiest shape. */
 function KeyChords({ rootPc, quality, keyName }: { rootPc: number; quality: CagedQuality; keyName: string }) {
   const ctx = useMemo(() => cagedContext(rootPc, quality), [rootPc, quality]);
-  const items = useMemo(() => ctx.chords.map((c, d) => ({ c, d, pick: shapesForChord(ctx, d)[0] })), [ctx]);
+  const items = useMemo(() => ctx.chords.map((c, d) => ({ c, d, pick: shapesForChord(ctx, d, ["easy", "medium", "hard"], { fit: "triad" })[0] })), [ctx]);
   return (
     <section className="rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5" aria-label={`Chords in ${keyName} ${quality}`}>
       <h2 className="mb-2 text-sm font-medium text-slate-100">
         Chords in {keyName} {quality}
-        <Info label="About these chords">The chord built on each note of the scale, with the easiest shape for it. The Roman numeral is the degree: capitals are major chords, lower case minor. Tap a diagram to hear it.</Info>
+        <Info label="About these chords">The chord built on each note of the scale, with the simplest way to play it: an open chord when there is one, otherwise the first barre shape. The Roman numeral is the degree: capitals are major chords, lower case minor. Tap a diagram to hear it.</Info>
       </h2>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-7">
         {items.map(({ c, d, pick }) => (

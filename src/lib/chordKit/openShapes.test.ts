@@ -44,3 +44,49 @@ describe("open chords", () => {
     p.forEach((s) => { assert.equal(s.fam, "power"); assert.deepEqual(s.exp, [0, 7]); });
   });
 });
+
+import { shapesForChord, shapesForTones, shapeTier } from "./chordShapes";
+import { makeKeyContext } from "@/features/theory/theory";
+import { modeChords } from "@/features/theory/scales";
+
+const pickName = (ctx: ReturnType<typeof makeKeyContext>, d: number) => {
+  const p = shapesForChord(ctx, d, ["easy", "medium", "hard"], { fit: "triad" })[0];
+  return { tier: shapeTier(p.shape), fret: p.fret, suf: p.shape.suf, v: p.shape.v, open: p.shape.at !== undefined, rs: p.shape.rs };
+};
+
+describe("picking the simplest shape", () => {
+  const C = makeKeyContext(0, 0, 0); // C major
+  it("C major triads: open C Dm Em G Am, F as the 1st-fret E-shape barre", () => {
+    [0, 1, 2, 4, 5].forEach((d) => assert.equal(pickName(C, d).open, true, `degree ${d}`));
+    const f = pickName(C, 3);
+    assert.deepEqual([f.tier, f.rs, f.fret, f.suf], [1, 6, 1, ""]);
+  });
+  it("triad fit never offers 7ths, shells or added notes", () => {
+    for (let d = 0; d < 7; d++) {
+      const [, third, fifth] = modeChords(C)[d].notes.map((n) => n.semis);
+      const triad = new Set([0, third, fifth]);
+      shapesForChord(C, d, ["easy", "medium", "hard"], { fit: "triad" }).forEach((c) => {
+        assert.ok(shapeSemitones(c.shape).every((t) => t === null || triad.has(t)), `${C.chords[d].triadName} got ${c.shape.suf} ${c.shape.v ?? ""}`);
+      });
+    }
+  });
+  it("Bdim (no open voicing) still gets a pick", () => {
+    assert.ok(shapesForChord(C, 6, ["easy", "medium", "hard"], { fit: "triad" }).length > 0);
+  });
+  it("default mode fit keeps exact shapes ahead and puts open chords first among them", () => {
+    const list = shapesForChord(C, 0);
+    assert.equal(list[0].shape.at, 3); // open C
+    const firstInexact = list.findIndex((c) => !c.exact);
+    if (firstInexact >= 0) assert.ok(list.slice(firstInexact).every((c) => !c.exact));
+  });
+  it("shapesForTones: open chord first, never an open chord on the wrong root", () => {
+    assert.equal(shapesForTones(0, [0, 4, 7])[0].choice.shape.at, 3);
+    for (let pc = 0; pc < 12; pc++) for (const semis of [[0, 4, 7], [0, 3, 7], [0, 4, 7, 10]])
+      shapesForTones(pc, semis, ["easy", "medium", "hard"]).forEach(({ choice }) => assert.ok(fitsRoot(choice.shape, pc)));
+  });
+  it("tiers: open 0, E/A-shape triad barre 1, others 2", () => {
+    assert.equal(shapeTier(OPEN_RICH[0]), 0);
+    assert.equal(shapeTier(RICH_SHAPES.find((s) => s.rs === 6 && s.suf === "" && !s.v)!), 1);
+    assert.equal(shapeTier(RICH_SHAPES.find((s) => s.rs === 4 && s.suf === "")!), 2);
+  });
+});
