@@ -6,7 +6,7 @@
  * `exp` is the expected set of semitones above the root; it is only used by the tests
  * to verify that the fingering really produces those intervals.
  */
-export type ShapeFamily = "major" | "minor" | "dominant" | "altered" | "sus";
+export type ShapeFamily = "major" | "minor" | "dominant" | "altered" | "sus" | "power";
 export type RootString = 6 | 5 | 4 | 3 | 1;
 
 export interface Shape {
@@ -20,6 +20,10 @@ export interface Shape {
   exp: number[];
   n?: Record<number, string>;
   note?: string;
+  /** open chords only: the fixed fret of the root, so the shape is one chord and does not move */
+  at?: number;
+  /** open chords only: the course stage that teaches it */
+  stage?: 1 | 2;
 }
 
 const N = null;
@@ -128,4 +132,8 @@ export const SHAPES: Shape[] = [
   {rs:1,suf:'m7', v:'top 4',fam:'minor',ext:'7',f:[N,N,0,0,0,0],tags:['funk','soul','jazz','compact'],exp:[0,3,7,10],note:'Four-string barre, a funk staple.'},
   {rs:1,suf:'maj7',v:'top 4',fam:'major',ext:'7',f:[N,N,1,1,0,0],tags:['soul','jazz','pop','compact'],exp:[0,4,7,11]},
   {rs:1,suf:'m7♭5',v:'top 4',fam:'altered',ext:'7',f:[N,N,0,0,-1,0],tags:['jazz','compact'],exp:[0,3,6,10],n:{6:'♭5'}},
+
+  // power chords: root and 5th (plus the octave), no 3rd
+  {rs:6,suf:'5',fam:'power',ext:'triad',f:[0,2,2,N,N,N],tags:['rock','compact'],exp:[0,7],note:'Root, 5th and octave: the rock rhythm chord.'},
+  {rs:5,suf:'5',fam:'power',ext:'triad',f:[N,0,2,2,N,N],tags:['rock','compact'],exp:[0,7]},
 ];

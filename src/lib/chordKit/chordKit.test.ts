@@ -15,8 +15,8 @@ describe("shapes", () => {
       assert.deepEqual(got, [...s.exp].sort((a, b) => a - b), `${s.rs} ${s.suf} ${s.v ?? ""}`);
     }
   });
-  it("has 90 shapes and a sensible difficulty mix", () => {
-    assert.equal(SHAPES.length, 90);
+  it("has 92 shapes and a sensible difficulty mix", () => {
+    assert.equal(SHAPES.length, 92);
     const by = (d: string) => RICH_SHAPES.filter((s) => s.diff === d).length;
     assert.ok(by("easy") > 0 && by("medium") > 0 && by("hard") > 0);
   });

@@ -1,4 +1,5 @@
 import { SHAPES, type RootString, type Shape } from "./shapes";
+import { OPEN_SHAPES } from "./openShapes";
 import { FAMILIES, MODE_LIST, type KeyContext, degreeLabel, shortModeName } from "@/features/theory/theory";
 
 export type Difficulty = "easy" | "medium" | "hard";
@@ -31,7 +32,14 @@ export function modesFitting(exp: number[]): string[] {
   return MODE_LIST.filter((m) => exp.every((v) => m.rel.has(v))).map((m) => m.name);
 }
 
+/** Movable shapes only. Code that slides a shape to any root (progressions, CAGED boxes) uses this list. */
 export const RICH_SHAPES: RichShape[] = SHAPES.map((s, id) => ({ ...s, id, diff: shapeDifficulty(s), fit: modesFitting(s.exp) }));
+
+/** Open-position chords: always easy, ids from 1000 so they never collide with movable ids. */
+export const OPEN_RICH: RichShape[] = OPEN_SHAPES.map((s, i) => ({ ...s, id: 1000 + i, diff: "easy", fit: modesFitting(s.exp) }));
+
+/** Every shape: movable first, then open chords. Anything that asks "which shapes play this chord" uses this list with `fitsRoot`. */
+export const ALL_SHAPES: RichShape[] = [...RICH_SHAPES, ...OPEN_RICH];
 
 /* ---------------------------------------------------------------- geometry */
 
@@ -49,14 +57,21 @@ export const STRING_NAMES: Record<RootString, string> = {
 };
 export const STRING_SHORT: Record<RootString, string> = { 6: "6th", 5: "5th", 4: "4th", 3: "3rd", 1: "1st" };
 
-/** Fret where the root note sits, shifted up an octave until the whole shape is playable (frets >= 1). */
+/** Fret where the root note sits, shifted up an octave until the whole shape is playable (frets >= 1). Open chords stay where they are. */
 export function rootFretFor(sh: Shape, rootPc: number): number {
+  if (sh.at !== undefined) return sh.at;
   const ri = ROOT_INDEX[sh.rs];
   let r = (rootPc - OPEN_NOTE[ri] + 12) % 12;
   const minOff = Math.min(...sh.f.filter((v): v is number => v !== null));
   while (r + minOff < 1) r += 12;
   return r;
 }
+
+/** The root pitch class of an open chord, or null for a movable shape. */
+export const openRootPc = (sh: Shape): number | null => (sh.at === undefined ? null : (OPEN_NOTE[ROOT_INDEX[sh.rs]] + sh.at) % 12);
+
+/** Can this shape play a chord on `rootPc`? Movable shapes always can; an open chord only on its own root. */
+export const fitsRoot = (sh: Shape, rootPc: number): boolean => sh.at === undefined || openRootPc(sh) === rootPc;
 
 /** Semitones above the root for every sounding string. */
 export function shapeSemitones(sh: Shape): (number | null)[] {
@@ -93,6 +108,7 @@ export const FULL_NAME: Record<string, string> = {
   "7♯9": "Dominant 7♯9", "7♭9": "Dominant 7♭9", "7♯11": "Dominant 7♯11", "13♭9": "Dominant 13♭9", "m7♭5": "Minor 7♭5 (half-diminished)",
   dim: "Diminished triad", dim7: "Diminished 7", aug: "Augmented triad", "6": "Major 6", m6: "Minor 6", "6/9": "Major 6/9",
   sus4: "Suspended 4", sus2: "Suspended 2", "m(maj7)": "Minor-major 7", "maj7♯11": "Major 7♯11",
+  "5": "Power chord", add9: "Major add 9",
 };
 export const shapeName = (suf: string) => FULL_NAME[suf] ?? suf;
 
@@ -103,11 +119,12 @@ export const VARIANT: Record<string, string> = {
   "m(maj7)": "minor chord with a major 7th", "7sus4": "7 with the 3rd replaced by the 4th", "9sus4": "9 with the 3rd replaced by the 4th",
   sus4: "triad with the 3rd replaced by the 4th", sus2: "triad with the 3rd replaced by the 2nd", "6/9": "major 6 with an added 9th",
   m6: "minor triad plus a major 6th", "6": "major triad plus a major 6th",
+  "5": "root and 5th only, no 3rd, so it is neither major nor minor", add9: "major triad with an added 9th (no 7th)",
 };
 
-export const FAMILY_ORDER = ["major", "minor", "dominant", "altered", "sus"] as const;
+export const FAMILY_ORDER = ["major", "minor", "dominant", "altered", "sus", "power"] as const;
 export const FAMILY_LABEL: Record<(typeof FAMILY_ORDER)[number], string> = {
-  major: "Major", minor: "Minor", dominant: "Dominant", altered: "Diminished and augmented", sus: "Suspended",
+  major: "Major", minor: "Minor", dominant: "Dominant", altered: "Diminished and augmented", sus: "Suspended", power: "Power chords",
 };
 
 /* ---------------------------------------------------------------- tags and filtering */
