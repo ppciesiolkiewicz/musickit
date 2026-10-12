@@ -3,10 +3,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { PatchNode } from "@/lib/looper/patch";
 import type { LooperEngine, LooperSnapshot } from "@/lib/looper/engine";
-import { createSmoother, detectPitch, readHz, resolveChoice, TunerSettings, useThrottled, useTunerChoice } from "@/features/tuner";
-
-/** How often the note is measured: often enough to follow a string, rare enough to cost little. */
-const EVERY_MS = 80;
+import { createSmoother, detectPitch, FRAME_MS, readHz, resolveChoice, TunerSettings, useThrottled, useTunerChoice } from "@/features/tuner";
 
 /**
  * A tuner element of the patch: the note it hears, how many cents off, and a needle. Muted, it still listens but lets nothing through,
@@ -35,11 +32,11 @@ export default function TunerWidget({ engine, snap, node: n, mute }: { engine: L
       if (p && p.clarity > 0.85) {
         quiet = 0;
         setHz(smooth.push(p.freq));
-      } else if (++quiet > 8) {
+      } else if (++quiet > 20) {
         smooth.reset();
         setHz(null);
       }
-    }, EVERY_MS);
+    }, FRAME_MS);
     return () => window.clearInterval(id);
   }, [engine, n.id]);
 
@@ -48,8 +45,8 @@ export default function TunerWidget({ engine, snap, node: n, mute }: { engine: L
   const inTune = reading !== null && Math.abs(cents) < 5;
   const colour = reading === null ? "var(--color-slate-600)" : inTune ? "var(--color-emerald-400)" : Math.abs(cents) < 20 ? "var(--color-amber-400)" : "var(--color-rose-400)";
   const needle = Math.max(-50, Math.min(50, cents));
-  // the text changes a few times a second, the needle at every reading
-  const textHz = useThrottled(hz, 250);
+  // the text and the needle both change at most 30 times a second
+  const textHz = useThrottled(hz, FRAME_MS);
   const text = textHz !== null ? readHz(textHz, choice) : null;
   const tc = text?.cents ?? 0;
 
@@ -68,7 +65,7 @@ export default function TunerWidget({ engine, snap, node: n, mute }: { engine: L
         })}
         {/* the needle glides to each reading and fades out while nothing is heard */}
         <polygon points="-5,-4 5,-4 0,8" fill={colour}
-            style={{ transform: `translateX(${needle * 2}px)`, opacity: reading ? 1 : 0, transition: "transform 180ms ease-out, opacity 200ms, fill 200ms" }} />
+            style={{ transform: `translateX(${needle * 2}px)`, opacity: reading ? 1 : 0, transition: "transform 60ms linear, opacity 200ms, fill 200ms" }} />
       </svg>
       <p className="h-4 text-[11px] tabular-nums text-slate-400">{text && textHz !== null ? `${textHz.toFixed(1)} Hz${text.string !== null ? ` · ${text.heard.name}${text.heard.octave}` : ""} · ${tc > 0 ? "+" : ""}${Math.round(tc)} cents` : fed ? "Play a note" : "Wire something in"}</p>
     </div>

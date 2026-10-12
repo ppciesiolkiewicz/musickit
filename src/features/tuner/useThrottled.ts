@@ -2,6 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 
+/** A tuner's refresh rate: 30 frames a second, smooth to the eye without lagging behind the string. */
+export const FRAME_MS = 1000 / 30;
+
 /** The value, changed at most once every `ms`: for text that would flicker unreadably at the frame rate. */
 export function useThrottled<T>(value: T, ms: number): T {
   const [shown, setShown] = useState(value);

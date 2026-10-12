@@ -7,4 +7,4 @@ export { DEFAULT_CHOICE, TUNER_INSTRUMENTS, clampA4, readHz, resolveChoice, sani
 export { default as TunerSettings, A4Field } from "./TunerSettings";
 export { useTunerChoice } from "./useTunerChoice";
 export { createSmoother } from "./smooth";
-export { useThrottled } from "./useThrottled";
+export { FRAME_MS, useThrottled } from "./useThrottled";

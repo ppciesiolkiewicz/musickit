@@ -8,7 +8,7 @@ import { readHz, resolveChoice, sanitiseChoice } from "./choice";
 import { useTunerChoice } from "./useTunerChoice";
 import { playReference } from "./reference";
 import { createSmoother } from "./smooth";
-import { useThrottled } from "./useThrottled";
+import { FRAME_MS, useThrottled } from "./useThrottled";
 import TunerSettings from "./TunerSettings";
 
 /** Which microphone or interface, and which of its inputs: "mix" for all of them, or one channel (0 = Input 1). */
@@ -139,8 +139,8 @@ export default function Tuner() {
   const inTune = read !== null && Math.abs(cents) < 5;
   const colour = read === null ? "var(--color-slate-600)" : inTune ? "var(--color-emerald-400)" : Math.abs(cents) < 20 ? "var(--color-amber-400)" : "var(--color-rose-400)";
   const needle = Math.max(-50, Math.min(50, cents));
-  // the text changes a few times a second, the needle every frame
-  const textHz = useThrottled(hz, 250);
+  // the text changes at most 30 times a second, the needle every frame
+  const textHz = useThrottled(hz, FRAME_MS);
   const text = textHz !== null ? readHz(textHz, choice) : null;
   const tc = text?.cents ?? 0;
   const hint = !text ? (running ? "Play a note" : "") : text.string !== null && Math.abs(tc) >= 5 ? (tc > 0 ? "Tune down" : "Tune up") : Math.abs(tc) < 5 ? "In tune" : "";
@@ -184,7 +184,7 @@ export default function Tuner() {
           <text x={100} y={36} fontSize={9} fill="var(--color-slate-500)" textAnchor="middle">sharp</text>
           {/* the needle glides to each reading and fades out while nothing is heard */}
           <polygon points="-5,-4 5,-4 0,8" fill={colour}
-            style={{ transform: `translateX(${needle * 2}px)`, opacity: read ? 1 : 0, transition: "transform 180ms ease-out, opacity 200ms, fill 200ms" }} />
+            style={{ transform: `translateX(${needle * 2}px)`, opacity: read ? 1 : 0, transition: "transform 60ms linear, opacity 200ms, fill 200ms" }} />
         </svg>
         <p className="h-5 text-sm tabular-nums text-slate-400">
           {text && textHz !== null
