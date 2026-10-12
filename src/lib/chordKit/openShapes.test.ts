@@ -90,3 +90,19 @@ describe("picking the simplest shape", () => {
     assert.equal(shapeTier(RICH_SHAPES.find((s) => s.rs === 4 && s.suf === "")!), 2);
   });
 });
+
+import { keyEntries, plainEntries } from "./shapeTools";
+
+describe("open chords in the browsers", () => {
+  it("plainEntries lists every open chord once", () => {
+    assert.equal(plainEntries().filter((e) => e.shape.at !== undefined).length, OPEN_SHAPES.length);
+  });
+  it("keyEntries places open chords only on their own root", () => {
+    const G = makeKeyContext(7, 0, 0); // G major
+    const open = keyEntries(G).filter((e) => e.shape.at !== undefined);
+    assert.ok(open.length > 0);
+    open.forEach((e) => assert.equal(openRootPc(e.shape), e.rootPc));
+    const names = new Set(open.map((e) => `${e.roman}:${e.shape.suf}`));
+    assert.ok(names.has("I:") && names.has("IV:") && names.has("V:") && names.has("vi:m"));
+  });
+});

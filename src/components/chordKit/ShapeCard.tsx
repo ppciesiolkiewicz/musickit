@@ -4,7 +4,7 @@ import { useState } from "react";
 import { DIFF_CLASS } from "./palette";
 import ChordDiagram from "./ChordDiagram";
 import { Info, Stepper, Tag } from "@/components/ui";
-import { type RichShape, VARIANT, shapeFormula, shapeName, rootFretFor, STRING_SHORT, STYLE_TAGS, tagText } from "@/lib/chordKit/shapeTools";
+import { type RichShape, VARIANT, openRootPc, shapeFormula, shapeName, rootFretFor, STRING_SHORT, STYLE_TAGS, tagText } from "@/lib/chordKit/shapeTools";
 import { MODE_LIST, type KeyContext } from "@/features/theory/theory";
 import { strumShape } from "@/lib/chordKit/playback";
 
@@ -28,6 +28,7 @@ interface Props {
 }
 
 const ORD = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th"];
+const OPEN_ROOT_NAME = ["C", "C♯", "D", "E♭", "E", "F", "F♯", "G", "A♭", "A", "B♭", "B"];
 
 /** One card per shape. Slide the shape with the stepper, tap the diagram to hear it, tap a chord to place it. */
 export default function ShapeCard({ shape, placements, selectedTags, onToggleTag, ctx }: Props) {
@@ -35,9 +36,10 @@ export default function ShapeCard({ shape, placements, selectedTags, onToggleTag
   const maxOff = Math.max(...shape.f.filter((v): v is number => v !== null));
   const lowest = 1 - minOff >= 1 ? 1 - minOff : 1;
   const highest = 17 - maxOff;
+  const fixed = shape.at !== undefined;
 
   const placed = (placements ?? []).map((p) => ({ ...p, fret: rootFretFor(shape, p.rootPc) })).sort((a, b) => a.fret - b.fret);
-  const [fret, setFret] = useState(placed[0]?.fret ?? lowest);
+  const [fret, setFret] = useState(fixed ? shape.at! : placed[0]?.fret ?? lowest);
   const [playing, setPlaying] = useState(false);
 
   const play = () => {
@@ -55,7 +57,7 @@ export default function ShapeCard({ shape, placements, selectedTags, onToggleTag
   return (
     <article className="flex min-w-0 flex-col gap-2 rounded-xl border border-slate-800 bg-slate-950/60 p-3">
       <header className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-        <h4 className="text-sm font-medium text-slate-100">{shapeName(shape.suf)}</h4>
+        <h4 className="text-sm font-medium text-slate-100">{fixed ? `${OPEN_ROOT_NAME[openRootPc(shape)!]}${shape.suf} · ` : ""}{shapeName(shape.suf)}</h4>
         {shape.v && <span className="rounded bg-slate-800 px-1.5 py-0.5 text-xs text-slate-300">{shape.v}</span>}
         {placements && <span className="ml-auto text-xs text-slate-500">{placed.length} chord{placed.length === 1 ? "" : "s"}</span>}
       </header>
@@ -63,15 +65,21 @@ export default function ShapeCard({ shape, placements, selectedTags, onToggleTag
       <ChordDiagram shape={shape} rootFret={fret} onPlay={play} active={playing} ctx={ctx} />
 
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <Stepper
-          label="Root fret"
-          value={`fret ${fret}`}
-          onDec={() => setFret((f) => Math.max(lowest, f - 1))}
-          onInc={() => setFret((f) => Math.min(highest, f + 1))}
-          decDisabled={fret <= lowest}
-          incDisabled={fret >= highest}
-        />
-        <span className="text-xs text-slate-500">{STRING_SHORT[shape.rs]} string root<Info label="About the root fret">The fret where the root note sits. The shape is movable: slide it up or down the neck and it becomes the same chord on another root. The stepper moves it one fret at a time. The root is on the {STRING_SHORT[shape.rs]} string.</Info></span>
+        {fixed ? (
+          <span className="text-xs text-slate-400">Open position<Info label="About open chords">An open chord uses open strings, so it is one chord in one place. It does not slide like the movable shapes below it.</Info></span>
+        ) : (
+          <>
+            <Stepper
+              label="Root fret"
+              value={`fret ${fret}`}
+              onDec={() => setFret((f) => Math.max(lowest, f - 1))}
+              onInc={() => setFret((f) => Math.min(highest, f + 1))}
+              decDisabled={fret <= lowest}
+              incDisabled={fret >= highest}
+            />
+            <span className="text-xs text-slate-500">{STRING_SHORT[shape.rs]} string root<Info label="About the root fret">The fret where the root note sits. The shape is movable: slide it up or down the neck and it becomes the same chord on another root. The stepper moves it one fret at a time. The root is on the {STRING_SHORT[shape.rs]} string.</Info></span>
+          </>
+        )}
       </div>
 
       <p className="text-xs text-slate-400">

@@ -177,8 +177,8 @@ export function tagCount(entries: Entry[], tag: string, selected: string[]): num
   return new Set(entries.filter((e) => matchesRows(e, rows)).map((e) => e.shape.id)).size;
 }
 
-/** Every shape-level entry with no key applied (for the key-free explorer). */
-export const plainEntries = (): Entry[] => RICH_SHAPES.map((shape) => ({ shape }));
+/** Every shape-level entry with no key applied (for the key-free explorer): movable shapes and open chords. */
+export const plainEntries = (): Entry[] => ALL_SHAPES.map((shape) => ({ shape }));
 
 /** Shapes that play a diatonic chord of the key, one entry per (shape, degree). */
 export function keyEntries(ctx: KeyContext, opts: { rs?: RootString | "all"; degree?: number | "all" } = {}): Entry[] {
@@ -188,8 +188,9 @@ export function keyEntries(ctx: KeyContext, opts: { rs?: RootString | "all"; deg
     const ch = ctx.chords[d];
     const rel = new Set(ctx.steps.map((_, i) => (ctx.steps[(d + i) % 7] - ctx.steps[d] + 12) % 12));
     const rootPc = (ctx.tonic.pc + ctx.steps[d]) % 12;
-    RICH_SHAPES.forEach((shape) => {
+    ALL_SHAPES.forEach((shape) => {
       if (opts.rs && opts.rs !== "all" && shape.rs !== opts.rs) return;
+      if (!fitsRoot(shape, rootPc)) return;
       if (!shape.exp.every((v) => rel.has(v))) return;
       out.push({ shape, roman: ch.roman, mode: modeNameAt(ctx, d), degree: d, rootPc });
     });

@@ -12,7 +12,7 @@ export default function ChordsPage() {
     <PageShell
       active="/theory/chords"
       title="Chord explorer"
-      intro="Movable guitar shapes labelled by scale degree, the chords of any key and mode, and progressions with the shapes to use and every position on the neck."
+      intro="Open chords and movable guitar shapes labelled by scale degree, the chords of any key and mode, and progressions with the shapes to use and every position on the neck. New to guitar? Start with the open chords: Em, Am, C, D, G, E, A, Dm."
     >
       <ChordKit />
     </PageShell>

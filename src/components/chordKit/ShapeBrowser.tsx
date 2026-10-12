@@ -64,7 +64,24 @@ export default function ShapeBrowser({ entries, ctx, header, forcedTags = [] }: 
   const groups = groupByShape(shown);
   const total = new Set(entries.map((e) => e.shape.id)).size;
 
-  const allIds = STRING_ORDER.flatMap((rs) => [`s${rs}`, ...FAMILY_ORDER.map((f) => `s${rs}${f}`)]);
+  const allIds = ["open", ...STRING_ORDER.flatMap((rs) => [`s${rs}`, ...FAMILY_ORDER.map((f) => `s${rs}${f}`)])];
+  const card = (g: (typeof groups)[number]) => (
+    <ShapeCard
+      key={g.shape.id}
+      shape={g.shape}
+      selectedTags={active}
+      onToggleTag={toggle}
+      ctx={ctx}
+      placements={ctx ? g.entries.map((e): Placement => ({
+        name: ctx.names[e.degree ?? 0] + g.shape.suf,
+        roman: e.roman,
+        mode: e.mode,
+        rootPc: e.rootPc!,
+        degrees: placedDegrees(g.shape, e.rootPc!, ctx),
+      })) : undefined}
+    />
+  );
+  const openGroups = groups.filter((g) => g.shape.at !== undefined);
   const collapseAll = () => setClosed(new Set(allIds));
   const expandAll = () => setClosed(new Set());
 
@@ -91,8 +108,14 @@ export default function ShapeBrowser({ entries, ctx, header, forcedTags = [] }: 
 
       {groups.length === 0 && <p className="rounded-xl border border-dashed border-slate-700 p-6 text-center text-sm text-slate-400">No shapes match these tags. Deselect a tag to widen the search.</p>}
 
+      {openGroups.length > 0 && (
+        <Section title="Open chords" meta={`${openGroups.length} chord${openGroups.length === 1 ? "" : "s"}`} open={!closed.has("open")} onToggle={() => flip("open")}>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{openGroups.map(card)}</div>
+        </Section>
+      )}
+
       {STRING_ORDER.map((rs) => {
-        const list = groups.filter((g) => g.shape.rs === rs);
+        const list = groups.filter((g) => g.shape.rs === rs && g.shape.at === undefined);
         if (!list.length) return null;
         const id1 = `s${rs}`;
         return (
@@ -105,22 +128,7 @@ export default function ShapeBrowser({ entries, ctx, header, forcedTags = [] }: 
                 return (
                   <Section key={fam} level={2} title={FAMILY_LABEL[fam]} meta={String(sub.length)} open={!closed.has(id2)} onToggle={() => flip(id2)}>
                     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                      {sub.map((g) => (
-                        <ShapeCard
-                          key={g.shape.id}
-                          shape={g.shape}
-                          selectedTags={active}
-                          onToggleTag={toggle}
-                          ctx={ctx}
-                          placements={ctx ? g.entries.map((e): Placement => ({
-                            name: ctx.names[e.degree ?? 0] + g.shape.suf,
-                            roman: e.roman,
-                            mode: e.mode,
-                            rootPc: e.rootPc!,
-                            degrees: placedDegrees(g.shape, e.rootPc!, ctx),
-                          })) : undefined}
-                        />
-                      ))}
+                      {sub.map(card)}
                     </div>
                   </Section>
                 );
