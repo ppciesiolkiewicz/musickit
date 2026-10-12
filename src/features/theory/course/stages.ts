@@ -209,7 +209,7 @@ export const STAGE_CONTENT: Stage[] = [
         learn: ["Mode compare", "Tunings and drones", "Your own cheatsheet"],
         why: "Comparing modes side by side shows the one or two notes that give each its sound. A drone makes those notes easy to hear.",
         explore: [
-          { href: "/theory/scales", label: "Mode compare (on any scale page)" },
+          { href: "/theory/scales", label: "Mode compare (on the scales page)" },
           { href: "/theory/tunings", label: "Tunings" },
           { href: "/theory/drone", label: "Drone" },
           { href: "/cheatsheet", label: "Build your own cheatsheet" },
