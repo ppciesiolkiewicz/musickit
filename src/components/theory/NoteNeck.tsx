@@ -27,7 +27,7 @@ export default function NoteNeck({ from = 0, to, dots, onCell, cellFill, window,
   const colLeft = (f: number) => g.edge(f);
   const colW = (f: number) => g.edge(f + 1) - g.edge(f);
   return (
-    <svg viewBox={`0 0 ${g.W} ${g.H}`} width="100%" role="img" aria-label="Fretboard" style={{ minWidth: Math.min(g.W, 520) }}>
+    <svg viewBox={`0 0 ${g.W} ${g.H}`} width="100%" role="img" aria-label="Fretboard" style={{ minWidth: Math.min(g.W, 520), maxWidth: g.W * 1.1 }}>
       <FretboardBase g={g} markerSize={compact ? 4 : 6} />
       {window && (
         <rect x={colLeft(Math.max(from, window.from))} y={g.sy(5) - 14} width={g.edge(Math.min(to, window.to) + 1) - colLeft(Math.max(from, window.from))} height={g.sy(0) - g.sy(5) + 28} rx={6} fill={window.colour ?? "#38bdf8"} opacity={0.12} pointerEvents="none" />

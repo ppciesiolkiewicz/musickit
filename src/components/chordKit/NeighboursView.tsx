@@ -36,7 +36,7 @@ function Bubble({ n, selected, onSelect, onMakeI }: { n: Neighbour; selected: bo
       {n.box ? (
         <>
           <span className="text-xs text-slate-400">{n.letter} shape</span>
-          <div className="w-full max-w-[8rem]">
+          <div className="w-full max-w-[10rem]">
             <ChordDiagram shape={n.box.shape} rootFret={n.box.rootFret} onPlay={() => { onSelect(); strumShape(n.box!.shape, n.box!.rootFret); }} active={selected} />
           </div>
         </>
@@ -89,7 +89,7 @@ export default function NeighboursView() {
         </ChipRow>
       </div>
       <div className="mt-3 overflow-x-auto">
-        <NoteNeck to={17} dots={dots} window={region ?? undefined} compact />
+        <NoteNeck to={17} dots={dots} window={region ?? undefined} />
       </div>
       <div className="mt-3 grid grid-cols-3 gap-2">
         {list.map((n) => (

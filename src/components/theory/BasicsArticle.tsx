@@ -81,7 +81,7 @@ function IntervalViewer({ semis, setSemis }: { semis: number; setSemis: (n: numb
       </div>
       <ul className="mt-2 space-y-0.5 text-sm text-slate-300">
         {pos.map((p) => (
-          <li key={`${p.string}-${p.fret}`}><span className="inline-block w-24 text-slate-500">{STRINGS[p.string] ?? "e"} string, fret {p.fret}</span> {describeMove(p)}</li>
+          <li key={`${p.string}-${p.fret}`} className="flex flex-wrap gap-x-3"><span className="w-36 shrink-0 whitespace-nowrap text-slate-500">{STRINGS[p.string] ?? "e"} string, fret {p.fret}</span><span>{describeMove(p)}</span></li>
         ))}
       </ul>
       {crossesGB && (

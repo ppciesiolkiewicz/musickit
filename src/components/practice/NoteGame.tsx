@@ -147,7 +147,7 @@ export default function NoteGame({ initial }: { initial: NoteSettings }) {
     const miss = h.misses / h.tries, slow = Math.min(1, h.ms / h.tries / 6000);
     return miss > 0 ? `rgba(244,63,94,${0.2 + 0.5 * miss})` : `rgba(245,158,11,${0.1 + 0.4 * slow})`;
   };
-  const dim = (string: number, fret: number) => (!s.strings.includes(string) || fret < s.from || fret > s.to ? "rgba(2,6,23,0.55)" : undefined);
+  const dim = (string: number, fret: number) => (!s.strings.includes(string) || fret < s.from || fret > s.to ? "rgba(148,163,184,0.06)" : undefined);
   const prompt = !q ? "Press Start" : s.mode === "name" ? "Name the lit note" : s.mode === "every" ? `Find every ${pcName(q.pc, s.flats)} (frets ${s.from}–${s.to})` : `Find ${pcName(q.pc, s.flats)} on the ${STRING_LETTERS[q.string]} string`;
   const choices = s.naturals ? [0, 2, 4, 5, 7, 9, 11] : Array.from({ length: 12 }, (_, i) => i);
 

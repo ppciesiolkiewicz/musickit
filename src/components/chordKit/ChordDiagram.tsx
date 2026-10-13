@@ -67,6 +67,16 @@ export default function ChordDiagram({ shape, rootFret, onPlay, active, ctx, roo
         const label = toneLabel(system, { rootPc, rootName, semi, role, ctx });
         const sw = semi === 0 ? GROUP_SWATCH.root : swatchFor(fmtInterval(role));
         const y = a === 0 ? top - 12 : top + edge(a - lo) + rowH(a - lo) / 2;
+        // open strings: a small ring above the nut, like the usual "o", so they never crowd each other
+        if (a === 0)
+          return (
+            <g key={i}>
+              <circle cx={x} cy={y} r={7} fill="var(--color-slate-950)" stroke={sw.fill} strokeWidth={1.6} />
+              <text x={x} y={y} textAnchor="middle" dominantBaseline="central" fill={sw.fill} fontSize={label.length > 2 ? 6 : 7.5} fontWeight={700}>
+                {label}
+              </text>
+            </g>
+          );
         return (
           <g key={i}>
             <circle cx={x} cy={y} r={9} fill={sw.fill} stroke={sw.line} strokeWidth={1.2} />

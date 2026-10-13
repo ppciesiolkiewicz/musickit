@@ -17,7 +17,7 @@ export default function TheoryHub() {
       </section>
 
       <section aria-label="Course" className="overflow-x-auto">
-        <div className="grid min-w-0 gap-2 md:grid-cols-[9rem_repeat(3,minmax(0,1fr))]">
+        <div className="grid min-w-0 gap-2 md:grid-cols-[12rem_repeat(3,minmax(0,1fr))]">
           <span className="hidden md:block" />
           {TRACKS.map((t) => (
             <div key={t.id} className="hidden px-2 md:block">
