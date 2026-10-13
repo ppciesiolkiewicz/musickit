@@ -36,7 +36,7 @@ export default function ChordShapeCarousel({ ctx, degree, onShowAll }: { ctx: Ke
         <span className="text-sm font-medium text-slate-100">{ctx.names[degree]}{cur.shape.suf}</span>
         {cur.shape.v && <span>{cur.shape.v}</span>}
         <span className={`rounded-full border px-1.5 ${DIFF_CLASS[cur.shape.diff]}`}>{cur.shape.diff}</span>
-        <span className="tabular-nums">fret {cur.fret}</span>
+        <span className="tabular-nums">{cur.shape.at !== undefined ? "open" : `fret ${cur.fret}`}</span>
         <span className="tabular-nums text-slate-500">{Math.min(i, list.length - 1) + 1}/{list.length}</span>
         <Info label="About these shapes">Shapes that contain this chord&rsquo;s 3rd and only notes of the mode. Shapes made purely of the chord&rsquo;s own root, 3rd, 5th and 7th come first; among those, open chords, then the first barre shapes, then easier fingerings. Use the arrows to flip through, tap the diagram to hear it.</Info>
       </div>

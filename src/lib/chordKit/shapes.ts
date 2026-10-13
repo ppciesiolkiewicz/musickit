@@ -134,6 +134,6 @@ export const SHAPES: Shape[] = [
   {rs:1,suf:'m7♭5',v:'top 4',fam:'altered',ext:'7',f:[N,N,0,0,-1,0],tags:['jazz','compact'],exp:[0,3,6,10],n:{6:'♭5'}},
 
   // power chords: root and 5th (plus the octave), no 3rd
-  {rs:6,suf:'5',fam:'power',ext:'triad',f:[0,2,2,N,N,N],tags:['rock','compact'],exp:[0,7],note:'Root, 5th and octave: the rock rhythm chord.'},
-  {rs:5,suf:'5',fam:'power',ext:'triad',f:[N,0,2,2,N,N],tags:['rock','compact'],exp:[0,7]},
+  {rs:6,suf:'5',fam:'power',ext:'triad',f:[0,2,2,N,N,N],tags:['rock','power','compact'],exp:[0,7],note:'Root, 5th and octave: the rock rhythm chord.'},
+  {rs:5,suf:'5',fam:'power',ext:'triad',f:[N,0,2,2,N,N],tags:['rock','power','compact'],exp:[0,7]},
 ];

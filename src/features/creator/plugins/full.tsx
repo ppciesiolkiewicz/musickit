@@ -35,7 +35,7 @@ export function ModesFull() {
 
 export function ChordsFull() {
   const s = useStart();
-  return <ChordKit key={s.id} initialTab={s.ctx ? "key" : "shapes"} initialKey={{ tonicPc: s.tonic, family: s.choice.family, mode: s.choice.mode }} />;
+  return <ChordKit key={s.id} initialTab={s.ctx ? "key" : "shapes"} initialKey={{ tonicPc: s.tonic, family: s.choice.family, mode: s.choice.mode }} syncUrl={false} />;
 }
 
 export function ProgressionsFull() {

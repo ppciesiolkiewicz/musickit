@@ -78,12 +78,16 @@ export default function TheoryMenu({ active }: { active: string }) {
         setOpen(true);
       }}
       onPointerLeave={(e) => e.pointerType === "mouse" && closeSoon()}
+      onBlur={(e) => {
+        // keyboard: tabbing out of the menu closes it
+        if (!root.current?.contains(e.relatedTarget as Node | null)) setOpen(false);
+      }}
     >
       <button
         ref={button}
         type="button"
         aria-expanded={open}
-        aria-controls={panelId}
+        aria-controls={open ? panelId : undefined}
         onClick={(e) => {
           const pointerType = (e.nativeEvent as PointerEvent).pointerType || "keyboard";
           setOpen(menuClick({ open, hoverOpenedAt: hoverOpenedAt.current, now: performance.now(), pointerType }));

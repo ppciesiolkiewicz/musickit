@@ -243,7 +243,7 @@ function Fingering({ rootPc, semis, small, ctx }: { rootPc: number; semis: numbe
       <div className={small ? "w-28" : "w-44"}><ChordDiagram shape={cur.choice.shape} rootFret={cur.choice.fret} onPlay={() => strumShape(cur.choice.shape, cur.choice.fret)} ctx={ctx} /></div>
       <div className="flex items-center gap-2 text-xs text-slate-400">
         {list.length > 1 && <button type="button" onClick={step(-1)} aria-label="Previous fingering" className="rounded border border-slate-700 px-1.5">‹</button>}
-        <span className="tabular-nums">fret {cur.choice.fret}{list.length > 1 ? ` · ${(i % list.length) + 1}/${list.length}` : ""}</span>
+        <span className="tabular-nums">{cur.choice.shape.at !== undefined ? "open" : `fret ${cur.choice.fret}`}{list.length > 1 ? ` · ${(i % list.length) + 1}/${list.length}` : ""}</span>
         {list.length > 1 && <button type="button" onClick={step(1)} aria-label="Next fingering" className="rounded border border-slate-700 px-1.5">›</button>}
       </div>
       {!cur.full && <p className="text-center text-[10px] text-amber-300">Closest shape: leaves out a colour note.</p>}

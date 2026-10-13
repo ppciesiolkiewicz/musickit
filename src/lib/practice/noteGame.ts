@@ -122,3 +122,8 @@ export function recordHeat(h: Heat, string: number, fret: number, ok: boolean, m
   const cur = h[key] ?? { tries: 0, misses: 0, ms: 0 };
   return { ...h, [key]: { tries: cur.tries + 1, misses: cur.misses + (ok ? 0 : 1), ms: cur.ms + ms } };
 }
+
+/** The note names offered in "name the dot" mode: naturals when asked, but always including the right answer. */
+export function answerChoices(naturals: boolean, pc: number): number[] {
+  return naturals && NATURAL.has(pc) ? [0, 2, 4, 5, 7, 9, 11] : Array.from({ length: 12 }, (_, i) => i);
+}

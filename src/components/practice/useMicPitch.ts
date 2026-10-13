@@ -5,7 +5,7 @@ import { detectPitch, hzToNote } from "@/features/tuner/pitch";
 import { stablePitch } from "@/lib/practice/noteGame";
 import { acquireStream } from "@/lib/practice/mic";
 
-export type MicStatus = "off" | "asking" | "on" | "denied" | "error";
+export type MicStatus = "off" | "asking" | "on" | "denied" | "error" | "insecure";
 export interface MicReading { midi: number; t: number }
 
 /**
@@ -30,6 +30,11 @@ export function useMicPitch(enabled: boolean, onFrame?: (pc: number | null) => v
     let stopped = false;
     queueMicrotask(() => !stopped && setStatus("asking"));
     (async () => {
+      if (!navigator.mediaDevices?.getUserMedia) {
+        // browsers only allow the mic on https (or localhost)
+        if (!stopped) setStatus("insecure");
+        return;
+      }
       try {
         stream = await acquireStream(() => navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } }), () => stopped);
         if (!stream) return;

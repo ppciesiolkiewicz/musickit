@@ -6,7 +6,7 @@ import NoteNeck, { type NeckDot } from "@/components/theory/NoteNeck";
 import { OPEN_MIDI } from "@/lib/chordKit/shapeTools";
 import { playMelody } from "@/features/sound";
 import {
-  isCorrect, nextNoteQuestion, noteSettingsQuery, pcName, positionsOf, recordHeat,
+  answerChoices, isCorrect, nextNoteQuestion, noteSettingsQuery, pcName, positionsOf, recordHeat,
   type Heat, type NoteMode, type NoteQuestion, type NoteSettings,
 } from "@/lib/practice/noteGame";
 import { useMicPitch } from "./useMicPitch";
@@ -75,7 +75,9 @@ export default function NoteGame({ initial }: { initial: NoteSettings }) {
       setHeat((h) => recordHeat(h, string, fret, false, performance.now() - asked.current));
       setStreak(0);
       setFeedback({ ok: false, text: `That was ${pcName((OPEN_MIDI[string] + fret) % 12, s.flats)} (string ${STRING_LETTERS[string]}, fret ${fret})` });
-      playMelody([OPEN_MIDI[string] + fret], 500);
+      // the note you hit, then the one you were asked for
+      const target = positionsOf(q.pc, s).find((p) => p.string === q.string) ?? positionsOf(q.pc, s)[0];
+      playMelody(target ? [OPEN_MIDI[string] + fret, OPEN_MIDI[target.string] + target.fret] : [OPEN_MIDI[string] + fret], 550);
       return;
     }
     if (s.mode === "every") {
@@ -149,7 +151,7 @@ export default function NoteGame({ initial }: { initial: NoteSettings }) {
   };
   const dim = (string: number, fret: number) => (!s.strings.includes(string) || fret < s.from || fret > s.to ? "rgba(148,163,184,0.06)" : undefined);
   const prompt = !q ? "Press Start" : s.mode === "name" ? "Name the lit note" : s.mode === "every" ? `Find every ${pcName(q.pc, s.flats)} (frets ${s.from}–${s.to})` : `Find ${pcName(q.pc, s.flats)} on the ${STRING_LETTERS[q.string]} string`;
-  const choices = s.naturals ? [0, 2, 4, 5, 7, 9, 11] : Array.from({ length: 12 }, (_, i) => i);
+  const choices = answerChoices(s.naturals, q?.pc ?? 0);
 
   return (
     <div className="flex flex-col gap-4">
@@ -172,7 +174,7 @@ export default function NoteGame({ initial }: { initial: NoteSettings }) {
         </ChipRow>
         {mic && (
           <p className="text-xs text-slate-400">
-            {s.mode === "every" ? "The mic can't tell which string you used, so “find every one” is answered by tapping." : status === "asking" ? "Allow the microphone in your browser…" : status === "denied" ? "Microphone blocked. Allow it in the browser's site settings, or answer by tapping." : status === "error" ? "No microphone found. Answer by tapping." : status === "on" ? `Listening${heard !== null ? `: hearing ${pcName(heard, s.flats)}` : "…"} Any octave counts.` : "Press Start, then play the note."}
+            {s.mode === "every" ? "The mic can't tell which string you used, so “find every one” is answered by tapping." : status === "asking" ? "Allow the microphone in your browser…" : status === "denied" ? "Microphone blocked. Allow it in the browser's site settings, or answer by tapping." : status === "insecure" ? "The browser only allows the microphone on a secure (https) page. Answer by tapping here." : status === "error" ? "No microphone found. Answer by tapping." : status === "on" ? `Listening${heard !== null ? `: hearing ${pcName(heard, s.flats)}` : "…"} Any octave counts.` : "Press Start, then play the note."}
           </p>
         )}
       </section>

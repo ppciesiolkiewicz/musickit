@@ -14,7 +14,7 @@ const TABS = [
 type TabId = (typeof TABS)[number]["id"];
 
 /** `initialTab` and `initialKey` start it somewhere else (the cheatsheet builder opens it on its key). */
-export default function ChordKit({ initialTab = "shapes", initialKey }: { initialTab?: TabId; initialKey?: { tonicPc: number; family: number; mode: number } } = {}) {
+export default function ChordKit({ initialTab = "shapes", initialKey, syncUrl = true }: { initialTab?: TabId; initialKey?: { tonicPc: number; family: number; mode: number }; syncUrl?: boolean } = {}) {
   const [tab, setTab] = useState<TabId>(initialTab);
   const current = TABS.find((t) => t.id === tab)!;
   return (
@@ -33,7 +33,7 @@ export default function ChordKit({ initialTab = "shapes", initialKey }: { initia
         ))}
       </div>
       <p className="text-xs text-slate-500">{current.hint}</p>
-      {tab === "shapes" && <ShapesTab />}
+      {tab === "shapes" && <ShapesTab syncUrl={syncUrl} />}
       {tab === "key" && <KeyTab initialTonic={initialKey?.tonicPc} initialFamily={initialKey?.family} initialMode={initialKey?.mode} />}
       {tab === "prog" && <ProgressionsTab />}
     </div>

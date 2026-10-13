@@ -49,7 +49,7 @@ const shortOf = (semis: number) => INTERVALS.find((i) => i.semis === semis)!.sho
 export function activeAnswers(s: EarSettings): string[] {
   if (s.kind === "chord") return CHORD_QUALITIES.map((c) => c.id);
   const semis = s.custom ?? [...new Set(EAR_LEVELS.filter((l) => l.n <= s.level).flatMap((l) => l.semis))];
-  return semis.sort((a, b) => a - b).map(shortOf);
+  return [...semis].sort((a, b) => a - b).map(shortOf);
 }
 
 export interface EarQuestion {

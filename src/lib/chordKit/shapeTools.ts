@@ -198,6 +198,7 @@ export function keyEntries(ctx: KeyContext, opts: { rs?: RootString | "all"; deg
     ALL_SHAPES.forEach((shape) => {
       if (opts.rs && opts.rs !== "all" && shape.rs !== opts.rs) return;
       if (!fitsRoot(shape, rootPc)) return;
+      if (shape.fam === "power") return; // no 3rd: it says nothing about the key's chords
       if (!shape.exp.every((v) => rel.has(v))) return;
       out.push({ shape, roman: ch.roman, mode: modeNameAt(ctx, d), degree: d, rootPc });
     });

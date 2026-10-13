@@ -48,7 +48,6 @@ export const STAGE_CONTENT: Stage[] = [
           { title: "Bad Moon Rising", artist: "Creedence Clearwater Revival", chords: ["D", "A", "G"], progression: "D A G D" },
           { title: "Sweet Home Alabama", artist: "Lynyrd Skynyrd", chords: ["D", "C", "G"], progression: "D C G (round and round)" },
           { title: "Zombie", artist: "The Cranberries", chords: ["Em", "C", "G", "D"], progression: "Em C G D", note: "the record has D/F♯; plain D is fine to start" },
-          { title: "Wild Thing", artist: "The Troggs", chords: ["A", "D", "E"], progression: "A D E D" },
         ],
       },
       {
@@ -92,7 +91,7 @@ export const STAGE_CONTENT: Stage[] = [
         songs: [
           { title: "Good Riddance (Time of Your Life)", artist: "Green Day", chords: ["G", "Cadd9", "D", "Em", "C"], progression: "G Cadd9 D · Em D C G" },
           { title: "Free Fallin'", artist: "Tom Petty", chords: ["D", "Dsus4", "A"], progression: "D Dsus4 D A" },
-          { title: "Wonderwall", artist: "Oasis", chords: ["Em7", "G", "Dsus4", "A7sus4", "Cadd9"], progression: "Em7 G Dsus4 A7sus4", note: "capo 2 on the record" },
+          { title: "Hound Dog", artist: "Elvis Presley (12-bar blues in E)", chords: ["E7", "A7", "B7"], progression: "E7 ×4 · A7 ×2 E7 ×2 · B7 A7 E7 ×2" },
           { title: "12-bar blues in A", artist: "the blues form (Johnny B. Goode and many more)", chords: ["A7", "D7", "E7"], progression: "A7 ×4 · D7 ×2 A7 ×2 · E7 D7 A7 E7" },
           { title: "Smoke on the Water", artist: "Deep Purple", chords: ["G5", "B♭5", "C5", "D♭5"], progression: "riff in power chords" },
         ],
