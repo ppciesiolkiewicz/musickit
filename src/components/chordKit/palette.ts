@@ -31,6 +31,10 @@ export const labelColour = (label: string): string => {
 
 export const swatchFor = (label: string): Swatch => ({ fill: labelColour(label), line: "#0d1526", text: "#0b1220" });
 
+/** The swatch for a degree index (0 = home, white with a light rim, like every root dot); null means outside the scale. */
+export const swatchForIndex = (i: number | null): Swatch =>
+  i === 0 ? GROUP_SWATCH.root : { fill: i === null ? OUT_OF_SCALE : DEGREE_COLOURS[i], line: "#0d1526", text: "#0b1220" };
+
 export const HUES = {
   blue: { hub: "#3b82f6", leaf: "#1e3a8a", line: "#93c5fd", onHub: "#eff6ff", text: "#dbeafe" },
   amber: { hub: "#f59e0b", leaf: "#78350f", line: "#fcd34d", onHub: "#1c1917", text: "#fef3c7" },

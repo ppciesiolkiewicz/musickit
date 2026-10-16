@@ -26,7 +26,7 @@ describe("polish", () => {
   it("a word that is a tag matches the tag only", () => {
     const hits = plainEntries().filter((e) => matchesText(e, "open"));
     assert.ok(hits.every((e) => e.shape.at !== undefined), "no movable m11");
-    assert.equal(hits.length, 22);
+    assert.equal(hits.length, 23);
   });
   it("power chords carry a power tag and stay out of key views", () => {
     SHAPES.filter((s) => s.suf === "5").forEach((s) => assert.ok(s.tags.includes("power")));

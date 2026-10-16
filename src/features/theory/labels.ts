@@ -79,8 +79,40 @@ export interface ToneInput {
   ctx?: KeyContext;
 }
 
-/** Label for one tone of a chord shape in the chosen system. Without a key, intervals and degrees count from the chord root. */
-export function toneLabel(system: LabelSystem, t: ToneInput): string {
+/** What "R" means for intervals, degrees and dot colours: the key's tonic or the chord's own root. */
+export type LabelRoot = "scale" | "chord";
+
+export const LABEL_ROOTS: { id: LabelRoot; label: string }[] = [
+  { id: "scale", label: "Scale root" },
+  { id: "chord", label: "Chord root" },
+];
+
+export const DEFAULT_LABEL_ROOT: LabelRoot = "scale";
+
+export const isLabelRoot = (v: unknown): v is LabelRoot => v === "scale" || v === "chord";
+
+/** Degree index 0-6 of a role or degree such as "R", "♭3", "5", "♯4", "9"; null when it is not one. */
+export function indexOfDegree(label: string): number | null {
+  if (label === "R") return 0;
+  const m = /^[b#♭♯p]*(\d+)$/.exec(label);
+  return m && Number(m[1]) >= 1 ? (Number(m[1]) - 1) % 7 : null;
+}
+
+/**
+ * Which degree colour a chord tone gets (0 = home, 2 = the 3rd …), counted from the same root as its label:
+ * the key's tonic when there is a key and `from` is "scale", else the chord root. Null for a note outside the key.
+ */
+export function toneColourIndex(t: ToneInput, from: LabelRoot = DEFAULT_LABEL_ROOT): number | null {
+  if (t.ctx && from === "scale") {
+    const pc = (((t.rootPc + t.semi) % 12) + 12) % 12;
+    return indexOfDegree(degreeLabel(pc, t.ctx));
+  }
+  return indexOfDegree(t.role);
+}
+
+/** Label for one tone of a chord shape in the chosen system. Without a key, or counting `from` the chord, intervals and degrees count from the chord root. */
+export function toneLabel(system: LabelSystem, t0: ToneInput, from: LabelRoot = DEFAULT_LABEL_ROOT): string {
+  const t = from === "chord" && system !== "note" ? { ...t0, ctx: undefined } : t0;
   const pc = (((t.rootPc + t.semi) % 12) + 12) % 12;
   const fromKey = t.ctx ? pc - t.ctx.tonic.pc : t.semi;
   switch (system) {
@@ -112,8 +144,9 @@ export function scaleToneCaption(system: LabelSystem, ctx: KeyContext, i: number
 }
 
 /** Label for a note of a chord built on the scale (see `modeChords`): its name, interval or degree in the key, or its job in the chord. */
-export function chordNoteLabel(system: LabelSystem, ctx: KeyContext, n: { name: string; role: string; scaleDegree: number }): string {
+export function chordNoteLabel(system: LabelSystem, ctx: KeyContext, n: { name: string; role: string; scaleDegree: number }, from: LabelRoot = DEFAULT_LABEL_ROOT): string {
   if (system === "note") return n.name;
   if (system === "chord") return fmtInterval(n.role);
+  if (from === "chord") return system === "degree" ? (n.role === "R" ? "1" : fmtDegree(n.role)) : fmtInterval(n.role);
   return scaleToneLabel(system, ctx, n.scaleDegree);
 }

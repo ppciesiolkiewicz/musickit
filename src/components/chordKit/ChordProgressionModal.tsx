@@ -61,7 +61,7 @@ export default function ChordProgressionModal({ ctx, degree, onClose }: { ctx: K
               {c.degree === degree && <span className="text-sky-300">this chord</span>}
             </div>
             <span className="text-lg font-light text-sky-300">{c.roman}</span>
-            <span className="text-base font-medium text-slate-100">{c.pick ? ctx.names[c.degree] + c.pick.shape.suf : c.name}</span>
+            <span className="text-base font-medium text-slate-100">{c.name}</span>
             <div className="w-full max-w-[11rem]">
               {c.pick ? (
                 <ChordDiagram shape={c.pick.shape} rootFret={c.pick.fret} onPlay={() => playOne(i)} active={at === i} ctx={ctx} />

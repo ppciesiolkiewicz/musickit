@@ -1,7 +1,7 @@
 "use client";
 
-import { chordNoteLabel, scaleToneCaption, scaleToneLabel } from "@/features/theory/labels";
-import { useLabelSystem } from "@/features/theory/useLabelSystem";
+import { chordNoteLabel, indexOfDegree, scaleToneCaption, scaleToneLabel } from "@/features/theory/labels";
+import { useLabelRoot, useLabelSystem } from "@/features/theory/useLabelSystem";
 import { LabelsRow } from "@/components/LabelsRow";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
@@ -46,8 +46,10 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
   const info = fam.info[modeIndex];
   const pageFor = (f: number, m: number) => MODE_PAGES.find((p) => p.familyIndex === f && p.modeIndex === m)!;
 
-  const colour = (n: { scaleDegree: number }) => degreeColour(n.scaleDegree);
   const [system] = useLabelSystem();
+  const [from] = useLabelRoot();
+  // a chord's notes are coloured from the same root their labels count from
+  const colour = (n: { scaleDegree: number; role: string }) => degreeColour(from === "chord" ? indexOfDegree(n.role) ?? 0 : n.scaleDegree);
   const pattern = stepPattern(ctx.steps);
 
   const play = (d: number) => {
@@ -148,7 +150,7 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
         <div className="mb-3">
           <DegreeLegend />
           <Info label="How are the colours chosen?">
-            Colour shows the job a note does in the key, not how high it is. The 1st degree (home) is white, the 3rd is amber because it decides major or minor, the 5th is blue, and the 7th is rose. The 2nd, 4th and 6th are teal, lime and violet. A flattened or raised note keeps the colour of its degree, so the ♭3 is still amber, and its label tells you it is flat. The same note has the same colour in every chord.
+            Colour shows the job a note does in the key, not how high it is. The 1st degree (home) is white, the 3rd is amber because it decides major or minor, the 5th is blue, and the 7th is rose. The 2nd, 4th and 6th are teal, lime and violet. A flattened or raised note keeps the colour of its degree, so the ♭3 is still amber, and its label tells you it is flat. The same note has the same colour in every chord. Set Count from to Chord root to colour and label each chord from its own root instead: then every chord's root is white.
           </Info>
         </div>
 
@@ -157,11 +159,12 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
             const shown = extended ? c.notes : c.notes.slice(0, 4);
             return (
               <li key={c.degree} className="flex flex-wrap items-center gap-2 rounded-xl border border-slate-800 bg-slate-950/40 p-1">
+                <div className="flex min-w-0 flex-1 basis-72 flex-col gap-1">
                 <button
                   type="button"
                   onClick={() => play(c.degree)}
                   title="Tap to hear it"
-                  className={`flex min-w-0 flex-1 basis-72 flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border px-3 py-2.5 text-left transition hover:border-slate-600 ${playing === c.degree ? "border-sky-400 bg-slate-800/80" : "border-transparent"}`}
+                  className={`flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border px-3 py-2.5 text-left transition hover:border-slate-600 ${playing === c.degree ? "border-sky-400 bg-slate-800/80" : "border-transparent"}`}
                 >
                   <span className="w-12 shrink-0 text-lg font-light text-sky-300">{c.roman}</span>
                   <span className="min-w-[8rem]">
@@ -171,13 +174,18 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
                   <span className="flex flex-wrap gap-1.5">
                     {shown.map((n) => (
                       <span key={n.role + n.name} className="flex flex-col items-center">
-                        <span className="flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold" style={{ background: colour(n), color: DOT_INK }} title={n.name}>{chordNoteLabel(system, ctx, n)}</span>
+                        <span className="flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold" style={{ background: colour(n), color: DOT_INK }} title={n.name}>{chordNoteLabel(system, ctx, n, from)}</span>
                         <span className="text-[10px] text-slate-500">{system === "note" ? roleWithDegree(n.role) : n.name}</span>
                       </span>
                     ))}
                   </span>
                 </button>
-                <ChordShapeCarousel ctx={ctx} degree={c.degree} onShowAll={() => setModalDegree(c.degree)} onShowProgression={() => setProgDegree(c.degree)} />
+                <div className="flex items-center gap-3 px-3 pb-1 text-xs">
+                  <button type="button" onClick={() => setProgDegree(c.degree)} className="text-sky-300 hover:underline">Progression →</button>
+                  <button type="button" onClick={() => setModalDegree(c.degree)} className="text-sky-300 hover:underline">All shapes →</button>
+                </div>
+                </div>
+                <ChordShapeCarousel ctx={ctx} degree={c.degree} />
               </li>
             );
           })}

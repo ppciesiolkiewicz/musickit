@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { fmtInterval, intervalName, noteLabel, scaleToneLabel, spellAbove, toneLabel } from "./labels";
+import { chordNoteLabel, fmtInterval, intervalName, noteLabel, scaleToneLabel, spellAbove, toneColourIndex, toneLabel } from "./labels";
 import { makeKeyContext } from "./theory";
 
 test("intervals", () => {
@@ -35,6 +35,34 @@ test("chord tones in every system", () => {
   assert.deepEqual([dm(0, "R"), dm(3, "♭3"), dm(7, "5")].map((t) => toneLabel("degree", t)), ["2", "4", "6"]);
   assert.deepEqual([dm(0, "R"), dm(3, "♭3"), dm(7, "5")].map((t) => toneLabel("chord", t)), ["R", "b3", "p5"]);
 });
+test("counting from the chord root instead of the key", () => {
+  const ctx = makeKeyContext(0, 0, 0);
+  const dm = (semi: number, role: string) => ({ rootPc: 2, semi, role, ctx });
+  assert.deepEqual([dm(0, "R"), dm(3, "♭3"), dm(7, "5")].map((t) => toneLabel("interval", t, "chord")), ["R", "b3", "p5"]);
+  assert.deepEqual([dm(0, "R"), dm(3, "♭3"), dm(7, "5")].map((t) => toneLabel("degree", t, "chord")), ["1", "b3", "5"]);
+  assert.deepEqual([dm(0, "R"), dm(3, "♭3"), dm(7, "5")].map((t) => toneLabel("note", t, "chord")), ["D", "F", "A"]);
+});
+
+test("colour follows the same root as the label", () => {
+  // E Phrygian, Cmaj7: C E G B. Counted from the key, E is home (0) and C the 6th (5); from the chord, C is home.
+  const ctx = makeKeyContext(4, 0, 2);
+  const c = (semi: number, role: string) => ({ rootPc: 0, semi, role, ctx });
+  assert.deepEqual([c(0, "R"), c(4, "3"), c(7, "5"), c(11, "7")].map((t) => toneColourIndex(t)), [5, 0, 2, 4]);
+  assert.deepEqual([c(0, "R"), c(4, "3"), c(7, "5"), c(11, "7")].map((t) => toneColourIndex(t, "chord")), [0, 2, 4, 6]);
+  // without a key the chord root is home
+  assert.equal(toneColourIndex({ rootPc: 0, semi: 0, role: "R" }), 0);
+  // a note outside the key keeps the colour of the degree it alters: C♯ in C major is a ♭2, coloured as the 2nd
+  assert.equal(toneColourIndex({ rootPc: 1, semi: 0, role: "R", ctx: makeKeyContext(0, 0, 0) }), 1);
+});
+
+test("chord row notes count from the chord root on request", () => {
+  const ctx = makeKeyContext(0, 0, 0);
+  const f = { name: "F", role: "♭3", scaleDegree: 3 };
+  assert.equal(chordNoteLabel("interval", ctx, f), "p4");
+  assert.equal(chordNoteLabel("interval", ctx, f, "chord"), "b3");
+  assert.equal(chordNoteLabel("degree", ctx, f, "chord"), "b3");
+});
+
 test("spelling above a root", () => {
   assert.equal(spellAbove("F♯", 3, 10), "A♯");
   assert.equal(spellAbove("E♭", 5, 10), "B♭");

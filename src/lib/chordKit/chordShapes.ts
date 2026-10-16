@@ -34,7 +34,7 @@ const byTier = (a: ChordShapeChoice, b: ChordShapeChoice): number => {
  * Shapes that play the diatonic chord on `degree` of the mode, best first:
  * the whole chord (with its 7th in mode fit), then smaller shapes made only of its own tones (the triad or a shell), then the rest;
  * inside each group open chords, then the first barre, then easier fingerings, then lower on the neck.
- * Shapes without the chord's 3rd are dropped (they would not say major or minor).
+ * Shapes without the chord's 3rd are dropped (they would not say major or minor), and so are shapes without an altered 5th (a ♭5 says diminished).
  * `fit: "mode"` (default) allows any note of the mode, and the 7th counts as a chord tone.
  * `fit: "triad"` allows only root, 3rd and 5th, so a plain triad never shows as a 7th or a shell.
  * `difficulties` limits the result; if that leaves nothing, every difficulty is used.
@@ -52,6 +52,8 @@ export function shapesForChord(ctx: KeyContext, degree: number, difficulties: Di
     if (!fitsRoot(shape, rootPc)) return;
     const tones = new Set(shapeSemitones(shape).filter((v): v is number => v !== null));
     if (!tones.has(third)) return;
+    // a ♭5 or ♯5 is what makes a chord diminished or augmented: without it the shape sounds like another chord
+    if (fifth !== 7 && !tones.has(fifth)) return;
     if (![...tones].every((t) => (triad ? stack : rel).has(t))) return;
     const exact = [...tones].every((t) => stack.has(t));
     all.push({ shape, rootPc, fret: rootFretFor(shape, rootPc), exact, full: exact && (triad || tones.has(seventh)) });

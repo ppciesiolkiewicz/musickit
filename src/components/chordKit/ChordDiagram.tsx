@@ -1,12 +1,12 @@
 "use client";
 
 import type { Shape } from "@/lib/chordKit/shapes";
-import { fmtInterval, toneLabel } from "@/features/theory/labels";
+import { toneColourIndex, toneLabel } from "@/features/theory/labels";
 import type { KeyContext } from "@/features/theory/theory";
-import { useLabelSystem } from "@/features/theory/useLabelSystem";
+import { useLabelRoot, useLabelSystem } from "@/features/theory/useLabelSystem";
 import { diagramLowFret, intervalLabel, OPEN_NOTE, OPEN_PITCH, ROOT_INDEX } from "@/lib/chordKit/shapeTools";
 import { boxRowFactor } from "./Fretboard";
-import { GROUP_SWATCH, swatchFor } from "./palette";
+import { swatchForIndex } from "./palette";
 
 interface Props {
   shape: Shape;
@@ -24,6 +24,7 @@ interface Props {
 /** A chord box: six strings, frets, and one labelled dot per sounding string. */
 export default function ChordDiagram({ shape, rootFret, onPlay, active, ctx, rootName }: Props) {
   const [system] = useLabelSystem();
+  const [from] = useLabelRoot();
   const ss = 18, fsz = 24, left = 36, top = 26;
   const ri = ROOT_INDEX[shape.rs];
   const rootPc = (OPEN_NOTE[ri] + rootFret) % 12;
@@ -64,8 +65,9 @@ export default function ChordDiagram({ shape, rootFret, onPlay, active, ctx, roo
           );
         const semi = (((OPEN_PITCH[i] + (shape.f[i] as number) - OPEN_PITCH[ri]) % 12) + 12) % 12;
         const role = intervalLabel(shape, semi);
-        const label = toneLabel(system, { rootPc, rootName, semi, role, ctx });
-        const sw = semi === 0 ? GROUP_SWATCH.root : swatchFor(fmtInterval(role));
+        const tone = { rootPc, rootName, semi, role, ctx };
+        const label = toneLabel(system, tone, from);
+        const sw = swatchForIndex(toneColourIndex(tone, from));
         const y = a === 0 ? top - 12 : top + edge(a - lo) + rowH(a - lo) / 2;
         // open strings: a small ring above the nut, like the usual "o", so they never crowd each other
         if (a === 0)

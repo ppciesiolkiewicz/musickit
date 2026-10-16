@@ -29,6 +29,7 @@ export const OPEN_SHAPES: Shape[] = [
   {rs:6,suf:'m7',  fam:'minor',   ext:'7',    at:0,stage:2,f:[0,2,2,0,3,0],      tags:['open','pop'],exp:[0,3,7,10]},
   {rs:5,suf:'m7',  fam:'minor',   ext:'7',    at:0,stage:2,f:[N,0,2,0,1,0],      tags:['open','pop'],exp:[0,3,7,10]},
   {rs:5,suf:'add9',fam:'major',   ext:'9',    at:3,stage:2,f:[N,0,-1,-3,0,0],    tags:['open','pop'],exp:[0,2,4,7],n:{2:'9'}},
+  {rs:5,suf:'add9',v:'open E',fam:'major',ext:'9',at:3,stage:2,f:[N,0,-1,-3,0,-3], tags:['open','pop'],exp:[0,2,4,7],n:{2:'9'},note:'Open C with the D on the B string instead of C: it rings bright and open.'},
   {rs:5,suf:'sus2',fam:'sus',     ext:'triad',at:0,stage:2,f:[N,0,2,2,0,0],      tags:['open','pop','sus'],exp:[0,2,7],n:{2:'2'}},
   {rs:4,suf:'sus2',fam:'sus',     ext:'triad',at:0,stage:2,f:[N,N,0,2,3,0],      tags:['open','pop','sus'],exp:[0,2,7],n:{2:'2'}},
   {rs:4,suf:'sus4',fam:'sus',     ext:'triad',at:0,stage:2,f:[N,N,0,2,3,3],      tags:['open','pop','sus'],exp:[0,5,7],n:{5:'4'}},
