@@ -17,7 +17,7 @@ export default function PageShell({ title, intro, active, children }: { title: s
         <header className="pt-1">
           {/* the breadcrumb belongs to the page, so it sits over the title rather than under the logo */}
           {section && (
-            <nav aria-label="Breadcrumb" className="mb-1.5 flex items-center gap-1.5 text-xs text-slate-500">
+            <nav aria-label="Breadcrumb" className="mb-3 flex w-fit items-center gap-1.5 border-b border-slate-700/70 pb-2 text-xs text-slate-500">
               <Link href="/theory" className="hover:text-slate-300">Theory</Link>
               <span aria-hidden>›</span>
               <span className="text-slate-400">{section.label}</span>
