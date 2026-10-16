@@ -5,11 +5,7 @@ import { sectionFor } from "@/features/theory/sections";
 export const SITE_LINKS = [
   { href: "/", label: "Home" },
   { href: "/tuner", label: "Tuner" },
-];
-
-/** The tools, on the right of the nav; the looper last and outlined. */
-export const SITE_TOOLS = [
-  { href: "/cheatsheet", label: "Cheatsheet" },
+  /* the looper is its own app, so it keeps an outline to stand apart */
   { href: "/looper", label: "Looper", outlined: true },
 ];
 
@@ -20,7 +16,7 @@ function NavLink({ href, label, current, small, outlined }: { href: string; labe
     <Link
       href={href}
       aria-current={current ? "page" : undefined}
-      className={`rounded-lg transition ${small ? "px-2.5 py-1 text-xs" : "px-3 py-1.5 text-sm"} ${outlined ? "border border-sky-500/60" : ""} ${current ? "bg-sky-500/20 text-sky-100" : outlined ? "text-sky-200 hover:bg-sky-500/10" : "text-slate-400 hover:text-slate-200"}`}
+      className={`rounded-lg transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${small ? "px-2.5 py-1 text-xs" : "px-3 py-1.5 text-sm"} ${outlined ? "ml-1 border border-sky-500/60" : ""} ${current ? "bg-sky-500/20 text-sky-100" : outlined ? "text-sky-200 hover:bg-sky-500/10" : "text-slate-400 hover:text-slate-200"}`}
     >
       {label}
     </Link>
@@ -40,11 +36,7 @@ export default function SiteNav({ active }: { active: string }) {
         {rest.map((l) => (
           <NavLink key={l.href} {...l} current={isActive(active, l.href)} />
         ))}
-        <span className="ml-auto" />
-        {SITE_TOOLS.map((l) => (
-          <NavLink key={l.href} {...l} current={isActive(active, l.href)} />
-        ))}
-        <ThemeSwitcher className="ml-1" />
+        <ThemeSwitcher className="ml-auto" />
       </nav>
       {section && (
         <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 px-3 text-xs text-slate-500">

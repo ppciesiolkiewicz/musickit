@@ -2,34 +2,20 @@ import SiteNav from "@/components/SiteNav";
 import type { ReactNode } from "react";
 import PreloadPiano from "@/features/sound/keyboard/PreloadPiano";
 
-/**
- * Dark page frame with the Music Kit nav, shared by the guitar pages. `bleed` lets the content run edge to edge (the cheatsheet board);
- * the nav and title keep their padding either way.
- */
-export default function PageShell({ title, intro, active, bleed = false, children }: { title: string; intro?: string; active: string; bleed?: boolean; children: ReactNode }) {
-  const padded = "mx-auto flex w-full max-w-[96rem] flex-col gap-3 px-3 sm:px-5";
-  const top = (
-    <>
-      <PreloadPiano />
-      <SiteNav active={active} />
-      <header>
-        <h1 className="text-2xl font-light tracking-wide text-slate-100">{title}</h1>
-        {intro && <p className="mt-1 max-w-3xl text-sm text-slate-400">{intro}</p>}
-      </header>
-    </>
-  );
-  if (bleed)
-    return (
-      <div className="app-bg flex min-h-screen flex-col gap-3 py-3 text-slate-200 sm:py-4">
-        <div className={padded}>{top}</div>
-        <main className="w-full">{children}</main>
-      </div>
-    );
+/** Dark page frame with the Music Kit nav and the page title, shared by every page but the looper. */
+export default function PageShell({ title, intro, active, children }: { title: string; intro?: string; active: string; children: ReactNode }) {
   return (
     <div className="app-bg min-h-screen text-slate-200">
-      <div className={`${padded} py-3 sm:py-4`}>
-        {top}
-        <main>{children}</main>
+      <div className="mx-auto flex w-full max-w-[96rem] flex-col gap-4 px-3 py-3 sm:px-5 sm:py-4">
+        <PreloadPiano />
+        <div className="border-b border-slate-800/70 pb-2">
+          <SiteNav active={active} />
+        </div>
+        <header className="pt-1">
+          <h1 className="text-2xl font-light tracking-wide text-slate-100 sm:text-3xl">{title}</h1>
+          {intro && <p className="mt-1.5 max-w-3xl text-sm leading-relaxed text-slate-400">{intro}</p>}
+        </header>
+        <main className="pb-6">{children}</main>
       </div>
     </div>
   );

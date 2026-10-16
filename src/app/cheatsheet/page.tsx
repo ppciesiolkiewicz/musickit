@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function CheatsheetPage() {
   return (
-    <PageShell active="/cheatsheet" bleed title="Cheatsheet builder" intro="Choose a key, or none, then switch on the panels you want and arrange them. Every theory page is here: each panel has a compact view and a full one.">
+    <PageShell active="/cheatsheet" title="Cheatsheet builder" intro="Choose a key, or none, then switch on the panels you want and arrange them. Every theory page is here: each panel has a compact view and a full one.">
       <CreatorApp />
     </PageShell>
   );

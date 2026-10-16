@@ -68,9 +68,8 @@ function Creator() {
 
   return (
     <div className="flex flex-col gap-3">
-      {/* the page runs edge to edge for the board; the controls keep the page's side padding */}
-      <div className="px-3 sm:px-5"><KeyBar /></div>
-      <div className="flex flex-wrap items-center gap-1.5 px-3 sm:px-5" role="group" aria-label="Plugins">
+      <KeyBar />
+      <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label="Plugins">
         <Icon name="puzzle" className="text-slate-500" />
         {PLUGINS.map((p) => {
           const on = open.includes(p.id);
@@ -85,7 +84,7 @@ function Creator() {
       {widgets.length ? (
         <WidgetBoard widgets={widgets} storageKey="musickit.creator.board" resetSignal={reset} />
       ) : (
-        <p className="mx-3 rounded-xl border border-dashed border-slate-700 p-6 text-center text-sm text-slate-500 sm:mx-5">No plugins open. Switch some on above.</p>
+        <p className="rounded-xl border border-dashed border-slate-700 p-6 text-center text-sm text-slate-500">No plugins open. Switch some on above.</p>
       )}
     </div>
   );

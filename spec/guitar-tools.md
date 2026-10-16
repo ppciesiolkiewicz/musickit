@@ -11,7 +11,7 @@ One app-wide **Labels** setting (`features/theory/labels.ts`, stored in localSto
 
 ## Routes
 
-Top nav (`components/SiteNav.tsx`): Home, Theory articles and Tuner on the left; Cheatsheet and the outlined Looper on the right, then the theme switcher. Theory pages add a second row with every `/theory/*` article. Every page but the looper and the cheatsheet keeps the padded page frame (`PageShell`); the cheatsheet uses `bleed` so its board runs edge to edge.
+Top nav (`components/SiteNav.tsx`): Home, Theory articles, Tuner and the outlined Looper together on the left, the theme switcher on the right, a thin divider under it. The cheatsheet is not in the nav (the home page links it). Theory pages add a breadcrumb row. Every page but the looper uses the padded page frame (`PageShell`); the looper keeps its own design (no site nav) but the same side gutters.
 
 | Route | Purpose |
 |-------|---------|

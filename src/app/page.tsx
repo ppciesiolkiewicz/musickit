@@ -43,9 +43,11 @@ const STEPS: { n: number; title: string; blurb: string; tools: Tool[] }[] = [
 
 export default function Home() {
   return (
-    <div className="app-bg min-h-screen px-3 py-6 text-slate-200 sm:px-5">
+    <div className="app-bg min-h-screen px-3 py-3 text-slate-200 sm:px-5 sm:py-4">
       <main className="mx-auto flex w-full max-w-4xl flex-col gap-6">
-        <SiteNav active="/" />
+        <div className="border-b border-slate-800/70 pb-2">
+          <SiteNav active="/" />
+        </div>
         <header className="flex flex-col gap-3">
           <h1 className="max-w-3xl text-balance text-3xl font-light leading-tight tracking-tight text-slate-50 sm:text-4xl">{STORY.title}</h1>
           <p className="max-w-2xl text-base text-slate-300">{STORY.lead}</p>
