@@ -135,7 +135,7 @@ New loops may be 2^n times longer or shorter than any other loop. Not built yet.
 
 ## Page chrome
 
-The looper page has no site navigation. The top row holds the metronome on the left and, on the right, the settings cog and an x that returns to the home page. The page has the same side gutters as the other pages. The home page lists every tool as a card with a piano underneath.
+The looper page has no site navigation. The top row holds the metronome on the left and, on the right, the settings cog and an x that returns to the home page. The page has the same side gutters as the other pages. On a phone the top row wraps and the tempo slider hides (the number box stays), so the page never scrolls sideways. The home page lists every tool as a card with a piano underneath.
 
 ## Stage zoom
 

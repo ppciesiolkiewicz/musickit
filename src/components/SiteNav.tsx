@@ -30,7 +30,7 @@ export default function SiteNav({ active }: { active: string }) {
   return (
     <div className="flex flex-col gap-1">
       <nav aria-label="Music Kit" className="flex flex-wrap items-center gap-1">
-        <span className="mr-3 text-sm font-light tracking-widest text-slate-400">MUSIC KIT</span>
+        <span className="mr-3 hidden text-sm font-light tracking-widest text-slate-400 sm:inline">MUSIC KIT</span>
         <NavLink {...home} current={isActive(active, home.href)} />
         <TheoryMenu active={active} />
         {rest.map((l) => (

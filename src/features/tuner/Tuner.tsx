@@ -8,7 +8,7 @@ import { createDetector } from "./detector";
 import { readHz, resolveChoice, sanitiseChoice } from "./choice";
 import { useTunerChoice } from "./useTunerChoice";
 import { playReference } from "./reference";
-import TunerSettings from "./TunerSettings";
+import TunerSettings, { label } from "./TunerSettings";
 import Needle from "./Needle";
 
 /** Which microphone or interface, and which of its inputs: "mix" for all of them, or one channel (0 = Input 1). */
@@ -19,7 +19,7 @@ const STORE = "musickit.tuner";
 const INPUT_STORE = "musickit.tuner.input";
 const DEFAULT_INPUT: InputChoice = { deviceId: "", channel: "mix" };
 const ALIAS = new Set(["default", "communications"]);
-const field = "h-8 rounded-md border border-slate-700 bg-slate-900 px-2 text-xs text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
+const field = "h-9 rounded-md border border-slate-700 bg-slate-900 px-2 text-sm text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 
 const fromQuery = () => {
   const q = new URLSearchParams(window.location.search);
@@ -143,69 +143,93 @@ export default function Tuner() {
   const hint = !read ? (running ? "Play a note" : "") : read.string !== null && Math.abs(cents) >= 5 ? (cents > 0 ? "Tune down" : "Tune up") : Math.abs(cents) < 5 ? "In tune" : "";
   const knownDevice = !input.deviceId || devices.some((d) => d.id === input.deviceId);
 
+  const signed = (c: number) => `${Math.round(c) > 0 ? "+" : ""}${Math.round(c) || 0}`;
+
   return (
-    <div className="flex flex-col gap-3">
-      <TunerSettings choice={choice} onChange={setChoice} />
-
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-slate-400">
-        <label className="flex min-w-0 items-center gap-1.5">
-          Input
-          <select className={`${field} min-w-0 max-w-64`} value={knownDevice ? input.deviceId : ""} onChange={(e) => switchInput({ deviceId: e.target.value, channel: "mix" })}>
-            <option value="">System default</option>
-            {devices.map((d) => <option key={d.id} value={d.id}>{d.label}</option>)}
-          </select>
-        </label>
-        {/* an interface's inputs: pick one (a DI guitar on Input 1) or both; offered before Start, when the channel count is not known yet */}
-        {(input.deviceId !== "" || channels > 1 || input.channel !== "mix") && (
-          <label className="flex items-center gap-1.5">
-            Channel
-            <select className={field} value={String(input.channel)} onChange={(e) => switchInput({ ...input, channel: e.target.value === "mix" ? "mix" : Number(e.target.value) })}>
-              <option value="mix">{channels > 2 ? "All inputs" : "Input 1 + 2"}</option>
-              {Array.from({ length: Math.max(2, channels) }, (_, i) => <option key={i} value={i}>Input {i + 1}</option>)}
-            </select>
-          </label>
-        )}
-      </div>
-
-      <div className="flex flex-col items-center gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
-        <div className="flex items-baseline gap-2" aria-live="polite">
-          <span className="text-7xl font-light tabular-nums" style={{ color: colour }}>{read?.name ?? "–"}</span>
-          <span className="w-10 text-xl text-slate-400">{read?.octave ?? ""}</span>
+    <div className="grid items-start gap-4 lg:grid-cols-[minmax(18rem,22rem)_1fr]">
+      {/* the meter first on a phone, beside the setup on a wide screen */}
+      <section aria-label="Meter" className="flex flex-col items-center gap-5 rounded-2xl border border-slate-800 bg-slate-900/40 px-4 py-6 sm:px-8 sm:py-8 lg:order-2">
+        <div className="flex h-28 flex-col items-center justify-center" aria-live="polite">
+          {read ? (
+            <div className="flex items-baseline gap-1">
+              <span className="text-8xl font-light leading-none tabular-nums transition-colors" style={{ color: colour }}>{read.name}</span>
+              <span className="text-2xl text-slate-400">{read.octave}</span>
+            </div>
+          ) : (
+            <>
+              <span className="text-2xl font-light text-slate-300">{running ? "Play a string" : "Ready to tune"}</span>
+              <span className="mt-1 text-sm text-slate-500">{running ? "Let it ring" : `${instrument.name}${tuning ? ` · ${tuning.name}` : ""} · A4 ${choice.a4} Hz`}</span>
+            </>
+          )}
         </div>
-        <svg viewBox="-110 -6 220 46" className="w-full max-w-md" role="img" aria-label={read ? `${Math.round(cents)} cents ${cents > 0 ? "sharp" : "flat"}` : "No note detected"}>
-          {Array.from({ length: 11 }, (_, i) => {
-            const c = (i - 5) * 10;
-            return <line key={c} x1={c * 2} x2={c * 2} y1={c === 0 ? 0 : 6} y2={c === 0 ? 26 : 20} stroke={c === 0 ? "var(--color-emerald-400)" : "var(--color-slate-600)"} strokeWidth={c === 0 ? 2 : 1} />;
-          })}
-          <text x={-100} y={36} fontSize={9} fill="var(--color-slate-500)" textAnchor="middle">flat</text>
-          <text x={100} y={36} fontSize={9} fill="var(--color-slate-500)" textAnchor="middle">sharp</text>
-          <Needle cents={cents} visible={read !== null} colour={colour} />
-        </svg>
-        <p className="h-5 text-sm tabular-nums text-slate-400">
-          {read && hz !== null
-            ? `${hz.toFixed(1)} Hz${read.string !== null ? ` · hearing ${read.heard.name}${read.heard.octave}` : ""} · ${Math.round(cents) > 0 ? "+" : ""}${Math.round(cents) || 0} cents${hint ? ` · ${hint}` : ""}`
-            : hint}
+
+        <div className="w-full max-w-xl">
+          <svg viewBox="-110 -10 220 40" className="w-full" role="img" aria-label={read ? `${Math.round(cents)} cents ${cents > 0 ? "sharp" : "flat"}` : "No note detected"}>
+            {/* the in-tune zone, five cents either side */}
+            <rect x={-10} y={4} width={20} height={24} rx={3} fill="var(--color-emerald-400)" opacity={inTune ? 0.25 : 0.1} />
+            {Array.from({ length: 21 }, (_, i) => {
+              const c = (i - 10) * 5;
+              const major = c % 25 === 0;
+              return <line key={c} x1={c * 2} x2={c * 2} y1={c === 0 ? 4 : major ? 8 : 12} y2={c === 0 ? 28 : major ? 24 : 20} stroke={c === 0 ? "var(--color-emerald-400)" : "var(--color-slate-600)"} strokeWidth={c === 0 ? 1.5 : major ? 1 : 0.6} strokeLinecap="round" />;
+            })}
+            <Needle cents={cents} visible={read !== null} colour={colour} />
+          </svg>
+          <div className="mt-1 grid grid-cols-5 text-[11px] tabular-nums text-slate-500">
+            <span>−50 flat</span><span className="text-center">−25</span><span className="text-center text-slate-400">0</span><span className="text-center">+25</span><span className="text-right">sharp +50</span>
+          </div>
+        </div>
+
+        <p className="h-5 text-center text-sm tabular-nums text-slate-400">
+          {read && hz !== null ? (
+            <>
+              <span className="font-medium" style={{ color: colour }}>{signed(cents)} cents{hint ? ` · ${hint}` : ""}</span>
+              <span className="text-slate-500"> · {hz.toFixed(1)} Hz{read.string !== null ? ` · hearing ${read.heard.name}${read.heard.octave}` : ""}</span>
+            </>
+          ) : null}
         </p>
-        <button type="button" onClick={running ? () => stop.current?.() : () => start(input)} className={`rounded-full border px-5 py-2 text-sm ${running ? "border-rose-500 bg-rose-500/15 text-rose-100" : "border-emerald-500 bg-emerald-500/15 text-emerald-100 hover:bg-emerald-500/25"}`}>
-          {running ? "■ Stop" : "● Start tuner"}
-        </button>
-        {error && <p role="alert" className="text-xs text-rose-300">{error}</p>}
-      </div>
 
-      {strings.length > 0 && (
-        <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${strings.length}, minmax(0, 1fr))` }}>
-          {strings.map((s, i) => {
-            const near = read?.string === i;
-            return (
-              <button key={i} type="button" onClick={() => playReference(midiToHz(s.midi, choice.a4))} title={`Hear ${s.name}${s.octave} at A4 = ${choice.a4} Hz`}
-                className={`flex flex-col items-center gap-0.5 rounded-xl border p-2 transition ${near ? (inTune ? "border-emerald-400 bg-emerald-500/15" : "border-sky-400 bg-sky-500/10") : "border-slate-800 bg-slate-900/40 hover:border-slate-600"}`}>
-                <span className="text-lg text-slate-100">{s.name}<span className="text-xs text-slate-500">{s.octave}</span></span>
-                <span className="h-4 text-xs tabular-nums text-slate-400">{near && read?.string === i ? `${Math.round(cents) > 0 ? "+" : ""}${Math.round(cents) || 0}` : "▶"}</span>
-              </button>
-            );
-          })}
+        {strings.length > 0 && (
+          <div className="flex flex-wrap justify-center gap-1.5 sm:gap-2" role="group" aria-label="Strings: tap one to hear it">
+            {strings.map((s, i) => {
+              const near = read?.string === i;
+              return (
+                <button key={i} type="button" onClick={() => playReference(midiToHz(s.midi, choice.a4))} title={`Hear ${s.name}${s.octave} at A4 = ${choice.a4} Hz`} aria-label={`Hear ${s.name}${s.octave}`}
+                  className={`flex h-11 w-11 flex-col items-center justify-center rounded-full sm:h-14 sm:w-14 border transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${near ? (inTune ? "border-emerald-400 bg-emerald-500/15" : "border-sky-400 bg-sky-500/10") : "border-slate-700 bg-slate-900/60 hover:border-slate-500"}`}>
+                  <span className="text-lg leading-none text-slate-100">{s.name}<span className="text-[10px] text-slate-500">{s.octave}</span></span>
+                  {near && <span className="mt-0.5 text-[10px] leading-none tabular-nums text-slate-400">{signed(cents)}</span>}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        <button type="button" onClick={running ? () => stop.current?.() : () => start(input)}
+          className={`inline-flex min-w-48 items-center justify-center gap-2 rounded-full border px-6 py-2.5 text-sm font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${running ? "border-rose-500/70 bg-rose-500/15 text-rose-100 hover:bg-rose-500/25" : "border-emerald-500/70 bg-emerald-500/15 text-emerald-100 hover:bg-emerald-500/25"}`}>
+          <span aria-hidden className={`h-2 w-2 ${running ? "rounded-sm bg-rose-300" : "rounded-full bg-emerald-300"}`} />
+          {running ? "Stop" : "Start tuner"}
+        </button>
+        {error && <p role="alert" className="text-center text-xs text-rose-300">{error}</p>}
+      </section>
+
+      <aside aria-label="Setup" className="flex flex-col gap-4 rounded-2xl border border-slate-800 bg-slate-900/40 p-4 lg:order-1">
+        <TunerSettings choice={choice} onChange={setChoice} />
+        <div className="flex flex-col gap-1.5">
+          <span className={label}>Input</span>
+          <div className="flex flex-wrap gap-2">
+            <select aria-label="Input device" className={`${field} min-w-0 flex-1`} value={knownDevice ? input.deviceId : ""} onChange={(e) => switchInput({ deviceId: e.target.value, channel: "mix" })}>
+              <option value="">System default</option>
+              {devices.map((d) => <option key={d.id} value={d.id}>{d.label}</option>)}
+            </select>
+            {/* an interface's inputs: pick one (a DI guitar on Input 1) or both; offered before Start, when the channel count is not known yet */}
+            {(input.deviceId !== "" || channels > 1 || input.channel !== "mix") && (
+              <select aria-label="Channel" className={field} value={String(input.channel)} onChange={(e) => switchInput({ ...input, channel: e.target.value === "mix" ? "mix" : Number(e.target.value) })}>
+                <option value="mix">{channels > 2 ? "All inputs" : "Input 1 + 2"}</option>
+                {Array.from({ length: Math.max(2, channels) }, (_, i) => <option key={i} value={i}>Input {i + 1}</option>)}
+              </select>
+            )}
+          </div>
         </div>
-      )}
+      </aside>
     </div>
   );
 }

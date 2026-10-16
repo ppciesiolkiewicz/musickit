@@ -328,9 +328,9 @@ export default function LooperApp() {
       {ready && <AddFab engine={engine} snap={snap} wires={widgetMode} names={Object.fromEntries(EFFECT_KINDS.map((k) => [k, EFFECT_DEFS[k].name]))} onInput={() => setAddingInput(true)} />}
       <Toasts />
       {addingInput && <AddInputModal engine={engine} snap={snap} onClose={() => setAddingInput(false)} />}
-      <div className="pointer-events-none sticky top-0 z-[1100] flex items-start justify-between gap-2 px-1 py-1">
+      <div className="pointer-events-none sticky top-0 z-[1100] flex flex-wrap items-start justify-between gap-2 px-1 py-1">
         <div className="pointer-events-auto"><MetronomeBar engine={engine} snap={snap} ready={ready} /></div>
-        <div className="pointer-events-auto flex gap-1">
+        <div className="pointer-events-auto flex flex-wrap justify-end gap-1">
           <button type="button" className={ibtn} onClick={() => setNewOpen(true)} title="New project" aria-label="New project"><Icon name="file-plus" /></button>
           <button type="button" className={ibtn} disabled={!canUndo} onClick={() => engine.history.undo()} title="Undo (Ctrl+Z)" aria-label="Undo"><Icon name="undo-2" /></button>
           <button type="button" className={ibtn} disabled={!canRedo} onClick={() => engine.history.redo()} title="Redo (Ctrl+Shift+Z)" aria-label="Redo"><Icon name="redo-2" /></button>

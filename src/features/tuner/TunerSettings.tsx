@@ -6,6 +6,8 @@ import type { InstrumentId } from "@/features/theory/tunings";
 import InstrumentIcon from "./InstrumentIcon";
 
 const fieldBase = "rounded-md border border-slate-700 bg-slate-900 text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
+/** The small caps label over each group of the full settings. */
+export const label = "text-[11px] font-medium uppercase tracking-wider text-slate-500";
 const chevron = "grid place-items-center text-slate-400 hover:bg-slate-800 hover:text-slate-100 focus-visible:outline-2 focus-visible:outline-sky-400 disabled:opacity-30";
 
 function Chevron({ up }: { up?: boolean }) {
@@ -74,7 +76,7 @@ export default function TunerSettings({ choice, onChange, compact, trailing, asi
   const { instrument, tuning } = resolveChoice(choice);
   const pick = (id: InstrumentId) => onChange(withInstrument(choice, id));
   const tuningSelect = instrument.tunings.length > 1 && (
-    <select aria-label="Tuning" className={`${fieldBase} ${compact ? "h-8 min-w-0 flex-1 px-1.5 text-xs" : "h-8 px-2 text-xs"}`} value={tuning?.id}
+    <select aria-label="Tuning" className={`${fieldBase} ${compact ? "h-8 min-w-0 flex-1 px-1.5 text-xs" : "h-9 w-full px-2 text-sm"}`} value={tuning?.id}
       onChange={(e) => onChange({ ...choice, tuning: e.target.value })}>
       {instrument.tunings.map((t) => (
         <option key={t.id} value={t.id}>{t.name} · {t.strings.map((x) => x.name).join(" ")}</option>
@@ -102,21 +104,30 @@ export default function TunerSettings({ choice, onChange, compact, trailing, asi
   }
 
   return (
-    <div className="flex flex-col gap-3">
-      <div role="radiogroup" aria-label="Instrument" className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1">
-        {TUNER_INSTRUMENTS.map((inst) => {
-          const on = inst.id === instrument.id;
-          return (
-            <button key={inst.id} type="button" role="radio" aria-checked={on} onClick={() => pick(inst.id)}
-              className={`flex min-w-16 shrink-0 flex-col items-center gap-1 rounded-xl border px-2 py-2 text-[11px] transition focus-visible:outline-2 focus-visible:outline-sky-400 ${on ? "border-sky-500/60 bg-sky-500/15 text-sky-100" : "border-slate-800 bg-slate-900/40 text-slate-400 hover:border-slate-600 hover:text-slate-200"}`}>
-              <InstrumentIcon id={inst.id} size={28} />
-              {inst.name}
-            </button>
-          );
-        })}
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-1.5">
+        <span className={label}>Instrument</span>
+        <div role="radiogroup" aria-label="Instrument" className="grid grid-cols-[repeat(auto-fill,minmax(3.6rem,1fr))] gap-1.5">
+          {TUNER_INSTRUMENTS.map((inst) => {
+            const on = inst.id === instrument.id;
+            return (
+              <button key={inst.id} type="button" role="radio" aria-checked={on} onClick={() => pick(inst.id)}
+                className={`flex flex-col items-center gap-1 rounded-xl border px-1 py-2 text-[11px] transition focus-visible:outline-2 focus-visible:outline-sky-400 ${on ? "border-sky-500/60 bg-sky-500/15 text-sky-100" : "border-slate-800 bg-slate-900/40 text-slate-400 hover:border-slate-600 hover:text-slate-200"}`}>
+                <InstrumentIcon id={inst.id} size={26} />
+                {inst.name}
+              </button>
+            );
+          })}
+        </div>
       </div>
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-slate-400">
-        {tuningSelect && <label className="flex items-center gap-1.5">Tuning {tuningSelect}</label>}
+      {tuningSelect && (
+        <label className="flex flex-col gap-1.5">
+          <span className={label}>Tuning</span>
+          {tuningSelect}
+        </label>
+      )}
+      <div className="flex flex-col gap-1.5">
+        <span className={label}>Reference pitch</span>
         <div className="flex flex-wrap items-center gap-2">
           {a4}
           <A4Presets value={choice.a4} onChange={(hz) => onChange({ ...choice, a4: hz })} />
