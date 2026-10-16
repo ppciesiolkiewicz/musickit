@@ -48,7 +48,7 @@ Routing: Input → (input effects) → recorder → Loop → Bus (of its Group) 
 - Pure maths (units, rounding, beat position) lives in `frames.ts` with tests; keep new timing logic there.
 
 ## Drone
-- `drone.ts` is the one looper file other features may import: the Drone voice (`DroneVoice`), its params (`clampDrone`) and its maths, with no imports of its own. The theory page `/drone` (`src/components/DroneWidget.tsx`) and the looper share it, and also `DroneControls.tsx` (the note and sound controls). In the looper the drone is the sequencer instrument `drone` (no pattern, `SequencerState.drone`): it is a stage circle in a group, routed, saved and started/stopped on the beat exactly like a sequencer. Its changes are `sequencer.set` with `patch.drone`.
+- `drone.ts` is the one looper file other features may import: the Drone voice (`DroneVoice`), its params (`clampDrone`) and its maths, with no imports of its own. The theory page `/drone` (`src/components/DroneWidget.tsx`) and the looper share it, and also `DroneControls.tsx` (the note and sound controls, with `DroneScope.tsx`: the wave and modulation pictures). In the looper the drone is the sequencer instrument `drone` (no pattern, `SequencerState.drone`): it is a stage circle in a group, routed, saved and started/stopped on the beat exactly like a sequencer. Its changes are `sequencer.set` with `patch.drone`.
 
 ## Sequencers (drum machine)
 - `sequencer.ts` is a step sequencer with swappable synthesised instruments (drums by default, bass synth too). No sample files are downloaded: add sounds as oscillator and noise recipes and register them in `INSTRUMENTS`. Pure pattern maths and presets live in `sequencerPattern.ts` with tests.

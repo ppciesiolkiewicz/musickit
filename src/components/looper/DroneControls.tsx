@@ -1,27 +1,66 @@
 "use client";
 
-import { DRONE_MAX_OCTAVE, DRONE_MIN_OCTAVE, NOTE_NAMES, WAVES, droneName, type DroneParams } from "@/lib/looper/drone";
+import { DEFAULT_DRONE, DRONE_MAX_OCTAVE, DRONE_MAX_RATE, DRONE_MIN_OCTAVE, DRONE_MIN_RATE, FILTERS, MOD_TARGETS, NOTE_NAMES, WAVES, droneCutoff, droneName, type DroneParams } from "@/lib/looper/drone";
+import DroneScope from "./DroneScope";
 
 const field = "h-8 rounded-md border border-slate-700 bg-slate-900 px-2 text-xs text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 const ibtn = "grid h-8 min-w-8 place-items-center rounded-lg border border-slate-700 bg-slate-900 px-1.5 text-xs text-slate-200 transition hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
+const on = "!border-sky-400 !bg-sky-500/20 !text-sky-100";
 
-const SLIDERS: { key: "fifth" | "upper" | "sub" | "detune" | "tone" | "level"; label: string; max: number; step: number; unit?: string }[] = [
+type NumKey = "fifth" | "upper" | "sub" | "detune" | "tone" | "resonance" | "level" | "modDepth";
+const pct = (v: number) => `${Math.round(v * 100)}%`;
+const hz = (f: number) => (f >= 1000 ? `${(f / 1000).toFixed(1)}k` : `${Math.round(f)}`);
+
+const SOUND: { key: NumKey; label: string; max: number; step: number; show?: (v: number) => string }[] = [
   { key: "level", label: "Volume", max: 1, step: 0.01 },
-  { key: "tone", label: "Tone", max: 1, step: 0.01 },
   { key: "sub", label: "Octave below", max: 1, step: 0.01 },
   { key: "fifth", label: "Fifth", max: 1, step: 0.01 },
   { key: "upper", label: "Octave above", max: 1, step: 0.01 },
-  { key: "detune", label: "Detune", max: 30, step: 0.5, unit: " ¢" },
+  { key: "detune", label: "Detune", max: 30, step: 0.5, show: (v) => `${v} ¢` },
+];
+const FILTER: typeof SOUND = [
+  { key: "tone", label: "Cut-off", max: 1, step: 0.01, show: (v) => `${hz(droneCutoff(v))} Hz` },
+  { key: "resonance", label: "Resonance", max: 1, step: 0.01 },
 ];
 
-/** The note and sound of a drone: used by the looper's drone panel and by the theory page, so both look and behave the same. */
-export default function DroneControls({ value, onChange }: { value: DroneParams; onChange: (patch: Partial<DroneParams>) => void }) {
+const waveName = (w: string) => (w === "sawtooth" ? "Saw" : w[0].toUpperCase() + w.slice(1));
+const FILTER_NAMES: Record<(typeof FILTERS)[number], string> = { lowpass: "Low-pass", bandpass: "Band-pass", highpass: "High-pass" };
+const MOD_NAMES: Record<(typeof MOD_TARGETS)[number], string> = { off: "Off", filter: "Filter", pitch: "Pitch", volume: "Volume" };
+
+/** The rate slider runs 0 to 1 and is spaced like pitch, so slow and fast speeds both get room. */
+const RATE_SPAN = Math.log(DRONE_MAX_RATE / DRONE_MIN_RATE);
+const rateToSlider = (r: number) => Math.log(r / DRONE_MIN_RATE) / RATE_SPAN;
+const sliderToRate = (v: number) => Math.round(DRONE_MIN_RATE * Math.exp(v * RATE_SPAN) * 100) / 100;
+
+const isDefault = (p: DroneParams) => (Object.keys(DEFAULT_DRONE) as (keyof DroneParams)[]).every((k) => p[k] === DEFAULT_DRONE[k]);
+
+function Sliders({ value, onChange, items }: { value: DroneParams; onChange: (patch: Partial<DroneParams>) => void; items: typeof SOUND }) {
   return (
-    <div className="flex min-w-0 flex-col gap-3">
+    <>
+      {items.map((s) => (
+        <label key={s.key} className="flex items-center gap-2 text-xs text-slate-300">
+          <span className="w-24 shrink-0">{s.label}</span>
+          <input type="range" className="min-w-0 flex-1 accent-sky-400" min={0} max={s.max} step={s.step} value={value[s.key]} onChange={(e) => onChange({ [s.key]: Number(e.target.value) })} />
+          <span className="w-14 text-right tabular-nums text-slate-400">{s.show ? s.show(value[s.key]) : pct(value[s.key])}</span>
+        </label>
+      ))}
+    </>
+  );
+}
+
+const heading = "text-[11px] font-medium uppercase tracking-wide text-slate-500";
+
+/**
+ * The note and sound of a drone: used by the looper's drone panel and by the theory page, so both look and behave the same.
+ * `playing` makes the modulation picture move; `analyser` (the theory page has one) adds the live wave the drone makes.
+ */
+export default function DroneControls({ value, onChange, playing = false, analyser = null }: { value: DroneParams; onChange: (patch: Partial<DroneParams>) => void; playing?: boolean; analyser?: AnalyserNode | null }) {
+  return (
+    <div className="flex min-w-0 flex-col gap-4">
       <div className="flex flex-wrap items-center gap-2">
         <div role="group" aria-label="Note" className="flex flex-wrap gap-1">
           {NOTE_NAMES.map((n, i) => (
-            <button key={n} type="button" aria-pressed={value.root === i} onClick={() => onChange({ root: i })} className={`${ibtn} w-9 ${value.root === i ? "!border-sky-400 !bg-sky-500/20 !text-sky-100" : ""}`}>{n}</button>
+            <button key={n} type="button" aria-pressed={value.root === i} onClick={() => onChange({ root: i })} className={`${ibtn} w-9 ${value.root === i ? on : ""}`}>{n}</button>
           ))}
         </div>
         <div className="flex items-center gap-1" role="group" aria-label="Octave">
@@ -30,17 +69,52 @@ export default function DroneControls({ value, onChange }: { value: DroneParams;
           <button type="button" className={ibtn} disabled={value.octave >= DRONE_MAX_OCTAVE} onClick={() => onChange({ octave: value.octave + 1 })} aria-label="Octave up">+</button>
         </div>
         <select className={field} value={value.wave} onChange={(e) => onChange({ wave: e.target.value as DroneParams["wave"] })} aria-label="Waveform">
-          {WAVES.map((w) => <option key={w} value={w}>{w === "sawtooth" ? "Saw" : w[0].toUpperCase() + w.slice(1)}</option>)}
+          {WAVES.map((w) => <option key={w} value={w}>{waveName(w)}</option>)}
         </select>
+        <button type="button" className={`${ibtn} ml-auto px-2.5`} disabled={isDefault(value)} onClick={() => onChange(DEFAULT_DRONE)} title="Put every setting back to how it started">Reset</button>
       </div>
-      <div className="grid gap-x-4 gap-y-2 sm:grid-cols-2">
-        {SLIDERS.map((s) => (
-          <label key={s.key} className="flex items-center gap-2 text-xs text-slate-300">
-            <span className="w-24 shrink-0">{s.label}</span>
-            <input type="range" className="min-w-0 flex-1 accent-sky-400" min={0} max={s.max} step={s.step} value={value[s.key]} onChange={(e) => onChange({ [s.key]: Number(e.target.value) })} />
-            <span className="w-12 text-right tabular-nums text-slate-400">{s.unit ? `${value[s.key]}${s.unit}` : `${Math.round(value[s.key] * 100)}%`}</span>
-          </label>
-        ))}
+
+      <DroneScope value={value} playing={playing} analyser={analyser} />
+
+      <div className="grid gap-x-6 gap-y-4 md:grid-cols-2">
+        <div className="flex min-w-0 flex-col gap-2">
+          <p className={heading}>Sound</p>
+          <Sliders value={value} onChange={onChange} items={SOUND} />
+        </div>
+        <div className="flex min-w-0 flex-col gap-4">
+          <div className="flex min-w-0 flex-col gap-2">
+            <div className="flex items-center justify-between gap-2">
+              <p className={heading}>Filter</p>
+              <select className={field} value={value.filter} onChange={(e) => onChange({ filter: e.target.value as DroneParams["filter"] })} aria-label="Filter type">
+                {FILTERS.map((f) => <option key={f} value={f}>{FILTER_NAMES[f]}</option>)}
+              </select>
+            </div>
+            <Sliders value={value} onChange={onChange} items={FILTER} />
+          </div>
+          <div className="flex min-w-0 flex-col gap-2">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className={heading}>Modulation</p>
+              <div className="flex flex-wrap items-center gap-1">
+                <div role="group" aria-label="What the modulation moves" className="flex gap-1">
+                  {MOD_TARGETS.map((m) => (
+                    <button key={m} type="button" aria-pressed={value.mod === m} onClick={() => onChange({ mod: m })} className={`${ibtn} px-2 ${value.mod === m ? on : ""}`}>{MOD_NAMES[m]}</button>
+                  ))}
+                </div>
+                <select className={field} value={value.modWave} disabled={value.mod === "off"} onChange={(e) => onChange({ modWave: e.target.value as DroneParams["modWave"] })} aria-label="Modulation shape">
+                  {WAVES.map((w) => <option key={w} value={w}>{waveName(w)}</option>)}
+                </select>
+              </div>
+            </div>
+            <fieldset disabled={value.mod === "off"} className="flex min-w-0 flex-col gap-2 disabled:opacity-40">
+              <label className="flex items-center gap-2 text-xs text-slate-300">
+                <span className="w-24 shrink-0">Speed</span>
+                <input type="range" className="min-w-0 flex-1 accent-sky-400" min={0} max={1} step={0.005} value={rateToSlider(value.modRate)} onChange={(e) => onChange({ modRate: sliderToRate(Number(e.target.value)) })} />
+                <span className="w-14 text-right tabular-nums text-slate-400">{value.modRate} Hz</span>
+              </label>
+              <Sliders value={value} onChange={onChange} items={[{ key: "modDepth", label: "Depth", max: 1, step: 0.01 }]} />
+            </fieldset>
+          </div>
+        </div>
       </div>
     </div>
   );

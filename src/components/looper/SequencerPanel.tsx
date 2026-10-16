@@ -114,7 +114,7 @@ function DronePanel({ engine, snap, id, sq }: { engine: LooperEngine; snap: Loop
           <option value="record">To the recorder (and master)</option>
         </select>
       </div>
-      <DroneControls value={sq.drone} onChange={(drone) => engine.do({ type: "sequencer.set", id, patch: { drone } })} />
+      <DroneControls value={sq.drone} playing={sq.playing} onChange={(drone) => engine.do({ type: "sequencer.set", id, patch: { drone } })} />
       <p className="text-[11px] text-slate-500">One held note made in the browser. It plays on the bus of the group its circle sits in, or master outside every group. Start and stop happen on the next beat, with a slow fade.</p>
     </div>
   );

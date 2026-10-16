@@ -136,7 +136,7 @@ export type SeqPatch = {
   dest?: "auto" | "record";
   x?: number;
   y?: number;
-  /** the drone's note and sound: root (0 = C), octave, wave, fifth, upper, sub, detune, tone, level */
+  /** the drone's note and sound: root (0 = C), octave, wave, fifth, upper, sub, detune, tone, filter, resonance, level, mod, modWave, modRate, modDepth */
   drone?: Partial<DroneParams>;
 };
 
@@ -576,7 +576,7 @@ const INSTRUMENT_KEYS: Record<string, (v: unknown) => boolean> = {
 const SEQ_KEYS: Record<string, (v: unknown) => boolean> = {
   instrument: isStr, preset: isStr, rows: (v) => Array.isArray(v) && v.length <= 16 && v.every(isStr), clear: isBool, cells: isCells, bars: isNum,
   dest: (v) => v === "auto" || v === "record", x: isNum, y: isNum,
-  drone: (v) => typeof v === "object" && v !== null && !Array.isArray(v) && Object.keys(v).length > 0 && Object.entries(v).every(([k, x]) => (k === "wave" ? isStr(x) : k in DEFAULT_DRONE && isNum(x))),
+  drone: (v) => typeof v === "object" && v !== null && !Array.isArray(v) && Object.keys(v).length > 0 && Object.entries(v).every(([k, x]) => k in DEFAULT_DRONE && (typeof DEFAULT_DRONE[k as keyof DroneParams] === "string" ? isStr(x) : isNum(x))),
 };
 const isTarget = (t: unknown): t is FxTarget => typeof t === "object" && t !== null && (isStr((t as { group?: unknown }).group) || isNum((t as { input?: unknown }).input) || (t as { master?: unknown }).master === true || isStr((t as { element?: unknown }).element));
 /** a well-formed effect description of a kind that exists */

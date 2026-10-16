@@ -1,5 +1,6 @@
 /**
- * A drone: one held note built from a few detuned oscillators, with a filter and a slow fade in and out.
+ * A drone: one held note built from a few detuned oscillators, with a filter, a slow modulator (an LFO on the filter, the pitch or the
+ * volume) and a slow fade in and out.
  * The same voice is the Drone instrument of the looper (it sits on the stage and plays through its group) and the Drone widget of the theory
  * pages (it plays straight to the speakers). It is pure Web Audio and imports nothing, so both can use it.
  */
@@ -7,6 +8,11 @@
 export const NOTE_NAMES = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"] as const;
 export const WAVES = ["sine", "triangle", "sawtooth", "square"] as const;
 export type DroneWave = (typeof WAVES)[number];
+export const FILTERS = ["lowpass", "bandpass", "highpass"] as const;
+export type DroneFilter = (typeof FILTERS)[number];
+/** what the modulator moves */
+export const MOD_TARGETS = ["off", "filter", "pitch", "volume"] as const;
+export type DroneModTarget = (typeof MOD_TARGETS)[number];
 
 export interface DroneParams {
   /** pitch class, 0 = C */
@@ -24,16 +30,34 @@ export interface DroneParams {
   detune: number;
   /** filter cut-off, 0 (dark) to 1 (open) */
   tone: number;
+  filter: DroneFilter;
+  /** filter resonance, 0 (flat) to 1 (a ringing peak at the cut-off) */
+  resonance: number;
   /** loudness, 0 to 1 */
   level: number;
+  /** what the modulator moves, or off */
+  mod: DroneModTarget;
+  /** shape of the modulator */
+  modWave: DroneWave;
+  /** speed of the modulator in Hz */
+  modRate: number;
+  /** how far the modulator moves its target, 0 to 1 */
+  modDepth: number;
 }
 
-export const DEFAULT_DRONE: DroneParams = { root: 0, octave: 2, wave: "sawtooth", fifth: 0.5, upper: 0.25, sub: 0.5, detune: 8, tone: 0.45, level: 0.5 };
+export const DEFAULT_DRONE: DroneParams = {
+  root: 0, octave: 2, wave: "sawtooth", fifth: 0.5, upper: 0.25, sub: 0.5, detune: 8, tone: 0.45, filter: "lowpass", resonance: 0.2, level: 0.5,
+  mod: "filter", modWave: "sine", modRate: 0.15, modDepth: 0.35,
+};
 export const DRONE_MIN_OCTAVE = 1;
 export const DRONE_MAX_OCTAVE = 5;
 export const DRONE_FADE = 1.2;
+export const DRONE_MIN_RATE = 0.05;
+export const DRONE_MAX_RATE = 8;
 
 const clamp = (v: unknown, lo: number, hi: number, fallback: number) => (typeof v === "number" && Number.isFinite(v) ? Math.min(hi, Math.max(lo, v)) : fallback);
+
+const pick = <T extends string>(list: readonly T[], v: unknown, fallback: T): T => (list.includes(v as T) ? (v as T) : fallback);
 
 /** Check every field of a (possibly saved) value; anything wrong falls back to the default (or to `base`). */
 export function clampDrone(p: Partial<DroneParams> | null | undefined, base: DroneParams = DEFAULT_DRONE): DroneParams {
@@ -41,13 +65,19 @@ export function clampDrone(p: Partial<DroneParams> | null | undefined, base: Dro
   return {
     root,
     octave: Math.round(clamp(p?.octave, DRONE_MIN_OCTAVE, DRONE_MAX_OCTAVE, base.octave)),
-    wave: WAVES.includes(p?.wave as DroneWave) ? (p!.wave as DroneWave) : base.wave,
+    wave: pick(WAVES, p?.wave, base.wave),
     fifth: clamp(p?.fifth, 0, 1, base.fifth),
     upper: clamp(p?.upper, 0, 1, base.upper),
     sub: clamp(p?.sub, 0, 1, base.sub),
     detune: clamp(p?.detune, 0, 30, base.detune),
     tone: clamp(p?.tone, 0, 1, base.tone),
+    filter: pick(FILTERS, p?.filter, base.filter),
+    resonance: clamp(p?.resonance, 0, 1, base.resonance),
     level: clamp(p?.level, 0, 1, base.level),
+    mod: pick(MOD_TARGETS, p?.mod, base.mod),
+    modWave: pick(WAVES, p?.modWave, base.modWave),
+    modRate: clamp(p?.modRate, DRONE_MIN_RATE, DRONE_MAX_RATE, base.modRate),
+    modDepth: clamp(p?.modDepth, 0, 1, base.modDepth),
   };
 }
 
@@ -59,6 +89,39 @@ export const droneName = (p: Pick<DroneParams, "root" | "octave">): string => `$
 
 /** Filter cut-off in Hz for the 0 to 1 tone control: 200 Hz to 6.4 kHz, spaced like pitch. */
 export const droneCutoff = (tone: number): number => 200 * 2 ** (5 * Math.min(1, Math.max(0, tone)));
+
+/** Filter Q for the 0 to 1 resonance control: 0.7 (no peak) to about 16 (ringing), spaced evenly to the ear. */
+export const droneQ = (resonance: number): number => 0.7 * 2 ** (4.5 * Math.min(1, Math.max(0, resonance)));
+
+/** Widest swings of the modulator at full depth: two octaves of filter each way, half a semitone of pitch, the whole volume. */
+export const MOD_FILTER_CENTS = 2400;
+export const MOD_PITCH_CENTS = 50;
+
+/** One modulator sample, -1 to 1, at `phase` cycles (the same shapes Web Audio's oscillators make: all start at 0 and rise, but the square). */
+export function modShape(wave: DroneWave, phase: number): number {
+  const f = phase - Math.floor(phase);
+  if (wave === "sine") return Math.sin(2 * Math.PI * f);
+  if (wave === "square") return f < 0.5 ? 1 : -1;
+  if (wave === "sawtooth") return f < 0.5 ? 2 * f : 2 * f - 2;
+  return f < 0.25 ? 4 * f : f < 0.75 ? 2 - 4 * f : 4 * f - 4;
+}
+
+const hz = (f: number) => (f >= 1000 ? `${(f / 1000).toFixed(f >= 10000 ? 0 : 1)} kHz` : `${Math.round(f)} Hz`);
+
+/** What the modulator does in words, from its low point to its high point, like "Cut-off 330 Hz – 2.1 kHz". */
+export function modRange(p: DroneParams): { label: string; low: string; high: string } {
+  if (p.mod === "filter") {
+    const f = droneCutoff(p.tone);
+    const k = 2 ** ((p.modDepth * MOD_FILTER_CENTS) / 1200);
+    return { label: "Cut-off", low: hz(f / k), high: hz(f * k) };
+  }
+  if (p.mod === "pitch") {
+    const c = Math.round(p.modDepth * MOD_PITCH_CENTS);
+    return { label: "Pitch", low: `−${c} ¢`, high: `+${c} ¢` };
+  }
+  if (p.mod === "volume") return { label: "Volume", low: `${Math.round((1 - p.modDepth) * 100)}%`, high: "100%" };
+  return { label: "Off", low: "", high: "" };
+}
 
 export interface DroneLayer {
   /** frequency in Hz */
@@ -88,8 +151,13 @@ const MAX_LAYERS = 5;
 /** The sounding drone. Create it with the context and the node it plays into, then `start`, `update` and `stop`. */
 export class DroneVoice {
   private amp: GainNode;
+  /** the volume modulator works here, so it never fights the fade on `amp` */
+  private trem: GainNode;
   private filter: BiquadFilterNode;
   private oscs: { osc: OscillatorNode; gain: GainNode }[] = [];
+  private lfo: OscillatorNode | null = null;
+  private lfoAmount: GainNode | null = null;
+  private tap: AnalyserNode | null = null;
   private params: DroneParams = DEFAULT_DRONE;
   private live = false;
   private endTimer: ReturnType<typeof setTimeout> | null = null;
@@ -100,8 +168,19 @@ export class DroneVoice {
     this.filter = ctx.createBiquadFilter();
     this.filter.type = "lowpass";
     this.filter.Q.value = 0.7;
-    this.filter.connect(this.amp);
+    this.trem = ctx.createGain();
+    this.filter.connect(this.trem).connect(this.amp);
     this.amp.connect(out);
+  }
+
+  /** An analyser on the drone's output, for drawing the wave it makes. */
+  analyser(): AnalyserNode {
+    if (!this.tap) {
+      this.tap = this.ctx.createAnalyser();
+      this.tap.fftSize = 2048;
+      this.amp.connect(this.tap);
+    }
+    return this.tap;
   }
 
   get playing() {
@@ -127,6 +206,33 @@ export class DroneVoice {
       osc.start();
       return { osc, gain };
     });
+    this.lfo = this.ctx.createOscillator();
+    this.lfoAmount = this.ctx.createGain();
+    this.lfo.connect(this.lfoAmount);
+    this.lfo.start();
+    this.route(p);
+  }
+
+  /** Point the modulator at its target, with its shape, speed and depth. */
+  private route(p: DroneParams, t = this.ctx.currentTime) {
+    const lfo = this.lfo;
+    const amount = this.lfoAmount;
+    if (!lfo || !amount) return;
+    lfo.type = p.modWave;
+    lfo.frequency.setTargetAtTime(p.modRate, t, 0.05);
+    amount.disconnect();
+    const d = p.mod === "off" ? 0 : p.modDepth;
+    this.trem.gain.setTargetAtTime(p.mod === "volume" ? 1 - d / 2 : 1, t, 0.05);
+    if (p.mod === "filter") {
+      amount.gain.value = d * MOD_FILTER_CENTS;
+      amount.connect(this.filter.detune);
+    } else if (p.mod === "pitch") {
+      amount.gain.value = d * MOD_PITCH_CENTS;
+      this.oscs.forEach(({ osc }) => amount.connect(osc.detune));
+    } else if (p.mod === "volume") {
+      amount.gain.value = d / 2;
+      amount.connect(this.trem.gain);
+    }
   }
 
   private teardown() {
@@ -140,6 +246,15 @@ export class DroneVoice {
       }
     });
     this.oscs = [];
+    try {
+      this.lfo?.stop();
+      this.lfo?.disconnect();
+      this.lfoAmount?.disconnect();
+    } catch {
+      /* already stopped */
+    }
+    this.lfo = null;
+    this.lfoAmount = null;
   }
 
   /** Start sounding at AudioContext time `at` (now when omitted) with a slow fade in. */
@@ -152,7 +267,9 @@ export class DroneVoice {
       this.teardown();
       this.build(p);
     } else this.update(p);
+    this.filter.type = p.filter;
     this.filter.frequency.setValueAtTime(droneCutoff(p.tone), this.ctx.currentTime);
+    this.filter.Q.setValueAtTime(droneQ(p.resonance), this.ctx.currentTime);
     this.amp.gain.cancelScheduledValues(t);
     this.amp.gain.setValueAtTime(this.amp.gain.value, t);
     this.amp.gain.linearRampToValueAtTime(DroneVoice.peak(p), t + DRONE_FADE);
@@ -176,11 +293,14 @@ export class DroneVoice {
         osc.detune.setTargetAtTime(l.cents, t, 0.1);
         gain.gain.setTargetAtTime(l.gain / total, t, 0.1);
       });
+      this.route(p, t);
     } else {
       this.teardown();
       this.build(p);
     }
+    this.filter.type = p.filter;
     this.filter.frequency.setTargetAtTime(droneCutoff(p.tone), t, 0.1);
+    this.filter.Q.setTargetAtTime(droneQ(p.resonance), t, 0.1);
     this.amp.gain.setTargetAtTime(DroneVoice.peak(p), t, 0.1);
   }
 
@@ -204,7 +324,9 @@ export class DroneVoice {
     this.teardown();
     try {
       this.filter.disconnect();
+      this.trem.disconnect();
       this.amp.disconnect();
+      this.tap?.disconnect();
     } catch {
       /* already disconnected */
     }

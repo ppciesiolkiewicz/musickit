@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { DEFAULT_DRONE, clampDrone, droneCutoff, droneFrequency, droneLayers, droneName } from "./drone";
+import { DEFAULT_DRONE, clampDrone, droneCutoff, droneFrequency, droneLayers, droneName, droneQ, modRange, modShape } from "./drone";
 
 describe("drone", () => {
   it("tunes notes to A4 = 440 Hz", () => {
@@ -35,5 +35,35 @@ describe("drone", () => {
     assert.equal(droneCutoff(0), 200);
     assert.equal(droneCutoff(1), 6400);
     assert.equal(droneCutoff(5), 6400);
+  });
+  it("checks the filter and the modulator", () => {
+    const p = clampDrone({ filter: "notch" as never, resonance: 4, mod: "pan" as never, modWave: "square", modRate: 100, modDepth: -1 });
+    assert.equal(p.filter, DEFAULT_DRONE.filter);
+    assert.equal(p.resonance, 1);
+    assert.equal(p.mod, DEFAULT_DRONE.mod);
+    assert.equal(p.modWave, "square");
+    assert.equal(p.modRate, 8);
+    assert.equal(p.modDepth, 0);
+    // an old saved drone without the new fields gets the defaults
+    assert.equal(clampDrone({ root: 2 }).mod, DEFAULT_DRONE.mod);
+  });
+  it("maps resonance to Q", () => {
+    assert.ok(Math.abs(droneQ(0) - 0.7) < 1e-9);
+    assert.ok(droneQ(1) > 15);
+  });
+  it("draws the modulator shapes", () => {
+    for (const w of ["sine", "triangle", "sawtooth"] as const) assert.ok(Math.abs(modShape(w, 0)) < 1e-9);
+    assert.ok(Math.abs(modShape("sine", 0.25) - 1) < 1e-9);
+    assert.equal(modShape("triangle", 0.25), 1);
+    assert.equal(modShape("triangle", 0.75), -1);
+    assert.equal(modShape("square", 0.1), 1);
+    assert.equal(modShape("square", 0.6), -1);
+    assert.ok(modShape("sawtooth", 0.49) > 0.9 && modShape("sawtooth", 0.51) < -0.9);
+    assert.equal(modShape("sine", 3.25), modShape("sine", 0.25));
+  });
+  it("says what the modulator moves", () => {
+    assert.deepEqual(modRange({ ...DEFAULT_DRONE, mod: "pitch", modDepth: 1 }), { label: "Pitch", low: "−50 ¢", high: "+50 ¢" });
+    assert.deepEqual(modRange({ ...DEFAULT_DRONE, mod: "volume", modDepth: 0.4 }), { label: "Volume", low: "60%", high: "100%" });
+    assert.deepEqual(modRange({ ...DEFAULT_DRONE, mod: "filter", tone: 0.4, modDepth: 0.5 }), { label: "Cut-off", low: "400 Hz", high: "1.6 kHz" });
   });
 });

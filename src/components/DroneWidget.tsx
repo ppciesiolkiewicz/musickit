@@ -24,6 +24,7 @@ const load = (): DroneParams => {
 export default function DroneWidget() {
   const [params, setParams] = useState<DroneParams>(DEFAULT_DRONE);
   const [on, setOn] = useState(false);
+  const [analyser, setAnalyser] = useState<AnalyserNode | null>(null);
   const voice = useRef<DroneVoice | null>(null);
   const latest = useRef(params);
   latest.current = params;
@@ -50,7 +51,10 @@ export default function DroneWidget() {
   const toggle = async () => {
     const ctx = getAudioContext();
     if (ctx.state === "suspended") await ctx.resume();
-    if (!voice.current) voice.current = new DroneVoice(ctx, getOutputBus());
+    if (!voice.current) {
+      voice.current = new DroneVoice(ctx, getOutputBus());
+      setAnalyser(voice.current.analyser());
+    }
     if (on) voice.current.stop();
     else voice.current.start(latest.current);
     setOn(!on);
@@ -67,7 +71,7 @@ export default function DroneWidget() {
           <p className="text-xs text-slate-400">{on ? "Sounding" : "Stopped"}</p>
         </div>
       </div>
-      <DroneControls value={params} onChange={change} />
+      <DroneControls value={params} onChange={change} playing={on} analyser={analyser} />
     </section>
   );
 }
