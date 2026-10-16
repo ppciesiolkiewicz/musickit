@@ -98,7 +98,7 @@
 
 - [ ] **Step 1: Write the failing tests**
   - `intervals`: C4→E4 "M3"; E4→G4 "m3"; C4→F♯4 "TT"; C4→E5 "M10"; C4→C5 "P8"; E4→C4 "M3↓"; C4→C4 "P1".
-  - `triads in key`: D major, [62,66,69] → symbol "D", numeral "I". C major [57,60,64] → "Am", "vi"; [59,62,65] → "B°" (or "Bdim"), "vii°"; [67,71,74,77] → "G7", "V7".
+  - `triads in key`: D major, [62,66,69] → symbol "D", numeral "I". C major [57,60,64] → "Am", "vi"; [59,62,65] → "B°", "vii°"; [67,71,74,77] → "G7", "V7".
   - `borrowed and secondary`: C major [58,62,65] → "B♭", "♭VII"; C major [64,68,71] → "E", "III", notes spelled E G♯ B.
   - `minor key numerals`: C minor [63,67,70] → "E♭", "III".
   - `inversion`: C major [64,67,72] → "C/E", "I/3".
