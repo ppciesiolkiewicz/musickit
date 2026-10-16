@@ -242,6 +242,11 @@ describe("chord shapes for a mode chord", () => {
     const firstInexact = list.findIndex((c) => !c.exact);
     if (firstInexact >= 0) assert.ok(list.slice(firstInexact).every((c) => !c.exact));
   });
+  it("starts the m7♭5 chord on its full 7th shape, not the triad", () => {
+    const ctx = makeKeyContext(0, 0, 0);
+    const [first] = shapesForChord(ctx, 6); // Bm7♭5 in C major
+    assert.ok(first.full && shapeSemitones(first.shape).includes(10));
+  });
   it("places the root on the right pitch class", () => {
     const ctx = makeKeyContext(7, 0, 0);
     const list = shapesForChord(ctx, 4); // D in G major

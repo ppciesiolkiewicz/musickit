@@ -73,9 +73,12 @@ describe("picking the simplest shape", () => {
   it("Bdim (no open voicing) still gets a pick", () => {
     assert.ok(shapesForChord(C, 6, ["easy", "medium", "hard"], { fit: "triad" }).length > 0);
   });
-  it("default mode fit keeps exact shapes ahead and puts open chords first among them", () => {
+  it("default mode fit puts the full 7th chord first, then smaller exact shapes, open chords first in each", () => {
     const list = shapesForChord(C, 0);
-    assert.equal(list[0].shape.at, 3); // open C
+    assert.ok(list[0].full); // a Cmaj7 shape
+    const firstPartial = list.findIndex((c) => !c.full);
+    if (firstPartial >= 0) assert.ok(list.slice(firstPartial).every((c) => !c.full));
+    assert.ok(list.some((c) => c.exact && !c.full && c.shape.at === 3)); // open C triad still offered
     const firstInexact = list.findIndex((c) => !c.exact);
     if (firstInexact >= 0) assert.ok(list.slice(firstInexact).every((c) => !c.exact));
   });

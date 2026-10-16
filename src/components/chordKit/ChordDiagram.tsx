@@ -95,7 +95,7 @@ export default function ChordDiagram({ shape, rootFret, onPlay, active, ctx, roo
       type="button"
       onClick={onPlay}
       title="Click to hear it"
-      className={`block w-full cursor-pointer rounded-lg transition hover:bg-slate-800/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${active ? "bg-slate-800/80 ring-1 ring-sky-400" : ""}`}
+      className={`block w-full cursor-pointer rounded-lg p-2 transition hover:bg-slate-800/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${active ? "bg-slate-800/80 ring-1 ring-sky-400" : ""}`}
     >
       {svg}
     </button>

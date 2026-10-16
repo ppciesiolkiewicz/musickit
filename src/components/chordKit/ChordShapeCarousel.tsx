@@ -3,13 +3,12 @@
 import { useEffect, useMemo, useState } from "react";
 import ChordDiagram from "./ChordDiagram";
 import { DIFF_CLASS } from "./palette";
-import { Info } from "@/components/ui";
 import { carouselStep, shapesForChord } from "@/lib/chordKit/chordShapes";
 import type { KeyContext } from "@/features/theory/theory";
 import { strumShape } from "@/lib/chordKit/playback";
 
-/** One guitar shape for one chord of the mode, with previous/next arrows and a button for the full list. */
-export default function ChordShapeCarousel({ ctx, degree, onShowAll }: { ctx: KeyContext; degree: number; onShowAll: () => void }) {
+/** One guitar shape for one chord of the mode, with previous/next arrows, a play button, and links to a progression and the full list. */
+export default function ChordShapeCarousel({ ctx, degree, onShowAll, onShowProgression }: { ctx: KeyContext; degree: number; onShowAll: () => void; onShowProgression: () => void }) {
   const list = useMemo(() => shapesForChord(ctx, degree), [ctx, degree]);
   const [i, setI] = useState(0);
   const [playing, setPlaying] = useState(false);
@@ -17,6 +16,8 @@ export default function ChordShapeCarousel({ ctx, degree, onShowAll }: { ctx: Ke
 
   const cur = list[Math.min(i, list.length - 1)];
   if (!cur) return <p className="text-xs text-slate-500">No shape in the library for this chord yet.</p>;
+  const idx = Math.min(i, list.length - 1);
+  const name = ctx.names[degree] + cur.shape.suf;
   const go = (d: number) => setI((n) => carouselStep(n, d, list.length));
   const play = () => {
     strumShape(cur.shape, cur.fret);
@@ -26,21 +27,34 @@ export default function ChordShapeCarousel({ ctx, degree, onShowAll }: { ctx: Ke
   const arrow = "h-7 w-7 shrink-0 rounded-full border border-slate-700 text-slate-300 hover:border-slate-500";
 
   return (
-    <div className="flex w-full flex-col gap-1.5 sm:w-48" aria-roledescription="carousel" aria-label={`Guitar shapes for ${ctx.chords[degree].seventhName}`}>
+    <div className="flex w-full flex-col gap-2 sm:w-56" aria-roledescription="carousel" aria-label={`Guitar shapes for ${ctx.chords[degree].seventhName}`}>
       <div className="flex items-center gap-1.5">
         <button type="button" className={arrow} onClick={() => go(-1)} aria-label="Previous shape">‹</button>
         <div className="min-w-0 flex-1"><ChordDiagram shape={cur.shape} rootFret={cur.fret} onPlay={play} active={playing} ctx={ctx} /></div>
         <button type="button" className={arrow} onClick={() => go(1)} aria-label="Next shape">›</button>
       </div>
-      <div className="flex flex-wrap items-center justify-center gap-x-1.5 text-xs text-slate-400">
-        <span className="text-sm font-medium text-slate-100">{ctx.names[degree]}{cur.shape.suf}</span>
-        {cur.shape.v && <span>{cur.shape.v}</span>}
+      <div className="flex items-center justify-center gap-2">
+        <button
+          type="button"
+          onClick={play}
+          aria-label={`Play ${name}`}
+          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border pl-0.5 text-xs transition ${playing ? "border-sky-400 bg-sky-400/10 text-sky-200" : "border-slate-600 text-slate-200 hover:border-slate-400"}`}
+        >
+          ▶
+        </button>
+        <span className="min-w-0 truncate text-base font-medium text-slate-100">{name}</span>
+        <span className="tabular-nums text-xs text-slate-500">{idx + 1}/{list.length}</span>
+      </div>
+      <div className="flex flex-wrap items-center justify-center gap-x-1.5 gap-y-1 text-xs text-slate-400">
         <span className={`rounded-full border px-1.5 ${DIFF_CLASS[cur.shape.diff]}`}>{cur.shape.diff}</span>
         <span className="tabular-nums">{cur.shape.at !== undefined ? "open" : `fret ${cur.fret}`}</span>
-        <span className="tabular-nums text-slate-500">{Math.min(i, list.length - 1) + 1}/{list.length}</span>
-        <Info label="About these shapes">Shapes that contain this chord&rsquo;s 3rd and only notes of the mode. Shapes made purely of the chord&rsquo;s own root, 3rd, 5th and 7th come first; among those, open chords, then the first barre shapes, then easier fingerings. Use the arrows to flip through, tap the diagram to hear it.</Info>
+        {cur.shape.v && <span>· {cur.shape.v}</span>}
+        {!cur.full && <span className="text-slate-500">· {cur.exact ? "smaller chord, also fits" : "adds mode notes"}</span>}
       </div>
-      <button type="button" onClick={onShowAll} className="text-center text-xs text-sky-300 hover:underline">All shapes and chords →</button>
+      <div className="flex items-center justify-center gap-3 text-xs">
+        <button type="button" onClick={onShowProgression} className="text-sky-300 hover:underline">Progression →</button>
+        <button type="button" onClick={onShowAll} className="text-sky-300 hover:underline">All shapes →</button>
+      </div>
     </div>
   );
 }

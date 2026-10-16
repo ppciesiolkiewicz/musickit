@@ -11,6 +11,8 @@ export interface ChordShapeChoice {
   fret: number;
   /** true when the shape holds only the chord's own root, 3rd, 5th and 7th */
   exact: boolean;
+  /** true when the shape is exact and plays the whole chord: with mode fit that means its 7th too, so a bare triad is not full */
+  full: boolean;
 }
 
 const DIFF_RANK: Record<Difficulty, number> = { easy: 0, medium: 1, hard: 2 };
@@ -30,7 +32,8 @@ const byTier = (a: ChordShapeChoice, b: ChordShapeChoice): number => {
 
 /**
  * Shapes that play the diatonic chord on `degree` of the mode, best first:
- * shapes made only of the chord's own tones, then open chords, then the first barre, then easier fingerings, then lower on the neck.
+ * the whole chord (with its 7th in mode fit), then smaller shapes made only of its own tones (the triad or a shell), then the rest;
+ * inside each group open chords, then the first barre, then easier fingerings, then lower on the neck.
  * Shapes without the chord's 3rd are dropped (they would not say major or minor).
  * `fit: "mode"` (default) allows any note of the mode, and the 7th counts as a chord tone.
  * `fit: "triad"` allows only root, 3rd and 5th, so a plain triad never shows as a 7th or a shell.
@@ -50,12 +53,13 @@ export function shapesForChord(ctx: KeyContext, degree: number, difficulties: Di
     const tones = new Set(shapeSemitones(shape).filter((v): v is number => v !== null));
     if (!tones.has(third)) return;
     if (![...tones].every((t) => (triad ? stack : rel).has(t))) return;
-    all.push({ shape, rootPc, fret: rootFretFor(shape, rootPc), exact: [...tones].every((t) => stack.has(t)) });
+    const exact = [...tones].every((t) => stack.has(t));
+    all.push({ shape, rootPc, fret: rootFretFor(shape, rootPc), exact, full: exact && (triad || tones.has(seventh)) });
   });
 
   const wanted = all.filter((c) => difficulties.includes(c.shape.diff));
   const list = wanted.length ? wanted : all;
-  return list.sort((a, b) => Number(b.exact) - Number(a.exact) || byTier(a, b) || DIFF_RANK[a.shape.diff] - DIFF_RANK[b.shape.diff] || a.fret - b.fret || a.shape.id - b.shape.id);
+  return list.sort((a, b) => Number(b.full) - Number(a.full) || Number(b.exact) - Number(a.exact) || byTier(a, b) || DIFF_RANK[a.shape.diff] - DIFF_RANK[b.shape.diff] || a.fret - b.fret || a.shape.id - b.shape.id);
 }
 
 /** Wrap-around step for a carousel. */
@@ -101,7 +105,7 @@ export function shapesForTones(rootPc: number, semis: number[], difficulties: Di
     if (third.length && !third.some((c) => tones.has(c))) return;
     const full = hit === colour.length;
     if (!full && hit < Math.max(1, colour.length - 1)) return;
-    out.push({ choice: { shape, rootPc, fret: rootFretFor(shape, rootPc), exact: tones.size === want.size }, full, score: hit });
+    out.push({ choice: { shape, rootPc, fret: rootFretFor(shape, rootPc), exact: tones.size === want.size, full }, full, score: hit });
   });
   const wanted = out.filter((o) => difficulties.includes(o.choice.shape.diff));
   const list = wanted.length ? wanted : out;

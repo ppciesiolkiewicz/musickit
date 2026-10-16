@@ -12,6 +12,7 @@ import { MODE_PAGES, chordMidi, modeChords, degreeColour, relativesOf, roleWithD
 import { strum } from "@/lib/chordKit/playback";
 import ChordShapeCarousel from "./ChordShapeCarousel";
 import ChordShapesModal from "./ChordShapesModal";
+import ChordProgressionModal from "./ChordProgressionModal";
 import ChordBubbles from "./ChordBubbles";
 import ScaleOnGuitar from "./ScaleOnGuitar";
 import { useNotePlayer } from "./useNotePlayer";
@@ -25,6 +26,7 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
   const [extended, setExtended] = useState(false);
   const [playing, setPlaying] = useState<number | null>(null);
   const [modalDegree, setModalDegree] = useState<number | null>(null);
+  const [progDegree, setProgDegree] = useState<number | null>(null);
 
   useEffect(() => {
     if (!syncUrl) return;
@@ -175,7 +177,7 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
                     ))}
                   </span>
                 </button>
-                <ChordShapeCarousel ctx={ctx} degree={c.degree} onShowAll={() => setModalDegree(c.degree)} />
+                <ChordShapeCarousel ctx={ctx} degree={c.degree} onShowAll={() => setModalDegree(c.degree)} onShowProgression={() => setProgDegree(c.degree)} />
               </li>
             );
           })}
@@ -191,6 +193,7 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
         <ChordBubbles ctx={ctx} />
       </section>
 
+      {progDegree !== null && <ChordProgressionModal ctx={ctx} degree={progDegree} onClose={() => setProgDegree(null)} />}
       {modalDegree !== null && <ChordShapesModal ctx={ctx} degree={modalDegree} onClose={() => setModalDegree(null)} />}
     </div>
   );
