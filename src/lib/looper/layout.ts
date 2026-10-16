@@ -15,9 +15,9 @@ export const LOOP_CARD_H = 216;
 export const SEQ_CARD_H = 180;
 /** A group's title bar, the padding inside a group, the space between cards and between groups. */
 export const GROUP_HEAD = 44;
-export const GROUP_PAD = 20;
-export const CARD_GAP = 20;
-export const GROUP_GAP = 32;
+export const GROUP_PAD = 24;
+export const CARD_GAP = 32;
+export const GROUP_GAP = 40;
 /** Cards side by side in a default group. */
 export const GROUP_COLS = 2;
 

@@ -61,9 +61,9 @@ const freeLayout = (kinds: Record<string, string | undefined>, fedBy: Record<str
 
 const arrangements = (kinds: Record<string, string | undefined>, fedBy: Record<string, number>, feeds: Record<string, string[]>, ownerOf: Record<string, string>): Arrangement[] => [
   { id: "vertical", label: "Vertical", hint: "Inputs on top, Looping below, the master at the bottom", icon: "rows-3", layout: flowLayout(kinds, fedBy, feeds, ownerOf, { direction: "vertical", gap: 96, bandGap: 200, wrapBy: 1.5 }) },
-  { id: "vertical-tight", label: "Vertical tight", hint: "The same, close together and no wider than Looping", icon: "rows-3", layout: flowLayout(kinds, fedBy, feeds, ownerOf, { direction: "vertical", gap: 32, bandGap: 72, wrapBy: 1 }) },
+  { id: "vertical-tight", label: "Vertical tight", hint: "The same, closer together", icon: "rows-3", layout: flowLayout(kinds, fedBy, feeds, ownerOf, { direction: "vertical", gap: 32, bandGap: 72, wrapBy: 1.5 }) },
   { id: "horizontal", label: "Horizontal", hint: "Inputs on the left, Looping in the middle, the master on the right", icon: "columns-3", layout: flowLayout(kinds, fedBy, feeds, ownerOf, { direction: "horizontal", gap: 96, bandGap: 200, wrapBy: 1.5 }) },
-  { id: "horizontal-tight", label: "Horizontal tight", hint: "The same, close together and no taller than Looping", icon: "columns-3", layout: flowLayout(kinds, fedBy, feeds, ownerOf, { direction: "horizontal", gap: 32, bandGap: 72, wrapBy: 1 }) },
+  { id: "horizontal-tight", label: "Horizontal tight", hint: "The same, closer together", icon: "columns-3", layout: flowLayout(kinds, fedBy, feeds, ownerOf, { direction: "horizontal", gap: 32, bandGap: 72, wrapBy: 1.5 }) },
 ];
 
 /**

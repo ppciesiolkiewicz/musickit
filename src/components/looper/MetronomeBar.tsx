@@ -35,7 +35,7 @@ export default function MetronomeBar({ engine, snap, ready }: { engine: LooperEn
         <TransportButton engine={engine} snap={snap} ready={ready} />
         <span className="flex items-center gap-0.5 rounded-lg border border-slate-700 bg-slate-900 px-1" title={m.locked ? "Tempo is locked while there is a loop. Clear every loop to change it." : "Tempo"}>
           <button type="button" className="px-1 text-slate-300 disabled:opacity-40" disabled={m.locked} onClick={() => set({ bpm: m.bpm - 1 })} aria-label="Slower">−</button>
-          <input type="number" min={40} max={240} value={m.bpm} disabled={m.locked} onChange={(e) => set({ bpm: Number(e.target.value) })} aria-label="Beats per minute" className="h-8 w-11 bg-transparent text-center text-sm tabular-nums text-slate-100 focus:outline-none disabled:opacity-60" />
+          <TempoField bpm={m.bpm} disabled={m.locked} onCommit={(bpm) => set({ bpm })} />
           <button type="button" className="px-1 text-slate-300 disabled:opacity-40" disabled={m.locked} onClick={() => set({ bpm: m.bpm + 1 })} aria-label="Faster">+</button>
         </span>
         {/* the number box is enough on a phone; the slider joins it once there is room */}
@@ -71,6 +71,38 @@ export default function MetronomeBar({ engine, snap, ready }: { engine: LooperEn
         </div>
       )}
     </div>
+  );
+}
+
+/** The tempo box: typing only edits a draft (so "1" on the way to "120" is not clamped to 40); it is set on blur or Enter, Escape undoes it. */
+function TempoField({ bpm, disabled, onCommit }: { bpm: number; disabled: boolean; onCommit: (bpm: number) => void }) {
+  const [draft, setDraft] = useState<string | null>(null);
+  const cancelled = useRef(false);
+  const commit = () => {
+    const v = Math.round(Number(draft));
+    if (!cancelled.current && draft !== null && draft.trim() !== "" && Number.isFinite(v) && v !== bpm) onCommit(v);
+    cancelled.current = false;
+    setDraft(null);
+  };
+  return (
+    <input
+      type="number"
+      min={40}
+      max={240}
+      value={draft ?? bpm}
+      disabled={disabled}
+      onChange={(e) => setDraft(e.target.value)}
+      onBlur={commit}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") e.currentTarget.blur();
+        else if (e.key === "Escape") {
+          cancelled.current = true;
+          e.currentTarget.blur();
+        }
+      }}
+      aria-label="Beats per minute"
+      className="h-8 w-11 bg-transparent text-center text-sm tabular-nums text-slate-100 focus:outline-none disabled:opacity-60"
+    />
   );
 }
 
