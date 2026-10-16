@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getAudioContext } from "@/features/sound";
 import { midiToHz } from "@/features/theory/tunings";
-import { FRAME_MS } from "./pitch";
+import { FRAME_MS, createSmoother } from "./pitch";
 import { createDetector } from "./detector";
 import { readHz, resolveChoice, sanitiseChoice } from "./choice";
 import { useTunerChoice } from "./useTunerChoice";
@@ -93,8 +93,9 @@ export default function Tuner() {
       } else src.connect(an);
       const buf = new Float32Array(FRAME);
       const detect = createDetector();
+      const smooth = createSmoother();
       let raf = 0, quiet = 0, last = 0, alive = true;
-      // measured at most 30 times a second, each reading shown as heard
+      // measured at most 30 times a second, shown as a weighted average of the last few readings
       const tick = (now: number) => {
         if (!alive) return;
         raf = requestAnimationFrame(tick);
@@ -105,8 +106,8 @@ export default function Tuner() {
           if (!alive || p === undefined) return;
           if (p) {
             quiet = 0;
-            setHz(p.freq);
-          } else if (++quiet > 15) setHz(null);
+            setHz(smooth.push(p));
+          } else if (++quiet > 15) { smooth.reset(); setHz(null); }
         });
       };
       raf = requestAnimationFrame(tick);

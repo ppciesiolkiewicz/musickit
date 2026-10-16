@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { detectPitch, hzToNote, nearestString, refinePitch } from "./pitch";
+import { createSmoother, detectPitch, hzToNote, nearestString, refinePitch } from "./pitch";
 import { INSTRUMENTS } from "@/features/theory/tunings";
 
 const SR = 44100;
@@ -53,4 +53,23 @@ test("nearest string uses the chosen tuning", () => {
   assert.equal(bass5[0].midi, 23);
   const p = detectPitch(tone(41.2, 4, 4096), SR, { minHz: 28 });
   assert.ok(p && Math.abs(p.freq - 41.2) < 0.5);
+});
+
+test("smoother averages wobble, newest weighing most", () => {
+  const s = createSmoother();
+  s.push({ freq: 110, clarity: 1 });
+  const out = s.push({ freq: 111, clarity: 1 });
+  assert.ok(out > 110.5 && out < 111, String(out));
+});
+test("smoother drops a lone octave glitch", () => {
+  const s = createSmoother();
+  for (let i = 0; i < 4; i++) s.push({ freq: 110, clarity: 1 });
+  assert.ok(Math.abs(s.push({ freq: 220, clarity: 1 }) - 110) < 0.01);
+  assert.ok(Math.abs(s.push({ freq: 110, clarity: 1 }) - 110) < 0.01);
+});
+test("smoother follows a new note once it holds", () => {
+  const s = createSmoother();
+  for (let i = 0; i < 4; i++) s.push({ freq: 110, clarity: 1 });
+  s.push({ freq: 147, clarity: 1 });
+  assert.ok(Math.abs(s.push({ freq: 147, clarity: 1 }) - 147) < 0.01);
 });

@@ -103,3 +103,37 @@ export function nearestString(hz: number, a4 = 440, strings: TunerString[] = GUI
   });
   return { index: best, cents };
 }
+
+/** How many readings the smoother averages: about 200 ms at 30 a second, steady text without a lagging needle. */
+const SMOOTH_N = 6;
+/** Further than this from the average is a new note, not a wobble. */
+const JUMP_CENTS = 50;
+
+/**
+ * Smooths a stream of pitch readings with a weighted moving average of the last few, taken in cents (log frequency) so sharp and
+ * flat count alike. Newer readings weigh more (1, 2, … SMOOTH_N), and clearer ones more again. A reading far from the average
+ * starts a new note, but only once the next reading agrees with it: a lone glitch (an octave slip) is dropped and the average
+ * kept. `reset()` on silence. Pure state, no browser APIs.
+ */
+export function createSmoother(): { push: (p: Pitch) => number; reset: () => void } {
+  let hist: { c: number; w: number }[] = [];
+  let pending: { c: number; w: number } | null = null;
+  const avg = () => {
+    let s = 0, ws = 0;
+    hist.forEach((h, i) => { const w = (i + 1) * h.w; s += h.c * w; ws += w; });
+    return s / ws;
+  };
+  return {
+    push(p) {
+      const r = { c: 1200 * Math.log2(p.freq), w: Math.max(0.05, p.clarity) };
+      if (hist.length && Math.abs(r.c - avg()) > JUMP_CENTS) {
+        if (pending && Math.abs(r.c - pending.c) <= JUMP_CENTS) { hist = [pending]; pending = null; }
+        else { pending = r; return 2 ** (avg() / 1200); }
+      } else pending = null;
+      hist.push(r);
+      if (hist.length > SMOOTH_N) hist.shift();
+      return 2 ** (avg() / 1200);
+    },
+    reset() { hist = []; pending = null; },
+  };
+}

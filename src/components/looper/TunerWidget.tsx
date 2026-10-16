@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { PatchNode } from "@/lib/looper/patch";
 import type { LooperEngine, LooperSnapshot } from "@/lib/looper/engine";
-import { createDetector, FRAME_MS, Needle, readHz, resolveChoice, TunerSettings, useTunerChoice } from "@/features/tuner";
+import { createDetector, createSmoother, FRAME_MS, Needle, readHz, resolveChoice, TunerSettings, useTunerChoice } from "@/features/tuner";
 
 /**
  * A tuner element of the patch: the note it hears, how many cents off, and a needle. Muted, it still listens but lets nothing through,
@@ -21,6 +21,7 @@ export default function TunerWidget({ engine, snap, node: n, mute }: { engine: L
 
   useEffect(() => {
     const detect = createDetector();
+    const smooth = createSmoother();
     let quiet = 0, alive = true;
     let buf: Float32Array<ArrayBuffer> | null = null;
     const id = window.setInterval(() => {
@@ -32,8 +33,8 @@ export default function TunerWidget({ engine, snap, node: n, mute }: { engine: L
         if (!alive || p === undefined) return;
         if (p) {
           quiet = 0;
-          setHz(p.freq);
-        } else if (++quiet > 15) setHz(null);
+          setHz(smooth.push(p));
+        } else if (++quiet > 15) { smooth.reset(); setHz(null); }
       });
     }, FRAME_MS);
     return () => { alive = false; window.clearInterval(id); };
