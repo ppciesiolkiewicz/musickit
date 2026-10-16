@@ -106,25 +106,45 @@ export const MAJOR_PENTATONIC_BOXES: [number, number][][] = [1, 2, 3, 4, 0].map(
 
 /**
  * The frets of the five boxes for this key: the major pentatonic boxes when the mode has a major 3rd, the minor ones when not.
- * Each sits at the root's fret on the low E string, moved an octave up when it would go below the nut or down when it would run past
- * fret 17, so the shapes are never bent.
+ * Each sits at the root's fret on the low E string. A box that dips below the nut keeps its place when every note that would fall
+ * there can move to the next lower string (E major box 1 is the open position, its G♯, C♯ and F♯ played at the 4th fret a string
+ * down); otherwise it moves an octave up. One that would run past fret 17 moves an octave down. So position 1 in E is always open.
  */
 function frames(ctx: KeyContext): Spot[][] {
   const boxes = ctx.steps[2] === 4 ? MAJOR_PENTATONIC_BOXES : MINOR_PENTATONIC_BOXES;
   const root = (ctx.tonic.pc - OPEN_MIDI[0] + 120) % 12;
+  const place = (box: [number, number][], base: number) =>
+    box.flatMap(([a, b], s) => [a, b].map((o) => ({ string: s, fret: base + o, midi: OPEN_MIDI[s] + base + o })));
+  /** The spots below the nut moved a string down, or null when one cannot move (on the low E, or still below the nut). */
+  const lowered = (spots: Spot[]): Spot[] | null => {
+    const out: Spot[] = [];
+    for (const sp of spots) {
+      if (out.some((o) => o.midi === sp.midi)) continue;
+      if (sp.fret >= 0) out.push(sp);
+      else if (sp.string > 0 && sp.midi - OPEN_MIDI[sp.string - 1] >= 0) out.push({ string: sp.string - 1, fret: sp.midi - OPEN_MIDI[sp.string - 1], midi: sp.midi });
+      else return null;
+    }
+    return out;
+  };
   return boxes.map((box) => {
     const offs = box.flat();
     let base = root;
-    if (base + Math.min(...offs) < 0) base += 12;
+    if (base + Math.min(...offs) < 0) {
+      const open = lowered(place(box, base));
+      if (open) return open;
+      base += 12;
+    }
     if (base + Math.max(...offs) > SCALE_NECK_FRETS && base - 12 + Math.min(...offs) >= 0) base -= 12;
-    return box.flatMap(([a, b], s) => [a, b].map((o) => ({ string: s, fret: base + o, midi: OPEN_MIDI[s] + base + o })));
+    return place(box, base);
   });
 }
 
 /**
  * Put the given degrees of the mode into each of the five boxes. Each string keeps the frets the regular pentatonic box uses on it,
  * one either side: the box's own notes stay where they are when the mode has them, and every other note of the mode that falls in
- * those frets is placed once, on the string where it sits inside the box's frets (then the string with fewer notes, then the lower).
+ * those frets is placed once, on the string where it sits inside the box's frets (then the string with fewer notes, then the
+ * lower). A filled-in note left 4 frets or more from the rest of its string then moves (or the note it stretches from does) to a
+ * string where it sits next to the others.
  */
 export function boxesFor(ctx: KeyContext, degrees: number[]): ScalePosition[] {
   const keep = new Set(degrees);
@@ -154,6 +174,27 @@ export function boxesFor(ctx: KeyContext, degrees: number[]): ScalePosition[] {
       const count = (s: number) => notes.filter((n) => n.string === s).length;
       const [best] = options.get(midi)!.sort((a, b) => Number(b.inside) - Number(a.inside) || count(a.c.string) - count(b.c.string) || a.c.string - b.c.string);
       notes.push(best.c);
+    });
+    // a filled-in note 4 frets or more from everything else on its string (three empty frets between) moves to a string where it sits
+    // next to the other notes, when it has one: C at the 1st fret of the B string rather than a stretch from G♯ to C on the G string.
+    // When it has nowhere closer, the lone note it stretches from moves instead, unless that is a root (roots name the position).
+    const [boxFrom, boxTo] = [Math.min(...notes.map((n) => n.fret)), Math.max(...notes.map((n) => n.fret))];
+    const others = (c: ScaleCell) => notes.filter((n) => n !== c && n.string === c.string);
+    const alone = (c: ScaleCell) => others(c).length > 0 && others(c).every((n) => Math.abs(n.fret - c.fret) >= 4);
+    const nearOn = (c: ScaleCell) => notes.some((m) => m.string === c.string && Math.abs(m.fret - c.fret) < 4);
+    const elsewhere = (n: ScaleCell) => [0, 1, 2, 3, 4, 5]
+      .filter((s) => s !== n.string)
+      .sort((a, b) => Math.abs(a - n.string) - Math.abs(b - n.string))
+      .map((s) => cellAt(ctx, s, n.midi - OPEN_MIDI[s]))
+      .find((c): c is ScaleCell => !!c && c.fret >= boxFrom && c.fret <= boxTo && nearOn(c));
+    notes.slice().forEach((n) => {
+      if (!options.has(n.midi) || !alone(n)) return;
+      const near = options.get(n.midi)!.map((o) => o.c).find((c) => c.string !== n.string && nearOn(c));
+      if (near) return notes.splice(notes.indexOf(n), 1, near);
+      const partner = others(n);
+      if (partner.length !== 1 || partner[0].degree === 0) return;
+      const moved = elsewhere(partner[0]);
+      if (moved) notes.splice(notes.indexOf(partner[0]), 1, moved);
     });
     notes.sort((a, b) => a.string - b.string || a.fret - b.fret);
     const frets = notes.map((n) => n.fret);

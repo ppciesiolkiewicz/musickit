@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Chip, ChipRow, Info } from "@/components/ui";
+import { Chip, ChipRow, Section } from "@/components/ui";
 import { MODE_GROUPS, compareModes, noteAt } from "@/features/theory/modeGroups";
 import { degreeColour } from "@/features/theory/scales";
 import { scaleToneLabel } from "@/features/theory/labels";
@@ -13,7 +13,7 @@ const colW = 62, rowH = 42, left = 112, top = 62, right = 120;
  * Pick a group of modes. The notes they all share (the core) are shaded; every other column is a note only some of them
  * have, so you can see at a glance which modes overlap and what each one adds.
  */
-export default function ModeCompare({ tonicPc }: { tonicPc: number }) {
+export default function ModeCompare({ tonicPc, open, onToggle, accent }: { tonicPc: number; open?: boolean; onToggle?: () => void; accent?: string }) {
   const [groupId, setGroupId] = useState("tonic-major");
   const [system] = useLabelSystem();
   const cmp = useMemo(() => compareModes(groupId, tonicPc), [groupId, tonicPc]);
@@ -26,13 +26,12 @@ export default function ModeCompare({ tonicPc }: { tonicPc: number }) {
   const coreNames = cmp.modes[0] ? cmp.core.map((s) => ({ semi: s, ...noteAt(cmp.modes[0], s)! })) : [];
 
   return (
-    <section className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
-      <h2 className="mb-2 text-sm font-medium text-slate-100">
-        Compare modes: what they share and what each one adds
-        <Info label="How to read the comparison">
-          Pick a group of modes. Each row is one mode on {tonic}; each column is a note, counted in semitones above the tonic. Shaded columns are the <b>core</b>: notes every mode in the group has. In the other columns only some modes have the note, so a column that is filled in two rows is where those two modes overlap. The brightly outlined circles are the notes a mode adds beyond the core, and the list on the right says which. Modes are ordered from brightest (most raised notes) to darkest, so neighbours overlap the most.
-        </Info>
-      </h2>
+    <Section
+      title="Compare modes: what they share and what each one adds"
+      meta={`${MODE_GROUPS.length} groups`}
+      open={open} onToggle={onToggle} accent={accent}
+      info={<>Pick a group of modes. Each row is one mode on {tonic}; each column is a note, counted in semitones above the tonic. Shaded columns are the <b>core</b>: notes every mode in the group has. In the other columns only some modes have the note, so a column that is filled in two rows is where those two modes overlap. The brightly outlined circles are the notes a mode adds beyond the core, and the list on the right says which. Modes are ordered from brightest (most raised notes) to darkest, so neighbours overlap the most.</>}
+    >
       <ChipRow label="Group" info="Group by parent scale (the seven modes of the major scale, of harmonic minor, of melodic minor), or by the chord on the tonic: every mode with a major, minor, diminished or augmented 1 – 3 – 5, whatever scale it comes from.">
         {MODE_GROUPS.map((g) => <Chip key={g.id} on={g.id === groupId} onClick={() => setGroupId(g.id)}>{g.label}</Chip>)}
       </ChipRow>
@@ -89,6 +88,6 @@ export default function ModeCompare({ tonicPc }: { tonicPc: number }) {
           ))}
         </svg>
       </div>
-    </section>
+    </Section>
   );
 }

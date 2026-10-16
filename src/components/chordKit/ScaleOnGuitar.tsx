@@ -12,7 +12,7 @@ import type { NotePlayer } from "./useNotePlayer";
 const playBtn = "rounded-full border border-emerald-500/70 bg-emerald-500/10 px-2.5 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25";
 
 /**
- * A mode on the guitar: the whole neck, then the positions to learn it in (pentatonic boxes or three notes per string).
+ * A mode on the guitar: the whole neck, then the five positions to learn it in (the pentatonic boxes, or the full scale in those boxes).
  * Tap a note to hear it, play a position up and down, or pick a position to light it up on the neck.
  */
 export default function ScaleOnGuitar({ ctx, player }: { ctx: KeyContext; player: NotePlayer }) {
@@ -48,7 +48,7 @@ export default function ScaleOnGuitar({ ctx, player }: { ctx: KeyContext; player
       </h2>
 
       <div className="mb-3 flex flex-col gap-2">
-        <ChipRow label="Positions" info="Five positions cover the neck, and each is named by the strings its root is on (counting from the low E): 1 has it on E, D and high e; 2 on D and B; 3 on A and B; 4 on A and G; 5 on G, E and high e. Each box keeps its classic shape: it sits at the root's fret on the low E string, and one that would go below the nut or past the 17th fret is shown an octave away, so the numbers can jump along the neck. Every mode uses the same five boxes as the major pentatonic (when it has a major 3rd) or the minor pentatonic (minor 3rd), so the shapes look familiar: each string keeps the frets that box uses, and the mode's notes are placed there. Pentatonic shows the mode's five-note scale, Full scale all seven notes (the CAGED scale shapes).">
+        <ChipRow label="Positions" info="Five positions cover the neck, and each is named by the strings its root is on (counting from the low E): 1 has it on E, D and high e; 2 on D and B; 3 on A and B; 4 on A and G; 5 on G, E and high e. Each box keeps its classic shape: it sits at the root's fret on the low E string. Near the nut a note that would fall below it moves to the next string down (so in E, position 1 is the open position); otherwise a box that would go below the nut or past the 17th fret is shown an octave away, so the numbers can jump along the neck. Every mode uses the same five boxes as the major pentatonic (when it has a major 3rd) or the minor pentatonic (minor 3rd), so the shapes look familiar: each string keeps the frets that box uses, and the mode's notes are placed there. Pentatonic shows the mode's five-note scale. Full scale adds the other two notes into the same five boxes (the CAGED scale shapes), so there are still five positions, not seven: one map of the neck for both, with the pentatonic you know as the frame.">
           <Chip on={kind === "pentatonic"} onClick={() => { setKind("pentatonic"); setFocus(null); }}>{pent.name} boxes</Chip>
           <Chip on={kind === "scale"} onClick={() => { setKind("scale"); setFocus(null); }}>Full scale</Chip>
           <span className="mx-1 h-4 w-px bg-slate-700" aria-hidden />

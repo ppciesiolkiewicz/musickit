@@ -37,14 +37,18 @@ export function useLabelSystem(): [LabelSystem, (v: LabelSystem) => void] {
   return [v, setLabelSystem];
 }
 
-/** One dropdown for the label system. Every instance edits the same global setting. */
-export function LabelSelect({ className = "", showLabel = true }: { className?: string; showLabel?: boolean }) {
-  const [v, set] = useLabelSystem();
+/**
+ * One dropdown for the label system. Every instance edits the same global setting.
+ * `omit` hides systems a page has no use for; a stored omitted value shows as scale degrees, which is how such pages draw it.
+ */
+export function LabelSelect({ className = "", showLabel = true, omit = [] }: { className?: string; showLabel?: boolean; omit?: LabelSystem[] }) {
+  const [stored, set] = useLabelSystem();
+  const v = omit.includes(stored) ? "degree" : stored;
   return (
     <label className={`inline-flex items-center gap-1.5 text-xs text-slate-400 ${className}`}>
       {showLabel && "Labels"}
       <select value={v} onChange={(e) => set(e.target.value as LabelSystem)} className="rounded-md border border-slate-700 bg-slate-900 px-1.5 py-0.5 text-slate-200" aria-label="Note labels">
-        {LABEL_SYSTEMS.map((s) => <option key={s.id} value={s.id}>{s.label} ({s.hint})</option>)}
+        {LABEL_SYSTEMS.filter((s) => !omit.includes(s.id)).map((s) => <option key={s.id} value={s.id}>{s.label} ({s.hint})</option>)}
       </select>
     </label>
   );

@@ -62,6 +62,11 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
 
   return (
     <div className="flex flex-col gap-5">
+      {syncUrl && (
+        <Link href={`/theory/scales?key=${tonicPc}#part-${fam.id}`} className="self-start rounded-md text-sm text-sky-300 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
+          ← Back to mode selection
+        </Link>
+      )}
       <div className="flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5">
         <KeyPicker tonicPc={tonicPc} onTonic={setTonicPc} />
         <LabelsRow />

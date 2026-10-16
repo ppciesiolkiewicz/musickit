@@ -43,10 +43,25 @@ describe("five positions, named by the strings the root is on", () => {
     }
   });
 
-  it("boxes keep their classic shape: one that would go below the nut is played an octave up (E major box 1 at the 12th fret)", () => {
+  it("E major box 1 is the open position: the notes that would fall below the nut move a string down, to the 4th fret", () => {
     const [p1, p2] = positionsFor(makeKeyContext(4, 0, 0), "pentatonic");
-    assert.deepEqual(frets(p1), [[12, 14], [11, 14], [11, 14], [11, 13], [12, 14], [12, 14]]);
+    assert.deepEqual(frets(p1), [[0, 2, 4], [2, 4], [2, 4], [1], [0, 2], [0, 2]]);
     assert.deepEqual(frets(p2), [[2, 4], [2, 4], [2, 4], [1, 4], [2, 5], [2, 4]]);
+  });
+
+  it("position 1 in E starts on the open strings in every mode, for the pentatonic and the full scale", () => {
+    for (let f = 0; f < 3; f++) for (let m = 0; m < 7; m++) for (const kind of ["pentatonic", "scale"] as const) {
+      const [p1] = positionsFor(makeKeyContext(4, f, m), kind);
+      const tag = `E ${f} ${m} ${kind}`;
+      assert.equal(p1.from, 0, `${tag} starts at fret ${p1.from}`);
+      assert.ok(p1.notes.some((n) => n.string === 0 && n.fret === 0), `${tag} has no open low E`);
+      assert.ok(p1.notes.some((n) => n.string === 5 && n.fret === 0), `${tag} has no open high e`);
+      assert.ok(p1.to <= 5, `${tag} runs to fret ${p1.to}`);
+    }
+  });
+
+  it("keys a fret above E keep position 1 low too: F major box 1 starts at the nut", () => {
+    assert.equal(positionsFor(makeKeyContext(5, 0, 0), "pentatonic")[0].from, 0);
   });
 
   it("E minor box 1 is the open position", () => {
@@ -62,7 +77,7 @@ describe("five positions, named by the strings the root is on", () => {
     const [p1] = positionsFor(makeKeyContext(7, 1, 4), "scale");
     assert.deepEqual(frets(p1), [[3, 4], [2, 3, 5], [1, 3, 5], [1, 4, 5], [3, 4, 6], [3, 4]]);
     const [pent] = positionsFor(makeKeyContext(7, 1, 4), "pentatonic");
-    assert.deepEqual(frets(pent), [[3, 4], [2, 5], [1, 5], [1, 4], [3, 4], [3, 4]]);
+    assert.deepEqual(frets(pent), [[3, 4], [2, 5, 6], [5], [1, 4], [3, 4], [3, 4]], "E♭ on the A string next to D, not 4 frets below G on the D string");
   });
 
   it("in every key and mode: five different positions, frets 0-17, at most a 5-fret span, the root pattern, every note", () => {
@@ -91,6 +106,53 @@ describe("five positions, named by the strings the root is on", () => {
     assert.equal(m.length, 23);
     assert.equal(m[0], 45);
     assert.equal(m[m.length - 1], 45);
+  });
+});
+
+describe("notes sit close together: no jump of 4 frets (three empty frets) along a string when another string has the note nearby", () => {
+  /** On each string, every pair of neighbouring notes that are 4 frets or more apart. */
+  const stretches = (p: { notes: { string: number; fret: number }[] }) =>
+    frets(p).flatMap((fr, s) => fr.slice(1).map((f, k) => ({ s, from: fr[k], to: f })).filter((x) => x.to - x.from >= 4));
+
+  it("E Ionian ♯5 pentatonic position 2: C sits on the B string at the 1st fret, beside C♯, not at the 5th fret of the G string", () => {
+    const p2 = positionsFor(makeKeyContext(4, 1, 2), "pentatonic")[1];
+    assert.deepEqual(frets(p2)[3], [1]);
+    assert.deepEqual(frets(p2)[4], [1, 2, 5]);
+    assert.ok(p2.notes.some((n) => n.string === 4 && n.fret === 1 && n.name === "B♯"));
+    assert.deepEqual(stretches(p2), []);
+  });
+
+  it("every full scale in every key and mode: neighbouring notes on a string are at most 3 frets apart", () => {
+    for (let pc = 0; pc < 12; pc++) for (let f = 0; f < 3; f++) for (let m = 0; m < 7; m++) {
+      positionsFor(makeKeyContext(pc, f, m), "scale").forEach((p) => assert.deepEqual(stretches(p), [], `${pc} ${f} ${m} position ${p.number}`));
+    }
+  });
+
+  it("major and minor pentatonic boxes in every key (the six major modes but Locrian): at most 3 frets between neighbours", () => {
+    for (let pc = 0; pc < 12; pc++) for (let m = 0; m < 6; m++) {
+      positionsFor(makeKeyContext(pc, 0, m), "pentatonic").forEach((p) => assert.deepEqual(stretches(p), [], `${pc} ${m} position ${p.number}`));
+    }
+  });
+
+  it("in every key and mode, a note left 4 frets from the rest of its string has no free spot beside the notes of another string", () => {
+    for (let pc = 0; pc < 12; pc++) for (let f = 0; f < 3; f++) for (let m = 0; m < 7; m++) for (const kind of ["pentatonic", "scale"] as const) {
+      const ctx = makeKeyContext(pc, f, m);
+      const cells = scaleCells(ctx, 17);
+      positionsFor(ctx, kind).forEach((p) => {
+        for (const { s, from, to } of stretches(p)) {
+          for (const fret of [from, to]) {
+            const n = p.notes.find((x) => x.string === s && x.fret === fret)!;
+            const others = p.notes.filter((x) => x.string === s && x !== n);
+            if (others.some((x) => Math.abs(x.fret - fret) < 4)) continue; // close to another note on its string
+            if (n.degree === 0) continue; // roots stay put: they name the position
+            const better = cells.find((c) => c.midi === n.midi && c.string !== s && c.fret >= p.from && c.fret <= p.to
+              && p.notes.some((x) => x.string === c.string && Math.abs(x.fret - c.fret) < 4)
+              && !p.notes.some((x) => x.midi === c.midi && x.string === c.string));
+            assert.equal(better, undefined, `${pc} ${f} ${m} ${kind} position ${p.number}: ${n.name} at string ${s} fret ${fret} could be at string ${better?.string} fret ${better?.fret}`);
+          }
+        }
+      });
+    }
   });
 });
 

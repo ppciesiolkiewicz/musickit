@@ -7,7 +7,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { KeyPicker } from "./KeyPicker";
 import ModeCompare from "./ModeCompare";
-import { Chip, DegreeLegend, Info } from "@/components/ui";
+import { Chip, DegreeLegend, Info, Section } from "@/components/ui";
 import { FAMILIES, makeKeyContext } from "@/features/theory/theory";
 import { MODE_PAGES, degreeColour, degreeLabels, relativesOf, DOT_INK } from "@/features/theory/scales";
 import { scaleCells, scaleLineMidi } from "@/lib/chordKit/scalePositions";
@@ -16,14 +16,42 @@ import { useNotePlayer } from "./useNotePlayer";
 
 const ORD = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th"];
 
+/** Edge colour and one-line intro for each accordion on the page. */
+const PARTS = {
+  compare: { accent: "#38bdf8", label: "Compare" },
+  major: { accent: "#34d399", label: "Major modes", intro: "The seven modes of the major scale share one set of notes. Read down the cards and you can see the same seven notes starting on each of them." },
+  harm: { accent: "#fbbf24", label: "Harmonic minor", intro: "Natural minor with a raised 7th. Its modes share their seven notes with each other, not with the major scale, and carry the exotic augmented 2nd." },
+  mel: { accent: "#a78bfa", label: "Melodic minor", intro: "The major scale with a lowered 3rd. Its modes are the jazz sounds: Lydian dominant over a 7♯11, Altered over a dominant that resolves." },
+} as const;
+type PartId = keyof typeof PARTS;
+const PART_IDS = Object.keys(PARTS) as PartId[];
+
 /** Every mode side by side in one key: scale degrees, notes and relatives. */
 export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey: number; /** write ?key= to the address bar (off when embedded in another page) */ syncUrl?: boolean }) {
   const [tonicPc, setTonicPc] = useState(initialKey);
   const [system] = useLabelSystem();
   const [necks, setNecks] = useState(true);
+  const [open, setOpen] = useState<Record<PartId, boolean>>({ compare: false, major: true, harm: false, mel: false });
+  const toggle = (id: PartId) => setOpen((o) => ({ ...o, [id]: !o[id] }));
+  const setAll = (v: boolean) => setOpen({ compare: v, major: v, harm: v, mel: v });
+  const allOpen = PART_IDS.every((id) => open[id]);
+  const jump = (id: PartId) => {
+    setOpen((o) => ({ ...o, [id]: true }));
+    requestAnimationFrame(() => document.getElementById(`part-${id}`)?.scrollIntoView({ behavior: "smooth", block: "start" }));
+  };
   // one player for the page, so starting a scale on one card stops the light on another; keys are "<slug>:d<degree>"
   const player = useNotePlayer();
   const activeIn = (slug: string) => (player.active?.startsWith(slug + ":") ? player.active.slice(slug.length + 1) : null);
+
+  // arriving from a mode page (#part-harm): open that family and scroll to it
+  useEffect(() => {
+    if (!syncUrl) return;
+    const id = window.location.hash.replace("#part-", "");
+    if (!(id in PARTS)) return;
+    const raf = requestAnimationFrame(() => jump(id as PartId));
+    return () => cancelAnimationFrame(raf);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once, on arrival
+  }, []);
 
   useEffect(() => {
     if (!syncUrl) return;
@@ -53,28 +81,48 @@ export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey
     <div className="flex flex-col gap-5">
       <div className="flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5">
         <KeyPicker tonicPc={tonicPc} onTonic={setTonicPc} />
-        <LabelsRow />
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
           <DegreeLegend />
-          <Chip on={necks} onClick={() => setNecks((v) => !v)}>Fretboards</Chip>
           <Info label="How to read the cards">
-            Each card is one mode starting on the key you chose. The coloured circles are its seven notes in order: tap one to hear it, or press Play to hear the scale up and back down. The fretboard shows every place the scale falls on the first 12 frets; tap a dot to hear it. Open a mode for its positions (pentatonic boxes and three notes per string) on the whole neck. The small label above each is the scale degree, written against the major scale, so ♭3 means the 3rd is lowered and ♯4 means the 4th is raised. Colour follows the degree: 1 white, 2 teal, 3 amber, 4 lime, 5 blue, 6 violet, 7 rose. Relative major and relative minor are the major and natural minor scales that use exactly the same seven notes.
+            Each card is one mode starting on the key you chose. The coloured circles are its seven notes in order: tap one to hear it, or press Play to hear the scale up and back down. The fretboard shows every place the scale falls on the first 12 frets; tap a dot to hear it. Open a mode for its positions on the whole neck: five pentatonic boxes, and the full scale filled into the same five boxes. The small label above each is the scale degree, written against the major scale, so ♭3 means the 3rd is lowered and ♯4 means the 4th is raised. Colour follows the degree: 1 white, 2 teal, 3 amber, 4 lime, 5 blue, 6 violet, 7 rose. Relative major and relative minor are the major and natural minor scales that use exactly the same seven notes.
           </Info>
         </div>
       </div>
 
-      <ModeCompare tonicPc={tonicPc} />
+      {/* floats over the cards while scrolling, so labels and sections can be switched from anywhere */}
+      <div className="sticky top-2 z-20 flex flex-col gap-2 rounded-2xl border border-slate-700 bg-slate-950/85 p-2.5 shadow-lg shadow-black/30 backdrop-blur">
+        <LabelsRow omit={["chord"]}>
+          <Chip on={necks} onClick={() => setNecks((v) => !v)}>Fretboards</Chip>
+        </LabelsRow>
+        <nav aria-label="Sections" className="flex flex-wrap items-center gap-1.5">
+          <span className="w-28 shrink-0 text-xs uppercase tracking-wider text-slate-500">Jump to</span>
+          {PART_IDS.map((id) => (
+            <button key={id} type="button" onClick={() => jump(id)} className="flex items-center gap-1.5 rounded-full border border-slate-700 px-2.5 py-0.5 text-xs text-slate-300 transition hover:border-slate-500 hover:text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
+              <span className="h-2 w-2 rounded-full" style={{ background: PARTS[id].accent }} aria-hidden />
+              {PARTS[id].label}
+            </button>
+          ))}
+          <button type="button" onClick={() => setAll(!allOpen)} className="ml-auto rounded-full px-2.5 py-0.5 text-xs text-sky-300 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
+            {allOpen ? "Collapse all" : "Expand all"}
+          </button>
+        </nav>
+      </div>
 
-      {rows.map(({ fam, modes }, fi) => (
-        <section key={fam.id}>
-          <h2 className="mb-2 text-sm font-medium text-slate-200">{fam.label}</h2>
+      <div id="part-compare" className="scroll-mt-32">
+        <ModeCompare tonicPc={tonicPc} open={open.compare} onToggle={() => toggle("compare")} accent={PARTS.compare.accent} />
+      </div>
+
+      {rows.map(({ fam, modes }) => (
+        <div key={fam.id} id={`part-${fam.id}`} className="scroll-mt-32">
+        <Section title={fam.label} meta={`${modes.length} modes in ${modes[0].ctx.names[0]}`} open={open[fam.id]} onToggle={() => toggle(fam.id)} accent={PARTS[fam.id].accent}>
+          <p className="mb-3 text-xs text-slate-400">{PARTS[fam.id].intro}</p>
           <div className="grid gap-3 lg:grid-cols-2">
             {modes.map(({ page, ctx, rel, labels, line, cells }) => {
               const active = activeIn(page.slug);
               const degreeOf = (midi: number) => ctx.steps.indexOf((midi - ctx.tonic.pc + 120) % 12);
               const playScale = () => player.play(line.map((m) => ({ key: `${page.slug}:d${degreeOf(m)}`, midi: m })), 240);
               return (
-              <article key={page.slug} className="flex min-w-0 flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5">
+              <article key={page.slug} className="flex min-w-0 flex-col gap-3 rounded-xl border border-slate-800 bg-slate-950/60 p-2.5">
                 <header>
                   <Link href={`/theory/scales/${page.slug}?key=${tonicPc}`} className="group flex flex-wrap items-baseline gap-x-2 rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
                     <h3 className="text-base text-slate-100 group-hover:text-sky-300 group-hover:underline">{ctx.names[0]} {ctx.modeName}</h3>
@@ -104,6 +152,7 @@ export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey
                   Degrees <span className="tabular-nums text-slate-300">{labels.map(fmtDegree).join(" ")}</span>
                 </p>
 
+                <Section level={2} defaultOpen={false} title="Relatives and differences">
                 <ul className="space-y-1 text-xs text-slate-300">
                   {page.modeIndex !== 0 && !rel.relativeMajor && (
                     <li>
@@ -128,6 +177,7 @@ export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey
                   {rel.vsMajor.length > 0 && <li className="text-slate-400">Versus {ctx.names[0]} major: <b className="text-slate-300">{rel.vsMajor.join(" ")}</b> altered</li>}
                   {rel.vsMinor.length > 0 && <li className="text-slate-400">Versus {ctx.names[0]} natural minor: <b className="text-slate-300">{rel.vsMinor.join(" ")}</b> differ</li>}
                 </ul>
+                </Section>
 
                 <div className="mt-auto flex flex-wrap gap-2">
                   <Link href={`/theory/scales/${page.slug}?key=${tonicPc}`} className="rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-300 transition hover:border-sky-400 hover:text-sky-100">
@@ -141,12 +191,8 @@ export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey
               );
             })}
           </div>
-          {fi === 0 && (
-            <p className="mt-2 text-xs text-slate-500">
-              The seven major modes share one set of notes. Read down the cards and you can see the same seven notes starting on each of them.
-            </p>
-          )}
-        </section>
+        </Section>
+        </div>
       ))}
     </div>
   );
