@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { getScaleNotes, isNoteInScale, getScaleDegree, SCALE_OPTIONS, TONIC_OPTIONS } from "./musicTheory";
 import { requestMidiAccess, addMidiListener, getMidiInputs } from "./midi";
 import { OSCILLATOR_ID } from "../engine/instruments";
@@ -86,8 +86,26 @@ function buildKeyCodeToNote(viewOctave: number): Map<string, string> {
   return map;
 }
 
-/** `destination` is where its sound goes (the app's output by default). With `voice` (the looper's instrument) it plays that instead and has no Sound picker. */
-export default function Piano({ destination, voice }: { destination?: () => AudioNode; voice?: ScaleVoice } = {}) {
+/** A key chosen outside the piano (the theory piano page): what to highlight and the degree to print on each key. */
+export interface PianoKeyInfo {
+  inScale: (midi: number) => boolean;
+  isTonic: (midi: number) => boolean;
+  degree: (midi: number) => string | null;
+}
+
+export interface PianoProps {
+  /** where its sound goes (the app's output by default) */
+  destination?: () => AudioNode;
+  /** the looper's instrument: played instead of its own sound, and no Sound picker */
+  voice?: ScaleVoice;
+  /** when given, the piano shows this key and hides its own key, scale and highlight pickers */
+  keyInfo?: PianoKeyInfo;
+  /** every note started or stopped, from the computer keys, a click or tap, or MIDI */
+  onNoteOn?: (midi: number) => void;
+  onNoteOff?: (midi: number) => void;
+}
+
+export default function Piano({ destination, voice, keyInfo, onNoteOn, onNoteOff }: PianoProps = {}) {
   const instrumentOptions = useInstrumentOptions();
   const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
   const [viewOctave, setViewOctave] = useState(3);
@@ -112,6 +130,34 @@ export default function Piano({ destination, voice }: { destination?: () => Audi
   }, [player, voice]);
   const stopAllNotes = useCallback(() => (voice ?? player).allOff(), [player, voice]);
 
+  // the callbacks change every render on the owner's side; listeners read the latest through a ref
+  const callbacks = useRef({ onNoteOn, onNoteOff });
+  useEffect(() => { callbacks.current = { onNoteOn, onNoteOff }; });
+  /** one path for every source, so the sound, the lit key and the callbacks never disagree */
+  const pressNote = useCallback((noteId: string) => {
+    playNote(noteId);
+    setPressedKeys((prev) => new Set(prev).add(noteId));
+    const m = noteToMidi(noteId);
+    if (m !== null) callbacks.current.onNoteOn?.(m);
+  }, [playNote]);
+  const releaseNote = useCallback((noteId: string) => {
+    stopNote(noteId);
+    setPressedKeys((prev) => {
+      if (!prev.has(noteId)) return prev;
+      const next = new Set(prev);
+      next.delete(noteId);
+      return next;
+    });
+    const m = noteToMidi(noteId);
+    if (m !== null) callbacks.current.onNoteOff?.(m);
+  }, [stopNote]);
+  const pointerProps = (noteId: string) => ({
+    onPointerDown: (e: React.PointerEvent) => { e.preventDefault(); pressNote(noteId); },
+    onPointerUp: () => releaseNote(noteId),
+    onPointerLeave: (e: React.PointerEvent) => { if (e.buttons) releaseNote(noteId); },
+    onPointerCancel: () => releaseNote(noteId),
+  });
+
   useEffect(() => {
     if (!voice) void player.preload().catch(() => undefined);
   }, [player, voice]);
@@ -129,6 +175,16 @@ export default function Piano({ destination, voice }: { destination?: () => Audi
     () => (scaleName ? getScaleNotes(scaleName) : []),
     [scaleName]
   );
+
+  const highlighting = keyInfo ? true : showScaleHighlight && scaleNotes.length > 0;
+  /** whether a key is in the scale and the degree printed on it, from the owner's key when it gave one */
+  const marks = (noteId: string) => {
+    if (keyInfo) {
+      const m = noteToMidi(noteId);
+      return m === null ? { inScale: false, degree: null } : { inScale: keyInfo.inScale(m), degree: keyInfo.degree(m) };
+    }
+    return { inScale: highlighting && isNoteInScale(noteId, scaleName), degree: getScaleDegree(noteId, scaleName) };
+  };
 
   const keyCodeToNote = useMemo(() => buildKeyCodeToNote(viewOctave), [viewOctave]);
   const noteToKeyCode = useMemo(() => {
@@ -178,11 +234,10 @@ export default function Piano({ destination, voice }: { destination?: () => Audi
       const noteId = keyCodeToNote.get(e.code);
       if (noteId) {
         e.preventDefault();
-        playNote(noteId);
-        setPressedKeys((prev) => new Set(prev).add(noteId));
+        pressNote(noteId);
       }
     },
-    [keyCodeToNote, playNote]
+    [keyCodeToNote, pressNote]
   );
 
   const handleKeyUp = useCallback(
@@ -191,15 +246,10 @@ export default function Piano({ destination, voice }: { destination?: () => Audi
       const noteId = keyCodeToNote.get(e.code);
       if (noteId) {
         e.preventDefault();
-        stopNote(noteId);
-        setPressedKeys((prev) => {
-          const next = new Set(prev);
-          next.delete(noteId);
-          return next;
-        });
+        releaseNote(noteId);
       }
     },
-    [keyCodeToNote, stopNote]
+    [keyCodeToNote, releaseNote]
   );
 
   useEffect(() => {
@@ -218,20 +268,11 @@ export default function Piano({ destination, voice }: { destination?: () => Audi
 
   useEffect(() => {
     const removeListener = addMidiListener((msg) => {
-      if (msg.type === "noteon") {
-        playNote(msg.noteName);
-        setPressedKeys((prev) => new Set(prev).add(msg.noteName));
-      } else {
-        stopNote(msg.noteName);
-        setPressedKeys((prev) => {
-          const next = new Set(prev);
-          next.delete(msg.noteName);
-          return next;
-        });
-      }
+      if (msg.type === "noteon") pressNote(msg.noteName);
+      else releaseNote(msg.noteName);
     });
     return removeListener;
-  }, [playNote, stopNote]);
+  }, [pressNote, releaseNote]);
 
   const handleConnectMidi = useCallback(async () => {
     setMidiStatus("connecting");
@@ -305,6 +346,7 @@ export default function Piano({ destination, voice }: { destination?: () => Audi
             ))}
           </select>
           </>)}
+          {!keyInfo && (<>
           <div className="h-4 w-px bg-white/20" />
           <select
             value={scaleTonic}
@@ -337,6 +379,7 @@ export default function Piano({ destination, voice }: { destination?: () => Audi
             />
             Highlight scale
           </label>
+          </>)}
         </div>
       </div>
 
@@ -348,11 +391,11 @@ export default function Piano({ destination, voice }: { destination?: () => Audi
           {/* White keys */}
           <div className="flex">
             {displayedWhiteKeys.map((key) => {
-              const inScale = showScaleHighlight && scaleNotes.length > 0 && isNoteInScale(key.id, scaleName);
-              const degree = getScaleDegree(key.id, scaleName);
+              const { inScale, degree } = marks(key.id);
               return (
                 <div
                   key={key.id}
+                  {...pointerProps(key.id)}
                   className={`
                     relative flex flex-shrink-0 flex-col items-center justify-between rounded-b-lg border transition-all duration-75
                     border-l-stone-300/60 border-r-stone-400/80 border-t-stone-200/90
@@ -361,7 +404,7 @@ export default function Piano({ destination, voice }: { destination?: () => Audi
                       ? "z-10 bg-amber-200 shadow-[inset_0_3px_16px_rgba(251,191,36,0.45)]"
                       : inScale
                         ? "bg-gradient-to-b from-emerald-50/90 via-stone-100 to-stone-200/95 ring-1 ring-inset ring-emerald-400/30"
-                        : showScaleHighlight && scaleNotes.length > 0
+                        : highlighting
                           ? "bg-gradient-to-b from-stone-100/80 via-stone-150/80 to-stone-200/70 opacity-75"
                           : "bg-gradient-to-b from-stone-50 via-stone-100 to-stone-200/95 hover:from-stone-100 hover:via-stone-150 hover:to-stone-300/90"}
                   `}
@@ -388,8 +431,7 @@ export default function Piano({ destination, voice }: { destination?: () => Audi
             BLACK_KEY_OFFSETS.map(({ offset, note }) => {
               const key = displayedBlackKeys.find((k) => k.id === `${note}${octave}`);
               if (!key) return null;
-              const inScale = showScaleHighlight && scaleNotes.length > 0 && isNoteInScale(key.id, scaleName);
-              const degree = getScaleDegree(key.id, scaleName);
+              const { inScale, degree } = marks(key.id);
               const left =
                 FRAME_PAD_X +
                 ((octave - viewOctave) * 7 + offset) * (WHITE_KEY_WIDTH - 1) -
@@ -397,6 +439,7 @@ export default function Piano({ destination, voice }: { destination?: () => Audi
               return (
                 <div
                   key={key.id}
+                  {...pointerProps(key.id)}
                   className={`
                     absolute flex flex-col items-center justify-between rounded-b-lg border border-zinc-900/95 transition-all duration-75
                     shadow-[inset_0_-3px_8px_rgba(0,0,0,0.5),0_3px_8px_rgba(0,0,0,0.25)]
@@ -405,7 +448,7 @@ export default function Piano({ destination, voice }: { destination?: () => Audi
                       ? "bg-amber-600 shadow-[inset_0_3px_14px_rgba(217,119,6,0.55)]"
                       : inScale
                         ? "bg-gradient-to-b from-emerald-800/90 via-zinc-800 to-zinc-900 ring-1 ring-inset ring-emerald-500/40"
-                        : showScaleHighlight && scaleNotes.length > 0
+                        : highlighting
                           ? "bg-gradient-to-b from-zinc-800/80 via-zinc-900/80 to-zinc-950 opacity-80"
                           : "bg-gradient-to-b from-zinc-700 via-zinc-800 to-zinc-900 hover:from-zinc-600 hover:via-zinc-700 hover:to-zinc-800"}
                   `}
