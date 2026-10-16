@@ -1,7 +1,7 @@
 import Link from "next/link";
 import ThemeSwitcher from "./ThemeSwitcher";
 import TheoryMenu from "./TheoryMenu";
-import { sectionFor } from "@/features/theory/sections";
+import Wordmark from "./Wordmark";
 export const SITE_LINKS = [
   { href: "/", label: "Home" },
   { href: "/tuner", label: "Tuner" },
@@ -16,7 +16,7 @@ function NavLink({ href, label, current, small, outlined }: { href: string; labe
     <Link
       href={href}
       aria-current={current ? "page" : undefined}
-      className={`rounded-lg transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${small ? "px-2.5 py-1 text-xs" : "px-3 py-1.5 text-sm"} ${outlined ? "ml-1 border border-sky-500/60" : ""} ${current ? "bg-sky-500/20 text-sky-100" : outlined ? "text-sky-200 hover:bg-sky-500/10" : "text-slate-400 hover:text-slate-200"}`}
+      className={`rounded-lg transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${small ? "px-2.5 py-1 text-xs" : "px-3.5 py-2 text-sm"} ${outlined ? "ml-1 border border-sky-500/60" : ""} ${current ? "bg-sky-500/20 text-sky-100" : outlined ? "text-sky-200 hover:bg-sky-500/10" : "text-slate-400 hover:text-slate-200"}`}
     >
       {label}
     </Link>
@@ -25,26 +25,18 @@ function NavLink({ href, label, current, small, outlined }: { href: string; labe
 
 /** The Music Kit top navigation. Shared by every page; knows nothing about any feature. */
 export default function SiteNav({ active }: { active: string }) {
-  const section = active.startsWith("/theory/") ? sectionFor(active) : undefined;
   const [home, ...rest] = SITE_LINKS;
   return (
-    <div className="flex flex-col gap-1">
-      <nav aria-label="Music Kit" className="flex flex-wrap items-center gap-1">
-        <span className="mr-3 hidden text-sm font-light tracking-widest text-slate-400 sm:inline">MUSIC KIT</span>
-        <NavLink {...home} current={isActive(active, home.href)} />
-        <TheoryMenu active={active} />
-        {rest.map((l) => (
-          <NavLink key={l.href} {...l} current={isActive(active, l.href)} />
-        ))}
-        <ThemeSwitcher className="ml-auto" />
-      </nav>
-      {section && (
-        <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 px-3 text-xs text-slate-500">
-          <Link href="/theory" className="hover:text-slate-300">Theory</Link>
-          <span aria-hidden>›</span>
-          <span className="text-slate-300">{section.label}</span>
-        </nav>
-      )}
-    </div>
+    <nav aria-label="Music Kit" className="flex flex-wrap items-center gap-1">
+      <Link href="/" aria-label="Music Kit home" className="mr-5 hidden rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 sm:inline">
+        <Wordmark className="text-[1.7rem]" />
+      </Link>
+      <NavLink {...home} current={isActive(active, home.href)} />
+      <TheoryMenu active={active} />
+      {rest.map((l) => (
+        <NavLink key={l.href} {...l} current={isActive(active, l.href)} />
+      ))}
+      <ThemeSwitcher className="ml-auto" />
+    </nav>
   );
 }

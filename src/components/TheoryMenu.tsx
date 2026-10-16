@@ -93,7 +93,7 @@ export default function TheoryMenu({ active }: { active: string }) {
           setOpen(menuClick({ open, hoverOpenedAt: hoverOpenedAt.current, now: performance.now(), pointerType }));
           hoverOpenedAt.current = null;
         }}
-        className={`flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm transition ${inTheory ? "bg-sky-500/20 text-sky-100" : "text-slate-400 hover:text-slate-200"}`}
+        className={`flex items-center gap-1 rounded-lg px-3.5 py-2 text-sm transition ${inTheory ? "bg-sky-500/20 text-sky-100" : "text-slate-400 hover:text-slate-200"}`}
       >
         Theory
         <Icon name="chevron-down" size={14} className={`transition ${open ? "rotate-180" : ""}`} />
