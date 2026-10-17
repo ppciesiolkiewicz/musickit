@@ -28,6 +28,7 @@ export const THEORY_SECTIONS: TheorySection[] = [
   { group: "practice", href: "/theory/ears", label: "Ear training", desc: "Name the interval you hear", icon: "ear" },
   { group: "practice", href: "/theory/improv", label: "Improv", desc: "Play over a groove", icon: "music" },
   { group: "practice", href: "/theory/drone", label: "Drone", desc: "Hear each degree against the root", icon: "audio-lines" },
+  { group: "practice", href: "/theory/piano", label: "Piano", desc: "Play and see notes, intervals and chords on the staff", icon: "piano" },
   { group: "tools", href: "/theory/tunings", label: "Tunings", desc: "Alternate tunings", icon: "sliders-horizontal" },
   { group: "tools", href: "/cheatsheet", label: "Cheatsheet", desc: "Build your own reference sheet", icon: "file-text" },
 ];
