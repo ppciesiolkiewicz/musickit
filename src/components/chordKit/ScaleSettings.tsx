@@ -8,7 +8,7 @@ import type { LabelSystem } from "@/features/theory/labels";
 import { FAMILIES, TONICS, modeAlias } from "@/features/theory/theory";
 import { MODE_PAGES } from "@/features/theory/scales";
 import { scaleHref, scalesIndexHref } from "@/features/theory/keySlug";
-import { Badge, Chip, InfoBox, InfoButton, Select } from "@/components/ui";
+import { Chip, InfoBox, InfoButton, Select } from "@/components/ui";
 import { DegreeLegend } from "@/components/theory/DegreeLegend";
 import { PocketTools } from "@/features/instruments";
 
