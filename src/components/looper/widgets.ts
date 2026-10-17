@@ -122,9 +122,10 @@ export function controlWidget(key: string): { kind: "switch" | "out"; ownerId: s
   return null;
 }
 
-const INPUTS_DONE = "musickit.looper.inputsWidgetDone";
+// "2": New project used to clear the widgets but keep the old flag, so the list never came back; this brings it back once
+const INPUTS_DONE = "musickit.looper.inputsWidgetDone2";
 
-/** Once (flag `musickit.looper.inputsWidgetDone`): the Inputs list is on show, as it always was under the metronome. */
+/** Once per project (flag `musickit.looper.inputsWidgetDone2`): the Inputs list is on show, as it always was under the metronome. */
 export function inputsWidgetDefault() {
   try {
     if (window.localStorage.getItem(INPUTS_DONE)) return;

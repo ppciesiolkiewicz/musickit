@@ -120,7 +120,7 @@ function wireNam() {
  * defaults go too, so a new project starts with the default guitar, vocal, keyboard piano, Scale Piano, sequencers and group effect
  * widgets again, and the canvas lays itself out afresh (vertical).
  */
-const PROJECT_KEYS = ["inputs", "layout", "sequencers", "scalePianos", "instruments", "patch", "fxWidgets", "groupPinsDone", "widgets", "board2", "rigDone3", "keysRigDone", "pianoRigDone2", "seqRigDone", "soundboardRigDone"];
+const PROJECT_KEYS = ["inputs", "layout", "sequencers", "scalePianos", "instruments", "patch", "fxWidgets", "groupPinsDone", "inputsWidgetDone2", "widgets", "board2", "rigDone3", "keysRigDone", "pianoRigDone2", "seqRigDone", "soundboardRigDone"];
 
 function newProject() {
   try {

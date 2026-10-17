@@ -55,11 +55,12 @@ function Row({ engine, snap, inp, keyOpen, onKeys }: { engine: LooperEngine; sna
   const getLevel = useMemo(() => () => engine.getInputLevel(inp.id), [engine, inp.id]);
   const set = (patch: { muted?: boolean; volume?: number }) => engine.do({ type: "input.set", id: inp.id, patch });
   return (
-    <li className={`flex flex-col rounded-md ${open && hasBlock ? "border border-slate-800 bg-slate-950/40" : ""}`}>
+    // a failing input stays in the list, marked, with its error under it (as on its canvas block)
+    <li className={`flex flex-col rounded-md ${inp.error ? "border border-rose-500/50 bg-rose-500/10" : open && hasBlock ? "border border-slate-800 bg-slate-950/40" : ""}`}>
       <div className={`flex items-center gap-1 px-1 py-px ${inp.muted ? "opacity-60" : ""}`}>
         <button type="button" className="flex min-w-0 flex-1 items-center gap-1 text-left text-slate-200 disabled:cursor-default focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400" onClick={toggle} disabled={!hasBlock} aria-expanded={hasBlock ? open : undefined} title={hasBlock ? (open ? "Hide its switch options" : "Show its switch options") : inp.name}>
           <span className={`shrink-0 text-slate-500 ${hasBlock ? "" : "invisible"}`} aria-hidden><Icon name={open ? "chevron-down" : "chevron-right"} size={12} /></span>
-          <span className="shrink-0 text-slate-400" aria-hidden><Icon name={inp.kind === "device" ? "mic" : CONTROLLER_ICON[snap.instruments.find((q) => q.id === inp.sourceId)?.controller ?? "piano"]} size={13} /></span>
+          <span className={`shrink-0 ${inp.error ? "text-rose-300" : "text-slate-400"}`} aria-hidden><Icon name={inp.error ? "alert-triangle" : inp.kind === "device" ? "mic" : CONTROLLER_ICON[snap.instruments.find((q) => q.id === inp.sourceId)?.controller ?? "piano"]} size={13} /></span>
           <span className="min-w-0 truncate">{inp.name}</span>
         </button>
         <LevelMeter vertical small getLevel={getLevel} />
@@ -71,6 +72,7 @@ function Row({ engine, snap, inp, keyOpen, onKeys }: { engine: LooperEngine; sna
           <span className="w-6 shrink-0" aria-hidden />
         )}
       </div>
+      {inp.error && <p role="alert" className="px-1 pb-1 text-[11px] text-rose-200">{inp.error}</p>}
       {open && hasBlock && <div className="pt-1"><InputBundle engine={engine} snap={snap} ownerId={ownerId} patchIds={false} /></div>}
     </li>
   );
