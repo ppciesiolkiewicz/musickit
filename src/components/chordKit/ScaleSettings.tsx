@@ -9,6 +9,7 @@ import type { LabelSystem } from "@/features/theory/labels";
 import { FAMILIES, TONICS, modeAlias } from "@/features/theory/theory";
 import { MODE_PAGES } from "@/features/theory/scales";
 import { scaleHref, scalesIndexHref } from "@/features/theory/keySlug";
+import { PocketTools } from "@/features/instruments";
 
 /** Room the sticky bar takes at the top, for `scroll-mt` on the sections it jumps to. */
 export const UNDER_BAR = "scroll-mt-48";
@@ -49,27 +50,31 @@ export function ScaleSettingsBar({
   jumpExtra?: ReactNode;
 }) {
   return (
-    <div className="sticky top-2 z-20 flex flex-col gap-1.5 rounded-2xl border border-slate-700 bg-slate-950/90 px-2.5 py-2 shadow-lg shadow-black/30 backdrop-blur">
-      {scale && <ScaleRow slug={scale} tonicPc={tonicPc} />}
-      <BarRow label="Key" info={KEY_INFO}>
-        {TONICS.map((t) => (
-          <Chip key={t.pc} on={t.pc === tonicPc} onClick={() => onTonic(t.pc)}>{t.name}</Chip>
-        ))}
-      </BarRow>
-      <BarRow label="Labels" info={LABEL_INFO}>
-        <LabelSelect showLabel={false} omit={omitLabels} />
-      </BarRow>
-      <nav aria-label="Sections">
-        <BarRow label="Jump to">
-          {jumps.map((j) => (
-            <button key={j.id} type="button" onClick={() => onJump(j.id)} className="flex shrink-0 items-center gap-1.5 rounded-full border border-slate-700 px-2.5 py-0.5 text-xs text-slate-300 transition hover:border-slate-500 hover:text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
-              {j.accent && <span className="h-2 w-2 rounded-full" style={{ background: j.accent }} aria-hidden />}
-              {j.label}
-            </button>
+    <div className="sticky top-2 z-20 flex flex-col gap-2 rounded-2xl border border-slate-700 bg-slate-950/90 px-2.5 py-2 shadow-lg shadow-black/30 backdrop-blur xl:flex-row xl:items-center">
+      <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+        {scale && <ScaleRow slug={scale} tonicPc={tonicPc} />}
+        <BarRow label="Key" info={KEY_INFO}>
+          {TONICS.map((t) => (
+            <Chip key={t.pc} on={t.pc === tonicPc} onClick={() => onTonic(t.pc)}>{t.name}</Chip>
           ))}
-          {jumpExtra}
         </BarRow>
-      </nav>
+        <BarRow label="Labels" info={LABEL_INFO}>
+          <LabelSelect showLabel={false} omit={omitLabels} />
+        </BarRow>
+        <nav aria-label="Sections">
+          <BarRow label="Jump to">
+            {jumps.map((j) => (
+              <button key={j.id} type="button" onClick={() => onJump(j.id)} className="flex shrink-0 items-center gap-1.5 rounded-full border border-slate-700 px-2.5 py-0.5 text-xs text-slate-300 transition hover:border-slate-500 hover:text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
+                {j.accent && <span className="h-2 w-2 rounded-full" style={{ background: j.accent }} aria-hidden />}
+                {j.label}
+              </button>
+            ))}
+            {jumpExtra}
+          </BarRow>
+        </nav>
+      </div>
+      {/* practice tools: a row under the settings on narrow screens, a column on the right once there is room */}
+      <PocketTools keyPc={tonicPc} className="border-t border-slate-800 pt-2 xl:flex-col xl:items-start xl:self-stretch xl:justify-center xl:border-l xl:border-t-0 xl:pl-4 xl:pt-0" />
     </div>
   );
 }

@@ -3,5 +3,6 @@
  * `./index.ts`.
  */
 export * from "./drone/drone";
+export * from "./click/click";
 export * from "./sequencer/pattern";
 export { BASS, DEFAULT_KEY, DRONE, DRONE_ID, DRUMS, INSTRUMENTS, Sequencer, bassRootMidi, lanesIn, type Instrument, type Lane, type SequencerState } from "./sequencer/sequencer";

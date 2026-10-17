@@ -616,7 +616,11 @@ export default function WidgetBoard({ widgets, storageKey, defaults = tileLayout
       </div>
       {/* pinned widgets: on the screen, at 100%, over the canvas and out of its pan and zoom */}
       <div className="pointer-events-none absolute inset-0 z-[900]">
-        {layout && widgets.filter((w) => pins[w.id] && layout[w.id]).map((w) => frame(w, { ...layout[w.id], ...pins[w.id] }, true))}
+        {layout && widgets.filter((w) => pins[w.id]).map((w) => {
+          // drawn inside the screen as it is now (a pin saved on a bigger window would be off it); the saved place is kept for when it grows
+          const r = layout[w.id] ?? { x: 0, y: 0, w: 380, h: 260 };
+          return frame(w, { ...r, ...(vp ? keepOnScreen(pins[w.id], r.w, vp) : pins[w.id]) }, true);
+        })}
       </div>
       {box && <div aria-hidden className="pointer-events-none absolute z-[999] rounded-sm border border-sky-400 bg-sky-400/10" style={{ left: box.x, top: box.y, width: box.w, height: box.h }} />}
     </div>
