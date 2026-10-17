@@ -7,7 +7,7 @@ import Link from "next/link";
 import { ColourKey, ScaleSettingsBar, UNDER_BAR } from "./ScaleSettings";
 import { Chip, Info } from "@/components/ui";
 import { FAMILIES, makeKeyContext } from "@/features/theory/theory";
-import { MODE_PAGES, chordMidi, modeChords, degreeColour, relativesOf, roleWithDegree, stepPattern, DOT_INK } from "@/features/theory/scales";
+import { MODE_PAGES, type NoteSwap, chordMidi, modeChords, degreeColour, relativesOf, roleWithDegree, stepPattern, DOT_INK } from "@/features/theory/scales";
 import { strum } from "@/lib/chordKit/playback";
 import ChordShapeCarousel from "./ChordShapeCarousel";
 import ChordShapesModal from "./ChordShapesModal";
@@ -21,10 +21,23 @@ import { scaleHref } from "@/features/theory/keySlug";
 const JUMPS = [
   { id: "scale-notes", label: "Notes" },
   { id: "guitar", label: "On the guitar" },
-  { id: "relatives", label: "Relatives" },
+  { id: "relatives", label: "Same notes" },
   { id: "chords", label: "Chords" },
   { id: "sus", label: "Sus and extensions" },
 ];
+
+/** "♯3 G → G♯, ♯4 A → A♯": which note of the reference scale each altered degree replaces. */
+function Swaps({ swaps }: { swaps: NoteSwap[] }) {
+  return (
+    <>
+      {swaps.map((w, i) => (
+        <span key={w.degree} className="whitespace-nowrap">
+          <b className="text-slate-200">{w.degree}</b> <span className="text-slate-300">{w.from} → {w.to}</span>{i < swaps.length - 1 ? ", " : ""}
+        </span>
+      ))}
+    </>
+  );
+}
 
 const STACK_LABELS = ["root", "3rd", "5th", "7th", "9th", "11th", "13th"];
 
@@ -104,13 +117,7 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
           Step pattern <span className="tabular-nums text-slate-300">{pattern.join(" – ")}</span>
           <Info label="What is the step pattern?">W is a whole step (two frets), H a half step (one fret). Every mode is the same set of steps starting from a different place, which is why the seven modes of one parent scale share their notes.</Info>
         </p>
-      </div>
-
-      <ScaleOnGuitar ctx={ctx} player={player} />
-
-      <section id="relatives" className={`rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5 ${UNDER_BAR}`}>
-        <h2 className="mb-2 text-sm font-medium text-slate-100">Relatives of {ctx.names[0]} {ctx.modeName}</h2>
-        <ul className="space-y-1.5 text-sm text-slate-300">
+        <ul className="space-y-1 text-xs text-slate-400">
           {modeIndex !== 0 && !rel.relativeMajor && !fam.scales && (
             <li>
               Parent scale: <b>{rel.parentTonic} {rel.parentName}</b> (starts on its {["1st", "2nd", "3rd", "4th", "5th", "6th", "7th"][modeIndex]} degree)
@@ -128,15 +135,20 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
               <Info label="What is a relative minor?">The natural minor scale (Aeolian) built on the 6th note of that major scale. Same seven notes, different home note.</Info>
             </li>
           )}
-          {rel.vsMajor.length > 0 && <li>Compared with {ctx.names[0]} major: <b>{rel.vsMajor.join(" ")}</b> {rel.vsMajor.length === 1 ? "is" : "are"} altered.</li>}
-          {rel.vsMinor.length > 0 && <li>Compared with {ctx.names[0]} natural minor: <b>{rel.vsMinor.join(" ")}</b> differ{rel.vsMinor.length === 1 ? "s" : ""}.</li>}
+          {rel.majorSwaps.length > 0 && <li>Compared with {ctx.names[0]} major: <Swaps swaps={rel.majorSwaps} /></li>}
+          {rel.minorSwaps.length > 0 && <li>Compared with {ctx.names[0]} natural minor: <Swaps swaps={rel.minorSwaps} /></li>}
         </ul>
+      </div>
+
+      <ScaleOnGuitar ctx={ctx} player={player} />
+
+      <section id="relatives" className={`rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5 ${UNDER_BAR}`}>
+        <h2 className="mb-2 text-sm font-medium text-slate-100">Modes with the same notes as {ctx.names[0]} {ctx.modeName}</h2>
 
         {fam.scales ? (
-          <p className="mt-3 text-sm text-slate-400">{ctx.modeName} is a scale of its own, not a mode of the major, harmonic minor or melodic minor scale, so no named mode shares its notes.</p>
+          <p className="text-sm text-slate-400">{ctx.modeName} is a scale of its own, not a mode of the major, harmonic minor or melodic minor scale, so no named mode shares its notes.</p>
         ) : (
         <>
-        <h3 className="mb-1.5 mt-4 text-xs font-medium uppercase tracking-wider text-slate-500">Modes with the same notes</h3>
         <div className="grid gap-1.5 sm:grid-cols-2">
           {rel.siblings.map((s) => (
             <Link

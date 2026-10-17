@@ -168,6 +168,8 @@ describe("scale pages", () => {
     assert.equal(rel.relativeMinor?.tonic, "A");
     assert.equal(rel.siblings.length, 7);
     assert.deepEqual(rel.vsMajor, ["♭3", "♭7"]);
+    assert.deepEqual(rel.majorSwaps, [{ degree: "♭3", from: "F♯", to: "F" }, { degree: "♭7", from: "C♯", to: "C" }]);
+    assert.deepEqual(rel.minorSwaps, [{ degree: "♯6", from: "B♭", to: "B" }]);
   });
   it("gives each of the seven degrees its own colour", () => {
     assert.equal(new Set(DEGREE_COLOURS).size, 7);

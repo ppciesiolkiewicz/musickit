@@ -162,8 +162,8 @@ export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey
                         : <>Not a rotation of the major scale, so it has no relative major or minor. It shares its notes with the other {fam.label.toLowerCase()}.</>}
                     </li>
                   )}
-                  {rel.vsMajor.length > 0 && <li className="text-slate-400">Versus {ctx.names[0]} major: <b className="text-slate-300">{rel.vsMajor.join(" ")}</b> altered</li>}
-                  {rel.vsMinor.length > 0 && <li className="text-slate-400">Versus {ctx.names[0]} natural minor: <b className="text-slate-300">{rel.vsMinor.join(" ")}</b> differ</li>}
+                  {rel.vsMajor.length > 0 && <li className="text-slate-400">Versus {ctx.names[0]} major: <b className="text-slate-300">{rel.majorSwaps.map((w) => `${w.degree} ${w.from} → ${w.to}`).join(", ")}</b></li>}
+                  {rel.vsMinor.length > 0 && <li className="text-slate-400">Versus {ctx.names[0]} natural minor: <b className="text-slate-300">{rel.minorSwaps.map((w) => `${w.degree} ${w.from} → ${w.to}`).join(", ")}</b></li>}
                 </ul>
                 </Section>
 

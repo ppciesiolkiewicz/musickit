@@ -1,4 +1,4 @@
-import { FAMILIES, MAJOR, makeKeyContext, shortModeName, TONICS, tonicName, type KeyContext } from "./theory";
+import { FAMILIES, MAJOR, makeKeyContext, shortModeName, spell, TONICS, tonicName, type KeyContext } from "./theory";
 
 /** URL slugs for every mode and scale: "dorian", "harmonic-minor", "phrygian-dominant", "persian", ... */
 export interface ModePage {
@@ -88,6 +88,16 @@ export interface Relatives {
   vsMajor: string[];
   /** and from natural minor on the same tonic */
   vsMinor: string[];
+  /** the same differences note by note: E Lydian vs E major is [{ degree: "♯4", from: "A", to: "A♯" }] */
+  majorSwaps: NoteSwap[];
+  minorSwaps: NoteSwap[];
+}
+
+/** One note of the reference scale replaced by this scale's note on the same degree. */
+export interface NoteSwap {
+  degree: string;
+  from: string;
+  to: string;
 }
 
 const ALT_LABEL = (diff: number, deg: number) => (diff < 0 ? "♭".repeat(-diff) : diff > 0 ? "♯".repeat(diff) : "") + (deg + 1);
@@ -96,6 +106,15 @@ function differences(steps: number[], reference: number[]): string[] {
   const out: string[] = [];
   steps.forEach((s, i) => {
     if (s !== reference[i]) out.push(ALT_LABEL(s - reference[i], i));
+  });
+  return out;
+}
+
+function swaps(ctx: KeyContext, reference: number[]): NoteSwap[] {
+  const refNames = spell(ctx.tonic.letter, ctx.tonic.pc, reference);
+  const out: NoteSwap[] = [];
+  ctx.steps.forEach((s, i) => {
+    if (s !== reference[i]) out.push({ degree: ALT_LABEL(s - reference[i], i), from: refNames[i], to: ctx.names[i] });
   });
   return out;
 }
@@ -123,6 +142,8 @@ export function relativesOf(ctx: KeyContext): Relatives {
     siblings,
     vsMajor: differences(ctx.steps, MAJOR),
     vsMinor: differences(ctx.steps, minorSteps),
+    majorSwaps: swaps(ctx, MAJOR),
+    minorSwaps: swaps(ctx, minorSteps),
     ...rel,
   };
 }
