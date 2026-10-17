@@ -20,7 +20,6 @@ export default function ScaleOnGuitar({ ctx, player }: { ctx: KeyContext; player
   const [kind, setKind] = useState<PositionKind>("pentatonic");
   const [rings, setRings] = useState(true);
   const [focus, setFocus] = useState<number | null>(null);
-  const [fade, setFade] = useState(true);
   const { active, play, tap } = player;
 
   const cells = useMemo(() => scaleCells(ctx), [ctx]);
@@ -64,7 +63,7 @@ export default function ScaleOnGuitar({ ctx, player }: { ctx: KeyContext; player
         </p>
       </div>
 
-      <ScaleNeck cells={cells} big={big} rings={rings} focus={focused} fadeOutside={fade} active={active} labelSystem={system} onNote={onNote} title={`${keyName} on the guitar neck`} />
+      <ScaleNeck cells={cells} big={big} rings={rings} focus={focused} active={active} labelSystem={system} onNote={onNote} title={`${keyName} on the guitar neck`} />
       <div className="mt-2">
         <DegreeLegend />
       </div>
@@ -73,7 +72,6 @@ export default function ScaleOnGuitar({ ctx, player }: { ctx: KeyContext; player
         {focused ? (
           <>
             <span>Position <b className="text-slate-200">{focused.number}</b> is outlined on the neck.</span>
-            <Chip on={!fade} onClick={() => setFade((v) => !v)}>All scale notes</Chip>
             <button type="button" onClick={() => setFocus(null)} className="rounded-full border border-slate-700 px-2.5 py-1 text-slate-300 hover:border-sky-400">
               ✕ Clear position
             </button>

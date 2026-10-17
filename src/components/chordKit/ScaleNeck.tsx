@@ -32,10 +32,8 @@ interface NeckProps {
   /** filled dots; the other scale notes are drawn as rings, or hidden when `rings` is off */
   big: (c: ScaleCell) => boolean;
   rings?: boolean;
-  /** outline this position on the neck */
+  /** outline this position on the neck and fade the rest */
   focus?: ScalePosition | null;
-  /** fade the notes outside the focused position (off shows every note at full strength) */
-  fadeOutside?: boolean;
   active: string | null;
   /** match `active` against "s-f" (exact place) or "d<degree>" (every place that degree falls) */
   labelSystem: LabelSystem;
@@ -47,7 +45,7 @@ interface NeckProps {
 const isActive = (active: string | null, c: ScaleCell) => active !== null && (active === cellKey(c) || active === `d${c.degree}`);
 
 /** The whole neck, frets 0-17 (0-12 when compact), with every note of the scale. Tap a note to hear it. */
-export function ScaleNeck({ cells, big, rings = true, focus = null, fadeOutside = true, active, labelSystem, onNote, compact = false, title }: NeckProps) {
+export function ScaleNeck({ cells, big, rings = true, focus = null, active, labelSystem, onNote, compact = false, title }: NeckProps) {
   const to = compact ? 12 : SCALE_NECK_FRETS;
   const g = compact ? fretGeometry(0, to, 34, 22, 36) : fretGeometry(0, to, 54, 36, 42);
   const r = compact ? 8.5 : 14;
@@ -71,7 +69,7 @@ export function ScaleNeck({ cells, big, rings = true, focus = null, fadeOutside 
           <Dot
             key={cellKey(c)} c={c} x={g.fx(c.fret)} y={g.sy(c.string)} r={r} ring={!big(c)}
             label={noteLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText })}
-            active={isActive(active, c)} dim={focus !== null && fadeOutside && !inFocus.has(cellKey(c))} onNote={onNote}
+            active={isActive(active, c)} dim={focus !== null && !inFocus.has(cellKey(c))} onNote={onNote}
           />
         ))}
       </svg>
