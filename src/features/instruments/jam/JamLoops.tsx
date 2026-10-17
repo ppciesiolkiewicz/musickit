@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Icon from "@/components/Icon";
 import { LOOP_CHANNELS, type InputDevice, type LoopChannel, type LoopView } from "./loops";
 import { LOOP_BARS, MAX_LOOPS } from "./take";
 import type { JamRig } from "./rig";
 import { sbtn, Select } from "@/components/ui";
+import JamEffects from "./JamEffects";
+import { EFFECT_DEFS } from "../effects/effects";
 
 const STATUS: Record<LoopView["state"], string> = { empty: "Empty", countIn: "Count-in", recording: "Recording", playing: "Playing", stopped: "Stopped" };
 const CHANNEL_LABEL: Record<LoopChannel, string> = { "1": "1", "2": "2", mix: "1+2" };
@@ -39,6 +41,15 @@ function LoopRow({ rig, loop, n, devices, removable, ready }: { rig: JamRig; loo
   const taking = loop.state === "countIn" || loop.state === "recording";
   const hasSound = loop.state === "playing" || loop.state === "stopped";
   const set = (patch: Parameters<JamRig["setLoop"]>[1]) => rig.setLoop(loop.id, patch);
+  const [editing, setEditing] = useState(false);
+  const hear = async () => {
+    set({ monitor: !loop.monitor });
+    // hearing needs the input open: switching it on opens it (this is a person's click)
+    if (!loop.monitor && !loop.connected) {
+      await ready();
+      rig.connectLoop(loop.id);
+    }
+  };
   // a saved device that is not listed now still shows, so the choice is not lost
   const options = loop.deviceId && !devices.some((d) => d.id === loop.deviceId) ? [...devices, { id: loop.deviceId, label: "Saved input (not found)" }] : devices;
   return (
@@ -109,7 +120,20 @@ function LoopRow({ rig, loop, n, devices, removable, ready }: { rig: JamRig; loo
         ) : (
           <button type="button" className={`${sbtn} self-start !px-2.5`} onClick={async () => { await ready(); rig.connectLoop(loop.id); }} title="Open the input to see its level">Connect</button>
         )}
+        <div className="flex min-w-0 items-center gap-2">
+          <span>Effects</span>
+          <button type="button" onClick={() => setEditing(true)} title="Add or edit the input's effects (they are recorded)" aria-label={`Effects of ${name}`}
+            className="flex min-h-7 min-w-0 flex-1 flex-wrap items-center gap-1 rounded-md border border-dashed border-slate-700 px-1.5 py-1 text-left hover:border-slate-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
+            {loop.effects.length === 0 && <span className="text-slate-500">None</span>}
+            {loop.effects.map((fx) => (
+              <span key={fx.id} className={`rounded border px-1.5 py-0.5 text-[11px] ${fx.bypass ? "border-slate-700 text-slate-500 line-through" : "border-sky-500/50 text-sky-100"}`}>{EFFECT_DEFS[fx.kind].name}</span>
+            ))}
+            <Icon name="sliders-horizontal" size={12} className="ml-auto shrink-0 text-slate-400" />
+          </button>
+          <button type="button" className={`${sbtn} !px-2 gap-1 ${loop.monitor ? "!border-sky-400 !text-sky-100" : ""}`} aria-pressed={loop.monitor} onClick={() => void hear()} title={loop.monitor ? "Hearing the input with its effects (use headphones with a mic)" : "Hear the input with its effects"} aria-label={`Hear the input of ${name}`}><Icon name="headphones" size={13} /></button>
+        </div>
         {loop.error && <p className="text-rose-300" role="alert">{loop.error}</p>}
+        {editing && <JamEffects name={`Loop ${n}`} effects={loop.effects} onChange={(effects) => set({ effects })} onClose={() => setEditing(false)} />}
       </div>
     </li>
   );

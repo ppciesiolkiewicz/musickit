@@ -1,8 +1,11 @@
 import { DEFAULT_LOOP_BARS, clampBars, cutTake, fadeEdges, loopOffset, type Chunk } from "./take";
+import { EffectChain } from "../effects/chain";
+import { sanitiseEffects, type EffectSpec } from "../effects/effects";
 
 /**
  * The jam's loops: each records `bars` bars from its own input (a device and one of its channels, or both mixed) on the jam's clock and
- * then plays them round. No React. A device opens only from a person's click (record, or Connect in its input settings); one stream per
+ * then plays them round. Its effects sit between the input and the recorder (they are in the take, like the looper's input effects), and
+ * "hear it" sends the same effected signal to the speakers. No React. A device opens only from a person's click (record, or Connect in its input settings); one stream per
  * device is shared by every loop that uses it and stopped when the last one lets go.
  */
 
@@ -17,7 +20,14 @@ export interface LoopConfig {
   channel: LoopChannel;
   bars: number;
   volume: number;
+  /** the input's effects, in signal order (all before the recorder; `post` is not used) */
+  effects: EffectSpec[];
+  /** hear the input (with its effects) live */
+  monitor: boolean;
 }
+
+/** At most this many effects on one loop's input. */
+export const MAX_LOOP_EFFECTS = 6;
 
 export type LoopState = "empty" | "countIn" | "recording" | "playing" | "stopped";
 
@@ -131,6 +141,8 @@ export function cleanConfig(c: Partial<LoopConfig> | null | undefined): LoopConf
     channel: LOOP_CHANNELS.includes(c?.channel as LoopChannel) ? (c!.channel as LoopChannel) : "mix",
     bars: clampBars(Number(c?.bars ?? DEFAULT_LOOP_BARS)),
     volume: Number.isFinite(c?.volume) ? Math.min(1, Math.max(0, c!.volume!)) : 0.8,
+    effects: sanitiseEffects(c?.effects).slice(0, MAX_LOOP_EFFECTS).map((e) => ({ ...e, post: false })),
+    monitor: c?.monitor === true,
   };
 }
 
@@ -148,6 +160,9 @@ export class JamLoop {
   private input: OpenInput | null = null;
   private inputDevice: string | null = null;
   private chain: AudioNode[] = [];
+  private fx: EffectChain | null = null;
+  private monitor: GainNode | null = null;
+  private out: AudioNode | null = null;
   private analyser: AnalyserNode | null = null;
   private recorder: AudioWorkletNode | null = null;
   private gain: GainNode | null = null;
@@ -162,6 +177,7 @@ export class JamLoop {
   attach(ctx: AudioContext, pool: InputPool, out: AudioNode) {
     this.ctx = ctx;
     this.pool = pool;
+    this.out = out;
     this.gain = ctx.createGain();
     this.gain.gain.value = this.config.volume;
     this.gain.connect(out);
@@ -220,7 +236,7 @@ export class JamLoop {
     }
   }
 
-  /** Build source → channel pick → (meter, recorder). */
+  /** Build source → channel pick → effects → (meter, recorder, monitor). */
   private wire() {
     const ctx = this.ctx!, input = this.input!;
     this.unwire();
@@ -237,17 +253,27 @@ export class JamLoop {
       split.connect(mono, 0);
       split.connect(mono, 1);
     }
+    const fx = new EffectChain(ctx);
+    fx.setEffects(this.config.effects);
+    mono.connect(fx.input);
     const analyser = ctx.createAnalyser();
     analyser.fftSize = 1024;
-    mono.connect(analyser);
+    fx.output.connect(analyser);
     const recorder = new AudioWorkletNode(ctx, PROCESSOR, { numberOfInputs: 1, numberOfOutputs: 1, channelCount: 1, channelCountMode: "explicit" });
     recorder.port.onmessage = (e: MessageEvent<Chunk>) => this.onChunk(e.data);
     // a silent path to the speakers keeps the worklet running in every browser
     const mute = ctx.createGain();
     mute.gain.value = 0;
-    mono.connect(recorder);
+    fx.output.connect(recorder);
     recorder.connect(mute).connect(ctx.destination);
-    this.chain = [split, mono, analyser, recorder, mute];
+    // monitoring: the same signal the recorder takes, to the jam's output (shut unless asked for: a mic by the speakers would howl)
+    const monitor = ctx.createGain();
+    monitor.gain.value = this.config.monitor ? 1 : 0;
+    fx.output.connect(monitor);
+    if (this.out) monitor.connect(this.out);
+    this.chain = [split, mono, analyser, recorder, mute, monitor];
+    this.fx = fx;
+    this.monitor = monitor;
     this.analyser = analyser;
     this.recorder = recorder;
   }
@@ -263,8 +289,11 @@ export class JamLoop {
       }
     }
     this.chain.forEach((n) => n.disconnect());
+    this.fx?.dispose();
     this.recorder?.port.close();
     this.chain = [];
+    this.fx = null;
+    this.monitor = null;
     this.analyser = null;
     this.recorder = null;
   }
@@ -281,6 +310,8 @@ export class JamLoop {
     const before = this.config;
     this.config = cleanConfig({ ...before, ...patch, id: before.id });
     if (this.gain && this.ctx) this.gain.gain.setTargetAtTime(this.config.volume, this.ctx.currentTime, 0.02);
+    if (this.monitor && this.ctx) this.monitor.gain.setTargetAtTime(this.config.monitor ? 1 : 0, this.ctx.currentTime, 0.02);
+    if (this.fx && JSON.stringify(this.config.effects) !== JSON.stringify(before.effects)) this.fx.setEffects(this.config.effects);
     if (this.input && this.config.channel !== before.channel) this.wire();
     if (this.input && this.config.deviceId !== before.deviceId) void this.connect();
     this.changed();
@@ -398,6 +429,7 @@ export class JamLoop {
     this.disconnect();
     this.gain?.disconnect();
     this.gain = null;
+    this.out = null;
     this.ctx = null;
     this.pool = null;
   }

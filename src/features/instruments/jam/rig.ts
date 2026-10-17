@@ -260,7 +260,8 @@ export class JamRig {
 
   setLoop(id: string, patch: Partial<Omit<LoopConfig, "id">>) {
     const l = this.loop(id);
-    if (!l || l.take) return;
+    // during a take only the effects and the monitor change (they are heard, and taken, at once)
+    if (!l || (l.take && Object.keys(patch).some((k) => k !== "effects" && k !== "monitor"))) return;
     // the length is the recording's once there is one
     if (l.buffer && patch.bars !== undefined) patch = { ...patch, bars: l.config.bars };
     l.setConfig(patch);
@@ -274,7 +275,7 @@ export class JamRig {
   addLoop() {
     if (this.loops.length >= MAX_LOOPS) return;
     const last = this.loops[this.loops.length - 1]?.config;
-    this.loops = [...this.loops, this.makeLoop(last ? { deviceId: last.deviceId, channel: last.channel, bars: last.bars } : null)];
+    this.loops = [...this.loops, this.makeLoop(last ? { deviceId: last.deviceId, channel: last.channel, bars: last.bars, effects: last.effects } : null)];
     this.changed();
   }
 

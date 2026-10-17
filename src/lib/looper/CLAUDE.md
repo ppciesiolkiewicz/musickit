@@ -10,7 +10,7 @@ Routing: Input → (input effects) → recorder → Loop → Bus (of its Group) 
 - **Vocabulary**: inputs, sequencers, buses. A **Group** is a special bus with loops inside; a standalone **Bus** (patch kind `fx`) only connects things and holds effects. Master is the last bus. Effects are never blocks of their own.
 - **Bus (of a group)**: one per group, with routing (its group), a connection (what feeds it, shown in the Mixer and the Signal flow), effects and a volume. Five groups and so five buses exist by default, each named after its effects (`GROUP_STARTS` in `rig.ts`) with two loops (`LOOPS_PER_GROUP`, side by side).
 - **Master bus**: everything ends here. Meter and volume are in the Mixer.
-- **Plugins / effects**: `effects.ts`; on inputs and buses; each effect is pre-fader or post-fader.
+- **Plugins / effects**: `src/features/instruments/effects` (`effects.ts`, `chain.ts`, `choices.ts`, `EffectControls.tsx`; shared with the jam's loop inputs; `src/lib/looper/effects.ts` and `choices.ts` are re-export shims); on inputs and buses; each effect is pre-fader or post-fader.
 - **Loops**: recorded from the inputs, played into the bus of their group.
 - **Loop groups**: coloured boxes on the stage. Sequencers also live on the stage (circles) and can sit in a group. Every group has a start/stop button. Starting and stopping loops and sequencers must stay easy, and always lands on a beat.
 - **Pinnable**: a Canvas block that can be pinned to the screen (the pin button): it then stays in place while the canvas pans and zooms. Widgets and the Tuner are pinnable; nothing else is.
@@ -71,7 +71,7 @@ Routing: Input → (input effects) → recorder → Loop → Bus (of its Group) 
 
 ## Actions, history, macros, widgets
 - Every user-driven state change goes through `engine.do(action)` (`actions.ts`), never a direct engine setter from a control: that is what makes undo, the history list and macro recording work. New control = new action type (apply, inverse, describe, validate, test). Format and rules: `spec/looper-actions.md`.
-- Not yet actions (so not undoable or recordable): effect post-fader switch on inputs and on the master bus, removing an instrument, device connect/choose. Effects are native Web Audio nodes; heavy DSP goes in an AudioWorklet (the NAM amp model does, injected via `setNamFactory`), never WebGL. A param with `choice` is a picker fed by `registerChoice`; with `toggle` an on/off switch.
+- Not yet actions (so not undoable or recordable): effect post-fader switch on inputs and on the master bus, removing an instrument, device connect/choose. Effects are native Web Audio nodes; heavy DSP goes in an AudioWorklet (the NAM amp model does, injected via `setNamFactory` from `src/components/namWiring.ts`), never WebGL. A param with `choice` is a picker fed by `registerChoice`; with `toggle` an on/off switch.
 - Canvas uses the shared board in `src/features/widgets` (maths in `board.ts`, tested) through `FreeBoard`. The fixed layout keeps the one Mixer with its sections. `musickit.looper.view` is `fixed` or `canvas` (old `widgets`/`lines` open as `canvas`, `toView` in `ViewMenu.tsx`).
 
 ## State and storage
