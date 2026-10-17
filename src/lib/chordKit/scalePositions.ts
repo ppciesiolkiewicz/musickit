@@ -74,7 +74,7 @@ export interface ScalePosition {
   to: number;
 }
 
-export type PositionKind = "pentatonic" | "scale";
+export type PositionKind = "pentatonic" | "scale" | "3nps";
 
 interface Spot {
   string: number;
@@ -211,8 +211,42 @@ export function positionLine(p: ScalePosition): ScaleCell[] {
   return p.notes.slice().sort((a, b) => a.midi - b.midi || a.string - b.string).filter((n) => !seen.has(n.midi) && seen.add(n.midi));
 }
 
-/** The five positions for one kind: pentatonic boxes, or the full scale filled into them. */
+/**
+ * The seven three-notes-per-string patterns, one starting on each degree on the low E string. Climbing the scale from there, every
+ * string takes the next three notes, each at the fret its pitch falls on that string (so the B string's shift comes out by itself).
+ * A pattern starts at its degree's lowest fret on the low E (0 to 11), or an octave up when that would put a note below the nut.
+ * They are numbered up the neck, so position 1 is the one nearest the nut.
+ */
+export function threeNotesPerString(ctx: KeyContext): ScalePosition[] {
+  const build = (startFret: number): ScaleCell[] => {
+    const start = OPEN_MIDI[0] + startFret;
+    const startSemi = (start - ctx.tonic.pc + 120) % 12;
+    const d0 = ctx.steps.indexOf(startSemi);
+    const out: ScaleCell[] = [];
+    for (let i = 0; i < 18; i++) {
+      const d = d0 + i;
+      const midi = start - ctx.steps[d0] + ctx.steps[d % 7] + 12 * Math.floor(d / 7);
+      const string = Math.floor(i / 3);
+      out.push(cellAt(ctx, string, midi - OPEN_MIDI[string])!);
+    }
+    return out;
+  };
+  return ctx.steps
+    .map((st, degree) => {
+      const lowest = (ctx.tonic.pc + st - OPEN_MIDI[0] + 120) % 12;
+      let notes = build(lowest);
+      // a wide step (the augmented 2nd of harmonic minor) can push a pattern that starts at the nut below it: play it an octave up
+      if (notes.some((n) => n.fret < 0)) notes = build(lowest + 12);
+      const frets = notes.map((n) => n.fret);
+      return { number: 0, startDegree: degree, notes, from: Math.min(...frets), to: Math.max(...frets) };
+    })
+    .sort((a, b) => a.from - b.from)
+    .map((p, i) => ({ ...p, number: i + 1 }));
+}
+
+/** The positions for one kind: the five pentatonic boxes, the full scale filled into them, or the seven three-notes-per-string patterns. */
 export function positionsFor(ctx: KeyContext, kind: PositionKind): ScalePosition[] {
+  if (kind === "3nps") return threeNotesPerString(ctx);
   return boxesFor(ctx, kind === "pentatonic" ? pentatonicOf(ctx.steps).degrees : [0, 1, 2, 3, 4, 5, 6]);
 }
 

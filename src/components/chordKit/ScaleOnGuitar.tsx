@@ -1,14 +1,16 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Chip, ChipRow, DegreeLegend, Info } from "@/components/ui";
 import { useLabelSystem } from "@/features/theory/useLabelSystem";
 import type { KeyContext } from "@/features/theory/theory";
 import { pentatonicOf, positionLine, positionsFor, rootStrings, scaleCells, type PositionKind, type ScaleCell, type ScalePosition } from "@/lib/chordKit/scalePositions";
 import { PositionBox, ScaleNeck, cellKey } from "./ScaleNeck";
 import { STRING_NAMES } from "./Fretboard";
 import type { NotePlayer } from "./useNotePlayer";
+import { Chip, ChipRow, Info } from "@/components/ui";
+import { DegreeLegend } from "@/components/theory/DegreeLegend";
 
+const DEGREE_ORD = ["root", "2nd", "3rd", "4th", "5th", "6th", "7th"];
 const playBtn = "rounded-full border border-emerald-500/70 bg-emerald-500/10 px-2.5 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25";
 
 /**
@@ -49,9 +51,10 @@ export default function ScaleOnGuitar({ ctx, player }: { ctx: KeyContext; player
       </h2>
 
       <div className="mb-3 flex flex-col gap-2">
-        <ChipRow label="Shapes" info="Five positions cover the neck, and each is named by the strings its root is on (counting from the low E): 1 has it on E, D and high e; 2 on D and B; 3 on A and B; 4 on A and G; 5 on G, E and high e. Each box keeps its classic shape: it sits at the root's fret on the low E string. Near the nut a note that would fall below it moves to the next string down (so in E, position 1 is the open position); otherwise a box that would go below the nut or past the 17th fret is shown an octave away, so the numbers can jump along the neck. Every mode uses the same five boxes as the major pentatonic (when it has a major 3rd) or the minor pentatonic (minor 3rd), so the shapes look familiar: each string keeps the frets that box uses, and the mode's notes are placed there. Pentatonic shows the mode's five-note scale. Full scale adds the other two notes into the same five boxes (the CAGED scale shapes), so there are still five positions, not seven: one map of the neck for both, with the pentatonic you know as the frame.">
+        <ChipRow label="Shapes" info="Five positions cover the neck, and each is named by the strings its root is on (counting from the low E): 1 has it on E, D and high e; 2 on D and B; 3 on A and B; 4 on A and G; 5 on G, E and high e. Each box keeps its classic shape: it sits at the root's fret on the low E string. Near the nut a note that would fall below it moves to the next string down (so in E, position 1 is the open position); otherwise a box that would go below the nut or past the 17th fret is shown an octave away, so the numbers can jump along the neck. Every mode uses the same five boxes as the major pentatonic (when it has a major 3rd) or the minor pentatonic (minor 3rd), so the shapes look familiar: each string keeps the frets that box uses, and the mode's notes are placed there. Pentatonic shows the mode's five-note scale. Full scale adds the other two notes into the same five boxes (the CAGED scale shapes), so there are still five positions, not seven: one map of the neck for both, with the pentatonic you know as the frame. 3 notes per string is the other common system: seven patterns, one starting on each note of the scale on the low E string, with exactly three notes on every string. They stretch wider but keep one fingering rhythm across the strings, which suits fast runs and legato. They are numbered up the neck.">
           <Chip on={kind === "pentatonic"} onClick={() => { setKind("pentatonic"); setFocus(null); }}>{pent.name} boxes</Chip>
           <Chip on={kind === "scale"} onClick={() => { setKind("scale"); setFocus(null); }}>Full scale</Chip>
+          <Chip on={kind === "3nps"} onClick={() => { setKind("3nps"); setFocus(null); }}>3 notes per string</Chip>
         </ChipRow>
         <ChipRow label="Extra notes">
           <Chip on={rings} onClick={() => setRings((v) => !v)}>
@@ -61,8 +64,10 @@ export default function ScaleOnGuitar({ ctx, player }: { ctx: KeyContext; player
         <p className="text-xs text-slate-400">
           {kind === "pentatonic" ? (
             <>{pent.name}: <b className="text-slate-200">{pent.degrees.map((d) => ctx.names[d]).join(" ")}</b> <span className="tabular-nums">({pent.formula.join(" ")})</span>. {ctx.modeName} adds {[0, 1, 2, 3, 4, 5, 6].filter((d) => !pentDegrees.has(d)).map((d) => ctx.names[d]).join(" and ")}.</>
-          ) : (
+          ) : kind === "scale" ? (
             <>All seven notes, <b className="text-slate-200">{ctx.names.join(" ")}</b>, in the same five boxes as the {pent.name.toLowerCase()}.</>
+          ) : (
+            <>All seven notes, <b className="text-slate-200">{ctx.names.join(" ")}</b>, three on every string: one pattern starting on each note on the low E string.</>
           )}
         </p>
       </div>
@@ -87,7 +92,7 @@ export default function ScaleOnGuitar({ ctx, player }: { ctx: KeyContext; player
         )}
       </div>
 
-      <div className={`mt-2 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5`}>
+      <div className={`mt-2 grid gap-3 sm:grid-cols-2 ${kind === "3nps" ? "lg:grid-cols-4 2xl:grid-cols-7" : "lg:grid-cols-3 xl:grid-cols-5"}`}>
         {positions.map((p) => {
           const on = focus === p.number;
           return (
@@ -95,7 +100,9 @@ export default function ScaleOnGuitar({ ctx, player }: { ctx: KeyContext; player
               <div className="flex flex-wrap items-center gap-2">
                 <button type="button" onClick={() => setFocus(on ? null : p.number)} aria-pressed={on} className="text-left text-sm font-medium text-slate-100 hover:text-sky-300" title="Light it up on the neck">
                   Position {p.number}
-                  <span className="block text-xs font-normal text-slate-300">root on {rootStrings(p).map((s) => STRING_NAMES[s]).join(", ")}</span>
+                  <span className="block text-xs font-normal text-slate-300">
+                    {kind === "3nps" ? <>starts on {ctx.names[p.startDegree]} <span className="text-slate-500">({DEGREE_ORD[p.startDegree]})</span></> : <>root on {rootStrings(p).map((s) => STRING_NAMES[s]).join(", ")}</>}
+                  </span>
                   <span className="block text-xs font-normal text-slate-500">frets {p.from}–{p.to}</span>
                 </button>
                 <button type="button" onClick={() => playPosition(p)} className={`${playBtn} ml-auto`}>▶ Play</button>

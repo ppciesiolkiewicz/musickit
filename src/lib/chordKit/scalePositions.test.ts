@@ -167,3 +167,26 @@ describe("scaleCells and scaleLineMidi", () => {
     assert.deepEqual(scaleLineMidi(makeKeyContext(0, 0, 0)), [60, 62, 64, 65, 67, 69, 71, 72, 71, 69, 67, 65, 64, 62, 60]);
   });
 });
+
+describe("three notes per string", () => {
+  it("G major: seven patterns up the neck, the open one first, three notes on every string", () => {
+    const ps = positionsFor(makeKeyContext(7, 0, 0), "3nps");
+    assert.equal(ps.length, 7);
+    assert.deepEqual(ps.map((p) => p.from), [...ps.map((p) => p.from)].sort((a, b) => a - b));
+    // starts on the open E (the 6th of G): E F♯ G on the low E, then A B C, D E F♯, G A B, C D E, F♯ G A
+    assert.deepEqual(frets(ps[0]), [[0, 2, 3], [0, 2, 3], [0, 2, 4], [0, 2, 4], [1, 3, 5], [2, 3, 5]]);
+    assert.equal(ps[0].startDegree, 5);
+  });
+  it("every pattern in every key climbs the scale in order, three notes a string, inside the 17 frets", () => {
+    for (let pc = 0; pc < 12; pc++) for (const [f, m] of [[0, 0], [0, 3], [0, 5], [1, 4], [2, 6]]) {
+      const ctx = makeKeyContext(pc, f, m);
+      for (const p of positionsFor(ctx, "3nps")) {
+        assert.deepEqual(frets(p).map((x) => x.length), [3, 3, 3, 3, 3, 3]);
+        const midis = p.notes.map((n) => n.midi);
+        assert.deepEqual(midis, [...midis].sort((a, b) => a - b));
+        assert.equal(new Set(p.notes.map((n) => n.degree)).size, 7);
+        assert.ok(p.from >= 0 && p.to <= 17, `${pc} ${f} ${m} position ${p.number}: ${p.from}-${p.to}`);
+      }
+    }
+  });
+});
