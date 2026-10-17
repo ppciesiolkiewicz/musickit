@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
 import Icon from "./Icon";
 import { menuClick } from "@/lib/practice/menu";
-import { GROUP_LABEL, THEORY_SECTIONS, type SectionGroup, type TheorySection } from "@/features/theory/sections";
+import { GROUP_LABEL, THEORY_SECTIONS, TONE, type SectionGroup, type TheorySection } from "@/features/theory/sections";
 
 const GROUPS = Object.keys(GROUP_LABEL) as SectionGroup[];
 
@@ -17,7 +17,9 @@ export function SectionBlock({ s, current, onPick, roomy }: { s: TheorySection; 
       aria-current={current ? "page" : undefined}
       className={`flex items-start gap-2.5 rounded-xl border px-3 py-2 transition ${roomy ? "py-3" : ""} ${current ? "border-sky-500/60 bg-sky-500/15" : "border-transparent hover:border-slate-700 hover:bg-slate-800/60"}`}
     >
-      <Icon name={s.icon} size={18} className={`mt-0.5 shrink-0 ${current ? "text-sky-300" : "text-slate-400"}`} />
+      <span className={`grid size-7 shrink-0 place-items-center rounded-lg ${TONE[s.tone].chip}`}>
+        <Icon name={s.icon} size={16} className={TONE[s.tone].icon} />
+      </span>
       <span className="min-w-0">
         <span className={`block text-sm ${current ? "text-sky-100" : "text-slate-100"}`}>{s.label}</span>
         <span className="block text-xs text-slate-500">{s.desc}</span>
@@ -26,7 +28,7 @@ export function SectionBlock({ s, current, onPick, roomy }: { s: TheorySection; 
   );
 }
 
-/** The "Theory" item of the top nav: opens a panel with every theory page, on hover (mouse), click, tap or keyboard. */
+/** The "Practice" item of the top nav (the /theory pages): opens a panel with every theory page, on hover (mouse), click, tap or keyboard. */
 export default function TheoryMenu({ active }: { active: string }) {
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
@@ -95,7 +97,7 @@ export default function TheoryMenu({ active }: { active: string }) {
         }}
         className={`flex items-center gap-1 rounded-lg px-3.5 py-2 text-sm transition ${inTheory ? "bg-sky-500/20 text-sky-100" : "text-slate-400 hover:text-slate-200"}`}
       >
-        Theory
+        Practice
         <Icon name="chevron-down" size={14} className={`transition ${open ? "rotate-180" : ""}`} />
       </button>
       {open && (
@@ -106,7 +108,7 @@ export default function TheoryMenu({ active }: { active: string }) {
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {GROUPS.map((g) => (
               <div key={g} className="flex flex-col gap-0.5">
-                <span className="px-3 pb-1 text-xs uppercase tracking-wider text-slate-500">{GROUP_LABEL[g]}</span>
+                <span className={`px-3 pb-1 text-xs uppercase tracking-wider text-slate-500`}>{GROUP_LABEL[g]}</span>
                 {THEORY_SECTIONS.filter((s) => s.group === g).map((s) => (
                   <SectionBlock key={s.href} s={s} current={isCurrent(s)} onPick={() => setOpen(false)} />
                 ))}

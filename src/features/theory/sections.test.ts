@@ -23,3 +23,12 @@ describe("theory sections", () => {
     assert.equal(sectionFor("/tuner"), undefined);
   });
 });
+
+describe("section colours", () => {
+  it("no two pages in a group share a colour", () => {
+    for (const g of Object.keys(GROUP_LABEL)) {
+      const tones = THEORY_SECTIONS.filter((s) => s.group === g).map((s) => s.tone);
+      assert.equal(new Set(tones).size, tones.length, g);
+    }
+  });
+});

@@ -44,7 +44,7 @@ export default function TheoryHub() {
 
       {MORE.map((g) => (
         <section key={g} aria-label={GROUP_LABEL[g]}>
-          <h2 className="mb-1 text-xs uppercase tracking-wider text-slate-500">{GROUP_LABEL[g]}</h2>
+          <h2 className={`mb-1 text-xs uppercase tracking-wider text-slate-500`}>{GROUP_LABEL[g]}</h2>
           <div className="grid gap-1 sm:grid-cols-2 lg:grid-cols-4">
             {THEORY_SECTIONS.filter((x) => x.group === g && x.href !== "/theory").map((x) => <SectionBlock key={x.href} s={x} roomy />)}
           </div>
