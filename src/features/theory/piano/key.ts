@@ -153,21 +153,20 @@ export function spellAs(key: KeyContext, midi: number, letter: Spelled["letter"]
 }
 
 /**
- * A single note in the key. Notes of the reference scale keep their spelling. Any other note is either the
- * degree below raised or the degree above lowered: whichever name has fewer accidentals, else the lowered one,
- * except a tritone over the tonic, which is a raised 4th when the 4th is perfect.
+ * Which degree each semitone above the tonic is written as when it is not in the scale: the fixed table
+ * ♭2 ♭3 ♯4 ♭6 ♭7 (and 3, 6, 7 for the major-scale notes a minor or modal scale lacks), so a note outside
+ * the key reads the same in every key.
  */
+const DEGREE_OF_SEMITONE = [0, 1, 1, 2, 2, 3, 3, 4, 5, 5, 6, 6];
+
+/** A single note in the key. Notes of the reference scale keep their spelling; any other note takes its degree from the fixed table. */
 export function spellNote(key: KeyContext, midi: number): Spelled {
   const k = built(key);
   const pc = mod(midi, 12);
   const hit = k.ref.find((n) => pcOf(n) === pc);
   if (hit) return spelled(k, midi, hit);
-  const dist = (n: Name) => mod(pcOf(n) - pc, 12);
-  const below = k.ref.reduce((a, b) => (mod(pc - pcOf(b), 12) < mod(pc - pcOf(a), 12) ? b : a));
-  const above = k.ref.reduce((a, b) => (dist(b) < dist(a) ? b : a));
-  const up: Name = { li: below.li, alter: below.alter + mod(pc - pcOf(below), 12) };
-  const down: Name = { li: above.li, alter: above.alter - dist(above) };
-  const [u, d] = [Math.abs(up.alter), Math.abs(down.alter)];
-  const sharp4 = mod(pc - k.tonicPc, 12) === 6 && mod(pcOf(k.ref[3]) - k.tonicPc, 12) === 5;
-  return spelled(k, midi, u < d || (u === d && sharp4) ? up : down);
+  const li = mod(k.tonicName.li + DEGREE_OF_SEMITONE[mod(pc - k.tonicPc, 12)], 7);
+  let alter = mod(pc - LETTER_PC[li], 12);
+  if (alter > 6) alter -= 12;
+  return spelled(k, midi, { li, alter });
 }

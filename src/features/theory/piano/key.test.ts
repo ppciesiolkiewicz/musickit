@@ -50,6 +50,16 @@ test("outside the key", () => {
   assert.deepEqual([64, 69, 71].map((m) => [spellNote(cm, m).name, spellNote(cm, m).degree]), [["E", "♯3"], ["A", "♯6"], ["B", "♯7"]]);
 });
 
+test("a note outside the key has the same degree in every key", () => {
+  // the same five chromatic degrees, whatever the key: ♭2 ♭3 ♯4 ♭6 ♭7
+  for (let pc = 0; pc < 12; pc++) {
+    const k = makeKey(pc, "major");
+    assert.deepEqual([1, 3, 6, 8, 10].map((s) => spellNote(k, 60 + pc + s).degree), ["♭2", "♭3", "♯4", "♭6", "♭7"], k.tonic);
+  }
+  assert.equal(spellNote(makeKey(8, "major"), 69).name, "B𝄫"); // A in A♭ major is its ♭2
+  assert.equal(spellNote(makeKey(11, "major"), 65).name, "E♯"); // F in B major is its ♯4
+});
+
 test("pentatonic degrees", () => {
   const k = makeKey(0, "majorPentatonic");
   assert.equal(spellNote(k, 69).degree, "6");

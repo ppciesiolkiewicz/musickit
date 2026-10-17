@@ -35,6 +35,13 @@ test("drone with melody", () => {
   assert.deepEqual(intervals(s), [null, "M10", "m2", "M2"]);
 });
 
+test("chord struck over a held note measures to the struck notes", () => {
+  const s = run(C, [["p", 60, 0], ["p", 64, 500], ["p", 67, 510]]);
+  assert.equal(s.steps.length, 2);
+  assert.equal(s.steps[1].sounding.chord?.symbol, "C");
+  assert.equal(s.steps[1].interval, "M3");
+});
+
 test("fresh press after release", () => {
   const s = run(C, [["p", 60, 0], ["p", 64, 10], ["p", 67, 20], ["r", 60], ["r", 64], ["r", 67], ["p", 62, 1000]]);
   assert.equal(s.steps.length, 2);

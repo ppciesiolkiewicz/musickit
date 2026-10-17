@@ -123,13 +123,19 @@ export default function Piano({ destination, voice, keyInfo, onNoteOn, onNoteOff
   const callbacks = useRef({ onNoteOn, onNoteOff });
   useEffect(() => { callbacks.current = { onNoteOn, onNoteOff }; });
   /** one path for every source, so the sound, the lit key and the callbacks never disagree */
+  // what is down right now, readable from listeners without waiting for a render
+  const down = useRef(new Set<string>());
+  /** the note each computer key started */
+  const codeNote = useRef(new Map<string, string>());
   const pressNote = useCallback((noteId: string) => {
+    down.current.add(noteId);
     playNote(noteId);
     setPressedKeys((prev) => new Set(prev).add(noteId));
     const m = noteToMidi(noteId);
     if (m !== null) callbacks.current.onNoteOn?.(m);
   }, [playNote]);
   const releaseNote = useCallback((noteId: string) => {
+    down.current.delete(noteId);
     stopNote(noteId);
     setPressedKeys((prev) => {
       if (!prev.has(noteId)) return prev;
@@ -223,6 +229,7 @@ export default function Piano({ destination, voice, keyInfo, onNoteOn, onNoteOff
       const noteId = keyCodeToNote.get(e.code);
       if (noteId) {
         e.preventDefault();
+        codeNote.current.set(e.code, noteId);
         pressNote(noteId);
       }
     },
@@ -232,7 +239,9 @@ export default function Piano({ destination, voice, keyInfo, onNoteOn, onNoteOff
   const handleKeyUp = useCallback(
     (e: KeyboardEvent) => {
       if (e.code === "ArrowLeft" || e.code === "ArrowRight") return;
-      const noteId = keyCodeToNote.get(e.code);
+      // release the note this key started, even if the octave moved while it was held
+      const noteId = codeNote.current.get(e.code) ?? keyCodeToNote.get(e.code);
+      codeNote.current.delete(e.code);
       if (noteId) {
         e.preventDefault();
         releaseNote(noteId);
@@ -242,18 +251,26 @@ export default function Piano({ destination, voice, keyInfo, onNoteOn, onNoteOff
   );
 
   useEffect(() => {
+    // a key let go while the window is away never sends its keyup, so leaving lets everything go
+    const releaseAll = () => {
+      [...down.current].forEach(releaseNote);
+      codeNote.current.clear();
+      stopAllNotes();
+    };
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden") releaseAll();
+    };
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("keyup", handleKeyUp);
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "hidden") stopAllNotes();
-    };
+    window.addEventListener("blur", releaseAll);
     document.addEventListener("visibilitychange", handleVisibilityChange);
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
+      window.removeEventListener("blur", releaseAll);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [handleKeyDown, handleKeyUp, stopAllNotes]);
+  }, [handleKeyDown, handleKeyUp, releaseNote, stopAllNotes]);
 
   useEffect(() => {
     const removeListener = addMidiListener((msg) => {
