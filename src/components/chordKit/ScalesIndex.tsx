@@ -82,18 +82,15 @@ export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey
       <ScaleSettingsBar
         tonicPc={tonicPc}
         onTonic={setTonicPc}
-        jumps={PART_IDS.map((id) => ({ id, label: PARTS[id].label, accent: PARTS[id].accent }))}
-        onJump={(id) => jump(id as PartId)}
-        jumpExtra={
-          <button type="button" onClick={() => setAll(!allOpen)} className="ml-auto shrink-0 rounded-full px-2.5 py-0.5 text-xs text-sky-300 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
-            {allOpen ? "Collapse all" : "Expand all"}
-          </button>
-        }
       />
 
       <ColourKey title="Colour key and how to read the cards">
         Each card is one mode starting on the key you chose. The coloured circles are its seven notes in order: tap one to hear it, or press Play to hear the scale up and back down. The fretboard shows every place the scale falls on the first 12 frets; tap a dot to hear it. Open a mode for its positions on the whole neck: five pentatonic boxes, and the full scale filled into the same five boxes. The small label above each is the scale degree, written against the major scale, so ♭3 means the 3rd is lowered and ♯4 means the 4th is raised. Colour follows the degree: 1 white, 2 teal, 3 amber, 4 lime, 5 blue, 6 violet, 7 rose. Relative major and relative minor are the major and natural minor scales that use exactly the same seven notes.
       </ColourKey>
+
+      <button type="button" onClick={() => setAll(!allOpen)} className="-mb-3 self-end rounded-full px-2.5 py-0.5 text-xs text-sky-300 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
+        {allOpen ? "Collapse all" : "Expand all"}
+      </button>
 
       {rows.map(({ fam, modes }) => (
         <div key={fam.id} id={`part-${fam.id}`} className={UNDER_BAR}>

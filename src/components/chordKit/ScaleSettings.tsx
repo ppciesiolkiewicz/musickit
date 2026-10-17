@@ -12,7 +12,7 @@ import { Chip, InfoBox, InfoButton, Select } from "@/components/ui";
 import { DegreeLegend } from "@/components/theory/DegreeLegend";
 import { PocketTools } from "@/features/instruments";
 
-/** Room the sticky bar takes at the top, for `scroll-mt` on the sections it jumps to. */
+/** Room the sticky bar takes at the top, for `scroll-mt` on the sections linked to by #hash. */
 export const UNDER_BAR = "scroll-mt-48";
 
 /** One labelled row of the bar. The chips wrap rather than scroll sideways. */
@@ -33,49 +33,54 @@ function BarRow({ label, info, children }: { label: string; info?: ReactNode; ch
 const KEY_INFO = "The home note of the music. Every note and chord below is worked out relative to it, and spelled to match (F♯ in G major, not G♭).";
 const LABEL_INFO = "How notes are labelled: note names, intervals from the root (R, b3, p5), scale degrees, or each note's job in the chord. One setting for the whole app; dot colours stay the same either way.";
 
-export type JumpItem = { id: string; label: string; accent?: string };
-
 /**
- * The settings that float over a scales page while it scrolls: key, labels, (on a mode page) which scale, and a jump bar.
+ * The settings that float over a scales page while it scrolls: key, labels and (on a mode page) which scale.
+ * Its header folds it away to one line; phones start folded, so the page is not hidden under it.
  * `scale` is the current mode page's slug; leave it out on the index.
  */
 export function ScaleSettingsBar({
-  tonicPc, onTonic, scale, omitLabels, jumps, onJump, jumpExtra,
+  tonicPc, onTonic, scale, omitLabels,
 }: {
   tonicPc: number;
   onTonic: (pc: number) => void;
   scale?: string;
   omitLabels?: LabelSystem[];
-  jumps: JumpItem[];
-  onJump: (id: string) => void;
-  jumpExtra?: ReactNode;
 }) {
+  // null until the first tap: folded on phones, open from sm up (by CSS, so the server render matches)
+  const [open, setOpen] = useState<boolean | null>(null);
+  const isOpen = () => open ?? window.matchMedia("(min-width: 640px)").matches;
+  const show = open === null ? "hidden sm:flex" : open ? "flex" : "hidden";
+  const keyName = TONICS.find((t) => t.pc === tonicPc)?.name;
+  const scaleName = scale ? MODE_PAGES.find((m) => m.slug === scale)?.name : undefined;
   return (
-    <div className="z-20 flex flex-col sm:sticky sm:top-2 gap-2 rounded-2xl border border-slate-700 bg-slate-950/90 px-2.5 py-2 shadow-lg shadow-black/30 backdrop-blur xl:flex-row xl:items-center">
-      <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-        {scale && <ScaleRow slug={scale} tonicPc={tonicPc} />}
-        <BarRow label="Key" info={KEY_INFO}>
-          {TONICS.map((t) => (
-            <Chip key={t.pc} on={t.pc === tonicPc} onClick={() => onTonic(t.pc)}>{t.name}</Chip>
-          ))}
-        </BarRow>
-        <BarRow label="Labels" info={LABEL_INFO}>
-          <LabelSelect showLabel={false} omit={omitLabels} />
-        </BarRow>
-        <nav aria-label="Sections">
-          <BarRow label="Jump to">
-            {jumps.map((j) => (
-              <button key={j.id} type="button" onClick={() => onJump(j.id)} className="flex shrink-0 items-center gap-1.5 rounded-full border border-slate-700 px-2.5 py-0.5 text-xs text-slate-300 transition hover:border-slate-500 hover:text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
-                {j.accent && <span className="h-2 w-2 rounded-full" style={{ background: j.accent }} aria-hidden />}
-                {j.label}
-              </button>
+    <div className="sticky top-2 z-20 flex flex-col gap-2 rounded-2xl border border-slate-700 bg-slate-950/90 px-2.5 py-2 shadow-lg shadow-black/30 backdrop-blur">
+      <button
+        type="button"
+        onClick={() => setOpen(!isOpen())}
+        aria-expanded={open ?? undefined}
+        className="flex items-center gap-2 rounded-md text-left text-xs focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400"
+      >
+        <span className="text-[11px] uppercase tracking-wider text-slate-500">Settings</span>
+        <span className="min-w-0 flex-1 truncate text-slate-200">{keyName}{scaleName ? ` ${scaleName}` : ""}</span>
+        <span className={`text-slate-400 ${open === null ? "sm:rotate-180" : open ? "rotate-180" : ""}`} aria-hidden>▾</span>
+        <span className="sr-only">Show or hide settings</span>
+      </button>
+      {/* hidden rather than unmounted, so the pocket tools keep playing while it is folded */}
+      <div className={`${show} max-h-[70vh] flex-col gap-2 overflow-y-auto sm:max-h-none sm:overflow-visible xl:flex-row xl:items-center`}>
+        <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+          {scale && <ScaleRow slug={scale} tonicPc={tonicPc} />}
+          <BarRow label="Key" info={KEY_INFO}>
+            {TONICS.map((t) => (
+              <Chip key={t.pc} on={t.pc === tonicPc} onClick={() => onTonic(t.pc)}>{t.name}</Chip>
             ))}
-            {jumpExtra}
           </BarRow>
-        </nav>
+          <BarRow label="Labels" info={LABEL_INFO}>
+            <LabelSelect showLabel={false} omit={omitLabels} />
+          </BarRow>
+        </div>
+        {/* play-along tools: under the settings on narrow screens, on the right once there is room */}
+        <PocketTools keyPc={tonicPc} className="border-t border-slate-800 pt-2 xl:border-l xl:border-t-0 xl:pl-4 xl:pt-0" />
       </div>
-      {/* play-along tools: under the settings on narrow screens, on the right once there is room */}
-      <PocketTools keyPc={tonicPc} className="border-t border-slate-800 pt-2 xl:border-l xl:border-t-0 xl:pl-4 xl:pt-0" />
     </div>
   );
 }

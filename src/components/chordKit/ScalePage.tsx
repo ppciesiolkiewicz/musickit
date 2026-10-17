@@ -18,14 +18,6 @@ import { scaleLineMidi } from "@/lib/chordKit/scalePositions";
 import { scaleHref } from "@/features/theory/keySlug";
 import { Chip, Info } from "@/components/ui";
 
-const JUMPS = [
-  { id: "scale-notes", label: "Notes" },
-  { id: "guitar", label: "On the guitar" },
-  { id: "relatives", label: "Same notes" },
-  { id: "chords", label: "Chords" },
-  { id: "sus", label: "Sus and extensions" },
-];
-
 /** "♯3 G → G♯, ♯4 A → A♯": which note of the reference scale each altered degree replaces. */
 function Swaps({ swaps }: { swaps: NoteSwap[] }) {
   return (
@@ -89,8 +81,6 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
         tonicPc={tonicPc}
         onTonic={setTonicPc}
         scale={syncUrl ? slug : undefined}
-        jumps={JUMPS}
-        onJump={(id) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" })}
       />
 
       <ColourKey>
