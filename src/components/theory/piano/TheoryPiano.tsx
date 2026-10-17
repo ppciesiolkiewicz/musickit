@@ -44,7 +44,7 @@ export default function TheoryPiano() {
         <button type="button" onClick={() => setTrail(emptyTrail)} className="ml-auto rounded-md border border-slate-700 px-2.5 py-1 text-xs text-slate-300 hover:border-slate-500">Clear staff</button>
       </div>
 
-      <div className="rounded-2xl border border-slate-800 bg-slate-950/60 p-2">
+      <div className="mx-auto w-full max-w-3xl rounded-2xl border border-slate-800 bg-slate-950/60 p-2">
         <GrandStaff steps={trail.steps} signature={key.signature} tonic={key.tonic} numerals={scale !== "chromatic"} />
       </div>
 

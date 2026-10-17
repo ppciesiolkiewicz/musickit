@@ -8,6 +8,8 @@ import { useInstrumentOptions } from "../engine/useInstrumentOptions";
 import { createPlayer } from "../engine/player";
 import { noteToMidi } from "../engine/notes";
 import type { ScaleVoice } from "./ScalePiano";
+import Icon from "@/components/Icon";
+import { btnSm, ibtn } from "@/components/controls";
 
 interface PianoKey {
   id: string;
@@ -49,19 +51,6 @@ function buildPianoKeys(maxOctave: number): PianoKey[] {
 }
 
 const ALL_PIANO_KEYS = buildPianoKeys(7);
-
-const WHITE_KEY_WIDTH = 48;
-const BLACK_KEY_WIDTH = 28;
-const WHITE_KEY_HEIGHT = 180;
-const BLACK_KEY_HEIGHT = 105;
-
-// Padding scales with the keys, so changing a key size keeps the proportions.
-const FRAME_PAD_X = Math.round(WHITE_KEY_WIDTH * 0.25);
-const FRAME_PAD_Y = Math.round(WHITE_KEY_WIDTH * 0.4);
-const KEY_PAD_BOTTOM = Math.round(WHITE_KEY_WIDTH * 0.12);
-// The scale degree on a white key sits just below the black keys, where it is never covered.
-const WHITE_KEY_PAD_TOP = BLACK_KEY_HEIGHT + Math.round(WHITE_KEY_WIDTH * 0.06);
-const BLACK_KEY_PAD_Y = Math.round(BLACK_KEY_WIDTH * 0.12);
 
 const BLACK_KEY_OFFSETS = [
   { offset: 0.5, note: "C#" },
@@ -286,202 +275,104 @@ export default function Piano({ destination, voice, keyInfo, onNoteOn, onNoteOff
     }
   }, []);
 
+  const whites = displayedWhiteKeys;
+  const ww = 100 / whites.length;
+  /** the colour laid over a key: pressed in amber, the tonic and the scale in the theme's accent */
+  const overlay = (id: string, inScale: boolean, tonic: boolean, black: boolean) =>
+    pressedKeys.has(id)
+      ? black ? "bg-amber-500" : "bg-amber-300"
+      : tonic && highlighting
+        ? black ? "bg-sky-500/70" : "bg-sky-400/55"
+        : inScale
+          ? black ? "bg-sky-500/35" : "bg-sky-400/20"
+          : "bg-transparent";
+  const isTonic = (id: string) => {
+    if (keyInfo) {
+      const m = noteToMidi(id);
+      return m !== null && keyInfo.isTonic(m);
+    }
+    return highlighting && getScaleDegree(id, scaleName) === 1;
+  };
+  const field = "h-8 rounded-lg border border-slate-700/80 bg-slate-900 px-2 text-xs text-slate-100 focus-visible:outline-2 focus-visible:outline-sky-400";
+
   return (
-    <div className="flex flex-col items-center">
-      <div className="mb-5 flex flex-wrap items-center justify-center gap-4">
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setViewOctave((o) => Math.max(1, o - 1))}
-            className="rounded-lg bg-white/10 px-3 py-1.5 text-sm text-white/80 transition hover:bg-white/20 disabled:opacity-40"
-            disabled={viewOctave <= 1}
-          >
-            ← Shift down
+    <div className="flex w-full flex-col gap-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="flex items-center gap-1" role="group" aria-label="Octave">
+          <button type="button" className={ibtn} onClick={() => setViewOctave((o) => Math.max(1, o - 1))} disabled={viewOctave <= 1} title="Octave down (←)" aria-label="Octave down">
+            <Icon name="chevron-left" />
           </button>
-          <span className="min-w-[6rem] text-center font-mono text-lg font-medium text-white/95">
-            Octaves {viewOctave}–{viewOctave + 1}
-          </span>
-          <button
-            type="button"
-            onClick={() => setViewOctave((o) => Math.min(6, o + 1))}
-            className="rounded-lg bg-white/10 px-3 py-1.5 text-sm text-white/80 transition hover:bg-white/20 disabled:opacity-40"
-            disabled={viewOctave >= 6}
-          >
-            Shift up →
+          <span className="w-16 text-center text-xs tabular-nums text-slate-300">C{viewOctave}–B{viewOctave + 1}</span>
+          <button type="button" className={ibtn} onClick={() => setViewOctave((o) => Math.min(6, o + 1))} disabled={viewOctave >= 6} title="Octave up (→)" aria-label="Octave up">
+            <Icon name="chevron-right" />
           </button>
         </div>
-        <div className="h-4 w-px bg-white/20" />
-        <div className="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            onClick={handleConnectMidi}
-            disabled={midiStatus === "connecting"}
-            className="rounded-lg bg-white/10 px-3 py-1.5 text-sm text-white/80 transition hover:bg-white/20 disabled:opacity-50"
-            title="Connect a MIDI keyboard (browser will ask for permission)"
-          >
-            {midiStatus === "connecting"
-              ? "Connecting…"
-              : midiStatus === "connected"
-                ? `MIDI ✓ (${getMidiInputs().length})`
-                : midiStatus === "error"
-                  ? "MIDI failed"
-                  : "Connect MIDI"}
-          </button>
-          {midiError && (
-            <span className="text-xs text-red-400" title={midiError}>
-              {midiError}
-            </span>
-          )}
-          {!voice && (<>
-          <div className="h-4 w-px bg-white/20" />
-          <select
-            value={instrumentId}
-            onChange={(e) => { changeInstrument(e.target.value); e.target.blur(); }}
-            className="rounded-lg border border-white/20 bg-white/10 px-2 py-1.5 text-sm text-white/95 backdrop-blur"
-          >
-            {instrumentOptions.map(({ value, label }) => (
-              <option key={value} value={value} className="bg-zinc-800 text-white">
-                {label}
-              </option>
-            ))}
+        <button
+          type="button"
+          onClick={handleConnectMidi}
+          disabled={midiStatus === "connecting"}
+          aria-pressed={midiStatus === "connected"}
+          className={btnSm}
+          title={midiError ?? "Connect a MIDI keyboard (the browser asks for permission)"}
+        >
+          {midiStatus === "connecting" ? "Connecting…" : midiStatus === "connected" ? `MIDI · ${getMidiInputs().length}` : midiStatus === "error" ? "MIDI failed" : "Connect MIDI"}
+        </button>
+        {!voice && (
+          <select value={instrumentId} onChange={(e) => { changeInstrument(e.target.value); e.target.blur(); }} className={field} aria-label="Sound">
+            {instrumentOptions.map(({ value, label }) => <option key={value} value={value}>{label}</option>)}
           </select>
-          </>)}
-          {!keyInfo && (<>
-          <div className="h-4 w-px bg-white/20" />
-          <select
-            value={scaleTonic}
-            onChange={(e) => { setScaleTonic(e.target.value); e.target.blur(); }}
-            className="rounded-lg border border-white/20 bg-white/10 px-2 py-1.5 text-sm text-white/95 backdrop-blur"
-          >
-            {TONIC_OPTIONS.map((t) => (
-              <option key={t} value={t} className="bg-zinc-800 text-white">
-                {t}
-              </option>
-            ))}
+        )}
+        {!keyInfo && (<>
+          <select value={scaleTonic} onChange={(e) => { setScaleTonic(e.target.value); e.target.blur(); }} className={field} aria-label="Key">
+            {TONIC_OPTIONS.map((t) => <option key={t} value={t}>{t.replace("#", "♯")}</option>)}
           </select>
-          <select
-            value={scaleType}
-            onChange={(e) => { setScaleType(e.target.value); e.target.blur(); }}
-            className="rounded-lg border border-white/20 bg-white/10 px-2 py-1.5 text-sm text-white/95 backdrop-blur"
-          >
-            {SCALE_OPTIONS.map(({ value, label }) => (
-              <option key={value} value={value} className="bg-zinc-800 text-white">
-                {label}
-              </option>
-            ))}
+          <select value={scaleType} onChange={(e) => { setScaleType(e.target.value); e.target.blur(); }} className={field} aria-label="Scale">
+            {SCALE_OPTIONS.map(({ value, label }) => <option key={value} value={value}>{label}</option>)}
           </select>
-          <label className="flex cursor-pointer items-center gap-2 text-sm text-white/70">
-            <input
-              type="checkbox"
-              checked={showScaleHighlight}
-              onChange={(e) => setShowScaleHighlight(e.target.checked)}
-              className="rounded border-white/30 bg-white/10"
-            />
-            Highlight scale
-          </label>
-          </>)}
-        </div>
+          <button type="button" className={btnSm} aria-pressed={showScaleHighlight} onClick={() => setShowScaleHighlight((v) => !v)}>Highlight scale</button>
+        </>)}
       </div>
 
-      <div className="pb-4">
-        <div
-          className="relative mx-auto box-content rounded-2xl border border-white/10 bg-gradient-to-b from-zinc-800/95 to-zinc-900 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.06)]"
-          style={{ width: displayedWhiteKeys.length * (WHITE_KEY_WIDTH - 1), padding: `${FRAME_PAD_Y}px ${FRAME_PAD_X}px` }}
-        >
-          {/* White keys */}
-          <div className="flex">
-            {displayedWhiteKeys.map((key) => {
+      <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-1.5 sm:p-2">
+        <div className="relative h-36 w-full touch-none select-none sm:h-44" role="group" aria-label="Piano keys">
+          <div className="flex h-full">
+            {whites.map((key) => {
               const { inScale, degree } = marks(key.id);
+              const cap = noteToKeyCode.get(key.id);
               return (
                 <div
                   key={key.id}
                   {...pointerProps(key.id)}
-                  className={`
-                    relative flex flex-shrink-0 flex-col items-center justify-between rounded-b-lg border transition-all duration-75
-                    border-l-stone-300/60 border-r-stone-400/80 border-t-stone-200/90
-                    shadow-[inset_0_1px_0_rgba(255,255,255,0.95),0_3px_6px_rgba(0,0,0,0.08)]
-                    ${pressedKeys.has(key.id)
-                      ? "z-10 bg-amber-200 shadow-[inset_0_3px_16px_rgba(251,191,36,0.45)]"
-                      : inScale
-                        ? "bg-gradient-to-b from-emerald-50/90 via-stone-100 to-stone-200/95 ring-1 ring-inset ring-emerald-400/30"
-                        : highlighting
-                          ? "bg-gradient-to-b from-stone-100/80 via-stone-150/80 to-stone-200/70 opacity-75"
-                          : "bg-gradient-to-b from-stone-50 via-stone-100 to-stone-200/95 hover:from-stone-100 hover:via-stone-150 hover:to-stone-300/90"}
-                  `}
-                  style={{ width: WHITE_KEY_WIDTH - 1, height: WHITE_KEY_HEIGHT, paddingTop: WHITE_KEY_PAD_TOP, paddingBottom: KEY_PAD_BOTTOM }}
+                  className="relative flex h-full flex-1 cursor-pointer flex-col items-center justify-end overflow-hidden rounded-b-md border border-neutral-400/70 bg-neutral-50 pb-1.5 first:rounded-bl-lg last:rounded-br-lg"
                 >
-                  <span className="text-xs font-semibold text-emerald-700/90">{inScale && degree ? degree : null}</span>
-                  <div className="flex flex-col items-center gap-0.5">
-                    <span className="font-mono text-sm font-medium text-zinc-600">
-                      {key.id}
-                    </span>
-                    {noteToKeyCode.has(key.id) && (
-                      <span className="rounded bg-zinc-200/80 px-1.5 py-0.5 font-mono text-[10px] font-medium text-zinc-600">
-                        {noteToKeyCode.get(key.id)}
-                      </span>
-                    )}
-                  </div>
+                  <span className={`absolute inset-0 transition-colors duration-75 ${overlay(key.id, inScale, isTonic(key.id), false)}`} aria-hidden />
+                  {inScale && degree && <span className="absolute top-[64%] text-[11px] font-semibold text-neutral-800 sm:text-xs">{degree}</span>}
+                  <span className="relative text-[9px] font-medium text-neutral-500 sm:text-[10px]">{key.note}{key.octave}</span>
+                  {cap && <span className="relative mt-0.5 hidden rounded bg-neutral-200 px-1 text-[9px] font-medium text-neutral-600 sm:inline">{cap}</span>}
                 </div>
               );
             })}
           </div>
-
-          {/* Black keys */}
-          {[viewOctave, viewOctave + 1].map((octave) =>
-            BLACK_KEY_OFFSETS.map(({ offset, note }) => {
-              const key = displayedBlackKeys.find((k) => k.id === `${note}${octave}`);
-              if (!key) return null;
-              const { inScale, degree } = marks(key.id);
-              const left =
-                FRAME_PAD_X +
-                ((octave - viewOctave) * 7 + offset) * (WHITE_KEY_WIDTH - 1) -
-                BLACK_KEY_WIDTH / 2;
-              return (
-                <div
-                  key={key.id}
-                  {...pointerProps(key.id)}
-                  className={`
-                    absolute flex flex-col items-center justify-between rounded-b-lg border border-zinc-900/95 transition-all duration-75
-                    shadow-[inset_0_-3px_8px_rgba(0,0,0,0.5),0_3px_8px_rgba(0,0,0,0.25)]
-                    z-20
-                    ${pressedKeys.has(key.id)
-                      ? "bg-amber-600 shadow-[inset_0_3px_14px_rgba(217,119,6,0.55)]"
-                      : inScale
-                        ? "bg-gradient-to-b from-emerald-800/90 via-zinc-800 to-zinc-900 ring-1 ring-inset ring-emerald-500/40"
-                        : highlighting
-                          ? "bg-gradient-to-b from-zinc-800/80 via-zinc-900/80 to-zinc-950 opacity-80"
-                          : "bg-gradient-to-b from-zinc-700 via-zinc-800 to-zinc-900 hover:from-zinc-600 hover:via-zinc-700 hover:to-zinc-800"}
-                  `}
-                  style={{
-                    left,
-                    top: FRAME_PAD_Y,
-                    width: BLACK_KEY_WIDTH,
-                    height: BLACK_KEY_HEIGHT,
-                    paddingTop: BLACK_KEY_PAD_Y,
-                    paddingBottom: BLACK_KEY_PAD_Y,
-                  }}
-                >
-                  {inScale && degree && (
-                    <span className="text-[10px] font-semibold text-emerald-400/90">{degree}</span>
-                  )}
-                  <div className="flex flex-col items-center gap-0.5">
-                    <span className="font-mono text-[10px] font-medium text-zinc-500">
-                      {key.id}
-                    </span>
-                    {noteToKeyCode.has(key.id) && (
-                      <span className="rounded bg-zinc-600/80 px-1 py-0.5 font-mono text-[9px] font-medium text-zinc-300">
-                        {noteToKeyCode.get(key.id)}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              );
-            })
-          )}
+          {displayedBlackKeys.map((key) => {
+            const { inScale, degree } = marks(key.id);
+            const offset = BLACK_KEY_OFFSETS.find((b) => b.note === key.id.replace(/\d+$/, ""))!.offset;
+            const left = ((key.octave - viewOctave) * 7 + offset) * ww;
+            const cap = noteToKeyCode.get(key.id);
+            return (
+              <div
+                key={key.id}
+                {...pointerProps(key.id)}
+                className="absolute top-0 z-10 flex h-[60%] cursor-pointer flex-col items-center justify-end overflow-hidden rounded-b-md border border-neutral-950 bg-neutral-900 pb-1 shadow-md shadow-black/40"
+                style={{ left: `${left - ww * 0.3}%`, width: `${ww * 0.6}%` }}
+              >
+                <span className={`absolute inset-0 transition-colors duration-75 ${overlay(key.id, inScale, isTonic(key.id), true)}`} aria-hidden />
+                {inScale && degree && <span className="relative mb-auto mt-2 text-[9px] font-semibold text-neutral-100 sm:text-[10px]">{degree}</span>}
+                {cap && <span className="relative hidden rounded bg-neutral-700 px-0.5 text-[8px] font-medium text-neutral-200 sm:inline">{cap}</span>}
+              </div>
+            );
+          })}
         </div>
       </div>
-
-      {/* keyboard hint removed */}
     </div>
   );
 }
