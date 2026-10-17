@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useState, useSyncExternalStore, type ReactNode } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import Icon from "@/components/Icon";
-import { ibtn } from "@/components/controls";
 import { getAudioContext, getOutputBus } from "@/features/sound";
 import DroneControls from "../drone/DroneControls";
 import { NOTE_NAMES, droneName, type DroneParams } from "../drone/drone";
@@ -80,15 +79,35 @@ export default function Jam() {
     rig.start(parts);
   };
   const toggle = (p: JamPart) => (snap.parts[p].state.playing ? rig.stop([p]) : void start([p]));
-  const allOn = JAM_PARTS.every((p) => snap.parts[p].state.playing);
+  // any part playing makes it a Stop all, so one part started on its own can be stopped from here too
+  const anyOn = JAM_PARTS.some((p) => snap.parts[p].state.playing);
+  const toggleAll = () => (anyOn ? rig.stop(JAM_PARTS) : void start(JAM_PARTS));
+  const toggleAllRef = useRef(toggleAll);
+  useEffect(() => {
+    toggleAllRef.current = toggleAll;
+  });
+  useEffect(() => {
+    // Space plays or stops everything, except while typing in a field
+    const onKey = (e: KeyboardEvent) => {
+      if (e.code !== "Space" || e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
+      const t = e.target as HTMLElement | null;
+      if (t && (t.isContentEditable || /^(TEXTAREA|SELECT)$/.test(t.tagName) || (t.tagName === "INPUT" && !/^(range|checkbox|radio|button)$/.test((t as HTMLInputElement).type)))) return;
+      e.preventDefault();
+      toggleAllRef.current();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
   const drone = snap.parts.drone;
   const key = NOTE_NAMES[drone.state.drone.root];
 
   return (
     <div className="flex min-w-0 flex-col gap-6">
       <div className="flex flex-wrap items-center gap-x-5 gap-y-3 rounded-2xl border border-slate-800 bg-slate-900/60 px-5 py-4 sm:px-7">
-        <button type="button" className={`${ibtn} grid-flow-col gap-1.5 px-3`} onClick={() => (allOn ? rig.stop(JAM_PARTS) : void start(JAM_PARTS))} aria-pressed={allOn}>
-          <Icon name={allOn ? "square" : "play"} size={14} fill />{allOn ? "Stop all" : "Play all"}
+        <button type="button" onClick={toggleAll} aria-pressed={anyOn} title={`${anyOn ? "Stop" : "Start"} every part on the next beat (Space)`}
+          className={`inline-flex h-12 items-center gap-2.5 rounded-xl border px-5 text-base font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${anyOn ? "border-emerald-400/70 bg-emerald-500/20 text-emerald-100" : "border-slate-600 bg-slate-800 text-slate-100 hover:border-slate-400"}`}>
+          <Icon name={anyOn ? "square" : "play"} size={20} fill />{anyOn ? "Stop all" : "Play all"}
+          <kbd className="hidden rounded border border-current/30 px-1.5 text-[10px] font-normal opacity-60 sm:inline">Space</kbd>
         </button>
         <label className="order-last flex w-full min-w-0 items-center gap-2 text-xs text-slate-300 sm:order-none sm:w-auto sm:max-w-sm sm:flex-1">
           <span className="shrink-0">Tempo</span>
