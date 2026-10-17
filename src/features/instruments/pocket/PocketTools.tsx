@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import Icon from "@/components/Icon";
-import Slider from "@/components/Slider";
 import { getAudioContext, getOutputBus } from "@/features/sound";
 import { tapTempo, type ClickParams } from "../click/click";
 import { DEFAULT_DRONE, DRONE_MAX_OCTAVE, DRONE_MIN_OCTAVE, NOTE_NAMES, droneName, type DroneParams } from "../drone/drone";
@@ -10,10 +9,10 @@ import DroneControls from "../drone/DroneControls";
 import StepGrid, { PatternBar } from "../sequencer/StepGrid";
 import { MAX_BPM, MIN_BPM } from "../jam/clock";
 import { BEATS_PER_BAR, JAM_PARTS, JamRig, type JamPart, type JamSaved } from "../jam/rig";
+import { Select, Slider } from "@/components/ui";
 
 const STORAGE_KEY = "musickit.pocket";
 const ibtn = "grid h-7 min-w-7 shrink-0 place-items-center rounded-md border border-slate-700 bg-slate-900 px-1 text-xs text-slate-200 transition hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
-const field = "h-7 rounded-md border border-slate-700 bg-slate-900 px-1.5 text-xs text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 const lit = "!border-emerald-400/70 !bg-emerald-500/20 !text-emerald-100";
 
 /** The first save held only a drone and a click; read it so those settings are not lost. */
@@ -219,10 +218,14 @@ export default function PocketTools({ keyPc, className = "" }: { keyPc: number; 
     return (
       <Tool label={label}>
         <PlayButton on={v.state.playing} label={label.toLowerCase()} onClick={() => toggle(p)} />
-        <select className={`${field} w-28 min-w-0 shrink-0 sm:w-43`} value="" onChange={(e) => e.target.value && rig.loadPreset(p, e.target.value)} aria-label={`${label} pattern`}>
-          <option value="">Pattern…</option>
-          {inst.presets.map((pr) => <option key={pr.id} value={pr.id}>{pr.name}</option>)}
-        </select>
+        <Select
+          size="sm"
+          className="w-28 shrink-0 sm:w-43"
+          value=""
+          onChange={(id) => id && rig.loadPreset(p, id)}
+          aria-label={`${label} pattern`}
+          options={[{ value: "", label: "Pattern…", disabled: true }, ...inst.presets.map((pr) => ({ value: pr.id, label: pr.name }))]}
+        />
         <Popover label={`${label} pattern`} wide>
           <div className="flex flex-col gap-3">
             <PatternBar instrument={inst} bars={v.state.bars} onPreset={(id) => rig.loadPreset(p, id)} onBars={(b) => rig.setBars(p, b)} onClear={() => rig.clear(p)}
