@@ -1,3 +1,4 @@
+import { ClickTrack, DEFAULT_CLICK, beatIndexAt, beatOf, clampClick, type ClickParams } from "../click/click";
 import { clampDrone, type DroneParams } from "../drone/drone";
 import { BASS, DRONE_ID, DRUMS, Sequencer, type SequencerState } from "../sequencer/sequencer";
 import { clampTempo, nextBeat } from "./clock";
@@ -23,8 +24,10 @@ export interface JamSnapshot {
   devices: InputDevice[];
   /** a loop holds sound or records: the tempo stays as it is */
   tempoLocked: boolean;
+  /** the metronome click on the same grid (`setClick`) */
+  click: { on: boolean; volume: number };
 }
-export interface JamSaved { bpm: number; parts: Partial<Record<JamPart, Partial<SequencerState>>>; loops?: Partial<LoopConfig>[] }
+export interface JamSaved { bpm: number; parts: Partial<Record<JamPart, Partial<SequencerState>>>; loops?: Partial<LoopConfig>[]; click?: { volume?: number } }
 
 /**
  * Drone, drums and bass on one clock, for a page: what the `Jam` component shows. No React. The first part to start sets the grid;
@@ -43,6 +46,9 @@ export class JamRig {
   private out: AudioNode | null = null;
   private devices: InputDevice[] = [];
   private onDeviceChange = () => void this.refreshDevices();
+  private clickTrack: ClickTrack | null = null;
+  private clickOn = false;
+  private clickVolume = DEFAULT_CLICK.volume;
 
   constructor() {
     const timing = () => ({ beatSeconds: this.beat, beatsPerBar: BEATS_PER_BAR });
@@ -69,6 +75,7 @@ export class JamRig {
       loops: this.loops.map((l) => l.view(now)),
       devices: this.devices,
       tempoLocked: this.tempoLocked,
+      click: { on: this.clickOn, volume: this.clickVolume },
     };
   }
 
@@ -107,6 +114,7 @@ export class JamRig {
       const s = saved.parts?.[p];
       if (s && s.instrumentId === this.seqs[p].state.instrumentId) this.seqs[p].load(s);
     }
+    if (saved.click) this.clickVolume = clampClick({ volume: saved.click.volume }).volume;
     if (Array.isArray(saved.loops) && saved.loops.length && !this.loops.some((l) => l.buffer || l.take)) {
       this.loops.forEach((l) => l.dispose());
       this.loops = saved.loops.slice(0, MAX_LOOPS).map((c) => this.makeLoop(c));
@@ -120,7 +128,7 @@ export class JamRig {
   }
 
   save(): JamSaved {
-    return { bpm: this.bpm, parts: { drone: this.seqs.drone.serialize(), drums: this.seqs.drums.serialize(), bass: this.seqs.bass.serialize() }, loops: this.loops.map((l) => l.config) };
+    return { bpm: this.bpm, parts: { drone: this.seqs.drone.serialize(), drums: this.seqs.drums.serialize(), bass: this.seqs.bass.serialize() }, loops: this.loops.map((l) => l.config), click: { volume: this.clickVolume } };
   }
 
   /** Make the sound: every part into `out`. Call from a person's click, once the context is running. */
@@ -134,6 +142,7 @@ export class JamRig {
       this.seqs[p].toSpeakers!.connect(out);
     }
     this.loops.forEach((l) => l.attach(ctx, this.pool!, out));
+    this.clickTrack = new ClickTrack(ctx, out);
     navigator.mediaDevices?.addEventListener?.("devicechange", this.onDeviceChange);
   }
 
@@ -143,7 +152,7 @@ export class JamRig {
 
   private sounding = (p: JamPart) => this.seqs[p].running && !this.seqs[p].stopping;
   /** something keeps the grid: a part or a loop sounds, or a take is on its way */
-  private busy = () => JAM_PARTS.some(this.sounding) || this.loops.some((l) => l.take || (l.running && !l.stopping));
+  private busy = () => this.clickOn || JAM_PARTS.some(this.sounding) || this.loops.some((l) => l.take || (l.running && !l.stopping));
 
   /** The grid to start on: the running one, or a new one from now on (every loop's bar 1 moves to it). */
   private grid(lead = 0.06): number {
@@ -297,18 +306,50 @@ export class JamRig {
     }
   }
 
-  /** A new tempo moves the grid: the parts that play start again together on it. */
+  /** A new tempo moves the grid: the parts that play (and the click) start again together on it. */
   setTempo(bpm: number) {
     // recorded loops are so many bars of the tempo they were taken at
     if (this.tempoLocked) return;
     this.bpm = clampTempo(bpm);
     const going = JAM_PARTS.filter(this.sounding);
-    if (this.ctx && going.length) {
+    if (this.ctx && (going.length || this.clickOn)) {
       const a = this.ctx.currentTime + 0.05;
       this.anchor = a;
       going.forEach((p) => this.seqs[p].start(a, a));
+      if (this.clickOn) this.clickTrack?.start(this.clickParams, a, a);
     }
     this.changed();
+  }
+
+  private get clickParams(): ClickParams {
+    return { bpm: this.bpm, beatsPerBar: BEATS_PER_BAR, volume: this.clickVolume };
+  }
+
+  /** Start the metronome click on the grid (on its next beat when something plays), or stop it at once. */
+  setClick(on: boolean) {
+    const ctx = this.ctx;
+    if (on && ctx && this.clickTrack) {
+      const anchor = this.grid();
+      this.clickTrack.start(this.clickParams, anchor, nextBeat(ctx.currentTime + 0.02, anchor, this.beat));
+      this.clickOn = true;
+    } else {
+      this.clickTrack?.stop();
+      this.clickOn = false;
+    }
+    this.changed();
+  }
+
+  setClickVolume(volume: number) {
+    this.clickVolume = clampClick({ volume }).volume;
+    this.clickTrack?.set(this.clickParams);
+    this.changed();
+  }
+
+  /** The beat of the bar sounding now (0 = beat 1) while anything keeps the grid, else null. */
+  beatNow(): number | null {
+    if (!this.ctx || this.anchor === null || !this.busy()) return null;
+    const i = beatIndexAt(this.ctx.currentTime, this.anchor, this.bpm);
+    return i < 0 ? null : beatOf(i, BEATS_PER_BAR);
   }
 
   setDrone(patch: Partial<DroneParams>) {
@@ -348,6 +389,9 @@ export class JamRig {
     });
     this.loops.forEach((l) => l.dispose());
     this.pool?.dispose();
+    this.clickTrack?.dispose();
+    this.clickTrack = null;
+    this.clickOn = false;
     navigator.mediaDevices?.removeEventListener?.("devicechange", this.onDeviceChange);
     this.anchor = null;
     this.ctx = null;

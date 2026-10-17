@@ -1,25 +1,44 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import Icon from "@/components/Icon";
 import Slider from "@/components/Slider";
 import { getAudioContext, getOutputBus } from "@/features/sound";
-import { CLICK_MAX_BEATS, CLICK_MAX_BPM, CLICK_MIN_BPM, ClickTrack, DEFAULT_CLICK, clampClick, tapTempo, type ClickParams } from "../click/click";
-import { DEFAULT_DRONE, DRONE_MAX_OCTAVE, DRONE_MIN_OCTAVE, DroneVoice, clampDrone, droneName, type DroneParams } from "../drone/drone";
+import { tapTempo, type ClickParams } from "../click/click";
+import { DEFAULT_DRONE, DRONE_MAX_OCTAVE, DRONE_MIN_OCTAVE, NOTE_NAMES, droneName, type DroneParams } from "../drone/drone";
 import DroneControls from "../drone/DroneControls";
+import StepGrid, { PatternBar } from "../sequencer/StepGrid";
+import { MAX_BPM, MIN_BPM } from "../jam/clock";
+import { BEATS_PER_BAR, JAM_PARTS, JamRig, type JamPart, type JamSaved } from "../jam/rig";
 
 const STORAGE_KEY = "musickit.pocket";
 const ibtn = "grid h-7 min-w-7 shrink-0 place-items-center rounded-md border border-slate-700 bg-slate-900 px-1 text-xs text-slate-200 transition hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
-const field = "h-8 rounded-md border border-slate-700 bg-slate-900 px-2 text-xs text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
+const field = "h-7 rounded-md border border-slate-700 bg-slate-900 px-1.5 text-xs text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
+const lit = "!border-emerald-400/70 !bg-emerald-500/20 !text-emerald-100";
 
-/** The one AudioContext, woken up (a click is a user gesture, so resume is allowed). */
-async function audio() {
-  const ctx = getAudioContext();
-  if (ctx.state === "suspended") await ctx.resume();
-  return ctx;
+/** The first save held only a drone and a click; read it so those settings are not lost. */
+type OldSave = { click?: Partial<ClickParams>; drone?: Partial<DroneParams> };
+
+function restore(rig: JamRig) {
+  try {
+    const saved = JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "null") as (Partial<JamSaved> & OldSave) | null;
+    if (!saved || typeof saved !== "object") return;
+    if (saved.parts) return rig.load(saved);
+    if (saved.drone) rig.loadDrone(saved.drone);
+    if (typeof saved.click?.bpm === "number") rig.setTempo(saved.click.bpm);
+    if (typeof saved.click?.volume === "number") rig.setClickVolume(saved.click.volume);
+  } catch {
+    /* storage blocked or a broken save: start fresh */
+  }
 }
 
-/** A gear button with a panel under it; closes on a click outside or Escape. */
+/** Space in a text field types a space; everywhere else it is ours. */
+const typing = (t: EventTarget | null) => {
+  const el = t as HTMLElement | null;
+  return !!el && (el.isContentEditable || /^(TEXTAREA|SELECT)$/.test(el.tagName) || (el.tagName === "INPUT" && !/^(range|checkbox|radio|button)$/.test((el as HTMLInputElement).type)));
+};
+
+/** A sliders button with a panel under it; closes on a click outside or Escape. */
 function Popover({ label, wide, children }: { label: string; wide?: boolean; children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const wrap = useRef<HTMLDivElement>(null);
@@ -50,7 +69,7 @@ function Popover({ label, wide, children }: { label: string; wide?: boolean; chi
 
 function PlayButton({ on, label, onClick }: { on: boolean; label: string; onClick: () => void }) {
   return (
-    <button type="button" className={`${ibtn} ${on ? "!border-sky-400 !bg-sky-500/20 !text-sky-100" : ""}`} aria-pressed={on} onClick={onClick} title={on ? `Stop the ${label}` : `Play the ${label}`} aria-label={on ? `Stop the ${label}` : `Play the ${label}`}>
+    <button type="button" className={`${ibtn} ${on ? lit : ""}`} aria-pressed={on} onClick={onClick} title={on ? `Stop the ${label} on the next beat` : `Start the ${label} on the next beat`} aria-label={on ? `Stop the ${label}` : `Play the ${label}`}>
       <Icon name={on ? "square" : "play"} fill size={12} />
     </button>
   );
@@ -60,33 +79,32 @@ function PlayButton({ on, label, onClick }: { on: boolean; label: string; onClic
 function Tool({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div role="group" aria-label={label} className="flex min-w-0 items-center gap-1">
-      <span className="w-20 shrink-0 text-[11px] uppercase tracking-wider text-slate-500">{label}</span>
+      <span className="w-12 shrink-0 text-[11px] uppercase tracking-wider text-slate-500 sm:w-16">{label}</span>
       {children}
     </div>
   );
 }
 
-/** One dot per beat, the current one lit and the downbeat amber; read from the click on every frame, so React does not re-render. */
-function BeatDots({ track, count, playing }: { track: React.RefObject<ClickTrack | null>; count: number; playing: boolean }) {
+/** One dot per beat of the shared grid, the current one lit and beat 1 amber; read every frame, so React does not re-render. */
+function BeatDots({ rig, playing }: { rig: JamRig; playing: boolean }) {
   const refs = useRef<(HTMLSpanElement | null)[]>([]);
   useEffect(() => {
     let raf = 0;
     const tick = () => {
-      const b = playing ? track.current?.beat() : null;
+      const b = playing ? rig.beatNow() : null;
       refs.current.forEach((el, i) => {
         if (!el) return;
-        const lit = b != null && b.beat === i;
-        el.style.opacity = lit ? "1" : "0.3";
-        el.style.transform = lit ? "scale(1.3)" : "scale(1)";
+        el.style.opacity = b === i ? "1" : "0.3";
+        el.style.transform = b === i ? "scale(1.3)" : "scale(1)";
       });
       if (playing) raf = requestAnimationFrame(tick);
     };
     tick();
     return () => cancelAnimationFrame(raf);
-  }, [track, count, playing]);
+  }, [rig, playing]);
   return (
-    <span className="flex w-18 shrink-0 items-center justify-center gap-1" aria-hidden>
-      {Array.from({ length: Math.min(count, 8) }, (_, i) => (
+    <span className="hidden w-14 shrink-0 items-center justify-center gap-1 sm:flex" aria-hidden>
+      {Array.from({ length: BEATS_PER_BAR }, (_, i) => (
         <span key={i} ref={(el) => { refs.current[i] = el; }} className={`h-2 w-2 rounded-full opacity-30 transition-transform duration-75 ${i === 0 ? "bg-amber-400" : "bg-sky-400"}`} />
       ))}
     </span>
@@ -94,141 +112,176 @@ function BeatDots({ track, count, playing }: { track: React.RefObject<ClickTrack
 }
 
 /**
- * A small metronome and drone for a page's settings bar: each on one line with play, the few controls you reach for (tempo; the
- * drone's octave and volume) and a panel behind the sliders button for the rest (the drone's panel is the full `DroneControls`).
- * The drone's note follows `keyPc`. It owns its audio, plays straight to the speakers and stops when the page goes. Saved in
- * localStorage `musickit.pocket` (settings only; nothing plays on load).
+ * A small play-along band for a page's settings bar: metronome, drone, drums and bass on one clock (the Jam's `JamRig`), each on one
+ * line with play, the few controls you reach for and a panel behind the sliders button for the rest (the drone's full `DroneControls`,
+ * the sequencers' step grids). Play all starts everything on the next beat. Space stops what plays, and brings it back when pressed
+ * again; outside that it leaves Space to the page. The drone (and with it the bass) sits on `keyPc`. Owns its audio, made on the
+ * first click; saved in localStorage `musickit.pocket` (settings only; nothing plays on load).
  */
 export default function PocketTools({ keyPc, className = "" }: { keyPc: number; className?: string }) {
-  const [click, setClick] = useState<ClickParams>(DEFAULT_CLICK);
-  const [drone, setDrone] = useState<DroneParams>({ ...DEFAULT_DRONE, root: keyPc });
-  const [clicking, setClicking] = useState(false);
-  const [droning, setDroning] = useState(false);
-  const [taps, setTaps] = useState<number[]>([]);
-  const track = useRef<ClickTrack | null>(null);
-  const voice = useRef<DroneVoice | null>(null);
+  const [rig] = useState(() => new JamRig());
+  const snap = useSyncExternalStore(rig.subscribe, rig.snapshot, rig.snapshot);
   const [restored, setRestored] = useState(false);
-  const [key, setKey] = useState(keyPc);
+  const taps = useRef<number[]>([]);
+  /** what Space stopped, to bring back on the next Space */
+  const paused = useRef<{ parts: JamPart[]; click: boolean } | null>(null);
 
-  // the drone moves to the page's key whenever it changes
-  if (key !== keyPc) {
-    setKey(keyPc);
-    setDrone((d) => ({ ...d, root: keyPc }));
-  }
-
-  // read the save after mount, so the server render and the first client render match; saving starts once it is back
-  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const s = JSON.parse(raw);
-        setClick(clampClick(s.click));
-        setDrone((d) => clampDrone({ ...s.drone, root: d.root }));
-      }
-    } catch {
-      /* ignore a corrupt save */
-    }
+    restore(rig);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- saving starts once the save is back (after hydration)
     setRestored(true);
-  }, []);
-  /* eslint-enable react-hooks/set-state-in-effect */
-
+    return () => rig.dispose();
+  }, [rig]);
   useEffect(() => {
     if (!restored) return;
     try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ click, drone }));
+      // no loops here: keep the save to the parts, tempo and click
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...rig.save(), loops: undefined }));
     } catch {
       /* private mode */
     }
-  }, [click, drone, restored]);
+  }, [rig, snap, restored]);
 
-  useEffect(() => track.current?.set(click), [click]);
-  useEffect(() => voice.current?.update(drone), [drone]);
+  // the drone, and so the bass, sits on the page's key
+  useEffect(() => rig.setDrone({ root: keyPc }), [rig, keyPc, restored]);
 
-  useEffect(() => () => {
-    track.current?.dispose();
-    voice.current?.stop();
-    const v = voice.current;
-    // let the fade finish before freeing it
-    setTimeout(() => v?.dispose(), 1500);
-  }, []);
+  const ready = async () => {
+    const ctx = getAudioContext();
+    if (ctx.state === "suspended") await ctx.resume();
+    rig.attach(ctx, getOutputBus());
+  };
+  const playingParts = JAM_PARTS.filter((p) => snap.parts[p].state.playing);
+  const anyOn = playingParts.length > 0 || snap.click.on;
 
-  const toggleClick = async () => {
-    if (clicking) {
-      track.current?.stop();
-      setClicking(false);
-      return;
-    }
-    const ctx = await audio();
-    track.current ??= new ClickTrack(ctx, getOutputBus());
-    track.current.start(click);
-    setClicking(true);
+  const play = async (parts: readonly JamPart[], click: boolean) => {
+    await ready();
+    rig.start(parts);
+    if (click) rig.setClick(true);
+  };
+  const stopAll = () => {
+    rig.stop(JAM_PARTS);
+    rig.setClick(false);
+  };
+  const toggle = (p: JamPart) => {
+    paused.current = null;
+    if (snap.parts[p].state.playing) rig.stop([p]);
+    else void play([p], false);
+  };
+  const toggleClick = () => {
+    paused.current = null;
+    if (snap.click.on) rig.setClick(false);
+    else void play([], true);
+  };
+  const toggleAll = () => {
+    paused.current = null;
+    if (anyOn) stopAll();
+    else void play(JAM_PARTS, true);
   };
 
-  const toggleDrone = async () => {
-    if (droning) {
-      voice.current?.stop();
-      setDroning(false);
-      return;
-    }
-    const ctx = await audio();
-    voice.current ??= new DroneVoice(ctx, getOutputBus());
-    voice.current.start(drone);
-    setDroning(true);
-  };
-
-  const setC = (p: Partial<ClickParams>) => setClick((c) => clampClick({ ...c, ...p }));
-  // Reset in the drone panel goes back to the key's note, not the drone's default E
-  const setD = (p: Partial<DroneParams>) => setDrone((d) => clampDrone({ ...d, ...p, root: p === DEFAULT_DRONE ? keyPc : (p.root ?? d.root) }));
+  // Space: stop what plays and remember it; the next Space brings it back
+  const space = useRef(() => {});
+  useEffect(() => {
+    space.current = () => {
+      if (anyOn) {
+        paused.current = { parts: playingParts, click: snap.click.on };
+        stopAll();
+      } else if (paused.current) {
+        const { parts, click } = paused.current;
+        paused.current = null;
+        void play(parts, click);
+      }
+    };
+  });
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.code !== "Space" || e.repeat || e.metaKey || e.ctrlKey || e.altKey || typing(e.target)) return;
+      if (!rig.attached) return;
+      const was = rig.snapshot();
+      if (!paused.current && !JAM_PARTS.some((p) => was.parts[p].state.playing) && !was.click.on) return;
+      e.preventDefault();
+      space.current();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [rig]);
 
   const tap = () => {
     const now = performance.now() / 1000;
-    const next = [...taps.filter((t) => now - t < 3), now];
-    setTaps(next);
-    const bpm = tapTempo(next);
-    if (bpm) setC({ bpm });
+    taps.current = [...taps.current.filter((t) => now - t < 3), now];
+    const bpm = tapTempo(taps.current);
+    if (bpm) rig.setTempo(bpm);
   };
 
-  return (
-    <div className={`flex flex-wrap items-center gap-x-4 gap-y-1.5 ${className}`}>
-      <Tool label="Metronome">
-        <PlayButton on={clicking} label="metronome" onClick={toggleClick} />
-        <button type="button" className={ibtn} disabled={click.bpm <= CLICK_MIN_BPM} onClick={() => setC({ bpm: click.bpm - 1 })} aria-label="Slower">−</button>
-        <span className="w-12 text-center text-xs tabular-nums text-slate-100" aria-live="polite">{click.bpm}<span className="text-[10px] text-slate-500"> bpm</span></span>
-        <button type="button" className={ibtn} disabled={click.bpm >= CLICK_MAX_BPM} onClick={() => setC({ bpm: click.bpm + 1 })} aria-label="Faster">+</button>
-        <BeatDots track={track} count={click.beatsPerBar} playing={clicking} />
-        <Popover label="Metronome settings">
-          <div className="flex flex-col gap-2.5">
-            <label className="flex items-center gap-2">
-              <span className="w-16 shrink-0">Tempo</span>
-              <Slider min={CLICK_MIN_BPM} max={CLICK_MAX_BPM} step={1} value={click.bpm} onChange={(bpm) => setC({ bpm })} className="flex-1" aria-label="Tempo" />
-              <span className="w-8 text-right tabular-nums text-slate-400">{click.bpm}</span>
-            </label>
-            <label className="flex items-center justify-between gap-2">
-              Beats per bar
-              <select className={field} value={click.beatsPerBar} onChange={(e) => setC({ beatsPerBar: Number(e.target.value) })}>
-                {Array.from({ length: CLICK_MAX_BEATS }, (_, i) => i + 1).map((n) => <option key={n} value={n}>{n}</option>)}
-              </select>
-            </label>
-            <label className="flex items-center gap-2">
-              <span className="w-16 shrink-0">Volume</span>
-              <Slider min={0} max={1} step={0.01} value={click.volume} onChange={(volume) => setC({ volume })} className="flex-1" aria-label="Click volume" />
-            </label>
-            <button type="button" className={`${ibtn} h-9 w-full text-sm`} onClick={tap} title="Tap a few times in time to set the tempo">Tap tempo</button>
+  const drone = snap.parts.drone.state.drone;
+  const sequencer = (p: "drums" | "bass", label: string) => {
+    const v = snap.parts[p];
+    const inst = rig.instrument(p);
+    return (
+      <Tool label={label}>
+        <PlayButton on={v.state.playing} label={label.toLowerCase()} onClick={() => toggle(p)} />
+        <select className={`${field} w-28 min-w-0 shrink-0 sm:w-43`} value="" onChange={(e) => e.target.value && rig.loadPreset(p, e.target.value)} aria-label={`${label} pattern`}>
+          <option value="">Pattern…</option>
+          {inst.presets.map((pr) => <option key={pr.id} value={pr.id}>{pr.name}</option>)}
+        </select>
+        <Popover label={`${label} pattern`} wide>
+          <div className="flex flex-col gap-3">
+            <PatternBar instrument={inst} bars={v.state.bars} onPreset={(id) => rig.loadPreset(p, id)} onBars={(b) => rig.setBars(p, b)} onClear={() => rig.clear(p)}
+              leading={<p className="mr-auto text-[11px] text-slate-500">{p === "bass" ? `${NOTE_NAMES[drone.root]} minor pentatonic, in the drone's key` : "Click a step for on, again for an accent"}</p>} />
+            <StepGrid instrument={inst} cells={v.state.cells} steps={v.steps} beatsPerBar={BEATS_PER_BAR} musicKey={p === "bass" ? drone.root : undefined} position={() => rig.position(p)} onStep={(l, s, val) => rig.setStep(p, l, s, val)} />
           </div>
         </Popover>
       </Tool>
+    );
+  };
 
-      <Tool label="Drone">
-        <PlayButton on={droning} label="drone" onClick={toggleDrone} />
-        <button type="button" className={ibtn} disabled={drone.octave <= DRONE_MIN_OCTAVE} onClick={() => setD({ octave: drone.octave - 1 })} aria-label="Octave down">−</button>
-        <span className="w-12 text-center text-xs tabular-nums text-slate-100" aria-live="polite" title="The drone plays the key's note (another note in the sound panel)">{droneName(drone)}</span>
-        <button type="button" className={ibtn} disabled={drone.octave >= DRONE_MAX_OCTAVE} onClick={() => setD({ octave: drone.octave + 1 })} aria-label="Octave up">+</button>
-        <Slider min={0} max={1} step={0.01} value={drone.level} onChange={(level) => setD({ level })} size="sm" className="w-18 shrink-0 px-1" aria-label="Drone volume" title="Drone volume" />
-        <Popover label="Drone sound" wide>
-          <DroneControls value={drone} onChange={(p) => setD(p)} playing={droning} header={<p className="text-[11px] text-slate-500">The note moves to the page&apos;s key whenever the key changes.</p>} />
-        </Popover>
-      </Tool>
+  return (
+    <div className={`flex min-w-0 items-stretch gap-2 ${className}`}>
+      <button type="button" onClick={toggleAll} aria-pressed={anyOn} title={`${anyOn ? "Stop" : "Start"} everything on the next beat (Space stops and brings back)`}
+        className={`flex w-12 shrink-0 flex-col items-center justify-center gap-1 rounded-xl border text-[10px] font-medium uppercase tracking-wider transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${anyOn ? "border-emerald-400/70 bg-emerald-500/20 text-emerald-100" : "border-slate-700 bg-slate-900 text-slate-200 hover:border-slate-500"}`}>
+        <Icon name={anyOn ? "square" : "play"} size={18} fill />
+        {anyOn ? "Stop" : "All"}
+      </button>
+
+      <div className="grid min-w-0 flex-1 gap-x-4 gap-y-1.5 sm:grid-cols-2 xl:grid-cols-1">
+        <Tool label="Click">
+          <PlayButton on={snap.click.on} label="metronome" onClick={toggleClick} />
+          <button type="button" className={ibtn} disabled={snap.bpm <= MIN_BPM} onClick={() => rig.setTempo(snap.bpm - 1)} aria-label="Slower">−</button>
+          <span className="w-12 shrink-0 whitespace-nowrap text-center text-xs tabular-nums text-slate-100" aria-live="polite">{snap.bpm}<span className="text-[10px] text-slate-500"> bpm</span></span>
+          <button type="button" className={ibtn} disabled={snap.bpm >= MAX_BPM} onClick={() => rig.setTempo(snap.bpm + 1)} aria-label="Faster">+</button>
+          <BeatDots rig={rig} playing={anyOn} />
+          <Popover label="Tempo and click">
+            <div className="flex flex-col gap-2.5">
+              <label className="flex items-center gap-2">
+                <span className="w-14 shrink-0">Tempo</span>
+                <Slider min={MIN_BPM} max={MAX_BPM} step={1} value={snap.bpm} onChange={(bpm) => rig.setTempo(bpm)} className="flex-1" aria-label="Tempo" />
+                <span className="w-8 text-right tabular-nums text-slate-400">{snap.bpm}</span>
+              </label>
+              <label className="flex items-center gap-2">
+                <span className="w-14 shrink-0">Click</span>
+                <Slider min={0} max={1} step={0.01} value={snap.click.volume} onChange={(v) => rig.setClickVolume(v)} className="flex-1" aria-label="Click volume" />
+              </label>
+              <button type="button" className={`${ibtn} h-9 w-full text-sm`} onClick={tap} title="Tap a few times in time to set the tempo">Tap tempo</button>
+              <p className="text-[11px] text-slate-500">One tempo for the click, drone, drums and bass.</p>
+            </div>
+          </Popover>
+        </Tool>
+
+        <Tool label="Drone">
+          <PlayButton on={snap.parts.drone.state.playing} label="drone" onClick={() => toggle("drone")} />
+          <button type="button" className={ibtn} disabled={drone.octave <= DRONE_MIN_OCTAVE} onClick={() => rig.setDrone({ octave: drone.octave - 1 })} aria-label="Octave down">−</button>
+          <span className="w-12 shrink-0 text-center text-xs tabular-nums text-slate-100" aria-live="polite" title="The drone plays the key's note (another note in the sound panel)">{droneName(drone)}</span>
+          <button type="button" className={ibtn} disabled={drone.octave >= DRONE_MAX_OCTAVE} onClick={() => rig.setDrone({ octave: drone.octave + 1 })} aria-label="Octave up">+</button>
+          <Slider min={0} max={1} step={0.01} value={drone.level} onChange={(level) => rig.setDrone({ level })} size="sm" className="hidden w-14 shrink-0 px-1 sm:flex" aria-label="Drone volume" title="Drone volume" />
+          <Popover label="Drone sound" wide>
+            {/* Reset hands back DEFAULT_DRONE: keep the key's note rather than its E */}
+            <DroneControls value={drone} onChange={(p) => rig.setDrone(p === DEFAULT_DRONE ? { ...p, root: keyPc } : p)} playing={snap.parts.drone.running} analyser={snap.parts.drone.running ? rig.droneAnalyser() : null}
+              header={<p className="text-[11px] text-slate-500">The note moves to the page&apos;s key whenever the key changes.</p>} />
+          </Popover>
+        </Tool>
+
+        {sequencer("drums", "Drums")}
+        {sequencer("bass", "Bass")}
+      </div>
     </div>
   );
 }

@@ -55,6 +55,7 @@ export class ClickTrack {
   private timer: ReturnType<typeof setInterval> | null = null;
   private anchor = 0;
   private next = 0;
+  private startAt = 0;
 
   constructor(private ctx: AudioContext, destination: AudioNode) {
     this.out = ctx.createGain();
@@ -72,18 +73,22 @@ export class ClickTrack {
 
   /** Index of the beat sounding now (0 = the first click), or null when stopped. */
   beat(): { beat: number; index: number } | null {
-    if (!this.playing) return null;
+    if (!this.playing || this.ctx.currentTime < this.startAt) return null;
     const index = beatIndexAt(this.ctx.currentTime, this.anchor, this.params.bpm);
     return index < 0 ? null : { beat: beatOf(index, this.params.beatsPerBar), index };
   }
 
-  /** Start clicking, the downbeat a moment from now. */
-  start(p: ClickParams) {
+  /**
+   * Start clicking with beat 1 at `anchor` (a moment from now when omitted), on another clock's grid when a host has one.
+   * Clicks before `startAt` stay silent, so it can join a running grid on its next beat.
+   */
+  start(p: ClickParams, anchor?: number, startAt = 0) {
     this.stop();
     this.params = p;
     this.out.gain.value = p.volume;
-    this.anchor = this.ctx.currentTime + 0.05;
-    this.next = 0;
+    this.anchor = anchor ?? this.ctx.currentTime + 0.05;
+    this.startAt = startAt;
+    this.next = Math.ceil((this.ctx.currentTime - this.anchor) / this.period - 1e-9);
     this.timer = setInterval(() => this.schedule(), TICK_MS);
     this.schedule();
   }
@@ -106,7 +111,7 @@ export class ClickTrack {
   private schedule() {
     while (this.anchor + this.next * this.period < this.ctx.currentTime + LOOKAHEAD) {
       const t = this.anchor + this.next * this.period;
-      if (t >= this.ctx.currentTime - 0.005) this.click(t, beatOf(this.next, this.params.beatsPerBar) === 0 && this.params.beatsPerBar > 1);
+      if (t >= this.ctx.currentTime - 0.005 && t >= this.startAt - 1e-6) this.click(t, beatOf(this.next, this.params.beatsPerBar) === 0 && this.params.beatsPerBar > 1);
       this.next++;
     }
   }

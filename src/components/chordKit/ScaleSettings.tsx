@@ -73,8 +73,8 @@ export function ScaleSettingsBar({
           </BarRow>
         </nav>
       </div>
-      {/* practice tools: a row under the settings on narrow screens, a column on the right once there is room */}
-      <PocketTools keyPc={tonicPc} className="border-t border-slate-800 pt-2 xl:flex-col xl:items-start xl:self-stretch xl:justify-center xl:border-l xl:border-t-0 xl:pl-4 xl:pt-0" />
+      {/* play-along tools: under the settings on narrow screens, on the right once there is room */}
+      <PocketTools keyPc={tonicPc} className="border-t border-slate-800 pt-2 xl:border-l xl:border-t-0 xl:pl-4 xl:pt-0" />
     </div>
   );
 }
