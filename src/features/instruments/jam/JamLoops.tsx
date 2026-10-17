@@ -43,7 +43,7 @@ function LoopRow({ rig, loop, n, devices, removable, ready }: { rig: JamRig; loo
   // a saved device that is not listed now still shows, so the choice is not lost
   const options = loop.deviceId && !devices.some((d) => d.id === loop.deviceId) ? [...devices, { id: loop.deviceId, label: "Saved input (not found)" }] : devices;
   return (
-    <li className="grid gap-3 rounded-xl border border-slate-800 bg-slate-950/40 p-3 md:grid-cols-[minmax(0,1fr)_minmax(0,19rem)]">
+    <li className="grid gap-3 rounded-xl border border-slate-800 bg-slate-950/40 p-3 sm:p-4 md:grid-cols-[minmax(0,1fr)_minmax(0,19rem)]">
       <div className="flex min-w-0 flex-col gap-2.5">
         <div className="flex items-center gap-2.5">
           <button type="button" onClick={async () => { await ready(); void rig.record(loop.id); }} aria-pressed={taking} aria-label={taking ? `Cancel recording ${name}` : `Record ${name}`} title={taking ? "Call off the take" : hasSound ? "Record again from the next bar" : "Record from the next bar"}

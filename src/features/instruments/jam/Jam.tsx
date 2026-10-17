@@ -25,7 +25,7 @@ function restore(rig: JamRig) {
   }
 }
 
-const card = "flex min-w-0 flex-col gap-4 rounded-2xl border border-slate-800 bg-slate-900/60 p-3.5 sm:p-5 lg:p-7";
+const card = "flex min-w-0 flex-col gap-4 rounded-2xl border border-slate-800 bg-slate-900/60 p-4 sm:p-6 lg:p-8";
 
 /** A part's play button: round, green while it plays. Starts and stops on the next beat. */
 function PlayButton({ on, name, onClick, big = false }: { on: boolean; name: string; onClick: () => void; big?: boolean }) {
@@ -109,8 +109,8 @@ export default function Jam() {
   const key = NOTE_NAMES[drone.state.drone.root];
 
   return (
-    <div className="flex min-w-0 flex-col gap-4 sm:gap-6">
-      <div className="flex flex-wrap items-center gap-x-5 gap-y-3 rounded-2xl border border-slate-800 bg-slate-900/60 px-3.5 py-3.5 sm:px-5 sm:py-4 lg:px-7">
+    <div className="flex min-w-0 flex-col gap-5 px-1 sm:gap-8 sm:px-2 lg:px-4">
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-3 rounded-2xl border border-slate-800 bg-slate-900/60 px-4 py-4 sm:px-6 sm:py-5 lg:px-8">
         <button type="button" onClick={toggleAll} aria-pressed={anyOn} title={`${anyOn ? "Stop" : "Start"} every part on the next beat (Space)`}
           className={`inline-flex h-12 items-center gap-2.5 rounded-xl border px-5 text-base font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${anyOn ? "border-emerald-400/70 bg-emerald-500/20 text-emerald-100" : "border-slate-600 bg-slate-800 text-slate-100 hover:border-slate-400"}`}>
           <Icon name={anyOn ? "square" : "play"} size={20} fill />{anyOn ? "Stop all" : "Play all"}
