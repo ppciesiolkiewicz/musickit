@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { modRange, modShape, type DroneParams } from "@/lib/looper/drone";
+import { modRange, modShape, type DroneParams } from "./drone";
 
 const GRID = "#1e293b";
 const DIM = "#475569";
@@ -128,7 +128,7 @@ export default function DroneScope({ value, playing, analyser }: { value: DroneP
   const r = modRange(value);
   const off = value.mod === "off" || value.modDepth === 0;
   return (
-    <div className="grid gap-2 sm:grid-cols-2">
+    <div className="grid gap-2 @md:grid-cols-2">
       <figure className="flex min-w-0 flex-col gap-1 rounded-lg border border-slate-800 bg-slate-950/60 p-2">
         <figcaption className="flex justify-between text-[11px] text-slate-500">
           <span>Wave</span>

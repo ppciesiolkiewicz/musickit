@@ -1,6 +1,7 @@
 "use client";
 
-import { DEFAULT_DRONE, DRONE_MAX_OCTAVE, DRONE_MAX_RATE, DRONE_MIN_OCTAVE, DRONE_MIN_RATE, FILTERS, MOD_TARGETS, NOTE_NAMES, WAVES, droneCutoff, droneName, type DroneParams } from "@/lib/looper/drone";
+import type { ReactNode } from "react";
+import { DEFAULT_DRONE, DRONE_MAX_OCTAVE, DRONE_MAX_RATE, DRONE_MIN_OCTAVE, DRONE_MIN_RATE, FILTERS, MOD_TARGETS, NOTE_NAMES, WAVES, droneCutoff, droneName, type DroneParams } from "./drone";
 import DroneScope from "./DroneScope";
 
 const field = "h-8 rounded-md border border-slate-700 bg-slate-900 px-2 text-xs text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
@@ -50,60 +51,74 @@ function Sliders({ value, onChange, items }: { value: DroneParams; onChange: (pa
 
 const heading = "text-[11px] font-medium uppercase tracking-wide text-slate-500";
 
-/**
- * The note and sound of a drone: used by the looper's drone panel and by the theory page, so both look and behave the same.
- * `playing` makes the modulation picture move; `analyser` (the theory page has one) adds the live wave the drone makes.
- */
-export default function DroneControls({ value, onChange, playing = false, analyser = null }: { value: DroneParams; onChange: (patch: Partial<DroneParams>) => void; playing?: boolean; analyser?: AnalyserNode | null }) {
+/** A section heading row of fixed height, so the sliders of side-by-side sections line up whatever sits beside the heading. */
+function Head({ title, children }: { title: string; children?: ReactNode }) {
   return (
-    <div className="flex min-w-0 flex-col gap-4">
+    <div className="flex h-8 items-center justify-between gap-2">
+      <p className={heading}>{title}</p>
+      {children}
+    </div>
+  );
+}
+
+/**
+ * The note and sound of a drone: used by the looper's drone window and by the theory page, so both look and behave the same.
+ * It owns no audio and has no play button: the host starts and stops the drone (the page with its own button in `header`, the looper
+ * from the stage circle). `header` sits on the first row, Reset at its end. `playing` makes the pictures move; `analyser` adds the
+ * live wave. The layout follows the width it is given (container queries), so a narrow looper window stacks the sections.
+ */
+export default function DroneControls({ value, onChange, playing = false, analyser = null, header }: { value: DroneParams; onChange: (patch: Partial<DroneParams>) => void; playing?: boolean; analyser?: AnalyserNode | null; header?: ReactNode }) {
+  return (
+    <div className="@container flex min-w-0 flex-col gap-4">
       <div className="flex flex-wrap items-center gap-2">
-        <div role="group" aria-label="Note" className="flex flex-wrap gap-1">
+        {header}
+        <button type="button" className={`${ibtn} ml-auto px-2.5`} disabled={isDefault(value)} onClick={() => onChange(DEFAULT_DRONE)} title="Put every setting back to how it started">Reset</button>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+        <div role="group" aria-label="Note" className="grid grid-cols-6 gap-1 @lg:grid-cols-12">
           {NOTE_NAMES.map((n, i) => (
             <button key={n} type="button" aria-pressed={value.root === i} onClick={() => onChange({ root: i })} className={`${ibtn} w-9 ${value.root === i ? on : ""}`}>{n}</button>
           ))}
         </div>
-        <div className="flex items-center gap-1" role="group" aria-label="Octave">
-          <button type="button" className={ibtn} disabled={value.octave <= DRONE_MIN_OCTAVE} onClick={() => onChange({ octave: value.octave - 1 })} aria-label="Octave down">−</button>
-          <span className="w-12 text-center text-sm tabular-nums text-slate-100" aria-live="polite">{droneName(value)}</span>
-          <button type="button" className={ibtn} disabled={value.octave >= DRONE_MAX_OCTAVE} onClick={() => onChange({ octave: value.octave + 1 })} aria-label="Octave up">+</button>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1" role="group" aria-label="Octave">
+            <button type="button" className={ibtn} disabled={value.octave <= DRONE_MIN_OCTAVE} onClick={() => onChange({ octave: value.octave - 1 })} aria-label="Octave down">−</button>
+            <span className="w-10 text-center text-sm tabular-nums text-slate-100" aria-live="polite">{droneName(value)}</span>
+            <button type="button" className={ibtn} disabled={value.octave >= DRONE_MAX_OCTAVE} onClick={() => onChange({ octave: value.octave + 1 })} aria-label="Octave up">+</button>
+          </div>
+          <select className={field} value={value.wave} onChange={(e) => onChange({ wave: e.target.value as DroneParams["wave"] })} aria-label="Waveform">
+            {WAVES.map((w) => <option key={w} value={w}>{waveName(w)}</option>)}
+          </select>
         </div>
-        <select className={field} value={value.wave} onChange={(e) => onChange({ wave: e.target.value as DroneParams["wave"] })} aria-label="Waveform">
-          {WAVES.map((w) => <option key={w} value={w}>{waveName(w)}</option>)}
-        </select>
-        <button type="button" className={`${ibtn} ml-auto px-2.5`} disabled={isDefault(value)} onClick={() => onChange(DEFAULT_DRONE)} title="Put every setting back to how it started">Reset</button>
       </div>
 
       <DroneScope value={value} playing={playing} analyser={analyser} />
 
-      <div className="grid gap-x-6 gap-y-4 md:grid-cols-2">
+      <div className="grid gap-x-8 gap-y-4 @xl:grid-cols-2">
         <div className="flex min-w-0 flex-col gap-2">
-          <p className={heading}>Sound</p>
+          <Head title="Sound" />
           <Sliders value={value} onChange={onChange} items={SOUND} />
         </div>
         <div className="flex min-w-0 flex-col gap-4">
           <div className="flex min-w-0 flex-col gap-2">
-            <div className="flex items-center justify-between gap-2">
-              <p className={heading}>Filter</p>
+            <Head title="Filter">
               <select className={field} value={value.filter} onChange={(e) => onChange({ filter: e.target.value as DroneParams["filter"] })} aria-label="Filter type">
                 {FILTERS.map((f) => <option key={f} value={f}>{FILTER_NAMES[f]}</option>)}
               </select>
-            </div>
+            </Head>
             <Sliders value={value} onChange={onChange} items={FILTER} />
           </div>
           <div className="flex min-w-0 flex-col gap-2">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <p className={heading}>Modulation</p>
-              <div className="flex flex-wrap items-center gap-1">
-                <div role="group" aria-label="What the modulation moves" className="flex gap-1">
-                  {MOD_TARGETS.map((m) => (
-                    <button key={m} type="button" aria-pressed={value.mod === m} onClick={() => onChange({ mod: m })} className={`${ibtn} px-2 ${value.mod === m ? on : ""}`}>{MOD_NAMES[m]}</button>
-                  ))}
-                </div>
-                <select className={field} value={value.modWave} disabled={value.mod === "off"} onChange={(e) => onChange({ modWave: e.target.value as DroneParams["modWave"] })} aria-label="Modulation shape">
-                  {WAVES.map((w) => <option key={w} value={w}>{waveName(w)}</option>)}
-                </select>
-              </div>
+            <Head title="Modulation">
+              <select className={field} value={value.modWave} disabled={value.mod === "off"} onChange={(e) => onChange({ modWave: e.target.value as DroneParams["modWave"] })} aria-label="Modulation shape">
+                {WAVES.map((w) => <option key={w} value={w}>{waveName(w)}</option>)}
+              </select>
+            </Head>
+            <div role="group" aria-label="What the modulation moves" className="grid grid-cols-4 gap-1">
+              {MOD_TARGETS.map((m) => (
+                <button key={m} type="button" aria-pressed={value.mod === m} onClick={() => onChange({ mod: m })} className={`${ibtn} ${value.mod === m ? on : ""}`}>{MOD_NAMES[m]}</button>
+              ))}
             </div>
             <fieldset disabled={value.mod === "off"} className="flex min-w-0 flex-col gap-2 disabled:opacity-40">
               <label className="flex items-center gap-2 text-xs text-slate-300">

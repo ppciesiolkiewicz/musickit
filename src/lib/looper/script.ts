@@ -5,7 +5,7 @@
  */
 import { isAction, type ActionState, type LooperAction } from "./actions";
 import { EFFECT_DEFS, EFFECT_KINDS } from "./effects";
-import { INSTRUMENTS } from "./sequencer";
+import { INSTRUMENTS } from "@/features/instruments/model";
 import { MAX_MACRO_STEPS, type Macro } from "./macros";
 
 export interface CatalogEntry {

@@ -1,9 +1,7 @@
 import { LENGTH_STEPS, assemble, cycleBars, timelineOrigin, effectiveGain, lengthMultiple, loopOffset, takeStatus, type TakeStatus, msToFrames, nextBoundary, peaks, quantUnitFrames, quantiseLength, timelinePosition, type Chunk, type InputMode } from "./frames";
 import { Transport, type TransportState } from "./transport";
 import { Metronome, type MetronomeSettings } from "./metronome";
-import type { DroneParams } from "./drone";
-import { Sequencer, type SequencerState } from "./sequencer";
-import { fromRows } from "./sequencerPattern";
+import { Sequencer, fromRows, type DroneParams, type SequencerState } from "@/features/instruments/model";
 import { InstrumentInput, type VoiceFactory } from "./instrument";
 import { CONTROLLER_NAMES, migrateSaves, type Controller, type InstrumentState } from "./instrumentModel";
 import { EffectChain, LoopBus, peakOf } from "./buses";
@@ -38,7 +36,7 @@ export interface Timeline {
   countIn: boolean;
   take: { bar: number; totalBars: number; planned: boolean } | null;
 }
-export { INSTRUMENTS, type Instrument, type SequencerState } from "./sequencer";
+export { INSTRUMENTS, type Instrument, type SequencerState } from "@/features/instruments/model";
 export type { VoiceFactory, NoteVoice } from "./instrument";
 export type { InstrumentState, Controller, Generator, VoiceSpec } from "./instrumentModel";
 export { EFFECT_DEFS, EFFECT_KINDS, setNamFactory, type EffectKind, type EffectSpec, type ParamDef } from "./effects";

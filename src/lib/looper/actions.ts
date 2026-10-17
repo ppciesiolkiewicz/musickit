@@ -9,7 +9,7 @@
  * This file imports only types from inside src/lib/looper.
  */
 import type { MetronomeSettings } from "./metronome";
-import { DEFAULT_DRONE, type DroneParams } from "./drone";
+import { DEFAULT_DRONE, type DroneParams } from "@/features/instruments/model";
 import { EFFECT_DEFS, moveEffect, type EffectKind } from "./effects";
 import type { InputMode } from "./frames";
 import type { LoopEdit } from "./loopEdit";

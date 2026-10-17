@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { applyAction, describeAction, inverseOf, isAction, type ActionState, type ActionTarget, type FxTarget, type GroupPatch, type InstrumentPatch, type LooperAction, type MetronomePatch } from "./actions";
-import { DEFAULT_DRONE } from "./drone";
+import { DEFAULT_DRONE } from "@/features/instruments/model";
 import { moveEffect, type EffectSpec } from "./effects";
 import { ActionHistory } from "./history";
 import { DEFAULT_EDIT } from "./loopEdit";

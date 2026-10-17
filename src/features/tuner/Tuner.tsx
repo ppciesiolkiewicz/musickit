@@ -3,13 +3,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getAudioContext } from "@/features/sound";
 import { midiToHz } from "@/features/theory/tunings";
-import { FRAME_MS, createSmoother } from "./pitch";
-import { createDetector } from "./detector";
 import { readHz, resolveChoice, sanitiseChoice } from "./choice";
+import { usePitch } from "./usePitch";
+import TunerMeter from "./TunerMeter";
 import { useTunerChoice } from "./useTunerChoice";
 import { playReference } from "./reference";
 import TunerSettings, { label } from "./TunerSettings";
-import Needle from "./Needle";
 
 /** Which microphone or interface, and which of its inputs: "mix" for all of them, or one channel (0 = Input 1). */
 interface InputChoice { deviceId: string; channel: "mix" | number }
@@ -37,18 +36,16 @@ function loadInput(): InputChoice {
 export default function Tuner() {
   const [running, setRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [hz, setHz] = useState<number | null>(null);
   const [choice, setChoice] = useTunerChoice(STORE, fromQuery);
   const [input, setInput] = useState<InputChoice>(DEFAULT_INPUT);
   const [devices, setDevices] = useState<{ id: string; label: string }[]>([]);
   const [channels, setChannels] = useState(0);
   const stop = useRef<(() => void) | null>(null);
+  const analyser = useRef<AnalyserNode | null>(null);
 
   const { instrument, tuning } = resolveChoice(choice);
   const strings = tuning?.strings ?? [];
-  // the detection loop reads this without restarting
-  const minHzRef = useRef(instrument.minHz);
-  useEffect(() => { minHzRef.current = instrument.minHz; }, [instrument.minHz]);
+  const hz = usePitch(() => analyser.current, instrument.minHz, running);
 
   const listDevices = useCallback(async () => {
     try {
@@ -91,33 +88,12 @@ export default function Tuner() {
         src.connect(split);
         split.connect(an, Math.min(inp.channel, n - 1));
       } else src.connect(an);
-      const buf = new Float32Array(FRAME);
-      const detect = createDetector();
-      const smooth = createSmoother();
-      let raf = 0, quiet = 0, last = 0, alive = true;
-      // measured at most 30 times a second, shown as a weighted average of the last few readings
-      const tick = (now: number) => {
-        if (!alive) return;
-        raf = requestAnimationFrame(tick);
-        if (now - last < FRAME_MS) return;
-        last = now;
-        an.getFloatTimeDomainData(buf);
-        void detect(buf, ctx.sampleRate, minHzRef.current).then((p) => {
-          if (!alive || p === undefined) return;
-          if (p) {
-            quiet = 0;
-            setHz(smooth.push(p));
-          } else if (++quiet > 15) { smooth.reset(); setHz(null); }
-        });
-      };
-      raf = requestAnimationFrame(tick);
+      analyser.current = an;
       stop.current = () => {
-        alive = false;
-        cancelAnimationFrame(raf);
+        analyser.current = null;
         src.disconnect();
         split?.disconnect();
         stream.getTracks().forEach((t) => t.stop());
-        setHz(null);
         setRunning(false);
         stop.current = null;
       };
@@ -140,8 +116,6 @@ export default function Tuner() {
   const read = hz !== null ? readHz(hz, choice) : null;
   const cents = read?.cents ?? 0;
   const inTune = read !== null && Math.abs(cents) < 5;
-  const colour = read === null ? "var(--color-slate-600)" : inTune ? "var(--color-emerald-400)" : Math.abs(cents) < 20 ? "var(--color-amber-400)" : "var(--color-rose-400)";
-  const hint = !read ? (running ? "Play a note" : "") : read.string !== null && Math.abs(cents) >= 5 ? (cents > 0 ? "Tune down" : "Tune up") : Math.abs(cents) < 5 ? "In tune" : "";
   const knownDevice = !input.deviceId || devices.some((d) => d.id === input.deviceId);
 
   const signed = (c: number) => `${Math.round(c) > 0 ? "+" : ""}${Math.round(c) || 0}`;
@@ -150,44 +124,12 @@ export default function Tuner() {
     <div className="grid items-start gap-4 lg:grid-cols-[minmax(18rem,22rem)_1fr]">
       {/* the meter first on a phone, beside the setup on a wide screen */}
       <section aria-label="Meter" className="flex flex-col items-center gap-5 rounded-2xl border border-slate-800 bg-slate-900/40 px-4 py-6 sm:px-8 sm:py-8 lg:order-2">
-        <div className="flex h-28 flex-col items-center justify-center" aria-live="polite">
-          {read ? (
-            <div className="flex items-baseline gap-1">
-              <span className="text-8xl font-light leading-none tabular-nums transition-colors" style={{ color: colour }}>{read.name}</span>
-              <span className="text-2xl text-slate-400">{read.octave}</span>
-            </div>
-          ) : (
-            <>
-              <span className="text-2xl font-light text-slate-300">{running ? "Play a string" : "Ready to tune"}</span>
-              <span className="mt-1 text-sm text-slate-500">{running ? "Let it ring" : `${instrument.name}${tuning ? ` · ${tuning.name}` : ""} · A4 ${choice.a4} Hz`}</span>
-            </>
-          )}
-        </div>
-
-        <div className="w-full max-w-xl">
-          <svg viewBox="-110 -10 220 40" className="w-full" role="img" aria-label={read ? `${Math.round(cents)} cents ${cents > 0 ? "sharp" : "flat"}` : "No note detected"}>
-            {/* the in-tune zone, five cents either side */}
-            <rect x={-10} y={4} width={20} height={24} rx={3} fill="var(--color-emerald-400)" opacity={inTune ? 0.25 : 0.1} />
-            {Array.from({ length: 21 }, (_, i) => {
-              const c = (i - 10) * 5;
-              const major = c % 25 === 0;
-              return <line key={c} x1={c * 2} x2={c * 2} y1={c === 0 ? 4 : major ? 8 : 12} y2={c === 0 ? 28 : major ? 24 : 20} stroke={c === 0 ? "var(--color-emerald-400)" : "var(--color-slate-600)"} strokeWidth={c === 0 ? 1.5 : major ? 1 : 0.6} strokeLinecap="round" />;
-            })}
-            <Needle cents={cents} visible={read !== null} colour={colour} />
-          </svg>
-          <div className="mt-1 grid grid-cols-5 text-[11px] tabular-nums text-slate-500">
-            <span>−50 flat</span><span className="text-center">−25</span><span className="text-center text-slate-400">0</span><span className="text-center">+25</span><span className="text-right">sharp +50</span>
-          </div>
-        </div>
-
-        <p className="h-5 text-center text-sm tabular-nums text-slate-400">
-          {read && hz !== null ? (
-            <>
-              <span className="font-medium" style={{ color: colour }}>{signed(cents)} cents{hint ? ` · ${hint}` : ""}</span>
-              <span className="text-slate-500"> · {hz.toFixed(1)} Hz{read.string !== null ? ` · hearing ${read.heard.name}${read.heard.octave}` : ""}</span>
-            </>
-          ) : null}
-        </p>
+        <TunerMeter hz={hz} read={read} idle={(
+          <>
+            <span className="text-2xl font-light text-slate-300">{running ? "Play a string" : "Ready to tune"}</span>
+            <span className="mt-1 text-sm text-slate-500">{running ? "Let it ring" : `${instrument.name}${tuning ? ` · ${tuning.name}` : ""} · A4 ${choice.a4} Hz`}</span>
+          </>
+        )} />
 
         {strings.length > 0 && (
           <div className="flex flex-wrap justify-center gap-1.5 sm:gap-2" role="group" aria-label="Strings: tap one to hear it">

@@ -1,8 +1,8 @@
 /**
  * A drone: one held note built from a few detuned oscillators, with a filter, a slow modulator (an LFO on the filter, the pitch or the
  * volume) and a slow fade in and out.
- * The same voice is the Drone instrument of the looper (it sits on the stage and plays through its group) and the Drone widget of the theory
- * pages (it plays straight to the speakers). It is pure Web Audio and imports nothing, so both can use it.
+ * The same voice is the Drone instrument of the looper (it sits on the stage and plays through its group) and the drone of the theory
+ * pages (it plays straight to the speakers). It is pure Web Audio and imports nothing.
  */
 
 export const NOTE_NAMES = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"] as const;

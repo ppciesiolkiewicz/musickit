@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import PageShell from "@/components/PageShell";
-import Tuner from "@/features/tuner/Tuner";
+import { Tuner } from "@/features/tuner";
 
 export const metadata: Metadata = {
   title: "Tuner · Music Kit",

@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { BASS_PRESETS, DRUM_PRESETS, emptyCells, fromRows, stepAt, stepsInPattern, MAX_STEPS } from "./sequencerPattern";
+import { BASS_PRESETS, DRUM_PRESETS, emptyCells, fromRows, stepAt, stepsInPattern, MAX_STEPS } from "./pattern";
 
 describe("sequencer pattern", () => {
   it("counts steps for bars and beats", () => {
@@ -27,5 +27,18 @@ describe("sequencer pattern", () => {
   it("every preset has the right number of lanes of 16 characters", () => {
     DRUM_PRESETS.forEach((p) => { assert.equal(p.rows.length, 6); p.rows.forEach((r) => assert.equal(r.length, 16, p.id)); });
     BASS_PRESETS.forEach((p) => { assert.equal(p.rows.length, 8); p.rows.forEach((r) => assert.equal(r.length, 16, p.id)); });
+  });
+});
+
+describe("bass key", () => {
+  it("keeps every key's ladder between E1 and D♯2, A on A1", async () => {
+    const { bassRootMidi, lanesIn, BASS, DRUMS } = await import("./sequencer");
+    assert.equal(bassRootMidi(9), 33);
+    assert.equal(bassRootMidi(4), 28);
+    assert.equal(bassRootMidi(3), 39);
+    assert.equal(bassRootMidi(-3), 33);
+    assert.equal(lanesIn(BASS, 2).at(-1)?.label, "D2");
+    assert.deepEqual(lanesIn(BASS, 9), BASS.lanes);
+    assert.deepEqual(lanesIn(DRUMS, 2), DRUMS.lanes);
   });
 });

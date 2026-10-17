@@ -1,10 +1,11 @@
-import { DEFAULT_DRONE, DroneVoice, clampDrone, type DroneParams } from "./drone";
-import { BASS_PRESETS, DRUM_PRESETS, MAX_BARS, MAX_STEPS, fromRows, emptyCells, stepAt, stepSeconds, stepsInPattern, type Cells, type Preset } from "./sequencerPattern";
+import { DEFAULT_DRONE, DroneVoice, clampDrone, type DroneParams } from "../drone/drone";
+import { BASS_PRESETS, DRUM_PRESETS, MAX_BARS, MAX_STEPS, fromRows, emptyCells, stepAt, stepSeconds, stepsInPattern, type Cells, type Preset } from "./pattern";
 
 /**
  * A step sequencer that plays a synthesised instrument in time with the metronome grid. Nothing is downloaded:
  * every sound is built from oscillators and noise. The instrument is swappable; the default is a drum machine.
- * Like the rest of the looper this file imports nothing outside src/lib/looper.
+ * Shared by the looper (a stage circle per sequencer) and the theory pages (`Jam`). No React; it imports only the drone and the
+ * pattern maths. `dest`, `x` and `y` of the state are the looper's (where its circle sits); a page ignores them.
  */
 
 export interface Lane {
@@ -17,8 +18,10 @@ export interface Instrument {
   name: string;
   lanes: Lane[];
   presets: Preset[];
-  /** Play one hit on `lane` at AudioContext time `t`. velocity is 0.6 for a normal step and 1 for an accent. */
-  trigger(ctx: AudioContext, out: AudioNode, lane: number, t: number, velocity: number, noise: AudioBuffer): void;
+  /** The lanes in a key (pitch class, 0 = C), for an instrument whose notes follow the key. `lanes` is the default key's. */
+  lanesIn?(key: number): Lane[];
+  /** Play one hit on `lane` at AudioContext time `t`. velocity is 0.6 for a normal step and 1 for an accent; `key` is the pitch class (0 = C) a pitched instrument plays in. */
+  trigger(ctx: AudioContext, out: AudioNode, lane: number, t: number, velocity: number, noise: AudioBuffer, key: number): void;
 }
 
 const env = (ctx: AudioContext, out: AudioNode, t: number, peak: number, decay: number) => {
@@ -100,18 +103,29 @@ export const DRUMS: Instrument = {
   },
 };
 
-/** A simple saw bass over an A minor pentatonic ladder, lowest note first. */
+/** A simple saw bass over a minor pentatonic ladder in the key (A by default), lowest note first. */
 const BASS_SEMIS = [0, 3, 5, 7, 10, 12, 15, 17];
 const NOTE_NAMES = ["C", "C♯", "D", "E♭", "E", "F", "F♯", "G", "A♭", "A", "B♭", "B"];
-const BASS_ROOT_MIDI = 33; // A1
+/** the looper's bass key: A */
+export const DEFAULT_KEY = 9;
+/** The bass ladder's lowest note in a key: between E1 and D♯2, so every key sits in the same register (A is A1). */
+export const bassRootMidi = (key: number) => {
+  const k = ((Math.round(key) % 12) + 12) % 12;
+  return k >= 4 ? 24 + k : 36 + k;
+};
+const bassLanes = (key: number): Lane[] => {
+  const root = bassRootMidi(key);
+  return BASS_SEMIS.map((s, i) => ({ id: `n${i}`, label: NOTE_NAMES[(root + s) % 12] + Math.floor((root + s) / 12 - 1) })).reverse();
+};
 export const BASS: Instrument = {
   id: "bass",
   name: "Bass synth",
-  lanes: BASS_SEMIS.map((s, i) => ({ id: `n${i}`, label: NOTE_NAMES[(BASS_ROOT_MIDI + s) % 12] + Math.floor((BASS_ROOT_MIDI + s) / 12 - 1) })).reverse(),
+  lanes: bassLanes(DEFAULT_KEY),
+  lanesIn: bassLanes,
   presets: BASS_PRESETS.map((p) => ({ ...p, rows: [...p.rows].reverse() })),
-  trigger(ctx, out, lane, t, v) {
+  trigger(ctx, out, lane, t, v, _noise, key) {
     const semis = BASS_SEMIS[BASS_SEMIS.length - 1 - lane];
-    const f = 440 * 2 ** ((BASS_ROOT_MIDI + semis - 69) / 12);
+    const f = 440 * 2 ** ((bassRootMidi(key) + semis - 69) / 12);
     const lp = filt(ctx, "lowpass", 700, 4);
     lp.frequency.setValueAtTime(1400, t);
     lp.frequency.exponentialRampToValueAtTime(260, t + 0.2);
@@ -125,6 +139,9 @@ export const DRONE_ID = "drone";
 export const DRONE: Instrument = { id: DRONE_ID, name: "Drone", lanes: [], presets: [{ id: "hold", name: "Hold a note", rows: [] }], trigger() {} };
 
 export const INSTRUMENTS: Instrument[] = [DRUMS, BASS, DRONE];
+
+/** An instrument's lanes in a key (the same for an instrument whose notes do not follow the key). */
+export const lanesIn = (inst: Instrument, key: number): Lane[] => inst.lanesIn?.(key) ?? inst.lanes;
 
 export interface SequencerState {
   /** "auto": the bus of the group it sits in, or master when it sits outside every group. "record": heard on master and fed to the recorder. */
@@ -155,6 +172,8 @@ export class Sequencer {
   private ctx: AudioContext | null = null;
   private noise: AudioBuffer | null = null;
   private voice: DroneVoice | null = null;
+  /** the pitch class a pitched instrument (the bass) plays in. Not saved: the looper keeps A; a page follows its drone */
+  key = DEFAULT_KEY;
   private timer: ReturnType<typeof setInterval> | null = null;
   private anchor = 0;
   private next = 0;
@@ -189,6 +208,11 @@ export class Sequencer {
     for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
     this.noise = buf;
     this.voice = new DroneVoice(ctx, this.out);
+  }
+
+  /** The drone's live analyser (for its wave picture), or null before the sequencer is attached. */
+  droneAnalyser(): AnalyserNode | null {
+    return this.voice?.analyser() ?? null;
   }
 
   get isDrone() {
@@ -340,7 +364,7 @@ export class Sequencer {
         const step = ((this.next % steps) + steps) % steps;
         this.state.cells.forEach((row, lane) => {
           const v = row[step];
-          if (v) this.instrument.trigger(ctx, this.out!, lane, t, v === 2 ? 1 : 0.6, this.noise!);
+          if (v) this.instrument.trigger(ctx, this.out!, lane, t, v === 2 ? 1 : 0.6, this.noise!, this.key);
         });
       }
       this.next++;

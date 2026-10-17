@@ -2,7 +2,7 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { GROUP_STARTS, GUITAR_AMPS, PIANO_PRESETS, PIANO_STARTS, RIG_PRESETS, SEQUENCER_STARTS, pianoRig, starterRig, vocalRig } from "./rig";
 import { addNode, connect, feeds, type Patch, type PatchNode } from "./patch";
-import { BASS, DRUMS } from "./sequencer";
+import { BASS, DRUMS } from "@/features/instruments/model";
 import { DEFAULT_GROUPS } from "./layout";
 import { INPUT_PRESETS } from "./inputPresets";
 import { EFFECT_DEFS } from "./effects";

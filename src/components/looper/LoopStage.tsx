@@ -12,6 +12,7 @@ import { CARD_TOP, CARD_W, arrangeStage } from "@/lib/looper/layout";
 import type { LooperAction } from "@/lib/looper/actions";
 import Slider from "@/components/Slider";
 import { tbtn } from "@/components/controls";
+import { droneName } from "@/features/instruments/model";
 
 /** Loops and sequencers sit on a bordered card so they stand out from the stage and the group colours (its size: `layout.ts`). */
 const card = "absolute z-10 flex flex-col items-center gap-1.5 rounded-xl border border-slate-500/80 bg-slate-950/85 p-1.5 shadow-md shadow-black/50";
@@ -271,7 +272,7 @@ function SeqCircle({ engine, q, strip, colour, stage, open, onOpen, patchId = fa
         </svg>
         <span className="absolute grid place-items-center" style={{ color: ring }}><Icon name={q.instrumentId === "drone" ? "audio-lines" : "drum"} size={24} /></span>
       </button>
-      <span className="w-full truncate text-center text-[11px] font-medium text-slate-200" title={q.name}>{q.name}</span>
+      <span className="w-full truncate text-center text-[11px] font-medium text-slate-200" title={q.name}>{q.name}{q.instrumentId === "drone" && <span className="font-normal text-slate-400"> · {droneName(q.drone)}</span>}</span>
       <div className={controlsBox}>
         {strip && (
           <div className="flex items-center gap-1">
