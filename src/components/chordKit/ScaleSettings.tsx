@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Chip, DegreeLegend, InfoBox, InfoButton } from "@/components/ui";
 import { LabelSelect } from "@/features/theory/useLabelSystem";
 import type { LabelSystem } from "@/features/theory/labels";
-import { FAMILIES, TONICS } from "@/features/theory/theory";
+import { FAMILIES, TONICS, modeAlias } from "@/features/theory/theory";
 import { MODE_PAGES } from "@/features/theory/scales";
 import { scaleHref, scalesIndexHref } from "@/features/theory/keySlug";
 
@@ -89,7 +89,7 @@ function ScaleRow({ slug, tonicPc }: { slug: string; tonicPc: number }) {
       >
         {FAMILIES.map((f, fi) => (
           <optgroup key={f.id} label={f.label}>
-            {MODE_PAGES.filter((m) => m.familyIndex === fi).map((m) => <option key={m.slug} value={m.slug}>{m.name}</option>)}
+            {MODE_PAGES.filter((m) => m.familyIndex === fi).map((m) => <option key={m.slug} value={m.slug}>{m.name}{modeAlias(m.familyIndex, m.modeIndex) ? ` (${modeAlias(m.familyIndex, m.modeIndex)})` : ""}</option>)}
           </optgroup>
         ))}
       </select>
@@ -98,6 +98,13 @@ function ScaleRow({ slug, tonicPc }: { slug: string; tonicPc: number }) {
       </Link>
     </BarRow>
   );
+}
+
+/** "Major" or "Minor" next to Ionian and Aeolian; nothing for the other modes. */
+export function ModeAlias({ familyIndex, modeIndex }: { familyIndex: number; modeIndex: number }) {
+  const alias = modeAlias(familyIndex, modeIndex);
+  if (!alias) return null;
+  return <span className="ml-1.5 inline-block rounded-full border border-slate-600 px-1.5 align-middle text-[10px] font-medium uppercase tracking-wider text-slate-300">{alias}</span>;
 }
 
 /** The degree colours with a heading and a short reading guide; `children` is the longer explanation behind the (i). */

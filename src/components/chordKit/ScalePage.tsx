@@ -4,7 +4,7 @@ import { chordNoteLabel, scaleToneCaption, scaleToneLabel } from "@/features/the
 import { useLabelSystem } from "@/features/theory/useLabelSystem";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { ColourKey, ScaleSettingsBar, UNDER_BAR } from "./ScaleSettings";
+import { ColourKey, ModeAlias, ScaleSettingsBar, UNDER_BAR } from "./ScaleSettings";
 import { Chip, Info } from "@/components/ui";
 import { FAMILIES, makeKeyContext } from "@/features/theory/theory";
 import { MODE_PAGES, type NoteSwap, chordMidi, modeChords, degreeColour, relativesOf, roleWithDegree, stepPattern, DOT_INK } from "@/features/theory/scales";
@@ -100,6 +100,7 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
       <div id="scale-notes" className={`flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5 ${UNDER_BAR}`}>
         <h2 className="text-2xl font-light tracking-wide text-slate-100">
           {ctx.names[0]} {ctx.modeName}
+          <ModeAlias familyIndex={familyIndex} modeIndex={modeIndex} />
         </h2>
         <p className="text-sm text-slate-300">{info.char} <span className="text-slate-400">{info.mood}</span></p>
         <p className="text-xs text-slate-400"><b className="text-slate-300">Where you hear it:</b> {info.use}</p>
@@ -157,7 +158,7 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
               aria-current={s.isThis ? "page" : undefined}
               className={`flex items-center justify-between rounded-lg border px-3 py-1.5 text-sm transition ${s.isThis ? "border-sky-500/60 bg-sky-500/10 text-sky-100" : "border-slate-800 text-slate-300 hover:border-slate-600"}`}
             >
-              <span>{s.tonic} {s.name}</span>
+              <span>{s.tonic} {s.name}<ModeAlias familyIndex={familyIndex} modeIndex={s.modeIndex} /></span>
               <span className="text-xs text-slate-500">{["1st", "2nd", "3rd", "4th", "5th", "6th", "7th"][s.modeIndex]} degree</span>
             </Link>
           ))}

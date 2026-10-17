@@ -2,7 +2,7 @@
 
 import Icon from "@/components/Icon";
 import { Chip } from "@/components/ui";
-import { FAMILIES, TONICS, shortModeName } from "@/features/theory";
+import { FAMILIES, TONICS, modeAlias, shortModeName } from "@/features/theory";
 import { LabelSelect } from "@/features/theory/useLabelSystem";
 import { useCreatorKey } from "./KeyProvider";
 import { keySignature } from "./model/key";
@@ -26,7 +26,7 @@ export default function KeyBar() {
           {FAMILIES.map((f, i) => <option key={f.id} value={i}>{f.label}</option>)}
         </select>
         <select className={select} value={choice.mode} onChange={(e) => setMode(choice.family, Number(e.target.value))} aria-label="Mode">
-          {FAMILIES[choice.family].names.map((n, i) => <option key={n} value={i}>{shortModeName(n)}</option>)}
+          {FAMILIES[choice.family].names.map((n, i) => <option key={n} value={i}>{shortModeName(n)}{modeAlias(choice.family, i) ? ` (${modeAlias(choice.family, i)})` : ""}</option>)}
         </select>
       </div>
       <LabelSelect />

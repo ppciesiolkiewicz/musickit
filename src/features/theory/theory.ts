@@ -105,6 +105,10 @@ export const FAMILIES: Family[] = [
 /** Strip the bracketed alias from a mode name: "Ionian (major)" -> "Ionian". */
 export const shortModeName = (name: string) => name.replace(/ \(.*\)/, "");
 
+/** The everyday name of a mode, when it has one: Ionian is the major scale, Aeolian the natural minor. */
+export const modeAlias = (familyIndex: number, modeIndex: number): string | undefined =>
+  FAMILIES[familyIndex]?.id === "major" ? (modeIndex === 0 ? "Major" : modeIndex === 5 ? "Minor" : undefined) : undefined;
+
 /** Semitones of mode k of a family: a rotation of its parent, or the standalone scale. */
 export const modeSteps = (family: Family, k: number): number[] => family.scales?.[k] ?? rotate(family.parent, k);
 

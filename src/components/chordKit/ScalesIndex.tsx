@@ -4,7 +4,7 @@ import { fmtDegree, scaleToneCaption, scaleToneLabel } from "@/features/theory/l
 import { useLabelSystem } from "@/features/theory/useLabelSystem";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { ColourKey, ScaleSettingsBar, UNDER_BAR } from "./ScaleSettings";
+import { ColourKey, ModeAlias, ScaleSettingsBar, UNDER_BAR } from "./ScaleSettings";
 import ModeCompare from "./ModeCompare";
 import { Section } from "@/components/ui";
 import { FAMILIES, makeKeyContext } from "@/features/theory/theory";
@@ -82,7 +82,6 @@ export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey
       <ScaleSettingsBar
         tonicPc={tonicPc}
         onTonic={setTonicPc}
-        omitLabels={["chord"]}
         jumps={PART_IDS.map((id) => ({ id, label: PARTS[id].label, accent: PARTS[id].accent }))}
         onJump={(id) => jump(id as PartId)}
         jumpExtra={
@@ -113,7 +112,7 @@ export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey
               <article key={page.slug} className="flex min-w-0 flex-col gap-3 rounded-xl border border-slate-800 bg-slate-950/60 p-2.5">
                 <header>
                   <Link href={scaleHref(page.slug, tonicPc)} className="group flex flex-wrap items-baseline gap-x-2 rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
-                    <h3 className="text-base text-slate-100 group-hover:text-sky-300 group-hover:underline">{ctx.names[0]} {ctx.modeName}</h3>
+                    <h3 className="text-base text-slate-100 group-hover:text-sky-300 group-hover:underline">{ctx.names[0]} {ctx.modeName}<ModeAlias familyIndex={page.familyIndex} modeIndex={page.modeIndex} /></h3>
                     <span className="text-xs text-slate-500 group-hover:text-slate-300">{fam.info[page.modeIndex].mood}</span>
                   </Link>
                 </header>
