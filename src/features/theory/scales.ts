@@ -1,6 +1,6 @@
 import { FAMILIES, MAJOR, makeKeyContext, shortModeName, TONICS, tonicName, type KeyContext } from "./theory";
 
-/** URL slugs for the 21 modes: "dorian", "harmonic-minor", "phrygian-dominant", ... */
+/** URL slugs for every mode and scale: "dorian", "harmonic-minor", "phrygian-dominant", "persian", ... */
 export interface ModePage {
   slug: string;
   name: string;
@@ -103,7 +103,8 @@ function differences(steps: number[], reference: number[]): string[] {
 export function relativesOf(ctx: KeyContext): Relatives {
   const fam = FAMILIES[ctx.familyIndex];
   const parentPc = (ctx.tonic.pc - fam.parent[ctx.modeIndex] + 12) % 12;
-  const siblings = fam.names.map((nm, k) => ({
+  // a standalone scale shares its notes with no named mode
+  const siblings = fam.scales ? [] : fam.names.map((nm, k) => ({
     name: shortModeName(nm),
     tonic: tonicName((parentPc + fam.parent[k]) % 12),
     tonicPc: (parentPc + fam.parent[k]) % 12,

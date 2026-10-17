@@ -1,6 +1,6 @@
 import { SHAPES, type RootString, type Shape } from "./shapes";
 import { OPEN_SHAPES } from "./openShapes";
-import { FAMILIES, MODE_LIST, type KeyContext, degreeLabel, shortModeName } from "@/features/theory/theory";
+import { MODE_LIST, type KeyContext, degreeLabel, modeOfDegree } from "@/features/theory/theory";
 
 export type Difficulty = "easy" | "medium" | "hard";
 
@@ -206,9 +206,7 @@ export function keyEntries(ctx: KeyContext, opts: { rs?: RootString | "all"; deg
   return out;
 }
 
-function modeNameAt(ctx: KeyContext, d: number): string {
-  return shortModeName(FAMILIES[ctx.familyIndex].names[(ctx.modeIndex + d) % 7]);
-}
+const modeNameAt = modeOfDegree;
 
 /** Group an entry list by shape id, keeping every placement. */
 export function groupByShape(entries: Entry[]): { shape: RichShape; entries: Entry[]; firstDegree: number }[] {

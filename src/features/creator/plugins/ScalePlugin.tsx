@@ -1,6 +1,6 @@
 "use client";
 
-import { DOT_INK, FAMILIES, degreeColour, degreeLabels, rotate, scaleToneCaption, scaleToneLabel, shortModeName, stepPattern, type KeyContext } from "@/features/theory";
+import { DOT_INK, FAMILIES, degreeColour, degreeLabels, modeSteps, scaleToneCaption, scaleToneLabel, shortModeName, stepPattern, type KeyContext } from "@/features/theory";
 import { useLabelSystem } from "@/features/theory/useLabelSystem";
 import { playMelody } from "@/features/sound";
 import { useCreatorKey } from "../KeyProvider";
@@ -54,7 +54,7 @@ function General() {
                 <li key={nm}>
                   <button type="button" onClick={() => setMode(fi, mi)} aria-pressed={on} className={`flex w-full items-baseline gap-2 rounded-lg border px-2 py-1 text-left text-xs ${on ? "border-sky-400 bg-sky-500/15 text-sky-100" : "border-slate-800 bg-slate-950/50 text-slate-300 hover:border-slate-600"}`}>
                     <span className="w-24 shrink-0 font-medium">{shortModeName(nm)}</span>
-                    <span className="truncate font-mono text-[11px] text-slate-400">{degreeLabels(rotate(f.parent, mi)).join(" ")}</span>
+                    <span className="truncate font-mono text-[11px] text-slate-400">{degreeLabels(modeSteps(f, mi)).join(" ")}</span>
                   </button>
                 </li>
               );

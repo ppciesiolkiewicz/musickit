@@ -17,12 +17,15 @@ export interface ModeInfo {
 }
 
 export interface Family {
-  id: "major" | "harm" | "mel";
+  id: "major" | "harm" | "mel" | "other";
   label: string;
+  /** the scale whose rotations are the modes (unused when `scales` is set) */
   parent: number[];
   parentName: string;
   names: string[];
   info: ModeInfo[];
+  /** standalone scales, one per name, instead of rotations of `parent` */
+  scales?: number[][];
 }
 
 export const FAMILIES: Family[] = [
@@ -74,10 +77,36 @@ export const FAMILIES: Family[] = [
       { char: "♭9, ♯9, ♭5 and ♯5: every tension altered.", mood: "Maximum dominant tension.", use: "Over 7alt chords resolving to I.", vamp: [0] },
     ],
   },
+  {
+    id: "other",
+    label: "Other scales",
+    parent: MAJOR,
+    parentName: "scale",
+    names: ["Double harmonic major", "Persian", "Hungarian minor", "Neapolitan minor", "Neapolitan major", "Enigmatic"],
+    scales: [
+      [0, 1, 4, 5, 7, 8, 11],
+      [0, 1, 4, 5, 6, 8, 11],
+      [0, 2, 3, 6, 7, 8, 11],
+      [0, 1, 3, 5, 7, 8, 11],
+      [0, 1, 3, 5, 7, 9, 11],
+      [0, 1, 4, 6, 8, 10, 11],
+    ],
+    info: [
+      { char: "♭2 and ♭6 around a major 3rd and 7: two augmented 2nds.", mood: "Byzantine, Arabic, snake-charmer exotic.", use: "Over a major tonic with a ♭II pull (I – ♭II – I).", vamp: [0, 1] },
+      { char: "Double harmonic with a ♭5 instead of the 5th.", mood: "Dark, eerie, Middle-Eastern.", use: "Over a major ♭5 tonic; colour lines over a drone.", vamp: [0, 1] },
+      { char: "Harmonic minor with a ♯4: augmented 2nds on both sides.", mood: "Gypsy, Eastern European drama.", use: "Over minor and m(maj7) chords with a ♯11.", vamp: [0, 4] },
+      { char: "Harmonic minor with a ♭2.", mood: "Dark, operatic, Phrygian minor.", use: "Over i – ♭II – V7 in minor keys.", vamp: [0, 1] },
+      { char: "Melodic minor with a ♭2.", mood: "Dark but smooth, a little regal.", use: "Over minor tonics with a ♭9 colour.", vamp: [0, 1] },
+      { char: "♭2, 3, then ♯4 ♯5 ♯6 rising whole steps to 7.", mood: "Puzzling and unresolved (Verdi's scala enigmatica).", use: "Melodic colour over a drone rather than chords.", vamp: [0] },
+    ],
+  },
 ];
 
 /** Strip the bracketed alias from a mode name: "Ionian (major)" -> "Ionian". */
 export const shortModeName = (name: string) => name.replace(/ \(.*\)/, "");
+
+/** Semitones of mode k of a family: a rotation of its parent, or the standalone scale. */
+export const modeSteps = (family: Family, k: number): number[] => family.scales?.[k] ?? rotate(family.parent, k);
 
 /** Rotate a 7-note scale so degree k becomes the root. */
 export function rotate(steps: number[], k: number): number[] {
@@ -133,8 +162,8 @@ export const tonicName = (pc: number) => (TONICS.find((t) => t.pc === pc) ?? TON
 export type TriadQuality = "maj" | "min" | "dim" | "aug" | "other";
 
 const SEVENTH_TABLE: Record<TriadQuality, Record<number, string>> = {
-  maj: { 11: "maj7", 10: "7" },
-  min: { 10: "m7", 11: "m(maj7)" },
+  maj: { 11: "maj7", 10: "7", 9: "6" },
+  min: { 10: "m7", 11: "m(maj7)", 9: "m6" },
   dim: { 10: "m7♭5", 9: "dim7", 11: "dim(maj7)" },
   aug: { 11: "maj7♯5", 10: "7♯5" },
   other: {},
@@ -152,6 +181,18 @@ function extensionName(seventh: string, ext: string): string {
 }
 
 export const TRIAD_SUFFIX: Record<TriadQuality, string> = { maj: "", min: "m", dim: "dim", aug: "aug", other: "?" };
+
+/** Names for the stacked-third triads the exotic scales make: [3rd, 5th] -> triad suffix and its sevenths. */
+const ODD_TRIADS: Record<string, { suf: string; sev: Record<number, string> }> = {
+  "4,6": { suf: "(♭5)", sev: { 11: "maj7♭5", 10: "7♭5" } },
+  "3,8": { suf: "m(♯5)", sev: { 10: "m7♯5", 11: "m(maj7♯5)" } },
+  "2,7": { suf: "sus2", sev: { 10: "7sus2", 11: "maj7sus2", 9: "6sus2" } },
+  "5,7": { suf: "sus4", sev: { 10: "7sus4", 11: "maj7sus4" } },
+  "2,6": { suf: "sus2(♭5)", sev: {} },
+  "4,9": { suf: "6(no5)", sev: {} },
+};
+
+const acc = (diff: number) => (diff < 0 ? "♭".repeat(-diff) : "♯".repeat(diff));
 const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII"];
 
 export interface ExtensionSlot {
@@ -179,7 +220,10 @@ export function analyseDegree(steps: number[], names: string[], d: number): Degr
   const second = g(1), third = g(2), fourth = g(3), fifth = g(4), sixth = g(5), sev = g(6);
   const tri: TriadQuality =
     third === 4 && fifth === 7 ? "maj" : third === 3 && fifth === 7 ? "min" : third === 3 && fifth === 6 ? "dim" : third === 4 && fifth === 8 ? "aug" : "other";
-  const seventh = SEVENTH_TABLE[tri][sev] || TRIAD_SUFFIX[tri] + "7?";
+  const odd = tri === "other" ? ODD_TRIADS[`${third},${fifth}`] : undefined;
+  const triSuffix = odd?.suf ?? TRIAD_SUFFIX[tri];
+  // a 7th with no chord name (only in the exotic scales): keep the triad's name
+  const seventh = SEVENTH_TABLE[tri][sev] || odd?.sev[sev] || triSuffix;
   const root = names[d];
 
   const diffMajor = steps[d] - MAJOR[d];
@@ -187,7 +231,7 @@ export function analyseDegree(steps: number[], names: string[], d: number): Degr
   if (tri === "min" || tri === "dim") numeral = numeral.toLowerCase();
   const prefix = diffMajor < 0 ? "♭".repeat(-diffMajor) : diffMajor > 0 ? "♯".repeat(diffMajor) : "";
   const roman = prefix + numeral + (tri === "dim" ? "°" : tri === "aug" ? "+" : "");
-  const formula = ["1", third === 4 ? "3" : "♭3", fifth === 7 ? "5" : fifth === 6 ? "♭5" : "♯5", sev === 11 ? "7" : sev === 10 ? "♭7" : "♭♭7"];
+  const formula = ["1", acc(third - 4) + "3", acc(fifth - 7) + "5", acc(sev - 11) + "7"];
   const degrees = [0, 2, 4, 6].map((o) => ((d + o) % 7) + 1);
 
   const slots: (ExtensionSlot | null)[] = [null, null, null, null];
@@ -212,7 +256,7 @@ export function analyseDegree(steps: number[], names: string[], d: number): Degr
   const vn = names[(d + 6) % 7];
   slots[3] = { label: sev === 11 ? "M7" : sev === 10 ? "♭7" : "♭♭7", note: vn, kids: [{ text: root + seventh }] };
 
-  return { degree: d, root, tri, seventh, roman, formula, degrees, slots, triadName: root + TRIAD_SUFFIX[tri], seventhName: root + seventh };
+  return { degree: d, root, tri, seventh, roman, formula, degrees, slots, triadName: root + triSuffix, seventhName: root + seventh };
 }
 
 /* ---------------------------------------------------------------- a key + mode context */
@@ -231,16 +275,18 @@ export interface KeyContext {
 export function makeKeyContext(tonicPc: number, familyIndex: number, modeIndex: number): KeyContext {
   const tonic = TONICS.find((t) => t.pc === tonicPc) ?? TONICS[0];
   const family = FAMILIES[familyIndex];
-  const steps = rotate(family.parent, modeIndex);
+  const steps = modeSteps(family, modeIndex);
   const names = spell(tonic.letter, tonic.pc, steps);
   const chords = [0, 1, 2, 3, 4, 5, 6].map((d) => analyseDegree(steps, names, d));
-  const parentPc = (tonic.pc - family.parent[modeIndex] + 12) % 12;
+  const parentPc = family.scales ? tonic.pc : (tonic.pc - family.parent[modeIndex] + 12) % 12;
   return { tonic, familyIndex, modeIndex, steps, names, chords, modeName: shortModeName(family.names[modeIndex]), parentTonic: tonicName(parentPc) };
 }
 
-/** The mode a chord on degree d belongs to when you play from its root. */
+/** The mode a chord on degree d belongs to when you play from its root. A standalone scale has no named modes: "Persian from its 3rd". */
 export function modeOfDegree(ctx: KeyContext, d: number): string {
-  return shortModeName(FAMILIES[ctx.familyIndex].names[(ctx.modeIndex + d) % 7]);
+  const family = FAMILIES[ctx.familyIndex];
+  if (family.scales) return d === 0 ? ctx.modeName : `${ctx.modeName} from its ${ORDINALS[d]}`;
+  return shortModeName(family.names[(ctx.modeIndex + d) % 7]);
 }
 
 /** Scale degree of a pitch class in a key: "3", or "♭3"/"♯4" when it is outside the scale. */
@@ -256,7 +302,7 @@ export function degreeLabel(pc: number, ctx: KeyContext): string {
   return "?";
 }
 
-/** Every one of the 21 modes, as semitone sets measured from their own root. */
+/** Every mode and standalone scale, as semitone sets measured from their own root. */
 export interface ModeEntry {
   name: string;
   rel: Set<number>;
@@ -265,5 +311,5 @@ export interface ModeEntry {
 }
 
 export const MODE_LIST: ModeEntry[] = FAMILIES.flatMap((family) =>
-  family.names.map((nm, k) => ({ name: shortModeName(nm), rel: new Set(rotate(family.parent, k)), family, k })),
+  family.names.map((nm, k) => ({ name: shortModeName(nm), rel: new Set(modeSteps(family, k)), family, k })),
 );

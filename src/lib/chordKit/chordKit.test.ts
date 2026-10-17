@@ -41,9 +41,17 @@ describe("theory", () => {
     const k = makeKeyContext(3, 0, 1);
     assert.deepEqual(k.names, ["E♭", "F", "G♭", "A♭", "B♭", "C", "D♭"]);
   });
-  it("has 21 modes and rotates correctly", () => {
-    assert.equal(MODE_LIST.length, 21);
+  it("has 21 modes plus 6 other scales and rotates correctly", () => {
+    assert.equal(MODE_LIST.length, 27);
     assert.deepEqual(rotate(FAMILIES[0].parent, 5), [0, 2, 3, 5, 7, 8, 10]);
+  });
+  it("spells the other scales as standalone scales, not rotations", () => {
+    const fi = FAMILIES.findIndex((f) => f.id === "other");
+    const persian = makeKeyContext(0, fi, 1);
+    assert.deepEqual(persian.names, ["C", "D♭", "E", "F", "G♭", "A♭", "B"]);
+    assert.equal(persian.chords[0].seventhName, "Cmaj7♭5");
+    assert.equal(relativesOf(persian).siblings.length, 0);
+    assert.deepEqual(makeKeyContext(4, fi, 0).names, ["E", "F", "G♯", "A", "B", "C", "D♯"]);
   });
   it("names diatonic chords in E Aeolian", () => {
     const k = makeKeyContext(4, 0, 5);
@@ -146,9 +154,9 @@ describe("triads by string group", () => {
 });
 
 describe("scale pages", () => {
-  it("has 21 unique slugs", () => {
-    assert.equal(MODE_PAGES.length, 21);
-    assert.equal(new Set(MODE_PAGES.map((m) => m.slug)).size, 21);
+  it("has 27 unique slugs", () => {
+    assert.equal(MODE_PAGES.length, 27);
+    assert.equal(new Set(MODE_PAGES.map((m) => m.slug)).size, 27);
   });
   it("lists the notes of D Dorian chords and the relatives", () => {
     const ctx = makeKeyContext(2, 0, 1);

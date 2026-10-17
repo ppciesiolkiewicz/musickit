@@ -1,6 +1,6 @@
 "use client";
 
-import { FAMILIES, degreeLabels, relativesOf, rotate, shortModeName, type KeyContext } from "@/features/theory";
+import { FAMILIES, degreeLabels, modeSteps, relativesOf, shortModeName, type KeyContext } from "@/features/theory";
 import { playMelody } from "@/features/sound";
 import { useCreatorKey } from "../KeyProvider";
 import { Body, Hint, PlayButton } from "./common";
@@ -16,7 +16,11 @@ function Key({ ctx }: { ctx: KeyContext }) {
   const rel = relativesOf(ctx);
   return (
     <Body title={`Same notes as ${ctx.names[0]} ${ctx.modeName}`}>
-      <p className="text-xs text-slate-400">The notes of {rel.parentTonic} {rel.parentName}, started on each of its degrees. Click one to move there.</p>
+      {rel.siblings.length ? (
+        <p className="text-xs text-slate-400">The notes of {rel.parentTonic} {rel.parentName}, started on each of its degrees. Click one to move there.</p>
+      ) : (
+        <Hint>{ctx.modeName} is a scale of its own, not a mode of the major, harmonic minor or melodic minor scale.</Hint>
+      )}
       <ul className="flex flex-col gap-1">
         {rel.siblings.map((s) => (
           <li key={s.modeIndex}>
@@ -50,8 +54,8 @@ function General() {
             <li key={k}>
               <div className={`flex items-start gap-2 rounded-lg border px-2 py-1.5 text-xs ${on ? "border-sky-400 bg-sky-500/10" : "border-slate-800 bg-slate-950/50"}`}>
                 <button type="button" onClick={() => setMode(0, k)} aria-pressed={on} className="w-20 shrink-0 text-left font-medium text-slate-100 hover:text-sky-200">{shortModeName(f.names[k])}</button>
-                <span className="min-w-0 flex-1 text-slate-400">{f.info[k].mood}<span className="ml-2 font-mono text-[11px] text-slate-500">{degreeLabels(rotate(f.parent, k)).join(" ")}</span></span>
-                <PlayButton onClick={() => playMelody(rotate(f.parent, k).map((s) => 60 + s).concat(72), 280)} label={`Play ${shortModeName(f.names[k])} from C`} />
+                <span className="min-w-0 flex-1 text-slate-400">{f.info[k].mood}<span className="ml-2 font-mono text-[11px] text-slate-500">{degreeLabels(modeSteps(f, k)).join(" ")}</span></span>
+                <PlayButton onClick={() => playMelody(modeSteps(f, k).map((s) => 60 + s).concat(72), 280)} label={`Play ${shortModeName(f.names[k])} from C`} />
               </div>
             </li>
           );

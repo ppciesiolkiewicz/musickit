@@ -1,7 +1,7 @@
 /**
  * The theory module: music theory with no guitar, no sound and no page in it. Shared by the guitar pages, the improvisation games and the creator.
  *
- *   theory       families and modes (21), tonics and their spelling, key contexts (notes, chords of a key), degree labels
+ *   theory       families and modes (21) plus other scales, tonics and their spelling, key contexts (notes, chords of a key), degree labels
  *   scales       mode pages, chord stacks, relatives, step patterns, the degree colours
  *   modeGroups   comparing modes that share a tonic
  *   circle       the circle of fifths: order, key signatures, the chords of a key on the circle

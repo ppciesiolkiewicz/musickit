@@ -111,7 +111,7 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
       <section id="relatives" className={`rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5 ${UNDER_BAR}`}>
         <h2 className="mb-2 text-sm font-medium text-slate-100">Relatives of {ctx.names[0]} {ctx.modeName}</h2>
         <ul className="space-y-1.5 text-sm text-slate-300">
-          {modeIndex !== 0 && !rel.relativeMajor && (
+          {modeIndex !== 0 && !rel.relativeMajor && !fam.scales && (
             <li>
               Parent scale: <b>{rel.parentTonic} {rel.parentName}</b> (starts on its {["1st", "2nd", "3rd", "4th", "5th", "6th", "7th"][modeIndex]} degree)
             </li>
@@ -132,6 +132,10 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
           {rel.vsMinor.length > 0 && <li>Compared with {ctx.names[0]} natural minor: <b>{rel.vsMinor.join(" ")}</b> differ{rel.vsMinor.length === 1 ? "s" : ""}.</li>}
         </ul>
 
+        {fam.scales ? (
+          <p className="mt-3 text-sm text-slate-400">{ctx.modeName} is a scale of its own, not a mode of the major, harmonic minor or melodic minor scale, so no named mode shares its notes.</p>
+        ) : (
+        <>
         <h3 className="mb-1.5 mt-4 text-xs font-medium uppercase tracking-wider text-slate-500">Modes with the same notes</h3>
         <div className="grid gap-1.5 sm:grid-cols-2">
           {rel.siblings.map((s) => (
@@ -146,6 +150,8 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
             </Link>
           ))}
         </div>
+        </>
+        )}
       </section>
 
       <section id="chords" className={`rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5 ${UNDER_BAR}`}>

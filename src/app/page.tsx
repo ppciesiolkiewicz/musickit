@@ -20,7 +20,7 @@ const GROUPS: { title: string; blurb: string; items: Item[] }[] = [
     items: [
       { href: "/theory", label: "Theory course", icon: "graduation-cap", text: "Stages, tracks and practice games.", more: "From first chords and songs to barres, the neck and modes.", tags: ["Lessons", "Games"] },
       { href: "/theory/chords", label: "Chords", icon: "music", text: "Shapes for the chords of any key and mode.", more: "Every chord of the key, with diagrams and loops to play.", tags: ["Shapes", "Progressions"] },
-      { href: "/theory/scales", label: "Scales and modes", icon: "sliders-horizontal", text: "Scales on the neck, modes side by side.", more: "All 21 modes in any key, with pentatonic boxes on the neck.", tags: ["21 modes", "Positions"] },
+      { href: "/theory/scales", label: "Scales and modes", icon: "sliders-horizontal", text: "Scales on the neck, modes side by side.", more: "All 21 modes plus exotic scales in any key, with pentatonic boxes on the neck.", tags: ["21 modes", "Positions"] },
       { href: "/theory/caged", label: "CAGED", icon: "guitar", text: "The five open shapes up the fretboard.", more: "See how C, A, G, E and D connect into one neck map.", tags: ["5 shapes", "Neck map"] },
       { href: "/theory/circle", label: "Circle of fifths", icon: "circle-dot", text: "Every key, its signature and its chords.", more: "Spin to a key and read its relatives and diatonic chords.", tags: ["Keys", "Signatures"] },
       { href: "/theory/improv", label: "Improvisation", icon: "drum", text: "Rhythm and motive exercises.", more: "Short drills for phrasing: rhythm cells and motives.", tags: ["Rhythm", "Motives"] },

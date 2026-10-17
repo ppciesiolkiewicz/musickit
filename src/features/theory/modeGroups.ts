@@ -32,13 +32,19 @@ const FAMILY_TEACH: Record<string, Teach> = {
     listen: "Listen for a minor 3rd sitting next to a major 7th; that pairing is what sets melodic minor apart from every major-family mode.",
     practise: "Play a Cm(maj7) chord, then run C melodic minor over it. Next, play F7♯11 and run the same notes from F (Lydian dominant).",
   },
+  other: {
+    from: "Seven-note scales that are not modes of major, harmonic minor or melodic minor. Most come from folk and classical traditions: Arabic and Byzantine music, Persian music, Hungarian and Romani music, and opera.",
+    sound: "Several half steps and at least one augmented 2nd (three semitones) give them an exotic, strongly coloured sound that is hard to mistake for a plain major or minor key.",
+    listen: "Listen for the ♭2 leaning into the root and the wide three-semitone gaps: in double harmonic they sit between ♭2 and 3 and between ♭6 and 7.",
+    practise: "Over a drone on C, play C double harmonic major, then flatten the 5th (Persian). Then play C Hungarian minor and compare its ♯4 with the ♭2 of the other two.",
+  },
 };
 
 export const MODE_GROUPS: ModeGroup[] = [
   ...FAMILIES.map((f, i): ModeGroup => ({
     id: f.id,
     label: f.label,
-    why: `The seven rotations of the ${f.parentName}.`,
+    why: f.scales ? "Seven-note scales of their own, outside the three mode families." : `The seven rotations of the ${f.parentName}.`,
     test: (_r, fi) => fi === i,
     teach: FAMILY_TEACH[f.id],
   })),

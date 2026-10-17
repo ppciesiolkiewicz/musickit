@@ -29,6 +29,15 @@ const S: Record<string, number[]> = {
   m9: [0, 3, 7, 10, 14],
   "13": [0, 4, 7, 10, 14, 21],
   "7alt": [0, 4, 6, 10, 13],
+  "(♭5)": [0, 4, 6],
+  "m(♯5)": [0, 3, 8],
+  "sus2(♭5)": [0, 2, 6],
+  "7♭5": [0, 4, 6, 10],
+  "maj7♭5": [0, 4, 6, 11],
+  "m7♯5": [0, 3, 8, 10],
+  "maj7♯5": [0, 4, 8, 11],
+  "7sus4": [0, 5, 7, 10],
+  "6sus2": [0, 2, 7, 9],
 };
 
 /** Semitones above the root for a chord suffix; a major triad for one we do not know. */

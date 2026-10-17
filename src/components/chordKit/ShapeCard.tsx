@@ -153,6 +153,11 @@ function FitLines({ shape, placed }: { shape: RichShape; placed: { name: string;
         <ul className="mt-1 space-y-0.5 text-xs text-slate-400">
           {shape.fit.map((nm) => {
             const m = MODE_LIST.find((x) => x.name === nm)!;
+            if (m.family.scales) return (
+              <li key={nm}>
+                <b className="text-slate-300">{nm}</b> · {first.name}: 1st of {TONIC_NAMES[first.rootPc]} {nm}
+              </li>
+            );
             const parentPc = (first.rootPc - m.family.parent[m.k] + 12) % 12;
             return (
               <li key={nm}>

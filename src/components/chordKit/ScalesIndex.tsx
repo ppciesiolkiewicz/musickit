@@ -22,6 +22,7 @@ const PARTS = {
   major: { accent: "#34d399", label: "Major modes", intro: "The seven modes of the major scale share one set of notes. Read down the cards and you can see the same seven notes starting on each of them." },
   harm: { accent: "#fbbf24", label: "Harmonic minor", intro: "Natural minor with a raised 7th. Its modes share their seven notes with each other, not with the major scale, and carry the exotic augmented 2nd." },
   mel: { accent: "#a78bfa", label: "Melodic minor", intro: "The major scale with a lowered 3rd. Its modes are the jazz sounds: Lydian dominant over a 7♯11, Altered over a dominant that resolves." },
+  other: { accent: "#f472b6", label: "Other scales", intro: "Seven-note scales of their own, not modes of the three families above: the Arabic double harmonic, Persian, Hungarian minor, the Neapolitan scales and Verdi's enigmatic scale." },
 } as const;
 type PartId = keyof typeof PARTS;
 const PART_IDS = Object.keys(PARTS) as PartId[];
@@ -30,9 +31,9 @@ const PART_IDS = Object.keys(PARTS) as PartId[];
 export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey: number; /** write ?key=f-sharp to the address bar (off when embedded in another page) */ syncUrl?: boolean }) {
   const [tonicPc, setTonicPc] = useState(initialKey);
   const [system] = useLabelSystem();
-  const [open, setOpen] = useState<Record<PartId, boolean>>({ compare: false, major: true, harm: false, mel: false });
+  const [open, setOpen] = useState<Record<PartId, boolean>>({ compare: false, major: true, harm: false, mel: false, other: false });
   const toggle = (id: PartId) => setOpen((o) => ({ ...o, [id]: !o[id] }));
-  const setAll = (v: boolean) => setOpen({ compare: v, major: v, harm: v, mel: v });
+  const setAll = (v: boolean) => setOpen({ compare: v, major: v, harm: v, mel: v, other: v });
   const allOpen = PART_IDS.every((id) => open[id]);
   const jump = (id: PartId) => {
     setOpen((o) => ({ ...o, [id]: true }));
@@ -101,7 +102,7 @@ export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey
 
       {rows.map(({ fam, modes }) => (
         <div key={fam.id} id={`part-${fam.id}`} className={UNDER_BAR}>
-        <Section title={fam.label} meta={`${modes.length} modes in ${modes[0].ctx.names[0]}`} open={open[fam.id]} onToggle={() => toggle(fam.id)} accent={PARTS[fam.id].accent}>
+        <Section title={fam.label} meta={`${modes.length} ${fam.scales ? "scales" : "modes"} in ${modes[0].ctx.names[0]}`} open={open[fam.id]} onToggle={() => toggle(fam.id)} accent={PARTS[fam.id].accent}>
           <p className="mb-3 text-xs text-slate-400">{PARTS[fam.id].intro}</p>
           <div className="grid gap-3 lg:grid-cols-2">
             {modes.map(({ page, ctx, rel, labels, line, cells }) => {
@@ -139,7 +140,7 @@ export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey
 
                 <Section level={2} defaultOpen={false} title="Relatives and differences">
                 <ul className="space-y-1 text-xs text-slate-300">
-                  {page.modeIndex !== 0 && !rel.relativeMajor && (
+                  {page.modeIndex !== 0 && !rel.relativeMajor && !fam.scales && (
                     <li>
                       Parent scale: <b>{rel.parentTonic} {rel.parentName}</b> (starts on its {ORD[page.modeIndex]} degree)
                     </li>
@@ -156,7 +157,9 @@ export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey
                   )}
                   {!rel.relativeMajor && (
                     <li className="text-slate-400">
-                      Not a rotation of the major scale, so it has no relative major or minor. It shares its notes with the other {fam.label.toLowerCase()}.
+                      {fam.scales
+                        ? "A scale of its own, not a rotation of another scale, so it has no relative major or minor."
+                        : <>Not a rotation of the major scale, so it has no relative major or minor. It shares its notes with the other {fam.label.toLowerCase()}.</>}
                     </li>
                   )}
                   {rel.vsMajor.length > 0 && <li className="text-slate-400">Versus {ctx.names[0]} major: <b className="text-slate-300">{rel.vsMajor.join(" ")}</b> altered</li>}
