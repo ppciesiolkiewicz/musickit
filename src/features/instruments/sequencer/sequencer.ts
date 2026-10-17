@@ -1,3 +1,4 @@
+import { DEFAULT_KEY_PC } from "@/features/theory/theory";
 import { DEFAULT_DRONE, DroneVoice, clampDrone, type DroneParams } from "../drone/drone";
 import { BASS_PRESETS, DRUM_PRESETS, MAX_BARS, MAX_STEPS, fromRows, emptyCells, stepAt, stepSeconds, stepsInPattern, type Cells, type Preset } from "./pattern";
 
@@ -103,11 +104,11 @@ export const DRUMS: Instrument = {
   },
 };
 
-/** A simple saw bass over a minor pentatonic ladder in the key (A by default), lowest note first. */
+/** A simple saw bass over a minor pentatonic ladder in the key (E by default), lowest note first. */
 const BASS_SEMIS = [0, 3, 5, 7, 10, 12, 15, 17];
 const NOTE_NAMES = ["C", "C♯", "D", "E♭", "E", "F", "F♯", "G", "A♭", "A", "B♭", "B"];
-/** the looper's bass key: A */
-export const DEFAULT_KEY = 9;
+/** the looper's bass key */
+export const DEFAULT_KEY = DEFAULT_KEY_PC;
 /** The bass ladder's lowest note in a key: between E1 and D♯2, so every key sits in the same register (A is A1). */
 export const bassRootMidi = (key: number) => {
   const k = ((Math.round(key) % 12) + 12) % 12;

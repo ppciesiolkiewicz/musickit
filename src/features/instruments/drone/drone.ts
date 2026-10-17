@@ -46,7 +46,7 @@ export interface DroneParams {
 }
 
 export const DEFAULT_DRONE: DroneParams = {
-  root: 0, octave: 2, wave: "sawtooth", fifth: 0.5, upper: 0.25, sub: 0.5, detune: 8, tone: 0.45, filter: "lowpass", resonance: 0.2, level: 0.5,
+  root: 4 /* E, the app-wide default key */, octave: 2, wave: "sawtooth", fifth: 0.5, upper: 0.25, sub: 0.5, detune: 8, tone: 0.45, filter: "lowpass", resonance: 0.2, level: 0.5,
   mod: "filter", modWave: "sine", modRate: 0.15, modDepth: 0.35,
 };
 export const DRONE_MIN_OCTAVE = 1;
