@@ -115,7 +115,7 @@ export const FULL_NAME: Record<string, string> = {
   "7♯9": "Dominant 7♯9", "7♭9": "Dominant 7♭9", "7♯11": "Dominant 7♯11", "13♭9": "Dominant 13♭9", "m7♭5": "Minor 7♭5 (half-diminished)",
   dim: "Diminished triad", dim7: "Diminished 7", aug: "Augmented triad", "6": "Major 6", m6: "Minor 6", "6/9": "Major 6/9",
   sus4: "Suspended 4", sus2: "Suspended 2", "m(maj7)": "Minor-major 7", "maj7♯11": "Major 7♯11",
-  "5": "Power chord", add9: "Major add 9",
+  "5": "Power chord", add9: "Major add 9", "m(add9)": "Minor add 9",
 };
 export const shapeName = (suf: string) => FULL_NAME[suf] ?? suf;
 
@@ -126,7 +126,7 @@ export const VARIANT: Record<string, string> = {
   "m(maj7)": "minor chord with a major 7th", "7sus4": "7 with the 3rd replaced by the 4th", "9sus4": "9 with the 3rd replaced by the 4th",
   sus4: "triad with the 3rd replaced by the 4th", sus2: "triad with the 3rd replaced by the 2nd", "6/9": "major 6 with an added 9th",
   m6: "minor triad plus a major 6th", "6": "major triad plus a major 6th",
-  "5": "root and 5th only, no 3rd, so it is neither major nor minor", add9: "major triad with an added 9th (no 7th)",
+  "5": "root and 5th only, no 3rd, so it is neither major nor minor", add9: "major triad with an added 9th (no 7th)", "m(add9)": "minor triad with an added 9th (no 7th)",
 };
 
 export const FAMILY_ORDER = ["major", "minor", "dominant", "altered", "sus", "power"] as const;

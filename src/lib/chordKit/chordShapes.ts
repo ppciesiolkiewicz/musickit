@@ -34,7 +34,7 @@ const byTier = (a: ChordShapeChoice, b: ChordShapeChoice): number => {
  * Shapes that play the diatonic chord on `degree` of the mode, best first:
  * the whole chord (with its 7th in mode fit), then smaller shapes made only of its own tones (the triad or a shell), then the rest;
  * inside each group open chords, then the first barre, then easier fingerings, then lower on the neck.
- * Shapes without the chord's 3rd are dropped (they would not say major or minor), and so are shapes without an altered 5th (a ♭5 says diminished).
+ * Shapes without the chord's 3rd are dropped (they would not say major or minor).
  * `fit: "mode"` (default) allows any note of the mode, and the 7th counts as a chord tone.
  * `fit: "triad"` allows only root, 3rd and 5th, so a plain triad never shows as a 7th or a shell.
  * `difficulties` limits the result; if that leaves nothing, every difficulty is used.
@@ -52,8 +52,6 @@ export function shapesForChord(ctx: KeyContext, degree: number, difficulties: Di
     if (!fitsRoot(shape, rootPc)) return;
     const tones = new Set(shapeSemitones(shape).filter((v): v is number => v !== null));
     if (!tones.has(third)) return;
-    // a ♭5 or ♯5 is what makes a chord diminished or augmented: without it the shape sounds like another chord
-    if (fifth !== 7 && !tones.has(fifth)) return;
     if (![...tones].every((t) => (triad ? stack : rel).has(t))) return;
     const exact = [...tones].every((t) => stack.has(t));
     all.push({ shape, rootPc, fret: rootFretFor(shape, rootPc), exact, full: exact && (triad || tones.has(seventh)) });
@@ -114,4 +112,35 @@ export function shapesForTones(rootPc: number, semis: number[], difficulties: Di
   return list
     .sort((a, b) => Number(b.full) - Number(a.full) || b.score - a.score || byTier(a.choice, b.choice) || Number(b.choice.exact) - Number(a.choice.exact) || DIFF_RANK[a.choice.shape.diff] - DIFF_RANK[b.choice.shape.diff] || a.choice.fret - b.choice.fret || a.choice.shape.id - b.choice.shape.id)
     .map(({ choice, full }) => ({ choice, full }));
+}
+
+const EXT_LABEL: Record<number, string> = { 1: "♭9", 2: "9", 3: "♯9", 5: "11", 6: "♯11", 8: "♭13", 9: "13" };
+const NAMED_EXT: Record<string, Record<string, string>> = {
+  maj7: { "9": "maj9", "♯11": "maj7♯11", "13": "maj13" },
+  "7": { "9": "9", "♭9": "7♭9", "♯9": "7♯9", "13": "13" },
+  m7: { "9": "m9", "11": "m11", "13": "m13" },
+};
+
+/**
+ * The name of the chord a placed shape really plays on `degree` of the mode, e.g. "Cmaj9", "Em(add9)", "Bm7♭5".
+ * A missing 5th is heard as the mode's own 5th, so a root-♭3-♭7 shell on the v° of Phrygian is named m7♭5, not m7.
+ */
+export function placedChordName(ctx: KeyContext, degree: number, shape: RichShape): string {
+  const c = ctx.chords[degree];
+  const notes = modeChords(ctx)[degree].notes;
+  const [third, fifth, seventh] = [notes[1].semis, notes[2].semis, notes[3].semis];
+  const tones = new Set(shapeSemitones(shape).filter((v): v is number => v !== null));
+  if (!tones.has(third)) return c.root + shape.suf;
+  const exts = [...tones].filter((t) => t !== 0 && t !== third && t !== fifth && t !== seventh).sort((a, b) => a - b).map((t) => EXT_LABEL[t] ?? "?");
+  const triad = c.triadName.slice(c.root.length);
+  if (tones.has(seventh)) {
+    if (!exts.length) return c.seventhName;
+    if (exts.length === 1 && NAMED_EXT[c.seventh]?.[exts[0]]) return c.root + NAMED_EXT[c.seventh][exts[0]];
+    return `${c.seventhName}(${exts.join(",")})`;
+  }
+  if (!exts.length) return c.triadName;
+  if (triad === "" && exts.join() === "9,13") return c.root + "6/9";
+  if (exts.length === 1 && exts[0] === "13" && (triad === "" || triad === "m")) return c.root + triad + "6";
+  if (exts.length === 1 && exts[0] === "9") return c.root + (triad ? `${triad}(add9)` : "add9");
+  return `${c.triadName}(add${exts.join(",")})`;
 }

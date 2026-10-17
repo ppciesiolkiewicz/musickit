@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import PageShell from "@/components/PageShell";
 import Lesson from "@/components/theory/Lesson";
 import ScalesIndex from "@/components/chordKit/ScalesIndex";
+import { keyOr } from "@/features/theory/keySlug";
 
 export const metadata: Metadata = {
   title: "Scales and modes · Music Kit",
@@ -12,8 +13,7 @@ type Search = { key?: string };
 
 export default async function ScalesPage({ searchParams }: { searchParams: Promise<Search> }) {
   const { key } = await searchParams;
-  const parsed = Number(key);
-  const initialKey = Number.isInteger(parsed) && parsed >= 0 && parsed < 12 ? parsed : 0;
+  const initialKey = keyOr(key);
   return (
     <PageShell
       active="/theory/scales"

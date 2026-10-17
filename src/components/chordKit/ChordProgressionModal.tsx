@@ -3,15 +3,16 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import ChordDiagram from "./ChordDiagram";
 import { Modal } from "@/components/ui";
-import { progressionForDegree } from "@/lib/chordKit/degreeProgressions";
+import { colourDegrees, degreeName, progressionForDegree } from "@/lib/chordKit/degreeProgressions";
 import type { KeyContext } from "@/features/theory/theory";
 import { strumShape } from "@/lib/chordKit/playback";
 
 const BEAT_MS = 1400;
 
-/** A four-chord loop around one chord of the mode, a diagram for each chord, and a button to hear it through. */
+/** A four-chord loop around one chord of the mode that leans on the mode's colour note, voiced so the chords flow into each other, with a button to hear it through. */
 export default function ChordProgressionModal({ ctx, degree, onClose }: { ctx: KeyContext; degree: number; onClose: () => void }) {
   const prog = useMemo(() => progressionForDegree(ctx, degree), [ctx, degree]);
+  const colourTag = colourDegrees(ctx).map((i) => degreeName(ctx, i)).join(" ");
   const [at, setAt] = useState<number | null>(null);
   const [running, setRunning] = useState(false);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
@@ -58,7 +59,7 @@ export default function ChordProgressionModal({ ctx, degree, onClose }: { ctx: K
           >
             <div className="flex w-full items-baseline justify-between text-xs text-slate-500">
               <span className="tabular-nums">{i + 1}</span>
-              {c.degree === degree && <span className="text-sky-300">this chord</span>}
+              {c.degree === degree ? <span className="text-sky-300">this chord</span> : c.colour && <span className="text-amber-300/80">{colourTag} colour</span>}
             </div>
             <span className="text-lg font-light text-sky-300">{c.roman}</span>
             <span className="text-base font-medium text-slate-100">{c.name}</span>

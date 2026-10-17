@@ -3,6 +3,7 @@ import { Fraunces, Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import NoControlFocus from "@/components/NoControlFocus";
 import { THEME_BOOT } from "@/components/ThemeSwitcher";
+import { SITE_URL } from "@/lib/site";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,8 +24,9 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "Music Kit",
-  description: "Interactive piano - play with your keyboard",
+  description: "Guitar theory, exercises and practice tools: scales and modes in every key, chord shapes, CAGED, a tuner and a looper.",
 };
 
 export default function RootLayout({

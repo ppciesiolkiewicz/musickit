@@ -39,7 +39,7 @@ export default function ScaleOnGuitar({ ctx, player }: { ctx: KeyContext; player
   };
 
   return (
-    <section id="guitar" className="scroll-mt-4 rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5">
+    <section id="guitar" className="scroll-mt-48 rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5">
       <h2 className="mb-2 text-sm font-medium text-slate-100">
         {keyName} on the guitar
         <Info label="How do I read the neck?">

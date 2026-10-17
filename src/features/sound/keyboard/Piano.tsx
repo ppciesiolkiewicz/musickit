@@ -98,7 +98,7 @@ export default function Piano({ destination, voice, keyInfo, onNoteOn, onNoteOff
   const instrumentOptions = useInstrumentOptions();
   const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
   const [viewOctave, setViewOctave] = useState(3);
-  const [scaleTonic, setScaleTonic] = useState("C");
+  const [scaleTonic, setScaleTonic] = useState("E");
   const [scaleType, setScaleType] = useState("major");
   const [showScaleHighlight, setShowScaleHighlight] = useState(true);
   const [midiStatus, setMidiStatus] = useState<"disconnected" | "connecting" | "connected" | "error">("disconnected");

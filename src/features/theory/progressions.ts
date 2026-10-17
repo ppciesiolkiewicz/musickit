@@ -2,7 +2,7 @@
  * Progressions in a mode: the written list (PROG_LIST) and what it becomes in a key (chords, roman numerals, absolute roots).
  * Pure data and maths, no guitar and no sound.
  */
-import { analyseDegree, FAMILIES, rotate, shortModeName, spell, TONICS, TRIAD_SUFFIX } from "./theory";
+import { analyseDegree, DEFAULT_KEY_PC, FAMILIES, rotate, shortModeName, spell, TONICS, TRIAD_SUFFIX } from "./theory";
 
 /** One chord in a progression definition. Either a scale degree `d` or a chromatic step `st` from the tonic. */
 export type ProgItem =
@@ -126,11 +126,10 @@ export interface ResolvedProgression {
   sub: string;
 }
 
-const DEFAULT_TONIC_PC = 4; // E
 
 export function resolveProgression(P: Progression): ResolvedProgression {
   const fam = FAMILIES[P.fam];
-  const tonic = TONICS.find((t) => t.pc === (P.tonic ?? DEFAULT_TONIC_PC)) ?? TONICS[4];
+  const tonic = TONICS.find((t) => t.pc === (P.tonic ?? DEFAULT_KEY_PC)) ?? TONICS[4];
   const steps = rotate(fam.parent, P.k);
   const names = spell(tonic.letter, tonic.pc, steps);
   const scalePcs = P.pcs ?? steps.map((s) => (tonic.pc - 4 + 12 + s) % 12);

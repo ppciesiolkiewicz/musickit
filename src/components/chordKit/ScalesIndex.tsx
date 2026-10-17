@@ -2,17 +2,17 @@
 
 import { fmtDegree, scaleToneCaption, scaleToneLabel } from "@/features/theory/labels";
 import { useLabelSystem } from "@/features/theory/useLabelSystem";
-import { LabelsRow } from "@/components/LabelsRow";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { KeyPicker } from "./KeyPicker";
+import { ColourKey, ScaleSettingsBar, UNDER_BAR } from "./ScaleSettings";
 import ModeCompare from "./ModeCompare";
-import { Chip, DegreeLegend, Info, Section } from "@/components/ui";
+import { Section } from "@/components/ui";
 import { FAMILIES, makeKeyContext } from "@/features/theory/theory";
 import { MODE_PAGES, degreeColour, degreeLabels, relativesOf, DOT_INK } from "@/features/theory/scales";
 import { scaleCells, scaleLineMidi } from "@/lib/chordKit/scalePositions";
 import { ScaleNeck } from "./ScaleNeck";
 import { useNotePlayer } from "./useNotePlayer";
+import { keySlug, scaleHref } from "@/features/theory/keySlug";
 
 const ORD = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th"];
 
@@ -27,10 +27,9 @@ type PartId = keyof typeof PARTS;
 const PART_IDS = Object.keys(PARTS) as PartId[];
 
 /** Every mode side by side in one key: scale degrees, notes and relatives. */
-export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey: number; /** write ?key= to the address bar (off when embedded in another page) */ syncUrl?: boolean }) {
+export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey: number; /** write ?key=f-sharp to the address bar (off when embedded in another page) */ syncUrl?: boolean }) {
   const [tonicPc, setTonicPc] = useState(initialKey);
   const [system] = useLabelSystem();
-  const [necks, setNecks] = useState(true);
   const [open, setOpen] = useState<Record<PartId, boolean>>({ compare: false, major: true, harm: false, mel: false });
   const toggle = (id: PartId) => setOpen((o) => ({ ...o, [id]: !o[id] }));
   const setAll = (v: boolean) => setOpen({ compare: v, major: v, harm: v, mel: v });
@@ -57,7 +56,7 @@ export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey
     if (!syncUrl) return;
     try {
       const url = new URL(window.location.href);
-      url.searchParams.set("key", String(tonicPc));
+      url.searchParams.set("key", keySlug(tonicPc));
       window.history.replaceState(null, "", url);
     } catch {
       /* ignore */
@@ -79,41 +78,29 @@ export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5">
-        <KeyPicker tonicPc={tonicPc} onTonic={setTonicPc} />
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-          <DegreeLegend />
-          <Info label="How to read the cards">
-            Each card is one mode starting on the key you chose. The coloured circles are its seven notes in order: tap one to hear it, or press Play to hear the scale up and back down. The fretboard shows every place the scale falls on the first 12 frets; tap a dot to hear it. Open a mode for its positions on the whole neck: five pentatonic boxes, and the full scale filled into the same five boxes. The small label above each is the scale degree, written against the major scale, so ♭3 means the 3rd is lowered and ♯4 means the 4th is raised. Colour follows the degree: 1 white, 2 teal, 3 amber, 4 lime, 5 blue, 6 violet, 7 rose. Relative major and relative minor are the major and natural minor scales that use exactly the same seven notes.
-          </Info>
-        </div>
-      </div>
-
-      {/* floats over the cards while scrolling, so labels and sections can be switched from anywhere */}
-      <div className="sticky top-2 z-20 flex flex-col gap-2 rounded-2xl border border-slate-700 bg-slate-950/85 p-2.5 shadow-lg shadow-black/30 backdrop-blur">
-        <LabelsRow omit={["chord"]}>
-          <Chip on={necks} onClick={() => setNecks((v) => !v)}>Fretboards</Chip>
-        </LabelsRow>
-        <nav aria-label="Sections" className="flex flex-wrap items-center gap-1.5">
-          <span className="w-28 shrink-0 text-xs uppercase tracking-wider text-slate-500">Jump to</span>
-          {PART_IDS.map((id) => (
-            <button key={id} type="button" onClick={() => jump(id)} className="flex items-center gap-1.5 rounded-full border border-slate-700 px-2.5 py-0.5 text-xs text-slate-300 transition hover:border-slate-500 hover:text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
-              <span className="h-2 w-2 rounded-full" style={{ background: PARTS[id].accent }} aria-hidden />
-              {PARTS[id].label}
-            </button>
-          ))}
-          <button type="button" onClick={() => setAll(!allOpen)} className="ml-auto rounded-full px-2.5 py-0.5 text-xs text-sky-300 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
+      <ScaleSettingsBar
+        tonicPc={tonicPc}
+        onTonic={setTonicPc}
+        omitLabels={["chord"]}
+        jumps={PART_IDS.map((id) => ({ id, label: PARTS[id].label, accent: PARTS[id].accent }))}
+        onJump={(id) => jump(id as PartId)}
+        jumpExtra={
+          <button type="button" onClick={() => setAll(!allOpen)} className="ml-auto shrink-0 rounded-full px-2.5 py-0.5 text-xs text-sky-300 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
             {allOpen ? "Collapse all" : "Expand all"}
           </button>
-        </nav>
-      </div>
+        }
+      />
 
-      <div id="part-compare" className="scroll-mt-32">
+      <ColourKey title="Colour key and how to read the cards">
+        Each card is one mode starting on the key you chose. The coloured circles are its seven notes in order: tap one to hear it, or press Play to hear the scale up and back down. The fretboard shows every place the scale falls on the first 12 frets; tap a dot to hear it. Open a mode for its positions on the whole neck: five pentatonic boxes, and the full scale filled into the same five boxes. The small label above each is the scale degree, written against the major scale, so ♭3 means the 3rd is lowered and ♯4 means the 4th is raised. Colour follows the degree: 1 white, 2 teal, 3 amber, 4 lime, 5 blue, 6 violet, 7 rose. Relative major and relative minor are the major and natural minor scales that use exactly the same seven notes.
+      </ColourKey>
+
+      <div id="part-compare" className={UNDER_BAR}>
         <ModeCompare tonicPc={tonicPc} open={open.compare} onToggle={() => toggle("compare")} accent={PARTS.compare.accent} />
       </div>
 
       {rows.map(({ fam, modes }) => (
-        <div key={fam.id} id={`part-${fam.id}`} className="scroll-mt-32">
+        <div key={fam.id} id={`part-${fam.id}`} className={UNDER_BAR}>
         <Section title={fam.label} meta={`${modes.length} modes in ${modes[0].ctx.names[0]}`} open={open[fam.id]} onToggle={() => toggle(fam.id)} accent={PARTS[fam.id].accent}>
           <p className="mb-3 text-xs text-slate-400">{PARTS[fam.id].intro}</p>
           <div className="grid gap-3 lg:grid-cols-2">
@@ -124,7 +111,7 @@ export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey
               return (
               <article key={page.slug} className="flex min-w-0 flex-col gap-3 rounded-xl border border-slate-800 bg-slate-950/60 p-2.5">
                 <header>
-                  <Link href={`/theory/scales/${page.slug}?key=${tonicPc}`} className="group flex flex-wrap items-baseline gap-x-2 rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
+                  <Link href={scaleHref(page.slug, tonicPc)} className="group flex flex-wrap items-baseline gap-x-2 rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
                     <h3 className="text-base text-slate-100 group-hover:text-sky-300 group-hover:underline">{ctx.names[0]} {ctx.modeName}</h3>
                     <span className="text-xs text-slate-500 group-hover:text-slate-300">{fam.info[page.modeIndex].mood}</span>
                   </Link>
@@ -140,13 +127,11 @@ export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey
                   <button type="button" onClick={playScale} className="mb-1 ml-1 rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25">▶ Play</button>
                 </div>
 
-                {necks && (
-                  <ScaleNeck
-                    compact cells={cells} big={() => true} active={active} labelSystem={system}
-                    onNote={(c) => player.tap(`${page.slug}:d${c.degree}`, c.midi)}
-                    title={`${ctx.names[0]} ${ctx.modeName} on the first 12 frets`}
-                  />
-                )}
+                <ScaleNeck
+                  compact cells={cells} big={() => true} active={active} labelSystem={system}
+                  onNote={(c) => player.tap(`${page.slug}:d${c.degree}`, c.midi)}
+                  title={`${ctx.names[0]} ${ctx.modeName} on the first 12 frets`}
+                />
 
                 <p className="text-xs text-slate-400">
                   Degrees <span className="tabular-nums text-slate-300">{labels.map(fmtDegree).join(" ")}</span>
@@ -161,12 +146,12 @@ export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey
                   )}
                   {rel.relativeMajor && page.modeIndex !== 0 && (
                     <li>
-                      Relative major: <Link className="text-sky-300 hover:underline" href={`/theory/scales/${pageFor(0, 0).slug}?key=${rel.relativeMajor.tonicPc}`}>{rel.relativeMajor.tonic} major</Link> <span className="text-slate-500">(this mode starts on its {ORD[page.modeIndex]} degree)</span>
+                      Relative major: <Link className="text-sky-300 hover:underline" href={scaleHref(pageFor(0, 0).slug, rel.relativeMajor.tonicPc)}>{rel.relativeMajor.tonic} major</Link> <span className="text-slate-500">(this mode starts on its {ORD[page.modeIndex]} degree)</span>
                     </li>
                   )}
                   {rel.relativeMinor && page.modeIndex !== 5 && (
                     <li>
-                      Relative minor: <Link className="text-sky-300 hover:underline" href={`/theory/scales/${pageFor(0, 5).slug}?key=${rel.relativeMinor.tonicPc}`}>{rel.relativeMinor.tonic} natural minor</Link> <span className="text-slate-500">(starts on the 6th degree of {rel.parentTonic} major)</span>
+                      Relative minor: <Link className="text-sky-300 hover:underline" href={scaleHref(pageFor(0, 5).slug, rel.relativeMinor.tonicPc)}>{rel.relativeMinor.tonic} natural minor</Link> <span className="text-slate-500">(starts on the 6th degree of {rel.parentTonic} major)</span>
                     </li>
                   )}
                   {!rel.relativeMajor && (
@@ -180,10 +165,10 @@ export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey
                 </Section>
 
                 <div className="mt-auto flex flex-wrap gap-2">
-                  <Link href={`/theory/scales/${page.slug}?key=${tonicPc}`} className="rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-300 transition hover:border-sky-400 hover:text-sky-100">
+                  <Link href={scaleHref(page.slug, tonicPc)} className="rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-300 transition hover:border-sky-400 hover:text-sky-100">
                     Every chord in {ctx.names[0]} {ctx.modeName} →
                   </Link>
-                  <Link href={`/theory/scales/${page.slug}?key=${tonicPc}#guitar`} className="rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-300 transition hover:border-sky-400 hover:text-sky-100">
+                  <Link href={scaleHref(page.slug, tonicPc, "#guitar")} className="rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-300 transition hover:border-sky-400 hover:text-sky-100">
                     Positions on the neck →
                   </Link>
                 </div>

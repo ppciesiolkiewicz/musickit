@@ -6,6 +6,7 @@ import { NOTE_NAMES, RHYTHM_RATIOS, SCALES, degreeMidi, findScale, interference,
 import { playMelody, silence, startDrone, startLoop, type Hit, type Loop } from "./sound";
 import Slider from "@/components/Slider";
 import { ibtn } from "@/components/controls";
+import { DEFAULT_KEY_PC } from "@/features/theory/theory";
 
 const field = "h-8 rounded-md border border-slate-700 bg-slate-900 px-2 text-xs text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 const card = "flex flex-col gap-2 rounded-xl border border-slate-800 bg-slate-900/40 p-3";
@@ -117,7 +118,7 @@ function RhythmLab() {
 }
 
 function MotiveLab() {
-  const [root, setRoot] = useState(0);
+  const [root, setRoot] = useState(DEFAULT_KEY_PC);
   const [scaleId, setScaleId] = useState("major");
   const scale = findScale(scaleId);
   const [motive, setMotive] = useState([0, 2, 1, 4]);

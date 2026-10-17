@@ -97,6 +97,9 @@ export interface Tonic {
   letter: number;
 }
 
+/** The key every page opens in until you pick another: E, the lowest open string. */
+export const DEFAULT_KEY_PC = 4;
+
 export const TONICS: Tonic[] = [
   { name: "C", pc: 0, letter: 0 },
   { name: "D♭", pc: 1, letter: 1 },

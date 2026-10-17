@@ -9,8 +9,8 @@ const label = (s: Shape) => `${NAMES[openRootPc(s) ?? 0]}${s.suf}`;
 
 describe("open chords", () => {
   it("are the chords the course teaches, by name", () => {
-    const names = OPEN_SHAPES.map((s) => label(s)).sort();
-    assert.deepEqual(names, ["A", "A7", "Am", "Am7", "Asus2", "B7", "C", "C7", "Cadd9", "Cadd9", "D", "D7", "Dm", "Dsus2", "Dsus4", "E", "E7", "Em", "Em7", "Esus4", "Fmaj7", "G", "G7"].sort());
+    const names = OPEN_SHAPES.filter((s) => s.stage).map((s) => label(s)).sort();
+    assert.deepEqual(names, ["A", "A7", "Am", "Am7", "Asus2", "B7", "C", "C7", "Cadd9", "D", "D7", "Dm", "Dsus2", "Dsus4", "E", "E7", "Em", "Em7", "Esus4", "Fmaj7", "G", "G7"].sort());
   });
   it("stage 1 is the eight first chords", () => {
     assert.deepEqual(OPEN_SHAPES.filter((s) => s.stage === 1).map((s) => label(s)).sort(), ["A", "Am", "C", "D", "Dm", "E", "Em", "G"]);

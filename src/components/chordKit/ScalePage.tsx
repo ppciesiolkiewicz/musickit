@@ -1,12 +1,11 @@
 "use client";
 
-import { chordNoteLabel, indexOfDegree, scaleToneCaption, scaleToneLabel } from "@/features/theory/labels";
-import { useLabelRoot, useLabelSystem } from "@/features/theory/useLabelSystem";
-import { LabelsRow } from "@/components/LabelsRow";
+import { chordNoteLabel, scaleToneCaption, scaleToneLabel } from "@/features/theory/labels";
+import { useLabelSystem } from "@/features/theory/useLabelSystem";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { KeyPicker } from "./KeyPicker";
-import { Chip, DegreeLegend, Info } from "@/components/ui";
+import { ColourKey, ScaleSettingsBar, UNDER_BAR } from "./ScaleSettings";
+import { Chip, Info } from "@/components/ui";
 import { FAMILIES, makeKeyContext } from "@/features/theory/theory";
 import { MODE_PAGES, chordMidi, modeChords, degreeColour, relativesOf, roleWithDegree, stepPattern, DOT_INK } from "@/features/theory/scales";
 import { strum } from "@/lib/chordKit/playback";
@@ -17,27 +16,36 @@ import ChordBubbles from "./ChordBubbles";
 import ScaleOnGuitar from "./ScaleOnGuitar";
 import { useNotePlayer } from "./useNotePlayer";
 import { scaleLineMidi } from "@/lib/chordKit/scalePositions";
+import { scaleHref } from "@/features/theory/keySlug";
+
+const JUMPS = [
+  { id: "scale-notes", label: "Notes" },
+  { id: "guitar", label: "On the guitar" },
+  { id: "relatives", label: "Relatives" },
+  { id: "chords", label: "Chords" },
+  { id: "sus", label: "Sus and extensions" },
+];
 
 const STACK_LABELS = ["root", "3rd", "5th", "7th", "9th", "11th", "13th"];
 
 /** Dedicated page for one mode: key picker, relatives, and every chord with its notes coloured by scale degree. */
-export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl = true }: { familyIndex: number; modeIndex: number; initialKey: number; /** write ?key= to the address bar (off when embedded in another page) */ syncUrl?: boolean }) {
+export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl = true }: { familyIndex: number; modeIndex: number; initialKey: number; /** write the key to the address bar (off when embedded in another page) */ syncUrl?: boolean }) {
   const [tonicPc, setTonicPc] = useState(initialKey);
   const [extended, setExtended] = useState(false);
   const [playing, setPlaying] = useState<number | null>(null);
   const [modalDegree, setModalDegree] = useState<number | null>(null);
   const [progDegree, setProgDegree] = useState<number | null>(null);
 
+  const slug = MODE_PAGES.find((p) => p.familyIndex === familyIndex && p.modeIndex === modeIndex)!.slug;
   useEffect(() => {
     if (!syncUrl) return;
     try {
-      const url = new URL(window.location.href);
-      url.searchParams.set("key", String(tonicPc));
-      window.history.replaceState(null, "", url);
+      // the key is part of the address (/theory/scales/dorian/f-sharp), so a shared or reloaded link opens in it
+      window.history.replaceState(null, "", scaleHref(slug, tonicPc, window.location.hash));
     } catch {
       /* ignore */
     }
-  }, [tonicPc, syncUrl]);
+  }, [slug, tonicPc, syncUrl]);
 
   const ctx = useMemo(() => makeKeyContext(tonicPc, familyIndex, modeIndex), [tonicPc, familyIndex, modeIndex]);
   const chords = useMemo(() => modeChords(ctx), [ctx]);
@@ -46,10 +54,8 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
   const info = fam.info[modeIndex];
   const pageFor = (f: number, m: number) => MODE_PAGES.find((p) => p.familyIndex === f && p.modeIndex === m)!;
 
+  const colour = (n: { scaleDegree: number }) => degreeColour(n.scaleDegree);
   const [system] = useLabelSystem();
-  const [from] = useLabelRoot();
-  // a chord's notes are coloured from the same root their labels count from
-  const colour = (n: { scaleDegree: number; role: string }) => degreeColour(from === "chord" ? indexOfDegree(n.role) ?? 0 : n.scaleDegree);
   const pattern = stepPattern(ctx.steps);
 
   const play = (d: number) => {
@@ -62,18 +68,23 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
   const degreeOf = (midi: number) => ctx.steps.indexOf((midi - ctx.tonic.pc + 120) % 12);
   const playScale = () => player.play(line.map((m) => ({ key: `d${degreeOf(m)}`, midi: m })), 240);
 
-  const siblingLink = (s: { modeIndex: number; tonicPc: number }) => `/theory/scales/${pageFor(familyIndex, s.modeIndex).slug}?key=${s.tonicPc}`;
+  const siblingLink = (s: { modeIndex: number; tonicPc: number }) => scaleHref(pageFor(familyIndex, s.modeIndex).slug, s.tonicPc);
 
   return (
     <div className="flex flex-col gap-5">
-      {syncUrl && (
-        <Link href={`/theory/scales?key=${tonicPc}#part-${fam.id}`} className="self-start rounded-md text-sm text-sky-300 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
-          ← Back to mode selection
-        </Link>
-      )}
-      <div className="flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5">
-        <KeyPicker tonicPc={tonicPc} onTonic={setTonicPc} />
-        <LabelsRow />
+      <ScaleSettingsBar
+        tonicPc={tonicPc}
+        onTonic={setTonicPc}
+        scale={syncUrl ? slug : undefined}
+        jumps={JUMPS}
+        onJump={(id) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" })}
+      />
+
+      <ColourKey>
+        Colour shows the job a note does in the key, not how high it is. The 1st degree (home) is white, the 3rd is amber because it decides major or minor, the 5th is blue, and the 7th is rose. The 2nd, 4th and 6th are teal, lime and violet. A flattened or raised note keeps the colour of its degree, so the ♭3 is still amber, and its label tells you it is flat. The same note has the same colour in every chord.
+      </ColourKey>
+
+      <div id="scale-notes" className={`flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5 ${UNDER_BAR}`}>
         <h2 className="text-2xl font-light tracking-wide text-slate-100">
           {ctx.names[0]} {ctx.modeName}
         </h2>
@@ -88,7 +99,6 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
             </button>
           ))}
           <button type="button" onClick={playScale} className="ml-2 rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25">▶ Play scale</button>
-          <a href="#guitar" className="rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-300 hover:border-sky-400 hover:text-sky-100">On the guitar ↓</a>
         </div>
         <p className="text-xs text-slate-400">
           Step pattern <span className="tabular-nums text-slate-300">{pattern.join(" – ")}</span>
@@ -98,7 +108,7 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
 
       <ScaleOnGuitar ctx={ctx} player={player} />
 
-      <section className="rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5">
+      <section id="relatives" className={`rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5 ${UNDER_BAR}`}>
         <h2 className="mb-2 text-sm font-medium text-slate-100">Relatives of {ctx.names[0]} {ctx.modeName}</h2>
         <ul className="space-y-1.5 text-sm text-slate-300">
           {modeIndex !== 0 && !rel.relativeMajor && (
@@ -108,13 +118,13 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
           )}
           {rel.relativeMajor && modeIndex !== 0 && (
             <li>
-              Relative major: <Link className="text-sky-300 hover:underline" href={`/theory/scales/${pageFor(0, 0).slug}?key=${rel.relativeMajor.tonicPc}`}>{rel.relativeMajor.tonic} major</Link> <span className="text-slate-500">(this mode starts on its {["1st", "2nd", "3rd", "4th", "5th", "6th", "7th"][modeIndex]} degree)</span>
+              Relative major: <Link className="text-sky-300 hover:underline" href={scaleHref(pageFor(0, 0).slug, rel.relativeMajor.tonicPc)}>{rel.relativeMajor.tonic} major</Link> <span className="text-slate-500">(this mode starts on its {["1st", "2nd", "3rd", "4th", "5th", "6th", "7th"][modeIndex]} degree)</span>
               <Info label="What is a relative major?">The major scale that uses exactly the same notes. Here the notes {ctx.names.join(" ")} also make {rel.relativeMajor.tonic} major when you start on {rel.relativeMajor.tonic}.</Info>
             </li>
           )}
           {rel.relativeMinor && modeIndex !== 5 && (
             <li>
-              Relative minor: <Link className="text-sky-300 hover:underline" href={`/theory/scales/${pageFor(0, 5).slug}?key=${rel.relativeMinor.tonicPc}`}>{rel.relativeMinor.tonic} natural minor</Link> <span className="text-slate-500">(starts on the 6th degree of {rel.relativeMajor?.tonic ?? rel.parentTonic} major)</span>
+              Relative minor: <Link className="text-sky-300 hover:underline" href={scaleHref(pageFor(0, 5).slug, rel.relativeMinor.tonicPc)}>{rel.relativeMinor.tonic} natural minor</Link> <span className="text-slate-500">(starts on the 6th degree of {rel.relativeMajor?.tonic ?? rel.parentTonic} major)</span>
               <Info label="What is a relative minor?">The natural minor scale (Aeolian) built on the 6th note of that major scale. Same seven notes, different home note.</Info>
             </li>
           )}
@@ -138,7 +148,7 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
         </div>
       </section>
 
-      <section className="rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5">
+      <section id="chords" className={`rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5 ${UNDER_BAR}`}>
         <div className="mb-3 flex flex-wrap items-center gap-2">
           <h2 className="text-sm font-medium text-slate-100">Every chord in {ctx.names[0]} {ctx.modeName}</h2>
           <span className="ml-auto flex flex-wrap items-center gap-1.5">
@@ -147,24 +157,16 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
           </span>
         </div>
 
-        <div className="mb-3">
-          <DegreeLegend />
-          <Info label="How are the colours chosen?">
-            Colour shows the job a note does in the key, not how high it is. The 1st degree (home) is white, the 3rd is amber because it decides major or minor, the 5th is blue, and the 7th is rose. The 2nd, 4th and 6th are teal, lime and violet. A flattened or raised note keeps the colour of its degree, so the ♭3 is still amber, and its label tells you it is flat. The same note has the same colour in every chord. Set Count from to Chord root to colour and label each chord from its own root instead: then every chord's root is white.
-          </Info>
-        </div>
-
         <ul className="flex flex-col gap-2">
           {chords.map((c) => {
             const shown = extended ? c.notes : c.notes.slice(0, 4);
             return (
               <li key={c.degree} className="flex flex-wrap items-center gap-2 rounded-xl border border-slate-800 bg-slate-950/40 p-1">
-                <div className="flex min-w-0 flex-1 basis-72 flex-col gap-1">
                 <button
                   type="button"
                   onClick={() => play(c.degree)}
                   title="Tap to hear it"
-                  className={`flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border px-3 py-2.5 text-left transition hover:border-slate-600 ${playing === c.degree ? "border-sky-400 bg-slate-800/80" : "border-transparent"}`}
+                  className={`flex min-w-0 flex-1 basis-72 flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border px-3 py-2.5 text-left transition hover:border-slate-600 ${playing === c.degree ? "border-sky-400 bg-slate-800/80" : "border-transparent"}`}
                 >
                   <span className="w-12 shrink-0 text-lg font-light text-sky-300">{c.roman}</span>
                   <span className="min-w-[8rem]">
@@ -174,18 +176,13 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
                   <span className="flex flex-wrap gap-1.5">
                     {shown.map((n) => (
                       <span key={n.role + n.name} className="flex flex-col items-center">
-                        <span className="flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold" style={{ background: colour(n), color: DOT_INK }} title={n.name}>{chordNoteLabel(system, ctx, n, from)}</span>
+                        <span className="flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold" style={{ background: colour(n), color: DOT_INK }} title={n.name}>{chordNoteLabel(system, ctx, n)}</span>
                         <span className="text-[10px] text-slate-500">{system === "note" ? roleWithDegree(n.role) : n.name}</span>
                       </span>
                     ))}
                   </span>
                 </button>
-                <div className="flex items-center gap-3 px-3 pb-1 text-xs">
-                  <button type="button" onClick={() => setProgDegree(c.degree)} className="text-sky-300 hover:underline">Progression →</button>
-                  <button type="button" onClick={() => setModalDegree(c.degree)} className="text-sky-300 hover:underline">All shapes →</button>
-                </div>
-                </div>
-                <ChordShapeCarousel ctx={ctx} degree={c.degree} />
+                <ChordShapeCarousel ctx={ctx} degree={c.degree} onShowAll={() => setModalDegree(c.degree)} onShowProgression={() => setProgDegree(c.degree)} />
               </li>
             );
           })}
@@ -195,7 +192,7 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
         </p>
       </section>
 
-      <section className="rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5">
+      <section id="sus" className={`rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5 ${UNDER_BAR}`}>
         <h2 className="mb-1 text-sm font-medium text-slate-100">Sus and extension chords from each chord</h2>
         <p className="mb-3 text-xs text-slate-400">From {ctx.chords[0].triadName} you can go through the 2nd of the scale to sus2 and 9 chords, through the 4th to sus4 and 11, and so on. All seven chords of {ctx.names[0]} {ctx.modeName}.</p>
         <ChordBubbles ctx={ctx} />

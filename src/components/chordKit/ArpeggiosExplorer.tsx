@@ -13,6 +13,8 @@ import { strum } from "@/lib/chordKit/playback";
 import { fmtDegree, noteLabel, type LabelSystem } from "@/features/theory/labels";
 import { useLabelSystem } from "@/features/theory/useLabelSystem";
 import { LabelsRow } from "@/components/LabelsRow";
+import { DEFAULT_KEY_PC } from "@/features/theory/theory";
+import { scaleHref } from "@/features/theory/keySlug";
 
 const KINDS = [
   { id: "triad", label: "Scale triad" },
@@ -102,7 +104,7 @@ function ArpBox({ cells, win, overlay, labelSystem, badges, onNote }: { cells: N
   );
 }
 /** Arpeggios over any scale or mode: pick the scale, then the arpeggio, and see both on the whole neck. */
-export default function ArpeggiosExplorer({ initialTonic = 0, initialFamily = 0, initialMode = 0 }: { initialTonic?: number; initialFamily?: number; initialMode?: number } = {}) {
+export default function ArpeggiosExplorer({ initialTonic = DEFAULT_KEY_PC, initialFamily = 0, initialMode = 0 }: { initialTonic?: number; initialFamily?: number; initialMode?: number } = {}) {
   const [tonicPc, setTonicPc] = useState(initialTonic);
   const [fam, setFam] = useState(initialFamily);
   const [mode, setMode] = useState(initialMode);
@@ -129,7 +131,7 @@ export default function ArpeggiosExplorer({ initialTonic = 0, initialFamily = 0,
         <ModePicker familyIndex={fam} modeIndex={mode} onChange={(f, m) => { setFam(f); setMode(m); setDegree(0); }} />
         <p className="text-xs text-slate-400">
           Scale: <b className="text-slate-200">{ctx.names[0]} {ctx.modeName}</b> · {ctx.names.join(" ")}
-          {page && <> · <Link className="text-sky-300 hover:underline" href={`/theory/scales/${page.slug}?key=${tonicPc}`}>mode page</Link></>}
+          {page && <> · <Link className="text-sky-300 hover:underline" href={scaleHref(page.slug, tonicPc)}>mode page</Link></>}
         </p>
 
         <ChipRow label="Arpeggio on" info="Which note of the scale the arpeggio starts on, shown as a Roman numeral and the note name. An arpeggio is a chord played one note at a time.">

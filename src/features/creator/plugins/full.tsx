@@ -12,6 +12,7 @@ import CircleOfFifths from "@/components/theory/CircleOfFifths";
 import TuningsArticle from "@/components/theory/TuningsArticle";
 import { PROG_LIST } from "@/features/theory";
 import { useCreatorKey } from "../KeyProvider";
+import { DEFAULT_KEY_PC } from "@/features/theory/theory";
 
 /**
  * The full views: each theory page itself, started on the creator's key (C when there is none). A page keeps its own pickers;
@@ -19,7 +20,7 @@ import { useCreatorKey } from "../KeyProvider";
  */
 function useStart() {
   const { ctx, choice } = useCreatorKey();
-  const tonic = choice.tonicPc ?? 0;
+  const tonic = choice.tonicPc ?? DEFAULT_KEY_PC;
   return { ctx, choice, tonic, minor: !!ctx && ctx.steps[2] === 3, id: `${choice.tonicPc}-${choice.family}-${choice.mode}` };
 }
 

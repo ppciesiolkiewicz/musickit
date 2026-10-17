@@ -8,6 +8,7 @@ import {
   rotate, signatureNotes, signatureText, tonicName, type CircleChord, type CircleKey,
 } from "@/features/theory";
 import { playMelody, strum } from "@/features/sound";
+import { DEFAULT_KEY_PC } from "@/features/theory/theory";
 
 const C = 200;
 const R_MAJ = 160, R_MIN = 118, R_DIM = 80, R_SIG = 192;
@@ -147,6 +148,6 @@ function KeyDetails({ value, sig, onChange }: { value: CircleKey; sig: number; o
 
 /** The circle page: the circle holding its own key, starting on C major. */
 export function CircleOfFifthsPage() {
-  const [k, setK] = useState<CircleKey | null>({ pc: 0, minor: false });
+  const [k, setK] = useState<CircleKey | null>({ pc: DEFAULT_KEY_PC, minor: false });
   return <CircleOfFifths value={k} onChange={setK} />;
 }

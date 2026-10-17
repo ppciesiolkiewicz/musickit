@@ -3,12 +3,12 @@
 import { useEffect, useMemo, useState } from "react";
 import ChordDiagram from "./ChordDiagram";
 import { DIFF_CLASS } from "./palette";
-import { carouselStep, shapesForChord } from "@/lib/chordKit/chordShapes";
+import { carouselStep, placedChordName, shapesForChord } from "@/lib/chordKit/chordShapes";
 import type { KeyContext } from "@/features/theory/theory";
 import { strumShape } from "@/lib/chordKit/playback";
 
-/** One guitar shape for one chord of the mode, with previous/next arrows and a play button. */
-export default function ChordShapeCarousel({ ctx, degree }: { ctx: KeyContext; degree: number }) {
+/** One guitar shape for one chord of the mode, with previous/next arrows, a play button, and links to a progression and the full list. */
+export default function ChordShapeCarousel({ ctx, degree, onShowAll, onShowProgression }: { ctx: KeyContext; degree: number; onShowAll: () => void; onShowProgression: () => void }) {
   const list = useMemo(() => shapesForChord(ctx, degree), [ctx, degree]);
   const [i, setI] = useState(0);
   const [playing, setPlaying] = useState(false);
@@ -17,7 +17,7 @@ export default function ChordShapeCarousel({ ctx, degree }: { ctx: KeyContext; d
   const cur = list[Math.min(i, list.length - 1)];
   if (!cur) return <p className="text-xs text-slate-500">No shape in the library for this chord yet.</p>;
   const idx = Math.min(i, list.length - 1);
-  const name = ctx.names[degree] + cur.shape.suf;
+  const name = placedChordName(ctx, degree, cur.shape);
   const go = (d: number) => setI((n) => carouselStep(n, d, list.length));
   const play = () => {
     strumShape(cur.shape, cur.fret);
@@ -50,6 +50,10 @@ export default function ChordShapeCarousel({ ctx, degree }: { ctx: KeyContext; d
         <span className="tabular-nums">{cur.shape.at !== undefined ? "open" : `fret ${cur.fret}`}</span>
         {cur.shape.v && <span>· {cur.shape.v}</span>}
         {!cur.full && <span className="text-slate-500">· {cur.exact ? "smaller chord, also fits" : "adds mode notes"}</span>}
+      </div>
+      <div className="flex items-center justify-center gap-3 text-xs">
+        <button type="button" onClick={onShowProgression} className="text-sky-300 hover:underline">Progression →</button>
+        <button type="button" onClick={onShowAll} className="text-sky-300 hover:underline">All shapes →</button>
       </div>
     </div>
   );

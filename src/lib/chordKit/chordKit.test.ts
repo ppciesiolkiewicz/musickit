@@ -247,11 +247,11 @@ describe("chord shapes for a mode chord", () => {
     const [first] = shapesForChord(ctx, 6); // Bm7♭5 in C major
     assert.ok(first.full && shapeSemitones(first.shape).includes(10));
   });
-  it("keeps the ♭5 of a half-diminished chord, so a bare m7 shell is never offered as Bm7♭5", () => {
+  it("offers shapes for a half-diminished chord, each with its ♭3 (an m7 shell is named m7♭5, see placedChordName)", () => {
     for (const [ctx, d] of [[makeKeyContext(4, 0, 2), 4], [makeKeyContext(0, 0, 0), 6]] as const) {
       const list = shapesForChord(ctx, d, ["easy", "medium", "hard"]);
       assert.ok(list.length > 0);
-      list.forEach((c) => assert.ok(shapeSemitones(c.shape).includes(6), `${c.shape.suf} ${c.shape.f}`));
+      list.forEach((c) => assert.ok(shapeSemitones(c.shape).includes(3), `${c.shape.suf} ${c.shape.f}`));
     }
   });
   it("places the root on the right pitch class", () => {

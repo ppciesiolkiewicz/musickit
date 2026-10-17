@@ -9,6 +9,7 @@ import { neighbours, regionOf, type Neighbour } from "@/lib/chordKit/neighbours"
 import { STRING_GROUPS, INVERSIONS, triadVoicings } from "@/lib/chordKit/triads";
 import { OPEN_MIDI } from "@/lib/chordKit/shapeTools";
 import { strumShape, strum } from "@/lib/chordKit/playback";
+import { DEFAULT_KEY_PC } from "@/features/theory/theory";
 
 const KEYS = ["C", "D♭", "D", "E♭", "E", "F", "F♯", "G", "A♭", "A", "B♭", "B"];
 const COLOUR: Record<string, string> = { I: "#f8fafc", IV: "#38bdf8", V: "#f59e0b", ii: "#a78bfa", vi: "#34d399", iii: "#f472b6" };
@@ -48,7 +49,7 @@ function Bubble({ n, selected, onSelect, onMakeI }: { n: Neighbour; selected: bo
 
 /** I IV V and the relative minors ii vi iii, each in the CAGED shape that sits in the same few frets as the I chord. */
 export default function NeighboursView() {
-  const [rootPc, setRootPc] = useState(0);
+  const [rootPc, setRootPc] = useState(DEFAULT_KEY_PC);
   const [letter, setLetter] = useState<CagedLetter>("C");
   const [sel, setSel] = useState("I");
   const [triads, setTriads] = useState(false);

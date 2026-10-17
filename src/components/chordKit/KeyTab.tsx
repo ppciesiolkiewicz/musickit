@@ -10,9 +10,11 @@ import { keyEntries } from "@/lib/chordKit/shapeTools";
 import { FAMILIES, makeKeyContext } from "@/features/theory/theory";
 import { MODE_PAGES, chordMidi } from "@/features/theory/scales";
 import { strum } from "@/lib/chordKit/playback";
+import { DEFAULT_KEY_PC } from "@/features/theory/theory";
+import { scaleHref } from "@/features/theory/keySlug";
 
 /** Pick a key and mode; see every shape that plays a chord of that key, grouped by shape. */
-export default function KeyTab({ initialTonic = 7, initialFamily = 0, initialMode = 0 }: { initialTonic?: number; initialFamily?: number; initialMode?: number } = {}) {
+export default function KeyTab({ initialTonic = DEFAULT_KEY_PC, initialFamily = 0, initialMode = 0 }: { initialTonic?: number; initialFamily?: number; initialMode?: number } = {}) {
   const [tonicPc, setTonicPc] = useState(initialTonic);
   const [fam, setFam] = useState(initialFamily);
   const [mode, setMode] = useState(initialMode);
@@ -41,7 +43,7 @@ export default function KeyTab({ initialTonic = 7, initialFamily = 0, initialMod
             <p><b className="text-slate-200">What makes it:</b> {info.char} <b className="text-slate-200">Sound:</b> {info.mood} <b className="text-slate-200">Use:</b> {info.use}</p>
             {page && (
               <p className="mt-1">
-                <Link className="text-sky-300 hover:underline" href={`/theory/scales/${page.slug}?key=${tonicPc}`}>Open the full {ctx.modeName} page with every chord and its notes →</Link>
+                <Link className="text-sky-300 hover:underline" href={scaleHref(page.slug, tonicPc)}>Open the full {ctx.modeName} page with every chord and its notes →</Link>
               </p>
             )}
           </div>

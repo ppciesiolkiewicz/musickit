@@ -5,7 +5,7 @@ const N = null;
 /**
  * Open-position chords: each is one chord, not a movable shape.
  * `f` holds offsets from the root fret like every other shape, and `at` is that root fret, so `at + f` is the real fret (0 = open string).
- * `stage` is the course stage that teaches the chord.
+ * `stage` is the course stage that teaches the chord; chords without one are extra voicings outside the course.
  */
 export const OPEN_SHAPES: Shape[] = [
   // ---------- stage 1: the first eight chords ----------
@@ -29,9 +29,17 @@ export const OPEN_SHAPES: Shape[] = [
   {rs:6,suf:'m7',  fam:'minor',   ext:'7',    at:0,stage:2,f:[0,2,2,0,3,0],      tags:['open','pop'],exp:[0,3,7,10]},
   {rs:5,suf:'m7',  fam:'minor',   ext:'7',    at:0,stage:2,f:[N,0,2,0,1,0],      tags:['open','pop'],exp:[0,3,7,10]},
   {rs:5,suf:'add9',fam:'major',   ext:'9',    at:3,stage:2,f:[N,0,-1,-3,0,0],    tags:['open','pop'],exp:[0,2,4,7],n:{2:'9'}},
-  {rs:5,suf:'add9',v:'open E',fam:'major',ext:'9',at:3,stage:2,f:[N,0,-1,-3,0,-3], tags:['open','pop'],exp:[0,2,4,7],n:{2:'9'},note:'Open C with the D on the B string instead of C: it rings bright and open.'},
   {rs:5,suf:'sus2',fam:'sus',     ext:'triad',at:0,stage:2,f:[N,0,2,2,0,0],      tags:['open','pop','sus'],exp:[0,2,7],n:{2:'2'}},
   {rs:4,suf:'sus2',fam:'sus',     ext:'triad',at:0,stage:2,f:[N,N,0,2,3,0],      tags:['open','pop','sus'],exp:[0,2,7],n:{2:'2'}},
   {rs:4,suf:'sus4',fam:'sus',     ext:'triad',at:0,stage:2,f:[N,N,0,2,3,3],      tags:['open','pop','sus'],exp:[0,5,7],n:{5:'4'}},
   {rs:6,suf:'sus4',fam:'sus',     ext:'triad',at:0,stage:2,f:[0,2,2,2,0,0],      tags:['open','pop','sus'],exp:[0,5,7],n:{5:'4'}},
+
+  // ---------- not in the course: open voicings that keep notes ringing between chords ----------
+  {rs:5,suf:'maj7',fam:'major',   ext:'7',    at:3,f:[N,0,-1,-3,-3,-3],  tags:['open','pop'],exp:[0,4,7,11],note:'C with the top three strings left open.'},
+  {rs:6,suf:'maj7',fam:'major',   ext:'7',    at:3,f:[0,-1,-3,-3,-3,-1], tags:['open','pop'],exp:[0,4,7,11]},
+  {rs:5,suf:'maj7',fam:'major',   ext:'7',    at:0,f:[N,0,2,1,2,0],      tags:['open','pop'],exp:[0,4,7,11]},
+  {rs:4,suf:'maj7',fam:'major',   ext:'7',    at:0,f:[N,N,0,2,2,2],      tags:['open','pop'],exp:[0,4,7,11]},
+  {rs:4,suf:'m7',  fam:'minor',   ext:'7',    at:0,f:[N,N,0,2,1,1],      tags:['open','pop'],exp:[0,3,7,10]},
+  {rs:5,suf:'m7',  fam:'minor',   ext:'7',    at:2,f:[N,0,-2,0,-2,0],    tags:['open','pop'],exp:[0,3,7,10]},
+  {rs:6,suf:'m(add9)',fam:'minor',ext:'9',    at:0,f:[0,2,2,0,0,2],      tags:['open','pop'],exp:[0,2,3,7],n:{2:'9'}},
 ];

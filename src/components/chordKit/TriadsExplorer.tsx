@@ -10,6 +10,7 @@ import { TONICS } from "@/features/theory/theory";
 import { toneLabel } from "@/features/theory/labels";
 import { useLabelSystem } from "@/features/theory/useLabelSystem";
 import { LabelsRow } from "@/components/LabelsRow";
+import { DEFAULT_KEY_PC } from "@/features/theory/theory";
 
 /** Small chord box for three adjacent strings. */
 export function TriadBox({ v, rootPc, onPlay, active }: { v: TriadVoicing; rootPc: number; onPlay: () => void; active: boolean }) {
@@ -49,7 +50,7 @@ export function TriadBox({ v, rootPc, onPlay, active }: { v: TriadVoicing; rootP
   );
 }
 
-export default function TriadsExplorer({ initialTonic = 0, initialQuality = "maj" }: { initialTonic?: number; initialQuality?: TriadQuality } = {}) {
+export default function TriadsExplorer({ initialTonic = DEFAULT_KEY_PC, initialQuality = "maj" }: { initialTonic?: number; initialQuality?: TriadQuality } = {}) {
   const [tonicPc, setTonicPc] = useState(initialTonic);
   const [quality, setQuality] = useState<TriadQuality>(initialQuality);
   const [groupIds, setGroupIds] = useState<string[]>(STRING_GROUPS.map((g) => g.id));

@@ -1,3 +1,4 @@
+import { DEFAULT_KEY_PC } from "@/features/theory/theory";
 /**
  * Scale Piano layout: the computer keyboard played as an instrument locked to a key and scale.
  * Every key sounds a note of the chosen scale, so nothing you press is out of key.
@@ -36,7 +37,7 @@ export interface ScalePianoState {
   octave: number;
 }
 
-export const DEFAULT_SCALE_PIANO: ScalePianoState = { root: 0, scale: "major", octave: 3 };
+export const DEFAULT_SCALE_PIANO: ScalePianoState = { root: DEFAULT_KEY_PC, scale: "major", octave: 3 };
 export const MIN_OCTAVE = 0;
 export const MAX_OCTAVE = 6;
 
