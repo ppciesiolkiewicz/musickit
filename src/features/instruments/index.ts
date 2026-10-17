@@ -17,6 +17,7 @@ export * from "./model";
 export { default as DroneControls } from "./drone/DroneControls";
 export { default as DroneScope } from "./drone/DroneScope";
 export { default as StepGrid, PatternBar } from "./sequencer/StepGrid";
+export { default as PartLevel } from "./sequencer/PartLevel";
 export { default as Jam } from "./jam/Jam";
 export { default as PocketTools } from "./pocket/PocketTools";
 export { default as EffectControls } from "./effects/EffectControls";

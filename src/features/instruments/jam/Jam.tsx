@@ -6,6 +6,7 @@ import { getAudioContext, getOutputBus } from "@/features/sound";
 import DroneControls from "../drone/DroneControls";
 import { NOTE_NAMES, droneName, type DroneParams } from "../drone/drone";
 import StepGrid, { PatternBar } from "../sequencer/StepGrid";
+import PartLevel from "../sequencer/PartLevel";
 import { MAX_BPM, MIN_BPM } from "./clock";
 import { BEATS_PER_BAR, JAM_PARTS, JamRig, type JamPart, type JamPartView, type JamSaved } from "./rig";
 import JamLoops from "./JamLoops";
@@ -135,7 +136,8 @@ export default function Jam() {
         return (
           <section key={p} aria-label={inst.name} className={card}>
             <PatternBar instrument={inst} bars={v.state.bars} onPreset={(id) => rig.loadPreset(p, id)} onBars={(b) => rig.setBars(p, b)} onClear={() => rig.clear(p)}
-              leading={<><PlayButton on={v.state.playing} name={inst.name.toLowerCase()} onClick={() => toggle(p)} /><Title view={v}>{p === "bass" ? `${inst.name} · ${key} minor pentatonic` : inst.name}</Title></>} />
+              leading={<><PlayButton on={v.state.playing} name={inst.name.toLowerCase()} onClick={() => toggle(p)} /><Title view={v}>{p === "bass" ? `${inst.name} · ${key} minor pentatonic` : inst.name}</Title></>}
+              trailing={<PartLevel name={inst.name.toLowerCase()} volume={v.volume} muted={v.muted} onVolume={(volume) => rig.setLevel(p, { volume })} onMute={(muted) => rig.setLevel(p, { muted })} />} />
             <StepGrid instrument={inst} cells={v.state.cells} steps={v.steps} beatsPerBar={BEATS_PER_BAR} musicKey={p === "bass" ? drone.state.drone.root : undefined} position={() => rig.position(p)} onStep={(l, s, val) => rig.setStep(p, l, s, val)} fit />
           </section>
         );

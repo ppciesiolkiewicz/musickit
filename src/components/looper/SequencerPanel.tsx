@@ -1,9 +1,9 @@
 "use client";
 
-import { DroneControls, PatternBar, StepGrid } from "@/features/instruments";
+import { DroneControls, PartLevel, PatternBar, StepGrid } from "@/features/instruments";
 import { INSTRUMENTS, type LooperEngine, type LooperSnapshot } from "@/lib/looper/engine";
 import type { SeqPatch } from "@/lib/looper/actions";
-import { Slider, ibtn, Select } from "@/components/ui";
+import { Select } from "@/components/ui";
 
 type Seq = LooperSnapshot["sequencers"][number];
 
@@ -32,10 +32,7 @@ export default function SequencerPanel({ engine, snap, id }: { engine: LooperEng
       <PatternBar instrument={inst} bars={sq.bars} onPreset={(preset) => set({ preset })} onBars={(bars) => set({ bars })} onClear={() => set({ clear: true })}
         leading={head}
         trailing={strip && (
-          <span className="flex items-center gap-1.5">
-            <button type="button" className={`${ibtn} ${strip.muted ? "!border-amber-400 !text-amber-200" : ""}`} aria-pressed={strip.muted} onClick={() => engine.do({ type: "input.set", id: strip.id, patch: { muted: !strip.muted } })} title="Mute" aria-label={`Mute ${sq.name}`}>M</button>
-            <Slider min={0} max={1} step={0.01} value={Math.min(1, strip.volume)} onChange={(v) => engine.do({ type: "input.set", id: strip.id, patch: { volume: v } })} className="w-24" aria-label={`Volume of ${sq.name}`} title={`Volume ${Math.round(strip.volume * 100)}%`} />
-          </span>
+          <PartLevel name={sq.name} volume={strip.volume} muted={strip.muted} onMute={(muted) => engine.do({ type: "input.set", id: strip.id, patch: { muted } })} onVolume={(volume) => engine.do({ type: "input.set", id: strip.id, patch: { volume } })} />
         )} />
       <StepGrid instrument={inst} cells={sq.cells} steps={sq.steps} beatsPerBar={snap.metronome.beatsPerBar} position={() => seq.position()}
         onStep={(lane, step, value) => engine.do({ type: "sequencer.step", id, lane, step, value })} />

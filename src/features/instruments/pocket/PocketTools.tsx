@@ -9,6 +9,7 @@ import { tapTempo, type ClickParams } from "../click/click";
 import { DEFAULT_DRONE, DRONE_MAX_OCTAVE, DRONE_MIN_OCTAVE, NOTE_NAMES, droneName, type DroneParams } from "../drone/drone";
 import DroneControls from "../drone/DroneControls";
 import StepGrid, { PatternBar } from "../sequencer/StepGrid";
+import PartLevel from "../sequencer/PartLevel";
 import { MAX_BPM, MIN_BPM } from "../jam/clock";
 import { BEATS_PER_BAR, JAM_PARTS, JamRig, type JamPart, type JamSaved } from "../jam/rig";
 import { Select, Slider } from "@/components/ui";
@@ -244,7 +245,8 @@ export default function PocketTools({ keyPc, className = "" }: { keyPc: number; 
         <Popover label={`${label} pattern`} wide>
           <div className="flex flex-col gap-3">
             <PatternBar instrument={inst} bars={v.state.bars} onPreset={(id) => rig.loadPreset(p, id)} onBars={(b) => rig.setBars(p, b)} onClear={() => rig.clear(p)}
-              leading={<p className="mr-auto text-[11px] text-slate-500">{p === "bass" ? `${NOTE_NAMES[drone.root]} minor pentatonic, in the drone's key` : "Click a step for on, again for an accent"}</p>} />
+              leading={<p className="mr-auto text-[11px] text-slate-500">{p === "bass" ? `${NOTE_NAMES[drone.root]} minor pentatonic, in the drone's key` : "Click a step for on, again for an accent"}</p>}
+              trailing={<PartLevel name={label.toLowerCase()} volume={v.volume} muted={v.muted} onVolume={(volume) => rig.setLevel(p, { volume })} onMute={(muted) => rig.setLevel(p, { muted })} />} />
             <StepGrid instrument={inst} cells={v.state.cells} steps={v.steps} beatsPerBar={BEATS_PER_BAR} musicKey={p === "bass" ? drone.root : undefined} position={() => rig.position(p)} onStep={(l, s, val) => rig.setStep(p, l, s, val)} fit />
           </div>
         </Popover>

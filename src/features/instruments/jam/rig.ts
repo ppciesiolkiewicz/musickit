@@ -15,6 +15,16 @@ export interface JamPartView {
   running: boolean;
   stopping: boolean;
   steps: number;
+  /** the part's own level: 0 to 1, and muted (the volume is kept) */
+  volume: number;
+  muted: boolean;
+}
+export interface PartLevel { volume: number; muted: boolean }
+export const DEFAULT_LEVEL: PartLevel = { volume: 1, muted: false };
+/** A saved level, repaired: volume 0 to 1, muted a boolean. */
+export function clampLevel(l: Partial<PartLevel> | null | undefined): PartLevel {
+  const v = Number(l?.volume);
+  return { volume: Number.isFinite(v) ? Math.min(1, Math.max(0, v)) : DEFAULT_LEVEL.volume, muted: l?.muted === true };
 }
 export interface JamSnapshot {
   bpm: number;
@@ -27,7 +37,7 @@ export interface JamSnapshot {
   /** the metronome click on the same grid (`setClick`) */
   click: { on: boolean; volume: number };
 }
-export interface JamSaved { bpm: number; parts: Partial<Record<JamPart, Partial<SequencerState>>>; loops?: Partial<LoopConfig>[]; click?: { volume?: number } }
+export interface JamSaved { bpm: number; parts: Partial<Record<JamPart, Partial<SequencerState>>>; loops?: Partial<LoopConfig>[]; click?: { volume?: number }; levels?: Partial<Record<JamPart, Partial<PartLevel>>> }
 
 /**
  * Drone, drums and bass on one clock, for a page: what the `Jam` component shows. No React. The first part to start sets the grid;
@@ -49,6 +59,7 @@ export class JamRig {
   private clickTrack: ClickTrack | null = null;
   private clickOn = false;
   private clickVolume = DEFAULT_CLICK.volume;
+  private levels: Record<JamPart, PartLevel> = { drone: DEFAULT_LEVEL, drums: DEFAULT_LEVEL, bass: DEFAULT_LEVEL };
 
   constructor() {
     const timing = () => ({ beatSeconds: this.beat, beatsPerBar: BEATS_PER_BAR });
@@ -67,7 +78,7 @@ export class JamRig {
   }
 
   private build(): JamSnapshot {
-    const view = (q: Sequencer): JamPartView => ({ state: q.state, running: q.running, stopping: q.stopping, steps: q.steps });
+    const view = (q: Sequencer): JamPartView => ({ state: q.state, running: q.running, stopping: q.stopping, steps: q.steps, ...this.levels[q.id as JamPart] });
     const now = this.ctx?.currentTime ?? 0;
     return {
       bpm: this.bpm,
@@ -114,6 +125,7 @@ export class JamRig {
       const s = saved.parts?.[p];
       if (s && s.instrumentId === this.seqs[p].state.instrumentId) this.seqs[p].load(s);
     }
+    for (const p of JAM_PARTS) this.setLevel(p, clampLevel(saved.levels?.[p]), false);
     if (saved.click) this.clickVolume = clampClick({ volume: saved.click.volume }).volume;
     if (Array.isArray(saved.loops) && saved.loops.length && !this.loops.some((l) => l.buffer || l.take)) {
       this.loops.forEach((l) => l.dispose());
@@ -128,7 +140,7 @@ export class JamRig {
   }
 
   save(): JamSaved {
-    return { bpm: this.bpm, parts: { drone: this.seqs.drone.serialize(), drums: this.seqs.drums.serialize(), bass: this.seqs.bass.serialize() }, loops: this.loops.map((l) => l.config), click: { volume: this.clickVolume } };
+    return { bpm: this.bpm, parts: { drone: this.seqs.drone.serialize(), drums: this.seqs.drums.serialize(), bass: this.seqs.bass.serialize() }, loops: this.loops.map((l) => l.config), click: { volume: this.clickVolume }, levels: { ...this.levels } };
   }
 
   /** Make the sound: every part into `out`. Call from a person's click, once the context is running. */
@@ -140,6 +152,7 @@ export class JamRig {
     for (const p of JAM_PARTS) {
       this.seqs[p].attach(ctx);
       this.seqs[p].toSpeakers!.connect(out);
+      this.applyLevel(p);
     }
     this.loops.forEach((l) => l.attach(ctx, this.pool!, out));
     this.clickTrack = new ClickTrack(ctx, out);
@@ -351,6 +364,20 @@ export class JamRig {
     if (!this.ctx || this.anchor === null || !this.busy()) return null;
     const i = beatIndexAt(this.ctx.currentTime, this.anchor, this.bpm);
     return i < 0 ? null : beatOf(i, BEATS_PER_BAR);
+  }
+
+  /** A part's volume and mute (heard at once, without a click). */
+  setLevel(p: JamPart, patch: Partial<PartLevel>, notify = true) {
+    this.levels[p] = clampLevel({ ...this.levels[p], ...patch });
+    this.applyLevel(p);
+    if (notify) this.changed();
+  }
+
+  private applyLevel(p: JamPart) {
+    const g = this.seqs[p].toSpeakers, ctx = this.ctx;
+    if (!g || !ctx) return;
+    const { volume, muted } = this.levels[p];
+    g.gain.setTargetAtTime(muted ? 0 : volume, ctx.currentTime, 0.015);
   }
 
   setDrone(patch: Partial<DroneParams>) {
