@@ -120,14 +120,14 @@ function wireNam() {
  * defaults go too, so a new project starts with the default guitar, vocal, keyboard piano, Scale Piano, sequencers and group effect
  * widgets again, and the canvas lays itself out afresh (vertical).
  */
-const PROJECT_KEYS = ["inputs", "layout", "sequencers", "scalePianos", "instruments", "patch", "fxWidgets", "groupPinsDone", "widgets", "board2", "rigDone3", "keysRigDone", "pianoRigDone2", "seqRigDone"];
+const PROJECT_KEYS = ["inputs", "layout", "sequencers", "scalePianos", "instruments", "patch", "fxWidgets", "groupPinsDone", "widgets", "board2", "rigDone3", "keysRigDone", "pianoRigDone2", "seqRigDone", "soundboardRigDone"];
 
 function newProject() {
   try {
     PROJECT_KEYS.forEach((k) => window.localStorage.removeItem(`musickit.looper.${k}`));
     Object.keys(window.localStorage).filter((k) => /^musickit\.looper\.(scalePianoWindow|sequencerWindow|instrumentWindow)\./.test(k)).forEach((k) => window.localStorage.removeItem(k));
     // the default rigs are made once per project: forget that they were, so the new project gets them again
-    Object.keys(window.localStorage).filter((k) => /^musickit\.looper\.(rigDone|keysRigDone|pianoRigDone|seqRigDone)/.test(k)).forEach((k) => window.localStorage.removeItem(k));
+    Object.keys(window.localStorage).filter((k) => /^musickit\.looper\.(rigDone|keysRigDone|pianoRigDone|seqRigDone|soundboardRigDone)/.test(k)).forEach((k) => window.localStorage.removeItem(k));
   } catch {
     /* ignore */
   }

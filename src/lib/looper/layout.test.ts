@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { LOOPS_PER_GROUP, bottomRow, freeSpot, spotInGroup, spotOutside, LOOP_R, MIN_GROUP_W, STAGE_H, STAGE_W, clampPoint, clampRect, containingGroup, defaultGroups, defaultSpot, resizeRect, MIN_GROUP_H, CARD_W, CARD_TOP, LOOP_CARD_H, SEQ_CARD_H, VIEW_W, VIEW_H, arrangeStage, type GroupLayout } from "./layout";
+import { LOOPS_PER_GROUP, bottomRow, droneSpot, freeSpot, spotInGroup, spotOutside, LOOP_R, MIN_GROUP_W, STAGE_H, STAGE_W, clampPoint, clampRect, containingGroup, defaultGroups, defaultSpot, resizeRect, MIN_GROUP_H, CARD_W, CARD_TOP, LOOP_CARD_H, SEQ_CARD_H, VIEW_W, VIEW_H, arrangeStage, type GroupLayout } from "./layout";
 
 /** The box a card covers on the stage, from its circle centre. */
 const cardBox = (p: { x: number; y: number }, h = LOOP_CARD_H) => ({ x: p.x - CARD_W / 2, y: p.y - CARD_TOP, w: CARD_W, h });
@@ -36,10 +36,10 @@ describe("stage layout", () => {
       assert.ok(s.x <= STAGE_W);
     });
     spots.forEach((a, i) => spots.slice(i + 1).forEach((b) => assert.ok(Math.hypot(a.x - b.x, a.y - b.y) >= LOOP_R * 2, `loops ${i} apart`)));
-    // two by two: two columns, two rows
+    // one row of two
     const first = spots.slice(0, LOOPS_PER_GROUP);
     assert.equal(new Set(first.map((s) => s.x)).size, 2);
-    assert.equal(new Set(first.map((s) => s.y)).size, 2);
+    assert.equal(new Set(first.map((s) => s.y)).size, 1);
   });
   it("places later loops round the groups", () => {
     const gs = defaultGroups();
@@ -64,6 +64,7 @@ describe("stage layout", () => {
     const cards = gs.flatMap((g, i) => [
       ...Array.from({ length: LOOPS_PER_GROUP }, (_, k) => ({ g, box: cardBox(defaultSpot(gs, i * LOOPS_PER_GROUP + k)) })),
       ...bottomRow(g, 2).map((p) => ({ g, box: cardBox(p, SEQ_CARD_H) })),
+      { g, box: cardBox(droneSpot(g), SEQ_CARD_H) },
     ]);
     cards.forEach((c, i) => {
       assert.ok(inside(c.box, c.g), `card ${i} inside its group`);

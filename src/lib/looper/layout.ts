@@ -21,7 +21,7 @@ export const GROUP_GAP = 40;
 /** Cards side by side in a default group. */
 export const GROUP_COLS = 2;
 
-/** A default group: two columns of cards, two rows of loops and a row of sequencers under them. */
+/** A default group: two columns of cards, a row of loops, a row for a drone and a row of sequencers under them. */
 export const GROUP_W = GROUP_PAD * 2 + GROUP_COLS * CARD_W + (GROUP_COLS - 1) * CARD_GAP;
 export const GROUP_H = GROUP_HEAD + GROUP_PAD * 2 + 2 * (LOOP_CARD_H + CARD_GAP) + SEQ_CARD_H;
 
@@ -72,8 +72,8 @@ export function clampPoint(x: number, y: number): { x: number; y: number } {
   return { x: Math.min(STAGE_W - CARD_W / 2, Math.max(CARD_W / 2, x)), y: Math.min(STAGE_H - LOOP_CARD_H + CARD_TOP, Math.max(CARD_TOP, y)) };
 }
 
-/** Loops each default group starts with: two by two, the sequencers below them. */
-export const LOOPS_PER_GROUP = 4;
+/** Loops each default group starts with: one row of two, the sequencers below them. */
+export const LOOPS_PER_GROUP = 2;
 
 /** Five side-by-side groups (five buses) across the part in view, with the free strip below them. */
 export function defaultGroups(): GroupLayout[] {
@@ -89,7 +89,7 @@ const firstRow = (g: Rect) => g.y + GROUP_HEAD + GROUP_PAD + CARD_TOP;
 
 /**
  * A spot for loop number `index`: inside the group `index % groups`, on the group's card grid. The first
- * `groups * LOOPS_PER_GROUP` loops fill the groups one after the other instead (loops 1 to 4 in the first group).
+ * `groups * LOOPS_PER_GROUP` loops fill the groups one after the other instead (loops 1 and 2 in the first group).
  */
 export function defaultSpot(groups: GroupLayout[], index: number): { x: number; y: number } {
   if (groups.length === 0) return clampPoint(GROUP_GAP + CARD_W / 2 + index * (CARD_W + CARD_GAP), GROUP_GAP + CARD_TOP);
@@ -98,6 +98,11 @@ export function defaultSpot(groups: GroupLayout[], index: number): { x: number; 
   const slot = first ? index % LOOPS_PER_GROUP : Math.floor(index / groups.length);
   const cols = colsIn(g);
   return clampPoint(colX(g, slot % cols, cols), firstRow(g) + Math.floor(slot / cols) * (LOOP_CARD_H + CARD_GAP));
+}
+
+/** The spot for a drone in a default group: centred in the row between its loops and the bottom row of sequencers. */
+export function droneSpot(g: Rect): { x: number; y: number } {
+  return clampPoint(g.x + g.w / 2, firstRow(g) + LOOP_CARD_H + CARD_GAP);
 }
 
 /** Spots for `n` sequencers side by side along the bottom of a group, under the loops, the whole card inside the group. */

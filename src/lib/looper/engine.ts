@@ -6,7 +6,7 @@ import { InstrumentInput, type VoiceFactory } from "./instrument";
 import { CONTROLLER_NAMES, migrateSaves, type Controller, type InstrumentState } from "./instrumentModel";
 import { EffectChain, LoopBus, peakOf } from "./buses";
 import { EFFECT_DEFS, defaultParams, moveEffect, clampParams, sanitiseEffects, type EffectKind, type EffectSpec } from "./effects";
-import { GROUP_COLOURS, GROUP_H, GROUP_W, LOOPS_PER_GROUP, clampPoint, clampRect, containingGroup, defaultGroups, defaultSpot, freeSpot, bottomRow, type GroupLayout } from "./layout";
+import { GROUP_COLOURS, GROUP_H, GROUP_W, LOOPS_PER_GROUP, clampPoint, clampRect, containingGroup, defaultGroups, defaultSpot, droneSpot, freeSpot, bottomRow, type GroupLayout } from "./layout";
 import { InputMixer, MAX_INPUT_GAIN, describeError, type InputInfo } from "./mixer";
 import { PatchGraph } from "./patchAudio";
 import { EDITABLE, activeLinks, addNode as patchAddNode, connect as patchConnect, disconnect as patchDisconnect, emptyPatch, feeds, layoutAll, moveNode as patchMoveNode, place, removeNode, sanitisePatch, setLinkMuted, setNodeMuted, setSwitchMode, type Patch, type PatchLink } from "./patch";
@@ -203,6 +203,9 @@ const RIG_KEY = "musickit.looper.rigDone3";
 const KEYS_RIG_KEY = "musickit.looper.keysRigDone";
 const PIANO_RIG_KEY = "musickit.looper.pianoRigDone2";
 const SEQ_RIG_KEY = "musickit.looper.seqRigDone";
+const SOUNDBOARD_RIG_KEY = "musickit.looper.soundboardRigDone";
+/** How many of the first default groups get a drone as well. */
+const DRONE_GROUPS = 2;
 type SinkContext = AudioContext & { setSinkId?: (id: string) => Promise<void> };
 const groupName = (i: number) => `Group ${String.fromCharCode(65 + (i % 26))}`;
 /** The default groups, each named after its sound and with its own effects (`GROUP_STARTS`); effect ids run fx1, fx2 ... across them. */
@@ -390,6 +393,7 @@ export class LooperEngine {
     this.setupKeyboardPiano();
     this.setupPianos();
     this.setupSequencers();
+    this.setupSoundboard();
     this.findAmps();
   }
 
@@ -412,7 +416,7 @@ export class LooperEngine {
 
   /**
    * The default sequencers, once: a drum machine and a bass in every default group, each group with its own patterns (`SEQUENCER_STARTS`),
-   * stopped until started. Skipped when sequencers already exist. Never again after it has run, so removing them sticks. Not part of the history.
+   * and a drone in the first `DRONE_GROUPS` groups, stopped until started. Skipped when sequencers already exist. Never again after it has run, so removing them sticks. Not part of the history.
    */
   private setupSequencers(): void {
     try {
@@ -429,7 +433,30 @@ export class LooperEngine {
       ([["drums", start.drums, `${g.name} drums`], ["bass", start.bass, `${g.name} bass`]] as const).forEach(([instrument, preset, name], k) => {
         this.addSequencerNow(undefined, { name, instrument, preset, ...spots[k] });
       });
+      if (i < DRONE_GROUPS) this.addSequencerNow(undefined, { name: `${g.name} drone`, instrument: "drone", ...droneSpot(g) });
     });
+    this.history.clear();
+  }
+
+  /**
+   * The default Soundboard, once: an instrument that records into the last default group only (and plays to the master).
+   * Skipped when a Soundboard already exists. Not part of the history.
+   */
+  private setupSoundboard(): void {
+    try {
+      if (window.localStorage.getItem(SOUNDBOARD_RIG_KEY)) return;
+      window.localStorage.setItem(SOUNDBOARD_RIG_KEY, "1");
+    } catch {
+      return;
+    }
+    const last = this.groups[this.groups.length - 1];
+    if (!last || this.mixer.list().some((i) => i.kind === "instrument" && i.sourceId && this.instruments.get(i.sourceId)?.state.controller === "soundboard")) return;
+    const id = this.addInstrumentNow({ controller: "soundboard", name: "Soundboard" });
+    if (id === null) return;
+    this.syncPatch();
+    const input = `in:${id}`;
+    const others = this.patch.links.filter((l) => l.from === input && l.to.startsWith("group:") && l.to !== `group:${last.id}`);
+    if (others.length) this.do({ type: "batch", label: "Soundboard into the last group", actions: others.map((l): LooperAction => ({ type: "patch.unlink", id: l.id })) });
     this.history.clear();
   }
 
