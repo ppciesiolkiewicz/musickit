@@ -5,7 +5,6 @@ import { useLabelSystem } from "@/features/theory/useLabelSystem";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ColourKey, ModeAlias, ScaleSettingsBar, UNDER_BAR } from "./ScaleSettings";
-import { Chip, Info } from "@/components/ui";
 import { FAMILIES, makeKeyContext } from "@/features/theory/theory";
 import { MODE_PAGES, type NoteSwap, chordMidi, modeChords, degreeColour, relativesOf, roleWithDegree, stepPattern, DOT_INK } from "@/features/theory/scales";
 import { strum } from "@/lib/chordKit/playback";
@@ -17,6 +16,7 @@ import ScaleOnGuitar from "./ScaleOnGuitar";
 import { useNotePlayer } from "./useNotePlayer";
 import { scaleLineMidi } from "@/lib/chordKit/scalePositions";
 import { scaleHref } from "@/features/theory/keySlug";
+import { Chip, Info } from "@/components/ui";
 
 const JUMPS = [
   { id: "scale-notes", label: "Notes" },

@@ -3,9 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Icon from "../Icon";
 import type { LooperEngine, LooperSnapshot } from "@/lib/looper/engine";
-import Slider from "@/components/Slider";
-
-const field = "h-8 rounded-md border border-slate-700 bg-slate-900 px-2 text-xs text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
+import { Slider, Select } from "@/components/ui";
 
 /**
  * The metronome, floating at the top of the page under the main nav: start/stop, tempo and beat dots in one group,
@@ -51,15 +49,11 @@ export default function MetronomeBar({ engine, snap, ready }: { engine: LooperEn
         <div role="dialog" aria-label="Metronome options" className="absolute left-0 top-full mt-1.5 flex w-72 max-w-[calc(100vw-1rem)] flex-col gap-2 rounded-xl border border-slate-700 bg-slate-950 p-3 text-xs text-slate-300 shadow-2xl">
           <label className="flex items-center justify-between gap-2">
             Beats per bar
-            <select className={field} value={m.beatsPerBar} disabled={m.locked} onChange={(e) => set({ beatsPerBar: Number(e.target.value) })}>
-              {[2, 3, 4, 5, 6, 7].map((n) => <option key={n} value={n}>{n}</option>)}
-            </select>
+            <Select value={m.beatsPerBar} disabled={m.locked} onChange={(beatsPerBar) => set({ beatsPerBar })} aria-label="Beats per bar" options={[2, 3, 4, 5, 6, 7].map((n) => ({ value: n, label: String(n) }))} />
           </label>
           <label className="flex items-center justify-between gap-2">
             Count-in
-            <select className={field} value={m.countInBars} onChange={(e) => set({ countInBars: Number(e.target.value) })}>
-              {[0, 1, 2].map((n) => <option key={n} value={n}>{n === 0 ? "none" : `${n} bar${n === 1 ? "" : "s"}`}</option>)}
-            </select>
+            <Select value={m.countInBars} onChange={(countInBars) => set({ countInBars })} aria-label="Count-in" options={[0, 1, 2].map((n) => ({ value: n, label: n === 0 ? "none" : `${n} bar${n === 1 ? "" : "s"}` }))} />
           </label>
           <label className="flex items-center gap-2">
             <Icon name="volume-2" />

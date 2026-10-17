@@ -4,11 +4,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Icon from "../Icon";
 import { NOTE_NAMES, RHYTHM_RATIOS, SCALES, degreeMidi, findScale, interference, invert, makeChallenge, noteName, permutations, retrograde, rotations, type Challenge } from "@/lib/improv/schillinger";
 import { playMelody, silence, startDrone, startLoop, type Hit, type Loop } from "./sound";
-import Slider from "@/components/Slider";
-import { ibtn } from "@/components/controls";
 import { DEFAULT_KEY_PC } from "@/features/theory/theory";
-
-const field = "h-8 rounded-md border border-slate-700 bg-slate-900 px-2 text-xs text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
+import { Slider, ibtn, Select } from "@/components/ui";
 const card = "flex flex-col gap-2 rounded-xl border border-slate-800 bg-slate-900/40 p-3";
 const H2 = ({ icon, children }: { icon: Parameters<typeof Icon>[0]["name"]; children: string }) => <h2 className="flex items-center gap-2 text-sm font-medium text-slate-100"><Icon name={icon} className="text-sky-300" />{children}</h2>;
 
@@ -91,9 +88,9 @@ function RhythmLab() {
     <section className={card} aria-label="Rhythm lab">
       <H2 icon="timer">Rhythm by interference</H2>
       <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400">
-        <select className={field} value={a} onChange={(e) => setA(Number(e.target.value))} aria-label="First pulse">{[2, 3, 4, 5, 6, 7, 8, 9].map((n) => <option key={n}>{n}</option>)}</select>
+        <Select value={a} onChange={setA} aria-label="First pulse" options={[2, 3, 4, 5, 6, 7, 8, 9].map((n) => ({ value: n, label: String(n) }))} />
         <span>against</span>
-        <select className={field} value={b} onChange={(e) => setB(Number(e.target.value))} aria-label="Second pulse">{[2, 3, 4, 5, 6, 7, 8, 9].map((n) => <option key={n}>{n}</option>)}</select>
+        <Select value={b} onChange={setB} aria-label="Second pulse" options={[2, 3, 4, 5, 6, 7, 8, 9].map((n) => ({ value: n, label: String(n) }))} />
         <span className="ml-2">one bar of 4 beats at</span>
         <Slider min={50} max={160} value={bpm} onChange={(v) => setBpm(v)} className="w-28" aria-label="Tempo" />
         <span className="w-14 tabular-nums">{bpm} bpm</span>
@@ -138,8 +135,8 @@ function MotiveLab() {
     <section className={card} aria-label="Motive lab">
       <H2 icon="repeat">Permuting a motive</H2>
       <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400">
-        <select className={field} value={root} onChange={(e) => setRoot(Number(e.target.value))} aria-label="Key">{NOTE_NAMES.map((n, i) => <option key={n} value={i}>{n}</option>)}</select>
-        <select className={field} value={scaleId} onChange={(e) => { setScaleId(e.target.value); setMotive((m) => m.filter((d) => d < findScale(e.target.value).steps.length).slice(0, 4)); }} aria-label="Scale">{SCALES.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select>
+        <Select value={root} onChange={setRoot} aria-label="Key" options={NOTE_NAMES.map((n, i) => ({ value: i, label: n }))} />
+        <Select value={scaleId} onChange={(id) => { setScaleId(id); setMotive((m) => m.filter((d) => d < findScale(id).steps.length).slice(0, 4)); }} aria-label="Scale" options={SCALES.map((s) => ({ value: s.id, label: s.name }))} />
         <span>Choose 2 to 4 degrees (in the order you click):</span>
         <div className="flex gap-1">
           {scale.steps.map((_, d) => {

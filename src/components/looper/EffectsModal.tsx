@@ -2,11 +2,9 @@
 
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import Icon from "../Icon";
-import Modal from "../Modal";
 import { hasWidget, toggleWidget, useWidgetRefs } from "./widgets";
 import { EFFECT_DEFS, EFFECT_KINDS, getChoice, type CloudItem, type EffectKind, type EffectSpec, type ParamDef } from "@/lib/looper/engine";
-import Slider from "@/components/Slider";
-import { ibtn } from "@/components/controls";
+import { Slider, Modal, ibtn, Select } from "@/components/ui";
 
 
 /** A picker over a registered choice source (the amp models): select, add files with the button or by dropping them. */
@@ -91,16 +89,15 @@ function ChoiceParam({ p, value, label, onChange }: { p: ParamDef; value: number
     >
       <div className="flex items-center gap-2 text-xs text-slate-400">
         <span className="w-14">{p.label}</span>
-        <select className="w-0 min-w-0 flex-1 truncate rounded-lg border border-slate-700 bg-slate-900 px-2 py-1.5 text-xs text-slate-200" value={String(value)} disabled={loading} onChange={(e) => void choose(e.target.value)} aria-label={label}>
-          <option value="0">{loading ? "Loading…" : options.length || remote.length ? "None (clean)" : "No models yet: add or drop a file"}</option>
-          {order.map((g) => (
-            <optgroup key={g} label={g}>
-              {groups.get(g)!.map((o) => (
-                <option key={o.value} value={o.value}>{o.text}</option>
-              ))}
-            </optgroup>
-          ))}
-        </select>
+        <Select
+          className="w-0 flex-1"
+          value={String(value)}
+          disabled={loading}
+          onChange={(v) => void choose(v)}
+          aria-label={label}
+          options={[{ value: "0", label: loading ? "Loading…" : options.length || remote.length ? "None (clean)" : "No models yet: add or drop a file" }]}
+          groups={order.map((g) => ({ label: g, options: groups.get(g)!.map((o) => ({ value: String(o.value), label: o.text })) }))}
+        />
         {source.addFiles && (
           <>
             <button type="button" className={ibtn} onClick={() => input.current?.click()} title="Add model files, or drop them here" aria-label="Add model files"><Icon name="upload" /></button>

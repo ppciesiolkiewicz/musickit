@@ -6,6 +6,7 @@ import { busChoice, busLinks, outFrom, whyNot, type PatchNode, type Port } from 
 import { destinationPick, destinations, linkColour } from "@/lib/looper/patchView";
 import type { LooperEngine, LooperSnapshot } from "@/lib/looper/engine";
 import { useFold } from "./fold";
+import { Select } from "@/components/ui";
 
 const small = "grid h-5 w-5 shrink-0 place-items-center rounded border text-slate-400 hover:text-slate-100";
 let counter = 0;
@@ -104,10 +105,13 @@ export function OutputPlaces({ engine, snap, ownerId, bare = false }: { engine: 
         );
       })}
       {options.length > 0 && (
-        <select className="rounded-lg border border-dashed border-slate-700 bg-transparent px-2 py-1 text-[11px] text-slate-400 hover:border-sky-400 hover:text-sky-200" value="" onChange={(e) => e.target.value && add(e.target.value)} aria-label="Send the output to">
-          <option value="">+ send to…</option>
-          {options.map((o) => <option key={`${o.to}|${o.port}`} value={`${o.to}|${o.port}`}>{label(o.to, o.port)}</option>)}
-        </select>
+        <Select
+          size="xs"
+          value=""
+          onChange={(v) => v && add(v)}
+          aria-label="Send the output to"
+          options={[{ value: "", label: "+ send to…", disabled: true }, ...options.map((o) => ({ value: `${o.to}|${o.port}`, label: label(o.to, o.port) }))]}
+        />
       )}
     </div>
   );

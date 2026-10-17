@@ -5,8 +5,7 @@ import Icon from "../Icon";
 import EffectsModal from "./EffectsModal";
 import LevelMeter from "./LevelMeter";
 import type { LooperEngine, LooperSnapshot } from "@/lib/looper/engine";
-import Slider from "@/components/Slider";
-import { tbtn } from "@/components/controls";
+import { Slider, tbtn } from "@/components/ui";
 
 const MASTER = { master: true } as const;
 

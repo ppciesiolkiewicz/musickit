@@ -2,12 +2,12 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import Icon from "@/components/Icon";
-import { sbtn } from "@/components/controls";
 import { fetchCapabilities, generateSample } from "./client";
 import { sampleLibrary } from "./library";
 import type { SampleMeta } from "./model/types";
 import type { Capabilities } from "./server/providers";
 import { readSettings, writeSettings, type Settings } from "./settings";
+import { sbtn, Select } from "@/components/ui";
 
 const field = "h-7 rounded-md border border-slate-700 bg-slate-900 px-2 text-xs text-slate-100";
 
@@ -105,9 +105,7 @@ export default function AddSample({ onAdded, children }: { onAdded: (meta: Sampl
         <div className="grid gap-1 rounded-md border border-slate-800 p-2 text-xs text-slate-400">
           {caps && caps.providers.length > 1 && (
             <label className="flex items-center gap-2">Provider
-              <select className={`${field} flex-1`} value={provider?.id ?? ""} onChange={(e) => setProviderId(e.target.value)}>
-                {caps.providers.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
-              </select>
+              <Select size="sm" className="flex-1" value={provider?.id ?? ""} onChange={setProviderId} aria-label="Sound generator service" options={caps.providers.map((p) => ({ value: p.id, label: p.label }))} />
             </label>
           )}
           <label className="flex items-center gap-2">Site password

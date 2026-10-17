@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Chip, ChipRow, Stepper } from "@/components/ui";
 import MiniPiano from "./MiniPiano";
 import NoteNeck, { type NeckDot } from "./NoteNeck";
 import { INTERVALS, describeMove, intervalPositions, pianoFrom } from "@/lib/chordKit/intervals";
 import { OPEN_MIDI } from "@/lib/chordKit/shapeTools";
 import { playMelody, strum } from "@/features/sound";
+import { Chip, ChipRow, Stepper } from "@/components/ui";
 
 const NAMES = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"];
 const STRINGS = ["E", "A", "D", "G", "B"];

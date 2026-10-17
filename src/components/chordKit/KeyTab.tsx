@@ -5,13 +5,13 @@ import Link from "next/link";
 import ShapeBrowser from "./ShapeBrowser";
 import { KeyPicker, ModePicker } from "./KeyPicker";
 import ChordBubbles from "./ChordBubbles";
-import { Chip, Info, Section } from "@/components/ui";
 import { keyEntries } from "@/lib/chordKit/shapeTools";
 import { FAMILIES, makeKeyContext } from "@/features/theory/theory";
 import { MODE_PAGES, chordMidi } from "@/features/theory/scales";
 import { strum } from "@/lib/chordKit/playback";
 import { DEFAULT_KEY_PC } from "@/features/theory/theory";
 import { scaleHref } from "@/features/theory/keySlug";
+import { Chip, Info, Section } from "@/components/ui";
 
 /** Pick a key and mode; see every shape that plays a chord of that key, grouped by shape. */
 export default function KeyTab({ initialTonic = DEFAULT_KEY_PC, initialFamily = 0, initialMode = 0 }: { initialTonic?: number; initialFamily?: number; initialMode?: number } = {}) {

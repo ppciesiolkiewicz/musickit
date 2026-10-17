@@ -9,6 +9,7 @@ import TunerMeter from "./TunerMeter";
 import { useTunerChoice } from "./useTunerChoice";
 import { playReference } from "./reference";
 import TunerSettings, { label } from "./TunerSettings";
+import { Select } from "@/components/ui";
 
 /** Which microphone or interface, and which of its inputs: "mix" for all of them, or one channel (0 = Input 1). */
 interface InputChoice { deviceId: string; channel: "mix" | number }
@@ -18,7 +19,6 @@ const STORE = "musickit.tuner";
 const INPUT_STORE = "musickit.tuner.input";
 const DEFAULT_INPUT: InputChoice = { deviceId: "", channel: "mix" };
 const ALIAS = new Set(["default", "communications"]);
-const field = "h-9 rounded-md border border-slate-700 bg-slate-900 px-2 text-sm text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 
 const fromQuery = () => {
   const q = new URLSearchParams(window.location.search);
@@ -159,16 +159,23 @@ export default function Tuner() {
         <div className="flex flex-col gap-1.5">
           <span className={label}>Input</span>
           <div className="flex flex-wrap gap-2">
-            <select aria-label="Input device" className={`${field} min-w-0 flex-1`} value={knownDevice ? input.deviceId : ""} onChange={(e) => switchInput({ deviceId: e.target.value, channel: "mix" })}>
-              <option value="">System default</option>
-              {devices.map((d) => <option key={d.id} value={d.id}>{d.label}</option>)}
-            </select>
+            <Select
+              size="lg"
+              className="flex-1"
+              aria-label="Input device"
+              value={knownDevice ? input.deviceId : ""}
+              onChange={(deviceId) => switchInput({ deviceId, channel: "mix" })}
+              options={[{ value: "", label: "System default" }, ...devices.map((d) => ({ value: d.id, label: d.label }))]}
+            />
             {/* an interface's inputs: pick one (a DI guitar on Input 1) or both; offered before Start, when the channel count is not known yet */}
             {(input.deviceId !== "" || channels > 1 || input.channel !== "mix") && (
-              <select aria-label="Channel" className={field} value={String(input.channel)} onChange={(e) => switchInput({ ...input, channel: e.target.value === "mix" ? "mix" : Number(e.target.value) })}>
-                <option value="mix">{channels > 2 ? "All inputs" : "Input 1 + 2"}</option>
-                {Array.from({ length: Math.max(2, channels) }, (_, i) => <option key={i} value={i}>Input {i + 1}</option>)}
-              </select>
+              <Select<number | "mix">
+                size="lg"
+                aria-label="Channel"
+                value={input.channel}
+                onChange={(channel) => switchInput({ ...input, channel })}
+                options={[{ value: "mix", label: channels > 2 ? "All inputs" : "Input 1 + 2" }, ...Array.from({ length: Math.max(2, channels) }, (_, i) => ({ value: i, label: `Input ${i + 1}` }))]}
+              />
             )}
           </div>
         </div>

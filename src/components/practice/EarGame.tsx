@@ -2,12 +2,12 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Chip, ChipRow } from "@/components/ui";
 import MiniPiano from "@/components/theory/MiniPiano";
 import { INTERVALS, pianoFrom } from "@/lib/chordKit/intervals";
 import { playMelody, strum } from "@/features/sound";
 import { CHORD_QUALITIES, EAR_LEVELS, activeAnswers, nextEarQuestion, recordScore, type Direction, type EarQuestion, type EarSettings, type Score } from "@/lib/practice/earGame";
 import { btn, btnPrimary, panel, writeQuery } from "./shared";
+import { Chip, ChipRow } from "@/components/ui";
 
 const DIRS: { id: Direction; label: string }[] = [
   { id: "up", label: "Rising" },

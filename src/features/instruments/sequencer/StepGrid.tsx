@@ -2,11 +2,10 @@
 
 import { useEffect, useRef, type ReactNode } from "react";
 import Icon from "@/components/Icon";
-import { ibtn } from "@/components/controls";
 import { lanesIn, type Instrument } from "./sequencer";
 import type { Cells } from "./pattern";
+import { ibtn, Select } from "@/components/ui";
 
-export const field = "h-8 rounded-md border border-slate-700 bg-slate-900 px-2 text-xs text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 
 /**
  * The pattern's settings row: load a preset, one or two bars, clear. `leading` and `trailing` are the host's own controls (the looper
@@ -16,14 +15,8 @@ export function PatternBar({ instrument, bars, onPreset, onBars, onClear, leadin
   return (
     <div className="flex flex-wrap items-center gap-1.5">
       {leading}
-      <select className={field} value="" onChange={(e) => e.target.value && onPreset(e.target.value)} aria-label="Load a pattern">
-        <option value="">Pattern…</option>
-        {instrument.presets.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-      </select>
-      <select className={field} value={bars} onChange={(e) => onBars(Number(e.target.value))} aria-label="Bars in the pattern">
-        <option value={1}>1 bar</option>
-        <option value={2}>2 bars</option>
-      </select>
+      <Select value="" onChange={(id) => id && onPreset(id)} aria-label="Load a pattern" options={[{ value: "", label: "Pattern…", disabled: true }, ...instrument.presets.map((p) => ({ value: p.id, label: p.name }))]} />
+      <Select value={bars} onChange={onBars} aria-label="Bars in the pattern" options={[{ value: 1, label: "1 bar" }, { value: 2, label: "2 bars" }]} />
       {trailing}
       <button type="button" className={ibtn} onClick={onClear} title="Clear the pattern" aria-label="Clear the pattern"><Icon name="trash" /></button>
     </div>

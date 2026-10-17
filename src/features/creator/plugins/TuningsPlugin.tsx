@@ -5,8 +5,7 @@ import { INSTRUMENTS, instrumentById, type InstrumentId } from "@/features/theor
 import { strum } from "@/features/sound";
 import { useCreatorKey } from "../KeyProvider";
 import { Body, Hint, PlayButton } from "./common";
-
-const field = "rounded-md border border-slate-700 bg-slate-900 px-1.5 py-0.5 text-xs text-slate-200";
+import { Select } from "@/components/ui";
 const TUNED = INSTRUMENTS.filter((i) => i.tunings.length > 0);
 
 /** An instrument's tuning, string by string. With a key, the open strings that are notes of the key are lit (they ring freely in it). */
@@ -21,13 +20,9 @@ export default function TuningsPlugin() {
   return (
     <Body title="Tunings" general={!ctx} aside={<PlayButton label={`Hear ${tuning.name}`} onClick={() => strum(tuning.strings.map((s) => s.midi), { gapMs: 220, holdMs: 2000 })} />}>
       <div className="flex flex-wrap gap-1.5">
-        <select className={field} value={inst} aria-label="Instrument" onChange={(e) => { const id = e.target.value as InstrumentId; setInst(id); setTuningId(instrumentById(id)!.tunings[0].id); }}>
-          {TUNED.map((i) => <option key={i.id} value={i.id}>{i.name}</option>)}
-        </select>
+        <Select size="xs" value={inst} aria-label="Instrument" onChange={(id) => { setInst(id); setTuningId(instrumentById(id)!.tunings[0].id); }} options={TUNED.map((i) => ({ value: i.id, label: i.name }))} />
         {instrument.tunings.length > 1 && (
-          <select className={field} value={tuning.id} aria-label="Tuning" onChange={(e) => setTuningId(e.target.value)}>
-            {instrument.tunings.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
-          </select>
+          <Select size="xs" value={tuning.id} aria-label="Tuning" onChange={setTuningId} options={instrument.tunings.map((t) => ({ value: t.id, label: t.name }))} />
         )}
       </div>
       <div className="flex flex-wrap gap-1.5">

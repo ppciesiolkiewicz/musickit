@@ -5,7 +5,7 @@ import Icon from "@/components/Icon";
 import type { LooperEngine } from "@/lib/looper/engine";
 import { buildPrompt, parseScript } from "@/lib/looper/script";
 import { loadMacros, parseMacros, playMacro, saveMacros, serialiseMacros, type Macro } from "@/lib/looper/macros";
-import { ibtn } from "@/components/controls";
+import { ibtn } from "@/components/ui";
 
 const field = "rounded-md border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 

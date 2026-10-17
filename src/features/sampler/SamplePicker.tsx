@@ -2,8 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import Icon from "@/components/Icon";
-import { tbtn } from "@/components/controls";
 import { previewSample, sampleLibrary, useSampleLibrary } from "./library";
+import { tbtn } from "@/components/ui";
 
 /** A sample's name, edited as typed and saved (trimmed) on blur or Enter, so spaces between words survive. */
 function NameField({ id, name, title }: { id: string; name: string; title: string }) {

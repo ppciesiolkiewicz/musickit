@@ -2,13 +2,13 @@
 
 import { useMemo, useState } from "react";
 import Icon from "@/components/Icon";
-import { Info } from "@/components/ui";
 import {
   CIRCLE, MAJOR, chordsInScaleOrder, circleChords, fifthsPosition, keyName, majorSignature, neighbours, relativeMajor, relativeMinor,
   rotate, signatureNotes, signatureText, tonicName, type CircleChord, type CircleKey,
 } from "@/features/theory";
 import { playMelody, strum } from "@/features/sound";
 import { DEFAULT_KEY_PC } from "@/features/theory/theory";
+import { Info } from "@/components/ui";
 
 const C = 200;
 const R_MAJ = 160, R_MIN = 118, R_DIM = 80, R_SIG = 192;

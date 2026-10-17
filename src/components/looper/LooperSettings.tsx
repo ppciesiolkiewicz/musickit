@@ -1,15 +1,11 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
-import Modal from "../Modal";
 import LevelMeter from "./LevelMeter";
 import MasterControls from "./MasterOutput";
 import type { LooperEngine, LooperSnapshot } from "@/lib/looper/engine";
 import { getMidiInputs, onMidiDevicesChanged, requestMidiAccess, setMidiInputFilter } from "@/features/sound/keyboard/midi";
-import Slider from "@/components/Slider";
-import { btn } from "@/components/controls";
-
-const field = "rounded-md border border-slate-700 bg-slate-900 px-2 py-1.5 text-sm text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
+import { Slider, Modal, btn, Select } from "@/components/ui";
 const MIDI_KEY = "musickit.looper.midi";
 
 function Group({ title, children }: { title: string; children: ReactNode }) {
@@ -44,21 +40,26 @@ export default function LooperSettings({ engine, snap, getLevel, onClose }: { en
           </div>
           <label className="flex items-center gap-2 text-xs text-slate-400">
             Play through
-            <select className={`${field} !py-1 !text-xs min-w-0 flex-1`} value={snap.outputId} disabled={!snap.canChooseOutput || !ready} onChange={(e) => void engine.setOutputDevice(e.target.value)} aria-label="Audio output device">
-              <option value="">System default</option>
-              {snap.outputs.map((o) => (
-                <option key={o.id} value={o.id}>{o.label}</option>
-              ))}
-            </select>
+            <Select
+              size="sm"
+              className="flex-1"
+              value={snap.outputId}
+              disabled={!snap.canChooseOutput || !ready}
+              onChange={(id) => void engine.setOutputDevice(id)}
+              aria-label="Audio output device"
+              options={[{ value: "", label: "System default" }, ...snap.outputs.map((o) => ({ value: o.id, label: o.label }))]}
+            />
           </label>
           {snap.outputChannels > 2 && (
             <label className="flex items-center gap-2 text-xs text-slate-400">
               Output channels
-              <select className={`${field} !py-1 !text-xs`} value={snap.outputPair} onChange={(e) => engine.setOutputPair(Number(e.target.value))} aria-label="Pair of output channels">
-                {Array.from({ length: Math.floor(snap.outputChannels / 2) }, (_, i) => (
-                  <option key={i} value={i}>{i * 2 + 1} and {i * 2 + 2}{i === 0 ? " (main)" : ""}</option>
-                ))}
-              </select>
+              <Select
+                size="sm"
+                value={snap.outputPair}
+                onChange={(pair) => engine.setOutputPair(pair)}
+                aria-label="Pair of output channels"
+                options={Array.from({ length: Math.floor(snap.outputChannels / 2) }, (_, i) => ({ value: i, label: `${i * 2 + 1} and ${i * 2 + 2}${i === 0 ? " (main)" : ""}` }))}
+              />
             </label>
           )}
           {ready && !snap.canChooseOutput && <p className="text-xs text-amber-300">This browser cannot choose the output. Use Chrome or Edge, or set the interface as the system output.</p>}
@@ -70,11 +71,17 @@ export default function LooperSettings({ engine, snap, getLevel, onClose }: { en
         <Group title="Timing">
           <label className="flex items-center justify-between gap-2 text-xs text-slate-400">
             Quantise recordings
-            <select className={`${field} !py-1 !text-xs`} value={snap.metronome.quantise} onChange={(e) => engine.do({ type: "metronome.set", patch: { quantise: e.target.value as typeof snap.metronome.quantise } })} aria-label="Quantise recordings to the metronome">
-              <option value="bar">start and stop on whole bars</option>
-              <option value="beat">start and stop on whole beats</option>
-              <option value="off">off: start and stop when pressed</option>
-            </select>
+            <Select
+              size="sm"
+              value={snap.metronome.quantise}
+              onChange={(quantise) => engine.do({ type: "metronome.set", patch: { quantise } })}
+              aria-label="Quantise recordings to the metronome"
+              options={[
+                { value: "bar" as const, label: "start and stop on whole bars" },
+                { value: "beat" as const, label: "start and stop on whole beats" },
+                { value: "off" as const, label: "off: start and stop when pressed" },
+              ]}
+            />
           </label>
           <label className="flex items-center gap-2 text-xs text-slate-400">
             Latency fix
@@ -151,10 +158,7 @@ function MidiGroup() {
       {status === "on" && (
         <label className="flex flex-col gap-1 text-xs text-slate-400">
           Play the piano from
-          <select className={field} value={selected} onChange={(e) => choose(e.target.value)}>
-            <option value="">All MIDI devices</option>
-            {inputs.map((i) => <option key={i.id} value={i.id}>{i.name}</option>)}
-          </select>
+          <Select size="lg" value={selected} onChange={choose} aria-label="MIDI device" options={[{ value: "", label: "All MIDI devices" }, ...inputs.map((i) => ({ value: i.id, label: i.name }))]} />
         </label>
       )}
       <p className="text-xs text-slate-500">A MIDI keyboard or the MIDI port of your interface plays the on-screen piano, and the piano can be recorded into the loop. MIDI carries notes, not sound, so the sound you hear and record comes from the piano voice. Works in Chrome and Edge.</p>

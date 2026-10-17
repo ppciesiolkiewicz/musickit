@@ -1,11 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Chip, ChipRow, Section } from "@/components/ui";
 import { MODE_GROUPS, compareModes, noteAt } from "@/features/theory/modeGroups";
 import { degreeColour } from "@/features/theory/scales";
 import { scaleToneLabel } from "@/features/theory/labels";
 import { useLabelSystem } from "@/features/theory/useLabelSystem";
+import { Chip, ChipRow, Section } from "@/components/ui";
 
 const colW = 62, rowH = 42, left = 112, top = 62, right = 120;
 

@@ -3,12 +3,13 @@
 import { useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Chip, DegreeLegend, InfoBox, InfoButton } from "@/components/ui";
 import { LabelSelect } from "@/features/theory/useLabelSystem";
 import type { LabelSystem } from "@/features/theory/labels";
 import { FAMILIES, TONICS, modeAlias } from "@/features/theory/theory";
 import { MODE_PAGES } from "@/features/theory/scales";
 import { scaleHref, scalesIndexHref } from "@/features/theory/keySlug";
+import { Badge, Chip, InfoBox, InfoButton, Select } from "@/components/ui";
+import { DegreeLegend } from "@/components/theory/DegreeLegend";
 import { PocketTools } from "@/features/instruments";
 
 /** Room the sticky bar takes at the top, for `scroll-mt` on the sections it jumps to. */
@@ -86,18 +87,19 @@ function ScaleRow({ slug, tonicPc }: { slug: string; tonicPc: number }) {
   const famId = current ? FAMILIES[current.familyIndex].id : "major";
   return (
     <BarRow label="Scale">
-      <select
+      <Select
+        size="sm"
         value={slug}
-        onChange={(e) => router.push(scaleHref(e.target.value, tonicPc))}
+        onChange={(s) => router.push(scaleHref(s, tonicPc))}
         aria-label="Scale"
-        className="min-w-0 rounded-md border border-slate-700 bg-slate-900 px-1.5 py-0.5 text-xs text-slate-200"
-      >
-        {FAMILIES.map((f, fi) => (
-          <optgroup key={f.id} label={f.label}>
-            {MODE_PAGES.filter((m) => m.familyIndex === fi).map((m) => <option key={m.slug} value={m.slug}>{m.name}{modeAlias(m.familyIndex, m.modeIndex) ? ` (${modeAlias(m.familyIndex, m.modeIndex)})` : ""}</option>)}
-          </optgroup>
-        ))}
-      </select>
+        groups={FAMILIES.map((f, fi) => ({
+          label: f.label,
+          options: MODE_PAGES.filter((m) => m.familyIndex === fi).map((m) => {
+            const alias = modeAlias(m.familyIndex, m.modeIndex);
+            return { value: m.slug, label: alias ? `${m.name} (${alias})` : m.name };
+          }),
+        }))}
+      />
       <Link href={scalesIndexHref(tonicPc, `#part-${famId}`)} className="shrink-0 rounded-full border border-slate-700 px-2.5 py-0.5 text-xs text-sky-300 transition hover:border-sky-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
         ← All scales
       </Link>
@@ -109,7 +111,7 @@ function ScaleRow({ slug, tonicPc }: { slug: string; tonicPc: number }) {
 export function ModeAlias({ familyIndex, modeIndex }: { familyIndex: number; modeIndex: number }) {
   const alias = modeAlias(familyIndex, modeIndex);
   if (!alias) return null;
-  return <span className="ml-1.5 inline-block rounded-full border border-slate-600 px-1.5 align-middle text-[10px] font-medium uppercase tracking-wider text-slate-300">{alias}</span>;
+  return <Badge className="ml-1.5">{alias}</Badge>;
 }
 
 /** The degree colours with a heading and a short reading guide; `children` is the longer explanation behind the (i). */

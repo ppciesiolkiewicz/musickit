@@ -2,10 +2,10 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import ChordDiagram from "./ChordDiagram";
-import { Modal } from "@/components/ui";
 import { colourDegrees, degreeName, progressionForDegree } from "@/lib/chordKit/degreeProgressions";
 import type { KeyContext } from "@/features/theory/theory";
 import { strumShape } from "@/lib/chordKit/playback";
+import { Modal } from "@/components/ui";
 
 const BEAT_MS = 1400;
 

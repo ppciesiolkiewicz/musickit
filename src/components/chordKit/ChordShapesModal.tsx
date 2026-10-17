@@ -2,9 +2,9 @@
 
 import { useMemo, useState } from "react";
 import ShapeBrowser from "./ShapeBrowser";
-import { Chip, Modal } from "@/components/ui";
 import { keyEntries } from "@/lib/chordKit/shapeTools";
 import type { KeyContext } from "@/features/theory/theory";
+import { Chip, Modal } from "@/components/ui";
 
 /** Every shape for every chord of the mode, in the same browser as the chord explorer, opened on one chord. */
 export default function ChordShapesModal({ ctx, degree, onClose }: { ctx: KeyContext; degree: number; onClose: () => void }) {

@@ -2,14 +2,14 @@
 
 import { useState } from "react";
 import Icon from "../Icon";
-import { btnSm } from "../controls";
 import { AddSample, SamplePicker, detectSampleRoot, sampleLibrary } from "@/features/sampler";
 import { midiToName, useInstrumentOptions } from "@/features/sound";
 import type { InstrumentPatch } from "@/lib/looper/actions";
 import { MAX_PADS, MIN_PADS } from "@/lib/looper/instrumentModel";
 import { GENERATOR_NAMES, type Inst } from "./instrumentView";
+import { btnSm, Select } from "@/components/ui";
 
-export const field = "h-7 rounded-md border border-slate-700 bg-slate-900 px-1.5 text-xs text-slate-100";
+const field = "h-7 rounded-md border border-slate-700 bg-slate-900 px-1.5 text-xs text-slate-100";
 /** C2 to C7 */
 export const NOTE_CHOICES = Array.from({ length: 61 }, (_, i) => 36 + i);
 
@@ -60,18 +60,29 @@ export default function GeneratorPanel({ inst, latest, set, selected, onSelect }
           </label>
         )}
         {g.kind === "piano" && (
-          <select className={field} value={g.instrument} aria-label="Sound" title="Sound" onChange={(e) => { set({ generator: { ...g, instrument: e.target.value } }); e.target.blur(); }}>
-            {!options.some((o) => o.value === g.instrument) && <option value={g.instrument}>{g.instrument}</option>}
-            {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-          </select>
+          <Select
+            size="sm"
+            value={g.instrument}
+            aria-label="Sound"
+            title="Sound"
+            onChange={(instrument) => set({ generator: { ...g, instrument } })}
+            options={[...(options.some((o) => o.value === g.instrument) ? [] : [{ value: g.instrument, label: g.instrument }]), ...options]}
+          />
         )}
       </div>
       {g.kind === "piano" && inst.controller === "soundboard" && (
         <div className="grid grid-cols-4 gap-1 sm:grid-cols-8">
           {g.padNotes.map((n, i) => (
-            <select key={i} className={`${field} ${selected === i ? "!border-sky-400" : ""}`} value={n} aria-label={`Pad ${i + 1} note`} onFocus={() => onSelect(i)} onChange={(e) => { set({ generator: { ...g, padNotes: g.padNotes.map((x, j) => (j === i ? Number(e.target.value) : x)) } }); e.target.blur(); }}>
-              {NOTE_CHOICES.map((m) => <option key={m} value={m}>{midiToName(m)}</option>)}
-            </select>
+            <span key={i} onPointerDown={() => onSelect(i)} className="inline-flex">
+              <Select
+                size="sm"
+                highlighted={selected === i}
+                value={n}
+                aria-label={`Pad ${i + 1} note`}
+                onChange={(note) => set({ generator: { ...g, padNotes: g.padNotes.map((x, j) => (j === i ? note : x)) } })}
+                options={NOTE_CHOICES.map((m) => ({ value: m, label: midiToName(m) }))}
+              />
+            </span>
           ))}
         </div>
       )}
@@ -80,9 +91,14 @@ export default function GeneratorPanel({ inst, latest, set, selected, onSelect }
           {inst.controller !== "soundboard" && (
             <div className="flex flex-wrap items-center gap-1.5">
               <SamplePicker label="Sample" value={g.sample ?? null} onChange={(id) => set({ generator: { ...g, sample: id ?? undefined } })} />
-              <select className={field} value={g.root} aria-label="Root note" title="The note the sample sounds at" onChange={(e) => { set({ generator: { ...g, root: Number(e.target.value) } }); e.target.blur(); }}>
-                {NOTE_CHOICES.map((m) => <option key={m} value={m}>{midiToName(m)}</option>)}
-              </select>
+              <Select
+                size="sm"
+                value={g.root}
+                aria-label="Root note"
+                title="The note the sample sounds at"
+                onChange={(root) => set({ generator: { ...g, root } })}
+                options={NOTE_CHOICES.map((m) => ({ value: m, label: midiToName(m) }))}
+              />
               <button type="button" className={btnSm} disabled={!g.sample} title="Find the note the sample sounds at" onClick={() => void detect()}>
                 <Icon name="activity" size={12} />Detect
               </button>

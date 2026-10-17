@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Chip, ChipRow, Info } from "@/components/ui";
 import { KeyPicker } from "./KeyPicker";
 import { INVERSIONS, STRING_GROUPS, TRIAD_QUALITIES, triadVoicings, type TriadQuality, type TriadVoicing } from "@/lib/chordKit/triads";
 import { GROUP_SWATCH, swatchFor } from "./palette";
@@ -11,6 +10,7 @@ import { toneLabel } from "@/features/theory/labels";
 import { useLabelSystem } from "@/features/theory/useLabelSystem";
 import { LabelsRow } from "@/components/LabelsRow";
 import { DEFAULT_KEY_PC } from "@/features/theory/theory";
+import { Chip, ChipRow, Info } from "@/components/ui";
 
 /** Small chord box for three adjacent strings. */
 export function TriadBox({ v, rootPc, onPlay, active }: { v: TriadVoicing; rootPc: number; onPlay: () => void; active: boolean }) {

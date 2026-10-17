@@ -1,7 +1,7 @@
 "use client";
 
-import { Chip, ChipRow } from "@/components/ui";
 import { FAMILIES, shortModeName, TONICS } from "@/features/theory/theory";
+import { Chip, ChipRow } from "@/components/ui";
 
 export function KeyPicker({ tonicPc, onTonic }: { tonicPc: number; onTonic: (pc: number) => void }) {
   return (

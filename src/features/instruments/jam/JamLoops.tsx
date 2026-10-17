@@ -2,14 +2,13 @@
 
 import { useEffect, useRef } from "react";
 import Icon from "@/components/Icon";
-import { sbtn } from "@/components/controls";
 import { LOOP_CHANNELS, type InputDevice, type LoopChannel, type LoopView } from "./loops";
 import { LOOP_BARS, MAX_LOOPS } from "./take";
 import type { JamRig } from "./rig";
+import { sbtn, Select } from "@/components/ui";
 
 const STATUS: Record<LoopView["state"], string> = { empty: "Empty", countIn: "Count-in", recording: "Recording", playing: "Playing", stopped: "Stopped" };
 const CHANNEL_LABEL: Record<LoopChannel, string> = { "1": "1", "2": "2", mix: "1+2" };
-const select = "h-7 min-w-0 rounded-md border border-slate-700/80 bg-slate-900 px-1.5 text-xs text-slate-200 hover:border-slate-600 disabled:opacity-40";
 
 /** A bar filled to what `read` says (0 to 1), redrawn every frame without React. */
 function LiveBar({ read, className }: { read: () => number | null; className: string }) {
@@ -65,9 +64,15 @@ function LoopRow({ rig, loop, n, devices, removable, ready }: { rig: JamRig; loo
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-slate-300">
           <label className="flex items-center gap-2">
             <span>Length</span>
-            <select className={select} value={loop.bars} disabled={taking || hasSound} onChange={(e) => set({ bars: Number(e.target.value) })} title={hasSound ? "Clear the loop to change its length" : undefined}>
-              {LOOP_BARS.map((b) => <option key={b} value={b}>{b} bar{b === 1 ? "" : "s"}</option>)}
-            </select>
+            <Select
+              size="sm"
+              value={loop.bars}
+              disabled={taking || hasSound}
+              onChange={(bars) => set({ bars })}
+              aria-label={`Length of ${name}`}
+              title={hasSound ? "Clear the loop to change its length" : undefined}
+              options={LOOP_BARS.map((b) => ({ value: b, label: `${b} bar${b === 1 ? "" : "s"}` }))}
+            />
           </label>
           <label className="flex min-w-[10rem] flex-1 items-center gap-2">
             <span>Volume</span>
@@ -79,10 +84,15 @@ function LoopRow({ rig, loop, n, devices, removable, ready }: { rig: JamRig; loo
 
       <div className="flex min-w-0 flex-col gap-2 rounded-lg border border-slate-800 bg-slate-900/60 p-2.5 text-xs text-slate-300" aria-label={`Input of ${name}`}>
         <div className="flex items-center gap-1.5 text-slate-400"><Icon name="mic" size={13} /><span className="font-medium uppercase tracking-wide">Input</span></div>
-        <select className={`${select} w-full`} value={loop.deviceId} disabled={taking} onChange={(e) => set({ deviceId: e.target.value })} aria-label={`Input device of ${name}`}>
-          <option value="">Default microphone</option>
-          {options.map((d) => <option key={d.id} value={d.id}>{d.label}</option>)}
-        </select>
+        <Select
+          size="sm"
+          className="w-full"
+          value={loop.deviceId}
+          disabled={taking}
+          onChange={(deviceId) => set({ deviceId })}
+          aria-label={`Input device of ${name}`}
+          options={[{ value: "", label: "Default microphone" }, ...options.map((d) => ({ value: d.id, label: d.label }))]}
+        />
         <div className="flex items-center gap-2">
           <span>Channel</span>
           <div className="flex gap-1" aria-label={`Channel of ${name}`}>

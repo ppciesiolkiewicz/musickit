@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Chip, ChipRow, Stepper } from "@/components/ui";
 import NoteNeck, { type NeckDot } from "@/components/theory/NoteNeck";
 import { OPEN_MIDI } from "@/lib/chordKit/shapeTools";
 import { playMelody } from "@/features/sound";
@@ -12,6 +11,7 @@ import {
 import { useMicPitch } from "./useMicPitch";
 import { micGate } from "@/lib/practice/mic";
 import { btn, btnPrimary, panel, readBest, writeBest, writeQuery } from "./shared";
+import { Chip, ChipRow, Stepper } from "@/components/ui";
 
 const STRING_LETTERS = ["E", "A", "D", "G", "B", "e"];
 const MODES: { id: NoteMode; label: string }[] = [

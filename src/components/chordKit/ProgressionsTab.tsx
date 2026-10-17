@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import ChordDiagram from "./ChordDiagram";
 import NeckDiagram from "./NeckDiagram";
-import { Chip, ChipRow, Info } from "@/components/ui";
 import { LabelsRow } from "@/components/LabelsRow";
 import { DIFF_CLASS, HUES } from "./palette";
 import {
@@ -12,7 +11,7 @@ import {
 } from "@/lib/chordKit/progressions";
 import { RICH_SHAPES, STRING_NAMES, STRING_ORDER, STRING_SHORT, rootFretFor } from "@/lib/chordKit/shapeTools";
 import { strumShape, silence } from "@/lib/chordKit/playback";
-import Slider from "@/components/Slider";
+import { Slider, Chip, ChipRow, Info } from "@/components/ui";
 
 const DIFF_ORDER = { easy: 0, medium: 1, hard: 2 } as const;
 

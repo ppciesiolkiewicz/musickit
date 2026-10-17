@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import ChordDiagram from "./ChordDiagram";
-import { Chip, ChipRow, Info } from "@/components/ui";
 import NoteNeck, { type NeckDot } from "@/components/theory/NoteNeck";
 import { CAGED_LETTERS, cagedBoxes, type CagedLetter } from "@/lib/chordKit/caged";
 import { neighbours, regionOf, type Neighbour } from "@/lib/chordKit/neighbours";
@@ -10,6 +9,7 @@ import { STRING_GROUPS, INVERSIONS, triadVoicings } from "@/lib/chordKit/triads"
 import { OPEN_MIDI } from "@/lib/chordKit/shapeTools";
 import { strumShape, strum } from "@/lib/chordKit/playback";
 import { DEFAULT_KEY_PC } from "@/features/theory/theory";
+import { Chip, ChipRow, Info } from "@/components/ui";
 
 const KEYS = ["C", "D♭", "D", "E♭", "E", "F", "F♯", "G", "A♭", "A", "B♭", "B"];
 const COLOUR: Record<string, string> = { I: "#f8fafc", IV: "#38bdf8", V: "#f59e0b", ii: "#a78bfa", vi: "#34d399", iii: "#f472b6" };

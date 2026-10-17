@@ -3,10 +3,7 @@
 import { DroneControls, PatternBar, StepGrid } from "@/features/instruments";
 import { INSTRUMENTS, type LooperEngine, type LooperSnapshot } from "@/lib/looper/engine";
 import type { SeqPatch } from "@/lib/looper/actions";
-import { ibtn } from "@/components/controls";
-import Slider from "@/components/Slider";
-
-const field = "h-8 rounded-md border border-slate-700 bg-slate-900 px-2 text-xs text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
+import { Slider, ibtn, Select } from "@/components/ui";
 
 type Seq = LooperSnapshot["sequencers"][number];
 
@@ -51,13 +48,17 @@ export default function SequencerPanel({ engine, snap, id }: { engine: LooperEng
 function Routing({ engine, snap, id, sq }: { engine: LooperEngine; snap: LooperSnapshot; id: string; sq: Seq }) {
   return (
     <>
-      <select className={field} value={sq.instrumentId} onChange={(e) => engine.do({ type: "sequencer.set", id, patch: { instrument: e.target.value } })} aria-label="Instrument">
-        {INSTRUMENTS.map((i) => <option key={i.id} value={i.id}>{i.name}</option>)}
-      </select>
-      <select className={field} value={sq.dest} onChange={(e) => engine.do({ type: "sequencer.dest", id, dest: e.target.value as "auto" | "record" })} aria-label="Where the sound goes" title="Where the sound goes">
-        <option value="auto">{sq.groupId ? `To ${snap.groups.find((g) => g.id === sq.groupId)?.name ?? "its group"}` : "To master"} (by position)</option>
-        <option value="record">To the recorder (and master)</option>
-      </select>
+      <Select value={sq.instrumentId} onChange={(instrument) => engine.do({ type: "sequencer.set", id, patch: { instrument } })} aria-label="Instrument" options={INSTRUMENTS.map((i) => ({ value: i.id, label: i.name }))} />
+      <Select
+        value={sq.dest}
+        onChange={(dest) => engine.do({ type: "sequencer.dest", id, dest })}
+        aria-label="Where the sound goes"
+        title="Where the sound goes"
+        options={[
+          { value: "auto" as const, label: `${sq.groupId ? `To ${snap.groups.find((g) => g.id === sq.groupId)?.name ?? "its group"}` : "To master"} (by position)` },
+          { value: "record" as const, label: "To the recorder (and master)" },
+        ]}
+      />
     </>
   );
 }

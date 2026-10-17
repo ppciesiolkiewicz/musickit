@@ -5,7 +5,6 @@ import Link from "next/link";
 import { VerticalBoard, vGeometry } from "./VerticalFretboard";
 import { KeyPicker, ModePicker } from "./KeyPicker";
 import { Badge, FretboardBase, fretGeometry } from "./Fretboard";
-import { Chip, ChipRow, DegreeLegend, Info } from "@/components/ui";
 import { ARP_FRETS, ARP_QUALITIES, WINDOWS, arpeggioMidi, buildArpeggio, neckCells, type Arpeggio, type NeckCell } from "@/lib/chordKit/arpeggios";
 import { FAMILIES, makeKeyContext } from "@/features/theory/theory";
 import { MODE_PAGES, degreeColour } from "@/features/theory/scales";
@@ -15,6 +14,8 @@ import { useLabelSystem } from "@/features/theory/useLabelSystem";
 import { LabelsRow } from "@/components/LabelsRow";
 import { DEFAULT_KEY_PC } from "@/features/theory/theory";
 import { scaleHref } from "@/features/theory/keySlug";
+import { Chip, ChipRow, Info, Select } from "@/components/ui";
+import { DegreeLegend } from "@/components/theory/DegreeLegend";
 
 const KINDS = [
   { id: "triad", label: "Scale triad" },
@@ -157,13 +158,10 @@ export default function ArpeggiosExplorer({ initialTonic = DEFAULT_KEY_PC, initi
             {arp.notes.map((n) => `${n.name} (${n.role})`).join(" · ")}
           </span>
           <span className="ml-auto flex items-center gap-2">
-            <label className="flex items-center gap-1.5 text-xs text-slate-400">
+            <span className="flex items-center gap-1.5 text-xs text-slate-400">
               Octaves<Info label="About octaves">How far the played arpeggio climbs. One octave plays the notes up to the next root and back down. Two goes twice as far.</Info>
-              <select value={octaves} onChange={(e) => setOctaves(Number(e.target.value))} className="rounded-md border border-slate-700 bg-slate-900 px-1.5 py-0.5 text-slate-200">
-                <option value={1}>1</option>
-                <option value={2}>2</option>
-              </select>
-            </label>
+              <Select size="xs" value={octaves} onChange={setOctaves} aria-label="Octaves" options={[{ value: 1, label: "1" }, { value: 2, label: "2" }]} />
+            </span>
             <button type="button" onClick={playArp} className="rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25">▶ Play arpeggio</button>
           </span>
         </div>

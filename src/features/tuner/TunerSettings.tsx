@@ -4,6 +4,7 @@ import { useState, type ReactNode } from "react";
 import { clampA4, resolveChoice, TUNER_INSTRUMENTS, withInstrument, type TunerChoice } from "./choice";
 import type { InstrumentId } from "@/features/theory/tunings";
 import InstrumentIcon from "./InstrumentIcon";
+import { Select } from "@/components/ui";
 
 const fieldBase = "rounded-md border border-slate-700 bg-slate-900 text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 /** The small caps label over each group of the full settings. */
@@ -76,12 +77,14 @@ export default function TunerSettings({ choice, onChange, compact, trailing, asi
   const { instrument, tuning } = resolveChoice(choice);
   const pick = (id: InstrumentId) => onChange(withInstrument(choice, id));
   const tuningSelect = instrument.tunings.length > 1 && (
-    <select aria-label="Tuning" className={`${fieldBase} ${compact ? "h-8 min-w-0 flex-1 px-1.5 text-xs" : "h-9 w-full px-2 text-sm"}`} value={tuning?.id}
-      onChange={(e) => onChange({ ...choice, tuning: e.target.value })}>
-      {instrument.tunings.map((t) => (
-        <option key={t.id} value={t.id}>{t.name} · {t.strings.map((x) => x.name).join(" ")}</option>
-      ))}
-    </select>
+    <Select
+      aria-label="Tuning"
+      size={compact ? "md" : "lg"}
+      className={compact ? "flex-1" : "w-full"}
+      value={tuning?.id ?? ""}
+      onChange={(id) => onChange({ ...choice, tuning: id })}
+      options={instrument.tunings.map((t) => ({ value: t.id, label: `${t.name} · ${t.strings.map((x) => x.name).join(" ")}` }))}
+    />
   );
   const a4 = <A4Field value={choice.a4} onChange={(hz) => onChange({ ...choice, a4: hz })} small={compact} />;
 
@@ -89,9 +92,7 @@ export default function TunerSettings({ choice, onChange, compact, trailing, asi
     return (
       <div className="flex w-full flex-col gap-1.5">
         <div className="flex w-full items-center gap-1">
-          <select aria-label="Instrument" className={`${fieldBase} h-8 px-1.5 text-xs`} value={instrument.id} onChange={(e) => pick(e.target.value as InstrumentId)}>
-            {TUNER_INSTRUMENTS.map((i) => <option key={i.id} value={i.id}>{i.name}</option>)}
-          </select>
+          <Select aria-label="Instrument" value={instrument.id} onChange={pick} options={TUNER_INSTRUMENTS.map((i) => ({ value: i.id, label: i.name }))} />
           {tuningSelect}
           {trailing}
         </div>

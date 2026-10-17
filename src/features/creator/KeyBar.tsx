@@ -1,13 +1,11 @@
 "use client";
 
 import Icon from "@/components/Icon";
-import { Chip } from "@/components/ui";
 import { FAMILIES, TONICS, modeAlias, shortModeName } from "@/features/theory";
 import { LabelSelect } from "@/features/theory/useLabelSystem";
 import { useCreatorKey } from "./KeyProvider";
 import { keySignature } from "./model/key";
-
-const select = "rounded-lg border border-slate-700 bg-slate-900 px-2 py-1.5 text-sm text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
+import { Chip, Select } from "@/components/ui";
 
 /** The key selector: twelve tonics, a scale family and a mode, and a way back to no key at all. */
 export default function KeyBar() {
@@ -22,12 +20,17 @@ export default function KeyBar() {
         ))}
       </div>
       <div className="flex flex-wrap items-center gap-2">
-        <select className={select} value={choice.family} onChange={(e) => setMode(Number(e.target.value), 0)} aria-label="Scale family">
-          {FAMILIES.map((f, i) => <option key={f.id} value={i}>{f.label}</option>)}
-        </select>
-        <select className={select} value={choice.mode} onChange={(e) => setMode(choice.family, Number(e.target.value))} aria-label="Mode">
-          {FAMILIES[choice.family].names.map((n, i) => <option key={n} value={i}>{shortModeName(n)}{modeAlias(choice.family, i) ? ` (${modeAlias(choice.family, i)})` : ""}</option>)}
-        </select>
+        <Select size="lg" value={choice.family} onChange={(f) => setMode(f, 0)} aria-label="Scale family" options={FAMILIES.map((f, i) => ({ value: i, label: f.label }))} />
+        <Select
+          size="lg"
+          value={choice.mode}
+          onChange={(k) => setMode(choice.family, k)}
+          aria-label="Mode"
+          options={FAMILIES[choice.family].names.map((n, i) => {
+            const alias = modeAlias(choice.family, i);
+            return { value: i, label: alias ? `${shortModeName(n)} (${alias})` : shortModeName(n) };
+          })}
+        />
       </div>
       <LabelSelect />
       <div className="ml-auto flex items-center gap-2 text-sm">

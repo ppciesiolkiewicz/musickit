@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import Modal from "@/components/Modal";
 import Icon from "@/components/Icon";
 import LevelMeter from "./LevelMeter";
 import EffectsModal from "./EffectsModal";
@@ -21,10 +20,7 @@ import { useFold } from "./fold";
 import { CONTROLLER_ICON, GENERATOR_NAMES, generatorDetail, instrumentMissing, type Inst } from "./instrumentView";
 import { withGenerator } from "@/lib/looper/instrumentModel";
 import { useSampleLibrary } from "@/features/sampler";
-import Slider from "@/components/Slider";
-import { btnBaseSm as btn, btnSm as btnPlain, ibtn, sbtn } from "@/components/controls";
-
-const field = "rounded-md border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
+import { Slider, Modal, btnBaseSm as btn, btnSm as btnPlain, ibtn, sbtn, Select } from "@/components/ui";
 
 /** The key of a channel choice in a select or radio group. */
 const chKey = (mode: InputMode, pair: number) => `${mode}:${pair}`;
@@ -344,7 +340,7 @@ export default function Mixer({ engine, snap, openSeqs, onToggleSequencer, openP
   );
 }
 
-export function InputStrip({ engine, inp, devices, anyDevice, sequencerOpen, onToggleSequencer, pianoOpen, onTogglePiano, seq, inst, groups }: { engine: LooperEngine; inp: InputInfo; devices: { id: string; label: string }[]; anyDevice: boolean; sequencerOpen: boolean; onToggleSequencer: () => void; pianoOpen: boolean; onTogglePiano: () => void; seq?: LooperSnapshot["sequencers"][number]; inst?: Inst; groups: { id: string; name: string; colour: string }[] }) {
+export function InputStrip({ engine, inp, devices, sequencerOpen, onToggleSequencer, pianoOpen, onTogglePiano, seq, inst, groups }: { engine: LooperEngine; inp: InputInfo; devices: { id: string; label: string }[]; anyDevice: boolean; sequencerOpen: boolean; onToggleSequencer: () => void; pianoOpen: boolean; onTogglePiano: () => void; seq?: LooperSnapshot["sequencers"][number]; inst?: Inst; groups: { id: string; name: string; colour: string }[] }) {
   const getLevel = useMemo(() => () => engine.getInputLevel(inp.id), [engine, inp.id]);
   const m = engine.mixer;
   const isDevice = inp.kind === "device";
@@ -380,10 +376,13 @@ export function InputStrip({ engine, inp, devices, anyDevice, sequencerOpen, onT
         <div role="group" aria-label={`Sound generator of ${inp.name}`} className="flex flex-wrap items-center gap-1.5 rounded-lg border border-slate-700/80 bg-slate-900/60 px-2 py-1">
           <Icon name="audio-lines" size={14} className="shrink-0 text-sky-300" />
           <span className="text-[10px] font-medium uppercase tracking-wide text-slate-400">Sound generator</span>
-          <select className="h-6 rounded-md border border-slate-700 bg-slate-900 px-1.5 text-xs text-slate-100" value={inst.generator.kind} aria-label="Sound generator" onChange={(e) => { engine.do({ type: "instrument.set", id: inst.id, patch: { generator: withGenerator(inst, e.target.value as "piano" | "sampler").generator } }); e.target.blur(); }}>
-            <option value="piano">{GENERATOR_NAMES.piano}</option>
-            <option value="sampler">{GENERATOR_NAMES.sampler}</option>
-          </select>
+          <Select
+            size="xs"
+            value={inst.generator.kind}
+            aria-label="Sound generator"
+            onChange={(kind) => engine.do({ type: "instrument.set", id: inst.id, patch: { generator: withGenerator(inst, kind).generator } })}
+            options={[{ value: "piano" as const, label: GENERATOR_NAMES.piano }, { value: "sampler" as const, label: GENERATOR_NAMES.sampler }]}
+          />
           <span data-role="generator-detail" className="flex min-w-0 flex-1 items-center gap-1 truncate text-xs text-slate-300">
             {lib.ready && instrumentMissing(inst, haveSamples) && <span className="h-2 w-2 shrink-0 rounded-full bg-amber-400" title="A sample is missing" />}
             <span className="truncate">{generatorDetail(inst, sampleNames)}</span>
@@ -402,13 +401,15 @@ export function InputStrip({ engine, inp, devices, anyDevice, sequencerOpen, onT
       )}
       {isDevice && inp.connected && (
         <div className="grid gap-1.5 sm:grid-cols-[1fr_auto]">
-          <select className={field} value={inp.deviceId} onChange={(e) => void m.setDevice(inp.id, e.target.value)} aria-label="Audio device">
-            <option value="">{anyDevice ? "System default input" : "System default input"}</option>
-            {devices.map((d) => <option key={d.id} value={d.id}>{d.label}</option>)}
-          </select>
-          <select className={field} value={chKey(inp.mode, inp.pair)} onChange={(e) => engine.do({ type: "input.set", id: inp.id, patch: fromKey(e.target.value) })} aria-label="Channels to record" title={inp.channels ? `The device gives ${inp.channels} channel${inp.channels === 1 ? "" : "s"}` : undefined}>
-            {stripChoices(inp).map((x) => <option key={chKey(x.mode, x.pair)} value={chKey(x.mode, x.pair)}>{x.label}</option>)}
-          </select>
+          <Select size="sm" value={inp.deviceId} onChange={(id) => void m.setDevice(inp.id, id)} aria-label="Audio device" options={[{ value: "", label: "System default input" }, ...devices.map((d) => ({ value: d.id, label: d.label }))]} />
+          <Select
+            size="sm"
+            value={chKey(inp.mode, inp.pair)}
+            onChange={(k) => engine.do({ type: "input.set", id: inp.id, patch: fromKey(k) })}
+            aria-label="Channels to record"
+            title={inp.channels ? `The device gives ${inp.channels} channel${inp.channels === 1 ? "" : "s"}` : undefined}
+            options={stripChoices(inp).map((x) => ({ value: chKey(x.mode, x.pair), label: x.label }))}
+          />
         </div>
       )}
       <EffectStack effects={inp.effects} onOpen={() => setFxOpen(true)} onBypass={(fx) => engine.do({ type: "fx.bypass", target: { input: inp.id }, id: fx, bypass: !inp.effects.find((e) => e.id === fx)?.bypass })} onMove={(fx, d) => engine.do({ type: "fx.move", target: { input: inp.id }, id: fx, dir: d })} />

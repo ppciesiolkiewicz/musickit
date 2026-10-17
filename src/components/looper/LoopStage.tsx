@@ -6,13 +6,11 @@ import EffectsModal from "./EffectsModal";
 import LoopEditor from "./LoopEditor";
 import EffectWidgets from "./EffectWidgets";
 import { setWidgetSpawn } from "./widgets";
-import InfoTip from "../InfoTip";
 import { GROUP_COLOURS, LOOP_R, STAGE_H, resizeRect, type Corner, STAGE_W, type ChannelInfo, type GroupInfo, type LooperEngine, type LooperSnapshot } from "@/lib/looper/engine";
 import { CARD_TOP, CARD_W, arrangeStage } from "@/lib/looper/layout";
 import type { LooperAction } from "@/lib/looper/actions";
-import Slider from "@/components/Slider";
-import { tbtn } from "@/components/controls";
 import { droneName } from "@/features/instruments/model";
+import { Slider, InfoTip, tbtn, Select } from "@/components/ui";
 
 /** Loops and sequencers sit on a bordered card so they stand out from the stage and the group colours (its size: `layout.ts`). */
 const card = "absolute z-10 flex flex-col items-center gap-1.5 rounded-xl border border-slate-500/80 bg-slate-950/85 p-1.5 shadow-md shadow-black/50";
@@ -356,9 +354,13 @@ function LengthBadge({ engine, ch, firstTake, baseBars }: { engine: LooperEngine
   if (ch.multiple > 0) return <span className={cls} title="Length of this loop">{firstTake || baseBars === null ? `x${ch.multiple}` : `${ch.multiple * baseBars} bar${ch.multiple * baseBars === 1 ? "" : "s"}`}</span>;
   if (ch.state !== "empty") return null;
   return (
-    <select value={ch.plan} onChange={(e) => engine.do({ type: "loop.plan", id: ch.id, plan: Number(e.target.value) })} aria-label={`Length of ${ch.name}`} title="Length of the next take" className={`${cls} cursor-pointer`}>
-      <option value={0}>free</option>
-      {[1, 2, 4, 8, 16].map((n) => <option key={n} value={n}>{label(n)}</option>)}
-    </select>
+    <Select
+      size="2xs"
+      value={ch.plan}
+      onChange={(plan) => engine.do({ type: "loop.plan", id: ch.id, plan })}
+      aria-label={`Length of ${ch.name}`}
+      title="Length of the next take"
+      options={[{ value: 0, label: "free" }, ...[1, 2, 4, 8, 16].map((n) => ({ value: n, label: label(n) }))]}
+    />
   );
 }

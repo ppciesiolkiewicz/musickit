@@ -6,8 +6,8 @@ import { DIFF_CLASS } from "./palette";
 import { shapesForTones } from "@/lib/chordKit/chordShapes";
 import { STRING_SHORT, STYLE_TAGS, tagCount, tagText } from "@/lib/chordKit/shapeTools";
 import { filterChoices } from "@/lib/chordKit/chordSearch";
-import { Chip, ChipRow } from "@/components/ui";
 import { strumShape } from "@/lib/chordKit/playback";
+import { Chip, ChipRow } from "@/components/ui";
 
 /** Every shape that plays one chord, simplest first: open chord, first barre, then the rest. */
 export default function ChordSearchResults({ rootPc, semis, name }: { rootPc: number; semis: number[]; name: string }) {

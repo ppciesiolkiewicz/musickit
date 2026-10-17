@@ -4,8 +4,7 @@ import { useMemo, useState } from "react";
 import { interference, invert, retrograde, rotations } from "@/lib/improv/schillinger";
 import { useCreatorKey } from "../KeyProvider";
 import { Body, Hint } from "./common";
-
-const field = "rounded-md border border-slate-700 bg-slate-900 px-1.5 py-0.5 text-xs text-slate-200";
+import { Select } from "@/components/ui";
 const MOTIVE = [0, 2, 1, 4];
 
 /** Schillinger at a glance: an interference rhythm, and one motive turned round, in the key's notes (or as degrees with no key). */
@@ -31,9 +30,9 @@ export default function ImprovPlugin() {
       {!ctx && <Hint>Pick a key above to spell the motive in it. Until then, scale degrees.</Hint>}
       <div className="flex items-center gap-1.5 text-xs text-slate-400">
         Rhythm
-        <select className={field} value={a} onChange={(e) => setA(Number(e.target.value))} aria-label="First pulse">{[2, 3, 4, 5, 6, 7].map((n) => <option key={n}>{n}</option>)}</select>
+        <Select size="xs" value={a} onChange={setA} aria-label="First pulse" options={[2, 3, 4, 5, 6, 7].map((n) => ({ value: n, label: String(n) }))} />
         against
-        <select className={field} value={b} onChange={(e) => setB(Number(e.target.value))} aria-label="Second pulse">{[2, 3, 4, 5, 6, 7].map((n) => <option key={n}>{n}</option>)}</select>
+        <Select size="xs" value={b} onChange={setB} aria-label="Second pulse" options={[2, 3, 4, 5, 6, 7].map((n) => ({ value: n, label: String(n) }))} />
         <span className="ml-auto font-mono text-slate-200">{it.durations.join("+")}</span>
       </div>
       <svg viewBox={`0 0 ${it.length * 10 + 16} 46`} className="w-full" role="img" aria-label={`Interference of ${a} against ${b}: ${it.durations.join(" ")}`}>

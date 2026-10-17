@@ -6,7 +6,7 @@ import { EffectControls } from "./EffectsModal";
 import { busPath } from "./PatchNode";
 import { dropWidgets, moveWidget, toggleWidget, useWidgetRefs, type WidgetRef } from "./widgets";
 import { EFFECT_DEFS, type EffectSpec, type LooperEngine, type LooperSnapshot } from "@/lib/looper/engine";
-import { tbtn } from "@/components/controls";
+import { tbtn } from "@/components/ui";
 
 
 export interface Resolved {

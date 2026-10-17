@@ -3,7 +3,7 @@
 import { useSyncExternalStore } from "react";
 import Icon from "@/components/Icon";
 import type { LooperEngine } from "@/lib/looper/engine";
-import { ibtn } from "@/components/controls";
+import { ibtn } from "@/components/ui";
 
 
 const clock = (t: number) => new Date(t).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });

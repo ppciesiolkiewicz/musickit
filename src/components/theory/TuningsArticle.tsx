@@ -4,7 +4,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { strum } from "@/features/sound";
 import { A4_PRESETS, instrumentById, midiToHz, type InstrumentId, type Tuning } from "@/features/theory";
-import { btnSm } from "@/components/controls";
+import { btnSm } from "@/components/ui";
 
 const H2 = ({ id, children }: { id: string; children: ReactNode }) => <h2 id={id} className="mt-4 scroll-mt-4 text-lg font-light text-slate-100">{children}</h2>;
 const P = ({ children }: { children: ReactNode }) => <p className="max-w-3xl text-sm leading-relaxed text-slate-300">{children}</p>;

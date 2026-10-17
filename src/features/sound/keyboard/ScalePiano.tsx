@@ -5,9 +5,7 @@ import Icon from "@/components/Icon";
 import { createPlayer } from "../engine/player";
 import { useInstrumentOptions } from "../engine/useInstrumentOptions";
 import { MAX_OCTAVE, MIN_OCTAVE, NOTE_NAMES, SCALES, buildKeyMap, clampState, scalePitchClasses, type KeyNote, type ScalePianoState } from "./scaleKeys";
-import { ibtn } from "@/components/controls";
-
-const field = "h-8 rounded-md border border-slate-700 bg-slate-900 px-2 text-xs text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
+import { ibtn, Select } from "@/components/ui";
 
 /** indent of each keyboard row, in key widths, like a real keyboard */
 const STAGGER = [0, 0.5, 0.75, 1.25];
@@ -106,17 +104,16 @@ export default function ScalePiano({ state: raw, onChange, voice, hideSound = fa
   return (
     <div className="flex w-[34rem] max-w-full flex-col gap-2 p-2">
       <div className="flex flex-wrap items-center gap-1.5">
-        <select className={field} value={state.root} onChange={(e) => onChange({ root: Number(e.target.value) })} aria-label="Key">
-          {NOTE_NAMES.map((n, i) => <option key={n} value={i}>{n}</option>)}
-        </select>
-        <select className={field} value={state.scale} onChange={(e) => onChange({ scale: e.target.value })} aria-label="Scale">
-          {SCALES.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-        </select>
+        <Select value={state.root} onChange={(root) => onChange({ root })} aria-label="Key" options={NOTE_NAMES.map((n, i) => ({ value: i, label: n }))} />
+        <Select value={state.scale} onChange={(scale) => onChange({ scale })} aria-label="Scale" options={SCALES.map((s) => ({ value: s.id, label: s.name }))} />
         {!hideSound && (
-        <select className={field} value={instrument} onChange={(e) => { onChange({ instrument: e.target.value }); e.target.blur(); }} aria-label="Sound" title="Sound">
-          {!instrumentOptions.some((o) => o.value === instrument) && <option value={instrument}>{instrument}</option>}
-          {instrumentOptions.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-        </select>
+        <Select
+          value={instrument}
+          onChange={(id) => onChange({ instrument: id })}
+          aria-label="Sound"
+          title="Sound"
+          options={[...(instrumentOptions.some((o) => o.value === instrument) ? [] : [{ value: instrument, label: instrument }]), ...instrumentOptions]}
+        />
         )}
         <div className="ml-auto flex items-center gap-1" role="group" aria-label="Octave">
           <button type="button" className={ibtn} disabled={state.octave <= MIN_OCTAVE} onClick={() => onChange({ octave: state.octave - 1 })} title="Octave down" aria-label="Octave down"><Icon name="chevron-left" /></button>

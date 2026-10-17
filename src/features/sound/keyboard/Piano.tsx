@@ -9,7 +9,7 @@ import { createPlayer } from "../engine/player";
 import { noteToMidi } from "../engine/notes";
 import type { ScaleVoice } from "./ScalePiano";
 import Icon from "@/components/Icon";
-import { btnSm, ibtn } from "@/components/controls";
+import { btnSm, ibtn, Select } from "@/components/ui";
 
 interface PianoKey {
   id: string;
@@ -310,7 +310,6 @@ export default function Piano({ destination, voice, keyInfo, onNoteOn, onNoteOff
     }
     return highlighting && getScaleDegree(id, scaleName) === 1;
   };
-  const field = "h-8 rounded-lg border border-slate-700/80 bg-slate-900 px-2 text-xs text-slate-100 focus-visible:outline-2 focus-visible:outline-sky-400";
 
   return (
     <div className="flex w-full flex-col gap-3">
@@ -335,17 +334,11 @@ export default function Piano({ destination, voice, keyInfo, onNoteOn, onNoteOff
           {midiStatus === "connecting" ? "Connecting…" : midiStatus === "connected" ? `MIDI · ${getMidiInputs().length}` : midiStatus === "error" ? "MIDI failed" : "Connect MIDI"}
         </button>
         {!voice && (
-          <select value={instrumentId} onChange={(e) => { changeInstrument(e.target.value); e.target.blur(); }} className={field} aria-label="Sound">
-            {instrumentOptions.map(({ value, label }) => <option key={value} value={value}>{label}</option>)}
-          </select>
+          <Select value={instrumentId} onChange={changeInstrument} aria-label="Sound" options={instrumentOptions} />
         )}
         {!keyInfo && (<>
-          <select value={scaleTonic} onChange={(e) => { setScaleTonic(e.target.value); e.target.blur(); }} className={field} aria-label="Key">
-            {TONIC_OPTIONS.map((t) => <option key={t} value={t}>{t.replace("#", "♯")}</option>)}
-          </select>
-          <select value={scaleType} onChange={(e) => { setScaleType(e.target.value); e.target.blur(); }} className={field} aria-label="Scale">
-            {SCALE_OPTIONS.map(({ value, label }) => <option key={value} value={value}>{label}</option>)}
-          </select>
+          <Select value={scaleTonic} onChange={setScaleTonic} aria-label="Key" options={TONIC_OPTIONS.map((t) => ({ value: t, label: t.replace("#", "♯") }))} />
+          <Select value={scaleType} onChange={setScaleType} aria-label="Scale" options={SCALE_OPTIONS} />
           <button type="button" className={btnSm} aria-pressed={showScaleHighlight} onClick={() => setShowScaleHighlight((v) => !v)}>Highlight scale</button>
         </>)}
       </div>

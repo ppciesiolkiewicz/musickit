@@ -3,10 +3,10 @@
 import { useState } from "react";
 import { DIFF_CLASS } from "./palette";
 import ChordDiagram from "./ChordDiagram";
-import { Info, Stepper, Tag } from "@/components/ui";
 import { type RichShape, VARIANT, openRootPc, shapeFormula, shapeName, rootFretFor, STRING_SHORT, STYLE_TAGS, tagText } from "@/lib/chordKit/shapeTools";
 import { MODE_LIST, type KeyContext } from "@/features/theory/theory";
 import { strumShape } from "@/lib/chordKit/playback";
+import { Info, Stepper, Tag } from "@/components/ui";
 
 export interface Placement {
   /** chord name in the key, e.g. "Gmaj7" */

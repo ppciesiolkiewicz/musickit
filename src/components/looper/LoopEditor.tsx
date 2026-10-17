@@ -2,11 +2,9 @@
 
 import { useEffect, useLayoutEffect, useRef, useState, type PointerEvent as RPointerEvent } from "react";
 import Icon from "../Icon";
-import { Modal } from "../Modal";
 import type { ChannelInfo, LooperEngine } from "@/lib/looper/engine";
 import { DEFAULT_EDIT, isDefaultEdit, minMax, normaliseGain, seamFrames, shiftRange, type LoopEdit } from "@/lib/looper/loopEdit";
-import RangeSlider from "@/components/Slider";
-import { sbtn as btn } from "@/components/controls";
+import { Slider as RangeSlider, Modal, sbtn as btn } from "@/components/ui";
 
 const H = 150;
 const toDb = (g: number) => (g <= 0 ? -60 : 20 * Math.log10(g));

@@ -3,8 +3,7 @@
 import type { ReactNode } from "react";
 import { DEFAULT_DRONE, DRONE_MAX_OCTAVE, DRONE_MAX_RATE, DRONE_MIN_OCTAVE, DRONE_MIN_RATE, FILTERS, MOD_TARGETS, NOTE_NAMES, WAVES, droneCutoff, droneName, type DroneParams } from "./drone";
 import DroneScope from "./DroneScope";
-
-const field = "h-8 rounded-md border border-slate-700 bg-slate-900 px-2 text-xs text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
+import { Select } from "@/components/ui";
 const ibtn = "grid h-8 min-w-8 place-items-center rounded-lg border border-slate-700 bg-slate-900 px-1.5 text-xs text-slate-200 transition hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 const on = "!border-sky-400 !bg-sky-500/20 !text-sky-100";
 
@@ -87,9 +86,7 @@ export default function DroneControls({ value, onChange, playing = false, analys
             <span className="w-10 text-center text-sm tabular-nums text-slate-100" aria-live="polite">{droneName(value)}</span>
             <button type="button" className={ibtn} disabled={value.octave >= DRONE_MAX_OCTAVE} onClick={() => onChange({ octave: value.octave + 1 })} aria-label="Octave up">+</button>
           </div>
-          <select className={field} value={value.wave} onChange={(e) => onChange({ wave: e.target.value as DroneParams["wave"] })} aria-label="Waveform">
-            {WAVES.map((w) => <option key={w} value={w}>{waveName(w)}</option>)}
-          </select>
+          <Select value={value.wave} onChange={(wave) => onChange({ wave })} aria-label="Waveform" options={WAVES.map((w) => ({ value: w, label: waveName(w) }))} />
         </div>
       </div>
 
@@ -103,17 +100,13 @@ export default function DroneControls({ value, onChange, playing = false, analys
         <div className="flex min-w-0 flex-col gap-4">
           <div className="flex min-w-0 flex-col gap-2">
             <Head title="Filter">
-              <select className={field} value={value.filter} onChange={(e) => onChange({ filter: e.target.value as DroneParams["filter"] })} aria-label="Filter type">
-                {FILTERS.map((f) => <option key={f} value={f}>{FILTER_NAMES[f]}</option>)}
-              </select>
+              <Select value={value.filter} onChange={(filter) => onChange({ filter })} aria-label="Filter type" options={FILTERS.map((f) => ({ value: f, label: FILTER_NAMES[f] }))} />
             </Head>
             <Sliders value={value} onChange={onChange} items={FILTER} />
           </div>
           <div className="flex min-w-0 flex-col gap-2">
             <Head title="Modulation">
-              <select className={field} value={value.modWave} disabled={value.mod === "off"} onChange={(e) => onChange({ modWave: e.target.value as DroneParams["modWave"] })} aria-label="Modulation shape">
-                {WAVES.map((w) => <option key={w} value={w}>{waveName(w)}</option>)}
-              </select>
+              <Select value={value.modWave} disabled={value.mod === "off"} onChange={(modWave) => onChange({ modWave })} aria-label="Modulation shape" options={WAVES.map((w) => ({ value: w, label: waveName(w) }))} />
             </Head>
             <div role="group" aria-label="What the modulation moves" className="grid grid-cols-4 gap-1">
               {MOD_TARGETS.map((m) => (

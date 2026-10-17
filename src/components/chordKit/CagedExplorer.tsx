@@ -9,7 +9,6 @@ import ChordDiagram from "./ChordDiagram";
 import { KeyPicker } from "./KeyPicker";
 import { fretWidthFactor } from "./Fretboard";
 import { DOT_INK, degreeColour } from "@/features/theory/scales";
-import { Chip, ChipRow, DegreeLegend, Info, Section } from "@/components/ui";
 import {
   CAGED_THEORY, NECK_END, boxArpeggio, boxCells, boxChords, cagedBoxes, cagedContext, ladderMidi, laneAt, laneStarts, layerNotes,
   type ArpKind, type CagedBox, type CagedCell, type CagedQuality,
@@ -19,6 +18,8 @@ import { arpeggioMidi } from "@/lib/chordKit/arpeggios";
 import { shapesForChord } from "@/lib/chordKit/chordShapes";
 import { strum, strumShape } from "@/lib/chordKit/playback";
 import { DEFAULT_KEY_PC } from "@/features/theory/theory";
+import { Chip, ChipRow, Info, Section } from "@/components/ui";
+import { DegreeLegend } from "@/components/theory/DegreeLegend";
 
 const LANE_COLOURS = ["#f87171", "#fb923c", "#facc15", "#4ade80", "#60a5fa"];
 const play = "rounded-full border border-emerald-500/70 bg-emerald-500/10 px-2.5 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25";

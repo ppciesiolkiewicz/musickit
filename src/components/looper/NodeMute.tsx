@@ -1,8 +1,8 @@
 "use client";
 
-import { ibtn } from "../controls";
 import type { PatchNode } from "@/lib/looper/patch";
 import type { LooperEngine } from "@/lib/looper/engine";
+import { ibtn } from "@/components/ui";
 
 /** The M button of a Bus, Switch or Tuner block: the same button, in the same place (right of the block's first row), as an input's M. */
 export default function NodeMute({ engine, node: n, name, title = "Mute" }: { engine: LooperEngine; node: PatchNode; name: string; title?: string }) {

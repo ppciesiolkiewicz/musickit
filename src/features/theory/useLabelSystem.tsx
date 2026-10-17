@@ -2,6 +2,7 @@
 
 import { useSyncExternalStore } from "react";
 import { DEFAULT_LABEL_ROOT, DEFAULT_LABEL_SYSTEM, LABEL_ROOTS, LABEL_SYSTEMS, isLabelRoot, isLabelSystem, type LabelRoot, type LabelSystem } from "./labels";
+import { Select, Field } from "@/components/ui";
 
 const KEY = "musickit.labelSystem";
 let current: LabelSystem = DEFAULT_LABEL_SYSTEM;
@@ -45,12 +46,9 @@ export function LabelSelect({ className = "", showLabel = true, omit = [] }: { c
   const [stored, set] = useLabelSystem();
   const v = omit.includes(stored) ? "degree" : stored;
   return (
-    <label className={`inline-flex items-center gap-1.5 text-xs text-slate-400 ${className}`}>
-      {showLabel && "Labels"}
-      <select value={v} onChange={(e) => set(e.target.value as LabelSystem)} className="rounded-md border border-slate-700 bg-slate-900 px-1.5 py-0.5 text-slate-200" aria-label="Note labels">
-        {LABEL_SYSTEMS.filter((s) => !omit.includes(s.id)).map((s) => <option key={s.id} value={s.id}>{s.label} ({s.hint})</option>)}
-      </select>
-    </label>
+    <Field label={showLabel ? "Labels" : null} className={className}>
+      <Select size="sm" value={v} onChange={set} aria-label="Note labels" options={LABEL_SYSTEMS.filter((s) => !omit.includes(s.id)).map((s) => ({ value: s.id, label: `${s.label} (${s.hint})` }))} />
+    </Field>
   );
 }
 
@@ -88,11 +86,8 @@ export function useLabelRoot(): [LabelRoot, (v: LabelRoot) => void] {
 export function RootSelect({ className = "" }: { className?: string }) {
   const [v, set] = useLabelRoot();
   return (
-    <label className={`inline-flex items-center gap-1.5 text-xs text-slate-400 ${className}`}>
-      Count from
-      <select value={v} onChange={(e) => set(e.target.value as LabelRoot)} className="rounded-md border border-slate-700 bg-slate-900 px-1.5 py-0.5 text-slate-200" aria-label="Count intervals and colours from">
-        {LABEL_ROOTS.map((r) => <option key={r.id} value={r.id}>{r.label}</option>)}
-      </select>
-    </label>
+    <Field label="Count from" className={className}>
+      <Select size="sm" value={v} onChange={set} aria-label="Count intervals and colours from" options={LABEL_ROOTS.map((r) => ({ value: r.id, label: r.label }))} />
+    </Field>
   );
 }

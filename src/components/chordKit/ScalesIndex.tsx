@@ -6,13 +6,13 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ColourKey, ModeAlias, ScaleSettingsBar, UNDER_BAR } from "./ScaleSettings";
 import ModeCompare from "./ModeCompare";
-import { Section } from "@/components/ui";
 import { FAMILIES, makeKeyContext } from "@/features/theory/theory";
 import { MODE_PAGES, degreeColour, degreeLabels, relativesOf, DOT_INK } from "@/features/theory/scales";
 import { scaleCells, scaleLineMidi } from "@/lib/chordKit/scalePositions";
 import { ScaleNeck } from "./ScaleNeck";
 import { useNotePlayer } from "./useNotePlayer";
 import { keySlug, scaleHref } from "@/features/theory/keySlug";
+import { Section } from "@/components/ui";
 
 const ORD = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th"];
 
