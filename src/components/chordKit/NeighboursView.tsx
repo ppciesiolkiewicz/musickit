@@ -89,7 +89,7 @@ export default function NeighboursView() {
           <button type="button" onClick={() => walk(1)} className="rounded-full border border-slate-700 px-2 text-sm text-slate-300" aria-label="Region up the neck">→</button>
         </ChipRow>
       </div>
-      <div className="mt-3 overflow-x-auto">
+      <div className="mt-3 min-w-0">
         <NoteNeck to={17} dots={dots} window={region ?? undefined} />
       </div>
       <div className="mt-3 grid grid-cols-3 gap-2">

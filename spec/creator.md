@@ -30,6 +30,8 @@ Full views: Scale → the mode page (`/theory/scales/[slug]`), Chords → the ch
 ## Board
 Plugins are widgets (`features/widgets`): drag by the header, resize from the corner, close with the ×. They stay inside the board; the board's height is adjustable. Switch plugins on and off with the chips; the arrange button tiles them. Open plugins: `musickit.creator.plugins`; layout and height: `musickit.creator.board`.
 
+On a phone (narrower than Tailwind's `sm`, 640 px) there is no board: the open plugins stack in a column, each as wide as the screen and as tall as its content, with the same header (title, Full / Compact, ×). The saved board layout is left alone for wider screens.
+
 ## Adding a plugin
 Write a component in `plugins/` that uses `useCreatorKey()` and handles `ctx === null`, then add it to `plugins/registry.tsx`. For a full view, add a wrapper in `plugins/full.tsx` that starts the page component on the key, and set `Full` in the registry.
 

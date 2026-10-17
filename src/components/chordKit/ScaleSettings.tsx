@@ -15,7 +15,7 @@ import { PocketTools } from "@/features/instruments";
 /** Room the sticky bar takes at the top, for `scroll-mt` on the sections it jumps to. */
 export const UNDER_BAR = "scroll-mt-48";
 
-/** One labelled row of the bar. On a phone the chips scroll sideways instead of wrapping, so the bar stays short. */
+/** One labelled row of the bar. The chips wrap rather than scroll sideways. */
 function BarRow({ label, info, children }: { label: string; info?: ReactNode; children: ReactNode }) {
   const [open, setOpen] = useState(false);
   return (
@@ -24,7 +24,7 @@ function BarRow({ label, info, children }: { label: string; info?: ReactNode; ch
         {label}
         {info && <InfoButton open={open} onClick={() => setOpen((v) => !v)} label={`About ${label.toLowerCase()}`} />}
       </span>
-      <div className="-mx-1 flex min-w-0 flex-1 items-center gap-1 overflow-x-auto px-1 py-0.5 sm:flex-wrap sm:overflow-visible">{children}</div>
+      <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1 py-0.5">{children}</div>
       {open && info && <InfoBox>{info}</InfoBox>}
     </div>
   );
@@ -51,7 +51,7 @@ export function ScaleSettingsBar({
   jumpExtra?: ReactNode;
 }) {
   return (
-    <div className="sticky top-2 z-20 flex flex-col gap-2 rounded-2xl border border-slate-700 bg-slate-950/90 px-2.5 py-2 shadow-lg shadow-black/30 backdrop-blur xl:flex-row xl:items-center">
+    <div className="z-20 flex flex-col sm:sticky sm:top-2 gap-2 rounded-2xl border border-slate-700 bg-slate-950/90 px-2.5 py-2 shadow-lg shadow-black/30 backdrop-blur xl:flex-row xl:items-center">
       <div className="flex min-w-0 flex-1 flex-col gap-1.5">
         {scale && <ScaleRow slug={scale} tonicPc={tonicPc} />}
         <BarRow label="Key" info={KEY_INFO}>

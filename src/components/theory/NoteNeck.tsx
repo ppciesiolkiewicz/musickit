@@ -1,6 +1,7 @@
 "use client";
 
 import { FretboardBase, fretGeometry } from "@/components/chordKit/Fretboard";
+import usePhone from "@/components/usePhone";
 
 /** One dot on the neck. string 0 = low E. */
 export interface NeckDot { string: number; fret: number; label: string; fill: string; text?: string; outline?: boolean; big?: boolean }
@@ -20,14 +21,16 @@ interface Props {
 
 /** A plain fretboard with labelled dots and optional tappable cells. Shared by the basics page, the practice games and the CAGED neighbours. */
 export default function NoteNeck({ from = 0, to, dots, onCell, cellFill, window, compact }: Props) {
-  const g = compact ? fretGeometry(from, to, 36, 24, 22) : fretGeometry(from, to, 50, 32, 22);
-  const r = compact ? 9 : 12;
+  // a phone fits the whole neck on screen: narrower frets, so the dots come out bigger once it is scaled down
+  const phone = usePhone();
+  const g = compact || phone ? fretGeometry(from, to, phone ? 26 : 36, 24, 22) : fretGeometry(from, to, 50, 32, 22);
+  const r = phone ? 10 : compact ? 9 : 12;
   const cells: { s: number; f: number }[] = [];
   for (let s = 0; s < 6; s++) for (let f = from; f <= to; f++) cells.push({ s, f });
   const colLeft = (f: number) => g.edge(f);
   const colW = (f: number) => g.edge(f + 1) - g.edge(f);
   return (
-    <svg viewBox={`0 0 ${g.W} ${g.H}`} width="100%" role="img" aria-label="Fretboard" style={{ minWidth: Math.min(g.W, 520), maxWidth: g.W * 1.1 }}>
+    <svg viewBox={`0 0 ${g.W} ${g.H}`} width="100%" role="img" aria-label="Fretboard" style={{ maxWidth: g.W * 1.1 }}>
       <FretboardBase g={g} markerSize={compact ? 4 : 6} />
       {window && (
         <rect x={colLeft(Math.max(from, window.from))} y={g.sy(5) - 14} width={g.edge(Math.min(to, window.to) + 1) - colLeft(Math.max(from, window.from))} height={g.sy(0) - g.sy(5) + 28} rx={6} fill={window.colour ?? "#38bdf8"} opacity={0.12} pointerEvents="none" />

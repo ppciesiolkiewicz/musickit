@@ -136,7 +136,7 @@ export default function Jam() {
           <section key={p} aria-label={inst.name} className={card}>
             <PatternBar instrument={inst} bars={v.state.bars} onPreset={(id) => rig.loadPreset(p, id)} onBars={(b) => rig.setBars(p, b)} onClear={() => rig.clear(p)}
               leading={<><PlayButton on={v.state.playing} name={inst.name.toLowerCase()} onClick={() => toggle(p)} /><Title view={v}>{p === "bass" ? `${inst.name} · ${key} minor pentatonic` : inst.name}</Title></>} />
-            <StepGrid instrument={inst} cells={v.state.cells} steps={v.steps} beatsPerBar={BEATS_PER_BAR} musicKey={p === "bass" ? drone.state.drone.root : undefined} position={() => rig.position(p)} onStep={(l, s, val) => rig.setStep(p, l, s, val)} />
+            <StepGrid instrument={inst} cells={v.state.cells} steps={v.steps} beatsPerBar={BEATS_PER_BAR} musicKey={p === "bass" ? drone.state.drone.root : undefined} position={() => rig.position(p)} onStep={(l, s, val) => rig.setStep(p, l, s, val)} fit />
           </section>
         );
       })}

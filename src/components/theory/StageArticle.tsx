@@ -40,7 +40,7 @@ export default function StageArticle({ stage, prev, next }: { stage: Stage; prev
         {stage.tracks.map((tr) => {
           const meta = TRACKS.find((t) => t.id === tr.id)!;
           return (
-            <section key={tr.id} id={tr.id} className="flex scroll-mt-4 flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
+            <section key={tr.id} id={tr.id} className="flex min-w-0 scroll-mt-4 flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
               <header>
                 <h2 className="text-base font-medium text-slate-100">{meta.label}</h2>
                 <p className="text-xs text-slate-500">{meta.desc}</p>

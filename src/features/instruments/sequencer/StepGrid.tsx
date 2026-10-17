@@ -27,7 +27,8 @@ export function PatternBar({ instrument, bars, onPreset, onBars, onClear, leadin
  * The step grid: one row per lane, click a step for on, again for an accent, again to clear. `position` is read every frame to light the
  * step that sounds. `musicKey` (0 = C) names a pitched instrument's lanes in that key.
  */
-export default function StepGrid({ instrument, cells, steps, beatsPerBar, musicKey, position, onStep }: { instrument: Instrument; cells: Cells; steps: number; beatsPerBar: number; musicKey?: number; position: () => number | null; onStep: (lane: number, step: number, value: 0 | 1 | 2) => void }) {
+/** `fit` squeezes the steps into the width given instead of scrolling sideways (a page on a phone). */
+export default function StepGrid({ instrument, cells, steps, beatsPerBar, musicKey, position, onStep, fit = false }: { instrument: Instrument; cells: Cells; steps: number; beatsPerBar: number; musicKey?: number; position: () => number | null; onStep: (lane: number, step: number, value: 0 | 1 | 2) => void; fit?: boolean }) {
   const heads = useRef<(HTMLSpanElement | null)[]>([]);
   // read by the frame loop, so a new function each render does not restart it
   const pos = useRef(position);
@@ -52,8 +53,8 @@ export default function StepGrid({ instrument, cells, steps, beatsPerBar, musicK
 
   const gap = (s: number) => (s % (bpb * 4) === 0 && s > 0 ? "ml-1.5" : s % 4 === 0 && s > 0 ? "ml-0.5" : "");
   return (
-    <div className="overflow-x-auto">
-      <div className="grid min-w-max gap-y-1" style={{ gridTemplateColumns: `4.5rem repeat(${steps}, minmax(1.5rem, 1fr))` }} role="grid" aria-label={`${instrument.name} pattern, ${steps} steps`}>
+    <div className={fit ? "" : "overflow-x-auto"}>
+      <div className={`grid gap-y-1 ${fit ? "" : "min-w-max"}`} style={{ gridTemplateColumns: fit ? `3.5rem repeat(${steps}, minmax(0, 1fr))` : `4.5rem repeat(${steps}, minmax(1.5rem, 1fr))` }} role="grid" aria-label={`${instrument.name} pattern, ${steps} steps`}>
         <span />
         {Array.from({ length: steps }, (_, s) => (
           <span key={s} ref={(el) => { heads.current[s] = el; }} className={`mb-0.5 grid h-4 place-items-center rounded text-[9px] tabular-nums text-slate-500 ${gap(s)}`}>

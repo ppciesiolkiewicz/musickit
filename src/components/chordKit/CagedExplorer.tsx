@@ -162,15 +162,15 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem }: { b
         </span>
         <LabelSelect className="ml-auto" />
       </h2>
-      <div className="overflow-x-auto">
+      <div className="[--row:1.6rem] sm:[--row:2.6rem]">
         <div
-          className="grid min-w-[820px] gap-y-0 text-xs"
-          style={{ gridTemplateColumns: `1.5rem ${frets.map((f) => `${fretWidthFactor(f).toFixed(3)}fr`).join(" ")}`, gridTemplateRows: "auto repeat(6, 2.6rem) auto" }}
+          className="grid gap-y-0 text-[9px] sm:text-xs"
+          style={{ gridTemplateColumns: `1rem ${frets.map((f) => `minmax(0,${fretWidthFactor(f).toFixed(3)}fr)`).join(" ")}`, gridTemplateRows: "auto repeat(6, var(--row)) auto" }}
           role="group" aria-label="Chord tones on the whole neck with the five CAGED boxes marked"
         >
           {labelSpans.map(({ k, from, to }) => (
-            <div key={k} className={`flex whitespace-nowrap px-1 pb-1.5 text-xs font-semibold ${k === SECTIONS - 1 ? "justify-end" : "justify-center"}`} style={{ gridRow: 1, gridColumn: `${from + COL0} / ${to + COL0}`, color: colour(k) }}>
-              {sorted[k].letter} shape · Position {k + 1}
+            <div key={k} className={`flex whitespace-nowrap px-1 pb-1.5 text-[10px] font-semibold sm:text-xs ${k === SECTIONS - 1 ? "justify-end" : "justify-center"}`} style={{ gridRow: 1, gridColumn: `${from + COL0} / ${to + COL0}`, color: colour(k) }}>
+              {sorted[k].letter}<span className="hidden sm:inline">&nbsp;shape · Position {k + 1}</span>
             </div>
           ))}
           {[5, 4, 3, 2, 1, 0].map((s, r) => (
@@ -200,7 +200,7 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem }: { b
                       type="button"
                       onClick={() => strum([c.midi], { gapMs: 0, holdMs: 700 })}
                       aria-label={`${lab(c)} on string ${STRING_LETTERS[s]}, fret ${f}`}
-                      className={`grid h-7 w-7 place-items-center rounded-full text-xs font-bold ${c.isRoot ? "ring-2 ring-slate-50" : "ring-1 ring-slate-950"}`}
+                      className={`grid size-4 place-items-center rounded-full text-[8px] font-bold sm:size-7 sm:text-xs ${c.isRoot ? "ring-2 ring-slate-50" : "ring-1 ring-slate-950"}`}
                       style={{ backgroundColor: c.scaleDegree === null ? "#f43f5e" : degreeColour(c.scaleDegree), color: DOT_INK }}
                     >
                       {lab(c)}
@@ -211,7 +211,7 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem }: { b
             }),
           )}
           {frets.map((f) => (
-            <div key={`fn${f}`} className="pt-1.5 text-center text-slate-500" style={{ gridRow: 8, gridColumn: f + COL0 }}>{f === 0 ? "open" : f}</div>
+            <div key={`fn${f}`} className="pt-1.5 text-center text-slate-500" style={{ gridRow: 8, gridColumn: f + COL0 }}>{f === 0 ? <><span className="sm:hidden">0</span><span className="hidden sm:inline">open</span></> : f}</div>
           ))}
         </div>
       </div>

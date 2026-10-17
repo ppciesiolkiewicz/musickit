@@ -77,7 +77,7 @@ function IntervalViewer({ semis, setSemis }: { semis: number; setSemis: (n: numb
       </p>
       <div className="mt-2 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
         <MiniPiano from={pianoFrom([startMidi, startMidi + semis])} lit={[{ midi: startMidi, label: "R", colour: ROOT }, { midi: startMidi + semis, label: info.short, colour: TARGET }]} />
-        <div className="overflow-x-auto"><NoteNeck to={15} dots={dots} /></div>
+        <div className="min-w-0"><NoteNeck to={15} dots={dots} /></div>
       </div>
       <ul className="mt-2 space-y-0.5 text-sm text-slate-300">
         {pos.map((p) => (

@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import Icon from "@/components/Icon";
+import usePhone from "@/components/usePhone";
 import { getAudioContext, getOutputBus } from "@/features/sound";
 import { tapTempo, type ClickParams } from "../click/click";
 import { DEFAULT_DRONE, DRONE_MAX_OCTAVE, DRONE_MIN_OCTAVE, NOTE_NAMES, droneName, type DroneParams } from "../drone/drone";
@@ -37,13 +39,15 @@ const typing = (t: EventTarget | null) => {
   return !!el && (el.isContentEditable || /^(TEXTAREA|SELECT)$/.test(el.tagName) || (el.tagName === "INPUT" && !/^(range|checkbox|radio|button)$/.test((el as HTMLInputElement).type)));
 };
 
-/** A sliders button with a panel under it; closes on a click outside or Escape. */
+/** A sliders button with a panel under it (a full-screen sheet on a phone); closes on a click outside or Escape. */
 function Popover({ label, wide, children }: { label: string; wide?: boolean; children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const wrap = useRef<HTMLDivElement>(null);
+  const sheet = useRef<HTMLDivElement>(null);
+  const phone = usePhone();
   useEffect(() => {
     if (!open) return;
-    const down = (e: PointerEvent) => wrap.current && !wrap.current.contains(e.target as Node) && setOpen(false);
+    const down = (e: PointerEvent) => !wrap.current?.contains(e.target as Node) && !sheet.current?.contains(e.target as Node) && setOpen(false);
     const key = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
     window.addEventListener("pointerdown", down);
     window.addEventListener("keydown", key);
@@ -57,7 +61,18 @@ function Popover({ label, wide, children }: { label: string; wide?: boolean; chi
       <button type="button" className={`${ibtn} ${open ? "!border-sky-400 !text-sky-200" : ""}`} aria-expanded={open} aria-haspopup="dialog" onClick={() => setOpen((v) => !v)} title={label} aria-label={label}>
         <Icon name="sliders-horizontal" size={14} />
       </button>
-      {open && (
+      {open && phone && createPortal(
+        // portalled: the settings bar it sits in is blurred, which would trap a fixed panel inside it
+        <div ref={sheet} role="dialog" aria-modal="true" aria-label={label} className="fixed inset-0 z-[2000] overflow-y-auto bg-slate-950 p-3 text-xs text-slate-300">
+          <div className="mb-3 flex items-center gap-2">
+            <h2 className="text-sm font-medium text-slate-100">{label}</h2>
+            <button type="button" onClick={() => setOpen(false)} className="ml-auto rounded-md border border-slate-700 px-2.5 py-1 text-xs text-slate-300 hover:border-slate-500">Close ✕</button>
+          </div>
+          {children}
+        </div>,
+        document.body,
+      )}
+      {open && !phone && (
         <div role="dialog" aria-label={label} className={`absolute right-0 top-full z-30 mt-1.5 max-h-[70vh] overflow-y-auto rounded-xl border border-slate-700 bg-slate-950 p-3 text-xs text-slate-300 shadow-2xl ${wide ? "w-xl" : "w-64"} max-w-[calc(100vw-1.5rem)]`}>
           {children}
         </div>
@@ -230,7 +245,7 @@ export default function PocketTools({ keyPc, className = "" }: { keyPc: number; 
           <div className="flex flex-col gap-3">
             <PatternBar instrument={inst} bars={v.state.bars} onPreset={(id) => rig.loadPreset(p, id)} onBars={(b) => rig.setBars(p, b)} onClear={() => rig.clear(p)}
               leading={<p className="mr-auto text-[11px] text-slate-500">{p === "bass" ? `${NOTE_NAMES[drone.root]} minor pentatonic, in the drone's key` : "Click a step for on, again for an accent"}</p>} />
-            <StepGrid instrument={inst} cells={v.state.cells} steps={v.steps} beatsPerBar={BEATS_PER_BAR} musicKey={p === "bass" ? drone.root : undefined} position={() => rig.position(p)} onStep={(l, s, val) => rig.setStep(p, l, s, val)} />
+            <StepGrid instrument={inst} cells={v.state.cells} steps={v.steps} beatsPerBar={BEATS_PER_BAR} musicKey={p === "bass" ? drone.root : undefined} position={() => rig.position(p)} onStep={(l, s, val) => rig.setStep(p, l, s, val)} fit />
           </div>
         </Popover>
       </Tool>

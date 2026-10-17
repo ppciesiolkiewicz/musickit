@@ -187,7 +187,7 @@ export default function NoteGame({ initial }: { initial: NoteSettings }) {
           <span className="ml-auto text-sm text-slate-400">streak <b className="text-slate-100">{streak}</b></span>
         </div>
         {feedback && <p className={`mb-2 text-sm ${feedback.ok ? "text-emerald-300" : "text-rose-300"}`}>{feedback.text}</p>}
-        <div className="overflow-x-auto">
+        <div className="min-w-0">
           <NoteNeck from={0} to={15} dots={dots} onCell={q && s.mode !== "name" ? tap : undefined} cellFill={(st, fr) => (showHeat ? heatFill(st, fr) : undefined) ?? dim(st, fr)} />
         </div>
         {q && s.mode === "name" && (

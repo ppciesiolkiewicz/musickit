@@ -16,6 +16,7 @@ import { DEFAULT_KEY_PC } from "@/features/theory/theory";
 import { scaleHref } from "@/features/theory/keySlug";
 import { Chip, ChipRow, Info, Select } from "@/components/ui";
 import { DegreeLegend } from "@/components/theory/DegreeLegend";
+import usePhone from "@/components/usePhone";
 
 const KINDS = [
   { id: "triad", label: "Scale triad" },
@@ -23,10 +24,12 @@ const KINDS = [
   { id: "ninth", label: "Scale 9th" },
 ];
 const GEO = fretGeometry(0, ARP_FRETS, 54, 36);
+// a phone fits the whole neck on screen: narrower frets, so the dots come out bigger once it is scaled down
+const PHONE_GEO = fretGeometry(0, ARP_FRETS, 32, 32);
 const OUT = "#f43f5e";
 
 export function ArpNeck({ cells, arp, overlay, labelSystem, badges, onNote }: { cells: NeckCell[]; arp: Arpeggio; overlay: boolean; labelSystem: LabelSystem; badges: boolean; onNote: (c: NeckCell) => void }) {
-  const g = GEO;
+  const g = usePhone() ? PHONE_GEO : GEO;
   const labelFor = (c: NeckCell) => noteLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText, role: c.arp?.role });
   const showBadge = badges && labelSystem === "note";
   const colour = (c: NeckCell) => (c.inScale ? degreeColour(c.scaleDegree as number) : OUT);
@@ -35,8 +38,8 @@ export function ArpNeck({ cells, arp, overlay, labelSystem, badges, onNote }: { 
   const op = () => 1;
 
   return (
-    <div className="overflow-x-auto">
-      <svg viewBox={`0 0 ${g.W} ${g.H}`} width="100%" style={{ minWidth: 820 }} role="img" aria-label={`${arp.title} on the guitar neck`}>
+    <div className="min-w-0">
+      <svg viewBox={`0 0 ${g.W} ${g.H}`} width="100%" role="img" aria-label={`${arp.title} on the guitar neck`}>
         <FretboardBase g={g} />
         {ringCells.map((c) => {
           const x = g.fx(c.fret), y = g.sy(c.string), col = colour(c);

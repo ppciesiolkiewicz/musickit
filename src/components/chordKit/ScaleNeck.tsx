@@ -1,6 +1,7 @@
 "use client";
 
 import { FretboardBase, fretGeometry } from "./Fretboard";
+import usePhone from "@/components/usePhone";
 import { VerticalBoard, vGeometry } from "./VerticalFretboard";
 import { DOT_INK, degreeColour } from "@/features/theory/scales";
 import { noteLabel, type LabelSystem } from "@/features/theory/labels";
@@ -49,16 +50,18 @@ const isActive = (active: string | null, c: ScaleCell) => active !== null && (ac
 /** The whole neck, frets 0-17 (0-12 when compact), with every note of the scale. Tap a note to hear it. */
 export function ScaleNeck({ cells, big, rings = true, focus = null, fadeOutside = true, active, labelSystem, onNote, compact = false, title }: NeckProps) {
   const to = compact ? 12 : SCALE_NECK_FRETS;
-  const g = compact ? fretGeometry(0, to, 34, 22, 36) : fretGeometry(0, to, 54, 36, 42);
-  const r = compact ? 8.5 : 14;
+  // a phone fits the whole neck on screen: narrower frets, so the dots come out bigger once it is scaled down
+  const phone = usePhone();
+  const g = compact ? fretGeometry(0, to, 34, 22, 36) : phone ? fretGeometry(0, to, 28, 26, 36) : fretGeometry(0, to, 54, 36, 42);
+  const r = compact ? 8.5 : phone ? 11 : 14;
   const inFocus = new Set(focus?.notes.map(cellKey));
   const focusFrets = focus?.notes.map((c) => c.fret) ?? [];
   const shown = cells.filter((c) => c.fret <= to && (big(c) || rings));
   // rings under the dots, the playing note last so its outline is on top
   shown.sort((a, b) => Number(big(a)) - Number(big(b)) || Number(isActive(active, a)) - Number(isActive(active, b)));
   return (
-    <div className="overflow-x-auto">
-      <svg viewBox={`0 0 ${g.W} ${g.H}`} width="100%" style={{ minWidth: compact ? 440 : 820 }} role="img" aria-label={title}>
+    <div className="min-w-0">
+      <svg viewBox={`0 0 ${g.W} ${g.H}`} width="100%" role="img" aria-label={title}>
         <FretboardBase g={g} markerSize={compact ? 4 : 6} numbersTop />
         {focus && focusFrets.length > 0 && (
           <rect

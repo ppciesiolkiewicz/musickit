@@ -33,8 +33,8 @@ export default function Tab({ title, origin, notes, position }: { title: string;
         <span className="text-xs text-slate-500">{origin}</span>
         <button type="button" onClick={play} className="ml-auto rounded-lg border border-sky-500/60 px-2 py-0.5 text-xs text-sky-200 hover:bg-sky-500/10">▶ Play</button>
       </figcaption>
-      <div className="overflow-x-auto">
-        <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} style={{ minWidth: W }} role="img" aria-label={`Tab for ${title}`} className="font-mono">
+      <div className="min-w-0">
+        <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ maxWidth: W }} role="img" aria-label={`Tab for ${title}`} className="font-mono">
           {NAMES.map((nm, i) => (
             <g key={nm + i}>
               <text x={4} y={top + i * row} dominantBaseline="central" fontSize={11} fill="var(--color-slate-500)">{nm}</text>

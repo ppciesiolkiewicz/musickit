@@ -52,8 +52,8 @@ export default function NeckDiagram({ title, specs, moves, scalePcs, focus = nul
   const dots = [3, 5, 7, 9, 15, 17];
 
   return (
-    <div className="overflow-x-auto">
-      <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ minWidth: Math.round(W * 0.8) }} role="img" aria-label={title}>
+    <div className="min-w-0">
+      <svg viewBox={`0 0 ${W} ${H}`} width="100%" role="img" aria-label={title}>
         <defs>
           <marker id="neck-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
             <path d="M0,0 L10,5 L0,10 z" fill="var(--color-slate-400)" />

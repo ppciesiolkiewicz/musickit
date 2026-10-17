@@ -19,14 +19,14 @@ export default function ChordKit({ initialTab = "shapes", initialKey, syncUrl = 
   const current = TABS.find((t) => t.id === tab)!;
   return (
     <div className="flex flex-col gap-4">
-      <div role="tablist" aria-label="Chord explorer sections" className="flex gap-1 overflow-x-auto rounded-xl border border-slate-800 bg-slate-900/60 p-1">
+      <div role="tablist" aria-label="Chord explorer sections" className="flex flex-wrap gap-1 rounded-xl border border-slate-800 bg-slate-900/60 p-1">
         {TABS.map((t) => (
           <button
             key={t.id}
             role="tab"
             aria-selected={tab === t.id}
             onClick={() => setTab(t.id)}
-            className={`whitespace-nowrap rounded-lg px-4 py-1.5 text-sm transition ${tab === t.id ? "bg-sky-500/20 text-sky-100" : "text-slate-400 hover:text-slate-200"}`}
+            className={`whitespace-nowrap rounded-lg px-3 py-1.5 sm:px-4 text-sm transition ${tab === t.id ? "bg-sky-500/20 text-sky-100" : "text-slate-400 hover:text-slate-200"}`}
           >
             {t.label}
           </button>

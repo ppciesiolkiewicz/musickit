@@ -80,8 +80,8 @@ export default function TuningsArticle() {
         since 1955, ISO 16). In equal temperament every semitone is the twelfth root of two (about 1.0595) times the one below, and a semitone is
         divided into 100 <b>cents</b>, so once A4 is fixed every other note follows: f = A4 × 2<sup>(n − 69) / 12</sup> for MIDI note n.
       </P>
-      <div className="overflow-x-auto">
-        <table className="text-left text-xs text-slate-300">
+      <div>
+        <table className="w-full max-w-3xl text-left text-xs text-slate-300">
           <thead className="text-slate-500">
             <tr><th className="py-1 pr-4 font-normal">A4</th><th className="py-1 pr-4 font-normal">Used for</th><th className="py-1 pr-4 font-normal">Low E (E2)</th><th className="py-1 font-normal">vs 440</th></tr>
           </thead>

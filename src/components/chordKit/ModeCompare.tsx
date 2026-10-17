@@ -56,8 +56,8 @@ export default function ModeCompare({ tonicPc, open, onToggle, accent }: { tonic
         <span className="text-xs text-slate-500">{n > 1 ? `in all ${n} modes` : ""}</span>
       </div>
 
-      <div className="mt-3 overflow-x-auto">
-        <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ minWidth: Math.min(W, 640) }} role="img" aria-label="Which notes each mode has">
+      <div className="mt-3 min-w-0">
+        <svg viewBox={`0 0 ${W} ${H}`} width="100%" role="img" aria-label="Which notes each mode has">
           {cmp.columns.map((c, i) => (
             <g key={c.semi}>
               {c.core && <rect x={left + i * colW + 2} y={top - 30} width={colW - 4} height={n * rowH + 36} rx={10} fill="var(--color-slate-800)" opacity={0.7} />}

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Icon from "@/components/Icon";
+import usePhone from "@/components/usePhone";
 import { WidgetBoard } from "@/features/widgets";
 import { CreatorKeyProvider } from "./KeyProvider";
 import KeyBar from "./KeyBar";
@@ -26,6 +27,7 @@ function Creator() {
   const [views, setViews] = useState<Record<string, View>>({});
   const [loaded, setLoaded] = useState(false);
   const [reset, setReset] = useState(0);
+  const phone = usePhone();
 
   useEffect(() => {
     try {
@@ -81,7 +83,21 @@ function Creator() {
         })}
         <button type="button" className="ml-auto grid h-8 w-8 place-items-center rounded-lg border border-slate-700 bg-slate-900 text-slate-200 hover:border-slate-500" onClick={() => setReset((n) => n + 1)} title="Arrange the plugins neatly" aria-label="Arrange the plugins neatly"><Icon name="rotate-ccw" /></button>
       </div>
-      {widgets.length ? (
+      {widgets.length && phone ? (
+        // a phone has no room to arrange panels: they stack, each as wide as the screen and as tall as its content
+        <div className="flex flex-col gap-3">
+          {widgets.map((w) => (
+            <section key={w.id} aria-label={w.title} className="min-w-0 overflow-hidden rounded-xl border border-slate-700 bg-slate-950">
+              <header className="flex items-center gap-2 border-b border-slate-800 bg-slate-900 px-3 py-1.5 text-xs text-slate-200">
+                <span className="font-medium">{w.title}</span>
+                {w.actions}
+                <button type="button" onClick={w.onClose} aria-label={`Close ${w.title}`} className="ml-auto rounded-md border border-slate-700 px-2 py-0.5 text-slate-300 hover:border-slate-500">✕</button>
+              </header>
+              <div className="min-w-0 p-2">{w.node}</div>
+            </section>
+          ))}
+        </div>
+      ) : widgets.length ? (
         <WidgetBoard widgets={widgets} storageKey="musickit.creator.board" resetSignal={reset} />
       ) : (
         <p className="rounded-xl border border-dashed border-slate-700 p-6 text-center text-sm text-slate-500">No plugins open. Switch some on above.</p>

@@ -81,8 +81,10 @@ export default function TheoryMenu({ active }: { active: string }) {
       }}
       onPointerLeave={(e) => e.pointerType === "mouse" && closeSoon()}
       onBlur={(e) => {
-        // keyboard: tabbing out of the menu closes it
-        if (!root.current?.contains(e.relatedTarget as Node | null)) setOpen(false);
+        // keyboard: tabbing out of the menu closes it. Focus dropped to nowhere is not that: NoControlFocus blurs the button on
+        // pointerup, which on a phone lands between the tap on an item and its click, and closing then would swallow the click.
+        const to = e.relatedTarget as Node | null;
+        if (to && !root.current?.contains(to)) setOpen(false);
       }}
     >
       <button
@@ -103,8 +105,13 @@ export default function TheoryMenu({ active }: { active: string }) {
       {open && (
         <div
           id={panelId}
-          className="absolute left-2 right-2 z-50 mt-1 max-h-[80vh] overflow-y-auto rounded-2xl border border-slate-700 bg-slate-900 p-3 shadow-2xl sm:left-0 sm:right-auto sm:w-[min(64rem,calc(100vw-2rem))]"
+          className="fixed inset-0 z-[2000] overflow-y-auto bg-slate-900 p-3 sm:absolute sm:inset-auto sm:left-0 sm:z-50 sm:mt-1 sm:max-h-[80vh] sm:w-[min(64rem,calc(100vw-2rem))] sm:rounded-2xl sm:border sm:border-slate-700 sm:shadow-2xl"
         >
+          {/* on a phone the panel covers the screen, so it needs its own way out */}
+          <div className="mb-2 flex items-center sm:hidden">
+            <span className="px-3 text-base font-medium text-slate-100">Practice</span>
+            <button type="button" onClick={() => setOpen(false)} className="ml-auto rounded-md border border-slate-700 px-2.5 py-1 text-xs text-slate-300">Close ✕</button>
+          </div>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {GROUPS.map((g) => (
               <div key={g} className="flex flex-col gap-0.5">
