@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ColourKey, ModeAlias, ScaleSettingsBar, UNDER_BAR } from "./ScaleSettings";
 import ModeCompare from "./ModeCompare";
-import { FAMILIES, makeKeyContext } from "@/features/theory/theory";
+import { FAMILIES, makeKeyContext, modeAlias } from "@/features/theory/theory";
 import { MODE_PAGES, degreeColour, degreeLabels, relativesOf, DOT_INK } from "@/features/theory/scales";
 import { scaleCells, scaleLineMidi } from "@/lib/chordKit/scalePositions";
 import { ScaleNeck } from "./ScaleNeck";
@@ -18,11 +18,11 @@ const ORD = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th"];
 
 /** Edge colour and one-line intro for each accordion on the page. */
 const PARTS = {
-  compare: { accent: "#38bdf8", label: "Compare" },
   major: { accent: "#34d399", label: "Major modes", intro: "The seven modes of the major scale share one set of notes. Read down the cards and you can see the same seven notes starting on each of them." },
   harm: { accent: "#fbbf24", label: "Harmonic minor", intro: "Natural minor with a raised 7th. Its modes share their seven notes with each other, not with the major scale, and carry the exotic augmented 2nd." },
   mel: { accent: "#a78bfa", label: "Melodic minor", intro: "The major scale with a lowered 3rd. Its modes are the jazz sounds: Lydian dominant over a 7♯11, Altered over a dominant that resolves." },
   other: { accent: "#f472b6", label: "Other scales", intro: "Seven-note scales of their own, not modes of the three families above: the Arabic double harmonic, Persian, Hungarian minor, the Neapolitan scales and Verdi's enigmatic scale." },
+  compare: { accent: "#38bdf8", label: "Compare" },
 } as const;
 type PartId = keyof typeof PARTS;
 const PART_IDS = Object.keys(PARTS) as PartId[];
@@ -95,10 +95,6 @@ export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey
         Each card is one mode starting on the key you chose. The coloured circles are its seven notes in order: tap one to hear it, or press Play to hear the scale up and back down. The fretboard shows every place the scale falls on the first 12 frets; tap a dot to hear it. Open a mode for its positions on the whole neck: five pentatonic boxes, and the full scale filled into the same five boxes. The small label above each is the scale degree, written against the major scale, so ♭3 means the 3rd is lowered and ♯4 means the 4th is raised. Colour follows the degree: 1 white, 2 teal, 3 amber, 4 lime, 5 blue, 6 violet, 7 rose. Relative major and relative minor are the major and natural minor scales that use exactly the same seven notes.
       </ColourKey>
 
-      <div id="part-compare" className={UNDER_BAR}>
-        <ModeCompare tonicPc={tonicPc} open={open.compare} onToggle={() => toggle("compare")} accent={PARTS.compare.accent} />
-      </div>
-
       {rows.map(({ fam, modes }) => (
         <div key={fam.id} id={`part-${fam.id}`} className={UNDER_BAR}>
         <Section title={fam.label} meta={`${modes.length} ${fam.scales ? "scales" : "modes"} in ${modes[0].ctx.names[0]}`} open={open[fam.id]} onToggle={() => toggle(fam.id)} accent={PARTS[fam.id].accent}>
@@ -137,8 +133,13 @@ export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey
                   Degrees <span className="tabular-nums text-slate-300">{labels.map(fmtDegree).join(" ")}</span>
                 </p>
 
-                <Section level={2} defaultOpen={false} title="Relatives and differences">
+                <Section level={2} defaultOpen title="Relatives and differences">
                 <ul className="space-y-1 text-xs text-slate-300">
+                  {modeAlias(page.familyIndex, page.modeIndex) && (
+                    <li>
+                      {ctx.modeName} is the <b>{page.modeIndex === 5 ? "natural minor" : "major"}</b> scale.
+                    </li>
+                  )}
                   {page.modeIndex !== 0 && !rel.relativeMajor && !fam.scales && (
                     <li>
                       Parent scale: <b>{rel.parentTonic} {rel.parentName}</b> (starts on its {ORD[page.modeIndex]} degree)
@@ -181,6 +182,10 @@ export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey
         </Section>
         </div>
       ))}
+
+      <div id="part-compare" className={UNDER_BAR}>
+        <ModeCompare tonicPc={tonicPc} open={open.compare} onToggle={() => toggle("compare")} accent={PARTS.compare.accent} />
+      </div>
     </div>
   );
 }

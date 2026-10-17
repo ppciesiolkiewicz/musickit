@@ -111,7 +111,7 @@ function ScaleRow({ slug, tonicPc }: { slug: string; tonicPc: number }) {
 export function ModeAlias({ familyIndex, modeIndex }: { familyIndex: number; modeIndex: number }) {
   const alias = modeAlias(familyIndex, modeIndex);
   if (!alias) return null;
-  return <Badge className="ml-1.5">{alias}</Badge>;
+  return <span> ({alias})</span>;
 }
 
 /** The degree colours with a heading and a short reading guide; `children` is the longer explanation behind the (i). */
