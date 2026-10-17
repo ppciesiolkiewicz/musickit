@@ -49,11 +49,14 @@ export default function ScaleOnGuitar({ ctx, player }: { ctx: KeyContext; player
       </h2>
 
       <div className="mb-3 flex flex-col gap-2">
-        <ChipRow label="Positions" info="Five positions cover the neck, and each is named by the strings its root is on (counting from the low E): 1 has it on E, D and high e; 2 on D and B; 3 on A and B; 4 on A and G; 5 on G, E and high e. Each box keeps its classic shape: it sits at the root's fret on the low E string. Near the nut a note that would fall below it moves to the next string down (so in E, position 1 is the open position); otherwise a box that would go below the nut or past the 17th fret is shown an octave away, so the numbers can jump along the neck. Every mode uses the same five boxes as the major pentatonic (when it has a major 3rd) or the minor pentatonic (minor 3rd), so the shapes look familiar: each string keeps the frets that box uses, and the mode's notes are placed there. Pentatonic shows the mode's five-note scale. Full scale adds the other two notes into the same five boxes (the CAGED scale shapes), so there are still five positions, not seven: one map of the neck for both, with the pentatonic you know as the frame.">
+        <ChipRow label="Shapes" info="Five positions cover the neck, and each is named by the strings its root is on (counting from the low E): 1 has it on E, D and high e; 2 on D and B; 3 on A and B; 4 on A and G; 5 on G, E and high e. Each box keeps its classic shape: it sits at the root's fret on the low E string. Near the nut a note that would fall below it moves to the next string down (so in E, position 1 is the open position); otherwise a box that would go below the nut or past the 17th fret is shown an octave away, so the numbers can jump along the neck. Every mode uses the same five boxes as the major pentatonic (when it has a major 3rd) or the minor pentatonic (minor 3rd), so the shapes look familiar: each string keeps the frets that box uses, and the mode's notes are placed there. Pentatonic shows the mode's five-note scale. Full scale adds the other two notes into the same five boxes (the CAGED scale shapes), so there are still five positions, not seven: one map of the neck for both, with the pentatonic you know as the frame.">
           <Chip on={kind === "pentatonic"} onClick={() => { setKind("pentatonic"); setFocus(null); }}>{pent.name} boxes</Chip>
           <Chip on={kind === "scale"} onClick={() => { setKind("scale"); setFocus(null); }}>Full scale</Chip>
-          <span className="mx-1 h-4 w-px bg-slate-700" aria-hidden />
-          <Chip on={rings} onClick={() => setRings((v) => !v)}>Other scale notes</Chip>
+        </ChipRow>
+        <ChipRow label="Extra notes">
+          <Chip on={rings} onClick={() => setRings((v) => !v)}>
+            {kind === "pentatonic" ? `Show the other ${7 - pent.degrees.length} notes of ${ctx.modeName} as rings` : "Show the notes outside each box as rings"}
+          </Chip>
         </ChipRow>
         <p className="text-xs text-slate-400">
           {kind === "pentatonic" ? (
@@ -69,17 +72,18 @@ export default function ScaleOnGuitar({ ctx, player }: { ctx: KeyContext; player
         <DegreeLegend />
       </div>
 
-      <div className="mt-4 flex min-h-8 flex-wrap items-center gap-2 text-xs text-slate-400">
+      <div className="mt-4 min-h-8">
         {focused ? (
-          <>
-            <span>Position <b className="text-slate-200">{focused.number}</b> is outlined on the neck.</span>
-            <Chip on={!fade} onClick={() => setFade((v) => !v)}>All scale notes</Chip>
-            <button type="button" onClick={() => setFocus(null)} className="rounded-full border border-slate-700 px-2.5 py-1 text-slate-300 hover:border-sky-400">
+          <ChipRow label="Neck">
+            <span className="mr-1 text-xs text-slate-300">Position <b className="text-slate-100">{focused.number}</b></span>
+            <Chip on={fade} onClick={() => setFade(true)}>Just the box</Chip>
+            <Chip on={!fade} onClick={() => setFade(false)}>All notes</Chip>
+            <button type="button" onClick={() => setFocus(null)} className="ml-1 rounded-full border border-slate-700 px-2.5 py-1 text-xs text-slate-300 hover:border-sky-400">
               ✕ Clear position
             </button>
-          </>
+          </ChipRow>
         ) : (
-          <span>Pick a position to outline it on the neck.</span>
+          <p className="text-xs text-slate-400">Pick a position below to outline it on the neck.</p>
         )}
       </div>
 
