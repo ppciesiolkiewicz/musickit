@@ -32,13 +32,13 @@ describe("sequencer pattern", () => {
 
 describe("bass key", () => {
   it("keeps every key's ladder between E1 and D♯2, A on A1", async () => {
-    const { bassRootMidi, lanesIn, BASS, DRUMS } = await import("./sequencer");
+    const { bassRootMidi, lanesIn, BASS, DRUMS, DEFAULT_KEY } = await import("./sequencer");
     assert.equal(bassRootMidi(9), 33);
     assert.equal(bassRootMidi(4), 28);
     assert.equal(bassRootMidi(3), 39);
     assert.equal(bassRootMidi(-3), 33);
     assert.equal(lanesIn(BASS, 2).at(-1)?.label, "D2");
-    assert.deepEqual(lanesIn(BASS, 9), BASS.lanes);
+    assert.deepEqual(lanesIn(BASS, DEFAULT_KEY), BASS.lanes);
     assert.deepEqual(lanesIn(DRUMS, 2), DRUMS.lanes);
   });
 });
