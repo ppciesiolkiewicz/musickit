@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { chordNoteLabel, fmtInterval, intervalName, noteLabel, scaleToneLabel, spellAbove, toneColourIndex, toneLabel } from "./labels";
+import { chordNoteLabel, fmtInterval, intervalName, noteLabel, scaleToneLabel, solfege, spellAbove, toneColourIndex, toneLabel } from "./labels";
 import { makeKeyContext } from "./theory";
 
 test("intervals", () => {
@@ -16,8 +16,13 @@ test("formatting", () => {
 });
 test("noteLabel", () => {
   const c = { name: "Eb", semi: 3, degreeText: "♭3", role: "3" };
-  assert.deepEqual((["note", "interval", "degree", "chord"] as const).map((s) => noteLabel(s, c)), ["Eb", "b3", "b3", "3"]);
-  assert.equal(noteLabel("chord", { ...c, role: null }), "b3");
+  assert.deepEqual((["note", "interval", "degree", "solfege"] as const).map((s) => noteLabel(s, c)), ["Eb", "b3", "b3", "Me"]);
+});
+test("solfège", () => {
+  assert.deepEqual(["R", "1", "2", "♭3", "3", "4", "♯4", "5", "♭6", "6", "♭7", "7"].map(solfege), ["Do", "Do", "Re", "Me", "Mi", "Fa", "Fi", "Sol", "Le", "La", "Te", "Ti"]);
+  assert.deepEqual(["9", "♭9", "♯11", "13"].map(solfege), ["Re", "Ra", "Fi", "La"]);
+  // an odd spelling falls back to the chromatic syllable: ♭4 sounds as the 3rd
+  assert.equal(solfege("♭4"), "Mi");
 });
 
 test("chord tones in every system", () => {
@@ -26,14 +31,15 @@ test("chord tones in every system", () => {
   assert.deepEqual([ab(0, "R"), ab(4, "3"), ab(7, "5")].map((t) => toneLabel("note", t)), ["A♭", "C", "E♭"]);
   assert.deepEqual([ab(0, "R"), ab(4, "3"), ab(7, "5")].map((t) => toneLabel("interval", t)), ["R", "3", "p5"]);
   assert.deepEqual([ab(0, "R"), ab(4, "3"), ab(7, "5")].map((t) => toneLabel("degree", t)), ["1", "3", "5"]);
-  assert.deepEqual([ab(0, "R"), ab(4, "3"), ab(7, "5")].map((t) => toneLabel("chord", t)), ["R", "3", "p5"]);
+  assert.deepEqual([ab(0, "R"), ab(4, "3"), ab(7, "5")].map((t) => toneLabel("solfege", t)), ["Do", "Mi", "Sol"]);
   // D minor (ii) in C major: intervals and degrees count from C
   const ctx = makeKeyContext(0, 0, 0);
   const dm = (semi: number, role: string) => ({ rootPc: 2, semi, role, ctx });
   assert.deepEqual([dm(0, "R"), dm(3, "♭3"), dm(7, "5")].map((t) => toneLabel("note", t)), ["D", "F", "A"]);
   assert.deepEqual([dm(0, "R"), dm(3, "♭3"), dm(7, "5")].map((t) => toneLabel("interval", t)), ["2", "p4", "6"]);
   assert.deepEqual([dm(0, "R"), dm(3, "♭3"), dm(7, "5")].map((t) => toneLabel("degree", t)), ["2", "4", "6"]);
-  assert.deepEqual([dm(0, "R"), dm(3, "♭3"), dm(7, "5")].map((t) => toneLabel("chord", t)), ["R", "b3", "p5"]);
+  assert.deepEqual([dm(0, "R"), dm(3, "♭3"), dm(7, "5")].map((t) => toneLabel("solfege", t)), ["Re", "Fa", "La"]);
+  assert.deepEqual([dm(0, "R"), dm(3, "♭3"), dm(7, "5")].map((t) => toneLabel("solfege", t, "chord")), ["Do", "Me", "Sol"]);
 });
 test("counting from the chord root instead of the key", () => {
   const ctx = makeKeyContext(0, 0, 0);
@@ -61,6 +67,8 @@ test("chord row notes count from the chord root on request", () => {
   assert.equal(chordNoteLabel("interval", ctx, f), "p4");
   assert.equal(chordNoteLabel("interval", ctx, f, "chord"), "b3");
   assert.equal(chordNoteLabel("degree", ctx, f, "chord"), "b3");
+  assert.equal(chordNoteLabel("solfege", ctx, f), "Fa");
+  assert.equal(chordNoteLabel("solfege", ctx, f, "chord"), "Me");
 });
 
 test("spelling above a root", () => {

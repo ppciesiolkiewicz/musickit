@@ -1,14 +1,14 @@
-import { TONICS, degreeLabel, type KeyContext } from "./theory";
+import { MAJOR, TONICS, degreeLabel, type KeyContext } from "./theory";
 import { degreeLabels } from "./scales";
 
-/** How a note on the neck is labelled: its name, its interval from the root (R b3 p5), its scale degree, or its job in the chord. */
-export type LabelSystem = "note" | "interval" | "degree" | "chord";
+/** How a note on the neck is labelled: its name, its interval from the root (R b3 p5), its scale degree, or its movable-do solfège syllable. */
+export type LabelSystem = "note" | "interval" | "degree" | "solfege";
 
 export const LABEL_SYSTEMS: { id: LabelSystem; label: string; hint: string }[] = [
   { id: "note", label: "Note names", hint: "C, E, G" },
   { id: "interval", label: "Intervals", hint: "R, b3, p5" },
   { id: "degree", label: "Scale degrees", hint: "1, b3, 5" },
-  { id: "chord", label: "Chord tones", hint: "R, 3, 5, 7" },
+  { id: "solfege", label: "Solfège", hint: "Do, Me, Sol" },
 ];
 
 export const DEFAULT_LABEL_SYSTEM: LabelSystem = "note";
@@ -31,6 +31,22 @@ export function fmtDegree(label: string): string {
   return label.replace(/♭/g, "b").replace(/♯/g, "#");
 }
 
+const SOLFEGE = ["Do", "Re", "Mi", "Fa", "Sol", "La", "Ti"];
+const SOLFEGE_FLAT: (string | null)[] = [null, "Ra", "Me", null, "Se", "Le", "Te"];
+const SOLFEGE_SHARP: (string | null)[] = ["Di", "Ri", null, "Fi", "Si", "Li", null];
+const SOLFEGE_CHROMATIC = ["Do", "Ra", "Re", "Me", "Mi", "Fa", "Fi", "Sol", "Le", "La", "Te", "Ti"];
+
+/** Movable-do solfège (Do = the root) for a degree such as "R", "♭3", "♯4", "9": Do, Me, Fi, Re. Odd spellings fall back to the chromatic syllable. */
+export function solfege(degree: string): string {
+  if (degree === "R") return "Do";
+  const m = /^([♭♯b#]*)(\d+)$/.exec(degree);
+  if (!m) return degree;
+  const i = (Number(m[2]) - 1) % 7;
+  const acc = [...m[1]].reduce((n, ch) => n + (ch === "♭" || ch === "b" ? -1 : 1), 0);
+  const named = acc === 0 ? SOLFEGE[i] : acc === -1 ? SOLFEGE_FLAT[i] : acc === 1 ? SOLFEGE_SHARP[i] : null;
+  return named ?? SOLFEGE_CHROMATIC[(((MAJOR[i] + acc) % 12) + 12) % 12];
+}
+
 export interface LabelInput {
   name: string;
   /** semitones above the key's root */
@@ -45,12 +61,12 @@ export function noteLabel(system: LabelSystem, c: LabelInput): string {
     case "note": return c.name;
     case "interval": return intervalName(c.semi);
     case "degree": return fmtDegree(c.degreeText);
-    case "chord": return c.role ? fmtInterval(c.role) : intervalName(c.semi);
+    case "solfege": return solfege(c.degreeText);
   }
 }
 
 export function isLabelSystem(v: unknown): v is LabelSystem {
-  return v === "note" || v === "interval" || v === "degree" || v === "chord";
+  return v === "note" || v === "interval" || v === "degree" || v === "solfege";
 }
 
 const LETTERS = "CDEFGAB";
@@ -125,15 +141,16 @@ export function toneLabel(system: LabelSystem, t0: ToneInput, from: LabelRoot = 
     }
     case "interval": return intervalName(fromKey);
     case "degree": return t.ctx ? fmtDegree(degreeLabel(pc, t.ctx)) : t.role === "R" ? "1" : fmtDegree(t.role);
-    case "chord": return fmtInterval(t.role);
+    case "solfege": return solfege(t.ctx ? degreeLabel(pc, t.ctx) : t.role);
   }
 }
 
-/** Label for the `i`th note of a scale. Degrees are written against the major scale (♭3, ♯4); a scale has no chord, so "chord" shows degrees too. */
+/** Label for the `i`th note of a scale. Degrees and solfège are written against the major scale (♭3 = Me, ♯4 = Fi). */
 export function scaleToneLabel(system: LabelSystem, ctx: KeyContext, i: number): string {
   switch (system) {
     case "note": return ctx.names[i];
     case "interval": return intervalName(ctx.steps[i]);
+    case "solfege": return solfege(degreeLabels(ctx.steps)[i]);
     default: return fmtDegree(degreeLabels(ctx.steps)[i]);
   }
 }
@@ -143,10 +160,9 @@ export function scaleToneCaption(system: LabelSystem, ctx: KeyContext, i: number
   return system === "note" ? fmtDegree(degreeLabels(ctx.steps)[i]) : ctx.names[i];
 }
 
-/** Label for a note of a chord built on the scale (see `modeChords`): its name, interval or degree in the key, or its job in the chord. */
+/** Label for a note of a chord built on the scale (see `modeChords`): its name, or its interval, degree or solfège in the key (or above the chord root). */
 export function chordNoteLabel(system: LabelSystem, ctx: KeyContext, n: { name: string; role: string; scaleDegree: number }, from: LabelRoot = DEFAULT_LABEL_ROOT): string {
   if (system === "note") return n.name;
-  if (system === "chord") return fmtInterval(n.role);
-  if (from === "chord") return system === "degree" ? (n.role === "R" ? "1" : fmtDegree(n.role)) : fmtInterval(n.role);
+  if (from === "chord") return system === "degree" ? (n.role === "R" ? "1" : fmtDegree(n.role)) : system === "solfege" ? solfege(n.role) : fmtInterval(n.role);
   return scaleToneLabel(system, ctx, n.scaleDegree);
 }

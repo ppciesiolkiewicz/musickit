@@ -39,7 +39,7 @@ export function ArpNeck({ cells, arp, overlay, labelSystem, badges, onNote }: { 
         <FretboardBase g={g} />
         {ringCells.map((c) => {
           const x = g.fx(c.fret), y = g.sy(c.string), col = colour(c);
-          const t = labelSystem === "note" ? c.name : noteLabel(labelSystem === "chord" ? "interval" : labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText });
+          const t = labelSystem === "note" ? c.name : noteLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText });
           return (
             <g key={`${c.string}-${c.fret}`} opacity={op() * 0.9} onClick={() => onNote(c)} style={{ cursor: "pointer" }}>
               <circle cx={x} cy={y} r={9} fill="var(--color-slate-950)" stroke={col} strokeWidth={1.6} />
@@ -81,7 +81,7 @@ function ArpBox({ cells, win, overlay, labelSystem, badges, onNote }: { cells: N
         <VerticalBoard g={g} />
         {rings.map((c) => {
           const x = g.sx(c.string), y = g.fy(c.fret), col = colour(c);
-          const t = labelSystem === "note" ? c.name : noteLabel(labelSystem === "chord" ? "interval" : labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText });
+          const t = labelSystem === "note" ? c.name : noteLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText });
           return (
             <g key={`${c.string}-${c.fret}`} opacity={0.9} onClick={() => onNote(c)} style={{ cursor: "pointer" }}>
               <circle cx={x} cy={y} r={9} fill="var(--color-slate-950)" stroke={col} strokeWidth={1.6} />
