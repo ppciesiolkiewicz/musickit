@@ -8,6 +8,7 @@ import { NOTE_NAMES, droneName, type DroneParams } from "../drone/drone";
 import StepGrid, { PatternBar } from "../sequencer/StepGrid";
 import { MAX_BPM, MIN_BPM } from "./clock";
 import { BEATS_PER_BAR, JAM_PARTS, JamRig, type JamPart, type JamPartView, type JamSaved } from "./rig";
+import JamLoops from "./JamLoops";
 
 const KEY = "musickit.jam";
 /** where the drone page kept its drone before the jam: read when there is no jam save, so a saved sound is not lost */
@@ -24,7 +25,7 @@ function restore(rig: JamRig) {
   }
 }
 
-const card = "flex min-w-0 flex-col gap-4 rounded-2xl border border-slate-800 bg-slate-900/60 p-5 sm:p-7";
+const card = "flex min-w-0 flex-col gap-4 rounded-2xl border border-slate-800 bg-slate-900/60 p-3.5 sm:p-5 lg:p-7";
 
 /** A part's play button: round, green while it plays. Starts and stops on the next beat. */
 function PlayButton({ on, name, onClick, big = false }: { on: boolean; name: string; onClick: () => void; big?: boolean }) {
@@ -61,6 +62,8 @@ export default function Jam() {
     restore(rig);
     // eslint-disable-next-line react-hooks/set-state-in-effect -- saving starts once the saved jam is back (after hydration)
     setRestored(true);
+    // names show only once the microphone is allowed; this never asks
+    void rig.refreshDevices();
     return () => rig.dispose();
   }, [rig]);
   useEffect(() => {
@@ -72,16 +75,20 @@ export default function Jam() {
     }
   }, [rig, snap, restored]);
 
-  const start = async (parts: readonly JamPart[]) => {
+  /** The audio, made on a person's click. */
+  const ready = async () => {
     const ctx = getAudioContext();
     if (ctx.state === "suspended") await ctx.resume();
     rig.attach(ctx, getOutputBus());
-    rig.start(parts);
+  };
+  const start = async (parts: readonly JamPart[], withLoops = false) => {
+    await ready();
+    rig.start(parts, withLoops);
   };
   const toggle = (p: JamPart) => (snap.parts[p].state.playing ? rig.stop([p]) : void start([p]));
-  // any part playing makes it a Stop all, so one part started on its own can be stopped from here too
-  const anyOn = JAM_PARTS.some((p) => snap.parts[p].state.playing);
-  const toggleAll = () => (anyOn ? rig.stop(JAM_PARTS) : void start(JAM_PARTS));
+  // any part or loop playing makes it a Stop all, so one started on its own can be stopped from here too
+  const anyOn = JAM_PARTS.some((p) => snap.parts[p].state.playing) || snap.loops.some((l) => l.on || l.state === "countIn" || l.state === "recording");
+  const toggleAll = () => (anyOn ? rig.stop(JAM_PARTS, true) : void start(JAM_PARTS, true));
   const toggleAllRef = useRef(toggleAll);
   useEffect(() => {
     toggleAllRef.current = toggleAll;
@@ -102,16 +109,16 @@ export default function Jam() {
   const key = NOTE_NAMES[drone.state.drone.root];
 
   return (
-    <div className="flex min-w-0 flex-col gap-6">
-      <div className="flex flex-wrap items-center gap-x-5 gap-y-3 rounded-2xl border border-slate-800 bg-slate-900/60 px-5 py-4 sm:px-7">
+    <div className="flex min-w-0 flex-col gap-4 sm:gap-6">
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-3 rounded-2xl border border-slate-800 bg-slate-900/60 px-3.5 py-3.5 sm:px-5 sm:py-4 lg:px-7">
         <button type="button" onClick={toggleAll} aria-pressed={anyOn} title={`${anyOn ? "Stop" : "Start"} every part on the next beat (Space)`}
           className={`inline-flex h-12 items-center gap-2.5 rounded-xl border px-5 text-base font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${anyOn ? "border-emerald-400/70 bg-emerald-500/20 text-emerald-100" : "border-slate-600 bg-slate-800 text-slate-100 hover:border-slate-400"}`}>
           <Icon name={anyOn ? "square" : "play"} size={20} fill />{anyOn ? "Stop all" : "Play all"}
           <kbd className="hidden rounded border border-current/30 px-1.5 text-[10px] font-normal opacity-60 sm:inline">Space</kbd>
         </button>
-        <label className="order-last flex w-full min-w-0 items-center gap-2 text-xs text-slate-300 sm:order-none sm:w-auto sm:max-w-sm sm:flex-1">
+        <label className="order-last flex w-full min-w-0 items-center gap-2 text-xs text-slate-300 sm:order-none sm:w-auto sm:max-w-sm sm:flex-1" title={snap.tempoLocked ? "Clear the loops to change the tempo" : undefined}>
           <span className="shrink-0">Tempo</span>
-          <input type="range" className="min-w-0 flex-1 accent-sky-400" min={MIN_BPM} max={MAX_BPM} step={1} value={snap.bpm} onChange={(e) => rig.setTempo(Number(e.target.value))} />
+          <input type="range" className="min-w-0 flex-1 accent-sky-400 disabled:opacity-40" min={MIN_BPM} max={MAX_BPM} step={1} value={snap.bpm} disabled={snap.tempoLocked} onChange={(e) => rig.setTempo(Number(e.target.value))} />
           <span className="w-16 whitespace-nowrap text-right tabular-nums text-slate-400">{snap.bpm} BPM</span>
         </label>
         <span className="text-xs text-slate-500">Key of {key}, from the drone</span>
@@ -133,6 +140,10 @@ export default function Jam() {
           </section>
         );
       })}
+
+      <section aria-label="Loops" className={card}>
+        <JamLoops rig={rig} loops={snap.loops} devices={snap.devices} ready={ready} />
+      </section>
     </div>
   );
 }
