@@ -32,8 +32,10 @@ interface NeckProps {
   /** filled dots; the other scale notes are drawn as rings, or hidden when `rings` is off */
   big: (c: ScaleCell) => boolean;
   rings?: boolean;
-  /** light this position up and fade the rest */
+  /** outline this position on the neck */
   focus?: ScalePosition | null;
+  /** fade the notes outside the focused position (off shows every note at full strength) */
+  fadeOutside?: boolean;
   active: string | null;
   /** match `active` against "s-f" (exact place) or "d<degree>" (every place that degree falls) */
   labelSystem: LabelSystem;
@@ -45,11 +47,12 @@ interface NeckProps {
 const isActive = (active: string | null, c: ScaleCell) => active !== null && (active === cellKey(c) || active === `d${c.degree}`);
 
 /** The whole neck, frets 0-17 (0-12 when compact), with every note of the scale. Tap a note to hear it. */
-export function ScaleNeck({ cells, big, rings = true, focus = null, active, labelSystem, onNote, compact = false, title }: NeckProps) {
+export function ScaleNeck({ cells, big, rings = true, focus = null, fadeOutside = true, active, labelSystem, onNote, compact = false, title }: NeckProps) {
   const to = compact ? 12 : SCALE_NECK_FRETS;
   const g = compact ? fretGeometry(0, to, 34, 22, 36) : fretGeometry(0, to, 54, 36, 42);
   const r = compact ? 8.5 : 14;
   const inFocus = new Set(focus?.notes.map(cellKey));
+  const focusFrets = focus?.notes.map((c) => c.fret) ?? [];
   const shown = cells.filter((c) => c.fret <= to && (big(c) || rings));
   // rings under the dots, the playing note last so its outline is on top
   shown.sort((a, b) => Number(big(a)) - Number(big(b)) || Number(isActive(active, a)) - Number(isActive(active, b)));
@@ -57,11 +60,18 @@ export function ScaleNeck({ cells, big, rings = true, focus = null, active, labe
     <div className="overflow-x-auto">
       <svg viewBox={`0 0 ${g.W} ${g.H}`} width="100%" style={{ minWidth: compact ? 440 : 820 }} role="img" aria-label={title}>
         <FretboardBase g={g} markerSize={compact ? 4 : 6} numbersTop />
+        {focus && focusFrets.length > 0 && (
+          <rect
+            x={g.fx(Math.min(...focusFrets)) - r - 5} y={g.sy(5) - r - 5}
+            width={g.fx(Math.max(...focusFrets)) - g.fx(Math.min(...focusFrets)) + 2 * r + 10} height={g.sy(0) - g.sy(5) + 2 * r + 10}
+            rx={r} fill="rgb(56 189 248 / 0.08)" stroke="rgb(56 189 248 / 0.7)" strokeWidth={2}
+          />
+        )}
         {shown.map((c) => (
           <Dot
             key={cellKey(c)} c={c} x={g.fx(c.fret)} y={g.sy(c.string)} r={r} ring={!big(c)}
             label={noteLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText })}
-            active={isActive(active, c)} dim={focus !== null && !inFocus.has(cellKey(c))} onNote={onNote}
+            active={isActive(active, c)} dim={focus !== null && fadeOutside && !inFocus.has(cellKey(c))} onNote={onNote}
           />
         ))}
       </svg>

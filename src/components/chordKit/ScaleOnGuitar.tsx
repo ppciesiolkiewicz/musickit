@@ -20,6 +20,7 @@ export default function ScaleOnGuitar({ ctx, player }: { ctx: KeyContext; player
   const [kind, setKind] = useState<PositionKind>("pentatonic");
   const [rings, setRings] = useState(true);
   const [focus, setFocus] = useState<number | null>(null);
+  const [fade, setFade] = useState(true);
   const { active, play, tap } = player;
 
   const cells = useMemo(() => scaleCells(ctx), [ctx]);
@@ -63,17 +64,26 @@ export default function ScaleOnGuitar({ ctx, player }: { ctx: KeyContext; player
         </p>
       </div>
 
-      <ScaleNeck cells={cells} big={big} rings={rings} focus={focused} active={active} labelSystem={system} onNote={onNote} title={`${keyName} on the guitar neck`} />
-      <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
+      <ScaleNeck cells={cells} big={big} rings={rings} focus={focused} fadeOutside={fade} active={active} labelSystem={system} onNote={onNote} title={`${keyName} on the guitar neck`} />
+      <div className="mt-2">
         <DegreeLegend />
-        {focused && (
-          <button type="button" onClick={() => setFocus(null)} className="ml-auto rounded-full border border-slate-700 px-2.5 py-1 text-xs text-slate-300 hover:border-sky-400">
-            Showing position {focused.number} · show the whole neck
-          </button>
+      </div>
+
+      <div className="mt-4 flex min-h-8 flex-wrap items-center gap-2 text-xs text-slate-400">
+        {focused ? (
+          <>
+            <span>Position <b className="text-slate-200">{focused.number}</b> is outlined on the neck.</span>
+            <Chip on={!fade} onClick={() => setFade((v) => !v)}>All scale notes</Chip>
+            <button type="button" onClick={() => setFocus(null)} className="rounded-full border border-slate-700 px-2.5 py-1 text-slate-300 hover:border-sky-400">
+              ✕ Clear position
+            </button>
+          </>
+        ) : (
+          <span>Pick a position to outline it on the neck.</span>
         )}
       </div>
 
-      <div className={`mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5`}>
+      <div className={`mt-2 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5`}>
         {positions.map((p) => {
           const on = focus === p.number;
           return (
