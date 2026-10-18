@@ -5,6 +5,7 @@ import { toneColourIndex, toneLabel } from "@/features/theory/labels";
 import type { KeyContext } from "@/features/theory/theory";
 import { useChordLabels } from "@/features/theory/useLabelSystem";
 import { InfoTip } from "@/components/ui";
+import Icon from "@/components/Icon";
 import { diagramLowFret, intervalLabel, OPEN_NOTE, OPEN_PITCH, ROOT_INDEX } from "@/lib/chordKit/shapeTools";
 import { boxRowFactor } from "./Fretboard";
 import { swatchForIndex } from "./palette";
@@ -111,20 +112,21 @@ export default function ChordDiagram({ shape, rootFret, onPlay, active, ctx, roo
         </button>
       ) : svg}
       {(onPlay || ctx) && (
-        <div className="flex flex-wrap items-center justify-center gap-1">
+        <div className="mt-0.5 flex flex-wrap items-center justify-center gap-1.5">
           {onPlay && (
             <button
               type="button"
               onClick={onPlay}
               aria-label="Play this chord"
-              className={`cursor-sound grid h-6 w-6 shrink-0 place-items-center rounded-full border pl-0.5 text-[10px] transition ${active ? "border-sky-400 bg-sky-400/10 text-sky-200" : "border-slate-600 text-slate-200 hover:border-slate-400"}`}
+              className={`cursor-sound inline-flex h-6 shrink-0 items-center gap-1 rounded-full border pl-2 pr-2.5 text-[11px] font-medium transition ${active ? "border-emerald-400 bg-emerald-500/30 text-emerald-50" : "border-emerald-500/70 bg-emerald-500/10 text-emerald-100 hover:bg-emerald-500/25"}`}
             >
-              ▶
+              <Icon name="play" size={10} fill />
+              Play
             </button>
           )}
           {ctx && (
             <>
-              <span role="group" aria-label="Count intervals from" className="flex overflow-hidden rounded-md border border-slate-700 text-[10px]">
+              <span role="group" aria-label="Count intervals from" className="flex h-6 overflow-hidden rounded-md border border-slate-700 text-[10px]">
                 <button type="button" aria-pressed={mode === "chord"} onClick={() => setMode("chord")} className={seg(mode === "chord")}>Chord</button>
                 <button type="button" aria-pressed={mode === "key"} onClick={() => setMode("key")} className={seg(mode === "key")}>Key</button>
               </span>
