@@ -76,7 +76,7 @@ export function ScaleSettingsBar({
   const scaleName = scale ? MODE_PAGES.find((m) => m.slug === scale)?.name : undefined;
   const labelName = LABEL_SYSTEMS.find((l) => l.id === labels)?.label;
   return (
-    <div className="sticky top-2 z-20 flex flex-col gap-2 rounded-2xl border border-slate-700 bg-slate-950/90 px-2.5 py-2 shadow-lg shadow-black/30 backdrop-blur">
+    <div className="sticky top-2 z-20 -mx-1.5 flex flex-col gap-2 rounded-2xl border border-slate-700 bg-slate-950/90 px-4 py-2 shadow-lg shadow-black/30 backdrop-blur">
       <button
         type="button"
         onClick={toggle}
