@@ -26,6 +26,14 @@ html {
   overflow-x: clip;
 }
 
+/* An open Radix menu locks scroll with overflow: hidden on body. With html clipped, that no longer passes up to the
+   viewport: body becomes the scroller, the sticky settings bar sticks to it and slides off screen with its menus.
+   Radix still blocks wheel and touch scrolling, so leave body's overflow (and the scrollbar) alone. */
+html body[data-scroll-locked] {
+  overflow: visible !important;
+  margin-right: 0 !important;
+}
+
 body {
   background: var(--color-slate-950);
   color: var(--color-slate-200);
