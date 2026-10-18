@@ -1,5 +1,6 @@
 "use client";
 
+import usePhone from "./usePhone";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent as RKeyboardEvent, type PointerEvent as RPointerEvent, type ReactNode } from "react";
 
 interface Rect {
@@ -22,10 +23,12 @@ function clamp(r: Rect): Rect {
 /**
  * A floating panel you can drag by its title bar and resize from the corner. Its size and place are remembered.
  * With `fit`, the content is scaled up or down to fill the panel, so resizing the panel resizes what is inside.
+ * On a phone it is a full-screen sheet instead: there is no room to drag a panel around.
  */
 export default function FloatingWindow({ title, onClose, children, storageKey, fit = false, initial }: { title: ReactNode; onClose: () => void; children: ReactNode; storageKey: string; fit?: boolean; initial?: { w: number; h: number } }) {
   const [rect, setRect] = useState<Rect | null>(null);
   const drag = useRef<{ mode: Mode; px: number; py: number; start: Rect } | null>(null);
+  const phone = usePhone();
 
   useLayoutEffect(() => {
     let saved: Rect | null = null;
@@ -99,6 +102,16 @@ export default function FloatingWindow({ title, onClose, children, storageKey, f
     save(next);
   };
 
+  if (phone)
+    return (
+      <div role="dialog" aria-modal="true" aria-label={typeof title === "string" ? title : "Panel"} className="fixed inset-0 z-[1900] flex flex-col bg-slate-950">
+        <div className="flex shrink-0 items-center gap-2 border-b border-slate-700 bg-slate-900 px-3 text-xs text-slate-300" style={{ height: BAR + 8 }}>
+          <span className="font-medium text-slate-100">{title}</span>
+          <button type="button" className="ml-auto rounded-md border border-slate-700 px-2.5 py-1 text-slate-300 hover:border-slate-500" onClick={onClose} aria-label="Close">Close ✕</button>
+        </div>
+        <div className="min-h-0 flex-1 overflow-auto">{fit ? <Fit>{children}</Fit> : children}</div>
+      </div>
+    );
   if (!rect) return null;
   return (
     <div role="dialog" aria-label={typeof title === "string" ? title : "Floating panel"} className="fixed z-40 flex flex-col overflow-hidden rounded-xl border border-slate-600 bg-slate-950 shadow-2xl shadow-black/60" style={{ left: rect.x, top: rect.y, width: rect.w, height: rect.h }}>

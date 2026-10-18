@@ -81,7 +81,7 @@ Routing: Input → (input effects) → recorder → Loop → Bus (of its Group) 
 
 ## UI
 - One Play/Stop (the transport), no explanatory walls of text. Short labels, details in popovers or the spec. Use the shared `Icon` component (Lucide icons copied in as SVG, no dependency) rather than emoji. Prefer small icon buttons (with `title` and `aria-label`) over text buttons, and keep rows tight.
-- An instrument's play window opens only from its strip (the Mixer, a Canvas block or the Inputs widget). It is draggable and resizable (`FloatingWindow`), keyboard-operable, and remembers its place. Buttons use `controls.ts`, sliders `Slider`; colours are theme scales, never hex.
+- An instrument's play window opens only from its strip (the Mixer, a Canvas block or the Inputs widget). It is draggable and resizable (`FloatingWindow`), keyboard-operable, and remembers its place; on a phone it is a full-screen sheet with a Close button instead. Buttons use `controls.ts`, sliders `Slider`; colours are theme scales, never hex.
 - Buttons, selects, sliders and checkboxes are not tabbable and do not keep focus after a click (`NoControlFocus` in the root layout), so the computer keyboard always reaches the piano and shortcuts. Text and number fields still take focus. Buttons that toggle use `aria-pressed`; errors use `role="alert"`.
 - Tight side padding; layouts must work at laptop width (13 inch) and phone width.
 
