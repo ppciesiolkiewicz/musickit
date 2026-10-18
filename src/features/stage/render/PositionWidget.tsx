@@ -19,7 +19,7 @@ export default function PositionWidget({ ctx, kind, index }: { ctx: KeyContext; 
   const title = `${ctx.names[0]} ${ctx.modeName}`;
 
   return (
-    <div className="rounded-xl border border-slate-800 bg-slate-950/80 p-2">
+    <div className="rounded-xl border border-slate-800 bg-slate-950 p-2">
       <ScaleNeck cells={cells} big={big} focus={focus} fadeOutside active={player.active} labelSystem={system} onNote={(c) => player.tap(cellKey(c), c.midi)} title={title} />
     </div>
   );

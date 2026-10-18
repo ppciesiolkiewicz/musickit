@@ -43,7 +43,7 @@ export default function StageWidget({ subject, onSubjectChange, stageKey, onStag
       if (!def) return null;
       body = (
         <KeyScope value={subject.key} onChange={(key) => onSubjectChange({ ...subject, key })}>
-          <div className="rounded-xl border border-slate-800 bg-slate-950/80 p-3">
+          <div className="rounded-xl border border-slate-800 bg-slate-950 p-3">
             <def.Component />
           </div>
         </KeyScope>
@@ -55,7 +55,7 @@ export default function StageWidget({ subject, onSubjectChange, stageKey, onStag
       break;
     case "band":
       body = (
-        <div className="rounded-xl border border-slate-800 bg-slate-950/80 p-3">
+        <div className="rounded-xl border border-slate-800 bg-slate-950 p-3">
           <PocketTools keyPc={subject.key.tonicPc ?? DEFAULT_KEY_PC} stacked />
         </div>
       );
@@ -73,7 +73,7 @@ export default function StageWidget({ subject, onSubjectChange, stageKey, onStag
     case "key":
       body = (
         <KeyScope value={stageKey} onChange={onStageKey}>
-          <div className="rounded-xl border border-slate-800 bg-slate-950/80 p-2">
+          <div className="rounded-xl border border-slate-800 bg-slate-950 p-2">
             <KeyBar />
           </div>
         </KeyScope>

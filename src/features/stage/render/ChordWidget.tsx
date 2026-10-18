@@ -20,7 +20,7 @@ export default function ChordWidget({ symbol }: { symbol: string }) {
   const step = (d: number) => setIndex((i) => (i + d + choices.length) % choices.length);
 
   return (
-    <div className="flex flex-col items-center gap-1 rounded-xl border border-slate-800 bg-slate-950/80 p-3">
+    <div className="flex flex-col items-center gap-1 rounded-xl border border-slate-800 bg-slate-950 p-3">
       <p className="text-lg font-medium text-slate-100">{symbol}</p>
       <ChordDiagram shape={choice.shape} rootFret={choice.fret} onPlay={() => strumShape(choice.shape, choice.fret)} />
       {choices.length > 1 && (
