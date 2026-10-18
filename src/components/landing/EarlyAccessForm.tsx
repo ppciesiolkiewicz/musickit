@@ -13,11 +13,14 @@ const CHOICES: { id: Interest; label: string }[] = [
 
 type State = { kind: "idle" } | { kind: "sending" } | { kind: "done" } | { kind: "error"; message: string };
 
-/** Email plus what the player wants first, posted to /api/early-access. `source` names the section the form sits in. */
-export default function EarlyAccessForm({ source, compact = false }: { source: string; compact?: boolean }) {
+/**
+ * Email plus what the player wants first, posted to /api/early-access. `source` names the section the form sits in; a compact form
+ * hides the choices and sends `initial` (a teacher's form sends "teaching"). `cta` and `done` let a section word it its own way.
+ */
+export default function EarlyAccessForm({ source, compact = false, initial = ["basic-course"], cta = "Get early access", done = "We'll email you once when early access opens, with the early-adopter offer. Meanwhile, every tool on this page is free to use." }: { source: string; compact?: boolean; initial?: Interest[]; cta?: string; done?: string }) {
   const [email, setEmail] = useState("");
   const [website, setWebsite] = useState("");
-  const [interests, setInterests] = useState<Interest[]>(["basic-course"]);
+  const [interests, setInterests] = useState<Interest[]>(initial);
   const [state, setState] = useState<State>({ kind: "idle" });
 
   const toggle = (id: Interest) => setInterests((xs) => (xs.includes(id) ? xs.filter((x) => x !== id) : [...xs, id]));
@@ -42,7 +45,7 @@ export default function EarlyAccessForm({ source, compact = false }: { source: s
         </span>
         <span>
           <b className="block text-emerald-50">You&apos;re on the list.</b>
-          We&apos;ll email you once when early access opens, with the early-adopter offer. Meanwhile, every tool on this page is free to use.
+          {done}
         </span>
       </div>
     );
@@ -89,7 +92,7 @@ export default function EarlyAccessForm({ source, compact = false }: { source: s
           disabled={state.kind === "sending"}
           className="inline-flex items-center justify-center gap-2 rounded-xl bg-sky-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-sky-300 disabled:opacity-60"
         >
-          {state.kind === "sending" ? "Joining…" : "Get early access"}
+          {state.kind === "sending" ? "Joining…" : cta}
           <Icon name="chevron-right" size={16} />
         </button>
       </div>

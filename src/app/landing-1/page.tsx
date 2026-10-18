@@ -7,6 +7,7 @@ import Icon, { type IconName } from "@/components/Icon";
 import PreloadPiano from "@/features/sound/keyboard/PreloadPiano";
 import HeroNeck from "@/components/landing/HeroNeck";
 import EarlyAccessForm from "@/components/landing/EarlyAccessForm";
+import { LessonNoteMock } from "@/components/landing/LessonMocks";
 import { DOT_INK, degreeColour, degreeLabels } from "@/features/theory/scales";
 import { FAMILIES, modeSteps } from "@/features/theory/theory";
 
@@ -136,51 +137,6 @@ function ToolArt({ art }: { art: Tool["art"] }) {
     );
   }
   return null;
-}
-
-/** A mock lesson note: what a student gets after an in-app lesson. Drawn, not a screenshot, so it follows the theme. */
-function LessonNoteMock() {
-  // A minor pentatonic, box 1 at the 5th fret: [string row from high e, fret offset, degree index, label]
-  const box: [number, number, number, string][] = [
-    [0, 0, 0, "R"], [0, 3, 2, "♭3"], [1, 0, 4, "5"], [1, 3, 6, "♭7"], [2, 0, 2, "♭3"], [2, 2, 3, "4"],
-    [3, 0, 6, "♭7"], [3, 2, 0, "R"], [4, 0, 3, "4"], [4, 2, 4, "5"], [5, 0, 0, "R"], [5, 3, 2, "♭3"],
-  ];
-  return (
-    <div className="relative rounded-2xl border border-slate-700/70 bg-slate-950/70 p-4 shadow-2xl shadow-black/30 sm:p-5">
-      <div className="mb-3 flex items-center justify-between gap-3">
-        <div>
-          <p className="text-[11px] uppercase tracking-widest text-slate-500">Lesson note · week 3</p>
-          <p className="text-lg text-slate-100" style={DISPLAY}>Minor pentatonic, box 1</p>
-        </div>
-        <span className="rounded-full border border-slate-700 px-2 py-0.5 text-[11px] text-slate-400">Preview</span>
-      </div>
-      <svg viewBox="0 0 260 132" className="w-full" role="img" aria-label="A minor pentatonic box at the 5th fret, notes coloured by degree">
-        <rect x={20} y={6} width={232} height={120} rx={6} fill="var(--color-slate-900)" />
-        {[0, 1, 2, 3, 4].map((f) => <line key={f} x1={20 + f * 58} x2={20 + f * 58} y1={6} y2={126} stroke="var(--color-slate-700)" strokeWidth={2} />)}
-        {[0, 1, 2, 3, 4, 5].map((s) => <line key={s} x1={20} x2={252} y1={16 + s * 20} y2={16 + s * 20} stroke="var(--color-slate-500)" strokeOpacity={0.7} strokeWidth={0.8 + s * 0.3} />)}
-        <text x={8} y={70} fontSize={10} fill="var(--color-slate-500)" textAnchor="middle">5</text>
-        {box.map(([s, f, d, l]) => (
-          <g key={`${s}-${f}`}>
-            <circle cx={49 + f * 58} cy={16 + s * 20} r={9} fill={degreeColour(d)} stroke={d === 0 ? "var(--color-slate-50)" : "none"} strokeWidth={2} />
-            <text x={49 + f * 58} y={16.5 + s * 20} fontSize={l.length > 1 ? 7.5 : 9} fontWeight={700} fill={DOT_INK} textAnchor="middle" dominantBaseline="central">{l}</text>
-          </g>
-        ))}
-      </svg>
-      <ul className="mt-3 flex flex-col gap-2 text-sm text-slate-300">
-        {[
-          { done: true, t: "Box 1 up and down, landing on R" },
-          { done: true, t: "Bend the 4 up to the 5" },
-          { done: false, t: "Improvise over the A minor loop, 5 min a day" },
-        ].map((x) => (
-          <li key={x.t} className="flex items-start gap-2">
-            <span className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded ${x.done ? "bg-emerald-500 text-slate-950" : "border border-slate-600"}`}>{x.done && <Icon name="check" size={11} />}</span>
-            <span className={x.done ? "text-slate-400 line-through decoration-slate-600" : ""}>{x.t}</span>
-          </li>
-        ))}
-      </ul>
-      <p className="mt-3 border-t border-slate-800 pt-3 text-xs text-slate-500">Next time: add the ♭5 and it becomes the blues scale.</p>
-    </div>
-  );
 }
 
 export default function LandingOne() {

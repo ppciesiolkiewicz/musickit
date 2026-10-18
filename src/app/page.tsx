@@ -5,87 +5,80 @@ import SiteNav from "@/components/SiteNav";
 import Wordmark from "@/components/Wordmark";
 import Icon, { type IconName } from "@/components/Icon";
 import PreloadPiano from "@/features/sound/keyboard/PreloadPiano";
-import SoundWheel from "@/components/landing/SoundWheel";
+import FretWalk from "@/components/landing/FretWalk";
 import EarlyAccessForm from "@/components/landing/EarlyAccessForm";
-import { DOT_INK, degreeColour } from "@/features/theory/scales";
-import { FAMILIES, modeSteps, spell } from "@/features/theory/theory";
+import Photo from "@/components/landing/Photo";
+import { LiveLessonMock } from "@/components/landing/LessonMocks";
+import ScaleWheel from "@/components/theory/ScaleWheel";
+import { degreeColour, degreeLabels } from "@/features/theory/scales";
+import { FAMILIES, MAJOR, modeSteps } from "@/features/theory/theory";
 
 export const metadata: Metadata = {
-  title: "Music Kit: See what you hear",
-  description: "Music Kit draws sound as colours and shapes you can touch, so you understand why music sounds happy, sad or dreamy, and then play it on the guitar. Free in your browser.",
+  title: "Music Kit: See what you hear, and make real progress on guitar",
+  description: "A video course, private lessons with professional teachers, and tools that show every sound on the fretboard in colour, so practice finally turns into progress. Early access is open.",
 };
 
 const DISPLAY: CSSProperties = { fontFamily: "var(--font-display), serif", fontVariationSettings: '"SOFT" 100, "opsz" 96' };
-const MAJOR = modeSteps(FAMILIES[0], 0);
-const MINOR = modeSteps(FAMILIES[0], 5);
 
-/** A small still of the sound wheel with one or more scale shapes drawn on it. */
-function MiniWheel({ shapes }: { shapes: { steps: number[]; colour: string }[] }) {
-  const at = (s: number, r = 62) => {
-    const a = ((s * 30 - 90) * Math.PI) / 180;
-    return [80 + r * Math.cos(a), 80 + r * Math.sin(a)];
-  };
+/**
+ * A student's story, told by the student. It must be a real person, with their permission: until it is filled in, `draft` keeps
+ * the section to local development so placeholder words and a stock photo never go out as someone's story.
+ */
+const STORY = {
+  draft: true,
+  name: "[Name]",
+  detail: "[age], [city]",
+  headline: "[N] years stuck on the same chords. Improvising in [N] months.",
+  quote: "[In their words: what practice felt like before, the moment it clicked, and what they play now.]",
+  before: ["[Learning songs from tabs, one at a time]", "[No idea why a solo worked or didn't]", "[Practising, but not getting better]"],
+  after: ["[Sees the scale under their fingers]", "[Improvises over a loop in any key]", "[Knows what to practise next]"],
+};
+
+/** Bundles at launch; early-access members get the course now and every style course free as it comes out. */
+const BUNDLES = [
+  { name: "The course", price: "$19.99", text: "The fretboard by ear and by colour: scales, moods, intervals, step by step.", items: ["The core video course", "Exercises in the app"] },
+  { name: "Course + one style", price: "$34.99", text: "The core course plus the style you came for.", items: ["The core video course", "One style course", "Exercises in the app"] },
+  { name: "Everything", price: "$39.99", text: "The core course and every style course, as each one launches.", items: ["The core video course", "Every style course", "Exercises in the app"], best: true },
+];
+const STYLES = ["Surf rock", "Funk", "Blues", "Jazz", "Neo-soul", "Metal", "Flamenco", "Bossa nova", "Reggae", "Country", "Indie rock"];
+
+function Eyebrow({ children, tone = "text-sky-300" }: { children: ReactNode; tone?: string }) {
+  return <p className={`mb-3 text-xs font-medium uppercase tracking-[0.2em] ${tone}`}>{children}</p>;
+}
+function H2({ id, children }: { id?: string; children: ReactNode }) {
+  return <h2 id={id} className="text-3xl leading-[1.08] text-slate-50 text-balance sm:text-5xl" style={DISPLAY}>{children}</h2>;
+}
+function Check({ children, tone = "text-emerald-400" }: { children: ReactNode; tone?: string }) {
+  return <li className="flex gap-2"><Icon name="check" size={16} className={`mt-0.5 shrink-0 ${tone}`} /><span>{children}</span></li>;
+}
+
+/** The practice path: where you are and what comes next, coloured like the degrees. */
+function ProgressPath() {
+  const stages = ["Notes", "Scales", "Moods", "Chords", "Improvise"];
   return (
-    <svg viewBox="0 0 160 160" className="h-40 w-40" aria-hidden>
-      <circle cx={80} cy={80} r={62} fill="none" stroke="var(--color-slate-700)" strokeDasharray="2 5" />
-      {Array.from({ length: 12 }, (_, k) => <circle key={k} cx={at(k)[0]} cy={at(k)[1]} r={2} fill="var(--color-slate-700)" />)}
-      {shapes.map((sh) => (
-        <g key={sh.colour}>
-          <polygon points={sh.steps.map((s) => at(s).join(",")).join(" ")} fill={sh.colour} fillOpacity={0.14} stroke={sh.colour} strokeWidth={2} strokeLinejoin="round" />
-          {sh.steps.map((s) => <circle key={s} cx={at(s)[0]} cy={at(s)[1]} r={5} fill={sh.colour} />)}
-        </g>
+    <div className="flex w-full max-w-xs flex-col gap-2" aria-hidden>
+      {stages.map((s, i) => (
+        <div key={s} className="flex items-center gap-3">
+          <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-xs font-bold ${i < 2 ? "text-slate-950" : i === 2 ? "text-slate-950 ring-4 ring-sky-400/30" : "border border-slate-700 text-slate-500"}`} style={i <= 2 ? { background: degreeColour(i * 2 % 7) } : undefined}>
+            {i < 2 ? <Icon name="check" size={14} /> : i + 1}
+          </span>
+          <span className={`h-2 flex-1 rounded-full ${i < 2 ? "bg-emerald-500/60" : i === 2 ? "bg-linear-to-r from-sky-400/70 to-slate-800" : "bg-slate-800"}`} />
+          <span className={`w-20 text-sm ${i <= 2 ? "text-slate-100" : "text-slate-500"}`}>{s}</span>
+        </div>
       ))}
-    </svg>
+    </div>
   );
 }
 
-/** C major on frets 0–5 of a guitar, each note in its wheel colour. */
-function NeckStrip() {
-  const open = [64, 59, 55, 50, 45, 40];
-  const names = spell(0, 0, MAJOR);
-  const fx = (f: number) => (f === 0 ? 12 : 24 + (f - 0.5) * 44);
-  return (
-    <svg viewBox="0 0 250 132" className="w-full max-w-[16rem]" aria-hidden>
-      <rect x={24} y={6} width={220} height={120} rx={5} fill="var(--color-slate-900)" />
-      {[1, 2, 3, 4, 5].map((f) => <line key={f} x1={24 + f * 44} x2={24 + f * 44} y1={6} y2={126} stroke="var(--color-slate-700)" strokeWidth={2} />)}
-      <rect x={22} y={6} width={4} height={120} fill="var(--color-slate-400)" />
-      {open.map((_, s) => <line key={s} x1={4} x2={244} y1={16 + s * 20} y2={16 + s * 20} stroke="var(--color-slate-500)" strokeOpacity={0.7} strokeWidth={0.8 + s * 0.3} />)}
-      {open.flatMap((o, s) =>
-        Array.from({ length: 6 }, (_, f) => {
-          const d = MAJOR.indexOf((o + f) % 12);
-          if (d < 0) return [];
-          return [
-            <g key={`${s}-${f}`}>
-              <circle cx={fx(f)} cy={16 + s * 20} r={8.5} fill={degreeColour(d)} stroke={d === 0 ? "var(--color-slate-50)" : "none"} strokeWidth={1.8} />
-              <text x={fx(f)} y={16.5 + s * 20} fontSize={9} fontWeight={700} fill={DOT_INK} textAnchor="middle" dominantBaseline="central">{names[d]}</text>
-            </g>,
-          ];
-        }),
-      )}
-    </svg>
-  );
-}
-
-function Idea({ n, title, text, children }: { n: string; title: string; text: string; children: ReactNode }) {
-  return (
-    <li className="flex flex-col gap-4 rounded-3xl border border-slate-800 bg-slate-900/50 p-6">
-      <div className="flex h-44 items-center justify-center">{children}</div>
-      <div>
-        <p className="text-xs tabular-nums text-slate-500">{n}</p>
-        <h3 className="mt-1 text-2xl text-slate-50" style={DISPLAY}>{title}</h3>
-        <p className="mt-2 text-sm leading-relaxed text-slate-400">{text}</p>
-      </div>
-    </li>
-  );
-}
-
-const DO: { href: string; verb: string; label: string; text: string; icon: IconName; tone: string }[] = [
-  { href: "/theory/drone", verb: "Hear", label: "Drone", text: "Hold one note and hear every mood against it.", icon: "audio-lines", tone: "bg-violet-500/15 text-violet-300" },
-  { href: "/theory/scales", verb: "See", label: "Scales and moods", text: "Every scale on the guitar, in its colours.", icon: "sliders-horizontal", tone: "bg-amber-500/15 text-amber-300" },
-  { href: "/looper", verb: "Play", label: "Looper", text: "Loop a groove and play over it.", icon: "repeat", tone: "bg-teal-500/15 text-teal-300" },
+const DO: { href: string; verb: string; label: string; icon: IconName; tone: string }[] = [
+  { href: "/theory/drone", verb: "Hear", label: "Drone", icon: "audio-lines", tone: "bg-violet-500/15 text-violet-300" },
+  { href: "/theory/scales", verb: "See", label: "Scales", icon: "sliders-horizontal", tone: "bg-amber-500/15 text-amber-300" },
+  { href: "/looper", verb: "Play", label: "Looper", icon: "repeat", tone: "bg-teal-500/15 text-teal-300" },
 ];
 
 export default function Home() {
+  const showStory = !STORY.draft || process.env.NODE_ENV !== "production";
+  const dorian = modeSteps(FAMILIES[0], 1);
   return (
     <div className="app-bg min-h-screen overflow-hidden text-slate-200">
       <PreloadPiano />
@@ -94,65 +87,230 @@ export default function Home() {
           <SiteNav active="/" />
         </div>
 
-        <section className="grid grid-cols-[minmax(0,1fr)] items-center gap-12 py-12 sm:py-16 lg:grid-cols-2 lg:py-20">
+        {/* Hero */}
+        <section className="grid grid-cols-[minmax(0,1fr)] items-center gap-12 py-12 sm:py-16 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:py-20">
           <div className="landing-rise flex flex-col items-start">
+            <a href="#course" className="group mb-6 inline-flex items-center gap-2 rounded-full border border-sky-500/40 bg-sky-500/10 py-1 pl-1.5 pr-3 text-xs text-sky-100 transition hover:border-sky-400">
+              <span className="rounded-full bg-sky-400 px-2 py-0.5 text-[11px] font-semibold text-slate-950">Open</span>
+              Early access to the video course
+              <span aria-hidden className="transition group-hover:translate-x-0.5">→</span>
+            </a>
             <h1 className="text-5xl leading-none tracking-tight text-slate-50 sm:text-7xl" style={DISPLAY}>
               See what
               <span className="block italic text-sky-300">you hear.</span>
             </h1>
             <p className="mt-6 max-w-md text-lg leading-relaxed text-slate-300">
-              Music is a handful of notes and the feelings between them. Music Kit draws them as colours and shapes you can touch, so you understand why a song sounds happy, sad or dreamy, and then play it yourself.
+              Plenty of guitarists practise for years and still feel stuck. Music Kit shows you what&apos;s really happening on the fretboard, so every practice session turns into progress.
             </p>
-            <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
-              <Link href="/theory/scales" className="inline-flex items-center gap-2 rounded-xl bg-sky-400 px-5 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-sky-500/20 transition hover:bg-sky-300">
-                Start exploring, it&apos;s free <Icon name="chevron-right" size={16} />
-              </Link>
-              <a href="#course" className="text-sm text-slate-300 underline decoration-slate-600 underline-offset-4 hover:text-slate-100">Get early access to the course</a>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <a href="#course" className="inline-flex items-center gap-2 rounded-xl bg-sky-400 px-5 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-sky-500/20 transition hover:bg-sky-300">
+                Get early access <Icon name="chevron-right" size={16} />
+              </a>
+              <a href="#lessons" className="inline-flex items-center gap-2 rounded-xl border border-slate-600 px-5 py-3 text-sm font-medium text-slate-100 transition hover:border-slate-400 hover:bg-slate-800/40">
+                <Icon name="headphones" size={16} /> Private lessons
+              </a>
             </div>
+            <Link href="/theory/scales" className="mt-5 text-sm text-slate-400 underline decoration-slate-700 underline-offset-4 hover:text-slate-200">or try the free tools first</Link>
           </div>
           <div className="landing-rise" style={{ animationDelay: "120ms" }}>
-            <SoundWheel />
+            <FretWalk />
           </div>
         </section>
 
-        <section aria-labelledby="ideas" className="border-t border-slate-800/70 py-14 sm:py-20">
-          <h2 id="ideas" className="mx-auto max-w-2xl text-center text-3xl leading-tight text-slate-50 text-balance sm:text-5xl" style={DISPLAY}>
-            Three ideas, and music <span className="italic text-sky-300">starts to make sense.</span>
-          </h2>
+        {/* A student's story */}
+        {showStory && (
+          <section aria-labelledby="story-h" className="relative border-t border-slate-800/70 py-14 sm:py-20">
+            {STORY.draft && (
+              <p className="mb-6 w-fit rounded-full border border-amber-500/60 bg-amber-500/15 px-3 py-1 text-xs text-amber-100">
+                Draft: shown only in development. Fill in STORY in src/app/page.tsx with a real student&apos;s story (and their photo, with permission) to publish it.
+              </p>
+            )}
+            <div className="grid grid-cols-[minmax(0,1fr)] items-center gap-10 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-14">
+              <Photo name="practising" className="aspect-4/5 rounded-3xl border border-slate-800" sizes="(min-width: 1024px) 35vw, 100vw" />
+              <div>
+                <Eyebrow tone="text-amber-300">A student&apos;s story</Eyebrow>
+                <H2 id="story-h">{STORY.headline}</H2>
+                <blockquote className="mt-6 border-l-2 border-amber-400/60 pl-5 text-lg italic leading-relaxed text-slate-300" style={DISPLAY}>“{STORY.quote}”</blockquote>
+                <p className="mt-3 pl-5 text-sm text-slate-400"><b className="text-slate-200">{STORY.name}</b>, {STORY.detail}</p>
+                <div className="mt-8 grid gap-4 sm:grid-cols-2">
+                  <div className="rounded-2xl border border-slate-800 bg-slate-900/50 p-5">
+                    <p className="mb-3 text-xs uppercase tracking-widest text-slate-500">Before</p>
+                    <ul className="flex flex-col gap-2 text-sm text-slate-400">{STORY.before.map((t) => <li key={t} className="flex gap-2"><span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-slate-600" />{t}</li>)}</ul>
+                  </div>
+                  <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-5">
+                    <p className="mb-3 text-xs uppercase tracking-widest text-emerald-300">After</p>
+                    <ul className="flex flex-col gap-2 text-sm text-slate-200">{STORY.after.map((t) => <Check key={t}>{t}</Check>)}</ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* The video course: early access and bundles */}
+        <section id="course" aria-labelledby="course-h" className="scroll-mt-6 border-t border-slate-800/70 py-14 sm:py-20">
+          <div className="grid grid-cols-[minmax(0,1fr)] items-end gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+            <div>
+              <Eyebrow>The video course · early access</Eyebrow>
+              <H2 id="course-h">Learn it step by step, <span className="italic text-sky-300">and see it as you go.</span></H2>
+              <p className="mt-5 max-w-xl text-slate-300">
+                Short video lessons that take you across the fretboard by ear and by colour, with every exercise ready to play in the app. Join early: you get the course at the early-access price, and every style course free as it launches.
+              </p>
+            </div>
+            <Photo name="couch" className="aspect-16/10 rounded-3xl border border-slate-800" sizes="(min-width: 1024px) 40vw, 100vw" />
+          </div>
+
+          <ul className="mt-10 grid gap-4 md:grid-cols-3">
+            {BUNDLES.map((b) => (
+              <li key={b.name} className={`relative flex flex-col gap-4 rounded-3xl border p-6 ${b.best ? "border-sky-400/70 bg-sky-500/10 shadow-xl shadow-sky-500/10" : "border-slate-800 bg-slate-900/50"}`}>
+                {b.best && <span className="absolute -top-3 left-6 rounded-full bg-sky-400 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-slate-950">Best value</span>}
+                <div>
+                  <p className="text-xl text-slate-50" style={DISPLAY}>{b.name}</p>
+                  <p className="mt-1 text-sm text-slate-400">{b.text}</p>
+                </div>
+                <p className="flex items-baseline gap-2">
+                  <span className="text-4xl text-slate-50" style={DISPLAY}>{b.price}</span>
+                  <span className="text-xs text-slate-500">one-off, at launch</span>
+                </p>
+                <ul className="flex flex-col gap-2 text-sm text-slate-300">{b.items.map((t) => <Check key={t}>{t}</Check>)}</ul>
+                {b.best && <p className="rounded-xl bg-slate-950/50 px-3 py-2 text-xs text-sky-100">Early access: get the course now and every style course free as it launches.</p>}
+                <a href="#join" className={`mt-auto inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition ${b.best ? "bg-sky-400 text-slate-950 hover:bg-sky-300" : "border border-slate-600 text-slate-100 hover:border-slate-400"}`}>
+                  Join early access
+                </a>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-4 text-xs text-slate-500">Prices may change before launch. Style courses on the way: {STYLES.join(", ")}.</p>
+
+          <div id="join" className="mt-10 grid scroll-mt-6 grid-cols-[minmax(0,1fr)] items-center gap-6 rounded-3xl border border-slate-700/60 bg-slate-900/70 p-6 sm:p-8 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
+            <div>
+              <p className="text-2xl text-slate-50" style={DISPLAY}>Save your spot</p>
+              <p className="mt-1 text-sm text-slate-400">One email when early access opens, with the early-adopter offer.</p>
+            </div>
+            <EarlyAccessForm source="course" />
+          </div>
+        </section>
+
+        {/* Private lessons with professional teachers */}
+        <section id="lessons" aria-labelledby="lessons-h" className="scroll-mt-6 border-t border-slate-800/70 py-14 sm:py-20">
+          <div className="grid grid-cols-[minmax(0,1fr)] items-center gap-12 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-16">
+            <div>
+              <Eyebrow tone="text-violet-300">Private lessons</Eyebrow>
+              <H2 id="lessons-h">A professional teacher, <span className="italic text-violet-300">and progress you can feel.</span></H2>
+              <p className="mt-5 max-w-lg text-slate-300">
+                One-to-one lessons with professional teachers, held right inside Music Kit. They spot what&apos;s holding you back, show you the sound instead of only telling you, and leave you with exactly what to practise.
+              </p>
+              <ul className="mt-7 flex flex-col gap-4">
+                {[
+                  { icon: "zap" as const, t: "Faster than practising alone", s: "A pro hears in minutes what you'd take months to notice.", c: "bg-sky-500/15 text-sky-300" },
+                  { icon: "eye" as const, t: "See it together", s: "Any scale, neck or groove on both screens in a second; “play the yellow one” just works.", c: "bg-amber-500/15 text-amber-300" },
+                  { icon: "book-open" as const, t: "Notes after every lesson", s: "The shapes, the exercises and what comes next, on a page you can come back to.", c: "bg-teal-500/15 text-teal-300" },
+                  { icon: "history" as const, t: "Your progress stays with you", s: "Change teachers whenever you like; the next one picks up where you left off.", c: "bg-violet-500/15 text-violet-300" },
+                ].map((x) => (
+                  <li key={x.t} className="flex gap-4">
+                    <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl ${x.c}`}><Icon name={x.icon} size={20} /></span>
+                    <span><b className="block font-semibold text-slate-100">{x.t}</b><span className="text-sm text-slate-400">{x.s}</span></span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="relative pb-40 sm:pb-24">
+              <Photo name="teacherTablet" className="aspect-4/3 rounded-3xl border border-slate-800" sizes="(min-width: 1024px) 45vw, 100vw" />
+              <div className="absolute -bottom-2 left-0 w-[88%] sm:-left-6 sm:w-[70%]">
+                <LiveLessonMock />
+              </div>
+            </div>
+          </div>
+
+          <ul className="mt-14 grid gap-4 md:grid-cols-2">
+            <li className="flex flex-col gap-4 rounded-3xl border border-slate-800 bg-slate-900/50 p-6">
+              <p className="text-xl text-slate-50" style={DISPLAY}>Private lessons</p>
+              <p className="text-sm text-slate-400">Book a professional teacher when you want one. Each teacher sets their own rate.</p>
+              <ul className="flex flex-col gap-2 text-sm text-slate-300">
+                <Check>One-to-one, inside the app</Check>
+                <Check>Lesson notes after every lesson</Check>
+                <Check>Switch teachers any time</Check>
+              </ul>
+            </li>
+            <li className="flex flex-col gap-4 rounded-3xl border border-violet-400/50 bg-violet-500/10 p-6">
+              <div className="flex items-baseline justify-between gap-3">
+                <p className="text-xl text-slate-50" style={DISPLAY}>VIP mentoring</p>
+                <p><span className="text-3xl text-slate-50" style={DISPLAY}>$1,000</span><span className="text-xs text-slate-400"> / month</span></p>
+              </div>
+              <p className="text-sm text-slate-400">For players who want to move as fast as possible, with a teacher who knows their playing inside out.</p>
+              <ul className="flex flex-col gap-2 text-sm text-slate-300">
+                <Check tone="text-violet-300">A weekly one-to-one and feedback on your playing between lessons</Check>
+                <Check tone="text-violet-300">A plan built around the music you want to play</Check>
+                <Check tone="text-violet-300">Every course included</Check>
+              </ul>
+            </li>
+          </ul>
+          <div className="mt-6 grid grid-cols-[minmax(0,1fr)] items-center gap-4 rounded-3xl border border-violet-500/30 bg-violet-500/5 p-5 sm:p-6 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
+            <p className="text-sm text-slate-200">Lessons open soon. Get a first slot before anyone else.</p>
+            <EarlyAccessForm source="lessons" compact initial={["private-lessons"]} cta="Save me a lesson" done="You're on the list for lessons. We'll email you once when the first slots open." />
+          </div>
+
+          {/* for teachers */}
+          <div className="mt-14 grid grid-cols-[minmax(0,1fr)] items-center gap-8 overflow-hidden rounded-4xl border border-slate-800 bg-slate-900/50 lg:grid-cols-[minmax(0,0.75fr)_minmax(0,1.25fr)]">
+            <Photo name="teacher" className="aspect-4/3 h-full lg:aspect-auto" sizes="(min-width: 1024px) 30vw, 100vw" />
+            <div className="p-6 pt-0 sm:p-10 lg:pl-0 lg:pt-10">
+              <Eyebrow tone="text-amber-300">For teachers</Eyebrow>
+              <h3 className="text-3xl leading-tight text-slate-50 sm:text-4xl" style={DISPLAY}>Teach with every sound <span className="italic text-amber-300">a click away.</span></h3>
+              <ul className="mt-6 grid gap-x-6 gap-y-3 text-sm text-slate-300 sm:grid-cols-2">
+                <Check tone="text-amber-300">Bring up any scale, chord, drone or loop mid-lesson</Check>
+                <Check tone="text-amber-300">Lesson notes drafted for you; add the details and send</Check>
+                <Check tone="text-amber-300">Students arrive already knowing the colours</Check>
+                <Check tone="text-amber-300">Set your own rate; founding teachers keep almost all of it</Check>
+              </ul>
+              <div className="mt-6">
+                <EarlyAccessForm source="teachers" compact initial={["teaching"]} cta="I want to teach" done="Thanks! We'll get in touch about teaching on Music Kit." />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Seeing the sound, and practising the right thing */}
+        <section aria-labelledby="ideas-h" className="border-t border-slate-800/70 py-14 sm:py-20">
+          <div className="mx-auto max-w-2xl text-center">
+            <Eyebrow>Free in the app</Eyebrow>
+            <H2 id="ideas-h">Practice that <span className="italic text-sky-300">adds up.</span></H2>
+          </div>
           <ul className="mt-12 grid gap-4 md:grid-cols-3">
-            <Idea n="01" title="A scale is a shape" text="Bright and sad share most of their shape. Lower three notes a notch and happy turns heartfelt. You can see it before you can name it.">
-              <MiniWheel shapes={[{ steps: MAJOR, colour: "var(--color-amber-400)" }, { steps: MINOR, colour: "var(--color-violet-400)" }]} />
-            </Idea>
-            <Idea n="02" title="Every note has a colour" text="The home note is always white, the mood note always yellow. Learn what a note does, and you'll find it in any song, in any key.">
-              <div className="flex flex-col items-center gap-3">
-                <div className="flex gap-1.5">
+            <li className="flex flex-col gap-4 rounded-3xl border border-slate-800 bg-slate-900/50 p-6">
+              <div className="flex h-56 items-center justify-center">
+                <ScaleWheel steps={dorian} labels={degreeLabels(dorian)} compare={MAJOR} size={210} />
+              </div>
+              <h3 className="text-2xl text-slate-50" style={DISPLAY}>See why it sounds that way</h3>
+              <p className="text-sm leading-relaxed text-slate-400">Every scale on the ring of twelve notes. The ringed notes are the ones that give it its mood, here the warm 6th of Dorian.</p>
+            </li>
+            <li className="flex flex-col gap-4 rounded-3xl border border-slate-800 bg-slate-900/50 p-6">
+              <div className="flex h-56 flex-col items-center justify-center gap-4">
+                <div className="flex items-end gap-1.5">
                   {MAJOR.map((_, d) => (
-                    <span key={d} className={`rounded-full ${d === 0 || d === 2 || d === 6 ? "h-9 w-9" : "mt-1.5 h-6 w-6 opacity-50"}`} style={{ background: degreeColour(d), boxShadow: d === 0 ? "0 0 0 2px var(--color-slate-50)" : undefined }} />
+                    <span key={d} className={`rounded-full ${d === 0 || d === 2 || d === 6 ? "h-11 w-11" : "h-7 w-7 opacity-60"}`} style={{ background: degreeColour(d), boxShadow: d === 0 ? "0 0 0 2px var(--color-slate-50)" : undefined }} />
                   ))}
                 </div>
                 <div className="flex gap-5 text-xs text-slate-400">
-                  <span><b className="text-slate-100">Home</b> where it rests</span>
-                  <span><b style={{ color: degreeColour(2) }}>Mood</b> happy or sad</span>
-                  <span><b style={{ color: degreeColour(6) }}>Pull</b> leans home</span>
+                  <span><b className="text-slate-100">Home</b></span>
+                  <span><b style={{ color: degreeColour(2) }}>Mood</b></span>
+                  <span><b style={{ color: degreeColour(6) }}>Pull</b></span>
                 </div>
               </div>
-            </Idea>
-            <Idea n="03" title="The colours follow you" text="The same colours light up the guitar neck, so the sound you liked on the wheel is right there under your fingers.">
-              <NeckStrip />
-            </Idea>
+              <h3 className="text-2xl text-slate-50" style={DISPLAY}>Every note has a colour</h3>
+              <p className="text-sm leading-relaxed text-slate-400">The home note is always white, the mood note always yellow. Learn what a note does and you&apos;ll find it in any song, in any key.</p>
+            </li>
+            <li className="flex flex-col gap-4 rounded-3xl border border-slate-800 bg-slate-900/50 p-6">
+              <div className="flex h-56 items-center justify-center"><ProgressPath /></div>
+              <h3 className="text-2xl text-slate-50" style={DISPLAY}>Always know what&apos;s next</h3>
+              <p className="text-sm leading-relaxed text-slate-400">Practise in an order that builds, one step at a time, so you never wonder whether today&apos;s practice was the right practice.</p>
+            </li>
           </ul>
-        </section>
-
-        <section aria-label="Try it" className="pb-14 sm:pb-20">
-          <ul className="grid gap-3 md:grid-cols-3">
+          <ul className="mt-6 grid gap-3 md:grid-cols-3">
             {DO.map((d) => (
               <li key={d.href}>
-                <Link href={d.href} className="group flex h-full items-center gap-4 rounded-2xl border border-slate-800 bg-slate-900/40 p-5 transition hover:-translate-y-0.5 hover:border-slate-600">
-                  <span className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl ${d.tone}`}><Icon name={d.icon} size={22} /></span>
-                  <span className="min-w-0">
-                    <span className="block text-xl text-slate-50" style={DISPLAY}><span className="italic">{d.verb}</span> · {d.label}</span>
-                    <span className="text-sm text-slate-400">{d.text}</span>
-                  </span>
+                <Link href={d.href} className="group flex items-center gap-4 rounded-2xl border border-slate-800 bg-slate-900/40 p-4 transition hover:-translate-y-0.5 hover:border-slate-600">
+                  <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl ${d.tone}`}><Icon name={d.icon} size={20} /></span>
+                  <span className="text-lg text-slate-50" style={DISPLAY}><span className="italic">{d.verb}</span> · {d.label}</span>
                   <span aria-hidden className="ml-auto text-slate-600 transition group-hover:translate-x-0.5 group-hover:text-slate-300">→</span>
                 </Link>
               </li>
@@ -160,23 +318,19 @@ export default function Home() {
           </ul>
         </section>
 
-        <section id="course" aria-labelledby="course-h" className="scroll-mt-6 pb-16 sm:pb-24">
-          <div className="relative overflow-hidden rounded-4xl border border-slate-700/60 bg-slate-900/70 p-6 sm:p-10">
-            <div aria-hidden className="wheel-halo pointer-events-none absolute -right-20 -top-24 h-80 w-80 rounded-full opacity-30 blur-3xl" style={{ background: `conic-gradient(${[0, 1, 2, 3, 4, 5, 6, 0].map(degreeColour).join(",")})` }} />
-            <div className="relative grid grid-cols-[minmax(0,1fr)] items-center gap-8 lg:grid-cols-2">
-              <div>
-                <p className="mb-3 text-xs font-medium uppercase tracking-[0.2em] text-sky-300">Early access</p>
-                <h2 id="course-h" className="text-3xl leading-tight text-slate-50 sm:text-4xl" style={DISPLAY}>Learn it, step by step.</h2>
-                <p className="mt-3 max-w-md text-slate-400">A short video course that walks you through the guitar with these colours. Join early and every style course that follows, from surf rock to funk, is yours free.</p>
-              </div>
-              <EarlyAccessForm source="home" compact />
-            </div>
+        <section className="pb-16 text-center sm:pb-24">
+          <p className="mx-auto max-w-2xl text-4xl leading-tight text-slate-50 sm:text-5xl" style={DISPLAY}>
+            Stop guessing. <span className="italic text-sky-300">Start hearing it.</span>
+          </p>
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <a href="#course" className="inline-flex items-center gap-2 rounded-xl bg-sky-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-sky-300">Get early access <Icon name="chevron-right" size={16} /></a>
+            <a href="#lessons" className="inline-flex items-center gap-2 rounded-xl border border-slate-600 px-5 py-3 text-sm font-medium text-slate-100 transition hover:border-slate-400">Private lessons</a>
           </div>
         </section>
 
         <footer className="flex flex-col items-center justify-between gap-3 border-t border-slate-800/70 py-8 text-xs text-slate-500 sm:flex-row">
           <Wordmark className="text-xl" />
-          <p>Made for people who&apos;d rather play.</p>
+          <p>Photos from Unsplash. Made for people who&apos;d rather play.</p>
         </footer>
       </div>
     </div>

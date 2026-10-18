@@ -2,8 +2,8 @@
 
 export const SIGNUP_PREFIX = "early-access/";
 
-/** What a player wants first; the landing page offers these as chips. */
-export const INTERESTS = ["basic-course", "style-courses", "private-lessons", "songs-by-mode"] as const;
+/** What a player wants first (the landing page offers these as chips), or `teaching` for a teacher who wants to teach here. */
+export const INTERESTS = ["basic-course", "style-courses", "private-lessons", "songs-by-mode", "teaching"] as const;
 export type Interest = (typeof INTERESTS)[number];
 
 export interface Signup {

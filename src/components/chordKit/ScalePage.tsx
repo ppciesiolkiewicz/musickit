@@ -5,7 +5,7 @@ import { useLabelSystem } from "@/features/theory/useLabelSystem";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ColourKey, ModeAlias, ScaleSettingsBar, UNDER_BAR } from "./ScaleSettings";
-import { FAMILIES, makeKeyContext } from "@/features/theory/theory";
+import { FAMILIES, MAJOR, makeKeyContext } from "@/features/theory/theory";
 import { MODE_PAGES, type NoteSwap, chordMidi, modeChords, degreeColour, relativesOf, roleWithDegree, stepPattern, DOT_INK } from "@/features/theory/scales";
 import { strum } from "@/lib/chordKit/playback";
 import ChordShapeCarousel from "./ChordShapeCarousel";
@@ -14,6 +14,7 @@ import ChordProgressionModal from "./ChordProgressionModal";
 import ChordBubbles from "./ChordBubbles";
 import ScaleOnGuitar from "./ScaleOnGuitar";
 import TuneButton from "./TuneButton";
+import ScaleWheel from "@/components/theory/ScaleWheel";
 import { useNotePlayer } from "./useNotePlayer";
 import { scaleLineMidi } from "@/lib/chordKit/scalePositions";
 import { generateMelody, melodyTiming, scalePool } from "@/lib/chordKit/melody";
@@ -90,7 +91,8 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
         Colour shows the job a note does in the key, not how high it is. The 1st degree (home) is white, the 3rd is amber because it decides major or minor, the 5th is blue, and the 7th is rose. The 2nd, 4th and 6th are teal, lime and violet. A flattened or raised note keeps the colour of its degree, so the ♭3 is still amber, and its label tells you it is flat. The same note has the same colour in every chord.
       </ColourKey>
 
-      <div id="scale-notes" className={`flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5 ${UNDER_BAR}`}>
+      <div id="scale-notes" className={`grid gap-4 rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5 md:grid-cols-[minmax(0,1fr)_auto] ${UNDER_BAR}`}>
+        <div className="flex min-w-0 flex-col gap-3">
         <h2 className="text-2xl font-light tracking-wide text-slate-100">
           {ctx.names[0]} {ctx.modeName}
           <ModeAlias familyIndex={familyIndex} modeIndex={modeIndex} />
@@ -133,6 +135,21 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
           {rel.majorSwaps.length > 0 && <li>Compared with {ctx.names[0]} major: <Swaps swaps={rel.majorSwaps} /></li>}
           {rel.minorSwaps.length > 0 && <li>Compared with {ctx.names[0]} natural minor: <Swaps swaps={rel.minorSwaps} /></li>}
         </ul>
+        </div>
+        {/* the scale as a shape on the ring of twelve notes; plain major dashed behind it, the notes that differ ringed */}
+        <figure className="flex flex-col items-center gap-1 self-center justify-self-center">
+          <ScaleWheel
+            steps={ctx.steps}
+            labels={ctx.steps.map((_, i) => scaleToneLabel(system, ctx, i))}
+            compare={ctx.steps.every((s, i) => s === MAJOR[i]) ? undefined : MAJOR}
+            active={player.active?.startsWith("d") ? Number(player.active.slice(1)) : null}
+            onNote={(d) => player.tap(`d${d}`, line[d])}
+            size={220}
+          />
+          <figcaption className="max-w-[14rem] text-center text-[11px] text-slate-500">
+            {ctx.steps.every((s, i) => s === MAJOR[i]) ? "The twelve notes in a ring, this scale's seven joined up." : "Dashed: plain major. Ringed: the notes that give this scale its sound."}
+          </figcaption>
+        </figure>
       </div>
 
       <ScaleOnGuitar ctx={ctx} player={player} />
