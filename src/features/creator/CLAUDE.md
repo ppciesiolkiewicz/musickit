@@ -3,7 +3,7 @@
 The creator (shown as the "Cheatsheet builder" at `/cheatsheet`) is every theory page as a plugin on a board, all following one key that can also be empty. Behaviour spec: `spec/creator.md`.
 
 ## Keep it separate
-- Imports `@/features/theory`, `@/features/sound`, `@/features/widgets`, the shared `@/components`, and the theory pages it shows (`components/chordKit`, `components/improv`, `components/theory`, `lib/chordKit`, `lib/improv`). Never the looper (`src/lib/looper`, `src/components/looper`) or the instruments. Nothing imports from the creator except its page and `src/features/stage` (the teacher studio's widgets), and only through `index.ts` (`PLUGINS`, `KeyScope`, `KeyBar`, the key model).
+- Imports `@/features/theory`, `@/features/sound`, `@/features/widgets`, the shared `@/components`, and the theory pages it shows (`components/chordKit`, `components/improv`, `components/theory`, `lib/chordKit`, `lib/improv`). Never the looper (`src/lib/looper`, `src/components/looper`) or the instruments. Nothing imports from the creator except its page and `src/features/stage` (the teacher studio's widgets), and only through `index.ts` (`PLUGINS`, `KeyScope`, `KeyBar`, the key model). The stage's pure model may import `model/key.ts` directly, so its tests load no React.
 - Music theory goes in `features/theory`, not here. If a plugin needs a fact the theory feature does not have, add it there with a test. What stays here is the creator's own choice (`model/key.ts`), how things are voiced for playing (`model/voicing.ts`), and the general (no key) content (`model/generic.ts`).
 
 ## The key
