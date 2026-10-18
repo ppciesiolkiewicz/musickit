@@ -5,7 +5,7 @@ import Icon from "@/components/Icon";
 import EffectControls from "../effects/EffectControls";
 import { EFFECT_DEFS, EFFECT_KINDS, defaultParams, moveEffect, type EffectKind, type EffectSpec } from "../effects/effects";
 import { MAX_LOOP_EFFECTS } from "./loops";
-import { Modal, ibtn } from "@/components/ui";
+import { Modal, hueAt, hueClass, ibtn } from "@/components/ui";
 
 let nextFx = 1;
 const newFxId = () => `fx-${Date.now().toString(36)}-${nextFx++}`;
@@ -42,8 +42,8 @@ export default function JamEffects({ name, effects, onChange, onClose }: { name:
         })}
         {adding ? (
           <div className="flex flex-wrap gap-1.5 rounded-xl border border-slate-800 p-2" role="group" aria-label="Add an effect">
-            {EFFECT_KINDS.map((k) => (
-              <button key={k} type="button" className="rounded-lg border border-slate-700 bg-slate-900 px-2.5 py-1 text-xs text-slate-200 hover:border-sky-400" onClick={() => add(k)}>{EFFECT_DEFS[k].name}</button>
+            {EFFECT_KINDS.map((k, i) => (
+              <button key={k} type="button" className={`rounded-lg border px-2.5 py-1 text-xs transition ${hueClass(hueAt(i), false)}`} onClick={() => add(k)}>{EFFECT_DEFS[k].name}</button>
             ))}
           </div>
         ) : (

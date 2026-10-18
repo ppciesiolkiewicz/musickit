@@ -4,7 +4,7 @@ import { useState, type ReactNode } from "react";
 import { clampA4, resolveChoice, TUNER_INSTRUMENTS, withInstrument, type TunerChoice } from "./choice";
 import type { InstrumentId } from "@/features/theory/tunings";
 import InstrumentIcon from "./InstrumentIcon";
-import { Select } from "@/components/ui";
+import { Select, Tile, type Hue } from "@/components/ui";
 
 const fieldBase = "rounded-md border border-slate-700 bg-slate-900 text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 /** The small caps label over each group of the full settings. */
@@ -49,6 +49,9 @@ export function A4Field({ value, onChange, small }: { value: number; onChange: (
 }
 
 /** One-tap A4 references: concert pitch, and the 432 Hz some players prefer (after Verdi, who argued for it). */
+/** Each instrument keeps its colour, whatever else the tuner offers. */
+const INSTRUMENT_HUE: Partial<Record<InstrumentId, Hue>> = { chromatic: "sky", guitar: "amber", bass: "violet", ukulele: "emerald", violin: "rose" };
+
 const A4_PRESETS = [{ hz: 440, label: "Standard" }, { hz: 432, label: "Verdi" }];
 
 function A4Presets({ value, onChange }: { value: number; onChange: (hz: number) => void }) {
@@ -109,16 +112,11 @@ export default function TunerSettings({ choice, onChange, compact, trailing, asi
       <div className="flex flex-col gap-1.5">
         <span className={label}>Instrument</span>
         <div role="radiogroup" aria-label="Instrument" className="grid grid-cols-[repeat(auto-fill,minmax(3.6rem,1fr))] gap-1.5">
-          {TUNER_INSTRUMENTS.map((inst) => {
-            const on = inst.id === instrument.id;
-            return (
-              <button key={inst.id} type="button" role="radio" aria-checked={on} onClick={() => pick(inst.id)}
-                className={`flex flex-col items-center gap-1 rounded-xl border px-1 py-2 text-[11px] transition focus-visible:outline-2 focus-visible:outline-sky-400 ${on ? "border-sky-500/60 bg-sky-500/15 text-sky-100" : "border-slate-800 bg-slate-900/40 text-slate-400 hover:border-slate-600 hover:text-slate-200"}`}>
-                <InstrumentIcon id={inst.id} size={26} />
-                {inst.name}
-              </button>
-            );
-          })}
+          {TUNER_INSTRUMENTS.map((inst) => (
+            <Tile key={inst.id} radio hue={INSTRUMENT_HUE[inst.id] ?? "sky"} on={inst.id === instrument.id} onClick={() => pick(inst.id)} icon={<InstrumentIcon id={inst.id} size={22} />}>
+              {inst.name}
+            </Tile>
+          ))}
         </div>
       </div>
       {tuningSelect && (

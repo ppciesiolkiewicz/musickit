@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Icon from "@/components/Icon";
 import usePhone from "@/components/usePhone";
+import { HUE_TONES, hueAt, hueClass } from "@/components/ui";
 import { WidgetBoard } from "@/features/widgets";
 import { CreatorKeyProvider } from "./KeyProvider";
 import KeyBar from "./KeyBar";
@@ -73,11 +74,12 @@ function Creator() {
       <KeyBar />
       <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label="Plugins">
         <Icon name="puzzle" className="text-slate-500" />
-        {PLUGINS.map((p) => {
+        {PLUGINS.map((p, i) => {
           const on = open.includes(p.id);
+          const hue = hueAt(i);
           return (
-            <button key={p.id} type="button" aria-pressed={on} onClick={() => toggle(p.id)} className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${on ? "border-sky-400 bg-sky-500/20 text-sky-100" : "border-slate-700 bg-slate-900 text-slate-300 hover:border-slate-500"}`}>
-              <Icon name={p.icon} size={14} />{p.title}
+            <button key={p.id} type="button" aria-pressed={on} onClick={() => toggle(p.id)} className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${hueClass(hue, on)}`}>
+              <Icon name={p.icon} size={14} className={on ? "" : HUE_TONES[hue].ink} />{p.title}
             </button>
           );
         })}

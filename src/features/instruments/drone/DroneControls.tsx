@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import { DEFAULT_DRONE, DRONE_MAX_OCTAVE, DRONE_MAX_RATE, DRONE_MIN_OCTAVE, DRONE_MIN_RATE, FILTERS, MOD_TARGETS, NOTE_NAMES, WAVES, droneCutoff, droneName, type DroneParams } from "./drone";
 import DroneScope from "./DroneScope";
-import { Select } from "@/components/ui";
+import { Select, hueAt, hueClass, type Hue } from "@/components/ui";
 const ibtn = "grid h-8 min-w-8 place-items-center rounded-lg border border-slate-700 bg-slate-900 px-1.5 text-xs text-slate-200 transition hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 const on = "!border-sky-400 !bg-sky-500/20 !text-sky-100";
 
@@ -25,6 +25,12 @@ const FILTER: typeof SOUND = [
 
 const waveName = (w: string) => (w === "sawtooth" ? "Saw" : w[0].toUpperCase() + w.slice(1));
 const FILTER_NAMES: Record<(typeof FILTERS)[number], string> = { lowpass: "Low-pass", bandpass: "Band-pass", highpass: "High-pass" };
+/** A colour per note letter, its sharp sharing it: C D E F G A B. */
+const LETTER_HUES: Hue[] = ["red", "amber", "emerald", "teal", "sky", "violet", "pink"];
+const NATURAL_INDEX = [0, 0, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6];
+const noteHue = (pc: number) => LETTER_HUES[NATURAL_INDEX[pc]];
+const cbtn = "grid h-8 min-w-8 place-items-center rounded-lg border px-1.5 text-xs transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
+
 const MOD_NAMES: Record<(typeof MOD_TARGETS)[number], string> = { off: "Off", filter: "Filter", pitch: "Pitch", volume: "Volume" };
 
 /** The rate slider runs 0 to 1 and is spaced like pitch, so slow and fast speeds both get room. */
@@ -82,7 +88,7 @@ export default function DroneControls({ value, onChange, playing = false, analys
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
           <div role="group" aria-label="Note" className="grid grid-cols-6 gap-1 @lg:grid-cols-12">
             {NOTE_NAMES.map((n, i) => (
-              <button key={n} type="button" aria-pressed={value.root === i} onClick={() => onChange({ root: i })} className={`${ibtn} w-9 ${value.root === i ? on : ""}`}>{n}</button>
+              <button key={n} type="button" aria-pressed={value.root === i} onClick={() => onChange({ root: i })} className={`${cbtn} w-9 ${hueClass(noteHue(i), value.root === i)}`}>{n}</button>
             ))}
           </div>
           <div className="flex items-center gap-1" role="group" aria-label="Octave">
@@ -112,7 +118,7 @@ export default function DroneControls({ value, onChange, playing = false, analys
             </Head>
             <div role="group" aria-label="What the modulation moves" className="grid grid-cols-4 gap-1">
               {MOD_TARGETS.map((m) => (
-                <button key={m} type="button" aria-pressed={value.mod === m} onClick={() => onChange({ mod: m })} className={`${ibtn} ${value.mod === m ? on : ""}`}>{MOD_NAMES[m]}</button>
+                <button key={m} type="button" aria-pressed={value.mod === m} onClick={() => onChange({ mod: m })} className={`${cbtn} ${m === "off" ? (value.mod === m ? on : "border-slate-700 bg-slate-900 text-slate-200 hover:border-slate-500") : hueClass(hueAt(MOD_TARGETS.indexOf(m)), value.mod === m)}`}>{MOD_NAMES[m]}</button>
               ))}
             </div>
             <fieldset disabled={value.mod === "off"} className="flex min-w-0 flex-col gap-2 disabled:opacity-40">
