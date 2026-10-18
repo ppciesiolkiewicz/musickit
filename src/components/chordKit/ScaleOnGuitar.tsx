@@ -104,7 +104,7 @@ export default function ScaleOnGuitar({ ctx, player }: { ctx: KeyContext; player
           const on = focus === p.number;
           return (
             <div key={p.number} className={`flex min-w-0 flex-col gap-1.5 rounded-xl border p-2 transition ${on ? "border-sky-500/70 bg-sky-500/5" : "border-slate-800 bg-slate-950/50"}`}>
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="flex flex-col items-start gap-2">
                 <button type="button" onClick={() => setFocus(on ? null : p.number)} aria-pressed={on} className="text-left text-sm font-medium text-slate-100 hover:text-sky-300" title="Light it up on the neck">
                   Position {p.number}
                   <span className="block text-xs font-normal text-slate-300">
@@ -112,7 +112,7 @@ export default function ScaleOnGuitar({ ctx, player }: { ctx: KeyContext; player
                   </span>
                   <span className="block text-xs font-normal text-slate-500">frets {p.from}–{p.to}</span>
                 </button>
-                <div className="ml-auto flex flex-wrap justify-end gap-1.5">
+                <div className="flex flex-wrap gap-1.5">
                   <button type="button" onClick={() => playPosition(p)} className={`cursor-sound ${playBtn}`}>▶ Play</button>
                   <TuneButton onPlay={(id) => playTune(p, id)} title="A short tune using only this position's notes, new every time" className={playBtn} />
                 </div>
