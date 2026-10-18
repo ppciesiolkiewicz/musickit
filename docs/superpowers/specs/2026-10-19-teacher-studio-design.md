@@ -2,7 +2,7 @@
 
 ## Intent
 
-Teachers (starting with the site's owner) record lesson videos. Today, showing a chord, a scale position or a drone on camera means juggling other apps. The studio is a **separate app inside Music Kit** at `/teachers/studio`. It's a recording studio where a fixed 16:9 frame holds your camera plus any Music Kit view (chord, scale, position, CAGED shape, circle of fifths, drone…). You bring each view up with a Spotlight-style palette (`/ e6` → Enter), then move and resize it in the frame. You record the lesson in one take, cut out the mistakes on a simple timeline and download the finished MP4.
+Teachers (starting with the site's owner) record lesson videos. Today, showing a chord, a scale position or a drone on camera means juggling other apps. The studio is a **separate app inside Music Kit** at `/teachers/studio`. It's a recording studio where a fixed 16:9 frame holds your camera plus any Music Kit view (chord, scale, position, CAGED shape, circle of fifths, drone…). You bring each view up with a Spotlight-style palette (`/ e6` → Enter), then move and resize it in the frame. There are two ways to make a lesson. **Live**: record camera, widgets, mouse and audio in one take. **Overdub**: import a video shot elsewhere (e.g. a DSLR clip of the teacher explaining a chord), play it back in the studio and perform the widgets and pointer on top of it. Either way, the result is a **multitrack timeline**: video, a widgets + mouse track, and one audio track per input. You cut it, move, remove or swap widgets afterwards, and download the finished MP4.
 
 It takes its ideas from the looper (floating, movable widgets; real audio-interface inputs; amp models) but is its own product. `/teachers` is the start of a teacher-only area that will later sit behind a login.
 
@@ -35,18 +35,27 @@ It takes its ideas from the looper (floating, movable widgets; real audio-interf
    - The metronome click is never recorded. The drone and any backing sound brought up from the palette are.
    - Interface latency is compensated so picking matches sound on video.
    - No mic or camera prompt without a click.
-8. **Recording.** Records the frame's video and the mixed audio in one take. Pause and resume are allowed. Mark-cut (key and button) drops a split marker on the timeline while recording.
-9. **Edit.** After stop, the take opens on a simple timeline with a preview, playhead, thumbnail strip and audio waveform. **Split** at the playhead (key `C`), **select and delete** a piece, and the remaining pieces close up. Undo. That's the whole editor.
-10. **Export.**
-    - **Download MP4** of the edited video with the mixed soundtrack.
-    - **Download dry DI** as a WAV of the raw guitar, with the same cuts applied, for re-amping later.
+8. **A project is a multitrack timeline (decided by the user).** Tracks:
+   - **Video track:** clips from the camera, screen share or **imported video files** (e.g. DSLR footage, MP4/MOV), placed one after another. One video track in v1 *(my call)*.
+   - **Widgets + mouse track:** saved as **data, not pixels**: a time-stamped list of what was shown (widget kind and subject, e.g. chord E6), where and how big it was, moves and resizes, clicks on notes and chords, and the pointer path. It's redrawn live from the real widgets on playback and export, so it stays sharp and editable.
+   - **One audio track per input:** voice mic, guitar DI, the imported clip's own sound, drone and backing. Each has its own volume, mute and waveform. The guitar is stored **dry**, and the amp/effects chain is applied on playback and export, so the amp can be changed later (re-amping) *(my call)*.
+9. **Recording.**
+   - **Live take:** camera, widgets + mouse, and every audio input are recorded at once into their own tracks. Pause and resume are allowed. Mark-cut (key and button) drops a split marker while recording.
+   - **Overdub pass:** the timeline plays back in the frame (imported video and its sound), and the teacher performs widgets and pointer on top. That pass is recorded into the widgets + mouse track. Audio inputs (e.g. a guitar demo, a voice-over) can be overdubbed onto their own tracks the same way. Re-recording a pass replaces that track over the range recorded *(my call)*.
+10. **Edit (decided by the user: widgets stay editable).**
+    - **Split** at the playhead (key `C`), **select and delete** a range; tracks stay in sync and the remaining pieces close up. Undo and redo.
+    - **Widgets after the fact:** select a widget on the timeline or in the frame, then **move or resize** it (at that moment or for its whole time on screen), **remove** it, **swap** its subject (E6 → E7, A dorian → A mixolydian) or kind, and **shift when it appears and disappears** by dragging its bar on the widget track.
+    - Per-track volume and mute. Changing the amp preset on the guitar track.
+11. **Export.**
+    - **Download MP4** of the edited timeline with the mixed soundtrack. Because widgets are data, export plays the timeline in the frame in **real time** (imported video + widgets redrawn + mixed audio) and records the frame. A 20-minute lesson takes about 20 minutes to export, and a progress bar shows how long is left *(my call: keeps the Chrome element-capture approach and crisp widgets)*.
+    - **Download dry DI** as a WAV of the raw guitar track, with the same cuts applied.
     - Nothing is uploaded.
-11. **Keyboard-first.** Every common action has a key, and the Keys panel shows them. Keys use `KeyboardEvent.code` so non-English layouts work, as elsewhere in the repo.
+12. **Keyboard-first.** Every common action has a key, and the Keys panel shows them. Keys use `KeyboardEvent.code` so non-English layouts work, as elsewhere in the repo.
 
 ## Non-goals (for now)
 
 - No login, accounts, cloud storage, uploading or publishing. (The route is structured so a teacher login can wrap `/teachers/*` later.)
-- No titles, captions, transitions, music beds, zooms or multi-take merging in the editor.
+- No titles, captions, transitions, music beds, zooms, colour grading or multiple stacked video tracks in the editor.
 - No vertical (9:16) export in v1, though the frame model shouldn't make it hard later.
 - No phone or tablet support. Desktop only.
 - No live streaming.
@@ -55,8 +64,10 @@ It takes its ideas from the looper (floating, movable widgets; real audio-interf
 
 - Anything outside the frame (palette, panels, Keys panel, cursor-hover chrome) shows up in the video.
 - Audio drifts out of sync with the camera over a 20–30 minute take.
-- A long take is lost because the tab ran out of memory or the browser crashed mid-recording.
+- A long take or an open project is lost because the tab ran out of memory or the browser crashed mid-recording.
 - Bringing up a view takes more than a few keystrokes, or needs the mouse.
+- Changing a widget after recording means re-recording the whole pass.
+- An imported DSLR clip and the overdubbed widgets drift apart, or audio and imported video slip out of sync.
 - Editing on camera looks messy: big handles, focus rings or panel chrome flashing over the lesson.
 
 ## Live mouse while recording (decided by the user)
@@ -78,7 +89,14 @@ MacBook Pro M3. Use hardware H.264 encoding (WebCodecs/VideoToolbox through Chro
 ## Constraints
 
 - **Browser: desktop Chrome and Edge only.** This is my call. Recording uses the browser's ability to capture just one element of the current tab (Element Capture, `restrictTo`, or Region Capture as a fallback), so the frame is recorded exactly as seen while overlays outside it are excluded. Other browsers get a clear "use Chrome or Edge" message. This means the teacher has to approve "share this tab" once per session.
-- **Web app, not Electron, for v1 (decided by the user).** Disk access comes from the File System Access API: the teacher picks a folder once (e.g. `~/Movies/Lessons`), the take is saved there as it records, and exports land there too. OPFS is the fallback when no folder is picked. The recording, buffering and export code is a self-contained module with no React or page code, so an Electron wrapper (native ffmpeg, no tab-share prompt) can be added later without a rewrite.
+- **Modules (decided by the user: the teacher app will grow, so the editor is separate).** Each part has its own folder and `CLAUDE.md`, and talks to the others only through a public `index.ts`:
+  - `src/app/teachers/…`: routes only (`/teachers`, `/teachers/studio`; later tools sit beside them).
+  - **Studio** (`src/features/teachers/studio` or similar): the live stage, palette, camera and screen share, inputs panel, and record controls. It composes the modules below.
+  - **Editor** (`src/features/videoEditor`): the project model (tracks, clips, widget events, cuts), timeline UI, playback engine, preview copies, and the export pipeline. It must not import the studio. It renders the widget track through an injected "widget renderer", so the editor doesn't know about theory, and any future teacher tool (or another page) can embed it.
+  - **Media core** (`src/features/media` or inside the editor, builder's call): capture, encoding, muxing, and folder/OPFS storage. No React. This is the piece an Electron wrapper would later swap out.
+  - **Stage widgets:** the reusable theory widgets with a per-widget subject (moved out of the creator), shared by the studio, the editor's renderer and the creator.
+  - **Audio input:** device choice, presets and the amp chain, moved out of the looper.
+- **Web app, not Electron, for v1 (decided by the user).** Disk access comes from the File System Access API: the teacher picks a folder once (e.g. `~/Movies/Lessons`), projects and recordings are saved there as they record, and exports land there too. OPFS is the fallback when no folder is picked. The recording, buffering and export code is a self-contained module with no React or page code, so an Electron wrapper (native ffmpeg, no tab-share prompt) can be added later without a rewrite.
 - **Next.js in this repo is a newer version with breaking changes.** Read `node_modules/next/dist/docs/` before writing routes (see `AGENTS.md`).
 - **Separation rules** follow the existing features' `CLAUDE.md` files.
   - The looper rule "no other feature may import from the looper" stands. Anything the studio needs from the looper (device listing and choice, input presets/rigs, latency compensation) must first move into a shared feature (e.g. `src/features/audioInput`), and the looper then uses it from there.
@@ -93,6 +111,11 @@ MacBook Pro M3. Use hardware H.264 encoding (WebCodecs/VideoToolbox through Chro
 - Spotlight-style palette: type, pick, the widget appears in the frame, then move and resize it.
 - Plain screen share with the portrait camera in a corner.
 - Basic editing: record in one go, cut, join, download.
+- Import videos (e.g. DSLR footage) and overdub widgets + mouse on top.
+- Separate tracks: video, widgets + mouse, one per audio input.
+- Widgets stay editable after recording: move, remove, swap, and change timing.
+- Imported video may play back at low quality while editing, for performance.
+- The teacher app will grow, so the editor is its own module.
 - Inputs include a DI guitar.
 - Export both the mixed video and the dry DI.
 - On-screen info showing which keys work.
@@ -105,10 +128,12 @@ MacBook Pro M3. Use hardware H.264 encoding (WebCodecs/VideoToolbox through Chro
 - Monitoring the amped guitar in headphones; drone and backing recorded, click not.
 - Export format MP4 (H.264/AAC) for the video and WAV for the dry DI.
 - No vertical export in v1.
+- One video track in v1; real-time export (a 20-minute lesson takes about 20 minutes to export).
 - **Resolution:** target 1080p export. While recording, the side panels collapse or overlay so the frame takes most of the screen. On a Retina display, element capture at device pixels then gives at least 1080p. If the captured size comes out under 1080p, warn before recording.
 - **A/V sync** means audio against the camera picture, not the looper's loop-alignment latency. It's a manual offset (ms) with a one-time clap test to set it. The offset is applied at mux/export time and remembered per camera and interface.
 - **What's recorded:** voice, amped guitar, drone, backing, and the sounds widgets make when clicked (chord strums, scale playback), so viewers hear what's shown. The click is not recorded. When another voice mic is chosen, the camera's mic isn't used. Hearing your own voice in the headphones is off by default, with a toggle.
-- **Takes:** one current take at a time. It's written in chunks to OPFS/IndexedDB as it records, survives a reload or crash, and can be edited and re-exported later until the teacher discards it or starts a new take (with a confirm). No library of takes in v1.
+- **Projects:** one open project at a time. It's saved in the chosen folder (or OPFS) as a project file plus its media: recorded clips, imported clips with their preview copies, audio tracks, and the widget track as JSON. Recording is written in chunks as it goes, so a reload or crash loses nothing. Opening a project from the folder brings it back. There's no project library UI in v1 beyond "open project" and "new project".
+- **Preview copies:** an imported clip gets a low-res preview copy (e.g. 540p, made once on import with WebCodecs). The preview copy is used for playback in editing and overdub; the full-quality original is used only at export.
 
 ## Left to the builder
 
@@ -118,4 +143,4 @@ MacBook Pro M3. Use hardware H.264 encoding (WebCodecs/VideoToolbox through Chro
 - Cut accuracy: cutting at keyframes (~1 s) is the default; if that feels too coarse, re-encode only the GOP around each cut.
 - Visual design within the site's existing style system.
 - What `/teachers` itself shows for now (a minimal landing that links to the studio is fine).
-- Build order. A sensible first slice is frame + camera + palette with a few widgets + record + download, then inputs/DI, then the editor, then dry DI export and scenes.
+- Build order. Suggested phases: (1) module split (stage widgets out of the creator, audio input out of the looper) with no behaviour change; (2) studio frame + camera + palette + a few widgets + live record into tracks + plain export; (3) editor: timeline, cuts, widget editing, real-time export; (4) video import with preview copies + overdub passes; (5) DI with re-amping, dry DI export, scenes.
