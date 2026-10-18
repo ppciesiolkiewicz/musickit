@@ -163,7 +163,7 @@ function BeatDots({ rig, playing }: { rig: JamRig; playing: boolean }) {
 /** What the pocket tools are doing, for a host to show in its header: the tempo, the drone's note and which parts play. */
 export type PocketStatus = { bpm: number; drone: string; playing: string[] };
 
-export default function PocketTools({ keyPc, className = "", onStatus }: { keyPc: number; className?: string; onStatus?: (s: PocketStatus) => void }) {
+export default function PocketTools({ keyPc, className = "", stacked = false, onStatus }: { keyPc: number; className?: string; /** one line per tool at every width, for a narrow side column */ stacked?: boolean; onStatus?: (s: PocketStatus) => void }) {
   const [rig] = useState(() => new JamRig());
   const snap = useSyncExternalStore(rig.subscribe, rig.snapshot, rig.snapshot);
   const [restored, setRestored] = useState(false);
@@ -291,14 +291,14 @@ export default function PocketTools({ keyPc, className = "", onStatus }: { keyPc
   };
 
   return (
-    <div className={`flex min-w-0 items-stretch gap-2 ${className}`}>
+    <div className={`flex min-w-0 items-stretch gap-2 ${stacked ? "lg:flex-col" : ""} ${className}`}>
       <button type="button" onClick={toggleAll} aria-pressed={anyOn} title={`${anyOn ? "Stop" : "Start"} everything on the next beat (Space stops and brings back)`}
-        className={`flex w-12 shrink-0 flex-col items-center justify-center gap-1 rounded-xl border text-[10px] font-medium uppercase tracking-wider transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${anyOn ? "border-emerald-400/70 bg-emerald-500/20 text-emerald-100" : "border-slate-700 bg-slate-900 text-slate-200 hover:border-slate-500"}`}>
+        className={`flex w-12 shrink-0 flex-col items-center justify-center gap-1 rounded-xl border ${stacked ? "lg:w-full lg:flex-row lg:gap-2 lg:py-1.5" : ""} text-[10px] font-medium uppercase tracking-wider transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${anyOn ? "border-emerald-400/70 bg-emerald-500/20 text-emerald-100" : "border-slate-700 bg-slate-900 text-slate-200 hover:border-slate-500"}`}>
         <Icon name={anyOn ? "square" : "play"} size={18} fill />
         {anyOn ? "Stop" : "All"}
       </button>
 
-      <div className="grid min-w-0 flex-1 gap-x-4 gap-y-1.5 sm:grid-cols-2 xl:grid-cols-1">
+      <div className={`grid min-w-0 flex-1 gap-x-4 gap-y-1.5 ${stacked ? "sm:grid-cols-2 lg:grid-cols-1" : "sm:grid-cols-2 xl:grid-cols-1"}`}>
         <Tool label="Click">
           <PlayButton on={snap.click.on} label="metronome" onClick={toggleClick} />
           <button type="button" className={ibtn} disabled={snap.bpm <= MIN_BPM} onClick={() => rig.setTempo(snap.bpm - 1)} aria-label="Slower">−</button>

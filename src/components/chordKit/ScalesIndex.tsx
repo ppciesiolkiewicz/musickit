@@ -5,7 +5,7 @@ import { useLabelSystem } from "@/features/theory/useLabelSystem";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ColourKey, ModeAlias, ScaleSettingsBar, UNDER_BAR } from "./ScaleSettings";
+import { ColourKey, ModeAlias, ScaleSettingsBar, UNDER_BAR, WithSettings } from "./ScaleSettings";
 import ModeCompare from "./ModeCompare";
 import { FAMILIES, makeKeyContext, modeAlias } from "@/features/theory/theory";
 import { MODE_PAGES, degreeColour, degreeLabels, relativesOf, DOT_INK } from "@/features/theory/scales";
@@ -16,6 +16,7 @@ import { useNotePlayer } from "./useNotePlayer";
 import TuneButton from "./TuneButton";
 import { keySlug, scaleHref } from "@/features/theory/keySlug";
 import { Section } from "@/components/ui";
+import KeySignature from "@/components/theory/KeySignature";
 
 const ORD = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th"];
 
@@ -105,11 +106,7 @@ export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey
   const pageFor = (f: number, m: number) => MODE_PAGES.find((p) => p.familyIndex === f && p.modeIndex === m)!;
 
   return (
-    <div className="flex flex-col gap-5">
-      <ScaleSettingsBar
-        tonicPc={tonicPc}
-        onTonic={setTonicPc}
-      />
+    <WithSettings side={syncUrl} bar={<ScaleSettingsBar tonicPc={tonicPc} onTonic={setTonicPc} side={syncUrl} />}>
 
       <ColourKey title="Colour key and how to read the cards">
         Each card is one mode starting on the key you chose. The coloured circles are its seven notes in order: tap one to hear it, or press Play to hear the scale up and back down. The fretboard shows every place the scale falls on the first 12 frets; tap a dot to hear it. Open a mode for its positions on the whole neck: five pentatonic boxes, and the full scale filled into the same five boxes. The small label above each is the scale degree, written against the major scale, so ♭3 means the 3rd is lowered and ♯4 means the 4th is raised. Colour follows the degree: 1 white, 2 teal, 3 amber, 4 lime, 5 blue, 6 violet, 7 rose. Relative major and relative minor are the major and natural minor scales that use exactly the same seven notes.
@@ -134,7 +131,7 @@ export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey
         <div key={fam.id} id={`part-${fam.id}`} className={UNDER_BAR}>
         <Section title={fam.label} meta={`${searching ? `${modes.length} of ${rows.find((r) => r.fam.id === fam.id)!.modes.length}` : modes.length} ${fam.scales ? "scales" : "modes"} in ${modes[0].ctx.names[0]}`} open={searching || open[fam.id]} onToggle={() => toggle(fam.id)} accent={PARTS[fam.id].accent}>
           <p className="mb-3 text-xs text-slate-400">{PARTS[fam.id].intro}</p>
-          <div className="grid gap-3 lg:grid-cols-2">
+          <div className="grid gap-3 xl:grid-cols-2">
             {modes.map(({ page, ctx, rel, labels, line, cells }) => {
               const active = activeIn(page.slug);
               const degreeOf = (midi: number) => ctx.steps.indexOf((midi - ctx.tonic.pc + 120) % 12);
@@ -166,9 +163,12 @@ export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey
                   title={`${ctx.names[0]} ${ctx.modeName} on the first 12 frets`}
                 />
 
-                <p className="text-xs text-slate-400">
-                  Degrees <span className="tabular-nums text-slate-300">{labels.map(fmtDegree).join(" ")}</span>
-                </p>
+                <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+                  <p className="text-xs text-slate-400">
+                    Degrees <span className="tabular-nums text-slate-300">{labels.map(fmtDegree).join(" ")}</span>
+                  </p>
+                  <KeySignature ctx={ctx} />
+                </div>
 
                 <Section level={2} defaultOpen title="Relatives and differences">
                 <ul className="space-y-1 text-xs text-slate-300">
@@ -225,6 +225,6 @@ export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey
           <ModeCompare tonicPc={tonicPc} open={open.compare} onToggle={() => toggle("compare")} accent={PARTS.compare.accent} />
         </div>
       )}
-    </div>
+    </WithSettings>
   );
 }

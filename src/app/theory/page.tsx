@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function TheoryPage() {
   return (
-    <PageShell active="/theory" title="Practice">
+    <PageShell active="/theory" title="Practice" header={<></>}>
       <TheoryHub />
     </PageShell>
   );

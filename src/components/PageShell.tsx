@@ -9,7 +9,7 @@ import PreloadPiano from "@/features/sound/keyboard/PreloadPiano";
  * Pages are 80rem wide with room at the sides; `wide` keeps the full 96rem for tools that fill the screen (the cheatsheet).
  * Necks and other wide pieces reach back out with the `bleed` utility.
  */
-export default function PageShell({ title, intro, active, wide = false, children }: { title: string; intro?: string; active: string; wide?: boolean; children: ReactNode }) {
+export default function PageShell({ title, intro, active, wide = false, header, children }: { title: string; intro?: string; active: string; wide?: boolean; /** replaces the plain title, for pages that open with a hero */ header?: ReactNode; children: ReactNode }) {
   const section = active.startsWith("/theory/") ? sectionFor(active) : undefined;
   return (
     <div className="app-bg min-h-screen text-slate-200">
@@ -27,8 +27,12 @@ export default function PageShell({ title, intro, active, wide = false, children
               <span className="text-slate-400">{section.label}</span>
             </nav>
           )}
-          <h1 className="text-2xl font-light tracking-wide text-slate-100 sm:text-3xl">{title}</h1>
-          {intro && <p className="mt-1.5 max-w-3xl text-sm leading-relaxed text-slate-400">{intro}</p>}
+          {header ?? (
+            <>
+              <h1 className="text-2xl font-light tracking-wide text-slate-100 sm:text-3xl">{title}</h1>
+              {intro && <p className="mt-1.5 max-w-3xl text-sm leading-relaxed text-slate-400">{intro}</p>}
+            </>
+          )}
         </header>
         <main className="pb-6">{children}</main>
       </div>

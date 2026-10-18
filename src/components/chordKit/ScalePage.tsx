@@ -4,7 +4,8 @@ import { chordNoteLabel, scaleToneCaption, scaleToneLabel } from "@/features/the
 import { useLabelSystem } from "@/features/theory/useLabelSystem";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { ColourKey, ModeAlias, ScaleSettingsBar, UNDER_BAR } from "./ScaleSettings";
+import { ColourKey, ModeAlias, ScaleSettingsBar, UNDER_BAR, WithSettings } from "./ScaleSettings";
+import KeySignature from "@/components/theory/KeySignature";
 import { FAMILIES, MAJOR, makeKeyContext } from "@/features/theory/theory";
 import { MODE_PAGES, type NoteSwap, chordMidi, modeChords, degreeColour, relativesOf, roleWithDegree, stepPattern, DOT_INK } from "@/features/theory/scales";
 import { strum } from "@/lib/chordKit/playback";
@@ -80,12 +81,7 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
   const siblingLink = (s: { modeIndex: number; tonicPc: number }) => scaleHref(pageFor(familyIndex, s.modeIndex).slug, s.tonicPc);
 
   return (
-    <div className="flex flex-col gap-5">
-      <ScaleSettingsBar
-        tonicPc={tonicPc}
-        onTonic={setTonicPc}
-        scale={syncUrl ? slug : undefined}
-      />
+    <WithSettings side={syncUrl} bar={<ScaleSettingsBar tonicPc={tonicPc} onTonic={setTonicPc} scale={syncUrl ? slug : undefined} side={syncUrl} />}>
 
       <ColourKey>
         Colour shows the job a note does in the key, not how high it is. The 1st degree (home) is white, the 3rd is amber because it decides major or minor, the 5th is blue, and the 7th is rose. The 2nd, 4th and 6th are teal, lime and violet. A flattened or raised note keeps the colour of its degree, so the ♭3 is still amber, and its label tells you it is flat. The same note has the same colour in every chord.
@@ -110,6 +106,7 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
           <button type="button" onClick={playScale} className="cursor-sound ml-2 rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25">▶ Play scale</button>
           <TuneButton onPlay={playTune} title="A short tune made from this scale, new every time" className="rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25" />
         </div>
+        <KeySignature ctx={ctx} />
         <p className="text-xs text-slate-400">
           Step pattern <span className="tabular-nums text-slate-300">{pattern.join(" – ")}</span>
           <Info label="What is the step pattern?">W is a whole step (two frets), H a half step (one fret). Every mode is the same set of steps starting from a different place, which is why the seven modes of one parent scale share their notes.</Info>
@@ -237,6 +234,6 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
 
       {progDegree !== null && <ChordProgressionModal ctx={ctx} degree={progDegree} onClose={() => setProgDegree(null)} />}
       {modalDegree !== null && <ChordShapesModal ctx={ctx} degree={modalDegree} onClose={() => setModalDegree(null)} />}
-    </div>
+    </WithSettings>
   );
 }

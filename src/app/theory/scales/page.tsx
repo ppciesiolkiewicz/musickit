@@ -17,6 +17,7 @@ export default async function ScalesPage({ searchParams }: { searchParams: Promi
   return (
     <PageShell
       active="/theory/scales"
+      full
       title="Scales and modes"
       intro="All 21 modes, plus exotic scales like Persian and double harmonic, in the key you choose, with every scale degree, the notes, and the relative major and minor. Open any mode to see its chords."
     >

@@ -10,7 +10,11 @@ export interface Song { title: string; artist: string; chords: string[]; progres
 export interface Melody { title: string; origin: string; position: number; notes: MelodyNote[] }
 export interface Track {
   id: TrackId;
+  /** the track's promise in one line, set big at the top of its section */
+  headline: string;
   learn: string[];
+  /** how to tell you are ready to move this track on to the next stage */
+  checkpoint: string;
   why: string;
   explore: CourseLink[];
   practise: CourseLink[];
@@ -32,6 +36,8 @@ export const STAGE_CONTENT: Stage[] = [
     tracks: [
       {
         id: "chords",
+        headline: "Eight chords, hundreds of songs.",
+        checkpoint: "You can switch between any two of the eight chords about 30 times in a minute, and strum a whole song without stopping.",
         learn: ["Em", "Am", "C", "D", "G", "E", "A", "Dm"],
         why: "Open chords ring out with open strings, need no barre and turn up in almost every pop, rock and folk song. Start with Em and Am (two and three fingers), then add the rest. Changing between chords cleanly matters more than how many you know.",
         explore: [
@@ -52,6 +58,8 @@ export const STAGE_CONTENT: Stage[] = [
       },
       {
         id: "lead",
+        headline: "Your first tunes, one string at a time.",
+        checkpoint: "You can play Ode to Joy from the tab at a slow, steady pace, without looking for each note.",
         learn: ["Read tab: lines are strings, numbers are frets", "Melodies on the top two strings"],
         why: "Picking single notes trains the fretting hand to land on one string at a time, and a tune you know tells you at once when a note is wrong.",
         explore: [{ href: "/theory/basics", label: "Guitar basics", note: "strings, frets and note names" }],
@@ -63,6 +71,8 @@ export const STAGE_CONTENT: Stage[] = [
       },
       {
         id: "ear",
+        headline: "Name the notes, hear the mood.",
+        checkpoint: "You can name any natural note on the E and A strings in a couple of seconds, and tell major from minor most of the time.",
         learn: ["String names E A D G B e", "Natural notes on the low E and A strings", "Major vs minor by ear"],
         why: "Every barre chord and every scale later on is placed by its root on the low E or A string, so knowing those notes now pays off in stage 3. Hearing major against minor is the first thing an ear learns.",
         explore: [{ href: "/theory/basics", label: "Piano → guitar, part 1" }],
@@ -80,6 +90,8 @@ export const STAGE_CONTENT: Stage[] = [
     tracks: [
       {
         id: "chords",
+        headline: "New colours without a barre.",
+        checkpoint: "Fmaj7, B7 and Cadd9 sound clean, and power chords move up and down the neck without buzzing.",
         learn: ["Fmaj7", "B7", "E7 A7 D7 C7 G7", "Em7 Am7", "Cadd9", "Asus2 Dsus2 Dsus4 Esus4", "E5 A5 power chords"],
         why: "7th chords are the sound of the blues, sus and add9 chords dress up the open chords you know, and Fmaj7 is the friendly way into F before the barre. Power chords are two or three notes and move anywhere on the neck.",
         explore: [
@@ -98,6 +110,8 @@ export const STAGE_CONTENT: Stage[] = [
       },
       {
         id: "lead",
+        headline: "Five notes that never sound wrong.",
+        checkpoint: "You can play box 1 up and down from memory, and improvise for a whole 12-bar without stopping.",
         learn: ["Minor pentatonic, box 1", "Bends and slides", "Improvising over a 12-bar"],
         why: "The minor pentatonic has five notes and no wrong-sounding ones over a blues or rock tune. Box 1 sits under one hand, so you can start making up lines on day one.",
         explore: [
@@ -109,6 +123,8 @@ export const STAGE_CONTENT: Stage[] = [
       },
       {
         id: "ear",
+        headline: "Why some chords belong together.",
+        checkpoint: "You can name the I, IV, V and vi chords of G, C, D and A, and pick out a 5th or an octave by ear.",
         learn: ["Chords in a key: I IV V vi", "Intervals on and across strings", "P4, P5 and the octave by ear"],
         why: "Most songs use the I, IV, V and vi chords of one key. Once you know which chords belong together you can guess a song's chords and transpose it. Interval shapes are the grid every scale and chord is built from.",
         explore: [
@@ -129,6 +145,8 @@ export const STAGE_CONTENT: Stage[] = [
     tracks: [
       {
         id: "chords",
+        headline: "One shape, every key.",
+        checkpoint: "You can play F and Bm as barres, and find any major or minor barre chord from its root on the E or A string.",
         learn: ["E-shape barre: F, G, A …", "A-shape barre: B♭, B, C …", "Minor barres: Bm, F♯m, Cm", "Triads on string sets"],
         why: "A barre chord is an open E or A shape moved up with your first finger as the nut. With those two shapes and the note names on the E and A strings you can play any major or minor chord.",
         explore: [
@@ -146,6 +164,8 @@ export const STAGE_CONTENT: Stage[] = [
       },
       {
         id: "lead",
+        headline: "Solo from the nut to the 15th fret.",
+        checkpoint: "You can slide from one pentatonic box into the next without stopping, in A and in one other key.",
         learn: ["Minor pentatonic in all 5 boxes", "Major pentatonic", "Linking boxes with slides"],
         why: "The five pentatonic boxes tile the neck. Join them and you can solo from the nut to the 15th fret in any key.",
         explore: [
@@ -159,6 +179,8 @@ export const STAGE_CONTENT: Stage[] = [
       },
       {
         id: "ear",
+        headline: "Hear where a song is going.",
+        checkpoint: "You can find a key's relative minor and its two neighbours on the circle, and name most intervals by ear.",
         learn: ["Circle of fifths", "Relative minor", "All intervals by ear"],
         why: "The circle shows which keys are neighbours (one sharp or flat apart) and which minor key shares each major's notes. Songs that change key usually move to a neighbour.",
         explore: [{ href: "/theory/circle", label: "Circle of fifths" }],
@@ -175,6 +197,8 @@ export const STAGE_CONTENT: Stage[] = [
     tracks: [
       {
         id: "chords",
+        headline: "Any chord, anywhere on the neck.",
+        checkpoint: "You can play I–IV–V–I in all five CAGED regions of one key, and comp a jazz standard with shells.",
         learn: ["CAGED: one chord, five shapes", "Shape neighbours: I IV V ii vi in one region", "7th, 9th, 13th and shell voicings"],
         why: "CAGED links every shape of a chord across the neck, so you can play a progression in any position without jumping. Shells (root, 3rd, 7th) are how jazz and soul players comp.",
         explore: [
@@ -192,6 +216,8 @@ export const STAGE_CONTENT: Stage[] = [
       },
       {
         id: "lead",
+        headline: "Seven moods from one scale.",
+        checkpoint: "You can hear and play the difference between Dorian, Mixolydian and Lydian over a drone, and aim for chord tones in a solo.",
         learn: ["Major scale in five boxes", "Arpeggios", "Modes", "Harmonic and melodic minor"],
         why: "The major scale's seven modes are seven moods from one set of notes. Arpeggios let you aim for chord tones, which is what makes a solo follow the changes.",
         explore: [
@@ -205,6 +231,8 @@ export const STAGE_CONTENT: Stage[] = [
       },
       {
         id: "ear",
+        headline: "Your ear leads, your hands follow.",
+        checkpoint: "You can say which note gives a mode its colour, and you have a cheatsheet of your own that you actually use.",
         learn: ["Mode compare", "Tunings and drones", "Your own cheatsheet"],
         why: "Comparing modes side by side shows the one or two notes that give each its sound. A drone makes those notes easy to hear.",
         explore: [

@@ -16,6 +16,23 @@ import { PHONE_QUERY } from "@/components/usePhone";
 /** Room the sticky bar takes at the top, for `scroll-mt` on the sections linked to by #hash. */
 export const UNDER_BAR = "scroll-mt-48";
 
+/**
+ * A scales page with its settings: on wide screens the bar is a column pinned to the right edge of the window,
+ * beside the content; on narrow ones (and with `side` off, when embedded in another page) it floats over the top.
+ * The bar is rendered once either way, so the pocket tools keep playing across a resize.
+ */
+export function WithSettings({ bar, side, children }: { bar: ReactNode; side: boolean; children: ReactNode }) {
+  if (!side) return <div className="flex flex-col gap-5">{bar}{children}</div>;
+  return (
+    // reaches out over PageShell's right padding so the column sits flush with the window
+    <div className="flex flex-col gap-5 lg:-mr-8 lg:grid lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start lg:gap-x-8">
+      <div className="contents lg:col-start-2 lg:row-start-1 lg:block lg:sticky lg:top-0">{bar}</div>
+      {/* necks that bleed past a centred page would run under the column, so they stay in it here */}
+      <div className="flex min-w-0 flex-col gap-5 lg:col-start-1 lg:row-start-1 lg:[&_.bleed]:mx-0">{children}</div>
+    </div>
+  );
+}
+
 /** One labelled row of the bar. The chips wrap rather than scroll sideways. */
 function BarRow({ label, info, children }: { label: string; info?: ReactNode; children: ReactNode }) {
   const [open, setOpen] = useState(false);
@@ -41,8 +58,10 @@ const LABEL_INFO = "How notes are labelled: note names, intervals from the root 
  * `scale` is the current mode page's slug; leave it out on the index.
  */
 export function ScaleSettingsBar({
-  tonicPc, onTonic, scale, omitLabels,
+  tonicPc, onTonic, scale, omitLabels, side = false,
 }: {
+  /** drawn as the right-hand column of `WithSettings` on wide screens */
+  side?: boolean;
   tonicPc: number;
   onTonic: (pc: number) => void;
   scale?: string;
@@ -76,18 +95,18 @@ export function ScaleSettingsBar({
   const scaleName = scale ? MODE_PAGES.find((m) => m.slug === scale)?.name : undefined;
   const labelName = LABEL_SYSTEMS.find((l) => l.id === labels)?.label;
   return (
-    // breaks out of the page column to span the window, less a small gutter each side
-    <div className="sticky top-2 z-20 mx-[calc(50%-50vw+0.5rem)] flex flex-col gap-2 rounded-2xl border border-slate-700 bg-slate-950/90 px-4 py-2.5 shadow-lg sm:px-6 sm:py-3 shadow-black/30 backdrop-blur">
+    // breaks out of the page column to span the window, less a small gutter each side; as a side column it fills the window's height
+    <div className={`sticky top-2 z-20 mx-[calc(50%-50vw+0.5rem)] flex flex-col gap-2 rounded-2xl border border-slate-700 bg-slate-950/90 px-4 py-2.5 shadow-lg sm:px-6 sm:py-3 shadow-black/30 backdrop-blur ${side ? SIDE : ""}`}>
       <button
         type="button"
         onClick={toggle}
         aria-expanded={open}
-        className="group flex items-center gap-2 rounded-md text-left text-xs focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400"
+        className={`group flex items-center gap-2 rounded-md text-left text-xs focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${side ? "lg:pointer-events-none" : ""}`}
       >
         <span className="text-[11px] uppercase tracking-wider text-slate-500">Settings</span>
         <span className="shrink-0 truncate text-sm font-medium text-slate-100">{keyName}{scaleName ? ` ${scaleName}` : ""}</span>
         {/* the rest of the settings at a glance, as room allows */}
-        <span className="flex min-w-0 flex-1 items-center gap-1.5 overflow-hidden whitespace-nowrap text-slate-400">
+        <span className={`flex min-w-0 flex-1 items-center gap-1.5 overflow-hidden whitespace-nowrap text-slate-400 ${side ? "lg:invisible" : ""}`}>
           {labelName && <Fact from="sm">{labelName}</Fact>}
           {status && <Fact from="md">{status.bpm} bpm</Fact>}
           {status && <Fact from="lg">Drone {status.drone}</Fact>}
@@ -98,7 +117,7 @@ export function ScaleSettingsBar({
             </Fact>
           )}
         </span>
-        <span className="flex shrink-0 items-center gap-1 rounded-full border border-slate-600 bg-slate-800 px-2.5 py-1 text-xs font-medium text-slate-100 transition group-hover:border-sky-400 group-hover:text-sky-200">
+        <span className={`flex shrink-0 items-center gap-1 rounded-full border border-slate-600 bg-slate-800 px-2.5 py-1 text-xs font-medium text-slate-100 transition group-hover:border-sky-400 group-hover:text-sky-200 ${side ? "lg:hidden" : ""}`}>
           {open ? "Hide" : "Show"}
           <svg viewBox="0 0 12 12" aria-hidden className={`h-3 w-3 transition-transform ${open ? "rotate-180" : ""}`}>
             <path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
@@ -106,7 +125,7 @@ export function ScaleSettingsBar({
         </span>
       </button>
       {/* hidden rather than unmounted, so the pocket tools keep playing while it is folded */}
-      <div className={`${open ? "flex" : "hidden"} max-h-[70vh] flex-col gap-2 overflow-y-auto sm:max-h-none sm:overflow-visible xl:flex-row xl:items-center`}>
+      <div className={`${open ? "flex" : "hidden"} max-h-[70vh] flex-col gap-2 overflow-y-auto sm:max-h-none sm:overflow-visible ${side ? "lg:flex" : "xl:flex-row xl:items-center"}`}>
         <div className="flex min-w-0 flex-1 flex-col gap-1.5">
           {scale && <ScaleRow slug={scale} tonicPc={tonicPc} />}
           <BarRow label="Key" info={KEY_INFO}>
@@ -119,11 +138,14 @@ export function ScaleSettingsBar({
           </BarRow>
         </div>
         {/* play-along tools: under the settings on narrow screens, on the right once there is room */}
-        <PocketTools keyPc={tonicPc} onStatus={setStatus} className="border-t border-slate-800 pt-2 xl:border-l xl:border-t-0 xl:pl-4 xl:pt-0" />
+        <PocketTools keyPc={tonicPc} onStatus={setStatus} stacked={side} className={`border-t border-slate-800 pt-2 ${side ? "" : "xl:border-l xl:border-t-0 xl:pl-4 xl:pt-0"}`} />
       </div>
     </div>
   );
 }
+
+/** The bar as a side column: flush to the window's right edge and as tall as the window, scrolling on its own. */
+const SIDE = "lg:static lg:mx-0 lg:h-dvh lg:overflow-y-auto lg:rounded-none lg:border-y-0 lg:border-r-0 lg:px-5 lg:py-4 lg:shadow-none";
 
 const FROM = { sm: "hidden sm:inline-flex", md: "hidden md:inline-flex", lg: "hidden lg:inline-flex" };
 

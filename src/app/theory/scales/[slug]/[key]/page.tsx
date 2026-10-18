@@ -36,7 +36,7 @@ export default async function Page({ params }: { params: Promise<Params> }) {
   // other spellings (C-sharp, c#, 1) land on the one canonical address
   if (key !== keySlug(pc)) permanentRedirect(scaleHref(slug, pc));
   return (
-    <PageShell active="/theory/scales" title="Scales and modes">
+    <PageShell active="/theory/scales" title="Scales and modes" full>
       <ScalePage familyIndex={page.familyIndex} modeIndex={page.modeIndex} initialKey={pc} />
     </PageShell>
   );

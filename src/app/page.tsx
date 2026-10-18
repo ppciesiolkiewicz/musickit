@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import type { CSSProperties, ReactNode } from "react";
+import type { ReactNode } from "react";
 import SiteNav from "@/components/SiteNav";
 import Wordmark from "@/components/Wordmark";
 import Icon, { type IconName } from "@/components/Icon";
@@ -8,6 +8,7 @@ import PreloadPiano from "@/features/sound/keyboard/PreloadPiano";
 import FretWalk from "@/components/landing/FretWalk";
 import EarlyAccessForm from "@/components/landing/EarlyAccessForm";
 import Photo from "@/components/landing/Photo";
+import { DISPLAY, Eyebrow, H2 } from "@/components/landing/Display";
 import { LiveLessonMock } from "@/components/landing/LessonMocks";
 import ScaleWheel from "@/components/theory/ScaleWheel";
 import { degreeColour, degreeLabels } from "@/features/theory/scales";
@@ -17,8 +18,6 @@ export const metadata: Metadata = {
   title: "Music Kit: See what you hear, and make real progress on guitar",
   description: "A video course, private lessons with professional teachers, and tools that show every sound on the fretboard in colour, so practice finally turns into progress. Early access is open.",
 };
-
-const DISPLAY: CSSProperties = { fontFamily: "var(--font-display), serif", fontVariationSettings: '"SOFT" 100, "opsz" 96' };
 
 /**
  * A student's story, told by the student. It must be a real person, with their permission: until it is filled in, `draft` keeps
@@ -42,12 +41,6 @@ const BUNDLES = [
 ];
 const STYLES = ["Surf rock", "Funk", "Blues", "Jazz", "Neo-soul", "Metal", "Flamenco", "Bossa nova", "Reggae", "Country", "Indie rock"];
 
-function Eyebrow({ children, tone = "text-sky-300" }: { children: ReactNode; tone?: string }) {
-  return <p className={`mb-3 text-xs font-medium uppercase tracking-[0.2em] ${tone}`}>{children}</p>;
-}
-function H2({ id, children }: { id?: string; children: ReactNode }) {
-  return <h2 id={id} className="text-3xl leading-[1.08] text-slate-50 text-balance sm:text-5xl" style={DISPLAY}>{children}</h2>;
-}
 function Check({ children, tone = "text-emerald-400" }: { children: ReactNode; tone?: string }) {
   return <li className="flex gap-2"><Icon name="check" size={16} className={`mt-0.5 shrink-0 ${tone}`} /><span>{children}</span></li>;
 }

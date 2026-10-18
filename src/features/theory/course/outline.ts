@@ -2,12 +2,16 @@
  * The course at a glance: four stages down, three tracks across. A student moves down each track at their own pace,
  * so their chords can be at stage 3 while their lead playing is still at stage 2. Nothing has to be mastered first.
  */
+import type { IconName } from "@/components/Icon";
+import type { Tone } from "../sections";
+
 export type TrackId = "chords" | "lead" | "ear";
 
-export const TRACKS: { id: TrackId; label: string; desc: string }[] = [
-  { id: "chords", label: "Chords", desc: "Rhythm: shapes, changes, songs" },
-  { id: "lead", label: "Lead", desc: "Melody, scales, improvising" },
-  { id: "ear", label: "Ear & fretboard", desc: "Theory, note names, listening" },
+/** Each track keeps one colour and icon everywhere it appears: the hub, the stage pages and their jump links. */
+export const TRACKS: { id: TrackId; label: string; desc: string; tone: Tone; icon: IconName }[] = [
+  { id: "chords", label: "Chords", desc: "Rhythm: shapes, changes, songs", tone: "amber", icon: "grid-3x3" },
+  { id: "lead", label: "Lead", desc: "Melody, scales, improvising", tone: "sky", icon: "music" },
+  { id: "ear", label: "Ear & fretboard", desc: "Theory, note names, listening", tone: "violet", icon: "ear" },
 ];
 
 export interface StageOutline {
