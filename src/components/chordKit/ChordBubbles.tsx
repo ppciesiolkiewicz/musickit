@@ -3,7 +3,6 @@
 import { useMemo, useState, type ReactNode } from "react";
 import { HUES, swatchFor } from "./palette";
 import { type DegreeChord, type KeyContext, type TriadQuality } from "@/features/theory/theory";
-import { chordMidi } from "@/features/theory/scales";
 import { strum, strumShape } from "@/lib/chordKit/playback";
 import { shapesForTones } from "@/lib/chordKit/chordShapes";
 import ChordDiagram from "./ChordDiagram";
@@ -30,6 +29,8 @@ interface Pop {
   /** the chord this bubble stands for, so its guitar fingering can be drawn */
   rootPc?: number;
   semis?: number[];
+  /** what clicking the bubble plays: one note, or the chord stacked upward */
+  midi: number[];
 }
 
 const ORD = ["root", "2nd", "3rd", "4th", "5th", "6th", "7th"];
@@ -40,7 +41,13 @@ function popovers(ctx: KeyContext, ch: DegreeChord): Record<string, Pop> {
   const out: Record<string, Pop> = {};
   const rootPc = (ctx.tonic.pc + ctx.steps[ch.degree]) % 12;
   const semisOf = (offs: number[]) => offs.map((o) => (ctx.steps[(ch.degree + o) % 7] - ctx.steps[ch.degree] + 12) % 12);
-  out.hub = { x: cx, y: cy, title: `${ch.roman} ${ch.seventhName}`, notes: [0, 2, 4, 6].map(at), text: `Click to hear it. Below: ways to finger it on guitar.`, rootPc, semis: semisOf([0, 2, 4, 6]) };
+  // each note above the one before, so a 9th, 11th or 13th lands above the 7th
+  const midiOf = (offs: number[]) => semisOf(offs).reduce<number[]>((acc, s) => {
+    let m = 48 + rootPc + s;
+    while (acc.length && m <= acc[acc.length - 1]) m += 12;
+    return [...acc, m];
+  }, []);
+  out.hub = { x: cx, y: cy, title: `${ch.roman} ${ch.seventhName}`, notes: [0, 2, 4, 6].map(at), text: `Click to hear it. Below: ways to finger it on guitar.`, rootPc, semis: semisOf([0, 2, 4, 6]), midi: midiOf([0, 2, 4, 6]) };
   const roleName = ["root", "3rd", "5th", "7th"];
   ch.formula.forEach((lab, i) => {
     const off = [0, 2, 4, 6][i];
@@ -48,6 +55,7 @@ function popovers(ctx: KeyContext, ch: DegreeChord): Record<string, Pop> {
       x: cx + (i - 1.5) * 32, y: 44,
       title: `${lab} = ${at(off)}`,
       text: `The ${roleName[i]} of ${ch.triadName}${i === 3 ? " (as a seventh chord)" : ""}. It is the ${ORD[off]} note of the scale counting from ${ch.root}, which is scale degree ${((ch.degree + off) % 7) + 1} of the mode.`,
+      midi: midiOf([off]),
     };
   });
   const slotOffset = [1, 3, 5, 6];
@@ -63,6 +71,7 @@ function popovers(ctx: KeyContext, ch: DegreeChord): Record<string, Pop> {
       text: i === 3
         ? `The note a ${slot.label} above the root completes the seventh chord: ${ch.seventhName}.`
         : `${slot.note} is the ${ORD[off]} of the scale above ${ch.root}. Use it to make ${slot.kids.map((k) => k.text).join(" or ")}.${dashedAny ? " A dashed outline means a clash, so use it with care." : ""}`,
+      midi: midiOf([off]),
     };
     const n = slot.kids.length;
     slot.kids.forEach((kid, j) => {
@@ -96,6 +105,7 @@ function popovers(ctx: KeyContext, ch: DegreeChord): Record<string, Pop> {
         warn: kid.dashed,
         rootPc,
         semis: semisOf(offs),
+        midi: midiOf(offs),
       };
     });
   });
@@ -109,7 +119,8 @@ function Hot({ id, label, active, onHover, onPin, children }: { id: string; labe
       tabIndex={0}
       aria-label={label}
       aria-expanded={active}
-      style={{ cursor: "pointer", outline: "none" }}
+      className="cursor-sound"
+      style={{ outline: "none" }}
       onMouseEnter={() => onHover(id)}
       onMouseLeave={() => onHover(null)}
       onFocus={() => onHover(id)}
@@ -129,7 +140,7 @@ function Hot({ id, label, active, onHover, onPin, children }: { id: string; labe
 
 interface CompareItem { key: string; title: string; notes?: string[]; rootPc: number; semis: number[] }
 
-function Bubble({ ctx, ch, onPlay, items, onToggle }: { ctx: KeyContext; ch: DegreeChord; onPlay: () => void; items: CompareItem[]; onToggle: (...its: CompareItem[]) => void }) {
+function Bubble({ ctx, ch, items, onToggle }: { ctx: KeyContext; ch: DegreeChord; items: CompareItem[]; onToggle: (...its: CompareItem[]) => void }) {
   const hue = HUES[HUE_OF[ch.tri]];
   const lineCol = hue.line;
   const pops = useMemo(() => popovers(ctx, ch), [ctx, ch]);
@@ -138,7 +149,11 @@ function Bubble({ ctx, ch, onPlay, items, onToggle }: { ctx: KeyContext; ch: Deg
   const shown = pin ?? hover;
   // the side panel always shows something: what is hovered or pinned, else the chord itself
   const pop = pops[shown ?? "hub"];
-  const onPin = (id: string) => setPin((p) => (p === id ? null : id));
+  const onPin = (id: string) => {
+    const m = pops[id].midi;
+    strum(m, m.length > 1 ? { gapMs: 70, holdMs: 1600 } : { holdMs: 1200 });
+    setPin(id);
+  };
   const itemOf = (id: string): CompareItem | null => {
     const q = pops[id];
     return q?.semis && q.rootPc !== undefined ? { key: `${ch.degree}:${id}`, title: q.title, notes: q.notes, rootPc: q.rootPc, semis: q.semis } : null;
@@ -179,7 +194,7 @@ function Bubble({ ctx, ch, onPlay, items, onToggle }: { ctx: KeyContext; ch: Deg
           );
         })}
 
-        <g onClick={() => { onPlay(); onPin("hub"); }} onMouseEnter={() => setHover("hub")} onMouseLeave={() => setHover(null)} className="cursor-sound">
+        <g onClick={() => onPin("hub")} onMouseEnter={() => setHover("hub")} onMouseLeave={() => setHover(null)} className="cursor-sound">
           <title>{`${ch.roman}: ${ch.triadName}, built on scale degrees ${ch.degrees.slice(0, 3).join("-")}. Tap to hear it.`}</title>
           <circle cx={cx} cy={cy} r={hubR} fill={hue.hub} stroke={lineCol} strokeWidth={1.5} />
           <text x={cx} y={cy - 7} textAnchor="middle" dominantBaseline="central" fontSize={ch.roman.length > 4 ? 13 : 16} fontWeight={600} fill={hue.onHub}>{ch.roman}</text>
@@ -225,7 +240,7 @@ function Bubble({ ctx, ch, onPlay, items, onToggle }: { ctx: KeyContext; ch: Deg
           {cur && <button type="button" onClick={() => onToggle(cur)} className="rounded-md border border-sky-500/60 px-2 py-1 text-xs text-sky-200 hover:bg-sky-500/10">{items.some((x) => x.key === cur.key) ? "✓ In comparison (remove)" : "+ Compare"}</button>}
           <button type="button" onClick={() => onToggle(...all.filter((a) => !items.some((x) => x.key === a.key)))} className="rounded-md border border-slate-700 px-2 py-1 text-xs text-slate-300 hover:border-slate-500">+ Compare all {ch.root} chords</button>
         </div>
-        {!pin && <p className="mt-2 text-[10px] text-slate-500">Hover a bubble to see it here; click to keep it.</p>}
+        {!pin && <p className="mt-2 text-[10px] text-slate-500">Hover a bubble to see it here; click to hear it and keep it.</p>}
       </div>
     </div>
   );
@@ -296,7 +311,7 @@ export default function ChordBubbles({ ctx }: { ctx: KeyContext }) {
       <div className="flex flex-col gap-3">
         {ctx.chords.map((ch) => (
           <div key={ch.degree} className="min-w-0 rounded-xl border border-slate-800 bg-slate-950/50 p-2">
-            <Bubble ctx={ctx} ch={ch} items={items} onToggle={toggle} onPlay={() => strum(chordMidi(ctx, ch.degree, 4), { gapMs: 70, holdMs: 1600 })} />
+            <Bubble ctx={ctx} ch={ch} items={items} onToggle={toggle} />
           </div>
         ))}
       </div>
