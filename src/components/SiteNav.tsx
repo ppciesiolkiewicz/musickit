@@ -5,18 +5,16 @@ import Wordmark from "./Wordmark";
 export const SITE_LINKS = [
   { href: "/", label: "Home" },
   { href: "/tuner", label: "Tuner" },
-  /* the looper is its own app, so it keeps an outline to stand apart */
-  { href: "/looper", label: "Looper", outlined: true },
 ];
 
 const isActive = (active: string, href: string) => (href === "/" ? active === "/" : active === href || active.startsWith(`${href}/`));
 
-function NavLink({ href, label, current, small, outlined }: { href: string; label: string; current: boolean; small?: boolean; outlined?: boolean }) {
+function NavLink({ href, label, current, small }: { href: string; label: string; current: boolean; small?: boolean }) {
   return (
     <Link
       href={href}
       aria-current={current ? "page" : undefined}
-      className={`rounded-lg transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${small ? "px-2.5 py-1 text-xs" : "px-3.5 py-2 text-sm"} ${outlined ? "ml-1 border border-sky-500/60" : ""} ${current ? "bg-sky-500/20 text-sky-100" : outlined ? "text-sky-200 hover:bg-sky-500/10" : "text-slate-400 hover:text-slate-200"}`}
+      className={`rounded-lg transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${small ? "px-2.5 py-1 text-xs" : "px-3.5 py-2 text-sm"} ${current ? "bg-sky-500/20 text-sky-100" : "text-slate-400 hover:text-slate-200"}`}
     >
       {label}
     </Link>

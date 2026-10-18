@@ -47,8 +47,10 @@ export const THEORY_SECTIONS: TheorySection[] = [
   { group: "practice", href: "/theory/improv", tone: "rose", label: "Improv", desc: "Play over a groove", icon: "music" },
   { group: "practice", href: "/theory/drone", tone: "violet", label: "Drone", desc: "Hear each degree against the root", icon: "audio-lines" },
   { group: "practice", href: "/theory/piano", tone: "sky", label: "Piano", desc: "Play and see notes, intervals and chords on the staff", icon: "piano" },
+  { group: "practice", href: "/theory/rhythm", tone: "amber", label: "Rhythm", desc: "Tap or strum on the beat", icon: "metronome" },
   { group: "tools", href: "/theory/tunings", tone: "amber", label: "Tunings", desc: "Alternate tunings", icon: "sliders-horizontal" },
   { group: "tools", href: "/cheatsheet", tone: "emerald", label: "Cheatsheet", desc: "Build your own reference sheet", icon: "file-text" },
+  { group: "tools", href: "/looper", tone: "teal", label: "Looper", desc: "Record loops and stack takes over drums", icon: "repeat" },
 ];
 
 /** The section a path belongs to: the longest matching href (hash links ignored). "/theory" only matches itself. */
