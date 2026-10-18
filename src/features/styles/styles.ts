@@ -20,7 +20,7 @@ export type Style = {
   courseSoon: boolean;
   /** landing photos that differ from the defaults */
   photos: Partial<Record<PhotoKey, PhotoRef>>;
-  /** the line between the hero and the story; Plain has none */
+  /** the line between the hero and the story; Default has none */
   divider: { text: string } | null;
 };
 
@@ -67,7 +67,7 @@ export const STYLES: readonly Style[] = [
       couch: { id: "1536047852989-10896cf70749", alt: "A hollow-body guitar played in a dim club" },
     },
   },
-  { id: "plain", label: "Plain", emoji: "🙂", courseSoon: false, divider: null, photos: {} },
+  { id: "plain", label: "Default", emoji: "🙂", courseSoon: false, divider: null, photos: {} },
 ];
 
 export const DEFAULT_STYLE: StyleId = "funk";
@@ -88,7 +88,7 @@ export function readSaved(storage: Pick<Storage, "getItem"> | null): { style: St
   }
 }
 
-/** Closing the first-visit picker without choosing ("Not now", click-away, Escape) settles on Plain. */
+/** Closing the first-visit picker without choosing ("Not now", click-away, Escape) settles on Default. */
 export const styleAfterIntroDismiss = (): StyleId => "plain";
 
 export const courseNote = (id: StyleId): string | null => {

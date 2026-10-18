@@ -7,7 +7,7 @@ import { DEFAULT_STYLE, SEEN_KEY, STYLES, THEME_KEY, isStyle, readSaved, styleAf
 /** Runs before the first paint (inline in <head>) so a saved style never flashes; anything else keeps the Funk set on <html>. */
 export const THEME_BOOT = `try{var t=localStorage.getItem("${THEME_KEY}");if(${JSON.stringify(STYLES.map((s) => s.id))}.indexOf(t)>=0)document.documentElement.dataset.theme=t}catch(e){}`;
 
-/** The style's own headline face, for its name on the button; Plain uses the Fraunces wordmark face. */
+/** The style's own headline face, for its name on the button; Default uses the Fraunces wordmark face. */
 const labelFont = (id: StyleId) => (id === "plain" ? "var(--font-display), serif" : `var(--font-${id}), var(--font-display), serif`);
 
 const store = (key: string, value: string) => {
@@ -60,7 +60,7 @@ const toggleFullscreen = () => (document.fullscreenElement ? document.exitFullsc
 /**
  * The palette button, named after the current music style in that style's own font, and the style picker it opens.
  * On a first visit the picker opens by itself with the current pick (Funk) pulsing; closing it without choosing settles on
- * Plain. Shared by every page; knows nothing about any feature.
+ * Default. Shared by every page; knows nothing about any feature.
  */
 export default function ThemeSwitcher({ className = "" }: { className?: string }) {
   const style = useSyncExternalStore(subscribe, readStyle, () => DEFAULT_STYLE);

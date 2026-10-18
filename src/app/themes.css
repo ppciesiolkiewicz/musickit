@@ -1,5 +1,5 @@
 /* Music style palettes. Each style remaps the Tailwind colour scales the app uses (slate is the neutral, sky the accent), so every utility follows it.
-   Set by data-theme on <html> (ThemeSwitcher); the style list is src/features/styles/styles.ts. Plain is the original dark palette. */
+   Set by data-theme on <html> (ThemeSwitcher); the style list is src/features/styles/styles.ts. Default (id "plain") is the original dark palette. */
 
 :root, :root[data-theme="plain"] {
   --color-slate-50: oklch(98.4% 0.003 247.858);

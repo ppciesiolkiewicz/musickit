@@ -18,7 +18,7 @@ function Line({ d, thick, flip }: { d: string; thick: boolean; flip?: boolean })
   );
 }
 
-/** A small line between the hero and the next section, in the current style's own shape and words. Plain has none. */
+/** A small line between the hero and the next section, in the current style's own shape and words. Default has none. */
 export default function StyleDivider() {
   return (
     <div aria-hidden>
@@ -26,7 +26,7 @@ export default function StyleDivider() {
         <div key={s.id} data-style-only={s.id}>
           <div className="flex items-center gap-4 py-2 text-xs uppercase tracking-[0.14em] text-slate-400">
             <Line d={PATHS[s.id]!} thick={s.id === "rock"} />
-            <span className="whitespace-nowrap">{s.divider!.text}</span>
+            <span className="ls-metal whitespace-nowrap">{s.divider!.text}</span>
             <Line d={PATHS[s.id]!} thick={s.id === "rock"} flip />
           </div>
         </div>

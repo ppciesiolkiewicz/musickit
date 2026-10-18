@@ -2,7 +2,7 @@ import type { CSSProperties, ReactNode } from "react";
 
 /**
  * The landing pages' display face for big headlines: the current music style's headline font (landing-styles.css),
- * falling back to the soft Fraunces serif, which is also what Plain and every other page use.
+ * falling back to the soft Fraunces serif, which is also what Default and every other page use.
  */
 export const DISPLAY: CSSProperties = {
   fontFamily: "var(--style-display, var(--font-display)), serif",
@@ -11,7 +11,7 @@ export const DISPLAY: CSSProperties = {
 };
 
 export function Eyebrow({ children, tone = "text-sky-300" }: { children: ReactNode; tone?: string }) {
-  return <p className={`mb-3 text-xs font-medium uppercase tracking-[0.2em] ${tone}`}>{children}</p>;
+  return <p className={`ls-metal mb-3 text-xs font-medium uppercase tracking-[0.2em] ${tone}`}>{children}</p>;
 }
 
 export function H2({ id, children, className = "" }: { id?: string; children: ReactNode; className?: string }) {

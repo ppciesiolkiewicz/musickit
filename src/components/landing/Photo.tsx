@@ -5,7 +5,7 @@ export type { PhotoKey };
 
 /**
  * Stock photos for the landing page: free Unsplash photos served from their CDN, each with its photographer credited.
- * `id` is the part after "photo-" in the images.unsplash.com address. These are the defaults (and Plain's); a music style
+ * `id` is the part after "photo-" in the images.unsplash.com address. These are the defaults (and Default's); a music style
  * can swap any slot for its own photo in src/features/styles/styles.ts.
  */
 export const PHOTOS: Record<PhotoKey, PhotoRef> = {

@@ -1,7 +1,7 @@
 /*
  * The music styles' landing look: headline face, edges, glow, metallic shine and photo treatment, per data-theme on <html>.
  * Scoped to `.landing` (the home page) — every other page only takes the style's colours from themes.css.
- * Plain sets nothing here, so the landing page under Plain is exactly the original design.
+ * Default (id "plain") sets nothing here, so the landing page under Default is exactly the original design.
  * Values follow the approved mockup; the style list is src/features/styles/styles.ts.
  */
 
@@ -85,7 +85,7 @@
   --glint: oklch(93% 0.08 88 / 0.7);
 }
 
-/* ---- the classes landing elements wear; none of them apply under Plain ---- */
+/* ---- the classes landing elements wear; none of them apply under Default ---- */
 :root:not([data-theme="plain"]) .landing .ls-card {
   border-radius: var(--r-card);
   box-shadow: var(--card-shadow, none);
@@ -150,6 +150,44 @@
 }
 :root:not([data-theme="plain"]) .landing .ls-glint:hover::after { animation: ls-glint 0.9s ease-out 1; }
 @keyframes ls-glint { from { left: -60%; } to { left: 130%; } }
+
+/* each style's metal: --metal paints small type and badges, --rim is the highlight along a card's top edge.
+   Surf is a light style, so its chrome is dark enough to read on the sand. Rock keeps its flat poster cards (no rim). */
+:root[data-theme="funk"] .landing {
+  --metal: linear-gradient(100deg, #cbd5e1, #fff 35%, var(--color-sky-200) 55%, #fff 75%, #cbd5e1);
+  --rim: #ffffff80;
+}
+:root[data-theme="rock"] .landing { --metal: linear-gradient(180deg, #fff, #e4e4e7 45%, #a1a1aa 55%, #f4f4f5); }
+:root[data-theme="blues"] .landing {
+  --metal: linear-gradient(100deg, oklch(74% 0.12 70), oklch(93% 0.07 88) 35%, oklch(80% 0.13 75) 55%, oklch(95% 0.05 90) 75%, oklch(72% 0.12 65));
+  --metal-ink: oklch(20% 0.04 60);
+  --rim: oklch(90% 0.08 85 / 0.55);
+}
+:root[data-theme="surf"] .landing {
+  --metal: linear-gradient(180deg, #4b5760, #6b7780 40%, #1f2a30 55%, #56626b);
+  --metal-ink: #fff;
+}
+:root[data-theme="metal"] .landing {
+  --metal: linear-gradient(180deg, #fafafa, #d4d4d8 45%, #a1a1aa 55%, #e4e4e7);
+  --rim: #ffffff70;
+}
+:root[data-theme="jazz"] .landing {
+  --metal: linear-gradient(100deg, oklch(62% 0.1 75), oklch(91% 0.09 90) 30%, oklch(72% 0.11 80) 50%, oklch(93% 0.08 92) 70%, oklch(62% 0.1 75));
+  --metal-ink: oklch(20% 0.04 70);
+  --rim: oklch(85% 0.1 85 / 0.6);
+}
+:root:not([data-theme="plain"]) .landing .ls-metal {
+  background: var(--metal); -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+:root:not([data-theme="plain"]) .landing .ls-badge {
+  background: var(--metal); color: var(--metal-ink, var(--color-slate-950));
+  box-shadow: inset 0 1px 0 #ffffff80, 0 2px 6px -2px #0008;
+}
+:root:not([data-theme="plain"]) .landing .ls-card { position: relative; }
+:root:not([data-theme="plain"]) .landing .ls-card::after {
+  content: ""; position: absolute; top: 0; left: 10%; right: 10%; height: 1px; pointer-events: none;
+  background: linear-gradient(90deg, transparent, var(--rim, transparent), transparent);
+}
 
 /* Metal: chrome headline, the accent stays blood red */
 :root[data-theme="metal"] .landing h1 {

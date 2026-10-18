@@ -150,7 +150,7 @@ export default function Home() {
           <div className="grid grid-cols-[minmax(0,1fr)] items-end gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
             <div>
               <Eyebrow>The video course · early access</Eyebrow>
-              <H2 id="course-h">Learn it step by step, <span className="italic text-sky-300">and see it as you go.</span></H2>
+              <H2 id="course-h">Learn it step by step, <span className="ls-accent italic text-sky-300">and see it as you go.</span></H2>
               <p className="mt-5 max-w-xl text-slate-300">
                 Short video lessons that take you across the fretboard by ear and by colour, with every exercise ready to play in the app. Join early: you get the course at the early-access price, and every style course free as it launches.
               </p>
@@ -161,13 +161,13 @@ export default function Home() {
           <ul className="mt-10 grid gap-4 md:grid-cols-3">
             {BUNDLES.map((b) => (
               <li key={b.name} className={`ls-card relative flex flex-col gap-4 rounded-3xl border p-6 ${b.best ? "border-sky-400/70 bg-sky-500/10 shadow-xl shadow-sky-500/10" : "border-slate-800 bg-slate-900/50"}`}>
-                {b.best && <span className="absolute -top-3 left-6 rounded-full bg-sky-400 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-slate-950">Best value</span>}
+                {b.best && <span className="ls-badge absolute -top-3 left-6 rounded-full bg-sky-400 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-slate-950">Best value</span>}
                 <div>
                   <p className="text-xl text-slate-50" style={DISPLAY}>{b.name}</p>
                   <p className="mt-1 text-sm text-slate-400">{b.text}</p>
                 </div>
                 <p className="flex items-baseline gap-2">
-                  <span className="text-4xl text-slate-50" style={DISPLAY}>{b.price}</span>
+                  <span className="ls-metal text-4xl text-slate-50" style={DISPLAY}>{b.price}</span>
                   <span className="text-xs text-slate-500">one-off, at launch</span>
                 </p>
                 <ul className="flex flex-col gap-2 text-sm text-slate-300">{b.items.map((t) => <Check key={t}>{t}</Check>)}</ul>
@@ -194,7 +194,7 @@ export default function Home() {
           <div className="grid grid-cols-[minmax(0,1fr)] items-center gap-12 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-16">
             <div>
               <Eyebrow tone="text-violet-300">Private lessons</Eyebrow>
-              <H2 id="lessons-h">A professional teacher, <span className="italic text-violet-300">and progress you can feel.</span></H2>
+              <H2 id="lessons-h">A professional teacher, <span className="ls-accent italic text-violet-300">and progress you can feel.</span></H2>
               <p className="mt-5 max-w-lg text-slate-300">
                 One-to-one lessons with professional teachers, held right inside Music Kit. They spot what&apos;s holding you back, show you the sound instead of only telling you, and leave you with exactly what to practise.
               </p>
@@ -233,7 +233,7 @@ export default function Home() {
             <li className="ls-card flex flex-col gap-4 rounded-3xl border border-violet-400/50 bg-violet-500/10 p-6">
               <div className="flex items-baseline justify-between gap-3">
                 <p className="text-xl text-slate-50" style={DISPLAY}>VIP coaching</p>
-                <p><span className="text-3xl text-slate-50" style={DISPLAY}>$1,000</span><span className="text-xs text-slate-400"> / month</span></p>
+                <p><span className="ls-metal text-3xl text-slate-50" style={DISPLAY}>$1,000</span><span className="text-xs text-slate-400"> / month</span></p>
               </div>
               <p className="text-sm text-slate-400">For players who want to move as fast as possible, with a coach who knows their playing inside out.</p>
               <ul className="flex flex-col gap-2 text-sm text-slate-300">
@@ -253,7 +253,7 @@ export default function Home() {
             <Photo name="teacher" className="aspect-4/3 h-full lg:aspect-auto" sizes="(min-width: 1024px) 30vw, 100vw" />
             <div className="p-6 pt-0 sm:p-10 lg:pl-0 lg:pt-10">
               <Eyebrow tone="text-amber-300">For teachers</Eyebrow>
-              <h3 className="text-3xl leading-tight text-slate-50 sm:text-4xl" style={DISPLAY}>Teach with every sound <span className="italic text-amber-300">a click away.</span></h3>
+              <h3 className="text-3xl leading-tight text-slate-50 sm:text-4xl" style={DISPLAY}>Teach with every sound <span className="ls-accent italic text-amber-300">a click away.</span></h3>
               <ul className="mt-6 grid gap-x-6 gap-y-3 text-sm text-slate-300 sm:grid-cols-2">
                 <Check tone="text-amber-300">Bring up any scale, chord, drone or loop mid-lesson</Check>
                 <Check tone="text-amber-300">Lesson notes drafted for you; add the details and send</Check>
@@ -271,7 +271,7 @@ export default function Home() {
         <section aria-labelledby="ideas-h" className="border-t border-slate-800/70 py-14 sm:py-20">
           <div className="mx-auto max-w-2xl text-center">
             <Eyebrow>Free in the app</Eyebrow>
-            <H2 id="ideas-h">Practice that <span className="italic text-sky-300">adds up.</span></H2>
+            <H2 id="ideas-h">Practice that <span className="ls-accent italic text-sky-300">adds up.</span></H2>
           </div>
           <ul className="mt-12 grid gap-4 md:grid-cols-3">
             <li className="ls-card flex flex-col gap-4 rounded-3xl border border-slate-800 bg-slate-900/50 p-6">
