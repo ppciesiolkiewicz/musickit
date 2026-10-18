@@ -9,7 +9,7 @@ export const THEMES = [
   { id: "light", label: "Light", swatch: ["#f8fafc", "#cbd5e1", "#0284c7"] },
   { id: "funky", label: "Funky", swatch: ["#1a0b2e", "#5b2a86", "#f6339a"] },
   { id: "modern", label: "Modern", swatch: ["#0a0a0a", "#404040", "#7c86ff"] },
-  { id: "sandstorm", label: "Sandstorm", swatch: ["#faf3e6", "#d6c2a0", "#c2410c"] },
+  { id: "sandstorm", label: "Sandstorm", swatch: ["#efdfca", "#bfa78c", "#c2410c"] },
 ] as const;
 export type ThemeId = (typeof THEMES)[number]["id"];
 

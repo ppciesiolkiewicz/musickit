@@ -517,17 +517,17 @@
 }
 
 :root[data-theme="sandstorm"] {
-  --color-slate-50: oklch(17% 0.007 65);
-  --color-slate-100: oklch(23% 0.012 65);
-  --color-slate-200: oklch(29% 0.016 65);
-  --color-slate-300: oklch(35% 0.020 65);
-  --color-slate-400: oklch(42% 0.025 65);
-  --color-slate-500: oklch(47% 0.029 65);
-  --color-slate-600: oklch(56% 0.033 65);
-  --color-slate-700: oklch(83% 0.037 65);
-  --color-slate-800: oklch(90% 0.042 65);
-  --color-slate-900: oklch(94.5% 0.046 65);
-  --color-slate-950: oklch(97.5% 0.050 65);
+  --color-slate-50: oklch(13% 0.010 65);
+  --color-slate-100: oklch(18% 0.015 65);
+  --color-slate-200: oklch(24% 0.020 65);
+  --color-slate-300: oklch(30% 0.025 65);
+  --color-slate-400: oklch(37% 0.030 65);
+  --color-slate-500: oklch(43% 0.034 65);
+  --color-slate-600: oklch(51% 0.038 65);
+  --color-slate-700: oklch(76% 0.040 65);
+  --color-slate-800: oklch(84% 0.044 65);
+  --color-slate-900: oklch(89% 0.047 65);
+  --color-slate-950: oklch(93% 0.050 65);
   --color-sky-50: oklch(26.6% 0.079 36.259);
   --color-sky-100: oklch(40.8% 0.123 38.172);
   --color-sky-200: oklch(40.8% 0.123 38.172);
@@ -583,17 +583,17 @@
   --color-zinc-800: oklch(87.1% 0.006 286.286);
   --color-zinc-900: oklch(92% 0.004 286.32);
   --color-zinc-950: oklch(96.7% 0.001 286.375);
-  --color-stone-50: oklch(17% 0.007 65);
-  --color-stone-100: oklch(23% 0.012 65);
-  --color-stone-200: oklch(29% 0.016 65);
-  --color-stone-300: oklch(35% 0.020 65);
-  --color-stone-400: oklch(42% 0.025 65);
-  --color-stone-500: oklch(47% 0.029 65);
-  --color-stone-600: oklch(56% 0.033 65);
-  --color-stone-700: oklch(83% 0.037 65);
-  --color-stone-800: oklch(90% 0.042 65);
-  --color-stone-900: oklch(94.5% 0.046 65);
-  --color-stone-950: oklch(97.5% 0.050 65);
+  --color-stone-50: oklch(13% 0.010 65);
+  --color-stone-100: oklch(18% 0.015 65);
+  --color-stone-200: oklch(24% 0.020 65);
+  --color-stone-300: oklch(30% 0.025 65);
+  --color-stone-400: oklch(37% 0.030 65);
+  --color-stone-500: oklch(43% 0.034 65);
+  --color-stone-600: oklch(51% 0.038 65);
+  --color-stone-700: oklch(76% 0.040 65);
+  --color-stone-800: oklch(84% 0.044 65);
+  --color-stone-900: oklch(89% 0.047 65);
+  --color-stone-950: oklch(93% 0.050 65);
   --color-violet-50: oklch(27.9% 0.077 45.635);
   --color-violet-100: oklch(41.4% 0.112 45.904);
   --color-violet-200: oklch(41.4% 0.112 45.904);
