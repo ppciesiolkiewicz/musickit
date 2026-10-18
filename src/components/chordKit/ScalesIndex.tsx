@@ -112,12 +112,12 @@ export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey
 
                 <div className="flex flex-wrap items-end gap-1.5" aria-label={`Notes of ${ctx.names[0]} ${ctx.modeName}`}>
                   {ctx.names.map((n, i) => (
-                    <button key={i} type="button" onClick={() => player.tap(`${page.slug}:d${i}`, line[i])} title={`${n}: tap to hear it`} className="flex flex-col items-center gap-0.5 rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
+                    <button key={i} type="button" onClick={() => player.tap(`${page.slug}:d${i}`, line[i])} title={`${n}: tap to hear it`} className="cursor-sound flex flex-col items-center gap-0.5 rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
                       <span className="text-xs tabular-nums text-slate-400">{scaleToneCaption(system, ctx, i)}</span>
                       <span className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold transition ${active === `d${i}` ? "scale-110 ring-[3px] ring-sky-400" : ""}`} style={{ background: degreeColour(i), color: DOT_INK }}>{scaleToneLabel(system, ctx, i)}</span>
                     </button>
                   ))}
-                  <button type="button" onClick={playScale} className="mb-1 ml-1 rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25">▶ Play</button>
+                  <button type="button" onClick={playScale} className="cursor-sound mb-1 ml-1 rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25">▶ Play</button>
                 </div>
 
                 <ScaleNeck

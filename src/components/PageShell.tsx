@@ -4,12 +4,16 @@ import { sectionFor } from "@/features/theory/sections";
 import type { ReactNode } from "react";
 import PreloadPiano from "@/features/sound/keyboard/PreloadPiano";
 
-/** Dark page frame with the Music Kit nav and the page title, shared by every page but the looper. */
-export default function PageShell({ title, intro, active, children }: { title: string; intro?: string; active: string; children: ReactNode }) {
+/**
+ * Dark page frame with the Music Kit nav and the page title, shared by every page but the looper.
+ * Pages are 80rem wide with room at the sides; `wide` keeps the full 96rem for tools that fill the screen (the cheatsheet).
+ * Necks and other wide pieces reach back out with the `bleed` utility.
+ */
+export default function PageShell({ title, intro, active, wide = false, children }: { title: string; intro?: string; active: string; wide?: boolean; children: ReactNode }) {
   const section = active.startsWith("/theory/") ? sectionFor(active) : undefined;
   return (
     <div className="app-bg min-h-screen text-slate-200">
-      <div className="mx-auto flex w-full max-w-[96rem] flex-col gap-4 px-3 py-3 sm:px-5 sm:py-4">
+      <div className={`mx-auto flex w-full flex-col gap-4 py-3 sm:py-4 ${wide ? "max-w-[96rem] px-3 sm:px-5" : "max-w-[80rem] px-3 sm:px-6 lg:px-8"}`}>
         <PreloadPiano />
         <div className="border-b border-slate-800/70 py-1.5 sm:py-2.5">
           <SiteNav active={active} />

@@ -123,7 +123,7 @@ function Detail({ D }: { D: ResolvedProgression }) {
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
-        <button type="button" onClick={playForm} className={`rounded-full border px-4 py-1.5 text-xs font-medium ${playing ? "border-rose-400 bg-rose-500/20 text-rose-100" : "border-emerald-500 bg-emerald-500/15 text-emerald-100 hover:bg-emerald-500/25"}`}>
+        <button type="button" onClick={playForm} className={`cursor-sound rounded-full border px-4 py-1.5 text-xs font-medium ${playing ? "border-rose-400 bg-rose-500/20 text-rose-100" : "border-emerald-500 bg-emerald-500/15 text-emerald-100 hover:bg-emerald-500/25"}`}>
           {playing ? "■ Stop" : "▶ Play the main form"}
         </button>
         <label className="flex items-center gap-2 text-xs text-slate-400">

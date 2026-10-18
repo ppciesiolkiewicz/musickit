@@ -137,7 +137,7 @@ export default function Tuner() {
               const near = read?.string === i;
               return (
                 <button key={i} type="button" onClick={() => playReference(midiToHz(s.midi, choice.a4))} title={`Hear ${s.name}${s.octave} at A4 = ${choice.a4} Hz`} aria-label={`Hear ${s.name}${s.octave}`}
-                  className={`flex h-11 w-11 flex-col items-center justify-center rounded-full sm:h-14 sm:w-14 border transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${near ? (inTune ? "border-emerald-400 bg-emerald-500/15" : "border-sky-400 bg-sky-500/10") : "border-slate-700 bg-slate-900/60 hover:border-slate-500"}`}>
+                  className={`cursor-sound flex h-11 w-11 flex-col items-center justify-center rounded-full sm:h-14 sm:w-14 border transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${near ? (inTune ? "border-emerald-400 bg-emerald-500/15" : "border-sky-400 bg-sky-500/10") : "border-slate-700 bg-slate-900/60 hover:border-slate-500"}`}>
                   <span className="text-lg leading-none text-slate-100">{s.name}<span className="text-[10px] text-slate-500">{s.octave}</span></span>
                   {near && <span className="mt-0.5 text-[10px] leading-none tabular-nums text-slate-400">{signed(cents)}</span>}
                 </button>

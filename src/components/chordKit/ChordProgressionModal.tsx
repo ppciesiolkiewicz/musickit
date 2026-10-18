@@ -45,7 +45,7 @@ export default function ChordProgressionModal({ ctx, degree, onClose }: { ctx: K
         <button
           type="button"
           onClick={running ? stop : playAll}
-          className="flex items-center gap-2 rounded-full border border-sky-400/60 px-4 py-1.5 text-sm text-sky-200 hover:border-sky-300"
+          className="cursor-sound flex items-center gap-2 rounded-full border border-sky-400/60 px-4 py-1.5 text-sm text-sky-200 hover:border-sky-300"
         >
           <span aria-hidden>{running ? "■" : "▶"}</span> {running ? "Stop" : "Play all"}
         </button>

@@ -30,7 +30,7 @@ export default function TuningsPlugin() {
           const lit = inKey?.has(s.midi % 12);
           return (
             <button key={i} type="button" onClick={() => strum([s.midi], { gapMs: 0, holdMs: 1500 })} title={`Hear ${s.name}${s.octave}`}
-              className={`min-w-10 rounded-lg border px-2 py-1 text-sm ${lit ? "border-sky-500/60 bg-sky-500/15 text-sky-100" : "border-slate-700 bg-slate-900 text-slate-200"} hover:border-slate-500`}>
+              className={`cursor-sound min-w-10 rounded-lg border px-2 py-1 text-sm ${lit ? "border-sky-500/60 bg-sky-500/15 text-sky-100" : "border-slate-700 bg-slate-900 text-slate-200"} hover:border-slate-500`}>
               {s.name}<span className="text-[10px] text-slate-500">{s.octave}</span>
             </button>
           );

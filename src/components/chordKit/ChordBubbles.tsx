@@ -179,7 +179,7 @@ function Bubble({ ctx, ch, onPlay, items, onToggle }: { ctx: KeyContext; ch: Deg
           );
         })}
 
-        <g onClick={() => { onPlay(); onPin("hub"); }} onMouseEnter={() => setHover("hub")} onMouseLeave={() => setHover(null)} style={{ cursor: "pointer" }}>
+        <g onClick={() => { onPlay(); onPin("hub"); }} onMouseEnter={() => setHover("hub")} onMouseLeave={() => setHover(null)} className="cursor-sound">
           <title>{`${ch.roman}: ${ch.triadName}, built on scale degrees ${ch.degrees.slice(0, 3).join("-")}. Tap to hear it.`}</title>
           <circle cx={cx} cy={cy} r={hubR} fill={hue.hub} stroke={lineCol} strokeWidth={1.5} />
           <text x={cx} y={cy - 7} textAnchor="middle" dominantBaseline="central" fontSize={ch.roman.length > 4 ? 13 : 16} fontWeight={600} fill={hue.onHub}>{ch.roman}</text>

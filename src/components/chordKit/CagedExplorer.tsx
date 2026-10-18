@@ -154,7 +154,7 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem }: { b
   });
   const COL0 = 2; // grid column 1 holds the string names
   return (
-    <section className="rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5">
+    <section className="bleed rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5">
       <h2 className="mb-2 flex flex-wrap items-center gap-2 text-sm font-medium text-slate-100">
         <span>
           {keyName} {quality}: the five boxes up the neck
@@ -200,7 +200,7 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem }: { b
                       type="button"
                       onClick={() => strum([c.midi], { gapMs: 0, holdMs: 700 })}
                       aria-label={`${lab(c)} on string ${STRING_LETTERS[s]}, fret ${f}`}
-                      className={`grid size-4 place-items-center rounded-full text-[8px] font-bold sm:size-7 sm:text-xs ${c.isRoot ? "ring-2 ring-slate-50" : "ring-1 ring-slate-950"}`}
+                      className={`cursor-sound grid size-4 place-items-center rounded-full text-[8px] font-bold sm:size-7 sm:text-xs ${c.isRoot ? "ring-2 ring-slate-50" : "ring-1 ring-slate-950"}`}
                       style={{ backgroundColor: c.scaleDegree === null ? "#f43f5e" : degreeColour(c.scaleDegree), color: DOT_INK }}
                     >
                       {lab(c)}
@@ -244,7 +244,7 @@ function BoxCard({ box, index, rootPc, quality, arpKind, labelSystem, badges, no
   ];
 
   return (
-    <section id={`box-${box.letter}`} className="scroll-mt-4">
+    <section id={`box-${box.letter}`} className="bleed scroll-mt-4">
       <Section
         title={<span><span className="mr-2 inline-block rounded px-1.5" style={{ background: LANE_COLOURS[index % 5], color: DOT_INK }}>{box.letter}</span>{box.letter} shape · {box.chordName} chord</span>}
         info={<>The {box.letter} shape is the open {box.letter} chord form moved up the neck as a barre chord. Here it gives {box.chordName}. The box of notes around it, frets {box.from} to {box.to}, holds the arpeggio, scale and pentatonic.</>}
@@ -256,7 +256,7 @@ function BoxCard({ box, index, rootPc, quality, arpKind, labelSystem, badges, no
             <div key={p.key} className="flex min-w-0 flex-col gap-1.5 rounded-xl border border-slate-800 bg-slate-950/70 p-2">
               <div className="flex items-center gap-2">
                 <h3 className="text-sm font-medium text-slate-100">{p.title}</h3>
-                <button type="button" className={`${play} ml-auto`} onClick={p.onPlay} aria-label={`Play the ${p.title}`}>▶ Play</button>
+                <button type="button" className={`cursor-sound ${play} ml-auto`} onClick={p.onPlay} aria-label={`Play the ${p.title}`}>▶ Play</button>
               </div>
               <BoxNeck cells={cells} box={box} layers={p.layers} labelSystem={labelSystem} badges={badges} onNote={onNote} />
               <p className="text-xs text-slate-400">{p.notes}</p>

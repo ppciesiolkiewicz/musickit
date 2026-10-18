@@ -134,7 +134,7 @@ export default function LabelSystemsArticle() {
           </thead>
           <tbody>
             {CHROMATIC.map(({ semi, degrees }) => (
-              <tr key={semi} className="cursor-pointer border-t border-slate-800 hover:bg-slate-900/60" onClick={() => strum(semi ? [60, 60 + semi] : [60], { gapMs: 350, holdMs: 1400 })}>
+              <tr key={semi} className="cursor-sound border-t border-slate-800 hover:bg-slate-900/60" onClick={() => strum(semi ? [60, 60 + semi] : [60], { gapMs: 350, holdMs: 1400 })}>
                 <td className="py-1 pr-4 tabular-nums">{semi}</td>
                 <td className="py-1 pr-4">{intervalName(semi)}</td>
                 <td className="py-1 pr-4">{degrees.map(fmtDegree).join(" / ")}</td>

@@ -97,12 +97,12 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
 
         <div className="flex flex-wrap items-center gap-2" aria-label="Scale notes">
           {ctx.names.map((n, i) => (
-            <button key={i} type="button" onClick={() => player.tap(`d${i}`, line[i])} title={`${n}: tap to hear it`} className="flex flex-col items-center gap-0.5 rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
+            <button key={i} type="button" onClick={() => player.tap(`d${i}`, line[i])} title={`${n}: tap to hear it`} className="cursor-sound flex flex-col items-center gap-0.5 rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
               <span className={`flex h-11 w-11 items-center justify-center rounded-full text-sm font-semibold transition ${player.active === `d${i}` ? "scale-110 ring-[3px] ring-sky-400" : ""}`} style={{ background: degreeColour(i), color: DOT_INK }}>{scaleToneLabel(system, ctx, i)}</span>
               <span className="text-xs tabular-nums text-slate-500">{scaleToneCaption(system, ctx, i)}</span>
             </button>
           ))}
-          <button type="button" onClick={playScale} className="ml-2 rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25">▶ Play scale</button>
+          <button type="button" onClick={playScale} className="cursor-sound ml-2 rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25">▶ Play scale</button>
         </div>
         <p className="text-xs text-slate-400">
           Step pattern <span className="tabular-nums text-slate-300">{pattern.join(" – ")}</span>
@@ -166,16 +166,17 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
           </span>
         </div>
 
-        <ul className="flex flex-col gap-2">
+        {/* two rows side by side on wide screens, so the shape sits next to its notes instead of across the page */}
+        <ul className="grid gap-2 xl:grid-cols-2">
           {chords.map((c) => {
             const shown = extended ? c.notes : c.notes.slice(0, 4);
             return (
-              <li key={c.degree} className="flex flex-wrap items-center gap-2 rounded-xl border border-slate-800 bg-slate-950/40 p-1">
+              <li key={c.degree} className="flex flex-wrap items-center gap-3 rounded-xl border border-slate-800 bg-slate-950/40 p-2">
                 <button
                   type="button"
                   onClick={() => play(c.degree)}
                   title="Tap to hear it"
-                  className={`flex min-w-0 flex-1 basis-72 flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border px-3 py-2.5 text-left transition hover:border-slate-600 ${playing === c.degree ? "border-sky-400 bg-slate-800/80" : "border-transparent"}`}
+                  className={`cursor-sound flex min-w-0 flex-1 basis-60 flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border px-3 py-2.5 text-left transition hover:border-slate-600 ${playing === c.degree ? "border-sky-400 bg-slate-800/80" : "border-transparent"}`}
                 >
                   <span className="w-12 shrink-0 text-lg font-light text-sky-300">{c.roman}</span>
                   <span className="min-w-[8rem]">

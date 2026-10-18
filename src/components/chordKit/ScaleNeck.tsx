@@ -16,7 +16,7 @@ function Dot({ c, x, y, r, ring, label, active, dim, onNote }: { c: ScaleCell; x
   const isRoot = c.degree === 0;
   const fs = (ring ? 0.85 : 0.9) * r * (label.length > 2 ? 0.68 : 0.88);
   return (
-    <g opacity={dim ? 0.18 : 1} onClick={() => onNote(c)} style={{ cursor: "pointer" }}>
+    <g opacity={dim ? 0.18 : 1} onClick={() => onNote(c)} className="cursor-sound">
       <title>{`${c.name} · degree ${c.degreeText}`}</title>
       {ring ? (
         <circle cx={x} cy={y} r={r * 0.68} fill="var(--color-slate-950)" stroke={active ? ACTIVE : col} strokeWidth={active ? 3 : 1.6} />

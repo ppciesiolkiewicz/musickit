@@ -16,14 +16,14 @@ function TuningCard({ instrument, tuning }: { instrument: InstrumentId; tuning: 
       <div className="flex flex-wrap items-center gap-2">
         <h3 className="text-sm font-medium text-slate-100">{tuning.name}</h3>
         <span className="ml-auto flex gap-1.5">
-          <button type="button" className={btnSm} onClick={() => strum(tuning.strings.map((s) => s.midi), { gapMs: 220, holdMs: 2200 })}>▶ Hear</button>
+          <button type="button" className={`cursor-sound ${btnSm}`} onClick={() => strum(tuning.strings.map((s) => s.midi), { gapMs: 220, holdMs: 2200 })}>▶ Hear</button>
           <Link className={btnSm} href={`/tuner?instrument=${instrument}&tuning=${tuning.id}`}>Tune</Link>
         </span>
       </div>
       <div className="flex flex-wrap gap-1.5">
         {tuning.strings.map((s, i) => (
           <button key={i} type="button" onClick={() => strum([s.midi], { gapMs: 0, holdMs: 1500 })} title={`Hear ${s.name}${s.octave}`}
-            className="flex min-w-12 flex-col items-center rounded-lg border border-slate-800 bg-slate-950/40 px-2 py-1 hover:border-slate-600">
+            className="cursor-sound flex min-w-12 flex-col items-center rounded-lg border border-slate-800 bg-slate-950/40 px-2 py-1 hover:border-slate-600">
             <span className="text-sm text-slate-100">{s.name}<span className="text-[10px] text-slate-500">{s.octave}</span></span>
             <span className="text-[10px] tabular-nums text-slate-500">{midiToHz(s.midi).toFixed(1)}</span>
           </button>

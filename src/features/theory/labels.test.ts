@@ -81,3 +81,13 @@ test("scale tones", () => {
   assert.deepEqual([0, 2, 5].map((i) => scaleToneLabel("interval", dorian, i)), ["R", "b3", "6"]);
   assert.deepEqual([0, 2, 5].map((i) => scaleToneLabel("degree", dorian, i)), ["1", "b3", "6"]);
 });
+
+test("chord tones in a mode are written against the major scale, like the scale rows", () => {
+  // Em7 in E Phrygian: E G B D
+  const ctx = makeKeyContext(4, 0, 2);
+  const em = (semi: number, role: string) => ({ rootPc: 4, semi, role, ctx });
+  const tones = [em(0, "R"), em(3, "♭3"), em(7, "5"), em(10, "♭7")];
+  assert.deepEqual(tones.map((t) => toneLabel("solfege", t)), ["Do", "Me", "Sol", "Te"]);
+  assert.deepEqual(tones.map((t) => toneLabel("degree", t)), ["1", "b3", "5", "b7"]);
+  assert.deepEqual(tones.map((t) => toneLabel("interval", t)), ["R", "b3", "p5", "b7"]);
+});

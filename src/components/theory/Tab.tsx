@@ -31,7 +31,7 @@ export default function Tab({ title, origin, notes, position }: { title: string;
       <figcaption className="mb-1 flex flex-wrap items-baseline gap-2">
         <b className="text-sm text-slate-100">{title}</b>
         <span className="text-xs text-slate-500">{origin}</span>
-        <button type="button" onClick={play} className="ml-auto rounded-lg border border-sky-500/60 px-2 py-0.5 text-xs text-sky-200 hover:bg-sky-500/10">▶ Play</button>
+        <button type="button" onClick={play} className="cursor-sound ml-auto rounded-lg border border-sky-500/60 px-2 py-0.5 text-xs text-sky-200 hover:bg-sky-500/10">▶ Play</button>
       </figcaption>
       <div className="min-w-0">
         <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ maxWidth: W }} role="img" aria-label={`Tab for ${title}`} className="font-mono">

@@ -3,7 +3,8 @@
 import type { Shape } from "@/lib/chordKit/shapes";
 import { toneColourIndex, toneLabel } from "@/features/theory/labels";
 import type { KeyContext } from "@/features/theory/theory";
-import { useLabelRoot, useLabelSystem } from "@/features/theory/useLabelSystem";
+import { useChordLabels } from "@/features/theory/useLabelSystem";
+import { InfoTip } from "@/components/ui";
 import { diagramLowFret, intervalLabel, OPEN_NOTE, OPEN_PITCH, ROOT_INDEX } from "@/lib/chordKit/shapeTools";
 import { boxRowFactor } from "./Fretboard";
 import { swatchForIndex } from "./palette";
@@ -21,10 +22,15 @@ interface Props {
   rootName?: string;
 }
 
-/** A chord box: six strings, frets, and one labelled dot per sounding string. */
+/**
+ * The one chord box: six strings, frets, and one dot per sounding string labelled with its interval.
+ * Clicking it or its play button strums it; the chord-tones / in-the-key switch under it is shared by every chord box.
+ */
 export default function ChordDiagram({ shape, rootFret, onPlay, active, ctx, rootName }: Props) {
-  const [system] = useLabelSystem();
-  const [from] = useLabelRoot();
+  const [mode, setMode] = useChordLabels();
+  // chord boxes always show intervals; without a key there is only the chord root to count from
+  const system = "interval";
+  const from = mode === "key" && ctx ? "scale" : "chord";
   const ss = 18, fsz = 24, left = 36, top = 26;
   const ri = ROOT_INDEX[shape.rs];
   const rootPc = (OPEN_NOTE[ri] + rootFret) % 12;
@@ -91,15 +97,46 @@ export default function ChordDiagram({ shape, rootFret, onPlay, active, ctx, roo
     </svg>
   );
 
-  if (!onPlay) return svg;
+  const seg = (on: boolean) => `px-1.5 py-0.5 transition ${on ? "bg-slate-700 text-slate-100" : "text-slate-400 hover:text-slate-200"}`;
   return (
-    <button
-      type="button"
-      onClick={onPlay}
-      title="Click to hear it"
-      className={`block w-full cursor-pointer rounded-lg p-2 transition hover:bg-slate-800/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${active ? "bg-slate-800/80 ring-1 ring-sky-400" : ""}`}
-    >
-      {svg}
-    </button>
+    <div className="flex flex-col items-center gap-1">
+      {onPlay ? (
+        <button
+          type="button"
+          onClick={onPlay}
+          title="Click to hear it"
+          className={`cursor-sound block w-full rounded-lg p-2 transition hover:bg-slate-800/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${active ? "bg-slate-800/80 ring-1 ring-sky-400" : ""}`}
+        >
+          {svg}
+        </button>
+      ) : svg}
+      {(onPlay || ctx) && (
+        <div className="flex flex-wrap items-center justify-center gap-1">
+          {onPlay && (
+            <button
+              type="button"
+              onClick={onPlay}
+              aria-label="Play this chord"
+              className={`cursor-sound grid h-6 w-6 shrink-0 place-items-center rounded-full border pl-0.5 text-[10px] transition ${active ? "border-sky-400 bg-sky-400/10 text-sky-200" : "border-slate-600 text-slate-200 hover:border-slate-400"}`}
+            >
+              ▶
+            </button>
+          )}
+          {ctx && (
+            <>
+              <span role="group" aria-label="Count intervals from" className="flex overflow-hidden rounded-md border border-slate-700 text-[10px]">
+                <button type="button" aria-pressed={mode === "chord"} onClick={() => setMode("chord")} className={seg(mode === "chord")}>Chord</button>
+                <button type="button" aria-pressed={mode === "key"} onClick={() => setMode("key")} className={seg(mode === "key")}>Key</button>
+              </span>
+              <InfoTip label="What do Chord and Key mean?">
+                <p><b>Chord</b> counts each note from the chord&apos;s own root: R, b3, p5, b7. It shows what the chord is made of.</p>
+                <p><b>Key</b> counts from the key&apos;s first note instead, so you see where the chord sits in the scale: the V chord in C reads p5, 7, 2, p4.</p>
+                <p>One switch for every chord box in the app.</p>
+              </InfoTip>
+            </>
+          )}
+        </div>
+      )}
+    </div>
   );
 }

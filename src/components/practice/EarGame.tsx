@@ -81,7 +81,7 @@ export default function EarGame({ initial }: { initial: EarSettings }) {
       <section className={panel}>
         <div className="mb-3 flex flex-wrap items-center gap-2">
           <button type="button" className={btnPrimary} onClick={next}>{q ? "Next" : "Start"}</button>
-          {q && <button type="button" className={btn} onClick={() => play(q)}>Replay</button>}
+          {q && <button type="button" className={`cursor-sound ${btn}`} onClick={() => play(q)}>Replay</button>}
           <span className="text-sm text-slate-400">{q ? (answered ? "" : s.kind === "chord" ? "What kind of chord?" : "Which interval?") : "Press Start and listen."}</span>
         </div>
         <div className="flex flex-wrap gap-1.5">

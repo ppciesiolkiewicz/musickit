@@ -42,7 +42,7 @@ export default function ScaleOnGuitar({ ctx, player }: { ctx: KeyContext; player
   };
 
   return (
-    <section id="guitar" className="scroll-mt-48 rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5">
+    <section id="guitar" className="bleed scroll-mt-48 rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5">
       <h2 className="mb-2 text-sm font-medium text-slate-100">
         {keyName} on the guitar
         <Info label="How do I read the neck?">
@@ -105,7 +105,7 @@ export default function ScaleOnGuitar({ ctx, player }: { ctx: KeyContext; player
                   </span>
                   <span className="block text-xs font-normal text-slate-500">frets {p.from}–{p.to}</span>
                 </button>
-                <button type="button" onClick={() => playPosition(p)} className={`${playBtn} ml-auto`}>▶ Play</button>
+                <button type="button" onClick={() => playPosition(p)} className={`cursor-sound ${playBtn} ml-auto`}>▶ Play</button>
               </div>
               <PositionBox position={p} cells={cells} rings={rings} active={active} labelSystem={system} onNote={onNote} />
             </div>

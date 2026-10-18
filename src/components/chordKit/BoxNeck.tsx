@@ -44,7 +44,7 @@ export default function BoxNeck({ cells, box, layers, labelSystem, badges = true
           const label = labelFor(c);
           const key = `${c.string}-${c.fret}`;
           return (
-            <g key={key} onClick={() => onNote(c)} style={{ cursor: "pointer" }}>
+            <g key={key} onClick={() => onNote(c)} className="cursor-sound">
               <circle cx={x} cy={y} r={r} fill={colour} stroke={c.isRoot ? "var(--color-slate-50)" : "var(--color-slate-950)"} strokeWidth={c.isRoot ? 2.5 : 1.5} />
               <text x={x} y={y + 0.5} textAnchor="middle" dominantBaseline="central" fontSize={label.length > 2 ? 9.5 : 12.5} fontWeight={700} fill={DOT_INK} pointerEvents="none">{label}</text>
             </g>

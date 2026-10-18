@@ -7,7 +7,7 @@ import { carouselStep, placedChordName, shapesForChord } from "@/lib/chordKit/ch
 import type { KeyContext } from "@/features/theory/theory";
 import { strumShape } from "@/lib/chordKit/playback";
 
-/** One guitar shape for one chord of the mode, with previous/next arrows, a play button, and links to a progression and the full list. */
+/** One guitar shape for one chord of the mode, with previous/next arrows and links to a progression and the full list. */
 export default function ChordShapeCarousel({ ctx, degree, onShowAll, onShowProgression }: { ctx: KeyContext; degree: number; onShowAll: () => void; onShowProgression: () => void }) {
   const list = useMemo(() => shapesForChord(ctx, degree), [ctx, degree]);
   const [i, setI] = useState(0);
@@ -34,14 +34,6 @@ export default function ChordShapeCarousel({ ctx, degree, onShowAll, onShowProgr
         <button type="button" className={arrow} onClick={() => go(1)} aria-label="Next shape">›</button>
       </div>
       <div className="flex items-center justify-center gap-2">
-        <button
-          type="button"
-          onClick={play}
-          aria-label={`Play ${name}`}
-          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border pl-0.5 text-xs transition ${playing ? "border-sky-400 bg-sky-400/10 text-sky-200" : "border-slate-600 text-slate-200 hover:border-slate-400"}`}
-        >
-          ▶
-        </button>
         <span className="min-w-0 truncate text-base font-medium text-slate-100">{name}</span>
         <span className="tabular-nums text-xs text-slate-500">{idx + 1}/{list.length}</span>
       </div>

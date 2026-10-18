@@ -1,7 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { DEFAULT_LABEL_ROOT, DEFAULT_LABEL_SYSTEM, LABEL_ROOTS, LABEL_SYSTEMS, isLabelRoot, isLabelSystem, type LabelRoot, type LabelSystem } from "./labels";
+import { DEFAULT_CHORD_LABELS, DEFAULT_LABEL_ROOT, DEFAULT_LABEL_SYSTEM, LABEL_ROOTS, LABEL_SYSTEMS, isChordLabels, isLabelRoot, isLabelSystem, type ChordLabels, type LabelRoot, type LabelSystem } from "./labels";
 import { Select, Field } from "@/components/ui";
 
 const KEY = "musickit.labelSystem";
@@ -90,4 +90,34 @@ export function RootSelect({ className = "" }: { className?: string }) {
       <Select size="sm" value={v} onChange={set} aria-label="Count intervals and colours from" options={LABEL_ROOTS.map((r) => ({ value: r.id, label: r.label }))} />
     </Field>
   );
+}
+
+const CHORD_KEY = "musickit.chordLabels";
+let chordLabels: ChordLabels = DEFAULT_CHORD_LABELS;
+let chordLoaded = false;
+const chordListeners = new Set<() => void>();
+
+function subscribeChord(fn: () => void) {
+  if (!chordLoaded && typeof window !== "undefined") {
+    chordLoaded = true;
+    try {
+      const v = window.localStorage.getItem(CHORD_KEY);
+      if (isChordLabels(v)) chordLabels = v;
+    } catch { /* storage unavailable */ }
+  }
+  chordListeners.add(fn);
+  queueMicrotask(fn);
+  return () => { chordListeners.delete(fn); };
+}
+
+export function setChordLabels(v: ChordLabels) {
+  chordLabels = v;
+  try { window.localStorage.setItem(CHORD_KEY, v); } catch { /* ignore */ }
+  chordListeners.forEach((f) => f());
+}
+
+/** The chord-box switch: intervals from the chord root or from the key's tonic. One setting behind every chord box, persisted. */
+export function useChordLabels(): [ChordLabels, (v: ChordLabels) => void] {
+  const v = useSyncExternalStore(subscribeChord, () => chordLabels, () => DEFAULT_CHORD_LABELS);
+  return [v, setChordLabels];
 }

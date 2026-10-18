@@ -69,7 +69,7 @@ export default function Soundboard({ pads, voice, labels, warn, selected, onSele
             onPointerUp={() => release(`p${i}`)}
             onPointerLeave={() => release(`p${i}`)}
             onPointerCancel={() => release(`p${i}`)}
-            className={`relative flex h-14 select-none flex-col items-start justify-between rounded-lg border p-1.5 text-left leading-none shadow-sm shadow-black/10 transition-colors ${on ? "border-amber-300 bg-amber-400 text-slate-900" : selected === i ? "border-sky-400 bg-sky-500/10 text-slate-100" : "border-slate-700 bg-slate-900 text-slate-200 hover:border-slate-600"}`}
+            className={`cursor-sound relative flex h-14 select-none flex-col items-start justify-between rounded-lg border p-1.5 text-left leading-none shadow-sm shadow-black/10 transition-colors ${on ? "border-amber-300 bg-amber-400 text-slate-900" : selected === i ? "border-sky-400 bg-sky-500/10 text-slate-100" : "border-slate-700 bg-slate-900 text-slate-200 hover:border-slate-600"}`}
           >
             <span className="text-[10px] opacity-70">{keyLabel(PAD_KEYS[i])}</span>
             <span className="w-full truncate text-[10px]">{labels[i] ?? ""}</span>

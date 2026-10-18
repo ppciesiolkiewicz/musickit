@@ -107,6 +107,13 @@ export const DEFAULT_LABEL_ROOT: LabelRoot = "scale";
 
 export const isLabelRoot = (v: unknown): v is LabelRoot => v === "scale" || v === "chord";
 
+/** What chord boxes count their intervals from: the chord's own root (R b3 p5) or the key's tonic. Separate from the page-wide labels. */
+export type ChordLabels = "chord" | "key";
+
+export const DEFAULT_CHORD_LABELS: ChordLabels = "chord";
+
+export const isChordLabels = (v: unknown): v is ChordLabels => v === "chord" || v === "key";
+
 /** Degree index 0-6 of a role or degree such as "R", "♭3", "5", "♯4", "9"; null when it is not one. */
 export function indexOfDegree(label: string): number | null {
   if (label === "R") return 0;
@@ -126,6 +133,15 @@ export function toneColourIndex(t: ToneInput, from: LabelRoot = DEFAULT_LABEL_RO
   return indexOfDegree(t.role);
 }
 
+const MAJOR_DEGREES = ["1", "♭2", "2", "♭3", "3", "4", "♯4", "5", "♭6", "6", "♭7", "7"];
+
+/** Degree of `pc` in the key, written against the major scale like the scale rows are (G in E Phrygian is ♭3, not 3). */
+function keyDegree(pc: number, ctx: KeyContext): string {
+  const rel = (((pc - ctx.tonic.pc) % 12) + 12) % 12;
+  const i = ctx.steps.indexOf(rel);
+  return i >= 0 ? degreeLabels(ctx.steps)[i] : MAJOR_DEGREES[rel];
+}
+
 /** Label for one tone of a chord shape in the chosen system. Without a key, or counting `from` the chord, intervals and degrees count from the chord root. */
 export function toneLabel(system: LabelSystem, t0: ToneInput, from: LabelRoot = DEFAULT_LABEL_ROOT): string {
   const t = from === "chord" && system !== "note" ? { ...t0, ctx: undefined } : t0;
@@ -140,8 +156,8 @@ export function toneLabel(system: LabelSystem, t0: ToneInput, from: LabelRoot = 
       return (n && spellAbove(root, n, pc)) || TONICS.find((x) => x.pc === pc)!.name;
     }
     case "interval": return intervalName(fromKey);
-    case "degree": return t.ctx ? fmtDegree(degreeLabel(pc, t.ctx)) : t.role === "R" ? "1" : fmtDegree(t.role);
-    case "solfege": return solfege(t.ctx ? degreeLabel(pc, t.ctx) : t.role);
+    case "degree": return t.ctx ? fmtDegree(keyDegree(pc, t.ctx)) : t.role === "R" ? "1" : fmtDegree(t.role);
+    case "solfege": return solfege(t.ctx ? keyDegree(pc, t.ctx) : t.role);
   }
 }
 

@@ -21,7 +21,7 @@ export function Body({ title, aside, general, children }: { title: ReactNode; as
 
 export function PlayButton({ onClick, label }: { onClick: () => void; label: string }) {
   return (
-    <button type="button" className={pbtn} onClick={onClick} title={label} aria-label={label}>
+    <button type="button" className={`cursor-sound ${pbtn}`} onClick={onClick} title={label} aria-label={label}>
       <Icon name="play" size={14} fill />
     </button>
   );
