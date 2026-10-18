@@ -34,7 +34,8 @@ const PART_IDS = Object.keys(PARTS) as PartId[];
 export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey: number; /** write ?key=f-sharp to the address bar (off when embedded in another page) */ syncUrl?: boolean }) {
   const [tonicPc, setTonicPc] = useState(initialKey);
   const [system] = useLabelSystem();
-  const [open, setOpen] = useState<Record<PartId, boolean>>({ compare: false, major: true, harm: false, mel: false, other: false });
+  const [open, setOpen] = useState<Record<PartId, boolean>>({ compare: true, major: true, harm: true, mel: true, other: true });
+  const [query, setQuery] = useState("");
   const toggle = (id: PartId) => setOpen((o) => ({ ...o, [id]: !o[id] }));
   const setAll = (v: boolean) => setOpen({ compare: v, major: v, harm: v, mel: v, other: v });
   const allOpen = PART_IDS.every((id) => open[id]);
@@ -84,6 +85,23 @@ export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey
       })),
     [tonicPc],
   );
+  // every word typed must appear in the scale's name or alias (Aeolian is also "minor"); while searching, families with no match drop out and the rest stay open
+  const words = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  const searching = words.length > 0;
+  const shown = useMemo(
+    () =>
+      rows
+        .map((r) => ({
+          ...r,
+          modes: r.modes.filter(({ page, ctx }) => {
+            const text = [ctx.modeName, modeAlias(page.familyIndex, page.modeIndex), page.slug.replace(/-/g, " ")].join(" ").toLowerCase();
+            return words.every((w) => text.includes(w));
+          }),
+        }))
+        .filter((r) => r.modes.length > 0),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- words is derived from query
+    [rows, query],
+  );
   const pageFor = (f: number, m: number) => MODE_PAGES.find((p) => p.familyIndex === f && p.modeIndex === m)!;
 
   return (
@@ -97,13 +115,24 @@ export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey
         Each card is one mode starting on the key you chose. The coloured circles are its seven notes in order: tap one to hear it, or press Play to hear the scale up and back down. The fretboard shows every place the scale falls on the first 12 frets; tap a dot to hear it. Open a mode for its positions on the whole neck: five pentatonic boxes, and the full scale filled into the same five boxes. The small label above each is the scale degree, written against the major scale, so ♭3 means the 3rd is lowered and ♯4 means the 4th is raised. Colour follows the degree: 1 white, 2 teal, 3 amber, 4 lime, 5 blue, 6 violet, 7 rose. Relative major and relative minor are the major and natural minor scales that use exactly the same seven notes.
       </ColourKey>
 
-      <button type="button" onClick={() => setAll(!allOpen)} className="-mb-3 self-end rounded-full px-2.5 py-0.5 text-xs text-sky-300 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
-        {allOpen ? "Collapse all" : "Expand all"}
-      </button>
+      <div className="-mb-3 flex items-center gap-2">
+        <input
+          type="search" value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={(e) => e.key === "Escape" && setQuery("")}
+          placeholder="Search scales: dorian, minor, phrygian dominant…" aria-label="Search scales"
+          className="min-w-0 flex-1 rounded-full border border-slate-700 bg-slate-950/60 px-3 py-1 text-sm text-slate-100 placeholder:text-slate-500 focus:border-sky-400 focus:outline-none"
+        />
+        {!searching && (
+          <button type="button" onClick={() => setAll(!allOpen)} className="shrink-0 rounded-full px-2.5 py-0.5 text-xs text-sky-300 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
+            {allOpen ? "Collapse all" : "Expand all"}
+          </button>
+        )}
+      </div>
 
-      {rows.map(({ fam, modes }) => (
+      {searching && shown.length === 0 && <p className="text-sm text-slate-400">No scale matches “{query.trim()}”.</p>}
+
+      {shown.map(({ fam, modes }) => (
         <div key={fam.id} id={`part-${fam.id}`} className={UNDER_BAR}>
-        <Section title={fam.label} meta={`${modes.length} ${fam.scales ? "scales" : "modes"} in ${modes[0].ctx.names[0]}`} open={open[fam.id]} onToggle={() => toggle(fam.id)} accent={PARTS[fam.id].accent}>
+        <Section title={fam.label} meta={`${searching ? `${modes.length} of ${rows.find((r) => r.fam.id === fam.id)!.modes.length}` : modes.length} ${fam.scales ? "scales" : "modes"} in ${modes[0].ctx.names[0]}`} open={searching || open[fam.id]} onToggle={() => toggle(fam.id)} accent={PARTS[fam.id].accent}>
           <p className="mb-3 text-xs text-slate-400">{PARTS[fam.id].intro}</p>
           <div className="grid gap-3 lg:grid-cols-2">
             {modes.map(({ page, ctx, rel, labels, line, cells }) => {
@@ -191,9 +220,11 @@ export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey
         </div>
       ))}
 
-      <div id="part-compare" className={UNDER_BAR}>
-        <ModeCompare tonicPc={tonicPc} open={open.compare} onToggle={() => toggle("compare")} accent={PARTS.compare.accent} />
-      </div>
+      {!searching && (
+        <div id="part-compare" className={UNDER_BAR}>
+          <ModeCompare tonicPc={tonicPc} open={open.compare} onToggle={() => toggle("compare")} accent={PARTS.compare.accent} />
+        </div>
+      )}
     </div>
   );
 }
