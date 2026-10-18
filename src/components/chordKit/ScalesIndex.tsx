@@ -4,6 +4,7 @@ import { fmtDegree, scaleToneCaption, scaleToneLabel } from "@/features/theory/l
 import { useLabelSystem } from "@/features/theory/useLabelSystem";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ColourKey, ModeAlias, ScaleSettingsBar, UNDER_BAR } from "./ScaleSettings";
 import ModeCompare from "./ModeCompare";
 import { FAMILIES, makeKeyContext, modeAlias } from "@/features/theory/theory";
@@ -43,6 +44,12 @@ export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey
   };
   // one player for the page, so starting a scale on one card stops the light on another; keys are "<slug>:d<degree>"
   const player = useNotePlayer();
+  const router = useRouter();
+  /** A click on the card opens the scale, unless it lands on something of its own (a note, a button, a link) or ends a text selection. */
+  const openCard = (e: React.MouseEvent, href: string) => {
+    if ((e.target as Element).closest("a, button, .cursor-sound") || window.getSelection()?.toString()) return;
+    router.push(href);
+  };
   const activeIn = (slug: string) => (player.active?.startsWith(slug + ":") ? player.active.slice(slug.length + 1) : null);
 
   // arriving from a mode page (#part-harm): open that family and scroll to it
@@ -105,10 +112,10 @@ export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey
               const playScale = () => player.play(line.map((m) => ({ key: `${page.slug}:d${degreeOf(m)}`, midi: m })), 240);
               const playTune = (tuneId: string) => player.playTimed(melodyTiming(generateMelody(scalePool(60 + ctx.tonic.pc, ctx.steps), ctx.steps)).map((n) => ({ key: `${page.slug}:d${n.note.degree}`, midi: n.note.midi, ms: n.ms, velocity: n.velocity })), tuneId);
               return (
-              <article key={page.slug} className="flex min-w-0 flex-col gap-3 rounded-xl border border-slate-800 bg-slate-950/60 p-2.5">
+              <article key={page.slug} onClick={(e) => openCard(e, scaleHref(page.slug, tonicPc))} className="group/card flex min-w-0 cursor-pointer flex-col gap-3 rounded-xl border border-slate-800 bg-slate-950/60 p-2.5 transition hover:border-sky-400/60">
                 <header>
                   <Link href={scaleHref(page.slug, tonicPc)} className="group flex flex-wrap items-baseline gap-x-2 rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
-                    <h3 className="text-base text-slate-100 group-hover:text-sky-300 group-hover:underline">{ctx.names[0]} {ctx.modeName}<ModeAlias familyIndex={page.familyIndex} modeIndex={page.modeIndex} /></h3>
+                    <h3 className="text-base text-slate-100 group-hover:text-sky-300 group-hover:underline group-hover/card:text-sky-300">{ctx.names[0]} {ctx.modeName}<ModeAlias familyIndex={page.familyIndex} modeIndex={page.modeIndex} /></h3>
                     <span className="text-xs text-slate-500 group-hover:text-slate-300">{fam.info[page.modeIndex].mood}</span>
                   </Link>
                 </header>
