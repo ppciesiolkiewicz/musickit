@@ -7,8 +7,8 @@ import { carouselStep, placedChordName, shapesForChord } from "@/lib/chordKit/ch
 import type { KeyContext } from "@/features/theory/theory";
 import { strumShape } from "@/lib/chordKit/playback";
 
-/** One guitar shape for one chord of the mode, with previous/next arrows and links to a progression and the full list. */
-export default function ChordShapeCarousel({ ctx, degree, onShowAll, onShowProgression }: { ctx: KeyContext; degree: number; onShowAll: () => void; onShowProgression: () => void }) {
+/** One guitar shape for one chord of the mode, with previous/next arrows. */
+export default function ChordShapeCarousel({ ctx, degree }: { ctx: KeyContext; degree: number }) {
   const list = useMemo(() => shapesForChord(ctx, degree), [ctx, degree]);
   const [i, setI] = useState(0);
   const [playing, setPlaying] = useState(false);
@@ -42,10 +42,6 @@ export default function ChordShapeCarousel({ ctx, degree, onShowAll, onShowProgr
         <span className="tabular-nums">{cur.shape.at !== undefined ? "open" : `fret ${cur.fret}`}</span>
         {cur.shape.v && <span>· {cur.shape.v}</span>}
         {!cur.full && <span className="text-slate-500">· {cur.exact ? "smaller chord, also fits" : "adds mode notes"}</span>}
-      </div>
-      <div className="flex items-center justify-center gap-3 text-xs">
-        <button type="button" onClick={onShowProgression} className="text-sky-300 hover:underline">Progression →</button>
-        <button type="button" onClick={onShowAll} className="text-sky-300 hover:underline">All shapes →</button>
       </div>
     </div>
   );

@@ -175,27 +175,33 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
             const shown = extended ? c.notes : c.notes.slice(0, 4);
             return (
               <li key={c.degree} className="flex flex-wrap items-center gap-3 rounded-xl border border-slate-800 bg-slate-950/40 p-2">
-                <button
-                  type="button"
-                  onClick={() => play(c.degree)}
-                  title="Tap to hear it"
-                  className={`cursor-sound flex min-w-0 flex-1 basis-60 flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border px-3 py-2.5 text-left transition hover:border-slate-600 ${playing === c.degree ? "border-sky-400 bg-slate-800/80" : "border-transparent"}`}
-                >
-                  <span className="w-12 shrink-0 text-lg font-light text-sky-300">{c.roman}</span>
-                  <span className="min-w-[8rem]">
-                    <span className="block text-sm font-medium text-slate-100">{c.seventhName}</span>
-                    <span className="block text-xs text-slate-500">triad {c.triadName}</span>
+                <div className="flex min-w-0 flex-1 basis-60 flex-col gap-1">
+                  <button
+                    type="button"
+                    onClick={() => play(c.degree)}
+                    title="Tap to hear it"
+                    className={`cursor-sound flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border px-3 py-2.5 text-left transition hover:border-slate-600 ${playing === c.degree ? "border-sky-400 bg-slate-800/80" : "border-transparent"}`}
+                  >
+                    <span className="w-12 shrink-0 text-lg font-light text-sky-300">{c.roman}</span>
+                    <span className="min-w-[8rem]">
+                      <span className="block text-sm font-medium text-slate-100">{c.seventhName}</span>
+                      <span className="block text-xs text-slate-500">triad {c.triadName}</span>
+                    </span>
+                    <span className="flex flex-wrap gap-1.5">
+                      {shown.map((n) => (
+                        <span key={n.role + n.name} className="flex flex-col items-center">
+                          <span className="flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold" style={{ background: colour(n), color: DOT_INK }} title={n.name}>{chordNoteLabel(system, ctx, n)}</span>
+                          <span className="text-[10px] text-slate-500">{system === "note" ? roleWithDegree(n.role) : n.name}</span>
+                        </span>
+                      ))}
+                    </span>
+                  </button>
+                  <span className="flex gap-3 px-3 text-xs">
+                    <button type="button" onClick={() => setProgDegree(c.degree)} className="text-sky-300 hover:underline">Progression →</button>
+                    <button type="button" onClick={() => setModalDegree(c.degree)} className="text-sky-300 hover:underline">All shapes →</button>
                   </span>
-                  <span className="flex flex-wrap gap-1.5">
-                    {shown.map((n) => (
-                      <span key={n.role + n.name} className="flex flex-col items-center">
-                        <span className="flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold" style={{ background: colour(n), color: DOT_INK }} title={n.name}>{chordNoteLabel(system, ctx, n)}</span>
-                        <span className="text-[10px] text-slate-500">{system === "note" ? roleWithDegree(n.role) : n.name}</span>
-                      </span>
-                    ))}
-                  </span>
-                </button>
-                <ChordShapeCarousel ctx={ctx} degree={c.degree} onShowAll={() => setModalDegree(c.degree)} onShowProgression={() => setProgDegree(c.degree)} />
+                </div>
+                <ChordShapeCarousel ctx={ctx} degree={c.degree} />
               </li>
             );
           })}
