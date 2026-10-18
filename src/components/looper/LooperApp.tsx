@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "reac
 import { LooperEngine, EFFECT_DEFS, EFFECT_KINDS, type LooperSnapshot } from "@/lib/looper/engine";
 import { wireNam } from "../namWiring";
 import LooperSettings from "./LooperSettings";
-import { chooseDevice, deviceKind, deviceName, type DeviceKind } from "@/lib/looper/deviceChoice";
+import { chooseDevice, deviceKind, deviceName, isComputerMic, type DeviceKind } from "@/lib/looper/deviceChoice";
 import AddFab from "./AddFab";
 import Mixer, { AddInputModal, type MixerAlign } from "./Mixer";
 import HistoryPanel from "./HistoryPanel";
@@ -149,7 +149,7 @@ const KIND_BADGE: Record<DeviceKind, { text: string; cls: string } | null> = {
 };
 
 /** One column of the devices dialog: a card per device with its cleaned name and what it is. With `onPick` the cards are buttons that choose the device. */
-function DeviceColumn({ icon, title, items, empty, note, onPick }: { icon: "mic" | "volume-2"; title: string; items: { id: string; label: string; used?: string }[]; empty: string; note?: string; onPick?: (id: string) => void }) {
+function DeviceColumn({ icon, title, items, empty, note, onPick }: { icon: "mic" | "volume-2"; title: string; items: { id: string; label: string; used?: string; muted?: boolean }[]; empty: string; note?: string; onPick?: (id: string) => void }) {
   return (
     <section>
       <h3 className="mb-2 flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-slate-400"><Icon name={icon} size={14} />{title}</h3>
@@ -161,6 +161,7 @@ function DeviceColumn({ icon, title, items, empty, note, onPick }: { icon: "mic"
             <>
               <span className="min-w-0 flex-1 truncate text-sm text-slate-100">{deviceName(d.label)}</span>
               {badge && <span className={`rounded-full border px-2 py-0.5 text-[10px] ${badge.cls}`}>{badge.text}</span>}
+              {d.muted && <span className="rounded-full border border-amber-400/50 px-2 py-0.5 text-[10px] text-amber-200" title="The computer's mic hears the speakers, so its input starts muted. Unmute it (M) to use it; headphones help.">starts muted</span>}
               {d.used && <span className="rounded-full border border-emerald-400/50 px-2 py-0.5 text-[10px] text-emerald-200">{d.used}</span>}
             </>
           );
@@ -330,7 +331,7 @@ export default function LooperApp() {
               </ul>
             )}
             <div className="grid gap-5 sm:grid-cols-2">
-              <DeviceColumn icon="mic" title="Inputs" empty="None listed. Names appear once the browser allows the microphone." note="Click the one your instrument is plugged into: the main input uses it. More inputs come from the round + button." onPick={(id) => void engine.chooseInput(id)} items={snap.devices.map((d) => ({ id: d.id, label: d.label, used: snap.inputs.some((i) => i.kind === "device" && i.deviceId === d.id) ? "used by an input" : undefined }))} />
+              <DeviceColumn icon="mic" title="Inputs" empty="None listed. Names appear once the browser allows the microphone." note={`Click the one your instrument is plugged into: the main input uses it. More inputs come from the round + button.${snap.devices.some((d) => isComputerMic(d.label)) ? " The computer's mic starts muted so it does not pick up the speakers: press M on its input to use it." : ""}`} onPick={(id) => void engine.chooseInput(id)} items={snap.devices.map((d) => ({ id: d.id, label: d.label, muted: isComputerMic(d.label), used: snap.inputs.some((i) => i.kind === "device" && i.deviceId === d.id) ? "used by an input" : undefined }))} />
               <DeviceColumn icon="volume-2" title="Outputs" empty="The system output." note={snap.canChooseOutput ? "Click one to play through it." : "This browser plays to the system output only."} onPick={snap.canChooseOutput ? (id) => void engine.setOutputDevice(id) : undefined} items={[...(snap.canChooseOutput ? [{ id: "", label: "System default" }] : []), ...snap.outputs].map((o) => ({ id: o.id, label: o.label, used: o.id === snap.outputId ? "in use" : undefined }))} />
             </div>
             <div className="flex gap-2">

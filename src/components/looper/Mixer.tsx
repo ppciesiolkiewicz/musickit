@@ -9,7 +9,7 @@ import { GroupEffects } from "./LoopStage";
 import MasterControls from "./MasterOutput";
 import SignalFlow from "./SignalFlow";
 import { MAX_INPUTS, MAX_INPUT_GAIN, type InputInfo, type InputMode, type LooperEngine, type LooperSnapshot } from "@/lib/looper/engine";
-import { chooseDevice, deviceKind } from "@/lib/looper/deviceChoice";
+import { chooseDevice, deviceKind, isComputerMic } from "@/lib/looper/deviceChoice";
 import { channelChoices, channelLabel, eachChannel, inputChannels } from "@/lib/looper/frames";
 import { flowingLinks, masterFeeds, sendColours, stripPatchId } from "@/lib/looper/patchView";
 import { patchName } from "./PatchNode";
@@ -185,7 +185,7 @@ export function AddInputModal({ engine, snap, onClose }: { engine: LooperEngine;
               <DeviceButton on={deviceId === ""} onClick={() => setDeviceId("")} title="System default input" sub="whatever the operating system uses" />
             </li>
             {devices.map((d) => (
-              <li key={d.id}><DeviceButton on={deviceId === d.id} onClick={() => setDeviceId(d.id)} title={d.label} sub={deviceKind(d.label) === "interface" ? "audio interface" : "input device"} /></li>
+              <li key={d.id}><DeviceButton on={deviceId === d.id} onClick={() => setDeviceId(d.id)} title={d.label} sub={deviceKind(d.label) === "interface" ? "audio interface" : isComputerMic(d.label) ? "computer mic · starts muted" : "input device"} /></li>
             ))}
           </ul>
           <fieldset className="flex flex-col gap-1.5">
@@ -367,10 +367,11 @@ export function InputStrip({ engine, inp, devices, sequencerOpen, onToggleSequen
         {inp.kind === "instrument" && <button type="button" className={`${ibtn} ${pianoOpen ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={pianoOpen} onClick={onTogglePiano} title={pianoOpen ? `Close ${inp.name}` : `Play ${inp.name}`} aria-label={pianoOpen ? `Close ${inp.name}` : `Play ${inp.name}`}><Icon name="keyboard" /></button>}
         {inst && <button type="button" className={ibtn} aria-pressed={editOpen} onClick={toggleEdit} title={editOpen ? "Done" : "What you play with"} aria-label={editOpen ? `Done editing ${inp.name}` : `Edit ${inp.name}`}><Icon name="pencil" /></button>}
         {isDevice && inp.connected && <button type="button" className={`${ibtn} ${inp.monitor ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={inp.monitor} onClick={() => engine.do({ type: "input.set", id: inp.id, patch: { monitor: !inp.monitor } })} title="Hear this input while it is recorded" aria-label={`Hear ${inp.name}`}><Icon name="headphones" /></button>}
-        <button type="button" className={`${ibtn} ${inp.muted ? "!border-amber-400 !text-amber-200" : ""}`} aria-pressed={inp.muted} onClick={() => engine.do({ type: "input.set", id: inp.id, patch: { muted: !inp.muted } })} title="Mute" aria-label={`Mute ${inp.name}`}>M</button>
+        <button type="button" className={`${ibtn} ${inp.muted ? "!border-amber-400 !text-amber-200" : ""}`} aria-pressed={inp.muted} onClick={() => engine.do({ type: "input.set", id: inp.id, patch: { muted: !inp.muted } })} title={inp.muted ? "Unmute" : "Mute"} aria-label={`Mute ${inp.name}`}>M</button>
         <button type="button" className={`${ibtn} ${inp.solo ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={inp.solo} onClick={() => engine.do({ type: "input.set", id: inp.id, patch: { solo: !inp.solo } })} title="Solo" aria-label={`Solo ${inp.name}`}>S</button>
         <button type="button" className={ibtn} onClick={() => (inp.kind === "sequencer" && inp.sourceId ? engine.do({ type: "sequencer.remove", id: inp.sourceId }) : inp.kind === "device" ? engine.do({ type: "input.remove", id: inp.id }) : m.remove(inp.id))} aria-label={`Remove ${inp.name}`} title="Remove this input"><Icon name="x" /></button>
       </div>
+      {isDevice && inp.computerMic && inp.muted && <p className="px-1 text-[11px] text-amber-200/80">Computer mic: starts muted so it does not pick up the speakers. Press M to use it (headphones help).</p>}
       {inst && editOpen && <InstrumentEdit engine={engine} inst={inst} />}
       {inst && (
         <div role="group" aria-label={`Sound generator of ${inp.name}`} className="flex flex-wrap items-center gap-1.5 rounded-lg border border-slate-700/80 bg-slate-900/60 px-2 py-1">

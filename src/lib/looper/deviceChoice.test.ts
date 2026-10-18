@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { adoptPlan, chooseDevice, defaultInputName, defaultRole, deviceKind, deviceName, deviceScore, gearIssues } from "./deviceChoice";
+import { adoptPlan, chooseDevice, defaultInputName, defaultRole, deviceKind, deviceName, deviceScore, gearIssues, isComputerMic } from "./deviceChoice";
 
 const mac = { id: "m", label: "MacBook Pro Microphone" };
 const scarlett = { id: "s", label: "Focusrite USB Audio" };
@@ -49,6 +49,13 @@ describe("deviceKind and deviceName", () => {
   assert.equal(deviceKind("RC-505mkII"), "interface");
   assert.equal(deviceName("Scarlett 4i4 4th Gen (1235:821a)"), "Scarlett 4i4 4th Gen");
   assert.equal(deviceName("MacBook Pro Speakers (Built-in)"), "MacBook Pro Speakers");
+  });
+});
+
+describe("isComputerMic", () => {
+  it("is the laptop's or webcam's own mic, not an interface, headset or speaker", () => {
+    ["MacBook Pro Microphone (Built-in)", "Default - MacBook Air Microphone (Built-in)", "iMac Microphone", "Internal Microphone", "Microphone Array (Realtek(R) Audio)", "Linux Webcam"].forEach((n) => assert.equal(isComputerMic(n), true, n));
+    ["Scarlett 4i4 4th Gen (1235:821a)", "AirPods Pro", "Some headset", "ZoomAudioDevice (Virtual)", "MacBook Pro Speakers (Built-in)", ""].forEach((n) => assert.equal(isComputerMic(n), false, n));
   });
 });
 

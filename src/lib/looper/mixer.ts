@@ -1,5 +1,6 @@
 import { MAX_DEVICE_CHANNELS, detectChannels, effectiveGain, inputChannels, type InputMode } from "./frames";
 import { EffectChain } from "./buses";
+import { isComputerMic } from "./deviceChoice";
 import { EFFECT_DEFS, clampParams, defaultParams, moveEffect, sanitiseEffects, type EffectKind, type EffectSpec } from "./effects";
 
 /**
@@ -43,6 +44,8 @@ export interface InputInfo {
   connected: boolean;
   /** true when it is actually feeding the recorder (not muted, and not silenced by another strip's solo) */
   live: boolean;
+  /** device strips: it opened the computer's own microphone, so it started muted (it hears the speakers) */
+  computerMic: boolean;
 }
 
 export interface MixerOptions {
@@ -95,6 +98,8 @@ interface Runtime {
   /** the node feeding a sequencer strip */
   src?: AudioNode | null;
   buf: Float32Array<ArrayBuffer> | null;
+  /** the device this strip was muted for on connect (the computer's mic), so reconnecting the same one keeps the person's unmute */
+  mutedFor?: string;
 }
 
 /** A saved or asked-for pair index, or 0. */
@@ -133,7 +138,7 @@ export class InputMixer {
     const useId = id !== undefined && !this.runtimes.some((r) => r.info.id === id) ? id : this.nextId;
     this.nextId = Math.max(this.nextId, useId + 1);
     return {
-      info: { id: useId, sourceId: s.sourceId, kind: s.kind, name: s.name, deviceId: s.deviceId, mode: s.mode, pair: validPair(s.pair), volume: s.volume, muted: false, solo: false, monitor: defaultMonitor(s.kind, s.name), error: null, channels: 0, live: true, effects: sanitiseEffects(s.effects), connected: s.kind === "device" ? connected : true },
+      info: { id: useId, sourceId: s.sourceId, kind: s.kind, name: s.name, deviceId: s.deviceId, mode: s.mode, pair: validPair(s.pair), volume: s.volume, muted: false, solo: false, monitor: defaultMonitor(s.kind, s.name), error: null, channels: 0, live: true, computerMic: false, effects: sanitiseEffects(s.effects), connected: s.kind === "device" ? connected : true },
       pre: null, summer: null, gain: null, meter: null, monitor: null, rec: null, chainPre: null, chainPost: null, shared: null, buf: null,
     };
   }
@@ -256,6 +261,13 @@ export class InputMixer {
       const sh = await this.acquire(r.info.deviceId);
       r.shared = sh;
       r.info.channels = sh.channels;
+      // the computer's own mic starts muted (it would pick up the speakers); once per device, so an unmute sticks
+      r.info.computerMic = isComputerMic(sh.stream.getAudioTracks()[0]?.label ?? "");
+      if (r.info.computerMic && r.mutedFor !== sh.actualId) {
+        r.mutedFor = sh.actualId;
+        r.info.muted = true;
+        this.applyGains();
+      }
       this.route(r);
     } catch (e) {
       r.info.error = describeError(e);

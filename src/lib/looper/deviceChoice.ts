@@ -109,6 +109,11 @@ export function deviceKind(label: string): DeviceKind {
   return INTERFACE.test(label) ? "interface" : "other";
 }
 
+/** The computer's own microphone (laptop, iMac, webcam): it hears the speakers, so its input starts muted. */
+export function isComputerMic(label: string): boolean {
+  return deviceKind(label) === "builtin" && /built-?in|macbook|imac|mac ?mini|mac ?studio|internal|webcam|realtek|conexant/i.test(label) && !/speaker/i.test(label);
+}
+
 /** The name without the noise browsers add: "(Built-in)", "(Virtual)", "(1235:821a)". */
 export function deviceName(label: string): string {
   const n = label.replace(/\s*\((?:built-?in|virtual|[0-9a-f]{4}:[0-9a-f]{4})\)\s*/gi, " ").replace(/\s+/g, " ").trim();

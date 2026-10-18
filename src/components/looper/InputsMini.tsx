@@ -65,7 +65,7 @@ function Row({ engine, snap, inp, keyOpen, onKeys }: { engine: LooperEngine; sna
         </button>
         <LevelMeter vertical small getLevel={getLevel} />
         <Slider min={0} max={MAX_INPUT_GAIN} step={0.01} value={inp.volume} onChange={(v) => set({ volume: v })} className="w-14 shrink-0" aria-label={`Volume of ${inp.name}`} title={`Volume ${Math.round(inp.volume * 100)}%`} size="sm" />
-        <button type="button" className={`${mini} ${inp.muted ? "!border-amber-400 !text-amber-200" : ""}`} aria-pressed={inp.muted} onClick={() => set({ muted: !inp.muted })} title={inp.muted ? "Unmute" : "Mute"} aria-label={`Mute ${inp.name}`}>M</button>
+        <button type="button" className={`${mini} ${inp.muted ? "!border-amber-400 !text-amber-200" : ""}`} aria-pressed={inp.muted} onClick={() => set({ muted: !inp.muted })} title={inp.muted ? (inp.computerMic ? "Unmute (computer mic, starts muted)" : "Unmute") : "Mute"} aria-label={`Mute ${inp.name}`}>M</button>
         {onKeys ? (
           <button type="button" className={`${mini} ${keyOpen ? "!border-sky-400 !text-sky-200" : ""}`} aria-pressed={keyOpen} onClick={onKeys} title={keyOpen ? "Close the keyboard" : "Open the keyboard"} aria-label={`${keyOpen ? "Close" : "Open"} the keyboard of ${inp.name}`}><Icon name="keyboard" size={12} /></button>
         ) : (
