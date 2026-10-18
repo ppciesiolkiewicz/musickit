@@ -43,7 +43,7 @@ It takes its ideas from the looper (floating, movable widgets; real audio-interf
    - **Live take:** camera, widgets + mouse, and every audio input are recorded at once into their own tracks. Pause and resume are allowed. Mark-cut (key and button) drops a split marker while recording.
    - **Overdub pass:** the timeline plays back in the frame (imported video and its sound), and the teacher performs widgets and pointer on top. That pass is recorded into the widgets + mouse track. Audio inputs (e.g. a guitar demo, a voice-over) can be overdubbed onto their own tracks the same way. Re-recording a pass replaces that track over the range recorded *(my call)*.
 10. **Edit (decided by the user: widgets stay editable).**
-    - **Split** at the playhead (key `C`), **select and delete** a range; tracks stay in sync and the remaining pieces close up. Undo and redo.
+    - **Split** at the playhead with a **scissors button** on the timeline toolbar (decided by the user), with a key as a shortcut (`S`, so it never clashes with the studio's `C` for camera corner). **Select and delete** a range; tracks stay in sync and the remaining pieces close up. Undo and redo.
     - **Widgets after the fact:** select a widget on the timeline or in the frame, then **move or resize** it (at that moment or for its whole time on screen), **remove** it, **swap** its subject (E6 → E7, A dorian → A mixolydian) or kind, and **shift when it appears and disappears** by dragging its bar on the widget track.
     - Per-track volume and mute. Changing the amp preset on the guitar track.
 11. **Export.**

@@ -318,7 +318,7 @@ Layer rectangles are **fractions of the frame** (0–1), not pixels, so the same
   | `KeyF` | camera-full |
   | `Shift+Slash` (`?`) | help |
 
-  The grid shortcut `C` for the editor comes in Plan 3 and only applies in the editor. Here `C` is camera corner.
+  The editor (Plan 3) splits with a scissors button plus the key `S`, so `C` stays camera corner everywhere.
 
 - [ ] **Step 1: Write the failing tests.**
   - `shortcutFor({code:"KeyC",…}, {typing:true, hasSelection:false})` → `null`
