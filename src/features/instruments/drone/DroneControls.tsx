@@ -48,7 +48,8 @@ function Sliders({ value, onChange, items }: { value: DroneParams; onChange: (pa
   );
 }
 
-const heading = "text-[11px] font-medium uppercase tracking-wide text-slate-500";
+const heading = "text-[11px] font-medium uppercase tracking-wide text-slate-400";
+const card = "flex min-w-0 flex-col gap-2 rounded-xl border border-slate-800 bg-slate-900/50 p-3";
 
 /** A section heading row of fixed height, so the sliders of side-by-side sections line up whatever sits beside the heading. */
 function Head({ title, children }: { title: string; children?: ReactNode }) {
@@ -68,43 +69,44 @@ function Head({ title, children }: { title: string; children?: ReactNode }) {
  */
 export default function DroneControls({ value, onChange, playing = false, analyser = null, header }: { value: DroneParams; onChange: (patch: Partial<DroneParams>) => void; playing?: boolean; analyser?: AnalyserNode | null; header?: ReactNode }) {
   return (
-    <div className="@container flex min-w-0 flex-col gap-4">
+    <div className="@container flex min-w-0 flex-col gap-3">
       <div className="flex flex-wrap items-center gap-2">
         {header}
         <button type="button" className={`${ibtn} ml-auto px-2.5`} disabled={isDefault(value)} onClick={() => onChange(DEFAULT_DRONE)} title="Put every setting back to how it started">Reset</button>
       </div>
 
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-        <div role="group" aria-label="Note" className="grid grid-cols-6 gap-1 @lg:grid-cols-12">
-          {NOTE_NAMES.map((n, i) => (
-            <button key={n} type="button" aria-pressed={value.root === i} onClick={() => onChange({ root: i })} className={`${ibtn} w-9 ${value.root === i ? on : ""}`}>{n}</button>
-          ))}
-        </div>
-        <div className="flex items-center gap-2">
+      <section className={card}>
+        <Head title="Note">
+          <Select value={value.wave} onChange={(wave) => onChange({ wave })} aria-label="Waveform" options={WAVES.map((w) => ({ value: w, label: waveName(w) }))} />
+        </Head>
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+          <div role="group" aria-label="Note" className="grid grid-cols-6 gap-1 @lg:grid-cols-12">
+            {NOTE_NAMES.map((n, i) => (
+              <button key={n} type="button" aria-pressed={value.root === i} onClick={() => onChange({ root: i })} className={`${ibtn} w-9 ${value.root === i ? on : ""}`}>{n}</button>
+            ))}
+          </div>
           <div className="flex items-center gap-1" role="group" aria-label="Octave">
             <button type="button" className={ibtn} disabled={value.octave <= DRONE_MIN_OCTAVE} onClick={() => onChange({ octave: value.octave - 1 })} aria-label="Octave down">−</button>
             <span className="w-10 text-center text-sm tabular-nums text-slate-100" aria-live="polite">{droneName(value)}</span>
             <button type="button" className={ibtn} disabled={value.octave >= DRONE_MAX_OCTAVE} onClick={() => onChange({ octave: value.octave + 1 })} aria-label="Octave up">+</button>
           </div>
-          <Select value={value.wave} onChange={(wave) => onChange({ wave })} aria-label="Waveform" options={WAVES.map((w) => ({ value: w, label: waveName(w) }))} />
         </div>
-      </div>
+        <DroneScope value={value} playing={playing} analyser={analyser} />
+      </section>
 
-      <DroneScope value={value} playing={playing} analyser={analyser} />
-
-      <div className="grid gap-x-8 gap-y-4 @xl:grid-cols-2">
-        <div className="flex min-w-0 flex-col gap-2">
+      <div className="grid gap-3 @xl:grid-cols-2">
+        <section className={card}>
           <Head title="Sound" />
           <Sliders value={value} onChange={onChange} items={SOUND} />
-        </div>
-        <div className="flex min-w-0 flex-col gap-4">
-          <div className="flex min-w-0 flex-col gap-2">
+        </section>
+        <div className="flex min-w-0 flex-col gap-3">
+          <section className={card}>
             <Head title="Filter">
               <Select value={value.filter} onChange={(filter) => onChange({ filter })} aria-label="Filter type" options={FILTERS.map((f) => ({ value: f, label: FILTER_NAMES[f] }))} />
             </Head>
             <Sliders value={value} onChange={onChange} items={FILTER} />
-          </div>
-          <div className="flex min-w-0 flex-col gap-2">
+          </section>
+          <section className={card}>
             <Head title="Modulation">
               <Select value={value.modWave} disabled={value.mod === "off"} onChange={(modWave) => onChange({ modWave })} aria-label="Modulation shape" options={WAVES.map((w) => ({ value: w, label: waveName(w) }))} />
             </Head>
@@ -121,7 +123,7 @@ export default function DroneControls({ value, onChange, playing = false, analys
               </label>
               <Sliders value={value} onChange={onChange} items={[{ key: "modDepth", label: "Depth", max: 1, step: 0.01 }]} />
             </fieldset>
-          </div>
+          </section>
         </div>
       </div>
     </div>

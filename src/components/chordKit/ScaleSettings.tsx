@@ -3,14 +3,14 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { LabelSelect } from "@/features/theory/useLabelSystem";
-import type { LabelSystem } from "@/features/theory/labels";
+import { LabelSelect, useLabelSystem } from "@/features/theory/useLabelSystem";
+import { LABEL_SYSTEMS, type LabelSystem } from "@/features/theory/labels";
 import { FAMILIES, TONICS, modeAlias } from "@/features/theory/theory";
 import { MODE_PAGES } from "@/features/theory/scales";
 import { scaleHref, scalesIndexHref } from "@/features/theory/keySlug";
 import { Chip, InfoBox, InfoButton, Select } from "@/components/ui";
 import { DegreeLegend } from "@/components/theory/DegreeLegend";
-import { PocketTools } from "@/features/instruments";
+import { PocketTools, type PocketStatus } from "@/features/instruments";
 import { PHONE_QUERY } from "@/components/usePhone";
 
 /** Room the sticky bar takes at the top, for `scroll-mt` on the sections linked to by #hash. */
@@ -70,8 +70,11 @@ export function ScaleSettingsBar({
     autoFold.current = false;
     setOpen((v) => !v);
   };
+  const [status, setStatus] = useState<PocketStatus | null>(null);
+  const [labels] = useLabelSystem();
   const keyName = TONICS.find((t) => t.pc === tonicPc)?.name;
   const scaleName = scale ? MODE_PAGES.find((m) => m.slug === scale)?.name : undefined;
+  const labelName = LABEL_SYSTEMS.find((l) => l.id === labels)?.label;
   return (
     <div className="sticky top-2 z-20 flex flex-col gap-2 rounded-2xl border border-slate-700 bg-slate-950/90 px-2.5 py-2 shadow-lg shadow-black/30 backdrop-blur">
       <button
@@ -81,7 +84,19 @@ export function ScaleSettingsBar({
         className="group flex items-center gap-2 rounded-md text-left text-xs focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400"
       >
         <span className="text-[11px] uppercase tracking-wider text-slate-500">Settings</span>
-        <span className="min-w-0 flex-1 truncate text-slate-200">{keyName}{scaleName ? ` ${scaleName}` : ""}</span>
+        <span className="shrink-0 truncate text-sm font-medium text-slate-100">{keyName}{scaleName ? ` ${scaleName}` : ""}</span>
+        {/* the rest of the settings at a glance, as room allows */}
+        <span className="flex min-w-0 flex-1 items-center gap-1.5 overflow-hidden whitespace-nowrap text-slate-400">
+          {labelName && <Fact from="sm">{labelName}</Fact>}
+          {status && <Fact from="md">{status.bpm} bpm</Fact>}
+          {status && <Fact from="lg">Drone {status.drone}</Fact>}
+          {status && status.playing.length > 0 && (
+            <Fact className="!border-emerald-400/50 !text-emerald-200">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" aria-hidden />
+              <span className="capitalize">{status.playing.join(", ")}</span>
+            </Fact>
+          )}
+        </span>
         <span className="flex shrink-0 items-center gap-1 rounded-full border border-slate-600 bg-slate-800 px-2.5 py-1 text-xs font-medium text-slate-100 transition group-hover:border-sky-400 group-hover:text-sky-200">
           {open ? "Hide" : "Show"}
           <svg viewBox="0 0 12 12" aria-hidden className={`h-3 w-3 transition-transform ${open ? "rotate-180" : ""}`}>
@@ -103,10 +118,17 @@ export function ScaleSettingsBar({
           </BarRow>
         </div>
         {/* play-along tools: under the settings on narrow screens, on the right once there is room */}
-        <PocketTools keyPc={tonicPc} className="border-t border-slate-800 pt-2 xl:border-l xl:border-t-0 xl:pl-4 xl:pt-0" />
+        <PocketTools keyPc={tonicPc} onStatus={setStatus} className="border-t border-slate-800 pt-2 xl:border-l xl:border-t-0 xl:pl-4 xl:pt-0" />
       </div>
     </div>
   );
+}
+
+const FROM = { sm: "hidden sm:inline-flex", md: "hidden md:inline-flex", lg: "hidden lg:inline-flex" };
+
+/** A small rounded tag in the bar's header; `from` hides it below that width. */
+function Fact({ from, className = "", children }: { from?: keyof typeof FROM; className?: string; children: ReactNode }) {
+  return <span className={`${from ? FROM[from] : "inline-flex"} shrink-0 items-center gap-1 rounded-full border border-slate-700 px-2 py-0.5 text-[11px] ${className}`}>{children}</span>;
 }
 
 /** Switch to another mode in the same key, or go back to the list of all of them. */

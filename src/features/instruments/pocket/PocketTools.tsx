@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import Icon from "@/components/Icon";
 import usePhone from "@/components/usePhone";
@@ -46,6 +46,29 @@ function Popover({ label, wide, children }: { label: string; wide?: boolean; chi
   const wrap = useRef<HTMLDivElement>(null);
   const sheet = useRef<HTMLDivElement>(null);
   const phone = usePhone();
+  const [place, setPlace] = useState<CSSProperties | null>(null);
+  // Under the button, right edges aligned, as tall as the screen allows; above it when there is more room there.
+  useLayoutEffect(() => {
+    if (!open || phone) return;
+    const update = () => {
+      const r = wrap.current?.getBoundingClientRect();
+      if (!r) return;
+      const gap = 6, edge = 12;
+      const below = window.innerHeight - r.bottom - gap - edge;
+      const above = r.top - gap - edge;
+      const right = Math.max(edge, window.innerWidth - r.right);
+      setPlace(below >= 320 || below >= above
+        ? { top: r.bottom + gap, right, maxHeight: below }
+        : { bottom: window.innerHeight - r.top + gap, right, maxHeight: above });
+    };
+    update();
+    window.addEventListener("resize", update);
+    window.addEventListener("scroll", update, true);
+    return () => {
+      window.removeEventListener("resize", update);
+      window.removeEventListener("scroll", update, true);
+    };
+  }, [open, phone]);
   useEffect(() => {
     if (!open) return;
     const down = (e: PointerEvent) => !wrap.current?.contains(e.target as Node) && !sheet.current?.contains(e.target as Node) && setOpen(false);
@@ -64,7 +87,7 @@ function Popover({ label, wide, children }: { label: string; wide?: boolean; chi
       </button>
       {open && phone && createPortal(
         // portalled: the settings bar it sits in is blurred, which would trap a fixed panel inside it
-        <div ref={sheet} role="dialog" aria-modal="true" aria-label={label} className="fixed inset-0 z-[2000] overflow-y-auto bg-slate-950 p-3 text-xs text-slate-300">
+        <div ref={sheet} role="dialog" aria-modal="true" aria-label={label} className="fixed inset-0 z-[2000] overflow-y-auto overscroll-contain bg-slate-950 p-3 text-xs text-slate-300">
           <div className="mb-3 flex items-center gap-2">
             <h2 className="text-sm font-medium text-slate-100">{label}</h2>
             <button type="button" onClick={() => setOpen(false)} className="ml-auto rounded-md border border-slate-700 px-2.5 py-1 text-xs text-slate-300 hover:border-slate-500">Close ✕</button>
@@ -73,10 +96,14 @@ function Popover({ label, wide, children }: { label: string; wide?: boolean; chi
         </div>,
         document.body,
       )}
-      {open && !phone && (
-        <div role="dialog" aria-label={label} className={`absolute right-0 top-full z-30 mt-1.5 max-h-[70vh] overflow-y-auto rounded-xl border border-slate-700 bg-slate-950 p-3 text-xs text-slate-300 shadow-2xl ${wide ? "w-xl" : "w-64"} max-w-[calc(100vw-1.5rem)]`}>
+      {open && !phone && place && createPortal(
+        // portalled and fixed: hung off the sticky bar, a tall panel ran past the bottom of the screen where no page scroll could reach it
+        <div ref={sheet} role="dialog" aria-label={label} style={place}
+          className={`fixed z-[1000] overflow-y-auto overscroll-contain rounded-xl border border-slate-700 bg-slate-950 p-3 text-xs text-slate-300 shadow-2xl shadow-black/60 ${wide ? "w-xl" : "w-64"} max-w-[calc(100vw-1.5rem)]`}>
+          <h2 className="mb-3 text-sm font-medium text-slate-100">{label}</h2>
           {children}
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );
@@ -133,7 +160,10 @@ function BeatDots({ rig, playing }: { rig: JamRig; playing: boolean }) {
  * again; outside that it leaves Space to the page. The drone (and with it the bass) sits on `keyPc`. Owns its audio, made on the
  * first click; saved in localStorage `musickit.pocket` (settings only; nothing plays on load).
  */
-export default function PocketTools({ keyPc, className = "" }: { keyPc: number; className?: string }) {
+/** What the pocket tools are doing, for a host to show in its header: the tempo, the drone's note and which parts play. */
+export type PocketStatus = { bpm: number; drone: string; playing: string[] };
+
+export default function PocketTools({ keyPc, className = "", onStatus }: { keyPc: number; className?: string; onStatus?: (s: PocketStatus) => void }) {
   const [rig] = useState(() => new JamRig());
   const snap = useSyncExternalStore(rig.subscribe, rig.snapshot, rig.snapshot);
   const [restored, setRestored] = useState(false);
@@ -219,6 +249,12 @@ export default function PocketTools({ keyPc, className = "" }: { keyPc: number; 
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [rig]);
+
+  const droneLabel = droneName(snap.parts.drone.state.drone);
+  const playingKey = [...(snap.click.on ? ["click"] : []), ...playingParts].join(",");
+  useEffect(() => {
+    onStatus?.({ bpm: snap.bpm, drone: droneLabel, playing: playingKey ? playingKey.split(",") : [] });
+  }, [onStatus, snap.bpm, droneLabel, playingKey]);
 
   const tap = () => {
     const now = performance.now() / 1000;
