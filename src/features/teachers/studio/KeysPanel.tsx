@@ -3,27 +3,13 @@
 import { createPortal } from "react-dom";
 import { KEYS } from "@/features/stage";
 
-function KeyList({ hasSelection }: { hasSelection: boolean }) {
+/** The one thing to reach for: add a widget (it opens the list of everything that can go on the stage). */
+export default function KeysPanel({ onAdd }: { onAdd: () => void }) {
   return (
-    <ul className="flex flex-col gap-1 text-xs">
-      {KEYS.map((k) => (
-        <li key={k.shortcut} className={`flex items-center justify-between gap-2 ${k.needsSelection && !hasSelection ? "opacity-40" : ""}`}>
-          <span className="text-slate-300">{k.label}</span>
-          <kbd className="shrink-0 rounded border border-slate-700 bg-slate-900 px-1.5 py-0.5 font-mono text-[11px] text-slate-200">{k.keys}</kbd>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-/** The keys that work right now: the ones that need a selected widget are dimmed until one is selected. */
-export default function KeysPanel({ hasSelection }: { hasSelection: boolean }) {
-  return (
-    <>
-      <h2 className="text-xs font-medium uppercase tracking-wider text-slate-400">Keys</h2>
-      <KeyList hasSelection={hasSelection} />
-      <p className="text-xs text-slate-500">Drag a widget to move it, its corner to resize it.</p>
-    </>
+    <button type="button" onClick={onAdd} className="flex items-center justify-between gap-2 rounded-md border border-slate-700 px-3 py-2 text-sm text-slate-200 hover:border-slate-500">
+      Add a widget
+      <kbd className="shrink-0 rounded border border-slate-700 bg-slate-900 px-1.5 py-0.5 font-mono text-[11px] text-slate-300">/ or ⌘K</kbd>
+    </button>
   );
 }
 
@@ -33,7 +19,14 @@ export function KeysOverlay({ onClose }: { onClose: () => void }) {
     <div data-chrome className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60" onPointerDown={onClose}>
       <div role="dialog" aria-label="Keys" className="w-[min(420px,90vw)] rounded-xl border border-slate-700 bg-slate-900 p-4 shadow-2xl">
         <h2 className="mb-3 text-sm font-medium text-slate-100">Keys</h2>
-        <KeyList hasSelection />
+        <ul className="flex flex-col gap-1 text-xs">
+          {KEYS.map((k) => (
+            <li key={k.shortcut} className="flex items-center justify-between gap-2">
+              <span className="text-slate-300">{k.label}</span>
+              <kbd className="shrink-0 rounded border border-slate-700 bg-slate-900 px-1.5 py-0.5 font-mono text-[11px] text-slate-200">{k.keys}</kbd>
+            </li>
+          ))}
+        </ul>
         <p className="mt-3 text-xs text-slate-500">Press any key or click to close.</p>
       </div>
     </div>,

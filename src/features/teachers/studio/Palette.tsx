@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { KeyChoice } from "@/features/creator";
-import { sanitiseSubject, searchPalette, subjectTitle, type PaletteResult, type Subject } from "@/features/stage";
+import { paletteCatalog, sanitiseSubject, searchPalette, subjectTitle, type PaletteResult, type Subject } from "@/features/stage";
 
 const RECENT = "musickit.studio.recent";
 const MAX_RECENT = 5;
@@ -39,7 +39,12 @@ export default function Palette({ pluginIds, stageKey, onPick, onClose }: { plug
   const [recent] = useState(() => loadRecent(pluginIds));
   const input = useRef<HTMLInputElement>(null);
 
-  const results = useMemo(() => (query.trim() ? searchPalette(query, pluginIds, stageKey) : recent.map(recentResult)), [query, pluginIds, stageKey, recent]);
+  // nothing typed: recent picks first, then everything that can go on the stage
+  const results = useMemo(() => {
+    if (query.trim()) return searchPalette(query, pluginIds, stageKey);
+    const recents = recent.map(recentResult);
+    return [...recents, ...paletteCatalog(pluginIds, stageKey).filter((r) => !recents.some((x) => x.label === r.label))];
+  }, [query, pluginIds, stageKey, recent]);
 
   useEffect(() => input.current?.focus(), []);
 
@@ -80,7 +85,8 @@ export default function Palette({ pluginIds, stageKey, onPick, onClose }: { plug
           aria-label="Search"
         />
         <ul role="listbox" className="max-h-[50vh] overflow-auto py-1">
-          {results.length === 0 && <li className="px-4 py-2 text-sm text-slate-500">{query.trim() ? "Nothing for that. Try a chord, a key, a scale or a command." : "Type a chord, a key or a command."}</li>}
+          {results.length === 0 && <li className="px-4 py-2 text-sm text-slate-500">Nothing for that. Try a chord, a key, a scale or a command.</li>}
+          {!query.trim() && <li className="px-4 pb-1 pt-1.5 text-xs text-slate-500">Or type a chord (e6), a key (a dorian) or a position (e minor pent pos 2).</li>}
           {results.map((r, i) => (
             <li key={r.id} role="option" aria-selected={i === active}>
               <button
@@ -90,7 +96,7 @@ export default function Palette({ pluginIds, stageKey, onPick, onClose }: { plug
                 className={`flex w-full items-center justify-between gap-3 px-4 py-1.5 text-left text-sm ${i === active ? "bg-sky-500/15 text-sky-100" : "text-slate-200"}`}
               >
                 <span className="truncate">{r.label}</span>
-                <span className="shrink-0 text-xs text-slate-500">{r.detail === "Recent" ? "Recent" : `${GROUP_NAMES[r.group]} · ${r.detail}`}</span>
+                <span className="shrink-0 text-xs text-slate-500">{r.detail === "Recent" ? "Recent" : r.detail === r.label || r.detail === GROUP_NAMES[r.group] ? GROUP_NAMES[r.group] : `${GROUP_NAMES[r.group]} · ${r.detail}`}</span>
               </button>
             </li>
           ))}

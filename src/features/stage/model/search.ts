@@ -133,6 +133,25 @@ function commands(p: Parsed): PaletteResult[] {
   }).map(([, command]) => ({ id: `studio:${command}`, label: COMMAND_LABELS[command], detail: "Studio", group: "studio" as const, action: { type: "command" as const, command } }));
 }
 
+/** a key positions can always be drawn in when the stage has none */
+const POSITION_FALLBACK: KeyChoice = { tonicPc: 4, family: 0, mode: 5 };
+
+/**
+ * Everything that can go on the stage, for the palette before anything is typed: the Key widget, the Drone section, every theory panel
+ * and scale section in the stage key, a scale position, then the camera and screen share. Chords need a name, so they are typed.
+ */
+export function paletteCatalog(pluginIds: string[], stageKey: KeyChoice): PaletteResult[] {
+  const out: PaletteResult[] = [
+    addResult({ kind: "key" }, "theory", "Changes the key of every widget"),
+    addResult({ kind: "band", key: stageKey }, "audio", "Click, drone, drums and bass"),
+  ];
+  for (const id of KEY_PLUGIN_ORDER) if (pluginIds.includes(id)) out.push(addResult({ kind: "plugin", plugin: id, key: stageKey }, id === "scale" ? "scale" : "theory", PLUGIN_TITLES[id] ?? id));
+  for (const section of Object.keys(SECTIONS) as ScaleSection[]) out.push(addResult({ kind: "section", section, key: stageKey }, "scale", SECTIONS[section]));
+  out.push(addResult({ kind: "position", key: stageKey.tonicPc === null ? POSITION_FALLBACK : stageKey, positionKind: "pentatonic", index: 0 }, "position", "Position on the neck"));
+  for (const command of ["camera-corner", "screen-share"] as StudioCommand[]) out.push({ id: `studio:${command}`, label: COMMAND_LABELS[command], detail: "Studio", group: "studio", action: { type: "command", command } });
+  return out;
+}
+
 /** Ranked results for a typed line, best first, at most 8. `stageKey` is the Key widget's key, used when the line names none. */
 export function searchPalette(query: string, pluginIds: string[], stageKey: KeyChoice): PaletteResult[] {
   const p = parse(query);

@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { EMPTY_KEY } from "@/features/creator/model/key";
-import { searchPalette } from "./search";
+import { paletteCatalog, searchPalette } from "./search";
 import { keyOf, sanitiseSubject, subjectTitle, withKey, type Subject } from "./subject";
 
 const ids = ["scale", "chords", "circle", "keys", "progressions", "modes", "triads", "caged", "arpeggios", "improv", "tunings"];
@@ -88,6 +88,24 @@ test("at most 8 results", () => {
 test("results have unique ids", () => {
   const r = searchPalette("a pentatonic", ids, EMPTY_KEY);
   assert.equal(new Set(r.map((x) => x.id)).size, r.length);
+});
+
+test("the catalog lists every kind of widget in the stage key, plus camera and screen share", () => {
+  const c = paletteCatalog(ids, E_MINOR);
+  const subjects = c.flatMap((r) => (r.action.type === "add" ? [r.action.subject] : []));
+  assert.deepEqual(subjects[0], { kind: "key" });
+  assert.ok(subjects.some((s) => s.kind === "band" && s.key === E_MINOR));
+  for (const id of ids) assert.ok(subjects.some((s) => s.kind === "plugin" && s.plugin === id && s.key === E_MINOR), id);
+  for (const section of ["chords", "sus", "relatives", "guitar"]) assert.ok(subjects.some((s) => s.kind === "section" && s.section === section), section);
+  assert.ok(subjects.some((s) => s.kind === "position" && s.index === 0));
+  assert.ok(c.some((r) => r.action.type === "command" && r.action.command === "camera-corner"));
+  assert.ok(c.some((r) => r.action.type === "command" && r.action.command === "screen-share"));
+  assert.equal(new Set(c.map((r) => r.id)).size, c.length);
+});
+
+test("with no stage key, positions use E minor so they can be drawn", () => {
+  const pos = paletteCatalog(ids, EMPTY_KEY).flatMap((r) => (r.action.type === "add" && r.action.subject.kind === "position" ? [r.action.subject] : []));
+  assert.deepEqual(pos[0].key, E_MINOR);
 });
 
 test("withKey re-keys plugin, position, band and section and leaves chord, camera, screen and key alone", () => {

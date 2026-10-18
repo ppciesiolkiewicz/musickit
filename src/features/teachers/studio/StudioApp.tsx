@@ -193,9 +193,6 @@ export default function StudioApp() {
             </select>
           </label>
         )}
-        <button type="button" onClick={() => setPalette(true)} className="mt-1 flex items-center gap-1.5 self-start rounded-md border border-slate-700 px-2 py-1 text-xs text-slate-300 hover:border-slate-500">
-          <Icon name="plus" size={12} /> Add <kbd className="font-mono text-slate-500">/</kbd>
-        </button>
       </aside>
 
       <main className="flex min-w-0 flex-col gap-3">
@@ -204,7 +201,7 @@ export default function StudioApp() {
       </main>
 
       <aside data-chrome aria-label="Keys" className="flex flex-col gap-2">
-        <KeysPanel hasSelection={stage.selected !== null} />
+        <KeysPanel onAdd={() => setPalette(true)} />
       </aside>
 
       {palette && <Palette pluginIds={PLUGIN_IDS} stageKey={stage.key} onPick={onPick} onClose={() => setPalette(false)} />}
