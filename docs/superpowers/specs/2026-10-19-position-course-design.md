@@ -30,9 +30,12 @@ them.
 - Fretboard pictures can draw **paths**: static arrows from note to note, to illustrate simple ideas.
 - Lesson content for every stage listed below, written in the voice of the existing course (plain, short, practical).
 
+- A "My notes" panel at the end of every section, saved in the browser, and a course index that can be laid out by
+  stage or by topic, showing those notes.
+
 ## Non-goals
 
-- No accounts, no saved progress (same as the old course).
+- No accounts and no server-side storage. Student notes live only in the browser.
 - No animated or audio-synced paths. Paths are still pictures.
 - No changes to the existing explorers beyond what the course needs to link into them.
 - No removal of the old course in this project.
@@ -81,7 +84,7 @@ for it, but keep the topics and the order.
 | Stage | Sections |
 |---|---|
 | **0.1 Guitar basics** | Strings & tuning · Tab & chord boxes · Notes on E and A |
-| **0.2 First open chords** | Em & Am · C, D, G · One-minute changes · Strumming · First songs |
+| **0.2 First open chords** | Em & Am · C, D, G · One-minute changes · All downstrums · Island strum · 16th strumming pattern · First songs |
 | **0.3 One note, three views** | Piano ↔ guitar · Solfège · The major scale as do-re-mi · Hearing do, fa, sol |
 | **0.4 Single notes** | Melodies in tab on the top strings |
 | **1 Position 1** | Chords · Triads · 5ths & double stops · Arpeggios · 1 → 4 → 5 → 1 & the circle of fifths · E minor pentatonic · Soloing over Em ↔ Am · Move it (same shape = G minor) |
@@ -95,6 +98,19 @@ Each section can contain: short text, fretboard pictures with paths, chord boxes
 the existing explorers with settings preset, a practice task, songs (title, artist and chords only; melodies in tab
 only if traditional or public domain, same rule as the old course). Material from the old `stages.ts` (songs, tab
 melodies, practice links) may be reused where it fits.
+
+### Strumming
+
+Three exercises in stage 0.2, each its own section, in this order:
+1. **All downstrums:** one down per beat, then two per beat (8ths).
+2. **Island strum:** `D · D U · U D U`.
+3. **16th pattern:** counted `1 e & a 2 e & a 3 e & a 4 e & a`, with a **down on beat 1 and a down on beat 3**, and 16th
+   strums filling the rest. The exact fill is Claude's call (draft: `D . . U . U D U | D . . U . U D U`, the hand keeps
+   moving in 16ths and only touches the strings where marked).
+
+Each pattern is shown as a strum grid (beats and subdivisions, D/U marks) and practised over chords the student
+already knows (Em ↔ Am, G C D). If the separate rhythm work in progress (`src/app/rhythm/`, uncommitted at the time
+of writing) has landed, link into it; otherwise the course does not depend on it.
 
 ## Pages and navigation
 
@@ -114,6 +130,44 @@ melodies, practice links) may be reused where it fits.
 - Picking a section navigates to its route; the whole page content changes.
 - Mockups from the conversation: `.superpowers/brainstorm/68251-1792343425/content/section-panel-v2.html` (layout
   only; the labels there predate the switch to per-stage sections).
+
+### Course index layouts
+
+The `/course` index has a layout button with two views of the same sections:
+- **By stage** (default): the course order.
+- **By topic:** sections grouped by their main topic, e.g. "Position 1 / CAGED box 1", "Position 2 / CAGED box 2",
+  "Strumming", "Arpeggios", "Triads", "Drop 3", "Modes". Each section keeps its stage number as a small label.
+
+Every section has exactly one main topic, set in the course data by the author (a plain label, no emoji). Topic
+names and grouping are the builder's call within that rule.
+
+Both views show the student's marks next to each section (see My notes). The chosen layout is remembered in the
+browser. *Claude's call:* the topic view can also be filtered to only 🔥 warm-ups or only 🔁 come back often.
+
+## My notes (per section, in-browser only)
+
+At the end of every section, a "My notes" panel where the student records how they feel about it. Everything is
+stored in browser storage (`localStorage`), keyed by stage and section slug. No accounts, nothing sent anywhere.
+Reads and writes are wrapped so the page works when storage is blocked (nothing is saved, nothing breaks).
+
+The panel has five parts:
+1. **How well do I know it?** one of 🌱 new · 🌿 getting there · 🌳 solid · 🏆 own it (tap again to clear)
+2. **How do I like it?** one of 😖 · 😐 · 🙂 · 😍
+3. **Keep it close:** two on/off switches, 🔁 come back often, 🔥 warm-up
+4. **🤷** (the heading is just the shrug emoji): tags, tap to toggle, any number. A predefined set (below) plus
+   **"+ tag"** to add your own: an emoji and/or words. Custom tags are saved in the browser and offered on every
+   section afterwards, next to the predefined ones. Predefined set:
+   💡 it clicked · 🤯 confusing · 🧠 head gets it, hands don't · ✋ hands get it, head doesn't · 🐢 need it slower ·
+   🎯 timing is off · 🔇 buzzing / muted strings · 🤕 hurts my fingers · 👀 still looking at my hands ·
+   👂 can't hear it yet · 🪫 tiring · 🧗 too hard for now · ⏭️ skip for now · 🥱 boring · 🎶 sounds great ·
+   🌟 favourite · 🎸 using it in songs · 🎤 want a song with this · ⏱️ practise with metronome · 🤝 ask my teacher ·
+   📹 record myself · 🧩 connects to something else · 🎨 want to improvise with it · 📝 write it out
+5. **Note:** free text.
+
+In the course index (both layouts) and in the section panel, each section shows its marks compactly: the know-it and
+like-it emoji, 🔁 / 🔥 if on, and the 🤷 tags' emoji (a custom tag without an emoji shows its first word). The note
+shows as a small indicator (full text on the section page). Mockup:
+`.superpowers/brainstorm/68251-1792343425/content/my-notes.html`.
 
 ## Fretboard paths
 
