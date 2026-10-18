@@ -1,8 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import PageShell from "@/components/PageShell";
 import Icon, { type IconName } from "@/components/Icon";
 
 type Item = { href: string; label: string; icon: IconName; text: string; more: string; tags: string[] };
+export const metadata: Metadata = {
+  title: "Music Kit: Guitar Scales, Chords, CAGED, Tuner & Looper",
+};
+
 const GROUPS: { title: string; blurb: string; items: Item[] }[] = [
   {
     title: "Apps",

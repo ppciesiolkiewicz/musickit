@@ -95,6 +95,21 @@ export default async function Image() {
           <div style={{ fontSize: 30, lineHeight: 1.35, marginTop: 28, color: MUTED }}>
             Scales in every key, chord shapes, CAGED, a tuner and a looper.
           </div>
+          <div style={{ display: "flex", marginTop: 36 }}>
+            <div
+              style={{
+                display: "flex",
+                padding: "14px 28px",
+                borderRadius: 999,
+                background: "#e5b93c",
+                color: BG,
+                fontSize: 26,
+                fontWeight: 600,
+              }}
+            >
+              Start practising free →
+            </div>
+          </div>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
@@ -164,7 +179,7 @@ export default async function Image() {
                   color: "#ffffff",
                 }}
               >
-                {String(d.degree + 1)}
+                {d.degree === 0 ? "R" : String(d.degree + 1)}
               </div>
             ))}
           </div>
