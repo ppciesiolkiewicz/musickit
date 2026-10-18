@@ -24,9 +24,12 @@ function applyStyle(id: StyleId) {
   store(THEME_KEY, id);
 }
 
-// the "seen" flag only changes through this component, which tracks closing itself, so there is nothing to subscribe to
+// the "seen" flag only changes through this component, which tracks closing itself, so there is nothing to subscribe to.
+// Each page mounts its own switcher, so closing is also remembered here for the rest of the visit, in case storage is blocked.
+let settledThisVisit = false;
 const subscribeNever = () => () => {};
 const readUnseen = () => {
+  if (settledThisVisit) return false;
   let storage: Storage | null = null;
   try {
     storage = localStorage;
@@ -75,6 +78,7 @@ export default function ThemeSwitcher({ className = "" }: { className?: string }
     if (intro) {
       if (dismissed) applyStyle(styleAfterIntroDismiss());
       store(SEEN_KEY, "1");
+      settledThisVisit = true;
       setSettled(true);
     }
     setPicked(false);
@@ -109,7 +113,7 @@ export default function ThemeSwitcher({ className = "" }: { className?: string }
       </button>
       {open && (
         // deliberately neutral: the same plain card whatever style is on
-        <div role="dialog" aria-label="Pick a style" className="absolute right-0 top-full z-[3000] mt-2.5 w-[min(25rem,calc(100vw-2rem))] rounded-[22px] border border-[#e4e4e7] bg-[#fafafa] px-4 pb-3 pt-4 text-center text-[#18181b] shadow-[0_24px_60px_-20px_rgb(0_0_0/0.55)] [font-family:var(--font-geist-sans)]">
+        <div role="dialog" aria-label="Pick a style" className="fixed inset-x-4 top-16 z-[3000] sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-2.5 sm:w-[25rem] rounded-[22px] border border-[#e4e4e7] bg-[#fafafa] px-4 pb-3 pt-4 text-center text-[#18181b] shadow-[0_24px_60px_-20px_rgb(0_0_0/0.55)] [font-family:var(--font-geist-sans)]">
           <p className="mb-3 text-[17px] font-medium">👋 Just a quick one: your favourite style?</p>
           <div className="grid grid-cols-4 gap-x-2 gap-y-3">
             {STYLES.map((s) => {

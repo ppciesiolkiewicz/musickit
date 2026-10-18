@@ -30,7 +30,7 @@
 :root[data-theme="rock"] .landing {
   --r-card: 2px; --r-btn: 2px;
   --glow: none;
-  --btn-bg: var(--color-sky-500); --btn-ink: #fff; --btn-case: uppercase; --btn-spacing: 0.04em; --btn-border: 2px solid var(--color-slate-50);
+  --btn-bg: var(--color-sky-500); --btn-ink: var(--color-slate-950); --btn-case: uppercase; --btn-spacing: 0.04em; --btn-border: 2px solid var(--color-slate-50);
   --btn-shadow: 5px 5px 0 var(--color-slate-50);
   --card-border: 2px solid var(--color-slate-200);
   --card-shadow: 6px 6px 0 var(--color-sky-500);
@@ -53,7 +53,7 @@
 :root[data-theme="surf"] .landing {
   --r-card: 2.5rem; --r-btn: 999px;
   --glow: 3px 3px 0 oklch(87% 0.13 85);
-  --btn-bg: var(--color-sky-500); --btn-ink: #fff;
+  --btn-bg: var(--color-sky-400); --btn-ink: #fff; /* Surf ramps run light to dark, so 400 is the deeper coral */
   --btn-shadow: 0 6px 0 var(--color-sky-300);
   --card-chrome: linear-gradient(180deg, #ffffff, #b9c2c9 45%, #6b7780 50%, #e6ebee 70%, #9aa5ad);
   --card-shadow: 0 20px 40px -24px oklch(35% 0.06 190 / 0.45);
@@ -68,7 +68,7 @@
   --btn-clip: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
   --glow: 0 0 1px #fff, 0 3px 0 oklch(30% 0.12 25), 0 0 22px color-mix(in oklab, var(--color-sky-500) 55%, transparent);
   --btn-bg: linear-gradient(oklch(62% 0.23 25), oklch(42% 0.17 25)); --btn-ink: #fff; --btn-case: uppercase; --btn-spacing: 0.12em;
-  --btn-shadow: inset 0 1px 0 #ffffff40, 0 0 20px color-mix(in oklab, var(--color-sky-500) 45%, transparent);
+  --btn-shadow: inset 0 1px 0 #ffffff40; /* an outer glow would be cut off by the chamfer clip */
   --card-frame: linear-gradient(135deg, #71717a, #f4f4f5 30%, #3f3f46 55%, #d4d4d8 80%, #52525b);
   --photo-filter: grayscale(1) contrast(1.35) brightness(0.9);
   --glint: #ffffffaa;
@@ -91,6 +91,9 @@
   box-shadow: var(--card-shadow, none);
   clip-path: var(--clip, none);
 }
+/* a card with a badge hanging over its edge ("Best value") keeps square corners, or the clip would cut the badge */
+:root:not([data-theme="plain"]) .landing .ls-card:has(> .absolute),
+:root:not([data-theme="plain"]) .landing .ls-card:has(> .absolute)::before { clip-path: none; }
 :root[data-theme="rock"] .landing .ls-card { border: var(--card-border); }
 /* Surf: chrome trim like a 60s car; Metal: steel frames */
 :root[data-theme="surf"] .landing .ls-card { border: 3px solid transparent; background-clip: padding-box; position: relative; }
@@ -111,6 +114,14 @@
   outline-offset: 8px;
 }
 :root:not([data-theme="plain"]) .landing .ls-photo img { filter: var(--photo-filter, none); }
+/* Rock: the torn edge cuts the picture, not the frame, so the credit stays above the tear and the poster shadow follows
+   the torn shape (a clip on the frame would hide both) */
+:root[data-theme="rock"] .landing .ls-photo {
+  clip-path: none; box-shadow: none; border-color: transparent; overflow: visible;
+  filter: drop-shadow(10px 10px 0 var(--color-sky-500));
+}
+:root[data-theme="rock"] .landing .ls-photo img { clip-path: var(--photo-clip); }
+:root[data-theme="rock"] .landing .ls-photo figcaption { bottom: 9%; }
 :root[data-theme="blues"] .landing .ls-photo::after { content: ""; position: absolute; inset: 0; box-shadow: var(--photo-vignette); pointer-events: none; }
 
 :root:not([data-theme="plain"]) .landing .ls-btn {
@@ -157,6 +168,9 @@
   background: linear-gradient(100deg, var(--color-sky-400) 0%, var(--color-sky-100) 22%, var(--color-sky-400) 40%, var(--color-sky-200) 62%, var(--color-sky-400) 80%);
   background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent;
   animation: ls-sheen 6s linear infinite;
+  /* the neon bloom as a filter: a text-shadow would paint over the clipped gradient and hide the sparkle */
+  text-shadow: none;
+  filter: drop-shadow(0 0 14px color-mix(in oklab, var(--color-sky-400) 60%, transparent)) drop-shadow(0 0 2px color-mix(in oklab, var(--color-sky-400) 80%, transparent));
 }
 @keyframes ls-sheen { to { background-position: -200% 0; } }
 
