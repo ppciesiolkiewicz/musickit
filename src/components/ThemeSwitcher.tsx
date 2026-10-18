@@ -2,29 +2,41 @@
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Icon from "./Icon";
-
-import { DEFAULT_STYLE, STYLES, THEME_KEY, isStyle, type StyleId } from "@/features/styles/styles";
-
-type ThemeId = StyleId;
-const THEMES = STYLES;
-const isTheme = isStyle;
+import { DEFAULT_STYLE, SEEN_KEY, STYLES, THEME_KEY, isStyle, readSaved, styleAfterIntroDismiss, styleById, type StyleId } from "@/features/styles/styles";
 
 /** Runs before the first paint (inline in <head>) so a saved style never flashes; anything else keeps the Funk set on <html>. */
 export const THEME_BOOT = `try{var t=localStorage.getItem("${THEME_KEY}");if(${JSON.stringify(STYLES.map((s) => s.id))}.indexOf(t)>=0)document.documentElement.dataset.theme=t}catch(e){}`;
 
-function applyTheme(id: ThemeId) {
+/** The style's own headline face, for its name on the button; Plain uses the Fraunces wordmark face. */
+const labelFont = (id: StyleId) => (id === "plain" ? "var(--font-display), serif" : `var(--font-${id}), var(--font-display), serif`);
+
+const store = (key: string, value: string) => {
+  try {
+    localStorage.setItem(key, value);
+  } catch {}
+};
+
+function applyStyle(id: StyleId) {
   const html = document.documentElement;
   html.classList.add("theme-fade");
   html.dataset.theme = id;
   window.setTimeout(() => html.classList.remove("theme-fade"), 250);
-  try {
-    localStorage.setItem(THEME_KEY, id);
-  } catch {}
+  store(THEME_KEY, id);
 }
 
-const readTheme = (): ThemeId => {
+// the "seen" flag only changes through this component, which tracks closing itself, so there is nothing to subscribe to
+const subscribeNever = () => () => {};
+const readUnseen = () => {
+  let storage: Storage | null = null;
+  try {
+    storage = localStorage;
+  } catch {}
+  return !readSaved(storage).seen;
+};
+
+const readStyle = (): StyleId => {
   const t = document.documentElement.dataset.theme;
-  return isTheme(t) ? t : DEFAULT_STYLE;
+  return isStyle(t) ? t : DEFAULT_STYLE;
 };
 // every switcher on the page follows the <html> attribute
 const subscribe = (cb: () => void) => {
@@ -42,77 +54,103 @@ const readFullscreen = () => document.fullscreenElement !== null;
 const canFullscreen = () => document.fullscreenEnabled === true;
 const toggleFullscreen = () => (document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen()).catch(() => {});
 
-/** A small settings button that opens the theme list and a full screen toggle. Shared by every page; knows nothing about any feature. */
+/**
+ * The palette button, named after the current music style in that style's own font, and the style picker it opens.
+ * On a first visit the picker opens by itself with the current pick (Funk) pulsing; closing it without choosing settles on
+ * Plain. Shared by every page; knows nothing about any feature.
+ */
 export default function ThemeSwitcher({ className = "" }: { className?: string }) {
-  const theme = useSyncExternalStore(subscribe, readTheme, () => DEFAULT_STYLE as ThemeId);
+  const style = useSyncExternalStore(subscribe, readStyle, () => DEFAULT_STYLE);
   const fullscreen = useSyncExternalStore(subscribeFullscreen, readFullscreen, () => false);
   const fullscreenable = useSyncExternalStore(subscribeFullscreen, canFullscreen, () => false);
-  const [open, setOpen] = useState(false);
+  // first visit: the picker opens by itself until it has been closed once (the server renders it closed)
+  const unseen = useSyncExternalStore(subscribeNever, readUnseen, () => false);
+  const [settled, setSettled] = useState(false);
+  const intro = unseen && !settled;
+  const [picked, setPicked] = useState(false);
+  const open = intro || picked;
   const box = useRef<HTMLDivElement>(null);
+
+  const close = (dismissed: boolean) => {
+    if (intro) {
+      if (dismissed) applyStyle(styleAfterIntroDismiss());
+      store(SEEN_KEY, "1");
+      setSettled(true);
+    }
+    setPicked(false);
+  };
 
   useEffect(() => {
     if (!open) return;
-    const away = (e: PointerEvent) => !box.current?.contains(e.target as Node) && setOpen(false);
-    const esc = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    const away = (e: PointerEvent) => !box.current?.contains(e.target as Node) && close(true);
+    const esc = (e: KeyboardEvent) => e.key === "Escape" && close(true);
     window.addEventListener("pointerdown", away);
     window.addEventListener("keydown", esc);
     return () => {
       window.removeEventListener("pointerdown", away);
       window.removeEventListener("keydown", esc);
     };
-  }, [open]);
+  });
 
-  const current = THEMES.find((t) => t.id === theme) ?? THEMES[0];
+  const current = styleById(style);
   return (
     <div ref={box} className={`relative ${className}`}>
       <button
         type="button"
-        onClick={() => setOpen((v) => !v)}
-        aria-haspopup="menu"
+        onClick={() => (open ? close(true) : setPicked(true))}
+        aria-haspopup="dialog"
         aria-expanded={open}
-        aria-label="Settings"
-        title={`Settings · ${current.label} theme`}
-        className="grid h-8 w-8 place-items-center rounded-lg border border-slate-700/80 bg-slate-900/70 text-xs text-slate-300 backdrop-blur transition hover:border-slate-500 hover:text-slate-100"
+        aria-label={`Style: ${current.label}`}
+        title="Pick a style"
+        className="flex h-8 items-center gap-1.5 rounded-full border border-sky-500/45 bg-slate-900/70 pl-2.5 pr-3 text-slate-100 backdrop-blur transition hover:border-sky-400"
       >
-        <Icon name="settings" size={14} />
+        <Icon name="palette" size={15} className="text-sky-400" />
+        <span className="whitespace-nowrap text-[15px] leading-none" style={{ fontFamily: labelFont(style) }}>{current.label}</span>
       </button>
       {open && (
-        <div role="menu" aria-label="Settings" className="absolute right-0 top-full z-[3000] mt-1.5 w-44 rounded-xl border border-slate-700 bg-slate-900/95 p-1 shadow-xl shadow-black/30 backdrop-blur">
-          <p className="px-2 pb-1 pt-1.5 text-[11px] font-medium uppercase tracking-wider text-slate-500">Theme</p>
-          {THEMES.map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              role="menuitemradio"
-              aria-checked={t.id === theme}
-              onClick={() => {
-                applyTheme(t.id);
-                setOpen(false);
-              }}
-              className={`flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-left text-sm transition ${t.id === theme ? "bg-sky-500/15 text-sky-100" : "text-slate-300 hover:bg-slate-800"}`}
-            >
-              <span aria-hidden>{t.emoji}</span>
-              <span className="flex-1">{t.label}</span>
-              {t.id === theme && <Icon name="check" size={14} />}
+        // deliberately neutral: the same plain card whatever style is on
+        <div role="dialog" aria-label="Pick a style" className="absolute right-0 top-full z-[3000] mt-2.5 w-[min(25rem,calc(100vw-2rem))] rounded-[22px] border border-[#e4e4e7] bg-[#fafafa] px-4 pb-3 pt-4 text-center text-[#18181b] shadow-[0_24px_60px_-20px_rgb(0_0_0/0.55)] [font-family:var(--font-geist-sans)]">
+          <p className="mb-3 text-[17px] font-medium">👋 Just a quick one: your favourite style?</p>
+          <div className="grid grid-cols-4 gap-x-2 gap-y-3">
+            {STYLES.map((s) => {
+              const on = s.id === style;
+              return (
+                <button
+                  key={s.id}
+                  type="button"
+                  aria-pressed={on}
+                  onClick={() => {
+                    applyStyle(s.id);
+                    close(false);
+                  }}
+                  className={`group flex flex-col items-center gap-1.5 text-[13px] focus-visible:outline-none ${on ? "font-semibold text-[#18181b]" : "text-[#3f3f46]"}`}
+                >
+                  <span className={`grid h-14 w-14 place-items-center rounded-full border-2 text-[28px] transition group-hover:-translate-y-0.5 group-hover:scale-105 group-focus-visible:outline-2 group-focus-visible:outline-offset-2 group-focus-visible:outline-[#18181b] ${on ? "border-[#18181b] bg-white" : "border-[#e4e4e7] bg-[#f0f0f2]"} ${on && intro ? "style-pulse" : ""}`} aria-hidden>
+                    {s.emoji}
+                  </span>
+                  {s.label}
+                </button>
+              );
+            })}
+          </div>
+          {intro && (
+            <button type="button" onClick={() => close(true)} className="mt-3 text-[13px] text-[#71717a] underline underline-offset-[3px] hover:text-[#18181b]">
+              Not now
             </button>
-          ))}
+          )}
           {fullscreenable && (
-            <>
-              <div className="my-1 border-t border-slate-800" role="separator" />
-              <button
-                type="button"
-                role="menuitemcheckbox"
-                aria-checked={fullscreen}
-                onClick={() => {
-                  toggleFullscreen();
-                  setOpen(false);
-                }}
-                className="flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-left text-sm text-slate-300 transition hover:bg-slate-800"
-              >
-                <Icon name={fullscreen ? "minimize" : "maximize"} size={14} />
-                <span className="flex-1">{fullscreen ? "Exit full screen" : "Full screen"}</span>
-              </button>
-            </>
+            <button
+              type="button"
+              aria-pressed={fullscreen}
+              onClick={() => {
+                toggleFullscreen();
+                close(false);
+              }}
+              className="mt-3 flex w-full items-center justify-center gap-2 border-t border-[#e4e4e7] pt-2.5 text-[13px] text-[#3f3f46] hover:text-[#18181b]"
+            >
+              <Icon name={fullscreen ? "minimize" : "maximize"} size={14} />
+              {fullscreen ? "Exit full screen" : "Full screen"}
+            </button>
           )}
         </div>
       )}

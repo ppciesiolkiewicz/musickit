@@ -115,6 +115,14 @@ html.theme-fade *, html.theme-fade *::before, html.theme-fade *::after {
 .wheel-halo { animation: wheel-turn 40s linear infinite; }
 .wheel-ripple { transform-box: fill-box; transform-origin: center; animation: wheel-ripple 700ms ease-out both; }
 .wheel-spin { transform-box: fill-box; transform-origin: center; animation: wheel-turn 6s linear infinite; }
+/* first-visit style picker: the current pick pulses a few times so the eye lands on it */
+@keyframes style-pulse {
+  0% { box-shadow: 0 0 0 0 rgb(24 24 27 / 0.35); transform: scale(1); }
+  30% { transform: scale(1.08) rotate(-6deg); }
+  55% { transform: scale(1) rotate(4deg); }
+  100% { box-shadow: 0 0 0 16px rgb(24 24 27 / 0); transform: none; }
+}
+.style-pulse { animation: style-pulse 1.6s ease-out 3; }
 @media (prefers-reduced-motion: reduce) {
-  .landing-rise, .landing-fade, .dot-pop, .wheel-halo, .wheel-ripple, .wheel-spin { animation: none; }
+  .landing-rise, .landing-fade, .dot-pop, .wheel-halo, .wheel-ripple, .wheel-spin, .style-pulse { animation: none; }
 }
