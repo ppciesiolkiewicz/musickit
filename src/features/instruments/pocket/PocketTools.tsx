@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } fro
 import { createPortal } from "react-dom";
 import Icon from "@/components/Icon";
 import usePhone from "@/components/usePhone";
-import { getAudioContext, getOutputBus } from "@/features/sound";
+import { getAudioContext, getOutputBus, wakeAudio } from "@/features/sound";
 import { tapTempo, type ClickParams } from "../click/click";
 import { DEFAULT_DRONE, DRONE_MAX_OCTAVE, DRONE_MIN_OCTAVE, NOTE_NAMES, droneName, type DroneParams } from "../drone/drone";
 import DroneControls from "../drone/DroneControls";
@@ -162,7 +162,7 @@ export default function PocketTools({ keyPc, className = "" }: { keyPc: number; 
 
   const ready = async () => {
     const ctx = getAudioContext();
-    if (ctx.state === "suspended") await ctx.resume();
+    await wakeAudio();
     rig.attach(ctx, getOutputBus());
   };
   const playingParts = JAM_PARTS.filter((p) => snap.parts[p].state.playing);

@@ -1,4 +1,4 @@
-import { getAudioContext, getOutputBus } from "./context";
+import { getAudioContext, getOutputBus, wakeAudio } from "./context";
 import { getInstrumentConfig, OSCILLATOR_ID } from "./instruments";
 import { midiToHz, noteToMidi, pickSample, type NoteLike } from "./notes";
 import { cachedSample, instrumentSamples, loadSample, preloadInstrument } from "./samples";
@@ -95,8 +95,7 @@ export function createPlayer(options: PlayerOptions = {}): Player {
     noteOn(note, velocity = 0.8) {
       const midi = noteToMidi(note);
       if (midi === null) return;
-      const ctx = getAudioContext();
-      if (ctx.state === "suspended") void ctx.resume();
+      void wakeAudio();
       release(midi, true);
       const config = getInstrumentConfig(instrumentId);
       const match = config ? pickSample(midi, instrumentSamples(instrumentId), config.strict) : null;

@@ -1,4 +1,4 @@
-import { getAudioContext, getSharedPiano, playMelody as soundMelody, silence as soundSilence } from "@/features/sound";
+import { getAudioContext, wakeAudio, getSharedPiano, playMelody as soundMelody, silence as soundSilence } from "@/features/sound";
 
 export interface Hit {
   /** place in the cycle, 0 up to 1 */
@@ -29,7 +29,7 @@ export interface Loop {
 /** Play a rhythm cycle on the audio clock: forever, or `cycles` times. */
 export function startLoop(cycleSeconds: number, hits: Hit[], cycles = Infinity, onDone?: () => void): Loop {
   const ctx = getAudioContext();
-  if (ctx.state === "suspended") void ctx.resume();
+  void wakeAudio();
   const t0 = ctx.currentTime + 0.1;
   let k = 0;
   let done = false;

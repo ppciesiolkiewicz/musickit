@@ -1,7 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { getAudioContext, getOutputBus } from "@/features/sound";
+import { getAudioContext, getOutputBus, wakeAudio } from "@/features/sound";
 import { detectRoot } from "./model/detectRoot";
 import * as P from "./model/project";
 import type { SampleMeta, SampleSource } from "./model/types";
@@ -100,7 +100,7 @@ export async function previewSample(id: string): Promise<void> {
   const blob = await getStore().getAudio(id);
   if (!blob) return;
   const ctx = getAudioContext();
-  if (ctx.state === "suspended") await ctx.resume();
+  await wakeAudio();
   const src = ctx.createBufferSource();
   src.buffer = await decode(blob);
   src.connect(getOutputBus());

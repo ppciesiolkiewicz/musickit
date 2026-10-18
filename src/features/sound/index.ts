@@ -7,7 +7,7 @@
  *   keyboard/  the two keyboards that play it: Piano (chromatic, MIDI input, scale highlighting) and ScalePiano
  *              (the computer keys locked to a key and scale). Both play the sampled instruments by default.
  */
-export { getAudioContext, getOutputBus } from "./engine/context";
+export { getAudioContext, getOutputBus, wakeAudio } from "./engine/context";
 export { INSTRUMENTS, INSTRUMENT_OPTIONS, OSCILLATOR_ID } from "./engine/instruments";
 export { allInstrumentOptions } from "./engine/instruments";
 export { useInstrumentOptions } from "./engine/useInstrumentOptions";

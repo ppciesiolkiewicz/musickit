@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import Icon from "@/components/Icon";
-import { getAudioContext, getOutputBus } from "@/features/sound";
+import { getAudioContext, getOutputBus, wakeAudio } from "@/features/sound";
 import DroneControls from "../drone/DroneControls";
 import { NOTE_NAMES, droneName, type DroneParams } from "../drone/drone";
 import StepGrid, { PatternBar } from "../sequencer/StepGrid";
@@ -79,7 +79,7 @@ export default function Jam() {
   /** The audio, made on a person's click. */
   const ready = async () => {
     const ctx = getAudioContext();
-    if (ctx.state === "suspended") await ctx.resume();
+    await wakeAudio();
     rig.attach(ctx, getOutputBus());
   };
   const start = async (parts: readonly JamPart[], withLoops = false) => {
