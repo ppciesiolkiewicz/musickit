@@ -2,13 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import SiteNav from "@/components/SiteNav";
-import Wordmark from "@/components/Wordmark";
 import Icon, { type IconName } from "@/components/Icon";
 import PreloadPiano from "@/features/sound/keyboard/PreloadPiano";
 import FretWalk from "@/components/landing/FretWalk";
 import EarlyAccessForm from "@/components/landing/EarlyAccessForm";
 import Photo from "@/components/landing/Photo";
 import StyleDivider from "@/components/landing/StyleDivider";
+import SiteFooter from "@/components/landing/SiteFooter";
 import CourseSoon from "@/components/landing/CourseSoon";
 import { DISPLAY, Eyebrow, H2 } from "@/components/landing/Display";
 import { LiveLessonMock } from "@/components/landing/LessonMocks";
@@ -247,24 +247,6 @@ export default function Home() {
             <p className="text-sm text-slate-200">Lessons open soon. Get a first slot before anyone else.</p>
             <EarlyAccessForm source="lessons" compact initial={["private-lessons"]} cta="Save me a lesson" done="You're on the list for lessons. We'll email you once when the first slots open." />
           </div>
-
-          {/* for teachers */}
-          <div className="ls-card mt-14 grid grid-cols-[minmax(0,1fr)] items-center gap-8 overflow-hidden rounded-4xl border border-slate-800 bg-slate-900/50 lg:grid-cols-[minmax(0,0.75fr)_minmax(0,1.25fr)]">
-            <Photo name="teacher" className="aspect-4/3 h-full lg:aspect-auto" sizes="(min-width: 1024px) 30vw, 100vw" />
-            <div className="p-6 pt-0 sm:p-10 lg:pl-0 lg:pt-10">
-              <Eyebrow tone="text-amber-300">For teachers</Eyebrow>
-              <h3 className="text-3xl leading-tight text-slate-50 sm:text-4xl" style={DISPLAY}>Teach with every sound <span className="ls-accent italic text-amber-300">a click away.</span></h3>
-              <ul className="mt-6 grid gap-x-6 gap-y-3 text-sm text-slate-300 sm:grid-cols-2">
-                <Check tone="text-amber-300">Bring up any scale, chord, drone or loop mid-lesson</Check>
-                <Check tone="text-amber-300">Lesson notes drafted for you; add the details and send</Check>
-                <Check tone="text-amber-300">Students arrive already knowing the colours</Check>
-                <Check tone="text-amber-300">Set your own rate; founding teachers keep almost all of it</Check>
-              </ul>
-              <div className="mt-6">
-                <EarlyAccessForm source="teachers" compact initial={["teaching"]} cta="I want to teach" done="Thanks! We'll get in touch about teaching on Music Kit." />
-              </div>
-            </div>
-          </div>
         </section>
 
         {/* Seeing the sound, and practising the right thing */}
@@ -330,10 +312,7 @@ export default function Home() {
           </div>
         </section>
 
-        <footer className="flex flex-col items-center justify-between gap-3 border-t border-slate-800/70 py-8 text-xs text-slate-500 sm:flex-row">
-          <Wordmark className="text-xl" />
-          <p>Photos from Unsplash. Made for people who&apos;d rather play.</p>
-        </footer>
+        <SiteFooter />
       </div>
     </div>
   );
