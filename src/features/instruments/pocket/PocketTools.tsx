@@ -12,7 +12,7 @@ import StepGrid, { PatternBar } from "../sequencer/StepGrid";
 import PartLevel from "../sequencer/PartLevel";
 import { MAX_BPM, MIN_BPM } from "../jam/clock";
 import { BEATS_PER_BAR, JAM_PARTS, JamRig, type JamPart, type JamSaved } from "../jam/rig";
-import { Select, Slider } from "@/components/ui";
+import { Select, Slider, inSelectMenu } from "@/components/ui";
 
 const STORAGE_KEY = "musickit.pocket";
 const ibtn = "grid h-7 min-w-7 shrink-0 place-items-center rounded-md border border-slate-700 bg-slate-900 px-1 text-xs text-slate-200 transition hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
@@ -71,7 +71,7 @@ function Popover({ label, wide, children }: { label: string; wide?: boolean; chi
   }, [open, phone]);
   useEffect(() => {
     if (!open) return;
-    const down = (e: PointerEvent) => !wrap.current?.contains(e.target as Node) && !sheet.current?.contains(e.target as Node) && setOpen(false);
+    const down = (e: PointerEvent) => !inSelectMenu(e.target) && !wrap.current?.contains(e.target as Node) && !sheet.current?.contains(e.target as Node) && setOpen(false);
     const key = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
     window.addEventListener("pointerdown", down);
     window.addEventListener("keydown", key);

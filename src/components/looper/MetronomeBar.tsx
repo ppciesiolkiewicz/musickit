@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Icon from "../Icon";
 import type { LooperEngine, LooperSnapshot } from "@/lib/looper/engine";
-import { Slider, Select } from "@/components/ui";
+import { Slider, Select, inSelectMenu } from "@/components/ui";
 
 /**
  * The metronome, floating at the top of the page under the main nav: start/stop, tempo and beat dots in one group,
@@ -16,7 +16,7 @@ export default function MetronomeBar({ engine, snap, ready }: { engine: LooperEn
 
   useEffect(() => {
     if (!open) return;
-    const down = (e: PointerEvent) => wrap.current && !wrap.current.contains(e.target as Node) && setOpen(false);
+    const down = (e: PointerEvent) => !inSelectMenu(e.target) && wrap.current && !wrap.current.contains(e.target as Node) && setOpen(false);
     const key = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
     window.addEventListener("pointerdown", down);
     window.addEventListener("keydown", key);

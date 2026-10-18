@@ -18,6 +18,12 @@ function Item<V extends SelectValue>({ option }: { option: SelectOption<V> }) {
 }
 
 /**
+ * True for a press inside an open select menu. The menu is portalled to <body>, so a popover that closes on a press
+ * outside itself must ask this too, or picking an option closes the popover.
+ */
+export const inSelectMenu = (target: EventTarget | null) => target instanceof Element && target.closest("[data-select-menu]") !== null;
+
+/**
  * The themed dropdown (Radix Select) used with a mouse.
  * Focus never comes back to the trigger after a pick (see NoControlFocus): the computer keyboard keeps playing notes.
  */
@@ -37,7 +43,7 @@ export function MenuSelect<V extends SelectValue>({ value, onChange, options, gr
         <RSelect.Icon><Chevron size={chevronSize[size]} /></RSelect.Icon>
       </RSelect.Trigger>
       <RSelect.Portal>
-        <RSelect.Content position="popper" sideOffset={4} collisionPadding={8} className={menuClass} onCloseAutoFocus={(e) => e.preventDefault()}>
+        <RSelect.Content position="popper" sideOffset={4} collisionPadding={8} data-select-menu="" className={menuClass} onCloseAutoFocus={(e) => e.preventDefault()}>
           <RSelect.ScrollUpButton className="flex h-5 items-center justify-center text-slate-400">▴</RSelect.ScrollUpButton>
           <RSelect.Viewport>
             {options?.map((o) => <Item key={keyOf(o.value)} option={o} />)}
