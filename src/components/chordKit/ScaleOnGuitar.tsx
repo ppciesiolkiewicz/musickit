@@ -23,6 +23,9 @@ export interface PentatonicOnly {
   boxes: boolean;
   /** "E Hirajōshi" */
   title: string;
+  /** its notes, low to high, and notes from outside `ctx` placed on the neck (the blues ♯4) */
+  names: string[];
+  extra?: ScaleCell[];
 }
 
 /**
@@ -38,7 +41,7 @@ export default function ScaleOnGuitar({ ctx, player, only }: { ctx: KeyContext; 
   const [fade, setFade] = useState(true);
   const { active, play, playTimed, tap } = player;
 
-  const cells = useMemo(() => scaleCells(ctx), [ctx]);
+  const cells = useMemo(() => [...scaleCells(ctx), ...(only?.extra ?? [])], [ctx, only]);
   const pent = useMemo(() => only?.pent ?? pentatonicOf(ctx.steps), [ctx, only]);
   const positions = useMemo(() => only?.positions ?? positionsFor(ctx, kind), [ctx, kind, only]);
   const pentDegrees = new Set(pent.degrees);
@@ -97,7 +100,7 @@ export default function ScaleOnGuitar({ ctx, player, only }: { ctx: KeyContext; 
         </ChipRow>
         <p className="text-xs text-slate-400">
           {only ? (
-            <>{keyName}: <b className="text-slate-200">{pent.degrees.map((d) => ctx.names[d]).join(" ")}</b> <span className="tabular-nums">({pent.formula.join(" ")})</span>. {ctx.names[0]} {ctx.modeName} adds {[0, 1, 2, 3, 4, 5, 6].filter((d) => !pentDegrees.has(d)).map((d) => ctx.names[d]).join(" and ")}.</>
+            <>{keyName}: <b className="text-slate-200">{only.names.join(" ")}</b> <span className="tabular-nums">({pent.formula.join(" ")})</span>. {ctx.names[0]} {ctx.modeName} adds {[0, 1, 2, 3, 4, 5, 6].filter((d) => !pentDegrees.has(d)).map((d) => ctx.names[d]).join(" and ")}.</>
           ) : kind === "pentatonic" ? (
             <>{pent.name}: <b className="text-slate-200">{pent.degrees.map((d) => ctx.names[d]).join(" ")}</b> <span className="tabular-nums">({pent.formula.join(" ")})</span>. {ctx.modeName} adds {[0, 1, 2, 3, 4, 5, 6].filter((d) => !pentDegrees.has(d)).map((d) => ctx.names[d]).join(" and ")}.</>
           ) : kind === "scale" ? (

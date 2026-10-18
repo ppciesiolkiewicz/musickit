@@ -28,7 +28,8 @@ const PARTS = {
   harm: { accent: "#fbbf24", label: "Harmonic minor", intro: "Natural minor with a raised 7th. Its modes share their seven notes with each other, not with the major scale, and carry the exotic augmented 2nd." },
   mel: { accent: "#a78bfa", label: "Melodic minor", intro: "The major scale with a lowered 3rd. Its modes are the jazz sounds: Lydian dominant over a 7♯11, Altered over a dominant that resolves." },
   other: { accent: "#f472b6", label: "Other scales", intro: "Seven-note scales of their own, not modes of the three families above: the Arabic double harmonic, Persian, Hungarian minor, the Neapolitan scales and Verdi's enigmatic scale." },
-  pent: { accent: "#fb923c", label: "Pentatonic scales", intro: "Five-note scales, each one a mode of the major scale with two notes left out. The first five share one set of notes, like the major modes do: C major pentatonic is also A minor pentatonic. The last four are Japanese scales with half steps in them." },
+  pent: { accent: "#fb923c", label: "Pentatonic scales", intro: "The two five-note scales most solos start from: the major scale without its 4th and 7th, and natural minor without its 2nd and 6th. They share their five notes, a minor 3rd apart: C major pentatonic is A minor pentatonic." },
+  pentMore: { accent: "#fdba74", label: "More pentatonic scales", intro: "The blues scale (minor pentatonic with a ♯4 blue note), the other three pentatonics with the same five notes as major and minor (suspended, man gong, ritusen), and four Japanese scales with half steps in them. Each is a mode of the major scale with two notes left out." },
   compare: { accent: "#38bdf8", label: "Compare" },
 } as const;
 type PartId = keyof typeof PARTS;
@@ -38,10 +39,10 @@ const PART_IDS = Object.keys(PARTS) as PartId[];
 export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey: number; /** write ?key=f-sharp to the address bar (off when embedded in another page) */ syncUrl?: boolean }) {
   const [tonicPc, setTonicPc] = useState(initialKey);
   const [system] = useLabelSystem();
-  const [open, setOpen] = useState<Record<PartId, boolean>>({ compare: true, major: true, harm: true, mel: true, other: true, pent: true });
+  const [open, setOpen] = useState<Record<PartId, boolean>>({ compare: true, major: true, harm: true, mel: true, other: true, pent: true, pentMore: true });
   const [query, setQuery] = useState("");
   const toggle = (id: PartId) => setOpen((o) => ({ ...o, [id]: !o[id] }));
-  const setAll = (v: boolean) => setOpen({ compare: v, major: v, harm: v, mel: v, other: v, pent: v });
+  const setAll = (v: boolean) => setOpen({ compare: v, major: v, harm: v, mel: v, other: v, pent: v, pentMore: v });
   const allOpen = PART_IDS.every((id) => open[id]);
   const jump = (id: PartId) => {
     setOpen((o) => ({ ...o, [id]: true }));
@@ -107,9 +108,24 @@ export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey
     [rows, query],
   );
   const pents = PENTATONICS.filter((p) => {
-    const text = [p.name, p.alias ?? "", "pentatonic", p.slug.replace(/-/g, " ")].join(" ").toLowerCase();
+    const text = [p.name, p.alias ?? "", "pentatonic", p.blue ? "blues" : "", p.slug.replace(/-/g, " ")].join(" ").toLowerCase();
     return words.every((w) => text.includes(w));
   });
+  /** One accordion of pentatonic cards: the two basic ones at the top of the page, the rest after the other scales. */
+  const pentSection = (id: "pent" | "pentMore", list: typeof PENTATONICS) => {
+    if (list.length === 0) return null;
+    const total = PENTATONICS.filter((p) => !!p.basic === (id === "pent")).length;
+    return (
+      <div id={`part-${id}`} className={UNDER_BAR}>
+        <Section title={PARTS[id].label} meta={`${searching ? `${list.length} of ${total}` : list.length} scales in ${tonicName(tonicPc)}`} open={searching || open[id]} onToggle={() => toggle(id)} accent={PARTS[id].accent}>
+          <p className="mb-3 text-xs text-slate-400">{PARTS[id].intro}</p>
+          <div className="grid gap-3 xl:grid-cols-2">
+            {list.map((p) => <PentatonicCard key={p.slug} scale={p} tonicPc={tonicPc} player={player} system={system} onOpen={openCard} />)}
+          </div>
+        </Section>
+      </div>
+    );
+  };
   const pageFor = (f: number, m: number) => MODE_PAGES.find((p) => p.familyIndex === f && p.modeIndex === m)!;
 
   return (
@@ -133,6 +149,8 @@ export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey
       </div>
 
       {searching && shown.length === 0 && pents.length === 0 && <p className="text-sm text-slate-400">No scale matches “{query.trim()}”.</p>}
+
+      {pentSection("pent", pents.filter((p) => p.basic))}
 
       {shown.map(({ fam, modes }) => (
         <div key={fam.id} id={`part-${fam.id}`} className={UNDER_BAR}>
@@ -227,16 +245,7 @@ export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey
         </div>
       ))}
 
-      {pents.length > 0 && (
-        <div id="part-pent" className={UNDER_BAR}>
-          <Section title={PARTS.pent.label} meta={`${searching ? `${pents.length} of ${PENTATONICS.length}` : pents.length} scales in ${tonicName(tonicPc)}`} open={searching || open.pent} onToggle={() => toggle("pent")} accent={PARTS.pent.accent}>
-            <p className="mb-3 text-xs text-slate-400">{PARTS.pent.intro}</p>
-            <div className="grid gap-3 xl:grid-cols-2">
-              {pents.map((p) => <PentatonicCard key={p.slug} scale={p} tonicPc={tonicPc} player={player} system={system} onOpen={openCard} />)}
-            </div>
-          </Section>
-        </div>
-      )}
+      {pentSection("pentMore", pents.filter((p) => !p.basic))}
 
       {!searching && (
         <div id="part-compare" className={UNDER_BAR}>

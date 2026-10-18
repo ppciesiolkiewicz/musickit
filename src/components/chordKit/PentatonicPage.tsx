@@ -1,6 +1,6 @@
 "use client";
 
-import { fmtDegree, scaleToneCaption, scaleToneLabel } from "@/features/theory/labels";
+import { fmtDegree, intervalName, scaleToneCaption, scaleToneLabel, solfege, type LabelSystem } from "@/features/theory/labels";
 import { useLabelSystem } from "@/features/theory/useLabelSystem";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
@@ -9,12 +9,12 @@ import KeySignature from "@/components/theory/KeySignature";
 import ScaleWheel from "@/components/theory/ScaleWheel";
 import { MODE_PAGES, degreeColour, DOT_INK } from "@/features/theory/scales";
 import { ORDINALS } from "@/features/theory/theory";
-import { findPentatonic, pentatonicContext, pentatonicSteps, samePentatonicNotes, type PentatonicContext } from "@/features/theory/pentatonics";
+import { findPentatonic, pentatonicContext, pentatonicSteps, samePentatonicNotes, type PentatonicContext, type PentatonicTone } from "@/features/theory/pentatonics";
 import ScaleOnGuitar from "./ScaleOnGuitar";
 import TuneButton from "./TuneButton";
 import { useNotePlayer, type NotePlayer } from "./useNotePlayer";
-import { pentatonicPositions } from "@/lib/chordKit/scalePositions";
-import { generateMelody, melodyTiming, scalePool } from "@/lib/chordKit/melody";
+import { extraCells, pentatonicPositions, type ExtraNote } from "@/lib/chordKit/scalePositions";
+import { generateMelody, melodyTiming } from "@/lib/chordKit/melody";
 import { scaleHref } from "@/features/theory/keySlug";
 import { Info } from "@/components/ui";
 
@@ -26,25 +26,47 @@ export function pentatonicLineMidi(p: PentatonicContext): number[] {
 }
 
 /**
- * Play controls shared by the pentatonic page and its card on the index. Player keys are "<prefix>d<degree>" with the host's
- * degree, so the necks (which light "d<degree>") follow along.
+ * Play controls shared by the pentatonic page and its card on the index. Player keys are "<prefix>pc<pitch class>", which the
+ * necks light too, so the blue ♯4 lights apart from the 4th whose colour it shares.
  */
 export function pentatonicSounds(p: PentatonicContext, player: NotePlayer, prefix = "") {
   const line = pentatonicLineMidi(p);
-  const hostDegree = (midi: number) => p.host.steps.indexOf((midi - p.host.tonic.pc + 120) % 12);
-  const keep = new Set(p.degrees);
+  const root = 60 + p.host.tonic.pc;
+  const key = (midi: number) => `${prefix}pc${midi % 12}`;
+  // the melody's pool: every tone from the 5th below the root to the 5th above its octave, coloured by host degree
+  const pool = [-1, 0, 1].flatMap((oct) => p.tones.map((t) => ({ midi: root + oct * 12 + t.semis, degree: t.degree }))).filter((n) => n.midi >= root - 5 && n.midi <= root + 19);
   return {
     line,
-    tap: (i: number) => player.tap(`${prefix}d${p.degrees[i]}`, line[i]),
-    playScale: () => player.play(line.map((m) => ({ key: `${prefix}d${hostDegree(m)}`, midi: m })), 240),
+    tap: (i: number) => player.tap(`${prefix}${p.tones[i].key}`, line[i]),
+    playScale: () => player.play(line.map((m) => ({ key: key(m), midi: m })), 240),
     playTune: (tuneId: string) =>
-      player.playTimed(
-        melodyTiming(generateMelody(scalePool(60 + p.host.tonic.pc, p.host.steps).filter((n) => keep.has(n.degree)), p.host.steps))
-          .map((n) => ({ key: `${prefix}d${n.note.degree}`, midi: n.note.midi, ms: n.ms, velocity: n.velocity })),
-        tuneId,
-      ),
+      player.playTimed(melodyTiming(generateMelody(pool, p.host.steps)).map((n) => ({ key: key(n.note.midi), midi: n.note.midi, ms: n.ms, velocity: n.velocity })), tuneId),
   };
 }
+
+/** A tone's label in the chosen system; the blue note is not in the host, so it is labelled from its own degree. */
+export function toneLabel(system: LabelSystem, p: PentatonicContext, t: PentatonicTone): string {
+  if (!t.blue) return scaleToneLabel(system, p.host, t.degree);
+  return system === "note" ? t.name : system === "interval" ? intervalName(t.semis) : system === "solfege" ? solfege(t.label) : fmtDegree(t.label);
+}
+
+/** The second line under a tone's dot: its degree when the dot shows names, otherwise its name. */
+export function toneCaption(system: LabelSystem, p: PentatonicContext, t: PentatonicTone): string {
+  if (!t.blue) return scaleToneCaption(system, p.host, t.degree);
+  return system === "note" ? fmtDegree(t.label) : t.name;
+}
+
+/** The blue note as an extra note for the neck, if the scale has one. */
+export function blueNote(p: PentatonicContext): ExtraNote | undefined {
+  const t = p.tones.find((x) => x.blue);
+  return t && { degree: t.degree, semi: t.semis, name: t.name, degreeText: t.label };
+}
+
+/** "plus the blue ♯4 (D♯)", or nothing. */
+export const blueText = (p: PentatonicContext) => {
+  const t = p.tones.find((x) => x.blue);
+  return t ? `, and adds the blue note, ${fmtDegree(t.label)} (${t.name})` : "";
+};
 
 /** Which host notes a pentatonic leaves out: "its 4th (A) and 7th (D♯)". */
 export const leftOut = (p: PentatonicContext) =>
@@ -66,13 +88,15 @@ export default function PentatonicPage({ slug, initialKey, syncUrl = true }: { s
   const p = useMemo(() => pentatonicContext(tonicPc, scale), [tonicPc, scale]);
   const { host } = p;
   const same = useMemo(() => samePentatonicNotes(tonicPc, scale), [tonicPc, scale]);
-  const guitar = useMemo(() => pentatonicPositions(host, p.degrees), [host, p.degrees]);
+  const blue = useMemo(() => blueNote(p), [p]);
+  const guitar = useMemo(() => pentatonicPositions(host, p.degrees, blue), [host, p.degrees, blue]);
+  const extra = useMemo(() => (blue ? extraCells(host, blue) : undefined), [host, blue]);
   const hostPage = MODE_PAGES.find((m) => m.familyIndex === 0 && m.modeIndex === scale.host)!;
 
   const [system] = useLabelSystem();
   const player = useNotePlayer();
   const { tap, playScale, playTune } = pentatonicSounds(p, player);
-  const activeDegree = player.active?.startsWith("d") ? Number(player.active.slice(1)) : null;
+  const activeTone = p.tones.findIndex((t) => t.key === player.active);
 
   return (
     <WithSettings side={syncUrl} bar={<ScaleSettingsBar tonicPc={tonicPc} onTonic={setTonicPc} scale={syncUrl ? slug : undefined} side={syncUrl} />}>
@@ -90,10 +114,10 @@ export default function PentatonicPage({ slug, initialKey, syncUrl = true }: { s
           <p className="text-xs text-slate-400"><b className="text-slate-300">Where you hear it:</b> {scale.use}</p>
 
           <div className="flex flex-wrap items-center gap-2" aria-label="Scale notes">
-            {p.degrees.map((d, i) => (
-              <button key={d} type="button" onClick={() => tap(i)} title={`${p.names[i]}: tap to hear it`} className="cursor-sound flex flex-col items-center gap-0.5 rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
-                <span className={`flex h-11 w-11 items-center justify-center rounded-full text-sm font-semibold transition ${activeDegree === d ? "scale-110 ring-[3px] ring-sky-400" : ""}`} style={{ background: degreeColour(d), color: DOT_INK }}>{scaleToneLabel(system, host, d)}</span>
-                <span className="text-xs tabular-nums text-slate-500">{scaleToneCaption(system, host, d)}</span>
+            {p.tones.map((t, i) => (
+              <button key={t.key} type="button" onClick={() => tap(i)} title={`${t.name}${t.blue ? " (the blue note)" : ""}: tap to hear it`} className="cursor-sound flex flex-col items-center gap-0.5 rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
+                <span className={`flex h-11 w-11 items-center justify-center rounded-full text-sm font-semibold transition ${activeTone === i ? "scale-110 ring-[3px] ring-sky-400" : ""}`} style={{ background: degreeColour(t.degree), color: DOT_INK }}>{toneLabel(system, p, t)}</span>
+                <span className="text-xs tabular-nums text-slate-500">{toneCaption(system, p, t)}</span>
               </button>
             ))}
             <button type="button" onClick={playScale} className="cursor-sound ml-2 rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25">▶ Play scale</button>
@@ -108,7 +132,7 @@ export default function PentatonicPage({ slug, initialKey, syncUrl = true }: { s
           </p>
           <ul className="space-y-1 text-xs text-slate-400">
             <li>
-              Cut from <Link className="text-sky-300 hover:underline" href={scaleHref(hostPage.slug, tonicPc)}>{host.names[0]} {host.modeName}</Link>: leave out its {leftOut(p)}.
+              Cut from <Link className="text-sky-300 hover:underline" href={scaleHref(hostPage.slug, tonicPc)}>{host.names[0]} {host.modeName}</Link>: leave out its {leftOut(p)}{blueText(p)}.
               <Info label="Why the mode it is cut from?">Every pentatonic here is five of the seven notes of a mode of the major scale. Playing it over that mode&apos;s chords always fits, and adding the two missing notes back turns it into the full mode.</Info>
             </li>
             {same.length > 0 && (
@@ -128,21 +152,21 @@ export default function PentatonicPage({ slug, initialKey, syncUrl = true }: { s
         <figure className="flex flex-col items-center gap-1 self-center justify-self-center">
           <ScaleWheel
             steps={p.steps}
-            degrees={p.degrees}
-            labels={p.degrees.map((d) => scaleToneLabel(system, host, d))}
+            degrees={p.tones.map((t) => t.degree)}
+            labels={p.tones.map((t) => toneLabel(system, p, t))}
             compare={host.steps}
-            active={activeDegree !== null && p.degrees.includes(activeDegree) ? p.degrees.indexOf(activeDegree) : null}
+            active={activeTone >= 0 ? activeTone : null}
             onNote={tap}
             size={220}
           />
-          <figcaption className="max-w-[14rem] text-center text-[11px] text-slate-500">Dashed: {host.names[0]} {host.modeName}, the seven notes it is cut from.</figcaption>
+          <figcaption className="max-w-[14rem] text-center text-[11px] text-slate-500">Dashed: {host.names[0]} {host.modeName}, the seven notes it is cut from.{blue && " Ringed: the blue note, from outside it."}</figcaption>
         </figure>
       </div>
 
       <ScaleOnGuitar
         ctx={host}
         player={player}
-        only={{ pent: { name: p.title, degrees: p.degrees, formula: p.formula }, positions: guitar.positions, boxes: guitar.boxes, title: p.title }}
+        only={{ pent: { name: p.title, degrees: p.degrees, formula: p.formula }, positions: guitar.positions, boxes: guitar.boxes, title: p.title, names: p.names, extra }}
       />
     </WithSettings>
   );

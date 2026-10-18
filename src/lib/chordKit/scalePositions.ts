@@ -263,13 +263,54 @@ export function positionsFor(ctx: KeyContext, kind: PositionKind): ScalePosition
 export const isPentatonicRotation = (steps: number[]): boolean =>
   [0, 2, 4, 7, 9].some((r) => [0, 2, 4, 7, 9].map((s) => (s - r + 12) % 12).sort((a, b) => a - b).join() === [...steps].sort((a, b) => a - b).join());
 
+/** A note from outside the mode added to a scale (the blues scale's ♯4), coloured as `degree`. */
+export interface ExtraNote {
+  degree: number;
+  /** semitones above the root */
+  semi: number;
+  name: string;
+  /** "♯4" */
+  degreeText: string;
+}
+
+/** Every place an extra note falls on the neck, frets 0 to `to`. */
+export function extraCells(ctx: KeyContext, extra: ExtraNote, to = SCALE_NECK_FRETS): ScaleCell[] {
+  const pc = (ctx.tonic.pc + extra.semi) % 12;
+  const out: ScaleCell[] = [];
+  for (let s = 0; s < 6; s++) for (let f = 0; f <= to; f++) {
+    const midi = OPEN_MIDI[s] + f;
+    if (midi % 12 === pc) out.push({ string: s, fret: f, midi, pc, degree: extra.degree, name: extra.name, semi: extra.semi, degreeText: extra.degreeText });
+  }
+  return out;
+}
+
 /**
  * Five positions for a pentatonic cut from a mode (`degrees` of `ctx`). One with the major pentatonic's shape uses its five boxes,
  * numbered by the root strings like every mode's; any other is played two notes per string, one pattern starting on each note.
+ * An `extra` note goes into each position wherever it falls inside the position's frets, within a fret of the string's own notes
+ * (on the string where it sits between them when it fits on two): the blues boxes, with the ♯4 beside the 4th and 5th.
  */
-export function pentatonicPositions(ctx: KeyContext, degrees: number[]): { positions: ScalePosition[]; boxes: boolean } {
+export function pentatonicPositions(ctx: KeyContext, degrees: number[], extra?: ExtraNote): { positions: ScalePosition[]; boxes: boolean } {
   const boxes = isPentatonicRotation(degrees.map((d) => ctx.steps[d]));
-  return { positions: boxes ? boxesFor(ctx, degrees) : notesPerString(ctx, degrees, 2), boxes };
+  const positions = boxes ? boxesFor(ctx, degrees) : notesPerString(ctx, degrees, 2);
+  if (!extra) return { positions, boxes };
+  const all = extraCells(ctx, extra);
+  return {
+    boxes,
+    positions: positions.map((p) => {
+      const span = (s: number) => {
+        const fr = p.notes.filter((n) => n.string === s).map((n) => n.fret);
+        return { lo: Math.min(...fr), hi: Math.max(...fr) };
+      };
+      const fits = all
+        .filter((c) => c.fret >= p.from && c.fret <= p.to && c.fret >= span(c.string).lo - 1 && c.fret <= span(c.string).hi + 1)
+        .map((c) => ({ c, inside: c.fret > span(c.string).lo && c.fret < span(c.string).hi }));
+      const added = [...new Set(fits.map((f) => f.c.midi))].map((midi) =>
+        fits.filter((f) => f.c.midi === midi).sort((a, b) => Number(b.inside) - Number(a.inside) || a.c.string - b.c.string)[0].c,
+      );
+      return { ...p, notes: [...p.notes, ...added].sort((a, b) => a.string - b.string || a.fret - b.fret) };
+    }),
+  };
 }
 
 /** A position played up and back down, as MIDI. */

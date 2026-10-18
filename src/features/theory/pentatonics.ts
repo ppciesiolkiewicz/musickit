@@ -1,11 +1,12 @@
-import { FAMILIES, makeKeyContext, shortModeName, type KeyContext } from "./theory";
+import { FAMILIES, MAJOR, makeKeyContext, shortModeName, type KeyContext } from "./theory";
 import { degreeLabels } from "./scales";
 
 /**
  * Five-note scales. Each one is a mode of the major scale with two notes left out (its "host"): major pentatonic is Ionian
  * without the 4th and 7th, In is Phrygian without the 3rd and 7th. Keeping the host means the notes are spelled, numbered and
  * coloured by their place in a seven-note scale (the 5th of a pentatonic is still the blue 5th, not its 4th note), and the
- * guitar boxes come from the host's boxes.
+ * guitar boxes come from the host's boxes. The blues scale is the one with six: minor pentatonic plus a blue note from outside the
+ * host, which takes the colour of the degree it alters.
  */
 export interface PentatonicScale {
   slug: string;
@@ -16,6 +17,13 @@ export interface PentatonicScale {
   host: number;
   /** the five 0-based degrees of the host it keeps */
   degrees: number[];
+  /**
+   * A note from outside the host added to the five: the blues scale's ♯4. `degree` is the host degree it is an altered form of
+   * (it takes that degree's colour and letter), `semis` its distance above the root.
+   */
+  blue?: { degree: number; semis: number };
+  /** one of the two everyday pentatonics, listed first on the scales page */
+  basic?: boolean;
   char: string;
   mood: string;
   use: string;
@@ -23,16 +31,22 @@ export interface PentatonicScale {
 
 export const PENTATONICS: PentatonicScale[] = [
   {
-    slug: "major-pentatonic", name: "Major pentatonic", host: 0, degrees: [0, 1, 2, 4, 5],
+    slug: "major-pentatonic", name: "Major pentatonic", host: 0, degrees: [0, 1, 2, 4, 5], basic: true,
     char: "The major scale without its 4th and 7th, so there are no half steps and no note that clashes.",
     mood: "Open, sunny, hard to play a wrong note.",
     use: "Country, pop and rock solos over major chords.",
   },
   {
-    slug: "minor-pentatonic", name: "Minor pentatonic", host: 5, degrees: [0, 2, 3, 4, 6],
+    slug: "minor-pentatonic", name: "Minor pentatonic", host: 5, degrees: [0, 2, 3, 4, 6], basic: true,
     char: "Natural minor without its 2nd and 6th. The same five notes as the major pentatonic a minor 3rd up.",
     mood: "Bluesy, gritty: the rock-solo sound.",
     use: "Blues and rock solos over minor chords, and over the dominant 7ths of a blues.",
+  },
+  {
+    slug: "minor-blues", name: "Minor pentatonic blues", alias: "blues scale", host: 5, degrees: [0, 2, 3, 4, 6], blue: { degree: 3, semis: 6 },
+    char: "Minor pentatonic with the blue note: a ♯4 squeezed between the 4th and 5th, so 4 – ♯4 – 5 climbs in half steps.",
+    mood: "Bluesy, crying, a little dirty.",
+    use: "Blues, rock and jazz solos: over all three chords of a blues, bending or sliding through the ♯4 rather than resting on it.",
   },
   {
     slug: "suspended-pentatonic", name: "Suspended pentatonic", alias: "Egyptian", host: 1, degrees: [0, 1, 3, 4, 6],
@@ -86,13 +100,28 @@ export const pentatonicLabel = (p: PentatonicScale) => (p.alias ? `${p.name} (${
 /** The host mode's name: "Ionian", "Phrygian". */
 export const hostName = (p: PentatonicScale) => shortModeName(FAMILIES[0].names[p.host]);
 
-/** A pentatonic in one key: the host mode in that key, with the five kept notes picked out. */
+/** One note of a pentatonic, low to high. */
+export interface PentatonicTone {
+  /** host degree, for colour: the blue ♯4 is a 4th, so lime */
+  degree: number;
+  semis: number;
+  name: string;
+  /** "♭3", "♯4" */
+  label: string;
+  /** player key on the page: "pc<pitch class>", so the blue ♯4 lights apart from the 4th it shares a colour with */
+  key: string;
+  blue: boolean;
+}
+
+/** A pentatonic in one key: the host mode in that key, with the five kept notes picked out (and the blue note, if any). */
 export interface PentatonicContext {
   scale: PentatonicScale;
   /** the seven-note mode it is cut from; index notes, labels and colours with its degrees */
   host: KeyContext;
+  /** the kept host degrees (not the blue note) */
   degrees: number[];
-  /** semitones above the root, one per kept degree */
+  tones: PentatonicTone[];
+  /** semitones above the root, one per tone */
   steps: number[];
   names: string[];
   /** "R 2 3 5 6" */
@@ -105,15 +134,32 @@ export function pentatonicContext(tonicPc: number, scale: PentatonicScale): Pent
   const host = makeKeyContext(tonicPc, 0, scale.host);
   const labels = degreeLabels(host.steps);
   const name = /pentatonic/.test(scale.name) ? scale.name.toLowerCase() : scale.name;
+  const tones: PentatonicTone[] = scale.degrees.map((d) => ({ degree: d, semis: host.steps[d], name: host.names[d], label: labels[d], key: `pc${(tonicPc + host.steps[d]) % 12}`, blue: false }));
+  if (scale.blue) {
+    const { degree, semis } = scale.blue;
+    const diff = semis - MAJOR[degree];
+    const label = (diff < 0 ? "♭".repeat(-diff) : "♯".repeat(diff)) + (degree + 1);
+    tones.push({ degree, semis, name: alterTo(host.names[degree], (tonicPc + semis) % 12), label, key: `pc${(tonicPc + semis) % 12}`, blue: true });
+    tones.sort((a, b) => a.semis - b.semis);
+  }
   return {
     scale,
     host,
     degrees: scale.degrees,
-    steps: scale.degrees.map((d) => host.steps[d]),
-    names: scale.degrees.map((d) => host.names[d]),
-    formula: scale.degrees.map((d) => labels[d]),
+    tones,
+    steps: tones.map((t) => t.semis),
+    names: tones.map((t) => t.name),
+    formula: tones.map((t) => t.label),
     title: `${host.names[0]} ${name}`,
   };
+}
+
+const LETTER_PC: Record<string, number> = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
+
+/** The note on the same letter as `name` that sounds as `pc`: D -> D♯ for pc 3, A♭ -> A for pc 9. */
+function alterTo(name: string, pc: number): string {
+  const diff = ((pc - LETTER_PC[name[0]] + 18) % 12) - 6;
+  return name[0] + (diff < 0 ? "♭".repeat(-diff) : "♯".repeat(diff));
 }
 
 /** Semitones from one note of the scale to the next, as W (2), H (1) or W+H (3): "W W W+H W W+H" for major pentatonic. */
@@ -131,7 +177,7 @@ export function pentatonicSteps(steps: number[]): string[] {
 export function samePentatonicNotes(tonicPc: number, scale: PentatonicScale): { scale: PentatonicScale; tonicPc: number }[] {
   const pcs = (root: number, p: PentatonicScale) => {
     const host = FAMILIES[0];
-    const steps = p.degrees.map((d) => (host.parent[(p.host + d) % 7] - host.parent[p.host] + 12) % 12);
+    const steps = p.degrees.map((d) => (host.parent[(p.host + d) % 7] - host.parent[p.host] + 12) % 12).concat(p.blue ? [p.blue.semis] : []);
     return steps.map((s) => (root + s) % 12).sort((a, b) => a - b).join(",");
   };
   const mine = pcs(tonicPc, scale);

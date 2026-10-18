@@ -2,27 +2,30 @@
 
 import { useMemo } from "react";
 import Link from "next/link";
-import { fmtDegree, scaleToneCaption, scaleToneLabel, type LabelSystem } from "@/features/theory/labels";
+import { fmtDegree, type LabelSystem } from "@/features/theory/labels";
 import { DOT_INK, degreeColour } from "@/features/theory/scales";
 import { pentatonicContext, pentatonicSteps, samePentatonicNotes, type PentatonicScale } from "@/features/theory/pentatonics";
-import { scaleCells } from "@/lib/chordKit/scalePositions";
+import { extraCells, scaleCells } from "@/lib/chordKit/scalePositions";
 import { scaleHref } from "@/features/theory/keySlug";
 import { ScaleNeck } from "./ScaleNeck";
 import TuneButton from "./TuneButton";
 import type { NotePlayer } from "./useNotePlayer";
-import { leftOut, pentatonicSounds } from "./PentatonicPage";
+import { blueNote, blueText, leftOut, pentatonicSounds, toneCaption, toneLabel } from "./PentatonicPage";
 
 /** One pentatonic on the scales index, like a mode's card: its notes, Play, the first 12 frets, and where it comes from. */
 export default function PentatonicCard({ scale, tonicPc, player, system, onOpen }: {
   scale: PentatonicScale;
   tonicPc: number;
-  /** the page's one player; this card's keys are "<slug>:d<degree>" */
+  /** the page's one player; this card's keys are "<slug>:pc<pitch class>" */
   player: NotePlayer;
   system: LabelSystem;
   onOpen: (e: React.MouseEvent, href: string) => void;
 }) {
   const p = useMemo(() => pentatonicContext(tonicPc, scale), [tonicPc, scale]);
-  const cells = useMemo(() => scaleCells(p.host, 12).filter((c) => p.degrees.includes(c.degree)), [p]);
+  const cells = useMemo(() => {
+    const blue = blueNote(p);
+    return [...scaleCells(p.host, 12).filter((c) => p.degrees.includes(c.degree)), ...(blue ? extraCells(p.host, blue, 12) : [])];
+  }, [p]);
   const same = useMemo(() => samePentatonicNotes(tonicPc, scale), [tonicPc, scale]);
   const { host } = p;
   const prefix = `${scale.slug}:`;
@@ -40,10 +43,10 @@ export default function PentatonicCard({ scale, tonicPc, player, system, onOpen 
       </header>
 
       <div className="flex flex-wrap items-end gap-1.5" aria-label={`Notes of ${p.title}`}>
-        {p.degrees.map((d, i) => (
-          <button key={d} type="button" onClick={() => tap(i)} title={`${p.names[i]}: tap to hear it`} className="cursor-sound flex flex-col items-center gap-0.5 rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
-            <span className="text-xs tabular-nums text-slate-400">{scaleToneCaption(system, host, d)}</span>
-            <span className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold transition ${active === `d${d}` ? "scale-110 ring-[3px] ring-sky-400" : ""}`} style={{ background: degreeColour(d), color: DOT_INK }}>{scaleToneLabel(system, host, d)}</span>
+        {p.tones.map((t, i) => (
+          <button key={t.key} type="button" onClick={() => tap(i)} title={`${t.name}${t.blue ? " (the blue note)" : ""}: tap to hear it`} className="cursor-sound flex flex-col items-center gap-0.5 rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
+            <span className="text-xs tabular-nums text-slate-400">{toneCaption(system, p, t)}</span>
+            <span className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold transition ${active === t.key ? "scale-110 ring-[3px] ring-sky-400" : ""}`} style={{ background: degreeColour(t.degree), color: DOT_INK }}>{toneLabel(system, p, t)}</span>
           </button>
         ))}
         <button type="button" onClick={playScale} className="cursor-sound mb-1 ml-1 rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25">▶ Play</button>
@@ -63,7 +66,7 @@ export default function PentatonicCard({ scale, tonicPc, player, system, onOpen 
       </p>
 
       <ul className="space-y-1 text-xs text-slate-300">
-        <li>Cut from <b>{host.names[0]} {host.modeName}</b> <span className="text-slate-500">(leaves out its {leftOut(p)})</span></li>
+        <li>Cut from <b>{host.names[0]} {host.modeName}</b> <span className="text-slate-500">(leaves out its {leftOut(p)}{blueText(p)})</span></li>
         {same.length > 0 && (
           <li className="text-slate-400">
             Same notes as{" "}

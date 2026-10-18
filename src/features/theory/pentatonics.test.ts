@@ -14,14 +14,35 @@ describe("pentatonic scales", () => {
     assert.deepEqual(pentatonicContext(0, P("suspended-pentatonic")).formula, ["R", "2", "4", "5", "♭7"]);
   });
 
-  it("have five notes, distinct slugs and steps that add up to an octave", () => {
+  it("have five notes (six with a blue note), distinct slugs and steps that climb from the root", () => {
     assert.equal(new Set(PENTATONICS.map((p) => p.slug)).size, PENTATONICS.length);
     for (const p of PENTATONICS) {
       const ctx = pentatonicContext(0, p);
-      assert.equal(new Set(ctx.steps).size, 5, p.slug);
+      assert.equal(new Set(ctx.steps).size, p.blue ? 6 : 5, p.slug);
+      assert.deepEqual(ctx.steps, [...ctx.steps].sort((a, b) => a - b), p.slug);
       assert.equal(ctx.steps[0], 0, p.slug);
     }
     assert.deepEqual(pentatonicSteps(pentatonicContext(0, P("major-pentatonic")).steps), ["W", "W", "W+H", "W", "W+H"]);
+  });
+
+  it("the blues scale is minor pentatonic with a ♯4, spelled on the 4th's letter in every key", () => {
+    const a = pentatonicContext(9, P("minor-blues"));
+    assert.deepEqual(a.names, ["A", "C", "D", "D♯", "E", "G"]);
+    assert.deepEqual(a.formula, ["R", "♭3", "4", "♯4", "5", "♭7"]);
+    assert.deepEqual(a.tones.map((t) => t.degree), [0, 2, 3, 3, 4, 6]);
+    assert.deepEqual(pentatonicContext(3, P("minor-blues")).names, ["E♭", "G♭", "A♭", "A", "B♭", "D♭"]);
+    assert.deepEqual(pentatonicContext(11, P("minor-blues")).names, ["B", "D", "E", "E♯", "F♯", "A"]);
+    assert.equal(new Set(a.tones.map((t) => t.key)).size, 6);
+    assert.deepEqual(samePentatonicNotes(9, P("minor-blues")), []);
+  });
+
+  it("A blues box 1 is minor pentatonic box 1 with D♯ on the A string (6th fret) and the G string (8th)", () => {
+    const a = pentatonicContext(9, P("minor-blues"));
+    const t = a.tones.find((x) => x.blue)!;
+    const [box1] = pentatonicPositions(a.host, a.degrees, { degree: t.degree, semi: t.semis, name: t.name, degreeText: t.label }).positions;
+    const blues = box1.notes.filter((n) => n.name === "D♯").map((n) => [n.string, n.fret]);
+    assert.deepEqual(blues, [[1, 6], [3, 8]]);
+    assert.equal(box1.notes.length, 14);
   });
 
   it("C major pentatonic shares its notes with A minor, D suspended, E man gong and G ritusen", () => {
@@ -29,9 +50,9 @@ describe("pentatonic scales", () => {
     assert.deepEqual(same.sort(), ["2 suspended-pentatonic", "4 man-gong", "7 ritusen", "9 minor-pentatonic"]);
   });
 
-  it("the five rotations of the major pentatonic use its boxes; the Japanese scales two notes per string", () => {
+  it("the five rotations of the major pentatonic (and the blues scale, on the minor's) use its boxes; the Japanese scales two notes per string", () => {
     const boxed = PENTATONICS.filter((p) => pentatonicPositions(pentatonicContext(0, p).host, p.degrees).boxes).map((p) => p.slug);
-    assert.deepEqual(boxed, ["major-pentatonic", "minor-pentatonic", "suspended-pentatonic", "man-gong", "ritusen"]);
+    assert.deepEqual(boxed, ["major-pentatonic", "minor-pentatonic", "minor-blues", "suspended-pentatonic", "man-gong", "ritusen"]);
   });
 
   it("A minor pentatonic keeps the classic boxes of the Aeolian page", () => {

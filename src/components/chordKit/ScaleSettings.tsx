@@ -159,7 +159,7 @@ function Fact({ from, className = "", children }: { from?: keyof typeof FROM; cl
 function ScaleRow({ slug, tonicPc }: { slug: string; tonicPc: number }) {
   const router = useRouter();
   const current = MODE_PAGES.find((m) => m.slug === slug);
-  const famId = current ? FAMILIES[current.familyIndex].id : findPentatonic(slug) ? "pent" : "major";
+  const famId = current ? FAMILIES[current.familyIndex].id : findPentatonic(slug) ? (findPentatonic(slug)!.basic ? "pent" : "pentMore") : "major";
   return (
     <BarRow label="Scale">
       <Select
@@ -167,13 +167,13 @@ function ScaleRow({ slug, tonicPc }: { slug: string; tonicPc: number }) {
         value={slug}
         onChange={(s) => router.push(scaleHref(s, tonicPc))}
         aria-label="Scale"
-        groups={FAMILIES.map((f, fi) => ({
+        groups={[{ label: "Pentatonic scales", options: PENTATONICS.filter((p) => p.basic).map((p) => ({ value: p.slug, label: pentatonicLabel(p) })) }].concat(FAMILIES.map((f, fi) => ({
           label: f.label,
           options: MODE_PAGES.filter((m) => m.familyIndex === fi).map((m) => {
             const alias = modeAlias(m.familyIndex, m.modeIndex);
             return { value: m.slug, label: alias ? `${m.name} (${alias})` : m.name };
           }),
-        })).concat({ label: "Pentatonic scales", options: PENTATONICS.map((p) => ({ value: p.slug, label: pentatonicLabel(p) })) })}
+        }))).concat({ label: "More pentatonic scales", options: PENTATONICS.filter((p) => !p.basic).map((p) => ({ value: p.slug, label: pentatonicLabel(p) })) })}
       />
       <Link href={scalesIndexHref(tonicPc, `#part-${famId}`)} className="shrink-0 rounded-full border border-slate-700 px-2.5 py-0.5 text-xs text-sky-300 transition hover:border-sky-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
         ← All scales
