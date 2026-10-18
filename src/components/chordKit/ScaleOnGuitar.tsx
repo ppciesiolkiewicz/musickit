@@ -50,7 +50,12 @@ export default function ScaleOnGuitar({ ctx, player }: { ctx: KeyContext; player
         </Info>
       </h2>
 
-      <div className="mb-3 flex flex-col gap-2">
+      <ScaleNeck cells={cells} big={big} rings={rings} focus={focused} fadeOutside={fade} active={active} labelSystem={system} onNote={onNote} title={`${keyName} on the guitar neck`} />
+      <div className="mt-2">
+        <DegreeLegend />
+      </div>
+
+      <div className="mt-4 flex flex-col gap-2">
         <ChipRow label="Shapes" info="Five positions cover the neck, and each is named by the strings its root is on (counting from the low E): 1 has it on E, D and high e; 2 on D and B; 3 on A and B; 4 on A and G; 5 on G, E and high e. Each box keeps its classic shape: it sits at the root's fret on the low E string. Near the nut a note that would fall below it moves to the next string down (so in E, position 1 is the open position); otherwise a box that would go below the nut or past the 17th fret is shown an octave away, so the numbers can jump along the neck. Every mode uses the same five boxes as the major pentatonic (when it has a major 3rd) or the minor pentatonic (minor 3rd), so the shapes look familiar: each string keeps the frets that box uses, and the mode's notes are placed there. Pentatonic shows the mode's five-note scale. Full scale adds the other two notes into the same five boxes (the CAGED scale shapes), so there are still five positions, not seven: one map of the neck for both, with the pentatonic you know as the frame. 3 notes per string is the other common system: seven patterns, one starting on each note of the scale on the low E string, with exactly three notes on every string. They stretch wider but keep one fingering rhythm across the strings, which suits fast runs and legato. They are numbered up the neck.">
           <Chip on={kind === "pentatonic"} onClick={() => { setKind("pentatonic"); setFocus(null); }}>{pent.name} boxes</Chip>
           <Chip on={kind === "scale"} onClick={() => { setKind("scale"); setFocus(null); }}>Full scale</Chip>
@@ -70,11 +75,6 @@ export default function ScaleOnGuitar({ ctx, player }: { ctx: KeyContext; player
             <>All seven notes, <b className="text-slate-200">{ctx.names.join(" ")}</b>, three on every string: one pattern starting on each note on the low E string.</>
           )}
         </p>
-      </div>
-
-      <ScaleNeck cells={cells} big={big} rings={rings} focus={focused} fadeOutside={fade} active={active} labelSystem={system} onNote={onNote} title={`${keyName} on the guitar neck`} />
-      <div className="mt-2">
-        <DegreeLegend />
       </div>
 
       <div className="mt-4 min-h-8">
