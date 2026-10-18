@@ -20,8 +20,8 @@ export function Modal({ title, onClose, children }: { title: ReactNode; onClose:
   useEffect(() => setHost(document.body), []);
   if (!host) return null;
   return createPortal(
-    <div className="fixed inset-0 z-[2000] flex items-start justify-center overflow-y-auto bg-black/70 sm:p-6" onClick={onClose}>
-      <div role="dialog" aria-modal="true" aria-label={typeof title === "string" ? title : undefined} onClick={(e) => e.stopPropagation()} className="min-h-full w-full max-w-5xl bg-slate-950 p-3 sm:min-h-0 sm:rounded-2xl sm:border sm:border-slate-700 sm:p-4 sm:shadow-2xl">
+    <div className="fixed inset-0 z-[2000] flex items-start justify-center overflow-y-auto bg-black/70 desk:p-6" onClick={onClose}>
+      <div role="dialog" aria-modal="true" aria-label={typeof title === "string" ? title : undefined} onClick={(e) => e.stopPropagation()} className="min-h-full w-full bg-slate-950 desk:max-w-5xl p-3 desk:min-h-0 desk:rounded-2xl desk:border desk:border-slate-700 desk:p-4 desk:shadow-2xl">
         <div className="mb-3 flex items-center gap-2">
           <h2 className="text-base font-medium text-slate-100">{title}</h2>
           <button type="button" onClick={onClose} className="ml-auto rounded-md border border-slate-700 px-2.5 py-1 text-xs text-slate-300 hover:border-slate-500">Close ✕</button>

@@ -72,7 +72,7 @@ export default function TheoryMenu({ active }: { active: string }) {
   return (
     <div
       ref={root}
-      className="static sm:relative"
+      className="static desk:relative"
       onPointerEnter={(e) => {
         if (e.pointerType !== "mouse") return;
         cancelClose();
@@ -105,10 +105,10 @@ export default function TheoryMenu({ active }: { active: string }) {
       {open && (
         <div
           id={panelId}
-          className="fixed inset-0 z-[2000] overflow-y-auto bg-slate-900 p-3 sm:absolute sm:inset-auto sm:left-0 sm:z-50 sm:mt-1 sm:max-h-[80vh] sm:w-[min(64rem,calc(100vw-2rem))] sm:rounded-2xl sm:border sm:border-slate-700 sm:shadow-2xl"
+          className="fixed inset-0 z-[2000] overflow-y-auto bg-slate-900 p-3 desk:absolute desk:inset-auto desk:left-0 desk:z-50 desk:mt-1 desk:max-h-[80vh] desk:w-[min(64rem,calc(100vw-2rem))] desk:rounded-2xl desk:border desk:border-slate-700 desk:shadow-2xl"
         >
           {/* on a phone the panel covers the screen, so it needs its own way out */}
-          <div className="mb-2 flex items-center sm:hidden">
+          <div className="mb-2 flex items-center desk:hidden">
             <span className="px-3 text-base font-medium text-slate-100">Practice</span>
             <button type="button" onClick={() => setOpen(false)} className="ml-auto rounded-md border border-slate-700 px-2.5 py-1 text-xs text-slate-300">Close ✕</button>
           </div>

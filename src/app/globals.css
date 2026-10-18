@@ -1,6 +1,15 @@
 @import "tailwindcss";
 @import "./themes.css";
 
+/* not a phone: `sm` and up, unless it is a phone on its side (wide, but short with a touch screen). usePhone() is the same test in JS. */
+@custom-variant desk {
+  @media (min-width: 40rem) {
+    @media (min-height: 500px), (pointer: fine) {
+      @slot;
+    }
+  }
+}
+
 @theme inline {
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);

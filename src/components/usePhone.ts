@@ -2,8 +2,8 @@
 
 import { useSyncExternalStore } from "react";
 
-// Tailwind's `sm` breakpoint: below it the screen is a phone.
-const QUERY = "(max-width: 639.98px)";
+// Below Tailwind's `sm` breakpoint, or a phone turned on its side (wide, but short with a touch screen). The `desk:` variant in globals.css is the opposite.
+const QUERY = "(max-width: 639.98px), (max-height: 499.98px) and (pointer: coarse)";
 
 const subscribe = (onChange: () => void) => {
   const mq = window.matchMedia(QUERY);
@@ -11,7 +11,7 @@ const subscribe = (onChange: () => void) => {
   return () => mq.removeEventListener("change", onChange);
 };
 
-/** True on a phone-width screen (under Tailwind's `sm`). False on the server. */
+/** True on a phone, either way up; it follows the screen as it rotates. False on the server. */
 export default function usePhone() {
   return useSyncExternalStore(subscribe, () => window.matchMedia(QUERY).matches, () => false);
 }
