@@ -7,6 +7,7 @@ import { pentatonicOf, positionLine, positionsFor, rootStrings, scaleCells, type
 import { PositionBox, ScaleNeck, cellKey } from "./ScaleNeck";
 import { STRING_NAMES } from "./Fretboard";
 import type { NotePlayer } from "./useNotePlayer";
+import { generateMelody, melodyTiming } from "@/lib/chordKit/melody";
 import { Chip, ChipRow, Info } from "@/components/ui";
 import { DegreeLegend } from "@/components/theory/DegreeLegend";
 
@@ -23,7 +24,7 @@ export default function ScaleOnGuitar({ ctx, player }: { ctx: KeyContext; player
   const [rings, setRings] = useState(true);
   const [focus, setFocus] = useState<number | null>(null);
   const [fade, setFade] = useState(true);
-  const { active, play, tap } = player;
+  const { active, play, playTimed, tap } = player;
 
   const cells = useMemo(() => scaleCells(ctx), [ctx]);
   const pent = useMemo(() => pentatonicOf(ctx.steps), [ctx]);
@@ -39,6 +40,11 @@ export default function ScaleOnGuitar({ ctx, player }: { ctx: KeyContext; player
     const up = positionLine(p);
     const line = [...up, ...up.slice(0, -1).reverse()];
     play(line.map((c) => ({ key: cellKey(c), midi: c.midi })), 220);
+  };
+  /** A short tune using only the position's notes, so it can be played in that box. */
+  const playTune = (p: ScalePosition) => {
+    setFocus(p.number);
+    playTimed(melodyTiming(generateMelody(positionLine(p), ctx.steps)).map((n) => ({ key: cellKey(n.note), midi: n.note.midi, ms: n.ms, velocity: n.velocity })));
   };
 
   return (
@@ -105,7 +111,10 @@ export default function ScaleOnGuitar({ ctx, player }: { ctx: KeyContext; player
                   </span>
                   <span className="block text-xs font-normal text-slate-500">frets {p.from}–{p.to}</span>
                 </button>
-                <button type="button" onClick={() => playPosition(p)} className={`cursor-sound ${playBtn} ml-auto`}>▶ Play</button>
+                <div className="ml-auto flex flex-wrap justify-end gap-1.5">
+                  <button type="button" onClick={() => playPosition(p)} className={`cursor-sound ${playBtn}`}>▶ Play</button>
+                  <button type="button" onClick={() => playTune(p)} title="A short tune using only this position's notes, new every time" className={`cursor-sound ${playBtn}`}>♪ Sample melody</button>
+                </div>
               </div>
               <PositionBox position={p} cells={cells} rings={rings} active={active} labelSystem={system} onNote={onNote} />
             </div>
@@ -115,7 +124,7 @@ export default function ScaleOnGuitar({ ctx, player }: { ctx: KeyContext; player
       <p className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
         <span className="inline-flex items-center gap-1.5"><span className="inline-block h-3 w-3 rounded-full bg-slate-300" />{kind === "pentatonic" ? `in the ${pent.name.toLowerCase()}: played` : "in the position: played"}</span>
         {rings && <span className="inline-flex items-center gap-1.5"><span className="inline-block h-3 w-3 rounded-full border-2 border-slate-400" />{kind === "pentatonic" ? `other notes of ${ctx.modeName}: not played` : "scale notes outside the position: not played"}</span>}
-        <span>Play runs up the position from its lowest note and back down. Tap a position&apos;s name to see it on the neck.</span>
+        <span>Play runs up the position from its lowest note and back down; Sample melody plays a short tune using only its notes. Tap a position&apos;s name to see it on the neck.</span>
       </p>
     </section>
   );

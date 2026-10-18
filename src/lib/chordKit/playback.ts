@@ -1,5 +1,5 @@
 import { Note } from "@tonaljs/tonal";
-import { silence, strum as soundStrum } from "@/features/sound";
+import { playSequence, silence, strum as soundStrum } from "@/features/sound";
 import { shapeMidi } from "./shapeTools";
 import type { Shape } from "./shapes";
 
@@ -12,6 +12,12 @@ export function strum(midi: number[], opts: { gapMs?: number; holdMs?: number } 
 }
 
 export { silence };
+
+/** Notes of their own lengths one after another (a tune), each held for most of its length. */
+export function playTimed(notes: { midi: number; ms: number; velocity?: number }[]): void {
+  let at = 0;
+  playSequence(notes.map((n) => ({ note: n.midi, at: (at += n.ms) - n.ms, hold: n.ms * 0.92, velocity: n.velocity })));
+}
 
 /** Strum a shape placed with its root at `rootFret`. */
 export const strumShape = (sh: Shape, rootFret: number, opts?: { gapMs?: number; holdMs?: number }) => strum(shapeMidi(sh, rootFret), opts);

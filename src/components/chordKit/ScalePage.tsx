@@ -15,6 +15,7 @@ import ChordBubbles from "./ChordBubbles";
 import ScaleOnGuitar from "./ScaleOnGuitar";
 import { useNotePlayer } from "./useNotePlayer";
 import { scaleLineMidi } from "@/lib/chordKit/scalePositions";
+import { generateMelody, melodyTiming, scalePool } from "@/lib/chordKit/melody";
 import { scaleHref } from "@/features/theory/keySlug";
 import { Chip, Info } from "@/components/ui";
 
@@ -72,6 +73,7 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
   const line = scaleLineMidi(ctx);
   const degreeOf = (midi: number) => ctx.steps.indexOf((midi - ctx.tonic.pc + 120) % 12);
   const playScale = () => player.play(line.map((m) => ({ key: `d${degreeOf(m)}`, midi: m })), 240);
+  const playTune = () => player.playTimed(melodyTiming(generateMelody(scalePool(60 + ctx.tonic.pc, ctx.steps), ctx.steps)).map((n) => ({ key: `d${n.note.degree}`, midi: n.note.midi, ms: n.ms, velocity: n.velocity })));
 
   const siblingLink = (s: { modeIndex: number; tonicPc: number }) => scaleHref(pageFor(familyIndex, s.modeIndex).slug, s.tonicPc);
 
@@ -103,6 +105,7 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
             </button>
           ))}
           <button type="button" onClick={playScale} className="cursor-sound ml-2 rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25">▶ Play scale</button>
+          <button type="button" onClick={playTune} title="A short tune made from this scale, new every time" className="cursor-sound rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25">♪ Sample melody</button>
         </div>
         <p className="text-xs text-slate-400">
           Step pattern <span className="tabular-nums text-slate-300">{pattern.join(" – ")}</span>

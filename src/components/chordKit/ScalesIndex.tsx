@@ -9,6 +9,7 @@ import ModeCompare from "./ModeCompare";
 import { FAMILIES, makeKeyContext, modeAlias } from "@/features/theory/theory";
 import { MODE_PAGES, degreeColour, degreeLabels, relativesOf, DOT_INK } from "@/features/theory/scales";
 import { scaleCells, scaleLineMidi } from "@/lib/chordKit/scalePositions";
+import { generateMelody, melodyTiming, scalePool } from "@/lib/chordKit/melody";
 import { ScaleNeck } from "./ScaleNeck";
 import { useNotePlayer } from "./useNotePlayer";
 import { keySlug, scaleHref } from "@/features/theory/keySlug";
@@ -101,6 +102,7 @@ export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey
               const active = activeIn(page.slug);
               const degreeOf = (midi: number) => ctx.steps.indexOf((midi - ctx.tonic.pc + 120) % 12);
               const playScale = () => player.play(line.map((m) => ({ key: `${page.slug}:d${degreeOf(m)}`, midi: m })), 240);
+              const playTune = () => player.playTimed(melodyTiming(generateMelody(scalePool(60 + ctx.tonic.pc, ctx.steps), ctx.steps)).map((n) => ({ key: `${page.slug}:d${n.note.degree}`, midi: n.note.midi, ms: n.ms, velocity: n.velocity })));
               return (
               <article key={page.slug} className="flex min-w-0 flex-col gap-3 rounded-xl border border-slate-800 bg-slate-950/60 p-2.5">
                 <header>
@@ -118,6 +120,7 @@ export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey
                     </button>
                   ))}
                   <button type="button" onClick={playScale} className="cursor-sound mb-1 ml-1 rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25">▶ Play</button>
+                  <button type="button" onClick={playTune} title="A short tune made from this scale, new every time" className="cursor-sound mb-1 rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25">♪ Sample melody</button>
                 </div>
 
                 <ScaleNeck

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { playMelody } from "@/features/sound";
+import { playTimed as playTimedNotes } from "@/lib/chordKit/playback";
 
 /**
  * Play notes one after another on the shared piano and say which one is sounding, so a page can light it up.
@@ -24,10 +25,20 @@ export function useNotePlayer() {
     timers.current.push(setTimeout(() => setActive(null), notes.length * stepMs));
   }, []);
 
+  /** Notes of their own lengths (a tune rather than a scale run), each held for most of its length. */
+  const playTimed = useCallback((notes: { key: string; midi: number; ms: number; velocity?: number }[]) => {
+    clear();
+    let at = 0;
+    const starts = notes.map((n) => (at += n.ms) - n.ms);
+    playTimedNotes(notes);
+    notes.forEach((n, i) => timers.current.push(setTimeout(() => setActive(n.key), starts[i])));
+    timers.current.push(setTimeout(() => setActive(null), at));
+  }, []);
+
   /** One note, held a little longer. */
   const tap = useCallback((key: string, midi: number) => play([{ key, midi }], 700), [play]);
 
-  return { active, play, tap };
+  return { active, play, playTimed, tap };
 }
 
 export type NotePlayer = ReturnType<typeof useNotePlayer>;
