@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Icon from "@/components/Icon";
 import { PLUGINS } from "@/features/creator";
-import { StageFrame, subjectTitle, type Layer } from "@/features/stage";
+import { StageFrame, StageWidget, subjectTitle, type Layer } from "@/features/stage";
 import { isStudioSupported } from "./browserSupport";
 import useStage from "./useStage";
 
@@ -22,7 +22,9 @@ export default function StudioApp() {
   if (supported === null) return null;
   if (!supported) return <p className="mx-auto mt-24 max-w-md text-center text-slate-300">The studio needs desktop Chrome or Edge.</p>;
 
-  const renderLayer = (l: Layer) => <div className="flex h-full w-full items-center justify-center rounded-md border border-slate-700 bg-slate-900/80 text-sm text-slate-300">{subjectTitle(l.subject)}</div>;
+  const renderLayer = (l: Layer) => (
+    <StageWidget subject={l.subject} onSubjectChange={(subject) => dispatch({ type: "swap", id: l.id, subject })} stageKey={stage.key} onStageKey={(key) => dispatch({ type: "setStageKey", key })} />
+  );
 
   return (
     <div className="grid min-h-screen grid-cols-[240px_minmax(0,1fr)_220px] gap-4 p-4">
