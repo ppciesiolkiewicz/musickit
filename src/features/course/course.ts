@@ -1,3 +1,4 @@
+import { degreeColour } from "../theory/scales";
 import { TOPICS, type CourseSection, type CourseStage, type TopicId } from "./model";
 import { STAGES_0 } from "./stages/s0";
 import { STAGE_1 } from "./stages/s1";
@@ -34,6 +35,9 @@ export function prevSection(stage: string, section: string): SectionRef | undefi
 export const findStage = (stage: string): CourseStage | undefined => COURSE.find((s) => s.slug === stage);
 
 export const sectionHref = (stage: string, section: string) => `/course/${stage}/${section}`;
+
+/** Each stage keeps one colour from the degree palette, so its panel, index entry and links agree. */
+export const stageColour = (stage: string): string => degreeColour(1 + (COURSE.findIndex((s) => s.slug === stage) % 6));
 
 /** Sections grouped by main topic, topics in `TOPICS` order, course order inside a topic; empty topics left out. */
 export function byTopic(): { topic: { id: TopicId; label: string }; items: SectionRef[] }[] {

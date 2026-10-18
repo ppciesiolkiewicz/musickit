@@ -58,17 +58,19 @@ export function useAllNotes(): Record<string, SectionNotes> {
   return useSyncExternalStore(subscribe, () => notes, () => SERVER_NOTES);
 }
 
+/** Merge a change into one section's notes; a section left with nothing noted is removed. */
+export function saveSectionNotes(key: string, patch: Partial<SectionNotes>) {
+  const next = { ...(notes[key] ?? EMPTY_NOTES), ...patch };
+  const copy = { ...notes };
+  if (hasNotes(next)) copy[key] = next; else delete copy[key];
+  notes = copy;
+  write(NOTES_KEY, JSON.stringify(notes));
+  emit();
+}
+
 export function useSectionNotes(key: string): [SectionNotes, (patch: Partial<SectionNotes>) => void] {
   const all = useAllNotes();
-  const set = (patch: Partial<SectionNotes>) => {
-    const next = { ...(notes[key] ?? EMPTY_NOTES), ...patch };
-    const copy = { ...notes };
-    if (hasNotes(next)) copy[key] = next; else delete copy[key];
-    notes = copy;
-    write(NOTES_KEY, JSON.stringify(notes));
-    emit();
-  };
-  return [all[key] ?? EMPTY_NOTES, set];
+  return [all[key] ?? EMPTY_NOTES, (patch) => saveSectionNotes(key, patch)];
 }
 
 export function useTags(): [Tag[], (t: Tag) => void] {
