@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import PageShell from "@/components/PageShell";
 import Lesson from "@/components/theory/Lesson";
 import TheoryPiano from "@/components/theory/piano/TheoryPiano";
+import LabelSystemsArticle from "@/components/theory/LabelSystemsArticle";
 
 export const metadata: Metadata = {
   title: "Piano · Music Kit",
@@ -17,6 +18,7 @@ export default function PianoPage() {
     >
       <Lesson stage={2} why="Seeing a note's degree and the interval to the next one while you play is how a key stops being a list of notes and starts being a set of sounds you can name." tryThis="In C major play C, then E, then G one at a time and watch the intervals: a major 3rd, then a minor 3rd. Now press all three at once and the staff calls it C, the I chord." />
       <TheoryPiano />
+      <LabelSystemsArticle />
     </PageShell>
   );
 }
