@@ -21,6 +21,11 @@
   --text-lg: 1.1875rem;
 }
 
+/* 100vw counts the scrollbar, so a full-bleed bar (the scales settings) would nudge the page sideways without this. */
+html {
+  overflow-x: clip;
+}
+
 body {
   background: var(--color-slate-950);
   color: var(--color-slate-200);
