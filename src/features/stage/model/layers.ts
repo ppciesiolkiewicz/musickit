@@ -80,6 +80,7 @@ export function defaultRect(s: Subject, existing: Layer[]): FrameRect {
 
 export type StageAction =
   | { type: "add"; layer: Layer }
+  | { type: "addSubject"; id: string; subject: Subject }
   | { type: "remove"; id: string }
   | { type: "move"; id: string; dx: number; dy: number }
   | { type: "resize"; id: string; dw: number; dh: number }
@@ -98,6 +99,8 @@ export function stageReducer(s: Stage, a: StageAction): Stage {
   switch (a.type) {
     case "add":
       return s.layers.some((l) => l.id === a.layer.id) ? s : { ...s, layers: [...s.layers, { ...a.layer, rect: clampRect(a.layer.rect) }] };
+    case "addSubject":
+      return addSubject(s, a.id, a.subject);
     case "remove":
       return { ...s, layers: s.layers.filter((l) => l.id !== a.id), selected: s.selected === a.id ? null : s.selected };
     case "move":

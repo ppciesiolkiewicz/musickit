@@ -1,23 +1,114 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Icon from "@/components/Icon";
 import { PLUGINS } from "@/features/creator";
-import { StageFrame, StageWidget, subjectTitle, type Layer } from "@/features/stage";
+import { NUDGE, NUDGE_BIG, StageFrame, StageWidget, shortcutFor, stageCommand, subjectTitle, type Layer, type PaletteResult, type StudioCommand } from "@/features/stage";
 import { isStudioSupported } from "./browserSupport";
+import KeysPanel, { KeysOverlay } from "./KeysPanel";
+import Palette from "./Palette";
 import useStage from "./useStage";
 
 const PLUGIN_IDS = PLUGINS.map((p) => p.id);
+
+const isTyping = () => {
+  const el = document.activeElement as HTMLElement | null;
+  return !!el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.tagName === "SELECT" || el.isContentEditable);
+};
 
 /** The teacher studio: the 16:9 frame in the middle, its layers on the left, the keys that work on the right. */
 export default function StudioApp() {
   const [supported, setSupported] = useState<boolean | null>(null);
   const [stage, dispatch] = useStage(PLUGIN_IDS);
+  const [palette, setPalette] = useState(false);
+  const [help, setHelp] = useState(false);
+  const stageRef = useRef(stage);
+  useEffect(() => {
+    stageRef.current = stage;
+  }, [stage]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- the browser check needs window, after hydration
     setSupported(isStudioSupported());
   }, []);
+
+  const runCommand = useCallback((cmd: StudioCommand) => {
+    for (const a of stageCommand(stageRef.current, cmd, () => crypto.randomUUID())) dispatch(a);
+  }, [dispatch]);
+
+  const onPick = useCallback(
+    (r: PaletteResult) => {
+      if (r.action.type === "add") dispatch({ type: "addSubject", id: crypto.randomUUID(), subject: r.action.subject });
+      else runCommand(r.action.command);
+    },
+    [dispatch, runCommand],
+  );
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (palette) return;
+      if (help) {
+        setHelp(false);
+        e.preventDefault();
+        return;
+      }
+      const s = stageRef.current;
+      const sc = shortcutFor(e, { typing: isTyping(), hasSelection: s.selected !== null });
+      if (!sc) return;
+      e.preventDefault();
+      const id = s.selected;
+      const step = e.shiftKey ? NUDGE_BIG : NUDGE;
+      switch (sc) {
+        case "palette":
+          setPalette(true);
+          break;
+        case "help":
+          setHelp(true);
+          break;
+        case "camera-corner":
+          runCommand("camera-corner");
+          break;
+        case "camera-full":
+          runCommand("camera-full");
+          break;
+        case "deselect":
+          dispatch({ type: "select", id: null });
+          break;
+      }
+      if (!id) return;
+      switch (sc) {
+        case "delete":
+          dispatch({ type: "remove", id });
+          break;
+        case "nudge-left":
+          dispatch({ type: "move", id, dx: -step, dy: 0 });
+          break;
+        case "nudge-right":
+          dispatch({ type: "move", id, dx: step, dy: 0 });
+          break;
+        case "nudge-up":
+          dispatch({ type: "move", id, dx: 0, dy: -step });
+          break;
+        case "nudge-down":
+          dispatch({ type: "move", id, dx: 0, dy: step });
+          break;
+        case "grow-w":
+          dispatch({ type: "resize", id, dw: step, dh: 0 });
+          break;
+        case "shrink-w":
+          dispatch({ type: "resize", id, dw: -step, dh: 0 });
+          break;
+        case "grow-h":
+          dispatch({ type: "resize", id, dw: 0, dh: step });
+          break;
+        case "shrink-h":
+          dispatch({ type: "resize", id, dw: 0, dh: -step });
+          break;
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [palette, help, dispatch, runCommand]);
 
   if (supported === null) return null;
   if (!supported) return <p className="mx-auto mt-24 max-w-md text-center text-slate-300">The studio needs desktop Chrome or Edge.</p>;
@@ -54,6 +145,9 @@ export default function StudioApp() {
             </li>
           ))}
         </ul>
+        <button type="button" onClick={() => setPalette(true)} className="mt-1 flex items-center gap-1.5 self-start rounded-md border border-slate-700 px-2 py-1 text-xs text-slate-300 hover:border-slate-500">
+          <Icon name="plus" size={12} /> Add <kbd className="font-mono text-slate-500">/</kbd>
+        </button>
       </aside>
 
       <main className="flex min-w-0 flex-col gap-3">
@@ -62,8 +156,11 @@ export default function StudioApp() {
       </main>
 
       <aside data-chrome aria-label="Keys" className="flex flex-col gap-2">
-        <h2 className="text-xs font-medium uppercase tracking-wider text-slate-400">Keys</h2>
+        <KeysPanel hasSelection={stage.selected !== null} />
       </aside>
+
+      {palette && <Palette pluginIds={PLUGIN_IDS} stageKey={stage.key} onPick={onPick} onClose={() => setPalette(false)} />}
+      {help && <KeysOverlay onClose={() => setHelp(false)} />}
     </div>
   );
 }

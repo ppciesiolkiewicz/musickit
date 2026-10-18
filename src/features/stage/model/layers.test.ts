@@ -94,6 +94,11 @@ test("addSubject: one camera, one screen, one key; screen at the bottom, camera 
   assert.equal(s.selected, "k");
 });
 
+test("the addSubject action does what addSubject does", () => {
+  const s = stageReducer(EMPTY_STAGE, { type: "addSubject", id: "cam", subject: { kind: "camera" } });
+  assert.deepEqual(s, addSubject(EMPTY_STAGE, "cam", { kind: "camera" }));
+});
+
 test("camera presets are just rects", () => {
   let s = addSubject(EMPTY_STAGE, "cam", { kind: "camera" });
   s = stageReducer(s, { type: "setRect", id: "cam", rect: FULL });

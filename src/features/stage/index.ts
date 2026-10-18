@@ -12,4 +12,6 @@ export { default as StageFrame } from "./StageFrame";
 export * from "./model/subject";
 export * from "./model/layers";
 export { searchPalette } from "./model/search";
+export * from "./model/keys";
+export { stageCommand } from "./model/commands";
 export { default as StageWidget, type StageWidgetProps } from "./render/StageWidget";
