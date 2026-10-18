@@ -13,12 +13,12 @@ export const PHOTOS = {
 
 export type PhotoKey = keyof typeof PHOTOS;
 
-export default function Photo({ name, className = "", sizes = "(min-width: 1024px) 40vw, 100vw", width = 1200, priority = false, credit = true }: { name: PhotoKey; className?: string; sizes?: string; width?: number; priority?: boolean; credit?: boolean }) {
+export default function Photo({ name, className = "", sizes = "(min-width: 1024px) 40vw, 100vw", width = 1200, focus, priority = false, credit = true }: { name: PhotoKey; className?: string; sizes?: string; width?: number; /** object-position, to frame a face in a small crop */ focus?: string; priority?: boolean; credit?: boolean }) {
   const p = PHOTOS[name];
   return (
     <figure className={`relative overflow-hidden ${className}`}>
       {/* Unsplash's CDN sizes and compresses the photo itself, so Next's optimiser is skipped */}
-      <Image src={`https://images.unsplash.com/photo-${p.id}?auto=format&fit=crop&q=70&w=${width}`} alt={p.alt} fill sizes={sizes} priority={priority} unoptimized className="object-cover" />
+      <Image src={`https://images.unsplash.com/photo-${p.id}?auto=format&fit=crop&q=70&w=${width}`} alt={p.alt} fill sizes={sizes} priority={priority} unoptimized className="object-cover" style={focus ? { objectPosition: focus } : undefined} />
       {credit && (
         <figcaption className="absolute bottom-1.5 right-2 text-[10px] text-white/70 [text-shadow:0_1px_2px_rgb(0_0_0/0.6)]">
           Photo: <a href={p.page} className="underline decoration-white/30 underline-offset-2 hover:text-white" target="_blank" rel="noopener">{p.by} / Unsplash</a>

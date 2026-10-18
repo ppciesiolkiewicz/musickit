@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
-import Icon, { type IconName } from "@/components/Icon";
+import Icon from "@/components/Icon";
+import Photo, { type PhotoKey } from "./Photo";
 import { DOT_INK, degreeColour } from "@/features/theory/scales";
 
 /* Drawn pictures of private lessons inside the kit, not screenshots, so they follow the theme. */
@@ -62,11 +63,18 @@ export function LessonNoteMock() {
   );
 }
 
-function Tile({ label, icon, tone }: { label: string; icon: IconName; tone: string }) {
+/** A video call tile: a cropped stock photo framed on the face, with the name tag and a mic dot like a real call. */
+function Tile({ label, photo, focus, zoom = 1, speaking = false }: { label: string; photo: PhotoKey; focus: string; zoom?: number; speaking?: boolean }) {
   return (
-    <div className={`relative flex aspect-4/3 items-center justify-center overflow-hidden rounded-xl ${tone}`}>
-      <Icon name={icon} size={26} />
-      <span className="absolute bottom-1.5 left-2 rounded bg-slate-950/60 px-1.5 text-[10px] text-slate-200">{label}</span>
+    <div className={`relative aspect-4/3 overflow-hidden rounded-xl ${speaking ? "ring-2 ring-emerald-400" : "ring-1 ring-slate-700"}`}>
+      {/* zoomed in round the face, so a wide shot reads as a webcam */}
+      <div className="h-full w-full" style={{ transform: `scale(${zoom})`, transformOrigin: focus }}>
+        <Photo name={photo} focus={focus} width={600} sizes="240px" credit={false} className="h-full w-full" />
+      </div>
+      <span className="absolute bottom-1.5 left-1.5 flex items-center gap-1 rounded bg-slate-950/70 px-1.5 text-[10px] text-slate-100">
+        {speaking && <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />}
+        {label}
+      </span>
     </div>
   );
 }
@@ -92,8 +100,8 @@ export function LiveLessonMock() {
           </div>
         </div>
         <div className="flex flex-col gap-2">
-          <Tile label="Teacher" icon="headphones" tone="bg-linear-to-br from-violet-500/40 to-sky-500/30 text-violet-100" />
-          <Tile label="You" icon="guitar" tone="bg-linear-to-br from-amber-500/35 to-rose-500/30 text-amber-100" />
+          <Tile label="Teacher" photo="teacher" focus="80% 18%" zoom={2} speaking />
+          <Tile label="You" photo="couch" focus="50% 25%" zoom={1.5} />
         </div>
       </div>
       <div className="mt-3 flex flex-wrap gap-1.5 text-[11px]">
