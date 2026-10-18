@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Icon from "@/components/Icon";
 import { PLUGINS } from "@/features/creator";
-import { CameraLayer, NUDGE, NUDGE_BIG, ScreenLayer, StageFrame, StageWidget, shortcutFor, stageCommand, subjectTitle, type Layer, type PaletteResult, type StudioCommand, type Subject } from "@/features/stage";
+import { CameraLayer, NUDGE, NUDGE_BIG, ScreenLayer, StageFrame, StageWidget, mediaState, shortcutFor, stageCommand, subjectTitle, toggleFull, type Layer, type PaletteResult, type StudioCommand, type Subject } from "@/features/stage";
 import { isStudioSupported } from "./browserSupport";
 import KeysPanel, { KeysOverlay } from "./KeysPanel";
 import useCamera from "./media/useCamera";
@@ -62,10 +62,9 @@ export default function StudioApp() {
   const runCommand = useCallback(
     (cmd: StudioCommand) => {
       if (cmd === "screen-share") void startScreen();
-      else if (cmd === "screen-stop") removeKind("screen");
       else for (const a of stageCommand(stageRef.current, cmd, () => crypto.randomUUID())) dispatch(a);
     },
-    [dispatch, startScreen, removeKind],
+    [dispatch, startScreen],
   );
 
   const onPick = useCallback(
@@ -100,8 +99,12 @@ export default function StudioApp() {
         case "camera-corner":
           runCommand("camera-corner");
           break;
-        case "camera-full":
-          runCommand("camera-full");
+        case "camera-toggle":
+        case "screen-toggle": {
+          const cmd = toggleFull(sc === "camera-toggle" ? "camera" : "screen", mediaState(s));
+          if (cmd) runCommand(cmd);
+          break;
+        }
           break;
         case "deselect":
           dispatch({ type: "select", id: null });
@@ -145,13 +148,28 @@ export default function StudioApp() {
   if (supported === null) return null;
   if (!supported) return <p className="mx-auto mt-24 max-w-md text-center text-slate-300">The studio needs desktop Chrome or Edge.</p>;
 
+  const media = mediaState(stage);
   const renderLayer = (l: Layer) => (
     <StageWidget
       subject={l.subject}
       onSubjectChange={(subject) => dispatch({ type: "swap", id: l.id, subject })}
       stageKey={stage.key}
       onStageKey={(key) => dispatch({ type: "setStageKey", key })}
-      renderMedia={(s) => (s.kind === "camera" ? <CameraLayer stream={camera.stream} error={camera.error} onStart={() => void camera.start()} /> : <ScreenLayer stream={screen.stream} onStart={() => void startScreen()} />)}
+      renderMedia={(s) => {
+        const kind = s.kind === "camera" ? "camera" : "screen";
+        const full = media[kind] === "full";
+        const controls = {
+          full,
+          name: kind === "camera" ? "camera" : "screen share",
+          onToggleFull: () => runCommand(kind === "camera" ? (full ? "camera-corner" : "camera-full") : full ? "screen-corner" : "screen-full"),
+          onClose: () => runCommand(kind === "camera" ? "camera-off" : "screen-stop"),
+        };
+        return kind === "camera" ? (
+          <CameraLayer stream={camera.stream} error={camera.error} onStart={() => void camera.start()} controls={controls} />
+        ) : (
+          <ScreenLayer stream={screen.stream} onStart={() => void startScreen()} controls={controls} />
+        );
+      }}
     />
   );
 
@@ -204,7 +222,7 @@ export default function StudioApp() {
         <KeysPanel onAdd={() => setPalette(true)} />
       </aside>
 
-      {palette && <Palette pluginIds={PLUGIN_IDS} stageKey={stage.key} onPick={onPick} onClose={() => setPalette(false)} />}
+      {palette && <Palette pluginIds={PLUGIN_IDS} stageKey={stage.key} media={media} onPick={onPick} onClose={() => setPalette(false)} />}
       {help && <KeysOverlay onClose={() => setHelp(false)} />}
     </div>
   );

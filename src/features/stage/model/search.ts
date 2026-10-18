@@ -5,6 +5,7 @@
 import { EMPTY_KEY, keyTitle, type KeyChoice } from "@/features/creator/model/key";
 import { chordLabel, parseChordQuery } from "@/lib/chordKit/chordSearch";
 import type { PositionKind } from "@/lib/chordKit/scalePositions";
+import { NO_MEDIA, type MediaState } from "./commands";
 import { PLUGIN_TITLES, SECTIONS, subjectTitle, type PaletteResult, type ScaleSection, type StudioCommand, type Subject } from "./subject";
 
 const MAX_RESULTS = 8;
@@ -59,23 +60,28 @@ const SECTION_PHRASES: [string[], ScaleSection][] = [
   [["fretboard"], "guitar"],
 ];
 
-const COMMANDS: [string, StudioCommand][] = [
-  ["camera corner", "camera-corner"],
-  ["camera full", "camera-full"],
-  ["camera off", "camera-off"],
-  ["screen share", "screen-share"],
-  ["stop screen", "screen-stop"],
-  ["clear", "clear"],
+interface CommandDef {
+  label: string;
+  command: StudioCommand;
+  /** words a typed line can start; every typed word must start one of them */
+  words: string[];
+  /** offered only when it does something: no "Close camera" without a camera */
+  applies: (m: MediaState) => boolean;
+}
+
+const COMMANDS: CommandDef[] = [
+  { label: "Camera", command: "camera-corner", words: ["camera", "webcam", "start", "add"], applies: (m) => m.camera === "none" },
+  { label: "Fullscreen camera", command: "camera-full", words: ["fullscreen", "full", "screen", "maximize", "big", "camera", "webcam"], applies: (m) => m.camera === "corner" },
+  { label: "Minimize camera", command: "camera-corner", words: ["minimize", "small", "corner", "camera", "webcam"], applies: (m) => m.camera === "full" },
+  { label: "Close camera", command: "camera-off", words: ["close", "off", "stop", "remove", "camera", "webcam"], applies: (m) => m.camera !== "none" },
+  { label: "Screen share", command: "screen-share", words: ["screen", "share", "window", "start"], applies: (m) => m.screen === "none" },
+  { label: "Fullscreen screen share", command: "screen-full", words: ["fullscreen", "full", "screen", "share", "maximize", "big"], applies: (m) => m.screen === "corner" },
+  { label: "Minimize screen share", command: "screen-corner", words: ["minimize", "small", "corner", "screen", "share"], applies: (m) => m.screen === "full" },
+  { label: "Close screen share", command: "screen-stop", words: ["close", "stop", "off", "remove", "screen", "share"], applies: (m) => m.screen !== "none" },
+  { label: "Clear the stage", command: "clear", words: ["clear"], applies: () => true },
 ];
 
-const COMMAND_LABELS: Record<StudioCommand, string> = {
-  "camera-corner": "Camera in the corner",
-  "camera-full": "Camera full frame",
-  "camera-off": "Camera off",
-  "screen-share": "Share a screen or window",
-  "screen-stop": "Stop screen share",
-  clear: "Clear the stage",
-};
+const commandResult = (c: CommandDef): PaletteResult => ({ id: `studio:${c.label}`, label: c.label, detail: "Studio", group: "studio", action: { type: "command", command: c.command } });
 
 const LETTER_PC: Record<string, number> = { c: 0, d: 2, e: 4, f: 5, g: 7, a: 9, b: 11 };
 
@@ -125,12 +131,13 @@ function positions(p: Parsed): PaletteResult[] {
   return [0, 1, 2, 3, 4].map((index) => addResult({ kind: "position", key, positionKind: kind, index }, "position", "Position on the neck"));
 }
 
-function commands(p: Parsed): PaletteResult[] {
+function commands(p: Parsed, media: MediaState): PaletteResult[] {
   if (p.words.length === 0) return [];
-  return COMMANDS.filter(([phrase]) => {
-    const cw = phrase.split(" ");
-    return p.words.every((w) => cw.some((c) => c.startsWith(w)));
-  }).map(([, command]) => ({ id: `studio:${command}`, label: COMMAND_LABELS[command], detail: "Studio", group: "studio" as const, action: { type: "command" as const, command } }));
+  // a name that starts with what was typed ("screen" → Screen share) beats one that only lists it as a search word (Fullscreen camera)
+  const named = (c: CommandDef) => p.words.filter((w) => c.label.toLowerCase().split(" ").some((x) => x.startsWith(w))).length;
+  return COMMANDS.filter((c) => c.applies(media) && p.words.every((w) => c.words.some((x) => x.startsWith(w))))
+    .sort((a, b) => named(b) - named(a))
+    .map(commandResult);
 }
 
 /** a key positions can always be drawn in when the stage has none */
@@ -140,7 +147,7 @@ const POSITION_FALLBACK: KeyChoice = { tonicPc: 4, family: 0, mode: 5 };
  * Everything that can go on the stage, for the palette before anything is typed: the Key widget, the Drone section, every theory panel
  * and scale section in the stage key, a scale position, then the camera and screen share. Chords need a name, so they are typed.
  */
-export function paletteCatalog(pluginIds: string[], stageKey: KeyChoice): PaletteResult[] {
+export function paletteCatalog(pluginIds: string[], stageKey: KeyChoice, media: MediaState = NO_MEDIA): PaletteResult[] {
   const out: PaletteResult[] = [
     addResult({ kind: "key" }, "theory", "Changes the key of every widget"),
     addResult({ kind: "band", key: stageKey }, "audio", "Click, drone, drums and bass"),
@@ -148,12 +155,12 @@ export function paletteCatalog(pluginIds: string[], stageKey: KeyChoice): Palett
   for (const id of KEY_PLUGIN_ORDER) if (pluginIds.includes(id)) out.push(addResult({ kind: "plugin", plugin: id, key: stageKey }, id === "scale" ? "scale" : "theory", PLUGIN_TITLES[id] ?? id));
   for (const section of Object.keys(SECTIONS) as ScaleSection[]) out.push(addResult({ kind: "section", section, key: stageKey }, "scale", SECTIONS[section]));
   out.push(addResult({ kind: "position", key: stageKey.tonicPc === null ? POSITION_FALLBACK : stageKey, positionKind: "pentatonic", index: 0 }, "position", "Position on the neck"));
-  for (const command of ["camera-corner", "screen-share"] as StudioCommand[]) out.push({ id: `studio:${command}`, label: COMMAND_LABELS[command], detail: "Studio", group: "studio", action: { type: "command", command } });
+  out.push(...COMMANDS.filter((c) => c.command !== "clear" && c.applies(media)).map(commandResult));
   return out;
 }
 
-/** Ranked results for a typed line, best first, at most 8. `stageKey` is the Key widget's key, used when the line names none. */
-export function searchPalette(query: string, pluginIds: string[], stageKey: KeyChoice): PaletteResult[] {
+/** Ranked results for a typed line, best first, at most 8. `stageKey` is the Key widget's key, used when the line names none; `media` picks which camera and screen commands apply. */
+export function searchPalette(query: string, pluginIds: string[], stageKey: KeyChoice, media: MediaState = NO_MEDIA): PaletteResult[] {
   const p = parse(query);
   if (p.words.length === 0) return [];
   const out: PaletteResult[] = [];
@@ -181,8 +188,8 @@ export function searchPalette(query: string, pluginIds: string[], stageKey: KeyC
   out.unshift(...pos);
 
   // a typed word of 3+ letters that starts a command ("camera c", "scr") puts the commands before the key's plugins
-  const cmds = commands(p);
-  const strong = cmds.length > 0 && p.words.some((w) => w.length >= 3 && COMMANDS.some(([phrase]) => phrase.split(" ").some((c) => c.startsWith(w))));
+  const cmds = commands(p, media);
+  const strong = cmds.length > 0 && p.words.some((w) => w.length >= 3 && COMMANDS.some((c) => c.words.some((x) => x.startsWith(w))));
   if (strong) out.push(...cmds);
 
   if (key && out.length === (chord ? 1 : 0) + pos.length + (strong ? cmds.length : 0)) {

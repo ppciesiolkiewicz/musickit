@@ -19,7 +19,7 @@ export type Subject =
   | { kind: "camera" }
   | { kind: "screen" };
 
-export type StudioCommand = "camera-corner" | "camera-full" | "camera-off" | "screen-share" | "screen-stop" | "clear";
+export type StudioCommand = "camera-corner" | "camera-full" | "camera-off" | "screen-share" | "screen-corner" | "screen-full" | "screen-stop" | "clear";
 
 export interface PaletteResult {
   id: string;

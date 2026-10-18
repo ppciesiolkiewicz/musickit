@@ -38,6 +38,8 @@ const OFFSET = 0.03;
 export const FULL: FrameRect = { x: 0, y: 0, w: 1, h: 1 };
 /** the camera's corner preset: portrait, bottom right */
 export const CAMERA_CORNER: FrameRect = { x: 0.78, y: 0.52, w: 0.2, h: 0.45 };
+/** the screen share's minimized place: bottom left, clear of the camera's corner */
+export const SCREEN_CORNER: FrameRect = { x: 0.02, y: 0.52, w: 0.4, h: 0.45 };
 
 const SINGLE = new Set<Subject["kind"]>(["camera", "screen", "key"]);
 

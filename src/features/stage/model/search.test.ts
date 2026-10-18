@@ -103,6 +103,39 @@ test("the catalog lists every kind of widget in the stage key, plus camera and s
   assert.equal(new Set(c.map((r) => r.id)).size, c.length);
 });
 
+const commandsOf = (r: ReturnType<typeof paletteCatalog>) => r.flatMap((x) => (x.action.type === "command" ? [`${x.label}=${x.action.command}`] : []));
+
+test("the catalog offers Camera and Screen share when neither is on the stage", () => {
+  assert.deepEqual(commandsOf(paletteCatalog(ids, EMPTY_KEY, { camera: "none", screen: "none" })), ["Camera=camera-corner", "Screen share=screen-share"]);
+});
+
+test("with them on the stage it offers close, and fullscreen or minimize, whichever is not the current one", () => {
+  assert.deepEqual(commandsOf(paletteCatalog(ids, EMPTY_KEY, { camera: "corner", screen: "full" })), [
+    "Fullscreen camera=camera-full",
+    "Close camera=camera-off",
+    "Minimize screen share=screen-corner",
+    "Close screen share=screen-stop",
+  ]);
+});
+
+test("search offers the same names, and only the ones that apply", () => {
+  const none = { camera: "none" as const, screen: "none" as const };
+  const on = { camera: "full" as const, screen: "corner" as const };
+  assert.ok(commandsOf(searchPalette("camera", ids, EMPTY_KEY, none)).includes("Camera=camera-corner"));
+  assert.ok(!commandsOf(searchPalette("close", ids, EMPTY_KEY, none)).some((c) => c.startsWith("Close")));
+  assert.ok(commandsOf(searchPalette("close cam", ids, EMPTY_KEY, on)).includes("Close camera=camera-off"));
+  assert.ok(commandsOf(searchPalette("minimize", ids, EMPTY_KEY, on)).includes("Minimize camera=camera-corner"));
+  assert.ok(commandsOf(searchPalette("full screen", ids, EMPTY_KEY, on)).includes("Fullscreen screen share=screen-full"));
+  // the old phrases still work
+  assert.ok(commandsOf(searchPalette("camera off", ids, EMPTY_KEY, on)).includes("Close camera=camera-off"));
+});
+
+test("commands whose names start with the typed words come first: screen is Screen share, not Fullscreen camera", () => {
+  const corner = { camera: "corner" as const, screen: "none" as const };
+  assert.equal(commandsOf(searchPalette("screen", ids, EMPTY_KEY, corner))[0], "Screen share=screen-share");
+  assert.equal(commandsOf(searchPalette("full", ids, EMPTY_KEY, corner))[0], "Fullscreen camera=camera-full");
+});
+
 test("with no stage key, positions use E minor so they can be drawn", () => {
   const pos = paletteCatalog(ids, EMPTY_KEY).flatMap((r) => (r.action.type === "add" && r.action.subject.kind === "position" ? [r.action.subject] : []));
   assert.deepEqual(pos[0].key, E_MINOR);

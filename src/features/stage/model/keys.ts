@@ -16,7 +16,8 @@ export type Shortcut =
   | "shrink-h"
   | "deselect"
   | "camera-corner"
-  | "camera-full"
+  | "camera-toggle"
+  | "screen-toggle"
   | "help";
 
 export interface KeyInfo {
@@ -32,8 +33,9 @@ export const NUDGE_BIG = 0.05;
 
 export const KEYS: KeyInfo[] = [
   { shortcut: "palette", keys: "/  or  ⌘K", label: "Add a widget", needsSelection: false },
-  { shortcut: "camera-corner", keys: "C", label: "Camera in the corner", needsSelection: false },
-  { shortcut: "camera-full", keys: "F", label: "Camera full frame", needsSelection: false },
+  { shortcut: "camera-corner", keys: "C", label: "Camera (minimized)", needsSelection: false },
+  { shortcut: "camera-toggle", keys: "F", label: "Fullscreen or minimize camera", needsSelection: false },
+  { shortcut: "screen-toggle", keys: "⇧F", label: "Fullscreen or minimize screen share", needsSelection: false },
   { shortcut: "nudge-left", keys: "←", label: "Move left (Shift: more)", needsSelection: true },
   { shortcut: "nudge-right", keys: "→", label: "Move right", needsSelection: true },
   { shortcut: "nudge-up", keys: "↑", label: "Move up", needsSelection: true },
@@ -64,7 +66,7 @@ export function shortcutFor(
   if (cmd) return null;
   if (e.code === "Slash") return e.shiftKey ? "help" : "palette";
   if (e.code === "KeyC" && !e.altKey) return "camera-corner";
-  if (e.code === "KeyF" && !e.altKey) return "camera-full";
+  if (e.code === "KeyF" && !e.altKey) return e.shiftKey ? "screen-toggle" : "camera-toggle";
   if (!ctx.hasSelection) return null;
   if (e.code in ARROWS) return ARROWS[e.code][e.altKey ? 1 : 0];
   if (e.code === "Backspace" || e.code === "Delete") return "delete";

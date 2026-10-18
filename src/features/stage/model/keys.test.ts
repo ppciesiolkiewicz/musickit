@@ -38,9 +38,10 @@ test("Alt+arrows resize: right and down grow, left and up shrink", () => {
   assert.equal(shortcutFor(ev("ArrowDown", { altKey: true }), sel), "grow-h");
 });
 
-test("C and F are the camera presets, but not with Cmd (copy, find)", () => {
+test("C minimizes the camera, F and Shift+F switch camera and screen to full frame and back, never with Cmd", () => {
   assert.equal(shortcutFor(ev("KeyC"), free), "camera-corner");
-  assert.equal(shortcutFor(ev("KeyF"), free), "camera-full");
+  assert.equal(shortcutFor(ev("KeyF"), free), "camera-toggle");
+  assert.equal(shortcutFor(ev("KeyF", { shiftKey: true }), free), "screen-toggle");
   assert.equal(shortcutFor(ev("KeyC", { metaKey: true }), free), null);
   assert.equal(shortcutFor(ev("KeyF", { ctrlKey: true }), free), null);
 });
@@ -50,7 +51,7 @@ test("Escape deselects", () => {
 });
 
 test("every shortcut is listed exactly once in KEYS", () => {
-  const all: Shortcut[] = ["palette", "delete", "nudge-left", "nudge-right", "nudge-up", "nudge-down", "grow-w", "shrink-w", "grow-h", "shrink-h", "deselect", "camera-corner", "camera-full", "help"];
+  const all: Shortcut[] = ["palette", "delete", "nudge-left", "nudge-right", "nudge-up", "nudge-down", "grow-w", "shrink-w", "grow-h", "shrink-h", "deselect", "camera-corner", "camera-toggle", "screen-toggle", "help"];
   for (const s of all) assert.equal(KEYS.filter((k) => k.shortcut === s).length, 1, s);
   assert.equal(KEYS.length, all.length);
 });

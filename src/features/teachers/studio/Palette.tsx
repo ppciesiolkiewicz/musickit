@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { KeyChoice } from "@/features/creator";
-import { paletteCatalog, sanitiseSubject, searchPalette, subjectTitle, type PaletteResult, type Subject } from "@/features/stage";
+import { paletteCatalog, sanitiseSubject, searchPalette, subjectTitle, type MediaState, type PaletteResult, type Subject } from "@/features/stage";
 
 const RECENT = "musickit.studio.recent";
 const MAX_RECENT = 5;
@@ -33,7 +33,7 @@ const recentResult = (s: Subject): PaletteResult => ({ id: `recent:${JSON.string
  * The Spotlight-style search over the studio: type, pick with ↑ ↓ and Enter, Escape closes. Rendered on document.body, so it is
  * never inside the recorded frame. Picking a widget adds it; picking a studio command runs it.
  */
-export default function Palette({ pluginIds, stageKey, onPick, onClose }: { pluginIds: string[]; stageKey: KeyChoice; onPick: (r: PaletteResult) => void; onClose: () => void }) {
+export default function Palette({ pluginIds, stageKey, media, onPick, onClose }: { pluginIds: string[]; stageKey: KeyChoice; media: MediaState; onPick: (r: PaletteResult) => void; onClose: () => void }) {
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
   const [recent] = useState(() => loadRecent(pluginIds));
@@ -41,10 +41,10 @@ export default function Palette({ pluginIds, stageKey, onPick, onClose }: { plug
 
   // nothing typed: recent picks first, then everything that can go on the stage
   const results = useMemo(() => {
-    if (query.trim()) return searchPalette(query, pluginIds, stageKey);
+    if (query.trim()) return searchPalette(query, pluginIds, stageKey, media);
     const recents = recent.map(recentResult);
-    return [...recents, ...paletteCatalog(pluginIds, stageKey).filter((r) => !recents.some((x) => x.label === r.label))];
-  }, [query, pluginIds, stageKey, recent]);
+    return [...recents, ...paletteCatalog(pluginIds, stageKey, media).filter((r) => !recents.some((x) => x.label === r.label))];
+  }, [query, pluginIds, stageKey, media, recent]);
 
   useEffect(() => input.current?.focus(), []);
 
