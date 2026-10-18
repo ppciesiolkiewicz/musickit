@@ -284,17 +284,21 @@ export default function Home() {
               <p className="text-sm leading-relaxed text-slate-400">Every scale on the ring of twelve notes. The ringed notes are the ones that give it its mood, here the warm 6th of Dorian.</p>
             </li>
             <li className="flex flex-col gap-4 rounded-3xl border border-slate-800 bg-slate-900/50 p-6">
-              <div className="flex h-56 flex-col items-center justify-center gap-4">
-                <div className="flex items-end gap-1.5">
-                  {MAJOR.map((_, d) => (
-                    <span key={d} className={`rounded-full ${d === 0 || d === 2 || d === 6 ? "h-11 w-11" : "h-7 w-7 opacity-60"}`} style={{ background: degreeColour(d), boxShadow: d === 0 ? "0 0 0 2px var(--color-slate-50)" : undefined }} />
-                  ))}
-                </div>
-                <div className="flex gap-5 text-xs text-slate-400">
-                  <span><b className="text-slate-100">Home</b></span>
-                  <span><b style={{ color: degreeColour(2) }}>Mood</b></span>
-                  <span><b style={{ color: degreeColour(6) }}>Pull</b></span>
-                </div>
+              <div className="flex h-56 items-center justify-center">
+                {/* each label in its dot's own column, so it sits right under it */}
+                <ul className="flex items-start gap-1.5">
+                  {MAJOR.map((_, d) => {
+                    const job = d === 0 ? "Home" : d === 2 ? "Mood" : d === 6 ? "Pull" : null;
+                    return (
+                      <li key={d} className="flex flex-col items-center gap-3">
+                        <span className="flex h-11 items-center">
+                          <span className={`rounded-full ${job ? "h-11 w-11" : "h-7 w-7 opacity-60"}`} style={{ background: degreeColour(d), boxShadow: d === 0 ? "0 0 0 2px var(--color-slate-50)" : undefined }} />
+                        </span>
+                        {job && <b className="text-xs" style={{ color: d === 0 ? "var(--color-slate-100)" : degreeColour(d) }}>{job}</b>}
+                      </li>
+                    );
+                  })}
+                </ul>
               </div>
               <h3 className="text-2xl text-slate-50" style={DISPLAY}>Every note has a colour</h3>
               <p className="text-sm leading-relaxed text-slate-400">The home note is always white, the mood note always yellow. Learn what a note does and you&apos;ll find it in any song, in any key.</p>
