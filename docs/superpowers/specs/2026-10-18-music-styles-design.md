@@ -101,10 +101,10 @@ Alternates seen and liked: Metal `1751781529625-eb6329e52987` (headbang, B&W) an
 
 ## Decided by Claude (check these)
 
-- **Old theme IDs map to new ones** for returning visitors: `dark` → Plain, `funky` → Funk, `light` → Surf Rock, `modern` → Plain, `sandstorm` → Plain. The old Light, Modern and Sandstorm themes go away.
+- **No migration of old themes** (there are no users yet). Dark, Light, Funky, Modern and Sandstorm are simply removed. A saved value that isn't a current style is ignored and treated as no choice.
 - **The bubble auto-opens on any page with the switcher**, not just the landing page, until it has been closed once (a "seen" flag in `localStorage`).
 - **Photo slots:** the style photo replaces the story-section photo (`practising`). The course-section photo (`couch`) takes the style's alternate: Funk `1602900332980-6e6f13946a3c`, Rock `1499424017184-418f6808abf9`, Blues `1508186736123-44a5fcb36f9f` (goldtop close-up), Surf `1616533719060-a7fc492e9299`, Metal `1751781529625-eb6329e52987`, Jazz `1536047852989-10896cf70749`. The teacher photos (`teacher`, `teacherTablet`, `teacherSmile`) stay in every style, because they show the lessons themselves. Any style may override any slot; the mechanism allows it.
-- **Visitors with no saved style** (including today's returning visitors who never picked a theme) are treated as first-time visitors: they load in Funk and see the bubble once. `layout.tsx`'s default `data-theme` becomes Funk.
+- **Visitors with no saved style** are treated as first-time visitors: they load in Funk and see the bubble once. `layout.tsx`'s default `data-theme` becomes Funk.
 - **The "seen" flag** is set when the bubble is closed in any way: picking a style, "Not now", click-away or Escape. A visitor who leaves without touching it sees it again on their next visit.
 - **The Wordmark keeps today's font** in every style. It gets its own font variable so the brand doesn't change with the style.
 - Radius, edge, glow and font settings therefore need to be scoped to the landing page, not set globally on `:root` the way Funky and Modern set `--radius-*` today.
