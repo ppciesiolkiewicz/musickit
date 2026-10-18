@@ -16,6 +16,7 @@ This directory contains the formal specifications for the Music Kit application.
 | [Creator](creator.md) | Cheatsheet builder (`/cheatsheet`): every theory page as a panel following one key, compact or full |
 | [Sampler](sampler.md) | Instruments from uploaded or generated samples, dropped files included |
 | [NAM](nam.md) | Neural amp models for guitar, a looper effect |
+| [Studio](studio.md) | Teacher studio (`/teachers/studio`): a 16:9 frame with camera and theory widgets, for recording lessons |
 
 ## Quick Reference
 
