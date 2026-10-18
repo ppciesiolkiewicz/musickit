@@ -25,6 +25,10 @@ It takes its ideas from the looper (floating, movable widgets; real audio-interf
    - `tuner`, `metronome 80`
    - studio commands: `screen share`, `camera corner`, `camera full`, `scene 2`, `clear`
    Every theory view that exists today (the creator's plugins: Scale, Chords, Circle, Keys, Progressions, Modes, Triads, CAGED, Arpeggios, Improv, Tunings) should be reachable from the palette.
+6a. **Key widget (decided by the user).** A Key selector widget (at most one) holds the stage key. Changing it re-keys every key-aware widget on the stage (scales, positions, theory plugins, the Drone section, scale sections), but **not chord diagrams**. Between changes, each widget keeps its own key.
+6b. **Combo widgets (decided by the user).** Whole sections of existing pages can be widgets:
+   - **Drone:** the scale page's Drone section (click, drone, drums and bass, `PocketTools`), following the key.
+   - **Scale sections:** "Every chord in the key", "Sus and extension chords", "Modes with the same notes" and "Scale on guitar".
 6. **Each widget has its own subject.** An E6 chord and an A dorian scale can be on screen together, each following its own chord or key. This differs from the creator, where every plugin follows one shared key.
 7. **Audio inputs.**
    - **Voice:** any mic (camera, laptop, or an interface channel).

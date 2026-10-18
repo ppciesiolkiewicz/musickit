@@ -27,7 +27,7 @@ Layer rectangles are **fractions of the frame** (0–1), not pixels, so the same
 - Desktop Chrome/Edge only. Other browsers (no `CropTarget`/`RestrictionTarget` in `window`) see: "The studio needs desktop Chrome or Edge." Phones see the same message.
 - Next.js here has breaking changes. Read `node_modules/next/dist/docs/01-app/01-getting-started/03-layouts-and-pages.md` and `05-server-and-client-components.md` before writing routes.
 - Separation:
-  - `src/features/stage` may import `@/features/theory`, `@/features/sound`, `@/features/instruments/model`, the creator's public `index.ts`, `src/lib/chordKit`, `src/components/chordKit` and shared `@/components`.
+  - `src/features/stage` may import `@/features/theory`, `@/features/sound`, `@/features/instruments` (its public index: `PocketTools`), the creator's public `index.ts`, `src/lib/chordKit`, `src/components/chordKit` and shared `@/components`.
   - `src/features/teachers/studio` may import `@/features/stage` and shared `@/components`.
   - Nothing imports the studio. Neither imports `src/lib/looper` or `src/components/looper`.
 - No mic, camera or screen prompt without a click.
@@ -83,15 +83,21 @@ Layer rectangles are **fractions of the frame** (0–1), not pixels, so the same
     | { kind: "chord"; symbol: string }                                   // "E6"
     | { kind: "plugin"; plugin: string; key: KeyChoice }                  // creator PLUGINS id
     | { kind: "position"; key: KeyChoice; positionKind: PositionKind; index: number } // 0-based box
-    | { kind: "drone"; root: number; fifth: boolean }
+    | { kind: "band"; key: KeyChoice }                                    // the scale page's Drone section (PocketTools: click, drone, drums, bass) in the key's tonic
+    | { kind: "section"; section: ScaleSection; key: KeyChoice }          // a section of the scale page
+    | { kind: "key" }                                                     // the Key selector (at most one): re-keys every key-aware widget
     | { kind: "camera" }                                                  // the webcam, a layer like any other (at most one)
     | { kind: "screen" };                                                 // the screen share (at most one)
+  export type ScaleSection = "chords" | "sus" | "relatives" | "guitar";  // Every chord in the key · Sus and extension chords · Modes with the same notes · Scale on guitar
+  /** subjects that follow the Key widget: plugin, position, band, section (not chord, camera, screen, key) */
+  export function withKey(s: Subject, key: KeyChoice): Subject;   // returns s unchanged when it has no key
+  export const keyOf: (s: Subject) => KeyChoice | null;
   export type StudioCommand = "camera-corner" | "camera-full" | "camera-off" | "screen-share" | "screen-stop" | "clear";
   export interface PaletteResult { id: string; label: string; detail: string; group: "chord" | "scale" | "position" | "theory" | "audio" | "studio"; action: { type: "add"; subject: Subject } | { type: "command"; command: StudioCommand } }
-  export function subjectTitle(s: Subject): string;   // "E6 chord", "A Dorian · Scale", "E Aeolian · pentatonic box 1", "Drone E + 5th"
+  export function subjectTitle(s: Subject): string;   // "E6 chord", "A Dorian · Scale", "E Aeolian · pentatonic box 1", "Drone · E", "Every chord · A Dorian", "Key"
   export function sanitiseSubject(raw: unknown, pluginIds: string[]): Subject | null;
   ```
-- Produces (`search.ts`): `export function searchPalette(query: string, pluginIds: string[]): PaletteResult[]`, ranked best-first, at most 8 results.
+- Produces (`search.ts`): `export function searchPalette(query: string, pluginIds: string[], stageKey: KeyChoice): PaletteResult[]`, ranked best-first, at most 8 results.
 
 **Parsing rules (spec goal 5):**
 - Leading `/` and whitespace are ignored. Matching is case-insensitive.
@@ -105,36 +111,42 @@ Layer rectangles are **fractions of the frame** (0–1), not pixels, so the same
   - `pos N` / `position N` / `box N` → `index: N-1`. Without one, results for boxes 1–5 are offered.
   - `3nps` → `positionKind: "3nps"`.
 - **Plugin words alone** (`circle`, `caged`, `triads`, `arpeggios`, `progressions`, `modes`, `tunings`, `keys`, `improv`) → that plugin with `EMPTY_KEY`. With a tonic (`circle g`, `caged c`) → that plugin in that key, major.
-- **Drone**: `drone <note>` → `{kind:"drone", root, fifth:false}`. A trailing `5th`/`fifth` → `fifth:true`.
+- **Band** (the Drone section): `drone`, `band`, `drums`, `bass` or `click`, optionally with a key (`drone e`, `drone a dorian`) → `{kind:"band", key}`. Without a key it uses the stage key, passed in as `stageKey`.
+- **Sections**, with an optional key: `every chord`/`chords in` → `chords`; `sus`/`extensions` → `sus`; `same notes`/`relatives` → `relatives`; `on guitar`/`fretboard` → `guitar`. Without a key they use `stageKey`.
+- **Key**: `key` → `{kind:"key"}`.
 - **Commands** match by prefix of their words: `camera corner`, `camera full`, `camera off`, `screen share`, `stop screen`, `clear`.
 
 - [ ] **Step 1: Write the failing tests.**
   ```ts
   test("a chord symbol gives the chord first", () => {
-    const r = searchPalette("/ e6", ids);
+    const r = searchPalette("/ e6", ids, EMPTY_KEY);
     assert.deepEqual(r[0].action, { type: "add", subject: { kind: "chord", symbol: "E6" } });
   });
   test("a key with a mode gives the scale plugin first", () => {
-    const r = searchPalette("a dorian", ids);
+    const r = searchPalette("a dorian", ids, EMPTY_KEY);
     assert.deepEqual(r[0].action, { type: "add", subject: { kind: "plugin", plugin: "scale", key: { tonicPc: 9, family: 0, mode: 1 } } });
   });
   test("minor pent pos 1 is box 0 of E aeolian", () => {
-    const r = searchPalette("e minor pent pos 1", ids);
+    const r = searchPalette("e minor pent pos 1", ids, EMPTY_KEY);
     assert.deepEqual(r[0].action, { type: "add", subject: { kind: "position", key: { tonicPc: 4, family: 0, mode: 5 }, positionKind: "pentatonic", index: 0 } });
   });
   test("circle g is the circle plugin in G major", () => { /* plugin "circle", key {7,0,0} */ });
   test("caged alone has no key", () => { /* plugin "caged", key EMPTY_KEY */ });
-  test("drone a 5th", () => { /* {kind:"drone", root:9, fifth:true} */ });
+  test("drone a dorian is the band in A dorian", () => { /* {kind:"band", key:{9,0,1}} */ });
+  test("drone alone uses the stage key", () => { /* searchPalette("drone", ids, {tonicPc:4,family:0,mode:5}) → band in E aeolian */ });
+  test("every chord g is the chords section in G major", () => { /* {kind:"section", section:"chords", key:{7,0,0}} */ });
+  test("withKey re-keys plugin, position, band, section and leaves chord, camera, screen, key alone", () => {});
   test("camera c offers camera corner", () => { /* some result has command "camera-corner" */ });
   test("nonsense gives nothing and never throws", () => {
-    for (const q of ["", "   ", "hello", "h7", "x dorian", "/", "pos 9"]) assert.doesNotThrow(() => searchPalette(q, ids));
-    assert.equal(searchPalette("hello", ids).length, 0);
+    for (const q of ["", "   ", "hello", "h7", "x dorian", "/", "pos 9"]) assert.doesNotThrow(() => searchPalette(q, ids, EMPTY_KEY));
+    assert.equal(searchPalette("hello", ids, EMPTY_KEY).length, 0);
   });
-  test("at most 8 results", () => { assert.ok(searchPalette("c", ids).length <= 8); });
+  test("at most 8 results", () => { assert.ok(searchPalette("c", ids, EMPTY_KEY).length <= 8); });
   test("sanitiseSubject drops unknown plugins and bad shapes", () => {
     assert.equal(sanitiseSubject({ kind: "plugin", plugin: "gone", key: EMPTY_KEY }, ids), null);
     assert.equal(sanitiseSubject({ kind: "chord" }, ids), null);
-    assert.deepEqual(sanitiseSubject({ kind: "drone", root: 4, fifth: true }, ids), { kind: "drone", root: 4, fifth: true });
+    assert.deepEqual(sanitiseSubject({ kind: "band", key: { tonicPc: 4, family: 0, mode: 0 } }, ids), { kind: "band", key: { tonicPc: 4, family: 0, mode: 0 } });
+    assert.equal(sanitiseSubject({ kind: "section", section: "nope", key: EMPTY_KEY }, ids), null);
   });
   ```
   Here `ids` is the list of creator plugin ids, written out literally in the test file so the test stays pure (no React import): `["scale","chords","circle","keys","progressions","modes","triads","caged","arpeggios","improv","tunings"]`.
@@ -155,7 +167,7 @@ Layer rectangles are **fractions of the frame** (0–1), not pixels, so the same
   ```ts
   export interface FrameRect { x: number; y: number; w: number; h: number }  // 0..1 of the frame
   export interface Layer { id: string; subject: Subject; rect: FrameRect; visible: boolean }
-  export interface Stage { layers: Layer[]; selected: string | null }       // array order = paint order, last on top
+  export interface Stage { layers: Layer[]; selected: string | null; key: KeyChoice }   // array order = paint order, last on top; key = the Key widget's choice
   export const MIN_SIZE = 0.08;   // fraction of frame width/height
   export const KEEP_IN = 0.04;    // at least this much of a widget stays inside the frame
   export function clampRect(r: FrameRect): FrameRect;
@@ -165,7 +177,8 @@ Layer rectangles are **fractions of the frame** (0–1), not pixels, so the same
     | { type: "move"; id: string; dx: number; dy: number } | { type: "resize"; id: string; dw: number; dh: number }
     | { type: "setRect"; id: string; rect: FrameRect } | { type: "swap"; id: string; subject: Subject }
     | { type: "toggle"; id: string } | { type: "raise"; id: string } | { type: "lower"; id: string }
-    | { type: "select"; id: string | null } | { type: "clear" };
+    | { type: "select"; id: string | null } | { type: "clear" }
+    | { type: "setStageKey"; key: KeyChoice };   // sets stage.key and applies withKey to every layer
   export function stageReducer(s: Stage, a: StageAction): Stage;
   export function sanitiseStage(raw: unknown, pluginIds: string[]): Stage;
   export const EMPTY_STAGE: Stage;
@@ -176,7 +189,8 @@ Layer rectangles are **fractions of the frame** (0–1), not pixels, so the same
 - **Default rects:**
   - chord 0.22 × 0.42
   - plugin and position 0.5 × 0.42
-  - drone 0.16 × 0.1 in the bottom-left corner
+  - band 0.34 × 0.3 bottom-left; section 0.5 × 0.5
+  - key 0.3 × 0.12 top-left `{x:0.02,y:0.02}`
   - camera: the **corner preset** `CAMERA_CORNER = { x: 0.78, y: 0.52, w: 0.2, h: 0.45 }` (portrait, bottom-right)
   - screen: `FULL = { x: 0, y: 0, w: 1, h: 1 }`
   - Each new layer is offset by +0.03,+0.03 from the last added, so widgets don't stack exactly. Then clamped.
@@ -196,7 +210,9 @@ Layer rectangles are **fractions of the frame** (0–1), not pixels, so the same
   - `sanitiseStage({layers:[good, {id:"x", subject:{kind:"plugin",plugin:"gone",key:EMPTY_KEY}, rect, visible:true}]})` keeps only `good`.
   - Out-of-range rects come back clamped.
   - Duplicate ids keep only the first.
-  - A second `camera` layer (by `addSubject` or in saved data) is refused or dropped. The same goes for `screen`.
+  - A second `camera` layer (by `addSubject` or in saved data) is refused or dropped. The same goes for `screen` and `key`.
+  - `setStageKey` to E aeolian re-keys a plugin, a position, a band and a section layer, leaves an `E6` chord unchanged, and sets `stage.key`.
+  - After `setStageKey`, a `swap` of one layer to A dorian leaves the others in E (widgets keep their own key between Key-widget changes).
   - `addSubject` with `{kind:"screen"}` puts it at index 0. `{kind:"camera"}` goes just above the screen when one exists, else at index 0, and widgets stay above both.
   - `setRect` on the camera to `FULL` and back to `CAMERA_CORNER` works like any layer (the presets are just rects).
 - [ ] **Step 2: Run them and confirm they fail.** Run: `$TSX --test src/features/stage/model/layers.test.ts`. Expected: FAIL.
@@ -254,7 +270,10 @@ Layer rectangles are **fractions of the frame** (0–1), not pixels, so the same
 - Create: `src/features/stage/render/StageWidget.tsx`
 - Create: `src/features/stage/render/ChordWidget.tsx`
 - Create: `src/features/stage/render/PositionWidget.tsx`
-- Create: `src/features/stage/render/DroneWidget.tsx`
+- Create: `src/features/stage/render/BandWidget.tsx`, `SectionWidget.tsx`, `KeyWidget.tsx`
+- Create: `src/components/chordKit/ScaleChords.tsx`, `src/components/chordKit/ScaleRelatives.tsx` (moved out of `ScalePage.tsx`)
+- Modify: `src/components/chordKit/ScalePage.tsx` (uses the two new components; looks the same)
+- Modify: `src/features/creator/index.ts` (export `KeyBar`)
 - Modify: `src/features/stage/index.ts`
 - Modify: `src/features/teachers/studio/StudioApp.tsx` (use `StageWidget` as `renderLayer`)
 
@@ -266,24 +285,31 @@ Layer rectangles are **fractions of the frame** (0–1), not pixels, so the same
   - `strumShape` (`src/lib/chordKit/playback.ts`)
   - `positionsFor`, `scaleCells` (`src/lib/chordKit/scalePositions.ts`)
   - `keyContext` from the creator key model (via the index; add it to the index if missing)
-  - `DroneVoice`, `DEFAULT_DRONE`, `clampDrone` (`@/features/instruments/model`)
-  - `getAudioContext`, `getOutputBus` (`@/features/sound`)
+  - `PocketTools` (`@/features/instruments`)
+  - `ChordBubbles`, `ScaleOnGuitar`, `useNotePlayer` (`src/components/chordKit`)
+  - `KeyBar` (creator index)
+  - `DEFAULT_KEY_PC` (`@/features/theory/theory`)
 - Produces:
-  - `StageWidget({ subject, onSubjectChange }: { subject: Subject; onSubjectChange: (s: Subject) => void }): ReactNode`, the injectable renderer.
+  - `StageWidget({ subject, onSubjectChange, stageKey, onStageKey }: { subject: Subject; onSubjectChange: (s: Subject) => void; stageKey: KeyChoice; onStageKey: (k: KeyChoice) => void }): ReactNode`, the injectable renderer.
+  - `ScaleChords({ ctx }: { ctx: KeyContext })` and `ScaleRelatives({ ctx, familyIndex, modeIndex, onPick }: { …; onPick?: (modeIndex: number) => void })`. With `onPick`, rows are buttons instead of links, so the studio re-keys the widget instead of navigating away.
   - `export type RenderSubject = typeof StageWidget`.
 - **What each kind renders:**
   - **chord:** `ChordDiagram` of the first `shapesForTones(rootPc, semis)` choice. Clicking it strums. Small ‹ › buttons step through the other shape choices; the index is local state, not part of the subject.
   - **plugin:** `<KeyScope value={subject.key} onChange={k => onSubjectChange({...subject, key: k})}><Def.Component/></KeyScope>`. A plugin changing the key (the circle) updates the layer.
   - **position:** `ScaleNeck` with `focus` set to `positionsFor(ctx, positionKind)[index]`, `fadeOutside`, and the label system from `useLabelSystem`. Clicking a note plays it.
-  - **drone:** a badge "Drone E (+5th)". On mount it creates a `DroneVoice(getAudioContext(), getOutputBus())` with `clampDrone({ root, fifth: fifth ? 0.6 : 0 })`, starts it when added and stops it on unmount. The audio doesn't start until the first user gesture, so call `wakeAudio()` from the palette's Enter handler (Task 6).
+  - **band** (the combo Drone widget, decided by the user): `<PocketTools keyPc={key.tonicPc ?? DEFAULT_KEY_PC} stacked />`, the same click, drone, drums and bass section as the scale page. It follows the widget's key, so the Key widget re-keys it. Nothing plays until its Play is clicked. Note that it shares `musickit.pocket` storage with the scale page (accepted).
+  - **section:** with `ctx = keyContext(key)` (when the key is empty, use `DEFAULT_KEY_PC` major), `chords` → `ScaleChords`, `sus` → `ChordBubbles`, `relatives` → `ScaleRelatives` with `onPick` (sets the widget's mode), `guitar` → `ScaleOnGuitar` with a `useNotePlayer()`.
+  - **key:** `<KeyScope value={stageKey} onChange={onStageKey}><KeyBar/></KeyScope>`. `onStageKey` dispatches `setStageKey`.
   - Every widget scales to fit its rect: the content is rendered at a design size and CSS-transformed to fit, the same way `FloatingWindow` does with `fit`.
-- [ ] **Step 1: Implement** the four renderers and `StageWidget`.
+- [ ] **Step 1: Extract** `ScaleChords` and `ScaleRelatives` from `ScalePage.tsx`, keeping the page identical. Check `/theory/scales/…` before and after.
+- [ ] **Step 2: Implement** the renderers and `StageWidget`.
 - [ ] **Step 2: Verify.** Type check and lint print nothing. Seed one layer of each kind and check that:
   - the chord strums
   - the Dorian scale shows the right notes (A B C D E F♯ G)
   - pentatonic box 1 of E minor is highlighted on the neck
-  - the drone sounds after a click and stops when its layer is deleted
-- [ ] **Step 3: Commit.** Message: `Stage: renderer for chord, theory plugins, scale positions and drone`
+  - the band's drone plays in the key after Play, and stops when its layer is deleted
+  - changing the Key widget to D dorian re-keys the scale, position, band and section layers, but not the chord
+- [ ] **Step 3: Commit.** Message: `Stage: renderer for chords, theory plugins, positions, the Drone section, scale sections and the Key widget`
 
 ### Task 6: Palette, keys and in-frame editing
 
@@ -396,6 +422,7 @@ Layer rectangles are **fractions of the frame** (0–1), not pixels, so the same
 ## Self-review notes
 
 - **Spec coverage in this plan:**
+  - the Key widget and combo widgets (Drone section, scale sections), added by the user after the design
   - goals 1–6 and 12: route, layout, camera, screen share, palette, per-widget subject, keyboard-first
   - the live-mouse rules: hover-only thin handles and no mouse focus rings
   - the separation rules
