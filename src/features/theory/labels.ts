@@ -133,7 +133,7 @@ export function toneColourIndex(t: ToneInput, from: LabelRoot = DEFAULT_LABEL_RO
   return indexOfDegree(t.role);
 }
 
-const MAJOR_DEGREES = ["1", "♭2", "2", "♭3", "3", "4", "♯4", "5", "♭6", "6", "♭7", "7"];
+const MAJOR_DEGREES = ["R", "♭2", "2", "♭3", "3", "4", "♯4", "5", "♭6", "6", "♭7", "7"];
 
 /** Degree of `pc` in the key, written against the major scale like the scale rows are (G in E Phrygian is ♭3, not 3). */
 function keyDegree(pc: number, ctx: KeyContext): string {
@@ -156,7 +156,7 @@ export function toneLabel(system: LabelSystem, t0: ToneInput, from: LabelRoot = 
       return (n && spellAbove(root, n, pc)) || TONICS.find((x) => x.pc === pc)!.name;
     }
     case "interval": return intervalName(fromKey);
-    case "degree": return t.ctx ? fmtDegree(keyDegree(pc, t.ctx)) : t.role === "R" ? "1" : fmtDegree(t.role);
+    case "degree": return t.ctx ? fmtDegree(keyDegree(pc, t.ctx)) : fmtDegree(t.role);
     case "solfege": return solfege(t.ctx ? keyDegree(pc, t.ctx) : t.role);
   }
 }
@@ -179,6 +179,6 @@ export function scaleToneCaption(system: LabelSystem, ctx: KeyContext, i: number
 /** Label for a note of a chord built on the scale (see `modeChords`): its name, or its interval, degree or solfège in the key (or above the chord root). */
 export function chordNoteLabel(system: LabelSystem, ctx: KeyContext, n: { name: string; role: string; scaleDegree: number }, from: LabelRoot = DEFAULT_LABEL_ROOT): string {
   if (system === "note") return n.name;
-  if (from === "chord") return system === "degree" ? (n.role === "R" ? "1" : fmtDegree(n.role)) : system === "solfege" ? solfege(n.role) : fmtInterval(n.role);
+  if (from === "chord") return system === "degree" ? fmtDegree(n.role) : system === "solfege" ? solfege(n.role) : fmtInterval(n.role);
   return scaleToneLabel(system, ctx, n.scaleDegree);
 }

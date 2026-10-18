@@ -235,7 +235,7 @@ export function analyseDegree(steps: number[], names: string[], d: number): Degr
   if (tri === "min" || tri === "dim") numeral = numeral.toLowerCase();
   const prefix = diffMajor < 0 ? "♭".repeat(-diffMajor) : diffMajor > 0 ? "♯".repeat(diffMajor) : "";
   const roman = prefix + numeral + (tri === "dim" ? "°" : tri === "aug" ? "+" : "");
-  const formula = ["1", acc(third - 4) + "3", acc(fifth - 7) + "5", acc(sev - 11) + "7"];
+  const formula = ["R", acc(third - 4) + "3", acc(fifth - 7) + "5", acc(sev - 11) + "7"];
   const degrees = [0, 2, 4, 6].map((o) => ((d + o) % 7) + 1);
 
   const slots: (ExtensionSlot | null)[] = [null, null, null, null];
@@ -298,7 +298,7 @@ export function degreeLabel(pc: number, ctx: KeyContext): string {
   const rel = (pc - ctx.tonic.pc + 12) % 12;
   const S = ctx.steps;
   let i = S.indexOf(rel);
-  if (i >= 0) return String(i + 1);
+  if (i >= 0) return i === 0 ? "R" : String(i + 1);
   i = S.indexOf((rel + 1) % 12);
   if (i >= 0) return "♭" + (i + 1);
   i = S.indexOf((rel + 11) % 12);

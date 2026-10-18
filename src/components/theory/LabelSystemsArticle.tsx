@@ -29,7 +29,7 @@ const SECTIONS = [
 
 /** Every semitone above Do: its interval, its spellings as a degree (lowered first, as the app writes them) and their syllables. */
 const CHROMATIC: { semi: number; degrees: string[] }[] = [
-  { semi: 0, degrees: ["1"] },
+  { semi: 0, degrees: ["R"] },
   { semi: 1, degrees: ["♭2", "♯1"] },
   { semi: 2, degrees: ["2"] },
   { semi: 3, degrees: ["♭3", "♯2"] },
@@ -92,7 +92,7 @@ export default function LabelSystemsArticle() {
       <ul className="max-w-3xl list-disc space-y-1 pl-5 text-sm text-slate-300">
         <li><b>Note names</b> (C, E, G): <i>which</i> note it is. Fixed: a C is a C in every key.</li>
         <li><b>Intervals</b> (R, ♭3, p5): how far the note is from the root, counted in semitones and named the way a chord formula is.</li>
-        <li><b>Scale degrees</b> (1, ♭3, 5): the note&apos;s place in the key, written against the major scale, so ♭3 means &ldquo;a semitone below the major scale&apos;s 3rd&rdquo;.</li>
+        <li><b>Scale degrees</b> (R, ♭3, 5): the note&apos;s place in the key, with the root written R, written against the major scale, so ♭3 means &ldquo;a semitone below the major scale&apos;s 3rd&rdquo;.</li>
         <li><b>Solfège</b> (Do, Me, Sol): the same degrees as singable syllables, one syllable per note.</li>
       </ul>
       <P>
@@ -138,7 +138,7 @@ export default function LabelSystemsArticle() {
                 <td className="py-1 pr-4 tabular-nums">{semi}</td>
                 <td className="py-1 pr-4">{intervalName(semi)}</td>
                 <td className="py-1 pr-4">{degrees.map(fmtDegree).join(" / ")}</td>
-                <td className="py-1 pr-4 font-medium text-slate-100">{degrees.map((d) => solfege(d === "1" ? "R" : d)).join(" / ")}</td>
+                <td className="py-1 pr-4 font-medium text-slate-100">{degrees.map((d) => solfege(d)).join(" / ")}</td>
                 <td className="py-1">{["C", "D♭ / C♯", "D", "E♭ / D♯", "E", "F", "G♭ / F♯", "G", "A♭ / G♯", "A", "B♭ / A♯", "B"][semi]}</td>
               </tr>
             ))}
@@ -154,7 +154,7 @@ export default function LabelSystemsArticle() {
       <P>
         There are two traditions for minor. <b>Do-based minor</b> keeps Do on the tonic and lowers the 3rd, 6th and 7th: Do Re <b>Me</b> Fa Sol <b>Le Te</b>.
         <b> La-based minor</b> starts the minor scale on La, so natural minor is La Ti Do Re Mi Fa Sol, the same syllables as its relative major.
-        Music Kit uses do-based minor, the same way it writes degrees: the tonic is always Do and 1, and every mode is read against the major scale.
+        Music Kit uses do-based minor, the same way it writes degrees: the tonic is always Do and R, and every mode is read against the major scale.
         That makes the colour of each mode easy to see: Dorian is minor with La, Phrygian is minor with Ra, Mixolydian is major with Te.
         Compare them on the <Link href="/theory/scales" className="text-sky-300 hover:underline">scales</Link> page.
       </P>

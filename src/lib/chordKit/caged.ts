@@ -94,7 +94,7 @@ export interface CagedCell {
   pc: number;
   midi: number;
   name: string;
-  /** degree in the key: "1", "♭3", "5" */
+  /** degree in the key: "R", "♭3", "5" */
   degreeText: string;
   /** semitones above the key root */
   semi: number;

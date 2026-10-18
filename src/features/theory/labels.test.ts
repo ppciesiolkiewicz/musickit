@@ -30,7 +30,7 @@ test("chord tones in every system", () => {
   const ab = (semi: number, role: string) => ({ rootPc: 8, rootName: "A♭", semi, role });
   assert.deepEqual([ab(0, "R"), ab(4, "3"), ab(7, "5")].map((t) => toneLabel("note", t)), ["A♭", "C", "E♭"]);
   assert.deepEqual([ab(0, "R"), ab(4, "3"), ab(7, "5")].map((t) => toneLabel("interval", t)), ["R", "3", "p5"]);
-  assert.deepEqual([ab(0, "R"), ab(4, "3"), ab(7, "5")].map((t) => toneLabel("degree", t)), ["1", "3", "5"]);
+  assert.deepEqual([ab(0, "R"), ab(4, "3"), ab(7, "5")].map((t) => toneLabel("degree", t)), ["R", "3", "5"]);
   assert.deepEqual([ab(0, "R"), ab(4, "3"), ab(7, "5")].map((t) => toneLabel("solfege", t)), ["Do", "Mi", "Sol"]);
   // D minor (ii) in C major: intervals and degrees count from C
   const ctx = makeKeyContext(0, 0, 0);
@@ -45,7 +45,7 @@ test("counting from the chord root instead of the key", () => {
   const ctx = makeKeyContext(0, 0, 0);
   const dm = (semi: number, role: string) => ({ rootPc: 2, semi, role, ctx });
   assert.deepEqual([dm(0, "R"), dm(3, "♭3"), dm(7, "5")].map((t) => toneLabel("interval", t, "chord")), ["R", "b3", "p5"]);
-  assert.deepEqual([dm(0, "R"), dm(3, "♭3"), dm(7, "5")].map((t) => toneLabel("degree", t, "chord")), ["1", "b3", "5"]);
+  assert.deepEqual([dm(0, "R"), dm(3, "♭3"), dm(7, "5")].map((t) => toneLabel("degree", t, "chord")), ["R", "b3", "5"]);
   assert.deepEqual([dm(0, "R"), dm(3, "♭3"), dm(7, "5")].map((t) => toneLabel("note", t, "chord")), ["D", "F", "A"]);
 });
 
@@ -79,7 +79,7 @@ test("scale tones", () => {
   const dorian = makeKeyContext(2, 0, 1); // D dorian
   assert.deepEqual([0, 2, 5].map((i) => scaleToneLabel("note", dorian, i)), ["D", "F", "B"]);
   assert.deepEqual([0, 2, 5].map((i) => scaleToneLabel("interval", dorian, i)), ["R", "b3", "6"]);
-  assert.deepEqual([0, 2, 5].map((i) => scaleToneLabel("degree", dorian, i)), ["1", "b3", "6"]);
+  assert.deepEqual([0, 2, 5].map((i) => scaleToneLabel("degree", dorian, i)), ["R", "b3", "6"]);
 });
 
 test("chord tones in a mode are written against the major scale, like the scale rows", () => {
@@ -88,6 +88,6 @@ test("chord tones in a mode are written against the major scale, like the scale 
   const em = (semi: number, role: string) => ({ rootPc: 4, semi, role, ctx });
   const tones = [em(0, "R"), em(3, "♭3"), em(7, "5"), em(10, "♭7")];
   assert.deepEqual(tones.map((t) => toneLabel("solfege", t)), ["Do", "Me", "Sol", "Te"]);
-  assert.deepEqual(tones.map((t) => toneLabel("degree", t)), ["1", "b3", "5", "b7"]);
+  assert.deepEqual(tones.map((t) => toneLabel("degree", t)), ["R", "b3", "5", "b7"]);
   assert.deepEqual(tones.map((t) => toneLabel("interval", t)), ["R", "b3", "p5", "b7"]);
 });

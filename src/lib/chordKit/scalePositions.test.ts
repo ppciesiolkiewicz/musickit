@@ -14,7 +14,7 @@ describe("pentatonicOf: the five-note scale inside a mode", () => {
   });
   it("Locrian gets the same cut, named by its formula", () => {
     const p = pentatonicOf(makeKeyContext(0, 0, 6).steps);
-    assert.equal(p.name, "Pentatonic 1 ♭3 4 ♭5 ♭7");
+    assert.equal(p.name, "Pentatonic R ♭3 4 ♭5 ♭7");
     assert.deepEqual(p.degrees, [0, 2, 3, 4, 6]);
   });
 });

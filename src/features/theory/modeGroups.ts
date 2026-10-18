@@ -80,7 +80,7 @@ export const MODE_GROUPS: ModeGroup[] = [
 
 /** Name of the interval above the tonic, for a column header. */
 export const SEMI_LABEL: Record<number, string> = {
-  0: "1", 1: "♭2", 2: "2", 3: "♭3", 4: "3", 5: "4", 6: "♯4 / ♭5", 7: "5", 8: "♯5 / ♭6", 9: "6", 10: "♭7", 11: "7",
+  0: "R", 1: "♭2", 2: "2", 3: "♭3", 4: "3", 5: "4", 6: "♯4 / ♭5", 7: "5", 8: "♯5 / ♭6", 9: "6", 10: "♭7", 11: "7",
 };
 
 export interface CompareMode {

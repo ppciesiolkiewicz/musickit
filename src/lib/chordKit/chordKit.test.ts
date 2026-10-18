@@ -221,9 +221,9 @@ describe("arpeggios", () => {
 import { degreeLabels, stepPattern } from "@/features/theory/scales";
 describe("degree labels", () => {
   it("labels Dorian and Lydian against the major scale", () => {
-    assert.deepEqual(degreeLabels(makeKeyContext(0, 0, 1).steps), ["1", "2", "♭3", "4", "5", "6", "♭7"]);
-    assert.deepEqual(degreeLabels(makeKeyContext(0, 0, 3).steps), ["1", "2", "3", "♯4", "5", "6", "7"]);
-    assert.deepEqual(degreeLabels(makeKeyContext(0, 1, 6).steps), ["1", "♭2", "♭3", "♭4", "♭5", "♭6", "♭♭7"]);
+    assert.deepEqual(degreeLabels(makeKeyContext(0, 0, 1).steps), ["R", "2", "♭3", "4", "5", "6", "♭7"]);
+    assert.deepEqual(degreeLabels(makeKeyContext(0, 0, 3).steps), ["R", "2", "3", "♯4", "5", "6", "7"]);
+    assert.deepEqual(degreeLabels(makeKeyContext(0, 1, 6).steps), ["R", "♭2", "♭3", "♭4", "♭5", "♭6", "♭♭7"]);
   });
   it("gives the step pattern", () => {
     assert.deepEqual(stepPattern(makeKeyContext(0, 0, 0).steps), ["W", "W", "H", "W", "W", "W", "H"]);
