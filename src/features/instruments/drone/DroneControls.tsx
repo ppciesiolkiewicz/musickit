@@ -29,6 +29,8 @@ const FILTER_NAMES: Record<(typeof FILTERS)[number], string> = { lowpass: "Low-p
 const LETTER_HUES: Hue[] = ["red", "amber", "emerald", "teal", "sky", "violet", "pink"];
 const NATURAL_INDEX = [0, 0, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6];
 const noteHue = (pc: number) => LETTER_HUES[NATURAL_INDEX[pc]];
+const NOTE_DOT: Record<Hue, string> = { rose: "bg-rose-400", red: "bg-red-400", amber: "bg-amber-400", emerald: "bg-emerald-400", teal: "bg-teal-400", sky: "bg-sky-400", violet: "bg-violet-400", pink: "bg-pink-400" };
+const NOTE_CARD: Record<Hue, string> = { rose: "border-rose-500/25", red: "border-red-500/25", amber: "border-amber-500/25", emerald: "border-emerald-500/25", teal: "border-teal-500/25", sky: "border-sky-500/25", violet: "border-violet-500/25", pink: "border-pink-500/25" };
 const cbtn = "grid h-8 min-w-8 place-items-center rounded-lg border px-1.5 text-xs transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 
 const MOD_NAMES: Record<(typeof MOD_TARGETS)[number], string> = { off: "Off", filter: "Filter", pitch: "Pitch", volume: "Volume" };
@@ -40,13 +42,20 @@ const sliderToRate = (v: number) => Math.round(DRONE_MIN_RATE * Math.exp(v * RAT
 
 const isDefault = (p: DroneParams) => (Object.keys(DEFAULT_DRONE) as (keyof DroneParams)[]).every((k) => p[k] === DEFAULT_DRONE[k]);
 
-function Sliders({ value, onChange, items }: { value: DroneParams; onChange: (patch: Partial<DroneParams>) => void; items: typeof SOUND }) {
+/** Each group of controls keeps one colour: its heading dot and its sliders. Written out whole so Tailwind sees them. */
+const GROUP = {
+  sound: { dot: "bg-sky-400", accent: "accent-sky-400", card: "border-sky-500/20" },
+  filter: { dot: "bg-amber-400", accent: "accent-amber-400", card: "border-amber-500/20" },
+  mod: { dot: "bg-emerald-400", accent: "accent-emerald-400", card: "border-emerald-500/20" },
+} as const;
+
+function Sliders({ value, onChange, items, accent = "accent-sky-400" }: { value: DroneParams; onChange: (patch: Partial<DroneParams>) => void; items: typeof SOUND; accent?: string }) {
   return (
     <>
       {items.map((s) => (
         <label key={s.key} className="flex items-center gap-2 text-xs text-slate-300">
           <span className="w-24 shrink-0">{s.label}</span>
-          <input type="range" className="min-w-0 flex-1 accent-sky-400" min={0} max={s.max} step={s.step} value={value[s.key]} onChange={(e) => onChange({ [s.key]: Number(e.target.value) })} />
+          <input type="range" className={`min-w-0 flex-1 ${accent}`} min={0} max={s.max} step={s.step} value={value[s.key]} onChange={(e) => onChange({ [s.key]: Number(e.target.value) })} />
           <span className="w-14 text-right tabular-nums text-slate-400">{s.show ? s.show(value[s.key]) : pct(value[s.key])}</span>
         </label>
       ))}
@@ -55,13 +64,13 @@ function Sliders({ value, onChange, items }: { value: DroneParams; onChange: (pa
 }
 
 const heading = "text-[11px] font-medium uppercase tracking-wide text-slate-400";
-const card = "flex min-w-0 flex-col gap-2 rounded-xl border border-slate-800 bg-slate-900/50 p-3";
+const card = "flex min-w-0 flex-col gap-2 rounded-xl border bg-slate-900/50 p-3";
 
 /** A section heading row of fixed height, so the sliders of side-by-side sections line up whatever sits beside the heading. */
-function Head({ title, children }: { title: string; children?: ReactNode }) {
+function Head({ title, dot, children }: { title: string; dot: string; children?: ReactNode }) {
   return (
     <div className="flex h-8 items-center justify-between gap-2">
-      <p className={heading}>{title}</p>
+      <p className={`${heading} flex items-center gap-2`}><span className={`h-2 w-2 rounded-full ${dot}`} />{title}</p>
       {children}
     </div>
   );
@@ -81,8 +90,8 @@ export default function DroneControls({ value, onChange, playing = false, analys
         <button type="button" className={`${ibtn} ml-auto px-2.5`} disabled={isDefault(value)} onClick={() => onChange(DEFAULT_DRONE)} title="Put every setting back to how it started">Reset</button>
       </div>
 
-      <section className={card}>
-        <Head title="Note">
+      <section className={`${card} ${NOTE_CARD[noteHue(value.root)]}`}>
+        <Head title="Note" dot={NOTE_DOT[noteHue(value.root)]}>
           <Select value={value.wave} onChange={(wave) => onChange({ wave })} aria-label="Waveform" options={WAVES.map((w) => ({ value: w, label: waveName(w) }))} />
         </Head>
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
@@ -97,23 +106,23 @@ export default function DroneControls({ value, onChange, playing = false, analys
             <button type="button" className={ibtn} disabled={value.octave >= DRONE_MAX_OCTAVE} onClick={() => onChange({ octave: value.octave + 1 })} aria-label="Octave up">+</button>
           </div>
         </div>
-        <DroneScope value={value} playing={playing} analyser={analyser} />
+        <DroneScope value={value} playing={playing} analyser={analyser} hue={noteHue(value.root)} />
       </section>
 
       <div className="grid gap-3 @xl:grid-cols-2">
-        <section className={card}>
-          <Head title="Sound" />
-          <Sliders value={value} onChange={onChange} items={SOUND} />
+        <section className={`${card} ${GROUP.sound.card}`}>
+          <Head title="Sound" dot={GROUP.sound.dot} />
+          <Sliders value={value} onChange={onChange} items={SOUND} accent={GROUP.sound.accent} />
         </section>
         <div className="flex min-w-0 flex-col gap-3">
-          <section className={card}>
-            <Head title="Filter">
+          <section className={`${card} ${GROUP.filter.card}`}>
+            <Head title="Filter" dot={GROUP.filter.dot}>
               <Select value={value.filter} onChange={(filter) => onChange({ filter })} aria-label="Filter type" options={FILTERS.map((f) => ({ value: f, label: FILTER_NAMES[f] }))} />
             </Head>
-            <Sliders value={value} onChange={onChange} items={FILTER} />
+            <Sliders value={value} onChange={onChange} items={FILTER} accent={GROUP.filter.accent} />
           </section>
-          <section className={card}>
-            <Head title="Modulation">
+          <section className={`${card} ${GROUP.mod.card}`}>
+            <Head title="Modulation" dot={GROUP.mod.dot}>
               <Select value={value.modWave} disabled={value.mod === "off"} onChange={(modWave) => onChange({ modWave })} aria-label="Modulation shape" options={WAVES.map((w) => ({ value: w, label: waveName(w) }))} />
             </Head>
             <div role="group" aria-label="What the modulation moves" className="grid grid-cols-4 gap-1">
@@ -124,10 +133,10 @@ export default function DroneControls({ value, onChange, playing = false, analys
             <fieldset disabled={value.mod === "off"} className="flex min-w-0 flex-col gap-2 disabled:opacity-40">
               <label className="flex items-center gap-2 text-xs text-slate-300">
                 <span className="w-24 shrink-0">Speed</span>
-                <input type="range" className="min-w-0 flex-1 accent-sky-400" min={0} max={1} step={0.005} value={rateToSlider(value.modRate)} onChange={(e) => onChange({ modRate: sliderToRate(Number(e.target.value)) })} />
+                <input type="range" className={`min-w-0 flex-1 ${GROUP.mod.accent}`} min={0} max={1} step={0.005} value={rateToSlider(value.modRate)} onChange={(e) => onChange({ modRate: sliderToRate(Number(e.target.value)) })} />
                 <span className="w-14 text-right tabular-nums text-slate-400">{value.modRate} Hz</span>
               </label>
-              <Sliders value={value} onChange={onChange} items={[{ key: "modDepth", label: "Depth", max: 1, step: 0.01 }]} />
+              <Sliders value={value} onChange={onChange} items={[{ key: "modDepth", label: "Depth", max: 1, step: 0.01 }]} accent={GROUP.mod.accent} />
             </fieldset>
           </section>
         </div>

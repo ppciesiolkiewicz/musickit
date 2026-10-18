@@ -5,6 +5,13 @@ import Icon from "@/components/Icon";
 import { lanesIn, type Instrument } from "./sequencer";
 import type { Cells } from "./pattern";
 import { ibtn, Select } from "@/components/ui";
+import { degreeColour } from "@/features/theory/scales";
+
+/** A drum lane's colour, on and accented (lighter, ringed): kick, snare, clap... each its own, so a groove reads at a glance. */
+const LANE_ON = ["bg-amber-500", "bg-rose-500", "bg-violet-500", "bg-sky-500", "bg-teal-500", "bg-pink-500", "bg-emerald-500", "bg-red-500"];
+const LANE_ACCENT = ["bg-amber-300", "bg-rose-300", "bg-violet-300", "bg-sky-300", "bg-teal-300", "bg-pink-300", "bg-emerald-300", "bg-red-300"];
+const LANE_DOT = ["bg-amber-400", "bg-rose-400", "bg-violet-400", "bg-sky-400", "bg-teal-400", "bg-pink-400", "bg-emerald-400", "bg-red-400"];
+const ACCENT_RING = "ring-2 ring-inset ring-white/70";
 
 
 /**
@@ -63,9 +70,15 @@ export default function StepGrid({ instrument, cells, steps, beatsPerBar, musicK
         ))}
         {lanes.map((lane, l) => (
           <div key={lane.id} className="contents" role="row">
-            <span className="truncate pr-1 text-xs text-slate-300" title={lane.label}>{lane.label}</span>
+            <span className="flex min-w-0 items-center gap-1.5 pr-1 text-xs text-slate-300" title={lane.label}>
+              <span className={`h-2 w-2 shrink-0 rounded-full ${lane.degree === undefined ? LANE_DOT[l % LANE_DOT.length] : ""}`} style={lane.degree === undefined ? undefined : { background: degreeColour(lane.degree) }} />
+              <span className="truncate">{lane.label}</span>
+            </span>
             {Array.from({ length: steps }, (_, s) => {
               const v = cells[l]?.[s] ?? 0;
+              // a pitched lane takes its degree's colour (as on every neck), a drum lane its own hue
+              const pitched = lane.degree !== undefined;
+              const fill = v === 0 ? (s % 8 < 4 ? "bg-slate-800 hover:bg-slate-700" : "bg-slate-800/60 hover:bg-slate-700") : pitched ? (v === 2 ? ACCENT_RING : "") : `${(v === 2 ? LANE_ACCENT : LANE_ON)[l % LANE_ON.length]} ${v === 2 ? ACCENT_RING : ""}`;
               return (
                 <button
                   key={s}
@@ -73,7 +86,8 @@ export default function StepGrid({ instrument, cells, steps, beatsPerBar, musicK
                   role="gridcell"
                   aria-label={`${lane.label}, step ${s + 1}: ${v === 0 ? "off" : v === 1 ? "on" : "accent"}`}
                   onClick={() => onStep(l, s, ((v + 1) % 3) as 0 | 1 | 2)}
-                  className={`mx-px h-7 rounded transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${gap(s)} ${v === 2 ? "bg-amber-400" : v === 1 ? "bg-sky-500" : s % 8 < 4 ? "bg-slate-800 hover:bg-slate-700" : "bg-slate-800/60 hover:bg-slate-700"}`}
+                  className={`mx-px h-7 rounded transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${gap(s)} ${fill}`}
+                  style={v !== 0 && pitched ? { background: degreeColour(lane.degree!), opacity: v === 2 ? 1 : 0.85 } : undefined}
                 />
               );
             })}

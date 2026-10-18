@@ -5,8 +5,8 @@ import { modRange, modShape, type DroneParams } from "./drone";
 
 const GRID = "#1e293b";
 const DIM = "#475569";
-const WAVE = "#38bdf8";
-const MOD = "#34d399";
+/** a theme colour by name, read off the page so the canvas follows the theme ("--color-violet-400") */
+const cssColour = (el: Element, name: string, fallback: string) => getComputedStyle(el).getPropertyValue(name).trim() || fallback;
 /** cycles of the modulator in view */
 const MOD_CYCLES = 2.5;
 
@@ -34,8 +34,9 @@ function fit(c: HTMLCanvasElement) {
 const buf = new Float32Array(2048);
 
 /** The wave the drone makes: live from the analyser while it sounds, otherwise two cycles of the bare oscillator, dimmed. */
-function drawWave(c: HTMLCanvasElement, p: DroneParams, analyser: AnalyserNode | null, live: boolean) {
+function drawWave(c: HTMLCanvasElement, p: DroneParams, analyser: AnalyserNode | null, live: boolean, hue: string) {
   const { g, w, h } = fit(c);
+  const colour = cssColour(c, `--color-${hue}-400`, "#38bdf8");
   g.lineWidth = 1.5;
   g.beginPath();
   if (analyser && live) {
@@ -54,21 +55,28 @@ function drawWave(c: HTMLCanvasElement, p: DroneParams, analyser: AnalyserNode |
       if (i) g.lineTo(x, y);
       else g.moveTo(x, y);
     }
-    g.strokeStyle = WAVE;
+    g.strokeStyle = colour;
+    g.shadowColor = colour;
+    g.shadowBlur = 10;
   } else {
     for (let i = 0; i <= w; i++) {
       const y = h / 2 - modShape(p.wave, (i / w) * 2) * (h / 2 - 6);
       if (i) g.lineTo(i, y);
       else g.moveTo(i, y);
     }
-    g.strokeStyle = DIM;
+    // at rest the wave keeps the note's colour, quieter
+    g.strokeStyle = colour;
+    g.globalAlpha = 0.55;
   }
   g.stroke();
+  g.shadowBlur = 0;
+  g.globalAlpha = 1;
 }
 
 /** The modulator as a chart recorder: its shape runs right to left, the dot at the right edge is now. */
 function drawMod(c: HTMLCanvasElement, p: DroneParams, phase: number) {
   const { g, w, h } = fit(c);
+  const MOD = cssColour(c, "--color-emerald-400", "#34d399");
   const pad = 8;
   const off = p.mod === "off" || p.modDepth === 0;
   // position 0 to 1 from the bottom of the box; the volume one hangs from the top (100%) and dips by the depth
@@ -95,14 +103,14 @@ function drawMod(c: HTMLCanvasElement, p: DroneParams, phase: number) {
  * Two small pictures of the drone: the wave it makes, and the modulation moving its filter, pitch or volume over time.
  * They move only while the drone plays.
  */
-export default function DroneScope({ value, playing, analyser }: { value: DroneParams; playing: boolean; analyser: AnalyserNode | null }) {
+export default function DroneScope({ value, playing, analyser, hue = "sky" }: { value: DroneParams; playing: boolean; analyser: AnalyserNode | null; hue?: string }) {
   const waveRef = useRef<HTMLCanvasElement>(null);
   const modRef = useRef<HTMLCanvasElement>(null);
   const phase = useRef(0);
 
   useEffect(() => {
     const draw = () => {
-      if (waveRef.current) drawWave(waveRef.current, value, analyser, playing);
+      if (waveRef.current) drawWave(waveRef.current, value, analyser, playing, hue);
       if (modRef.current) drawMod(modRef.current, value, phase.current);
     };
     draw();
@@ -123,7 +131,7 @@ export default function DroneScope({ value, playing, analyser }: { value: DroneP
       cancelAnimationFrame(raf);
       ro.disconnect();
     };
-  }, [playing, analyser, value]);
+  }, [playing, analyser, value, hue]);
 
   const r = modRange(value);
   const off = value.mod === "off" || value.modDepth === 0;

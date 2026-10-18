@@ -12,6 +12,8 @@ import { BASS_PRESETS, DRUM_PRESETS, MAX_BARS, MAX_STEPS, fromRows, emptyCells, 
 export interface Lane {
   id: string;
   label: string;
+  /** a pitched lane's scale degree (0 = root, counted on the major scale, so ♭3 is 2): the grid colours it like every neck */
+  degree?: number;
 }
 
 export interface Instrument {
@@ -106,6 +108,8 @@ export const DRUMS: Instrument = {
 
 /** A simple saw bass over a minor pentatonic ladder in the key (E by default), lowest note first. */
 const BASS_SEMIS = [0, 3, 5, 7, 10, 12, 15, 17];
+/** the degree of each step of the minor pentatonic ladder: R ♭3 4 5 ♭7 */
+const BASS_DEGREE: Record<number, number> = { 0: 0, 3: 2, 5: 3, 7: 4, 10: 6 };
 const NOTE_NAMES = ["C", "C♯", "D", "E♭", "E", "F", "F♯", "G", "A♭", "A", "B♭", "B"];
 /** the looper's bass key */
 export const DEFAULT_KEY = DEFAULT_KEY_PC;
@@ -116,7 +120,7 @@ export const bassRootMidi = (key: number) => {
 };
 const bassLanes = (key: number): Lane[] => {
   const root = bassRootMidi(key);
-  return BASS_SEMIS.map((s, i) => ({ id: `n${i}`, label: NOTE_NAMES[(root + s) % 12] + Math.floor((root + s) / 12 - 1) })).reverse();
+  return BASS_SEMIS.map((s, i) => ({ id: `n${i}`, label: NOTE_NAMES[(root + s) % 12] + Math.floor((root + s) / 12 - 1), degree: BASS_DEGREE[s % 12] })).reverse();
 };
 export const BASS: Instrument = {
   id: "bass",
