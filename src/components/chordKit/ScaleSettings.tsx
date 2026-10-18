@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { LabelSelect } from "@/features/theory/useLabelSystem";
@@ -11,6 +11,7 @@ import { scaleHref, scalesIndexHref } from "@/features/theory/keySlug";
 import { Chip, InfoBox, InfoButton, Select } from "@/components/ui";
 import { DegreeLegend } from "@/components/theory/DegreeLegend";
 import { PocketTools } from "@/features/instruments";
+import { PHONE_QUERY } from "@/components/usePhone";
 
 /** Room the sticky bar takes at the top, for `scroll-mt` on the sections linked to by #hash. */
 export const UNDER_BAR = "scroll-mt-48";
@@ -35,7 +36,8 @@ const LABEL_INFO = "How notes are labelled: note names, intervals from the root 
 
 /**
  * The settings that float over a scales page while it scrolls: key, labels and (on a mode page) which scale.
- * Its header folds it away to one line; phones start folded, so the page is not hidden under it.
+ * It starts open; on a phone it folds itself away to one line the first time the page is scrolled down, so it
+ * does not sit over what is being read. After that (or once the header is tapped) only the header opens and closes it.
  * `scale` is the current mode page's slug; leave it out on the index.
  */
 export function ScaleSettingsBar({
@@ -46,27 +48,49 @@ export function ScaleSettingsBar({
   scale?: string;
   omitLabels?: LabelSystem[];
 }) {
-  // null until the first tap: folded on phones, open from sm up (by CSS, so the server render matches)
-  const [open, setOpen] = useState<boolean | null>(null);
-  const isOpen = () => open ?? window.matchMedia("(min-width: 640px)").matches;
-  const show = open === null ? "hidden sm:flex" : open ? "flex" : "hidden";
+  const [open, setOpen] = useState(true);
+  // true until the bar has folded itself once or been toggled by hand
+  const autoFold = useRef(true);
+  useEffect(() => {
+    // phones only (either way up): wider screens have room to keep it open
+    if (!window.matchMedia(PHONE_QUERY).matches) return;
+    const start = window.scrollY;
+    const onScroll = () => {
+      if (!autoFold.current) return;
+      if (window.scrollY - start > 80) {
+        autoFold.current = false;
+        setOpen(false);
+        window.removeEventListener("scroll", onScroll);
+      }
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+  const toggle = () => {
+    autoFold.current = false;
+    setOpen((v) => !v);
+  };
   const keyName = TONICS.find((t) => t.pc === tonicPc)?.name;
   const scaleName = scale ? MODE_PAGES.find((m) => m.slug === scale)?.name : undefined;
   return (
     <div className="sticky top-2 z-20 flex flex-col gap-2 rounded-2xl border border-slate-700 bg-slate-950/90 px-2.5 py-2 shadow-lg shadow-black/30 backdrop-blur">
       <button
         type="button"
-        onClick={() => setOpen(!isOpen())}
-        aria-expanded={open ?? undefined}
-        className="flex items-center gap-2 rounded-md text-left text-xs focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400"
+        onClick={toggle}
+        aria-expanded={open}
+        className="group flex items-center gap-2 rounded-md text-left text-xs focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400"
       >
         <span className="text-[11px] uppercase tracking-wider text-slate-500">Settings</span>
         <span className="min-w-0 flex-1 truncate text-slate-200">{keyName}{scaleName ? ` ${scaleName}` : ""}</span>
-        <span className={`text-slate-400 ${open === null ? "sm:rotate-180" : open ? "rotate-180" : ""}`} aria-hidden>▾</span>
-        <span className="sr-only">Show or hide settings</span>
+        <span className="flex shrink-0 items-center gap-1 rounded-full border border-slate-600 bg-slate-800 px-2.5 py-1 text-xs font-medium text-slate-100 transition group-hover:border-sky-400 group-hover:text-sky-200">
+          {open ? "Hide" : "Show"}
+          <svg viewBox="0 0 12 12" aria-hidden className={`h-3 w-3 transition-transform ${open ? "rotate-180" : ""}`}>
+            <path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </span>
       </button>
       {/* hidden rather than unmounted, so the pocket tools keep playing while it is folded */}
-      <div className={`${show} max-h-[70vh] flex-col gap-2 overflow-y-auto sm:max-h-none sm:overflow-visible xl:flex-row xl:items-center`}>
+      <div className={`${open ? "flex" : "hidden"} max-h-[70vh] flex-col gap-2 overflow-y-auto sm:max-h-none sm:overflow-visible xl:flex-row xl:items-center`}>
         <div className="flex min-w-0 flex-1 flex-col gap-1.5">
           {scale && <ScaleRow slug={scale} tonicPc={tonicPc} />}
           <BarRow label="Key" info={KEY_INFO}>
