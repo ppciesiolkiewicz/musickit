@@ -56,6 +56,14 @@ export const STRING_NAMES: Record<RootString, string> = {
   1: "1st string (high e)",
 };
 export const STRING_SHORT: Record<RootString, string> = { 6: "6th", 5: "5th", 4: "4th", 3: "3rd", 1: "1st" };
+/** Plain names for beginners: the letter plus where the string sits as you hold the guitar (the thick low E is on top). */
+export const STRING_PLAIN: Record<RootString, string> = {
+  6: "E string (top)",
+  5: "A string (2nd from top)",
+  4: "D string (3rd from top)",
+  3: "G string (3rd from bottom)",
+  1: "high e string (bottom)",
+};
 
 /** Fret where the root note sits, shifted up an octave until the whole shape is playable (frets >= 1). Open chords stay where they are. */
 export function rootFretFor(sh: Shape, rootPc: number): number {

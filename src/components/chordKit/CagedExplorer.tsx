@@ -13,7 +13,7 @@ import {
   CAGED_THEORY, NECK_END, boxArpeggio, boxCells, boxChords, cagedBoxes, cagedContext, ladderMidi, laneAt, laneStarts, layerNotes,
   type ArpKind, type CagedBox, type CagedCell, type CagedQuality,
 } from "@/lib/chordKit/caged";
-import { STRING_SHORT } from "@/lib/chordKit/shapeTools";
+import { STRING_PLAIN, STRING_SHORT } from "@/lib/chordKit/shapeTools";
 import { arpeggioMidi } from "@/lib/chordKit/arpeggios";
 import { shapesForChord } from "@/lib/chordKit/chordShapes";
 import { playTimed, strum, strumShape } from "@/lib/chordKit/playback";
@@ -253,7 +253,7 @@ function BoxCard({ box, index, rootPc, quality, arpKind, labelSystem, badges, no
   return (
     <section id={`box-${box.letter}`} className="bleed scroll-mt-4">
       <Section
-        title={<span><span className="mr-2 inline-block rounded px-1.5" style={{ background: LANE_COLOURS[index % 5], color: DOT_INK }}>{box.letter}</span>{box.letter} shape · {box.chordName} chord</span>}
+        title={<span><span className="mr-2 inline-block rounded px-1.5" style={{ background: LANE_COLOURS[index % 5], color: DOT_INK }}>{box.letter}</span>{box.letter} shape · root on {STRING_PLAIN[box.shape.rs]}</span>}
         info={<>The {box.letter} shape is the open {box.letter} chord form moved up the neck as a barre chord. Here it gives {box.chordName}. The box of notes around it, frets {box.from} to {box.to}, holds the arpeggio, scale and pentatonic.</>}
         meta={fretText}
         accent={LANE_COLOURS[index % 5]}
