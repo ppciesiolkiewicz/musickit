@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { playMelody } from "@/features/sound";
+import { onSilence, playMelody } from "@/features/sound";
 import { playTimed as playTimedNotes } from "@/lib/chordKit/playback";
 
 /**
@@ -17,6 +17,11 @@ export function useNotePlayer() {
     timers.current = [];
   };
   useEffect(() => clear, []);
+  // a stop, or any other sound, ends the highlighting too (play and playTimed silence first, then set their own timers)
+  useEffect(() => onSilence(() => {
+    clear();
+    setActive(null);
+  }), []);
 
   const play = useCallback((notes: { key: string; midi: number }[], stepMs = 260) => {
     clear();
@@ -26,11 +31,11 @@ export function useNotePlayer() {
   }, []);
 
   /** Notes of their own lengths (a tune rather than a scale run), each held for most of its length. */
-  const playTimed = useCallback((notes: { key: string; midi: number; ms: number; velocity?: number }[]) => {
+  const playTimed = useCallback((notes: { key: string; midi: number; ms: number; velocity?: number }[], tuneId?: string) => {
     clear();
     let at = 0;
     const starts = notes.map((n) => (at += n.ms) - n.ms);
-    playTimedNotes(notes);
+    playTimedNotes(notes, tuneId);
     notes.forEach((n, i) => timers.current.push(setTimeout(() => setActive(n.key), starts[i])));
     timers.current.push(setTimeout(() => setActive(null), at));
   }, []);

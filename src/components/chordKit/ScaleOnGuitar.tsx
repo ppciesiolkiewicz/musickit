@@ -7,6 +7,7 @@ import { pentatonicOf, positionLine, positionsFor, rootStrings, scaleCells, type
 import { PositionBox, ScaleNeck, cellKey } from "./ScaleNeck";
 import { STRING_NAMES } from "./Fretboard";
 import type { NotePlayer } from "./useNotePlayer";
+import TuneButton from "./TuneButton";
 import { generateMelody, melodyTiming } from "@/lib/chordKit/melody";
 import { Chip, ChipRow, Info } from "@/components/ui";
 import { DegreeLegend } from "@/components/theory/DegreeLegend";
@@ -42,9 +43,9 @@ export default function ScaleOnGuitar({ ctx, player }: { ctx: KeyContext; player
     play(line.map((c) => ({ key: cellKey(c), midi: c.midi })), 220);
   };
   /** A short tune using only the position's notes, so it can be played in that box. */
-  const playTune = (p: ScalePosition) => {
+  const playTune = (p: ScalePosition, tuneId: string) => {
     setFocus(p.number);
-    playTimed(melodyTiming(generateMelody(positionLine(p), ctx.steps)).map((n) => ({ key: cellKey(n.note), midi: n.note.midi, ms: n.ms, velocity: n.velocity })));
+    playTimed(melodyTiming(generateMelody(positionLine(p), ctx.steps)).map((n) => ({ key: cellKey(n.note), midi: n.note.midi, ms: n.ms, velocity: n.velocity })), tuneId);
   };
 
   return (
@@ -113,7 +114,7 @@ export default function ScaleOnGuitar({ ctx, player }: { ctx: KeyContext; player
                 </button>
                 <div className="ml-auto flex flex-wrap justify-end gap-1.5">
                   <button type="button" onClick={() => playPosition(p)} className={`cursor-sound ${playBtn}`}>▶ Play</button>
-                  <button type="button" onClick={() => playTune(p)} title="A short tune using only this position's notes, new every time" className={`cursor-sound ${playBtn}`}>♪ Sample melody</button>
+                  <TuneButton onPlay={(id) => playTune(p, id)} title="A short tune using only this position's notes, new every time" className={playBtn} />
                 </div>
               </div>
               <PositionBox position={p} cells={cells} rings={rings} active={active} labelSystem={system} onNote={onNote} />

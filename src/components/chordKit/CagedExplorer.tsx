@@ -18,6 +18,7 @@ import { arpeggioMidi } from "@/lib/chordKit/arpeggios";
 import { shapesForChord } from "@/lib/chordKit/chordShapes";
 import { playTimed, strum, strumShape } from "@/lib/chordKit/playback";
 import { generateMelody, melodyTiming, scalePool } from "@/lib/chordKit/melody";
+import TuneButton from "./TuneButton";
 import { DEFAULT_KEY_PC } from "@/features/theory/theory";
 import { Chip, ChipRow, Info, Section } from "@/components/ui";
 import { DegreeLegend } from "@/components/theory/DegreeLegend";
@@ -237,16 +238,16 @@ function BoxCard({ box, index, rootPc, quality, arpKind, labelSystem, badges, no
   const onNote = (c: CagedCell) => strum([c.midi], { gapMs: 0, holdMs: 700 });
   const fretText = `frets ${box.from}–${box.to}`;
   // a short tune from the box's scale (or the pentatonic part of it), new every click
-  const playTune = (semis: number[]) => {
+  const playTune = (semis: number[], tuneId: string) => {
     const pool = scalePool(48 + rootPc, th.scale).filter((n) => semis.includes(th.scale[n.degree]));
-    playTimed(melodyTiming(generateMelody(pool, th.scale)).map((n) => ({ midi: n.note.midi, ms: n.ms, velocity: n.velocity })));
+    playTimed(melodyTiming(generateMelody(pool, th.scale)).map((n) => ({ midi: n.note.midi, ms: n.ms, velocity: n.velocity })), tuneId);
   };
   const only = (k: keyof Layers): Layers => ({ chord: false, arp: false, pent: false, scale: false, [k]: true });
   const panels = [
     { key: "chord", title: "CAGED / Chord", layers: only("chord"), notes: `${box.chordName}, root on the ${STRING_SHORT[box.shape.rs]} string${box.rootFret > 0 ? `, fret ${box.rootFret}` : ", open"}`, onPlay: hearChord },
     { key: "arp", title: notes.arpTitle.replace(" arpeggio", " arpeggio"), layers: only("arp"), notes: notes.arp.join(" "), onPlay: () => strum(arpeggioMidi(boxArpeggio(ctx, arpKind)), { gapMs: 230, holdMs: 700 }) },
-    { key: "pent", title: th.pentName, layers: only("pent"), notes: notes.pent.join(" "), onPlay: () => strum(ladderMidi(rootPc, th.pent), { gapMs: 220, holdMs: 500 }), onTune: () => playTune(th.pent) },
-    { key: "scale", title: th.scaleName, layers: only("scale"), notes: notes.scale.join(" "), onPlay: () => strum(ladderMidi(rootPc, th.scale), { gapMs: 200, holdMs: 500 }), onTune: () => playTune(th.scale) },
+    { key: "pent", title: th.pentName, layers: only("pent"), notes: notes.pent.join(" "), onPlay: () => strum(ladderMidi(rootPc, th.pent), { gapMs: 220, holdMs: 500 }), onTune: (id: string) => playTune(th.pent, id) },
+    { key: "scale", title: th.scaleName, layers: only("scale"), notes: notes.scale.join(" "), onPlay: () => strum(ladderMidi(rootPc, th.scale), { gapMs: 200, holdMs: 500 }), onTune: (id: string) => playTune(th.scale, id) },
   ];
 
   return (
@@ -263,7 +264,7 @@ function BoxCard({ box, index, rootPc, quality, arpKind, labelSystem, badges, no
               <div className="flex items-center gap-2">
                 <h3 className="text-sm font-medium text-slate-100">{p.title}</h3>
                 <button type="button" className={`cursor-sound ${play} ml-auto`} onClick={p.onPlay} aria-label={`Play the ${p.title}`}>▶ Play</button>
-                {"onTune" in p && <button type="button" className={`cursor-sound ${play}`} onClick={p.onTune} title={`A short tune made from the ${p.title}, new every time`}>♪ Sample melody</button>}
+                {"onTune" in p && p.onTune && <TuneButton className={play} onPlay={p.onTune} title={`A short tune made from the ${p.title}, new every time`} />}
               </div>
               <BoxNeck cells={cells} box={box} layers={p.layers} labelSystem={labelSystem} badges={badges} onNote={onNote} />
               <p className="text-xs text-slate-400">{p.notes}</p>

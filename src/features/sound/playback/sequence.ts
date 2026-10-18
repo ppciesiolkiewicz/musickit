@@ -23,6 +23,7 @@ export interface Step {
 
 let timers: ReturnType<typeof setTimeout>[] = [];
 const used = new Set<Player>();
+const silenceListeners = new Set<() => void>();
 
 /** Stop everything the sequences started and cancel notes that have not sounded yet. */
 export function silence(): void {
@@ -30,6 +31,13 @@ export function silence(): void {
   timers = [];
   used.forEach((p) => p.allOff());
   used.clear();
+  silenceListeners.forEach((fn) => fn());
+}
+
+/** Hear when the sequences are silenced (a stop, or a new sequence replacing the one playing). Returns the unsubscribe. */
+export function onSilence(fn: () => void): () => void {
+  silenceListeners.add(fn);
+  return () => silenceListeners.delete(fn);
 }
 
 /** Play timed notes on a player (the shared piano by default). A new sequence replaces the one playing. */
