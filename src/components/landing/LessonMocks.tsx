@@ -68,7 +68,7 @@ function Tile({ label, photo, focus, zoom = 1, speaking = false }: { label: stri
     <div className={`relative aspect-4/3 overflow-hidden rounded-xl ${speaking ? "ring-2 ring-emerald-400" : "ring-1 ring-slate-700"}`}>
       {/* zoomed in round the face, so a wide shot reads as a webcam */}
       <div className="h-full w-full" style={{ transform: `scale(${zoom})`, transformOrigin: focus }}>
-        <Photo name={photo} focus={focus} width={600} sizes="240px" credit={false} className="h-full w-full" />
+        <Photo name={photo} focus={focus} width={600} sizes="240px" credit={false} fixed className="h-full w-full" />
       </div>
       <span className="absolute bottom-1.5 left-1.5 flex items-center gap-1 rounded bg-slate-950/70 px-1.5 text-[10px] text-slate-100">
         {speaking && <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />}

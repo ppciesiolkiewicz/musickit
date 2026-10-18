@@ -181,6 +181,13 @@
 :root[data-theme="metal"] [data-style-only="metal"],
 :root[data-theme="jazz"] [data-style-only="jazz"],
 :root[data-theme="plain"] [data-style-only="plain"] { display: revert; }
+/* a photo's default hides when the current style swaps that slot */
+:root[data-theme="funk"] [data-overrides~="funk"] > [data-style-default],
+:root[data-theme="rock"] [data-overrides~="rock"] > [data-style-default],
+:root[data-theme="blues"] [data-overrides~="blues"] > [data-style-default],
+:root[data-theme="surf"] [data-overrides~="surf"] > [data-style-default],
+:root[data-theme="metal"] [data-overrides~="metal"] > [data-style-default],
+:root[data-theme="jazz"] [data-overrides~="jazz"] > [data-style-default] { display: none; }
 
 @media (prefers-reduced-motion: reduce) {
   .landing .ls-glint::after, .landing .ls-accent { animation: none !important; }
