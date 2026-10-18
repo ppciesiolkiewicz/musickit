@@ -23,4 +23,17 @@ describe("jam part levels", () => {
     assert.equal(parts.bass.muted, true);
     assert.equal(parts.bass.volume, 1);
   });
+
+  it("mutes the following click by default and saves its mute", () => {
+    assert.equal(new JamRig().snapshot().click.muted, false);
+    const rig = new JamRig({ followClick: true });
+    assert.equal(rig.snapshot().click.muted, true);
+    rig.setClickMuted(false);
+    const again = new JamRig({ followClick: true });
+    again.load(JSON.parse(JSON.stringify(rig.save())));
+    assert.equal(again.snapshot().click.muted, false);
+    const old = new JamRig({ followClick: true });
+    old.load({ bpm: 90, parts: {}, click: { volume: 0.5 } });
+    assert.equal(old.snapshot().click.muted, true);
+  });
 });

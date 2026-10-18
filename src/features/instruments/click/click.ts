@@ -56,6 +56,8 @@ export class ClickTrack {
   private anchor = 0;
   private next = 0;
   private startAt = 0;
+  /** no click at or after this time (`stopAt`) */
+  private endAt = Infinity;
 
   constructor(private ctx: AudioContext, destination: AudioNode) {
     this.out = ctx.createGain();
@@ -65,6 +67,11 @@ export class ClickTrack {
 
   get playing() {
     return this.timer !== null;
+  }
+
+  /** playing, with a stop on its way (`stopAt`) */
+  get ending() {
+    return this.playing && this.endAt !== Infinity;
   }
 
   private get period() {
@@ -106,11 +113,23 @@ export class ClickTrack {
   stop() {
     if (this.timer) clearInterval(this.timer);
     this.timer = null;
+    this.endAt = Infinity;
+  }
+
+  /** Stop at context time `t` (a beat line): no click from there on. */
+  stopAt(t: number) {
+    if (this.playing) this.endAt = t;
+  }
+
+  /** Call off a `stopAt` and keep clicking. */
+  cancelStop() {
+    this.endAt = Infinity;
   }
 
   private schedule() {
     while (this.anchor + this.next * this.period < this.ctx.currentTime + LOOKAHEAD) {
       const t = this.anchor + this.next * this.period;
+      if (t >= this.endAt - 1e-6) return this.stop();
       if (t >= this.ctx.currentTime - 0.005 && t >= this.startAt - 1e-6) this.click(t, beatOf(this.next, this.params.beatsPerBar) === 0 && this.params.beatsPerBar > 1);
       this.next++;
     }

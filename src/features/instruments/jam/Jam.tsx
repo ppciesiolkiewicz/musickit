@@ -28,8 +28,9 @@ function restore(rig: JamRig) {
 
 const card = "relative flex min-w-0 flex-col gap-4 overflow-hidden rounded-2xl border bg-slate-900/60 p-4 sm:p-6 lg:p-8";
 
-/** Each part keeps one colour, so the page reads as four instruments at a glance: its card's edge and wash, its icon and its play button. */
+/** Each part keeps one colour, so the page reads as its instruments at a glance: its card's edge and wash, its icon and its play button. */
 const PART_TONE = {
+  click: { card: "border-sky-500/30", wash: "from-sky-500/12", disc: "bg-sky-500/15 text-sky-300", ring: "border-sky-400/60 text-sky-100 hover:bg-sky-500/15", icon: "metronome" },
   drone: { card: "border-violet-500/30", wash: "from-violet-500/15", disc: "bg-violet-500/15 text-violet-300", ring: "border-violet-400/60 text-violet-100 hover:bg-violet-500/15", icon: "audio-lines" },
   drums: { card: "border-amber-500/30", wash: "from-amber-500/12", disc: "bg-amber-500/15 text-amber-300", ring: "border-amber-400/60 text-amber-100 hover:bg-amber-500/15", icon: "drum" },
   bass: { card: "border-teal-500/30", wash: "from-teal-500/12", disc: "bg-teal-500/15 text-teal-300", ring: "border-teal-400/60 text-teal-100 hover:bg-teal-500/15", icon: "waves" },
@@ -77,7 +78,7 @@ function Title({ children, view, tone }: { children: ReactNode; view: JamPartVie
  * Nothing sounds until a person presses play (the browser needs that).
  */
 export default function Jam() {
-  const [rig] = useState(() => new JamRig());
+  const [rig] = useState(() => new JamRig({ followClick: true }));
   const snap = useSyncExternalStore(rig.subscribe, rig.snapshot, rig.snapshot);
   const [restored, setRestored] = useState(false);
 
@@ -109,9 +110,20 @@ export default function Jam() {
     rig.start(parts, withLoops);
   };
   const toggle = (p: JamPart) => (snap.parts[p].state.playing ? rig.stop([p]) : void start([p]));
+  /** the metronome's own play: pressed to hear it, so it unmutes too */
+  const toggleClick = async () => {
+    if (snap.click.on) return rig.setClick(false);
+    await ready();
+    rig.setClickMuted(false);
+    rig.setClick(true);
+  };
   // any part or loop playing makes it a Stop all, so one started on its own can be stopped from here too
-  const anyOn = JAM_PARTS.some((p) => snap.parts[p].state.playing) || snap.loops.some((l) => l.on || l.state === "countIn" || l.state === "recording");
-  const toggleAll = () => (anyOn ? rig.stop(JAM_PARTS, true) : void start(JAM_PARTS, true));
+  const anyOn = snap.click.on || JAM_PARTS.some((p) => snap.parts[p].state.playing) || snap.loops.some((l) => l.on || l.state === "countIn" || l.state === "recording");
+  const toggleAll = () => {
+    if (!anyOn) return void start(JAM_PARTS, true);
+    rig.setClick(false);
+    rig.stop(JAM_PARTS, true);
+  };
   const toggleAllRef = useRef(toggleAll);
   useEffect(() => {
     toggleAllRef.current = toggleAll;
@@ -145,13 +157,29 @@ export default function Jam() {
           <span className="w-16 whitespace-nowrap text-right tabular-nums text-slate-400">{snap.bpm} BPM</span>
         </label>
         <span className="flex items-center gap-2 text-xs text-slate-400">
-          {/* the four parts' colours, in page order */}
+          {/* the parts' colours, in page order */}
           <span aria-hidden className="flex -space-x-1">
             {Object.values(PART_TONE).map((t) => <span key={t.icon} className={`h-3 w-3 rounded-full ring-2 ring-slate-900 ${t.disc.split(" ")[0].replace("/15", "")}`} />)}
           </span>
           Key of <b className="font-semibold text-violet-200">{key}</b>, from the drone
         </span>
       </div>
+
+      <PartCard tone={PART_TONE.click} label="Metronome">
+        <div className="flex flex-wrap items-center gap-3">
+          <PlayButton big tone={PART_TONE.click} on={snap.click.on} name="metronome" onClick={() => void toggleClick()} />
+          <div className="mr-auto flex min-w-0 items-center gap-3">
+            <span className={`hidden h-9 w-9 shrink-0 place-items-center rounded-xl sm:grid ${PART_TONE.click.disc}`}><Icon name="metronome" size={18} /></span>
+            <span className="min-w-0">
+              <p className="text-lg font-light tabular-nums text-slate-50">Metronome · {snap.bpm} BPM</p>
+              <p className={`text-xs ${snap.click.running && !snap.click.muted ? "text-emerald-300" : "text-slate-400"}`}>
+                {snap.click.running ? (snap.click.muted ? "Keeping time, muted" : "Playing") : "Stopped"}
+              </p>
+            </span>
+          </div>
+          <PartLevel name="metronome" volume={snap.click.volume} muted={snap.click.muted} onVolume={(v) => rig.setClickVolume(v)} onMute={(m) => rig.setClickMuted(m)} />
+        </div>
+      </PartCard>
 
       <PartCard tone={PART_TONE.drone} label="Drone">
         <DroneControls value={drone.state.drone} onChange={(patch) => rig.setDrone(patch)} playing={drone.running} analyser={drone.running ? rig.droneAnalyser() : null}
