@@ -3,9 +3,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Icon from "@/components/Icon";
 import { PLUGINS } from "@/features/creator";
-import { NUDGE, NUDGE_BIG, StageFrame, StageWidget, shortcutFor, stageCommand, subjectTitle, type Layer, type PaletteResult, type StudioCommand } from "@/features/stage";
+import { CameraLayer, NUDGE, NUDGE_BIG, ScreenLayer, StageFrame, StageWidget, shortcutFor, stageCommand, subjectTitle, type Layer, type PaletteResult, type StudioCommand, type Subject } from "@/features/stage";
 import { isStudioSupported } from "./browserSupport";
 import KeysPanel, { KeysOverlay } from "./KeysPanel";
+import useCamera from "./media/useCamera";
+import useScreenShare from "./media/useScreenShare";
 import Palette from "./Palette";
 import useStage from "./useStage";
 
@@ -32,9 +34,39 @@ export default function StudioApp() {
     setSupported(isStudioSupported());
   }, []);
 
-  const runCommand = useCallback((cmd: StudioCommand) => {
-    for (const a of stageCommand(stageRef.current, cmd, () => crypto.randomUUID())) dispatch(a);
-  }, [dispatch]);
+  const camera = useCamera();
+  const removeKind = useCallback(
+    (kind: Subject["kind"]) => {
+      const l = stageRef.current.layers.find((x) => x.subject.kind === kind);
+      if (l) dispatch({ type: "remove", id: l.id });
+    },
+    [dispatch],
+  );
+  const screen = useScreenShare(useCallback(() => removeKind("screen"), [removeKind]));
+  const startScreen = useCallback(async () => {
+    if (await screen.start()) dispatch({ type: "addSubject", id: crypto.randomUUID(), subject: { kind: "screen" } });
+  }, [screen, dispatch]);
+
+  // a camera or screen layer deleted (trash, ⌫, clear) lets go of its stream
+  const hasCamera = stage.layers.some((l) => l.subject.kind === "camera");
+  const hasScreen = stage.layers.some((l) => l.subject.kind === "screen");
+  const { stop: stopCamera, stream: cameraStream } = camera;
+  const { stop: stopScreen, stream: screenStream } = screen;
+  useEffect(() => {
+    if (!hasCamera && cameraStream) stopCamera();
+  }, [hasCamera, cameraStream, stopCamera]);
+  useEffect(() => {
+    if (!hasScreen && screenStream) stopScreen();
+  }, [hasScreen, screenStream, stopScreen]);
+
+  const runCommand = useCallback(
+    (cmd: StudioCommand) => {
+      if (cmd === "screen-share") void startScreen();
+      else if (cmd === "screen-stop") removeKind("screen");
+      else for (const a of stageCommand(stageRef.current, cmd, () => crypto.randomUUID())) dispatch(a);
+    },
+    [dispatch, startScreen, removeKind],
+  );
 
   const onPick = useCallback(
     (r: PaletteResult) => {
@@ -114,7 +146,13 @@ export default function StudioApp() {
   if (!supported) return <p className="mx-auto mt-24 max-w-md text-center text-slate-300">The studio needs desktop Chrome or Edge.</p>;
 
   const renderLayer = (l: Layer) => (
-    <StageWidget subject={l.subject} onSubjectChange={(subject) => dispatch({ type: "swap", id: l.id, subject })} stageKey={stage.key} onStageKey={(key) => dispatch({ type: "setStageKey", key })} />
+    <StageWidget
+      subject={l.subject}
+      onSubjectChange={(subject) => dispatch({ type: "swap", id: l.id, subject })}
+      stageKey={stage.key}
+      onStageKey={(key) => dispatch({ type: "setStageKey", key })}
+      renderMedia={(s) => (s.kind === "camera" ? <CameraLayer stream={camera.stream} error={camera.error} onStart={() => void camera.start()} /> : <ScreenLayer stream={screen.stream} onStart={() => void startScreen()} />)}
+    />
   );
 
   return (
@@ -145,6 +183,16 @@ export default function StudioApp() {
             </li>
           ))}
         </ul>
+        {camera.stream && camera.devices.length > 1 && (
+          <label className="mt-2 flex flex-col gap-1 text-xs text-slate-400">
+            Camera
+            <select value={camera.deviceId ?? ""} onChange={(e) => void camera.start(e.target.value)} className="rounded-md border border-slate-700 bg-slate-900 px-2 py-1 text-slate-200">
+              {camera.devices.map((d, i) => (
+                <option key={d.deviceId} value={d.deviceId}>{d.label || `Camera ${i + 1}`}</option>
+              ))}
+            </select>
+          </label>
+        )}
         <button type="button" onClick={() => setPalette(true)} className="mt-1 flex items-center gap-1.5 self-start rounded-md border border-slate-700 px-2 py-1 text-xs text-slate-300 hover:border-slate-500">
           <Icon name="plus" size={12} /> Add <kbd className="font-mono text-slate-500">/</kbd>
         </button>

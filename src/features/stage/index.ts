@@ -15,3 +15,4 @@ export { searchPalette } from "./model/search";
 export * from "./model/keys";
 export { stageCommand } from "./model/commands";
 export { default as StageWidget, type StageWidgetProps } from "./render/StageWidget";
+export { CameraLayer, ScreenLayer } from "./render/MediaLayer";

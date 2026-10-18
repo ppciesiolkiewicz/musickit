@@ -11,6 +11,8 @@
 - **Widgets:** a chord box (click to strum, ‹ › for other shapes), any cheatsheet panel in its own key, a scale position on the neck, the scale page's Drone section (click, drone, drums, bass), scale-page sections, and the Key widget. Each widget keeps its own key; changing the Key widget re-keys every widget except chord boxes.
 - **Moving:** drag a widget (from its top strip at once, from anywhere after a few pixels, so clicks still play), resize from its corner dot. The outline and dot show only on hover or when selected.
 - **Keys** (listed in the Keys panel, all of them with `?`): `/` or ⌘K add, `C` camera corner, `F` camera full, arrows move (Shift: more), ⌥+arrows resize, ⌫ delete, Esc deselect. None fire while typing in a field.
+- **Camera:** a layer like any other: drag, resize, reorder, hide or delete it. `C` (or `camera corner`) puts it in the bottom-right portrait corner, `F` (or `camera full`) fills the frame; either adds it if missing. It never opens on its own: the layer shows "Start camera" until clicked (also after a reload). Refused or unplugged, it says "Camera off: click to retry". With more than one camera, a picker shows under the Layers list. Video only; the camera's choice is remembered in `musickit.studio.camera`.
+- **Screen share:** `screen share` asks Chrome for a window or screen and adds it as a layer at the bottom, full frame, shown whole (letterboxed). It can be resized like anything else. No sound. Stopping it from Chrome's bar, `stop screen`, or deleting the layer ends it. After a reload the layer asks to share again.
 - **Saved:** the stage (layers, their place and size as fractions of the frame, the Key widget's key) is saved in `musickit.studio.stage` and comes back on the next visit.
 
 ## Later (see the plans)
