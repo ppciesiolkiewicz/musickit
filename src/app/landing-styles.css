@@ -1,0 +1,182 @@
+/*
+ * The music styles' landing look: headline face, edges, glow, metallic shine and photo treatment, per data-theme on <html>.
+ * Scoped to `.landing` (the home page) — every other page only takes the style's colours from themes.css.
+ * Plain sets nothing here, so the landing page under Plain is exactly the original design.
+ * Values follow the approved mockup; the style list is src/features/styles/styles.ts.
+ */
+
+/* ---- headline face (read by DISPLAY in components/landing/Display.tsx) ---- */
+:root[data-theme="funk"] .landing { --style-display: var(--font-funk); --style-italic: normal; }
+:root[data-theme="rock"] .landing { --style-display: var(--font-rock); --style-display-case: uppercase; --style-italic: normal; }
+:root[data-theme="blues"] .landing { --style-display: var(--font-blues); --style-italic: italic; }
+:root[data-theme="surf"] .landing { --style-display: var(--font-surf); --style-italic: normal; }
+:root[data-theme="metal"] .landing { --style-display: var(--font-metal); --style-italic: normal; }
+:root[data-theme="jazz"] .landing { --style-display: var(--font-jazz); --style-italic: italic; }
+:root:not([data-theme="plain"]) .landing { --style-display-variation: normal; }
+:root:not([data-theme="plain"]) .landing :is(h1, h2, h3) .italic,
+:root:not([data-theme="plain"]) .landing .ls-accent { font-style: var(--style-italic, italic); }
+
+/* ---- per-style tokens ---- */
+:root[data-theme="funk"] .landing {
+  --r-card: 2rem; --r-btn: 999px;
+  --glow: 0 0 28px color-mix(in oklab, var(--color-sky-400) 70%, transparent), 0 0 4px color-mix(in oklab, var(--color-sky-400) 90%, transparent);
+  --btn-bg: var(--color-emerald-400); --btn-ink: var(--color-slate-950);
+  --btn-shadow: 0 0 0 3px color-mix(in oklab, var(--color-emerald-400) 35%, transparent), 0 0 30px color-mix(in oklab, var(--color-emerald-400) 55%, transparent);
+  --card-shadow: 0 0 0 1px color-mix(in oklab, var(--color-sky-400) 22%, transparent), 0 30px 60px -34px color-mix(in oklab, var(--color-sky-400) 50%, transparent);
+  --photo-filter: saturate(1.35) contrast(1.05);
+  --photo-shadow: 0 0 0 3px var(--color-sky-400), 0 0 50px color-mix(in oklab, var(--color-sky-400) 50%, transparent);
+  --glint: #ffffff99;
+}
+:root[data-theme="rock"] .landing {
+  --r-card: 2px; --r-btn: 2px;
+  --glow: none;
+  --btn-bg: var(--color-sky-500); --btn-ink: #fff; --btn-case: uppercase; --btn-spacing: 0.04em; --btn-border: 2px solid var(--color-slate-50);
+  --btn-shadow: 5px 5px 0 var(--color-slate-50);
+  --card-border: 2px solid var(--color-slate-200);
+  --card-shadow: 6px 6px 0 var(--color-sky-500);
+  --photo-filter: contrast(1.2) saturate(1.1);
+  --photo-shadow: 10px 10px 0 var(--color-sky-500);
+  --photo-clip: polygon(0 0, 100% 0, 100% 94%, 93% 98%, 84% 94%, 71% 99%, 58% 95%, 44% 100%, 30% 95%, 17% 99%, 6% 95%, 0 98%);
+  --glint: #ffffffcc;
+}
+:root[data-theme="blues"] .landing {
+  --r-card: 0.875rem; --r-btn: 0.5rem;
+  --glow: 0 0 40px color-mix(in oklab, var(--color-sky-400) 45%, transparent);
+  --btn-bg: linear-gradient(180deg, oklch(87% 0.12 80), oklch(72% 0.16 65) 55%, oklch(56% 0.14 50)); --btn-ink: oklch(20% 0.04 60);
+  --btn-shadow: 0 0 36px -4px color-mix(in oklab, var(--color-sky-400) 55%, transparent);
+  --card-shadow: 0 24px 50px -26px #000c;
+  --photo-filter: sepia(0.35) saturate(0.9) contrast(1.05);
+  --photo-vignette: inset 0 0 80px 10px oklch(12% 0.05 268 / 0.8);
+  --grain: 0.12;
+  --glint: oklch(97% 0.04 85 / 0.6);
+}
+:root[data-theme="surf"] .landing {
+  --r-card: 2.5rem; --r-btn: 999px;
+  --glow: 3px 3px 0 oklch(87% 0.13 85);
+  --btn-bg: var(--color-sky-500); --btn-ink: #fff;
+  --btn-shadow: 0 6px 0 var(--color-sky-300);
+  --card-chrome: linear-gradient(180deg, #ffffff, #b9c2c9 45%, #6b7780 50%, #e6ebee 70%, #9aa5ad);
+  --card-shadow: 0 20px 40px -24px oklch(35% 0.06 190 / 0.45);
+  --photo-filter: saturate(1.1) brightness(1.05) sepia(0.12);
+  --photo-radius: 12rem 12rem 2.5rem 2.5rem;
+  --photo-shadow: 0 24px 40px -22px oklch(35% 0.06 190 / 0.5);
+  --glint: #ffffffcc;
+}
+:root[data-theme="metal"] .landing {
+  --r-card: 0; --r-btn: 0;
+  --clip: polygon(0 0, calc(100% - 22px) 0, 100% 22px, 100% 100%, 22px 100%, 0 calc(100% - 22px));
+  --btn-clip: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+  --glow: 0 0 1px #fff, 0 3px 0 oklch(30% 0.12 25), 0 0 22px color-mix(in oklab, var(--color-sky-500) 55%, transparent);
+  --btn-bg: linear-gradient(oklch(62% 0.23 25), oklch(42% 0.17 25)); --btn-ink: #fff; --btn-case: uppercase; --btn-spacing: 0.12em;
+  --btn-shadow: inset 0 1px 0 #ffffff40, 0 0 20px color-mix(in oklab, var(--color-sky-500) 45%, transparent);
+  --card-frame: linear-gradient(135deg, #71717a, #f4f4f5 30%, #3f3f46 55%, #d4d4d8 80%, #52525b);
+  --photo-filter: grayscale(1) contrast(1.35) brightness(0.9);
+  --glint: #ffffffaa;
+}
+:root[data-theme="jazz"] .landing {
+  --r-card: 3px; --r-btn: 2px;
+  --glow: none;
+  --btn-bg: transparent; --btn-ink: var(--color-sky-400); --btn-case: uppercase; --btn-spacing: 0.22em;
+  --btn-border: 1px solid var(--color-sky-400);
+  --btn-shadow: 0 0 0 4px var(--color-slate-950), 0 0 0 5px color-mix(in oklab, var(--color-sky-400) 30%, transparent);
+  --card-shadow: inset 0 0 0 6px var(--color-slate-900), inset 0 0 0 7px color-mix(in oklab, var(--color-sky-400) 22%, transparent);
+  --photo-filter: saturate(0.9) contrast(1.05);
+  --photo-outline: 1px solid color-mix(in oklab, var(--color-sky-400) 35%, transparent);
+  --glint: oklch(93% 0.08 88 / 0.7);
+}
+
+/* ---- the classes landing elements wear; none of them apply under Plain ---- */
+:root:not([data-theme="plain"]) .landing .ls-card {
+  border-radius: var(--r-card);
+  box-shadow: var(--card-shadow, none);
+  clip-path: var(--clip, none);
+}
+:root[data-theme="rock"] .landing .ls-card { border: var(--card-border); }
+/* Surf: chrome trim like a 60s car; Metal: steel frames */
+:root[data-theme="surf"] .landing .ls-card { border: 3px solid transparent; background-clip: padding-box; position: relative; }
+:root[data-theme="surf"] .landing .ls-card::before,
+:root[data-theme="metal"] .landing .ls-card::before {
+  content: ""; position: absolute; inset: -3px; border-radius: inherit; padding: 3px; pointer-events: none;
+  background: var(--card-chrome, var(--card-frame)); clip-path: var(--clip, none);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude;
+}
+:root[data-theme="metal"] .landing .ls-card { position: relative; }
+:root[data-theme="metal"] .landing .ls-card::before { inset: 0; padding: 1px; }
+
+:root:not([data-theme="plain"]) .landing .ls-photo {
+  border-radius: var(--photo-radius, var(--r-card));
+  clip-path: var(--photo-clip, var(--clip, none));
+  box-shadow: var(--photo-shadow, none);
+  outline: var(--photo-outline, none);
+  outline-offset: 8px;
+}
+:root:not([data-theme="plain"]) .landing .ls-photo img { filter: var(--photo-filter, none); }
+:root[data-theme="blues"] .landing .ls-photo::after { content: ""; position: absolute; inset: 0; box-shadow: var(--photo-vignette); pointer-events: none; }
+
+:root:not([data-theme="plain"]) .landing .ls-btn {
+  border-radius: var(--r-btn);
+  text-transform: var(--btn-case, none);
+  letter-spacing: var(--btn-spacing, normal);
+  clip-path: var(--btn-clip, none);
+}
+:root:not([data-theme="plain"]) .landing .ls-btn-primary {
+  background: var(--btn-bg);
+  color: var(--btn-ink);
+  border: var(--btn-border, 0);
+  box-shadow: var(--btn-shadow, none);
+}
+:root:not([data-theme="plain"]) .landing .ls-btn-primary:hover { filter: brightness(1.08); }
+
+:root:not([data-theme="plain"]) .landing .ls-accent { text-shadow: var(--glow, none); }
+
+/* ---- metallic shine ---- */
+/* a glint sweeps across primary buttons once after load and again on hover */
+:root:not([data-theme="plain"]) .landing .ls-glint { position: relative; overflow: hidden; }
+:root:not([data-theme="plain"]) .landing .ls-glint::after {
+  content: ""; position: absolute; top: -20%; bottom: -20%; left: -60%; width: 40%; transform: skewX(-20deg); pointer-events: none;
+  background: linear-gradient(90deg, transparent, var(--glint), transparent);
+  animation: ls-glint 2.4s 0.6s ease-out 1 both;
+}
+:root:not([data-theme="plain"]) .landing .ls-glint:hover::after { animation: ls-glint 0.9s ease-out 1; }
+@keyframes ls-glint { from { left: -60%; } to { left: 130%; } }
+
+/* Metal: chrome headline, the accent stays blood red */
+:root[data-theme="metal"] .landing h1 {
+  background: linear-gradient(180deg, #fff 0%, #d4d4d8 38%, #52525b 50%, #e4e4e7 62%, #a1a1aa 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+:root[data-theme="metal"] .landing h1 .ls-accent { -webkit-text-fill-color: var(--color-sky-500); }
+/* Jazz: brushed gold on the accent */
+:root[data-theme="jazz"] .landing .ls-accent {
+  background: linear-gradient(100deg, oklch(55% 0.1 75), oklch(91% 0.09 90) 30%, oklch(70% 0.11 80) 50%, oklch(93% 0.08 92) 70%, oklch(55% 0.1 75));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 0 14px oklch(78% 0.11 85 / 0.25));
+}
+/* Funk: a slow disco sparkle across the accent */
+:root[data-theme="funk"] .landing .ls-accent {
+  background: linear-gradient(100deg, var(--color-sky-400) 0%, var(--color-sky-100) 22%, var(--color-sky-400) 40%, var(--color-sky-200) 62%, var(--color-sky-400) 80%);
+  background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: ls-sheen 6s linear infinite;
+}
+@keyframes ls-sheen { to { background-position: -200% 0; } }
+
+/* film grain for Blues and Rock */
+:root[data-theme="blues"] .landing, :root[data-theme="rock"] .landing { position: relative; }
+:root[data-theme="blues"] .landing::after, :root[data-theme="rock"] .landing::after {
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 1; mix-blend-mode: overlay; opacity: var(--grain, 0.16);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ---- markup rendered for every style, shown only for the current one ---- */
+[data-style-only] { display: none; }
+:root[data-theme="funk"] [data-style-only="funk"],
+:root[data-theme="rock"] [data-style-only="rock"],
+:root[data-theme="blues"] [data-style-only="blues"],
+:root[data-theme="surf"] [data-style-only="surf"],
+:root[data-theme="metal"] [data-style-only="metal"],
+:root[data-theme="jazz"] [data-style-only="jazz"],
+:root[data-theme="plain"] [data-style-only="plain"] { display: revert; }
+
+@media (prefers-reduced-motion: reduce) {
+  .landing .ls-glint::after, .landing .ls-accent { animation: none !important; }
+}

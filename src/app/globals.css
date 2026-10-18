@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "./themes.css";
+@import "./landing-styles.css";
 
 /* not a phone: `sm` and up, unless it is a phone on its side (wide, but short with a touch screen). usePhone() is the same test in JS. */
 @custom-variant desk {

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Fraunces, Geist, Geist_Mono } from "next/font/google";
+import { Anton, Cormorant_Garamond, DM_Serif_Display, Fraunces, Geist, Geist_Mono, Pacifico, Pirata_One, Shrikhand } from "next/font/google";
 import "./globals.css";
 import NoControlFocus from "@/components/NoControlFocus";
 import { THEME_BOOT } from "@/components/ThemeSwitcher";
@@ -22,6 +22,15 @@ const fraunces = Fraunces({
   style: ["normal", "italic"],
   axes: ["SOFT", "opsz"],
 });
+
+/* the music styles' headline faces (landing page and the style switcher only), loaded on demand */
+const funkFont = Shrikhand({ subsets: ["latin"], display: "swap", preload: false, weight: "400", variable: "--font-funk" });
+const rockFont = Anton({ subsets: ["latin"], display: "swap", preload: false, weight: "400", variable: "--font-rock" });
+const metalFont = Pirata_One({ subsets: ["latin"], display: "swap", preload: false, weight: "400", variable: "--font-metal" });
+const bluesFont = DM_Serif_Display({ subsets: ["latin"], display: "swap", preload: false, weight: "400", style: ["normal", "italic"], variable: "--font-blues" });
+const jazzFont = Cormorant_Garamond({ subsets: ["latin"], display: "swap", preload: false, weight: ["500", "600"], style: ["normal", "italic"], variable: "--font-jazz" });
+const surfFont = Pacifico({ subsets: ["latin"], display: "swap", preload: false, weight: "400", variable: "--font-surf" });
+const styleFonts = [funkFont, rockFont, metalFont, bluesFont, jazzFont, surfFont].map((f) => f.variable).join(" ");
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -48,7 +57,7 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} ${styleFonts} antialiased`}
       >
         <NoControlFocus />
         {children}

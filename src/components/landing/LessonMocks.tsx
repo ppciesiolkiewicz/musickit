@@ -1,11 +1,10 @@
-import type { CSSProperties } from "react";
 import Icon from "@/components/Icon";
 import Photo, { type PhotoKey } from "./Photo";
+import { DISPLAY } from "./Display";
 import { DOT_INK, degreeColour } from "@/features/theory/scales";
 
 /* Drawn pictures of private lessons inside the kit, not screenshots, so they follow the theme. */
 
-const DISPLAY: CSSProperties = { fontFamily: "var(--font-display), serif", fontVariationSettings: '"SOFT" 100, "opsz" 96' };
 
 /** A minor pentatonic, box 1 at the 5th fret: [string row from high e, fret offset, degree index, label] */
 const BOX: [number, number, number, string][] = [

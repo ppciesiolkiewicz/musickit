@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import type { CSSProperties } from "react";
 import Icon from "@/components/Icon";
+import { DISPLAY } from "./Display";
 import usePhone from "@/components/usePhone";
 import TuneButton from "@/components/chordKit/TuneButton";
 import { useNotePlayer } from "@/components/chordKit/useNotePlayer";
@@ -130,7 +132,7 @@ export default function FretWalk() {
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-        <p key={mood} className="landing-fade text-3xl text-slate-50 sm:text-4xl" style={{ fontFamily: "var(--font-display), serif", fontStyle: "italic", fontVariationSettings: '"SOFT" 100' }}>
+        <p key={mood} className="landing-fade text-3xl text-slate-50 sm:text-4xl" style={{ ...DISPLAY, fontStyle: "var(--style-italic, italic)" as CSSProperties["fontStyle"], fontVariationSettings: 'var(--style-display-variation, "SOFT" 100)' }}>
           {MOODS[mood].name}
         </p>
         <p className="text-sm text-slate-400">{MOODS[mood].feel}</p>

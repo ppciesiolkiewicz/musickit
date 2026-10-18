@@ -73,7 +73,7 @@ export default function Home() {
   const showStory = !STORY.draft || process.env.NODE_ENV !== "production";
   const dorian = modeSteps(FAMILIES[0], 1);
   return (
-    <div className="app-bg min-h-screen overflow-hidden text-slate-200">
+    <div className="landing app-bg min-h-screen overflow-hidden text-slate-200">
       <PreloadPiano />
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="border-b border-slate-800/70 py-2.5 sm:py-4">
