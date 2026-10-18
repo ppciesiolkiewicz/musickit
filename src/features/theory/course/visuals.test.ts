@@ -24,6 +24,13 @@ describe("stage visuals", () => {
       if (v?.kind === "neck") v.dots.forEach((d) => assert.ok(d.fret >= v.from && d.fret <= v.to && d.string >= 0 && d.string < 6, `${s.n} ${t.id}`));
     }));
   });
+  it("lessons can ask for the drop 3 voicing of a chord", () => {
+    const am7 = lessonShape("Am7", undefined, "drop 3");
+    assert.equal(am7?.shape.v, "drop 3");
+    assert.equal(am7?.fret, 0);
+    assert.equal(lessonShape("Bm7", undefined, "drop 3")?.fret, 2);
+    assert.equal(lessonShape("Em7", undefined, "drop 3")?.shape.v, "drop 3");
+  });
   it("natural notes on low E start E F G", () => {
     assert.deepEqual(naturalDots([0], 3).map((d) => d.label), ["E", "F", "G"]);
   });

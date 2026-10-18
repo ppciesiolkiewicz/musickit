@@ -3,15 +3,17 @@ import { shapesForTones, type ChordShapeChoice } from "@/lib/chordKit/chordShape
 import { DEGREE_COLOURS, degreeColour } from "../scales";
 import { MAJOR, rotate } from "../theory";
 import type { TrackId } from "./outline";
+import type { NeckPath } from "@/features/course/paths";
 
 /**
  * What each track of a stage shows next to its text: the same chord boxes, necks, circle and scale wheels the explorers use,
  * set up for that lesson. Pure data so the stage page stays a server component and the shapes can be tested.
  */
-export interface Dot { string: number; fret: number; label: string; fill: string; big?: boolean }
+/** `sub` is a second, smaller label under the dot (e.g. solfège under a degree). */
+export interface Dot { string: number; fret: number; label: string; fill: string; big?: boolean; sub?: string }
 export type Visual =
-  | { kind: "chords"; caption: string; chords: { name: string; tag?: string; prefer?: string }[] }
-  | { kind: "neck"; caption: string; from: number; to: number; dots: Dot[]; window?: { from: number; to: number }; legend: { label: string; colour: string }[] }
+  | { kind: "chords"; caption: string; chords: { name: string; tag?: string; prefer?: string; voicing?: string }[] }
+  | { kind: "neck"; caption: string; from: number; to: number; dots: Dot[]; window?: { from: number; to: number }; legend: { label: string; colour: string }[]; paths?: NeckPath[] }
   | { kind: "circle"; caption: string }
   | { kind: "wheels"; caption: string; wheels: { name: string; mood: string; steps: number[] }[] };
 
@@ -101,10 +103,15 @@ const VISUALS: Record<string, Visual> = {
 
 export const trackVisual = (stage: number, track: TrackId): Visual | undefined => VISUALS[`${stage}-${track}`];
 
-/** The shape a lesson shows for a chord name: the simplest full voicing, or the first one tagged `prefer` (e.g. "barre"). */
-export function lessonShape(name: string, prefer?: string): ChordShapeChoice | undefined {
+/**
+ * The shape a lesson shows for a chord name: the lowest-fret full shape of the named `voicing` (e.g. "drop 3"),
+ * else the first one tagged `prefer` (e.g. "barre"), else the simplest full voicing.
+ */
+export function lessonShape(name: string, prefer?: string, voicing?: string): ChordShapeChoice | undefined {
   const q = parseChordQuery(name);
   if (!q) return undefined;
   const all = shapesForTones(q.rootPc, q.semis, ["easy", "medium", "hard"]).filter((r) => r.full).map((r) => r.choice);
-  return (prefer && all.find((c) => c.shape.tags.includes(prefer))) || all[0];
+  // shape search places an open-position shape at fret 12; a lesson wants it at the nut
+  const voiced = voicing ? all.filter((c) => c.shape.v === voicing).map((c) => ({ ...c, fret: c.fret % 12 })).sort((a, b) => a.fret - b.fret)[0] : undefined;
+  return voiced ||(prefer && all.find((c) => c.shape.tags.includes(prefer))) || all[0];
 }

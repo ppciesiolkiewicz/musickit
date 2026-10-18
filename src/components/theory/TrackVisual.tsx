@@ -31,7 +31,7 @@ export default function TrackVisual({ visual }: { visual: Visual }) {
       {visual.kind === "chords" && (
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
           {visual.chords.map((c) => {
-            const choice = lessonShape(c.name, c.prefer);
+            const choice = lessonShape(c.name, c.prefer, c.voicing);
             if (!choice) return null;
             return (
               <div key={c.name} className="min-w-0 rounded-xl border border-slate-800 bg-slate-950/60 p-2">
@@ -48,7 +48,7 @@ export default function TrackVisual({ visual }: { visual: Visual }) {
       {visual.kind === "neck" && (
         <>
           <div className="overflow-x-auto rounded-xl border border-slate-800 bg-slate-950/60 p-2">
-            <NoteNeck from={visual.from} to={visual.to} dots={visual.dots} window={visual.window} />
+            <NoteNeck from={visual.from} to={visual.to} dots={visual.dots} window={visual.window} paths={visual.paths} />
           </div>
           <Legend items={visual.legend} />
         </>
