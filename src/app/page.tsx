@@ -8,6 +8,8 @@ import PreloadPiano from "@/features/sound/keyboard/PreloadPiano";
 import FretWalk from "@/components/landing/FretWalk";
 import EarlyAccessForm from "@/components/landing/EarlyAccessForm";
 import Photo from "@/components/landing/Photo";
+import StyleDivider from "@/components/landing/StyleDivider";
+import CourseSoon from "@/components/landing/CourseSoon";
 import { DISPLAY, Eyebrow, H2 } from "@/components/landing/Display";
 import { LiveLessonMock } from "@/components/landing/LessonMocks";
 import ScaleWheel from "@/components/theory/ScaleWheel";
@@ -88,18 +90,19 @@ export default function Home() {
               Early access to the video course
               <span aria-hidden className="transition group-hover:translate-x-0.5">→</span>
             </a>
+            <CourseSoon />
             <h1 className="text-5xl leading-none tracking-tight text-slate-50 sm:text-7xl" style={DISPLAY}>
               See what
-              <span className="block italic text-sky-300">you hear.</span>
+              <span className="ls-accent block italic text-sky-300">you hear.</span>
             </h1>
             <p className="mt-6 max-w-md text-lg leading-relaxed text-slate-300">
               Plenty of guitarists practise for years and still feel stuck. Music Kit shows you what&apos;s really happening on the fretboard, so every practice session turns into progress.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <a href="#course" className="inline-flex items-center gap-2 rounded-xl bg-sky-400 px-5 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-sky-500/20 transition hover:bg-sky-300">
+              <a href="#course" className="ls-btn ls-btn-primary ls-glint inline-flex items-center gap-2 rounded-xl bg-sky-400 px-5 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-sky-500/20 transition hover:bg-sky-300">
                 Get early access <Icon name="chevron-right" size={16} />
               </a>
-              <a href="#lessons" className="inline-flex items-center gap-2 rounded-xl border border-slate-600 px-5 py-3 text-sm font-medium text-slate-100 transition hover:border-slate-400 hover:bg-slate-800/40">
+              <a href="#lessons" className="ls-btn inline-flex items-center gap-2 rounded-xl border border-slate-600 px-5 py-3 text-sm font-medium text-slate-100 transition hover:border-slate-400 hover:bg-slate-800/40">
                 <Icon name="headphones" size={16} /> Private lessons
               </a>
             </div>
@@ -110,6 +113,8 @@ export default function Home() {
           </div>
         </section>
 
+        <StyleDivider />
+
         {/* A student's story */}
         {showStory && (
           <section aria-labelledby="story-h" className="relative border-t border-slate-800/70 py-14 sm:py-20">
@@ -119,18 +124,18 @@ export default function Home() {
               </p>
             )}
             <div className="grid grid-cols-[minmax(0,1fr)] items-center gap-10 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-14">
-              <Photo name="practising" className="aspect-4/5 rounded-3xl border border-slate-800" sizes="(min-width: 1024px) 35vw, 100vw" />
+              <Photo name="practising" className="ls-photo aspect-4/5 rounded-3xl border border-slate-800" sizes="(min-width: 1024px) 35vw, 100vw" />
               <div>
                 <Eyebrow tone="text-amber-300">A student&apos;s story</Eyebrow>
                 <H2 id="story-h">{STORY.headline}</H2>
                 <blockquote className="mt-6 border-l-2 border-amber-400/60 pl-5 text-lg italic leading-relaxed text-slate-300" style={DISPLAY}>“{STORY.quote}”</blockquote>
                 <p className="mt-3 pl-5 text-sm text-slate-400"><b className="text-slate-200">{STORY.name}</b>, {STORY.detail}</p>
                 <div className="mt-8 grid gap-4 sm:grid-cols-2">
-                  <div className="rounded-2xl border border-slate-800 bg-slate-900/50 p-5">
+                  <div className="ls-card rounded-2xl border border-slate-800 bg-slate-900/50 p-5">
                     <p className="mb-3 text-xs uppercase tracking-widest text-slate-500">Before</p>
                     <ul className="flex flex-col gap-2 text-sm text-slate-400">{STORY.before.map((t) => <li key={t} className="flex gap-2"><span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-slate-600" />{t}</li>)}</ul>
                   </div>
-                  <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-5">
+                  <div className="ls-card rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-5">
                     <p className="mb-3 text-xs uppercase tracking-widest text-emerald-300">After</p>
                     <ul className="flex flex-col gap-2 text-sm text-slate-200">{STORY.after.map((t) => <Check key={t}>{t}</Check>)}</ul>
                   </div>
@@ -150,12 +155,12 @@ export default function Home() {
                 Short video lessons that take you across the fretboard by ear and by colour, with every exercise ready to play in the app. Join early: you get the course at the early-access price, and every style course free as it launches.
               </p>
             </div>
-            <Photo name="couch" className="aspect-16/10 rounded-3xl border border-slate-800" sizes="(min-width: 1024px) 40vw, 100vw" />
+            <Photo name="couch" className="ls-photo aspect-16/10 rounded-3xl border border-slate-800" sizes="(min-width: 1024px) 40vw, 100vw" />
           </div>
 
           <ul className="mt-10 grid gap-4 md:grid-cols-3">
             {BUNDLES.map((b) => (
-              <li key={b.name} className={`relative flex flex-col gap-4 rounded-3xl border p-6 ${b.best ? "border-sky-400/70 bg-sky-500/10 shadow-xl shadow-sky-500/10" : "border-slate-800 bg-slate-900/50"}`}>
+              <li key={b.name} className={`ls-card relative flex flex-col gap-4 rounded-3xl border p-6 ${b.best ? "border-sky-400/70 bg-sky-500/10 shadow-xl shadow-sky-500/10" : "border-slate-800 bg-slate-900/50"}`}>
                 {b.best && <span className="absolute -top-3 left-6 rounded-full bg-sky-400 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-slate-950">Best value</span>}
                 <div>
                   <p className="text-xl text-slate-50" style={DISPLAY}>{b.name}</p>
@@ -167,7 +172,7 @@ export default function Home() {
                 </p>
                 <ul className="flex flex-col gap-2 text-sm text-slate-300">{b.items.map((t) => <Check key={t}>{t}</Check>)}</ul>
                 {b.best && <p className="rounded-xl bg-slate-950/50 px-3 py-2 text-xs text-sky-100">Early access: get the course now and every style course free as it launches.</p>}
-                <a href="#join" className={`mt-auto inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition ${b.best ? "bg-sky-400 text-slate-950 hover:bg-sky-300" : "border border-slate-600 text-slate-100 hover:border-slate-400"}`}>
+                <a href="#join" className={`ls-btn mt-auto inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition ${b.best ? "ls-btn-primary ls-glint bg-sky-400 text-slate-950 hover:bg-sky-300" : "border border-slate-600 text-slate-100 hover:border-slate-400"}`}>
                   Join early access
                 </a>
               </li>
@@ -175,7 +180,7 @@ export default function Home() {
           </ul>
           <p className="mt-4 text-xs text-slate-500">Prices may change before launch. Style courses on the way: {STYLES.join(", ")}.</p>
 
-          <div id="join" className="mt-10 grid scroll-mt-6 grid-cols-[minmax(0,1fr)] items-center gap-6 rounded-3xl border border-slate-700/60 bg-slate-900/70 p-6 sm:p-8 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
+          <div id="join" className="ls-card mt-10 grid scroll-mt-6 grid-cols-[minmax(0,1fr)] items-center gap-6 rounded-3xl border border-slate-700/60 bg-slate-900/70 p-6 sm:p-8 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
             <div>
               <p className="text-2xl text-slate-50" style={DISPLAY}>Save your spot</p>
               <p className="mt-1 text-sm text-slate-400">One email when early access opens, with the early-adopter offer.</p>
@@ -208,7 +213,7 @@ export default function Home() {
               </ul>
             </div>
             <div className="relative pb-40 sm:pb-24">
-              <Photo name="teacherTablet" className="aspect-4/3 rounded-3xl border border-slate-800" sizes="(min-width: 1024px) 45vw, 100vw" />
+              <Photo name="teacherTablet" className="ls-photo aspect-4/3 rounded-3xl border border-slate-800" sizes="(min-width: 1024px) 45vw, 100vw" />
               <div className="absolute -bottom-2 left-0 w-[88%] sm:-left-6 sm:w-[70%]">
                 <LiveLessonMock />
               </div>
@@ -216,7 +221,7 @@ export default function Home() {
           </div>
 
           <ul className="mt-14 grid gap-4 md:grid-cols-2">
-            <li className="flex flex-col gap-4 rounded-3xl border border-slate-800 bg-slate-900/50 p-6">
+            <li className="ls-card flex flex-col gap-4 rounded-3xl border border-slate-800 bg-slate-900/50 p-6">
               <p className="text-xl text-slate-50" style={DISPLAY}>Private lessons</p>
               <p className="text-sm text-slate-400">Book a professional teacher when you want one. Each teacher sets their own rate.</p>
               <ul className="flex flex-col gap-2 text-sm text-slate-300">
@@ -225,7 +230,7 @@ export default function Home() {
                 <Check>Switch teachers any time</Check>
               </ul>
             </li>
-            <li className="flex flex-col gap-4 rounded-3xl border border-violet-400/50 bg-violet-500/10 p-6">
+            <li className="ls-card flex flex-col gap-4 rounded-3xl border border-violet-400/50 bg-violet-500/10 p-6">
               <div className="flex items-baseline justify-between gap-3">
                 <p className="text-xl text-slate-50" style={DISPLAY}>VIP coaching</p>
                 <p><span className="text-3xl text-slate-50" style={DISPLAY}>$1,000</span><span className="text-xs text-slate-400"> / month</span></p>
@@ -238,13 +243,13 @@ export default function Home() {
               </ul>
             </li>
           </ul>
-          <div className="mt-6 grid grid-cols-[minmax(0,1fr)] items-center gap-4 rounded-3xl border border-violet-500/30 bg-violet-500/5 p-5 sm:p-6 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
+          <div className="ls-card mt-6 grid grid-cols-[minmax(0,1fr)] items-center gap-4 rounded-3xl border border-violet-500/30 bg-violet-500/5 p-5 sm:p-6 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
             <p className="text-sm text-slate-200">Lessons open soon. Get a first slot before anyone else.</p>
             <EarlyAccessForm source="lessons" compact initial={["private-lessons"]} cta="Save me a lesson" done="You're on the list for lessons. We'll email you once when the first slots open." />
           </div>
 
           {/* for teachers */}
-          <div className="mt-14 grid grid-cols-[minmax(0,1fr)] items-center gap-8 overflow-hidden rounded-4xl border border-slate-800 bg-slate-900/50 lg:grid-cols-[minmax(0,0.75fr)_minmax(0,1.25fr)]">
+          <div className="ls-card mt-14 grid grid-cols-[minmax(0,1fr)] items-center gap-8 overflow-hidden rounded-4xl border border-slate-800 bg-slate-900/50 lg:grid-cols-[minmax(0,0.75fr)_minmax(0,1.25fr)]">
             <Photo name="teacher" className="aspect-4/3 h-full lg:aspect-auto" sizes="(min-width: 1024px) 30vw, 100vw" />
             <div className="p-6 pt-0 sm:p-10 lg:pl-0 lg:pt-10">
               <Eyebrow tone="text-amber-300">For teachers</Eyebrow>
@@ -269,14 +274,14 @@ export default function Home() {
             <H2 id="ideas-h">Practice that <span className="italic text-sky-300">adds up.</span></H2>
           </div>
           <ul className="mt-12 grid gap-4 md:grid-cols-3">
-            <li className="flex flex-col gap-4 rounded-3xl border border-slate-800 bg-slate-900/50 p-6">
+            <li className="ls-card flex flex-col gap-4 rounded-3xl border border-slate-800 bg-slate-900/50 p-6">
               <div className="flex h-56 items-center justify-center">
                 <ScaleWheel steps={dorian} labels={degreeLabels(dorian)} compare={MAJOR} size={210} />
               </div>
               <h3 className="text-2xl text-slate-50" style={DISPLAY}>See why it sounds that way</h3>
               <p className="text-sm leading-relaxed text-slate-400">Every scale on the ring of twelve notes. The ringed notes are the ones that give it its mood, here the warm 6th of Dorian.</p>
             </li>
-            <li className="flex flex-col gap-4 rounded-3xl border border-slate-800 bg-slate-900/50 p-6">
+            <li className="ls-card flex flex-col gap-4 rounded-3xl border border-slate-800 bg-slate-900/50 p-6">
               <div className="flex h-56 items-center justify-center">
                 {/* each label in its dot's own column, so it sits right under it */}
                 <ul className="flex items-start gap-1.5">
@@ -296,7 +301,7 @@ export default function Home() {
               <h3 className="text-2xl text-slate-50" style={DISPLAY}>Every note has a colour</h3>
               <p className="text-sm leading-relaxed text-slate-400">The home note is always white, the mood note always yellow. Learn what a note does and you&apos;ll find it in any song, in any key.</p>
             </li>
-            <li className="flex flex-col gap-4 rounded-3xl border border-slate-800 bg-slate-900/50 p-6">
+            <li className="ls-card flex flex-col gap-4 rounded-3xl border border-slate-800 bg-slate-900/50 p-6">
               <div className="flex h-56 items-center justify-center"><ProgressPath /></div>
               <h3 className="text-2xl text-slate-50" style={DISPLAY}>Always know what&apos;s next</h3>
               <p className="text-sm leading-relaxed text-slate-400">Practise in an order that builds, one step at a time, so you never wonder whether today&apos;s practice was the right practice.</p>
@@ -305,7 +310,7 @@ export default function Home() {
           <ul className="mt-6 grid gap-3 md:grid-cols-3">
             {DO.map((d) => (
               <li key={d.href}>
-                <Link href={d.href} className="group flex items-center gap-4 rounded-2xl border border-slate-800 bg-slate-900/40 p-4 transition hover:-translate-y-0.5 hover:border-slate-600">
+                <Link href={d.href} className="ls-card group flex items-center gap-4 rounded-2xl border border-slate-800 bg-slate-900/40 p-4 transition hover:-translate-y-0.5 hover:border-slate-600">
                   <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl ${d.tone}`}><Icon name={d.icon} size={20} /></span>
                   <span className="text-lg text-slate-50" style={DISPLAY}><span className="italic">{d.verb}</span> · {d.label}</span>
                   <span aria-hidden className="ml-auto text-slate-600 transition group-hover:translate-x-0.5 group-hover:text-slate-300">→</span>
@@ -317,11 +322,11 @@ export default function Home() {
 
         <section className="pb-16 text-center sm:pb-24">
           <p className="mx-auto max-w-2xl text-4xl leading-tight text-slate-50 sm:text-5xl" style={DISPLAY}>
-            Stop guessing. <span className="italic text-sky-300">Start hearing it.</span>
+            Stop guessing. <span className="ls-accent italic text-sky-300">Start hearing it.</span>
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <a href="#course" className="inline-flex items-center gap-2 rounded-xl bg-sky-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-sky-300">Get early access <Icon name="chevron-right" size={16} /></a>
-            <a href="#lessons" className="inline-flex items-center gap-2 rounded-xl border border-slate-600 px-5 py-3 text-sm font-medium text-slate-100 transition hover:border-slate-400">Private lessons</a>
+            <a href="#course" className="ls-btn ls-btn-primary ls-glint inline-flex items-center gap-2 rounded-xl bg-sky-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-sky-300">Get early access <Icon name="chevron-right" size={16} /></a>
+            <a href="#lessons" className="ls-btn inline-flex items-center gap-2 rounded-xl border border-slate-600 px-5 py-3 text-sm font-medium text-slate-100 transition hover:border-slate-400">Private lessons</a>
           </div>
         </section>
 

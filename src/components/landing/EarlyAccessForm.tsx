@@ -90,7 +90,7 @@ export default function EarlyAccessForm({ source, compact = false, initial = ["b
         <button
           type="submit"
           disabled={state.kind === "sending"}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-sky-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-sky-300 disabled:opacity-60"
+          className="ls-btn ls-btn-primary inline-flex items-center justify-center gap-2 rounded-xl bg-sky-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-sky-300 disabled:opacity-60"
         >
           {state.kind === "sending" ? "Joining…" : cta}
           <Icon name="chevron-right" size={16} />

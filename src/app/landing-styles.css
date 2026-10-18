@@ -167,6 +167,11 @@
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
+/* Metal and Rock: the hero fretboard's note dots become diamonds */
+:root:is([data-theme="metal"], [data-theme="rock"]) .landing .fret-dot {
+  rx: 2px; transform-box: fill-box; transform-origin: center; transform: rotate(45deg) scale(0.86);
+}
+
 /* ---- markup rendered for every style, shown only for the current one ---- */
 [data-style-only] { display: none; }
 :root[data-theme="funk"] [data-style-only="funk"],

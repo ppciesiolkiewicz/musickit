@@ -200,7 +200,8 @@ export default function FretWalk() {
               >
                 <title>{`${names[p.d]}: tap to hear it`}</title>
                 {loud && <circle key={a} cx={fx(p.f)} cy={sy(p.row)} r={r} fill="none" stroke={degreeColour(p.d)} strokeWidth={3} className="wheel-ripple" />}
-                <circle cx={fx(p.f)} cy={sy(p.row)} r={loud ? r + 2 : r} fill={degreeColour(p.d)} stroke={p.d === 0 ? "var(--color-slate-50)" : "var(--color-slate-950)"} strokeWidth={p.d === 0 ? 2.6 : 1.4} />
+                {/* a rect drawn round, so a style can square it into a diamond (landing-styles.css .fret-dot) */}
+                <rect className="fret-dot" x={fx(p.f) - (loud ? r + 2 : r)} y={sy(p.row) - (loud ? r + 2 : r)} width={2 * (loud ? r + 2 : r)} height={2 * (loud ? r + 2 : r)} rx={loud ? r + 2 : r} fill={degreeColour(p.d)} stroke={p.d === 0 ? "var(--color-slate-50)" : "var(--color-slate-950)"} strokeWidth={p.d === 0 ? 2.6 : 1.4} />
                 <text x={fx(p.f)} y={sy(p.row) + 0.5} textAnchor="middle" dominantBaseline="central" fontSize={names[p.d].length > 1 ? 10 : 12} fontWeight={700} fill={DOT_INK} pointerEvents="none">
                   {names[p.d]}
                 </text>
