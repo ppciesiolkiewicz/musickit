@@ -51,13 +51,25 @@ export function CreatorKeyProvider({ children, initial }: { children: ReactNode;
     }
   }, [choice, ready]);
 
-  const setTonic = useCallback((pc: number | null) => setChoice((c) => withTonic(c, pc)), []);
-  const setMode = useCallback((family: number, mode: number) => setChoice((c) => withMode(c, family, mode)), []);
-  const setKey = useCallback((c: KeyChoice) => setChoice(sanitiseKey(c)), []);
-  const clear = useCallback(() => setChoice((c) => withTonic(c, null)), []);
-  const ctx = useMemo(() => keyContext(choice), [choice]);
-  const value = useMemo<Value>(() => ({ choice, ctx, title: keyTitle(choice), setTonic, setMode, setKey, clear }), [choice, ctx, setTonic, setMode, setKey, clear]);
-  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
+  return (
+    <KeyScope value={choice} onChange={setChoice}>
+      {children}
+    </KeyScope>
+  );
+}
+
+/**
+ * A key for one subtree, held by the caller: no storage, no address bar. The creator page wraps it in its saved key;
+ * another feature (the teacher studio) gives each widget its own.
+ */
+export function KeyScope({ value, onChange, children }: { value: KeyChoice; onChange: (c: KeyChoice) => void; children: ReactNode }) {
+  const setTonic = useCallback((pc: number | null) => onChange(withTonic(value, pc)), [value, onChange]);
+  const setMode = useCallback((family: number, mode: number) => onChange(withMode(value, family, mode)), [value, onChange]);
+  const setKey = useCallback((c: KeyChoice) => onChange(sanitiseKey(c)), [onChange]);
+  const clear = useCallback(() => onChange(withTonic(value, null)), [value, onChange]);
+  const ctx = useMemo(() => keyContext(value), [value]);
+  const v = useMemo<Value>(() => ({ choice: value, ctx, title: keyTitle(value), setTonic, setMode, setKey, clear }), [value, ctx, setTonic, setMode, setKey, clear]);
+  return <Ctx.Provider value={v}>{children}</Ctx.Provider>;
 }
 
 /** The key every creator plugin follows. Plugins render their general page when `ctx` is null. */
