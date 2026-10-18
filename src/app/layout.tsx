@@ -27,6 +27,14 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: "Music Kit",
   description: "Guitar theory, exercises and practice tools: scales and modes in every key, chord shapes, CAGED, a tuner and a looper.",
+  /* no og title or description here: Next fills them from each page's own,
+     and the image comes from app/opengraph-image.tsx */
+  openGraph: {
+    type: "website",
+    siteName: "Music Kit",
+    locale: "en_US",
+  },
+  twitter: { card: "summary_large_image" },
 };
 
 export default function RootLayout({
