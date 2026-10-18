@@ -1,0 +1,46 @@
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
+import { COURSE, byTopic, findSection, nextSection, prevSection } from "./course";
+import { TOPICS, pcAt } from "./model";
+
+describe("course structure", () => {
+  it("stages run 0.1–0.4 then 1–6", () => {
+    assert.deepEqual(COURSE.map((s) => s.slug), ["0-1", "0-2", "0-3", "0-4", "1", "2", "3", "4", "5", "6"]);
+  });
+  it("position 1 and first open chords have the agreed sections", () => {
+    const slugs = (st: string) => COURSE.find((s) => s.slug === st)!.sections.map((x) => x.slug);
+    assert.deepEqual(slugs("1"), ["chords", "triads", "fifths", "arpeggios", "one-four-five", "pentatonic", "soloing", "move-it"]);
+    assert.deepEqual(slugs("0-2"), ["em-and-am", "c-d-g", "one-minute-changes", "all-downstrums", "island-strum", "sixteenths", "first-songs"]);
+  });
+  it("section slugs are unique within a stage and URL-safe", () => {
+    COURSE.forEach((s) => {
+      const slugs = s.sections.map((x) => x.slug);
+      assert.equal(new Set(slugs).size, slugs.length, s.slug);
+      slugs.forEach((x) => assert.match(x, /^[a-z0-9-]+$/));
+    });
+  });
+  it("every section has a known topic", () => {
+    const ids = new Set(TOPICS.map((t) => t.id));
+    COURSE.forEach((s) => s.sections.forEach((x) => assert.ok(ids.has(x.topic), `${s.slug}/${x.slug}`)));
+  });
+  it("next and previous cross stage boundaries and stop at the ends", () => {
+    assert.equal(nextSection("0-1", "notes-on-e-and-a")?.section.slug, "em-and-am");
+    assert.equal(nextSection("6", "circle-map"), undefined);
+    assert.equal(prevSection("0-1", "strings-and-tuning"), undefined);
+    assert.equal(prevSection("0-2", "em-and-am")?.section.slug, "notes-on-e-and-a");
+  });
+  it("unknown stages and sections are not found", () => {
+    assert.equal(findSection("1", "nope"), undefined);
+    assert.equal(findSection("9", "chords"), undefined);
+  });
+  it("topic view starts with basics and gathers the strumming sections", () => {
+    const groups = byTopic();
+    assert.equal(groups[0].topic.id, "basics");
+    assert.deepEqual(groups.find((g) => g.topic.id === "strumming")!.items.map((i) => i.section.slug), ["all-downstrums", "island-strum", "sixteenths"]);
+  });
+  it("pcAt reads pitch classes off the neck (string 0 = low E)", () => {
+    assert.equal(pcAt(0, 3), 7);
+    assert.equal(pcAt(2, 0), 2);
+    assert.equal(pcAt(5, 0), 4);
+  });
+});
