@@ -14,8 +14,8 @@ It takes its ideas from the looper (floating, movable widgets; real audio-interf
    - Below: the **record bar** (record, pause, stop, mark cut, timer) and **input meters**.
    - Beside the frame: a **Keys panel** listing the shortcuts that work right now. `?` opens the full list.
    - Reference mockup (throwaway): `.superpowers/brainstorm/71778-1792343754/content/stage.html`, option A.
-3. **Camera layer.** The webcam is a layer like any other. It fills the frame or sits as a portrait in a corner, with quick keys to switch between those.
-4. **Plain screen share.** Share another window or screen into the frame as the background layer, with the camera staying in a corner on top. Widgets can still be added over it.
+3. **Camera layer.** The webcam is a layer like any other (decided by the user): you can drag, resize and reorder it anywhere in the frame. "Corner" (portrait, bottom-right) and "full frame" are presets with quick keys.
+4. **Plain screen share.** Share another window or screen into the frame as a layer (full frame by default, at the bottom of the paint order, movable and resizable like any other), with the camera on top. Widgets can still be added over it.
 5. **Spotlight palette.** `/` (also ⌘K) opens a centred search box over the studio. It's never recorded. Typing gives ranked results and Enter puts the chosen widget in the frame, where it can be moved and resized and stays live. Queries it must understand, for example:
    - a chord symbol: `e6`, `cmaj7`, `f#m7b5` → chord diagram, or chord shapes on the neck
    - a scale or mode with a key: `a dorian`, `e minor pent`, `g major` → scale on the fretboard

@@ -83,7 +83,9 @@ Layer rectangles are **fractions of the frame** (0–1), not pixels, so the same
     | { kind: "chord"; symbol: string }                                   // "E6"
     | { kind: "plugin"; plugin: string; key: KeyChoice }                  // creator PLUGINS id
     | { kind: "position"; key: KeyChoice; positionKind: PositionKind; index: number } // 0-based box
-    | { kind: "drone"; root: number; fifth: boolean };
+    | { kind: "drone"; root: number; fifth: boolean }
+    | { kind: "camera" }                                                  // the webcam, a layer like any other (at most one)
+    | { kind: "screen" };                                                 // the screen share (at most one)
   export type StudioCommand = "camera-corner" | "camera-full" | "camera-off" | "screen-share" | "screen-stop" | "clear";
   export interface PaletteResult { id: string; label: string; detail: string; group: "chord" | "scale" | "position" | "theory" | "audio" | "studio"; action: { type: "add"; subject: Subject } | { type: "command"; command: StudioCommand } }
   export function subjectTitle(s: Subject): string;   // "E6 chord", "A Dorian · Scale", "E Aeolian · pentatonic box 1", "Drone E + 5th"
@@ -167,11 +169,16 @@ Layer rectangles are **fractions of the frame** (0–1), not pixels, so the same
   export function stageReducer(s: Stage, a: StageAction): Stage;
   export function sanitiseStage(raw: unknown, pluginIds: string[]): Stage;
   export const EMPTY_STAGE: Stage;
+  export const CAMERA_CORNER: FrameRect, FULL: FrameRect;
+  /** Adding a camera or screen when one exists selects the existing layer instead. A new screen layer goes to the bottom of the paint order, and a new camera goes above the screen but below the widgets. */
+  export function addSubject(s: Stage, id: string, subject: Subject): Stage;
   ```
 - **Default rects:**
   - chord 0.22 × 0.42
   - plugin and position 0.5 × 0.42
   - drone 0.16 × 0.1 in the bottom-left corner
+  - camera: the **corner preset** `CAMERA_CORNER = { x: 0.78, y: 0.52, w: 0.2, h: 0.45 }` (portrait, bottom-right)
+  - screen: `FULL = { x: 0, y: 0, w: 1, h: 1 }`
   - Each new layer is offset by +0.03,+0.03 from the last added, so widgets don't stack exactly. Then clamped.
 
 - [ ] **Step 1: Write the failing tests.**
@@ -189,6 +196,9 @@ Layer rectangles are **fractions of the frame** (0–1), not pixels, so the same
   - `sanitiseStage({layers:[good, {id:"x", subject:{kind:"plugin",plugin:"gone",key:EMPTY_KEY}, rect, visible:true}]})` keeps only `good`.
   - Out-of-range rects come back clamped.
   - Duplicate ids keep only the first.
+  - A second `camera` layer (by `addSubject` or in saved data) is refused or dropped. The same goes for `screen`.
+  - `addSubject` with `{kind:"screen"}` puts it at index 0. `{kind:"camera"}` goes just above the screen when one exists, else at index 0, and widgets stay above both.
+  - `setRect` on the camera to `FULL` and back to `CAMERA_CORNER` works like any layer (the presets are just rects).
 - [ ] **Step 2: Run them and confirm they fail.** Run: `$TSX --test src/features/stage/model/layers.test.ts`. Expected: FAIL.
 - [ ] **Step 3: Implement** `layers.ts`. Ids come from `crypto.randomUUID()` at the call site, not in the reducer, so the reducer stays pure.
 - [ ] **Step 4: Run them and confirm they pass.** Expected: PASS.
@@ -352,7 +362,8 @@ Layer rectangles are **fractions of the frame** (0–1), not pixels, so the same
 **Files:**
 - Create: `src/features/teachers/studio/media/useCamera.ts`
 - Create: `src/features/teachers/studio/media/useScreenShare.ts`
-- Create: `src/features/teachers/studio/media/CameraLayer.tsx`
+- Create: `src/features/stage/render/CameraLayer.tsx`, `src/features/stage/render/ScreenLayer.tsx`, `src/features/stage/render/mediaContext.ts`
+- Modify: `src/features/stage/render/StageWidget.tsx`
 - Modify: `src/features/teachers/studio/StudioApp.tsx`
 - Modify: `spec/studio.md`
 
@@ -362,20 +373,23 @@ Layer rectangles are **fractions of the frame** (0–1), not pixels, so the same
     - Opens with `{ video: { deviceId, width: 1920, height: 1080 }, audio: false }`. Audio comes in Plan 2.
     - The chosen device is remembered in `musickit.studio.camera`.
   - `useScreenShare(): { stream: MediaStream | null; start(): Promise<void>; stop(): void }`, using `getDisplayMedia({ video: true, audio: false })` (spec: the shared app's sound isn't recorded). It clears itself when the track ends.
-  - `type CameraMode = "corner" | "full" | "off"`, saved in `musickit.studio.cameraMode`.
-- **Layout:**
-  - **corner:** a portrait crop (9:16 aspect, 22 % of frame height × …) in the bottom-right, over the background, under the widgets. It's positioned with fractions like layers but isn't in the Layers list.
-  - **full:** fills the frame behind the widgets.
-  - A screen share always fills the frame as the background, and the camera is forced to corner while it runs.
-  - The camera stream is never opened on page load, even if remembered. The frame shows a "Start camera" button (with `data-chrome`) until it's clicked. After that, a device picker sits under the Layers panel.
-- [ ] **Step 1: Implement** the hooks and `CameraLayer`. Wire the palette commands (`camera-corner`, `camera-full`, `camera-off`, `screen-share`, `screen-stop`) and the `C`/`F` keys. Stop all tracks on unmount.
+  - `CameraLayer({ stream, error, onRetry })` and `ScreenLayer({ stream })`, rendered by `StageWidget` for `{kind:"camera"}` and `{kind:"screen"}`. The streams come from a `StudioMediaContext` provided by `StudioApp`, so the renderer stays injectable.
+- **Camera and screen are ordinary layers (decided by the user: the camera is a widget):**
+  - They're dragged, resized, raised, lowered, hidden and deleted exactly like any widget, and they appear in the Layers list.
+  - The video fills its rect with `object-fit: cover`, so any aspect works (portrait, square, wide).
+  - **Presets** are just `setRect` calls on the camera layer: `camera-corner` → `CAMERA_CORNER`, `camera-full` → `FULL`. If no camera layer exists, the preset adds one first (`addSubject`).
+  - `camera-off` removes the camera layer and stops its tracks.
+  - `screen-share` starts the share and adds a screen layer (default `FULL`, at the bottom of the paint order). It can be resized like anything else, e.g. into a corner. `screen-stop` (or ending the share from Chrome's bar) removes the layer.
+  - The camera stream is never opened on page load, even if a camera layer is saved. The camera layer shows a "Start camera" button (with `data-chrome`) until clicked. A device picker sits under the Layers panel once started.
+- [ ] **Step 1: Implement** the hooks, `CameraLayer`, `ScreenLayer` and the two renderer cases. Wire the palette commands (`camera-corner`, `camera-full`, `camera-off`, `screen-share`, `screen-stop`) and the `C`/`F` keys. Stop all tracks on unmount.
 - [ ] **Step 2: Verify manually in Chrome.**
   - Clicking Start camera prompts for access and the camera appears in the corner.
+  - Drag the camera to the top-left and resize it to a square: it stays cropped cleanly, and the position survives a reload.
   - `F` makes it full frame and `C` puts it back in the corner.
-  - `/ screen share` asks you to pick a window, which then fills the frame with the camera in the corner. Ending the share from Chrome's bar returns to the camera.
+  - `/ screen share` asks you to pick a window, which then fills the frame behind the camera and widgets. Resize the screen layer to half the frame and it still works. Ending the share from Chrome's bar removes the screen layer.
   - Deny camera access: "Camera off: click to retry" shows and widgets still work.
   - Unplug the camera mid-session: the same message shows, with no crash.
-- [ ] **Step 3: Update `spec/studio.md`.** Run the type check and lint, then commit. Message: `Studio: camera layer (corner or full) and plain screen share behind the widgets`
+- [ ] **Step 3: Update `spec/studio.md`.** Run the type check and lint, then commit. Message: `Studio: camera and screen share as movable layers, with corner and full presets`
 
 ---
 
