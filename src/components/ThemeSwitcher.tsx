@@ -3,21 +3,14 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Icon from "./Icon";
 
-/** The colour themes. Their palettes live in `src/app/themes.css`; `swatch` is background, neutral and accent for the picker. */
-export const THEMES = [
-  { id: "dark", label: "Dark", swatch: ["#020617", "#334155", "#38bdf8"] },
-  { id: "light", label: "Light", swatch: ["#f8fafc", "#cbd5e1", "#0284c7"] },
-  { id: "funky", label: "Funky", swatch: ["#1a0b2e", "#5b2a86", "#f6339a"] },
-  { id: "modern", label: "Modern", swatch: ["#0a0a0a", "#404040", "#7c86ff"] },
-  { id: "sandstorm", label: "Sandstorm", swatch: ["#efdfca", "#b39a80", "#c2410c"] },
-] as const;
-export type ThemeId = (typeof THEMES)[number]["id"];
+import { DEFAULT_STYLE, STYLES, THEME_KEY, isStyle, type StyleId } from "@/features/styles/styles";
 
-export const THEME_KEY = "musickit.theme";
-const isTheme = (v: unknown): v is ThemeId => THEMES.some((t) => t.id === v);
+type ThemeId = StyleId;
+const THEMES = STYLES;
+const isTheme = isStyle;
 
-/** Runs before the first paint (inline in <head>) so a saved theme never flashes. */
-export const THEME_BOOT = `try{var t=localStorage.getItem("${THEME_KEY}");if(${JSON.stringify(THEMES.map((t) => t.id))}.indexOf(t)>=0)document.documentElement.dataset.theme=t}catch(e){}`;
+/** Runs before the first paint (inline in <head>) so a saved style never flashes; anything else keeps the Funk set on <html>. */
+export const THEME_BOOT = `try{var t=localStorage.getItem("${THEME_KEY}");if(${JSON.stringify(STYLES.map((s) => s.id))}.indexOf(t)>=0)document.documentElement.dataset.theme=t}catch(e){}`;
 
 function applyTheme(id: ThemeId) {
   const html = document.documentElement;
@@ -31,7 +24,7 @@ function applyTheme(id: ThemeId) {
 
 const readTheme = (): ThemeId => {
   const t = document.documentElement.dataset.theme;
-  return isTheme(t) ? t : "dark";
+  return isTheme(t) ? t : DEFAULT_STYLE;
 };
 // every switcher on the page follows the <html> attribute
 const subscribe = (cb: () => void) => {
@@ -51,7 +44,7 @@ const toggleFullscreen = () => (document.fullscreenElement ? document.exitFullsc
 
 /** A small settings button that opens the theme list and a full screen toggle. Shared by every page; knows nothing about any feature. */
 export default function ThemeSwitcher({ className = "" }: { className?: string }) {
-  const theme = useSyncExternalStore(subscribe, readTheme, () => "dark" as ThemeId);
+  const theme = useSyncExternalStore(subscribe, readTheme, () => DEFAULT_STYLE as ThemeId);
   const fullscreen = useSyncExternalStore(subscribeFullscreen, readFullscreen, () => false);
   const fullscreenable = useSyncExternalStore(subscribeFullscreen, canFullscreen, () => false);
   const [open, setOpen] = useState(false);
@@ -98,11 +91,7 @@ export default function ThemeSwitcher({ className = "" }: { className?: string }
               }}
               className={`flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-left text-sm transition ${t.id === theme ? "bg-sky-500/15 text-sky-100" : "text-slate-300 hover:bg-slate-800"}`}
             >
-              <span className="flex -space-x-1.5" aria-hidden>
-                {t.swatch.map((c, i) => (
-                  <span key={i} className="h-4 w-4 rounded-full ring-1 ring-slate-500/50" style={{ background: c }} />
-                ))}
-              </span>
+              <span aria-hidden>{t.emoji}</span>
               <span className="flex-1">{t.label}</span>
               {t.id === theme && <Icon name="check" size={14} />}
             </button>
