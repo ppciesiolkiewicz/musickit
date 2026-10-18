@@ -100,7 +100,7 @@ export function LiveLessonMock() {
           </div>
         </div>
         <div className="flex flex-col gap-2">
-          <Tile label="Teacher" photo="teacher" focus="80% 18%" zoom={2} speaking />
+          <Tile label="Teacher" photo="teacherSmile" focus="40% 32%" zoom={1.7} speaking />
           <Tile label="You" photo="couch" focus="50% 25%" zoom={1.5} />
         </div>
       </div>

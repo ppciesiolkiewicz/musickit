@@ -234,14 +234,14 @@ export default function Home() {
             </li>
             <li className="flex flex-col gap-4 rounded-3xl border border-violet-400/50 bg-violet-500/10 p-6">
               <div className="flex items-baseline justify-between gap-3">
-                <p className="text-xl text-slate-50" style={DISPLAY}>VIP mentoring</p>
+                <p className="text-xl text-slate-50" style={DISPLAY}>VIP coaching</p>
                 <p><span className="text-3xl text-slate-50" style={DISPLAY}>$1,000</span><span className="text-xs text-slate-400"> / month</span></p>
               </div>
-              <p className="text-sm text-slate-400">For players who want to move as fast as possible, with a teacher who knows their playing inside out.</p>
+              <p className="text-sm text-slate-400">For players who want to move as fast as possible, with a coach who knows their playing inside out.</p>
               <ul className="flex flex-col gap-2 text-sm text-slate-300">
-                <Check tone="text-violet-300">A weekly one-to-one and feedback on your playing between lessons</Check>
-                <Check tone="text-violet-300">A plan built around the music you want to play</Check>
-                <Check tone="text-violet-300">Every course included</Check>
+                <Check tone="text-violet-300">Roadmap sketching: where you are, where you want to be, and the route between</Check>
+                <Check tone="text-violet-300">A personalised plan built around the music you want to play</Check>
+                <Check tone="text-violet-300">Live chat support across time zones, whenever you&apos;re practising</Check>
               </ul>
             </li>
           </ul>
