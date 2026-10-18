@@ -18,6 +18,7 @@ export type Shortcut =
   | "camera-corner"
   | "camera-toggle"
   | "screen-toggle"
+  | "reset-zoom"
   | "help";
 
 export interface KeyInfo {
@@ -44,6 +45,7 @@ export const KEYS: KeyInfo[] = [
   { shortcut: "shrink-w", keys: "⌥ ←", label: "Narrower", needsSelection: true },
   { shortcut: "grow-h", keys: "⌥ ↓", label: "Taller", needsSelection: true },
   { shortcut: "shrink-h", keys: "⌥ ↑", label: "Shorter", needsSelection: true },
+  { shortcut: "reset-zoom", keys: "0", label: "Reset zoom (zoom: ⌘ + scroll or pinch)", needsSelection: true },
   { shortcut: "delete", keys: "⌫", label: "Delete the widget", needsSelection: true },
   { shortcut: "deselect", keys: "Esc", label: "Deselect", needsSelection: true },
   { shortcut: "help", keys: "?", label: "All keys", needsSelection: false },
@@ -71,5 +73,6 @@ export function shortcutFor(
   if (e.code in ARROWS) return ARROWS[e.code][e.altKey ? 1 : 0];
   if (e.code === "Backspace" || e.code === "Delete") return "delete";
   if (e.code === "Escape") return "deselect";
+  if (e.code === "Digit0") return "reset-zoom";
   return null;
 }

@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { EMPTY_KEY } from "@/features/creator/model/key";
-import { CAMERA_CORNER, EMPTY_STAGE, FULL, KEEP_IN, MIN_SIZE, addSubject, clampRect, defaultRect, sanitiseStage, stageReducer, type Layer, type Stage } from "./layers";
+import { CAMERA_CORNER, DEFAULT_VIEW, EMPTY_STAGE, FULL, KEEP_IN, MAX_ZOOM, MIN_SIZE, addSubject, clampRect, defaultRect, panView, resizeFrom, sanitiseStage, stageReducer, zoomAt, type Layer, type Stage } from "./layers";
 import type { Subject } from "./subject";
 
 const ids = ["scale", "chords", "circle", "keys", "progressions", "modes", "triads", "caged", "arpeggios", "improv", "tunings"];
@@ -38,6 +38,16 @@ test("raise moves a layer to the top, lower one step down", () => {
   assert.deepEqual(stageReducer(s, { type: "lower", id: "a" }).layers.map((l) => l.id), ["a", "b", "c"]);
 });
 
+test("selecting a widget brings it to the top; camera and screen share keep their place", () => {
+  const s = withLayers(layer("a"), layer("b"), layer("cam", { kind: "camera" }), layer("c"));
+  assert.deepEqual(stageReducer(s, { type: "select", id: "a" }).layers.map((l) => l.id), ["b", "cam", "c", "a"]);
+  assert.deepEqual(stageReducer(s, { type: "select", id: "cam" }).layers.map((l) => l.id), ["a", "b", "cam", "c"]);
+  assert.equal(stageReducer(s, { type: "select", id: "cam" }).selected, "cam");
+  // already on top: the same stage comes back, so dragging (which selects on every press) does no extra work
+  const top = stageReducer(s, { type: "select", id: "c" });
+  assert.equal(top.layers, s.layers);
+});
+
 test("swap keeps the id and rect and replaces the subject", () => {
   const s = stageReducer(withLayers(layer("a")), { type: "swap", id: "a", subject: scale });
   assert.equal(s.layers[0].id, "a");
@@ -50,6 +60,58 @@ test("move and resize go through clampRect", () => {
   near(moved.layers[0].rect.x, 1 - KEEP_IN);
   const shrunk = stageReducer(withLayers(layer("a")), { type: "resize", id: "a", dw: -1, dh: -1 });
   near(shrunk.layers[0].rect.w, MIN_SIZE);
+});
+
+test("resizing from a corner keeps the opposite corner where it was", () => {
+  const r = { x: 0.2, y: 0.2, w: 0.4, h: 0.4 };
+  const nw = resizeFrom(r, "nw", 0.1, 0.05);
+  near(nw.x, 0.3); near(nw.y, 0.25); near(nw.x + nw.w, 0.6); near(nw.y + nw.h, 0.6);
+  const ne = resizeFrom(r, "ne", 0.1, -0.1);
+  near(ne.x, 0.2); near(ne.w, 0.5); near(ne.y, 0.1); near(ne.y + ne.h, 0.6);
+  const sw = resizeFrom(r, "sw", -0.1, 0.1);
+  near(sw.x, 0.1); near(sw.w, 0.5); near(sw.y, 0.2); near(sw.h, 0.5);
+  const se = resizeFrom(r, "se", 0.1, 0.1);
+  near(se.x, 0.2); near(se.w, 0.5); near(se.h, 0.5);
+});
+
+test("a corner dragged past its opposite stops at the minimum size, the opposite corner still fixed", () => {
+  const r = { x: 0.2, y: 0.2, w: 0.4, h: 0.4 };
+  const nw = resizeFrom(r, "nw", 0.9, 0.9);
+  near(nw.w, MIN_SIZE); near(nw.h, MIN_SIZE); near(nw.x + nw.w, 0.6); near(nw.y + nw.h, 0.6);
+});
+
+test("zoomAt zooms around the pointer: the point under it stays under it", () => {
+  const v = zoomAt(DEFAULT_VIEW, 2, 0.75, 0.75);
+  assert.equal(v.zoom, 2);
+  // content point under the pointer before: 0.75; after: cx + (0.75 - 0.5) / 2
+  near(v.cx + (0.75 - 0.5) / v.zoom, 0.75);
+  near(v.cy + (0.75 - 0.5) / v.zoom, 0.75);
+});
+
+test("zoom stays between 1 and MAX_ZOOM, and the view never shows past the content's edges", () => {
+  assert.equal(zoomAt(DEFAULT_VIEW, 0.5, 0.5, 0.5).zoom, 1);
+  assert.equal(zoomAt(DEFAULT_VIEW, 100, 0.5, 0.5).zoom, MAX_ZOOM);
+  const v = zoomAt(DEFAULT_VIEW, 2, 1, 1);
+  assert.ok(v.cx <= 1 - 0.5 / v.zoom + 1e-9 && v.cy <= 1 - 0.5 / v.zoom + 1e-9);
+  const back = zoomAt(v, 0.5, 0, 0);
+  assert.deepEqual(back, DEFAULT_VIEW);
+});
+
+test("panView moves a zoomed view and stops at the edges; at zoom 1 it does nothing", () => {
+  const z = zoomAt(DEFAULT_VIEW, 4, 0.5, 0.5);
+  const p = panView(z, 0.1, 0);
+  near(p.cx, 0.6);
+  near(panView(z, 5, 5).cx, 1 - 0.5 / 4);
+  assert.deepEqual(panView(DEFAULT_VIEW, 0.3, 0.3), DEFAULT_VIEW);
+});
+
+test("setView stores a layer's zoom; sanitiseStage keeps good views and drops bad ones", () => {
+  const v = zoomAt(DEFAULT_VIEW, 2, 0.6, 0.4);
+  const s = stageReducer(withLayers(layer("a")), { type: "setView", id: "a", view: v });
+  assert.deepEqual(s.layers[0].view, v);
+  assert.deepEqual(sanitiseStage(JSON.parse(JSON.stringify(s)), ids).layers[0].view, v);
+  const bad = sanitiseStage({ layers: [{ ...layer("a"), view: { zoom: "x" } }] }, ids);
+  assert.equal(bad.layers[0].view, undefined);
 });
 
 test("toggle hides and shows; clear empties the stage", () => {

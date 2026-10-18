@@ -46,12 +46,17 @@ test("C minimizes the camera, F and Shift+F switch camera and screen to full fra
   assert.equal(shortcutFor(ev("KeyF", { ctrlKey: true }), free), null);
 });
 
+test("0 resets the selected widget's zoom", () => {
+  assert.equal(shortcutFor(ev("Digit0"), sel), "reset-zoom");
+  assert.equal(shortcutFor(ev("Digit0"), free), null);
+});
+
 test("Escape deselects", () => {
   assert.equal(shortcutFor(ev("Escape"), sel), "deselect");
 });
 
 test("every shortcut is listed exactly once in KEYS", () => {
-  const all: Shortcut[] = ["palette", "delete", "nudge-left", "nudge-right", "nudge-up", "nudge-down", "grow-w", "shrink-w", "grow-h", "shrink-h", "deselect", "camera-corner", "camera-toggle", "screen-toggle", "help"];
+  const all: Shortcut[] = ["palette", "delete", "nudge-left", "nudge-right", "nudge-up", "nudge-down", "grow-w", "shrink-w", "grow-h", "shrink-h", "deselect", "camera-corner", "camera-toggle", "screen-toggle", "reset-zoom", "help"];
   for (const s of all) assert.equal(KEYS.filter((k) => k.shortcut === s).length, 1, s);
   assert.equal(KEYS.length, all.length);
 });

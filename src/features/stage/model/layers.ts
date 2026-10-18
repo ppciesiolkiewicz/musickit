@@ -12,11 +12,26 @@ export interface FrameRect {
   h: number;
 }
 
+/**
+ * A zoom into a layer's content: `zoom` (1 = all of it) and the content point shown in the middle (`cx`, `cy`, fractions of the
+ * content). The layer's rect does not change; only what it shows.
+ */
+export interface View {
+  zoom: number;
+  cx: number;
+  cy: number;
+}
+
+export const DEFAULT_VIEW: View = { zoom: 1, cx: 0.5, cy: 0.5 };
+export const MAX_ZOOM = 6;
+
 export interface Layer {
   id: string;
   subject: Subject;
   rect: FrameRect;
   visible: boolean;
+  /** missing = not zoomed */
+  view?: View;
 }
 
 /** Array order is paint order: the last layer is on top. `key` is the Key widget's choice. */
@@ -50,6 +65,33 @@ export function clampRect(r: FrameRect): FrameRect {
   const y = Math.min(1 - KEEP_IN, Math.max(KEEP_IN - h, r.y));
   return { x, y, w, h };
 }
+
+export type Corner = "nw" | "ne" | "sw" | "se";
+
+/** Drag one corner by (dx, dy); the opposite corner stays put, and the widget never gets smaller than MIN_SIZE (it does not flip). */
+export function resizeFrom(r: FrameRect, corner: Corner, dx: number, dy: number): FrameRect {
+  const left = corner === "nw" || corner === "sw";
+  const top = corner === "nw" || corner === "ne";
+  const w = Math.max(MIN_SIZE, r.w + (left ? -dx : dx));
+  const h = Math.max(MIN_SIZE, r.h + (top ? -dy : dy));
+  return clampRect({ x: left ? r.x + r.w - w : r.x, y: top ? r.y + r.h - h : r.y, w, h });
+}
+
+export function clampView(v: View): View {
+  const zoom = Math.min(MAX_ZOOM, Math.max(1, v.zoom));
+  const half = 0.5 / zoom;
+  return { zoom, cx: Math.min(1 - half, Math.max(half, v.cx)), cy: Math.min(1 - half, Math.max(half, v.cy)) };
+}
+
+/** Zoom by `factor` around the pointer at (px, py), fractions of the layer: the content under the pointer stays under it. */
+export function zoomAt(v: View, factor: number, px: number, py: number): View {
+  const zoom = Math.min(MAX_ZOOM, Math.max(1, v.zoom * factor));
+  const ux = v.cx + (px - 0.5) / v.zoom, uy = v.cy + (py - 0.5) / v.zoom;
+  return clampView({ zoom, cx: ux - (px - 0.5) / zoom, cy: uy - (py - 0.5) / zoom });
+}
+
+/** Move a zoomed view by (dx, dy), fractions of the content; it stops at the content's edges. */
+export const panView = (v: View, dx: number, dy: number): View => clampView({ ...v, cx: v.cx + dx, cy: v.cy + dy });
 
 function baseRect(s: Subject): FrameRect {
   switch (s.kind) {
@@ -87,6 +129,7 @@ export type StageAction =
   | { type: "move"; id: string; dx: number; dy: number }
   | { type: "resize"; id: string; dw: number; dh: number }
   | { type: "setRect"; id: string; rect: FrameRect }
+  | { type: "setView"; id: string; view: View }
   | { type: "swap"; id: string; subject: Subject }
   | { type: "toggle"; id: string }
   | { type: "raise"; id: string }
@@ -111,6 +154,8 @@ export function stageReducer(s: Stage, a: StageAction): Stage {
       return edit(s, a.id, (l) => ({ ...l, rect: clampRect({ ...l.rect, w: l.rect.w + a.dw, h: l.rect.h + a.dh }) }));
     case "setRect":
       return edit(s, a.id, (l) => ({ ...l, rect: clampRect(a.rect) }));
+    case "setView":
+      return edit(s, a.id, (l) => ({ ...l, view: clampView(a.view) }));
     case "swap":
       return edit(s, a.id, (l) => ({ ...l, subject: a.subject }));
     case "toggle":
@@ -126,8 +171,15 @@ export function stageReducer(s: Stage, a: StageAction): Stage {
       [layers[i - 1], layers[i]] = [layers[i], layers[i - 1]];
       return { ...s, layers };
     }
-    case "select":
-      return { ...s, selected: a.id === null || s.layers.some((l) => l.id === a.id) ? a.id : s.selected };
+    case "select": {
+      if (a.id === null) return { ...s, selected: null };
+      const i = s.layers.findIndex((l) => l.id === a.id);
+      if (i < 0) return s;
+      // a selected widget comes to the top; the camera and screen share keep their place under the widgets
+      const l = s.layers[i];
+      const raise = i < s.layers.length - 1 && l.subject.kind !== "camera" && l.subject.kind !== "screen";
+      return { ...s, selected: a.id, layers: raise ? [...s.layers.slice(0, i), ...s.layers.slice(i + 1), l] : s.layers };
+    }
     case "clear":
       return { ...s, layers: [], selected: null };
     case "setStageKey":
@@ -170,7 +222,10 @@ export function sanitiseStage(raw: unknown, pluginIds: string[]): Stage {
     const r = typeof l.rect === "object" && l.rect !== null ? (l.rect as Record<string, unknown>) : {};
     const [x, y, w, h] = [num(r.x), num(r.y), num(r.w), num(r.h)];
     if (x === null || y === null || w === null || h === null) continue;
-    layers.push({ id: l.id, subject, rect: clampRect({ x, y, w, h }), visible: l.visible !== false });
+    const v = typeof l.view === "object" && l.view !== null ? (l.view as Record<string, unknown>) : null;
+    const [zoom, cx, cy] = v ? [num(v.zoom), num(v.cx), num(v.cy)] : [null, null, null];
+    const view = zoom !== null && cx !== null && cy !== null ? clampView({ zoom, cx, cy }) : undefined;
+    layers.push({ id: l.id, subject, rect: clampRect({ x, y, w, h }), visible: l.visible !== false, ...(view ? { view } : {}) });
   }
   const selected = typeof o.selected === "string" && layers.some((l) => l.id === o.selected) ? o.selected : null;
   return { layers, selected, key: typeof o.key === "object" && o.key !== null ? sanitiseKey(o.key) : EMPTY_KEY };

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Icon from "@/components/Icon";
 import { PLUGINS } from "@/features/creator";
-import { CameraLayer, NUDGE, NUDGE_BIG, ScreenLayer, StageFrame, StageWidget, mediaState, shortcutFor, stageCommand, subjectTitle, toggleFull, type Layer, type PaletteResult, type StudioCommand, type Subject } from "@/features/stage";
+import { CameraLayer, DEFAULT_VIEW, NUDGE, NUDGE_BIG, ScreenLayer, StageFrame, StageWidget, mediaState, shortcutFor, stageCommand, subjectTitle, toggleFull, type Layer, type PaletteResult, type StudioCommand, type Subject } from "@/features/stage";
 import { isStudioSupported } from "./browserSupport";
 import KeysPanel, { KeysOverlay } from "./KeysPanel";
 import useCamera from "./media/useCamera";
@@ -105,7 +105,6 @@ export default function StudioApp() {
           if (cmd) runCommand(cmd);
           break;
         }
-          break;
         case "deselect":
           dispatch({ type: "select", id: null });
           break;
@@ -114,6 +113,9 @@ export default function StudioApp() {
       switch (sc) {
         case "delete":
           dispatch({ type: "remove", id });
+          break;
+        case "reset-zoom":
+          dispatch({ type: "setView", id, view: DEFAULT_VIEW });
           break;
         case "nudge-left":
           dispatch({ type: "move", id, dx: -step, dy: 0 });
@@ -174,10 +176,11 @@ export default function StudioApp() {
   );
 
   return (
-    <div className="grid min-h-screen grid-cols-[240px_minmax(0,1fr)_220px] gap-4 p-4">
+    <div className="grid min-h-screen grid-cols-[220px_minmax(0,1fr)] gap-4 p-4">
       <aside data-chrome aria-label="Layers" className="flex flex-col gap-2">
-        <h2 className="text-xs font-medium uppercase tracking-wider text-slate-400">Layers</h2>
-        {stage.layers.length === 0 && <p className="text-xs text-slate-500">Press / to add a widget.</p>}
+        <KeysPanel onAdd={() => setPalette(true)} />
+        <h2 className="mt-2 text-xs font-medium uppercase tracking-wider text-slate-400">Layers</h2>
+        {stage.layers.length === 0 && <p className="text-xs text-slate-500">Nothing on the stage yet.</p>}
         <ul className="flex flex-col gap-1">
           {[...stage.layers].reverse().map((l) => (
             <li key={l.id}>
@@ -213,14 +216,13 @@ export default function StudioApp() {
         )}
       </aside>
 
-      <main className="flex min-w-0 flex-col gap-3">
+      <main className="flex min-w-0 flex-col items-center gap-3">
         <h1 className="sr-only">Studio</h1>
-        <StageFrame stage={stage} renderLayer={renderLayer} onAction={dispatch} />
+        {/* as wide as the column, but never taller than the window */}
+        <div className="w-full" style={{ maxWidth: "calc((100vh - 2rem) * 16 / 9)" }}>
+          <StageFrame stage={stage} renderLayer={renderLayer} onAction={dispatch} />
+        </div>
       </main>
-
-      <aside data-chrome aria-label="Keys" className="flex flex-col gap-2">
-        <KeysPanel onAdd={() => setPalette(true)} />
-      </aside>
 
       {palette && <Palette pluginIds={PLUGIN_IDS} stageKey={stage.key} media={media} onPick={onPick} onClose={() => setPalette(false)} />}
       {help && <KeysOverlay onClose={() => setHelp(false)} />}
