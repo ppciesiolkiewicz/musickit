@@ -1,5 +1,6 @@
 import { notFound, permanentRedirect } from "next/navigation";
 import { findModePage } from "@/features/theory/scales";
+import { findPentatonic } from "@/features/theory/pentatonics";
 import { keyOr, scaleHref } from "@/features/theory/keySlug";
 
 type Params = { slug: string };
@@ -9,6 +10,6 @@ type Search = { key?: string };
 export default async function Page({ params, searchParams }: { params: Promise<Params>; searchParams: Promise<Search> }) {
   const { slug } = await params;
   const { key } = await searchParams;
-  if (!findModePage(slug)) notFound();
+  if (!findModePage(slug) && !findPentatonic(slug)) notFound();
   permanentRedirect(scaleHref(slug, keyOr(key)));
 }

@@ -5,8 +5,10 @@ import { DOT_INK, degreeColour } from "@/features/theory/scales";
  * edges take each degree's colour. `compare` draws another scale (usually plain major) as a dashed outline, and the notes that differ
  * from it are ringed, so a mode's character notes stand out. Tapping a dot calls `onNote` with its degree; `active` lights one.
  */
-export default function ScaleWheel({ steps, labels, compare, active = null, onNote, size = 260, ringLabels, className = "" }: {
+export default function ScaleWheel({ steps, degrees, labels, compare, active = null, onNote, size = 260, ringLabels, className = "" }: {
   steps: number[];
+  /** the degree of a seven-note scale each step is, for colour and for matching `compare` (a pentatonic's 5th is degree 4); default the index */
+  degrees?: number[];
   /** one per degree, drawn in the dots: degree numbers ("R", "♭3") or note names */
   labels: string[];
   compare?: number[];
@@ -25,7 +27,9 @@ export default function ScaleWheel({ steps, labels, compare, active = null, onNo
     return { x: C + r * Math.cos(a), y: C + r * Math.sin(a) };
   };
   const pts = steps.map((s) => at(s));
-  const changed = compare ? steps.map((s, d) => s !== compare[d]) : steps.map(() => false);
+  const deg = (d: number) => degrees?.[d] ?? d;
+  const colour = (d: number) => degreeColour(deg(d));
+  const changed = compare ? steps.map((s, d) => s !== compare[deg(d)]) : steps.map(() => false);
   const dotR = 11;
 
   return (
@@ -50,14 +54,14 @@ export default function ScaleWheel({ steps, labels, compare, active = null, onNo
       {/* each edge in the colour of the degree it leaves from */}
       {pts.map((p, d) => {
         const q = pts[(d + 1) % pts.length];
-        return <line key={d} x1={p.x} y1={p.y} x2={q.x} y2={q.y} stroke={degreeColour(d)} strokeWidth={2.4} strokeLinecap="round" opacity={0.85} />;
+        return <line key={d} x1={p.x} y1={p.y} x2={q.x} y2={q.y} stroke={colour(d)} strokeWidth={2.4} strokeLinecap="round" opacity={0.85} />;
       })}
-      {active !== null && active < pts.length && <line x1={C} y1={C} x2={pts[active].x} y2={pts[active].y} stroke={degreeColour(active)} strokeWidth={2} strokeLinecap="round" />}
+      {active !== null && active < pts.length && <line x1={C} y1={C} x2={pts[active].x} y2={pts[active].y} stroke={colour(active)} strokeWidth={2} strokeLinecap="round" />}
       {pts.map((p, d) => (
         <g key={d} className={onNote ? "cursor-sound" : undefined} onClick={onNote ? () => onNote(d) : undefined}>
           {onNote && <title>{`${labels[d]}: tap to hear it`}</title>}
-          {changed[d] && <circle cx={p.x} cy={p.y} r={dotR + 4.5} fill="none" stroke={degreeColour(d)} strokeWidth={1.6} strokeDasharray="2.5 2.5" />}
-          <circle cx={p.x} cy={p.y} r={active === d ? dotR + 2 : dotR} fill={degreeColour(d)} stroke={active === d ? "var(--color-sky-300)" : d === 0 ? "var(--color-slate-50)" : "var(--color-slate-950)"} strokeWidth={active === d ? 2.5 : d === 0 ? 2 : 1.2} />
+          {changed[d] && <circle cx={p.x} cy={p.y} r={dotR + 4.5} fill="none" stroke={colour(d)} strokeWidth={1.6} strokeDasharray="2.5 2.5" />}
+          <circle cx={p.x} cy={p.y} r={active === d ? dotR + 2 : dotR} fill={colour(d)} stroke={active === d ? "var(--color-sky-300)" : d === 0 ? "var(--color-slate-50)" : "var(--color-slate-950)"} strokeWidth={active === d ? 2.5 : d === 0 ? 2 : 1.2} />
           <text x={p.x} y={p.y + 0.5} textAnchor="middle" dominantBaseline="central" fontSize={labels[d].length > 1 ? 8 : 10} fontWeight={700} fill={DOT_INK} pointerEvents="none">
             {labels[d]}
           </text>

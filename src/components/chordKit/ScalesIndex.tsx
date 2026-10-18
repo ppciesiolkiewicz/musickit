@@ -7,7 +7,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ColourKey, ModeAlias, ScaleSettingsBar, UNDER_BAR, WithSettings } from "./ScaleSettings";
 import ModeCompare from "./ModeCompare";
-import { FAMILIES, makeKeyContext, modeAlias } from "@/features/theory/theory";
+import { FAMILIES, makeKeyContext, modeAlias, tonicName } from "@/features/theory/theory";
 import { MODE_PAGES, degreeColour, degreeLabels, relativesOf, DOT_INK } from "@/features/theory/scales";
 import { scaleCells, scaleLineMidi } from "@/lib/chordKit/scalePositions";
 import { generateMelody, melodyTiming, scalePool } from "@/lib/chordKit/melody";
@@ -17,6 +17,8 @@ import TuneButton from "./TuneButton";
 import { keySlug, scaleHref } from "@/features/theory/keySlug";
 import { Section } from "@/components/ui";
 import KeySignature from "@/components/theory/KeySignature";
+import PentatonicCard from "./PentatonicCard";
+import { PENTATONICS } from "@/features/theory/pentatonics";
 
 const ORD = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th"];
 
@@ -26,6 +28,7 @@ const PARTS = {
   harm: { accent: "#fbbf24", label: "Harmonic minor", intro: "Natural minor with a raised 7th. Its modes share their seven notes with each other, not with the major scale, and carry the exotic augmented 2nd." },
   mel: { accent: "#a78bfa", label: "Melodic minor", intro: "The major scale with a lowered 3rd. Its modes are the jazz sounds: Lydian dominant over a 7♯11, Altered over a dominant that resolves." },
   other: { accent: "#f472b6", label: "Other scales", intro: "Seven-note scales of their own, not modes of the three families above: the Arabic double harmonic, Persian, Hungarian minor, the Neapolitan scales and Verdi's enigmatic scale." },
+  pent: { accent: "#fb923c", label: "Pentatonic scales", intro: "Five-note scales, each one a mode of the major scale with two notes left out. The first five share one set of notes, like the major modes do: C major pentatonic is also A minor pentatonic. The last four are Japanese scales with half steps in them." },
   compare: { accent: "#38bdf8", label: "Compare" },
 } as const;
 type PartId = keyof typeof PARTS;
@@ -35,10 +38,10 @@ const PART_IDS = Object.keys(PARTS) as PartId[];
 export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey: number; /** write ?key=f-sharp to the address bar (off when embedded in another page) */ syncUrl?: boolean }) {
   const [tonicPc, setTonicPc] = useState(initialKey);
   const [system] = useLabelSystem();
-  const [open, setOpen] = useState<Record<PartId, boolean>>({ compare: true, major: true, harm: true, mel: true, other: true });
+  const [open, setOpen] = useState<Record<PartId, boolean>>({ compare: true, major: true, harm: true, mel: true, other: true, pent: true });
   const [query, setQuery] = useState("");
   const toggle = (id: PartId) => setOpen((o) => ({ ...o, [id]: !o[id] }));
-  const setAll = (v: boolean) => setOpen({ compare: v, major: v, harm: v, mel: v, other: v });
+  const setAll = (v: boolean) => setOpen({ compare: v, major: v, harm: v, mel: v, other: v, pent: v });
   const allOpen = PART_IDS.every((id) => open[id]);
   const jump = (id: PartId) => {
     setOpen((o) => ({ ...o, [id]: true }));
@@ -103,6 +106,10 @@ export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey
     // eslint-disable-next-line react-hooks/exhaustive-deps -- words is derived from query
     [rows, query],
   );
+  const pents = PENTATONICS.filter((p) => {
+    const text = [p.name, p.alias ?? "", "pentatonic", p.slug.replace(/-/g, " ")].join(" ").toLowerCase();
+    return words.every((w) => text.includes(w));
+  });
   const pageFor = (f: number, m: number) => MODE_PAGES.find((p) => p.familyIndex === f && p.modeIndex === m)!;
 
   return (
@@ -115,7 +122,7 @@ export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey
       <div className="-mb-3 flex items-center gap-2">
         <input
           type="search" value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={(e) => e.key === "Escape" && setQuery("")}
-          placeholder="Search scales: dorian, minor, phrygian dominant…" aria-label="Search scales"
+          placeholder="Search scales: dorian, minor, pentatonic…" aria-label="Search scales"
           className="min-w-0 flex-1 rounded-full border border-slate-700 bg-slate-950/60 px-3 py-1 text-sm text-slate-100 placeholder:text-slate-500 focus:border-sky-400 focus:outline-none"
         />
         {!searching && (
@@ -125,7 +132,7 @@ export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey
         )}
       </div>
 
-      {searching && shown.length === 0 && <p className="text-sm text-slate-400">No scale matches “{query.trim()}”.</p>}
+      {searching && shown.length === 0 && pents.length === 0 && <p className="text-sm text-slate-400">No scale matches “{query.trim()}”.</p>}
 
       {shown.map(({ fam, modes }) => (
         <div key={fam.id} id={`part-${fam.id}`} className={UNDER_BAR}>
@@ -219,6 +226,17 @@ export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey
         </Section>
         </div>
       ))}
+
+      {pents.length > 0 && (
+        <div id="part-pent" className={UNDER_BAR}>
+          <Section title={PARTS.pent.label} meta={`${searching ? `${pents.length} of ${PENTATONICS.length}` : pents.length} scales in ${tonicName(tonicPc)}`} open={searching || open.pent} onToggle={() => toggle("pent")} accent={PARTS.pent.accent}>
+            <p className="mb-3 text-xs text-slate-400">{PARTS.pent.intro}</p>
+            <div className="grid gap-3 xl:grid-cols-2">
+              {pents.map((p) => <PentatonicCard key={p.slug} scale={p} tonicPc={tonicPc} player={player} system={system} onOpen={openCard} />)}
+            </div>
+          </Section>
+        </div>
+      )}
 
       {!searching && (
         <div id="part-compare" className={UNDER_BAR}>

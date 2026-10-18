@@ -218,22 +218,31 @@ export function positionLine(p: ScalePosition): ScaleCell[] {
  * They are numbered up the neck, so position 1 is the one nearest the nut.
  */
 export function threeNotesPerString(ctx: KeyContext): ScalePosition[] {
+  return notesPerString(ctx, [0, 1, 2, 3, 4, 5, 6], 3);
+}
+
+/**
+ * The same patterns for any set of the mode's degrees, `per` notes on every string: one pattern starting on each of the degrees.
+ * With five degrees and two per string this is the way to play a pentatonic whose shape is not the major or minor pentatonic's.
+ */
+export function notesPerString(ctx: KeyContext, degrees: number[], per: number): ScalePosition[] {
+  const n = degrees.length;
   const build = (startFret: number): ScaleCell[] => {
     const start = OPEN_MIDI[0] + startFret;
     const startSemi = (start - ctx.tonic.pc + 120) % 12;
-    const d0 = ctx.steps.indexOf(startSemi);
+    const k0 = degrees.findIndex((d) => ctx.steps[d] === startSemi);
     const out: ScaleCell[] = [];
-    for (let i = 0; i < 18; i++) {
-      const d = d0 + i;
-      const midi = start - ctx.steps[d0] + ctx.steps[d % 7] + 12 * Math.floor(d / 7);
-      const string = Math.floor(i / 3);
+    for (let i = 0; i < 6 * per; i++) {
+      const k = k0 + i;
+      const midi = start - ctx.steps[degrees[k0]] + ctx.steps[degrees[k % n]] + 12 * Math.floor(k / n);
+      const string = Math.floor(i / per);
       out.push(cellAt(ctx, string, midi - OPEN_MIDI[string])!);
     }
     return out;
   };
-  return ctx.steps
-    .map((st, degree) => {
-      const lowest = (ctx.tonic.pc + st - OPEN_MIDI[0] + 120) % 12;
+  return degrees
+    .map((degree) => {
+      const lowest = (ctx.tonic.pc + ctx.steps[degree] - OPEN_MIDI[0] + 120) % 12;
       let notes = build(lowest);
       // a wide step (the augmented 2nd of harmonic minor) can push a pattern that starts at the nut below it: play it an octave up
       if (notes.some((n) => n.fret < 0)) notes = build(lowest + 12);
@@ -248,6 +257,19 @@ export function threeNotesPerString(ctx: KeyContext): ScalePosition[] {
 export function positionsFor(ctx: KeyContext, kind: PositionKind): ScalePosition[] {
   if (kind === "3nps") return threeNotesPerString(ctx);
   return boxesFor(ctx, kind === "pentatonic" ? pentatonicOf(ctx.steps).degrees : [0, 1, 2, 3, 4, 5, 6]);
+}
+
+/** True when five semitone steps are the major pentatonic started on one of its notes (minor pentatonic, suspended ...). */
+export const isPentatonicRotation = (steps: number[]): boolean =>
+  [0, 2, 4, 7, 9].some((r) => [0, 2, 4, 7, 9].map((s) => (s - r + 12) % 12).sort((a, b) => a - b).join() === [...steps].sort((a, b) => a - b).join());
+
+/**
+ * Five positions for a pentatonic cut from a mode (`degrees` of `ctx`). One with the major pentatonic's shape uses its five boxes,
+ * numbered by the root strings like every mode's; any other is played two notes per string, one pattern starting on each note.
+ */
+export function pentatonicPositions(ctx: KeyContext, degrees: number[]): { positions: ScalePosition[]; boxes: boolean } {
+  const boxes = isPentatonicRotation(degrees.map((d) => ctx.steps[d]));
+  return { positions: boxes ? boxesFor(ctx, degrees) : notesPerString(ctx, degrees, 2), boxes };
 }
 
 /** A position played up and back down, as MIDI. */

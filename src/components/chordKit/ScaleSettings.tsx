@@ -7,6 +7,7 @@ import { LabelSelect, useLabelSystem } from "@/features/theory/useLabelSystem";
 import { LABEL_SYSTEMS, type LabelSystem } from "@/features/theory/labels";
 import { FAMILIES, TONICS, modeAlias } from "@/features/theory/theory";
 import { MODE_PAGES } from "@/features/theory/scales";
+import { PENTATONICS, findPentatonic, pentatonicLabel } from "@/features/theory/pentatonics";
 import { scaleHref, scalesIndexHref } from "@/features/theory/keySlug";
 import { Chip, InfoBox, InfoButton, Select } from "@/components/ui";
 import { DegreeLegend } from "@/components/theory/DegreeLegend";
@@ -92,7 +93,7 @@ export function ScaleSettingsBar({
   const [status, setStatus] = useState<PocketStatus | null>(null);
   const [labels] = useLabelSystem();
   const keyName = TONICS.find((t) => t.pc === tonicPc)?.name;
-  const scaleName = scale ? MODE_PAGES.find((m) => m.slug === scale)?.name : undefined;
+  const scaleName = scale ? (MODE_PAGES.find((m) => m.slug === scale) ?? findPentatonic(scale))?.name : undefined;
   const labelName = LABEL_SYSTEMS.find((l) => l.id === labels)?.label;
   return (
     // breaks out of the page column to span the window, less a small gutter each side; as a side column it fills the window's height
@@ -154,11 +155,11 @@ function Fact({ from, className = "", children }: { from?: keyof typeof FROM; cl
   return <span className={`${from ? FROM[from] : "inline-flex"} shrink-0 items-center gap-1 rounded-full border border-slate-700 px-2 py-0.5 text-[11px] ${className}`}>{children}</span>;
 }
 
-/** Switch to another mode in the same key, or go back to the list of all of them. */
+/** Switch to another mode or pentatonic in the same key, or go back to the list of all of them. */
 function ScaleRow({ slug, tonicPc }: { slug: string; tonicPc: number }) {
   const router = useRouter();
   const current = MODE_PAGES.find((m) => m.slug === slug);
-  const famId = current ? FAMILIES[current.familyIndex].id : "major";
+  const famId = current ? FAMILIES[current.familyIndex].id : findPentatonic(slug) ? "pent" : "major";
   return (
     <BarRow label="Scale">
       <Select
@@ -172,7 +173,7 @@ function ScaleRow({ slug, tonicPc }: { slug: string; tonicPc: number }) {
             const alias = modeAlias(m.familyIndex, m.modeIndex);
             return { value: m.slug, label: alias ? `${m.name} (${alias})` : m.name };
           }),
-        }))}
+        })).concat({ label: "Pentatonic scales", options: PENTATONICS.map((p) => ({ value: p.slug, label: pentatonicLabel(p) })) })}
       />
       <Link href={scalesIndexHref(tonicPc, `#part-${famId}`)} className="shrink-0 rounded-full border border-slate-700 px-2.5 py-0.5 text-xs text-sky-300 transition hover:border-sky-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
         ← All scales
