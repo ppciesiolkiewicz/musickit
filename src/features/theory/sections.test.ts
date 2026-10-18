@@ -22,6 +22,9 @@ describe("theory sections", () => {
     assert.equal(sectionFor("/theory/caged")?.label, "CAGED");
     assert.equal(sectionFor("/tuner"), undefined);
   });
+  it("the course is the first thing to learn", () => {
+    assert.equal(THEORY_SECTIONS.find((s) => s.group === "learn")?.href, "/course");
+  });
 });
 
 describe("section colours", () => {

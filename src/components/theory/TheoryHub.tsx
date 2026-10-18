@@ -26,8 +26,8 @@ export default function TheoryHub() {
             Four stages, from your first open chords to the whole neck. Each one teaches chords, lead playing and your ear together, with every chord, scale and exercise ready to play right here.
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
-            <Link href={stageHref(1)} className="inline-flex items-center gap-2 rounded-xl bg-sky-400 px-5 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-sky-500/20 transition hover:bg-sky-300">
-              Start at stage 1 <Icon name="chevron-right" size={16} />
+            <Link href="/course" className="inline-flex items-center gap-2 rounded-xl bg-sky-400 px-5 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-sky-500/20 transition hover:bg-sky-300">
+              Start the course <Icon name="chevron-right" size={16} />
             </Link>
             <a href="#stages" className="inline-flex items-center gap-2 rounded-xl border border-slate-600 px-5 py-3 text-sm font-medium text-slate-100 transition hover:border-slate-400 hover:bg-slate-800/40">
               See all four stages

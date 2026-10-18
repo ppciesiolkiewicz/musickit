@@ -33,6 +33,7 @@ export const TONE: Record<Tone, { icon: string; chip: string }> = {
 };
 
 export const THEORY_SECTIONS: TheorySection[] = [
+  { group: "learn", href: "/course", tone: "amber", label: "Course", desc: "Learn the neck one position at a time", icon: "graduation-cap" },
   { group: "learn", href: "/theory", tone: "emerald", label: "Start here", desc: "The course: stages, tracks, songs", icon: "graduation-cap" },
   { group: "learn", href: "/theory/basics", tone: "teal", label: "Guitar basics", desc: "Piano → guitar: notes and intervals", icon: "guitar" },
   { group: "explore", href: "/theory/chords", tone: "sky", label: "Chords", desc: "Open chords and every movable shape", icon: "grid-3x3" },
@@ -55,7 +56,7 @@ export const THEORY_SECTIONS: TheorySection[] = [
 
 /** The section a path belongs to: the longest matching href (hash links ignored). "/theory" only matches itself. */
 export function sectionFor(path: string): TheorySection | undefined {
-  if (path === "/theory") return THEORY_SECTIONS[0];
+  if (path === "/theory") return THEORY_SECTIONS.find((s) => s.href === "/theory");
   return THEORY_SECTIONS.filter((s) => !s.href.includes("#") && s.href !== "/theory" && (path === s.href || path.startsWith(`${s.href}/`)))
     .sort((a, b) => b.href.length - a.href.length)[0];
 }
