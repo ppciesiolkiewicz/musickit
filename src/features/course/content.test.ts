@@ -8,7 +8,7 @@ import { pcAt, type CourseSection } from "./model";
 import { STRUMS } from "./strum";
 
 /** Stages whose content is written; each content task adds its stages here. */
-const DONE = ["0-1", "0-2", "0-3", "0-4"];
+const DONE = ["0-1", "0-2", "0-3", "0-4", "1"];
 
 const sec = (stage: string, section: string) => {
   const r = findSection(stage, section);
@@ -94,5 +94,39 @@ describe("course content: stage 0", () => {
   });
   it("piano and guitar shows a piano", () => {
     assert.ok(visuals(sec("0-3", "piano-and-guitar")).some((v) => v.kind === "piano"));
+  });
+});
+
+const pathPcs = (pts: { string: number; fret: number }[]) => pts.map((p) => pcAt(p.string, p.fret));
+
+describe("course content: stage 1", () => {
+  it("1 → 4 → 5 → 1 starts with the G C D G roots in position 1", () => {
+    const first = necks(sec("1", "one-four-five"))[0].paths![0].points;
+    assert.deepEqual(first, [{ string: 0, fret: 3 }, { string: 1, fret: 3 }, { string: 2, fret: 0 }, { string: 3, fret: 0 }]);
+    assert.deepEqual(pathPcs(first), [7, 0, 2, 7]);
+  });
+  it("then the same idea in E minor: E A B E", () => {
+    const second = necks(sec("1", "one-four-five"))[1].paths![0].points;
+    assert.deepEqual(second, [{ string: 0, fret: 0 }, { string: 1, fret: 0 }, { string: 1, fret: 2 }, { string: 2, fret: 2 }]);
+  });
+  it("the Em arpeggio path climbs E G B E G B E, all chord tones", () => {
+    const em = necks(sec("1", "arpeggios"))[0].paths![0].points;
+    assert.deepEqual(em.map((p) => [p.string, p.fret]), [[0, 0], [0, 3], [1, 2], [2, 2], [3, 0], [4, 0], [5, 0]]);
+    pathPcs(em).forEach((pc) => assert.ok([4, 7, 11].includes(pc)));
+  });
+  it("move it: the 3–6 neck is G natural minor", () => {
+    const n = necks(sec("1", "move-it")).find((x) => x.from >= 3)!;
+    const gm = new Set([7, 9, 10, 0, 2, 3, 5]);
+    n.dots.forEach((d) => { assert.ok(gm.has(pcAt(d.string, d.fret))); assert.ok(d.fret >= 3 && d.fret <= 6); });
+  });
+  it("E minor pentatonic has only its five notes", () => {
+    const pent = new Set([4, 7, 9, 11, 2]);
+    pcs(sec("1", "pentatonic")).forEach((pc) => assert.ok(pent.has(pc), String(pc)));
+  });
+  it("position 1 chords are the open chords of the key plus B7", () => {
+    assert.deepEqual(chordNames(sec("1", "chords")), ["Em", "Am", "C", "D", "G", "B7"]);
+  });
+  it("every path in position 1 stays in frets 0–3 except where a neck says otherwise", () => {
+    ["arpeggios", "one-four-five", "triads"].forEach((x) => necks(sec("1", x)).forEach((n) => assert.ok(n.to <= 4, x)));
   });
 });

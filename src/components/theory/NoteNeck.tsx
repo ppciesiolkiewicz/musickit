@@ -27,13 +27,16 @@ interface Props {
 export default function NoteNeck({ from = 0, to, dots, onCell, cellFill, window, compact, paths }: Props) {
   // a phone fits the whole neck on screen: narrower frets, so the dots come out bigger once it is scaled down
   const phone = usePhone();
-  // second labels need room under each dot; a short neck can afford wide frets even on a phone
-  const subs = dots.some((d) => d.sub);
+  // arrows between neighbouring strings need room to show, and dots with a second label are bigger;
+  // a short neck can afford wide frets even on a phone
+  const roomy = dots.some((d) => d.sub) || !!paths?.length;
   const short = to - from <= 6;
   const g = compact || phone
-    ? fretGeometry(from, to, phone ? (short ? 44 : 26) : 36, subs ? 36 : 24, 22)
-    : fretGeometry(from, to, 50, subs ? 44 : 32, 22);
+    ? fretGeometry(from, to, phone ? (short ? 44 : 26) : 36, roomy ? 46 : 24, 22)
+    : fretGeometry(from, to, 50, roomy ? 52 : 32, 22);
   const r = phone ? 10 : compact ? 9 : 12;
+  const radius = (d: { big?: boolean; sub?: string }) => (d.big ? r + 2 : r) + (d.sub ? 4 : 0);
+  const dotAt = new Map(dots.map((d) => [`${d.string}:${d.fret}`, radius(d)]));
   const cells: { s: number; f: number }[] = [];
   for (let s = 0; s < 6; s++) for (let f = from; f <= to; f++) cells.push({ s, f });
   const markerId = useId().replace(/:/g, "");
@@ -59,25 +62,28 @@ export default function NoteNeck({ from = 0, to, dots, onCell, cellFill, window,
         <g pointerEvents="none">
           <defs>
             {pathColours.map((c, i) => (
-              <marker key={c} id={`${markerId}-a${i}`} viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+              <marker key={c} id={`${markerId}-a${i}`} viewBox="0 0 10 10" refX="8" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
                 <path d="M0,0 L10,5 L0,10 z" fill={c} />
               </marker>
             ))}
           </defs>
           {paths.flatMap((p, pi) => p.points.slice(1).map((b, k) => {
             const a = p.points[k];
-            const sg = segment({ x: g.fx(a.fret), y: g.sy(a.string) }, { x: g.fx(b.fret), y: g.sy(b.string) }, r + 4);
+            // stop just short of whichever dot is drawn at each end (or of where one would be)
+            const gap = Math.max(dotAt.get(`${a.string}:${a.fret}`) ?? r, dotAt.get(`${b.string}:${b.fret}`) ?? r) + 1;
+            const sg = segment({ x: g.fx(a.fret), y: g.sy(a.string) }, { x: g.fx(b.fret), y: g.sy(b.string) }, gap);
             return sg && <line key={`p${pi}-${k}`} {...sg} stroke={p.colour} strokeWidth={2.5} strokeLinecap="round" markerEnd={`url(#${markerId}-a${pathColours.indexOf(p.colour)})`} />;
           }))}
         </g>
       )}
       {dots.map((d, i) => {
-        const rr = d.big ? r + 2 : r;
+        const rr = radius(d);
+        const y = g.sy(d.string);
         return (
           <g key={i} pointerEvents="none">
             <circle cx={g.fx(d.fret)} cy={g.sy(d.string)} r={rr} fill={d.outline ? "var(--color-slate-950)" : d.fill} stroke={d.fill} strokeWidth={d.outline ? 2.5 : 1} />
-            <text x={g.fx(d.fret)} y={g.sy(d.string)} textAnchor="middle" dominantBaseline="central" fontSize={d.label.length > 2 ? 8 : 10} fontWeight={700} fill={d.outline ? d.fill : d.text ?? "#0f172a"}>{d.label}</text>
-            {d.sub && <text x={g.fx(d.fret)} y={g.sy(d.string) + rr + 6} textAnchor="middle" dominantBaseline="central" fontSize={8} fontWeight={700} fill={d.fill}>{d.sub}</text>}
+            <text x={g.fx(d.fret)} y={d.sub ? y - 4 : y} textAnchor="middle" dominantBaseline="central" fontSize={d.label.length > 2 ? 8 : 10} fontWeight={700} fill={d.outline ? d.fill : d.text ?? "#0f172a"}>{d.label}</text>
+            {d.sub && <text x={g.fx(d.fret)} y={y + 6} textAnchor="middle" dominantBaseline="central" fontSize={7} fontWeight={600} fill={d.outline ? d.fill : d.text ?? "#0f172a"}>{d.sub}</text>}
           </g>
         );
       })}
