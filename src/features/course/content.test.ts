@@ -1,0 +1,98 @@
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
+import { THEORY_SECTIONS } from "../theory/sections";
+import { lessonShape } from "../theory/course/visuals";
+import { tabFor } from "@/lib/chordKit/tab";
+import { ALL_SECTIONS, findSection } from "./course";
+import { pcAt, type CourseSection } from "./model";
+import { STRUMS } from "./strum";
+
+/** Stages whose content is written; each content task adds its stages here. */
+const DONE = ["0-1", "0-2", "0-3", "0-4"];
+
+const sec = (stage: string, section: string) => {
+  const r = findSection(stage, section);
+  assert.ok(r, `${stage}/${section}`);
+  return r.section;
+};
+const visuals = (s: CourseSection) => s.blocks.flatMap((b) => (b.kind === "visual" ? [b.visual] : []));
+const necks = (s: CourseSection) => visuals(s).flatMap((v) => (v.kind === "neck" ? [v] : []));
+const chordNames = (s: CourseSection) => visuals(s).flatMap((v) => (v.kind === "chords" ? v.chords.map((c) => c.name) : []));
+const pcs = (s: CourseSection) => necks(s).flatMap((n) => n.dots.map((d) => pcAt(d.string, d.fret)));
+const linkOk = (href: string) => {
+  const path = href.split(/[?#]/)[0];
+  const m = /^\/course\/([^/]+)\/([^/]+)$/.exec(path);
+  if (m) return !!findSection(m[1], m[2]);
+  return THEORY_SECTIONS.some((s) => { const p = s.href.split("#")[0]; return path === p || path.startsWith(`${p}/`); });
+};
+
+describe("course content: every stage", () => {
+  it("neck dots and path points sit on the drawn frets; paths have at least two points", () => {
+    ALL_SECTIONS.forEach(({ stage, section }) => necks(section).forEach((n) => {
+      [...n.dots, ...(n.paths ?? []).flatMap((p) => p.points)].forEach((d) =>
+        assert.ok(d.string >= 0 && d.string < 6 && d.fret >= n.from && d.fret <= n.to, `${stage.slug}/${section.slug} ${d.string}:${d.fret}`));
+      (n.paths ?? []).forEach((p) => assert.ok(p.points.length >= 2, `${stage.slug}/${section.slug}`));
+    }));
+  });
+  it("every chord box has a shape, of the asked-for kind", () => {
+    ALL_SECTIONS.forEach(({ section }) => visuals(section).forEach((v) => {
+      if (v.kind !== "chords") return;
+      v.chords.forEach((c) => {
+        const shape = lessonShape(c.name, c.prefer, c.voicing);
+        assert.ok(shape, c.name);
+        if (c.prefer && !c.voicing) assert.ok(shape.shape.tags.includes(c.prefer), `${c.name} ${c.prefer}`);
+        if (c.voicing) assert.equal(shape.shape.v, c.voicing, c.name);
+      });
+    }));
+  });
+  it("strum blocks name real patterns, melodies fit the guitar", () => {
+    ALL_SECTIONS.forEach(({ section }) => section.blocks.forEach((b) => {
+      if (b.kind === "strum") assert.ok(b.pattern in STRUMS);
+      if (b.kind === "melody") assert.doesNotThrow(() => tabFor(b.melody.notes, b.melody.position), b.melody.title);
+    }));
+  });
+  it("links go to real pages", () => {
+    ALL_SECTIONS.forEach(({ section }) => section.blocks.forEach((b) => {
+      if (b.kind === "links") [...b.explore, ...b.practise].forEach((l) => assert.ok(linkOk(l.href), l.href));
+    }));
+  });
+  it("written sections have text and something to look at or do", () => {
+    ALL_SECTIONS.filter((r) => DONE.includes(r.stage.slug)).forEach(({ stage, section }) => {
+      assert.ok(section.blocks.some((b) => b.kind === "text"), `${stage.slug}/${section.slug} text`);
+      assert.ok(section.blocks.some((b) => b.kind !== "text" && b.kind !== "links"), `${stage.slug}/${section.slug} non-text`);
+    });
+  });
+});
+
+describe("course content: stage 0", () => {
+  it("the 16th section uses the 16th pattern", () => {
+    assert.ok(sec("0-2", "sixteenths").blocks.some((b) => b.kind === "strum" && b.pattern === "sixteenths"));
+  });
+  it("downstrums go quarter then eighth; island strum is over G C D", () => {
+    const d = sec("0-2", "all-downstrums").blocks.flatMap((b) => (b.kind === "strum" ? [b.pattern] : []));
+    assert.deepEqual(d, ["downs-quarter", "downs-eighth"]);
+    const i = sec("0-2", "island-strum").blocks.find((b) => b.kind === "strum");
+    assert.ok(i?.kind === "strum" && i.pattern === "island");
+    assert.deepEqual(i.chords, ["G", "C", "D"]);
+  });
+  it("first songs use only the stage 0 chords", () => {
+    const allowed = new Set(["Em", "Am", "C", "D", "G", "B7"]);
+    const songs = sec("0-2", "first-songs").blocks.flatMap((b) => (b.kind === "songs" ? b.songs : []));
+    assert.ok(songs.length >= 3);
+    songs.forEach((s) => s.chords.forEach((c) => assert.ok(allowed.has(c), `${s.title}: ${c}`)));
+  });
+  it("open chord sections show their chords", () => {
+    assert.deepEqual(chordNames(sec("0-2", "em-and-am")), ["Em", "Am"]);
+    assert.deepEqual(chordNames(sec("0-2", "c-d-g")), ["C", "D", "G"]);
+  });
+  it("do-re-mi is G major in position 1, with solfège under each degree", () => {
+    const s = sec("0-3", "do-re-mi");
+    const g = new Set([7, 9, 11, 0, 2, 4, 6]);
+    assert.ok(pcs(s).length >= 7);
+    pcs(s).forEach((pc) => assert.ok(g.has(pc), String(pc)));
+    necks(s).forEach((n) => n.dots.forEach((d) => { assert.ok(d.fret <= 3); assert.ok(d.sub); }));
+  });
+  it("piano and guitar shows a piano", () => {
+    assert.ok(visuals(sec("0-3", "piano-and-guitar")).some((v) => v.kind === "piano"));
+  });
+});

@@ -15,6 +15,8 @@ export type Visual =
   | { kind: "chords"; caption: string; chords: { name: string; tag?: string; prefer?: string; voicing?: string }[] }
   | { kind: "neck"; caption: string; from: number; to: number; dots: Dot[]; window?: { from: number; to: number }; legend: { label: string; colour: string }[]; paths?: NeckPath[] }
   | { kind: "circle"; caption: string }
+  /** keys lit on a small piano, to set beside the same notes on the neck */
+  | { kind: "piano"; caption: string; keys: { midi: number; label: string; colour: string }[]; from?: number; octaves?: number }
   | { kind: "wheels"; caption: string; wheels: { name: string; mood: string; steps: number[] }[] };
 
 /** Open-string pitch classes, low E (string 0) to high e. */

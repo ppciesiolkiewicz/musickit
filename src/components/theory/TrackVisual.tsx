@@ -5,6 +5,7 @@ import ChordDiagram from "@/components/chordKit/ChordDiagram";
 import NoteNeck from "./NoteNeck";
 import ScaleWheel from "./ScaleWheel";
 import CircleOfFifths from "./CircleOfFifths";
+import MiniPiano from "./MiniPiano";
 import { strumShape } from "@/lib/chordKit/playback";
 import { playMelody } from "@/features/sound";
 import { degreeLabels } from "@/features/theory/scales";
@@ -54,6 +55,11 @@ export default function TrackVisual({ visual }: { visual: Visual }) {
         </>
       )}
       {visual.kind === "circle" && <CircleOfFifths value={key} onChange={setKey} />}
+      {visual.kind === "piano" && (
+        <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-2">
+          <MiniPiano lit={visual.keys} from={visual.from} octaves={visual.octaves} onKey={(m) => playMelody([m], 400)} />
+        </div>
+      )}
       {visual.kind === "wheels" && (
         <div className="grid gap-3 sm:grid-cols-3">
           {visual.wheels.map((w, i) => (
