@@ -10,7 +10,7 @@ import type { NeckPath } from "@/features/course/paths";
  * set up for that lesson. Pure data so the stage page stays a server component and the shapes can be tested.
  */
 /** `sub` is a second, smaller label under the dot (e.g. solfège under a degree). */
-export interface Dot { string: number; fret: number; label: string; fill: string; big?: boolean; sub?: string }
+export interface Dot { string: number; fret: number; label: string; fill: string; big?: boolean; sub?: string; outline?: boolean }
 export type Visual =
   | { kind: "chords"; caption: string; chords: { name: string; tag?: string; prefer?: string; voicing?: string }[] }
   | { kind: "neck"; caption: string; from: number; to: number; dots: Dot[]; window?: { from: number; to: number }; legend: { label: string; colour: string }[]; paths?: NeckPath[] }

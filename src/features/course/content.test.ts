@@ -8,7 +8,7 @@ import { pcAt, type CourseSection } from "./model";
 import { STRUMS } from "./strum";
 
 /** Stages whose content is written; each content task adds its stages here. */
-const DONE = ["0-1", "0-2", "0-3", "0-4", "1"];
+const DONE = ["0-1", "0-2", "0-3", "0-4", "1", "2"];
 
 const sec = (stage: string, section: string) => {
   const r = findSection(stage, section);
@@ -128,5 +128,27 @@ describe("course content: stage 1", () => {
   });
   it("every path in position 1 stays in frets 0–3 except where a neck says otherwise", () => {
     ["arpeggios", "one-four-five", "triads"].forEach((x) => necks(sec("1", x)).forEach((n) => assert.ok(n.to <= 4, x)));
+  });
+});
+
+describe("course content: stage 2", () => {
+  it("drop 3 starts with the open Em7 and Am7, and every chord is a drop 3 voicing", () => {
+    const v = visuals(sec("2", "drop-3")).flatMap((x) => (x.kind === "chords" ? x.chords : []));
+    assert.deepEqual(v.slice(0, 2).map((c) => c.name), ["Em7", "Am7"]);
+    assert.ok(v.length >= 7);
+    v.forEach((c) => assert.equal(c.voicing, "drop 3", c.name));
+  });
+  it("the Bm barre is the A shape at the 2nd fret", () => {
+    assert.equal(lessonShape("Bm", "barre")!.fret, 2);
+    assert.ok(visuals(sec("2", "bm-barre")).some((x) => x.kind === "chords" && x.chords.some((c) => c.name === "Bm" && c.prefer === "barre")));
+  });
+  it("position 2 arpeggios stay in frets 2–5 on their chord's notes", () => {
+    const tones: Record<string, number[]> = { Bm: [11, 2, 6], G: [7, 11, 2] };
+    const ns = necks(sec("2", "arpeggios"));
+    assert.equal(ns.length, 2);
+    ns.forEach((n, i) => n.paths!.flatMap((p) => p.points).forEach((pt) => {
+      assert.ok(pt.fret >= 2 && pt.fret <= 5);
+      assert.ok(tones[i === 0 ? "Bm" : "G"].includes(pcAt(pt.string, pt.fret)));
+    }));
   });
 });

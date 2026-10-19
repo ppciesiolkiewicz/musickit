@@ -46,7 +46,7 @@ export const SHAPES: Shape[] = [
   {rs:6,suf:'7sus4',fam:'sus',  ext:'7',     f:[0,2,0,2,0,0],  tags:['funk','soul','rock','sus','barre'],exp:[0,5,7,10], n:{5:'4'}},
   {rs:6,suf:'7♯5',fam:'altered',ext:'7',     f:[0,N,0,1,1,N],  tags:['jazz','funk','altered','compact'],exp:[0,4,8,10]},
   {rs:6,suf:'7♯9',fam:'dominant',ext:'9',    f:[0,-1,0,0,N,N], tags:['funk','rock','blues','altered','compact'],exp:[0,3,4,10],n:{3:'♯9'},note:'The "Hendrix chord".'},
-  {rs:6,suf:'m7♭5',fam:'altered',ext:'7',    f:[0,N,0,0,-1,N], tags:['jazz','bossa','compact'],                exp:[0,3,6,10],   n:{6:'♭5'}},
+  {rs:6,suf:'m7♭5',v:'drop 3',fam:'altered',ext:'7',    f:[0,N,0,0,-1,N], tags:['jazz','bossa','compact'],                exp:[0,3,6,10],   n:{6:'♭5'}},
 
   // ---------- root on the 5th string (A) ----------
   {rs:5,suf:'',   fam:'major',   ext:'triad',f:[N,0,2,2,2,0],  tags:['rock','pop','barre'],            exp:[0,4,7],      note:'The classic A-shape barre chord.'},
@@ -65,7 +65,7 @@ export const SHAPES: Shape[] = [
   {rs:5,suf:'7sus4',fam:'sus',  ext:'7',     f:[N,0,2,0,3,0],  tags:['funk','soul','rock','sus','barre'],exp:[0,5,7,10], n:{5:'4'}},
   {rs:5,suf:'aug',fam:'altered',ext:'triad', f:[N,0,-1,-2,-2,N],tags:['jazz','altered','compact'],     exp:[0,4,8]},
   {rs:5,suf:'dim7',fam:'altered',ext:'7',     f:[N,0,1,-1,1,N], tags:['jazz','bossa','gospel','altered','compact'],exp:[0,3,6,9], n:{6:'♭5',9:'♭♭7'}},
-  {rs:5,suf:'m7♭5',fam:'altered',ext:'7',    f:[N,0,1,0,1,N],  tags:['jazz','bossa','compact'],                exp:[0,3,6,10],   n:{6:'♭5'}},
+  {rs:5,suf:'m7♭5',v:'drop 3',fam:'altered',ext:'7',    f:[N,0,1,0,1,N],  tags:['jazz','bossa','compact'],                exp:[0,3,6,10],   n:{6:'♭5'}},
   {rs:5,suf:'7♯9',fam:'dominant',ext:'9',    f:[N,0,-1,0,1,N], tags:['funk','rock','blues','altered','compact'],exp:[0,3,4,10],n:{3:'♯9'},note:'Same "Hendrix chord" shape, one string group over.'},
   {rs:5,suf:'7♭9',fam:'dominant',ext:'9',    f:[N,0,-1,0,-1,N],tags:['jazz','bossa','altered','compact'],      exp:[0,1,4,10],   n:{1:'♭9'}},
 
