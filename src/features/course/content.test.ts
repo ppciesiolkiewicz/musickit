@@ -8,7 +8,7 @@ import { pcAt, type CourseSection } from "./model";
 import { STRUMS } from "./strum";
 
 /** Stages whose content is written; each content task adds its stages here. */
-const DONE = ["0-1", "0-2", "0-3", "0-4", "1", "2"];
+const DONE = ["0-1", "0-2", "0-3", "0-4", "1", "2", "3"];
 
 const sec = (stage: string, section: string) => {
   const r = findSection(stage, section);
@@ -150,5 +150,26 @@ describe("course content: stage 2", () => {
       assert.ok(pt.fret >= 2 && pt.fret <= 5);
       assert.ok(tones[i === 0 ? "Bm" : "G"].includes(pcAt(pt.string, pt.fret)));
     }));
+  });
+});
+
+describe("course content: stage 3", () => {
+  it("every chord box in stage 3 is in position 1", () => {
+    ALL_SECTIONS.filter((r) => r.stage.slug === "3").forEach(({ section }) => visuals(section).forEach((v) => {
+      if (v.kind === "chords") v.chords.forEach((c) => assert.ok(lessonShape(c.name, c.prefer, c.voicing)!.fret <= 3, c.name));
+    }));
+  });
+  it("every neck in stage 3 stays in position 1", () => {
+    ALL_SECTIONS.filter((r) => r.stage.slug === "3").forEach(({ section }) => necks(section).forEach((n) => n.dots.forEach((d) => assert.ok(d.fret <= 3, section.slug))));
+  });
+  it("6 chords show G6, C6, Em6 and D6, each dot a note of its chord", () => {
+    const six: Record<string, number[]> = { G6: [7, 11, 2, 4], C6: [0, 4, 7, 9], Em6: [4, 7, 11, 1], D6: [2, 6, 9, 11] };
+    const ns = necks(sec("3", "six-chords"));
+    assert.equal(ns.length, 4);
+    Object.values(six).forEach((tones, i) => ns[i].dots.forEach((d) => assert.ok(tones.includes(pcAt(d.string, d.fret)))));
+  });
+  it("colour paths keep the G C D G root path", () => {
+    const roots = necks(sec("3", "colour-paths")).flatMap((n) => n.paths ?? []).map((p) => p.points.map((x) => [x.string, x.fret]));
+    assert.ok(roots.some((p) => JSON.stringify(p) === JSON.stringify([[0, 3], [1, 3], [2, 0], [3, 0]])));
   });
 });
