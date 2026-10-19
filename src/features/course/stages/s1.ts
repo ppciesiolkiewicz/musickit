@@ -51,7 +51,7 @@ export const STAGE_1: CourseStage = {
         paths: [path(PATH.amber, [0, 3], [2, 0]), path(PATH.sky, [1, 3], [3, 0])],
         legend: [{ label: "root (Do)", colour: degreeColour(0) }, { label: "5th (Sol)", colour: degreeColour(4) }],
       }),
-      task("Play E5 A5 B7 E5 with all downstrums, muting the other strings with the side of your hand. Then G5 C5 D5 G5."),
+      task("Play E5 A5 D5 E5 with all downstrums, muting the other strings with the side of your hand. Then G5 C5 D5 G5."),
     ]),
     section("arpeggios", "Arpeggios", "arpeggios", [
       text(

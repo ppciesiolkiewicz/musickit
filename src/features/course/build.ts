@@ -16,7 +16,7 @@ export const songs = (...s: Song[]): Block => ({ kind: "songs", songs: s });
 export const melody = (m: Melody): Block => ({ kind: "melody", melody: m });
 export const strum = (pattern: StrumPatternId, chords: string[], caption: string): Block => ({ kind: "strum", pattern, chords, caption });
 
-type ChordEntry = string | { name: string; tag?: string; prefer?: string; voicing?: string };
+type ChordEntry = string | { name: string; tag?: string; prefer?: string; voicing?: string; rootString?: number };
 export const chords = (caption: string, list: ChordEntry[]): Block =>
   visual({ kind: "chords", caption, chords: list.map((c) => (typeof c === "string" ? { name: c } : c)) });
 

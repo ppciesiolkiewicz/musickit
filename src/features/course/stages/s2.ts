@@ -23,25 +23,32 @@ export const STAGE_2: CourseStage = {
     ]),
     section("easier-bm", "Easier Bm", "barre-drop3", [
       text(
-        "While the barre is coming along, there are easier chords that do Bm's job. Bm7 adds one note (A) and lets two strings ring open, so no barre at all. B7 is the open chord you already used in stage 1. And the small Bm on the top four strings needs only a partial barre across two strings.",
+        "While the barre is coming along, there are easier chords that do Bm's job. Bm7 adds one note (A) and lets two strings ring open, so no barre at all. B7 is the open chord you already used in stage 1. And the small Bm on the top four strings is the real Bm in miniature, with no barre either.",
         "Use whichever sounds right in the song. Bm7 is softer, B7 pulls harder towards Em, the small Bm is the real Bm in miniature.",
       ),
       chords("Bm7 and B7: no barre needed.", ["Bm7", "B7"]),
-      neck("The small Bm: only the top four strings, first finger flat across the B and high e at the 2nd fret.", 0, 5, [[2, 4], [3, 4], [4, 3], [5, 2]].map(([s, f]) => toneDot(s, f, B))),
+      neck("The small Bm (x x 4 4 3 2): 1st finger on the high e at the 2nd fret, 2nd on the B at the 3rd, 3rd and 4th on the G and D at the 4th.", 0, 5, [[2, 4], [3, 4], [4, 3], [5, 2]].map(([s, f]) => toneDot(s, f, B))),
       task("Play Em Am Bm7 Em, then Em Am B7 Em, then with the small Bm. Which one sounds best to you?"),
     ]),
     section("drop-3", "Drop 3 chords", "barre-drop3", [
       text(
-        "Here's a way into the neck that's easier than barres and sounds great: drop 3 chords, the four-note shapes of jazz and bossa nova. Each one has its root on the low E or A string, then three notes on the middle strings, with a string muted in between. No barre, just four fingers.",
-        "You already know two of them: the open Em7 and Am7 are drop 3 shapes. Slide the same shapes up the neck and you get every 7th chord of the key. They train the same finger strength and independence a barre needs, so they make barres easier too.",
-        "Mute the skipped string with the underside of the finger next to it. A muted string is part of the sound.",
+        "Here's a way into the neck that's easier than barres and sounds great: drop 3 chords, the four-note shapes of jazz and bossa nova. The root sits on the low E string, the A string is muted, and the 7th, 3rd and 5th go on the D, G and B strings. No barre, just four fingers.",
+        "You already know one: the open Em7 (0 x 0 0 0 x) is a drop 3 shape. Slide the same kind of shape up the 6th string and you get the 7th chords of the key one after another. They train the finger strength and independence a barre needs, so they make barres easier too.",
+        "Mute the A string with the underside of the finger on the low E. That muted string is part of the sound.",
       ),
-      chords("Drop 3 chords of E minor / G major, starting with the two you already play.", [
-        { name: "Em7", voicing: "drop 3" }, { name: "Am7", voicing: "drop 3" }, { name: "Bm7", voicing: "drop 3" },
-        { name: "Cmaj7", voicing: "drop 3" }, { name: "Gmaj7", voicing: "drop 3" }, { name: "G7", voicing: "drop 3" },
-        { name: "F♯m7♭5", voicing: "drop 3" },
+      chords("Drop 3 chords of E minor / G major on the 6th string, from the open Em7 up to Am7 at the 5th fret.", [
+        { name: "Em7", voicing: "drop 3", rootString: 6 }, { name: "F♯m7♭5", voicing: "drop 3", rootString: 6 },
+        { name: "Gmaj7", voicing: "drop 3", rootString: 6 }, { name: "G7", voicing: "drop 3", rootString: 6 },
+        { name: "Am7", voicing: "drop 3", rootString: 6 },
       ]),
-      task("Play Gmaj7 Cmaj7 Bm7 Em7 with a gentle bossa feel: thumb on the root on beats 1 and 3, fingers pluck the top three strings on the \"&\"s."),
+      text(
+        "Their cousins have the root on the A string and no muted string: Am7 (x 0 2 0 1 x), Bm7 (x 2 4 2 3 x) and Cmaj7 (x 3 5 4 5 x). These are drop 2 voicings, just as easy and just as bossa. Mix both families and you can play the whole key in positions 1 and 2 without a single barre.",
+      ),
+      chords("The drop 2 cousins, root on the A string.", [
+        { name: "Am7", voicing: "drop 3", rootString: 5, tag: "drop 2" }, { name: "Bm7", voicing: "drop 3", rootString: 5, tag: "drop 2" },
+        { name: "Cmaj7", voicing: "drop 3", rootString: 5, tag: "drop 2" },
+      ]),
+      task("Climb the 6th string: Em7 F♯m7♭5 Gmaj7 Am7 and back down, thumb on the root, fingers plucking the other three notes together. Then Gmaj7 Cmaj7 Bm7 Em7 mixing both families, with a gentle bossa feel."),
     ]),
     section("arpeggios", "Arpeggios in position 2", "arpeggios", [
       text(

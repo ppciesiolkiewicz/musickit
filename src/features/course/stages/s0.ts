@@ -82,7 +82,7 @@ export const STAGES_0: CourseStage[] = [
       ]),
       section("island-strum", "Island strum", "strumming", [
         text(
-          "Down, down-up, up-down-up: the strum behind countless campfire and ukulele songs. The hand keeps going down on every beat and up on every \"&\"; it just misses the strings on beat 3.",
+          "Down, down-up, up-down-up: the strum behind countless campfire and ukulele songs. The hand keeps going down on every beat and up on every \"&\"; it just misses the strings on the \"&\" of 1 and on beat 3.",
           "That missed strum is what makes it swing. Don't stop the hand to skip it; swing past the strings.",
         ),
         strum("island", ["G", "C", "D"], "D · D U · U D U. The arrows are where the pick hits; the hand moves on every box."),
@@ -156,7 +156,7 @@ export const STAGES_0: CourseStage[] = [
       section("melodies", "Melodies in tab", "melody", [
         text(
           "Picking one note at a time trains your hand to find a single string, which is exactly what arpeggios and solos need in stage 1. A tune you already know tells you at once when a note is wrong.",
-          "Both tunes sit on the top three strings in the open position. Use one finger per fret: 1st finger on fret 1, 2nd on fret 2, 3rd on fret 3.",
+          "Both tunes sit on the top two strings in the open position. Use one finger per fret: 1st finger on fret 1, 2nd on fret 2, 3rd on fret 3.",
         ),
         melody({ title: "Ode to Joy", origin: "Beethoven, 9th symphony (public domain)", position: 0, notes: tune("E4 E4 F4 G4 G4 F4 E4 D4 C4 C4 D4 E4 E4:1.5 D4:0.5 D4:2") }),
         melody({ title: "When the Saints Go Marching In", origin: "traditional", position: 0, notes: tune("C4 E4 F4 G4:4 C4 E4 F4 G4:4 C4 E4 F4 G4:2 E4:2 C4:2 E4:2 D4:4") }),

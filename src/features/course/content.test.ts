@@ -38,7 +38,7 @@ describe("course content: every stage", () => {
     ALL_SECTIONS.forEach(({ section }) => visuals(section).forEach((v) => {
       if (v.kind !== "chords") return;
       v.chords.forEach((c) => {
-        const shape = lessonShape(c.name, c.prefer, c.voicing);
+        const shape = lessonShape(c.name, c.prefer, c.voicing, c.rootString);
         assert.ok(shape, c.name);
         if (c.prefer && !c.voicing) assert.ok(shape.shape.tags.includes(c.prefer), `${c.name} ${c.prefer}`);
         if (c.voicing) assert.equal(shape.shape.v, c.voicing, c.name);
@@ -132,11 +132,26 @@ describe("course content: stage 1", () => {
 });
 
 describe("course content: stage 2", () => {
-  it("drop 3 starts with the open Em7 and Am7, and every chord is a drop 3 voicing", () => {
-    const v = visuals(sec("2", "drop-3")).flatMap((x) => (x.kind === "chords" ? x.chords : []));
-    assert.deepEqual(v.slice(0, 2).map((c) => c.name), ["Em7", "Am7"]);
-    assert.ok(v.length >= 7);
-    v.forEach((c) => assert.equal(c.voicing, "drop 3", c.name));
+  it("drop 3 chords are true drop 3s: root on the low E, the A string muted, starting with the open Em7", () => {
+    const v = visuals(sec("2", "drop-3")).flatMap((x) => (x.kind === "chords" ? x.chords : [])).filter((c) => c.tag !== "drop 2");
+    assert.equal(v[0].name, "Em7");
+    assert.ok(v.length >= 5);
+    v.forEach((c) => {
+      const sh = lessonShape(c.name, c.prefer, c.voicing, c.rootString)!;
+      assert.equal(sh.shape.rs, 6, c.name);
+      assert.equal(sh.shape.f[1], null, `${c.name} skips the A string`);
+    });
+  });
+  it("the A-string cousins are shown as drop 2, not drop 3", () => {
+    const cousins = visuals(sec("2", "drop-3")).flatMap((x) => (x.kind === "chords" ? x.chords : [])).filter((c) => c.tag === "drop 2");
+    assert.ok(cousins.length >= 2);
+    cousins.forEach((c) => assert.equal(lessonShape(c.name, c.prefer, c.voicing, c.rootString)!.shape.rs, 5, c.name));
+  });
+  it("lesson text tells the truth about fingerings", () => {
+    const all = (st: string, x: string) => sec(st, x).blocks.flatMap((b) => (b.kind === "text" ? b.paras : [])).join(" ");
+    assert.ok(!/partial barre|flat across/.test(all("2", "easier-bm")), "small Bm needs no barre");
+    assert.ok(!/top three strings/.test(all("0-4", "melodies")), "both tunes sit on the top two strings");
+    assert.ok(!/Am7 are drop 3/.test(all("2", "drop-3")), "open Am7 is a drop 2 shape");
   });
   it("the Bm barre is the A shape at the 2nd fret", () => {
     assert.equal(lessonShape("Bm", "barre")!.fret, 2);

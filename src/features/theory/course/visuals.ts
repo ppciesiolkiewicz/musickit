@@ -12,7 +12,7 @@ import type { NeckPath } from "@/features/course/paths";
 /** `sub` is a second, smaller label under the dot (e.g. solfège under a degree). */
 export interface Dot { string: number; fret: number; label: string; fill: string; big?: boolean; sub?: string; outline?: boolean }
 export type Visual =
-  | { kind: "chords"; caption: string; chords: { name: string; tag?: string; prefer?: string; voicing?: string }[] }
+  | { kind: "chords"; caption: string; chords: { name: string; tag?: string; prefer?: string; voicing?: string; rootString?: number }[] }
   | { kind: "neck"; caption: string; from: number; to: number; dots: Dot[]; window?: { from: number; to: number }; legend: { label: string; colour: string }[]; paths?: NeckPath[] }
   | { kind: "circle"; caption: string }
   /** keys lit on a small piano, to set beside the same notes on the neck */
@@ -106,14 +106,14 @@ const VISUALS: Record<string, Visual> = {
 export const trackVisual = (stage: number, track: TrackId): Visual | undefined => VISUALS[`${stage}-${track}`];
 
 /**
- * The shape a lesson shows for a chord name: the lowest-fret full shape of the named `voicing` (e.g. "drop 3"),
+ * The shape a lesson shows for a chord name: the lowest-fret full shape of the named `voicing` (e.g. "drop 3"), optionally on one root string,
  * else the first one tagged `prefer` (e.g. "barre"), else the simplest full voicing.
  */
-export function lessonShape(name: string, prefer?: string, voicing?: string): ChordShapeChoice | undefined {
+export function lessonShape(name: string, prefer?: string, voicing?: string, rootString?: number): ChordShapeChoice | undefined {
   const q = parseChordQuery(name);
   if (!q) return undefined;
   const all = shapesForTones(q.rootPc, q.semis, ["easy", "medium", "hard"]).filter((r) => r.full).map((r) => r.choice);
   // shape search places an open-position shape at fret 12; a lesson wants it at the nut
-  const voiced = voicing ? all.filter((c) => c.shape.v === voicing).map((c) => ({ ...c, fret: c.fret % 12 })).sort((a, b) => a.fret - b.fret)[0] : undefined;
+  const voiced = voicing ? all.filter((c) => c.shape.v === voicing && (!rootString || c.shape.rs === rootString)).map((c) => ({ ...c, fret: c.fret % 12 })).sort((a, b) => a.fret - b.fret)[0] : undefined;
   return voiced ||(prefer && all.find((c) => c.shape.tags.includes(prefer))) || all[0];
 }
