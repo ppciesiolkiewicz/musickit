@@ -8,7 +8,7 @@ import { pcAt, type CourseSection } from "./model";
 import { STRUMS } from "./strum";
 
 /** Stages whose content is written; each content task adds its stages here. */
-const DONE = ["0-1", "0-2", "0-3", "0-4", "1", "2", "3"];
+const DONE = ["0-1", "0-2", "0-3", "0-4", "1", "2", "3", "4", "5", "6"];
 
 const sec = (stage: string, section: string) => {
   const r = findSection(stage, section);
@@ -171,5 +171,34 @@ describe("course content: stage 3", () => {
   it("colour paths keep the G C D G root path", () => {
     const roots = necks(sec("3", "colour-paths")).flatMap((n) => n.paths ?? []).map((p) => p.points.map((x) => [x.string, x.fret]));
     assert.ok(roots.some((p) => JSON.stringify(p) === JSON.stringify([[0, 3], [1, 3], [2, 0], [3, 0]])));
+  });
+});
+
+describe("course content: stages 4–6", () => {
+  it("one arpeggio through five shapes is all G, B and D, with five paths", () => {
+    const s = sec("4", "one-arpeggio");
+    pcs(s).forEach((pc) => assert.ok([7, 11, 2].includes(pc), String(pc)));
+    assert.equal(necks(s)[0].paths!.length, 5);
+    necks(s)[0].paths!.flatMap((p) => p.points).forEach((pt) => assert.ok([7, 11, 2].includes(pcAt(pt.string, pt.fret))));
+  });
+  it("the D, C and A shape necks hold only G major", () => {
+    const g = new Set([7, 9, 11, 0, 2, 4, 6]);
+    const ns = necks(sec("4", "d-c-a-shapes"));
+    assert.equal(ns.length, 3);
+    ns.forEach((n) => n.dots.forEach((d) => assert.ok(g.has(pcAt(d.string, d.fret)))));
+  });
+  it("E harmonic minor in position 1 includes its raised 7th, D♯", () => {
+    const hm = new Set([4, 6, 7, 9, 11, 0, 3]);
+    const p = pcs(sec("5", "harmonic-minor"));
+    p.forEach((pc) => assert.ok(hm.has(pc), String(pc)));
+    assert.ok(p.includes(3));
+  });
+  it("modes compare Aeolian, Dorian and Phrygian on wheels", () => {
+    const w = visuals(sec("5", "modes")).find((v) => v.kind === "wheels");
+    assert.ok(w && w.kind === "wheels");
+    ["Aeolian", "Dorian", "Phrygian"].forEach((m) => assert.ok(w.wheels.some((x) => x.name === m), m));
+  });
+  it("the circle map shows the circle", () => {
+    assert.ok(visuals(sec("6", "circle-map")).some((v) => v.kind === "circle"));
   });
 });
