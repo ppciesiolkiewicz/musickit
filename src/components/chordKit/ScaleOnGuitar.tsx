@@ -9,7 +9,7 @@ import { STRING_NAMES } from "./Fretboard";
 import type { NotePlayer } from "./useNotePlayer";
 import TuneButton from "./TuneButton";
 import { generateMelody, melodyTiming } from "@/lib/chordKit/melody";
-import { Chip, ChipRow, Info } from "@/components/ui";
+import { Checkbox, Chip, ChipRow, Info } from "@/components/ui";
 import { DegreeLegend } from "@/components/theory/DegreeLegend";
 
 const DEGREE_ORD = ["root", "2nd", "3rd", "4th", "5th", "6th", "7th"];
@@ -38,7 +38,6 @@ export default function ScaleOnGuitar({ ctx, player, only }: { ctx: KeyContext; 
   const [kind, setKind] = useState<PositionKind>("pentatonic");
   const [rings, setRings] = useState(true);
   const [focus, setFocus] = useState<number | null>(null);
-  const [fade, setFade] = useState(true);
   /** positions shown as their v2 (`alt`), by kind and number */
   const [v2, setV2] = useState<Set<string>>(new Set());
   const { active, play, playTimed, tap } = player;
@@ -60,6 +59,11 @@ export default function ScaleOnGuitar({ ctx, player, only }: { ctx: KeyContext; 
   const focused = focusedBox ? shown(focusedBox) : null;
   const keyName = only?.title ?? `${ctx.names[0]} ${ctx.modeName}`;
   const byStart = only ? !only.boxes : kind === "3nps";
+  /** Switch shapes but keep the picked position: the same number, or the last one when the new kind has fewer. */
+  const pickKind = (k: PositionKind) => {
+    setKind(k);
+    setFocus((f) => (f === null ? null : Math.min(f, positionsFor(ctx, k).length)));
+  };
 
   const onNote = (c: ScaleCell) => tap(cellKey(c), c.midi);
   const playPosition = (p: ScalePosition) => {
@@ -85,7 +89,7 @@ export default function ScaleOnGuitar({ ctx, player, only }: { ctx: KeyContext; 
         </Info>
       </h2>
 
-      <ScaleNeck cells={cells} big={big} rings={rings} focus={focused} fadeOutside={fade} active={active} labelSystem={system} onNote={onNote} title={`${keyName} on the guitar neck`} />
+      <ScaleNeck cells={cells} big={big} rings={rings} focus={focused} active={active} labelSystem={system} onNote={onNote} title={`${keyName} on the guitar neck`} />
       <div className="mt-2">
         <DegreeLegend />
       </div>
@@ -99,15 +103,15 @@ export default function ScaleOnGuitar({ ctx, player, only }: { ctx: KeyContext; 
           </ChipRow>
         ) : (
         <ChipRow label="Shapes" info="Five positions cover the neck, and each is named by the strings its root is on (counting from the low E): 1 has it on E, D and high e; 2 on D and B; 3 on A and B; 4 on A and G; 5 on G, E and high e. Each box keeps its classic shape: it sits at the root's fret on the low E string. Near the nut a note that would fall below it moves to the next string down (so in E, position 1 is the open position); otherwise a box that would go below the nut or past the 17th fret is shown an octave away, so the numbers can jump along the neck. Every mode uses the same five boxes as the major pentatonic (when it has a major 3rd) or the minor pentatonic (minor 3rd), so the shapes look familiar: each string keeps the frets that box uses, and the mode's notes are placed there. Pentatonic shows the mode's five-note scale. Full scale adds the other two notes into the same five boxes (the CAGED scale shapes), so there are still five positions, not seven: one map of the neck for both, with the pentatonic you know as the frame. 3 notes per string is the other common system: seven patterns, one starting on each note of the scale on the low E string, with exactly three notes on every string. They stretch wider but keep one fingering rhythm across the strings, which suits fast runs and legato. They are numbered up the neck.">
-          <Chip on={kind === "pentatonic"} onClick={() => { setKind("pentatonic"); setFocus(null); }}>{pent.name} boxes</Chip>
-          <Chip on={kind === "scale"} onClick={() => { setKind("scale"); setFocus(null); }}>Full scale</Chip>
-          <Chip on={kind === "3nps"} onClick={() => { setKind("3nps"); setFocus(null); }}>3 notes per string</Chip>
+          <Chip on={kind === "pentatonic"} onClick={() => pickKind("pentatonic")}>{pent.name} boxes</Chip>
+          <Chip on={kind === "scale"} onClick={() => pickKind("scale")}>Full scale</Chip>
+          <Chip on={kind === "3nps"} onClick={() => pickKind("3nps")}>3 notes per string</Chip>
         </ChipRow>
         )}
-        <ChipRow label="Extra notes">
-          <Chip on={rings} onClick={() => setRings((v) => !v)}>
-            {only ? `Show the other 2 notes of ${ctx.names[0]} ${ctx.modeName} as rings` : kind === "pentatonic" ? `Show the other ${7 - pent.degrees.length} notes of ${ctx.modeName} as rings` : "Show the notes outside each box as rings"}
-          </Chip>
+        <ChipRow label="Extra notes" info="Shown on the neck and in every box. Off, the neck and boxes show only the notes you play; with a position picked, the neck shows just that box.">
+          <Checkbox checked={rings} onChange={setRings}>
+            {only ? `The other 2 notes of ${ctx.names[0]} ${ctx.modeName}, and notes outside the box` : kind === "pentatonic" ? `The other ${7 - pent.degrees.length} notes of ${ctx.modeName}, and notes outside the box` : "Notes outside the box"}
+          </Checkbox>
         </ChipRow>
         <p className="text-xs text-slate-400">
           {only ? (
@@ -124,14 +128,12 @@ export default function ScaleOnGuitar({ ctx, player, only }: { ctx: KeyContext; 
 
       <div className="mt-4 min-h-8">
         {focused ? (
-          <ChipRow label="Neck">
+          <div className="flex flex-wrap items-center gap-2">
             <span className="mr-1 text-xs text-slate-300">Position <b className="text-slate-100">{focused.number}</b>{focusedBox?.alt && <> {focused === focusedBox ? "v1" : "v2"}</>}</span>
-            <Chip on={fade} onClick={() => setFade(true)}>Just the box</Chip>
-            <Chip on={!fade} onClick={() => setFade(false)}>All notes</Chip>
             <button type="button" onClick={() => setFocus(null)} className="ml-1 rounded-full border border-slate-700 px-2.5 py-1 text-xs text-slate-300 hover:border-sky-400">
               ✕ Clear position
             </button>
-          </ChipRow>
+          </div>
         ) : (
           <p className="text-xs text-slate-400">Pick a position below to outline it on the neck.</p>
         )}

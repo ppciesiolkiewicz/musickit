@@ -32,6 +32,7 @@ interface NeckProps {
   cells: ScaleCell[];
   /** filled dots; the other scale notes are drawn as rings, or hidden when `rings` is off */
   big: (c: ScaleCell) => boolean;
+  /** off also hides every note outside the focused position */
   rings?: boolean;
   /** outline this position on the neck */
   focus?: ScalePosition | null;
@@ -56,7 +57,7 @@ export function ScaleNeck({ cells, big, rings = true, focus = null, fadeOutside 
   const r = compact ? 8.5 : phone ? 11 : 14;
   const inFocus = new Set(focus?.notes.map(cellKey));
   const focusFrets = focus?.notes.map((c) => c.fret) ?? [];
-  const shown = cells.filter((c) => c.fret <= to && (big(c) || rings));
+  const shown = cells.filter((c) => c.fret <= to && (rings || (big(c) && (!focus || inFocus.has(cellKey(c))))));
   // rings under the dots, the playing note last so its outline is on top
   shown.sort((a, b) => Number(big(a)) - Number(big(b)) || Number(isActive(active, a)) - Number(isActive(active, b)));
   return (
