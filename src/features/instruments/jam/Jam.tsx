@@ -8,6 +8,7 @@ import { NOTE_NAMES, droneName, type DroneParams } from "../drone/drone";
 import StepGrid, { PatternBar } from "../sequencer/StepGrid";
 import PartLevel from "../sequencer/PartLevel";
 import { MAX_BPM, MIN_BPM } from "./clock";
+import { NumberField } from "@/components/ui";
 import { BEATS_PER_BAR, JAM_PARTS, JamRig, type JamPart, type JamPartView, type JamSaved } from "./rig";
 import JamLoops from "./JamLoops";
 
@@ -154,7 +155,7 @@ export default function Jam() {
         <label className="order-last flex w-full min-w-0 items-center gap-2 text-xs text-slate-300 sm:order-none sm:w-auto sm:max-w-sm sm:flex-1" title={snap.tempoLocked ? "Clear the loops to change the tempo" : undefined}>
           <span className="shrink-0">Tempo</span>
           <input type="range" className="min-w-0 flex-1 accent-sky-400 disabled:opacity-40" min={MIN_BPM} max={MAX_BPM} step={1} value={snap.bpm} disabled={snap.tempoLocked} onChange={(e) => rig.setTempo(Number(e.target.value))} />
-          <span className="w-16 whitespace-nowrap text-right tabular-nums text-slate-400">{snap.bpm} BPM</span>
+          <span className="flex w-20 shrink-0 items-baseline justify-end gap-1 whitespace-nowrap text-slate-400"><NumberField value={snap.bpm} min={MIN_BPM} max={MAX_BPM} disabled={snap.tempoLocked} onCommit={(bpm) => rig.setTempo(bpm)} aria-label="Tempo in beats per minute" title={snap.tempoLocked ? undefined : "Type a tempo"} className="w-10 py-0.5 text-sm text-slate-100" />BPM</span>
         </label>
         <span className="flex items-center gap-2 text-xs text-slate-400">
           {/* the parts' colours, in page order */}

@@ -5,7 +5,7 @@ import Icon from "../Icon";
 import { NOTE_NAMES, RHYTHM_RATIOS, SCALES, degreeMidi, findScale, interference, invert, makeChallenge, noteName, permutations, retrograde, rotations, type Challenge } from "@/lib/improv/schillinger";
 import { playMelody, silence, startDrone, startLoop, type Hit, type Loop } from "./sound";
 import { DEFAULT_KEY_PC } from "@/features/theory/theory";
-import { Slider, ibtn, Select } from "@/components/ui";
+import { NumberField, Slider, ibtn, Select } from "@/components/ui";
 const card = "flex flex-col gap-2 rounded-xl border border-slate-800 bg-slate-900/40 p-3";
 const H2 = ({ icon, children }: { icon: Parameters<typeof Icon>[0]["name"]; children: string }) => <h2 className="flex items-center gap-2 text-sm font-medium text-slate-100"><Icon name={icon} className="text-sky-300" />{children}</h2>;
 
@@ -93,7 +93,7 @@ function RhythmLab() {
         <Select value={b} onChange={setB} aria-label="Second pulse" options={[2, 3, 4, 5, 6, 7, 8, 9].map((n) => ({ value: n, label: String(n) }))} />
         <span className="ml-2">one bar of 4 beats at</span>
         <Slider min={50} max={160} value={bpm} onChange={(v) => setBpm(v)} className="w-28" aria-label="Tempo" />
-        <span className="w-14 tabular-nums">{bpm} bpm</span>
+        <span className="flex w-16 items-baseline gap-1 whitespace-nowrap"><NumberField value={bpm} min={50} max={160} onCommit={setBpm} aria-label="Tempo in beats per minute" className="w-9 py-0.5 text-slate-200" />bpm</span>
         <button type="button" className={`${ibtn} ml-auto`} onClick={() => (on ? stop() : start(cycleSeconds, hitsFor(a, b, parts)))} aria-pressed={on} title={on ? "Stop" : "Play"} aria-label={on ? "Stop" : "Play"}><Icon name={on ? "square" : "play"} fill /></button>
       </div>
       <div className="relative flex flex-col gap-1.5 rounded-lg border border-slate-800 bg-slate-950/60 p-2">

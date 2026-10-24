@@ -12,7 +12,7 @@ import StepGrid, { PatternBar } from "../sequencer/StepGrid";
 import PartLevel from "../sequencer/PartLevel";
 import { MAX_BPM, MIN_BPM } from "../jam/clock";
 import { BEATS_PER_BAR, JAM_PARTS, JamRig, type JamPart, type JamSaved } from "../jam/rig";
-import { Select, Slider, inSelectMenu } from "@/components/ui";
+import { NumberField, Select, Slider, inSelectMenu } from "@/components/ui";
 
 const STORAGE_KEY = "musickit.pocket";
 const ibtn = "grid h-7 min-w-7 shrink-0 place-items-center rounded-md border border-slate-700 bg-slate-900 px-1 text-xs text-slate-200 transition hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
@@ -302,7 +302,7 @@ export default function PocketTools({ keyPc, className = "", stacked = false, on
         <Tool label="Click">
           <PlayButton on={snap.click.on} label="metronome" onClick={toggleClick} />
           <button type="button" className={ibtn} disabled={snap.bpm <= MIN_BPM} onClick={() => rig.setTempo(snap.bpm - 1)} aria-label="Slower">−</button>
-          <span className="w-12 shrink-0 whitespace-nowrap text-center text-xs tabular-nums text-slate-100" aria-live="polite">{snap.bpm}<span className="text-[10px] text-slate-500"> bpm</span></span>
+          <span className="flex w-14 shrink-0 items-baseline justify-center whitespace-nowrap text-xs text-slate-100"><NumberField value={snap.bpm} min={MIN_BPM} max={MAX_BPM} onCommit={(bpm) => rig.setTempo(bpm)} aria-label="Tempo in beats per minute" title="Type a tempo" className="w-8 py-0.5" /><span className="text-[10px] text-slate-500">bpm</span></span>
           <button type="button" className={ibtn} disabled={snap.bpm >= MAX_BPM} onClick={() => rig.setTempo(snap.bpm + 1)} aria-label="Faster">+</button>
           <BeatDots rig={rig} playing={anyOn} />
           <Popover label="Tempo and click">
@@ -310,7 +310,7 @@ export default function PocketTools({ keyPc, className = "", stacked = false, on
               <label className="flex items-center gap-2">
                 <span className="w-14 shrink-0">Tempo</span>
                 <Slider min={MIN_BPM} max={MAX_BPM} step={1} value={snap.bpm} onChange={(bpm) => rig.setTempo(bpm)} className="flex-1" aria-label="Tempo" />
-                <span className="w-8 text-right tabular-nums text-slate-400">{snap.bpm}</span>
+                <NumberField value={snap.bpm} min={MIN_BPM} max={MAX_BPM} onCommit={(bpm) => rig.setTempo(bpm)} aria-label="Tempo in beats per minute" className="w-10 py-0.5 text-slate-200" />
               </label>
               <label className="flex items-center gap-2">
                 <span className="w-14 shrink-0">Click</span>

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getAudioContext, getOutputBus } from "@/features/sound";
-import { Button, Chip, ChipRow, Slider } from "@/components/ui";
+import { Button, Chip, ChipRow, NumberField, Slider } from "@/components/ui";
 import { MAX_BPM, MIN_BPM, PATTERNS, buildRound, patternById, type Round } from "./patterns";
 import { createJudge, type Grade, type Judge, type Judged, type Summary } from "./judge";
 import { DEFAULT_RISE_DB } from "./onset";
@@ -378,7 +378,7 @@ export default function RhythmGame() {
         </ChipRow>
         <ChipRow label="Tempo">
           <Slider aria-label="Tempo" value={s.bpm} min={MIN_BPM} max={MAX_BPM} step={1} disabled={playing} onChange={(bpm) => update({ bpm })} className="w-48 max-w-full" />
-          <span className="w-16 text-xs tabular-nums text-slate-300">{s.bpm} BPM</span>
+          <span className="flex w-20 items-baseline gap-1 whitespace-nowrap text-xs text-slate-300"><NumberField value={s.bpm} min={MIN_BPM} max={MAX_BPM} disabled={playing} onCommit={(bpm) => update({ bpm })} aria-label="Tempo in beats per minute" className="w-10 py-0.5" />BPM</span>
         </ChipRow>
         <ChipRow label="Bars">
           {BAR_CHOICES.map((b) => <Chip key={b} on={b === s.bars} onClick={() => !playing && update({ bars: b })}>{b}</Chip>)}
