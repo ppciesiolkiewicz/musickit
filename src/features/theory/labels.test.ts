@@ -17,6 +17,9 @@ test("formatting", () => {
 test("noteLabel", () => {
   const c = { name: "Eb", semi: 3, degreeText: "♭3", role: "3" };
   assert.deepEqual((["note", "interval", "degree", "solfege"] as const).map((s) => noteLabel(s, c)), ["Eb", "b3", "b3", "Me"]);
+  // degree text counted against a minor mode ("3" = G in E minor) is still named against the major scale
+  assert.deepEqual([{ semi: 3, degreeText: "3" }, { semi: 8, degreeText: "6" }, { semi: 10, degreeText: "7" }, { semi: 7, degreeText: "5" }, { semi: 1, degreeText: "2" }, { semi: 0, degreeText: "R" }]
+    .map((c) => noteLabel("solfege", { name: "", ...c })), ["Me", "Le", "Te", "Sol", "Ra", "Do"]);
 });
 test("solfège", () => {
   assert.deepEqual(["R", "1", "2", "♭3", "3", "4", "♯4", "5", "♭6", "6", "♭7", "7"].map(solfege), ["Do", "Do", "Re", "Me", "Mi", "Fa", "Fi", "Sol", "Le", "La", "Te", "Ti"]);
