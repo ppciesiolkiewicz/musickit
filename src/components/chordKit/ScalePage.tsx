@@ -10,6 +10,7 @@ import { FAMILIES, MAJOR, makeKeyContext } from "@/features/theory/theory";
 import { MODE_PAGES, type NoteSwap, degreeColour, relativesOf, stepPattern, DOT_INK } from "@/features/theory/scales";
 import ChordBubbles from "./ChordBubbles";
 import ScaleChords from "./ScaleChords";
+import ScaleProgressions from "./ScaleProgressions";
 import ScaleRelatives from "./ScaleRelatives";
 import ScaleOnGuitar from "./ScaleOnGuitar";
 import TuneButton from "./TuneButton";
@@ -138,6 +139,8 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
       <ScaleRelatives ctx={ctx} familyIndex={familyIndex} className={UNDER_BAR} />
 
       <ScaleChords ctx={ctx} className={UNDER_BAR} />
+
+      <ScaleProgressions ctx={ctx} className={UNDER_BAR} />
 
       <section id="sus" className={`rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5 ${UNDER_BAR}`}>
         <h2 className="mb-1 text-sm font-medium text-slate-100">Sus and extension chords from each chord</h2>
