@@ -1,11 +1,12 @@
 import Link from "next/link";
 import SiteNav from "@/components/SiteNav";
+import SiteFooter from "@/components/landing/SiteFooter";
 import { sectionFor } from "@/features/theory/sections";
 import type { ReactNode } from "react";
 import PreloadPiano from "@/features/sound/keyboard/PreloadPiano";
 
 /**
- * Dark page frame with the Music Kit nav and the page title, shared by every page but the looper.
+ * Dark page frame with the Music Kit nav, the page title and the site footer, shared by every page but the looper and the studio.
  * Pages are 80rem wide with room at the sides; `wide` keeps the full 96rem for tools that fill the screen (the cheatsheet),
  * and `full` spans the whole window (the scales pages, whose settings column sits on the right edge).
  * Necks and other wide pieces reach back out with the `bleed` utility.
@@ -36,6 +37,7 @@ export default function PageShell({ title, intro, active, wide = false, full = f
           )}
         </header>
         <main className="pb-6">{children}</main>
+        <SiteFooter />
       </div>
     </div>
   );

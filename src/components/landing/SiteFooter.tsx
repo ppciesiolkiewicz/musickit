@@ -34,7 +34,7 @@ function Heading({ children }: { children: ReactNode }) {
   return <p className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-slate-300">{children}</p>;
 }
 
-/** The landing pages' footer: brand, then Learn, Free tools and Teachers (the teaching pitch and the video studio). */
+/** The site footer, on every page: brand, then Learn, Free tools and Teachers (the teaching pitch and the video studio). */
 export default function SiteFooter() {
   return (
     <footer className="border-t border-slate-800/70 pt-12 pb-8 text-sm sm:pt-16">

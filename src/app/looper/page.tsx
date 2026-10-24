@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import LooperApp from "@/components/looper/LooperApp";
+import SiteFooter from "@/components/landing/SiteFooter";
 
 export const metadata: Metadata = {
   title: "Looper · Music Kit",
@@ -14,6 +15,7 @@ export default function LooperPage() {
         <main>
           <LooperApp />
         </main>
+        <SiteFooter />
       </div>
     </div>
   );
