@@ -39,6 +39,8 @@ export default function ScaleOnGuitar({ ctx, player, only }: { ctx: KeyContext; 
   const [rings, setRings] = useState(true);
   const [focus, setFocus] = useState<number | null>(null);
   const [fade, setFade] = useState(true);
+  /** positions shown as their v2 (`alt`), by kind and number */
+  const [v2, setV2] = useState<Set<string>>(new Set());
   const { active, play, playTimed, tap } = player;
 
   const cells = useMemo(() => [...scaleCells(ctx), ...(only?.extra ?? [])], [ctx, only]);
@@ -46,7 +48,16 @@ export default function ScaleOnGuitar({ ctx, player, only }: { ctx: KeyContext; 
   const positions = useMemo(() => only?.positions ?? positionsFor(ctx, kind), [ctx, kind, only]);
   const pentDegrees = new Set(pent.degrees);
   const big = kind === "pentatonic" ? (c: ScaleCell) => pentDegrees.has(c.degree) : () => true;
-  const focused = positions.find((p) => p.number === focus) ?? null;
+  const vKey = (p: ScalePosition) => `${only ? "only" : kind}-${p.number}`;
+  const shown = (p: ScalePosition) => (p.alt && v2.has(vKey(p)) ? p.alt : p);
+  const toggleV2 = (p: ScalePosition, on: boolean) => setV2((prev) => {
+    const next = new Set(prev);
+    if (on) next.add(vKey(p));
+    else next.delete(vKey(p));
+    return next;
+  });
+  const focusedBox = positions.find((p) => p.number === focus);
+  const focused = focusedBox ? shown(focusedBox) : null;
   const keyName = only?.title ?? `${ctx.names[0]} ${ctx.modeName}`;
   const byStart = only ? !only.boxes : kind === "3nps";
 
@@ -70,7 +81,7 @@ export default function ScaleOnGuitar({ ctx, player, only }: { ctx: KeyContext; 
         <Info label="How do I read the neck?">
           {only
             ? <>Every dot is a note of {keyName}, coloured by its scale degree; the root has a white ring. Tap any note to hear it. The rings are the two notes {ctx.names[0]} {ctx.modeName} adds, the seven-note mode this scale is cut from. Pick a position below to light it up on the neck.</>
-            : <>Every dot is a note of {keyName}, coloured by its scale degree; the root has a white ring. Tap any note to hear it. In pentatonic mode the five notes of the {pent.name.toLowerCase()} are the big dots and the other two notes of the mode are small rings, so you can see what the mode adds to the pentatonic. Pick a position below to light it up on the neck.</>}
+            : <>Every dot is a note of {keyName}, coloured by its scale degree; the root has a white ring. Tap any note to hear it. In pentatonic mode the five notes of the {pent.name.toLowerCase()} are the big dots and the other two notes of the mode are small rings, so you can see what the mode adds to the pentatonic. Pick a position below to light it up on the neck. A position marked v1 / v2 has notes that fit on two strings: v1 plays each at the spot closest to the box, v2 on the other string.</>}
         </Info>
       </h2>
 
@@ -114,7 +125,7 @@ export default function ScaleOnGuitar({ ctx, player, only }: { ctx: KeyContext; 
       <div className="mt-4 min-h-8">
         {focused ? (
           <ChipRow label="Neck">
-            <span className="mr-1 text-xs text-slate-300">Position <b className="text-slate-100">{focused.number}</b></span>
+            <span className="mr-1 text-xs text-slate-300">Position <b className="text-slate-100">{focused.number}</b>{focusedBox?.alt && <> {focused === focusedBox ? "v1" : "v2"}</>}</span>
             <Chip on={fade} onClick={() => setFade(true)}>Just the box</Chip>
             <Chip on={!fade} onClick={() => setFade(false)}>All notes</Chip>
             <button type="button" onClick={() => setFocus(null)} className="ml-1 rounded-full border border-slate-700 px-2.5 py-1 text-xs text-slate-300 hover:border-sky-400">
@@ -129,6 +140,7 @@ export default function ScaleOnGuitar({ ctx, player, only }: { ctx: KeyContext; 
       <div className={`mt-2 grid gap-3 sm:grid-cols-2 ${!only && kind === "3nps" ? "lg:grid-cols-4 2xl:grid-cols-7" : "lg:grid-cols-3 xl:grid-cols-5"}`}>
         {positions.map((p) => {
           const on = focus === p.number;
+          const box = shown(p);
           return (
             <div key={p.number} className={`flex min-w-0 flex-col gap-1.5 rounded-xl border p-2 transition ${on ? "border-sky-500/70 bg-sky-500/5" : "border-slate-800 bg-slate-950/50"}`}>
               <div className="flex flex-col items-start gap-2">
@@ -137,14 +149,30 @@ export default function ScaleOnGuitar({ ctx, player, only }: { ctx: KeyContext; 
                   <span className="block text-xs font-normal text-slate-300">
                     {byStart ? <>starts on {ctx.names[p.startDegree]} <span className="text-slate-500">({DEGREE_ORD[p.startDegree]})</span></> : <>root on {rootStrings(p).map((s) => STRING_NAMES[s]).join(", ")}</>}
                   </span>
-                  <span className="block text-xs font-normal text-slate-500">frets {p.from}–{p.to}</span>
+                  <span className="block text-xs font-normal text-slate-500">frets {box.from}–{box.to}</span>
                 </button>
+                {p.alt && (
+                  <div className="flex gap-1" role="group" aria-label={`Position ${p.number} variant`}>
+                    {([false, true] as const).map((alt) => (
+                      <button
+                        key={String(alt)}
+                        type="button"
+                        onClick={() => toggleV2(p, alt)}
+                        aria-pressed={box === (alt ? p.alt : p)}
+                        title={alt ? "v2: the notes that fit on two strings played on the other one" : "v1: every note at the spot closest to the box"}
+                        className={`rounded-full border px-2 py-0.5 text-[11px] ${box === (alt ? p.alt : p) ? "border-sky-400 bg-sky-500/15 text-sky-100" : "border-slate-700 text-slate-400 hover:border-sky-400"}`}
+                      >
+                        {alt ? "v2" : "v1"}
+                      </button>
+                    ))}
+                  </div>
+                )}
                 <div className="flex flex-wrap gap-1.5">
-                  <button type="button" onClick={() => playPosition(p)} className={`cursor-sound ${playBtn}`}>▶ Play</button>
-                  <TuneButton onPlay={(id) => playTune(p, id)} title="A short tune using only this position's notes, new every time" className={playBtn} />
+                  <button type="button" onClick={() => playPosition(box)} className={`cursor-sound ${playBtn}`}>▶ Play</button>
+                  <TuneButton onPlay={(id) => playTune(box, id)} title="A short tune using only this position's notes, new every time" className={playBtn} />
                 </div>
               </div>
-              <PositionBox position={p} cells={cells} rings={rings} active={active} labelSystem={system} onNote={onNote} />
+              <PositionBox position={box} cells={cells} rings={rings} active={active} labelSystem={system} onNote={onNote} />
             </div>
           );
         })}

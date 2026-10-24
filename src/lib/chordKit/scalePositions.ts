@@ -72,9 +72,18 @@ export interface ScalePosition {
   notes: ScaleCell[];
   from: number;
   to: number;
+  /** v2 of a box: the same notes with the ones that fit on two strings played on the other (open A, or the 5th fret of the low E) */
+  alt?: ScalePosition;
 }
 
 export type PositionKind = "pentatonic" | "scale" | "3nps";
+
+/** A place a note could be filled into a box: `out` frets past the box, `gap` frets from its string's notes. */
+interface Option {
+  c: ScaleCell;
+  out: number;
+  gap: number;
+}
 
 interface Spot {
   string: number;
@@ -140,21 +149,22 @@ function frames(ctx: KeyContext): Spot[][] {
 }
 
 /**
- * Put the given degrees of the mode into each of the five boxes. Each string keeps the frets the regular pentatonic box uses on it,
- * one either side: the box's own notes stay where they are when the mode has them, and every other note of the mode that falls in
- * those frets is placed once, on the string where it sits inside the box's frets (then the string with fewer notes, then the
- * lower). A filled-in note left 4 frets or more from the rest of its string then moves (or the note it stretches from does) to a
- * string where it sits next to the others.
+ * Put the given degrees of the mode into each of the five boxes. The box's own notes stay where they are when the mode has them, and
+ * every other note of the mode between the box's lowest and highest note is placed once, within a fret of the box: at the spot that
+ * reaches least past the box's frets, then sits closest to its string's notes (then the string with fewer notes, then the lower).
+ * So in E, position 1 takes the open A rather than a stretch to the 5th fret of the low E, and D♯ at the 4th fret of the B string.
+ * A filled-in note left 4 frets or more from the rest of its string then moves (or the note it stretches from does) to a string
+ * where it sits next to the others. A box whose filled-in notes could also go on another string a fret away gets that as its `alt`.
  */
 export function boxesFor(ctx: KeyContext, degrees: number[]): ScalePosition[] {
   const keep = new Set(degrees);
   return frames(ctx).map((frame, i) => {
-    const notes: ScaleCell[] = [];
+    const base: ScaleCell[] = [];
     const taken = new Set<number>();
     for (const sp of frame) {
       const c = cellAt(ctx, sp.string, sp.fret);
       if (c && keep.has(c.degree)) {
-        notes.push(c);
+        base.push(c);
         taken.add(c.midi);
       }
     }
@@ -162,43 +172,62 @@ export function boxesFor(ctx: KeyContext, degrees: number[]): ScalePosition[] {
       const fr = frame.filter((x) => x.string === s).map((x) => x.fret);
       return { lo: Math.min(...fr), hi: Math.max(...fr) };
     });
-    const options = new Map<number, { c: ScaleCell; inside: boolean }[]>();
+    const span = { lo: Math.min(...frame.map((x) => x.fret)), hi: Math.max(...frame.map((x) => x.fret)) };
+    // between the box's lowest and highest note, or a step past one the scale lacks (its ♭3 swapped for the 2nd below) inside its frets
+    const pitch = { lo: Math.min(...frame.map((x) => x.midi)), hi: Math.max(...frame.map((x) => x.midi)) };
+    const kept = new Set(base.map((c) => c.midi));
+    const inReach = (midi: number) => midi < pitch.lo ? !kept.has(pitch.lo) && midi >= pitch.lo - 2 : midi > pitch.hi ? !kept.has(pitch.hi) && midi <= pitch.hi + 2 : true;
+    // every spot for a missing note within a fret of the box, between its lowest and highest note. `out` is how far it reaches past the
+    // box's frets (the hand), `gap` how far from the notes its string already has: open A beats a stretch to the 5th fret of the low E.
+    const options = new Map<number, Option[]>();
     range.forEach(({ lo, hi }, s) => {
-      for (let f = Math.max(0, lo - 1); f <= Math.min(SCALE_NECK_FRETS, hi + 1); f++) {
+      for (let f = Math.max(0, span.lo - 1); f <= Math.min(SCALE_NECK_FRETS, span.hi + 1); f++) {
         const c = cellAt(ctx, s, f);
-        if (!c || !keep.has(c.degree) || taken.has(c.midi)) continue;
-        options.set(c.midi, [...(options.get(c.midi) ?? []), { c, inside: f >= lo && f <= hi }]);
+        if (!c || !keep.has(c.degree) || taken.has(c.midi) || !inReach(c.midi)) continue;
+        const gap = f < lo ? lo - f : f > hi ? f - hi : 0;
+        const out = f < span.lo ? span.lo - f : f > span.hi ? f - span.hi : 0;
+        if (gap > 3 || (out > 0 && (c.midi < pitch.lo || c.midi > pitch.hi))) continue;
+        options.set(c.midi, [...(options.get(c.midi) ?? []), { c, out, gap }]);
       }
     });
-    [...options.keys()].sort((a, b) => a - b).forEach((midi) => {
+    /** The box filled in: each note at its closest spot, or with `other` on another string when it has one a fret from the box. */
+    const fill = (other: boolean): ScalePosition => {
+      const notes = base.slice();
       const count = (s: number) => notes.filter((n) => n.string === s).length;
-      const [best] = options.get(midi)!.sort((a, b) => Number(b.inside) - Number(a.inside) || count(a.c.string) - count(b.c.string) || a.c.string - b.c.string);
-      notes.push(best.c);
-    });
-    // a filled-in note 4 frets or more from everything else on its string (three empty frets between) moves to a string where it sits
-    // next to the other notes, when it has one: C at the 1st fret of the B string rather than a stretch from G♯ to C on the G string.
-    // When it has nowhere closer, the lone note it stretches from moves instead, unless that is a root (roots name the position).
-    const [boxFrom, boxTo] = [Math.min(...notes.map((n) => n.fret)), Math.max(...notes.map((n) => n.fret))];
-    const others = (c: ScaleCell) => notes.filter((n) => n !== c && n.string === c.string);
-    const alone = (c: ScaleCell) => others(c).length > 0 && others(c).every((n) => Math.abs(n.fret - c.fret) >= 4);
-    const nearOn = (c: ScaleCell) => notes.some((m) => m.string === c.string && Math.abs(m.fret - c.fret) < 4);
-    const elsewhere = (n: ScaleCell) => [0, 1, 2, 3, 4, 5]
-      .filter((s) => s !== n.string)
-      .sort((a, b) => Math.abs(a - n.string) - Math.abs(b - n.string))
-      .map((s) => cellAt(ctx, s, n.midi - OPEN_MIDI[s]))
-      .find((c): c is ScaleCell => !!c && c.fret >= boxFrom && c.fret <= boxTo && nearOn(c));
-    notes.slice().forEach((n) => {
-      if (!options.has(n.midi) || !alone(n)) return;
-      const near = options.get(n.midi)!.map((o) => o.c).find((c) => c.string !== n.string && nearOn(c));
-      if (near) return notes.splice(notes.indexOf(n), 1, near);
-      const partner = others(n);
-      if (partner.length !== 1 || partner[0].degree === 0) return;
-      const moved = elsewhere(partner[0]);
-      if (moved) notes.splice(notes.indexOf(partner[0]), 1, moved);
-    });
-    notes.sort((a, b) => a.string - b.string || a.fret - b.fret);
-    const frets = notes.map((n) => n.fret);
-    return { number: i + 1, startDegree: notes[0].degree, notes, from: Math.min(...frets), to: Math.max(...frets) };
+      [...options.keys()].sort((a, b) => a - b).forEach((midi) => {
+        const [best, ...rest] = options.get(midi)!.slice().sort((a, b) => a.out - b.out || a.gap - b.gap || count(a.c.string) - count(b.c.string) || a.c.string - b.c.string);
+        const swap = other ? rest.find((o) => o.c.string !== best.c.string && o.out <= 1 && o.gap <= 1) : undefined;
+        notes.push((swap ?? best).c);
+      });
+      // a filled-in note 4 frets or more from everything else on its string (three empty frets between) moves to a string where it sits
+      // next to the other notes, when it has one: C at the 1st fret of the B string rather than a stretch from G♯ to C on the G string.
+      // When it has nowhere closer, the lone note it stretches from moves instead, unless that is a root (roots name the position).
+      const [boxFrom, boxTo] = [Math.min(...notes.map((n) => n.fret)), Math.max(...notes.map((n) => n.fret))];
+      const others = (c: ScaleCell) => notes.filter((n) => n !== c && n.string === c.string);
+      const alone = (c: ScaleCell) => others(c).length > 0 && others(c).every((n) => Math.abs(n.fret - c.fret) >= 4);
+      const nearOn = (c: ScaleCell) => notes.some((m) => m.string === c.string && Math.abs(m.fret - c.fret) < 4);
+      const elsewhere = (n: ScaleCell) => [0, 1, 2, 3, 4, 5]
+        .filter((s) => s !== n.string)
+        .sort((a, b) => Math.abs(a - n.string) - Math.abs(b - n.string))
+        .map((s) => cellAt(ctx, s, n.midi - OPEN_MIDI[s]))
+        .find((c): c is ScaleCell => !!c && c.fret >= boxFrom && c.fret <= boxTo && nearOn(c));
+      notes.slice().forEach((n) => {
+        if (!options.has(n.midi) || !alone(n)) return;
+        const near = options.get(n.midi)!.map((o) => o.c).find((c) => c.string !== n.string && nearOn(c));
+        if (near) return notes.splice(notes.indexOf(n), 1, near);
+        const partner = others(n);
+        if (partner.length !== 1 || partner[0].degree === 0) return;
+        const moved = elsewhere(partner[0]);
+        if (moved) notes.splice(notes.indexOf(partner[0]), 1, moved);
+      });
+      notes.sort((a, b) => a.string - b.string || a.fret - b.fret);
+      const frets = notes.map((n) => n.fret);
+      return { number: i + 1, startDegree: notes[0].degree, notes, from: Math.min(...frets), to: Math.max(...frets) };
+    };
+    const main = fill(false);
+    const alt = fill(true);
+    const places = (p: ScalePosition) => p.notes.map((n) => `${n.string}-${n.fret}`).join(" ");
+    return places(alt) !== places(main) && alt.to - alt.from <= 5 ? { ...main, alt } : main;
   });
 }
 
@@ -295,22 +324,20 @@ export function pentatonicPositions(ctx: KeyContext, degrees: number[], extra?: 
   const positions = boxes ? boxesFor(ctx, degrees) : notesPerString(ctx, degrees, 2);
   if (!extra) return { positions, boxes };
   const all = extraCells(ctx, extra);
-  return {
-    boxes,
-    positions: positions.map((p) => {
-      const span = (s: number) => {
-        const fr = p.notes.filter((n) => n.string === s).map((n) => n.fret);
-        return { lo: Math.min(...fr), hi: Math.max(...fr) };
-      };
-      const fits = all
-        .filter((c) => c.fret >= p.from && c.fret <= p.to && c.fret >= span(c.string).lo - 1 && c.fret <= span(c.string).hi + 1)
-        .map((c) => ({ c, inside: c.fret > span(c.string).lo && c.fret < span(c.string).hi }));
-      const added = [...new Set(fits.map((f) => f.c.midi))].map((midi) =>
-        fits.filter((f) => f.c.midi === midi).sort((a, b) => Number(b.inside) - Number(a.inside) || a.c.string - b.c.string)[0].c,
-      );
-      return { ...p, notes: [...p.notes, ...added].sort((a, b) => a.string - b.string || a.fret - b.fret) };
-    }),
+  const withExtra = (p: ScalePosition): ScalePosition => {
+    const span = (s: number) => {
+      const fr = p.notes.filter((n) => n.string === s).map((n) => n.fret);
+      return { lo: Math.min(...fr), hi: Math.max(...fr) };
+    };
+    const fits = all
+      .filter((c) => c.fret >= p.from && c.fret <= p.to && c.fret >= span(c.string).lo - 1 && c.fret <= span(c.string).hi + 1)
+      .map((c) => ({ c, inside: c.fret > span(c.string).lo && c.fret < span(c.string).hi }));
+    const added = [...new Set(fits.map((f) => f.c.midi))].map((midi) =>
+      fits.filter((f) => f.c.midi === midi).sort((a, b) => Number(b.inside) - Number(a.inside) || a.c.string - b.c.string)[0].c,
+    );
+    return { ...p, notes: [...p.notes, ...added].sort((a, b) => a.string - b.string || a.fret - b.fret), alt: p.alt && withExtra(p.alt) };
   };
+  return { boxes, positions: positions.map(withExtra) };
 }
 
 /** A position played up and back down, as MIDI. */

@@ -101,6 +101,31 @@ describe("five positions, named by the strings the root is on", () => {
     }
   });
 
+  it("E major scale position 1: open A rather than a stretch to the 5th fret, and D♯ on the B string before the top E", () => {
+    const [p1] = positionsFor(makeKeyContext(4, 0, 0), "scale");
+    assert.deepEqual(frets(p1), [[0, 2, 4], [0, 2, 4], [1, 2, 4], [1, 2], [0, 2, 4], [0, 2]]);
+    assert.deepEqual(frets(p1.alt!), [[0, 2, 4, 5], [2, 4], [1, 2, 4], [1, 2], [0, 2, 4], [0, 2]], "v2 plays A on the low E");
+  });
+
+  it("in every key and mode, a position has every scale note between its lowest and highest, and so does its v2", () => {
+    for (let pc = 0; pc < 12; pc++) for (let f = 0; f < 3; f++) for (let m = 0; m < 7; m++) for (const kind of ["pentatonic", "scale"] as const) {
+      const ctx = makeKeyContext(pc, f, m);
+      positionsFor(ctx, kind).forEach((p) => {
+        for (const box of p.alt ? [p, p.alt] : [p]) {
+          const line = positionLine(box);
+          const pcs = new Set(line.map((n) => n.pc));
+          const have = new Set(line.map((n) => n.midi));
+          for (let x = line[0].midi; x <= line[line.length - 1].midi; x++) assert.ok(!pcs.has(x % 12) || have.has(x), `${pc} ${f} ${m} ${kind} position ${p.number} misses ${x}`);
+        }
+        if (p.alt) {
+          assert.equal(positionLine(p.alt).length, positionLine(p).length);
+          assert.deepEqual(rootStrings(p.alt), rootStrings(p));
+          assert.ok(p.alt.to - p.alt.from <= 5);
+        }
+      });
+    }
+  });
+
   it("a position plays up and back down", () => {
     const m = positionMidi(positionsFor(aMinor, "pentatonic")[0]);
     assert.equal(m.length, 23);
