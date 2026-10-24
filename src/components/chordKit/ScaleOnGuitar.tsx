@@ -113,17 +113,6 @@ export default function ScaleOnGuitar({ ctx, player, only }: { ctx: KeyContext; 
             {only ? `The other 2 notes of ${ctx.names[0]} ${ctx.modeName}, and notes outside the box` : kind === "pentatonic" ? `The other ${7 - pent.degrees.length} notes of ${ctx.modeName}, and notes outside the box` : "Notes outside the box"}
           </Checkbox>
         </ChipRow>
-        <p className="text-xs text-slate-400">
-          {only ? (
-            <>{keyName}: <b className="text-slate-200">{only.names.join(" ")}</b> <span className="tabular-nums">({pent.formula.join(" ")})</span>. {ctx.names[0]} {ctx.modeName} adds {[0, 1, 2, 3, 4, 5, 6].filter((d) => !pentDegrees.has(d)).map((d) => ctx.names[d]).join(" and ")}.</>
-          ) : kind === "pentatonic" ? (
-            <>{pent.name}: <b className="text-slate-200">{pent.degrees.map((d) => ctx.names[d]).join(" ")}</b> <span className="tabular-nums">({pent.formula.join(" ")})</span>. {ctx.modeName} adds {[0, 1, 2, 3, 4, 5, 6].filter((d) => !pentDegrees.has(d)).map((d) => ctx.names[d]).join(" and ")}.</>
-          ) : kind === "scale" ? (
-            <>All seven notes, <b className="text-slate-200">{ctx.names.join(" ")}</b>, in the same five boxes as the {pent.name.toLowerCase()}.</>
-          ) : (
-            <>All seven notes, <b className="text-slate-200">{ctx.names.join(" ")}</b>, three on every string: one pattern starting on each note on the low E string.</>
-          )}
-        </p>
       </div>
 
       <div className="mt-4 min-h-8">
