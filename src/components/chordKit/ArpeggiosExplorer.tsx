@@ -9,7 +9,7 @@ import { ARP_FRETS, ARP_QUALITIES, WINDOWS, arpeggioMidi, buildArpeggio, neckCel
 import { FAMILIES, makeKeyContext } from "@/features/theory/theory";
 import { MODE_PAGES, degreeColour } from "@/features/theory/scales";
 import { strum } from "@/lib/chordKit/playback";
-import { fmtDegree, noteLabel, type LabelSystem } from "@/features/theory/labels";
+import { againstMajor, fmtDegree, noteLabel, type LabelSystem } from "@/features/theory/labels";
 import { useLabelSystem } from "@/features/theory/useLabelSystem";
 import { LabelsRow } from "@/components/LabelsRow";
 import { DEFAULT_KEY_PC } from "@/features/theory/theory";
@@ -62,7 +62,7 @@ export function ArpNeck({ cells, arp, overlay, labelSystem, badges, onNote }: { 
         })}
         {showBadge && arpCells.map((c) => (
           <g key={`b${c.string}-${c.fret}`} opacity={op()}>
-            <Badge x={g.fx(c.fret)} y={g.sy(c.string)} r={14} text={fmtDegree(c.degreeText)} colour={colour(c)} />
+            <Badge x={g.fx(c.fret)} y={g.sy(c.string)} r={14} text={fmtDegree(againstMajor(c.degreeText, c.semi))} colour={colour(c)} />
           </g>
         ))}
       </svg>
@@ -102,7 +102,7 @@ function ArpBox({ cells, win, overlay, labelSystem, badges, onNote }: { cells: N
             </g>
           );
         })}
-        {badges && labelSystem === "note" && dots.map((c) => <Badge key={`b${c.string}-${c.fret}`} x={g.sx(c.string)} y={g.fy(c.fret)} r={14} text={fmtDegree(c.degreeText)} colour={colour(c)} />)}
+        {badges && labelSystem === "note" && dots.map((c) => <Badge key={`b${c.string}-${c.fret}`} x={g.sx(c.string)} y={g.fy(c.fret)} r={14} text={fmtDegree(againstMajor(c.degreeText, c.semi))} colour={colour(c)} />)}
       </svg>
     </div>
   );

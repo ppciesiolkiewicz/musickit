@@ -4,7 +4,7 @@ import { FretboardBase, fretGeometry } from "./Fretboard";
 import usePhone from "@/components/usePhone";
 import { VerticalBoard, vGeometry } from "./VerticalFretboard";
 import { DOT_INK, degreeColour } from "@/features/theory/scales";
-import { noteLabel, type LabelSystem } from "@/features/theory/labels";
+import { againstMajor, fmtDegree, noteLabel, type LabelSystem } from "@/features/theory/labels";
 import { SCALE_NECK_FRETS, type ScaleCell, type ScalePosition } from "@/lib/chordKit/scalePositions";
 
 const ACTIVE = "#38bdf8";
@@ -17,7 +17,7 @@ function Dot({ c, x, y, r, ring, label, active, dim, onNote }: { c: ScaleCell; x
   const fs = (ring ? 0.85 : 0.9) * r * (label.length > 2 ? 0.68 : 0.88);
   return (
     <g opacity={dim ? 0.18 : 1} onClick={() => onNote(c)} className="cursor-sound">
-      <title>{`${c.name} · degree ${c.degreeText}`}</title>
+      <title>{`${c.name} · degree ${fmtDegree(againstMajor(c.degreeText, c.semi))}`}</title>
       {ring ? (
         <circle cx={x} cy={y} r={r * 0.68} fill="var(--color-slate-950)" stroke={active ? ACTIVE : col} strokeWidth={active ? 3 : 1.6} />
       ) : (

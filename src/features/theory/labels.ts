@@ -60,13 +60,13 @@ export function noteLabel(system: LabelSystem, c: LabelInput): string {
   switch (system) {
     case "note": return c.name;
     case "interval": return intervalName(c.semi);
-    case "degree": return fmtDegree(c.degreeText);
+    case "degree": return fmtDegree(againstMajor(c.degreeText, c.semi));
     case "solfege": return solfege(againstMajor(c.degreeText, c.semi));
   }
 }
 
 /** Rewrite a degree counted in the current mode ("3" for G in E minor) against the major scale ("♭3"), using its distance from the root. */
-function againstMajor(degree: string, semi: number): string {
+export function againstMajor(degree: string, semi: number): string {
   const i = indexOfDegree(degree);
   if (i === null) return degree;
   const diff = ((((semi - MAJOR[i]) % 12) + 18) % 12) - 6;

@@ -20,6 +20,7 @@ test("noteLabel", () => {
   // degree text counted against a minor mode ("3" = G in E minor) is still named against the major scale
   assert.deepEqual([{ semi: 3, degreeText: "3" }, { semi: 8, degreeText: "6" }, { semi: 10, degreeText: "7" }, { semi: 7, degreeText: "5" }, { semi: 1, degreeText: "2" }, { semi: 0, degreeText: "R" }]
     .map((c) => noteLabel("solfege", { name: "", ...c })), ["Me", "Le", "Te", "Sol", "Ra", "Do"]);
+  assert.deepEqual([{ semi: 3, degreeText: "3" }, { semi: 6, degreeText: "4" }, { semi: 7, degreeText: "5" }].map((c) => noteLabel("degree", { name: "", ...c })), ["b3", "#4", "5"]);
 });
 test("solfège", () => {
   assert.deepEqual(["R", "1", "2", "♭3", "3", "4", "♯4", "5", "♭6", "6", "♭7", "7"].map(solfege), ["Do", "Do", "Re", "Me", "Mi", "Fa", "Fi", "Sol", "Le", "La", "Te", "Ti"]);

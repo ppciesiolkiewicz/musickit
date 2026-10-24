@@ -4,7 +4,7 @@ import { Badge } from "./Fretboard";
 import { VerticalBoard, vGeometry } from "./VerticalFretboard";
 import type { CagedBox, CagedCell } from "@/lib/chordKit/caged";
 import { DOT_INK, degreeColour } from "@/features/theory/scales";
-import { fmtDegree, noteLabel, type LabelSystem } from "@/features/theory/labels";
+import { againstMajor, fmtDegree, noteLabel, type LabelSystem } from "@/features/theory/labels";
 
 export interface Layers {
   chord: boolean;
@@ -51,7 +51,7 @@ export default function BoxNeck({ cells, box, layers, labelSystem, badges = true
           );
         })}
         {showBadge && placed.map(({ c, t }) => (
-          <Badge key={`b${c.string}-${c.fret}`} x={g.sx(c.string)} y={g.fy(c.fret)} r={RADIUS[t]} text={fmtDegree(c.degreeText)} colour={c.scaleDegree === null ? OUT : degreeColour(c.scaleDegree)} />
+          <Badge key={`b${c.string}-${c.fret}`} x={g.sx(c.string)} y={g.fy(c.fret)} r={RADIUS[t]} text={fmtDegree(againstMajor(c.degreeText, c.semi))} colour={c.scaleDegree === null ? OUT : degreeColour(c.scaleDegree)} />
         ))}
       </svg>
       <ul className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500" aria-label="Key to the dots">
