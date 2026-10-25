@@ -10,7 +10,7 @@ import { getAudioContext, getSharedPiano, midiToName, onSilence, playSequence, s
 import type { PocketStatus } from "@/features/instruments";
 import { RANGE_MAX, RANGE_MIN, VOICES, buildLadder, clefFor, hzToMidi, sanitiseRange, scaleRun, setRangeEnd, voiceOf, type Range, type Voice } from "@/features/theory/singing";
 import type { MelodyLength } from "@/features/theory/singingMelody";
-import { BOOK, LEVELS, placeTune, type BookTune, type PlacedNote } from "@/features/theory/singingMelodies";
+import { BOOK, LEVELS, levelOf, placeTune, type BookTune, type PlacedNote } from "@/features/theory/singingMelodies";
 import SingingStaff from "./SingingStaff";
 import MelodyFeed from "./MelodyFeed";
 import { panel } from "@/components/practice/shared";
@@ -35,7 +35,7 @@ const RANGE_NOTES = Array.from({ length: RANGE_MAX - RANGE_MIN + 1 }, (_, i) => 
  * the settings bar (with the drone and the metronome from the scales pages). Tap a note to hear it, or play the scale up
  * and down on the metronome's tempo, then switch the mic on and a dot follows your voice over the notes. The Melodies
  * tab does the same with the melody book: written tunes in the key that end on a whole-note Do, easiest first in one
- * long list, filtered by length, with a jump to any stage; the last tune played or tapped is the one the dot sings.
+ * list per level, filtered by length; on the tune picked (or last played or tapped) a bar runs in time with the metronome and the dot sings along it.
  */
 export default function SingingApp() {
   const [tonicPc, setTonicPc] = useState(DEFAULT_KEY_PC);
@@ -59,9 +59,9 @@ export default function SingingApp() {
   const [rest, setRest] = useState(2);
   const [tab, setTab] = useState<Tab>("scales");
   const [length, setLength] = useState<MelodyLength | "all">("all");
-  // the tune being sung, by number, and a stage to scroll the list to
+  // the tune being sung, by number, and the level whose tunes are listed ("all" for the whole book)
   const [active, setActive] = useState(1);
-  const [jump, setJump] = useState<{ stage: string; at: number } | null>(null);
+  const [level, setLevel] = useState<number | "all">(0);
   const [mic, setMic] = useState(false);
   const [pocket, setPocket] = useState<PocketStatus | null>(null);
   const voice = voiceOf(range);
@@ -74,7 +74,14 @@ export default function SingingApp() {
   );
   const placed = useMemo(() => new Map(BOOK.map((t) => [t.n, placeTune(t.notes, tuneLadder, range)])), [tuneLadder, range]);
   const place = useCallback((t: BookTune) => placed.get(t.n)!, [placed]);
-  const tunes = useMemo(() => BOOK.filter((t) => length === "all" || t.length === length), [length]);
+  const tunes = useMemo(() => BOOK.filter((t) => (length === "all" || t.length === length) && (level === "all" || levelOf(t.stage) === level)), [length, level]);
+  // a level or length that hides the tune being sung picks the first one shown
+  const filter = (lv: number | "all", len: MelodyLength | "all") => {
+    setLevel(lv);
+    setLength(len);
+    const shown = BOOK.filter((t) => (len === "all" || t.length === len) && (lv === "all" || levelOf(t.stage) === lv));
+    if (shown.length && !shown.some((t) => t.n === active)) setActive(shown[0].n);
+  };
 
   const pitch = useRef<number | null>(null);
   const smoother = useRef(createSmoother());
@@ -118,6 +125,11 @@ export default function SingingApp() {
     const nextBeat = pocket?.nextBeat() ?? null;
     return nextBeat === null ? 60 : Math.max(0, (nextBeat - getAudioContext().currentTime) * 1000);
   };
+  // the metronome's next beat on the page's clock, for the melody's bar; null while nothing clicks
+  const nextBeatAt = useCallback(() => {
+    const at = pocket?.nextBeat() ?? null;
+    return at === null ? null : performance.now() + (at - getAudioContext().currentTime) * 1000;
+  }, [pocket]);
 
   // a tune plays from its card and becomes the one sung; its own button again stops it
   const playTune = async (t: BookTune) => {
@@ -176,7 +188,7 @@ export default function SingingApp() {
     : status === "denied" ? "Microphone blocked. Allow it in the browser's site settings and try again."
     : status === "insecure" ? "The browser only allows the microphone on a secure (https) page."
     : status === "error" ? "No microphone found."
-    : tab === "melodies" ? (status === "on" ? `Listening on melody #${active}. Sing it on the beat (or along with it): the dot moves with the beat from your first note, green on the note due, red on another.` : "Easiest first: scroll down for harder ones. Play a melody or tap its notes, then switch the mic on and sing it back; the dot follows the last melody you played or tapped.")
+    : tab === "melodies" ? (status === "on" ? `Listening on melody #${active}. Sing each note as the bar reaches it: the bar loops in time with the metronome, and the dot turns green on the note under it, red on another.` : "Pick a melody to sing (play it or tap its notes to hear it); a bar runs over it in time with the metronome. Then switch the mic on and sing along the bar.")
     : status === "on" ? "Listening. Sing the scale up from the root: the dot turns green on a note of the scale, red on a note outside it."
     : "Tap a note to hear it, or play the scale up and down on the metronome's tempo. Then switch the mic on and sing.";
 
@@ -218,11 +230,12 @@ export default function SingingApp() {
               </BarRow>
             ) : (
               <>
-                <BarRow label="Length">
-                  {LENGTHS.map((l) => <Chip key={l.id} on={l.id === length} onClick={() => setLength(l.id)}>{l.label}</Chip>)}
+                <BarRow label="Level">
+                  {LEVELS.map((l, i) => <Chip key={l.from} on={level === i} onClick={() => filter(i, length)} title={l.hint}>{l.title}</Chip>)}
+                  <Chip on={level === "all"} onClick={() => filter("all", length)}>All</Chip>
                 </BarRow>
-                <BarRow label="Start at">
-                  {LEVELS.map((l) => <Chip key={l.from} onClick={() => setJump({ stage: l.from, at: Date.now() })} title={l.hint}>{l.title}</Chip>)}
+                <BarRow label="Length">
+                  {LENGTHS.map((l) => <Chip key={l.id} on={l.id === length} onClick={() => filter(level, l.id)}>{l.label}</Chip>)}
                 </BarRow>
               </>
             )}
@@ -255,7 +268,8 @@ export default function SingingApp() {
               playing={playing}
               playFrom={playFrom}
               tapped={tapped}
-              jump={jump}
+              nextBeat={nextBeatAt}
+              onPick={(t) => setActive(t.n)}
               onPlay={(t) => void playTune(t)}
               onNote={(t, i) => void tapTune(t, i)}
             />

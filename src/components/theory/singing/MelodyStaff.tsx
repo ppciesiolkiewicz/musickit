@@ -11,10 +11,11 @@ import type { PlacedNote } from "@/features/theory/singingMelodies";
 /**
  * A melody on one staff in 4/4, written out with its rhythm (eighths, quarters, halves, dotted notes, the whole-note
  * Do), spaced by time, and a dot for the voice. The dot rides up and down with the pitch (placed against the scale's
- * ladder, so it sits on a notehead when in tune) and along with the beat: from `playFrom` (when the melody's first beat
- * sounds, `performance.now()` time) while it plays, or from the moment you start singing when it doesn't, at `beatMs`
- * a beat. It is green on the note due now, red on another note, amber between notes. The note due now is lit in sky.
- * Every note is a button (`onNote`); `tapped` is one just tapped. A long melody on a phone slides with the beat.
+ * ladder, so it sits on a notehead when in tune) and along with a bar that always runs, looping the melody at `beatMs`
+ * a beat like a metronome: on the metronome's beat while it clicks (`nextBeat`, `performance.now()` time), from
+ * `playFrom` (when the melody's first beat sounds) when it is played, else on its own. It is green on the note under
+ * the bar, red on another note, amber between notes, and the note under the bar is lit in sky.
+ * Every note is a button (`onNote`); `tapped` is one just tapped. A long melody on a phone slides with the bar.
  * Only a `live` staff (the one being sung) runs the dot; the others are drawn still, scrolling sideways when too long.
  */
 
@@ -45,7 +46,7 @@ const STILL: View = { dot: null, cam: 0, tail: [], lastHeard: -Infinity, now: 0,
 /** The note sounding at a beat, or -1 before the first. */
 const noteAt = (notes: StaffNote[], beat: number) => notes.findLastIndex((n) => n.at <= beat);
 
-export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom, beatMs, tapped, onNote }: {
+export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom, beatMs, nextBeat, tapped, onNote }: {
   notes: StaffNote[];
   live: boolean;
   /** the scale in the singer's range, low to high: the dot's height is read off it */
@@ -54,6 +55,8 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
   pitch: RefObject<number | null>;
   playFrom: number | null;
   beatMs: number;
+  /** when the metronome's next beat sounds (`performance.now()` time), or null when it isn't clicking */
+  nextBeat: () => number | null;
   tapped: number | null;
   onNote: (i: number) => void;
 }) {
@@ -91,12 +94,14 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
   const W = scrolls ? x0 + span + 12 : width;
 
   const anim = useRef<View>({ ...STILL });
-  // the clock the dot moves on: the playback's, or one started by the voice
-  const clock = useRef<number | null>(null);
-  const playRef = useRef(playFrom);
+  // when the bar was last at the melody's start: set by a playback, kept on the metronome's beat
+  const anchor = useRef(0);
+  const beatAt = useRef(nextBeat);
   useEffect(() => {
-    playRef.current = playFrom;
-    clock.current = playFrom;
+    beatAt.current = nextBeat;
+  }, [nextBeat]);
+  useEffect(() => {
+    if (playFrom !== null) anchor.current = playFrom;
   }, [playFrom]);
   const [view, setView] = useState<View>(STILL);
   // a still staff draws no voice, whatever the last live frame was
@@ -113,14 +118,15 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
       a.now = now;
       const m = pitch.current;
       const fresh = m !== null && now - a.lastHeard > SILENCE_MS;
-      // a voice starting after silence starts the melody's clock when nothing plays and the last run is over
-      if (fresh && playRef.current === null && clock.current === null) clock.current = now;
-      const beat = clock.current === null ? null : (now - clock.current) / beatMs;
-      if (beat !== null && beat > total + 0.5) {
-        clock.current = null;
-        a.beat = null;
-      } else a.beat = beat;
-      const x = a.beat === null ? total : Math.max(0, Math.min(total, a.beat));
+      // the bar keeps its count but moves onto the metronome's beat while it clicks
+      const next = beatAt.current();
+      if (next !== null) anchor.current = next - beatMs * Math.round((next - anchor.current) / beatMs);
+      const run = (now - anchor.current) / beatMs;
+      const beat = ((run % total) + total) % total;
+      // a new pass starts the tail afresh
+      if (a.beat !== null && beat < a.beat) a.tail = [];
+      a.beat = beat;
+      const x = beat;
       if (m !== null) {
         const at = locate(rungs, rungSteps, m);
         a.dot = fresh || !a.dot ? { x, step: at.step, t: now } : { x, step: a.dot.step + (at.step - a.dot.step) * 0.35, t: now };
@@ -147,12 +153,13 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [live, notes, ladder, clef, beatW, maxCam, room, beatMs]);
 
-  // a new melody starts at the left, with no clock
+  // a new melody starts at the left, its bar from the top
   useEffect(() => {
     anim.current.cam = 0;
     anim.current.dot = null;
     anim.current.tail = [];
-    if (playRef.current === null) clock.current = null;
+    anim.current.beat = null;
+    anchor.current = performance.now();
   }, [notes, clef]);
 
   const now = a.now;
@@ -195,6 +202,12 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
               <line x1={bx(total) - PAD + 2} x2={bx(total) - PAD + 2} y1={yOf(8)} y2={yOf(0)} />
               <line x1={bx(total) - PAD + 6} x2={bx(total) - PAD + 6} y1={yOf(8)} y2={yOf(0)} strokeWidth={3} />
             </g>
+            {a.beat !== null && (
+              <g pointerEvents="none">
+                <rect x={bx(0) - PAD} y={yOf(8) - 8} width={Math.max(0, bx(a.beat) - bx(0) + PAD)} height={yOf(0) - yOf(8) + 16} fill={PLAYED} fillOpacity={0.07} />
+                <line x1={bx(a.beat)} x2={bx(a.beat)} y1={yOf(8) - 8} y2={yOf(0) + 8} stroke={PLAYED} strokeOpacity={0.6} strokeWidth={2} />
+              </g>
+            )}
             {notes.map((n, i) => {
               const x = bx(n.at);
               if (x < x0 - 40 || x > W + 40) return null;

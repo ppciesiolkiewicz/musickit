@@ -117,6 +117,12 @@ export const LEVELS: Level[] = [
   { title: "Leaps", hint: "4ths, 5ths, 6ths and the octave", from: "fourths" },
 ];
 
+/** The level a stage belongs to: the last one starting at or before it (an index into LEVELS). */
+export const levelOf = (stage: Stage): number => {
+  const at = STAGES.indexOf(stage);
+  return LEVELS.findLastIndex((l) => STAGES.findIndex((s) => s.id === l.from) <= at);
+};
+
 const LENGTHS: Record<string, number> = { "": 1, e: 0.5, "q.": 1.5, h: 2, "h.": 3, w: 4 };
 
 /** One tune's notes, as scale steps from Do (0) and lengths in beats. Throws on a token it can't read. */
