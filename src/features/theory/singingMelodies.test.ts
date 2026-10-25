@@ -28,9 +28,13 @@ describe("the melody book", () => {
     });
 
   it("each stage stays with the notes it has reached", () => {
-    const reach: Record<string, number[]> = { "do-re": [0, 1], mi: [0, 1, 2], fa: [0, 1, 2, 3], sol: [0, 1, 2, 3, 4], skips: [0, 1, 2, 3, 4] };
+    const reach: Record<string, number[]> = { "do-re": [0, 1], mi: [0, 1, 2], fa: [0, 1, 2, 3], sol: [0, 1, 2, 3, 4], skips: [0, 1, 2, 3, 4], thirds: [0, 1, 2, 3, 4] };
     for (const s of STAGES.filter((s) => reach[s.id]))
       for (const n of BOOK.filter((t) => t.stage === s).flatMap((t) => t.notes)) assert.ok(reach[s.id].includes(n.step), `${s.id} uses step ${n.step}`);
+  });
+
+  it("past Do and Re, every tune uses at least three notes", () => {
+    for (const t of BOOK.filter((t) => t.stage !== STAGES[0])) assert.ok(new Set(t.notes.map((n) => n.step)).size >= 3, `#${t.n}`);
   });
 
   it("steps first, the widest leaps last", () => {
