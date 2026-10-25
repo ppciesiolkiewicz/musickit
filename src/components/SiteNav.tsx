@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AudioDevicesButton from "./AudioDevicesButton";
 import ThemeSwitcher from "./ThemeSwitcher";
 import TheoryMenu from "./TheoryMenu";
 import Wordmark from "./Wordmark";
@@ -21,8 +22,8 @@ function NavLink({ href, label, current, small }: { href: string; label: string;
   );
 }
 
-/** The Music Kit top navigation. Shared by every page; knows nothing about any feature. */
-export default function SiteNav({ active }: { active: string }) {
+/** The Music Kit top navigation. Shared by every page; knows nothing about any feature. `devices` adds the audio devices button before the style. */
+export default function SiteNav({ active, devices = false }: { active: string; devices?: boolean }) {
   const [home, ...rest] = SITE_LINKS;
   return (
     <nav aria-label="Music Kit" className="flex flex-wrap items-center gap-1">
@@ -34,7 +35,8 @@ export default function SiteNav({ active }: { active: string }) {
       {rest.map((l) => (
         <NavLink key={l.href} {...l} current={isActive(active, l.href)} />
       ))}
-      <ThemeSwitcher className="ml-auto" />
+      {devices && <AudioDevicesButton className="ml-auto mr-1" />}
+      <ThemeSwitcher className={devices ? "" : "ml-auto"} compact={devices} />
     </nav>
   );
 }

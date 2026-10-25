@@ -62,7 +62,7 @@ const toggleFullscreen = () => (document.fullscreenElement ? document.exitFullsc
  * On a first visit the picker opens by itself with the current pick (Funk) pulsing; closing it without choosing settles on
  * Default. Shared by every page; knows nothing about any feature.
  */
-export default function ThemeSwitcher({ className = "" }: { className?: string }) {
+export default function ThemeSwitcher({ className = "", compact = false }: { className?: string; /** only the palette on phones, to leave room for a button beside it */ compact?: boolean }) {
   const style = useSyncExternalStore(subscribe, readStyle, () => DEFAULT_STYLE);
   const fullscreen = useSyncExternalStore(subscribeFullscreen, readFullscreen, () => false);
   const fullscreenable = useSyncExternalStore(subscribeFullscreen, canFullscreen, () => false);
@@ -106,10 +106,10 @@ export default function ThemeSwitcher({ className = "" }: { className?: string }
         aria-expanded={open}
         aria-label={`Style: ${current.label}`}
         title="Pick a style"
-        className="flex h-8 items-center gap-1.5 rounded-full border border-sky-500/45 bg-slate-900/70 pl-2.5 pr-3 text-slate-100 backdrop-blur transition hover:border-sky-400"
+        className={`flex h-8 items-center gap-1.5 rounded-full border border-sky-500/45 bg-slate-900/70 pl-2.5 ${compact ? "pr-2.5 sm:pr-3" : "pr-3"} text-slate-100 backdrop-blur transition hover:border-sky-400`}
       >
         <Icon name="palette" size={15} className="text-sky-400" />
-        <span className="whitespace-nowrap text-[15px] leading-none" style={{ fontFamily: labelFont(style) }}>{current.label}</span>
+        <span className={`whitespace-nowrap text-[15px] leading-none ${compact ? "hidden sm:inline" : ""}`} style={{ fontFamily: labelFont(style) }}>{current.label}</span>
       </button>
       {open && (
         // deliberately neutral: the same plain card whatever style is on

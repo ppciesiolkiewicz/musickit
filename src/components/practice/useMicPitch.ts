@@ -1,15 +1,16 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { detectPitch, hzToNote, type Pitch } from "@/features/tuner/pitch";
 import { stablePitch } from "@/lib/practice/noteGame";
 import { acquireStream } from "@/lib/practice/mic";
+import { readDeviceChoice, serverDeviceChoice, subscribeDeviceChoice } from "@/features/sound";
 
 export type MicStatus = "off" | "asking" | "on" | "denied" | "error" | "insecure";
 export interface MicReading { midi: number; t: number }
 
 /**
- * Listen to the microphone while `enabled` and keep the last ~400 ms of detected notes.
+ * Listen to the microphone (the input chosen in the nav's devices menu, reopened when it changes) while `enabled` and keep the last ~400 ms of detected notes.
  * `onFrame` is called every frame with the pitch class held for 150 ms, or null when nothing steady is heard.
  * `onPitch` gets every raw reading (null when nothing is pitched), for a display that follows the voice continuously.
  * Everything is released (tracks stopped, context closed) when disabled or unmounted.
@@ -20,6 +21,7 @@ export function useMicPitch(enabled: boolean, onFrame?: (pc: number | null) => v
   const buf = useRef<MicReading[]>([]);
   const cb = useRef(onFrame);
   const raw = useRef(onPitch);
+  const inputId = useSyncExternalStore(subscribeDeviceChoice, readDeviceChoice, serverDeviceChoice).input?.id;
   useEffect(() => {
     cb.current = onFrame;
     raw.current = onPitch;
@@ -39,7 +41,7 @@ export function useMicPitch(enabled: boolean, onFrame?: (pc: number | null) => v
         return;
       }
       try {
-        stream = await acquireStream(() => navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } }), () => stopped);
+        stream = await acquireStream(() => navigator.mediaDevices.getUserMedia({ audio: { deviceId: inputId ? { ideal: inputId } : undefined, echoCancellation: false, noiseSuppression: false, autoGainControl: false } }), () => stopped);
         if (!stream) return;
         ctx = new AudioContext();
         const src = ctx.createMediaStreamSource(stream);
@@ -76,7 +78,7 @@ export function useMicPitch(enabled: boolean, onFrame?: (pc: number | null) => v
       setHeard(null);
       setStatus("off");
     };
-  }, [enabled]);
+  }, [enabled, inputId]);
 
   return { status, heard };
 }

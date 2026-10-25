@@ -1,3 +1,5 @@
+import { canChooseOutput, findDevice, listAudioDevices, readDeviceChoice, subscribeDeviceChoice } from "./devices";
+
 let audioContext: AudioContext | null = null;
 
 /** The one AudioContext of the whole app. */
@@ -5,6 +7,7 @@ export function getAudioContext(): AudioContext {
   if (!audioContext) {
     audioContext = new AudioContext();
     watchOutput(audioContext);
+    followChosenOutput(audioContext);
   }
   return audioContext;
 }
@@ -19,7 +22,26 @@ export function wakeAudio(): Promise<void> {
   return ctx.resume().catch(() => undefined);
 }
 
-type SinkContext = AudioContext & { sinkId?: string | object };
+type SinkContext = AudioContext & { sinkId?: string | object; setSinkId?: (id: string) => Promise<void> };
+
+/**
+ * Play through the output chosen in the nav's devices menu, now and whenever it changes. Nothing is touched until one was chosen,
+ * so the looper's own output picker keeps working on the same context. A remembered device that is not plugged in leaves the default.
+ */
+function followChosenOutput(ctx: SinkContext) {
+  if (typeof window === "undefined" || !canChooseOutput()) return;
+  let applied: string | undefined;
+  const apply = async () => {
+    const wanted = readDeviceChoice().output;
+    if (!wanted && applied === undefined) return;
+    const id = wanted ? (findDevice((await listAudioDevices()).outputs, wanted)?.id ?? "") : "";
+    if (id === applied || ctx.state === "closed") return;
+    applied = id;
+    await ctx.setSinkId?.(id).catch(() => undefined);
+  };
+  void apply();
+  subscribeDeviceChoice(() => void apply());
+}
 
 /**
  * Follow output changes. When a speaker connects, some browsers keep the context playing into the old device (or

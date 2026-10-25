@@ -8,6 +8,7 @@
  *              (the computer keys locked to a key and scale). Both play the sampled instruments by default.
  */
 export { getAudioContext, getOutputBus, wakeAudio } from "./engine/context";
+export { canChooseOutput, cleanDeviceName, findDevice, listAudioDevices, readDeviceChoice, revealDevices, serverDeviceChoice, setDeviceChoice, subscribeDeviceChoice, type AudioDevice, type DeviceChoice } from "./engine/devices";
 export { INSTRUMENTS, INSTRUMENT_OPTIONS, OSCILLATOR_ID } from "./engine/instruments";
 export { allInstrumentOptions } from "./engine/instruments";
 export { useInstrumentOptions } from "./engine/useInstrumentOptions";
