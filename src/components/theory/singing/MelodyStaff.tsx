@@ -12,9 +12,10 @@ import type { PlacedNote } from "@/features/theory/singingMelodies";
  * A melody on one staff in 4/4, written out with its rhythm (eighths, quarters, halves, dotted notes, the whole-note
  * Do), spaced by time, and a dot for the voice. The dot rides up and down with the pitch (placed against the scale's
  * ladder, so it sits on a notehead when in tune) and along with a bar that always runs, looping the melody at `beatMs`
- * a beat like a metronome: on the metronome's beat while it clicks (`nextBeat`, `performance.now()` time), from
- * `playFrom` (when the melody's first beat sounds) when it is played, else on its own. It is green on the note under
- * the bar, red on another note, amber between notes, and the note under the bar is lit in sky.
+ * a beat on the metronome's count while it runs (`gridBeats`: the tune's beat 1 on the click's), from `playFrom` (when
+ * the melody's first beat sounds) when it is played without one, else on its own. The dot trails the bar by `DOT_LAG_MS`, so
+ * a note is heard before it is sung against: green on the note under it, red on another note, amber between notes, and the
+ * note under the bar is lit in sky.
  * Every note is a button (`onNote`); `tapped` is one just tapped. A long melody on a phone slides with the bar.
  * Only a `live` staff (the one being sung) runs the dot; the others are drawn still, scrolling sideways when too long.
  */
@@ -29,6 +30,8 @@ const STEM = 34;
 const LABELS_H = 36;
 const TAIL_MS = 380;
 const SILENCE_MS = 220;
+/** the voice dot runs this far behind the bar, so a note is heard before it is sung against */
+const DOT_LAG_MS = 250;
 
 const ink = {
   line: "var(--color-slate-500)",
@@ -46,7 +49,7 @@ const STILL: View = { dot: null, cam: 0, tail: [], lastHeard: -Infinity, now: 0,
 /** The note sounding at a beat, or -1 before the first. */
 const noteAt = (notes: StaffNote[], beat: number) => notes.findLastIndex((n) => n.at <= beat);
 
-export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom, beatMs, nextBeat, tapped, onNote }: {
+export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom, beatMs, gridBeats, tapped, onNote }: {
   notes: StaffNote[];
   live: boolean;
   /** the scale in the singer's range, low to high: the dot's height is read off it */
@@ -55,8 +58,8 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
   pitch: RefObject<number | null>;
   playFrom: number | null;
   beatMs: number;
-  /** when the metronome's next beat sounds (`performance.now()` time), or null when it isn't clicking */
-  nextBeat: () => number | null;
+  /** beats since the metronome's beat 1, or null when it isn't running */
+  gridBeats: () => number | null;
   tapped: number | null;
   onNote: (i: number) => void;
 }) {
@@ -96,10 +99,10 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
   const anim = useRef<View>({ ...STILL });
   // when the bar was last at the melody's start: set by a playback, kept on the metronome's beat
   const anchor = useRef(0);
-  const beatAt = useRef(nextBeat);
+  const beatAt = useRef(gridBeats);
   useEffect(() => {
-    beatAt.current = nextBeat;
-  }, [nextBeat]);
+    beatAt.current = gridBeats;
+  }, [gridBeats]);
   useEffect(() => {
     if (playFrom !== null) anchor.current = playFrom;
   }, [playFrom]);
@@ -118,15 +121,15 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
       a.now = now;
       const m = pitch.current;
       const fresh = m !== null && now - a.lastHeard > SILENCE_MS;
-      // the bar keeps its count but moves onto the metronome's beat while it clicks
-      const next = beatAt.current();
-      if (next !== null) anchor.current = next - beatMs * Math.round((next - anchor.current) / beatMs);
+      // the bar rides the metronome's count while it runs (beat 1 of the tune on its beat 1), and goes on from there when it stops
+      const grid = beatAt.current();
+      if (grid !== null) anchor.current = now - grid * beatMs;
       const run = (now - anchor.current) / beatMs;
       const beat = ((run % total) + total) % total;
-      // a new pass starts the tail afresh
-      if (a.beat !== null && beat < a.beat) a.tail = [];
       a.beat = beat;
-      const x = beat;
+      const x = (((run - DOT_LAG_MS / beatMs) % total) + total) % total;
+      // a new pass starts the tail afresh
+      if (a.dot && x < a.dot.x - total / 2) a.tail = [];
       if (m !== null) {
         const at = locate(rungs, rungSteps, m);
         a.dot = fresh || !a.dot ? { x, step: at.step, t: now } : { x, step: a.dot.step + (at.step - a.dot.step) * 0.35, t: now };

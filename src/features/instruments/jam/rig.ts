@@ -411,6 +411,24 @@ export class JamRig {
     return nextBeat(this.ctx.currentTime + 0.02, this.anchor, this.beat);
   }
 
+  /** Beats since the grid's beat 1 (fractional; below 0 before it sounds) while anything keeps the grid, else null: for a host's bar to ride the click. */
+  gridBeats(): number | null {
+    if (!this.ctx || this.anchor === null || !this.busy()) return null;
+    return (this.ctx.currentTime - this.anchor) / this.beat;
+  }
+
+  /** Start the grid over on beat 1 `lead` seconds from now, the playing parts and the click with it; returns when beat 1 sounds (AudioContext time). */
+  restart(lead = 0.1): number | null {
+    const ctx = this.ctx;
+    if (!ctx) return null;
+    const a = ctx.currentTime + lead;
+    this.anchor = a;
+    JAM_PARTS.filter(this.sounding).forEach((p) => this.seqs[p].start(a, a));
+    if (this.clickTrack?.playing && !this.clickTrack.ending) this.clickTrack.start(this.clickParams, a, a);
+    this.changed();
+    return a;
+  }
+
   /** The beat of the bar sounding now (0 = beat 1) while anything keeps the grid, else null. */
   beatNow(): number | null {
     if (!this.ctx || this.anchor === null || !this.busy()) return null;

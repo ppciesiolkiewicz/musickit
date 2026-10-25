@@ -36,7 +36,8 @@ const RANGE_NOTES = Array.from({ length: RANGE_MAX - RANGE_MIN + 1 }, (_, i) => 
  * the settings bar (with the drone and the metronome from the scales pages). Tap a note to hear it, or play the scale up
  * and down on the metronome's tempo, then switch the mic on and a dot follows your voice over the notes. The Melodies
  * tab does the same with the melody book: written tunes in the key that end on a whole-note Do, easiest first in one
- * list per level, filtered by length; on the tune picked (or last played or tapped) a bar runs in time with the metronome and the dot sings along it.
+ * list per level, filtered by length; on the tune picked (or last played or tapped) a bar runs on the metronome's count and the dot sings along it, a
+ * moment behind. The metronome runs muted from the first press on the page; playing a tune starts it over on the tune's beat 1.
  */
 export default function SingingApp() {
   const [tonicPc, setTonicPc] = useState(DEFAULT_KEY_PC);
@@ -130,19 +131,21 @@ export default function SingingApp() {
     const nextBeat = pocket?.nextBeat() ?? null;
     return nextBeat === null ? 60 : Math.max(0, (nextBeat - getAudioContext().currentTime) * 1000);
   };
-  // the metronome's next beat on the page's clock, for the melody's bar; null while nothing clicks
-  const nextBeatAt = useCallback(() => {
-    const at = pocket?.nextBeat() ?? null;
-    return at === null ? null : performance.now() + (at - getAudioContext().currentTime) * 1000;
-  }, [pocket]);
+  // beats since the metronome's beat 1, for the melody's bar; null while it isn't running
+  const gridBeats = useCallback(() => pocket?.gridBeats() ?? null, [pocket]);
 
   // a tune plays from its card and becomes the one sung; its own button again stops it
   const playTune = async (t: BookTune) => {
     const was = playing;
     if (running) silence();
     if (was === t.n) return;
+    await startTune(t);
+  };
+  // the metronome starts over with the tune, so its beat 1 is the click's (muted unless it was heard)
+  const startTune = async (t: BookTune) => {
     await wakeAudio();
-    const lead = leadMs();
+    const at = pocket ? await pocket.restart() : null;
+    const lead = at === null ? 60 : Math.max(0, (at - getAudioContext().currentTime) * 1000);
     const notes: PlacedNote[] = place(t);
     playSequence(notes.map((n) => ({ note: n.midi, at: lead + n.at * beat, hold: n.beats * beat * 0.9 })));
     const end = notes[notes.length - 1].at + notes[notes.length - 1].beats;
@@ -152,6 +155,19 @@ export default function SingingApp() {
     setPlayFrom(performance.now() + lead);
     timers.current = [setTimeout(clear, lead + end * beat)];
   };
+
+  // a new tempo starts the metronome over, and the tune playing with it at the new speed
+  const bpm = pocket?.bpm;
+  const lastBpm = useRef(bpm);
+  useEffect(() => {
+    if (lastBpm.current === bpm) return;
+    lastBpm.current = bpm;
+    const t = BOOK.find((b) => b.n === playing);
+    if (!t) return;
+    silence();
+    void startTune(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only a tempo change replays
+  }, [bpm]);
 
   const tapTune = async (t: BookTune, i: number) => {
     await wakeAudio();
@@ -215,7 +231,7 @@ export default function SingingApp() {
       <WithSettings
         side={false}
         bar={
-          <ScaleSettingsBar tonicPc={tonicPc} onTonic={setTonicPc} scale={scale} onScale={setScale} labels={false} onStatus={setPocket}>
+          <ScaleSettingsBar clickAlways tonicPc={tonicPc} onTonic={setTonicPc} scale={scale} onScale={setScale} labels={false} onStatus={setPocket}>
             <BarRow label="Voice">
               {(Object.keys(VOICES) as Voice[]).map((v) => (
                 <Chip key={v} on={v === voice} onClick={() => pickRange(() => VOICES[v])} title={`${midiToName(VOICES[v].low)} to ${midiToName(VOICES[v].high)}`}>{VOICES[v].label}</Chip>
@@ -271,7 +287,7 @@ export default function SingingApp() {
               playing={playing}
               playFrom={playFrom}
               tapped={tapped}
-              nextBeat={nextBeatAt}
+              gridBeats={gridBeats}
               mic={mic}
               onPick={(t) => setActive(t.n)}
               onSing={(t) => {

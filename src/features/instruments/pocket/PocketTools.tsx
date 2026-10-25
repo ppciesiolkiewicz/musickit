@@ -117,6 +117,14 @@ function PlayButton({ on, label, onClick }: { on: boolean; label: string; onClic
   );
 }
 
+function MuteButton({ muted, label, onClick }: { muted: boolean; label: string; onClick: () => void }) {
+  return (
+    <button type="button" className={`${ibtn} ${muted ? "!border-amber-400/60 !text-amber-200" : ""}`} aria-pressed={muted} onClick={onClick} title={muted ? `Unmute the ${label} (it keeps time either way)` : `Mute the ${label} (it keeps time)`} aria-label={muted ? `Unmute the ${label}` : `Mute the ${label}`}>
+      <Icon name={muted ? "volume-x" : "volume-2"} size={14} />
+    </button>
+  );
+}
+
 /** One tool on one line: a small label, then its controls. */
 function Tool({ label, children }: { label: string; children: ReactNode }) {
   return (
@@ -162,11 +170,21 @@ function BeatDots({ rig, playing }: { rig: JamRig; playing: boolean }) {
  */
 /**
  * What the pocket tools are doing, for a host to show in its header: the tempo, the drone's note and which parts play;
- * `nextBeat` is when the grid's next beat sounds (AudioContext time), or null when nothing keeps it, for a host to play on the click.
+ * `nextBeat` is when the grid's next beat sounds (AudioContext time), or null when nothing keeps it, for a host to play on the click;
+ * `gridBeats` is the beats since the grid's beat 1 (null when nothing keeps it), for a host's bar to ride the click; `restart` starts
+ * the grid over on beat 1 shortly, the click with it (muted if it was not playing), and resolves to when beat 1 sounds (AudioContext time).
  */
-export type PocketStatus = { bpm: number; drone: string; playing: string[]; nextBeat: () => number | null };
+export type PocketStatus = { bpm: number; drone: string; playing: string[]; nextBeat: () => number | null; gridBeats: () => number | null; restart: () => Promise<number | null> };
 
-export default function PocketTools({ keyPc, className = "", stacked = false, onStatus }: { keyPc: number; className?: string; /** one line per tool at every width, for a narrow side column */ stacked?: boolean; onStatus?: (s: PocketStatus) => void }) {
+export default function PocketTools({ keyPc, className = "", stacked = false, clickAlways = false, onStatus }: {
+  keyPc: number;
+  className?: string;
+  /** one line per tool at every width, for a narrow side column */
+  stacked?: boolean;
+  /** the click starts, muted, on the first press anywhere on the page (audio can't start before one), for a host that keeps time by it */
+  clickAlways?: boolean;
+  onStatus?: (s: PocketStatus) => void;
+}) {
   const [rig] = useState(() => new JamRig());
   const snap = useSyncExternalStore(rig.subscribe, rig.snapshot, rig.snapshot);
   const [restored, setRestored] = useState(false);
@@ -220,6 +238,31 @@ export default function PocketTools({ keyPc, className = "", stacked = false, on
     if (snap.click.on) rig.setClick(false);
     else void play([], true);
   };
+  // the click running, muted; it keeps the grid for the host without being heard
+  const quietClick = async () => {
+    await ready();
+    if (rig.snapshot().click.on) return;
+    rig.setClickMuted(true);
+    rig.setClick(true);
+  };
+  const root = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!clickAlways) return;
+    // a press on the tools themselves is theirs (the click's own play would undo it)
+    const down = (e: Event) => {
+      if (root.current?.contains(e.target as Node)) return;
+      window.removeEventListener("pointerdown", down, true);
+      window.removeEventListener("keydown", down, true);
+      void quietClick();
+    };
+    window.addEventListener("pointerdown", down, true);
+    window.addEventListener("keydown", down, true);
+    return () => {
+      window.removeEventListener("pointerdown", down, true);
+      window.removeEventListener("keydown", down, true);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once per page, on the first press
+  }, [clickAlways, rig]);
   const toggleAll = () => {
     paused.current = null;
     if (anyOn) stopAll();
@@ -256,7 +299,12 @@ export default function PocketTools({ keyPc, className = "", stacked = false, on
   const droneLabel = droneName(snap.parts.drone.state.drone);
   const playingKey = [...(snap.click.on ? ["click"] : []), ...playingParts].join(",");
   useEffect(() => {
-    onStatus?.({ bpm: snap.bpm, drone: droneLabel, playing: playingKey ? playingKey.split(",") : [], nextBeat: () => rig.nextBeatAt() });
+    onStatus?.({ bpm: snap.bpm, drone: droneLabel, playing: playingKey ? playingKey.split(",") : [], nextBeat: () => rig.nextBeatAt(), gridBeats: () => rig.gridBeats(),
+      restart: async () => {
+        await quietClick();
+        return rig.restart();
+      } });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- quietClick only reads the rig
   }, [onStatus, rig, snap.bpm, droneLabel, playingKey]);
 
   const tap = () => {
@@ -294,7 +342,7 @@ export default function PocketTools({ keyPc, className = "", stacked = false, on
   };
 
   return (
-    <div className={`flex min-w-0 items-stretch gap-2 ${stacked ? "lg:flex-col" : ""} ${className}`}>
+    <div ref={root} className={`flex min-w-0 items-stretch gap-2 ${stacked ? "lg:flex-col" : ""} ${className}`}>
       <button type="button" onClick={toggleAll} aria-pressed={anyOn} title={`${anyOn ? "Stop" : "Start"} everything on the next beat (Space stops and brings back)`}
         className={`flex w-12 shrink-0 flex-col items-center justify-center gap-1 rounded-xl border ${stacked ? "lg:w-full lg:flex-row lg:gap-2 lg:py-1.5" : ""} text-[10px] font-medium uppercase tracking-wider transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${anyOn ? "border-emerald-400/70 bg-emerald-500/20 text-emerald-100" : "border-slate-700 bg-slate-900 text-slate-200 hover:border-slate-500"}`}>
         <Icon name={anyOn ? "square" : "play"} size={18} fill />
@@ -304,6 +352,7 @@ export default function PocketTools({ keyPc, className = "", stacked = false, on
       <div className={`grid min-w-0 flex-1 gap-x-4 gap-y-1.5 ${stacked ? "sm:grid-cols-2 lg:grid-cols-1" : "sm:grid-cols-2 xl:grid-cols-1"}`}>
         <Tool label="Click">
           <PlayButton on={snap.click.on} label="metronome" onClick={toggleClick} />
+          <MuteButton muted={snap.click.muted} label="metronome" onClick={() => rig.setClickMuted(!snap.click.muted)} />
           <button type="button" className={ibtn} disabled={snap.bpm <= MIN_BPM} onClick={() => rig.setTempo(snap.bpm - 1)} aria-label="Slower">−</button>
           <span className="flex w-14 shrink-0 items-baseline justify-center whitespace-nowrap text-xs text-slate-100"><NumberField value={snap.bpm} min={MIN_BPM} max={MAX_BPM} onCommit={(bpm) => rig.setTempo(bpm)} aria-label="Tempo in beats per minute" title="Type a tempo" className="w-8 py-0.5" /><span className="text-[10px] text-slate-500">bpm</span></span>
           <button type="button" className={ibtn} disabled={snap.bpm >= MAX_BPM} onClick={() => rig.setTempo(snap.bpm + 1)} aria-label="Faster">+</button>

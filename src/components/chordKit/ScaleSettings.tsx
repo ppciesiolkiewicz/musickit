@@ -59,7 +59,7 @@ const LABEL_INFO = "How notes are labelled: note names, intervals from the root 
  * `scale` is the current mode page's slug; leave it out on the index.
  */
 export function ScaleSettingsBar({
-  tonicPc, onTonic, scale, onScale, omitLabels, labels: showLabels = true, children, side = false, onStatus,
+  tonicPc, onTonic, scale, onScale, omitLabels, labels: showLabels = true, children, side = false, clickAlways, onStatus,
 }: {
   /** drawn as the right-hand column of `WithSettings` on wide screens */
   side?: boolean;
@@ -75,6 +75,8 @@ export function ScaleSettingsBar({
   children?: ReactNode;
   /** the pocket tools' status (tempo, its next beat) for the host as well; keep it stable (a state setter) */
   onStatus?: (s: PocketStatus) => void;
+  /** the pocket tools' click runs, muted, from the first press on the page (the singing page keeps its bar on it) */
+  clickAlways?: boolean;
 }) {
   const [open, setOpen] = useState(true);
   // true until the bar has folded itself once or been toggled by hand
@@ -154,7 +156,7 @@ export function ScaleSettingsBar({
           )}
         </div>
         {/* play-along tools: under the settings on narrow screens, on the right once there is room */}
-        <PocketTools keyPc={tonicPc} onStatus={onPocket} stacked={side} className={`border-t border-slate-800 pt-2 ${side ? "" : "xl:border-l xl:border-t-0 xl:pl-4 xl:pt-0"}`} />
+        <PocketTools keyPc={tonicPc} onStatus={onPocket} clickAlways={clickAlways} stacked={side} className={`border-t border-slate-800 pt-2 ${side ? "" : "xl:border-l xl:border-t-0 xl:pl-4 xl:pt-0"}`} />
       </div>
     </div>
   );
