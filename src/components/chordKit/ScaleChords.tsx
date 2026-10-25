@@ -8,17 +8,15 @@ import { chordMidi, modeChords, degreeColour, roleWithDegree, DOT_INK } from "@/
 import { strum } from "@/lib/chordKit/playback";
 import ChordShapeCarousel from "./ChordShapeCarousel";
 import ChordShapesModal from "./ChordShapesModal";
-import ChordProgressionModal from "./ChordProgressionModal";
 import { Chip, Info } from "@/components/ui";
 
 const STACK_LABELS = ["root", "3rd", "5th", "7th", "9th", "11th", "13th"];
 
-/** "Every chord in the key": each degree's triad and seventh, its notes, a shape to play it, and links to its progressions and shapes. */
+/** "Every chord in the key": each degree's triad and seventh, its notes, a shape to play it, and a link to every guitar shape for it. */
 export default function ScaleChords({ ctx, className = "" }: { ctx: KeyContext; className?: string }) {
   const [extended, setExtended] = useState(false);
   const [playing, setPlaying] = useState<number | null>(null);
   const [modalDegree, setModalDegree] = useState<number | null>(null);
-  const [progDegree, setProgDegree] = useState<number | null>(null);
   const chords = useMemo(() => modeChords(ctx), [ctx]);
   const colour = (n: { scaleDegree: number }) => degreeColour(n.scaleDegree);
   const [system] = useLabelSystem();
@@ -67,8 +65,7 @@ export default function ScaleChords({ ctx, className = "" }: { ctx: KeyContext; 
                     </span>
                   </button>
                   <span className="flex gap-3 px-3 text-xs">
-                    <button type="button" onClick={() => setProgDegree(c.degree)} className="text-sky-300 hover:underline">Progression →</button>
-                    <button type="button" onClick={() => setModalDegree(c.degree)} className="text-sky-300 hover:underline">All shapes →</button>
+                    <button type="button" onClick={() => setModalDegree(c.degree)} className="text-sky-300 hover:underline">More ways to play {c.seventhName} on guitar →</button>
                   </span>
                 </div>
                 <ChordShapeCarousel ctx={ctx} degree={c.degree} />
@@ -80,7 +77,6 @@ export default function ScaleChords({ ctx, className = "" }: { ctx: KeyContext; 
           Each chord stacks every other note of the scale ({STACK_LABELS.slice(0, extended ? 7 : 4).join(", ")}). Tap a row to hear it.
         </p>
       </section>
-      {progDegree !== null && <ChordProgressionModal ctx={ctx} degree={progDegree} onClose={() => setProgDegree(null)} />}
       {modalDegree !== null && <ChordShapesModal ctx={ctx} degree={modalDegree} onClose={() => setModalDegree(null)} />}
     </>
   );
