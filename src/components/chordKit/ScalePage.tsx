@@ -7,14 +7,14 @@ import Link from "next/link";
 import { ColourKey, ModeAlias, ScaleSettingsBar, UNDER_BAR, WithSettings } from "./ScaleSettings";
 import KeySignature from "@/components/theory/KeySignature";
 import { FAMILIES, makeKeyContext } from "@/features/theory/theory";
-import { MODE_PAGES, type NoteSwap, degreeColour, relativesOf, stepPattern, DOT_INK } from "@/features/theory/scales";
+import { MODE_PAGES, type NoteSwap, degreeColour, degreeLabels, relativesOf, stepPattern, DOT_INK } from "@/features/theory/scales";
 import ChordBubbles from "./ChordBubbles";
 import ScaleChords from "./ScaleChords";
 import ScaleProgressions from "./ScaleProgressions";
 import ScaleRelatives from "./ScaleRelatives";
 import ScaleOnGuitar from "./ScaleOnGuitar";
 import TuneButton from "./TuneButton";
-import WheelCompare from "./WheelCompare";
+import WheelCompare, { MAJOR_CHOICE, MINOR_CHOICE, OUT_RING, Peek, compareMark, modeGroups, pentatonicGroup, type CompareChoice } from "./WheelCompare";
 import { useNotePlayer } from "./useNotePlayer";
 import { scaleLineMidi } from "@/lib/chordKit/scalePositions";
 import { generateMelody, melodyTiming, scalePool } from "@/lib/chordKit/melody";
@@ -57,6 +57,8 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
   const pageFor = (f: number, m: number) => MODE_PAGES.find((p) => p.familyIndex === f && p.modeIndex === m)!;
 
   const [system] = useLabelSystem();
+  // the scale hovered under the wheel: the notes, step pattern and wheel all show it
+  const [cmp, setCmp] = useState<CompareChoice | null>(null);
   const pattern = stepPattern(ctx.steps);
 
   const player = useNotePlayer();
@@ -82,18 +84,22 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
         <p className="text-xs text-slate-400"><b className="text-slate-300">Where you hear it:</b> {info.use}</p>
 
         <div className="flex flex-wrap items-center gap-2" aria-label="Scale notes">
-          {ctx.names.map((n, i) => (
-            <button key={i} type="button" onClick={() => player.tap(`d${i}`, line[i])} title={`${n}: tap to hear it`} className="cursor-sound flex flex-col items-center gap-0.5 rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
-              <span className={`flex h-11 w-11 items-center justify-center rounded-full text-sm font-semibold transition ${player.active === `d${i}` ? "scale-110 ring-[3px] ring-sky-400" : ""}`} style={{ background: degreeColour(i), color: DOT_INK }}>{scaleToneLabel(system, ctx, i)}</span>
-              <span className="text-xs tabular-nums text-slate-500">{scaleToneCaption(system, ctx, i)}</span>
-            </button>
-          ))}
+          {ctx.names.map((n, i) => {
+            const mark = compareMark(ctx.steps, i, cmp);
+            return (
+              <button key={i} type="button" onClick={() => player.tap(`d${i}`, line[i])} title={`${n}: tap to hear it`} className="cursor-sound relative flex flex-col items-center gap-0.5 rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
+                <span className={`flex h-11 w-11 items-center justify-center rounded-full text-sm font-semibold transition ${player.active === `d${i}` ? "scale-110 ring-[3px] ring-sky-400" : ""} ${mark.out ? OUT_RING : ""}`} style={{ background: degreeColour(i), color: DOT_INK }}>{scaleToneLabel(system, ctx, i)}</span>
+                <span className="text-xs tabular-nums text-slate-500">{scaleToneCaption(system, ctx, i)}</span>
+                {mark.theirs && <span className="pointer-events-none absolute -top-3 left-1/2 z-20 -translate-x-1/2 whitespace-nowrap rounded-md border border-slate-700 bg-slate-900/95 px-1 text-[9px] leading-4 text-slate-300">vs {mark.theirs}</span>}
+              </button>
+            );
+          })}
           <button type="button" onClick={playScale} className="cursor-sound ml-2 rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25">▶ Play scale</button>
           <TuneButton onPlay={playTune} title="A short tune made from this scale, new every time" className="rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25" />
         </div>
         <KeySignature ctx={ctx} />
         <p className="text-xs text-slate-400">
-          Step pattern <span className="tabular-nums text-slate-300">{pattern.join(" – ")}</span>
+          Step pattern <Peek text={cmp && `${cmp.label}: ${cmp.pattern.join(" – ")}`}><span className="tabular-nums text-slate-300">{pattern.join(" – ")}</span></Peek>
           <Info label="What is the step pattern?">W is a whole step (two frets), H a half step (one fret). Every mode is the same set of steps starting from a different place, which is why the seven modes of one parent scale share their notes.</Info>
         </p>
         <ul className="space-y-1 text-xs text-slate-400">
@@ -120,11 +126,14 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
         </div>
         {/* the scale as a shape on the ring of twelve notes, another scale dashed behind it, the notes that differ ringed */}
         <WheelCompare
-          slug={slug}
           steps={ctx.steps}
+          degrees={degreeLabels(ctx.steps)}
+          pills={[MAJOR_CHOICE, MINOR_CHOICE].filter((c) => c.id !== slug)}
+          groups={[...modeGroups([slug, MAJOR_CHOICE.id, MINOR_CHOICE.id]), pentatonicGroup([])]}
           labels={ctx.steps.map((_, i) => scaleToneLabel(system, ctx, i))}
           active={player.active?.startsWith("d") ? Number(player.active.slice(1)) : null}
           onNote={(d) => player.tap(`d${d}`, line[d])}
+          onCompare={setCmp}
         />
       </div>
 

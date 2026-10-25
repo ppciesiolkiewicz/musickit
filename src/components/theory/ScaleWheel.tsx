@@ -7,7 +7,7 @@ import { DOT_INK, degreeColour } from "@/features/theory/scales";
  */
 export default function ScaleWheel({ steps, degrees, labels, compare, active = null, onNote, size = 260, ringLabels, className = "" }: {
   steps: number[];
-  /** the degree of a seven-note scale each step is, for colour and for matching `compare` (a pentatonic's 5th is degree 4); default the index */
+  /** the degree of a seven-note scale each step is, for colour (a pentatonic's 5th is degree 4); default the index */
   degrees?: number[];
   /** one per degree, drawn in the dots: degree numbers ("R", "♭3") or note names */
   labels: string[];
@@ -29,7 +29,8 @@ export default function ScaleWheel({ steps, degrees, labels, compare, active = n
   const pts = steps.map((s) => at(s));
   const deg = (d: number) => degrees?.[d] ?? d;
   const colour = (d: number) => degreeColour(deg(d));
-  const changed = compare ? steps.map((s, d) => s !== compare[deg(d)]) : steps.map(() => false);
+  // ringed: the notes the compared scale does not have (works for any sizes: a pentatonic against a mode, or another pentatonic)
+  const changed = steps.map((s) => !!compare && !compare.includes(s));
   const dotR = 11;
 
   return (

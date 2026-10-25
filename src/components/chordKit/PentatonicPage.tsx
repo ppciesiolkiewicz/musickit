@@ -6,12 +6,12 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ColourKey, ScaleSettingsBar, UNDER_BAR, WithSettings } from "./ScaleSettings";
 import KeySignature from "@/components/theory/KeySignature";
-import ScaleWheel from "@/components/theory/ScaleWheel";
 import { MODE_PAGES, degreeColour, DOT_INK } from "@/features/theory/scales";
 import { ORDINALS } from "@/features/theory/theory";
-import { findPentatonic, pentatonicContext, pentatonicSteps, samePentatonicNotes, type PentatonicContext, type PentatonicTone } from "@/features/theory/pentatonics";
+import { PENTATONICS, findPentatonic, pentatonicContext, pentatonicSteps, samePentatonicNotes, type PentatonicContext, type PentatonicTone } from "@/features/theory/pentatonics";
 import ScaleOnGuitar from "./ScaleOnGuitar";
 import TuneButton from "./TuneButton";
+import WheelCompare, { OUT_RING, Peek, compareMark, modeChoice, modeGroups, pentatonicChoice, pentatonicGroup, type CompareChoice } from "./WheelCompare";
 import { useNotePlayer, type NotePlayer } from "./useNotePlayer";
 import { extraCells, pentatonicPositions, type ExtraNote } from "@/lib/chordKit/scalePositions";
 import { generateMelody, melodyTiming } from "@/lib/chordKit/melody";
@@ -72,6 +72,8 @@ export const blueText = (p: PentatonicContext) => {
 export const leftOut = (p: PentatonicContext) =>
   [0, 1, 2, 3, 4, 5, 6].filter((d) => !p.degrees.includes(d)).map((d) => `${ORDINALS[d]} (${p.host.names[d]})`).join(" and ");
 
+const BASIC_PENTATONICS = PENTATONICS.filter((s) => s.basic).map(pentatonicChoice);
+
 /** Dedicated page for one pentatonic in a key: its notes, where it comes from, the scales with the same notes, and the guitar. */
 export default function PentatonicPage({ slug, initialKey, syncUrl = true }: { slug: string; initialKey: number; syncUrl?: boolean }) {
   const [tonicPc, setTonicPc] = useState(initialKey);
@@ -94,6 +96,8 @@ export default function PentatonicPage({ slug, initialKey, syncUrl = true }: { s
   const hostPage = MODE_PAGES.find((m) => m.familyIndex === 0 && m.modeIndex === scale.host)!;
 
   const [system] = useLabelSystem();
+  // the scale hovered under the wheel: the notes, degrees, step pattern and wheel all show it
+  const [cmp, setCmp] = useState<CompareChoice | null>(null);
   const player = useNotePlayer();
   const { tap, playScale, playTune } = pentatonicSounds(p, player);
   const activeTone = p.tones.findIndex((t) => t.key === player.active);
@@ -114,18 +118,22 @@ export default function PentatonicPage({ slug, initialKey, syncUrl = true }: { s
           <p className="text-xs text-slate-400"><b className="text-slate-300">Where you hear it:</b> {scale.use}</p>
 
           <div className="flex flex-wrap items-center gap-2" aria-label="Scale notes">
-            {p.tones.map((t, i) => (
-              <button key={t.key} type="button" onClick={() => tap(i)} title={`${t.name}${t.blue ? " (the blue note)" : ""}: tap to hear it`} className="cursor-sound flex flex-col items-center gap-0.5 rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
-                <span className={`flex h-11 w-11 items-center justify-center rounded-full text-sm font-semibold transition ${activeTone === i ? "scale-110 ring-[3px] ring-sky-400" : ""}`} style={{ background: degreeColour(t.degree), color: DOT_INK }}>{toneLabel(system, p, t)}</span>
-                <span className="text-xs tabular-nums text-slate-500">{toneCaption(system, p, t)}</span>
-              </button>
-            ))}
+            {p.tones.map((t, i) => {
+              const mark = compareMark(p.steps, i, cmp);
+              return (
+                <button key={t.key} type="button" onClick={() => tap(i)} title={`${t.name}${t.blue ? " (the blue note)" : ""}: tap to hear it`} className="cursor-sound relative flex flex-col items-center gap-0.5 rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
+                  <span className={`flex h-11 w-11 items-center justify-center rounded-full text-sm font-semibold transition ${activeTone === i ? "scale-110 ring-[3px] ring-sky-400" : ""} ${mark.out ? OUT_RING : ""}`} style={{ background: degreeColour(t.degree), color: DOT_INK }}>{toneLabel(system, p, t)}</span>
+                  <span className="text-xs tabular-nums text-slate-500">{toneCaption(system, p, t)}</span>
+                  {mark.theirs && <span className="pointer-events-none absolute -top-3 left-1/2 z-20 -translate-x-1/2 whitespace-nowrap rounded-md border border-slate-700 bg-slate-900/95 px-1 text-[9px] leading-4 text-slate-300">vs {mark.theirs}</span>}
+                </button>
+              );
+            })}
             <button type="button" onClick={playScale} className="cursor-sound ml-2 rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25">▶ Play scale</button>
             <TuneButton onPlay={playTune} title="A short tune made from this scale, new every time" className="rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25" />
           </div>
           <KeySignature ctx={host} />
           <p className="text-xs text-slate-400">
-            Degrees <span className="tabular-nums text-slate-300">{p.formula.map(fmtDegree).join(" ")}</span>
+            Degrees <Peek text={cmp && `${cmp.label}: ${cmp.degrees.map(fmtDegree).join(" ")} · ${cmp.pattern.join(" – ")}`}><span className="tabular-nums text-slate-300">{p.formula.map(fmtDegree).join(" ")}</span></Peek>
             <span className="mx-2 text-slate-600">·</span>
             Step pattern <span className="tabular-nums text-slate-300">{pentatonicSteps(p.steps).join(" – ")}</span>
             <Info label="What is the step pattern?">W is a whole step (two frets), H a half step (one fret), W+H three frets and 2W four. Five notes to the octave leave gaps bigger than a whole step, which is what makes a pentatonic sound open.</Info>
@@ -148,19 +156,18 @@ export default function PentatonicPage({ slug, initialKey, syncUrl = true }: { s
             )}
           </ul>
         </div>
-        {/* the five notes on the ring of twelve, the seven of the mode they come from dashed behind */}
-        <figure className="flex flex-col items-center gap-1 self-center justify-self-center">
-          <ScaleWheel
-            steps={p.steps}
-            degrees={p.tones.map((t) => t.degree)}
-            labels={p.tones.map((t) => toneLabel(system, p, t))}
-            compare={host.steps}
-            active={activeTone >= 0 ? activeTone : null}
-            onNote={tap}
-            size={220}
-          />
-          <figcaption className="max-w-[14rem] text-center text-[11px] text-slate-500">Dashed: {host.names[0]} {host.modeName}, the seven notes it is cut from.{blue && " Ringed: the blue note, from outside it."}</figcaption>
-        </figure>
+        {/* the notes on the ring of twelve, another scale dashed behind: at first the seven-note mode it is cut from */}
+        <WheelCompare
+          steps={p.steps}
+          degrees={p.formula}
+          wheelDegrees={p.tones.map((t) => t.degree)}
+          labels={p.tones.map((t) => toneLabel(system, p, t))}
+          active={activeTone >= 0 ? activeTone : null}
+          onNote={tap}
+          onCompare={setCmp}
+          pills={[modeChoice(hostPage, `${hostPage.name} (parent)`), ...BASIC_PENTATONICS.filter((c) => c.id !== slug)]}
+          groups={[pentatonicGroup([slug, ...BASIC_PENTATONICS.map((c) => c.id)]), ...modeGroups([hostPage.slug])]}
+        />
       </div>
 
       <ScaleOnGuitar
