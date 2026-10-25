@@ -77,6 +77,21 @@ export const STAGES: Stage[] = [
   },
 ];
 
+export interface Level {
+  title: string;
+  hint: string;
+  /** the stage it starts at */
+  from: string;
+}
+
+/** Four places to start in the book, each at the first stage of a run of them. */
+export const LEVELS: Level[] = [
+  { title: "First notes", hint: "Do, Re and Mi by step", from: "do-re" },
+  { title: "Five notes", hint: "Up to Fa and Sol by step", from: "fa" },
+  { title: "Whole scale", hint: "Skips through Do Mi Sol, then La and Ti", from: "skips" },
+  { title: "Leaps", hint: "4ths, 5ths, 6ths and the octave", from: "leaps" },
+];
+
 const LENGTHS: Record<string, number> = { "": 1, e: 0.5, "q.": 1.5, h: 2, "h.": 3, w: 4 };
 
 /** One tune's notes, as scale steps from Do (0) and lengths in beats. Throws on a token it can't read. */

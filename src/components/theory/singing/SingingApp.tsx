@@ -10,7 +10,7 @@ import { getAudioContext, getSharedPiano, midiToName, onSilence, playSequence, s
 import type { PocketStatus } from "@/features/instruments";
 import { RANGE_MAX, RANGE_MIN, VOICES, buildLadder, clefFor, hzToMidi, scaleRun, setRangeEnd, voiceOf, type Range, type Voice } from "@/features/theory/singing";
 import type { MelodyLength } from "@/features/theory/singingMelody";
-import { BOOK, STAGES, placeTune, type BookTune, type PlacedNote } from "@/features/theory/singingMelodies";
+import { BOOK, LEVELS, placeTune, type BookTune, type PlacedNote } from "@/features/theory/singingMelodies";
 import SingingStaff from "./SingingStaff";
 import MelodyFeed from "./MelodyFeed";
 import { panel } from "@/components/practice/shared";
@@ -205,7 +205,7 @@ export default function SingingApp() {
                   {LENGTHS.map((l) => <Chip key={l.id} on={l.id === length} onClick={() => setLength(l.id)}>{l.label}</Chip>)}
                 </BarRow>
                 <BarRow label="Start at">
-                  {STAGES.map((st) => <Chip key={st.id} onClick={() => setJump({ stage: st.id, at: Date.now() })} title={st.hint}>{st.title}</Chip>)}
+                  {LEVELS.map((l) => <Chip key={l.from} onClick={() => setJump({ stage: l.from, at: Date.now() })} title={l.hint}>{l.title}</Chip>)}
                 </BarRow>
               </>
             )}

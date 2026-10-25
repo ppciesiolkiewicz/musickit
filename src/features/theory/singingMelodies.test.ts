@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { BOOK, STAGES, parseTune, placeTune } from "./singingMelodies";
+import { BOOK, LEVELS, STAGES, parseTune, placeTune } from "./singingMelodies";
 import { VOICES, buildLadder } from "./singing";
 
 describe("the melody book", () => {
@@ -56,5 +56,14 @@ describe("the melody book", () => {
     const low = placeTune(parseTune("1 2 3 2 | 1w"), l, VOICES.tenor);
     assert.ok(low.every((n) => n.midi >= 48 && n.midi <= 72));
     for (const t of BOOK) for (const n of placeTune(t.notes, l, VOICES.tenor)) assert.ok(n.midi >= 48 && n.midi <= 72);
+  });
+});
+
+describe("the levels", () => {
+  it("are four, each starting at a stage, in book order", () => {
+    assert.equal(LEVELS.length, 4);
+    const at = LEVELS.map((l) => STAGES.findIndex((s) => s.id === l.from));
+    assert.equal(at[0], 0);
+    for (let i = 1; i < at.length; i++) assert.ok(at[i] > at[i - 1]);
   });
 });
