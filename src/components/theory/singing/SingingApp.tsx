@@ -13,6 +13,7 @@ import type { MelodyLength } from "@/features/theory/singingMelody";
 import { BOOK, LEVELS, levelOf, placeTune, type BookTune, type PlacedNote } from "@/features/theory/singingMelodies";
 import SingingStaff from "./SingingStaff";
 import MelodyFeed from "./MelodyFeed";
+import MicButton from "./MicButton";
 import { panel } from "@/components/practice/shared";
 
 /** null readings in a row before the voice counts as stopped (about 100 ms), so one dropped frame doesn't break the line */
@@ -98,6 +99,10 @@ export default function SingingApp() {
     pitch.current = hzToMidi(smoother.current.push(p));
   }, []);
   const { status } = useMicPitch(mic, undefined, onPitch);
+  const toggleMic = () => {
+    pitch.current = null;
+    setMic((v) => !v);
+  };
 
   // the note sounding now (ladder index), from a run or a tap; a run's highlights are timers, cleared with its sound
   const [played, setPlayed] = useState<number | null>(null);
@@ -188,9 +193,9 @@ export default function SingingApp() {
     : status === "denied" ? "Microphone blocked. Allow it in the browser's site settings and try again."
     : status === "insecure" ? "The browser only allows the microphone on a secure (https) page."
     : status === "error" ? "No microphone found."
-    : tab === "melodies" ? (status === "on" ? `Listening on melody #${active}. Sing each note as the bar reaches it: the bar loops in time with the metronome, and the dot turns green on the note under it, red on another.` : "Pick a melody to sing (play it or tap its notes to hear it); a bar runs over it in time with the metronome. Then switch the mic on and sing along the bar.")
+    : tab === "melodies" ? (status === "on" ? `Listening on melody #${active}. Sing each note as the bar reaches it: the bar loops in time with the metronome, and the dot turns green on the note under it, red on another.` : "Play a melody or tap its notes to hear it, then press Sing on its card: the mic listens while a bar runs over the tune in time with the metronome.")
     : status === "on" ? "Listening. Sing the scale up from the root: the dot turns green on a note of the scale, red on a note outside it."
-    : "Tap a note to hear it, or play the scale up and down on the metronome's tempo. Then switch the mic on and sing.";
+    : "Tap a note to hear it, or play the scale up and down on the metronome's tempo. Then press Sing and sing it back.";
 
   return (
     <div className="flex flex-col gap-5">
@@ -250,9 +255,7 @@ export default function SingingApp() {
                 {running ? "Stop the scale" : `Play the scale · ${pocket?.bpm ?? FALLBACK_BPM} bpm`}
               </Button>
             )}
-            <Button size="sm" pressed={mic} onClick={() => { pitch.current = null; setMic((v) => !v); }} className={mic ? "!border-emerald-400/70 !bg-emerald-500/20 !text-emerald-100" : ""}>
-              {mic ? "Stop the mic" : "Start the mic"}
-            </Button>
+            {tab === "scales" && <MicButton on={mic} onClick={toggleMic} />}
             <p className="min-w-0 basis-full text-sm sm:basis-0 sm:flex-1 text-slate-400" aria-live="polite">{message}</p>
           </div>
           {tab === "melodies" ? (
@@ -269,7 +272,14 @@ export default function SingingApp() {
               playFrom={playFrom}
               tapped={tapped}
               nextBeat={nextBeatAt}
+              mic={mic}
               onPick={(t) => setActive(t.n)}
+              onSing={(t) => {
+                // the mic on the card being sung toggles it; on another card it moves the singing there and listens
+                if (t.n === active) return toggleMic();
+                setActive(t.n);
+                if (!mic) toggleMic();
+              }}
               onPlay={(t) => void playTune(t)}
               onNote={(t, i) => void tapTune(t, i)}
             />

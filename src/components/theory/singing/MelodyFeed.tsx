@@ -6,6 +6,7 @@ import type { Clef } from "@/features/theory/piano/staff";
 import type { Ladder } from "@/features/theory/singing";
 import type { BookTune, PlacedNote } from "@/features/theory/singingMelodies";
 import MelodyStaff from "./MelodyStaff";
+import MicButton from "./MicButton";
 
 /** cards drawn at first, and added each time the end of the list scrolls into view */
 const PAGE = 6;
@@ -15,7 +16,7 @@ const PAGE = 6;
  * and a play button. More cards are drawn as the end of the list comes into view. The `active` card is the one being
  * sung (the last one picked, played or tapped): only it runs the bar and shows the voice. A click anywhere on a card picks it.
  */
-export default function MelodyFeed({ tunes, place, ladder, clef, pitch, beatMs, bpm, active, playing, playFrom, nextBeat, tapped, onPick, onPlay, onNote }: {
+export default function MelodyFeed({ tunes, place, ladder, clef, pitch, beatMs, bpm, active, playing, playFrom, nextBeat, tapped, mic, onPick, onSing, onPlay, onNote }: {
   tunes: BookTune[];
   place: (t: BookTune) => PlacedNote[];
   ladder: Ladder;
@@ -29,7 +30,11 @@ export default function MelodyFeed({ tunes, place, ladder, clef, pitch, beatMs, 
   playFrom: number | null;
   nextBeat: () => number | null;
   tapped: { n: number; i: number } | null;
+  /** the mic is listening (to the active tune) */
+  mic: boolean;
   onPick: (t: BookTune) => void;
+  /** the card's mic button: sing this tune, or stop the mic on the one being sung */
+  onSing: (t: BookTune) => void;
   onPlay: (t: BookTune) => void;
   onNote: (t: BookTune, i: number) => void;
 }) {
@@ -66,11 +71,8 @@ export default function MelodyFeed({ tunes, place, ladder, clef, pitch, beatMs, 
                 <div className="mb-1 flex flex-wrap items-center gap-2">
                   <span className="text-xs tabular-nums text-slate-500">#{t.n}</span>
                   <span className="text-xs text-slate-400">{t.length === "short" ? "2 bars" : "4 bars"}</span>
-                  {live ? (
-                    <span className="text-xs text-sky-300">Singing this one</span>
-                  ) : (
-                    <Button size="sm" onClick={() => onPick(t)}>Sing this one</Button>
-                  )}
+                  <MicButton on={live && mic} onClick={() => onSing(t)} />
+                  {live && mic && <span className="text-xs text-emerald-300">Listening</span>}
                   <Button size="sm" pressed={on} onClick={() => onPlay(t)} className={`ml-auto ${on ? "!border-sky-400/70 !bg-sky-500/20 !text-sky-100" : ""}`}>
                     {on ? "Stop" : `▶ Play · ${bpm} bpm`}
                   </Button>
