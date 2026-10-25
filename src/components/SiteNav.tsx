@@ -22,7 +22,7 @@ function NavLink({ href, label, current, small }: { href: string; label: string;
   );
 }
 
-/** The Music Kit top navigation. Shared by every page; knows nothing about any feature. `devices` adds the audio devices button before the style. */
+/** The Music Kit top navigation. Shared by every page; knows nothing about any feature. `devices` adds the audio devices button after the style. */
 export default function SiteNav({ active, devices = false }: { active: string; devices?: boolean }) {
   const [home, ...rest] = SITE_LINKS;
   return (
@@ -35,8 +35,8 @@ export default function SiteNav({ active, devices = false }: { active: string; d
       {rest.map((l) => (
         <NavLink key={l.href} {...l} current={isActive(active, l.href)} />
       ))}
-      {devices && <AudioDevicesButton className="ml-auto mr-1" />}
-      <ThemeSwitcher className={devices ? "" : "ml-auto"} compact={devices} />
+      <ThemeSwitcher className="ml-auto" compact={devices} />
+      {devices && <AudioDevicesButton className="ml-1 sm:ml-1.5" />}
     </nav>
   );
 }
