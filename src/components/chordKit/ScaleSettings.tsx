@@ -35,7 +35,7 @@ export function WithSettings({ bar, side, children }: { bar: ReactNode; side: bo
 }
 
 /** One labelled row of the bar. The chips wrap rather than scroll sideways. */
-function BarRow({ label, info, children }: { label: string; info?: ReactNode; children: ReactNode }) {
+export function BarRow({ label, info, children }: { label: string; info?: ReactNode; children: ReactNode }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
@@ -59,14 +59,20 @@ const LABEL_INFO = "How notes are labelled: note names, intervals from the root 
  * `scale` is the current mode page's slug; leave it out on the index.
  */
 export function ScaleSettingsBar({
-  tonicPc, onTonic, scale, omitLabels, side = false,
+  tonicPc, onTonic, scale, onScale, omitLabels, labels: showLabels = true, children, side = false,
 }: {
   /** drawn as the right-hand column of `WithSettings` on wide screens */
   side?: boolean;
   tonicPc: number;
   onTonic: (pc: number) => void;
   scale?: string;
+  /** pick the scale in place (the singing page) instead of going to its page */
+  onScale?: (slug: string) => void;
   omitLabels?: LabelSystem[];
+  /** the Labels row; off where the page writes its own labels */
+  labels?: boolean;
+  /** more rows of the host's own, under the key */
+  children?: ReactNode;
 }) {
   const [open, setOpen] = useState(true);
   // true until the bar has folded itself once or been toggled by hand
@@ -108,7 +114,7 @@ export function ScaleSettingsBar({
         <span className="shrink-0 truncate text-sm font-medium text-slate-100">{keyName}{scaleName ? ` ${scaleName}` : ""}</span>
         {/* the rest of the settings at a glance, as room allows */}
         <span className={`flex min-w-0 flex-1 items-center gap-1.5 overflow-hidden whitespace-nowrap text-slate-400 ${side ? "lg:invisible" : ""}`}>
-          {labelName && <Fact from="sm">{labelName}</Fact>}
+          {showLabels && labelName && <Fact from="sm">{labelName}</Fact>}
           {status && <Fact from="md">{status.bpm} bpm</Fact>}
           {status && <Fact from="lg">Drone {status.drone}</Fact>}
           {status && status.playing.length > 0 && (
@@ -128,15 +134,18 @@ export function ScaleSettingsBar({
       {/* hidden rather than unmounted, so the pocket tools keep playing while it is folded */}
       <div className={`${open ? "flex" : "hidden"} max-h-[70vh] flex-col gap-2 overflow-y-auto sm:max-h-none sm:overflow-visible ${side ? "lg:flex" : "xl:flex-row xl:items-center"}`}>
         <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-          {scale && <ScaleRow slug={scale} tonicPc={tonicPc} />}
+          {scale && <ScaleRow slug={scale} tonicPc={tonicPc} onScale={onScale} />}
           <BarRow label="Key" info={KEY_INFO}>
             {TONICS.map((t) => (
               <Chip key={t.pc} on={t.pc === tonicPc} onClick={() => onTonic(t.pc)}>{t.name}</Chip>
             ))}
           </BarRow>
-          <BarRow label="Labels" info={LABEL_INFO}>
-            <LabelSelect showLabel={false} omit={omitLabels} />
-          </BarRow>
+          {children}
+          {showLabels && (
+            <BarRow label="Labels" info={LABEL_INFO}>
+              <LabelSelect showLabel={false} omit={omitLabels} />
+            </BarRow>
+          )}
         </div>
         {/* play-along tools: under the settings on narrow screens, on the right once there is room */}
         <PocketTools keyPc={tonicPc} onStatus={setStatus} stacked={side} className={`border-t border-slate-800 pt-2 ${side ? "" : "xl:border-l xl:border-t-0 xl:pl-4 xl:pt-0"}`} />
@@ -155,8 +164,8 @@ function Fact({ from, className = "", children }: { from?: keyof typeof FROM; cl
   return <span className={`${from ? FROM[from] : "inline-flex"} shrink-0 items-center gap-1 rounded-full border border-slate-700 px-2 py-0.5 text-[11px] ${className}`}>{children}</span>;
 }
 
-/** Switch to another mode or pentatonic in the same key, or go back to the list of all of them. */
-function ScaleRow({ slug, tonicPc }: { slug: string; tonicPc: number }) {
+/** Switch to another mode or pentatonic in the same key, or go back to the list of all of them (or, with `onScale`, just pick one). */
+function ScaleRow({ slug, tonicPc, onScale }: { slug: string; tonicPc: number; onScale?: (slug: string) => void }) {
   const router = useRouter();
   const current = MODE_PAGES.find((m) => m.slug === slug);
   const famId = current ? FAMILIES[current.familyIndex].id : findPentatonic(slug) ? (findPentatonic(slug)!.basic ? "pent" : "pentMore") : "major";
@@ -165,7 +174,7 @@ function ScaleRow({ slug, tonicPc }: { slug: string; tonicPc: number }) {
       <Select
         size="sm"
         value={slug}
-        onChange={(s) => router.push(scaleHref(s, tonicPc))}
+        onChange={(s) => (onScale ? onScale(s) : router.push(scaleHref(s, tonicPc)))}
         aria-label="Scale"
         groups={[{ label: "Pentatonic scales", options: PENTATONICS.filter((p) => p.basic).map((p) => ({ value: p.slug, label: pentatonicLabel(p) })) }].concat(FAMILIES.map((f, fi) => ({
           label: f.label,
@@ -175,9 +184,11 @@ function ScaleRow({ slug, tonicPc }: { slug: string; tonicPc: number }) {
           }),
         }))).concat({ label: "More pentatonic scales", options: PENTATONICS.filter((p) => !p.basic).map((p) => ({ value: p.slug, label: pentatonicLabel(p) })) })}
       />
-      <Link href={scalesIndexHref(tonicPc, `#part-${famId}`)} className="shrink-0 rounded-full border border-slate-700 px-2.5 py-0.5 text-xs text-sky-300 transition hover:border-sky-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
-        ← All scales
-      </Link>
+      {!onScale && (
+        <Link href={scalesIndexHref(tonicPc, `#part-${famId}`)} className="shrink-0 rounded-full border border-slate-700 px-2.5 py-0.5 text-xs text-sky-300 transition hover:border-sky-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
+          ← All scales
+        </Link>
+      )}
     </BarRow>
   );
 }

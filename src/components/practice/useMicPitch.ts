@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { detectPitch, hzToNote } from "@/features/tuner/pitch";
+import { detectPitch, hzToNote, type Pitch } from "@/features/tuner/pitch";
 import { stablePitch } from "@/lib/practice/noteGame";
 import { acquireStream } from "@/lib/practice/mic";
 
@@ -11,16 +11,19 @@ export interface MicReading { midi: number; t: number }
 /**
  * Listen to the microphone while `enabled` and keep the last ~400 ms of detected notes.
  * `onFrame` is called every frame with the pitch class held for 150 ms, or null when nothing steady is heard.
+ * `onPitch` gets every raw reading (null when nothing is pitched), for a display that follows the voice continuously.
  * Everything is released (tracks stopped, context closed) when disabled or unmounted.
  */
-export function useMicPitch(enabled: boolean, onFrame?: (pc: number | null) => void): { status: MicStatus; heard: number | null } {
+export function useMicPitch(enabled: boolean, onFrame?: (pc: number | null) => void, onPitch?: (p: Pitch | null) => void): { status: MicStatus; heard: number | null } {
   const [status, setStatus] = useState<MicStatus>("off");
   const [heard, setHeard] = useState<number | null>(null);
   const buf = useRef<MicReading[]>([]);
   const cb = useRef(onFrame);
+  const raw = useRef(onPitch);
   useEffect(() => {
     cb.current = onFrame;
-  }, [onFrame]);
+    raw.current = onPitch;
+  }, [onFrame, onPitch]);
 
   useEffect(() => {
     if (!enabled) return;
@@ -50,6 +53,7 @@ export function useMicPitch(enabled: boolean, onFrame?: (pc: number | null) => v
           an.getFloatTimeDomainData(data);
           const p = detectPitch(data, ctx.sampleRate, { minHz: 70, maxHz: 1400 });
           const now = performance.now();
+          raw.current?.(p);
           if (p) buf.current.push({ midi: hzToNote(p.freq).midi, t: now });
           buf.current = buf.current.filter((r) => now - r.t < 400);
           const pc = stablePitch(buf.current);

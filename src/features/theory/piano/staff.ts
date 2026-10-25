@@ -31,8 +31,8 @@ function signatureAlter(letter: Spelled["letter"], signature: number): number {
   return 0;
 }
 
-export function place(note: Spelled, signature: number): Placed {
-  const clef: Clef = note.midi >= 60 ? "treble" : "bass";
+/** `clef` pins the note to one staff (the singing page has only one); by default middle C and up go on the treble. */
+export function place(note: Spelled, signature: number, clef: Clef = note.midi >= 60 ? "treble" : "bass"): Placed {
   const step = note.octave * 7 + LETTER_INDEX[note.letter] - BOTTOM[clef];
   const ledgers: number[] = [];
   for (let s = 10; s <= step; s += 2) ledgers.push(s);

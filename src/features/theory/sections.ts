@@ -48,6 +48,7 @@ export const THEORY_SECTIONS: TheorySection[] = [
   { group: "practice", href: "/theory/improv", tone: "rose", label: "Improv", desc: "Play over a groove", icon: "music" },
   { group: "practice", href: "/theory/drone", tone: "violet", label: "Drone", desc: "Hear each degree against the root", icon: "audio-lines" },
   { group: "practice", href: "/theory/piano", tone: "sky", label: "Piano", desc: "Play and see notes, intervals and chords on the staff", icon: "piano" },
+  { group: "practice", href: "/theory/singing", tone: "emerald", label: "Singing", desc: "Sing a scale and watch your voice on the staff", icon: "mic" },
   { group: "practice", href: "/theory/rhythm", tone: "amber", label: "Rhythm", desc: "Tap or strum on the beat", icon: "metronome" },
   { group: "tools", href: "/theory/tunings", tone: "amber", label: "Tunings", desc: "Alternate tunings", icon: "sliders-horizontal" },
   { group: "tools", href: "/cheatsheet", tone: "emerald", label: "Cheatsheet", desc: "Build your own reference sheet", icon: "file-text" },
