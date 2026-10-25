@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { RANGE_MIN, VOICES, buildLadder, clefFor, fitOf, hzToMidi, locate, scaleRun, setRangeEnd, spellName, voiceOf } from "./singing";
+import { RANGE_MIN, VOICES, buildLadder, clefFor, fitOf, hzToMidi, locate, sanitiseRange, scaleRun, setRangeEnd, spellName, voiceOf } from "./singing";
 import { place } from "./piano/staff";
 
 describe("singing ladder", () => {
@@ -114,5 +114,14 @@ describe("fitOf", () => {
   it("hzToMidi", () => {
     assert.equal(hzToMidi(440), 69);
     assert.ok(Math.abs(hzToMidi(261.6256) - 60) < 1e-4);
+  });
+});
+
+describe("a stored range", () => {
+  it("keeps a voice or a custom range, drops anything a page couldn't have set", () => {
+    assert.deepEqual(sanitiseRange({ low: 48, high: 72 }), { low: 48, high: 72 });
+    assert.deepEqual(sanitiseRange({ low: 50, high: 63, label: "x" }), { low: 50, high: 63 });
+    for (const bad of [null, "tenor", 3, {}, { low: 48 }, { low: 48.5, high: 72 }, { low: 20, high: 60 }, { low: 60, high: 61 }, { low: 70, high: 60 }])
+      assert.equal(sanitiseRange(bad), null);
   });
 });

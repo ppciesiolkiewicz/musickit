@@ -36,6 +36,15 @@ export const RANGE_MAX = 96;
 /** The voice type whose range this is exactly, or null for a custom one. */
 export const voiceOf = (r: Range): Voice | null => (Object.keys(VOICES) as Voice[]).find((v) => VOICES[v].low === r.low && VOICES[v].high === r.high) ?? null;
 
+/** A stored range if it is one a page could have set (whole notes inside RANGE_MIN to RANGE_MAX, a whole tone or more apart), else null. */
+export function sanitiseRange(v: unknown): Range | null {
+  if (!v || typeof v !== "object") return null;
+  const { low, high } = v as Record<string, unknown>;
+  if (!Number.isInteger(low) || !Number.isInteger(high)) return null;
+  const r = { low: low as number, high: high as number };
+  return r.low >= RANGE_MIN && r.high <= RANGE_MAX && r.high - r.low >= 2 ? r : null;
+}
+
 /** Treble for a range centred on middle C or higher, bass under it. */
 export const clefFor = (r: Range): Clef => ((r.low + r.high) / 2 >= 59 ? "treble" : "bass");
 

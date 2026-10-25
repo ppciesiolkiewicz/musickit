@@ -8,7 +8,7 @@ import { createSmoother, type Pitch } from "@/features/tuner/pitch";
 import { DEFAULT_KEY_PC } from "@/features/theory/theory";
 import { getAudioContext, getSharedPiano, midiToName, onSilence, playSequence, silence, wakeAudio } from "@/features/sound";
 import type { PocketStatus } from "@/features/instruments";
-import { RANGE_MAX, RANGE_MIN, VOICES, buildLadder, clefFor, hzToMidi, scaleRun, setRangeEnd, voiceOf, type Range, type Voice } from "@/features/theory/singing";
+import { RANGE_MAX, RANGE_MIN, VOICES, buildLadder, clefFor, hzToMidi, sanitiseRange, scaleRun, setRangeEnd, voiceOf, type Range, type Voice } from "@/features/theory/singing";
 import type { MelodyLength } from "@/features/theory/singingMelody";
 import { BOOK, LEVELS, placeTune, type BookTune, type PlacedNote } from "@/features/theory/singingMelodies";
 import SingingStaff from "./SingingStaff";
@@ -22,6 +22,8 @@ const FALLBACK_BPM = 90;
 /** how long a tapped note sounds */
 const TAP_MS = 900;
 const RESTS = [0, 1, 2, 3, 4];
+/** where the voice or range picked last is kept */
+const RANGE_KEY = "singing.range";
 const LENGTHS: { id: MelodyLength | "all"; label: string }[] = [{ id: "all", label: "All" }, { id: "short", label: "Short · 2 bars" }, { id: "long", label: "Long · 4 bars" }];
 type Tab = "scales" | "melodies";
 const TABS: { id: Tab; label: string }[] = [{ id: "scales", label: "Scales" }, { id: "melodies", label: "Melodies" }];
@@ -39,6 +41,21 @@ export default function SingingApp() {
   const [tonicPc, setTonicPc] = useState(DEFAULT_KEY_PC);
   const [scale, setScale] = useState("major-ionian");
   const [range, setRange] = useState<Range>(VOICES.soprano);
+  // the last voice or range comes back after hydration; a pick is kept as it is made
+  useEffect(() => {
+    let saved: Range | null = null;
+    try {
+      saved = sanitiseRange(JSON.parse(window.localStorage.getItem(RANGE_KEY) ?? "null"));
+    } catch { /* storage blocked */ }
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- restoring the saved range after hydration
+    if (saved) setRange(saved);
+  }, []);
+  const pickRange = (f: (r: Range) => Range) =>
+    setRange((r) => {
+      const next = f(r);
+      try { window.localStorage.setItem(RANGE_KEY, JSON.stringify({ low: next.low, high: next.high })); } catch { /* storage blocked */ }
+      return next;
+    });
   const [rest, setRest] = useState(2);
   const [tab, setTab] = useState<Tab>("scales");
   const [length, setLength] = useState<MelodyLength | "all">("all");
@@ -184,13 +201,13 @@ export default function SingingApp() {
           <ScaleSettingsBar tonicPc={tonicPc} onTonic={setTonicPc} scale={scale} onScale={setScale} labels={false} onStatus={setPocket}>
             <BarRow label="Voice">
               {(Object.keys(VOICES) as Voice[]).map((v) => (
-                <Chip key={v} on={v === voice} onClick={() => setRange(VOICES[v])} title={`${midiToName(VOICES[v].low)} to ${midiToName(VOICES[v].high)}`}>{VOICES[v].label}</Chip>
+                <Chip key={v} on={v === voice} onClick={() => pickRange(() => VOICES[v])} title={`${midiToName(VOICES[v].low)} to ${midiToName(VOICES[v].high)}`}>{VOICES[v].label}</Chip>
               ))}
             </BarRow>
             <BarRow label="Range">
-              <Select size="sm" highlighted={!voice} value={range.low} onChange={(m) => setRange((r) => setRangeEnd(r, "low", m))} options={RANGE_NOTES} aria-label="Lowest note" />
+              <Select size="sm" highlighted={!voice} value={range.low} onChange={(m) => pickRange((r) => setRangeEnd(r, "low", m))} options={RANGE_NOTES} aria-label="Lowest note" />
               <span className="text-xs text-slate-500">to</span>
-              <Select size="sm" highlighted={!voice} value={range.high} onChange={(m) => setRange((r) => setRangeEnd(r, "high", m))} options={RANGE_NOTES} aria-label="Highest note" />
+              <Select size="sm" highlighted={!voice} value={range.high} onChange={(m) => pickRange((r) => setRangeEnd(r, "high", m))} options={RANGE_NOTES} aria-label="Highest note" />
               {!voice && <span className="text-xs text-slate-400">Custom</span>}
             </BarRow>
             {tab === "scales" ? (
