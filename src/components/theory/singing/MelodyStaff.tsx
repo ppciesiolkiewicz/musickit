@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from "react";
+import { useEffect, useId, useLayoutEffect, useRef, useState, type RefObject } from "react";
 import { place, signatureGlyphs, type Clef, type Placed } from "@/features/theory/piano/staff";
 import { degreeColour } from "@/features/theory/scales";
 import { solfege } from "@/features/theory/labels";
-import { IN_TUNE_CENTS, locate, type Fit, type Ladder, type LadderNote } from "@/features/theory/singing";
+import { IN_TUNE_CENTS, locate, type Fit, type Ladder } from "@/features/theory/singing";
 import { BEATS_PER_BAR } from "@/features/theory/singingMelody";
+import type { PlacedNote } from "@/features/theory/singingMelodies";
 
 /**
  * A melody on one staff in 4/4, written out with its rhythm (eighths, quarters, halves, dotted notes, the whole-note
@@ -14,12 +15,10 @@ import { BEATS_PER_BAR } from "@/features/theory/singingMelody";
  * sounds, `performance.now()` time) while it plays, or from the moment you start singing when it doesn't, at `beatMs`
  * a beat. It is green on the note due now, red on another note, amber between notes. The note due now is lit in sky.
  * Every note is a button (`onNote`); `tapped` is one just tapped. A long melody on a phone slides with the beat.
+ * Only a `live` staff (the one being sung) runs the dot; the others are drawn still, scrolling sideways when too long.
  */
 
-export interface StaffNote extends LadderNote {
-  beats: number;
-  at: number;
-}
+type StaffNote = PlacedNote;
 
 const HALF = 5; // px per staff step
 const MIN_BEAT = 44; // px a beat before the staff has to scroll (an eighth gets half)
@@ -46,8 +45,9 @@ const STILL: View = { dot: null, cam: 0, tail: [], lastHeard: -Infinity, now: 0,
 /** The note sounding at a beat, or -1 before the first. */
 const noteAt = (notes: StaffNote[], beat: number) => notes.findLastIndex((n) => n.at <= beat);
 
-export default function MelodyStaff({ notes, ladder, clef, pitch, playFrom, beatMs, tapped, onNote }: {
+export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom, beatMs, tapped, onNote }: {
   notes: StaffNote[];
+  live: boolean;
   /** the scale in the singer's range, low to high: the dot's height is read off it */
   ladder: Ladder;
   clef: Clef;
@@ -58,6 +58,7 @@ export default function MelodyStaff({ notes, ladder, clef, pitch, playFrom, beat
   onNote: (i: number) => void;
 }) {
   const wrap = useRef<HTMLDivElement>(null);
+  const clip = `melody-clip-${useId().replace(/[^\w-]/g, "")}`;
   const [width, setWidth] = useState(0);
   useLayoutEffect(() => {
     const el = wrap.current;
@@ -86,6 +87,8 @@ export default function MelodyStaff({ notes, ladder, clef, pitch, playFrom, beat
   const beatW = fits ? Math.min(MAX_BEAT, room / total) : MIN_BEAT;
   const span = total * beatW;
   const maxCam = Math.max(0, span - room);
+  const scrolls = !live && maxCam > 0;
+  const W = scrolls ? x0 + span + 12 : width;
 
   const anim = useRef<View>({ ...STILL });
   // the clock the dot moves on: the playback's, or one started by the voice
@@ -95,8 +98,14 @@ export default function MelodyStaff({ notes, ladder, clef, pitch, playFrom, beat
     playRef.current = playFrom;
     clock.current = playFrom;
   }, [playFrom]);
-  const [a, setView] = useState<View>(STILL);
+  const [view, setView] = useState<View>(STILL);
+  // a still staff draws no voice, whatever the last live frame was
+  const a = live ? view : STILL;
   useEffect(() => {
+    if (!live) {
+      anim.current = { ...STILL };
+      return;
+    }
     let raf = 0;
     const tick = () => {
       const a = anim.current;
@@ -136,7 +145,7 @@ export default function MelodyStaff({ notes, ladder, clef, pitch, playFrom, beat
     return () => cancelAnimationFrame(raf);
     // the geometry is rebuilt from the melody and the width; the loop restarts with it
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [notes, ladder, clef, beatW, maxCam, room, beatMs]);
+  }, [live, notes, ladder, clef, beatW, maxCam, room, beatMs]);
 
   // a new melody starts at the left, with no clock
   useEffect(() => {
@@ -148,24 +157,26 @@ export default function MelodyStaff({ notes, ladder, clef, pitch, playFrom, beat
 
   const now = a.now;
   const bx = (beat: number) => x0 + beat * beatW + PAD - a.cam;
+  // the staff stops at the final double bar when the whole tune fits
+  const lineEnd = maxCam > 0 && !scrolls ? W - 4 : Math.min(W - 4, bx(total) - PAD + 7);
   const showDot = a.dot && now - a.lastHeard <= SILENCE_MS + 400;
   const dotOpacity = a.dot ? Math.max(0, Math.min(1, 1 - (now - a.lastHeard - SILENCE_MS) / 400)) : 0;
   const colour = DOT[a.fit];
   const due = a.beat === null ? -1 : noteAt(notes, a.beat);
-  const clip = `melody-clip-${clef}`;
   const bars = Math.round(total / BEATS_PER_BAR);
 
   return (
-    <div ref={wrap} className="w-full">
+    // the height is known before the width, so the list doesn't shift as staffs measure themselves
+    <div ref={wrap} className={`w-full ${scrolls ? "overflow-x-auto" : ""}`} style={{ minHeight: H }}>
       {width > 0 && (
-        <svg viewBox={`0 0 ${width} ${H}`} width={width} height={H} role="img" aria-label={`A melody in ${ladder.title}: ${notes.map((n) => solfege(n.label)).join(" ")}`}>
+        <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} role="img" aria-label={`A melody in ${ladder.title}: ${notes.map((n) => solfege(n.label)).join(" ")}`}>
           <defs>
             <clipPath id={clip}>
-              <rect x={x0 - 4} y={0} width={width - x0 + 4} height={H} />
+              <rect x={x0 - 4} y={0} width={W - x0 + 4} height={H} />
             </clipPath>
           </defs>
           <g stroke={ink.line} strokeWidth={1}>
-            {[0, 2, 4, 6, 8].map((s) => <line key={s} x1={8} x2={width - 4} y1={yOf(s)} y2={yOf(s)} />)}
+            {[0, 2, 4, 6, 8].map((s) => <line key={s} x1={8} x2={lineEnd} y1={yOf(s)} y2={yOf(s)} />)}
             <line x1={8} x2={8} y1={yOf(8)} y2={yOf(0)} strokeWidth={1.5} />
           </g>
           <g fill={ink.glyph} textAnchor="middle">
@@ -186,7 +197,7 @@ export default function MelodyStaff({ notes, ladder, clef, pitch, playFrom, beat
             </g>
             {notes.map((n, i) => {
               const x = bx(n.at);
-              if (x < x0 - 40 || x > width + 40) return null;
+              if (x < x0 - 40 || x > W + 40) return null;
               const on = due === i || tapped === i;
               const lit = on && a.hit && !!showDot;
               const c = degreeColour(n.degree);
