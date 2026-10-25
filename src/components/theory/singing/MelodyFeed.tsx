@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, type RefObject } from "react";
 import { Button } from "@/components/ui";
 import type { Clef } from "@/features/theory/piano/staff";
 import type { Ladder } from "@/features/theory/singing";
-import type { BookTune, PlacedNote } from "@/features/theory/singingMelodies";
+import { DIFFICULTIES, type BookTune, type PlacedNote } from "@/features/theory/singingMelodies";
 import MelodyStaff from "./MelodyStaff";
 import MicButton from "./MicButton";
 
@@ -70,7 +70,7 @@ export default function MelodyFeed({ tunes, place, ladder, clef, pitch, beatMs, 
               <div onClick={() => onPick(t)} className={`rounded-xl border p-3 transition ${live ? "border-sky-500/50 bg-slate-900/70" : "cursor-pointer border-slate-800 bg-slate-950/40 hover:border-slate-600"}`}>
                 <div className="mb-1 flex flex-wrap items-center gap-2">
                   <span className="text-xs tabular-nums text-slate-500">#{t.n}</span>
-                  <span className="text-xs text-slate-400">{t.length === "short" ? "2 bars" : "4 bars"}</span>
+                  <span className="text-xs text-slate-400">{DIFFICULTIES[t.difficulty].title} · {t.length === "short" ? "2 bars" : "4 bars"}</span>
                   <MicButton on={live && mic} onClick={() => onSing(t)} />
                   {live && mic && <span className="text-xs text-emerald-300">Listening</span>}
                   <Button size="sm" onClick={() => onPlay(t)} className={`ml-auto ${on ? "!border-sky-400/70 !bg-sky-500/20 !text-sky-100" : ""}`}>

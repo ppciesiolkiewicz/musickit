@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { RANGE_MIN, VOICES, buildLadder, clefFor, fitOf, hzToMidi, locate, sanitiseRange, scaleRun, setRangeEnd, spellName, voiceOf } from "./singing";
+import { VOICES, buildLadder, clefFor, fitOf, hzToMidi, locate, savedVoice, scaleRun, spellName, voiceOf } from "./singing";
 import { place } from "./piano/staff";
 
 describe("singing ladder", () => {
@@ -47,12 +47,6 @@ describe("voices and ranges", () => {
     assert.equal(clefFor(VOICES.alto), "treble");
     assert.equal(clefFor(VOICES.tenor), "treble8");
     assert.equal(clefFor(VOICES.baritone), "bass");
-  });
-  it("moving one end past the other pushes it along", () => {
-    assert.deepEqual(setRangeEnd({ low: 60, high: 72 }, "low", 75), { low: 75, high: 77 });
-    assert.deepEqual(setRangeEnd({ low: 60, high: 72 }, "high", 55), { low: 53, high: 55 });
-    assert.deepEqual(setRangeEnd({ low: 60, high: 72 }, "high", 76), { low: 60, high: 76 });
-    assert.deepEqual(setRangeEnd({ low: 60, high: 72 }, "low", 10), { low: RANGE_MIN, high: 72 });
   });
 });
 
@@ -119,11 +113,10 @@ describe("fitOf", () => {
   });
 });
 
-describe("a stored range", () => {
-  it("keeps a voice or a custom range, drops anything a page couldn't have set", () => {
-    assert.deepEqual(sanitiseRange({ low: 48, high: 72 }), { low: 48, high: 72 });
-    assert.deepEqual(sanitiseRange({ low: 50, high: 63, label: "x" }), { low: 50, high: 63 });
-    for (const bad of [null, "tenor", 3, {}, { low: 48 }, { low: 48.5, high: 72 }, { low: 20, high: 60 }, { low: 60, high: 61 }, { low: 70, high: 60 }])
-      assert.equal(sanitiseRange(bad), null);
+describe("a stored voice", () => {
+  it("reads a voice by name or by its old stored range, drops anything else", () => {
+    assert.equal(savedVoice("tenor"), "tenor");
+    assert.equal(savedVoice({ low: 48, high: 72 }), "tenor");
+    for (const bad of [null, "nope", "toString", 3, {}, { low: 48 }, { low: 50, high: 63 }]) assert.equal(savedVoice(bad), null);
   });
 });

@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { BOOK, LEVELS, STAGES, levelOf, parseTune, placeTune } from "./singingMelodies";
+import { BOOK, DIFFICULTIES, STAGES, effortOf, parseTune, placeTune } from "./singingMelodies";
 import { VOICES, buildLadder, withNotesUnder } from "./singing";
 
 describe("the melody book", () => {
@@ -73,18 +73,32 @@ describe("the melody book", () => {
   });
 });
 
-describe("the levels", () => {
-  it("are four, each starting at a stage, in book order", () => {
-    assert.equal(LEVELS.length, 4);
-    const at = LEVELS.map((l) => STAGES.findIndex((s) => s.id === l.from));
-    assert.equal(at[0], 0);
-    for (let i = 1; i < at.length; i++) assert.ok(at[i] > at[i - 1]);
+describe("difficulty", () => {
+  const e = (t: string) => effortOf(parseTune(t));
+
+  it("starting on Do is easier than starting off it", () => {
+    assert.ok(e("1 2 1 2 | 1w") < e("2 1 2 2 | 1w"));
+    assert.ok(e("1 2 3 2 | 1w") < e("3 2 3 2 | 1w"));
   });
 
-  it("hold every stage, in order", () => {
-    const levels = STAGES.map(levelOf);
-    assert.equal(levels[0], 0);
-    assert.equal(levels.at(-1), LEVELS.length - 1);
-    levels.slice(1).forEach((l, i) => assert.ok(l === levels[i] || l === levels[i] + 1));
+  it("a leap through the home chord is easier than the same leap outside it", () => {
+    assert.ok(e("1 3 5 3 | 1w") < e("2 4 6 4 | 2 1h. | 1w"));
+    assert.ok(e("1 5 3 2 | 1w") < e("2 6 3 2 | 1w"));
+    assert.ok(e("1 3 5 1' | 1'w") < e("1 3 5 7 | 1'w"));
+  });
+
+  it("two leaps the same way that don't make a chord are awkward", () => {
+    assert.ok(e("2 4 6 5 | 3 2 1h | 1w") > e("2 4 3 5 | 3 2 1h | 1w"));
+  });
+
+  it("eighths, dotted notes and length add to it", () => {
+    assert.ok(e("1 2 3 2 | 1w") < e("1 2q. 3e 2 | 1w"));
+    assert.ok(e("1 2 3 2 | 1w") < e("1 2 3 2 | 1 2 3 2 | 1 2 3 2 | 1w"));
+  });
+
+  it("every band has tunes, and the first and last stages sit at opposite ends", () => {
+    DIFFICULTIES.forEach((_, i) => assert.ok(BOOK.filter((t) => t.difficulty === i).length >= 5, DIFFICULTIES[i].title));
+    for (const t of BOOK.filter((t) => t.stage === STAGES[0])) assert.ok(t.difficulty <= 1, `#${t.n}`);
+    assert.ok(BOOK.filter((t) => t.stage === STAGES.at(-1)).some((t) => t.difficulty === DIFFICULTIES.length - 1));
   });
 });

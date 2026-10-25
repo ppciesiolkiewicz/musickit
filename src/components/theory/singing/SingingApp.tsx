@@ -3,14 +3,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BarRow, ScaleSettingsBar, WithSettings } from "@/components/chordKit/ScaleSettings";
 import { useMicPitch } from "@/components/practice/useMicPitch";
-import { Button, Chip, Select } from "@/components/ui";
+import { Button, Chip } from "@/components/ui";
 import { createSmoother, type Pitch } from "@/features/tuner/pitch";
 import { DEFAULT_KEY_PC } from "@/features/theory/theory";
 import { getAudioContext, getSharedPiano, midiToName, onSilence, playSequence, silence, wakeAudio } from "@/features/sound";
 import type { PocketStatus } from "@/features/instruments";
-import { RANGE_MAX, RANGE_MIN, VOICES, buildLadder, clefFor, hzToMidi, sanitiseRange, scaleRun, setRangeEnd, voiceOf, withNotesUnder, type Range, type Voice } from "@/features/theory/singing";
-import type { MelodyLength } from "@/features/theory/singingMelody";
-import { BOOK, LEVELS, levelOf, placeTune, type BookTune, type PlacedNote } from "@/features/theory/singingMelodies";
+import { VOICES, buildLadder, clefFor, hzToMidi, savedVoice, scaleRun, withNotesUnder, type Voice } from "@/features/theory/singing";
+import { BOOK, DIFFICULTIES, placeTune, type BookTune, type PlacedNote } from "@/features/theory/singingMelodies";
 import SingingStaff from "./SingingStaff";
 import MelodyFeed from "./MelodyFeed";
 import MicButton from "./MicButton";
@@ -23,50 +22,44 @@ const FALLBACK_BPM = 90;
 /** how long a tapped note sounds */
 const TAP_MS = 900;
 const RESTS = [0, 1, 2, 3, 4];
-/** where the voice or range picked last is kept */
-const RANGE_KEY = "singing.range";
-const LENGTHS: { id: MelodyLength | "all"; label: string }[] = [{ id: "all", label: "All" }, { id: "short", label: "Short · 2 bars" }, { id: "long", label: "Long · 4 bars" }];
+/** where the voice picked last is kept (once its range, which still reads back) */
+const VOICE_KEY = "singing.range";
 type Tab = "scales" | "melodies";
 const TABS: { id: Tab; label: string }[] = [{ id: "scales", label: "Scales" }, { id: "melodies", label: "Melodies" }];
 
-const RANGE_NOTES = Array.from({ length: RANGE_MAX - RANGE_MIN + 1 }, (_, i) => ({ value: RANGE_MIN + i, label: midiToName(RANGE_MIN + i) }));
-
 /**
- * Sing the notes of a scale against its staff: pick the key, the scale and the range (a voice type, or any two notes) in
+ * Sing the notes of a scale against its staff: pick the key, the scale and the voice type (its range shown beside it) in
  * the settings bar (with the drone and the metronome from the scales pages). Tap a note to hear it, or play the scale up
  * and down on the metronome's tempo, then switch the mic on and a dot follows your voice over the notes. The Melodies
- * tab does the same with the melody book: written tunes in the key that end on a whole-note Do, easiest first in one
- * list per level, filtered by length; on the tune picked (or last played or tapped) a bar runs on the metronome's count and the dot sings along it, a
+ * tab does the same with the melody book: written tunes in the key that end on a whole-note Do, in book order, filtered by
+ * difficulty; on the tune picked (or last played or tapped) a bar runs on the metronome's count and the dot sings along it, a
  * moment behind. The metronome runs muted from the first press on the page; playing a tune starts it over on the tune's beat 1.
  */
 export default function SingingApp() {
   const [tonicPc, setTonicPc] = useState(DEFAULT_KEY_PC);
   const [scale, setScale] = useState("major-ionian");
-  const [range, setRange] = useState<Range>(VOICES.soprano);
-  // the last voice or range comes back after hydration; a pick is kept as it is made
+  const [voice, setVoice] = useState<Voice>("soprano");
+  // the last voice comes back after hydration; a pick is kept as it is made
   useEffect(() => {
-    let saved: Range | null = null;
+    let saved: Voice | null = null;
     try {
-      saved = sanitiseRange(JSON.parse(window.localStorage.getItem(RANGE_KEY) ?? "null"));
+      saved = savedVoice(JSON.parse(window.localStorage.getItem(VOICE_KEY) ?? "null"));
     } catch { /* storage blocked */ }
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- restoring the saved range after hydration
-    if (saved) setRange(saved);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- restoring the saved voice after hydration
+    if (saved) setVoice(saved);
   }, []);
-  const pickRange = (f: (r: Range) => Range) =>
-    setRange((r) => {
-      const next = f(r);
-      try { window.localStorage.setItem(RANGE_KEY, JSON.stringify({ low: next.low, high: next.high })); } catch { /* storage blocked */ }
-      return next;
-    });
+  const pickVoice = (v: Voice) => {
+    setVoice(v);
+    try { window.localStorage.setItem(VOICE_KEY, JSON.stringify(v)); } catch { /* storage blocked */ }
+  };
+  const range = VOICES[voice];
   const [rest, setRest] = useState(2);
   const [tab, setTab] = useState<Tab>("scales");
-  const [length, setLength] = useState<MelodyLength | "all">("all");
-  // the tune being sung, by number, and the level whose tunes are listed ("all" for the whole book)
+  // the tune being sung, by number, and the difficulty whose tunes are listed ("all" for the whole book)
   const [active, setActive] = useState(1);
   const [level, setLevel] = useState<number | "all">(0);
   const [mic, setMic] = useState(false);
   const [pocket, setPocket] = useState<PocketStatus | null>(null);
-  const voice = voiceOf(range);
   const clef = clefFor(range);
   const ladder = useMemo(() => buildLadder(scale, tonicPc, range) ?? buildLadder("major-ionian", tonicPc, range)!, [scale, tonicPc, range]);
   // the tunes are written in seven-note degrees: a pentatonic sings them in its major or minor; they can dip under the lowest Do
@@ -76,12 +69,11 @@ export default function SingingApp() {
   );
   const placed = useMemo(() => new Map(BOOK.map((t) => [t.n, placeTune(t.notes, tuneLadder, range)])), [tuneLadder, range]);
   const place = useCallback((t: BookTune) => placed.get(t.n)!, [placed]);
-  const tunes = useMemo(() => BOOK.filter((t) => (length === "all" || t.length === length) && (level === "all" || levelOf(t.stage) === level)), [length, level]);
-  // a level or length that hides the tune being sung picks the first one shown
-  const filter = (lv: number | "all", len: MelodyLength | "all") => {
+  const tunes = useMemo(() => BOOK.filter((t) => level === "all" || t.difficulty === level), [level]);
+  // a difficulty that hides the tune being sung picks the first one shown
+  const filter = (lv: number | "all") => {
     setLevel(lv);
-    setLength(len);
-    const shown = BOOK.filter((t) => (len === "all" || t.length === len) && (lv === "all" || levelOf(t.stage) === lv));
+    const shown = BOOK.filter((t) => lv === "all" || t.difficulty === lv);
     if (shown.length && !shown.some((t) => t.n === active)) setActive(shown[0].n);
   };
 
@@ -232,14 +224,9 @@ export default function SingingApp() {
           <ScaleSettingsBar clickAlways tonicPc={tonicPc} onTonic={setTonicPc} scale={scale} onScale={setScale} labels={false} onStatus={setPocket}>
             <BarRow label="Voice">
               {(Object.keys(VOICES) as Voice[]).map((v) => (
-                <Chip key={v} on={v === voice} onClick={() => pickRange(() => VOICES[v])} title={`${midiToName(VOICES[v].low)} to ${midiToName(VOICES[v].high)}`}>{VOICES[v].label}</Chip>
+                <Chip key={v} on={v === voice} onClick={() => pickVoice(v)} title={`${midiToName(VOICES[v].low)} to ${midiToName(VOICES[v].high)}`}>{VOICES[v].label}</Chip>
               ))}
-            </BarRow>
-            <BarRow label="Range">
-              <Select size="sm" highlighted={!voice} value={range.low} onChange={(m) => pickRange((r) => setRangeEnd(r, "low", m))} options={RANGE_NOTES} aria-label="Lowest note" />
-              <span className="text-xs text-slate-500">to</span>
-              <Select size="sm" highlighted={!voice} value={range.high} onChange={(m) => pickRange((r) => setRangeEnd(r, "high", m))} options={RANGE_NOTES} aria-label="Highest note" />
-              {!voice && <span className="text-xs text-slate-400">Custom</span>}
+              <span className="whitespace-nowrap pl-1 text-xs tabular-nums text-slate-500">{midiToName(range.low)}–{midiToName(range.high)}</span>
             </BarRow>
             {tab === "scales" ? (
               <BarRow label="Top rest">
@@ -248,15 +235,10 @@ export default function SingingApp() {
                 ))}
               </BarRow>
             ) : (
-              <>
-                <BarRow label="Level">
-                  {LEVELS.map((l, i) => <Chip key={l.from} on={level === i} onClick={() => filter(i, length)} title={l.hint}>{l.title}</Chip>)}
-                  <Chip on={level === "all"} onClick={() => filter("all", length)}>All</Chip>
-                </BarRow>
-                <BarRow label="Length">
-                  {LENGTHS.map((l) => <Chip key={l.id} on={l.id === length} onClick={() => filter(level, l.id)}>{l.label}</Chip>)}
-                </BarRow>
-              </>
+              <BarRow label="Difficulty">
+                {DIFFICULTIES.map((d, i) => <Chip key={d.title} on={level === i} onClick={() => filter(i)} title={d.hint}>{d.title}</Chip>)}
+                <Chip on={level === "all"} onClick={() => filter("all")}>All</Chip>
+              </BarRow>
             )}
           </ScaleSettingsBar>
         }

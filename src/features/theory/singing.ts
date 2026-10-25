@@ -29,20 +29,19 @@ export const VOICES: Record<Voice, Range & { label: string }> = {
   bass: { low: 40, high: 64, label: "Bass" },
 };
 
-/** The notes a custom range can run between, C2 to C7. */
+/** The notes a ladder can run between, C2 to C7. */
 export const RANGE_MIN = 36;
 export const RANGE_MAX = 96;
 
-/** The voice type whose range this is exactly, or null for a custom one. */
+/** The voice type whose range this is exactly, or null for any other. */
 export const voiceOf = (r: Range): Voice | null => (Object.keys(VOICES) as Voice[]).find((v) => VOICES[v].low === r.low && VOICES[v].high === r.high) ?? null;
 
-/** A stored range if it is one a page could have set (whole notes inside RANGE_MIN to RANGE_MAX, a whole tone or more apart), else null. */
-export function sanitiseRange(v: unknown): Range | null {
+/** A stored voice: its name, or (as the page once kept it) its exact range; anything else is null. */
+export function savedVoice(v: unknown): Voice | null {
+  if (typeof v === "string") return Object.hasOwn(VOICES, v) ? (v as Voice) : null;
   if (!v || typeof v !== "object") return null;
   const { low, high } = v as Record<string, unknown>;
-  if (!Number.isInteger(low) || !Number.isInteger(high)) return null;
-  const r = { low: low as number, high: high as number };
-  return r.low >= RANGE_MIN && r.high <= RANGE_MAX && r.high - r.low >= 2 ? r : null;
+  return typeof low === "number" && typeof high === "number" ? voiceOf({ low, high }) : null;
 }
 
 /**
@@ -52,13 +51,6 @@ export function sanitiseRange(v: unknown): Range | null {
 export function clefFor(r: Range): Clef {
   const mid = (r.low + r.high) / 2;
   return mid >= 63 ? "treble" : mid >= 57 ? "treble8" : "bass";
-}
-
-/** A range with one end moved, the other pushed along so it stays at least a whole tone away, inside RANGE_MIN to RANGE_MAX. */
-export function setRangeEnd(r: Range, end: keyof Range, midi: number): Range {
-  const m = Math.max(RANGE_MIN, Math.min(RANGE_MAX, midi));
-  if (end === "low") return { low: Math.min(m, RANGE_MAX - 2), high: Math.max(r.high, Math.min(m, RANGE_MAX - 2) + 2) };
-  return { low: Math.min(r.low, Math.max(m, RANGE_MIN + 2) - 2), high: Math.max(m, RANGE_MIN + 2) };
 }
 
 export interface LadderNote {
