@@ -73,8 +73,8 @@ export default function MelodyFeed({ tunes, place, ladder, clef, pitch, beatMs, 
                   <span className="text-xs text-slate-400">{t.length === "short" ? "2 bars" : "4 bars"}</span>
                   <MicButton on={live && mic} onClick={() => onSing(t)} />
                   {live && mic && <span className="text-xs text-emerald-300">Listening</span>}
-                  <Button size="sm" pressed={on} onClick={() => onPlay(t)} className={`ml-auto ${on ? "!border-sky-400/70 !bg-sky-500/20 !text-sky-100" : ""}`}>
-                    {on ? "Stop" : `▶ Play · ${bpm} bpm`}
+                  <Button size="sm" onClick={() => onPlay(t)} className={`ml-auto ${on ? "!border-sky-400/70 !bg-sky-500/20 !text-sky-100" : ""}`}>
+                    ▶ Play · {bpm} bpm
                   </Button>
                 </div>
                 <MelodyStaff

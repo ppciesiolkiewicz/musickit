@@ -134,11 +134,9 @@ export default function SingingApp() {
   // beats since the metronome's beat 1, for the melody's bar; null while it isn't running
   const gridBeats = useCallback(() => pocket?.gridBeats() ?? null, [pocket]);
 
-  // a tune plays from its card and becomes the one sung; its own button again stops it
+  // a tune plays once from its card and becomes the one sung; Play again starts it over
   const playTune = async (t: BookTune) => {
-    const was = playing;
     if (running) silence();
-    if (was === t.n) return;
     await startTune(t);
   };
   // the metronome starts over with the tune, so its beat 1 is the click's (muted unless it was heard)
