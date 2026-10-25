@@ -4,7 +4,7 @@ import { chevronSize, triggerClass } from "./styles";
 import type { SelectProps } from "./Select";
 
 /** The browser's own select, styled like the menu trigger: used on touch screens, where the system picker is the better one. */
-export function NativeSelect<V extends SelectValue>({ value, onChange, options, groups, size = "md", disabled, className = "", highlighted, title, "aria-label": ariaLabel }: SelectProps<V>) {
+export function NativeSelect<V extends SelectValue>({ value, onChange, options, groups, size = "md", disabled, className = "", highlighted, pill, title, "aria-label": ariaLabel }: SelectProps<V>) {
   const all = allOptions(options, groups);
   const item = (o: { value: V; label: string; disabled?: boolean }) => <option key={keyOf(o.value)} value={keyOf(o.value)} disabled={o.disabled}>{o.label}</option>;
   return (
@@ -18,7 +18,7 @@ export function NativeSelect<V extends SelectValue>({ value, onChange, options, 
         disabled={disabled}
         title={title}
         aria-label={ariaLabel}
-        className={`${triggerClass(size, highlighted)} w-full appearance-none truncate !pr-6`}
+        className={`${triggerClass(size, highlighted, pill)} w-full appearance-none truncate !pr-6`}
       >
         {options?.map(item)}
         {groups?.map((g) => <optgroup key={g.label} label={g.label}>{g.options.map(item)}</optgroup>)}

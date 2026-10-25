@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ColourKey, ModeAlias, ScaleSettingsBar, UNDER_BAR, WithSettings } from "./ScaleSettings";
 import KeySignature from "@/components/theory/KeySignature";
-import { FAMILIES, MAJOR, makeKeyContext } from "@/features/theory/theory";
+import { FAMILIES, makeKeyContext } from "@/features/theory/theory";
 import { MODE_PAGES, type NoteSwap, degreeColour, relativesOf, stepPattern, DOT_INK } from "@/features/theory/scales";
 import ChordBubbles from "./ChordBubbles";
 import ScaleChords from "./ScaleChords";
@@ -14,7 +14,7 @@ import ScaleProgressions from "./ScaleProgressions";
 import ScaleRelatives from "./ScaleRelatives";
 import ScaleOnGuitar from "./ScaleOnGuitar";
 import TuneButton from "./TuneButton";
-import ScaleWheel from "@/components/theory/ScaleWheel";
+import WheelCompare from "./WheelCompare";
 import { useNotePlayer } from "./useNotePlayer";
 import { scaleLineMidi } from "@/lib/chordKit/scalePositions";
 import { generateMelody, melodyTiming, scalePool } from "@/lib/chordKit/melody";
@@ -118,20 +118,14 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
           {rel.minorSwaps.length > 0 && <li>Compared with {ctx.names[0]} natural minor: <Swaps swaps={rel.minorSwaps} /></li>}
         </ul>
         </div>
-        {/* the scale as a shape on the ring of twelve notes; plain major dashed behind it, the notes that differ ringed */}
-        <figure className="flex flex-col items-center gap-1 self-center justify-self-center">
-          <ScaleWheel
-            steps={ctx.steps}
-            labels={ctx.steps.map((_, i) => scaleToneLabel(system, ctx, i))}
-            compare={ctx.steps.every((s, i) => s === MAJOR[i]) ? undefined : MAJOR}
-            active={player.active?.startsWith("d") ? Number(player.active.slice(1)) : null}
-            onNote={(d) => player.tap(`d${d}`, line[d])}
-            size={220}
-          />
-          <figcaption className="max-w-[14rem] text-center text-[11px] text-slate-500">
-            {ctx.steps.every((s, i) => s === MAJOR[i]) ? "The twelve notes in a ring, this scale's seven joined up." : "Dashed: plain major. Ringed: the notes that give this scale its sound."}
-          </figcaption>
-        </figure>
+        {/* the scale as a shape on the ring of twelve notes, another scale dashed behind it, the notes that differ ringed */}
+        <WheelCompare
+          slug={slug}
+          steps={ctx.steps}
+          labels={ctx.steps.map((_, i) => scaleToneLabel(system, ctx, i))}
+          active={player.active?.startsWith("d") ? Number(player.active.slice(1)) : null}
+          onNote={(d) => player.tap(`d${d}`, line[d])}
+        />
       </div>
 
       <ScaleOnGuitar ctx={ctx} player={player} />

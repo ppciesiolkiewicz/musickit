@@ -12,7 +12,7 @@ const sizes: Record<SelectSize, string> = {
   lg: "h-9 rounded-lg pl-3 pr-2.5 text-sm",
 };
 
-export const triggerClass = (size: SelectSize, highlighted = false) => `${base} ${sizes[size]} ${highlighted ? "!border-sky-400" : ""}`;
+export const triggerClass = (size: SelectSize, highlighted = false, pill = false) => `${base} ${sizes[size]} ${highlighted ? "!border-sky-400" : ""} ${pill ? "!rounded-full" : ""}`;
 
 export const chevronSize: Record<SelectSize, number> = { "2xs": 8, xs: 10, sm: 12, md: 12, lg: 14 };
 

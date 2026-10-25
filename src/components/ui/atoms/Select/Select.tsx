@@ -20,6 +20,8 @@ export interface SelectProps<V extends SelectValue> {
   className?: string;
   /** accent border: the selected one of a row of selects */
   highlighted?: boolean;
+  /** rounded ends, to sit in a row of Chips */
+  pill?: boolean;
   title?: string;
 }
 

@@ -27,7 +27,7 @@ export const inSelectMenu = (target: EventTarget | null) => target instanceof El
  * The themed dropdown (Radix Select) used with a mouse.
  * Focus never comes back to the trigger after a pick (see NoControlFocus): the computer keyboard keeps playing notes.
  */
-export function MenuSelect<V extends SelectValue>({ value, onChange, options, groups, size = "md", disabled, className = "", highlighted, title, "aria-label": ariaLabel }: SelectProps<V>) {
+export function MenuSelect<V extends SelectValue>({ value, onChange, options, groups, size = "md", disabled, className = "", highlighted, pill, title, "aria-label": ariaLabel }: SelectProps<V>) {
   const all = allOptions(options, groups);
   return (
     <RSelect.Root
@@ -38,7 +38,7 @@ export function MenuSelect<V extends SelectValue>({ value, onChange, options, gr
       }}
       disabled={disabled}
     >
-      <RSelect.Trigger aria-label={ariaLabel} title={title} tabIndex={-1} className={`${triggerClass(size, highlighted)} ${className}`}>
+      <RSelect.Trigger aria-label={ariaLabel} title={title} tabIndex={-1} className={`${triggerClass(size, highlighted, pill)} ${className}`}>
         <span className="truncate"><RSelect.Value /></span>
         <RSelect.Icon><Chevron size={chevronSize[size]} /></RSelect.Icon>
       </RSelect.Trigger>
