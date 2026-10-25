@@ -1,5 +1,6 @@
 import Link from "next/link";
 import AudioDevicesButton from "./AudioDevicesButton";
+import { TunerButton } from "@/features/tuner";
 import ThemeSwitcher from "./ThemeSwitcher";
 import TheoryMenu from "./TheoryMenu";
 import Wordmark from "./Wordmark";
@@ -22,7 +23,8 @@ function NavLink({ href, label, current, small }: { href: string; label: string;
   );
 }
 
-/** The Music Kit top navigation. Shared by every page; knows nothing about any feature. `devices` adds the audio devices button after the style. */
+/** The Music Kit top navigation. Shared by every page. The tuner button (a pop-up tuner) sits left of the style, except on the tuner page;
+ * `devices` adds the audio devices button after the style. */
 export default function SiteNav({ active, devices = false }: { active: string; devices?: boolean }) {
   const [home, ...rest] = SITE_LINKS;
   return (
@@ -35,8 +37,9 @@ export default function SiteNav({ active, devices = false }: { active: string; d
       {rest.map((l) => (
         <NavLink key={l.href} {...l} current={isActive(active, l.href)} />
       ))}
-      <ThemeSwitcher className="ml-auto" compact={devices} />
-      {devices && <AudioDevicesButton className="ml-1 sm:ml-1.5" />}
+      {active !== "/tuner" && <TunerButton className="ml-auto sm:mr-1.5" />}
+      <ThemeSwitcher className={active === "/tuner" ? "ml-auto" : ""} compact />
+      {devices && <AudioDevicesButton className="sm:ml-1.5" />}
     </nav>
   );
 }

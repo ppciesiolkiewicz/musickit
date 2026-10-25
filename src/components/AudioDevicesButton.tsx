@@ -105,7 +105,8 @@ export default function AudioDevicesButton({ className = "" }: { className?: str
       >
         <Icon name="settings" size={15} className="text-sky-400 transition-transform duration-300 group-hover:rotate-45" />
         <span className="hidden h-3.5 w-px bg-slate-500/50 sm:block" aria-hidden />
-        <span className="flex items-center gap-1 text-slate-300 sm:gap-1.5 transition group-hover:text-slate-100" aria-hidden>
+        {/* just the cog on phones, so the nav stays on one line */}
+        <span className="hidden items-center gap-1.5 text-slate-300 transition group-hover:text-slate-100 sm:flex" aria-hidden>
           <Icon name="headphones" size={14} />
           <Icon name="guitar" size={14} />
         </span>
