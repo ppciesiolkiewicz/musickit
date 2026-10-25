@@ -44,7 +44,8 @@ describe("voices and ranges", () => {
     assert.equal(voiceOf({ low: 48, high: 70 }), null);
   });
   it("clef by the middle of the range", () => {
-    assert.equal(clefFor(VOICES.tenor), "treble");
+    assert.equal(clefFor(VOICES.alto), "treble");
+    assert.equal(clefFor(VOICES.tenor), "treble8");
     assert.equal(clefFor(VOICES.baritone), "bass");
   });
   it("moving one end past the other pushes it along", () => {
@@ -73,6 +74,7 @@ describe("spellName", () => {
   it("places on the clef asked for", () => {
     assert.equal(place(spellName("E", 64), 0, "treble").step, 0);
     assert.equal(place(spellName("E", 64), 0, "bass").step, 12);
+    assert.equal(place(spellName("E", 52), 0, "treble8").step, 0);
   });
 });
 

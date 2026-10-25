@@ -8,7 +8,7 @@ import { createSmoother, type Pitch } from "@/features/tuner/pitch";
 import { DEFAULT_KEY_PC } from "@/features/theory/theory";
 import { getAudioContext, getSharedPiano, midiToName, onSilence, playSequence, silence, wakeAudio } from "@/features/sound";
 import type { PocketStatus } from "@/features/instruments";
-import { RANGE_MAX, RANGE_MIN, VOICES, buildLadder, clefFor, hzToMidi, sanitiseRange, scaleRun, setRangeEnd, voiceOf, type Range, type Voice } from "@/features/theory/singing";
+import { RANGE_MAX, RANGE_MIN, VOICES, buildLadder, clefFor, hzToMidi, sanitiseRange, scaleRun, setRangeEnd, voiceOf, withNotesUnder, type Range, type Voice } from "@/features/theory/singing";
 import type { MelodyLength } from "@/features/theory/singingMelody";
 import { BOOK, LEVELS, levelOf, placeTune, type BookTune, type PlacedNote } from "@/features/theory/singingMelodies";
 import SingingStaff from "./SingingStaff";
@@ -69,9 +69,9 @@ export default function SingingApp() {
   const voice = voiceOf(range);
   const clef = clefFor(range);
   const ladder = useMemo(() => buildLadder(scale, tonicPc, range) ?? buildLadder("major-ionian", tonicPc, range)!, [scale, tonicPc, range]);
-  // the tunes are written in seven-note degrees: a pentatonic sings them in its major or minor
+  // the tunes are written in seven-note degrees: a pentatonic sings them in its major or minor; they can dip under the lowest Do
   const tuneLadder = useMemo(
-    () => (ladder.pcs.size === 7 ? ladder : buildLadder(ladder.notes.some((n) => n.label === "♭3") ? "natural-minor-aeolian" : "major-ionian", tonicPc, range)!),
+    () => withNotesUnder(ladder.pcs.size === 7 ? ladder : buildLadder(ladder.notes.some((n) => n.label === "♭3") ? "natural-minor-aeolian" : "major-ionian", tonicPc, range)!, range),
     [ladder, tonicPc, range],
   );
   const placed = useMemo(() => new Map(BOOK.map((t) => [t.n, placeTune(t.notes, tuneLadder, range)])), [tuneLadder, range]);

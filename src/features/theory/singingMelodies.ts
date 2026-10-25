@@ -164,16 +164,19 @@ export interface PlacedNote extends LadderNote {
   at: number;
 }
 
+/** How far up the range a tune's middle is aimed: low, in the chest voice, rather than in the middle where it reaches for the top. */
+export const CHEST = 0.3;
+
 /**
- * A tune on a seven-note ladder: on the Do (of the ones it fits around) whose middle lies nearest the middle of the
- * range, so a tune that dips under Do starts from a higher one. A range too small for the tune keeps every note
- * inside it by clamping.
+ * A tune on a seven-note ladder: on the Do (of the ones it fits around) whose middle lies nearest a point low in the
+ * range (CHEST), so a tune sits in the chest voice and only a wide one climbs higher. A range too small for the tune
+ * keeps every note inside it by clamping.
  */
 export function placeTune(tune: MelodyNote[], ladder: Ladder, range: Range): PlacedNote[] {
   const top = ladder.notes.length - 1;
   const hi = Math.max(...tune.map((n) => n.step));
   const lo = Math.min(...tune.map((n) => n.step));
-  const mid = (range.low + range.high) / 2;
+  const mid = range.low + (range.high - range.low) * CHEST;
   const at = (i: number) => ladder.notes[Math.max(0, Math.min(top, i))];
   const roots = ladder.notes.flatMap((n, i) => (n.label === "R" ? [i] : []));
   const fit = roots.filter((r) => r + lo >= 0 && r + hi <= top);

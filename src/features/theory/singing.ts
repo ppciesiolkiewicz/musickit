@@ -45,8 +45,14 @@ export function sanitiseRange(v: unknown): Range | null {
   return r.low >= RANGE_MIN && r.high <= RANGE_MAX && r.high - r.low >= 2 ? r : null;
 }
 
-/** Treble for a range centred on middle C or higher, bass under it. */
-export const clefFor = (r: Range): Clef => ((r.low + r.high) / 2 >= 59 ? "treble" : "bass");
+/**
+ * The clef singers read in for a range, by its middle: treble for the higher voices (alto and up), the tenor's treble
+ * with an 8 under it for one centred around middle C, bass for baritone and bass.
+ */
+export function clefFor(r: Range): Clef {
+  const mid = (r.low + r.high) / 2;
+  return mid >= 63 ? "treble" : mid >= 57 ? "treble8" : "bass";
+}
 
 /** A range with one end moved, the other pushed along so it stays at least a whole tone away, inside RANGE_MIN to RANGE_MAX. */
 export function setRangeEnd(r: Range, end: keyof Range, midi: number): Range {
@@ -117,6 +123,15 @@ export function buildLadder(slug: string, tonicPc: number, range: Range): Ladder
       notes.push({ midi, spelled: spellName(t.name, midi, t.label), degree: t.degree, label: t.label });
     }
   return { notes, signature: scaleSignature(s.ctx).count, pcs: new Set(s.tones.map((t) => (tonicPc + t.semis) % 12)), title: s.title };
+}
+
+/** The ladder with the scale's notes under its lowest root added, down to the bottom of the range, so a tune can dip under Do. */
+export function withNotesUnder(l: Ladder, range: Range): Ladder {
+  const under = l.notes
+    .slice(0, l.pcs.size)
+    .map((n) => ({ ...n, midi: n.midi - 12, spelled: { ...n.spelled, midi: n.midi - 12, octave: n.spelled.octave - 1 } }))
+    .filter((n) => n.midi >= range.low);
+  return { ...l, notes: [...under, ...l.notes] };
 }
 
 /**

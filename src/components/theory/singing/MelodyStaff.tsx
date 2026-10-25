@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useLayoutEffect, useRef, useState, type RefObject } from "react";
 import { place, signatureGlyphs, type Clef, type Placed } from "@/features/theory/piano/staff";
+import ClefGlyph from "./ClefGlyph";
 import { degreeColour } from "@/features/theory/scales";
 import { solfege } from "@/features/theory/labels";
 import { IN_TUNE_CENTS, locate, type Fit, type Ladder } from "@/features/theory/singing";
@@ -190,7 +191,7 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
             <line x1={8} x2={8} y1={yOf(8)} y2={yOf(0)} strokeWidth={1.5} />
           </g>
           <g fill={ink.glyph} textAnchor="middle">
-            {clef === "treble" ? <text x={30} y={yOf(1) + 5} fontSize={62}>𝄞</text> : <text x={30} y={yOf(6) + 12} fontSize={42}>𝄢</text>}
+            <ClefGlyph clef={clef} yOf={yOf} />
             {sig.map((g, i) => <text key={i} x={56 + i * 9} y={yOf(g.step) + 6} fontSize={20}>{g.glyph}</text>)}
             <text x={timeX} y={yOf(6) + 7} fontSize={19} fontWeight={700}>4</text>
             <text x={timeX} y={yOf(2) + 7} fontSize={19} fontWeight={700}>4</text>

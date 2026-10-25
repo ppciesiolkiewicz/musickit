@@ -11,7 +11,7 @@ import { place, signatureGlyphs, type Clef } from "@/features/theory/piano/staff
 
 const W = 640;
 const HALF = 4; // px per staff step (a line to the next space)
-const BOTTOM: Record<Clef, number> = { treble: 128, bass: 208 }; // room above for ledger notes up to B7
+const BOTTOM: Record<Clef, number> = { treble: 128, treble8: 128, bass: 208 }; // room above for ledger notes up to B7; treble8 is never placed here
 const NOW_X = 460;
 const SLOT = 100; // px between steps
 const NAME_Y = 274;

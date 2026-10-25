@@ -4,9 +4,10 @@
  */
 import type { Spelled } from "./key";
 
-export type Clef = "treble" | "bass";
+/** "treble8" is the tenor's clef: a treble clef with an 8 under it, sounding an octave lower than written. */
+export type Clef = "treble" | "treble8" | "bass";
 
-/** step 0 = bottom line of the clef's staff, +1 per line or space (treble: E4 = 0, F5 = 8; bass: G2 = 0, A3 = 8) */
+/** step 0 = bottom line of the clef's staff, +1 per line or space (treble: E4 = 0, F5 = 8; treble8: E3 = 0, F4 = 8; bass: G2 = 0, A3 = 8) */
 export interface Placed {
   clef: Clef;
   step: number;
@@ -16,10 +17,10 @@ export interface Placed {
 
 const LETTER_INDEX: Record<Spelled["letter"], number> = { C: 0, D: 1, E: 2, F: 3, G: 4, A: 5, B: 6 };
 /** diatonic index (octave * 7 + letter) of each clef's bottom line */
-const BOTTOM: Record<Clef, number> = { treble: 4 * 7 + 2, bass: 2 * 7 + 4 };
+const BOTTOM: Record<Clef, number> = { treble: 4 * 7 + 2, treble8: 3 * 7 + 2, bass: 2 * 7 + 4 };
 const SHARP_ORDER: Spelled["letter"][] = ["F", "C", "G", "D", "A", "E", "B"];
 const FLAT_ORDER: Spelled["letter"][] = ["B", "E", "A", "D", "G", "C", "F"];
-/** conventional treble positions; the bass clef sits two steps lower */
+/** conventional treble positions (the tenor's treble too); the bass clef sits two steps lower */
 const SHARP_STEPS = [8, 5, 9, 6, 3, 7, 4];
 const FLAT_STEPS = [4, 7, 3, 6, 2, 5, 1];
 const GLYPH: Record<number, Placed["accidental"]> = { [-2]: "𝄫", [-1]: "♭", 0: "♮", 1: "♯", 2: "𝄪" };

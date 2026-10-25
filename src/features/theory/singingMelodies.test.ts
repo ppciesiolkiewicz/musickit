@@ -1,7 +1,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { BOOK, LEVELS, STAGES, levelOf, parseTune, placeTune } from "./singingMelodies";
-import { VOICES, buildLadder } from "./singing";
+import { VOICES, buildLadder, withNotesUnder } from "./singing";
 
 describe("the melody book", () => {
   it("reads the tune notation", () => {
@@ -58,8 +58,18 @@ describe("the melody book", () => {
     assert.deepEqual(up.map((n) => n.spelled.name), ["G", "C", "D", "B", "C"]);
     assert.equal(up[1].midi, 60);
     const low = placeTune(parseTune("1 2 3 2 | 1w"), l, VOICES.tenor);
-    assert.ok(low.every((n) => n.midi >= 48 && n.midi <= 72));
+    assert.equal(low[0].midi, 48);
     for (const t of BOOK) for (const n of placeTune(t.notes, l, VOICES.tenor)) assert.ok(n.midi >= 48 && n.midi <= 72);
+  });
+
+  it("sits a tune low in the voice, using the notes under the lowest Do", () => {
+    const g = withNotesUnder(buildLadder("major-ionian", 7, VOICES.tenor)!, VOICES.tenor); // C3 up, Do on G3
+    assert.equal(g.notes[0].spelled.name, "C");
+    assert.equal(g.notes[0].midi, 48);
+    assert.equal(placeTune(parseTune("1 2 3 2 | 1w"), g, VOICES.tenor)[0].midi, 55);
+    const under = placeTune(parseTune("5, 1 2 7, | 1w"), g, VOICES.tenor);
+    assert.deepEqual(under.map((n) => n.midi), [50, 55, 57, 54, 55]);
+    for (const t of BOOK) for (const n of placeTune(t.notes, g, VOICES.tenor)) assert.ok(n.midi >= 48 && n.midi <= 72);
   });
 });
 
