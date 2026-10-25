@@ -1,29 +1,66 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { buildLadder, fitOf, hzToMidi, locate, spellName } from "./singing";
+import { RANGE_MIN, VOICES, buildLadder, clefFor, fitOf, hzToMidi, locate, scaleRun, setRangeEnd, spellName, voiceOf } from "./singing";
 import { place } from "./piano/staff";
 
 describe("singing ladder", () => {
-  it("E major, high voice: two octaves E3 to E5, the middle octave home", () => {
-    const l = buildLadder("major-ionian", 4, "high")!;
-    assert.equal(l.notes.length, 15);
-    assert.equal(l.notes[0].midi, 52);
-    assert.equal(l.notes[14].midi, 76);
-    assert.deepEqual(l.notes.filter((n) => n.home).map((n) => n.spelled.name), ["E", "F♯", "G♯", "A", "B", "C♯", "D♯", "E"]);
+  it("E major, soprano (C4 to C6): starts on the lowest E, E4 to B5", () => {
+    const l = buildLadder("major-ionian", 4, VOICES.soprano)!;
+    assert.equal(l.notes[0].midi, 64);
+    assert.equal(l.notes[0].label, "R");
+    assert.equal(l.notes.at(-1)!.midi, 83);
+    assert.equal(l.notes.length, 12);
     assert.equal(l.signature, 4);
     assert.equal(l.title, "E major");
   });
-  it("the low voice sits an octave down", () => {
-    assert.equal(buildLadder("major-ionian", 4, "low")!.notes[0].midi, 40);
+  it("C major, tenor: two octaves root to root", () => {
+    const l = buildLadder("major-ionian", 0, VOICES.tenor)!;
+    assert.equal(l.notes.length, 15);
+    assert.deepEqual([l.notes[0].midi, l.notes[14].midi], [48, 72]);
+  });
+  it("a custom range ends on the highest scale note in it (a five-note run)", () => {
+    const l = buildLadder("major-ionian", 0, { low: 60, high: 67 })!;
+    assert.deepEqual(l.notes.map((n) => n.spelled.name), ["C", "D", "E", "F", "G"]);
+  });
+  it("no root in the range: the one just under it, and at least two notes", () => {
+    const l = buildLadder("major-ionian", 7, { low: 60, high: 62 })!;
+    assert.deepEqual(l.notes.map((n) => n.midi), [55, 57, 59, 60, 62]);
+    assert.equal(buildLadder("major-ionian", 0, { low: 60, high: 61 })!.notes.length, 2);
   });
   it("pentatonics take their five notes and the host's signature", () => {
-    const l = buildLadder("minor-pentatonic", 9, "high")!;
-    assert.equal(l.notes.length, 11);
-    assert.deepEqual(l.notes.slice(5, 11).map((n) => n.spelled.name), ["A", "C", "D", "E", "G", "A"]);
+    const l = buildLadder("minor-pentatonic", 9, VOICES.alto)!;
+    assert.deepEqual(l.notes.slice(0, 6).map((n) => n.spelled.name), ["A", "C", "D", "E", "G", "A"]);
+    assert.equal(l.notes[0].midi, 57);
     assert.equal(l.signature, 0);
   });
   it("unknown scale is null", () => {
-    assert.equal(buildLadder("nope", 0, "high"), null);
+    assert.equal(buildLadder("nope", 0, VOICES.soprano), null);
+  });
+});
+
+describe("voices and ranges", () => {
+  it("names a voice's own range, null for a custom one", () => {
+    assert.equal(voiceOf({ low: 48, high: 72 }), "tenor");
+    assert.equal(voiceOf({ low: 48, high: 70 }), null);
+  });
+  it("clef by the middle of the range", () => {
+    assert.equal(clefFor(VOICES.tenor), "treble");
+    assert.equal(clefFor(VOICES.baritone), "bass");
+  });
+  it("moving one end past the other pushes it along", () => {
+    assert.deepEqual(setRangeEnd({ low: 60, high: 72 }, "low", 75), { low: 75, high: 77 });
+    assert.deepEqual(setRangeEnd({ low: 60, high: 72 }, "high", 55), { low: 53, high: 55 });
+    assert.deepEqual(setRangeEnd({ low: 60, high: 72 }, "high", 76), { low: 60, high: 76 });
+    assert.deepEqual(setRangeEnd({ low: 60, high: 72 }, "low", 10), { low: RANGE_MIN, high: 72 });
+  });
+});
+
+describe("scaleRun", () => {
+  it("up, rest beats, then down from the top", () => {
+    assert.deepEqual(scaleRun(3, 2), [0, 1, 2, null, null, 2, 1, 0]);
+  });
+  it("no rest: the top once", () => {
+    assert.deepEqual(scaleRun(3, 0), [0, 1, 2, 1, 0]);
   });
 });
 

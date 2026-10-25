@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { LabelSelect, useLabelSystem } from "@/features/theory/useLabelSystem";
@@ -59,7 +59,7 @@ const LABEL_INFO = "How notes are labelled: note names, intervals from the root 
  * `scale` is the current mode page's slug; leave it out on the index.
  */
 export function ScaleSettingsBar({
-  tonicPc, onTonic, scale, onScale, omitLabels, labels: showLabels = true, children, side = false,
+  tonicPc, onTonic, scale, onScale, omitLabels, labels: showLabels = true, children, side = false, onStatus,
 }: {
   /** drawn as the right-hand column of `WithSettings` on wide screens */
   side?: boolean;
@@ -73,6 +73,8 @@ export function ScaleSettingsBar({
   labels?: boolean;
   /** more rows of the host's own, under the key */
   children?: ReactNode;
+  /** the pocket tools' status (tempo, its next beat) for the host as well; keep it stable (a state setter) */
+  onStatus?: (s: PocketStatus) => void;
 }) {
   const [open, setOpen] = useState(true);
   // true until the bar has folded itself once or been toggled by hand
@@ -97,6 +99,10 @@ export function ScaleSettingsBar({
     setOpen((v) => !v);
   };
   const [status, setStatus] = useState<PocketStatus | null>(null);
+  const onPocket = useCallback((s: PocketStatus) => {
+    setStatus(s);
+    onStatus?.(s);
+  }, [onStatus]);
   const [labels] = useLabelSystem();
   const keyName = TONICS.find((t) => t.pc === tonicPc)?.name;
   const scaleName = scale ? (MODE_PAGES.find((m) => m.slug === scale) ?? findPentatonic(scale))?.name : undefined;
@@ -148,7 +154,7 @@ export function ScaleSettingsBar({
           )}
         </div>
         {/* play-along tools: under the settings on narrow screens, on the right once there is room */}
-        <PocketTools keyPc={tonicPc} onStatus={setStatus} stacked={side} className={`border-t border-slate-800 pt-2 ${side ? "" : "xl:border-l xl:border-t-0 xl:pl-4 xl:pt-0"}`} />
+        <PocketTools keyPc={tonicPc} onStatus={onPocket} stacked={side} className={`border-t border-slate-800 pt-2 ${side ? "" : "xl:border-l xl:border-t-0 xl:pl-4 xl:pt-0"}`} />
       </div>
     </div>
   );

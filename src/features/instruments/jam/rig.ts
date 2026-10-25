@@ -405,6 +405,12 @@ export class JamRig {
     this.changed();
   }
 
+  /** When the grid's next beat sounds (AudioContext time) while anything keeps it, else null: for a host to play along on the click. */
+  nextBeatAt(): number | null {
+    if (!this.ctx || this.anchor === null || !this.busy()) return null;
+    return nextBeat(this.ctx.currentTime + 0.02, this.anchor, this.beat);
+  }
+
   /** The beat of the bar sounding now (0 = beat 1) while anything keeps the grid, else null. */
   beatNow(): number | null {
     if (!this.ctx || this.anchor === null || !this.busy()) return null;

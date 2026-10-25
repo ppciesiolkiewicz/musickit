@@ -1,5 +1,5 @@
 /**
- * The singing staff: a scale's notes laid out low to high, one slot apart, and where a sung pitch falls among them.
+ * The singing staff: a scale's notes laid out low to high from the root, one slot apart, and where a sung pitch falls among them.
  * The dot's height and its place along the staff are both read off the two scale notes the pitch sits between, so a
  * pitch exactly on a scale note lands on its notehead and one halfway to the next lands halfway on both axes.
  * Pure maths, no React (tested).
@@ -11,13 +11,40 @@ import { scaleSignature } from "./signature";
 import type { Spelled } from "./piano/key";
 import type { Clef } from "./piano/staff";
 
-export type Voice = "high" | "low";
+export type Voice = "soprano" | "mezzo" | "alto" | "tenor" | "baritone" | "bass";
 
-/** Where each voice's tonic sits (the tonic's MIDI note is base + key) and the clef it is written in. */
-export const VOICES: Record<Voice, { base: number; clef: Clef; label: string }> = {
-  high: { base: 60, clef: "treble", label: "High (treble)" },
-  low: { base: 48, clef: "bass", label: "Low (bass)" },
+/** A singing range, lowest and highest MIDI note. */
+export interface Range {
+  low: number;
+  high: number;
+}
+
+/** Each voice type's comfortable range, two octaves. */
+export const VOICES: Record<Voice, Range & { label: string }> = {
+  soprano: { low: 60, high: 84, label: "Soprano" },
+  mezzo: { low: 57, high: 81, label: "Mezzo" },
+  alto: { low: 53, high: 77, label: "Alto" },
+  tenor: { low: 48, high: 72, label: "Tenor" },
+  baritone: { low: 43, high: 67, label: "Baritone" },
+  bass: { low: 40, high: 64, label: "Bass" },
 };
+
+/** The notes a custom range can run between, C2 to C7. */
+export const RANGE_MIN = 36;
+export const RANGE_MAX = 96;
+
+/** The voice type whose range this is exactly, or null for a custom one. */
+export const voiceOf = (r: Range): Voice | null => (Object.keys(VOICES) as Voice[]).find((v) => VOICES[v].low === r.low && VOICES[v].high === r.high) ?? null;
+
+/** Treble for a range centred on middle C or higher, bass under it. */
+export const clefFor = (r: Range): Clef => ((r.low + r.high) / 2 >= 59 ? "treble" : "bass");
+
+/** A range with one end moved, the other pushed along so it stays at least a whole tone away, inside RANGE_MIN to RANGE_MAX. */
+export function setRangeEnd(r: Range, end: keyof Range, midi: number): Range {
+  const m = Math.max(RANGE_MIN, Math.min(RANGE_MAX, midi));
+  if (end === "low") return { low: Math.min(m, RANGE_MAX - 2), high: Math.max(r.high, Math.min(m, RANGE_MAX - 2) + 2) };
+  return { low: Math.min(r.low, Math.max(m, RANGE_MIN + 2) - 2), high: Math.max(m, RANGE_MIN + 2) };
+}
 
 export interface LadderNote {
   midi: number;
@@ -26,8 +53,6 @@ export interface LadderNote {
   degree: number;
   /** "R", "♭3" */
   label: string;
-  /** in the octave from the tonic up to the next tonic (the one to sing); the rest is dimmed */
-  home: boolean;
 }
 
 export interface Ladder {
@@ -65,19 +90,34 @@ function tonesOf(slug: string, tonicPc: number): { tones: { semis: number; name:
   return { ctx: p.host, title: p.title, tones: p.tones.map((t) => ({ semis: t.semis, name: t.name, degree: t.degree, label: t.label })) };
 }
 
-/** Every note of the scale from an octave under the tonic to an octave over it, low to high. `null` for an unknown scale. */
-export function buildLadder(slug: string, tonicPc: number, voice: Voice): Ladder | null {
+/**
+ * The notes of the scale in a range, low to high, always starting on the root: the lowest root in the range (the one just
+ * under it when none fits), up to the highest scale note in the range, and at least the note after the root.
+ * `null` for an unknown scale.
+ */
+export function buildLadder(slug: string, tonicPc: number, range: Range): Ladder | null {
   const s = tonesOf(slug, tonicPc);
   if (!s) return null;
-  const tonic = VOICES[voice].base + tonicPc;
+  let tonic = range.low + ((((tonicPc - range.low) % 12) + 12) % 12);
+  if (tonic > range.high) tonic -= 12;
   const notes: LadderNote[] = [];
-  for (let o = -1; o <= 1; o++)
+  for (let o = 0; o <= (RANGE_MAX - RANGE_MIN) / 12; o++)
     for (const t of s.tones) {
       const midi = tonic + 12 * o + t.semis;
-      if (midi > tonic + 12) continue;
-      notes.push({ midi, spelled: spellName(t.name, midi, t.label), degree: t.degree, label: t.label, home: midi >= tonic && midi <= tonic + 12 });
+      if (midi > range.high && notes.length >= 2) break;
+      notes.push({ midi, spelled: spellName(t.name, midi, t.label), degree: t.degree, label: t.label });
     }
   return { notes, signature: scaleSignature(s.ctx).count, pcs: new Set(s.tones.map((t) => (tonicPc + t.semis) % 12)), title: s.title };
+}
+
+/**
+ * A run of the ladder on the beat, one entry per beat: up from the root to the top, `rest` beats of silence (null) to
+ * take a breath, then down from the top to the root. With no rest the top is sung once.
+ */
+export function scaleRun(n: number, rest: number): (number | null)[] {
+  const up = Array.from({ length: n }, (_, i) => i);
+  const down = up.slice().reverse().slice(rest > 0 ? 0 : 1);
+  return [...up, ...Array<null>(Math.max(0, rest)).fill(null), ...down];
 }
 
 export interface Located {

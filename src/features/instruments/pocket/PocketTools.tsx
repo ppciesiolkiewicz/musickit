@@ -160,8 +160,11 @@ function BeatDots({ rig, playing }: { rig: JamRig; playing: boolean }) {
  * again; outside that it leaves Space to the page. The drone (and with it the bass) sits on `keyPc`. Owns its audio, made on the
  * first click; saved in localStorage `musickit.pocket` (settings only; nothing plays on load).
  */
-/** What the pocket tools are doing, for a host to show in its header: the tempo, the drone's note and which parts play. */
-export type PocketStatus = { bpm: number; drone: string; playing: string[] };
+/**
+ * What the pocket tools are doing, for a host to show in its header: the tempo, the drone's note and which parts play;
+ * `nextBeat` is when the grid's next beat sounds (AudioContext time), or null when nothing keeps it, for a host to play on the click.
+ */
+export type PocketStatus = { bpm: number; drone: string; playing: string[]; nextBeat: () => number | null };
 
 export default function PocketTools({ keyPc, className = "", stacked = false, onStatus }: { keyPc: number; className?: string; /** one line per tool at every width, for a narrow side column */ stacked?: boolean; onStatus?: (s: PocketStatus) => void }) {
   const [rig] = useState(() => new JamRig());
@@ -253,8 +256,8 @@ export default function PocketTools({ keyPc, className = "", stacked = false, on
   const droneLabel = droneName(snap.parts.drone.state.drone);
   const playingKey = [...(snap.click.on ? ["click"] : []), ...playingParts].join(",");
   useEffect(() => {
-    onStatus?.({ bpm: snap.bpm, drone: droneLabel, playing: playingKey ? playingKey.split(",") : [] });
-  }, [onStatus, snap.bpm, droneLabel, playingKey]);
+    onStatus?.({ bpm: snap.bpm, drone: droneLabel, playing: playingKey ? playingKey.split(",") : [], nextBeat: () => rig.nextBeatAt() });
+  }, [onStatus, rig, snap.bpm, droneLabel, playingKey]);
 
   const tap = () => {
     const now = performance.now() / 1000;

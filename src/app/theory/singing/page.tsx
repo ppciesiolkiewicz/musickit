@@ -5,7 +5,7 @@ import SingingApp from "@/components/theory/singing/SingingApp";
 
 export const metadata: Metadata = {
   title: "Singing · Music Kit",
-  description: "Sing a scale and watch your voice as a dot on the staff, moving over the notes as you sing, with a drone and a metronome to sing against.",
+  description: "Sing a scale and watch your voice as a dot on the staff, moving over the notes as you sing. Tap a note to hear it, play the scale up and down on the beat, with a drone and a metronome to sing against.",
 };
 
 export default function SingingPage() {
@@ -13,9 +13,9 @@ export default function SingingPage() {
     <PageShell
       active="/theory/singing"
       title="Singing"
-      intro="Pick a key, a scale and your voice range, switch the mic on and sing: a dot follows your voice over two octaves of the scale on the staff, up and down with the pitch and along from one note to the next."
+      intro="Pick a key, a scale and your voice type (or any range), tap a note to hear it or play the scale up and down on the beat, then switch the mic on and sing: a dot follows your voice over the scale on the staff, up and down with the pitch and along from one note to the next."
     >
-      <Lesson stage={2} why="Singing a scale is the fastest way to hear it: once your voice can find each degree, your fingers have a sound to aim for." tryThis="Start the drone on the root, sing the root until the dot sits still on it, then walk up one note at a time and back down." />
+      <Lesson stage={2} why="Singing a scale is the fastest way to hear it: once your voice can find each degree, your fingers have a sound to aim for." tryThis="Play the scale once and listen, then play it again and sing along with the mic on. The rest at the top is your breath before the way down." />
       <SingingApp />
     </PageShell>
   );

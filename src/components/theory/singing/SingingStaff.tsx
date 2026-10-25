@@ -8,8 +8,9 @@ import { fitOf, locate, type Fit, type Ladder } from "@/features/theory/singing"
 /**
  * One five-line staff with every note of the ladder on it, low to high, and a dot for the voice: it rides up and down
  * with the pitch and along between the two scale notes it sits between, leaving a short fading tail. When all the notes
- * fit the width the staff stays still; when they don't (a phone) the staff slides so the dot stays in view.
- * `pitch` holds the sung note as fractional MIDI, or null in silence; it is read every animation frame.
+ * fit the width the staff stays still; when they don't (a phone) the staff slides so the dot (or, in silence, the note
+ * being played) stays in view. `pitch` holds the sung note as fractional MIDI, or null in silence; it is read every
+ * animation frame. Every note is a button (`onNote`); `played` is the ladder index of the note sounding, lit in sky.
  */
 
 const HALF = 5; // px per staff step
@@ -26,13 +27,14 @@ const ink = {
   name: "var(--color-slate-200)",
   degree: "var(--color-slate-400)",
 };
+const PLAYED = "var(--color-sky-300)";
 const DOT: Record<Fit, string> = { in: "var(--color-emerald-400)", out: "var(--color-rose-400)", between: "var(--color-amber-300)" };
 
 interface Point { x: number; step: number; t: number }
 interface View { dot: Point | null; cam: number; tail: Point[]; lastHeard: number; now: number; fit: Fit; nearest: number }
 const STILL: View = { dot: null, cam: 0, tail: [], lastHeard: -Infinity, now: 0, fit: "between", nearest: -1 };
 
-export default function SingingStaff({ ladder, clef, pitch }: { ladder: Ladder; clef: Clef; pitch: RefObject<number | null> }) {
+export default function SingingStaff({ ladder, clef, pitch, played, onNote }: { ladder: Ladder; clef: Clef; pitch: RefObject<number | null>; played: number | null; onNote: (i: number) => void }) {
   const wrap = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
   useLayoutEffect(() => {
@@ -63,6 +65,10 @@ export default function SingingStaff({ ladder, clef, pitch }: { ladder: Ladder; 
 
   // the moving parts live in a ref, and a copy of them is drawn once a frame
   const anim = useRef<View>({ ...STILL });
+  const playedRef = useRef(played);
+  useEffect(() => {
+    playedRef.current = played;
+  }, [played]);
   const [a, setView] = useState<View>(STILL);
   useEffect(() => {
     let raf = 0;
@@ -82,8 +88,9 @@ export default function SingingStaff({ ladder, clef, pitch }: { ladder: Ladder; 
         a.nearest = Math.abs(at.cents) <= 25 ? at.nearest : -1;
       } else if (now - a.lastHeard > SILENCE_MS) a.nearest = -1;
       a.tail = a.tail.filter((p) => now - p.t < TAIL_MS);
-      if (a.dot && maxCam > 0) {
-        const want = Math.max(0, Math.min(maxCam, a.dot.x * slot - room / 2));
+      const follow = a.dot ? a.dot.x : playedRef.current;
+      if (follow !== null && maxCam > 0) {
+        const want = Math.max(0, Math.min(maxCam, follow * slot - room / 2));
         a.cam += (want - a.cam) * 0.08;
       } else if (maxCam === 0) a.cam = 0;
       else a.cam = Math.min(a.cam, maxCam);
@@ -96,13 +103,11 @@ export default function SingingStaff({ ladder, clef, pitch }: { ladder: Ladder; 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ladder, clef, slot, maxCam, room]);
 
-  // a new scale or voice starts with the tonic of the home octave at the left, its octave running on from there
+  // a new scale or range starts with the root at the left
   useEffect(() => {
-    const home = notes.findIndex((n) => n.home);
-    anim.current.cam = Math.max(0, Math.min(maxCam, home * slot - slot / 2));
+    anim.current.cam = 0;
     anim.current.dot = null;
     anim.current.tail = [];
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ladder, clef]);
 
   const now = a.now;
@@ -136,20 +141,31 @@ export default function SingingStaff({ ladder, clef, pitch }: { ladder: Ladder; 
               if (x < x0 - 40 || x > width + 40) return null;
               const y = yOf(p.step);
               const lit = a.nearest === i && showDot;
+              const on = played === i;
               const c = degreeColour(n.degree);
+              const bold = lit || on ? 700 : 400;
               return (
-                <g key={n.midi} opacity={n.home ? 1 : 0.5}>
+                <g
+                  key={n.midi}
+                  role="button"
+                  aria-label={`Play ${n.spelled.name}`}
+                  className="cursor-pointer"
+                  onClick={() => onNote(i)}
+                >
+                  {/* the whole column is the button, not just the notehead */}
+                  <rect x={x - slot / 2} y={0} width={slot} height={H} rx={6} fill={on ? PLAYED : "transparent"} fillOpacity={on ? 0.1 : 0} />
                   {p.ledgers.map((l) => <line key={l} x1={x - 11} x2={x + 11} y1={yOf(l)} y2={yOf(l)} stroke={ink.line} />)}
                   {p.accidental && <text x={x - 10} y={y + 5} textAnchor="end" fontSize={15} fill={ink.glyph}>{p.accidental}</text>}
+                  {on && <circle cx={x} cy={y} r={13} fill={PLAYED} fillOpacity={0.25} stroke={PLAYED} strokeWidth={1.5} />}
                   {lit && <circle cx={x} cy={y} r={12} fill={c} fillOpacity={0.18} stroke={c} strokeOpacity={0.7} />}
                   <ellipse cx={x} cy={y} rx={6.5} ry={5} fill={c} transform={`rotate(-20 ${x} ${y})`} />
-                  <text x={x} y={labelsY + 12} textAnchor="middle" fontSize={11} fontWeight={lit ? 700 : 400} fill={ink.name}>{n.spelled.name}</text>
-                  <text x={x} y={labelsY + 27} textAnchor="middle" fontSize={11} fontWeight={lit ? 700 : 400} fill={lit ? c : ink.degree}>{n.label}</text>
+                  <text x={x} y={labelsY + 12} textAnchor="middle" fontSize={11} fontWeight={bold} fill={on ? PLAYED : ink.name}>{n.spelled.name}</text>
+                  <text x={x} y={labelsY + 27} textAnchor="middle" fontSize={11} fontWeight={bold} fill={lit ? c : on ? PLAYED : ink.degree}>{n.label}</text>
                 </g>
               );
             })}
             {showDot && (
-              <g opacity={dotOpacity}>
+              <g opacity={dotOpacity} pointerEvents="none">
                 {a.tail.map((p, i) => {
                   if (i === 0) return null;
                   const q = a.tail[i - 1];
