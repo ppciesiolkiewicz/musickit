@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getAudioContext, readDeviceChoice } from "@/features/sound";
+import { inSelectMenu } from "@/components/ui";
 import { readHz, resolveChoice } from "./choice";
 import { usePitch } from "./usePitch";
 import TunerMeter from "./TunerMeter";
@@ -68,7 +69,8 @@ export default function TunerButton({ className = "" }: { className?: string }) 
       stop.current?.();
       return;
     }
-    const away = (e: PointerEvent) => !box.current?.contains(e.target as Node) && setOpen(false);
+    // the selects' menus are portalled to <body>: picking an instrument is not a press outside
+    const away = (e: PointerEvent) => !inSelectMenu(e.target) && !box.current?.contains(e.target as Node) && setOpen(false);
     const esc = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
     window.addEventListener("pointerdown", away);
     window.addEventListener("keydown", esc);
