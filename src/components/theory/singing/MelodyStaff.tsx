@@ -39,7 +39,7 @@ const LABELS_H = 36;
 const TAIL_MS = 380;
 const SILENCE_MS = 220;
 /** the voice dot runs this far behind the bar, so a note is heard before it is sung against */
-export const DOT_LAG_MS = 250;
+export const DOT_LAG_MS = 90;
 /** beats of the end drawn again before the first bar */
 const LEAD = BEATS_PER_BAR / 2;
 const GHOST_OPACITY = 0.45;
