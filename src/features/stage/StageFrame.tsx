@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, type PointerEvent as RPointerEvent, type ReactNode } from "react";
 import Icon from "@/components/Icon";
-import { DEFAULT_VIEW, panView, resizeFrom, zoomAt, type Corner, type FrameRect, type Layer, type Stage, type StageAction } from "./model/layers";
+import { DEFAULT_VIEW, fixedRect, panView, resizeFrom, zoomAt, type Corner, type FrameRect, type Layer, type Stage, type StageAction } from "./model/layers";
 
 /** pixels a pointer moves inside a widget before it counts as a drag (below that, the click reaches the widget: a strum, a note) */
 const DRAG_SLOP = 4;
@@ -121,13 +121,15 @@ export default function StageFrame({ stage, renderLayer, onAction }: { stage: St
           const selected = stage.selected === l.id;
           const v = l.view ?? DEFAULT_VIEW;
           const show = selected ? "opacity-100" : "opacity-0 group-hover:opacity-100";
+          // the brand marks have a fixed place: no dragging, no resize dots
+          const fixed = !!fixedRect(l.subject);
           return (
             <div
               key={l.id}
               data-layer={l.id}
               className="group absolute"
               style={{ left: `${l.rect.x * 100}%`, top: `${l.rect.y * 100}%`, width: `${l.rect.w * 100}%`, height: `${l.rect.h * 100}%` }}
-              onPointerDown={(e) => start(e, l, "pending")}
+              onPointerDown={(e) => (fixed ? onAction({ type: "select", id: l.id }) : start(e, l, "pending"))}
               onClickCapture={(e) => {
                 // a drag that ends over the widget is not a click on it
                 if (dragged.current) {
@@ -145,7 +147,7 @@ export default function StageFrame({ stage, renderLayer, onAction }: { stage: St
                 </div>
               </div>
               <div className={`pointer-events-none absolute inset-0 rounded-[3px] ring-2 ring-sky-400/80 transition-opacity ${show}`} />
-              {CORNERS.map(({ c, cls }) => (
+              {!fixed && CORNERS.map(({ c, cls }) => (
                 <div
                   key={c}
                   title="Drag to resize"

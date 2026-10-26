@@ -58,6 +58,15 @@ export const SCREEN_CORNER: FrameRect = { x: 0.02, y: 0.52, w: 0.4, h: 0.45 };
 
 const SINGLE = new Set<Subject["kind"]>(["camera", "screen", "key", "tuner", "logo", "url"]);
 
+/** The brand marks sit in the top-right corner, the logo over the site address, and never move: they can only be shown or hidden. */
+const FIXED: Partial<Record<Subject["kind"], FrameRect>> = {
+  logo: { x: 0.83, y: 0.03, w: 0.15, h: 0.1 },
+  url: { x: 0.8, y: 0.135, w: 0.18, h: 0.06 },
+};
+
+/** The fixed place of a brand mark, or null for a widget that can be moved. */
+export const fixedRect = (s: Subject): FrameRect | null => FIXED[s.kind] ?? null;
+
 export function clampRect(r: FrameRect): FrameRect {
   const w = Math.min(1, Math.max(MIN_SIZE, r.w));
   const h = Math.min(1, Math.max(MIN_SIZE, r.h));
@@ -111,11 +120,10 @@ function baseRect(s: Subject): FrameRect {
     case "key":
       return { x: 0.02, y: 0.02, w: 0.42, h: 0.16 };
     case "tuner":
-      return { x: 0.6, y: 0.03, w: 0.3, h: 0.42 };
+      return { x: 0.48, y: 0.03, w: 0.3, h: 0.42 };
     case "logo":
-      return { x: 0.83, y: 0.03, w: 0.15, h: 0.12 };
     case "url":
-      return { x: 0.39, y: 0.91, w: 0.22, h: 0.07 };
+      return fixedRect(s)!;
     case "camera":
       return CAMERA_CORNER;
     case "screen":
@@ -126,7 +134,7 @@ function baseRect(s: Subject): FrameRect {
 /** Where a new widget goes: its kind's spot, moved down and right past any widget already sitting exactly there. */
 export function defaultRect(s: Subject, existing: Layer[]): FrameRect {
   let r = baseRect(s);
-  if (s.kind === "camera" || s.kind === "screen") return r;
+  if (s.kind === "camera" || s.kind === "screen" || fixedRect(s)) return r;
   const taken = (c: FrameRect) => existing.some((l) => Math.abs(l.rect.x - c.x) < 1e-6 && Math.abs(l.rect.y - c.y) < 1e-6);
   for (let i = 0; i < 20 && taken(r); i++) r = { ...r, x: r.x + OFFSET, y: r.y + OFFSET };
   return clampRect(r);
@@ -149,6 +157,8 @@ export type StageAction =
   | { type: "setStageKey"; key: KeyChoice };
 
 const edit = (s: Stage, id: string, f: (l: Layer) => Layer): Stage => ({ ...s, layers: s.layers.map((l) => (l.id === id ? f(l) : l)) });
+/** the same, but a fixed brand mark keeps its place, size and zoom */
+const place = (s: Stage, id: string, f: (l: Layer) => Layer): Stage => edit(s, id, (l) => (fixedRect(l.subject) ? l : f(l)));
 
 export function stageReducer(s: Stage, a: StageAction): Stage {
   switch (a.type) {
@@ -159,13 +169,13 @@ export function stageReducer(s: Stage, a: StageAction): Stage {
     case "remove":
       return { ...s, layers: s.layers.filter((l) => l.id !== a.id), selected: s.selected === a.id ? null : s.selected };
     case "move":
-      return edit(s, a.id, (l) => ({ ...l, rect: clampRect({ ...l.rect, x: l.rect.x + a.dx, y: l.rect.y + a.dy }) }));
+      return place(s, a.id, (l) => ({ ...l, rect: clampRect({ ...l.rect, x: l.rect.x + a.dx, y: l.rect.y + a.dy }) }));
     case "resize":
-      return edit(s, a.id, (l) => ({ ...l, rect: clampRect({ ...l.rect, w: l.rect.w + a.dw, h: l.rect.h + a.dh }) }));
+      return place(s, a.id, (l) => ({ ...l, rect: clampRect({ ...l.rect, w: l.rect.w + a.dw, h: l.rect.h + a.dh }) }));
     case "setRect":
-      return edit(s, a.id, (l) => ({ ...l, rect: clampRect(a.rect) }));
+      return place(s, a.id, (l) => ({ ...l, rect: clampRect(a.rect) }));
     case "setView":
-      return edit(s, a.id, (l) => ({ ...l, view: clampView(a.view) }));
+      return place(s, a.id, (l) => ({ ...l, view: clampView(a.view) }));
     case "swap":
       return edit(s, a.id, (l) => ({ ...l, subject: a.subject }));
     case "toggle":
@@ -236,7 +246,9 @@ export function sanitiseStage(raw: unknown, pluginIds: string[]): Stage {
     const v = typeof l.view === "object" && l.view !== null ? (l.view as Record<string, unknown>) : null;
     const [zoom, cx, cy] = v ? [num(v.zoom), num(v.cx), num(v.cy)] : [null, null, null];
     const view = zoom !== null && cx !== null && cy !== null ? clampView({ zoom, cx, cy }) : undefined;
-    layers.push({ id: l.id, subject, rect: clampRect({ x, y, w, h }), visible: l.visible !== false, ...(view ? { view } : {}) });
+    // a brand mark saved somewhere else (before they were fixed) goes back to its corner
+    const fixed = fixedRect(subject);
+    layers.push({ id: l.id, subject, rect: fixed ?? clampRect({ x, y, w, h }), visible: l.visible !== false, ...(view && !fixed ? { view } : {}) });
   }
   const selected = typeof o.selected === "string" && layers.some((l) => l.id === o.selected) ? o.selected : null;
   return { layers, selected, key: typeof o.key === "object" && o.key !== null ? sanitiseKey(o.key) : EMPTY_KEY };

@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { EMPTY_KEY } from "@/features/creator/model/key";
-import { CAMERA_CORNER, DEFAULT_VIEW, EMPTY_STAGE, FULL, KEEP_IN, MAX_ZOOM, MIN_SIZE, addSubject, clampRect, defaultRect, panView, resizeFrom, sanitiseStage, stageReducer, zoomAt, type Layer, type Stage } from "./layers";
+import { CAMERA_CORNER, DEFAULT_VIEW, EMPTY_STAGE, FULL, KEEP_IN, MAX_ZOOM, MIN_SIZE, addSubject, clampRect, defaultRect, fixedRect, panView, resizeFrom, sanitiseStage, stageReducer, zoomAt, type Layer, type Stage } from "./layers";
 import type { Subject } from "./subject";
 
 const ids = ["scale", "chords", "circle", "keys", "progressions", "modes", "triads", "caged", "arpeggios", "improv", "tunings"];
@@ -214,4 +214,29 @@ test("the logo and the url exist at most once", () => {
   s = addSubject(s, "d", { kind: "url" });
   assert.deepEqual(s.layers.map((l) => l.id), ["a", "c"]);
   assert.equal(s.selected, "c");
+});
+
+test("the logo and the url sit in the top-right corner and never move, resize or zoom", () => {
+  let s = addSubject(EMPTY_STAGE, "a", { kind: "logo" });
+  s = addSubject(s, "b", { kind: "url" });
+  const logo = fixedRect({ kind: "logo" })!, url = fixedRect({ kind: "url" })!;
+  assert.deepEqual(s.layers.map((l) => l.rect), [logo, url]);
+  assert.ok(logo.x + logo.w <= 1 && url.x + url.w <= 1 && url.y >= logo.y + logo.h, "top right, the address under the logo");
+  for (const a of [
+    { type: "move", id: "a", dx: -0.2, dy: 0.2 },
+    { type: "resize", id: "a", dw: 0.1, dh: 0.1 },
+    { type: "setRect", id: "b", rect: { x: 0, y: 0, w: 0.5, h: 0.5 } },
+    { type: "setView", id: "a", view: { zoom: 2, cx: 0.5, cy: 0.5 } },
+  ] as const) s = stageReducer(s, a);
+  assert.deepEqual(s.layers.map((l) => l.rect), [logo, url]);
+  assert.equal(s.layers[0].view, undefined);
+  // they can still be hidden and removed
+  s = stageReducer(s, { type: "toggle", id: "a" });
+  assert.equal(s.layers[0].visible, false);
+  assert.deepEqual(stageReducer(s, { type: "remove", id: "b" }).layers.map((l) => l.id), ["a"]);
+});
+
+test("a logo saved somewhere else comes back to its corner", () => {
+  const s = sanitiseStage({ layers: [{ id: "a", subject: { kind: "logo" }, rect: { x: 0.1, y: 0.5, w: 0.3, h: 0.2 }, visible: true }] }, []);
+  assert.deepEqual(s.layers[0].rect, fixedRect({ kind: "logo" }));
 });
