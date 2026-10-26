@@ -21,7 +21,7 @@ import type { PlacedNote } from "@/features/theory/singingMelodies";
  * The last half bar is drawn again, faded, before the first: the bar crosses into it halfway through the last bar (on the
  * held final Do), so the loop back to the start is a short hop instead of a jump across the whole staff.
  * Only a `live` staff (the one being sung) runs the dot; the others are drawn still, scrolling sideways when too long.
- * Full screen draws it `scale` times bigger and to `follow` the bar: a couple of bars across, sliding with it, and a line
+ * Full screen draws it `scale` times bigger and to `follow` the bar: a few bars across, the bar a third in, and a line
  * from the dot to the note due with how far off it is in cents.
  */
 
@@ -41,7 +41,9 @@ const DOT_LAG_MS = 250;
 const LEAD = BEATS_PER_BAR / 2;
 const GHOST_OPACITY = 0.45;
 /** beats across a staff that follows the bar */
-const FOLLOW_BEATS = 7;
+const FOLLOW_BEATS = 10;
+/** where the bar sits across a following staff: a third in, so more of what's coming shows than what's gone */
+const FOLLOW_AT = 1 / 3;
 
 const ink = {
   line: "var(--color-slate-500)",
@@ -169,7 +171,7 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
       } else if (now - a.lastHeard > SILENCE_MS) a.hit = false;
       a.tail = a.tail.filter((p) => now - p.t < TAIL_MS);
       if (maxCam > 0 && a.beat !== null) {
-        const want = Math.max(0, Math.min(maxCam, (x + LEAD) * beatW - room / 2));
+        const want = Math.max(0, Math.min(maxCam, (x + LEAD) * beatW - room * (follow ? FOLLOW_AT : 0.5)));
         a.cam += (want - a.cam) * 0.1;
       } else if (maxCam === 0) a.cam = 0;
       else a.cam = Math.min(a.cam, maxCam);
@@ -180,7 +182,7 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
     return () => cancelAnimationFrame(raf);
     // the geometry is rebuilt from the melody and the width; the loop restarts with it
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [live, notes, ladder, clef, beatW, maxCam, room, beatMs]);
+  }, [live, notes, ladder, clef, beatW, maxCam, room, beatMs, follow]);
 
   // a new melody starts at the left, its bar from the top
   useEffect(() => {

@@ -7,8 +7,8 @@ import { DIFFICULTIES, type BookTune } from "@/features/theory/singingMelodies";
 import MelodyStaff from "./MelodyStaff";
 import MicButton from "./MicButton";
 
-/** the staff's size for the screen's height: bigger on a tall screen, never under 1.4 times the card's */
-const scaleFor = (h: number) => Math.max(1.4, Math.min(3.2, h / 280));
+/** the staff's size for the screen's height: bigger on a tall screen, never under 1.2 times the card's */
+const scaleFor = (h: number) => Math.max(1.2, Math.min(2.4, h / 380));
 
 /**
  * One melody over the whole screen (the browser's full screen where it allows it), drawn big and following the bar, with
