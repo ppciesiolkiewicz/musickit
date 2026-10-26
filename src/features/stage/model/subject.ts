@@ -16,6 +16,8 @@ export type Subject =
   | { kind: "band"; key: KeyChoice }
   | { kind: "section"; section: ScaleSection; key: KeyChoice }
   | { kind: "key" }
+  | { kind: "logo" }
+  | { kind: "url" }
   | { kind: "camera" }
   | { kind: "screen" };
 
@@ -25,7 +27,7 @@ export interface PaletteResult {
   id: string;
   label: string;
   detail: string;
-  group: "chord" | "scale" | "position" | "theory" | "audio" | "studio";
+  group: "chord" | "scale" | "position" | "theory" | "audio" | "brand" | "studio";
   action: { type: "add"; subject: Subject } | { type: "command"; command: StudioCommand };
 }
 
@@ -58,7 +60,7 @@ export function keyOf(s: Subject): KeyChoice | null {
   return "key" in s ? s.key : null;
 }
 
-/** The subject in another key; subjects without a key (chord, camera, screen, the Key widget) come back as they are. */
+/** The subject in another key; subjects without a key (chord, logo, url, camera, screen, the Key widget) come back as they are. */
 export function withKey(s: Subject, key: KeyChoice): Subject {
   return "key" in s ? { ...s, key } : s;
 }
@@ -77,6 +79,10 @@ export function subjectTitle(s: Subject): string {
       return s.key.tonicPc === null ? SECTIONS[s.section] : `${SECTIONS[s.section]} · ${keyTitle(s.key)}`;
     case "key":
       return "Key";
+    case "logo":
+      return "Logo";
+    case "url":
+      return "Site address";
     case "camera":
       return "Camera";
     case "screen":
@@ -109,6 +115,8 @@ export function sanitiseSubject(raw: unknown, pluginIds: string[]): Subject | nu
       return section ? { kind: "section", section, key: keyFrom(o.key) } : null;
     }
     case "key":
+    case "logo":
+    case "url":
     case "camera":
     case "screen":
       return { kind: o.kind };

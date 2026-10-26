@@ -47,6 +47,8 @@ const MODE_WORDS: Record<string, number> = {
 };
 
 const BAND_WORDS = new Set(["drone", "band", "drums", "bass", "click"]);
+const LOGO_WORDS = new Set(["logo", "brand", "wordmark", "attunr"]);
+const URL_WORDS = new Set(["url", "link", "website", "site", "address", "brand"]);
 
 /** Phrases that name a scale section; every word must be in the query. */
 const SECTION_PHRASES: [string[], ScaleSection][] = [
@@ -140,12 +142,15 @@ function commands(p: Parsed, media: MediaState): PaletteResult[] {
     .map(commandResult);
 }
 
+const LOGO_RESULT = addResult({ kind: "logo" }, "brand", "The attunr wordmark");
+const URL_RESULT = addResult({ kind: "url" }, "brand", "Where to find the site");
+
 /** a key positions can always be drawn in when the stage has none */
 const POSITION_FALLBACK: KeyChoice = { tonicPc: 4, family: 0, mode: 5 };
 
 /**
  * Everything that can go on the stage, for the palette before anything is typed: the Key widget, the Drone section, every theory panel
- * and scale section in the stage key, a scale position, then the camera and screen share. Chords need a name, so they are typed.
+ * and scale section in the stage key, a scale position, the logo and the site address, then the camera and screen share. Chords need a name, so they are typed.
  */
 export function paletteCatalog(pluginIds: string[], stageKey: KeyChoice, media: MediaState = NO_MEDIA): PaletteResult[] {
   const out: PaletteResult[] = [
@@ -155,6 +160,7 @@ export function paletteCatalog(pluginIds: string[], stageKey: KeyChoice, media: 
   for (const id of KEY_PLUGIN_ORDER) if (pluginIds.includes(id)) out.push(addResult({ kind: "plugin", plugin: id, key: stageKey }, id === "scale" ? "scale" : "theory", PLUGIN_TITLES[id] ?? id));
   for (const section of Object.keys(SECTIONS) as ScaleSection[]) out.push(addResult({ kind: "section", section, key: stageKey }, "scale", SECTIONS[section]));
   out.push(addResult({ kind: "position", key: stageKey.tonicPc === null ? POSITION_FALLBACK : stageKey, positionKind: "pentatonic", index: 0 }, "position", "Position on the neck"));
+  out.push(LOGO_RESULT, URL_RESULT);
   out.push(...COMMANDS.filter((c) => c.command !== "clear" && c.applies(media)).map(commandResult));
   return out;
 }
@@ -170,6 +176,8 @@ export function searchPalette(query: string, pluginIds: string[], stageKey: KeyC
   if (p.words.length === 1 && p.words[0] === "key") out.push(addResult({ kind: "key" }, "theory", "Changes the key of every widget"));
 
   if (p.words.some((w) => BAND_WORDS.has(w))) out.push(addResult({ kind: "band", key: keyOrStage }, "audio", "Click, drone, drums and bass"));
+  if (p.words.some((w) => LOGO_WORDS.has(w))) out.push(LOGO_RESULT);
+  if (p.words.some((w) => URL_WORDS.has(w))) out.push(URL_RESULT);
 
   for (const [phrase, section] of SECTION_PHRASES) {
     if (has(p, ...phrase) && !out.some((r) => r.action.type === "add" && r.action.subject.kind === "section" && r.action.subject.section === section)) {

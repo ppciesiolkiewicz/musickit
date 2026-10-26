@@ -201,3 +201,12 @@ test("sanitiseStage drops junk, unknown plugins, duplicate ids, second cameras, 
   assert.equal(s.selected, null);
   assert.deepEqual(s.key, { tonicPc: 4, family: 0, mode: 0 });
 });
+
+test("the logo and the url exist at most once", () => {
+  let s = addSubject(EMPTY_STAGE, "a", { kind: "logo" });
+  s = addSubject(s, "b", { kind: "logo" });
+  s = addSubject(s, "c", { kind: "url" });
+  s = addSubject(s, "d", { kind: "url" });
+  assert.deepEqual(s.layers.map((l) => l.id), ["a", "c"]);
+  assert.equal(s.selected, "c");
+});

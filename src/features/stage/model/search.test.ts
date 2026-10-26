@@ -172,3 +172,14 @@ test("sanitiseSubject drops unknown plugins and bad shapes", () => {
   assert.deepEqual(sanitiseSubject({ kind: "plugin", plugin: "scale", key: { tonicPc: 99 } }, ids), { kind: "plugin", plugin: "scale", key: EMPTY_KEY });
   assert.deepEqual(sanitiseSubject({ kind: "camera" }, ids), { kind: "camera" });
 });
+
+test("logo and url are in the catalog and found by name; brand finds both", () => {
+  const kinds = (r: ReturnType<typeof paletteCatalog>) => r.flatMap((x) => (x.action.type === "add" ? [x.action.subject.kind] : []));
+  assert.ok(kinds(paletteCatalog(ids, EMPTY_KEY)).includes("logo"));
+  assert.ok(kinds(paletteCatalog(ids, EMPTY_KEY)).includes("url"));
+  assert.deepEqual(add("logo"), [{ kind: "logo" }]);
+  assert.deepEqual(add("url"), [{ kind: "url" }]);
+  assert.deepEqual(add("brand"), [{ kind: "logo" }, { kind: "url" }]);
+  assert.equal(sanitiseSubject({ kind: "url" }, ids)?.kind, "url");
+  assert.equal(subjectTitle({ kind: "logo" }), "Logo");
+});

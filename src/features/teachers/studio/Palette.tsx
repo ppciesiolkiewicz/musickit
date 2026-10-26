@@ -8,7 +8,7 @@ import { paletteCatalog, sanitiseSubject, searchPalette, subjectTitle, type Medi
 const RECENT = "musickit.studio.recent";
 const MAX_RECENT = 5;
 
-const GROUP_NAMES: Record<PaletteResult["group"], string> = { chord: "Chord", scale: "Scale", position: "Position", theory: "Theory", audio: "Sound", studio: "Studio" };
+const GROUP_NAMES: Record<PaletteResult["group"], string> = { chord: "Chord", scale: "Scale", position: "Position", theory: "Theory", audio: "Sound", brand: "Brand", studio: "Studio" };
 
 function loadRecent(pluginIds: string[]): Subject[] {
   try {

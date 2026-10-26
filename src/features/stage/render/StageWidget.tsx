@@ -5,13 +5,14 @@ import { KeyBar, KeyScope, PLUGINS, keyContext, type KeyChoice } from "@/feature
 import { PocketTools } from "@/features/instruments";
 import { DEFAULT_KEY_PC } from "@/features/theory/theory";
 import type { Subject } from "../model/subject";
+import BrandWidget from "./BrandWidget";
 import ChordWidget from "./ChordWidget";
 import FitBox from "./FitBox";
 import PositionWidget from "./PositionWidget";
 import SectionWidget from "./SectionWidget";
 
 /** design width each kind is laid out at before it is scaled into its rect */
-const WIDTH: Record<Subject["kind"], number> = { chord: 240, plugin: 640, position: 980, band: 360, section: 760, key: 560, camera: 0, screen: 0 };
+const WIDTH: Record<Subject["kind"], number> = { chord: 240, plugin: 640, position: 980, band: 360, section: 760, key: 560, logo: 300, url: 520, camera: 0, screen: 0 };
 
 /** a key to draw with when the subject has none: the site's default key, major */
 const withTonic = (k: KeyChoice): KeyChoice => (k.tonicPc === null ? { ...k, tonicPc: DEFAULT_KEY_PC } : k);
@@ -69,6 +70,10 @@ export default function StageWidget({ subject, onSubjectChange, stageKey, onStag
           onPick={(s) => onSubjectChange({ ...subject, key: { ...subject.key, tonicPc: s.tonicPc, mode: s.modeIndex } })}
         />
       );
+      break;
+    case "logo":
+    case "url":
+      body = <BrandWidget kind={subject.kind} />;
       break;
     case "key":
       body = (
