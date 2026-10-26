@@ -21,7 +21,9 @@ import type { PlacedNote } from "@/features/theory/singingMelodies";
  * The last half bar is drawn again, faded, before the first: the bar crosses into it halfway through the last bar (on the
  * held final Do), so the loop back to the start is a short hop instead of a jump across the whole staff.
  * Only a `live` staff (the one being sung) runs the dot; the others are drawn still, scrolling sideways when too long.
- * A line runs through the dot at its height: behind it, fading out, and ahead only as far as the bar it lags.
+ * The note expected is the one under the bar, so the next note is due a moment before the dot reaches it. A line at the
+ * dot's height joins it to that note's start: ahead of the dot while it is still on its way, behind it (fading back to
+ * the start) once it is in.
  * Full screen draws it `scale` times bigger and to `follow` the bar: a few bars across, the bar a third in, and a line
  * from the dot to the note due with how far off it is in cents.
  */
@@ -41,8 +43,6 @@ const DOT_LAG_MS = 250;
 /** beats of the end drawn again before the first bar */
 const LEAD = BEATS_PER_BAR / 2;
 const GHOST_OPACITY = 0.45;
-/** beats behind the dot its guide line reaches, fading out; ahead it reaches the bar */
-const GUIDE_BEATS = 3;
 /** beats across a staff that follows the bar */
 const FOLLOW_BEATS = 10;
 /** where the bar sits across a following staff: a third in, so more of what's coming shows than what's gone */
@@ -169,7 +169,7 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
         if (fresh) a.tail = [];
         a.tail.push(a.dot);
         a.lastHeard = now;
-        a.target = Math.max(0, noteAt(notes, loopX));
+        a.target = Math.max(0, noteAt(notes, beat));
         const due = notes[a.target];
         a.cents = (m - (due?.midi ?? m)) * 100;
         const off = Math.abs(a.cents);
@@ -210,6 +210,11 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
   // the bar in the faded half bar lights the copy there, not the note it repeats
   const inGhost = a.beat !== null && a.beat < 0;
   const due = a.beat === null ? -1 : noteAt(notes, a.beat < 0 ? a.beat + total : a.beat);
+  // where the note due starts as drawn: its copy in the faded half bar once the dot has crossed there too
+  const dueAt = due < 0 || !a.dot ? null : inGhost && a.dot.x < 0 ? Math.max(notes[due].at, total - LEAD) - total : notes[due].at;
+  const guideFrom = showDot && dueAt !== null ? Math.min(bx(dueAt), bx(a.dot!.x)) : 0;
+  const guideW = showDot && dueAt !== null ? Math.abs(bx(dueAt) - bx(a.dot!.x)) : 0;
+  const guideAhead = showDot && dueAt !== null && dueAt > a.dot!.x;
   const bars = Math.round(total / BEATS_PER_BAR);
 
   const drawNote = (i: number, at: number, beats: number, ghost: boolean) => {
@@ -284,8 +289,9 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
                 {follow && a.target >= 0 && (
                   <Miss x={bx(a.dot!.x)} y={yOf(a.dot!.step)} to={yOf(placed[a.target].step)} cents={a.cents} hit={a.hit} colour={colour} />
                 )}
-                <rect x={bx(a.dot!.x) - GUIDE_BEATS * beatW} y={yOf(a.dot!.step) - 1} width={GUIDE_BEATS * beatW} height={2} fill={`url(#${guide})`} />
-                <rect x={bx(a.dot!.x)} y={yOf(a.dot!.step) - 1} width={(DOT_LAG_MS / beatMs) * beatW} height={2} fill={colour} fillOpacity={0.7} />
+                {guideW > 0 && (
+                  <rect x={guideFrom} y={yOf(a.dot!.step) - 1} width={guideW} height={2} fill={guideAhead ? colour : `url(#${guide})`} fillOpacity={guideAhead ? 0.7 : 1} />
+                )}
                 <circle cx={bx(a.dot!.x)} cy={yOf(a.dot!.step)} r={13} fill={colour} fillOpacity={0.18} />
                 <circle cx={bx(a.dot!.x)} cy={yOf(a.dot!.step)} r={7} fill={colour} />
               </g>
