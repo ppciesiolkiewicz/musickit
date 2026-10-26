@@ -21,6 +21,7 @@ import type { PlacedNote } from "@/features/theory/singingMelodies";
  * The last half bar is drawn again, faded, before the first: the bar crosses into it halfway through the last bar (on the
  * held final Do), so the loop back to the start is a short hop instead of a jump across the whole staff.
  * Only a `live` staff (the one being sung) runs the dot; the others are drawn still, scrolling sideways when too long.
+ * A line runs ahead of the dot at its height, fading out, so the notes coming up can be read against the voice.
  * Full screen draws it `scale` times bigger and to `follow` the bar: a few bars across, the bar a third in, and a line
  * from the dot to the note due with how far off it is in cents.
  */
@@ -40,6 +41,8 @@ const DOT_LAG_MS = 250;
 /** beats of the end drawn again before the first bar */
 const LEAD = BEATS_PER_BAR / 2;
 const GHOST_OPACITY = 0.45;
+/** beats ahead of the dot its guide line reaches, fading out */
+const GUIDE_BEATS = 3;
 /** beats across a staff that follows the bar */
 const FOLLOW_BEATS = 10;
 /** where the bar sits across a following staff: a third in, so more of what's coming shows than what's gone */
@@ -80,7 +83,9 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
   follow?: boolean;
 }) {
   const wrap = useRef<HTMLDivElement>(null);
-  const clip = `melody-clip-${useId().replace(/[^\w-]/g, "")}`;
+  const id = useId().replace(/[^\w-]/g, "");
+  const clip = `melody-clip-${id}`;
+  const guide = `melody-guide-${id}`;
   const [width, setWidth] = useState(0);
   useLayoutEffect(() => {
     const el = wrap.current;
@@ -233,6 +238,10 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
             <clipPath id={clip}>
               <rect x={x0 - 4} y={0} width={W - x0 + 4} height={H} />
             </clipPath>
+            <linearGradient id={guide}>
+              <stop offset={0} style={{ stopColor: colour }} stopOpacity={0.7} />
+              <stop offset={1} style={{ stopColor: colour }} stopOpacity={0} />
+            </linearGradient>
           </defs>
           <g stroke={ink.line} strokeWidth={1}>
             {[0, 2, 4, 6, 8].map((s) => <line key={s} x1={8} x2={lineEnd} y1={yOf(s)} y2={yOf(s)} />)}
@@ -273,6 +282,7 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
                 {follow && a.target >= 0 && (
                   <Miss x={bx(a.dot!.x)} y={yOf(a.dot!.step)} to={yOf(placed[a.target].step)} cents={a.cents} hit={a.hit} colour={colour} />
                 )}
+                <rect x={bx(a.dot!.x) + 8} y={yOf(a.dot!.step) - 1} width={GUIDE_BEATS * beatW} height={2} fill={`url(#${guide})`} />
                 <circle cx={bx(a.dot!.x)} cy={yOf(a.dot!.step)} r={13} fill={colour} fillOpacity={0.18} />
                 <circle cx={bx(a.dot!.x)} cy={yOf(a.dot!.step)} r={7} fill={colour} />
               </g>
