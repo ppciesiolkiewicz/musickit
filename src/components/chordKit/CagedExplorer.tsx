@@ -23,7 +23,7 @@ import { DEFAULT_KEY_PC } from "@/features/theory/theory";
 import { Chip, ChipRow, Info, Section } from "@/components/ui";
 import { DegreeLegend } from "@/components/theory/DegreeLegend";
 
-const LANE_COLOURS = ["#f87171", "#fb923c", "#facc15", "#4ade80", "#60a5fa"];
+const LANE_COLOURS = ["#f43f5e", "#c084fc", "#facc15", "#4ade80", "#60a5fa"];
 const play = "rounded-full border border-emerald-500/70 bg-emerald-500/10 px-2.5 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25";
 
 /** CAGED system: five chord forms, the neck box each one marks out, and the arpeggio, scale and pentatonic inside it. */
@@ -145,7 +145,7 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem }: { b
   const frets = Array.from({ length: NECK_END + 1 }, (_, f) => f);
   const cellAt = (s: number, f: number) => cells.find((c) => c.string === s && c.fret === f);
   // Every string is cut into lanes by its own notes: lane k starts at the string's k-th note and runs until the next one (laneAt).
-  const colour = (k: number) => LANE_COLOURS[k % LANE_COLOURS.length];
+  const colour = (k: number) => LANE_COLOURS[((k % LANE_COLOURS.length) + LANE_COLOURS.length) % LANE_COLOURS.length];
   const rowFrets = useMemo(() => [0, 1, 2, 3, 4, 5].map((s) => cells.filter((c) => c.string === s).map((c) => c.fret).sort((p, q) => p - q)), [cells]);
   const SECTIONS = sorted.length;
   const starts = laneStarts(rowFrets, SECTIONS);
@@ -160,7 +160,7 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem }: { b
       <h2 className="mb-2 flex flex-wrap items-center gap-2 text-sm font-medium text-slate-100">
         <span>
           {keyName} {quality}: the five boxes up the neck
-          <Info label="Reading the map">Every note of the chord on the whole neck. Each colour is one CAGED box, named after the open chord shape it is built around and numbered by position up the neck. On every string a colour starts at a chord note and runs until the next one, so the first note on a string starts the first colour, the second note the second colour, and so on. The pattern repeats after the 12th fret. Tap a note to hear it.</Info>
+          <Info label="Reading the map">Every note of the chord on the whole neck. Each colour is one CAGED box, named after the open chord shape it is built around and numbered by position up the neck. On every string a colour starts halfway under a chord note and runs to halfway under the next one, so the first note on a string starts the first colour, the second note the second colour, and so on. The pattern repeats after the 12th fret. Tap a note to hear it.</Info>
         </span>
         <LabelSelect className="ml-auto" />
       </h2>
@@ -180,15 +180,21 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem }: { b
           ))}
           {[5, 4, 3, 2, 1, 0].flatMap((s, r) =>
             frets.map((f) => {
-              const fill = colour(laneAt(rowFrets[s], f)), c = cellAt(s, f);
+              // before a string's first note sits the box that wraps round from below the nut (lane -1)
+              const lane = f < (rowFrets[s][0] ?? 0) ? -1 : laneAt(rowFrets[s], f), c = cellAt(s, f);
               const line = "var(--color-slate-400)";
+              const tint = (k: number) => `color-mix(in srgb, ${colour(k)} var(--lane-alpha, 26%), transparent)`;
+              // a lane starts under its note: the colour changes halfway across the note's fret, not at its left edge
+              const fill = c && rowFrets[s][lane] === f
+                ? `linear-gradient(to right, ${tint(lane - 1)} 50%, ${tint(lane)} 50%)`
+                : `linear-gradient(${tint(lane)}, ${tint(lane)})`;
               return (
                 <div
                   key={`${s}-${f}`}
                   className="grid place-items-center"
                   style={{
                     gridRow: r + 2, gridColumn: f + COL0,
-                    backgroundImage: `linear-gradient(${line}, ${line}), linear-gradient(color-mix(in srgb, ${fill} var(--lane-alpha, 26%), transparent), color-mix(in srgb, ${fill} var(--lane-alpha, 26%), transparent))`,
+                    backgroundImage: `linear-gradient(${line}, ${line}), ${fill}`,
                     backgroundSize: `100% ${0.8 + s * 0.32}px, 100% 100%`,
                     backgroundPosition: "center, 0 0",
                     backgroundRepeat: "no-repeat",
