@@ -64,7 +64,7 @@ const STILL: View = { dot: null, cam: 0, tail: [], lastHeard: -Infinity, now: 0,
 /** The note sounding at a beat, or -1 before the first. */
 const noteAt = (notes: StaffNote[], beat: number) => notes.findLastIndex((n) => n.at <= beat);
 
-export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom, beatMs, gridBeats, tapped, onNote, scale = 1, follow = false }: {
+export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom, beatMs, gridBeats, tapped, onNote, scale = 1, follow = false, cents = IN_TUNE_CENTS }: {
   notes: StaffNote[];
   live: boolean;
   /** the scale in the singer's range, low to high: the dot's height is read off it */
@@ -81,6 +81,8 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
   scale?: number;
   /** a few bars across, sliding with the bar, with the dot's distance to the note due */
   follow?: boolean;
+  /** within this many cents counts as on the note */
+  cents?: number;
 }) {
   const wrap = useRef<HTMLDivElement>(null);
   const id = useId().replace(/[^\w-]/g, "");
@@ -171,8 +173,8 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
         const due = notes[a.target];
         a.cents = (m - (due?.midi ?? m)) * 100;
         const off = Math.abs(a.cents);
-        a.hit = off <= IN_TUNE_CENTS;
-        a.fit = a.hit ? "in" : Math.abs(m - Math.round(m)) * 100 <= IN_TUNE_CENTS ? "out" : "between";
+        a.hit = off <= cents;
+        a.fit = a.hit ? "in" : Math.abs(m - Math.round(m)) * 100 <= cents ? "out" : "between";
       } else if (now - a.lastHeard > SILENCE_MS) a.hit = false;
       a.tail = a.tail.filter((p) => now - p.t < TAIL_MS);
       if (maxCam > 0 && a.beat !== null) {
@@ -187,7 +189,7 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
     return () => cancelAnimationFrame(raf);
     // the geometry is rebuilt from the melody and the width; the loop restarts with it
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [live, notes, ladder, clef, beatW, maxCam, room, beatMs, follow]);
+  }, [live, notes, ladder, clef, beatW, maxCam, room, beatMs, follow, cents]);
 
   // a new melody starts at the left, its bar from the top
   useEffect(() => {

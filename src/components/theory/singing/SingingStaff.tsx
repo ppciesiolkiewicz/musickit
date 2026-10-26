@@ -4,7 +4,7 @@ import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from "re
 import { place, signatureGlyphs, type Clef } from "@/features/theory/piano/staff";
 import ClefGlyph from "./ClefGlyph";
 import { degreeColour } from "@/features/theory/scales";
-import { fitOf, locate, type Fit, type Ladder } from "@/features/theory/singing";
+import { IN_TUNE_CENTS, fitOf, locate, type Fit, type Ladder } from "@/features/theory/singing";
 
 /**
  * One five-line staff with every note of the ladder on it, low to high, and a dot for the voice: it rides up and down
@@ -35,7 +35,15 @@ interface Point { x: number; step: number; t: number }
 interface View { dot: Point | null; cam: number; tail: Point[]; lastHeard: number; now: number; fit: Fit; nearest: number }
 const STILL: View = { dot: null, cam: 0, tail: [], lastHeard: -Infinity, now: 0, fit: "between", nearest: -1 };
 
-export default function SingingStaff({ ladder, clef, pitch, played, onNote }: { ladder: Ladder; clef: Clef; pitch: RefObject<number | null>; played: number | null; onNote: (i: number) => void }) {
+export default function SingingStaff({ ladder, clef, pitch, played, onNote, cents = IN_TUNE_CENTS }: {
+  ladder: Ladder;
+  clef: Clef;
+  pitch: RefObject<number | null>;
+  played: number | null;
+  onNote: (i: number) => void;
+  /** within this many cents counts as on the note */
+  cents?: number;
+}) {
   const wrap = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
   useLayoutEffect(() => {
@@ -85,8 +93,8 @@ export default function SingingStaff({ ladder, clef, pitch, played, onNote }: { 
         if (fresh) a.tail = [];
         a.tail.push(a.dot);
         a.lastHeard = now;
-        a.fit = fitOf(m, ladder.pcs);
-        a.nearest = Math.abs(at.cents) <= 25 ? at.nearest : -1;
+        a.fit = fitOf(m, ladder.pcs, cents);
+        a.nearest = Math.abs(at.cents) <= cents ? at.nearest : -1;
       } else if (now - a.lastHeard > SILENCE_MS) a.nearest = -1;
       a.tail = a.tail.filter((p) => now - p.t < TAIL_MS);
       const follow = a.dot ? a.dot.x : playedRef.current;
@@ -102,7 +110,7 @@ export default function SingingStaff({ ladder, clef, pitch, played, onNote }: { 
     return () => cancelAnimationFrame(raf);
     // the geometry is rebuilt from the ladder and the width; the loop restarts with it
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ladder, clef, slot, maxCam, room]);
+  }, [ladder, clef, slot, maxCam, room, cents]);
 
   // a new scale or range starts with the root at the left
   useEffect(() => {

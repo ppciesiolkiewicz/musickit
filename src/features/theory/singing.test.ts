@@ -107,6 +107,10 @@ describe("fitOf", () => {
     assert.equal(fitOf(61, pcs), "out");
     assert.equal(fitOf(61.5, pcs), "between");
   });
+  it("a stricter accuracy turns a near miss into between", () => {
+    assert.equal(fitOf(62.2, pcs, 25), "in");
+    assert.equal(fitOf(62.2, pcs, 15), "between");
+  });
   it("hzToMidi", () => {
     assert.equal(hzToMidi(440), 69);
     assert.ok(Math.abs(hzToMidi(261.6256) - 60) < 1e-4);

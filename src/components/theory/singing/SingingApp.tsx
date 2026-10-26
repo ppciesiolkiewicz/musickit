@@ -8,7 +8,7 @@ import { createSmoother, type Pitch } from "@/features/tuner/pitch";
 import { DEFAULT_KEY_PC } from "@/features/theory/theory";
 import { getAudioContext, getSharedPiano, midiToName, onSilence, playSequence, silence, wakeAudio } from "@/features/sound";
 import type { PocketStatus } from "@/features/instruments";
-import { VOICES, buildLadder, clefFor, hzToMidi, savedVoice, scaleRun, withNotesUnder, type Voice } from "@/features/theory/singing";
+import { ACCURACIES, IN_TUNE_CENTS, VOICES, buildLadder, clefFor, hzToMidi, savedAccuracy, savedVoice, scaleRun, withNotesUnder, type Voice } from "@/features/theory/singing";
 import { BOOK, DIFFICULTIES, placeTune, type BookTune, type PlacedNote } from "@/features/theory/singingMelodies";
 import SingingStaff from "./SingingStaff";
 import MelodyFeed from "./MelodyFeed";
@@ -25,6 +25,8 @@ const TAP_MS = 900;
 const RESTS = [0, 1, 2, 3, 4];
 /** where the voice picked last is kept (once its range, which still reads back) */
 const VOICE_KEY = "singing.range";
+/** where the accuracy picked last is kept, in cents */
+const ACCURACY_KEY = "singing.accuracy";
 type Tab = "scales" | "melodies";
 const TABS: { id: Tab; label: string }[] = [{ id: "scales", label: "Scales" }, { id: "melodies", label: "Melodies" }];
 
@@ -40,15 +42,24 @@ export default function SingingApp() {
   const [tonicPc, setTonicPc] = useState(DEFAULT_KEY_PC);
   const [scale, setScale] = useState("major-ionian");
   const [voice, setVoice] = useState<Voice>("soprano");
-  // the last voice comes back after hydration; a pick is kept as it is made
+  // how close counts as on the note
+  const [cents, setCents] = useState<number>(IN_TUNE_CENTS);
+  // the last voice and accuracy come back after hydration; a pick is kept as it is made
   useEffect(() => {
     let saved: Voice | null = null;
+    let accuracy: number | null = null;
     try {
       saved = savedVoice(JSON.parse(window.localStorage.getItem(VOICE_KEY) ?? "null"));
+      accuracy = savedAccuracy(JSON.parse(window.localStorage.getItem(ACCURACY_KEY) ?? "null"));
     } catch { /* storage blocked */ }
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- restoring the saved voice after hydration
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- restoring the saved picks after hydration
     if (saved) setVoice(saved);
+    if (accuracy !== null) setCents(accuracy);
   }, []);
+  const pickAccuracy = (c: number) => {
+    setCents(c);
+    try { window.localStorage.setItem(ACCURACY_KEY, JSON.stringify(c)); } catch { /* storage blocked */ }
+  };
   const pickVoice = (v: Voice) => {
     setVoice(v);
     try { window.localStorage.setItem(VOICE_KEY, JSON.stringify(v)); } catch { /* storage blocked */ }
@@ -254,6 +265,12 @@ export default function SingingApp() {
                 ))}
                 <span className="whitespace-nowrap pl-1 text-xs tabular-nums text-slate-500">{midiToName(range.low)}–{midiToName(range.high)}</span>
               </BarRow>
+              <BarRow label="Accuracy">
+                {ACCURACIES.map((a) => (
+                  <Chip key={a.title} on={a.cents === cents} onClick={() => pickAccuracy(a.cents)} title={`Within ${a.cents} cents counts as on the note`}>{a.title}</Chip>
+                ))}
+                <span className="whitespace-nowrap pl-1 text-xs tabular-nums text-slate-500">±{cents}¢</span>
+              </BarRow>
               {tab === "scales" ? (
                 <BarRow label="Top rest">
                   {RESTS.map((n) => (
@@ -296,6 +313,7 @@ export default function SingingApp() {
               tapped={tapped}
               gridBeats={gridBeats}
               mic={mic}
+              cents={cents}
               onPick={(t) => setActive(t.n)}
               onSing={(t) => {
                 // the mic on the card being sung toggles it; on another card it moves the singing there and listens
@@ -313,7 +331,7 @@ export default function SingingApp() {
               onFocus={openFocus}
             />
           ) : (
-            <SingingStaff ladder={ladder} clef={clef} pitch={pitch} played={played} onNote={(i) => void tap(i)} />
+            <SingingStaff ladder={ladder} clef={clef} pitch={pitch} played={played} onNote={(i) => void tap(i)} cents={cents} />
           )}
         </section>
       </WithSettings>
@@ -332,6 +350,7 @@ export default function SingingApp() {
             gridBeats,
             tapped: tapped?.n === focused.n ? tapped.i : null,
             onNote: (i) => void tapTune(focused, i),
+            cents,
           }}
           bpm={pocket?.bpm ?? FALLBACK_BPM}
           mic={mic}

@@ -169,11 +169,22 @@ export const hzToMidi = (hz: number, a4 = 440): number => 69 + 12 * Math.log2(hz
 /** How the sung pitch reads against the scale: on a scale note, on a note outside it, or between notes. */
 export type Fit = "in" | "out" | "between";
 
-/** Within this many cents of a note counts as singing it. */
+/** Within this many cents of a note counts as singing it, unless an accuracy is picked. */
 export const IN_TUNE_CENTS = 25;
 
-export function fitOf(m: number, pcs: Set<number>): Fit {
+/** How close counts as on the note, loose to strict. */
+export const ACCURACIES = [
+  { title: "Easy", cents: 40 },
+  { title: "Medium", cents: IN_TUNE_CENTS },
+  { title: "Hard", cents: 15 },
+  { title: "Pro", cents: 8 },
+] as const;
+
+/** An accuracy read back from storage, by its cents, or null when it isn't one of them. */
+export const savedAccuracy = (v: unknown): number | null => (ACCURACIES.some((a) => a.cents === v) ? (v as number) : null);
+
+export function fitOf(m: number, pcs: Set<number>, cents: number = IN_TUNE_CENTS): Fit {
   const r = Math.round(m);
-  if (Math.abs(m - r) * 100 > IN_TUNE_CENTS) return "between";
+  if (Math.abs(m - r) * 100 > cents) return "between";
   return pcs.has(((r % 12) + 12) % 12) ? "in" : "out";
 }
