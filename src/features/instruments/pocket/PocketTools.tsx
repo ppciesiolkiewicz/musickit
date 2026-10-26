@@ -1,17 +1,17 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import Icon from "@/components/Icon";
 import usePhone from "@/components/usePhone";
-import { getAudioContext, getOutputBus, wakeAudio } from "@/features/sound";
 import { tapTempo, type ClickParams } from "../click/click";
 import { DEFAULT_DRONE, DRONE_MAX_OCTAVE, DRONE_MIN_OCTAVE, NOTE_NAMES, droneName, type DroneParams } from "../drone/drone";
 import DroneControls from "../drone/DroneControls";
 import StepGrid, { PatternBar } from "../sequencer/StepGrid";
-import PartLevel from "../sequencer/PartLevel";
+import PartLevel, { MuteButton } from "../sequencer/PartLevel";
 import { MAX_BPM, MIN_BPM } from "../jam/clock";
 import { BEATS_PER_BAR, JAM_PARTS, JamRig, type JamPart, type JamSaved } from "../jam/rig";
+import useJamRig from "../jam/useJamRig";
 import { NumberField, Select, Slider, inSelectMenu } from "@/components/ui";
 
 const STORAGE_KEY = "musickit.pocket";
@@ -22,17 +22,15 @@ const lit = "!border-emerald-400/70 !bg-emerald-500/20 !text-emerald-100";
 type OldSave = { click?: Partial<ClickParams>; drone?: Partial<DroneParams> };
 
 function restore(rig: JamRig) {
-  try {
-    const saved = JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "null") as (Partial<JamSaved> & OldSave) | null;
-    if (!saved || typeof saved !== "object") return;
-    if (saved.parts) return rig.load(saved);
-    if (saved.drone) rig.loadDrone(saved.drone);
-    if (typeof saved.click?.bpm === "number") rig.setTempo(saved.click.bpm);
-    if (typeof saved.click?.volume === "number") rig.setClickVolume(saved.click.volume);
-  } catch {
-    /* storage blocked or a broken save: start fresh */
-  }
+  const saved = JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "null") as (Partial<JamSaved> & OldSave) | null;
+  if (!saved || typeof saved !== "object") return;
+  if (saved.parts) return rig.load(saved);
+  if (saved.drone) rig.loadDrone(saved.drone);
+  if (typeof saved.click?.bpm === "number") rig.setTempo(saved.click.bpm);
+  if (typeof saved.click?.volume === "number") rig.setClickVolume(saved.click.volume);
 }
+// no loops here: keep the save to the parts, tempo and click
+const save = (rig: JamRig) => ({ ...rig.save(), loops: undefined });
 
 /** Space in a text field types a space; everywhere else it is ours. */
 const typing = (t: EventTarget | null) => {
@@ -117,14 +115,6 @@ function PlayButton({ on, label, onClick }: { on: boolean; label: string; onClic
   );
 }
 
-function MuteButton({ muted, label, onClick }: { muted: boolean; label: string; onClick: () => void }) {
-  return (
-    <button type="button" className={`${ibtn} ${muted ? "!border-amber-400/60 !text-amber-200" : ""}`} aria-pressed={muted} onClick={onClick} title={muted ? `Unmute the ${label} (it keeps time either way)` : `Mute the ${label} (it keeps time)`} aria-label={muted ? `Unmute the ${label}` : `Mute the ${label}`}>
-      <Icon name={muted ? "volume-x" : "volume-2"} size={14} />
-    </button>
-  );
-}
-
 /** One tool on one line: a small label, then its controls. */
 function Tool({ label, children }: { label: string; children: ReactNode }) {
   return (
@@ -185,43 +175,19 @@ export default function PocketTools({ keyPc, className = "", stacked = false, cl
   clickAlways?: boolean;
   onStatus?: (s: PocketStatus) => void;
 }) {
-  const [rig] = useState(() => new JamRig());
-  const snap = useSyncExternalStore(rig.subscribe, rig.snapshot, rig.snapshot);
-  const [restored, setRestored] = useState(false);
+  const { rig, snap, restored, ready, start, toggle: togglePart } = useJamRig({ storageKey: STORAGE_KEY, restore, save });
   const taps = useRef<number[]>([]);
   /** what Space stopped, to bring back on the next Space */
   const paused = useRef<{ parts: JamPart[]; click: boolean } | null>(null);
 
-  useEffect(() => {
-    restore(rig);
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- saving starts once the save is back (after hydration)
-    setRestored(true);
-    return () => rig.dispose();
-  }, [rig]);
-  useEffect(() => {
-    if (!restored) return;
-    try {
-      // no loops here: keep the save to the parts, tempo and click
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...rig.save(), loops: undefined }));
-    } catch {
-      /* private mode */
-    }
-  }, [rig, snap, restored]);
-
   // the drone, and so the bass, sits on the page's key
   useEffect(() => rig.setDrone({ root: keyPc }), [rig, keyPc, restored]);
 
-  const ready = async () => {
-    const ctx = getAudioContext();
-    await wakeAudio();
-    rig.attach(ctx, getOutputBus());
-  };
   const playingParts = JAM_PARTS.filter((p) => snap.parts[p].state.playing);
   const anyOn = playingParts.length > 0 || snap.click.on;
 
   const play = async (parts: readonly JamPart[], click: boolean) => {
-    await ready();
-    rig.start(parts);
+    await start(parts);
     if (click) rig.setClick(true);
   };
   const stopAll = () => {
@@ -230,8 +196,7 @@ export default function PocketTools({ keyPc, className = "", stacked = false, cl
   };
   const toggle = (p: JamPart) => {
     paused.current = null;
-    if (snap.parts[p].state.playing) rig.stop([p]);
-    else void play([p], false);
+    togglePart(p);
   };
   const toggleClick = () => {
     paused.current = null;
@@ -321,6 +286,7 @@ export default function PocketTools({ keyPc, className = "", stacked = false, cl
     return (
       <Tool label={label}>
         <PlayButton on={v.state.playing} label={label.toLowerCase()} onClick={() => toggle(p)} />
+        <MuteButton className={ibtn} name={label.toLowerCase()} muted={v.muted} onMute={(muted) => rig.setLevel(p, { muted })} />
         <Select
           size="sm"
           className="w-28 shrink-0 sm:w-43"
@@ -352,7 +318,7 @@ export default function PocketTools({ keyPc, className = "", stacked = false, cl
       <div className={`grid min-w-0 flex-1 gap-x-4 gap-y-1.5 ${stacked ? "sm:grid-cols-2 lg:grid-cols-1" : "sm:grid-cols-2 xl:grid-cols-1"}`}>
         <Tool label="Click">
           <PlayButton on={snap.click.on} label="metronome" onClick={toggleClick} />
-          <MuteButton muted={snap.click.muted} label="metronome" onClick={() => rig.setClickMuted(!snap.click.muted)} />
+          <MuteButton className={ibtn} name="metronome" muted={snap.click.muted} onMute={(m) => rig.setClickMuted(m)} />
           <button type="button" className={ibtn} disabled={snap.bpm <= MIN_BPM} onClick={() => rig.setTempo(snap.bpm - 1)} aria-label="Slower">−</button>
           <span className="flex w-14 shrink-0 items-baseline justify-center whitespace-nowrap text-xs text-slate-100"><NumberField value={snap.bpm} min={MIN_BPM} max={MAX_BPM} onCommit={(bpm) => rig.setTempo(bpm)} aria-label="Tempo in beats per minute" title="Type a tempo" className="w-8 py-0.5" /><span className="text-[10px] text-slate-500">bpm</span></span>
           <button type="button" className={ibtn} disabled={snap.bpm >= MAX_BPM} onClick={() => rig.setTempo(snap.bpm + 1)} aria-label="Faster">+</button>
@@ -376,6 +342,7 @@ export default function PocketTools({ keyPc, className = "", stacked = false, cl
 
         <Tool label="Drone">
           <PlayButton on={snap.parts.drone.state.playing} label="drone" onClick={() => toggle("drone")} />
+          <MuteButton className={ibtn} name="drone" muted={snap.parts.drone.muted} onMute={(muted) => rig.setLevel("drone", { muted })} />
           <button type="button" className={ibtn} disabled={drone.octave <= DRONE_MIN_OCTAVE} onClick={() => rig.setDrone({ octave: drone.octave - 1 })} aria-label="Octave down">−</button>
           <span className="w-12 shrink-0 text-center text-xs tabular-nums text-slate-100" aria-live="polite" title="The drone plays the key's note (another note in the sound panel)">{droneName(drone)}</span>
           <button type="button" className={ibtn} disabled={drone.octave >= DRONE_MAX_OCTAVE} onClick={() => rig.setDrone({ octave: drone.octave + 1 })} aria-label="Octave up">+</button>

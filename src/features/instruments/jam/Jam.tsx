@@ -1,15 +1,15 @@
 "use client";
 
-import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import Icon from "@/components/Icon";
-import { getAudioContext, getOutputBus, wakeAudio } from "@/features/sound";
 import DroneControls from "../drone/DroneControls";
 import { NOTE_NAMES, droneName, type DroneParams } from "../drone/drone";
 import StepGrid, { PatternBar } from "../sequencer/StepGrid";
-import PartLevel from "../sequencer/PartLevel";
+import PartLevel, { MuteButton } from "../sequencer/PartLevel";
 import { MAX_BPM, MIN_BPM } from "./clock";
 import { NumberField } from "@/components/ui";
-import { BEATS_PER_BAR, JAM_PARTS, JamRig, type JamPart, type JamPartView, type JamSaved } from "./rig";
+import { BEATS_PER_BAR, JAM_PARTS, type JamRig, type JamPartView, type JamSaved } from "./rig";
+import useJamRig from "./useJamRig";
 import JamLoops from "./JamLoops";
 
 const KEY = "musickit.jam";
@@ -17,14 +17,10 @@ const KEY = "musickit.jam";
 const OLD_DRONE_KEY = "musickit.drone";
 
 function restore(rig: JamRig) {
-  try {
-    const saved = JSON.parse(window.localStorage.getItem(KEY) ?? "null") as Partial<JamSaved> | null;
-    if (saved && typeof saved === "object") return rig.load(saved);
-    const drone = JSON.parse(window.localStorage.getItem(OLD_DRONE_KEY) ?? "null") as Partial<DroneParams> | null;
-    if (drone && typeof drone === "object") rig.loadDrone(drone);
-  } catch {
-    /* storage blocked or a broken save: start fresh */
-  }
+  const saved = JSON.parse(window.localStorage.getItem(KEY) ?? "null") as Partial<JamSaved> | null;
+  if (saved && typeof saved === "object") return rig.load(saved);
+  const drone = JSON.parse(window.localStorage.getItem(OLD_DRONE_KEY) ?? "null") as Partial<DroneParams> | null;
+  if (drone && typeof drone === "object") rig.loadDrone(drone);
 }
 
 const card = "relative flex min-w-0 flex-col gap-4 overflow-hidden rounded-2xl border bg-slate-900/60 p-4 sm:p-6 lg:p-8";
@@ -79,38 +75,9 @@ function Title({ children, view, tone }: { children: ReactNode; view: JamPartVie
  * Nothing sounds until a person presses play (the browser needs that).
  */
 export default function Jam() {
-  const [rig] = useState(() => new JamRig({ followClick: true }));
-  const snap = useSyncExternalStore(rig.subscribe, rig.snapshot, rig.snapshot);
-  const [restored, setRestored] = useState(false);
-
-  useEffect(() => {
-    restore(rig);
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- saving starts once the saved jam is back (after hydration)
-    setRestored(true);
-    // names show only once the microphone is allowed; this never asks
-    void rig.refreshDevices();
-    return () => rig.dispose();
-  }, [rig]);
-  useEffect(() => {
-    if (!restored) return;
-    try {
-      window.localStorage.setItem(KEY, JSON.stringify(rig.save()));
-    } catch {
-      /* private mode */
-    }
-  }, [rig, snap, restored]);
-
-  /** The audio, made on a person's click. */
-  const ready = async () => {
-    const ctx = getAudioContext();
-    await wakeAudio();
-    rig.attach(ctx, getOutputBus());
-  };
-  const start = async (parts: readonly JamPart[], withLoops = false) => {
-    await ready();
-    rig.start(parts, withLoops);
-  };
-  const toggle = (p: JamPart) => (snap.parts[p].state.playing ? rig.stop([p]) : void start([p]));
+  const { rig, snap, ready, start, toggle } = useJamRig({ storageKey: KEY, followClick: true, restore });
+  // names show only once the microphone is allowed; this never asks
+  useEffect(() => void rig.refreshDevices(), [rig]);
   /** the metronome's own play: pressed to hear it, so it unmutes too */
   const toggleClick = async () => {
     if (snap.click.on) return rig.setClick(false);
@@ -184,7 +151,7 @@ export default function Jam() {
 
       <PartCard tone={PART_TONE.drone} label="Drone">
         <DroneControls value={drone.state.drone} onChange={(patch) => rig.setDrone(patch)} playing={drone.running} analyser={drone.running ? rig.droneAnalyser() : null}
-          header={<><PlayButton big tone={PART_TONE.drone} on={drone.state.playing} name="drone" onClick={() => toggle("drone")} /><Title tone={PART_TONE.drone} view={drone}>Drone · {droneName(drone.state.drone)}</Title></>} />
+          header={<><PlayButton big tone={PART_TONE.drone} on={drone.state.playing} name="drone" onClick={() => toggle("drone")} /><span className="flex min-w-0 flex-1"><Title tone={PART_TONE.drone} view={drone}>Drone · {droneName(drone.state.drone)}</Title></span><MuteButton name="drone" muted={drone.muted} onMute={(muted) => rig.setLevel("drone", { muted })} /></>} />
       </PartCard>
 
       {(["drums", "bass"] as const).map((p) => {

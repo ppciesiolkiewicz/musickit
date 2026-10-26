@@ -142,11 +142,13 @@ export function ScaleSettingsBar({
       {/* hidden rather than unmounted, so the pocket tools keep playing while it is folded */}
       <div className={`${open ? "flex" : "hidden"} max-h-[70vh] flex-col gap-2 overflow-y-auto sm:max-h-none sm:overflow-visible ${side ? "lg:flex" : "xl:flex-row xl:items-center"}`}>
         <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-          {scale && <ScaleRow slug={scale} tonicPc={tonicPc} onScale={onScale} />}
-          <BarRow label="Key" info={KEY_INFO}>
+          {/* the scale and its key on one row */}
+          <BarRow label={scale ? "Scale" : "Key"} info={KEY_INFO}>
+            {scale && <ScalePicker slug={scale} tonicPc={tonicPc} onScale={onScale} />}
             {TONICS.map((t) => (
               <Chip key={t.pc} on={t.pc === tonicPc} onClick={() => onTonic(t.pc)}>{t.name}</Chip>
             ))}
+            {scale && !onScale && <AllScalesLink slug={scale} tonicPc={tonicPc} />}
           </BarRow>
           {children}
           {showLabels && (
@@ -172,32 +174,35 @@ function Fact({ from, className = "", children }: { from?: keyof typeof FROM; cl
   return <span className={`${from ? FROM[from] : "inline-flex"} shrink-0 items-center gap-1 rounded-full border border-slate-700 px-2 py-0.5 text-[11px] ${className}`}>{children}</span>;
 }
 
-/** Switch to another mode or pentatonic in the same key, or go back to the list of all of them (or, with `onScale`, just pick one). */
-function ScaleRow({ slug, tonicPc, onScale }: { slug: string; tonicPc: number; onScale?: (slug: string) => void }) {
+/** Switch to another mode or pentatonic in the same key (or, with `onScale`, just pick one). */
+function ScalePicker({ slug, tonicPc, onScale }: { slug: string; tonicPc: number; onScale?: (slug: string) => void }) {
   const router = useRouter();
+  return (
+    <Select
+      size="sm"
+      className="mr-1"
+      value={slug}
+      onChange={(s) => (onScale ? onScale(s) : router.push(scaleHref(s, tonicPc)))}
+      aria-label="Scale"
+      groups={[{ label: "Pentatonic scales", options: PENTATONICS.filter((p) => p.basic).map((p) => ({ value: p.slug, label: pentatonicLabel(p) })) }].concat(FAMILIES.map((f, fi) => ({
+        label: f.label,
+        options: MODE_PAGES.filter((m) => m.familyIndex === fi).map((m) => {
+          const alias = modeAlias(m.familyIndex, m.modeIndex);
+          return { value: m.slug, label: alias ? `${m.name} (${alias})` : m.name };
+        }),
+      }))).concat({ label: "More pentatonic scales", options: PENTATONICS.filter((p) => !p.basic).map((p) => ({ value: p.slug, label: pentatonicLabel(p) })) })}
+    />
+  );
+}
+
+/** Back to the list of every scale, at this one's family. */
+function AllScalesLink({ slug, tonicPc }: { slug: string; tonicPc: number }) {
   const current = MODE_PAGES.find((m) => m.slug === slug);
   const famId = current ? FAMILIES[current.familyIndex].id : findPentatonic(slug) ? (findPentatonic(slug)!.basic ? "pent" : "pentMore") : "major";
   return (
-    <BarRow label="Scale">
-      <Select
-        size="sm"
-        value={slug}
-        onChange={(s) => (onScale ? onScale(s) : router.push(scaleHref(s, tonicPc)))}
-        aria-label="Scale"
-        groups={[{ label: "Pentatonic scales", options: PENTATONICS.filter((p) => p.basic).map((p) => ({ value: p.slug, label: pentatonicLabel(p) })) }].concat(FAMILIES.map((f, fi) => ({
-          label: f.label,
-          options: MODE_PAGES.filter((m) => m.familyIndex === fi).map((m) => {
-            const alias = modeAlias(m.familyIndex, m.modeIndex);
-            return { value: m.slug, label: alias ? `${m.name} (${alias})` : m.name };
-          }),
-        }))).concat({ label: "More pentatonic scales", options: PENTATONICS.filter((p) => !p.basic).map((p) => ({ value: p.slug, label: pentatonicLabel(p) })) })}
-      />
-      {!onScale && (
-        <Link href={scalesIndexHref(tonicPc, `#part-${famId}`)} className="shrink-0 rounded-full border border-slate-700 px-2.5 py-0.5 text-xs text-sky-300 transition hover:border-sky-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
-          ← All scales
-        </Link>
-      )}
-    </BarRow>
+    <Link href={scalesIndexHref(tonicPc, `#part-${famId}`)} className="ml-1 shrink-0 rounded-full border border-slate-700 px-2.5 py-0.5 text-xs text-sky-300 transition hover:border-sky-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
+      ← All scales
+    </Link>
   );
 }
 
