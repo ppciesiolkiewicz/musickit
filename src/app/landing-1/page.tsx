@@ -16,7 +16,7 @@ const MODE_NAMES = ["Lydian", "Ionian", "Mixolydian", "Dorian", "Aeolian", "Phry
 /* The first, fuller landing page, kept for comparison; the home page is the simpler one. */
 export const metadata: Metadata = {
   robots: { index: false },
-  title: "Music Kit: Guitar Scales, Chords, CAGED, Tuner & Looper",
+  title: "attunr: Guitar Scales, Chords, CAGED, Tuner & Looper",
   description: "Find the sound you love, then learn to play it. Every scale, mode and chord on the guitar neck, coloured by each note's job and played back as you tap. Free in your browser; early access to the course is open.",
 };
 

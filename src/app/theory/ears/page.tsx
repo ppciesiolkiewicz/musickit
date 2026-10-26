@@ -4,7 +4,7 @@ import EarGame from "@/components/practice/EarGame";
 import { parseEarSettings } from "@/lib/practice/earGame";
 
 export const metadata: Metadata = {
-  title: "Ear training · Music Kit",
+  title: "Ear training · attunr",
   description: "Name the interval or the chord you hear, level by level, with a song to remember each interval by.",
 };
 

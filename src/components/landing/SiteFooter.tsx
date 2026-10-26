@@ -24,7 +24,7 @@ const COLUMNS: { title: string; links: { href: string; label: string }[] }[] = [
   {
     title: "Teachers",
     links: [
-      { href: "/teach", label: "Teach on Music Kit" },
+      { href: "/teach", label: "Teach on attunr" },
       { href: "/teachers/studio", label: "Video studio" },
     ],
   },
@@ -40,8 +40,8 @@ export default function SiteFooter() {
     <footer className="border-t border-slate-800/70 pt-12 pb-8 text-sm sm:pt-16">
       <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3 lg:grid-cols-[minmax(0,1.6fr)_repeat(3,minmax(0,1fr))] lg:gap-12">
         <div className="col-span-2 sm:col-span-3 lg:col-span-1">
-          <Link href="/" aria-label="Music Kit home" className="inline-block rounded focus-visible:outline-2 focus-visible:outline-sky-400">
-            <Wordmark className="text-2xl" />
+          <Link href="/" aria-label="attunr home" className="inline-block rounded focus-visible:outline-2 focus-visible:outline-sky-400">
+            <Wordmark className="text-2xl" dots="side" />
           </Link>
           <p className="mt-4 max-w-xs leading-relaxed text-slate-400">
             See what you hear. A video course, private lessons and free tools for guitarists who&apos;d rather play.
@@ -61,7 +61,7 @@ export default function SiteFooter() {
       </div>
 
       <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-slate-800/70 pt-6 text-xs text-slate-500 sm:flex-row">
-        <p>© {new Date().getFullYear()} Music Kit</p>
+        <p>© {new Date().getFullYear()} attunr</p>
         <p>Photos from Unsplash. Made for people who&apos;d rather play.</p>
       </div>
     </footer>

@@ -4,7 +4,7 @@ import Lesson from "@/components/theory/Lesson";
 import ImprovApp from "@/components/improv/ImprovApp";
 
 export const metadata: Metadata = {
-  title: "Improvisation · Music Kit",
+  title: "Improvisation · attunr",
   description: "Schillinger's rhythm interference and motive permutation as improvisation exercises, with practice games.",
 };
 

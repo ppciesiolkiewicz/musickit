@@ -4,7 +4,7 @@ import Lesson from "@/components/theory/Lesson";
 import SingingApp from "@/components/theory/singing/SingingApp";
 
 export const metadata: Metadata = {
-  title: "Singing · Music Kit",
+  title: "Singing · attunr",
   description: "Sing a scale, or short melodies that end on Do (easiest first), and watch your voice as a dot on the staff, moving over the notes as you sing. Tap a note to hear it, play the scale or the melody on the beat, with a drone and a metronome to sing against.",
 };
 

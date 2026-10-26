@@ -8,7 +8,7 @@ import SiteFooter from "@/components/landing/SiteFooter";
 import { DISPLAY, Eyebrow } from "@/components/landing/Display";
 
 export const metadata: Metadata = {
-  title: "Teach on Music Kit",
+  title: "Teach on attunr",
   description: "Teach guitar with every scale, chord, drone and loop a click away, and record lessons in the video studio. Founding teachers set their own rate.",
 };
 
@@ -39,7 +39,7 @@ export default function TeachersPage() {
                 ))}
               </ul>
               <div className="mt-6">
-                <EarlyAccessForm source="teachers" compact initial={["teaching"]} cta="I want to teach" done="Thanks! We'll get in touch about teaching on Music Kit." />
+                <EarlyAccessForm source="teachers" compact initial={["teaching"]} cta="I want to teach" done="Thanks! We'll get in touch about teaching on attunr." />
               </div>
             </div>
           </div>

@@ -4,7 +4,7 @@ import Lesson from "@/components/theory/Lesson";
 import ChordKit from "@/components/chordKit/ChordKit";
 
 export const metadata: Metadata = {
-  title: "Chord explorer · Music Kit",
+  title: "Chord explorer · attunr",
   description: "Movable guitar chord shapes, the chords of any key and mode, and progressions with neck positions.",
 };
 

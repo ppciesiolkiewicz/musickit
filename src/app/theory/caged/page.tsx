@@ -5,7 +5,7 @@ import CagedExplorer from "@/components/chordKit/CagedExplorer";
 import NeighboursView from "@/components/chordKit/NeighboursView";
 
 export const metadata: Metadata = {
-  title: "CAGED system · Music Kit",
+  title: "CAGED system · attunr",
   description: "The five CAGED chord shapes in major and minor, with the arpeggio, scale and pentatonic inside each box.",
 };
 

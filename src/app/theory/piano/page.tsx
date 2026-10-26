@@ -5,7 +5,7 @@ import TheoryPiano from "@/components/theory/piano/TheoryPiano";
 import LabelSystemsArticle from "@/components/theory/LabelSystemsArticle";
 
 export const metadata: Metadata = {
-  title: "Piano · Music Kit",
+  title: "Piano · attunr",
   description: "Play the piano and see every note on a grand staff in your key: its name, its scale degree, the interval from the last note and the chord you are holding.",
 };
 

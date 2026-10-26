@@ -1,4 +1,4 @@
-# Music Kit — Feature Specifications
+# attunr — Feature Specifications
 
 ## 1. Piano Display
 

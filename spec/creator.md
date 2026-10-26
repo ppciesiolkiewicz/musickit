@@ -1,4 +1,4 @@
-# Music Kit — Cheatsheet builder (the creator)
+# attunr — Cheatsheet builder (the creator)
 
 Page: `/cheatsheet`, not in the top nav: reached from the home page ("Cheatsheet builder"). It uses the padded page frame like every other page. `/creator` and the old `/theory/cheatsheet` redirect there, keeping their query. Code: `src/features/creator`. Rules: `src/features/creator/CLAUDE.md`.
 

@@ -3,7 +3,7 @@ import SiteFooter from "@/components/landing/SiteFooter";
 import { StudioApp } from "@/features/teachers/studio";
 
 export const metadata: Metadata = {
-  title: "Studio · Music Kit",
+  title: "Studio · attunr",
   description: "Record a guitar lesson with any chord, scale, position or drone on screen beside your camera.",
 };
 

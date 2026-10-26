@@ -1,4 +1,4 @@
-# Music Kit — Looper
+# attunr — Looper
 
 A multi-channel audio looper at `/looper`. The engine lives in `src/lib/looper/` and imports nothing outside it. The app hands it extras through `LooperOptions`: a shared `AudioContext` and `createVoice`, the sound of its instruments (the sampler's generator voice, `makeGeneratorVoice`). The UI is in `src/components/looper/`. The only shared piece is the top navigation (`src/components/SiteNav.tsx`).
 

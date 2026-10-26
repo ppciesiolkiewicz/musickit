@@ -493,3 +493,13 @@
   --color-white: oklch(20.8% 0.042 265.755);
   --app-glow: radial-gradient(40rem 24rem at 90% -10%, oklch(93% 0.09 90 / 0.8), transparent 70%), radial-gradient(40rem 22rem at 0% 110%, oklch(92% 0.08 185 / 0.7), transparent 70%);
 }
+
+/* the attunr wordmark (components/Wordmark.tsx) takes each style's headline face; Default keeps Outfit.
+   On body, where next/font puts the --font-* variables */
+:root[data-theme="funk"] body { --brand-font: var(--font-funk); }
+:root[data-theme="rock"] body { --brand-font: var(--font-rock); }
+:root[data-theme="blues"] body { --brand-font: var(--font-blues); }
+:root[data-theme="surf"] body { --brand-font: var(--font-surf); }
+:root[data-theme="metal"] body { --brand-font: var(--font-metal); }
+:root:not([data-theme="plain"]) body { --brand-tracking: normal; --brand-weight: 400; }
+:root[data-theme="jazz"] body { --brand-font: var(--font-jazz); --brand-weight: 600; }

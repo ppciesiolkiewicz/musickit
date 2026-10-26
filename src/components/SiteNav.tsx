@@ -23,13 +23,13 @@ function NavLink({ href, label, current, small }: { href: string; label: string;
   );
 }
 
-/** The Music Kit top navigation. Shared by every page. The tuner button (a pop-up tuner) sits left of the style, except on the tuner page;
+/** The attunr top navigation. Shared by every page. The tuner button (a pop-up tuner) sits left of the style, except on the tuner page;
  * `devices` adds the audio devices button after the style. */
 export default function SiteNav({ active, devices = false }: { active: string; devices?: boolean }) {
   const [home, ...rest] = SITE_LINKS;
   return (
-    <nav aria-label="Music Kit" className="flex flex-wrap items-center gap-1">
-      <Link href="/" aria-label="Music Kit home" className="mr-5 hidden rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 sm:inline">
+    <nav aria-label="attunr" className="flex flex-wrap items-center gap-1">
+      <Link href="/" aria-label="attunr home" className="mr-5 hidden rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 sm:inline">
         <Wordmark className="text-[1.7rem]" />
       </Link>
       <NavLink {...home} current={isActive(active, home.href)} />

@@ -1,4 +1,4 @@
-# Music Kit — Improvisation
+# attunr — Improvisation
 
 Page `/theory/improv`. Ideas from Joseph Schillinger's System of Musical Composition, as exercises. Pure maths is in `src/lib/improv/schillinger.ts` (tested); sound and UI are in `src/components/improv/`. Nothing here imports the looper or chord kit.
 

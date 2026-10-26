@@ -85,7 +85,7 @@ export default function LabelSystemsArticle() {
 
       <H2 id="four">Four ways to name a note</H2>
       <P>
-        Every diagram in Music Kit can label its notes four ways. They answer different questions, and switching between them is one of the
+        Every diagram in attunr can label its notes four ways. They answer different questions, and switching between them is one of the
         quickest ways to learn a key. Pick one here and every keyboard and neck on this page (and the rest of the site) follows.
       </P>
       <LabelSelect className="max-w-xs" />
@@ -102,7 +102,7 @@ export default function LabelSystemsArticle() {
 
       <H2 id="solfege">Solfège</H2>
       <P>
-        Music Kit uses <b>movable do</b>: Do is always the tonic of the key you pick. In C major Do is C; in E♭ major Do is E♭. The seven notes of
+        attunr uses <b>movable do</b>: Do is always the tonic of the key you pick. In C major Do is C; in E♭ major Do is E♭. The seven notes of
         the major scale are <b>Do Re Mi Fa Sol La Ti</b> (Ti is sometimes written Si, from the older Italian names). Tap a key to hear it.
       </P>
       <div className="grid gap-2 lg:grid-cols-2">
@@ -154,7 +154,7 @@ export default function LabelSystemsArticle() {
       <P>
         There are two traditions for minor. <b>Do-based minor</b> keeps Do on the tonic and lowers the 3rd, 6th and 7th: Do Re <b>Me</b> Fa Sol <b>Le Te</b>.
         <b> La-based minor</b> starts the minor scale on La, so natural minor is La Ti Do Re Mi Fa Sol, the same syllables as its relative major.
-        Music Kit uses do-based minor, the same way it writes degrees: the tonic is always Do and R, and every mode is read against the major scale.
+        attunr uses do-based minor, the same way it writes degrees: the tonic is always Do and R, and every mode is read against the major scale.
         That makes the colour of each mode easy to see: Dorian is minor with La, Phrygian is minor with Ra, Mixolydian is major with Te.
         Compare them on the <Link href="/theory/scales" className="text-sky-300 hover:underline">scales</Link> page.
       </P>

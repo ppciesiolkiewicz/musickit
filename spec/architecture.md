@@ -1,4 +1,4 @@
-# Music Kit — Architecture
+# attunr — Architecture
 
 ## Tech Stack
 

@@ -17,7 +17,7 @@ import { degreeColour, degreeLabels } from "@/features/theory/scales";
 import { FAMILIES, MAJOR, modeSteps } from "@/features/theory/theory";
 
 export const metadata: Metadata = {
-  title: "Music Kit: See what you hear, and make real progress on guitar",
+  title: "attunr: your one-stop hub for music drills and theory",
   description: "A video course, private lessons with professional teachers, and tools that show every sound on the fretboard in colour, so practice finally turns into progress. Early access is open.",
 };
 
@@ -38,8 +38,8 @@ const STORY = {
 /** Bundles at launch; early-access members get the course now and every style course free as it comes out. */
 const BUNDLES = [
   { name: "The course", price: "$19.99", text: "The fretboard by ear and by colour: scales, moods, intervals, step by step.", items: ["The core video course", "Exercises in the app"] },
-  { name: "Course + one style", price: "$34.99", text: "The core course plus the style you came for.", items: ["The core video course", "One style course", "Exercises in the app"] },
-  { name: "Everything", price: "$39.99", text: "The core course and every style course, as each one launches.", items: ["The core video course", "Every style course", "Exercises in the app"], best: true },
+  { name: "Course + one style", price: "$34.99", text: "The core course plus the style you came for.", items: ["The core video course", "One style course", "Exercises in the app"], styleCourse: true },
+  { name: "Everything", price: "$39.99", text: "The core course and every style course, as each one launches.", items: ["The core video course", "Every style course", "Exercises in the app"], styleCourse: true, best: true },
 ];
 const STYLES = ["Surf rock", "Funk", "Blues", "Jazz", "Neo-soul", "Metal", "Flamenco", "Bossa nova", "Reggae", "Country", "Indie rock"];
 
@@ -90,13 +90,12 @@ export default function Home() {
               Early access to the video course
               <span aria-hidden className="transition group-hover:translate-x-0.5">→</span>
             </a>
-            <CourseSoon />
             <h1 className="text-5xl leading-none tracking-tight text-slate-50 sm:text-7xl" style={DISPLAY}>
               See what
               <span className="ls-accent block italic text-sky-300">you hear.</span>
             </h1>
             <p className="mt-6 max-w-md text-lg leading-relaxed text-slate-300">
-              Plenty of guitarists practise for years and still feel stuck. Music Kit shows you what&apos;s really happening on the fretboard, so every practice session turns into progress.
+              Plenty of guitarists practise for years and still feel stuck. attunr shows you what&apos;s really happening on the fretboard, so every practice session turns into progress.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <a href="#course" className="ls-btn ls-btn-primary ls-glint inline-flex items-center gap-2 rounded-xl bg-sky-400 px-5 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-sky-500/20 transition hover:bg-sky-300">
@@ -171,6 +170,7 @@ export default function Home() {
                   <span className="text-xs text-slate-500">one-off, at launch</span>
                 </p>
                 <ul className="flex flex-col gap-2 text-sm text-slate-300">{b.items.map((t) => <Check key={t}>{t}</Check>)}</ul>
+                {b.styleCourse && <CourseSoon />}
                 {b.best && <p className="rounded-xl bg-slate-950/50 px-3 py-2 text-xs text-sky-100">Early access: get the course now and every style course free as it launches.</p>}
                 <a href="#join" className={`ls-btn mt-auto inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition ${b.best ? "ls-btn-primary ls-glint bg-sky-400 text-slate-950 hover:bg-sky-300" : "border border-slate-600 text-slate-100 hover:border-slate-400"}`}>
                   Join early access
@@ -196,7 +196,7 @@ export default function Home() {
               <Eyebrow tone="text-violet-300">Private lessons</Eyebrow>
               <H2 id="lessons-h">A professional teacher, <span className="ls-accent italic text-violet-300">and progress you can feel.</span></H2>
               <p className="mt-5 max-w-lg text-slate-300">
-                One-to-one lessons with professional teachers, held right inside Music Kit. They spot what&apos;s holding you back, show you the sound instead of only telling you, and leave you with exactly what to practise.
+                One-to-one lessons with professional teachers, held right inside attunr. They spot what&apos;s holding you back, show you the sound instead of only telling you, and leave you with exactly what to practise.
               </p>
               <ul className="mt-7 flex flex-col gap-4">
                 {[

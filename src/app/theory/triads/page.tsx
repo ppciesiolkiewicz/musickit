@@ -4,7 +4,7 @@ import Lesson from "@/components/theory/Lesson";
 import TriadsExplorer from "@/components/chordKit/TriadsExplorer";
 
 export const metadata: Metadata = {
-  title: "Triads by string group · Music Kit",
+  title: "Triads by string group · attunr",
   description: "Closed-position triads and their inversions on every group of three adjacent strings.",
 };
 

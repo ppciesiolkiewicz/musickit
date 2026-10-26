@@ -61,7 +61,7 @@ export interface GroupInfo extends GroupLayout {
  * - All channels play in sync from one shared loop clock.
  * - What gets recorded comes from the input mixer (mixer.ts): any number of inputs with mute and solo.
  *
- * This file is independent of the rest of Music Kit: it imports nothing outside src/lib/looper.
+ * This file is independent of the rest of attunr: it imports nothing outside src/lib/looper.
  * Anything app-specific (for example the piano) is handed in through `LooperOptions`.
  */
 

@@ -4,7 +4,7 @@ import Lesson from "@/components/theory/Lesson";
 import { CircleOfFifthsPage } from "@/components/theory/CircleOfFifths";
 
 export const metadata: Metadata = {
-  title: "Circle of fifths · Music Kit",
+  title: "Circle of fifths · attunr",
   description: "Every major and minor key on the circle of fifths: key signatures, the chords of each key, relatives and neighbours.",
 };
 

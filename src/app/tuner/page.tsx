@@ -3,7 +3,7 @@ import PageShell from "@/components/PageShell";
 import { Tuner } from "@/features/tuner";
 
 export const metadata: Metadata = {
-  title: "Tuner · Music Kit",
+  title: "Tuner · attunr",
   description: "A tuner for guitar (with alternate tunings), bass, ukulele, violin or any note, with a choice of input and A4 reference pitch.",
 };
 

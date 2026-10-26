@@ -3,7 +3,7 @@ import PageShell from "@/components/PageShell";
 import { RhythmGame } from "@/features/rhythm";
 
 export const metadata: Metadata = {
-  title: "Rhythm game · Music Kit",
+  title: "Rhythm game · attunr",
   description: "Play in time: hit each note on the beat with Space or a tap, or strum your guitar into the microphone, and see how early or late you are.",
 };
 

@@ -4,7 +4,7 @@ import NoteGame from "@/components/practice/NoteGame";
 import { parseNoteSettings } from "@/lib/practice/noteGame";
 
 export const metadata: Metadata = {
-  title: "Fretboard notes · Music Kit",
+  title: "Fretboard notes · attunr",
   description: "A game for learning the notes on the guitar neck: find a note by tapping or playing it, find every one, or name a lit note.",
 };
 

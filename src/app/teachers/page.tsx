@@ -3,7 +3,7 @@ import Link from "next/link";
 import PageShell from "@/components/PageShell";
 
 export const metadata: Metadata = {
-  title: "For teachers · Music Kit",
+  title: "For teachers · attunr",
   description: "Tools for guitar teachers: record lessons with any theory view on screen.",
 };
 

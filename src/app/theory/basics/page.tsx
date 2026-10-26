@@ -3,7 +3,7 @@ import PageShell from "@/components/PageShell";
 import BasicsArticle from "@/components/theory/BasicsArticle";
 
 export const metadata: Metadata = {
-  title: "Guitar basics · Music Kit",
+  title: "Guitar basics · attunr",
   description: "Strings, frets and note names, and every interval shown on a piano and then on the guitar: same string and across strings.",
 };
 

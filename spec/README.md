@@ -1,6 +1,6 @@
-# Music Kit — Specifications
+# attunr — Specifications
 
-This directory contains the formal specifications for the Music Kit application.
+This directory contains the formal specifications for the attunr application.
 
 ## Documents
 

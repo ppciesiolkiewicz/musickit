@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Anton, Cormorant_Garamond, DM_Serif_Display, Fraunces, Geist, Geist_Mono, Pacifico, Pirata_One, Shrikhand } from "next/font/google";
+import { Anton, Cormorant_Garamond, DM_Serif_Display, Fraunces, Geist, Geist_Mono, Outfit, Pacifico, Pirata_One, Shrikhand } from "next/font/google";
 import "./globals.css";
 import NoControlFocus from "@/components/NoControlFocus";
 import { THEME_BOOT } from "@/components/ThemeSwitcher";
@@ -15,12 +15,19 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-/* display face for the Music Kit wordmark; SOFT rounds the serifs */
+/* the site's display face (headings, the style switcher); SOFT rounds the serifs */
 const fraunces = Fraunces({
   variable: "--font-display",
   subsets: ["latin"],
   style: ["normal", "italic"],
   axes: ["SOFT", "opsz"],
+});
+
+/* the attunr wordmark */
+const outfit = Outfit({
+  variable: "--font-brand",
+  subsets: ["latin"],
+  weight: "600",
 });
 
 /* the music styles' headline faces (landing page and the style switcher only), loaded on demand */
@@ -34,13 +41,13 @@ const styleFonts = [funkFont, rockFont, metalFont, bluesFont, jazzFont, surfFont
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "Music Kit",
+  title: "attunr: your one-stop hub for music drills and theory",
   description: "Guitar theory, exercises and practice tools: scales and modes in every key, chord shapes, CAGED, a tuner and a looper.",
   /* no og title or description here: Next fills them from each page's own,
      and the image comes from app/opengraph-image.tsx */
   openGraph: {
     type: "website",
-    siteName: "Music Kit",
+    siteName: "attunr",
     locale: "en_US",
   },
   twitter: { card: "summary_large_image" },
@@ -57,7 +64,7 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} ${styleFonts} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} ${outfit.variable} ${styleFonts} antialiased`}
       >
         <NoControlFocus />
         {children}

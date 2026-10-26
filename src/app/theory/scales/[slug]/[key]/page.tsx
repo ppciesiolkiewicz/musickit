@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   if (pent && pc !== null) {
     const p = pentatonicContext(pc, pent);
     return {
-      title: `${p.title} scale: notes and guitar positions · Music Kit`,
+      title: `${p.title} scale: notes and guitar positions · attunr`,
       description: `${p.title}: ${p.names.join(" ")} (${p.formula.join(" ")}). ${pent.mood} Where it comes from, the scales with the same notes, and five positions on the guitar neck.`,
       alternates: { canonical: scaleHref(slug, pc) },
     };
@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   const info = FAMILIES[page.familyIndex].info[page.modeIndex];
   const name = `${ctx.names[0]} ${ctx.modeName}`;
   return {
-    title: `${name} scale: notes, chords and guitar positions · Music Kit`,
+    title: `${name} scale: notes, chords and guitar positions · attunr`,
     description: `${name}: ${ctx.names.join(" ")}. ${info.mood} Every chord in the key, its relative major and minor, and the scale on the guitar neck.`,
     alternates: { canonical: scaleHref(slug, pc) },
   };

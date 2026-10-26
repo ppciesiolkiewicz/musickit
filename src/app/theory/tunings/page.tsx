@@ -4,7 +4,7 @@ import Lesson from "@/components/theory/Lesson";
 import TuningsArticle from "@/components/theory/TuningsArticle";
 
 export const metadata: Metadata = {
-  title: "Tunings · Music Kit",
+  title: "Tunings · attunr",
   description: "Reference pitch (A440, 442, 415, 432) and the standard and alternate tunings of guitar, bass, ukulele, violin, viola, cello, mandolin and banjo.",
 };
 

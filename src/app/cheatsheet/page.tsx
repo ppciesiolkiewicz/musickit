@@ -3,7 +3,7 @@ import PageShell from "@/components/PageShell";
 import { CreatorApp } from "@/features/creator";
 
 export const metadata: Metadata = {
-  title: "Cheatsheet builder · Music Kit",
+  title: "Cheatsheet builder · attunr",
   description: "Build your own theory cheatsheet: every theory page as a panel that follows one key, compact or in full.",
 };
 

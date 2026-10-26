@@ -1,8 +1,8 @@
-# Music Kit — Overview
+# attunr — Overview
 
 ## Product Description
 
-Music Kit is a web-based interactive piano application. Users can play a virtual piano using their computer keyboard, with real-time audio feedback and music theory visualization.
+attunr is a web-based interactive piano application. Users can play a virtual piano using their computer keyboard, with real-time audio feedback and music theory visualization.
 
 ## Goals
 

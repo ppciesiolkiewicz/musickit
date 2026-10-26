@@ -1,4 +1,4 @@
-# Music Kit — Sound
+# attunr — Sound
 
 One module, `src/features/sound/`, makes every sound in the app: the piano and its MIDI input, the chord, scale and arpeggio pages, the improvisation page and the looper's instruments.
 

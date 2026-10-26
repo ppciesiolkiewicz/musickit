@@ -3,7 +3,7 @@ import LooperApp from "@/components/looper/LooperApp";
 import SiteFooter from "@/components/landing/SiteFooter";
 
 export const metadata: Metadata = {
-  title: "Looper · Music Kit",
+  title: "Looper · attunr",
   description: "A multi-channel audio looper that records from your audio interface.",
 };
 

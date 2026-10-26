@@ -5,7 +5,7 @@ import ScalesIndex from "@/components/chordKit/ScalesIndex";
 import { keyOr } from "@/features/theory/keySlug";
 
 export const metadata: Metadata = {
-  title: "Scales and modes · Music Kit",
+  title: "Scales and modes · attunr",
   description: "All 21 modes, six exotic scales (Persian, double harmonic, Hungarian minor and more) and nine pentatonic scales side by side in any key: scale degrees, notes, step patterns, and relative major and minor.",
 };
 

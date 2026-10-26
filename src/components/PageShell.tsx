@@ -6,7 +6,7 @@ import type { ReactNode } from "react";
 import PreloadPiano from "@/features/sound/keyboard/PreloadPiano";
 
 /**
- * Dark page frame with the Music Kit nav, the page title and the site footer, shared by every page but the looper and the studio.
+ * Dark page frame with the attunr nav, the page title and the site footer, shared by every page but the looper and the studio.
  * Pages are 80rem wide with room at the sides; `wide` keeps the full 96rem for tools that fill the screen (the cheatsheet),
  * and `full` spans the whole window (the scales pages, whose settings column sits on the right edge).
  * Necks and other wide pieces reach back out with the `bleed` utility. `devices` puts the audio input and output picker in the nav,

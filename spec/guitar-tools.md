@@ -1,4 +1,4 @@
-# Music Kit — Guitar Tools
+# attunr — Guitar Tools
 
 Three pages built on a shared theory library in `src/lib/chordKit/`. All of them are scale-degree oriented: shapes are labelled with intervals (R, ♭3, 5, ♭7 ...), not fingers.
 

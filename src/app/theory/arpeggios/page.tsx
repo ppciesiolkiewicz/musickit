@@ -4,7 +4,7 @@ import Lesson from "@/components/theory/Lesson";
 import ArpeggiosExplorer from "@/components/chordKit/ArpeggiosExplorer";
 
 export const metadata: Metadata = {
-  title: "Arpeggios · Music Kit",
+  title: "Arpeggios · attunr",
   description: "Arpeggios of any chord overlaid on any scale or mode, across the whole guitar neck.",
 };
 

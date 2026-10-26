@@ -5,7 +5,7 @@ import { ImageResponse } from "next/og";
 /* The link preview every page shares (WhatsApp, Messenger, Slack, X...). Pages
    bring their own title and description; this is the picture beside them. */
 
-export const alt = "Music Kit: C major on a guitar fretboard, every note shown by its scale degree";
+export const alt = "attunr: C major on a guitar fretboard, every note shown by its scale degree";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -30,8 +30,8 @@ const STRINGS = [
 const FRETS = [2, 3, 4, 5];
 const C_MAJOR = [0, 2, 4, 5, 7, 9, 11];
 
-/* TTFs from Google Fonts, the site's own faces. Fraunces is cut down to the
-   letters of "Music Kit" (css2?...&text=); download it again if those change */
+/* TTFs from Google Fonts, the site's own faces. Outfit is cut down to the
+   letters of "attunr" (css2?...&text=); download it again if those change */
 const font = (file: string) => readFile(join(process.cwd(), "src/app/_og", file));
 
 const BOARD_W = 520;
@@ -41,8 +41,8 @@ const PAD_Y = 28;
 const DOT = 40;
 
 export default async function Image() {
-  const [fraunces, geist, geistBold] = await Promise.all([
-    font("fraunces-wordmark.ttf"),
+  const [outfit, geist, geistBold] = await Promise.all([
+    font("outfit-wordmark.ttf"),
     font("geist-400.ttf"),
     font("geist-600.ttf"),
   ]);
@@ -79,18 +79,24 @@ export default async function Image() {
       >
         <div style={{ display: "flex", flexDirection: "column", width: 500 }}>
           <div style={{ fontSize: 22, letterSpacing: 4, color: "#e5b93c", textTransform: "uppercase" }}>
-            Guitar theory &amp; practice
+            Music drills &amp; theory
           </div>
           <div
             style={{
               fontSize: 112,
               lineHeight: 1,
               marginTop: 20,
-              fontFamily: "Fraunces",
+              fontFamily: "Outfit",
               fontWeight: 600,
+              letterSpacing: -3,
             }}
           >
-            Music Kit
+            attunr
+          </div>
+          <div style={{ display: "flex", marginTop: 14 }}>
+            {DEGREE.map((c) => (
+              <div key={c} style={{ width: 18, height: 18, borderRadius: 18, background: c, marginRight: 10 }} />
+            ))}
           </div>
           <div style={{ fontSize: 30, lineHeight: 1.35, marginTop: 28, color: MUTED }}>
             Scales in every key, chord shapes, CAGED, a tuner and a looper.
@@ -192,7 +198,7 @@ export default async function Image() {
     {
       ...size,
       fonts: [
-        { name: "Fraunces", data: fraunces, weight: 600, style: "normal" },
+        { name: "Outfit", data: outfit, weight: 600, style: "normal" },
         { name: "Geist", data: geist, weight: 400, style: "normal" },
         { name: "Geist", data: geistBold, weight: 600, style: "normal" },
       ],

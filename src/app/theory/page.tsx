@@ -3,7 +3,7 @@ import PageShell from "@/components/PageShell";
 import TheoryHub from "@/components/theory/TheoryHub";
 
 export const metadata: Metadata = {
-  title: "Practice · Music Kit",
+  title: "Practice · attunr",
   description: "A loose guitar course in four stages and three tracks, plus explorers for chords, scales, CAGED and the circle of fifths, and practice games.",
 };
 

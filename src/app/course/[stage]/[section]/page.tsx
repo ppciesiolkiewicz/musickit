@@ -21,7 +21,7 @@ export function generateStaticParams(): Params[] {
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { stage, section } = await params;
   const r = findSection(stage, section);
-  return r ? { title: `${r.stage.label} · ${r.section.title} · Music Kit`, description: r.stage.intro } : {};
+  return r ? { title: `${r.stage.label} · ${r.section.title} · attunr`, description: r.stage.intro } : {};
 }
 
 export default async function CourseSectionPage({ params }: { params: Promise<Params> }) {

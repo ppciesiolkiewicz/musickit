@@ -3,7 +3,7 @@ import PageShell from "@/components/PageShell";
 import CourseIndex from "@/components/course/CourseIndex";
 
 export const metadata: Metadata = {
-  title: "Course: learn the neck one position at a time · Music Kit",
+  title: "Course: learn the neck one position at a time · attunr",
   description: "A guitar course that stays in one position until it makes sense: chords, triads, arpeggios, scales and the paths between them, then out across the neck.",
 };
 

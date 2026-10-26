@@ -14,7 +14,7 @@ const find = (n: string) => STAGE_CONTENT.find((s) => String(s.n) === n);
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const stage = find((await params).n);
-  return stage ? { title: `Stage ${stage.n}: ${stage.title} · Music Kit`, description: stage.intro } : {};
+  return stage ? { title: `Stage ${stage.n}: ${stage.title} · attunr`, description: stage.intro } : {};
 }
 
 export default async function StagePage({ params }: { params: Promise<Params> }) {

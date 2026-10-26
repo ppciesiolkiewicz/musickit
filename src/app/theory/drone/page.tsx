@@ -5,7 +5,7 @@ import { Jam } from "@/features/instruments";
 import WireNam from "@/components/WireNam";
 
 export const metadata: Metadata = {
-  title: "Drone · Music Kit",
+  title: "Drone · attunr",
   description: "A held note to play scales, modes and arpeggios against, with a drum machine and a bass in the same key and tempo.",
 };
 
