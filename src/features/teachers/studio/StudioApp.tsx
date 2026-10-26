@@ -224,7 +224,7 @@ export default function StudioApp() {
         </div>
       </main>
 
-      {palette && <Palette pluginIds={PLUGIN_IDS} stageKey={stage.key} media={media} onPick={onPick} onClose={() => setPalette(false)} />}
+      {palette && <Palette pluginIds={PLUGIN_IDS} stageKey={stage.key} media={media} layers={stage.layers} onPick={onPick} onRemove={(id) => dispatch({ type: "remove", id })} onClose={() => setPalette(false)} />}
       {help && <KeysOverlay onClose={() => setHelp(false)} />}
     </div>
   );

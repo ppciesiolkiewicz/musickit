@@ -50,7 +50,7 @@ export default function Tuner() {
   const listDevices = useCallback(async () => {
     try {
       const all = await navigator.mediaDevices.enumerateDevices();
-      setDevices(all.filter((d) => d.kind === "audioinput" && !ALIAS.has(d.deviceId)).map((d, i) => ({ id: d.deviceId, label: d.label || `Input ${i + 1}` })));
+      setDevices(all.filter((d) => d.kind === "audioinput" && d.deviceId && !ALIAS.has(d.deviceId)).map((d, i) => ({ id: d.deviceId, label: d.label || `Input ${i + 1}` })));
     } catch { /* no media devices */ }
   }, []);
 

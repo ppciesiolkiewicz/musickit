@@ -1,39 +1,32 @@
 /**
- * The studio palette's search: a typed line ("/ e6", "a dorian", "e minor pent pos 1", "drone a", "camera corner") turned into
- * ranked results, each adding a widget or running a studio command. Pure: no React, no storage.
+ * The studio palette: everything that can go on the stage (`paletteCatalog`, by section and subsection) and the search over it
+ * ("a dorian", "e minor pent pos 1", "e shape", "sus iv", "metronome", "camera corner"), each result adding a widget or running a
+ * studio command. New widgets take the master Key & scale; a key typed in the search is pinned on the widget. Pure: no React, no storage.
  */
-import { EMPTY_KEY, keyContext, keyTitle, type KeyChoice } from "@/features/creator/model/key";
-import { DEFAULT_KEY_PC } from "@/features/theory/theory";
+import type { KeyChoice } from "@/features/creator/model/key";
 import { CAGED_LETTERS, type CagedLetter } from "@/lib/chordKit/caged";
-import { chordLabel, parseChordQuery } from "@/lib/chordKit/chordSearch";
 import type { PositionKind } from "@/lib/chordKit/scalePositions";
 import { NO_MEDIA, type MediaState } from "./commands";
-import { PALETTE_GROUPS, PLUGIN_TITLES, SECTIONS, subjectTitle, type PaletteGroup, type PaletteResult, type ScaleSection, type StudioCommand, type Subject } from "./subject";
+import { PALETTE_GROUPS, pinAgainst, subjectName, subjectTitle, type PaletteGroup, type PaletteResult, type StudioCommand, type Subject } from "./subject";
 
-const MAX_RESULTS = 8;
+const MAX_RESULTS = 12;
 
-/** The order a key's plugins are offered in: the scale first. */
-const KEY_PLUGIN_ORDER = ["scale", "modes", "chords", "arpeggios", "caged", "triads", "progressions", "circle", "keys", "improv", "tunings"];
+/** The cheatsheet pages with a full view, in the cheatsheet's order. */
+const FULL_PAGES = ["scale", "chords", "circle", "progressions", "modes", "triads", "caged", "arpeggios", "improv", "tunings"];
 
-/** Words that name a plugin on their own ("circle", "caged c"). */
-const PLUGIN_WORDS: Record<string, string> = {
-  circle: "circle",
-  fifths: "circle",
-  caged: "caged",
-  triads: "triads",
-  triad: "triads",
-  arpeggios: "arpeggios",
-  arpeggio: "arpeggios",
-  arps: "arpeggios",
-  progressions: "progressions",
-  progression: "progressions",
-  modes: "modes",
-  tunings: "tunings",
-  tuning: "tunings",
-  keys: "keys",
-  piano: "keys",
-  improv: "improv",
-  scale: "scale",
+/** Other words a plugin goes by. */
+const PLUGIN_WORDS: Record<string, string[]> = {
+  scale: ["scale", "notes"],
+  chords: ["chords", "chord", "library", "search", "shapes"],
+  circle: ["circle", "fifths"],
+  keys: ["keys", "piano", "keyboard"],
+  progressions: ["progressions", "progression"],
+  modes: ["modes", "mode", "scales"],
+  triads: ["triads", "triad"],
+  caged: ["caged"],
+  arpeggios: ["arpeggios", "arpeggio", "arps"],
+  improv: ["improv", "improvisation", "solo"],
+  tunings: ["tunings", "tuning"],
 };
 
 const MODE_WORDS: Record<string, number> = {
@@ -48,22 +41,9 @@ const MODE_WORDS: Record<string, number> = {
   locrian: 6,
 };
 
-const BAND_WORDS = new Set(["drone", "band", "drums", "bass", "click"]);
-const LOGO_WORDS = new Set(["logo", "brand", "wordmark", "attunr"]);
-const URL_WORDS = new Set(["url", "link", "website", "site", "address", "brand"]);
-
-/** Phrases that name a scale section; every word must be in the query. */
-const SECTION_PHRASES: [string[], ScaleSection][] = [
-  [["every", "chord"], "chords"],
-  [["chords", "in"], "chords"],
-  [["same", "notes"], "relatives"],
-  [["relatives"], "relatives"],
-  [["on", "guitar"], "guitar"],
-];
-
-const BUBBLE_WORDS = new Set(["sus", "extensions", "extension", "bubbles", "bubble"]);
-const NECK_WORDS = new Set(["fretboard", "neck"]);
 const ROMAN: Record<string, number> = { i: 0, ii: 1, iii: 2, iv: 3, v: 4, vi: 5, vii: 6 };
+const POSITION_COUNT: Record<PositionKind, number> = { pentatonic: 5, scale: 5, "3nps": 7 };
+const POSITION_SUBS: Record<PositionKind, string> = { pentatonic: "Pentatonic boxes", scale: "Scale positions", "3nps": "3 notes per string" };
 
 interface CommandDef {
   label: string;
@@ -86,7 +66,75 @@ const COMMANDS: CommandDef[] = [
   { label: "Clear the stage", command: "clear", words: ["clear"], applies: () => true },
 ];
 
-const commandResult = (c: CommandDef): PaletteResult => ({ id: `studio:${c.label}`, label: c.label, detail: "Studio", group: "studio", action: { type: "command", command: c.command } });
+const commandResult = (c: CommandDef): PaletteResult => ({ id: `studio:${c.label}`, label: c.label, detail: "", group: "studio", action: { type: "command", command: c.command } });
+
+/** A catalog entry: a result and the words a search finds it by. */
+interface Entry {
+  result: PaletteResult;
+  words: string[];
+}
+
+function entry(subject: Subject, group: PaletteGroup, detail: string, words: string[], sub?: string): Entry {
+  const result: PaletteResult = { id: `${group}:${JSON.stringify(subject)}`, label: subjectName(subject), detail, group, action: { type: "add", subject } };
+  if (sub) result.sub = sub;
+  return { result, words: [...subjectName(subject).toLowerCase().split(/[^a-z0-9#]+/).filter(Boolean), ...words] };
+}
+
+/** Every widget there is, in `key`, by section and subsection. */
+function entries(pluginIds: string[], key: KeyChoice): Entry[] {
+  const has = (id: string) => pluginIds.includes(id);
+  const panel = (id: string, group: PaletteGroup, detail: string, sub?: string) => (has(id) ? [entry({ kind: "plugin", plugin: id, key }, group, detail, PLUGIN_WORDS[id] ?? [], sub)] : []);
+  const out: Entry[] = [
+    entry({ kind: "key" }, "setup", "The master key and scale every widget follows", ["key", "scale", "master", "root", "mode"]),
+    entry({ kind: "band", key }, "setup", "Click, drone, drums and bass", ["metronome", "drone", "band", "drums", "bass", "click", "tempo"]),
+    entry({ kind: "tuner" }, "setup", "Tune before you play", ["tuner", "tune", "tuning"]),
+    ...panel("scale", "scale", "The notes and their degrees", "Notes"),
+    entry({ kind: "section", section: "relatives", key }, "scale", "The modes that share these notes", ["modes", "same", "notes", "relatives", "relative"], "Notes"),
+    entry({ kind: "neck", key }, "scale", "Every note of the scale on the neck", ["fretboard", "neck", "scale", "notes"], "On the fretboard"),
+    entry({ kind: "section", section: "guitar", key }, "scale", "The neck with its positions to pick from", ["fretboard", "positions", "guitar", "neck"], "On the fretboard"),
+  ];
+  for (const positionKind of ["pentatonic", "scale", "3nps"] as const) {
+    for (let index = 0; index < POSITION_COUNT[positionKind]; index++) {
+      out.push(entry({ kind: "position", key, positionKind, index }, "scale", "", ["position", "pos", "box", positionKind === "pentatonic" ? "pent" : positionKind, String(index + 1)], POSITION_SUBS[positionKind]));
+    }
+  }
+  out.push(entry({ kind: "section", section: "chords", key }, "chords", "The chord on every note of the scale", ["chords", "chord", "every", "diatonic", "in", "key"], "In the key"));
+  out.push(...panel("triads", "chords", "One chord in three inversions", "In the key"));
+  out.push(...panel("arpeggios", "chords", "The chords note by note", "In the key"));
+  out.push(...panel("progressions", "chords", "Common progressions in the key", "In the key"));
+  for (let degree = 0; degree < 7; degree++) out.push(entry({ kind: "bubble", key, degree }, "chords", "Circle diagram", ["sus", "extensions", "extension", "bubble", "bubbles", Object.keys(ROMAN)[degree]], "Sus & extensions"));
+  out.push(...panel("caged", "caged", "The five shapes, compact", "The whole neck"));
+  out.push(entry({ kind: "caged", key, shape: null }, "caged", "The five boxes up the neck", ["fretboard", "neck", "map", "boxes"], "The whole neck"));
+  for (const shape of CAGED_LETTERS) out.push(entry({ kind: "caged", key, shape }, "caged", "Chord, arpeggio, pentatonic and scale", ["shape", "box", shape.toLowerCase()], "One shape"));
+  out.push(...panel("circle", "theory", "Keys and their neighbours"));
+  out.push(...panel("keys", "theory", "The scale on a piano"));
+  out.push(...panel("improv", "theory", "What to play over the key"));
+  out.push(...panel("tunings", "theory", "Open and alternate tunings"));
+  for (const id of FULL_PAGES) {
+    if (has(id)) out.push(entry({ kind: "plugin", plugin: id, full: true, key }, "pages", "The whole page, as on the cheatsheet", ["page", "full", "cheatsheet", ...(PLUGIN_WORDS[id] ?? [])]));
+  }
+  out.push(entry({ kind: "logo" }, "brand", "The attunr wordmark", ["logo", "brand", "wordmark", "attunr"]));
+  out.push(entry({ kind: "url" }, "brand", "Where to find the site", ["url", "link", "website", "site", "address", "brand"]));
+  return out;
+}
+
+const GROUP_ORDER = Object.keys(PALETTE_GROUPS) as PaletteGroup[];
+
+/** Results put under their category's separator. `ranked` keeps the categories in the order their best result comes (search); otherwise the palette's own order (the catalog). */
+export function groupResults(results: PaletteResult[], ranked = false): { group: PaletteGroup; results: PaletteResult[] }[] {
+  const order = ranked ? [...new Set(results.map((r) => r.group))] : GROUP_ORDER;
+  return order.map((group) => ({ group, results: results.filter((r) => r.group === group) })).filter((g) => g.results.length > 0);
+}
+
+/**
+ * Everything that can go on the stage, for the palette before anything is typed, by section: Key and sound (Key & scale, metronome,
+ * tuner), Scale, Chords, CAGED, Theory, the cheatsheet pages in full, Brand, then the camera and screen share. All in the master key.
+ */
+export function paletteCatalog(pluginIds: string[], stageKey: KeyChoice, media: MediaState = NO_MEDIA): PaletteResult[] {
+  const out = entries(pluginIds, stageKey).map((e) => e.result);
+  out.push(...COMMANDS.filter((c) => c.command !== "clear" && c.applies(media)).map(commandResult));
+  return groupResults(out).flatMap((g) => g.results);
+}
 
 const LETTER_PC: Record<string, number> = { c: 0, d: 2, e: 4, f: 5, g: 7, a: 9, b: 11 };
 
@@ -105,6 +153,8 @@ interface Parsed {
   box: number | null;
   /** a CAGED shape named with "shape" after it ("e shape"); that letter is not the tonic */
   shape: CagedLetter | null;
+  /** the words left once the key, the mode and a box number are taken out: what names the widget */
+  rest: string[];
 }
 
 function parse(q: string): Parsed {
@@ -113,39 +163,42 @@ function parse(q: string): Parsed {
   let mode: number | null = null;
   let box: number | null = null;
   let shape: CagedLetter | null = null;
+  const rest: string[] = [];
   words.forEach((w, i) => {
     const letter = CAGED_LETTERS.find((l) => l.toLowerCase() === w);
     if (letter && words[i + 1] === "shape") {
       shape = letter;
       return;
     }
-    if (tonic === null) tonic = tonicPc(w);
-    if (mode === null && w in MODE_WORDS) mode = MODE_WORDS[w];
-    if ((w === "pos" || w === "position" || w === "box") && /^\d+$/.test(words[i + 1] ?? "")) box = Number(words[i + 1]) - 1;
+    if (tonic === null && tonicPc(w) !== null) {
+      tonic = tonicPc(w);
+      return;
+    }
+    if (mode === null && w in MODE_WORDS) {
+      mode = MODE_WORDS[w];
+      return;
+    }
+    if (/^\d+$/.test(w) && ["pos", "position", "box"].includes(words[i - 1] ?? "")) {
+      box = Number(w) - 1;
+      return;
+    }
+    rest.push(w);
   });
-  return { words, tonic, mode, box, shape };
+  return { words, tonic, mode, box, shape, rest };
 }
 
-const has = (p: Parsed, ...w: string[]) => w.every((x) => p.words.includes(x));
 const keyFor = (p: Parsed, fallbackMode = 0): KeyChoice | null => (p.tonic === null ? null : { tonicPc: p.tonic, family: 0, mode: p.mode ?? fallbackMode });
 /** a mode named without a root ("dorian") is that mode on the stage's root, so modes of one root can be compared */
 const modeOnStage = (p: Parsed, stageKey: KeyChoice): KeyChoice | null =>
-  p.tonic === null && p.mode !== null ? { tonicPc: stageKey.tonicPc ?? DEFAULT_KEY_PC, family: 0, mode: p.mode } : null;
+  p.tonic === null && p.mode !== null ? { tonicPc: stageKey.tonicPc, family: 0, mode: p.mode } : null;
 
-function addResult(subject: Subject, group: PaletteResult["group"], detail: string): PaletteResult {
-  return { id: `${group}:${JSON.stringify(subject)}`, label: subjectTitle(subject), detail, group, action: { type: "add", subject } };
-}
-
-function positions(p: Parsed): PaletteResult[] {
-  const kind: PositionKind | null = has(p, "3nps") ? "3nps" : p.words.some((w) => w === "pent" || w === "pentatonic") ? "pentatonic" : null;
-  if (!kind) return [];
-  // a pentatonic with no major/minor word is the minor one, the one guitarists mean
-  const key = keyFor(p, kind === "pentatonic" ? 5 : 0);
-  if (!key) return [];
-  const count = kind === "pentatonic" ? 5 : 7;
-  if (p.box !== null) return p.box >= 0 && p.box < count ? [addResult({ kind: "position", key, positionKind: kind, index: p.box }, "position", "Position on the neck")] : [];
-  return [0, 1, 2, 3, 4].map((index) => addResult({ kind: "position", key, positionKind: kind, index }, "position", "Position on the neck"));
-}
+/** every typed word starts one of the entry's words */
+const matches = (e: Entry, typed: string[]) => typed.every((w) => e.words.some((x) => x.startsWith(w)));
+/** how many typed words start a word of the name itself: "fretboard" ranks Fretboard and Fretboard positions over CAGED fretboard; ties keep the catalog order */
+const nameScore = (e: Entry, typed: string[]) => {
+  const name = e.result.label.toLowerCase().split(/[^a-z0-9#]+/).filter(Boolean);
+  return typed.filter((w) => name.some((x) => x.startsWith(w))).length * 10 + (name[0]?.startsWith(typed[0] ?? "") ? 5 : 0);
+};
 
 function commands(p: Parsed, media: MediaState): PaletteResult[] {
   if (p.words.length === 0) return [];
@@ -156,103 +209,35 @@ function commands(p: Parsed, media: MediaState): PaletteResult[] {
     .map(commandResult);
 }
 
-const bubbles = (key: KeyChoice, degrees = [0, 1, 2, 3, 4, 5, 6]) => degrees.map((degree) => addResult({ kind: "bubble", key, degree }, "scale", "Circle diagram"));
-const NECK_DETAIL = "The scale on the whole neck";
-const cagedResults = (key: KeyChoice, shapes: (CagedLetter | null)[] = [null, ...CAGED_LETTERS]) =>
-  shapes.map((shape) => addResult({ kind: "caged", key, shape }, "caged", shape === null ? "The five boxes on the whole neck" : "One box: chord, arpeggio, pentatonic, scale"));
-
-const LOGO_RESULT = addResult({ kind: "logo" }, "brand", "The attunr wordmark");
-const URL_RESULT = addResult({ kind: "url" }, "brand", "Where to find the site");
-
-/** a key positions can always be drawn in when the stage has none */
-const POSITION_FALLBACK: KeyChoice = { tonicPc: 4, family: 0, mode: 5 };
-
-const pluginGroup = (id: string): PaletteGroup => (id === "scale" ? "scale" : id === "caged" ? "caged" : "theory");
-const GROUP_ORDER = Object.keys(PALETTE_GROUPS) as PaletteGroup[];
-
-/** Results put under their category's separator. `ranked` keeps the categories in the order their best result comes (search); otherwise the palette's own order (the catalog). */
-export function groupResults(results: PaletteResult[], ranked = false): { group: PaletteGroup; results: PaletteResult[] }[] {
-  const order = ranked ? [...new Set(results.map((r) => r.group))] : GROUP_ORDER;
-  return order.map((group) => ({ group, results: results.filter((r) => r.group === group) })).filter((g) => g.results.length > 0);
-}
-
-/**
- * Everything that can go on the stage, for the palette before anything is typed, by category: the Key widget and the theory panels,
- * the scale (its panel, the fretboard, the scale sections, the sus and extension diagrams), a position of each kind, CAGED (its panel,
- * the fretboard and each box), the key's first chord, the Drone section, the logo and the site address, then the camera and screen share.
- */
-export function paletteCatalog(pluginIds: string[], stageKey: KeyChoice, media: MediaState = NO_MEDIA): PaletteResult[] {
-  const drawable = stageKey.tonicPc === null ? POSITION_FALLBACK : stageKey;
-  const out: PaletteResult[] = [addResult({ kind: "key" }, "theory", "Changes the root note of every widget")];
-  for (const id of KEY_PLUGIN_ORDER) if (pluginIds.includes(id)) out.push(addResult({ kind: "plugin", plugin: id, key: stageKey }, pluginGroup(id), PLUGIN_TITLES[id] ?? id));
-  out.push(addResult({ kind: "neck", key: stageKey }, "scale", NECK_DETAIL));
-  for (const section of Object.keys(SECTIONS) as ScaleSection[]) out.push(addResult({ kind: "section", section, key: stageKey }, "scale", SECTIONS[section]));
-  out.push(...bubbles(stageKey));
-  for (const positionKind of ["pentatonic", "scale", "3nps"] as const) out.push(addResult({ kind: "position", key: drawable, positionKind, index: 0 }, "position", "Position on the neck"));
-  out.push(...cagedResults(stageKey));
-  const first = keyContext(drawable)?.chords[0];
-  if (first && parseChordQuery(first.triadName)) out.push(addResult({ kind: "chord", symbol: first.triadName }, "chord", "Chord diagram (type any chord: e6, cmaj7)"));
-  out.push(addResult({ kind: "band", key: stageKey }, "audio", "Click, drone, drums and bass"));
-  out.push(LOGO_RESULT, URL_RESULT);
-  out.push(...COMMANDS.filter((c) => c.command !== "clear" && c.applies(media)).map(commandResult));
-  return groupResults(out).flatMap((g) => g.results);
-}
-
-/** Ranked results for a typed line, best first, at most 8. `stageKey` is the Key widget's key, used when the line names none; `media` picks which camera and screen commands apply. */
+/** Ranked results for a typed line, best first. `stageKey` is the master key, used when the line names none; `media` picks which camera and screen commands apply. */
 export function searchPalette(query: string, pluginIds: string[], stageKey: KeyChoice, media: MediaState = NO_MEDIA): PaletteResult[] {
   const p = parse(query);
   if (p.words.length === 0) return [];
-  const out: PaletteResult[] = [];
-  const key = keyFor(p) ?? modeOnStage(p, stageKey);
-  const keyOrStage = key ?? stageKey;
-
-  if (p.words.length === 1 && p.words[0] === "key") out.push(addResult({ kind: "key" }, "theory", "Changes the root note of every widget"));
-
-  if (p.words.some((w) => BAND_WORDS.has(w))) out.push(addResult({ kind: "band", key: keyOrStage }, "audio", "Click, drone, drums and bass"));
-  if (p.words.some((w) => LOGO_WORDS.has(w))) out.push(LOGO_RESULT);
-  if (p.words.some((w) => URL_WORDS.has(w))) out.push(URL_RESULT);
-
-  for (const [phrase, section] of SECTION_PHRASES) {
-    if (has(p, ...phrase) && !out.some((r) => r.action.type === "add" && r.action.subject.kind === "section" && r.action.subject.section === section)) {
-      out.push(addResult({ kind: "section", section, key: keyOrStage }, "scale", SECTIONS[section]));
+  const pent = p.rest.some((w) => w === "pent" || w === "pentatonic");
+  // a pentatonic with no major/minor word is the minor one, the one guitarists mean
+  const key = keyFor(p, pent ? 5 : 0) ?? modeOnStage(p, stageKey);
+  const all = entries(pluginIds, key ?? stageKey);
+  let found: Entry[];
+  if (p.shape) found = all.filter((e) => e.result.action.type === "add" && e.result.action.subject.kind === "caged" && e.result.action.subject.shape === p.shape);
+  else if (p.rest.length === 0) {
+    // only a key ("a dorian"): every widget that follows a key; the metronome only when a root is typed (it has no mode)
+    found = key ? all.filter((e) => e.result.action.type === "add" && "key" in e.result.action.subject && e.result.group !== "pages" && (p.tonic !== null || e.result.action.subject.kind !== "band")) : [];
+  } else {
+    const typed = p.rest.filter((w) => !["pos", "position", "box", "shape", "on", "the", "of", "in"].includes(w) || p.rest.length === 1);
+    found = all.filter((e) => matches(e, typed));
+    if (p.box !== null) {
+      found = found.filter((e) => e.result.action.type === "add" && e.result.action.subject.kind === "position" && e.result.action.subject.index === p.box);
     }
+    found = found.map((e, i) => ({ e, i, score: nameScore(e, typed) })).sort((a, b) => b.score - a.score || a.i - b.i).map((x) => x.e);
   }
-
-  const caged = has(p, "caged") || p.shape !== null;
-  const neck = p.words.some((w) => NECK_WORDS.has(w));
-  if (caged) out.push(...cagedResults(keyOrStage, p.shape ? [p.shape] : neck ? [null] : undefined));
-  else if (neck) out.push(addResult({ kind: "neck", key: keyOrStage }, "scale", NECK_DETAIL));
-
-  if (p.words.some((w) => BUBBLE_WORDS.has(w))) {
-    const degree = p.words.map((w) => ROMAN[w]).find((d) => d !== undefined);
-    out.push(...bubbles(keyOrStage, degree === undefined ? undefined : [degree]));
-  }
-
-  const pluginWord = p.words.map((w) => PLUGIN_WORDS[w]).find((id) => id && pluginIds.includes(id));
-  if (pluginWord && !(pluginWord === "scale" && key) && !(pluginWord === "caged" && (neck || p.shape))) {
-    const at = pluginWord === "caged" ? 0 : out.length;
-    out.splice(at, 0, addResult({ kind: "plugin", plugin: pluginWord, key: key ?? EMPTY_KEY }, pluginGroup(pluginWord), PLUGIN_TITLES[pluginWord] ?? pluginWord));
-  }
-
-  // "g major" is also a chord symbol to tonal; with a mode word it is a key
-  const chord = p.mode === null ? parseChordQuery(p.words.join(" ")) : null;
-  if (chord) out.unshift(addResult({ kind: "chord", symbol: chordLabel(p.words.join(" ")) }, "chord", "Chord diagram"));
-
-  const pos = positions(p);
-  out.unshift(...pos);
-
-  // a typed word of 3+ letters that starts a command ("camera c", "scr") puts the commands before the key's plugins
+  const keyed = found.map((e): PaletteResult => {
+    if (e.result.action.type !== "add") return e.result;
+    const subject = pinAgainst(e.result.action.subject, stageKey);
+    return { ...e.result, label: subject === e.result.action.subject ? e.result.label : subjectTitle(subject), action: { type: "add", subject } };
+  });
+  // a typed word of 3+ letters that starts a command ("camera c", "scr") puts the commands first
   const cmds = commands(p, media);
   const strong = cmds.length > 0 && p.words.some((w) => w.length >= 3 && COMMANDS.some((c) => c.words.some((x) => x.startsWith(w))));
-  if (strong) out.push(...cmds);
-
-  if (key && out.length === (chord ? 1 : 0) + pos.length + (strong ? cmds.length : 0)) {
-    for (const id of KEY_PLUGIN_ORDER) {
-      if (pluginIds.includes(id)) out.push(addResult({ kind: "plugin", plugin: id, key }, pluginGroup(id), `${PLUGIN_TITLES[id] ?? id} in ${keyTitle(key)}`));
-      if (id === "scale") out.push(addResult({ kind: "neck", key }, "scale", NECK_DETAIL));
-    }
-  }
-
-  if (!strong) out.push(...cmds);
-  return out.slice(0, MAX_RESULTS);
+  const out = strong ? [...cmds, ...keyed] : [...keyed, ...cmds];
+  return out.filter((r, i) => out.findIndex((x) => x.id === r.id) === i).slice(0, MAX_RESULTS);
 }

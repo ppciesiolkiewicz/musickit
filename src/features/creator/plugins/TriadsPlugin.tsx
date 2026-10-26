@@ -5,7 +5,8 @@ import { TriadBox } from "@/components/chordKit/TriadsExplorer";
 import { INVERSIONS, STRING_GROUPS, TRIAD_QUALITIES, triadVoicings, type TriadQuality } from "@/lib/chordKit/triads";
 import { strum } from "@/features/sound";
 import { useCreatorKey } from "../KeyProvider";
-import { Body, Hint, pbtn } from "./common";
+import { Select } from "@/components/ui";
+import { Body, Hint } from "./common";
 
 /** The triad on a degree of the key in its three inversions on one string group. With no key: C major. */
 export default function TriadsPlugin() {
@@ -25,7 +26,7 @@ export default function TriadsPlugin() {
     <Body
       title={ctx ? `Triads in ${title}` : "Triads"}
       general={!ctx}
-      aside={<button type="button" className={pbtn} onClick={() => setGroupAt((g) => (g + 1) % STRING_GROUPS.length)} title="Next string group">Strings {group.id.split("").join("-")}</button>}
+      aside={<Select size="xs" aria-label="String group" value={groupAt} onChange={setGroupAt} options={STRING_GROUPS.map((g, i) => ({ value: i, label: `Strings ${g.id.split("").join("-")}` }))} />}
     >
       {ctx ? (
         <div className="flex flex-wrap gap-1" role="group" aria-label="Degree">

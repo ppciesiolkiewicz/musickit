@@ -5,7 +5,8 @@ import { makeKeyContext } from "@/features/theory";
 import { arpeggioMidi, buildArpeggio } from "@/lib/chordKit/arpeggios";
 import { strum } from "@/features/sound";
 import { useCreatorKey } from "../KeyProvider";
-import { Body, Hint, pbtn } from "./common";
+import { Select } from "@/components/ui";
+import { Body, Hint } from "./common";
 
 const KINDS = [
   { id: "triad", label: "Triads" },
@@ -20,7 +21,7 @@ export default function ArpeggiosPlugin() {
   const key = ctx ?? makeKeyContext(0, 0, 0);
   const k = KINDS[kind];
   return (
-    <Body title={ctx ? `Arpeggios in ${title}` : "Arpeggios"} general={!ctx} aside={<button type="button" className={pbtn} onClick={() => setKind((i) => (i + 1) % KINDS.length)} title="Triads, sevenths or ninths">{k.label}</button>}>
+    <Body title={ctx ? `Arpeggios in ${title}` : "Arpeggios"} general={!ctx} aside={<Select size="xs" aria-label="Triads, sevenths or ninths" value={kind} onChange={setKind} options={KINDS.map((x, i) => ({ value: i, label: x.label }))} />}>
       {!ctx && <Hint>Pick a key above to see its arpeggios. Until then, C major.</Hint>}
       <ul className="flex flex-col gap-1">
         {key.chords.map((c) => {

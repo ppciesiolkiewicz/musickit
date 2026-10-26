@@ -6,16 +6,20 @@ import { ChordBubble } from "@/components/chordKit/ChordBubbles";
 import { KeyScope, PLUGINS, keyContext, type KeyChoice } from "@/features/creator";
 import { PocketTools } from "@/features/instruments";
 import { DEFAULT_KEY_PC } from "@/features/theory/theory";
-import { cagedQualityOf, type Subject } from "../model/subject";
+import { Tuner } from "@/features/tuner";
+import { cagedQualityOf, withOwnKey, type Subject } from "../model/subject";
 import BrandWidget from "./BrandWidget";
 import ChordWidget from "./ChordWidget";
 import FitBox from "./FitBox";
+import KeyTags from "./KeyTags";
 import KeyWidget from "./KeyWidget";
 import PositionWidget from "./PositionWidget";
 import SectionWidget from "./SectionWidget";
 
 /** design width each kind is laid out at before it is scaled into its rect */
-const WIDTH: Record<Subject["kind"], number> = { chord: 240, plugin: 640, position: 980, band: 360, section: 760, bubble: 900, neck: 980, caged: 1100, key: 600, logo: 300, url: 520, camera: 0, screen: 0 };
+const WIDTH: Record<Subject["kind"], number> = { chord: 240, plugin: 640, position: 980, band: 360, section: 760, bubble: 900, neck: 980, caged: 1100, key: 760, tuner: 520, logo: 300, url: 520, camera: 0, screen: 0 };
+/** a cheatsheet page in full is laid out as wide as on the site */
+const FULL_WIDTH = 1200;
 
 /** a key to draw with when the subject has none: the site's default key, major */
 const withTonic = (k: KeyChoice): KeyChoice => (k.tonicPc === null ? { ...k, tonicPc: DEFAULT_KEY_PC } : k);
@@ -23,7 +27,7 @@ const withTonic = (k: KeyChoice): KeyChoice => (k.tonicPc === null ? { ...k, ton
 export interface StageWidgetProps {
   subject: Subject;
   onSubjectChange: (s: Subject) => void;
-  /** the Key widget's key, and how to change it (it re-keys every key-aware widget) */
+  /** the master Key & scale, and how to change it (every widget follows it, except what is pinned on the widget) */
   stageKey: KeyChoice;
   onStageKey: (k: KeyChoice) => void;
   /** camera and screen layers are drawn by the host, which owns the streams */
@@ -36,6 +40,8 @@ export interface StageWidgetProps {
 export default function StageWidget({ subject, onSubjectChange, stageKey, onStageKey, renderMedia }: StageWidgetProps) {
   const ctx = useMemo(() => ("key" in subject ? keyContext(withTonic(subject.key)) : null), [subject]);
   if (subject.kind === "camera" || subject.kind === "screen") return <>{renderMedia?.(subject) ?? null}</>;
+  // a key changed from inside the widget (a mode picked in Same notes) is pinned on it, like one changed with its tags
+  const ownKey = (key: KeyChoice) => onSubjectChange(withOwnKey(subject, key));
 
   let body: ReactNode = null;
   switch (subject.kind) {
@@ -45,10 +51,11 @@ export default function StageWidget({ subject, onSubjectChange, stageKey, onStag
     case "plugin": {
       const def = PLUGINS.find((p) => p.id === subject.plugin);
       if (!def) return null;
+      const View = subject.full && def.Full ? def.Full : def.Component;
       body = (
-        <KeyScope value={subject.key} onChange={(key) => onSubjectChange({ ...subject, key })}>
+        <KeyScope value={subject.key} onChange={ownKey}>
           <div className="rounded-xl border border-slate-800 bg-slate-950 p-3">
-            <def.Component />
+            <View />
           </div>
         </KeyScope>
       );
@@ -70,7 +77,7 @@ export default function StageWidget({ subject, onSubjectChange, stageKey, onStag
           ctx={ctx}
           section={subject.section}
           familyIndex={subject.key.family}
-          onPick={(s) => onSubjectChange({ ...subject, key: { ...subject.key, tonicPc: s.tonicPc, mode: s.modeIndex } })}
+          onPick={(s) => ownKey({ ...subject.key, tonicPc: s.tonicPc, mode: s.modeIndex })}
         />
       );
       break;
@@ -94,9 +101,22 @@ export default function StageWidget({ subject, onSubjectChange, stageKey, onStag
       body = <BrandWidget kind={subject.kind} />;
       break;
     case "key":
-      body = <KeyWidget tonicPc={stageKey.tonicPc} onTonic={(tonicPc) => onStageKey({ ...stageKey, tonicPc })} />;
+      body = <KeyWidget value={stageKey} onChange={onStageKey} />;
+      break;
+    case "tuner":
+      body = (
+        <div className="rounded-xl border border-slate-800 bg-slate-950 p-3">
+          <Tuner />
+        </div>
+      );
       break;
   }
   // the CAGED map runs the whole neck: wider than one box, so its shape names fit over their colours
-  return <FitBox width={subject.kind === "caged" && subject.shape === null ? 1400 : WIDTH[subject.kind]}>{body}</FitBox>;
+  const width = subject.kind === "caged" && subject.shape === null ? 1400 : subject.kind === "plugin" && subject.full ? FULL_WIDTH : WIDTH[subject.kind];
+  return (
+    <div className="relative h-full w-full">
+      <FitBox width={width} scroll={(subject.kind === "plugin" && !!subject.full) || (subject.kind === "section" && subject.section === "chords")}>{body}</FitBox>
+      <KeyTags subject={subject} master={stageKey} onChange={onSubjectChange} />
+    </div>
+  );
 }

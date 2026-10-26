@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, type PointerEvent as RPointerEvent, type ReactNode } from "react";
+import Icon from "@/components/Icon";
 import { DEFAULT_VIEW, panView, resizeFrom, zoomAt, type Corner, type FrameRect, type Layer, type Stage, type StageAction } from "./model/layers";
 
 /** pixels a pointer moves inside a widget before it counts as a drag (below that, the click reaches the widget: a strum, a note) */
@@ -155,6 +156,19 @@ export default function StageFrame({ stage, renderLayer, onAction }: { stage: St
                   className={`absolute h-2 w-2 rounded-full bg-sky-400 transition-opacity ${cls} ${show}`}
                 />
               ))}
+              {l.subject.kind !== "camera" && l.subject.kind !== "screen" && (
+                <button
+                  data-chrome
+                  type="button"
+                  title="Delete the widget"
+                  aria-label="Delete the widget"
+                  onPointerDown={(e) => e.stopPropagation()}
+                  onClick={() => onAction({ type: "remove", id: l.id })}
+                  className="absolute right-1.5 top-1.5 z-10 flex h-6 w-6 items-center justify-center rounded-md bg-slate-950/80 text-slate-300 opacity-0 ring-1 ring-slate-700 transition-opacity hover:text-rose-300 group-hover:opacity-100"
+                >
+                  <Icon name="x" size={13} />
+                </button>
+              )}
             </div>
           );
         })}

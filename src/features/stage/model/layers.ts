@@ -3,7 +3,7 @@
  * never pixels, so the same data renders at any size and can be recorded and replayed. Pure: no React, no DOM, no ids made here.
  */
 import { EMPTY_KEY, sanitiseKey, type KeyChoice } from "@/features/creator/model/key";
-import { sanitiseSubject, withTonic, type Subject } from "./subject";
+import { sanitiseSubject, withMaster, type Subject } from "./subject";
 
 export interface FrameRect {
   x: number;
@@ -56,7 +56,7 @@ export const CAMERA_CORNER: FrameRect = { x: 0.78, y: 0.52, w: 0.2, h: 0.45 };
 /** the screen share's minimized place: bottom left, clear of the camera's corner */
 export const SCREEN_CORNER: FrameRect = { x: 0.02, y: 0.52, w: 0.4, h: 0.45 };
 
-const SINGLE = new Set<Subject["kind"]>(["camera", "screen", "key", "logo", "url"]);
+const SINGLE = new Set<Subject["kind"]>(["camera", "screen", "key", "tuner", "logo", "url"]);
 
 export function clampRect(r: FrameRect): FrameRect {
   const w = Math.min(1, Math.max(MIN_SIZE, r.w));
@@ -109,7 +109,9 @@ function baseRect(s: Subject): FrameRect {
     case "caged":
       return { x: 0.05, y: 0.08, w: 0.7, h: 0.42 };
     case "key":
-      return { x: 0.02, y: 0.02, w: 0.3, h: 0.12 };
+      return { x: 0.02, y: 0.02, w: 0.42, h: 0.16 };
+    case "tuner":
+      return { x: 0.6, y: 0.03, w: 0.3, h: 0.42 };
     case "logo":
       return { x: 0.83, y: 0.03, w: 0.15, h: 0.12 };
     case "url":
@@ -191,13 +193,13 @@ export function stageReducer(s: Stage, a: StageAction): Stage {
     case "clear":
       return { ...s, layers: [], selected: null };
     case "setStageKey":
-      // the Key widget picks a root note: every widget moves to it and keeps its own scale or mode
-      return { ...s, key: a.key, layers: s.layers.map((l) => ({ ...l, subject: withTonic(l.subject, a.key.tonicPc) })) };
+      // the master Key & scale: every widget follows it, except the parts of its key pinned on the widget
+      return { ...s, key: a.key, layers: s.layers.map((l) => ({ ...l, subject: withMaster(l.subject, a.key) })) };
   }
 }
 
 /**
- * Add a widget for a subject and select it. A camera, screen, Key, logo or url widget that already exists is selected instead of doubled.
+ * Add a widget for a subject and select it. A camera, screen, Key & scale, tuner, logo or url widget that already exists is selected instead of doubled.
  * The screen goes to the bottom, the camera just above the screen; widgets always sit above both.
  */
 export function addSubject(s: Stage, id: string, subject: Subject): Stage {

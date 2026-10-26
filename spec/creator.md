@@ -19,9 +19,9 @@ Each plugin has a **compact** view (a cheatsheet card) and, for the plugins that
 | Keys | a piano with the scale marked in degree colours; click to play | a plain piano, click to play |
 | Progressions | written progressions for the mode, in the key, with numerals; plays | the mode's progressions as numerals, played from C |
 | Modes | the modes that share the key's notes; click to move there, and how it differs from major and minor | the major modes from bright to dark |
-| Triads | the triad on a chosen degree in root position and both inversions on one string group (cycled with the strings button); click to hear | C major |
+| Triads | the triad on a chosen degree in root position and both inversions on one string group (picked from a select); click to hear | C major |
 | CAGED | the five CAGED shapes of the tonic chord (minor forms when the key has a minor 3rd), with fret boxes, pentatonic and scale notes | C major |
-| Arpeggios | the triad, 7th or 9th arpeggio on every degree, notes with chord tones; click to hear | C major |
+| Arpeggios | the triad, 7th or 9th arpeggio (picked from a select) on every degree, notes with chord tones; click to hear | C major |
 | Improvisation | an interference rhythm (a against b) and a motive with its reverse, mirror and rotations, spelled in the key | the motive as scale degrees |
 | Tunings | an instrument and tuning, its open strings to hear; the strings that are notes of the key lit, with a count | the tuning's note |
 
