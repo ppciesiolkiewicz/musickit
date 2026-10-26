@@ -310,12 +310,12 @@ function BoxCard({ box, index, rootPc, quality, arpKind, labelSystem, badges, no
             <Section level={2}
               title={`Chords of ${ctx.names[0]} ${quality} inside this box (${scaleChords.length})`}
               info="The other chords of the key, each with a shape whose every note falls inside this box, so you can change chord without leaving the position. The Roman numeral is the chord's degree in the key: capitals are major, lower case minor, ° diminished. Tap one to hear it.">
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+              <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
                 {scaleChords.map((c) => (
                   <div key={c.degree} className="flex flex-col items-center gap-0.5 rounded-xl border border-slate-800 bg-slate-950/50 p-2">
                     <span className="text-xs text-slate-400">{c.roman}</span>
                     <span className="text-sm font-medium text-slate-100">{c.name}</span>
-                    <div className="w-24"><ChordDiagram shape={c.shape} rootFret={c.rootFret} onPlay={() => strumShape(c.shape, c.rootFret)} ctx={ctx} /></div>
+                    <div className="w-full max-w-[13rem]"><ChordDiagram shape={c.shape} rootFret={c.rootFret} onPlay={() => strumShape(c.shape, c.rootFret)} ctx={ctx} /></div>
                     <span className="text-xs text-slate-500">fret {c.rootFret}</span>
                   </div>
                 ))}
