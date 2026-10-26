@@ -18,7 +18,7 @@ export default function CagedPlugin() {
   return (
     <Body title={`CAGED · ${cctx.names[0]} ${quality}`} general={!ctx}>
       {!ctx && <Hint>Pick a key above to move the shapes. Until then, C major.</Hint>}
-      <div className="grid gap-1 [grid-template-columns:repeat(auto-fill,minmax(5.5rem,1fr))]">
+      <div className="grid gap-1 [grid-template-columns:repeat(auto-fit,minmax(5.5rem,1fr))]">
         {boxes.map((b) => (
           <div key={b.letter} className="flex flex-col items-center rounded-lg border border-slate-800 bg-slate-950/50 p-1">
             <span className="text-xs font-medium text-slate-200">{b.letter} shape</span>

@@ -4,8 +4,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Icon from "@/components/Icon";
 import type { KeyChoice } from "@/features/creator";
-import ControlBadge from "./ControlBadge";
-import { PALETTE_GROUPS, groupResults, isControl, paletteCatalog, searchPalette, subjectIdentity, type Layer, type MediaState, type PaletteResult } from "@/features/stage";
+import ControlBadge, { PageBadge } from "./ControlBadge";
+import { PALETTE_GROUPS, groupResults, isControl, isPage, paletteCatalog, searchPalette, subjectIdentity, type Layer, type MediaState, type PaletteResult } from "@/features/stage";
 
 type Row = { kind: "group"; name: string } | { kind: "sub"; name: string } | { kind: "result"; result: PaletteResult; index: number };
 
@@ -140,6 +140,7 @@ export default function Palette({ pluginIds, stageKey, media, layers, onPick, on
                   <span className="flex min-w-0 flex-1 items-center gap-1.5">
                     <span className="truncate">{r.label}</span>
                     {r.action.type === "add" && isControl(r.action.subject) && <ControlBadge />}
+                    {r.action.type === "add" && isPage(r.action.subject) && <PageBadge />}
                   </span>
                   {r.detail && <span className="shrink-0 truncate text-xs text-slate-500">{r.detail}</span>}
                 </button>

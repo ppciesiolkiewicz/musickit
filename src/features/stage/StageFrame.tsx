@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useRef, type PointerEvent as RPointerEvent, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type PointerEvent as RPointerEvent, type ReactNode } from "react";
 import Icon from "@/components/Icon";
-import { DEFAULT_VIEW, fixedRect, panView, resizeFrom, zoomAt, type Corner, type FrameRect, type Layer, type Stage, type StageAction } from "./model/layers";
+import { DEFAULT_VIEW, drawZ, fixedRect, hasAspect, panView, resizeFrom, resizeKeepingShape, withAspect, zoomAt, type Corner, type FrameRect, type Layer, type Stage, type StageAction } from "./model/layers";
+import { ShapeReport } from "./render/shape";
 
 /** pixels a pointer moves inside a widget before it counts as a drag (below that, the click reaches the widget: a strum, a note) */
 const DRAG_SLOP = 4;
@@ -29,13 +30,27 @@ const CORNERS: { c: Corner; cls: string }[] = [
 
 /**
  * The 16:9 frame: exactly what a recording shows. Each visible layer is placed from its rect, a fraction of the frame,
- * so the frame can be any size. Nothing outside this element is ever recorded (`data-stage-frame` is the capture target).
+ * so the frame can be any size. Layers are drawn in list order and stacked by their `z`, so bringing one to the top never moves its element
+ * (a camera or a screen share keeps playing). Nothing outside this element is ever recorded (`data-stage-frame` is the capture target).
  *
  * Widgets are moved by dragging (from the top strip at once, from anywhere after a few pixels) and resized from any corner dot.
  * ⌘+scroll or a pinch zooms into a widget around the pointer; a plain scroll pans a zoomed widget. The outline and dots are thin
  * and show only on hover or when selected: they are in the video.
+ *
+ * Widgets are opaque cards (the brand marks and the camera and screen excepted). With `keepShape`, each widget's frame takes the
+ * shape of what it shows (reported by its FitBox), and a corner drag keeps that shape. Each widget can fill the frame and go back.
  */
-export default function StageFrame({ stage, renderLayer, onAction }: { stage: Stage; renderLayer: (l: Layer) => ReactNode; onAction: (a: StageAction) => void }) {
+export default function StageFrame({
+  stage,
+  renderLayer,
+  onAction,
+  keepShape = true,
+}: {
+  stage: Stage;
+  renderLayer: (l: Layer) => ReactNode;
+  onAction: (a: StageAction) => void;
+  keepShape?: boolean;
+}) {
   const frame = useRef<HTMLDivElement>(null);
   const drag = useRef<Drag | null>(null);
   const dragged = useRef(false);
@@ -43,6 +58,31 @@ export default function StageFrame({ stage, renderLayer, onAction }: { stage: St
   useEffect(() => {
     layersRef.current = stage.layers;
   }, [stage.layers]);
+
+  // each widget's content shape (width over height, pixels), as its FitBox reports it; a new shape re-runs the snap below
+  const aspects = useRef<Record<string, number>>({});
+  const [shapes, setShapes] = useState(0);
+  const keepShapeRef = useRef(keepShape);
+  useEffect(() => {
+    keepShapeRef.current = keepShape;
+  }, [keepShape]);
+  const onShape = useCallback((id: string, aspect: number) => {
+    if (aspects.current[id] === aspect) return;
+    aspects.current[id] = aspect;
+    setShapes((n) => n + 1);
+  }, []);
+
+  useEffect(() => {
+    if (!keepShape) return;
+    for (const l of stage.layers) {
+      const aspect = aspects.current[l.id];
+      // a widget filling the frame already has its shape; the brand marks keep their place
+      if (!aspect || l.restore || fixedRect(l.subject) || hasAspect(l.rect, aspect)) continue;
+      const rect = withAspect(l.rect, aspect);
+      // a shape too long for the frame cannot be met: leave it, rather than snapping for ever
+      if (Math.abs(rect.w - l.rect.w) + Math.abs(rect.h - l.rect.h) > 1e-6) onAction({ type: "setRect", id: l.id, rect });
+    }
+  }, [stage.layers, keepShape, shapes, onAction]);
 
   useEffect(() => {
     const move = (e: PointerEvent) => {
@@ -55,7 +95,13 @@ export default function StageFrame({ stage, renderLayer, onAction }: { stage: St
       }
       dragged.current = true;
       const fx = dx / d.frame.width, fy = dy / d.frame.height;
-      const rect = d.mode === "move" ? { ...d.start, x: d.start.x + fx, y: d.start.y + fy } : resizeFrom(d.start, d.mode, fx, fy);
+      const aspect = keepShapeRef.current ? aspects.current[d.id] : undefined;
+      const rect =
+        d.mode === "move"
+          ? { ...d.start, x: d.start.x + fx, y: d.start.y + fy }
+          : aspect
+            ? resizeKeepingShape(d.start, d.mode, fx, fy, aspect)
+            : resizeFrom(d.start, d.mode, fx, fy);
       onAction({ type: "setRect", id: d.id, rect });
     };
     const up = () => {
@@ -123,12 +169,15 @@ export default function StageFrame({ stage, renderLayer, onAction }: { stage: St
           const show = selected ? "opacity-100" : "opacity-0 group-hover:opacity-100";
           // the brand marks have a fixed place: no dragging, no resize dots
           const fixed = !!fixedRect(l.subject);
+          const media = l.subject.kind === "camera" || l.subject.kind === "screen";
+          // widgets are opaque, so one over another hides it; the brand marks sit see-through over the picture
+          const card = !fixed && !media;
           return (
             <div
               key={l.id}
               data-layer={l.id}
               className="group absolute"
-              style={{ left: `${l.rect.x * 100}%`, top: `${l.rect.y * 100}%`, width: `${l.rect.w * 100}%`, height: `${l.rect.h * 100}%` }}
+              style={{ left: `${l.rect.x * 100}%`, top: `${l.rect.y * 100}%`, width: `${l.rect.w * 100}%`, height: `${l.rect.h * 100}%`, zIndex: drawZ(l, stage.layers.length) }}
               onPointerDown={(e) => (fixed ? onAction({ type: "select", id: l.id }) : start(e, l, "pending"))}
               onClickCapture={(e) => {
                 // a drag that ends over the widget is not a click on it
@@ -138,12 +187,14 @@ export default function StageFrame({ stage, renderLayer, onAction }: { stage: St
                 }
               }}
             >
-              <div className="h-full w-full overflow-hidden">
+              <div className={`h-full w-full overflow-hidden ${card ? "rounded-xl bg-slate-950" : ""}`}>
                 <div
                   className="h-full w-full"
                   style={v.zoom === 1 ? undefined : { transformOrigin: "0 0", transform: `translate(${(0.5 - v.zoom * v.cx) * 100}%, ${(0.5 - v.zoom * v.cy) * 100}%) scale(${v.zoom})` }}
                 >
-                  {renderLayer(l)}
+                  <LayerShape id={l.id} onShape={onShape}>
+                    {renderLayer(l)}
+                  </LayerShape>
                 </div>
               </div>
               <div className={`pointer-events-none absolute inset-0 rounded-[3px] ring-2 ring-sky-400/80 transition-opacity ${show}`} />
@@ -158,7 +209,38 @@ export default function StageFrame({ stage, renderLayer, onAction }: { stage: St
                   className={`absolute h-2 w-2 rounded-full bg-sky-400 transition-opacity ${cls} ${show}`}
                 />
               ))}
-              {l.subject.kind !== "camera" && l.subject.kind !== "screen" && (
+              {card && (
+                <button
+                  data-chrome
+                  type="button"
+                  title={l.onTop ? "Unpin: let other widgets cover it" : "Pin: keep it over the other widgets, and light the notes the microphone hears on it"}
+                  aria-label={l.onTop ? "Unpin" : "Pin"}
+                  aria-pressed={!!l.onTop}
+                  onPointerDown={(e) => e.stopPropagation()}
+                  onClick={() => onAction({ type: "togglePin", id: l.id })}
+                  className={`absolute right-[4.125rem] top-1.5 z-10 flex h-6 w-6 items-center justify-center rounded-md bg-slate-950/80 ring-1 ring-slate-700 transition-opacity hover:text-sky-300 ${l.onTop ? "text-sky-300 opacity-100" : "text-slate-300 opacity-0 group-hover:opacity-100"}`}
+                >
+                  <Icon name="pin" size={13} />
+                </button>
+              )}
+              {card && (
+                <button
+                  data-chrome
+                  type="button"
+                  title={l.restore ? "Back to its place" : "Fill the frame"}
+                  aria-label={l.restore ? "Back to its place" : "Fill the frame"}
+                  onPointerDown={(e) => e.stopPropagation()}
+                  onClick={() => {
+                    // selecting brings it to the top, over what it now covers
+                    onAction({ type: "select", id: l.id });
+                    onAction({ type: "toggleFill", id: l.id, aspect: keepShape ? (aspects.current[l.id] ?? null) : null });
+                  }}
+                  className="absolute right-9 top-1.5 z-10 flex h-6 w-6 items-center justify-center rounded-md bg-slate-950/80 text-slate-300 opacity-0 ring-1 ring-slate-700 transition-opacity hover:text-sky-300 group-hover:opacity-100"
+                >
+                  <Icon name={l.restore ? "minimize" : "maximize"} size={13} />
+                </button>
+              )}
+              {!media && (
                 <button
                   data-chrome
                   type="button"
@@ -176,4 +258,10 @@ export default function StageFrame({ stage, renderLayer, onAction }: { stage: St
         })}
     </div>
   );
+}
+
+/** Hands one layer's FitBox a stable way to report its content's shape. */
+function LayerShape({ id, onShape, children }: { id: string; onShape: (id: string, aspect: number) => void; children: ReactNode }) {
+  const report = useCallback((aspect: number) => onShape(id, aspect), [id, onShape]);
+  return <ShapeReport.Provider value={report}>{children}</ShapeReport.Provider>;
 }

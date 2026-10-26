@@ -1,15 +1,18 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { EMPTY_KEY } from "@/features/creator/model/key";
-import { CAMERA_CORNER, DEFAULT_VIEW, EMPTY_STAGE, FULL, KEEP_IN, MAX_ZOOM, MIN_SIZE, addSubject, clampRect, defaultRect, fixedRect, panView, resizeFrom, sanitiseStage, stageReducer, zoomAt, type Layer, type Stage } from "./layers";
+import { CAMERA_CORNER, DEFAULT_VIEW, EMPTY_STAGE, FRAME_ASPECT, FULL, KEEP_IN, MAX_ZOOM, MIN_SIZE, addSubject, drawZ, paintOrder, clampRect, defaultRect, fillRect, fixedRect, hasAspect, panView, resizeFrom, resizeKeepingShape, withAspect, sanitiseStage, stageReducer, zoomAt, type Layer, type Stage } from "./layers";
 import type { Subject } from "./subject";
 
 const ids = ["scale", "chords", "circle", "keys", "progressions", "modes", "triads", "caged", "arpeggios", "improv", "tunings"];
 const near = (a: number, b: number) => assert.ok(Math.abs(a - b) < 1e-9, `${a} ≉ ${b}`);
 const chord: Subject = { kind: "chord", symbol: "E6" };
 const scale: Subject = { kind: "plugin", plugin: "scale", key: EMPTY_KEY };
-const layer = (id: string, subject: Subject = chord): Layer => ({ id, subject, rect: { x: 0.1, y: 0.1, w: 0.3, h: 0.3 }, visible: true });
-const withLayers = (...layers: Layer[]): Stage => ({ ...EMPTY_STAGE, layers });
+const layer = (id: string, subject: Subject = chord): Layer => ({ id, subject, rect: { x: 0.1, y: 0.1, w: 0.3, h: 0.3 }, visible: true, z: 0 });
+/** a stage painted in list order */
+const withLayers = (...layers: Layer[]): Stage => ({ ...EMPTY_STAGE, layers: layers.map((l, z) => ({ ...l, z })) });
+const listIds = (s: Stage) => s.layers.map((l) => l.id);
+const paintIds = (s: Stage) => paintOrder(s.layers).map((l) => l.id);
 
 test("clampRect keeps a minimum size and lets at most w - KEEP_IN hang off an edge", () => {
   const r = clampRect({ x: -1, y: -1, w: 0.01, h: 0.01 });
@@ -31,21 +34,31 @@ test("add then remove leaves no layers; removing the selected one clears the sel
   assert.equal(s.selected, null);
 });
 
-test("raise moves a layer to the top, lower one step down", () => {
+test("raise moves a layer to the top, lower one step down: its z changes, never its place in the list", () => {
   const s = withLayers(layer("a"), layer("b"), layer("c"));
-  assert.deepEqual(stageReducer(s, { type: "raise", id: "a" }).layers.map((l) => l.id), ["b", "c", "a"]);
-  assert.deepEqual(stageReducer(s, { type: "lower", id: "c" }).layers.map((l) => l.id), ["a", "c", "b"]);
-  assert.deepEqual(stageReducer(s, { type: "lower", id: "a" }).layers.map((l) => l.id), ["a", "b", "c"]);
+  const raised = stageReducer(s, { type: "raise", id: "a" });
+  assert.deepEqual(paintIds(raised), ["b", "c", "a"]);
+  assert.deepEqual(listIds(raised), ["a", "b", "c"]);
+  assert.deepEqual(paintIds(stageReducer(raised, { type: "lower", id: "a" })), ["b", "a", "c"]);
+  assert.deepEqual(paintIds(stageReducer(s, { type: "lower", id: "c" })), ["a", "c", "b"]);
+  assert.deepEqual(paintIds(stageReducer(s, { type: "lower", id: "a" })), ["a", "b", "c"]);
 });
 
-test("selecting a widget brings it to the top; camera and screen share keep their place", () => {
+test("selecting a widget brings it to the top z and keeps the list; camera and screen share keep their z", () => {
   const s = withLayers(layer("a"), layer("b"), layer("cam", { kind: "camera" }), layer("c"));
-  assert.deepEqual(stageReducer(s, { type: "select", id: "a" }).layers.map((l) => l.id), ["b", "cam", "c", "a"]);
-  assert.deepEqual(stageReducer(s, { type: "select", id: "cam" }).layers.map((l) => l.id), ["a", "b", "cam", "c"]);
-  assert.equal(stageReducer(s, { type: "select", id: "cam" }).selected, "cam");
-  // already on top: the same stage comes back, so dragging (which selects on every press) does no extra work
-  const top = stageReducer(s, { type: "select", id: "c" });
-  assert.equal(top.layers, s.layers);
+  const picked = stageReducer(s, { type: "select", id: "a" });
+  assert.equal(picked.selected, "a");
+  assert.deepEqual(paintIds(picked), ["b", "cam", "c", "a"]);
+  assert.deepEqual(listIds(picked), ["a", "b", "cam", "c"]);
+  assert.deepEqual(paintIds(stageReducer(s, { type: "select", id: "cam" })), ["a", "b", "cam", "c"]);
+  // already on top: the same layers come back, so dragging (which selects on every press) does no extra work
+  assert.equal(stageReducer(s, { type: "select", id: "c" }).layers, s.layers);
+  assert.equal(stageReducer(s, { type: "select", id: "missing" }), s);
+});
+
+test("removing a layer keeps the others' z 0..n-1", () => {
+  const s = stageReducer(stageReducer(withLayers(layer("a"), layer("b"), layer("c")), { type: "raise", id: "a" }), { type: "remove", id: "b" });
+  assert.deepEqual(s.layers.map((l) => [l.id, l.z]), [["a", 1], ["c", 0]]);
 });
 
 test("swap keeps the id and rect and replaces the subject", () => {
@@ -148,9 +161,10 @@ test("setStageKey keeps a pinned mode and moves its root, so modes of one root c
 test("addSubject: one camera, one screen, one key; screen at the bottom, camera above it, widgets above both", () => {
   let s = addSubject(EMPTY_STAGE, "w", chord);
   s = addSubject(s, "cam", { kind: "camera" });
-  assert.deepEqual(s.layers.map((l) => l.id), ["cam", "w"]);
+  assert.deepEqual(paintIds(s), ["cam", "w"]);
   s = addSubject(s, "scr", { kind: "screen" });
-  assert.deepEqual(s.layers.map((l) => l.id), ["scr", "cam", "w"]);
+  assert.deepEqual(paintIds(s), ["scr", "cam", "w"]);
+  assert.deepEqual(listIds(s), ["w", "cam", "scr"]);
   const again = addSubject(s, "cam2", { kind: "camera" });
   assert.equal(again.layers.length, 3);
   assert.equal(again.selected, "cam");
@@ -207,6 +221,15 @@ test("sanitiseStage drops junk, unknown plugins, duplicate ids, second cameras, 
   assert.deepEqual(s.key, { tonicPc: 4, family: 0, mode: 0 });
 });
 
+test("a saved stage keeps its z; one saved before z paints in list order", () => {
+  const raised = stageReducer(withLayers(layer("a"), layer("b"), layer("c")), { type: "raise", id: "a" });
+  const back = sanitiseStage(JSON.parse(JSON.stringify(raised)), ids);
+  assert.deepEqual(listIds(back), ["a", "b", "c"]);
+  assert.deepEqual(paintIds(back), ["b", "c", "a"]);
+  const old = sanitiseStage({ layers: [layer("a"), layer("b")].map((l) => ({ ...l, z: undefined })) }, ids);
+  assert.deepEqual(old.layers.map((l) => l.z), [0, 1]);
+});
+
 test("the logo and the url exist at most once", () => {
   let s = addSubject(EMPTY_STAGE, "a", { kind: "logo" });
   s = addSubject(s, "b", { kind: "logo" });
@@ -239,4 +262,73 @@ test("the logo and the url sit in the top-right corner and never move, resize or
 test("a logo saved somewhere else comes back to its corner", () => {
   const s = sanitiseStage({ layers: [{ id: "a", subject: { kind: "logo" }, rect: { x: 0.1, y: 0.5, w: 0.3, h: 0.2 }, visible: true }] }, []);
   assert.deepEqual(s.layers[0].rect, fixedRect({ kind: "logo" }));
+});
+
+const shape = (r: { w: number; h: number }) => (r.w * FRAME_ASPECT) / r.h;
+
+test("withAspect gives a rect its content's shape, keeping its width and corner where it fits", () => {
+  const r = withAspect({ x: 0.1, y: 0.1, w: 0.4, h: 0.4 }, 2);
+  near(r.x, 0.1);
+  near(r.y, 0.1);
+  near(r.w, 0.4);
+  near(shape(r), 2);
+  assert.ok(hasAspect(r, 2) && !hasAspect(r, 1.5));
+  // a tall widget too wide for the frame's height shrinks to fit it, still in shape
+  const tall = withAspect({ x: 0, y: 0, w: 0.9, h: 0.2 }, 0.5);
+  near(tall.h, 1);
+  near(shape(tall), 0.5);
+});
+
+test("resizeKeepingShape keeps the shape and the opposite corner", () => {
+  const r = withAspect({ x: 0.2, y: 0.2, w: 0.3, h: 0.3 }, 1.5);
+  const big = resizeKeepingShape(r, "nw", -0.1, 0, 1.5);
+  near(shape(big), 1.5);
+  near(big.x + big.w, r.x + r.w);
+  near(big.y + big.h, r.y + r.h);
+  assert.ok(big.w > r.w);
+});
+
+test("toggleFill fills the frame in the content's shape, centred, then goes back; a drag forgets the way back", () => {
+  let s = withLayers(layer("a"));
+  s = stageReducer(s, { type: "toggleFill", id: "a", aspect: 1 });
+  const full = s.layers[0].rect;
+  near(full.h, 1);
+  near(shape(full), 1);
+  near(full.x, (1 - full.w) / 2);
+  assert.deepEqual(fillRect(null), FULL);
+  const back = stageReducer(s, { type: "toggleFill", id: "a", aspect: 1 });
+  assert.deepEqual(back.layers[0].rect, layer("a").rect);
+  assert.equal(back.layers[0].restore, undefined);
+  const moved = stageReducer(s, { type: "move", id: "a", dx: 0.01, dy: 0 });
+  assert.equal(moved.layers[0].restore, undefined);
+  // saved and loaded, a filling widget still knows its way back
+  assert.deepEqual(sanitiseStage(JSON.parse(JSON.stringify(s)), ids).layers[0].restore, layer("a").rect);
+});
+
+test("a pinned widget is drawn over every widget that is not, and unpins", () => {
+  let s = withLayers(layer("a"), layer("b"), layer("c"));
+  s = stageReducer(s, { type: "togglePin", id: "a" });
+  assert.equal(s.layers[0].onTop, true);
+  const z = (id: string) => drawZ(s.layers.find((l) => l.id === id)!, s.layers.length);
+  assert.ok(z("a") > z("b") && z("a") > z("c"));
+  // raising another widget does not put it over the pinned one
+  s = stageReducer(s, { type: "raise", id: "b" });
+  assert.ok(z("a") > z("b"));
+  s = stageReducer(s, { type: "togglePin", id: "a" });
+  assert.equal("onTop" in s.layers[0], false);
+  assert.ok(z("a") < z("c"));
+});
+
+test("a pin is saved; anything but true is not a pin", () => {
+  const raw = { layers: [{ ...layer("a"), onTop: true }, { ...layer("b"), onTop: "yes" }] };
+  const s = sanitiseStage(raw, ids);
+  assert.equal(s.layers[0].onTop, true);
+  assert.equal("onTop" in s.layers[1], false);
+});
+
+test("the microphone exists at most once", () => {
+  let s = addSubject(EMPTY_STAGE, "m1", { kind: "mic" });
+  s = addSubject(s, "m2", { kind: "mic" });
+  assert.deepEqual(listIds(s), ["m1"]);
+  assert.equal(s.selected, "m1");
 });

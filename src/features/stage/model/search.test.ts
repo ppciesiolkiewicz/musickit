@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { EMPTY_KEY } from "@/features/creator/model/key";
 import { groupResults, paletteCatalog, searchPalette } from "./search";
-import { followMaster, isControl, keyOf, pinAgainst, sanitiseSubject, subjectIdentity, subjectTitle, withKey, withMaster, withOwnKey, type Subject } from "./subject";
+import { followMaster, isControl, isPage, keyOf, pinAgainst, sanitiseSubject, subjectIdentity, subjectTitle, withKey, withMaster, withOwnKey, type Subject } from "./subject";
 
 const ids = ["scale", "chords", "circle", "keys", "progressions", "modes", "triads", "caged", "arpeggios", "improv", "tunings"];
 const E_MINOR = { tonicPc: 4, family: 0, mode: 5 };
@@ -75,6 +75,11 @@ test("circle g is the circle panel in G major", () => {
 test("metronome and drone find the metronome", () => {
   assert.equal((first("metronome", E_MINOR) as Subject).kind, "band");
   assert.equal((first("drone", E_MINOR) as Subject).kind, "band");
+});
+
+test("mic and microphone find the microphone", () => {
+  assert.deepEqual(first("mic"), { kind: "mic" });
+  assert.deepEqual(first("microphone"), { kind: "mic" });
 });
 
 test("tuner finds the tuner; key finds Key & scale", () => {
@@ -230,10 +235,19 @@ test("subject titles name the widget and its scale, not the master's root", () =
   assert.equal(subjectTitle({ kind: "bubble", key: E_MINOR, degree: 1 }), "Sus & extensions · ii° · Aeolian");
   assert.equal(subjectTitle({ kind: "key" }), "Key & scale");
   assert.equal(subjectTitle({ kind: "tuner" }), "Tuner");
+  assert.equal(subjectTitle({ kind: "mic" }), "Microphone");
 });
 
-test("Key & scale, the metronome and the tuner are controls; the rest are not", () => {
-  assert.deepEqual(paletteCatalog(ids, E_MINOR).flatMap((r) => (r.action.type === "add" && isControl(r.action.subject) ? [r.label] : [])), ["Key & scale", "Metronome", "Tuner"]);
+test("Key & scale, the metronome, the tuner and the microphone are controls; the rest are not", () => {
+  assert.deepEqual(paletteCatalog(ids, E_MINOR).flatMap((r) => (r.action.type === "add" && isControl(r.action.subject) ? [r.label] : [])), ["Key & scale", "Metronome", "Tuner", "Microphone"]);
+});
+
+test("the whole cheatsheet pages, Fretboard positions and Chords in the key are pages; the rest are not", () => {
+  const pages = paletteCatalog(ids, E_MINOR).flatMap((r) => (r.action.type === "add" && isPage(r.action.subject) ? [r.action.subject] : []));
+  assert.ok(pages.some((s) => s.kind === "section" && s.section === "guitar"));
+  assert.ok(pages.some((s) => s.kind === "section" && s.section === "chords"));
+  assert.ok(pages.every((s) => (s.kind === "plugin" && s.full) || (s.kind === "section" && s.section !== "relatives")));
+  assert.equal(isPage({ kind: "neck", key: E_MINOR }), false);
 });
 
 test("identity ignores the key, so a ticked row stays ticked when the widget's key changes", () => {
@@ -253,6 +267,7 @@ test("sanitiseSubject drops unknown plugins and bad shapes, keeps pins and full 
   assert.deepEqual(sanitiseSubject({ kind: "plugin", plugin: "chords", full: true, key: E_MINOR, pinned: ["scale", "junk"] }, ids), { kind: "plugin", plugin: "chords", full: true, key: E_MINOR, pinned: ["scale"] });
   assert.deepEqual(sanitiseSubject({ kind: "camera" }, ids), { kind: "camera" });
   assert.deepEqual(sanitiseSubject({ kind: "tuner" }, ids), { kind: "tuner" });
+  assert.deepEqual(sanitiseSubject({ kind: "mic" }, ids), { kind: "mic" });
   assert.equal(sanitiseSubject({ kind: "caged", key: EMPTY_KEY, shape: "X" }, ids), null);
   assert.deepEqual(sanitiseSubject({ kind: "caged", key: EMPTY_KEY }, ids), { kind: "caged", key: EMPTY_KEY, shape: null });
   assert.equal(sanitiseSubject({ kind: "bubble", key: EMPTY_KEY, degree: 7 }, ids), null);

@@ -13,11 +13,12 @@ import ChordWidget from "./ChordWidget";
 import FitBox from "./FitBox";
 import KeyTags from "./KeyTags";
 import KeyWidget from "./KeyWidget";
+import MicWidget from "./MicWidget";
 import PositionWidget from "./PositionWidget";
 import SectionWidget from "./SectionWidget";
 
 /** design width each kind is laid out at before it is scaled into its rect */
-const WIDTH: Record<Subject["kind"], number> = { chord: 240, plugin: 640, position: 980, band: 360, section: 760, bubble: 900, neck: 980, caged: 1100, key: 760, tuner: 520, logo: 300, url: 520, camera: 0, screen: 0 };
+const WIDTH: Record<Subject["kind"], number> = { chord: 240, plugin: 640, position: 980, band: 360, section: 760, bubble: 900, neck: 980, caged: 1100, key: 760, tuner: 520, mic: 360, logo: 300, url: 520, camera: 0, screen: 0 };
 /** a cheatsheet page in full is laid out as wide as on the site */
 const FULL_WIDTH = 1200;
 
@@ -102,6 +103,9 @@ export default function StageWidget({ subject, onSubjectChange, stageKey, onStag
       break;
     case "key":
       body = <KeyWidget value={stageKey} onChange={onStageKey} />;
+      break;
+    case "mic":
+      body = <MicWidget />;
       break;
     case "tuner":
       body = (

@@ -8,7 +8,11 @@ import { InfoTip } from "@/components/ui";
 import Icon from "@/components/Icon";
 import { diagramLowFret, intervalLabel, OPEN_NOTE, OPEN_PITCH, ROOT_INDEX } from "@/lib/chordKit/shapeTools";
 import { boxRowFactor } from "./Fretboard";
+import { useHeardNote } from "./heardNote";
 import { swatchForIndex } from "./palette";
+
+/** the ring on a note the microphone hears, the same blue as a playing note on the neck */
+const HEARD = "#38bdf8";
 
 interface Props {
   shape: Shape;
@@ -29,6 +33,8 @@ interface Props {
  */
 export default function ChordDiagram({ shape, rootFret, onPlay, active, ctx, rootName }: Props) {
   const [mode, setMode] = useChordLabels();
+  // the note the microphone hears, ringed on every string that plays it
+  const heard = useHeardNote();
   // chord boxes always show intervals; without a key there is only the chord root to count from
   const system = "interval";
   const from = mode === "key" && ctx ? "scale" : "chord";
@@ -76,11 +82,12 @@ export default function ChordDiagram({ shape, rootFret, onPlay, active, ctx, roo
         const label = toneLabel(system, tone, from);
         const sw = swatchForIndex(toneColourIndex(tone, from));
         const y = a === 0 ? top - 12 : top + edge(a - lo) + rowH(a - lo) / 2;
+        const lit = heard === (OPEN_NOTE[i] + a) % 12;
         // open strings: a small ring above the nut, like the usual "o", so they never crowd each other
         if (a === 0)
           return (
             <g key={i}>
-              <circle cx={x} cy={y} r={7} fill="var(--color-slate-950)" stroke={sw.fill} strokeWidth={1.6} />
+              <circle cx={x} cy={y} r={7} fill="var(--color-slate-950)" stroke={lit ? HEARD : sw.fill} strokeWidth={lit ? 3 : 1.6} />
               <text x={x} y={y} textAnchor="middle" dominantBaseline="central" fill={sw.fill} fontSize={label.length > 2 ? 6 : 7.5} fontWeight={700}>
                 {label}
               </text>
@@ -88,7 +95,7 @@ export default function ChordDiagram({ shape, rootFret, onPlay, active, ctx, roo
           );
         return (
           <g key={i}>
-            <circle cx={x} cy={y} r={9} fill={sw.fill} stroke={sw.line} strokeWidth={1.2} />
+            <circle cx={x} cy={y} r={lit ? 10.5 : 9} fill={sw.fill} stroke={lit ? HEARD : sw.line} strokeWidth={lit ? 3 : 1.2} />
             <text x={x} y={y} textAnchor="middle" dominantBaseline="central" fill={sw.text} fontSize={label.length > 2 ? 8 : 10} fontWeight={600}>
               {label}
             </text>

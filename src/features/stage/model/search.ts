@@ -88,6 +88,7 @@ function entries(pluginIds: string[], key: KeyChoice): Entry[] {
     entry({ kind: "key" }, "setup", "The master key and scale every widget follows", ["key", "scale", "master", "root", "mode"]),
     entry({ kind: "band", key }, "setup", "Click, drone, drums and bass", ["metronome", "drone", "band", "drums", "bass", "click", "tempo"]),
     entry({ kind: "tuner" }, "setup", "Tune before you play", ["tuner", "tune", "tuning"]),
+    entry({ kind: "mic" }, "setup", "Lights up the notes you play on pinned and selected widgets", ["mic", "microphone", "listen", "input", "hear", "notes"]),
     ...panel("scale", "scale", "The notes and their degrees", "Notes"),
     entry({ kind: "section", section: "relatives", key }, "scale", "The modes that share these notes", ["modes", "same", "notes", "relatives", "relative"], "Notes"),
     entry({ kind: "neck", key }, "scale", "Every note of the scale on the neck", ["fretboard", "neck", "scale", "notes"], "On the fretboard"),

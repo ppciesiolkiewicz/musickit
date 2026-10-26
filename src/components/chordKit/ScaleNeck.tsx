@@ -6,6 +6,7 @@ import { VerticalBoard, vGeometry } from "./VerticalFretboard";
 import { DOT_INK, degreeColour } from "@/features/theory/scales";
 import { againstMajor, fmtDegree, noteLabel, type LabelSystem } from "@/features/theory/labels";
 import { SCALE_NECK_FRETS, type ScaleCell, type ScalePosition } from "@/lib/chordKit/scalePositions";
+import { useHeardNote } from "./heardNote";
 
 const ACTIVE = "#38bdf8";
 export const cellKey = (c: { string: number; fret: number }) => `${c.string}-${c.fret}`;
@@ -48,8 +49,15 @@ interface NeckProps {
 
 const isActive = (active: string | null, c: ScaleCell) => active !== null && (active === cellKey(c) || active === `d${c.degree}` || active === `pc${c.pc}`);
 
+/** a note lights up when it is playing, and wherever the note the microphone hears falls (`HeardNote`) */
+function useLit(active: string | null): (c: ScaleCell) => boolean {
+  const heard = useHeardNote();
+  return (c) => isActive(active, c) || heard === c.pc;
+}
+
 /** The whole neck, frets 0-17 (0-12 when compact), with every note of the scale. Tap a note to hear it. */
 export function ScaleNeck({ cells, big, rings = true, focus = null, fadeOutside = true, active, labelSystem, onNote, compact = false, title }: NeckProps) {
+  const lit = useLit(active);
   const to = compact ? 12 : SCALE_NECK_FRETS;
   // a phone fits the whole neck on screen: narrower frets, so the dots come out bigger once it is scaled down
   const phone = usePhone();
@@ -59,7 +67,7 @@ export function ScaleNeck({ cells, big, rings = true, focus = null, fadeOutside 
   const focusFrets = focus?.notes.map((c) => c.fret) ?? [];
   const shown = cells.filter((c) => c.fret <= to && (rings || (big(c) && (!focus || inFocus.has(cellKey(c))))));
   // rings under the dots, the playing note last so its outline is on top
-  shown.sort((a, b) => Number(big(a)) - Number(big(b)) || Number(isActive(active, a)) - Number(isActive(active, b)));
+  shown.sort((a, b) => Number(big(a)) - Number(big(b)) || Number(lit(a)) - Number(lit(b)));
   return (
     <div className="min-w-0">
       <svg viewBox={`0 0 ${g.W} ${g.H}`} width="100%" role="img" aria-label={title}>
@@ -75,7 +83,7 @@ export function ScaleNeck({ cells, big, rings = true, focus = null, fadeOutside 
           <Dot
             key={cellKey(c)} c={c} x={g.fx(c.fret)} y={g.sy(c.string)} r={r} ring={!big(c)}
             label={noteLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText })}
-            active={isActive(active, c)} dim={focus !== null && fadeOutside && !inFocus.has(cellKey(c))} onNote={onNote}
+            active={lit(c)} dim={focus !== null && fadeOutside && !inFocus.has(cellKey(c))} onNote={onNote}
           />
         ))}
       </svg>
@@ -85,6 +93,7 @@ export function ScaleNeck({ cells, big, rings = true, focus = null, fadeOutside 
 
 /** One position as a vertical box: its notes as dots, and (optionally) the other scale notes inside its frets as rings. */
 export function PositionBox({ position, cells, rings, active, labelSystem, onNote }: { position: ScalePosition; cells: ScaleCell[]; rings: boolean; active: string | null; labelSystem: LabelSystem; onNote: (c: ScaleCell) => void }) {
+  const lit = useLit(active);
   // a box at the first fret also shows the open strings
   const from = position.from <= 1 ? 0 : position.from;
   const g = vGeometry(from, position.to, 38, 40, 34);
@@ -94,8 +103,8 @@ export function PositionBox({ position, cells, rings, active, labelSystem, onNot
   return (
     <svg viewBox={`0 0 ${g.W} ${g.H}`} style={{ width: "100%", maxWidth: 260, height: "auto" }} className="mx-auto" role="img" aria-label={`Position ${position.number}, frets ${position.from} to ${position.to}`}>
       <VerticalBoard g={g} numbersRight />
-      {extra.map((c) => <Dot key={cellKey(c)} c={c} x={g.sx(c.string)} y={g.fy(c.fret)} r={14} ring label={label(c)} active={isActive(active, c)} dim={false} onNote={onNote} />)}
-      {position.notes.map((c) => <Dot key={cellKey(c)} c={c} x={g.sx(c.string)} y={g.fy(c.fret)} r={14} ring={false} label={label(c)} active={isActive(active, c)} dim={false} onNote={onNote} />)}
+      {extra.map((c) => <Dot key={cellKey(c)} c={c} x={g.sx(c.string)} y={g.fy(c.fret)} r={14} ring label={label(c)} active={lit(c)} dim={false} onNote={onNote} />)}
+      {position.notes.map((c) => <Dot key={cellKey(c)} c={c} x={g.sx(c.string)} y={g.fy(c.fret)} r={14} ring={false} label={label(c)} active={lit(c)} dim={false} onNote={onNote} />)}
     </svg>
   );
 }

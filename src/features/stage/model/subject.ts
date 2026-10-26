@@ -36,6 +36,8 @@ export type Subject =
   | ({ kind: "caged"; shape: CagedLetter | null } & Keyed)
   | { kind: "key" }
   | { kind: "tuner" }
+  /** the microphone: the notes it hears light up on the pinned and selected widgets */
+  | { kind: "mic" }
   | { kind: "logo" }
   | { kind: "url" }
   | { kind: "camera" }
@@ -100,7 +102,7 @@ export function keyOf(s: Subject): KeyChoice | null {
   return isKeyed(s) ? s.key : null;
 }
 
-/** The subject in another key, nothing pinned or unpinned; subjects without a key (chord, logo, url, camera, screen, tuner, the Key widget) come back as they are. */
+/** The subject in another key, nothing pinned or unpinned; subjects without a key (chord, logo, url, camera, screen, tuner, microphone, the Key widget) come back as they are. */
 export function withKey(s: Subject, key: KeyChoice): Subject {
   return isKeyed(s) ? { ...s, key } : s;
 }
@@ -142,8 +144,11 @@ export function pinAgainst(s: Subject, master: KeyChoice): Subject {
   return pins.length ? { ...s, pinned: pins } : s;
 }
 
-/** A control rather than something to look at: it sets or plays something for the lesson (the master key, the metronome, the tuner). */
-export const isControl = (s: Subject): boolean => s.kind === "key" || s.kind === "band" || s.kind === "tuner";
+/** A control rather than something to look at: it sets, plays or listens to something for the lesson (the master key, the metronome, the tuner, the microphone). */
+export const isControl = (s: Subject): boolean => s.kind === "key" || s.kind === "band" || s.kind === "tuner" || s.kind === "mic";
+
+/** A page rather than a single widget: a whole cheatsheet page, or a scale-page section with parts to pick from (Fretboard positions, Chords in the key). */
+export const isPage = (s: Subject): boolean => (s.kind === "plugin" && s.full === true) || (s.kind === "section" && s.section !== "relatives");
 
 /** Which widget a subject is, whatever its key: the palette ticks a row when a widget with the same identity is on the stage. */
 export function subjectIdentity(s: Subject): string {
@@ -192,6 +197,8 @@ export function subjectName(s: Subject): string {
       return "Key & scale";
     case "tuner":
       return "Tuner";
+    case "mic":
+      return "Microphone";
     case "logo":
       return "Logo";
     case "url":
@@ -260,6 +267,7 @@ export function sanitiseSubject(raw: unknown, pluginIds: string[]): Subject | nu
     }
     case "key":
     case "tuner":
+    case "mic":
     case "logo":
     case "url":
     case "camera":

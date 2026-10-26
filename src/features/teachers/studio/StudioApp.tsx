@@ -1,18 +1,46 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { HeardNote } from "@/components/chordKit/heardNote";
 import Icon from "@/components/Icon";
+import { useMicPitch } from "@/components/practice/useMicPitch";
 import { PLUGINS } from "@/features/creator";
-import { CameraLayer, DEFAULT_VIEW, NUDGE, NUDGE_BIG, ScreenLayer, StageFrame, StageWidget, mediaState, isControl, shortcutFor, stageCommand, subjectTitle, toggleFull, type Layer, type PaletteResult, type StudioCommand, type Subject } from "@/features/stage";
+import { CameraLayer, DEFAULT_VIEW, MicContext, NUDGE, NUDGE_BIG, ScreenLayer, StageFrame, StageWidget, mediaState, isControl, isPage, shortcutFor, stageCommand, subjectTitle, toggleFull, type Layer, type MicInput, type PaletteResult, type StudioCommand, type Subject } from "@/features/stage";
 import { isStudioSupported } from "./browserSupport";
 import KeysPanel, { KeysOverlay } from "./KeysPanel";
 import useCamera from "./media/useCamera";
 import useScreenShare from "./media/useScreenShare";
-import ControlBadge from "./ControlBadge";
+import ControlBadge, { PageBadge } from "./ControlBadge";
 import Palette from "./Palette";
 import useStage from "./useStage";
 
 const PLUGIN_IDS = PLUGINS.map((p) => p.id);
+const SHAPE_STORE = "musickit.studio.keepShape";
+const PANEL_STORE = "musickit.studio.panelFolded";
+
+/** whether the side panel is folded to a letter or two per widget: open unless folded before */
+function savedFolded(): boolean {
+  try {
+    return window.localStorage.getItem(PANEL_STORE) === "on";
+  } catch {
+    return false;
+  }
+}
+
+/** whether widget frames keep their content's shape: on unless turned off (a switch for trying both) */
+function savedKeepShape(): boolean {
+  try {
+    return window.localStorage.getItem(SHAPE_STORE) !== "off";
+  } catch {
+    return true;
+  }
+}
+
+/** a widget's name in a letter or two, for the folded panel: the first letters of its first two words (Fretboard positions: FP), or of its one word (Tuner: Tu) */
+function initials(title: string): string {
+  const words = title.split(" · ")[0].split(/[^A-Za-z0-9]+/).filter(Boolean);
+  return words.length > 1 ? (words[0][0] + words[1][0]).toUpperCase() : (words[0] ?? "?").slice(0, 2);
+}
 
 const isTyping = () => {
   const el = document.activeElement as HTMLElement | null;
@@ -25,6 +53,23 @@ export default function StudioApp() {
   const [stage, dispatch] = useStage(PLUGIN_IDS);
   const [palette, setPalette] = useState(false);
   const [help, setHelp] = useState(false);
+  // the page renders nothing until the browser check, so reading storage here cannot mismatch the server's render
+  const [keepShape, setKeepShape] = useState(() => (typeof window === "undefined" ? true : savedKeepShape()));
+  const toggleKeepShape = () => {
+    const next = !keepShape;
+    setKeepShape(next);
+    try {
+      window.localStorage.setItem(SHAPE_STORE, next ? "on" : "off");
+    } catch {}
+  };
+  const [folded, setFolded] = useState(() => (typeof window === "undefined" ? false : savedFolded()));
+  const toggleFolded = () => {
+    const next = !folded;
+    setFolded(next);
+    try {
+      window.localStorage.setItem(PANEL_STORE, next ? "on" : "off");
+    } catch {}
+  };
   const stageRef = useRef(stage);
   useEffect(() => {
     stageRef.current = stage;
@@ -60,6 +105,16 @@ export default function StudioApp() {
     if (!hasScreen && screenStream) stopScreen();
   }, [hasScreen, screenStream, stopScreen]);
 
+  // the microphone lives here, not in its widget, so hiding the widget keeps it listening; deleting the widget stops it
+  const [micOn, setMicOn] = useState(false);
+  const { status: micStatus, heard } = useMicPitch(micOn);
+  const hasMic = stage.layers.some((l) => l.subject.kind === "mic");
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- the microphone follows its widget out of the stage
+    if (!hasMic) setMicOn(false);
+  }, [hasMic]);
+  const mic = useMemo<MicInput>(() => ({ status: micStatus, heard, onToggle: () => setMicOn((on) => !on) }), [micStatus, heard]);
+
   const runCommand = useCallback(
     (cmd: StudioCommand) => {
       if (cmd === "screen-share") void startScreen();
@@ -70,7 +125,11 @@ export default function StudioApp() {
 
   const onPick = useCallback(
     (r: PaletteResult) => {
-      if (r.action.type === "add") dispatch({ type: "addSubject", id: crypto.randomUUID(), subject: r.action.subject });
+      if (r.action.type === "add") {
+        dispatch({ type: "addSubject", id: crypto.randomUUID(), subject: r.action.subject });
+        // picking the microphone is the click that starts it
+        if (r.action.subject.kind === "mic") setMicOn(true);
+      }
       else runCommand(r.action.command);
     },
     [dispatch, runCommand],
@@ -152,77 +211,139 @@ export default function StudioApp() {
   if (!supported) return <p className="mx-auto mt-24 max-w-md text-center text-slate-300">The studio needs desktop Chrome or Edge.</p>;
 
   const media = mediaState(stage);
+  // the microphone feeds the pinned widgets and the selected one
   const renderLayer = (l: Layer) => (
-    <StageWidget
-      subject={l.subject}
-      onSubjectChange={(subject) => dispatch({ type: "swap", id: l.id, subject })}
-      stageKey={stage.key}
-      onStageKey={(key) => dispatch({ type: "setStageKey", key })}
-      renderMedia={(s) => {
-        const kind = s.kind === "camera" ? "camera" : "screen";
-        const full = media[kind] === "full";
-        const controls = {
-          full,
-          name: kind === "camera" ? "camera" : "screen share",
-          onToggleFull: () => runCommand(kind === "camera" ? (full ? "camera-corner" : "camera-full") : full ? "screen-corner" : "screen-full"),
-          onClose: () => runCommand(kind === "camera" ? "camera-off" : "screen-stop"),
-        };
-        return kind === "camera" ? (
-          <CameraLayer stream={camera.stream} error={camera.error} onStart={() => void camera.start()} controls={controls} />
-        ) : (
-          <ScreenLayer stream={screen.stream} onStart={() => void startScreen()} controls={controls} />
-        );
-      }}
-    />
+    <HeardNote.Provider value={l.onTop || stage.selected === l.id ? heard : null}>
+      <StageWidget
+        subject={l.subject}
+        onSubjectChange={(subject) => dispatch({ type: "swap", id: l.id, subject })}
+        stageKey={stage.key}
+        onStageKey={(key) => dispatch({ type: "setStageKey", key })}
+        renderMedia={(s) => {
+          const kind = s.kind === "camera" ? "camera" : "screen";
+          const full = media[kind] === "full";
+          const controls = {
+            full,
+            name: kind === "camera" ? "camera" : "screen share",
+            onToggleFull: () => runCommand(kind === "camera" ? (full ? "camera-corner" : "camera-full") : full ? "screen-corner" : "screen-full"),
+            onClose: () => runCommand(kind === "camera" ? "camera-off" : "screen-stop"),
+          };
+          return kind === "camera" ? (
+            <CameraLayer stream={camera.stream} error={camera.error} onStart={() => void camera.start()} controls={controls} />
+          ) : (
+            <ScreenLayer stream={screen.stream} onStart={() => void startScreen()} controls={controls} />
+          );
+        }}
+      />
+    </HeardNote.Provider>
   );
 
   return (
-    <div className="grid min-h-screen grid-cols-[220px_minmax(0,1fr)] gap-4 p-4">
-      <aside data-chrome aria-label="Layers" className="flex flex-col gap-2">
-        <KeysPanel onAdd={() => setPalette(true)} />
-        <h2 className="mt-2 text-xs font-medium uppercase tracking-wider text-slate-400">Layers</h2>
-        {stage.layers.length === 0 && <p className="text-xs text-slate-500">Nothing on the stage yet.</p>}
-        <ul className="flex flex-col gap-1">
-          {[...stage.layers].reverse().map((l) => (
-            <li key={l.id}>
-              <div className={`flex items-center gap-1 rounded-md border px-2 py-1 text-sm ${stage.selected === l.id ? "border-sky-500/60 bg-sky-500/10 text-sky-100" : "border-slate-800 text-slate-300"}`}>
-                <button type="button" className={`flex min-w-0 flex-1 items-center gap-1.5 text-left ${l.visible ? "" : "opacity-50"}`} onClick={() => dispatch({ type: "select", id: l.id })}>
-                  <span className="truncate">{subjectTitle(l.subject)}</span>
-                  {isControl(l.subject) && <ControlBadge />}
+    <div className={`grid min-h-screen gap-4 p-4 ${folded ? "grid-cols-[52px_minmax(0,1fr)]" : "grid-cols-[220px_minmax(0,1fr)]"}`}>
+      {folded ? (
+        <aside data-chrome aria-label="Layers" className="flex flex-col items-center gap-1">
+          <button type="button" title="Unfold the panel" aria-label="Unfold the panel" aria-expanded={false} onClick={toggleFolded} className="rounded-md border border-slate-800 p-1 text-slate-400 hover:text-slate-100">
+            <Icon name="chevron-right" size={14} />
+          </button>
+          <button type="button" title="Add a widget (/ or ⌘K)" aria-label="Add a widget" onClick={() => setPalette(true)} className="rounded-md border border-slate-700 p-1 text-slate-200 hover:border-slate-500">
+            <Icon name="plus" size={14} />
+          </button>
+          <ul className="mt-1 flex flex-col gap-1">
+            {[...stage.layers].reverse().map((l) => (
+              <li key={l.id} className="flex items-center gap-0.5">
+                <button
+                  type="button"
+                  title={subjectTitle(l.subject)}
+                  aria-label={subjectTitle(l.subject)}
+                  onClick={() => dispatch({ type: "select", id: l.id })}
+                  className={`grid h-6 w-7 place-items-center rounded border font-mono text-[11px] ${stage.selected === l.id ? "border-sky-500/60 bg-sky-500/10 text-sky-100" : "border-slate-800 text-slate-300 hover:border-slate-600"} ${l.visible ? "" : "opacity-50"}`}
+                >
+                  {initials(subjectTitle(l.subject))}
                 </button>
-                <button type="button" title={l.visible ? "Hide" : "Show"} onClick={() => dispatch({ type: "toggle", id: l.id })} className="p-0.5 text-slate-400 hover:text-slate-100">
-                  <Icon name="eye" size={14} />
+                <button type="button" title="Delete" aria-label="Delete" onClick={() => dispatch({ type: "remove", id: l.id })} className="p-0.5 text-slate-500 hover:text-rose-300">
+                  <Icon name="trash" size={12} />
                 </button>
-                <button type="button" title="Bring forward" onClick={() => dispatch({ type: "raise", id: l.id })} className="p-0.5 text-slate-400 hover:text-slate-100">
-                  <Icon name="chevron-down" size={14} className="rotate-180" />
-                </button>
-                <button type="button" title="Send backward" onClick={() => dispatch({ type: "lower", id: l.id })} className="p-0.5 text-slate-400 hover:text-slate-100">
-                  <Icon name="chevron-down" size={14} />
-                </button>
-                <button type="button" title="Delete" onClick={() => dispatch({ type: "remove", id: l.id })} className="p-0.5 text-slate-400 hover:text-rose-300">
-                  <Icon name="trash" size={14} />
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
-        {camera.stream && camera.devices.length > 1 && (
-          <label className="mt-2 flex flex-col gap-1 text-xs text-slate-400">
-            Camera
-            <select value={camera.deviceId ?? ""} onChange={(e) => void camera.start(e.target.value)} className="rounded-md border border-slate-700 bg-slate-900 px-2 py-1 text-slate-200">
-              {camera.devices.map((d, i) => (
-                <option key={d.deviceId} value={d.deviceId}>{d.label || `Camera ${i + 1}`}</option>
-              ))}
-            </select>
-          </label>
-        )}
-      </aside>
+              </li>
+            ))}
+          </ul>
+        </aside>
+      ) : (
+        <aside data-chrome aria-label="Layers" className="flex flex-col gap-2">
+          <div className="flex items-stretch gap-1">
+            <div className="min-w-0 flex-1">
+              <KeysPanel onAdd={() => setPalette(true)} />
+            </div>
+            <button type="button" title="Fold the panel to a letter or two per widget" aria-label="Fold the panel" aria-expanded onClick={toggleFolded} className="rounded-md border border-slate-800 px-1 text-slate-400 hover:text-slate-100">
+              <Icon name="chevron-left" size={14} />
+            </button>
+          </div>
+          <h2 className="mt-2 text-xs font-medium uppercase tracking-wider text-slate-400">Layers</h2>
+          {stage.layers.length === 0 && <p className="text-xs text-slate-500">Nothing on the stage yet.</p>}
+          <ul className="flex flex-col gap-1">
+            {[...stage.layers].reverse().map((l) => (
+              <li key={l.id}>
+                <div className={`flex items-center gap-1 rounded-md border px-2 py-1 text-sm ${stage.selected === l.id ? "border-sky-500/60 bg-sky-500/10 text-sky-100" : "border-slate-800 text-slate-300"}`}>
+                  <button type="button" className={`flex min-w-0 flex-1 items-center gap-1.5 text-left ${l.visible ? "" : "opacity-50"}`} onClick={() => dispatch({ type: "select", id: l.id })}>
+                    <span className="truncate">{subjectTitle(l.subject)}</span>
+                    {isControl(l.subject) && <ControlBadge />}
+                    {isPage(l.subject) && <PageBadge />}
+                  </button>
+                  <button type="button" title={l.onTop ? "Unpin" : "Pin over the other widgets (the microphone lights its notes)"} aria-pressed={!!l.onTop} onClick={() => dispatch({ type: "togglePin", id: l.id })} className={`p-0.5 hover:text-slate-100 ${l.onTop ? "text-sky-300" : "text-slate-400"}`}>
+                    <Icon name="pin" size={14} />
+                  </button>
+                  <button type="button" title={l.visible ? "Hide" : "Show"} onClick={() => dispatch({ type: "toggle", id: l.id })} className="p-0.5 text-slate-400 hover:text-slate-100">
+                    <Icon name="eye" size={14} />
+                  </button>
+                  <button type="button" title="Bring forward" onClick={() => dispatch({ type: "raise", id: l.id })} className="p-0.5 text-slate-400 hover:text-slate-100">
+                    <Icon name="chevron-down" size={14} className="rotate-180" />
+                  </button>
+                  <button type="button" title="Send backward" onClick={() => dispatch({ type: "lower", id: l.id })} className="p-0.5 text-slate-400 hover:text-slate-100">
+                    <Icon name="chevron-down" size={14} />
+                  </button>
+                  <button type="button" title="Delete" onClick={() => dispatch({ type: "remove", id: l.id })} className="p-0.5 text-slate-400 hover:text-rose-300">
+                    <Icon name="trash" size={14} />
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={keepShape}
+            onClick={toggleKeepShape}
+            title={
+              keepShape
+                ? "On: each widget's frame takes the shape of what it shows, so there is no empty margin around it, and resizing from a corner keeps that shape. Click to drag frames to any shape instead."
+                : "Off: a widget's frame can be any shape, and the widget sits centred in it. Click to make every frame take its widget's shape."
+            }
+            className="mt-2 flex items-center justify-between gap-2 rounded-md border border-slate-800 px-2 py-1 text-left text-xs text-slate-300 hover:border-slate-600"
+          >
+            Keep widget shapes
+            <span className={`relative h-4 w-7 shrink-0 rounded-full transition-colors ${keepShape ? "bg-sky-500" : "bg-slate-700"}`}>
+              <span className={`absolute top-0.5 h-3 w-3 rounded-full bg-white transition-all ${keepShape ? "left-3.5" : "left-0.5"}`} />
+            </span>
+          </button>
+          {camera.stream && camera.devices.length > 1 && (
+            <label className="mt-2 flex flex-col gap-1 text-xs text-slate-400">
+              Camera
+              <select value={camera.deviceId ?? ""} onChange={(e) => void camera.start(e.target.value)} className="rounded-md border border-slate-700 bg-slate-900 px-2 py-1 text-slate-200">
+                {camera.devices.map((d, i) => (
+                  <option key={d.deviceId} value={d.deviceId}>{d.label || `Camera ${i + 1}`}</option>
+                ))}
+              </select>
+            </label>
+          )}
+        </aside>
+      )}
 
       <main className="flex min-w-0 flex-col items-center gap-3">
         <h1 className="sr-only">Studio</h1>
         {/* as wide as the column, but never taller than the window */}
         <div className="w-full" style={{ maxWidth: "calc((100vh - 2rem) * 16 / 9)" }}>
-          <StageFrame stage={stage} renderLayer={renderLayer} onAction={dispatch} />
+          <MicContext.Provider value={mic}>
+            <StageFrame stage={stage} renderLayer={renderLayer} onAction={dispatch} keepShape={keepShape} />
+          </MicContext.Provider>
         </div>
       </main>
 
