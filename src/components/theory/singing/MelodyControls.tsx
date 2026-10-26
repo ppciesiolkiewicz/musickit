@@ -12,20 +12,19 @@ export function RestartButton({ onClick }: { onClick: () => void }) {
   );
 }
 
-/** The metronome heard or muted (it keeps time either way): a metronome while heard, a crossed speaker beside it while muted. */
+/** The metronome heard or muted (it keeps time either way), styled as the settings' mute: a speaker, crossed and amber while muted. */
 export function ClickButton({ heard, onHear }: { heard: boolean; onHear: (on: boolean) => void }) {
   return (
     <Button
       size="sm"
-      pressed={heard}
       onClick={() => onHear(!heard)}
-      title={heard ? "Mute the metronome (it keeps time)" : "Hear the metronome"}
-      aria-label={heard ? "Mute the metronome" : "Hear the metronome"}
-      className={`!px-2 ${heard ? "!border-amber-400/60 !bg-amber-500/15 !text-amber-100" : ""}`}
+      title={heard ? "Mute the metronome (it keeps time)" : "Unmute the metronome"}
+      aria-label={heard ? "Mute the metronome" : "Unmute the metronome"}
+      className={`!px-2 ${heard ? "" : "!border-amber-400/60 !text-amber-200"}`}
     >
       <span className="flex h-4 items-center gap-0.5">
         <Icon name="metronome" size={14} />
-        {!heard && <Icon name="volume-x" size={12} />}
+        <Icon name={heard ? "volume-2" : "volume-x"} size={14} />
       </span>
     </Button>
   );
