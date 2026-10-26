@@ -14,6 +14,7 @@ import { canFullscreen, enterFullscreen, exitFullscreen, isFullscreen, onFullscr
 import SingingStaff from "./SingingStaff";
 import MelodyFeed from "./MelodyFeed";
 import MelodyFocus from "./MelodyFocus";
+import { DOT_LAG_MS } from "./MelodyStaff";
 import MicButton from "./MicButton";
 import { panel, writeQuery } from "@/components/practice/shared";
 
@@ -28,6 +29,10 @@ const RESTS = [0, 1, 2, 3, 4];
 const VOICE_KEY = "singing.range";
 /** where the accuracy picked last is kept, in cents */
 const ACCURACY_KEY = "singing.accuracy";
+/** where the play-ahead picked last is kept, in ms (a testing knob: how far the bar runs ahead of the voice dot) */
+const LAG_KEY = "singing.lag";
+const MAX_LAG_MS = 1000;
+const savedLag = (v: unknown): number | null => (typeof v === "number" && v >= 0 && v <= MAX_LAG_MS ? v : null);
 type Tab = "scales" | "melodies";
 const TABS: { id: Tab; label: string }[] = [{ id: "scales", label: "Scales" }, { id: "melodies", label: "Melodies" }];
 
@@ -47,22 +52,37 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
   const [voice, setVoice] = useState<Voice>("soprano");
   // how close counts as on the note
   const [cents, setCents] = useState<number>(IN_TUNE_CENTS);
+  // how far the bar runs ahead of the voice dot on a melody
+  const [lagMs, setLagMs] = useState(DOT_LAG_MS);
   // the last voice and accuracy come back after hydration; a pick is kept as it is made
   useEffect(() => {
     let saved: Voice | null = null;
     let accuracy: number | null = null;
+    let lag: number | null = null;
     try {
       saved = savedVoice(JSON.parse(window.localStorage.getItem(VOICE_KEY) ?? "null"));
       accuracy = savedAccuracy(JSON.parse(window.localStorage.getItem(ACCURACY_KEY) ?? "null"));
+      lag = savedLag(JSON.parse(window.localStorage.getItem(LAG_KEY) ?? "null"));
     } catch { /* storage blocked */ }
     // eslint-disable-next-line react-hooks/set-state-in-effect -- restoring the saved picks after hydration
     if (saved) setVoice(saved);
     if (accuracy !== null) setCents(accuracy);
+    if (lag !== null) setLagMs(lag);
   }, []);
   const pickAccuracy = (c: number) => {
     setCents(c);
     try { window.localStorage.setItem(ACCURACY_KEY, JSON.stringify(c)); } catch { /* storage blocked */ }
   };
+  const pickLag = (ms: number) => {
+    setLagMs(ms);
+    try { window.localStorage.setItem(LAG_KEY, JSON.stringify(ms)); } catch { /* storage blocked */ }
+  };
+  const lagSlider = (
+    <>
+      <Slider min={0} max={MAX_LAG_MS} step={10} value={lagMs} onChange={pickLag} size="sm" className="w-40" aria-label="Play-ahead" />
+      <span className="whitespace-nowrap pl-1 text-xs tabular-nums text-slate-500">{lagMs} ms</span>
+    </>
+  );
   const pickVoice = (v: Voice) => {
     setVoice(v);
     try { window.localStorage.setItem(VOICE_KEY, JSON.stringify(v)); } catch { /* storage blocked */ }
@@ -296,10 +316,13 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
                   ))}
                 </BarRow>
               ) : (
-                <BarRow label="Difficulty">
-                  {DIFFICULTIES.map((d, i) => <Chip key={d.title} on={level === i} onClick={() => filter(i)} title={d.hint}>{d.title}</Chip>)}
-                  <Chip on={level === "all"} onClick={() => filter("all")}>All</Chip>
-                </BarRow>
+                <>
+                  <BarRow label="Difficulty">
+                    {DIFFICULTIES.map((d, i) => <Chip key={d.title} on={level === i} onClick={() => filter(i)} title={d.hint}>{d.title}</Chip>)}
+                    <Chip on={level === "all"} onClick={() => filter("all")}>All</Chip>
+                  </BarRow>
+                  <BarRow label="Play-ahead">{lagSlider}</BarRow>
+                </>
               )}
             </>,
           }} />
@@ -332,6 +355,7 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
               gridBeats={gridBeats}
               mic={mic}
               cents={cents}
+              lagMs={lagMs}
               onPick={(t) => setActive(t.n)}
               onSing={(t) => {
                 // the mic on the card being sung toggles it; on another card it moves the singing there and listens
@@ -374,6 +398,7 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
             tapped: tapped?.n === focused.n ? tapped.i : null,
             onNote: (i) => void tapTune(focused, i),
             cents,
+            lagMs,
           }}
           bpm={pocket?.bpm ?? FALLBACK_BPM}
           mic={mic}
@@ -405,6 +430,10 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
               <span className="uppercase tracking-wider text-slate-500">Voice</span>
               {(Object.keys(VOICES) as Voice[]).map((v) => <Chip key={v} on={v === voice} onClick={() => pickVoice(v)} title={`${midiToName(VOICES[v].low)} to ${midiToName(VOICES[v].high)}`}>{VOICES[v].label}</Chip>)}
             </span>
+            <label className="flex items-center gap-2">
+              <span className="uppercase tracking-wider text-slate-500">Play-ahead</span>
+              {lagSlider}
+            </label>
           </>}
           onClose={closeFocus}
         />

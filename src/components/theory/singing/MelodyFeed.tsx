@@ -18,7 +18,7 @@ const PAGE = 6;
  * and a play button. More cards are drawn as the end of the list comes into view. The `active` card is the one being
  * sung (the last one picked, played or tapped): only it runs the bar and shows the voice. A click anywhere on a card picks it.
  */
-export default function MelodyFeed({ tunes, place, ladder, clef, pitch, beatMs, bpm, active, playing, playFrom, gridBeats, tapped, mic, cents, heard, onHear, onPick, onSing, onPlay, onStop, onRestart, onNote, onFocus, linkTo, reveal }: {
+export default function MelodyFeed({ tunes, place, ladder, clef, pitch, beatMs, bpm, active, playing, playFrom, gridBeats, tapped, mic, cents, lagMs, heard, onHear, onPick, onSing, onPlay, onStop, onRestart, onNote, onFocus, linkTo, reveal }: {
   tunes: BookTune[];
   place: (t: BookTune) => PlacedNote[];
   ladder: Ladder;
@@ -36,6 +36,8 @@ export default function MelodyFeed({ tunes, place, ladder, clef, pitch, beatMs, 
   mic: boolean;
   /** within this many cents counts as on the note */
   cents: number;
+  /** how far the voice dot runs behind the bar */
+  lagMs: number;
   /** the metronome is heard (else muted, still keeping time) */
   heard: boolean;
   onHear: (on: boolean) => void;
@@ -123,6 +125,7 @@ export default function MelodyFeed({ tunes, place, ladder, clef, pitch, beatMs, 
                   tapped={tapped?.n === t.n ? tapped.i : null}
                   onNote={(i) => onNote(t, i)}
                   cents={cents}
+                  lagMs={lagMs}
                 />
               </div>
             </li>

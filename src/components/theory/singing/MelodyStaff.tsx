@@ -14,7 +14,7 @@ import type { PlacedNote } from "@/features/theory/singingMelodies";
  * Do), spaced by time, and a dot for the voice. The dot rides up and down with the pitch (placed against the scale's
  * ladder, so it sits on a notehead when in tune) and along with a bar that always runs, looping the melody at `beatMs`
  * a beat on the metronome's count while it runs (`gridBeats`: the tune's beat 1 on the click's), from `playFrom` (when
- * the melody's first beat sounds) when it is played without one, else on its own. The dot trails the bar by `DOT_LAG_MS`, so
+ * the melody's first beat sounds) when it is played without one, else on its own. The dot trails the bar by `lagMs`, so
  * a note is heard before it is sung against: green on the note under it, red on another note, amber between notes, and the
  * note under the bar is lit in sky.
  * Every note is a button (`onNote`); `tapped` is one just tapped. A long melody on a phone slides with the bar.
@@ -39,7 +39,7 @@ const LABELS_H = 36;
 const TAIL_MS = 380;
 const SILENCE_MS = 220;
 /** the voice dot runs this far behind the bar, so a note is heard before it is sung against */
-const DOT_LAG_MS = 250;
+export const DOT_LAG_MS = 250;
 /** beats of the end drawn again before the first bar */
 const LEAD = BEATS_PER_BAR / 2;
 const GHOST_OPACITY = 0.45;
@@ -64,7 +64,7 @@ const STILL: View = { dot: null, cam: 0, tail: [], lastHeard: -Infinity, now: 0,
 /** The note sounding at a beat, or -1 before the first. */
 const noteAt = (notes: StaffNote[], beat: number) => notes.findLastIndex((n) => n.at <= beat);
 
-export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom, beatMs, gridBeats, tapped, onNote, scale = 1, follow = false, cents = IN_TUNE_CENTS }: {
+export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom, beatMs, gridBeats, tapped, onNote, scale = 1, follow = false, cents = IN_TUNE_CENTS, lagMs = DOT_LAG_MS }: {
   notes: StaffNote[];
   live: boolean;
   /** the scale in the singer's range, low to high: the dot's height is read off it */
@@ -83,6 +83,8 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
   follow?: boolean;
   /** within this many cents counts as on the note */
   cents?: number;
+  /** how far the dot runs behind the bar */
+  lagMs?: number;
 }) {
   const wrap = useRef<HTMLDivElement>(null);
   const id = useId().replace(/[^\w-]/g, "");
@@ -159,7 +161,7 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
       const run = (now - anchor.current) / beatMs;
       const beat = ((run % total) + total) % total;
       a.beat = shown(beat);
-      const loopX = (((run - DOT_LAG_MS / beatMs) % total) + total) % total;
+      const loopX = (((run - lagMs / beatMs) % total) + total) % total;
       const x = shown(loopX);
       // a new pass starts the tail afresh
       if (a.dot && x < a.dot.x - total / 2) a.tail = [];
@@ -189,7 +191,7 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
     return () => cancelAnimationFrame(raf);
     // the geometry is rebuilt from the melody and the width; the loop restarts with it
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [live, notes, ladder, clef, beatW, maxCam, room, beatMs, follow, cents]);
+  }, [live, notes, ladder, clef, beatW, maxCam, room, beatMs, follow, cents, lagMs]);
 
   // a new melody starts at the left, its bar from the top
   useEffect(() => {
