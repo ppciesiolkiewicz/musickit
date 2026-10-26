@@ -12,7 +12,7 @@ import { ClickButton, RestartButton, ShareButton } from "./MelodyControls";
 const scaleFor = (h: number) => Math.max(1.2, Math.min(2.4, h / 380));
 
 /**
- * One melody over the whole screen (the browser's full screen where it allows it), drawn big and following the bar, with
+ * One melody over the whole page (a modal, not the browser's full screen), drawn big and following the bar, with
  * the dot's distance to the note due, the restart and metronome buttons of a card and the page's settings that matter while
  * singing. Previous and next step through the tunes listed (or ← and →, unless a slider has them); Esc closes it.
  */

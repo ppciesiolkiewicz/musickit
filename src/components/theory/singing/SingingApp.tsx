@@ -10,7 +10,6 @@ import { MAX_BPM, MIN_BPM, type PocketStatus } from "@/features/instruments";
 import { ACCURACIES, IN_TUNE_CENTS, VOICES, buildLadder, clefFor, hzToMidi, savedAccuracy, savedVoice, scaleRun, withNotesUnder, type Voice } from "@/features/theory/singing";
 import { BOOK, DIFFICULTIES, placeTune, type BookTune, type PlacedNote } from "@/features/theory/singingMelodies";
 import { singingQuery, type SingingLink } from "@/features/theory/singingLink";
-import { canFullscreen, enterFullscreen, exitFullscreen, isFullscreen, onFullscreenChange } from "@/lib/fullscreen";
 import SingingStaff from "./SingingStaff";
 import MelodyFeed from "./MelodyFeed";
 import MelodyFocus from "./MelodyFocus";
@@ -43,7 +42,8 @@ const TABS: { id: Tab; label: string }[] = [{ id: "scales", label: "Scales" }, {
  * tab does the same with the melody book: written tunes in the key that end on a whole-note Do, in book order, filtered by
  * difficulty; on the tune picked (or last played or tapped) a bar runs on the metronome's count and the dot sings along it, a
  * moment behind. The metronome runs muted from the first press on the page; playing a tune starts it over on the tune's beat 1.
- * The address keeps the key, the scale and the tune being sung, so a copied link (or a card's share button) opens the same.
+ * The address keeps the key, the scale and the tune being sung (and whether it is open full screen), so a copied link (or a
+ * card's share button, which always opens full screen) opens the same.
  */
 export default function SingingApp({ initial }: { initial: SingingLink }) {
   const linked = BOOK.find((t) => t.n === initial.melody);
@@ -94,9 +94,14 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
   // under its own difficulty
   const [active, setActive] = useState(linked?.n ?? 1);
   const [level, setLevel] = useState<number | "all">(linked?.difficulty ?? 0);
-  useEffect(() => writeQuery(singingQuery({ tonicPc, scale, melody: tab === "melodies" ? active : null })), [tonicPc, scale, tab, active]);
-  // a link to a tune in this key and scale, for its share button
-  const linkTo = (t: BookTune) => `${window.location.origin}${window.location.pathname}?${singingQuery({ tonicPc, scale, melody: t.n })}`;
+  // one melody full screen, in the page (not the browser's full screen); a shared link opens its tune this way
+  const [focus, setFocus] = useState(!!linked && initial.full);
+  useEffect(
+    () => writeQuery(singingQuery({ tonicPc, scale, melody: tab === "melodies" ? active : null, full: focus })),
+    [tonicPc, scale, tab, active, focus],
+  );
+  // a link to a tune in this key and scale, opening full screen, for its share button
+  const linkTo = (t: BookTune) => `${window.location.origin}${window.location.pathname}?${singingQuery({ tonicPc, scale, melody: t.n, full: true })}`;
   const [mic, setMic] = useState(false);
   const [pocket, setPocket] = useState<PocketStatus | null>(null);
   const clef = clefFor(range);
@@ -246,21 +251,11 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
     timers.current.push(setTimeout(() => setPlayed((p) => (p === i ? null : p)), TAP_MS));
   };
 
-  // one melody full screen (the browser's too where it allows it); leaving the browser's full screen closes it
-  const [focus, setFocus] = useState(false);
   const openFocus = (t: BookTune) => {
     setActive(t.n);
     setFocus(true);
-    if (canFullscreen()) enterFullscreen();
   };
-  const closeFocus = useCallback(() => {
-    setFocus(false);
-    exitFullscreen();
-  }, []);
-  useEffect(() => {
-    if (!focus) return;
-    return onFullscreenChange(() => !isFullscreen() && setFocus(false));
-  }, [focus]);
+  const closeFocus = useCallback(() => setFocus(false), []);
   // previous and next step through the tunes listed; a tune playing stops
   const at = tunes.findIndex((t) => t.n === active);
   const step = useCallback((d: number) => {
