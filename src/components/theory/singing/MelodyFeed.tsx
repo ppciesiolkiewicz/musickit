@@ -79,8 +79,9 @@ export default function MelodyFeed({ tunes, place, ladder, clef, pitch, beatMs, 
                     ▶ Play · {bpm} bpm
                   </Button>
                   {on && (
-                    <Button size="sm" onClick={onStop} title="Stop the melody" aria-label="Stop the melody">
-                      <Icon name="square" size={12} fill />
+                    <Button size="sm" onClick={onStop} title="Stop the melody" aria-label="Stop the melody" className="!px-2">
+                      {/* a text line's height, so it matches Play */}
+                      <span className="grid h-4 w-4 place-items-center"><Icon name="square" size={12} fill /></span>
                     </Button>
                   )}
                   {live && mic && <span className="text-xs text-emerald-300">Listening</span>}

@@ -273,7 +273,11 @@ export default function SingingApp() {
                 setActive(t.n);
                 if (!mic) toggleMic();
               }}
-              onPlay={(t) => void playTune(t)}
+              onPlay={(t) => {
+                // playing a tune selects it too: the mic listens to it
+                void playTune(t);
+                if (!mic) toggleMic();
+              }}
               onStop={() => silence()}
               onNote={(t, i) => void tapTune(t, i)}
             />
