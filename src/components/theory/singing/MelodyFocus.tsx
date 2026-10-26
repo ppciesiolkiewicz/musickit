@@ -6,7 +6,7 @@ import { Button } from "@/components/ui";
 import { DIFFICULTIES, type BookTune } from "@/features/theory/singingMelodies";
 import MelodyStaff from "./MelodyStaff";
 import MicButton from "./MicButton";
-import { ClickButton, RestartButton } from "./MelodyControls";
+import { ClickButton, RestartButton, ShareButton } from "./MelodyControls";
 
 /** the staff's size for the screen's height: bigger on a tall screen, never under 1.2 times the card's */
 const scaleFor = (h: number) => Math.max(1.2, Math.min(2.4, h / 380));
@@ -16,7 +16,7 @@ const scaleFor = (h: number) => Math.max(1.2, Math.min(2.4, h / 380));
  * the dot's distance to the note due, the restart and metronome buttons of a card and the page's settings that matter while
  * singing. Previous and next step through the tunes listed (or ← and →, unless a slider has them); Esc closes it.
  */
-export default function MelodyFocus({ tune, index, count, staff, bpm, mic, playing, heard, settings, message, onPrev, onNext, onSing, onPlay, onStop, onRestart, onHear, onClose }: {
+export default function MelodyFocus({ tune, index, count, staff, bpm, mic, playing, heard, link, settings, message, onPrev, onNext, onSing, onPlay, onStop, onRestart, onHear, onClose }: {
   tune: BookTune;
   /** its place among the tunes listed, from 0 */
   index: number;
@@ -27,6 +27,8 @@ export default function MelodyFocus({ tune, index, count, staff, bpm, mic, playi
   playing: boolean;
   /** the metronome is heard (else muted, still keeping time) */
   heard: boolean;
+  /** a link to the tune, for the share button */
+  link: () => string;
   /** the page's settings that matter while singing (tempo, accuracy, …), on a line under the buttons */
   settings: ReactNode;
   message: string;
@@ -84,7 +86,9 @@ export default function MelodyFocus({ tune, index, count, staff, bpm, mic, playi
         )}
         <RestartButton onClick={onRestart} />
         <ClickButton heard={heard} onHear={onHear} />
-        <Button size="sm" onClick={onClose} title="Close full screen (Esc)" aria-label="Close full screen" className="ml-auto !px-2">
+        <span className="ml-auto" />
+        <ShareButton link={link} />
+        <Button size="sm" onClick={onClose} title="Close full screen (Esc)" aria-label="Close full screen" className="!px-2">
           <Icon name="minimize" size={16} />
         </Button>
       </div>

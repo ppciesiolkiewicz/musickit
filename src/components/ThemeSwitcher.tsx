@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Icon from "./Icon";
 import { DEFAULT_STYLE, SEEN_KEY, STYLES, THEME_KEY, isStyle, readSaved, styleAfterIntroDismiss, styleById, type StyleId } from "@/features/styles/styles";
+import { canFullscreen, enterFullscreen, exitFullscreen, isFullscreen, onFullscreenChange } from "@/lib/fullscreen";
 
 /** Runs before the first paint (inline in <head>) so a saved style never flashes; anything else keeps the Funk set on <html>. */
 export const THEME_BOOT = `try{var t=localStorage.getItem("${THEME_KEY}");if(${JSON.stringify(STYLES.map((s) => s.id))}.indexOf(t)>=0)document.documentElement.dataset.theme=t}catch(e){}`;
@@ -49,13 +50,7 @@ const subscribe = (cb: () => void) => {
 };
 
 // browser full screen: on while anything is full screen, and only offered where the browser allows it (not iPhone Safari)
-const subscribeFullscreen = (cb: () => void) => {
-  document.addEventListener("fullscreenchange", cb);
-  return () => document.removeEventListener("fullscreenchange", cb);
-};
-const readFullscreen = () => document.fullscreenElement !== null;
-const canFullscreen = () => document.fullscreenEnabled === true;
-const toggleFullscreen = () => (document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen()).catch(() => {});
+const toggleFullscreen = () => (isFullscreen() ? exitFullscreen() : enterFullscreen());
 
 /**
  * The palette button, named after the current music style in that style's own font, and the style picker it opens.
@@ -64,8 +59,8 @@ const toggleFullscreen = () => (document.fullscreenElement ? document.exitFullsc
  */
 export default function ThemeSwitcher({ className = "", compact = false }: { className?: string; /** only the palette on phones, to leave room for a button beside it */ compact?: boolean }) {
   const style = useSyncExternalStore(subscribe, readStyle, () => DEFAULT_STYLE);
-  const fullscreen = useSyncExternalStore(subscribeFullscreen, readFullscreen, () => false);
-  const fullscreenable = useSyncExternalStore(subscribeFullscreen, canFullscreen, () => false);
+  const fullscreen = useSyncExternalStore(onFullscreenChange, isFullscreen, () => false);
+  const fullscreenable = useSyncExternalStore(onFullscreenChange, canFullscreen, () => false);
   // first visit: the picker opens by itself until it has been closed once (the server renders it closed)
   const unseen = useSyncExternalStore(subscribeNever, readUnseen, () => false);
   const [settled, setSettled] = useState(false);

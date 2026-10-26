@@ -8,7 +8,7 @@ import type { Ladder } from "@/features/theory/singing";
 import { DIFFICULTIES, type BookTune, type PlacedNote } from "@/features/theory/singingMelodies";
 import MelodyStaff from "./MelodyStaff";
 import MicButton from "./MicButton";
-import { ClickButton, RestartButton } from "./MelodyControls";
+import { ClickButton, RestartButton, ShareButton } from "./MelodyControls";
 
 /** cards drawn at first, and added each time the end of the list scrolls into view */
 const PAGE = 6;
@@ -18,7 +18,7 @@ const PAGE = 6;
  * and a play button. More cards are drawn as the end of the list comes into view. The `active` card is the one being
  * sung (the last one picked, played or tapped): only it runs the bar and shows the voice. A click anywhere on a card picks it.
  */
-export default function MelodyFeed({ tunes, place, ladder, clef, pitch, beatMs, bpm, active, playing, playFrom, gridBeats, tapped, mic, cents, heard, onHear, onPick, onSing, onPlay, onStop, onRestart, onNote, onFocus }: {
+export default function MelodyFeed({ tunes, place, ladder, clef, pitch, beatMs, bpm, active, playing, playFrom, gridBeats, tapped, mic, cents, heard, onHear, onPick, onSing, onPlay, onStop, onRestart, onNote, onFocus, linkTo, reveal }: {
   tunes: BookTune[];
   place: (t: BookTune) => PlacedNote[];
   ladder: Ladder;
@@ -50,9 +50,17 @@ export default function MelodyFeed({ tunes, place, ladder, clef, pitch, beatMs, 
   onNote: (t: BookTune, i: number) => void;
   /** open the tune full screen */
   onFocus: (t: BookTune) => void;
+  /** a link to the tune, for its share button */
+  linkTo: (t: BookTune) => string;
+  /** a tune to draw and scroll to on arriving (from a link) */
+  reveal: number | null;
 }) {
-  const [shown, setShown] = useState(PAGE);
+  const [shown, setShown] = useState(() => Math.max(PAGE, tunes.findIndex((t) => t.n === reveal) + 1));
   const end = useRef<HTMLDivElement>(null);
+  const [revealed] = useState(reveal);
+  useEffect(() => {
+    if (revealed !== null) document.querySelector(`[data-tune="${revealed}"]`)?.scrollIntoView({ block: "center" });
+  }, [revealed]);
 
   const count = shown;
   // a new observer per count, so one still in view loads the next page straight away
@@ -80,7 +88,7 @@ export default function MelodyFeed({ tunes, place, ladder, clef, pitch, beatMs, 
                   <p className="text-xs text-slate-500">{t.stage.hint}</p>
                 </div>
               )}
-              <div onClick={() => onPick(t)} className={`rounded-xl border p-3 transition ${live ? "border-sky-500/50 bg-slate-900/70" : "cursor-pointer border-slate-800 bg-slate-950/40 hover:border-slate-600"}`}>
+              <div data-tune={t.n} onClick={() => onPick(t)} className={`rounded-xl border p-3 transition ${live ? "border-sky-500/50 bg-slate-900/70" : "cursor-pointer border-slate-800 bg-slate-950/40 hover:border-slate-600"}`}>
                 <div className="mb-1 flex flex-wrap items-center gap-2">
                   <span className="text-xs tabular-nums text-slate-500">#{t.n}</span>
                   <span className="text-xs text-slate-400">{DIFFICULTIES[t.difficulty].title} · {t.length === "short" ? "2 bars" : "4 bars"}</span>
@@ -97,7 +105,9 @@ export default function MelodyFeed({ tunes, place, ladder, clef, pitch, beatMs, 
                   <RestartButton onClick={() => onRestart(t)} />
                   <ClickButton heard={heard} onHear={onHear} />
                   {live && mic && <span className="text-xs text-emerald-300">Listening</span>}
-                  <Button size="sm" onClick={(e) => { e.stopPropagation(); onFocus(t); }} title="Full screen" aria-label="Full screen" className="ml-auto !px-2">
+                  <span className="ml-auto" />
+                  <ShareButton link={() => linkTo(t)} />
+                  <Button size="sm" onClick={(e) => { e.stopPropagation(); onFocus(t); }} title="Full screen" aria-label="Full screen" className="!px-2">
                     <span className="grid h-4 w-4 place-items-center"><Icon name="maximize" size={14} /></span>
                   </Button>
                 </div>

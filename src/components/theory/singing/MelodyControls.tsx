@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Icon from "@/components/Icon";
 import { Button } from "@/components/ui";
 
@@ -8,6 +9,22 @@ export function RestartButton({ onClick }: { onClick: () => void }) {
   return (
     <Button size="sm" onClick={onClick} title="Back to the start (the metronome starts over, nothing plays)" aria-label="Back to the start" className="!px-2">
       <span className="grid h-4 w-4 place-items-center"><Icon name="rotate-ccw" size={14} /></span>
+    </Button>
+  );
+}
+
+/** Copies a link to the tune (in the key and scale shown) and shows a tick for a moment once it is copied. */
+export function ShareButton({ link }: { link: () => string }) {
+  const [copied, setCopied] = useState(false);
+  useEffect(() => {
+    if (!copied) return;
+    const t = setTimeout(() => setCopied(false), 1500);
+    return () => clearTimeout(t);
+  }, [copied]);
+  const copy = () => void navigator.clipboard?.writeText(link()).then(() => setCopied(true)).catch(() => undefined);
+  return (
+    <Button size="sm" onClick={copy} title={copied ? "Link copied" : "Copy a link to this melody"} aria-label={copied ? "Link copied" : "Copy a link to this melody"} className={`!px-2 ${copied ? "!border-emerald-400/60 !text-emerald-200" : ""}`}>
+      <span className="grid h-4 w-4 place-items-center"><Icon name={copied ? "check" : "share-2"} size={14} /></span>
     </Button>
   );
 }

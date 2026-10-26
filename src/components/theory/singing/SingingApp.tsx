@@ -5,16 +5,17 @@ import { BarRow, ScaleSettingsBar, WithSettings } from "@/components/chordKit/Sc
 import { useMicPitch } from "@/components/practice/useMicPitch";
 import { Button, Chip, Slider } from "@/components/ui";
 import { createSmoother, type Pitch } from "@/features/tuner/pitch";
-import { DEFAULT_KEY_PC } from "@/features/theory/theory";
 import { getAudioContext, getSharedPiano, midiToName, onSilence, playSequence, silence, wakeAudio } from "@/features/sound";
 import { MAX_BPM, MIN_BPM, type PocketStatus } from "@/features/instruments";
 import { ACCURACIES, IN_TUNE_CENTS, VOICES, buildLadder, clefFor, hzToMidi, savedAccuracy, savedVoice, scaleRun, withNotesUnder, type Voice } from "@/features/theory/singing";
 import { BOOK, DIFFICULTIES, placeTune, type BookTune, type PlacedNote } from "@/features/theory/singingMelodies";
+import { singingQuery, type SingingLink } from "@/features/theory/singingLink";
+import { canFullscreen, enterFullscreen, exitFullscreen, isFullscreen, onFullscreenChange } from "@/lib/fullscreen";
 import SingingStaff from "./SingingStaff";
 import MelodyFeed from "./MelodyFeed";
 import MelodyFocus from "./MelodyFocus";
 import MicButton from "./MicButton";
-import { panel } from "@/components/practice/shared";
+import { panel, writeQuery } from "@/components/practice/shared";
 
 /** null readings in a row before the voice counts as stopped (about 100 ms), so one dropped frame doesn't break the line */
 const GAP_FRAMES = 6;
@@ -37,10 +38,12 @@ const TABS: { id: Tab; label: string }[] = [{ id: "scales", label: "Scales" }, {
  * tab does the same with the melody book: written tunes in the key that end on a whole-note Do, in book order, filtered by
  * difficulty; on the tune picked (or last played or tapped) a bar runs on the metronome's count and the dot sings along it, a
  * moment behind. The metronome runs muted from the first press on the page; playing a tune starts it over on the tune's beat 1.
+ * The address keeps the key, the scale and the tune being sung, so a copied link (or a card's share button) opens the same.
  */
-export default function SingingApp() {
-  const [tonicPc, setTonicPc] = useState(DEFAULT_KEY_PC);
-  const [scale, setScale] = useState("major-ionian");
+export default function SingingApp({ initial }: { initial: SingingLink }) {
+  const linked = BOOK.find((t) => t.n === initial.melody);
+  const [tonicPc, setTonicPc] = useState(initial.tonicPc);
+  const [scale, setScale] = useState(initial.scale);
   const [voice, setVoice] = useState<Voice>("soprano");
   // how close counts as on the note
   const [cents, setCents] = useState<number>(IN_TUNE_CENTS);
@@ -66,10 +69,14 @@ export default function SingingApp() {
   };
   const range = VOICES[voice];
   const [rest, setRest] = useState(2);
-  const [tab, setTab] = useState<Tab>("scales");
-  // the tune being sung, by number, and the difficulty whose tunes are listed ("all" for the whole book)
-  const [active, setActive] = useState(1);
-  const [level, setLevel] = useState<number | "all">(0);
+  const [tab, setTab] = useState<Tab>(linked ? "melodies" : "scales");
+  // the tune being sung, by number, and the difficulty whose tunes are listed ("all" for the whole book); a linked tune shows
+  // under its own difficulty
+  const [active, setActive] = useState(linked?.n ?? 1);
+  const [level, setLevel] = useState<number | "all">(linked?.difficulty ?? 0);
+  useEffect(() => writeQuery(singingQuery({ tonicPc, scale, melody: tab === "melodies" ? active : null })), [tonicPc, scale, tab, active]);
+  // a link to a tune in this key and scale, for its share button
+  const linkTo = (t: BookTune) => `${window.location.origin}${window.location.pathname}?${singingQuery({ tonicPc, scale, melody: t.n })}`;
   const [mic, setMic] = useState(false);
   const [pocket, setPocket] = useState<PocketStatus | null>(null);
   const clef = clefFor(range);
@@ -224,17 +231,15 @@ export default function SingingApp() {
   const openFocus = (t: BookTune) => {
     setActive(t.n);
     setFocus(true);
-    if (document.fullscreenEnabled && !document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
+    if (canFullscreen()) enterFullscreen();
   };
   const closeFocus = useCallback(() => {
     setFocus(false);
-    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    exitFullscreen();
   }, []);
   useEffect(() => {
     if (!focus) return;
-    const onChange = () => !document.fullscreenElement && setFocus(false);
-    document.addEventListener("fullscreenchange", onChange);
-    return () => document.removeEventListener("fullscreenchange", onChange);
+    return onFullscreenChange(() => !isFullscreen() && setFocus(false));
   }, [focus]);
   // previous and next step through the tunes listed; a tune playing stops
   const at = tunes.findIndex((t) => t.n === active);
@@ -345,6 +350,8 @@ export default function SingingApp() {
               onHear={(on) => pocket?.hear(on)}
               onNote={(t, i) => void tapTune(t, i)}
               onFocus={openFocus}
+              linkTo={linkTo}
+              reveal={linked?.n ?? null}
             />
           ) : (
             <SingingStaff ladder={ladder} clef={clef} pitch={pitch} played={played} onNote={(i) => void tap(i)} cents={cents} />
@@ -383,6 +390,7 @@ export default function SingingApp() {
           onRestart={() => void restartTune(focused)}
           heard={!!pocket?.heard}
           onHear={(on) => pocket?.hear(on)}
+          link={() => linkTo(focused)}
           settings={<>
             <label className="flex items-center gap-2">
               <span className="uppercase tracking-wider text-slate-500">Tempo</span>
