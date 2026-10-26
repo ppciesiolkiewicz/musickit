@@ -208,29 +208,36 @@ export default function SingingApp() {
       <WithSettings
         side={false}
         bar={
-          <ScaleSettingsBar clickAlways tonicPc={tonicPc} onTonic={setTonicPc} scale={scale} onScale={setScale} labels={false} onStatus={setPocket}>
-            <BarRow label="Drill">
-              {TABS.map((t) => <Chip key={t.id} on={tab === t.id} onClick={() => setTab(t.id)}>{t.label}</Chip>)}
-            </BarRow>
-            <BarRow label="Voice">
-              {(Object.keys(VOICES) as Voice[]).map((v) => (
-                <Chip key={v} on={v === voice} onClick={() => pickVoice(v)} title={`${midiToName(VOICES[v].low)} to ${midiToName(VOICES[v].high)}`}>{VOICES[v].label}</Chip>
-              ))}
-              <span className="whitespace-nowrap pl-1 text-xs tabular-nums text-slate-500">{midiToName(range.low)}–{midiToName(range.high)}</span>
-            </BarRow>
-            {tab === "scales" ? (
-              <BarRow label="Top rest">
-                {RESTS.map((n) => (
-                  <Chip key={n} on={n === rest} onClick={() => setRest(n)}>{n === 0 ? "None" : `${n} beat${n > 1 ? "s" : ""}`}</Chip>
+          <ScaleSettingsBar tonicPc={tonicPc} onTonic={setTonicPc} config={{
+            scale: { slug: scale, onPick: setScale },
+            labels: false,
+            pocket: { clickAlways: true, onStatus: setPocket },
+            top: (
+              <BarRow label="Drill">
+                {TABS.map((t) => <Chip key={t.id} on={tab === t.id} onClick={() => setTab(t.id)}>{t.label}</Chip>)}
+              </BarRow>
+            ),
+            rows: <>
+              <BarRow label="Voice">
+                {(Object.keys(VOICES) as Voice[]).map((v) => (
+                  <Chip key={v} on={v === voice} onClick={() => pickVoice(v)} title={`${midiToName(VOICES[v].low)} to ${midiToName(VOICES[v].high)}`}>{VOICES[v].label}</Chip>
                 ))}
+                <span className="whitespace-nowrap pl-1 text-xs tabular-nums text-slate-500">{midiToName(range.low)}–{midiToName(range.high)}</span>
               </BarRow>
-            ) : (
-              <BarRow label="Difficulty">
-                {DIFFICULTIES.map((d, i) => <Chip key={d.title} on={level === i} onClick={() => filter(i)} title={d.hint}>{d.title}</Chip>)}
-                <Chip on={level === "all"} onClick={() => filter("all")}>All</Chip>
-              </BarRow>
-            )}
-          </ScaleSettingsBar>
+              {tab === "scales" ? (
+                <BarRow label="Top rest">
+                  {RESTS.map((n) => (
+                    <Chip key={n} on={n === rest} onClick={() => setRest(n)}>{n === 0 ? "None" : `${n} beat${n > 1 ? "s" : ""}`}</Chip>
+                  ))}
+                </BarRow>
+              ) : (
+                <BarRow label="Difficulty">
+                  {DIFFICULTIES.map((d, i) => <Chip key={d.title} on={level === i} onClick={() => filter(i)} title={d.hint}>{d.title}</Chip>)}
+                  <Chip on={level === "all"} onClick={() => filter("all")}>All</Chip>
+                </BarRow>
+              )}
+            </>,
+          }} />
         }
       >
         <section className={`${panel} flex flex-col gap-3`}>
@@ -267,6 +274,7 @@ export default function SingingApp() {
                 if (!mic) toggleMic();
               }}
               onPlay={(t) => void playTune(t)}
+              onStop={() => silence()}
               onNote={(t, i) => void tapTune(t, i)}
             />
           ) : (

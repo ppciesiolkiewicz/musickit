@@ -68,7 +68,7 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
   const playTune = (tuneId: string) => player.playTimed(melodyTiming(generateMelody(scalePool(60 + ctx.tonic.pc, ctx.steps), ctx.steps)).map((n) => ({ key: `d${n.note.degree}`, midi: n.note.midi, ms: n.ms, velocity: n.velocity })), tuneId);
 
   return (
-    <WithSettings side={syncUrl} bar={<ScaleSettingsBar tonicPc={tonicPc} onTonic={setTonicPc} scale={syncUrl ? slug : undefined} side={syncUrl} />}>
+    <WithSettings side={syncUrl} bar={<ScaleSettingsBar tonicPc={tonicPc} onTonic={setTonicPc} side={syncUrl} config={{ scale: syncUrl ? { slug } : undefined }} />}>
 
       <ColourKey>
         Colour shows the job a note does in the key, not how high it is. The 1st degree (home) is white, the 3rd is amber because it decides major or minor, the 5th is blue, and the 7th is rose. The 2nd, 4th and 6th are teal, lime and violet. A flattened or raised note keeps the colour of its degree, so the ♭3 is still amber, and its label tells you it is flat. The same note has the same colour in every chord.

@@ -119,7 +119,7 @@ function PlayButton({ on, label, onClick }: { on: boolean; label: string; onClic
 function Tool({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div role="group" aria-label={label} className="flex min-w-0 items-center gap-1">
-      <span className="w-12 shrink-0 text-[11px] uppercase tracking-wider text-slate-500 sm:w-16">{label}</span>
+      <span className="w-12 shrink-0 text-[11px] uppercase tracking-wider text-slate-500">{label}</span>
       {children}
     </div>
   );
@@ -143,7 +143,7 @@ function BeatDots({ rig, playing }: { rig: JamRig; playing: boolean }) {
     return () => cancelAnimationFrame(raf);
   }, [rig, playing]);
   return (
-    <span className="hidden w-14 shrink-0 items-center justify-center gap-1 sm:flex" aria-hidden>
+    <span className="hidden w-14 items-center justify-center gap-1 sm:flex" aria-hidden>
       {Array.from({ length: BEATS_PER_BAR }, (_, i) => (
         <span key={i} ref={(el) => { refs.current[i] = el; }} className={`h-2 w-2 rounded-full opacity-30 transition-transform duration-75 ${i === 0 ? "bg-amber-400" : "bg-sky-400"}`} />
       ))}
@@ -289,7 +289,7 @@ export default function PocketTools({ keyPc, className = "", stacked = false, cl
         <MuteButton className={ibtn} name={label.toLowerCase()} muted={v.muted} onMute={(muted) => rig.setLevel(p, { muted })} />
         <Select
           size="sm"
-          className="w-28 shrink-0 sm:w-43"
+          className="w-28 min-w-20 sm:w-43"
           value=""
           onChange={(id) => id && rig.loadPreset(p, id)}
           aria-label={`${label} pattern`}
@@ -315,7 +315,7 @@ export default function PocketTools({ keyPc, className = "", stacked = false, cl
         {anyOn ? "Stop" : "All"}
       </button>
 
-      <div className={`grid min-w-0 flex-1 gap-x-4 gap-y-1.5 ${stacked ? "sm:grid-cols-2 lg:grid-cols-1" : "sm:grid-cols-2 xl:grid-cols-1"}`}>
+      <div className={`grid min-w-0 flex-1 gap-x-3 gap-y-1.5 ${stacked ? "md:grid-cols-2 lg:grid-cols-1" : "md:grid-cols-2 xl:grid-cols-1"}`}>
         <Tool label="Click">
           <PlayButton on={snap.click.on} label="metronome" onClick={toggleClick} />
           <MuteButton className={ibtn} name="metronome" muted={snap.click.muted} onMute={(m) => rig.setClickMuted(m)} />
@@ -346,7 +346,7 @@ export default function PocketTools({ keyPc, className = "", stacked = false, cl
           <button type="button" className={ibtn} disabled={drone.octave <= DRONE_MIN_OCTAVE} onClick={() => rig.setDrone({ octave: drone.octave - 1 })} aria-label="Octave down">−</button>
           <span className="w-12 shrink-0 text-center text-xs tabular-nums text-slate-100" aria-live="polite" title="The drone plays the key's note (another note in the sound panel)">{droneName(drone)}</span>
           <button type="button" className={ibtn} disabled={drone.octave >= DRONE_MAX_OCTAVE} onClick={() => rig.setDrone({ octave: drone.octave + 1 })} aria-label="Octave up">+</button>
-          <Slider min={0} max={1} step={0.01} value={drone.level} onChange={(level) => rig.setDrone({ level })} size="sm" className="hidden w-14 shrink-0 px-1 sm:flex" aria-label="Drone volume" title="Drone volume" />
+          <Slider min={0} max={1} step={0.01} value={drone.level} onChange={(level) => rig.setDrone({ level })} size="sm" className="hidden w-14 px-1 sm:flex" aria-label="Drone volume" title="Drone volume" />
           <Popover label="Drone sound" wide>
             {/* Reset hands back DEFAULT_DRONE: keep the key's note rather than its E */}
             <DroneControls value={drone} onChange={(p) => rig.setDrone(p === DEFAULT_DRONE ? { ...p, root: keyPc } : p)} playing={snap.parts.drone.running} analyser={snap.parts.drone.running ? rig.droneAnalyser() : null}

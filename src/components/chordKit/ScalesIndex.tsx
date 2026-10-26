@@ -129,7 +129,7 @@ export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey
   const pageFor = (f: number, m: number) => MODE_PAGES.find((p) => p.familyIndex === f && p.modeIndex === m)!;
 
   return (
-    <WithSettings side={syncUrl} bar={<ScaleSettingsBar tonicPc={tonicPc} onTonic={setTonicPc} side={syncUrl} />}>
+    <WithSettings side={syncUrl} bar={<ScaleSettingsBar tonicPc={tonicPc} onTonic={setTonicPc} side={syncUrl} config={{ scale: syncUrl ? {} : undefined }} />}>
 
       <ColourKey title="Colour key and how to read the cards">
         Each card is one mode starting on the key you chose. The coloured circles are its seven notes in order: tap one to hear it, or press Play to hear the scale up and back down. The fretboard shows every place the scale falls on the first 12 frets; tap a dot to hear it. Open a mode for its positions on the whole neck: five pentatonic boxes, and the full scale filled into the same five boxes. The small label above each is the scale degree, written against the major scale, so ♭3 means the 3rd is lowered and ♯4 means the 4th is raised. Colour follows the degree: 1 white, 2 teal, 3 amber, 4 lime, 5 blue, 6 violet, 7 rose. Relative major and relative minor are the major and natural minor scales that use exactly the same seven notes.

@@ -103,7 +103,7 @@ export default function PentatonicPage({ slug, initialKey, syncUrl = true }: { s
   const activeTone = p.tones.findIndex((t) => t.key === player.active);
 
   return (
-    <WithSettings side={syncUrl} bar={<ScaleSettingsBar tonicPc={tonicPc} onTonic={setTonicPc} scale={syncUrl ? slug : undefined} side={syncUrl} />}>
+    <WithSettings side={syncUrl} bar={<ScaleSettingsBar tonicPc={tonicPc} onTonic={setTonicPc} side={syncUrl} config={{ scale: syncUrl ? { slug } : undefined }} />}>
       <ColourKey>
         Colour shows the job a note does in the key, not how high it is. A pentatonic keeps the numbers of the seven-note scale it is cut from, so its 5th is the blue 5th even though it is the 4th note it plays. The 1st degree (home) is white, the 3rd amber, the 5th blue and the 7th rose; the 2nd, 4th and 6th are teal, lime and violet. A flattened or raised note keeps the colour of its degree.
       </ColourKey>
