@@ -41,7 +41,14 @@ export type Subject =
   | { kind: "logo" }
   | { kind: "url" }
   | { kind: "camera" }
-  | { kind: "screen" };
+  | { kind: "screen" }
+  /** widget videos only (not in the palette): the tune's notes across a following staff; `beats` is how many fit across, absent = the staff's default 10 */
+  | { kind: "melody"; beats?: number }
+  /** widget videos only (not in the palette): the count-in before a tune */
+  | { kind: "countdown" };
+
+/** How many beats a melody can show across. */
+export const MELODY_BEATS = { min: 2, max: 16 } as const;
 
 export type StudioCommand = "camera-corner" | "camera-full" | "camera-off" | "screen-share" | "screen-corner" | "screen-full" | "screen-stop" | "clear";
 
@@ -231,6 +238,10 @@ export function subjectName(s: Subject): string {
       return "Camera";
     case "screen":
       return "Screen share";
+    case "melody":
+      return "Melody";
+    case "countdown":
+      return "Countdown";
   }
 }
 
@@ -297,6 +308,12 @@ export function sanitiseSubject(raw: unknown, pluginIds: string[]): Subject | nu
     case "camera":
     case "screen":
       return { kind: o.kind };
+    case "melody": {
+      const beats = o.beats;
+      return typeof beats === "number" && Number.isInteger(beats) && beats >= MELODY_BEATS.min && beats <= MELODY_BEATS.max ? { kind: "melody", beats } : { kind: "melody" };
+    }
+    case "countdown":
+      return { kind: "countdown" };
     default:
       return null;
   }

@@ -18,7 +18,7 @@ import PositionWidget from "./PositionWidget";
 import SectionWidget from "./SectionWidget";
 
 /** design width each kind is laid out at before it is scaled into its rect */
-const WIDTH: Record<Subject["kind"], number> = { chord: 240, plugin: 640, position: 980, band: 360, section: 760, bubble: 900, neck: 980, caged: 1100, key: 760, tuner: 520, mic: 360, logo: 300, url: 520, camera: 0, screen: 0 };
+const WIDTH: Record<Subject["kind"], number> = { chord: 240, plugin: 640, position: 980, band: 360, section: 760, bubble: 900, neck: 980, caged: 1100, key: 760, tuner: 520, mic: 360, logo: 300, url: 520, camera: 0, screen: 0, melody: 1200, countdown: 600 };
 /** a cheatsheet page in full is laid out as wide as on the site */
 const FULL_WIDTH = 1200;
 
@@ -114,6 +114,10 @@ export default function StageWidget({ subject, onSubjectChange, stageKey, onStag
         </div>
       );
       break;
+    // drawn by the widget video renderer
+    case "melody":
+    case "countdown":
+      return null;
   }
   // the CAGED map runs the whole neck: wider than one box, so its shape names fit over their colours
   const width = subject.kind === "caged" && subject.shape === null ? 1400 : subject.kind === "plugin" && subject.full ? FULL_WIDTH : WIDTH[subject.kind];

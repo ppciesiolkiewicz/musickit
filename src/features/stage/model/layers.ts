@@ -190,6 +190,10 @@ function baseRect(s: Subject): FrameRect {
       return CAMERA_CORNER;
     case "screen":
       return FULL;
+    case "melody":
+      return { x: 0.05, y: 0.25, w: 0.9, h: 0.5 };
+    case "countdown":
+      return { x: 0.3, y: 0.05, w: 0.4, h: 0.18 };
   }
 }
 
