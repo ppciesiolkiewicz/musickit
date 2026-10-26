@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { EMPTY_KEY } from "@/features/creator/model/key";
 import { groupResults, paletteCatalog, searchPalette } from "./search";
-import { followMaster, keyOf, pinAgainst, sanitiseSubject, subjectIdentity, subjectTitle, withKey, withMaster, withOwnKey, type Subject } from "./subject";
+import { followMaster, isControl, keyOf, pinAgainst, sanitiseSubject, subjectIdentity, subjectTitle, withKey, withMaster, withOwnKey, type Subject } from "./subject";
 
 const ids = ["scale", "chords", "circle", "keys", "progressions", "modes", "triads", "caged", "arpeggios", "improv", "tunings"];
 const E_MINOR = { tonicPc: 4, family: 0, mode: 5 };
@@ -230,6 +230,10 @@ test("subject titles name the widget and its scale, not the master's root", () =
   assert.equal(subjectTitle({ kind: "bubble", key: E_MINOR, degree: 1 }), "Sus & extensions · ii° · Aeolian");
   assert.equal(subjectTitle({ kind: "key" }), "Key & scale");
   assert.equal(subjectTitle({ kind: "tuner" }), "Tuner");
+});
+
+test("Key & scale, the metronome and the tuner are controls; the rest are not", () => {
+  assert.deepEqual(paletteCatalog(ids, E_MINOR).flatMap((r) => (r.action.type === "add" && isControl(r.action.subject) ? [r.label] : [])), ["Key & scale", "Metronome", "Tuner"]);
 });
 
 test("identity ignores the key, so a ticked row stays ticked when the widget's key changes", () => {

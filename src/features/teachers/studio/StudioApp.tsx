@@ -3,11 +3,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Icon from "@/components/Icon";
 import { PLUGINS } from "@/features/creator";
-import { CameraLayer, DEFAULT_VIEW, NUDGE, NUDGE_BIG, ScreenLayer, StageFrame, StageWidget, mediaState, shortcutFor, stageCommand, subjectTitle, toggleFull, type Layer, type PaletteResult, type StudioCommand, type Subject } from "@/features/stage";
+import { CameraLayer, DEFAULT_VIEW, NUDGE, NUDGE_BIG, ScreenLayer, StageFrame, StageWidget, mediaState, isControl, shortcutFor, stageCommand, subjectTitle, toggleFull, type Layer, type PaletteResult, type StudioCommand, type Subject } from "@/features/stage";
 import { isStudioSupported } from "./browserSupport";
 import KeysPanel, { KeysOverlay } from "./KeysPanel";
 import useCamera from "./media/useCamera";
 import useScreenShare from "./media/useScreenShare";
+import ControlBadge from "./ControlBadge";
 import Palette from "./Palette";
 import useStage from "./useStage";
 
@@ -185,8 +186,9 @@ export default function StudioApp() {
           {[...stage.layers].reverse().map((l) => (
             <li key={l.id}>
               <div className={`flex items-center gap-1 rounded-md border px-2 py-1 text-sm ${stage.selected === l.id ? "border-sky-500/60 bg-sky-500/10 text-sky-100" : "border-slate-800 text-slate-300"}`}>
-                <button type="button" className={`min-w-0 flex-1 truncate text-left ${l.visible ? "" : "opacity-50"}`} onClick={() => dispatch({ type: "select", id: l.id })}>
-                  {subjectTitle(l.subject)}
+                <button type="button" className={`flex min-w-0 flex-1 items-center gap-1.5 text-left ${l.visible ? "" : "opacity-50"}`} onClick={() => dispatch({ type: "select", id: l.id })}>
+                  <span className="truncate">{subjectTitle(l.subject)}</span>
+                  {isControl(l.subject) && <ControlBadge />}
                 </button>
                 <button type="button" title={l.visible ? "Hide" : "Show"} onClick={() => dispatch({ type: "toggle", id: l.id })} className="p-0.5 text-slate-400 hover:text-slate-100">
                   <Icon name="eye" size={14} />

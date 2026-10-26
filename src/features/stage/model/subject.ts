@@ -142,6 +142,9 @@ export function pinAgainst(s: Subject, master: KeyChoice): Subject {
   return pins.length ? { ...s, pinned: pins } : s;
 }
 
+/** A control rather than something to look at: it sets or plays something for the lesson (the master key, the metronome, the tuner). */
+export const isControl = (s: Subject): boolean => s.kind === "key" || s.kind === "band" || s.kind === "tuner";
+
 /** Which widget a subject is, whatever its key: the palette ticks a row when a widget with the same identity is on the stage. */
 export function subjectIdentity(s: Subject): string {
   if (!isKeyed(s)) return JSON.stringify(s);

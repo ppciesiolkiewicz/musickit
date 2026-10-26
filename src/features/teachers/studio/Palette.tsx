@@ -4,7 +4,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Icon from "@/components/Icon";
 import type { KeyChoice } from "@/features/creator";
-import { PALETTE_GROUPS, groupResults, paletteCatalog, searchPalette, subjectIdentity, type Layer, type MediaState, type PaletteResult } from "@/features/stage";
+import ControlBadge from "./ControlBadge";
+import { PALETTE_GROUPS, groupResults, isControl, paletteCatalog, searchPalette, subjectIdentity, type Layer, type MediaState, type PaletteResult } from "@/features/stage";
 
 type Row = { kind: "group"; name: string } | { kind: "sub"; name: string } | { kind: "result"; result: PaletteResult; index: number };
 
@@ -136,7 +137,10 @@ export default function Palette({ pluginIds, stageKey, media, layers, onPick, on
                   ) : (
                     <span aria-hidden className="grid h-4 w-4 shrink-0 place-items-center text-slate-500"><Icon name="chevron-right" size={12} /></span>
                   )}
-                  <span className="min-w-0 flex-1 truncate">{r.label}</span>
+                  <span className="flex min-w-0 flex-1 items-center gap-1.5">
+                    <span className="truncate">{r.label}</span>
+                    {r.action.type === "add" && isControl(r.action.subject) && <ControlBadge />}
+                  </span>
                   {r.detail && <span className="shrink-0 truncate text-xs text-slate-500">{r.detail}</span>}
                 </button>
               </li>
