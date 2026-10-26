@@ -2,6 +2,7 @@ import { buildArpeggio, type Arpeggio } from "./arpeggios";
 import type { RootString, Shape } from "./shapes";
 import { OPEN_MIDI, OPEN_NOTE, RICH_SHAPES, ROOT_INDEX, rootFretFor, type RichShape } from "./shapeTools";
 import { degreeLabel, makeKeyContext, type KeyContext } from "@/features/theory/theory";
+import { shapesForChord } from "./chordShapes";
 
 /**
  * The CAGED system: five open chord shapes (C, A, G, E, D) that can each be slid up the neck as a barre chord.
@@ -77,14 +78,26 @@ export function cagedBoxes(rootPc: number, quality: CagedQuality): CagedBox[] {
     const lo = fretted.length ? Math.min(...fretted) : 0;
     const hi = Math.max(...played);
     const shape: Shape = { rs: def.rs, suf: quality === "minor" ? "m" : "", fam: quality, ext: "triad", f: def.f, tags: [], exp: quality === "minor" ? [0, 3, 7] : [0, 4, 7] };
+    const from = Math.max(0, (played.includes(0) ? 0 : lo) - 1);
+    let to = Math.min(NECK_END, hi + 1);
+    // open boxes can't reach below the nut, so they can skip a chord tone going up (E shape: Do Sol Do, no Mi); widen until the arpeggio runs unbroken
+    for (let n = 0; n < 2 && to < NECK_END && arpGaps(ctx, from, to); n++) to++;
     return {
-      letter: def.letter, quality, shape, rootFret: rf, frets, lo, hi,
-      from: Math.max(0, (played.includes(0) ? 0 : lo) - 1),
-      to: Math.min(NECK_END, hi + 1),
+      letter: def.letter, quality, shape, rootFret: rf, frets, lo, hi, from, to,
       chordName: ctx.names[0] + shape.suf,
     };
   });
   return boxes.sort((a, b) => a.lo - b.lo || a.hi - b.hi);
+}
+
+/** Whether the 7th arpeggio (and so the triad) skips a chord tone going up in pitch through frets from..to. */
+function arpGaps(ctx: KeyContext, from: number, to: number): boolean {
+  const pcs = new Set(boxArpeggio(ctx, "seventh").notes.map((n) => n.pc));
+  const midis = new Set<number>();
+  for (let s = 0; s < 6; s++) for (let f = from; f <= to; f++) if (pcs.has((OPEN_MIDI[s] + f) % 12)) midis.add(OPEN_MIDI[s] + f);
+  const lo = Math.min(...midis), hi = Math.max(...midis);
+  for (let m = lo; m <= hi; m++) if (pcs.has(m % 12) && !midis.has(m)) return true;
+  return false;
 }
 
 /** One position on the neck inside a box, with everything we know about it. */
@@ -217,4 +230,30 @@ export function laneStarts(strings: number[][], lanes: number, neckEnd = NECK_EN
     const m = xs.length >> 1;
     return xs.length % 2 ? xs[m] : Math.round((xs[m - 1] + xs[m]) / 2);
   });
+}
+
+export interface BoxScaleChord extends BoxChord {
+  degree: number;
+  /** Roman numeral in the key: "ii", "V", "vii°" */
+  roman: string;
+}
+/** The other chords of the key (ii, iii, IV ... not the I) with a shape that sits inside the box, the easiest one per degree. */
+export function boxScaleChords(rootPc: number, quality: CagedQuality, box: CagedBox): BoxScaleChord[] {
+  const ctx = cagedContext(rootPc, quality);
+  const out: BoxScaleChord[] = [];
+  ctx.chords.forEach((c, d) => {
+    if (d === 0) return;
+    for (const pick of shapesForChord(ctx, d, ["easy", "medium", "hard"], { fit: "triad" })) {
+      const rf = [pick.fret, pick.fret + 12].find((r) => {
+        const frets = pick.shape.f.filter((v): v is number => v !== null).map((v) => r + v);
+        const fretted = frets.filter((v) => v > 0);
+        // an open string only counts in a box that starts at the nut
+        return fretted.length > 0 && Math.min(...fretted) >= box.from && Math.max(...frets) <= box.to && (box.from === 0 || frets.every((v) => v > 0));
+      });
+      if (rf === undefined) continue;
+      out.push({ shape: pick.shape, rootFret: rf, name: c.triadName, degree: d, roman: c.roman });
+      return;
+    }
+  });
+  return out;
 }

@@ -1,16 +1,14 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import BoxNeck, { type Layers } from "./BoxNeck";
 import { LabelSelect, useLabelSystem } from "@/features/theory/useLabelSystem";
-import { LabelsRow } from "@/components/LabelsRow";
 import { intervalName, noteLabel, type LabelSystem } from "@/features/theory/labels";
 import ChordDiagram from "./ChordDiagram";
-import { KeyPicker } from "./KeyPicker";
 import { fretWidthFactor } from "./Fretboard";
 import { DOT_INK, degreeColour } from "@/features/theory/scales";
 import {
-  CAGED_THEORY, NECK_END, boxArpeggio, boxCells, boxChords, cagedBoxes, cagedContext, ladderMidi, laneAt, laneStarts, layerNotes,
+  CAGED_THEORY, NECK_END, boxArpeggio, boxCells, boxChords, boxScaleChords, cagedBoxes, cagedContext, ladderMidi, laneAt, laneStarts, layerNotes,
   type ArpKind, type CagedBox, type CagedCell, type CagedQuality,
 } from "@/lib/chordKit/caged";
 import { STRING_PLAIN, STRING_SHORT } from "@/lib/chordKit/shapeTools";
@@ -20,19 +18,27 @@ import { playTimed, strum, strumShape } from "@/lib/chordKit/playback";
 import { generateMelody, melodyTiming, scalePool } from "@/lib/chordKit/melody";
 import TuneButton from "./TuneButton";
 import { DEFAULT_KEY_PC } from "@/features/theory/theory";
-import { Chip, ChipRow, Info, Section } from "@/components/ui";
+import { Chip, Info, Section, Select } from "@/components/ui";
+import { BarRow, ScaleSettingsBar, UNDER_BAR, WithSettings } from "./ScaleSettings";
 import { DegreeLegend } from "@/components/theory/DegreeLegend";
 
 const LANE_COLOURS = ["#f43f5e", "#c084fc", "#facc15", "#4ade80", "#60a5fa"];
 const play = "rounded-full border border-emerald-500/70 bg-emerald-500/10 px-2.5 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25";
 
 /** CAGED system: five chord forms, the neck box each one marks out, and the arpeggio, scale and pentatonic inside it. */
-export default function CagedExplorer({ initialRoot = DEFAULT_KEY_PC, initialQuality = "major" }: { initialRoot?: number; initialQuality?: CagedQuality } = {}) {
+export default function CagedExplorer({ initialRoot = DEFAULT_KEY_PC, initialQuality = "major", side = false, children }: {
+  initialRoot?: number; initialQuality?: CagedQuality;
+  /** the settings as a column on the right (the CAGED page); off when embedded, where they float over the top */
+  side?: boolean;
+  /** more of the page, under the boxes and beside the settings */
+  children?: ReactNode;
+} = {}) {
   const [rootPc, setRootPc] = useState(initialRoot);
   const [quality, setQuality] = useState<CagedQuality>(initialQuality);
   const [arpKind, setArpKind] = useState<ArpKind>("triad");
   const [labelSystem] = useLabelSystem();
   const [badges, setBadges] = useState(true);
+  const [selected, setSelected] = useState<number | null>(null);
 
   const th = CAGED_THEORY[quality];
   const ctx = useMemo(() => cagedContext(rootPc, quality), [rootPc, quality]);
@@ -40,41 +46,51 @@ export default function CagedExplorer({ initialRoot = DEFAULT_KEY_PC, initialQua
   const notes = useMemo(() => layerNotes(rootPc, quality, arpKind), [rootPc, quality, arpKind]);
   const keyName = ctx.names[0];
 
+  const bar = (
+    <ScaleSettingsBar tonicPc={rootPc} onTonic={setRootPc} side={side} config={{
+      scale: {
+        name: quality === "major" ? "major" : "minor",
+        picker: (
+          <Select size="sm" className="mr-1" value={quality} onChange={setQuality} aria-label="Major or minor"
+            options={[{ value: "major" as const, label: "Major" }, { value: "minor" as const, label: "Minor" }]} />
+        ),
+      },
+      rows: (
+        <>
+          <BarRow label="Arpeggio" info="Triad uses the three notes of the chord (root, 3rd, 5th). 7th adds the seventh, giving a maj7 chord in major or m7 in minor.">
+            <Chip on={arpKind === "triad"} onClick={() => setArpKind("triad")}>Triad</Chip>
+            <Chip on={arpKind === "seventh"} onClick={() => setArpKind("seventh")}>{quality === "major" ? "Maj7" : "Min7"}</Chip>
+          </BarRow>
+          <BarRow label="Badges" info="With note names as labels, a badge on each dot gives its interval from the root.">
+            <Chip on={badges && labelSystem === "note"} onClick={() => setBadges((v) => !v)}>Intervals</Chip>
+          </BarRow>
+        </>
+      ),
+    }} />
+  );
+
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-2.5 rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5">
-        <KeyPicker tonicPc={rootPc} onTonic={setRootPc} />
-        <ChipRow label="Major / minor" info="CAGED works the same way for major and minor chords. In major you use the C, A, G, E and D chord shapes. In minor you use the minor version of each (Cm, Am, Gm, Em, Dm shapes). The scale and pentatonic change with it: major scale and major pentatonic, or natural minor and minor pentatonic.">
-          <Chip on={quality === "major"} onClick={() => setQuality("major")}>Major</Chip>
-          <Chip on={quality === "minor"} onClick={() => setQuality("minor")}>Minor</Chip>
-        </ChipRow>
-        <ChipRow label="Arpeggio" info="Triad uses the three notes of the chord (root, 3rd, 5th). 7th adds the seventh, giving a maj7 chord in major or m7 in minor.">
-          <Chip on={arpKind === "triad"} onClick={() => setArpKind("triad")}>Triad</Chip>
-          <Chip on={arpKind === "seventh"} onClick={() => setArpKind("seventh")}>{quality === "major" ? "Maj7" : "Min7"}</Chip>
-        </ChipRow>
-        <LabelsRow info="Pick how notes are labelled: note names, intervals from the root (R, b3, p5), scale degrees or chord tones. One setting for the whole app. The colour of a dot is its scale degree either way. Badges add the interval on each note-name dot.">
-          <Chip on={badges && labelSystem === "note"} onClick={() => setBadges((v) => !v)}>Badges</Chip>
-        </LabelsRow>
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-          <DegreeLegend />
-          <Info label="What is the CAGED system?">
-            Open chords come in five shapes, named after the chords C, A, G, E and D. Each can be slid up the neck as a barre chord, and each time it lands on the same chord in a different place. Slide all five and they link up in the order C, A, G, E, D, then C again an octave higher, covering the whole neck. Around each chord shape is a box of notes: that is where its arpeggio, scale and pentatonic live. Learn the five boxes and you can play the same key anywhere on the neck.
-          </Info>
-        </div>
+    <WithSettings side={side} bar={bar}>
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-2xl border border-slate-800 bg-slate-900/40 px-3 py-2.5">
+        <DegreeLegend />
+        <Info label="What is the CAGED system?">
+          Open chords come in five shapes, named after the chords C, A, G, E and D. Each can be slid up the neck as a barre chord, and each time it lands on the same chord in a different place. Slide all five and they link up in the order C, A, G, E, D, then C again an octave higher, covering the whole neck. Around each chord shape is a box of notes: that is where its arpeggio, scale and pentatonic live. Learn the five boxes and you can play the same key anywhere on the neck.
+        </Info>
       </div>
 
       <NotesTable rootPc={rootPc} quality={quality} arpKind={arpKind} />
 
       <KeyChords rootPc={rootPc} quality={quality} keyName={keyName} />
 
-      <Overview boxes={boxes} keyName={keyName} quality={quality} rootPc={rootPc} arpKind={arpKind} labelSystem={labelSystem} />
+      <Overview boxes={boxes} keyName={keyName} quality={quality} rootPc={rootPc} arpKind={arpKind} labelSystem={labelSystem} selected={selected} />
 
       <div className="flex flex-col gap-4">
         {boxes.map((box, i) => (
-          <BoxCard key={box.letter} box={box} index={i} rootPc={rootPc} quality={quality} arpKind={arpKind} labelSystem={labelSystem} badges={badges} notes={notes} />
+          <BoxCard key={box.letter} box={box} index={i} rootPc={rootPc} quality={quality} arpKind={arpKind} labelSystem={labelSystem} badges={badges} notes={notes} selected={selected === i} onSelect={() => setSelected((v) => (v === i ? null : i))} />
         ))}
       </div>
-    </div>
+      {children}
+    </WithSettings>
   );
 }
 
@@ -138,14 +154,18 @@ const notesTitle = (kind: ArpKind, q: CagedQuality) => (kind === "triad" ? (q ==
 const STRING_LETTERS = ["E", "A", "D", "G", "B", "e"];
 
 /** The whole neck at a glance: a CSS grid with one column per fret and one row per string. Each CAGED box is a run of columns with its own colour. */
-function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem }: { boxes: CagedBox[]; keyName: string; quality: CagedQuality; rootPc: number; arpKind: ArpKind; labelSystem: LabelSystem }) {
+function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem, selected }: { boxes: CagedBox[]; keyName: string; quality: CagedQuality; rootPc: number; arpKind: ArpKind; labelSystem: LabelSystem; selected: number | null }) {
   const cells = useMemo(() => boxCells(rootPc, quality, { ...boxes[0], from: 0, to: NECK_END }, arpKind).filter((c) => c.arpRole), [boxes, rootPc, quality, arpKind]);
   const lab = (c: CagedCell) => noteLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText, role: c.arpRole });
   const sorted = [...boxes].sort((p, q) => p.from - q.from);
   const frets = Array.from({ length: NECK_END + 1 }, (_, f) => f);
   const cellAt = (s: number, f: number) => cells.find((c) => c.string === s && c.fret === f);
   // Every string is cut into lanes by its own notes: lane k starts at the string's k-th note and runs until the next one (laneAt).
-  const colour = (k: number) => LANE_COLOURS[((k % LANE_COLOURS.length) + LANE_COLOURS.length) % LANE_COLOURS.length];
+  const laneBox = (k: number) => ((k % LANE_COLOURS.length) + LANE_COLOURS.length) % LANE_COLOURS.length;
+  const colour = (k: number) => LANE_COLOURS[laneBox(k)];
+  // a selected box stands out on the map; the others fade back
+  const selLane = selected === null ? -1 : sorted.indexOf(boxes[selected]);
+  const alpha = (k: number) => (selLane < 0 ? "var(--lane-alpha, 26%)" : laneBox(k) === selLane ? "55%" : "8%");
   const rowFrets = useMemo(() => [0, 1, 2, 3, 4, 5].map((s) => cells.filter((c) => c.string === s).map((c) => c.fret).sort((p, q) => p - q)), [cells]);
   const SECTIONS = sorted.length;
   const starts = laneStarts(rowFrets, SECTIONS);
@@ -183,7 +203,7 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem }: { b
               // before a string's first note sits the box that wraps round from below the nut (lane -1)
               const lane = f < (rowFrets[s][0] ?? 0) ? -1 : laneAt(rowFrets[s], f), c = cellAt(s, f);
               const line = "var(--color-slate-400)";
-              const tint = (k: number) => `color-mix(in srgb, ${colour(k)} var(--lane-alpha, 26%), transparent)`;
+              const tint = (k: number) => `color-mix(in srgb, ${colour(k)} ${alpha(k)}, transparent)`;
               // a lane starts under its note: the colour changes halfway across the note's fret, not at its left edge
               const fill = c && rowFrets[s][lane] === f
                 ? `linear-gradient(to right, ${tint(lane - 1)} 50%, ${tint(lane)} 50%)`
@@ -227,13 +247,14 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem }: { b
   );
 }
 
-function BoxCard({ box, index, rootPc, quality, arpKind, labelSystem, badges, notes }: {
-  box: CagedBox; index: number; rootPc: number; quality: CagedQuality; arpKind: ArpKind; labelSystem: LabelSystem; badges: boolean; notes: ReturnType<typeof layerNotes>;
+function BoxCard({ box, index, rootPc, quality, arpKind, labelSystem, badges, notes, selected, onSelect }: {
+  box: CagedBox; index: number; rootPc: number; quality: CagedQuality; arpKind: ArpKind; labelSystem: LabelSystem; badges: boolean; notes: ReturnType<typeof layerNotes>; selected: boolean; onSelect: () => void;
 }) {
   const th = CAGED_THEORY[quality];
   const ctx = useMemo(() => cagedContext(rootPc, quality), [rootPc, quality]);
   const cells = useMemo(() => boxCells(rootPc, quality, box, arpKind), [rootPc, quality, box, arpKind]);
   const related = useMemo(() => boxChords(rootPc, quality, box).filter((c) => c.shape.suf !== box.shape.suf || c.rootFret !== box.rootFret).slice(0, 8), [rootPc, quality, box]);
+  const scaleChords = useMemo(() => boxScaleChords(rootPc, quality, box), [rootPc, quality, box]);
   const [hearing, setHearing] = useState(false);
 
   const hearChord = () => {
@@ -257,9 +278,15 @@ function BoxCard({ box, index, rootPc, quality, arpKind, labelSystem, badges, no
   ];
 
   return (
-    <section id={`box-${box.letter}`} className="bleed scroll-mt-4">
+    <section id={`box-${box.letter}`} className={`bleed ${UNDER_BAR}`}>
       <Section
-        title={<span><span className="mr-2 inline-block rounded px-1.5" style={{ background: LANE_COLOURS[index % 5], color: DOT_INK }}>{box.letter}</span>{box.letter} shape · root on {STRING_PLAIN[box.shape.rs]}</span>}
+        lead={<>
+          <span className="inline-block rounded px-1.5 text-base font-medium" style={{ background: LANE_COLOURS[index % 5], color: DOT_INK }}>{box.letter}</span>
+          <span className="h-5 w-px bg-slate-700" aria-hidden />
+          <Chip on={selected} onClick={onSelect} title="Highlight this box on the neck map">{selected ? "Selected" : "Select"}</Chip>
+          <span className="h-5 w-px bg-slate-700" aria-hidden />
+        </>}
+        title={<>{box.letter} shape · root on {STRING_PLAIN[box.shape.rs]}</>}
         info={<>The {box.letter} shape is the open {box.letter} chord form moved up the neck as a barre chord. Here it gives {box.chordName}. The box of notes around it, frets {box.from} to {box.to}, holds the arpeggio, scale and pentatonic.</>}
         meta={fretText}
         accent={LANE_COLOURS[index % 5]}
@@ -277,6 +304,25 @@ function BoxCard({ box, index, rootPc, quality, arpKind, labelSystem, badges, no
             </div>
           ))}
         </div>
+
+        {scaleChords.length > 0 && (
+          <div className="mt-3">
+            <Section level={2}
+              title={`Chords of ${ctx.names[0]} ${quality} inside this box (${scaleChords.length})`}
+              info="The other chords of the key, each with a shape whose every note falls inside this box, so you can change chord without leaving the position. The Roman numeral is the chord's degree in the key: capitals are major, lower case minor, ° diminished. Tap one to hear it.">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+                {scaleChords.map((c) => (
+                  <div key={c.degree} className="flex flex-col items-center gap-0.5 rounded-xl border border-slate-800 bg-slate-950/50 p-2">
+                    <span className="text-xs text-slate-400">{c.roman}</span>
+                    <span className="text-sm font-medium text-slate-100">{c.name}</span>
+                    <div className="w-24"><ChordDiagram shape={c.shape} rootFret={c.rootFret} onPlay={() => strumShape(c.shape, c.rootFret)} ctx={ctx} /></div>
+                    <span className="text-xs text-slate-500">fret {c.rootFret}</span>
+                  </div>
+                ))}
+              </div>
+            </Section>
+          </div>
+        )}
 
         {related.length > 0 && (
           <div className="mt-3">

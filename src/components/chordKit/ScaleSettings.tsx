@@ -62,6 +62,9 @@ export type SettingsConfig = {
     slug?: string;
     /** pick the scale in place (the singing page) instead of going to its page */
     onPick?: (slug: string) => void;
+    /** the page's own scale picker in place of the full list (CAGED: major or minor), with its name for the header */
+    picker?: ReactNode;
+    name?: string;
   };
   /** the Labels row, on unless false (off where the page writes its own labels); `omit` hides label systems the page can't show */
   labels?: false | { omit?: LabelSystem[] };
@@ -126,7 +129,7 @@ export function ScaleSettingsBar({ tonicPc, onTonic, side = false, config = {} }
   }, [onStatus]);
   const [labels] = useLabelSystem();
   const keyName = TONICS.find((t) => t.pc === tonicPc)?.name;
-  const scaleName = scale ? (MODE_PAGES.find((m) => m.slug === scale) ?? findPentatonic(scale))?.name : undefined;
+  const scaleName = config.scale?.name ?? (scale ? (MODE_PAGES.find((m) => m.slug === scale) ?? findPentatonic(scale))?.name : undefined);
   const labelName = LABEL_SYSTEMS.find((l) => l.id === labels)?.label;
   return (
     // breaks out of the page column to span the window, less a small gutter each side; as a side column it fills the window's height
@@ -165,7 +168,7 @@ export function ScaleSettingsBar({ tonicPc, onTonic, side = false, config = {} }
           {top}
           {/* the scale and its key on one row */}
           <BarRow label={config.scale ? "Scale" : "Key"} info={KEY_INFO}>
-            {config.scale && <ScalePicker slug={scale} tonicPc={tonicPc} onScale={onScale} />}
+            {config.scale && (config.scale.picker ?? <ScalePicker slug={scale} tonicPc={tonicPc} onScale={onScale} />)}
             {TONICS.map((t) => (
               <Chip key={t.pc} on={t.pc === tonicPc} onClick={() => onTonic(t.pc)}>{t.name}</Chip>
             ))}
