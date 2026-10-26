@@ -10,9 +10,11 @@ import { Tuner } from "@/features/tuner";
 import { cagedQualityOf, withOwnKey, type Subject } from "../model/subject";
 import BrandWidget from "./BrandWidget";
 import ChordWidget from "./ChordWidget";
+import CountdownWidget from "./CountdownWidget";
 import FitBox from "./FitBox";
 import KeyTags from "./KeyTags";
 import KeyWidget from "./KeyWidget";
+import MelodyWidget from "./MelodyWidget";
 import MicWidget, { MicContext } from "./MicWidget";
 import PositionWidget from "./PositionWidget";
 import SectionWidget from "./SectionWidget";
@@ -114,10 +116,13 @@ export default function StageWidget({ subject, onSubjectChange, stageKey, onStag
         </div>
       );
       break;
-    // drawn by the widget video renderer
+    // follow a host's timeline (widget videos); nothing without one
     case "melody":
+      body = <MelodyWidget beats={subject.beats} />;
+      break;
     case "countdown":
-      return null;
+      body = <CountdownWidget />;
+      break;
   }
   // the CAGED map runs the whole neck: wider than one box, so its shape names fit over their colours
   const width = subject.kind === "caged" && subject.shape === null ? 1400 : subject.kind === "plugin" && subject.full ? FULL_WIDTH : WIDTH[subject.kind];

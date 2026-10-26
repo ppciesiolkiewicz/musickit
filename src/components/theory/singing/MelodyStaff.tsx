@@ -24,7 +24,7 @@ import type { PlacedNote } from "@/features/theory/singingMelodies";
  * The note expected is the one under the bar, so the next note is due a moment before the dot reaches it. A line at the
  * dot's height joins it to that note's start: ahead of the dot while it is still on its way, behind it (fading back to
  * the start) once it is in.
- * Full screen draws it `scale` times bigger and to `follow` the bar: a few bars across, the bar a third in, and a line
+ * Full screen draws it `scale` times bigger and to `follow` the bar: a few bars across (`followBeats` beats), the bar a third in, and a line
  * from the dot to the note due with how far off it is in cents.
  */
 
@@ -64,7 +64,7 @@ const STILL: View = { dot: null, cam: 0, tail: [], lastHeard: -Infinity, now: 0,
 /** The note sounding at a beat, or -1 before the first. */
 const noteAt = (notes: StaffNote[], beat: number) => notes.findLastIndex((n) => n.at <= beat);
 
-export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom, beatMs, gridBeats, tapped, onNote, scale = 1, follow = false, cents = IN_TUNE_CENTS, lagMs = DOT_LAG_MS }: {
+export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom, beatMs, gridBeats, tapped, onNote, scale = 1, follow = false, followBeats, cents = IN_TUNE_CENTS, lagMs = DOT_LAG_MS }: {
   notes: StaffNote[];
   live: boolean;
   /** the scale in the singer's range, low to high: the dot's height is read off it */
@@ -81,6 +81,8 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
   scale?: number;
   /** a few bars across, sliding with the bar, with the dot's distance to the note due */
   follow?: boolean;
+  /** beats across a following staff (default FOLLOW_BEATS) */
+  followBeats?: number;
   /** within this many cents counts as on the note */
   cents?: number;
   /** how far the dot runs behind the bar */
@@ -115,7 +117,7 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
   const x0 = timeX + 14;
   const room = width - x0 - 12;
   const fits = room / (total + LEAD) >= MIN_BEAT;
-  const beatW = follow ? Math.max(MIN_BEAT, room / FOLLOW_BEATS) : fits ? Math.min(MAX_BEAT, room / (total + LEAD)) : MIN_BEAT;
+  const beatW = follow ? Math.max(MIN_BEAT, room / (followBeats ?? FOLLOW_BEATS)) : fits ? Math.min(MAX_BEAT, room / (total + LEAD)) : MIN_BEAT;
   const span = (total + LEAD) * beatW;
   // a beat of the loop as drawn: its last half bar sits before the first bar
   const shown = (beat: number) => (beat >= total - LEAD ? beat - total : beat);
