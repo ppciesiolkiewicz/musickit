@@ -199,29 +199,19 @@ export default function SingingApp() {
     : status === "denied" ? "Microphone blocked. Allow it in the browser's site settings and try again."
     : status === "insecure" ? "The browser only allows the microphone on a secure (https) page."
     : status === "error" ? "No microphone found."
-    : tab === "melodies" ? (status === "on" ? `Listening on melody #${active}. Sing each note as the bar reaches it: the bar loops in time with the metronome, and the dot turns green on the note under it, red on another.` : "Play a melody or tap its notes to hear it, then press Sing on its card: the mic listens while a bar runs over the tune in time with the metronome.")
+    : tab === "melodies" ? (status === "on" ? `Listening on melody #${active}. Sing each note as the bar reaches it: the bar loops in time with the metronome, and the dot turns green on the note under it, red on another.` : "Play a melody or tap its notes to hear it, then press Select on its card: the mic listens while a bar runs over the tune in time with the metronome.")
     : status === "on" ? "Listening. Sing the scale up from the root: the dot turns green on a note of the scale, red on a note outside it."
     : "Tap a note to hear it, or play the scale up and down on the metronome's tempo. Then press Sing and sing it back.";
 
   return (
     <div className="flex flex-col gap-5">
-      <div role="tablist" aria-label="Singing drills" className="flex flex-wrap gap-1 self-start rounded-xl border border-slate-800 bg-slate-900/60 p-1">
-        {TABS.map((t) => (
-          <button
-            key={t.id}
-            role="tab"
-            aria-selected={tab === t.id}
-            onClick={() => setTab(t.id)}
-            className={`whitespace-nowrap rounded-lg px-3 py-1.5 sm:px-4 text-sm transition ${tab === t.id ? "bg-sky-500/20 text-sky-100" : "text-slate-400 hover:text-slate-200"}`}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
       <WithSettings
         side={false}
         bar={
           <ScaleSettingsBar clickAlways tonicPc={tonicPc} onTonic={setTonicPc} scale={scale} onScale={setScale} labels={false} onStatus={setPocket}>
+            <BarRow label="Drill">
+              {TABS.map((t) => <Chip key={t.id} on={tab === t.id} onClick={() => setTab(t.id)}>{t.label}</Chip>)}
+            </BarRow>
             <BarRow label="Voice">
               {(Object.keys(VOICES) as Voice[]).map((v) => (
                 <Chip key={v} on={v === voice} onClick={() => pickVoice(v)} title={`${midiToName(VOICES[v].low)} to ${midiToName(VOICES[v].high)}`}>{VOICES[v].label}</Chip>

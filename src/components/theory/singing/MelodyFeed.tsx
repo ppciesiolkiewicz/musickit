@@ -71,11 +71,11 @@ export default function MelodyFeed({ tunes, place, ladder, clef, pitch, beatMs, 
                 <div className="mb-1 flex flex-wrap items-center gap-2">
                   <span className="text-xs tabular-nums text-slate-500">#{t.n}</span>
                   <span className="text-xs text-slate-400">{DIFFICULTIES[t.difficulty].title} · {t.length === "short" ? "2 bars" : "4 bars"}</span>
-                  <MicButton on={live && mic} onClick={() => onSing(t)} />
-                  {live && mic && <span className="text-xs text-emerald-300">Listening</span>}
-                  <Button size="sm" onClick={() => onPlay(t)} className={`ml-auto ${on ? "!border-sky-400/70 !bg-sky-500/20 !text-sky-100" : ""}`}>
+                  <MicButton on={live && mic} onClick={() => onSing(t)} offLabel="Select" onLabel="Selected" />
+                  <Button size="sm" onClick={() => onPlay(t)} className={on ? "!border-sky-400/70 !bg-sky-500/20 !text-sky-100" : ""}>
                     ▶ Play · {bpm} bpm
                   </Button>
+                  {live && mic && <span className="text-xs text-emerald-300">Listening</span>}
                 </div>
                 <MelodyStaff
                   notes={place(t)}

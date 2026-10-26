@@ -13,8 +13,8 @@ function Mic({ size = 15 }: { size?: number }) {
   );
 }
 
-/** The mic toggle on the scale and on each melody card: "Sing" with a mic while it's off, green "Stop the mic" while it listens. */
-export default function MicButton({ on, onClick, className = "" }: { on: boolean; onClick: () => void; className?: string }) {
+/** The mic toggle on the scale and on each melody card: "Sing" with a mic while it's off, green "Stop the mic" while it listens (or the card's own words). */
+export default function MicButton({ on, onClick, className = "", offLabel = "Sing", onLabel = "Stop the mic" }: { on: boolean; onClick: () => void; className?: string; offLabel?: string; onLabel?: string }) {
   return (
     <Button
       size="sm"
@@ -24,7 +24,7 @@ export default function MicButton({ on, onClick, className = "" }: { on: boolean
       className={`inline-flex items-center gap-1.5 !border-emerald-400/60 ${on ? "!bg-emerald-500/25 !text-emerald-100" : "!bg-emerald-500/10 !text-emerald-200 hover:!bg-emerald-500/20"} ${className}`}
     >
       <Mic />
-      {on ? "Stop the mic" : "Sing"}
+      {on ? onLabel : offLabel}
     </Button>
   );
 }
