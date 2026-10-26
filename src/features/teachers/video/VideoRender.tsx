@@ -4,9 +4,10 @@ import { flushSync } from "react-dom";
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { PLUGINS } from "@/features/creator";
 import { StageWidget, TimelineContext, type StageTimeline } from "@/features/stage";
-import { preloadInstrument } from "@/features/sound";
+import { preloadInstrument, renderOffline } from "@/features/sound";
 import { FORMATS, FPS, parseVideoConfig, type FormatId, type VideoConfig } from "./model/config";
-import { buildScore, frameCount, momentAt, type Moment, type Score } from "./model/score";
+import { buildScore, frameCount, momentAt, soundOf, type Moment, type Score } from "./model/score";
+import { encodeWav } from "./model/wav";
 
 declare global {
   interface Window {
@@ -26,6 +27,19 @@ const NOOP = () => {};
 
 /** what a change of moment redraws: the tune, and the countdown number; the bar itself runs on `gridBeats` */
 const momentKey = (m: Moment) => `${m.phase}/${m.segment}/${m.phase === "countdown" ? m.left : 0}`;
+
+const SAMPLE_RATE = 48000;
+
+/** The score's piano and clicks as a base64 WAV. */
+async function soundtrack(score: Score): Promise<string> {
+  const sound = soundOf(score);
+  const buf = await renderOffline({ steps: sound.piano, clicks: sound.clicks, durationMs: score.durationMs, sampleRate: SAMPLE_RATE });
+  const wav = encodeWav([buf.getChannelData(0), buf.getChannelData(1)], SAMPLE_RATE);
+  // in chunks: spreading a whole song into fromCharCode overflows the call stack
+  let bin = "";
+  for (let i = 0; i < wav.length; i += 0x8000) bin += String.fromCharCode(...wav.subarray(i, i + 0x8000));
+  return btoa(bin);
+}
 
 /**
  * The page the render script opens: the config's layers at the format's pixel size, following the score. All time comes from
@@ -78,7 +92,7 @@ export default function VideoRender() {
           durationMs: score.durationMs,
           frames: frameCount(score),
           fps: FPS,
-          audio: () => Promise.reject(new Error("audio arrives in Task 6")),
+          audio: () => soundtrack(score),
         };
       },
       (e) => {

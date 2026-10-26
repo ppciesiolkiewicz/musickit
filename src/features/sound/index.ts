@@ -17,6 +17,7 @@ export { createPlayer, type Player, type PlayerOptions, type Voice } from "./eng
 export { midiToHz, midiToName, noteToMidi, type NoteLike } from "./engine/notes";
 export { preloadInstrument } from "./engine/samples";
 export { getSharedPiano, onSilence, playMelody, playSequence, silence, strum, type Step } from "./playback/sequence";
+export { renderOffline, type OfflineClick } from "./playback/offline";
 export { default as Piano, type PianoKeyInfo, type PianoProps } from "./keyboard/Piano";
 export { default as ScalePiano, type ScalePianoProps, type ScalePianoSettings, type ScaleVoice } from "./keyboard/ScalePiano";
 export { SCALES, NOTE_NAMES, KEY_ROWS, MIN_OCTAVE, MAX_OCTAVE, buildKeyMap, clampState as clampScalePiano, scalePitchClasses, type ScalePianoState, type KeyNote } from "./keyboard/scaleKeys";
