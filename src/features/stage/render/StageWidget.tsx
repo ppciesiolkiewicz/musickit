@@ -7,6 +7,7 @@ import { KeyScope, PLUGINS, keyContext, type KeyChoice } from "@/features/creato
 import { PocketTools } from "@/features/instruments";
 import { DEFAULT_KEY_PC } from "@/features/theory/theory";
 import { Tuner } from "@/features/tuner";
+import { melodyDesignWidth } from "../model/melody";
 import { cagedQualityOf, withOwnKey, type Subject } from "../model/subject";
 import BrandWidget from "./BrandWidget";
 import ChordWidget from "./ChordWidget";
@@ -20,7 +21,7 @@ import PositionWidget from "./PositionWidget";
 import SectionWidget from "./SectionWidget";
 
 /** design width each kind is laid out at before it is scaled into its rect */
-const WIDTH: Record<Subject["kind"], number> = { chord: 240, plugin: 640, position: 980, band: 360, section: 760, bubble: 900, neck: 980, caged: 1100, key: 760, tuner: 520, mic: 360, logo: 300, url: 520, camera: 0, screen: 0, melody: 1200, countdown: 600 };
+const WIDTH: Record<Subject["kind"], number> = { chord: 240, plugin: 640, position: 980, band: 360, section: 760, bubble: 900, neck: 980, caged: 1100, key: 760, tuner: 520, mic: 360, logo: 300, url: 520, camera: 0, screen: 0, melody: 0, countdown: 600 };
 /** a cheatsheet page in full is laid out as wide as on the site */
 const FULL_WIDTH = 1200;
 
@@ -125,7 +126,7 @@ export default function StageWidget({ subject, onSubjectChange, stageKey, onStag
       break;
   }
   // the CAGED map runs the whole neck: wider than one box, so its shape names fit over their colours
-  const width = subject.kind === "caged" && subject.shape === null ? 1400 : subject.kind === "plugin" && subject.full ? FULL_WIDTH : WIDTH[subject.kind];
+  const width = subject.kind === "melody" ? melodyDesignWidth(subject.beats) : subject.kind === "caged" && subject.shape === null ? 1400 : subject.kind === "plugin" && subject.full ? FULL_WIDTH : WIDTH[subject.kind];
   return (
     <div className="relative h-full w-full">
       <FitBox width={width} scroll={(subject.kind === "plugin" && !!subject.full) || (subject.kind === "section" && subject.section === "chords")}>{body}</FitBox>

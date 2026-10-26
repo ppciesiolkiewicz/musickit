@@ -1,5 +1,6 @@
 "use client";
 
+import { flushSync } from "react-dom";
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { PLUGINS } from "@/features/creator";
 import { StageWidget, TimelineContext, type StageTimeline } from "@/features/stage";
@@ -118,16 +119,19 @@ function Frame({ job, t0 }: { job: Job; t0: { current: number } }) {
   useEffect(() => {
     let raf = requestAnimationFrame(function tick() {
       const m = momentAt(score, performance.now() - t0.current);
-      setShown((p) => (momentKey(p) === momentKey(m) ? p : m));
+      // committed inside the tick, so the bar (read from the clock) is never drawn with the last frame's tune or count
+      flushSync(() => setShown((p) => (momentKey(p) === momentKey(m) ? p : m)));
       raf = requestAnimationFrame(tick);
     });
     return () => cancelAnimationFrame(raf);
   }, [score, t0]);
 
-  const stageKey = { tonicPc: config.tonicPc, family: 0, mode: 0 };
+  const stageKey = useMemo(() => ({ tonicPc: config.tonicPc, family: 0, mode: 0 }), [config.tonicPc]);
   return (
     // above anything the root layout draws; the frame is exactly the output size
     <div className="app-bg fixed left-0 top-0 z-50 overflow-hidden" style={{ width, height }}>
+      {/* the dev server's indicator is not part of the frame */}
+      <style>{"nextjs-portal { display: none !important; }"}</style>
       <TimelineContext.Provider value={timeline}>
         {config.layers.map((l, i) => {
           const r = rects[l.id];
