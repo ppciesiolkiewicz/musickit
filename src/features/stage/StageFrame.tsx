@@ -259,7 +259,7 @@ export default function StageFrame({
             {card && (
               <button
                 type="button"
-                title={l.onTop ? "Unpin: let other widgets cover it" : "Pin: keep it over the other widgets, and light the notes the microphone hears on it"}
+                title={l.onTop ? "Unpin: let other widgets cover it" : "Pin: keep it over the other widgets, and light the notes the audio input hears on it"}
                 aria-label={l.onTop ? "Unpin" : "Pin"}
                 aria-pressed={!!l.onTop}
                 onClick={() => onAction({ type: "togglePin", id: l.id })}

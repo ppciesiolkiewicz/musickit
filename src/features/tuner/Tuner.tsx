@@ -32,9 +32,19 @@ function loadInput(): InputChoice {
   } catch { return DEFAULT_INPUT; }
 }
 
-/** A tuner. Pick an instrument (and its tuning) or Chromatic, and the input to listen to; the microphone opens only after Start. */
-export default function Tuner() {
-  const [running, setRunning] = useState(false);
+/** An input the host already listens to (the teacher studio's one audio input): its pitch, and Start / Stop for it. */
+export interface ExternalInput {
+  hz: number | null;
+  listening: boolean;
+  onToggle: () => void;
+}
+
+/**
+ * A tuner. Pick an instrument (and its tuning) or Chromatic, and the input to listen to; the microphone opens only after Start.
+ * Given an `external` input, it opens no microphone and has no input picker: it reads that input, and Start / Stop is the host's.
+ */
+export default function Tuner({ external }: { external?: ExternalInput } = {}) {
+  const [ownRunning, setRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [choice, setChoice] = useTunerChoice(STORE, fromQuery);
   const [input, setInput] = useState<InputChoice>(DEFAULT_INPUT);
@@ -45,7 +55,9 @@ export default function Tuner() {
 
   const { instrument, tuning } = resolveChoice(choice);
   const strings = tuning?.strings ?? [];
-  const hz = usePitch(() => analyser.current, instrument.minHz, running);
+  const ownHz = usePitch(() => analyser.current, instrument.minHz, ownRunning && !external);
+  const running = external ? external.listening : ownRunning;
+  const hz = external ? external.hz : ownHz;
 
   const listDevices = useCallback(async () => {
     try {
@@ -146,7 +158,7 @@ export default function Tuner() {
           </div>
         )}
 
-        <button type="button" onClick={running ? () => stop.current?.() : () => start(input)}
+        <button type="button" onClick={external ? external.onToggle : running ? () => stop.current?.() : () => start(input)}
           className={`inline-flex min-w-48 items-center justify-center gap-2 rounded-full border px-6 py-2.5 text-sm font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${running ? "border-rose-500/70 bg-rose-500/15 text-rose-100 hover:bg-rose-500/25" : "border-emerald-500/70 bg-emerald-500/15 text-emerald-100 hover:bg-emerald-500/25"}`}>
           <span aria-hidden className={`h-2 w-2 ${running ? "rounded-sm bg-rose-300" : "rounded-full bg-emerald-300"}`} />
           {running ? "Stop" : "Start tuner"}
@@ -156,7 +168,7 @@ export default function Tuner() {
 
       <aside aria-label="Setup" className="flex flex-col gap-4 rounded-2xl border border-slate-800 bg-slate-900/40 p-4 lg:order-1">
         <TunerSettings choice={choice} onChange={setChoice} />
-        <div className="flex flex-col gap-1.5">
+        {!external && <div className="flex flex-col gap-1.5">
           <span className={label}>Input</span>
           <div className="flex flex-wrap gap-2">
             <Select
@@ -178,7 +190,7 @@ export default function Tuner() {
               />
             )}
           </div>
-        </div>
+        </div>}
       </aside>
     </div>
   );

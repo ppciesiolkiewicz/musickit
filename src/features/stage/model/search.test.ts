@@ -77,9 +77,10 @@ test("metronome and drone find the metronome", () => {
   assert.equal((first("drone", E_MINOR) as Subject).kind, "band");
 });
 
-test("mic and microphone find the microphone", () => {
+test("mic, microphone, guitar and audio find the audio input", () => {
   assert.deepEqual(first("mic"), { kind: "mic" });
   assert.deepEqual(first("microphone"), { kind: "mic" });
+  assert.deepEqual(first("audio input"), { kind: "mic" });
 });
 
 test("tuner finds the tuner; key finds Key & scale", () => {
@@ -235,11 +236,11 @@ test("subject titles name the widget and its scale, not the master's root", () =
   assert.equal(subjectTitle({ kind: "bubble", key: E_MINOR, degree: 1 }), "Sus & extensions · ii° · Aeolian");
   assert.equal(subjectTitle({ kind: "key" }), "Key & scale");
   assert.equal(subjectTitle({ kind: "tuner" }), "Tuner");
-  assert.equal(subjectTitle({ kind: "mic" }), "Microphone");
+  assert.equal(subjectTitle({ kind: "mic" }), "Audio input");
 });
 
-test("Key & scale, the metronome, the tuner and the microphone are controls; the rest are not", () => {
-  assert.deepEqual(paletteCatalog(ids, E_MINOR).flatMap((r) => (r.action.type === "add" && isControl(r.action.subject) ? [r.label] : [])), ["Key & scale", "Metronome", "Tuner", "Microphone"]);
+test("Key & scale, the metronome, the tuner and the audio input are controls; the rest are not", () => {
+  assert.deepEqual(paletteCatalog(ids, E_MINOR).flatMap((r) => (r.action.type === "add" && isControl(r.action.subject) ? [r.label] : [])), ["Key & scale", "Metronome", "Tuner", "Audio input"]);
 });
 
 test("the whole cheatsheet pages, Fretboard positions and Chords in the key are pages; the rest are not", () => {
@@ -286,7 +287,7 @@ test("logo and url are in the catalog and found by name; brand finds both", () =
   assert.equal(subjectTitle({ kind: "logo" }), "Logo");
 });
 
-test("the microphone lights the widgets that draw fretboards and chord boxes", () => {
+test("the audio input lights the widgets that draw fretboards and chord boxes", () => {
   const takers = paletteCatalog(ids, E_MINOR).flatMap((r) => (r.action.type === "add" && takesMic(r.action.subject) ? [r.action.subject] : []));
   for (const kind of ["neck", "position", "bubble"]) assert.ok(takers.some((s) => s.kind === kind), kind);
   assert.ok(takesMic({ kind: "chord", symbol: "E6" }));

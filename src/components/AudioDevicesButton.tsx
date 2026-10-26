@@ -43,9 +43,10 @@ function DeviceList({ icon, title, hint, items, chosen, onPick }: { icon: "mic" 
 
 /**
  * The input and output lists with "Detect devices": the body of the nav's devices menu, and of any page's own devices dialog
- * (the teacher studio's Microphone widget). Lists the devices while shown and follows plugging in and out.
+ * (the teacher studio's Audio input widget, which picks its inputs itself: `inputs` off). Lists the devices while shown and follows
+ * plugging in and out.
  */
-export function AudioDevicesPanel() {
+export function AudioDevicesPanel({ inputs = true }: { inputs?: boolean }) {
   const choice = useSyncExternalStore(subscribeDeviceChoice, readDeviceChoice, serverDeviceChoice);
   const outputs = useSyncExternalStore(subscribeNever, canChooseOutput, () => false);
   const [list, setList] = useState<{ inputs: AudioDevice[]; outputs: AudioDevice[] }>({ inputs: [], outputs: [] });
@@ -82,7 +83,7 @@ export function AudioDevicesPanel() {
   return (
     <>
       <div className="flex flex-col gap-3">
-        <DeviceList icon="mic" title="Input" hint="what the page hears" items={list.inputs} chosen={input} onPick={(d) => setDeviceChoice({ input: d })} />
+        {inputs && <DeviceList icon="mic" title="Input" hint="what the page hears" items={list.inputs} chosen={input} onPick={(d) => setDeviceChoice({ input: d })} />}
         {outputs ? (
           <DeviceList icon="headphones" title="Output" hint="where the sound plays" items={list.outputs} chosen={output} onPick={(d) => setDeviceChoice({ output: d })} />
         ) : (

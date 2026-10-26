@@ -11,5 +11,5 @@ export { createDetector } from "./detector";
 export { default as Needle } from "./Needle";
 export { default as TunerMeter, readingColour } from "./TunerMeter";
 export { usePitch } from "./usePitch";
-export { default as Tuner } from "./Tuner";
+export { default as Tuner, type ExternalInput } from "./Tuner";
 export { default as TunerButton } from "./TunerButton";

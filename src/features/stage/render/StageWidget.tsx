@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, type ReactNode } from "react";
+import { useContext, useMemo, type ReactNode } from "react";
 import { CagedBoxPanels, CagedNeckMap } from "@/components/chordKit/CagedExplorer";
 import { ChordBubble } from "@/components/chordKit/ChordBubbles";
 import { KeyScope, PLUGINS, keyContext, type KeyChoice } from "@/features/creator";
@@ -13,7 +13,7 @@ import ChordWidget from "./ChordWidget";
 import FitBox from "./FitBox";
 import KeyTags from "./KeyTags";
 import KeyWidget from "./KeyWidget";
-import MicWidget from "./MicWidget";
+import MicWidget, { MicContext } from "./MicWidget";
 import PositionWidget from "./PositionWidget";
 import SectionWidget from "./SectionWidget";
 
@@ -110,7 +110,7 @@ export default function StageWidget({ subject, onSubjectChange, stageKey, onStag
     case "tuner":
       body = (
         <div className="rounded-xl border border-slate-800 bg-slate-950 p-3">
-          <Tuner />
+          <StudioTuner />
         </div>
       );
       break;
@@ -123,4 +123,11 @@ export default function StageWidget({ subject, onSubjectChange, stageKey, onStag
       <KeyTags subject={subject} master={stageKey} onChange={onSubjectChange} />
     </div>
   );
+}
+
+/** The tuner on the studio's one audio input when there is one (it opens no microphone of its own), else the tuner with its own. */
+function StudioTuner() {
+  const mic = useContext(MicContext);
+  if (!mic) return <Tuner />;
+  return <Tuner external={{ hz: mic.hz, listening: mic.status === "on" || mic.status === "asking", onToggle: mic.onToggle }} />;
 }

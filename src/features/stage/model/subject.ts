@@ -36,7 +36,7 @@ export type Subject =
   | ({ kind: "caged"; shape: CagedLetter | null } & Keyed)
   | { kind: "key" }
   | { kind: "tuner" }
-  /** the microphone: the notes it hears light up on the pinned and selected widgets */
+  /** the studio's one audio input (guitar or voice; saved as "mic"): the notes it hears light up on the pinned and selected widgets */
   | { kind: "mic" }
   | { kind: "logo" }
   | { kind: "url" }
@@ -102,7 +102,7 @@ export function keyOf(s: Subject): KeyChoice | null {
   return isKeyed(s) ? s.key : null;
 }
 
-/** The subject in another key, nothing pinned or unpinned; subjects without a key (chord, logo, url, camera, screen, tuner, microphone, the Key widget) come back as they are. */
+/** The subject in another key, nothing pinned or unpinned; subjects without a key (chord, logo, url, camera, screen, tuner, audio input, the Key widget) come back as they are. */
 export function withKey(s: Subject, key: KeyChoice): Subject {
   return isKeyed(s) ? { ...s, key } : s;
 }
@@ -144,7 +144,7 @@ export function pinAgainst(s: Subject, master: KeyChoice): Subject {
   return pins.length ? { ...s, pinned: pins } : s;
 }
 
-/** A control rather than something to look at: it sets, plays or listens to something for the lesson (the master key, the metronome, the tuner, the microphone). */
+/** A control rather than something to look at: it sets, plays or listens to something for the lesson (the master key, the metronome, the tuner, the audio input). */
 export const isControl = (s: Subject): boolean => s.kind === "key" || s.kind === "band" || s.kind === "tuner" || s.kind === "mic";
 
 /** A page rather than a single widget: a whole cheatsheet page, or a scale-page section with parts to pick from (Fretboard positions, Chords in the key). */
@@ -155,7 +155,7 @@ const MIC_PANELS = ["caged"];
 const MIC_PAGES = ["scale", "modes", "chords", "progressions", "caged"];
 
 /**
- * Whether the microphone lights notes on the widget: it draws fretboards, scale positions or chord boxes, which ring the note heard.
+ * Whether the audio input lights notes on the widget: it draws fretboards, scale positions or chord boxes, which ring the note heard.
  * Keep in step with the renderers (ScaleNeck, PositionBox, ChordDiagram read `HeardNote`); the rest show nothing.
  */
 export function takesMic(s: Subject): boolean {
@@ -222,7 +222,7 @@ export function subjectName(s: Subject): string {
     case "tuner":
       return "Tuner";
     case "mic":
-      return "Microphone";
+      return "Audio input";
     case "logo":
       return "Logo";
     case "url":

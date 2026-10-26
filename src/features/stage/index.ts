@@ -17,3 +17,5 @@ export { mediaState, stageCommand, toggleFull, NO_MEDIA, type MediaPlace, type M
 export { default as StageWidget, type StageWidgetProps } from "./render/StageWidget";
 export { CameraLayer, ScreenLayer, type MediaControls } from "./render/MediaLayer";
 export { MicContext, type MicInput } from "./render/MicWidget";
+export { useAudioInput } from "./render/useAudioInput";
+export { DEFAULT_AUDIO_INPUT, activeSource, sanitiseAudioInput, type AudioInputSetup, type AudioSource, type InputChannel, type SourceSetup } from "./model/audioInput";

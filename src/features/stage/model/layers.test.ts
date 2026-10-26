@@ -326,7 +326,7 @@ test("a pin is saved; anything but true is not a pin", () => {
   assert.equal("onTop" in s.layers[1], false);
 });
 
-test("the microphone exists at most once", () => {
+test("the audio input exists at most once", () => {
   let s = addSubject(EMPTY_STAGE, "m1", { kind: "mic" });
   s = addSubject(s, "m2", { kind: "mic" });
   assert.deepEqual(listIds(s), ["m1"]);

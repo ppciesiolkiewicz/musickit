@@ -9,21 +9,31 @@ import { readDeviceChoice, serverDeviceChoice, subscribeDeviceChoice } from "@/f
 
 export type MicStatus = "off" | "asking" | "on" | "denied" | "error" | "insecure";
 export interface MicReading { midi: number; t: number }
+/** which channel of the device to listen to: Input 1, Input 2 (an audio interface's two inputs), or both mixed */
+export type MicChannel = "left" | "right" | "sum";
+export interface MicOptions {
+  /** a device id instead of the one chosen in the nav's devices menu */
+  deviceId?: string | null;
+  channel?: MicChannel;
+}
 
 /**
  * Listen to the microphone (the input chosen in the nav's devices menu, reopened when it changes) while `enabled` and keep the last ~400 ms of detected notes.
  * Pitch comes from the tuner's detector (CREPE, YIN until the model loads), which keeps reading a voice over room noise where bare YIN goes quiet.
  * `onFrame` is called every frame with the pitch class held for 150 ms, or null when nothing steady is heard.
  * `onPitch` gets every raw reading (null when nothing is pitched), for a display that follows the voice continuously.
+ * `options` pick another device or one channel of it (an audio interface's Input 1 or 2); a change reopens the input.
  * Everything is released (tracks stopped, context closed) when disabled or unmounted.
  */
-export function useMicPitch(enabled: boolean, onFrame?: (pc: number | null) => void, onPitch?: (p: Pitch | null) => void): { status: MicStatus; heard: number | null } {
+export function useMicPitch(enabled: boolean, onFrame?: (pc: number | null) => void, onPitch?: (p: Pitch | null) => void, options: MicOptions = {}): { status: MicStatus; heard: number | null } {
   const [status, setStatus] = useState<MicStatus>("off");
   const [heard, setHeard] = useState<number | null>(null);
   const buf = useRef<MicReading[]>([]);
   const cb = useRef(onFrame);
   const raw = useRef(onPitch);
-  const inputId = useSyncExternalStore(subscribeDeviceChoice, readDeviceChoice, serverDeviceChoice).input?.id;
+  const chosenId = useSyncExternalStore(subscribeDeviceChoice, readDeviceChoice, serverDeviceChoice).input?.id;
+  const inputId = options.deviceId ?? chosenId;
+  const channel = options.channel ?? "sum";
   useEffect(() => {
     cb.current = onFrame;
     raw.current = onPitch;
@@ -43,13 +53,19 @@ export function useMicPitch(enabled: boolean, onFrame?: (pc: number | null) => v
         return;
       }
       try {
-        stream = await acquireStream(() => navigator.mediaDevices.getUserMedia({ audio: { deviceId: inputId ? { ideal: inputId } : undefined, echoCancellation: false, noiseSuppression: false, autoGainControl: false } }), () => stopped);
+        stream = await acquireStream(() => navigator.mediaDevices.getUserMedia({ audio: { deviceId: inputId ? { ideal: inputId } : undefined, channelCount: channel === "sum" ? undefined : { ideal: 2 }, echoCancellation: false, noiseSuppression: false, autoGainControl: false } }), () => stopped);
         if (!stream) return;
         ctx = new AudioContext();
         const src = ctx.createMediaStreamSource(stream);
         const an = ctx.createAnalyser();
         an.fftSize = 4096;
-        src.connect(an);
+        if (channel === "sum") src.connect(an);
+        else {
+          // one input of the device: a mono device has nothing on Input 2
+          const split = ctx.createChannelSplitter(2);
+          src.connect(split);
+          split.connect(an, channel === "left" ? 0 : 1);
+        }
         const data = new Float32Array(an.fftSize);
         setStatus("on");
         const detect = createDetector();
@@ -84,7 +100,7 @@ export function useMicPitch(enabled: boolean, onFrame?: (pc: number | null) => v
       setHeard(null);
       setStatus("off");
     };
-  }, [enabled, inputId]);
+  }, [enabled, inputId, channel]);
 
   return { status, heard };
 }

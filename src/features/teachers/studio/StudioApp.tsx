@@ -3,9 +3,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { HeardNote } from "@/components/chordKit/heardNote";
 import Icon from "@/components/Icon";
-import { useMicPitch } from "@/components/practice/useMicPitch";
 import { PLUGINS } from "@/features/creator";
-import { CameraLayer, DEFAULT_VIEW, MicContext, NUDGE, NUDGE_BIG, ScreenLayer, StageFrame, StageWidget, mediaState, isControl, isPage, shortcutFor, stageCommand, subjectTitle, takesMic, toggleFull, type Layer, type MicInput, type PaletteResult, type StudioCommand, type Subject } from "@/features/stage";
+import { CameraLayer, DEFAULT_VIEW, MicContext, sanitiseAudioInput, useAudioInput, NUDGE, NUDGE_BIG, ScreenLayer, StageFrame, StageWidget, mediaState, isControl, isPage, shortcutFor, stageCommand, subjectTitle, takesMic, toggleFull, type AudioInputSetup, type Layer, type MicInput, type PaletteResult, type StudioCommand, type Subject } from "@/features/stage";
 import { isStudioSupported } from "./browserSupport";
 import KeysPanel, { KeysOverlay } from "./KeysPanel";
 import useCamera from "./media/useCamera";
@@ -17,6 +16,16 @@ import useStage from "./useStage";
 const PLUGIN_IDS = PLUGINS.map((p) => p.id);
 const SHAPE_STORE = "musickit.studio.keepShape";
 const PANEL_STORE = "musickit.studio.panelFolded";
+const INPUT_STORE = "musickit.studio.audioInput";
+
+/** the audio input's sources (guitar and voice: device and channel) and which listens, as saved */
+function savedAudioInput(): AudioInputSetup {
+  try {
+    return sanitiseAudioInput(JSON.parse(window.localStorage.getItem(INPUT_STORE) ?? "null"));
+  } catch {
+    return sanitiseAudioInput(null);
+  }
+}
 
 /** whether the side panel is folded to a letter or two per widget: open unless folded before */
 function savedFolded(): boolean {
@@ -105,15 +114,26 @@ export default function StudioApp() {
     if (!hasScreen && screenStream) stopScreen();
   }, [hasScreen, screenStream, stopScreen]);
 
-  // the microphone lives here, not in its widget, so hiding the widget keeps it listening; deleting the widget stops it
+  // the studio's one audio input lives here, not in its widget, so hiding the widget keeps it listening; deleting it (and the Tuner) stops it
   const [micOn, setMicOn] = useState(false);
-  const { status: micStatus, heard } = useMicPitch(micOn);
-  const hasMic = stage.layers.some((l) => l.subject.kind === "mic");
+  const [inputSetup, setInputSetup] = useState(() => (typeof window === "undefined" ? sanitiseAudioInput(null) : savedAudioInput()));
+  const onInputSetup = useCallback((s: AudioInputSetup) => {
+    setInputSetup(s);
+    try {
+      window.localStorage.setItem(INPUT_STORE, JSON.stringify(s));
+    } catch {}
+  }, []);
+  const { status: micStatus, heard, hz } = useAudioInput(micOn, inputSetup);
+  // the Audio input widget and the Tuner both listen to it: it stops when neither is left
+  const hasListener = stage.layers.some((l) => l.subject.kind === "mic" || l.subject.kind === "tuner");
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- the microphone follows its widget out of the stage
-    if (!hasMic) setMicOn(false);
-  }, [hasMic]);
-  const mic = useMemo<MicInput>(() => ({ status: micStatus, heard, onToggle: () => setMicOn((on) => !on) }), [micStatus, heard]);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- the input follows its widgets out of the stage
+    if (!hasListener) setMicOn(false);
+  }, [hasListener]);
+  const mic = useMemo<MicInput>(
+    () => ({ status: micStatus, heard, hz, setup: inputSetup, onSetup: onInputSetup, onToggle: () => setMicOn((on) => !on) }),
+    [micStatus, heard, hz, inputSetup, onInputSetup],
+  );
 
   const runCommand = useCallback(
     (cmd: StudioCommand) => {
@@ -127,7 +147,7 @@ export default function StudioApp() {
     (r: PaletteResult) => {
       if (r.action.type === "add") {
         dispatch({ type: "addSubject", id: crypto.randomUUID(), subject: r.action.subject });
-        // picking the microphone is the click that starts it
+        // picking the audio input is the click that starts it
         if (r.action.subject.kind === "mic") setMicOn(true);
       }
       else runCommand(r.action.command);
@@ -211,7 +231,7 @@ export default function StudioApp() {
   if (!supported) return <p className="mx-auto mt-24 max-w-md text-center text-slate-300">The studio needs desktop Chrome or Edge.</p>;
 
   const media = mediaState(stage);
-  // the microphone feeds the pinned widgets and the selected one
+  // the audio input feeds the pinned widgets and the selected one
   const renderLayer = (l: Layer) => (
     <HeardNote.Provider value={l.onTop || stage.selected === l.id ? heard : null}>
       <StageWidget
@@ -289,7 +309,7 @@ export default function StudioApp() {
                     {isPage(l.subject) && <PageBadge />}
                     {takesMic(l.subject) && <MicBadge />}
                   </button>
-                  <button type="button" title={l.onTop ? "Unpin" : "Pin over the other widgets (the microphone lights its notes)"} aria-pressed={!!l.onTop} onClick={() => dispatch({ type: "togglePin", id: l.id })} className={`p-0.5 hover:text-slate-100 ${l.onTop ? "text-sky-300" : "text-slate-400"}`}>
+                  <button type="button" title={l.onTop ? "Unpin" : "Pin over the other widgets (the audio input lights its notes)"} aria-pressed={!!l.onTop} onClick={() => dispatch({ type: "togglePin", id: l.id })} className={`p-0.5 hover:text-slate-100 ${l.onTop ? "text-sky-300" : "text-slate-400"}`}>
                     <Icon name="pin" size={14} />
                   </button>
                   <button type="button" title={l.visible ? "Hide" : "Show"} onClick={() => dispatch({ type: "toggle", id: l.id })} className="p-0.5 text-slate-400 hover:text-slate-100">

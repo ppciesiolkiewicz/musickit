@@ -36,7 +36,7 @@ export interface Layer {
   restore?: FrameRect;
   /** paint order: a higher z is drawn over a lower one. The stage keeps them 0..n-1 */
   z: number;
-  /** pinned: drawn over every widget that is not, and the microphone lights the notes it hears on it; missing = not pinned */
+  /** pinned: drawn over every widget that is not, and the audio input lights the notes it hears on it; missing = not pinned */
   onTop?: true;
 }
 
@@ -214,7 +214,7 @@ export type StageAction =
   | { type: "toggleFill"; id: string; aspect: number | null }
   | { type: "swap"; id: string; subject: Subject }
   | { type: "toggle"; id: string }
-  /** pin a widget over the others (and to the microphone), or let it go */
+  /** pin a widget over the others (and to the audio input), or let it go */
   | { type: "togglePin"; id: string }
   | { type: "raise"; id: string }
   | { type: "lower"; id: string }
@@ -286,7 +286,7 @@ export function stageReducer(s: Stage, a: StageAction): Stage {
 }
 
 /**
- * Add a widget for a subject and select it. A camera, screen, Key & scale, tuner, microphone, logo or url widget that already exists is selected instead of doubled.
+ * Add a widget for a subject and select it. A camera, screen, Key & scale, tuner, audio input, logo or url widget that already exists is selected instead of doubled.
  * The screen goes to the bottom, the camera just above the screen; widgets always sit above both.
  */
 export function addSubject(s: Stage, id: string, subject: Subject): Stage {
