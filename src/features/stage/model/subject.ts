@@ -150,6 +150,30 @@ export const isControl = (s: Subject): boolean => s.kind === "key" || s.kind ===
 /** A page rather than a single widget: a whole cheatsheet page, or a scale-page section with parts to pick from (Fretboard positions, Chords in the key). */
 export const isPage = (s: Subject): boolean => (s.kind === "plugin" && s.full === true) || (s.kind === "section" && s.section !== "relatives");
 
+/** The cheatsheet panels that draw fretboards or chord boxes: compact, and as whole pages. */
+const MIC_PANELS = ["caged"];
+const MIC_PAGES = ["scale", "modes", "chords", "progressions", "caged"];
+
+/**
+ * Whether the microphone lights notes on the widget: it draws fretboards, scale positions or chord boxes, which ring the note heard.
+ * Keep in step with the renderers (ScaleNeck, PositionBox, ChordDiagram read `HeardNote`); the rest show nothing.
+ */
+export function takesMic(s: Subject): boolean {
+  switch (s.kind) {
+    case "chord":
+    case "position":
+    case "neck":
+    case "bubble":
+      return true;
+    case "section":
+      return s.section !== "relatives";
+    case "plugin":
+      return (s.full ? MIC_PAGES : MIC_PANELS).includes(s.plugin);
+    default:
+      return false;
+  }
+}
+
 /** Which widget a subject is, whatever its key: the palette ticks a row when a widget with the same identity is on the stage. */
 export function subjectIdentity(s: Subject): string {
   if (!isKeyed(s)) return JSON.stringify(s);

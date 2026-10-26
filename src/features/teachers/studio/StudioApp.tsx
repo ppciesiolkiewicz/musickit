@@ -5,12 +5,12 @@ import { HeardNote } from "@/components/chordKit/heardNote";
 import Icon from "@/components/Icon";
 import { useMicPitch } from "@/components/practice/useMicPitch";
 import { PLUGINS } from "@/features/creator";
-import { CameraLayer, DEFAULT_VIEW, MicContext, NUDGE, NUDGE_BIG, ScreenLayer, StageFrame, StageWidget, mediaState, isControl, isPage, shortcutFor, stageCommand, subjectTitle, toggleFull, type Layer, type MicInput, type PaletteResult, type StudioCommand, type Subject } from "@/features/stage";
+import { CameraLayer, DEFAULT_VIEW, MicContext, NUDGE, NUDGE_BIG, ScreenLayer, StageFrame, StageWidget, mediaState, isControl, isPage, shortcutFor, stageCommand, subjectTitle, takesMic, toggleFull, type Layer, type MicInput, type PaletteResult, type StudioCommand, type Subject } from "@/features/stage";
 import { isStudioSupported } from "./browserSupport";
 import KeysPanel, { KeysOverlay } from "./KeysPanel";
 import useCamera from "./media/useCamera";
 import useScreenShare from "./media/useScreenShare";
-import ControlBadge, { PageBadge } from "./ControlBadge";
+import ControlBadge, { MicBadge, PageBadge } from "./ControlBadge";
 import Palette from "./Palette";
 import useStage from "./useStage";
 
@@ -287,6 +287,7 @@ export default function StudioApp() {
                     <span className="truncate">{subjectTitle(l.subject)}</span>
                     {isControl(l.subject) && <ControlBadge />}
                     {isPage(l.subject) && <PageBadge />}
+                    {takesMic(l.subject) && <MicBadge />}
                   </button>
                   <button type="button" title={l.onTop ? "Unpin" : "Pin over the other widgets (the microphone lights its notes)"} aria-pressed={!!l.onTop} onClick={() => dispatch({ type: "togglePin", id: l.id })} className={`p-0.5 hover:text-slate-100 ${l.onTop ? "text-sky-300" : "text-slate-400"}`}>
                     <Icon name="pin" size={14} />

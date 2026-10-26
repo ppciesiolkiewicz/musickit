@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { EMPTY_KEY } from "@/features/creator/model/key";
 import { groupResults, paletteCatalog, searchPalette } from "./search";
-import { followMaster, isControl, isPage, keyOf, pinAgainst, sanitiseSubject, subjectIdentity, subjectTitle, withKey, withMaster, withOwnKey, type Subject } from "./subject";
+import { followMaster, isControl, takesMic, isPage, keyOf, pinAgainst, sanitiseSubject, subjectIdentity, subjectTitle, withKey, withMaster, withOwnKey, type Subject } from "./subject";
 
 const ids = ["scale", "chords", "circle", "keys", "progressions", "modes", "triads", "caged", "arpeggios", "improv", "tunings"];
 const E_MINOR = { tonicPc: 4, family: 0, mode: 5 };
@@ -284,4 +284,17 @@ test("logo and url are in the catalog and found by name; brand finds both", () =
   assert.deepEqual(add("brand"), [{ kind: "logo" }, { kind: "url" }]);
   assert.equal(sanitiseSubject({ kind: "url" }, ids)?.kind, "url");
   assert.equal(subjectTitle({ kind: "logo" }), "Logo");
+});
+
+test("the microphone lights the widgets that draw fretboards and chord boxes", () => {
+  const takers = paletteCatalog(ids, E_MINOR).flatMap((r) => (r.action.type === "add" && takesMic(r.action.subject) ? [r.action.subject] : []));
+  for (const kind of ["neck", "position", "bubble"]) assert.ok(takers.some((s) => s.kind === kind), kind);
+  assert.ok(takesMic({ kind: "chord", symbol: "E6" }));
+  assert.ok(takesMic({ kind: "section", section: "guitar", key: E_MINOR }));
+  assert.ok(!takesMic({ kind: "section", section: "relatives", key: E_MINOR }));
+  assert.ok(takesMic({ kind: "plugin", plugin: "caged", key: E_MINOR }));
+  assert.ok(takesMic({ kind: "plugin", plugin: "chords", full: true, key: E_MINOR }));
+  assert.ok(!takesMic({ kind: "plugin", plugin: "circle", key: E_MINOR }));
+  assert.ok(!takesMic({ kind: "caged", shape: "E", key: E_MINOR }));
+  for (const kind of ["key", "tuner", "mic", "logo", "url", "camera", "screen"] as const) assert.ok(!takesMic({ kind }), kind);
 });

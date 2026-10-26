@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type PointerEvent as RPointerEvent, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type PointerEvent as RPointerEvent, type ReactNode } from "react";
 import Icon from "@/components/Icon";
 import { DEFAULT_VIEW, drawZ, fixedRect, hasAspect, panView, resizeFrom, resizeKeepingShape, withAspect, zoomAt, type Corner, type FrameRect, type Layer, type Stage, type StageAction } from "./model/layers";
 import { ShapeReport } from "./render/shape";
@@ -28,6 +28,21 @@ const CORNERS: { c: Corner; cls: string }[] = [
   { c: "se", cls: "-bottom-1 -right-1 cursor-nwse-resize" },
 ];
 
+/** room for the hover toolbar (pin, fill, delete) above or below a widget, as a fraction of the frame's height */
+const TOOLBAR_ROOM = 0.06;
+
+/**
+ * Where a widget's hover toolbar sits: just outside its top-right corner, so it never covers what the widget shows; under the widget
+ * when it touches the frame's top; inside its corner only when it fills the frame's height, and always for the brand marks.
+ * The toolbars are drawn over every widget, so a widget in front never hides one.
+ */
+function toolbarPlace(l: Layer, card: boolean): CSSProperties {
+  const right = `${(1 - l.rect.x - l.rect.w) * 100}%`;
+  if (card && l.rect.y >= TOOLBAR_ROOM) return { right, bottom: `${(1 - l.rect.y) * 100}%`, paddingBottom: 4 };
+  if (card && l.rect.y + l.rect.h <= 1 - TOOLBAR_ROOM) return { right, top: `${(l.rect.y + l.rect.h) * 100}%`, paddingTop: 4 };
+  return { right: `calc(${right} + 6px)`, top: `calc(${l.rect.y * 100}% + 6px)` };
+}
+
 /**
  * The 16:9 frame: exactly what a recording shows. Each visible layer is placed from its rect, a fraction of the frame,
  * so the frame can be any size. Layers are drawn in list order and stacked by their `z`, so bringing one to the top never moves its element
@@ -37,6 +52,7 @@ const CORNERS: { c: Corner; cls: string }[] = [
  * ⌘+scroll or a pinch zooms into a widget around the pointer; a plain scroll pans a zoomed widget. The outline and dots are thin
  * and show only on hover or when selected: they are in the video.
  *
+ * On hover, a widget's toolbar (pin, fill the frame, delete) shows just outside its top-right corner (`toolbarPlace`).
  * Widgets are opaque cards (the brand marks and the camera and screen excepted). With `keepShape`, each widget's frame takes the
  * shape of what it shows (reported by its FitBox), and a corner drag keeps that shape. Each widget can fill the frame and go back.
  */
@@ -62,6 +78,18 @@ export default function StageFrame({
   // each widget's content shape (width over height, pixels), as its FitBox reports it; a new shape re-runs the snap below
   const aspects = useRef<Record<string, number>>({});
   const [shapes, setShapes] = useState(0);
+
+  // the widget whose toolbar shows: the one under the pointer, kept a moment so the pointer can cross to its toolbar
+  const [hover, setHover] = useState<string | null>(null);
+  const leaving = useRef<number | undefined>(undefined);
+  const enter = (id: string) => {
+    window.clearTimeout(leaving.current);
+    setHover(id);
+  };
+  const leave = () => {
+    window.clearTimeout(leaving.current);
+    leaving.current = window.setTimeout(() => setHover(null), 150);
+  };
   const keepShapeRef = useRef(keepShape);
   useEffect(() => {
     keepShapeRef.current = keepShape;
@@ -179,6 +207,8 @@ export default function StageFrame({
               className="group absolute"
               style={{ left: `${l.rect.x * 100}%`, top: `${l.rect.y * 100}%`, width: `${l.rect.w * 100}%`, height: `${l.rect.h * 100}%`, zIndex: drawZ(l, stage.layers.length) }}
               onPointerDown={(e) => (fixed ? onAction({ type: "select", id: l.id }) : start(e, l, "pending"))}
+              onPointerEnter={() => enter(l.id)}
+              onPointerLeave={leave}
               onClickCapture={(e) => {
                 // a drag that ends over the widget is not a click on it
                 if (dragged.current) {
@@ -209,53 +239,56 @@ export default function StageFrame({
                   className={`absolute h-2 w-2 rounded-full bg-sky-400 transition-opacity ${cls} ${show}`}
                 />
               ))}
-              {card && (
-                <button
-                  data-chrome
-                  type="button"
-                  title={l.onTop ? "Unpin: let other widgets cover it" : "Pin: keep it over the other widgets, and light the notes the microphone hears on it"}
-                  aria-label={l.onTop ? "Unpin" : "Pin"}
-                  aria-pressed={!!l.onTop}
-                  onPointerDown={(e) => e.stopPropagation()}
-                  onClick={() => onAction({ type: "togglePin", id: l.id })}
-                  className={`absolute right-[4.125rem] top-1.5 z-10 flex h-6 w-6 items-center justify-center rounded-md bg-slate-950/80 ring-1 ring-slate-700 transition-opacity hover:text-sky-300 ${l.onTop ? "text-sky-300 opacity-100" : "text-slate-300 opacity-0 group-hover:opacity-100"}`}
-                >
-                  <Icon name="pin" size={13} />
-                </button>
-              )}
-              {card && (
-                <button
-                  data-chrome
-                  type="button"
-                  title={l.restore ? "Back to its place" : "Fill the frame"}
-                  aria-label={l.restore ? "Back to its place" : "Fill the frame"}
-                  onPointerDown={(e) => e.stopPropagation()}
-                  onClick={() => {
-                    // selecting brings it to the top, over what it now covers
-                    onAction({ type: "select", id: l.id });
-                    onAction({ type: "toggleFill", id: l.id, aspect: keepShape ? (aspects.current[l.id] ?? null) : null });
-                  }}
-                  className="absolute right-9 top-1.5 z-10 flex h-6 w-6 items-center justify-center rounded-md bg-slate-950/80 text-slate-300 opacity-0 ring-1 ring-slate-700 transition-opacity hover:text-sky-300 group-hover:opacity-100"
-                >
-                  <Icon name={l.restore ? "minimize" : "maximize"} size={13} />
-                </button>
-              )}
-              {!media && (
-                <button
-                  data-chrome
-                  type="button"
-                  title="Delete the widget"
-                  aria-label="Delete the widget"
-                  onPointerDown={(e) => e.stopPropagation()}
-                  onClick={() => onAction({ type: "remove", id: l.id })}
-                  className="absolute right-1.5 top-1.5 z-10 flex h-6 w-6 items-center justify-center rounded-md bg-slate-950/80 text-slate-300 opacity-0 ring-1 ring-slate-700 transition-opacity hover:text-rose-300 group-hover:opacity-100"
-                >
-                  <Icon name="x" size={13} />
-                </button>
-              )}
             </div>
           );
         })}
+      {(() => {
+        // drawn over every widget, so one in front never hides it
+        const l = stage.layers.find((x) => x.id === hover && x.visible);
+        if (!l || l.subject.kind === "camera" || l.subject.kind === "screen") return null;
+        const card = !fixedRect(l.subject);
+        return (
+          <div
+            data-chrome
+            className="absolute flex gap-1.5"
+            style={{ ...toolbarPlace(l, card), zIndex: 2 * stage.layers.length + 1 }}
+            onPointerEnter={() => enter(l.id)}
+            onPointerLeave={leave}
+            onPointerDown={(e) => e.stopPropagation()}
+          >
+            {card && (
+              <button
+                type="button"
+                title={l.onTop ? "Unpin: let other widgets cover it" : "Pin: keep it over the other widgets, and light the notes the microphone hears on it"}
+                aria-label={l.onTop ? "Unpin" : "Pin"}
+                aria-pressed={!!l.onTop}
+                onClick={() => onAction({ type: "togglePin", id: l.id })}
+                className={`flex h-6 w-6 items-center justify-center rounded-md bg-slate-950/80 ring-1 ring-slate-700 hover:text-sky-300 ${l.onTop ? "text-sky-300" : "text-slate-300"}`}
+              >
+                <Icon name="pin" size={13} />
+              </button>
+            )}
+            {card && (
+              <button
+                type="button"
+                title={l.restore ? "Back to its place" : "Fill the frame"}
+                aria-label={l.restore ? "Back to its place" : "Fill the frame"}
+                onClick={() => {
+                  // selecting brings it to the top, over what it now covers
+                  onAction({ type: "select", id: l.id });
+                  onAction({ type: "toggleFill", id: l.id, aspect: keepShape ? (aspects.current[l.id] ?? null) : null });
+                }}
+                className="flex h-6 w-6 items-center justify-center rounded-md bg-slate-950/80 ring-1 ring-slate-700 text-slate-300 hover:text-sky-300"
+              >
+                <Icon name={l.restore ? "minimize" : "maximize"} size={13} />
+              </button>
+            )}
+            <button type="button" title="Delete the widget" aria-label="Delete the widget" onClick={() => onAction({ type: "remove", id: l.id })} className="flex h-6 w-6 items-center justify-center rounded-md bg-slate-950/80 ring-1 ring-slate-700 text-slate-300 hover:text-rose-300">
+              <Icon name="x" size={13} />
+            </button>
+          </div>
+        );
+      })()}
     </div>
   );
 }

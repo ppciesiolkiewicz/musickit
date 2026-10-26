@@ -182,7 +182,7 @@ function baseRect(s: Subject): FrameRect {
     case "tuner":
       return { x: 0.48, y: 0.03, w: 0.3, h: 0.42 };
     case "mic":
-      return { x: 0.48, y: 0.5, w: 0.22, h: 0.14 };
+      return { x: 0.48, y: 0.5, w: 0.3, h: 0.36 };
     case "logo":
     case "url":
       return fixedRect(s)!;
