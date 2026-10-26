@@ -13,8 +13,8 @@ function Mic({ size = 15 }: { size?: number }) {
   );
 }
 
-/** The mic toggle on the scale and on each melody card: "Sing" with a mic while it's off, green "Stop the mic" while it listens (or the card's own words). */
-export default function MicButton({ on, onClick, className = "", offLabel = "Sing", onLabel = "Stop the mic" }: { on: boolean; onClick: () => void; className?: string; offLabel?: string; onLabel?: string }) {
+/** The mic toggle on the scale and on each melody card: "Start the microphone" with a mic while it's off, green "Stop the mic" while it listens (or the card's own words). */
+export default function MicButton({ on, onClick, className = "", offLabel = "Start the microphone", onLabel = "Stop the mic" }: { on: boolean; onClick: () => void; className?: string; offLabel?: string; onLabel?: string }) {
   return (
     <Button
       size="sm"
