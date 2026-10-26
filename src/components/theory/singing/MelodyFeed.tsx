@@ -17,7 +17,7 @@ const PAGE = 6;
  * and a play button. More cards are drawn as the end of the list comes into view. The `active` card is the one being
  * sung (the last one picked, played or tapped): only it runs the bar and shows the voice. A click anywhere on a card picks it.
  */
-export default function MelodyFeed({ tunes, place, ladder, clef, pitch, beatMs, bpm, active, playing, playFrom, gridBeats, tapped, mic, onPick, onSing, onPlay, onStop, onNote }: {
+export default function MelodyFeed({ tunes, place, ladder, clef, pitch, beatMs, bpm, active, playing, playFrom, gridBeats, tapped, mic, onPick, onSing, onPlay, onStop, onNote, onFocus }: {
   tunes: BookTune[];
   place: (t: BookTune) => PlacedNote[];
   ladder: Ladder;
@@ -40,6 +40,8 @@ export default function MelodyFeed({ tunes, place, ladder, clef, pitch, beatMs, 
   /** stop the tune playing (its card shows a stop beside Play while it does) */
   onStop: () => void;
   onNote: (t: BookTune, i: number) => void;
+  /** open the tune full screen */
+  onFocus: (t: BookTune) => void;
 }) {
   const [shown, setShown] = useState(PAGE);
   const end = useRef<HTMLDivElement>(null);
@@ -85,6 +87,9 @@ export default function MelodyFeed({ tunes, place, ladder, clef, pitch, beatMs, 
                     </Button>
                   )}
                   {live && mic && <span className="text-xs text-emerald-300">Listening</span>}
+                  <Button size="sm" onClick={(e) => { e.stopPropagation(); onFocus(t); }} title="Full screen" aria-label="Full screen" className="ml-auto !px-2">
+                    <span className="grid h-4 w-4 place-items-center"><Icon name="maximize" size={14} /></span>
+                  </Button>
                 </div>
                 <MelodyStaff
                   notes={place(t)}

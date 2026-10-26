@@ -21,6 +21,8 @@ import type { PlacedNote } from "@/features/theory/singingMelodies";
  * The last half bar is drawn again, faded, before the first: the bar crosses into it halfway through the last bar (on the
  * held final Do), so the loop back to the start is a short hop instead of a jump across the whole staff.
  * Only a `live` staff (the one being sung) runs the dot; the others are drawn still, scrolling sideways when too long.
+ * Full screen draws it `scale` times bigger and to `follow` the bar: a couple of bars across, sliding with it, and a line
+ * from the dot to the note due with how far off it is in cents.
  */
 
 type StaffNote = PlacedNote;
@@ -38,6 +40,8 @@ const DOT_LAG_MS = 250;
 /** beats of the end drawn again before the first bar */
 const LEAD = BEATS_PER_BAR / 2;
 const GHOST_OPACITY = 0.45;
+/** beats across a staff that follows the bar */
+const FOLLOW_BEATS = 7;
 
 const ink = {
   line: "var(--color-slate-500)",
@@ -49,13 +53,13 @@ const PLAYED = "var(--color-sky-300)";
 const DOT: Record<Fit, string> = { in: "var(--color-emerald-400)", out: "var(--color-rose-400)", between: "var(--color-amber-300)" };
 
 interface Point { x: number; step: number; t: number }
-interface View { dot: Point | null; cam: number; tail: Point[]; lastHeard: number; now: number; fit: Fit; beat: number | null; hit: boolean }
-const STILL: View = { dot: null, cam: 0, tail: [], lastHeard: -Infinity, now: 0, fit: "between", beat: null, hit: false };
+interface View { dot: Point | null; cam: number; tail: Point[]; lastHeard: number; now: number; fit: Fit; beat: number | null; hit: boolean; cents: number; target: number }
+const STILL: View = { dot: null, cam: 0, tail: [], lastHeard: -Infinity, now: 0, fit: "between", beat: null, hit: false, cents: 0, target: -1 };
 
 /** The note sounding at a beat, or -1 before the first. */
 const noteAt = (notes: StaffNote[], beat: number) => notes.findLastIndex((n) => n.at <= beat);
 
-export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom, beatMs, gridBeats, tapped, onNote }: {
+export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom, beatMs, gridBeats, tapped, onNote, scale = 1, follow = false }: {
   notes: StaffNote[];
   live: boolean;
   /** the scale in the singer's range, low to high: the dot's height is read off it */
@@ -68,6 +72,10 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
   gridBeats: () => number | null;
   tapped: number | null;
   onNote: (i: number) => void;
+  /** drawn this many times bigger */
+  scale?: number;
+  /** a few bars across, sliding with the bar, with the dot's distance to the note due */
+  follow?: boolean;
 }) {
   const wrap = useRef<HTMLDivElement>(null);
   const clip = `melody-clip-${useId().replace(/[^\w-]/g, "")}`;
@@ -75,10 +83,10 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
   useLayoutEffect(() => {
     const el = wrap.current;
     if (!el) return;
-    const ro = new ResizeObserver(([e]) => setWidth(Math.round(e.contentRect.width)));
+    const ro = new ResizeObserver(([e]) => setWidth(Math.round(e.contentRect.width / scale)));
     ro.observe(el);
     return () => ro.disconnect();
-  }, []);
+  }, [scale]);
 
   const placed = notes.map((n) => place(n.spelled, ladder.signature, clef));
   const steps = placed.map((p) => p.step);
@@ -96,7 +104,7 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
   const x0 = timeX + 14;
   const room = width - x0 - 12;
   const fits = room / (total + LEAD) >= MIN_BEAT;
-  const beatW = fits ? Math.min(MAX_BEAT, room / (total + LEAD)) : MIN_BEAT;
+  const beatW = follow ? Math.max(MIN_BEAT, room / FOLLOW_BEATS) : fits ? Math.min(MAX_BEAT, room / (total + LEAD)) : MIN_BEAT;
   const span = (total + LEAD) * beatW;
   // a beat of the loop as drawn: its last half bar sits before the first bar
   const shown = (beat: number) => (beat >= total - LEAD ? beat - total : beat);
@@ -152,8 +160,10 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
         if (fresh) a.tail = [];
         a.tail.push(a.dot);
         a.lastHeard = now;
-        const due = notes[Math.max(0, noteAt(notes, loopX))];
-        const off = Math.abs(m - (due?.midi ?? m)) * 100;
+        a.target = Math.max(0, noteAt(notes, loopX));
+        const due = notes[a.target];
+        a.cents = (m - (due?.midi ?? m)) * 100;
+        const off = Math.abs(a.cents);
         a.hit = off <= IN_TUNE_CENTS;
         a.fit = a.hit ? "in" : Math.abs(m - Math.round(m)) * 100 <= IN_TUNE_CENTS ? "out" : "between";
       } else if (now - a.lastHeard > SILENCE_MS) a.hit = false;
@@ -214,9 +224,9 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
 
   return (
     // the height is known before the width, so the list doesn't shift as staffs measure themselves
-    <div ref={wrap} className={`w-full ${scrolls ? "overflow-x-auto" : ""}`} style={{ minHeight: H }}>
+    <div ref={wrap} className={`w-full ${scrolls ? "overflow-x-auto" : ""}`} style={{ minHeight: H * scale }}>
       {width > 0 && (
-        <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} role="img" aria-label={`A melody in ${ladder.title}: ${notes.map((n) => solfege(n.label)).join(" ")}`}>
+        <svg viewBox={`0 0 ${W} ${H}`} width={W * scale} height={H * scale} role="img" aria-label={`A melody in ${ladder.title}: ${notes.map((n) => solfege(n.label)).join(" ")}`}>
           <defs>
             <clipPath id={clip}>
               <rect x={x0 - 4} y={0} width={W - x0 + 4} height={H} />
@@ -258,6 +268,9 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
                   const age = 1 - (now - p.t) / TAIL_MS;
                   return <line key={p.t} x1={bx(q.x)} y1={yOf(q.step)} x2={bx(p.x)} y2={yOf(p.step)} stroke={colour} strokeWidth={1 + 8 * age} strokeOpacity={0.55 * age} strokeLinecap="round" />;
                 })}
+                {follow && a.target >= 0 && (
+                  <Miss x={bx(a.dot!.x)} y={yOf(a.dot!.step)} to={yOf(placed[a.target].step)} cents={a.cents} hit={a.hit} colour={colour} />
+                )}
                 <circle cx={bx(a.dot!.x)} cy={yOf(a.dot!.step)} r={13} fill={colour} fillOpacity={0.18} />
                 <circle cx={bx(a.dot!.x)} cy={yOf(a.dot!.step)} r={7} fill={colour} />
               </g>
@@ -266,6 +279,19 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
         </svg>
       )}
     </div>
+  );
+}
+
+/** From the voice dot to the height of the note due, and how far off it is in cents ("in tune" when it is). */
+function Miss({ x, y, to, cents, hit, colour }: { x: number; y: number; to: number; cents: number; hit: boolean; colour: string }) {
+  const c = Math.round(cents);
+  const label = hit ? "in tune" : `${c > 0 ? "+" : "−"}${Math.abs(c)}¢`;
+  return (
+    <>
+      {!hit && <line x1={x} x2={x} y1={y} y2={to} stroke={colour} strokeWidth={2} strokeDasharray="3 3" />}
+      {!hit && <line x1={x - 9} x2={x + 9} y1={to} y2={to} stroke={colour} strokeWidth={2} />}
+      <text x={x + 16} y={y - 10} fontSize={11} fontWeight={700} fill={colour}>{label}</text>
+    </>
   );
 }
 

@@ -12,6 +12,7 @@ import { VOICES, buildLadder, clefFor, hzToMidi, savedVoice, scaleRun, withNotes
 import { BOOK, DIFFICULTIES, placeTune, type BookTune, type PlacedNote } from "@/features/theory/singingMelodies";
 import SingingStaff from "./SingingStaff";
 import MelodyFeed from "./MelodyFeed";
+import MelodyFocus from "./MelodyFocus";
 import MicButton from "./MicButton";
 import { panel } from "@/components/practice/shared";
 
@@ -194,6 +195,35 @@ export default function SingingApp() {
     timers.current.push(setTimeout(() => setPlayed((p) => (p === i ? null : p)), TAP_MS));
   };
 
+  // one melody full screen (the browser's too where it allows it); leaving the browser's full screen closes it
+  const [focus, setFocus] = useState(false);
+  const openFocus = (t: BookTune) => {
+    setActive(t.n);
+    setFocus(true);
+    if (document.fullscreenEnabled && !document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
+  };
+  const closeFocus = useCallback(() => {
+    setFocus(false);
+    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+  }, []);
+  useEffect(() => {
+    if (!focus) return;
+    const onChange = () => !document.fullscreenElement && setFocus(false);
+    document.addEventListener("fullscreenchange", onChange);
+    return () => document.removeEventListener("fullscreenchange", onChange);
+  }, [focus]);
+  // previous and next step through the tunes listed; a tune playing stops
+  const at = tunes.findIndex((t) => t.n === active);
+  const step = useCallback((d: number) => {
+    const t = tunes[at + d];
+    if (!t) return;
+    silence();
+    setActive(t.n);
+  }, [tunes, at]);
+  const prev = useCallback(() => step(-1), [step]);
+  const next = useCallback(() => step(1), [step]);
+  const focused = tunes[at] ?? BOOK.find((t) => t.n === active)!;
+
   const message =
     status === "asking" ? "Allow the microphone in your browser…"
     : status === "denied" ? "Microphone blocked. Allow it in the browser's site settings and try again."
@@ -280,12 +310,44 @@ export default function SingingApp() {
               }}
               onStop={() => silence()}
               onNote={(t, i) => void tapTune(t, i)}
+              onFocus={openFocus}
             />
           ) : (
             <SingingStaff ladder={ladder} clef={clef} pitch={pitch} played={played} onNote={(i) => void tap(i)} />
           )}
         </section>
       </WithSettings>
+      {focus && tab === "melodies" && (
+        <MelodyFocus
+          tune={focused}
+          index={Math.max(0, at)}
+          count={tunes.length}
+          staff={{
+            notes: place(focused),
+            ladder: tuneLadder,
+            clef,
+            pitch,
+            playFrom: playing === focused.n ? playFrom : null,
+            beatMs: beat,
+            gridBeats,
+            tapped: tapped?.n === focused.n ? tapped.i : null,
+            onNote: (i) => void tapTune(focused, i),
+          }}
+          bpm={pocket?.bpm ?? FALLBACK_BPM}
+          mic={mic}
+          playing={playing === focused.n}
+          message={status === "on" ? "Sing each note as the bar reaches it" : status === "off" ? "Press Sing and sing along with the bar" : message}
+          onPrev={prev}
+          onNext={next}
+          onSing={toggleMic}
+          onPlay={() => {
+            void playTune(focused);
+            if (!mic) toggleMic();
+          }}
+          onStop={() => silence()}
+          onClose={closeFocus}
+        />
+      )}
     </div>
   );
 }
