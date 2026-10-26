@@ -18,6 +18,8 @@ import type { PlacedNote } from "@/features/theory/singingMelodies";
  * a note is heard before it is sung against: green on the note under it, red on another note, amber between notes, and the
  * note under the bar is lit in sky.
  * Every note is a button (`onNote`); `tapped` is one just tapped. A long melody on a phone slides with the bar.
+ * The last half bar is drawn again, faded, before the first: the bar crosses into it halfway through the last bar (on the
+ * held final Do), so the loop back to the start is a short hop instead of a jump across the whole staff.
  * Only a `live` staff (the one being sung) runs the dot; the others are drawn still, scrolling sideways when too long.
  */
 
@@ -33,6 +35,9 @@ const TAIL_MS = 380;
 const SILENCE_MS = 220;
 /** the voice dot runs this far behind the bar, so a note is heard before it is sung against */
 const DOT_LAG_MS = 250;
+/** beats of the end drawn again before the first bar */
+const LEAD = BEATS_PER_BAR / 2;
+const GHOST_OPACITY = 0.45;
 
 const ink = {
   line: "var(--color-slate-500)",
@@ -90,9 +95,18 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
   const timeX = 56 + sig.length * 9 + 10;
   const x0 = timeX + 14;
   const room = width - x0 - 12;
-  const fits = room / total >= MIN_BEAT;
-  const beatW = fits ? Math.min(MAX_BEAT, room / total) : MIN_BEAT;
-  const span = total * beatW;
+  const fits = room / (total + LEAD) >= MIN_BEAT;
+  const beatW = fits ? Math.min(MAX_BEAT, room / (total + LEAD)) : MIN_BEAT;
+  const span = (total + LEAD) * beatW;
+  // a beat of the loop as drawn: its last half bar sits before the first bar
+  const shown = (beat: number) => (beat >= total - LEAD ? beat - total : beat);
+  // the notes sounding in the last half bar, cut to it, as they are drawn again in front
+  const ghosts = notes.flatMap((n, i) => {
+    const end = n.at + n.beats;
+    if (end <= total - LEAD) return [];
+    const from = Math.max(n.at, total - LEAD);
+    return [{ i, at: from - total, beats: end - from }];
+  });
   const maxCam = Math.max(0, span - room);
   const scrolls = !live && maxCam > 0;
   const W = scrolls ? x0 + span + 12 : width;
@@ -127,8 +141,9 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
       if (grid !== null) anchor.current = now - grid * beatMs;
       const run = (now - anchor.current) / beatMs;
       const beat = ((run % total) + total) % total;
-      a.beat = beat;
-      const x = (((run - DOT_LAG_MS / beatMs) % total) + total) % total;
+      a.beat = shown(beat);
+      const loopX = (((run - DOT_LAG_MS / beatMs) % total) + total) % total;
+      const x = shown(loopX);
       // a new pass starts the tail afresh
       if (a.dot && x < a.dot.x - total / 2) a.tail = [];
       if (m !== null) {
@@ -137,14 +152,14 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
         if (fresh) a.tail = [];
         a.tail.push(a.dot);
         a.lastHeard = now;
-        const due = notes[Math.max(0, noteAt(notes, x))];
+        const due = notes[Math.max(0, noteAt(notes, loopX))];
         const off = Math.abs(m - (due?.midi ?? m)) * 100;
         a.hit = off <= IN_TUNE_CENTS;
         a.fit = a.hit ? "in" : Math.abs(m - Math.round(m)) * 100 <= IN_TUNE_CENTS ? "out" : "between";
       } else if (now - a.lastHeard > SILENCE_MS) a.hit = false;
       a.tail = a.tail.filter((p) => now - p.t < TAIL_MS);
       if (maxCam > 0 && a.beat !== null) {
-        const want = Math.max(0, Math.min(maxCam, x * beatW - room / 2));
+        const want = Math.max(0, Math.min(maxCam, (x + LEAD) * beatW - room / 2));
         a.cam += (want - a.cam) * 0.1;
       } else if (maxCam === 0) a.cam = 0;
       else a.cam = Math.min(a.cam, maxCam);
@@ -167,14 +182,35 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
   }, [notes, clef]);
 
   const now = a.now;
-  const bx = (beat: number) => x0 + beat * beatW + PAD - a.cam;
+  const bx = (beat: number) => x0 + (beat + LEAD) * beatW + PAD - a.cam;
   // the staff stops at the final double bar when the whole tune fits
   const lineEnd = maxCam > 0 && !scrolls ? W - 4 : Math.min(W - 4, bx(total) - PAD + 7);
   const showDot = a.dot && now - a.lastHeard <= SILENCE_MS + 400;
   const dotOpacity = a.dot ? Math.max(0, Math.min(1, 1 - (now - a.lastHeard - SILENCE_MS) / 400)) : 0;
   const colour = DOT[a.fit];
-  const due = a.beat === null ? -1 : noteAt(notes, a.beat);
+  // the bar in the faded half bar lights the copy there, not the note it repeats
+  const inGhost = a.beat !== null && a.beat < 0;
+  const due = a.beat === null ? -1 : noteAt(notes, a.beat < 0 ? a.beat + total : a.beat);
   const bars = Math.round(total / BEATS_PER_BAR);
+
+  const drawNote = (i: number, at: number, beats: number, ghost: boolean) => {
+    const n = notes[i];
+    const x = bx(at);
+    if (x < x0 - 40 || x > W + 40) return null;
+    const on = (due === i && inGhost === ghost) || (tapped === i && !ghost);
+    const lit = on && a.hit && !!showDot;
+    const c = degreeColour(n.degree);
+    const bold = on ? 700 : 400;
+    return (
+      <g key={ghost ? `ghost-${i}` : i} role="button" aria-label={`Play ${n.spelled.name}`} className="cursor-pointer" opacity={ghost && !on ? GHOST_OPACITY : 1} onClick={() => onNote(i)}>
+        <rect x={x - PAD + 2} y={0} width={Math.max(18, beats * beatW - 4)} height={H} rx={6} fill={on ? PLAYED : "transparent"} fillOpacity={on ? 0.1 : 0} />
+        <Note p={placed[i]} x={x} y={yOf(placed[i].step)} beats={beats} colour={c} yOf={yOf} />
+        {lit && <circle cx={x} cy={yOf(placed[i].step)} r={12} fill={c} fillOpacity={0.18} stroke={c} strokeOpacity={0.7} />}
+        <text x={x} y={labelsY + 12} textAnchor="middle" fontSize={11} fontWeight={bold} fill={on ? PLAYED : ink.name}>{n.spelled.name}</text>
+        <text x={x} y={labelsY + 27} textAnchor="middle" fontSize={11} fontWeight={bold} fill={lit ? c : on ? PLAYED : ink.degree}>{solfege(n.label)}</text>
+      </g>
+    );
+  };
 
   return (
     // the height is known before the width, so the list doesn't shift as staffs measure themselves
@@ -198,8 +234,8 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
           </g>
           <g clipPath={`url(#${clip})`}>
             <g stroke={ink.line}>
-              {Array.from({ length: bars - 1 }, (_, b) => {
-                const x = bx((b + 1) * BEATS_PER_BAR) - Math.min(12, beatW * 0.35);
+              {Array.from({ length: bars }, (_, b) => {
+                const x = bx(b * BEATS_PER_BAR) - Math.min(12, beatW * 0.35);
                 return <line key={b} x1={x} x2={x} y1={yOf(8)} y2={yOf(0)} />;
               })}
               {/* the final double bar */}
@@ -208,27 +244,12 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
             </g>
             {a.beat !== null && (
               <g pointerEvents="none">
-                <rect x={bx(0) - PAD} y={yOf(8) - 8} width={Math.max(0, bx(a.beat) - bx(0) + PAD)} height={yOf(0) - yOf(8) + 16} fill={PLAYED} fillOpacity={0.07} />
+                <rect x={bx(-LEAD) - PAD} y={yOf(8) - 8} width={Math.max(0, bx(a.beat) - bx(-LEAD) + PAD)} height={yOf(0) - yOf(8) + 16} fill={PLAYED} fillOpacity={0.07} />
                 <line x1={bx(a.beat)} x2={bx(a.beat)} y1={yOf(8) - 8} y2={yOf(0) + 8} stroke={PLAYED} strokeOpacity={0.6} strokeWidth={2} />
               </g>
             )}
-            {notes.map((n, i) => {
-              const x = bx(n.at);
-              if (x < x0 - 40 || x > W + 40) return null;
-              const on = due === i || tapped === i;
-              const lit = on && a.hit && !!showDot;
-              const c = degreeColour(n.degree);
-              const bold = on ? 700 : 400;
-              return (
-                <g key={i} role="button" aria-label={`Play ${n.spelled.name}`} className="cursor-pointer" onClick={() => onNote(i)}>
-                  <rect x={x - PAD + 2} y={0} width={Math.max(18, n.beats * beatW - 4)} height={H} rx={6} fill={on ? PLAYED : "transparent"} fillOpacity={on ? 0.1 : 0} />
-                  <Note p={placed[i]} x={x} y={yOf(placed[i].step)} beats={n.beats} colour={c} yOf={yOf} />
-                  {lit && <circle cx={x} cy={yOf(placed[i].step)} r={12} fill={c} fillOpacity={0.18} stroke={c} strokeOpacity={0.7} />}
-                  <text x={x} y={labelsY + 12} textAnchor="middle" fontSize={11} fontWeight={bold} fill={on ? PLAYED : ink.name}>{n.spelled.name}</text>
-                  <text x={x} y={labelsY + 27} textAnchor="middle" fontSize={11} fontWeight={bold} fill={lit ? c : on ? PLAYED : ink.degree}>{solfege(n.label)}</text>
-                </g>
-              );
-            })}
+            {ghosts.map((g) => drawNote(g.i, g.at, g.beats, true))}
+            {notes.map((n, i) => drawNote(i, n.at, n.beats, false))}
             {showDot && (
               <g opacity={dotOpacity} pointerEvents="none">
                 {a.tail.map((p, i) => {
