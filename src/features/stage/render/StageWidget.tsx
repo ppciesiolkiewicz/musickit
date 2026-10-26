@@ -1,18 +1,21 @@
 "use client";
 
 import { useMemo, type ReactNode } from "react";
-import { KeyBar, KeyScope, PLUGINS, keyContext, type KeyChoice } from "@/features/creator";
+import { CagedBoxPanels, CagedNeckMap } from "@/components/chordKit/CagedExplorer";
+import { ChordBubble } from "@/components/chordKit/ChordBubbles";
+import { KeyScope, PLUGINS, keyContext, type KeyChoice } from "@/features/creator";
 import { PocketTools } from "@/features/instruments";
 import { DEFAULT_KEY_PC } from "@/features/theory/theory";
-import type { Subject } from "../model/subject";
+import { cagedQualityOf, type Subject } from "../model/subject";
 import BrandWidget from "./BrandWidget";
 import ChordWidget from "./ChordWidget";
 import FitBox from "./FitBox";
+import KeyWidget from "./KeyWidget";
 import PositionWidget from "./PositionWidget";
 import SectionWidget from "./SectionWidget";
 
 /** design width each kind is laid out at before it is scaled into its rect */
-const WIDTH: Record<Subject["kind"], number> = { chord: 240, plugin: 640, position: 980, band: 360, section: 760, key: 560, logo: 300, url: 520, camera: 0, screen: 0 };
+const WIDTH: Record<Subject["kind"], number> = { chord: 240, plugin: 640, position: 980, band: 360, section: 760, bubble: 900, neck: 980, caged: 1100, key: 600, logo: 300, url: 520, camera: 0, screen: 0 };
 
 /** a key to draw with when the subject has none: the site's default key, major */
 const withTonic = (k: KeyChoice): KeyChoice => (k.tonicPc === null ? { ...k, tonicPc: DEFAULT_KEY_PC } : k);
@@ -71,19 +74,29 @@ export default function StageWidget({ subject, onSubjectChange, stageKey, onStag
         />
       );
       break;
+    case "bubble":
+      body = ctx && (
+        <div className="rounded-xl border border-slate-800 bg-slate-950 p-3">
+          <ChordBubble ctx={ctx} degree={subject.degree} />
+        </div>
+      );
+      break;
+    case "neck":
+      body = ctx && <PositionWidget ctx={ctx} kind="scale" index={null} />;
+      break;
+    case "caged": {
+      const rootPc = subject.key.tonicPc ?? DEFAULT_KEY_PC, quality = cagedQualityOf(subject.key);
+      body = subject.shape === null ? <CagedNeckMap rootPc={rootPc} quality={quality} /> : <CagedBoxPanels rootPc={rootPc} quality={quality} letter={subject.shape} />;
+      break;
+    }
     case "logo":
     case "url":
       body = <BrandWidget kind={subject.kind} />;
       break;
     case "key":
-      body = (
-        <KeyScope value={stageKey} onChange={onStageKey}>
-          <div className="rounded-xl border border-slate-800 bg-slate-950 p-2">
-            <KeyBar />
-          </div>
-        </KeyScope>
-      );
+      body = <KeyWidget tonicPc={stageKey.tonicPc} onTonic={(tonicPc) => onStageKey({ ...stageKey, tonicPc })} />;
       break;
   }
-  return <FitBox width={WIDTH[subject.kind]}>{body}</FitBox>;
+  // the CAGED map runs the whole neck: wider than one box, so its shape names fit over their colours
+  return <FitBox width={subject.kind === "caged" && subject.shape === null ? 1400 : WIDTH[subject.kind]}>{body}</FitBox>;
 }

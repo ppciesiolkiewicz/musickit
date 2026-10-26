@@ -3,7 +3,7 @@
  * never pixels, so the same data renders at any size and can be recorded and replayed. Pure: no React, no DOM, no ids made here.
  */
 import { EMPTY_KEY, sanitiseKey, type KeyChoice } from "@/features/creator/model/key";
-import { sanitiseSubject, withKey, type Subject } from "./subject";
+import { sanitiseSubject, withTonic, type Subject } from "./subject";
 
 export interface FrameRect {
   x: number;
@@ -103,7 +103,11 @@ function baseRect(s: Subject): FrameRect {
     case "band":
       return { x: 0.02, y: 0.66, w: 0.34, h: 0.3 };
     case "section":
+    case "bubble":
       return { x: 0.05, y: 0.08, w: 0.5, h: 0.5 };
+    case "neck":
+    case "caged":
+      return { x: 0.05, y: 0.08, w: 0.7, h: 0.42 };
     case "key":
       return { x: 0.02, y: 0.02, w: 0.3, h: 0.12 };
     case "logo":
@@ -187,7 +191,8 @@ export function stageReducer(s: Stage, a: StageAction): Stage {
     case "clear":
       return { ...s, layers: [], selected: null };
     case "setStageKey":
-      return { ...s, key: a.key, layers: s.layers.map((l) => ({ ...l, subject: withKey(l.subject, a.key) })) };
+      // the Key widget picks a root note: every widget moves to it and keeps its own scale or mode
+      return { ...s, key: a.key, layers: s.layers.map((l) => ({ ...l, subject: withTonic(l.subject, a.key.tonicPc) })) };
   }
 }
 

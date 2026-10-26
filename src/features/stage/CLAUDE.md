@@ -9,10 +9,11 @@ What goes in the teacher studio's 16:9 frame: widget subjects, layers, the palet
 ## Data
 - A layer's `rect` is a **fraction of the frame** (0..1), never pixels. Recording and the editor replay this exact data at any size.
 - A `Subject` is plain JSON: saved, recorded in the widget track, replayed. New kind = a case in `Subject`, `sanitiseSubject`, `subjectTitle`, `defaultRect`, the renderer, and a test.
-- Key-aware subjects carry their own key. The Key widget's `setStageKey` re-keys them all (`withKey`); chord diagrams never change.
+- Key-aware subjects carry their own key. The Key widget picks a root note only: `setStageKey` moves them all to it (`withTonic`) and keeps each one's scale or mode, so modes can be compared side by side. Chord diagrams never change.
 - Camera, screen, the Key widget, the logo and the site address exist at most once (`addSubject`, `sanitiseStage`).
 
 ## Renderer
+- The palette's categories and their order are `PALETTE_GROUPS`; `groupResults` puts results under them. A new subject's results need a group.
 - `StageWidget` turns a subject into a live widget. Keep it injectable (props in, callbacks out, no studio state), so the editor can be handed it to draw the widget track.
 
 ## Every change

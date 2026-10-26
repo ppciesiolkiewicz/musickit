@@ -3,12 +3,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { KeyChoice } from "@/features/creator";
-import { paletteCatalog, sanitiseSubject, searchPalette, subjectTitle, type MediaState, type PaletteResult, type Subject } from "@/features/stage";
+import { PALETTE_GROUPS, groupResults, paletteCatalog, sanitiseSubject, searchPalette, subjectTitle, type MediaState, type PaletteResult, type Subject } from "@/features/stage";
 
 const RECENT = "musickit.studio.recent";
 const MAX_RECENT = 5;
-
-const GROUP_NAMES: Record<PaletteResult["group"], string> = { chord: "Chord", scale: "Scale", position: "Position", theory: "Theory", audio: "Sound", brand: "Brand", studio: "Studio" };
 
 function loadRecent(pluginIds: string[]): Subject[] {
   try {
@@ -39,14 +37,22 @@ export default function Palette({ pluginIds, stageKey, media, onPick, onClose }:
   const [recent] = useState(() => loadRecent(pluginIds));
   const input = useRef<HTMLInputElement>(null);
 
-  // nothing typed: recent picks first, then everything that can go on the stage
-  const results = useMemo(() => {
-    if (query.trim()) return searchPalette(query, pluginIds, stageKey, media);
+  // under a separator per category. Nothing typed: recent picks first, then everything that can go on the stage
+  const sections = useMemo(() => {
+    const named = (g: ReturnType<typeof groupResults>) => g.map((x) => ({ name: PALETTE_GROUPS[x.group], results: x.results }));
+    if (query.trim()) return named(groupResults(searchPalette(query, pluginIds, stageKey, media), true));
     const recents = recent.map(recentResult);
-    return [...recents, ...paletteCatalog(pluginIds, stageKey, media).filter((r) => !recents.some((x) => x.label === r.label))];
+    const rest = named(groupResults(paletteCatalog(pluginIds, stageKey, media).filter((r) => !recents.some((x) => x.label === r.label))));
+    return recents.length ? [{ name: "Recent", results: recents }, ...rest] : rest;
   }, [query, pluginIds, stageKey, media, recent]);
+  const results = useMemo(() => sections.flatMap((x) => x.results), [sections]);
+  const list = useRef<HTMLUListElement>(null);
 
   useEffect(() => input.current?.focus(), []);
+  // the list is long: keep the active row in view while ↑ ↓ move through it
+  useEffect(() => {
+    list.current?.querySelector(`[aria-selected="true"]`)?.scrollIntoView({ block: "nearest" });
+  }, [active]);
 
   const pick = (r: PaletteResult | undefined) => {
     if (!r) return;
@@ -84,22 +90,33 @@ export default function Palette({ pluginIds, stageKey, media, onPick, onClose }:
           className="w-full border-b border-slate-800 bg-transparent px-4 py-3 font-mono text-base text-slate-100 outline-none placeholder:text-slate-500"
           aria-label="Search"
         />
-        <ul role="listbox" className="max-h-[50vh] overflow-auto py-1">
+        <ul ref={list} role="listbox" className="max-h-[60vh] overflow-auto py-1">
           {results.length === 0 && <li className="px-4 py-2 text-sm text-slate-500">Nothing for that. Try a chord, a key, a scale or a command.</li>}
           {!query.trim() && <li className="px-4 pb-1 pt-1.5 text-xs text-slate-500">Or type a chord (e6), a key (a dorian) or a position (e minor pent pos 2).</li>}
-          {results.map((r, i) => (
-            <li key={r.id} role="option" aria-selected={i === active}>
-              <button
-                type="button"
-                onPointerEnter={() => setActive(i)}
-                onClick={() => pick(r)}
-                className={`flex w-full items-center justify-between gap-3 px-4 py-1.5 text-left text-sm ${i === active ? "bg-sky-500/15 text-sky-100" : "text-slate-200"}`}
-              >
-                <span className="truncate">{r.label}</span>
-                <span className="shrink-0 text-xs text-slate-500">{r.detail === "Recent" ? "Recent" : r.detail === r.label || r.detail === GROUP_NAMES[r.group] ? GROUP_NAMES[r.group] : `${GROUP_NAMES[r.group]} · ${r.detail}`}</span>
-              </button>
-            </li>
-          ))}
+          {sections.map((section, k) => {
+            const first = sections.slice(0, k).reduce((n, x) => n + x.results.length, 0);
+            return [
+              <li key={`sep:${section.name}`} role="presentation" className={`px-4 pb-1 pt-2 text-[11px] font-medium uppercase tracking-wide text-slate-500 ${k > 0 ? "mt-1 border-t border-slate-800" : ""}`}>
+                {section.name}
+              </li>,
+              ...section.results.map((r, j) => {
+                const i = first + j;
+                return (
+                  <li key={r.id} role="option" aria-selected={i === active}>
+                    <button
+                      type="button"
+                      onPointerEnter={() => setActive(i)}
+                      onClick={() => pick(r)}
+                      className={`flex w-full items-center justify-between gap-3 px-4 py-1.5 text-left text-sm ${i === active ? "bg-sky-500/15 text-sky-100" : "text-slate-200"}`}
+                    >
+                      <span className="truncate">{r.label}</span>
+                      {r.detail !== r.label && r.detail !== "Recent" && r.detail !== section.name && <span className="shrink-0 text-xs text-slate-500">{r.detail}</span>}
+                    </button>
+                  </li>
+                );
+              }),
+            ];
+          })}
         </ul>
       </div>
     </div>,

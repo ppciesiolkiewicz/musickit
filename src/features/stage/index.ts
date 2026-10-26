@@ -11,7 +11,7 @@
 export { default as StageFrame } from "./StageFrame";
 export * from "./model/subject";
 export * from "./model/layers";
-export { paletteCatalog, searchPalette } from "./model/search";
+export { groupResults, paletteCatalog, searchPalette } from "./model/search";
 export * from "./model/keys";
 export { mediaState, stageCommand, toggleFull, NO_MEDIA, type MediaPlace, type MediaState } from "./model/commands";
 export { default as StageWidget, type StageWidgetProps } from "./render/StageWidget";

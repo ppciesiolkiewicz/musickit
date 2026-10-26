@@ -2,11 +2,13 @@
  * The studio palette's search: a typed line ("/ e6", "a dorian", "e minor pent pos 1", "drone a", "camera corner") turned into
  * ranked results, each adding a widget or running a studio command. Pure: no React, no storage.
  */
-import { EMPTY_KEY, keyTitle, type KeyChoice } from "@/features/creator/model/key";
+import { EMPTY_KEY, keyContext, keyTitle, type KeyChoice } from "@/features/creator/model/key";
+import { DEFAULT_KEY_PC } from "@/features/theory/theory";
+import { CAGED_LETTERS, type CagedLetter } from "@/lib/chordKit/caged";
 import { chordLabel, parseChordQuery } from "@/lib/chordKit/chordSearch";
 import type { PositionKind } from "@/lib/chordKit/scalePositions";
 import { NO_MEDIA, type MediaState } from "./commands";
-import { PLUGIN_TITLES, SECTIONS, subjectTitle, type PaletteResult, type ScaleSection, type StudioCommand, type Subject } from "./subject";
+import { PALETTE_GROUPS, PLUGIN_TITLES, SECTIONS, subjectTitle, type PaletteGroup, type PaletteResult, type ScaleSection, type StudioCommand, type Subject } from "./subject";
 
 const MAX_RESULTS = 8;
 
@@ -54,13 +56,14 @@ const URL_WORDS = new Set(["url", "link", "website", "site", "address", "brand"]
 const SECTION_PHRASES: [string[], ScaleSection][] = [
   [["every", "chord"], "chords"],
   [["chords", "in"], "chords"],
-  [["sus"], "sus"],
-  [["extensions"], "sus"],
   [["same", "notes"], "relatives"],
   [["relatives"], "relatives"],
   [["on", "guitar"], "guitar"],
-  [["fretboard"], "guitar"],
 ];
+
+const BUBBLE_WORDS = new Set(["sus", "extensions", "extension", "bubbles", "bubble"]);
+const NECK_WORDS = new Set(["fretboard", "neck"]);
+const ROMAN: Record<string, number> = { i: 0, ii: 1, iii: 2, iv: 3, v: 4, vi: 5, vii: 6 };
 
 interface CommandDef {
   label: string;
@@ -100,6 +103,8 @@ interface Parsed {
   tonic: number | null;
   mode: number | null;
   box: number | null;
+  /** a CAGED shape named with "shape" after it ("e shape"); that letter is not the tonic */
+  shape: CagedLetter | null;
 }
 
 function parse(q: string): Parsed {
@@ -107,16 +112,25 @@ function parse(q: string): Parsed {
   let tonic: number | null = null;
   let mode: number | null = null;
   let box: number | null = null;
+  let shape: CagedLetter | null = null;
   words.forEach((w, i) => {
+    const letter = CAGED_LETTERS.find((l) => l.toLowerCase() === w);
+    if (letter && words[i + 1] === "shape") {
+      shape = letter;
+      return;
+    }
     if (tonic === null) tonic = tonicPc(w);
     if (mode === null && w in MODE_WORDS) mode = MODE_WORDS[w];
     if ((w === "pos" || w === "position" || w === "box") && /^\d+$/.test(words[i + 1] ?? "")) box = Number(words[i + 1]) - 1;
   });
-  return { words, tonic, mode, box };
+  return { words, tonic, mode, box, shape };
 }
 
 const has = (p: Parsed, ...w: string[]) => w.every((x) => p.words.includes(x));
 const keyFor = (p: Parsed, fallbackMode = 0): KeyChoice | null => (p.tonic === null ? null : { tonicPc: p.tonic, family: 0, mode: p.mode ?? fallbackMode });
+/** a mode named without a root ("dorian") is that mode on the stage's root, so modes of one root can be compared */
+const modeOnStage = (p: Parsed, stageKey: KeyChoice): KeyChoice | null =>
+  p.tonic === null && p.mode !== null ? { tonicPc: stageKey.tonicPc ?? DEFAULT_KEY_PC, family: 0, mode: p.mode } : null;
 
 function addResult(subject: Subject, group: PaletteResult["group"], detail: string): PaletteResult {
   return { id: `${group}:${JSON.stringify(subject)}`, label: subjectTitle(subject), detail, group, action: { type: "add", subject } };
@@ -142,27 +156,46 @@ function commands(p: Parsed, media: MediaState): PaletteResult[] {
     .map(commandResult);
 }
 
+const bubbles = (key: KeyChoice, degrees = [0, 1, 2, 3, 4, 5, 6]) => degrees.map((degree) => addResult({ kind: "bubble", key, degree }, "scale", "Circle diagram"));
+const NECK_DETAIL = "The scale on the whole neck";
+const cagedResults = (key: KeyChoice, shapes: (CagedLetter | null)[] = [null, ...CAGED_LETTERS]) =>
+  shapes.map((shape) => addResult({ kind: "caged", key, shape }, "caged", shape === null ? "The five boxes on the whole neck" : "One box: chord, arpeggio, pentatonic, scale"));
+
 const LOGO_RESULT = addResult({ kind: "logo" }, "brand", "The attunr wordmark");
 const URL_RESULT = addResult({ kind: "url" }, "brand", "Where to find the site");
 
 /** a key positions can always be drawn in when the stage has none */
 const POSITION_FALLBACK: KeyChoice = { tonicPc: 4, family: 0, mode: 5 };
 
+const pluginGroup = (id: string): PaletteGroup => (id === "scale" ? "scale" : id === "caged" ? "caged" : "theory");
+const GROUP_ORDER = Object.keys(PALETTE_GROUPS) as PaletteGroup[];
+
+/** Results put under their category's separator. `ranked` keeps the categories in the order their best result comes (search); otherwise the palette's own order (the catalog). */
+export function groupResults(results: PaletteResult[], ranked = false): { group: PaletteGroup; results: PaletteResult[] }[] {
+  const order = ranked ? [...new Set(results.map((r) => r.group))] : GROUP_ORDER;
+  return order.map((group) => ({ group, results: results.filter((r) => r.group === group) })).filter((g) => g.results.length > 0);
+}
+
 /**
- * Everything that can go on the stage, for the palette before anything is typed: the Key widget, the Drone section, every theory panel
- * and scale section in the stage key, a scale position, the logo and the site address, then the camera and screen share. Chords need a name, so they are typed.
+ * Everything that can go on the stage, for the palette before anything is typed, by category: the Key widget and the theory panels,
+ * the scale (its panel, the fretboard, the scale sections, the sus and extension diagrams), a position of each kind, CAGED (its panel,
+ * the fretboard and each box), the key's first chord, the Drone section, the logo and the site address, then the camera and screen share.
  */
 export function paletteCatalog(pluginIds: string[], stageKey: KeyChoice, media: MediaState = NO_MEDIA): PaletteResult[] {
-  const out: PaletteResult[] = [
-    addResult({ kind: "key" }, "theory", "Changes the key of every widget"),
-    addResult({ kind: "band", key: stageKey }, "audio", "Click, drone, drums and bass"),
-  ];
-  for (const id of KEY_PLUGIN_ORDER) if (pluginIds.includes(id)) out.push(addResult({ kind: "plugin", plugin: id, key: stageKey }, id === "scale" ? "scale" : "theory", PLUGIN_TITLES[id] ?? id));
+  const drawable = stageKey.tonicPc === null ? POSITION_FALLBACK : stageKey;
+  const out: PaletteResult[] = [addResult({ kind: "key" }, "theory", "Changes the root note of every widget")];
+  for (const id of KEY_PLUGIN_ORDER) if (pluginIds.includes(id)) out.push(addResult({ kind: "plugin", plugin: id, key: stageKey }, pluginGroup(id), PLUGIN_TITLES[id] ?? id));
+  out.push(addResult({ kind: "neck", key: stageKey }, "scale", NECK_DETAIL));
   for (const section of Object.keys(SECTIONS) as ScaleSection[]) out.push(addResult({ kind: "section", section, key: stageKey }, "scale", SECTIONS[section]));
-  out.push(addResult({ kind: "position", key: stageKey.tonicPc === null ? POSITION_FALLBACK : stageKey, positionKind: "pentatonic", index: 0 }, "position", "Position on the neck"));
+  out.push(...bubbles(stageKey));
+  for (const positionKind of ["pentatonic", "scale", "3nps"] as const) out.push(addResult({ kind: "position", key: drawable, positionKind, index: 0 }, "position", "Position on the neck"));
+  out.push(...cagedResults(stageKey));
+  const first = keyContext(drawable)?.chords[0];
+  if (first && parseChordQuery(first.triadName)) out.push(addResult({ kind: "chord", symbol: first.triadName }, "chord", "Chord diagram (type any chord: e6, cmaj7)"));
+  out.push(addResult({ kind: "band", key: stageKey }, "audio", "Click, drone, drums and bass"));
   out.push(LOGO_RESULT, URL_RESULT);
   out.push(...COMMANDS.filter((c) => c.command !== "clear" && c.applies(media)).map(commandResult));
-  return out;
+  return groupResults(out).flatMap((g) => g.results);
 }
 
 /** Ranked results for a typed line, best first, at most 8. `stageKey` is the Key widget's key, used when the line names none; `media` picks which camera and screen commands apply. */
@@ -170,10 +203,10 @@ export function searchPalette(query: string, pluginIds: string[], stageKey: KeyC
   const p = parse(query);
   if (p.words.length === 0) return [];
   const out: PaletteResult[] = [];
-  const key = keyFor(p);
+  const key = keyFor(p) ?? modeOnStage(p, stageKey);
   const keyOrStage = key ?? stageKey;
 
-  if (p.words.length === 1 && p.words[0] === "key") out.push(addResult({ kind: "key" }, "theory", "Changes the key of every widget"));
+  if (p.words.length === 1 && p.words[0] === "key") out.push(addResult({ kind: "key" }, "theory", "Changes the root note of every widget"));
 
   if (p.words.some((w) => BAND_WORDS.has(w))) out.push(addResult({ kind: "band", key: keyOrStage }, "audio", "Click, drone, drums and bass"));
   if (p.words.some((w) => LOGO_WORDS.has(w))) out.push(LOGO_RESULT);
@@ -185,8 +218,21 @@ export function searchPalette(query: string, pluginIds: string[], stageKey: KeyC
     }
   }
 
+  const caged = has(p, "caged") || p.shape !== null;
+  const neck = p.words.some((w) => NECK_WORDS.has(w));
+  if (caged) out.push(...cagedResults(keyOrStage, p.shape ? [p.shape] : neck ? [null] : undefined));
+  else if (neck) out.push(addResult({ kind: "neck", key: keyOrStage }, "scale", NECK_DETAIL));
+
+  if (p.words.some((w) => BUBBLE_WORDS.has(w))) {
+    const degree = p.words.map((w) => ROMAN[w]).find((d) => d !== undefined);
+    out.push(...bubbles(keyOrStage, degree === undefined ? undefined : [degree]));
+  }
+
   const pluginWord = p.words.map((w) => PLUGIN_WORDS[w]).find((id) => id && pluginIds.includes(id));
-  if (pluginWord && !(pluginWord === "scale" && key)) out.push(addResult({ kind: "plugin", plugin: pluginWord, key: key ?? EMPTY_KEY }, "theory", PLUGIN_TITLES[pluginWord] ?? pluginWord));
+  if (pluginWord && !(pluginWord === "scale" && key) && !(pluginWord === "caged" && (neck || p.shape))) {
+    const at = pluginWord === "caged" ? 0 : out.length;
+    out.splice(at, 0, addResult({ kind: "plugin", plugin: pluginWord, key: key ?? EMPTY_KEY }, pluginGroup(pluginWord), PLUGIN_TITLES[pluginWord] ?? pluginWord));
+  }
 
   // "g major" is also a chord symbol to tonal; with a mode word it is a key
   const chord = p.mode === null ? parseChordQuery(p.words.join(" ")) : null;
@@ -201,7 +247,10 @@ export function searchPalette(query: string, pluginIds: string[], stageKey: KeyC
   if (strong) out.push(...cmds);
 
   if (key && out.length === (chord ? 1 : 0) + pos.length + (strong ? cmds.length : 0)) {
-    for (const id of KEY_PLUGIN_ORDER) if (pluginIds.includes(id)) out.push(addResult({ kind: "plugin", plugin: id, key }, id === "scale" ? "scale" : "theory", `${PLUGIN_TITLES[id] ?? id} in ${keyTitle(key)}`));
+    for (const id of KEY_PLUGIN_ORDER) {
+      if (pluginIds.includes(id)) out.push(addResult({ kind: "plugin", plugin: id, key }, pluginGroup(id), `${PLUGIN_TITLES[id] ?? id} in ${keyTitle(key)}`));
+      if (id === "scale") out.push(addResult({ kind: "neck", key }, "scale", NECK_DETAIL));
+    }
   }
 
   if (!strong) out.push(...cmds);

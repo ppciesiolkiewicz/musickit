@@ -7,15 +7,15 @@ import type { KeyContext } from "@/features/theory";
 import { useLabelSystem } from "@/features/theory/useLabelSystem";
 import { pentatonicOf, positionsFor, scaleCells, type PositionKind, type ScaleCell } from "@/lib/chordKit/scalePositions";
 
-/** One position of a scale lit up on the whole neck (the others faded). Tap a note to hear it. */
-export default function PositionWidget({ ctx, kind, index }: { ctx: KeyContext; kind: PositionKind; index: number }) {
+/** One position of a scale lit up on the whole neck (the others faded), or with no position (`index` null) the whole scale on the neck. Tap a note to hear it. */
+export default function PositionWidget({ ctx, kind, index }: { ctx: KeyContext; kind: PositionKind; index: number | null }) {
   const [system] = useLabelSystem();
   const player = useNotePlayer();
   const cells = useMemo(() => scaleCells(ctx), [ctx]);
   const positions = useMemo(() => positionsFor(ctx, kind), [ctx, kind]);
   const pent = useMemo(() => new Set(pentatonicOf(ctx.steps).degrees), [ctx]);
   const big = kind === "pentatonic" ? (c: ScaleCell) => pent.has(c.degree) : () => true;
-  const focus = positions[Math.min(index, positions.length - 1)] ?? null;
+  const focus = index === null ? null : positions[Math.min(index, positions.length - 1)] ?? null;
   const title = `${ctx.names[0]} ${ctx.modeName}`;
 
   return (

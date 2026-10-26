@@ -140,7 +140,8 @@ function Hot({ id, label, active, onHover, onPin, children }: { id: string; labe
 
 interface CompareItem { key: string; title: string; notes?: string[]; rootPc: number; semis: number[] }
 
-function Bubble({ ctx, ch, items, onToggle }: { ctx: KeyContext; ch: DegreeChord; items: CompareItem[]; onToggle: (...its: CompareItem[]) => void }) {
+/** One chord's diagram and its side panel. Without `onToggle` there is no comparison (the teacher studio's widget). */
+function Bubble({ ctx, ch, items = [], onToggle }: { ctx: KeyContext; ch: DegreeChord; items?: CompareItem[]; onToggle?: (...its: CompareItem[]) => void }) {
   const hue = HUES[HUE_OF[ch.tri]];
   const lineCol = hue.line;
   const pops = useMemo(() => popovers(ctx, ch), [ctx, ch]);
@@ -236,10 +237,10 @@ function Bubble({ ctx, ch, items, onToggle }: { ctx: KeyContext; ch: DegreeChord
         {pop.notes && <div className="mt-1 text-slate-400">Notes: <span className="text-slate-200">{pop.notes.join(" ")}</span></div>}
         {pop.warn && <p className="mt-1 text-rose-300">Clashes with the chord, use with care.</p>}
         {pop.semis && pop.rootPc !== undefined && <Fingering key={shown ?? "hub"} rootPc={pop.rootPc} semis={pop.semis} ctx={ctx} />}
-        <div className="mt-2 flex flex-wrap gap-1.5">
+        {onToggle && <div className="mt-2 flex flex-wrap gap-1.5">
           {cur && <button type="button" onClick={() => onToggle(cur)} className="rounded-md border border-sky-500/60 px-2 py-1 text-xs text-sky-200 hover:bg-sky-500/10">{items.some((x) => x.key === cur.key) ? "✓ In comparison (remove)" : "+ Compare"}</button>}
           <button type="button" onClick={() => onToggle(...all.filter((a) => !items.some((x) => x.key === a.key)))} className="rounded-md border border-slate-700 px-2 py-1 text-xs text-slate-300 hover:border-slate-500">+ Compare all {ch.root} chords</button>
-        </div>
+        </div>}
         {!pin && <p className="mt-2 text-[10px] text-slate-500">Hover a bubble to see it here; click to hear it and keep it.</p>}
       </div>
     </div>
@@ -264,6 +265,12 @@ function Fingering({ rootPc, semis, small, ctx }: { rootPc: number; semis: numbe
       {!cur.full && <p className="text-center text-[10px] text-amber-300">Closest shape: leaves out a colour note.</p>}
     </div>
   );
+}
+
+/** The sus and extension diagram of one chord of the key (degree 0..6), on its own. */
+export function ChordBubble({ ctx, degree }: { ctx: KeyContext; degree: number }) {
+  const ch = ctx.chords[degree];
+  return ch ? <Bubble key={degree} ctx={ctx} ch={ch} /> : null;
 }
 
 /**

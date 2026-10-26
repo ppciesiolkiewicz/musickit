@@ -180,8 +180,40 @@ const notesTitle = (kind: ArpKind, q: CagedQuality) => (kind === "triad" ? (q ==
 
 const STRING_LETTERS = ["E", "A", "D", "G", "B", "e"];
 
+/** The neck map on its own, for the teacher studio: the five boxes of a key up the whole neck. */
+export function CagedNeckMap({ rootPc, quality }: { rootPc: number; quality: CagedQuality }) {
+  const [labelSystem] = useLabelSystem();
+  const boxes = useMemo(() => cagedBoxes(rootPc, quality), [rootPc, quality]);
+  const keyName = useMemo(() => cagedContext(rootPc, quality).names[0], [rootPc, quality]);
+  return <Overview boxes={boxes} keyName={keyName} quality={quality} rootPc={rootPc} arpKind="triad" labelSystem={labelSystem} selected={null} embedded />;
+}
+
+/** One box on its own, for the teacher studio: its title, then the chord, arpeggio, pentatonic and scale in one row. */
+export function CagedBoxPanels({ rootPc, quality, letter }: { rootPc: number; quality: CagedQuality; letter: CagedBox["letter"] }) {
+  const [labelSystem] = useLabelSystem();
+  const boxes = useMemo(() => cagedBoxes(rootPc, quality), [rootPc, quality]);
+  const notes = useMemo(() => layerNotes(rootPc, quality, "triad"), [rootPc, quality]);
+  const index = boxes.findIndex((b) => b.letter === letter);
+  const box = boxes[index];
+  if (!box) return null;
+  return (
+    <section className="rounded-2xl border border-slate-800 bg-slate-950 p-3">
+      <h2 className="mb-2 flex items-center gap-2 text-base font-medium text-slate-100">
+        <span className="inline-block rounded px-1.5" style={{ background: LANE_COLOURS[index % 5], color: DOT_INK }}>{box.letter}</span>
+        {box.letter} shape · root on {STRING_PLAIN[box.shape.rs]}
+        <span className="ml-auto text-sm font-normal text-slate-400">{box.chordName} · frets {box.from}–{box.to}</span>
+      </h2>
+      <BoxPanels box={box} rootPc={rootPc} quality={quality} arpKind="triad" labelSystem={labelSystem} badges notes={notes} className="grid grid-cols-4 gap-3" />
+    </section>
+  );
+}
+
 /** The whole neck at a glance: a CSS grid with one column per fret and one row per string. Each CAGED box is a run of columns with its own colour. */
-function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem, selected }: { boxes: CagedBox[]; keyName: string; quality: CagedQuality; rootPc: number; arpKind: ArpKind; labelSystem: LabelSystem; selected: number | null }) {
+function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem, selected, embedded = false }: {
+  boxes: CagedBox[]; keyName: string; quality: CagedQuality; rootPc: number; arpKind: ArpKind; labelSystem: LabelSystem; selected: number | null;
+  /** in the teacher studio: no label picker, and no bleed past the page margins */
+  embedded?: boolean;
+}) {
   const cells = useMemo(() => boxCells(rootPc, quality, { ...boxes[0], from: 0, to: NECK_END }, arpKind).filter((c) => c.arpRole), [boxes, rootPc, quality, arpKind]);
   const lab = (c: CagedCell) => noteLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText, role: c.arpRole });
   const sorted = [...boxes].sort((p, q) => p.from - q.from);
@@ -203,13 +235,13 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem, selec
   });
   const COL0 = 2; // grid column 1 holds the string names
   return (
-    <section className="bleed rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5">
+    <section className={`rounded-2xl border border-slate-800 p-2.5 ${embedded ? "bg-slate-950" : "bleed bg-slate-900/40"}`}>
       <h2 className="mb-2 flex flex-wrap items-center gap-2 text-sm font-medium text-slate-100">
         <span>
           {keyName} {quality}: the five boxes up the neck
           <Info label="Reading the map">Every note of the chord on the whole neck. Each colour is one CAGED box, named after the open chord shape it is built around and numbered by position up the neck. On every string a colour starts halfway under a chord note and runs to halfway under the next one, so the first note on a string starts the first colour, the second note the second colour, and so on. The pattern repeats after the 12th fret. Tap a note to hear it.</Info>
         </span>
-        <LabelSelect className="ml-auto" />
+        {!embedded && <LabelSelect className="ml-auto" />}
       </h2>
       <div className="[--row:1.6rem] sm:[--row:2.6rem]">
         <div
@@ -277,32 +309,10 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem, selec
 function BoxCard({ box, index, rootPc, quality, arpKind, labelSystem, badges, notes, selected, onSelect }: {
   box: CagedBox; index: number; rootPc: number; quality: CagedQuality; arpKind: ArpKind; labelSystem: LabelSystem; badges: boolean; notes: ReturnType<typeof layerNotes>; selected: boolean; onSelect: () => void;
 }) {
-  const th = CAGED_THEORY[quality];
   const ctx = useMemo(() => cagedContext(rootPc, quality), [rootPc, quality]);
-  const cells = useMemo(() => boxCells(rootPc, quality, box, arpKind), [rootPc, quality, box, arpKind]);
   const related = useMemo(() => boxChords(rootPc, quality, box).filter((c) => c.shape.suf !== box.shape.suf || c.rootFret !== box.rootFret).slice(0, 8), [rootPc, quality, box]);
   const scaleChords = useMemo(() => boxScaleChords(rootPc, quality, box), [rootPc, quality, box]);
-  const [hearing, setHearing] = useState(false);
-
-  const hearChord = () => {
-    strumShape(box.shape, box.rootFret);
-    setHearing(true);
-    setTimeout(() => setHearing(false), 600);
-  };
-  const onNote = (c: CagedCell) => strum([c.midi], { gapMs: 0, holdMs: 700 });
   const fretText = `frets ${box.from}–${box.to}`;
-  // a short tune from the box's scale (or the pentatonic part of it), new every click
-  const playTune = (semis: number[], tuneId: string) => {
-    const pool = scalePool(48 + rootPc, th.scale).filter((n) => semis.includes(th.scale[n.degree]));
-    playTimed(melodyTiming(generateMelody(pool, th.scale)).map((n) => ({ midi: n.note.midi, ms: n.ms, velocity: n.velocity })), tuneId);
-  };
-  const only = (k: keyof Layers): Layers => ({ chord: false, arp: false, pent: false, scale: false, [k]: true });
-  const panels = [
-    { key: "chord", title: "CAGED / Chord", layers: only("chord"), notes: `${box.chordName}, root on the ${STRING_SHORT[box.shape.rs]} string${box.rootFret > 0 ? `, fret ${box.rootFret}` : ", open"}`, onPlay: hearChord },
-    { key: "arp", title: notes.arpTitle.replace(" arpeggio", " arpeggio"), layers: only("arp"), notes: notes.arp.join(" "), onPlay: () => strum(arpeggioMidi(boxArpeggio(ctx, arpKind)), { gapMs: 230, holdMs: 700 }) },
-    { key: "pent", title: th.pentName, layers: only("pent"), notes: notes.pent.join(" "), onPlay: () => strum(ladderMidi(rootPc, th.pent), { gapMs: 220, holdMs: 500 }), onTune: (id: string) => playTune(th.pent, id) },
-    { key: "scale", title: th.scaleName, layers: only("scale"), notes: notes.scale.join(" "), onPlay: () => strum(ladderMidi(rootPc, th.scale), { gapMs: 200, holdMs: 500 }), onTune: (id: string) => playTune(th.scale, id) },
-  ];
 
   return (
     <section id={`box-${box.letter}`} className={`bleed ${UNDER_BAR}`}>
@@ -318,20 +328,7 @@ function BoxCard({ box, index, rootPc, quality, arpKind, labelSystem, badges, no
         meta={fretText}
         accent={LANE_COLOURS[index % 5]}
       >
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          {panels.map((p) => (
-            <div key={p.key} className="flex min-w-0 flex-col gap-1.5 rounded-xl border border-slate-800 bg-slate-950/70 p-2">
-              <div className="flex items-center gap-2">
-                <h3 className="text-sm font-medium text-slate-100">{p.title}</h3>
-                <button type="button" className={`cursor-sound ${play} ml-auto`} onClick={p.onPlay} aria-label={`Play the ${p.title}`}>▶ Play</button>
-                {"onTune" in p && p.onTune && <TuneButton className={play} onPlay={p.onTune} title={`A short tune made from the ${p.title}, new every time`} />}
-              </div>
-              <BoxNeck cells={cells} box={box} layers={p.layers} labelSystem={labelSystem} badges={badges} onNote={onNote} />
-              <p className="text-xs text-slate-400">{p.notes}</p>
-            </div>
-          ))}
-        </div>
-
+        <BoxPanels box={box} rootPc={rootPc} quality={quality} arpKind={arpKind} labelSystem={labelSystem} badges={badges} notes={notes} />
         {scaleChords.length > 0 && (
           <div className="mt-3">
             <Section level={2}
@@ -362,5 +359,42 @@ function BoxCard({ box, index, rootPc, quality, arpKind, labelSystem, badges, no
         )}
       </Section>
     </section>
+  );
+}
+
+/** A box's four necks side by side: its chord, arpeggio, pentatonic and scale, each with Play (and a tune for the scales). */
+function BoxPanels({ box, rootPc, quality, arpKind, labelSystem, badges, notes, className = "grid gap-3 sm:grid-cols-2 xl:grid-cols-4" }: {
+  box: CagedBox; rootPc: number; quality: CagedQuality; arpKind: ArpKind; labelSystem: LabelSystem; badges: boolean; notes: ReturnType<typeof layerNotes>; className?: string;
+}) {
+  const th = CAGED_THEORY[quality];
+  const ctx = useMemo(() => cagedContext(rootPc, quality), [rootPc, quality]);
+  const cells = useMemo(() => boxCells(rootPc, quality, box, arpKind), [rootPc, quality, box, arpKind]);
+  const onNote = (c: CagedCell) => strum([c.midi], { gapMs: 0, holdMs: 700 });
+  // a short tune from the box's scale (or the pentatonic part of it), new every click
+  const playTune = (semis: number[], tuneId: string) => {
+    const pool = scalePool(48 + rootPc, th.scale).filter((n) => semis.includes(th.scale[n.degree]));
+    playTimed(melodyTiming(generateMelody(pool, th.scale)).map((n) => ({ midi: n.note.midi, ms: n.ms, velocity: n.velocity })), tuneId);
+  };
+  const only = (k: keyof Layers): Layers => ({ chord: false, arp: false, pent: false, scale: false, [k]: true });
+  const panels = [
+    { key: "chord", title: "CAGED / Chord", layers: only("chord"), notes: `${box.chordName}, root on the ${STRING_SHORT[box.shape.rs]} string${box.rootFret > 0 ? `, fret ${box.rootFret}` : ", open"}`, onPlay: () => strumShape(box.shape, box.rootFret) },
+    { key: "arp", title: notes.arpTitle, layers: only("arp"), notes: notes.arp.join(" "), onPlay: () => strum(arpeggioMidi(boxArpeggio(ctx, arpKind)), { gapMs: 230, holdMs: 700 }) },
+    { key: "pent", title: th.pentName, layers: only("pent"), notes: notes.pent.join(" "), onPlay: () => strum(ladderMidi(rootPc, th.pent), { gapMs: 220, holdMs: 500 }), onTune: (id: string) => playTune(th.pent, id) },
+    { key: "scale", title: th.scaleName, layers: only("scale"), notes: notes.scale.join(" "), onPlay: () => strum(ladderMidi(rootPc, th.scale), { gapMs: 200, holdMs: 500 }), onTune: (id: string) => playTune(th.scale, id) },
+  ];
+  return (
+    <div className={className}>
+      {panels.map((p) => (
+        <div key={p.key} className="flex min-w-0 flex-col gap-1.5 rounded-xl border border-slate-800 bg-slate-950/70 p-2">
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-medium text-slate-100">{p.title}</h3>
+            <button type="button" className={`cursor-sound ${play} ml-auto`} onClick={p.onPlay} aria-label={`Play the ${p.title}`}>▶ Play</button>
+            {"onTune" in p && p.onTune && <TuneButton className={play} onPlay={p.onTune} title={`A short tune made from the ${p.title}, new every time`} />}
+          </div>
+          <BoxNeck cells={cells} box={box} layers={p.layers} labelSystem={labelSystem} badges={badges} onNote={onNote} />
+          <p className="text-xs text-slate-400">{p.notes}</p>
+        </div>
+      ))}
+    </div>
   );
 }

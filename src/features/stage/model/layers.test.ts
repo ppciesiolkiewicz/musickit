@@ -120,7 +120,7 @@ test("toggle hides and shows; clear empties the stage", () => {
   assert.deepEqual(stageReducer(s, { type: "clear" }).layers, []);
 });
 
-test("setStageKey re-keys key-aware layers, never the chord, and sets the stage key", () => {
+test("setStageKey moves key-aware layers to its root note, never the chord, and sets the stage key", () => {
   const e = { tonicPc: 4, family: 0, mode: 5 };
   const s0 = withLayers(
     layer("chord"),
@@ -128,16 +128,26 @@ test("setStageKey re-keys key-aware layers, never the chord, and sets the stage 
     layer("pos", { kind: "position", key: EMPTY_KEY, positionKind: "pentatonic", index: 0 }),
     layer("band", { kind: "band", key: EMPTY_KEY }),
     layer("sec", { kind: "section", section: "chords", key: EMPTY_KEY }),
+    layer("neck", { kind: "neck", key: EMPTY_KEY }),
+    layer("caged", { kind: "caged", key: EMPTY_KEY, shape: "E" }),
   );
   const s = stageReducer(s0, { type: "setStageKey", key: e });
   assert.deepEqual(s.key, e);
   assert.deepEqual(s.layers[0].subject, chord);
-  for (const l of s.layers.slice(1)) assert.deepEqual((l.subject as { key: unknown }).key, e);
+  for (const l of s.layers.slice(1)) assert.equal((l.subject as { key: { tonicPc: number } }).key.tonicPc, 4);
   // widgets keep their own key between Key-widget changes
   const a = { tonicPc: 9, family: 0, mode: 1 };
   const swapped = stageReducer(s, { type: "swap", id: "p", subject: { kind: "plugin", plugin: "scale", key: a } });
   assert.deepEqual((swapped.layers[1].subject as { key: unknown }).key, a);
-  assert.deepEqual((swapped.layers[2].subject as { key: unknown }).key, e);
+  assert.deepEqual((swapped.layers[2].subject as { key: unknown }).key, { ...EMPTY_KEY, tonicPc: 4 });
+});
+
+test("setStageKey keeps each widget's mode, so modes of one root can be compared", () => {
+  const dorian = { tonicPc: 9, family: 0, mode: 1 };
+  const phrygian = { tonicPc: 9, family: 0, mode: 2 };
+  const s0 = withLayers(layer("d", { kind: "neck", key: dorian }), layer("p", { kind: "neck", key: phrygian }));
+  const s = stageReducer(s0, { type: "setStageKey", key: { tonicPc: 0, family: 0, mode: 0 } });
+  assert.deepEqual(s.layers.map((l) => (l.subject as { key: unknown }).key), [{ ...dorian, tonicPc: 0 }, { ...phrygian, tonicPc: 0 }]);
 });
 
 test("addSubject: one camera, one screen, one key; screen at the bottom, camera above it, widgets above both", () => {

@@ -1,6 +1,5 @@
 "use client";
 
-import ChordBubbles from "@/components/chordKit/ChordBubbles";
 import ScaleChords from "@/components/chordKit/ScaleChords";
 import ScaleOnGuitar from "@/components/chordKit/ScaleOnGuitar";
 import ScaleRelatives from "@/components/chordKit/ScaleRelatives";
@@ -14,13 +13,6 @@ export default function SectionWidget({ ctx, section, familyIndex, onPick }: { c
   switch (section) {
     case "chords":
       return <ScaleChords ctx={ctx} />;
-    case "sus":
-      return (
-        <section className="rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5">
-          <h2 className="mb-2 text-sm font-medium text-slate-100">Sus and extension chords in {ctx.names[0]} {ctx.modeName}</h2>
-          <ChordBubbles ctx={ctx} />
-        </section>
-      );
     case "relatives":
       return <ScaleRelatives ctx={ctx} familyIndex={familyIndex} onPick={onPick} />;
     case "guitar":
