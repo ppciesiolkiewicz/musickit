@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { VOICES, buildLadder, clefFor, fitOf, hzToMidi, locate, savedVoice, scaleRun, spellName, voiceOf } from "./singing";
+import { VOICES, buildLadder, clefFor, fitOf, hzToMidi, locate, savedVoice, scaleRun, spellName, tuneLadderFor, voiceOf } from "./singing";
 import { place } from "./piano/staff";
 
 describe("singing ladder", () => {
@@ -122,5 +122,26 @@ describe("a stored voice", () => {
     assert.equal(savedVoice("tenor"), "tenor");
     assert.equal(savedVoice({ low: 48, high: 72 }), "tenor");
     for (const bad of [null, "nope", "toString", 3, {}, { low: 48 }, { low: 50, high: 63 }]) assert.equal(savedVoice(bad), null);
+  });
+});
+
+describe("tune ladder", () => {
+  const labels = (l: { notes: { label: string }[] }) => new Set(l.notes.map((n) => n.label));
+  it("a seven-note scale keeps its ladder, with the notes under Do added", () => {
+    const l = buildLadder("major-ionian", 0, VOICES.alto)!;
+    const t = tuneLadderFor(l, 0, VOICES.alto);
+    assert.equal(t.pcs.size, 7);
+    assert.ok(t.notes.length >= l.notes.length);
+    assert.deepEqual(t.notes.slice(-l.notes.length).map((n) => n.midi), l.notes.map((n) => n.midi));
+  });
+  it("a major pentatonic sings the tunes in its major", () => {
+    const t = tuneLadderFor(buildLadder("major-pentatonic", 0, VOICES.alto)!, 0, VOICES.alto);
+    assert.equal(t.pcs.size, 7);
+    assert.ok(labels(t).has("3"));
+  });
+  it("a minor pentatonic sings them in its natural minor", () => {
+    const t = tuneLadderFor(buildLadder("minor-pentatonic", 9, VOICES.alto)!, 9, VOICES.alto);
+    assert.equal(t.pcs.size, 7);
+    assert.ok(labels(t).has("♭3"));
   });
 });

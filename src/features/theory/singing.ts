@@ -117,6 +117,11 @@ export function buildLadder(slug: string, tonicPc: number, range: Range): Ladder
   return { notes, signature: scaleSignature(s.ctx).count, pcs: new Set(s.tones.map((t) => (tonicPc + t.semis) % 12)), title: s.title };
 }
 
+/** The seven-note ladder the book's tunes are written in: a pentatonic sings them in its major or minor, and they can dip under the lowest Do. */
+export function tuneLadderFor(ladder: Ladder, tonicPc: number, range: Range): Ladder {
+  return withNotesUnder(ladder.pcs.size === 7 ? ladder : buildLadder(ladder.notes.some((n) => n.label === "♭3") ? "natural-minor-aeolian" : "major-ionian", tonicPc, range)!, range);
+}
+
 /** The ladder with the scale's notes under its lowest root added, down to the bottom of the range, so a tune can dip under Do. */
 export function withNotesUnder(l: Ladder, range: Range): Ladder {
   const under = l.notes
