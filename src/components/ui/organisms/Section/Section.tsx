@@ -25,7 +25,7 @@ export function Section({
       <div className={`flex items-center gap-2 ${accent && level === 1 ? `border-b border-slate-700 bg-slate-800/60 ${isOpen ? "mb-3" : ""}` : ""}`}>
         {/* with a lead the chevron is its own toggle, so the lead's controls sit outside any button */}
         {lead && (
-          <button type="button" onClick={toggle} aria-expanded={isOpen} aria-label={isOpen ? "Hide section" : "Show section"} className={`${level === 1 ? "py-3 pl-4 text-slate-100" : "py-2 text-slate-400"} focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400`}>
+          <button type="button" onClick={toggle} aria-expanded={isOpen} aria-label={isOpen ? "Hide section" : "Show section"} className={`cursor-pointer ${level === 1 ? "py-3 pl-4 text-slate-100" : "py-2 text-slate-400"} focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400`}>
             <span className={`inline-block transition-transform ${isOpen ? "rotate-90" : ""}`} aria-hidden>▸</span>
           </button>
         )}
@@ -34,7 +34,7 @@ export function Section({
           type="button"
           onClick={toggle}
           aria-expanded={isOpen}
-          className={`flex min-w-0 flex-1 items-center gap-2 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${level === 1 ? `${lead ? "py-3 pr-4" : "px-4 py-3"} font-medium text-slate-100 ${accent ? "text-base" : "text-sm"}` : "py-2 text-xs font-medium uppercase tracking-wider text-slate-400"}`}
+          className={`flex min-w-0 flex-1 cursor-pointer items-center gap-2 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${level === 1 ? `${lead ? "py-3 pr-4" : "px-4 py-3"} font-medium text-slate-100 ${accent ? "text-base" : "text-sm"}` : "py-2 text-xs font-medium uppercase tracking-wider text-slate-400"}`}
         >
           {!lead && <span className={`inline-block transition-transform ${isOpen ? "rotate-90" : ""}`} aria-hidden>▸</span>}
           <span>{title}</span>

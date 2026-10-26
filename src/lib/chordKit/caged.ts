@@ -232,17 +232,20 @@ export function laneStarts(strings: number[][], lanes: number, neckEnd = NECK_EN
   });
 }
 
-export interface BoxScaleChord extends BoxChord {
+export interface BoxScaleChord {
+  shape: Shape;
+  rootFret: number;
+  name: string;
   degree: number;
   /** Roman numeral in the key: "ii", "V", "vii°" */
   roman: string;
 }
-/** The other chords of the key (ii, iii, IV ... not the I) with a shape that sits inside the box, the easiest one per degree. */
+/** The chords of the key with a shape that sits inside the box: the box's own CAGED chord as the I, then the easiest shape per other degree. */
 export function boxScaleChords(rootPc: number, quality: CagedQuality, box: CagedBox): BoxScaleChord[] {
   const ctx = cagedContext(rootPc, quality);
   const out: BoxScaleChord[] = [];
   ctx.chords.forEach((c, d) => {
-    if (d === 0) return;
+    if (d === 0) return void out.push({ shape: box.shape, rootFret: box.rootFret, name: c.triadName, degree: 0, roman: c.roman });
     for (const pick of shapesForChord(ctx, d, ["easy", "medium", "hard"], { fit: "triad" })) {
       const rf = [pick.fret, pick.fret + 12].find((r) => {
         const frets = pick.shape.f.filter((v): v is number => v !== null).map((v) => r + v);

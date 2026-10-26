@@ -12,13 +12,15 @@ import {
   type ArpKind, type CagedBox, type CagedCell, type CagedQuality,
 } from "@/lib/chordKit/caged";
 import { STRING_PLAIN, STRING_SHORT } from "@/lib/chordKit/shapeTools";
+import type { Shape } from "@/lib/chordKit/shapes";
 import { arpeggioMidi } from "@/lib/chordKit/arpeggios";
 import { shapesForChord } from "@/lib/chordKit/chordShapes";
 import { playTimed, strum, strumShape } from "@/lib/chordKit/playback";
 import { generateMelody, melodyTiming, scalePool } from "@/lib/chordKit/melody";
 import TuneButton from "./TuneButton";
 import { DEFAULT_KEY_PC } from "@/features/theory/theory";
-import { Chip, Info, Section, Select } from "@/components/ui";
+import { Chip, Info, InfoTip, Section, Select } from "@/components/ui";
+import { degreeInfo } from "@/features/theory/degreeInfo";
 import { BarRow, ScaleSettingsBar, UNDER_BAR, WithSettings } from "./ScaleSettings";
 import { DegreeLegend } from "@/components/theory/DegreeLegend";
 
@@ -147,6 +149,31 @@ function KeyChords({ rootPc, quality, keyName }: { rootPc: number; quality: Cage
         ))}
       </div>
     </section>
+  );
+}
+const ChordGrid = ({ children }: { children: ReactNode }) => <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">{children}</div>;
+
+/** One chord in a box's chord lists: an optional line over the name (its Roman numeral), the diagram, and a caption. The head line keeps its height when empty, so every card lines up. */
+function ChordCard({ name, shape, rootFret, ctx, caption, head }: { name: string; shape: Shape; rootFret: number; ctx: ReturnType<typeof cagedContext>; caption: string; head?: ReactNode }) {
+  return (
+    <div className="flex flex-col items-center gap-0.5 rounded-xl border border-slate-800 bg-slate-950/50 p-2">
+      <span className="flex min-h-6 items-center gap-1.5 text-xs text-slate-400">{head}</span>
+      <span className="text-sm font-medium text-slate-100">{name}</span>
+      <div className="w-24"><ChordDiagram shape={shape} rootFret={rootFret} onPlay={() => strumShape(shape, rootFret)} ctx={ctx} /></div>
+      <span className="text-xs text-slate-500">{caption}</span>
+    </div>
+  );
+}
+
+/** A degree's name, job and notes, for the tooltip by its Roman numeral. */
+function DegreeNote({ ctx, degree }: { ctx: ReturnType<typeof cagedContext>; degree: number }) {
+  const d = degreeInfo(ctx, degree), c = ctx.chords[degree];
+  return (
+    <>
+      <span className="font-medium text-slate-100">{c.roman} · {c.triadName} · {d.name}</span>
+      <span>Notes: {d.notes.join(" ")}</span>
+      <span>{d.text}</span>
+    </>
   );
 }
 const notesTitle = (kind: ArpKind, q: CagedQuality) => (kind === "triad" ? (q === "major" ? "Major triad" : "Minor triad") : q === "major" ? "Maj7 arpeggio" : "Min7 arpeggio");
@@ -308,18 +335,14 @@ function BoxCard({ box, index, rootPc, quality, arpKind, labelSystem, badges, no
         {scaleChords.length > 0 && (
           <div className="mt-3">
             <Section level={2}
-              title={`Chords of ${ctx.names[0]} ${quality} inside this box (${scaleChords.length})`}
-              info="The other chords of the key, each with a shape whose every note falls inside this box, so you can change chord without leaving the position. The Roman numeral is the chord's degree in the key: capitals are major, lower case minor, ° diminished. Tap one to hear it.">
-              <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+              title={`Chords inside this box (${scaleChords.length})`}
+              info="The chords of the key, starting with the box's own CAGED chord as the I, each with a shape whose every note falls inside this box, so you can change chord without leaving the position. The Roman numeral is the chord's degree in the key: capitals are major, lower case minor, ° diminished. Tap one to hear it.">
+              <ChordGrid>
                 {scaleChords.map((c) => (
-                  <div key={c.degree} className="flex flex-col items-center gap-0.5 rounded-xl border border-slate-800 bg-slate-950/50 p-2">
-                    <span className="text-xs text-slate-400">{c.roman}</span>
-                    <span className="text-sm font-medium text-slate-100">{c.name}</span>
-                    <div className="w-full max-w-[13rem]"><ChordDiagram shape={c.shape} rootFret={c.rootFret} onPlay={() => strumShape(c.shape, c.rootFret)} ctx={ctx} /></div>
-                    <span className="text-xs text-slate-500">fret {c.rootFret}</span>
-                  </div>
+                  <ChordCard key={c.degree} name={c.name} shape={c.shape} rootFret={c.rootFret} ctx={ctx} caption={`fret ${c.rootFret}`}
+                    head={<>{c.roman}<InfoTip hover align="center" label={`About the ${c.roman} chord`}><DegreeNote ctx={ctx} degree={c.degree} /></InfoTip></>} />
                 ))}
-              </div>
+              </ChordGrid>
             </Section>
           </div>
         )}
@@ -329,15 +352,11 @@ function BoxCard({ box, index, rootPc, quality, arpKind, labelSystem, badges, no
             <Section level={2} defaultOpen={false}
               title={`Other ${ctx.names[0]}${quality === "minor" ? " minor" : ""} chords inside this box (${related.length})`}
               info="Chords on the same root from the chord explorer whose every note falls inside this box, easiest first. They fit the same arpeggio, pentatonic and scale as the main shape. Tap one to hear it.">
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            <ChordGrid>
               {related.map((c) => (
-                <div key={c.shape.id} className="flex flex-col items-center gap-0.5 rounded-xl border border-slate-800 bg-slate-950/50 p-2">
-                  <span className="text-sm font-medium text-slate-100">{c.name}</span>
-                  <div className="w-24"><ChordDiagram shape={c.shape} rootFret={c.rootFret} onPlay={() => strumShape(c.shape, c.rootFret)} ctx={ctx} /></div>
-                  <span className="text-xs text-slate-500">{c.shape.v ?? "fret " + c.rootFret}</span>
-                </div>
+                <ChordCard key={c.shape.id} name={c.name} shape={c.shape} rootFret={c.rootFret} ctx={ctx} caption={c.shape.v ?? `fret ${c.rootFret}`} />
               ))}
-            </div>
+            </ChordGrid>
             </Section>
           </div>
         )}
