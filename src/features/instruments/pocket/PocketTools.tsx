@@ -162,9 +162,21 @@ function BeatDots({ rig, playing }: { rig: JamRig; playing: boolean }) {
  * What the pocket tools are doing, for a host to show in its header: the tempo, the drone's note and which parts play;
  * `nextBeat` is when the grid's next beat sounds (AudioContext time), or null when nothing keeps it, for a host to play on the click;
  * `gridBeats` is the beats since the grid's beat 1 (null when nothing keeps it), for a host's bar to ride the click; `restart` starts
- * the grid over on beat 1 shortly, the click with it (muted if it was not playing), and resolves to when beat 1 sounds (AudioContext time).
+ * the grid over on beat 1 shortly (or `from` beats into it), the click with it (muted if it was not playing), and resolves to when it
+ * sounds (AudioContext time). `heard` is whether the click sounds; `hear` starts it (if need be) heard, or mutes it, keeping time;
+ * `setTempo` sets the tempo for every part.
  */
-export type PocketStatus = { bpm: number; drone: string; playing: string[]; nextBeat: () => number | null; gridBeats: () => number | null; restart: () => Promise<number | null> };
+export type PocketStatus = {
+  bpm: number;
+  drone: string;
+  playing: string[];
+  heard: boolean;
+  nextBeat: () => number | null;
+  gridBeats: () => number | null;
+  restart: (from?: number) => Promise<number | null>;
+  hear: (on: boolean) => void;
+  setTempo: (bpm: number) => void;
+};
 
 export default function PocketTools({ keyPc, className = "", stacked = false, clickAlways = false, onStatus }: {
   keyPc: number;
@@ -263,14 +275,21 @@ export default function PocketTools({ keyPc, className = "", stacked = false, cl
 
   const droneLabel = droneName(snap.parts.drone.state.drone);
   const playingKey = [...(snap.click.on ? ["click"] : []), ...playingParts].join(",");
+  const heard = snap.click.on && !snap.click.muted;
   useEffect(() => {
-    onStatus?.({ bpm: snap.bpm, drone: droneLabel, playing: playingKey ? playingKey.split(",") : [], nextBeat: () => rig.nextBeatAt(), gridBeats: () => rig.gridBeats(),
-      restart: async () => {
+    onStatus?.({ bpm: snap.bpm, drone: droneLabel, playing: playingKey ? playingKey.split(",") : [], heard, nextBeat: () => rig.nextBeatAt(), gridBeats: () => rig.gridBeats(),
+      restart: async (from = 0) => {
         await quietClick();
-        return rig.restart();
-      } });
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- quietClick only reads the rig
-  }, [onStatus, rig, snap.bpm, droneLabel, playingKey]);
+        return rig.restart(0.1, from);
+      },
+      hear: (on) => {
+        paused.current = null;
+        rig.setClickMuted(!on);
+        if (on && !rig.snapshot().click.on) void play([], true);
+      },
+      setTempo: (bpm) => rig.setTempo(bpm) });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- quietClick and play only read the rig
+  }, [onStatus, rig, snap.bpm, droneLabel, playingKey, heard]);
 
   const tap = () => {
     const now = performance.now() / 1000;
@@ -317,27 +336,33 @@ export default function PocketTools({ keyPc, className = "", stacked = false, cl
 
       <div className={`grid min-w-0 flex-1 gap-x-3 gap-y-1.5 ${stacked ? "md:grid-cols-2 lg:grid-cols-1" : "md:grid-cols-2 xl:grid-cols-1"}`}>
         <Tool label="Click">
-          <PlayButton on={snap.click.on} label="metronome" onClick={toggleClick} />
-          <MuteButton className={ibtn} name="metronome" muted={snap.click.muted} onMute={(m) => rig.setClickMuted(m)} />
-          <button type="button" className={ibtn} disabled={snap.bpm <= MIN_BPM} onClick={() => rig.setTempo(snap.bpm - 1)} aria-label="Slower">−</button>
-          <span className="flex w-14 shrink-0 items-baseline justify-center whitespace-nowrap text-xs text-slate-100"><NumberField value={snap.bpm} min={MIN_BPM} max={MAX_BPM} onCommit={(bpm) => rig.setTempo(bpm)} aria-label="Tempo in beats per minute" title="Type a tempo" className="w-8 py-0.5" /><span className="text-[10px] text-slate-500">bpm</span></span>
-          <button type="button" className={ibtn} disabled={snap.bpm >= MAX_BPM} onClick={() => rig.setTempo(snap.bpm + 1)} aria-label="Faster">+</button>
-          <BeatDots rig={rig} playing={anyOn} />
-          <Popover label="Tempo and click">
-            <div className="flex flex-col gap-2.5">
-              <label className="flex items-center gap-2">
-                <span className="w-14 shrink-0">Tempo</span>
-                <Slider min={MIN_BPM} max={MAX_BPM} step={1} value={snap.bpm} onChange={(bpm) => rig.setTempo(bpm)} className="flex-1" aria-label="Tempo" />
-                <NumberField value={snap.bpm} min={MIN_BPM} max={MAX_BPM} onCommit={(bpm) => rig.setTempo(bpm)} aria-label="Tempo in beats per minute" className="w-10 py-0.5 text-slate-200" />
-              </label>
-              <label className="flex items-center gap-2">
-                <span className="w-14 shrink-0">Click</span>
-                <Slider min={0} max={1} step={0.01} value={snap.click.volume} onChange={(v) => rig.setClickVolume(v)} className="flex-1" aria-label="Click volume" />
-              </label>
-              <button type="button" className={`${ibtn} h-9 w-full text-sm`} onClick={tap} title="Tap a few times in time to set the tempo">Tap tempo</button>
-              <p className="text-[11px] text-slate-500">One tempo for the click, drone, drums and bass.</p>
+          {/* two lines: the click's buttons, then the tempo on a slider under them */}
+          <div className="flex min-w-0 flex-1 flex-col gap-1">
+            <div className="flex min-w-0 items-center gap-1">
+              <PlayButton on={snap.click.on} label="metronome" onClick={toggleClick} />
+              <MuteButton className={ibtn} name="metronome" muted={snap.click.muted} onMute={(m) => rig.setClickMuted(m)} />
+              <button type="button" className={ibtn} disabled={snap.bpm <= MIN_BPM} onClick={() => rig.setTempo(snap.bpm - 1)} aria-label="Slower">−</button>
+              <span className="flex w-14 shrink-0 items-baseline justify-center whitespace-nowrap text-xs text-slate-100"><NumberField value={snap.bpm} min={MIN_BPM} max={MAX_BPM} onCommit={(bpm) => rig.setTempo(bpm)} aria-label="Tempo in beats per minute" title="Type a tempo" className="w-8 py-0.5" /><span className="text-[10px] text-slate-500">bpm</span></span>
+              <button type="button" className={ibtn} disabled={snap.bpm >= MAX_BPM} onClick={() => rig.setTempo(snap.bpm + 1)} aria-label="Faster">+</button>
+              <BeatDots rig={rig} playing={anyOn} />
+              <Popover label="Tempo and click">
+                <div className="flex flex-col gap-2.5">
+                  <label className="flex items-center gap-2">
+                    <span className="w-14 shrink-0">Tempo</span>
+                    <Slider min={MIN_BPM} max={MAX_BPM} step={1} value={snap.bpm} onChange={(bpm) => rig.setTempo(bpm)} className="flex-1" aria-label="Tempo" />
+                    <NumberField value={snap.bpm} min={MIN_BPM} max={MAX_BPM} onCommit={(bpm) => rig.setTempo(bpm)} aria-label="Tempo in beats per minute" className="w-10 py-0.5 text-slate-200" />
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <span className="w-14 shrink-0">Click</span>
+                    <Slider min={0} max={1} step={0.01} value={snap.click.volume} onChange={(v) => rig.setClickVolume(v)} className="flex-1" aria-label="Click volume" />
+                  </label>
+                  <button type="button" className={`${ibtn} h-9 w-full text-sm`} onClick={tap} title="Tap a few times in time to set the tempo">Tap tempo</button>
+                  <p className="text-[11px] text-slate-500">One tempo for the click, drone, drums and bass.</p>
+                </div>
+              </Popover>
             </div>
-          </Popover>
+            <Slider min={MIN_BPM} max={MAX_BPM} step={1} value={snap.bpm} onChange={(bpm) => rig.setTempo(bpm)} size="sm" className="w-full max-w-64 px-1" aria-label="Tempo" title={`${snap.bpm} bpm`} />
+          </div>
         </Tool>
 
         <Tool label="Drone">

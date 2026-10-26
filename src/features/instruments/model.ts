@@ -9,3 +9,4 @@ export { BASS, DEFAULT_KEY, DRONE, DRONE_ID, DRUMS, INSTRUMENTS, Sequencer, bass
 export * from "./effects/effects";
 export * from "./effects/choices";
 export { EffectChain } from "./effects/chain";
+export { MAX_BPM, MIN_BPM } from "./jam/clock";

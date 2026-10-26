@@ -3,11 +3,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BarRow, ScaleSettingsBar, WithSettings } from "@/components/chordKit/ScaleSettings";
 import { useMicPitch } from "@/components/practice/useMicPitch";
-import { Button, Chip } from "@/components/ui";
+import { Button, Chip, Slider } from "@/components/ui";
 import { createSmoother, type Pitch } from "@/features/tuner/pitch";
 import { DEFAULT_KEY_PC } from "@/features/theory/theory";
 import { getAudioContext, getSharedPiano, midiToName, onSilence, playSequence, silence, wakeAudio } from "@/features/sound";
-import type { PocketStatus } from "@/features/instruments";
+import { MAX_BPM, MIN_BPM, type PocketStatus } from "@/features/instruments";
 import { ACCURACIES, IN_TUNE_CENTS, VOICES, buildLadder, clefFor, hzToMidi, savedAccuracy, savedVoice, scaleRun, withNotesUnder, type Voice } from "@/features/theory/singing";
 import { BOOK, DIFFICULTIES, placeTune, type BookTune, type PlacedNote } from "@/features/theory/singingMelodies";
 import SingingStaff from "./SingingStaff";
@@ -143,19 +143,27 @@ export default function SingingApp() {
     if (running) silence();
     await startTune(t);
   };
-  // the metronome starts over with the tune, so its beat 1 is the click's (muted unless it was heard)
-  const startTune = async (t: BookTune) => {
+  // the metronome starts over with the tune, so its beat 1 is the click's (muted unless it was heard); from a later beat, the
+  // metronome starts that far into its count, so its beats still fall on the tune's
+  const startTune = async (t: BookTune, from = 0) => {
     await wakeAudio();
-    const at = pocket ? await pocket.restart() : null;
+    const at = pocket ? await pocket.restart(from) : null;
     const lead = at === null ? 60 : Math.max(0, (at - getAudioContext().currentTime) * 1000);
     const notes: PlacedNote[] = place(t);
-    playSequence(notes.map((n) => ({ note: n.midi, at: lead + n.at * beat, hold: n.beats * beat * 0.9 })));
+    playSequence(notes.filter((n) => n.at >= from).map((n) => ({ note: n.midi, at: lead + (n.at - from) * beat, hold: n.beats * beat * 0.9 })));
     const end = notes[notes.length - 1].at + notes[notes.length - 1].beats;
     setActive(t.n);
     setRunning(true);
     setPlaying(t.n);
-    setPlayFrom(performance.now() + lead);
-    timers.current = [setTimeout(clear, lead + end * beat)];
+    setPlayFrom(performance.now() + lead - from * beat);
+    timers.current = [setTimeout(clear, lead + (end - from) * beat)];
+  };
+  // back to the start: the tune picked, the bar and the metronome over on beat 1, nothing played
+  const restartTune = async (t: BookTune) => {
+    silence();
+    setActive(t.n);
+    await wakeAudio();
+    await pocket?.restart();
   };
 
   // a new tempo starts the metronome over, and the tune playing with it at the new speed
@@ -171,7 +179,12 @@ export default function SingingApp() {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only a tempo change replays
   }, [bpm]);
 
+  // a note tapped while its tune plays carries the tune on from there; otherwise it sounds alone
   const tapTune = async (t: BookTune, i: number) => {
+    if (playing === t.n) {
+      silence();
+      return startTune(t, place(t)[i].at);
+    }
     await wakeAudio();
     const midi = place(t)[i].midi;
     const piano = getSharedPiano();
@@ -327,6 +340,9 @@ export default function SingingApp() {
                 if (!mic) toggleMic();
               }}
               onStop={() => silence()}
+              onRestart={(t) => void restartTune(t)}
+              heard={!!pocket?.heard}
+              onHear={(on) => pocket?.hear(on)}
               onNote={(t, i) => void tapTune(t, i)}
               onFocus={openFocus}
             />
@@ -364,6 +380,24 @@ export default function SingingApp() {
             if (!mic) toggleMic();
           }}
           onStop={() => silence()}
+          onRestart={() => void restartTune(focused)}
+          heard={!!pocket?.heard}
+          onHear={(on) => pocket?.hear(on)}
+          settings={<>
+            <label className="flex items-center gap-2">
+              <span className="uppercase tracking-wider text-slate-500">Tempo</span>
+              <Slider min={MIN_BPM} max={MAX_BPM} step={1} value={pocket?.bpm ?? FALLBACK_BPM} onChange={(b) => pocket?.setTempo(b)} size="sm" className="w-40" aria-label="Tempo" />
+              <span className="w-14 tabular-nums text-slate-200">{pocket?.bpm ?? FALLBACK_BPM} bpm</span>
+            </label>
+            <span className="flex items-center gap-1.5">
+              <span className="uppercase tracking-wider text-slate-500">Accuracy</span>
+              {ACCURACIES.map((a) => <Chip key={a.title} on={a.cents === cents} onClick={() => pickAccuracy(a.cents)} title={`Within ${a.cents} cents counts as on the note`}>{a.title}</Chip>)}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="uppercase tracking-wider text-slate-500">Voice</span>
+              {(Object.keys(VOICES) as Voice[]).map((v) => <Chip key={v} on={v === voice} onClick={() => pickVoice(v)} title={`${midiToName(VOICES[v].low)} to ${midiToName(VOICES[v].high)}`}>{VOICES[v].label}</Chip>)}
+            </span>
+          </>}
           onClose={closeFocus}
         />
       )}

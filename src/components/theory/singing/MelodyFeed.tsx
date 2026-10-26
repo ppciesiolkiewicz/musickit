@@ -8,6 +8,7 @@ import type { Ladder } from "@/features/theory/singing";
 import { DIFFICULTIES, type BookTune, type PlacedNote } from "@/features/theory/singingMelodies";
 import MelodyStaff from "./MelodyStaff";
 import MicButton from "./MicButton";
+import { ClickButton, RestartButton } from "./MelodyControls";
 
 /** cards drawn at first, and added each time the end of the list scrolls into view */
 const PAGE = 6;
@@ -17,7 +18,7 @@ const PAGE = 6;
  * and a play button. More cards are drawn as the end of the list comes into view. The `active` card is the one being
  * sung (the last one picked, played or tapped): only it runs the bar and shows the voice. A click anywhere on a card picks it.
  */
-export default function MelodyFeed({ tunes, place, ladder, clef, pitch, beatMs, bpm, active, playing, playFrom, gridBeats, tapped, mic, cents, onPick, onSing, onPlay, onStop, onNote, onFocus }: {
+export default function MelodyFeed({ tunes, place, ladder, clef, pitch, beatMs, bpm, active, playing, playFrom, gridBeats, tapped, mic, cents, heard, onHear, onPick, onSing, onPlay, onStop, onRestart, onNote, onFocus }: {
   tunes: BookTune[];
   place: (t: BookTune) => PlacedNote[];
   ladder: Ladder;
@@ -35,12 +36,17 @@ export default function MelodyFeed({ tunes, place, ladder, clef, pitch, beatMs, 
   mic: boolean;
   /** within this many cents counts as on the note */
   cents: number;
+  /** the metronome is heard (else muted, still keeping time) */
+  heard: boolean;
+  onHear: (on: boolean) => void;
   onPick: (t: BookTune) => void;
   /** the card's mic button: sing this tune, or stop the mic on the one being sung */
   onSing: (t: BookTune) => void;
   onPlay: (t: BookTune) => void;
   /** stop the tune playing (its card shows a stop beside Play while it does) */
   onStop: () => void;
+  /** back to the tune's start on beat 1, nothing played */
+  onRestart: (t: BookTune) => void;
   onNote: (t: BookTune, i: number) => void;
   /** open the tune full screen */
   onFocus: (t: BookTune) => void;
@@ -88,6 +94,8 @@ export default function MelodyFeed({ tunes, place, ladder, clef, pitch, beatMs, 
                       <span className="grid h-4 w-4 place-items-center"><Icon name="square" size={12} fill /></span>
                     </Button>
                   )}
+                  <RestartButton onClick={() => onRestart(t)} />
+                  <ClickButton heard={heard} onHear={onHear} />
                   {live && mic && <span className="text-xs text-emerald-300">Listening</span>}
                   <Button size="sm" onClick={(e) => { e.stopPropagation(); onFocus(t); }} title="Full screen" aria-label="Full screen" className="ml-auto !px-2">
                     <span className="grid h-4 w-4 place-items-center"><Icon name="maximize" size={14} /></span>

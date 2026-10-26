@@ -1,20 +1,22 @@
 "use client";
 
-import { useEffect, useState, type ComponentProps } from "react";
+import { useEffect, useState, type ComponentProps, type ReactNode } from "react";
 import Icon from "@/components/Icon";
 import { Button } from "@/components/ui";
 import { DIFFICULTIES, type BookTune } from "@/features/theory/singingMelodies";
 import MelodyStaff from "./MelodyStaff";
 import MicButton from "./MicButton";
+import { ClickButton, RestartButton } from "./MelodyControls";
 
 /** the staff's size for the screen's height: bigger on a tall screen, never under 1.2 times the card's */
 const scaleFor = (h: number) => Math.max(1.2, Math.min(2.4, h / 380));
 
 /**
  * One melody over the whole screen (the browser's full screen where it allows it), drawn big and following the bar, with
- * the dot's distance to the note due. Previous and next step through the tunes listed (or ← and →); Esc closes it.
+ * the dot's distance to the note due, the restart and metronome buttons of a card and the page's settings that matter while
+ * singing. Previous and next step through the tunes listed (or ← and →, unless a slider has them); Esc closes it.
  */
-export default function MelodyFocus({ tune, index, count, staff, bpm, mic, playing, message, onPrev, onNext, onSing, onPlay, onStop, onClose }: {
+export default function MelodyFocus({ tune, index, count, staff, bpm, mic, playing, heard, settings, message, onPrev, onNext, onSing, onPlay, onStop, onRestart, onHear, onClose }: {
   tune: BookTune;
   /** its place among the tunes listed, from 0 */
   index: number;
@@ -23,12 +25,18 @@ export default function MelodyFocus({ tune, index, count, staff, bpm, mic, playi
   bpm: number;
   mic: boolean;
   playing: boolean;
+  /** the metronome is heard (else muted, still keeping time) */
+  heard: boolean;
+  /** the page's settings that matter while singing (tempo, accuracy, …), on a line under the buttons */
+  settings: ReactNode;
   message: string;
   onPrev: () => void;
   onNext: () => void;
   onSing: () => void;
   onPlay: () => void;
   onStop: () => void;
+  onRestart: () => void;
+  onHear: (on: boolean) => void;
   onClose: () => void;
 }) {
   const [scale, setScale] = useState(2);
@@ -41,6 +49,8 @@ export default function MelodyFocus({ tune, index, count, staff, bpm, mic, playi
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      // a focused slider keeps its arrows
+      if ((e.target as HTMLElement | null)?.closest?.("input, [role=slider]") && e.key !== "Escape") return;
       if (e.key === "ArrowLeft") onPrev();
       else if (e.key === "ArrowRight") onNext();
       else if (e.key === "Escape") onClose();
@@ -72,10 +82,13 @@ export default function MelodyFocus({ tune, index, count, staff, bpm, mic, playi
             <span className="grid h-4 w-4 place-items-center"><Icon name="square" size={12} fill /></span>
           </Button>
         )}
+        <RestartButton onClick={onRestart} />
+        <ClickButton heard={heard} onHear={onHear} />
         <Button size="sm" onClick={onClose} title="Close full screen (Esc)" aria-label="Close full screen" className="ml-auto !px-2">
           <Icon name="minimize" size={16} />
         </Button>
       </div>
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-slate-400">{settings}</div>
       <div className="grid min-h-0 flex-1 place-items-center">
         <MelodyStaff {...staff} live scale={scale} follow />
       </div>

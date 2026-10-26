@@ -417,14 +417,18 @@ export class JamRig {
     return (this.ctx.currentTime - this.anchor) / this.beat;
   }
 
-  /** Start the grid over on beat 1 `lead` seconds from now, the playing parts and the click with it; returns when beat 1 sounds (AudioContext time). */
-  restart(lead = 0.1): number | null {
+  /**
+   * Start the grid over `lead` seconds from now, the playing parts and the click with it: on beat 1, or `from` beats into it (the grid's
+   * beat 1 then lies that far back, and nothing sounds before the restart). Returns when the restart sounds (AudioContext time).
+   */
+  restart(lead = 0.1, from = 0): number | null {
     const ctx = this.ctx;
     if (!ctx) return null;
     const a = ctx.currentTime + lead;
-    this.anchor = a;
-    JAM_PARTS.filter(this.sounding).forEach((p) => this.seqs[p].start(a, a));
-    if (this.clickTrack?.playing && !this.clickTrack.ending) this.clickTrack.start(this.clickParams, a, a);
+    const anchor = a - from * this.beat;
+    this.anchor = anchor;
+    JAM_PARTS.filter(this.sounding).forEach((p) => this.seqs[p].start(anchor, a));
+    if (this.clickTrack?.playing && !this.clickTrack.ending) this.clickTrack.start(this.clickParams, anchor, a);
     this.changed();
     return a;
   }
