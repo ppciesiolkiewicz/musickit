@@ -12,6 +12,7 @@ import PartLevel, { MuteButton } from "../sequencer/PartLevel";
 import { MAX_BPM, MIN_BPM } from "../jam/clock";
 import { BEATS_PER_BAR, JAM_PARTS, JamRig, type JamPart, type JamSaved } from "../jam/rig";
 import useJamRig from "../jam/useJamRig";
+import BeatDots from "../jam/BeatDots";
 import { NumberField, Select, Slider, inSelectMenu } from "@/components/ui";
 
 const STORAGE_KEY = "musickit.pocket";
@@ -122,32 +123,6 @@ function Tool({ label, children }: { label: string; children: ReactNode }) {
       <span className="w-12 shrink-0 text-[11px] uppercase tracking-wider text-slate-500">{label}</span>
       {children}
     </div>
-  );
-}
-
-/** One dot per beat of the shared grid, the current one lit and beat 1 amber; read every frame, so React does not re-render. */
-function BeatDots({ rig, playing }: { rig: JamRig; playing: boolean }) {
-  const refs = useRef<(HTMLSpanElement | null)[]>([]);
-  useEffect(() => {
-    let raf = 0;
-    const tick = () => {
-      const b = playing ? rig.beatNow() : null;
-      refs.current.forEach((el, i) => {
-        if (!el) return;
-        el.style.opacity = b === i ? "1" : "0.3";
-        el.style.transform = b === i ? "scale(1.3)" : "scale(1)";
-      });
-      if (playing) raf = requestAnimationFrame(tick);
-    };
-    tick();
-    return () => cancelAnimationFrame(raf);
-  }, [rig, playing]);
-  return (
-    <span className="hidden w-14 items-center justify-center gap-1 sm:flex" aria-hidden>
-      {Array.from({ length: BEATS_PER_BAR }, (_, i) => (
-        <span key={i} ref={(el) => { refs.current[i] = el; }} className={`h-2 w-2 rounded-full opacity-30 transition-transform duration-75 ${i === 0 ? "bg-amber-400" : "bg-sky-400"}`} />
-      ))}
-    </span>
   );
 }
 

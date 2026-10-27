@@ -40,7 +40,7 @@ const TOOLS: Tool[] = [
   { href: "/theory/chords", label: "Chords", icon: "music", text: "Every chord of the key and mode, with shapes and loops to play along." },
   { href: "/theory/caged", label: "CAGED", icon: "guitar", text: "The five open shapes joined into one map of the neck." },
   { href: "/theory/circle", label: "Circle of fifths", icon: "circle-dot", text: "Spin to a key, read its signature, relatives and chords." },
-  { href: "/theory/drone", label: "Drone", icon: "audio-lines", text: "Hold one note and hear each mode's colour against it." },
+  { href: "/theory/metronome-drone", label: "Metronome & drone", icon: "audio-lines", text: "Keep time to a click, or hold one note and hear each mode's colour against it." },
   { href: "/tuner", label: "Tuner", icon: "gauge", text: "Needle and cents for guitar, bass, ukulele, violin or any note.", art: "needle" },
 ];
 const IN_PROGRESS = [

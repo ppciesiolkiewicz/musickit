@@ -66,7 +66,7 @@ function ProgressPath() {
 }
 
 const DO: { href: string; verb: string; label: string; icon: IconName; tone: string }[] = [
-  { href: "/theory/drone", verb: "Hear", label: "Drone", icon: "audio-lines", tone: "bg-violet-500/15 text-violet-300" },
+  { href: "/theory/metronome-drone", verb: "Keep time", label: "Metronome & drone", icon: "audio-lines", tone: "bg-violet-500/15 text-violet-300" },
   { href: "/theory/scales", verb: "See", label: "Scales", icon: "sliders-horizontal", tone: "bg-amber-500/15 text-amber-300" },
   { href: "/looper", verb: "Play", label: "Looper", icon: "repeat", tone: "bg-teal-500/15 text-teal-300" },
 ];

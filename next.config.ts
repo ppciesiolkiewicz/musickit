@@ -5,10 +5,14 @@ const THEORY_SECTIONS = ["chords", "triads", "scales", "caged", "arpeggios", "im
 
 const nextConfig: NextConfig = {
   async redirects() {
-    return THEORY_SECTIONS.flatMap((s) => [
-      { source: `/${s}`, destination: `/theory/${s}`, permanent: true },
-      { source: `/${s}/:path*`, destination: `/theory/${s}/:path*`, permanent: true },
-    ]);
+    return [
+      ...THEORY_SECTIONS.flatMap((s) => [
+        { source: `/${s}`, destination: `/theory/${s}`, permanent: true },
+        { source: `/${s}/:path*`, destination: `/theory/${s}/:path*`, permanent: true },
+      ]),
+      // the drone page became the metronome & drone page
+      { source: "/theory/drone", destination: "/theory/metronome-drone", permanent: true },
+    ];
   },
 };
 

@@ -11,6 +11,7 @@ import { NumberField } from "@/components/ui";
 import { BEATS_PER_BAR, JAM_PARTS, type JamRig, type JamPartView, type JamSaved } from "./rig";
 import useJamRig from "./useJamRig";
 import JamLoops from "./JamLoops";
+import BeatDots from "./BeatDots";
 
 const KEY = "musickit.jam";
 /** where the drone page kept its drone before the jam: read when there is no jam save, so a saved sound is not lost */
@@ -119,11 +120,6 @@ export default function Jam() {
           <Icon name={anyOn ? "square" : "play"} size={20} fill />{anyOn ? "Stop all" : "Play all"}
           <kbd className="hidden rounded border border-current/30 px-1.5 text-[10px] font-normal opacity-60 sm:inline">Space</kbd>
         </button>
-        <label className="order-last flex w-full min-w-0 items-center gap-2 text-xs text-slate-300 sm:order-none sm:w-auto sm:max-w-sm sm:flex-1" title={snap.tempoLocked ? "Clear the loops to change the tempo" : undefined}>
-          <span className="shrink-0">Tempo</span>
-          <input type="range" className="min-w-0 flex-1 accent-sky-400 disabled:opacity-40" min={MIN_BPM} max={MAX_BPM} step={1} value={snap.bpm} disabled={snap.tempoLocked} onChange={(e) => rig.setTempo(Number(e.target.value))} />
-          <span className="flex w-20 shrink-0 items-baseline justify-end gap-1 whitespace-nowrap text-slate-400"><NumberField value={snap.bpm} min={MIN_BPM} max={MAX_BPM} disabled={snap.tempoLocked} onCommit={(bpm) => rig.setTempo(bpm)} aria-label="Tempo in beats per minute" title={snap.tempoLocked ? undefined : "Type a tempo"} className="w-10 py-0.5 text-sm text-slate-100" />BPM</span>
-        </label>
         <span className="flex items-center gap-2 text-xs text-slate-400">
           {/* the parts' colours, in page order */}
           <span aria-hidden className="flex -space-x-1">
@@ -136,15 +132,23 @@ export default function Jam() {
       <PartCard tone={PART_TONE.click} label="Metronome">
         <div className="flex flex-wrap items-center gap-3">
           <PlayButton big tone={PART_TONE.click} on={snap.click.on} name="metronome" onClick={() => void toggleClick()} />
-          <div className="mr-auto flex min-w-0 items-center gap-3">
+          <div className="flex min-w-0 items-center gap-3">
             <span className={`hidden h-9 w-9 shrink-0 place-items-center rounded-xl sm:grid ${PART_TONE.click.disc}`}><Icon name="metronome" size={18} /></span>
             <span className="min-w-0">
-              <p className="text-lg font-light tabular-nums text-slate-50">Metronome · {snap.bpm} BPM</p>
+              <p className="text-lg font-light text-slate-50">Metronome</p>
               <p className={`text-xs ${snap.click.running && !snap.click.muted ? "text-emerald-300" : "text-slate-400"}`}>
                 {snap.click.running ? (snap.click.muted ? "Keeping time, muted" : "Playing") : "Stopped"}
               </p>
             </span>
           </div>
+          <BeatDots big rig={rig} playing={snap.click.running} />
+          {/* the one tempo for every part, beside the click that keeps it */}
+          <label className="order-last flex w-full min-w-0 items-center gap-2 text-xs text-slate-300 sm:order-none sm:w-auto sm:max-w-md sm:flex-1" title={snap.tempoLocked ? "Clear the loops to change the tempo" : undefined}>
+            <span className="shrink-0">Tempo</span>
+            <input type="range" className="min-w-0 flex-1 accent-sky-400 disabled:opacity-40" min={MIN_BPM} max={MAX_BPM} step={1} value={snap.bpm} disabled={snap.tempoLocked} onChange={(e) => rig.setTempo(Number(e.target.value))} />
+            <span className="flex w-20 shrink-0 items-baseline justify-end gap-1 whitespace-nowrap text-slate-400"><NumberField value={snap.bpm} min={MIN_BPM} max={MAX_BPM} disabled={snap.tempoLocked} onCommit={(bpm) => rig.setTempo(bpm)} aria-label="Tempo in beats per minute" title={snap.tempoLocked ? undefined : "Type a tempo"} className="w-10 py-0.5 text-sm text-slate-100" />BPM</span>
+          </label>
+          <span className="ml-auto" />
           <PartLevel name="metronome" volume={snap.click.volume} muted={snap.click.muted} onVolume={(v) => rig.setClickVolume(v)} onMute={(m) => rig.setClickMuted(m)} />
         </div>
       </PartCard>

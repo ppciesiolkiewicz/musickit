@@ -224,7 +224,7 @@ export const STAGE_CONTENT: Stage[] = [
           { href: "/theory/scales", label: "Scales and modes" },
           { href: "/theory/arpeggios", label: "Arpeggios" },
         ],
-        practise: [{ href: "/theory/drone", label: "Play each mode over a drone and hear its colour" }],
+        practise: [{ href: "/theory/metronome-drone", label: "Play each mode over a drone and hear its colour" }],
         melodies: [
           { title: "Greensleeves", origin: "traditional English (16th century)", position: 8, notes: m("A4 C5:2 D5 E5:1.5 F5:0.5 E5 D5:2 B4 G4:1.5 A4:0.5 B4 C5:2 A4 A4:1.5 G#4:0.5 A4 B4:2 G#4 E4:2") },
         ],
@@ -238,7 +238,7 @@ export const STAGE_CONTENT: Stage[] = [
         explore: [
           { href: "/theory/scales", label: "Mode compare (on the scales page)" },
           { href: "/theory/tunings", label: "Tunings" },
-          { href: "/theory/drone", label: "Drone" },
+          { href: "/theory/metronome-drone", label: "Metronome & drone" },
           { href: "/cheatsheet", label: "Build your own cheatsheet" },
         ],
         practise: [{ href: "/theory/ears?kind=chord", label: "Chord quality with 7ths" }],

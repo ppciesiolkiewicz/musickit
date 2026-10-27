@@ -16,7 +16,7 @@ const COLUMNS: { title: string; links: { href: string; label: string }[] }[] = [
     links: [
       { href: "/theory", label: "Theory" },
       { href: "/theory/scales", label: "Scales" },
-      { href: "/theory/drone", label: "Drone" },
+      { href: "/theory/metronome-drone", label: "Metronome & drone" },
       { href: "/looper", label: "Looper" },
       { href: "/tuner", label: "Tuner" },
     ],
