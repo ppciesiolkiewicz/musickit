@@ -39,8 +39,8 @@
     }
   },
   "timeline": [
-    { "tune": "1 2 1 2 | 1w", "label": "book 1", "times": 4, "caption": "Do and Re · get ready" },
-    { "tune": "1h 2h | 1w", "label": "book 2", "times": 4, "caption": "Do and Re · get ready" },
-    { "tune": "2 1 2h | 1w", "label": "book 3", "times": 4, "caption": "Do and Re · get ready" }
+    { "tune": "1 2 1 2 | 1w", "label": "book 1", "times": 4, "caption": "Rocking Do and Re · get ready" },
+    { "tune": "1h 2h | 1w", "label": "book 2", "times": 4, "caption": "Slow and long · get ready" },
+    { "tune": "2 1 2h | 1w", "label": "book 3", "times": 4, "caption": "Starting on Re · get ready" }
   ]
 }

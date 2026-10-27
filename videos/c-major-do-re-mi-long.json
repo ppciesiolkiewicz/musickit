@@ -39,17 +39,17 @@
     }
   },
   "timeline": [
-    { "tune": "1 2 1 2 | 1w", "label": "book 1", "times": 4, "caption": "Do and Re · get ready" },
-    { "tune": "2 1 2h | 1w", "label": "book 3", "times": 4, "caption": "Do and Re · get ready" },
-    { "tune": "1 1 2 2 | 1 2 1h | 2h 2 2 | 1w", "label": "book 5", "times": 4, "caption": "Do and Re · get ready" },
-    { "tune": "1 2 3 2 | 1w", "label": "book 8", "times": 4, "caption": "Up to Mi · get ready" },
-    { "tune": "2 3 1 2 | 1w", "label": "book 10", "times": 4, "caption": "Up to Mi · get ready" },
-    { "tune": "3 1 2 3 | 2h 1h | 3 2 1 2 | 1w", "label": "book 12", "times": 4, "caption": "Up to Mi · get ready" },
-    { "tune": "2 4 2 3 | 1w", "label": "book 15", "times": 4, "caption": "Up to Fa · get ready" },
-    { "tune": "4 3 2 3 | 1w", "label": "book 17", "times": 4, "caption": "Up to Fa · get ready" },
-    { "tune": "1 2 3 4 | 3h 2h | 2 4 2 3 | 1w", "label": "book 18", "times": 4, "caption": "Up to Fa · get ready" },
-    { "tune": "4 5 3 2 | 1w", "label": "book 23", "times": 4, "caption": "Down from Sol · get ready" },
-    { "tune": "1 2 3 4 | 5h 4 3 | 2 4 3 2 | 1w", "label": "book 24", "times": 4, "caption": "Down from Sol · get ready" },
-    { "tune": "3 4 5 3 | 4 2 3 1 | 2 4 3 2 | 1w", "label": "book 27", "times": 4, "caption": "Down from Sol · get ready" }
+    { "tune": "1 2 1 2 | 1w", "label": "book 1", "times": 4, "caption": "Rocking Do and Re · get ready" },
+    { "tune": "2 1 2h | 1w", "label": "book 3", "times": 4, "caption": "Starting on Re · get ready" },
+    { "tune": "1 1 2 2 | 1 2 1h | 2h 2 2 | 1w", "label": "book 5", "times": 4, "caption": "Steps in pairs · get ready" },
+    { "tune": "1 2 3 2 | 1w", "label": "book 8", "times": 4, "caption": "Up to Mi and back · get ready" },
+    { "tune": "2 3 1 2 | 1w", "label": "book 10", "times": 4, "caption": "The Mi to Do skip · get ready" },
+    { "tune": "3 1 2 3 | 2h 1h | 3 2 1 2 | 1w", "label": "book 12", "times": 4, "caption": "Leaping from Mi · get ready" },
+    { "tune": "2 4 2 3 | 1w", "label": "book 15", "times": 4, "caption": "The Re to Fa skip · get ready" },
+    { "tune": "4 3 2 3 | 1w", "label": "book 17", "times": 4, "caption": "Stepping down from Fa · get ready" },
+    { "tune": "1 2 3 4 | 3h 2h | 2 4 2 3 | 1w", "label": "book 18", "times": 4, "caption": "Climbing to Fa · get ready" },
+    { "tune": "4 5 3 2 | 1w", "label": "book 23", "times": 4, "caption": "A touch of Sol · get ready" },
+    { "tune": "1 2 3 4 | 5h 4 3 | 2 4 3 2 | 1w", "label": "book 24", "times": 4, "caption": "All the way to Sol · get ready" },
+    { "tune": "3 4 5 3 | 4 2 3 1 | 2 4 3 2 | 1w", "label": "book 27", "times": 4, "caption": "Mi Fa Sol and home · get ready" }
   ]
 }
