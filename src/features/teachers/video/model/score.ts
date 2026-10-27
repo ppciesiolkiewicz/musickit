@@ -83,12 +83,15 @@ export function momentAt(s: Score, ms: number): Moment {
   return { phase: "play", segment: i, beats, pass: Math.min(g.times, Math.floor(beats / g.tuneBeats) + 1) };
 }
 
+/** A tune's every pass written out end to end, the way it is sung: one line the bar runs along without coming back. */
+export function passesOf(g: Segment): PlacedNote[] {
+  return Array.from({ length: g.times }, (_, pass) => g.notes.map((n) => ({ ...n, at: n.at + pass * g.tuneBeats }))).flat();
+}
+
 /** The piano (every pass of every tune) and the click (every beat, accented on beat 1), in ms. */
 export function soundOf(s: Score): { piano: Step[]; clicks: Click[] } {
   const piano = s.segments.flatMap((g) =>
-    Array.from({ length: g.times }, (_, pass) =>
-      g.notes.map((n) => ({ note: n.midi, at: s.introMs + (g.startBeat + COUNTDOWN_BEATS + pass * g.tuneBeats + n.at) * s.beatMs, hold: n.beats * s.beatMs * 0.9 })),
-    ).flat(),
+    passesOf(g).map((n) => ({ note: n.midi, at: s.introMs + (g.startBeat + COUNTDOWN_BEATS + n.at) * s.beatMs, hold: n.beats * s.beatMs * 0.9 })),
   );
   const clicks = Array.from({ length: s.totalBeats }, (_, b) => ({ at: s.introMs + b * s.beatMs, accent: b % BEATS_PER_BAR === 0 }));
   return { piano, clicks };

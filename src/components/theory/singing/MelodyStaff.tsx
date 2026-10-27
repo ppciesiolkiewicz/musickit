@@ -28,6 +28,7 @@ import type { PlacedNote } from "@/features/theory/singingMelodies";
  * from the dot to the note due with how far off it is in cents.
  * `steadyCamera` (videos) moves that view with the bar itself at a steady pace instead of easing after the dot: the bar
  * sits far enough in that the faded half bar is in view from the wrap to beat 1, and the wrap jumps back in one frame.
+ * Without the `lead` (videos, where every pass is written out) the faded half bar is left off and the staff starts on beat 1.
  */
 
 type StaffNote = PlacedNote;
@@ -68,7 +69,7 @@ const STILL: View = { dot: null, cam: 0, tail: [], lastHeard: -Infinity, now: 0,
 /** The note sounding at a beat, or -1 before the first. */
 const noteAt = (notes: StaffNote[], beat: number) => notes.findLastIndex((n) => n.at <= beat);
 
-export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom, beatMs, gridBeats, tapped, onNote, scale = 1, follow = false, followBeats, steadyCamera = false, cents = IN_TUNE_CENTS, lagMs = DOT_LAG_MS }: {
+export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom, beatMs, gridBeats, tapped, onNote, scale = 1, follow = false, followBeats, steadyCamera = false, lead = true, cents = IN_TUNE_CENTS, lagMs = DOT_LAG_MS }: {
   notes: StaffNote[];
   live: boolean;
   /** the scale in the singer's range, low to high: the dot's height is read off it */
@@ -89,6 +90,8 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
   followBeats?: number;
   /** a following view that rides the bar exactly and jumps back on the wrap: no easing, no sweep back (for videos) */
   steadyCamera?: boolean;
+  /** the last half bar drawn again, faded, before the first (default on) */
+  lead?: boolean;
   /** within this many cents counts as on the note */
   cents?: number;
   /** how far the dot runs behind the bar */
@@ -122,16 +125,17 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
   const timeX = 56 + sig.length * 9 + 10;
   const x0 = timeX + 14;
   const room = width - x0 - 12;
-  const fits = room / (total + LEAD) >= MIN_BEAT;
-  const beatW = follow ? Math.max(MIN_BEAT, room / (followBeats ?? FOLLOW_BEATS)) : fits ? Math.min(MAX_BEAT, room / (total + LEAD)) : MIN_BEAT;
-  const span = (total + LEAD) * beatW;
+  const leadBeats = lead ? LEAD : 0;
+  const fits = room / (total + leadBeats) >= MIN_BEAT;
+  const beatW = follow ? Math.max(MIN_BEAT, room / (followBeats ?? FOLLOW_BEATS)) : fits ? Math.min(MAX_BEAT, room / (total + leadBeats)) : MIN_BEAT;
+  const span = (total + leadBeats) * beatW;
   // a beat of the loop as drawn: its last half bar sits before the first bar
-  const shown = (beat: number) => (beat >= total - LEAD ? beat - total : beat);
+  const shown = (beat: number) => (beat >= total - leadBeats ? beat - total : beat);
   // the notes sounding in the last half bar, cut to it, as they are drawn again in front
   const ghosts = notes.flatMap((n, i) => {
     const end = n.at + n.beats;
-    if (end <= total - LEAD) return [];
-    const from = Math.max(n.at, total - LEAD);
+    if (end <= total - leadBeats) return [];
+    const from = Math.max(n.at, total - leadBeats);
     return [{ i, at: from - total, beats: end - from }];
   });
   const maxCam = Math.max(0, span - room);
@@ -189,10 +193,10 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
       a.tail = a.tail.filter((p) => now - p.t < TAIL_MS);
       if (steadyCamera && a.beat !== null) {
         // the bar at least the faded half bar in, so that half bar is whole on screen until beat 1
-        const at = Math.min(STEADY_AT_MOST, Math.max(FOLLOW_AT, (LEAD * beatW) / room));
-        a.cam = Math.max(0, Math.min(maxCam, (a.beat + LEAD) * beatW - room * at));
+        const at = Math.min(STEADY_AT_MOST, Math.max(FOLLOW_AT, (leadBeats * beatW) / room));
+        a.cam = Math.max(0, Math.min(maxCam, (a.beat + leadBeats) * beatW - room * at));
       } else if (maxCam > 0 && a.beat !== null) {
-        const want = Math.max(0, Math.min(maxCam, (x + LEAD) * beatW - room * (follow ? FOLLOW_AT : 0.5)));
+        const want = Math.max(0, Math.min(maxCam, (x + leadBeats) * beatW - room * (follow ? FOLLOW_AT : 0.5)));
         a.cam += (want - a.cam) * 0.1;
       } else if (maxCam === 0) a.cam = 0;
       else a.cam = Math.min(a.cam, maxCam);
@@ -203,7 +207,7 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
     return () => cancelAnimationFrame(raf);
     // the geometry is rebuilt from the melody and the width; the loop restarts with it
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [live, notes, ladder, clef, beatW, maxCam, room, beatMs, follow, steadyCamera, cents, lagMs]);
+  }, [live, notes, ladder, clef, beatW, maxCam, room, beatMs, follow, steadyCamera, leadBeats, cents, lagMs]);
 
   // a new melody starts at the left, its bar from the top
   useEffect(() => {
@@ -215,7 +219,7 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
   }, [notes, clef]);
 
   const now = a.now;
-  const bx = (beat: number) => x0 + (beat + LEAD) * beatW + PAD - a.cam;
+  const bx = (beat: number) => x0 + (beat + leadBeats) * beatW + PAD - a.cam;
   // the staff stops at the final double bar when the whole tune fits
   const lineEnd = maxCam > 0 && !scrolls ? W - 4 : Math.min(W - 4, bx(total) - PAD + 7);
   const showDot = a.dot && now - a.lastHeard <= SILENCE_MS + 400;
@@ -225,7 +229,7 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
   const inGhost = a.beat !== null && a.beat < 0;
   const due = a.beat === null ? -1 : noteAt(notes, a.beat < 0 ? a.beat + total : a.beat);
   // where the note due starts as drawn: its copy in the faded half bar once the dot has crossed there too
-  const dueAt = due < 0 || !a.dot ? null : inGhost && a.dot.x < 0 ? Math.max(notes[due].at, total - LEAD) - total : notes[due].at;
+  const dueAt = due < 0 || !a.dot ? null : inGhost && a.dot.x < 0 ? Math.max(notes[due].at, total - leadBeats) - total : notes[due].at;
   const guideFrom = showDot && dueAt !== null ? Math.min(bx(dueAt), bx(a.dot!.x)) : 0;
   const guideW = showDot && dueAt !== null ? Math.abs(bx(dueAt) - bx(a.dot!.x)) : 0;
   const guideAhead = showDot && dueAt !== null && dueAt > a.dot!.x;
@@ -234,7 +238,8 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
   const drawNote = (i: number, at: number, beats: number, ghost: boolean) => {
     const n = notes[i];
     const x = bx(at);
-    if (x < x0 - 40 || x > W + 40) return null;
+    // a held note stays drawn until its end has gone by, not just its head
+    if (x + beats * beatW < x0 - 40 || x > W + 40) return null;
     const on = (due === i && inGhost === ghost) || (tapped === i && !ghost);
     const lit = on && a.hit && !!showDot;
     const c = degreeColour(n.degree);
@@ -277,6 +282,8 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
           <g clipPath={`url(#${clip})`}>
             <g stroke={ink.line}>
               {Array.from({ length: bars }, (_, b) => {
+                // without the lead, beat 1 follows the time signature with no bar line between
+                if (b === 0 && !lead) return null;
                 const x = bx(b * BEATS_PER_BAR) - Math.min(12, beatW * 0.35);
                 return <line key={b} x1={x} x2={x} y1={yOf(8)} y2={yOf(0)} />;
               })}
@@ -286,7 +293,7 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
             </g>
             {a.beat !== null && (
               <g pointerEvents="none">
-                <rect x={bx(-LEAD) - PAD} y={yOf(8) - 8} width={Math.max(0, bx(a.beat) - bx(-LEAD) + PAD)} height={yOf(0) - yOf(8) + 16} fill={PLAYED} fillOpacity={0.07} />
+                <rect x={bx(-leadBeats) - PAD} y={yOf(8) - 8} width={Math.max(0, bx(a.beat) - bx(-leadBeats) + PAD)} height={yOf(0) - yOf(8) + 16} fill={PLAYED} fillOpacity={0.07} />
                 <line x1={bx(a.beat)} x2={bx(a.beat)} y1={yOf(8) - 8} y2={yOf(0) + 8} stroke={PLAYED} strokeOpacity={0.6} strokeWidth={2} />
               </g>
             )}

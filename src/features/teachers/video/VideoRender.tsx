@@ -6,7 +6,7 @@ import { PLUGINS } from "@/features/creator";
 import { StageWidget, TimelineContext, type StageTimeline } from "@/features/stage";
 import { preloadInstrument, renderOffline } from "@/features/sound";
 import { FORMATS, FPS, parseVideoConfig, type FormatId, type VideoConfig } from "./model/config";
-import { buildScore, frameCount, momentAt, solfegeBars, soundOf, type Moment, type Score } from "./model/score";
+import { buildScore, frameCount, momentAt, passesOf, solfegeBars, soundOf, type Moment, type Score } from "./model/score";
 import { encodeWav } from "./model/wav";
 
 declare global {
@@ -131,18 +131,21 @@ export function VideoFrame({ config, score, format, time, className = "", style 
   const rects = config.formats[format]!;
   const [shown, setShown] = useState(() => momentAt(score, time()));
   const key = momentKey(shown);
+  // one array per tune, so a new pass doesn't hand the staff a new melody
+  const written = useMemo(() => score.segments.map(passesOf), [score]);
 
   const timeline = useMemo<StageTimeline>(
     () => ({
-      melody: { notes: score.segments[shown.segment].notes, ladder: score.ladder, clef: score.clef, beatMs: score.beatMs },
+      melody: { notes: written[shown.segment], ladder: score.ladder, clef: score.clef, beatMs: score.beatMs },
       // read from the clock itself, so the staff's own frame callback and this page's agree on the time
       gridBeats: () => {
         const m = momentAt(score, time());
         if (m.phase === "play") return m.beats;
         if (m.phase === "intro" || m.phase === "countdown") return 0;
-        // the tail holds the bar at the end of the last pass (a hair short: the staff wraps at the tune's length);
+        // the tail holds the bar at the end of the last pass (a hair short: the staff wraps at the passes' length);
         // null would let the staff start the tune again on its own
-        return score.segments[m.segment].tuneBeats - 1e-3;
+        const g = score.segments[m.segment];
+        return g.tuneBeats * g.times - 1e-3;
       },
       countdown: shown.phase === "countdown" ? { caption: score.segments[shown.segment].caption, left: shown.left } : null,
       intro: shown.phase === "intro" ? score.intro : null,
@@ -163,7 +166,7 @@ export function VideoFrame({ config, score, format, time, className = "", style 
     }),
     // `key` is the moment's identity: a frame inside the same count or tune keeps the same context
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [score, time, key],
+    [score, written, time, key],
   );
 
   useEffect(() => {

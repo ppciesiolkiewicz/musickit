@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { COUNTDOWN_BEATS, TAIL_MS, buildScore, frameCount, momentAt, solfegeBars, soundOf } from "./score";
+import { COUNTDOWN_BEATS, TAIL_MS, buildScore, frameCount, momentAt, passesOf, solfegeBars, soundOf } from "./score";
 import type { VideoConfig } from "./config";
 
 /** Two 2-bar tunes, two passes each, at 60 bpm so a beat is a second. */
@@ -106,5 +106,15 @@ describe("solfegeBars", () => {
   it("names a tune's notes bar by bar", () => {
     const s = buildScore(config());
     assert.deepEqual(solfegeBars(s.segments[0].notes), [["Do", "Re", "Mi", "Re"], ["Do"]]);
+  });
+});
+
+describe("passesOf", () => {
+  it("writes every pass out end to end, a tune's length apart", () => {
+    const g = buildScore(config()).segments[0];
+    const all = passesOf(g);
+    assert.equal(all.length, g.notes.length * g.times);
+    assert.deepEqual(all.map((n) => n.at), [0, 1, 2, 3, 4, 8, 9, 10, 11, 12]);
+    assert.deepEqual(all.slice(g.notes.length).map((n) => n.midi), g.notes.map((n) => n.midi));
   });
 });
