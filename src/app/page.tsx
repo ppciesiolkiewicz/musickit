@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import SiteNav from "@/components/SiteNav";
 import Icon, { type IconName } from "@/components/Icon";
 import PreloadPiano from "@/features/sound/keyboard/PreloadPiano";
-import FretWalk from "@/components/landing/FretWalk";
+import StringsOfLight from "@/components/landing/StringsOfLight";
 import EarlyAccessForm from "@/components/landing/EarlyAccessForm";
 import Photo from "@/components/landing/Photo";
 import StyleDivider from "@/components/landing/StyleDivider";
@@ -108,7 +108,7 @@ export default function Home() {
             <Link href="/theory/scales" className="mt-5 text-sm text-slate-400 underline decoration-slate-700 underline-offset-4 hover:text-slate-200">or try the free tools first</Link>
           </div>
           <div className="landing-rise" style={{ animationDelay: "120ms" }}>
-            <FretWalk />
+            <StringsOfLight />
           </div>
         </section>
 
