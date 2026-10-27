@@ -2,10 +2,11 @@
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import Icon from "@/components/Icon";
+import { getAudioContext, getOutputBus, wakeAudio } from "@/features/sound";
 import { FORMATS, FPS, parseVideoConfig, type FormatId, type VideoConfig } from "./model/config";
 import { formatMs, frameAt, momentLabel, tuneStarts } from "./model/preview";
 import { buildScore, frameCount, type Score } from "./model/score";
-import { VideoFrame } from "./VideoRender";
+import { VideoFrame, soundtrackBuffer } from "./VideoRender";
 
 /** a file picked with Chrome's file picker: it can be read again, so the preview follows the file as it is saved */
 export interface VideoFile {
@@ -40,7 +41,8 @@ const isField = (el: Element | null) => !!el && (el.tagName === "TEXTAREA" || el
 
 /**
  * A video config played in the browser: the frame the render would draw, scaled to fit, with a slider to any moment and
- * play/pause under it. No sound. Saving the file reloads it; a save that does not parse shows its error over the last good one.
+ * play/pause under it, playing the render's soundtrack. Saving the file reloads it; a save that does not parse shows its
+ * error over the last good one.
  */
 export default function VideoPreview({ file, pluginIds, onClose }: { file: VideoFile; pluginIds: string[]; onClose: () => void }) {
   const [loaded, setLoaded] = useState<Loaded | null>(null);
@@ -92,19 +94,61 @@ export default function VideoPreview({ file, pluginIds, onClose }: { file: Video
 
   const duration = loaded?.score.durationMs ?? 0;
 
-  // playing: real time from where the slider is, stopping at the end
+  // the soundtrack, rendered again for every version of the file (a long video takes a few seconds)
+  const [rendered, setRendered] = useState<{ version: number; buffer: AudioBuffer } | null>(null);
+  const [muted, setMuted] = useState(false);
+  useEffect(() => {
+    if (!loaded) return;
+    let live = true;
+    soundtrackBuffer(loaded.score).then(
+      (buffer) => live && setRendered({ version: loaded.version, buffer }),
+      () => {}, // the preview plays on silently
+    );
+    return () => {
+      live = false;
+    };
+  }, [loaded]);
+  const sound = rendered && rendered.version === loaded?.version ? rendered.buffer : null;
+
+  // playing from where the slider is, stopping at the end: on the sound's clock once the soundtrack is ready (so picture and
+  // sound never drift apart), on the page's clock before that or when muted
   useEffect(() => {
     if (!playing) return;
     const from = t.current >= duration ? 0 : t.current;
-    const start = performance.now();
-    let raf = requestAnimationFrame(function tick(now) {
-      const at = Math.min(duration, from + now - start);
-      seek(at);
-      if (at >= duration) setPlaying(false);
-      else raf = requestAnimationFrame(tick);
-    });
-    return () => cancelAnimationFrame(raf);
-  }, [playing, duration, seek]);
+    let live = true;
+    let raf = 0;
+    let src: AudioBufferSourceNode | null = null;
+    const run = (elapsed: () => number) => {
+      raf = requestAnimationFrame(function tick() {
+        const at = Math.min(duration, from + elapsed());
+        seek(at);
+        if (at >= duration) setPlaying(false);
+        else raf = requestAnimationFrame(tick);
+      });
+    };
+    if (sound && !muted) {
+      const ctx = getAudioContext();
+      void wakeAudio().then(() => {
+        if (!live) return;
+        const startAt = ctx.currentTime + 0.05;
+        src = ctx.createBufferSource();
+        src.buffer = sound;
+        src.connect(getOutputBus());
+        src.start(startAt, from / 1000);
+        // the picture follows what is heard, the output's latency later than what is played
+        run(() => Math.max(0, (ctx.currentTime - (ctx.outputLatency || 0) - startAt) * 1000));
+      });
+    } else {
+      const start = performance.now();
+      run(() => performance.now() - start);
+    }
+    return () => {
+      live = false;
+      cancelAnimationFrame(raf);
+      src?.stop();
+      src?.disconnect();
+    };
+  }, [playing, duration, seek, sound, muted]);
 
   // Space plays or pauses; arrows step a frame, with Shift a second
   useEffect(() => {
@@ -204,6 +248,9 @@ export default function VideoPreview({ file, pluginIds, onClose }: { file: Video
                 ))}
             </div>
           </div>
+          <button type="button" onClick={() => setMuted((m) => !m)} title={muted ? "Sound off: click to hear the piano and the click" : "Sound on: click to mute"} aria-label={muted ? "Unmute" : "Mute"} aria-pressed={muted} className="rounded-md border border-slate-800 p-1.5 text-slate-300 hover:text-slate-100">
+            <Icon name={muted ? "volume-x" : "volume-2"} size={14} />
+          </button>
           {formats.length > 1 &&
             formats.map((f) => (
               <button key={f} type="button" aria-pressed={f === format} onClick={() => setFormat(f)} className={`rounded-md border px-1.5 py-0.5 font-mono text-xs ${f === format ? "border-sky-500/60 bg-sky-500/10 text-sky-100" : "border-slate-800 text-slate-400 hover:border-slate-600"}`}>
@@ -218,6 +265,7 @@ export default function VideoPreview({ file, pluginIds, onClose }: { file: Video
           <span className="truncate">
             <span className="text-slate-200">{file.name}</span>
             {score && <> · {momentLabel(score, ms)}</>}
+            {score && !sound && !muted && <span className="text-slate-500"> · preparing the sound…</span>}
           </span>
           {score && (
             <span className="shrink-0 font-mono tabular-nums">
@@ -225,7 +273,7 @@ export default function VideoPreview({ file, pluginIds, onClose }: { file: Video
             </span>
           )}
         </div>
-        <p className="text-[11px] text-slate-500">Space plays or pauses · ← → a frame, with ⇧ a second · no sound · saving the file reloads it</p>
+        <p className="text-[11px] text-slate-500">Space plays or pauses · ← → a frame, with ⇧ a second · saving the file reloads it</p>
       </div>
     </div>
   );

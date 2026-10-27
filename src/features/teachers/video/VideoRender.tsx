@@ -30,10 +30,16 @@ const momentKey = (m: Moment) => `${m.phase}/${m.segment}/${m.phase === "countdo
 
 const SAMPLE_RATE = 48000;
 
+/** The score's piano and clicks, rendered off the clock: the MP4's soundtrack, and the studio preview's. */
+export async function soundtrackBuffer(score: Score): Promise<AudioBuffer> {
+  await preloadInstrument("PIANO");
+  const sound = soundOf(score);
+  return renderOffline({ steps: sound.piano, clicks: sound.clicks, durationMs: score.durationMs, sampleRate: SAMPLE_RATE });
+}
+
 /** The score's piano and clicks as a base64 WAV. */
 async function soundtrack(score: Score): Promise<string> {
-  const sound = soundOf(score);
-  const buf = await renderOffline({ steps: sound.piano, clicks: sound.clicks, durationMs: score.durationMs, sampleRate: SAMPLE_RATE });
+  const buf = await soundtrackBuffer(score);
   const wav = encodeWav([buf.getChannelData(0), buf.getChannelData(1)], SAMPLE_RATE);
   // in chunks: spreading a whole song into fromCharCode overflows the call stack
   let bin = "";
