@@ -3,6 +3,7 @@ import { Anton, Cormorant_Garamond, DM_Serif_Display, Fraunces, Geist, Geist_Mon
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
 import NoControlFocus from "@/components/NoControlFocus";
+import QuickRecord from "@/features/recorder/QuickRecord";
 import { THEME_BOOT } from "@/components/ThemeSwitcher";
 import { SITE_URL } from "@/lib/site";
 
@@ -69,6 +70,7 @@ export default function RootLayout({
       >
         <NoControlFocus />
         {children}
+        <QuickRecord />
         <Analytics />
       </body>
     </html>
