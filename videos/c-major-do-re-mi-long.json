@@ -1,0 +1,45 @@
+{
+  "name": "c-major-do-re-mi-long",
+  "key": "C",
+  "voice": "alto",
+  "scale": "major-ionian",
+  "bpm": 80,
+  "layers": {
+    "melody": { "subject": { "kind": "melody", "beats": 4 } },
+    "countdown": { "subject": { "kind": "countdown" } },
+    "logo": { "subject": { "kind": "logo" } },
+    "url": { "subject": { "kind": "url" } }
+  },
+  "formats": {
+    "16x9": {
+      "layers": {
+        "melody": { "x": 0.08, "y": 0.3, "w": 0.84, "h": 0.5 },
+        "countdown": { "x": 0.3, "y": 0.05, "w": 0.4, "h": 0.2 },
+        "logo": { "x": 0.03, "y": 0.04, "w": 0.15, "h": 0.1 },
+        "url": { "x": 0.7, "y": 0.9, "w": 0.27, "h": 0.07 }
+      }
+    },
+    "9x16": {
+      "layers": {
+        "melody": { "x": 0.02, "y": 0.39, "w": 0.96, "h": 0.22 },
+        "countdown": { "x": 0.1, "y": 0.2, "w": 0.8, "h": 0.14 },
+        "logo": { "x": 0.3, "y": 0.05, "w": 0.4, "h": 0.07 },
+        "url": { "x": 0.15, "y": 0.9, "w": 0.7, "h": 0.05 }
+      }
+    }
+  },
+  "timeline": [
+    { "tune": "1 2 1 2 | 1w", "label": "book 1", "times": 4, "caption": "Tune 1 · get ready" },
+    { "tune": "1h 2h | 1w", "label": "book 2", "times": 4, "caption": "Tune 2 · get ready" },
+    { "tune": "2 1 2h | 1w", "label": "book 3", "times": 4, "caption": "Tune 3 · get ready" },
+    { "tune": "1 1 2h | 1w", "label": "book 4", "times": 4, "caption": "Tune 4 · get ready" },
+    { "tune": "1 1 2 2 | 1 2 1h | 2h 2 2 | 1w", "label": "book 5", "times": 4, "caption": "Tune 5 · get ready" },
+    { "tune": "2h 1 2 | 2 1 2h | 1 2 2 1 | 1w", "label": "book 6", "times": 4, "caption": "Tune 6 · get ready" },
+    { "tune": "1 2 1h | 2 2 1 2 | 2h 1 2 | 1w", "label": "book 7", "times": 4, "caption": "Tune 7 · get ready" },
+    { "tune": "1 2 3 2 | 1w", "label": "book 8", "times": 4, "caption": "Tune 8 · get ready" },
+    { "tune": "3h 2h | 1w", "label": "book 9", "times": 4, "caption": "Tune 9 · get ready" },
+    { "tune": "2 3 1 2 | 1w", "label": "book 10", "times": 4, "caption": "Tune 10 · get ready" },
+    { "tune": "3 3 2 2 | 1w", "label": "book 11", "times": 4, "caption": "Tune 11 · get ready" },
+    { "tune": "3 1 2 3 | 2h 1h | 3 2 1 2 | 1w", "label": "book 12", "times": 4, "caption": "Tune 12 · get ready" }
+  ]
+}

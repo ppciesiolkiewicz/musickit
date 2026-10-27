@@ -17,6 +17,7 @@ This directory contains the formal specifications for the attunr application.
 | [Sampler](sampler.md) | Instruments from uploaded or generated samples, dropped files included |
 | [NAM](nam.md) | Neural amp models for guitar, a looper effect |
 | [Studio](studio.md) | Teacher studio (`/teachers/studio`): a 16:9 frame with camera and theory widgets, for recording lessons |
+| [Video](video.md) | Widget videos (`npm run video`): practice videos rendered from `videos/*.json` with the real stage widgets |
 
 ## Quick Reference
 
