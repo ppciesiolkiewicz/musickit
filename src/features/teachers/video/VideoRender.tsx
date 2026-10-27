@@ -121,7 +121,11 @@ function Frame({ job, t0 }: { job: Job; t0: { current: number } }) {
       // read from the clock itself, so the staff's own frame callback and this page's agree on the time
       gridBeats: () => {
         const m = momentAt(score, performance.now() - t0.current);
-        return m.phase === "play" ? m.beats : m.phase === "countdown" ? 0 : null;
+        if (m.phase === "play") return m.beats;
+        if (m.phase === "countdown") return 0;
+        // the tail holds the bar at the end of the last pass (a hair short: the staff wraps at the tune's length);
+        // null would let the staff start the tune again on its own
+        return score.segments[m.segment].tuneBeats - 1e-3;
       },
       countdown: shown.phase === "countdown" ? { caption: score.segments[shown.segment].caption, left: shown.left } : null,
     }),
