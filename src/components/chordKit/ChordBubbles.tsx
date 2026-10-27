@@ -119,7 +119,7 @@ function Hot({ id, label, active, onHover, onPin, children }: { id: string; labe
       tabIndex={0}
       aria-label={label}
       aria-expanded={active}
-      className="cursor-sound"
+      className="cursor-pointer"
       style={{ outline: "none" }}
       onMouseEnter={() => onHover(id)}
       onMouseLeave={() => onHover(null)}
@@ -195,7 +195,7 @@ function Bubble({ ctx, ch, items = [], onToggle }: { ctx: KeyContext; ch: Degree
           );
         })}
 
-        <g onClick={() => onPin("hub")} onMouseEnter={() => setHover("hub")} onMouseLeave={() => setHover(null)} className="cursor-sound">
+        <g onClick={() => onPin("hub")} onMouseEnter={() => setHover("hub")} onMouseLeave={() => setHover(null)} className="cursor-pointer">
           <title>{`${ch.roman}: ${ch.triadName}, built on scale degrees ${ch.degrees.slice(0, 3).join("-")}. Tap to hear it.`}</title>
           <circle cx={cx} cy={cy} r={hubR} fill={hue.hub} stroke={lineCol} strokeWidth={1.5} />
           <text x={cx} y={cy - 7} textAnchor="middle" dominantBaseline="central" fontSize={ch.roman.length > 4 ? 13 : 16} fontWeight={600} fill={hue.onHub}>{ch.roman}</text>

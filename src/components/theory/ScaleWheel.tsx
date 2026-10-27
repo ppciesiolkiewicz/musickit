@@ -74,7 +74,7 @@ export default function ScaleWheel({ steps, degrees, labels, compare, compareLab
       })}
       {active !== null && active < pts.length && <line x1={C} y1={C} x2={pts[active].x} y2={pts[active].y} stroke={colour(active)} strokeWidth={2} strokeLinecap="round" />}
       {pts.map((p, d) => (
-        <g key={d} className={onNote ? "cursor-sound" : undefined} onClick={onNote ? () => onNote(d) : undefined}>
+        <g key={d} className={onNote ? "cursor-pointer" : undefined} onClick={onNote ? () => onNote(d) : undefined}>
           {onNote && <title>{`${labels[d]}: tap to hear it`}</title>}
           {shared[d] && (
             <>

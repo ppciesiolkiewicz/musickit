@@ -131,7 +131,7 @@ export default function HeroNeck() {
           return (
             <g
               key={`${mode}-${tonic.pc}-${d.row}-${d.f}`}
-              className="dot-pop cursor-sound"
+              className="dot-pop cursor-pointer"
               style={{ animationDelay: `${d.f * 22 + d.row * 8}ms` }}
               onClick={() => player.tap(`${d.row}-${d.f}`, d.midi)}
             >
@@ -160,14 +160,14 @@ export default function HeroNeck() {
             type="button"
             onClick={() => player.tap(`d${d}`, root + steps[d])}
             title={`${names[d]}: tap to hear it`}
-            className={`cursor-sound flex h-9 min-w-9 items-center justify-center rounded-full px-2 text-xs font-bold transition ${player.active === `d${d}` ? "scale-110 ring-2 ring-sky-300" : ""}`}
+            className={`cursor-pointer flex h-9 min-w-9 items-center justify-center rounded-full px-2 text-xs font-bold transition ${player.active === `d${d}` ? "scale-110 ring-2 ring-sky-300" : ""}`}
             style={{ background: degreeColour(d), color: DOT_INK }}
           >
             {names[d]}
           </button>
         ))}
         <span className="mx-1 hidden h-6 w-px bg-slate-700 sm:block" />
-        <button type="button" onClick={playScale} className="cursor-sound inline-flex items-center gap-1.5 rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1.5 text-xs text-emerald-100 hover:bg-emerald-500/25">
+        <button type="button" onClick={playScale} className="cursor-pointer inline-flex items-center gap-1.5 rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1.5 text-xs text-emerald-100 hover:bg-emerald-500/25">
           <Icon name="play" size={12} fill /> Play scale
         </button>
         <TuneButton onPlay={playTune} title="A short tune in this mode, new every time" className="rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1.5 text-xs text-emerald-100 hover:bg-emerald-500/25" />

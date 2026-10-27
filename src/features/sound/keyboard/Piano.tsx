@@ -353,7 +353,7 @@ export default function Piano({ destination, voice, keyInfo, onNoteOn, onNoteOff
                 <div
                   key={key.id}
                   {...pointerProps(key.id)}
-                  className="relative flex h-full flex-1 cursor-sound flex-col items-center justify-end overflow-hidden rounded-b-md border border-neutral-400/70 bg-neutral-50 pb-1.5 first:rounded-bl-lg last:rounded-br-lg"
+                  className="relative flex h-full flex-1 cursor-pointer flex-col items-center justify-end overflow-hidden rounded-b-md border border-neutral-400/70 bg-neutral-50 pb-1.5 first:rounded-bl-lg last:rounded-br-lg"
                 >
                   <span className={`absolute inset-0 transition-colors duration-75 ${overlay(key.id, inScale, isTonic(key.id), false)}`} aria-hidden />
                   {inScale && degree && <span className="absolute top-[64%] text-[11px] font-semibold text-neutral-800 sm:text-xs">{degree}</span>}
@@ -372,7 +372,7 @@ export default function Piano({ destination, voice, keyInfo, onNoteOn, onNoteOff
               <div
                 key={key.id}
                 {...pointerProps(key.id)}
-                className="absolute top-0 z-10 flex h-[60%] cursor-sound flex-col items-center justify-end overflow-hidden rounded-b-md border border-neutral-950 bg-neutral-900 pb-1 shadow-md shadow-black/40"
+                className="absolute top-0 z-10 flex h-[60%] cursor-pointer flex-col items-center justify-end overflow-hidden rounded-b-md border border-neutral-950 bg-neutral-900 pb-1 shadow-md shadow-black/40"
                 style={{ left: `${left - ww * 0.3}%`, width: `${ww * 0.6}%` }}
               >
                 <span className={`absolute inset-0 transition-colors duration-75 ${overlay(key.id, inScale, isTonic(key.id), true)}`} aria-hidden />

@@ -46,7 +46,7 @@ export function ArpNeck({ cells, arp, overlay, labelSystem, badges, onNote }: { 
           const x = g.fx(c.fret), y = g.sy(c.string), col = colour(c);
           const t = labelSystem === "note" ? c.name : noteLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText });
           return (
-            <g key={`${c.string}-${c.fret}`} opacity={op() * 0.9} onClick={() => onNote(c)} className="cursor-sound">
+            <g key={`${c.string}-${c.fret}`} opacity={op() * 0.9} onClick={() => onNote(c)} className="cursor-pointer">
               <circle cx={x} cy={y} r={9} fill="var(--color-slate-950)" stroke={col} strokeWidth={1.6} />
               <text x={x} y={y + 0.5} textAnchor="middle" dominantBaseline="central" fontSize={t.length > 2 ? 7 : 8.5} fontWeight={600} fill={col} pointerEvents="none">{t}</text>
             </g>
@@ -55,7 +55,8 @@ export function ArpNeck({ cells, arp, overlay, labelSystem, badges, onNote }: { 
         {arpCells.map((c) => {
           const x = g.fx(c.fret), y = g.sy(c.string), isRoot = c.arp!.role === "R", label = labelFor(c);
           return (
-            <g key={`${c.string}-${c.fret}`} opacity={op()} onClick={() => onNote(c)} className="group cursor-sound">
+            <g key={`${c.string}-${c.fret}`} opacity={op()} onClick={() => onNote(c)} className="group cursor-pointer">
+              <circle cx={x} cy={y} r={18} fill="transparent" />
               <circle cx={x} cy={y} r={14} fill={c.inScale ? colour(c) : "#1b0b12"} stroke={isRoot ? "var(--color-slate-50)" : c.inScale ? "var(--color-slate-950)" : OUT} strokeWidth={isRoot ? 2.8 : c.inScale ? 1.5 : 2} strokeDasharray={c.inScale ? undefined : "3.5 2.5"} />
               <DotLabel label={label} hover={hoverLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText })} size={(t) => (t.length > 2 ? 9.5 : 12)} x={x} y={y + 0.5} textAnchor="middle" dominantBaseline="central" fontWeight={700} fill={c.inScale ? "#0d1526" : "#fecdd3"} />
             </g>
@@ -88,7 +89,7 @@ function ArpBox({ cells, win, overlay, labelSystem, badges, onNote }: { cells: N
           const x = g.sx(c.string), y = g.fy(c.fret), col = colour(c);
           const t = labelSystem === "note" ? c.name : noteLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText });
           return (
-            <g key={`${c.string}-${c.fret}`} opacity={0.9} onClick={() => onNote(c)} className="cursor-sound">
+            <g key={`${c.string}-${c.fret}`} opacity={0.9} onClick={() => onNote(c)} className="cursor-pointer">
               <circle cx={x} cy={y} r={9} fill="var(--color-slate-950)" stroke={col} strokeWidth={1.6} />
               <text x={x} y={y + 0.5} textAnchor="middle" dominantBaseline="central" fontSize={t.length > 2 ? 7 : 8.5} fontWeight={600} fill={col} pointerEvents="none">{t}</text>
             </g>
@@ -97,7 +98,8 @@ function ArpBox({ cells, win, overlay, labelSystem, badges, onNote }: { cells: N
         {dots.map((c) => {
           const x = g.sx(c.string), y = g.fy(c.fret), isRoot = c.arp!.role === "R", label = lab(c);
           return (
-            <g key={`${c.string}-${c.fret}`} onClick={() => onNote(c)} className="group cursor-sound">
+            <g key={`${c.string}-${c.fret}`} onClick={() => onNote(c)} className="group cursor-pointer">
+              <circle cx={x} cy={y} r={18} fill="transparent" />
               <circle cx={x} cy={y} r={14} fill={c.inScale ? colour(c) : "#1b0b12"} stroke={isRoot ? "var(--color-slate-50)" : c.inScale ? "var(--color-slate-950)" : OUT} strokeWidth={isRoot ? 2.8 : c.inScale ? 1.5 : 2} strokeDasharray={c.inScale ? undefined : "3.5 2.5"} />
               <DotLabel label={label} hover={hoverLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText })} size={(t) => (t.length > 2 ? 9.5 : 12)} x={x} y={y + 0.5} textAnchor="middle" dominantBaseline="central" fontWeight={700} fill={c.inScale ? "#0d1526" : "#fecdd3"} />
             </g>
@@ -166,7 +168,7 @@ export default function ArpeggiosExplorer({ initialTonic = DEFAULT_KEY_PC, initi
               Octaves<Info label="About octaves">How far the played arpeggio climbs. One octave plays the notes up to the next root and back down. Two goes twice as far.</Info>
               <Select size="xs" value={octaves} onChange={setOctaves} aria-label="Octaves" options={[{ value: 1, label: "1" }, { value: 2, label: "2" }]} />
             </span>
-            <button type="button" onClick={playArp} className="cursor-sound rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25">▶ Play arpeggio</button>
+            <button type="button" onClick={playArp} className="cursor-pointer rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25">▶ Play arpeggio</button>
           </span>
         </div>
         {outside.length > 0 && (

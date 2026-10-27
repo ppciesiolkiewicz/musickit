@@ -64,11 +64,6 @@ html.theme-fade *, html.theme-fade *::before, html.theme-fade *::after {
   margin-inline: calc(-1 * clamp(0px, (100vw - 100%) / 2 - 1.5rem, 8rem));
 }
 
-/* Anything that plays a sound when clicked: a small speaker instead of the hand. */
-@utility cursor-sound {
-  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cg stroke='%230f172a' stroke-width='4.5'%3E%3Cpath d='M11 5 6 9H3v6h3l5 4z'/%3E%3Cpath d='M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14'/%3E%3C/g%3E%3Cg stroke='%23fff' stroke-width='2'%3E%3Cpath d='M11 5 6 9H3v6h3l5 4z' fill='%23fff'/%3E%3Cpath d='M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14'/%3E%3C/g%3E%3C/svg%3E") 4 12, pointer;
-}
-
 @layer base {
   /* native dropdown lists follow the theme instead of the OS */
   select option,

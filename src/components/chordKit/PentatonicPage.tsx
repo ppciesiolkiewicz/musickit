@@ -121,14 +121,14 @@ export default function PentatonicPage({ slug, initialKey, syncUrl = true }: { s
             {p.tones.map((t, i) => {
               const mark = compareMark(p.steps, i, cmp);
               return (
-                <button key={t.key} type="button" onClick={() => tap(i)} title={`${t.name}${t.blue ? " (the blue note)" : ""}: tap to hear it`} className="cursor-sound relative flex flex-col items-center gap-0.5 rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
+                <button key={t.key} type="button" onClick={() => tap(i)} title={`${t.name}${t.blue ? " (the blue note)" : ""}: tap to hear it`} className="cursor-pointer relative flex flex-col items-center gap-0.5 rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
                   <span className={`flex h-11 w-11 items-center justify-center rounded-full text-sm font-semibold transition ${activeTone === i ? "scale-110 ring-[3px] ring-sky-400" : ""} ${mark.shared ? SHARED_RING : ""}`} style={{ background: degreeColour(t.degree), color: DOT_INK }}>{toneLabel(system, p, t)}</span>
                   <span className="text-xs tabular-nums text-slate-500">{toneCaption(system, p, t)}</span>
                   {mark.theirs && <span className="pointer-events-none absolute -top-3 left-1/2 z-20 -translate-x-1/2 whitespace-nowrap rounded-md border border-slate-700 bg-slate-900/95 px-1 text-[9px] leading-4 text-slate-300">vs {mark.theirs}</span>}
                 </button>
               );
             })}
-            <button type="button" onClick={playScale} className="cursor-sound ml-2 rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25">▶ Play scale</button>
+            <button type="button" onClick={playScale} className="cursor-pointer ml-2 rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25">▶ Play scale</button>
             <TuneButton onPlay={playTune} title="A short tune made from this scale, new every time" className="rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25" />
           </div>
           <KeySignature ctx={host} />

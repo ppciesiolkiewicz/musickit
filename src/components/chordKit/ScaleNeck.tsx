@@ -18,7 +18,9 @@ function Dot({ c, x, y, r, ring, label, hover, active, dim, onNote }: { c: Scale
   const isRoot = c.degree === 0;
   const fs = (t: string) => (ring ? 0.85 : 0.9) * r * (t.length > 2 ? 0.68 : 0.88);
   return (
-    <g opacity={dim ? 0.18 : 1} onClick={() => onNote(c)} className="group cursor-sound">
+    <g opacity={dim ? 0.18 : 1} onClick={() => onNote(c)} className="group cursor-pointer">
+      {/* a hover and tap area a few px wider than the dot */}
+      <circle cx={x} cy={y} r={r + 4} fill="transparent" />
       {ring ? (
         <circle cx={x} cy={y} r={r * 0.68} fill="var(--color-slate-950)" stroke={active ? ACTIVE : col} strokeWidth={active ? 3 : 1.6} />
       ) : (

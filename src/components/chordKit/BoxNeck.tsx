@@ -45,7 +45,8 @@ export default function BoxNeck({ cells, box, layers, labelSystem, badges = true
           const label = labelFor(c);
           const key = `${c.string}-${c.fret}`;
           return (
-            <g key={key} onClick={() => onNote(c)} className="group cursor-sound">
+            <g key={key} onClick={() => onNote(c)} className="group cursor-pointer">
+              <circle cx={x} cy={y} r={r + 4} fill="transparent" />
               <circle cx={x} cy={y} r={r} fill={colour} stroke={c.isRoot ? "var(--color-slate-50)" : "var(--color-slate-950)"} strokeWidth={c.isRoot ? 2.5 : 1.5} />
               <DotLabel label={label} hover={hoverLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText })} size={(t) => (t.length > 2 ? 9.5 : 12.5)} x={x} y={y + 0.5} textAnchor="middle" dominantBaseline="central" fontWeight={700} fill={DOT_INK} />
             </g>

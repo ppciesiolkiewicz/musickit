@@ -69,7 +69,7 @@ function IntervalViewer({ semis, setSemis }: { semis: number; setSemis: (n: numb
         </ChipRow>
         <div className="flex flex-wrap items-center gap-3">
           <Stepper label="Start fret" value={`fret ${fret} · ${NAMES[startMidi % 12]}`} onDec={() => setFret((f) => Math.max(0, f - 1))} onInc={() => setFret((f) => Math.min(7, f + 1))} decDisabled={fret <= 0} incDisabled={fret >= 7} />
-          <button type="button" onClick={play} className="cursor-sound rounded-lg border border-sky-500/60 px-3 py-1 text-sm text-sky-200 hover:bg-sky-500/10">▶ Hear it</button>
+          <button type="button" onClick={play} className="cursor-pointer rounded-lg border border-sky-500/60 px-3 py-1 text-sm text-sky-200 hover:bg-sky-500/10">▶ Hear it</button>
         </div>
       </div>
       <p className="mt-3 text-sm text-slate-300">

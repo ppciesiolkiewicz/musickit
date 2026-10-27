@@ -27,7 +27,7 @@ function Key({ ctx, title, sevenths, onSevenths }: { ctx: KeyContext; title: str
           const notes = c.notes.slice(0, sevenths ? 4 : 3);
           return (
             <li key={c.degree}>
-              <button type="button" onClick={() => strum(chordMidi(ctx, c.degree, sevenths ? 4 : 3), { gapMs: 70, holdMs: 1400 })} className="cursor-sound flex w-full flex-col gap-0.5 rounded-lg border border-slate-800 bg-slate-950/60 px-2 py-1.5 text-left hover:border-sky-500/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
+              <button type="button" onClick={() => strum(chordMidi(ctx, c.degree, sevenths ? 4 : 3), { gapMs: 70, holdMs: 1400 })} className="cursor-pointer flex w-full flex-col gap-0.5 rounded-lg border border-slate-800 bg-slate-950/60 px-2 py-1.5 text-left hover:border-sky-500/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
                 <span className="flex items-baseline justify-between">
                   <span className="text-base font-medium text-slate-100">{sevenths ? c.seventhName : c.triadName}</span>
                   <span className="text-xs text-slate-500">{c.roman}</span>
@@ -50,7 +50,7 @@ function General() {
       <ul className="grid gap-1 [grid-template-columns:repeat(auto-fill,minmax(10.5rem,1fr))]">
         {CHORD_TYPES.map((t) => (
           <li key={t.name}>
-            <button type="button" onClick={() => strum(voice(C_PC, t.symbol), { gapMs: 70, holdMs: 1400 })} className="cursor-sound flex w-full flex-col gap-0.5 rounded-lg border border-slate-800 bg-slate-950/60 px-2 py-1.5 text-left hover:border-sky-500/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
+            <button type="button" onClick={() => strum(voice(C_PC, t.symbol), { gapMs: 70, holdMs: 1400 })} className="cursor-pointer flex w-full flex-col gap-0.5 rounded-lg border border-slate-800 bg-slate-950/60 px-2 py-1.5 text-left hover:border-sky-500/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
               <span className="text-sm font-medium text-slate-100">{t.name}</span>
               <span className="font-mono text-xs text-slate-300">{t.formula}</span>
               <span className="text-[11px] text-slate-500">{t.feel}</span>

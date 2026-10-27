@@ -104,7 +104,7 @@ export default function NeighboursView() {
             <ul className="mt-2 grid gap-1 text-xs text-slate-300 sm:grid-cols-2 lg:grid-cols-3">
               {voicings.map((v, i) => (
                 <li key={i}>
-                  <button type="button" onClick={() => strum(v.midi)} className="cursor-sound rounded px-1 text-left hover:bg-slate-800/70">
+                  <button type="button" onClick={() => strum(v.midi)} className="cursor-pointer rounded px-1 text-left hover:bg-slate-800/70">
                     <span className="text-slate-500">{v.group.label.replace(/ \(.*/, "")}</span> · {INVERSIONS[v.inversion].short} · frets {v.frets.join("-")}
                   </button>
                 </li>

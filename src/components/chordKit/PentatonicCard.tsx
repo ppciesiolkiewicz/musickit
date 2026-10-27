@@ -44,12 +44,12 @@ export default function PentatonicCard({ scale, tonicPc, player, system, onOpen 
 
       <div className="flex flex-wrap items-end gap-1.5" aria-label={`Notes of ${p.title}`}>
         {p.tones.map((t, i) => (
-          <button key={t.key} type="button" onClick={() => tap(i)} title={`${t.name}${t.blue ? " (the blue note)" : ""}: tap to hear it`} className="cursor-sound flex flex-col items-center gap-0.5 rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
+          <button key={t.key} type="button" onClick={() => tap(i)} title={`${t.name}${t.blue ? " (the blue note)" : ""}: tap to hear it`} className="cursor-pointer flex flex-col items-center gap-0.5 rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
             <span className="text-xs tabular-nums text-slate-400">{toneCaption(system, p, t)}</span>
             <span className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold transition ${active === t.key ? "scale-110 ring-[3px] ring-sky-400" : ""}`} style={{ background: degreeColour(t.degree), color: DOT_INK }}>{toneLabel(system, p, t)}</span>
           </button>
         ))}
-        <button type="button" onClick={playScale} className="cursor-sound mb-1 ml-1 rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25">▶ Play</button>
+        <button type="button" onClick={playScale} className="cursor-pointer mb-1 ml-1 rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25">▶ Play</button>
         <TuneButton onPlay={playTune} title="A short tune made from this scale, new every time" className="mb-1 rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25" />
       </div>
 

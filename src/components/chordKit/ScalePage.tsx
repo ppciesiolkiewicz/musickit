@@ -87,14 +87,14 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
           {ctx.names.map((n, i) => {
             const mark = compareMark(ctx.steps, i, cmp);
             return (
-              <button key={i} type="button" onClick={() => player.tap(`d${i}`, line[i])} title={`${n}: tap to hear it`} className="cursor-sound relative flex flex-col items-center gap-0.5 rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
+              <button key={i} type="button" onClick={() => player.tap(`d${i}`, line[i])} title={`${n}: tap to hear it`} className="cursor-pointer relative flex flex-col items-center gap-0.5 rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
                 <span className={`flex h-11 w-11 items-center justify-center rounded-full text-sm font-semibold transition ${player.active === `d${i}` ? "scale-110 ring-[3px] ring-sky-400" : ""} ${mark.shared ? SHARED_RING : ""}`} style={{ background: degreeColour(i), color: DOT_INK }}>{scaleToneLabel(system, ctx, i)}</span>
                 <span className="text-xs tabular-nums text-slate-500">{scaleToneCaption(system, ctx, i)}</span>
                 {mark.theirs && <span className="pointer-events-none absolute -top-3 left-1/2 z-20 -translate-x-1/2 whitespace-nowrap rounded-md border border-slate-700 bg-slate-900/95 px-1 text-[9px] leading-4 text-slate-300">vs {mark.theirs}</span>}
               </button>
             );
           })}
-          <button type="button" onClick={playScale} className="cursor-sound ml-2 rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25">▶ Play scale</button>
+          <button type="button" onClick={playScale} className="cursor-pointer ml-2 rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25">▶ Play scale</button>
           <TuneButton onPlay={playTune} title="A short tune made from this scale, new every time" className="rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25" />
         </div>
         <KeySignature ctx={ctx} />

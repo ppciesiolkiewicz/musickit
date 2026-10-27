@@ -51,7 +51,7 @@ export default function ScaleProgressions({ ctx, className = "" }: { ctx: KeyCon
             <li key={pi} className="flex flex-col gap-2 rounded-xl border border-slate-800 bg-slate-950/40 p-3">
               <div className="flex items-center gap-3">
                 <h3 className="min-w-0 flex-1 text-base font-light text-sky-300">{chords.map((c) => c.roman).join(" – ")}</h3>
-                <button type="button" onClick={() => (running ? stop() : playAll(pi))} aria-pressed={running} className="cursor-sound shrink-0 rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25">
+                <button type="button" onClick={() => (running ? stop() : playAll(pi))} aria-pressed={running} className="cursor-pointer shrink-0 rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25">
                   {running ? "■ Stop" : "▶ Play"}
                 </button>
               </div>
@@ -62,7 +62,7 @@ export default function ScaleProgressions({ ctx, className = "" }: { ctx: KeyCon
                       type="button"
                       onClick={() => { stop(); playChord(pi, ci); }}
                       title="Tap to hear it"
-                      className={`cursor-sound rounded-lg border px-3 py-1.5 text-sm text-slate-100 transition hover:border-slate-500 ${now?.prog === pi && now.chord === ci ? "border-sky-400 bg-sky-950/40" : "border-slate-700 bg-slate-900"}`}
+                      className={`cursor-pointer rounded-lg border px-3 py-1.5 text-sm text-slate-100 transition hover:border-slate-500 ${now?.prog === pi && now.chord === ci ? "border-sky-400 bg-sky-950/40" : "border-slate-700 bg-slate-900"}`}
                     >
                       {c.name}
                     </button>

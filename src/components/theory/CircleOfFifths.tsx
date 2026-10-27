@@ -57,7 +57,7 @@ export default function CircleOfFifths({ value, onChange }: { value: CircleKey |
     <g key={key} role={onPick ? "button" : undefined} tabIndex={onPick ? 0 : undefined} aria-label={aria} aria-pressed={onPick ? tonic : undefined}
       onClick={onPick ?? (chord ? () => playChord(chord.rootPc, chord.quality) : undefined)}
       onKeyDown={(e) => onPick && (e.key === "Enter" || e.key === " ") && (e.preventDefault(), onPick())}
-      className={`${onPick || chord ? "cursor-sound" : ""} outline-none focus-visible:[&>circle]:stroke-sky-400`}>
+      className={`${onPick || chord ? "cursor-pointer" : ""} outline-none focus-visible:[&>circle]:stroke-sky-400`}>
       <circle cx={x} cy={y} r={r} fill={tonic ? "var(--color-sky-500)" : chord ? "#1e3a5f" : "var(--color-slate-900)"} stroke={tonic ? "var(--color-sky-100)" : chord ? "var(--color-sky-400)" : "var(--color-slate-700)"} strokeWidth={tonic ? 2 : 1} />
       <text x={x} y={sub ? y - size * 0.35 : y} textAnchor="middle" dominantBaseline="central" fontSize={size} fontWeight={600} fill={tonic ? "#082f49" : "var(--color-slate-100)"}>{label}</text>
       {sub && <text x={x} y={y + size * 0.65} textAnchor="middle" dominantBaseline="central" fontSize={size * 0.7} fill={tonic ? "#082f49" : "var(--color-sky-200)"}>{sub}</text>}
@@ -117,7 +117,7 @@ function KeyDetails({ value, sig, onChange }: { value: CircleKey; sig: number; o
     <section className="flex flex-col gap-2.5 rounded-xl border border-slate-800 bg-slate-900/40 p-3">
       <div className="flex items-center gap-2">
         <h3 className="text-base font-medium text-slate-100">{keyName(value)}</h3>
-        <button type="button" className={`cursor-sound ${btn} ml-auto inline-flex items-center gap-1`} onClick={() => playScale(value)} aria-label={`Play the ${keyName(value)} scale`}><Icon name="play" size={12} fill />Scale</button>
+        <button type="button" className={`cursor-pointer ${btn} ml-auto inline-flex items-center gap-1`} onClick={() => playScale(value)} aria-label={`Play the ${keyName(value)} scale`}><Icon name="play" size={12} fill />Scale</button>
       </div>
       <p className="text-xs text-slate-400">
         <b className="text-slate-200">Key signature</b> {sig === 0 ? "no sharps or flats" : `${Math.abs(sig)} ${sig > 0 ? "sharp" : "flat"}${Math.abs(sig) === 1 ? "" : "s"}: ${notes.join(" ")}`}
@@ -128,7 +128,7 @@ function KeyDetails({ value, sig, onChange }: { value: CircleKey; sig: number; o
         <ul className="grid grid-cols-4 gap-1 sm:grid-cols-7 @3xl:grid-cols-4">
           {chords.map((c) => (
             <li key={c.roman}>
-              <button type="button" onClick={() => playChord(c.rootPc, c.quality)} className={`cursor-sound flex w-full flex-col items-center rounded-lg border px-1 py-1 ${c.roman === "I" || c.roman === "i" ? "border-sky-500/60 bg-sky-500/10" : "border-slate-800 bg-slate-950/50"} hover:border-sky-500/60`}>
+              <button type="button" onClick={() => playChord(c.rootPc, c.quality)} className={`cursor-pointer flex w-full flex-col items-center rounded-lg border px-1 py-1 ${c.roman === "I" || c.roman === "i" ? "border-sky-500/60 bg-sky-500/10" : "border-slate-800 bg-slate-950/50"} hover:border-sky-500/60`}>
                 <span className="text-[11px] text-slate-500">{c.roman}</span>
                 <span className="text-sm font-medium text-slate-100">{c.name}</span>
               </button>

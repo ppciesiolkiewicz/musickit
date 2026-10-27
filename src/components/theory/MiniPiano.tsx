@@ -19,7 +19,7 @@ export default function MiniPiano({ lit, from = 48, octaves = 2, onKey }: { lit:
   const key = (m: number, x: number, w: number, h: number, black: boolean) => {
     const l = litAt(m);
     return (
-      <g key={m} onClick={onKey ? () => onKey(m) : undefined} className={onKey ? "cursor-sound" : undefined}>
+      <g key={m} onClick={onKey ? () => onKey(m) : undefined} className={onKey ? "cursor-pointer" : undefined}>
         <rect x={x} y={0} width={w} height={h} rx={3} fill={l ? l.colour : black ? "#1e293b" : "#f1f5f9"} stroke="#334155" strokeWidth={1} />
         {l && <text x={x + w / 2} y={h - 8} textAnchor="middle" fontSize={black ? 8 : 10} fontWeight={700} fill="#0f172a">{l.label}</text>}
       </g>

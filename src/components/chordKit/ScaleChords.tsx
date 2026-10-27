@@ -48,7 +48,7 @@ export default function ScaleChords({ ctx, className = "" }: { ctx: KeyContext; 
                     type="button"
                     onClick={() => play(c.degree)}
                     title="Tap to hear it"
-                    className={`cursor-sound flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border px-3 py-2.5 text-left transition hover:border-slate-600 ${playing === c.degree ? "border-sky-400 bg-slate-800/80" : "border-transparent"}`}
+                    className={`cursor-pointer flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border px-3 py-2.5 text-left transition hover:border-slate-600 ${playing === c.degree ? "border-sky-400 bg-slate-800/80" : "border-transparent"}`}
                   >
                     <span className="w-12 shrink-0 text-lg font-light text-sky-300">{c.roman}</span>
                     <span className="min-w-[8rem]">

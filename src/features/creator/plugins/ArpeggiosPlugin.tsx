@@ -28,7 +28,7 @@ export default function ArpeggiosPlugin() {
           const arp = buildArpeggio(key, c.degree, k.id);
           return (
             <li key={c.degree}>
-              <button type="button" onClick={() => strum(arpeggioMidi(arp), { gapMs: 200, holdMs: 600 })} className="cursor-sound flex w-full items-baseline gap-2 rounded-lg border border-slate-800 bg-slate-950/60 px-2 py-1 text-left text-xs hover:border-sky-500/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
+              <button type="button" onClick={() => strum(arpeggioMidi(arp), { gapMs: 200, holdMs: 600 })} className="cursor-pointer flex w-full items-baseline gap-2 rounded-lg border border-slate-800 bg-slate-950/60 px-2 py-1 text-left text-xs hover:border-sky-500/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
                 <span className="w-9 shrink-0 text-slate-500">{c.roman}</span>
                 <span className="w-20 shrink-0 font-medium text-slate-100">{arp.title.replace(/ arpeggio$/, "")}</span>
                 <span className="min-w-0 truncate text-slate-300">{arp.notes.map((n) => <span key={n.role} className="mr-2">{n.name}<sub className="ml-0.5 text-slate-500">{n.role}</sub></span>)}</span>

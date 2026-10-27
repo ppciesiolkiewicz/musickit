@@ -148,7 +148,7 @@ function MotiveLab() {
       <ul className="grid gap-1.5 sm:grid-cols-2">
         {rows.map((r) => (
           <li key={r.name}>
-            <button type="button" onClick={() => play(r.degs)} className="cursor-sound flex w-full items-center gap-2 rounded-lg border border-slate-800 px-2 py-1.5 text-left hover:border-slate-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400" aria-label={`Play ${r.name}`}>
+            <button type="button" onClick={() => play(r.degs)} className="cursor-pointer flex w-full items-center gap-2 rounded-lg border border-slate-800 px-2 py-1.5 text-left hover:border-slate-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400" aria-label={`Play ${r.name}`}>
               <Icon name="play" size={12} fill className="text-sky-300" />
               <span className="w-24 text-xs text-slate-400">{r.name}</span>
               <span className="text-sm text-slate-100">{label(r.degs)}</span>
@@ -159,7 +159,7 @@ function MotiveLab() {
       <details>
         <summary className="cursor-pointer text-xs text-slate-400">All {perms.length} orderings</summary>
         <ul className="mt-2 flex flex-wrap gap-1.5">
-          {perms.map((p) => <li key={p.join()}><button type="button" onClick={() => play(p)} className="cursor-sound rounded-md border border-slate-800 px-2 py-1 text-xs text-slate-200 hover:border-slate-500">{label(p)}</button></li>)}
+          {perms.map((p) => <li key={p.join()}><button type="button" onClick={() => play(p)} className="cursor-pointer rounded-md border border-slate-800 px-2 py-1 text-xs text-slate-200 hover:border-slate-500">{label(p)}</button></li>)}
         </ul>
       </details>
       <p className="text-xs text-slate-500">Improvise with it: choose one ordering, play it in time, then move to the next without stopping. Inversion mirrors the shape around the first note, inside the scale.</p>
@@ -237,7 +237,7 @@ function Roulette() {
       <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-sm">
         <dt className="text-slate-500">Key</dt><dd className="text-slate-100">{key}</dd>
         <dt className="text-slate-500">Rhythm</dt><dd className="text-slate-100">{c.ratio[0]}:{c.ratio[1]} <span className="text-pink-300">({it.durations.join("+")})</span></dd>
-        <dt className="text-slate-500">Motive</dt><dd className="text-slate-100">{notes} <button type="button" className="cursor-sound ml-1 text-xs text-sky-300 underline" onClick={() => playMelody(c.motive.map((d) => degreeMidi(c.root, c.scale, d, 4)), 280)}>hear</button></dd>
+        <dt className="text-slate-500">Motive</dt><dd className="text-slate-100">{notes} <button type="button" className="cursor-pointer ml-1 text-xs text-sky-300 underline" onClick={() => playMelody(c.motive.map((d) => degreeMidi(c.root, c.scale, d, 4)), 280)}>hear</button></dd>
         <dt className="text-slate-500">Rule</dt><dd className="text-slate-100">{c.constraint}</dd>
       </dl>
       <div className="flex flex-wrap items-center gap-1.5">
@@ -280,7 +280,7 @@ function NameThatRhythm() {
       <h3 className="text-sm font-medium text-slate-100">Name that rhythm</h3>
       <p className="text-xs text-slate-400">Listen to the bar, count its long and short notes, and say which two pulses made it.</p>
       <div className="flex flex-wrap items-center gap-1.5">
-        <button type="button" className={`cursor-sound ${ibtn} gap-1`} onClick={() => hear(target)}><Icon name="play" fill />Again</button>
+        <button type="button" className={`cursor-pointer ${ibtn} gap-1`} onClick={() => hear(target)}><Icon name="play" fill />Again</button>
         {choices.map((r) => {
           const right = picked !== null && key(r) === key(target);
           const wrong = picked === key(r) && !right;

@@ -287,7 +287,7 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem, selec
                       type="button"
                       onClick={() => strum([c.midi], { gapMs: 0, holdMs: 700 })}
                       aria-label={`${lab(c)} on string ${STRING_LETTERS[s]}, fret ${f}`}
-                      className={`group cursor-sound grid size-4 place-items-center rounded-full text-[8px] font-bold sm:size-7 sm:text-xs ${c.isRoot ? "ring-2 ring-slate-50" : "ring-1 ring-slate-950"}`}
+                      className={`group relative cursor-pointer grid size-4 before:absolute before:-inset-1 place-items-center rounded-full text-[8px] font-bold sm:size-7 sm:text-xs ${c.isRoot ? "ring-2 ring-slate-50" : "ring-1 ring-slate-950"}`}
                       style={{ backgroundColor: c.scaleDegree === null ? "#f43f5e" : degreeColour(c.scaleDegree), color: DOT_INK }}
                     >
                       <span className="group-hover:hidden">{lab(c)}</span>
@@ -389,7 +389,7 @@ function BoxPanels({ box, rootPc, quality, arpKind, labelSystem, badges, notes, 
         <div key={p.key} className="flex min-w-0 flex-col gap-1.5 rounded-xl border border-slate-800 bg-slate-950/70 p-2">
           <div className="flex items-center gap-2">
             <h3 className="text-sm font-medium text-slate-100">{p.title}</h3>
-            <button type="button" className={`cursor-sound ${play} ml-auto`} onClick={p.onPlay} aria-label={`Play the ${p.title}`}>▶ Play</button>
+            <button type="button" className={`cursor-pointer ${play} ml-auto`} onClick={p.onPlay} aria-label={`Play the ${p.title}`}>▶ Play</button>
             {"onTune" in p && p.onTune && <TuneButton className={play} onPlay={p.onTune} title={`A short tune made from the ${p.title}, new every time`} />}
           </div>
           <BoxNeck cells={cells} box={box} layers={p.layers} labelSystem={labelSystem} badges={badges} onNote={onNote} />

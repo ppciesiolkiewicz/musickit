@@ -22,7 +22,7 @@ export function TriadBox({ v, rootPc, onPlay, active }: { v: TriadVoicing; rootP
   const rows = Math.max(4, Math.max(...v.frets) - lo + 1);
   const w = left + 5 * ss + 16, h = top + rows * fsz + 10;
   return (
-    <button type="button" onClick={onPlay} title="Click to hear it" className={`cursor-sound rounded-lg p-1 text-center transition hover:bg-slate-800/60 ${active ? "bg-slate-800/80 ring-1 ring-sky-400" : ""}`}>
+    <button type="button" onClick={onPlay} title="Click to hear it" className={`cursor-pointer rounded-lg p-1 text-center transition hover:bg-slate-800/60 ${active ? "bg-slate-800/80 ring-1 ring-sky-400" : ""}`}>
       <svg viewBox={`0 0 ${w} ${h}`} width="100%" role="img" aria-label={`Triad at fret ${v.lowestFret}`}>
         {Array.from({ length: rows + 1 }, (_, i) => <line key={i} x1={left} x2={left + 5 * ss} y1={top + i * fsz} y2={top + i * fsz} stroke="var(--color-slate-500)" strokeWidth={i === 0 && lo === 1 ? 3 : 1} />)}
         {Array.from({ length: 6 }, (_, i) => <line key={i} x1={left + i * ss} x2={left + i * ss} y1={top} y2={top + rows * fsz} stroke="var(--color-slate-500)" strokeWidth={1 + (5 - i) * 0.12} />)}

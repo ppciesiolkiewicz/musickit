@@ -159,7 +159,7 @@ export default function ScaleOnGuitar({ ctx, player, only }: { ctx: KeyContext; 
                   </div>
                 )}
                 <div className="flex flex-wrap gap-1.5">
-                  <button type="button" onClick={() => playPosition(box)} className={`cursor-sound ${playBtn}`}>▶ Play</button>
+                  <button type="button" onClick={() => playPosition(box)} className={`cursor-pointer ${playBtn}`}>▶ Play</button>
                   <TuneButton onPlay={(id) => playTune(box, id)} title="A short tune using only this position's notes, new every time" className={playBtn} />
                 </div>
               </div>

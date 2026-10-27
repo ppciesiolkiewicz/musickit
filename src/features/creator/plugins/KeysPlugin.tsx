@@ -35,7 +35,7 @@ export default function KeysPlugin() {
     const deg = degreeOf(k.midi);
     const w = black ? BW : KW, h = black ? BH : KH;
     return (
-      <g key={k.midi} role="button" tabIndex={0} aria-label={nameOf(k.midi, deg)} onPointerDown={() => play(k.midi)} onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && play(k.midi)} className="cursor-sound outline-none focus-visible:[&>rect]:stroke-sky-400">
+      <g key={k.midi} role="button" tabIndex={0} aria-label={nameOf(k.midi, deg)} onPointerDown={() => play(k.midi)} onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && play(k.midi)} className="cursor-pointer outline-none focus-visible:[&>rect]:stroke-sky-400">
         <rect x={k.x} y={0} width={w} height={h} rx={2} fill={black ? "var(--color-slate-950)" : "var(--color-slate-200)"} stroke={black ? "var(--color-slate-700)" : "var(--color-slate-500)"} strokeWidth={1} />
         {deg >= 0 && <circle cx={k.x + w / 2} cy={h - 12} r={black ? 4.5 : 6.5} fill={degreeColour(deg)} stroke="var(--color-slate-900)" />}
         {deg >= 0 && !black && <text x={k.x + w / 2} y={h - 26} textAnchor="middle" fontSize="7.5" fill="var(--color-slate-700)">{ctx ? scaleToneLabel(system, ctx, deg) : nameOf(k.midi, deg)}</text>}

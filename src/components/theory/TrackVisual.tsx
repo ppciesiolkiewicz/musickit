@@ -67,7 +67,7 @@ export default function TrackVisual({ visual }: { visual: Visual }) {
               key={w.name}
               type="button"
               onClick={() => { setWheel(i); playMelody([...w.steps, 12].map((s) => 60 + s), 260); }}
-              className={`cursor-sound flex flex-col items-center rounded-xl border p-3 text-center transition ${wheel === i ? "border-sky-500/60 bg-sky-500/10" : "border-slate-800 bg-slate-950/60 hover:border-slate-600"}`}
+              className={`cursor-pointer flex flex-col items-center rounded-xl border p-3 text-center transition ${wheel === i ? "border-sky-500/60 bg-sky-500/10" : "border-slate-800 bg-slate-950/60 hover:border-slate-600"}`}
             >
               <ScaleWheel steps={w.steps} labels={degreeLabels(w.steps)} compare={MAJOR} size={170} />
               <b className="mt-1 text-sm text-slate-100">{w.name}</b>

@@ -137,7 +137,7 @@ export default function ScalePiano({ state: raw, onChange, voice, hideSound = fa
                   onPointerLeave={() => release(`p${k.code}`)}
                   onPointerCancel={() => release(`p${k.code}`)}
                   aria-label={`${k.label} plays ${k.name}`}
-                  className={`cursor-sound flex h-11 w-[2.65rem] shrink-0 select-none flex-col items-center justify-center rounded-md border leading-none transition-colors ${on ? "border-amber-300 bg-amber-400 text-slate-900" : k.isRoot ? "border-sky-400/70 bg-sky-500/20 text-sky-100" : "border-slate-700 bg-slate-900 text-slate-200"}`}
+                  className={`cursor-pointer flex h-11 w-[2.65rem] shrink-0 select-none flex-col items-center justify-center rounded-md border leading-none transition-colors ${on ? "border-amber-300 bg-amber-400 text-slate-900" : k.isRoot ? "border-sky-400/70 bg-sky-500/20 text-sky-100" : "border-slate-700 bg-slate-900 text-slate-200"}`}
                 >
                   <span className={`text-[9px] ${on ? "text-slate-700" : "text-slate-500"}`}>{k.label}</span>
                   <span className="text-xs font-medium">{k.name}</span>

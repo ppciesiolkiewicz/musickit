@@ -113,7 +113,7 @@ export default function ChordDiagram({ shape, rootFret, onPlay, active, ctx, roo
           type="button"
           onClick={onPlay}
           title="Click to hear it"
-          className={`cursor-sound block w-full rounded-lg p-2 transition hover:bg-slate-800/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${active ? "bg-slate-800/80 ring-1 ring-sky-400" : ""}`}
+          className={`cursor-pointer block w-full rounded-lg p-2 transition hover:bg-slate-800/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${active ? "bg-slate-800/80 ring-1 ring-sky-400" : ""}`}
         >
           {svg}
         </button>
@@ -125,7 +125,7 @@ export default function ChordDiagram({ shape, rootFret, onPlay, active, ctx, roo
               type="button"
               onClick={onPlay}
               aria-label="Play this chord"
-              className={`cursor-sound inline-flex h-6 shrink-0 items-center gap-1 rounded-full border pl-2 pr-2.5 text-[11px] font-medium transition ${active ? "border-emerald-400 bg-emerald-500/30 text-emerald-50" : "border-emerald-500/70 bg-emerald-500/10 text-emerald-100 hover:bg-emerald-500/25"}`}
+              className={`cursor-pointer inline-flex h-6 shrink-0 items-center gap-1 rounded-full border pl-2 pr-2.5 text-[11px] font-medium transition ${active ? "border-emerald-400 bg-emerald-500/30 text-emerald-50" : "border-emerald-500/70 bg-emerald-500/10 text-emerald-100 hover:bg-emerald-500/25"}`}
             >
               <Icon name="play" size={10} fill />
               Play

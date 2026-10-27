@@ -11,7 +11,7 @@ export default function TuneButton({ onPlay, className, title }: { onPlay: (tune
   const id = useId();
   const playing = useSyncExternalStore(subscribeTune, () => currentTune() === id, () => false);
   return (
-    <button type="button" onClick={() => (playing ? silence() : onPlay(id))} title={playing ? "Stop the tune" : title} aria-pressed={playing} className={`cursor-sound ${className}`}>
+    <button type="button" onClick={() => (playing ? silence() : onPlay(id))} title={playing ? "Stop the tune" : title} aria-pressed={playing} className={`cursor-pointer ${className}`}>
       {playing ? "■" : "▶"} Sample melody
     </button>
   );

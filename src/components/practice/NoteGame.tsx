@@ -183,7 +183,7 @@ export default function NoteGame({ initial }: { initial: NoteSettings }) {
         <div className="mb-2 flex flex-wrap items-center gap-3">
           <span className="text-lg text-slate-100">{prompt}</span>
           {!q ? <button type="button" className={btnPrimary} onClick={() => ask(null)}>Start</button> : <button type="button" className={btn} onClick={() => ask(q)}>Skip</button>}
-          {q && <button type="button" className={`cursor-sound ${btn}`} onClick={() => { const p = positionsOf(q.pc, s).find((x) => x.string === q.string) ?? positionsOf(q.pc, s)[0]; if (p) playMelody([OPEN_MIDI[p.string] + p.fret], 700); }}>Hear the note</button>}
+          {q && <button type="button" className={`cursor-pointer ${btn}`} onClick={() => { const p = positionsOf(q.pc, s).find((x) => x.string === q.string) ?? positionsOf(q.pc, s)[0]; if (p) playMelody([OPEN_MIDI[p.string] + p.fret], 700); }}>Hear the note</button>}
           <span className="ml-auto text-sm text-slate-400">streak <b className="text-slate-100">{streak}</b></span>
         </div>
         {feedback && <p className={`mb-2 text-sm ${feedback.ok ? "text-emerald-300" : "text-rose-300"}`}>{feedback.text}</p>}
