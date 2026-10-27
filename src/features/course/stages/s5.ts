@@ -31,6 +31,12 @@ export const STAGE_5: CourseStage = {
       task("Loop Em7 A. Solo with E Dorian and lean on the C♯ when the A comes. Then loop Em Fmaj7 and use E Phrygian."),
       links([{ href: "/theory/scales", label: "Scales explorer", note: "every mode, its chords and its boxes" }]),
     ]),
+    // Planned: the last two modes: G Lydian (raised 4) and F♯ Locrian (♭2 and ♭5).
+    section("lydian-locrian", "Lydian & Locrian", "modes"),
+    // Planned: compare the modes side by side over the drone; Oye Como Va as a Dorian vamp (Am7 D9).
+    section("modes-over-drone", "Modes over a drone", "modes"),
+    // Planned: the Dorian ballad in tab.
+    section("scarborough-fair", "Scarborough Fair", "melody"),
     section("harmonic-minor", "Harmonic minor and why B7 works", "modes", [
       text(
         "Back in stage 1, B7 stood in for Bm and pulled back to Em even harder. Here's why. B7 contains D♯, which isn't in E natural minor: the scale has D. D♯ is one fret below E, so it leans into the home note like Ti leans into Do in a major key.",
@@ -40,5 +46,7 @@ export const STAGE_5: CourseStage = {
       chords("Bm (from natural minor) against B7 (from harmonic minor). Play each, then Em.", ["Bm", "B7", "Em"]),
       task("Play Em Am Bm Em, then Em Am B7 Em. Then solo over the second loop with E harmonic minor and land D♯ → E as B7 goes to Em."),
     ]),
+    // Planned: harmonic minor's neighbour: raised 6 and 7, the jazz minor.
+    section("melodic-minor", "Melodic minor", "modes"),
   ],
 };

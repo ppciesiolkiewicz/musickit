@@ -18,6 +18,8 @@ export const STAGE_6: CourseStage = {
       chords("A minor / C major in the open position: 1, 4 and 5 of A minor, plus the relative major's C, F and G.", ["Am", "Dm", "E7", "C", "Fmaj7", "G"]),
       task("Play Am Dm E7 Am, then C Fmaj7 G C. Then solo over the Am loop with the A minor pentatonic at the 5th fret."),
     ]),
+    // Planned: Am C D F · Am C E picked as arpeggios, humming the tune over them.
+    section("rising-sun", "House of the Rising Sun", "melody"),
     section("circle-map", "The circle as a map between keys", "keys", [
       text(
         "The circle of fifths puts every key in a ring, each one a 5th above the last. Any key's 4 and 5 chords are its neighbours, so a key's three main chords are always three keys in a row: C–G–D for G major, F–C–G for C major.",
@@ -27,5 +29,7 @@ export const STAGE_6: CourseStage = {
       task("Pick a key next to G on the circle (C or D). Find its 1, 4 and 5 chords on the circle, then play them as 1 → 4 → 5 → 1."),
       links([{ href: "/theory/circle", label: "Circle of fifths explorer", note: "every key's chords, signature and neighbours" }]),
     ]),
+    // Planned: collect the chords, shapes and scales you use into a cheatsheet; link /cheatsheet.
+    section("cheatsheet", "Your own cheatsheet", "keys"),
   ],
 };

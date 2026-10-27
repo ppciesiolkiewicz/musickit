@@ -67,6 +67,8 @@ export const STAGES_0: CourseStage[] = [
         chords("G, C and D. Tap to hear.", ["C", "D", "G"]),
         task("Play G C D G, four strums each. Then Em C G D, the chords of a lot of pop songs."),
       ]),
+      // Planned: the open E, A and Dm chords; changes D↔A, A↔E, Dm↔Am; Bad Moon Rising (D A G).
+      section("e-a-dm", "E, A & Dm", "open-chords"),
       section("one-minute-changes", "One-minute changes", "open-chords", [
         text("Changing chords cleanly matters more than knowing many. The best drill for it takes one minute: pick two chords, set a timer, and count how many clean switches you make. Write the number down and beat it tomorrow."),
         task("One minute each: Em ↔ Am, Am ↔ C, C ↔ G, G ↔ D, D ↔ Em. Thirty clean changes a minute means the pair is ready for songs."),
@@ -147,6 +149,8 @@ export const STAGES_0: CourseStage[] = [
         task("Play G, then C, then D, then G on the guitar (low E 3rd fret, A 3rd fret, open D, open G). Sing Do Fa Sol Do with them."),
         links([], [{ href: "/theory/ears?set=5,7,12", label: "Ear: 4th, 5th and octave", note: "name the interval you hear" }]),
       ]),
+      // Planned: hear major vs minor by the 3rd (bright vs dark); link /theory/ears?kind=chord.
+      section("major-or-minor", "Major or minor?", "three-views"),
     ],
   },
   {

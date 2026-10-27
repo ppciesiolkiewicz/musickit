@@ -7,8 +7,9 @@ import { STAGE_3 } from "./stages/s3";
 import { STAGE_4 } from "./stages/s4";
 import { STAGE_5 } from "./stages/s5";
 import { STAGE_6 } from "./stages/s6";
+import { STAGE_7 } from "./stages/s7";
 
-export const COURSE: CourseStage[] = [...STAGES_0, STAGE_1, STAGE_2, STAGE_3, STAGE_4, STAGE_5, STAGE_6];
+export const COURSE: CourseStage[] = [...STAGES_0, STAGE_1, STAGE_2, STAGE_3, STAGE_4, STAGE_5, STAGE_6, STAGE_7];
 
 export interface SectionRef { stage: CourseStage; section: CourseSection }
 

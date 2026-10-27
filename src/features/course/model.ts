@@ -8,8 +8,7 @@ import { OPEN_PCS, type Visual } from "../theory/course/visuals";
 
 /** What a section is mainly about. The course index can group sections by it, in this order. */
 export type TopicId =
-  | "basics" | "open-chords" | "strumming" | "three-views" | "melody"
-  | "box-1" | "box-2" | "boxes-3-5"
+  | "basics" | "open-chords" | "strumming" | "three-views" | "melody" | "caged"
   | "triads" | "fifths" | "arpeggios" | "paths" | "soloing" | "barre-drop3" | "colour" | "modes" | "keys";
 
 export const TOPICS: { id: TopicId; label: string }[] = [
@@ -17,10 +16,8 @@ export const TOPICS: { id: TopicId; label: string }[] = [
   { id: "open-chords", label: "Open chords" },
   { id: "strumming", label: "Strumming" },
   { id: "three-views", label: "Piano, guitar & solfège" },
-  { id: "melody", label: "Melodies & single notes" },
-  { id: "box-1", label: "Position 1 · CAGED box 1" },
-  { id: "box-2", label: "Position 2 · CAGED box 2" },
-  { id: "boxes-3-5", label: "Positions 3–5 · CAGED boxes 3–5" },
+  { id: "melody", label: "Melodies" },
+  { id: "caged", label: "CAGED positions" },
   { id: "triads", label: "Triads" },
   { id: "fifths", label: "5ths & double stops" },
   { id: "arpeggios", label: "Arpeggios" },

@@ -9,7 +9,7 @@ export const STAGE_4: CourseStage = {
   slug: "4", label: "4", title: "Up the neck",
   intro: "The three remaining CAGED shapes of G, then one arpeggio and the triads followed across the whole neck.",
   sections: [
-    section("d-c-a-shapes", "D, C and A shapes", "boxes-3-5", [
+    section("d-c-a-shapes", "D, C and A shapes", "caged", [
       text(
         "Positions 1 and 2 were two of the five CAGED shapes of G: the G shape (open position) and the E shape (from the 3rd fret). Three more fill the rest of the neck, each named after the open chord it looks like: D, C and A. After the A shape comes the G shape again, twelve frets up.",
         "Each box holds the same seven notes of G major. Learn where the roots (the big dots) sit in each one, and the rest of the box hangs off them.",
@@ -20,6 +20,8 @@ export const STAGE_4: CourseStage = {
       task("Play G major up and down in each box, starting and ending on a root. Then find the G chord inside each box."),
       links([{ href: "/theory/caged", label: "CAGED explorer", note: "the five shapes of any chord, joined across the neck" }]),
     ]),
+    // Planned: E minor / G major pentatonic in all five CAGED boxes, linked with slides.
+    section("pentatonic-boxes", "The pentatonic in five boxes", "caged"),
     section("one-arpeggio", "One arpeggio through all five shapes", "arpeggios", [
       text(
         "Here's the G arpeggio, G B D, across the whole neck, with one path per CAGED shape. Each shape is the arpeggio you'd play from that position, and neighbouring shapes share notes, which is how they lock together.",
@@ -58,5 +60,9 @@ export const STAGE_4: CourseStage = {
       task("Strum the G triad on each string set in turn. Then play G C D G on the top three strings, watching which fingers stay."),
       links([{ href: "/theory/triads", label: "Triads explorer", note: "every triad on every string set" }]),
     ]),
+    // Planned: natural notes on every string; find every C, every F♯ across the neck.
+    section("every-note", "Find every note", "basics"),
+    // Planned: the tune in tab up the neck, read through the CAGED boxes.
+    section("greensleeves", "Greensleeves", "melody"),
   ],
 };

@@ -16,7 +16,7 @@ export const STAGE_1: CourseStage = {
   slug: "1", label: "1", title: "Position 1",
   intro: "Stay in the open position in E minor and G major and learn everything that lives there: chords, triads, 5ths, arpeggios, the scale, and the paths between them.",
   sections: [
-    section("chords", "Chords", "box-1", [
+    section("chords", "Chords", "caged", [
       text(
         "Position 1 is the first four frets, open strings included. Everything in this stage happens here, in one key: E minor, and its relative major, G. They share the same seven notes, E F♯ G A B C D, and the same chords.",
         "The chords of the key that live in position 1 are the ones you already know: Em, Am, C, D and G. The sixth, Bm, needs a barre, so for now B7 stands in for it. B7 is an open chord and pulls back to Em even harder than Bm does (stage 5 explains why).",
@@ -53,6 +53,8 @@ export const STAGE_1: CourseStage = {
       }),
       task("Play E5 A5 D5 E5 with all downstrums, muting the other strings with the side of your hand. Then G5 C5 D5 G5."),
     ]),
+    // Planned: the 5th as a moving shape: E5, A5 and up the neck; Smoke on the Water riff.
+    section("power-chords", "Power chords", "fifths"),
     section("arpeggios", "Arpeggios", "arpeggios", [
       text(
         "An arpeggio is a chord played one note at a time. In position 1 the arpeggio of Em is just Em's own notes, low to high: E G B, E G B, E. Follow the arrows, say the names, then let the notes ring together.",
@@ -102,6 +104,8 @@ export const STAGE_1: CourseStage = {
       task("Play the scale up and down slowly, two notes per string. Then pick any three notes in a row and loop them as a little riff."),
       links([{ href: "/theory/scales", label: "Scales explorer", note: "E minor, its pentatonic and every mode" }]),
     ]),
+    // Planned: the same five notes as E minor pentatonic, centred on G; soloing over G C D.
+    section("major-pentatonic", "G major pentatonic", "soloing"),
     section("soloing", "Soloing over Em ↔ Am", "soloing", [
       text(
         "Now use it. Over an Em ↔ Am backing, the whole pentatonic works, but the notes that sound most settled are the chord's own: land on E (or G, B) while Em is playing, and on A (or C, E) when it changes to Am.",
@@ -113,7 +117,9 @@ export const STAGE_1: CourseStage = {
       task("Record yourself strumming Em for 2 bars, Am for 2 bars, for a minute. Play it back and solo over it with only the pentatonic, landing on E and A as the chords change."),
       links([{ href: "/theory/improv", label: "Improv: play over a groove", note: "a backing track to solo over" }]),
     ]),
-    section("move-it", "Move it: G minor", "box-1", [
+    // Planned: half-step and whole-step bends, slides into notes, in the position 1 pentatonic.
+    section("bends-and-slides", "Bends & slides", "soloing"),
+    section("move-it", "Move it: G minor", "caged", [
       text(
         "Everything in position 1 is a shape, and shapes move. Slide the whole E minor scale shape up three frets and every note goes up three semitones: E becomes G, and the scale is now G minor.",
         "There's a catch, and it's the key to the next stage: the open strings were doing work. Three frets up, your first finger has to press where the open strings used to ring. That finger lying across the strings is a barre.",

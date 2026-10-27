@@ -4,13 +4,13 @@ import { COURSE, byTopic, findSection, nextSection, prevSection } from "./course
 import { TOPICS, pcAt } from "./model";
 
 describe("course structure", () => {
-  it("stages run 0.1–0.4 then 1–6", () => {
-    assert.deepEqual(COURSE.map((s) => s.slug), ["0-1", "0-2", "0-3", "0-4", "1", "2", "3", "4", "5", "6"]);
+  it("stages run 0.1–0.4 then 1–7", () => {
+    assert.deepEqual(COURSE.map((s) => s.slug), ["0-1", "0-2", "0-3", "0-4", "1", "2", "3", "4", "5", "6", "7"]);
   });
   it("position 1 and first open chords have the agreed sections", () => {
     const slugs = (st: string) => COURSE.find((s) => s.slug === st)!.sections.map((x) => x.slug);
-    assert.deepEqual(slugs("1"), ["chords", "triads", "fifths", "arpeggios", "one-four-five", "pentatonic", "soloing", "move-it"]);
-    assert.deepEqual(slugs("0-2"), ["em-and-am", "c-d-g", "one-minute-changes", "all-downstrums", "island-strum", "sixteenths", "first-songs"]);
+    assert.deepEqual(slugs("1"), ["chords", "triads", "fifths", "power-chords", "arpeggios", "one-four-five", "pentatonic", "major-pentatonic", "soloing", "bends-and-slides", "move-it"]);
+    assert.deepEqual(slugs("0-2"), ["em-and-am", "c-d-g", "e-a-dm", "one-minute-changes", "all-downstrums", "island-strum", "sixteenths", "first-songs"]);
   });
   it("section slugs are unique within a stage and URL-safe", () => {
     COURSE.forEach((s) => {
@@ -25,7 +25,7 @@ describe("course structure", () => {
   });
   it("next and previous cross stage boundaries and stop at the ends", () => {
     assert.equal(nextSection("0-1", "notes-on-e-and-a")?.section.slug, "em-and-am");
-    assert.equal(nextSection("6", "circle-map"), undefined);
+    assert.equal(nextSection("7", "jazz-standards"), undefined);
     assert.equal(prevSection("0-1", "strings-and-tuning"), undefined);
     assert.equal(prevSection("0-2", "em-and-am")?.section.slug, "notes-on-e-and-a");
   });

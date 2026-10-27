@@ -28,6 +28,10 @@ export const STAGE_3: CourseStage = {
       chords("The 7th chords of the key in position 1, plus B7.", ["Gmaj7", "Cmaj7", "D7", "Em7", "Am7", "B7"]),
       task("Play Gmaj7 Cmaj7 Gmaj7 Cmaj7, then Em7 Am7 D7 Gmaj7. Compare with the plain chords: same changes, new colour."),
     ]),
+    // Planned: E7 A7 B7 (Hound Dog) and A7 D7 E7 (Johnny B. Goode); C7 and G7 shapes.
+    section("twelve-bar", "The 12-bar blues", "colour"),
+    // Planned: E minor pentatonic over the 12-bar in E, then A minor pentatonic over A.
+    section("blues-solo", "Soloing over a 12-bar", "soloing"),
     section("sus-add9", "sus & add9", "colour", [
       text(
         "A sus chord swaps the 3rd for its neighbour: the 2nd (sus2) or the 4th (sus4). Without the 3rd it's neither major nor minor, just open and waiting, and it usually goes back to the plain chord. An add9 keeps the 3rd and adds the 2nd an octave up: Cadd9 is the shimmering C of countless acoustic songs.",
@@ -36,6 +40,10 @@ export const STAGE_3: CourseStage = {
       chords("sus and add9 chords in position 1.", ["Dsus2", "Dsus4", "Asus2", "Cadd9", "Esus4"]),
       task("Play D Dsus4 D Dsus2 D with the island strum, moving only one finger. Then G Cadd9 G Cadd9."),
     ]),
+    // Planned: Good Riddance (Cadd9), Free Fallin' (Dsus4); one-minute changes C↔Fmaj7, Em↔B7, G↔Cadd9.
+    section("colour-songs", "Songs with colour chords", "colour"),
+    // Planned: chord quality by ear with maj7, 7 and m7.
+    section("hearing-sevenths", "Hearing 7th chords", "three-views"),
     section("colour-paths", "The same paths with colour", "paths", [
       text(
         "The 1 → 4 → 5 → 1 path from stage 1 hasn't changed: the roots still go G → C → D → G. Only the colour on top is new. Play Gmaj7 → Cmaj7 → D7 → G and the 7ths make a little tune of their own on the top strings.",

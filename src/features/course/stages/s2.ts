@@ -30,6 +30,10 @@ export const STAGE_2: CourseStage = {
       neck("The small Bm (x x 4 4 3 2): 1st finger on the high e at the 2nd fret, 2nd on the B at the 3rd, 3rd and 4th on the G and D at the 4th.", 0, 5, [[2, 4], [3, 4], [4, 3], [5, 2]].map(([s, f]) => toneDot(s, f, B))),
       task("Play Em Am Bm7 Em, then Em Am B7 Em, then with the small Bm. Which one sounds best to you?"),
     ]),
+    // Planned: E-shape and A-shape barres (major and minor) placed by the root on the E or A string: F, G, B♭, Cm, F♯m.
+    section("barres-every-key", "Barres in every key", "barre-drop3"),
+    // Planned: Let It Be, Creep, Hotel California; one-minute changes into F and Bm.
+    section("barre-songs", "Songs with barres", "barre-drop3"),
     section("drop-3", "Drop 3 chords", "barre-drop3", [
       text(
         "Here's a way into the neck that's easier than barres and sounds great: drop 3 chords, the four-note shapes of jazz and bossa nova. The root sits on the low E string, the A string is muted, and the 7th, 3rd and 5th go on the D, G and B strings. No barre, just four fingers.",
@@ -62,7 +66,7 @@ export const STAGE_2: CourseStage = {
       }),
       task("Play the Bm arpeggio, then Em's from stage 1, back and forth: the 5 to the 1 of E minor, one note at a time."),
     ]),
-    section("joining", "Joining positions 1 and 2", "box-2", [
+    section("joining", "Joining positions 1 and 2", "caged", [
       text(
         "Positions 1 and 2 overlap on frets 2 and 3, so the G major scale runs straight from one into the other. Follow the arrows: start in the open position on the D string, slide your hand up, and finish in position 2.",
         "This is how the neck stops being separate boxes: the same notes, reached from a different spot. Stage 4 does the same with the other three positions.",
@@ -74,5 +78,7 @@ export const STAGE_2: CourseStage = {
       task("Play the path up and back. Then improvise with the E minor pentatonic in position 1 and let one phrase wander up into position 2."),
       links([{ href: "/theory/caged", label: "CAGED", note: "how the positions join across the whole neck" }]),
     ]),
+    // Planned: all intervals by ear (ear level 6), named by degree and solfège.
+    section("every-interval", "Every interval by ear", "three-views"),
   ],
 };
