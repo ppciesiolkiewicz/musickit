@@ -66,6 +66,12 @@ test("a label is kept as given", () => {
   assert.equal(parsed.timeline[1].label, "mine");
 });
 
+test("a melody without beats takes the stage's default", () => {
+  const c = valid();
+  delete c.layers.melody.subject.beats;
+  assert.deepEqual(parseVideoConfig(c, []).layers[0].subject, { kind: "melody" });
+});
+
 test("a config with one format is fine", () => {
   const c = valid();
   delete c.formats["9x16"];
@@ -119,6 +125,10 @@ test("layers", () => {
   bad((c) => (c.layers.url = {}), /^layers\.url\.subject: /);
   bad((c) => delete c.layers.melody, /^layers: one melody/);
   bad((c) => (c.layers.second = { subject: { kind: "melody" } }), /^layers: one melody/);
+  bad((c) => (c.layers.melody.subject.beats = 20), /^layers\.melody\.subject\.beats: expected a whole number from 2 to 16$/);
+  bad((c) => (c.layers.melody.subject.beats = 1), /^layers\.melody\.subject\.beats: /);
+  bad((c) => (c.layers.melody.subject.beats = 4.5), /^layers\.melody\.subject\.beats: /);
+  bad((c) => (c.layers.melody.subject.beats = "6"), /^layers\.melody\.subject\.beats: /);
 });
 
 test("a plugin layer needs a known plugin id", () => {

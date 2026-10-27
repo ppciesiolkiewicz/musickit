@@ -26,6 +26,8 @@ import type { PlacedNote } from "@/features/theory/singingMelodies";
  * the start) once it is in.
  * Full screen draws it `scale` times bigger and to `follow` the bar: a few bars across (`followBeats` beats), the bar a third in, and a line
  * from the dot to the note due with how far off it is in cents.
+ * `steadyCamera` (videos) moves that view with the bar itself at a steady pace instead of easing after the dot: the bar
+ * sits far enough in that the faded half bar is in view from the wrap to beat 1, and the wrap jumps back in one frame.
  */
 
 type StaffNote = PlacedNote;
@@ -47,6 +49,8 @@ const GHOST_OPACITY = 0.45;
 const FOLLOW_BEATS = 10;
 /** where the bar sits across a following staff: a third in, so more of what's coming shows than what's gone */
 const FOLLOW_AT = 1 / 3;
+/** the furthest in a steady camera puts the bar, however few beats are across */
+const STEADY_AT_MOST = 1 / 2;
 
 const ink = {
   line: "var(--color-slate-500)",
@@ -64,7 +68,7 @@ const STILL: View = { dot: null, cam: 0, tail: [], lastHeard: -Infinity, now: 0,
 /** The note sounding at a beat, or -1 before the first. */
 const noteAt = (notes: StaffNote[], beat: number) => notes.findLastIndex((n) => n.at <= beat);
 
-export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom, beatMs, gridBeats, tapped, onNote, scale = 1, follow = false, followBeats, cents = IN_TUNE_CENTS, lagMs = DOT_LAG_MS }: {
+export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom, beatMs, gridBeats, tapped, onNote, scale = 1, follow = false, followBeats, steadyCamera = false, cents = IN_TUNE_CENTS, lagMs = DOT_LAG_MS }: {
   notes: StaffNote[];
   live: boolean;
   /** the scale in the singer's range, low to high: the dot's height is read off it */
@@ -83,6 +87,8 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
   follow?: boolean;
   /** beats across a following staff (default FOLLOW_BEATS) */
   followBeats?: number;
+  /** a following view that rides the bar exactly and jumps back on the wrap: no easing, no sweep back (for videos) */
+  steadyCamera?: boolean;
   /** within this many cents counts as on the note */
   cents?: number;
   /** how far the dot runs behind the bar */
@@ -181,7 +187,11 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
         a.fit = a.hit ? "in" : Math.abs(m - Math.round(m)) * 100 <= cents ? "out" : "between";
       } else if (now - a.lastHeard > SILENCE_MS) a.hit = false;
       a.tail = a.tail.filter((p) => now - p.t < TAIL_MS);
-      if (maxCam > 0 && a.beat !== null) {
+      if (steadyCamera && a.beat !== null) {
+        // the bar at least the faded half bar in, so that half bar is whole on screen until beat 1
+        const at = Math.min(STEADY_AT_MOST, Math.max(FOLLOW_AT, (LEAD * beatW) / room));
+        a.cam = Math.max(0, Math.min(maxCam, (a.beat + LEAD) * beatW - room * at));
+      } else if (maxCam > 0 && a.beat !== null) {
         const want = Math.max(0, Math.min(maxCam, (x + LEAD) * beatW - room * (follow ? FOLLOW_AT : 0.5)));
         a.cam += (want - a.cam) * 0.1;
       } else if (maxCam === 0) a.cam = 0;
@@ -193,7 +203,7 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
     return () => cancelAnimationFrame(raf);
     // the geometry is rebuilt from the melody and the width; the loop restarts with it
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [live, notes, ladder, clef, beatW, maxCam, room, beatMs, follow, cents, lagMs]);
+  }, [live, notes, ladder, clef, beatW, maxCam, room, beatMs, follow, steadyCamera, cents, lagMs]);
 
   // a new melody starts at the left, its bar from the top
   useEffect(() => {

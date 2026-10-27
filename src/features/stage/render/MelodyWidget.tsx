@@ -8,7 +8,7 @@ import { TimelineContext } from "./TimelineContext";
 const NO_PITCH: RefObject<number | null> = { current: null };
 const NOOP = () => {};
 
-/** The host's melody on a following staff, `beats` across; nothing outside a timeline or between tunes. */
+/** The host's melody on a following staff, `beats` across, its view riding the bar steadily; nothing outside a timeline or between tunes. */
 export default function MelodyWidget({ beats }: { beats?: number }) {
   const tl = useContext(TimelineContext);
   const m = tl?.melody;
@@ -24,6 +24,7 @@ export default function MelodyWidget({ beats }: { beats?: number }) {
       live
       follow
       followBeats={beats ?? 10}
+      steadyCamera
       pitch={NO_PITCH}
       playFrom={null}
       beatMs={m.beatMs}

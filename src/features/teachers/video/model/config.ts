@@ -3,7 +3,7 @@
  * `VideoConfigError` whose message starts with the field's path, so a typo never renders silently wrong.
  */
 import { Note } from "@tonaljs/tonal";
-import { sanitiseSubject, type FrameRect, type Subject } from "@/features/stage";
+import { MELODY_BEATS, sanitiseSubject, type FrameRect, type Subject } from "@/features/stage";
 import { MAX_BPM, MIN_BPM } from "@/features/instruments/jam/clock";
 import { VOICES, buildLadder, type Voice } from "@/features/theory/singing";
 import { STAGES, parseTune } from "@/features/theory/singingMelodies";
@@ -122,7 +122,11 @@ export function parseVideoConfig(raw: unknown, pluginIds: string[]): VideoConfig
   if (!isObject(raw.layers) || !Object.keys(raw.layers).length) return fail("layers", "expected an object of layers keyed by id");
   const layers = Object.entries(raw.layers).map(([id, layer]) => {
     const subject = isObject(layer) ? sanitiseSubject(layer.subject, pluginIds) : null;
-    return subject ? { id, subject } : fail(`layers.${id}.subject`, "not a known widget");
+    if (!subject) return fail(`layers.${id}.subject`, "not a known widget");
+    // the stage drops a bad `beats` for its default; a video says so instead of rendering a different size
+    if (subject.kind === "melody" && isObject(layer) && isObject(layer.subject) && layer.subject.beats !== undefined && subject.beats === undefined)
+      return fail(`layers.${id}.subject.beats`, `expected a whole number from ${MELODY_BEATS.min} to ${MELODY_BEATS.max}`);
+    return { id, subject };
   });
   if (layers.filter((l) => l.subject.kind === "melody").length !== 1) return fail("layers", "one melody layer is required");
 

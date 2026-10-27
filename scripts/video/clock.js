@@ -5,6 +5,9 @@
   let now = 0,
     next = 0;
   const queue = new Map();
+  // the browser's own frames still come: a step waits for one, so what a real frame delivers (a ResizeObserver's first
+  // size) is drawn before the screenshot, the same whether or not the frame is captured
+  const nativeFrame = window.requestAnimationFrame.bind(window);
   performance.now = () => now;
   window.requestAnimationFrame = (cb) => (queue.set(++next, cb), next);
   window.cancelAnimationFrame = (id) => queue.delete(id);
@@ -16,5 +19,7 @@
       queue.clear();
       due.forEach((cb) => cb(now));
     },
+    /** resolves after the browser's next real rendering opportunity */
+    paint: () => new Promise((r) => nativeFrame(() => setTimeout(r, 0))),
   };
 })();

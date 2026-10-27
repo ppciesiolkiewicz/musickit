@@ -75,11 +75,19 @@ function startEncoder(wav, out) {
   let log = "";
   ff.stderr.on("data", (d) => (log += d));
   ff.stdin.on("error", () => {}); // a dead ffmpeg surfaces through `done`
+  let exited = false;
   const done = new Promise((ok, fail) => {
-    ff.on("error", fail);
-    ff.on("close", (code) => (code === 0 ? ok() : fail(new Error(`ffmpeg exited ${code}: ${log.trim().split("\n").slice(-3).join(" / ")}`))));
+    ff.on("error", (e) => ((exited = true), fail(e)));
+    ff.on("close", (code) => ((exited = true), code === 0 ? ok() : fail(new Error(`ffmpeg exited ${code}: ${log.trim().split("\n").slice(-3).join(" / ")}`))));
   });
-  const write = (buf) => (ff.stdin.write(buf) ? null : new Promise((ok) => ff.stdin.once("drain", ok)));
+  // a dead ffmpeg never drains its stdin: waiting on `done` too turns its exit into this frame's error instead of a hang
+  const write = async (buf) => {
+    if (!exited && !ff.stdin.write(buf)) await Promise.race([new Promise((ok) => ff.stdin.once("drain", ok)), done]);
+    if (exited) {
+      await done;
+      throw new Error("ffmpeg exited before the last frame");
+    }
+  };
   done.catch(() => {}); // awaited after the last frame; a render that fails first kills it instead
   return { write, end: () => ff.stdin.end(), kill: () => ff.kill("SIGKILL"), done };
 }
@@ -160,6 +168,11 @@ async function renderOne(browser, opts, config, format) {
         await page.evaluate(async (ms) => {
           window.__clock.step(ms);
           // two turns of the task queue: React's passive effects, then anything they scheduled
+          await new Promise((r) => setTimeout(r, 0));
+          await new Promise((r) => setTimeout(r, 0));
+          // then a real frame (a staff mounted this step measures itself in it) and React's commit of what it found, so a
+          // frame that is not captured (--frames) settles exactly as one that is
+          await window.__clock.paint();
           await new Promise((r) => setTimeout(r, 0));
           await new Promise((r) => setTimeout(r, 0));
         }, ms);
