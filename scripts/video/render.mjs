@@ -1,4 +1,4 @@
-// npm run video -- <config.json or folder>… [--base http://localhost:3100] [--out out/videos] [--only 9x16] [--frames 0,45,last]
+// npm run video -- <config.json or folder>… [--base http://localhost:3000] [--out out/videos] [--only 9x16] [--frames 0,45,last]
 //
 // Renders each video config to one MP4 per format it names, frame by frame: the render page (/teachers/video/render)
 // runs under a stepped clock (clock.js), each frame is a screenshot piped into ffmpeg, and the page's offline soundtrack
@@ -19,7 +19,7 @@ const CLOCK = join(dirname(fileURLToPath(import.meta.url)), "clock.js");
 const AUDIO_SLICE = 8 << 20;
 
 function parseArgs(argv) {
-  const opts = { base: "http://localhost:3100", out: "out/videos", only: null, frames: null, inputs: [] };
+  const opts = { base: "http://localhost:3000", out: "out/videos", only: null, frames: null, inputs: [] };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     const value = () => (i + 1 < argv.length ? argv[++i] : usage(`${a} needs a value`));

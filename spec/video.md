@@ -9,10 +9,10 @@ Branded practice videos rendered from config files with the app's real stage wid
 - **Configs** live in `videos/*.json` (in the repo). **Output** goes to `out/videos/<name>-<format>.mp4` (git-ignored).
 
 ## The command
-Start the dev server first (`npx next dev --webpack -p 3100`; in a worktree Turbopack fails on the symlinked `node_modules`), then:
+Start the dev server first (`npm run dev`, on port 3000; in a worktree use `npx next dev --webpack`, since Turbopack fails on the symlinked `node_modules`, and pass `--base` if it lands on another port), then:
 
 ```
-npm run video -- <config.json or folder>… [--base http://localhost:3100] [--out out/videos] [--only 9x16]
+npm run video -- <config.json or folder>… [--base http://localhost:3000] [--out out/videos] [--only 9x16]
 ```
 
 - A folder means every `.json` directly in it (`npm run video -- videos`).
