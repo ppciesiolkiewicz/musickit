@@ -9,7 +9,13 @@ export interface StageTimeline {
   /** beats since the melody's beat 1 (0 while it waits to start), read every animation frame */
   gridBeats: () => number | null;
   countdown: { caption: string; left: number } | null;
+  /** before the first countdown */
+  intro: { title: string; text?: string } | null;
+  /** from the first countdown on: tune and pass from 1, `pass` null while a tune counts in */
+  progress: { tune: number; tunes: number; pass: number | null; times: number } | null;
+  /** the tune after the one on the staff, bar by bar in solfège; null on the last */
+  next: { tune: number; bars: string[][] } | null;
 }
 
-/** The host's timeline; null outside one (the studio), where the melody and countdown widgets draw nothing. */
+/** The host's timeline; null outside one (the studio), where the widgets that follow it draw nothing. */
 export const TimelineContext = createContext<StageTimeline | null>(null);

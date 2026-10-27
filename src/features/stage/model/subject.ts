@@ -45,7 +45,13 @@ export type Subject =
   /** widget videos only (not in the palette): the tune's notes across a following staff; `beats` is how many fit across, absent = the staff's default 10 */
   | { kind: "melody"; beats?: number }
   /** widget videos only (not in the palette): the count-in before a tune */
-  | { kind: "countdown" };
+  | { kind: "countdown" }
+  /** widget videos only (not in the palette): the video's title and a line of text, before the first countdown */
+  | { kind: "intro" }
+  /** widget videos only (not in the palette): which tune of how many, and which pass of how many */
+  | { kind: "progress" }
+  /** widget videos only (not in the palette): the tune after this one, in solfège, or that this is the last */
+  | { kind: "next" };
 
 /** How many beats a melody can show across. */
 export const MELODY_BEATS = { min: 2, max: 16 } as const;
@@ -242,6 +248,12 @@ export function subjectName(s: Subject): string {
       return "Melody";
     case "countdown":
       return "Countdown";
+    case "intro":
+      return "Intro";
+    case "progress":
+      return "Tune progress";
+    case "next":
+      return "Up next";
   }
 }
 
@@ -313,7 +325,10 @@ export function sanitiseSubject(raw: unknown, pluginIds: string[]): Subject | nu
       return typeof beats === "number" && Number.isInteger(beats) && beats >= MELODY_BEATS.min && beats <= MELODY_BEATS.max ? { kind: "melody", beats } : { kind: "melody" };
     }
     case "countdown":
-      return { kind: "countdown" };
+    case "intro":
+    case "progress":
+    case "next":
+      return { kind: o.kind };
     default:
       return null;
   }

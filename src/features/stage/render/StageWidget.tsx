@@ -13,15 +13,18 @@ import BrandWidget from "./BrandWidget";
 import ChordWidget from "./ChordWidget";
 import CountdownWidget from "./CountdownWidget";
 import FitBox from "./FitBox";
+import IntroWidget from "./IntroWidget";
 import KeyTags from "./KeyTags";
 import KeyWidget from "./KeyWidget";
 import MelodyWidget from "./MelodyWidget";
 import MicWidget, { MicContext } from "./MicWidget";
+import NextWidget from "./NextWidget";
 import PositionWidget from "./PositionWidget";
+import ProgressWidget from "./ProgressWidget";
 import SectionWidget from "./SectionWidget";
 
 /** design width each kind is laid out at before it is scaled into its rect */
-const WIDTH: Record<Subject["kind"], number> = { chord: 240, plugin: 640, position: 980, band: 360, section: 760, bubble: 900, neck: 980, caged: 1100, key: 760, tuner: 520, mic: 360, logo: 300, url: 520, camera: 0, screen: 0, melody: 0, countdown: 600 };
+const WIDTH: Record<Subject["kind"], number> = { chord: 240, plugin: 640, position: 980, band: 360, section: 760, bubble: 900, neck: 980, caged: 1100, key: 760, tuner: 520, mic: 360, logo: 300, url: 520, camera: 0, screen: 0, melody: 0, countdown: 600, intro: 1000, progress: 400, next: 760 };
 /** a cheatsheet page in full is laid out as wide as on the site */
 const FULL_WIDTH = 1200;
 
@@ -123,6 +126,15 @@ export default function StageWidget({ subject, onSubjectChange, stageKey, onStag
       break;
     case "countdown":
       body = <CountdownWidget />;
+      break;
+    case "intro":
+      body = <IntroWidget />;
+      break;
+    case "progress":
+      body = <ProgressWidget />;
+      break;
+    case "next":
+      body = <NextWidget />;
       break;
   }
   // the CAGED map runs the whole neck: wider than one box, so its shape names fit over their colours

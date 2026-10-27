@@ -4,6 +4,8 @@ Branded practice videos rendered from config files with the app's real stage wid
 
 ## Now
 - **Melodies (singing)** is the first widget: the tune on a staff the bar runs across on the beat, the piano playing it every pass, the metronome clicking every beat (accented on beat 1). Before every tune, the first included, a one-bar countdown (4-3-2-1 on the click, under the tune's caption) with the tune already standing on the staff; then its passes follow straight on. A new tune is a cut at the start of its countdown. No microphone, no voice dot.
+- **Intro** (optional, `intro` in the config): the title and a line of text for a few seconds (3 by default), silent, with the first tune already standing on the staff; then the first countdown starts on the click. Shown by the `intro` widget.
+- **Where you are:** the `progress` widget shows "Tune 3 of 12" over a dot per pass, filled up to the pass being sung ("Pass 2 of 4"; "Sing it 4 times" while the tune counts in). The `next` widget shows the tune after the one on the staff in solfège, bar by bar ("Do Re Mi Re | Do"): "First up" during the intro, "Next · tune 4" after it, "Last tune" on the last.
 - **The view** rides the bar at a steady pace, the bar at least the faded copy of the last half bar in (a third across from 6 beats up, half at 4; under 4 beats it stays at half and the copy is cut), so from the wrap to beat 1, in the countdown and in the closing second that copy and its labels are whole on screen. At the end of a pass the view jumps back to the start in one frame, never sweeping back. (The Melodies page's own follow view still eases after the voice dot.)
 - **Formats:** `16x9` (1920×1080, YouTube) and `9x16` (1080×1920, Instagram and TikTok), 30 fps, H.264 (`yuv420p`) with AAC sound. Each format has its own layout.
 - **Configs** live in `videos/*.json` (in the repo). **Output** goes to `out/videos/<name>-<format>.mp4` (git-ignored).
@@ -37,9 +39,13 @@ npm run video -- <config.json or folder>… [--base http://localhost:3000] [--ou
   "scale": "major-ionian",              // a singing scale slug, as on the Melodies page
   "bpm": 80,                            // whole number, 40 to 200
   "voice": "alto",                      // required: soprano, mezzo, alto, tenor, baritone or bass
+  "intro": { "title": "First steps: Do and Re", "text": "3 tunes · sing each 4 times · 80 bpm", "seconds": 3 },  // optional
   "layers": {                           // the stage's widgets, keyed by an id of your choice, painted in this order
     "melody": { "subject": { "kind": "melody", "beats": 4 } },
+    "intro": { "subject": { "kind": "intro" } },
     "countdown": { "subject": { "kind": "countdown" } },
+    "progress": { "subject": { "kind": "progress" } },
+    "next": { "subject": { "kind": "next" } },
     "logo": { "subject": { "kind": "logo" } },
     "url": { "subject": { "kind": "url" } }
   },
@@ -53,13 +59,14 @@ npm run video -- <config.json or folder>… [--base http://localhost:3000] [--ou
 }
 ```
 
-- **layers:** each `subject` is a stage subject (`src/features/stage/model/subject.ts`), checked the way the studio checks its own. Exactly one `melody` layer. `melody.beats` is how many beats fit across the staff (a whole number from 2 to 16, default 10; anything else is an error): fewer means bigger notes that scroll faster. `countdown` shows the caption and the beats left. `logo` and `url` are the attunr logo and site address; unlike in the studio they go wherever their rect puts them. Any other stage widget can be a layer too.
+- **intro:** `title` (required), `text` (optional), `seconds` (1 to 10, default 3). Without it the video starts on the first countdown. It needs an `intro` layer to be seen; the intro and countdown never show at once, so they can share a spot.
+- **layers:** each `subject` is a stage subject (`src/features/stage/model/subject.ts`), checked the way the studio checks its own. Exactly one `melody` layer. `melody.beats` is how many beats fit across the staff (a whole number from 2 to 16, default 10; anything else is an error): fewer means bigger notes that scroll faster. `countdown` shows the caption and the beats left; `intro`, `progress` and `next` as above, each drawing nothing outside its moment. `logo` and `url` are the attunr logo and site address; unlike in the studio they go wherever their rect puts them. Any other stage widget can be a layer too.
 - **formats:** rects are fractions of the frame (0 to 1): `x`, `y` the top-left corner, `w`, `h` the size, inside the frame. The 9:16 layout is its own, not a squashed 16:9 one; keep text big enough to read on a phone.
 - **timeline:** `tune` is the book's notation, bar by bar (`|`), one token a note: the degree 1 to 7 (1 = Do), `'` an octave up, `,` an octave down, then the length (none = quarter, `e` eighth, `q.` dotted quarter, `h` half, `h.` dotted half, `w` whole). It must fill whole bars of 4. Write the notation out (copied from `STAGES` in `src/features/theory/singingMelodies.ts` for a book tune) with the book number only as the `label`: book numbers shift when tunes are added or reordered. A bare book number (`"tune": 12`) is accepted as a shortcut. `times` is how often it is sung (1 to 16), `caption` the text over its countdown (default "Get ready"). The tunes are placed in the voice's range the way the Melodies page places them, which sets the piano's octave and the clef.
-- The video's length follows from the timeline: per tune one countdown bar plus `times` passes, plus a second at the end. At 80 bpm a bar is 3 s.
+- The video's length follows from the timeline: the intro, then per tune one countdown bar plus `times` passes, plus a second at the end. At 80 bpm a bar is 3 s.
 - Short and long cuts are separate configs.
 
-Examples: `videos/c-major-first-steps.json` (book 1–3, 4 times each, 82 s) and `videos/c-major-do-re-mi-long.json` (book 1–12, 4 times each, 7 min).
+Examples: `videos/c-major-first-steps.json` (book 1–3, 4 times each, 85 s) and `videos/c-major-do-re-mi-long.json` (12 tunes, 4 times each, 7 min 28 s). The long one gets slightly harder as it goes: three tunes from each stage up to Sol (book 1, 3, 5 · 8, 10, 12 · 15, 17, 18 · 23, 24, 27), short ones before 4-bar ones within a stage, none rated easier by the book than the tune before.
 
 ## What fails, and why
 Every failure prints `<config path>: <message>`, renders nothing for that config, and makes the command exit 1; the other configs still render.

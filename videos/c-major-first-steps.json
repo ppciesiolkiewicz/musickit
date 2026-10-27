@@ -4,9 +4,13 @@
   "voice": "alto",
   "scale": "major-ionian",
   "bpm": 80,
+  "intro": { "title": "First steps: Do and Re", "text": "3 tunes · sing each 4 times · 80 bpm" },
   "layers": {
     "melody": { "subject": { "kind": "melody", "beats": 4 } },
+    "intro": { "subject": { "kind": "intro" } },
     "countdown": { "subject": { "kind": "countdown" } },
+    "progress": { "subject": { "kind": "progress" } },
+    "next": { "subject": { "kind": "next" } },
     "logo": { "subject": { "kind": "logo" } },
     "url": { "subject": { "kind": "url" } }
   },
@@ -14,7 +18,10 @@
     "16x9": {
       "layers": {
         "melody": { "x": 0.08, "y": 0.3, "w": 0.84, "h": 0.5 },
+        "intro": { "x": 0.2, "y": 0.04, "w": 0.6, "h": 0.22 },
         "countdown": { "x": 0.3, "y": 0.05, "w": 0.4, "h": 0.2 },
+        "progress": { "x": 0.76, "y": 0.04, "w": 0.21, "h": 0.16 },
+        "next": { "x": 0.03, "y": 0.83, "w": 0.5, "h": 0.13 },
         "logo": { "x": 0.03, "y": 0.04, "w": 0.15, "h": 0.1 },
         "url": { "x": 0.7, "y": 0.9, "w": 0.27, "h": 0.07 }
       }
@@ -22,15 +29,18 @@
     "9x16": {
       "layers": {
         "melody": { "x": 0.02, "y": 0.39, "w": 0.96, "h": 0.22 },
+        "intro": { "x": 0.06, "y": 0.16, "w": 0.88, "h": 0.18 },
         "countdown": { "x": 0.1, "y": 0.2, "w": 0.8, "h": 0.14 },
+        "progress": { "x": 0.2, "y": 0.63, "w": 0.6, "h": 0.1 },
+        "next": { "x": 0.06, "y": 0.75, "w": 0.88, "h": 0.12 },
         "logo": { "x": 0.3, "y": 0.05, "w": 0.4, "h": 0.07 },
         "url": { "x": 0.15, "y": 0.9, "w": 0.7, "h": 0.05 }
       }
     }
   },
   "timeline": [
-    { "tune": "1 2 1 2 | 1w", "label": "book 1", "times": 4, "caption": "Tune 1 · get ready" },
-    { "tune": "1h 2h | 1w", "label": "book 2", "times": 4, "caption": "Tune 2 · get ready" },
-    { "tune": "2 1 2h | 1w", "label": "book 3", "times": 4, "caption": "Tune 3 · get ready" }
+    { "tune": "1 2 1 2 | 1w", "label": "book 1", "times": 4, "caption": "Do and Re · get ready" },
+    { "tune": "1h 2h | 1w", "label": "book 2", "times": 4, "caption": "Do and Re · get ready" },
+    { "tune": "2 1 2h | 1w", "label": "book 3", "times": 4, "caption": "Do and Re · get ready" }
   ]
 }

@@ -6,7 +6,7 @@ import { PLUGINS } from "@/features/creator";
 import { StageWidget, TimelineContext, type StageTimeline } from "@/features/stage";
 import { preloadInstrument, renderOffline } from "@/features/sound";
 import { FORMATS, FPS, parseVideoConfig, type FormatId, type VideoConfig } from "./model/config";
-import { buildScore, frameCount, momentAt, soundOf, type Moment, type Score } from "./model/score";
+import { buildScore, frameCount, momentAt, solfegeBars, soundOf, type Moment, type Score } from "./model/score";
 import { encodeWav } from "./model/wav";
 
 declare global {
@@ -25,8 +25,8 @@ type Job = { config: VideoConfig; score: Score; format: FormatId };
 
 const NOOP = () => {};
 
-/** what a change of moment redraws: the tune, and the countdown number; the bar itself runs on `gridBeats` */
-const momentKey = (m: Moment) => `${m.phase}/${m.segment}/${m.phase === "countdown" ? m.left : 0}`;
+/** what a change of moment redraws: the tune, the countdown number and the pass; the bar itself runs on `gridBeats` */
+const momentKey = (m: Moment) => `${m.phase}/${m.segment}/${m.phase === "countdown" ? m.left : m.phase === "play" ? m.pass : 0}`;
 
 const SAMPLE_RATE = 48000;
 
@@ -122,12 +122,27 @@ function Frame({ job, t0 }: { job: Job; t0: { current: number } }) {
       gridBeats: () => {
         const m = momentAt(score, performance.now() - t0.current);
         if (m.phase === "play") return m.beats;
-        if (m.phase === "countdown") return 0;
+        if (m.phase === "intro" || m.phase === "countdown") return 0;
         // the tail holds the bar at the end of the last pass (a hair short: the staff wraps at the tune's length);
         // null would let the staff start the tune again on its own
         return score.segments[m.segment].tuneBeats - 1e-3;
       },
       countdown: shown.phase === "countdown" ? { caption: score.segments[shown.segment].caption, left: shown.left } : null,
+      intro: shown.phase === "intro" ? score.intro : null,
+      progress:
+        shown.phase === "intro"
+          ? null
+          : {
+              tune: shown.segment + 1,
+              tunes: score.segments.length,
+              pass: shown.phase === "play" ? shown.pass : shown.phase === "end" ? score.segments[shown.segment].times : null,
+              times: score.segments[shown.segment].times,
+            },
+      next: (() => {
+        // in the intro the first tune is still to come
+        const i = shown.phase === "intro" ? 0 : shown.segment + 1;
+        return i < score.segments.length ? { tune: i + 1, bars: solfegeBars(score.segments[i].notes) } : null;
+      })(),
     }),
     // `key` is the moment's identity: a frame inside the same count or tune keeps the same context
     // eslint-disable-next-line react-hooks/exhaustive-deps

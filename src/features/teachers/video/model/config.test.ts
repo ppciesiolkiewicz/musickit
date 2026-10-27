@@ -167,3 +167,18 @@ test("timeline", () => {
   bad((c) => delete c.timeline[1].times, /^timeline\[1\]\.times: /);
   bad((c) => (c.timeline[0].caption = 5), /^timeline\[0\]\.caption: /);
 });
+
+test("intro", () => {
+  assert.equal(parseVideoConfig(valid(), []).intro, undefined);
+  const c = valid();
+  c.intro = { title: "Do-Re-Mi", text: "12 tunes" };
+  assert.deepEqual(parseVideoConfig(c, []).intro, { title: "Do-Re-Mi", text: "12 tunes", seconds: 3 });
+  c.intro = { title: "Do-Re-Mi", seconds: 4.5 };
+  assert.deepEqual(parseVideoConfig(c, []).intro, { title: "Do-Re-Mi", seconds: 4.5 });
+  bad((c) => (c.intro = "hi"), /^intro: /);
+  bad((c) => (c.intro = { text: "x" }), /^intro\.title: /);
+  bad((c) => (c.intro = { title: " " }), /^intro\.title: /);
+  bad((c) => (c.intro = { title: "x", text: 5 }), /^intro\.text: /);
+  bad((c) => (c.intro = { title: "x", seconds: 0.5 }), /^intro\.seconds: /);
+  bad((c) => (c.intro = { title: "x", seconds: 11 }), /^intro\.seconds: /);
+});

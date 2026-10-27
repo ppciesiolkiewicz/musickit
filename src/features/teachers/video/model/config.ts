@@ -26,6 +26,16 @@ export interface VideoTune {
   caption: string;
 }
 
+/** Text shown before the first countdown, silent, for `seconds`. */
+export interface VideoIntro {
+  title: string;
+  text?: string;
+  seconds: number;
+}
+
+/** how long an intro can be, in seconds */
+export const INTRO_SECONDS = { min: 1, max: 10, default: 3 } as const;
+
 export interface VideoConfig {
   /** used in the output file name */
   name: string;
@@ -38,6 +48,7 @@ export interface VideoConfig {
   layers: { id: string; subject: Subject }[];
   /** layer id → rect, for each format the config names */
   formats: Partial<Record<FormatId, Record<string, FrameRect>>>;
+  intro?: VideoIntro;
   timeline: VideoTune[];
 }
 
@@ -100,6 +111,16 @@ function parseTimelineEntry(raw: unknown, path: string): VideoTune {
   return { tune, ...(label !== undefined ? { label } : {}), times, caption: raw.caption ?? "Get ready" };
 }
 
+function parseIntro(raw: unknown): VideoIntro {
+  if (!isObject(raw)) return fail("intro", "expected { title, text, seconds }");
+  if (typeof raw.title !== "string" || !raw.title.trim()) return fail("intro.title", "required text");
+  if (raw.text !== undefined && typeof raw.text !== "string") return fail("intro.text", "expected text");
+  const seconds = raw.seconds ?? INTRO_SECONDS.default;
+  if (typeof seconds !== "number" || !Number.isFinite(seconds) || seconds < INTRO_SECONDS.min || seconds > INTRO_SECONDS.max)
+    return fail("intro.seconds", `expected a number from ${INTRO_SECONDS.min} to ${INTRO_SECONDS.max}`);
+  return { title: raw.title, ...(raw.text ? { text: raw.text } : {}), seconds };
+}
+
 /** Parses and checks a config; `pluginIds` are the creator's panel ids that a `plugin` layer may name. Throws `VideoConfigError`. */
 export function parseVideoConfig(raw: unknown, pluginIds: string[]): VideoConfig {
   if (!isObject(raw)) return fail("config", "expected an object");
@@ -142,5 +163,7 @@ export function parseVideoConfig(raw: unknown, pluginIds: string[]): VideoConfig
   if (!Array.isArray(raw.timeline) || !raw.timeline.length) return fail("timeline", "expected at least one tune");
   const timeline = raw.timeline.map((e, i) => parseTimelineEntry(e, `timeline[${i}]`));
 
-  return { name, tonicPc, scale, bpm, voice, layers, formats, timeline };
+  const intro = raw.intro === undefined ? undefined : parseIntro(raw.intro);
+
+  return { name, tonicPc, scale, bpm, voice, layers, formats, ...(intro ? { intro } : {}), timeline };
 }

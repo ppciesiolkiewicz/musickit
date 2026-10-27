@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { COUNTDOWN_BEATS, TAIL_MS, buildScore, frameCount, momentAt, soundOf } from "./score";
+import { COUNTDOWN_BEATS, TAIL_MS, buildScore, frameCount, momentAt, solfegeBars, soundOf } from "./score";
 import type { VideoConfig } from "./config";
 
 /** Two 2-bar tunes, two passes each, at 60 bpm so a beat is a second. */
@@ -42,14 +42,15 @@ describe("momentAt", () => {
     assert.deepEqual(momentAt(s, -50), { phase: "countdown", segment: 0, left: 4 });
     assert.deepEqual(momentAt(s, 0), { phase: "countdown", segment: 0, left: 4 });
     assert.deepEqual(momentAt(s, 3999), { phase: "countdown", segment: 0, left: 1 });
-    assert.deepEqual(momentAt(s, 4000), { phase: "play", segment: 0, beats: 0 });
+    assert.deepEqual(momentAt(s, 4000), { phase: "play", segment: 0, beats: 0, pass: 1 });
   });
-  it("counts beats across passes", () => {
-    assert.deepEqual(momentAt(s, 13500), { phase: "play", segment: 0, beats: 9.5 });
+  it("counts beats across passes, and which pass it is", () => {
+    assert.deepEqual(momentAt(s, 11500), { phase: "play", segment: 0, beats: 7.5, pass: 1 });
+    assert.deepEqual(momentAt(s, 13500), { phase: "play", segment: 0, beats: 9.5, pass: 2 });
   });
   it("moves on to the next countdown, then ends", () => {
     assert.deepEqual(momentAt(s, 20000), { phase: "countdown", segment: 1, left: 4 });
-    assert.deepEqual(momentAt(s, 24000), { phase: "play", segment: 1, beats: 0 });
+    assert.deepEqual(momentAt(s, 24000), { phase: "play", segment: 1, beats: 0, pass: 1 });
     assert.deepEqual(momentAt(s, 40000), { phase: "end", segment: 1 });
     assert.deepEqual(momentAt(s, 99999), { phase: "end", segment: 1 });
   });
@@ -79,5 +80,31 @@ describe("soundOf", () => {
       const limit = i === 0 ? playStart(1) : s.totalBeats * s.beatMs;
       assert.ok(p.at + p.hold <= limit, `${p.at} + ${p.hold} > ${limit}`);
     }
+  });
+});
+
+describe("with an intro", () => {
+  const s = buildScore({ ...config(), intro: { title: "Hello", seconds: 3 } });
+  it("comes first, silent, and pushes everything back", () => {
+    assert.equal(s.introMs, 3000);
+    assert.equal(s.durationMs, 3000 + 40000 + TAIL_MS);
+    assert.deepEqual(momentAt(s, 0), { phase: "intro", segment: 0 });
+    assert.deepEqual(momentAt(s, 2999), { phase: "intro", segment: 0 });
+    assert.deepEqual(momentAt(s, 3000), { phase: "countdown", segment: 0, left: 4 });
+    assert.deepEqual(momentAt(s, 7000), { phase: "play", segment: 0, beats: 0, pass: 1 });
+    const { piano, clicks } = soundOf(s);
+    assert.equal(clicks[0].at, 3000);
+    assert.equal(piano[0].at, 7000);
+  });
+  it("without one there is no intro phase", () => {
+    assert.equal(buildScore(config()).introMs, 0);
+    assert.equal(buildScore(config()).intro, null);
+  });
+});
+
+describe("solfegeBars", () => {
+  it("names a tune's notes bar by bar", () => {
+    const s = buildScore(config());
+    assert.deepEqual(solfegeBars(s.segments[0].notes), [["Do", "Re", "Mi", "Re"], ["Do"]]);
   });
 });
