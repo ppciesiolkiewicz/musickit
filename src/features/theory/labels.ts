@@ -65,6 +65,11 @@ export function noteLabel(system: LabelSystem, c: LabelInput): string {
   }
 }
 
+/** What a note shows on hover: the other way of naming it. Solfège over a note name, the note name over anything else. */
+export function hoverLabel(system: LabelSystem, c: LabelInput): string {
+  return system === "note" ? noteLabel("solfege", c) : c.name;
+}
+
 /** Rewrite a degree counted in the current mode ("3" for G in E minor) against the major scale ("♭3"), using its distance from the root. */
 export function againstMajor(degree: string, semi: number): string {
   const i = indexOfDegree(degree);

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { chordNoteLabel, fmtInterval, intervalName, noteLabel, scaleToneLabel, solfege, spellAbove, toneColourIndex, toneLabel } from "./labels";
+import { chordNoteLabel, fmtInterval, hoverLabel, intervalName, noteLabel, scaleToneLabel, solfege, spellAbove, toneColourIndex, toneLabel } from "./labels";
 import { makeKeyContext } from "./theory";
 
 test("intervals", () => {
@@ -13,6 +13,10 @@ test("formatting", () => {
   assert.equal(fmtInterval("♯5"), "#5");
   assert.equal(fmtInterval("9"), "9");
   assert.equal(fmtInterval("R"), "R");
+});
+test("hoverLabel: solfège over note names, the note name over the rest", () => {
+  const c = { name: "Eb", semi: 3, degreeText: "♭3" };
+  assert.deepEqual((["note", "interval", "degree", "solfege"] as const).map((s) => hoverLabel(s, c)), ["Me", "Eb", "Eb", "Eb"]);
 });
 test("noteLabel", () => {
   const c = { name: "Eb", semi: 3, degreeText: "♭3", role: "3" };

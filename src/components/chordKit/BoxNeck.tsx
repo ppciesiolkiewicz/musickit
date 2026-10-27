@@ -4,7 +4,7 @@ import { Badge } from "./Fretboard";
 import { VerticalBoard, vGeometry } from "./VerticalFretboard";
 import type { CagedBox, CagedCell } from "@/lib/chordKit/caged";
 import { DOT_INK, degreeColour } from "@/features/theory/scales";
-import { againstMajor, fmtDegree, noteLabel, type LabelSystem } from "@/features/theory/labels";
+import { againstMajor, fmtDegree, hoverLabel, noteLabel, type LabelSystem } from "@/features/theory/labels";
 
 export interface Layers {
   chord: boolean;
@@ -45,6 +45,7 @@ export default function BoxNeck({ cells, box, layers, labelSystem, badges = true
           const key = `${c.string}-${c.fret}`;
           return (
             <g key={key} onClick={() => onNote(c)} className="cursor-sound">
+              <title>{hoverLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText })}</title>
               <circle cx={x} cy={y} r={r} fill={colour} stroke={c.isRoot ? "var(--color-slate-50)" : "var(--color-slate-950)"} strokeWidth={c.isRoot ? 2.5 : 1.5} />
               <text x={x} y={y + 0.5} textAnchor="middle" dominantBaseline="central" fontSize={label.length > 2 ? 9.5 : 12.5} fontWeight={700} fill={DOT_INK} pointerEvents="none">{label}</text>
             </g>

@@ -9,7 +9,7 @@ import { ARP_FRETS, ARP_QUALITIES, WINDOWS, arpeggioMidi, buildArpeggio, neckCel
 import { FAMILIES, makeKeyContext } from "@/features/theory/theory";
 import { MODE_PAGES, degreeColour } from "@/features/theory/scales";
 import { strum } from "@/lib/chordKit/playback";
-import { againstMajor, fmtDegree, noteLabel, type LabelSystem } from "@/features/theory/labels";
+import { againstMajor, fmtDegree, hoverLabel, noteLabel, type LabelSystem } from "@/features/theory/labels";
 import { useLabelSystem } from "@/features/theory/useLabelSystem";
 import { LabelsRow } from "@/components/LabelsRow";
 import { DEFAULT_KEY_PC } from "@/features/theory/theory";
@@ -55,6 +55,7 @@ export function ArpNeck({ cells, arp, overlay, labelSystem, badges, onNote }: { 
           const x = g.fx(c.fret), y = g.sy(c.string), isRoot = c.arp!.role === "R", label = labelFor(c);
           return (
             <g key={`${c.string}-${c.fret}`} opacity={op()} onClick={() => onNote(c)} className="cursor-sound">
+              <title>{hoverLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText })}</title>
               <circle cx={x} cy={y} r={14} fill={c.inScale ? colour(c) : "#1b0b12"} stroke={isRoot ? "var(--color-slate-50)" : c.inScale ? "var(--color-slate-950)" : OUT} strokeWidth={isRoot ? 2.8 : c.inScale ? 1.5 : 2} strokeDasharray={c.inScale ? undefined : "3.5 2.5"} />
               <text x={x} y={y + 0.5} textAnchor="middle" dominantBaseline="central" fontSize={label.length > 2 ? 9.5 : 12} fontWeight={700} fill={c.inScale ? "#0d1526" : "#fecdd3"} pointerEvents="none">{label}</text>
             </g>
@@ -97,6 +98,7 @@ function ArpBox({ cells, win, overlay, labelSystem, badges, onNote }: { cells: N
           const x = g.sx(c.string), y = g.fy(c.fret), isRoot = c.arp!.role === "R", label = lab(c);
           return (
             <g key={`${c.string}-${c.fret}`} onClick={() => onNote(c)} className="cursor-sound">
+              <title>{hoverLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText })}</title>
               <circle cx={x} cy={y} r={14} fill={c.inScale ? colour(c) : "#1b0b12"} stroke={isRoot ? "var(--color-slate-50)" : c.inScale ? "var(--color-slate-950)" : OUT} strokeWidth={isRoot ? 2.8 : c.inScale ? 1.5 : 2} strokeDasharray={c.inScale ? undefined : "3.5 2.5"} />
               <text x={x} y={y + 0.5} textAnchor="middle" dominantBaseline="central" fontSize={label.length > 2 ? 9.5 : 12} fontWeight={700} fill={c.inScale ? "#0d1526" : "#fecdd3"} pointerEvents="none">{label}</text>
             </g>

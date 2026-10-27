@@ -3,7 +3,7 @@
 import { useMemo, useState, type ReactNode } from "react";
 import BoxNeck, { type Layers } from "./BoxNeck";
 import { LabelSelect, useLabelSystem } from "@/features/theory/useLabelSystem";
-import { intervalName, noteLabel, type LabelSystem } from "@/features/theory/labels";
+import { hoverLabel, intervalName, noteLabel, type LabelSystem } from "@/features/theory/labels";
 import ChordDiagram from "./ChordDiagram";
 import { fretWidthFactor } from "./Fretboard";
 import { DOT_INK, degreeColour } from "@/features/theory/scales";
@@ -287,6 +287,7 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem, selec
                       type="button"
                       onClick={() => strum([c.midi], { gapMs: 0, holdMs: 700 })}
                       aria-label={`${lab(c)} on string ${STRING_LETTERS[s]}, fret ${f}`}
+                      title={hoverLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText })}
                       className={`cursor-sound grid size-4 place-items-center rounded-full text-[8px] font-bold sm:size-7 sm:text-xs ${c.isRoot ? "ring-2 ring-slate-50" : "ring-1 ring-slate-950"}`}
                       style={{ backgroundColor: c.scaleDegree === null ? "#f43f5e" : degreeColour(c.scaleDegree), color: DOT_INK }}
                     >

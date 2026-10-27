@@ -4,7 +4,7 @@ import { FretboardBase, fretGeometry } from "./Fretboard";
 import usePhone from "@/components/usePhone";
 import { VerticalBoard, vGeometry } from "./VerticalFretboard";
 import { DOT_INK, degreeColour } from "@/features/theory/scales";
-import { againstMajor, fmtDegree, noteLabel, type LabelSystem } from "@/features/theory/labels";
+import { hoverLabel, noteLabel, type LabelSystem } from "@/features/theory/labels";
 import { SCALE_NECK_FRETS, type ScaleCell, type ScalePosition } from "@/lib/chordKit/scalePositions";
 import { useHeardNote } from "./heardNote";
 
@@ -12,13 +12,13 @@ const ACTIVE = "#38bdf8";
 export const cellKey = (c: { string: number; fret: number }) => `${c.string}-${c.fret}`;
 
 /** One note: a filled dot coloured by degree (root ringed in white), or a small ring for a note that is only there for reference. */
-function Dot({ c, x, y, r, ring, label, active, dim, onNote }: { c: ScaleCell; x: number; y: number; r: number; ring: boolean; label: string; active: boolean; dim: boolean; onNote: (c: ScaleCell) => void }) {
+function Dot({ c, x, y, r, ring, label, hover, active, dim, onNote }: { c: ScaleCell; x: number; y: number; r: number; ring: boolean; label: string; hover: string; active: boolean; dim: boolean; onNote: (c: ScaleCell) => void }) {
   const col = degreeColour(c.degree);
   const isRoot = c.degree === 0;
   const fs = (ring ? 0.85 : 0.9) * r * (label.length > 2 ? 0.68 : 0.88);
   return (
     <g opacity={dim ? 0.18 : 1} onClick={() => onNote(c)} className="cursor-sound">
-      <title>{`${c.name} · degree ${fmtDegree(againstMajor(c.degreeText, c.semi))}`}</title>
+      <title>{hover}</title>
       {ring ? (
         <circle cx={x} cy={y} r={r * 0.68} fill="var(--color-slate-950)" stroke={active ? ACTIVE : col} strokeWidth={active ? 3 : 1.6} />
       ) : (
@@ -83,6 +83,7 @@ export function ScaleNeck({ cells, big, rings = true, focus = null, fadeOutside 
           <Dot
             key={cellKey(c)} c={c} x={g.fx(c.fret)} y={g.sy(c.string)} r={r} ring={!big(c)}
             label={noteLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText })}
+            hover={hoverLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText })}
             active={lit(c)} dim={focus !== null && fadeOutside && !inFocus.has(cellKey(c))} onNote={onNote}
           />
         ))}
@@ -100,11 +101,12 @@ export function PositionBox({ position, cells, rings, active, labelSystem, onNot
   const mine = new Set(position.notes.map(cellKey));
   const extra = rings ? cells.filter((c) => c.fret >= from && c.fret <= position.to && !mine.has(cellKey(c))) : [];
   const label = (c: ScaleCell) => noteLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText });
+  const hover = (c: ScaleCell) => hoverLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText });
   return (
     <svg viewBox={`0 0 ${g.W} ${g.H}`} style={{ width: "100%", maxWidth: 260, height: "auto" }} className="mx-auto" role="img" aria-label={`Position ${position.number}, frets ${position.from} to ${position.to}`}>
       <VerticalBoard g={g} numbersRight />
-      {extra.map((c) => <Dot key={cellKey(c)} c={c} x={g.sx(c.string)} y={g.fy(c.fret)} r={14} ring label={label(c)} active={lit(c)} dim={false} onNote={onNote} />)}
-      {position.notes.map((c) => <Dot key={cellKey(c)} c={c} x={g.sx(c.string)} y={g.fy(c.fret)} r={14} ring={false} label={label(c)} active={lit(c)} dim={false} onNote={onNote} />)}
+      {extra.map((c) => <Dot key={cellKey(c)} c={c} x={g.sx(c.string)} y={g.fy(c.fret)} r={14} ring label={label(c)} hover={hover(c)} active={lit(c)} dim={false} onNote={onNote} />)}
+      {position.notes.map((c) => <Dot key={cellKey(c)} c={c} x={g.sx(c.string)} y={g.fy(c.fret)} r={14} ring={false} label={label(c)} hover={hover(c)} active={lit(c)} dim={false} onNote={onNote} />)}
     </svg>
   );
 }
