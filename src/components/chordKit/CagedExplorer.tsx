@@ -287,11 +287,11 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem, selec
                       type="button"
                       onClick={() => strum([c.midi], { gapMs: 0, holdMs: 700 })}
                       aria-label={`${lab(c)} on string ${STRING_LETTERS[s]}, fret ${f}`}
-                      title={hoverLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText })}
-                      className={`cursor-sound grid size-4 place-items-center rounded-full text-[8px] font-bold sm:size-7 sm:text-xs ${c.isRoot ? "ring-2 ring-slate-50" : "ring-1 ring-slate-950"}`}
+                      className={`group cursor-sound grid size-4 place-items-center rounded-full text-[8px] font-bold sm:size-7 sm:text-xs ${c.isRoot ? "ring-2 ring-slate-50" : "ring-1 ring-slate-950"}`}
                       style={{ backgroundColor: c.scaleDegree === null ? "#f43f5e" : degreeColour(c.scaleDegree), color: DOT_INK }}
                     >
-                      {lab(c)}
+                      <span className="group-hover:hidden">{lab(c)}</span>
+                      <span className="hidden group-hover:inline">{hoverLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText })}</span>
                     </button>
                   )}
                 </div>

@@ -7,6 +7,7 @@ import { DOT_INK, degreeColour } from "@/features/theory/scales";
 import { hoverLabel, noteLabel, type LabelSystem } from "@/features/theory/labels";
 import { SCALE_NECK_FRETS, type ScaleCell, type ScalePosition } from "@/lib/chordKit/scalePositions";
 import { useHeardNote } from "./heardNote";
+import { DotLabel } from "./DotLabel";
 
 const ACTIVE = "#38bdf8";
 export const cellKey = (c: { string: number; fret: number }) => `${c.string}-${c.fret}`;
@@ -15,16 +16,15 @@ export const cellKey = (c: { string: number; fret: number }) => `${c.string}-${c
 function Dot({ c, x, y, r, ring, label, hover, active, dim, onNote }: { c: ScaleCell; x: number; y: number; r: number; ring: boolean; label: string; hover: string; active: boolean; dim: boolean; onNote: (c: ScaleCell) => void }) {
   const col = degreeColour(c.degree);
   const isRoot = c.degree === 0;
-  const fs = (ring ? 0.85 : 0.9) * r * (label.length > 2 ? 0.68 : 0.88);
+  const fs = (t: string) => (ring ? 0.85 : 0.9) * r * (t.length > 2 ? 0.68 : 0.88);
   return (
-    <g opacity={dim ? 0.18 : 1} onClick={() => onNote(c)} className="cursor-sound">
-      <title>{hover}</title>
+    <g opacity={dim ? 0.18 : 1} onClick={() => onNote(c)} className="group cursor-sound">
       {ring ? (
         <circle cx={x} cy={y} r={r * 0.68} fill="var(--color-slate-950)" stroke={active ? ACTIVE : col} strokeWidth={active ? 3 : 1.6} />
       ) : (
         <circle cx={x} cy={y} r={active ? r + 2.5 : r} fill={col} stroke={active ? ACTIVE : isRoot ? "var(--color-slate-50)" : "var(--color-slate-950)"} strokeWidth={active ? 3.5 : isRoot ? 2.6 : 1.5} />
       )}
-      <text x={x} y={y + 0.5} textAnchor="middle" dominantBaseline="central" fontSize={fs} fontWeight={700} fill={ring ? col : DOT_INK} pointerEvents="none">{label}</text>
+      <DotLabel label={label} hover={hover} size={fs} x={x} y={y + 0.5} textAnchor="middle" dominantBaseline="central" fontWeight={700} fill={ring ? col : DOT_INK} />
     </g>
   );
 }

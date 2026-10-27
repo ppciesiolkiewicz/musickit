@@ -5,6 +5,7 @@ import Link from "next/link";
 import { VerticalBoard, vGeometry } from "./VerticalFretboard";
 import { KeyPicker, ModePicker } from "./KeyPicker";
 import { Badge, FretboardBase, fretGeometry } from "./Fretboard";
+import { DotLabel } from "./DotLabel";
 import { ARP_FRETS, ARP_QUALITIES, WINDOWS, arpeggioMidi, buildArpeggio, neckCells, type Arpeggio, type NeckCell } from "@/lib/chordKit/arpeggios";
 import { FAMILIES, makeKeyContext } from "@/features/theory/theory";
 import { MODE_PAGES, degreeColour } from "@/features/theory/scales";
@@ -54,10 +55,9 @@ export function ArpNeck({ cells, arp, overlay, labelSystem, badges, onNote }: { 
         {arpCells.map((c) => {
           const x = g.fx(c.fret), y = g.sy(c.string), isRoot = c.arp!.role === "R", label = labelFor(c);
           return (
-            <g key={`${c.string}-${c.fret}`} opacity={op()} onClick={() => onNote(c)} className="cursor-sound">
-              <title>{hoverLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText })}</title>
+            <g key={`${c.string}-${c.fret}`} opacity={op()} onClick={() => onNote(c)} className="group cursor-sound">
               <circle cx={x} cy={y} r={14} fill={c.inScale ? colour(c) : "#1b0b12"} stroke={isRoot ? "var(--color-slate-50)" : c.inScale ? "var(--color-slate-950)" : OUT} strokeWidth={isRoot ? 2.8 : c.inScale ? 1.5 : 2} strokeDasharray={c.inScale ? undefined : "3.5 2.5"} />
-              <text x={x} y={y + 0.5} textAnchor="middle" dominantBaseline="central" fontSize={label.length > 2 ? 9.5 : 12} fontWeight={700} fill={c.inScale ? "#0d1526" : "#fecdd3"} pointerEvents="none">{label}</text>
+              <DotLabel label={label} hover={hoverLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText })} size={(t) => (t.length > 2 ? 9.5 : 12)} x={x} y={y + 0.5} textAnchor="middle" dominantBaseline="central" fontWeight={700} fill={c.inScale ? "#0d1526" : "#fecdd3"} />
             </g>
           );
         })}
@@ -97,10 +97,9 @@ function ArpBox({ cells, win, overlay, labelSystem, badges, onNote }: { cells: N
         {dots.map((c) => {
           const x = g.sx(c.string), y = g.fy(c.fret), isRoot = c.arp!.role === "R", label = lab(c);
           return (
-            <g key={`${c.string}-${c.fret}`} onClick={() => onNote(c)} className="cursor-sound">
-              <title>{hoverLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText })}</title>
+            <g key={`${c.string}-${c.fret}`} onClick={() => onNote(c)} className="group cursor-sound">
               <circle cx={x} cy={y} r={14} fill={c.inScale ? colour(c) : "#1b0b12"} stroke={isRoot ? "var(--color-slate-50)" : c.inScale ? "var(--color-slate-950)" : OUT} strokeWidth={isRoot ? 2.8 : c.inScale ? 1.5 : 2} strokeDasharray={c.inScale ? undefined : "3.5 2.5"} />
-              <text x={x} y={y + 0.5} textAnchor="middle" dominantBaseline="central" fontSize={label.length > 2 ? 9.5 : 12} fontWeight={700} fill={c.inScale ? "#0d1526" : "#fecdd3"} pointerEvents="none">{label}</text>
+              <DotLabel label={label} hover={hoverLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText })} size={(t) => (t.length > 2 ? 9.5 : 12)} x={x} y={y + 0.5} textAnchor="middle" dominantBaseline="central" fontWeight={700} fill={c.inScale ? "#0d1526" : "#fecdd3"} />
             </g>
           );
         })}
