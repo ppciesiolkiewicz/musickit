@@ -61,7 +61,7 @@ export default function SiteFooter() {
       </div>
 
       <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-slate-800/70 pt-6 text-xs text-slate-500 sm:flex-row">
-        <p>© {new Date().getFullYear()} attunr</p>
+        <p>© {new Date().getFullYear()} attunr. All rights reserved.</p>
         <p>Photos from Unsplash. Made for people who&apos;d rather play.</p>
       </div>
     </footer>
