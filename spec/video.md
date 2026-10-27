@@ -8,6 +8,7 @@ Branded practice videos rendered from config files with the app's real stage wid
 - **Where you are:** the `progress` widget shows "Tune 3 of 12" over a dot per pass, filled up to the pass being sung ("Pass 2 of 4"; "Sing it 4 times" while the tune counts in). The `next` widget shows the tune after the one on the staff in solfège, bar by bar ("Do Re Mi Re | Do"): "First up" during the intro, "Next · tune 4" after it, "Last tune" on the last.
 - **The view** rides the bar at a steady pace, the bar at least the faded copy of the last half bar in (a third across from 6 beats up, half at 4; under 4 beats it stays at half and the copy is cut), so from the wrap to beat 1, in the countdown and in the closing second that copy and its labels are whole on screen. At the end of a pass the view jumps back to the start in one frame, never sweeping back. (The Melodies page's own follow view still eases after the voice dot.)
 - **Formats:** `16x9` (1920×1080, YouTube) and `9x16` (1080×1920, Instagram and TikTok), 30 fps, H.264 (`yuv420p`) with AAC sound. Each format has its own layout.
+- **Preview:** the studio plays a config in the browser, with a slider to any moment (`spec/studio.md`, Video preview); it draws the same frame for the same time as the render.
 - **Configs** live in `videos/*.json` (in the repo). **Output** goes to `out/videos/<name>-<format>.mp4` (git-ignored).
 
 ## The command

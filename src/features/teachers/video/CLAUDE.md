@@ -4,6 +4,7 @@ Branded practice videos rendered from `videos/*.json` with the app's real stage 
 
 ## Keep it separate
 - `model/` is pure (no React, no DOM): it may import `@/features/stage` (subjects, rects), `@/features/theory` and `@/features/instruments/jam/clock`. The caller passes anything app-specific (`pluginIds`), so it never imports the creator or the studio app.
+- `VideoFrame` draws the frame at whatever `time()` says: the render page passes its (stepped) clock, the studio's `VideoPreview` its slider. Only the studio imports this feature, for the preview.
 - The render page knows nothing about the script beyond `window.__VIDEO_JOB__` (in) and `window.__video` (out).
 
 ## Data

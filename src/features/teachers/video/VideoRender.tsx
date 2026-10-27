@@ -1,7 +1,7 @@
 "use client";
 
 import { flushSync } from "react-dom";
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties } from "react";
 import { PLUGINS } from "@/features/creator";
 import { StageWidget, TimelineContext, type StageTimeline } from "@/features/stage";
 import { preloadInstrument, renderOffline } from "@/features/sound";
@@ -104,15 +104,26 @@ export default function VideoRender() {
     };
   }, []);
 
+  const time = useCallback(() => performance.now() - t0.current, []);
   if (!job) return <div className="app-bg fixed inset-0 z-50 flex items-center justify-center text-sm text-slate-300">{hasJob ? status : "No video job"}</div>;
-  return <Frame job={job} t0={t0} />;
+  return (
+    <>
+      {/* the dev server's indicator is not part of the frame */}
+      <style>{"nextjs-portal { display: none !important; }"}</style>
+      {/* above anything the root layout draws */}
+      <VideoFrame config={job.config} score={job.score} format={job.format} time={time} className="fixed left-0 top-0 z-50" />
+    </>
+  );
 }
 
-function Frame({ job, t0 }: { job: Job; t0: { current: number } }) {
-  const { config, score, format } = job;
+/**
+ * The config's layers at the format's exact pixel size, at `time()` ms into the score, read every animation frame: the
+ * render page's stepped clock, or the studio preview's slider.
+ */
+export function VideoFrame({ config, score, format, time, className = "", style }: { config: VideoConfig; score: Score; format: FormatId; time: () => number; className?: string; style?: CSSProperties }) {
   const { width, height } = FORMATS[format];
   const rects = config.formats[format]!;
-  const [shown, setShown] = useState(() => momentAt(score, 0));
+  const [shown, setShown] = useState(() => momentAt(score, time()));
   const key = momentKey(shown);
 
   const timeline = useMemo<StageTimeline>(
@@ -120,7 +131,7 @@ function Frame({ job, t0 }: { job: Job; t0: { current: number } }) {
       melody: { notes: score.segments[shown.segment].notes, ladder: score.ladder, clef: score.clef, beatMs: score.beatMs },
       // read from the clock itself, so the staff's own frame callback and this page's agree on the time
       gridBeats: () => {
-        const m = momentAt(score, performance.now() - t0.current);
+        const m = momentAt(score, time());
         if (m.phase === "play") return m.beats;
         if (m.phase === "intro" || m.phase === "countdown") return 0;
         // the tail holds the bar at the end of the last pass (a hair short: the staff wraps at the tune's length);
@@ -146,25 +157,23 @@ function Frame({ job, t0 }: { job: Job; t0: { current: number } }) {
     }),
     // `key` is the moment's identity: a frame inside the same count or tune keeps the same context
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [score, t0, key],
+    [score, time, key],
   );
 
   useEffect(() => {
     let raf = requestAnimationFrame(function tick() {
-      const m = momentAt(score, performance.now() - t0.current);
+      const m = momentAt(score, time());
       // committed inside the tick, so the bar (read from the clock) is never drawn with the last frame's tune or count
       flushSync(() => setShown((p) => (momentKey(p) === momentKey(m) ? p : m)));
       raf = requestAnimationFrame(tick);
     });
     return () => cancelAnimationFrame(raf);
-  }, [score, t0]);
+  }, [score, time]);
 
   const stageKey = useMemo(() => ({ tonicPc: config.tonicPc, family: 0, mode: 0 }), [config.tonicPc]);
   return (
-    // above anything the root layout draws; the frame is exactly the output size
-    <div className="app-bg fixed left-0 top-0 z-50 overflow-hidden" style={{ width, height }}>
-      {/* the dev server's indicator is not part of the frame */}
-      <style>{"nextjs-portal { display: none !important; }"}</style>
+    // the frame is exactly the output size
+    <div className={`app-bg overflow-hidden ${className}`} style={{ ...style, width, height }}>
       <TimelineContext.Provider value={timeline}>
         {config.layers.map((l, i) => {
           const r = rects[l.id];

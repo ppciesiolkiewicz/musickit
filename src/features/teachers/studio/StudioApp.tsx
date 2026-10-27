@@ -5,6 +5,7 @@ import { HeardNote } from "@/components/chordKit/heardNote";
 import Icon from "@/components/Icon";
 import { PLUGINS } from "@/features/creator";
 import { CameraLayer, DEFAULT_VIEW, MicContext, sanitiseAudioInput, useAudioInput, NUDGE, NUDGE_BIG, ScreenLayer, StageFrame, StageWidget, mediaState, isControl, isPage, shortcutFor, stageCommand, subjectTitle, takesMic, toggleFull, type AudioInputSetup, type Layer, type MicInput, type PaletteResult, type StudioCommand, type Subject } from "@/features/stage";
+import { VideoPreview, pickVideoConfig, type VideoFile } from "@/features/teachers/video";
 import { isStudioSupported } from "./browserSupport";
 import KeysPanel, { KeysOverlay } from "./KeysPanel";
 import useCamera from "./media/useCamera";
@@ -62,6 +63,12 @@ export default function StudioApp() {
   const [stage, dispatch] = useStage(PLUGIN_IDS);
   const [palette, setPalette] = useState(false);
   const [help, setHelp] = useState(false);
+  // a video config previewed in place of the stage
+  const [video, setVideo] = useState<VideoFile | null>(null);
+  const openVideo = async () => {
+    const f = await pickVideoConfig();
+    if (f) setVideo(f);
+  };
   // the page renders nothing until the browser check, so reading storage here cannot mismatch the server's render
   const [keepShape, setKeepShape] = useState(() => (typeof window === "undefined" ? true : savedKeepShape()));
   const toggleKeepShape = () => {
@@ -157,7 +164,8 @@ export default function StudioApp() {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (palette) return;
+      // the preview has its own keys; the stage's would move widgets nobody can see
+      if (palette || video) return;
       if (help) {
         setHelp(false);
         e.preventDefault();
@@ -225,7 +233,7 @@ export default function StudioApp() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [palette, help, dispatch, runCommand]);
+  }, [palette, help, video, dispatch, runCommand]);
 
   if (supported === null) return null;
   if (!supported) return <p className="mx-auto mt-24 max-w-md text-center text-slate-300">The studio needs desktop Chrome or Edge.</p>;
@@ -267,6 +275,9 @@ export default function StudioApp() {
           </button>
           <button type="button" title="Add a widget (/ or ⌘K)" aria-label="Add a widget" onClick={() => setPalette(true)} className="rounded-md border border-slate-700 p-1 text-slate-200 hover:border-slate-500">
             <Icon name="plus" size={14} />
+          </button>
+          <button type="button" title="Preview a video config" aria-label="Preview a video config" aria-pressed={!!video} onClick={() => void openVideo()} className={`rounded-md border p-1 hover:border-slate-500 ${video ? "border-sky-500/60 text-sky-200" : "border-slate-700 text-slate-200"}`}>
+            <Icon name="play" size={14} />
           </button>
           <ul className="mt-1 flex flex-col gap-1">
             {[...stage.layers].reverse().map((l) => (
@@ -345,6 +356,15 @@ export default function StudioApp() {
               <span className={`absolute top-0.5 h-3 w-3 rounded-full bg-white transition-all ${keepShape ? "left-3.5" : "left-0.5"}`} />
             </span>
           </button>
+          <button
+            type="button"
+            onClick={() => void openVideo()}
+            title="Play a video config (videos/*.json) in the frame, with a slider to any moment. Saving the file reloads it."
+            className={`mt-2 flex items-center gap-2 rounded-md border px-2 py-1 text-left text-xs hover:border-slate-600 ${video ? "border-sky-500/60 bg-sky-500/10 text-sky-100" : "border-slate-800 text-slate-300"}`}
+          >
+            <Icon name="play" size={12} />
+            <span className="min-w-0 flex-1 truncate">{video ? `Video: ${video.name}` : "Preview a video…"}</span>
+          </button>
           {camera.stream && camera.devices.length > 1 && (
             <label className="mt-2 flex flex-col gap-1 text-xs text-slate-400">
               Camera
@@ -362,9 +382,13 @@ export default function StudioApp() {
         <h1 className="sr-only">Studio</h1>
         {/* as wide as the column, but never taller than the window */}
         <div className="w-full" style={{ maxWidth: "calc((100vh - 2rem) * 16 / 9)" }}>
-          <MicContext.Provider value={mic}>
-            <StageFrame stage={stage} renderLayer={renderLayer} onAction={dispatch} keepShape={keepShape} />
-          </MicContext.Provider>
+          {video ? (
+            <VideoPreview file={video} pluginIds={PLUGIN_IDS} onClose={() => setVideo(null)} />
+          ) : (
+            <MicContext.Provider value={mic}>
+              <StageFrame stage={stage} renderLayer={renderLayer} onAction={dispatch} keepShape={keepShape} />
+            </MicContext.Provider>
+          )}
         </div>
       </main>
 
