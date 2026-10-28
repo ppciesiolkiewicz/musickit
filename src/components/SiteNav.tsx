@@ -4,6 +4,7 @@ import { TunerButton } from "@/features/tuner";
 import ThemeSwitcher from "./ThemeSwitcher";
 import TheoryMenu from "./TheoryMenu";
 import Wordmark from "./Wordmark";
+import { SpotlightButton } from "@/features/search/Spotlight";
 export const SITE_LINKS = [
   { href: "/", label: "Home" },
   { href: "/tuner", label: "Tuner" },
@@ -37,8 +38,9 @@ export default function SiteNav({ active, devices = false }: { active: string; d
       {rest.map((l) => (
         <NavLink key={l.href} {...l} current={isActive(active, l.href)} />
       ))}
-      {active !== "/tuner" && <TunerButton className="ml-auto sm:mr-1.5" />}
-      <ThemeSwitcher className={active === "/tuner" ? "ml-auto" : ""} compact />
+      <SpotlightButton className="ml-auto" />
+      {active !== "/tuner" && <TunerButton className="sm:mr-1.5" />}
+      <ThemeSwitcher compact />
       {devices && <AudioDevicesButton className="sm:ml-1.5" />}
     </nav>
   );

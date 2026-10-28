@@ -4,6 +4,7 @@ import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
 import NoControlFocus from "@/components/NoControlFocus";
 import QuickRecord from "@/features/recorder/QuickRecord";
+import Spotlight from "@/features/search/Spotlight";
 import { THEME_BOOT } from "@/components/ThemeSwitcher";
 import { SITE_URL } from "@/lib/site";
 
@@ -71,6 +72,7 @@ export default function RootLayout({
         <NoControlFocus />
         {children}
         <QuickRecord />
+        <Spotlight />
         <Analytics />
       </body>
     </html>
