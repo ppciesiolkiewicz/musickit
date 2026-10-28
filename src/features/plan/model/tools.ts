@@ -19,7 +19,7 @@ export type BandPart = "click" | "drone" | "drums" | "bass";
 export const BAND_PARTS: BandPart[] = ["click", "drone", "drums", "bass"];
 
 export type PlanTool =
-  | { type: "scale"; scale: string; key: number; boxes?: number[] }
+  | { type: "scale"; scale: string; key: number; boxes?: number[]; /** notes from outside the scale the exercise plays too (pitch classes) */ add?: number[] }
   | { type: "chords"; chords: string[] }
   | { type: "sing"; scale: string; key: number; voice: Voice }
   | { type: "band"; bpm: number; key: number; parts: BandPart[] }
@@ -28,7 +28,7 @@ export type PlanTool =
 
 /** What the prompt says about each tool: its JSON and what it shows. */
 export const TOOL_DOCS: string[] = [
-  `{ "type": "scale", "scale": "minor-pentatonic", "key": "a", "boxes": [1, 2] } : the scale's positions on the guitar neck; "boxes" (1-5) limits it to the ones the exercise is about. "scale" is a scale slug from the pages list (major-ionian, dorian, minor-pentatonic, minor-blues…), "key" a note (c, f-sharp, b-flat).`,
+  `{ "type": "scale", "scale": "minor-pentatonic", "key": "a", "boxes": [1, 2], "add": ["c#"] } : the scale's positions on the guitar neck; "boxes" (1-5) limits it to the ones the exercise is about; "add" puts notes from outside the scale into the boxes (a passing note, the 3rd over a 7 chord). "scale" is a scale slug from the pages list (major-ionian, dorian, minor-pentatonic, minor-blues…), "key" a note (c, f-sharp, b-flat).`,
   `{ "type": "chords", "chords": ["G", "C", "D", "Em"] } : a chord shape for each, to play (names like A, Am, E7, Cmaj7, Dsus4, F#m).`,
   `{ "type": "sing", "scale": "major-ionian", "key": "c", "voice": "baritone" } : the scale on a staff with live pitch from the microphone, for singing exercises. voice: soprano, mezzo, alto, tenor, baritone, bass.`,
   `{ "type": "band", "bpm": 70, "key": "a", "parts": ["click", "drone"] } : metronome, drone, drums and bass in a key; "parts" are the ones that play (any of click, drone, drums, bass). Use it for anything played in time or over a drone.`,
@@ -51,7 +51,8 @@ export function parseTool(raw: unknown): PlanTool | null {
       const key = keyOf(t.key);
       if (!isScale(t.scale) || key === null) return null;
       const boxes = Array.isArray(t.boxes) ? [...new Set(t.boxes.map((b) => int(b, 1, 5)).filter((b): b is number => b !== null))].sort() : [];
-      return { type: "scale", scale: t.scale, key, ...(boxes.length ? { boxes } : {}) };
+      const add = Array.isArray(t.add) ? [...new Set(t.add.map(keyOf).filter((n): n is number => n !== null))].slice(0, 4) : [];
+      return { type: "scale", scale: t.scale, key, ...(boxes.length ? { boxes } : {}), ...(add.length ? { add } : {}) };
     }
     case "chords": {
       const chords = (Array.isArray(t.chords) ? t.chords : []).filter((c): c is string => typeof c === "string" && !!parseChordQuery(c)).slice(0, 8);

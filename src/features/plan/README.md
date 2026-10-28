@@ -68,11 +68,15 @@ days or an empty day is refused. Plans pasted before tools existed show the tool
 
 ## Tools
 
+The AI writes an exercise's text and its tools separately; the page draws only from the tools. So the prompt makes
+them agree: every note the steps play is in the scale or its `add`, and any outside note is named as outside, with why. Plain scale first, then extended: two scale tools in order, the
+second with `add` (up to 3 tools per exercise).
+
 Few on purpose, each a view with no settings: the AI sets it up, the player plays.
 
 | type | shows | built from |
 | --- | --- | --- |
-| `scale` | the boxes asked for, tap a note or ▶ a box | `PositionBox` (chordKit), `pentatonicPositions` / `positionsFor` |
+| `scale` | the boxes asked for, plus any `add` notes from outside the scale played in them; tap a note or ▶ a box | `PositionBox` (chordKit), `pentatonicPositions` / `positionsFor` |
 | `chords` | one shape per chord, tap to strum | `ChordDiagram`, `shapesForTones` |
 | `sing` | the scale on a staff in the voice's range, live pitch | `SingingStaff`, `useMicPitch` (as on the singing page) |
 | `band` | one line: Play only the chosen parts, tempo, key; "More" for the rest | `PracticeBand` (instruments) |

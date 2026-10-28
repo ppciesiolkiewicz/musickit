@@ -28,6 +28,7 @@ describe("plan links", () => {
 describe("tools", () => {
   it("parses each tool, set up for the exercise", () => {
     assert.deepEqual(parseTool({ type: "scale", scale: "minor-pentatonic", key: "a", boxes: [2, 1, 9] }), { type: "scale", scale: "minor-pentatonic", key: 9, boxes: [1, 2] });
+    assert.deepEqual(parseTool({ type: "scale", scale: "minor-blues", key: "a", boxes: [1], add: ["c#", "C-sharp", "zz"] }), { type: "scale", scale: "minor-blues", key: 9, boxes: [1], add: [1] });
     assert.deepEqual(parseTool({ type: "chords", chords: ["G", "Em", "nonsense!", 3] }), { type: "chords", chords: ["G", "Em"] });
     assert.deepEqual(parseTool({ type: "sing", scale: "major-ionian", key: "c", voice: "alto" }), { type: "sing", scale: "major-ionian", key: 0, voice: "alto" });
     assert.deepEqual(parseTool({ type: "band", bpm: 70, key: "e", parts: ["drone", "drone", "kazoo"] }), { type: "band", bpm: 70, key: 4, parts: ["drone"] });
@@ -122,6 +123,8 @@ describe("schedule", () => {
     assert.match(prompt, /too easy/);
     assert.match(prompt, /\/theory\/notes/);
     assert.match(prompt, /"type": "band"/);
+    assert.match(prompt, /Notes outside the scale/);
+    assert.match(prompt, /plain one, then the same boxes/);
     assert.doesNotMatch(buildPrompt(DEFAULT_ANSWERS, entries), /Earlier weeks/);
   });
 });
