@@ -1,7 +1,7 @@
 import { SeverityNumber } from "@opentelemetry/api-logs";
 import { put } from "@vercel/blob";
 import { after } from "next/server";
-import { flushPostHogLogs, posthogLogsLogger } from "../../../../instrumentation";
+import { flushPostHogLogs, posthogLogsLogger } from "@/lib/posthogLogs";
 import { blobToken } from "@/features/nam/server/cloud";
 import { parseSignup, signupPath } from "@/features/earlyAccess/signup";
 

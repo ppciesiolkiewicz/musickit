@@ -1,6 +1,6 @@
 import { SeverityNumber } from "@opentelemetry/api-logs";
 import { after } from "next/server";
-import { flushPostHogLogs, posthogLogsLogger } from "../../../../../instrumentation";
+import { flushPostHogLogs, posthogLogsLogger } from "@/lib/posthogLogs";
 import { generateSoundEffect } from "@/features/sampler/server/elevenlabs";
 import { chooseKey, createLimiter, parseGenerate, sitePassword } from "@/features/sampler/server/guard";
 import { PROVIDERS, type Capabilities } from "@/features/sampler/server/providers";
