@@ -12,8 +12,10 @@ browser.
 2. **The week** (`ui/WeekView.tsx`): seven day buttons; today and earlier days open, later days locked. The day's
    exercises are a list of sections: title, focus ("A minor pentatonic · boxes 1 & 2"), how, steps, why, a countdown
    timer (chimes and ticks the exercise at zero), Done.
-3. **The tool in the section**: when an exercise links one of the embeddable tools, the tool is right in its section,
-   set up for the exercise (key, strings, interval level). Other links are an "Open page" link.
+3. **Tools in the section**: each exercise carries 1–2 `tools`, set up by the AI, with nothing to configure: a scale's
+   boxes on the neck, chord shapes, a staff with live pitch for singing, a folded play-along band (one Play for only the
+   chosen click / drone / drums / bass), or the notes / ear games with their settings hidden. A `link` is an
+   "Open page" link for more.
 4. **Plan next week** (mode `"next"`, any time; a banner shows it once the week is over): how did it go, still heading
    the same way (goals, minutes), copy the prompt (it carries this week's exercises, done or skipped, the notes and up
    to three earlier weeks), paste.
@@ -27,7 +29,7 @@ model/            pure, no React; tested in model/plan.test.ts
   types.ts        PlanAnswers, PlanConfig (what the AI returns), StoredPlan, PlanState (the stored document)
   questions.ts    the questionnaire's choices and defaults
   catalogue.ts    the attunr pages a plan may link to; checkLink() keeps only those
-  embed.ts        which links open a tool on the plan page (EMBEDS, embedFor())
+  tools.ts        the tools an exercise shows (PlanTool, parseTool, TOOL_DOCS for the prompt, toolFromLink for older plans)
   config.ts       parsePlanConfig(): the pasted reply to a checked PlanConfig, with warnings
   prompt.ts       buildPrompt(), weekReport()
   schedule.ts     local dates, today's day, progress, when the week is over
@@ -35,7 +37,7 @@ store/
   PlanStore.ts    the storage interface: load() / save() of one PlanState
   localPlanStore.ts  the localStorage implementation ("musickit.plan"), with sanitising
   usePlan.tsx     the hook the UI uses, and PlanStoreProvider to swap the store
-ui/               PlanFlow, Questionnaire (the question screens), PromptAndPaste, WeekView, ExerciseTimer, ExerciseEmbed
+ui/               PlanFlow, Questionnaire (the question screens), PromptAndPaste, WeekView, ExerciseTimer, ExerciseTool
 PlanApp.tsx       the page body: no plan → Start; a plan → header, week, history; the flow modal
 reminders.ts, PracticeReminder.tsx   notifications (PracticeReminder is mounted in PageShell, on every page)
 ```
@@ -54,14 +56,28 @@ The prompt asks for one JSON object, exactly seven days:
 ```json
 { "title": "…", "summary": "…", "days": [ { "theme": "…", "exercises": [
   { "title": "…", "focus": "A minor pentatonic · boxes 1 & 2", "minutes": 8, "how": "…",
-    "steps": ["…"], "why": "…", "link": "/theory/scales/minor-pentatonic/a" } ] } ] }
+    "steps": ["…"], "why": "…",
+    "tools": [ { "type": "scale", "scale": "minor-pentatonic", "key": "a", "boxes": [1, 2] },
+               { "type": "band", "bpm": 60, "key": "a", "parts": ["click", "drone"] } ],
+    "link": "/theory/scales/minor-pentatonic/a" } ] } ] }
 ```
 
 On paste: a code fence or prose around it is fine; minutes are clamped to 1–120; unknown links are dropped with a
-warning; fewer than seven days or an empty day is refused.
+warning; tools that can't be shown (unknown scale, unreadable chord) are left out with a warning; fewer than seven
+days or an empty day is refused. Plans pasted before tools existed show the tool their link stands for.
 
-## Adding an embedded tool
+## Tools
 
-The set is small on purpose (scale/pentatonic pages, fretboard notes, ear training, metronome & drone). To add one:
-a kind in `model/embed.ts` (`Embed`, `embedFor`, and a line in `EMBEDS` telling the AI its path and query), a case in
-`ui/ExerciseEmbed.tsx` (lazy-loaded, with any address-bar syncing turned off), and a test.
+Few on purpose, each a view with no settings: the AI sets it up, the player plays.
+
+| type | shows | built from |
+| --- | --- | --- |
+| `scale` | the boxes asked for, tap a note or ▶ a box | `PositionBox` (chordKit), `pentatonicPositions` / `positionsFor` |
+| `chords` | one shape per chord, tap to strum | `ChordDiagram`, `shapesForTones` |
+| `sing` | the scale on a staff in the voice's range, live pitch | `SingingStaff`, `useMicPitch` (as on the singing page) |
+| `band` | one line: Play only the chosen parts, tempo, key; "More" for the rest | `PracticeBand` (instruments) |
+| `notes` | the fretboard-notes game, settings hidden (`bare`) | `NoteGame` |
+| `ears` | ear training, settings hidden (`bare`) | `EarGame` |
+
+To add one: a type and its parsing in `model/tools.ts`, a line in `TOOL_DOCS` (what the prompt tells the AI), a view in
+`ui/ExerciseTool.tsx` (lazy-load anything with its own sound engine), and a test.

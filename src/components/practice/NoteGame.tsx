@@ -25,7 +25,7 @@ const SPRINT_MS = 60_000;
 type Feedback = { ok: boolean; text: string } | null;
 
 /** The fretboard note game: find a named note (tap or play it), find every instance, or name a lit dot. */
-export default function NoteGame({ initial, syncUrl = true }: { initial: NoteSettings; /** write the settings to the address bar (off when embedded in another page) */ syncUrl?: boolean }) {
+export default function NoteGame({ initial, syncUrl = true, bare = false }: { initial: NoteSettings; /** write the settings to the address bar (off when embedded in another page) */ syncUrl?: boolean; /** settings fixed by the host: only how to answer stays */ bare?: boolean }) {
   const [s, setS] = useState(initial);
   const [q, setQ] = useState<NoteQuestion | null>(null);
   const [found, setFound] = useState<string[]>([]);
@@ -156,6 +156,7 @@ export default function NoteGame({ initial, syncUrl = true }: { initial: NoteSet
   return (
     <div className="flex flex-col gap-4">
       <section className={`${panel} flex flex-col gap-2`}>
+        {!bare && <>
         <ChipRow label="Game">{MODES.map((m) => <Chip key={m.id} on={s.mode === m.id} onClick={() => update({ mode: m.id })}>{m.label}</Chip>)}</ChipRow>
         <ChipRow label="Strings">
           {STRING_LETTERS.map((l, i) => (
@@ -168,6 +169,7 @@ export default function NoteGame({ initial, syncUrl = true }: { initial: NoteSet
           <Chip on={s.naturals} onClick={() => update({ naturals: !s.naturals })}>Natural notes only</Chip>
           <Chip on={s.flats} onClick={() => update({ flats: !s.flats })}>Flat names</Chip>
         </div>
+        </>}
         <ChipRow label="Answer by">
           <Chip on={!mic} onClick={() => setMic(false)}>Tapping the neck</Chip>
           <Chip on={mic} onClick={() => setMic(true)}>Playing it (mic)</Chip>

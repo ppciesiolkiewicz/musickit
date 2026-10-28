@@ -25,7 +25,7 @@ function play(q: EarQuestion) {
 }
 
 /** Interval and chord-quality ear training. Settings live in the URL so a teacher can share a set-up. */
-export default function EarGame({ initial, syncUrl = true }: { initial: EarSettings; /** write the settings to the address bar (off when embedded in another page) */ syncUrl?: boolean }) {
+export default function EarGame({ initial, syncUrl = true, bare = false }: { initial: EarSettings; /** write the settings to the address bar (off when embedded in another page) */ syncUrl?: boolean; /** settings fixed by the host: no settings panel */ bare?: boolean }) {
   const [s, setS] = useState(initial);
   const [q, setQ] = useState<EarQuestion | null>(null);
   const [answered, setAnswered] = useState<{ pick: string; ok: boolean } | null>(null);
@@ -60,7 +60,7 @@ export default function EarGame({ initial, syncUrl = true }: { initial: EarSetti
 
   return (
     <div className="flex flex-col gap-4">
-      <section className={`${panel} flex flex-col gap-2`}>
+      {!bare && <section className={`${panel} flex flex-col gap-2`}>
         <ChipRow label="Train">
           <Chip on={s.kind === "interval"} onClick={() => update({ kind: "interval" })}>Intervals</Chip>
           <Chip on={s.kind === "chord"} onClick={() => update({ kind: "chord" })}>Chord quality</Chip>
@@ -76,7 +76,7 @@ export default function EarGame({ initial, syncUrl = true }: { initial: EarSetti
             <ChipRow label="Played">{DIRS.map((d) => <Chip key={d.id} on={s.direction === d.id} onClick={() => update({ direction: d.id })}>{d.label}</Chip>)}</ChipRow>
           </>
         )}
-      </section>
+      </section>}
 
       <section className={panel}>
         <div className="mb-3 flex flex-wrap items-center gap-2">

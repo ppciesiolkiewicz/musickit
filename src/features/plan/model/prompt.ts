@@ -1,5 +1,5 @@
 import type { CatalogueEntry } from "./catalogue";
-import { EMBEDS } from "./embed";
+import { TOOL_DOCS } from "./tools";
 import { GOALS, INSTRUMENTS, LEVELS, STRUGGLES, labelOf } from "./questions";
 import { doneKey } from "./schedule";
 import { PLAN_DAYS, type PlanAnswers, type StoredPlan } from "./types";
@@ -11,7 +11,7 @@ const EXAMPLE = `{
     {
       "theme": "Clean chord changes",
       "exercises": [
-        { "title": "Connect the first two boxes", "focus": "A minor pentatonic · boxes 1 & 2", "minutes": 8, "how": "Slide between the boxes on every string", "steps": ["Box 1 up and down at 60 bpm, twice", "Box 2 the same", "Cross from box 1 to box 2 on the G string"], "why": "Smooth changes are the base of every song", "link": "/theory/metronome-drone" }
+        { "title": "Connect the first two boxes", "focus": "A minor pentatonic · boxes 1 & 2", "minutes": 8, "how": "Slide between the boxes on every string", "steps": ["Box 1 up and down at 60 bpm, twice", "Box 2 the same", "Cross from box 1 to box 2 on the G string"], "why": "Joined boxes free you from box 1", "tools": [{ "type": "scale", "scale": "minor-pentatonic", "key": "a", "boxes": [1, 2] }, { "type": "band", "bpm": 60, "key": "a", "parts": ["click", "drone"] }], "link": "/theory/scales/minor-pentatonic/a" }
       ]
     }
   ]
@@ -49,7 +49,7 @@ export function buildPrompt(answers: PlanAnswers | null, entries: CatalogueEntry
   const history = previous.slice(0, 3).map(weekReport).join("\n\n");
   const pages = entries.map((e) => `${e.href} : ${e.label} (${e.desc})`).join("\n");
   return [
-    "You are a music teacher writing a 7-day practice plan for one student. They practise with attunr, a web app; each exercise can open one of its pages.",
+    "You are a music teacher writing a 7-day practice plan for one student. They practise with attunr, a web app; each exercise shows the tools it needs right in the plan.",
     "",
     "## The student",
     profile,
@@ -63,15 +63,16 @@ export function buildPrompt(answers: PlanAnswers | null, entries: CatalogueEntry
     "- Concrete instructions: tempos, keys, chords, strings, how many reps, what 'done' looks like. Short, plain language.",
     "- \"link\" is optional and must be exactly one of the attunr paths below (scale pages take any key: /theory/scales/dorian/e). Leave it out when no page fits; never invent one.",
     "",
-    "## Tools shown right on the plan page (prefer these)",
-    "Most exercises should link one of these: the student practises with it under the exercise, without leaving the plan. Set its query so the tool opens on exactly the exercise.",
-    ...EMBEDS.map((e) => `${e.path} : ${e.what}`),
+    "## Tools in the exercise (\"tools\", 1 or 2 per exercise)",
+    "The student practises right in the plan with these, already set up: they get no settings to change, so set everything the exercise needs.",
+    "If they play a scale, show it (scale, with the boxes); chords, show the chords; sing, add sing; in time or over a drone, add band with only the parts they need.",
+    ...TOOL_DOCS,
     "",
-    "## Other attunr pages (open in their own page)",
+    "## attunr pages (\"link\", optional: opens a page for more)",
     pages,
     "",
     "## Answer format",
-    `Reply with ONE JSON code block and nothing else: exactly ${PLAN_DAYS} days, fields as in this example (\"why\", \"steps\" and \"link\" optional, \"minutes\" a number).`,
+    `Reply with ONE JSON code block and nothing else: exactly ${PLAN_DAYS} days, fields as in this example (\"why\", \"steps\", \"tools\" and \"link\" optional, \"minutes\" a number).`,
     "```json",
     EXAMPLE,
     "```",

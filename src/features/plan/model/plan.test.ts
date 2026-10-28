@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { catalogue, checkLink } from "./catalogue";
 import { parsePlanConfig } from "./config";
 import { buildPrompt, weekReport } from "./prompt";
-import { embedFor } from "./embed";
+import { parseTool, toolFromLink } from "./tools";
 import { DEFAULT_ANSWERS } from "./questions";
 import { dayIndex, dayProgress, localDate, weekOver } from "./schedule";
 import type { StoredPlan } from "./types";
@@ -25,19 +25,33 @@ describe("plan links", () => {
   });
 });
 
-describe("embedFor", () => {
-  it("embeds the small set of tools, with their settings", () => {
-    assert.deepEqual(embedFor("/theory/scales/minor-pentatonic/a"), { kind: "pentatonic", slug: "minor-pentatonic", pc: 9 });
-    assert.equal(embedFor("/theory/scales/dorian/d")?.kind, "scale");
-    assert.deepEqual(embedFor("/theory/notes?mode=find&strings=E,A#top"), { kind: "notes", query: "mode=find&strings=E,A" });
-    assert.deepEqual(embedFor("/theory/ears?level=2"), { kind: "ears", query: "level=2" });
-    assert.deepEqual(embedFor("/theory/metronome-drone"), { kind: "metronome" });
+describe("tools", () => {
+  it("parses each tool, set up for the exercise", () => {
+    assert.deepEqual(parseTool({ type: "scale", scale: "minor-pentatonic", key: "a", boxes: [2, 1, 9] }), { type: "scale", scale: "minor-pentatonic", key: 9, boxes: [1, 2] });
+    assert.deepEqual(parseTool({ type: "chords", chords: ["G", "Em", "nonsense!", 3] }), { type: "chords", chords: ["G", "Em"] });
+    assert.deepEqual(parseTool({ type: "sing", scale: "major-ionian", key: "c", voice: "alto" }), { type: "sing", scale: "major-ionian", key: 0, voice: "alto" });
+    assert.deepEqual(parseTool({ type: "band", bpm: 70, key: "e", parts: ["drone", "drone", "kazoo"] }), { type: "band", bpm: 70, key: 4, parts: ["drone"] });
+    assert.deepEqual(parseTool({ type: "notes", strings: "E,A", from: 0, to: 5 }), { type: "notes", query: "strings=E%2CA&from=0&to=5" });
   });
-  it("leaves everything else a plain link", () => {
-    assert.equal(embedFor("/theory/chords"), null);
-    assert.equal(embedFor("/theory/scales/nope/a"), null);
-    assert.equal(embedFor("/theory/scales/dorian/zz"), null);
-    assert.equal(embedFor(undefined), null);
+  it("refuses what it can't show", () => {
+    assert.equal(parseTool({ type: "scale", scale: "nope", key: "a" }), null);
+    assert.equal(parseTool({ type: "scale", scale: "dorian", key: "zz" }), null);
+    assert.equal(parseTool({ type: "chords", chords: [] }), null);
+    assert.equal(parseTool({ type: "kazoo" }), null);
+  });
+  it("reads an older plan's link as a tool", () => {
+    assert.deepEqual(toolFromLink("/theory/scales/minor-pentatonic/a"), { type: "scale", scale: "minor-pentatonic", key: 9 });
+    assert.deepEqual(toolFromLink("/theory/notes?mode=find#x"), { type: "notes", query: "mode=find" });
+    assert.equal(toolFromLink("/theory/metronome-drone")?.type, "band");
+    assert.equal(toolFromLink("/theory/chords"), null);
+  });
+  it("a pasted plan keeps the tools it can show, with a warning for the rest", () => {
+    const p = JSON.parse(week());
+    p.days[0].exercises[0].tools = [{ type: "chords", chords: ["G", "C"] }, { type: "scale", scale: "nope", key: "a" }];
+    const r = parsePlanConfig(JSON.stringify(p), entries);
+    assert.ok(r.ok);
+    assert.deepEqual(r.config.days[0].exercises[0].tools, [{ type: "chords", chords: ["G", "C"] }]);
+    assert.equal(r.warnings.length, 1);
   });
 });
 
@@ -107,7 +121,7 @@ describe("schedule", () => {
     assert.match(prompt, /Earlier weeks/);
     assert.match(prompt, /too easy/);
     assert.match(prompt, /\/theory\/notes/);
-    assert.match(prompt, /shown right on the plan page/);
+    assert.match(prompt, /"type": "band"/);
     assert.doesNotMatch(buildPrompt(DEFAULT_ANSWERS, entries), /Earlier weeks/);
   });
 });

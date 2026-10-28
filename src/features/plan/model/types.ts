@@ -1,3 +1,5 @@
+import type { PlanTool } from "./tools";
+
 /** What the player told the questionnaire. Feeds the prompt; never sent anywhere by the app itself. */
 export interface PlanAnswers {
   instruments: Instrument[];
@@ -29,6 +31,8 @@ export interface PlanExercise {
   steps?: string[];
   /** why: what it improves */
   why?: string;
+  /** what it shows on the plan page, set up for it (model/tools.ts) */
+  tools?: PlanTool[];
   link?: string;
 }
 

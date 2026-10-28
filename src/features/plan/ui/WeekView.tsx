@@ -3,16 +3,16 @@
 import Link from "next/link";
 import Icon from "@/components/Icon";
 import { Checkbox } from "@/components/ui";
-import ExerciseEmbed from "./ExerciseEmbed";
+import ExerciseTool from "./ExerciseTool";
 import ExerciseTimer from "./ExerciseTimer";
-import { embedFor } from "../model/embed";
+import { toolFromLink } from "../model/tools";
 import { dayProgress, doneKey } from "../model/schedule";
 import { PLAN_DAYS, type StoredPlan } from "../model/types";
 
 /**
  * The week: a strip of seven days (today and earlier open, later ones locked) and the chosen day's exercises as a list of
- * sections, each with its focus, how, steps, why, a countdown timer and a tick. An exercise whose link is an embeddable
- * tool (model/embed.ts) shows that tool inside its section; any other link is an "Open page" link.
+ * sections, each with its focus, how, steps, why, a countdown timer and a tick, then its tools (model/tools.ts), set up and
+ * ready to play. A link is an "Open page" link for more.
  */
 export default function WeekView({ plan, today, day, onDay, onToggle }: {
   plan: StoredPlan; today: number; day: number; onDay: (d: number) => void; onToggle: (day: number, ex: number) => void;
@@ -54,7 +54,9 @@ export default function WeekView({ plan, today, day, onDay, onToggle }: {
       <ol className="flex flex-col gap-4">
         {d.exercises.map((e, i) => {
           const done = !!plan.done[doneKey(day, i)];
-          const embed = embedFor(e.link);
+          // an older plan has no tools: its link stands for one
+          const linked = e.tools ? null : toolFromLink(e.link);
+          const tools = e.tools ?? (linked ? [linked] : []);
           return (
             <li key={`${day}:${i}`}>
               <section aria-label={e.title} className={`flex flex-col gap-3 rounded-2xl border p-3 transition sm:p-4 ${done ? "border-emerald-500/40 bg-emerald-500/5" : "border-slate-800 bg-slate-900/50"}`}>
@@ -78,7 +80,7 @@ export default function WeekView({ plan, today, day, onDay, onToggle }: {
                     <ExerciseTimer minutes={e.minutes} onFinish={() => !done && onToggle(day, i)} />
                     <div className="flex items-center justify-between gap-2">
                       <Checkbox checked={done} onChange={() => onToggle(day, i)}>Done</Checkbox>
-                      {!embed && e.link && (
+                      {!linked && e.link && (
                         <Link href={e.link} className="inline-flex items-center gap-1 rounded-lg border border-slate-700 px-2.5 py-1 text-xs text-sky-200 hover:border-sky-500/60 hover:bg-sky-500/10">
                           Open page <Icon name="chevron-right" size={12} />
                         </Link>
@@ -86,9 +88,9 @@ export default function WeekView({ plan, today, day, onDay, onToggle }: {
                     </div>
                   </div>
                 </div>
-                {embed && (
-                  <div className="border-t border-slate-800 pt-3">
-                    <ExerciseEmbed embed={embed} />
+                {tools.length > 0 && (
+                  <div className="flex flex-col gap-3 border-t border-slate-800 pt-3">
+                    {tools.map((t, ti) => <ExerciseTool key={ti} tool={t} />)}
                   </div>
                 )}
               </section>

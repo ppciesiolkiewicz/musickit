@@ -7,6 +7,7 @@
  *   jam/         Jam: drone, drums and bass on one clock for a page, the bass in the drone's key
  *   click/       ClickTrack, a page's metronome click (the looper keeps its own, tied to its transport)
  *   pocket/      PocketTools: a one-line metronome and drone for a page's settings bar
+ *   practice/    PracticeBand: a folded play-along band set up by its host (a practice-plan exercise)
  *   effects/     the effects (reverb, delay, the NAM amp slot…) of the looper and the jam's loop inputs, and their controls
  *
  * The controls take values and callbacks and own no audio, so each host decides how it starts and stops: the looper from its stage
@@ -20,4 +21,5 @@ export { default as StepGrid, PatternBar } from "./sequencer/StepGrid";
 export { default as PartLevel } from "./sequencer/PartLevel";
 export { default as Jam } from "./jam/Jam";
 export { default as PocketTools, type PocketStatus } from "./pocket/PocketTools";
+export { default as PracticeBand, type BandPart } from "./practice/PracticeBand";
 export { default as EffectControls } from "./effects/EffectControls";
