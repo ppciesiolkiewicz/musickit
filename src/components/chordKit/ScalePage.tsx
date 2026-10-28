@@ -11,6 +11,7 @@ import { MODE_PAGES, type NoteSwap, degreeColour, degreeLabels, relativesOf, ste
 import ChordBubbles from "./ChordBubbles";
 import ScaleChords from "./ScaleChords";
 import ScaleProgressions from "./ScaleProgressions";
+import ScaleSongs from "./ScaleSongs";
 import ScaleRelatives from "./ScaleRelatives";
 import ScaleOnGuitar from "./ScaleOnGuitar";
 import TuneButton from "./TuneButton";
@@ -144,6 +145,8 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
       <ScaleChords ctx={ctx} className={UNDER_BAR} />
 
       <ScaleProgressions ctx={ctx} className={UNDER_BAR} />
+
+      <ScaleSongs ctx={ctx} className={UNDER_BAR} />
 
       <section id="sus" className={`rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5 ${UNDER_BAR}`}>
         <h2 className="mb-1 text-sm font-medium text-slate-100">Sus and extension chords from each chord</h2>
