@@ -132,7 +132,7 @@ export default function QuickRecord() {
   return (
     <>
       <button type="button" onClick={() => setOpen((v) => !v)} aria-expanded={open} aria-controls="quick-record" title={recording ? "Recording: open the recorder" : "Quick record"}
-        className={`fixed right-0 top-1/2 z-2400 flex w-10 -translate-y-1/2 flex-col items-center gap-2 rounded-l-xl border border-r-0 py-4 pr-0.5 text-xs font-medium uppercase tracking-wider shadow-lg shadow-black/40 backdrop-blur transition-all hover:w-12 focus-visible:outline-2 focus-visible:outline-sky-400 ${open ? "pointer-events-none translate-x-full opacity-0" : ""} ${recording ? "border-rose-500/70 bg-rose-500/20 text-rose-100" : "border-slate-700 bg-slate-900/85 text-slate-300 hover:border-slate-500 hover:text-slate-100"}`}>
+        className={`fixed right-0 top-[62%] z-2400 flex w-10 -translate-y-1/2 flex-col items-center gap-2 rounded-l-xl border border-r-0 py-4 pr-0.5 text-xs font-medium uppercase tracking-wider shadow-lg shadow-black/40 backdrop-blur transition-all hover:w-12 focus-visible:outline-2 focus-visible:outline-sky-400 ${open ? "pointer-events-none translate-x-full opacity-0" : ""} ${recording ? "border-rose-500/70 bg-rose-500/20 text-rose-100" : "border-slate-700 bg-slate-900/85 text-slate-300 hover:border-slate-500 hover:text-slate-100"}`}>
         <span aria-hidden className={`h-3 w-3 rounded-full bg-rose-500 ${recording ? "animate-pulse" : ""}`} />
         <span className="[writing-mode:vertical-rl]">{recording ? clockTime(elapsed) : "Rec"}</span>
       </button>
