@@ -12,7 +12,7 @@ describe("arpeggio positions", () => {
   it("has one position per root string, each starting on the root and climbing", () => {
     for (let tonic = 0; tonic < 12; tonic++) {
       const ps = shapes(tonic, "seventh");
-      assert.deepEqual(ps.map((p) => p.rootString), [0, 1, 2, 3, 4]);
+      assert.deepEqual([...new Set(ps.map((p) => p.rootString))], [0, 1, 2, 3, 4]);
       for (const p of ps) {
         assert.equal(p.notes[0].arp?.role, "R");
         assert.equal(p.notes[0].string, p.rootString);
@@ -23,6 +23,13 @@ describe("arpeggio positions", () => {
         assert.ok(p.to - p.from <= 5, `span ${p.from}-${p.to}`);
       }
     }
+  });
+
+  it("gives an open-string root two positions: open and 12th fret", () => {
+    const e = shapes(4, "triad").filter((p) => p.rootString === 0);
+    assert.deepEqual(e.map((p) => p.rootFret), [0, 12]);
+    assert.ok(e[0].to <= 4);
+    assert.equal(shapes(9, "triad").filter((p) => p.rootString === 0).length, 1);
   });
 
   it("plays the classic A major triad shape with the root on the 6th string", () => {

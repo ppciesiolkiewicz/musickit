@@ -166,6 +166,8 @@ export function arpeggioMidi(arp: Arpeggio, octaves = 1): number[] {
 
 /** An arpeggio shape that starts on its root (Do) on one string and climbs across the higher strings. */
 export interface ArpPosition {
+  /** unique per position, e.g. "0@12" */
+  id: string;
   /** string the root sits on, 0 = low E */
   rootString: number;
   rootFret: number;
@@ -180,7 +182,8 @@ export const stringNumber = (s: number) => 6 - s;
 
 /**
  * One position per root string, from the 6th string to the 2nd. Each starts on the root at its lowest fret on that string
- * (moved up an octave when the shape would run off the nut) and climbs one chord tone at a time. Every note goes on the
+ * (moved up an octave when the shape would run off the nut). A root on the open string gets two: open and at the 12th fret.
+ * Each climbs one chord tone at a time. Every note goes on the
  * string, at or above the current one, whose fret lies closest to the root's, inside a hand span of two frets behind the
  * root to three past it.
  */
@@ -189,8 +192,9 @@ export function arpPositions(cells: NeckCell[]): ArpPosition[] {
   const out: ArpPosition[] = [];
   for (let rs = 0; rs < 5; rs++) {
     const roots = cells.filter((c) => c.string === rs && c.arp?.role === "R").map((c) => c.fret);
-    const rootFret = roots.find((f) => f >= 2) ?? roots[0];
-    if (rootFret === undefined) continue;
+    const first = roots.find((f) => f >= 2) ?? roots[0];
+    if (first === undefined) continue;
+    for (const rootFret of roots[0] === 0 ? [0, 12] : [first]) {
     const lo = Math.max(0, rootFret - 2), hi = Math.min(ARP_FRETS, rootFret + 3);
     const notes: NeckCell[] = [at(rs, rootFret)!];
     for (let s = rs; ; ) {
@@ -208,7 +212,8 @@ export function arpPositions(cells: NeckCell[]): ArpPosition[] {
       s = best.string;
     }
     const frets = notes.map((n) => n.fret);
-    out.push({ rootString: rs, rootFret, notes, from: Math.min(...frets), to: Math.max(...frets) });
+    out.push({ id: `${rs}@${rootFret}`, rootString: rs, rootFret, notes, from: Math.min(...frets), to: Math.max(...frets) });
+    }
   }
   return out;
 }

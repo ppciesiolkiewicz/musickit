@@ -30,7 +30,7 @@ const PHONE_GEO = fretGeometry(0, ARP_FRETS, 32, 32);
 const OUT = "#f43f5e";
 
 const ORD = ["", "1st", "2nd", "3rd", "4th", "5th", "6th"];
-const posName = (p: ArpPosition) => `Root on the ${ORD[stringNumber(p.rootString)]} string`;
+const posName = (p: ArpPosition) => `Root on the ${ORD[stringNumber(p.rootString)]} string${p.rootFret === 0 ? ", open" : p.rootFret === 12 ? ", 12th fret" : ""}`;
 const key = (c: NeckCell) => `${c.string}-${c.fret}`;
 
 /** The idea behind the positions: every shape starts on Do, the root, on one string, and climbs the strings above it. */
@@ -170,13 +170,13 @@ export default function ArpeggiosExplorer({ initialTonic = DEFAULT_KEY_PC, initi
   const [labelSystem] = useLabelSystem();
   const [badges, setBadges] = useState(true);
   const [octaves, setOctaves] = useState(1);
-  const [focus, setFocus] = useState<number | null>(null);
+  const [focus, setFocus] = useState<string | null>(null);
 
   const ctx = useMemo(() => makeKeyContext(tonicPc, fam, mode), [tonicPc, fam, mode]);
   const arp = useMemo(() => buildArpeggio(ctx, degree, kind), [ctx, degree, kind]);
   const cells = useMemo(() => neckCells(ctx, arp), [ctx, arp]);
   const positions = useMemo(() => arpPositions(cells), [cells]);
-  const focused = positions.find((p) => p.rootString === focus) ?? null;
+  const focused = positions.find((p) => p.id === focus) ?? null;
   const page = MODE_PAGES.find((m) => m.familyIndex === fam && m.modeIndex === mode);
   const outside = arp.notes.filter((n) => n.outside);
 
@@ -267,7 +267,7 @@ export default function ArpeggiosExplorer({ initialTonic = DEFAULT_KEY_PC, initi
           )}
         </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-          {positions.map((p) => <ArpBox key={p.rootString} cells={cells} pos={p} overlay={overlay} labelSystem={labelSystem} badges={badges} onNote={playNote} onPlay={() => playPosition(p)} on={focus === p.rootString} onPick={() => setFocus(focus === p.rootString ? null : p.rootString)} />)}
+          {positions.map((p) => <ArpBox key={p.id} cells={cells} pos={p} overlay={overlay} labelSystem={labelSystem} badges={badges} onNote={playNote} onPlay={() => playPosition(p)} on={focus === p.id} onPick={() => setFocus(focus === p.id ? null : p.id)} />)}
         </div>
       </section>
     </div>
