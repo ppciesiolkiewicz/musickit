@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function PlanPage() {
   return (
-    <PageShell active="/plan" title="AI practice plan" intro="A continuous daily plan for your practice, written by your own AI. A new set of exercises opens each day, and each week builds on the last.">
+    <PageShell active="/plan" devices title="AI practice plan" intro="A continuous daily plan for your practice, written by your own AI. A new set of exercises opens each day, and each week builds on the last.">
       <PlanApp />
     </PageShell>
   );
