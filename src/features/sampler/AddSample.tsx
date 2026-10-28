@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import posthog from "posthog-js";
 import Icon from "@/components/Icon";
 import { fetchCapabilities, generateSample } from "./client";
 import { sampleLibrary } from "./library";
@@ -49,6 +50,7 @@ export default function AddSample({ onAdded, children }: { onAdded: (meta: Sampl
     for (const f of Array.from(files)) {
       try {
         onAdded(await sampleLibrary.addFile(f));
+        posthog.capture("sample_uploaded", { mime_type: f.type || "unknown" });
       } catch (e) {
         setMessage(e instanceof Error ? e.message : "Could not add the file.");
       }
@@ -62,6 +64,7 @@ export default function AddSample({ onAdded, children }: { onAdded: (meta: Sampl
     try {
       const blob = await generateSample({ provider: provider.id, prompt, seconds, sitePassword: settings.sitePassword, ownKey });
       onAdded(await sampleLibrary.addAudio(blob, prompt.slice(0, 40), "elevenlabs", prompt));
+      posthog.capture("sample_generated", { provider: provider.id, duration_seconds: seconds });
     } catch (e) {
       setMessage(e instanceof Error ? e.message : "Failed.");
     } finally {

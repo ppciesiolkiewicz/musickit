@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import posthog from "posthog-js";
 import Icon from "@/components/Icon";
 import type { Interest } from "@/features/earlyAccess/signup";
 
@@ -31,7 +32,12 @@ export default function EarlyAccessForm({ source, compact = false, initial = ["b
     try {
       const res = await fetch("/api/early-access", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email, interests, source, website }) });
       const body = await res.json().catch(() => ({}));
-      setState(res.ok ? { kind: "done" } : { kind: "error", message: body.error ?? "Something went wrong. Please try again." });
+      if (res.ok) {
+        posthog.capture("early_access_requested", { source, interests });
+        setState({ kind: "done" });
+      } else {
+        setState({ kind: "error", message: body.error ?? "Something went wrong. Please try again." });
+      }
     } catch {
       setState({ kind: "error", message: "Couldn't reach the server. Check your connection and try again." });
     }

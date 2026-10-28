@@ -11,6 +11,10 @@
     "test": "npx tsx --test src/lib/chordKit/*.test.ts src/lib/looper/*.test.ts src/features/instruments/*/*.test.ts src/lib/improv/*.test.ts src/features/sound/engine/*.test.ts src/features/tuner/*.test.ts src/features/rhythm/*.test.ts src/features/theory/*.test.ts src/features/course/*.test.ts src/features/theory/piano/*.test.ts src/lib/practice/*.test.ts src/features/widgets/*.test.ts src/features/creator/model/*.test.ts src/features/sampler/*.test.ts src/features/sampler/model/*.test.ts src/features/sampler/server/*.test.ts src/features/nam/*.test.ts src/features/nam/server/*.test.ts src/features/earlyAccess/*.test.ts src/features/styles/*.test.ts src/features/stage/model/*.test.ts src/features/teachers/video/model/*.test.ts"
   },
   "dependencies": {
+    "@opentelemetry/api-logs": "^0.223.0",
+    "@opentelemetry/exporter-logs-otlp-http": "^0.300.0",
+    "@opentelemetry/resources": "^3.0.0",
+    "@opentelemetry/sdk-logs": "^3.0.0",
     "@radix-ui/react-select": "^2.4.1",
     "@radix-ui/react-slider": "^1.5.0",
     "@tensorflow/tfjs": "^4.22.0",
@@ -18,6 +22,7 @@
     "@vercel/analytics": "^2.0.1",
     "@vercel/blob": "^2.8.1",
     "next": "^16.4.0",
+    "posthog-js": "^1.440.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0"
   },

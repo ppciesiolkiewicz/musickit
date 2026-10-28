@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import posthog from "posthog-js";
 import { LooperEngine, EFFECT_DEFS, EFFECT_KINDS, type LooperSnapshot } from "@/lib/looper/engine";
 import { wireNam } from "../namWiring";
 import LooperSettings from "./LooperSettings";
@@ -87,10 +88,14 @@ function newProject() {
  */
 function StartupLoader({ engine, snap }: { engine: LooperEngine; snap: LooperSnapshot }) {
   const out = chooseDevice(snap.outputs, null);
+  const start = () => {
+    posthog.capture("looper_started");
+    void engine.enable();
+  };
   if (snap.status === "idle") {
     return (
       <div className="fixed inset-0 z-[1500] grid place-items-center bg-slate-950 p-4">
-        <button type="button" className="flex items-center gap-3 rounded-2xl border border-sky-500 bg-sky-500/10 px-6 py-4 text-base text-sky-100 shadow-2xl hover:bg-sky-500/20" onClick={() => void engine.enable()}>
+        <button type="button" className="flex items-center gap-3 rounded-2xl border border-sky-500 bg-sky-500/10 px-6 py-4 text-base text-sky-100 shadow-2xl hover:bg-sky-500/20" onClick={start}>
           <Icon name="play" fill />
           Start the looper
         </button>
@@ -114,7 +119,7 @@ function StartupLoader({ engine, snap }: { engine: LooperEngine; snap: LooperSna
         <div className="flex w-full max-w-sm flex-col gap-3 rounded-2xl border border-slate-700 bg-slate-950 p-4 shadow-2xl">
           <div className="flex items-center gap-3"><Icon name="x" className="text-rose-300" /><h2 className="text-sm font-medium text-slate-100">Could not start</h2></div>
           <p className="text-xs text-rose-200" role="alert">{snap.error}</p>
-          <button type="button" className="self-start rounded-lg border border-slate-700 px-3 py-1.5 text-xs text-slate-200 hover:border-slate-500" onClick={() => void engine.enable()}>Try again</button>
+          <button type="button" className="self-start rounded-lg border border-slate-700 px-3 py-1.5 text-xs text-slate-200 hover:border-slate-500" onClick={start}>Try again</button>
         </div>
       </div>
     );

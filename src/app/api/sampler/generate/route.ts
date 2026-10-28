@@ -1,3 +1,6 @@
+import { SeverityNumber } from "@opentelemetry/api-logs";
+import { after } from "next/server";
+import { flushPostHogLogs, posthogLogsLogger } from "../../../../../instrumentation";
 import { generateSoundEffect } from "@/features/sampler/server/elevenlabs";
 import { chooseKey, createLimiter, parseGenerate, sitePassword } from "@/features/sampler/server/guard";
 import { PROVIDERS, type Capabilities } from "@/features/sampler/server/providers";
@@ -39,5 +42,15 @@ export async function POST(req: Request) {
 
   const result = await generateSoundEffect({ apiKey: key.key, prompt: parsed.prompt, seconds: parsed.seconds });
   if (!result.ok) return Response.json({ error: result.error }, { status: result.status });
+  posthogLogsLogger?.emit({
+    body: "Sound sample generated",
+    severityNumber: SeverityNumber.INFO,
+    attributes: {
+      action: "sound_sample_generated",
+      provider_id: parsed.provider.id,
+      duration_seconds: parsed.seconds,
+    },
+  });
+  after(flushPostHogLogs);
   return new Response(result.audio, { headers: { "content-type": result.mime, "cache-control": "no-store" } });
 }

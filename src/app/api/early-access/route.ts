@@ -1,4 +1,7 @@
+import { SeverityNumber } from "@opentelemetry/api-logs";
 import { put } from "@vercel/blob";
+import { after } from "next/server";
+import { flushPostHogLogs, posthogLogsLogger } from "../../../../instrumentation";
 import { blobToken } from "@/features/nam/server/cloud";
 import { parseSignup, signupPath } from "@/features/earlyAccess/signup";
 
@@ -22,6 +25,12 @@ export async function POST(req: Request) {
   if (!token) return json({ error: "Sign-ups aren't open on this site yet." }, 503);
   try {
     await put(signupPath(r.signup, Math.random().toString(36).slice(2, 8)), JSON.stringify(r.signup), { access: "private", addRandomSuffix: false, contentType: "application/json", token });
+    posthogLogsLogger?.emit({
+      body: "Early-access signup stored",
+      severityNumber: SeverityNumber.INFO,
+      attributes: { action: "early_access_signup_stored" },
+    });
+    after(flushPostHogLogs);
     return json({ ok: true });
   } catch {
     return json({ error: "Something went wrong. Please try again." }, 502);

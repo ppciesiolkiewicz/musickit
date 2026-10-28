@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
+import posthog from "posthog-js";
 import Icon from "@/components/Icon";
 import { getAudioContext, readDeviceChoice } from "@/features/sound";
 import { clockTime, peakLevel, pickMimeType, takeFileName } from "./recorder";
@@ -81,6 +82,7 @@ export default function QuickRecord() {
       const kind = recorder.mimeType || type;
       const n = ++count.current;
       setTakes((t) => [{ n, url: URL.createObjectURL(new Blob(chunks, { type: kind })), file: takeFileName(n, new Date(), kind), seconds }, ...t]);
+      posthog.capture("quick_recording_completed", { duration_seconds: Math.round(seconds * 10) / 10 });
     };
     session.current = {
       end: () => {
