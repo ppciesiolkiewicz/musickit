@@ -50,3 +50,7 @@ next-env.d.ts
 # brainstorm mockups
 .superpowers/
 .env
+
+# Claude Code: per-machine worktrees and personal settings
+.claude/worktrees/
+.claude/settings.local.json
