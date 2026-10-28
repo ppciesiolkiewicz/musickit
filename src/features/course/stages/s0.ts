@@ -1,4 +1,4 @@
-import { naturalDots } from "../../theory/course/visuals";
+import { naturalDots } from "../visuals";
 import { DEGREE_COLOURS } from "../../theory/scales";
 import { section, type CourseStage } from "../model";
 import { G, MAJOR_SEMIS, PATH, chords, links, melody, neck, path, pianoKeys, songs, strum, task, text, toneDots, tune, visual } from "../build";
@@ -67,8 +67,15 @@ export const STAGES_0: CourseStage[] = [
         chords("G, C and D. Tap to hear.", ["C", "D", "G"]),
         task("Play G C D G, four strums each. Then Em C G D, the chords of a lot of pop songs."),
       ]),
-      // Planned: the open E, A and Dm chords; changes D↔A, A↔E, Dm↔Am; Bad Moon Rising (D A G).
-      section("e-a-dm", "E, A & Dm", "open-chords"),
+      section("e-a-dm", "E, A & Dm", "open-chords", [
+        text(
+          "Three more open chords and you have all eight that most songs need. E is Am's shape moved up a string; A is three fingers in a row on the 2nd fret; Dm is D's little cousin, a darker sound on the top four strings.",
+          "Open chords ring out with open strings and need no barre, which is why they turn up in almost every pop, rock and folk song.",
+        ),
+        chords("E, A and Dm. Tap to hear.", ["E", "A", "Dm"]),
+        task("One minute each: D ↔ A, A ↔ E, Dm ↔ Am. Then D A G D, four strums each."),
+        songs({ title: "Bad Moon Rising", artist: "Creedence Clearwater Revival", chords: ["D", "A", "G"], progression: "D A G D" }),
+      ]),
       section("one-minute-changes", "One-minute changes", "open-chords", [
         text("Changing chords cleanly matters more than knowing many. The best drill for it takes one minute: pick two chords, set a timer, and count how many clean switches you make. Write the number down and beat it tomorrow."),
         task("One minute each: Em ↔ Am, Am ↔ C, C ↔ G, G ↔ D, D ↔ Em. Thirty clean changes a minute means the pair is ready for songs."),
@@ -149,8 +156,14 @@ export const STAGES_0: CourseStage[] = [
         task("Play G, then C, then D, then G on the guitar (low E 3rd fret, A 3rd fret, open D, open G). Sing Do Fa Sol Do with them."),
         links([], [{ href: "/theory/ears?set=5,7,12", label: "Ear: 4th, 5th and octave", note: "name the interval you hear" }]),
       ]),
-      // Planned: hear major vs minor by the 3rd (bright vs dark); link /theory/ears?kind=chord.
-      section("major-or-minor", "Major or minor?", "three-views"),
+      section("major-or-minor", "Major or minor?", "three-views", [
+        text(
+          "Major sounds bright and settled, minor sounds dark or sad. The difference is one note: the 3rd. G major has B; G minor lowers it to B♭. That's all it takes to change the mood.",
+          "Play G then Em, C then Am, D then Dm, and listen for the change. Then try it with your eyes closed while someone else plays.",
+        ),
+        task("Play E then Em, A then Am, D then Dm. Say \"bright\" or \"dark\" before each chord rings out, then check."),
+        links([], [{ href: "/theory/ears?kind=chord", label: "Major or minor?", note: "listen for the 3rd: bright is major, dark is minor; the 7th chords can wait" }]),
+      ]),
     ],
   },
   {

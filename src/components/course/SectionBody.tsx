@@ -1,10 +1,10 @@
 import Link from "next/link";
 import Icon from "@/components/Icon";
 import Tab from "@/components/theory/Tab";
-import TrackVisual from "@/components/theory/TrackVisual";
+import LessonVisual from "./LessonVisual";
 import { DISPLAY } from "@/components/landing/Display";
 import { TONE, sectionFor } from "@/features/theory/sections";
-import type { CourseLink } from "@/features/theory/course/stages";
+import type { CourseLink } from "@/features/course/model";
 import { STRUMS } from "@/features/course/strum";
 import type { Block, CourseSection } from "@/features/course/model";
 import StrumGrid from "./StrumGrid";
@@ -41,7 +41,7 @@ function BlockView({ block }: { block: Block }) {
     case "text":
       return <div className="flex max-w-3xl flex-col gap-3 leading-relaxed text-slate-300">{block.paras.map((p, i) => <p key={i}>{p}</p>)}</div>;
     case "visual":
-      return <div className="rounded-3xl border border-slate-700/70 bg-slate-900/50 p-3 shadow-2xl shadow-black/20 sm:p-4"><TrackVisual visual={block.visual} /></div>;
+      return <div className="rounded-3xl border border-slate-700/70 bg-slate-900/50 p-3 shadow-2xl shadow-black/20 sm:p-4"><LessonVisual visual={block.visual} /></div>;
     case "strum": {
       const p = STRUMS[block.pattern];
       return (

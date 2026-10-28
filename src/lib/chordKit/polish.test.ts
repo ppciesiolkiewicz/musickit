@@ -7,7 +7,6 @@ import { OPEN_SHAPES } from "./openShapes";
 import { makeKeyContext } from "@/features/theory/theory";
 import { activeAnswers, parseEarSettings } from "@/lib/practice/earGame";
 import { answerChoices } from "@/lib/practice/noteGame";
-import { STAGE_CONTENT } from "@/features/theory/course/stages";
 
 const p = (q: string) => { const r = parseChordQuery(q); return r && [r.rootPc, [...r.semis].sort((a, b) => a - b)]; };
 
@@ -42,10 +41,5 @@ describe("polish", () => {
     assert.deepEqual(answerChoices(true, 4), [0, 2, 4, 5, 7, 9, 11]);
     assert.ok(answerChoices(true, 10).includes(10));
     assert.equal(answerChoices(false, 1).length, 12);
-  });
-  it("stage songs fit the spec: 3 to 5 per stage, chords taught by then", () => {
-    STAGE_CONTENT.forEach((s) => { const n = s.tracks.flatMap((t) => t.songs ?? []).length; assert.ok(n >= 3 && n <= 5, `stage ${s.n}: ${n}`); });
-    const st2 = STAGE_CONTENT[1].tracks.flatMap((t) => t.songs ?? []).flatMap((s) => s.chords);
-    assert.ok(!st2.includes("A7sus4"));
   });
 });

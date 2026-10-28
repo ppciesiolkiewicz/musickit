@@ -12,6 +12,8 @@ const nextConfig: NextConfig = {
       ]),
       // the drone page became the metronome & drone page
       { source: "/theory/drone", destination: "/theory/metronome-drone", permanent: true },
+      // the four-stage outline was folded into the course
+      { source: "/theory/stage/:n", destination: "/course", permanent: true },
     ];
   },
 };

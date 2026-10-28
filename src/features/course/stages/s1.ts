@@ -1,5 +1,5 @@
 import { degreeColour } from "../../theory/scales";
-import type { Dot } from "../../theory/course/visuals";
+import type { Dot } from "../visuals";
 import { section, type CourseStage } from "../model";
 import { A, C, D, E, G, MINOR_SEMIS, PATH, chords, links, neck, path, task, text, toneDot, toneDots, visual } from "../build";
 
@@ -53,8 +53,15 @@ export const STAGE_1: CourseStage = {
       }),
       task("Play E5 A5 D5 E5 with all downstrums, muting the other strings with the side of your hand. Then G5 C5 D5 G5."),
     ]),
-    // Planned: the 5th as a moving shape: E5, A5 and up the neck; Smoke on the Water riff.
-    section("power-chords", "Power chords", "fifths"),
+    section("power-chords", "Power chords", "fifths", [
+        text(
+          "A power chord is just the root and its 5th, often with the octave on top: no 3rd, so it's neither major nor minor. That makes it the sound of rock, and it works under any melody.",
+          "The shape never changes. Root on the low E or A string, 5th two frets up on the next string, octave beside it. Slide it to any fret and it names the chord by its root: E5 open, G5 at the 3rd fret, A5 at the 5th.",
+        ),
+        chords("One shape, three chords: G5, A5 and C5. Tap to hear.", [{ name: "G5", prefer: "power" }, { name: "A5", prefer: "power" }, { name: "C5", prefer: "power" }]),
+        task("Play E5 G5 A5, then G5 B♭5 C5 with the same shape: the riff of Smoke on the Water (Deep Purple). Mute the other strings with the side of your hand."),
+        links([{ href: "/theory/chords?q=power", label: "Power chords", note: "every power chord shape" }]),
+      ]),
     section("arpeggios", "Arpeggios", "arpeggios", [
       text(
         "An arpeggio is a chord played one note at a time. In position 1 the arpeggio of Em is just Em's own notes, low to high: E G B, E G B, E. Follow the arrows, say the names, then let the notes ring together.",
@@ -104,8 +111,14 @@ export const STAGE_1: CourseStage = {
       task("Play the scale up and down slowly, two notes per string. Then pick any three notes in a row and loop them as a little riff."),
       links([{ href: "/theory/scales", label: "Scales explorer", note: "E minor, its pentatonic and every mode" }]),
     ]),
-    // Planned: the same five notes as E minor pentatonic, centred on G; soloing over G C D.
-    section("major-pentatonic", "G major pentatonic", "soloing"),
+    section("major-pentatonic", "G major pentatonic", "soloing", [
+        text(
+          "Here's a trick: E minor pentatonic and G major pentatonic are the same five notes, E G A B D. What changes is the note you treat as home. Over Em it sounds minor; over G C D, land on G and it sounds major and sunny.",
+          "So you already know the shape. Play it over a G chord and aim for G, B and D, the notes of the chord, at the end of each phrase.",
+        ),
+        neck("G major pentatonic in position 1: the same notes as E minor pentatonic, now read from G.", 0, 3, toneDots(G, [0, 2, 4, 7, 9], 0, 3)),
+        task("Loop G C D G and improvise with these notes. End every phrase on a G."),
+      ]),
     section("soloing", "Soloing over Em ↔ Am", "soloing", [
       text(
         "Now use it. Over an Em ↔ Am backing, the whole pentatonic works, but the notes that sound most settled are the chord's own: land on E (or G, B) while Em is playing, and on A (or C, E) when it changes to Am.",
@@ -117,8 +130,15 @@ export const STAGE_1: CourseStage = {
       task("Record yourself strumming Em for 2 bars, Am for 2 bars, for a minute. Play it back and solo over it with only the pentatonic, landing on E and A as the chords change."),
       links([{ href: "/theory/improv", label: "Improv: play over a groove", note: "a backing track to solo over" }]),
     ]),
-    // Planned: half-step and whole-step bends, slides into notes, in the position 1 pentatonic.
-    section("bends-and-slides", "Bends & slides", "soloing"),
+    section("bends-and-slides", "Bends & slides", "soloing", [
+        text(
+          "A bend pushes the string across the fret to raise the note: a half step sounds like the next fret, a whole step like two frets up. Use three fingers on the string, and push from the wrist, not the fingertip.",
+          "A slide takes you into a note from a fret or two below without picking again. Both make single notes sing, and both work best on notes of the chord.",
+        ),
+        task("In the E minor pentatonic, bend the D on the B string (3rd fret) up a whole step to E. Check it against the open high e: they should match."),
+        task("Slide from the 2nd to the 4th fret on the G string, then improvise over Em with one slide or bend in every phrase."),
+        links([{ href: "/theory/improv", label: "Improv: play over a groove" }]),
+      ]),
     section("move-it", "Move it: G minor", "caged", [
       text(
         "Everything in position 1 is a shape, and shapes move. Slide the whole E minor scale shape up three frets and every note goes up three semitones: E becomes G, and the scale is now G minor.",

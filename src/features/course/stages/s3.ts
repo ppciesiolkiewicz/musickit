@@ -1,6 +1,6 @@
-import type { Dot } from "../../theory/course/visuals";
+import type { Dot } from "../visuals";
 import { section, type CourseStage } from "../model";
-import { C, D, E, G, PATH, chords, neck, path, task, text, toneDot } from "../build";
+import { C, D, E, G, PATH, chords, links, neck, path, songs, task, text, toneDot, toneDots } from "../build";
 
 /** A chord from its fret list, low E to high e (null = not played), as dots named from its root. */
 const shape = (root: number, frets: (number | null)[]): Dot[] => frets.flatMap((f, s) => (f === null ? [] : [toneDot(s, f, root)]));
@@ -28,10 +28,26 @@ export const STAGE_3: CourseStage = {
       chords("The 7th chords of the key in position 1, plus B7.", ["Gmaj7", "Cmaj7", "D7", "Em7", "Am7", "B7"]),
       task("Play Gmaj7 Cmaj7 Gmaj7 Cmaj7, then Em7 Am7 D7 Gmaj7. Compare with the plain chords: same changes, new colour."),
     ]),
-    // Planned: E7 A7 B7 (Hound Dog) and A7 D7 E7 (Johnny B. Goode); C7 and G7 shapes.
-    section("twelve-bar", "The 12-bar blues", "colour"),
-    // Planned: E minor pentatonic over the 12-bar in E, then A minor pentatonic over A.
-    section("blues-solo", "Soloing over a 12-bar", "soloing"),
+    section("twelve-bar", "The 12-bar blues", "colour", [
+        text(
+          "Twelve bars, three chords, and the shape of a thousand songs. In E: four bars of E7, two of A7, two of E7, then B7 A7 E7 and a turnaround. Every chord is a 7th, which is what gives the blues its pull.",
+          "Count the bars out loud the first few times. After that, your ear will tell you when to change.",
+        ),
+        chords("The blues 7ths in position 1. Tap to hear.", ["E7", "A7", "B7", "D7"]),
+        songs(
+          { title: "Hound Dog", artist: "Elvis Presley (12-bar blues in E)", chords: ["E7", "A7", "B7"], progression: "E7 ×4 · A7 ×2 E7 ×2 · B7 A7 E7 ×2" },
+          { title: "12-bar blues in A", artist: "the blues form (Johnny B. Goode and many more)", chords: ["A7", "D7", "E7"], progression: "A7 ×4 · D7 ×2 A7 ×2 · E7 D7 A7 E7" },
+        ),
+      ]),
+    section("blues-solo", "Soloing over a 12-bar", "soloing", [
+        text(
+          "The E minor pentatonic you already know is the blues scale's backbone. Over a 12-bar in E it never sounds wrong, and it sounds best when your phrases end on E, or on the root of the chord under you.",
+          "Short phrases and space between them beat a stream of notes. Play two bars, rest two bars.",
+        ),
+        neck("E minor pentatonic in position 1, over a 12-bar in E.", 0, 3, toneDots(E, [0, 3, 5, 7, 10], 0, 3)),
+        task("Loop the 12-bar in E. Play only on the E7 bars, and rest on A7 and B7. Then fill everything."),
+        links([{ href: "/theory/improv", label: "Improv: play over a groove" }]),
+      ]),
     section("sus-add9", "sus & add9", "colour", [
       text(
         "A sus chord swaps the 3rd for its neighbour: the 2nd (sus2) or the 4th (sus4). Without the 3rd it's neither major nor minor, just open and waiting, and it usually goes back to the plain chord. An add9 keeps the 3rd and adds the 2nd an octave up: Cadd9 is the shimmering C of countless acoustic songs.",
@@ -40,10 +56,22 @@ export const STAGE_3: CourseStage = {
       chords("sus and add9 chords in position 1.", ["Dsus2", "Dsus4", "Asus2", "Cadd9", "Esus4"]),
       task("Play D Dsus4 D Dsus2 D with the island strum, moving only one finger. Then G Cadd9 G Cadd9."),
     ]),
-    // Planned: Good Riddance (Cadd9), Free Fallin' (Dsus4); one-minute changes C↔Fmaj7, Em↔B7, G↔Cadd9.
-    section("colour-songs", "Songs with colour chords", "colour"),
-    // Planned: chord quality by ear with maj7, 7 and m7.
-    section("hearing-sevenths", "Hearing 7th chords", "three-views"),
+    section("colour-songs", "Songs with colour chords", "colour", [
+        text("Songs where the colour chords carry the sound. Each needs only one finger moved from a chord you know."),
+        songs(
+          { title: "Good Riddance (Time of Your Life)", artist: "Green Day", chords: ["G", "Cadd9", "D", "Em", "C"], progression: "G Cadd9 D · Em D C G" },
+          { title: "Free Fallin'", artist: "Tom Petty", chords: ["D", "Dsus4", "A"], progression: "D Dsus4 D A" },
+        ),
+        task("One minute each: C ↔ Fmaj7, Em ↔ B7, G ↔ Cadd9."),
+      ]),
+    section("hearing-sevenths", "Hearing 7th chords", "three-views", [
+        text(
+          "A maj7 sounds dreamy, a 7 sounds bluesy and wants to move, an m7 sounds soft and minor. The difference is the 7th on top: a half step below the root, or a whole step.",
+          "Play Cmaj7 then C7, and Am7 then Am, and listen for the top note.",
+        ),
+        task("Play Gmaj7, G7 and Em7 in a random order with your eyes closed, then name each by its sound."),
+        links([], [{ href: "/theory/ears?kind=chord", label: "Chord quality with 7ths" }]),
+      ]),
     section("colour-paths", "The same paths with colour", "paths", [
       text(
         "The 1 → 4 → 5 → 1 path from stage 1 hasn't changed: the roots still go G → C → D → G. Only the colour on top is new. Play Gmaj7 → Cmaj7 → D7 → G and the 7ths make a little tune of their own on the top strings.",

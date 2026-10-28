@@ -1,6 +1,6 @@
 import { section, type CourseStage } from "../model";
-import type { Dot } from "../../theory/course/visuals";
-import { C, D, G, MAJOR_SEMIS, PATH, links, neck, path, task, text, toneDot, toneDots } from "../build";
+import { naturalDots, type Dot } from "../visuals";
+import { C, D, E, G, MAJOR_SEMIS, PATH, links, melody, neck, path, task, text, toneDot, toneDots, tune } from "../build";
 
 const MAJOR_TRIAD = [0, 4, 7];
 const at = (root: number, pts: [number, number][]): Dot[] => pts.map(([s, f]) => toneDot(s, f, root));
@@ -20,8 +20,15 @@ export const STAGE_4: CourseStage = {
       task("Play G major up and down in each box, starting and ending on a root. Then find the G chord inside each box."),
       links([{ href: "/theory/caged", label: "CAGED explorer", note: "the five shapes of any chord, joined across the neck" }]),
     ]),
-    // Planned: E minor / G major pentatonic in all five CAGED boxes, linked with slides.
-    section("pentatonic-boxes", "The pentatonic in five boxes", "caged"),
+    section("pentatonic-boxes", "The pentatonic in five boxes", "caged", [
+        text(
+          "The five pentatonic boxes tile the neck, one inside each CAGED shape. Box 1 is the one you know at the nut; the others take over as you climb, each sharing its top notes with the next one's bottom.",
+          "Join them with slides along one string and you can solo from the nut to the 15th fret without stopping.",
+        ),
+        neck("E minor / G major pentatonic over the whole neck. Position 1 is shaded; the other four boxes join on either side.", 0, 15, toneDots(E, [0, 3, 5, 7, 10], 0, 15), { window: { from: 0, to: 3 } }),
+        task("Play box 1, slide up on the G string into box 2, and come back down. Then the same from box 2 to box 3."),
+        links([{ href: "/theory/scales/natural-minor-aeolian", label: "Pentatonic boxes on the scale page" }]),
+      ]),
     section("one-arpeggio", "One arpeggio through all five shapes", "arpeggios", [
       text(
         "Here's the G arpeggio, G B D, across the whole neck, with one path per CAGED shape. Each shape is the arpeggio you'd play from that position, and neighbouring shapes share notes, which is how they lock together.",
@@ -60,9 +67,18 @@ export const STAGE_4: CourseStage = {
       task("Strum the G triad on each string set in turn. Then play G C D G on the top three strings, watching which fingers stay."),
       links([{ href: "/theory/triads", label: "Triads explorer", note: "every triad on every string set" }]),
     ]),
-    // Planned: natural notes on every string; find every C, every F♯ across the neck.
-    section("every-note", "Find every note", "basics"),
-    // Planned: the tune in tab up the neck, read through the CAGED boxes.
-    section("greensleeves", "Greensleeves", "melody"),
+    section("every-note", "Find every note", "basics", [
+        text(
+          "By now you know the notes on the E and A strings. The rest follow from two landmarks: octave shapes (two strings up, two frets up) and the 12th fret, where the names start again.",
+          "Pick one note and find it everywhere: every C, then every F♯. It's the quickest way to stop counting frets.",
+        ),
+        neck("Every natural note on every string, up to the 12th fret.", 0, 12, naturalDots([0, 1, 2, 3, 4, 5], 12)),
+        task("One note a day: find all its places in under a minute, low to high."),
+        links([], [{ href: "/theory/notes?mode=every&naturals=0&strings=E,A,D,G,B,e", label: "Find every C, every F♯ …" }]),
+      ]),
+    section("greensleeves", "Greensleeves", "melody", [
+        text("A 16th-century tune that lives up the neck. Read it through the box at the 8th fret: the tab stays in one place, and each note sits under a finger."),
+        melody({ title: "Greensleeves", origin: "traditional English (16th century)", position: 8, notes: tune("A4 C5:2 D5 E5:1.5 F5:0.5 E5 D5:2 B4 G4:1.5 A4:0.5 B4 C5:2 A4 A4:1.5 G#4:0.5 A4 B4:2 G#4 E4:2") }),
+      ]),
   ],
 };

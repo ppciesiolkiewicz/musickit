@@ -3,16 +3,14 @@ import Icon from "@/components/Icon";
 import { SectionBlock } from "@/components/TheoryMenu";
 import { DISPLAY, Eyebrow, H2 } from "@/components/landing/Display";
 import ScaleWheel from "./ScaleWheel";
-import { stageColour } from "./StageArticle";
-import { GROUP_LABEL, THEORY_SECTIONS, TONE, type SectionGroup } from "@/features/theory/sections";
+import { GROUP_LABEL, THEORY_SECTIONS, type SectionGroup } from "@/features/theory/sections";
 import { degreeLabels } from "@/features/theory/scales";
 import { MAJOR } from "@/features/theory/theory";
-import { STAGES, TRACKS, stageHref } from "@/features/theory/course/outline";
-import { STAGE_CONTENT } from "@/features/theory/course/stages";
+import { COURSE, sectionHref, stageColour } from "@/features/course/course";
 
 const MORE: SectionGroup[] = ["learn", "explore", "practice", "tools"];
 
-/** The /theory landing page: a hero, the four stages as a path down the page, then every explorer and practice tool. */
+/** The /theory landing page: a hero, the course stages as a path down the page, then every explorer and practice tool. */
 export default function TheoryHub() {
   return (
     <div className="flex flex-col">
@@ -23,29 +21,31 @@ export default function TheoryHub() {
             Learn guitar on your own, <span className="italic text-sky-300">one stage at a time.</span>
           </h1>
           <p className="mt-5 max-w-xl text-base leading-relaxed text-slate-300 sm:text-lg">
-            Four stages, from your first open chords to the whole neck. Each one teaches chords, lead playing and your ear together, with every chord, scale and exercise ready to play right here.
+            From your first open chords to the whole neck, one position at a time: chords, triads, arpeggios and scales together, with every shape and exercise ready to play right here.
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
             <Link href="/course" className="inline-flex items-center gap-2 rounded-xl bg-sky-400 px-5 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-sky-500/20 transition hover:bg-sky-300">
               Start the course <Icon name="chevron-right" size={16} />
             </Link>
             <a href="#stages" className="inline-flex items-center gap-2 rounded-xl border border-slate-600 px-5 py-3 text-sm font-medium text-slate-100 transition hover:border-slate-400 hover:bg-slate-800/40">
-              See all four stages
+              See every stage
             </a>
           </div>
         </div>
-        <div className="flex flex-col gap-3">
-          {TRACKS.map((t) => (
-            <div key={t.id} className="flex items-center gap-4 rounded-2xl border border-slate-700/70 bg-slate-900/50 p-4">
-              <span className={`grid size-11 shrink-0 place-items-center rounded-xl ${TONE[t.tone].chip}`}><Icon name={t.icon} size={20} className={TONE[t.tone].icon} /></span>
-              <span className="min-w-0">
-                <span className="block text-lg text-slate-50" style={DISPLAY}>{t.label}</span>
-                <span className="block text-sm text-slate-400">{t.desc}</span>
-              </span>
-            </div>
+        <ol className="flex flex-col gap-2">
+          {COURSE.slice(0, 5).map((st) => (
+            <li key={st.slug}>
+              <Link href={sectionHref(st.slug, st.sections[0].slug)} className="flex items-center gap-4 rounded-2xl border border-slate-700/70 bg-slate-900/50 p-3 transition hover:border-slate-500">
+                <span className="grid size-10 shrink-0 place-items-center rounded-xl text-sm font-bold text-slate-950" style={{ background: stageColour(st.slug) }}>{st.label}</span>
+                <span className="min-w-0">
+                  <span className="block text-lg text-slate-50" style={DISPLAY}>{st.title}</span>
+                  <span className="block truncate text-sm text-slate-400">{st.sections.map((x) => x.title).join(" · ")}</span>
+                </span>
+              </Link>
+            </li>
           ))}
-          <p className="px-1 text-xs leading-relaxed text-slate-500">Three tracks in every stage, each at its own pace: your chords can be at stage 3 while your soloing is still at stage 2.</p>
-        </div>
+          <li className="px-1 text-xs leading-relaxed text-slate-500">…and {COURSE.length - 5} more stages up the neck, through modes and into other keys.</li>
+        </ol>
       </section>
 
       <section id="stages" aria-labelledby="stages-h" className="scroll-mt-6 border-t border-slate-800/70 py-12 sm:py-16">
@@ -53,46 +53,25 @@ export default function TheoryHub() {
           <div>
             <Eyebrow tone="text-emerald-300">The path</Eyebrow>
             <H2 id="stages-h">Rough order, <span className="italic text-emerald-300">not a ladder.</span></H2>
-            <p className="mt-4 max-w-2xl text-slate-300">Nothing has to be mastered before you move on. Each stage ends with a simple check for every track, so you know when you&apos;re ready, and you can always come back.</p>
+            <p className="mt-4 max-w-2xl text-slate-300">Nothing has to be mastered before you move on. Mark sections as warm-ups or ones to come back to, and skip around when something calls you.</p>
           </div>
           <ScaleWheel steps={MAJOR} labels={degreeLabels(MAJOR)} size={140} className="hidden md:block" />
         </div>
 
-        <ol className="relative flex flex-col gap-6">
-          <span aria-hidden className="absolute bottom-6 left-[1.4rem] top-6 w-0.5 bg-linear-to-b from-teal-400/60 via-violet-400/50 to-rose-400/60 sm:left-[1.65rem]" />
-          {STAGES.map((s) => {
-            const full = STAGE_CONTENT.find((c) => c.n === s.n)!;
-            return (
-              <li key={s.n} className="relative flex gap-4 sm:gap-6">
-                <span className="relative z-10 grid size-11 shrink-0 place-items-center rounded-full text-lg font-bold text-slate-950 ring-8 ring-slate-950/60 sm:size-14 sm:text-xl" style={{ background: stageColour(s.n) }}>{s.n}</span>
-                <div className="min-w-0 flex-1 rounded-3xl border border-slate-700/70 bg-slate-900/50 p-5 sm:p-6">
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="text-xs font-medium uppercase tracking-[0.2em]" style={{ color: stageColour(s.n) }}>Stage {s.n} · {s.level}</p>
-                      <h3 className="mt-1 text-2xl text-slate-50 sm:text-3xl" style={DISPLAY}>{s.title}</h3>
-                      <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-400">{full.intro}</p>
-                    </div>
-                    <Link href={stageHref(s.n)} className="inline-flex shrink-0 items-center gap-1.5 rounded-xl border border-slate-600 px-4 py-2 text-sm text-slate-100 transition hover:border-slate-400 hover:bg-slate-800/40">
-                      Open stage {s.n} <Icon name="chevron-right" size={16} />
-                    </Link>
-                  </div>
-                  <ul className="mt-5 flex flex-col divide-y divide-slate-800/80 border-t border-slate-800/80">
-                    {TRACKS.map((t) => (
-                      <li key={t.id}>
-                        <Link href={stageHref(s.n, t.id)} className="group flex flex-col gap-2 py-3 sm:flex-row sm:items-center sm:gap-4">
-                          <span className={`flex w-40 shrink-0 items-center gap-2 text-sm font-medium ${TONE[t.tone].icon}`}><Icon name={t.icon} size={16} />{t.label}</span>
-                          <span className="flex min-w-0 flex-1 flex-wrap gap-1.5">
-                            {s.cells[t.id].map((c) => <span key={c} className={`rounded-full px-2.5 py-0.5 text-xs text-slate-200 ${TONE[t.tone].chip}`}>{c}</span>)}
-                          </span>
-                          <Icon name="chevron-right" size={16} className="hidden shrink-0 text-slate-600 transition group-hover:translate-x-0.5 group-hover:text-slate-300 sm:block" />
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </li>
-            );
-          })}
+        <ol className="relative flex flex-col gap-4">
+          <span aria-hidden className="absolute bottom-6 left-[1.4rem] top-6 w-0.5 bg-linear-to-b from-teal-400/60 via-violet-400/50 to-rose-400/60" />
+          {COURSE.map((st) => (
+            <li key={st.slug} className="relative flex gap-4 sm:gap-6">
+              <span className="relative z-10 grid size-11 shrink-0 place-items-center rounded-full text-sm font-bold text-slate-950 ring-8 ring-slate-950/60" style={{ background: stageColour(st.slug) }}>{st.label}</span>
+              <Link href={sectionHref(st.slug, st.sections[0].slug)} className="group min-w-0 flex-1 rounded-3xl border border-slate-700/70 bg-slate-900/50 p-4 transition hover:border-slate-500 sm:p-5">
+                <h3 className="flex items-center justify-between gap-3 text-xl text-slate-50 sm:text-2xl" style={DISPLAY}>
+                  {st.title}
+                  <Icon name="chevron-right" size={16} className="shrink-0 text-slate-600 transition group-hover:translate-x-0.5 group-hover:text-slate-300" />
+                </h3>
+                <p className="mt-1 max-w-2xl text-sm leading-relaxed text-slate-400">{st.intro}</p>
+              </Link>
+            </li>
+          ))}
         </ol>
       </section>
 

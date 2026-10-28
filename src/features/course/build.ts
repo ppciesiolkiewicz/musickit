@@ -1,10 +1,9 @@
 import { degreeColour } from "../theory/scales";
 import { solfege } from "../theory/labels";
-import { OPEN_PCS, type Dot, type Visual } from "../theory/course/visuals";
-import type { CourseLink, Melody, Song } from "../theory/course/stages";
+import { OPEN_PCS, type Dot, type Visual } from "./visuals";
 import type { MelodyNote } from "@/lib/chordKit/tab";
 import type { NeckPath } from "./paths";
-import type { Block, StrumPatternId } from "./model";
+import type { Block, CourseLink, Melody, Song, StrumPatternId } from "./model";
 
 /** Small builders for course content, so the stage files read like lesson plans. */
 

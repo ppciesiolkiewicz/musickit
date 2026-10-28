@@ -2,16 +2,16 @@
 
 import { useState } from "react";
 import ChordDiagram from "@/components/chordKit/ChordDiagram";
-import NoteNeck from "./NoteNeck";
-import ScaleWheel from "./ScaleWheel";
-import CircleOfFifths from "./CircleOfFifths";
-import MiniPiano from "./MiniPiano";
+import NoteNeck from "@/components/theory/NoteNeck";
+import ScaleWheel from "@/components/theory/ScaleWheel";
+import CircleOfFifths from "@/components/theory/CircleOfFifths";
+import MiniPiano from "@/components/theory/MiniPiano";
 import { strumShape } from "@/lib/chordKit/playback";
 import { playMelody } from "@/features/sound";
 import { degreeLabels } from "@/features/theory/scales";
 import { MAJOR, DEFAULT_KEY_PC } from "@/features/theory/theory";
 import type { CircleKey } from "@/features/theory";
-import { lessonShape, type Visual } from "@/features/theory/course/visuals";
+import { lessonShape, type Visual } from "@/features/course/visuals";
 
 function Legend({ items }: { items: { label: string; colour: string }[] }) {
   return (
@@ -23,8 +23,8 @@ function Legend({ items }: { items: { label: string; colour: string }[] }) {
   );
 }
 
-/** One track's picture on a stage page: playable chord boxes, a coloured neck, the circle of fifths or mode wheels. */
-export default function TrackVisual({ visual }: { visual: Visual }) {
+/** A lesson picture: playable chord boxes, a coloured neck, the circle of fifths or mode wheels. */
+export default function LessonVisual({ visual }: { visual: Visual }) {
   const [key, setKey] = useState<CircleKey | null>({ pc: DEFAULT_KEY_PC, minor: false });
   const [wheel, setWheel] = useState<number | null>(null);
   return (

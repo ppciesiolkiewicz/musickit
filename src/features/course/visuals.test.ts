@@ -1,29 +1,8 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { STAGE_CONTENT } from "./stages";
-import { OPEN_PCS, lessonShape, naturalDots, scaleDots, trackVisual } from "./visuals";
+import { OPEN_PCS, lessonShape, naturalDots, scaleDots } from "./visuals";
 
 describe("stage visuals", () => {
-  it("every track shows a picture or a melody", () => {
-    STAGE_CONTENT.forEach((s) => s.tracks.forEach((t) => assert.ok(trackVisual(s.n, t.id) || t.melodies?.length, `${s.n} ${t.id}`)));
-  });
-  it("every chord a stage shows has a shape, and barre lessons get a barre", () => {
-    STAGE_CONTENT.forEach((s) => s.tracks.forEach((t) => {
-      const v = trackVisual(s.n, t.id);
-      if (v?.kind !== "chords") return;
-      v.chords.forEach((c) => {
-        const shape = lessonShape(c.name, c.prefer);
-        assert.ok(shape, c.name);
-        if (c.prefer) assert.ok(shape.shape.tags.includes(c.prefer), `${c.name} ${c.prefer}`);
-      });
-    }));
-  });
-  it("neck dots sit inside the drawn frets", () => {
-    STAGE_CONTENT.forEach((s) => s.tracks.forEach((t) => {
-      const v = trackVisual(s.n, t.id);
-      if (v?.kind === "neck") v.dots.forEach((d) => assert.ok(d.fret >= v.from && d.fret <= v.to && d.string >= 0 && d.string < 6, `${s.n} ${t.id}`));
-    }));
-  });
   it("lessons can ask for the drop 3 voicing of a chord", () => {
     const am7 = lessonShape("Am7", undefined, "drop 3");
     assert.equal(am7?.shape.v, "drop 3");

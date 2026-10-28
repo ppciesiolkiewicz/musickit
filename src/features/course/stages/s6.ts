@@ -1,5 +1,5 @@
 import { section, type CourseStage } from "../model";
-import { A, D, E, chords, links, neck, task, text, toneDots, visual } from "../build";
+import { A, D, E, chords, links, neck, songs, task, text, toneDots, visual } from "../build";
 
 const PENT = [0, 3, 5, 7, 10];
 
@@ -18,8 +18,14 @@ export const STAGE_6: CourseStage = {
       chords("A minor / C major in the open position: 1, 4 and 5 of A minor, plus the relative major's C, F and G.", ["Am", "Dm", "E7", "C", "Fmaj7", "G"]),
       task("Play Am Dm E7 Am, then C Fmaj7 G C. Then solo over the Am loop with the A minor pentatonic at the 5th fret."),
     ]),
-    // Planned: Am C D F · Am C E picked as arpeggios, humming the tune over them.
-    section("rising-sun", "House of the Rising Sun", "melody"),
+    section("rising-sun", "House of the Rising Sun", "melody", [
+        text(
+          "A traditional tune in A minor: Am C D F · Am C E. Pick each chord as an arpeggio in 6/8, one note at a time, and hum the tune over it.",
+          "The E at the end of the line is the V chord of A minor, borrowed from harmonic minor: it pulls you back to Am.",
+        ),
+        chords("The chords, in position 1.", ["Am", "C", "D", "F", "E"]),
+        songs({ title: "House of the Rising Sun", artist: "traditional (The Animals)", chords: ["Am", "C", "D", "F", "E"], progression: "Am C D F · Am C E" }),
+      ]),
     section("circle-map", "The circle as a map between keys", "keys", [
       text(
         "The circle of fifths puts every key in a ring, each one a 5th above the last. Any key's 4 and 5 chords are its neighbours, so a key's three main chords are always three keys in a row: C–G–D for G major, F–C–G for C major.",
@@ -29,7 +35,13 @@ export const STAGE_6: CourseStage = {
       task("Pick a key next to G on the circle (C or D). Find its 1, 4 and 5 chords on the circle, then play them as 1 → 4 → 5 → 1."),
       links([{ href: "/theory/circle", label: "Circle of fifths explorer", note: "every key's chords, signature and neighbours" }]),
     ]),
-    // Planned: collect the chords, shapes and scales you use into a cheatsheet; link /cheatsheet.
-    section("cheatsheet", "Your own cheatsheet", "keys"),
+    section("cheatsheet", "Your own cheatsheet", "keys", [
+        text(
+          "You now know more shapes than you can keep in your head at once. Pick the ones you actually use: your favourite voicing of each chord, the scale boxes you solo with, the progressions you love. Put them on one page.",
+          "A cheatsheet you made yourself is one you'll look at.",
+        ),
+        task("Build a sheet with one key: its chords, one shape for each, and its pentatonic box. Print it or keep it open while you play."),
+        links([{ href: "/cheatsheet", label: "Build your own cheatsheet" }]),
+      ]),
   ],
 };

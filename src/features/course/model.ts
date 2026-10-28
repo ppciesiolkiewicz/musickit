@@ -1,10 +1,15 @@
-import type { CourseLink, Melody, Song } from "../theory/course/stages";
-import { OPEN_PCS, type Visual } from "../theory/course/visuals";
+import type { MelodyNote } from "@/lib/chordKit/tab";
+import { OPEN_PCS, type Visual } from "./visuals";
 
 /**
  * The position course: stages made of sections, each section one page made of blocks.
  * Pure data, so pages stay server components and the shapes, paths and links can be tested.
  */
+
+/** Songs are listed by title and chords only; melodies in tab are traditional or public-domain tunes. */
+export interface CourseLink { href: string; label: string; note?: string }
+export interface Song { title: string; artist: string; chords: string[]; progression: string; note?: string }
+export interface Melody { title: string; origin: string; position: number; notes: MelodyNote[] }
 
 /** What a section is mainly about. The course index can group sections by it, in this order. */
 export type TopicId =

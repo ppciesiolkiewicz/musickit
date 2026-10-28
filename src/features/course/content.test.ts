@@ -1,14 +1,14 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { THEORY_SECTIONS } from "../theory/sections";
-import { lessonShape } from "../theory/course/visuals";
+import { lessonShape } from "./visuals";
 import { tabFor } from "@/lib/chordKit/tab";
 import { ALL_SECTIONS, findSection } from "./course";
 import { pcAt, type CourseSection } from "./model";
 import { STRUMS } from "./strum";
 
 /** Stages whose content is written; each content task adds its stages here. Sections with no blocks yet are planned. */
-const DONE = ["0-1", "0-2", "0-3", "0-4", "1", "2", "3", "4", "5", "6"];
+const DONE = ["0-1", "0-2", "0-3", "0-4", "1", "2", "3", "4", "5", "6", "7"];
 
 const sec = (stage: string, section: string) => {
   const r = findSection(stage, section);
