@@ -36,7 +36,7 @@ export function weekReport(plan: StoredPlan): string {
 export function buildPrompt(answers: PlanAnswers | null, entries: CatalogueEntry[], previous: StoredPlan[] = []): string {
   const profile = answers
     ? [
-        `- Instrument: ${labelOf(INSTRUMENTS, answers.instrument)}`,
+        `- Plays: ${list(answers.instruments, INSTRUMENTS)}`,
         `- Level: ${labelOf(LEVELS, answers.level)}`,
         `- Where they want to go: ${list(answers.goals, GOALS)}`,
         `- What they find hard: ${list(answers.struggles, STRUGGLES)}`,
@@ -44,7 +44,7 @@ export function buildPrompt(answers: PlanAnswers | null, entries: CatalogueEntry
         `- Time a day: about ${answers.minutes} minutes`,
         ...(answers.notes.trim() ? [`- In their words: ${answers.notes.trim()}`] : []),
       ].join("\n")
-    : "The player skipped the questionnaire. Before writing the plan, ask them (in one short message) their instrument, level, goals, what they find hard, favourite styles and minutes a day; then write the plan.";
+    : "The player skipped the questionnaire. Before writing the plan, ask them (in one short message) what they play, level, goals, what they find hard, favourite styles and minutes a day; then write the plan.";
   const history = previous.slice(0, 3).map(weekReport).join("\n\n");
   const pages = entries.map((e) => `${e.href} : ${e.label} (${e.desc})`).join("\n");
   return [

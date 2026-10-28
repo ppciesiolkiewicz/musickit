@@ -25,3 +25,4 @@ export * from "./molecules/InfoTip";
 export * from "./molecules/Stepper";
 export * from "./organisms/Modal";
 export * from "./organisms/Section";
+export * from "./organisms/StepModal";

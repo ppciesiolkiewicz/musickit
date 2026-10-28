@@ -1,4 +1,5 @@
-import { EMPTY_STATE, type PlanState, type StoredPlan } from "../model/types";
+import { DEFAULT_ANSWERS } from "../model/questions";
+import { EMPTY_STATE, type Instrument, type PlanAnswers, type PlanState, type StoredPlan } from "../model/types";
 import type { PlanStore } from "./PlanStore";
 
 export const PLAN_KEY = "musickit.plan";
@@ -8,12 +9,20 @@ const isPlan = (p: unknown): p is StoredPlan => {
   return !!x && typeof x.id === "string" && typeof x.startedOn === "string" && Array.isArray(x.config?.days) && typeof x.done === "object";
 };
 
+/** Stored answers over the defaults; an old single `instrument` becomes the list. */
+function sanitiseAnswers(raw: object): PlanAnswers {
+  const a = { ...DEFAULT_ANSWERS, ...raw } as PlanAnswers & { instrument?: Instrument };
+  const instruments = Array.isArray(a.instruments) ? a.instruments : a.instrument ? [a.instrument] : DEFAULT_ANSWERS.instruments;
+  delete a.instrument;
+  return { ...a, instruments };
+}
+
 /** A stored document, made safe: anything missing or broken falls back to the empty state's value. */
 export function sanitiseState(raw: unknown): PlanState {
   const s = (raw ?? {}) as Partial<PlanState>;
   const r = s.reminder;
   return {
-    answers: s.answers && typeof s.answers === "object" ? { ...s.answers } : null,
+    answers: s.answers && typeof s.answers === "object" ? sanitiseAnswers(s.answers) : null,
     current: isPlan(s.current) ? s.current : null,
     history: Array.isArray(s.history) ? s.history.filter(isPlan).slice(0, 20) : [],
     reminder: {

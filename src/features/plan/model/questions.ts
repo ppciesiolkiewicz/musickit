@@ -40,6 +40,6 @@ export const STRUGGLES: { id: string; label: string }[] = [
 
 export const MINUTES = [10, 15, 20, 30, 45, 60];
 
-export const DEFAULT_ANSWERS: PlanAnswers = { instrument: "guitar", level: "beginner", goals: [], struggles: [], styles: "", minutes: 20, notes: "" };
+export const DEFAULT_ANSWERS: PlanAnswers = { instruments: ["guitar"], level: "beginner", goals: [], struggles: [], styles: "", minutes: 20, notes: "" };
 
 export const labelOf = (list: { id: string; label: string }[], id: string): string => list.find((x) => x.id === id)?.label ?? id;

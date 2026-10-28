@@ -11,7 +11,7 @@ import { PLAN_DAYS, type PlanConfig, type PlanState, type StoredPlan } from "./m
 import { askNotifications, notificationsSupported } from "./reminders";
 import { usePlan } from "./store/usePlan";
 import { CopyPrompt, PasteConfig } from "./ui/PromptAndPaste";
-import Questionnaire from "./ui/Questionnaire";
+import QuestionnaireModal, { answersSummary } from "./ui/Questionnaire";
 import WeekView from "./ui/WeekView";
 
 const newId = () => (typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : String(Date.now()));
@@ -57,6 +57,11 @@ export default function PlanApp() {
   const answers = state.answers ?? DEFAULT_ANSWERS;
   const history = plan ? [plan, ...state.history] : state.history;
   const prompt = buildPrompt(state.answers, entries, history);
+  /** the same prompt without answers, so the AI asks the questions itself */
+  const aiPrompt = buildPrompt(null, entries, history);
+  /** how the player starts a plan: let their AI ask, or answer here. Nothing picked until they choose. */
+  const [way, setWay] = useState<"ai" | "app" | null>(null);
+  const [asking, setAsking] = useState(false);
 
   const onPlan = (config: PlanConfig) => {
     update((s) => start(s, config));
@@ -78,14 +83,51 @@ export default function PlanApp() {
     return (
       <div className="flex flex-col gap-3">
         {plan && <div><Button size="sm" onClick={() => setSetup(false)}><Icon name="chevron-left" size={12} />Back to my plan</Button></div>}
-        <Step n={1} title="Tell us about you">
-          <p className="text-xs text-slate-500">Optional: skip it and your AI will ask instead. Nothing leaves this browser.</p>
-          <Questionnaire value={answers} onChange={(a) => update((s) => ({ ...s, answers: a }))} />
+        <Step n={1} title="Get your prompt">
+          <div className="grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label="How to start">
+            {([
+              ["ai", "copy", "Copy the prompt", "Your AI asks you a few questions, then writes the plan."],
+              ["app", "pencil", "Answer here first", "A short questionnaire here; the prompt carries your answers."],
+            ] as const).map(([id, icon, label, desc]) => (
+              <button
+                key={id}
+                type="button"
+                role="radio"
+                aria-checked={way === id}
+                onClick={() => {
+                  setWay(id);
+                  if (id === "app" && !state.answers) setAsking(true);
+                }}
+                className={`flex items-start gap-3 rounded-xl border p-3 text-left transition focus-visible:outline-2 focus-visible:outline-sky-400 ${way === id ? "border-sky-500/70 bg-sky-500/15" : "border-slate-700 bg-slate-900/60 hover:border-slate-500"}`}
+              >
+                <Icon name={icon} size={18} className="mt-0.5 shrink-0 text-sky-300" />
+                <span>
+                  <span className="block text-sm text-slate-100">{label}</span>
+                  <span className="block text-xs text-slate-500">{desc}</span>
+                </span>
+              </button>
+            ))}
+          </div>
+          {way === "app" && (
+            <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400">
+              {state.answers ? <span>{answersSummary(state.answers)}</span> : <span>Answer the questions to get your prompt.</span>}
+              <Button size="sm" onClick={() => setAsking(true)}><Icon name="pencil" size={12} />{state.answers ? "Edit answers" : "Answer the questions"}</Button>
+            </div>
+          )}
+          {(way === "ai" || (way === "app" && state.answers)) && <CopyPrompt prompt={way === "app" ? prompt : aiPrompt} />}
+          {asking && (
+            <QuestionnaireModal
+              initial={answers}
+              onClose={() => setAsking(false)}
+              onDone={(a) => {
+                update((s) => ({ ...s, answers: a }));
+                setAsking(false);
+              }}
+            />
+          )}
+          <p className="text-xs text-slate-500">Nothing leaves this browser: you paste the prompt into your AI yourself.</p>
         </Step>
-        <Step n={2} title="Copy the prompt into your AI">
-          <CopyPrompt prompt={prompt} />
-        </Step>
-        <Step n={3} title="Paste its reply">
+        <Step n={2} title="Paste its reply">
           <PasteConfig entries={entries} onPlan={onPlan} />
         </Step>
         {state.history.length > 0 && <History plans={state.history} onUse={onPlan} />}

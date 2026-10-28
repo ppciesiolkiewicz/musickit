@@ -1,6 +1,6 @@
 /** What the player told the questionnaire. Feeds the prompt; never sent anywhere by the app itself. */
 export interface PlanAnswers {
-  instrument: Instrument;
+  instruments: Instrument[];
   level: Level;
   /** where they want to go: play songs, improvise, ... (GOALS ids) */
   goals: string[];
