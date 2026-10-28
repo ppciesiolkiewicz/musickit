@@ -15,12 +15,12 @@ import { playMoodPhrase } from "./moodPhrase";
  * `sparkle` makes it twinkle.
  */
 const MOODS = [
-  { mode: 3, name: "Dreamy", feel: "floating, like a film score", dot: "bg-sky-400", rgb: [56, 189, 248], drift: 0.25, sparkle: 0 },
-  { mode: 0, name: "Bright", feel: "happy and settled", dot: "bg-amber-400", rgb: [251, 191, 36], drift: 0.6, sparkle: 1 },
-  { mode: 4, name: "Bluesy", feel: "bright, with a swagger", dot: "bg-emerald-400", rgb: [52, 211, 153], drift: 0.45, sparkle: 0.3 },
-  { mode: 1, name: "Soulful", feel: "minor, but warm", dot: "bg-teal-400", rgb: [45, 212, 191], drift: 0.35, sparkle: 0 },
-  { mode: 5, name: "Sad", feel: "heartfelt and serious", dot: "bg-violet-400", rgb: [167, 139, 250], drift: -0.15, sparkle: 0 },
-  { mode: 2, name: "Dark", feel: "tense, with Spanish fire", dot: "bg-rose-400", rgb: [251, 113, 133], drift: -0.4, sparkle: 0 },
+  { mode: 3, name: "Dreamy", feel: "floating, like a film score", rgb: [56, 189, 248], drift: 0.25, sparkle: 0 },
+  { mode: 0, name: "Bright", feel: "happy and settled", rgb: [251, 191, 36], drift: 0.6, sparkle: 1 },
+  { mode: 4, name: "Bluesy", feel: "bright, with a swagger", rgb: [52, 211, 153], drift: 0.45, sparkle: 0.3 },
+  { mode: 1, name: "Soulful", feel: "minor, but warm", rgb: [45, 212, 191], drift: 0.35, sparkle: 0 },
+  { mode: 5, name: "Sad", feel: "heartfelt and serious", rgb: [167, 139, 250], drift: -0.15, sparkle: 0 },
+  { mode: 2, name: "Dark", feel: "tense, with Spanish fire", rgb: [251, 113, 133], drift: -0.4, sparkle: 0 },
 ];
 /** before any mood: a dim, cool glow and dust that barely rises */
 const IDLE = { rgb: [125, 160, 210], drift: 0.12, sparkle: 0 };
@@ -247,7 +247,7 @@ export default function StringsOfLight() {
             onClick={() => pick(i)}
             className={`cursor-pointer inline-flex items-center gap-2 rounded-full border px-3.5 py-2 text-sm transition ${i === mood ? "border-slate-300 bg-slate-100 font-semibold text-slate-950" : "border-slate-700 text-slate-300 hover:border-slate-500 hover:text-slate-100"}`}
           >
-            <span className={`h-2.5 w-2.5 rounded-full ${x.dot}`} />
+            <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: `rgb(${x.rgb.join(" ")})` }} />
             {x.name}
           </button>
         ))}
