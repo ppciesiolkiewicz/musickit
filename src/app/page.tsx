@@ -65,6 +65,15 @@ function ProgressPath() {
   );
 }
 
+/** What practice in attunr trains: the skills behind playing well. Marketing copy only, no links. */
+const SKILLS: { icon: IconName; title: string; text: string; tone: string }[] = [
+  { icon: "guitar", title: "Know the fretboard", text: "Find any note in a second. Learn the neck by note name, by colour and by the job each note does in the scale, until it stops being a grid of frets and becomes a map you can read.", tone: "bg-amber-500/15 text-amber-300" },
+  { icon: "repeat", title: "Build muscle memory", text: "Play the same thing again and again until your hands know it on their own. Once they move freely, you stop hunting for notes and have time to choose what to play next.", tone: "bg-teal-500/15 text-teal-300" },
+  { icon: "ear", title: "Train your ear", text: "Hear an interval and know what it is. You'll pick melodies out by ear, and the lines you write will land where you meant them to.", tone: "bg-sky-500/15 text-sky-300" },
+  { icon: "mic", title: "Sing what you play", text: "Your voice is the quickest way to know a note from the inside. Sing scales and melodies in tune and you'll recognise notes faster and write melodies that feel natural to follow.", tone: "bg-rose-500/15 text-rose-300" },
+  { icon: "metronome", title: "Play in time", text: "Hit the beat, not just the note. See exactly how early or late you are, and lock in with a metronome or a drone.", tone: "bg-violet-500/15 text-violet-300" },
+];
+
 const DO: { href: string; verb: string; label: string; icon: IconName; tone: string }[] = [
   { href: "/theory/metronome-drone", verb: "Keep time", label: "Metronome & drone", icon: "audio-lines", tone: "bg-violet-500/15 text-violet-300" },
   { href: "/theory/scales", verb: "See", label: "Scales", icon: "sliders-horizontal", tone: "bg-amber-500/15 text-amber-300" },
@@ -113,6 +122,24 @@ export default function Home() {
         </section>
 
         <StyleDivider />
+
+        {/* What you'll work on: the skills practice in attunr builds */}
+        <section aria-labelledby="skills-h" className="border-t border-slate-800/70 py-14 sm:py-20">
+          <div className="mx-auto max-w-2xl text-center">
+            <Eyebrow>What you&apos;ll work on</Eyebrow>
+            <H2 id="skills-h">The skills that make <span className="ls-accent italic text-sky-300">a better player.</span></H2>
+          </div>
+          {/* two wide cards over three narrower ones on desktop */}
+          <ul className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-6">
+            {SKILLS.map((s, i) => (
+              <li key={s.title} className={`ls-card flex flex-col gap-4 rounded-3xl border border-slate-800 bg-slate-900/50 p-6 ${i < 2 ? "lg:col-span-3" : "lg:col-span-2"} ${i === SKILLS.length - 1 ? "md:col-span-2 lg:col-span-2" : ""}`}>
+                <span className={`grid h-11 w-11 place-items-center rounded-xl ${s.tone}`}><Icon name={s.icon} size={20} /></span>
+                <h3 className="text-2xl text-slate-50" style={DISPLAY}>{s.title}</h3>
+                <p className="text-sm leading-relaxed text-slate-400">{s.text}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
 
         {/* A student's story */}
         {showStory && (
