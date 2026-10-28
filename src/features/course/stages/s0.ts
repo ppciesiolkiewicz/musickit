@@ -9,7 +9,7 @@ const named = (string: number, fret: number, label: string) => ({ string, fret, 
 
 export const STAGES_0: CourseStage[] = [
   {
-    slug: "0-1", label: "0.1", title: "Guitar basics",
+    slug: "0-1", label: "1", title: "Guitar basics",
     intro: "How the guitar is tuned, how to read tab and chord boxes, and the names of the notes on the two lowest strings.",
     sections: [
       section("strings-and-tuning", "Strings & tuning", "basics", [
@@ -48,7 +48,7 @@ export const STAGES_0: CourseStage[] = [
     ],
   },
   {
-    slug: "0-2", label: "0.2", title: "First open chords",
+    slug: "0-2", label: "2", title: "First open chords",
     intro: "Five open chords, clean changes between them, and three strumming patterns to play them with.",
     sections: [
       section("em-and-am", "Em & Am", "open-chords", [
@@ -117,7 +117,7 @@ export const STAGES_0: CourseStage[] = [
     ],
   },
   {
-    slug: "0-3", label: "0.3", title: "One note, three views",
+    slug: "0-3", label: "3", title: "One note, three views",
     intro: "The same notes on piano, on guitar and as do-re-mi. Once you can see all three, every later idea has a name.",
     sections: [
       section("piano-and-guitar", "Piano ↔ guitar", "three-views", [
@@ -167,12 +167,12 @@ export const STAGES_0: CourseStage[] = [
     ],
   },
   {
-    slug: "0-4", label: "0.4", title: "Single notes",
+    slug: "0-4", label: "4", title: "Single notes",
     intro: "Simple tunes one note at a time, so the picking hand is ready for arpeggios.",
     sections: [
       section("melodies", "Melodies in tab", "melody", [
         text(
-          "Picking one note at a time trains your hand to find a single string, which is exactly what arpeggios and solos need in stage 1. A tune you already know tells you at once when a note is wrong.",
+          "Picking one note at a time trains your hand to find a single string, which is exactly what arpeggios and solos need in stage 5. A tune you already know tells you at once when a note is wrong.",
           "Both tunes sit on the top two strings in the open position. Use one finger per fret: 1st finger on fret 1, 2nd on fret 2, 3rd on fret 3.",
         ),
         melody({ title: "Ode to Joy", origin: "Beethoven, 9th symphony (public domain)", position: 0, notes: tune("E4 E4 F4 G4 G4 F4 E4 D4 C4 C4 D4 E4 E4:1.5 D4:0.5 D4:2") }),

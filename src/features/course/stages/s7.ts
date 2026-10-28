@@ -2,7 +2,7 @@ import { section, type CourseStage } from "../model";
 import { chords, links, songs, task, text } from "../build";
 
 export const STAGE_7: CourseStage = {
-  slug: "7", label: "7", title: "Jazz colours",
+  slug: "7", label: "11", title: "Jazz colours",
   intro: "Shell voicings, 9ths and 13ths, and the jazz standards that use them.",
   sections: [
     section("shells", "Shell voicings", "colour", [

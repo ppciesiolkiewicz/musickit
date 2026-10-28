@@ -13,13 +13,13 @@ const fifth = (root: [number, number], five: [number, number], rootName: string,
 ];
 
 export const STAGE_1: CourseStage = {
-  slug: "1", label: "1", title: "Position 1",
+  slug: "1", label: "5", title: "Position 1",
   intro: "Stay in the open position in E minor and G major and learn everything that lives there: chords, triads, 5ths, arpeggios, the scale, and the paths between them.",
   sections: [
     section("chords", "Chords", "caged", [
       text(
         "Position 1 is the first four frets, open strings included. Everything in this stage happens here, in one key: E minor, and its relative major, G. They share the same seven notes, E F♯ G A B C D, and the same chords.",
-        "The chords of the key that live in position 1 are the ones you already know: Em, Am, C, D and G. The sixth, Bm, needs a barre, so for now B7 stands in for it. B7 is an open chord and pulls back to Em even harder than Bm does (stage 5 explains why).",
+        "The chords of the key that live in position 1 are the ones you already know: Em, Am, C, D and G. The sixth, Bm, needs a barre, so for now B7 stands in for it. B7 is an open chord and pulls back to Em even harder than Bm does (stage 9 explains why).",
       ),
       chords("The chords of E minor / G major that live in position 1.", ["Em", "Am", "C", "D", "G", "B7"]),
       task("Play Em Am B7 Em, then G C D G, four strums each. These two loops are the backbone of the whole stage."),
@@ -88,7 +88,7 @@ export const STAGE_1: CourseStage = {
         paths: [path(PATH.amber, [0, 3], [1, 3], [2, 0], [3, 0])],
       }),
       text(
-        "The same in E minor: Em → Am → Bm → Em. The 5 of E minor is B, and the chord on it is Bm, the first chord in this course that needs a barre (that's stage 2). Until then, play B7: open, easy, and it pulls home to Em even harder.",
+        "The same in E minor: Em → Am → Bm → Em. The 5 of E minor is B, and the chord on it is Bm, the first chord in this course that needs a barre (that's stage 6). Until then, play B7: open, easy, and it pulls home to Em even harder.",
       ),
       neck("E → A → B → E: 1, 4, 5, 1 in E minor.", 0, 3, [[0, 0], [1, 0], [1, 2], [2, 2]].map(([s, f]) => toneDot(s, f, E, { style: "number", solfege: true })), {
         paths: [path(PATH.sky, [0, 0], [1, 0], [1, 2], [2, 2])],

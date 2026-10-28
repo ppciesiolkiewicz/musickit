@@ -4,13 +4,13 @@ import { A, D, E, chords, links, neck, songs, task, text, toneDots, visual } fro
 const PENT = [0, 3, 5, 7, 10];
 
 export const STAGE_6: CourseStage = {
-  slug: "6", label: "6", title: "Other keys",
+  slug: "6", label: "10", title: "Other keys",
   intro: "Everything so far was in E minor and G major. Move it to other keys, with the circle of fifths as the map.",
   sections: [
     section("moving-keys", "Moving it all to Am/C, Dm/F", "keys", [
       text(
-        "In stage 1 you moved the E minor scale up three frets and got G minor. Every shape in this course moves the same way. Slide the position 1 pentatonic up five frets and it's A minor pentatonic, the most famous box in rock and blues. Slide it up ten and it's D minor.",
-        "Chords move too, as long as nothing relies on open strings: that's what barres and drop 3 shapes are for. And some keys have their own open position: A minor / C major uses Am, Dm, Em, C, G and F (Fmaj7 until the barre comes), so the stage 1 ideas work there as well.",
+        "In stage 5 you moved the E minor scale up three frets and got G minor. Every shape in this course moves the same way. Slide the position 1 pentatonic up five frets and it's A minor pentatonic, the most famous box in rock and blues. Slide it up ten and it's D minor.",
+        "Chords move too, as long as nothing relies on open strings: that's what barres and drop 3 shapes are for. And some keys have their own open position: A minor / C major uses Am, Dm, Em, C, G and F (Fmaj7 until the barre comes), so the stage 5 ideas work there as well.",
       ),
       neck("The position 1 E minor pentatonic shape (frets 0–3)…", 0, 3, toneDots(E, PENT, 0, 3)),
       neck("…moved up five frets is A minor pentatonic (frets 5–8).", 4, 9, toneDots(A, PENT, 5, 8), { window: { from: 5, to: 8 } }),

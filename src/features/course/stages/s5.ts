@@ -7,7 +7,7 @@ const DORIAN = [0, 2, 3, 5, 7, 9, 10], PHRYGIAN = [0, 1, 3, 5, 7, 8, 10], HARMON
 const marked = (semis: number[], changed: string) => toneDots(E, semis, 0, 3).map((d) => (d.label === changed ? { ...d, outline: true } : d));
 
 export const STAGE_5: CourseStage = {
-  slug: "5", label: "5", title: "Modes",
+  slug: "5", label: "9", title: "Modes",
   intro: "Change one note of the scale and the mood changes. Modes in E and G, and the harmonic minor that explains B7.",
   sections: [
     section("modes", "Aeolian, Dorian, Phrygian, Mixolydian", "modes", [
@@ -54,7 +54,7 @@ export const STAGE_5: CourseStage = {
       ]),
     section("harmonic-minor", "Harmonic minor and why B7 works", "modes", [
       text(
-        "Back in stage 1, B7 stood in for Bm and pulled back to Em even harder. Here's why. B7 contains D♯, which isn't in E natural minor: the scale has D. D♯ is one fret below E, so it leans into the home note like Ti leans into Do in a major key.",
+        "Back in stage 5, B7 stood in for Bm and pulled back to Em even harder. Here's why. B7 contains D♯, which isn't in E natural minor: the scale has D. D♯ is one fret below E, so it leans into the home note like Ti leans into Do in a major key.",
         "Raise the 7th of E minor from D to D♯ and you get E harmonic minor. Its 5 chord is B major (or B7), not Bm. Almost all minor-key music borrows that chord for its strong pull home, and the scale's gap between C and D♯ gives it its exotic, classical sound.",
       ),
       neck("E harmonic minor in position 1: the ringed 7 (D♯) replaces D.", 0, 3, marked(HARMONIC_MINOR, "7")),

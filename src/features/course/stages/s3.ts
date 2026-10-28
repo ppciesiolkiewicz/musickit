@@ -6,7 +6,7 @@ import { C, D, E, G, PATH, chords, links, neck, path, songs, task, text, toneDot
 const shape = (root: number, frets: (number | null)[]): Dot[] => frets.flatMap((f, s) => (f === null ? [] : [toneDot(s, f, root)]));
 
 export const STAGE_3: CourseStage = {
-  slug: "3", label: "3", title: "Position 1 flavours",
+  slug: "3", label: "7", title: "Position 1 flavours",
   intro: "Back home in position 1, with colour: 6, 7, sus and add9 chords on the same paths you already know.",
   sections: [
     section("six-chords", "6 chords", "colour", [
@@ -16,14 +16,14 @@ export const STAGE_3: CourseStage = {
       ),
       neck("G6: 3 2 0 0 0 0. The open high e is the 6th (E).", 0, 3, shape(G, [3, 2, 0, 0, 0, 0])),
       neck("C6: x 3 2 2 1 0. The G string's 2nd fret adds the 6th (A).", 0, 3, shape(C, [null, 3, 2, 2, 1, 0])),
-      neck("Em6: 0 2 2 0 2 0. The B string's 2nd fret is the 6th (C♯), the note from E Dorian (stage 5).", 0, 3, shape(E, [0, 2, 2, 0, 2, 0])),
+      neck("Em6: 0 2 2 0 2 0. The B string's 2nd fret is the 6th (C♯), the note from E Dorian (stage 9).", 0, 3, shape(E, [0, 2, 2, 0, 2, 0])),
       neck("D6: x x 0 2 0 2. Open B string as the 6th.", 0, 3, shape(D, [null, null, 0, 2, 0, 2])),
       task("Play G G6 G G6, then end a G C D G loop on G6 instead of G. Hear how it sounds finished, but with a smile."),
     ]),
     section("sevenths", "maj7 & 7", "colour", [
       text(
         "Seventh chords add the 7th note above the root. There are two kinds you'll meet here. A maj7 adds the note one fret below the root (Ti): dreamy, soft. A 7 (dominant 7th) adds the note two frets below (Te): bluesy, restless, it wants to move on.",
-        "In the key of G, only D gets a dominant 7th naturally (D7, the 5 chord); G and C get maj7s; Em and Am get minor 7ths (m7), which add the same Te to a minor chord. B7 is the borrowed one you met in stage 1.",
+        "In the key of G, only D gets a dominant 7th naturally (D7, the 5 chord); G and C get maj7s; Em and Am get minor 7ths (m7), which add the same Te to a minor chord. B7 is the borrowed one you met in stage 5.",
       ),
       chords("The 7th chords of the key in position 1, plus B7.", ["Gmaj7", "Cmaj7", "D7", "Em7", "Am7", "B7"]),
       task("Play Gmaj7 Cmaj7 Gmaj7 Cmaj7, then Em7 Am7 D7 Gmaj7. Compare with the plain chords: same changes, new colour."),
@@ -74,7 +74,7 @@ export const STAGE_3: CourseStage = {
       ]),
     section("colour-paths", "The same paths with colour", "paths", [
       text(
-        "The 1 → 4 → 5 → 1 path from stage 1 hasn't changed: the roots still go G → C → D → G. Only the colour on top is new. Play Gmaj7 → Cmaj7 → D7 → G and the 7ths make a little tune of their own on the top strings.",
+        "The 1 → 4 → 5 → 1 path from stage 5 hasn't changed: the roots still go G → C → D → G. Only the colour on top is new. Play Gmaj7 → Cmaj7 → D7 → G and the 7ths make a little tune of their own on the top strings.",
         "Follow the blue arrows: Gmaj7's F♯ drops to Cmaj7's B, then climbs to D7's C, which pulls down to G's B. That C → B is the sound of D7 going home.",
       ),
       neck("Roots (amber): G → C → D → G. The 7ths on top (blue): F♯ → B → C, which resolves down to B in G.", 0, 3, [

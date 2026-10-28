@@ -6,7 +6,7 @@ const AM_OPEN: [number, number][] = [[1, 0], [2, 2], [3, 2], [4, 1], [5, 0]];
 const BM_BARRE: [number, number][] = [[1, 2], [2, 4], [3, 4], [4, 3], [5, 2]];
 
 export const STAGE_2: CourseStage = {
-  slug: "2", label: "2", title: "Position 2",
+  slug: "2", label: "6", title: "Position 2",
   intro: "Frets 2 to 5. Bm is the hard chord of the key: here is the barre, the easier ways round it, and the drop 3 chords that build the hand for barres.",
   sections: [
     section("bm-barre", "The Bm barre", "barre-drop3", [
@@ -23,7 +23,7 @@ export const STAGE_2: CourseStage = {
     ]),
     section("easier-bm", "Easier Bm", "barre-drop3", [
       text(
-        "While the barre is coming along, there are easier chords that do Bm's job. Bm7 adds one note (A) and lets two strings ring open, so no barre at all. B7 is the open chord you already used in stage 1. And the small Bm on the top four strings is the real Bm in miniature, with no barre either.",
+        "While the barre is coming along, there are easier chords that do Bm's job. Bm7 adds one note (A) and lets two strings ring open, so no barre at all. B7 is the open chord you already used in stage 5. And the small Bm on the top four strings is the real Bm in miniature, with no barre either.",
         "Use whichever sounds right in the song. Bm7 is softer, B7 pulls harder towards Em, the small Bm is the real Bm in miniature.",
       ),
       chords("Bm7 and B7: no barre needed.", ["Bm7", "B7"]),
@@ -73,7 +73,7 @@ export const STAGE_2: CourseStage = {
     ]),
     section("arpeggios", "Arpeggios in position 2", "arpeggios", [
       text(
-        "Position 2 has its own arpeggios. Bm's sits right inside the barre shape. G's comes from the E-shaped G barre at the 3rd fret, which is CAGED's E shape (stage 4 has the full story).",
+        "Position 2 has its own arpeggios. Bm's sits right inside the barre shape. G's comes from the E-shaped G barre at the 3rd fret, which is CAGED's E shape (stage 8 has the full story).",
       ),
       neck("Bm arpeggio in position 2, from the root on the A string.", 2, 5, toneDots(B, MINOR_TRIAD, 2, 5, { solfege: true }), {
         paths: [path(PATH.amber, [1, 2], [1, 5], [2, 4], [3, 4], [4, 3], [5, 2])],
@@ -81,12 +81,12 @@ export const STAGE_2: CourseStage = {
       neck("G arpeggio from the E shape at the 3rd fret.", 2, 5, toneDots(G, MAJOR_TRIAD, 2, 5, { solfege: true }), {
         paths: [path(PATH.sky, [0, 3], [1, 2], [1, 5], [2, 5], [3, 4], [4, 3], [5, 3])],
       }),
-      task("Play the Bm arpeggio, then Em's from stage 1, back and forth: the 5 to the 1 of E minor, one note at a time."),
+      task("Play the Bm arpeggio, then Em's from stage 5, back and forth: the 5 to the 1 of E minor, one note at a time."),
     ]),
     section("joining", "Joining positions 1 and 2", "caged", [
       text(
         "Positions 1 and 2 overlap on frets 2 and 3, so the G major scale runs straight from one into the other. Follow the arrows: start in the open position on the D string, slide your hand up, and finish in position 2.",
-        "This is how the neck stops being separate boxes: the same notes, reached from a different spot. Stage 4 does the same with the other three positions.",
+        "This is how the neck stops being separate boxes: the same notes, reached from a different spot. Stage 8 does the same with the other three positions.",
       ),
       neck("G major across positions 1 and 2. Position 2 (frets 2–5) is shaded.", 0, 5, toneDots(G, MAJOR_SEMIS, 0, 5), {
         window: { from: 2, to: 5 },

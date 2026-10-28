@@ -6,7 +6,7 @@ const MAJOR_TRIAD = [0, 4, 7];
 const at = (root: number, pts: [number, number][]): Dot[] => pts.map(([s, f]) => toneDot(s, f, root));
 
 export const STAGE_4: CourseStage = {
-  slug: "4", label: "4", title: "Up the neck",
+  slug: "4", label: "8", title: "Up the neck",
   intro: "The three remaining CAGED shapes of G, then one arpeggio and the triads followed across the whole neck.",
   sections: [
     section("d-c-a-shapes", "D, C and A shapes", "caged", [
