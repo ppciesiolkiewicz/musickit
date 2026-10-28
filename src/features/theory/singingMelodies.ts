@@ -285,3 +285,23 @@ export function placeTune(tune: MelodyNote[], ladder: Ladder, range: Range): Pla
   const root = (fit.length ? fit : roots).reduce((b, r) => (off(r) < off(b) ? r : b));
   return tune.map((n) => ({ ...at(root + n.step), beats: n.beats, at: n.at }));
 }
+
+/**
+ * A run through `keys` keys, a semitone up each time, as one tune: the first pass placed as placeTune places it, and each
+ * key after on the Do a semitone above the last, its notes spelled in that key. `ladderIn` builds the seven-note ladder
+ * of a key over a range; the later keys get room above the voice's top, so a run climbing past it isn't clamped.
+ */
+export function placeRun(tune: MelodyNote[], tonicPc: number, keys: number, ladderIn: (pc: number, range: Range) => Ladder, range: Range): PlacedNote[] {
+  const ladder = ladderIn(tonicPc, range);
+  const first = placeTune(tune, ladder, range);
+  // the Do the first pass sits on
+  const root0 = ladder.notes[ladder.notes.findIndex((n) => n.midi === first[0].midi) - tune[0].step].midi;
+  const length = tune.at(-1)!.at + tune.at(-1)!.beats;
+  const wide = { low: range.low, high: range.high + 2 * keys + 12 };
+  return Array.from({ length: keys }, (_, k) => {
+    if (k === 0) return first;
+    const l = ladderIn((tonicPc + k) % 12, wide);
+    const root = l.notes.findIndex((n) => n.label === "R" && n.midi === root0 + k);
+    return tune.map((n) => ({ ...l.notes[Math.max(0, Math.min(l.notes.length - 1, root + n.step))], beats: n.beats, at: n.at + k * length }));
+  }).flat();
+}

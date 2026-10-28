@@ -7,8 +7,8 @@ import { Button, Chip, Slider } from "@/components/ui";
 import { createSmoother, type Pitch } from "@/features/tuner/pitch";
 import { getAudioContext, getSharedPiano, midiToName, onSilence, playSequence, silence, wakeAudio } from "@/features/sound";
 import { MAX_BPM, MIN_BPM, type PocketStatus } from "@/features/instruments";
-import { ACCURACIES, IN_TUNE_CENTS, VOICES, buildLadder, clefFor, hzToMidi, savedAccuracy, savedVoice, scaleRun, tuneLadderFor, type Voice } from "@/features/theory/singing";
-import { BOOK, DIFFICULTIES, RUNS, placeTune, type BookTune, type PlacedNote } from "@/features/theory/singingMelodies";
+import { ACCURACIES, IN_TUNE_CENTS, VOICES, buildLadder, clefFor, hzToMidi, savedAccuracy, savedVoice, scaleRun, tuneLadderFor, type Range, type Voice } from "@/features/theory/singing";
+import { BOOK, DIFFICULTIES, RUNS, placeRun, placeTune, type BookTune, type PlacedNote } from "@/features/theory/singingMelodies";
 import { singingQuery, type SingingLink } from "@/features/theory/singingLink";
 import SingingStaff from "./SingingStaff";
 import MelodyFeed from "./MelodyFeed";
@@ -35,7 +35,7 @@ const savedLag = (v: unknown): number | null => (typeof v === "number" && v >= 0
 type Tab = "scales" | "melodies" | "runs";
 const TABS: { id: Tab; label: string }[] = [{ id: "scales", label: "Scales" }, { id: "melodies", label: "Melodies" }, { id: "runs", label: "Runs" }];
 const ALL = [...BOOK, ...RUNS];
-/** a run played from its card goes round this many keys, a semitone up each time */
+/** a run goes round this many keys, a semitone up each time, all on its one staff */
 const RUN_KEYS = 5;
 
 /**
@@ -113,7 +113,13 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
   const ladder = useMemo(() => buildLadder(scale, tonicPc, range) ?? buildLadder("major-ionian", tonicPc, range)!, [scale, tonicPc, range]);
   // the tunes are written in seven-note degrees: a pentatonic sings them in its major or minor; they can dip under the lowest Do
   const tuneLadder = useMemo(() => tuneLadderFor(ladder, tonicPc, range), [ladder, tonicPc, range]);
-  const placed = useMemo(() => new Map(ALL.map((t) => [t.n, placeTune(t.notes, tuneLadder, range)])), [tuneLadder, range]);
+  const placed = useMemo(() => {
+    const ladderIn = (pc: number, r: Range) => tuneLadderFor(buildLadder(scale, pc, r) ?? buildLadder("major-ionian", pc, r)!, pc, r);
+    return new Map([
+      ...BOOK.map((t) => [t.n, placeTune(t.notes, tuneLadder, range)] as const),
+      ...RUNS.map((t) => [t.n, placeRun(t.notes, tonicPc, RUN_KEYS, ladderIn, range)] as const),
+    ]);
+  }, [tuneLadder, range, scale, tonicPc]);
   const place = useCallback((t: BookTune) => placed.get(t.n)!, [placed]);
   const tunes = useMemo(() => book.filter((t) => level === "all" || t.difficulty === level), [book, level]);
   // the difficulties this book has tunes in
@@ -162,14 +168,9 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
   const [playFrom, setPlayFrom] = useState<number | null>(null);
   const [tapped, setTapped] = useState<{ n: number; i: number } | null>(null);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
-  // a run plays in RUN_KEYS keys, a semitone up after each pass: the keys left on the run playing, and the run to carry on
-  // with once the key has moved (kept apart, as the key change stops what is playing)
-  const nextRun = useRef<{ n: number; left: number } | null>(null);
-  const runLeft = useRef(0);
   const clear = useCallback(() => {
     timers.current.forEach(clearTimeout);
     timers.current = [];
-    runLeft.current = 0;
     setRunning(false);
     setPlayed(null);
     setPlaying(null);
@@ -192,32 +193,22 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
   // a tune plays once from its card and becomes the one sung; Play again starts it over
   const playTune = async (t: BookTune) => {
     if (running) silence();
-    await startTune(t, 0, RUNS.includes(t) ? RUN_KEYS - 1 : 0);
+    await startTune(t);
   };
   // the metronome starts over with the tune, so its beat 1 is the click's (muted unless it was heard); from a later beat, the
-  // metronome starts that far into its count, so its beats still fall on the tune's. `keys` is how many more keys a run goes on to,
-  // set once the sequence (which stops what was playing) has started
-  const startTune = async (t: BookTune, from = 0, keys = 0) => {
+  // metronome starts that far into its count, so its beats still fall on the tune's
+  const startTune = async (t: BookTune, from = 0) => {
     await wakeAudio();
     const at = pocket ? await pocket.restart(from) : null;
     const lead = at === null ? 60 : Math.max(0, (at - getAudioContext().currentTime) * 1000);
     const notes: PlacedNote[] = place(t);
     playSequence(notes.filter((n) => n.at >= from).map((n) => ({ note: n.midi, at: lead + (n.at - from) * beat, hold: n.beats * beat * 0.9 })));
-    runLeft.current = keys;
     const end = notes[notes.length - 1].at + notes[notes.length - 1].beats;
     setActive(t.n);
     setRunning(true);
     setPlaying(t.n);
     setPlayFrom(performance.now() + lead - from * beat);
-    timers.current = [
-      setTimeout(() => {
-        const left = runLeft.current;
-        clear();
-        if (!left) return;
-        nextRun.current = { n: t.n, left: left - 1 };
-        setTonicPc((pc) => (pc + 1) % 12);
-      }, lead + (end - from) * beat),
-    ];
+    timers.current = [setTimeout(clear, lead + (end - from) * beat)];
   };
   // back to the start: the tune picked, the bar and the metronome over on beat 1, nothing played
   const restartTune = async (t: BookTune) => {
@@ -226,16 +217,6 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
     await wakeAudio();
     await pocket?.restart();
   };
-
-  // the key moved on under a run: the run carries on in it
-  useEffect(() => {
-    const r = nextRun.current;
-    nextRun.current = null;
-    const t = r && RUNS.find((b) => b.n === r.n);
-    if (!t) return;
-    void startTune(t, 0, r.left);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- only the key moving on carries a run on
-  }, [placed]);
 
   // a new tempo starts the metronome over, and the tune playing with it at the new speed
   const bpm = pocket?.bpm;

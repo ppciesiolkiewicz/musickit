@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { BOOK, DIFFICULTIES, RUNS, STAGES, effortOf, parseTune, placeTune } from "./singingMelodies";
+import { BOOK, DIFFICULTIES, RUNS, STAGES, effortOf, parseTune, placeRun, placeTune } from "./singingMelodies";
 import { VOICES, buildLadder, withNotesUnder } from "./singing";
 
 describe("the melody book", () => {
@@ -111,5 +111,15 @@ describe("difficulty", () => {
       assert.ok(Math.abs(t.notes.at(-2)!.step - end.step) <= 2, `#${t.n}`);
       assert.ok(t.notes.some((n) => n.beats < 1), `#${t.n}`);
     }
+  });
+
+  it("places a run through the keys, a semitone up each pass, spelled in each key", () => {
+    const ladderIn = (pc: number, r: { low: number; high: number }) => buildLadder("major-ionian", pc, r)!;
+    const tune = parseTune("1 2 3 2 | 1w");
+    const run = placeRun(tune, 0, 3, ladderIn, VOICES.tenor);
+    assert.equal(run.length, 15);
+    assert.deepEqual(run.filter((_, i) => i % 5 === 0).map((n) => n.midi - run[0].midi), [0, 1, 2]);
+    assert.deepEqual(run.slice(5, 10).map((n) => n.spelled.name), ["D♭", "E♭", "F", "E♭", "D♭"]);
+    assert.deepEqual(run.slice(10).map((n) => n.at), [16, 17, 18, 19, 20]);
   });
 });
