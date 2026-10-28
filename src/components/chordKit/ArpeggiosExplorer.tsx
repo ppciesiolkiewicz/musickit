@@ -6,7 +6,7 @@ import { VerticalBoard, vGeometry } from "./VerticalFretboard";
 import { KeyPicker, ModePicker } from "./KeyPicker";
 import { Badge, FretboardBase, fretGeometry } from "./Fretboard";
 import { DotLabel } from "./DotLabel";
-import { ARP_FRETS, ARP_QUALITIES, WINDOWS, arpeggioMidi, buildArpeggio, neckCells, type Arpeggio, type NeckCell } from "@/lib/chordKit/arpeggios";
+import { ARP_FRETS, ARP_QUALITIES, arpPositions, arpeggioMidi, stringNumber, buildArpeggio, neckCells, type Arpeggio, type ArpPosition, type NeckCell } from "@/lib/chordKit/arpeggios";
 import { FAMILIES, makeKeyContext } from "@/features/theory/theory";
 import { MODE_PAGES, degreeColour } from "@/features/theory/scales";
 import { strum } from "@/lib/chordKit/playback";
@@ -29,9 +29,41 @@ const GEO = fretGeometry(0, ARP_FRETS, 54, 36);
 const PHONE_GEO = fretGeometry(0, ARP_FRETS, 32, 32);
 const OUT = "#f43f5e";
 
-type Win = { id: string; label: string; from: number; to: number };
+const ORD = ["", "1st", "2nd", "3rd", "4th", "5th", "6th"];
+const posName = (p: ArpPosition) => `Root on the ${ORD[stringNumber(p.rootString)]} string`;
+const key = (c: NeckCell) => `${c.string}-${c.fret}`;
 
-export function ArpNeck({ cells, arp, overlay, labelSystem, badges, onNote, focus = null }: { cells: NeckCell[]; arp: Arpeggio; overlay: boolean; labelSystem: LabelSystem; badges: boolean; onNote: (c: NeckCell) => void; focus?: Win | null }) {
+/** The idea behind the positions: every shape starts on Do, the root, on one string, and climbs the strings above it. */
+function RootStringsDiagram() {
+  const W = 340, H = 150, left = 34, right = 14, top = 14, gap = 22;
+  const y = (s: number) => top + (5 - s) * gap; // high e on top, like the neck above
+  const x = (s: number) => left + 26 + (4 - s) * 56;
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", maxWidth: 380, height: "auto" }} role="img" aria-label="Five positions, each starting on the root on a different string and climbing to the high e string">
+      {[0, 1, 2, 3, 4, 5].map((s) => (
+        <g key={s}>
+          <line x1={left} x2={W - right} y1={y(s)} y2={y(s)} stroke="var(--color-slate-600)" strokeWidth={s < 3 ? 1.6 : 1} />
+          <text x={left - 8} y={y(s)} textAnchor="end" dominantBaseline="central" fontSize={10} fill="var(--color-slate-400)">{stringNumber(s)}</text>
+        </g>
+      ))}
+      {[0, 1, 2, 3, 4].map((s) => (
+        <g key={s}>
+          <line x1={x(s)} x2={x(s)} y1={y(s) - 12} y2={y(5) + 2} stroke="#38bdf8" strokeWidth={1.5} markerEnd="url(#arp-up)" opacity={0.7} />
+          <circle cx={x(s)} cy={y(s)} r={10} fill="var(--color-slate-50)" stroke="var(--color-slate-950)" strokeWidth={1.5} />
+          <text x={x(s)} y={y(s) + 0.5} textAnchor="middle" dominantBaseline="central" fontSize={8.5} fontWeight={700} fill="#0d1526">Do</text>
+          <text x={x(s)} y={H - 6} textAnchor="middle" fontSize={9.5} fill="var(--color-slate-300)">{ORD[stringNumber(s)]}</text>
+        </g>
+      ))}
+      <defs>
+        <marker id="arp-up" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M0 0 L10 5 L0 10 z" fill="#38bdf8" />
+        </marker>
+      </defs>
+    </svg>
+  );
+}
+
+export function ArpNeck({ cells, arp, overlay, labelSystem, badges, onNote, focus = null }: { cells: NeckCell[]; arp: Arpeggio; overlay: boolean; labelSystem: LabelSystem; badges: boolean; onNote: (c: NeckCell) => void; focus?: ArpPosition | null }) {
   const g = usePhone() ? PHONE_GEO : GEO;
   const labelFor = (c: NeckCell) => noteLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText, role: c.arp?.role });
   const showBadge = badges && labelSystem === "note";
@@ -39,7 +71,8 @@ export function ArpNeck({ cells, arp, overlay, labelSystem, badges, onNote, focu
   const arpCells = cells.filter((c) => c.arp);
   const ringCells = overlay ? cells.filter((c) => !c.arp && c.inScale) : [];
   // with a position picked, the notes outside it fade
-  const op = (c: NeckCell) => (focus && (c.fret < focus.from || c.fret > focus.to) ? 0.25 : 1);
+  const inFocus = new Set(focus?.notes.map(key));
+  const op = (c: NeckCell) => (focus && !inFocus.has(key(c)) ? 0.25 : 1);
 
   return (
     <div className="min-w-0">
@@ -47,7 +80,7 @@ export function ArpNeck({ cells, arp, overlay, labelSystem, badges, onNote, focu
         <FretboardBase g={g} />
         {focus && (
           <rect
-            x={g.fx(focus.from) - 19} y={g.sy(5) - 19} width={g.fx(focus.to) - g.fx(focus.from) + 38} height={g.sy(0) - g.sy(5) + 38}
+            x={g.fx(focus.from) - 19} y={g.sy(5) - 19} width={g.fx(focus.to) - g.fx(focus.from) + 38} height={g.sy(focus.rootString) - g.sy(5) + 38}
             rx={12} fill="none" stroke="#38bdf8" strokeWidth={2} strokeDasharray="6 4" opacity={0.8}
           />
         )}
@@ -81,21 +114,24 @@ export function ArpNeck({ cells, arp, overlay, labelSystem, badges, onNote, focu
   );
 }
 
-/** One position of the arpeggio as a vertical diagram: five frets, the arpeggio notes, and the scale as small rings behind them. */
-function ArpBox({ cells, win, overlay, labelSystem, badges, onNote, on, onPick }: { cells: NeckCell[]; win: Win; overlay: boolean; labelSystem: LabelSystem; badges: boolean; onNote: (c: NeckCell) => void; on: boolean; onPick: () => void }) {
-  const g = vGeometry(win.from, win.to);
-  const inWin = cells.filter((c) => c.fret >= win.from && c.fret <= win.to);
+/** One position of the arpeggio as a vertical diagram: its notes from the root up, and the scale as small rings behind them. */
+function ArpBox({ cells, pos, overlay, labelSystem, badges, onNote, onPlay, on, onPick }: { cells: NeckCell[]; pos: ArpPosition; onPlay: () => void; overlay: boolean; labelSystem: LabelSystem; badges: boolean; onNote: (c: NeckCell) => void; on: boolean; onPick: () => void }) {
+  const from = Math.max(0, Math.min(pos.from, pos.to - 3)), to = Math.max(pos.to, from + 3);
+  const g = vGeometry(from, to);
+  const mine = new Set(pos.notes.map(key));
+  const inWin = cells.filter((c) => c.fret >= from && c.fret <= to);
   const colour = (c: NeckCell) => (c.inScale ? degreeColour(c.scaleDegree as number) : OUT);
   const lab = (c: NeckCell) => noteLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText, role: c.arp?.role });
-  const rings = overlay ? inWin.filter((c) => !c.arp && c.inScale) : [];
-  const dots = inWin.filter((c) => c.arp);
+  const rings = overlay ? inWin.filter((c) => !mine.has(key(c)) && c.inScale && !(c.arp && c.string < pos.rootString)) : [];
+  const dots = pos.notes;
   return (
     <div className={`flex min-w-0 flex-col gap-1 rounded-xl border p-2 transition ${on ? "border-sky-500/70 bg-sky-500/5" : "border-slate-800 bg-slate-950/50"}`}>
       <button type="button" onClick={onPick} aria-pressed={on} className="-m-1 w-[calc(100%+0.5rem)] cursor-pointer rounded-lg px-2 py-2 text-left text-sm font-medium text-slate-100 hover:bg-sky-500/10 hover:text-sky-300" title="Light it up on the neck">
-        Frets {win.from}–{win.to}
+        {posName(pos)}
+        <span className="block text-xs font-normal text-slate-300">Do at fret {pos.rootFret} · frets {pos.from}–{pos.to}</span>
         <span className="block text-xs font-normal text-slate-500">{on ? "Tap to clear" : "Tap to show on the neck"}</span>
       </button>
-      <svg viewBox={`0 0 ${g.W} ${g.H}`} style={{ width: "100%", maxWidth: 280, height: "auto" }} className="mx-auto" role="img" aria-label={`${win.label} frets of the arpeggio`}>
+      <svg viewBox={`0 0 ${g.W} ${g.H}`} style={{ width: "100%", maxWidth: 280, height: "auto" }} className="mx-auto" role="img" aria-label={`Arpeggio with the ${posName(pos).toLowerCase()}`}>
         <VerticalBoard g={g} />
         {rings.map((c) => {
           const x = g.sx(c.string), y = g.fy(c.fret), col = colour(c);
@@ -119,6 +155,7 @@ function ArpBox({ cells, win, overlay, labelSystem, badges, onNote, on, onPick }
         })}
         {badges && labelSystem === "note" && dots.map((c) => <Badge key={`b${c.string}-${c.fret}`} x={g.sx(c.string)} y={g.fy(c.fret)} r={14} text={fmtDegree(againstMajor(c.degreeText, c.semi))} colour={colour(c)} />)}
       </svg>
+      <button type="button" onClick={onPlay} className="cursor-pointer self-start rounded-full border border-emerald-500 bg-emerald-500/15 px-2.5 py-0.5 text-xs text-emerald-100 hover:bg-emerald-500/25">▶ Play</button>
     </div>
   );
 }
@@ -133,16 +170,21 @@ export default function ArpeggiosExplorer({ initialTonic = DEFAULT_KEY_PC, initi
   const [labelSystem] = useLabelSystem();
   const [badges, setBadges] = useState(true);
   const [octaves, setOctaves] = useState(1);
-  const [focus, setFocus] = useState<string | null>(null);
-  const focused = WINDOWS.find((w) => w.id === focus) ?? null;
+  const [focus, setFocus] = useState<number | null>(null);
 
   const ctx = useMemo(() => makeKeyContext(tonicPc, fam, mode), [tonicPc, fam, mode]);
   const arp = useMemo(() => buildArpeggio(ctx, degree, kind), [ctx, degree, kind]);
   const cells = useMemo(() => neckCells(ctx, arp), [ctx, arp]);
+  const positions = useMemo(() => arpPositions(cells), [cells]);
+  const focused = positions.find((p) => p.rootString === focus) ?? null;
   const page = MODE_PAGES.find((m) => m.familyIndex === fam && m.modeIndex === mode);
   const outside = arp.notes.filter((n) => n.outside);
 
   const playArp = () => strum(arpeggioMidi(arp, octaves), { gapMs: 230, holdMs: 700 });
+  const playPosition = (p: ArpPosition) => {
+    const up = p.notes.map((n) => n.midi);
+    strum([...up, ...up.slice(0, -1).reverse()], { gapMs: 230, holdMs: 700 });
+  };
   const playNote = (c: NeckCell) => strum([c.midi], { gapMs: 0, holdMs: 700 });
 
   return (
@@ -202,12 +244,20 @@ export default function ArpeggiosExplorer({ initialTonic = DEFAULT_KEY_PC, initi
       <section className="rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5">
         <h2 className="mb-2 text-sm font-medium text-slate-100">
           {arp.title} by position
-          <Info label="About positions">The same arpeggio cut into five-fret boxes up the neck, so you can learn one area at a time. Neighbouring boxes overlap. Tap a note to hear it.</Info>
+          <Info label="About positions">Each position starts on the root (Do) on one string and climbs the strings above it, one note at a time, without leaving the hand&apos;s reach. Tap a note to hear it, or Play to hear the position up and back.</Info>
         </h2>
+        <div className="mb-3 flex flex-col gap-3 rounded-xl border border-slate-800 bg-slate-950/40 p-3 md:flex-row md:items-center">
+          <RootStringsDiagram />
+          <div className="flex flex-col gap-1.5 text-xs text-slate-300">
+            <p>An arpeggio always starts from <b className="text-slate-100">Do</b>, its root. Find Do on one string, then play the chord tones upward across the strings above it until you run out of strings.</p>
+            <p>So each position is named by the string Do sits on: <b className="text-slate-100">root on the 6th string</b> starts on the low E and covers all six strings; <b className="text-slate-100">root on the 2nd string</b> starts on the B and has only the top two. Learn where Do is on each string and you can start the arpeggio anywhere on the neck.</p>
+            <p className="text-slate-400">Strings are counted from the high e (1st) to the low E (6th).</p>
+          </div>
+        </div>
         <div className="mb-2 min-h-8">
           {focused ? (
             <div className="flex flex-wrap items-center gap-2">
-              <span className="mr-1 text-xs text-slate-300">Frets <b className="text-slate-100">{focused.from}–{focused.to}</b></span>
+              <span className="mr-1 text-xs text-slate-300"><b className="text-slate-100">{posName(focused)}</b> · frets {focused.from}–{focused.to}</span>
               <button type="button" onClick={() => setFocus(null)} className="ml-1 rounded-full border border-slate-700 px-2.5 py-1 text-xs text-slate-300 hover:border-sky-400">
                 ✕ Clear position
               </button>
@@ -217,7 +267,7 @@ export default function ArpeggiosExplorer({ initialTonic = DEFAULT_KEY_PC, initi
           )}
         </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-          {WINDOWS.filter((w) => w.id !== "all").map((w) => <ArpBox key={w.id} cells={cells} win={w} overlay={overlay} labelSystem={labelSystem} badges={badges} onNote={playNote} on={focus === w.id} onPick={() => setFocus(focus === w.id ? null : w.id)} />)}
+          {positions.map((p) => <ArpBox key={p.rootString} cells={cells} pos={p} overlay={overlay} labelSystem={labelSystem} badges={badges} onNote={playNote} onPlay={() => playPosition(p)} on={focus === p.rootString} onPick={() => setFocus(focus === p.rootString ? null : p.rootString)} />)}
         </div>
       </section>
     </div>
