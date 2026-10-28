@@ -29,24 +29,33 @@ const GEO = fretGeometry(0, ARP_FRETS, 54, 36);
 const PHONE_GEO = fretGeometry(0, ARP_FRETS, 32, 32);
 const OUT = "#f43f5e";
 
-export function ArpNeck({ cells, arp, overlay, labelSystem, badges, onNote }: { cells: NeckCell[]; arp: Arpeggio; overlay: boolean; labelSystem: LabelSystem; badges: boolean; onNote: (c: NeckCell) => void }) {
+type Win = { id: string; label: string; from: number; to: number };
+
+export function ArpNeck({ cells, arp, overlay, labelSystem, badges, onNote, focus = null }: { cells: NeckCell[]; arp: Arpeggio; overlay: boolean; labelSystem: LabelSystem; badges: boolean; onNote: (c: NeckCell) => void; focus?: Win | null }) {
   const g = usePhone() ? PHONE_GEO : GEO;
   const labelFor = (c: NeckCell) => noteLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText, role: c.arp?.role });
   const showBadge = badges && labelSystem === "note";
   const colour = (c: NeckCell) => (c.inScale ? degreeColour(c.scaleDegree as number) : OUT);
   const arpCells = cells.filter((c) => c.arp);
   const ringCells = overlay ? cells.filter((c) => !c.arp && c.inScale) : [];
-  const op = () => 1;
+  // with a position picked, the notes outside it fade
+  const op = (c: NeckCell) => (focus && (c.fret < focus.from || c.fret > focus.to) ? 0.25 : 1);
 
   return (
     <div className="min-w-0">
       <svg viewBox={`0 0 ${g.W} ${g.H}`} width="100%" role="img" aria-label={`${arp.title} on the guitar neck`}>
         <FretboardBase g={g} />
+        {focus && (
+          <rect
+            x={g.fx(focus.from) - 19} y={g.sy(5) - 19} width={g.fx(focus.to) - g.fx(focus.from) + 38} height={g.sy(0) - g.sy(5) + 38}
+            rx={12} fill="none" stroke="#38bdf8" strokeWidth={2} strokeDasharray="6 4" opacity={0.8}
+          />
+        )}
         {ringCells.map((c) => {
           const x = g.fx(c.fret), y = g.sy(c.string), col = colour(c);
           const t = labelSystem === "note" ? c.name : noteLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText });
           return (
-            <g key={`${c.string}-${c.fret}`} opacity={op() * 0.9} onClick={() => onNote(c)} className="cursor-pointer">
+            <g key={`${c.string}-${c.fret}`} opacity={op(c) * 0.9} onClick={() => onNote(c)} className="cursor-pointer">
               <circle cx={x} cy={y} r={9} fill="var(--color-slate-950)" stroke={col} strokeWidth={1.6} />
               <text x={x} y={y + 0.5} textAnchor="middle" dominantBaseline="central" fontSize={t.length > 2 ? 7 : 8.5} fontWeight={600} fill={col} pointerEvents="none">{t}</text>
             </g>
@@ -55,7 +64,7 @@ export function ArpNeck({ cells, arp, overlay, labelSystem, badges, onNote }: { 
         {arpCells.map((c) => {
           const x = g.fx(c.fret), y = g.sy(c.string), isRoot = c.arp!.role === "R", label = labelFor(c);
           return (
-            <g key={`${c.string}-${c.fret}`} opacity={op()} onClick={() => onNote(c)} className="group cursor-pointer">
+            <g key={`${c.string}-${c.fret}`} opacity={op(c)} onClick={() => onNote(c)} className="group cursor-pointer">
               <circle cx={x} cy={y} r={18} fill="transparent" />
               <circle cx={x} cy={y} r={14} fill={c.inScale ? colour(c) : "#1b0b12"} stroke={isRoot ? "var(--color-slate-50)" : c.inScale ? "var(--color-slate-950)" : OUT} strokeWidth={isRoot ? 2.8 : c.inScale ? 1.5 : 2} strokeDasharray={c.inScale ? undefined : "3.5 2.5"} />
               <DotLabel label={label} hover={hoverLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText })} size={(t) => (t.length > 2 ? 9.5 : 12)} x={x} y={y + 0.5} textAnchor="middle" dominantBaseline="central" fontWeight={700} fill={c.inScale ? "#0d1526" : "#fecdd3"} />
@@ -63,7 +72,7 @@ export function ArpNeck({ cells, arp, overlay, labelSystem, badges, onNote }: { 
           );
         })}
         {showBadge && arpCells.map((c) => (
-          <g key={`b${c.string}-${c.fret}`} opacity={op()}>
+          <g key={`b${c.string}-${c.fret}`} opacity={op(c)}>
             <Badge x={g.fx(c.fret)} y={g.sy(c.string)} r={14} text={fmtDegree(againstMajor(c.degreeText, c.semi))} colour={colour(c)} />
           </g>
         ))}
@@ -73,7 +82,7 @@ export function ArpNeck({ cells, arp, overlay, labelSystem, badges, onNote }: { 
 }
 
 /** One position of the arpeggio as a vertical diagram: five frets, the arpeggio notes, and the scale as small rings behind them. */
-function ArpBox({ cells, win, overlay, labelSystem, badges, onNote }: { cells: NeckCell[]; win: { id: string; label: string; from: number; to: number }; overlay: boolean; labelSystem: LabelSystem; badges: boolean; onNote: (c: NeckCell) => void }) {
+function ArpBox({ cells, win, overlay, labelSystem, badges, onNote, on, onPick }: { cells: NeckCell[]; win: Win; overlay: boolean; labelSystem: LabelSystem; badges: boolean; onNote: (c: NeckCell) => void; on: boolean; onPick: () => void }) {
   const g = vGeometry(win.from, win.to);
   const inWin = cells.filter((c) => c.fret >= win.from && c.fret <= win.to);
   const colour = (c: NeckCell) => (c.inScale ? degreeColour(c.scaleDegree as number) : OUT);
@@ -81,8 +90,8 @@ function ArpBox({ cells, win, overlay, labelSystem, badges, onNote }: { cells: N
   const rings = overlay ? inWin.filter((c) => !c.arp && c.inScale) : [];
   const dots = inWin.filter((c) => c.arp);
   return (
-    <div className="flex min-w-0 flex-col gap-1 rounded-xl border border-slate-800 bg-slate-950/50 p-2">
-      <h3 className="text-sm font-medium text-slate-100">Frets {win.from}–{win.to}</h3>
+    <div className={`flex min-w-0 flex-col gap-1 rounded-xl border p-2 transition ${on ? "border-sky-500/70 bg-sky-500/5" : "border-slate-800 bg-slate-950/50"}`}>
+      <button type="button" onClick={onPick} aria-pressed={on} className="text-left text-sm font-medium text-slate-100 hover:text-sky-300" title="Light it up on the neck">Frets {win.from}–{win.to}</button>
       <svg viewBox={`0 0 ${g.W} ${g.H}`} style={{ width: "100%", maxWidth: 280, height: "auto" }} className="mx-auto" role="img" aria-label={`${win.label} frets of the arpeggio`}>
         <VerticalBoard g={g} />
         {rings.map((c) => {
@@ -121,6 +130,8 @@ export default function ArpeggiosExplorer({ initialTonic = DEFAULT_KEY_PC, initi
   const [labelSystem] = useLabelSystem();
   const [badges, setBadges] = useState(true);
   const [octaves, setOctaves] = useState(1);
+  const [focus, setFocus] = useState<string | null>(null);
+  const focused = WINDOWS.find((w) => w.id === focus) ?? null;
 
   const ctx = useMemo(() => makeKeyContext(tonicPc, fam, mode), [tonicPc, fam, mode]);
   const arp = useMemo(() => buildArpeggio(ctx, degree, kind), [ctx, degree, kind]);
@@ -176,7 +187,7 @@ export default function ArpeggiosExplorer({ initialTonic = DEFAULT_KEY_PC, initi
             {outside.map((n) => n.name).join(", ")} {outside.length === 1 ? "is" : "are"} outside {ctx.names[0]} {ctx.modeName}: a chromatic colour note.
           </p>
         )}
-        <ArpNeck cells={cells} arp={arp} overlay={overlay} labelSystem={labelSystem} badges={badges} onNote={playNote} />
+        <ArpNeck cells={cells} arp={arp} overlay={overlay} labelSystem={labelSystem} badges={badges} onNote={playNote} focus={focused} />
         <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
           <DegreeLegend />
           <Info label="How do I read the neck?">
@@ -190,8 +201,20 @@ export default function ArpeggiosExplorer({ initialTonic = DEFAULT_KEY_PC, initi
           {arp.title} by position
           <Info label="About positions">The same arpeggio cut into five-fret boxes up the neck, so you can learn one area at a time. Neighbouring boxes overlap. Tap a note to hear it.</Info>
         </h2>
+        <div className="mb-2 min-h-8">
+          {focused ? (
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="mr-1 text-xs text-slate-300">Frets <b className="text-slate-100">{focused.from}–{focused.to}</b></span>
+              <button type="button" onClick={() => setFocus(null)} className="ml-1 rounded-full border border-slate-700 px-2.5 py-1 text-xs text-slate-300 hover:border-sky-400">
+                ✕ Clear position
+              </button>
+            </div>
+          ) : (
+            <p className="text-xs text-slate-400">Pick a position below to outline it on the neck.</p>
+          )}
+        </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-          {WINDOWS.filter((w) => w.id !== "all").map((w) => <ArpBox key={w.id} cells={cells} win={w} overlay={overlay} labelSystem={labelSystem} badges={badges} onNote={playNote} />)}
+          {WINDOWS.filter((w) => w.id !== "all").map((w) => <ArpBox key={w.id} cells={cells} win={w} overlay={overlay} labelSystem={labelSystem} badges={badges} onNote={playNote} on={focus === w.id} onPick={() => setFocus(focus === w.id ? null : w.id)} />)}
         </div>
       </section>
     </div>
