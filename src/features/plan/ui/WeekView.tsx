@@ -11,7 +11,7 @@ import { dayProgress, doneKey } from "../model/schedule";
 import { PLAN_DAYS, type StoredPlan } from "../model/types";
 
 /**
- * The week: a strip of seven days (today and earlier open, later ones locked) and the chosen day's exercises as a list of
+ * The week: a strip of seven days (every day can be opened; days ahead are dashed and marked "coming up") and the chosen day's exercises as a list of
  * sections, each with its focus, how, steps, why, a countdown timer and a tick, then its tools (model/tools.ts), set up and
  * ready to play. A link is an "Open page" link for more.
  */
@@ -24,7 +24,7 @@ export default function WeekView({ plan, today, day, onDay, onToggle }: {
     <div className="flex flex-col gap-4">
       <div className="grid grid-cols-7 gap-1.5" role="tablist" aria-label="Days">
         {Array.from({ length: PLAN_DAYS }, (_, i) => {
-          const locked = i > today;
+          const ahead = i > today;
           const p = dayProgress(plan, i);
           const on = i === day;
           return (
@@ -33,10 +33,9 @@ export default function WeekView({ plan, today, day, onDay, onToggle }: {
               type="button"
               role="tab"
               aria-selected={on}
-              disabled={locked}
               onClick={() => onDay(i)}
-              title={locked ? "Opens on its day" : plan.config.days[i].theme}
-              className={`relative flex flex-col items-center gap-0.5 overflow-hidden rounded-xl border px-1 py-2 text-xs transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 disabled:cursor-not-allowed disabled:opacity-40 ${on ? "border-sky-500/70 bg-sky-500/15 text-sky-100" : "border-slate-700 bg-slate-900/60 text-slate-300 hover:border-slate-500"}`}
+              title={ahead ? `Coming up: ${plan.config.days[i].theme}` : plan.config.days[i].theme}
+              className={`relative flex flex-col items-center gap-0.5 overflow-hidden rounded-xl border px-1 py-2 text-xs transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${on ? "border-sky-500/70 bg-sky-500/15 text-sky-100" : ahead ? "border-dashed border-slate-700 bg-transparent text-slate-500 hover:border-slate-500 hover:text-slate-300" : "border-slate-700 bg-slate-900/60 text-slate-300 hover:border-slate-500"}`}
             >
               <span className="text-[10px] uppercase tracking-wider text-slate-500">{i === today ? "Today" : "Day"}</span>
               <span className="text-base tabular-nums">{i + 1}</span>
@@ -49,6 +48,7 @@ export default function WeekView({ plan, today, day, onDay, onToggle }: {
 
       <div className="flex flex-wrap items-baseline gap-x-3">
         <h2 className="text-lg text-slate-100">Day {day + 1}: {d.theme}</h2>
+        {day > today && <span className="rounded-full border border-slate-700 px-2 py-0.5 text-[11px] text-slate-400">Coming up in {day - today} day{day - today > 1 ? "s" : ""}</span>}
         <span className="text-xs text-slate-500">{d.exercises.length} exercises · {total} min</span>
       </div>
 

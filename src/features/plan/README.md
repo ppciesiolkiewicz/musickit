@@ -9,7 +9,7 @@ browser.
 1. **Start** opens one step modal (`ui/PlanFlow.tsx`, mode `"start"`): the questions (what they play, level, where they
    want to go, what feels hard, minutes a day, styles, notes), then *Copy your prompt*, then *Paste its reply*.
    **Build my plan** is enabled once the reply parses.
-2. **The week** (`ui/WeekView.tsx`): seven day buttons; today and earlier days open, later days locked. The day's
+2. **The week** (`ui/WeekView.tsx`): seven day buttons; any day can be opened, days ahead are dashed and marked "coming up". The day's
    exercises are a list of sections: title, focus ("A minor pentatonic · boxes 1 & 2"), how, steps, why, a countdown
    timer (chimes and ticks the exercise at zero), Done.
 3. **Tools in the section**: each exercise carries 1–2 `tools`, set up by the AI, with nothing to configure: a scale's
