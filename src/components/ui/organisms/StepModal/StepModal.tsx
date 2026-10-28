@@ -16,15 +16,19 @@ export interface ModalStep {
 /**
  * A modal that walks through `steps` one screen at a time: a progress bar, Back and Next, and `finishLabel` on the last
  * screen, which calls `onFinish`. Callers keep the answers themselves (the bodies are their own controls); closing just calls `onClose`.
+ * Only the Close button closes it (not Escape or a click beside it), so coming back from another window never loses the flow.
+ * Pass `step`/`onStep` to own the screen number (to restore it after a reload).
  */
-export function StepModal({ title, steps, onFinish, onClose, finishLabel = "Done" }: {
-  title: string; steps: ModalStep[]; onFinish: () => void; onClose: () => void; finishLabel?: string;
+export function StepModal({ title, steps, onFinish, onClose, finishLabel = "Done", step: stepProp, onStep }: {
+  title: string; steps: ModalStep[]; onFinish: () => void; onClose: () => void; finishLabel?: string; step?: number; onStep?: (i: number) => void;
 }) {
-  const [i, setI] = useState(0);
-  const step = steps[Math.min(i, steps.length - 1)];
+  const [own, setOwn] = useState(0);
+  const i = Math.min(stepProp ?? own, steps.length - 1);
+  const setI = (n: number) => (onStep ? onStep(n) : setOwn(n));
+  const step = steps[i];
   const last = i >= steps.length - 1;
   return (
-    <Modal title={title} narrow onClose={onClose}>
+    <Modal title={title} narrow dismissible={false} onClose={onClose}>
       <div className="flex flex-col gap-4">
         <div className="flex gap-1" role="progressbar" aria-valuemin={1} aria-valuemax={steps.length} aria-valuenow={i + 1}>
           {steps.map((_, n) => <span key={n} className={`h-1 flex-1 rounded-full transition-colors ${n <= i ? "bg-sky-400" : "bg-slate-800"}`} />)}

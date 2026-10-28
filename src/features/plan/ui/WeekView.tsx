@@ -1,21 +1,30 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import Icon from "@/components/Icon";
 import { Checkbox } from "@/components/ui";
+import ExerciseEmbed from "./ExerciseEmbed";
 import ExerciseTimer from "./ExerciseTimer";
+import { embedFor } from "../model/embed";
 import { dayProgress, doneKey } from "../model/schedule";
 import { PLAN_DAYS, type StoredPlan } from "../model/types";
 
 /**
  * The week: a strip of seven days (today and earlier open, later ones locked) and the chosen day's exercises as a grid of
- * cards, each with its focus, steps, a countdown timer, why, a link to the attunr page and a tick.
+ * cards, each with its focus, steps, a countdown timer, why and a tick. An exercise whose link is an embeddable tool
+ * (model/embed.ts) opens that tool right here, under the cards; any other link goes to its page.
  */
 export default function WeekView({ plan, today, day, onDay, onToggle }: {
   plan: StoredPlan; today: number; day: number; onDay: (d: number) => void; onToggle: (day: number, ex: number) => void;
 }) {
   const d = plan.config.days[day];
   const total = d.exercises.reduce((n, e) => n + e.minutes, 0);
+  // the exercise whose tool is open under the cards, as "day:index" so changing day closes it
+  const [openKey, setOpenKey] = useState<string | null>(null);
+  const openIdx = openKey?.startsWith(`${day}:`) ? Number(openKey.split(":")[1]) : null;
+  const open = openIdx !== null ? d.exercises[openIdx] : undefined;
+  const openEmbed = embedFor(open?.link);
   return (
     <div className="flex flex-col gap-4">
       <div className="grid grid-cols-7 gap-1.5" role="tablist" aria-label="Days">
@@ -51,6 +60,8 @@ export default function WeekView({ plan, today, day, onDay, onToggle }: {
       <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {d.exercises.map((e, i) => {
           const done = !!plan.done[doneKey(day, i)];
+          const embed = embedFor(e.link);
+          const isOpen = openIdx === i;
           return (
             <li key={i} className={`flex flex-col gap-2 rounded-2xl border p-4 transition ${done ? "border-emerald-500/40 bg-emerald-500/5" : "border-slate-800 bg-slate-900/50"}`}>
               <div className="flex items-start gap-2">
@@ -69,7 +80,16 @@ export default function WeekView({ plan, today, day, onDay, onToggle }: {
               {e.why && <p className="text-xs italic leading-relaxed text-slate-500">{e.why}</p>}
               <div className="mt-auto flex items-center justify-between gap-2 pt-1">
                 <Checkbox checked={done} onChange={() => onToggle(day, i)}>Done</Checkbox>
-                {e.link && (
+                {embed ? (
+                  <button
+                    type="button"
+                    aria-pressed={isOpen}
+                    onClick={() => setOpenKey(isOpen ? null : `${day}:${i}`)}
+                    className={`inline-flex items-center gap-1 rounded-lg border px-2.5 py-1 text-xs transition ${isOpen ? "border-sky-500/70 bg-sky-500/20 text-sky-100" : "border-slate-700 text-sky-200 hover:border-sky-500/60 hover:bg-sky-500/10"}`}
+                  >
+                    {isOpen ? "Close" : "Practise here"} <Icon name={isOpen ? "x" : "chevron-down"} size={12} />
+                  </button>
+                ) : e.link && (
                   <Link href={e.link} className="inline-flex items-center gap-1 rounded-lg border border-slate-700 px-2.5 py-1 text-xs text-sky-200 hover:border-sky-500/60 hover:bg-sky-500/10">
                     Open <Icon name="chevron-right" size={12} />
                   </Link>
@@ -79,6 +99,17 @@ export default function WeekView({ plan, today, day, onDay, onToggle }: {
           );
         })}
       </ul>
+
+      {open && openEmbed && (
+        <section aria-label={`${open.title}: practice tool`} className="flex flex-col gap-3 rounded-2xl border border-sky-500/30 bg-slate-950/40 p-3 sm:p-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <h3 className="text-base text-slate-100">{open.title}</h3>
+            {open.focus && <span className="rounded-md bg-sky-500/10 px-2 py-0.5 text-xs text-sky-200">{open.focus}</span>}
+            <button type="button" onClick={() => setOpenKey(null)} className="ml-auto rounded-md border border-slate-700 px-2.5 py-1 text-xs text-slate-300 hover:border-slate-500">Close ✕</button>
+          </div>
+          <ExerciseEmbed key={openKey} embed={openEmbed} />
+        </section>
+      )}
     </div>
   );
 }

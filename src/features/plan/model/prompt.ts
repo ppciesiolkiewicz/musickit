@@ -1,4 +1,5 @@
 import type { CatalogueEntry } from "./catalogue";
+import { EMBEDS } from "./embed";
 import { GOALS, INSTRUMENTS, LEVELS, STRUGGLES, labelOf } from "./questions";
 import { doneKey } from "./schedule";
 import { PLAN_DAYS, type PlanAnswers, type StoredPlan } from "./types";
@@ -62,7 +63,11 @@ export function buildPrompt(answers: PlanAnswers | null, entries: CatalogueEntry
     "- Concrete instructions: tempos, keys, chords, strings, how many reps, what 'done' looks like. Short, plain language.",
     "- \"link\" is optional and must be exactly one of the attunr paths below (scale pages take any key: /theory/scales/dorian/e). Leave it out when no page fits; never invent one.",
     "",
-    "## attunr pages",
+    "## Tools shown right on the plan page (prefer these)",
+    "Most exercises should link one of these: the student practises with it under the exercise, without leaving the plan. Set its query so the tool opens on exactly the exercise.",
+    ...EMBEDS.map((e) => `${e.path} : ${e.what}`),
+    "",
+    "## Other attunr pages (open in their own page)",
     pages,
     "",
     "## Answer format",

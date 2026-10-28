@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { StepModal, type ModalStep } from "@/components/ui";
 import type { CatalogueEntry } from "../model/catalogue";
 import { parsePlanConfig } from "../model/config";
@@ -8,6 +8,28 @@ import { buildPrompt } from "../model/prompt";
 import type { PlanAnswers, PlanConfig, StoredPlan } from "../model/types";
 import { CopyPrompt, PasteBox } from "./PromptAndPaste";
 import { questionSteps } from "./Questionnaire";
+
+/** The flow in progress, kept for the tab's life so a reload or a hot reload reopens it where it was. */
+export const FLOW_KEY = "musickit.plan.flow";
+type Saved = { mode: "start" | "next"; draft: PlanAnswers; feedback: string; text: string; step: number };
+
+/** The saved flow, if any (sessionStorage can be blocked). */
+export function savedFlow(): Saved | null {
+  try {
+    const s = JSON.parse(window.sessionStorage.getItem(FLOW_KEY) ?? "null") as Saved | null;
+    return s && (s.mode === "start" || s.mode === "next") && s.draft ? s : null;
+  } catch {
+    return null;
+  }
+}
+
+export function clearFlow(): void {
+  try {
+    window.sessionStorage.removeItem(FLOW_KEY);
+  } catch {
+    /* ignore */
+  }
+}
 
 const field = "min-h-28 w-full rounded-lg border border-slate-700 bg-slate-950/60 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-600 focus:border-sky-500 focus:outline-none";
 
@@ -25,9 +47,22 @@ export default function PlanFlow({ mode, answers, current, history, entries, onP
   onPlan: (config: PlanConfig, answers: PlanAnswers, feedback?: string) => void;
   onClose: () => void;
 }) {
-  const [draft, setDraft] = useState(answers);
-  const [feedback, setFeedback] = useState(current?.feedback ?? "");
-  const [text, setText] = useState("");
+  // resume a saved flow of the same kind, otherwise start from the stored answers
+  const [saved] = useState(() => {
+    const s = savedFlow();
+    return s?.mode === mode ? s : null;
+  });
+  const [draft, setDraft] = useState(saved?.draft ?? answers);
+  const [feedback, setFeedback] = useState(saved?.feedback ?? current?.feedback ?? "");
+  const [text, setText] = useState(saved?.text ?? "");
+  const [step, setStep] = useState(saved?.step ?? 0);
+  useEffect(() => {
+    try {
+      window.sessionStorage.setItem(FLOW_KEY, JSON.stringify({ mode, draft, feedback, text, step } satisfies Saved));
+    } catch {
+      /* ignore */
+    }
+  }, [mode, draft, feedback, text, step]);
   const set = <K extends keyof PlanAnswers>(k: K, v: PlanAnswers[K]) => setDraft((d) => ({ ...d, [k]: v }));
   const parsed = useMemo(() => (text.trim() ? parsePlanConfig(text, entries) : null), [text, entries]);
 
@@ -63,8 +98,17 @@ export default function PlanFlow({ mode, answers, current, history, entries, onP
       title={mode === "start" ? "Your practice plan" : "Next week"}
       steps={steps}
       finishLabel="Build my plan"
-      onClose={onClose}
-      onFinish={() => parsed?.ok && onPlan(parsed.config, draft, mode === "next" ? feedback : undefined)}
+      step={step}
+      onStep={setStep}
+      onClose={() => {
+        clearFlow();
+        onClose();
+      }}
+      onFinish={() => {
+        if (!parsed?.ok) return;
+        clearFlow();
+        onPlan(parsed.config, draft, mode === "next" ? feedback : undefined);
+      }}
     />
   );
 }

@@ -9,7 +9,7 @@ import { dayIndex, doneKey, localDate, weekOver } from "./model/schedule";
 import { PLAN_DAYS, type PlanAnswers, type PlanConfig, type PlanState, type StoredPlan } from "./model/types";
 import { askNotifications, notificationsSupported } from "./reminders";
 import { usePlan } from "./store/usePlan";
-import PlanFlow from "./ui/PlanFlow";
+import PlanFlow, { savedFlow } from "./ui/PlanFlow";
 import WeekView from "./ui/WeekView";
 
 const newId = () => (typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : String(Date.now()));
@@ -29,7 +29,8 @@ const start = (s: PlanState, config: PlanConfig): PlanState => ({
 export default function PlanApp() {
   const { state, loaded, update } = usePlan();
   const entries = useMemo(() => catalogue(), []);
-  const [flow, setFlow] = useState<"start" | "next" | null>(null);
+  // a flow left open (reload, hot reload) comes back; the modal only renders after the store loads, so no hydration mismatch
+  const [flow, setFlow] = useState<"start" | "next" | null>(() => (typeof window === "undefined" ? null : savedFlow()?.mode ?? null));
   const [today, setToday] = useState(() => localDate());
   const [day, setDay] = useState<number | null>(null);
 

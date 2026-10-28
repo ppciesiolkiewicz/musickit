@@ -25,7 +25,7 @@ const SPRINT_MS = 60_000;
 type Feedback = { ok: boolean; text: string } | null;
 
 /** The fretboard note game: find a named note (tap or play it), find every instance, or name a lit dot. */
-export default function NoteGame({ initial }: { initial: NoteSettings }) {
+export default function NoteGame({ initial, syncUrl = true }: { initial: NoteSettings; /** write the settings to the address bar (off when embedded in another page) */ syncUrl?: boolean }) {
   const [s, setS] = useState(initial);
   const [q, setQ] = useState<NoteQuestion | null>(null);
   const [found, setFound] = useState<string[]>([]);
@@ -46,7 +46,7 @@ export default function NoteGame({ initial }: { initial: NoteSettings }) {
     const next = { ...s, ...patch };
     if (!next.strings.length) return;
     setS(next);
-    writeQuery(noteSettingsQuery(next));
+    if (syncUrl) writeQuery(noteSettingsQuery(next));
     setQ(null);
     setFound([]);
     setFeedback(null);

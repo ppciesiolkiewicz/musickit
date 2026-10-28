@@ -25,7 +25,7 @@ function play(q: EarQuestion) {
 }
 
 /** Interval and chord-quality ear training. Settings live in the URL so a teacher can share a set-up. */
-export default function EarGame({ initial }: { initial: EarSettings }) {
+export default function EarGame({ initial, syncUrl = true }: { initial: EarSettings; /** write the settings to the address bar (off when embedded in another page) */ syncUrl?: boolean }) {
   const [s, setS] = useState(initial);
   const [q, setQ] = useState<EarQuestion | null>(null);
   const [answered, setAnswered] = useState<{ pick: string; ok: boolean } | null>(null);
@@ -35,7 +35,7 @@ export default function EarGame({ initial }: { initial: EarSettings }) {
   const update = (patch: Partial<EarSettings>) => {
     const next = { ...s, ...patch };
     setS(next);
-    writeQuery(settingsQuery(next));
+    if (syncUrl) writeQuery(settingsQuery(next));
     setQ(null);
     setAnswered(null);
   };

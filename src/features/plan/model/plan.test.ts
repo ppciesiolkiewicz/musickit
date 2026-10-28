@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { catalogue, checkLink } from "./catalogue";
 import { parsePlanConfig } from "./config";
 import { buildPrompt, weekReport } from "./prompt";
+import { embedFor } from "./embed";
 import { DEFAULT_ANSWERS } from "./questions";
 import { dayIndex, dayProgress, localDate, weekOver } from "./schedule";
 import type { StoredPlan } from "./types";
@@ -21,6 +22,22 @@ describe("plan links", () => {
     assert.equal(checkLink("/made-up", entries), undefined);
     assert.equal(checkLink("https://evil.example/theory/notes", entries), undefined);
     assert.equal(checkLink("//evil.example", entries), undefined);
+  });
+});
+
+describe("embedFor", () => {
+  it("embeds the small set of tools, with their settings", () => {
+    assert.deepEqual(embedFor("/theory/scales/minor-pentatonic/a"), { kind: "pentatonic", slug: "minor-pentatonic", pc: 9 });
+    assert.equal(embedFor("/theory/scales/dorian/d")?.kind, "scale");
+    assert.deepEqual(embedFor("/theory/notes?mode=find&strings=E,A#top"), { kind: "notes", query: "mode=find&strings=E,A" });
+    assert.deepEqual(embedFor("/theory/ears?level=2"), { kind: "ears", query: "level=2" });
+    assert.deepEqual(embedFor("/theory/metronome-drone"), { kind: "metronome" });
+  });
+  it("leaves everything else a plain link", () => {
+    assert.equal(embedFor("/theory/chords"), null);
+    assert.equal(embedFor("/theory/scales/nope/a"), null);
+    assert.equal(embedFor("/theory/scales/dorian/zz"), null);
+    assert.equal(embedFor(undefined), null);
   });
 });
 
@@ -90,6 +107,7 @@ describe("schedule", () => {
     assert.match(prompt, /Earlier weeks/);
     assert.match(prompt, /too easy/);
     assert.match(prompt, /\/theory\/notes/);
+    assert.match(prompt, /shown right on the plan page/);
     assert.doesNotMatch(buildPrompt(DEFAULT_ANSWERS, entries), /Earlier weeks/);
   });
 });
