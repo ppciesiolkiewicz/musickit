@@ -91,7 +91,10 @@ function ArpBox({ cells, win, overlay, labelSystem, badges, onNote, on, onPick }
   const dots = inWin.filter((c) => c.arp);
   return (
     <div className={`flex min-w-0 flex-col gap-1 rounded-xl border p-2 transition ${on ? "border-sky-500/70 bg-sky-500/5" : "border-slate-800 bg-slate-950/50"}`}>
-      <button type="button" onClick={onPick} aria-pressed={on} className="text-left text-sm font-medium text-slate-100 hover:text-sky-300" title="Light it up on the neck">Frets {win.from}–{win.to}</button>
+      <button type="button" onClick={onPick} aria-pressed={on} className="-m-1 w-[calc(100%+0.5rem)] cursor-pointer rounded-lg px-2 py-2 text-left text-sm font-medium text-slate-100 hover:bg-sky-500/10 hover:text-sky-300" title="Light it up on the neck">
+        Frets {win.from}–{win.to}
+        <span className="block text-xs font-normal text-slate-500">{on ? "Tap to clear" : "Tap to show on the neck"}</span>
+      </button>
       <svg viewBox={`0 0 ${g.W} ${g.H}`} style={{ width: "100%", maxWidth: 280, height: "auto" }} className="mx-auto" role="img" aria-label={`${win.label} frets of the arpeggio`}>
         <VerticalBoard g={g} />
         {rings.map((c) => {
