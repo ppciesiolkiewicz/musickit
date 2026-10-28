@@ -34,7 +34,7 @@ export const TONE: Record<Tone, { icon: string; chip: string }> = {
 
 export const THEORY_SECTIONS: TheorySection[] = [
   { group: "learn", href: "/course", tone: "amber", label: "Course", desc: "Learn the neck one position at a time", icon: "graduation-cap" },
-  { group: "learn", href: "/plan", tone: "violet", label: "AI practice plan", desc: "A 7-day plan your own AI writes for you", icon: "sparkles" },
+  { group: "learn", href: "/plan", tone: "violet", label: "AI practice plan", desc: "A continuous daily plan for your practice", icon: "sparkles" },
   { group: "learn", href: "/theory", tone: "emerald", label: "Start here (old content)", desc: "The course: stages, tracks, songs", icon: "graduation-cap" },
   { group: "learn", href: "/theory/basics", tone: "teal", label: "Guitar basics", desc: "Piano → guitar: notes and intervals", icon: "guitar" },
   { group: "explore", href: "/theory/chords", tone: "sky", label: "Chords", desc: "Open chords and every movable shape", icon: "grid-3x3" },

@@ -4,14 +4,12 @@ import { useEffect, useMemo, useState } from "react";
 import Icon from "@/components/Icon";
 import { Button, Checkbox, Section } from "@/components/ui";
 import { catalogue } from "./model/catalogue";
-import { buildPrompt } from "./model/prompt";
 import { DEFAULT_ANSWERS } from "./model/questions";
 import { dayIndex, doneKey, localDate, weekOver } from "./model/schedule";
-import { PLAN_DAYS, type PlanConfig, type PlanState, type StoredPlan } from "./model/types";
+import { PLAN_DAYS, type PlanAnswers, type PlanConfig, type PlanState, type StoredPlan } from "./model/types";
 import { askNotifications, notificationsSupported } from "./reminders";
 import { usePlan } from "./store/usePlan";
-import { CopyPrompt, PasteConfig } from "./ui/PromptAndPaste";
-import QuestionnaireModal, { answersSummary } from "./ui/Questionnaire";
+import PlanFlow from "./ui/PlanFlow";
 import WeekView from "./ui/WeekView";
 
 const newId = () => (typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : String(Date.now()));
@@ -23,26 +21,15 @@ const start = (s: PlanState, config: PlanConfig): PlanState => ({
   history: s.current ? [s.current, ...s.history].slice(0, 20) : s.history,
 });
 
-function Step({ n, title, children }: { n: number; title: string; children: React.ReactNode }) {
-  return (
-    <section className="flex gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
-      <span className="grid size-7 shrink-0 place-items-center rounded-full bg-sky-500/20 text-sm text-sky-200">{n}</span>
-      <div className="flex min-w-0 flex-1 flex-col gap-3">
-        <h2 className="text-base text-slate-100">{title}</h2>
-        {children}
-      </div>
-    </section>
-  );
-}
-
 /**
- * The AI practice plan: answer a few questions, copy a prompt into your own AI, paste back its JSON and get seven days of
- * exercises, one day opening each day. When the week is over the next prompt carries what was done and skipped.
+ * The AI practice plan, a continuous daily plan: Start runs the questions, the prompt for your own AI and the paste in one
+ * step modal; a new day opens each day. When the week is done "Plan next week" runs the shorter follow-up, whose prompt
+ * carries this week's exercises; "Start anew" runs the first flow again with no past in the prompt.
  */
 export default function PlanApp() {
   const { state, loaded, update } = usePlan();
   const entries = useMemo(() => catalogue(), []);
-  const [setup, setSetup] = useState(false);
+  const [flow, setFlow] = useState<"start" | "next" | null>(null);
   const [today, setToday] = useState(() => localDate());
   const [day, setDay] = useState<number | null>(null);
 
@@ -54,18 +41,10 @@ export default function PlanApp() {
   const plan = state.current;
   const todayIdx = plan ? Math.min(dayIndex(plan.startedOn, today), PLAN_DAYS - 1) : 0;
   const over = plan ? weekOver(plan, today) : false;
-  const answers = state.answers ?? DEFAULT_ANSWERS;
-  const history = plan ? [plan, ...state.history] : state.history;
-  const prompt = buildPrompt(state.answers, entries, history);
-  /** the same prompt without answers, so the AI asks the questions itself */
-  const aiPrompt = buildPrompt(null, entries, history);
-  /** how the player starts a plan: let their AI ask, or answer here. Nothing picked until they choose. */
-  const [way, setWay] = useState<"ai" | "app" | null>(null);
-  const [asking, setAsking] = useState(false);
 
-  const onPlan = (config: PlanConfig) => {
-    update((s) => start(s, config));
-    setSetup(false);
+  const onPlan = (config: PlanConfig, answers?: PlanAnswers, feedback?: string) => {
+    update((s) => start({ ...s, answers: answers ?? s.answers, current: s.current && feedback !== undefined ? { ...s.current, feedback } : s.current }, config));
+    setFlow(null);
     setDay(0);
   };
   const setPlan = (change: (p: StoredPlan) => StoredPlan) => update((s) => (s.current ? { ...s, current: change(s.current) } : s));
@@ -79,58 +58,27 @@ export default function PlanApp() {
 
   if (!loaded) return <p className="text-sm text-slate-500">Loading…</p>;
 
-  if (!plan || setup) {
+  const modal = flow && (
+    <PlanFlow mode={flow} answers={state.answers ?? DEFAULT_ANSWERS} current={plan} history={state.history} entries={entries} onPlan={onPlan} onClose={() => setFlow(null)} />
+  );
+  const primary = "!border-sky-500/70 !bg-sky-500/20 !text-sky-100 hover:!bg-sky-500/30";
+
+  if (!plan) {
     return (
-      <div className="flex flex-col gap-3">
-        {plan && <div><Button size="sm" onClick={() => setSetup(false)}><Icon name="chevron-left" size={12} />Back to my plan</Button></div>}
-        <Step n={1} title="Get your prompt">
-          <div className="grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label="How to start">
-            {([
-              ["ai", "copy", "Copy the prompt", "Your AI asks you a few questions, then writes the plan."],
-              ["app", "pencil", "Answer here first", "A short questionnaire here; the prompt carries your answers."],
-            ] as const).map(([id, icon, label, desc]) => (
-              <button
-                key={id}
-                type="button"
-                role="radio"
-                aria-checked={way === id}
-                onClick={() => {
-                  setWay(id);
-                  if (id === "app" && !state.answers) setAsking(true);
-                }}
-                className={`flex items-start gap-3 rounded-xl border p-3 text-left transition focus-visible:outline-2 focus-visible:outline-sky-400 ${way === id ? "border-sky-500/70 bg-sky-500/15" : "border-slate-700 bg-slate-900/60 hover:border-slate-500"}`}
-              >
-                <Icon name={icon} size={18} className="mt-0.5 shrink-0 text-sky-300" />
-                <span>
-                  <span className="block text-sm text-slate-100">{label}</span>
-                  <span className="block text-xs text-slate-500">{desc}</span>
-                </span>
-              </button>
+      <div className="flex flex-col gap-4">
+        <section className="flex flex-col items-start gap-4 rounded-2xl border border-slate-800 bg-slate-900/40 p-6">
+          <ol className="grid w-full gap-3 text-sm text-slate-300 sm:grid-cols-3">
+            {["Answer a few questions about where you are and where you want to go", "Copy the prompt into your own AI (ChatGPT, Claude, Gemini…)", "Paste its reply: your exercises, a new set each day"].map((t, i) => (
+              <li key={i} className="flex gap-2">
+                <span className="grid size-6 shrink-0 place-items-center rounded-full bg-sky-500/20 text-xs text-sky-200">{i + 1}</span>
+                {t}
+              </li>
             ))}
-          </div>
-          {way === "app" && (
-            <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400">
-              {state.answers ? <span>{answersSummary(state.answers)}</span> : <span>Answer the questions to get your prompt.</span>}
-              <Button size="sm" onClick={() => setAsking(true)}><Icon name="pencil" size={12} />{state.answers ? "Edit answers" : "Answer the questions"}</Button>
-            </div>
-          )}
-          {(way === "ai" || (way === "app" && state.answers)) && <CopyPrompt prompt={way === "app" ? prompt : aiPrompt} />}
-          {asking && (
-            <QuestionnaireModal
-              initial={answers}
-              onClose={() => setAsking(false)}
-              onDone={(a) => {
-                update((s) => ({ ...s, answers: a }));
-                setAsking(false);
-              }}
-            />
-          )}
-          <p className="text-xs text-slate-500">Nothing leaves this browser: you paste the prompt into your AI yourself.</p>
-        </Step>
-        <Step n={2} title="Paste its reply">
-          <PasteConfig entries={entries} onPlan={onPlan} />
-        </Step>
-        {state.history.length > 0 && <History plans={state.history} onUse={onPlan} />}
+          </ol>
+          <Button onClick={() => setFlow("start")} className={`${primary} px-5 py-2 text-sm`}><Icon name="sparkles" size={16} />Start</Button>
+        </section>
+        {state.history.length > 0 && <History plans={state.history} onUse={(c) => onPlan(c)} />}
+        {modal}
       </div>
     );
   }
@@ -145,28 +93,25 @@ export default function PlanApp() {
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Reminder state={state} update={update} />
-          <Button size="sm" onClick={() => setSetup(true)}><Icon name="sparkles" size={12} />New plan</Button>
+          <Button size="sm" onClick={() => setFlow("next")} title="Plan the next days from this week's exercises"><Icon name="sparkles" size={12} />Plan next week</Button>
+          <Button size="sm" onClick={() => setFlow("start")} title="Answer the questions again; the prompt leaves out past weeks"><Icon name="rotate-ccw" size={12} />Start anew</Button>
         </div>
       </div>
 
       {over && (
-        <section className="flex flex-col gap-3 rounded-2xl border border-l-4 border-slate-700 border-l-sky-400 bg-slate-900/80 p-4">
-          <h2 className="text-base text-slate-100">Ready for next week</h2>
-          <p className="text-sm text-slate-400">How did it go? Your notes and what you ticked off go into the next prompt, so the new week builds on this one.</p>
-          <textarea
-            value={plan.feedback ?? ""}
-            onChange={(e) => setPlan((p) => ({ ...p, feedback: e.target.value }))}
-            placeholder="Day 3 was too fast, loved the improv, want more songs…"
-            className="min-h-16 w-full rounded-lg border border-slate-700 bg-slate-950/60 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-600 focus:border-sky-500 focus:outline-none"
-          />
-          <CopyPrompt prompt={prompt} label="Copy next week's prompt" />
-          <PasteConfig entries={entries} onPlan={onPlan} />
+        <section className="flex flex-wrap items-center gap-3 rounded-2xl border border-l-4 border-slate-700 border-l-sky-400 bg-slate-900/80 p-4">
+          <div className="min-w-0 flex-1">
+            <h2 className="text-base text-slate-100">Ready for next week</h2>
+            <p className="text-sm text-slate-400">Tell us how it went; the next prompt builds on what you did and skipped.</p>
+          </div>
+          <Button onClick={() => setFlow("next")} className={primary}><Icon name="sparkles" size={14} />Plan next week</Button>
         </section>
       )}
 
       <WeekView plan={plan} today={over ? PLAN_DAYS - 1 : todayIdx} day={day ?? todayIdx} onDay={setDay} onToggle={toggle} />
 
-      {state.history.length > 0 && <History plans={state.history} onUse={onPlan} />}
+      {state.history.length > 0 && <History plans={state.history} onUse={(c) => onPlan(c)} />}
+      {modal}
     </div>
   );
 }

@@ -3,9 +3,7 @@
 import { useState } from "react";
 import Icon from "@/components/Icon";
 import { Button } from "@/components/ui";
-import type { CatalogueEntry } from "../model/catalogue";
-import { parsePlanConfig } from "../model/config";
-import type { PlanConfig } from "../model/types";
+import type { ParseResult } from "../model/config";
 
 const primary = "!border-sky-500/70 !bg-sky-500/20 !text-sky-100 hover:!bg-sky-500/30";
 
@@ -37,41 +35,27 @@ export function CopyPrompt({ prompt, label = "Copy prompt" }: { prompt: string; 
   );
 }
 
-/** Step: paste the AI's reply; a valid plan goes to `onPlan`, anything else shows why. */
-export function PasteConfig({ entries, onPlan }: { entries: CatalogueEntry[]; onPlan: (config: PlanConfig) => void }) {
-  const [text, setText] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [warnings, setWarnings] = useState<string[]>([]);
-  const build = () => {
-    const r = parsePlanConfig(text, entries);
-    if (!r.ok) {
-      setError(r.error);
-      setWarnings([]);
-      return;
-    }
-    setError(null);
-    setWarnings(r.warnings);
-    setText("");
-    onPlan(r.config);
-  };
+/** Step: paste the AI's reply. The parent parses it (to enable Build); this shows the box and why it isn't a plan yet. */
+export function PasteBox({ text, onText, result }: { text: string; onText: (t: string) => void; result: ParseResult | null }) {
   return (
     <div className="flex flex-col gap-2">
       <textarea
+        autoFocus
         value={text}
-        onChange={(e) => setText(e.target.value)}
+        onChange={(e) => onText(e.target.value)}
         placeholder="Paste your AI's reply here (the JSON block)"
-        className="h-32 w-full rounded-lg border border-slate-700 bg-slate-950/60 p-3 font-mono text-xs text-slate-200 placeholder:text-slate-600 focus:border-sky-500 focus:outline-none"
+        className="h-40 w-full rounded-lg border border-slate-700 bg-slate-950/60 p-3 font-mono text-xs text-slate-200 placeholder:text-slate-600 focus:border-sky-500 focus:outline-none"
       />
-      <div className="flex flex-wrap items-center gap-2">
-        <Button onClick={build} disabled={!text.trim()} className={primary}>
-          <Icon name="sparkles" size={14} />
-          Build my 7-day plan
-        </Button>
-        {error && <span role="alert" className="text-xs text-rose-300">{error}</span>}
-      </div>
-      {warnings.length > 0 && (
+      {result && !result.ok && <p role="alert" className="text-xs text-rose-300">{result.error}</p>}
+      {result?.ok && (
+        <p className="text-xs text-emerald-300">
+          <Icon name="check" size={12} className="mr-1 inline" />
+          {result.config.title}: {result.config.days.length} days ready
+        </p>
+      )}
+      {result?.ok && result.warnings.length > 0 && (
         <ul className="text-xs text-amber-300/90">
-          {warnings.map((w) => <li key={w}>{w}</li>)}
+          {result.warnings.map((w) => <li key={w}>{w}</li>)}
         </ul>
       )}
     </div>
