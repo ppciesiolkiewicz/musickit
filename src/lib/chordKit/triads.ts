@@ -72,3 +72,19 @@ export function triadVoicings(rootPc: number, quality: TriadQuality, inversion: 
       }
   return out.sort((a, b) => a.lowestFret - b.lowestFret);
 }
+
+/** Total finger movement between two voicings on the same string group. */
+const moveCost = (a: TriadVoicing, b: TriadVoicing) => a.frets.reduce((s, f, i) => s + Math.abs(f - b.frets[i]), 0);
+
+/**
+ * The IV and V triads (same quality) that sit closest under the hand of a given shape,
+ * on the same strings and in any inversion, e.g. F at x-x-3-2-1 → B♭ at 3-3-3 and C at 2-0-1.
+ */
+export function nearbyFourthFifth(base: TriadVoicing, rootPc: number): { roman: "IV" | "V"; rootPc: number; v: TriadVoicing }[] {
+  return ([["IV", 5], ["V", 7]] as const).map(([roman, semis]) => {
+    const pc = (rootPc + semis) % 12;
+    const all = ([0, 1, 2] as const).flatMap((inv) => triadVoicings(pc, base.quality, inv, base.group));
+    const v = all.reduce((best, c) => (moveCost(c, base) < moveCost(best, base) ? c : best));
+    return { roman, rootPc: pc, v };
+  });
+}
