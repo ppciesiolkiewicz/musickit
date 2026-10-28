@@ -244,7 +244,6 @@ export default function StringsOfLight() {
             type="button"
             role="radio"
             aria-checked={i === mood}
-            title={i === mood ? "Play another tune in this feeling" : undefined}
             onClick={() => pick(i)}
             className={`cursor-pointer inline-flex items-center gap-2 rounded-full border px-3.5 py-2 text-sm transition ${i === mood ? "border-slate-300 bg-slate-100 font-semibold text-slate-950" : "border-slate-700 text-slate-300 hover:border-slate-500 hover:text-slate-100"}`}
           >
