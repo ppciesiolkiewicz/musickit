@@ -227,7 +227,7 @@ export default function StringsOfLight() {
         {/* wider than the column and faded at every edge, so the light melts into the page instead of sitting in a box */}
         <canvas ref={canvas} aria-hidden className="absolute inset-y-0 left-[-10%] h-full w-[120%]" style={{ maskImage: FADE, WebkitMaskImage: FADE }} />
         {/* the pane the strings run behind, its frame taking on the mood's colour: they stay sharp to its left and soften through it */}
-        <div className="absolute inset-y-[12%] left-[14%] right-0 flex flex-col justify-end gap-1 rounded-3xl border p-5 backdrop-blur-md transition-[border-color,box-shadow,background] duration-700 sm:p-6" style={glass(m ? m.rgb : IDLE.rgb)}>
+        <div className="absolute inset-y-[12%] left-[14%] right-0 flex flex-col justify-end gap-1 rounded-3xl border p-5 backdrop-blur-[3px] sm:backdrop-blur-md transition-[border-color,box-shadow,background] duration-700 sm:p-6" style={glass(m ? m.rgb : IDLE.rgb)}>
           <p key={mood ?? "idle"} className="landing-fade text-3xl text-slate-50 sm:text-4xl" style={{ ...DISPLAY, fontStyle: "var(--style-italic, italic)" as CSSProperties["fontStyle"], fontVariationSettings: 'var(--style-display-variation, "SOFT" 100)' }}>
             {m ? m.name : "Pick a feeling"}
           </p>
