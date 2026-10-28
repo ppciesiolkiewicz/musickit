@@ -110,16 +110,18 @@ export default function CourseIndex() {
             return (
               <li key={stage.slug} id={`stage-${stage.slug}`} className="relative flex scroll-mt-20 gap-3 sm:gap-5">
                 <span className="relative z-10 grid size-10 shrink-0 place-items-center rounded-full text-sm font-bold text-slate-950 ring-8 ring-slate-950/70 sm:size-12" style={{ background: colour }}>{stage.label}</span>
-                <section aria-labelledby={`s-${stage.slug}`} className="relative min-w-0 flex-1 overflow-hidden rounded-3xl border border-slate-700/70 bg-slate-900/50 p-4 sm:p-5">
+                <section aria-labelledby={`s-${stage.slug}`} className="relative min-w-0 flex-1 overflow-hidden rounded-3xl border border-slate-700/70 bg-slate-900/50 p-4 transition hover:border-slate-500 sm:p-5">
                   <div aria-hidden className="pointer-events-none absolute inset-0 opacity-25" style={{ background: `radial-gradient(60% 90% at 100% 0%, ${colour}55, transparent)` }} />
-                  <div className="relative flex flex-wrap items-start justify-between gap-3">
+                  {/* the whole card opens the stage; the header lets clicks through, the section rows sit above as their own links */}
+                  {first && <Link href={sectionHref(stage.slug, first.slug)} aria-hidden tabIndex={-1} className="absolute inset-0" />}
+                  <div className="pointer-events-none relative flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="text-xs font-medium uppercase tracking-[0.2em]" style={{ color: colour }}>Stage {stage.label} · {stage.sections.length} sections</p>
                       <h2 id={`s-${stage.slug}`} className="mt-1 text-2xl text-slate-50 sm:text-3xl" style={DISPLAY}>{stage.title}</h2>
                       <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-slate-400">{stage.intro}</p>
                     </div>
                     {first && (
-                      <Link href={sectionHref(stage.slug, first.slug)} className="inline-flex shrink-0 items-center gap-1 rounded-xl border border-slate-600 px-3 py-1.5 text-sm text-slate-100 transition hover:border-slate-400 hover:bg-slate-800/40">
+                      <Link href={sectionHref(stage.slug, first.slug)} className="pointer-events-auto inline-flex shrink-0 items-center gap-1 rounded-xl border border-slate-600 px-3 py-1.5 text-sm text-slate-100 transition hover:border-slate-400 hover:bg-slate-800/40">
                         Open <Icon name="chevron-right" size={16} />
                       </Link>
                     )}
