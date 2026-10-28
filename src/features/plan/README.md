@@ -10,10 +10,10 @@ browser.
    want to go, what feels hard, minutes a day, styles, notes), then *Copy your prompt*, then *Paste its reply*.
    **Build my plan** is enabled once the reply parses.
 2. **The week** (`ui/WeekView.tsx`): seven day buttons; today and earlier days open, later days locked. The day's
-   exercises are a grid of cards: title, focus ("A minor pentatonic · boxes 1 & 2"), how, steps, a countdown timer
-   (chimes and ticks the card at zero), why, Done.
-3. **Practise here**: when an exercise links one of the embeddable tools, its tool opens on this page under the cards,
-   set up for the exercise (key, strings, interval level). Other links open their page.
+   exercises are a list of sections: title, focus ("A minor pentatonic · boxes 1 & 2"), how, steps, why, a countdown
+   timer (chimes and ticks the exercise at zero), Done.
+3. **The tool in the section**: when an exercise links one of the embeddable tools, the tool is right in its section,
+   set up for the exercise (key, strings, interval level). Other links are an "Open page" link.
 4. **Plan next week** (mode `"next"`, any time; a banner shows it once the week is over): how did it go, still heading
    the same way (goals, minutes), copy the prompt (it carries this week's exercises, done or skipped, the notes and up
    to three earlier weeks), paste.
