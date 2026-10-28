@@ -32,6 +32,10 @@ export const SONGS_IN_KEY: Record<string, Partial<Record<number, SongInKey[]>>> 
     4: [s("Scarborough Fair", "Simon & Garfunkel")],
     9: [s("Oye Como Va", "Santana")],
   },
+  // Lydian
+  "0-3": {
+    0: [s("The Simpsons Theme", "Danny Elfman")],
+  },
   // Mixolydian
   "0-4": {
     2: [s("Sweet Home Alabama", "Lynyrd Skynyrd")],
@@ -52,3 +56,7 @@ export const SONGS_IN_KEY: Record<string, Partial<Record<number, SongInKey[]>>> 
 };
 
 export const songsFor = (ctx: KeyContext): SongInKey[] => SONGS_IN_KEY[`${ctx.familyIndex}-${ctx.modeIndex}`]?.[ctx.tonic.pc] ?? [];
+
+/** Every listed song in a mode, whatever its key: for the scales overview, where no key is picked. */
+export const songsInMode = (familyIndex: number, modeIndex: number): SongInKey[] =>
+  Object.values(SONGS_IN_KEY[`${familyIndex}-${modeIndex}`] ?? {}).flatMap((list) => list ?? []);

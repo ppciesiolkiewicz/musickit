@@ -19,6 +19,7 @@ import { Section } from "@/components/ui";
 import KeySignature from "@/components/theory/KeySignature";
 import PentatonicCard from "./PentatonicCard";
 import { PENTATONICS } from "@/features/theory/pentatonics";
+import { songsInMode } from "@/features/theory/songsInKey";
 
 const ORD = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th"];
 
@@ -228,6 +229,18 @@ export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey
                   {rel.vsMinor.length > 0 && <li className="text-slate-400">Versus {ctx.names[0]} natural minor: <b className="text-slate-300">{rel.minorSwaps.map((w) => `${w.degree} ${w.from} → ${w.to}`).join(", ")}</b></li>}
                 </ul>
                 </Section>
+
+                {songsInMode(page.familyIndex, page.modeIndex).length > 0 && (
+                  <Section level={2} defaultOpen title="Songs you know">
+                    <ul className="flex flex-wrap gap-1.5 text-xs">
+                      {songsInMode(page.familyIndex, page.modeIndex).map((x) => (
+                        <li key={x.title} className="rounded-lg border border-slate-800 bg-slate-950/40 px-2 py-1 text-slate-200">
+                          {x.title} <span className="text-slate-500">· {x.artist}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </Section>
+                )}
 
                 <div className="mt-auto flex flex-wrap gap-2">
                   <Link href={scaleHref(page.slug, tonicPc)} className="rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-300 transition hover:border-sky-400 hover:text-sky-100">
