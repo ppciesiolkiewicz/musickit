@@ -4,6 +4,7 @@ import Link from "next/link";
 import Icon from "@/components/Icon";
 import { Checkbox } from "@/components/ui";
 import ExerciseTool from "./ExerciseTool";
+import GuidedSteps from "./GuidedSteps";
 import ExerciseTimer from "./ExerciseTimer";
 import { toolFromLink } from "../model/tools";
 import { dayProgress, doneKey } from "../model/schedule";
@@ -57,6 +58,9 @@ export default function WeekView({ plan, today, day, onDay, onToggle }: {
           // an older plan has no tools: its link stands for one
           const linked = e.tools ? null : toolFromLink(e.link);
           const tools = e.tools ?? (linked ? [linked] : []);
+          // tools tied to steps: the steps become a guided walk, each with its own tools
+          const guided = !!e.steps?.length && tools.some((t) => t.step);
+          const shared = guided ? tools.filter((t) => !t.step) : tools;
           return (
             <li key={`${day}:${i}`}>
               <section aria-label={e.title} className={`flex flex-col gap-3 rounded-2xl border p-3 transition sm:p-4 ${done ? "border-emerald-500/40 bg-emerald-500/5" : "border-slate-800 bg-slate-900/50"}`}>
@@ -69,7 +73,7 @@ export default function WeekView({ plan, today, day, onDay, onToggle }: {
                 <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_18rem]">
                   <div className="flex flex-col gap-2">
                     {e.how && <p className="text-sm leading-relaxed text-slate-300">{e.how}</p>}
-                    {e.steps && (
+                    {e.steps && !guided && (
                       <ol className="list-decimal space-y-0.5 pl-5 text-sm leading-relaxed text-slate-300 marker:text-slate-500">
                         {e.steps.map((st, si) => <li key={si}>{st}</li>)}
                       </ol>
@@ -88,9 +92,10 @@ export default function WeekView({ plan, today, day, onDay, onToggle }: {
                     </div>
                   </div>
                 </div>
-                {tools.length > 0 && (
+                {(shared.length > 0 || guided) && (
                   <div className="flex flex-col gap-3 border-t border-slate-800 pt-3">
-                    {tools.map((t, ti) => <ExerciseTool key={ti} tool={t} />)}
+                    {shared.map((t, ti) => <ExerciseTool key={ti} tool={t} />)}
+                    {guided && <GuidedSteps steps={e.steps!} tools={tools} />}
                   </div>
                 )}
               </section>

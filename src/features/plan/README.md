@@ -37,7 +37,7 @@ store/
   PlanStore.ts    the storage interface: load() / save() of one PlanState
   localPlanStore.ts  the localStorage implementation ("musickit.plan"), with sanitising
   usePlan.tsx     the hook the UI uses, and PlanStoreProvider to swap the store
-ui/               PlanFlow, Questionnaire (the question screens), PromptAndPaste, WeekView, ExerciseTimer, ExerciseTool
+ui/               PlanFlow, Questionnaire (the question screens), PromptAndPaste, WeekView, GuidedSteps, ExerciseTimer, ExerciseTool
 PlanApp.tsx       the page body: no plan → Start; a plan → header, week, history; the flow modal
 reminders.ts, PracticeReminder.tsx   notifications (PracticeReminder is mounted in PageShell, on every page)
 ```
@@ -70,7 +70,9 @@ days or an empty day is refused. Plans pasted before tools existed show the tool
 
 The AI writes an exercise's text and its tools separately; the page draws only from the tools. So the prompt makes
 them agree: every note the steps play is in the scale or its `add`, and any outside note is named as outside, with why. Plain scale first, then extended: two scale tools in order, the
-second with `add` (up to 3 tools per exercise).
+second with `add` (up to 3 tools, or one per step when guided; at most 6).
+Steps that use different views: each tool sets `step` (from 1) and the section walks through the steps one at a time
+(`ui/GuidedSteps.tsx`), showing that step's tools; tools without `step` (a band) stay on across steps.
 
 Few on purpose, each a view with no settings: the AI sets it up, the player plays.
 

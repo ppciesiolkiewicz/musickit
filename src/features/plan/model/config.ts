@@ -46,8 +46,8 @@ export function parsePlanConfig(text: string, entries: CatalogueEntry[]): ParseR
       if (focus) ex.focus = focus;
       const steps = Array.isArray(e.steps) ? e.steps.map((s) => str(s, 240)).filter(Boolean).slice(0, 8) : [];
       if (steps.length) ex.steps = steps;
-      const tools = (Array.isArray(e.tools) ? e.tools : []).map(parseTool).filter((t): t is PlanTool => t !== null).slice(0, 3);
-      if (Array.isArray(e.tools) && tools.length < Math.min(e.tools.length, 3)) warnings.push(`Day ${d + 1}, exercise ${i + 1}: left out a tool it couldn't show.`);
+      const tools = (Array.isArray(e.tools) ? e.tools : []).map(parseTool).filter((t): t is PlanTool => t !== null).slice(0, 6);
+      if (Array.isArray(e.tools) && tools.length < Math.min(e.tools.length, 6)) warnings.push(`Day ${d + 1}, exercise ${i + 1}: left out a tool it couldn't show.`);
       if (tools.length) ex.tools = tools;
       const why = str(e.why, 300);
       if (why) ex.why = why;

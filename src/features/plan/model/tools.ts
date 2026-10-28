@@ -18,7 +18,11 @@ import { VOICES, type Voice } from "@/features/theory/singing";
 export type BandPart = "click" | "drone" | "drums" | "bass";
 export const BAND_PARTS: BandPart[] = ["click", "drone", "drums", "bass"];
 
-export type PlanTool =
+export type PlanTool = ToolBody & {
+  /** the step (from 1) it goes with: the page then walks through the steps, each with its own tools; none means every step */
+  step?: number;
+};
+type ToolBody =
   | { type: "scale"; scale: string; key: number; boxes?: number[]; /** notes from outside the scale the exercise plays too (pitch classes) */ add?: number[] }
   | { type: "chords"; chords: string[] }
   | { type: "sing"; scale: string; key: number; voice: Voice }
@@ -45,7 +49,12 @@ const keyOf = (v: unknown): number | null => (typeof v === "string" || typeof v 
 
 /** One tool from the AI's JSON, checked: null when it can't be shown (unknown scale, no valid chord…). */
 export function parseTool(raw: unknown): PlanTool | null {
-  const t = (raw ?? {}) as Record<string, unknown>;
+  const body = parseBody((raw ?? {}) as Record<string, unknown>);
+  const step = int((raw as Record<string, unknown> | null)?.step, 1, 8);
+  return body && step ? { ...body, step } : body;
+}
+
+function parseBody(t: Record<string, unknown>): ToolBody | null {
   switch (t.type) {
     case "scale": {
       const key = keyOf(t.key);

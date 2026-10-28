@@ -34,6 +34,10 @@ describe("tools", () => {
     assert.deepEqual(parseTool({ type: "band", bpm: 70, key: "e", parts: ["drone", "drone", "kazoo"] }), { type: "band", bpm: 70, key: 4, parts: ["drone"] });
     assert.deepEqual(parseTool({ type: "notes", strings: "E,A", from: 0, to: 5 }), { type: "notes", query: "strings=E%2CA&from=0&to=5" });
   });
+  it("keeps the step a tool goes with", () => {
+    assert.deepEqual(parseTool({ type: "chords", chords: ["A7"], step: 2 }), { type: "chords", chords: ["A7"], step: 2 });
+    assert.deepEqual(parseTool({ type: "chords", chords: ["A7"], step: 0 }), { type: "chords", chords: ["A7"] });
+  });
   it("refuses what it can't show", () => {
     assert.equal(parseTool({ type: "scale", scale: "nope", key: "a" }), null);
     assert.equal(parseTool({ type: "scale", scale: "dorian", key: "zz" }), null);
