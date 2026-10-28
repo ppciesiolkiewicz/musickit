@@ -35,7 +35,7 @@ interface Point { x: number; step: number; t: number }
 interface View { dot: Point | null; cam: number; tail: Point[]; lastHeard: number; now: number; fit: Fit; nearest: number }
 const STILL: View = { dot: null, cam: 0, tail: [], lastHeard: -Infinity, now: 0, fit: "between", nearest: -1 };
 
-export default function SingingStaff({ ladder, clef, pitch, played, onNote, cents = IN_TUNE_CENTS }: {
+export default function SingingStaff({ ladder, clef, pitch, played, onNote, cents = IN_TUNE_CENTS, highlight }: {
   ladder: Ladder;
   clef: Clef;
   pitch: RefObject<number | null>;
@@ -43,6 +43,8 @@ export default function SingingStaff({ ladder, clef, pitch, played, onNote, cent
   onNote: (i: number) => void;
   /** within this many cents counts as on the note */
   cents?: number;
+  /** pitch classes to stand out: every other note is dimmed (none: all notes alike) */
+  highlight?: ReadonlySet<number>;
 }) {
   const wrap = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
@@ -159,6 +161,7 @@ export default function SingingStaff({ ladder, clef, pitch, played, onNote, cent
                   role="button"
                   aria-label={`Play ${n.spelled.name}`}
                   className="cursor-pointer"
+                  opacity={highlight && !highlight.has(n.midi % 12) ? 0.3 : 1}
                   onClick={() => onNote(i)}
                 >
                   {/* the whole column is the button, not just the notehead */}

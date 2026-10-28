@@ -29,6 +29,8 @@ export interface EarSettings {
   custom: number[] | null;
   direction: Direction;
   kind: "interval" | "chord";
+  /** intervals may span more than an octave (a 9th is played for a 2nd); off: always inside one octave */
+  wide: boolean;
 }
 
 export function parseEarSettings(q: URLSearchParams): EarSettings {
@@ -40,6 +42,7 @@ export function parseEarSettings(q: URLSearchParams): EarSettings {
     custom: set.length ? [...new Set(set)] : null,
     direction: dir === "down" || dir === "together" ? dir : "up",
     kind: q.get("kind") === "chord" ? "chord" : "interval",
+    wide: q.get("wide") === "1",
   };
 }
 
@@ -69,7 +72,9 @@ export function nextEarQuestion(s: EarSettings, rand: () => number, prev?: EarQu
     const c = CHORD_QUALITIES.find((x) => x.id === answer)!;
     return { answer, midi: c.semis.map((v) => root + v), together: true };
   }
-  const semis = INTERVALS.find((i) => i.short === answer)!.semis;
+  const simple = INTERVALS.find((i) => i.short === answer)!.semis;
+  // wide: sometimes an octave more, still named as the simple interval
+  const semis = s.wide && simple < 12 && rand() < 0.5 ? simple + 12 : simple;
   return { answer, midi: [root, s.direction === "down" ? root - semis : root + semis], together: s.direction === "together" };
 }
 

@@ -1,4 +1,4 @@
-import type { PlanTool } from "./tools";
+import type { PlanTool, Section } from "./tools";
 
 /** What the player told the questionnaire. Feeds the prompt; never sent anywhere by the app itself. */
 export interface PlanAnswers {
@@ -19,20 +19,24 @@ export interface PlanAnswers {
 export type Instrument = "guitar" | "piano" | "voice";
 export type Level = "new" | "beginner" | "intermediate" | "advanced";
 
-/** One exercise of a day, as the AI wrote it. `link` is an attunr path (checked against the catalogue) or absent. */
+/**
+ * One exercise of a day, as the AI wrote it: a title, a focus, minutes, and `sections` in order (text, steps, tools, links;
+ * model/tools.ts). Plans stored before sections have `how`, `steps`, `tools` and `link` instead; `sectionsOf` reads both.
+ */
 export interface PlanExercise {
   title: string;
   minutes: number;
   /** exactly what to work on: "A minor pentatonic · boxes 1 & 2", "G–C–D at 70 bpm" */
   focus?: string;
-  /** how to do it, one short paragraph */
-  how: string;
-  /** the instructions as numbered steps, when the AI gives them */
-  steps?: string[];
   /** why: what it improves */
   why?: string;
-  /** what it shows on the plan page, set up for it (model/tools.ts) */
-  tools?: PlanTool[];
+  /** what kind of practice it is, from EXERCISE_TAGS ("multi-octave", "ear", …) */
+  tags?: string[];
+  sections?: Section[];
+  /** before sections */
+  how?: string;
+  steps?: string[];
+  tools?: (PlanTool & { step?: number })[];
   link?: string;
 }
 

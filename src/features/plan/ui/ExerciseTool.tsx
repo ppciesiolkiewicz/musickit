@@ -13,7 +13,7 @@ import { useLabelSystem } from "@/features/theory/useLabelSystem";
 import { findPentatonic, pentatonicContext } from "@/features/theory/pentatonics";
 import { findModePage } from "@/features/theory/scales";
 import { makeKeyContext, type KeyContext } from "@/features/theory/theory";
-import { VOICES, buildLadder, clefFor, hzToMidi } from "@/features/theory/singing";
+import { VOICES, buildLadder, clefFor, hzToMidi, spellName } from "@/features/theory/singing";
 import { createSmoother, type Pitch } from "@/features/tuner/pitch";
 import { parseChordQuery } from "@/lib/chordKit/chordSearch";
 import { shapesForTones } from "@/lib/chordKit/chordShapes";
@@ -27,17 +27,20 @@ import type { PlanTool } from "../model/tools";
 const loading = () => <p className="p-3 text-sm text-slate-500">Loading…</p>;
 const NoteGame = dynamic(() => import("@/components/practice/NoteGame"), { ssr: false, loading });
 const EarGame = dynamic(() => import("@/components/practice/EarGame"), { ssr: false, loading });
+const CompPlayer = dynamic(() => import("@/components/practice/CompPlayer"), { ssr: false, loading });
 const PracticeBand = dynamic(() => import("@/features/instruments").then((m) => m.PracticeBand), { ssr: false, loading });
 
 /** One tool of an exercise, as the AI set it up: the thing to play with and nothing to configure. */
 export default function ExerciseTool({ tool }: { tool: PlanTool }) {
   switch (tool.type) {
     case "scale":
-      return <ScaleBoxes slug={tool.scale} pc={tool.key} boxes={tool.boxes} add={tool.add} />;
+      return <ScaleBoxes slug={tool.scale} pc={tool.key} boxes={tool.boxes} add={tool.add} highlight={tool.highlight} />;
     case "chords":
       return <ChordShapes chords={tool.chords} />;
     case "sing":
-      return <SingNotes slug={tool.scale} pc={tool.key} voice={tool.voice} />;
+      return <SingNotes slug={tool.scale} pc={tool.key} voice={tool.voice} notes={tool.notes} highlight={tool.highlight} />;
+    case "comp":
+      return <CompPlayer chords={tool.chords} patterns={tool.patterns} bpm={tool.bpm} beats={tool.beats} />;
     case "band":
       return <PracticeBand bpm={tool.bpm} keyPc={tool.key} parts={tool.parts} />;
     case "notes":
@@ -47,6 +50,7 @@ export default function ExerciseTool({ tool }: { tool: PlanTool }) {
   }
 }
 
+const FLAT = ["C", "D♭", "D", "E♭", "E", "F", "G♭", "G", "A♭", "A", "B♭", "B"];
 const SHARP = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"];
 const SEMI_TEXT = ["1", "♭2", "2", "♭3", "3", "4", "♯4", "5", "♭6", "6", "♭7", "7"];
 
@@ -61,7 +65,8 @@ function addedNote(ctx: KeyContext, pc: number): ExtraNote {
  * The scale's positions on the neck, only the boxes asked for, with any added notes played in them; tap a note to hear
  * it, ▶ to run the box up and down.
  */
-function ScaleBoxes({ slug, pc, boxes, add }: { slug: string; pc: number; boxes?: number[]; add?: number[] }) {
+function ScaleBoxes({ slug, pc, boxes, add, highlight }: { slug: string; pc: number; boxes?: number[]; add?: number[]; highlight?: number[] }) {
+  const lit = useMemo(() => (highlight?.length ? new Set(highlight.map((semi) => (pc + semi) % 12)) : undefined), [highlight, pc]);
   const [system] = useLabelSystem();
   const { active, play, tap } = useNotePlayer();
   const { title, cells, positions } = useMemo(() => {
@@ -94,7 +99,7 @@ function ScaleBoxes({ slug, pc, boxes, add }: { slug: string; pc: number; boxes?
   };
   return (
     <div className="flex flex-col gap-2">
-      <p className="text-xs text-slate-400">{title}{boxes?.length ? ` · box${boxes.length > 1 ? "es" : ""} ${boxes.join(" & ")}` : ""}</p>
+      <p className="text-xs text-slate-400">{title}{lit ? ` · ${highlight!.map((v) => SEMI_TEXT[v]).join(" ")} lit` : ""}{boxes?.length ? ` · box${boxes.length > 1 ? "es" : ""} ${boxes.join(" & ")}` : ""}</p>
       <div className="grid gap-3 lg:grid-cols-2">
         {shown.map((p) => (
           <div key={p.number} className="flex flex-col gap-1">
@@ -102,7 +107,7 @@ function ScaleBoxes({ slug, pc, boxes, add }: { slug: string; pc: number; boxes?
               <span>Box {p.number}</span>
               <button type="button" onClick={() => run(p)} className="rounded border border-slate-700 px-2 py-0.5 text-[11px] text-slate-300 hover:border-slate-500">▶ Play</button>
             </div>
-            <PositionBox position={p} cells={cells} rings active={active} labelSystem={system} onNote={(c) => tap(cellKey(c), c.midi)} />
+            <PositionBox position={p} cells={cells} rings active={active} labelSystem={system} onNote={(c) => tap(cellKey(c), c.midi)} highlight={lit} />
           </div>
         ))}
       </div>
@@ -136,9 +141,28 @@ function ChordShapes({ chords }: { chords: string[] }) {
 const GAP_FRAMES = 6;
 
 /** The scale on a staff in the voice's range, with the microphone's pitch drawn on it; tap a note to hear it. */
-function SingNotes({ slug, pc, voice }: { slug: string; pc: number; voice: keyof typeof VOICES }) {
+function SingNotes({ slug, pc, voice, notes, highlight }: { slug: string; pc: number; voice: keyof typeof VOICES; notes?: number[]; highlight?: number[] }) {
   const range = VOICES[voice];
-  const ladder = useMemo(() => buildLadder(slug, pc, range), [slug, pc, range]);
+  const ladder = useMemo(() => {
+    const full = buildLadder(slug, pc, range);
+    if (!full || !notes?.length) return full;
+    // only the degrees asked for (the chord tones, say), not the whole scale: a tone outside the scale (the ♭7 over a major scale) is added
+    const root = full.notes[0];
+    const below = full.notes.filter((n) => n.midi - root.midi < 12);
+    const flats = full.signature < 0;
+    const picked: typeof full.notes = [];
+    for (let o = 0; o < 4; o++)
+      for (const semi of notes) {
+        const midi = root.midi + 12 * o + semi;
+        if (midi > range.high && picked.length >= 2) break;
+        const inScale = below.find((n) => n.midi - root.midi === semi);
+        const under = below.filter((n) => n.midi - root.midi <= semi).pop() ?? root;
+        const name = inScale?.spelled.name ?? (flats ? FLAT : SHARP)[(pc + semi) % 12];
+        picked.push({ midi, spelled: spellName(name, midi, SEMI_TEXT[semi]), degree: (inScale ?? under).degree, label: SEMI_TEXT[semi] });
+      }
+    return picked.length > 1 ? { ...full, notes: picked, pcs: new Set(notes.map((semi) => (pc + semi) % 12)), title: `${full.title.split(" ")[0]}: ${notes.map((v) => SEMI_TEXT[v]).join(" ")}` } : full;
+  }, [slug, pc, range, notes]);
+  const lit = useMemo(() => (highlight?.length ? new Set(highlight.map((semi) => (pc + semi) % 12)) : undefined), [highlight, pc]);
   const [mic, setMic] = useState(false);
   const [played, setPlayed] = useState<number | null>(null);
   const pitch = useRef<number | null>(null);
@@ -174,7 +198,7 @@ function SingNotes({ slug, pc, voice }: { slug: string; pc: number; voice: keyof
         <MicButton on={mic} onClick={() => { pitch.current = null; setMic((v) => !v); }} offLabel="Sing with the mic" />
         <span>{ladder.title} · {VOICES[voice].label}{status === "denied" ? " · microphone blocked in the browser" : ""}</span>
       </div>
-      <SingingStaff ladder={ladder} clef={clefFor(range)} pitch={pitch} played={played} onNote={(i) => void tap(i)} />
+      <SingingStaff ladder={ladder} clef={clefFor(range)} pitch={pitch} played={played} onNote={(i) => void tap(i)} highlight={lit} />
     </div>
   );
 }

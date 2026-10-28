@@ -1,0 +1,36 @@
+"use client";
+
+import Link from "next/link";
+import Icon from "@/components/Icon";
+import type { Section } from "../model/tools";
+import ExerciseTool from "./ExerciseTool";
+
+/** An exercise's sections in the order the AI wrote them: headings, paragraphs, numbered steps, tools and links, top to bottom. */
+export default function Sections({ sections }: { sections: Section[] }) {
+  return (
+    <div className="flex flex-col gap-3">
+      {sections.map((s, i) => {
+        switch (s.type) {
+          case "heading":
+            return <h4 key={i} className="mt-1 text-sm font-medium text-slate-100">{s.text}</h4>;
+          case "text":
+            return <p key={i} className="text-sm leading-relaxed text-slate-300">{s.text}</p>;
+          case "list":
+            return (
+              <ol key={i} className="list-decimal space-y-0.5 pl-5 text-sm leading-relaxed text-slate-300 marker:text-slate-500">
+                {s.items.map((it, n) => <li key={n}>{it}</li>)}
+              </ol>
+            );
+          case "tool":
+            return <ExerciseTool key={i} tool={s.tool} />;
+          case "link":
+            return (
+              <Link key={i} href={s.href} className="inline-flex w-fit items-center gap-1 rounded-lg border border-slate-700 px-2.5 py-1 text-xs text-sky-200 hover:border-sky-500/60 hover:bg-sky-500/10">
+                Open page <Icon name="chevron-right" size={12} />
+              </Link>
+            );
+        }
+      })}
+    </div>
+  );
+}

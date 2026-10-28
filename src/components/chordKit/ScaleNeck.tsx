@@ -95,7 +95,11 @@ export function ScaleNeck({ cells, big, rings = true, focus = null, fadeOutside 
 }
 
 /** One position as a vertical box: its notes as dots, and (optionally) the other scale notes inside its frets as rings. */
-export function PositionBox({ position, cells, rings, active, labelSystem, onNote }: { position: ScalePosition; cells: ScaleCell[]; rings: boolean; active: string | null; labelSystem: LabelSystem; onNote: (c: ScaleCell) => void }) {
+export function PositionBox({ position, cells, rings, active, labelSystem, onNote, highlight }: {
+  position: ScalePosition; cells: ScaleCell[]; rings: boolean; active: string | null; labelSystem: LabelSystem; onNote: (c: ScaleCell) => void;
+  /** pitch classes to stand out: every other note is dimmed (none: all notes alike) */
+  highlight?: ReadonlySet<number>;
+}) {
   const lit = useLit(active);
   // a box at the first fret also shows the open strings
   const from = position.from <= 1 ? 0 : position.from;
@@ -107,8 +111,8 @@ export function PositionBox({ position, cells, rings, active, labelSystem, onNot
   return (
     <svg viewBox={`0 0 ${g.W} ${g.H}`} style={{ width: "100%", maxWidth: 260, height: "auto" }} className="mx-auto" role="img" aria-label={`Position ${position.number}, frets ${position.from} to ${position.to}`}>
       <VerticalBoard g={g} numbersRight />
-      {extra.map((c) => <Dot key={cellKey(c)} c={c} x={g.sx(c.string)} y={g.fy(c.fret)} r={14} ring label={label(c)} hover={hover(c)} active={lit(c)} dim={false} onNote={onNote} />)}
-      {position.notes.map((c) => <Dot key={cellKey(c)} c={c} x={g.sx(c.string)} y={g.fy(c.fret)} r={14} ring={false} label={label(c)} hover={hover(c)} active={lit(c)} dim={false} onNote={onNote} />)}
+      {extra.map((c) => <Dot key={cellKey(c)} c={c} x={g.sx(c.string)} y={g.fy(c.fret)} r={14} ring label={label(c)} hover={hover(c)} active={lit(c)} dim={!!highlight && !highlight.has(c.pc)} onNote={onNote} />)}
+      {position.notes.map((c) => <Dot key={cellKey(c)} c={c} x={g.sx(c.string)} y={g.fy(c.fret)} r={14} ring={false} label={label(c)} hover={hover(c)} active={lit(c)} dim={!!highlight && !highlight.has(c.pc)} onNote={onNote} />)}
     </svg>
   );
 }

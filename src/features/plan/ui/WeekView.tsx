@@ -1,12 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import Icon from "@/components/Icon";
 import { Checkbox } from "@/components/ui";
-import ExerciseTool from "./ExerciseTool";
-import GuidedSteps from "./GuidedSteps";
+import Sections from "./Sections";
 import ExerciseTimer from "./ExerciseTimer";
-import { toolFromLink } from "../model/tools";
+import { sectionsOf } from "../model/tools";
 import { dayProgress, doneKey } from "../model/schedule";
 import { PLAN_DAYS, type StoredPlan } from "../model/types";
 
@@ -55,12 +53,6 @@ export default function WeekView({ plan, today, day, onDay, onToggle }: {
       <ol className="flex flex-col gap-4">
         {d.exercises.map((e, i) => {
           const done = !!plan.done[doneKey(day, i)];
-          // an older plan has no tools: its link stands for one
-          const linked = e.tools ? null : toolFromLink(e.link);
-          const tools = e.tools ?? (linked ? [linked] : []);
-          // tools tied to steps: the steps become a guided walk, each with its own tools
-          const guided = !!e.steps?.length && tools.some((t) => t.step);
-          const shared = guided ? tools.filter((t) => !t.step) : tools;
           return (
             <li key={`${day}:${i}`}>
               <section aria-label={e.title} className={`flex flex-col gap-3 rounded-2xl border p-3 transition sm:p-4 ${done ? "border-emerald-500/40 bg-emerald-500/5" : "border-slate-800 bg-slate-900/50"}`}>
@@ -68,36 +60,15 @@ export default function WeekView({ plan, today, day, onDay, onToggle }: {
                   <span className="grid size-7 shrink-0 place-items-center rounded-full bg-slate-800 text-xs tabular-nums text-slate-400">{i + 1}</span>
                   <h3 className={`text-base font-medium ${done ? "text-slate-400 line-through" : "text-slate-100"}`}>{e.title}</h3>
                   {e.focus && <span className="rounded-md bg-sky-500/10 px-2 py-0.5 text-xs text-sky-200">{e.focus}</span>}
+                  {e.tags?.map((t) => <span key={t} className="rounded-md border border-slate-700 px-1.5 py-0.5 text-[11px] text-slate-400">{t}</span>)}
                   <span className="ml-auto flex items-center gap-1 text-xs text-slate-500"><Icon name="timer" size={12} />{e.minutes} min</span>
                 </div>
-                <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_18rem]">
-                  <div className="flex flex-col gap-2">
-                    {e.how && <p className="text-sm leading-relaxed text-slate-300">{e.how}</p>}
-                    {e.steps && !guided && (
-                      <ol className="list-decimal space-y-0.5 pl-5 text-sm leading-relaxed text-slate-300 marker:text-slate-500">
-                        {e.steps.map((st, si) => <li key={si}>{st}</li>)}
-                      </ol>
-                    )}
-                    {e.why && <p className="text-xs italic leading-relaxed text-slate-500">{e.why}</p>}
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    <ExerciseTimer minutes={e.minutes} onFinish={() => !done && onToggle(day, i)} />
-                    <div className="flex items-center justify-between gap-2">
-                      <Checkbox checked={done} onChange={() => onToggle(day, i)}>Done</Checkbox>
-                      {!linked && e.link && (
-                        <Link href={e.link} className="inline-flex items-center gap-1 rounded-lg border border-slate-700 px-2.5 py-1 text-xs text-sky-200 hover:border-sky-500/60 hover:bg-sky-500/10">
-                          Open page <Icon name="chevron-right" size={12} />
-                        </Link>
-                      )}
-                    </div>
-                  </div>
+                <div className="flex flex-wrap items-center gap-3">
+                  <ExerciseTimer minutes={e.minutes} onFinish={() => !done && onToggle(day, i)} />
+                  <Checkbox checked={done} onChange={() => onToggle(day, i)}>Done</Checkbox>
                 </div>
-                {(shared.length > 0 || guided) && (
-                  <div className="flex flex-col gap-3 border-t border-slate-800 pt-3">
-                    {shared.map((t, ti) => <ExerciseTool key={ti} tool={t} />)}
-                    {guided && <GuidedSteps steps={e.steps!} tools={tools} />}
-                  </div>
-                )}
+                <Sections sections={sectionsOf(e)} />
+                {e.why && <p className="text-xs italic leading-relaxed text-slate-500">{e.why}</p>}
               </section>
             </li>
           );

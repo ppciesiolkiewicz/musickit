@@ -15,12 +15,13 @@ describe("ear game settings", () => {
     assert.equal(activeAnswers(q("level=6")).length, 12);
   });
   it("parses and falls back", () => {
-    assert.deepEqual(q(""), { level: 1, custom: null, direction: "up", kind: "interval" });
+    assert.deepEqual(q(""), { level: 1, custom: null, direction: "up", kind: "interval", wide: false });
     assert.equal(q("level=9").level, 1);
     assert.deepEqual(q("set=7,12,99").custom, [7, 12]);
     assert.equal(q("set=abc").custom, null);
     assert.equal(q("dir=down").direction, "down");
     assert.equal(q("kind=chord").kind, "chord");
+    assert.equal(q("wide=1").wide, true);
     assert.deepEqual(activeAnswers(q("kind=chord")), CHORD_QUALITIES.map((c) => c.id));
   });
 });
@@ -60,5 +61,24 @@ describe("ear game questions", () => {
     let sc = recordScore({}, "P5", true);
     sc = recordScore(sc, "P5", false);
     assert.deepEqual(sc.P5, { right: 1, total: 2 });
+  });
+});
+
+describe("ear game span", () => {
+  it("stays inside an octave unless wide", () => {
+    for (let i = 0; i < 200; i++) {
+      const n = nextEarQuestion(q("level=6"), seeded(i + 1));
+      assert.ok(Math.abs(n.midi[1] - n.midi[0]) <= 12);
+    }
+  });
+  it("wide sometimes adds an octave and keeps the simple name", () => {
+    const spans = new Set<number>();
+    for (let i = 0; i < 200; i++) {
+      const n = nextEarQuestion(q("level=6&wide=1"), seeded(i + 1));
+      const d = Math.abs(n.midi[1] - n.midi[0]);
+      assert.equal(d % 12 === 0 ? 12 : d % 12, semisOf(n.answer));
+      spans.add(d > 12 ? 1 : 0);
+    }
+    assert.equal(spans.size, 2);
   });
 });

@@ -1,4 +1,5 @@
 import { createPlayer, type Player } from "../engine/player";
+import { wakeAudio } from "../engine/context";
 import type { NoteLike } from "../engine/notes";
 
 let shared: Player | null = null;
@@ -27,6 +28,7 @@ const silenceListeners = new Set<() => void>();
 
 /** Stop everything the sequences started and cancel notes that have not sounded yet. */
 export function silence(): void {
+  generation++;
   timers.forEach(clearTimeout);
   timers = [];
   used.forEach((p) => p.allOff());
@@ -40,13 +42,29 @@ export function onSilence(fn: () => void): () => void {
   return () => silenceListeners.delete(fn);
 }
 
-/** Play timed notes on a player (the shared piano by default). A new sequence replaces the one playing. */
+let generation = 0;
+const ready = new WeakSet<Player>();
+
+/**
+ * Play timed notes on a player (the shared piano by default). A new sequence replaces the one playing. The first time a
+ * player is used the notes wait for the audio context to run and the samples to load, so the opening notes of a short
+ * sequence (an interval of two) are not lost to a suspended context or a sample still downloading.
+ */
 export function playSequence(steps: Step[], player: Player = getSharedPiano()): void {
   silence();
-  used.add(player);
-  steps.forEach((s) => {
-    timers.push(setTimeout(() => player.noteOn(s.note, s.velocity), s.at));
-    timers.push(setTimeout(() => player.noteOff(s.note), s.at + s.hold));
+  const mine = ++generation;
+  const go = () => {
+    if (mine !== generation) return; // replaced or silenced while waiting
+    used.add(player);
+    steps.forEach((s) => {
+      timers.push(setTimeout(() => player.noteOn(s.note, s.velocity), s.at));
+      timers.push(setTimeout(() => player.noteOff(s.note), s.at + s.hold));
+    });
+  };
+  if (ready.has(player)) return go();
+  void Promise.all([wakeAudio(), player.preload().catch(() => undefined)]).then(() => {
+    ready.add(player);
+    go();
   });
 }
 

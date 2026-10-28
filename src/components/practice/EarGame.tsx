@@ -16,7 +16,7 @@ const DIRS: { id: Direction; label: string }[] = [
 ];
 
 const settingsQuery = (s: EarSettings) =>
-  new URLSearchParams({ kind: s.kind, level: String(s.level), dir: s.direction, ...(s.custom ? { set: s.custom.join(",") } : {}) }).toString();
+  new URLSearchParams({ kind: s.kind, level: String(s.level), dir: s.direction, ...(s.custom ? { set: s.custom.join(",") } : {}), ...(s.wide ? { wide: "1" } : {}) }).toString();
 const labelOf = (answer: string) => CHORD_QUALITIES.find((c) => c.id === answer)?.label ?? INTERVALS.find((i) => i.short === answer)?.name ?? answer;
 
 function play(q: EarQuestion) {
@@ -73,6 +73,10 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
             <ChipRow label="Custom set">
               {INTERVALS.map((i) => <Chip key={i.semis} on={answers.includes(i.short)} onClick={() => toggleCustom(i.semis)} title={i.name}>{i.short}</Chip>)}
             </ChipRow>
+            <ChipRow label="Span" info="Within an octave, or sometimes an octave wider (a 9th for a 2nd). Wider is harder: answer with the simple interval name.">
+              <Chip on={!s.wide} onClick={() => update({ wide: false })}>Within an octave</Chip>
+              <Chip on={s.wide} onClick={() => update({ wide: true })}>Multi-octave</Chip>
+            </ChipRow>
             <ChipRow label="Played">{DIRS.map((d) => <Chip key={d.id} on={s.direction === d.id} onClick={() => update({ direction: d.id })}>{d.label}</Chip>)}</ChipRow>
           </>
         )}
@@ -99,7 +103,7 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
           <div className="mt-3 flex flex-col gap-2 text-sm text-slate-300">
             <p className={answered.ok ? "text-emerald-300" : "text-rose-300"}>{answered.ok ? "Right" : "Not quite"}: {labelOf(q.answer)}.</p>
             {info && <p>Memory hook: the start of <i>{info.song}</i>. <Link className="text-sky-300 hover:underline" href={`/theory/basics?interval=${info.semis}#intervals`}>See it on the guitar →</Link></p>}
-            <div className="max-w-md"><MiniPiano from={pianoFrom(q.midi)} lit={q.midi.map((m, i) => ({ midi: m, label: i === 0 ? "1st" : "", colour: i === 0 ? "#f8fafc" : "#f59e0b" }))} /></div>
+            <div className="max-w-md"><MiniPiano from={pianoFrom(q.midi)} octaves={Math.max(...q.midi) - pianoFrom(q.midi) >= 24 ? 3 : 2} lit={q.midi.map((m, i) => ({ midi: m, label: i === 0 ? "1st" : "", colour: i === 0 ? "#f8fafc" : "#f59e0b" }))} /></div>
           </div>
         )}
       </section>
