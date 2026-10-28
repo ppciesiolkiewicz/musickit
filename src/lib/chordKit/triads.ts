@@ -1,4 +1,5 @@
 import { OPEN_MIDI } from "./shapeTools";
+import { OPEN_SHAPES } from "./openShapes";
 
 /**
  * Closed-position triads on three adjacent strings, generated from the chord tones
@@ -87,4 +88,26 @@ export function nearbyFourthFifth(base: TriadVoicing, rootPc: number): { roman: 
     const v = all.reduce((best, c) => (moveCost(c, base) < moveCost(best, base) ? c : best));
     return { roman, rootPc: pc, v };
   });
+}
+
+const NAMES = ["C", "C♯", "D", "E♭", "E", "F", "F♯", "G", "A♭", "A", "B♭", "B"];
+
+/**
+ * The open chords this triad is a slice of (moved up the neck if needed), e.g. x-x-3-2-1 → ["E", "F"] (F from Fmaj7).
+ * Empty when the shape doesn't come from a familiar chord. Course chords come first.
+ */
+export function chordShapesOf(v: TriadVoicing): string[] {
+  const shapes = [...OPEN_SHAPES].sort((a, b) => (a.stage ?? 9) - (b.stage ?? 9));
+  const out = new Set<string>();
+  const rootPc = v.midi[v.tones.indexOf(0)] % 12;
+  for (const sh of shapes) {
+    const at = sh.at ?? 0;
+    const real = v.group.strings.map((si) => (sh.f[si] == null ? null : at + sh.f[si]!));
+    if (real.some((f) => f == null)) continue;
+    const d = v.frets[0] - real[0]!;
+    const shapeRoot = (OPEN_MIDI[6 - sh.rs] + at) % 12;
+    // same root, so the triad really is that chord's top (or bottom) moved up
+    if (d >= 0 && (shapeRoot + d) % 12 === rootPc && real.every((f, i) => f! + d === v.frets[i])) out.add(NAMES[shapeRoot] + (sh.fam === "minor" ? "m" : ""));
+  }
+  return [...out];
 }

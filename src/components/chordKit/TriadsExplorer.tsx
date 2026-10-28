@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { KeyPicker } from "./KeyPicker";
-import { INVERSIONS, STRING_GROUPS, TRIAD_QUALITIES, nearbyFourthFifth, triadVoicings, type TriadQuality, type TriadVoicing } from "@/lib/chordKit/triads";
+import { INVERSIONS, STRING_GROUPS, TRIAD_QUALITIES, chordShapesOf, nearbyFourthFifth, triadVoicings, type TriadQuality, type TriadVoicing } from "@/lib/chordKit/triads";
 import { GROUP_SWATCH, swatchFor } from "./palette";
 import { strum } from "@/lib/chordKit/playback";
 import { TONICS } from "@/features/theory/theory";
@@ -97,25 +97,26 @@ export default function TriadsExplorer({ initialTonic = DEFAULT_KEY_PC, initialQ
         <h3 className="mb-1 flex items-center gap-1 text-sm font-medium text-slate-100">
           Essential triads
           <Info label="Essential triads">
-            The lowest shape of each inversion on each string group, with the IV and V chords that sit right next to it. Those three chords cover most songs in a key, so learning them as one hand position lets you change chords with barely any movement. Example: F at x-x-3-2-1 has B♭ at 3-3-3 and C at 2-0-1 under the same hand.
+            Triad shapes you already know from open chords (the top of F, Am, C, D…), moved to this key, each with the IV and V chords that sit right next to it. Those three chords cover most songs in a key, so learning them as one hand position lets you change chords with barely any movement. Example: F at x-x-3-2-1 has B♭ at 3-3-3 and C at 2-0-1 under the same hand.
           </Info>
         </h3>
-        <p className="mb-3 text-xs text-slate-400">Each row: the {chordName} shape, then its IV and V nearby.</p>
+        <p className="mb-3 text-xs text-slate-400">{chordName} in shapes borrowed from open chords, then its IV and V nearby.</p>
         <div className="flex flex-col gap-4">
           {data.map(({ g, inv }) => (
             <div key={g.id}>
               <h4 className="mb-2 text-xs font-medium text-slate-300">{g.label}</h4>
               <div className="grid gap-3 md:grid-cols-3">
-                {inv.map(({ inv: iv, list }) => {
-                  const base = list[0];
-                  if (!base) return null;
+                {inv.flatMap(({ inv: iv, list }) => list.map((base, i) => ({ iv, base, i, like: chordShapesOf(base) })))
+                  .filter((e) => e.like.length)
+                  .sort((a, b) => a.base.lowestFret - b.base.lowestFret)
+                  .map(({ iv, base, i, like }) => {
                   const row = [{ roman: "I", rootPc: tonicPc, v: base }, ...nearbyFourthFifth(base, tonicPc)];
                   return (
-                    <div key={iv.id} className="rounded-xl border border-slate-800 bg-slate-950/40 p-2">
-                      <div className="mb-1 text-xs text-slate-400">{iv.label}</div>
+                    <div key={`${iv.id}${i}`} className="rounded-xl border border-slate-800 bg-slate-950/40 p-2">
+                      <div className="mb-1 text-xs text-slate-400"><b className="text-slate-200">{like.join(" / ")} shape</b> · {iv.short}</div>
                       <div className="grid grid-cols-3 gap-1">
                         {row.map((r) => {
-                          const id = `ess${g.id}${iv.id}${r.roman}`;
+                          const id = `ess${g.id}${iv.id}${i}${r.roman}`;
                           return (
                             <div key={r.roman}>
                               <div className="text-center text-xs"><b className="text-slate-200">{r.roman}</b> <span className="text-slate-400">{TONICS.find((t) => t.pc === r.rootPc)!.name}{q.symbol}</span></div>
