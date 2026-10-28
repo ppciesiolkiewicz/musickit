@@ -56,6 +56,8 @@ const LABEL_INFO = "How notes are labelled: note names, intervals from the root 
  * builds its bar from this one object.
  */
 export type SettingsConfig = {
+  /** false hides the key chips, for a page that moves through the keys itself */
+  keys?: false;
   /** the scale picker, on the key row */
   scale?: {
     /** the current scale; none on the list of every scale (the picker shows "All scales") */
@@ -169,7 +171,7 @@ export function ScaleSettingsBar({ tonicPc, onTonic, side = false, config = {} }
           {/* the scale and its key on one row */}
           <BarRow label={config.scale ? "Scale" : "Key"} info={KEY_INFO}>
             {config.scale && (config.scale.picker ?? <ScalePicker slug={scale} tonicPc={tonicPc} onScale={onScale} />)}
-            {TONICS.map((t) => (
+            {config.keys !== false && TONICS.map((t) => (
               <Chip key={t.pc} on={t.pc === tonicPc} onClick={() => onTonic(t.pc)}>{t.name}</Chip>
             ))}
           </BarRow>

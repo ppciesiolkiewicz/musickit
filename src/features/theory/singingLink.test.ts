@@ -2,7 +2,7 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { DEFAULT_SINGING_SCALE, parseSingingLink, singingQuery } from "./singingLink";
 import { DEFAULT_KEY_PC } from "./theory";
-import { BOOK } from "./singingMelodies";
+import { BOOK, RUNS } from "./singingMelodies";
 
 const parse = (s: string) => parseSingingLink(new URLSearchParams(s));
 
@@ -17,7 +17,7 @@ describe("the singing page's link", () => {
     const fallback = { tonicPc: DEFAULT_KEY_PC, scale: DEFAULT_SINGING_SCALE, melody: null, full: false };
     assert.deepEqual(parse(""), fallback);
     assert.deepEqual(parse("melody=0&key=h&scale=nope"), fallback);
-    assert.deepEqual(parse(`melody=${BOOK.length + 1}`), fallback);
+    assert.deepEqual(parse(`melody=${BOOK.length + RUNS.length + 1}`), fallback);
     assert.deepEqual(parse("melody=1.5"), fallback);
   });
 

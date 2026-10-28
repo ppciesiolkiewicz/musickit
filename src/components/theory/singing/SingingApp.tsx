@@ -8,7 +8,7 @@ import { createSmoother, type Pitch } from "@/features/tuner/pitch";
 import { getAudioContext, getSharedPiano, midiToName, onSilence, playSequence, silence, wakeAudio } from "@/features/sound";
 import { MAX_BPM, MIN_BPM, type PocketStatus } from "@/features/instruments";
 import { ACCURACIES, IN_TUNE_CENTS, VOICES, buildLadder, clefFor, hzToMidi, savedAccuracy, savedVoice, scaleRun, tuneLadderFor, type Voice } from "@/features/theory/singing";
-import { BOOK, DIFFICULTIES, placeTune, type BookTune, type PlacedNote } from "@/features/theory/singingMelodies";
+import { BOOK, DIFFICULTIES, RUNS, placeTune, type BookTune, type PlacedNote } from "@/features/theory/singingMelodies";
 import { singingQuery, type SingingLink } from "@/features/theory/singingLink";
 import SingingStaff from "./SingingStaff";
 import MelodyFeed from "./MelodyFeed";
@@ -32,8 +32,11 @@ const ACCURACY_KEY = "singing.accuracy";
 const LAG_KEY = "singing.lag";
 const MAX_LAG_MS = 1000;
 const savedLag = (v: unknown): number | null => (typeof v === "number" && v >= 0 && v <= MAX_LAG_MS ? v : null);
-type Tab = "scales" | "melodies";
-const TABS: { id: Tab; label: string }[] = [{ id: "scales", label: "Scales" }, { id: "melodies", label: "Melodies" }];
+type Tab = "scales" | "melodies" | "runs";
+const TABS: { id: Tab; label: string }[] = [{ id: "scales", label: "Scales" }, { id: "melodies", label: "Melodies" }, { id: "runs", label: "Runs" }];
+const ALL = [...BOOK, ...RUNS];
+/** a run played from its card goes round this many keys, a semitone up each time */
+const RUN_KEYS = 5;
 
 /**
  * Sing the notes of a scale against its staff: pick the key, the scale and the voice type (its range shown beside it) in
@@ -43,10 +46,10 @@ const TABS: { id: Tab; label: string }[] = [{ id: "scales", label: "Scales" }, {
  * difficulty; on the tune picked (or last played or tapped) a bar runs on the metronome's count and the dot sings along it, a
  * moment behind. The metronome runs muted from the first press on the page; playing a tune starts it over on the tune's beat 1.
  * The address keeps the key, the scale and the tune being sung (and whether it is open full screen), so a copied link (or a
- * card's share button, which always opens full screen) opens the same.
+ * card's share button, which always opens full screen) opens the same. The Runs tab is the same with the runs book.
  */
 export default function SingingApp({ initial }: { initial: SingingLink }) {
-  const linked = BOOK.find((t) => t.n === initial.melody);
+  const linked = ALL.find((t) => t.n === initial.melody);
   const [tonicPc, setTonicPc] = useState(initial.tonicPc);
   const [scale, setScale] = useState(initial.scale);
   const [voice, setVoice] = useState<Voice>("soprano");
@@ -89,7 +92,9 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
   };
   const range = VOICES[voice];
   const [rest, setRest] = useState(2);
-  const [tab, setTab] = useState<Tab>(linked ? "melodies" : "scales");
+  const [tab, setTab] = useState<Tab>(!linked ? "scales" : RUNS.includes(linked) ? "runs" : "melodies");
+  const book = tab === "runs" ? RUNS : BOOK;
+  const tuneTab = tab !== "scales";
   // the tune being sung, by number, and the difficulty whose tunes are listed ("all" for the whole book); a linked tune shows
   // under its own difficulty
   const [active, setActive] = useState(linked?.n ?? 1);
@@ -97,8 +102,8 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
   // one melody full screen, in the page (not the browser's full screen); a shared link opens its tune this way
   const [focus, setFocus] = useState(!!linked && initial.full);
   useEffect(
-    () => writeQuery(singingQuery({ tonicPc, scale, melody: tab === "melodies" ? active : null, full: focus })),
-    [tonicPc, scale, tab, active, focus],
+    () => writeQuery(singingQuery({ tonicPc, scale, melody: tuneTab ? active : null, full: focus })),
+    [tonicPc, scale, tuneTab, active, focus],
   );
   // a link to a tune in this key and scale, opening full screen, for its share button
   const linkTo = (t: BookTune) => `${window.location.origin}${window.location.pathname}?${singingQuery({ tonicPc, scale, melody: t.n, full: true })}`;
@@ -108,14 +113,25 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
   const ladder = useMemo(() => buildLadder(scale, tonicPc, range) ?? buildLadder("major-ionian", tonicPc, range)!, [scale, tonicPc, range]);
   // the tunes are written in seven-note degrees: a pentatonic sings them in its major or minor; they can dip under the lowest Do
   const tuneLadder = useMemo(() => tuneLadderFor(ladder, tonicPc, range), [ladder, tonicPc, range]);
-  const placed = useMemo(() => new Map(BOOK.map((t) => [t.n, placeTune(t.notes, tuneLadder, range)])), [tuneLadder, range]);
+  const placed = useMemo(() => new Map(ALL.map((t) => [t.n, placeTune(t.notes, tuneLadder, range)])), [tuneLadder, range]);
   const place = useCallback((t: BookTune) => placed.get(t.n)!, [placed]);
-  const tunes = useMemo(() => BOOK.filter((t) => level === "all" || t.difficulty === level), [level]);
+  const tunes = useMemo(() => book.filter((t) => level === "all" || t.difficulty === level), [book, level]);
+  // the difficulties this book has tunes in
+  const levels = useMemo(() => DIFFICULTIES.map((_, i) => i).filter((i) => book.some((t) => t.difficulty === i)), [book]);
   // a difficulty that hides the tune being sung picks the first one shown
   const filter = (lv: number | "all") => {
     setLevel(lv);
-    const shown = BOOK.filter((t) => lv === "all" || t.difficulty === lv);
+    const shown = book.filter((t) => lv === "all" || t.difficulty === lv);
     if (shown.length && !shown.some((t) => t.n === active)) setActive(shown[0].n);
+  };
+  // moving between the melodies and the runs starts on the other book's first tune, under its difficulty
+  const switchTab = (id: Tab) => {
+    setTab(id);
+    const next = id === "runs" ? RUNS : id === "melodies" ? BOOK : null;
+    if (next && !next.some((t) => t.n === active)) {
+      setActive(next[0].n);
+      setLevel(next[0].difficulty);
+    }
   };
 
   const pitch = useRef<number | null>(null);
@@ -146,9 +162,14 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
   const [playFrom, setPlayFrom] = useState<number | null>(null);
   const [tapped, setTapped] = useState<{ n: number; i: number } | null>(null);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  // a run plays in RUN_KEYS keys, a semitone up after each pass: the keys left on the run playing, and the run to carry on
+  // with once the key has moved (kept apart, as the key change stops what is playing)
+  const nextRun = useRef<{ n: number; left: number } | null>(null);
+  const runLeft = useRef(0);
   const clear = useCallback(() => {
     timers.current.forEach(clearTimeout);
     timers.current = [];
+    runLeft.current = 0;
     setRunning(false);
     setPlayed(null);
     setPlaying(null);
@@ -167,25 +188,36 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
   // beats since the metronome's beat 1, for the melody's bar; null while it isn't running
   const gridBeats = useCallback(() => pocket?.gridBeats() ?? null, [pocket]);
 
+
   // a tune plays once from its card and becomes the one sung; Play again starts it over
   const playTune = async (t: BookTune) => {
     if (running) silence();
-    await startTune(t);
+    await startTune(t, 0, RUNS.includes(t) ? RUN_KEYS - 1 : 0);
   };
   // the metronome starts over with the tune, so its beat 1 is the click's (muted unless it was heard); from a later beat, the
-  // metronome starts that far into its count, so its beats still fall on the tune's
-  const startTune = async (t: BookTune, from = 0) => {
+  // metronome starts that far into its count, so its beats still fall on the tune's. `keys` is how many more keys a run goes on to,
+  // set once the sequence (which stops what was playing) has started
+  const startTune = async (t: BookTune, from = 0, keys = 0) => {
     await wakeAudio();
     const at = pocket ? await pocket.restart(from) : null;
     const lead = at === null ? 60 : Math.max(0, (at - getAudioContext().currentTime) * 1000);
     const notes: PlacedNote[] = place(t);
     playSequence(notes.filter((n) => n.at >= from).map((n) => ({ note: n.midi, at: lead + (n.at - from) * beat, hold: n.beats * beat * 0.9 })));
+    runLeft.current = keys;
     const end = notes[notes.length - 1].at + notes[notes.length - 1].beats;
     setActive(t.n);
     setRunning(true);
     setPlaying(t.n);
     setPlayFrom(performance.now() + lead - from * beat);
-    timers.current = [setTimeout(clear, lead + (end - from) * beat)];
+    timers.current = [
+      setTimeout(() => {
+        const left = runLeft.current;
+        clear();
+        if (!left) return;
+        nextRun.current = { n: t.n, left: left - 1 };
+        setTonicPc((pc) => (pc + 1) % 12);
+      }, lead + (end - from) * beat),
+    ];
   };
   // back to the start: the tune picked, the bar and the metronome over on beat 1, nothing played
   const restartTune = async (t: BookTune) => {
@@ -195,13 +227,23 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
     await pocket?.restart();
   };
 
+  // the key moved on under a run: the run carries on in it
+  useEffect(() => {
+    const r = nextRun.current;
+    nextRun.current = null;
+    const t = r && RUNS.find((b) => b.n === r.n);
+    if (!t) return;
+    void startTune(t, 0, r.left);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only the key moving on carries a run on
+  }, [placed]);
+
   // a new tempo starts the metronome over, and the tune playing with it at the new speed
   const bpm = pocket?.bpm;
   const lastBpm = useRef(bpm);
   useEffect(() => {
     if (lastBpm.current === bpm) return;
     lastBpm.current = bpm;
-    const t = BOOK.find((b) => b.n === playing);
+    const t = ALL.find((b) => b.n === playing);
     if (!t) return;
     silence();
     void startTune(t);
@@ -263,14 +305,14 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
   }, [tunes, at]);
   const prev = useCallback(() => step(-1), [step]);
   const next = useCallback(() => step(1), [step]);
-  const focused = tunes[at] ?? BOOK.find((t) => t.n === active)!;
+  const focused = tunes[at] ?? ALL.find((t) => t.n === active) ?? tunes[0] ?? book[0];
 
   const message =
     status === "asking" ? "Allow the microphone in your browser…"
     : status === "denied" ? "Microphone blocked. Allow it in the browser's site settings and try again."
     : status === "insecure" ? "The browser only allows the microphone on a secure (https) page."
     : status === "error" ? "No microphone found."
-    : tab === "melodies" ? (status === "on" ? `Listening on melody #${active}. Sing each note as the bar reaches it: the bar loops in time with the metronome, and the dot turns green on the note under it, red on another.` : "Play a melody or tap its notes to hear it, then press Select on its card: the mic listens while a bar runs over the tune in time with the metronome.")
+    : tuneTab ? (status === "on" ? `Listening on ${tab === "runs" ? "run" : "melody"} #${active}. Sing each note as the bar reaches it: the bar loops in time with the metronome, and the dot turns green on the note under it, red on another.` : "Play a melody or tap its notes to hear it, then press Select on its card: the mic listens while a bar runs over the tune in time with the metronome.")
     : status === "on" ? "Listening. Sing the scale up from the root: the dot turns green on a note of the scale, red on a note outside it."
     : "Tap a note to hear it, or play the scale up and down on the metronome's tempo. Then press Sing and sing it back.";
 
@@ -281,11 +323,12 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
         bar={
           <ScaleSettingsBar tonicPc={tonicPc} onTonic={setTonicPc} config={{
             scale: { slug: scale, onPick: setScale },
+            ...(tab === "runs" ? { keys: false as const } : {}),
             labels: false,
             pocket: { clickAlways: true, onStatus: setPocket },
             top: (
               <BarRow label="Drill">
-                {TABS.map((t) => <Chip key={t.id} on={tab === t.id} onClick={() => setTab(t.id)}>{t.label}</Chip>)}
+                {TABS.map((t) => <Chip key={t.id} on={tab === t.id} onClick={() => switchTab(t.id)}>{t.label}</Chip>)}
               </BarRow>
             ),
             rows: <>
@@ -310,7 +353,7 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
               ) : (
                 <>
                   <BarRow label="Difficulty">
-                    {DIFFICULTIES.map((d, i) => <Chip key={d.title} on={level === i} onClick={() => filter(i)} title={d.hint}>{d.title}</Chip>)}
+                    {levels.map((i) => DIFFICULTIES[i]).map((d, k) => <Chip key={d.title} on={level === levels[k]} onClick={() => filter(levels[k])} title={d.hint}>{d.title}</Chip>)}
                     <Chip on={level === "all"} onClick={() => filter("all")}>All</Chip>
                   </BarRow>
                   <BarRow label="Play-ahead">{lagSlider}</BarRow>
@@ -322,7 +365,7 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
       >
         <section className={`${panel} flex flex-col gap-3`}>
           <div className="flex flex-wrap items-center gap-3">
-            <h2 className="text-base font-medium text-slate-100">{tab === "melodies" ? `Melodies in ${tuneLadder.title}` : ladder.title}</h2>
+            <h2 className="text-base font-medium text-slate-100">{tuneTab ? `${tab === "runs" ? "Runs" : "Melodies"} in ${tuneLadder.title}` : ladder.title}</h2>
             {tab === "scales" && (
               <Button size="sm" pressed={running} onClick={() => void play()} className={running ? "!border-sky-400/70 !bg-sky-500/20 !text-sky-100" : ""}>
                 {running ? "Stop the scale" : `Play the scale · ${pocket?.bpm ?? FALLBACK_BPM} bpm`}
@@ -331,7 +374,7 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
             {tab === "scales" && <MicButton on={mic} onClick={toggleMic} />}
             <p className="min-w-0 basis-full text-sm sm:basis-0 sm:flex-1 text-slate-400" aria-live="polite">{message}</p>
           </div>
-          {tab === "melodies" ? (
+          {tuneTab ? (
             <MelodyFeed
               tunes={tunes}
               place={place}
@@ -374,7 +417,7 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
           )}
         </section>
       </WithSettings>
-      {focus && tab === "melodies" && (
+      {focus && tuneTab && (
         <MelodyFocus
           tune={focused}
           index={Math.max(0, at)}

@@ -10,6 +10,9 @@
  * A tune is written bar by bar ("|"), one token a note: the degree of the scale 1 to 7 (1 = Do), `'` an octave up and
  * `,` an octave down (`1'` the high Do, `5,` the Sol under Do), then the length: none for a quarter, `s` a sixteenth (in runs of four), `e` an eighth,
  * `q.` a dotted quarter, `h` a half, `h.` a dotted half, `w` a whole. Pure data and parsing, no React (tested).
+ *
+ * The runs book (RUNS) is written the same way: the runs singers warm up and show off with, in eighths and sixteenths,
+ * from the five-note scale to the full octave, numbered on after the melodies so a link names one or the other.
  */
 import { BEATS_PER_BAR, type MelodyLength, type MelodyNote } from "./singingMelody";
 import type { Ladder, LadderNote, Range } from "./singing";
@@ -204,13 +207,58 @@ export interface BookTune {
   difficulty: number;
 }
 
+const bookOf = (stages: Stage[], from: number): BookTune[] =>
+  stages.flatMap((stage) => stage.tunes.map((t) => ({ stage, notes: parseTune(t) }))).map((t, i) => ({
+    ...t,
+    n: from + i,
+    length: barsOf(t.notes) <= 2 ? "short" : "long",
+    difficulty: difficultyOf(t.notes),
+  }));
+
 /** Every tune in order, numbered, with its stage, length (2 bars short, more long) and difficulty. */
-export const BOOK: BookTune[] = STAGES.flatMap((stage) => stage.tunes.map((t) => ({ stage, notes: parseTune(t) }))).map((t, i) => ({
-  ...t,
-  n: i + 1,
-  length: barsOf(t.notes) <= 2 ? "short" : "long",
-  difficulty: difficultyOf(t.notes),
-}));
+export const BOOK: BookTune[] = bookOf(STAGES, 1);
+
+export const RUN_STAGES: Stage[] = [
+  {
+    id: "five",
+    title: "Five-note scale",
+    hint: "Do up to Sol and back, in eighths, then sixteenths",
+    tunes: ["1e 2e 3e 4e 5e 4e 3e 2e | 1w", "1e 2e 3e 4e 5h | 5e 4e 3e 2e 1h | 1e 2e 3e 4e 5e 4e 3e 2e | 1w", "1s 2s 3s 4s 5s 4s 3s 2s 1s 2s 3s 4s 5s 4s 3s 2s | 1w"],
+  },
+  {
+    id: "arpeggio-run",
+    title: "Do Mi Sol Do",
+    hint: "The home chord, quick, up to the high Do and back",
+    tunes: ["1e 3e 5e 1'e 5e 3e 1 | 1w", "1s 3s 5s 3s 1s 3s 5s 3s 1s 3s 5s 1's 5s 3s 2s 7,s | 1w", "5,s 1s 3s 5s 1'h. | 1's 5s 3s 1s 5s 3s 1s 5,s 7, 2 | 1w"],
+  },
+  {
+    id: "turns",
+    title: "Turns",
+    hint: "Round a note and back to it: the note above, the note, the note below",
+    tunes: ["5s 6s 5s 4s 3s 4s 3s 2s 1h | 1w", "1 2s 1s 7,s 1s 3 4s 3s 2s 3s | 5 4s 3s 2s 3s 2h | 1w", "3s 4s 3s 2s 3 5s 6s 5s 4s 5 | 4s 5s 4s 3s 2s 3s 2s 1s 2h | 1w"],
+  },
+  {
+    id: "pentatonic-run",
+    title: "Pentatonic runs",
+    hint: "Do Re Mi Sol La: the riffs of soul and pop",
+    tunes: ["1's 6s 5s 3s 5s 3s 2s 1s 2h | 1w", "3s 5s 6s 1's 6s 5s 3s 2s 3 5s 3s 2s 1s | 2h 3s 2s 1s 6,s 1 | 1w", "5 6s 5s 3s 5s 1's 6s 5s 3s 2s 3s 2s 1s | 6, 1h. | 1w"],
+  },
+  {
+    id: "nine",
+    title: "Nine-note scale",
+    hint: "Up past the high Do to Re, and down in one breath",
+    tunes: ["1e 2e 3e 4e 5e 6e 7e 1'e | 2's 1's 7s 6s 5s 4s 3s 2s 1h | 1w", "1s 2s 3s 4s 5s 6s 7s 1's 2's 1's 7s 6s 5s 4s 3s 2s | 1w"],
+  },
+  {
+    id: "octave-run",
+    title: "The octave run",
+    hint: "The whole scale in sixteenths, up and down",
+    tunes: ["1s 2s 3s 4s 5s 6s 7s 1's 7s 6s 5s 4s 3s 2s 1s 7,s | 1w", "1s 2s 3s 4s 5s 6s 7s 1's 2's 3's 2's 1's 7s 6s 5s 4s | 3s 4s 3s 2s 1s 2s 1s 7,s 1h | 1w"],
+  },
+];
+
+/** The runs, numbered on from the last melody. */
+export const RUNS: BookTune[] = bookOf(RUN_STAGES, BOOK.length + 1);
 
 export interface PlacedNote extends LadderNote {
   beats: number;

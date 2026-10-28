@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { BOOK, DIFFICULTIES, STAGES, effortOf, parseTune, placeTune } from "./singingMelodies";
+import { BOOK, DIFFICULTIES, RUNS, STAGES, effortOf, parseTune, placeTune } from "./singingMelodies";
 import { VOICES, buildLadder, withNotesUnder } from "./singing";
 
 describe("the melody book", () => {
@@ -100,5 +100,16 @@ describe("difficulty", () => {
     DIFFICULTIES.forEach((_, i) => assert.ok(BOOK.filter((t) => t.difficulty === i).length >= 5, DIFFICULTIES[i].title));
     for (const t of BOOK.filter((t) => t.stage === STAGES[0])) assert.ok(t.difficulty <= 1, `#${t.n}`);
     assert.ok(BOOK.filter((t) => t.stage === STAGES.at(-1)).some((t) => t.difficulty === DIFFICULTIES.length - 1));
+  });
+
+  it("the runs: whole bars, numbered on after the melodies, each ending on a whole-note Do reached by step, all quick notes", () => {
+    assert.equal(RUNS[0].n, BOOK.length + 1);
+    for (const t of RUNS) {
+      for (const n of t.notes) assert.equal(Math.floor(n.at / 4), Math.floor((n.at + n.beats - 0.001) / 4), `#${t.n} crosses a barline`);
+      const end = t.notes.at(-1)!;
+      assert.ok(end.beats === 4 && end.at % 4 === 0 && (end.step === 0 || end.step === 7), `#${t.n}`);
+      assert.ok(Math.abs(t.notes.at(-2)!.step - end.step) <= 2, `#${t.n}`);
+      assert.ok(t.notes.some((n) => n.beats < 1), `#${t.n}`);
+    }
   });
 });
