@@ -4,6 +4,7 @@ import SiteFooter from "@/components/landing/SiteFooter";
 import { sectionFor } from "@/features/theory/sections";
 import type { ReactNode } from "react";
 import PreloadPiano from "@/features/sound/keyboard/PreloadPiano";
+import PracticeReminder from "@/features/plan/PracticeReminder";
 
 /**
  * Dark page frame with the attunr nav, the page title and the site footer, shared by every page but the looper and the studio.
@@ -18,6 +19,7 @@ export default function PageShell({ title, intro, active, wide = false, full = f
     <div className="app-bg min-h-screen text-slate-200">
       <div className={`mx-auto flex w-full flex-col gap-4 py-3 sm:py-4 ${full ? "px-3 sm:px-6 lg:px-8" : wide ? "max-w-[96rem] px-3 sm:px-5" : "max-w-[80rem] px-3 sm:px-6 lg:px-8"}`}>
         <PreloadPiano />
+        <PracticeReminder />
         <div className="border-b border-slate-800/70 py-1.5 sm:py-2.5">
           <SiteNav active={active} devices={devices} />
         </div>
