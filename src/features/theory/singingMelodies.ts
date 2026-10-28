@@ -205,6 +205,8 @@ export interface BookTune {
   length: MelodyLength;
   /** index into DIFFICULTIES */
   difficulty: number;
+  /** a run: the keys it goes through (placeRun), a semitone up each pass */
+  keys?: number;
 }
 
 const bookOf = (stages: Stage[], from: number): BookTune[] =>
@@ -257,8 +259,14 @@ export const RUN_STAGES: Stage[] = [
   },
 ];
 
+/** a run goes round this many keys, a semitone up each time, all on its one staff */
+export const RUN_KEYS = 5;
+
 /** The runs, numbered on from the last melody. */
-export const RUNS: BookTune[] = bookOf(RUN_STAGES, BOOK.length + 1);
+export const RUNS: BookTune[] = bookOf(RUN_STAGES, BOOK.length + 1).map((t) => ({ ...t, keys: RUN_KEYS }));
+
+/** A card's length: its bars, or for a run the keys it goes through. */
+export const lengthLabel = (t: BookTune) => (t.keys ? `${t.keys} keys` : t.length === "short" ? "2 bars" : "4 bars");
 
 export interface PlacedNote extends LadderNote {
   beats: number;

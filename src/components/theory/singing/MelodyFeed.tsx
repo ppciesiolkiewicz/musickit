@@ -5,7 +5,7 @@ import Icon from "@/components/Icon";
 import { Button } from "@/components/ui";
 import type { Clef } from "@/features/theory/piano/staff";
 import type { Ladder } from "@/features/theory/singing";
-import { DIFFICULTIES, type BookTune, type PlacedNote } from "@/features/theory/singingMelodies";
+import { DIFFICULTIES, lengthLabel, type BookTune, type PlacedNote } from "@/features/theory/singingMelodies";
 import MelodyStaff from "./MelodyStaff";
 import MicButton from "./MicButton";
 import { ClickButton, RestartButton, ShareButton } from "./MelodyControls";
@@ -93,7 +93,7 @@ export default function MelodyFeed({ tunes, place, ladder, clef, pitch, beatMs, 
               <div data-tune={t.n} onClick={() => onPick(t)} className={`rounded-xl border p-3 transition ${live ? "border-sky-500/50 bg-slate-900/70" : "cursor-pointer border-slate-800 bg-slate-950/40 hover:border-slate-600"}`}>
                 <div className="mb-1 flex flex-wrap items-center gap-2">
                   <span className="text-xs tabular-nums text-slate-500">#{t.n}</span>
-                  <span className="text-xs text-slate-400">{DIFFICULTIES[t.difficulty].title} · {t.length === "short" ? "2 bars" : "4 bars"}</span>
+                  <span className="text-xs text-slate-400">{DIFFICULTIES[t.difficulty].title} · {lengthLabel(t)}</span>
                   <MicButton on={live && mic} onClick={() => onSing(t)} offLabel="Select" onLabel="Selected" />
                   <Button size="sm" onClick={() => onPlay(t)} className={on ? "!border-sky-400/70 !bg-sky-500/20 !text-sky-100" : ""}>
                     ▶ Play · {bpm} bpm
@@ -115,6 +115,8 @@ export default function MelodyFeed({ tunes, place, ladder, clef, pitch, beatMs, 
                 </div>
                 <MelodyStaff
                   notes={place(t)}
+                  // a run's keys don't loop back round, so no last half bar drawn in front
+                  lead={!t.keys}
                   ladder={ladder}
                   clef={clef}
                   live={live}

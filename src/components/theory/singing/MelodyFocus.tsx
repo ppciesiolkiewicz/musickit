@@ -3,7 +3,7 @@
 import { useEffect, useState, type ComponentProps, type ReactNode } from "react";
 import Icon from "@/components/Icon";
 import { Button } from "@/components/ui";
-import { DIFFICULTIES, type BookTune } from "@/features/theory/singingMelodies";
+import { DIFFICULTIES, lengthLabel, type BookTune } from "@/features/theory/singingMelodies";
 import MelodyStaff from "./MelodyStaff";
 import MicButton from "./MicButton";
 import { ClickButton, RestartButton, ShareButton } from "./MelodyControls";
@@ -74,7 +74,7 @@ export default function MelodyFocus({ tune, index, count, staff, bpm, mic, playi
           <Icon name="chevron-right" size={16} />
         </Button>
         <span className="pl-2 text-sm font-medium text-slate-100">#{tune.n}</span>
-        <span className="text-xs text-slate-400">{tune.stage.title} · {DIFFICULTIES[tune.difficulty].title} · {tune.length === "short" ? "2 bars" : "4 bars"}</span>
+        <span className="text-xs text-slate-400">{tune.stage.title} · {DIFFICULTIES[tune.difficulty].title} · {lengthLabel(tune)}</span>
         <MicButton on={mic} onClick={onSing} offLabel="Sing" onLabel="Listening" />
         <Button size="sm" onClick={onPlay} className={playing ? "!border-sky-400/70 !bg-sky-500/20 !text-sky-100" : ""}>
           ▶ Play · {bpm} bpm
@@ -94,7 +94,7 @@ export default function MelodyFocus({ tune, index, count, staff, bpm, mic, playi
       </div>
       <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-slate-400">{settings}</div>
       <div className="grid min-h-0 flex-1 place-items-center">
-        <MelodyStaff {...staff} live scale={scale} follow />
+        <MelodyStaff {...staff} live scale={scale} follow lead={!tune.keys} />
       </div>
       <p className="text-center text-xs text-slate-500" aria-live="polite">{message} · ← → for the previous or next melody · Esc to close</p>
     </div>

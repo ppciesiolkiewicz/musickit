@@ -35,8 +35,6 @@ const savedLag = (v: unknown): number | null => (typeof v === "number" && v >= 0
 type Tab = "scales" | "melodies" | "runs";
 const TABS: { id: Tab; label: string }[] = [{ id: "scales", label: "Scales" }, { id: "melodies", label: "Melodies" }, { id: "runs", label: "Runs" }];
 const ALL = [...BOOK, ...RUNS];
-/** a run goes round this many keys, a semitone up each time, all on its one staff */
-const RUN_KEYS = 5;
 
 /**
  * Sing the notes of a scale against its staff: pick the key, the scale and the voice type (its range shown beside it) in
@@ -117,7 +115,7 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
     const ladderIn = (pc: number, r: Range) => tuneLadderFor(buildLadder(scale, pc, r) ?? buildLadder("major-ionian", pc, r)!, pc, r);
     return new Map([
       ...BOOK.map((t) => [t.n, placeTune(t.notes, tuneLadder, range)] as const),
-      ...RUNS.map((t) => [t.n, placeRun(t.notes, tonicPc, RUN_KEYS, ladderIn, range)] as const),
+      ...RUNS.map((t) => [t.n, placeRun(t.notes, tonicPc, t.keys!, ladderIn, range)] as const),
     ]);
   }, [tuneLadder, range, scale, tonicPc]);
   const place = useCallback((t: BookTune) => placed.get(t.n)!, [placed]);
