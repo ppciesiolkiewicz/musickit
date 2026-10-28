@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import PageShell from "@/components/PageShell";
 import Icon from "@/components/Icon";
 import { DISPLAY, Eyebrow } from "@/components/landing/Display";
 import SectionPanel, { StageLine } from "@/components/course/SectionPanel";
 import SectionBody from "@/components/course/SectionBody";
 import MyNotes from "@/components/course/MyNotes";
+import { LEGACY_STAGES } from "@/features/course/legacy";
 import { ALL_SECTIONS, findSection, nextSection, sectionHref, stageColour } from "@/features/course/course";
 
 type Params = { stage: string; section: string };
@@ -14,8 +15,17 @@ type Params = { stage: string; section: string };
 /** Only the course's own stages and sections exist; anything else is a 404. */
 export const dynamicParams = false;
 
+/** Addresses from before the stages were renumbered, where no current section has taken them, mapped to the current one. */
+const legacy = (stage: string, section: string) => {
+  if (findSection(stage, section)) return undefined;
+  const to = LEGACY_STAGES[stage];
+  return to && findSection(to, section) ? sectionHref(to, section) : undefined;
+};
+
 export function generateStaticParams(): Params[] {
-  return ALL_SECTIONS.map((r) => ({ stage: r.stage.slug, section: r.section.slug }));
+  const old = Object.entries(LEGACY_STAGES).flatMap(([from, to]) =>
+    ALL_SECTIONS.filter((r) => r.stage.slug === to && legacy(from, r.section.slug)).map((r) => ({ stage: from, section: r.section.slug })));
+  return [...ALL_SECTIONS.map((r) => ({ stage: r.stage.slug, section: r.section.slug })), ...old];
 }
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
@@ -27,7 +37,11 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 export default async function CourseSectionPage({ params }: { params: Promise<Params> }) {
   const { stage: st, section: sec } = await params;
   const r = findSection(st, sec);
-  if (!r) notFound();
+  if (!r) {
+    const to = legacy(st, sec);
+    if (to) redirect(to);
+    notFound();
+  }
   const { stage, section } = r;
   const next = nextSection(st, sec);
   const header = (

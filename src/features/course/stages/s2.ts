@@ -6,7 +6,7 @@ const AM_OPEN: [number, number][] = [[1, 0], [2, 2], [3, 2], [4, 1], [5, 0]];
 const BM_BARRE: [number, number][] = [[1, 2], [2, 4], [3, 4], [4, 3], [5, 2]];
 
 export const STAGE_2: CourseStage = {
-  slug: "2", label: "6", title: "Position 2",
+  slug: "6", label: "6", title: "Position 2",
   intro: "Frets 2 to 5. Bm is the hard chord of the key: here is the barre, the easier ways round it, and the drop 3 chords that build the hand for barres.",
   sections: [
     section("bm-barre", "The Bm barre", "barre-drop3", [

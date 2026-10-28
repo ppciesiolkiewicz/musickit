@@ -1,5 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { COURSE, findStage, sectionHref } from "@/features/course/course";
+import { LEGACY_STAGES } from "@/features/course/legacy";
 
 type Params = { stage: string };
 
@@ -7,12 +8,13 @@ type Params = { stage: string };
 export const dynamicParams = false;
 
 export function generateStaticParams(): Params[] {
-  return COURSE.map((s) => ({ stage: s.slug }));
+  return [...new Set([...COURSE.map((s) => s.slug), ...Object.keys(LEGACY_STAGES)])].map((stage) => ({ stage }));
 }
 
 /** A stage on its own opens at its first section. */
 export default async function CourseStagePage({ params }: { params: Promise<Params> }) {
-  const stage = findStage((await params).stage);
+  const slug = (await params).stage;
+  const stage = findStage(slug) ?? findStage(LEGACY_STAGES[slug]);
   if (!stage) notFound();
   redirect(sectionHref(stage.slug, stage.sections[0].slug));
 }

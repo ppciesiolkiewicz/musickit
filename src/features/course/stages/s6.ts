@@ -4,7 +4,7 @@ import { A, D, E, chords, links, neck, songs, task, text, toneDots, visual } fro
 const PENT = [0, 3, 5, 7, 10];
 
 export const STAGE_6: CourseStage = {
-  slug: "6", label: "10", title: "Other keys",
+  slug: "10", label: "10", title: "Other keys",
   intro: "Everything so far was in E minor and G major. Move it to other keys, with the circle of fifths as the map.",
   sections: [
     section("moving-keys", "Moving it all to Am/C, Dm/F", "keys", [

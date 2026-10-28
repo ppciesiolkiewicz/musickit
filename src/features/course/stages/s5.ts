@@ -7,7 +7,7 @@ const DORIAN = [0, 2, 3, 5, 7, 9, 10], PHRYGIAN = [0, 1, 3, 5, 7, 8, 10], HARMON
 const marked = (semis: number[], changed: string) => toneDots(E, semis, 0, 3).map((d) => (d.label === changed ? { ...d, outline: true } : d));
 
 export const STAGE_5: CourseStage = {
-  slug: "5", label: "9", title: "Modes",
+  slug: "9", label: "9", title: "Modes",
   intro: "Change one note of the scale and the mood changes. Modes in E and G, and the harmonic minor that explains B7.",
   sections: [
     section("modes", "Aeolian, Dorian, Phrygian, Mixolydian", "modes", [

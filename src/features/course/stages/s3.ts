@@ -6,7 +6,7 @@ import { C, D, E, G, PATH, chords, links, neck, path, songs, task, text, toneDot
 const shape = (root: number, frets: (number | null)[]): Dot[] => frets.flatMap((f, s) => (f === null ? [] : [toneDot(s, f, root)]));
 
 export const STAGE_3: CourseStage = {
-  slug: "3", label: "7", title: "Position 1 flavours",
+  slug: "7", label: "7", title: "Position 1 flavours",
   intro: "Back home in position 1, with colour: 6, 7, sus and add9 chords on the same paths you already know.",
   sections: [
     section("six-chords", "6 chords", "colour", [

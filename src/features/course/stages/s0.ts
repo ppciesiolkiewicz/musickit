@@ -9,7 +9,7 @@ const named = (string: number, fret: number, label: string) => ({ string, fret, 
 
 export const STAGES_0: CourseStage[] = [
   {
-    slug: "0-1", label: "1", title: "Guitar basics",
+    slug: "1", label: "1", title: "Guitar basics",
     intro: "How the guitar is tuned, how to read tab and chord boxes, and the names of the notes on the two lowest strings.",
     sections: [
       section("strings-and-tuning", "Strings & tuning", "basics", [
@@ -48,7 +48,7 @@ export const STAGES_0: CourseStage[] = [
     ],
   },
   {
-    slug: "0-2", label: "2", title: "First open chords",
+    slug: "2", label: "2", title: "First open chords",
     intro: "Five open chords, clean changes between them, and three strumming patterns to play them with.",
     sections: [
       section("em-and-am", "Em & Am", "open-chords", [
@@ -117,7 +117,7 @@ export const STAGES_0: CourseStage[] = [
     ],
   },
   {
-    slug: "0-3", label: "3", title: "One note, three views",
+    slug: "3", label: "3", title: "One note, three views",
     intro: "The same notes on piano, on guitar and as do-re-mi. Once you can see all three, every later idea has a name.",
     sections: [
       section("piano-and-guitar", "Piano ↔ guitar", "three-views", [
@@ -167,7 +167,7 @@ export const STAGES_0: CourseStage[] = [
     ],
   },
   {
-    slug: "0-4", label: "4", title: "Single notes",
+    slug: "4", label: "4", title: "Single notes",
     intro: "Simple tunes one note at a time, so the picking hand is ready for arpeggios.",
     sections: [
       section("melodies", "Melodies in tab", "melody", [

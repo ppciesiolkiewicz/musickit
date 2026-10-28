@@ -19,7 +19,7 @@ export default async function SingingPage({ searchParams }: { searchParams: Prom
       title="Singing"
       intro="Pick a key, a scale and your voice type, tap a note to hear it or play the scale up and down on the beat, then switch the mic on and sing: a dot follows your voice over the scale on the staff, up and down with the pitch and along from one note to the next. The Melodies tab is a book of short tunes in the key to sing back, two bars or four, each ending on a whole-note Do: Do and Re first, then Mi, Fa and Sol, skips, La and Ti, broken chords, and leaps last, each marked Easy to Expert by how it moves."
     >
-      <Lesson course="0-3/solfege" why="Singing a scale is the fastest way to hear it: once your voice can find each degree, your fingers have a sound to aim for." tryThis="Play the scale once and listen, then play it again and sing along with the mic on. The rest at the top is your breath before the way down." />
+      <Lesson course="3/solfege" why="Singing a scale is the fastest way to hear it: once your voice can find each degree, your fingers have a sound to aim for." tryThis="Play the scale once and listen, then play it again and sing along with the mic on. The rest at the top is your breath before the way down." />
       <SingingApp initial={parseSingingLink(q)} />
     </PageShell>
   );

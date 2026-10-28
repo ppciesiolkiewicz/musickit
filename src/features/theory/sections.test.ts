@@ -18,7 +18,7 @@ describe("theory sections", () => {
   it("finds the section for a path", () => {
     assert.equal(sectionFor("/theory/chords")?.label, "Chords");
     assert.equal(sectionFor("/theory/scales/dorian")?.label, "Scales");
-    assert.equal(sectionFor("/theory")?.label, "Start here");
+    assert.equal(sectionFor("/theory")?.label, "Start here (old content)");
     assert.equal(sectionFor("/theory/caged")?.label, "CAGED");
     assert.equal(sectionFor("/tuner"), undefined);
   });

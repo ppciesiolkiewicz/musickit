@@ -13,7 +13,7 @@ const fifth = (root: [number, number], five: [number, number], rootName: string,
 ];
 
 export const STAGE_1: CourseStage = {
-  slug: "1", label: "5", title: "Position 1",
+  slug: "5", label: "5", title: "Position 1",
   intro: "Stay in the open position in E minor and G major and learn everything that lives there: chords, triads, 5ths, arpeggios, the scale, and the paths between them.",
   sections: [
     section("chords", "Chords", "caged", [
@@ -147,7 +147,7 @@ export const STAGE_1: CourseStage = {
       neck("E natural minor in position 1 (frets 0–3).", 0, 3, toneDots(E, MINOR_SEMIS, 0, 3)),
       neck("The same shape three frets up (frets 3–6) is G natural minor. Your first finger takes the place of the open strings.", 3, 6, toneDots(G, MINOR_SEMIS, 3, 6)),
       task("Play E minor up and down in position 1, then the same fingering from the 3rd fret. Same shape, new key: that's how every movable chord and scale works."),
-      links([{ href: "/course/2/bm-barre", label: "Next stage: the Bm barre", note: "the same idea, with a chord" }]),
+      links([{ href: "/course/6/bm-barre", label: "Next stage: the Bm barre", note: "the same idea, with a chord" }]),
     ]),
   ],
 };

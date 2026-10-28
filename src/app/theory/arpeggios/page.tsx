@@ -15,7 +15,7 @@ export default function ArpeggiosPage() {
       title="Arpeggios over scales"
       intro="Pick any key and any of the 21 modes or exotic scales, choose an arpeggio (the scale's own chord or any other type), and see it on the whole neck with the scale behind it."
     >
-      <Lesson course="1/arpeggios" why="An arpeggio is a chord played one note at a time. Aiming for chord tones is what makes a solo sound like it follows the changes." tryThis="Play the A minor arpeggio in one box, then improvise over Am and land on a chord tone at the end of each phrase." />
+      <Lesson course="5/arpeggios" why="An arpeggio is a chord played one note at a time. Aiming for chord tones is what makes a solo sound like it follows the changes." tryThis="Play the A minor arpeggio in one box, then improvise over Am and land on a chord tone at the end of each phrase." />
       <ArpeggiosExplorer />
     </PageShell>
   );

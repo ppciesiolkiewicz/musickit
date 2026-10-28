@@ -1,6 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import { legacyNoteKey } from "@/features/course/legacy";
 import { EMPTY_NOTES, PRESET_TAGS, hasNotes, parseCustomTags, parseNotesStore, type SectionNotes, type Tag } from "@/features/course/notes";
 
 /**
@@ -8,7 +9,9 @@ import { EMPTY_NOTES, PRESET_TAGS, hasNotes, parseCustomTags, parseNotesStore, t
  * (and other tabs, via the storage event). Server render and first paint use the empty store, so hydration always matches.
  */
 
-const NOTES_KEY = "musickit.course.notes";
+/** v2: stage slugs renumbered 1–11; the old store is read once and moved over. */
+const NOTES_KEY = "musickit.course.notes.v2";
+const OLD_NOTES_KEY = "musickit.course.notes";
 const TAGS_KEY = "musickit.course.tags";
 const LAYOUT_KEY = "musickit.course.layout";
 
@@ -30,7 +33,11 @@ const listeners = new Set<() => void>();
 const SERVER_NOTES: Record<string, SectionNotes> = {};
 
 function loadAll() {
-  notes = parseNotesStore(read(NOTES_KEY));
+  const stored = read(NOTES_KEY);
+  if (stored === null && read(OLD_NOTES_KEY) !== null) {
+    notes = Object.fromEntries(Object.entries(parseNotesStore(read(OLD_NOTES_KEY))).map(([k, n]) => [legacyNoteKey(k), n]));
+    write(NOTES_KEY, JSON.stringify(notes));
+  } else notes = parseNotesStore(stored);
   custom = parseCustomTags(read(TAGS_KEY));
   allTags = [...PRESET_TAGS, ...custom];
   layout = read(LAYOUT_KEY) === "topic" ? "topic" : "stage";
