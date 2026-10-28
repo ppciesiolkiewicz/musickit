@@ -36,6 +36,7 @@ type StaffNote = PlacedNote;
 const HALF = 5; // px per staff step
 const MIN_BEAT = 44; // px a beat before the staff has to scroll (an eighth gets half)
 const MAX_BEAT = 72;
+const MIN_BEAT_16TH = 72; // a sixteenth run gets a quarter of the beat, so give it room
 const PAD = 14; // from a beat's start to its notehead
 const STEM = 34;
 const LABELS_H = 36;
@@ -126,8 +127,9 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
   const x0 = timeX + 14;
   const room = width - x0 - 12;
   const leadBeats = lead ? LEAD : 0;
-  const fits = room / (total + leadBeats) >= MIN_BEAT;
-  const beatW = follow ? Math.max(MIN_BEAT, room / (followBeats ?? FOLLOW_BEATS)) : fits ? Math.min(MAX_BEAT, room / (total + leadBeats)) : MIN_BEAT;
+  const minBeat = notes.some((n) => n.beats < 0.5) ? MIN_BEAT_16TH : MIN_BEAT;
+  const fits = room / (total + leadBeats) >= minBeat;
+  const beatW = follow ? Math.max(minBeat, room / (followBeats ?? FOLLOW_BEATS)) : fits ? Math.min(MAX_BEAT, room / (total + leadBeats)) : minBeat;
   const span = (total + leadBeats) * beatW;
   // a beat of the loop as drawn: its last half bar sits before the first bar
   const shown = (beat: number) => (beat >= total - leadBeats ? beat - total : beat);
@@ -353,6 +355,14 @@ function Note({ p, x, y, beats, colour, yOf }: { p: Placed; x: number; y: number
       {beats <= 0.5 && (
         <path
           d={up ? `M ${sx} ${ey} c 1 7 10 9 8 20` : `M ${sx} ${ey} c 1 -7 10 -9 8 -20`}
+          fill="none"
+          stroke={colour}
+          strokeWidth={2}
+        />
+      )}
+      {beats <= 0.25 && (
+        <path
+          d={up ? `M ${sx} ${ey + 8} c 1 7 10 9 8 20` : `M ${sx} ${ey - 8} c 1 -7 10 -9 8 -20`}
           fill="none"
           stroke={colour}
           strokeWidth={2}

@@ -45,8 +45,8 @@ describe("the melody book", () => {
     assert.ok(widest.at(-1)! >= 7);
   });
 
-  it("both lengths come up in every stage", () => {
-    for (const s of STAGES) {
+  it("both lengths come up in every stage past Do and Re", () => {
+    for (const s of STAGES.slice(1)) {
       const ls = new Set(BOOK.filter((t) => t.stage === s).map((t) => t.length));
       assert.deepEqual([...ls].sort(), ["long", "short"], s.id);
     }

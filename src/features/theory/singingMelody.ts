@@ -16,7 +16,7 @@ export const BEATS_PER_BAR = 4;
 export interface MelodyNote {
   /** scale steps above the root: 0 = Do */
   step: number;
-  /** length in beats: 0.5 an eighth, 1 a quarter, 1.5 a dotted quarter, 2 a half, 3 a dotted half, 4 a whole */
+  /** length in beats: 0.25 a sixteenth, 0.5 an eighth, 1 a quarter, 1.5 a dotted quarter, 2 a half, 3 a dotted half, 4 a whole */
   beats: number;
   /** beat it starts on, from 0 */
   at: number;

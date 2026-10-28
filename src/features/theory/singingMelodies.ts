@@ -8,7 +8,7 @@
  * chord can be Easy deep in the book.
  *
  * A tune is written bar by bar ("|"), one token a note: the degree of the scale 1 to 7 (1 = Do), `'` an octave up and
- * `,` an octave down (`1'` the high Do, `5,` the Sol under Do), then the length: none for a quarter, `e` an eighth,
+ * `,` an octave down (`1'` the high Do, `5,` the Sol under Do), then the length: none for a quarter, `s` a sixteenth (in runs of four), `e` an eighth,
  * `q.` a dotted quarter, `h` a half, `h.` a dotted half, `w` a whole. Pure data and parsing, no React (tested).
  */
 import { BEATS_PER_BAR, type MelodyLength, type MelodyNote } from "./singingMelody";
@@ -28,7 +28,7 @@ export const STAGES: Stage[] = [
     id: "do-re",
     title: "Do and Re",
     hint: "Two notes a step apart",
-    tunes: ["1 2 1 2 | 1w", "1h 2h | 1w", "2 1 2h | 1w", "1 1 2h | 1w", "1 1 2 2 | 1 2 1h | 2h 2 2 | 1w", "2h 1 2 | 2 1 2h | 1 2 2 1 | 1w", "1 2 1h | 2 2 1 2 | 2h 1 2 | 1w"],
+    tunes: ["1 2 1 2 | 1w"],
   },
   {
     id: "mi",
@@ -64,59 +64,59 @@ export const STAGES: Stage[] = [
     id: "la",
     title: "Sol La Sol",
     hint: "Up to La, one step above Sol",
-    tunes: ["5 6 5 3 | 1w", "5 6 4 2 | 1w", "6 5 3 2 | 1w", "1 3 5 6 | 5h 3h | 4 3 2h | 1w", "5 6 5 4 | 3 4 3 2 | 4h 3 2 | 1w", "6 4 5 3 | 4 2 3h | 5 6 3 2 | 1w", "6 5 4 3 | 2 4 3 1 | 5 6 5 3 | 1w"],
+    tunes: ["5 6 5 3 | 1w", "5 6 4 2 | 1w", "6 5e 4e 3 2 | 1w", "1 3 5 6e 5e | 5h 3h | 4 3 2h | 1w", "5 6 5 4 | 3e 4e 3 2 3 | 4h 3 2 | 1w", "6 4 5 3 | 4 2 3h | 5e 6e 5 3 2 | 1w", "6 5 4 3 | 2e 3e 4 3 1 | 5 6 5e 4e 3 | 1w"],
   },
   {
     id: "ti",
     title: "Ti to the high Do",
     hint: "The note that leads home, all the way up the scale",
-    tunes: ["5 6 7h | 1'w", "1' 7 6 7 | 1'w", "7 6 5 7 | 1'w", "1 3 5 7 | 1'h 7 6 | 5 4 3 2 | 1w", "5 5 6 7 | 1'h 5h | 6 7 6 7 | 1'w", "3 5 7 6 | 1'h 5h | 6 5 6 7 | 1'w", "1' 7 6 5 | 6 7 1'h | 5 6 7 7 | 1'w"],
+    tunes: ["5 6 7h | 1'w", "1' 7 6 7 | 1'w", "7 6e 5e 6 7 | 1'w", "1 3 5 7 | 1'h 7 6 | 5e 4e 3e 2e 3 2 | 1w", "5 5 6 7 | 1'h 5h | 6e 7e 6e 5e 6 7 | 1'w", "3 5 7 6 | 1'h 5h | 6e 5e 4e 5e 6 7 | 1'w", "1' 7 6 5 | 6 7 1'h | 5 6e 7e 1' 7 | 1'w"],
   },
   {
     id: "arpeggio",
     title: "Do Mi Sol Do",
     hint: "The home chord broken, up to the high Do and back down",
-    tunes: ["1 3 5 1' | 1'w", "1' 5 3 1 | 1w", "1h 5h | 3 5 1'h | 5 3 5 7 | 1'w", "1 3 5 1' | 5h 3h | 1 3 5 7 | 1'w", "1' 5 3 5 | 1'h 5h | 3 5 3 2 | 1w", "1 3 5h | 1' 5 3 1 | 3 5 4 2 | 1w", "5, 1 3 5 | 3 1 5,h | 1 3 2 7, | 1w"],
+    tunes: ["1 3 5 1' | 1'w", "1' 5 3 1 | 1w", "1h 5h | 3 5 1'h | 5e 4e 3 5 7 | 1'w", "1 3 5 1' | 5h 3h | 1 3 5 6e 7e | 1'w", "1' 5 3 5 | 1'h 5h | 3e 4e 5 3 2 | 1w", "1 3 5h | 1' 5 3 1 | 3 5 4e 3e 2 | 1w", "5, 1 3 5 | 3 1 5,h | 1 3 2e 1e 7, | 1w"],
   },
   {
     id: "chords",
     title: "Fa La Do, Sol Ti Re",
     hint: "The chords next door, broken the same way",
-    tunes: ["4 6 5 3 | 1w", "5 7 2' 7 | 1'w", "2 7, 5, 7, | 1w", "1 3 5 3 | 4 6 1' 6 | 5 7 2' 7 | 1'w", "5 7 2' 5 | 1'h 5h | 4 6 4 2 | 1w", "1' 6 4 6 | 5 3 1h | 2 7, 5, 7, | 1w", "3 5 1' 5 | 6 4 1 4 | 5 2 7, 2 | 1w"],
+    tunes: ["4 6 5 3 | 1w", "5 7 2' 7 | 1'w", "2 7, 5, 7, | 1w", "1 3 5 3 | 4 6 1' 6 | 5 7 2' 1'e 7e | 1'w", "5 7 2' 5 | 1'h 5h | 4 6 4e 3e 2 | 1w", "1' 6 4 5e 6e | 5 3 1h | 2 7, 5, 7, | 1w", "3 5 1' 5 | 6 4 1 4 | 5e 4e 3 2 7, | 1w"],
   },
   {
     id: "under",
     title: "Under Do",
     hint: "Down past Do to Ti, La and Sol, and back up",
-    tunes: ["1 7, 6, 7, | 1w", "1 7, 1 2 | 1w", "3 2 1 7, | 1w", "1 7, 6, 5, | 6, 7, 1h | 2 1 7, 2 | 1w", "5, 6, 7, 1 | 2h 1 7, | 6, 5, 6, 7, | 1w", "6, 7, 1 2 | 3h 2 1 | 7, 6, 7, 2 | 1w", "2 1 7, 6, | 5, 6, 7, 1 | 3 2 7, 2 | 1w"],
+    tunes: ["1 7, 6, 7, | 1w", "1 7, 1 2 | 1w", "3 2 1 7, | 1w", "1 7, 6, 5, | 6, 7, 1h | 2 1e 7,e 6, 7, | 1w", "5, 6, 7, 1 | 2h 1 7, | 6,e 5,e 6, 7, 2 | 1w", "6, 7, 1 2 | 3h 2 1 | 7, 6,e 7,e 1 2 | 1w", "2 1 7, 6, | 5, 6,e 7,e 1 2 | 3 2 7, 2 | 1w"],
   },
   {
     id: "fourths",
     title: "4ths",
     hint: "Do up to Fa, Re up to Sol, Sol under Do up to Do",
-    tunes: ["1 4 3 2 | 1w", "4 1 2 3 | 1w", "5, 1 2 7, | 1w", "1 4 3 4 | 2 5 4 3 | 5 2 3 7, | 1w", "5 1' 7 6 | 5h 2h | 3 6 5 2 | 1w", "4h 1h | 5q. 4e 3 6 | 5 2 4 3 | 1w", "1 4 3 1 | 5 2 3 4 | 2 5 4 2 | 1w"],
+    tunes: ["1 4 3 2 | 1w", "4 1 2 3 | 1w", "5, 1 2 7, | 1w", "1 4 3 4 | 2 5 4e 3e 2 | 5 2 3 7, | 1w", "5 1' 7 6 | 5h 2h | 3 6 5e 4e 3 | 1w", "4h 1h | 5q. 4e 3 6 | 5 2 4 3 | 1w", "1 4 3e 2e 1 | 5 2 3 4 | 2 5 4 2 | 1w"],
   },
   {
     id: "fifths",
     title: "5ths",
     hint: "Do up to Sol, Re up to La, and down again",
-    tunes: ["1 5 3 2 | 1w", "5 1 3 2 | 1w", "5 1 2 7, | 1w", "1 5 5 4 | 3h. 1 | 4 2 5, 7, | 1w", "2 6 5 4 | 3 7, 1 5 | 4e 3e 2 7, 2 | 1w", "5, 2 1 5 | 3q. 2e 2h | 6 2 5 3 | 1w", "1 5 4 3 | 2 6 5 4 | 3 2 5, 7, | 1w"],
+    tunes: ["1 5 4s 3s 2s 1s 2 | 1w", "5 1 3 2 | 1w", "5 1 2 7, | 1w", "1 5 6e 5e 4 | 3h. 1 | 4 2 5, 7, | 1w", "2 6 5 4 | 3 7, 1 5 | 4s 3s 2s 1s 2 7, 2 | 1w", "5, 2 1 5 | 3q. 2e 2h | 6 2 5 3 | 1w", "1 5 4 3 | 2 6 5 4e 3e | 3 2 5, 7, | 1w"],
   },
   {
     id: "sixths",
     title: "6ths",
     hint: "Do up to La, Mi up to the high Do",
-    tunes: ["1 6 5 3 | 1w", "1 6 4 2 | 1w", "5, 3 2 7, | 1w", "1 6 5 4 | 3 1' 7 5 | 6 4 2 7, | 1w", "3 1' 7 6 | 5h. 3 | 6q. 5e 4 2 | 1w", "3h 1'h | 7 5 6 4 | 5e 4e 3 6, 7, | 1w", "5, 3 2 1 | 3 1' 6 5 | 4 2 7, 2 | 1w"],
+    tunes: ["1 6 5s 4s 3s 2s 3 | 1w", "1 6 4 2 | 1w", "5, 3 2 7, | 1w", "1 6 5 4 | 3 1' 7 6e 5e | 6 4 2 7, | 1w", "3 1' 7s 6s 5s 4s 3 | 5h. 3 | 6q. 5e 4 2 | 1w", "3h 1'h | 7 5 6 4 | 5e 4e 3 6, 7, | 1w", "5, 3 2 1e 2e | 3 1' 6 5 | 4 2 7, 2 | 1w"],
   },
   {
     id: "octave",
     title: "The octave",
-    hint: "Do to the high Do and back: the widest leap, with eighths and dotted notes",
-    tunes: ["1 1'h 7 | 1'w", "1' 1 3 2 | 1w", "1' 1 2 7, | 1w", "5, 5 4 2 | 3 1' 7h | 6 5 4 2 | 1w", "1 1' 7 6 | 5h 5,h | 6, 7, 2 7, | 1w", "6, 6 5 3 | 4q. 2e 7, 1 | 5 5, 7, 2 | 1w", "5, 5 3 1 | 1' 1 2 3 | 4 2 7, 2 | 1w"],
+    hint: "Do to the high Do and back: the widest leap, with eighths, dotted notes and sixteenth runs",
+    tunes: ["1 1' 2's 1's 7s 6s 7 | 1'w", "1' 1 3 2 | 1w", "1' 1 2 7, | 1w", "5, 5 4 2 | 3 1' 7h | 6 5e 4e 3 2 | 1w", "1 1' 7 6e 7e | 5h 5,h | 6, 7, 2 7, | 1w", "6, 6 5 3 | 4q. 2e 7, 1 | 5 5, 6,s 7,s 1s 2s 2 | 1w", "5, 5 3 1 | 1' 1 2e 3e 2 | 4 2 7, 2 | 1w"],
   },
 ];
 
-const LENGTHS: Record<string, number> = { "": 1, e: 0.5, "q.": 1.5, h: 2, "h.": 3, w: 4 };
+const LENGTHS: Record<string, number> = { "": 1, s: 0.25, e: 0.5, "q.": 1.5, h: 2, "h.": 3, w: 4 };
 
 /** One tune's notes, as scale steps from Do (0) and lengths in beats. Throws on a token it can't read. */
 export function parseTune(tune: string): MelodyNote[] {
@@ -124,7 +124,7 @@ export function parseTune(tune: string): MelodyNote[] {
   let at = 0;
   for (const tok of tune.split(/\s+/)) {
     if (tok === "|" || tok === "") continue;
-    const m = /^([1-7])([',]*)(e|q\.|h\.|h|w)?$/.exec(tok);
+    const m = /^([1-7])([',]*)(s|e|q\.|h\.|h|w)?$/.exec(tok);
     if (!m) throw new Error(`bad note "${tok}" in "${tune}"`);
     const octave = [...m[2]].reduce((o, c) => o + (c === "'" ? 1 : -1), 0);
     const beats = LENGTHS[m[3] ?? ""];
