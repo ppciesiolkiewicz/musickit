@@ -229,6 +229,25 @@ export function toolInterface(): string[] {
   return (Object.entries(TOOLS) as [ToolName, ToolSpec][]).map(([name, t]) => `- ${name} : ${t.description}\n  inputSchema: ${schema({ type: { const: name }, ...t.properties }, ["type", ...(t.required ?? [])])}`);
 }
 
+export interface OfferedParam { name: string; type: string; required: boolean; description: string }
+export interface OfferedItem { name: string; description: string; params: OfferedParam[] }
+
+const paramsOf = (properties: Record<string, unknown>, required: string[]): OfferedParam[] =>
+  Object.entries(properties).map(([name, raw]) => {
+    const p = raw as { type?: string; items?: { type?: string }; description?: string; const?: unknown; enum?: unknown[] };
+    const type = p.const !== undefined ? JSON.stringify(p.const) : p.enum ? p.enum.map((v) => JSON.stringify(v)).join(" | ") : p.type === "array" ? `${p.items?.type ?? "any"}[]` : p.type ?? "any";
+    return { name, type, required: required.includes(name), description: p.description ?? "" };
+  });
+
+/** What the prompt offers the AI, with each input's parameters, for the debug view. */
+export function offeredInterface(entries: CatalogueEntry[]): { sections: OfferedItem[]; tools: OfferedItem[]; links: string[] } {
+  return {
+    sections: SECTIONS.map((s) => ({ name: s.type, description: s.description, params: paramsOf(s.properties, s.required) })),
+    tools: (Object.entries(TOOLS) as [ToolName, ToolSpec][]).map(([name, t]) => ({ name, description: t.description, params: paramsOf(t.properties, t.required ?? []) })),
+    links: linkResources(entries).map((l) => l.replace(/^- /, "")),
+  };
+}
+
 /**
  * The pages a link may go to, as resources: URI templates with their values, not one line per page. The page list
  * comes from the catalogue, so a new page or scale shows up here without touching the prompt.

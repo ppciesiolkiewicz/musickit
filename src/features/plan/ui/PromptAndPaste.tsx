@@ -4,13 +4,44 @@ import { useState } from "react";
 import Icon from "@/components/Icon";
 import { Button } from "@/components/ui";
 import type { ParseResult } from "../model/config";
+import type { CatalogueEntry } from "../model/catalogue";
+import { offeredInterface, type OfferedItem } from "../model/tools";
 
 const primary = "!border-sky-500/70 !bg-sky-500/20 !text-sky-100 hover:!bg-sky-500/30";
 
+function DebugList({ title, items }: { title: string; items: OfferedItem[] }) {
+  return (
+    <div>
+      <h4 className="font-semibold text-slate-400">{title} ({items.length})</h4>
+      <ul className="mt-1 flex flex-col gap-2">
+        {items.map((it) => (
+          <li key={it.name}>
+            <div className="font-mono text-sky-300">{it.name}</div>
+            <p className="text-slate-400">{it.description}</p>
+            <table className="mt-1 w-full border-collapse font-mono">
+              <tbody>
+                {it.params.map((p) => (
+                  <tr key={p.name} className="border-t border-slate-800 align-top">
+                    <td className="py-0.5 pr-2 text-slate-200">{p.name}{p.required && <span className="text-rose-300">*</span>}</td>
+                    <td className="py-0.5 pr-2 text-amber-300/90">{p.type}</td>
+                    <td className="py-0.5 font-sans text-slate-500">{p.description}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 /** Step: copy the prompt for the player's own AI. */
-export function CopyPrompt({ prompt, label = "Copy prompt" }: { prompt: string; label?: string }) {
+export function CopyPrompt({ prompt, entries, label = "Copy prompt" }: { prompt: string; entries: CatalogueEntry[]; label?: string }) {
   const [copied, setCopied] = useState(false);
   const [show, setShow] = useState(false);
+  const [debug, setDebug] = useState(false);
+  const offered = offeredInterface(entries);
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(prompt);
@@ -28,8 +59,20 @@ export function CopyPrompt({ prompt, label = "Copy prompt" }: { prompt: string; 
           {copied ? "Copied" : label}
         </Button>
         <Button size="sm" onClick={() => setShow((v) => !v)}>{show ? "Hide" : "Show"} prompt</Button>
+        <Button size="sm" onClick={() => setDebug((v) => !v)}>{debug ? "Hide" : "Show"} debug</Button>
         <span className="text-xs text-slate-500">Paste it into ChatGPT, Claude, Gemini… and copy its reply.</span>
       </div>
+      {debug && (
+        <div className="flex flex-col gap-3 rounded-lg border border-slate-700 bg-slate-950/60 p-3 text-[11px] text-slate-300">
+          <DebugList title="Tools offered to the AI" items={offered.tools} />
+          <DebugList title="Section types" items={offered.sections} />
+          <div>
+            <h4 className="font-semibold text-slate-400">Link resources ({offered.links.length})</h4>
+            <ul className="font-mono text-slate-400">{offered.links.map((l) => <li key={l} className="break-words">{l}</li>)}</ul>
+          </div>
+          <p className="text-slate-500">Prompt size: {prompt.length} chars</p>
+        </div>
+      )}
       {show && <textarea readOnly value={prompt} onFocus={(e) => e.currentTarget.select()} className="h-48 w-full rounded-lg border border-slate-700 bg-slate-950/60 p-3 font-mono text-[11px] text-slate-300" />}
     </div>
   );

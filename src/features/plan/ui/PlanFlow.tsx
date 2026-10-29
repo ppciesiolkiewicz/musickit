@@ -83,7 +83,7 @@ export default function PlanFlow({ mode, answers, current, history, entries, onP
     {
       title: mode === "start" ? "Copy your prompt" : "Copy next week's prompt",
       hint: mode === "start" ? "Paste it into ChatGPT, Claude, Gemini… Nothing leaves this browser." : "It carries this week's exercises, what you did and skipped, and your notes.",
-      body: <CopyPrompt prompt={prompt} />,
+      body: <CopyPrompt prompt={prompt} entries={entries} />,
     },
     {
       title: "Paste its reply",
