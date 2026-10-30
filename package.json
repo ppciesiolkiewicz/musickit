@@ -7,6 +7,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "deps": "mkdir -p .deps && npx dependency-cruiser src --include-only '^src' --output-type mermaid > .deps/deps.mmd",
+    "deps:svg": "mkdir -p .deps && npx dependency-cruiser src --include-only '^src' --output-type dot | dot -T svg > .deps/deps.svg && open .deps/deps.svg",
+    "deps:archi": "mkdir -p .deps && npx dependency-cruiser src --include-only '^src' --output-type archi | dot -T svg > .deps/archi.svg && open .deps/archi.svg",
+    "deps:circular": "npx madge --circular --extensions ts,tsx --ts-config tsconfig.json src",
+    "deps:orphans": "npx madge --orphans --extensions ts,tsx --ts-config tsconfig.json src",
+    "deps:feature": "f=${F:-plan}; mkdir -p .deps && npx dependency-cruiser src/features/$f --output-type mermaid > .deps/$f.mmd && echo wrote .deps/$f.mmd",
     "video": "node scripts/video/render.mjs",
     "test": "npx tsx --test src/lib/chordKit/*.test.ts src/lib/looper/*.test.ts src/features/instruments/*/*.test.ts src/lib/improv/*.test.ts src/features/sound/engine/*.test.ts src/features/tuner/*.test.ts src/features/rhythm/*.test.ts src/features/theory/*.test.ts src/features/course/*.test.ts src/features/theory/piano/*.test.ts src/lib/practice/*.test.ts src/features/widgets/*.test.ts src/features/creator/model/*.test.ts src/features/sampler/*.test.ts src/features/sampler/model/*.test.ts src/features/sampler/server/*.test.ts src/features/nam/*.test.ts src/features/nam/server/*.test.ts src/features/earlyAccess/*.test.ts src/features/styles/*.test.ts src/features/stage/model/*.test.ts src/features/teachers/video/model/*.test.ts src/features/search/*.test.ts"
   },
