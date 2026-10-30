@@ -1,1 +1,278 @@
-[]
+[
+  {
+    "name": "arpeggio-part",
+    "kind": "shape",
+    "description": "Part of an arpeggio (for example 1-3, or 1-3-5) over a chord or a progression; chords cycle to fill `bars`, the\ndegrees repeat one per beat. `place` gives each chord a box and part; `across` connects one arpeggio from one box\npart to the next. Also takes `bpm` and `repeats`.\n\nExample: `{ \"shape\": \"arpeggio-part\", \"chords\": [\"C\",\"Am\",\"F\",\"G\"], \"degrees\": [\"1\",\"3\",\"5\"], \"bars\": 4, \"place\": [{ \"box\": 1, \"part\": \"lower\" }, { \"box\": 1, \"part\": \"upper\" }, { \"box\": 2, \"part\": \"lower\" }, { \"box\": 2, \"part\": \"upper\" }], \"bpm\": 70 }`",
+    "props": [
+      {
+        "name": "shape",
+        "type": "\"arpeggio-part\"",
+        "required": true,
+        "description": ""
+      },
+      {
+        "name": "key",
+        "type": "string",
+        "required": false,
+        "description": "optional key as a note (\"c\")"
+      },
+      {
+        "name": "chords",
+        "type": "string[]",
+        "required": true,
+        "description": "chord names: \"C\", \"Am7\""
+      },
+      {
+        "name": "degrees",
+        "type": "Degree[]",
+        "required": true,
+        "description": "arpeggio degrees from the chord root: [\"1\",\"3\",\"5\"]"
+      },
+      {
+        "name": "across",
+        "type": "{ from: Place; to: Place }",
+        "required": false,
+        "description": "cross from one box part to another: { \"from\": { \"box\": 1, \"part\": \"upper\" }, \"to\": { \"box\": 2, \"part\": \"upper\" } }"
+      },
+      {
+        "name": "place",
+        "type": "Place[]",
+        "required": false,
+        "description": "box and part per chord, in order"
+      },
+      {
+        "name": "bars",
+        "type": "number",
+        "required": true,
+        "description": "total bars"
+      },
+      {
+        "name": "guide",
+        "type": "string[]",
+        "required": false,
+        "description": "cue text per step, in order"
+      }
+    ]
+  },
+  {
+    "name": "chord-steps",
+    "kind": "shape",
+    "description": "Per chord, a list of steps, one beat each: \"strum\" or a degree. Each chord takes one bar, more when its steps need\nthem. Degrees are major-relative semitones from the chord root (default) or the key (when `key` is given). `guide`\ngives a cue per step, in order. Also takes `bpm` and `repeats`.\n\nExample: `{ \"shape\": \"chord-steps\", \"voicing\": \"barre\", \"chords\": [{ \"chord\": \"G\", \"steps\": [\"strum\",\"1\",\"6\",\"1\"] }, { \"chord\": \"D\", \"steps\": [\"strum\",\"4\",\"5\",\"4\"] }], \"bpm\": 70 }`",
+    "props": [
+      {
+        "name": "shape",
+        "type": "\"chord-steps\"",
+        "required": true,
+        "description": ""
+      },
+      {
+        "name": "key",
+        "type": "string",
+        "required": false,
+        "description": "optional key (\"g\"); needed for degreesFrom \"key\""
+      },
+      {
+        "name": "chords",
+        "type": "{ chord: string; steps: (\"strum\" | Degree)[]; place?: Place }[]",
+        "required": true,
+        "description": "chords in order, each with its steps and optional box/part"
+      },
+      {
+        "name": "degreesFrom",
+        "type": "DegreesFrom",
+        "required": false,
+        "description": "\"chord\" (default) or \"key\""
+      },
+      {
+        "name": "voicing",
+        "type": "Voicing",
+        "required": false,
+        "description": "\"open\" (default) or \"barre\""
+      },
+      {
+        "name": "guide",
+        "type": "string[]",
+        "required": false,
+        "description": "cue text per step, in order; missing ones get a default cue on a box change"
+      }
+    ]
+  },
+  {
+    "name": "melody",
+    "kind": "shape",
+    "description": "A tune from the singing book, by number, in a key. Also takes `bpm` and `repeats`.\n\nExample: `{ \"shape\": \"melody\", \"tune\": 3, \"key\": \"d\", \"bpm\": 80 }`",
+    "props": [
+      {
+        "name": "shape",
+        "type": "\"melody\"",
+        "required": true,
+        "description": ""
+      },
+      {
+        "name": "tune",
+        "type": "number",
+        "required": true,
+        "description": "melody book number (1-based)"
+      },
+      {
+        "name": "key",
+        "type": "string",
+        "required": true,
+        "description": "key as a note: \"c\", \"f-sharp\""
+      }
+    ]
+  },
+  {
+    "name": "progression",
+    "kind": "shape",
+    "description": "A chord progression, by chord names or by numerals in a key, cycled to fill `bars`. Optional `steps` repeat over\neach chord's beats, one beat each (\"strum\" or a degree). Degrees are major-relative semitones (\"3\" is always 4),\ncounted from the chord root (`degreesFrom: \"chord\"`, default) or the key. `backing` lists comping patterns, the\nfirst plays first. `place` gives each chord a box and part, in order. Also takes `bpm` and `repeats`.\n\nExample: `{ \"shape\": \"progression\", \"key\": \"g\", \"numerals\": [\"I\",\"IV\",\"V\"], \"steps\": [\"1\",\"3\",\"5\"], \"bars\": 4, \"bpm\": 70, \"repeats\": 6 }`",
+    "props": [
+      {
+        "name": "shape",
+        "type": "\"progression\"",
+        "required": true,
+        "description": ""
+      },
+      {
+        "name": "key",
+        "type": "string",
+        "required": true,
+        "description": "key as a note: \"g\", \"f-sharp\", \"b-flat\""
+      },
+      {
+        "name": "numerals",
+        "type": "string[]",
+        "required": false,
+        "description": "I ii iii IV V vi vii°, bVII, V7 (major-key degrees; lower case = minor)"
+      },
+      {
+        "name": "chords",
+        "type": "string[]",
+        "required": false,
+        "description": "chord names, used when numerals are absent: \"G\", \"Em7\""
+      },
+      {
+        "name": "bars",
+        "type": "number",
+        "required": true,
+        "description": "total bars; chords cycle to fill them"
+      },
+      {
+        "name": "beatsPerChord",
+        "type": "2 | 4",
+        "required": false,
+        "description": "beats per chord, default 4"
+      },
+      {
+        "name": "steps",
+        "type": "(\"strum\" | Degree)[]",
+        "required": false,
+        "description": "repeated step template: \"strum\" or a degree like \"1\", \"b3\""
+      },
+      {
+        "name": "degreesFrom",
+        "type": "DegreesFrom",
+        "required": false,
+        "description": "what the step degrees count from: \"chord\" (default) or \"key\""
+      },
+      {
+        "name": "voicing",
+        "type": "Voicing",
+        "required": false,
+        "description": "\"open\" (default) or \"barre\""
+      },
+      {
+        "name": "backing",
+        "type": "CompPattern[]",
+        "required": false,
+        "description": "comping patterns the student can pick, first one plays first"
+      },
+      {
+        "name": "place",
+        "type": "Place[]",
+        "required": false,
+        "description": "box and part per chord, in order: [{ \"box\": 1, \"part\": \"lower\" }]"
+      }
+    ]
+  },
+  {
+    "name": "solo-over",
+    "kind": "shape",
+    "description": "Improvise over chords: per chord an optional scale (named from the chord root), target chord tones shown\nhighlighted (degrees, major-relative), and an optional `approach` hint. The code plays the backing; no fixed\nnotes, nothing graded. Each chord takes `bars` bars (default 1). Also takes `bpm` and `repeats`.\n\nExample: `{ \"shape\": \"solo-over\", \"key\": \"g\", \"chords\": [{ \"chord\": \"Am7\", \"scale\": \"dorian\", \"target\": [\"1\",\"b3\"] }, { \"chord\": \"D7\", \"scale\": \"mixolydian\", \"target\": [\"3\"], \"approach\": \"land on the 3rd on beat 1\" }], \"bpm\": 90 }`",
+    "props": [
+      {
+        "name": "shape",
+        "type": "\"solo-over\"",
+        "required": true,
+        "description": ""
+      },
+      {
+        "name": "key",
+        "type": "string",
+        "required": true,
+        "description": "key as a note: \"g\""
+      },
+      {
+        "name": "chords",
+        "type": "{ chord: string; scale?: string; target: Degree[]; approach?: string }[]",
+        "required": true,
+        "description": "chords in order with scale slug, target degrees and optional hint"
+      },
+      {
+        "name": "bars",
+        "type": "number",
+        "required": false,
+        "description": "bars per chord, default 1"
+      },
+      {
+        "name": "backing",
+        "type": "CompPattern",
+        "required": false,
+        "description": "comping pattern for the backing"
+      }
+    ]
+  },
+  {
+    "name": "two-scales",
+    "kind": "shape",
+    "description": "Play in one scale, then switch to another at a bar (default halfway), same click throughout. Each side has its own\nkey. Also takes `bpm` and `repeats`.\n\nExample: `{ \"shape\": \"two-scales\", \"a\": { \"key\": \"a\", \"scale\": \"minor-pentatonic\" }, \"b\": { \"key\": \"a\", \"scale\": \"dorian\" }, \"bars\": 8, \"bpm\": 80 }`",
+    "props": [
+      {
+        "name": "shape",
+        "type": "\"two-scales\"",
+        "required": true,
+        "description": ""
+      },
+      {
+        "name": "a",
+        "type": "{ key: string; scale: string }",
+        "required": true,
+        "description": "first scale: key (\"a\") and scale slug (\"minor-pentatonic\", \"dorian\", \"major-ionian\")"
+      },
+      {
+        "name": "b",
+        "type": "{ key: string; scale: string }",
+        "required": true,
+        "description": "second scale, same form"
+      },
+      {
+        "name": "bars",
+        "type": "number",
+        "required": true,
+        "description": "total bars, at least 2"
+      },
+      {
+        "name": "switchBar",
+        "type": "number",
+        "required": false,
+        "description": "bar the switch happens at (0-based), default half of bars, kept within 1..bars-1"
+      },
+      {
+        "name": "backingChord",
+        "type": "string",
+        "required": false,
+        "description": "optional chord to hold underneath: \"Am\""
+      }
+    ]
+  }
+]
