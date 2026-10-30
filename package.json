@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "docs:exercises": "tsx scripts/gen-exercise-docs.ts",
     "deps": "mkdir -p .deps && npx dependency-cruiser src --include-only '^src' --output-type mermaid > .deps/deps.mmd",
     "deps:svg": "mkdir -p .deps && npx dependency-cruiser src --include-only '^src' --output-type dot | dot -T svg > .deps/deps.svg && open .deps/deps.svg",
     "deps:archi": "mkdir -p .deps && npx dependency-cruiser src --include-only '^src' --output-type archi | dot -T svg > .deps/archi.svg && open .deps/archi.svg",
