@@ -339,6 +339,7 @@ export default function PocketTools({ keyPc, className = "", stacked = false, cl
             <Slider min={MIN_BPM} max={MAX_BPM} step={1} value={snap.bpm} onChange={(bpm) => rig.setTempo(bpm)} size="sm" className="w-full max-w-64 px-1" aria-label="Tempo" title={`${snap.bpm} bpm`} />
           </div>
         </Tool>
+        <div role="separator" className="col-span-full my-1 border-t border-slate-800" />
 
         <Tool label="Drone">
           <PlayButton on={snap.parts.drone.state.playing} label="drone" onClick={() => toggle("drone")} />
