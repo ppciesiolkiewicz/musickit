@@ -98,8 +98,8 @@ function crossingPath(name: string, from: Place, to: Place, pcs: Set<number>): C
  *   (box N is `arpPositions` entry N - 1); a pitch outside the arpeggio takes any fret in the box span on the part's strings.
  * - Consecutive placed note steps over the same chord whose place changes form a crossing: they walk up the first
  *   place and down the second (see `crossingPath`), one note per step, wrapping.
- * - A melody step (chord "") is the key's tonic near midi 60 plus `semis` for the first note, then the same pitch class
- *   closest to the previous note; it sits on the neck near the previous fret.
+ * - A melody step (chord "") is the tonic (the key nearest midi 60) plus `semis` exactly (semis carry the octave);
+ *   it sits on the neck near the previous fret.
  * - `highlighted` is whether opts/chord `highlight` holds the note's semitones above the root (any note, for chords).
  * - A chord with `backing` adds `backing` cues from `compEvents`.
  */
@@ -168,7 +168,7 @@ export function cuesOf(t: Timeline, opts: { highlight?: number[] } = {}): Cue[] 
     let cell: Cell | undefined = crossing.get(e);
     if (!cell && !e.chord) {
       const tonic = 60 + mod12(key - 60 + 6) - 6;
-      const midi: number = prev ? prev.midi + mod12(pc - prev.midi + 6) - 6 : tonic + e.step.semis;
+      const midi = tonic + e.step.semis; // semis already carry the octave
       const refFret: number = prev?.fret ?? 5;
       cell = [...neckOf(pc)].filter((x) => x.midi === midi).sort((a, b) => Math.abs(a.fret - refFret) - Math.abs(b.fret - refFret) || a.fret - b.fret)[0] ?? { string: -1, fret: -1, midi };
     }

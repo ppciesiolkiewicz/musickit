@@ -117,3 +117,15 @@ describe("cuesOf: highlight and melody", () => {
     }
   });
 });
+
+describe("cuesOf: melody octaves", () => {
+  it("1 1' 5, 1w keeps the octave leap: tonic, +12, -5, tonic", async () => {
+    const { parseTune } = await import("@/features/theory/singingMelodies");
+    const MAJOR = [0, 2, 4, 5, 7, 9, 11];
+    const notes = parseTune("1 1' 5, 1w");
+    const t = { bpm: 80, bars: 2, events: [{ type: "scale" as const, at: 0, key: 7, scale: "major-ionian" }, ...notes.map((n) => ({ type: "step" as const, at: n.at, beats: n.beats, chord: "", step: { kind: "note" as const, semis: MAJOR[((n.step % 7) + 7) % 7] + 12 * Math.floor(n.step / 7), from: "key" as const } }))] };
+    const midi = cuesOf(t).map((c) => c.midi[0]);
+    assert.deepEqual(midi, [55, 67, 50, 55]);
+    for (const c of cuesOf(t)) assert.equal(c.frets.length, 1);
+  });
+});
