@@ -14,3 +14,9 @@ export const loopsDone = (beat: number, t: Timeline): number => Math.floor(beat 
 
 /** True once every repeat has played; never when `repeats` is absent (loops forever). */
 export const isFinished = (beat: number, t: Timeline): boolean => t.repeats !== undefined && loopsDone(beat, t) >= t.repeats;
+
+/** Audio time of the bar after one starting at `barAt`, at `bpm`. */
+export const nextBarAt = (barAt: number, bpm: number): number => barAt + (BEATS_PER_BAR * 60) / bpm;
+
+/** The click anchor that puts beat index `bar * 4` at `barAt` at `bpm`, so a tempo change keeps the index continuous. */
+export const gridAnchor = (barAt: number, bar: number, bpm: number): number => barAt - (bar * BEATS_PER_BAR * 60) / bpm;

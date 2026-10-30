@@ -22,3 +22,17 @@ test("isFinished after repeats, never without", () => {
   assert.equal(isFinished(31, t(2)), false);
   assert.equal(isFinished(1000, t()), false);
 });
+
+import { beatIndexAt } from "@/features/instruments";
+import { gridAnchor, nextBarAt } from "./schedule";
+
+test("bar starts stay on the click grid across a tempo change", () => {
+  let barAt = 10, bpm = 60;
+  let anchor = gridAnchor(barAt, 0, bpm);
+  for (let bar = 0; bar < 6; bar++) {
+    if (bar === 3) { bpm = 90; anchor = gridAnchor(barAt, bar, bpm); }
+    assert.equal(beatIndexAt(barAt + 1e-6, anchor, bpm), bar * 4);
+    barAt = nextBarAt(barAt, bpm);
+  }
+  assert.ok(Math.abs(barAt - 30) < 1e-9);
+});

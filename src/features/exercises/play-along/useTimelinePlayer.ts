@@ -6,43 +6,69 @@ import { ClickTrack } from "@/features/instruments";
 import { cuesOf } from "../cues/cues";
 import { BEATS_PER_BAR } from "../timeline/timeline";
 import type { Timeline } from "../timeline/types";
-import { barEvents, isFinished } from "./schedule";
+import { barEvents, gridAnchor, isFinished, nextBarAt } from "./schedule";
 
 const STRUM_GAP_MS = 18;
+/** ClickTrack schedules clicks this far ahead (its LOOKAHEAD, 0.12 s) plus a margin: re-anchor before then. */
+const REGRID_LEAD = 0.2;
 
 /**
- * Plays a timeline: one `ClickTrack` on the audio clock, and the timeline's cues on the shared piano, scheduled one bar
- * ahead from the click's anchor with `setTimeout` (as `CompPlayer`). `beat` is the click's beat index (0 = first beat,
- * counting on through loops), -1 when stopped. A new timeline (e.g. another backing) and `setTempo` apply from the next bar.
+ * Plays a timeline: one `ClickTrack` on the audio clock, and the timeline's cues on the shared piano. Each bar's notes
+ * are queued a whole bar ahead (as `CompPlayer`). `beat` is the click's beat index (0 = first beat, counting on through
+ * loops), -1 when stopped. `setTempo` and a new timeline (e.g. another backing) apply from the next bar queued. A tempo
+ * change re-anchors the click (`gridAnchor`) before it schedules that bar's downbeat, so click, notes and playhead
+ * stay on one grid.
  */
-export function useTimelinePlayer(t: Timeline): { playing: boolean; beat: number; start(): Promise<void>; stop(): void; setTempo(bpm: number): void } {
+export function useTimelinePlayer(t: Timeline): { playing: boolean; starting: boolean; beat: number; start(): Promise<void>; stop(): void; setTempo(bpm: number): void } {
   const cues = useMemo(() => cuesOf(t), [t]);
   const live = useRef({ t, cues, bpm: t.bpm });
   useEffect(() => {
     live.current = { ...live.current, t, cues };
   }, [t, cues]);
   const [playing, setPlaying] = useState(false);
+  const [starting, setStarting] = useState(false);
   const [beat, setBeat] = useState(-1);
   const stopper = useRef<(() => void) | null>(null);
+  /** bumped by every start and stop: a start that finds it changed after an await gives up */
+  const gen = useRef(0);
+  const mounted = useRef(true);
 
   const stop = useCallback(() => {
+    gen.current++;
     stopper.current?.();
     stopper.current = null;
+    if (!mounted.current) return;
     setPlaying(false);
+    setStarting(false);
     setBeat(-1);
   }, []);
-  useEffect(() => () => stopper.current?.(), []);
+  useEffect(() => {
+    mounted.current = true;
+    const g = gen, s = stopper;
+    return () => {
+      mounted.current = false;
+      g.current++;
+      s.current?.();
+      s.current = null;
+    };
+  }, []);
 
   const start = useCallback(async () => {
     stopper.current?.();
+    stopper.current = null;
+    const mine = ++gen.current;
+    setStarting(true);
     await wakeAudio();
     const piano = getSharedPiano();
     await piano.preload().catch(() => undefined);
+    if (mine !== gen.current || !mounted.current) return;
+    setStarting(false);
+
     const ctx = getAudioContext();
     const click = new ClickTrack(ctx, getOutputBus());
-    let bpm = live.current.bpm;
     const params = (b: number) => ({ bpm: b, beatsPerBar: BEATS_PER_BAR, volume: 0.6 });
-    let barAt = ctx.currentTime + 0.1; // audio time of the bar being scheduled
+    let bpm = live.current.bpm;
+    let barAt = ctx.currentTime + 0.1; // audio time of the next bar to queue
     click.start(params(bpm), barAt);
     let stopped = false;
     let timers: ReturnType<typeof setTimeout>[] = [];
@@ -50,7 +76,7 @@ export function useTimelinePlayer(t: Timeline): { playing: boolean; beat: number
     let raf = 0;
     const after = (ms: number, f: () => void) => timers.push(setTimeout(f, Math.max(0, ms)));
 
-    const next = () => {
+    const queue = () => {
       if (stopped) return;
       const { t: tl, cues: cs, bpm: want } = live.current;
       if (isFinished(bar * BEATS_PER_BAR, tl)) {
@@ -59,7 +85,13 @@ export function useTimelinePlayer(t: Timeline): { playing: boolean; beat: number
       }
       if (want !== bpm) {
         bpm = want;
-        click.set(params(bpm)); // keeps the due beat (this bar's downbeat) in place
+        const at = barAt, n = bar, b = bpm;
+        // before the click looks ahead to this bar's downbeat; if late, the old grid already has it, so skip it
+        after((at - REGRID_LEAD - ctx.currentTime) * 1000, () => {
+          if (stopped) return;
+          const late = ctx.currentTime + 0.12 >= at - 1e-3;
+          click.start(params(b), gridAnchor(at, n, b), late ? at + 1e-3 : at - 1e-3);
+        });
       }
       const beatMs = 60000 / bpm;
       const lead = (barAt - ctx.currentTime) * 1000;
@@ -72,9 +104,11 @@ export function useTimelinePlayer(t: Timeline): { playing: boolean; beat: number
           after(on + c.beats * beatMs * 0.95, () => piano.noteOff(m));
         });
       }
+      const thisBar = barAt;
       bar++;
-      barAt += (BEATS_PER_BAR * 60) / bpm;
-      after((barAt - ctx.currentTime) * 1000 - 40, next);
+      barAt = nextBarAt(barAt, bpm);
+      // the next bar is queued as this one starts: a whole bar ahead
+      after((thisBar - ctx.currentTime) * 1000 - 40, queue);
     };
     const tick = () => {
       if (stopped) return;
@@ -91,7 +125,7 @@ export function useTimelinePlayer(t: Timeline): { playing: boolean; beat: number
     };
     stopper.current = halt;
     setPlaying(true);
-    next();
+    queue();
     tick();
   }, [stop]);
 
@@ -99,5 +133,5 @@ export function useTimelinePlayer(t: Timeline): { playing: boolean; beat: number
     live.current.bpm = bpm;
   }, []);
 
-  return { playing, beat, start, stop, setTempo };
+  return { playing, starting, beat, start, stop, setTempo };
 }

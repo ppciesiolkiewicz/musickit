@@ -58,7 +58,7 @@ export function PlayAlongTimeline({ timeline, view = "tab", others = "dimmed", h
   return (
     <div className="flex flex-col gap-2 rounded-xl border border-slate-800 bg-slate-950/40 p-2.5">
       <div className="flex flex-wrap items-center gap-2">
-        <button type="button" onClick={() => (player.playing ? player.stop() : void player.start())} aria-pressed={player.playing}
+        <button type="button" disabled={player.starting} onClick={() => (player.playing ? player.stop() : void player.start())} aria-pressed={player.playing}
           className={`inline-flex h-8 items-center gap-1.5 rounded-lg border px-3 text-xs font-medium transition ${player.playing ? "border-emerald-400/70 bg-emerald-500/20 text-emerald-100" : "border-sky-400/60 bg-sky-500/15 text-sky-50 hover:bg-sky-500/25"}`}>
           <Icon name={player.playing ? "square" : "play"} size={14} fill />{player.playing ? "Stop" : "Play"}
         </button>
