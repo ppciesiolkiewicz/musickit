@@ -4,6 +4,7 @@ import { parseKeySlug } from "@/features/theory/keySlug";
 import { findPentatonic } from "@/features/theory/pentatonics";
 import { findModePage } from "@/features/theory/scales";
 import { VOICES, type Voice } from "@/features/theory/singing";
+import { degreeSemis, parseDegrees } from "@/features/exercises/timeline/degrees";
 import { checkLink, type CatalogueEntry } from "./catalogue";
 
 /**
@@ -51,14 +52,8 @@ const keyOf = (v: unknown): number | null => (typeof v === "string" || typeof v 
 const list = (v: unknown): unknown[] => (Array.isArray(v) ? v : []);
 const chordList = (v: unknown, max: number) => list(v).filter((c): c is string => typeof c === "string" && !!parseChordQuery(c)).slice(0, max);
 
-const DEGREE_SEMIS: Record<string, number> = { "1": 0, r: 0, b2: 1, "2": 2, b3: 3, "3": 4, "4": 5, "#4": 6, b5: 6, "5": 7, "#5": 8, b6: 8, "6": 9, bb7: 9, b7: 10, "7": 11 };
-/** A scale degree as the AI writes it ("1", "b3", "♭7", "#4") in semitones above the key, null when unknown. */
-export function degreeSemis(v: unknown): number | null {
-  if (typeof v !== "string" && typeof v !== "number") return null;
-  const s = String(v).trim().toLowerCase().replace(/♭/g, "b").replace(/♯/g, "#");
-  return s in DEGREE_SEMIS ? DEGREE_SEMIS[s] : null;
-}
-const degrees = (v: unknown): number[] => [...new Set(list(v).map(degreeSemis).filter((n): n is number => n !== null))].sort((a, b) => a - b);
+export { degreeSemis };
+const degrees = (v: unknown): number[] => parseDegrees(v);
 const DEGREES = { type: "array", items: { type: "string" }, maxItems: 7 };
 const SCALE = { type: "string", description: "a scale slug from the scale pages: major-ionian, dorian, minor-pentatonic, minor-blues, …" };
 const KEY = { type: "string", description: "a note: c, f-sharp, b-flat" };
