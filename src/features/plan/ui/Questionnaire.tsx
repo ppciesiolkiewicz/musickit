@@ -2,7 +2,8 @@
 
 import { Chip, type ModalStep } from "@/components/ui";
 import { VOICES, type Voice } from "@/features/theory/singing";
-import { AREAS, CONCEPTS, conceptById, conceptsFor, type Area, type Concept } from "../model/concepts";
+import { AREAS, conceptById, conceptsFor, type Area, type Concept } from "../model/concepts";
+import { activeAreas, focusOptions, focusWithout, toggleFocus } from "../model/focus";
 import { LEVELS, MINUTES } from "../model/questions";
 import type { Level, PlanAnswers, Rating } from "../model/types";
 import RangeFinder from "./RangeFinder";
@@ -11,23 +12,6 @@ const field = "w-full rounded-lg border border-slate-700 bg-slate-950/60 px-3 py
 
 export type SetAnswer = <K extends keyof PlanAnswers>(k: K, v: PlanAnswers[K]) => void;
 
-const LEVEL_ORDER: Level[] = ["new", "beginner", "intermediate", "advanced"];
-const MAX_FOCUS = 3;
-
-/** The areas the player did not skip, in screen order. */
-const activeAreas = (a: PlanAnswers) => AREAS.filter((x) => a.levels[x.id]);
-
-/** Concepts offered as this week's focus: rated 1–2 among those shown, plus the first two of each area's next level. */
-function focusOptions(a: PlanAnswers): Concept[] {
-  const out: Concept[] = [];
-  for (const { id } of activeAreas(a)) {
-    const level = a.levels[id]!;
-    const next = LEVEL_ORDER[LEVEL_ORDER.indexOf(level) + 1];
-    out.push(...conceptsFor(id, level).filter((c) => (a.ratings[c.id] ?? 6) <= 2));
-    if (next) out.push(...CONCEPTS.filter((c) => c.area === id && c.level === next).slice(0, 2));
-  }
-  return out;
-}
 
 function levelsStep(a: PlanAnswers, set: SetAnswer): ModalStep {
   const choose = (area: Area, level: Level | undefined) => {
@@ -36,7 +20,7 @@ function levelsStep(a: PlanAnswers, set: SetAnswer): ModalStep {
     else delete levels[area];
     set("levels", levels);
     // a skipped area can't be a focus; its ratings stay in case it comes back
-    if (!level) set("focus", a.focus.filter((id) => conceptById(id)?.area !== area));
+    if (!level) set("focus", focusWithout(a.focus, area));
   };
   return {
     title: "Where are you now?",
@@ -68,7 +52,7 @@ function Stars({ concept, value, onChange }: { concept: Concept; value?: Rating;
           aria-label={`${concept.label}: ${n} of 5`}
           aria-pressed={value === n}
           onClick={() => onChange(value === n ? undefined : n)}
-          className={`h-7 w-7 rounded text-lg leading-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${value !== undefined && n <= value ? "text-amber-300" : "text-slate-700 hover:text-slate-500"}`}
+          className={`h-9 w-9 rounded text-lg leading-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${value !== undefined && n <= value ? "text-amber-300" : "text-slate-700 hover:text-slate-500"}`}
         >
           ★
         </button>
@@ -113,9 +97,9 @@ function voiceStep(a: PlanAnswers, set: SetAnswer): ModalStep {
       <div className="flex flex-col gap-4">
         <div className="flex flex-wrap gap-2">
           {(Object.keys(VOICES) as Voice[]).map((v) => <Chip key={v} on={type === v} onClick={() => set("voice", { ...a.voice, type: v })}>{VOICES[v].label}</Chip>)}
-          <Chip on={!type} onClick={() => set("voice", { range: a.voice?.range })}>Not sure</Chip>
+          <Chip on={!type} onClick={() => set("voice", undefined)}>Not sure</Chip>
         </div>
-        {a.voice?.range && <p className="text-xs text-slate-400">Range found. It is kept with your answers.</p>}
+        {type && a.voice?.range && <p className="text-xs text-slate-400">Range found. It is kept with your answers.</p>}
         <RangeFinder onRange={(range, v) => set("voice", { type: v, range })} />
       </div>
     ),
@@ -126,10 +110,10 @@ function focusStep(a: PlanAnswers, set: SetAnswer): ModalStep {
   const options = focusOptions(a);
   const ids = new Set(options.map((c) => c.id));
   const shown = [...options, ...a.focus.filter((id) => !ids.has(id)).flatMap((id) => conceptById(id) ?? [])];
-  const toggle = (id: string) => set("focus", a.focus.includes(id) ? a.focus.filter((x) => x !== id) : a.focus.length < MAX_FOCUS ? [...a.focus, id] : a.focus);
+  const toggle = (id: string) => set("focus", toggleFocus(a.focus, id));
   return {
     title: "This week",
-    hint: `Optional: up to ${MAX_FOCUS} things to focus on. Nothing picked and the AI decides.`,
+    hint: `Optional: up to 3 things to focus on. Nothing picked and the AI decides.`,
     body: shown.length ? (
       <div className="flex flex-wrap gap-2">
         {shown.map((c) => <Chip key={c.id} on={a.focus.includes(c.id)} onClick={() => toggle(c.id)}>{c.label}</Chip>)}

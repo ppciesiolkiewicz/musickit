@@ -36,8 +36,8 @@ export function StepModal({ title, steps, onFinish, onClose, finishLabel = "Done
         </div>
         <div>
           <p className="text-xs tabular-nums text-slate-500">{i + 1} / {steps.length}</p>
-          <h3 className="text-lg text-slate-100">{step.title}</h3>
-          {step.hint && <p className="text-xs text-slate-500">{step.hint}</p>}
+          <h3 className={`text-lg text-slate-100 ${bodyHeight ? "truncate" : ""}`}>{step.title}</h3>
+          {(step.hint || bodyHeight) && <p className={`text-xs text-slate-500 ${bodyHeight ? "line-clamp-2 h-8" : ""}`}>{step.hint}</p>}
         </div>
         {/* keyed so autoFocus and local state start fresh on each screen */}
         <div key={i} className={bodyHeight ? `${bodyHeight} overflow-y-auto` : "min-h-24"}>{step.body}</div>
