@@ -1,22 +1,27 @@
 import type { Section, StoredTool } from "./tools";
+import type { Voice } from "@/features/theory/singing";
+import type { Area } from "./concepts";
+
+/** How well the player knows a concept: 1 = not at all, 5 = solid. */
+export type Rating = 1 | 2 | 3 | 4 | 5;
 
 /** What the player told the questionnaire. Feeds the prompt; never sent anywhere by the app itself. */
 export interface PlanAnswers {
-  instruments: Instrument[];
-  level: Level;
-  /** where they want to go: play songs, improvise, ... (GOALS ids) */
-  goals: string[];
-  /** what they find hard (STRUGGLES ids) */
-  struggles: string[];
-  /** styles they love, free text ("blues, indie") */
-  styles: string;
+  /** self-rated level per area; an area left out is not practised */
+  levels: Partial<Record<Area, Level>>;
+  /** concept id (model/concepts.ts) to how well they know it */
+  ratings: Record<string, Rating>;
+  voice?: { type?: Voice; range?: { low: number; high: number } };
+  /** concept ids to work on first, at most 3 */
+  focus: string[];
   /** minutes a day they can practise */
   minutes: number;
+  /** styles they love, free text ("blues, indie") */
+  styles: string;
   /** anything else for the AI */
   notes: string;
 }
 
-export type Instrument = "guitar" | "piano" | "voice";
 export type Level = "new" | "beginner" | "intermediate" | "advanced";
 
 /**

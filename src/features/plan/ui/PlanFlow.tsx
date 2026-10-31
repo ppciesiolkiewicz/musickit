@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { StepModal, type ModalStep } from "@/components/ui";
 import type { CatalogueEntry } from "../model/catalogue";
+import { migrateAnswers } from "../model/answers";
 import { parsePlanConfig } from "../model/config";
 import { buildPrompt } from "../model/prompt";
 import type { PlanAnswers, PlanConfig, StoredPlan } from "../model/types";
@@ -17,7 +18,7 @@ type Saved = { mode: "start" | "next"; draft: PlanAnswers; feedback: string; tex
 export function savedFlow(): Saved | null {
   try {
     const s = JSON.parse(window.sessionStorage.getItem(FLOW_KEY) ?? "null") as Saved | null;
-    return s && (s.mode === "start" || s.mode === "next") && s.draft ? s : null;
+    return s && (s.mode === "start" || s.mode === "next") && s.draft ? { ...s, draft: migrateAnswers(s.draft) } : null;
   } catch {
     return null;
   }
@@ -77,7 +78,7 @@ export default function PlanFlow({ mode, answers, current, history, entries, onP
           hint: "What felt easy, hard, fun. It goes into the prompt with what you ticked off.",
           body: <textarea autoFocus className={field} value={feedback} onChange={(e) => setFeedback(e.target.value)} placeholder="Day 3 was too fast, loved the improv, want more songs…" />,
         },
-        ...questionSteps(draft, set, ["goals", "minutes"]).map((s, i) => (i === 0 ? { ...s, title: "Still heading the same way?" } : s)),
+        ...questionSteps(draft, set, ["minutes"]).map((s, i) => (i === 0 ? { ...s, title: "How long can you practise now?" } : s)),
       ];
   steps.push(
     {

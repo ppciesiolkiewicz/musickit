@@ -1,7 +1,8 @@
 import { GLOSSARY } from "@/features/course/glossary";
 import type { CatalogueEntry } from "./catalogue";
 import { EXERCISE_TAGS, linkResources, sectionInterface, toolInterface } from "./tools";
-import { GOALS, INSTRUMENTS, LEVELS, STRUGGLES, labelOf } from "./questions";
+import { LEVELS, labelOf } from "./questions";
+import { AREAS } from "./concepts";
 import { doneKey } from "./schedule";
 import { PLAN_DAYS, type PlanAnswers, type StoredPlan } from "./types";
 
@@ -48,8 +49,6 @@ export const EXAMPLE = `{
   ]
 }`;
 
-const list = (ids: string[], from: { id: string; label: string }[]) => (ids.length ? ids.map((id) => labelOf(from, id)).join(", ") : "not given");
-
 /** What happened last week, exercise by exercise, so the next week builds on it. */
 export function weekReport(plan: StoredPlan): string {
   const lines = [`Plan "${plan.config.title}", started ${plan.startedOn}:`];
@@ -68,10 +67,7 @@ export function weekReport(plan: StoredPlan): string {
 export function buildPrompt(answers: PlanAnswers | null, entries: CatalogueEntry[], previous: StoredPlan[] = []): string {
   const profile = answers
     ? [
-        `- Plays: ${list(answers.instruments, INSTRUMENTS)}`,
-        `- Level: ${labelOf(LEVELS, answers.level)}`,
-        `- Where they want to go: ${list(answers.goals, GOALS)}`,
-        `- What they find hard: ${list(answers.struggles, STRUGGLES)}`,
+        ...AREAS.flatMap((a) => (answers.levels[a.id] ? [`- ${a.label} level: ${labelOf(LEVELS, answers.levels[a.id]!)}`] : [])),
         `- Styles they love: ${answers.styles.trim() || "not given"}`,
         `- Time a day: about ${answers.minutes} minutes`,
         ...(answers.notes.trim() ? [`- In their words: ${answers.notes.trim()}`] : []),
