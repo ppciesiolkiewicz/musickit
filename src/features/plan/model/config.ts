@@ -1,4 +1,5 @@
 import { fitBlocks, blocksOf } from "./blocks";
+import { mixesSingAndPlay } from "./checks";
 import { checkLink, type CatalogueEntry } from "./catalogue";
 import { exerciseTags, legacySections, parseSection, parseTool, pickWasInexact, resolveChordPlacement, type Section } from "./tools";
 import { PLAN_DAYS, type PlanConfig, type PlanDay, type PlanExercise } from "./types";
@@ -82,6 +83,7 @@ export function parsePlanConfig(text: string, entries: CatalogueEntry[]): ParseR
       const fit = fitBlocks(sections, ex.minutes);
       if (fit.changed) warnings.push(`${where}: block minutes didn't add up to ${ex.minutes}; scaled them.`);
       if (ex.minutes > 5 && blocksOf(fit.sections).length < 2) warnings.push(`${where}: over 5 minutes in one block; split it.`);
+      if (mixesSingAndPlay(fit.sections)) warnings.push(`${where}: asks to both sing and play; keep it to one.`);
       ex.sections = fit.sections;
       const tags = exerciseTags(e.tags, sections);
       if (tags.length) ex.tags = tags;
