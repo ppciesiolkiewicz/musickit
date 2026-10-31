@@ -11,6 +11,7 @@ import { degreeSemis } from "@/features/exercises/timeline/degrees";
 import { clampTimeline, timelineSeconds } from "@/features/exercises/timeline/timeline";
 import type { Degree, Voicing } from "@/features/exercises/timeline/types";
 import { othersOf, type Others } from "@/features/exercises/cues/visibility";
+import { parsePlacement, type Placement } from "@/features/exercises/cues/placement";
 import { checkLink, type CatalogueEntry } from "./catalogue";
 import { migrateTool } from "./migrate";
 
@@ -38,14 +39,14 @@ type View = "tab" | "notes" | "neck";
  * degree strings itself (`arpeggio-neck` `part`, `play-along` `highlight`). A play-along keeps its checked shape, never events.
  */
 export type PlanTool =
-  | { type: "scale-neck"; scale: string; key: number; boxes?: number[]; /** pitch classes from outside the scale */ add?: number[] } & Marks
+  | { type: "scale-neck"; scale: string; key: number; boxes?: number[]; /** pitch classes from outside the scale */ add?: number[]; placement?: Placement } & Marks
   | { type: "chord-shapes"; chords: string[]; voicing?: Voicing }
   | { type: "staff"; scale: string; key: number; voice: Voice; /** semitones above the key: only these are on the staff */ notes?: number[]; mic?: boolean } & Marks
   | { type: "click-drone"; bpm: number; key: number; click?: boolean; drone?: boolean }
   | { type: "backing-band"; bpm: number; key: number; parts: BandPart[] }
   | { type: "note-finder"; query: string }
   | { type: "interval-ears"; query: string; /** intervals may span more than an octave */ wide?: boolean }
-  | { type: "arpeggio-neck"; chord: string; boxes?: number[]; part?: Degree[] } & Marks
+  | { type: "arpeggio-neck"; chord: string; boxes?: number[]; part?: Degree[]; placement?: Placement } & Marks
   | { type: "melody-singer"; tune: number; key: number; voice?: Voice }
   | { type: "run-singer"; run: number; key: number; voice?: Voice }
   | { type: "play-along"; shape: PlayAlongShape; bpm: number; repeats?: number; view?: View; highlight?: Degree[]; others?: "muted" | "hidden" };
@@ -89,6 +90,11 @@ const marks = (v: unknown, root: number | null): number[] =>
     const pc = typeof d === "string" && root !== null ? parseKeySlug(d) : null;
     return pc === null ? null : (pc - root! + 12) % 12;
   }).filter((n): n is number => n !== null))].sort((a, b) => a - b);
+/** Where the box goes; dropped when `boxes` already says (`{ by: "chords" }` is resolved per exercise, `resolveChordPlacement`). */
+const placementOf = (t: Record<string, unknown>, boxes: number[]): { placement?: Placement } => {
+  const placement = boxes.length ? null : parsePlacement(t.placement);
+  return placement ? { placement } : {};
+};
 const marksOf = (t: Record<string, unknown>, root: number | null): Marks => {
   const others = othersOf(t.others);
   return { ...opt("highlight", marks(t.highlight, root)), ...opt("mute", marks(t.mute, root)), ...opt("hide", marks(t.hide, root)), ...(others ? { others } : {}) };
@@ -101,7 +107,8 @@ const scaleNeck = (t: Record<string, unknown>): PlanTool | null => {
   const key = keyOf(t.key);
   if (!isScale(t.scale) || key === null) return null;
   const add = [...new Set(list(t.add).map(keyOf).filter((n): n is number => n !== null))].slice(0, 4);
-  return { type: "scale-neck", scale: t.scale, key, ...opt("boxes", boxesOf(t.boxes)), ...opt("add", add), ...marksOf(t, key) };
+  const boxes = boxesOf(t.boxes);
+  return { type: "scale-neck", scale: t.scale, key, ...opt("boxes", boxes), ...opt("add", add), ...placementOf(t, boxes), ...marksOf(t, key) };
 };
 
 /** The game's settings, as the query string its view reads; a stored tool keeps its query. */
@@ -159,7 +166,8 @@ export const TOOLS: { [N in ToolName]: ToolSpec } = {
   "arpeggio-neck": {
     parse(t) {
       if (!isChord(t.chord)) return null;
-      return { type: "arpeggio-neck", chord: t.chord, ...opt("boxes", boxesOf(t.boxes).slice(0, 2)), ...opt("part", degreeStrings(t.part)), ...marksOf(t, parseChordQuery(t.chord)!.rootPc) };
+      const boxes = boxesOf(t.boxes).slice(0, 2);
+      return { type: "arpeggio-neck", chord: t.chord, ...opt("boxes", boxes), ...opt("part", degreeStrings(t.part)), ...placementOf(t, boxes), ...marksOf(t, parseChordQuery(t.chord)!.rootPc) };
     },
   },
   "melody-singer": { parse: (t) => singer(t, "tune", isTuneId) },
@@ -254,6 +262,31 @@ export function exerciseTags(raw: unknown, sections: Section[]): string[] {
   const tags = new Set(list(raw).filter((t): t is string => typeof t === "string" && Object.hasOwn(EXERCISE_TAGS, t)));
   for (const s of sections) if (s.type === "tool" && s.tool.type === "interval-ears" && s.tool.wide) tags.add("multi-octave");
   return [...tags].slice(0, 4);
+}
+
+/**
+ * `{ by: "chords" }` placements, resolved from the exercise's first chord tool (a chord-shapes, else a play-along with
+ * chords): open voicing → next to the open chords; barre → near the first chord's root on the low E string. No chord
+ * tool: the placement goes.
+ */
+export function resolveChordPlacement(sections: Section[]): Section[] {
+  const chordTool = sections.flatMap((s) => (s.type === "tool" ? [s.tool] : [])).map((t) => {
+    if (t.type === "chord-shapes") return { chords: t.chords, voicing: t.voicing };
+    if (t.type !== "play-along") return null;
+    const sh = t.shape as { chords?: (string | { chord?: string })[]; voicing?: Voicing };
+    const chords = (sh.chords ?? []).map((c) => (typeof c === "string" ? c : c.chord)).filter((c): c is string => !!c && !!parseChordQuery(c));
+    return chords.length ? { chords, voicing: sh.voicing } : null;
+  }).find((c) => c !== null);
+  const resolved: Placement | null = !chordTool ? null
+    : chordTool.voicing === "barre" ? { by: "fret", fret: (parseChordQuery(chordTool.chords[0])!.rootPc - 4 + 12) % 12 }
+    : { by: "open" };
+  return sections.map((s) => {
+    if (s.type !== "tool" || (s.tool.type !== "scale-neck" && s.tool.type !== "arpeggio-neck") || s.tool.placement?.by !== "chords") return s;
+    const tool = { ...s.tool };
+    if (resolved) tool.placement = resolved;
+    else delete tool.placement;
+    return { type: "tool", tool };
+  });
 }
 
 /** One section from the AI's JSON, checked; null when empty or not showable. `pages` are the attunr pages a link may go to. */

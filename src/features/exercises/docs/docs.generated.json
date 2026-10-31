@@ -17,6 +17,12 @@
         "description": "one box, or two neighbouring boxes (1-based, as numbered in the arpeggio cues): [2] or [2, 3]; absent shows box 1"
       },
       {
+        "name": "placement",
+        "type": "Placement",
+        "required": false,
+        "description": "where on the neck, instead of `boxes`: { \"by\": \"open\" } next to open chords, { \"by\": \"root\", \"string\": 6 } the box\nwith the root on the low E (5: the A string, 4: the D string), { \"by\": \"fret\", \"fret\": 7 }, { \"by\": \"chords\" } near the\nchords shown in this exercise, { \"by\": \"box\", \"box\": 2 }; use `boxes` only when the exercise is about the boxes"
+      },
+      {
         "name": "part",
         "type": "Degree[]",
         "required": false,
@@ -502,6 +508,12 @@
         "type": "number[]",
         "required": false,
         "description": "which boxes to show (1-based); absent shows all"
+      },
+      {
+        "name": "placement",
+        "type": "Placement",
+        "required": false,
+        "description": "where on the neck, instead of `boxes`: { \"by\": \"open\" } next to open chords, { \"by\": \"root\", \"string\": 6 } the box\nwith the root on the low E (5: the A string, 4: the D string), { \"by\": \"fret\", \"fret\": 7 }, { \"by\": \"chords\" } near the\nchords shown in this exercise, { \"by\": \"box\", \"box\": 2 }; use `boxes` only when the exercise is about the boxes"
       },
       {
         "name": "add",

@@ -1,4 +1,5 @@
 import type { Degree } from "../../timeline/types";
+import type { Placement } from "../../cues/placement";
 
 /**
  * The scale's positions (boxes) on the guitar neck; tap a note to hear it, play a box up and down. Pick which boxes
@@ -12,6 +13,12 @@ export interface ScaleNeckProps {
   key: string;
   /** which boxes to show (1-based); absent shows all */
   boxes?: number[];
+  /**
+   * where on the neck, instead of `boxes`: { "by": "open" } next to open chords, { "by": "root", "string": 6 } the box
+   * with the root on the low E (5: the A string, 4: the D string), { "by": "fret", "fret": 7 }, { "by": "chords" } near the
+   * chords shown in this exercise, { "by": "box", "box": 2 }; use `boxes` only when the exercise is about the boxes
+   */
+  placement?: Placement;
   /** notes from outside the scale to play too, as note names: ["e-flat"] (the blue note, say); they are highlighted */
   add?: string[];
   /** notes that stand out: degrees (major-relative, from the key root, not scale-aware) or note names as in `add`: ["3"] or ["c-sharp"] */

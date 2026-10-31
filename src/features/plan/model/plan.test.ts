@@ -121,6 +121,24 @@ describe("tools", () => {
     const legacy = sectionsOf({ tools: [{ type: "sing", scale: "major-ionian", key: 0, voice: "tenor", notes: [0, 3, 7] }] } as never);
     assert.deepEqual((legacy[0] as { tool: { notes?: number[] } }).tool.notes, [0, 3, 7]);
   });
+  it("placement: boxes win; by chords resolves from the exercise's chords", () => {
+    const both = parseTool({ type: "scale-neck", scale: "minor-pentatonic", key: "a", boxes: [2], placement: { by: "open" } }) as Record<string, unknown>;
+    assert.deepEqual([both.boxes, both.placement], [[2], undefined]);
+    assert.deepEqual((parseTool({ type: "arpeggio-neck", chord: "A7", placement: { by: "root", string: 5 } }) as { placement?: unknown }).placement, { by: "root", string: 5 });
+    const neck = { type: "tool", tool: { type: "scale-neck", scale: "minor-pentatonic", key: "a", add: ["c-sharp"], placement: { by: "chords" } } };
+    const placed = (sections: unknown[]) => {
+      const p = JSON.parse(week());
+      p.days[0].exercises[0] = { title: "x", minutes: 5, sections };
+      const r = parsePlanConfig(JSON.stringify(p), entries);
+      assert.ok(r.ok);
+      const s = r.config.days[0].exercises[0].sections!.find((x) => x.type === "tool" && x.tool.type === "scale-neck") as { tool: { placement?: unknown } };
+      return s.tool.placement;
+    };
+    assert.deepEqual(placed([{ type: "tool", tool: { type: "chord-shapes", chords: ["A7", "D7", "E7"] } }, neck]), { by: "open" });
+    assert.deepEqual(placed([{ type: "tool", tool: { type: "chord-shapes", chords: ["A7"], voicing: "barre" } }, neck]), { by: "fret", fret: 5 });
+    assert.deepEqual(placed([{ type: "tool", tool: { type: "play-along", bpm: 80, shape: { shape: "progression", key: "a", chords: ["A7", "D7"], bars: 2, voicing: "barre" } } }, neck]), { by: "fret", fret: 5 });
+    assert.equal(placed([neck]), undefined);
+  });
   it("parses a play-along by its shape", () => {
     const shape = { shape: "chord-steps", chords: [{ chord: "G", steps: ["strum", "1", "6", "1"] }, { chord: "D", steps: ["strum", "4", "5", "4"] }], voicing: "barre" };
     const t = parseTool({ type: "play-along", bpm: 70, shape });

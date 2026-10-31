@@ -1,5 +1,5 @@
 import { checkLink, type CatalogueEntry } from "./catalogue";
-import { derivedMinutes, exerciseTags, legacySections, parseSection, parseTool, type Section } from "./tools";
+import { derivedMinutes, exerciseTags, legacySections, parseSection, parseTool, resolveChordPlacement, type Section } from "./tools";
 import { PLAN_DAYS, type PlanConfig, type PlanDay, type PlanExercise } from "./types";
 
 export type ParseResult = { ok: true; config: PlanConfig; warnings: string[] } | { ok: false; error: string };
@@ -72,7 +72,7 @@ export function parsePlanConfig(text: string, entries: CatalogueEntry[]): ParseR
       const focus = str(e.focus, 120);
       if (focus) ex.focus = focus;
       const where = `Day ${d + 1}, exercise ${i + 1}`;
-      const sections = Array.isArray(e.sections) ? parseSections(e.sections, entries, where, warnings) : parseLegacy(e, entries, where, warnings);
+      const sections = resolveChordPlacement(Array.isArray(e.sections) ? parseSections(e.sections, entries, where, warnings) : parseLegacy(e, entries, where, warnings));
       if (!sections.length) {
         warnings.push(`${where}: no instructions.`);
         sections.push({ type: "text", text: title });
