@@ -1,6 +1,6 @@
 "use client";
 
-import type { Others } from "../../cues/visibility";
+import { noteState, type Others } from "../../cues/visibility";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useMicPitch } from "@/components/practice/useMicPitch";
 import MicButton from "@/components/theory/singing/MicButton";
@@ -17,9 +17,19 @@ const SEMI_TEXT = ["1", "♭2", "2", "♭3", "3", "4", "♯4", "5", "♭6", "6",
 const GAP_FRAMES = 6;
 
 /** The scale on a staff in the voice's range, with the microphone's pitch drawn on it; tap a note to hear it. */
-export function View({ slug, pc, voice, notes, highlight, others, mic: micButton = true }: { slug: string; pc: number; voice: keyof typeof VOICES; notes?: number[]; highlight?: number[]; others?: Others; mic?: boolean }) {
+export function View({ slug, pc, voice, notes, highlight, mute, hide, others, mic: micButton = true }: { slug: string; pc: number; voice: keyof typeof VOICES; notes?: number[]; highlight?: number[]; mute?: number[]; hide?: number[]; others?: Others; mic?: boolean }) {
   const range = VOICES[voice];
-  const lit = useMemo(() => (highlight?.length ? new Set(highlight.map((semi) => (pc + semi) % 12)) : undefined), [highlight, pc]);
+  // a staff has two looks, lit and dimmed: lit are the highlighted notes, or (nothing highlighted) every note not muted
+  const state = useMemo(() => {
+    const pcs = (semis?: number[]) => semis?.map((semi) => (pc + semi) % 12);
+    const v = { highlight: pcs(highlight), mute: pcs(mute), hide: pcs(hide), others };
+    return (p: number) => noteState(v, p);
+  }, [pc, highlight, mute, hide, others]);
+  const lit = useMemo(() => {
+    const all = Array.from({ length: 12 }, (_, p) => p);
+    const on = all.filter((p) => state(p) === (highlight?.length ? "highlighted" : "normal"));
+    return on.length < 12 ? new Set(on) : undefined;
+  }, [state, highlight]);
   const picked = useMemo(() => {
     const full = buildLadder(slug, pc, range);
     if (!full || !notes?.length) return full;
@@ -39,12 +49,12 @@ export function View({ slug, pc, voice, notes, highlight, others, mic: micButton
       }
     return out.length > 1 ? { ...full, notes: out, pcs: new Set(notes.map((semi) => (pc + semi) % 12)), title: `${full.title.split(" ")[0]}: ${notes.map((v) => SEMI_TEXT[v]).join(" ")}` } : full;
   }, [slug, pc, range, notes]);
-  // "hidden": the notes not lit leave the staff
+  // hidden notes leave the staff
   const ladder = useMemo(() => {
-    if (!picked || others !== "hidden" || !lit) return picked;
-    const kept = picked.notes.filter((n) => lit.has(n.midi % 12));
+    if (!picked) return picked;
+    const kept = picked.notes.filter((n) => state(n.midi % 12) !== "hidden");
     return kept.length > 1 ? { ...picked, notes: kept } : picked;
-  }, [picked, others, lit]);
+  }, [picked, state]);
   const [mic, setMic] = useState(false);
   const [played, setPlayed] = useState<number | null>(null);
   const pitch = useRef<number | null>(null);

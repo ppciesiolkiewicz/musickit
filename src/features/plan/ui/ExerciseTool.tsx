@@ -21,11 +21,11 @@ const PlayAlong = dynamic(() => import("@/features/exercises/play-along/PlayAlon
 export default function ExerciseTool({ tool }: { tool: PlanTool }) {
   switch (tool.type) {
     case "scale-neck":
-      return <ScaleNeck slug={tool.scale} pc={tool.key} boxes={tool.boxes} add={tool.add} highlight={tool.highlight} others={tool.others} />;
+      return <ScaleNeck slug={tool.scale} pc={tool.key} boxes={tool.boxes} add={tool.add} highlight={tool.highlight} mute={tool.mute} hide={tool.hide} others={tool.others} />;
     case "chord-shapes":
       return <ChordShapes chords={tool.chords} voicing={tool.voicing} />;
     case "staff":
-      return <Staff slug={tool.scale} pc={tool.key} voice={tool.voice} notes={tool.notes} highlight={tool.highlight} others={tool.others} mic={tool.mic} />;
+      return <Staff slug={tool.scale} pc={tool.key} voice={tool.voice} notes={tool.notes} highlight={tool.highlight} mute={tool.mute} hide={tool.hide} others={tool.others} mic={tool.mic} />;
     case "click-drone":
       return <ClickDrone bpm={tool.bpm} keyPc={tool.key} click={tool.click} drone={tool.drone} />;
     case "backing-band":
@@ -35,7 +35,7 @@ export default function ExerciseTool({ tool }: { tool: PlanTool }) {
     case "interval-ears":
       return <IntervalEars query={tool.query} />;
     case "arpeggio-neck":
-      return <ArpeggioNeck chord={tool.chord} boxes={tool.boxes} part={tool.part} highlight={tool.highlight} others={tool.others} />;
+      return <ArpeggioNeck chord={tool.chord} boxes={tool.boxes} part={tool.part} highlight={tool.highlight} mute={tool.mute} hide={tool.hide} others={tool.others} />;
     case "melody-singer":
       return <MelodySinger tune={tool.tune} pc={tool.key} voice={tool.voice} />;
     case "run-singer":

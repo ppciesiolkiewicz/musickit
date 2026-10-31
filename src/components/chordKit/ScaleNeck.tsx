@@ -13,7 +13,7 @@ const ACTIVE = "#38bdf8";
 export const cellKey = (c: { string: number; fret: number }) => `${c.string}-${c.fret}`;
 
 /** One note: a filled dot coloured by degree (root ringed in white), or a small ring for a note that is only there for reference. */
-function Dot({ c, x, y, r, ring, label, hover, active, dim, onNote }: { c: ScaleCell; x: number; y: number; r: number; ring: boolean; label: string; hover: string; active: boolean; dim: boolean; onNote: (c: ScaleCell) => void }) {
+function Dot({ c, x, y, r, ring, label, hover, active, dim, accent = false, onNote }: { c: ScaleCell; x: number; y: number; r: number; ring: boolean; label: string; hover: string; active: boolean; dim: boolean; /** an outer ring: the note the exercise is about */ accent?: boolean; onNote: (c: ScaleCell) => void }) {
   const col = degreeColour(c.degree);
   const isRoot = c.degree === 0;
   const fs = (t: string) => (ring ? 0.85 : 0.9) * r * (t.length > 2 ? 0.68 : 0.88);
@@ -21,6 +21,7 @@ function Dot({ c, x, y, r, ring, label, hover, active, dim, onNote }: { c: Scale
     <g opacity={dim ? 0.18 : 1} onClick={() => onNote(c)} className="group cursor-pointer">
       {/* a hover and tap area a few px wider than the dot */}
       <circle cx={x} cy={y} r={r + 4} fill="transparent" />
+      {accent && <circle cx={x} cy={y} r={r + 3} fill="none" stroke="var(--color-amber-300)" strokeWidth={3} />}
       {ring ? (
         <circle cx={x} cy={y} r={r * 0.68} fill="var(--color-slate-950)" stroke={active ? ACTIVE : col} strokeWidth={active ? 3 : 1.6} />
       ) : (
@@ -95,10 +96,15 @@ export function ScaleNeck({ cells, big, rings = true, focus = null, fadeOutside 
 }
 
 /** One position as a vertical box: its notes as dots, and (optionally) the other scale notes inside its frets as rings. */
-export function PositionBox({ position, cells, rings, active, labelSystem, onNote, highlight, seam }: {
+/** How a note is drawn (see `noteState` in src/features/exercises/cues/visibility.ts). */
+export type DotState = "hidden" | "muted" | "normal" | "highlighted";
+
+export function PositionBox({ position, cells, rings, active, labelSystem, onNote, highlight, states, seam }: {
   position: ScalePosition; cells: ScaleCell[]; rings: boolean; active: string | null; labelSystem: LabelSystem; onNote: (c: ScaleCell) => void;
   /** pitch classes to stand out: every other note is dimmed (none: all notes alike) */
   highlight?: ReadonlySet<number>;
+  /** each pitch class's state; replaces `highlight` when given: hidden notes are not drawn, muted ones dimmed, highlighted ones ringed */
+  states?: (pc: number) => DotState;
   /** places (`cellKey`) circled with a dashed ring: where two boxes join */
   seam?: ReadonlySet<string>;
 }) {
@@ -110,11 +116,14 @@ export function PositionBox({ position, cells, rings, active, labelSystem, onNot
   const extra = rings ? cells.filter((c) => c.fret >= from && c.fret <= position.to && !mine.has(cellKey(c))) : [];
   const label = (c: ScaleCell) => noteLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText });
   const hover = (c: ScaleCell) => hoverLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText });
+  const drawn = (c: ScaleCell) => !states || states(c.pc) !== "hidden";
+  const dim = (c: ScaleCell) => (states ? states(c.pc) === "muted" : !!highlight && !highlight.has(c.pc));
+  const accent = (c: ScaleCell) => !!states && states(c.pc) === "highlighted";
   return (
     <svg viewBox={`0 0 ${g.W} ${g.H}`} style={{ width: "100%", maxWidth: 260, height: "auto" }} className="mx-auto" role="img" aria-label={`Position ${position.number}, frets ${position.from} to ${position.to}`}>
       <VerticalBoard g={g} numbersRight />
-      {extra.map((c) => <Dot key={cellKey(c)} c={c} x={g.sx(c.string)} y={g.fy(c.fret)} r={14} ring label={label(c)} hover={hover(c)} active={lit(c)} dim={!!highlight && !highlight.has(c.pc)} onNote={onNote} />)}
-      {position.notes.map((c) => <Dot key={cellKey(c)} c={c} x={g.sx(c.string)} y={g.fy(c.fret)} r={14} ring={false} label={label(c)} hover={hover(c)} active={lit(c)} dim={!!highlight && !highlight.has(c.pc)} onNote={onNote} />)}
+      {extra.filter(drawn).map((c) => <Dot key={cellKey(c)} c={c} x={g.sx(c.string)} y={g.fy(c.fret)} r={14} ring label={label(c)} hover={hover(c)} active={lit(c)} dim={dim(c)} accent={accent(c)} onNote={onNote} />)}
+      {position.notes.filter(drawn).map((c) => <Dot key={cellKey(c)} c={c} x={g.sx(c.string)} y={g.fy(c.fret)} r={14} ring={false} label={label(c)} hover={hover(c)} active={lit(c)} dim={dim(c)} accent={accent(c)} onNote={onNote} />)}
       {seam && position.notes.filter((c) => seam.has(cellKey(c))).map((c) => <circle key={`seam-${cellKey(c)}`} cx={g.sx(c.string)} cy={g.fy(c.fret)} r={19} fill="none" stroke="var(--color-amber-300)" strokeWidth={2} strokeDasharray="4 3" pointerEvents="none" />)}
     </svg>
   );

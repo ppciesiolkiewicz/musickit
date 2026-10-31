@@ -1,7 +1,7 @@
 "use client";
 
-import type { Others } from "../../cues/visibility";
-import { useMemo } from "react";
+import { noteState, type Others, type Visibility } from "../../cues/visibility";
+import { useCallback, useMemo } from "react";
 import { PositionBox, cellKey } from "@/components/chordKit/ScaleNeck";
 import { useNotePlayer } from "@/components/chordKit/useNotePlayer";
 import { useLabelSystem } from "@/features/theory/useLabelSystem";
@@ -24,8 +24,14 @@ function addedNote(ctx: KeyContext, pc: number): ExtraNote {
  * The scale's positions on the neck, only the boxes asked for, with any added notes played in them; tap a note to hear
  * it, ▶ to run the box up and down.
  */
-export function View({ slug, pc, boxes, add, highlight, others }: { slug: string; pc: number; boxes?: number[]; add?: number[]; highlight?: number[]; others?: Others }) {
-  const lit = useMemo(() => (highlight?.length ? new Set(highlight.map((semi) => (pc + semi) % 12)) : undefined), [highlight, pc]);
+export function View({ slug, pc, boxes, add, highlight, mute, hide: hidden, others }: { slug: string; pc: number; boxes?: number[]; add?: number[]; highlight?: number[]; mute?: number[]; hide?: number[]; others?: Others }) {
+  // the marks are semitones above the key; the states work on pitch classes
+  const vis = useMemo((): Visibility => {
+    const pcs = (semis?: number[]) => semis?.map((semi) => (pc + semi) % 12);
+    return { highlight: pcs(highlight), mute: pcs(mute), hide: pcs(hidden), add, others };
+  }, [pc, highlight, mute, hidden, add, others]);
+  const state = useCallback((p: number) => noteState(vis, p), [vis]);
+  const litNames = [...new Set([...(vis.highlight ?? []), ...(add ?? [])])].filter((p) => state(p) === "highlighted").map((p) => SHARP[p]);
   const [system] = useLabelSystem();
   const { active, play, tap } = useNotePlayer();
   const { title, cells: allCells, positions: allPositions } = useMemo(() => {
@@ -51,10 +57,9 @@ export function View({ slug, pc, boxes, add, highlight, others }: { slug: string
     });
     return { title: `${base.title} + ${add.map((n) => SHARP[n]).join(", ")}`, cells: [...base.cells, ...added], positions };
   }, [slug, pc, add]);
-  // "hidden": only the lit notes are drawn, in the boxes and as rings
-  const hide = others === "hidden" && !!lit;
-  const cells = useMemo(() => (hide ? allCells.filter((c) => lit!.has(c.pc)) : allCells), [allCells, hide, lit]);
-  const positions = useMemo(() => (hide ? allPositions.map((p) => ({ ...p, notes: p.notes.filter((c) => lit!.has(c.pc)) })) : allPositions), [allPositions, hide, lit]);
+  // hidden notes leave the boxes and the rings, and the ▶ run
+  const cells = useMemo(() => allCells.filter((c) => state(c.pc) !== "hidden"), [allCells, state]);
+  const positions = useMemo(() => allPositions.map((p) => ({ ...p, notes: p.notes.filter((c) => state(c.pc) !== "hidden") })), [allPositions, state]);
   const shown = boxes?.length ? positions.filter((p) => boxes.includes(p.number)) : positions;
   const run = (p: ScalePosition) => {
     const up = positionLine(p).map((n) => ({ key: cellKey(n), midi: n.midi }));
@@ -62,7 +67,7 @@ export function View({ slug, pc, boxes, add, highlight, others }: { slug: string
   };
   return (
     <div className="flex flex-col gap-2">
-      <p className="text-xs text-slate-400">{title}{lit ? ` · ${highlight!.map((v) => SEMI_TEXT[v]).join(" ")} lit` : ""}{boxes?.length ? ` · box${boxes.length > 1 ? "es" : ""} ${boxes.join(" & ")}` : ""}</p>
+      <p className="text-xs text-slate-400">{title}{litNames.length ? ` · ${litNames.join(" ")} lit` : ""}{boxes?.length ? ` · box${boxes.length > 1 ? "es" : ""} ${boxes.join(" & ")}` : ""}</p>
       <div className="grid gap-3 lg:grid-cols-2">
         {shown.map((p) => (
           <div key={p.number} className="flex flex-col gap-1">
@@ -70,7 +75,7 @@ export function View({ slug, pc, boxes, add, highlight, others }: { slug: string
               <span>Box {p.number}</span>
               <button type="button" onClick={() => run(p)} className="rounded border border-slate-700 px-2 py-0.5 text-[11px] text-slate-300 hover:border-slate-500">▶ Play</button>
             </div>
-            <PositionBox position={p} cells={cells} rings active={active} labelSystem={system} onNote={(c) => tap(cellKey(c), c.midi)} highlight={lit} />
+            <PositionBox position={p} cells={cells} rings active={active} labelSystem={system} onNote={(c) => tap(cellKey(c), c.midi)} states={state} />
           </div>
         ))}
       </div>
