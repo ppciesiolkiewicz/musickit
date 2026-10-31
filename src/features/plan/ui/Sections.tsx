@@ -3,9 +3,22 @@
 import Link from "next/link";
 import Icon from "@/components/Icon";
 import Explained from "@/components/course/Explained";
-import { explain } from "@/features/course/glossary";
+import { explain, type Piece } from "@/features/course/glossary";
+import { inlineNote, noteRootFor, splitNotes, type NoteRoot } from "../model/noteText";
+import InlineNote from "./InlineNote";
 import type { Section } from "../model/tools";
 import ExerciseTool from "./ExerciseTool";
+
+/** Explained text with its `{{3}}` / `{{c-sharp}}` notes drawn as dots; a note that can't be read stays as text. */
+function NoteText({ pieces, root }: { pieces: Piece[]; root: NoteRoot | null }) {
+  return pieces.map((p, i) =>
+    typeof p !== "string" ? <Explained key={i} pieces={[p]} /> : splitNotes(p).map((part, j) => {
+      if (typeof part === "string") return <span key={`${i}-${j}`}>{part}</span>;
+      const info = inlineNote(part.note, root);
+      return info ? <InlineNote key={`${i}-${j}`} info={info} /> : <span key={`${i}-${j}`}>{`{{${part.note}}}`}</span>;
+    }),
+  );
+}
 
 /** An exercise's sections in the order the AI wrote them: headings, paragraphs, numbered steps, tools and links, top to bottom. */
 export default function Sections({ sections }: { sections: Section[] }) {
@@ -20,11 +33,11 @@ export default function Sections({ sections }: { sections: Section[] }) {
           case "heading":
             return <h4 key={i} className="mt-1 text-sm font-medium text-slate-100">{s.text}</h4>;
           case "text":
-            return <p key={i} className="text-sm leading-relaxed text-slate-300"><Explained pieces={pieces[n++]} /></p>;
+            return <p key={i} className="text-sm leading-relaxed text-slate-300"><NoteText pieces={pieces[n++]} root={noteRootFor(sections, i)} /></p>;
           case "list":
             return (
               <ol key={i} className="list-decimal space-y-0.5 pl-5 text-sm leading-relaxed text-slate-300 marker:text-slate-500">
-                {s.items.map((_, j) => <li key={j}><Explained pieces={pieces[n++]} /></li>)}
+                {s.items.map((_, j) => <li key={j}><NoteText pieces={pieces[n++]} root={noteRootFor(sections, i)} /></li>)}
               </ol>
             );
           case "tool":

@@ -347,5 +347,6 @@ describe("schedule", () => {
     assert.ok(prompt.includes('"placement"'));
     assert.ok(prompt.includes('"c-sharp"'));
     assert.ok(prompt.includes('"view": "tab"'));
+    assert.ok(prompt.includes("{{b7}}"));
   });
 });

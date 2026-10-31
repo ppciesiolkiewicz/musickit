@@ -96,6 +96,11 @@ paste from the exercise's chord-shapes or play-along (`resolveChordPlacement`: o
 chord's fret). Not yet: `placement` on the shapes' per-chord `place`, and `mute` / `hide` / note names on `play-along`
 (it keeps chord-relative degree `highlight`, `others` muted or hidden).
 
+Notes in an exercise's text are written `{{3}}` (a degree) or `{{c-sharp}}` (a note name) and drawn as the fretboard's
+dot inline (`ui/InlineNote.tsx`, the same `NoteDot` the necks use): coloured by degree, labelled by the global label
+setting (`useLabelSystem`), the other name on hover, played on tap. `model/noteText.ts` splits the tokens out and reads
+them against the root of the tool after the text (else the one before); a token it can't read stays as text.
+
 The tools are the learning components of `src/features/exercises` (see its README): `scale-neck`, `chord-shapes`,
 `staff`, `click-drone`, `backing-band`, `note-finder`, `interval-ears`, `arpeggio-neck`, `melody-singer`, `run-singer`
 and the guided `play-along` (one shape: `progression`, `two-scales`, `chord-steps`, `arpeggio-part`, `melody`,
