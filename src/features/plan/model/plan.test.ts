@@ -259,7 +259,7 @@ describe("tools", () => {
 
 describe("sections", () => {
   const sections = [
-    { type: "text", text: "Play the chords" },
+    { type: "text", text: "Listen to the chords" },
     { type: "tool", tool: { type: "play-along", bpm: 80, shape: { shape: "progression", key: "a", chords: ["Am", "F"], bars: 2 } } },
     { type: "heading", text: "Now sing" },
     { type: "list", items: ["a", "", "b"] },
