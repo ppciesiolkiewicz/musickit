@@ -9,26 +9,29 @@ import { offeredInterface, type OfferedItem } from "../model/tools";
 
 const primary = "!border-sky-500/70 !bg-sky-500/20 !text-sky-100 hover:!bg-sky-500/30";
 
+/** Each item as its short doc; open one for its full description and prop table. */
 function DebugList({ title, items }: { title: string; items: OfferedItem[] }) {
   return (
     <div>
       <h4 className="font-semibold text-slate-400">{title} ({items.length})</h4>
-      <ul className="mt-1 flex flex-col gap-2">
+      <ul className="mt-1 flex flex-col gap-1">
         {items.map((it) => (
           <li key={it.name}>
-            <div className="font-mono text-sky-300">{it.name}</div>
-            <p className="text-slate-400">{it.description}</p>
-            <table className="mt-1 w-full border-collapse font-mono">
-              <tbody>
-                {it.params.map((p) => (
-                  <tr key={p.name} className="border-t border-slate-800 align-top">
-                    <td className="py-0.5 pr-2 text-slate-200">{p.name}{p.required && <span className="text-rose-300">*</span>}</td>
-                    <td className="py-0.5 pr-2 text-amber-300/90">{p.type}</td>
-                    <td className="py-0.5 font-sans text-slate-500">{p.description}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <details>
+              <summary className="cursor-pointer font-mono text-sky-300">{it.short}</summary>
+              <p className="mt-1 text-slate-400">{it.description}</p>
+              <table className="mt-1 w-full border-collapse font-mono">
+                <tbody>
+                  {it.params.map((p) => (
+                    <tr key={p.name} className="border-t border-slate-800 align-top">
+                      <td className="py-0.5 pr-2 text-slate-200">{p.name}{p.required && <span className="text-rose-300">*</span>}</td>
+                      <td className="py-0.5 pr-2 text-amber-300/90">{p.type}</td>
+                      <td className="py-0.5 font-sans text-slate-500">{p.description}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </details>
           </li>
         ))}
       </ul>
@@ -65,6 +68,7 @@ export function CopyPrompt({ prompt, entries, label = "Copy prompt" }: { prompt:
       {debug && (
         <div className="flex flex-col gap-3 rounded-lg border border-slate-700 bg-slate-950/60 p-3 text-[11px] text-slate-300">
           <DebugList title="Tools offered to the AI" items={offered.tools} />
+          <DebugList title="Play-along shapes" items={offered.shapes} />
           <DebugList title="Section types" items={offered.sections} />
           <div>
             <h4 className="font-semibold text-slate-400">Link resources ({offered.links.length})</h4>

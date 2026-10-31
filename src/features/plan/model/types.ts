@@ -1,4 +1,4 @@
-import type { PlanTool, Section } from "./tools";
+import type { Section, StoredTool } from "./tools";
 
 /** What the player told the questionnaire. Feeds the prompt; never sent anywhere by the app itself. */
 export interface PlanAnswers {
@@ -36,7 +36,7 @@ export interface PlanExercise {
   /** before sections */
   how?: string;
   steps?: string[];
-  tools?: (PlanTool & { step?: number })[];
+  tools?: StoredTool[];
   link?: string;
 }
 

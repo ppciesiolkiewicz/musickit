@@ -3,7 +3,12 @@ import assert from "node:assert/strict";
 import { catalogue, checkLink } from "./catalogue";
 import { parsePlanConfig } from "./config";
 import { buildPrompt, weekReport } from "./prompt";
-import { degreeSemis, legacySections, linkResources, parseSection, parseTool, sectionInterface, sectionsOf, toolFromLink, toolInterface } from "./tools";
+import { runChoices } from "@/features/exercises/basics/choices";
+import { COMPONENT_DOCS } from "@/features/exercises/docs";
+import { expandShape } from "@/features/exercises/shapes";
+import { STAGES } from "@/features/theory/singingMelodies";
+import { migrateTool } from "./migrate";
+import { degreeSemis, derivedMinutes, legacySections, linkResources, parseSection, parseTool, sectionInterface, sectionsOf, toolFromLink, toolInterface } from "./tools";
 import { DEFAULT_ANSWERS } from "./questions";
 import { dayIndex, dayProgress, localDate, weekOver } from "./schedule";
 import type { StoredPlan } from "./types";
@@ -27,41 +32,70 @@ describe("plan links", () => {
 
 describe("tools", () => {
   it("parses each tool, set up for the exercise", () => {
-    assert.deepEqual(parseTool({ type: "scale", scale: "minor-pentatonic", key: "a", boxes: [2, 1, 9] }), { type: "scale", scale: "minor-pentatonic", key: 9, boxes: [1, 2] });
-    assert.deepEqual(parseTool({ type: "scale", scale: "minor-blues", key: "a", boxes: [1], add: ["c#", "C-sharp", "zz"] }), { type: "scale", scale: "minor-blues", key: 9, boxes: [1], add: [1] });
-    assert.deepEqual(parseTool({ type: "chords", chords: ["G", "Em", "nonsense!", 3] }), { type: "chords", chords: ["G", "Em"] });
-    assert.deepEqual(parseTool({ type: "sing", scale: "major-ionian", key: "c", voice: "alto" }), { type: "sing", scale: "major-ionian", key: 0, voice: "alto" });
-    assert.deepEqual(parseTool({ type: "band", bpm: 70, key: "e", parts: ["drone", "drone", "kazoo"] }), { type: "band", bpm: 70, key: 4, parts: ["drone"] });
-    assert.deepEqual(parseTool({ type: "notes", strings: "E,A", from: 0, to: 5 }), { type: "notes", query: "strings=E%2CA&from=0&to=5" });
+    assert.deepEqual(parseTool({ type: "scale-neck", scale: "minor-pentatonic", key: "a", boxes: [2, 1, 9] }), { type: "scale-neck", scale: "minor-pentatonic", key: 9, boxes: [1, 2] });
+    assert.deepEqual(parseTool({ type: "scale-neck", scale: "minor-blues", key: "a", boxes: [1], add: ["c#", "C-sharp", "zz"], others: "hidden" }), { type: "scale-neck", scale: "minor-blues", key: 9, boxes: [1], add: [1], others: "hidden" });
+    assert.deepEqual(parseTool({ type: "chord-shapes", chords: ["G", "Em", "nonsense!", 3], voicing: "barre" }), { type: "chord-shapes", chords: ["G", "Em"], voicing: "barre" });
+    assert.deepEqual(parseTool({ type: "staff", scale: "major-ionian", key: "c", voice: "alto" }), { type: "staff", scale: "major-ionian", key: 0, voice: "alto" });
+    assert.deepEqual(parseTool({ type: "backing-band", bpm: 70, key: "e", parts: ["drone", "drone", "kazoo"] }), { type: "backing-band", bpm: 70, key: 4, parts: ["drone"] });
+    assert.deepEqual(parseTool({ type: "click-drone", bpm: 60, key: "a", drone: false }), { type: "click-drone", bpm: 60, key: 9, drone: false });
+    assert.deepEqual(parseTool({ type: "note-finder", strings: "56", from: 0, to: 5 }), { type: "note-finder", query: "strings=56&from=0&to=5" });
+    assert.deepEqual(parseTool({ type: "arpeggio-neck", chord: "Am", boxes: [2, 3], part: ["1", "b3", "zz"], highlight: ["1"] }), { type: "arpeggio-neck", chord: "Am", boxes: [2, 3], part: ["1", "b3"], highlight: [0] });
+    assert.equal(parseTool({ type: "arpeggio-neck", chord: "nonsense!" }), null);
+    assert.deepEqual(parseTool({ type: "melody-singer", tune: 1, key: "d", voice: "tenor" }), { type: "melody-singer", tune: 1, key: 2, voice: "tenor" });
+    assert.equal(parseTool({ type: "melody-singer", tune: 9999, key: "d" }), null);
+    assert.deepEqual(parseTool({ type: "run-singer", run: runChoices()[0].id, key: "c" }), { type: "run-singer", run: runChoices()[0].id, key: 0 });
   });
   it("reads degrees for highlighting and showing only chosen notes", () => {
     assert.equal(degreeSemis("b7"), 10);
     assert.equal(degreeSemis("♭3"), 3);
     assert.equal(degreeSemis("#4"), 6);
     assert.equal(degreeSemis("x"), null);
-    assert.deepEqual(parseTool({ type: "scale", scale: "mixolydian", key: "a", highlight: ["1", "3", "5", "b7", "zz"] }), { type: "scale", scale: "mixolydian", key: 9, highlight: [0, 4, 7, 10] });
-    assert.deepEqual(parseTool({ type: "sing", scale: "mixolydian", key: "a", notes: ["1", "3", "5", "♭7"] }), { type: "sing", scale: "mixolydian", key: 9, voice: "baritone", notes: [0, 4, 7, 10] });
-    assert.equal((parseTool({ type: "sing", scale: "mixolydian", key: "a", notes: ["1"] }) as { notes?: number[] }).notes, undefined);
+    assert.deepEqual(parseTool({ type: "scale-neck", scale: "mixolydian", key: "a", highlight: ["1", "3", "5", "b7", "zz"] }), { type: "scale-neck", scale: "mixolydian", key: 9, highlight: [0, 4, 7, 10] });
+    assert.deepEqual(parseTool({ type: "staff", scale: "mixolydian", key: "a", notes: ["1", "3", "5", "♭7"] }), { type: "staff", scale: "mixolydian", key: 9, voice: "baritone", notes: [0, 4, 7, 10] });
+    assert.equal((parseTool({ type: "staff", scale: "mixolydian", key: "a", notes: ["1"] }) as { notes?: number[] }).notes, undefined);
   });
-  it("parses a progression to play as arpeggios or comping", () => {
-    assert.deepEqual(parseTool({ type: "comp", chords: ["Am", "F", "C", "nonsense!"], patterns: ["arp-up", "strum", "kazoo"], bpm: 72 }), { type: "comp", chords: ["Am", "F", "C"], patterns: ["arp-up", "strum"], bpm: 72, beats: 4 });
-    assert.deepEqual(parseTool({ type: "comp", chords: ["G"], patterns: [] }), { type: "comp", chords: ["G"], patterns: ["arp-up"], bpm: 80, beats: 4 });
-    assert.equal(parseTool({ type: "comp", chords: [], patterns: ["arp-up"] }), null);
+  it("a stored sing tool becomes a staff with the mic, its semitones kept", () => {
+    assert.deepEqual(parseTool({ type: "sing", scale: "major-ionian", key: 0, voice: "tenor", notes: [0, 4, 7], highlight: [4] }), { type: "staff", scale: "major-ionian", key: 0, voice: "tenor", notes: [0, 4, 7], highlight: [4], mic: true });
+  });
+  it("stored scale, chords, band, notes, ears tools take the new names", () => {
+    assert.deepEqual(parseTool({ type: "scale", scale: "dorian", key: 4, highlight: [0, 10] }), { type: "scale-neck", scale: "dorian", key: 4, highlight: [0, 10] });
+    assert.deepEqual(parseTool({ type: "chords", chords: ["G"] }), { type: "chord-shapes", chords: ["G"] });
+    assert.deepEqual(parseTool({ type: "band", bpm: 60, key: 9, parts: ["click"] }), { type: "backing-band", bpm: 60, key: 9, parts: ["click"] });
+    assert.deepEqual(parseTool({ type: "notes", query: "mode=find" }), { type: "note-finder", query: "mode=find" });
+    assert.deepEqual(parseTool({ type: "ears", query: "level=2&wide=1", wide: true }), { type: "interval-ears", query: "level=2&wide=1", wide: true });
+  });
+  it("a stored comp tool becomes a play-along progression", () => {
+    const t = parseTool({ type: "comp", chords: ["Am", "F", "C", "G"], patterns: ["arp-up", "strum"], bpm: 80, beats: 4 });
+    assert.ok(t && t.type === "play-along");
+    assert.equal(t.view, "neck");
+    const tl = expandShape({ ...t.shape, bpm: t.bpm });
+    assert.ok(tl);
+    assert.deepEqual(tl.backingChoices, ["arp-up", "strum"]);
+    assert.equal(tl.bars, 4);
+    assert.deepEqual(migrateTool({ type: "comp", chords: ["Am", "F", "C"], patterns: ["arp-up"], bpm: 72, beats: 2 }).shape, { shape: "progression", key: "a", chords: ["Am", "F", "C"], bars: 2, beatsPerChord: 2, backing: ["arp-up"] });
+  });
+  it("parses a play-along by its shape", () => {
+    const shape = { shape: "chord-steps", chords: [{ chord: "G", steps: ["strum", "1", "6", "1"] }, { chord: "D", steps: ["strum", "4", "5", "4"] }], voicing: "barre" };
+    const t = parseTool({ type: "play-along", bpm: 70, shape });
+    assert.ok(t);
+    assert.deepEqual(t, { type: "play-along", bpm: 70, shape });
+    assert.deepEqual(parseTool(t), t);
+    assert.equal(parseTool({ type: "play-along", bpm: 70, shape: { ...shape, shape: "nonsense" } }), null);
   });
   it("ears stay inside an octave unless wide", () => {
-    assert.deepEqual(parseTool({ type: "ears", set: [3, 4, 7, 10], dir: "down" }), { type: "ears", query: "set=3%2C4%2C7%2C10&dir=down" });
-    assert.deepEqual(parseTool({ type: "ears", level: 2, wide: true }), { type: "ears", query: "level=2&wide=1", wide: true });
+    assert.deepEqual(parseTool({ type: "interval-ears", set: [3, 4, 7, 10], dir: "down" }), { type: "interval-ears", query: "set=3%2C4%2C7%2C10&dir=down" });
+    assert.deepEqual(parseTool({ type: "interval-ears", level: 2, wide: true }), { type: "interval-ears", query: "level=2&wide=1", wide: true });
   });
   it("refuses what it can't show", () => {
-    assert.equal(parseTool({ type: "scale", scale: "nope", key: "a" }), null);
-    assert.equal(parseTool({ type: "scale", scale: "dorian", key: "zz" }), null);
-    assert.equal(parseTool({ type: "chords", chords: [] }), null);
+    assert.equal(parseTool({ type: "scale-neck", scale: "nope", key: "a" }), null);
+    assert.equal(parseTool({ type: "scale-neck", scale: "dorian", key: "zz" }), null);
+    assert.equal(parseTool({ type: "chord-shapes", chords: [] }), null);
     assert.equal(parseTool({ type: "kazoo" }), null);
   });
   it("reads an older plan's link as a tool", () => {
-    assert.deepEqual(toolFromLink("/theory/scales/minor-pentatonic/a"), { type: "scale", scale: "minor-pentatonic", key: 9 });
-    assert.deepEqual(toolFromLink("/theory/notes?mode=find#x"), { type: "notes", query: "mode=find" });
-    assert.equal(toolFromLink("/theory/metronome-drone")?.type, "band");
+    assert.deepEqual(toolFromLink("/theory/scales/minor-pentatonic/a"), { type: "scale-neck", scale: "minor-pentatonic", key: 9 });
+    assert.deepEqual(toolFromLink("/theory/notes?mode=find#x"), { type: "note-finder", query: "mode=find" });
+    assert.equal(toolFromLink("/theory/metronome-drone")?.type, "backing-band");
     assert.equal(toolFromLink("/theory/chords"), null);
   });
   it("a pasted plan keeps the tools it can show, with a warning for the rest", () => {
@@ -69,18 +103,27 @@ describe("tools", () => {
     p.days[0].exercises[0].tools = [{ type: "chords", chords: ["G", "C"] }, { type: "scale", scale: "nope", key: "a" }];
     const r = parsePlanConfig(JSON.stringify(p), entries);
     assert.ok(r.ok);
-    assert.deepEqual(r.config.days[0].exercises[0].sections?.filter((x) => x.type === "tool"), [{ type: "tool", tool: { type: "chords", chords: ["G", "C"] } }]);
+    assert.deepEqual(r.config.days[0].exercises[0].sections?.filter((x) => x.type === "tool"), [{ type: "tool", tool: { type: "chord-shapes", chords: ["G", "C"] } }]);
     assert.equal(r.warnings.length, 1);
+  });
+  it("a play-along with repeats sets the exercise's minutes", () => {
+    const tool = parseTool({ type: "play-along", bpm: 70, repeats: 2, shape: { shape: "progression", key: "g", chords: ["G", "C"], bars: 4 } });
+    assert.ok(tool);
+    const m = derivedMinutes([{ type: "text", text: "x" }, { type: "tool", tool }]);
+    assert.ok(m !== null && Math.abs(m - 27.43 / 60) < 0.01);
+    const loose = parseTool({ type: "play-along", bpm: 70, shape: { shape: "progression", key: "g", chords: ["G", "C"], bars: 4 } });
+    assert.ok(loose);
+    assert.equal(derivedMinutes([{ type: "tool", tool: loose }]), null);
   });
 });
 
 describe("sections", () => {
   const sections = [
     { type: "text", text: "Play the chords" },
-    { type: "tool", tool: { type: "comp", chords: ["Am", "F"], patterns: ["arp-up"] } },
+    { type: "tool", tool: { type: "play-along", bpm: 80, shape: { shape: "progression", key: "a", chords: ["Am", "F"], bars: 2 } } },
     { type: "heading", text: "Now sing" },
     { type: "list", items: ["a", "", "b"] },
-    { type: "tool", tool: { type: "scale", scale: "nope", key: "a" } },
+    { type: "tool", tool: { type: "scale-neck", scale: "nope", key: "a" } },
     { type: "link", href: "/theory/ears" },
     { type: "link", href: "/made-up" },
     { type: "text", text: "" },
@@ -99,10 +142,10 @@ describe("sections", () => {
     assert.equal(r.warnings.length, 1);
   });
   it("tags: known ones, plus multi-octave from a wide ears tool", () => {
-    const r = plan({ tags: ["ear", "made-up"], sections: [{ type: "tool", tool: { type: "ears", level: 2, wide: true } }] });
+    const r = plan({ tags: ["ear", "made-up"], sections: [{ type: "tool", tool: { type: "interval-ears", level: 2, wide: true } }] });
     assert.ok(r.ok);
     assert.deepEqual(r.config.days[0].exercises[0].tags, ["ear", "multi-octave"]);
-    const plain = plan({ sections: [{ type: "tool", tool: { type: "ears", level: 2 } }] });
+    const plain = plan({ sections: [{ type: "tool", tool: { type: "interval-ears", level: 2 } }] });
     assert.ok(plain.ok);
     assert.equal(plain.config.days[0].exercises[0].tags, undefined);
   });
@@ -111,12 +154,14 @@ describe("sections", () => {
     assert.ok(r.ok);
     const got = r.config.days[0].exercises[0].sections!;
     assert.deepEqual(got.map((s) => s.type), ["tool", "text", "text", "text", "tool", "link"]);
-    assert.deepEqual(got.map((s) => s.type === "tool" ? s.tool.type : ""), ["band", "", "", "", "chords", ""]);
+    assert.deepEqual(got.map((s) => s.type === "tool" ? s.tool.type : ""), ["backing-band", "", "", "", "chord-shapes", ""]);
   });
   it("a plan stored before sections still shows: its link stands for a tool", () => {
     assert.deepEqual(sectionsOf({ how: "Do it", link: "/theory/scales/dorian/e" }).map((s) => s.type), ["tool", "text"]);
     assert.deepEqual(legacySections({ link: "/theory/chords" }), [{ type: "link", href: "/theory/chords" }]);
     assert.deepEqual(sectionsOf({ sections: [{ type: "text", text: "x" }] }), [{ type: "text", text: "x" }]);
+    const stored = sectionsOf({ sections: [{ type: "tool", tool: { type: "sing", scale: "major-ionian", key: 0, voice: "tenor" } }] } as never);
+    assert.deepEqual(stored, [{ type: "tool", tool: { type: "staff", scale: "major-ionian", key: 0, voice: "tenor", mic: true } }]);
   });
   it("parseSection checks links against the pages", () => {
     assert.equal(parseSection({ type: "link", href: "/theory/ears" }, entries)?.type, "link");
@@ -126,12 +171,16 @@ describe("sections", () => {
 });
 
 describe("the interface the prompt lists", () => {
-  it("every section and tool has a schema, from the same specs the parser uses", () => {
+  it("every section has a schema; the tools are the components' docs", () => {
     assert.equal(sectionInterface().length, 5);
     const tools = toolInterface().join("\n");
-    for (const name of ["scale", "chords", "sing", "band", "comp", "notes", "ears"]) assert.match(tools, new RegExp(`^- ${name} : `, "m"));
-    assert.match(tools, /"highlight"/);
-    assert.match(tools, /"wide"/);
+    const listed = [...tools.matchAll(/^- (\S+) : /gm)].map((m) => m[1]).sort();
+    const docs = COMPONENT_DOCS.filter((d) => d.kind !== "shape").map((d) => d.name).sort();
+    assert.deepEqual(listed, docs);
+    for (const d of COMPONENT_DOCS.filter((d) => d.kind === "shape")) assert.ok(tools.includes(d.name), d.name);
+    assert.ok(tools.includes(STAGES[0].title));
+    assert.match(tools, /highlight/);
+    assert.match(tools, /wide/);
   });
   it("links are a few templates, not a line per page", () => {
     const lines = linkResources(entries);
@@ -207,9 +256,12 @@ describe("schedule", () => {
     assert.match(prompt, /Earlier weeks/);
     assert.match(prompt, /too easy/);
     assert.match(prompt, /\/theory\/notes/);
-    assert.match(prompt, /"type": "band"/);
+    assert.match(prompt, /"type": "backing-band"/);
+    assert.match(prompt, /"type": "play-along"/);
+    assert.match(prompt, /Never write frets or note lists the app can compute/);
+    for (const old of ["band", "comp", "sing", "scale", "chords"]) assert.ok(!prompt.includes(`"type": "${old}"`), old);
     assert.match(prompt, /Notes outside the scale/);
-    assert.match(prompt, /two scale tools in that order/);
+    assert.match(prompt, /two scale-neck tools in that order/);
     assert.match(prompt, /inputSchema/);
     assert.match(prompt, /Rules for good exercises/);
     assert.match(prompt, /multi-octave/);

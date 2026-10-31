@@ -1,5 +1,5 @@
 import { checkLink, type CatalogueEntry } from "./catalogue";
-import { exerciseTags, legacySections, parseSection, parseTool, type Section } from "./tools";
+import { derivedMinutes, exerciseTags, legacySections, parseSection, parseTool, type Section } from "./tools";
 import { PLAN_DAYS, type PlanConfig, type PlanDay, type PlanExercise } from "./types";
 
 export type ParseResult = { ok: true; config: PlanConfig; warnings: string[] } | { ok: false; error: string };
@@ -43,7 +43,8 @@ function extractJson(text: string): unknown {
 }
 
 /**
- * A pasted plan, checked and tidied: seven days, each with at least one exercise, minutes 1..120, links only to attunr pages
+ * A pasted plan, checked and tidied: seven days, each with at least one exercise, minutes 1..120 (computed from the
+ * play-alongs when they say how often to loop), links only to attunr pages
  * (an unknown link is dropped with a warning, the exercise kept). Extra days are cut, missing ones are an error.
  */
 export function parsePlanConfig(text: string, entries: CatalogueEntry[]): ParseResult {
@@ -77,6 +78,8 @@ export function parsePlanConfig(text: string, entries: CatalogueEntry[]): ParseR
         sections.push({ type: "text", text: title });
       }
       ex.sections = sections;
+      const derived = derivedMinutes(sections);
+      if (derived !== null) ex.minutes = Math.min(120, Math.max(1, Math.round(derived)));
       const tags = exerciseTags(e.tags, sections);
       if (tags.length) ex.tags = tags;
       const why = str(e.why, 300);

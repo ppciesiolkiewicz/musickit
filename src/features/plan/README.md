@@ -29,7 +29,8 @@ model/            pure, no React; tested in model/plan.test.ts
   types.ts        PlanAnswers, PlanConfig (what the AI returns), StoredPlan, PlanState (the stored document)
   questions.ts    the questionnaire's choices and defaults
   catalogue.ts    the attunr pages a plan may link to; checkLink() keeps only those
-  tools.ts        THE one file for what an exercise is made of, like an MCP server: TOOLS (name, description, input schema, parse), the section kinds, tags, link resources; the prompt's interface is generated from it; legacySections reads older plans
+  tools.ts        THE one file for what an exercise is made of, like an MCP server: TOOLS (one parse per learning component; description and props come from the components' COMPONENT_DOCS), the section kinds, tags, link resources, derivedMinutes; the prompt's interface is generated from it; legacySections reads older plans
+  migrate.ts      migrateTool(): old tool names (scale, chords, sing, band, comp, notes, ears) to today's components
   config.ts       parsePlanConfig(): the pasted reply to a checked PlanConfig, with warnings
   prompt.ts       buildPrompt(), weekReport()
   schedule.ts     local dates, today's day, progress, when the week is over
@@ -60,9 +61,9 @@ right after the text it belongs to, so a step that needs another view just adds 
   { "title": "…", "focus": "A minor pentatonic · boxes 1 & 2", "minutes": 8, "tags": ["technique"], "why": "…",
     "sections": [
       { "type": "text", "text": "…" },
-      { "type": "tool", "tool": { "type": "band", "bpm": 60, "key": "a", "parts": ["click", "drone"] } },
+      { "type": "tool", "tool": { "type": "backing-band", "bpm": 60, "key": "a", "parts": ["click", "drone"] } },
       { "type": "list", "items": ["…"] },
-      { "type": "tool", "tool": { "type": "scale", "scale": "minor-pentatonic", "key": "a", "boxes": [1, 2], "highlight": ["1"] } },
+      { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1, 2], "highlight": ["1"] } },
       { "type": "link", "href": "/theory/scales/minor-pentatonic/a" } ] } ] } ] }
 ```
 
@@ -84,17 +85,15 @@ pages a link may go to as a few URI templates (`/theory/scales/{scale}/{key}`, `
 The AI writes an exercise's text and its tools in the same list; the page draws only from the tools. So the prompt makes
 them agree: every note the text plays is in the scale or its `add`, any outside note is named as outside, with why.
 
-Few on purpose, each a view with no settings: the AI sets it up, the player plays.
+The tools are the learning components of `src/features/exercises` (see its README): `scale-neck`, `chord-shapes`,
+`staff`, `click-drone`, `backing-band`, `note-finder`, `interval-ears`, `arpeggio-neck`, `melody-singer`, `run-singer`
+and the guided `play-along` (one shape: `progression`, `two-scales`, `chord-steps`, `arpeggio-part`, `melody`,
+`solo-over`). The prompt lists them from `COMPONENT_DOCS`, the debug panel shows each one's short doc (open it for the
+prop table). A play-along with `repeats` sets the exercise's minutes (`derivedMinutes`).
 
-| type | shows | built from |
-| --- | --- | --- |
-| `scale` | the boxes asked for, `add` notes from outside the scale played in them, `highlight` degrees that stand out (the rest dimmed); tap a note or ▶ a box | `PositionBox` (chordKit, `highlight`), `pentatonicPositions` / `positionsFor` |
-| `chords` | one shape per chord, tap to strum | `ChordDiagram`, `shapesForTones` |
-| `comp` | a progression played as arpeggios or comping, looping, the chord playing lit; patterns switch live | `CompPlayer`, `lib/practice/comping.ts` |
-| `sing` | the scale, or only `notes` (chord tones), on a staff in the voice's range, live pitch | `SingingStaff` (`highlight`), `useMicPitch` |
-| `band` | one line: Play only the chosen parts, tempo, key; "More" for the rest | `PracticeBand` (instruments) |
-| `notes` | the fretboard-notes game, settings hidden (`bare`) | `NoteGame` |
-| `ears` | ear training, settings hidden (`bare`); inside an octave unless `wide` (tags the exercise `multi-octave`) | `EarGame` |
+Old stored or pasted tools are migrated before parsing (`model/migrate.ts`): `scale` → `scale-neck`, `chords` →
+`chord-shapes`, `sing` → `staff` with the mic, `band` → `backing-band`, `notes` → `note-finder`, `ears` →
+`interval-ears`, `comp` → a `play-along` progression on the neck. Stored sections are parsed again on display.
 
-To add one: its entry in `TOOLS` in `model/tools.ts` (description, schema, parse; the prompt follows), a view in
+To add one: the component with its `@component` doc, its parse in `TOOLS` in `model/tools.ts`, a view in
 `ui/ExerciseTool.tsx` (lazy-load anything with its own sound engine), and a test.

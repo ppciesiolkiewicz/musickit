@@ -1,17 +1,23 @@
 import { parseChordQuery } from "@/lib/chordKit/chordSearch";
-import { COMP_PATTERNS, isCompPattern, type CompPattern } from "@/lib/practice/comping";
 import { parseKeySlug } from "@/features/theory/keySlug";
 import { findPentatonic } from "@/features/theory/pentatonics";
 import { findModePage } from "@/features/theory/scales";
 import { VOICES, type Voice } from "@/features/theory/singing";
-import { degreeSemis, parseDegrees } from "@/features/exercises/timeline/degrees";
+import { isRunId, isTuneId, melodyChoices, runChoices, type SingerChoice } from "@/features/exercises/basics/choices";
+import { COMPONENT_DOCS, shortDoc, type ComponentDoc } from "@/features/exercises/docs";
+import type { PlayAlongShape } from "@/features/exercises/play-along/play-along.props";
+import { expandShape } from "@/features/exercises/shapes";
+import { degreeSemis } from "@/features/exercises/timeline/degrees";
+import { clampTimeline, timelineSeconds } from "@/features/exercises/timeline/timeline";
+import type { Degree, Voicing } from "@/features/exercises/timeline/types";
 import { checkLink, type CatalogueEntry } from "./catalogue";
+import { migrateTool } from "./migrate";
 
 /**
  * The one file that says what an exercise is made of. Think of it as an MCP server for the plan: every block and every
- * tool has a name, a description and an input schema; the prompt's interface section is generated from them, and the
- * pasted reply is checked against the same specs. To add a tool: its entry in `TOOLS` (schema + parse), a view in
- * ui/ExerciseTool.tsx, a test. Nothing else lists tools.
+ * tool has a name, a description and an input schema. The tools are the learning components of src/features/exercises:
+ * their description and props come from `COMPONENT_DOCS` (the components' JSDoc), `TOOLS` only parses. To add a tool:
+ * the component with its `@component` doc, its entry in `TOOLS`, a view in ui/ExerciseTool.tsx, a test.
  *
  * An exercise is a linear list of sections, shown in order:
  *   heading  a small title            text  a paragraph       list  numbered steps
@@ -23,23 +29,31 @@ import { checkLink, type CatalogueEntry } from "./catalogue";
 export type BandPart = "click" | "drone" | "drums" | "bass";
 export const BAND_PARTS: BandPart[] = ["click", "drone", "drums", "bass"];
 
+type Others = "dimmed" | "hidden";
+type View = "tab" | "notes" | "neck";
+
+/**
+ * A tool as stored: `type` names the component (src/features/exercises), the rest are its props, parsed: keys as pitch
+ * classes, degrees as semitones above the root (major-relative, not scale-aware) except where the view reads the
+ * degree strings itself (`arpeggio-neck` `part`, `play-along` `highlight`). A play-along keeps its checked shape, never events.
+ */
 export type PlanTool =
-  | { type: "scale"; scale: string; key: number; boxes?: number[]; /** notes from outside the scale the exercise plays too (pitch classes) */ add?: number[]; /** semitones above the key that stand out; the rest are dimmed */ highlight?: number[] }
-  | { type: "chords"; chords: string[] }
-  | { type: "sing"; scale: string; key: number; voice: Voice; /** semitones above the key: only these notes are on the staff */ notes?: number[]; highlight?: number[] }
-  | { type: "band"; bpm: number; key: number; parts: BandPart[] }
-  | { type: "comp"; chords: string[]; patterns: CompPattern[]; bpm: number; beats: number }
-  | { type: "notes"; query: string }
-  | { type: "ears"; query: string; /** intervals may span more than an octave */ wide?: boolean };
+  | { type: "scale-neck"; scale: string; key: number; boxes?: number[]; /** pitch classes from outside the scale */ add?: number[]; highlight?: number[]; others?: Others }
+  | { type: "chord-shapes"; chords: string[]; voicing?: Voicing }
+  | { type: "staff"; scale: string; key: number; voice: Voice; /** semitones above the key: only these are on the staff */ notes?: number[]; highlight?: number[]; others?: Others; mic?: boolean }
+  | { type: "click-drone"; bpm: number; key: number; click?: boolean; drone?: boolean }
+  | { type: "backing-band"; bpm: number; key: number; parts: BandPart[] }
+  | { type: "note-finder"; query: string }
+  | { type: "interval-ears"; query: string; /** intervals may span more than an octave */ wide?: boolean }
+  | { type: "arpeggio-neck"; chord: string; boxes?: number[]; part?: Degree[]; highlight?: number[]; others?: Others }
+  | { type: "melody-singer"; tune: number; key: number; voice?: Voice }
+  | { type: "run-singer"; run: number; key: number; voice?: Voice }
+  | { type: "play-along"; shape: PlayAlongShape; bpm: number; repeats?: number; view?: View; highlight?: Degree[]; others?: Others };
 
 export type ToolName = PlanTool["type"];
 
 interface ToolSpec {
-  description: string;
-  /** JSON Schema of the input, as in MCP's `inputSchema` (the `type` discriminator is added) */
-  properties: Record<string, unknown>;
-  required?: string[];
-  /** the input checked: null when the tool can't be shown */
+  /** the input checked: null when the tool can't be shown. Description and schema are the component's doc (`docOf`). */
   parse(t: Record<string, unknown>): PlanTool | null;
 }
 
@@ -51,99 +65,127 @@ const isScale = (slug: unknown): slug is string => typeof slug === "string" && !
 const keyOf = (v: unknown): number | null => (typeof v === "string" || typeof v === "number" ? parseKeySlug(String(v)) : null);
 const list = (v: unknown): unknown[] => (Array.isArray(v) ? v : []);
 const chordList = (v: unknown, max: number) => list(v).filter((c): c is string => typeof c === "string" && !!parseChordQuery(c)).slice(0, max);
+const isChord = (v: unknown): v is string => typeof v === "string" && !!parseChordQuery(v);
 
 export { degreeSemis };
-const degrees = (v: unknown): number[] => parseDegrees(v);
-const DEGREES = { type: "array", items: { type: "string" }, maxItems: 7 };
-const SCALE = { type: "string", description: "a scale slug from the scale pages: major-ionian, dorian, minor-pentatonic, minor-blues, …" };
-const KEY = { type: "string", description: "a note: c, f-sharp, b-flat" };
+/** Degrees as semitones: the AI's strings ("b3"), or numbers 0-11 kept as they are (stored plans already hold semitones). */
+const degrees = (v: unknown): number[] =>
+  [...new Set(list(v).map((d) => (typeof d === "number" ? int(d, 0, 11) : degreeSemis(d))).filter((n): n is number => n !== null))].sort((a, b) => a - b);
+/** Degree strings the table knows, as written. */
+const degreeStrings = (v: unknown): Degree[] => [...new Set(list(v).filter((d): d is string => typeof d === "string" && degreeSemis(d) !== null))];
+const voiceOf = (v: unknown): Voice | undefined => (typeof v === "string" && v in VOICES ? (v as Voice) : undefined);
+const othersOf = (v: unknown) => (v === "hidden" || v === "dimmed" ? { others: v as Others } : {});
+const boxesOf = (v: unknown) => [...new Set(list(v).map((b) => int(b, 1, 5)).filter((b): b is number => b !== null))].sort((a, b) => a - b);
+const opt = <K extends string, V>(k: K, v: V[]): { [P in K]?: V[] } => (v.length ? ({ [k]: v } as { [P in K]: V[] }) : {});
+const bool = <K extends string>(k: K, v: unknown): { [P in K]?: boolean } => (typeof v === "boolean" ? ({ [k]: v } as { [P in K]: boolean }) : {});
+
+const scaleNeck = (t: Record<string, unknown>): PlanTool | null => {
+  const key = keyOf(t.key);
+  if (!isScale(t.scale) || key === null) return null;
+  const add = [...new Set(list(t.add).map(keyOf).filter((n): n is number => n !== null))].slice(0, 4);
+  return { type: "scale-neck", scale: t.scale, key, ...opt("boxes", boxesOf(t.boxes)), ...opt("add", add), ...opt("highlight", degrees(t.highlight)), ...othersOf(t.others) };
+};
+
+/** The game's settings, as the query string its view reads; a stored tool keeps its query. */
+const query = (t: Record<string, unknown>, keys: string[]): string => {
+  if (typeof t.query === "string" && keys.every((k) => t[k] == null)) return t.query;
+  const q = new URLSearchParams();
+  for (const k of keys) if (t[k] != null) q.set(k, Array.isArray(t[k]) ? (t[k] as unknown[]).join(",") : String(t[k]));
+  return q.toString();
+};
+
+const singer = (t: Record<string, unknown>, field: "tune" | "run", ok: (n: unknown) => boolean): PlanTool | null => {
+  const key = keyOf(t.key);
+  if (!ok(t[field]) || key === null) return null;
+  const voice = voiceOf(t.voice);
+  const n = t[field] as number;
+  return field === "tune" ? { type: "melody-singer", tune: n, key, ...(voice ? { voice } : {}) } : { type: "run-singer", run: n, key, ...(voice ? { voice } : {}) };
+};
+
+const VIEWS: View[] = ["tab", "notes", "neck"];
 
 export const TOOLS: { [N in ToolName]: ToolSpec } = {
-  scale: {
-    description: "A scale or pentatonic on the guitar neck, as boxes (positions). \"boxes\" (1-5) limits it to the ones the exercise is about; \"add\" puts notes from outside the scale into the boxes (a passing note, the 3rd over a 7 chord); \"highlight\" makes the notes the exercise is about stand out (chord tones: [\"1\",\"3\",\"5\",\"b7\"]) and dims the rest. Tap a note to hear it.",
-    properties: { scale: SCALE, key: KEY, boxes: { type: "array", items: { type: "integer", minimum: 1, maximum: 5 } }, add: { type: "array", items: { type: "string" }, maxItems: 4, description: "notes outside the scale, e.g. [\"c#\"]" }, highlight: { ...DEGREES, description: "degrees to stand out: 1 b2 2 b3 3 4 #4 5 b6 6 b7 7" } },
-    required: ["scale", "key"],
-    parse(t) {
-      const key = keyOf(t.key);
-      if (!isScale(t.scale) || key === null) return null;
-      const boxes = [...new Set(list(t.boxes).map((b) => int(b, 1, 5)).filter((b): b is number => b !== null))].sort();
-      const add = [...new Set(list(t.add).map(keyOf).filter((n): n is number => n !== null))].slice(0, 4);
-      const highlight = degrees(t.highlight);
-      return { type: "scale", scale: t.scale, key, ...(boxes.length ? { boxes } : {}), ...(add.length ? { add } : {}), ...(highlight.length ? { highlight } : {}) };
-    },
-  },
-  chords: {
-    description: "A chord shape for each chord, in order; tap one to strum it.",
-    properties: { chords: { type: "array", items: { type: "string" }, minItems: 1, maxItems: 8, description: "A, Am, E7, Cmaj7, Dsus4, F#m" } },
-    required: ["chords"],
+  "scale-neck": { parse: scaleNeck },
+  "chord-shapes": {
     parse(t) {
       const chords = chordList(t.chords, 8);
-      return chords.length ? { type: "chords", chords } : null;
+      return chords.length ? { type: "chord-shapes", chords, ...(t.voicing === "barre" || t.voicing === "open" ? { voicing: t.voicing } : {}) } : null;
     },
   },
-  sing: {
-    description: "The notes on a staff in the voice's range, with live pitch from the microphone. With \"notes\" only those degrees are shown (the chord tones of A7 over A: [\"1\",\"3\",\"5\",\"b7\"]) instead of the whole scale; \"highlight\" keeps the scale but dims all but those degrees. Use it for short, focused singing, not as a whole exercise (see the rules).",
-    properties: { scale: SCALE, key: KEY, voice: { enum: Object.keys(VOICES) }, notes: { ...DEGREES, description: "show only these degrees" }, highlight: DEGREES },
-    required: ["scale", "key"],
+  staff: {
     parse(t) {
       const key = keyOf(t.key);
       if (!isScale(t.scale) || key === null) return null;
-      const voice = typeof t.voice === "string" && t.voice in VOICES ? (t.voice as Voice) : "baritone";
       const notes = degrees(t.notes);
-      const highlight = degrees(t.highlight);
-      return { type: "sing", scale: t.scale, key, voice, ...(notes.length > 1 ? { notes } : {}), ...(highlight.length ? { highlight } : {}) };
+      return { type: "staff", scale: t.scale, key, voice: voiceOf(t.voice) ?? "baritone", ...(notes.length > 1 ? { notes } : {}), ...opt("highlight", degrees(t.highlight)), ...othersOf(t.others), ...bool("mic", t.mic) };
     },
   },
-  band: {
-    description: "A play-along band in a key: metronome, drone, drums and bass; \"parts\" are the ones that play. Use it for anything played in time or over a drone.",
-    properties: { bpm: { type: "integer", minimum: 30, maximum: 240 }, key: KEY, parts: { type: "array", items: { enum: BAND_PARTS } } },
-    required: ["bpm", "key", "parts"],
+  "click-drone": {
+    parse: (t) => ({ type: "click-drone", bpm: int(t.bpm, 30, 240) ?? 80, key: keyOf(t.key) ?? 9, ...bool("click", t.click), ...bool("drone", t.drone) }),
+  },
+  "backing-band": {
     parse(t) {
       const parts = list(t.parts).filter((p): p is BandPart => BAND_PARTS.includes(p as BandPart));
-      return { type: "band", bpm: int(t.bpm, 30, 240) ?? 80, key: keyOf(t.key) ?? 9, parts: parts.length ? [...new Set(parts)] : ["click"] };
+      return { type: "backing-band", bpm: int(t.bpm, 30, 240) ?? 80, key: keyOf(t.key) ?? 9, parts: parts.length ? [...new Set(parts)] : ["click"] };
     },
   },
-  comp: {
-    description: `A chord progression played for the student, to play along with or to hear: as arpeggios or comping. "patterns" are the ways offered (the first plays first; the student can switch): ${COMP_PATTERNS.map((p) => `${p.id} (${p.desc})`).join("; ")}. Each chord takes "beats" beats (a bar), the progression loops, and the chord shape being played is shown. Use it for "play this progression as arpeggios", comping, hearing how a progression sounds.`,
-    properties: { chords: { type: "array", items: { type: "string" }, minItems: 1, maxItems: 8 }, patterns: { type: "array", items: { enum: COMP_PATTERNS.map((p) => p.id) }, minItems: 1, maxItems: 4 }, bpm: { type: "integer", minimum: 40, maximum: 200 }, beats: { type: "integer", minimum: 2, maximum: 4, description: "beats per chord, default 4" } },
-    required: ["chords", "patterns"],
+  "note-finder": { parse: (t) => ({ type: "note-finder", query: query(t, ["mode", "strings", "from", "to"]) }) },
+  "interval-ears": {
     parse(t) {
-      const chords = chordList(t.chords, 8);
-      const patterns = [...new Set(list(t.patterns).filter(isCompPattern))].slice(0, 4);
-      if (!chords.length) return null;
-      return { type: "comp", chords, patterns: patterns.length ? patterns : ["arp-up"], bpm: int(t.bpm, 40, 200) ?? 80, beats: int(t.beats, 2, 4) ?? 4 };
+      const wide = t.wide === true || (typeof t.query === "string" && /(^|&)wide=1/.test(t.query));
+      const q = query({ ...t, wide: undefined }, ["level", "set", "dir", "kind"]);
+      const full = wide && !/(^|&)wide=1/.test(q) ? (q ? `${q}&wide=1` : "wide=1") : q;
+      return { type: "interval-ears", query: full, ...(wide ? { wide } : {}) };
     },
   },
-  notes: {
-    description: "The fretboard-notes game. mode: find (find a named note), every (all of them), name (name a lit dot).",
-    properties: { mode: { enum: ["find", "every", "name"] }, strings: { type: "string", description: "from E,A,D,G,B,e as \"E,A\"" }, from: { type: "integer", minimum: 0, maximum: 12 }, to: { type: "integer", minimum: 0, maximum: 12 } },
+  "arpeggio-neck": {
     parse(t) {
-      const q = new URLSearchParams();
-      for (const k of ["mode", "strings", "from", "to"]) if (t[k] != null) q.set(k, String(t[k]));
-      return { type: "notes", query: q.toString() };
+      if (!isChord(t.chord)) return null;
+      return { type: "arpeggio-neck", chord: t.chord, ...opt("boxes", boxesOf(t.boxes).slice(0, 2)), ...opt("part", degreeStrings(t.part)), ...opt("highlight", degrees(t.highlight)), ...othersOf(t.others) };
     },
   },
-  ears: {
-    description: "Ear training: name the interval or chord quality heard. Intervals stay inside one octave; \"wide\": true also plays them an octave wider (a 9th for a 2nd) and tags the exercise multi-octave: use it only when compound intervals are the point. The steps must name the same intervals as \"set\".",
-    properties: { kind: { enum: ["interval", "chord"] }, level: { type: "integer", minimum: 1, maximum: 6, description: "1: P5 and octave … 6: all twelve" }, set: { type: "array", items: { type: "integer", minimum: 1, maximum: 12 }, description: "exact intervals in semitones, replaces level: m3 3, M3 4, P4 5, P5 7, m7 10" }, dir: { enum: ["up", "down", "together"] }, wide: { type: "boolean" } },
+  "melody-singer": { parse: (t) => singer(t, "tune", isTuneId) },
+  "run-singer": { parse: (t) => singer(t, "run", isRunId) },
+  "play-along": {
     parse(t) {
-      const q = new URLSearchParams();
-      if (t.level != null) q.set("level", String(t.level));
-      if (Array.isArray(t.set)) q.set("set", t.set.join(","));
-      if (t.dir != null) q.set("dir", String(t.dir));
-      if (t.kind != null) q.set("kind", String(t.kind));
-      const wide = t.wide === true;
-      if (wide) q.set("wide", "1");
-      return { type: "ears", query: q.toString(), ...(wide ? { wide } : {}) };
+      if (!t.shape || typeof t.shape !== "object") return null;
+      const shape = { ...(t.shape as Record<string, unknown>) };
+      delete shape.bpm;
+      delete shape.repeats;
+      const bpm = int(t.bpm, 30, 240) ?? 80;
+      const repeats = int(t.repeats, 1, 50);
+      if (!expandShape({ ...shape, bpm, ...(repeats !== null ? { repeats } : {}) })) return null;
+      const highlight = degreeStrings(t.highlight);
+      return {
+        type: "play-along", bpm, shape: shape as unknown as PlayAlongShape,
+        ...(repeats !== null ? { repeats } : {}),
+        ...(VIEWS.includes(t.view as View) ? { view: t.view as View } : {}),
+        ...opt("highlight", highlight), ...othersOf(t.others),
+      };
     },
   },
 };
 
-/** One tool from the AI's JSON, checked: null when it can't be shown (unknown scale, no valid chord…). */
+/** One tool from the AI's JSON or a stored plan (old names migrated first), checked: null when it can't be shown. */
 export function parseTool(raw: unknown): PlanTool | null {
-  const t = (raw ?? {}) as Record<string, unknown>;
+  if (!raw || typeof raw !== "object") return null;
+  const t = migrateTool(raw as Record<string, unknown>);
   const spec = typeof t.type === "string" && Object.hasOwn(TOOLS, t.type) ? TOOLS[t.type as ToolName] : null;
   return spec ? spec.parse(t) : null;
+}
+
+/**
+ * The minutes an exercise's play-alongs take when they say how often to loop: the sum of their timelines' lengths,
+ * null when no play-along has `repeats` (then the AI's minutes stand).
+ */
+export function derivedMinutes(sections: Section[]): number | null {
+  let total: number | null = null;
+  for (const s of sections) {
+    if (s.type !== "tool" || s.tool.type !== "play-along" || s.tool.repeats === undefined) continue;
+    const tl = expandShape({ ...s.tool.shape, bpm: s.tool.bpm, repeats: s.tool.repeats });
+    if (tl) total = (total ?? 0) + timelineSeconds(clampTimeline(tl)) / 60;
+  }
+  return total;
 }
 
 /* ---------------------------------------------------------------- the sections */
@@ -181,7 +223,7 @@ export const EXERCISE_TAGS: Record<string, string> = {
 /** The tags an exercise gets: what the AI set that we know, plus the ones its tools imply. */
 export function exerciseTags(raw: unknown, sections: Section[]): string[] {
   const tags = new Set(list(raw).filter((t): t is string => typeof t === "string" && Object.hasOwn(EXERCISE_TAGS, t)));
-  for (const s of sections) if (s.type === "tool" && s.tool.type === "ears" && s.tool.wide) tags.add("multi-octave");
+  for (const s of sections) if (s.type === "tool" && s.tool.type === "interval-ears" && s.tool.wide) tags.add("multi-octave");
   return [...tags].slice(0, 4);
 }
 
@@ -219,26 +261,46 @@ export function sectionInterface(): string[] {
   return SECTIONS.map((s) => `- ${s.type} : ${s.description}\n  inputSchema: ${schema({ type: { const: s.type }, ...s.properties }, ["type", ...s.required])}`);
 }
 
-/** The tools, as an MCP server would list them: name, description, inputSchema. */
+const choiceLine = (label: string, cs: SingerChoice[]) => `${label}: ${cs.map((c) => `${c.id} (${c.stage}: ${c.hint})`).join("; ")}`;
+/** A tool's description, with the singer tools' choices spliced in. */
+function describe(d: ComponentDoc): string {
+  const text = d.description.replace(/\s+/g, " ");
+  if (d.name === "melody-singer") return `${text} ${choiceLine("Tunes", melodyChoices())}`;
+  if (d.name === "run-singer") return `${text} ${choiceLine("Runs", runChoices())}`;
+  return text;
+}
+const propLine = (indent: string) => (p: OfferedParam) => `${indent}${p.name}${p.required ? "" : "?"}: ${p.type}${p.description ? ` (${p.description})` : ""}`;
+const TOOL_DOCS = () => COMPONENT_DOCS.filter((d) => d.kind !== "shape");
+const SHAPE_DOCS = () => COMPONENT_DOCS.filter((d) => d.kind === "shape");
+
+/** The tools, as an MCP server would list them: name, description, props; play-along's shapes listed under it. */
 export function toolInterface(): string[] {
-  return (Object.entries(TOOLS) as [ToolName, ToolSpec][]).map(([name, t]) => `- ${name} : ${t.description}\n  inputSchema: ${schema({ type: { const: name }, ...t.properties }, ["type", ...(t.required ?? [])])}`);
+  return TOOL_DOCS().map((d) => {
+    const lines = [`- ${d.name} : ${describe(d)}`, "  props:", ...d.props.map(propLine("    "))];
+    if (d.name === "play-along") {
+      lines.push("  shapes (the \"shape\" object; its \"shape\" field names it):");
+      for (const s of SHAPE_DOCS()) lines.push(`    * ${s.name} : ${describe(s)}`, ...s.props.map(propLine("        ")));
+    }
+    return lines.join("\n");
+  });
 }
 
 export interface OfferedParam { name: string; type: string; required: boolean; description: string }
-export interface OfferedItem { name: string; description: string; params: OfferedParam[] }
+export interface OfferedItem { name: string; description: string; short: string; params: OfferedParam[] }
 
-const paramsOf = (properties: Record<string, unknown>, required: string[]): OfferedParam[] =>
+const offered = (d: ComponentDoc): OfferedItem => ({ name: d.name, description: describe(d), short: shortDoc(d), params: d.props });
+const sectionParams = (properties: Record<string, unknown>, required: string[]): OfferedParam[] =>
   Object.entries(properties).map(([name, raw]) => {
-    const p = raw as { type?: string; items?: { type?: string }; description?: string; const?: unknown; enum?: unknown[] };
-    const type = p.const !== undefined ? JSON.stringify(p.const) : p.enum ? p.enum.map((v) => JSON.stringify(v)).join(" | ") : p.type === "array" ? `${p.items?.type ?? "any"}[]` : p.type ?? "any";
-    return { name, type, required: required.includes(name), description: p.description ?? "" };
+    const p = raw as { type?: string; items?: { type?: string }; description?: string };
+    return { name, type: p.type === "array" ? `${p.items?.type ?? "any"}[]` : p.type ?? "any", required: required.includes(name), description: p.description ?? "" };
   });
 
-/** What the prompt offers the AI, with each input's parameters, for the debug view. */
-export function offeredInterface(entries: CatalogueEntry[]): { sections: OfferedItem[]; tools: OfferedItem[]; links: string[] } {
+/** What the prompt offers the AI, for the debug view: the same `COMPONENT_DOCS` the prompt renders. */
+export function offeredInterface(entries: CatalogueEntry[]): { sections: OfferedItem[]; tools: OfferedItem[]; shapes: OfferedItem[]; links: string[] } {
   return {
-    sections: SECTIONS.map((s) => ({ name: s.type, description: s.description, params: paramsOf(s.properties, s.required) })),
-    tools: (Object.entries(TOOLS) as [ToolName, ToolSpec][]).map(([name, t]) => ({ name, description: t.description, params: paramsOf(t.properties, t.required ?? []) })),
+    sections: SECTIONS.map((s) => ({ name: s.type, description: s.description, short: `${s.type}: ${s.description}`, params: sectionParams(s.properties, s.required) })),
+    tools: TOOL_DOCS().map(offered),
+    shapes: SHAPE_DOCS().map(offered),
     links: linkResources(entries).map((l) => l.replace(/^- /, "")),
   };
 }
@@ -276,31 +338,47 @@ export function toolFromLink(link: string | undefined): PlanTool | null {
   const scale = path.match(/^\/theory\/scales\/([a-z0-9-]+)\/([a-z-]+)$/);
   if (scale) {
     const key = parseKeySlug(scale[2]);
-    return key !== null && isScale(scale[1]) ? { type: "scale", scale: scale[1], key } : null;
+    return key !== null && isScale(scale[1]) ? { type: "scale-neck", scale: scale[1], key } : null;
   }
-  if (path === "/theory/notes") return { type: "notes", query };
-  if (path === "/theory/ears") return { type: "ears", query };
-  if (path === "/theory/metronome-drone") return { type: "band", bpm: 80, key: 9, parts: ["click"] };
+  if (path === "/theory/notes") return { type: "note-finder", query };
+  if (path === "/theory/ears") return { type: "interval-ears", query, ...(/(^|&)wide=1/.test(query) ? { wide: true } : {}) };
+  if (path === "/theory/metronome-drone") return { type: "backing-band", bpm: 80, key: 9, parts: ["click"] };
   return null;
 }
 
 /** An exercise written before sections (how / steps / tools, each tool with its `step`) as sections: text, then each step followed by its tools. */
-export function legacySections(e: { how?: string; steps?: string[]; tools?: (PlanTool & { step?: number })[]; link?: string }): Section[] {
+export function legacySections(e: { how?: string; steps?: string[]; tools?: StoredTool[]; link?: string }): Section[] {
   const out: Section[] = [];
   const linked = toolFromLink(e.link);
-  const tools: (PlanTool & { step?: number })[] = e.tools ?? (linked ? [linked] : []);
-  const tool = (t: PlanTool): Section => ({ type: "tool", tool: t });
-  tools.filter((t) => !t.step).forEach((t) => out.push(tool(t))); // a band keeping time goes first
+  const tools: StoredTool[] = e.tools ?? (linked ? [linked] : []);
+  const tool = (t: StoredTool): Section[] => {
+    const p = parseTool(t);
+    return p ? [{ type: "tool", tool: p }] : [];
+  };
+  tools.filter((t) => !t.step).forEach((t) => out.push(...tool(t))); // a band keeping time goes first
   if (e.how) out.push({ type: "text", text: e.how });
   if (e.steps?.length) {
     e.steps.forEach((text, i) => {
       out.push({ type: "text", text: `${i + 1}. ${text}` });
-      tools.filter((t) => t.step === i + 1).forEach((t) => out.push(tool(t)));
+      tools.filter((t) => t.step === i + 1).forEach((t) => out.push(...tool(t)));
     });
   }
   if (e.link && (e.tools || !toolFromLink(e.link))) out.push({ type: "link", href: e.link });
   return out;
 }
 
-/** What an exercise shows, in order: its sections, or, for a plan stored before sections, what its old fields stand for. */
-export const sectionsOf = (e: { sections?: Section[]; how?: string; steps?: string[]; tools?: (PlanTool & { step?: number })[]; link?: string }): Section[] => e.sections ?? legacySections(e);
+/** A tool as a stored plan holds it: today's `PlanTool`, or an older one (`scale`, `comp`, …) that `parseTool` migrates. */
+export type StoredTool = (PlanTool | { type: string; [k: string]: unknown }) & { step?: number };
+
+/**
+ * What an exercise shows, in order: its sections, or, for a plan stored before sections, what its old fields stand for.
+ * Stored tools are parsed again, so a tool saved under an old name shows as its component.
+ */
+export const sectionsOf = (e: { sections?: Section[]; how?: string; steps?: string[]; tools?: StoredTool[]; link?: string }): Section[] =>
+  e.sections
+    ? e.sections.flatMap((s): Section[] => {
+        if (s.type !== "tool") return [s];
+        const tool = parseTool(s.tool);
+        return tool ? [{ type: "tool", tool }] : [];
+      })
+    : legacySections(e);
