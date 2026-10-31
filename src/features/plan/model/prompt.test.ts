@@ -14,7 +14,7 @@ const last: StoredPlan = {
 };
 const EX = selectExamples(DEFAULT_ANSWERS);
 const EXAMPLE_IDS = [...EX.exercises.map((e) => `example:${e.id}`), `example:${EX.plan.id}`];
-const ORDER = ["intro", "student", "how-to-plan", "rules", "mistakes", "exercise-format", "sections", "tools", "links", ...EXAMPLE_IDS.slice(0, -1), "answer-format", EXAMPLE_IDS.at(-1)!];
+const ORDER = ["intro", "student", "how-to-plan", "rules", "mistakes", "exercise-format", "sections", "tools", "links", ...EXAMPLE_IDS, "answer-format"];
 
 test("prompt parts have unique ids in the documented order", () => {
   assert.deepEqual(promptParts(DEFAULT_ANSWERS, []).map((p) => p.id), ORDER);
@@ -35,7 +35,7 @@ test("every part has a label and text", () => {
 });
 
 test("example parts carry parseable JSON, every library exercise first and the plan last", () => {
-  const ex = promptParts(DEFAULT_ANSWERS, []).filter((p) => p.kind === "example");
+  const ex = promptParts(DEFAULT_ANSWERS, []).filter((p) => p.example);
   assert.deepEqual(ex.map((p) => p.example?.id), [...EXERCISE_EXAMPLES.map((e) => e.id), EX.plan.id]);
   for (const p of ex) {
     assert.ok(JSON.parse(p.example!.json));
@@ -72,7 +72,7 @@ test("student part: levels, stars, unsure, voice, focus, minutes, styles as flav
 
 test("the prompt drops repeats arithmetic and the old singing rule, and teaches blocks", () => {
   const all = buildPrompt(rated, catalogue());
-  const rules = promptParts(rated, catalogue()).filter((p) => p.kind !== "example").map((p) => p.text).join("\n");
+  const rules = promptParts(rated, catalogue()).filter((p) => !p.example).map((p) => p.text).join("\n");
   assert.doesNotMatch(rules, /repeats/);
   assert.doesNotMatch(all, /"repeats"/);
   assert.match(all, /split into two exercises rather than exceed 6/);

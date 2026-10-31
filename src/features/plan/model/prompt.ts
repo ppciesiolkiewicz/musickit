@@ -52,7 +52,7 @@ const EXERCISES_HEADING = [
   "",
 ].join("\n");
 
-export type PromptPartKind = "intro" | "student" | "history" | "rules" | "interface" | "links" | "format" | "example";
+export type PromptPartKind = "intro" | "student" | "history" | "rules" | "interface" | "links" | "format" | "exercise-example" | "plan-example";
 
 /** One labelled piece of the prompt; an example part also carries its JSON so tools can render it. */
 export interface PromptPart {
@@ -69,7 +69,7 @@ function examplePart(e: ExerciseExample | PlanExample, heading: string): PromptP
   const areas = e.areas.map((id) => AREAS.find((x) => x.id === id)!.label).join(" + ");
   const forWhom = e.kind === "exercise" ? [`For: ${areas}, level ${labelOf(LEVELS, e.level)}`] : [];
   const lines = [...(heading ? [heading] : []), `### Example: ${e.id}`, ...forWhom, `Why it's good: ${e.note}`, "```json", json, "```", ""];
-  return { id: `example:${e.id}`, label: `Example: ${e.id}`, kind: "example", text: lines.join("\n"), example: { id: e.id, json } };
+  return { id: `example:${e.id}`, label: `Example: ${e.id}`, kind: e.kind === "plan" ? "plan-example" : "exercise-example", text: lines.join("\n"), example: { id: e.id, json } };
 }
 
 const part = (id: string, label: string, kind: PromptPartKind, lines: string[]): PromptPart => ({ id, label, kind, text: lines.join("\n") });
@@ -167,10 +167,22 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
       "",
     ]),
     ...exerciseParts,
+    examplePart(plan, "## Example plan"),
     part("answer-format", "Answer format", "format", [
       "## Answer format",
-      `Reply with ONE JSON code block and nothing else: exactly ${PLAN_DAYS} days, fields as in the plan example below (\"why\", \"tags\" optional, \"minutes\" a number).`,
+      `Reply with ONE JSON code block and nothing else: a PlanConfig with exactly ${PLAN_DAYS} days, shaped like the example plan above.`,
+      "```ts",
+      `interface PlanConfig { title: string; summary?: string; days: PlanDay[] } // exactly ${PLAN_DAYS} days`,
+      "interface PlanDay { theme: string; exercises: Exercise[] } // 2 to 5 exercises",
+      "interface Exercise {",
+      "  title: string;",
+      "  minutes: number;",
+      "  focus: string;",
+      "  why?: string;",
+      "  tags?: string[]; // from the tags listed under Exercise format",
+      "  sections: Section[]; // see Sections",
+      "}",
+      "```",
     ]),
-    examplePart(plan, ""),
   ];
 }

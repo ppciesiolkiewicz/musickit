@@ -96,12 +96,12 @@ then the interface, generated from
 pages a link may go to as a few URI templates (`/theory/scales/{scale}/{key}`, `/course/{stage}/{section}`).
 
 The prompt is built as labelled parts (`promptParts`: intro, student, earlier weeks, how to plan, rules, mistakes,
-exercise format, section and tool interfaces, links, answer format, one `example:<id>` part per example); `buildPrompt` joins them.
+exercise format, section and tool interfaces, links, one `example:<id>` part per example, answer format); `buildPrompt` joins them.
 
 Examples come from the library (`examples/`), chosen by `model/exampleSelection.ts` (`selectExamples`): every exercise
 example, each labelled `For: <area>, level <level>` under a heading telling the AI to pitch at the student's levels, and
 one whole plan fitted to the player (most shared areas, then closest level). Each prints as `### Example: <id>`,
-`Why it's good: <note>` and its JSON; the plan comes last, under the answer format.
+`Why it's good: <note>` and its JSON; the plan comes last, under `## Example plan`, followed by the answer format (a short TS `PlanConfig` type for the reply).
 A typical prompt (guitar intermediate + theory beginner) is about 87,000 characters, 23,000 of them the plan example. The dev prompt studio (`src/features/devtools`, `/dev/prompt`) shows, edits and runs them part by part.
 
 ## Tools
