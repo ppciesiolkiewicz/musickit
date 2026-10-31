@@ -26,6 +26,13 @@ every prompt part (`promptParts` in the plan model) as a row to switch off or ed
 the result: the reply rendered with the plan's real `WeekView`, its parse warnings and the raw text, beside the history.
 Its state stays in `localStorage` key `musickit.dev.prompt`; "Load my /plan answers" only reads `musickit.plan`.
 
+## Prompt examples (`/dev/examples`)
+
+"In the prompt": the example parts `promptParts` builds for the studio's saved answers, each with its "Why it's good" note.
+"Library": every example in `src/features/plan/examples` with filters (kind, area, level, showcase), marked "in prompt"
+when `selectExamples` picks it for those answers. Opening a card renders it (`model/preview.ts`): an exercise as its
+header and sections, a plan in the real week view, with the parser's warnings.
+
 ## Running the prompt
 
 `POST /api/dev/run` runs the local `claude` CLI (`server/claude.ts`) in print mode with no tools, no MCP servers, no
@@ -50,5 +57,7 @@ returns one.
 - `server/claude.ts`: `claudeArgs`, `childEnv`, `parseClaudeResult`, `runClaude`.
 - `server/running.ts`: runs in progress (`startRun`, `cancelRun`, `endRun`, `listRunning`), kept on `globalThis`.
 - `server/history.ts`: `saveRun`, `readRun`, `listRuns` over `tools/prompt-history/`.
-- `prompt/`: `PromptStudio` (state), `StudioInputs`, `PartList`, `RunPanel`, `PlanPreview`, `HistoryList`, `api.ts` (fetches).
+- `model/preview.ts`: an example's JSON made parseable and parsed for display; `whyOf`.
+- `prompt/`: `PromptStudio` (state), `StudioInputs`, `PartList`, `RunPanel`, `PlanPreview`, `HistoryList`, `api.ts` (fetches), `storage.ts` (saved state, `useMounted`).
+- `examples/ExampleViewer.tsx`: the examples page.
 - Routes: `src/app/api/dev/run`, `src/app/api/dev/history`, `src/app/api/dev/history/[id]`; pages `src/app/dev`.

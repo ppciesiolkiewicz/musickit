@@ -1,28 +1,19 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Icon from "@/components/Icon";
 import { Button, Section } from "@/components/ui";
 import { catalogue } from "@/features/plan/model/catalogue";
 import { promptParts } from "@/features/plan/model/prompt";
-import { DEFAULT_STUDIO, STUDIO_KEY, answersFromText, composePrompt, readStudio, storedPlanFrom, type StudioState } from "../model/compose";
+import { STUDIO_KEY, answersFromText, composePrompt, storedPlanFrom, type StudioState } from "../model/compose";
 import type { RunRecord, RunSummary } from "../model/history";
 import { fetchRun, fetchRuns } from "./api";
 import HistoryList from "./HistoryList";
 import PartList from "./PartList";
 import PlanPreview from "./PlanPreview";
 import RunPanel from "./RunPanel";
+import { loadStudio, useMounted } from "./storage";
 import StudioInputs from "./StudioInputs";
-
-const noSubscribe = () => () => {};
-
-const loadStudio = (): StudioState => {
-  try {
-    return readStudio(JSON.parse(localStorage.getItem(STUDIO_KEY) ?? "null"));
-  } catch {
-    return readStudio(null);
-  }
-};
 
 /**
  * The autoplan prompt, taken apart: the answers and week it is built from, every labelled part (switch off, edit in place)
@@ -31,8 +22,8 @@ const loadStudio = (): StudioState => {
 export default function PromptStudio() {
   const entries = useMemo(() => catalogue(), []);
   // the saved state lives in localStorage, so the server and the hydrating render show "Loading…" and the studio comes after
-  const mounted = useSyncExternalStore(noSubscribe, () => true, () => false);
-  const [state, setState] = useState<StudioState>(() => (typeof window === "undefined" ? DEFAULT_STUDIO : loadStudio()));
+  const mounted = useMounted();
+  const [state, setState] = useState<StudioState>(loadStudio);
   const [runs, setRuns] = useState<RunSummary[]>([]);
   const [previous, setPrevious] = useState<RunRecord | null>(null);
   const [open, setOpen] = useState<RunRecord | null>(null);
