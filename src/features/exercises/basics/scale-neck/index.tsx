@@ -1,6 +1,7 @@
 "use client";
 
 import { noteState, type Others, type Visibility } from "../../cues/visibility";
+import { pickBox, type Placement } from "../../cues/placement";
 import { useCallback, useMemo } from "react";
 import { PositionBox, cellKey } from "@/components/chordKit/ScaleNeck";
 import { useNotePlayer } from "@/components/chordKit/useNotePlayer";
@@ -20,11 +21,18 @@ function addedNote(ctx: KeyContext, pc: number): ExtraNote {
   return { degree: below ? below[1] : 0, semi, name: SHARP[pc], degreeText: SEMI_TEXT[semi] };
 }
 
+/** A box moved along the neck by `shift` frets (an octave down: -12), its notes with it. */
+function shiftPosition(p: ScalePosition, shift: number): ScalePosition {
+  if (!shift) return p;
+  const notes = p.notes.map((c) => ({ ...c, fret: c.fret + shift, midi: c.midi + shift }));
+  return { number: p.number, startDegree: p.startDegree, notes, from: p.from + shift, to: p.to + shift };
+}
+
 /**
  * The scale's positions on the neck, only the boxes asked for, with any added notes played in them; tap a note to hear
  * it, ▶ to run the box up and down.
  */
-export function View({ slug, pc, boxes, add, highlight, mute, hide: hidden, others }: { slug: string; pc: number; boxes?: number[]; add?: number[]; highlight?: number[]; mute?: number[]; hide?: number[]; others?: Others }) {
+export function View({ slug, pc, boxes, placement, add, highlight, mute, hide: hidden, others }: { slug: string; pc: number; boxes?: number[]; placement?: Placement; add?: number[]; highlight?: number[]; mute?: number[]; hide?: number[]; others?: Others }) {
   // the marks are semitones above the key; the states work on pitch classes
   const vis = useMemo((): Visibility => {
     const pcs = (semis?: number[]) => semis?.map((semi) => (pc + semi) % 12);
@@ -60,7 +68,15 @@ export function View({ slug, pc, boxes, add, highlight, mute, hide: hidden, othe
   // hidden notes leave the boxes and the rings, and the ▶ run
   const cells = useMemo(() => allCells.filter((c) => state(c.pc) !== "hidden"), [allCells, state]);
   const positions = useMemo(() => allPositions.map((p) => ({ ...p, notes: p.notes.filter((c) => state(c.pc) !== "hidden") })), [allPositions, state]);
-  const shown = boxes?.length ? positions.filter((p) => boxes.includes(p.number)) : positions;
+  const shown = useMemo(() => {
+    if (boxes?.length) return positions.filter((p) => boxes.includes(p.number));
+    // a placement picks one box (from all of it, hidden notes too), maybe an octave down; nothing fits: every box, as without one
+    const picked = placement && placement.by !== "chords"
+      ? pickBox(allPositions.map((p) => ({ number: p.number, from: p.from, to: p.to, roots: p.notes.filter((c) => c.semi === 0).map((c) => ({ string: c.string, fret: c.fret })) })), placement)
+      : null;
+    const box = picked && positions.find((p) => p.number === picked.number);
+    return box ? [shiftPosition(box, picked.shift)] : positions;
+  }, [boxes, placement, positions, allPositions]);
   const run = (p: ScalePosition) => {
     const up = positionLine(p).map((n) => ({ key: cellKey(n), midi: n.midi }));
     play([...up, ...up.slice(0, -1).reverse()]);

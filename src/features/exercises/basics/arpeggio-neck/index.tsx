@@ -1,6 +1,8 @@
 "use client";
 
 import { noteState, type Others, type Visibility } from "../../cues/visibility";
+import { pickBox, type Placement } from "../../cues/placement";
+import { boxesOf } from "../../cues/cues";
 import { useCallback, useMemo } from "react";
 import { PositionBox, cellKey } from "@/components/chordKit/ScaleNeck";
 import { useNotePlayer } from "@/components/chordKit/useNotePlayer";
@@ -19,10 +21,16 @@ const SEMI_DEGREE = [0, 1, 1, 2, 2, 3, 4, 4, 4, 5, 6, 6];
  * A chord's arpeggio in one box, or two neighbouring boxes drawn as one with the shared notes ringed (the seam); only the
  * `part` asked for; tap a note to hear it, ▶ to run it up and down.
  */
-export function View({ chord, boxes, part, highlight, mute, hide, others }: { chord: string; boxes?: number[]; part?: Degree[]; highlight?: number[]; mute?: number[]; hide?: number[]; others?: Others }) {
+export function View({ chord, boxes: asked, placement, part, highlight, mute, hide, others }: { chord: string; boxes?: number[]; placement?: Placement; part?: Degree[]; highlight?: number[]; mute?: number[]; hide?: number[]; others?: Others }) {
   const [system] = useLabelSystem();
   const { active, play, tap } = useNotePlayer();
   const rootPc = parseChordQuery(chord)?.rootPc ?? 0;
+  // `boxes` as asked; else the box a placement picks (maybe an octave down); else box 1
+  const { boxes, shift } = useMemo(() => {
+    if (asked?.length || !placement || placement.by === "chords") return { boxes: asked, shift: 0 };
+    const picked = pickBox(boxesOf(chord).map((b, i) => ({ number: i + 1, from: b.from, to: b.to, roots: [{ string: b.rootString, fret: b.rootFret }] })), placement);
+    return picked ? { boxes: [picked.number], shift: picked.shift } : { boxes: undefined, shift: 0 };
+  }, [asked, placement, chord]);
   // the marks are semitones above the chord root; the states work on pitch classes
   const vis = useMemo((): Visibility => {
     const pcs = (semis?: number[]) => semis?.map((semi) => (rootPc + semi) % 12);
@@ -32,12 +40,12 @@ export function View({ chord, boxes, part, highlight, mute, hide, others }: { ch
   const litNames = (vis.highlight ?? []).filter((p) => state(p) === "highlighted").map((p) => SHARP[p]);
   const { position, seam } = useMemo(() => {
     const all = arpeggioPartNotes(chord, { part, boxes });
-    const kept = all.filter((n) => state(n.midi % 12) !== "hidden");
+    const kept = all.filter((n) => state(n.midi % 12) !== "hidden").map((n) => (shift ? { ...n, fret: n.fret + shift, midi: n.midi + shift } : n));
     const notes: ScaleCell[] = kept.map((n) => ({ string: n.string, fret: n.fret, midi: n.midi, pc: n.midi % 12, degree: SEMI_DEGREE[n.semis], name: SHARP[n.midi % 12], semi: n.semis, degreeText: SEMI_TEXT[n.semis] }));
     const frets = notes.map((n) => n.fret);
     const position: ScalePosition | null = notes.length ? { number: boxes?.[0] ?? 1, startDegree: 0, notes, from: Math.min(...frets), to: Math.max(...frets) } : null;
     return { position, seam: new Set(kept.filter((n) => n.seam).map(cellKey)) };
-  }, [chord, part, boxes, state]);
+  }, [chord, part, boxes, shift, state]);
   if (!position) return <p className="text-xs text-slate-500">No arpeggio for {chord}.</p>;
   const run = () => {
     const up = position.notes.map((n) => ({ key: cellKey(n), midi: n.midi }));
