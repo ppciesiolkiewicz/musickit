@@ -12,10 +12,14 @@ export interface ScaleNeckProps {
   key: string;
   /** which boxes to show (1-based); absent shows all */
   boxes?: number[];
-  /** notes from outside the scale to play too, as note names: ["e-flat"] (the blue note, say) */
+  /** notes from outside the scale to play too, as note names: ["e-flat"] (the blue note, say); they are highlighted */
   add?: string[];
-  /** degrees that stand out (major-relative, from the key root, not scale-aware): ["1","3","5"] */
-  highlight?: Degree[];
-  /** the notes not highlighted: "dimmed" (default) or "hidden" */
-  others?: "dimmed" | "hidden";
+  /** notes that stand out: degrees (major-relative, from the key root, not scale-aware) or note names as in `add`: ["3"] or ["c-sharp"] */
+  highlight?: (Degree | string)[];
+  /** notes drawn faint, same forms as `highlight` */
+  mute?: (Degree | string)[];
+  /** notes not drawn, same forms as `highlight` */
+  hide?: (Degree | string)[];
+  /** the notes not listed: "normal", "muted" or "hidden"; default "muted" when something is highlighted, else "normal" */
+  others?: "normal" | "muted" | "hidden";
 }

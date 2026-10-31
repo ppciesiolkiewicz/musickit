@@ -27,6 +27,6 @@ export interface PlayAlongProps {
   view?: "tab" | "notes" | "neck";
   /** degrees to stand out (major-relative, from the chord root): ["1","3"] */
   highlight?: Degree[];
-  /** the notes not highlighted: "dimmed" (default) or "hidden" */
-  others?: "dimmed" | "hidden";
+  /** the notes not highlighted: "muted" (default) or "hidden" */
+  others?: "muted" | "hidden";
 }

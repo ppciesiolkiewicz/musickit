@@ -13,10 +13,14 @@ export interface StaffProps {
   voice?: string;
   /** only these degrees are on the staff (major-relative): ["1","3","5","b7"]; absent shows the whole scale */
   notes?: Degree[];
-  /** degrees that stand out (major-relative, from the key root, not scale-aware) */
-  highlight?: Degree[];
-  /** the notes not highlighted: "dimmed" (default) or "hidden" */
-  others?: "dimmed" | "hidden";
+  /** notes that stand out: degrees (major-relative, from the key root, not scale-aware) or note names as in `add`: ["3"] or ["c-sharp"] */
+  highlight?: (Degree | string)[];
+  /** notes drawn faint, same forms as `highlight` */
+  mute?: (Degree | string)[];
+  /** notes not drawn, same forms as `highlight` */
+  hide?: (Degree | string)[];
+  /** the notes not listed: "normal", "muted" or "hidden"; default "muted" when something is highlighted, else "normal" */
+  others?: "normal" | "muted" | "hidden";
   /** show the "sing with the mic" button; default true */
   mic?: boolean;
 }

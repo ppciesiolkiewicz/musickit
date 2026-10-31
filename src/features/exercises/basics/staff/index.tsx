@@ -1,5 +1,6 @@
 "use client";
 
+import type { Others } from "../../cues/visibility";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useMicPitch } from "@/components/practice/useMicPitch";
 import MicButton from "@/components/theory/singing/MicButton";
@@ -16,7 +17,7 @@ const SEMI_TEXT = ["1", "♭2", "2", "♭3", "3", "4", "♯4", "5", "♭6", "6",
 const GAP_FRAMES = 6;
 
 /** The scale on a staff in the voice's range, with the microphone's pitch drawn on it; tap a note to hear it. */
-export function View({ slug, pc, voice, notes, highlight, others = "dimmed", mic: micButton = true }: { slug: string; pc: number; voice: keyof typeof VOICES; notes?: number[]; highlight?: number[]; others?: "dimmed" | "hidden"; mic?: boolean }) {
+export function View({ slug, pc, voice, notes, highlight, others, mic: micButton = true }: { slug: string; pc: number; voice: keyof typeof VOICES; notes?: number[]; highlight?: number[]; others?: Others; mic?: boolean }) {
   const range = VOICES[voice];
   const lit = useMemo(() => (highlight?.length ? new Set(highlight.map((semi) => (pc + semi) % 12)) : undefined), [highlight, pc]);
   const picked = useMemo(() => {

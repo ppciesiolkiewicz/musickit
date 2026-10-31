@@ -1,5 +1,6 @@
 "use client";
 
+import type { Others } from "../../cues/visibility";
 import { useMemo } from "react";
 import { PositionBox, cellKey } from "@/components/chordKit/ScaleNeck";
 import { useNotePlayer } from "@/components/chordKit/useNotePlayer";
@@ -18,7 +19,7 @@ const SEMI_DEGREE = [0, 1, 1, 2, 2, 3, 4, 4, 4, 5, 6, 6];
  * A chord's arpeggio in one box, or two neighbouring boxes drawn as one with the shared notes ringed (the seam); only the
  * `part` asked for; tap a note to hear it, ▶ to run it up and down.
  */
-export function View({ chord, boxes, part, highlight, others = "dimmed" }: { chord: string; boxes?: number[]; part?: Degree[]; highlight?: number[]; others?: "dimmed" | "hidden" }) {
+export function View({ chord, boxes, part, highlight, others }: { chord: string; boxes?: number[]; part?: Degree[]; highlight?: number[]; others?: Others }) {
   const [system] = useLabelSystem();
   const { active, play, tap } = useNotePlayer();
   const rootPc = parseChordQuery(chord)?.rootPc ?? 0;

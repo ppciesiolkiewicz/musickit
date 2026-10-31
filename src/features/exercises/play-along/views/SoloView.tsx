@@ -12,7 +12,7 @@ const MARKS = [3, 5, 7, 9, 12, 15];
  * Solo-over: the chord sounding now, its scale on the neck with the targets lit (the rest dimmed, or hidden), or as
  * note names. No fixed notes to follow: the student improvises around the lit ones.
  */
-export default function SoloView({ targets, mode, others }: { targets: SoloTargets; mode: "neck" | "notes" | "tab"; others: "dimmed" | "hidden" }) {
+export default function SoloView({ targets, mode, others }: { targets: SoloTargets; mode: "neck" | "notes" | "tab"; others: "muted" | "hidden" }) {
   const lit = new Set(targets.lit);
   const shown = others === "hidden" ? targets.lit : targets.pcs;
   if (mode === "notes")

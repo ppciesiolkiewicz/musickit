@@ -31,7 +31,7 @@ const withBacking = (t: Timeline, p: CompPattern | undefined): Timeline =>
 const stepless = (t: Timeline) => !t.events.some((e) => e.type === "step");
 
 /** A ready timeline played along with: click, piano, and a tab / notes / neck view that follow the playhead. */
-export function PlayAlongTimeline({ timeline, view = "tab", others = "dimmed", highlight }: { timeline: Timeline; view?: View; others?: "dimmed" | "hidden"; highlight?: number[] }) {
+export function PlayAlongTimeline({ timeline, view = "tab", others = "muted", highlight }: { timeline: Timeline; view?: View; others?: "muted" | "hidden"; highlight?: number[] }) {
   const choices = timeline.backingChoices ?? [];
   const [pattern, setPattern] = useState<CompPattern | undefined>(choices[0]);
   const [shown, setShown] = useState<View>(view);

@@ -55,6 +55,19 @@ describe("tools", () => {
     assert.deepEqual(parseTool({ type: "staff", scale: "mixolydian", key: "a", notes: ["1", "3", "5", "♭7"] }), { type: "staff", scale: "mixolydian", key: 9, voice: "baritone", notes: [0, 4, 7, 10] });
     assert.equal((parseTool({ type: "staff", scale: "mixolydian", key: "a", notes: ["1"] }) as { notes?: number[] }).notes, undefined);
   });
+  it("highlights by note name, mutes, hides; dimmed reads as muted", () => {
+    const sn = (t: Record<string, unknown>) => parseTool({ type: "scale-neck", scale: "minor-pentatonic", key: "a", ...t }) as Record<string, unknown>;
+    assert.deepEqual(sn({ add: ["c-sharp"], highlight: ["c-sharp"] }), { type: "scale-neck", scale: "minor-pentatonic", key: 9, add: [1], highlight: [4] });
+    assert.deepEqual(sn({ highlight: ["b3"] }).highlight, [3]);
+    const m = sn({ mute: ["5"], hide: ["b7"], others: "hidden" });
+    assert.deepEqual([m.mute, m.hide, m.others], [[7], [10], "hidden"]);
+    assert.deepEqual((parseTool({ type: "arpeggio-neck", chord: "A7", highlight: ["c-sharp", "g"] }) as { highlight?: number[] }).highlight, [4, 10]);
+    assert.equal((parseTool({ type: "staff", scale: "major-ionian", key: "c", others: "dimmed" }) as { others?: string }).others, "muted");
+    const stored = parseTool({ type: "scale-neck", scale: "minor-pentatonic", key: "a", highlight: [3], others: "dimmed" }, { stored: true }) as Record<string, unknown>;
+    assert.deepEqual([stored.highlight, stored.others], [[3], "muted"]);
+    const pa = parseTool({ type: "play-along", bpm: 70, shape: { shape: "progression", key: "a", chords: ["A7", "D7"], bars: 2 }, others: "dimmed" }) as { others?: string };
+    assert.equal(pa.others, "muted");
+  });
   it("a stored sing tool becomes a staff with the mic, its semitones kept", () => {
     assert.deepEqual(parseTool({ type: "sing", scale: "major-ionian", key: 0, voice: "tenor", notes: [0, 4, 7], highlight: [4] }, { stored: true }), { type: "staff", scale: "major-ionian", key: 0, voice: "tenor", notes: [0, 4, 7], highlight: [4], mic: true });
   });

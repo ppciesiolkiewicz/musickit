@@ -8,11 +8,11 @@ describe("basics docs", () => {
   it("lists every basic", () => {
     for (const n of NAMES) assert.equal(COMPONENT_DOCS.find((d) => d.name === n)?.kind, "basic", n);
   });
-  it("documents others as optional dimmed|hidden", () => {
+  it("documents others as optional normal|muted|hidden", () => {
     for (const n of ["scale-neck", "staff"]) {
       const p = docOf(n)!.props.find((x) => x.name === "others");
       assert.equal(p?.required, false);
-      assert.equal(p?.type, '"dimmed" | "hidden"');
+      assert.equal(p?.type, '"normal" | "muted" | "hidden"');
     }
   });
   it("backing-band requires parts", () => {

@@ -24,15 +24,27 @@
       },
       {
         "name": "highlight",
-        "type": "Degree[]",
+        "type": "(Degree | string)[]",
         "required": false,
-        "description": "degrees that stand out (major-relative to the chord root, not scale-aware)"
+        "description": "notes that stand out: degrees (major-relative, from the chord root, not scale-aware) or note names as in `add`: [\"3\"] or [\"c-sharp\"]"
+      },
+      {
+        "name": "mute",
+        "type": "(Degree | string)[]",
+        "required": false,
+        "description": "notes drawn faint, same forms as `highlight`"
+      },
+      {
+        "name": "hide",
+        "type": "(Degree | string)[]",
+        "required": false,
+        "description": "notes not drawn, same forms as `highlight`"
       },
       {
         "name": "others",
-        "type": "\"dimmed\" | \"hidden\"",
+        "type": "\"normal\" | \"muted\" | \"hidden\"",
         "required": false,
-        "description": "the notes not highlighted: \"dimmed\" (default) or \"hidden\""
+        "description": "the notes not listed: \"normal\", \"muted\" or \"hidden\"; default \"muted\" when something is highlighted, else \"normal\""
       }
     ]
   },
@@ -364,9 +376,9 @@
       },
       {
         "name": "others",
-        "type": "\"dimmed\" | \"hidden\"",
+        "type": "\"muted\" | \"hidden\"",
         "required": false,
-        "description": "the notes not highlighted: \"dimmed\" (default) or \"hidden\""
+        "description": "the notes not highlighted: \"muted\" (default) or \"hidden\""
       }
     ]
   },
@@ -495,19 +507,31 @@
         "name": "add",
         "type": "string[]",
         "required": false,
-        "description": "notes from outside the scale to play too, as note names: [\"e-flat\"] (the blue note, say)"
+        "description": "notes from outside the scale to play too, as note names: [\"e-flat\"] (the blue note, say); they are highlighted"
       },
       {
         "name": "highlight",
-        "type": "Degree[]",
+        "type": "(Degree | string)[]",
         "required": false,
-        "description": "degrees that stand out (major-relative, from the key root, not scale-aware): [\"1\",\"3\",\"5\"]"
+        "description": "notes that stand out: degrees (major-relative, from the key root, not scale-aware) or note names as in `add`: [\"3\"] or [\"c-sharp\"]"
+      },
+      {
+        "name": "mute",
+        "type": "(Degree | string)[]",
+        "required": false,
+        "description": "notes drawn faint, same forms as `highlight`"
+      },
+      {
+        "name": "hide",
+        "type": "(Degree | string)[]",
+        "required": false,
+        "description": "notes not drawn, same forms as `highlight`"
       },
       {
         "name": "others",
-        "type": "\"dimmed\" | \"hidden\"",
+        "type": "\"normal\" | \"muted\" | \"hidden\"",
         "required": false,
-        "description": "the notes not highlighted: \"dimmed\" (default) or \"hidden\""
+        "description": "the notes not listed: \"normal\", \"muted\" or \"hidden\"; default \"muted\" when something is highlighted, else \"normal\""
       }
     ]
   },
@@ -579,15 +603,27 @@
       },
       {
         "name": "highlight",
-        "type": "Degree[]",
+        "type": "(Degree | string)[]",
         "required": false,
-        "description": "degrees that stand out (major-relative, from the key root, not scale-aware)"
+        "description": "notes that stand out: degrees (major-relative, from the key root, not scale-aware) or note names as in `add`: [\"3\"] or [\"c-sharp\"]"
+      },
+      {
+        "name": "mute",
+        "type": "(Degree | string)[]",
+        "required": false,
+        "description": "notes drawn faint, same forms as `highlight`"
+      },
+      {
+        "name": "hide",
+        "type": "(Degree | string)[]",
+        "required": false,
+        "description": "notes not drawn, same forms as `highlight`"
       },
       {
         "name": "others",
-        "type": "\"dimmed\" | \"hidden\"",
+        "type": "\"normal\" | \"muted\" | \"hidden\"",
         "required": false,
-        "description": "the notes not highlighted: \"dimmed\" (default) or \"hidden\""
+        "description": "the notes not listed: \"normal\", \"muted\" or \"hidden\"; default \"muted\" when something is highlighted, else \"normal\""
       },
       {
         "name": "mic",

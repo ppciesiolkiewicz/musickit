@@ -12,8 +12,12 @@ export interface ArpeggioNeckProps {
   boxes?: number[];
   /** only these degrees of the chord (major-relative to the chord root): ["1","b3"] */
   part?: Degree[];
-  /** degrees that stand out (major-relative to the chord root, not scale-aware) */
-  highlight?: Degree[];
-  /** the notes not highlighted: "dimmed" (default) or "hidden" */
-  others?: "dimmed" | "hidden";
+  /** notes that stand out: degrees (major-relative, from the chord root, not scale-aware) or note names as in `add`: ["3"] or ["c-sharp"] */
+  highlight?: (Degree | string)[];
+  /** notes drawn faint, same forms as `highlight` */
+  mute?: (Degree | string)[];
+  /** notes not drawn, same forms as `highlight` */
+  hide?: (Degree | string)[];
+  /** the notes not listed: "normal", "muted" or "hidden"; default "muted" when something is highlighted, else "normal" */
+  others?: "normal" | "muted" | "hidden";
 }

@@ -10,6 +10,7 @@ import { expandShape } from "@/features/exercises/shapes";
 import { degreeSemis } from "@/features/exercises/timeline/degrees";
 import { clampTimeline, timelineSeconds } from "@/features/exercises/timeline/timeline";
 import type { Degree, Voicing } from "@/features/exercises/timeline/types";
+import { othersOf, type Others } from "@/features/exercises/cues/visibility";
 import { checkLink, type CatalogueEntry } from "./catalogue";
 import { migrateTool } from "./migrate";
 
@@ -29,7 +30,6 @@ import { migrateTool } from "./migrate";
 export type BandPart = "click" | "drone" | "drums" | "bass";
 export const BAND_PARTS: BandPart[] = ["click", "drone", "drums", "bass"];
 
-type Others = "dimmed" | "hidden";
 type View = "tab" | "notes" | "neck";
 
 /**
@@ -38,19 +38,22 @@ type View = "tab" | "notes" | "neck";
  * degree strings itself (`arpeggio-neck` `part`, `play-along` `highlight`). A play-along keeps its checked shape, never events.
  */
 export type PlanTool =
-  | { type: "scale-neck"; scale: string; key: number; boxes?: number[]; /** pitch classes from outside the scale */ add?: number[]; highlight?: number[]; others?: Others }
+  | { type: "scale-neck"; scale: string; key: number; boxes?: number[]; /** pitch classes from outside the scale */ add?: number[] } & Marks
   | { type: "chord-shapes"; chords: string[]; voicing?: Voicing }
-  | { type: "staff"; scale: string; key: number; voice: Voice; /** semitones above the key: only these are on the staff */ notes?: number[]; highlight?: number[]; others?: Others; mic?: boolean }
+  | { type: "staff"; scale: string; key: number; voice: Voice; /** semitones above the key: only these are on the staff */ notes?: number[]; mic?: boolean } & Marks
   | { type: "click-drone"; bpm: number; key: number; click?: boolean; drone?: boolean }
   | { type: "backing-band"; bpm: number; key: number; parts: BandPart[] }
   | { type: "note-finder"; query: string }
   | { type: "interval-ears"; query: string; /** intervals may span more than an octave */ wide?: boolean }
-  | { type: "arpeggio-neck"; chord: string; boxes?: number[]; part?: Degree[]; highlight?: number[]; others?: Others }
+  | { type: "arpeggio-neck"; chord: string; boxes?: number[]; part?: Degree[] } & Marks
   | { type: "melody-singer"; tune: number; key: number; voice?: Voice }
   | { type: "run-singer"; run: number; key: number; voice?: Voice }
-  | { type: "play-along"; shape: PlayAlongShape; bpm: number; repeats?: number; view?: View; highlight?: Degree[]; others?: Others };
+  | { type: "play-along"; shape: PlayAlongShape; bpm: number; repeats?: number; view?: View; highlight?: Degree[]; others?: "muted" | "hidden" };
 
 export type ToolName = PlanTool["type"];
+
+/** Which notes stand out, fade or go: semitones above the key root (the chord root on `arpeggio-neck`). See `noteState`. */
+export interface Marks { highlight?: number[]; mute?: number[]; hide?: number[]; others?: Others }
 
 interface ToolSpec {
   /** the input checked: null when the tool can't be shown. Description and schema are the component's doc (`docOf`). */
@@ -74,7 +77,22 @@ const degrees = (v: unknown): number[] =>
 /** Degree strings the table knows, as written. */
 const degreeStrings = (v: unknown): Degree[] => [...new Set(list(v).filter((d): d is string => typeof d === "string" && degreeSemis(d) !== null))];
 const voiceOf = (v: unknown): Voice | undefined => (typeof v === "string" && v in VOICES ? (v as Voice) : undefined);
-const othersOf = (v: unknown) => (v === "hidden" || v === "dimmed" ? { others: v as Others } : {});
+/**
+ * Notes to mark, as semitones above `root`: degree strings first ("b3"), else note names as in `add` ("c-sharp"), read
+ * against `root`; numbers 0-11 are kept (stored plans hold semitones; pasted numbers are dropped before this).
+ */
+const marks = (v: unknown, root: number | null): number[] =>
+  [...new Set(list(v).map((d) => {
+    if (typeof d === "number") return int(d, 0, 11);
+    const semi = degreeSemis(d);
+    if (semi !== null) return semi;
+    const pc = typeof d === "string" && root !== null ? parseKeySlug(d) : null;
+    return pc === null ? null : (pc - root! + 12) % 12;
+  }).filter((n): n is number => n !== null))].sort((a, b) => a - b);
+const marksOf = (t: Record<string, unknown>, root: number | null): Marks => {
+  const others = othersOf(t.others);
+  return { ...opt("highlight", marks(t.highlight, root)), ...opt("mute", marks(t.mute, root)), ...opt("hide", marks(t.hide, root)), ...(others ? { others } : {}) };
+};
 const boxesOf = (v: unknown) => [...new Set(list(v).map((b) => int(b, 1, 5)).filter((b): b is number => b !== null))].sort((a, b) => a - b);
 const opt = <K extends string, V>(k: K, v: V[]): { [P in K]?: V[] } => (v.length ? ({ [k]: v } as { [P in K]: V[] }) : {});
 const bool = <K extends string>(k: K, v: unknown): { [P in K]?: boolean } => (typeof v === "boolean" ? ({ [k]: v } as { [P in K]: boolean }) : {});
@@ -83,7 +101,7 @@ const scaleNeck = (t: Record<string, unknown>): PlanTool | null => {
   const key = keyOf(t.key);
   if (!isScale(t.scale) || key === null) return null;
   const add = [...new Set(list(t.add).map(keyOf).filter((n): n is number => n !== null))].slice(0, 4);
-  return { type: "scale-neck", scale: t.scale, key, ...opt("boxes", boxesOf(t.boxes)), ...opt("add", add), ...opt("highlight", degrees(t.highlight)), ...othersOf(t.others) };
+  return { type: "scale-neck", scale: t.scale, key, ...opt("boxes", boxesOf(t.boxes)), ...opt("add", add), ...marksOf(t, key) };
 };
 
 /** The game's settings, as the query string its view reads; a stored tool keeps its query. */
@@ -117,7 +135,7 @@ export const TOOLS: { [N in ToolName]: ToolSpec } = {
       const key = keyOf(t.key);
       if (!isScale(t.scale) || key === null) return null;
       const notes = degrees(t.notes);
-      return { type: "staff", scale: t.scale, key, voice: voiceOf(t.voice) ?? "baritone", ...(notes.length > 1 ? { notes } : {}), ...opt("highlight", degrees(t.highlight)), ...othersOf(t.others), ...bool("mic", t.mic) };
+      return { type: "staff", scale: t.scale, key, voice: voiceOf(t.voice) ?? "baritone", ...(notes.length > 1 ? { notes } : {}), ...marksOf(t, key), ...bool("mic", t.mic) };
     },
   },
   "click-drone": {
@@ -141,7 +159,7 @@ export const TOOLS: { [N in ToolName]: ToolSpec } = {
   "arpeggio-neck": {
     parse(t) {
       if (!isChord(t.chord)) return null;
-      return { type: "arpeggio-neck", chord: t.chord, ...opt("boxes", boxesOf(t.boxes).slice(0, 2)), ...opt("part", degreeStrings(t.part)), ...opt("highlight", degrees(t.highlight)), ...othersOf(t.others) };
+      return { type: "arpeggio-neck", chord: t.chord, ...opt("boxes", boxesOf(t.boxes).slice(0, 2)), ...opt("part", degreeStrings(t.part)), ...marksOf(t, parseChordQuery(t.chord)!.rootPc) };
     },
   },
   "melody-singer": { parse: (t) => singer(t, "tune", isTuneId) },
@@ -157,18 +175,20 @@ export const TOOLS: { [N in ToolName]: ToolSpec } = {
       delete shape.repeats;
       if (!expandShape({ ...shape, bpm, ...(repeats !== null ? { repeats } : {}) })) return null;
       const highlight = degreeStrings(t.highlight);
+      const others = othersOf(t.others);
       return {
         type: "play-along", bpm, shape: shape as unknown as PlayAlongShape,
         ...(repeats !== null ? { repeats } : {}),
         ...(VIEWS.includes(t.view as View) ? { view: t.view as View } : {}),
-        ...opt("highlight", highlight), ...othersOf(t.others),
+        // a play-along has no "normal": what isn't highlighted is muted or hidden
+        ...opt("highlight", highlight), ...(others && others !== "normal" ? { others } : {}),
       };
     },
   },
 };
 
 /** Degree lists that a stored plan may hold as semitone numbers. */
-const DEGREE_LISTS = ["highlight", "notes"] as const;
+const DEGREE_LISTS = ["highlight", "mute", "hide", "notes"] as const;
 
 /**
  * One tool from the AI's JSON or a stored plan (old names migrated first), checked: null when it can't be shown.

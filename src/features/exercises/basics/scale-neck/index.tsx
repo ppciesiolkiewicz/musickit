@@ -1,5 +1,6 @@
 "use client";
 
+import type { Others } from "../../cues/visibility";
 import { useMemo } from "react";
 import { PositionBox, cellKey } from "@/components/chordKit/ScaleNeck";
 import { useNotePlayer } from "@/components/chordKit/useNotePlayer";
@@ -23,7 +24,7 @@ function addedNote(ctx: KeyContext, pc: number): ExtraNote {
  * The scale's positions on the neck, only the boxes asked for, with any added notes played in them; tap a note to hear
  * it, ▶ to run the box up and down.
  */
-export function View({ slug, pc, boxes, add, highlight, others = "dimmed" }: { slug: string; pc: number; boxes?: number[]; add?: number[]; highlight?: number[]; others?: "dimmed" | "hidden" }) {
+export function View({ slug, pc, boxes, add, highlight, others }: { slug: string; pc: number; boxes?: number[]; add?: number[]; highlight?: number[]; others?: Others }) {
   const lit = useMemo(() => (highlight?.length ? new Set(highlight.map((semi) => (pc + semi) % 12)) : undefined), [highlight, pc]);
   const [system] = useLabelSystem();
   const { active, play, tap } = useNotePlayer();
