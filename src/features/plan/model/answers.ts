@@ -42,7 +42,7 @@ function voiceOf(raw: unknown): PlanAnswers["voice"] {
  * becomes per-area levels; unknown concepts, bad ratings and a bad voice are dropped; anything unreadable gives the defaults.
  */
 export function migrateAnswers(raw: unknown): PlanAnswers {
-  if (!isRecord(raw)) return { ...DEFAULT_ANSWERS, levels: { ...DEFAULT_ANSWERS.levels } };
+  if (!isRecord(raw)) return { ...DEFAULT_ANSWERS, levels: { ...DEFAULT_ANSWERS.levels }, ratings: {}, focus: [] };
   let levels = "levels" in raw ? newLevels(raw.levels) : oldLevels(raw);
   if (Object.keys(levels).length === 0) levels = { ...DEFAULT_ANSWERS.levels };
   const ratings: PlanAnswers["ratings"] = {};

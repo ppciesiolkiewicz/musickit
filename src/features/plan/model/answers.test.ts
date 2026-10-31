@@ -26,6 +26,8 @@ describe("migrateAnswers", () => {
     const g = migrateAnswers(null);
     assert.notEqual(g, DEFAULT_ANSWERS);
     assert.notEqual(g.levels, DEFAULT_ANSWERS.levels);
+    assert.notEqual(g.focus, DEFAULT_ANSWERS.focus);
+    assert.notEqual(g.ratings, DEFAULT_ANSWERS.ratings);
     assert.notEqual(migrateAnswers({ levels: {} }).levels, DEFAULT_ANSWERS.levels);
   });
   it("old single instrument voice", () => {
