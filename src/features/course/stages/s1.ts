@@ -79,6 +79,7 @@ export const STAGE_1: CourseStage = {
       task("Hold the Em chord and pick it one string at a time, low to high and back. Do the same with Am and G. Then play the arpeggios without holding the chord shape."),
       links([{ href: "/theory/arpeggios", label: "Arpeggios explorer", note: "every chord's arpeggio, anywhere on the neck" }]),
     ]),
+    section("chords-from-scale", "Chords from the scale", "paths", "Stacking every other note of the scale makes its chords: Do–Mi–Sol is the 1 chord, Fa–La–Do the 4 and Sol–Ti–Re the 5."),
     section("one-four-five", "1 → 4 → 5 → 1 & the circle of fifths", "paths", "The 1, 4 and 5 chords most songs use, and how the circle of fifths shows them.", [
       text(
         "Most songs are built on three chords: the one on the home note (1, Do), the one a 4th up (4, Fa), and the one a 5th up (5, Sol). In G major that's G → C → D → G. Here are their roots in position 1, and they're all under your hand.",
@@ -100,6 +101,7 @@ export const STAGE_1: CourseStage = {
       visual({ kind: "circle", caption: "Pick a key: its 4 and 5 are its neighbours on the circle; its relative minor sits inside." }),
       task("Play G C D G and Em Am B7 Em, four strums each, saying Do Fa Sol Do as you change."),
     ]),
+    section("hearing-changes", "Hearing chord changes", "three-views", "Telling the 1, 4 and 5 chords apart by ear over a backing, so you can follow a song's changes."),
     section("pentatonic", "E minor pentatonic", "soloing", "The E minor pentatonic in position 1: five notes that fit every chord of the key.", [
       text(
         "Leave two notes out of the E minor scale (F♯ and C) and you get the E minor pentatonic: E G A B D, five notes that never clash with any chord of the key. In position 1 it lies on the open strings and the 2nd and 3rd frets.",

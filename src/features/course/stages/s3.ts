@@ -72,6 +72,7 @@ export const STAGE_3: CourseStage = {
         task("Play Gmaj7, G7 and Em7 in a random order with your eyes closed, then name each by its sound."),
         links([], [{ href: "/theory/ears?kind=chord", label: "Chord quality with 7ths" }]),
       ]),
+    section("ti-do", "Ti–Do: the pull of the 7th", "three-views", "Ti, the note just below Do, and why it pulls home so strongly that the 5 chord wants to resolve."),
     section("colour-paths", "The same paths with colour", "paths", "The 1, 4, 5 paths again, with 7th-chord colour on top.", [
       text(
         "The 1 → 4 → 5 → 1 path from stage 5 hasn't changed: the roots still go G → C → D → G. Only the colour on top is new. Play Gmaj7 → Cmaj7 → D7 → G and the 7ths make a little tune of their own on the top strings.",

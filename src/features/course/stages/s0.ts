@@ -45,6 +45,8 @@ export const STAGES_0: CourseStage[] = [
         }),
         links([], [{ href: "/theory/notes?strings=E,A&naturals=1", label: "Find the notes on E and A", note: "a quiz: a note name comes up, tap it on the neck" }]),
       ]),
+      section("steady-beat", "Keeping a steady beat", "basics", "Counting beats and bars with a click, then tapping and strumming in time without speeding up or slowing down."),
+      section("spider", "The spider: fingers 1-2-3-4", "technique", "One finger per fret across all six strings with alternate picking, then other finger orders like 1-3-2-4, for strength and control."),
     ],
   },
   {
@@ -130,7 +132,7 @@ export const STAGES_0: CourseStage[] = [
         neck("The same scale on the guitar, in the open position.", 0, 4, toneDots(G, MAJOR_SEMIS, 0, 4, { style: "number" })),
         links([{ href: "/theory/piano", label: "Piano", note: "play notes on a keyboard and see them on the neck" }]),
       ]),
-      section("solfege", "Solfège", "three-views", "Do re mi fa sol la ti: names for the notes of a key that move with the key, so a tune can be sung anywhere.", [
+      section("solfege", "Introduction to solfège", "three-views", "Do re mi fa sol la ti: names for the notes of a key that move with the key, so a tune can be sung anywhere.", [
         text(
           "Do re mi fa sol la ti do: the names singers use for the steps of a major scale. In movable do, Do is always the home note of the key, so in G major Do is G, and in C major Do is C.",
           "That's what makes solfège useful on the guitar: shapes move, and so do the names. Do–Fa–Sol is the same sound and the same shape in every key. This course labels notes with their degree (1, 4, 5) and their solfège name (Do, Fa, Sol) side by side.",
@@ -138,6 +140,7 @@ export const STAGES_0: CourseStage[] = [
         visual({ kind: "piano", caption: "G major named in solfège: G is Do.", keys: pianoKeys(G, [55, 57, 59, 60, 62, 64, 66, 67], { solfege: true }) }),
         task("Sing do re mi fa sol la ti do along with the piano, then without it. Then sing it down."),
       ]),
+      section("home-note", "Do: the home note", "three-views", "Hearing Do, the home note of a key, over a drone, singing it, and feeling every other note lean back to it."),
       section("do-re-mi", "The major scale as do-re-mi", "three-views", "G major in the open position, played and sung as Do Re Mi.", [
         text(
           "Here is G major in the open position, each note with its number and its solfège name. Play the arrow path from the open G string up to the G on the high e, singing along: Do Re Mi Fa Sol La Ti Do.",
@@ -148,6 +151,8 @@ export const STAGES_0: CourseStage[] = [
         }),
         task("Play the path up and down, saying the solfège names out loud. Then start from the G on the low E (3rd fret) and see how far you get."),
       ]),
+      section("step-melodies", "Step melodies: Do–Re–Mi", "melody", "Short tunes that move one note at a time up and down the scale, sung first and then played."),
+      section("do-mi-sol", "Do–Mi–Sol", "melody", "The three notes of the major chord as a tune: leaping between Do, Mi and Sol by ear and with your voice."),
       section("intervals", "Intervals", "three-views", "The distance between two notes: half steps, whole steps and the octave, and how they add up to the scale."),
       section("hearing-do-fa-sol", "Hearing do, fa, sol", "three-views", "Hearing the 1, 4 and 5 of a key by ear, the notes most songs are built on.", [
         text(
@@ -158,6 +163,7 @@ export const STAGES_0: CourseStage[] = [
         task("Play G, then C, then D, then G on the guitar (low E 3rd fret, A 3rd fret, open D, open G). Sing Do Fa Sol Do with them."),
         links([], [{ href: "/theory/ears?set=5,7,12", label: "Ear: 4th, 5th and octave", note: "name the interval you hear" }]),
       ]),
+      section("la-minor-home", "La: the minor home", "three-views", "The same notes heard from La instead of Do: the relative minor, and how the home note changes the mood."),
       section("major-or-minor", "Major or minor?", "three-views", "Telling major from minor by ear: one note, the 3rd, makes the difference.", [
         text(
           "Major sounds bright and settled, minor sounds dark or sad. The difference is one note: the 3rd. G major has B; G minor lowers it to B♭. That's all it takes to change the mood.",
@@ -181,6 +187,9 @@ export const STAGES_0: CourseStage[] = [
         melody({ title: "When the Saints Go Marching In", origin: "traditional", position: 0, notes: tune("C4 E4 F4 G4:4 C4 E4 F4 G4:4 C4 E4 F4 G4:2 E4:2 C4:2 E4:2 D4:4") }),
         task("Play Ode to Joy slowly from the tab until you don't need to look for each note. Then try to find the start of another tune you know by ear."),
       ]),
+      section("sing-then-find", "Sing it, then find it", "melody", "Sing a short phrase, then find it on the neck starting from Do, so your ear leads your fingers."),
+      section("do-mi-sol-neck", "Do–Mi–Sol on the neck", "melody", "The major chord's three notes played as a melody in position 1, in G and in C."),
+      section("legato", "Hammer-ons, pull-offs & trills", "technique", "Sounding notes with the fretting hand alone: hammer-ons, pull-offs and trills for smooth, connected lines."),
     ],
   },
 ];

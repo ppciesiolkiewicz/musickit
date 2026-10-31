@@ -9,8 +9,24 @@ describe("course structure", () => {
   });
   it("position 1 and first open chords have the agreed sections", () => {
     const slugs = (st: string) => COURSE.find((s) => s.slug === st)!.sections.map((x) => x.slug);
-    assert.deepEqual(slugs("5"), ["chords", "triads", "fifths", "power-chords", "arpeggios", "one-four-five", "pentatonic", "major-pentatonic", "soloing", "bends-and-slides", "move-it"]);
+    assert.deepEqual(slugs("5"), ["chords", "triads", "fifths", "power-chords", "arpeggios", "chords-from-scale", "one-four-five", "hearing-changes", "pentatonic", "major-pentatonic", "soloing", "bends-and-slides", "move-it"]);
     assert.deepEqual(slugs("2"), ["em-and-am", "c-d-g", "e-a-dm", "one-minute-changes", "all-downstrums", "island-strum", "sixteenths", "first-songs", "what-is-a-chord"]);
+  });
+  it("planned basics sit where the design puts them", () => {
+    const slugs = (st: string) => COURSE.find((s) => s.slug === st)!.sections.map((x) => x.slug);
+    assert.deepEqual(slugs("1"), ["strings-and-tuning", "tab-and-chord-boxes", "notes-on-e-and-a", "steady-beat", "spider"]);
+    assert.deepEqual(slugs("3"), ["piano-and-guitar", "solfege", "home-note", "do-re-mi", "step-melodies", "do-mi-sol", "intervals", "hearing-do-fa-sol", "la-minor-home", "major-or-minor"]);
+    assert.deepEqual(slugs("4"), ["melodies", "sing-then-find", "do-mi-sol-neck", "legato"]);
+    const s5 = slugs("5");
+    assert.equal(s5.indexOf("chords-from-scale") + 1, s5.indexOf("one-four-five"));
+    assert.equal(s5.indexOf("hearing-changes") - 1, s5.indexOf("one-four-five"));
+    const s7 = slugs("7");
+    assert.equal(s7.indexOf("ti-do") - 1, s7.indexOf("hearing-sevenths"));
+    const s8 = slugs("8");
+    assert.equal(s8.indexOf("do-mi-sol-shapes") - 1, s8.indexOf("one-arpeggio"));
+    assert.equal(s8.at(-1), "string-skipping");
+    assert.equal(findSection("3", "solfege")!.section.title, "Introduction to solfège");
+    [["1", "spider"], ["4", "legato"], ["8", "string-skipping"]].forEach(([st, sec]) => assert.equal(findSection(st, sec)!.section.topic, "technique"));
   });
   it("every section says what it is about", () => {
     ALL_SECTIONS.forEach(({ stage, section }) => assert.ok(section.about?.trim().length > 10, `${stage.slug}/${section.slug}`));
@@ -27,10 +43,10 @@ describe("course structure", () => {
     COURSE.forEach((s) => s.sections.forEach((x) => assert.ok(ids.has(x.topic), `${s.slug}/${x.slug}`)));
   });
   it("next and previous cross stage boundaries and stop at the ends", () => {
-    assert.equal(nextSection("1", "notes-on-e-and-a")?.section.slug, "em-and-am");
+    assert.equal(nextSection("1", "spider")?.section.slug, "em-and-am");
     assert.equal(nextSection("11", "guide-tones"), undefined);
     assert.equal(prevSection("1", "strings-and-tuning"), undefined);
-    assert.equal(prevSection("2", "em-and-am")?.section.slug, "notes-on-e-and-a");
+    assert.equal(prevSection("2", "em-and-am")?.section.slug, "spider");
   });
   it("unknown stages and sections are not found", () => {
     assert.equal(findSection("5", "nope"), undefined);
