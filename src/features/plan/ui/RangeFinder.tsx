@@ -5,7 +5,7 @@ import { Button } from "@/components/ui";
 import { getAudioContext } from "@/features/sound";
 import { usePitch } from "@/features/tuner/usePitch";
 import { VOICES, hzToMidi, type Voice } from "@/features/theory/singing";
-import { nearestVoice, noteName, normaliseRange, steadyNote } from "@/features/theory/voiceRange";
+import { isHighEnough, nearestVoice, noteName, normaliseRange, steadyNote } from "@/features/theory/voiceRange";
 
 type Step = "idle" | "low" | "high" | "done";
 
@@ -26,31 +26,50 @@ export default function RangeFinder({ onRange }: { onRange: (r: { low: number; h
   const analyser = useRef<AnalyserNode | null>(null);
   const release = useRef<(() => void) | null>(null);
   const low = useRef<number | null>(null);
+  const alive = useRef(true);
+  const starting = useRef(false);
+  const [busy, setBusy] = useState(false);
   const history = useRef<(number | null)[]>([]);
   const listening = step === "low" || step === "high";
   const hz = usePitch(() => analyser.current, MIN_HZ, listening);
 
   const stop = () => { release.current?.(); release.current = null; analyser.current = null; };
-  useEffect(() => stop, []);
+  useEffect(() => {
+    alive.current = true;
+    return () => { alive.current = false; stop(); };
+  }, []);
 
   const giveUp = () => { stop(); setStep("idle"); setMessage("Couldn't hear you; pick a type above."); };
 
   const start = async () => {
+    if (starting.current || release.current) return;
+    starting.current = true;
+    setBusy(true);
     setMessage(null);
+    let stream: MediaStream | null = null;
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
+      stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
+      const got = stream;
+      const free = () => got.getTracks().forEach((t) => t.stop());
+      if (!alive.current) { free(); return; }
+      release.current = free;
       const ctx = getAudioContext();
       await ctx.resume();
-      const src = ctx.createMediaStreamSource(stream);
+      if (!alive.current) { stop(); return; }
+      const src = ctx.createMediaStreamSource(got);
       const an = ctx.createAnalyser();
       an.fftSize = FRAME;
       src.connect(an);
       analyser.current = an;
-      release.current = () => { src.disconnect(); stream.getTracks().forEach((t) => t.stop()); };
+      release.current = () => { src.disconnect(); free(); };
       low.current = null;
       history.current = [];
       setStep("low");
-    } catch { giveUp(); }
+    } catch {
+      stream?.getTracks().forEach((t) => t.stop());
+      stop();
+      if (alive.current) giveUp();
+    } finally { starting.current = false; if (alive.current) setBusy(false); }
   };
 
   // each reading joins the history; a held note ends the step
@@ -62,6 +81,7 @@ export default function RangeFinder({ onRange }: { onRange: (r: { low: number; h
     history.current = [];
     // eslint-disable-next-line react-hooks/set-state-in-effect -- the step follows the mic reading
     if (step === "low") { low.current = note; setStep("high"); return; }
+    if (low.current !== null && !isHighEnough(low.current, note)) return; // still holding the low note
     stop();
     const range = normaliseRange(low.current ?? note, note);
     const voice = nearestVoice(range);
@@ -70,16 +90,16 @@ export default function RangeFinder({ onRange }: { onRange: (r: { low: number; h
     onRange(range, voice);
   }, [hz]); // eslint-disable-line react-hooks/exhaustive-deps -- one reading at a time
 
-  // nothing heard for a while in a step
+  // no steady note within a while of a step starting
   useEffect(() => {
     if (!listening) return;
     const id = window.setTimeout(giveUp, GIVE_UP_MS);
     return () => window.clearTimeout(id);
-  }, [listening, step, hz]); // eslint-disable-line react-hooks/exhaustive-deps -- any pitch heard restarts the wait
+  }, [listening, step]); // eslint-disable-line react-hooks/exhaustive-deps -- the wait is per step
 
   return (
     <div className="flex flex-col items-start gap-2" aria-live="polite">
-      {step === "idle" && <Button onClick={start}>Find my range</Button>}
+      {step === "idle" && <Button onClick={start} disabled={busy}>Find my range</Button>}
       {step === "low" && <p className="text-sm text-slate-200">Sing your lowest comfortable note</p>}
       {step === "high" && <p className="text-sm text-slate-200">Now your highest</p>}
       {step === "done" && result && (

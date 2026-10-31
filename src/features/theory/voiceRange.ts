@@ -27,3 +27,6 @@ export function nearestVoice(range: Range): Voice {
   const gap = (v: Voice) => Math.abs(VOICES[v].low - range.low) + Math.abs(VOICES[v].high - range.high);
   return keys.reduce((best, v) => (gap(v) < gap(best) ? v : best));
 }
+
+/** Whether a sung high note is far enough above the low one (3 semitones) to count as the top of a range. */
+export const isHighEnough = (low: number, high: number): boolean => high - low >= 3;

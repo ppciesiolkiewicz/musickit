@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { nearestVoice, normaliseRange, noteName, steadyNote } from "./voiceRange";
+import { isHighEnough, nearestVoice, normaliseRange, noteName, steadyNote } from "./voiceRange";
 
 test("steadyNote: a held note rounds to its midi", () => {
   const frames = Array.from({ length: 30 }, (_, i) => 48.2 + (i % 2 ? 0.1 : -0.1));
@@ -37,4 +37,10 @@ test("noteName spells a midi note", () => {
   assert.equal(noteName(48), "C3");
   assert.equal(noteName(69), "A4");
   assert.equal(noteName(61), "C#4");
+});
+
+test("isHighEnough needs 3 semitones above the low note", () => {
+  assert.equal(isHighEnough(48, 48), false);
+  assert.equal(isHighEnough(48, 50), false);
+  assert.equal(isHighEnough(48, 51), true);
 });
