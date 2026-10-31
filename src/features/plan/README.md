@@ -82,6 +82,10 @@ then the interface, generated from
 `model/tools.ts`: every section kind and tool as name, description and `inputSchema` (as an MCP server lists tools), and the
 pages a link may go to as a few URI templates (`/theory/scales/{scale}/{key}`, `/course/{stage}/{section}`).
 
+The prompt is built as labelled parts (`promptParts`: intro, student, earlier weeks, how to plan, rules, mistakes,
+exercise format, section and tool interfaces, links, answer format, one part per example); `buildPrompt` joins them.
+The dev prompt studio (`src/features/devtools`, `/dev/prompt`) shows, edits and runs them part by part.
+
 ## Tools
 
 The AI writes an exercise's text and its tools in the same list; the page draws only from the tools. So the prompt makes
