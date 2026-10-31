@@ -52,7 +52,7 @@ function nearest(cells: Cell[], prev: Cell | null): Cell | undefined {
 
 const boxCache = new Map<string, ArpPosition[]>();
 /** The arpeggio positions of a chord, in `arpPositions` order (box N is entry N - 1). */
-function boxesOf(name: string): ArpPosition[] {
+export function boxesOf(name: string): ArpPosition[] {
   const hit = boxCache.get(name);
   if (hit) return hit;
   const q = parseChordQuery(name);

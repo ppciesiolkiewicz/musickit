@@ -95,10 +95,12 @@ export function ScaleNeck({ cells, big, rings = true, focus = null, fadeOutside 
 }
 
 /** One position as a vertical box: its notes as dots, and (optionally) the other scale notes inside its frets as rings. */
-export function PositionBox({ position, cells, rings, active, labelSystem, onNote, highlight }: {
+export function PositionBox({ position, cells, rings, active, labelSystem, onNote, highlight, seam }: {
   position: ScalePosition; cells: ScaleCell[]; rings: boolean; active: string | null; labelSystem: LabelSystem; onNote: (c: ScaleCell) => void;
   /** pitch classes to stand out: every other note is dimmed (none: all notes alike) */
   highlight?: ReadonlySet<number>;
+  /** places (`cellKey`) circled with a dashed ring: where two boxes join */
+  seam?: ReadonlySet<string>;
 }) {
   const lit = useLit(active);
   // a box at the first fret also shows the open strings
@@ -113,6 +115,7 @@ export function PositionBox({ position, cells, rings, active, labelSystem, onNot
       <VerticalBoard g={g} numbersRight />
       {extra.map((c) => <Dot key={cellKey(c)} c={c} x={g.sx(c.string)} y={g.fy(c.fret)} r={14} ring label={label(c)} hover={hover(c)} active={lit(c)} dim={!!highlight && !highlight.has(c.pc)} onNote={onNote} />)}
       {position.notes.map((c) => <Dot key={cellKey(c)} c={c} x={g.sx(c.string)} y={g.fy(c.fret)} r={14} ring={false} label={label(c)} hover={hover(c)} active={lit(c)} dim={!!highlight && !highlight.has(c.pc)} onNote={onNote} />)}
+      {seam && position.notes.filter((c) => seam.has(cellKey(c))).map((c) => <circle key={`seam-${cellKey(c)}`} cx={g.sx(c.string)} cy={g.fy(c.fret)} r={19} fill="none" stroke="var(--color-amber-300)" strokeWidth={2} strokeDasharray="4 3" pointerEvents="none" />)}
     </svg>
   );
 }

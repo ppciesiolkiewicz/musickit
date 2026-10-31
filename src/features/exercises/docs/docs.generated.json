@@ -1,5 +1,42 @@
 [
   {
+    "name": "arpeggio-neck",
+    "kind": "basic",
+    "description": "A chord's arpeggio in one box on the guitar neck, or across two neighbouring boxes with the notes they share marked as\nthe seam; show only part of it, or make some degrees stand out. Tap a note to hear it, play the box up and down.",
+    "props": [
+      {
+        "name": "chord",
+        "type": "string",
+        "required": true,
+        "description": "the chord: \"Am\", \"G7\", \"Cmaj7\""
+      },
+      {
+        "name": "boxes",
+        "type": "number[]",
+        "required": false,
+        "description": "one box, or two neighbouring boxes (1-based, as numbered in the arpeggio cues): [2] or [2, 3]; absent shows box 1"
+      },
+      {
+        "name": "part",
+        "type": "Degree[]",
+        "required": false,
+        "description": "only these degrees of the chord (major-relative to the chord root): [\"1\",\"b3\"]"
+      },
+      {
+        "name": "highlight",
+        "type": "Degree[]",
+        "required": false,
+        "description": "degrees that stand out (major-relative to the chord root, not scale-aware)"
+      },
+      {
+        "name": "others",
+        "type": "\"dimmed\" | \"hidden\"",
+        "required": false,
+        "description": "the notes not highlighted: \"dimmed\" (default) or \"hidden\""
+      }
+    ]
+  },
+  {
     "name": "arpeggio-part",
     "kind": "shape",
     "description": "Part of an arpeggio (for example 1-3, or 1-3-5) over a chord or a progression; chords cycle to fill `bars`, the\ndegrees repeat one per beat. `place` gives each chord a box and part; `across` connects one arpeggio from one box\npart to the next. Also takes `bpm` and `repeats`.\n\nExample: `{ \"shape\": \"arpeggio-part\", \"chords\": [\"C\",\"Am\",\"F\",\"G\"], \"degrees\": [\"1\",\"3\",\"5\"], \"bars\": 4, \"place\": [{ \"box\": 1, \"part\": \"lower\" }, { \"box\": 1, \"part\": \"upper\" }, { \"box\": 2, \"part\": \"lower\" }, { \"box\": 2, \"part\": \"upper\" }], \"bpm\": 70 }`",
@@ -235,6 +272,31 @@
     ]
   },
   {
+    "name": "melody-singer",
+    "kind": "basic",
+    "description": "A tune from the singing page's melody book on a staff, in a key and voice: play it to hear it, tap a note, then sing\nit with the microphone along a bar that runs over the tune. Pick the tune from `melodyChoices()` (one per stage).",
+    "props": [
+      {
+        "name": "tune",
+        "type": "number",
+        "required": true,
+        "description": "the tune's number in the melody book (a number, from melodyChoices)"
+      },
+      {
+        "name": "key",
+        "type": "string",
+        "required": true,
+        "description": "the key's root note (Do): \"c\", \"f-sharp\", \"b-flat\""
+      },
+      {
+        "name": "voice",
+        "type": "\"soprano\" | \"mezzo\" | \"alto\" | \"tenor\" | \"baritone\" | \"bass\"",
+        "required": false,
+        "description": "voice range; default \"soprano\""
+      }
+    ]
+  },
+  {
     "name": "note-finder",
     "kind": "basic",
     "description": "A game to find notes on the fretboard: find a named note, play every note, or name the note shown.",
@@ -378,6 +440,31 @@
         "type": "Place[]",
         "required": false,
         "description": "box and part per chord, in order: [{ \"box\": 1, \"part\": \"lower\" }]"
+      }
+    ]
+  },
+  {
+    "name": "run-singer",
+    "kind": "basic",
+    "description": "A run from the singing page's runs book on a staff, starting in a key and moving up a semitone each pass, in a voice:\nplay it, then sing it with the microphone. Pick the run from `runChoices()` (one per stage).",
+    "props": [
+      {
+        "name": "run",
+        "type": "number",
+        "required": true,
+        "description": "the run's number in the runs book (a number, from runChoices)"
+      },
+      {
+        "name": "key",
+        "type": "string",
+        "required": true,
+        "description": "the key the run starts in: \"c\", \"f-sharp\", \"b-flat\""
+      },
+      {
+        "name": "voice",
+        "type": "\"soprano\" | \"mezzo\" | \"alto\" | \"tenor\" | \"baritone\" | \"bass\"",
+        "required": false,
+        "description": "voice range; default \"soprano\""
       }
     ]
   },
