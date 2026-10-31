@@ -78,7 +78,7 @@ export function buildPrompt(answers: PlanAnswers | null, entries: CatalogueEntry
 export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry[], previous: StoredPlan[] = []): PromptPart[] {
   const profile = answers
     ? studentLines(answers).join("\n")
-    : "The player skipped the questionnaire. Before writing the plan, ask them (in one short message) what they play, level, goals, what they find hard, favourite styles and minutes a day; then write the plan.";
+    : "The player skipped the questionnaire. Before writing the plan, ask them (in one short message) what they play, their level in each area, what they already know, their voice type (if they sing) and minutes a day; then write the plan.";
   const { exercises, plan } = selectExamples(answers ?? DEFAULT_ANSWERS);
   const exerciseParts = exercises.map((e, i) => examplePart(e, i === 0 ? "## Examples of good exercises" : ""));
   const history = previous.slice(0, 3).map(weekReport).join("\n\n");
@@ -96,6 +96,7 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
     part("how-to-plan", "How to plan", "rules", [
       "## How to plan",
       "- Build on what they rate high (4-5 stars), drill what is low (1-2) or unsure, and follow the order of ideas: when pentatonic is rated 4 and the major scale 1, build the major scale from the pentatonic. Their focus for the week gets most of the time.",
+      "- Concepts below the levels shown above are assumed known; concepts above them are not yet learned.",
       "- Singing keys sit inside their voice range; check the lowest and highest note of every exercise against it.",
       "- Never organise a plan around a genre. A style may justify a choice in one sentence (\"the scale used in blues\").",
       "- Serve their direction AND what a good teacher sees they need: weave in fundamentals (time feel, fretboard or keyboard knowledge, ear) even if they didn't ask, aimed at what they find hard.",
@@ -116,6 +117,7 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
       "- Intervals and ear training stay inside one octave. A compound interval (a 9th, a 10th) is its own exercise: set \"wide\": true on interval-ears and tag the exercise \"multi-octave\". interval-ears' \"set\" must be exactly the intervals the steps name (m3 is 3, M3 is 4, P4 is 5, P5 is 7, m7 is 10).",
       "- A progression is practised several ways over the week, not one: hear it as arpeggios or comping (play-along with a progression shape, a different backing each time), play the shapes (chord-shapes), play it in time (backing-band), improvise over it (play-along with solo-over). Prefer play-along whenever the student should hear or play along with a progression.",
       "- A line over chords (guide tones, chord tones, an arpeggio part) is a play-along whose steps are those degrees: the app holds the chords under it so the student hears each note against its chord, never just a click, and its neck view keeps the whole line in place with the chord playing standing out. Use play-along's \"under\": \"drone\" only when one key root should sound under everything.",
+      "- When the student's voice type is known, set \"voice\" on every staff, melody-singer and run-singer tool to it.",
       "- You choose what to practise; the app computes notes, frets, tabs and timing. Never write frets or note lists the app can compute.",
       "- Do not put two exercises of the same kind next to each other in a day, and tag each with what kind it is.",
       "- Explained words: the app adds an (i) with a short meaning and an article link to these words, so use them by name where they fit and do not define them in the text. List of words: " + GLOSSARY.map((t) => t.forms[0]).join(", ") + ".",

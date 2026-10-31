@@ -37,3 +37,11 @@ test("no repeated exercises", () => {
   const e = ids({ ...base, levels: { guitar: "beginner", voice: "beginner", theory: "beginner" } });
   assert.equal(new Set(e).size, e.length);
 });
+
+test("only the level's own concepts count toward the level above", () => {
+  const own = conceptsFor("guitar", "beginner").filter((c) => c.level === "beginner").slice(0, 2);
+  const below = conceptsFor("guitar", "beginner").filter((c) => c.level === "new");
+  const ratings = Object.fromEntries([...below, ...own].map((c) => [c.id, 5 as const]));
+  const a = { ...base, levels: { guitar: "beginner" as const } };
+  assert.deepEqual(ids({ ...a, ratings }), ids(a));
+});

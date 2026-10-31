@@ -10,7 +10,6 @@ import { COMPONENT_DOCS, shortDoc, type ComponentDoc } from "@/features/exercise
 import type { PlayAlongShape } from "@/features/exercises/play-along/play-along.props";
 import { expandShape } from "@/features/exercises/shapes";
 import { degreeSemis } from "@/features/exercises/timeline/degrees";
-import { clampTimeline, timelineSeconds } from "@/features/exercises/timeline/timeline";
 import type { Degree, Voicing } from "@/features/exercises/timeline/types";
 import { othersOf, type Others } from "@/features/exercises/cues/visibility";
 import { parsePlacement, type Placement } from "@/features/exercises/cues/placement";
@@ -270,20 +269,6 @@ export function parseTool(raw: unknown, opts: { stored?: boolean } = {}): PlanTo
   if (!opts.stored) for (const k of DEGREE_LISTS) if (Array.isArray(t[k])) t[k] = (t[k] as unknown[]).filter((d) => typeof d !== "number");
   const spec = typeof t.type === "string" && Object.hasOwn(TOOLS, t.type) ? TOOLS[t.type as ToolName] : null;
   return spec ? spec.parse(t) : null;
-}
-
-/**
- * The minutes an exercise's play-alongs take when they say how often to loop: the sum of their timelines' lengths,
- * null when no play-along has `repeats` (then the AI's minutes stand).
- */
-export function derivedMinutes(sections: Section[]): number | null {
-  let total: number | null = null;
-  for (const s of sections) {
-    if (s.type !== "tool" || s.tool.type !== "play-along" || s.tool.repeats === undefined) continue;
-    const tl = expandShape({ ...s.tool.shape, bpm: s.tool.bpm, repeats: s.tool.repeats });
-    if (tl) total = (total ?? 0) + timelineSeconds(clampTimeline(tl)) / 60;
-  }
-  return total;
 }
 
 /* ---------------------------------------------------------------- the sections */

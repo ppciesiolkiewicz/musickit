@@ -11,7 +11,7 @@ import { expandShape } from "@/features/exercises/shapes";
 import { BOOK, STAGES } from "@/features/theory/singingMelodies";
 import { pickTune } from "@/features/theory/melodyPick";
 import { migrateTool } from "./migrate";
-import { degreeSemis, derivedMinutes, legacySections, linkResources, parseSection, parseTool, sectionInterface, sectionsOf, toolFromLink, toolInterface } from "./tools";
+import { degreeSemis, legacySections, linkResources, parseSection, parseTool, sectionInterface, sectionsOf, toolFromLink, toolInterface } from "./tools";
 import { DEFAULT_ANSWERS } from "./questions";
 import { dayIndex, dayProgress, localDate, weekOver } from "./schedule";
 import type { StoredPlan } from "./types";
@@ -142,7 +142,6 @@ describe("tools", () => {
     assert.ok(inner && inner.type === "play-along");
     assert.equal(inner.bpm, 70);
     assert.equal(inner.repeats, 6);
-    assert.ok(derivedMinutes([{ type: "tool", tool: inner }]) !== null);
     const top = parseTool({ type: "play-along", bpm: 90, repeats: 2, shape: { shape: "progression", key: "g", chords: ["G", "C"], bars: 4, bpm: 70, repeats: 6 } });
     assert.ok(top && top.type === "play-along");
     assert.equal(top.bpm, 90);
@@ -246,15 +245,6 @@ describe("tools", () => {
     assert.deepEqual(parseSection({ type: "heading", text: "a", minutes: 99 }, entries), { type: "heading", text: "a", minutes: 60 });
     assert.deepEqual(parseSection({ type: "heading", text: "a", minutes: 0 }, entries), { type: "heading", text: "a", minutes: 1 });
     assert.deepEqual(parseSection({ type: "heading", text: "a", minutes: "x" }, entries), { type: "heading", text: "a" });
-  });
-  it("a play-along with repeats sets the exercise's minutes", () => {
-    const tool = parseTool({ type: "play-along", bpm: 70, repeats: 2, shape: { shape: "progression", key: "g", chords: ["G", "C"], bars: 4 } });
-    assert.ok(tool);
-    const m = derivedMinutes([{ type: "text", text: "x" }, { type: "tool", tool }]);
-    assert.ok(m !== null && Math.abs(m - 27.43 / 60) < 0.01);
-    const loose = parseTool({ type: "play-along", bpm: 70, shape: { shape: "progression", key: "g", chords: ["G", "C"], bars: 4 } });
-    assert.ok(loose);
-    assert.equal(derivedMinutes([{ type: "tool", tool: loose }]), null);
   });
 });
 

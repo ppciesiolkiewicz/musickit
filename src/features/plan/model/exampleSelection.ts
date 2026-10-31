@@ -3,7 +3,7 @@ import { AREAS, conceptsFor, type Area } from "./concepts";
 import type { Level, PlanAnswers } from "./types";
 
 const ORDER: Level[] = ["new", "beginner", "intermediate", "advanced"];
-/** Share of a level's shown concepts rated 4-5 that earns an example from the level above. */
+/** Share of the player's own level's concepts rated 4-5 that earns an example from the level above. */
 const HIGH_SHARE = 0.7;
 
 const areasOf = (a: PlanAnswers): Area[] => AREAS.filter((x) => a.levels[x.id]).map((x) => x.id);
@@ -11,7 +11,7 @@ const areasOf = (a: PlanAnswers): Area[] => AREAS.filter((x) => a.levels[x.id]).
 /** The levels to show examples for in this area: the player's, plus the next when they rate it high. */
 function levelsFor(a: PlanAnswers, area: Area): Level[] {
   const level = a.levels[area]!;
-  const shown = conceptsFor(area, level);
+  const shown = conceptsFor(area, level).filter((c) => c.level === level);
   const high = shown.filter((c) => (a.ratings[c.id] ?? 0) >= 4).length;
   const next = ORDER[ORDER.indexOf(level) + 1];
   return next && shown.length > 0 && high / shown.length >= HIGH_SHARE ? [level, next] : [level];
@@ -19,7 +19,7 @@ function levelsFor(a: PlanAnswers, area: Area): Level[] {
 
 /**
  * The examples the prompt shows: per non-skipped area the exercise at the player's level (and one level up when
- * at least 70% of that level's concepts are rated 4-5), the rule showcases always (the `pick` one only with Voice),
+ * at least 70% of that level's own concepts are rated 4-5), the rule showcases always (the `pick` one only with Voice),
  * and the plan sharing the most areas, then the closest level.
  */
 export function selectExamples(a: PlanAnswers): { exercises: ExerciseExample[]; plan: PlanExample } {

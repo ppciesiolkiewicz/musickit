@@ -16,6 +16,8 @@ import { View as FingerPattern } from "@/features/exercises/basics/finger-patter
 import { View as LegatoTrill } from "@/features/exercises/basics/legato-trill";
 import { View as PickingDrill } from "@/features/exercises/basics/picking-drill";
 import type { PlanTool } from "../model/tools";
+import type { Voice } from "@/features/theory/singing";
+import { usePlan } from "../store/usePlan";
 
 // the play-along carries its own sound engine: loaded only when an exercise shows one
 const loading = () => <p className="p-3 text-sm text-slate-500">Loading…</p>;
@@ -23,11 +25,13 @@ const PlayAlong = dynamic(() => import("@/features/exercises/play-along/PlayAlon
 
 /** One tool of an exercise, as the AI set it up: the component and nothing to configure. In development its name shows above it. */
 export default function ExerciseTool({ tool }: { tool: PlanTool }) {
-  if (process.env.NODE_ENV === "production") return <Tool tool={tool} />;
+  const { state } = usePlan();
+  const voice = state.answers?.voice?.type;
+  if (process.env.NODE_ENV === "production") return <Tool tool={tool} voice={voice} />;
   return (
     <div className="flex flex-col gap-1">
       <DevName name={tool.type === "play-along" ? `play-along · ${tool.shape.shape}` : tool.type} params={params(tool)} />
-      <Tool tool={tool} />
+      <Tool tool={tool} voice={voice} />
     </div>
   );
 }
@@ -39,14 +43,15 @@ const params = (tool: PlanTool): object => {
   return rest;
 };
 
-function Tool({ tool }: { tool: PlanTool }) {
+/** `voice` is the student's voice type: the singer tools use it when the AI set none. */
+function Tool({ tool, voice }: { tool: PlanTool; voice?: Voice }) {
   switch (tool.type) {
     case "scale-neck":
       return <ScaleNeck slug={tool.scale} pc={tool.key} boxes={tool.boxes} placement={tool.placement} add={tool.add} highlight={tool.highlight} mute={tool.mute} hide={tool.hide} others={tool.others} />;
     case "chord-shapes":
       return <ChordShapes chords={tool.chords} voicing={tool.voicing} />;
     case "staff":
-      return <Staff slug={tool.scale} pc={tool.key} voice={tool.voice} notes={tool.notes} highlight={tool.highlight} mute={tool.mute} hide={tool.hide} others={tool.others} mic={tool.mic} />;
+      return <Staff slug={tool.scale} pc={tool.key} voice={tool.voice ?? voice} notes={tool.notes} highlight={tool.highlight} mute={tool.mute} hide={tool.hide} others={tool.others} mic={tool.mic} />;
     case "click-drone":
       return <ClickDrone bpm={tool.bpm} keyPc={tool.key} click={tool.click} drone={tool.drone} />;
     case "backing-band":
@@ -58,9 +63,9 @@ function Tool({ tool }: { tool: PlanTool }) {
     case "arpeggio-neck":
       return <ArpeggioNeck chord={tool.chord} boxes={tool.boxes} placement={tool.placement} part={tool.part} highlight={tool.highlight} mute={tool.mute} hide={tool.hide} others={tool.others} />;
     case "melody-singer":
-      return <MelodySinger tune={tool.tune} pc={tool.key} voice={tool.voice} />;
+      return <MelodySinger tune={tool.tune} pc={tool.key} voice={tool.voice ?? voice} />;
     case "run-singer":
-      return <RunSinger run={tool.run} pc={tool.key} voice={tool.voice} />;
+      return <RunSinger run={tool.run} pc={tool.key} voice={tool.voice ?? voice} />;
     case "play-along":
       return <PlayAlong shape={tool.shape} bpm={tool.bpm} repeats={tool.repeats} view={tool.view} highlight={tool.highlight} others={tool.others} under={tool.under} />;
     case "finger-pattern":

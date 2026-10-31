@@ -80,3 +80,9 @@ test("the prompt drops repeats arithmetic and the old singing rule, and teaches 
 test("skipped questionnaire: the student part asks for the answers", () => {
   assert.match(promptParts(null, []).find((p) => p.id === "student")!.text, /skipped the questionnaire/);
 });
+
+test("the rules ask for the student's voice type on staff and singer tools", () => {
+  const rules = promptParts(DEFAULT_ANSWERS, []).filter((p) => p.kind === "rules").map((p) => p.text).join("\n");
+  assert.match(rules, /set "voice" on every staff, melody-singer and run-singer tool/);
+  assert.match(promptParts(null, []).find((p) => p.id === "student")!.text, /their level in each area/);
+});

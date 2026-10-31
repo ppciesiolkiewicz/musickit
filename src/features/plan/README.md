@@ -31,7 +31,7 @@ model/            pure, no React; tested in model/plan.test.ts
   types.ts        PlanAnswers, PlanConfig (what the AI returns), StoredPlan, PlanState (the stored document)
   questions.ts    the questionnaire's choices and defaults
   catalogue.ts    the attunr pages a plan may link to; checkLink() keeps only those
-  tools.ts        THE one file for what an exercise is made of, like an MCP server: TOOLS (one parse per learning component; description and props come from the components' COMPONENT_DOCS), the section kinds, tags, link resources, derivedMinutes; the prompt's interface is generated from it; legacySections reads older plans
+  tools.ts        THE one file for what an exercise is made of, like an MCP server: TOOLS (one parse per learning component; description and props come from the components' COMPONENT_DOCS), the section kinds, tags, link resources; the prompt's interface is generated from it; legacySections reads older plans
   migrate.ts      migrateTool(): old tool names (scale, chords, sing, band, comp, notes, ears) to today's components
   concepts.ts     the concepts the questionnaire rates, per area and level
   answers.ts      migrateAnswers(): stored answers to today's shape

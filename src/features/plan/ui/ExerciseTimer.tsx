@@ -49,7 +49,7 @@ function blockTick() {
   }
 }
 
-/** The exercise's countdown: start, pause, reset; a chime and `onFinish` at zero. With `blocks` it also shows "block 2 of 4 · 2:41", ticks at each block change and reports the running block through `onBlock` (null when stopped or reset). Time is kept from the clock, so a background tab stays right. */
+/** The exercise's countdown: start, pause, reset; a chime and `onFinish` at zero. With `blocks` it also shows "block 2 of 4 · 2:41" ("· paused" while paused), ticks at each block change and reports the running block through `onBlock` (kept while paused, null when reset or finished). Time is kept from the clock, so a background tab stays right. */
 export default function ExerciseTimer({ minutes, blocks, onFinish, onBlock }: { minutes: number; blocks?: Block[]; onFinish: () => void; onBlock?: (index: number | null) => void }) {
   const total = minutes * 60;
   const [left, setLeft] = useState(total);
@@ -66,7 +66,8 @@ export default function ExerciseTimer({ minutes, blocks, onFinish, onBlock }: { 
 
   const running = endAt !== null;
   const at = blocks?.length ? blockAt(blocks, total - left) : null;
-  const block = running && at ? at.index : null;
+  const started = left > 0 && left < total;
+  const block = (running || started) && at ? at.index : null;
   const lastBlock = useRef<number | null>(null);
   useEffect(() => {
     if (block !== null && lastBlock.current !== null && block !== lastBlock.current) blockTick();
@@ -100,7 +101,7 @@ export default function ExerciseTimer({ minutes, blocks, onFinish, onBlock }: { 
         <Icon name="timer" size={14} className="text-slate-400" />
       </span>
       <span className={`min-w-12 text-lg tabular-nums ${left === 0 ? "text-emerald-300" : running ? "text-sky-100" : "text-slate-200"}`} aria-live="polite">{fmt(left)}</span>
-      {at && blocks && <span className="text-xs tabular-nums text-slate-400">block {at.index + 1} of {blocks.length} · {fmt(at.leftInBlock)}</span>}
+      {block !== null && at && blocks && <span className="text-xs tabular-nums text-slate-400">block {at.index + 1} of {blocks.length} · {running ? fmt(at.leftInBlock) : "paused"}</span>}
       <div className="ml-auto flex gap-1">
         {left > 0 && (
           <Button size="icon-md" onClick={() => (running ? (setEndAt(null)) : setEndAt(Date.now() + left * 1000))} aria-label={running ? "Pause" : "Start"} title={running ? "Pause" : "Start"}>
