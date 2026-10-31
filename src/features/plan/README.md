@@ -33,6 +33,12 @@ model/            pure, no React; tested in model/plan.test.ts
   catalogue.ts    the attunr pages a plan may link to; checkLink() keeps only those
   tools.ts        THE one file for what an exercise is made of, like an MCP server: TOOLS (one parse per learning component; description and props come from the components' COMPONENT_DOCS), the section kinds, tags, link resources, derivedMinutes; the prompt's interface is generated from it; legacySections reads older plans
   migrate.ts      migrateTool(): old tool names (scale, chords, sing, band, comp, notes, ears) to today's components
+  concepts.ts     the concepts the questionnaire rates, per area and level
+  answers.ts      migrateAnswers(): stored answers to today's shape
+  focus.ts        focusOptions(), toggleFocus(): the week's focus choices (at most 3)
+  blocks.ts       blocksOf(), fitBlocks(), blockAt(): an exercise's timed blocks
+  checks.ts       mixesSingAndPlay(): paste-time exercise check
+  exampleSelection.ts  selectExamples(): which library examples go in the prompt
   config.ts       parsePlanConfig(): the pasted reply to a checked PlanConfig, with warnings
   prompt.ts       buildPrompt(), weekReport()
   schedule.ts     local dates, today's day, progress, when the week is over
@@ -41,7 +47,7 @@ store/
   localPlanStore.ts  the localStorage implementation ("musickit.plan"), with sanitising
   usePlan.tsx     the hook the UI uses, and PlanStoreProvider to swap the store
 examples/         the example library: exercises/*.json, plans/*.json (standalone JSON), index.ts loads them; see its README
-ui/               PlanFlow, Questionnaire (the question screens), PromptAndPaste, WeekView, Sections (an exercise's sections in order), ExerciseTimer, ExerciseTool
+ui/               PlanFlow, Questionnaire (the question screens), RangeFinder (finds the voice range with the mic), PromptAndPaste, WeekView, Sections (an exercise's sections in order), ExerciseTimer, ExerciseTool
 PlanApp.tsx       the page body: no plan → Start; a plan → header, week, history; the flow modal
 reminders.ts, PracticeReminder.tsx   notifications (PracticeReminder is mounted in PageShell, on every page)
 ```
