@@ -88,7 +88,8 @@ function partNotes(name: string, place: Place): Cell[] {
  * - A melody step (chord "") is the tonic (the key nearest midi 60) plus `semis` exactly (semis carry the octave);
  *   it sits on the neck near the previous fret.
  * - `highlighted` is whether opts/chord `highlight` holds the note's semitones above the root (any note, for chords).
- * - A chord with `backing` adds `backing` cues from `compEvents`.
+ * - A chord with `backing` adds `backing` cues from `compEvents`; with the timeline's `pad`, a chord without one adds
+ *   one `backing` cue: the whole chord held for its beats.
  */
 export function cuesOf(t: Timeline, opts: { highlight?: number[] } = {}): Cue[] {
   const events = [...t.events].sort((a, b) => a.at - b.at);
@@ -110,9 +111,14 @@ export function cuesOf(t: Timeline, opts: { highlight?: number[] } = {}): Cue[] 
 
   for (const c of chords) {
     const v = voice(c, c.name);
-    if (!c.backing || !v) continue;
+    if (!v || (!c.backing && !t.pad)) continue;
     const cells = shapeCells(v);
     const rootPc = parseChordQuery(c.name)?.rootPc ?? 0;
+    if (!c.backing) {
+      // the pad: the whole chord once, held for the chord
+      out.push({ at: c.at, beats: c.beats, chord: c.name, kind: "backing", midi: v.midi, frets: cells.map(({ string, fret }) => ({ string, fret })), highlighted: lit(v.midi.map((m) => m - rootPc), c) });
+      continue;
+    }
     for (const e of compEvents(v.midi, c.backing, c.beats)) {
       out.push({ at: c.at + e.beat, beats: e.len, chord: c.name, kind: "backing", midi: e.midi, frets: e.midi.flatMap((m) => cells.filter((x) => x.midi === m).slice(0, 1).map(({ string, fret }) => ({ string, fret }))), highlighted: lit(e.midi.map((m) => m - rootPc), c) });
     }

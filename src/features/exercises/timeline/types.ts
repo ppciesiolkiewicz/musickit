@@ -20,4 +20,8 @@ export interface Timeline {
   repeats?: number;
   backingChoices?: CompPattern[];
   hints?: { at: number; text: string }[];
+  /** each chord without a comping `backing` is held under the steps, once per chord */
+  pad?: boolean;
+  /** a drone on this pitch class sounds under the whole timeline */
+  drone?: number;
 }

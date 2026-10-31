@@ -105,7 +105,8 @@ The tools are the learning components of `src/features/exercises` (see its READM
 `staff`, `click-drone`, `backing-band`, `note-finder`, `interval-ears`, `arpeggio-neck`, `melody-singer`, `run-singer`
 and the guided `play-along` (one shape: `progression`, `two-scales`, `chord-steps`, `arpeggio-part`, `melody`,
 `solo-over`). The prompt lists them from `COMPONENT_DOCS`, the debug panel shows each one's short doc (open it for the
-prop table). A play-along with `repeats` sets the exercise's minutes (`derivedMinutes`).
+prop table). A play-along with `repeats` sets the exercise's minutes (`derivedMinutes`); its `under` picks what sounds under single
+notes (the chords held by default). In development each tool shows its name above it (`DevName`).
 
 Old stored or pasted tools are migrated before parsing (`model/migrate.ts`): `scale` → `scale-neck`, `chords` →
 `chord-shapes`, `sing` → `staff` with the mic, `band` → `backing-band`, `notes` → `note-finder`, `ears` →

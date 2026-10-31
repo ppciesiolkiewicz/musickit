@@ -27,6 +27,10 @@ interface NeckProps {
   onNote: (c: ScaleCell) => void;
   compact?: boolean;
   title: string;
+  /** each note's state: hidden ones are not drawn, muted ones dimmed, highlighted ones ringed */
+  states?: (c: ScaleCell) => DotState;
+  /** places (`cellKey`) sounding now, lit like `active` */
+  sounding?: ReadonlySet<string>;
 }
 
 const isActive = (active: string | null, c: ScaleCell) => active !== null && (active === cellKey(c) || active === `d${c.degree}` || active === `pc${c.pc}`);
@@ -38,8 +42,9 @@ function useLit(active: string | null): (c: ScaleCell) => boolean {
 }
 
 /** The whole neck, frets 0-17 (0-12 when compact), with every note of the scale. Tap a note to hear it. */
-export function ScaleNeck({ cells, big, rings = true, focus = null, fadeOutside = true, active, labelSystem, onNote, compact = false, title }: NeckProps) {
-  const lit = useLit(active);
+export function ScaleNeck({ cells, big, rings = true, focus = null, fadeOutside = true, active, labelSystem, onNote, compact = false, title, states, sounding }: NeckProps) {
+  const heard = useLit(active);
+  const lit = (c: ScaleCell) => heard(c) || !!sounding?.has(cellKey(c));
   const to = compact ? 12 : SCALE_NECK_FRETS;
   // a phone fits the whole neck on screen: narrower frets, so the dots come out bigger once it is scaled down
   const phone = usePhone();
@@ -47,7 +52,7 @@ export function ScaleNeck({ cells, big, rings = true, focus = null, fadeOutside 
   const r = compact ? 8.5 : phone ? 11 : 14;
   const inFocus = new Set(focus?.notes.map(cellKey));
   const focusFrets = focus?.notes.map((c) => c.fret) ?? [];
-  const shown = cells.filter((c) => c.fret <= to && (rings || (big(c) && (!focus || inFocus.has(cellKey(c))))));
+  const shown = cells.filter((c) => c.fret <= to && (!states || states(c) !== "hidden") && (rings || (big(c) && (!focus || inFocus.has(cellKey(c))))));
   // rings under the dots, the playing note last so its outline is on top
   shown.sort((a, b) => Number(big(a)) - Number(big(b)) || Number(lit(a)) - Number(lit(b)));
   return (
@@ -66,7 +71,7 @@ export function ScaleNeck({ cells, big, rings = true, focus = null, fadeOutside 
             key={cellKey(c)} c={c} x={g.fx(c.fret)} y={g.sy(c.string)} r={r} ring={!big(c)}
             label={noteLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText })}
             hover={hoverLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText })}
-            active={lit(c)} dim={focus !== null && fadeOutside && !inFocus.has(cellKey(c))} onNote={onNote}
+            active={lit(c)} dim={(focus !== null && fadeOutside && !inFocus.has(cellKey(c))) || states?.(c) === "muted"} accent={states?.(c) === "highlighted"} onNote={onNote}
           />
         ))}
       </svg>

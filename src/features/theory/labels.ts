@@ -78,6 +78,14 @@ export function againstMajor(degree: string, semi: number): string {
   return i === 0 && diff === 0 ? "R" : (diff < 0 ? "♭".repeat(-diff) : "♯".repeat(diff)) + (i + 1);
 }
 
+/** Semitones above the root of a major-relative degree such as "R", "♭3", "5", "♯4", "9"; 0 when it is not one. */
+export function labelSemi(label: string): number {
+  const i = indexOfDegree(label);
+  if (i === null) return 0;
+  const acc = [...label].reduce((n, ch) => n + (ch === "♭" || ch === "b" ? -1 : ch === "♯" || ch === "#" ? 1 : 0), 0);
+  return (((MAJOR[i] + acc) % 12) + 12) % 12;
+}
+
 export function isLabelSystem(v: unknown): v is LabelSystem {
   return v === "note" || v === "interval" || v === "degree" || v === "solfege";
 }

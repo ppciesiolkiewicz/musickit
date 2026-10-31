@@ -10,7 +10,10 @@ migrates; the components, their props and their docs live here.
    `expandShape` turns a shape into a timeline.
 2. `cues/` voicings, cues, tab and `chordCues`: what to show at each moment; `visibility.ts` (each note hidden, muted,
    normal or highlighted) and `placement.ts` (which box, maybe an octave down, a `placement` asks for). Pure.
-3. `play-along/` `PlayAlong` (one clock, tab / notes / neck views), `schedule`, `solo`.
+3. `play-along/` `PlayAlong` (one clock, tab / notes / neck views), `schedule`, `solo`. Under single notes over bare
+   chords it holds each chord (`withBackingSound`, the `under` prop: chords, drone, none). The neck view is the shared
+   `ScaleNeck` with every place of the line at once (the playing chord's notes normal, the rest muted, the sounding ones
+   lit); the notes view is the shared `SingingStaff`. Both label notes by the label setting and its "count from".
 4. `basics/<name>/` the ten basics: `scale-neck`, `chord-shapes`, `staff`, `click-drone`, `backing-band`, `note-finder`,
    `interval-ears`, `arpeggio-neck`, `melody-singer`, `run-singer`. Each has `index.tsx` (the View) and `<name>.props.ts`.
    Shared: `choices.ts`, `arpeggio.ts`, `singer.tsx`.

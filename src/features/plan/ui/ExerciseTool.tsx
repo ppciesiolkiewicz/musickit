@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import DevName from "@/components/DevName";
 import { View as ArpeggioNeck } from "@/features/exercises/basics/arpeggio-neck";
 import { View as BackingBand } from "@/features/exercises/basics/backing-band";
 import { View as ChordShapes } from "@/features/exercises/basics/chord-shapes";
@@ -17,8 +18,18 @@ import type { PlanTool } from "../model/tools";
 const loading = () => <p className="p-3 text-sm text-slate-500">Loading…</p>;
 const PlayAlong = dynamic(() => import("@/features/exercises/play-along/PlayAlong"), { ssr: false, loading });
 
-/** One tool of an exercise, as the AI set it up: the component and nothing to configure. */
+/** One tool of an exercise, as the AI set it up: the component and nothing to configure. In development its name shows above it. */
 export default function ExerciseTool({ tool }: { tool: PlanTool }) {
+  if (process.env.NODE_ENV === "production") return <Tool tool={tool} />;
+  return (
+    <div className="flex flex-col gap-1">
+      <DevName name={tool.type === "play-along" ? `play-along · ${tool.shape.shape}` : tool.type} />
+      <Tool tool={tool} />
+    </div>
+  );
+}
+
+function Tool({ tool }: { tool: PlanTool }) {
   switch (tool.type) {
     case "scale-neck":
       return <ScaleNeck slug={tool.scale} pc={tool.key} boxes={tool.boxes} placement={tool.placement} add={tool.add} highlight={tool.highlight} mute={tool.mute} hide={tool.hide} others={tool.others} />;
@@ -41,6 +52,6 @@ export default function ExerciseTool({ tool }: { tool: PlanTool }) {
     case "run-singer":
       return <RunSinger run={tool.run} pc={tool.key} voice={tool.voice} />;
     case "play-along":
-      return <PlayAlong shape={tool.shape} bpm={tool.bpm} repeats={tool.repeats} view={tool.view} highlight={tool.highlight} others={tool.others} />;
+      return <PlayAlong shape={tool.shape} bpm={tool.bpm} repeats={tool.repeats} view={tool.view} highlight={tool.highlight} others={tool.others} under={tool.under} />;
   }
 }

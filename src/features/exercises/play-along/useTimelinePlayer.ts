@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getAudioContext, getOutputBus, getSharedPiano, wakeAudio } from "@/features/sound";
-import { ClickTrack } from "@/features/instruments";
+import { ClickTrack, DEFAULT_DRONE, DroneVoice } from "@/features/instruments";
 import { cuesOf } from "../cues/cues";
 import { BEATS_PER_BAR } from "../timeline/timeline";
 import type { Timeline } from "../timeline/types";
@@ -13,7 +13,7 @@ const STRUM_GAP_MS = 18;
 const REGRID_LEAD = 0.2;
 
 /**
- * Plays a timeline: one `ClickTrack` on the audio clock, and the timeline's cues on the shared piano. Each bar's notes
+ * Plays a timeline: one `ClickTrack` on the audio clock, the timeline's cues on the shared piano, and its `drone` (if any). Each bar's notes
  * are queued a whole bar ahead (as `CompPlayer`). `beat` is the click's beat index (0 = first beat, counting on through
  * loops), -1 when stopped. `setTempo` and a new timeline (e.g. another backing) apply from the next bar queued. A tempo
  * change re-anchors the click (`gridAnchor`) before it schedules that bar's downbeat, so click, notes and playhead
@@ -76,6 +76,9 @@ export function useTimelinePlayer(t: Timeline): { playing: boolean; starting: bo
     let bpm = live.current.bpm;
     let barAt = ctx.currentTime + 0.1; // audio time of the next bar to queue
     click.start(params(bpm), barAt);
+    const pc = live.current.t.drone;
+    const drone = pc === undefined ? null : new DroneVoice(ctx, getOutputBus());
+    drone?.start({ ...DEFAULT_DRONE, root: pc!, octave: 2, level: 0.3 }, barAt);
     let stopped = false;
     let timers: ReturnType<typeof setTimeout>[] = [];
     let bar = 0;
@@ -128,6 +131,7 @@ export function useTimelinePlayer(t: Timeline): { playing: boolean; starting: bo
       cancelAnimationFrame(raf);
       piano.allOff();
       click.stop();
+      drone?.stop();
     };
     stopper.current = halt;
     setPlaying(true);

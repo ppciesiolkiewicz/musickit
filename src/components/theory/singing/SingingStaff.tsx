@@ -5,6 +5,8 @@ import { place, signatureGlyphs, type Clef } from "@/features/theory/piano/staff
 import ClefGlyph from "./ClefGlyph";
 import { degreeColour } from "@/features/theory/scales";
 import { IN_TUNE_CENTS, fitOf, locate, type Fit, type Ladder } from "@/features/theory/singing";
+import { labelSemi, noteLabel } from "@/features/theory/labels";
+import { useLabelSystem } from "@/features/theory/useLabelSystem";
 
 /**
  * One five-line staff with every note of the ladder on it, low to high, and a dot for the voice: it rides up and down
@@ -12,12 +14,16 @@ import { IN_TUNE_CENTS, fitOf, locate, type Fit, type Ladder } from "@/features/
  * fit the width the staff stays still; when they don't (a phone) the staff slides so the dot (or, in silence, the note
  * being played) stays in view. `pitch` holds the sung note as fractional MIDI, or null in silence; it is read every
  * animation frame. Every note is a button (`onNote`); `played` is the ladder index of the note sounding, lit in sky.
+ * Under each note its name and, unless the label setting is note names, its label in that setting (Do Re Mi, 1 2 3…),
+ * counted from the ladder's root. A ladder may repeat a note (a line of cues); `marks` puts text (a chord name) above
+ * a note, `muted` dims single notes.
  */
 
 const HALF = 5; // px per staff step
 const MIN_SLOT = 34; // px between notes before the staff has to scroll
 const MAX_SLOT = 64;
 const LABELS_H = 36;
+const MARKS_H = 16;
 const TAIL_MS = 380;
 /** with no pitch for this long the dot fades out, and the next note starts it afresh rather than sliding over */
 const SILENCE_MS = 220;
@@ -35,7 +41,7 @@ interface Point { x: number; step: number; t: number }
 interface View { dot: Point | null; cam: number; tail: Point[]; lastHeard: number; now: number; fit: Fit; nearest: number }
 const STILL: View = { dot: null, cam: 0, tail: [], lastHeard: -Infinity, now: 0, fit: "between", nearest: -1 };
 
-export default function SingingStaff({ ladder, clef, pitch, played, onNote, cents = IN_TUNE_CENTS, highlight }: {
+export default function SingingStaff({ ladder, clef, pitch, played, onNote, cents = IN_TUNE_CENTS, highlight, marks, muted }: {
   ladder: Ladder;
   clef: Clef;
   pitch: RefObject<number | null>;
@@ -45,7 +51,12 @@ export default function SingingStaff({ ladder, clef, pitch, played, onNote, cent
   cents?: number;
   /** pitch classes to stand out: every other note is dimmed (none: all notes alike) */
   highlight?: ReadonlySet<number>;
+  /** text above the note at each index (a chord name where it changes) */
+  marks?: (string | undefined)[];
+  /** dims the note at this index (wins over `highlight`) */
+  muted?: (i: number) => boolean;
 }) {
+  const [system] = useLabelSystem();
   const wrap = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
   useLayoutEffect(() => {
@@ -62,7 +73,8 @@ export default function SingingStaff({ ladder, clef, pitch, played, onNote, cent
   const midis = notes.map((n) => n.midi);
   const top = Math.max(8, ...steps) + 3;
   const bottom = Math.min(0, ...steps) - 3;
-  const yOf = (step: number) => 6 + (top - step) * HALF;
+  const above = marks?.some(Boolean) ? MARKS_H : 0;
+  const yOf = (step: number) => 6 + above + (top - step) * HALF;
   const labelsY = yOf(bottom) + 8;
   const H = labelsY + LABELS_H;
 
@@ -157,11 +169,11 @@ export default function SingingStaff({ ladder, clef, pitch, played, onNote, cent
               const bold = lit || on ? 700 : 400;
               return (
                 <g
-                  key={n.midi}
+                  key={i}
                   role="button"
                   aria-label={`Play ${n.spelled.name}`}
                   className="cursor-pointer"
-                  opacity={highlight && !highlight.has(n.midi % 12) ? 0.3 : 1}
+                  opacity={(muted ? muted(i) : highlight && !highlight.has(n.midi % 12)) ? 0.3 : 1}
                   onClick={() => onNote(i)}
                 >
                   {/* the whole column is the button, not just the notehead */}
@@ -172,7 +184,8 @@ export default function SingingStaff({ ladder, clef, pitch, played, onNote, cent
                   {lit && <circle cx={x} cy={y} r={12} fill={c} fillOpacity={0.18} stroke={c} strokeOpacity={0.7} />}
                   <ellipse cx={x} cy={y} rx={6.5} ry={5} fill={c} transform={`rotate(-20 ${x} ${y})`} />
                   <text x={x} y={labelsY + 12} textAnchor="middle" fontSize={11} fontWeight={bold} fill={on ? PLAYED : ink.name}>{n.spelled.name}</text>
-                  <text x={x} y={labelsY + 27} textAnchor="middle" fontSize={11} fontWeight={bold} fill={lit ? c : on ? PLAYED : ink.degree}>{n.label}</text>
+                  {system !== "note" && <text x={x} y={labelsY + 27} textAnchor="middle" fontSize={11} fontWeight={bold} fill={lit ? c : on ? PLAYED : ink.degree}>{noteLabel(system, { name: n.spelled.name, semi: labelSemi(n.label), degreeText: n.label })}</text>}
+                  {marks?.[i] && <text x={x} y={12} textAnchor="middle" fontSize={11} fontWeight={600} fill={ink.name}>{marks[i]}</text>}
                 </g>
               );
             })}

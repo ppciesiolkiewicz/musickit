@@ -33,6 +33,7 @@ export type BandPart = "click" | "drone" | "drums" | "bass";
 export const BAND_PARTS: BandPart[] = ["click", "drone", "drums", "bass"];
 
 type View = "tab" | "notes" | "neck";
+type Under = "chords" | "drone" | "none";
 
 /**
  * A tool as stored: `type` names the component (src/features/exercises), the rest are its props, parsed: keys as pitch
@@ -50,7 +51,7 @@ export type PlanTool =
   | { type: "arpeggio-neck"; chord: string; boxes?: number[]; part?: Degree[]; placement?: Placement } & Marks
   | { type: "melody-singer"; tune: number; key: number; voice?: Voice }
   | { type: "run-singer"; run: number; key: number; voice?: Voice }
-  | { type: "play-along"; shape: PlayAlongShape; bpm: number; repeats?: number; view?: View; highlight?: Degree[]; others?: "muted" | "hidden" };
+  | { type: "play-along"; shape: PlayAlongShape; bpm: number; repeats?: number; view?: View; highlight?: Degree[]; others?: "muted" | "hidden"; under?: Under };
 
 export type ToolName = PlanTool["type"];
 
@@ -131,6 +132,7 @@ const singer = (t: Record<string, unknown>, field: "tune" | "run", ok: (n: unkno
 };
 
 const VIEWS: View[] = ["tab", "notes", "neck"];
+const UNDERS: Under[] = ["chords", "drone", "none"];
 
 export const TOOLS: { [N in ToolName]: ToolSpec } = {
   "scale-neck": { parse: scaleNeck },
@@ -193,6 +195,7 @@ export const TOOLS: { [N in ToolName]: ToolSpec } = {
         ...(VIEWS.includes(t.view as View) ? { view: t.view as View } : {}),
         // a play-along has no "normal": what isn't highlighted is muted or hidden
         ...opt("highlight", highlight), ...(others && others !== "normal" ? { others } : {}),
+        ...(UNDERS.includes(t.under as Under) ? { under: t.under as Under } : {}),
       };
     },
   },

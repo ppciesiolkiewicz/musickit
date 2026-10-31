@@ -348,7 +348,7 @@
   {
     "name": "play-along",
     "kind": "guided",
-    "description": "Play along with a click and piano: the music shown as tab, as note names or on the neck, all following one clock.\nYou choose the musical content as a shape; the app computes the notes, frets, strings and timing. Shapes, by name:\n`progression`, `two-scales`, `chord-steps`, `arpeggio-part`, `melody`, `solo-over` (see each shape's doc).\nThe student can change tempo and view, and pick a backing when the shape offers more than one.\n\nExample: `{ \"type\": \"play-along\", \"shape\": { \"shape\": \"chord-steps\", \"voicing\": \"barre\", \"chords\": [{ \"chord\": \"G\", \"steps\": [\"strum\",\"1\",\"6\",\"1\"] }, { \"chord\": \"D\", \"steps\": [\"strum\",\"4\",\"5\",\"4\"] }] }, \"bpm\": 70, \"repeats\": 4 }`",
+    "description": "Play along with a click and piano: the music shown as tab, as note names or on the neck, all following one clock.\nYou choose the musical content as a shape; the app computes the notes, frets, strings and timing. Shapes, by name:\n`progression`, `two-scales`, `chord-steps`, `arpeggio-part`, `melody`, `solo-over` (see each shape's doc).\nThe student can change tempo and view, and pick a backing when the shape offers more than one. Under single-note\nsteps over chords (guide tones, arpeggio parts) the app holds each chord softly by default, so the student hears the\nharmony and not just the click; `under` changes that.\n\nExample: `{ \"type\": \"play-along\", \"shape\": { \"shape\": \"chord-steps\", \"voicing\": \"barre\", \"chords\": [{ \"chord\": \"G\", \"steps\": [\"strum\",\"1\",\"6\",\"1\"] }, { \"chord\": \"D\", \"steps\": [\"strum\",\"4\",\"5\",\"4\"] }] }, \"bpm\": 70, \"repeats\": 4 }`",
     "props": [
       {
         "name": "shape",
@@ -385,6 +385,12 @@
         "type": "\"muted\" | \"hidden\"",
         "required": false,
         "description": "the notes not highlighted: \"muted\" (default) or \"hidden\""
+      },
+      {
+        "name": "under",
+        "type": "\"chords\" | \"drone\" | \"none\"",
+        "required": false,
+        "description": "what sounds under the steps besides the click when the shape has no comping `backing`: \"chords\" (each chord held; the default when the steps are single notes over chords), \"drone\" (the key's root held; the shape's key, else the first chord's root) or \"none\""
       }
     ]
   },

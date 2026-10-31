@@ -362,3 +362,21 @@ describe("schedule", () => {
     assert.ok(prompt.includes("{{b7}}"));
   });
 });
+
+describe("the prompt's examples", () => {
+  it("every example exercise parses, its play-alongs keep their minutes", () => {
+    for (const ex of JSON.parse(EXAMPLE).days[0].exercises) {
+      const p = JSON.parse(week());
+      p.days[0].exercises[0] = ex;
+      const r = parsePlanConfig(JSON.stringify(p), entries);
+      assert.ok(r.ok, ex.title);
+      assert.equal(r.warnings.length, 0, ex.title);
+      assert.equal(r.config.days[0].exercises[0].minutes, ex.minutes, ex.title);
+    }
+  });
+  it("play-along's under is kept when known, dropped when not", () => {
+    const base = { type: "play-along", bpm: 70, shape: { shape: "progression", key: "a", chords: ["A7"], bars: 1, steps: ["3"] } };
+    assert.equal((parseTool({ ...base, under: "drone" }) as { under?: string }).under, "drone");
+    assert.equal((parseTool({ ...base, under: "loud" }) as { under?: string }).under, undefined);
+  });
+});

@@ -33,6 +33,15 @@ export const EXAMPLE = `{
             { "type": "text", "text": "Strum each chord on beat 1, then pick the steps shown. Done when the change lands on time four times through." },
             { "type": "tool", "tool": { "type": "play-along", "bpm": 70, "repeats": 35, "shape": { "shape": "chord-steps", "voicing": "barre", "chords": [{ "chord": "G", "steps": ["strum", "1", "6", "1"] }, { "chord": "D", "steps": ["strum", "4", "5", "4"] }] } } }
           ]
+        },
+        {
+          "title": "Guide tones through the blues", "focus": "3rds and ♭7s of A7, D7, E7 at 70 bpm", "minutes": 5, "tags": ["theory", "ear"],
+          "why": "Two notes per chord carry the whole change",
+          "sections": [
+            { "type": "text", "text": "Over each chord play its 3rd for two beats, then its ♭7 for two, while the chords sound underneath. Hear C♯ (the 3rd of A7) fall a half step to C (the ♭7 of D7). Done when the line goes round 4 times without looking at the neck." },
+            { "type": "tool", "tool": { "type": "play-along", "bpm": 70, "repeats": 22, "view": "neck", "shape": { "shape": "progression", "key": "a", "chords": ["A7", "D7", "A7", "E7"], "bars": 4, "steps": ["3", "3", "b7", "b7"] } } },
+            { "type": "list", "items": ["Twice on the neck view: the chord playing stands out, the others stay dim", "Twice in the notes view, singing each note's name", "Then with your eyes off the screen"] }
+          ]
         }
       ]
     }
@@ -89,6 +98,7 @@ export function buildPrompt(answers: PlanAnswers | null, entries: CatalogueEntry
     "- Show only what the exercise is about. When it works on the notes of a chord (the chord tones 1 3 5 b7 of A7), do not show the whole scale: use scale-neck's \"highlight\", staff's \"notes\" or an arpeggio-neck to pick those degrees. The scale is for exercises about the scale. Name a highlighted note the way the text names it: a note name (\"highlight\": [\"c-sharp\"]) when the text says C♯, a degree (\"3\") when the text says \"the 3rd\"; \"mute\" fades notes and \"hide\" removes them.",
     "- Intervals and ear training stay inside one octave. A compound interval (a 9th, a 10th) is its own exercise: set \"wide\": true on interval-ears and tag the exercise \"multi-octave\". interval-ears' \"set\" must be exactly the intervals the steps name (m3 is 3, M3 is 4, P4 is 5, P5 is 7, m7 is 10).",
     "- A progression is practised several ways over the week, not one: hear it as arpeggios or comping (play-along with a progression shape, a different backing each time), play the shapes (chord-shapes), play it in time (backing-band), improvise over it (play-along with solo-over). Prefer play-along whenever the student should hear or play along with a progression.",
+    "- A line over chords (guide tones, chord tones, an arpeggio part) is a play-along whose steps are those degrees: the app holds the chords under it so the student hears each note against its chord, never just a click, and its neck view keeps the whole line in place with the chord playing standing out. Use play-along's \"under\": \"drone\" only when one key root should sound under everything.",
     "- You choose what to practise; the app computes notes, frets, tabs and timing. Never write frets or note lists the app can compute.",
     "- Do not put two exercises of the same kind next to each other in a day, and tag each with what kind it is.",
     "- Explained words: the app adds an (i) with a short meaning and an article link to these words, so use them by name where they fit and do not define them in the text. List of words: " + GLOSSARY.map((t) => t.forms[0]).join(", ") + ".",

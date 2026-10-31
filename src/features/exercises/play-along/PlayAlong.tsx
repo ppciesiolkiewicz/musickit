@@ -11,6 +11,7 @@ import { parseDegrees } from "../timeline/degrees";
 import { BEATS_PER_BAR, clampTimeline } from "../timeline/timeline";
 import type { Timeline } from "../timeline/types";
 import type { PlayAlongProps } from "./play-along.props";
+import { withBackingSound, type BackingSound } from "./schedule";
 import { isSolo, soloTargets } from "./solo";
 import { useTimelinePlayer } from "./useTimelinePlayer";
 import SoloView from "./views/SoloView";
@@ -48,6 +49,10 @@ export function PlayAlongTimeline({ timeline, view = "tab", others = "muted", hi
     return [...names];
   }, [timeline]);
 
+  const keyPc = useMemo(() => {
+    const s = timeline.events.find((e) => e.type === "scale");
+    return s?.type === "scale" ? s.key : undefined;
+  }, [timeline]);
   const length = timeline.bars * BEATS_PER_BAR;
   const pos = player.beat < 0 ? -1 : player.beat % length;
   const now = pos < 0 ? undefined : cues.find((c) => pos >= c.at && pos < c.at + c.beats);
@@ -94,20 +99,20 @@ export function PlayAlongTimeline({ timeline, view = "tab", others = "muted", hi
       </div>
       {solo ? <SoloView targets={solo} mode={shown} others={others} /> : <>
       {shown === "tab" && <TabView cues={cues} pos={pos} length={length} />}
-      {shown === "notes" && <NotesView cues={cues} pos={pos} length={length} />}
-      {shown === "neck" && <NeckView cues={stepless(played) ? [now ?? cues[0]].filter(Boolean) : cues} pos={pos} length={length} />}
+      {shown === "notes" && <NotesView cues={cues} pos={pos} length={length} keyPc={keyPc} />}
+      {shown === "neck" && <NeckView cues={cues} pos={pos} length={length} keyPc={keyPc} marked={!!highlight?.length} />}
       </>}
       {fellBack.map((n) => <p key={n} className="text-[11px] text-slate-500">{n}: open chord used, no barre shape.</p>)}
     </div>
   );
 }
 
-/** `play-along`: a shape expanded to a timeline and played along with. */
-export default function PlayAlong({ shape, bpm, repeats, view, highlight, others }: PlayAlongProps) {
+/** `play-along`: a shape expanded to a timeline and played along with, its backing sound set by `under`. */
+export default function PlayAlong({ shape, bpm, repeats, view, highlight, others, under }: PlayAlongProps) {
   const timeline = useMemo(() => {
     const t = expandShape({ ...shape, bpm, ...(repeats !== undefined ? { repeats } : {}) });
-    return t && clampTimeline(t);
-  }, [shape, bpm, repeats]);
+    return t && withBackingSound(clampTimeline(t), under as BackingSound | undefined);
+  }, [shape, bpm, repeats, under]);
   const lit = useMemo(() => (highlight ? parseDegrees(highlight) : undefined), [highlight]);
   if (!timeline) return <p className="text-xs text-slate-500">This exercise could not be drawn.</p>;
   return <PlayAlongTimeline timeline={timeline} view={view} others={others} highlight={lit} />;
