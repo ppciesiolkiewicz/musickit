@@ -18,7 +18,7 @@
       { "type": "text", "text": "Press Play and listen to one pass of the arpeggios. Then play only each chord's root on the low strings, one note per bar: G, D, E, C. Done when you change on the bar line without looking." },
       { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "progression", "key": "g", "numerals": ["I", "V", "vi", "IV"], "bars": 4, "backing": ["arp-up", "fingerstyle"] }, "bpm": 70 } },
       { "type": "heading", "text": "The shapes", "minutes": 3 },
-      { "type": "text", "text": "Play the four open shapes in order, four slow strums each. Play G with the B string fretted at the 3rd fret by your ring finger: it stays put for D while the other fingers move round it." },
+      { "type": "text", "text": "Play the four open shapes in order, four slow strums each. Play G with the shape on screen: the low E and high E strings at the 3rd fret, the A string at the 2nd, and D, G and B open." },
       { "type": "tool", "tool": { "type": "chord-shapes", "chords": ["G", "D", "Em", "C"] } },
       { "type": "heading", "text": "In time with a band", "minutes": 3 },
       { "type": "text", "text": "Strum down, down-up, up-down-up over the drums and bass at 80, one bar per chord. Done at four clean passes in a row." },

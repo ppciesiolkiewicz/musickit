@@ -69,14 +69,14 @@
             ]
           },
           {
-            "title": "A5, D5, E5", "focus": "Power chords A5-D5-E5 · eighth notes at 70 bpm", "minutes": 6, "tags": ["rhythm"],
+            "title": "A5, D5, E5", "focus": "Power chords A5-D5-E5 · quarter notes at 70 bpm", "minutes": 6, "tags": ["rhythm"],
             "sections": [
               { "type": "text", "text": "A power chord is only a root and a 5th, so one shape moves anywhere and works in any rock riff." },
               { "type": "heading", "text": "One shape, three places", "minutes": 3 },
               { "type": "text", "text": "Index on the root, ring finger two frets up on the next string. Mute the other strings with the side of your index. Move between the three shapes ten times." },
               { "type": "tool", "tool": { "type": "chord-shapes", "chords": ["A5", "D5", "E5"] } },
               { "type": "heading", "text": "In time", "minutes": 3 },
-              { "type": "text", "text": "Press Play and strum each chord twice per beat, down-down, one bar each. Done at two passes with no ringing open strings." },
+              { "type": "text", "text": "Press Play and strum each chord down once per beat, one bar each. Done at two passes with no ringing open strings." },
               { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "progression", "key": "a", "chords": ["A5", "D5", "E5", "A5"], "bars": 4, "steps": ["strum"] }, "bpm": 70 } }
             ]
           },

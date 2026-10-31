@@ -23,7 +23,7 @@
       { "type": "heading", "text": "One-minute changes", "minutes": 3 },
       { "type": "text", "text": "Change Em to Am and back as many times as you can in one minute, strumming once on each chord so you hear whether it is clean. Rest, then go again. Do three rounds and note your best count; a clean 20 is better than a buzzy 35." },
       { "type": "heading", "text": "Strum it in time", "minutes": 2 },
-      { "type": "text", "text": "Press Play and strum down once on every beat: four on Em, four on Am. Done when you change without missing the first beat of a bar, four times in a row." },
+      { "type": "text", "text": "Press Play and strum down once on every beat: one bar each, Em, Am, Em, Am. Done when you change without missing the first beat of a bar, four times in a row." },
       { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "progression", "key": "g", "chords": ["Em", "Am"], "bars": 4, "steps": ["strum"] }, "bpm": 60 } },
       { "type": "link", "href": "/course/2/one-minute-changes" }
     ]

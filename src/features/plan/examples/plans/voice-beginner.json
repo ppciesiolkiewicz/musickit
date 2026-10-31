@@ -274,7 +274,7 @@
             "title": "The week's intervals", "focus": "Major 2nd, major 3rd, perfect 5th, major 6th", "minutes": 3, "tags": ["ear"],
             "sections": [
               { "type": "text", "text": "All four of the week's intervals together: a check of your ear." },
-              { "type": "text", "text": "Name each: major 2nd, major 3rd, perfect 5th or major 6th. Count how many of twenty you get." },
+              { "type": "text", "text": "Name each: major 2nd, major 3rd, perfect 5th or major 6th. Check the tally under the answers and aim for most of them right." },
               { "type": "tool", "tool": { "type": "interval-ears", "set": [2, 4, 7, 9], "dir": "up" } }
             ]
           },

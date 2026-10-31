@@ -25,7 +25,7 @@
             "title": "Name the chord", "focus": "Major, minor, 7, maj7, m7 by ear", "minutes": 5, "tags": ["ear"],
             "sections": [
               { "type": "text", "text": "Naming a chord's quality by ear is the skill behind working out songs." },
-              { "type": "text", "text": "Name each chord you hear. Listen to the top note: a half step under the octave is maj7, a whole step is 7 or m7. Count how many of twenty you get." },
+              { "type": "text", "text": "Name each chord you hear. Listen to the top note: a half step under the octave is maj7, a whole step is 7 or m7. Check the tally under the answers and aim for most of them right." },
               { "type": "tool", "tool": { "type": "interval-ears", "kind": "chord" } }
             ]
           },
@@ -321,10 +321,10 @@
             ]
           },
           {
-            "title": "Ear check", "focus": "Chord qualities, twenty questions", "minutes": 5, "tags": ["ear"],
+            "title": "Ear check", "focus": "Chord qualities, scored by the tally", "minutes": 5, "tags": ["ear"],
             "sections": [
               { "type": "text", "text": "The week's ear work as a score to beat next week." },
-              { "type": "text", "text": "Twenty chords; write down your score and compare it with days 1 and 5." },
+              { "type": "text", "text": "Play a few rounds, write down the tally and compare it with days 1 and 5." },
               { "type": "tool", "tool": { "type": "interval-ears", "kind": "chord" } }
             ]
           },
