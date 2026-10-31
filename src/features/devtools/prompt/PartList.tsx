@@ -7,6 +7,7 @@ import type { PromptPart, PromptPartKind } from "@/features/plan/model/prompt";
 import { offeredInterface } from "@/features/plan/model/tools";
 import { DebugList } from "@/features/plan/ui/PromptAndPaste";
 import type { Overrides } from "../model/history";
+import { prettyJson } from "../model/prettyJson";
 
 const KIND: Record<PromptPartKind, string> = {
   intro: "text-slate-300",
@@ -54,7 +55,7 @@ function PartRow({ part, override, onOverride, entries }: {
           {editing ? (
             <textarea aria-label={`${part.label} text`} value={text} onChange={(e) => change({ ...override, text: e.target.value })} spellCheck={false} className="h-64 w-full rounded-lg border border-slate-700 bg-slate-950/60 p-2 font-mono text-slate-200 focus:border-sky-500 focus:outline-none" />
           ) : (
-            <pre className="max-h-80 overflow-auto whitespace-pre-wrap rounded-lg bg-slate-950/60 p-2 font-mono text-slate-300">{text}</pre>
+            <pre className="max-h-80 overflow-auto whitespace-pre-wrap rounded-lg bg-slate-950/60 p-2 font-mono text-slate-300">{prettyJson(text)}</pre>
           )}
           <Offered part={part} entries={entries} />
         </div>
