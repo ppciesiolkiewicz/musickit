@@ -38,3 +38,13 @@ export function fitBlocks(sections: Section[], minutes: number): { sections: Sec
   });
   return { sections: out, changed: true };
 }
+
+/** The block running `elapsedSeconds` into the exercise and the seconds left in it; null once the blocks' minutes are used up. */
+export function blockAt(blocks: Block[], elapsedSeconds: number): { index: number; leftInBlock: number } | null {
+  let end = 0;
+  for (let index = 0; index < blocks.length; index++) {
+    end += blocks[index].minutes * 60;
+    if (elapsedSeconds < end) return { index, leftInBlock: end - elapsedSeconds };
+  }
+  return null;
+}

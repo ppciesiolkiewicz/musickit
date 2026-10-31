@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { blocksOf, fitBlocks } from "./blocks";
+import { blockAt, blocksOf, fitBlocks } from "./blocks";
 import type { Section } from "./tools";
 
 const h = (text: string, minutes?: number): Section => ({ type: "heading", text, ...(minutes ? { minutes } : {}) });
@@ -38,4 +38,13 @@ describe("fitBlocks", () => {
     assert.equal(r.changed, false);
     assert.deepEqual(r.sections, three);
   });
+});
+
+describe("blockAt", () => {
+  const blocks = blocksOf([h("A", 3), h("B", 4)]);
+  it("finds the running block and the seconds left in it", () => {
+    assert.deepEqual(blockAt(blocks, 0), { index: 0, leftInBlock: 180 });
+    assert.deepEqual(blockAt(blocks, 200), { index: 1, leftInBlock: 220 });
+  });
+  it("is null past the last block", () => assert.equal(blockAt(blocks, 420), null));
 });

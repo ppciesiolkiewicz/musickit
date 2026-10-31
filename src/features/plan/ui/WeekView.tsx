@@ -1,9 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import Icon from "@/components/Icon";
 import { Checkbox } from "@/components/ui";
 import Sections from "./Sections";
 import ExerciseTimer from "./ExerciseTimer";
+import { blocksOf } from "../model/blocks";
 import { sectionsOf } from "../model/tools";
 import { dayProgress, doneKey } from "../model/schedule";
 import { PLAN_DAYS, type StoredPlan } from "../model/types";
@@ -17,6 +19,7 @@ export default function WeekView({ plan, today, day, onDay, onToggle }: {
   plan: StoredPlan; today: number; day: number; onDay: (d: number) => void; onToggle: (day: number, ex: number) => void;
 }) {
   const d = plan.config.days[day];
+  const [nowBlock, setNowBlock] = useState<Record<string, number | null>>({});
   const total = d.exercises.reduce((n, e) => n + e.minutes, 0);
   return (
     <div className="flex flex-col gap-4">
@@ -53,6 +56,9 @@ export default function WeekView({ plan, today, day, onDay, onToggle }: {
       <ol className="flex flex-col gap-4">
         {d.exercises.map((e, i) => {
           const done = !!plan.done[doneKey(day, i)];
+          const sections = sectionsOf(e);
+          const blocks = blocksOf(sections);
+          const key = doneKey(day, i);
           return (
             <li key={`${day}:${i}`}>
               <section aria-label={e.title} className={`flex flex-col gap-3 rounded-2xl border p-3 transition sm:p-4 ${done ? "border-emerald-500/40 bg-emerald-500/5" : "border-slate-800 bg-slate-900/50"}`}>
@@ -64,10 +70,10 @@ export default function WeekView({ plan, today, day, onDay, onToggle }: {
                   <span className="ml-auto flex items-center gap-1 text-xs text-slate-500"><Icon name="timer" size={12} />{e.minutes} min</span>
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
-                  <ExerciseTimer minutes={e.minutes} onFinish={() => !done && onToggle(day, i)} />
+                  <ExerciseTimer minutes={e.minutes} blocks={blocks} onBlock={(b) => setNowBlock((m) => (m[key] === b ? m : { ...m, [key]: b }))} onFinish={() => !done && onToggle(day, i)} />
                   <Checkbox checked={done} onChange={() => onToggle(day, i)}>Done</Checkbox>
                 </div>
-                <Sections sections={sectionsOf(e)} />
+                <Sections sections={sections} currentBlock={nowBlock[key]} />
                 {e.why && <p className="text-xs italic leading-relaxed text-slate-500">{e.why}</p>}
               </section>
             </li>

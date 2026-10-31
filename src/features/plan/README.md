@@ -11,7 +11,7 @@ browser.
    **Build my plan** is enabled once the reply parses.
 2. **The week** (`ui/WeekView.tsx`): seven day buttons; any day can be opened, days ahead are dashed and marked "coming up". The day's
    exercises are a list of sections: title, focus ("A minor pentatonic · boxes 1 & 2"), how, steps, why, a countdown
-   timer (chimes and ticks the exercise at zero), Done.
+   timer (chimes and ticks the exercise at zero; with timed blocks it shows "block 2 of 4 · 2:41", ticks at each block and marks the current block's heading), Done.
 3. **Tools in the section**: each exercise carries 1–2 `tools`, set up by the AI, with nothing to configure: a scale's
    boxes on the neck, chord shapes, a staff with live pitch for singing, a folded play-along band (one Play for only the
    chosen click / drone / drums / bass), or the notes / ear games with their settings hidden. A `link` is an
