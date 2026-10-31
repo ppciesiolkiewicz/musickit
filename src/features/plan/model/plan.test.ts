@@ -29,6 +29,12 @@ describe("plan links", () => {
     assert.equal(checkLink("https://evil.example/theory/notes", entries), undefined);
     assert.equal(checkLink("//evil.example", entries), undefined);
   });
+  it("course links say what the article covers", () => {
+    const home = entries.find((x) => x.href === "/course/3/home-note")!;
+    assert.match(home.desc, /^Course 3 · One note, three views: .+ \(planned\)$/);
+    const tab = entries.find((x) => x.href === "/course/1/tab-and-chord-boxes")!;
+    assert.ok(tab.desc.startsWith("Course 1 · Guitar basics: ") && !tab.desc.endsWith("(planned)"), tab.desc);
+  });
 });
 
 describe("tools", () => {

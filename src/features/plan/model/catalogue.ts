@@ -15,7 +15,12 @@ export interface CatalogueEntry {
 /** Every page an exercise can link to: the practice pages, the course sections and the scales. Built on first use (the course is large). */
 export function catalogue(): CatalogueEntry[] {
   const pages = THEORY_SECTIONS.filter((s) => s.href !== "/theory" && s.href !== "/plan").map((s) => ({ href: s.href, label: s.label, desc: s.desc }));
-  const course = ALL_SECTIONS.map(({ stage, section }) => ({ href: sectionHref(stage.slug, section.slug), label: section.title, desc: `Course ${stage.label} · ${stage.title}` }));
+  // a planned section's page is only its outline: the AI may link it, knowing that
+  const course = ALL_SECTIONS.map(({ stage, section }) => ({
+    href: sectionHref(stage.slug, section.slug),
+    label: section.title,
+    desc: `Course ${stage.label} · ${stage.title}: ${section.about}${section.blocks.length ? "" : " (planned)"}`,
+  }));
   const scales = [...MODE_PAGES.map((m) => ({ slug: m.slug, name: m.name })), ...PENTATONICS.map((p) => ({ slug: p.slug, name: p.name }))]
     .map((s) => ({ href: scaleHref(s.slug, DEFAULT_KEY_PC), label: s.name, desc: "Scale page (the key is in the last part of the path, e.g. /a, /f-sharp)" }));
   return [{ href: "/tuner", label: "Tuner", desc: "Tune up before practising" }, ...pages, ...course, ...scales];
