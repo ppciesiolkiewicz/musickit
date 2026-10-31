@@ -12,8 +12,13 @@ browser.
    then *Paste its reply*. Every screen has the same fixed height (the body scrolls inside), so Back and Next never move.
    **Build my plan** is enabled once the reply parses.
 2. **The week** (`ui/WeekView.tsx`): seven day buttons; any day can be opened, days ahead are dashed and marked "coming up". The day's
-   exercises are a list of sections: title, focus ("A minor pentatonic · boxes 1 & 2"), how, steps, why, a countdown
-   timer (chimes and ticks the exercise at zero; with timed blocks it shows "block 2 of 4 · 2:41", ticks at each block and marks the current block's heading), Done.
+   exercises are colour-coded cards (a hue per position, tags keep their own colour): title in the display face, focus
+   ("A minor pentatonic · boxes 1 & 2"), sections (timed headings show their minutes), why, a Mark done button.
+   **One floating day timer** (`ui/DayTimer.tsx`, bottom right) counts down the whole day's minutes: it starts by itself
+   for the day shown on page load, can be paused, resumed and reset, shows the exercise the time falls in (`model/dayClock.ts`)
+   and marks that card "Now", and chimes at zero. Its used seconds are saved in the plan (`StoredPlan.elapsed`, per day)
+   every 5 seconds, on pause and when the tab hides, so a reload or a later visit picks up where it stopped. There is no
+   per-exercise timer.
 3. **Tools in the section**: each exercise carries 1–2 `tools`, set up by the AI, with nothing to configure: a scale's
    boxes on the neck, chord shapes, a staff with live pitch for singing, a folded play-along band (one Play for only the
    chosen click / drone / drums / bass), or the notes / ear games with their settings hidden. A `link` is an
@@ -42,12 +47,13 @@ model/            pure, no React; tested in model/plan.test.ts
   config.ts       parsePlanConfig(): the pasted reply to a checked PlanConfig, with warnings
   prompt.ts       buildPrompt(), weekReport()
   schedule.ts     local dates, today's day, progress, when the week is over
+  dayClock.ts     dayClock(): a day's countdown, which exercise its elapsed time falls in; elapsedOf()
 store/
   PlanStore.ts    the storage interface: load() / save() of one PlanState
   localPlanStore.ts  the localStorage implementation ("musickit.plan"), with sanitising
   usePlan.tsx     the hook the UI uses, and PlanStoreProvider to swap the store
 examples/         the example library: exercises/*.json, plans/*.json (standalone JSON), index.ts loads them; see its README
-ui/               PlanFlow, Questionnaire (the question screens), RangeFinder (finds the voice range with the mic), PromptAndPaste, WeekView, Sections (an exercise's sections in order), ExerciseTimer, ExerciseTool
+ui/               PlanFlow, Questionnaire (the question screens), RangeFinder (finds the voice range with the mic), PromptAndPaste, WeekView, Sections (an exercise's sections in order), DayTimer (the floating day countdown), ExerciseTool
 PlanApp.tsx       the page body: no plan → Start; a plan → header, week, history; the flow modal
 reminders.ts, PracticeReminder.tsx   notifications (PracticeReminder is mounted in PageShell, on every page)
 ```
@@ -127,7 +133,7 @@ The tools are the learning components of `src/features/exercises` (see its READM
 `staff`, `click-drone`, `backing-band`, `note-finder`, `interval-ears`, `arpeggio-neck`, `melody-singer`, `run-singer`
 and the guided `play-along` (one shape: `progression`, `two-scales`, `chord-steps`, `arpeggio-part`, `melody`,
 `solo-over`). The prompt lists them from `COMPONENT_DOCS`, the debug panel shows each one's short doc (open it for the
-prop table). `melody-singer` and `run-singer` take a `pick` ({ difficulty, stage, index }, `theory/melodyPick.ts`) instead of a number; it is resolved at parse (never stored) and a pick that matched no tune exactly warns. The exercise's `minutes` is what the timer follows. Headings with `minutes` start timed blocks (`blocks.ts`); on paste the block minutes are scaled to add up to the exercise's, and an exercise over 5 minutes with fewer than two blocks gets a warning. An exercise that asks the student to both sing and play their instrument also warns (`checks.ts`, `mixesSingAndPlay`), a narrow heuristic: singing is a mic tool (`melody-singer`, `run-singer`, a `staff` without `mic: false`) or the word "sing" in text; playing is text only ("play", "strum", "pick the strings", "find it on the guitar"), so an instrument tool shown as a visual doesn't count. Play-along, "press Play" and the app or backing playing are ignored. A play-along's `under` picks what sounds under single
+prop table). `melody-singer` and `run-singer` take a `pick` ({ difficulty, stage, index }, `theory/melodyPick.ts`) instead of a number; it is resolved at parse (never stored) and a pick that matched no tune exactly warns. The exercises' `minutes` add up to the day timer. Headings with `minutes` start timed blocks (`blocks.ts`); on paste the block minutes are scaled to add up to the exercise's, and an exercise over 5 minutes with fewer than two blocks gets a warning. An exercise that asks the student to both sing and play their instrument also warns (`checks.ts`, `mixesSingAndPlay`), a narrow heuristic: singing is a mic tool (`melody-singer`, `run-singer`, a `staff` without `mic: false`) or the word "sing" in text; playing is text only ("play", "strum", "pick the strings", "find it on the guitar"), so an instrument tool shown as a visual doesn't count. Play-along, "press Play" and the app or backing playing are ignored. A play-along's `under` picks what sounds under single
 notes (the chords held by default). In development each tool shows its name above it (`DevName`).
 Three tools are stubs, for the course's dexterity basics: `finger-pattern` (the spider), `picking-drill` and
 `legato-trill`. The AI can use them now; until their real views exist they show a "Stub exercise: …" box with their settings.

@@ -6,13 +6,13 @@ import MiniPiano from "@/components/theory/MiniPiano";
 import { INTERVALS, pianoFrom } from "@/lib/chordKit/intervals";
 import { playMelody, strum } from "@/features/sound";
 import { CHORD_QUALITIES, EAR_LEVELS, activeAnswers, nextEarQuestion, recordScore, type Direction, type EarQuestion, type EarSettings, type Score } from "@/lib/practice/earGame";
-import { btn, btnPrimary, panel, writeQuery } from "./shared";
+import { SetupTag, btn, btnPrimary, panel, writeQuery } from "./shared";
 import { Chip, ChipRow } from "@/components/ui";
 
-const DIRS: { id: Direction; label: string }[] = [
-  { id: "up", label: "Rising" },
-  { id: "down", label: "Falling" },
-  { id: "together", label: "Together" },
+const DIRS: { id: Direction; label: string; mark: string }[] = [
+  { id: "up", label: "Rising", mark: "↗" },
+  { id: "down", label: "Falling", mark: "↘" },
+  { id: "together", label: "Together", mark: "≡" },
 ];
 
 const settingsQuery = (s: EarSettings) =>
@@ -83,17 +83,28 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
       </section>}
 
       <section className={panel}>
+        {bare && (
+          <div className="mb-3 flex flex-wrap items-center gap-1.5" aria-label="Set up as">
+            {s.kind === "chord" ? <SetupTag tone="violet">Chord quality</SetupTag> : (() => {
+              const d = DIRS.find((x) => x.id === s.direction)!;
+              return <>
+                <SetupTag tone="amber"><span aria-hidden className="text-sm leading-none">{d.mark}</span>{d.label}</SetupTag>
+                <SetupTag tone="teal">{s.wide ? "Multi-octave" : "Within an octave"}</SetupTag>
+              </>;
+            })()}
+          </div>
+        )}
         <div className="mb-3 flex flex-wrap items-center gap-2">
           <button type="button" className={btnPrimary} onClick={next}>{q ? "Next" : "Start"}</button>
           {q && <button type="button" className={`cursor-pointer ${btn}`} onClick={() => play(q)}>Replay</button>}
           <span className="text-sm text-slate-400">{q ? (answered ? "" : s.kind === "chord" ? "What kind of chord?" : "Which interval?") : "Press Start and listen."}</span>
         </div>
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex flex-wrap gap-2">
           {answers.map((a) => {
             const right = answered && a === q?.answer, wrong = answered && !answered.ok && a === answered.pick;
             return (
               <button key={a} type="button" onClick={() => pick(a)} disabled={!q}
-                className={`rounded-full border px-3 py-1 text-sm transition ${right ? "border-emerald-400 bg-emerald-500/20 text-emerald-100" : wrong ? "border-rose-400 bg-rose-500/20 text-rose-100" : "border-slate-700 text-slate-200 hover:border-slate-500"} disabled:opacity-40`}>
+                className={`min-w-14 cursor-pointer rounded-lg border-2 px-4 py-2 text-base font-semibold transition active:scale-[0.96] disabled:cursor-default disabled:opacity-40 ${right ? "border-emerald-400 bg-emerald-500/25 text-emerald-50" : wrong ? "border-rose-400 bg-rose-500/25 text-rose-50" : "border-slate-600 bg-slate-800 text-slate-50 hover:border-sky-400 hover:bg-slate-700"}`}>
                 {s.kind === "chord" ? labelOf(a) : a}
               </button>
             );

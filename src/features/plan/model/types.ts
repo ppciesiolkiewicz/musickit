@@ -64,6 +64,8 @@ export interface StoredPlan {
   startedOn: string;
   /** exercises ticked off, keyed `${dayIndex}:${exerciseIndex}` */
   done: Record<string, true>;
+  /** seconds of each day's countdown already used, keyed by day index; the floating timer saves it every few seconds */
+  elapsed?: Record<string, number>;
   /** how the week went, in the player's words, for the next prompt */
   feedback?: string;
 }

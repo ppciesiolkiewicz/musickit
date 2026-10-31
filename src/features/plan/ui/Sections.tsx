@@ -22,10 +22,9 @@ function NoteText({ pieces, root }: { pieces: Piece[]; root: NoteRoot | null }) 
 }
 
 /** An exercise's sections in the order the AI wrote them: headings, paragraphs, numbered steps, tools and links, top to bottom. */
-export default function Sections({ sections, currentBlock }: { sections: Section[]; currentBlock?: number | null }) {
-  // The heading that starts each block: the first heading with minutes at or after the block's `from`.
-  const blockHeads = blocksOf(sections).map((b) => sections.findIndex((s, i) => i >= b.from && s.type === "heading" && !!s.minutes));
-  const nowAt = currentBlock == null ? -1 : (blockHeads[currentBlock] ?? -1);
+export default function Sections({ sections }: { sections: Section[] }) {
+  // a timed heading shows its block's minutes (fitted on paste to add up to the exercise's)
+  const blockMinutes = new Map(blocksOf(sections).map((b) => [sections.findIndex((s, i) => i >= b.from && s.type === "heading" && !!s.minutes), b.minutes]));
   // Glossary terms, each marked at its first use in the exercise: texts in order, a list's items one after another.
   const texts = sections.flatMap((s) => (s.type === "text" ? [s.text] : s.type === "list" ? s.items : []));
   const pieces = explain(texts);
@@ -36,16 +35,16 @@ export default function Sections({ sections, currentBlock }: { sections: Section
         switch (s.type) {
           case "heading":
             return (
-              <h4 key={i} aria-current={i === nowAt ? "step" : undefined} className="mt-1 flex items-center gap-2 text-sm font-medium text-slate-100">
-                {i === nowAt && <span className="size-2 shrink-0 rounded-full bg-sky-400" title="Now" aria-label="Now" />}
+              <h4 key={i} className="mt-2 flex items-center gap-2 border-b border-slate-800 pb-1 text-[15px] font-semibold text-slate-50">
                 {s.text}
+                {blockMinutes.has(i) && <span className="rounded-full bg-slate-800 px-2 py-0.5 text-[11px] font-medium tabular-nums text-slate-300">{blockMinutes.get(i)} min</span>}
               </h4>
             );
           case "text":
-            return <p key={i} className="text-sm leading-relaxed text-slate-300"><NoteText pieces={pieces[n++]} root={noteRootFor(sections, i)} /></p>;
+            return <p key={i} className="text-[15px] leading-relaxed text-slate-300"><NoteText pieces={pieces[n++]} root={noteRootFor(sections, i)} /></p>;
           case "list":
             return (
-              <ol key={i} className="list-decimal space-y-0.5 pl-5 text-sm leading-relaxed text-slate-300 marker:text-slate-500">
+              <ol key={i} className="list-decimal space-y-1 pl-5 text-[15px] leading-relaxed text-slate-300 marker:font-semibold marker:text-sky-400">
                 {s.items.map((_, j) => <li key={j}><NoteText pieces={pieces[n++]} root={noteRootFor(sections, i)} /></li>)}
               </ol>
             );
@@ -53,7 +52,7 @@ export default function Sections({ sections, currentBlock }: { sections: Section
             return <ExerciseTool key={i} tool={s.tool} />;
           case "link":
             return (
-              <Link key={i} href={s.href} className="inline-flex w-fit items-center gap-1 rounded-lg border border-slate-700 px-2.5 py-1 text-xs text-sky-200 hover:border-sky-500/60 hover:bg-sky-500/10">
+              <Link key={i} href={s.href} className="inline-flex w-fit items-center gap-1 rounded-lg border border-sky-500/40 bg-sky-500/10 px-2.5 py-1 text-xs font-medium text-sky-100 hover:border-sky-400 hover:bg-sky-500/20">
                 Open page <Icon name="chevron-right" size={12} />
               </Link>
             );

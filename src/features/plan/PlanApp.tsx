@@ -11,6 +11,7 @@ import { askNotifications, notificationsSupported } from "./reminders";
 import { usePlan } from "./store/usePlan";
 import PlanFlow, { savedFlow } from "./ui/PlanFlow";
 import WeekView from "./ui/WeekView";
+import { DISPLAY } from "@/components/landing/Display";
 
 const newId = () => (typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : String(Date.now()));
 
@@ -56,13 +57,16 @@ export default function PlanApp() {
       else done[doneKey(d, e)] = true;
       return { ...p, done };
     });
+  // the floating day timer's used seconds; ignored when the plan it counted for is no longer the current one
+  const saveElapsed = (planId: string, d: number, seconds: number) =>
+    update((s) => (s.current?.id === planId && s.current.elapsed?.[String(d)] !== seconds ? { ...s, current: { ...s.current, elapsed: { ...s.current.elapsed, [String(d)]: seconds } } } : s));
 
   if (!loaded) return <p className="text-sm text-slate-500">Loading…</p>;
 
   const modal = flow && (
     <PlanFlow mode={flow} answers={state.answers ?? DEFAULT_ANSWERS} current={plan} history={state.history} entries={entries} onPlan={onPlan} onClose={() => setFlow(null)} />
   );
-  const primary = "!border-sky-500/70 !bg-sky-500/20 !text-sky-100 hover:!bg-sky-500/30";
+  const primary = "!border-sky-400/80 !bg-sky-500/25 !text-sky-50 shadow-md shadow-sky-500/20 hover:!bg-sky-500/40";
 
   if (!plan) {
     return (
@@ -85,16 +89,16 @@ export default function PlanApp() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 pb-28">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-xs uppercase tracking-wider text-slate-500">{over ? "Week done" : `Day ${todayIdx + 1} of ${PLAN_DAYS}`} · started {plan.startedOn}</p>
-          <h2 className="text-xl font-light text-slate-100">{plan.config.title}</h2>
+          <p className="text-xs font-medium uppercase tracking-wider text-amber-300/90">{over ? "Week done" : `Day ${todayIdx + 1} of ${PLAN_DAYS}`} · started {plan.startedOn}</p>
+          <h2 className="mt-0.5 text-3xl text-slate-50" style={DISPLAY}>{plan.config.title}</h2>
           {plan.config.summary && <p className="mt-1 max-w-3xl text-sm text-slate-400">{plan.config.summary}</p>}
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Reminder state={state} update={update} />
-          <Button size="sm" onClick={() => setFlow("next")} title="Plan the next days from this week's exercises"><Icon name="sparkles" size={12} />Plan next week</Button>
+          <Button size="sm" onClick={() => setFlow("next")} title="Plan the next days from this week's exercises" className={primary}><Icon name="sparkles" size={12} />Plan next week</Button>
           <Button size="sm" onClick={() => setFlow("start")} title="Answer the questions again; the prompt leaves out past weeks"><Icon name="rotate-ccw" size={12} />Start anew</Button>
         </div>
       </div>
@@ -109,7 +113,7 @@ export default function PlanApp() {
         </section>
       )}
 
-      <WeekView plan={plan} today={over ? PLAN_DAYS - 1 : todayIdx} day={day ?? todayIdx} onDay={setDay} onToggle={toggle} />
+      <WeekView plan={plan} today={over ? PLAN_DAYS - 1 : todayIdx} day={day ?? todayIdx} onDay={setDay} onToggle={toggle} onElapsed={saveElapsed} />
 
       {state.history.length > 0 && <History plans={state.history} onUse={(c) => onPlan(c)} />}
       {modal}

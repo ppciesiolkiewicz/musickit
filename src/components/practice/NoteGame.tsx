@@ -10,7 +10,7 @@ import {
 } from "@/lib/practice/noteGame";
 import { useMicPitch } from "./useMicPitch";
 import { micGate } from "@/lib/practice/mic";
-import { btn, btnPrimary, panel, readBest, writeBest, writeQuery } from "./shared";
+import { SetupTag, btn, btnPrimary, panel, readBest, writeBest, writeQuery } from "./shared";
 import { Chip, ChipRow, Stepper } from "@/components/ui";
 
 const STRING_LETTERS = ["E", "A", "D", "G", "B", "e"];
@@ -170,6 +170,15 @@ export default function NoteGame({ initial, syncUrl = true, bare = false }: { in
           <Chip on={s.flats} onClick={() => update({ flats: !s.flats })}>Flat names</Chip>
         </div>
         </>}
+        {bare && (
+          <div className="flex flex-wrap items-center gap-1.5" aria-label="Set up as">
+            <SetupTag tone="sky">{MODES.find((m) => m.id === s.mode)!.label}</SetupTag>
+            <SetupTag tone="amber">Strings {s.strings.map((i) => STRING_LETTERS[i]).join(" ")}</SetupTag>
+            <SetupTag tone="teal">Frets {s.from}–{s.to}</SetupTag>
+            {s.naturals && <SetupTag tone="violet">Natural notes</SetupTag>}
+            {s.flats && <SetupTag tone="violet">Flat names</SetupTag>}
+          </div>
+        )}
         <ChipRow label="Answer by">
           <Chip on={!mic} onClick={() => setMic(false)}>Tapping the neck</Chip>
           <Chip on={mic} onClick={() => setMic(true)}>Playing it (mic)</Chip>
