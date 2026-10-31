@@ -19,13 +19,26 @@ Runs of the prompt are kept in `tools/prompt-history/` at the repo root, one JSO
 A record (`model/history.ts` `RunRecord`) holds when, mode, model (or `"pasted"`), the answers, part overrides and part
 list, the prompt, the reply or error, time, cost, and the plan's title and warning count when the reply parses.
 
+## Prompt studio (`/dev/prompt`)
+
+Inputs (answers JSON, first or next week; next week takes a past run as last week, with the ticks made on its preview),
+every prompt part (`promptParts` in the plan model) as a row to switch off or edit in place, the composed prompt, Run, and
+the result: the reply rendered with the plan's real `WeekView`, its parse warnings and the raw text, beside the history.
+Its state stays in `localStorage` key `musickit.dev.prompt`; "Load my /plan answers" only reads `musickit.plan`.
+
 ## Running the prompt
 
 `POST /api/dev/run` runs the local `claude` CLI (`server/claude.ts`) in print mode with no tools, no MCP servers, no
-saved session and only project settings, from the temp folder: the model sees only the prompt, like a player's own AI,
-and no user hooks or CLAUDE.md reach it. Closing the request (Cancel) or 10 minutes kills the process. Every run is saved,
-failed and cancelled ones too. `POST /api/dev/history` keeps a reply pasted from another AI; `GET /api/dev/history` lists
-runs, `GET /api/dev/history/<id>` returns one.
+saved session, only project settings, from the temp folder, and with a plain system prompt in place of Claude Code's (that
+one brings auto-memory, and the model "reads its memory" instead of answering; `--bare` would avoid it but fails login).
+The child also drops the `CLAUDE_CODE_*` variables of any Claude session the dev server runs in. So the model sees only the
+prompt, like a player's own AI.
+
+A run lives on the server, not in the page (`server/running.ts`): a reload, which any edit to the plan model can cause,
+does not stop it. `GET /api/dev/run` lists runs in progress (the studio polls it and shows each with Cancel),
+`DELETE /api/dev/run?id=` cancels one, and 10 minutes kills it. Every run is saved, failed and cancelled ones too.
+`POST /api/dev/history` keeps a reply pasted from another AI; `GET /api/dev/history` lists runs, `GET /api/dev/history/<id>`
+returns one.
 
 ## Code map
 
@@ -33,6 +46,9 @@ runs, `GET /api/dev/history/<id>` returns one.
 - `registry.ts`: the tools listed on `/dev`.
 - `model/models.ts`: the Claude models a run can use.
 - `model/history.ts`: run records, summaries, ids, request checks, `describeReply`.
-- `server/claude.ts`: `claudeArgs`, `parseClaudeResult`, `runClaude`.
+- `model/compose.ts`: `composePrompt` (overrides on parts), answers from text, a past run as last week, the studio's saved state.
+- `server/claude.ts`: `claudeArgs`, `childEnv`, `parseClaudeResult`, `runClaude`.
+- `server/running.ts`: runs in progress (`startRun`, `cancelRun`, `endRun`, `listRunning`), kept on `globalThis`.
 - `server/history.ts`: `saveRun`, `readRun`, `listRuns` over `tools/prompt-history/`.
-- Routes: `src/app/api/dev/run`, `src/app/api/dev/history`, `src/app/api/dev/history/[id]`.
+- `prompt/`: `PromptStudio` (state), `StudioInputs`, `PartList`, `RunPanel`, `PlanPreview`, `HistoryList`, `api.ts` (fetches).
+- Routes: `src/app/api/dev/run`, `src/app/api/dev/history`, `src/app/api/dev/history/[id]`; pages `src/app/dev`.

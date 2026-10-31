@@ -27,6 +27,9 @@ export interface RunRecord {
   warnings?: number;
 }
 
+/** A run in progress, as the studio lists it. */
+export interface ActiveRun { id: string; at: string; model: DevModel }
+
 /** A history row: enough to list a run without its prompt and reply. */
 export interface RunSummary {
   id: string;
@@ -34,6 +37,8 @@ export interface RunSummary {
   mode: RunRecord["mode"];
   model: RunRecord["model"];
   ok: boolean;
+  /** why it failed, cut to 120 characters */
+  error?: string;
   title?: string;
   warnings?: number;
   durationMs: number;
@@ -44,8 +49,8 @@ export interface RunSummary {
 
 /** The prompt and what it was built from. */
 export type RunInput = Pick<RunRecord, "mode" | "answers" | "overrides" | "parts" | "previousId" | "feedback" | "prompt">;
-/** A run request: the input and how to run it. */
-export type RunRequest = RunInput & { model: DevModel; effort?: Effort };
+/** A run request: the input and how to run it; `id` (optional, a RUN_ID) lets the page cancel the run before it answers. */
+export type RunRequest = RunInput & { model: DevModel; effort?: Effort; id?: string };
 
 export const RUN_ID = /^\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}-[a-z0-9]{4}$/;
 
@@ -56,6 +61,7 @@ export const newRunId = (at: Date, rand: string = Math.random().toString(36).sli
 export function summaryOf(r: RunRecord): RunSummary {
   return {
     id: r.id, at: r.at, mode: r.mode, model: r.model, ok: !r.error,
+    ...(r.error ? { error: r.error.slice(0, 120) } : {}),
     ...(r.title !== undefined ? { title: r.title } : {}),
     ...(r.warnings !== undefined ? { warnings: r.warnings } : {}),
     durationMs: r.durationMs,
@@ -82,7 +88,15 @@ export function readRunRequest(body: unknown): Read<RunRequest> {
   if (!input.ok) return input;
   const b = obj(body);
   if (!isDevModel(b.model)) return { ok: false, error: "Unknown model." };
-  return { ok: true, value: { ...input.value, model: b.model, ...(EFFORTS.includes(b.effort as Effort) ? { effort: b.effort as Effort } : {}) } };
+  return {
+    ok: true,
+    value: {
+      ...input.value,
+      model: b.model,
+      ...(EFFORTS.includes(b.effort as Effort) ? { effort: b.effort as Effort } : {}),
+      ...(typeof b.id === "string" && RUN_ID.test(b.id) ? { id: b.id } : {}),
+    },
+  };
 }
 
 /** The prompt and its inputs from a request body (a run, or a pasted reply); only the prompt is required. */

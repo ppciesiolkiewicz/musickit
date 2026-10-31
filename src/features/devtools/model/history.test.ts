@@ -26,7 +26,8 @@ test("summaryOf: ok, size and edited parts", () => {
     id: "2026-10-31T14-05-09-a1b2", at: "2026-10-31T14:05:09.000Z", mode: "first", model: "haiku",
     ok: true, title: "Week 1", warnings: 2, durationMs: 1200, costUsd: 0.01, chars: 5, edited: ["rules"],
   });
-  assert.equal(summaryOf(record({ error: "cancelled", reply: undefined })).ok, false);
+  const failed = summaryOf(record({ error: "cancelled", reply: undefined }));
+  assert.deepEqual([failed.ok, failed.error], [false, "cancelled"]);
 });
 
 test("describeReply: a plan gives its title and warning count", () => {
@@ -52,6 +53,10 @@ test("readRunRequest fills defaults and rejects what it can't run", () => {
   assert.deepEqual(readRunRequest({ prompt: "  ", model: "haiku" }), { ok: false, error: "No prompt." });
   assert.deepEqual(readRunRequest({ prompt: "hi", model: "gpt-4" }), { ok: false, error: "Unknown model." });
   assert.deepEqual(readRunRequest(null), { ok: false, error: "No prompt." });
+  const withId = readRunRequest({ prompt: "hi", model: "haiku", id: "2026-11-01T10-00-00-abcd" });
+  assert.equal(withId.ok && withId.value.id, "2026-11-01T10-00-00-abcd");
+  const badId = readRunRequest({ prompt: "hi", model: "haiku", id: "../../x" });
+  assert.ok(badId.ok && !("id" in badId.value));
   const odd = readRunRequest({ prompt: "hi", model: "haiku", effort: "insane", mode: "weird" });
   assert.ok(odd.ok && !("effort" in odd.value) && odd.value.mode === "first");
 });

@@ -1,13 +1,17 @@
 "use client";
 
-import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import Icon from "@/components/Icon";
 import { Button, Section } from "@/components/ui";
 import { catalogue } from "@/features/plan/model/catalogue";
 import { promptParts } from "@/features/plan/model/prompt";
 import { DEFAULT_STUDIO, STUDIO_KEY, answersFromText, composePrompt, readStudio, storedPlanFrom, type StudioState } from "../model/compose";
 import type { RunRecord, RunSummary } from "../model/history";
+import { fetchRun, fetchRuns } from "./api";
+import HistoryList from "./HistoryList";
 import PartList from "./PartList";
+import PlanPreview from "./PlanPreview";
+import RunPanel from "./RunPanel";
 import StudioInputs from "./StudioInputs";
 
 const noSubscribe = () => () => {};
@@ -20,20 +24,6 @@ const loadStudio = (): StudioState => {
   }
 };
 
-/** The past runs, newest first; [] while loading or when the history can't be read. */
-export async function fetchRuns(): Promise<RunSummary[]> {
-  try {
-    return ((await (await fetch("/api/dev/history", { cache: "no-store" })).json()) as { runs: RunSummary[] }).runs ?? [];
-  } catch {
-    return [];
-  }
-}
-
-export async function fetchRun(id: string): Promise<RunRecord | null> {
-  const res = await fetch(`/api/dev/history/${encodeURIComponent(id)}`, { cache: "no-store" });
-  return res.ok ? ((await res.json()) as RunRecord) : null;
-}
-
 /**
  * The autoplan prompt, taken apart: the answers and week it is built from, every labelled part (switch off, edit in place)
  * and the prompt as composed from them. The studio's state stays in this browser (STUDIO_KEY), never in the plan's store.
@@ -45,15 +35,18 @@ export default function PromptStudio() {
   const [state, setState] = useState<StudioState>(() => (typeof window === "undefined" ? DEFAULT_STUDIO : loadStudio()));
   const [runs, setRuns] = useState<RunSummary[]>([]);
   const [previous, setPrevious] = useState<RunRecord | null>(null);
-  const [prevDone] = useState<Record<string, boolean>>({});
+  const [open, setOpen] = useState<RunRecord | null>(null);
+  // ticks made on each run's preview, by run id: the chosen last week's ticks are its "done"
+  const [doneById, setDoneById] = useState<Record<string, Record<string, boolean>>>({});
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (mounted) localStorage.setItem(STUDIO_KEY, JSON.stringify(state));
   }, [mounted, state]);
-  useEffect(() => {
+  const refreshRuns = useCallback(() => {
     fetchRuns().then(setRuns);
   }, []);
+  useEffect(refreshRuns, [refreshRuns]);
   const previousId = state.mode === "next" ? state.previousId : undefined;
   useEffect(() => {
     if (!previousId) return;
@@ -65,12 +58,26 @@ export default function PromptStudio() {
   }, [previousId]);
 
   const read = useMemo(() => answersFromText(state.answersText), [state.answersText]);
-  const lastWeek = previousId && previous?.id === previousId ? storedPlanFrom(previous, prevDone, state.feedback, entries) : null;
+  const prevDone = previousId ? doneById[previousId] : undefined;
+  const lastWeek = useMemo(
+    () => (previousId && previous?.id === previousId ? storedPlanFrom(previous, prevDone ?? {}, state.feedback, entries) : null),
+    [previousId, previous, prevDone, state.feedback, entries],
+  );
   const parts = useMemo(() => (!read.error ? promptParts(read.answers, entries, lastWeek ? [lastWeek] : []) : []), [read, entries, lastWeek]);
   const composed = useMemo(() => composePrompt(parts, state.overrides), [parts, state.overrides]);
 
   if (!mounted) return <p className="text-sm text-slate-500">Loading…</p>;
   const set = (change: Partial<StudioState>) => setState((s) => ({ ...s, ...change }));
+  const openRun = async (id: string) => setOpen(await fetchRun(id));
+  const onRecord = (r: RunRecord) => {
+    setOpen(r);
+    refreshRuns();
+  };
+  const loadInputs = (r: RunRecord) =>
+    set({
+      answersText: JSON.stringify(r.answers, null, 2), mode: r.mode, overrides: r.overrides, previousId: r.previousId, feedback: r.feedback ?? "",
+      ...(r.model !== "pasted" ? { model: r.model } : {}),
+    });
   const copy = async () => {
     await navigator.clipboard.writeText(composed.text);
     setCopied(true);
@@ -97,6 +104,37 @@ export default function PromptStudio() {
             {composed.off.length > 0 && <span className="text-slate-500">off: {composed.off.join(", ")}</span>}
           </div>
           <textarea readOnly aria-label="Composed prompt" value={composed.text} onFocus={(e) => e.currentTarget.select()} className="h-56 w-full rounded-lg border border-slate-700 bg-slate-950/60 p-3 font-mono text-[11px] text-slate-300" />
+          <RunPanel composed={composed} state={state} set={set} answers={read.answers} onRecord={onRecord} onRefresh={refreshRuns} />
+        </div>
+      </Section>
+      <Section title="Result">
+        <div className="grid gap-4 lg:grid-cols-[1fr_18rem]">
+          <div className="min-w-0">
+            {open ? (
+              <div className="flex flex-col gap-3">
+                <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400">
+                  <span>{new Date(open.at).toLocaleString()} · {open.model} · {open.mode === "next" ? "next week" : "first week"}</span>
+                  {open.durationMs > 0 && <span className="tabular-nums">{(open.durationMs / 1000).toFixed(1)} s</span>}
+                  {open.costUsd !== undefined && <span className="tabular-nums">${open.costUsd.toFixed(3)}</span>}
+                  <Button size="sm" onClick={() => loadInputs(open)}>Load inputs</Button>
+                </div>
+                {open.error ? (
+                  <p role="alert" className="rounded-lg border border-rose-500/40 bg-rose-500/10 p-3 text-sm text-rose-200">{open.error}</p>
+                ) : (
+                  <PlanPreview key={open.id} reply={open.reply ?? ""} onDone={(d) => setDoneById((m) => ({ ...m, [open.id]: d }))} />
+                )}
+                {open.reply && (
+                  <details className="text-xs">
+                    <summary className="cursor-pointer text-slate-400">Raw reply ({open.reply.length.toLocaleString()} chars)</summary>
+                    <pre className="mt-1 max-h-96 overflow-auto whitespace-pre-wrap rounded-lg bg-slate-950/60 p-2 font-mono text-[11px] text-slate-300">{open.reply}</pre>
+                  </details>
+                )}
+              </div>
+            ) : (
+              <p className="text-sm text-slate-500">Run the prompt, or open a past run.</p>
+            )}
+          </div>
+          <HistoryList runs={runs} selectedId={open?.id} onOpen={openRun} />
         </div>
       </Section>
     </div>

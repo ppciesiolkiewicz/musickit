@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { chmodSync, existsSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { claudeArgs, parseClaudeResult, runClaude } from "./claude";
+import { childEnv, claudeArgs, parseClaudeResult, runClaude } from "./claude";
 
 const dir = mkdtempSync(path.join(tmpdir(), "devtools-claude-"));
 /** A stand-in for the claude binary: a bash script in a temp folder. */
@@ -14,9 +14,10 @@ function fake(name: string, body: string): string {
   return file;
 }
 
-test("claudeArgs: print mode, JSON, no tools, no MCP, no session, no user settings", () => {
+test("claudeArgs: print mode, JSON, no tools, no MCP, no session, no user settings, a plain system prompt", () => {
   assert.deepEqual(claudeArgs({ model: "sonnet" }), [
     "-p", "--output-format", "json", "--model", "sonnet", "--tools", "", "--strict-mcp-config", "--no-session-persistence", "--setting-sources", "project",
+    "--system-prompt", "You are a helpful assistant.",
   ]);
   assert.deepEqual(claudeArgs({ model: "opus", effort: "high" }).slice(-2), ["--effort", "high"]);
 });
@@ -75,4 +76,9 @@ test("runClaude: an already aborted signal never leaves a process", async () => 
 test("runClaude: a missing binary says so", async () => {
   const r = await runClaude("x", { model: "haiku" }, undefined, "no-such-binary-xyz");
   assert.equal(!r.ok && r.error, "claude CLI not found on PATH");
+});
+
+test("childEnv drops the parent Claude session's variables, keeps login and the rest", () => {
+  const env = childEnv({ PATH: "/bin", HOME: "/h", CLAUDECODE: "1", CLAUDE_CODE_SESSION_ID: "x", CLAUDE_CODE_MESSAGING_SOCKET: "/s", CLAUDE_CODE_OAUTH_TOKEN: "t", ANTHROPIC_API_KEY: "k" });
+  assert.deepEqual(env, { PATH: "/bin", HOME: "/h", CLAUDE_CODE_OAUTH_TOKEN: "t", ANTHROPIC_API_KEY: "k" });
 });

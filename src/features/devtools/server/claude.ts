@@ -9,14 +9,22 @@ type Parsed = { ok: true; text: string; costUsd?: number } | { ok: false; error:
 const TIMEOUT_MS = 10 * 60_000;
 
 /**
- * One print-mode call that sees only the prompt, like a player's own AI: no tools, no MCP servers, no saved session, and
- * only project settings, which are empty because it runs outside the repo (so no user hooks or CLAUDE.md reach it).
+ * One print-mode call that sees only the prompt, like a player's own AI: no tools, no MCP servers, no saved session, only
+ * project settings, which are empty because it runs outside the repo (so no user hooks or CLAUDE.md reach it), and a plain
+ * system prompt in place of Claude Code's (which brings auto-memory: the model then "reads its memory" instead of answering).
+ * `--bare` would do this too but skips the keychain, so a logged-in CLI fails with "Not logged in".
  */
 export function claudeArgs(o: RunOptions): string[] {
   return [
     "-p", "--output-format", "json", "--model", o.model, "--tools", "", "--strict-mcp-config", "--no-session-persistence", "--setting-sources", "project",
+    "--system-prompt", "You are a helpful assistant.",
     ...(o.effort ? ["--effort", o.effort] : []),
   ];
+}
+
+/** The environment for the child: without the variables of a Claude session the dev server may run inside; login stays. */
+export function childEnv(env: Record<string, string | undefined>): Record<string, string | undefined> {
+  return Object.fromEntries(Object.entries(env).filter(([k]) => k === "CLAUDE_CODE_OAUTH_TOKEN" || !(k === "CLAUDECODE" || k.startsWith("CLAUDE_CODE_"))));
 }
 
 /** The CLI's JSON result as a reply or an error. */
@@ -40,7 +48,7 @@ export function runClaude(prompt: string, o: RunOptions, signal?: AbortSignal, c
   const done = (r: Parsed): RunOutput => ({ ...r, durationMs: Date.now() - t0 });
   if (signal?.aborted) return Promise.resolve(done({ ok: false, error: "cancelled" }));
   return new Promise((resolve) => {
-    const child = spawn(cmd, claudeArgs(o), { cwd: tmpdir(), stdio: ["pipe", "pipe", "pipe"] });
+    const child = spawn(cmd, claudeArgs(o), { cwd: tmpdir(), env: childEnv(process.env) as NodeJS.ProcessEnv, stdio: ["pipe", "pipe", "pipe"] });
     let stdout = "";
     let stderr = "";
     let stopped: string | null = null;
