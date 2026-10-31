@@ -14,6 +14,7 @@ export const STAGE_7: CourseStage = {
         task("Play Dm7 G7 Cmaj7, the ii–V–I in C, with shells, moving as little as you can."),
         links([{ href: "/theory/chords?q=shell", label: "Shell voicings" }]),
       ]),
+    section("ii-v-i", "ii–V–I", "colour"),
     section("extended", "9ths & 13ths", "colour", [
         text(
           "A 9th or 13th is a colour note stacked on top of a shell: the 9th is the 2 an octave up, the 13th is the 6. D9 is the bright, funky dominant; G13 is the classic jazz and soul chord before C.",

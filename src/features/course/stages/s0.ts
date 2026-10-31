@@ -114,6 +114,7 @@ export const STAGES_0: CourseStage[] = [
           { title: "Zombie", artist: "The Cranberries", chords: ["Em", "C", "G", "D"], progression: "Em C G D", note: "the record has D/F♯; plain D is fine to start" },
         ),
       ]),
+      section("what-is-a-chord", "What a chord is", "open-chords"),
     ],
   },
   {
@@ -147,6 +148,7 @@ export const STAGES_0: CourseStage[] = [
         }),
         task("Play the path up and down, saying the solfège names out loud. Then start from the G on the low E (3rd fret) and see how far you get."),
       ]),
+      section("intervals", "Intervals", "three-views"),
       section("hearing-do-fa-sol", "Hearing do, fa, sol", "three-views", [
         text(
           "Do, Fa and Sol (1, 4 and 5) are the three strongest notes of a key. They're the roots of its three main chords: in G major, G, C and D.",

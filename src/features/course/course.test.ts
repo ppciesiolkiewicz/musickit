@@ -10,7 +10,7 @@ describe("course structure", () => {
   it("position 1 and first open chords have the agreed sections", () => {
     const slugs = (st: string) => COURSE.find((s) => s.slug === st)!.sections.map((x) => x.slug);
     assert.deepEqual(slugs("5"), ["chords", "triads", "fifths", "power-chords", "arpeggios", "one-four-five", "pentatonic", "major-pentatonic", "soloing", "bends-and-slides", "move-it"]);
-    assert.deepEqual(slugs("2"), ["em-and-am", "c-d-g", "e-a-dm", "one-minute-changes", "all-downstrums", "island-strum", "sixteenths", "first-songs"]);
+    assert.deepEqual(slugs("2"), ["em-and-am", "c-d-g", "e-a-dm", "one-minute-changes", "all-downstrums", "island-strum", "sixteenths", "first-songs", "what-is-a-chord"]);
   });
   it("section slugs are unique within a stage and URL-safe", () => {
     COURSE.forEach((s) => {

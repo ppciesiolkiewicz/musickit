@@ -20,6 +20,17 @@ describe("glossary", () => {
     assert.deepEqual(terms(explain(["Guide\nTones lead."])[0]), ["guide-tones:Guide\nTones"]);
   });
 
+  it("finds modes, scales and chords, the longer term first", () => {
+    assert.deepEqual(terms(explain(["Dorian is a mode: play the scale over a power chord, then a barre chord and its chord tones."])[0]),
+      ["dorian:Dorian", "mode:mode", "scale:scale", "power-chord:power chord", "barre-chord:barre chord", "chord-tones:chord tones"]);
+    assert.deepEqual(terms(explain(["A ii–V–I, then a 2-5-1 in the scale-neck."])[0]), ["ii-v-i:ii–V–I"]);
+  });
+
+  it("names every term once, each with an article", () => {
+    assert.equal(new Set(GLOSSARY.map((t) => t.id)).size, GLOSSARY.length);
+    GLOSSARY.forEach((t) => assert.ok(t.forms.length && t.short && t.label, t.id));
+  });
+
   it("leaves other words alone", () => {
     assert.deepEqual(terms(explain(["Compare the compass, a computer and comp-style."])[0]), []);
   });
