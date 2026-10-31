@@ -10,7 +10,7 @@ import { offeredInterface, type OfferedItem } from "../model/tools";
 const primary = "!border-sky-500/70 !bg-sky-500/20 !text-sky-100 hover:!bg-sky-500/30";
 
 /** Each item as its short doc; open one for its full description and prop table. */
-function DebugList({ title, items }: { title: string; items: OfferedItem[] }) {
+export function DebugList({ title, items }: { title: string; items: OfferedItem[] }) {
   return (
     <div>
       <h4 className="font-semibold text-slate-400">{title} ({items.length})</h4>
