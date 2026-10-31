@@ -104,4 +104,5 @@ Hard words in an exercise's text and steps ("comp", "guide tones", "eighths"…)
 one-line meaning and a link to the course article. The AI writes plain text; `explain()` in
 `src/features/course/glossary.ts` finds the terms (plurals, -ing forms, multi-word and hyphenated) and marks each once
 per exercise. To add a word: an entry in `GLOSSARY`, and an article; if there is none yet, add an empty `section()` to
-the course and point at it.
+the course and point at it. The prompt lists the terms with their meanings (generated from `GLOSSARY`) and asks the
+AI to use them by name without defining them.

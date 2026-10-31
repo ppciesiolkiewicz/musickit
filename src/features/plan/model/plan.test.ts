@@ -2,6 +2,7 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { catalogue, checkLink } from "./catalogue";
 import { parsePlanConfig } from "./config";
+import { GLOSSARY } from "@/features/course/glossary";
 import { EXAMPLE, buildPrompt, weekReport } from "./prompt";
 import { runChoices } from "@/features/exercises/basics/choices";
 import { COMPONENT_DOCS } from "@/features/exercises/docs";
@@ -273,6 +274,7 @@ describe("schedule", () => {
     assert.match(prompt, /inputSchema/);
     assert.match(prompt, /Rules for good exercises/);
     assert.match(prompt, /multi-octave/);
+    for (const t of GLOSSARY) assert.ok(prompt.includes(t.label.toLowerCase()), t.id);
     assert.doesNotMatch(buildPrompt(DEFAULT_ANSWERS, entries), /Earlier weeks/);
   });
 });
