@@ -42,7 +42,7 @@ export const GLOSSARY: Term[] = [
   { id: "chord-tones", label: "Chord tones", forms: ["chord tone"], short: "The notes that make up a chord: root, 3rd, 5th, and the 7th if it has one.", href: "/course/5/arpeggios" },
   { id: "circle-of-fifths", label: "Circle of fifths", forms: ["circle of fifths", "circle of 5ths"], short: "The twelve keys in a ring, each a 5th from the next; neighbours share most of their notes.", href: "/course/5/one-four-five" },
   { id: "pentatonic", label: "Pentatonic", forms: ["pentatonic"], short: "A five-note scale: the major or minor scale without its two tensest notes.", href: "/course/5/pentatonic" },
-  { id: "barre-chord", label: "Barre chord", forms: ["barre chord", "barre"], short: "A chord with one finger pressing several strings across a fret, so the shape can move to any key.", href: "/course/6/bm-barre" },
+  { id: "barre-chord", label: "Barre chord", forms: ["barre chord", "bar chord", "barre"], short: "A chord with one finger pressing several strings across a fret, so the shape can move to any key.", href: "/course/6/bm-barre" },
   { id: "drop-3", label: "Drop 3", forms: ["drop 3", "drop-3 voicing"], short: "A four-note chord with the second-highest note dropped an octave: spread out and easy to move.", href: "/course/6/drop-3" },
   { id: "caged", label: "CAGED", forms: ["CAGED"], short: "The five open shapes C, A, G, E, D, joined to cover the whole neck.", href: "/course/8/d-c-a-shapes" },
   { id: "twelve-bar", label: "12-bar blues", forms: ["12-bar blues", "twelve-bar blues", "12-bar"], short: "The blues form: twelve bars on the 1, 4 and 5 chords.", href: "/course/7/twelve-bar" },

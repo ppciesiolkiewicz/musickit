@@ -40,6 +40,7 @@ describe("glossary", () => {
 
   it("bar stays out of longer words", () => {
     assert.deepEqual(terms(explain(["A barre chord, then a 12-bar blues on the root note."])[0]), ["barre-chord:barre chord", "twelve-bar:12-bar blues", "root:root"]);
+    assert.deepEqual(terms(explain(["Play a bar chord at fret 5."])[0]), ["barre-chord:bar chord"]);
   });
 
   it("leaves other words alone", () => {
