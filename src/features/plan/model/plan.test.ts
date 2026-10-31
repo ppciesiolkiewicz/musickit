@@ -341,4 +341,11 @@ describe("schedule", () => {
     for (const t of GLOSSARY) assert.ok(prompt.includes(t.forms[0]), t.id);
     assert.doesNotMatch(buildPrompt(DEFAULT_ANSWERS, entries), /Earlier weeks/);
   });
+  it("lists common mistakes with placement and note-name highlights", () => {
+    const prompt = buildPrompt(null, []);
+    assert.match(prompt, /## Common mistakes/);
+    assert.ok(prompt.includes('"placement"'));
+    assert.ok(prompt.includes('"c-sharp"'));
+    assert.ok(prompt.includes('"view": "tab"'));
+  });
 });

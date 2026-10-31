@@ -76,7 +76,9 @@ sections, a step followed by its tools; plans stored that way are converted on d
 
 `prompt.ts` writes the rules for good exercises (one skill each, minutes that match the work, singing in short musical bursts
 rather than long bare drills, show only the notes the exercise is about, intervals inside an octave unless tagged
-`multi-octave`, a progression practised several ways, no two of a kind in a row), then the interface, generated from
+`multi-octave`, a progression practised several ways, no two of a kind in a row), a short "Common mistakes" list of
+wrong → right pairs (box far from open chords, a note highlighted by the wrong degree, chord tones as prose, no why),
+then the interface, generated from
 `model/tools.ts`: every section kind and tool as name, description and `inputSchema` (as an MCP server lists tools), and the
 pages a link may go to as a few URI templates (`/theory/scales/{scale}/{key}`, `/course/{stage}/{section}`).
 
@@ -84,6 +86,15 @@ pages a link may go to as a few URI templates (`/theory/scales/{scale}/{key}`, `
 
 The AI writes an exercise's text and its tools in the same list; the page draws only from the tools. So the prompt makes
 them agree: every note the text plays is in the scale or its `add`, any outside note is named as outside, with why.
+
+Notes on a neck or staff have four states (`noteState` in `exercises/cues/visibility.ts`): hidden, muted, normal,
+highlighted. The AI lists `highlight`, `mute` and `hide` as degrees or note names (`"c-sharp"`, read against the key, or
+the chord on `arpeggio-neck`); `others` (`normal` / `muted` / `hidden`, old `dimmed` reads as `muted`) sets the rest.
+Notes in `add` are highlighted without muting the scale. `scale-neck` and `arpeggio-neck` take a `placement` instead of
+`boxes` (`exercises/cues/placement.ts`): `{ by: "open" | "fret" | "root" | "box" | "chords" }`; `chords` is resolved on
+paste from the exercise's chord-shapes or play-along (`resolveChordPlacement`: open voicing → open, barre → the first
+chord's fret). Not yet: `placement` on the shapes' per-chord `place`, and `mute` / `hide` / note names on `play-along`
+(it keeps chord-relative degree `highlight`, `others` muted or hidden).
 
 The tools are the learning components of `src/features/exercises` (see its README): `scale-neck`, `chord-shapes`,
 `staff`, `click-drone`, `backing-band`, `note-finder`, `interval-ears`, `arpeggio-neck`, `melody-singer`, `run-singer`
