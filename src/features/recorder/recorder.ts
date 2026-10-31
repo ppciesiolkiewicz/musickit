@@ -44,6 +44,23 @@ export function waveformBars(samples: ArrayLike<number>, bars: number): number[]
   return top > 0 ? out.map((v) => v / top) : out;
 }
 
+/** Each channel's waveform as `bars` heights 0..1, on one scale, so the louder channel draws taller. */
+export function channelWaveforms(channels: ArrayLike<number>[], bars: number): number[][] {
+  const raw = channels.map((c) => {
+    const w = waveformBars(c, bars);
+    const top = peakOf(c);
+    return w.map((v) => v * top);
+  });
+  const top = Math.max(0, ...raw.flat());
+  return top > 0 ? raw.map((w) => w.map((v) => v / top)) : raw;
+}
+
+function peakOf(samples: ArrayLike<number>): number {
+  let peak = 0;
+  for (let i = 0; i < samples.length; i++) peak = Math.max(peak, Math.abs(samples[i]));
+  return peak;
+}
+
 /** The input's level 0..1 from an analyser's time-domain bytes (128 = silence): the peak, so a pluck shows. */
 export function peakLevel(bytes: ArrayLike<number>): number {
   let peak = 0;

@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { clockTime, extensionFor, inputChannels, peakLevel, pickMimeType, soundGate, SOUND_HOLD_MS, takeFileName, waveformBars } from "./recorder";
+import { channelWaveforms, clockTime, extensionFor, inputChannels, peakLevel, pickMimeType, soundGate, SOUND_HOLD_MS, takeFileName, waveformBars } from "./recorder";
 
 describe("recorder", () => {
   it("picks the first format the browser records", () => {
@@ -27,6 +27,10 @@ describe("recorder", () => {
     assert.deepEqual(waveformBars([0, 0.1, -0.5, 0.2, 0.25, 0], 3), [0.2, 1, 0.5]);
     assert.deepEqual(waveformBars([0, 0, 0, 0], 2), [0, 0]);
     assert.deepEqual(waveformBars([0.5], 0), []);
+  });
+  it("draws each channel's waveform on one scale", () => {
+    assert.deepEqual(channelWaveforms([[0.5, 0.25], [0.1, -0.2]], 2), [[1, 0.5], [0.2, 0.4]]);
+    assert.deepEqual(channelWaveforms([[0, 0]], 1), [[0]]);
   });
   it("reads the peak level", () => {
     assert.equal(peakLevel([128, 128, 128]), 0);

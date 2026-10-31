@@ -118,6 +118,25 @@ html.theme-fade *, html.theme-fade *::before, html.theme-fade *::after {
   100% { box-shadow: 0 0 0 16px rgb(24 24 27 / 0); transform: none; }
 }
 .style-pulse { animation: style-pulse 1.6s ease-out 3; }
+/* quick record: the record button's circle beats while the input hears sound */
+@keyframes rec-pulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgb(244 63 94 / 0.45); }
+  50% { transform: scale(1.08); box-shadow: 0 0 0 6px rgb(244 63 94 / 0); }
+}
+.rec-pulse[data-sound="true"] { animation: rec-pulse 700ms ease-in-out infinite; }
+/* quick record: a take's channel volume, a slim vertical bar filled up to its level (--fill, set inline) */
+.take-volume {
+  appearance: none;
+  writing-mode: vertical-lr;
+  direction: rtl;
+  width: 4px;
+  cursor: pointer;
+  border-radius: 9999px;
+  background: linear-gradient(to top, var(--color-rose-400) var(--fill, 50%), var(--color-slate-700) var(--fill, 50%));
+}
+.take-volume::-webkit-slider-thumb { appearance: none; width: 10px; height: 4px; border-radius: 2px; background: var(--color-slate-100); }
+.take-volume::-moz-range-thumb { width: 10px; height: 4px; border: 0; border-radius: 2px; background: var(--color-slate-100); }
+.take-volume:focus-visible { outline: 2px solid var(--color-sky-400); outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) {
-  .landing-rise, .landing-fade, .dot-pop, .wheel-halo, .wheel-ripple, .wheel-spin, .style-pulse { animation: none; }
+  .landing-rise, .landing-fade, .dot-pop, .wheel-halo, .wheel-ripple, .wheel-spin, .style-pulse, .rec-pulse[data-sound="true"] { animation: none; }
 }
