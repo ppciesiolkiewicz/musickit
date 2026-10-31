@@ -2,7 +2,7 @@ import type { ArpeggioPartShape, ChordStepsShape, MelodyShape, ProgressionShape,
 import type { Degree } from "../timeline/types";
 
 type NoTempo<S> = Omit<S, "bpm" | "repeats">;
-/** One of the play-along shapes, without `bpm` and `repeats` (those sit on the play-along itself). */
+/** One of the play-along shapes, without `bpm` (that sits on the play-along itself). */
 export type PlayAlongShape =
   | NoTempo<ProgressionShape> | NoTempo<TwoScalesShape> | NoTempo<ChordStepsShape>
   | NoTempo<ArpeggioPartShape> | NoTempo<MelodyShape> | NoTempo<SoloOverShape>;
@@ -15,7 +15,7 @@ export type PlayAlongShape =
  * steps over chords (guide tones, arpeggio parts) the app holds each chord softly by default, so the student hears the
  * harmony and not just the click; `under` changes that.
  *
- * Example: `{ "type": "play-along", "shape": { "shape": "chord-steps", "voicing": "barre", "chords": [{ "chord": "G", "steps": ["strum","1","6","1"] }, { "chord": "D", "steps": ["strum","4","5","4"] }] }, "bpm": 70, "repeats": 4 }`
+ * Example: `{ "type": "play-along", "shape": { "shape": "chord-steps", "voicing": "barre", "chords": [{ "chord": "G", "steps": ["strum","1","6","1"] }, { "chord": "D", "steps": ["strum","4","5","4"] }] }, "bpm": 70 }`
  * @component play-along guided
  */
 export interface PlayAlongProps {
@@ -23,8 +23,6 @@ export interface PlayAlongProps {
   shape: PlayAlongShape;
   /** tempo, 30-240 */
   bpm: number;
-  /** how many times the timeline loops (1-50); absent loops until stopped */
-  repeats?: number;
   /** first view: "tab" (default), "notes" or "neck" */
   view?: "tab" | "notes" | "neck";
   /** degrees to stand out (major-relative, from the chord root): ["1","3"] */

@@ -69,7 +69,8 @@ test("student part: levels, stars, unsure, voice, focus, minutes, styles as flav
 
 test("the prompt drops repeats arithmetic and the old singing rule, and teaches blocks", () => {
   const all = buildPrompt(rated, catalogue());
-  assert.doesNotMatch(all, /repeats x/);
+  assert.doesNotMatch(all, /repeats/);
+  assert.match(all, /split into two exercises rather than exceed 6/);
   assert.doesNotMatch(all, /Always pair singing with playing/);
   assert.match(all, /at most one block of 3 minutes or less/);
   assert.match(all, /"minutes": 3/);

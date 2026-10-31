@@ -2,8 +2,8 @@ import type { CompPattern } from "@/lib/practice/comping";
 import type { Degree, DegreesFrom, Place, Voicing } from "../timeline/types";
 
 /**
- * Tempo of every shape: `bpm` (30-240) and `repeats` (how many times the whole timeline loops, 1-50). Write them on the
- * play-along itself; inside the shape they are only a fallback.
+ * Tempo of every shape: `bpm` (30-240). Write it on the play-along itself; inside the shape it is only a fallback. `repeats`
+ * (older plans) is read but the prompt does not teach it.
  */
 export interface ShapeCommon {
   bpm: number;
@@ -14,7 +14,7 @@ export interface ShapeCommon {
  * A chord progression, by chord names or by numerals in a key, cycled to fill `bars`. Optional `steps` repeat over
  * each chord's beats, one beat each ("strum" or a degree). Degrees are major-relative semitones ("3" is always 4),
  * counted from the chord root (`degreesFrom: "chord"`, default) or the key. `backing` lists comping patterns, the
- * first plays first. `place` gives each chord a box and part, in order. `bpm` and `repeats` go on the play-along.
+ * first plays first. `place` gives each chord a box and part, in order. `bpm` goes on the play-along.
  *
  * Example: `{ "shape": "progression", "key": "g", "numerals": ["I","IV","V"], "steps": ["1","3","5"], "bars": 4 }`
  * @component progression shape
@@ -45,7 +45,7 @@ export interface ProgressionShape extends ShapeCommon {
 
 /**
  * Play in one scale, then switch to another at a bar (default halfway), same click throughout. Each side has its own
- * key. `bpm` and `repeats` go on the play-along.
+ * key. `bpm` goes on the play-along.
  *
  * Example: `{ "shape": "two-scales", "a": { "key": "a", "scale": "minor-pentatonic" }, "b": { "key": "a", "scale": "dorian" }, "bars": 8 }`
  * @component two-scales shape
@@ -67,7 +67,7 @@ export interface TwoScalesShape extends ShapeCommon {
 /**
  * Per chord, a list of steps, one beat each: "strum" or a degree. Each chord takes one bar, more when its steps need
  * them. Degrees are major-relative semitones from the chord root (default) or the key (when `key` is given). `guide`
- * gives a cue per step, in order. `bpm` and `repeats` go on the play-along.
+ * gives a cue per step, in order. `bpm` goes on the play-along.
  *
  * Example: `{ "shape": "chord-steps", "voicing": "barre", "chords": [{ "chord": "G", "steps": ["strum","1","6","1"] }, { "chord": "D", "steps": ["strum","4","5","4"] }] }`
  * @component chord-steps shape
@@ -90,7 +90,7 @@ export interface ChordStepsShape extends ShapeCommon {
  * Part of an arpeggio (for example 1-3, or 1-3-5) over a chord or a progression; chords cycle to fill `bars`, the
  * degrees repeat one per beat. `place` gives each chord a box and part; `across` connects one arpeggio from one box
  * part to the next. Only some neighbouring box pairs share notes (for example Am box 2 upper and box 3 lower), so
- * crossings work best between boxes that overlap. `bpm` and `repeats` go on the play-along.
+ * crossings work best between boxes that overlap. `bpm` goes on the play-along.
  *
  * Example: `{ "shape": "arpeggio-part", "chords": ["C","Am","F","G"], "degrees": ["1","3","5"], "bars": 4, "place": [{ "box": 1, "part": "lower" }, { "box": 1, "part": "upper" }, { "box": 2, "part": "lower" }, { "box": 2, "part": "upper" }] }`
  * @component arpeggio-part shape
@@ -114,7 +114,7 @@ export interface ArpeggioPartShape extends ShapeCommon {
 }
 
 /**
- * A tune from the singing book, by number, in a key. `bpm` and `repeats` go on the play-along.
+ * A tune from the singing book, by number, in a key. `bpm` goes on the play-along.
  *
  * Example: `{ "shape": "melody", "tune": 3, "key": "d" }`
  * @component melody shape
@@ -130,7 +130,7 @@ export interface MelodyShape extends ShapeCommon {
 /**
  * Improvise over chords: per chord an optional scale (named from the chord root), target chord tones shown
  * highlighted (degrees, major-relative), and an optional `approach` hint. The code plays the backing; no fixed
- * notes, nothing graded. Each chord takes `bars` bars (default 1). `bpm` and `repeats` go on the play-along.
+ * notes, nothing graded. Each chord takes `bars` bars (default 1). `bpm` goes on the play-along.
  *
  * Example: `{ "shape": "solo-over", "key": "g", "chords": [{ "chord": "Am7", "scale": "dorian", "target": ["1","b3"] }, { "chord": "D7", "scale": "mixolydian", "target": ["3"], "approach": "land on the 3rd on beat 1" }] }`
  * @component solo-over shape

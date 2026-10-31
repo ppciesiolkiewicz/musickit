@@ -108,7 +108,7 @@ export function PlayAlongTimeline({ timeline, view = "tab", others = "muted", hi
 }
 
 /** `play-along`: a shape expanded to a timeline and played along with, its backing sound set by `under`. */
-export default function PlayAlong({ shape, bpm, repeats, view, highlight, others, under }: PlayAlongProps) {
+export default function PlayAlong({ shape, bpm, repeats, view, highlight, others, under }: PlayAlongProps & { /** loops, from older plans; absent loops until stopped */ repeats?: number }) {
   const timeline = useMemo(() => {
     const t = expandShape({ ...shape, bpm, ...(repeats !== undefined ? { repeats } : {}) });
     return t && withBackingSound(clampTimeline(t), under as BackingSound | undefined);

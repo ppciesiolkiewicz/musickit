@@ -57,7 +57,7 @@
   {
     "name": "arpeggio-part",
     "kind": "shape",
-    "description": "Part of an arpeggio (for example 1-3, or 1-3-5) over a chord or a progression; chords cycle to fill `bars`, the\ndegrees repeat one per beat. `place` gives each chord a box and part; `across` connects one arpeggio from one box\npart to the next. Only some neighbouring box pairs share notes (for example Am box 2 upper and box 3 lower), so\ncrossings work best between boxes that overlap. `bpm` and `repeats` go on the play-along.\n\nExample: `{ \"shape\": \"arpeggio-part\", \"chords\": [\"C\",\"Am\",\"F\",\"G\"], \"degrees\": [\"1\",\"3\",\"5\"], \"bars\": 4, \"place\": [{ \"box\": 1, \"part\": \"lower\" }, { \"box\": 1, \"part\": \"upper\" }, { \"box\": 2, \"part\": \"lower\" }, { \"box\": 2, \"part\": \"upper\" }] }`",
+    "description": "Part of an arpeggio (for example 1-3, or 1-3-5) over a chord or a progression; chords cycle to fill `bars`, the\ndegrees repeat one per beat. `place` gives each chord a box and part; `across` connects one arpeggio from one box\npart to the next. Only some neighbouring box pairs share notes (for example Am box 2 upper and box 3 lower), so\ncrossings work best between boxes that overlap. `bpm` goes on the play-along.\n\nExample: `{ \"shape\": \"arpeggio-part\", \"chords\": [\"C\",\"Am\",\"F\",\"G\"], \"degrees\": [\"1\",\"3\",\"5\"], \"bars\": 4, \"place\": [{ \"box\": 1, \"part\": \"lower\" }, { \"box\": 1, \"part\": \"upper\" }, { \"box\": 2, \"part\": \"lower\" }, { \"box\": 2, \"part\": \"upper\" }] }`",
     "props": [
       {
         "name": "shape",
@@ -156,7 +156,7 @@
   {
     "name": "chord-steps",
     "kind": "shape",
-    "description": "Per chord, a list of steps, one beat each: \"strum\" or a degree. Each chord takes one bar, more when its steps need\nthem. Degrees are major-relative semitones from the chord root (default) or the key (when `key` is given). `guide`\ngives a cue per step, in order. `bpm` and `repeats` go on the play-along.\n\nExample: `{ \"shape\": \"chord-steps\", \"voicing\": \"barre\", \"chords\": [{ \"chord\": \"G\", \"steps\": [\"strum\",\"1\",\"6\",\"1\"] }, { \"chord\": \"D\", \"steps\": [\"strum\",\"4\",\"5\",\"4\"] }] }`",
+    "description": "Per chord, a list of steps, one beat each: \"strum\" or a degree. Each chord takes one bar, more when its steps need\nthem. Degrees are major-relative semitones from the chord root (default) or the key (when `key` is given). `guide`\ngives a cue per step, in order. `bpm` goes on the play-along.\n\nExample: `{ \"shape\": \"chord-steps\", \"voicing\": \"barre\", \"chords\": [{ \"chord\": \"G\", \"steps\": [\"strum\",\"1\",\"6\",\"1\"] }, { \"chord\": \"D\", \"steps\": [\"strum\",\"4\",\"5\",\"4\"] }] }`",
     "props": [
       {
         "name": "shape",
@@ -329,7 +329,7 @@
   {
     "name": "melody",
     "kind": "shape",
-    "description": "A tune from the singing book, by number, in a key. `bpm` and `repeats` go on the play-along.\n\nExample: `{ \"shape\": \"melody\", \"tune\": 3, \"key\": \"d\" }`",
+    "description": "A tune from the singing book, by number, in a key. `bpm` goes on the play-along.\n\nExample: `{ \"shape\": \"melody\", \"tune\": 3, \"key\": \"d\" }`",
     "props": [
       {
         "name": "shape",
@@ -453,7 +453,7 @@
   {
     "name": "play-along",
     "kind": "guided",
-    "description": "Play along with a click and piano: the music shown as tab, as note names or on the neck, all following one clock.\nYou choose the musical content as a shape; the app computes the notes, frets, strings and timing. Shapes, by name:\n`progression`, `two-scales`, `chord-steps`, `arpeggio-part`, `melody`, `solo-over` (see each shape's doc).\nThe student can change tempo and view, and pick a backing when the shape offers more than one. Under single-note\nsteps over chords (guide tones, arpeggio parts) the app holds each chord softly by default, so the student hears the\nharmony and not just the click; `under` changes that.\n\nExample: `{ \"type\": \"play-along\", \"shape\": { \"shape\": \"chord-steps\", \"voicing\": \"barre\", \"chords\": [{ \"chord\": \"G\", \"steps\": [\"strum\",\"1\",\"6\",\"1\"] }, { \"chord\": \"D\", \"steps\": [\"strum\",\"4\",\"5\",\"4\"] }] }, \"bpm\": 70, \"repeats\": 4 }`",
+    "description": "Play along with a click and piano: the music shown as tab, as note names or on the neck, all following one clock.\nYou choose the musical content as a shape; the app computes the notes, frets, strings and timing. Shapes, by name:\n`progression`, `two-scales`, `chord-steps`, `arpeggio-part`, `melody`, `solo-over` (see each shape's doc).\nThe student can change tempo and view, and pick a backing when the shape offers more than one. Under single-note\nsteps over chords (guide tones, arpeggio parts) the app holds each chord softly by default, so the student hears the\nharmony and not just the click; `under` changes that.\n\nExample: `{ \"type\": \"play-along\", \"shape\": { \"shape\": \"chord-steps\", \"voicing\": \"barre\", \"chords\": [{ \"chord\": \"G\", \"steps\": [\"strum\",\"1\",\"6\",\"1\"] }, { \"chord\": \"D\", \"steps\": [\"strum\",\"4\",\"5\",\"4\"] }] }, \"bpm\": 70 }`",
     "props": [
       {
         "name": "shape",
@@ -466,12 +466,6 @@
         "type": "number",
         "required": true,
         "description": "tempo, 30-240"
-      },
-      {
-        "name": "repeats",
-        "type": "number",
-        "required": false,
-        "description": "how many times the timeline loops (1-50); absent loops until stopped"
       },
       {
         "name": "view",
@@ -502,7 +496,7 @@
   {
     "name": "progression",
     "kind": "shape",
-    "description": "A chord progression, by chord names or by numerals in a key, cycled to fill `bars`. Optional `steps` repeat over\neach chord's beats, one beat each (\"strum\" or a degree). Degrees are major-relative semitones (\"3\" is always 4),\ncounted from the chord root (`degreesFrom: \"chord\"`, default) or the key. `backing` lists comping patterns, the\nfirst plays first. `place` gives each chord a box and part, in order. `bpm` and `repeats` go on the play-along.\n\nExample: `{ \"shape\": \"progression\", \"key\": \"g\", \"numerals\": [\"I\",\"IV\",\"V\"], \"steps\": [\"1\",\"3\",\"5\"], \"bars\": 4 }`",
+    "description": "A chord progression, by chord names or by numerals in a key, cycled to fill `bars`. Optional `steps` repeat over\neach chord's beats, one beat each (\"strum\" or a degree). Degrees are major-relative semitones (\"3\" is always 4),\ncounted from the chord root (`degreesFrom: \"chord\"`, default) or the key. `backing` lists comping patterns, the\nfirst plays first. `place` gives each chord a box and part, in order. `bpm` goes on the play-along.\n\nExample: `{ \"shape\": \"progression\", \"key\": \"g\", \"numerals\": [\"I\",\"IV\",\"V\"], \"steps\": [\"1\",\"3\",\"5\"], \"bars\": 4 }`",
     "props": [
       {
         "name": "shape",
@@ -667,7 +661,7 @@
   {
     "name": "solo-over",
     "kind": "shape",
-    "description": "Improvise over chords: per chord an optional scale (named from the chord root), target chord tones shown\nhighlighted (degrees, major-relative), and an optional `approach` hint. The code plays the backing; no fixed\nnotes, nothing graded. Each chord takes `bars` bars (default 1). `bpm` and `repeats` go on the play-along.\n\nExample: `{ \"shape\": \"solo-over\", \"key\": \"g\", \"chords\": [{ \"chord\": \"Am7\", \"scale\": \"dorian\", \"target\": [\"1\",\"b3\"] }, { \"chord\": \"D7\", \"scale\": \"mixolydian\", \"target\": [\"3\"], \"approach\": \"land on the 3rd on beat 1\" }] }`",
+    "description": "Improvise over chords: per chord an optional scale (named from the chord root), target chord tones shown\nhighlighted (degrees, major-relative), and an optional `approach` hint. The code plays the backing; no fixed\nnotes, nothing graded. Each chord takes `bars` bars (default 1). `bpm` goes on the play-along.\n\nExample: `{ \"shape\": \"solo-over\", \"key\": \"g\", \"chords\": [{ \"chord\": \"Am7\", \"scale\": \"dorian\", \"target\": [\"1\",\"b3\"] }, { \"chord\": \"D7\", \"scale\": \"mixolydian\", \"target\": [\"3\"], \"approach\": \"land on the 3rd on beat 1\" }] }`",
     "props": [
       {
         "name": "shape",
@@ -765,7 +759,7 @@
   {
     "name": "two-scales",
     "kind": "shape",
-    "description": "Play in one scale, then switch to another at a bar (default halfway), same click throughout. Each side has its own\nkey. `bpm` and `repeats` go on the play-along.\n\nExample: `{ \"shape\": \"two-scales\", \"a\": { \"key\": \"a\", \"scale\": \"minor-pentatonic\" }, \"b\": { \"key\": \"a\", \"scale\": \"dorian\" }, \"bars\": 8 }`",
+    "description": "Play in one scale, then switch to another at a bar (default halfway), same click throughout. Each side has its own\nkey. `bpm` goes on the play-along.\n\nExample: `{ \"shape\": \"two-scales\", \"a\": { \"key\": \"a\", \"scale\": \"minor-pentatonic\" }, \"b\": { \"key\": \"a\", \"scale\": \"dorian\" }, \"bars\": 8 }`",
     "props": [
       {
         "name": "shape",
