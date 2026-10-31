@@ -67,7 +67,7 @@ export default function WeekView({ plan, today, day, onDay, onToggle, onElapsed 
           const isNow = now === i && !done;
           return (
             <li key={`${day}:${i}`}>
-              <ExerciseCard exercise={e} index={i} done={done} now={isNow} onToggle={() => onToggle(day, i)} />
+              <ExerciseCard exercise={e} index={i} done={done} now={isNow} onToggle={() => onToggle(day, i)} address={`d${day}.e${i}`} />
             </li>
           );
         })}

@@ -21,8 +21,8 @@ const EDGE: Record<Hue, string> = {
  * focus, tags, its sections (text, steps and tools, set up and ready to play), why, and Mark done when `onToggle` is given.
  * `now` marks the exercise the day timer is in.
  */
-export default function ExerciseCard({ exercise: e, index, done = false, now = false, onToggle }: {
-  exercise: PlanExercise; index: number; done?: boolean; now?: boolean; onToggle?: () => void;
+export default function ExerciseCard({ exercise: e, index, done = false, now = false, onToggle, address }: {
+  exercise: PlanExercise; index: number; done?: boolean; now?: boolean; onToggle?: () => void; /** which exercise, for a `SectionAside` */ address?: string;
 }) {
   const hue = hueAt(index);
   return (
@@ -43,7 +43,7 @@ export default function ExerciseCard({ exercise: e, index, done = false, now = f
           {e.tags?.map((t) => <span key={t} className={`rounded-full bg-slate-800/80 px-2 py-0.5 text-[11px] font-medium ${HUE_TONES[TAG_HUES[t] ?? "sky"].ink}`}>#{t}</span>)}
         </div>
       )}
-      <Sections sections={sectionsOf(e)} />
+      <Sections sections={sectionsOf(e)} address={address} />
       {e.why && <p className="border-l-2 border-slate-700 pl-3 text-xs italic leading-relaxed text-slate-400">{e.why}</p>}
       {onToggle && (
         <button

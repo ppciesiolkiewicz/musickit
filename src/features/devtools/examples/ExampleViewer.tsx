@@ -13,6 +13,8 @@ import { answersFromText } from "../model/compose";
 import { partAnchor } from "../prompt/PartList";
 import ExamplePreview from "../prompt/ExamplePreview";
 import { planToCopy } from "../model/preview";
+import { exampleHashes } from "../model/comments";
+import { CommentCount, CommentsBar, CommentsFor, CommitsProvider, useCommits } from "./Comments";
 import Icon from "@/components/Icon";
 import { loadStudio, useMounted } from "../prompt/storage";
 
@@ -42,7 +44,7 @@ function CopyPlan({ json, note }: { json: string; note?: string }) {
 }
 
 /** A card per example; the preview mounts only while open (each one sets up its tools). */
-function ExampleCard({ title, meta, note, json, entries, badge }: { title: string; meta?: ReactNode; note?: string; json: string; entries: CatalogueEntry[]; badge?: ReactNode }) {
+function ExampleCard({ title, meta, note, json, entries, badge }: { /** the example's id */ title: string; meta?: ReactNode; note?: string; json: string; entries: CatalogueEntry[]; badge?: ReactNode }) {
   const [open, setOpen] = useState(false);
   return (
     <li className="rounded-xl border border-slate-800 bg-slate-900/40">
@@ -52,11 +54,12 @@ function ExampleCard({ title, meta, note, json, entries, badge }: { title: strin
             <span className="font-mono text-sm text-sky-200">{title}</span>
             {badge}
             {meta}
+            <CommentCount example={title} />
             <CopyPlan json={json} note={note} />
           </span>
           {note && <span className="text-xs text-slate-400">{note}</span>}
         </summary>
-        {open && <div className="border-t border-slate-800 p-3"><ExamplePreview json={json} entries={entries} /></div>}
+        {open && <div className="border-t border-slate-800 p-3"><CommentsFor example={title}><ExamplePreview json={json} entries={entries} /></CommentsFor></div>}
       </details>
     </li>
   );
@@ -102,8 +105,13 @@ export default function ExampleViewer() {
     [kind, area, level, showcase, onlyPrompt, inPrompt],
   );
 
+  const commits = useCommits();
+  // every section of every example as it is now, filtered out or not: what the comments are checked against
+  const hashes = useMemo(() => exampleHashes([...EXERCISE_EXAMPLES, ...PLAN_EXAMPLES].map((e) => ({ id: e.id, json: JSON.stringify(e.kind === "plan" ? e.plan : e.exercise) })), entries), [entries]);
+
   if (!mounted) return <p className="text-sm text-slate-500">Loading…</p>;
   return (
+    <CommitsProvider value={commits}>
     <div className="flex flex-col gap-4">
       <p className="text-xs text-slate-500">
         Answers from the <Link href="/dev/prompt" className="text-sky-300 underline">prompt studio</Link>
@@ -145,6 +153,8 @@ export default function ExampleViewer() {
           {!library.length && <li className="text-sm text-slate-500">No example matches.</li>}
         </ul>
       </div>
+      <CommentsBar hashes={hashes} />
     </div>
+    </CommitsProvider>
   );
 }

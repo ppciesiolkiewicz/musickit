@@ -30,8 +30,18 @@ Its state stays in `localStorage` key `musickit.dev.prompt`; "Load my /plan answ
 
 "In the prompt": the example parts `promptParts` builds for the studio's saved answers, each with its "Why it's good" note.
 "Library": every example in `src/features/plan/examples` with filters (kind, area, level, showcase), marked "in prompt"
-when `selectExamples` picks it for those answers. Opening a card renders it (`model/preview.ts`): an exercise as its
-header and sections, a plan in the real week view, with the parser's warnings.
+when `selectExamples` picks it for those answers. Opening a card renders it (`model/preview.ts`): an exercise as the
+plan's `ExerciseCard`, a plan in the real week view, with the parser's warnings. **Copy as plan** copies any example as a
+complete 7-day plan for `/plan`'s paste step (`planToCopy`: an exercise becomes a week of itself).
+
+**Comments.** Every section of a rendered example has a pencil at its end (`examples/Comments.tsx`, through the plan's
+`SectionAsideContext`): a comment is pinned to the example, the exercise's address (`ex`, or `d2.e1` in a plan) and the
+section's index, with a hash of the section (`model/comments.ts` `sectionHash`) and the example file's last commit from
+`GET /api/dev/commit` (`server/git.ts`: HEAD, and each example file's last commit and uncommitted state). When the
+section's hash no longer matches, the comment turns orange ("section changed", with *keep* to re-pin it); a section that
+is gone shows rose. Comments live in `localStorage` key `musickit.dev.comments`. The bar at the bottom counts them,
+shows HEAD, and copies them all as Markdown (`commentsMarkdown`: by example with file and commit, in section order, each
+with its quote and a warning when outdated); outdated is checked against every example (`exampleHashes`), open or not.
 
 ## Running the prompt
 
@@ -57,7 +67,9 @@ returns one.
 - `server/claude.ts`: `claudeArgs`, `childEnv`, `parseClaudeResult`, `runClaude`.
 - `server/running.ts`: runs in progress (`startRun`, `cancelRun`, `endRun`, `listRunning`), kept on `globalThis`.
 - `server/history.ts`: `saveRun`, `readRun`, `listRuns` over `tools/prompt-history/`.
-- `model/preview.ts`: an example's JSON made parseable and parsed for display; `whyOf`.
+- `model/preview.ts`: an example's JSON made parseable and parsed for display; `planToCopy`; `whyOf`.
+- `model/comments.ts`: section comments: hashes, state, Markdown, `exampleHashes`.
+- `server/git.ts`: `exampleCommits` (HEAD and the example files' commits), for `GET /api/dev/commit`.
 - `prompt/`: `PromptStudio` (state), `StudioInputs`, `PartList`, `RunPanel`, `PlanPreview`, `HistoryList`, `api.ts` (fetches), `storage.ts` (saved state, `useMounted`).
 - `examples/ExampleViewer.tsx`: the examples page.
 - Routes: `src/app/api/dev/run`, `src/app/api/dev/history`, `src/app/api/dev/history/[id]`; pages `src/app/dev`.

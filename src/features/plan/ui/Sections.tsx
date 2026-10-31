@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { useContext, type ReactNode } from "react";
+import { SectionAsideContext } from "./SectionAside";
 import Icon from "@/components/Icon";
 import Explained from "@/components/course/Explained";
 import { explain, type Piece } from "@/features/course/glossary";
@@ -22,7 +24,11 @@ function NoteText({ pieces, root }: { pieces: Piece[]; root: NoteRoot | null }) 
 }
 
 /** An exercise's sections in the order the AI wrote them: headings, paragraphs, numbered steps, tools and links, top to bottom. */
-export default function Sections({ sections }: { sections: Section[] }) {
+export default function Sections({ sections, address = "ex" }: { sections: Section[]; /** which exercise, for a `SectionAside` */ address?: string }) {
+  const aside = useContext(SectionAsideContext);
+  // with an aside (a host's comments), each section carries it; text-like sections shrink to their text so the aside sits at its end
+  const withAside = (node: ReactNode, i: number) =>
+    aside ? <div key={i} className={`group/sec relative ${sections[i].type === "tool" ? "" : "w-fit max-w-full pr-8"}`}>{node}{aside({ address, index: i, section: sections[i] })}</div> : node;
   // a timed heading shows its block's minutes (fitted on paste to add up to the exercise's)
   const blockMinutes = new Map(blocksOf(sections).map((b) => [sections.findIndex((s, i) => i >= b.from && s.type === "heading" && !!s.minutes), b.minutes]));
   // Glossary terms, each marked at its first use in the exercise: texts in order, a list's items one after another.
@@ -62,15 +68,18 @@ export default function Sections({ sections }: { sections: Section[] }) {
     <div className="flex flex-col gap-7">
       {parts.map((p) => {
         const h = p.head === null ? null : sections[p.head];
-        if (!h || h.type !== "heading") return <div key={`intro-${p.items[0]}`} className="flex flex-col gap-3">{p.items.map((i) => item(sections[i], i))}</div>;
+        if (!h || h.type !== "heading") return <div key={`intro-${p.items[0]}`} className="flex flex-col gap-3">{p.items.map((i) => withAside(item(sections[i], i), i))}</div>;
         return (
           <div key={p.head} className="flex flex-col gap-3">
-            <h4 className="flex items-center gap-2.5 text-base font-semibold text-slate-50">
-              <span aria-hidden className="size-2.5 shrink-0 rounded-full bg-sky-400 ring-4 ring-sky-400/15" />
-              {h.text}
-              {blockMinutes.has(p.head!) && <span className="rounded-full bg-slate-800 px-2 py-0.5 text-[11px] font-medium tabular-nums text-slate-300">{blockMinutes.get(p.head!)} min</span>}
-            </h4>
-            {p.items.length > 0 && <div className="ml-[4px] flex flex-col gap-3 border-l border-slate-700/70 pl-5">{p.items.map((i) => item(sections[i], i))}</div>}
+            {withAside(
+              <h4 key={p.head} className="flex items-center gap-2.5 text-base font-semibold text-slate-50">
+                <span aria-hidden className="size-2.5 shrink-0 rounded-full bg-sky-400 ring-4 ring-sky-400/15" />
+                {h.text}
+                {blockMinutes.has(p.head!) && <span className="rounded-full bg-slate-800 px-2 py-0.5 text-[11px] font-medium tabular-nums text-slate-300">{blockMinutes.get(p.head!)} min</span>}
+              </h4>,
+              p.head!,
+            )}
+            {p.items.length > 0 && <div className="ml-[4px] flex flex-col gap-3 border-l border-slate-700/70 pl-5">{p.items.map((i) => withAside(item(sections[i], i), i))}</div>}
           </div>
         );
       })}
