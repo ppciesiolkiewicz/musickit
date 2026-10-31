@@ -2,11 +2,17 @@
 
 import Link from "next/link";
 import Icon from "@/components/Icon";
+import Explained from "@/components/course/Explained";
+import { explain } from "@/features/course/glossary";
 import type { Section } from "../model/tools";
 import ExerciseTool from "./ExerciseTool";
 
 /** An exercise's sections in the order the AI wrote them: headings, paragraphs, numbered steps, tools and links, top to bottom. */
 export default function Sections({ sections }: { sections: Section[] }) {
+  // Glossary terms, each marked at its first use in the exercise: texts in order, a list's items one after another.
+  const texts = sections.flatMap((s) => (s.type === "text" ? [s.text] : s.type === "list" ? s.items : []));
+  const pieces = explain(texts);
+  let n = 0;
   return (
     <div className="flex flex-col gap-3">
       {sections.map((s, i) => {
@@ -14,11 +20,11 @@ export default function Sections({ sections }: { sections: Section[] }) {
           case "heading":
             return <h4 key={i} className="mt-1 text-sm font-medium text-slate-100">{s.text}</h4>;
           case "text":
-            return <p key={i} className="text-sm leading-relaxed text-slate-300">{s.text}</p>;
+            return <p key={i} className="text-sm leading-relaxed text-slate-300"><Explained pieces={pieces[n++]} /></p>;
           case "list":
             return (
               <ol key={i} className="list-decimal space-y-0.5 pl-5 text-sm leading-relaxed text-slate-300 marker:text-slate-500">
-                {s.items.map((it, n) => <li key={n}>{it}</li>)}
+                {s.items.map((_, j) => <li key={j}><Explained pieces={pieces[n++]} /></li>)}
               </ol>
             );
           case "tool":

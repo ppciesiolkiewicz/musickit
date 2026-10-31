@@ -25,7 +25,7 @@ describe("course structure", () => {
   });
   it("next and previous cross stage boundaries and stop at the ends", () => {
     assert.equal(nextSection("1", "notes-on-e-and-a")?.section.slug, "em-and-am");
-    assert.equal(nextSection("11", "jazz-standards"), undefined);
+    assert.equal(nextSection("11", "guide-tones"), undefined);
     assert.equal(prevSection("1", "strings-and-tuning"), undefined);
     assert.equal(prevSection("2", "em-and-am")?.section.slug, "notes-on-e-and-a");
   });

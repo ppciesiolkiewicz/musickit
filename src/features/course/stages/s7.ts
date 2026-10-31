@@ -34,5 +34,7 @@ export const STAGE_7: CourseStage = {
           { title: "Fly Me to the Moon", artist: "jazz standard", chords: ["Am7", "Dm7", "G7", "Cmaj7", "Fmaj7", "Bm7♭5", "E7"], progression: "Am7 Dm7 G7 Cmaj7 · Fmaj7 Bm7♭5 E7 Am7" },
         ),
       ]),
+    section("comping", "Comping", "colour"),
+    section("guide-tones", "Guide tones", "colour"),
   ],
 };

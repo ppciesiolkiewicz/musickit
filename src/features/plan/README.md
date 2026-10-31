@@ -97,3 +97,11 @@ Old stored or pasted tools are migrated before parsing (`model/migrate.ts`): `sc
 
 To add one: the component with its `@component` doc, its parse in `TOOLS` in `model/tools.ts`, a view in
 `ui/ExerciseTool.tsx` (lazy-load anything with its own sound engine), and a test.
+
+## Explained words
+
+Hard words in an exercise's text and steps ("comp", "guide tones", "eighths"…) get a dotted underline and an (i) with a
+one-line meaning and a link to the course article. The AI writes plain text; `explain()` in
+`src/features/course/glossary.ts` finds the terms (plurals, -ing forms, multi-word and hyphenated) and marks each once
+per exercise. To add a word: an entry in `GLOSSARY`, and an article; if there is none yet, add an empty `section()` to
+the course and point at it.
