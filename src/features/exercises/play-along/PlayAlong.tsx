@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import Icon from "@/components/Icon";
 import { sbtn } from "@/components/ui";
 import { COMP_PATTERNS, type CompPattern } from "@/lib/practice/comping";
-import { cuesOf } from "../cues/cues";
+import { chordCues, cuesOf } from "../cues/cues";
 import { chordShapeFor } from "../cues/voicing";
 import { expandShape } from "../shapes";
 import { parseDegrees } from "../timeline/degrees";
@@ -27,6 +27,9 @@ const MAX_BPM = 240;
 const withBacking = (t: Timeline, p: CompPattern | undefined): Timeline =>
   !p ? t : { ...t, events: t.events.map((e) => (e.type === "chord" && e.backing ? { ...e, backing: p } : e)) };
 
+/** No steps to play: the chords themselves are drawn (an old `comp`, a progression only backed). */
+const stepless = (t: Timeline) => !t.events.some((e) => e.type === "step");
+
 /** A ready timeline played along with: click, piano, and a tab / notes / neck view that follow the playhead. */
 export function PlayAlongTimeline({ timeline, view = "tab", others = "dimmed", highlight }: { timeline: Timeline; view?: View; others?: "dimmed" | "hidden"; highlight?: number[] }) {
   const choices = timeline.backingChoices ?? [];
@@ -36,7 +39,7 @@ export function PlayAlongTimeline({ timeline, view = "tab", others = "dimmed", h
   const played = useMemo(() => withBacking(timeline, choices.length > 1 ? pattern : undefined), [timeline, pattern, choices.length]);
   const player = useTimelinePlayer(played);
   const cues = useMemo(
-    () => cuesOf(played, highlight ? { highlight } : {}).filter((c) => c.kind !== "backing" && (others !== "hidden" || c.highlighted)),
+    () => (stepless(played) ? chordCues : cuesOf)(played, highlight ? { highlight } : {}).filter((c) => c.kind !== "backing" && (others !== "hidden" || c.highlighted)),
     [played, highlight, others],
   );
   const fellBack = useMemo(() => {
@@ -92,7 +95,7 @@ export function PlayAlongTimeline({ timeline, view = "tab", others = "dimmed", h
       {solo ? <SoloView targets={solo} mode={shown} others={others} /> : <>
       {shown === "tab" && <TabView cues={cues} pos={pos} length={length} />}
       {shown === "notes" && <NotesView cues={cues} pos={pos} length={length} />}
-      {shown === "neck" && <NeckView cues={cues} pos={pos} length={length} />}
+      {shown === "neck" && <NeckView cues={stepless(played) ? [now ?? cues[0]].filter(Boolean) : cues} pos={pos} length={length} />}
       </>}
       {fellBack.map((n) => <p key={n} className="text-[11px] text-slate-500">{n}: open chord used, no barre shape.</p>)}
     </div>

@@ -193,3 +193,19 @@ export function cuesOf(t: Timeline, opts: { highlight?: number[] } = {}): Cue[] 
   }
   return out.sort((a, b) => a.at - b.at || (a.kind === "backing" ? 1 : 0) - (b.kind === "backing" ? 1 : 0));
 }
+
+/**
+ * For a timeline with no steps (a progression only backed, like an old `comp`): one cue per chord, the whole voiced
+ * shape held for the chord's beats, so the views show the chord itself (its frets, its notes). Highlight as `cuesOf`.
+ */
+export function chordCues(t: Timeline, opts: { highlight?: number[] } = {}): Cue[] {
+  return t.events.filter((e): e is ChordEv => e.type === "chord").sort((a, b) => a.at - b.at).flatMap((c) => {
+    const v = chordShapeFor(c.name, c.voicing);
+    if (!v) return [];
+    const cells = shapeCells(v);
+    const rootPc = parseChordQuery(c.name)?.rootPc ?? 0;
+    const h = opts.highlight ?? c.highlight;
+    const highlighted = !h || cells.some((x) => h.map(mod12).includes(mod12(x.midi - rootPc)));
+    return [{ at: c.at, beats: c.beats, chord: c.name, kind: "note" as const, midi: cells.map((x) => x.midi), frets: cells.map(({ string, fret }) => ({ string, fret })), highlighted }];
+  });
+}
