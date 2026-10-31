@@ -4,7 +4,7 @@ import { GOALS, INSTRUMENTS, LEVELS, STRUGGLES, labelOf } from "./questions";
 import { doneKey } from "./schedule";
 import { PLAN_DAYS, type PlanAnswers, type StoredPlan } from "./types";
 
-const EXAMPLE = `{
+export const EXAMPLE = `{
   "title": "Week 1: open chords in time",
   "summary": "One line on the idea of the week",
   "days": [
@@ -30,7 +30,7 @@ const EXAMPLE = `{
           "title": "G to D, strum and pick", "focus": "G-D changes with bass steps at 70 bpm", "minutes": 4, "tags": ["rhythm"],
           "sections": [
             { "type": "text", "text": "Strum each chord on beat 1, then pick the steps shown. Done when the change lands on time four times through." },
-            { "type": "tool", "tool": { "type": "play-along", "bpm": 70, "repeats": 4, "shape": { "shape": "chord-steps", "voicing": "barre", "chords": [{ "chord": "G", "steps": ["strum", "1", "6", "1"] }, { "chord": "D", "steps": ["strum", "4", "5", "4"] }] } } }
+            { "type": "tool", "tool": { "type": "play-along", "bpm": 70, "repeats": 35, "shape": { "shape": "chord-steps", "voicing": "barre", "chords": [{ "chord": "G", "steps": ["strum", "1", "6", "1"] }, { "chord": "D", "steps": ["strum", "4", "5", "4"] }] } } }
           ]
         }
       ]
@@ -92,7 +92,7 @@ export function buildPrompt(answers: PlanAnswers | null, entries: CatalogueEntry
     "- Do not put two exercises of the same kind next to each other in a day, and tag each with what kind it is.",
     "",
     "## Exercise format",
-    "An exercise is a linear list of \"sections\", shown top to bottom in the order you write them. A tool shows what the text before it talks about, so put each tool right after that text; to change the view between steps, add another tool after the next step. A backing-band or click-drone keeping time goes first. A play-along with \"repeats\" sets the exercise's minutes itself. Tags (any of: " + Object.keys(EXERCISE_TAGS).join(", ") + ") are optional chips on the exercise.",
+    "An exercise is a linear list of \"sections\", shown top to bottom in the order you write them. A tool shows what the text before it talks about, so put each tool right after that text; to change the view between steps, add another tool after the next step. A backing-band or click-drone keeping time goes first. A play-along with \"repeats\" sets the exercise's time itself: repeats x its length (bars x 4 beats at its bpm) replaces your \"minutes\", so choose repeats to fill the minutes you mean (2 bars at 70 bpm is about 7 seconds, so 35 repeats is 4 minutes); leave \"repeats\" out and your \"minutes\" stand. Tags (any of: " + Object.keys(EXERCISE_TAGS).join(", ") + ") are optional chips on the exercise.",
     "",
     "### Sections (each is an object with \"type\" and its inputSchema)",
     ...sectionInterface(),

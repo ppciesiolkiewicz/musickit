@@ -2,7 +2,7 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { catalogue, checkLink } from "./catalogue";
 import { parsePlanConfig } from "./config";
-import { buildPrompt, weekReport } from "./prompt";
+import { EXAMPLE, buildPrompt, weekReport } from "./prompt";
 import { runChoices } from "@/features/exercises/basics/choices";
 import { COMPONENT_DOCS } from "@/features/exercises/docs";
 import { expandShape } from "@/features/exercises/shapes";
@@ -105,6 +105,14 @@ describe("tools", () => {
     assert.ok(r.ok);
     assert.deepEqual(r.config.days[0].exercises[0].sections?.filter((x) => x.type === "tool"), [{ type: "tool", tool: { type: "chord-shapes", chords: ["G", "C"] } }]);
     assert.equal(r.warnings.length, 1);
+  });
+  it("the prompt's example play-along exercise keeps its minutes after derivation", () => {
+    const ex = JSON.parse(EXAMPLE).days[0].exercises.find((e: { sections: { tool?: { type: string } }[] }) => e.sections.some((s) => s.tool?.type === "play-along"));
+    const p = JSON.parse(week());
+    p.days[0].exercises[0] = ex;
+    const r = parsePlanConfig(JSON.stringify(p), entries);
+    assert.ok(r.ok);
+    assert.equal(r.config.days[0].exercises[0].minutes, ex.minutes);
   });
   it("a play-along with repeats sets the exercise's minutes", () => {
     const tool = parseTool({ type: "play-along", bpm: 70, repeats: 2, shape: { shape: "progression", key: "g", chords: ["G", "C"], bars: 4 } });
