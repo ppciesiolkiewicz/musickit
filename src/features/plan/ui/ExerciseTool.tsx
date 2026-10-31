@@ -23,11 +23,18 @@ export default function ExerciseTool({ tool }: { tool: PlanTool }) {
   if (process.env.NODE_ENV === "production") return <Tool tool={tool} />;
   return (
     <div className="flex flex-col gap-1">
-      <DevName name={tool.type === "play-along" ? `play-along · ${tool.shape.shape}` : tool.type} />
+      <DevName name={tool.type === "play-along" ? `play-along · ${tool.shape.shape}` : tool.type} params={params(tool)} />
       <Tool tool={tool} />
     </div>
   );
 }
+
+/** The tool's props without its type: what the AI set. */
+const params = (tool: PlanTool): object => {
+  const { type: _type, ...rest } = tool;
+  void _type;
+  return rest;
+};
 
 function Tool({ tool }: { tool: PlanTool }) {
   switch (tool.type) {

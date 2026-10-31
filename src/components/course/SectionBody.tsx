@@ -37,17 +37,20 @@ function LinkCard({ link, kind }: { link: CourseLink; kind: "Explore" | "Practis
   );
 }
 
+/** A visual's params for the dev tag: everything but its kind and caption. */
+const paramsOf = (v: object): object => Object.fromEntries(Object.entries(v).filter(([k]) => k !== "kind" && k !== "caption"));
+
 function BlockView({ block }: { block: Block }) {
   switch (block.kind) {
     case "text":
       return <div className="flex max-w-3xl flex-col gap-3 leading-relaxed text-slate-300">{block.paras.map((p, i) => <p key={i}>{p}</p>)}</div>;
     case "visual":
-      return <div className="flex flex-col gap-1 rounded-3xl border border-slate-700/70 bg-slate-900/50 p-3 shadow-2xl shadow-black/20 sm:p-4"><DevName name={`visual · ${block.visual.kind}`} /><LessonVisual visual={block.visual} /></div>;
+      return <div className="flex flex-col gap-1 rounded-3xl border border-slate-700/70 bg-slate-900/50 p-3 shadow-2xl shadow-black/20 sm:p-4"><DevName name={`visual · ${block.visual.kind}`} params={paramsOf(block.visual)} /><LessonVisual visual={block.visual} /></div>;
     case "strum": {
       const p = STRUMS[block.pattern];
       return (
         <figure className="flex flex-col gap-3 rounded-3xl border border-slate-700/70 bg-slate-900/50 p-3 sm:p-4">
-          <DevName name="strum" />
+          <DevName name="strum" params={{ pattern: block.pattern, chords: block.chords }} />
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <b className="text-slate-100">{p.name}</b>
             <ChordChips chords={block.chords} />
@@ -81,7 +84,7 @@ function BlockView({ block }: { block: Block }) {
         </ul>
       );
     case "melody":
-      return <div className="flex flex-col gap-1"><DevName name="melody · Tab" /><Tab {...block.melody} /></div>;
+      return <div className="flex flex-col gap-1"><DevName name="melody · Tab" params={block.melody} /><Tab {...block.melody} /></div>;
     case "task":
       return (
         <div className="max-w-3xl rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-4">
