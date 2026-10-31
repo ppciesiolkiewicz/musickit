@@ -31,6 +31,17 @@ describe("glossary", () => {
     GLOSSARY.forEach((t) => assert.ok(t.forms.length && t.short && t.label, t.id));
   });
 
+  it("finds the basics words", () => {
+    assert.deepEqual(terms(explain(["Hold the tonic as a drone, sing each scale degree, a half step then a whole step up to the octave."])[0]),
+      ["home-note:tonic", "drone:drone", "degree:scale degree", "half-step:half step", "whole-step:whole step", "octave:octave"]);
+    assert.deepEqual(terms(explain(["Count the beats of each bar, then the spider with alternate picking, a hammer-on, a pull-off: legato."])[0]),
+      ["beat:beats", "bar:bar", "spider:spider", "alternate-picking:alternate picking", "hammer-on:hammer-on", "pull-off:pull-off", "legato:legato"]);
+  });
+
+  it("bar stays out of longer words", () => {
+    assert.deepEqual(terms(explain(["A barre chord, then a 12-bar blues on the root note."])[0]), ["barre-chord:barre chord", "twelve-bar:12-bar blues", "root:root"]);
+  });
+
   it("leaves other words alone", () => {
     assert.deepEqual(terms(explain(["Compare the compass, a computer and comp-style."])[0]), []);
   });
