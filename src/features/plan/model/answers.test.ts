@@ -17,6 +17,17 @@ describe("migrateAnswers", () => {
   it("old piano only", () => {
     assert.deepEqual(migrateAnswers({ ...base, instruments: ["piano"], level: "new" }).levels, { guitar: "new", theory: "new" });
   });
+  it("old voice+piano drops piano", () => {
+    assert.deepEqual(migrateAnswers({ ...base, instruments: ["voice", "piano"], level: "beginner" }).levels, { voice: "beginner", theory: "beginner" });
+  });
+  it("old record without instruments keeps its level and returns copies", () => {
+    assert.deepEqual(migrateAnswers({ ...base, instruments: [], level: "advanced" }).levels, { guitar: "advanced", theory: "advanced" });
+    assert.deepEqual(migrateAnswers({ ...base, level: "new" }).levels, { guitar: "new", theory: "new" });
+    const g = migrateAnswers(null);
+    assert.notEqual(g, DEFAULT_ANSWERS);
+    assert.notEqual(g.levels, DEFAULT_ANSWERS.levels);
+    assert.notEqual(migrateAnswers({ levels: {} }).levels, DEFAULT_ANSWERS.levels);
+  });
   it("old single instrument voice", () => {
     assert.deepEqual(migrateAnswers({ ...base, instrument: "voice", level: "advanced" }).levels, { voice: "advanced", theory: "advanced" });
   });

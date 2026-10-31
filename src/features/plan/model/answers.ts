@@ -8,14 +8,15 @@ const isRecord = (x: unknown): x is Record<string, unknown> => !!x && typeof x =
 const isLevel = (x: unknown): x is Level => LEVELS.some((l) => l.id === x);
 const isRating = (x: unknown): x is Rating => x === 1 || x === 2 || x === 3 || x === 4 || x === 5;
 
-/** Levels from the old shape: one level and a list of instruments. Piano maps to guitar (the course is one neck) and theory. */
+/** Levels from the old shape: one level and a list of instruments. Piano is dropped; guitar stands in when neither guitar nor voice is left. */
 function oldLevels(a: Record<string, unknown>): PlanAnswers["levels"] {
   const level = isLevel(a.level) ? a.level : "beginner";
   const list = Array.isArray(a.instruments) ? a.instruments : typeof a.instrument === "string" ? [a.instrument] : [];
   const levels: PlanAnswers["levels"] = {};
-  if (list.includes("guitar") || list.includes("piano")) levels.guitar = level;
+  if (list.includes("guitar")) levels.guitar = level;
   if (list.includes("voice")) levels.voice = level;
-  if (list.length > 0) levels.theory = level;
+  if (!levels.guitar && !levels.voice) levels.guitar = level;
+  levels.theory = level;
   return levels;
 }
 
@@ -41,9 +42,9 @@ function voiceOf(raw: unknown): PlanAnswers["voice"] {
  * becomes per-area levels; unknown concepts, bad ratings and a bad voice are dropped; anything unreadable gives the defaults.
  */
 export function migrateAnswers(raw: unknown): PlanAnswers {
-  if (!isRecord(raw)) return DEFAULT_ANSWERS;
+  if (!isRecord(raw)) return { ...DEFAULT_ANSWERS, levels: { ...DEFAULT_ANSWERS.levels } };
   let levels = "levels" in raw ? newLevels(raw.levels) : oldLevels(raw);
-  if (Object.keys(levels).length === 0) levels = DEFAULT_ANSWERS.levels;
+  if (Object.keys(levels).length === 0) levels = { ...DEFAULT_ANSWERS.levels };
   const ratings: PlanAnswers["ratings"] = {};
   if (isRecord(raw.ratings)) for (const [id, v] of Object.entries(raw.ratings)) if (conceptById(id) && isRating(v)) ratings[id] = v;
   const focus = Array.isArray(raw.focus) ? raw.focus.filter((id): id is string => typeof id === "string" && !!conceptById(id)).slice(0, 3) : [];
