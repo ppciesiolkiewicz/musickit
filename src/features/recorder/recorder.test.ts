@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { clockTime, extensionFor, peakLevel, pickMimeType, takeFileName, waveformBars } from "./recorder";
+import { clockTime, extensionFor, inputChannels, peakLevel, pickMimeType, soundGate, SOUND_HOLD_MS, takeFileName, waveformBars } from "./recorder";
 
 describe("recorder", () => {
   it("picks the first format the browser records", () => {
@@ -32,5 +32,17 @@ describe("recorder", () => {
     assert.equal(peakLevel([128, 128, 128]), 0);
     assert.equal(peakLevel([128, 192, 100]), 0.5);
     assert.equal(peakLevel([0, 255]), 1);
+  });
+  it("shows two channels only for a two-channel input", () => {
+    assert.equal(inputChannels(2), 2);
+    assert.equal(inputChannels(1), 1);
+    assert.equal(inputChannels(undefined), 1);
+  });
+  it("hears sound over the threshold and holds it a moment after", () => {
+    const gate = soundGate();
+    assert.equal(gate(0.01, 0), false);
+    assert.equal(gate(0.3, 10), true);
+    assert.equal(gate(0.01, 10 + SOUND_HOLD_MS - 1), true);
+    assert.equal(gate(0.01, 10 + SOUND_HOLD_MS), false);
   });
 });

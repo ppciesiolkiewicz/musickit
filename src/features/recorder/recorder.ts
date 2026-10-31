@@ -50,3 +50,21 @@ export function peakLevel(bytes: ArrayLike<number>): number {
   for (let i = 0; i < bytes.length; i++) peak = Math.max(peak, Math.abs(bytes[i] - 128));
   return Math.min(1, peak / 128);
 }
+
+/** How many channels the recorder shows, from the track's `channelCount` setting: two for a stereo or two-input interface, else one. */
+export function inputChannels(count: number | undefined): 1 | 2 {
+  return count !== undefined && count >= 2 ? 2 : 1;
+}
+
+/** The peak level above which the input counts as sound (about -26 dB), and how long it keeps counting after it drops. */
+export const SOUND_LEVEL = 0.05;
+export const SOUND_HOLD_MS = 250;
+
+/** A gate fed a level and the time each frame: true from the first frame over `SOUND_LEVEL` until `SOUND_HOLD_MS` after the last, so a note's decay doesn't flicker. */
+export function soundGate(): (level: number, now: number) => boolean {
+  let loudAt = -Infinity;
+  return (level, now) => {
+    if (level > SOUND_LEVEL) loudAt = now;
+    return now - loudAt < SOUND_HOLD_MS;
+  };
+}
