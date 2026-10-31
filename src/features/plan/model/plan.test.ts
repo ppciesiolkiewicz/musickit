@@ -56,10 +56,10 @@ describe("tools", () => {
     assert.equal((parseTool({ type: "staff", scale: "mixolydian", key: "a", notes: ["1"] }) as { notes?: number[] }).notes, undefined);
   });
   it("a stored sing tool becomes a staff with the mic, its semitones kept", () => {
-    assert.deepEqual(parseTool({ type: "sing", scale: "major-ionian", key: 0, voice: "tenor", notes: [0, 4, 7], highlight: [4] }), { type: "staff", scale: "major-ionian", key: 0, voice: "tenor", notes: [0, 4, 7], highlight: [4], mic: true });
+    assert.deepEqual(parseTool({ type: "sing", scale: "major-ionian", key: 0, voice: "tenor", notes: [0, 4, 7], highlight: [4] }, { stored: true }), { type: "staff", scale: "major-ionian", key: 0, voice: "tenor", notes: [0, 4, 7], highlight: [4], mic: true });
   });
   it("stored scale, chords, band, notes, ears tools take the new names", () => {
-    assert.deepEqual(parseTool({ type: "scale", scale: "dorian", key: 4, highlight: [0, 10] }), { type: "scale-neck", scale: "dorian", key: 4, highlight: [0, 10] });
+    assert.deepEqual(parseTool({ type: "scale", scale: "dorian", key: 4, highlight: [0, 10] }, { stored: true }), { type: "scale-neck", scale: "dorian", key: 4, highlight: [0, 10] });
     assert.deepEqual(parseTool({ type: "chords", chords: ["G"] }), { type: "chord-shapes", chords: ["G"] });
     assert.deepEqual(parseTool({ type: "band", bpm: 60, key: 9, parts: ["click"] }), { type: "backing-band", bpm: 60, key: 9, parts: ["click"] });
     assert.deepEqual(parseTool({ type: "notes", query: "mode=find" }), { type: "note-finder", query: "mode=find" });
@@ -74,6 +74,39 @@ describe("tools", () => {
     assert.deepEqual(tl.backingChoices, ["arp-up", "strum"]);
     assert.equal(tl.bars, 4);
     assert.deepEqual(migrateTool({ type: "comp", chords: ["Am", "F", "C"], patterns: ["arp-up"], bpm: 72, beats: 2 }).shape, { shape: "progression", key: "a", chords: ["Am", "F", "C"], bars: 2, beatsPerChord: 2, backing: ["arp-up"] });
+  });
+  it("an old comp with beats 3 keeps every chord", () => {
+    const t = parseTool({ type: "comp", chords: ["C", "Am", "F", "G"], bpm: 80, beats: 3 });
+    assert.ok(t && t.type === "play-along");
+    const tl = expandShape({ ...t.shape, bpm: t.bpm })!;
+    const names = tl.events.filter((e) => e.type === "chord").map((e) => (e as { name: string }).name);
+    assert.deepEqual(names.slice(0, 4), ["C", "Am", "F", "G"]);
+    assert.deepEqual(tl.events.filter((e) => e.type === "chord").map((e) => e.at).slice(0, 4), [0, 3, 6, 9]);
+  });
+  it("play-along bpm/repeats inside the shape are a fallback; top-level wins", () => {
+    const inner = parseTool({ type: "play-along", shape: { shape: "progression", key: "g", chords: ["G", "C"], bars: 4, bpm: 70, repeats: 6 } });
+    assert.ok(inner && inner.type === "play-along");
+    assert.equal(inner.bpm, 70);
+    assert.equal(inner.repeats, 6);
+    assert.ok(derivedMinutes([{ type: "tool", tool: inner }]) !== null);
+    const top = parseTool({ type: "play-along", bpm: 90, repeats: 2, shape: { shape: "progression", key: "g", chords: ["G", "C"], bars: 4, bpm: 70, repeats: 6 } });
+    assert.ok(top && top.type === "play-along");
+    assert.equal(top.bpm, 90);
+    assert.equal(top.repeats, 2);
+  });
+  it("numeric degrees: semitones in stored plans, dropped from pasted input", () => {
+    const raw = { type: "scale-neck", scale: "mixolydian", key: "a", highlight: [3, "5"] };
+    assert.deepEqual((parseTool(raw) as { highlight?: number[] }).highlight, [7]);
+    assert.deepEqual((parseTool(raw, { stored: true }) as { highlight?: number[] }).highlight, [3, 7]);
+    const p = JSON.parse(week());
+    p.days[0].exercises[0] = { title: "x", minutes: 5, sections: [{ type: "tool", tool: raw }] };
+    const r = parsePlanConfig(JSON.stringify(p), entries);
+    assert.ok(r.ok);
+    assert.deepEqual((r.config.days[0].exercises[0].sections?.[0] as { tool: { highlight?: number[] } }).tool.highlight, [7]);
+    const stored = sectionsOf({ sections: [{ type: "tool", tool: raw }] } as never);
+    assert.deepEqual((stored[0] as { tool: { highlight?: number[] } }).tool.highlight, [3, 7]);
+    const legacy = sectionsOf({ tools: [{ type: "sing", scale: "major-ionian", key: 0, voice: "tenor", notes: [0, 3, 7] }] } as never);
+    assert.deepEqual((legacy[0] as { tool: { notes?: number[] } }).tool.notes, [0, 3, 7]);
   });
   it("parses a play-along by its shape", () => {
     const shape = { shape: "chord-steps", chords: [{ chord: "G", steps: ["strum", "1", "6", "1"] }, { chord: "D", steps: ["strum", "4", "5", "4"] }], voicing: "barre" };

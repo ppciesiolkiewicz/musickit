@@ -26,7 +26,6 @@ interface Cell extends Fret { midi: number }
 
 const MAX_FRET = 17;
 const mod12 = (n: number) => ((n % 12) + 12) % 12;
-const samePlace = (a?: Place, b?: Place) => a?.box === b?.box && a?.part === b?.part;
 
 /** The sounding strings of a voiced shape. */
 function shapeCells(v: VoicedShape): Cell[] {
@@ -79,25 +78,13 @@ function partNotes(name: string, place: Place): Cell[] {
 }
 
 /**
- * A crossing path over pitch classes `pcs`: up through `from`, then down through `to` below the top note, so a note
- * both parts share at the top is played once, at the turn.
- */
-function crossingPath(name: string, from: Place, to: Place, pcs: Set<number>): Cell[] {
-  const up = partNotes(name, from).filter((n) => pcs.has(mod12(n.midi))).sort((a, b) => a.midi - b.midi);
-  if (!up.length) return [];
-  const top = up[up.length - 1].midi;
-  const down = partNotes(name, to).filter((n) => pcs.has(mod12(n.midi)) && n.midi < top).sort((a, b) => b.midi - a.midi);
-  return [...up, ...down];
-}
-
-/**
  * Turn a timeline into cues, sorted by `at`.
  * - A note step's pitch class is its root (the chord root, or the current scale's key for `from: "key"`) plus `semis`.
  *   It goes on the voiced shape when the shape has it (nearest the previous cue), else within the shape's fret span
  *   plus or minus 2. With `place` it comes from that box (and part) of the chord's arpeggio positions instead
  *   (box N is `arpPositions` entry N - 1); a pitch outside the arpeggio takes any fret in the box span on the part's strings.
- * - Consecutive placed note steps over the same chord whose place changes form a crossing: they walk up the first
- *   place and down the second (see `crossingPath`), one note per step, wrapping.
+ * - A crossing (placed steps whose place changes mid-chord) needs nothing special: each step keeps its degree's pitch
+ *   class and takes the cell in its own place nearest the previous cue, so a note both boxes share is reused at the seam.
  * - A melody step (chord "") is the tonic (the key nearest midi 60) plus `semis` exactly (semis carry the octave);
  *   it sits on the neck near the previous fret.
  * - `highlighted` is whether opts/chord `highlight` holds the note's semitones above the root (any note, for chords).
@@ -131,24 +118,7 @@ export function cuesOf(t: Timeline, opts: { highlight?: number[] } = {}): Cue[] 
     }
   }
 
-  // crossings: runs of placed note steps over one chord whose place changes
   const steps = events.filter((e): e is StepEv => e.type === "step");
-  const crossing = new Map<StepEv, Cell>();
-  for (let i = 0; i < steps.length; ) {
-    let j = i;
-    const s0 = steps[i];
-    while (j < steps.length && steps[j].step.kind === "note" && steps[j].place && steps[j].chord === s0.chord && s0.chord) j++;
-    const run = steps.slice(i, j);
-    const to = run.find((s) => !samePlace(s.place, s0.place))?.place;
-    if (to && s0.place) {
-      const rootPc = parseChordQuery(s0.chord)?.rootPc ?? 0;
-      const pcs = new Set(run.map((s) => mod12((s.step.kind === "note" && s.step.from === "key" ? keyAt(s.at) : rootPc) + (s.step.kind === "note" ? s.step.semis : 0))));
-      const path = crossingPath(s0.chord, s0.place, to, pcs);
-      if (path.length) run.forEach((s, k) => crossing.set(s, path[k % path.length]));
-    }
-    i = Math.max(j, i + 1);
-  }
-
   let prev: Cell | null = null;
   for (const e of steps) {
     const c = chordAt(e.chord, e.at);
@@ -165,7 +135,7 @@ export function cuesOf(t: Timeline, opts: { highlight?: number[] } = {}): Cue[] 
     const key = keyAt(e.at);
     const rootPc = e.step.from === "key" || !q ? key : q.rootPc;
     const pc = mod12(rootPc + e.step.semis);
-    let cell: Cell | undefined = crossing.get(e);
+    let cell: Cell | undefined;
     if (!cell && !e.chord) {
       const tonic = 60 + mod12(key - 60 + 6) - 6;
       const midi = tonic + e.step.semis; // semis already carry the octave

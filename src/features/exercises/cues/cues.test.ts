@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { expandShape } from "../shapes";
-import { cuesOf } from "./cues";
+import { boxesOf, cuesOf } from "./cues";
 import { tabOf } from "./tab";
 import { chordShapeFor } from "./voicing";
 import { parseChordQuery } from "@/lib/chordKit/chordSearch";
@@ -88,6 +88,28 @@ describe("cuesOf: boxes", () => {
     for (let i = 1; i <= top; i++) assert.ok(midi[i] > midi[i - 1], `up ${midi}`);
     for (let i = top + 1; i < midi.length; i++) assert.ok(midi[i] < midi[i - 1], `down ${midi}`);
     assert.equal(midi.filter((m) => m === midi[top]).length, 1);
+  });
+});
+
+describe("cuesOf: crossings follow the degrees", () => {
+  const t = expandShape({ shape: "arpeggio-part", bpm: 70, chords: ["C"], degrees: ["1", "3", "5"], bars: 2, across: { from: { box: 1, part: "upper" }, to: { box: 2, part: "upper" } } })!;
+  it("C 1-3-5 across box1-upper to box2-upper: pitch classes as the steps say, each in its own box", () => {
+    const steps = t.events.filter((e) => e.type === "step").sort((a, b) => a.at - b.at) as Extract<(typeof t.events)[number], { type: "step" }>[];
+    const notes = cuesOf(t).filter((c) => c.kind === "note");
+    assert.equal(notes.length, steps.length);
+    notes.forEach((c, i) => {
+      const s = steps[i];
+      assert.equal(pc(c.midi[0]), pc(s.step.kind === "note" ? s.step.semis : 0), `beat ${c.at}`);
+      const box = boxesOf("C")[s.place!.box - 1];
+      for (const f of c.frets) {
+        assert.ok(f.string >= 3, `beat ${c.at} ${JSON.stringify(f)}`);
+        assert.ok(f.fret >= box.from && f.fret <= box.to, `beat ${c.at} box ${s.place!.box} ${JSON.stringify(f)} ${box.from}-${box.to}`);
+      }
+    });
+    assert.deepEqual(notes.slice(0, 4).map((c) => pc(c.midi[0])), [0, 4, 7, 0]);
+  });
+  it("highlight [0] lights only root cues", () => {
+    for (const c of cuesOf(t, { highlight: [0] }).filter((c) => c.kind === "note")) assert.equal(c.highlighted, pc(c.midi[0]) === 0);
   });
 });
 

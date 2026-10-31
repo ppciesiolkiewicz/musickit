@@ -150,10 +150,11 @@ export const TOOLS: { [N in ToolName]: ToolSpec } = {
     parse(t) {
       if (!t.shape || typeof t.shape !== "object") return null;
       const shape = { ...(t.shape as Record<string, unknown>) };
+      // bpm and repeats belong on the play-along; inside the shape they are a fallback
+      const bpm = int(t.bpm, 30, 240) ?? int(shape.bpm, 30, 240) ?? 80;
+      const repeats = int(t.repeats, 1, 50) ?? int(shape.repeats, 1, 50);
       delete shape.bpm;
       delete shape.repeats;
-      const bpm = int(t.bpm, 30, 240) ?? 80;
-      const repeats = int(t.repeats, 1, 50);
       if (!expandShape({ ...shape, bpm, ...(repeats !== null ? { repeats } : {}) })) return null;
       const highlight = degreeStrings(t.highlight);
       return {
@@ -166,10 +167,18 @@ export const TOOLS: { [N in ToolName]: ToolSpec } = {
   },
 };
 
-/** One tool from the AI's JSON or a stored plan (old names migrated first), checked: null when it can't be shown. */
-export function parseTool(raw: unknown): PlanTool | null {
+/** Degree lists that a stored plan may hold as semitone numbers. */
+const DEGREE_LISTS = ["highlight", "notes"] as const;
+
+/**
+ * One tool from the AI's JSON or a stored plan (old names migrated first), checked: null when it can't be shown.
+ * Numbers in degree lists (`highlight`, `notes`) are semitones only with `stored` (a plan this app saved, or an old
+ * `sing`); from pasted input they are dropped, since the AI writing `3` means the 3rd, not 3 semitones.
+ */
+export function parseTool(raw: unknown, opts: { stored?: boolean } = {}): PlanTool | null {
   if (!raw || typeof raw !== "object") return null;
-  const t = migrateTool(raw as Record<string, unknown>);
+  const t = { ...migrateTool(raw as Record<string, unknown>) };
+  if (!opts.stored) for (const k of DEGREE_LISTS) if (Array.isArray(t[k])) t[k] = (t[k] as unknown[]).filter((d) => typeof d !== "number");
   const spec = typeof t.type === "string" && Object.hasOwn(TOOLS, t.type) ? TOOLS[t.type as ToolName] : null;
   return spec ? spec.parse(t) : null;
 }
@@ -352,7 +361,7 @@ export function legacySections(e: { how?: string; steps?: string[]; tools?: Stor
   const linked = toolFromLink(e.link);
   const tools: StoredTool[] = e.tools ?? (linked ? [linked] : []);
   const tool = (t: StoredTool): Section[] => {
-    const p = parseTool(t);
+    const p = parseTool(t, { stored: true });
     return p ? [{ type: "tool", tool: p }] : [];
   };
   tools.filter((t) => !t.step).forEach((t) => out.push(...tool(t))); // a band keeping time goes first
@@ -378,7 +387,7 @@ export const sectionsOf = (e: { sections?: Section[]; how?: string; steps?: stri
   e.sections
     ? e.sections.flatMap((s): Section[] => {
         if (s.type !== "tool") return [s];
-        const tool = parseTool(s.tool);
+        const tool = parseTool(s.tool, { stored: true });
         return tool ? [{ type: "tool", tool }] : [];
       })
     : legacySections(e);

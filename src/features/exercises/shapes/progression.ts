@@ -13,7 +13,7 @@ export function progression(raw: unknown): Timeline | null {
   const names = (raw.numerals !== undefined ? arr(raw.numerals).map((n) => (typeof n === "string" ? numeralChord(n, key) : null)) : arr(raw.chords).map(chordName)).filter((c): c is string => !!c && !!chordName(c));
   if (!names.length) return null;
   const bars = Math.max(1, Math.round(num(raw.bars, 4)));
-  const per = raw.beatsPerChord === 2 ? 2 : 4;
+  const per = raw.beatsPerChord === 2 || raw.beatsPerChord === 3 ? raw.beatsPerChord : 4;
   const from = fromOf(raw.degreesFrom);
   const steps = parseSteps(raw.steps, from);
   const voicing = voicingOf(raw.voicing);

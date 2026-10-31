@@ -58,11 +58,17 @@ export function useTimelinePlayer(t: Timeline): { playing: boolean; starting: bo
     stopper.current = null;
     const mine = ++gen.current;
     setStarting(true);
-    await wakeAudio();
     const piano = getSharedPiano();
-    await piano.preload().catch(() => undefined);
-    if (mine !== gen.current || !mounted.current) return;
-    setStarting(false);
+    let ready = false;
+    try {
+      await wakeAudio();
+      await piano.preload().catch(() => undefined);
+      ready = mine === gen.current && mounted.current;
+    } finally {
+      // a failed or superseded start must not leave Play disabled (only the latest start owns the flag)
+      if (mine === gen.current && mounted.current) setStarting(false);
+    }
+    if (!ready) return;
 
     const ctx = getAudioContext();
     const click = new ClickTrack(ctx, getOutputBus());
