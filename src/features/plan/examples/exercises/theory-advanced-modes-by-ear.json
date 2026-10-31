@@ -1,0 +1,32 @@
+{
+  "id": "theory-advanced-modes-by-ear",
+  "kind": "exercise",
+  "areas": ["theory"],
+  "level": "advanced",
+  "concepts": ["modes"],
+  "note": "Each mode is heard against its parent and pinned to its one colour note, shown with the root on a staff; three modes, three keys, three different listening tasks.",
+  "exercise": {
+    "title": "Modes by their colour note",
+    "focus": "G Mixolydian ♭7 · D Dorian 6 · E Phrygian ♭2, over a drone",
+    "minutes": 10,
+    "tags": ["ear", "theory"],
+    "why": "A mode is easiest to recognise by the one note that differs from plain major or minor.",
+    "sections": [
+      { "type": "text", "text": "You do not need to memorise seven scales: each mode is major or minor with one note changed." },
+      { "type": "heading", "text": "Major, then Mixolydian", "minutes": 3 },
+      { "type": "text", "text": "Press Play: G major for four bars, then G Mixolydian over the same G chord. Listen for the bar where the sound gets looser." },
+      { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "two-scales", "a": { "key": "g", "scale": "major-ionian" }, "b": { "key": "g", "scale": "mixolydian" }, "bars": 8, "backingChord": "G" }, "bpm": 72, "view": "notes" } },
+      { "type": "text", "text": "The note that changed is {{b7}} (F, not F♯). Tap {{1}}, then {{b7}}, then {{1}} again, and hear it lean down to the root." },
+      { "type": "tool", "tool": { "type": "staff", "scale": "mixolydian", "key": "g", "voice": "baritone", "highlight": ["1", "b7"], "others": "normal", "mic": false } },
+      { "type": "heading", "text": "Minor, then Dorian", "minutes": 3 },
+      { "type": "text", "text": "Press Play: D natural minor, then D Dorian over Dm. The changed note is {{6}} (B, not B♭); it lifts the minor sound." },
+      { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "two-scales", "a": { "key": "d", "scale": "natural-minor-aeolian" }, "b": { "key": "d", "scale": "dorian" }, "bars": 8, "backingChord": "Dm" }, "bpm": 72, "view": "notes" } },
+      { "type": "text", "text": "Tap {{1}} and {{6}} on the staff, then the scale up from {{1}}, stopping on {{6}} each time." },
+      { "type": "tool", "tool": { "type": "staff", "scale": "dorian", "key": "d", "voice": "baritone", "highlight": ["1", "6"], "others": "normal", "mic": false } },
+      { "type": "heading", "text": "Phrygian over a drone", "minutes": 4 },
+      { "type": "text", "text": "Press Play on the drone on E. Phrygian is natural minor with {{b2}} (F) right above the root: the darkest step there is. Tap {{1}} {{b2}} {{1}} slowly against the drone, then the whole scale up and down, and hear how every phrase wants to fall from {{b2}} back to {{1}}." },
+      { "type": "tool", "tool": { "type": "click-drone", "bpm": 60, "key": "e", "click": false } },
+      { "type": "tool", "tool": { "type": "staff", "scale": "phrygian", "key": "e", "voice": "baritone", "highlight": ["1", "b2"], "others": "normal", "mic": false } }
+    ]
+  }
+}

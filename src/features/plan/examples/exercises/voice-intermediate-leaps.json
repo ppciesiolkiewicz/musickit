@@ -1,0 +1,31 @@
+{
+  "id": "voice-intermediate-leaps",
+  "kind": "exercise",
+  "areas": ["voice"],
+  "level": "intermediate",
+  "concepts": ["leaps", "sight-singing", "runs"],
+  "note": "Leaps practised four ways: sung over a drone, recognised by ear, met inside a tune picked by filter, then a short run to loosen up. The ear block's set is exactly the two intervals the text names.",
+  "exercise": {
+    "title": "4ths and 5ths, by voice and by ear",
+    "focus": "Leaps of a 4th and 5th in F · a medium tune with 4ths · a five-note run",
+    "minutes": 10,
+    "tags": ["sing", "ear"],
+    "why": "A leap is easy to sing once you can hear where it lands before you sing it.",
+    "sections": [
+      { "type": "text", "text": "Leaps go wrong when you guess the landing note; hearing it first makes them land." },
+      { "type": "heading", "text": "Leaps over a drone", "minutes": 3 },
+      { "type": "text", "text": "Press Play on the drone. Sing {{1}} up to {{4}} and back, then {{1}} up to {{5}} and back, on \"la\". Hear the landing note in your head before you sing it. Then mix them: {{1}} {{5}} {{4}} {{1}}." },
+      { "type": "tool", "tool": { "type": "click-drone", "bpm": 60, "key": "f", "click": false } },
+      { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "f", "voice": "mezzo", "notes": ["1", "4", "5"] } },
+      { "type": "heading", "text": "4th or 5th?", "minutes": 2 },
+      { "type": "text", "text": "Name each interval you hear, a perfect 4th or a perfect 5th, then sing it back before you answer. Done at ten right in a row." },
+      { "type": "tool", "tool": { "type": "interval-ears", "set": [5, 7], "dir": "up" } },
+      { "type": "heading", "text": "A tune with 4ths", "minutes": 3 },
+      { "type": "text", "text": "Look at the tune before you hear it and sing it from the staff first. Then press Play to check, and sing it with the mic until a take is clean." },
+      { "type": "tool", "tool": { "type": "melody-singer", "pick": { "difficulty": "medium", "stage": "fourths" }, "key": "f", "voice": "mezzo" } },
+      { "type": "heading", "text": "A five-note run", "minutes": 2 },
+      { "type": "text", "text": "Sing the run lightly on \"ah\", each pass a semitone higher. Keep it soft; stop before it strains." },
+      { "type": "tool", "tool": { "type": "run-singer", "pick": { "difficulty": "medium", "stage": "five" }, "key": "f", "voice": "mezzo" } }
+    ]
+  }
+}

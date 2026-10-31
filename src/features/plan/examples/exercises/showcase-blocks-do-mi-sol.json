@@ -1,0 +1,31 @@
+{
+  "id": "showcase-blocks-do-mi-sol",
+  "kind": "exercise",
+  "showcase": "blocks",
+  "areas": ["guitar"],
+  "level": "beginner",
+  "concepts": ["major-scale", "guitar-melodies-beginner"],
+  "note": "Shows blocks with a chart per step: each block adds one note, and its own neck lights exactly the notes named so far with Do lit from the first step to the last, ending on a tune that uses only those notes.",
+  "exercise": {
+    "title": "Do, Mi, Sol on the neck, one note at a time",
+    "focus": "C major in open position · Do → Do Mi → Do Mi Sol → a tune",
+    "minutes": 8,
+    "tags": ["technique", "song"],
+    "why": "Knowing where Do, Mi and Sol sit around the open chords is the map for playing melodies by ear.",
+    "sections": [
+      { "type": "text", "text": "Melodies are built on the home note and its chord, so learn them on the neck one at a time." },
+      { "type": "heading", "text": "Find Do", "minutes": 2 },
+      { "type": "text", "text": "Play every {{1}} (C) in open position: the 3rd fret of the A string and the 1st fret of the B string. Back and forth, saying \"Do\" each time." },
+      { "type": "tool", "tool": { "type": "scale-neck", "scale": "major-ionian", "key": "c", "placement": { "by": "open" }, "highlight": ["1"], "others": "muted" } },
+      { "type": "heading", "text": "Do and Mi", "minutes": 2 },
+      { "type": "text", "text": "Add {{3}} (E). Play {{1}} then the nearest {{3}} above it, on both Cs: A string 3rd fret to D string 2nd fret, B string 1st fret to the open high E." },
+      { "type": "tool", "tool": { "type": "scale-neck", "scale": "major-ionian", "key": "c", "placement": { "by": "open" }, "highlight": ["1", "3"], "others": "muted" } },
+      { "type": "heading", "text": "Do, Mi and Sol", "minutes": 2 },
+      { "type": "text", "text": "Add {{5}} (G), the open G string. Play {{1}} {{3}} {{5}} {{3}} {{1}} from the low C, slowly, then from memory with your eyes off the chart." },
+      { "type": "tool", "tool": { "type": "scale-neck", "scale": "major-ionian", "key": "c", "placement": { "by": "open" }, "highlight": ["1", "3", "5"], "others": "muted" } },
+      { "type": "heading", "text": "The whole line", "minutes": 2 },
+      { "type": "text", "text": "A short tune made of only those three notes: Do Mi Sol Mi Do. Press Play and play along in the neck view; then switch to tab and play it without the neck." },
+      { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "melody", "tune": 22, "key": "c" }, "bpm": 70, "view": "neck" } }
+    ]
+  }
+}

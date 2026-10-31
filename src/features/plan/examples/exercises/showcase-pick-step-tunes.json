@@ -1,0 +1,25 @@
+{
+  "id": "showcase-pick-step-tunes",
+  "kind": "exercise",
+  "showcase": "pick",
+  "areas": ["voice"],
+  "level": "beginner",
+  "concepts": ["voice-melodies-easy", "do-mi-sol-skips"],
+  "note": "Shows choosing melodies by filter: each melody-singer names a difficulty and a stage with pick instead of a tune number, the second a step harder than the first, and the text describes what kind of tune it is rather than a specific one.",
+  "exercise": {
+    "title": "Two tunes: steps, then skips",
+    "focus": "An easy Do Re Mi tune, then a medium Do Mi Sol tune, in G",
+    "minutes": 6,
+    "tags": ["sing", "song"],
+    "why": "Singing short tunes from the staff turns scale knowledge into reading and remembering melodies.",
+    "sections": [
+      { "type": "text", "text": "A tune by step is easy to keep in tune; a tune that skips through the chord is the next step up." },
+      { "type": "heading", "text": "By step", "minutes": 3 },
+      { "type": "text", "text": "A tune on Do, Re and Mi. Press Play to hear it, then sing it with the mic. When a take is clean, sing it once more without hearing it first." },
+      { "type": "tool", "tool": { "type": "melody-singer", "pick": { "difficulty": "easy", "stage": "mi" }, "key": "g", "voice": "alto" } },
+      { "type": "heading", "text": "By skip", "minutes": 3 },
+      { "type": "text", "text": "A longer tune that skips through Do, Mi and Sol, with a few steps between. Look at it first and guess how it goes, then press Play to check, and sing it with the mic until two takes in a row are clean." },
+      { "type": "tool", "tool": { "type": "melody-singer", "pick": { "difficulty": "medium", "stage": "skips" }, "key": "g", "voice": "alto" } }
+    ]
+  }
+}

@@ -1,0 +1,374 @@
+{
+  "id": "guitar-intermediate",
+  "kind": "plan",
+  "areas": ["guitar"],
+  "level": "intermediate",
+  "minutes": 30,
+  "concepts": ["joining-positions", "five-pentatonic-boxes", "bends-slides", "hammer-pull", "sus-add9-shapes", "arpeggios-position", "guitar-melodies-intermediate"],
+  "note": "An intermediate guitar week at 30 minutes a day: joining pentatonic boxes is the key skill and returns on five days in new forms (box 2, box 3, a new key, bends across the join, from memory), with legato and picking warm-ups, sus and add9 rhythm parts, chord tones and a melody up the neck.",
+  "plan": {
+    "title": "Week 1: off box 1",
+    "summary": "Join the A minor pentatonic boxes 1 to 3, bend and slide across the joins, and use sus chords, chord tones and a melody to keep it musical.",
+    "days": [
+      {
+        "theme": "Box 2 and the first join",
+        "exercises": [
+          {
+            "title": "Hammer and pull", "focus": "Legato trill · fingers 1-3 · G string, 5th fret", "minutes": 5, "tags": ["technique"],
+            "sections": [
+              { "type": "text", "text": "Hammer-ons and pull-offs let notes flow without picking, and they build the strength the joins need." },
+              { "type": "text", "text": "Pick the first note only, then hammer finger 3 and pull back to finger 1, evenly on the click, for 30 seconds. Rest, then again at 80. Done when both notes are as loud as each other." },
+              { "type": "tool", "tool": { "type": "legato-trill", "fingers": "13", "string": 3, "fret": 5, "bpm": 70 } }
+            ]
+          },
+          {
+            "title": "D, Dsus2, Dsus4", "focus": "Sus colours on D · strummed at 80 bpm", "minutes": 8, "tags": ["rhythm"],
+            "sections": [
+              { "type": "text", "text": "Sus chords move one finger off and back on, which turns a plain chord into a moving part." },
+              { "type": "heading", "text": "The three shapes", "minutes": 4 },
+              { "type": "text", "text": "From D, lift your finger off the high E string for Dsus2, then add your pinky on its 3rd fret for Dsus4. Strum each, and switch D to Dsus4 to D to Dsus2 slowly, ten times." },
+              { "type": "tool", "tool": { "type": "chord-shapes", "chords": ["D", "Dsus2", "Dsus4"] } },
+              { "type": "heading", "text": "As a groove", "minutes": 4 },
+              { "type": "text", "text": "Press Play and strum along, one bar each: D, Dsus4, D, Dsus2. Keep the strumming hand moving and change only the one finger." },
+              { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "progression", "key": "d", "chords": ["D", "Dsus4", "D", "Dsus2"], "bars": 4, "backing": ["strum"] }, "bpm": 80 } }
+            ]
+          },
+          {
+            "title": "Box 1 to box 2", "focus": "A minor pentatonic · boxes 1 → 2 · 70 then 80 bpm", "minutes": 10, "tags": ["technique"],
+            "sections": [
+              { "type": "text", "text": "One slide on the G string is all it takes to leave box 1 behind." },
+              { "type": "heading", "text": "Box 2 on its own", "minutes": 3 },
+              { "type": "text", "text": "Box 2 up and down at 70, one note per click. Its {{1}} notes are on the D and B strings." },
+              { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [2], "highlight": ["1"], "others": "normal" } },
+              { "type": "heading", "text": "Cross on the G string", "minutes": 4 },
+              { "type": "text", "text": "Climb box 1; on the G string slide {{4}} (D, 7th fret) up to {{5}} (E, 9th fret) and finish in box 2. Come back the same way. Four clean runs." },
+              { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1, 2], "highlight": ["1", "4", "5"], "others": "normal" } },
+              { "type": "heading", "text": "At 80", "minutes": 3 },
+              { "type": "text", "text": "The same crossing at 80 with the click. Done when the slide lands in time twice in a row." },
+              { "type": "tool", "tool": { "type": "backing-band", "bpm": 80, "key": "a", "parts": ["click"] } }
+            ]
+          },
+          {
+            "title": "Improvise across the join", "focus": "Boxes 1-2 over Am7-Dm7", "minutes": 7, "tags": ["improv"],
+            "sections": [
+              { "type": "text", "text": "Using the join in a solo is what makes it stick." },
+              { "type": "heading", "text": "Land on the roots", "minutes": 4 },
+              { "type": "text", "text": "Press Play and improvise in boxes 1 and 2, crossing once per phrase. Land on {{a}} over Am7 and on {{d}} over Dm7." },
+              { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "solo-over", "key": "a", "chords": [{ "chord": "Am7", "scale": "minor-pentatonic", "target": ["1"] }, { "chord": "Dm7", "target": ["1"] }], "bars": 2 }, "bpm": 80, "view": "neck" } },
+              { "type": "heading", "text": "Start in box 2", "minutes": 3 },
+              { "type": "text", "text": "Same backing; now start every phrase in box 2 and end it in box 1." }
+            ]
+          }
+        ]
+      },
+      {
+        "theme": "Bends and slides",
+        "exercises": [
+          {
+            "title": "Alternate picking", "focus": "Down-up, four notes per string, 90 bpm", "minutes": 5, "tags": ["technique"],
+            "sections": [
+              { "type": "text", "text": "Strict down-up picking keeps fast lines even." },
+              { "type": "text", "text": "Four notes per string, down-up-down-up, across all six strings and back at 90. Keep the pick motion small." },
+              { "type": "tool", "tool": { "type": "picking-drill", "strokes": "DU", "notesPerString": 4, "bpm": 90 } }
+            ]
+          },
+          {
+            "title": "Cadd9 to Dsus4", "focus": "Cadd9-G-Dsus4-Em at 80 bpm", "minutes": 7, "tags": ["rhythm"],
+            "sections": [
+              { "type": "text", "text": "Cadd9, G and Dsus4 share the same two fingers on the top strings, so the changes ring into each other." },
+              { "type": "heading", "text": "Anchor fingers", "minutes": 3 },
+              { "type": "text", "text": "Keep fingers 3 and 4 on the 3rd fret of the B and high E strings for all three chords and move only the bass fingers. Then Em, with the anchors lifted." },
+              { "type": "tool", "tool": { "type": "chord-shapes", "chords": ["Cadd9", "G", "Dsus4", "Em"] } },
+              { "type": "heading", "text": "In time", "minutes": 4 },
+              { "type": "text", "text": "Press Play and strum along, one bar per chord. Done at three passes without a gap at the changes." },
+              { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "progression", "key": "g", "chords": ["Cadd9", "G", "Dsus4", "Em"], "bars": 4, "backing": ["strum"] }, "bpm": 80 } }
+            ]
+          },
+          {
+            "title": "Bends in tune", "focus": "Whole-step bends in box 1 · D to E, G to A", "minutes": 10, "tags": ["technique"],
+            "sections": [
+              { "type": "text", "text": "A bend is only good if it lands on a real note, so always check it against the note you aim for." },
+              { "type": "heading", "text": "G string: D up to E", "minutes": 5 },
+              { "type": "text", "text": "Play {{5}} (E, 9th fret of the G string) to hear the target. Then bend {{4}} (D, 7th fret) up a whole step with three fingers behind it until it matches. Alternate target and bend ten times." },
+              { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1, 2], "highlight": ["1", "4", "5"], "others": "normal" } },
+              { "type": "heading", "text": "B string: G up to A", "minutes": 5 },
+              { "type": "text", "text": "Same on the B string: play {{1}} (A, 10th fret), then bend {{b7}} (G, 8th fret) up to it. Then bend and hold, and pick the high E's {{1}} (5th fret) against it." },
+              { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1, 2], "highlight": ["1", "b7"], "others": "normal" } }
+            ]
+          },
+          {
+            "title": "Slow blues phrases", "focus": "Bends in A over drums and bass, 70 bpm", "minutes": 8, "tags": ["improv"],
+            "sections": [
+              { "type": "text", "text": "A slow tempo leaves room for each bend to ring out; this is the scale used in blues." },
+              { "type": "heading", "text": "One bend per phrase", "minutes": 4 },
+              { "type": "text", "text": "Play short phrases in boxes 1 and 2, each with one bend from {{4}} to {{5}} or {{b7}} to {{1}}. Leave a bar of space between phrases." },
+              { "type": "tool", "tool": { "type": "backing-band", "bpm": 70, "key": "a", "parts": ["drums", "bass"] } },
+              { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1, 2], "highlight": ["1", "4", "5", "b7"], "others": "normal" } },
+              { "type": "heading", "text": "Slide into the join", "minutes": 4 },
+              { "type": "text", "text": "Now start each phrase with the slide from box 1 into box 2 and end it with a bend. Record a minute and listen back." }
+            ]
+          }
+        ]
+      },
+      {
+        "theme": "Box 3 and chord tones",
+        "exercises": [
+          {
+            "title": "Legato, fingers 2-4", "focus": "Legato trill · fingers 2-4 · B string, 7th fret", "minutes": 5, "tags": ["technique"],
+            "sections": [
+              { "type": "text", "text": "Fingers 2 and 4 are the weaker pair, and box 3 needs them." },
+              { "type": "text", "text": "Pick once, then hammer finger 4 and pull to finger 2 on the click, 30 seconds on, 15 off, three rounds at 70." },
+              { "type": "tool", "tool": { "type": "legato-trill", "fingers": "24", "string": 2, "fret": 7, "bpm": 70 } }
+            ]
+          },
+          {
+            "title": "Chord tones over Am-F-C-G", "focus": "1-3-5 of each chord · play-along in the neck view", "minutes": 8, "tags": ["theory"],
+            "sections": [
+              { "type": "text", "text": "Playing each chord's own notes as it passes trains you to hear changes in a solo." },
+              { "type": "heading", "text": "Slow, in the neck view", "minutes": 4 },
+              { "type": "text", "text": "Press Play and play the notes shown, one per beat: each chord's root, 3rd, 5th, 3rd. Am has a minor 3rd ({{b3}}); F, C and G have major 3rds." },
+              { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "chord-steps", "chords": [
+                { "chord": "Am", "steps": ["1", "b3", "5", "b3"] },
+                { "chord": "F", "steps": ["1", "3", "5", "3"] },
+                { "chord": "C", "steps": ["1", "3", "5", "3"] },
+                { "chord": "G", "steps": ["1", "3", "5", "3"] }
+              ] }, "bpm": 60, "view": "neck" } },
+              { "type": "heading", "text": "Faster, from tab", "minutes": 4 },
+              { "type": "text", "text": "The same line at 80, reading the tab. Done at two passes without a wrong note." },
+              { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "chord-steps", "chords": [
+                { "chord": "Am", "steps": ["1", "b3", "5", "b3"] },
+                { "chord": "F", "steps": ["1", "3", "5", "3"] },
+                { "chord": "C", "steps": ["1", "3", "5", "3"] },
+                { "chord": "G", "steps": ["1", "3", "5", "3"] }
+              ] }, "bpm": 80, "view": "tab" } }
+            ]
+          },
+          {
+            "title": "Box 2 to box 3", "focus": "A minor pentatonic · boxes 2 → 3", "minutes": 10, "tags": ["technique"],
+            "sections": [
+              { "type": "text", "text": "Box 3 carries the line up to the 13th fret, and its join is a slide on the B string." },
+              { "type": "heading", "text": "Box 3 on its own", "minutes": 3 },
+              { "type": "text", "text": "Box 3 up and down at 70. Find every {{1}} in it first." },
+              { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [3], "highlight": ["1"], "others": "normal" } },
+              { "type": "heading", "text": "Cross on the B string", "minutes": 4 },
+              { "type": "text", "text": "Climb box 2; on the B string slide {{b7}} (G, 8th fret) up to {{1}} (A, 10th fret) and finish in box 3. Back down the same way." },
+              { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [2, 3], "highlight": ["1", "b7"], "others": "normal" } },
+              { "type": "heading", "text": "Three boxes in one run", "minutes": 3 },
+              { "type": "text", "text": "Start low in box 1, cross into box 2 on the G string, into box 3 on the B string, then all the way back. At 70; done at two clean runs." },
+              { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1, 2, 3], "highlight": ["1"], "others": "normal" } }
+            ]
+          },
+          {
+            "title": "Three-box solo", "focus": "Boxes 1-3 over Am7-Dm7, 85 bpm", "minutes": 7, "tags": ["improv"],
+            "sections": [
+              { "type": "text", "text": "A solo that climbs through the boxes builds like a story." },
+              { "type": "heading", "text": "Low to high", "minutes": 4 },
+              { "type": "text", "text": "Press Play. Start in box 1 and move one box higher every four bars; land on {{a}} over Am7 and {{d}} over Dm7." },
+              { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "solo-over", "key": "a", "chords": [{ "chord": "Am7", "scale": "minor-pentatonic", "target": ["1"] }, { "chord": "Dm7", "target": ["1"] }], "bars": 2 }, "bpm": 85, "view": "neck" } },
+              { "type": "heading", "text": "High to low", "minutes": 3 },
+              { "type": "text", "text": "Now start in box 3 and come down a box every four bars." }
+            ]
+          }
+        ]
+      },
+      {
+        "theme": "A melody up the neck",
+        "exercises": [
+          {
+            "title": "Picking across strings", "focus": "Down-up, two notes per string, 100 bpm", "minutes": 5, "tags": ["technique"],
+            "sections": [
+              { "type": "text", "text": "Two notes per string makes the pick cross strings on every upstroke, the hardest move for picking." },
+              { "type": "text", "text": "Two notes per string, down-up, across all six strings and back at 100. Drop to 80 if the crossings get messy." },
+              { "type": "tool", "tool": { "type": "picking-drill", "strokes": "DU", "notesPerString": 2, "bpm": 100 } }
+            ]
+          },
+          {
+            "title": "Sus groove in D", "focus": "D-Dsus4-Dsus2 with bass-and-chord picking", "minutes": 10, "tags": ["rhythm"],
+            "sections": [
+              { "type": "text", "text": "Picking the bass note and then the chord makes three shapes sound like a whole arrangement." },
+              { "type": "heading", "text": "Bass, then chord", "minutes": 5 },
+              { "type": "text", "text": "Press Play and copy the backing: open D string on beats 1 and 3, the top strings on 2 and 4. One bar each of D, Dsus4, D, Dsus2." },
+              { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "progression", "key": "d", "chords": ["D", "Dsus4", "D", "Dsus2"], "bars": 4, "backing": ["bass-chord", "strum"] }, "bpm": 80 } },
+              { "type": "heading", "text": "Add G and A", "minutes": 5 },
+              { "type": "text", "text": "Now D, G, A, D with the same picking, adding a sus4 on the last beat of each bar where you can." },
+              { "type": "tool", "tool": { "type": "chord-shapes", "chords": ["D", "G", "A", "Asus4"] } },
+              { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "progression", "key": "d", "numerals": ["I", "IV", "V", "I"], "bars": 4, "backing": ["bass-chord"] }, "bpm": 80 } }
+            ]
+          },
+          {
+            "title": "Legato in the box", "focus": "Hammer-ons and pull-offs in box 1 of A", "minutes": 7, "tags": ["technique"],
+            "sections": [
+              { "type": "text", "text": "Legato inside the scale turns runs into smooth phrases." },
+              { "type": "heading", "text": "One trill", "minutes": 3 },
+              { "type": "text", "text": "Trill fingers 1 and 3 on the G string at the 5th fret: C to D, picking only the first note." },
+              { "type": "tool", "tool": { "type": "legato-trill", "fingers": "13", "string": 3, "fret": 5, "bpm": 80 } },
+              { "type": "heading", "text": "Through the box", "minutes": 4 },
+              { "type": "text", "text": "Climb box 1 picking only the first note on each string and hammering the second; come down pulling off. Start and end on the low {{1}}." },
+              { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "highlight": ["1"], "others": "normal" } }
+            ]
+          },
+          {
+            "title": "A tune to the high Do", "focus": "A Ti-stage tune in D with eighth notes, up the neck", "minutes": 8, "tags": ["song"],
+            "sections": [
+              { "type": "text", "text": "A tune that climbs past the octave makes you shift position mid-phrase." },
+              { "type": "heading", "text": "Learn it slowly", "minutes": 4 },
+              { "type": "text", "text": "The tune climbs from Sol to the high Do, with a quick La-Ti-La-Sol in the middle. Press Play and follow the tab at 60, one phrase at a time." },
+              { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "melody", "tune": 47, "key": "d" }, "bpm": 60, "view": "tab" } },
+              { "type": "heading", "text": "On the neck at tempo", "minutes": 4 },
+              { "type": "text", "text": "Now in the neck view at 80, playing it higher up so you need no open strings. Done at two clean passes." },
+              { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "melody", "tune": 47, "key": "d" }, "bpm": 80, "view": "neck" } }
+            ]
+          }
+        ]
+      },
+      {
+        "theme": "The boxes in G",
+        "exercises": [
+          {
+            "title": "Cadd9-G-Dsus4-Em, faster", "focus": "Anchor-finger changes at 90 bpm", "minutes": 5, "tags": ["rhythm"],
+            "sections": [
+              { "type": "text", "text": "The same anchors from day 2, now as a warm-up at a faster tempo." },
+              { "type": "text", "text": "Press Play and strum along at 90, one bar per chord, fingers 3 and 4 never leaving the top strings until Em." },
+              { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "progression", "key": "g", "chords": ["Cadd9", "G", "Dsus4", "Em"], "bars": 4, "backing": ["strum"] }, "bpm": 90 } }
+            ]
+          },
+          {
+            "title": "G minor pentatonic, boxes 1 to 3", "focus": "Boxes 1 → 2 → 3 in G, from the 3rd fret", "minutes": 10, "tags": ["technique"],
+            "sections": [
+              { "type": "text", "text": "Moving the joins to a new key proves you know the shapes, not the frets." },
+              { "type": "heading", "text": "Box 1 at the 3rd fret", "minutes": 3 },
+              { "type": "text", "text": "G minor pentatonic box 1 starts two frets lower than A. Up and down at 70, starting on the {{1}}." },
+              { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "g", "boxes": [1], "highlight": ["1"], "others": "normal" } },
+              { "type": "heading", "text": "Both joins", "minutes": 4 },
+              { "type": "text", "text": "Same joins as in A: {{4}} to {{5}} on the G string into box 2, {{b7}} to {{1}} on the B string into box 3." },
+              { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "g", "boxes": [1, 2, 3], "highlight": ["1", "4", "5", "b7"], "others": "normal" } },
+              { "type": "heading", "text": "At 80", "minutes": 3 },
+              { "type": "text", "text": "Run all three boxes up and back at 80. Done at two clean runs." },
+              { "type": "tool", "tool": { "type": "backing-band", "bpm": 80, "key": "g", "parts": ["click"] } }
+            ]
+          },
+          {
+            "title": "Gm arpeggio in two boxes", "focus": "G minor arpeggio · boxes 1-2", "minutes": 7, "tags": ["theory"],
+            "sections": [
+              { "type": "text", "text": "The arpeggio is the skeleton inside the scale: the notes that sound safe over Gm." },
+              { "type": "heading", "text": "Box 1", "minutes": 3 },
+              { "type": "text", "text": "Play {{1}} {{b3}} {{5}} up and down in box 1, one note per click at 70." },
+              { "type": "tool", "tool": { "type": "arpeggio-neck", "chord": "Gm", "boxes": [1], "highlight": ["1"], "others": "normal" } },
+              { "type": "heading", "text": "Across boxes 1 and 2", "minutes": 4 },
+              { "type": "text", "text": "Now across both boxes, crossing at the notes they share. Then play only the {{b3}} in each box: it is the note that makes it minor." },
+              { "type": "tool", "tool": { "type": "arpeggio-neck", "chord": "Gm", "boxes": [1, 2], "highlight": ["1", "b3"], "others": "normal" } }
+            ]
+          },
+          {
+            "title": "Solo in G", "focus": "Boxes 1-3 of G minor pentatonic over Gm7-Cm7", "minutes": 8, "tags": ["improv"],
+            "sections": [
+              { "type": "text", "text": "Aiming at the arpeggio's notes while moving through the boxes joins today's two skills." },
+              { "type": "heading", "text": "Aim at the chord", "minutes": 4 },
+              { "type": "text", "text": "Press Play. Land on {{g}} or {{b-flat}} over Gm7 and on {{c}} over Cm7." },
+              { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "solo-over", "key": "g", "chords": [{ "chord": "Gm7", "scale": "minor-pentatonic", "target": ["1", "b3"] }, { "chord": "Cm7", "target": ["1"] }], "bars": 2 }, "bpm": 80, "view": "neck" } },
+              { "type": "heading", "text": "Use all three boxes", "minutes": 4 },
+              { "type": "text", "text": "Same backing; cross a join in every phrase." }
+            ]
+          }
+        ]
+      },
+      {
+        "theme": "Bend across the join",
+        "exercises": [
+          {
+            "title": "Skip a string", "focus": "Down-up string skipping, 80 bpm", "minutes": 5, "tags": ["technique"],
+            "sections": [
+              { "type": "text", "text": "Skipping a string makes the pick hand jump accurately, which wide phrases need." },
+              { "type": "text", "text": "Two notes per string, down-up, skipping a string each time: low E, D, B, then back. At 80; done when no wrong string sounds." },
+              { "type": "tool", "tool": { "type": "picking-drill", "strokes": "DU", "notesPerString": 2, "skip": true, "bpm": 80 } }
+            ]
+          },
+          {
+            "title": "Em-Cadd9-G-Dsus4 in sixteenths", "focus": "Sixteenth strumming at 70 bpm", "minutes": 7, "tags": ["rhythm"],
+            "sections": [
+              { "type": "text", "text": "Sixteenths double the hand's motion, so the groove stays tight at a slow tempo." },
+              { "type": "heading", "text": "On Em only", "minutes": 3 },
+              { "type": "text", "text": "Strum down-up-down-up on every beat at 70 on Em, accenting beats 2 and 4." },
+              { "type": "tool", "tool": { "type": "chord-shapes", "chords": ["Em", "Cadd9", "G", "Dsus4"] } },
+              { "type": "heading", "text": "Over the changes", "minutes": 4 },
+              { "type": "text", "text": "Press Play and keep the sixteenths going, one bar per chord." },
+              { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "progression", "key": "g", "chords": ["Em", "Cadd9", "G", "Dsus4"], "bars": 4, "backing": ["strum"] }, "bpm": 70 } }
+            ]
+          },
+          {
+            "title": "Slide in, bend out", "focus": "A minor pentatonic · join 1 → 2 with a bend to finish", "minutes": 10, "tags": ["technique"],
+            "sections": [
+              { "type": "text", "text": "A slide into box 2 followed by a bend is a classic lead move, and it uses both joins of the week." },
+              { "type": "heading", "text": "The lick slowly", "minutes": 5 },
+              { "type": "text", "text": "Slide {{4}} to {{5}} on the G string, play {{b7}} (G, 8th fret) on the B string, bend it up to {{1}}, release. Four beats at 60, ten times." },
+              { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1, 2], "highlight": ["1", "4", "5", "b7"], "others": "normal" } },
+              { "type": "heading", "text": "In box 3 too", "minutes": 5 },
+              { "type": "text", "text": "Move it up: slide {{b7}} to {{1}} on the B string into box 3, then bend {{4}} up to {{5}} on the high E string (D at the 10th fret up to E)." },
+              { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [2, 3], "highlight": ["1", "4", "5", "b7"], "others": "normal" } }
+            ]
+          },
+          {
+            "title": "The tune, at tempo", "focus": "Day 4's tune in D at 90 bpm", "minutes": 8, "tags": ["song"],
+            "sections": [
+              { "type": "text", "text": "Coming back to the tune two days later shows what stuck." },
+              { "type": "heading", "text": "From memory", "minutes": 4 },
+              { "type": "text", "text": "Play it once without the app. Then press Play and check it at 80." },
+              { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "melody", "tune": 47, "key": "d" }, "bpm": 80, "view": "neck" } },
+              { "type": "heading", "text": "Faster and with a slide", "minutes": 4 },
+              { "type": "text", "text": "Now at 90, sliding into the high Do instead of picking it." },
+              { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "melody", "tune": 47, "key": "d" }, "bpm": 90, "view": "tab" } }
+            ]
+          }
+        ]
+      },
+      {
+        "theme": "Review jam",
+        "exercises": [
+          {
+            "title": "Legato check", "focus": "Trills 1-3 and 2-4 at 90 bpm", "minutes": 5, "tags": ["technique"],
+            "sections": [
+              { "type": "text", "text": "The week's legato at a faster tempo, to hear the progress." },
+              { "type": "text", "text": "Fingers 1-3 on the G string for a minute, then fingers 2-4 on the B string for a minute, at 90. Then compare with day 1." },
+              { "type": "tool", "tool": { "type": "legato-trill", "fingers": "13", "string": 3, "fret": 5, "bpm": 90 } },
+              { "type": "tool", "tool": { "type": "legato-trill", "fingers": "24", "string": 2, "fret": 7, "bpm": 90 } }
+            ]
+          },
+          {
+            "title": "Sus part for the jam", "focus": "Am7-Dsus2-Dm7 rhythm part", "minutes": 5, "tags": ["rhythm"],
+            "sections": [
+              { "type": "text", "text": "A sus chord between Am7 and Dm7 gives the jam a moving rhythm part." },
+              { "type": "text", "text": "Press Play and strum along: Am7, then Dsus2 and Dm7 two beats each. Done at four passes." },
+              { "type": "tool", "tool": { "type": "chord-shapes", "chords": ["Am7", "Dsus2", "Dm7"] } },
+              { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "progression", "key": "a", "chords": ["Am7", "Am7", "Dsus2", "Dm7"], "bars": 2, "beatsPerChord": 2, "backing": ["strum"] }, "bpm": 80 } }
+            ]
+          },
+          {
+            "title": "Three boxes from memory", "focus": "A minor pentatonic boxes 1-3 without the chart", "minutes": 8, "tags": ["technique"],
+            "sections": [
+              { "type": "text", "text": "The week's key skill without help: the test that it is yours." },
+              { "type": "heading", "text": "Without looking", "minutes": 4 },
+              { "type": "text", "text": "Run boxes 1 to 3 and back at 80 without the chart. Then check it." },
+              { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1, 2, 3], "highlight": ["1"], "others": "normal" } },
+              { "type": "heading", "text": "In G", "minutes": 4 },
+              { "type": "text", "text": "Same in G, starting from the 3rd fret, still without looking." },
+              { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "g", "boxes": [1, 2, 3], "highlight": ["1"], "others": "normal" } }
+            ]
+          },
+          {
+            "title": "The jam", "focus": "Boxes 1-3 with bends and slides over Am7-Dm7", "minutes": 12, "tags": ["improv"],
+            "sections": [
+              { "type": "text", "text": "Everything from the week in one solo: joins, bends, legato and chord tones." },
+              { "type": "heading", "text": "Chord tones first", "minutes": 4 },
+              { "type": "text", "text": "Press Play. Land on {{a}} or {{c}} over Am7 and on {{d}} or {{f}} over Dm7." },
+              { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "solo-over", "key": "a", "chords": [{ "chord": "Am7", "scale": "minor-pentatonic", "target": ["1", "b3"] }, { "chord": "Dm7", "target": ["1", "b3"] }], "bars": 2 }, "bpm": 85, "view": "neck" } },
+              { "type": "heading", "text": "Bends and slides", "minutes": 4 },
+              { "type": "text", "text": "Same backing; use day 6's slide-and-bend lick at least once per chorus." },
+              { "type": "heading", "text": "Record it", "minutes": 4 },
+              { "type": "text", "text": "Record four minutes of soloing, climbing from box 1 to box 3 and back. Listen back and note one phrase you like for next week." }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

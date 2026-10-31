@@ -1,0 +1,29 @@
+{
+  "id": "theory-beginner-one-four-five",
+  "kind": "exercise",
+  "areas": ["theory"],
+  "level": "beginner",
+  "concepts": ["chords-in-key", "major-scale"],
+  "note": "Theory that is heard, not recited: find the three roots in the scale, hear their chords, then follow I-IV-V by ear in two different orders and backings. Works for any instrument, or none.",
+  "exercise": {
+    "title": "I, IV and V in G, by ear",
+    "focus": "G major · roots G C D · I-IV-V-I by ear",
+    "minutes": 8,
+    "tags": ["theory", "ear"],
+    "why": "Three chords carry thousands of songs; hearing which one is playing is the start of learning songs by ear.",
+    "sections": [
+      { "type": "text", "text": "Build a chord on the 1st, 4th and 5th notes of a major scale and you have the three chords that carry most songs." },
+      { "type": "heading", "text": "Three roots, three chords", "minutes": 3 },
+      { "type": "text", "text": "In G major, {{1}} is G, {{4}} is C and {{5}} is D. Tap each on the staff, then tap the chord built on it below." },
+      { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "g", "voice": "baritone", "highlight": ["1", "4", "5"], "mic": false } },
+      { "type": "tool", "tool": { "type": "chord-shapes", "chords": ["G", "C", "D"] } },
+      { "type": "heading", "text": "Follow the changes", "minutes": 3 },
+      { "type": "text", "text": "Press Play: I, IV, V, I, one bar each. Say the numeral out loud on each change. I sounds like home, IV like stepping out, V like it is leaning back to I." },
+      { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "progression", "key": "g", "numerals": ["I", "IV", "V", "I"], "bars": 8, "backing": ["strum"] }, "bpm": 80 } },
+      { "type": "heading", "text": "A new order", "minutes": 2 },
+      { "type": "text", "text": "Same three chords in a different order, with a softer backing. Look away and name each chord as it arrives; then look to check. Done when you get a whole pass right." },
+      { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "progression", "key": "g", "numerals": ["I", "V", "IV", "V"], "bars": 8, "backing": ["fingerstyle"] }, "bpm": 80 } },
+      { "type": "link", "href": "/course/5/one-four-five" }
+    ]
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "id": "showcase-progression-four-ways",
+  "kind": "exercise",
+  "showcase": "progression",
+  "areas": ["guitar"],
+  "level": "intermediate",
+  "concepts": ["chords-in-key", "hearing-changes", "chords-pop-rock"],
+  "note": "Shows one progression worked several ways: heard as arpeggios with only the roots played, the shapes, strummed in time over a band, then improvised over with each chord's 3rd lit. Same four chords, four different tools and tasks.",
+  "exercise": {
+    "title": "I-V-vi-IV in G, four ways",
+    "focus": "G-D-Em-C · roots by ear · shapes · strumming at 80 · 3rds over each chord",
+    "minutes": 12,
+    "tags": ["rhythm", "improv"],
+    "why": "Working one progression from several sides makes it something you hear and own, not just four shapes in a row.",
+    "sections": [
+      { "type": "text", "text": "I-V-vi-IV is under more pop songs than any other four chords, so it repays knowing from every side." },
+      { "type": "heading", "text": "Hear it, play the roots", "minutes": 3 },
+      { "type": "text", "text": "Press Play and listen to one pass of the arpeggios. Then play only each chord's root on the low strings, one note per bar: G, D, E, C. Done when you change on the bar line without looking." },
+      { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "progression", "key": "g", "numerals": ["I", "V", "vi", "IV"], "bars": 4, "backing": ["arp-up", "fingerstyle"] }, "bpm": 70 } },
+      { "type": "heading", "text": "The shapes", "minutes": 3 },
+      { "type": "text", "text": "Play the four open shapes in order, four slow strums each. Play G with the B string fretted at the 3rd fret by your ring finger: it stays put for D while the other fingers move round it." },
+      { "type": "tool", "tool": { "type": "chord-shapes", "chords": ["G", "D", "Em", "C"] } },
+      { "type": "heading", "text": "In time with a band", "minutes": 3 },
+      { "type": "text", "text": "Strum down, down-up, up-down-up over the drums and bass at 80, one bar per chord. Done at four clean passes in a row." },
+      { "type": "tool", "tool": { "type": "backing-band", "bpm": 80, "key": "g", "parts": ["drums", "bass"] } },
+      { "type": "heading", "text": "Improvise on the 3rds", "minutes": 3 },
+      { "type": "text", "text": "Improvise in G major near the open chords, and land on each chord's 3rd as it arrives: {{b}} over G, {{f-sharp}} over D, {{g}} over Em, {{e}} over C." },
+      { "type": "tool", "tool": { "type": "scale-neck", "scale": "major-ionian", "key": "g", "placement": { "by": "chords" }, "highlight": ["g", "b", "f-sharp", "e"], "others": "normal" } },
+      { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "solo-over", "key": "g", "chords": [{ "chord": "G", "target": ["3"] }, { "chord": "D", "target": ["3"] }, { "chord": "Em", "target": ["b3"] }, { "chord": "C", "target": ["3"] }] }, "bpm": 80, "view": "neck" } }
+    ]
+  }
+}

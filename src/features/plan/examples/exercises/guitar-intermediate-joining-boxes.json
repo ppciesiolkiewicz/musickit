@@ -1,0 +1,31 @@
+{
+  "id": "guitar-intermediate-joining-boxes",
+  "kind": "exercise",
+  "areas": ["guitar"],
+  "level": "intermediate",
+  "concepts": ["joining-positions", "five-pentatonic-boxes"],
+  "note": "The rule's own example made real: box 2 alone, the crossing from box 1 with the two crossing notes lit, the same shapes moved to C, then improvising across both. Each block changes position, key or task.",
+  "exercise": {
+    "title": "Join boxes 1 and 2",
+    "focus": "Minor pentatonic · boxes 1 → 2 · A then C",
+    "minutes": 12,
+    "tags": ["technique", "improv"],
+    "why": "Joining boxes turns five separate shapes into one neck you can move along mid-phrase.",
+    "sections": [
+      { "type": "text", "text": "Players get stuck in box 1 because they never practise leaving it; one slide on the G string is the door to box 2." },
+      { "type": "heading", "text": "Box 2 on its own", "minutes": 3 },
+      { "type": "text", "text": "Play box 2 of A minor pentatonic up and down at 70, one note per click. It starts at the 7th fret; the {{1}} sits on the D and B strings." },
+      { "type": "tool", "tool": { "type": "backing-band", "bpm": 70, "key": "a", "parts": ["click"] } },
+      { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [2], "highlight": ["1"], "others": "normal" } },
+      { "type": "heading", "text": "Cross from box 1 to box 2", "minutes": 3 },
+      { "type": "text", "text": "Climb box 1 from the low A. On the G string, play {{4}} (D, 7th fret) with your ring finger and slide it up to {{5}} (E, 9th fret); finish the climb in box 2. Come back down the same way, sliding from {{5}} to {{4}}. Done when the slide lands in time, four runs in a row." },
+      { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1, 2], "highlight": ["1", "4", "5"], "others": "normal" } },
+      { "type": "heading", "text": "The same in C", "minutes": 3 },
+      { "type": "text", "text": "Move everything up three frets: C minor pentatonic, box 1 at the 8th fret. Same crossing, same fingers, sliding from {{4}} (F) to {{5}} (G) on the G string." },
+      { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "c", "boxes": [1, 2], "highlight": ["1", "4", "5"], "others": "normal" } },
+      { "type": "heading", "text": "Improvise across both", "minutes": 3 },
+      { "type": "text", "text": "Press Play and improvise over Cm7 and Fm7 using both boxes. Cross at least once per phrase. Land on {{c}} when Cm7 comes round and on {{f}} when Fm7 does." },
+      { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "solo-over", "key": "c", "chords": [{ "chord": "Cm7", "scale": "minor-pentatonic", "target": ["1"] }, { "chord": "Fm7", "target": ["1"], "approach": "land on F on beat 1" }], "bars": 2 }, "bpm": 80, "view": "neck" } }
+    ]
+  }
+}

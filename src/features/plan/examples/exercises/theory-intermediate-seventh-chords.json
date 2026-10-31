@@ -1,0 +1,30 @@
+{
+  "id": "theory-intermediate-seventh-chords",
+  "kind": "exercise",
+  "areas": ["theory"],
+  "level": "intermediate",
+  "concepts": ["seventh-chords"],
+  "note": "Three 7th chords on one root, each shown with only its root and the notes that make it different lit, one view per chord, then named by ear in the chord game. Listening only, so it suits any student.",
+  "exercise": {
+    "title": "Three 7th chords on C",
+    "focus": "Cmaj7 · C7 · Cm7 · naming 7th chords by ear",
+    "minutes": 9,
+    "tags": ["theory", "ear"],
+    "why": "Maj7, dominant 7 and minor 7 differ by one or two notes; hearing those notes is how you tell them apart in songs.",
+    "sections": [
+      { "type": "text", "text": "A 7th chord is a triad plus one more note, and which 7th and which 3rd it uses gives it its colour." },
+      { "type": "heading", "text": "Maj7 and dominant 7", "minutes": 3 },
+      { "type": "text", "text": "Cmaj7 adds {{7}} (B), a half step under the root: dreamy. Tap {{1}} then {{7}}, then the whole chord." },
+      { "type": "tool", "tool": { "type": "arpeggio-neck", "chord": "Cmaj7", "highlight": ["1", "7"], "others": "normal" } },
+      { "type": "text", "text": "C7 lowers it to {{b7}} (B♭), a whole step under the root: bluesy, restless. Tap {{1}} then {{b7}}, then the whole chord, and compare with Cmaj7." },
+      { "type": "tool", "tool": { "type": "arpeggio-neck", "chord": "C7", "highlight": ["1", "b7"], "others": "normal" } },
+      { "type": "heading", "text": "Minor 7", "minutes": 2 },
+      { "type": "text", "text": "Cm7 keeps {{b7}} and lowers the 3rd too, to {{b3}} (E♭): soft and dark. Tap {{1}} {{b3}} {{b7}}, then the whole chord." },
+      { "type": "tool", "tool": { "type": "arpeggio-neck", "chord": "Cm7", "highlight": ["1", "b3", "b7"], "others": "normal" } },
+      { "type": "heading", "text": "Name it by ear", "minutes": 4 },
+      { "type": "text", "text": "The game sounds a chord on a random root: name it major, minor, dominant 7, major 7 or minor 7. Listen for the top note first: a half step under the octave is maj7, a whole step is a 7 or m7. Done at ten right in a row." },
+      { "type": "tool", "tool": { "type": "interval-ears", "kind": "chord" } },
+      { "type": "link", "href": "/course/7/sevenths" }
+    ]
+  }
+}

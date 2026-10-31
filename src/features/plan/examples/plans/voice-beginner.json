@@ -1,0 +1,294 @@
+{
+  "id": "voice-beginner",
+  "kind": "plan",
+  "areas": ["voice"],
+  "level": "beginner",
+  "minutes": 15,
+  "concepts": ["do-mi-sol-skips", "in-tune-over-drone", "voice-melodies-easy", "singing-intervals", "breath-holding-note"],
+  "note": "A beginner voice week at 15 minutes a day with no instrument needed: bare drills stay at 3 minutes, the longer singing is tunes chosen by pick and chord tones over chords the app plays, Do Mi Sol returns every day in a new form, and an ear game sits between singing blocks.",
+  "plan": {
+    "title": "Week 1: Do Mi Sol, in tune",
+    "summary": "Sing in tune over a drone, skip through Do Mi Sol, and use it in tunes and over chords.",
+    "days": [
+      {
+        "theme": "Home over a drone",
+        "exercises": [
+          {
+            "title": "Long Do", "focus": "One breath, Do over a drone in C", "minutes": 3, "tags": ["sing"],
+            "sections": [
+              { "type": "text", "text": "A steady long note warms up the breath and the ear together." },
+              { "type": "text", "text": "Press Play on the drone. Breathe in low for four clicks, sing {{1}} on \"ah\" for eight, rest four. Repeat, aiming for a flat line on the staff." },
+              { "type": "tool", "tool": { "type": "click-drone", "bpm": 60, "key": "c" } },
+              { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "alto", "highlight": ["1"], "others": "hidden" } }
+            ]
+          },
+          {
+            "title": "Steps or skips?", "focus": "Major 2nd vs major 3rd by ear", "minutes": 3, "tags": ["ear"],
+            "sections": [
+              { "type": "text", "text": "Hearing whether a melody steps or skips is the first thing your ear needs to sing it back." },
+              { "type": "text", "text": "Name each interval: a major 2nd (Do to Re, a step) or a major 3rd (Do to Mi, a skip). Done at eight right in a row." },
+              { "type": "tool", "tool": { "type": "interval-ears", "set": [2, 4], "dir": "up" } }
+            ]
+          },
+          {
+            "title": "Do Mi Sol over the drone", "focus": "Do Mi Sol in C, up and back", "minutes": 3, "tags": ["sing"],
+            "sections": [
+              { "type": "text", "text": "Do, Mi and Sol are the notes of the home chord, so most tunes lean on them." },
+              { "type": "text", "text": "Press Play on the drone. Sing {{1}} {{3}} {{5}} {{3}} {{1}} on \"la\", four counts each. Done when each note settles without sliding." },
+              { "type": "tool", "tool": { "type": "click-drone", "bpm": 60, "key": "c", "click": false } },
+              { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "alto", "notes": ["1", "3", "5"] } }
+            ]
+          },
+          {
+            "title": "Two step tunes", "focus": "Easy Do Re Mi tunes in C", "minutes": 6, "tags": ["song"],
+            "sections": [
+              { "type": "text", "text": "Short tunes turn the notes into music you remember." },
+              { "type": "heading", "text": "First tune", "minutes": 3 },
+              { "type": "text", "text": "Press Play to hear it, then sing it with the mic. Two clean takes." },
+              { "type": "tool", "tool": { "type": "melody-singer", "pick": { "difficulty": "easy", "stage": "mi" }, "key": "c", "voice": "alto" } },
+              { "type": "heading", "text": "Second tune", "minutes": 3 },
+              { "type": "text", "text": "Another tune on the same three notes. This time look at it and sing it before you hear it, then press Play to check." },
+              { "type": "tool", "tool": { "type": "melody-singer", "pick": { "difficulty": "easy", "stage": "mi", "index": 1 }, "key": "c", "voice": "alto" } }
+            ]
+          }
+        ]
+      },
+      {
+        "theme": "Skips",
+        "exercises": [
+          {
+            "title": "Hum and open", "focus": "Hum to \"ah\" on Do and Sol in D", "minutes": 3, "tags": ["sing"],
+            "sections": [
+              { "type": "text", "text": "Humming finds the pitch gently before the full voice." },
+              { "type": "text", "text": "Press Play on the drone. Hum {{1}} for four counts and open to \"ah\" for four. Then the same on {{5}}." },
+              { "type": "tool", "tool": { "type": "click-drone", "bpm": 60, "key": "d", "click": false } },
+              { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "d", "voice": "alto", "notes": ["1", "5"] } }
+            ]
+          },
+          {
+            "title": "A skipping tune", "focus": "An easy Do Mi Sol tune in D", "minutes": 4, "tags": ["song"],
+            "sections": [
+              { "type": "text", "text": "A tune that skips trains the jumps you drilled on day 1." },
+              { "type": "text", "text": "Press Play to hear it, then sing it with the mic. When it is clean, sing it once from memory." },
+              { "type": "tool", "tool": { "type": "melody-singer", "pick": { "difficulty": "easy", "stage": "skips" }, "key": "d", "voice": "alto" } }
+            ]
+          },
+          {
+            "title": "3rd or 5th?", "focus": "Major 3rd vs perfect 5th by ear", "minutes": 3, "tags": ["ear"],
+            "sections": [
+              { "type": "text", "text": "Do to Mi and Do to Sol are the two skips of the week; telling them apart by ear makes them easy to sing." },
+              { "type": "text", "text": "Name each interval: a major 3rd (Do to Mi) or a perfect 5th (Do to Sol). Sing it back before you answer." },
+              { "type": "tool", "tool": { "type": "interval-ears", "set": [4, 7], "dir": "up" } }
+            ]
+          },
+          {
+            "title": "Do and Sol over chords", "focus": "Do over D, Sol over A", "minutes": 5, "tags": ["improv"],
+            "sections": [
+              { "type": "text", "text": "Singing a chord's note while the chord sounds is how a voice fits into music." },
+              { "type": "text", "text": "Press Play: the chords D and A take turns, one bar each. Sing {{1}} (D) over the D chord and {{5}} (A) over the A chord. Then try {{3}} (F♯) over D." },
+              { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "d", "voice": "alto", "notes": ["1", "3", "5"] } },
+              { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "progression", "key": "d", "numerals": ["I", "V"], "bars": 4, "backing": ["block"] }, "bpm": 70 } }
+            ]
+          }
+        ]
+      },
+      {
+        "theme": "Sol and La",
+        "exercises": [
+          {
+            "title": "Ten-count Do", "focus": "Do for ten clicks in G", "minutes": 3, "tags": ["sing"],
+            "sections": [
+              { "type": "text", "text": "A little longer each day builds breath without strain." },
+              { "type": "text", "text": "Breathe in for four clicks, sing {{1}} on \"oo\" for ten. Rest and repeat. Stop before you run out; the end of the note should be as steady as the start." },
+              { "type": "tool", "tool": { "type": "click-drone", "bpm": 60, "key": "g" } },
+              { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "g", "voice": "alto", "highlight": ["1"], "others": "hidden" } }
+            ]
+          },
+          {
+            "title": "5th or 6th?", "focus": "Perfect 5th vs major 6th by ear", "minutes": 3, "tags": ["ear"],
+            "sections": [
+              { "type": "text", "text": "La sits one step above Sol; hearing the difference prepares today's tune." },
+              { "type": "text", "text": "Name each interval: a perfect 5th (Do to Sol) or a major 6th (Do to La). Done at eight right in a row." },
+              { "type": "tool", "tool": { "type": "interval-ears", "set": [7, 9], "dir": "up" } }
+            ]
+          },
+          {
+            "title": "Sol La Sol", "focus": "An easy La tune in G", "minutes": 4, "tags": ["song"],
+            "sections": [
+              { "type": "text", "text": "Sol La Sol is the lift at the top of many children's songs." },
+              { "type": "text", "text": "Press Play to hear it, then sing it with the mic. Notice it lands on Do through Mi: the week's skip, downward." },
+              { "type": "tool", "tool": { "type": "melody-singer", "pick": { "difficulty": "easy", "stage": "la" }, "key": "g", "voice": "alto" } }
+            ]
+          },
+          {
+            "title": "Over G and D", "focus": "Do, Mi and Sol over I and V in G", "minutes": 5, "tags": ["improv"],
+            "sections": [
+              { "type": "text", "text": "Choosing which chord note to sing is the very first step of making up a melody." },
+              { "type": "text", "text": "Press Play. Over the G chord sing {{1}} or {{3}}; over the D chord sing {{5}}. Change your choice every time round." },
+              { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "g", "voice": "alto", "notes": ["1", "3", "5"] } },
+              { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "progression", "key": "g", "numerals": ["I", "V"], "bars": 4, "backing": ["arp-up"] }, "bpm": 70 } }
+            ]
+          }
+        ]
+      },
+      {
+        "theme": "Under Do",
+        "exercises": [
+          {
+            "title": "Siren to Sol", "focus": "Glide Do to Sol and back in F", "minutes": 3, "tags": ["sing"],
+            "sections": [
+              { "type": "text", "text": "A slow glide loosens the voice and shows on the staff where your pitch goes between notes." },
+              { "type": "text", "text": "On \"ng\", glide slowly from {{1}} up to {{5}} and back, five times. Then sing the two notes cleanly without the glide." },
+              { "type": "tool", "tool": { "type": "click-drone", "bpm": 60, "key": "f", "click": false } },
+              { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "f", "voice": "alto", "notes": ["1", "5"] } }
+            ]
+          },
+          {
+            "title": "A tune under Do", "focus": "An easy tune that dips below Do, in F", "minutes": 4, "tags": ["song"],
+            "sections": [
+              { "type": "text", "text": "Tunes often dip under Do before coming home; this one does." },
+              { "type": "text", "text": "Press Play to hear it, then sing it with the mic. Keep the low notes light, not pushed down." },
+              { "type": "tool", "tool": { "type": "melody-singer", "pick": { "difficulty": "easy", "stage": "under" }, "key": "f", "voice": "alto" } }
+            ]
+          },
+          {
+            "title": "Up or down?", "focus": "Major 3rd and perfect 5th, falling", "minutes": 3, "tags": ["ear"],
+            "sections": [
+              { "type": "text", "text": "Skips come downwards too, and they feel different." },
+              { "type": "text", "text": "The same two intervals as day 2, now falling: name a major 3rd (Mi to Do) or a perfect 5th (Sol to Do)." },
+              { "type": "tool", "tool": { "type": "interval-ears", "set": [4, 7], "dir": "down" } }
+            ]
+          },
+          {
+            "title": "Over F, B♭ and C", "focus": "Chord notes over I-IV-V in F", "minutes": 5, "tags": ["improv"],
+            "sections": [
+              { "type": "text", "text": "Three chords means three homes for the voice to find." },
+              { "type": "text", "text": "Press Play. Sing {{1}} (F) over F, {{4}} (B♭) over B♭, {{5}} (C) over C, holding each for the whole bar. Then try {{3}} (A) over F instead." },
+              { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "f", "voice": "alto", "notes": ["1", "3", "4", "5"] } },
+              { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "progression", "key": "f", "numerals": ["I", "IV", "V", "I"], "bars": 4, "backing": ["block"] }, "bpm": 70 } }
+            ]
+          }
+        ]
+      },
+      {
+        "theme": "Do Mi Sol in a new key",
+        "exercises": [
+          {
+            "title": "Long Sol", "focus": "Sol for eight clicks in A", "minutes": 3, "tags": ["sing"],
+            "sections": [
+              { "type": "text", "text": "Holding a note that is not Do tests your pitch against the drone." },
+              { "type": "text", "text": "Press Play on the drone. Sing {{5}} on \"ah\" for eight clicks; it should sound settled, not rubbing. Then {{1}} for eight." },
+              { "type": "tool", "tool": { "type": "click-drone", "bpm": 60, "key": "a" } },
+              { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "a", "voice": "alto", "notes": ["1", "5"] } }
+            ]
+          },
+          {
+            "title": "Skips, mixed", "focus": "Major 2nd, major 3rd, perfect 5th by ear", "minutes": 3, "tags": ["ear"],
+            "sections": [
+              { "type": "text", "text": "Mixing the week's intervals checks that your ear knows each one on its own." },
+              { "type": "text", "text": "Name each: a major 2nd, a major 3rd or a perfect 5th. Done at ten right in a row." },
+              { "type": "tool", "tool": { "type": "interval-ears", "set": [2, 4, 7], "dir": "up" } }
+            ]
+          },
+          {
+            "title": "Do Mi Sol in A", "focus": "Do Mi Sol up, down and skipped, over a drone in A", "minutes": 3, "tags": ["sing"],
+            "sections": [
+              { "type": "text", "text": "A new key moves every note, but the pattern stays the same in your ear." },
+              { "type": "text", "text": "Sing {{1}} {{3}} {{5}} up and back, then {{5}} {{1}} {{3}} {{1}}, four counts each." },
+              { "type": "tool", "tool": { "type": "click-drone", "bpm": 60, "key": "a", "click": false } },
+              { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "a", "voice": "alto", "notes": ["1", "3", "5"] } }
+            ]
+          },
+          {
+            "title": "A harder skipping tune", "focus": "A medium Do Mi Sol tune in A", "minutes": 6, "tags": ["song"],
+            "sections": [
+              { "type": "text", "text": "A longer tune puts the skips inside phrases you have to remember." },
+              { "type": "heading", "text": "Learn it", "minutes": 3 },
+              { "type": "text", "text": "Press Play and sing along softly, then sing it with the mic phrase by phrase." },
+              { "type": "tool", "tool": { "type": "melody-singer", "pick": { "difficulty": "medium", "stage": "skips" }, "key": "a", "voice": "alto" } },
+              { "type": "heading", "text": "Sing it through", "minutes": 3 },
+              { "type": "text", "text": "The whole tune with the mic, without hearing it first. Done at two clean takes." }
+            ]
+          }
+        ]
+      },
+      {
+        "theme": "Steps and skips together",
+        "exercises": [
+          {
+            "title": "Do Re Mi Re Do", "focus": "Steps over a drone in C", "minutes": 3, "tags": ["sing"],
+            "sections": [
+              { "type": "text", "text": "Steps are the other half of every melody." },
+              { "type": "text", "text": "Press Play on the drone. Sing {{1}} {{2}} {{3}} {{2}} {{1}} on \"la\", two counts each, five times." },
+              { "type": "tool", "tool": { "type": "click-drone", "bpm": 60, "key": "c", "click": false } },
+              { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "alto", "notes": ["1", "2", "3"] } }
+            ]
+          },
+          {
+            "title": "A medium step tune", "focus": "A medium Do Re Mi tune in C", "minutes": 4, "tags": ["song"],
+            "sections": [
+              { "type": "text", "text": "A tune that starts away from Do trains you to hear where home is." },
+              { "type": "text", "text": "Look first and sing it from the staff, then press Play to check. Sing it with the mic until a take is clean." },
+              { "type": "tool", "tool": { "type": "melody-singer", "pick": { "difficulty": "medium", "stage": "mi" }, "key": "c", "voice": "alto" } }
+            ]
+          },
+          {
+            "title": "Hear and sing back", "focus": "Major 3rd and perfect 5th, sung before answering", "minutes": 3, "tags": ["ear"],
+            "sections": [
+              { "type": "text", "text": "Singing an interval back before naming it ties the ear to the voice." },
+              { "type": "text", "text": "For each question, sing both notes back first, then name it: a major 3rd or a perfect 5th." },
+              { "type": "tool", "tool": { "type": "interval-ears", "set": [4, 7], "dir": "up" } }
+            ]
+          },
+          {
+            "title": "A tune in 3rds", "focus": "An easy tune climbing in 3rds, in C", "minutes": 5, "tags": ["song"],
+            "sections": [
+              { "type": "text", "text": "Climbing in 3rds mixes steps and skips in one phrase, which is how real melodies move." },
+              { "type": "text", "text": "Press Play to hear it, then sing it with the mic. Then sing it a second time a little louder, keeping it in tune." },
+              { "type": "tool", "tool": { "type": "melody-singer", "pick": { "difficulty": "easy", "stage": "thirds" }, "key": "c", "voice": "alto" } }
+            ]
+          }
+        ]
+      },
+      {
+        "theme": "Sing it all",
+        "exercises": [
+          {
+            "title": "Twelve-count Do", "focus": "Do for twelve clicks in D", "minutes": 3, "tags": ["sing"],
+            "sections": [
+              { "type": "text", "text": "Day 1 was eight clicks; twelve shows the week's progress." },
+              { "type": "text", "text": "Breathe in for four clicks, sing {{1}} for twelve. Twice, with a rest between." },
+              { "type": "tool", "tool": { "type": "click-drone", "bpm": 60, "key": "d" } },
+              { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "d", "voice": "alto", "highlight": ["1"], "others": "hidden" } }
+            ]
+          },
+          {
+            "title": "A Sol tune", "focus": "An easy tune down from Sol, in D", "minutes": 4, "tags": ["song"],
+            "sections": [
+              { "type": "text", "text": "A new tune on day 7, sung first time from the staff, shows how far your reading has come." },
+              { "type": "text", "text": "Sing it from the staff before hearing it, then press Play to check. Then one clean take with the mic." },
+              { "type": "tool", "tool": { "type": "melody-singer", "pick": { "difficulty": "easy", "stage": "sol" }, "key": "d", "voice": "alto" } }
+            ]
+          },
+          {
+            "title": "The week's intervals", "focus": "Major 2nd, major 3rd, perfect 5th, major 6th", "minutes": 3, "tags": ["ear"],
+            "sections": [
+              { "type": "text", "text": "All four of the week's intervals together: a check of your ear." },
+              { "type": "text", "text": "Name each: major 2nd, major 3rd, perfect 5th or major 6th. Count how many of twenty you get." },
+              { "type": "tool", "tool": { "type": "interval-ears", "set": [2, 4, 7, 9], "dir": "up" } }
+            ]
+          },
+          {
+            "title": "Your own line over chords", "focus": "Do Mi Sol over I-IV-V-I in D", "minutes": 5, "tags": ["improv"],
+            "sections": [
+              { "type": "text", "text": "Making up a line from the notes you know is the reward for the week." },
+              { "type": "text", "text": "Press Play. Over each chord, sing any of {{1}} {{3}} {{5}}, moving by step or skip; over the A chord lean on {{5}}, which is its root. Record one pass and listen back." },
+              { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "d", "voice": "alto", "notes": ["1", "3", "5"] } },
+              { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "progression", "key": "d", "numerals": ["I", "IV", "V", "I"], "bars": 4, "backing": ["arp-up"] }, "bpm": 70 } }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

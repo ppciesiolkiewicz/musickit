@@ -1,0 +1,31 @@
+{
+  "id": "guitar-advanced-dorian-on-the-neck",
+  "kind": "exercise",
+  "areas": ["guitar"],
+  "level": "advanced",
+  "concepts": ["modes-on-neck", "modes"],
+  "note": "A mode is taught by its one colour note: hear it change, find it in two positions with the root and the 6th lit, then use it where it is also a chord tone. No block repeats a position or a task.",
+  "exercise": {
+    "title": "D Dorian: find the 6th",
+    "focus": "D Dorian · root on the A and low E strings · Dm7-G7",
+    "minutes": 12,
+    "tags": ["technique", "improv"],
+    "why": "Dorian is natural minor with a raised 6th; hearing and aiming at that one note is what makes it sound Dorian.",
+    "sections": [
+      { "type": "text", "text": "Dorian differs from natural minor by one note, so practise that note, not seven." },
+      { "type": "heading", "text": "Hear the switch", "minutes": 3 },
+      { "type": "text", "text": "Press Play: the first half is D natural minor, the second half D Dorian, over a held Dm. Play along in the neck view and listen for the bar where one note brightens." },
+      { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "two-scales", "a": { "key": "d", "scale": "natural-minor-aeolian" }, "b": { "key": "d", "scale": "dorian" }, "bars": 8, "backingChord": "Dm" }, "bpm": 70, "view": "neck" } },
+      { "type": "heading", "text": "Root on the A string", "minutes": 3 },
+      { "type": "text", "text": "The note that changed is {{6}}: B, not B♭. Play the box with {{1}} at the 5th fret of the A string up and down, then play {{6}} and resolve it to {{1}} three times." },
+      { "type": "tool", "tool": { "type": "scale-neck", "scale": "dorian", "key": "d", "placement": { "by": "root", "string": 5 }, "highlight": ["1", "6"], "others": "normal" } },
+      { "type": "heading", "text": "Root on the low E", "minutes": 3 },
+      { "type": "text", "text": "Same mode, the box with {{1}} on the 10th fret of the low E. Find every {{6}} in it before you play the box, then play it up and down at 80." },
+      { "type": "tool", "tool": { "type": "scale-neck", "scale": "dorian", "key": "d", "placement": { "by": "root", "string": 6 }, "highlight": ["1", "6"], "others": "normal" } },
+      { "type": "heading", "text": "Improvise over Dm7 to G7", "minutes": 3 },
+      { "type": "text", "text": "B is also the 3rd of G7, so Dorian fits Dm7-G7 perfectly. Improvise in either box; land on {{d}} over Dm7 and on {{b}} over G7." },
+      { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "solo-over", "key": "d", "chords": [{ "chord": "Dm7", "scale": "dorian", "target": ["1"] }, { "chord": "G7", "scale": "mixolydian", "target": ["3"], "approach": "land on B on beat 1" }], "bars": 2 }, "bpm": 80, "view": "neck" } },
+      { "type": "link", "href": "/theory/scales/dorian/d" }
+    ]
+  }
+}

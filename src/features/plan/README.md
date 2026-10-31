@@ -40,6 +40,7 @@ store/
   PlanStore.ts    the storage interface: load() / save() of one PlanState
   localPlanStore.ts  the localStorage implementation ("musickit.plan"), with sanitising
   usePlan.tsx     the hook the UI uses, and PlanStoreProvider to swap the store
+examples/         the example library: exercises/*.json, plans/*.json (standalone JSON), index.ts loads them; see its README
 ui/               PlanFlow, Questionnaire (the question screens), PromptAndPaste, WeekView, Sections (an exercise's sections in order), ExerciseTimer, ExerciseTool
 PlanApp.tsx       the page body: no plan → Start; a plan → header, week, history; the flow modal
 reminders.ts, PracticeReminder.tsx   notifications (PracticeReminder is mounted in PageShell, on every page)
@@ -131,6 +132,12 @@ one-line meaning and a link to the course article. The AI writes plain text; `ex
 per exercise. To add a word: an entry in `GLOSSARY`, and an article; if there is none yet, add an empty `section()` to
 the course and point at it. The prompt lists the terms with their meanings (generated from `GLOSSARY`) and asks the
 AI to use them by name without defining them.
+
+## Example library
+
+`examples/` (its own README): hand-tuned exercises (one per area and level, plus three rule showcases) and four 7-day
+plans, as standalone JSON with metadata (`areas`, `level`, `concepts`, `note`). `examples.test.ts` checks every one
+pastes with zero warnings and keeps the exercise rules: blocks, sing or play, named notes lit, root never muted.
 
 ## Concepts
 

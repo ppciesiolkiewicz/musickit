@@ -1,0 +1,32 @@
+{
+  "id": "guitar-beginner-pentatonic-box1",
+  "kind": "exercise",
+  "areas": ["guitar"],
+  "level": "beginner",
+  "concepts": ["pentatonic-box-1", "pentatonic"],
+  "note": "One box, four different jobs: the shape at a slow tempo, its roots alone, the shape faster over drums, then a short improvisation that ends on the root. The root stays lit in every view.",
+  "exercise": {
+    "title": "A minor pentatonic, box 1",
+    "focus": "A minor pentatonic · box 1 · 60 then 80 bpm",
+    "minutes": 10,
+    "tags": ["technique", "improv"],
+    "why": "Box 1 is the home base most lead playing starts from; knowing where its roots are lets you end a phrase anywhere.",
+    "sections": [
+      { "type": "text", "text": "Box 1 is the first scale shape most guitarists learn because every note sits under four fingers at the 5th fret." },
+      { "type": "heading", "text": "The box at 60", "minutes": 3 },
+      { "type": "text", "text": "Play box 1 from the low {{1}} up to the high E string and back down, one note per click, alternate picking. Index finger on the 5th fret, ring or pinky on the 7th and 8th." },
+      { "type": "tool", "tool": { "type": "backing-band", "bpm": 60, "key": "a", "parts": ["click"] } },
+      { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "highlight": ["1"], "others": "normal" } },
+      { "type": "heading", "text": "Only the roots", "minutes": 2 },
+      { "type": "text", "text": "Now play only the {{1}} notes in the box: the A on the low E, the A on the D string, the A on the high E. Low to high and back, saying \"A\" as you play each one." },
+      { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "highlight": ["1"], "others": "muted" } },
+      { "type": "heading", "text": "The box at 80 over drums", "minutes": 3 },
+      { "type": "text", "text": "The whole box again, now at 80 with drums. Start each run on a different {{1}}: the low one, then the one on the D string. Done when two runs in a row have no missed notes." },
+      { "type": "tool", "tool": { "type": "backing-band", "bpm": 80, "key": "a", "parts": ["drums", "bass"] } },
+      { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "highlight": ["1"], "others": "normal" } },
+      { "type": "heading", "text": "Make it up", "minutes": 2 },
+      { "type": "text", "text": "Keep the drums going and play short phrases of three or four notes from the box, leaving a gap after each. End every phrase on a {{1}}. This scale is the one used in blues and rock, so it will sound right whatever you choose." },
+      { "type": "link", "href": "/theory/scales/minor-pentatonic/a" }
+    ]
+  }
+}

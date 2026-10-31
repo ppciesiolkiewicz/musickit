@@ -1,0 +1,31 @@
+{
+  "id": "guitar-new-em-am-changes",
+  "kind": "exercise",
+  "areas": ["guitar"],
+  "level": "new",
+  "concepts": ["open-chords", "one-minute-changes", "strumming-patterns"],
+  "note": "Three short blocks take two first chords from clean shapes to counted changes to strumming in time, so the hands change task every few minutes and the timer matches each step.",
+  "exercise": {
+    "title": "Em to Am, clean and in time",
+    "focus": "Em-Am changes · one-minute changes · down strums at 60 bpm",
+    "minutes": 8,
+    "tags": ["technique", "rhythm"],
+    "why": "Em and Am share a finger shape, so they are the easiest first change to make automatic.",
+    "sections": [
+      { "type": "text", "text": "Em and Am use the same two fingers side by side: learn to move them as one unit and the change becomes a single motion." },
+      { "type": "heading", "text": "Clean shapes", "minutes": 3 },
+      { "type": "list", "items": [
+        "Fret Em: fingers 2 and 3 on the 2nd fret of the A and D strings. Strum once and pick each string; every one should ring.",
+        "Fret Am: move the same two fingers down one string each (D and G strings) and add finger 1 on the 1st fret of the B string. Pick each string again.",
+        "Switch back and forth slowly, 10 times, moving fingers 2 and 3 together without lifting them far from the strings."
+      ] },
+      { "type": "tool", "tool": { "type": "chord-shapes", "chords": ["Em", "Am"] } },
+      { "type": "heading", "text": "One-minute changes", "minutes": 3 },
+      { "type": "text", "text": "Change Em to Am and back as many times as you can in one minute, strumming once on each chord so you hear whether it is clean. Rest, then go again. Do three rounds and note your best count; a clean 20 is better than a buzzy 35." },
+      { "type": "heading", "text": "Strum it in time", "minutes": 2 },
+      { "type": "text", "text": "Press Play and strum down once on every beat: four on Em, four on Am. Done when you change without missing the first beat of a bar, four times in a row." },
+      { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "progression", "key": "g", "chords": ["Em", "Am"], "bars": 4, "steps": ["strum"] }, "bpm": 60 } },
+      { "type": "link", "href": "/course/2/one-minute-changes" }
+    ]
+  }
+}

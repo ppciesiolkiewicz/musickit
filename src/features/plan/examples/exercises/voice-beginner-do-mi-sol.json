@@ -1,0 +1,29 @@
+{
+  "id": "voice-beginner-do-mi-sol",
+  "kind": "exercise",
+  "areas": ["voice"],
+  "level": "beginner",
+  "concepts": ["do-mi-sol-skips", "in-tune-over-drone", "voice-melodies-easy"],
+  "note": "Do Mi Sol goes from a bare drill (3 minutes, the cap) to a tune that skips to singing chord tones over chords, so the longer singing time is musical. The app supplies every pitch; no instrument is needed.",
+  "exercise": {
+    "title": "Do Mi Sol: skip, sing a tune, sing over chords",
+    "focus": "Do Mi Sol in D · an easy skipping tune · Do and Sol over D and A",
+    "minutes": 9,
+    "tags": ["sing"],
+    "why": "Skipping between chord notes is the first step from singing scales to singing melodies.",
+    "sections": [
+      { "type": "text", "text": "Most melodies move through the notes of a chord, and Do Mi Sol is the first one." },
+      { "type": "heading", "text": "Do Mi Sol over a drone", "minutes": 3 },
+      { "type": "text", "text": "Press Play on the drone. Sing {{1}} {{3}} {{5}} up and back down on \"la\", four counts each. Then skip straight from {{1}} to {{5}} and back. Done when each note settles without sliding." },
+      { "type": "tool", "tool": { "type": "click-drone", "bpm": 60, "key": "d", "click": false } },
+      { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "d", "voice": "tenor", "notes": ["1", "3", "5"] } },
+      { "type": "heading", "text": "A tune that skips", "minutes": 3 },
+      { "type": "text", "text": "Press Play to hear the tune once, then sing it with the mic. Two clean takes, then sing it from memory without listening first." },
+      { "type": "tool", "tool": { "type": "melody-singer", "pick": { "difficulty": "easy", "stage": "skips" }, "key": "d", "voice": "tenor" } },
+      { "type": "heading", "text": "Over the chords", "minutes": 3 },
+      { "type": "text", "text": "Press Play: the chords D and A take turns, one bar each. Sing {{1}} (D) while the D chord sounds and {{5}} (A) while the A chord sounds. Then swap: {{3}} (F♯) over D, still {{5}} over A." },
+      { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "d", "voice": "tenor", "notes": ["1", "3", "5"] } },
+      { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "progression", "key": "d", "numerals": ["I", "V"], "bars": 4, "backing": ["block", "arp-up"] }, "bpm": 70 } }
+    ]
+  }
+}
