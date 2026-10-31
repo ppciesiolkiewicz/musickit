@@ -30,7 +30,7 @@ function chime() {
 }
 
 /** One short tick when a new block starts. */
-function tick() {
+function blockTick() {
   try {
     const ctx = new AudioContext();
     const o = ctx.createOscillator();
@@ -69,7 +69,7 @@ export default function ExerciseTimer({ minutes, blocks, onFinish, onBlock }: { 
   const block = running && at ? at.index : null;
   const lastBlock = useRef<number | null>(null);
   useEffect(() => {
-    if (block !== null && lastBlock.current !== null && block !== lastBlock.current) tick();
+    if (block !== null && lastBlock.current !== null && block !== lastBlock.current) blockTick();
     lastBlock.current = block;
     report.current?.(block);
   }, [block]);
@@ -100,7 +100,7 @@ export default function ExerciseTimer({ minutes, blocks, onFinish, onBlock }: { 
         <Icon name="timer" size={14} className="text-slate-400" />
       </span>
       <span className={`min-w-12 text-lg tabular-nums ${left === 0 ? "text-emerald-300" : running ? "text-sky-100" : "text-slate-200"}`} aria-live="polite">{fmt(left)}</span>
-      {blocks?.length && at && <span className="text-xs tabular-nums text-slate-400">block {at.index + 1} of {blocks.length} · {fmt(at.leftInBlock)}</span>}
+      {at && blocks && <span className="text-xs tabular-nums text-slate-400">block {at.index + 1} of {blocks.length} · {fmt(at.leftInBlock)}</span>}
       <div className="ml-auto flex gap-1">
         {left > 0 && (
           <Button size="icon-md" onClick={() => (running ? (setEndAt(null)) : setEndAt(Date.now() + left * 1000))} aria-label={running ? "Pause" : "Start"} title={running ? "Pause" : "Start"}>
