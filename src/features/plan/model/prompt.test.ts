@@ -5,6 +5,7 @@ import { buildPrompt, promptParts } from "./prompt";
 import { DEFAULT_ANSWERS } from "./questions";
 import { conceptsFor } from "./concepts";
 import { selectExamples } from "./exampleSelection";
+import { EXERCISE_EXAMPLES } from "../examples";
 import type { PlanAnswers, StoredPlan } from "./types";
 
 const last: StoredPlan = {
@@ -33,14 +34,16 @@ test("every part has a label and text", () => {
   for (const p of promptParts(DEFAULT_ANSWERS, catalogue(), [last])) assert.ok(p.label && p.text.trim(), p.id);
 });
 
-test("example parts carry parseable JSON, the library examples first and the plan last", () => {
+test("example parts carry parseable JSON, every library exercise first and the plan last", () => {
   const ex = promptParts(DEFAULT_ANSWERS, []).filter((p) => p.kind === "example");
-  assert.deepEqual(ex.map((p) => p.example?.id), [...EX.exercises.map((e) => e.id), EX.plan.id]);
+  assert.deepEqual(ex.map((p) => p.example?.id), [...EXERCISE_EXAMPLES.map((e) => e.id), EX.plan.id]);
   for (const p of ex) {
     assert.ok(JSON.parse(p.example!.json));
     assert.ok(p.text.includes(p.example!.json));
-    assert.match(p.text, new RegExp(`### Example: ${p.example!.id}\\nWhy it's good: `));
+    const forLine = p === ex.at(-1) ? "" : "For: [^\\n]+, level [^\\n]+\\n";
+    assert.match(p.text, new RegExp(`### Example: ${p.example!.id}\\n${forLine}Why it's good: `));
   }
+  assert.match(ex[0].text, /pitch the student's exercises at their own levels/);
   assert.ok(JSON.parse(ex.at(-1)!.example!.json).days.length === 7);
 });
 
@@ -69,7 +72,9 @@ test("student part: levels, stars, unsure, voice, focus, minutes, styles as flav
 
 test("the prompt drops repeats arithmetic and the old singing rule, and teaches blocks", () => {
   const all = buildPrompt(rated, catalogue());
-  assert.doesNotMatch(all, /repeats/);
+  const rules = promptParts(rated, catalogue()).filter((p) => p.kind !== "example").map((p) => p.text).join("\n");
+  assert.doesNotMatch(rules, /repeats/);
+  assert.doesNotMatch(all, /"repeats"/);
   assert.match(all, /split into two exercises rather than exceed 6/);
   assert.doesNotMatch(all, /Always pair singing with playing/);
   assert.match(all, /at most one block of 3 minutes or less/);

@@ -46,6 +46,12 @@ export function weekReport(plan: StoredPlan): string {
   return lines.join("\n");
 }
 
+const EXERCISES_HEADING = [
+  "## Examples of good exercises",
+  "Examples from every area and level, to show the format and the rules at work. Each says who it is for; pitch the student's exercises at their own levels above, not at these.",
+  "",
+].join("\n");
+
 export type PromptPartKind = "intro" | "student" | "history" | "rules" | "interface" | "links" | "format" | "example";
 
 /** One labelled piece of the prompt; an example part also carries its JSON so tools can render it. */
@@ -57,10 +63,12 @@ export interface PromptPart {
   example?: { id: string; json: string };
 }
 
-/** An example from the library: its id, why it is good, and its JSON; `heading` (if any) goes above it. */
+/** An example from the library: its id, who it is for (exercises), why it is good, and its JSON; `heading` (if any) goes above it. */
 function examplePart(e: ExerciseExample | PlanExample, heading: string): PromptPart {
   const json = JSON.stringify(e.kind === "plan" ? e.plan : e.exercise);
-  const lines = [...(heading ? [heading] : []), `### Example: ${e.id}`, `Why it's good: ${e.note}`, "```json", json, "```", ""];
+  const areas = e.areas.map((id) => AREAS.find((x) => x.id === id)!.label).join(" + ");
+  const forWhom = e.kind === "exercise" ? [`For: ${areas}, level ${labelOf(LEVELS, e.level)}`] : [];
+  const lines = [...(heading ? [heading] : []), `### Example: ${e.id}`, ...forWhom, `Why it's good: ${e.note}`, "```json", json, "```", ""];
   return { id: `example:${e.id}`, label: `Example: ${e.id}`, kind: "example", text: lines.join("\n"), example: { id: e.id, json } };
 }
 
@@ -80,7 +88,7 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
     ? studentLines(answers).join("\n")
     : "The player skipped the questionnaire. Before writing the plan, ask them (in one short message) what they play, their level in each area, what they already know, their voice type (if they sing) and minutes a day; then write the plan.";
   const { exercises, plan } = selectExamples(answers ?? DEFAULT_ANSWERS);
-  const exerciseParts = exercises.map((e, i) => examplePart(e, i === 0 ? "## Examples of good exercises" : ""));
+  const exerciseParts = exercises.map((e, i) => examplePart(e, i === 0 ? EXERCISES_HEADING : ""));
   const history = previous.slice(0, 3).map(weekReport).join("\n\n");
   return [
     part("intro", "Intro", "intro", [

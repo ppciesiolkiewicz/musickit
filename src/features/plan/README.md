@@ -38,7 +38,7 @@ model/            pure, no React; tested in model/plan.test.ts
   focus.ts        focusOptions(), toggleFocus(): the week's focus choices (at most 3)
   blocks.ts       blocksOf(), fitBlocks(), blockAt(): an exercise's timed blocks
   checks.ts       mixesSingAndPlay(): paste-time exercise check
-  exampleSelection.ts  selectExamples(): which library examples go in the prompt
+  exampleSelection.ts  selectExamples(): all exercise examples + the plan example for the player's level
   config.ts       parsePlanConfig(): the pasted reply to a checked PlanConfig, with warnings
   prompt.ts       buildPrompt(), weekReport()
   schedule.ts     local dates, today's day, progress, when the week is over
@@ -98,11 +98,11 @@ pages a link may go to as a few URI templates (`/theory/scales/{scale}/{key}`, `
 The prompt is built as labelled parts (`promptParts`: intro, student, earlier weeks, how to plan, rules, mistakes,
 exercise format, section and tool interfaces, links, answer format, one `example:<id>` part per example); `buildPrompt` joins them.
 
-Examples come from the library (`examples/`), chosen by `model/exampleSelection.ts` (`selectExamples`): per non-skipped area the
-exercise at its level (plus the next level when at least 70% of that level's concepts are rated 4-5), the `blocks` and
-`progression` showcases always, the `pick` showcase only with Voice, and one whole plan (most shared areas, then closest
-level). Each prints as `### Example: <id>`, `Why it's good: <note>` and its JSON; the plan comes last, under the answer format.
-A typical prompt (guitar intermediate + theory beginner) is about 63,000 characters, 23,000 of them the plan example. The dev prompt studio (`src/features/devtools`, `/dev/prompt`) shows, edits and runs them part by part.
+Examples come from the library (`examples/`), chosen by `model/exampleSelection.ts` (`selectExamples`): every exercise
+example, each labelled `For: <area>, level <level>` under a heading telling the AI to pitch at the student's levels, and
+one whole plan fitted to the player (most shared areas, then closest level). Each prints as `### Example: <id>`,
+`Why it's good: <note>` and its JSON; the plan comes last, under the answer format.
+A typical prompt (guitar intermediate + theory beginner) is about 87,000 characters, 23,000 of them the plan example. The dev prompt studio (`src/features/devtools`, `/dev/prompt`) shows, edits and runs them part by part.
 
 ## Tools
 
