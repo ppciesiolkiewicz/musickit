@@ -16,6 +16,8 @@ import type { StoredPlan } from "./types";
 
 const entries = catalogue();
 const day = (n: number, link?: string) => ({ theme: `T${n}`, exercises: [{ title: `Ex ${n}`, minutes: 10, how: "do it", ...(link ? { link } : {}) }] });
+/** Warnings without the one-block nag, which the 10-minute fixtures all trigger. */
+const real = (w: string[]) => w.filter((x) => !x.includes("one block"));
 const week = (links: (string | undefined)[] = []) => JSON.stringify({ title: "W", days: Array.from({ length: 7 }, (_, i) => day(i + 1, links[i])) });
 
 describe("plan links", () => {
@@ -203,7 +205,7 @@ describe("tools", () => {
     const r = parsePlanConfig(JSON.stringify(p), entries);
     assert.ok(r.ok);
     assert.deepEqual(r.config.days[0].exercises[0].sections?.filter((x) => x.type === "tool"), [{ type: "tool", tool: { type: "chord-shapes", chords: ["G", "C"] } }]);
-    assert.equal(r.warnings.length, 1);
+    assert.equal(real(r.warnings).length, 1);
   });
   it("the prompt's example play-along exercise keeps its minutes after derivation", () => {
     const ex = JSON.parse(EXAMPLE).days[0].exercises.find((e: { sections: { tool?: { type: string } }[] }) => e.sections.some((s) => s.tool?.type === "play-along"));
@@ -212,6 +214,28 @@ describe("tools", () => {
     const r = parsePlanConfig(JSON.stringify(p), entries);
     assert.ok(r.ok);
     assert.equal(r.config.days[0].exercises[0].minutes, ex.minutes);
+  });
+  const one = (ex: object) => {
+    const p = JSON.parse(week());
+    p.days[0].exercises[0] = ex;
+    const r = parsePlanConfig(JSON.stringify(p), entries);
+    assert.ok(r.ok);
+    return r;
+  };
+  it("an exercise with a play-along repeats keeps its written minutes", () => {
+    const tool = { type: "play-along", bpm: 70, repeats: 2, shape: { shape: "progression", key: "g", chords: ["G", "C"], bars: 4 } };
+    const r = one({ title: "t", minutes: 10, sections: [{ type: "heading", text: "A", minutes: 5 }, { type: "tool", tool }, { type: "heading", text: "B", minutes: 5 }, { type: "text", text: "x" }] });
+    assert.equal(r.config.days[0].exercises[0].minutes, 10);
+  });
+  it("paste warns on a 12-minute exercise with one block", () => {
+    const r = one({ title: "t", minutes: 12, sections: [{ type: "text", text: "x" }] });
+    assert.ok(r.warnings.some((w) => w.includes("over 5 minutes in one block")));
+  });
+  it("heading minutes parse, clamp to 1..60, drop non-numbers", () => {
+    assert.deepEqual(parseSection({ type: "heading", text: "a", minutes: 3.4 }, entries), { type: "heading", text: "a", minutes: 3 });
+    assert.deepEqual(parseSection({ type: "heading", text: "a", minutes: 99 }, entries), { type: "heading", text: "a", minutes: 60 });
+    assert.deepEqual(parseSection({ type: "heading", text: "a", minutes: 0 }, entries), { type: "heading", text: "a", minutes: 1 });
+    assert.deepEqual(parseSection({ type: "heading", text: "a", minutes: "x" }, entries), { type: "heading", text: "a" });
   });
   it("a play-along with repeats sets the exercise's minutes", () => {
     const tool = parseTool({ type: "play-along", bpm: 70, repeats: 2, shape: { shape: "progression", key: "g", chords: ["G", "C"], bars: 4 } });
@@ -246,7 +270,7 @@ describe("sections", () => {
     const got = r.config.days[0].exercises[0].sections!;
     assert.deepEqual(got.map((s) => s.type), ["text", "tool", "heading", "list", "link"]);
     assert.deepEqual(got[3], { type: "list", items: ["a", "b"] });
-    assert.equal(r.warnings.length, 1);
+    assert.equal(real(r.warnings).length, 1);
   });
   it("tags: known ones, plus multi-octave from a wide ears tool", () => {
     const r = plan({ tags: ["ear", "made-up"], sections: [{ type: "tool", tool: { type: "interval-ears", level: 2, wide: true } }] });
@@ -303,14 +327,14 @@ describe("parsePlanConfig", () => {
     const r = parsePlanConfig(`Here you go!\n\`\`\`json\n${week()}\n\`\`\`\nEnjoy`, entries);
     assert.ok(r.ok);
     assert.equal(r.config.days.length, 7);
-    assert.deepEqual(r.warnings, []);
+    assert.deepEqual(real(r.warnings), []);
   });
   it("drops unknown links with a warning, keeps the exercise", () => {
     const r = parsePlanConfig(week(["/nope", "/theory/ears"]), entries);
     assert.ok(r.ok);
     assert.equal(r.config.days[0].exercises[0].sections?.some((x) => x.type === "link"), false);
     assert.deepEqual(r.config.days[1].exercises[0].sections?.find((x) => x.type === "link"), { type: "link", href: "/theory/ears" });
-    assert.equal(r.warnings.length, 1);
+    assert.equal(real(r.warnings).length, 1);
   });
   it("refuses short plans, empty days and bad JSON", () => {
     assert.equal(parsePlanConfig(JSON.stringify({ days: [day(1)] }), entries).ok, false);
@@ -392,7 +416,7 @@ describe("the prompt's examples", () => {
       p.days[0].exercises[0] = ex;
       const r = parsePlanConfig(JSON.stringify(p), entries);
       assert.ok(r.ok, ex.title);
-      assert.equal(r.warnings.length, 0, ex.title);
+      assert.equal(real(r.warnings).length, 0, ex.title);
       assert.equal(r.config.days[0].exercises[0].minutes, ex.minutes, ex.title);
     }
   });

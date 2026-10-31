@@ -1,5 +1,6 @@
+import { fitBlocks, blocksOf } from "./blocks";
 import { checkLink, type CatalogueEntry } from "./catalogue";
-import { derivedMinutes, exerciseTags, legacySections, parseSection, parseTool, resolveChordPlacement, type Section } from "./tools";
+import { exerciseTags, legacySections, parseSection, parseTool, resolveChordPlacement, type Section } from "./tools";
 import { PLAN_DAYS, type PlanConfig, type PlanDay, type PlanExercise } from "./types";
 
 export type ParseResult = { ok: true; config: PlanConfig; warnings: string[] } | { ok: false; error: string };
@@ -43,8 +44,7 @@ function extractJson(text: string): unknown {
 }
 
 /**
- * A pasted plan, checked and tidied: seven days, each with at least one exercise, minutes 1..120 (computed from the
- * play-alongs when they say how often to loop), links only to attunr pages
+ * A pasted plan, checked and tidied: seven days, each with at least one exercise, minutes 1..120 (block minutes scaled to fit), links only to attunr pages
  * (an unknown link is dropped with a warning, the exercise kept). Extra days are cut, missing ones are an error.
  */
 export function parsePlanConfig(text: string, entries: CatalogueEntry[]): ParseResult {
@@ -77,9 +77,10 @@ export function parsePlanConfig(text: string, entries: CatalogueEntry[]): ParseR
         warnings.push(`${where}: no instructions.`);
         sections.push({ type: "text", text: title });
       }
-      ex.sections = sections;
-      const derived = derivedMinutes(sections);
-      if (derived !== null) ex.minutes = Math.min(120, Math.max(1, Math.round(derived)));
+      const fit = fitBlocks(sections, ex.minutes);
+      if (fit.changed) warnings.push(`${where}: block minutes didn't add up to ${ex.minutes}; scaled them.`);
+      if (ex.minutes > 5 && blocksOf(fit.sections).length < 2) warnings.push(`${where}: over 5 minutes in one block; split it.`);
+      ex.sections = fit.sections;
       const tags = exerciseTags(e.tags, sections);
       if (tags.length) ex.tags = tags;
       const why = str(e.why, 300);

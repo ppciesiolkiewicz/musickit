@@ -105,7 +105,7 @@ The tools are the learning components of `src/features/exercises` (see its READM
 `staff`, `click-drone`, `backing-band`, `note-finder`, `interval-ears`, `arpeggio-neck`, `melody-singer`, `run-singer`
 and the guided `play-along` (one shape: `progression`, `two-scales`, `chord-steps`, `arpeggio-part`, `melody`,
 `solo-over`). The prompt lists them from `COMPONENT_DOCS`, the debug panel shows each one's short doc (open it for the
-prop table). A play-along with `repeats` sets the exercise's minutes (`derivedMinutes`); its `under` picks what sounds under single
+prop table). The exercise's `minutes` is what the timer follows. Headings with `minutes` start timed blocks (`blocks.ts`); on paste the block minutes are scaled to add up to the exercise's, and an exercise over 5 minutes with fewer than two blocks gets a warning. A play-along's `under` picks what sounds under single
 notes (the chords held by default). In development each tool shows its name above it (`DevName`).
 Three tools are stubs, for the course's dexterity basics: `finger-pattern` (the spider), `picking-drill` and
 `legato-trill`. The AI can use them now; until their real views exist they show a "Stub exercise: …" box with their settings.

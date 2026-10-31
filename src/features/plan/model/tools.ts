@@ -265,7 +265,7 @@ export function derivedMinutes(sections: Section[]): number | null {
 /* ---------------------------------------------------------------- the sections */
 
 export type Section =
-  | { type: "heading"; text: string }
+  | { type: "heading"; text: string; minutes?: number }
   | { type: "text"; text: string }
   | { type: "list"; items: string[] }
   | { type: "tool"; tool: PlanTool }
@@ -275,7 +275,7 @@ const str = (v: unknown, max: number): string => (typeof v === "string" ? v.trim
 
 const STR = { type: "string" };
 const SECTIONS: { type: Section["type"]; description: string; properties: Record<string, unknown>; required: string[] }[] = [
-  { type: "heading", description: "A short title inside the exercise (\"Warm-up\", \"Now with the 7th\").", properties: { text: STR }, required: ["text"] },
+  { type: "heading", description: "A short title inside the exercise (\"Warm-up\", \"Now with the 7th\").", properties: { text: STR, minutes: { type: "integer", minimum: 1, maximum: 60, description: "starts a timed block of this many minutes" } }, required: ["text"] },
   { type: "text", description: "A paragraph of plain instructions.", properties: { text: STR }, required: ["text"] },
   { type: "list", description: "Numbered steps the student follows.", properties: { items: { type: "array", items: STR, minItems: 1, maxItems: 8 } }, required: ["items"] },
   { type: "tool", description: "One of the tools below, shown here, in order, already set up. A tool shows what the text just before it talks about.", properties: { tool: { type: "object", description: "{\"type\": <tool name>, …input}" } }, required: ["tool"] },
@@ -333,7 +333,9 @@ export function parseSection(raw: unknown, pages: CatalogueEntry[]): Section | n
     case "heading":
     case "text": {
       const text = str(s.text, s.type === "heading" ? 100 : 700);
-      return text ? { type: s.type, text } : null;
+      if (!text) return null;
+      const m = Math.round(Number(s.minutes));
+      return s.type === "heading" && s.minutes != null && Number.isFinite(m) ? { type: "heading", text, minutes: Math.min(60, Math.max(1, m)) } : { type: s.type, text };
     }
     case "list": {
       const items = list(s.items).map((i) => str(i, 240)).filter(Boolean).slice(0, 8);
