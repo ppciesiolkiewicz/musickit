@@ -7,7 +7,7 @@ import type { PromptPart, PromptPartKind } from "@/features/plan/model/prompt";
 import { offeredInterface } from "@/features/plan/model/tools";
 import { DebugList } from "@/features/plan/ui/PromptAndPaste";
 import type { Overrides } from "../model/history";
-import { prettyJson } from "../model/prettyJson";
+import PrettyText from "./PrettyText";
 
 const KIND: Record<PromptPartKind, string> = {
   intro: "text-slate-300",
@@ -36,6 +36,8 @@ function PartRow({ part, override, onOverride, entries }: {
   const text = override?.text ?? part.text;
   const edited = override?.text !== undefined && override.text !== part.text;
   const off = !!override?.off;
+  // examples are long indented JSON: give them most of the screen
+  const tall = part.example ? "h-[75vh]" : "h-64";
   const change = (o: Overrides[string]) => onOverride(o.text === undefined && !o.off ? undefined : o);
   return (
     <li className={`rounded-lg border px-3 py-2 ${off ? "border-dashed border-slate-800 opacity-60" : edited ? "border-amber-500/50" : "border-slate-800"}`}>
@@ -53,9 +55,9 @@ function PartRow({ part, override, onOverride, entries }: {
         </summary>
         <div className="mt-2 flex flex-col gap-2 text-[11px]">
           {editing ? (
-            <textarea aria-label={`${part.label} text`} value={text} onChange={(e) => change({ ...override, text: e.target.value })} spellCheck={false} className="h-64 w-full rounded-lg border border-slate-700 bg-slate-950/60 p-2 font-mono text-slate-200 focus:border-sky-500 focus:outline-none" />
+            <textarea aria-label={`${part.label} text`} value={text} onChange={(e) => change({ ...override, text: e.target.value })} spellCheck={false} className={`${tall} w-full rounded-lg border border-slate-700 bg-slate-950/60 p-2 font-mono text-slate-200 focus:border-sky-500 focus:outline-none`} />
           ) : (
-            <pre className="max-h-80 overflow-auto whitespace-pre-wrap rounded-lg bg-slate-950/60 p-2 font-mono text-slate-300">{prettyJson(text)}</pre>
+            <pre className={`${part.example ? "max-h-[75vh]" : "max-h-80"} overflow-auto whitespace-pre-wrap rounded-lg bg-slate-950/60 p-2 font-mono text-slate-300`}><PrettyText text={text} /></pre>
           )}
           <Offered part={part} entries={entries} />
         </div>
