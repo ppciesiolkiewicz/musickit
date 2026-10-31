@@ -6,8 +6,10 @@ browser.
 
 ## The player's path
 
-1. **Start** opens one step modal (`ui/PlanFlow.tsx`, mode `"start"`): the questions (what they play, level, where they
-   want to go, what feels hard, minutes a day, styles, notes), then *Copy your prompt*, then *Paste its reply*.
+1. **Start** opens one step modal (`ui/PlanFlow.tsx`, mode `"start"`): the questionnaire (`ui/Questionnaire.tsx`): a level per
+   area (Guitar, Voice, Theory & ear, each skippable), one 1-5 star concept screen per area that isn't skipped, your voice
+   (with *Find my range*) if Voice isn't skipped, this week's focus (up to 3), minutes a day, notes and styles. Then *Copy your prompt*,
+   then *Paste its reply*. Every screen has the same fixed height (the body scrolls inside), so Back and Next never move.
    **Build my plan** is enabled once the reply parses.
 2. **The week** (`ui/WeekView.tsx`): seven day buttons; any day can be opened, days ahead are dashed and marked "coming up". The day's
    exercises are a list of sections: title, focus ("A minor pentatonic · boxes 1 & 2"), how, steps, why, a countdown
@@ -16,9 +18,9 @@ browser.
    boxes on the neck, chord shapes, a staff with live pitch for singing, a folded play-along band (one Play for only the
    chosen click / drone / drums / bass), or the notes / ear games with their settings hidden. A `link` is an
    "Open page" link for more.
-4. **Plan next week** (mode `"next"`, any time; a banner shows it once the week is over): how did it go, still heading
-   the same way (goals, minutes), copy the prompt (it carries this week's exercises, done or skipped, the notes and up
-   to three earlier weeks), paste.
+4. **Plan next week** (mode `"next"`, any time; a banner shows it once the week is over): how did it go, then every
+   questionnaire screen again, prefilled with the stored answers, then copy the prompt (it carries this week's exercises,
+   done or skipped, the notes and up to three earlier weeks), paste.
 5. **Start anew**: the first flow again; its prompt leaves out past weeks. Earlier plans stay listed and can be restarted.
 6. **Reminders**: a daily browser notification at a chosen time while any attunr tab is open.
 

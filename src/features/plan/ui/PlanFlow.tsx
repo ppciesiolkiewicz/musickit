@@ -32,7 +32,7 @@ export function clearFlow(): void {
   }
 }
 
-const field = "min-h-28 w-full rounded-lg border border-slate-700 bg-slate-950/60 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-600 focus:border-sky-500 focus:outline-none";
+const field = "w-full rounded-lg border border-slate-700 bg-slate-950/60 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-600 focus:border-sky-500 focus:outline-none";
 
 /**
  * Making a plan, as one step modal. "start": every question, then copy the prompt (no past weeks: a fresh start), then paste.
@@ -76,9 +76,9 @@ export default function PlanFlow({ mode, answers, current, history, entries, onP
         {
           title: "How did this week go?",
           hint: "What felt easy, hard, fun. It goes into the prompt with what you ticked off.",
-          body: <textarea autoFocus className={field} value={feedback} onChange={(e) => setFeedback(e.target.value)} placeholder="Day 3 was too fast, loved the improv, want more songs…" />,
+          body: <textarea autoFocus className={`${field} h-full`} value={feedback} onChange={(e) => setFeedback(e.target.value)} placeholder="Day 3 was too fast, loved the improv, want more songs…" />,
         },
-        ...questionSteps(draft, set, ["minutes"]).map((s, i) => (i === 0 ? { ...s, title: "How long can you practise now?" } : s)),
+        ...questionSteps(draft, set),
       ];
   steps.push(
     {
@@ -100,6 +100,7 @@ export default function PlanFlow({ mode, answers, current, history, entries, onP
       steps={steps}
       finishLabel="Build my plan"
       step={step}
+      bodyHeight="h-[22rem]"
       onStep={setStep}
       onClose={() => {
         clearFlow();

@@ -18,9 +18,10 @@ export interface ModalStep {
  * screen, which calls `onFinish`. Callers keep the answers themselves (the bodies are their own controls); closing just calls `onClose`.
  * Only the Close button closes it (not Escape or a click beside it), so coming back from another window never loses the flow.
  * Pass `step`/`onStep` to own the screen number (to restore it after a reload).
+ * `bodyHeight` (a height class, e.g. "h-[22rem]") gives every screen that same height, scrolling inside, so Back and Next never move.
  */
-export function StepModal({ title, steps, onFinish, onClose, finishLabel = "Done", step: stepProp, onStep }: {
-  title: string; steps: ModalStep[]; onFinish: () => void; onClose: () => void; finishLabel?: string; step?: number; onStep?: (i: number) => void;
+export function StepModal({ title, steps, onFinish, onClose, finishLabel = "Done", step: stepProp, onStep, bodyHeight }: {
+  title: string; steps: ModalStep[]; onFinish: () => void; onClose: () => void; finishLabel?: string; step?: number; onStep?: (i: number) => void; bodyHeight?: string;
 }) {
   const [own, setOwn] = useState(0);
   const i = Math.min(stepProp ?? own, steps.length - 1);
@@ -39,7 +40,7 @@ export function StepModal({ title, steps, onFinish, onClose, finishLabel = "Done
           {step.hint && <p className="text-xs text-slate-500">{step.hint}</p>}
         </div>
         {/* keyed so autoFocus and local state start fresh on each screen */}
-        <div key={i} className="min-h-24">{step.body}</div>
+        <div key={i} className={bodyHeight ? `${bodyHeight} overflow-y-auto` : "min-h-24"}>{step.body}</div>
         <div className="flex items-center gap-2">
           {i > 0 && <Button onClick={() => setI(i - 1)}><Icon name="chevron-left" size={12} />Back</Button>}
           <Button
