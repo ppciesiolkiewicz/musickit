@@ -4,7 +4,7 @@ import { mixesSingAndPlay } from "./checks";
 import type { Section } from "./tools";
 
 const text = (t: string): Section => ({ type: "text", text: t });
-const tool = (t: Section extends infer S ? (S extends { tool: infer T } ? T : never) : never): Section => ({ type: "tool", tool: t });
+const tool = (t: Extract<Section, { type: "tool" }>["tool"]): Section => ({ type: "tool", tool: t });
 const drone: Section = tool({ type: "click-drone", bpm: 60, key: 0 });
 
 describe("mixesSingAndPlay", () => {
@@ -12,14 +12,18 @@ describe("mixesSingAndPlay", () => {
     const s = [drone, text("Play Do on the guitar, then sing it back"), tool({ type: "arpeggio-neck", chord: "C" })];
     assert.equal(mixesSingAndPlay(s), true);
   });
-  it("flags a mic staff next to an instrument tool", () => {
+  it("does not count an instrument tool shown as a visual", () => {
     const s = [tool({ type: "staff", scale: "major", key: 0, voice: "baritone" }), tool({ type: "scale-neck", scale: "major", key: 0 })];
-    assert.equal(mixesSingAndPlay(s), true);
-  });
-  it("ignores a staff with the mic off", () => {
-    const s = [tool({ type: "staff", scale: "major", key: 0, voice: "baritone", mic: false }), tool({ type: "scale-neck", scale: "major", key: 0 })];
     assert.equal(mixesSingAndPlay(s), false);
   });
+  it("flags sing then find it on the guitar", () => assert.equal(mixesSingAndPlay([text("Sing it, then find it on the guitar")]), true));
+  it("ignores 'pick' a key", () => assert.equal(mixesSingAndPlay([tool({ type: "melody-singer", tune: 0, key: 0 }), text("Pick a comfortable key and sing the root")]), false));
+  it("ignores 'fret' as a question", () => assert.equal(mixesSingAndPlay([text("Which fret is Do on? Sing it")]), false));
+  it("ignores the Play button and sing-along", () => assert.equal(mixesSingAndPlay([text("Press the Play button, then sing along")]), false));
+  it("ignores playing along with a track", () => assert.equal(mixesSingAndPlay([text("Play along with the track and sing the 3rd")]), false));
+  it("ignores 'let the app play'", () => assert.equal(mixesSingAndPlay([text("Let the app play Do, then sing it")]), false));
+  it("ignores a neck shown while singing", () => assert.equal(mixesSingAndPlay([tool({ type: "scale-neck", scale: "major", key: 0 }), text("Look at the neck, then sing the degrees")]), false));
+  it("ignores descriptive 'singing'", () => assert.equal(mixesSingAndPlay([text("Singing trains your ear. Play the scale slowly.")]), false));
   it("allows singing over a backing that plays", () => {
     assert.equal(mixesSingAndPlay([drone, text("Sing the 3rd while the chords play")]), false);
   });
