@@ -11,7 +11,9 @@ import { parseDegrees } from "../timeline/degrees";
 import { BEATS_PER_BAR, clampTimeline } from "../timeline/timeline";
 import type { Timeline } from "../timeline/types";
 import type { PlayAlongProps } from "./play-along.props";
+import { isSolo, soloTargets } from "./solo";
 import { useTimelinePlayer } from "./useTimelinePlayer";
+import SoloView from "./views/SoloView";
 import NeckView from "./views/NeckView";
 import NotesView from "./views/NotesView";
 import TabView from "./views/TabView";
@@ -47,6 +49,8 @@ export function PlayAlongTimeline({ timeline, view = "tab", others = "dimmed", h
   const pos = player.beat < 0 ? -1 : player.beat % length;
   const now = pos < 0 ? undefined : cues.find((c) => pos >= c.at && pos < c.at + c.beats);
   const cueText = pos < 0 ? undefined : [...cues].reverse().find((c) => c.cue && c.at <= pos)?.cue;
+  const solo = isSolo(played) ? soloTargets(played, pos) : null;
+  const chordNow = now?.chord ?? (pos >= 0 ? solo?.chord : undefined);
   const hint = pos < 0 ? timeline.hints?.[0]?.text : [...(timeline.hints ?? [])].reverse().find((h) => h.at <= pos)?.text;
   const changeTempo = (b: number) => {
     const v = Math.min(MAX_BPM, Math.max(MIN_BPM, b));
@@ -81,13 +85,15 @@ export function PlayAlongTimeline({ timeline, view = "tab", others = "dimmed", h
         </span>
       </div>
       <div className="flex min-h-5 flex-wrap items-baseline gap-2 text-xs">
-        {now?.chord && <b className="text-slate-100">{now.chord}</b>}
+        {chordNow && <b className="text-slate-100">{chordNow}</b>}
         {cueText && <span className="text-sky-200">{cueText}</span>}
         {hint && <span className="text-slate-400">{hint}</span>}
       </div>
+      {solo ? <SoloView targets={solo} mode={shown} others={others} /> : <>
       {shown === "tab" && <TabView cues={cues} pos={pos} length={length} />}
       {shown === "notes" && <NotesView cues={cues} pos={pos} length={length} />}
       {shown === "neck" && <NeckView cues={cues} pos={pos} length={length} />}
+      </>}
       {fellBack.map((n) => <p key={n} className="text-[11px] text-slate-500">{n}: open chord used, no barre shape.</p>)}
     </div>
   );
