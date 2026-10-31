@@ -4,8 +4,10 @@
  * @component run-singer basic
  */
 export interface RunSingerProps {
-  /** the run's number in the runs book (a number, from runChoices) */
-  run: number;
+  /** the run's number in the runs book (a number, from runChoices); omit it and give `pick` instead */
+  run?: number;
+  /** choose the run by what it is like instead of by number: difficulty (easy, medium, hard, expert), a stage id and which of the matches (index from 0) */
+  pick?: { difficulty?: string; stage?: string; index?: number };
   /** the key the run starts in: "c", "f-sharp", "b-flat" */
   key: string;
   /** voice range; default "soprano" */

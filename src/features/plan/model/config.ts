@@ -1,6 +1,6 @@
 import { fitBlocks, blocksOf } from "./blocks";
 import { checkLink, type CatalogueEntry } from "./catalogue";
-import { exerciseTags, legacySections, parseSection, parseTool, resolveChordPlacement, type Section } from "./tools";
+import { exerciseTags, legacySections, parseSection, parseTool, pickWasInexact, resolveChordPlacement, type Section } from "./tools";
 import { PLAN_DAYS, type PlanConfig, type PlanDay, type PlanExercise } from "./types";
 
 export type ParseResult = { ok: true; config: PlanConfig; warnings: string[] } | { ok: false; error: string };
@@ -12,7 +12,9 @@ function parseSections(raw: unknown[], entries: CatalogueEntry[], where: string,
   const out = raw.slice(0, 24).map((r) => parseSection(r, entries));
   const dropped = out.filter((s) => !s).length;
   if (dropped) warnings.push(`${where}: left out ${dropped} section${dropped > 1 ? "s" : ""} it couldn't show.`);
-  return out.filter((s): s is Section => s !== null);
+  const kept = out.filter((s): s is Section => s !== null);
+  for (const s of kept) if (s.type === "tool" && pickWasInexact(s.tool)) warnings.push(`${where}: no tune matched the pick exactly; used tune ${"tune" in s.tool ? s.tool.tune : "run" in s.tool ? s.tool.run : 0}.`);
+  return kept;
 }
 
 /** An exercise in the earlier shape (how / steps / tools / link), as sections. */

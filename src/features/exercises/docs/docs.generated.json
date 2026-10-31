@@ -359,8 +359,14 @@
       {
         "name": "tune",
         "type": "number",
-        "required": true,
-        "description": "the tune's number in the melody book (a number, from melodyChoices)"
+        "required": false,
+        "description": "the tune's number in the melody book (a number, from melodyChoices); omit it and give `pick` instead"
+      },
+      {
+        "name": "pick",
+        "type": "{ difficulty?: string; stage?: string; index?: number }",
+        "required": false,
+        "description": "choose the tune by what it is like instead of by number: difficulty (easy, medium, hard, expert), a stage id and which of the matches (index from 0)"
       },
       {
         "name": "key",
@@ -574,8 +580,14 @@
       {
         "name": "run",
         "type": "number",
-        "required": true,
-        "description": "the run's number in the runs book (a number, from runChoices)"
+        "required": false,
+        "description": "the run's number in the runs book (a number, from runChoices); omit it and give `pick` instead"
+      },
+      {
+        "name": "pick",
+        "type": "{ difficulty?: string; stage?: string; index?: number }",
+        "required": false,
+        "description": "choose the run by what it is like instead of by number: difficulty (easy, medium, hard, expert), a stage id and which of the matches (index from 0)"
       },
       {
         "name": "key",

@@ -7,7 +7,8 @@ import { EXAMPLE, buildPrompt, weekReport } from "./prompt";
 import { runChoices } from "@/features/exercises/basics/choices";
 import { COMPONENT_DOCS } from "@/features/exercises/docs";
 import { expandShape } from "@/features/exercises/shapes";
-import { STAGES } from "@/features/theory/singingMelodies";
+import { BOOK, STAGES } from "@/features/theory/singingMelodies";
+import { pickTune } from "@/features/theory/melodyPick";
 import { migrateTool } from "./migrate";
 import { degreeSemis, derivedMinutes, legacySections, linkResources, parseSection, parseTool, sectionInterface, sectionsOf, toolFromLink, toolInterface } from "./tools";
 import { DEFAULT_ANSWERS } from "./questions";
@@ -68,6 +69,9 @@ describe("tools", () => {
     assert.equal(parseTool({ type: "arpeggio-neck", chord: "nonsense!" }), null);
     assert.deepEqual(parseTool({ type: "melody-singer", tune: 1, key: "d", voice: "tenor" }), { type: "melody-singer", tune: 1, key: 2, voice: "tenor" });
     assert.equal(parseTool({ type: "melody-singer", tune: 9999, key: "d" }), null);
+    const picked = parseTool({ type: "melody-singer", pick: { difficulty: "easy" }, key: "a" });
+    assert.deepEqual(picked, { type: "melody-singer", tune: pickTune(BOOK, { difficulty: "easy" })!.n, key: 9 });
+    assert.ok(!("pick" in picked!));
     assert.deepEqual(parseTool({ type: "run-singer", run: runChoices()[0].id, key: "c" }), { type: "run-singer", run: runChoices()[0].id, key: 0 });
   });
   it("reads degrees for highlighting and showing only chosen notes", () => {
@@ -230,6 +234,11 @@ describe("tools", () => {
   it("paste warns on a 12-minute exercise with one block", () => {
     const r = one({ title: "t", minutes: 12, sections: [{ type: "text", text: "x" }] });
     assert.ok(r.warnings.some((w) => w.includes("over 5 minutes in one block")));
+  });
+  it("warns when a melody pick matched no tune exactly, and stores no pick", () => {
+    const r = one({ title: "t", minutes: 4, sections: [{ type: "tool", tool: { type: "melody-singer", pick: { difficulty: "easy", stage: "nope" }, key: "c" } }] });
+    assert.ok(r.warnings.some((w) => w.includes("no tune matched the pick exactly; used tune")));
+    assert.ok(!JSON.stringify(r.config).includes("pick"));
   });
   it("heading minutes parse, clamp to 1..60, drop non-numbers", () => {
     assert.deepEqual(parseSection({ type: "heading", text: "a", minutes: 3.4 }, entries), { type: "heading", text: "a", minutes: 3 });

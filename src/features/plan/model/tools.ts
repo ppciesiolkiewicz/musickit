@@ -3,7 +3,9 @@ import { parseKeySlug } from "@/features/theory/keySlug";
 import { findPentatonic } from "@/features/theory/pentatonics";
 import { findModePage } from "@/features/theory/scales";
 import { VOICES, type Voice } from "@/features/theory/singing";
-import { isRunId, isTuneId, melodyChoices, runChoices, type SingerChoice } from "@/features/exercises/basics/choices";
+import { pickChoices, pickTune, type MelodyPick } from "@/features/theory/melodyPick";
+import { BOOK, RUNS, RUN_STAGES, STAGES, type BookTune, type Stage } from "@/features/theory/singingMelodies";
+import { isRunId, isTuneId } from "@/features/exercises/basics/choices";
 import { COMPONENT_DOCS, shortDoc, type ComponentDoc } from "@/features/exercises/docs";
 import type { PlayAlongShape } from "@/features/exercises/play-along/play-along.props";
 import { expandShape } from "@/features/exercises/shapes";
@@ -127,12 +129,34 @@ const query = (t: Record<string, unknown>, keys: string[]): string => {
   return q.toString();
 };
 
-const singer = (t: Record<string, unknown>, field: "tune" | "run", ok: (n: unknown) => boolean): PlanTool | null => {
+/** Tools parsed from a `pick` that matched no tune exactly; kept off the tool so it is never stored. */
+const INEXACT_PICKS = new WeakSet<object>();
+/** Whether a parsed tool's `pick` had to be relaxed to find a tune. */
+export const pickWasInexact = (tool: PlanTool): boolean => INEXACT_PICKS.has(tool);
+
+const pickOf = (v: unknown): MelodyPick | null => {
+  if (!v || typeof v !== "object") return null;
+  const p = v as Record<string, unknown>;
+  const index = typeof p.index === "number" && Number.isFinite(p.index) ? p.index : undefined;
+  return { ...(typeof p.difficulty === "string" ? { difficulty: p.difficulty } : {}), ...(typeof p.stage === "string" ? { stage: p.stage } : {}), ...(index !== undefined ? { index } : {}) };
+};
+
+/** A singer tool with the tune given by number, or by a `pick` (resolved here, never stored). */
+const singer = (t: Record<string, unknown>, field: "tune" | "run", ok: (n: unknown) => boolean, book: BookTune[]): PlanTool | null => {
   const key = keyOf(t.key);
-  if (!ok(t[field]) || key === null) return null;
+  if (key === null) return null;
+  let n = t[field];
+  let exact = true;
+  const pick = ok(n) ? null : pickOf(t.pick);
+  if (pick) {
+    const found = pickTune(book, pick);
+    if (found) { n = found.n; exact = found.exact; }
+  }
+  if (!ok(n)) return null;
   const voice = voiceOf(t.voice);
-  const n = t[field] as number;
-  return field === "tune" ? { type: "melody-singer", tune: n, key, ...(voice ? { voice } : {}) } : { type: "run-singer", run: n, key, ...(voice ? { voice } : {}) };
+  const tool: PlanTool = field === "tune" ? { type: "melody-singer", tune: n as number, key, ...(voice ? { voice } : {}) } : { type: "run-singer", run: n as number, key, ...(voice ? { voice } : {}) };
+  if (!exact) INEXACT_PICKS.add(tool);
+  return tool;
 };
 
 /** 2 to 4 (or exactly `n`) different fingers 1-4, as the AI wrote them: "1324" or 1324. */
@@ -188,8 +212,8 @@ export const TOOLS: { [N in ToolName]: ToolSpec } = {
       return { type: "arpeggio-neck", chord: t.chord, ...opt("boxes", boxes), ...opt("part", degreeStrings(t.part)), ...placementOf(t, boxes), ...marksOf(t, parseChordQuery(t.chord)!.rootPc) };
     },
   },
-  "melody-singer": { parse: (t) => singer(t, "tune", isTuneId) },
-  "run-singer": { parse: (t) => singer(t, "run", isRunId) },
+  "melody-singer": { parse: (t) => singer(t, "tune", isTuneId, BOOK) },
+  "run-singer": { parse: (t) => singer(t, "run", isRunId, RUNS) },
   "play-along": {
     parse(t) {
       if (!t.shape || typeof t.shape !== "object") return null;
@@ -362,12 +386,12 @@ export function sectionInterface(): string[] {
   return SECTIONS.map((s) => `- ${s.type} : ${s.description}\n  inputSchema: ${schema({ type: { const: s.type }, ...s.properties }, ["type", ...s.required])}`);
 }
 
-const choiceLine = (label: string, cs: SingerChoice[]) => `${label}: ${cs.map((c) => `${c.id} (${c.stage}: ${c.hint})`).join("; ")}`;
+const pickLine = (what: string, stages: Stage[]) => `${what} is chosen with pick {difficulty?, stage?, index?} (index from 0, wraps; no tune number). ${pickChoices(stages)}`;
 /** A tool's description, with the singer tools' choices spliced in. */
 function describe(d: ComponentDoc): string {
   const text = d.description.replace(/\s+/g, " ");
-  if (d.name === "melody-singer") return `${text} ${choiceLine("Tunes", melodyChoices())}`;
-  if (d.name === "run-singer") return `${text} ${choiceLine("Runs", runChoices())}`;
+  if (d.name === "melody-singer") return `${text} ${pickLine("Tune", STAGES)}`;
+  if (d.name === "run-singer") return `${text} ${pickLine("Run", RUN_STAGES)}`;
   return text;
 }
 const propLine = (indent: string) => (p: OfferedParam) => `${indent}${p.name}${p.required ? "" : "?"}: ${p.type}${p.description ? ` (${p.description})` : ""}`;
