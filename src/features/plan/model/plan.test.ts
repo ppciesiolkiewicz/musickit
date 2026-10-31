@@ -3,7 +3,8 @@ import assert from "node:assert/strict";
 import { catalogue, checkLink } from "./catalogue";
 import { parsePlanConfig } from "./config";
 import { GLOSSARY } from "@/features/course/glossary";
-import { EXAMPLE, buildPrompt, weekReport } from "./prompt";
+import { EXERCISE_EXAMPLES } from "../examples";
+import { buildPrompt, weekReport } from "./prompt";
 import { runChoices } from "@/features/exercises/basics/choices";
 import { COMPONENT_DOCS } from "@/features/exercises/docs";
 import { expandShape } from "@/features/exercises/shapes";
@@ -212,7 +213,7 @@ describe("tools", () => {
     assert.equal(real(r.warnings).length, 1);
   });
   it("the prompt's example play-along exercise keeps its minutes after derivation", () => {
-    const ex = JSON.parse(EXAMPLE).days[0].exercises.find((e: { sections: { tool?: { type: string } }[] }) => e.sections.some((s) => s.tool?.type === "play-along"));
+    const ex = EXERCISE_EXAMPLES.map((e) => e.exercise as { minutes: number; sections: { tool?: { type: string } }[] }).find((e) => e.sections.some((s) => s.tool?.type === "play-along"))!;
     const p = JSON.parse(week());
     p.days[0].exercises[0] = ex;
     const r = parsePlanConfig(JSON.stringify(p), entries);
@@ -396,8 +397,8 @@ describe("schedule", () => {
     assert.match(prompt, /Earlier weeks/);
     assert.match(prompt, /too easy/);
     assert.match(prompt, /\/theory\/notes/);
-    assert.match(prompt, /"type": "backing-band"/);
-    assert.match(prompt, /"type": "play-along"/);
+    assert.match(prompt, /"type":\s*"backing-band"/);
+    assert.match(prompt, /"type":\s*"play-along"/);
     assert.match(prompt, /Never write frets or note lists the app can compute/);
     for (const old of ["band", "comp", "sing", "scale", "chords"]) assert.ok(!prompt.includes(`"type": "${old}"`), old);
     assert.match(prompt, /Notes outside the scale/);
@@ -420,7 +421,7 @@ describe("schedule", () => {
 
 describe("the prompt's examples", () => {
   it("every example exercise parses, its play-alongs keep their minutes", () => {
-    for (const ex of JSON.parse(EXAMPLE).days[0].exercises) {
+    for (const ex of EXERCISE_EXAMPLES.map((e) => e.exercise as { title: string; minutes: number })) {
       const p = JSON.parse(week());
       p.days[0].exercises[0] = ex;
       const r = parsePlanConfig(JSON.stringify(p), entries);

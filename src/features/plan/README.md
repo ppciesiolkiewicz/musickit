@@ -77,17 +77,26 @@ sections, a step followed by its tools; plans stored that way are converted on d
 
 ## The prompt
 
-`prompt.ts` writes the rules for good exercises (one skill each, minutes that match the work, singing in short musical bursts
-rather than long bare drills, show only the notes the exercise is about, intervals inside an octave unless tagged
-`multi-octave`, a progression practised several ways, no two of a kind in a row), a short "Common mistakes" list of
-wrong → right pairs (box far from open chords, a note highlighted by the wrong degree, chord tones as prose, no why),
+`prompt.ts` writes the student section from the answers (per area: level, then its concepts as `Major scale ★★☆☆☆`, or
+`(unsure)` when unrated; voice type and range in note names; focus; minutes; notes; styles marked "flavour only"), then the
+rules for good exercises (build on high ratings, drill low or unsure, follow `buildsOn`, singing keys inside the range; one
+skill each; `minutes` are the truth and a play-along loops until stopped; exercises over 5 minutes in 2+ timed blocks, each
+block changing something real; sing or play, never both; longer singing made musical; every named note lit, the root never
+muted, one chart per step; intervals inside an octave unless tagged `multi-octave`; a progression practised several ways;
+no genre-driven plans), a "Common mistakes" list of wrong → right pairs (box far from open chords, wrong degree highlighted,
+chord tones as prose, muted Do, one chart for five steps, 12 minutes of one tool, sing-and-play, timer vs text),
 then the interface, generated from
 `model/tools.ts`: every section kind and tool as name, description and `inputSchema` (as an MCP server lists tools), and the
 pages a link may go to as a few URI templates (`/theory/scales/{scale}/{key}`, `/course/{stage}/{section}`).
 
 The prompt is built as labelled parts (`promptParts`: intro, student, earlier weeks, how to plan, rules, mistakes,
-exercise format, section and tool interfaces, links, answer format, one part per example); `buildPrompt` joins them.
-The dev prompt studio (`src/features/devtools`, `/dev/prompt`) shows, edits and runs them part by part.
+exercise format, section and tool interfaces, links, answer format, one `example:<id>` part per example); `buildPrompt` joins them.
+
+Examples come from the library (`examples/`), chosen by `model/exampleSelection.ts` (`selectExamples`): per non-skipped area the
+exercise at its level (plus the next level when at least 70% of that level's concepts are rated 4-5), the `blocks` and
+`progression` showcases always, the `pick` showcase only with Voice, and one whole plan (most shared areas, then closest
+level). Each prints as `### Example: <id>`, `Why it's good: <note>` and its JSON; the plan comes last, under the answer format.
+A typical prompt (guitar intermediate + theory beginner) is about 63,000 characters, 23,000 of them the plan example. The dev prompt studio (`src/features/devtools`, `/dev/prompt`) shows, edits and runs them part by part.
 
 ## Tools
 

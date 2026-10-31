@@ -1,53 +1,39 @@
 import { GLOSSARY } from "@/features/course/glossary";
 import type { CatalogueEntry } from "./catalogue";
 import { EXERCISE_TAGS, linkResources, sectionInterface, toolInterface } from "./tools";
-import { LEVELS, labelOf } from "./questions";
-import { AREAS } from "./concepts";
+import { DEFAULT_ANSWERS, LEVELS, labelOf } from "./questions";
+import { VOICES } from "@/features/theory/singing";
+import { noteName } from "@/features/theory/voiceRange";
+import { AREAS, conceptById, conceptsFor } from "./concepts";
+import type { ExerciseExample, PlanExample } from "../examples";
+import { selectExamples } from "./exampleSelection";
 import { doneKey } from "./schedule";
 import { PLAN_DAYS, type PlanAnswers, type StoredPlan } from "./types";
 
-export const EXAMPLE = `{
-  "title": "Week 1: open chords in time",
-  "summary": "One line on the idea of the week",
-  "days": [
-    {
-      "theme": "Clean chord changes",
-      "exercises": [
-        {
-          "title": "Connect the first two boxes", "focus": "A minor pentatonic · boxes 1 & 2", "minutes": 8, "tags": ["technique"],
-          "why": "Joined boxes free you from box 1",
-          "sections": [
-            { "type": "text", "text": "Slide between the boxes on every string. Done when you cross cleanly at 60 bpm, twice in a row." },
-            { "type": "tool", "tool": { "type": "backing-band", "bpm": 60, "key": "a", "parts": ["click", "drone"] } },
-            { "type": "heading", "text": "Box 1, then box 2" },
-            { "type": "list", "items": ["Box 1 up and down at 60 bpm, twice", "Box 2 the same"] },
-            { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1, 2] } },
-            { "type": "heading", "text": "Cross over" },
-            { "type": "text", "text": "Cross from box 1 to box 2 on the G string, hearing the root A." },
-            { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1, 2], "highlight": ["1"] } },
-            { "type": "link", "href": "/theory/scales/minor-pentatonic/a" }
-          ]
-        },
-        {
-          "title": "G to D, strum and pick", "focus": "G-D changes with bass steps at 70 bpm", "minutes": 4, "tags": ["rhythm"],
-          "sections": [
-            { "type": "text", "text": "Strum each chord on beat 1, then pick the steps shown. Done when the change lands on time four times through." },
-            { "type": "tool", "tool": { "type": "play-along", "bpm": 70, "repeats": 35, "shape": { "shape": "chord-steps", "voicing": "barre", "chords": [{ "chord": "G", "steps": ["strum", "1", "6", "1"] }, { "chord": "D", "steps": ["strum", "4", "5", "4"] }] } } }
-          ]
-        },
-        {
-          "title": "Guide tones through the blues", "focus": "3rds and ♭7s of A7, D7, E7 at 70 bpm", "minutes": 5, "tags": ["theory", "ear"],
-          "why": "Two notes per chord carry the whole change",
-          "sections": [
-            { "type": "text", "text": "Over each chord play its 3rd for two beats, then its ♭7 for two, while the chords sound underneath. Hear C♯ (the 3rd of A7) fall a half step to C (the ♭7 of D7). Done when the line goes round 4 times without looking at the neck." },
-            { "type": "tool", "tool": { "type": "play-along", "bpm": 70, "repeats": 22, "view": "neck", "shape": { "shape": "progression", "key": "a", "chords": ["A7", "D7", "A7", "E7"], "bars": 4, "steps": ["3", "3", "b7", "b7"] } } },
-            { "type": "list", "items": ["Twice on the neck view: the chord playing stands out, the others stay dim", "Twice in the notes view, singing each note's name", "Then with your eyes off the screen"] }
-          ]
-        }
-      ]
-    }
-  ]
-}`;
+const stars = (n: number) => "★".repeat(n) + "☆".repeat(5 - n);
+
+/** The student section's lines: per area the level and its concepts with stars (unrated = unsure), then voice, focus, time, notes, styles. */
+function studentLines(a: PlanAnswers): string[] {
+  const areas = AREAS.flatMap((x) => {
+    const level = a.levels[x.id];
+    if (!level) return [];
+    const shown = conceptsFor(x.id, level).map((c) => (a.ratings[c.id] ? `${c.label} ${stars(a.ratings[c.id])}` : `${c.label} (unsure)`));
+    return [`- ${x.label}, level ${labelOf(LEVELS, level)}: ${shown.join(", ")}`];
+  });
+  const range = a.voice?.range;
+  const voice = a.levels.voice && (a.voice?.type || range)
+    ? [`- Voice: ${[a.voice?.type ? VOICES[a.voice.type].label : "", range ? `range ${noteName(range.low)} to ${noteName(range.high)}` : ""].filter(Boolean).join(", ")}`]
+    : [];
+  const focus = a.focus.flatMap((id) => conceptById(id)?.label ?? []);
+  return [
+    ...areas,
+    ...voice,
+    ...(focus.length ? [`- Focus this week: ${focus.join(", ")}`] : []),
+    `- Time a day: about ${a.minutes} minutes`,
+    ...(a.notes.trim() ? [`- In their words: ${a.notes.trim()}`] : []),
+    ...(a.styles.trim() ? [`- Styles they love: ${a.styles.trim()} (flavour only: it may justify a choice, never organise the plan around a genre)`] : []),
+  ];
+}
 
 /** What happened last week, exercise by exercise, so the next week builds on it. */
 export function weekReport(plan: StoredPlan): string {
@@ -71,6 +57,13 @@ export interface PromptPart {
   example?: { id: string; json: string };
 }
 
+/** An example from the library: its id, why it is good, and its JSON; `heading` (if any) goes above it. */
+function examplePart(e: ExerciseExample | PlanExample, heading: string): PromptPart {
+  const json = JSON.stringify(e.kind === "plan" ? e.plan : e.exercise);
+  const lines = [...(heading ? [heading] : []), `### Example: ${e.id}`, `Why it's good: ${e.note}`, "```json", json, "```", ""];
+  return { id: `example:${e.id}`, label: `Example: ${e.id}`, kind: "example", text: lines.join("\n"), example: { id: e.id, json } };
+}
+
 const part = (id: string, label: string, kind: PromptPartKind, lines: string[]): PromptPart => ({ id, label, kind, text: lines.join("\n") });
 
 /**
@@ -84,13 +77,10 @@ export function buildPrompt(answers: PlanAnswers | null, entries: CatalogueEntry
 /** The prompt as labelled parts, in order; each part's text ends with the blank line before the next heading. */
 export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry[], previous: StoredPlan[] = []): PromptPart[] {
   const profile = answers
-    ? [
-        ...AREAS.flatMap((a) => (answers.levels[a.id] ? [`- ${a.label} level: ${labelOf(LEVELS, answers.levels[a.id]!)}`] : [])),
-        `- Styles they love: ${answers.styles.trim() || "not given"}`,
-        `- Time a day: about ${answers.minutes} minutes`,
-        ...(answers.notes.trim() ? [`- In their words: ${answers.notes.trim()}`] : []),
-      ].join("\n")
+    ? studentLines(answers).join("\n")
     : "The player skipped the questionnaire. Before writing the plan, ask them (in one short message) what they play, level, goals, what they find hard, favourite styles and minutes a day; then write the plan.";
+  const { exercises, plan } = selectExamples(answers ?? DEFAULT_ANSWERS);
+  const exerciseParts = exercises.map((e, i) => examplePart(e, i === 0 ? "## Examples of good exercises" : ""));
   const history = previous.slice(0, 3).map(weekReport).join("\n\n");
   return [
     part("intro", "Intro", "intro", [
@@ -105,6 +95,9 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
     ...(history ? [part("history", "Earlier weeks", "history", ["## Earlier weeks (newest first)", history, "", "Build on this: repeat what was skipped or hard in a new form, move on from what was done, and keep the thread of their goals.", ""])] : []),
     part("how-to-plan", "How to plan", "rules", [
       "## How to plan",
+      "- Build on what they rate high (4-5 stars), drill what is low (1-2) or unsure, and follow the order of ideas: when pentatonic is rated 4 and the major scale 1, build the major scale from the pentatonic. Their focus for the week gets most of the time.",
+      "- Singing keys sit inside their voice range; check the lowest and highest note of every exercise against it.",
+      "- Never organise a plan around a genre. A style may justify a choice in one sentence (\"the scale used in blues\").",
       "- Serve their direction AND what a good teacher sees they need: weave in fundamentals (time feel, fretboard or keyboard knowledge, ear) even if they didn't ask, aimed at what they find hard.",
       "- Each day has a theme and 2 to 5 exercises whose minutes add up to about their daily time. Warm-up first, something musical (a song, a groove, improvising) last.",
       "- Vary the days; return to the week's key skill at least three times so it sticks, each time in a new form. Day 7 is a fun review that shows progress.",
@@ -114,8 +107,11 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
     ]),
     part("rules", "Rules for good exercises", "rules", [
       "## Rules for good exercises",
-      "- One exercise, one skill. Minutes match the work: a drill that takes 2 to 4 minutes done well gets 2 to 4 minutes, and the next exercise builds on it. Never pad a short drill to 10 minutes by repeating it; give the time to something that develops it.",
-      "- Singing: never more than 3 minutes on one bare singing drill (chord tones up and down over a drone, a scale up and down). For longer, make it musical: sing a guide tone (the 3rd, the 7th) while the progression plays (play-along), call and response with the student's own instrument, sing then find it on the instrument, sing a phrase of a song they love and its chord tones, improvise a melody on only the chord tones. Always pair singing with playing.",
+      "- One exercise, one skill. Its \"minutes\" are the truth: the timer runs exactly that long and the play-along loops until the student stops it. Give each exercise the minutes its work needs and no more; never pad a short drill.",
+      "- Variety inside an exercise: an exercise over 5 minutes is 2 or more blocks of 2 to 5 minutes each, and consecutive blocks on one idea change something real (tempo, key, position, direction, which note is lit, hearing it vs from memory). Never one tool for the whole of a long exercise. A block starts with a heading that has \"minutes\"; the block minutes add up to the exercise minutes; a heading without \"minutes\" is a sub-heading inside a block. Example: \"A minor pentatonic, 12 min\" = box 1 at 60 bpm (3) → crossing box 1 to 2 (3) → the same in C (3) → 3 minutes improvising on just those notes.",
+      "- Singing or playing: an exercise is one or the other, never both; no step asks the student to sing and play. A week may hold both kinds; tag \"sing\" or the instrument. Singing is a mic tool (staff with live pitch, melody-singer, run-singer) or text that asks to sing. Playing is text that asks to play their instrument. Allowed in either: click-drone, backing-band, a play-along used as accompaniment the student sings or listens over, staff without mic, interval-ears, note-finder; saying note names aloud while playing is fine. A listening-only ear exercise is fine.",
+      "- Singing for longer is made musical: sing over chords (a play-along as accompaniment), melody-singer tunes, call and response (the app plays, the student sings back), improvising on chord tones. A bare singing drill (chord tones up and down, a scale up and down) is at most one block of 3 minutes or less. Never use the guitar as the reference pitch (\"play the A, sing it back\").",
+      "- Light what you name: every note a step names is lit in the tool after it. The root (Do) is never muted when it is part of the exercise. One chart per step when the focus changes: step 1 shows Do, step 2 Do + Mi, step 4 the whole line.",
       "- Show only what the exercise is about. When it works on the notes of a chord (the chord tones 1 3 5 b7 of A7), do not show the whole scale: use scale-neck's \"highlight\", staff's \"notes\" or an arpeggio-neck to pick those degrees. The scale is for exercises about the scale. Name a highlighted note the way the text names it: a note name (\"highlight\": [\"c-sharp\"]) when the text says C♯, a degree (\"3\") when the text says \"the 3rd\"; \"mute\" fades notes and \"hide\" removes them.",
       "- Intervals and ear training stay inside one octave. A compound interval (a 9th, a 10th) is its own exercise: set \"wide\": true on interval-ears and tag the exercise \"multi-octave\". interval-ears' \"set\" must be exactly the intervals the steps name (m3 is 3, M3 is 4, P4 is 5, P5 is 7, m7 is 10).",
       "- A progression is practised several ways over the week, not one: hear it as arpeggios or comping (play-along with a progression shape, a different backing each time), play the shapes (chord-shapes), play it in time (backing-band), improvise over it (play-along with solo-over). Prefer play-along whenever the student should hear or play along with a progression.",
@@ -131,12 +127,17 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
       "- Wrong: text about C♯ with \"highlight\": [\"b3\"] (that is C). Right: \"add\": [\"c-sharp\"] (lit by itself) or \"highlight\": [\"c-sharp\"].",
       "- Wrong: \"Dm7 has F and C, G7 has B and F\" as prose only. Right: one sentence of why, then a play-along with a chord-steps shape (steps [\"1\",\"3\",\"b7\"]), \"view\": \"tab\", and \"guide\" naming each note.",
       "- Wrong: \"Sing 1 3 5 b7 up and back\" as plain text. Right: \"Sing {{1}} {{3}} {{5}} {{b7}} up and back\".",
+      "- Wrong: step 1 says \"sing Do\" with Do muted on the chart. Right: Do is lit; the root is never muted when it is part of the exercise.",
+      "- Wrong: one chart showing all five steps of the line from the start. Right: a chart per step: step 1 shows Do, step 2 Do + Mi, step 4 the whole line.",
+      "- Wrong: a 12-minute exercise with one tool and no blocks. Right: four headings with \"minutes\": 3, each changing tempo, key, position or the lit notes.",
+      "- Wrong: \"Play the chord, then sing the 3rd\" in one exercise. Right: split it: one exercise plays the chord changes, another sings the 3rd over a play-along accompaniment.",
+      "- Wrong: text says \"hold each note 8 seconds\" while the exercise says 3 minutes and the tool loops 20 seconds. Right: the timer is the exercise's minutes and the text says how long the whole thing lasts, not how many loops.",
       "- Wrong: an exercise that starts with steps. Right: its first text says why in one sentence (\"Guide tones move by a half step, so they make the changes audible\").",
       "",
     ]),
     part("exercise-format", "Exercise format", "format", [
       "## Exercise format",
-      "An exercise is a linear list of \"sections\", shown top to bottom in the order you write them. A tool shows what the text before it talks about, so put each tool right after that text; to change the view between steps, add another tool after the next step. A backing-band or click-drone keeping time goes first. A play-along with \"repeats\" sets the exercise's time itself: repeats x its length (bars x 4 beats at its bpm) replaces your \"minutes\", so choose repeats to fill the minutes you mean (2 bars at 70 bpm is about 7 seconds, so 35 repeats is 4 minutes); leave \"repeats\" out and your \"minutes\" stand. Tags (any of: " + Object.keys(EXERCISE_TAGS).join(", ") + ") are optional chips on the exercise. Notes in text: write each note you name as {{3}} (a degree, counted from the root of the tool after the text) or {{c-sharp}} (a note name); the app draws it as a dot the student can tap to hear.",
+      "An exercise is a linear list of \"sections\", shown top to bottom in the order you write them. A tool shows what the text before it talks about, so put each tool right after that text; to change the view between steps, add another tool after the next step. A backing-band or click-drone keeping time goes first. A play-along has no length of its own: it loops until the student stops it, and the exercise's \"minutes\" set the timer. A heading with \"minutes\" starts a timed block that runs to the next such heading; the timer shows the block, and the tools do not switch by themselves, so put each block's tools after its heading. Tags (any of: " + Object.keys(EXERCISE_TAGS).join(", ") + ") are optional chips on the exercise. Notes in text: write each note you name as {{3}} (a degree, counted from the root of the tool after the text) or {{c-sharp}} (a note name); the app draws it as a dot the student can tap to hear.",
       "",
     ]),
     part("sections", "Section interface", "interface", [
@@ -155,10 +156,11 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
       ...linkResources(entries),
       "",
     ]),
+    ...exerciseParts,
     part("answer-format", "Answer format", "format", [
       "## Answer format",
-      `Reply with ONE JSON code block and nothing else: exactly ${PLAN_DAYS} days, fields as in this example (\"why\", \"tags\" optional, \"minutes\" a number).`,
+      `Reply with ONE JSON code block and nothing else: exactly ${PLAN_DAYS} days, fields as in the plan example below (\"why\", \"tags\" optional, \"minutes\" a number).`,
     ]),
-    { ...part("example:week-1", "Example: week-1", "example", ["```json", EXAMPLE, "```"]), example: { id: "week-1", json: EXAMPLE } },
+    examplePart(plan, ""),
   ];
 }
