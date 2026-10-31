@@ -14,6 +14,7 @@ import { othersOf, type Others } from "@/features/exercises/cues/visibility";
 import { parsePlacement, type Placement } from "@/features/exercises/cues/placement";
 import { checkLink, type CatalogueEntry } from "./catalogue";
 import { migrateTool } from "./migrate";
+import { notePc } from "./noteText";
 
 /**
  * The one file that says what an exercise is made of. Think of it as an MCP server for the plan: every block and every
@@ -87,7 +88,7 @@ const marks = (v: unknown, root: number | null): number[] =>
     if (typeof d === "number") return int(d, 0, 11);
     const semi = degreeSemis(d);
     if (semi !== null) return semi;
-    const pc = typeof d === "string" && root !== null ? parseKeySlug(d) : null;
+    const pc = typeof d === "string" && root !== null ? notePc(d) : null;
     return pc === null ? null : (pc - root! + 12) % 12;
   }).filter((n): n is number => n !== null))].sort((a, b) => a - b);
 /** Where the box goes; dropped when `boxes` already says (`{ by: "chords" }` is resolved per exercise, `resolveChordPlacement`). */
@@ -96,8 +97,10 @@ const placementOf = (t: Record<string, unknown>, boxes: number[]): { placement?:
   return placement ? { placement } : {};
 };
 const marksOf = (t: Record<string, unknown>, root: number | null): Marks => {
-  const others = othersOf(t.others);
-  return { ...opt("highlight", marks(t.highlight, root)), ...opt("mute", marks(t.mute, root)), ...opt("hide", marks(t.hide, root)), ...(others ? { others } : {}) };
+  const highlight = marks(t.highlight, root);
+  // `others` is the state of what isn't highlighted: without a highlight it would only fade or blank the whole view
+  const others = highlight.length ? othersOf(t.others) : undefined;
+  return { ...opt("highlight", highlight), ...opt("mute", marks(t.mute, root)), ...opt("hide", marks(t.hide, root)), ...(others ? { others } : {}) };
 };
 const boxesOf = (v: unknown) => [...new Set(list(v).map((b) => int(b, 1, 5)).filter((b): b is number => b !== null))].sort((a, b) => a - b);
 const opt = <K extends string, V>(k: K, v: V[]): { [P in K]?: V[] } => (v.length ? ({ [k]: v } as { [P in K]: V[] }) : {});

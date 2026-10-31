@@ -34,7 +34,7 @@ describe("plan links", () => {
 describe("tools", () => {
   it("parses each tool, set up for the exercise", () => {
     assert.deepEqual(parseTool({ type: "scale-neck", scale: "minor-pentatonic", key: "a", boxes: [2, 1, 9] }), { type: "scale-neck", scale: "minor-pentatonic", key: 9, boxes: [1, 2] });
-    assert.deepEqual(parseTool({ type: "scale-neck", scale: "minor-blues", key: "a", boxes: [1], add: ["c#", "C-sharp", "zz"], others: "hidden" }), { type: "scale-neck", scale: "minor-blues", key: 9, boxes: [1], add: [1], others: "hidden" });
+    assert.deepEqual(parseTool({ type: "scale-neck", scale: "minor-blues", key: "a", boxes: [1], add: ["c#", "C-sharp", "zz"], highlight: ["1"], others: "hidden" }), { type: "scale-neck", scale: "minor-blues", key: 9, boxes: [1], add: [1], highlight: [0], others: "hidden" });
     assert.deepEqual(parseTool({ type: "chord-shapes", chords: ["G", "Em", "nonsense!", 3], voicing: "barre" }), { type: "chord-shapes", chords: ["G", "Em"], voicing: "barre" });
     assert.deepEqual(parseTool({ type: "staff", scale: "major-ionian", key: "c", voice: "alto" }), { type: "staff", scale: "major-ionian", key: 0, voice: "alto" });
     assert.deepEqual(parseTool({ type: "backing-band", bpm: 70, key: "e", parts: ["drone", "drone", "kazoo"] }), { type: "backing-band", bpm: 70, key: 4, parts: ["drone"] });
@@ -59,14 +59,26 @@ describe("tools", () => {
     const sn = (t: Record<string, unknown>) => parseTool({ type: "scale-neck", scale: "minor-pentatonic", key: "a", ...t }) as Record<string, unknown>;
     assert.deepEqual(sn({ add: ["c-sharp"], highlight: ["c-sharp"] }), { type: "scale-neck", scale: "minor-pentatonic", key: 9, add: [1], highlight: [4] });
     assert.deepEqual(sn({ highlight: ["b3"] }).highlight, [3]);
-    const m = sn({ mute: ["5"], hide: ["b7"], others: "hidden" });
+    const m = sn({ highlight: ["1"], mute: ["5"], hide: ["b7"], others: "hidden" });
     assert.deepEqual([m.mute, m.hide, m.others], [[7], [10], "hidden"]);
     assert.deepEqual((parseTool({ type: "arpeggio-neck", chord: "A7", highlight: ["c-sharp", "g"] }) as { highlight?: number[] }).highlight, [4, 10]);
-    assert.equal((parseTool({ type: "staff", scale: "major-ionian", key: "c", others: "dimmed" }) as { others?: string }).others, "muted");
+    assert.equal((parseTool({ type: "staff", scale: "major-ionian", key: "c", highlight: ["3"], others: "dimmed" }) as { others?: string }).others, "muted");
     const stored = parseTool({ type: "scale-neck", scale: "minor-pentatonic", key: "a", highlight: [3], others: "dimmed" }, { stored: true }) as Record<string, unknown>;
     assert.deepEqual([stored.highlight, stored.others], [[3], "muted"]);
     const pa = parseTool({ type: "play-along", bpm: 70, shape: { shape: "progression", key: "a", chords: ["A7", "D7"], bars: 2 }, others: "dimmed" }) as { others?: string };
     assert.equal(pa.others, "muted");
+  });
+  it("others without a highlight is dropped: it means nothing and would blank or fade the view", () => {
+    for (const stored of [true, false]) {
+      assert.equal((parseTool({ type: "scale-neck", scale: "minor-pentatonic", key: "a", others: "dimmed" }, { stored }) as { others?: string }).others, undefined);
+      assert.equal((parseTool({ type: "arpeggio-neck", chord: "A7", others: "hidden" }, { stored }) as { others?: string }).others, undefined);
+    }
+    assert.equal((parseTool({ type: "scale-neck", scale: "minor-pentatonic", key: "a", highlight: ["b9"], others: "hidden" }) as { others?: string }).others, undefined);
+  });
+  it("a bare number is never a note name: 9 and 11 are not pitch classes", () => {
+    const h = (highlight: unknown[]) => (parseTool({ type: "scale-neck", scale: "minor-pentatonic", key: "a", highlight }) as { highlight?: number[] }).highlight;
+    assert.equal(h(["9", "11"]), undefined);
+    assert.deepEqual((parseTool({ type: "arpeggio-neck", chord: "C7", highlight: ["9", "3"] }) as { highlight?: number[] }).highlight, [4]);
   });
   it("a stored sing tool becomes a staff with the mic, its semitones kept", () => {
     assert.deepEqual(parseTool({ type: "sing", scale: "major-ionian", key: 0, voice: "tenor", notes: [0, 4, 7], highlight: [4] }, { stored: true }), { type: "staff", scale: "major-ionian", key: 0, voice: "tenor", notes: [0, 4, 7], highlight: [4], mic: true });

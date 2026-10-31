@@ -14,7 +14,10 @@ const SHARP = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A�
 const SEMI_TEXT = ["1", "♭2", "2", "♭3", "3", "4", "♯4", "5", "♭6", "6", "♭7", "7"];
 const TOKEN = /\{\{([^{}]{1,12})\}\}/g;
 
-const readable = (token: string) => degreeSemis(token) !== null || parseKeySlug(token) !== null;
+/** A note name as in `add` ("c-sharp", "b-flat") as a pitch class; a bare number ("9") is never a note. */
+export const notePc = (s: string): number | null => (/^\s*\d+\s*$/.test(s) ? null : parseKeySlug(s));
+
+const readable = (token: string) => degreeSemis(token) !== null || notePc(token) !== null;
 
 /** A text as plain runs and note tokens; a token that is neither a degree nor a note name stays in the text. */
 export function splitNotes(text: string): TextPart[] {
@@ -87,7 +90,7 @@ export function inlineNote(token: string, ctx: NoteRoot | null): InlineNoteInfo 
     semi = asDegree % 12;
     degree = (Number(token.match(/\d+/)?.[0] ?? 1) - 1) % 7;
   } else {
-    const pc = parseKeySlug(token);
+    const pc = notePc(token);
     if (pc === null || !ctx) return null;
     semi = (pc - ctx.root + 12) % 12;
     // the degree it is named as ("♭3" for C over A), so it takes that degree's colour

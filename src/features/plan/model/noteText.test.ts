@@ -9,6 +9,7 @@ describe("note text", () => {
     assert.deepEqual(splitNotes("Sing {{1}} {{3}} {{5}} {{b7}} up and back"), ["Sing ", { note: "1" }, " ", { note: "3" }, " ", { note: "5" }, " ", { note: "b7" }, " up and back"]);
     assert.deepEqual(splitNotes("{{c-sharp}}, then C"), [{ note: "c-sharp" }, ", then C"]);
     assert.deepEqual(splitNotes("{{x9}} stays"), ["{{x9}} stays"]);
+    assert.deepEqual(splitNotes("the {{9}} stays"), ["the {{9}} stays"]);
     assert.deepEqual(splitNotes("no tokens"), ["no tokens"]);
   });
 
