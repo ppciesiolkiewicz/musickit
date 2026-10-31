@@ -55,6 +55,50 @@
     ]
   },
   {
+    "name": "backing-band",
+    "kind": "basic",
+    "description": "A small backing band to play along with: click, drone, drums and bass, in a key at a tempo.",
+    "props": [
+      {
+        "name": "bpm",
+        "type": "number",
+        "required": true,
+        "description": "tempo, 30-240"
+      },
+      {
+        "name": "key",
+        "type": "string",
+        "required": true,
+        "description": "the key's root note: \"c\", \"f-sharp\", \"b-flat\""
+      },
+      {
+        "name": "parts",
+        "type": "(\"click\" | \"drone\" | \"drums\" | \"bass\")[]",
+        "required": true,
+        "description": "which instruments play"
+      }
+    ]
+  },
+  {
+    "name": "chord-shapes",
+    "kind": "basic",
+    "description": "One chord diagram per chord, in order; tap a diagram to strum it.",
+    "props": [
+      {
+        "name": "chords",
+        "type": "string[]",
+        "required": true,
+        "description": "chord names in order: [\"G\", \"Em\", \"C\", \"D7\"]"
+      },
+      {
+        "name": "voicing",
+        "type": "Voicing",
+        "required": false,
+        "description": "\"open\" (default, the easy shape) or \"barre\" (the movable barre shape, lowest on the neck)"
+      }
+    ]
+  },
+  {
     "name": "chord-steps",
     "kind": "shape",
     "description": "Per chord, a list of steps, one beat each: \"strum\" or a degree. Each chord takes one bar, more when its steps need\nthem. Degrees are major-relative semitones from the chord root (default) or the key (when `key` is given). `guide`\ngives a cue per step, in order. Also takes `bpm` and `repeats`.\n\nExample: `{ \"shape\": \"chord-steps\", \"voicing\": \"barre\", \"chords\": [{ \"chord\": \"G\", \"steps\": [\"strum\",\"1\",\"6\",\"1\"] }, { \"chord\": \"D\", \"steps\": [\"strum\",\"4\",\"5\",\"4\"] }], \"bpm\": 70 }`",
@@ -98,6 +142,74 @@
     ]
   },
   {
+    "name": "click-drone",
+    "kind": "basic",
+    "description": "A metronome click and/or a drone on the key's root to play or sing against.",
+    "props": [
+      {
+        "name": "bpm",
+        "type": "number",
+        "required": true,
+        "description": "tempo, 30-240"
+      },
+      {
+        "name": "key",
+        "type": "string",
+        "required": true,
+        "description": "the key's root note: \"c\", \"f-sharp\", \"b-flat\""
+      },
+      {
+        "name": "click",
+        "type": "boolean",
+        "required": false,
+        "description": "play the click; default true"
+      },
+      {
+        "name": "drone",
+        "type": "boolean",
+        "required": false,
+        "description": "play the drone on the root; default true"
+      }
+    ]
+  },
+  {
+    "name": "interval-ears",
+    "kind": "basic",
+    "description": "An ear-training game: hear an interval or chord and name it.",
+    "props": [
+      {
+        "name": "kind",
+        "type": "\"interval\" | \"chord\"",
+        "required": false,
+        "description": "\"interval\" (default) or \"chord\""
+      },
+      {
+        "name": "level",
+        "type": "number",
+        "required": false,
+        "description": "difficulty level, 1 and up"
+      },
+      {
+        "name": "set",
+        "type": "number[]",
+        "required": false,
+        "description": "the interval sizes in semitones to ask: [3,4,7]"
+      },
+      {
+        "name": "dir",
+        "type": "\"up\" | \"down\" | \"together\"",
+        "required": false,
+        "description": "direction: \"up\", \"down\" or \"together\""
+      },
+      {
+        "name": "wide",
+        "type": "boolean",
+        "required": false,
+        "description": "intervals may span more than an octave"
+      }
+    ]
+  },
+  {
     "name": "melody",
     "kind": "shape",
     "description": "A tune from the singing book, by number, in a key. Also takes `bpm` and `repeats`.\n\nExample: `{ \"shape\": \"melody\", \"tune\": 3, \"key\": \"d\", \"bpm\": 80 }`",
@@ -119,6 +231,37 @@
         "type": "string",
         "required": true,
         "description": "key as a note: \"c\", \"f-sharp\""
+      }
+    ]
+  },
+  {
+    "name": "note-finder",
+    "kind": "basic",
+    "description": "A game to find notes on the fretboard: find a named note, play every note, or name the note shown.",
+    "props": [
+      {
+        "name": "mode",
+        "type": "\"find\" | \"every\" | \"name\"",
+        "required": false,
+        "description": "\"find\" (default), \"every\" or \"name\""
+      },
+      {
+        "name": "strings",
+        "type": "string",
+        "required": false,
+        "description": "which strings, as digits low to high: \"123456\" (default all)"
+      },
+      {
+        "name": "from",
+        "type": "number",
+        "required": false,
+        "description": "first fret of the range, 0-24"
+      },
+      {
+        "name": "to",
+        "type": "number",
+        "required": false,
+        "description": "last fret of the range, 0-24"
       }
     ]
   },
@@ -239,6 +382,49 @@
     ]
   },
   {
+    "name": "scale-neck",
+    "kind": "basic",
+    "description": "The scale's positions (boxes) on the guitar neck; tap a note to hear it, play a box up and down. Pick which boxes\nto show, add notes from outside the scale, and make some degrees stand out.",
+    "props": [
+      {
+        "name": "scale",
+        "type": "string",
+        "required": true,
+        "description": "scale slug, e.g. \"major-ionian\", \"natural-minor-aeolian\", \"minor-pentatonic\""
+      },
+      {
+        "name": "key",
+        "type": "string",
+        "required": true,
+        "description": "the key's root note: \"c\", \"f-sharp\", \"b-flat\""
+      },
+      {
+        "name": "boxes",
+        "type": "number[]",
+        "required": false,
+        "description": "which boxes to show (1-based); absent shows all"
+      },
+      {
+        "name": "add",
+        "type": "string[]",
+        "required": false,
+        "description": "notes from outside the scale to play too, as note names: [\"e-flat\"] (the blue note, say)"
+      },
+      {
+        "name": "highlight",
+        "type": "Degree[]",
+        "required": false,
+        "description": "degrees that stand out (major-relative, from the key root, not scale-aware): [\"1\",\"3\",\"5\"]"
+      },
+      {
+        "name": "others",
+        "type": "\"dimmed\" | \"hidden\"",
+        "required": false,
+        "description": "the notes not highlighted: \"dimmed\" (default) or \"hidden\""
+      }
+    ]
+  },
+  {
     "name": "solo-over",
     "kind": "shape",
     "description": "Improvise over chords: per chord an optional scale (named from the chord root), target chord tones shown\nhighlighted (degrees, major-relative), and an optional `approach` hint. The code plays the backing; no fixed\nnotes, nothing graded. Each chord takes `bars` bars (default 1). Also takes `bpm` and `repeats`.\n\nExample: `{ \"shape\": \"solo-over\", \"key\": \"g\", \"chords\": [{ \"chord\": \"Am7\", \"scale\": \"dorian\", \"target\": [\"1\",\"b3\"] }, { \"chord\": \"D7\", \"scale\": \"mixolydian\", \"target\": [\"3\"], \"approach\": \"land on the 3rd on beat 1\" }], \"bpm\": 90 }`",
@@ -272,6 +458,55 @@
         "type": "CompPattern",
         "required": false,
         "description": "comping pattern for the backing"
+      }
+    ]
+  },
+  {
+    "name": "staff",
+    "kind": "basic",
+    "description": "The scale on a staff in a voice's range, with the microphone's pitch drawn on it; tap a note to hear it.",
+    "props": [
+      {
+        "name": "scale",
+        "type": "string",
+        "required": true,
+        "description": "scale slug, e.g. \"major-ionian\", \"minor-pentatonic\""
+      },
+      {
+        "name": "key",
+        "type": "string",
+        "required": true,
+        "description": "the key's root note: \"c\", \"f-sharp\", \"b-flat\""
+      },
+      {
+        "name": "voice",
+        "type": "string",
+        "required": false,
+        "description": "voice range: \"bass\", \"baritone\", \"tenor\", \"alto\", \"mezzo\", \"soprano\""
+      },
+      {
+        "name": "notes",
+        "type": "Degree[]",
+        "required": false,
+        "description": "only these degrees are on the staff (major-relative): [\"1\",\"3\",\"5\",\"b7\"]; absent shows the whole scale"
+      },
+      {
+        "name": "highlight",
+        "type": "Degree[]",
+        "required": false,
+        "description": "degrees that stand out (major-relative, from the key root, not scale-aware)"
+      },
+      {
+        "name": "others",
+        "type": "\"dimmed\" | \"hidden\"",
+        "required": false,
+        "description": "the notes not highlighted: \"dimmed\" (default) or \"hidden\""
+      },
+      {
+        "name": "mic",
+        "type": "boolean",
+        "required": false,
+        "description": "show the \"sing with the mic\" button; default true"
       }
     ]
   },
