@@ -32,7 +32,11 @@ export default function InfoTip({ label, children, hover = false, align = "right
         <Icon name="info" size={12} />
       </button>
       {open && (
-        <div role="note" className={`absolute ${align === "center" ? "left-1/2 -translate-x-1/2" : "right-0"} top-7 z-30 flex w-64 flex-col gap-1.5 rounded-lg border border-slate-700 bg-slate-950 p-2 whitespace-normal text-left text-xs text-slate-300 shadow-xl`}>{children}</div>
+        <>
+          {/* Invisible bridge over the gap to the note, so the pointer can cross it without closing the hover. */}
+          <span aria-hidden className="absolute inset-x-0 top-6 h-1" />
+          <div role="note" className={`absolute ${align === "center" ? "left-1/2 -translate-x-1/2" : "right-0"} top-7 z-30 flex w-64 flex-col gap-1.5 rounded-lg border border-slate-700 bg-slate-950 p-2 whitespace-normal text-left text-xs text-slate-300 shadow-xl`}>{children}</div>
+        </>
       )}
     </span>
   );
