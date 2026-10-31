@@ -49,23 +49,33 @@ export default function QuickRecord() {
     try {
       const input = readDeviceChoice().input;
       stream = await navigator.mediaDevices.getUserMedia({
-        audio: { deviceId: input ? { ideal: input.id } : undefined, echoCancellation: false, noiseSuppression: false, autoGainControl: false },
+        audio: { deviceId: input ? { ideal: input.id } : undefined, channelCount: { ideal: 2 }, echoCancellation: false, noiseSuppression: false, autoGainControl: false },
       });
     } catch {
       return setError("The microphone could not be opened. Allow microphone access for this site and try again.");
     }
-    const type = pickMimeType((t) => MediaRecorder.isTypeSupported(t));
-    const recorder = new MediaRecorder(stream, type ? { mimeType: type } : undefined);
-    const chunks: Blob[] = [];
-    recorder.ondataavailable = (e) => e.data.size && chunks.push(e.data);
-
-    // the level meter: an analyser on the same input, read every frame straight into the bar's style
+    // the take is mono: a two-input interface (guitar left, voice right) is mixed down to one channel, so both play from a mono
+    // speaker rather than one from each side. The browser averages the channels, so a mono mic sent to both sides keeps its level.
     const ctx = getAudioContext();
     await ctx.resume();
     const src = ctx.createMediaStreamSource(stream);
+    const mono = ctx.createGain();
+    mono.channelCount = 1;
+    mono.channelCountMode = "explicit";
+    const out = ctx.createMediaStreamDestination();
+    out.channelCount = 1;
+    out.channelCountMode = "explicit";
+    src.connect(mono).connect(out);
+
+    const type = pickMimeType((t) => MediaRecorder.isTypeSupported(t));
+    const recorder = new MediaRecorder(out.stream, type ? { mimeType: type } : undefined);
+    const chunks: Blob[] = [];
+    recorder.ondataavailable = (e) => e.data.size && chunks.push(e.data);
+
+    // the level meter: an analyser on the mono mix, read every frame straight into the bar's style
     const an = ctx.createAnalyser();
     an.fftSize = 1024;
-    src.connect(an);
+    mono.connect(an);
     const bytes = new Uint8Array(an.fftSize);
     let raf = 0;
     const tick = () => {
@@ -89,6 +99,7 @@ export default function QuickRecord() {
         cancelAnimationFrame(raf);
         if (recorder.state !== "inactive") recorder.stop();
         src.disconnect();
+        mono.disconnect();
         stream.getTracks().forEach((t) => t.stop());
         if (meter.current) meter.current.style.transform = "scaleX(0)";
         session.current = null;
