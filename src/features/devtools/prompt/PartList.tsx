@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useHash } from "./storage";
 import { Badge, Button } from "@/components/ui";
 import type { CatalogueEntry } from "@/features/plan/model/catalogue";
 import type { PromptPart, PromptPartKind } from "@/features/plan/model/prompt";
@@ -8,6 +9,7 @@ import { offeredInterface } from "@/features/plan/model/tools";
 import { DebugList } from "@/features/plan/ui/PromptAndPaste";
 import type { Overrides } from "../model/history";
 import PrettyText from "./PrettyText";
+import ExamplePreview from "./ExamplePreview";
 
 const KIND: Record<PromptPartKind, string> = {
   intro: "text-slate-300",
@@ -17,7 +19,8 @@ const KIND: Record<PromptPartKind, string> = {
   interface: "text-sky-300",
   links: "text-sky-300",
   format: "text-violet-300",
-  example: "text-rose-300",
+  "exercise-example": "text-rose-300",
+  "plan-example": "text-fuchsia-300",
 };
 
 /** What the AI is offered, for the interface parts: the same lists as the plan's debug view. */
@@ -29,10 +32,20 @@ function Offered({ part, entries }: { part: PromptPart; entries: CatalogueEntry[
   return null;
 }
 
+/** The element id of a part's row, so other dev pages can link to it: /dev/prompt#part-<id>. */
+export const partAnchor = (id: string) => `part-${id}`;
+
 function PartRow({ part, override, onOverride, entries }: {
   part: PromptPart; override?: Overrides[string]; onOverride: (o: Overrides[string] | undefined) => void; entries: CatalogueEntry[];
 }) {
   const [editing, setEditing] = useState(false);
+  const [previewing, setPreviewing] = useState(false);
+  // a link to #part-<id> (from the examples page) opens this part and brings it into view
+  const linked = useHash() === `#${partAnchor(part.id)}`;
+  const row = useRef<HTMLLIElement>(null);
+  useEffect(() => {
+    if (linked) row.current?.scrollIntoView({ block: "start" });
+  }, [linked]);
   const text = override?.text ?? part.text;
   const edited = override?.text !== undefined && override.text !== part.text;
   const off = !!override?.off;
@@ -40,15 +53,16 @@ function PartRow({ part, override, onOverride, entries }: {
   const tall = part.example ? "h-[75vh]" : "h-64";
   const change = (o: Overrides[string]) => onOverride(o.text === undefined && !o.off ? undefined : o);
   return (
-    <li className={`rounded-lg border px-3 py-2 ${off ? "border-dashed border-slate-800 opacity-60" : edited ? "border-amber-500/50" : "border-slate-800"}`}>
-      <details>
+    <li ref={row} id={partAnchor(part.id)} className={`scroll-mt-4 rounded-lg border px-3 py-2 ${linked ? "ring-1 ring-sky-500/60" : ""} ${off ? "border-dashed border-slate-800 opacity-60" : edited ? "border-amber-500/50" : "border-slate-800"}`}>
+      <details open={linked || undefined}>
         <summary className="flex cursor-pointer flex-wrap items-center gap-2 text-sm">
           <span className={`font-semibold ${off ? "line-through" : ""}`}>{part.label}</span>
-          <Badge className={KIND[part.kind]}>{part.kind}</Badge>
+          <Badge className={KIND[part.kind]}>{part.kind.replace("-", " ")}</Badge>
           <span className="text-xs tabular-nums text-slate-500">{text.length.toLocaleString()} chars</span>
           {edited && <Badge className="text-amber-300">edited</Badge>}
           <span className="ml-auto flex gap-1.5" onClick={(e) => e.preventDefault()}>
             <Button size="sm" pressed={off} onClick={() => change({ ...override, off: !off })}>{off ? "Off" : "On"}</Button>
+            {part.example && <Button size="sm" pressed={previewing} onClick={() => setPreviewing((v) => !v)}>Preview</Button>}
             <Button size="sm" pressed={editing} onClick={() => setEditing((v) => !v)}>Edit</Button>
             {edited && <Button size="sm" onClick={() => change({ off })}>Reset</Button>}
           </span>
@@ -59,6 +73,7 @@ function PartRow({ part, override, onOverride, entries }: {
           ) : (
             <pre className={`${part.example ? "max-h-[75vh]" : "max-h-80"} overflow-auto whitespace-pre-wrap rounded-lg bg-slate-950/60 p-2 font-mono text-slate-300`}><PrettyText text={text} /></pre>
           )}
+          {previewing && part.example && <div className="rounded-lg border border-slate-800 p-3 text-sm"><ExamplePreview json={part.example.json} entries={entries} /></div>}
           <Offered part={part} entries={entries} />
         </div>
       </details>

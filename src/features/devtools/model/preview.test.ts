@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { parsePlanConfig } from "@/features/plan/model/config";
 import { EXERCISE_EXAMPLES, PLAN_EXAMPLES } from "@/features/plan/examples";
-import { parsePreview, previewPlanText, whyOf } from "./preview";
+import { parsePreview, planToCopy, previewPlanText, whyOf } from "./preview";
 
 const ex = { title: "Play", minutes: 5, sections: [{ type: "text", text: "Play it" }] };
 const plan = (n: number) => ({ title: "P", days: Array.from({ length: n }, (_, i) => ({ theme: `d${i}`, exercises: [ex] })) });
@@ -42,4 +42,15 @@ test("every library example previews", () => {
 test("whyOf reads an example part's note", () => {
   assert.equal(whyOf("### Example: x\nWhy it's good: Short and clear.\n```json\n{}\n```"), "Short and clear.");
   assert.equal(whyOf("```json\n{}\n```"), undefined);
+});
+
+test("planToCopy: any example becomes a plan /plan accepts", () => {
+  const ex = EXERCISE_EXAMPLES[0];
+  const text = planToCopy(JSON.stringify(ex.exercise), ex.note);
+  const r = parsePlanConfig(text, []);
+  assert.ok(r.ok);
+  assert.equal(r.config.days.length, 7);
+  assert.equal(r.config.days[3].theme, (ex.exercise as { title: string }).title);
+  assert.equal(r.config.summary, ex.note);
+  assert.ok(parsePlanConfig(planToCopy(JSON.stringify(PLAN_EXAMPLES[0].plan)), []).ok);
 });

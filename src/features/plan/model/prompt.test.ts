@@ -43,6 +43,7 @@ test("example parts carry parseable JSON, every library exercise first and the p
     const forLine = p === ex.at(-1) ? "" : "For: [^\\n]+, level [^\\n]+\\n";
     assert.match(p.text, new RegExp(`### Example: ${p.example!.id}\\n${forLine}Why it's good: `));
   }
+  assert.deepEqual(ex.map((p) => p.kind), [...EXERCISE_EXAMPLES.map(() => "exercise-example"), "plan-example"]);
   assert.match(ex[0].text, /pitch the student's exercises at their own levels/);
   assert.ok(JSON.parse(ex.at(-1)!.example!.json).days.length === 7);
 });

@@ -27,6 +27,17 @@ export function previewPlanText(json: string): string {
   return json;
 }
 
+/**
+ * Any example as a complete plan to paste into /plan: a week of itself (as `previewPlanText`), each day themed with the
+ * exercise's title and the example's `note` as the summary when it has none. Indented, ready for the clipboard.
+ */
+export function planToCopy(json: string, note?: string): string {
+  const raw: unknown = JSON.parse(previewPlanText(json));
+  if (!isObj(raw) || !Array.isArray(raw.days)) return json;
+  const days = isExercise(json) ? raw.days.map((d) => ({ ...(d as object), theme: typeof raw.title === "string" ? raw.title : "Practice" })) : raw.days;
+  return JSON.stringify({ ...raw, ...(raw.summary || !note ? {} : { summary: note }), days }, null, 2);
+}
+
 /** True for one exercise's JSON (an object with "sections"); false for a plan or text that isn't plain JSON. */
 function isExercise(json: string): boolean {
   try {

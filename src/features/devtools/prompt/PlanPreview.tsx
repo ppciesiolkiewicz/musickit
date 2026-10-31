@@ -5,6 +5,7 @@ import { catalogue } from "@/features/plan/model/catalogue";
 import { parsePlanConfig } from "@/features/plan/model/config";
 import { doneKey, localDate } from "@/features/plan/model/schedule";
 import WeekView from "@/features/plan/ui/WeekView";
+import { DISPLAY } from "@/components/landing/Display";
 
 /**
  * A reply rendered the way the player gets it: the parse error, or the warnings and the real week view. Ticks are local
@@ -28,7 +29,7 @@ export default function PlanPreview({ reply, onDone }: { reply: string; onDone?:
   return (
     <div className="flex flex-col gap-3">
       <div>
-        <h3 className="text-lg font-semibold text-slate-100">{result.config.title}</h3>
+        <h3 className="text-2xl text-slate-50" style={DISPLAY}>{result.config.title}</h3>
         {result.config.summary && <p className="text-sm text-slate-400">{result.config.summary}</p>}
       </div>
       {result.warnings.length > 0 && (

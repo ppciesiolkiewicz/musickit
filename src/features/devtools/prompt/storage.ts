@@ -6,6 +6,18 @@ const noSubscribe = () => () => {};
 /** False on the server and while hydrating, true after: render storage-backed UI only once this is true. */
 export const useMounted = (): boolean => useSyncExternalStore(noSubscribe, () => true, () => false);
 
+const subscribeHash = (onChange: () => void) => {
+  window.addEventListener("hashchange", onChange);
+  window.addEventListener("popstate", onChange);
+  return () => {
+    window.removeEventListener("hashchange", onChange);
+    window.removeEventListener("popstate", onChange);
+  };
+};
+
+/** The page's URL hash, decoded ("" on the server); follows client-side navigation, which sets it after the page mounts. */
+export const useHash = (): string => useSyncExternalStore(subscribeHash, () => decodeURIComponent(window.location.hash), () => "");
+
 /** The studio's saved state (defaults on the server or when nothing usable is stored). */
 export function loadStudio(): StudioState {
   if (typeof window === "undefined") return DEFAULT_STUDIO;
