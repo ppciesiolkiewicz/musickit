@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { EXERCISE_EXAMPLES, PLAN_EXAMPLES } from "@/features/plan/examples";
-import { commentsMarkdown, exampleHashes, hashKey, placeOf, quoteOf, readComments, sectionHash, sectionText, stateOf, type SectionComment } from "./comments";
+import { commentsMarkdown, exampleHashes, hashKey, placeOf, quoteOf, readComments, repinComments, sectionHash, sectionText, stateOf, type SectionComment } from "./comments";
 
 const c = (over: Partial<SectionComment> = {}): SectionComment => ({
   id: "1", example: "ex-a", address: "ex", index: 2, kind: "text", quote: "Play box 1", hash: sectionHash({ type: "text", text: "Play box 1" }),
@@ -59,4 +59,17 @@ test("exampleHashes: every section of exercise and plan examples", () => {
   assert.ok(h[hashKey(ex.id, "ex", 0)]);
   assert.ok(h[hashKey(plan.id, "d6.e0", 0)]);
   assert.equal(h[hashKey(ex.id, "ex", 999)], undefined);
+});
+
+test("repinComments: pins each comment to its section now and the file's commit; gone ones stay", () => {
+  const now = { type: "text", text: "Play box 1 and 2" } as const;
+  const sections = { [hashKey("ex-a", "ex", 2)]: now };
+  const [kept, gone] = repinComments([c({ dirty: true }), c({ id: "2", index: 5 })], sections, { "ex-a": { commit: "def5678" } });
+  assert.equal(kept.hash, sectionHash(now));
+  assert.equal(kept.quote, "Play box 1 and 2");
+  assert.equal(kept.commit, "def5678");
+  assert.equal(kept.dirty, undefined);
+  assert.equal(stateOf(kept, sectionHash(now)), "current");
+  assert.deepEqual(gone, c({ id: "2", index: 5 }));
+  assert.equal(repinComments([c()], sections)[0].commit, "abc1234");
 });

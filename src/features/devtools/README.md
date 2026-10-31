@@ -40,8 +40,10 @@ section's index, with a hash of the section (`model/comments.ts` `sectionHash`) 
 `GET /api/dev/commit` (`server/git.ts`: HEAD, and each example file's last commit and uncommitted state). When the
 section's hash no longer matches, the comment turns orange ("section changed", with *keep* to re-pin it); a section that
 is gone shows rose. Comments live in `localStorage` key `musickit.dev.comments`. The bar at the bottom counts them,
-shows HEAD, and copies them all as Markdown (`commentsMarkdown`: by example with file and commit, in section order, each
-with its quote and a warning when outdated); outdated is checked against every example (`exampleHashes`), open or not.
+shows HEAD, re-pins them all to the sections as they are now and the files' current commits (*Re-pin all to HEAD*,
+`repinComments`: *keep* for every comment; those on gone sections stay), and copies them all as Markdown
+(`commentsMarkdown`: by example with file and commit, in section order, each with its quote and a warning when outdated);
+outdated is checked against every example (`exampleSections`), open or not.
 
 ## Running the prompt
 
@@ -68,7 +70,7 @@ returns one.
 - `server/running.ts`: runs in progress (`startRun`, `cancelRun`, `endRun`, `listRunning`), kept on `globalThis`.
 - `server/history.ts`: `saveRun`, `readRun`, `listRuns` over `tools/prompt-history/`.
 - `model/preview.ts`: an example's JSON made parseable and parsed for display; `planToCopy`; `whyOf`.
-- `model/comments.ts`: section comments: hashes, state, Markdown, `exampleHashes`.
+- `model/comments.ts`: section comments: hashes, state, Markdown, `exampleSections`, `repinComments`.
 - `server/git.ts`: `exampleCommits` (HEAD and the example files' commits), for `GET /api/dev/commit`.
 - `prompt/`: `PromptStudio` (state), `StudioInputs`, `PartList`, `RunPanel`, `PlanPreview`, `HistoryList`, `api.ts` (fetches), `storage.ts` (saved state, `useMounted`).
 - `examples/ExampleViewer.tsx`: the examples page.

@@ -4,7 +4,7 @@ import { createContext, useContext, useEffect, useMemo, useState, useSyncExterna
 import Icon from "@/components/Icon";
 import { SectionAsideContext, type SectionAside } from "@/features/plan/ui/SectionAside";
 import type { Section } from "@/features/plan/model/tools";
-import { COMMENTS_KEY, commentsMarkdown, quoteOf, readComments, sectionHash, sectionText, stateOf, type CommentState, type SectionComment } from "../model/comments";
+import { COMMENTS_KEY, commentsMarkdown, hashesOf, quoteOf, readComments, repinComments, sectionHash, sectionText, stateOf, type CommentState, type SectionComment } from "../model/comments";
 
 /* ---- the store: localStorage, shared by every card and the bar through one subscription ---- */
 
@@ -153,9 +153,10 @@ export function CommentsFor({ example, children }: { example: string; children: 
   return <SectionAsideContext.Provider value={aside}>{children}</SectionAsideContext.Provider>;
 }
 
-/** The bar at the bottom: how many comments (and how many outdated), HEAD, copy them all as Markdown, clear them. */
-export function CommentsBar({ hashes }: { hashes: Record<string, string> }) {
+/** The bar at the bottom: how many comments (and how many outdated), HEAD, re-pin them all to it, copy them all as Markdown, clear them. */
+export function CommentsBar({ sections }: { sections: Record<string, Section> }) {
   const all = useComments();
+  const hashes = useMemo(() => hashesOf(sections), [sections]);
   const commits = useContext(CommitsContext);
   const [copied, setCopied] = useState(false);
   const [clearing, setClearing] = useState(false);
@@ -173,6 +174,9 @@ export function CommentsBar({ hashes }: { hashes: Record<string, string> }) {
       {outdated > 0 && <span className="rounded-full bg-orange-500/15 px-2 py-0.5 text-xs text-orange-200">{outdated} on changed sections</span>}
       {commits && <span className="font-mono text-xs text-slate-500" title="The checkout's HEAD; each comment keeps its example file's commit">HEAD {commits.head}</span>}
       <span className="ml-auto flex gap-2">
+        <button type="button" disabled={!commits} onClick={() => write((l) => repinComments(l, sections, commits?.files))} title="Pin every comment to its section as it is now and to HEAD, as keep does for one; comments on sections that are gone stay as they are" className="cursor-pointer rounded-lg border border-slate-700 px-3 py-1 text-xs font-medium text-slate-300 hover:bg-slate-800 disabled:cursor-default disabled:opacity-50">
+          Re-pin all to HEAD
+        </button>
         <button type="button" onClick={() => (clearing ? (write(() => []), setClearing(false)) : setClearing(true))} onMouseLeave={() => setClearing(false)} className={`cursor-pointer rounded-lg border px-3 py-1 text-xs font-medium ${clearing ? "border-rose-400 bg-rose-500/20 text-rose-100" : "border-slate-700 text-slate-300 hover:bg-slate-800"}`}>
           {clearing ? "Click again to delete all" : "Clear all"}
         </button>

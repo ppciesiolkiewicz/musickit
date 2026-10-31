@@ -13,7 +13,7 @@ import { answersFromText } from "../model/compose";
 import { partAnchor } from "../prompt/PartList";
 import ExamplePreview from "../prompt/ExamplePreview";
 import { planToCopy } from "../model/preview";
-import { exampleHashes } from "../model/comments";
+import { exampleSections } from "../model/comments";
 import { CommentCount, CommentsBar, CommentsFor, CommitsProvider, useCommits } from "./Comments";
 import Icon from "@/components/Icon";
 import { loadStudio, useMounted } from "../prompt/storage";
@@ -107,7 +107,7 @@ export default function ExampleViewer() {
 
   const commits = useCommits();
   // every section of every example as it is now, filtered out or not: what the comments are checked against
-  const hashes = useMemo(() => exampleHashes([...EXERCISE_EXAMPLES, ...PLAN_EXAMPLES].map((e) => ({ id: e.id, json: JSON.stringify(e.kind === "plan" ? e.plan : e.exercise) })), entries), [entries]);
+  const sections = useMemo(() => exampleSections([...EXERCISE_EXAMPLES, ...PLAN_EXAMPLES].map((e) => ({ id: e.id, json: JSON.stringify(e.kind === "plan" ? e.plan : e.exercise) })), entries), [entries]);
 
   if (!mounted) return <p className="text-sm text-slate-500">Loading…</p>;
   return (
@@ -153,7 +153,7 @@ export default function ExampleViewer() {
           {!library.length && <li className="text-sm text-slate-500">No example matches.</li>}
         </ul>
       </div>
-      <CommentsBar hashes={hashes} />
+      <CommentsBar sections={sections} />
     </div>
     </CommitsProvider>
   );

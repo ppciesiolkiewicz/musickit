@@ -5,7 +5,7 @@
  */
 
 import type { CatalogueEntry } from "@/features/plan/model/catalogue";
-import { sectionsOf } from "@/features/plan/model/tools";
+import { sectionsOf, type Section } from "@/features/plan/model/tools";
 import { parsePreview } from "./preview";
 
 export const COMMENTS_KEY = "musickit.dev.comments";
@@ -100,17 +100,39 @@ export function commentsMarkdown(comments: SectionComment[], opts: { head?: stri
 export const hashKey = (example: string, address: string, index: number) => `${example}|${address}|${index}`;
 
 /**
- * The hash of every section of every example as the page shows it now, keyed by `hashKey`: an exercise example's sections
- * at "ex", a plan's at "d<day>.e<exercise>". What `commentsMarkdown` and the page compare comments against.
+ * Every section of every example as the page shows it now, keyed by `hashKey`: an exercise example's sections at "ex",
+ * a plan's at "d<day>.e<exercise>". What the comments are checked against and re-pinned to.
  */
-export function exampleHashes(examples: { id: string; json: string }[], entries: CatalogueEntry[]): Record<string, string> {
-  const out: Record<string, string> = {};
+export function exampleSections(examples: { id: string; json: string }[], entries: CatalogueEntry[]): Record<string, Section> {
+  const out: Record<string, Section> = {};
   for (const { id, json } of examples) {
     const p = parsePreview(json, entries);
     if (!p.ok) continue;
-    const put = (address: string, e: Parameters<typeof sectionsOf>[0]) => sectionsOf(e).forEach((s, i) => (out[hashKey(id, address, i)] = sectionHash(s)));
+    const put = (address: string, e: Parameters<typeof sectionsOf>[0]) => sectionsOf(e).forEach((s, i) => (out[hashKey(id, address, i)] = s));
     if (p.exercise) put("ex", p.exercise);
     p.config?.days.forEach((d, di) => d.exercises.forEach((e, ei) => put(`d${di}.e${ei}`, e)));
   }
   return out;
+}
+
+/** The hash of each of `exampleSections`: what `commentsMarkdown` and `stateOf` compare comments against. */
+export function exampleHashes(examples: { id: string; json: string }[], entries: CatalogueEntry[]): Record<string, string> {
+  return hashesOf(exampleSections(examples, entries));
+}
+
+export const hashesOf = (sections: Record<string, Section>): Record<string, string> =>
+  Object.fromEntries(Object.entries(sections).map(([k, s]) => [k, sectionHash(s)]));
+
+/**
+ * Every comment pinned again to its section as it is now and to its example file's current commit, as *keep* does for
+ * one: none reads as changed after. A comment whose section is gone stays as it was.
+ */
+export function repinComments(comments: SectionComment[], sections: Record<string, Section>, files: Record<string, { commit: string; dirty?: boolean }> = {}): SectionComment[] {
+  return comments.map((c) => {
+    const s = sections[hashKey(c.example, c.address, c.index)];
+    if (!s) return c;
+    const f = files[c.example];
+    const { dirty: _, ...rest } = c;
+    return { ...rest, kind: s.type, quote: quoteOf(sectionText(s)), hash: sectionHash(s), commit: f?.commit ?? c.commit, ...((f ? f.dirty : c.dirty) ? { dirty: true } : {}) };
+  });
 }
