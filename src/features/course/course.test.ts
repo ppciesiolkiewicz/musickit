@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { COURSE, byTopic, findSection, nextSection, prevSection } from "./course";
+import { ALL_SECTIONS, COURSE, byTopic, findSection, nextSection, prevSection } from "./course";
 import { TOPICS, pcAt } from "./model";
 
 describe("course structure", () => {
@@ -11,6 +11,9 @@ describe("course structure", () => {
     const slugs = (st: string) => COURSE.find((s) => s.slug === st)!.sections.map((x) => x.slug);
     assert.deepEqual(slugs("5"), ["chords", "triads", "fifths", "power-chords", "arpeggios", "one-four-five", "pentatonic", "major-pentatonic", "soloing", "bends-and-slides", "move-it"]);
     assert.deepEqual(slugs("2"), ["em-and-am", "c-d-g", "e-a-dm", "one-minute-changes", "all-downstrums", "island-strum", "sixteenths", "first-songs", "what-is-a-chord"]);
+  });
+  it("every section says what it is about", () => {
+    ALL_SECTIONS.forEach(({ stage, section }) => assert.ok(section.about?.trim().length > 10, `${stage.slug}/${section.slug}`));
   });
   it("section slugs are unique within a stage and URL-safe", () => {
     COURSE.forEach((s) => {

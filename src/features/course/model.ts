@@ -14,12 +14,13 @@ export interface Melody { title: string; origin: string; position: number; notes
 /** What a section is mainly about. The course index can group sections by it, in this order. */
 export type TopicId =
   | "basics" | "open-chords" | "strumming" | "three-views" | "melody" | "caged"
-  | "triads" | "fifths" | "arpeggios" | "paths" | "soloing" | "barre-drop3" | "colour" | "modes" | "keys";
+  | "triads" | "fifths" | "arpeggios" | "paths" | "soloing" | "barre-drop3" | "colour" | "modes" | "keys" | "technique";
 
 export const TOPICS: { id: TopicId; label: string }[] = [
   { id: "basics", label: "Guitar basics" },
   { id: "open-chords", label: "Open chords" },
   { id: "strumming", label: "Strumming" },
+  { id: "technique", label: "Technique & dexterity" },
   { id: "three-views", label: "Piano, guitar & solfège" },
   { id: "melody", label: "Melodies" },
   { id: "caged", label: "CAGED positions" },
@@ -46,7 +47,14 @@ export type Block =
   /** a practice task, or how to tell you're ready to move on */
   | { kind: "task"; text: string };
 
-export interface CourseSection { slug: string; title: string; topic: TopicId; blocks: Block[] }
+export interface CourseSection {
+  slug: string;
+  title: string;
+  topic: TopicId;
+  /** what the section teaches, or will teach, in a sentence or two: shown on planned sections, and to the AI plan's link list */
+  about: string;
+  blocks: Block[];
+}
 export interface CourseStage {
   slug: string;
   /** how the stage is numbered on the page: "0.2", "1" */
@@ -59,5 +67,5 @@ export interface CourseStage {
 /** Pitch class of a fretted note, string 0 = low E. */
 export const pcAt = (string: number, fret: number): number => (OPEN_PCS[string] + fret) % 12;
 
-/** A section with no content yet: the content files fill `blocks` in. */
-export const section = (slug: string, title: string, topic: TopicId, blocks: Block[] = []): CourseSection => ({ slug, title, topic, blocks });
+/** A section with no blocks is planned: its `about` says what it will teach until the content files fill `blocks` in. */
+export const section = (slug: string, title: string, topic: TopicId, about: string, blocks: Block[] = []): CourseSection => ({ slug, title, topic, about, blocks });

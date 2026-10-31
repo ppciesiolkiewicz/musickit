@@ -10,7 +10,7 @@ export const STAGE_5: CourseStage = {
   slug: "9", label: "9", title: "Modes",
   intro: "Change one note of the scale and the mood changes. Modes in E and G, and the harmonic minor that explains B7.",
   sections: [
-    section("modes", "Aeolian, Dorian, Phrygian, Mixolydian", "modes", [
+    section("modes", "Aeolian, Dorian, Phrygian, Mixolydian", "modes", "Aeolian, Dorian, Phrygian and Mixolydian: one scale, each started from a different note.", [
       text(
         "E minor as you've played it is called E Aeolian, the natural minor. Raise its 6th (C → C♯) and it becomes E Dorian: still minor, but warmer and jazzier, the sound of a lot of funk and Santana. Lower its 2nd (F♯ → F) and it becomes E Phrygian: dark, Spanish, metal.",
         "On the major side, G with its 7th lowered (F♯ → F) is G Mixolydian: bluesy, rock-and-roll major. In every case one note changes and the rest of position 1 stays exactly as you know it.",
@@ -31,7 +31,7 @@ export const STAGE_5: CourseStage = {
       task("Loop Em7 A. Solo with E Dorian and lean on the C♯ when the A comes. Then loop Em Fmaj7 and use E Phrygian."),
       links([{ href: "/theory/scales", label: "Scales explorer", note: "every mode, its chords and its boxes" }]),
     ]),
-    section("lydian-locrian", "Lydian & Locrian", "modes", [
+    section("lydian-locrian", "Lydian & Locrian", "modes", "Lydian and Locrian, the brightest and the darkest modes.", [
         text(
           "The last two modes. G Lydian is G major with a raised 4th, C♯: dreamy and floating, the sound of film scores. F♯ Locrian is the darkest mode, with both a ♭2 and a ♭5; it's rarely home, but it's the scale over a m7♭5 chord.",
           "Same seven notes as every other mode of the key; only the home note changes.",
@@ -39,7 +39,7 @@ export const STAGE_5: CourseStage = {
         task("Over a G drone, play G major then G Lydian. Stop on C, then C♯, and hear the 4th lift."),
         links([{ href: "/theory/scales", label: "Scales and modes" }]),
       ]),
-    section("modes-over-drone", "Modes over a drone", "modes", [
+    section("modes-over-drone", "Modes over a drone", "modes", "Hearing each mode's colour by playing it over a drone.", [
         text(
           "A drone fixes the root so you hear how every other note relates to it. Over a D drone, play D Dorian and stop on B, its 6th: it brightens the minor sound. Over A, play A Mixolydian and stop on G, the ♭7.",
           "Oye Como Va (Santana) is two chords, Am7 and D9, vamping in A Dorian. Loop them and solo with A Dorian over the top.",
@@ -48,11 +48,11 @@ export const STAGE_5: CourseStage = {
         task("For each mode, two minutes over a drone. Say which note gives it its colour."),
         links([{ href: "/theory/metronome-drone", label: "Metronome & drone" }]),
       ]),
-    section("scarborough-fair", "Scarborough Fair", "melody", [
+    section("scarborough-fair", "Scarborough Fair", "melody", "Scarborough Fair, a traditional ballad in Dorian.", [
         text("A traditional English ballad in D Dorian: minor, but with the bright 6th, B, that gives it its haunted, open sound. Listen for it in the second line."),
         melody({ title: "Scarborough Fair", origin: "traditional English ballad (Dorian)", position: 5, notes: tune("D4:2 D4 A4:2 A4 A4 E4 F4 E4 D4:3 A4 C5:2 D5 C5:2 A4 B4 G4 A4:3") }),
       ]),
-    section("harmonic-minor", "Harmonic minor and why B7 works", "modes", [
+    section("harmonic-minor", "Harmonic minor and why B7 works", "modes", "Harmonic minor, and why B7 pulls back to Em so strongly.", [
       text(
         "Back in stage 5, B7 stood in for Bm and pulled back to Em even harder. Here's why. B7 contains D♯, which isn't in E natural minor: the scale has D. D♯ is one fret below E, so it leans into the home note like Ti leans into Do in a major key.",
         "Raise the 7th of E minor from D to D♯ and you get E harmonic minor. Its 5 chord is B major (or B7), not Bm. Almost all minor-key music borrows that chord for its strong pull home, and the scale's gap between C and D♯ gives it its exotic, classical sound.",
@@ -61,7 +61,7 @@ export const STAGE_5: CourseStage = {
       chords("Bm (from natural minor) against B7 (from harmonic minor). Play each, then Em.", ["Bm", "B7", "Em"]),
       task("Play Em Am Bm Em, then Em Am B7 Em. Then solo over the second loop with E harmonic minor and land D♯ → E as B7 goes to Em."),
     ]),
-    section("melodic-minor", "Melodic minor", "modes", [
+    section("melodic-minor", "Melodic minor", "modes", "Melodic minor: minor below, major above, the root of jazz minor sounds.", [
         text(
           "Melodic minor raises both the 6th and the 7th of natural minor: E F♯ G A B C♯ D♯. It's a minor chord on top of a major scale's top half, smooth to sing and the root of most jazz minor sounds.",
           "Classical players use it only going up; jazz players use it both ways.",

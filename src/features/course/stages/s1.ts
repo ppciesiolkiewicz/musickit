@@ -16,7 +16,7 @@ export const STAGE_1: CourseStage = {
   slug: "5", label: "5", title: "Position 1",
   intro: "Stay in the open position in E minor and G major and learn everything that lives there: chords, triads, 5ths, arpeggios, the scale, and the paths between them.",
   sections: [
-    section("chords", "Chords", "caged", [
+    section("chords", "Chords", "caged", "The chords of E minor and G major in position 1, the first four frets.", [
       text(
         "Position 1 is the first four frets, open strings included. Everything in this stage happens here, in one key: E minor, and its relative major, G. They share the same seven notes, E F♯ G A B C D, and the same chords.",
         "The chords of the key that live in position 1 are the ones you already know: Em, Am, C, D and G. The sixth, Bm, needs a barre, so for now B7 stands in for it. B7 is an open chord and pulls back to Em even harder than Bm does (stage 9 explains why).",
@@ -25,7 +25,7 @@ export const STAGE_1: CourseStage = {
       task("Play Em Am B7 Em, then G C D G, four strums each. These two loops are the backbone of the whole stage."),
       links([{ href: "/theory/caged", label: "Chords in a key", note: "every chord of E minor and G major with its simplest shape" }]),
     ]),
-    section("triads", "Triads", "triads", [
+    section("triads", "Triads", "triads", "Triads, the three notes of a chord, on the top three strings.", [
       text(
         "A triad is the three notes that make a chord: root, 3rd and 5th. A full open chord just doubles some of them. On the top three strings (G, B, e) each chord of the key is a small three-note shape, and the shapes sit right next to each other.",
         "Watch the arrows: going from one chord to the next, most notes stay where they are and only one or two move by a fret or two. That's why these chords sound good together, and it's the idea behind smooth chord changes in every style.",
@@ -38,7 +38,7 @@ export const STAGE_1: CourseStage = {
       task("Strum only the top three strings: Em C Am C Em, then Em G D G. Keep the fingers that don't move pressed down."),
       links([{ href: "/theory/triads", label: "Triads on every string set", note: "the same three-note shapes all over the neck" }]),
     ]),
-    section("fifths", "5ths & double stops", "fifths", [
+    section("fifths", "5ths & double stops", "fifths", "The 5th, Do and Sol: the smallest power chord, and double stops built from it.", [
       text(
         "Take just the root and the 5th of a chord, Do and Sol, and you have a 5th: a power chord in its smallest form. It's neither major nor minor, so it fits under almost anything. Playing two strings at once like this is called a double stop.",
         "In position 1 the root and 5th of E, A and D are an open string plus the 2nd fret of the next string up. G and C put the root on the 3rd fret and borrow an open string a string further on.",
@@ -53,7 +53,7 @@ export const STAGE_1: CourseStage = {
       }),
       task("Play E5 A5 D5 E5 with all downstrums, muting the other strings with the side of your hand. Then G5 C5 D5 G5."),
     ]),
-    section("power-chords", "Power chords", "fifths", [
+    section("power-chords", "Power chords", "fifths", "Power chords: root and 5th, the sound of rock, moved anywhere on the neck.", [
         text(
           "A power chord is just the root and its 5th, often with the octave on top: no 3rd, so it's neither major nor minor. That makes it the sound of rock, and it works under any melody.",
           "The shape never changes. Root on the low E or A string, 5th two frets up on the next string, octave beside it. Slide it to any fret and it names the chord by its root: E5 open, G5 at the 3rd fret, A5 at the 5th.",
@@ -62,7 +62,7 @@ export const STAGE_1: CourseStage = {
         task("Play E5 G5 A5, then G5 B♭5 C5 with the same shape: the riff of Smoke on the Water (Deep Purple). Mute the other strings with the side of your hand."),
         links([{ href: "/theory/chords?q=power", label: "Power chords", note: "every power chord shape" }]),
       ]),
-    section("arpeggios", "Arpeggios", "arpeggios", [
+    section("arpeggios", "Arpeggios", "arpeggios", "Arpeggios in position 1: a chord's notes played one at a time.", [
       text(
         "An arpeggio is a chord played one note at a time. In position 1 the arpeggio of Em is just Em's own notes, low to high: E G B, E G B, E. Follow the arrows, say the names, then let the notes ring together.",
         "Each note is labelled twice: by its role in the chord (R, ♭3, 5) and in solfège from the chord's root (Do, Me, Sol). Major chords have Mi instead of Me; that one note is the whole difference between happy and sad.",
@@ -79,7 +79,7 @@ export const STAGE_1: CourseStage = {
       task("Hold the Em chord and pick it one string at a time, low to high and back. Do the same with Am and G. Then play the arpeggios without holding the chord shape."),
       links([{ href: "/theory/arpeggios", label: "Arpeggios explorer", note: "every chord's arpeggio, anywhere on the neck" }]),
     ]),
-    section("one-four-five", "1 → 4 → 5 → 1 & the circle of fifths", "paths", [
+    section("one-four-five", "1 → 4 → 5 → 1 & the circle of fifths", "paths", "The 1, 4 and 5 chords most songs use, and how the circle of fifths shows them.", [
       text(
         "Most songs are built on three chords: the one on the home note (1, Do), the one a 4th up (4, Fa), and the one a 5th up (5, Sol). In G major that's G → C → D → G. Here are their roots in position 1, and they're all under your hand.",
         "The 4 feels like a step away from home. The 5 feels like it has to come back. Play the roots on their own and you can already hear the story.",
@@ -100,7 +100,7 @@ export const STAGE_1: CourseStage = {
       visual({ kind: "circle", caption: "Pick a key: its 4 and 5 are its neighbours on the circle; its relative minor sits inside." }),
       task("Play G C D G and Em Am B7 Em, four strums each, saying Do Fa Sol Do as you change."),
     ]),
-    section("pentatonic", "E minor pentatonic", "soloing", [
+    section("pentatonic", "E minor pentatonic", "soloing", "The E minor pentatonic in position 1: five notes that fit every chord of the key.", [
       text(
         "Leave two notes out of the E minor scale (F♯ and C) and you get the E minor pentatonic: E G A B D, five notes that never clash with any chord of the key. In position 1 it lies on the open strings and the 2nd and 3rd frets.",
         "Notice how much you already know: the root, ♭3 and 5 are the Em arpeggio from before. The pentatonic just adds two passing notes, the 4 (A) and the ♭7 (D).",
@@ -111,7 +111,7 @@ export const STAGE_1: CourseStage = {
       task("Play the scale up and down slowly, two notes per string. Then pick any three notes in a row and loop them as a little riff."),
       links([{ href: "/theory/scales", label: "Scales explorer", note: "E minor, its pentatonic and every mode" }]),
     ]),
-    section("major-pentatonic", "G major pentatonic", "soloing", [
+    section("major-pentatonic", "G major pentatonic", "soloing", "G major pentatonic: the same five notes as E minor pentatonic, with a different home.", [
         text(
           "Here's a trick: E minor pentatonic and G major pentatonic are the same five notes, E G A B D. What changes is the note you treat as home. Over Em it sounds minor; over G C D, land on G and it sounds major and sunny.",
           "So you already know the shape. Play it over a G chord and aim for G, B and D, the notes of the chord, at the end of each phrase.",
@@ -119,7 +119,7 @@ export const STAGE_1: CourseStage = {
         neck("G major pentatonic in position 1: the same notes as E minor pentatonic, now read from G.", 0, 3, toneDots(G, [0, 2, 4, 7, 9], 0, 3)),
         task("Loop G C D G and improvise with these notes. End every phrase on a G."),
       ]),
-    section("soloing", "Soloing over Em ↔ Am", "soloing", [
+    section("soloing", "Soloing over Em ↔ Am", "soloing", "First solos over Em and Am, landing on each chord's own notes.", [
       text(
         "Now use it. Over an Em ↔ Am backing, the whole pentatonic works, but the notes that sound most settled are the chord's own: land on E (or G, B) while Em is playing, and on A (or C, E) when it changes to Am.",
         "The arrows show two short ideas: one that ends on E for the Em bar, and one that ends on A for the Am bar. Start with just these, then make your own.",
@@ -130,7 +130,7 @@ export const STAGE_1: CourseStage = {
       task("Record yourself strumming Em for 2 bars, Am for 2 bars, for a minute. Play it back and solo over it with only the pentatonic, landing on E and A as the chords change."),
       links([{ href: "/theory/improv", label: "Improv: play over a groove", note: "a backing track to solo over" }]),
     ]),
-    section("bends-and-slides", "Bends & slides", "soloing", [
+    section("bends-and-slides", "Bends & slides", "soloing", "Bends and slides, the moves that make single notes sing.", [
         text(
           "A bend pushes the string across the fret to raise the note: a half step sounds like the next fret, a whole step like two frets up. Use three fingers on the string, and push from the wrist, not the fingertip.",
           "A slide takes you into a note from a fret or two below without picking again. Both make single notes sing, and both work best on notes of the chord.",
@@ -139,7 +139,7 @@ export const STAGE_1: CourseStage = {
         task("Slide from the 2nd to the 4th fret on the G string, then improvise over Em with one slide or bend in every phrase."),
         links([{ href: "/theory/improv", label: "Improv: play over a groove" }]),
       ]),
-    section("move-it", "Move it: G minor", "caged", [
+    section("move-it", "Move it: G minor", "caged", "Moving every position 1 shape up the neck to play in G minor.", [
       text(
         "Everything in position 1 is a shape, and shapes move. Slide the whole E minor scale shape up three frets and every note goes up three semitones: E becomes G, and the scale is now G minor.",
         "There's a catch, and it's the key to the next stage: the open strings were doing work. Three frets up, your first finger has to press where the open strings used to ring. That finger lying across the strings is a barre.",
