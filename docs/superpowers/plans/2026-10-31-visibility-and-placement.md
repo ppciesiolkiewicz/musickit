@@ -211,3 +211,57 @@ and note names on `play-along` (it keeps chord-relative degree `highlight`; only
   4. ✗ an exercise that starts with steps → ✓ its first text says why in one sentence ("Guide tones move by a half step, so they make the changes audible").
 - [ ] **Step 4: README updates**: four note states, note-name highlights, `placement`, and the deferred items listed under "Not in this plan".
 - [ ] **Step 5: Run plan tests, expect PASS. Commit** `feat(plan): prompt rules for placement and note-name highlights`.
+
+### Task 7: Inline note dots in text
+
+Notes written in an exercise's text show as the fretboard's own dot, inline: same colour, root outline and label
+(following the global label setting, `useLabelSystem`: no props passed down, no context), the other label on hover,
+the note played on click.
+
+**Files:**
+- Create: `src/components/chordKit/NoteDot.tsx` (the `Dot` from `ScaleNeck.tsx`, moved and exported unchanged)
+- Modify: `src/components/chordKit/ScaleNeck.tsx` (import `NoteDot`; `PositionBox` output identical; the `accent` prop from Task 3 moves with it)
+- Create: `src/features/exercises/basics/InlineNote.tsx`
+- Create: `src/features/plan/model/noteText.ts` (pure); Test: `src/features/plan/model/noteText.test.ts`
+- Modify: `src/components/course/Explained.tsx`, `src/features/plan/ui/Sections.tsx`, `src/features/plan/model/prompt.ts`
+
+**Interfaces:**
+- Produces:
+  ```ts
+  // noteText.ts
+  export type TextPart = string | { note: string };          // note: the token's inside, "b7" or "c-sharp"
+  export function splitNotes(text: string): TextPart[];       // tokens are {{...}}; an unreadable token stays as plain text
+  export interface NoteRoot { root: number }                  // pitch class the degrees count from
+  export function noteRootFor(sections: Section[], index: number): NoteRoot | null;
+  export interface InlineNoteInfo { semi: number; name: string; degreeText: string; degree: number; midi: number }
+  export function inlineNote(token: string, ctx: NoteRoot | null): InlineNoteInfo | null;
+  // InlineNote.tsx
+  export function InlineNote({ info }: { info: InlineNoteInfo }): JSX.Element;
+  // Explained.tsx: optional prop, default renders the string as today
+  text?: (s: string) => ReactNode;
+  ```
+  - `noteRootFor`: the first tool after `index`, else the last one before it: `scale-neck`/`staff` → `key`;
+    `arpeggio-neck` → chord root; `chord-shapes` → first chord's root; `play-along` → shape `key`, else its first chord's
+    root; other tools are skipped. None → `null`.
+  - `inlineNote`: degree token → `semi = degreeSemis(token)`; note-name token (parsed with `parseKeySlug`) → `semi` from
+    the root, and needs `ctx` (else `null`). Without `ctx` a degree token still resolves with `name` = the degree text
+    and `midi` from C. `degree` (0-based, for `degreeColour`) = the token's digit − 1 (`b7` → 6), for a note name the
+    scale step its `semi` falls on in the major scale. `midi = 48 + root + semi` (an octave the note player sounds well in).
+
+- [ ] **Step 1: Write the failing tests** (`describe("note text")`):
+  - `splitNotes("Sing {{1}} {{3}} {{5}} {{b7}} up and back")` → `["Sing ", {note:"1"}, " ", {note:"3"}, " ", {note:"5"}, " ", {note:"b7"}, " up and back"]`.
+  - `splitNotes("{{x9}} stays")` → `["{{x9}} stays"]`; `splitNotes("no tokens")` → `["no tokens"]`.
+  - `inlineNote("3", { root: 9 })` → `{ semi: 4, name: "C♯", degree: 2, midi: 61, … }`; `inlineNote("b7", { root: 9 })` → `semi: 10, name: "G", degree: 6`.
+  - `inlineNote("c-sharp", { root: 9 })` → `semi: 4`; `inlineNote("c-sharp", null)` → `null`.
+  - `noteRootFor` on `[text, scale-neck key 9]` at 0 → `{ root: 9 }`; on `[arpeggio-neck "D7", text]` at 1 → `{ root: 2 }`; on `[text]` → `null`.
+- [ ] **Step 2: Run, expect FAIL.**
+- [ ] **Step 3: Implement `noteText.ts`.**
+- [ ] **Step 4: Run, expect PASS.**
+- [ ] **Step 5: Move `Dot` to `NoteDot.tsx`**; check a scale page and an exercise neck look the same (same props, same output).
+- [ ] **Step 6: `InlineNote`**: `<svg>` about `1.3em` square, `className="inline-block align-[-0.3em]"`, one `NoteDot` at the
+  centre with a cell built from `info`; label `noteLabel(system, info)`, hover `hoverLabel(system, info)` with `system`
+  from `useLabelSystem()`; click → `useNotePlayer().tap(key, info.midi)`.
+- [ ] **Step 7: Wire `Sections`**: for each text and list item, `Explained` gets `text={(s) => splitNotes(s).map(p => typeof p === "string" ? p : <InlineNote … />)}`, the root from `noteRootFor(sections, i)`; a token `inlineNote` can't read renders as its plain text. Glossary matching needs no change (no term matches `{{…}}`); add a plan test that `explain(["{{3}} chord tone"])` keeps `{{3}}` inside a plain string piece.
+- [ ] **Step 8: Prompt**: under "Exercise format": "Notes in text: write each note you name as `{{3}}` (a degree, counted from the root of the tool after the text) or `{{c-sharp}}` (a note name); the app draws it as a dot the student can hear." Add a 5th common-mistakes pair: ✗ "Sing 1 3 5 b7 up and back" → ✓ "Sing {{1}} {{3}} {{5}} {{b7}} up and back". Plan test: prompt contains `"{{b7}}"`.
+- [ ] **Step 9: Run all tests, tsc, eslint. Browser check**: an exercise "Sing {{1}} {{3}} {{5}} {{b7}} up and back" before an arpeggio-neck A7: four coloured dots inline, labels follow the label setting (switch it on a scale page, come back), hover shows the note name, click sounds A, C♯, E, G.
+- [ ] **Step 10: Commit** `feat(plan): notes in text as inline dots`.
