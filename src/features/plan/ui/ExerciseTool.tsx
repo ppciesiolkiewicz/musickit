@@ -12,6 +12,9 @@ import { View as NoteFinder } from "@/features/exercises/basics/note-finder";
 import { View as RunSinger } from "@/features/exercises/basics/run-singer";
 import { View as ScaleNeck } from "@/features/exercises/basics/scale-neck";
 import { View as Staff } from "@/features/exercises/basics/staff";
+import { View as FingerPattern } from "@/features/exercises/basics/finger-pattern";
+import { View as LegatoTrill } from "@/features/exercises/basics/legato-trill";
+import { View as PickingDrill } from "@/features/exercises/basics/picking-drill";
 import type { PlanTool } from "../model/tools";
 
 // the play-along carries its own sound engine: loaded only when an exercise shows one
@@ -60,5 +63,11 @@ function Tool({ tool }: { tool: PlanTool }) {
       return <RunSinger run={tool.run} pc={tool.key} voice={tool.voice} />;
     case "play-along":
       return <PlayAlong shape={tool.shape} bpm={tool.bpm} repeats={tool.repeats} view={tool.view} highlight={tool.highlight} others={tool.others} under={tool.under} />;
+    case "finger-pattern":
+      return <FingerPattern fingers={tool.fingers} fret={tool.fret} strings={tool.strings} bpm={tool.bpm} />;
+    case "picking-drill":
+      return <PickingDrill strokes={tool.strokes} notesPerString={tool.notesPerString} strings={tool.strings} skip={tool.skip} bpm={tool.bpm} />;
+    case "legato-trill":
+      return <LegatoTrill fingers={tool.fingers} string={tool.string} fret={tool.fret} bpm={tool.bpm} />;
   }
 }

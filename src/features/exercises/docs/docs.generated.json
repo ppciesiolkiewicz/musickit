@@ -228,6 +228,37 @@
     ]
   },
   {
+    "name": "finger-pattern",
+    "kind": "basic",
+    "description": "Stub: shows a placeholder until the real view exists. A finger-pattern drill: the spider and finger permutations,\none finger per fret, played on each string in turn. Use it for dexterity and finger independence warm-ups.",
+    "props": [
+      {
+        "name": "fingers",
+        "type": "string",
+        "required": true,
+        "description": "the fretting fingers in playing order, 2-4 different digits 1-4: \"1234\" (the spider), \"1324\", \"13\""
+      },
+      {
+        "name": "fret",
+        "type": "number",
+        "required": false,
+        "description": "the fret under finger 1, 1-12; default 1"
+      },
+      {
+        "name": "strings",
+        "type": "number[]",
+        "required": false,
+        "description": "the strings to play, 1-6 (6 = low E); default all six"
+      },
+      {
+        "name": "bpm",
+        "type": "number",
+        "required": true,
+        "description": "tempo, 40-200; default 80"
+      }
+    ]
+  },
+  {
     "name": "interval-ears",
     "kind": "basic",
     "description": "An ear-training game: hear an interval or chord and name it.",
@@ -261,6 +292,37 @@
         "type": "boolean",
         "required": false,
         "description": "intervals may span more than an octave"
+      }
+    ]
+  },
+  {
+    "name": "legato-trill",
+    "kind": "basic",
+    "description": "Stub: shows a placeholder until the real view exists. A legato trill: two fingers on one string, alternating by\nhammer-on and pull-off with no picking after the first note. Use it for legato strength and finger independence.",
+    "props": [
+      {
+        "name": "fingers",
+        "type": "string",
+        "required": true,
+        "description": "the two fingers, lower one first, two different digits 1-4: \"12\", \"13\", \"24\""
+      },
+      {
+        "name": "string",
+        "type": "number",
+        "required": true,
+        "description": "the string, 1-6 (6 = low E)"
+      },
+      {
+        "name": "fret",
+        "type": "number",
+        "required": true,
+        "description": "the fret under the first finger, 1-12"
+      },
+      {
+        "name": "bpm",
+        "type": "number",
+        "required": true,
+        "description": "tempo, 40-200; default 80"
       }
     ]
   },
@@ -342,6 +404,43 @@
         "type": "number",
         "required": false,
         "description": "last fret of the range, 0-24"
+      }
+    ]
+  },
+  {
+    "name": "picking-drill",
+    "kind": "basic",
+    "description": "Stub: shows a placeholder until the real view exists. A picking-hand drill: a stroke pattern repeated across the\nstrings. Use it for alternate picking (strokes \"DU\") and, with skip, for string skipping.",
+    "props": [
+      {
+        "name": "strokes",
+        "type": "string",
+        "required": true,
+        "description": "the pick strokes in order, 1-8 of D (down) and U (up): \"DU\", \"DDU\""
+      },
+      {
+        "name": "notesPerString",
+        "type": "number",
+        "required": false,
+        "description": "notes picked on each string before moving on, 1-4; default 4"
+      },
+      {
+        "name": "strings",
+        "type": "number[]",
+        "required": false,
+        "description": "the strings to play, 1-6 (6 = low E); default all six"
+      },
+      {
+        "name": "skip",
+        "type": "boolean",
+        "required": false,
+        "description": "jump over a string each time instead of moving to the next one; default false"
+      },
+      {
+        "name": "bpm",
+        "type": "number",
+        "required": true,
+        "description": "tempo, 40-200; default 80"
       }
     ]
   },

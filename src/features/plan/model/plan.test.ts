@@ -38,6 +38,22 @@ describe("plan links", () => {
 });
 
 describe("tools", () => {
+  it("stub tools parse and drop junk", () => {
+    assert.deepEqual(parseTool({ type: "finger-pattern", fingers: "1324", bpm: 60 }), { type: "finger-pattern", fingers: "1324", fret: 1, bpm: 60 });
+    assert.deepEqual(parseTool({ type: "finger-pattern", fingers: 1234, fret: 5, strings: [1, 6, 6, 9], bpm: "fast" }), { type: "finger-pattern", fingers: "1234", fret: 5, strings: [6, 1], bpm: 80 });
+    assert.equal(parseTool({ type: "finger-pattern", fingers: "1155", bpm: 60 }), null);
+    assert.equal(parseTool({ type: "finger-pattern", fingers: "1", bpm: 60 }), null);
+    assert.deepEqual(parseTool({ type: "picking-drill", strokes: "du", bpm: 90, skip: true }), { type: "picking-drill", strokes: "DU", notesPerString: 4, skip: true, bpm: 90 });
+    assert.equal(parseTool({ type: "picking-drill", strokes: "DX", bpm: 90 }), null);
+    assert.equal(parseTool({ type: "picking-drill", strokes: "DUDUDUDUD", bpm: 90 }), null);
+    assert.deepEqual(parseTool({ type: "legato-trill", fingers: "13", string: 3, fret: 5, bpm: 70 }), { type: "legato-trill", fingers: "13", string: 3, fret: 5, bpm: 70 });
+    assert.equal(parseTool({ type: "legato-trill", fingers: "13", string: 9, fret: 5, bpm: 70 }), null);
+    assert.equal(parseTool({ type: "legato-trill", fingers: "11", string: 3, fret: 5, bpm: 70 }), null);
+  });
+  it("stub tools are in the prompt's tool list", () => {
+    const list = toolInterface().join("\n");
+    ["finger-pattern", "picking-drill", "legato-trill"].forEach((n) => assert.ok(list.includes(n), n));
+  });
   it("parses each tool, set up for the exercise", () => {
     assert.deepEqual(parseTool({ type: "scale-neck", scale: "minor-pentatonic", key: "a", boxes: [2, 1, 9] }), { type: "scale-neck", scale: "minor-pentatonic", key: 9, boxes: [1, 2] });
     assert.deepEqual(parseTool({ type: "scale-neck", scale: "minor-blues", key: "a", boxes: [1], add: ["c#", "C-sharp", "zz"], highlight: ["1"], others: "hidden" }), { type: "scale-neck", scale: "minor-blues", key: 9, boxes: [1], add: [1], highlight: [0], others: "hidden" });

@@ -16,7 +16,8 @@ migrates; the components, their props and their docs live here.
    lit); the notes view is the shared `SingingStaff`. Both label notes by the label setting and its "count from".
 4. `basics/<name>/` the ten basics: `scale-neck`, `chord-shapes`, `staff`, `click-drone`, `backing-band`, `note-finder`,
    `interval-ears`, `arpeggio-neck`, `melody-singer`, `run-singer`. Each has `index.tsx` (the View) and `<name>.props.ts`.
-   Shared: `choices.ts`, `arpeggio.ts`, `singer.tsx`.
+   Shared: `choices.ts`, `arpeggio.ts`, `singer.tsx`. Three more are stubs with a placeholder view (`stub.tsx`), their
+   props final: `finger-pattern`, `picking-drill`, `legato-trill`.
 
 `docs/` extracts each `@component` props file with the TypeScript compiler API into `docs.generated.json`
 (`COMPONENT_DOCS`); a test fails when it is stale. Regenerate with `npm run docs:exercises`.

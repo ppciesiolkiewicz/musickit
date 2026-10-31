@@ -51,7 +51,11 @@ export type PlanTool =
   | { type: "arpeggio-neck"; chord: string; boxes?: number[]; part?: Degree[]; placement?: Placement } & Marks
   | { type: "melody-singer"; tune: number; key: number; voice?: Voice }
   | { type: "run-singer"; run: number; key: number; voice?: Voice }
-  | { type: "play-along"; shape: PlayAlongShape; bpm: number; repeats?: number; view?: View; highlight?: Degree[]; others?: "muted" | "hidden"; under?: Under };
+  | { type: "play-along"; shape: PlayAlongShape; bpm: number; repeats?: number; view?: View; highlight?: Degree[]; others?: "muted" | "hidden"; under?: Under }
+  /* stubs: a placeholder view until the real components exist; strings are numbered 1-6, 6 = low E */
+  | { type: "finger-pattern"; fingers: string; fret: number; strings?: number[]; bpm: number }
+  | { type: "picking-drill"; strokes: string; notesPerString: number; strings?: number[]; skip?: boolean; bpm: number }
+  | { type: "legato-trill"; fingers: string; string: number; fret: number; bpm: number };
 
 export type ToolName = PlanTool["type"];
 
@@ -131,6 +135,15 @@ const singer = (t: Record<string, unknown>, field: "tune" | "run", ok: (n: unkno
   return field === "tune" ? { type: "melody-singer", tune: n, key, ...(voice ? { voice } : {}) } : { type: "run-singer", run: n, key, ...(voice ? { voice } : {}) };
 };
 
+/** 2 to 4 (or exactly `n`) different fingers 1-4, as the AI wrote them: "1324" or 1324. */
+const fingersOf = (v: unknown, min: number, max: number): string | null => {
+  const f = typeof v === "number" || typeof v === "string" ? String(v) : "";
+  return /^[1-4]+$/.test(f) && new Set(f).size === f.length && f.length >= min && f.length <= max ? f : null;
+};
+/** Strings 1-6, low E first; none left means all. */
+const stringsOf = (v: unknown) => opt("strings", [...new Set(list(v).map((n) => int(n, 1, 6)).filter((n): n is number => n !== null))].sort((a, b) => b - a));
+const stubBpm = (v: unknown) => int(v, 40, 200) ?? 80;
+
 const VIEWS: View[] = ["tab", "notes", "neck"];
 const UNDERS: Under[] = ["chords", "drone", "none"];
 
@@ -197,6 +210,24 @@ export const TOOLS: { [N in ToolName]: ToolSpec } = {
         ...opt("highlight", highlight), ...(others && others !== "normal" ? { others } : {}),
         ...(UNDERS.includes(t.under as Under) ? { under: t.under as Under } : {}),
       };
+    },
+  },
+  "finger-pattern": {
+    parse: (t) => {
+      const fingers = fingersOf(t.fingers, 2, 4);
+      return fingers ? { type: "finger-pattern", fingers, fret: int(t.fret, 1, 12) ?? 1, ...stringsOf(t.strings), bpm: stubBpm(t.bpm) } : null;
+    },
+  },
+  "picking-drill": {
+    parse: (t) => {
+      const strokes = typeof t.strokes === "string" && /^[du]{1,8}$/i.test(t.strokes) ? t.strokes.toUpperCase() : null;
+      return strokes ? { type: "picking-drill", strokes, notesPerString: int(t.notesPerString, 1, 4) ?? 4, ...stringsOf(t.strings), ...bool("skip", t.skip), bpm: stubBpm(t.bpm) } : null;
+    },
+  },
+  "legato-trill": {
+    parse: (t) => {
+      const fingers = fingersOf(t.fingers, 2, 2), string = int(t.string, 1, 6), fret = int(t.fret, 1, 12);
+      return fingers && string !== null && fret !== null ? { type: "legato-trill", fingers, string, fret, bpm: stubBpm(t.bpm) } : null;
     },
   },
 };

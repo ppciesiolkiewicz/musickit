@@ -107,6 +107,8 @@ and the guided `play-along` (one shape: `progression`, `two-scales`, `chord-step
 `solo-over`). The prompt lists them from `COMPONENT_DOCS`, the debug panel shows each one's short doc (open it for the
 prop table). A play-along with `repeats` sets the exercise's minutes (`derivedMinutes`); its `under` picks what sounds under single
 notes (the chords held by default). In development each tool shows its name above it (`DevName`).
+Three tools are stubs, for the course's dexterity basics: `finger-pattern` (the spider), `picking-drill` and
+`legato-trill`. The AI can use them now; until their real views exist they show a "Stub exercise: …" box with their settings.
 
 Old stored or pasted tools are migrated before parsing (`model/migrate.ts`): `scale` → `scale-neck`, `chords` →
 `chord-shapes`, `sing` → `staff` with the mic, `band` → `backing-band`, `notes` → `note-finder`, `ears` →
