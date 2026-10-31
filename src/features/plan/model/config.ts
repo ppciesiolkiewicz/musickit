@@ -13,7 +13,7 @@ function parseSections(raw: unknown[], entries: CatalogueEntry[], where: string,
   const dropped = out.filter((s) => !s).length;
   if (dropped) warnings.push(`${where}: left out ${dropped} section${dropped > 1 ? "s" : ""} it couldn't show.`);
   const kept = out.filter((s): s is Section => s !== null);
-  for (const s of kept) if (s.type === "tool" && pickWasInexact(s.tool)) warnings.push(`${where}: no tune matched the pick exactly; used tune ${"tune" in s.tool ? s.tool.tune : "run" in s.tool ? s.tool.run : 0}.`);
+  for (const s of kept) if (s.type === "tool" && pickWasInexact(s.tool)) warnings.push(`${where}: no tune matched the pick exactly; used ${"run" in s.tool ? `run ${s.tool.run}` : "tune" in s.tool ? `tune ${s.tool.tune}` : "one"}.`);
   return kept;
 }
 

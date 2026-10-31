@@ -21,14 +21,18 @@ export function pickTune(book: BookTune[], pick: MelodyPick): { n: number; exact
   const inStage = (t: BookTune) => pick.stage === undefined || t.stage.id === pick.stage;
   const exact = book.filter((t) => (pick.difficulty === undefined || t.difficulty === d) && inStage(t));
   if (exact.length) return { n: at(exact), exact: true };
+  // relax the stage first: the same difficulty in any stage
+  const anyStage = d >= 0 ? book.filter((t) => t.difficulty === d) : [];
+  if (anyStage.length) return { n: at(anyStage), exact: false };
+  // then the nearest difficulty, preferring the stage
   const target = Math.max(d, 0);
   const near = (pool: BookTune[]) => {
     const best = Math.min(...pool.map((t) => Math.abs(t.difficulty - target)));
     return pool.filter((t) => Math.abs(t.difficulty - target) === best);
   };
-  const sameStage = book.filter(inStage);
-  const sameDifficulty = near(sameStage.length ? sameStage : book);
-  return { n: at(sameDifficulty), exact: false };
+  const preferred = near(book.filter(inStage));
+  const pool = book.filter(inStage).length ? preferred : near(book);
+  return { n: at(pool), exact: false };
 }
 
 /** What a pick may name, for the prompt. */

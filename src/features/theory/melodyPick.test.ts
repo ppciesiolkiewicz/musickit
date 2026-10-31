@@ -1,7 +1,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { pickChoices, pickTune } from "./melodyPick";
-import { BOOK, RUNS, RUN_STAGES, STAGES } from "./singingMelodies";
+import { BOOK, DIFFICULTIES, RUNS, RUN_STAGES, STAGES } from "./singingMelodies";
 
 const easySkips = BOOK.filter((t) => t.difficulty === 0 && t.stage.id === "skips");
 
@@ -17,6 +17,12 @@ describe("pickTune", () => {
     const r = pickTune(BOOK, { difficulty: "easy", stage: "nope" });
     assert.equal(r?.exact, false);
     assert.equal(BOOK.find((t) => t.n === r!.n)!.difficulty, 0);
+  });
+  it("keeps the difficulty when the stage has none of it", () => {
+    const miss = STAGES.flatMap((st) => DIFFICULTIES.map((_, d) => ({ st, d }))).find(({ st, d }) => !BOOK.some((t) => t.stage.id === st.id && t.difficulty === d) && BOOK.some((t) => t.difficulty === d))!;
+    const r = pickTune(BOOK, { difficulty: DIFFICULTIES[miss.d].title, stage: miss.st.id });
+    assert.equal(r?.exact, false);
+    assert.equal(BOOK.find((t) => t.n === r!.n)!.difficulty, miss.d);
   });
   it("falls back for an unknown difficulty", () => {
     const r = pickTune(BOOK, { difficulty: "impossible" });
