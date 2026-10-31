@@ -11,7 +11,7 @@ import Marks from "./Marks";
 
 type Filter = "warmup" | "often" | null;
 
-/** A section with no blocks yet is planned: listed, but not a link. */
+/** A section with no blocks yet is planned: marked "soon", with what it will teach under its title. */
 const planned = (r: SectionRef) => r.section.blocks.length === 0;
 
 function Row({ r, n, showStage }: { r: SectionRef; n: number; showStage: boolean }) {
@@ -19,21 +19,22 @@ function Row({ r, n, showStage }: { r: SectionRef; n: number; showStage: boolean
   const inner = (
     <>
       <span className="w-6 shrink-0 text-right text-xs tabular-nums text-slate-500">{showStage ? <span className="inline-block size-2 rounded-full" style={{ background: colour }} /> : n}</span>
-      <span className="min-w-0 flex-1 truncate">
-        {r.section.title}
-        {showStage && <span className="ml-2 text-xs" style={{ color: colour }}>{r.stage.label}</span>}
+      <span className={`min-w-0 flex-1 ${planned(r) ? "" : "truncate"}`}>
+        <span className="block truncate">
+          {r.section.title}
+          {showStage && <span className="ml-2 text-xs" style={{ color: colour }}>{r.stage.label}</span>}
+        </span>
+        {planned(r) && <span className="mt-0.5 block text-xs leading-snug text-slate-500">{r.section.about}</span>}
       </span>
       {planned(r)
         ? <span className="shrink-0 rounded-full border border-slate-700 px-2 py-0.5 text-[10px] uppercase tracking-wider text-slate-500">soon</span>
         : <Marks noteKey={noteKey(r.stage.slug, r.section.slug)} className="max-w-[40%] text-sm" />}
     </>
   );
-  const base = "flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm";
+  const base = "flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm transition hover:bg-slate-800/70 hover:text-white";
   return (
     <li>
-      {planned(r)
-        ? <span className={`${base} text-slate-500`}>{inner}</span>
-        : <Link href={sectionHref(r.stage.slug, r.section.slug)} className={`${base} group text-slate-200 transition hover:bg-slate-800/70 hover:text-white`}>{inner}</Link>}
+      <Link href={sectionHref(r.stage.slug, r.section.slug)} className={`${base} group ${planned(r) ? "text-slate-400" : "text-slate-200"}`}>{inner}</Link>
     </li>
   );
 }

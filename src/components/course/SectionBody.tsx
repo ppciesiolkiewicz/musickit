@@ -95,7 +95,15 @@ function BlockView({ block }: { block: Block }) {
   }
 }
 
-/** A section's content, block by block, in the order the course data lists them. */
+/** A section's content, block by block, in the order the course data lists them. A planned section says what it will teach. */
 export default function SectionBody({ section }: { section: CourseSection }) {
+  if (!section.blocks.length) {
+    return (
+      <div className="flex max-w-3xl flex-col gap-3 leading-relaxed text-slate-300">
+        <p>{section.about}</p>
+        <p className="text-sm text-slate-500">Exercises for this section are on their way.</p>
+      </div>
+    );
+  }
   return <div className="flex min-w-0 flex-col gap-6">{section.blocks.map((b, i) => <BlockView key={i} block={b} />)}</div>;
 }
