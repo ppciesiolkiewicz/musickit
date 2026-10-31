@@ -10,7 +10,7 @@ the app's data. Spec: `docs/superpowers/specs/2026-10-31-prompt-devtools-design.
 - **Imports.** Dev tools may import plan internals (`@/features/plan/model/*`, its UI). Nothing outside this folder,
   `src/app/dev` and `src/app/api/dev` imports dev tools.
 - **`server/` is Node only** (`child_process`, `fs`) and is imported only by route files. Pure logic in `model/`, with tests.
-- **A new tool** is one entry in `registry.ts` and one page under `src/app/dev/`.
+- **A new tool** is one entry in `registry.ts` and one page under `src/app/dev/`; the index and the tab bar (`DevNav.tsx`, in the layout) both read the registry.
 
 ## History
 

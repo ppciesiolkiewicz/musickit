@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { notFound } from "next/navigation";
 import PageShell from "@/components/PageShell";
 import { devOnly } from "@/features/devtools/gate";
+import DevNav from "@/features/devtools/DevNav";
 
 export const metadata: Metadata = { title: "Dev tools · attunr", robots: { index: false } };
 
@@ -11,6 +12,7 @@ export default function DevLayout({ children }: { children: ReactNode }) {
   if (!devOnly()) notFound();
   return (
     <PageShell active="/dev" wide title="Dev tools" intro="Local tools for working on the app. Not in production.">
+      <DevNav />
       {children}
     </PageShell>
   );
