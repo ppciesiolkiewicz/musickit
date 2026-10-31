@@ -125,3 +125,14 @@ one-line meaning and a link to the course article. The AI writes plain text; `ex
 per exercise. To add a word: an entry in `GLOSSARY`, and an article; if there is none yet, add an empty `section()` to
 the course and point at it. The prompt lists the terms with their meanings (generated from `GLOSSARY`) and asks the
 AI to use them by name without defining them.
+
+## Concepts
+
+`model/concepts.ts` is the catalogue the questionnaire rates: `CONCEPTS` (per area, easiest first, with `buildsOn` and a
+`course` link), `AREAS`, `conceptsFor(area, level)` (that level and the one below) and `conceptById`.
+
+### Course sections to write
+
+Empty `section()` stubs added so concept links resolve: matching-a-pitch and breath-and-holding-a-note (stage 3),
+augmented-chords, diminished-chords, chords-in-pop-rock, chords-in-folk (stage 7), singing-leaps, sight-singing,
+harmony-line, vocal-runs (stage 6), fast-runs, stretching-your-range, improvising-a-melody (stage 9).

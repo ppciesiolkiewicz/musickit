@@ -88,5 +88,9 @@ export const STAGE_3: CourseStage = {
       chords("The colour version of 1 → 4 → 5 → 1.", ["Gmaj7", "Cmaj7", "D7", "G"]),
       task("Play the loop slowly and sing the top note of each chord: F♯, B, C, B. Then the plain G C D G for comparison."),
     ]),
+    section("augmented-chords", "Augmented chords", "colour", "Augmented chords: a major chord with a raised 5th, tense and floating, pulling toward the next chord."),
+    section("diminished-chords", "Diminished chords", "colour", "Diminished chords: stacked minor 3rds, the tense chord that wants to resolve."),
+    section("chords-in-pop-rock", "Chords in pop & rock", "colour", "The chords and progressions that pop and rock songs lean on."),
+    section("chords-in-folk", "Chords in folk", "colour", "The chords and progressions of folk and campfire songs."),
   ],
 };

@@ -172,6 +172,8 @@ export const STAGES_0: CourseStage[] = [
         task("Play E then Em, A then Am, D then Dm. Say \"bright\" or \"dark\" before each chord rings out, then check."),
         links([], [{ href: "/theory/ears?kind=chord", label: "Major or minor?", note: "listen for the 3rd: bright is major, dark is minor; the 7th chords can wait" }]),
       ]),
+      section("matching-a-pitch", "Matching a pitch", "three-views", "Hearing a note and singing it back on pitch, with the tuner or a guitar string to check against."),
+      section("breath-and-holding-a-note", "Breath & holding a note", "three-views", "Breathing low and steady, and holding one note without wobble or running out of air."),
     ],
   },
   {

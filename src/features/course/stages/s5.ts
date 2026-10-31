@@ -69,5 +69,8 @@ export const STAGE_5: CourseStage = {
         neck("E melodic minor in position 1.", 0, 4, toneDots(E, [0, 2, 3, 5, 7, 9, 11], 0, 4)),
         task("Play E natural, harmonic and melodic minor one after another, over an Em drone. Which one sounds most finished?"),
       ]),
+    section("fast-runs", "Fast runs", "technique", "Fast, clean vocal runs and licks built from the pentatonic and the modes."),
+    section("stretching-your-range", "Stretching your range", "technique", "Safely extending your lowest and highest notes without strain."),
+    section("improvising-a-melody", "Improvising a melody over chords", "melody", "Making up a sung melody over chord changes, landing on chord tones."),
   ],
 };

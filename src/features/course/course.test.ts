@@ -15,7 +15,7 @@ describe("course structure", () => {
   it("planned basics sit where the design puts them", () => {
     const slugs = (st: string) => COURSE.find((s) => s.slug === st)!.sections.map((x) => x.slug);
     assert.deepEqual(slugs("1"), ["strings-and-tuning", "tab-and-chord-boxes", "notes-on-e-and-a", "steady-beat", "spider"]);
-    assert.deepEqual(slugs("3"), ["piano-and-guitar", "solfege", "home-note", "do-re-mi", "step-melodies", "do-mi-sol", "intervals", "hearing-do-fa-sol", "la-minor-home", "major-or-minor"]);
+    assert.deepEqual(slugs("3"), ["piano-and-guitar", "solfege", "home-note", "do-re-mi", "step-melodies", "do-mi-sol", "intervals", "hearing-do-fa-sol", "la-minor-home", "major-or-minor", "matching-a-pitch", "breath-and-holding-a-note"]);
     assert.deepEqual(slugs("4"), ["melodies", "sing-then-find", "do-mi-sol-neck", "legato"]);
     const s5 = slugs("5");
     assert.equal(s5.indexOf("chords-from-scale") + 1, s5.indexOf("one-four-five"));
