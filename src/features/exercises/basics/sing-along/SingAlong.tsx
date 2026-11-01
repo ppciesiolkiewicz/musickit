@@ -30,7 +30,7 @@ function IconButton({ on, tone = "sky", title, onClick, children }: { on?: boole
 
 /**
  * A tune to sing along: mute, play, stop and the mic as icons (any of them switches the mic on), a loop over a part of
- * the tune set on a strip of the whole tune (on by default, over all of it), and the tune drawn on an endless staff or
+ * the tune set on a strip of the whole tune (on by default, over all of it; the strip shows only while looping), and the tune drawn on an endless staff or
  * as a piano roll that keeps the line the voice took. Full screen is a page modal (Esc closes it), drawn big, the notes
  * sliding under a bar that stays put so the voice dot holds its place. Key it by the tune: a new one starts over.
  */
@@ -110,7 +110,7 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, tapped,
           <Icon name={full ? "minimize" : "maximize"} size={15} />
         </IconButton>
       </div>
-      <LoopStrip key={total} notes={notes} total={total} region={sa.region} loop={sa.loop} at={at} onRegion={sa.setRegion} />
+      {sa.loop && <LoopStrip key={total} notes={notes} total={total} region={sa.region} loop={sa.loop} at={at} onRegion={sa.setRegion} />}
       <div className={full ? "flex min-h-0 flex-1 flex-col justify-center" : "contents"}>
         {look === "staff" ? (
           <StreamStaff frame={sa.frame} notes={notes} chords={chords} ladder={ladder} clef={clef} beatMs={beatMs} tapped={tapped} onNote={onNote} motion={moves} scale={size} />
