@@ -6,6 +6,7 @@ import { Button } from "@/components/ui";
 import type { Clef } from "@/features/theory/piano/staff";
 import type { Ladder } from "@/features/theory/singing";
 import { DIFFICULTIES, lengthLabel, type BookTune, type PlacedNote } from "@/features/theory/singingMelodies";
+import type { MelodyChord } from "@/features/theory/melodyChords";
 import MelodyStaff from "./MelodyStaff";
 import MicButton from "./MicButton";
 import { ClickButton, RestartButton, ShareButton } from "./MelodyControls";
@@ -18,9 +19,11 @@ const PAGE = 6;
  * and a play button. More cards are drawn as the end of the list comes into view. The `active` card is the one being
  * sung (the last one picked, played or tapped): only it runs the bar and shows the voice. A click anywhere on a card picks it.
  */
-export default function MelodyFeed({ tunes, place, ladder, clef, pitch, beatMs, bpm, active, playing, playFrom, gridBeats, tapped, mic, cents, lagMs, heard, onHear, onPick, onSing, onPlay, onStop, onRestart, onNote, onFocus, linkTo, reveal }: {
+export default function MelodyFeed({ tunes, place, chordsOf, ladder, clef, pitch, beatMs, bpm, active, playing, playFrom, gridBeats, tapped, mic, cents, lagMs, heard, onHear, onPick, onSing, onPlay, onStop, onRestart, onNote, onFocus, linkTo, reveal }: {
   tunes: BookTune[];
   place: (t: BookTune) => PlacedNote[];
+  /** the chords under a tune, named over its staff */
+  chordsOf: (t: BookTune) => MelodyChord[];
   ladder: Ladder;
   clef: Clef;
   pitch: RefObject<number | null>;
@@ -115,6 +118,7 @@ export default function MelodyFeed({ tunes, place, ladder, clef, pitch, beatMs, 
                 </div>
                 <MelodyStaff
                   notes={place(t)}
+                  chords={chordsOf(t)}
                   // a run's keys don't loop back round, so no last half bar drawn in front
                   lead={!t.keys}
                   ladder={ladder}

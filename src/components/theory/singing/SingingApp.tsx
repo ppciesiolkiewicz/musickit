@@ -9,6 +9,7 @@ import { getAudioContext, getSharedPiano, midiToName, onSilence, playSequence, s
 import { MAX_BPM, MIN_BPM, type PocketStatus } from "@/features/instruments";
 import { ACCURACIES, IN_TUNE_CENTS, VOICES, buildLadder, clefFor, hzToMidi, savedAccuracy, savedVoice, scaleRun, tuneLadderFor, type Range, type Voice } from "@/features/theory/singing";
 import { BOOK, DIFFICULTIES, RUNS, placeRun, placeTune, type BookTune, type PlacedNote } from "@/features/theory/singingMelodies";
+import { chordSteps, harmoniseRun, harmoniseTune, type MelodyChord } from "@/features/theory/melodyChords";
 import { singingQuery, type SingingLink } from "@/features/theory/singingLink";
 import { levelSemis, type IntervalDirection } from "@/features/theory/singingIntervals";
 import { EAR_LEVELS } from "@/lib/practice/earGame";
@@ -33,6 +34,8 @@ const VOICE_KEY = "singing.range";
 const ACCURACY_KEY = "singing.accuracy";
 /** where the play-ahead picked last is kept, in ms (a testing knob: how far the bar runs ahead of the voice dot) */
 const LAG_KEY = "singing.lag";
+/** whether the piano plays the tunes' chords (on unless turned off) */
+const CHORDS_KEY = "singing.chords";
 const MAX_LAG_MS = 1000;
 const savedLag = (v: unknown): number | null => (typeof v === "number" && v >= 0 && v <= MAX_LAG_MS ? v : null);
 type Tab = "scales" | "melodies" | "runs" | "intervals";
@@ -65,24 +68,33 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
   const [cents, setCents] = useState<number>(IN_TUNE_CENTS);
   // how far the bar runs ahead of the voice dot on a melody
   const [lagMs, setLagMs] = useState(DOT_LAG_MS);
+  // the piano's chords under the tunes
+  const [chords, setChords] = useState(true);
   // the last voice and accuracy come back after hydration; a pick is kept as it is made
   useEffect(() => {
     let saved: Voice | null = null;
     let accuracy: number | null = null;
     let lag: number | null = null;
+    let withChords: unknown = null;
     try {
       saved = savedVoice(JSON.parse(window.localStorage.getItem(VOICE_KEY) ?? "null"));
       accuracy = savedAccuracy(JSON.parse(window.localStorage.getItem(ACCURACY_KEY) ?? "null"));
       lag = savedLag(JSON.parse(window.localStorage.getItem(LAG_KEY) ?? "null"));
+      withChords = JSON.parse(window.localStorage.getItem(CHORDS_KEY) ?? "null");
     } catch { /* storage blocked */ }
     // eslint-disable-next-line react-hooks/set-state-in-effect -- restoring the saved picks after hydration
     if (saved) setVoice(saved);
     if (accuracy !== null) setCents(accuracy);
     if (lag !== null) setLagMs(lag);
+    if (withChords === false) setChords(false);
   }, []);
   const pickAccuracy = (c: number) => {
     setCents(c);
     try { window.localStorage.setItem(ACCURACY_KEY, JSON.stringify(c)); } catch { /* storage blocked */ }
+  };
+  const pickChords = (on: boolean) => {
+    setChords(on);
+    try { window.localStorage.setItem(CHORDS_KEY, JSON.stringify(on)); } catch { /* storage blocked */ }
   };
   const pickLag = (ms: number) => {
     setLagMs(ms);
@@ -128,12 +140,14 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
   const tuneLadder = useMemo(() => tuneLadderFor(ladder, tonicPc, range), [ladder, tonicPc, range]);
   const placed = useMemo(() => {
     const ladderIn = (pc: number, r: Range) => tuneLadderFor(buildLadder(scale, pc, r) ?? buildLadder("major-ionian", pc, r)!, pc, r);
-    return new Map([
-      ...BOOK.map((t) => [t.n, placeTune(t.notes, tuneLadder, range)] as const),
-      ...RUNS.map((t) => [t.n, placeRun(t.notes, tonicPc, t.keys!, ladderIn, range)] as const),
+    const none: MelodyChord[] = [];
+    return new Map<number, { notes: PlacedNote[]; chords: MelodyChord[] }>([
+      ...BOOK.map((t) => [t.n, chords ? harmoniseTune(t.notes, tuneLadder, range) : { notes: placeTune(t.notes, tuneLadder, range), chords: none }] as const),
+      ...RUNS.map((t) => [t.n, chords ? harmoniseRun(t.notes, tonicPc, t.keys!, ladderIn, range) : { notes: placeRun(t.notes, tonicPc, t.keys!, ladderIn, range), chords: none }] as const),
     ]);
-  }, [tuneLadder, range, scale, tonicPc]);
-  const place = useCallback((t: BookTune) => placed.get(t.n)!, [placed]);
+  }, [tuneLadder, range, scale, tonicPc, chords]);
+  const place = useCallback((t: BookTune) => placed.get(t.n)!.notes, [placed]);
+  const chordsOf = useCallback((t: BookTune) => placed.get(t.n)!.chords, [placed]);
   const tunes = useMemo(() => book.filter((t) => level === "all" || t.difficulty === level), [book, level]);
   // the difficulties this book has tunes in
   const levels = useMemo(() => DIFFICULTIES.map((_, i) => i).filter((i) => book.some((t) => t.difficulty === i)), [book]);
@@ -215,7 +229,10 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
     const at = pocket ? await pocket.restart(from) : null;
     const lead = at === null ? 60 : Math.max(0, (at - getAudioContext().currentTime) * 1000);
     const notes: PlacedNote[] = place(t);
-    playSequence(notes.filter((n) => n.at >= from).map((n) => ({ note: n.midi, at: lead + (n.at - from) * beat, hold: n.beats * beat * 0.9 })));
+    playSequence([
+      ...notes.filter((n) => n.at >= from).map((n) => ({ note: n.midi, at: lead + (n.at - from) * beat, hold: n.beats * beat * 0.9 })),
+      ...chordSteps(chordsOf(t), beat, from).map((s) => ({ ...s, at: s.at + lead })),
+    ]);
     const end = notes[notes.length - 1].at + notes[notes.length - 1].beats;
     setActive(t.n);
     setRunning(true);
@@ -336,6 +353,12 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
               </BarRow>
               {/* the mic's timing for the moving bar: set once, so it stays here rather than with the drill */}
               {tuneTab && <BarRow label="Play-ahead">{lagSlider}</BarRow>}
+              {tuneTab && (
+                <BarRow label="Chords">
+                  <Chip on={chords} onClick={() => pickChords(true)} title="The piano plays a chord a bar under the tune">On</Chip>
+                  <Chip on={!chords} onClick={() => pickChords(false)} title="The tune alone">Off</Chip>
+                </BarRow>
+              )}
             </>,
           }} />
         }
@@ -397,6 +420,7 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
             <MelodyFeed
               tunes={tunes}
               place={place}
+              chordsOf={chordsOf}
               ladder={tuneLadder}
               clef={clef}
               pitch={pitch}
@@ -445,6 +469,7 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
           count={tunes.length}
           staff={{
             notes: place(focused),
+            chords: chordsOf(focused),
             ladder: tuneLadder,
             clef,
             pitch,
