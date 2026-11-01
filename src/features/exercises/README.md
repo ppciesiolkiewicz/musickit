@@ -14,10 +14,10 @@ migrates; the components, their props and their docs live here.
    chords it holds each chord (`withBackingSound`, the `under` prop: chords, drone, none). The neck view is the shared
    `ScaleNeck` with every place of the line at once (the playing chord's enabled notes normal, the highlighted ones
    ringed, the rest muted, the sounding ones lit); the notes view is the shared `SingingStaff`. Both label notes by the label setting and its "count from".
-4. `basics/<name>/` the eleven basics: `scale-neck`, `chord-shapes`, `staff`, `click-drone`, `backing-band`, `note-finder`,
+4. `basics/<name>/` the thirteen basics: `scale-neck`, `chord-shapes`, `staff`, `click-drone`, `backing-band`, `note-finder`,
    `interval-ears`, `arpeggio-neck`, `melody-singer`, `run-singer` (both with a chord a bar under the tune, worked out
    in `features/theory/melodyChords.ts`; a run announces each new key in its held-Do bar), `strum-along` (a metronome and the chords as boxes,
-   one per bar or beat, each holding beat boxes of its strumming pattern, the playing strum lit; its maths in `blocks.ts`). Each has `index.tsx` (the View) and `<name>.props.ts`.
+   one per bar or beat, each holding beat boxes of its strumming pattern, the playing strum lit; its maths in `blocks.ts`), `string-singer` (the guitar's open strings sung along, moved into the voice: the strings, neighbouring pairs or the 5th-fret unisons; `strings.ts`), `tuning-ears` (a listening game: the 5th-fret reference and the next open string, flat, sharp or in tune; `rounds.ts`). Each has `index.tsx` (the View) and `<name>.props.ts`.
    Shared: `choices.ts`, `arpeggio.ts`, `singer.tsx` (the two singers), `sing-along/` (their player: mute, play, stop and
    mic as icons, a loop set by two markers on a strip of the tune, its passes laid end to end on an endless staff or a
    piano roll that keeps the voice's line, and a full screen page modal where the notes slide under a still bar; `passes.ts` is the pure model). Three more are stubs with a placeholder view (`stub.tsx`), their

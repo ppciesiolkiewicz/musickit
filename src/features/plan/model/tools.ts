@@ -6,6 +6,7 @@ import { VOICES, type Voice } from "@/features/theory/singing";
 import { pickChoices, pickTune, type MelodyPick } from "@/features/theory/melodyPick";
 import { BOOK, RUNS, RUN_STAGES, STAGES, type BookTune, type Stage } from "@/features/theory/singingMelodies";
 import { isRunId, isTuneId } from "@/features/exercises/basics/choices";
+import { STRING_DRILLS, type StringDrill } from "@/features/exercises/basics/string-singer/strings";
 import { strumPattern } from "@/features/exercises/basics/strum-along/blocks";
 import { COMPONENT_DOCS, shortDoc, type ComponentDoc } from "@/features/exercises/docs";
 import type { PlayAlongShape } from "@/features/exercises/play-along/play-along.props";
@@ -55,6 +56,8 @@ export type PlanTool =
   | { type: "arpeggio-neck"; chord: string; boxes?: number[]; part?: Degree[]; placement?: Placement } & Marks
   | { type: "melody-singer"; tune: number; key: number; voice?: Voice; chords?: false }
   | { type: "run-singer"; run: number; key: number; voice?: Voice; chords?: false }
+  | { type: "string-singer"; drill?: StringDrill; voice?: Voice }
+  | { type: "tuning-ears"; cents?: number; together?: boolean }
   | { type: "play-along"; shape: PlayAlongShape; bpm: number; repeats?: number; view?: View; enable?: Degree[]; highlight?: Degree[]; others?: "muted" | "hidden"; under?: Under }
   | { type: "strum-along"; chords: string[]; bpm: number; per?: "bar" | "beat"; beats?: number; pattern?: string }
   /* stubs: a placeholder view until the real components exist; strings are numbered 1-6, 6 = low E */
@@ -247,6 +250,20 @@ export const TOOLS: { [N in ToolName]: ToolSpec } = {
   },
   "melody-singer": { parse: (t) => singer(t, "tune", isTuneId, BOOK) },
   "run-singer": { parse: (t) => singer(t, "run", isRunId, RUNS) },
+  "string-singer": {
+    parse(t) {
+      const voice = voiceOf(t.voice);
+      // "strings" is the default, so only another drill is kept
+      const drill = STRING_DRILLS.includes(t.drill as StringDrill) && t.drill !== "strings" ? { drill: t.drill as StringDrill } : {};
+      return { type: "string-singer", ...drill, ...(voice ? { voice } : {}) };
+    },
+  },
+  "tuning-ears": {
+    parse(t) {
+      const cents = Number(t.cents);
+      return { type: "tuning-ears", ...(Number.isFinite(cents) ? { cents: Math.min(50, Math.max(3, Math.round(cents))) } : {}), ...(t.together === true ? { together: true } : {}) };
+    },
+  },
   "play-along": {
     parse(t) {
       if (!t.shape || typeof t.shape !== "object") return null;

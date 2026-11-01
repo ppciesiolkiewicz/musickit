@@ -12,6 +12,8 @@ import { View as NoteFinder } from "@/features/exercises/basics/note-finder";
 import { View as RunSinger } from "@/features/exercises/basics/run-singer";
 import { View as ScaleNeck } from "@/features/exercises/basics/scale-neck";
 import { View as PositionNeck } from "@/features/exercises/basics/position-neck";
+import { View as StringSinger } from "@/features/exercises/basics/string-singer";
+import { View as TuningEars } from "@/features/exercises/basics/tuning-ears";
 import { View as Staff } from "@/features/exercises/basics/staff";
 import { View as StrumAlong } from "@/features/exercises/basics/strum-along";
 import { View as FingerPattern } from "@/features/exercises/basics/finger-pattern";
@@ -70,6 +72,10 @@ function Tool({ tool, voice }: { tool: PlanTool; voice?: Voice }) {
       return <MelodySinger tune={tool.tune} pc={tool.key} voice={tool.voice ?? voice} chords={tool.chords} />;
     case "run-singer":
       return <RunSinger run={tool.run} pc={tool.key} voice={tool.voice ?? voice} chords={tool.chords} />;
+    case "string-singer":
+      return <StringSinger drill={tool.drill} voice={tool.voice ?? voice} />;
+    case "tuning-ears":
+      return <TuningEars cents={tool.cents} together={tool.together} />;
     case "play-along":
       return <PlayAlong shape={tool.shape} bpm={tool.bpm} repeats={tool.repeats} view={tool.view} enable={tool.enable} highlight={tool.highlight} others={tool.others} under={tool.under} />;
     case "strum-along":

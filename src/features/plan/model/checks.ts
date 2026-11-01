@@ -1,6 +1,6 @@
 import type { Section } from "./tools";
 
-const MIC_TOOLS = new Set(["melody-singer", "run-singer"]);
+const MIC_TOOLS = new Set(["melody-singer", "run-singer", "string-singer"]);
 
 /** Wording where the app or backing plays (or the student presses Play), not the student. */
 const NOT_THE_STUDENT = new RegExp(
