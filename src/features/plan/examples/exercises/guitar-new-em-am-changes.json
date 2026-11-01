@@ -3,11 +3,11 @@
   "kind": "exercise",
   "areas": ["guitar"],
   "level": "new",
-  "concepts": ["open-chords", "one-minute-changes", "strumming-patterns"],
-  "note": "Three short blocks take two first chords from clean shapes to counted changes to strumming in time, so the hands change task every few minutes and the timer matches each step.",
+  "concepts": ["open-chords", "strumming-patterns"],
+  "note": "Three short blocks take two first chords from clean shapes to changes on the bar line to strumming every beat, each over a metronome with the chord blocks lit, so the hands change task every few minutes and the timer matches each step.",
   "exercise": {
     "title": "Em to Am, clean and in time",
-    "focus": "Em-Am changes · one-minute changes · down strums at 60 bpm",
+    "focus": "Em-Am changes · strumming with the metronome at 60 bpm",
     "minutes": 8,
     "tags": ["technique", "rhythm"],
     "why": "Em and Am share a finger shape, so they are the easiest first change to make automatic.",
@@ -21,11 +21,12 @@
         "Switch back and forth slowly, 10 times, moving fingers 2 and 3 together without lifting them far from the strings."
       ] },
       { "type": "tool", "tool": { "type": "chord-shapes", "chords": ["Em", "Am"] } },
-      { "type": "heading", "text": "One-minute changes", "minutes": 3 },
-      { "type": "text", "text": "Change Em to Am and back as many times as you can in one minute, strumming once on each chord so you hear whether it is clean. Rest, then go again. Do three rounds and note your best count; a clean 20 is better than a buzzy 35." },
-      { "type": "heading", "text": "Strum it in time", "minutes": 2 },
-      { "type": "text", "text": "Press Play and strum down once on every beat: one bar each, Em, Am, Em, Am. Done when you change without missing the first beat of a bar, four times in a row." },
-      { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "progression", "key": "g", "chords": ["Em", "Am"], "bars": 4, "steps": ["strum"] }, "bpm": 60 } }
+      { "type": "heading", "text": "Strum with the metronome", "minutes": 3 },
+      { "type": "text", "text": "Press Play: after one bar of count-in, strum down once on beat 1 of each bar, on the lit chord, and let it ring. Use beats 2 to 4 to get your fingers to the next chord before its bar starts. Done when every change lands on beat 1 for a whole minute." },
+      { "type": "tool", "tool": { "type": "strum-along", "chords": ["Em", "Em", "Am", "Am"], "bpm": 60 } },
+      { "type": "heading", "text": "Strum every beat", "minutes": 2 },
+      { "type": "text", "text": "Now strum down on every beat at 60 and change chords every bar: Em, Am, Em, Am. Done when you change without missing the first beat of a bar, four times in a row." },
+      { "type": "tool", "tool": { "type": "strum-along", "chords": ["Em", "Am"], "bpm": 60 } }
     ]
   }
 }

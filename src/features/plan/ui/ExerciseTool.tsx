@@ -12,6 +12,7 @@ import { View as NoteFinder } from "@/features/exercises/basics/note-finder";
 import { View as RunSinger } from "@/features/exercises/basics/run-singer";
 import { View as ScaleNeck } from "@/features/exercises/basics/scale-neck";
 import { View as Staff } from "@/features/exercises/basics/staff";
+import { View as StrumAlong } from "@/features/exercises/basics/strum-along";
 import { View as FingerPattern } from "@/features/exercises/basics/finger-pattern";
 import { View as LegatoTrill } from "@/features/exercises/basics/legato-trill";
 import { View as PickingDrill } from "@/features/exercises/basics/picking-drill";
@@ -68,6 +69,8 @@ function Tool({ tool, voice }: { tool: PlanTool; voice?: Voice }) {
       return <RunSinger run={tool.run} pc={tool.key} voice={tool.voice ?? voice} />;
     case "play-along":
       return <PlayAlong shape={tool.shape} bpm={tool.bpm} repeats={tool.repeats} view={tool.view} highlight={tool.highlight} others={tool.others} under={tool.under} />;
+    case "strum-along":
+      return <StrumAlong chords={tool.chords} bpm={tool.bpm} per={tool.per} beats={tool.beats} />;
     case "finger-pattern":
       return <FingerPattern fingers={tool.fingers} fret={tool.fret} strings={tool.strings} bpm={tool.bpm} />;
     case "picking-drill":

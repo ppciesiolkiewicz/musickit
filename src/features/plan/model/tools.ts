@@ -54,6 +54,7 @@ export type PlanTool =
   | { type: "melody-singer"; tune: number; key: number; voice?: Voice }
   | { type: "run-singer"; run: number; key: number; voice?: Voice }
   | { type: "play-along"; shape: PlayAlongShape; bpm: number; repeats?: number; view?: View; highlight?: Degree[]; others?: "muted" | "hidden"; under?: Under }
+  | { type: "strum-along"; chords: string[]; bpm: number; per?: "bar" | "beat"; beats?: number }
   /* stubs: a placeholder view until the real components exist; strings are numbered 1-6, 6 = low E */
   | { type: "finger-pattern"; fingers: string; fret: number; strings?: number[]; bpm: number }
   | { type: "picking-drill"; strokes: string; notesPerString: number; strings?: number[]; skip?: boolean; bpm: number }
@@ -236,6 +237,15 @@ export const TOOLS: { [N in ToolName]: ToolSpec } = {
       };
     },
   },
+  "strum-along": {
+    parse(t) {
+      const chords = chordList(t.chords, 16);
+      const beats = int(t.beats, 2, 6);
+      return chords.length
+        ? { type: "strum-along", chords, bpm: int(t.bpm, 30, 240) ?? 80, ...(t.per === "bar" || t.per === "beat" ? { per: t.per } : {}), ...(beats !== null && beats !== 4 ? { beats } : {}) }
+        : null;
+    },
+  },
   "finger-pattern": {
     parse: (t) => {
       const fingers = fingersOf(t.fingers, 2, 4);
@@ -310,13 +320,14 @@ export function exerciseTags(raw: unknown, sections: Section[]): string[] {
 }
 
 /**
- * `{ by: "chords" }` placements, resolved from the exercise's first chord tool (a chord-shapes, else a play-along with
- * chords): open voicing → next to the open chords; barre → near the first chord's root on the low E string. No chord
+ * `{ by: "chords" }` placements, resolved from the exercise's first chord tool (a chord-shapes or strum-along, else a
+ * play-along with chords): open voicing → next to the open chords; barre → near the first chord's root on the low E string. No chord
  * tool: the placement goes.
  */
 export function resolveChordPlacement(sections: Section[]): Section[] {
   const chordTool = sections.flatMap((s) => (s.type === "tool" ? [s.tool] : [])).map((t) => {
     if (t.type === "chord-shapes") return { chords: t.chords, voicing: t.voicing };
+    if (t.type === "strum-along") return { chords: t.chords, voicing: undefined };
     if (t.type !== "play-along") return null;
     const sh = t.shape as { chords?: (string | { chord?: string })[]; voicing?: Voicing };
     const chords = (sh.chords ?? []).map((c) => (typeof c === "string" ? c : c.chord)).filter((c): c is string => !!c && !!parseChordQuery(c));

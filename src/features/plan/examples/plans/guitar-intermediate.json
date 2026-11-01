@@ -18,6 +18,7 @@
             "sections": [
               { "type": "text", "text": "Hammer-ons and pull-offs let notes flow without picking, and they build the strength the joins need." },
               { "type": "text", "text": "Pick the first note only, then hammer finger 3 and pull back to finger 1, evenly on the click, for 30 seconds. Rest, then again at 80. Done when both notes are as loud as each other." },
+              { "type": "tool", "tool": { "type": "click-drone", "bpm": 80, "key": "a", "drone": false } },
               { "type": "tool", "tool": { "type": "legato-trill", "fingers": "13", "string": 3, "fret": 5, "bpm": 70 } }
             ]
           },
@@ -69,6 +70,7 @@
             "sections": [
               { "type": "text", "text": "Strict down-up picking keeps fast lines even." },
               { "type": "text", "text": "Four notes per string, down-up-down-up, across all six strings and back at 90. Keep the pick motion small." },
+              { "type": "tool", "tool": { "type": "click-drone", "bpm": 90, "key": "a", "drone": false } },
               { "type": "tool", "tool": { "type": "picking-drill", "strokes": "DU", "notesPerString": 4, "bpm": 90 } }
             ]
           },
@@ -118,6 +120,7 @@
             "sections": [
               { "type": "text", "text": "Fingers 2 and 4 are the weaker pair, and box 3 needs them." },
               { "type": "text", "text": "Pick once, then hammer finger 4 and pull to finger 2 on the click, 30 seconds on, 15 off, three rounds at 70." },
+              { "type": "tool", "tool": { "type": "click-drone", "bpm": 70, "key": "a", "drone": false } },
               { "type": "tool", "tool": { "type": "legato-trill", "fingers": "24", "string": 2, "fret": 7, "bpm": 70 } }
             ]
           },
@@ -147,6 +150,7 @@
             "title": "Box 2 to box 3", "focus": "A minor pentatonic · boxes 2 → 3", "minutes": 10, "tags": ["technique"],
             "sections": [
               { "type": "text", "text": "Box 3 carries the line up to the 13th fret, and its join is a slide on the B string." },
+              { "type": "tool", "tool": { "type": "click-drone", "bpm": 70, "key": "a", "drone": false } },
               { "type": "heading", "text": "Box 3 on its own", "minutes": 3 },
               { "type": "text", "text": "Box 3 up and down at 70. Find every {{1}} in it first." },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [3], "highlight": ["1"], "others": "normal" } },
@@ -179,6 +183,7 @@
             "sections": [
               { "type": "text", "text": "Two notes per string makes the pick cross strings on every upstroke, the hardest move for picking." },
               { "type": "text", "text": "Two notes per string, down-up, across all six strings and back at 100. Drop to 80 if the crossings get messy." },
+              { "type": "tool", "tool": { "type": "click-drone", "bpm": 100, "key": "a", "drone": false } },
               { "type": "tool", "tool": { "type": "picking-drill", "strokes": "DU", "notesPerString": 2, "bpm": 100 } }
             ]
           },
@@ -251,6 +256,7 @@
             "title": "Gm arpeggio in two boxes", "focus": "G minor arpeggio · boxes 1-2", "minutes": 7, "tags": ["theory"],
             "sections": [
               { "type": "text", "text": "The arpeggio is the skeleton inside the scale: the notes that sound safe over Gm." },
+              { "type": "tool", "tool": { "type": "click-drone", "bpm": 70, "key": "g", "drone": false } },
               { "type": "heading", "text": "Box 1", "minutes": 3 },
               { "type": "text", "text": "Play {{1}} {{b3}} {{5}} up and down in box 1, one note per click at 70." },
               { "type": "tool", "tool": { "type": "arpeggio-neck", "chord": "Gm", "boxes": [1], "highlight": ["1"], "others": "normal" } },
@@ -280,6 +286,7 @@
             "sections": [
               { "type": "text", "text": "Skipping a string makes the pick hand jump accurately, which wide phrases need." },
               { "type": "text", "text": "Two notes per string, down-up, skipping a string each time: low E, D, B, then back. At 80; done when no wrong string sounds." },
+              { "type": "tool", "tool": { "type": "click-drone", "bpm": 80, "key": "a", "drone": false } },
               { "type": "tool", "tool": { "type": "picking-drill", "strokes": "DU", "notesPerString": 2, "skip": true, "bpm": 80 } }
             ]
           },
@@ -299,6 +306,7 @@
             "title": "Slide in, bend out", "focus": "A minor pentatonic · join 1 → 2 with a bend to finish", "minutes": 10, "tags": ["technique"],
             "sections": [
               { "type": "text", "text": "A slide into box 2 followed by a bend is a classic lead move, and it uses both joins of the week." },
+              { "type": "tool", "tool": { "type": "click-drone", "bpm": 60, "key": "a", "drone": false } },
               { "type": "heading", "text": "The lick slowly", "minutes": 5 },
               { "type": "text", "text": "Slide {{4}} to {{5}} on the G string, play {{b7}} (G, 8th fret) on the B string, bend it up to {{1}}, release. Four beats at 60, ten times." },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1, 2], "highlight": ["1", "4", "5", "b7"], "others": "normal" } },
@@ -329,6 +337,7 @@
             "sections": [
               { "type": "text", "text": "The week's legato at a faster tempo, to hear the progress." },
               { "type": "text", "text": "Fingers 1-3 on the G string for a minute, then fingers 2-4 on the B string for a minute, at 90. Then compare with day 1." },
+              { "type": "tool", "tool": { "type": "click-drone", "bpm": 90, "key": "a", "drone": false } },
               { "type": "tool", "tool": { "type": "legato-trill", "fingers": "13", "string": 3, "fret": 5, "bpm": 90 } },
               { "type": "tool", "tool": { "type": "legato-trill", "fingers": "24", "string": 2, "fret": 7, "bpm": 90 } }
             ]
@@ -346,6 +355,7 @@
             "title": "Three boxes from memory", "focus": "A minor pentatonic boxes 1-3 without the chart", "minutes": 8, "tags": ["technique"],
             "sections": [
               { "type": "text", "text": "The week's key skill without help: the test that it is yours." },
+              { "type": "tool", "tool": { "type": "click-drone", "bpm": 80, "key": "a", "drone": false } },
               { "type": "heading", "text": "Without looking", "minutes": 4 },
               { "type": "text", "text": "Run boxes 1 to 3 and back at 80 without the chart. Then check it." },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1, 2, 3], "highlight": ["1"], "others": "normal" } },

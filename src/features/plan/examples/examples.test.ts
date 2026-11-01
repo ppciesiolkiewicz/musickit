@@ -6,7 +6,7 @@ import { parseChordQuery } from "@/lib/chordKit/chordSearch";
 import { degreeSemis } from "@/features/exercises/timeline/degrees";
 import { blocksOf } from "../model/blocks";
 import { catalogue } from "../model/catalogue";
-import { mixesSingAndPlay } from "../model/checks";
+import { mixesSingAndPlay, tempoWithoutMetronome } from "../model/checks";
 import { AREAS, conceptById } from "../model/concepts";
 import { parsePlanConfig } from "../model/config";
 import { notePc, splitNotes } from "../model/noteText";
@@ -84,6 +84,10 @@ describe("example library", () => {
 
   it("no exercise mixes singing and playing", () => {
     for (const { where, ex } of exercises) assert.equal(mixesSingAndPlay(ex.sections!), false, where);
+  });
+
+  it("an exercise that asks for a tempo shows a metronome", () => {
+    for (const { where, ex } of exercises) assert.equal(tempoWithoutMetronome(ex.sections!), false, where);
   });
 
   it("each area × level has an exercise; three showcases exist", () => {

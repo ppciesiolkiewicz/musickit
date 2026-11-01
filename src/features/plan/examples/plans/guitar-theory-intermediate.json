@@ -33,6 +33,7 @@
             "title": "Arpeggios of the ii-V-I", "focus": "Dm7, G7 and Cmaj7 arpeggios, one box each", "minutes": 10, "tags": ["technique"],
             "sections": [
               { "type": "text", "text": "An arpeggio is the chord one note at a time, so a solo built from it outlines the changes." },
+              { "type": "tool", "tool": { "type": "click-drone", "bpm": 70, "key": "d", "drone": false } },
               { "type": "heading", "text": "Dm7", "minutes": 3 },
               { "type": "text", "text": "Play the Dm7 arpeggio up and down at 70, one note per click: {{1}} {{b3}} {{5}} {{b7}}." },
               { "type": "tool", "tool": { "type": "arpeggio-neck", "chord": "Dm7", "highlight": ["1"], "others": "normal" } },
@@ -66,6 +67,7 @@
             "sections": [
               { "type": "text", "text": "Three notes per string puts the pick on alternating strokes at each string crossing." },
               { "type": "text", "text": "Three notes per string, down-up, across all six and back at 90." },
+              { "type": "tool", "tool": { "type": "click-drone", "bpm": 90, "key": "a", "drone": false } },
               { "type": "tool", "tool": { "type": "picking-drill", "strokes": "DU", "notesPerString": 3, "bpm": 90 } }
             ]
           },
@@ -123,6 +125,7 @@
             "sections": [
               { "type": "text", "text": "Hammer-ons and pull-offs build left-hand strength without the pick." },
               { "type": "text", "text": "Pick once, then hammer finger 3 and pull to finger 1 evenly on the click, 30 seconds on, 15 off, three rounds at 80." },
+              { "type": "tool", "tool": { "type": "click-drone", "bpm": 80, "key": "a", "drone": false } },
               { "type": "tool", "tool": { "type": "legato-trill", "fingers": "13", "string": 3, "fret": 5, "bpm": 80 } }
             ]
           },
@@ -142,6 +145,7 @@
             "title": "One shape, two keys", "focus": "A minor pentatonic box 1 = C major pentatonic", "minutes": 10, "tags": ["technique"],
             "sections": [
               { "type": "text", "text": "The relative minor works on the neck too: one pentatonic box serves both keys, with a different root." },
+              { "type": "tool", "tool": { "type": "click-drone", "bpm": 80, "key": "a", "drone": false } },
               { "type": "heading", "text": "As A minor", "minutes": 5 },
               { "type": "text", "text": "Play box 1 at the 5th fret up and down at 80, starting and ending on {{1}} (A)." },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "highlight": ["1"], "others": "normal" } },
@@ -187,6 +191,7 @@
             "title": "Arpeggios in G", "focus": "Am7, D7 and Gmaj7 arpeggios", "minutes": 10, "tags": ["technique"],
             "sections": [
               { "type": "text", "text": "Moving the arpeggios to G shows they are shapes of degrees, not lists of frets." },
+              { "type": "tool", "tool": { "type": "click-drone", "bpm": 70, "key": "a", "drone": false } },
               { "type": "heading", "text": "Am7 and D7", "minutes": 5 },
               { "type": "text", "text": "Play the Am7 arpeggio up and down at 70: {{1}} {{b3}} {{5}} {{b7}}." },
               { "type": "tool", "tool": { "type": "arpeggio-neck", "chord": "Am7", "highlight": ["1"], "others": "normal" } },
@@ -218,6 +223,7 @@
             "sections": [
               { "type": "text", "text": "Arpeggios jump strings, so the pick hand needs to jump accurately." },
               { "type": "text", "text": "Two notes per string, down-up, skipping a string each time, at 80." },
+              { "type": "tool", "tool": { "type": "click-drone", "bpm": 80, "key": "a", "drone": false } },
               { "type": "tool", "tool": { "type": "picking-drill", "strokes": "DU", "notesPerString": 2, "skip": true, "bpm": 80 } }
             ]
           },
@@ -267,6 +273,7 @@
             "sections": [
               { "type": "text", "text": "The weaker finger pair needs the most work." },
               { "type": "text", "text": "Pick once, then hammer finger 4 and pull to finger 2 on the click, 30 seconds on, 15 off, three rounds at 70." },
+              { "type": "tool", "tool": { "type": "click-drone", "bpm": 70, "key": "a", "drone": false } },
               { "type": "tool", "tool": { "type": "legato-trill", "fingers": "24", "string": 2, "fret": 7, "bpm": 70 } }
             ]
           },

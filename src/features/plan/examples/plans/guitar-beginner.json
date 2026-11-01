@@ -85,6 +85,7 @@
             "sections": [
               { "type": "text", "text": "The two notes of a power chord are also in box 1; finding them links your riffs to your solos." },
               { "type": "text", "text": "Play box 1 up and down once at 70. Then play only {{1}} and {{5}} (A and E), low to high and back, and hear the power chord's sound in single notes." },
+              { "type": "tool", "tool": { "type": "click-drone", "bpm": 70, "key": "a", "drone": false } },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "highlight": ["1", "5"], "others": "normal" } }
             ]
           },
@@ -150,6 +151,7 @@
             "sections": [
               { "type": "text", "text": "At the 5th fret the frets are closer, so you can push the tempo a little." },
               { "type": "text", "text": "Fingers 1 2 3 4 from the 5th fret, every string up and back at 70. Keep your thumb behind the neck." },
+              { "type": "tool", "tool": { "type": "click-drone", "bpm": 70, "key": "a", "drone": false } },
               { "type": "tool", "tool": { "type": "finger-pattern", "fingers": "1234", "fret": 5, "bpm": 70 } }
             ]
           },
@@ -192,6 +194,7 @@
             "sections": [
               { "type": "text", "text": "Low on the neck the stretch is widest, so this is where the spider builds reach." },
               { "type": "text", "text": "Fingers 1 3 2 4 from the 1st fret, every string up and back at 70." },
+              { "type": "tool", "tool": { "type": "click-drone", "bpm": 70, "key": "a", "drone": false } },
               { "type": "tool", "tool": { "type": "finger-pattern", "fingers": "1324", "fret": 1, "bpm": 70 } }
             ]
           },
@@ -207,6 +210,7 @@
             "title": "E minor pentatonic, two places", "focus": "E minor pentatonic · open position, then box 1 at the 12th fret", "minutes": 8, "tags": ["technique"],
             "sections": [
               { "type": "text", "text": "Box 1 is a shape, not a place: move it and you have the scale in any key." },
+              { "type": "tool", "tool": { "type": "click-drone", "bpm": 70, "key": "e", "drone": false } },
               { "type": "heading", "text": "Open position", "minutes": 4 },
               { "type": "text", "text": "E minor pentatonic with open strings: play it from the low {{1}} (open E) up and back at 70. Every open string is in the scale." },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "e", "placement": { "by": "open" }, "highlight": ["1"], "others": "normal" } },
@@ -234,6 +238,7 @@
             "sections": [
               { "type": "text", "text": "A small tempo step up shows the week's progress in your fingers." },
               { "type": "text", "text": "Fingers 1 2 3 4 from the 3rd fret, every string up and back at 80. Drop to 70 if notes start to buzz." },
+              { "type": "tool", "tool": { "type": "click-drone", "bpm": 80, "key": "a", "drone": false } },
               { "type": "tool", "tool": { "type": "finger-pattern", "fingers": "1234", "fret": 3, "bpm": 80 } }
             ]
           },
@@ -284,6 +289,7 @@
             "sections": [
               { "type": "text", "text": "Playing one shape in two keys back to back proves you know the shape, not the frets." },
               { "type": "text", "text": "Box 1 in A at 80, up and down, starting on the {{1}}." },
+              { "type": "tool", "tool": { "type": "click-drone", "bpm": 80, "key": "a", "drone": false } },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "highlight": ["1"], "others": "normal" } },
               { "type": "text", "text": "Now the same shape at the 12th fret, in E, starting on its {{1}}." },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "e", "placement": { "by": "fret", "fret": 12 }, "highlight": ["1"], "others": "normal" } }

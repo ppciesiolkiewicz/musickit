@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { mixesSingAndPlay } from "./checks";
+import { mixesSingAndPlay, tempoWithoutMetronome } from "./checks";
 import type { Section } from "./tools";
 
 const text = (t: string): Section => ({ type: "text", text: t });
@@ -41,5 +41,24 @@ describe("mixesSingAndPlay", () => {
   });
   it("reads list items", () => {
     assert.equal(mixesSingAndPlay([{ type: "list", items: ["Strum the chord", "Sing the root"] }]), true);
+  });
+});
+
+describe("tempoWithoutMetronome", () => {
+  const shapes = tool({ type: "chord-shapes", chords: ["Em", "Am"] });
+  it("flags a tempo with no metronome", () => {
+    assert.equal(tempoWithoutMetronome([text("Strum Em and Am, play it at 80"), shapes]), true);
+    assert.equal(tempoWithoutMetronome([{ type: "list", items: ["Change chords at 60 bpm"] }, shapes]), true);
+  });
+  it("passes with a tool that sounds the beat", () => {
+    assert.equal(tempoWithoutMetronome([text("Play it at 80"), drone]), false);
+    assert.equal(tempoWithoutMetronome([text("Play it at 80"), tool({ type: "strum-along", chords: ["Em"], bpm: 80 })]), false);
+  });
+  it("a click-drone without its click is no metronome", () => {
+    assert.equal(tempoWithoutMetronome([text("Sing at 80 bpm"), tool({ type: "click-drone", bpm: 80, key: 0, click: false })]), true);
+  });
+  it("ignores numbers that are not a tempo", () => {
+    assert.equal(tempoWithoutMetronome([text("Play at 12 fret positions? No: at 80% speed, for at 10 minutes"), shapes]), false);
+    assert.equal(tempoWithoutMetronome([text("Strum it slowly"), shapes]), false);
   });
 });
