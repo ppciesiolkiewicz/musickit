@@ -16,7 +16,7 @@ import { useLabelSystem } from "@/features/theory/useLabelSystem";
  * animation frame. Every note is a button (`onNote`); `played` is the ladder index of the note sounding, lit in sky.
  * Under each note its name and, unless the label setting is note names, its label in that setting (Do Re Mi, 1 2 3…),
  * counted from the ladder's root. A ladder may repeat a note (a line of cues); `marks` puts text (a chord name) above
- * a note, `muted` dims single notes.
+ * a note, `muted` dims single notes, `hidden` leaves a note's slot empty (a note still to be found by ear).
  */
 
 const HALF = 5; // px per staff step
@@ -41,7 +41,7 @@ interface Point { x: number; step: number; t: number }
 interface View { dot: Point | null; cam: number; tail: Point[]; lastHeard: number; now: number; fit: Fit; nearest: number }
 const STILL: View = { dot: null, cam: 0, tail: [], lastHeard: -Infinity, now: 0, fit: "between", nearest: -1 };
 
-export default function SingingStaff({ ladder, clef, pitch, played, onNote, cents = IN_TUNE_CENTS, highlight, marks, muted }: {
+export default function SingingStaff({ ladder, clef, pitch, played, onNote, cents = IN_TUNE_CENTS, highlight, marks, muted, hidden }: {
   ladder: Ladder;
   clef: Clef;
   pitch: RefObject<number | null>;
@@ -55,6 +55,8 @@ export default function SingingStaff({ ladder, clef, pitch, played, onNote, cent
   marks?: (string | undefined)[];
   /** dims the note at this index (wins over `highlight`) */
   muted?: (i: number) => boolean;
+  /** leaves out the note at this index: its slot stays, empty and silent */
+  hidden?: (i: number) => boolean;
 }) {
   const [system] = useLabelSystem();
   const wrap = useRef<HTMLDivElement>(null);
@@ -161,7 +163,7 @@ export default function SingingStaff({ ladder, clef, pitch, played, onNote, cent
             {notes.map((n, i) => {
               const p = placed[i];
               const x = sx(i);
-              if (x < x0 - 40 || x > width + 40) return null;
+              if (x < x0 - 40 || x > width + 40 || hidden?.(i)) return null;
               const y = yOf(p.step);
               const lit = a.nearest === i && showDot;
               const on = played === i;

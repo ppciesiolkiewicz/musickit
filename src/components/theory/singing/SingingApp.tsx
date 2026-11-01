@@ -10,11 +10,14 @@ import { MAX_BPM, MIN_BPM, type PocketStatus } from "@/features/instruments";
 import { ACCURACIES, IN_TUNE_CENTS, VOICES, buildLadder, clefFor, hzToMidi, savedAccuracy, savedVoice, scaleRun, tuneLadderFor, type Range, type Voice } from "@/features/theory/singing";
 import { BOOK, DIFFICULTIES, RUNS, placeRun, placeTune, type BookTune, type PlacedNote } from "@/features/theory/singingMelodies";
 import { singingQuery, type SingingLink } from "@/features/theory/singingLink";
+import { levelSemis, type IntervalDirection } from "@/features/theory/singingIntervals";
+import { EAR_LEVELS } from "@/lib/practice/earGame";
 import SingingStaff from "./SingingStaff";
 import MelodyFeed from "./MelodyFeed";
 import MelodyFocus from "./MelodyFocus";
 import { DOT_LAG_MS } from "./MelodyStaff";
 import MicButton from "./MicButton";
+import IntervalDrill, { type IntervalPrompt } from "./IntervalDrill";
 import { panel, writeQuery } from "@/components/practice/shared";
 
 /** null readings in a row before the voice counts as stopped (about 100 ms), so one dropped frame doesn't break the line */
@@ -32,8 +35,13 @@ const ACCURACY_KEY = "singing.accuracy";
 const LAG_KEY = "singing.lag";
 const MAX_LAG_MS = 1000;
 const savedLag = (v: unknown): number | null => (typeof v === "number" && v >= 0 && v <= MAX_LAG_MS ? v : null);
-type Tab = "scales" | "melodies" | "runs";
-const TABS: { id: Tab; label: string }[] = [{ id: "scales", label: "Scales" }, { id: "melodies", label: "Melodies" }, { id: "runs", label: "Runs" }];
+type Tab = "scales" | "melodies" | "runs" | "intervals";
+const TABS: { id: Tab; label: string }[] = [{ id: "scales", label: "Scales" }, { id: "melodies", label: "Melodies" }, { id: "runs", label: "Runs" }, { id: "intervals", label: "Intervals" }];
+const DIRECTIONS: { id: IntervalDirection; label: string }[] = [{ id: "up", label: "Up" }, { id: "down", label: "Down" }, { id: "both", label: "Both" }];
+const PROMPTS: { id: IntervalPrompt; label: string; title: string }[] = [
+  { id: "interval", label: "Both notes", title: "Hear the interval, then sing it back" },
+  { id: "root", label: "Root only", title: "Hear only the root and find the other note yourself" },
+];
 const ALL = [...BOOK, ...RUNS];
 
 /**
@@ -44,7 +52,9 @@ const ALL = [...BOOK, ...RUNS];
  * difficulty; on the tune picked (or last played or tapped) a bar runs on the metronome's count and the dot sings along it, a
  * moment behind. The metronome runs muted from the first press on the page; playing a tune starts it over on the tune's beat 1.
  * The address keeps the key, the scale and the tune being sung (and whether it is open full screen), so a copied link (or a
- * card's share button, which always opens full screen) opens the same. The Runs tab is the same with the runs book.
+ * card's share button, which always opens full screen) opens the same. The Runs tab is the same with the runs book. The
+ * Intervals tab puts a root from the scale on the staff and names an interval to sing from it: the interval plays, then
+ * the mic listens for the other note.
  */
 export default function SingingApp({ initial }: { initial: SingingLink }) {
   const linked = ALL.find((t) => t.n === initial.melody);
@@ -92,7 +102,12 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
   const [rest, setRest] = useState(2);
   const [tab, setTab] = useState<Tab>(!linked ? "scales" : RUNS.includes(linked) ? "runs" : "melodies");
   const book = tab === "runs" ? RUNS : BOOK;
-  const tuneTab = tab !== "scales";
+  const tuneTab = tab === "melodies" || tab === "runs";
+  // the Intervals tab: the ear-training level, which way the interval goes, and what is played before singing
+  const [intervalLevel, setIntervalLevel] = useState(1);
+  const [direction, setDirection] = useState<IntervalDirection>("up");
+  const [prompt, setPrompt] = useState<IntervalPrompt>("interval");
+  const semis = useMemo(() => levelSemis(intervalLevel), [intervalLevel]);
   // the tune being sung, by number, and the difficulty whose tunes are listed ("all" for the whole book); a linked tune shows
   // under its own difficulty
   const [active, setActive] = useState(linked?.n ?? 1);
@@ -292,6 +307,7 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
     : status === "insecure" ? "The browser only allows the microphone on a secure (https) page."
     : status === "error" ? "No microphone found."
     : tuneTab ? (status === "on" ? `Listening on ${tab === "runs" ? "run" : "melody"} #${active}. Sing each note as the bar reaches it: the bar loops in time with the metronome, and the dot turns green on the note under it, red on another.` : "Play a melody or tap its notes to hear it, then press Select on its card: the mic listens while a bar runs over the tune in time with the metronome.")
+    : tab === "intervals" ? null
     : status === "on" ? "Listening. Sing the scale up from the root: the dot turns green on a note of the scale, red on a note outside it."
     : "Tap a note to hear it, or play the scale up and down on the metronome's tempo. Then press Sing and sing it back.";
 
@@ -329,6 +345,19 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
                     <Chip key={n} on={n === rest} onClick={() => setRest(n)}>{n === 0 ? "None" : `${n} beat${n > 1 ? "s" : ""}`}</Chip>
                   ))}
                 </BarRow>
+              ) : tab === "intervals" ? (
+                <>
+                  <BarRow label="Level">
+                    {EAR_LEVELS.map((l) => <Chip key={l.n} on={intervalLevel === l.n} onClick={() => setIntervalLevel(l.n)} title={l.label}>{l.n}</Chip>)}
+                    <span className="whitespace-nowrap pl-1 text-xs text-slate-500">{EAR_LEVELS[intervalLevel - 1].label}</span>
+                  </BarRow>
+                  <BarRow label="Direction">
+                    {DIRECTIONS.map((d) => <Chip key={d.id} on={direction === d.id} onClick={() => setDirection(d.id)}>{d.label}</Chip>)}
+                  </BarRow>
+                  <BarRow label="Played">
+                    {PROMPTS.map((p) => <Chip key={p.id} on={prompt === p.id} onClick={() => setPrompt(p.id)} title={p.title}>{p.label}</Chip>)}
+                  </BarRow>
+                </>
               ) : (
                 <>
                   <BarRow label="Difficulty">
@@ -344,14 +373,14 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
       >
         <section className={`${panel} flex flex-col gap-3`}>
           <div className="flex flex-wrap items-center gap-3">
-            <h2 className="text-base font-medium text-slate-100">{tuneTab ? `${tab === "runs" ? "Runs" : "Melodies"} in ${tuneLadder.title}` : ladder.title}</h2>
+            <h2 className="text-base font-medium text-slate-100">{tuneTab ? `${tab === "runs" ? "Runs" : "Melodies"} in ${tuneLadder.title}` : tab === "intervals" ? `Intervals from ${ladder.title}` : ladder.title}</h2>
             {tab === "scales" && (
               <Button size="sm" pressed={running} onClick={() => void play()} className={running ? "!border-sky-400/70 !bg-sky-500/20 !text-sky-100" : ""}>
                 {running ? "Stop the scale" : `Play the scale · ${pocket?.bpm ?? FALLBACK_BPM} bpm`}
               </Button>
             )}
             {tab === "scales" && <MicButton on={mic} onClick={toggleMic} />}
-            <p className="min-w-0 basis-full text-sm sm:basis-0 sm:flex-1 text-slate-400" aria-live="polite">{message}</p>
+            {message && <p className="min-w-0 basis-full text-sm sm:basis-0 sm:flex-1 text-slate-400" aria-live="polite">{message}</p>}
           </div>
           {tuneTab ? (
             <MelodyFeed
@@ -391,6 +420,8 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
               linkTo={linkTo}
               reveal={linked?.n ?? null}
             />
+          ) : tab === "intervals" ? (
+            <IntervalDrill ladder={ladder} range={range} clef={clef} pitch={pitch} cents={cents} semis={semis} direction={direction} prompt={prompt} mic={mic} onMic={toggleMic} />
           ) : (
             <SingingStaff ladder={ladder} clef={clef} pitch={pitch} played={played} onNote={(i) => void tap(i)} cents={cents} />
           )}
@@ -417,7 +448,7 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
           bpm={pocket?.bpm ?? FALLBACK_BPM}
           mic={mic}
           playing={playing === focused.n}
-          message={status === "on" ? "Sing each note as the bar reaches it" : status === "off" ? "Press Sing and sing along with the bar" : message}
+          message={status === "on" ? "Sing each note as the bar reaches it" : status === "off" ? "Press Sing and sing along with the bar" : message ?? ""}
           onPrev={prev}
           onNext={next}
           onSing={toggleMic}
