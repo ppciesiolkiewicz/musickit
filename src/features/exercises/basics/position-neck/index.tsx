@@ -77,7 +77,7 @@ function Neck({ slug, pc, positions: wanted, placement, cross: crossProp, add, e
 
   const state = useCallback((c: ScaleCell) => (playable.has(cellKey(c)) ? noteState(vis, c.pc) : outside), [playable, vis, outside]);
   const [system] = useLabelSystem();
-  const { active, play, tap } = useNotePlayer();
+  const { active, running, play, tap, stop } = useNotePlayer();
   const phone = usePhone();
   const g = phone ? fretGeometry(0, SCALE_NECK_FRETS, 28, 26, 44) : fretGeometry(0, SCALE_NECK_FRETS, 54, 36, 44);
   const r = phone ? 11 : 14;
@@ -106,7 +106,7 @@ function Neck({ slug, pc, positions: wanted, placement, cross: crossProp, add, e
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-2 text-xs text-slate-400">
         <span>{title} · {caption}</span>
-        <button type="button" onClick={run} disabled={!playable.size} className="rounded border border-slate-700 px-2 py-0.5 text-[11px] text-slate-300 hover:border-slate-500 disabled:opacity-40">▶ Play</button>
+        <button type="button" onClick={running ? stop : run} disabled={!playable.size} className="rounded border border-slate-700 px-2 py-0.5 text-[11px] text-slate-300 hover:border-slate-500 disabled:opacity-40">{running ? "■ Stop" : "▶ Play"}</button>
       </div>
       <div className="min-w-0 overflow-x-auto">
         <svg viewBox={`0 0 ${g.W} ${g.H}`} width="100%" style={{ minWidth: phone ? 480 : undefined }} role="img" aria-label={`${title}, ${caption}`}>

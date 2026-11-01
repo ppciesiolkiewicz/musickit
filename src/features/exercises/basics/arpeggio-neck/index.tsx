@@ -23,7 +23,7 @@ const SEMI_DEGREE = [0, 1, 1, 2, 2, 3, 4, 4, 4, 5, 6, 6];
  */
 export function View({ chord, boxes: asked, placement, part, enable, highlight, mute, hide, others }: { chord: string; boxes?: number[]; placement?: Placement; part?: Degree[]; enable?: number[]; highlight?: number[]; mute?: number[]; hide?: number[]; others?: Others }) {
   const [system] = useLabelSystem();
-  const { active, play, tap } = useNotePlayer();
+  const { active, running, play, tap, stop } = useNotePlayer();
   const rootPc = parseChordQuery(chord)?.rootPc ?? 0;
   // `boxes` as asked; else the box a placement picks (maybe an octave down); else box 1
   const { boxes, shift } = useMemo(() => {
@@ -56,7 +56,7 @@ export function View({ chord, boxes: asked, placement, part, enable, highlight, 
     <div className="flex flex-col gap-1">
       <div className="flex flex-wrap items-center gap-2 text-xs text-slate-300">
         <span>{chord} arpeggio · box{shown.length > 1 ? "es" : ""} {shown.join(" & ")}{part?.length ? ` · ${part.join(" ")}` : ""}{litNames.length ? ` · ${litNames.join(" ")} lit` : ""}{seam.size ? " · dashed rings: the notes both boxes share" : ""}</span>
-        <button type="button" onClick={run} className="rounded border border-slate-700 px-2 py-0.5 text-[11px] text-slate-300 hover:border-slate-500">▶ Play</button>
+        <button type="button" onClick={running ? stop : run} className="rounded border border-slate-700 px-2 py-0.5 text-[11px] text-slate-300 hover:border-slate-500">{running ? "■ Stop" : "▶ Play"}</button>
       </div>
       <PositionBox position={position} cells={[]} rings={false} active={active} labelSystem={system} onNote={(c) => tap(cellKey(c), c.midi)} states={state} seam={seam} />
     </div>

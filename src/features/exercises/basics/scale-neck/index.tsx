@@ -22,7 +22,7 @@ export function View({ slug, pc, boxes, placement, add, enable, highlight, mute,
   const state = useCallback((p: number) => noteState(vis, p), [vis]);
   const litNames = [...new Set([...(vis.highlight ?? []), ...(add ?? [])])].filter((p) => state(p) === "highlighted").map((p) => SHARP[p]);
   const [system] = useLabelSystem();
-  const { active, play, tap } = useNotePlayer();
+  const { active, running, play, tap, stop } = useNotePlayer();
   const { title, cells: allCells, positions: allPositions } = useMemo(() => scaleBoxes(slug, pc, add), [slug, pc, add]);
   // hidden notes leave the boxes and the rings, and the ▶ run
   const cells = useMemo(() => allCells.filter((c) => state(c.pc) !== "hidden"), [allCells, state]);
@@ -38,7 +38,7 @@ export function View({ slug, pc, boxes, placement, add, enable, highlight, mute,
   }, [boxes, placement, positions, allPositions]);
   const run = (p: ScalePosition) => {
     const up = positionLine(p).map((n) => ({ key: cellKey(n), midi: n.midi }));
-    play([...up, ...up.slice(0, -1).reverse()]);
+    play([...up, ...up.slice(0, -1).reverse()], undefined, `box-${p.number}`);
   };
   return (
     <div className="flex flex-col gap-2">
@@ -48,7 +48,7 @@ export function View({ slug, pc, boxes, placement, add, enable, highlight, mute,
           <div key={p.number} className="flex flex-col gap-1">
             <div className="flex items-center gap-2 text-xs text-slate-300">
               <span>Box {p.number}</span>
-              <button type="button" onClick={() => run(p)} className="rounded border border-slate-700 px-2 py-0.5 text-[11px] text-slate-300 hover:border-slate-500">▶ Play</button>
+              <button type="button" onClick={() => (running === `box-${p.number}` ? stop() : run(p))} className="rounded border border-slate-700 px-2 py-0.5 text-[11px] text-slate-300 hover:border-slate-500">{running === `box-${p.number}` ? "■ Stop" : "▶ Play"}</button>
             </div>
             <PositionBox position={p} cells={cells} rings active={active} labelSystem={system} onNote={(c) => tap(cellKey(c), c.midi)} states={state} />
           </div>
