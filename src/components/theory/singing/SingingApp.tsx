@@ -321,11 +321,6 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
             ...(tab === "runs" ? { keys: false as const } : {}),
             labels: false,
             pocket: { clickAlways: true, onStatus: setPocket },
-            top: (
-              <BarRow label="Drill">
-                {TABS.map((t) => <Chip key={t.id} on={tab === t.id} onClick={() => switchTab(t.id)}>{t.label}</Chip>)}
-              </BarRow>
-            ),
             rows: <>
               <BarRow label="Voice">
                 {(Object.keys(VOICES) as Voice[]).map((v) => (
@@ -339,38 +334,54 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
                 ))}
                 <span className="whitespace-nowrap pl-1 text-xs tabular-nums text-slate-500">±{cents}¢</span>
               </BarRow>
-              {tab === "scales" ? (
-                <BarRow label="Top rest">
-                  {RESTS.map((n) => (
-                    <Chip key={n} on={n === rest} onClick={() => setRest(n)}>{n === 0 ? "None" : `${n} beat${n > 1 ? "s" : ""}`}</Chip>
-                  ))}
-                </BarRow>
-              ) : tab === "intervals" ? (
-                <>
-                  <BarRow label="Level">
-                    {EAR_LEVELS.map((l) => <Chip key={l.n} on={intervalLevel === l.n} onClick={() => setIntervalLevel(l.n)} title={l.label}>{l.n}</Chip>)}
-                    <span className="whitespace-nowrap pl-1 text-xs text-slate-500">{EAR_LEVELS[intervalLevel - 1].label}</span>
-                  </BarRow>
-                  <BarRow label="Direction">
-                    {DIRECTIONS.map((d) => <Chip key={d.id} on={direction === d.id} onClick={() => setDirection(d.id)}>{d.label}</Chip>)}
-                  </BarRow>
-                  <BarRow label="Played">
-                    {PROMPTS.map((p) => <Chip key={p.id} on={prompt === p.id} onClick={() => setPrompt(p.id)} title={p.title}>{p.label}</Chip>)}
-                  </BarRow>
-                </>
-              ) : (
-                <>
-                  <BarRow label="Difficulty">
-                    {levels.map((i) => DIFFICULTIES[i]).map((d, k) => <Chip key={d.title} on={level === levels[k]} onClick={() => filter(levels[k])} title={d.hint}>{d.title}</Chip>)}
-                    <Chip on={level === "all"} onClick={() => filter("all")}>All</Chip>
-                  </BarRow>
-                  <BarRow label="Play-ahead">{lagSlider}</BarRow>
-                </>
-              )}
+              {/* the mic's timing for the moving bar: set once, so it stays here rather than with the drill */}
+              {tuneTab && <BarRow label="Play-ahead">{lagSlider}</BarRow>}
             </>,
           }} />
         }
       >
+        {/* which drill, and the settings of that drill alone, above it; the side column keeps what holds for every drill */}
+        <div className={`${panel} flex flex-col gap-2`}>
+          <div role="tablist" aria-label="Drill" className="flex flex-wrap gap-1 rounded-xl border border-slate-800 bg-slate-900/60 p-1">
+            {TABS.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                role="tab"
+                aria-selected={tab === t.id}
+                onClick={() => switchTab(t.id)}
+                className={`whitespace-nowrap rounded-lg px-3 py-1.5 text-sm transition sm:px-4 ${tab === t.id ? "bg-sky-500/20 text-sky-100" : "text-slate-400 hover:text-slate-200"}`}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+          {tab === "scales" ? (
+            <BarRow label="Top rest">
+              {RESTS.map((n) => (
+                <Chip key={n} on={n === rest} onClick={() => setRest(n)}>{n === 0 ? "None" : `${n} beat${n > 1 ? "s" : ""}`}</Chip>
+              ))}
+            </BarRow>
+          ) : tab === "intervals" ? (
+            <>
+              <BarRow label="Level">
+                {EAR_LEVELS.map((l) => <Chip key={l.n} on={intervalLevel === l.n} onClick={() => setIntervalLevel(l.n)} title={l.label}>{l.n}</Chip>)}
+                <span className="whitespace-nowrap pl-1 text-xs text-slate-500">{EAR_LEVELS[intervalLevel - 1].label}</span>
+              </BarRow>
+              <BarRow label="Direction">
+                {DIRECTIONS.map((d) => <Chip key={d.id} on={direction === d.id} onClick={() => setDirection(d.id)}>{d.label}</Chip>)}
+              </BarRow>
+              <BarRow label="Played">
+                {PROMPTS.map((p) => <Chip key={p.id} on={prompt === p.id} onClick={() => setPrompt(p.id)} title={p.title}>{p.label}</Chip>)}
+              </BarRow>
+            </>
+          ) : (
+            <BarRow label="Difficulty">
+              {levels.map((i) => DIFFICULTIES[i]).map((d, k) => <Chip key={d.title} on={level === levels[k]} onClick={() => filter(levels[k])} title={d.hint}>{d.title}</Chip>)}
+              <Chip on={level === "all"} onClick={() => filter("all")}>All</Chip>
+            </BarRow>
+          )}
+        </div>
         <section className={`${panel} flex flex-col gap-3`}>
           <div className="flex flex-wrap items-center gap-3">
             <h2 className="text-base font-medium text-slate-100">{tuneTab ? `${tab === "runs" ? "Runs" : "Melodies"} in ${tuneLadder.title}` : tab === "intervals" ? `Intervals from ${ladder.title}` : ladder.title}</h2>
