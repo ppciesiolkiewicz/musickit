@@ -1,8 +1,10 @@
+import { useLayoutEffect, useRef, useState } from "react";
 import type { LabelRoot } from "@/features/theory/labels";
 import { parseChordQuery } from "@/lib/chordKit/chordSearch";
 import type { ScaleCell } from "@/lib/chordKit/scalePositions";
 import { OPEN_MIDI } from "@/lib/chordKit/shapeTools";
 import type { Cue, Marks } from "../../cues/cues";
+import { BEATS_PER_BAR } from "../../timeline/timeline";
 
 export interface ViewProps {
   /** cues to draw (backing left out, hidden ones already removed) */
@@ -52,4 +54,36 @@ export function noteOf(midi: number, root: number): { pc: number; name: string; 
 export function cellOf(string: number, fret: number, root: number): ScaleCell {
   const midi = OPEN_MIDI[string] + fret;
   return { string, fret, midi, ...noteOf(midi, root) };
+}
+
+/** A ref and the width of the element it is on, kept up to date (`fallback` until measured). */
+export function useWidth<T extends HTMLElement>(fallback = 640) {
+  const ref = useRef<T>(null);
+  const [width, setWidth] = useState(fallback);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([e]) => setWidth(Math.round(e.contentRect.width)));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  return [ref, width] as const;
+}
+
+/** Drawing scale for a view `width` px wide: a little larger where there is room. */
+export const zoomFor = (width: number) => (width >= 720 ? 1.3 : width >= 480 ? 1.15 : 1);
+
+/**
+ * The loop cut into rows of whole bars to fill `width` (after the `lead` each row starts with): as many bars a row as
+ * fit at `minUnit` a beat, spread evenly over the rows, then each beat stretched to fill (at most `maxUnit`).
+ */
+export function rowsOf(length: number, width: number, lead: number, minUnit: number, maxUnit: number): { rows: [number, number][]; unit: number } {
+  const bars = Math.max(1, Math.ceil(length / BEATS_PER_BAR));
+  const room = Math.max(1, width - lead);
+  const fit = Math.min(bars, Math.max(1, Math.floor(room / (minUnit * BEATS_PER_BAR))));
+  const perRow = Math.ceil(bars / Math.ceil(bars / fit));
+  const unit = Math.min(maxUnit, room / (perRow * BEATS_PER_BAR));
+  const rows: [number, number][] = [];
+  for (let b = 0; b < bars; b += perRow) rows.push([b * BEATS_PER_BAR, Math.min(length, (b + perRow) * BEATS_PER_BAR)]);
+  return { rows, unit };
 }
