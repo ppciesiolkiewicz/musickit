@@ -44,6 +44,7 @@ type Under = "chords" | "drone" | "none";
  */
 export type PlanTool =
   | { type: "scale-neck"; scale: string; key: number; boxes?: number[]; /** pitch classes from outside the scale */ add?: number[]; placement?: Placement } & Marks
+  | { type: "position-neck"; scale: string; key: number; positions?: number[]; placement?: Placement; /** strings 1-6, 6 = low E */ cross?: { from: number; to: number; string?: number }; add?: number[]; outside?: "muted" | "hidden"; picker?: boolean } & Marks
   | { type: "chord-shapes"; chords: string[]; voicing?: Voicing }
   | { type: "staff"; scale: string; key: number; voice: Voice; /** semitones above the key: only these are on the staff */ notes?: number[]; mic?: boolean } & Marks
   | { type: "click-drone"; bpm: number; key: number; click?: boolean; drone?: boolean }
@@ -128,6 +129,27 @@ const scaleNeck = (t: Record<string, unknown>): PlanTool | null => {
   return { type: "scale-neck", scale: t.scale, key, ...opt("boxes", boxes), ...opt("add", add), ...placementOf(t, boxes), ...marksOf(t, key) };
 };
 
+/** Two different positions 1-5 and maybe a string 1-6 to cross on; null when not. */
+const crossOf = (v: unknown): { from: number; to: number; string?: number } | null => {
+  if (!v || typeof v !== "object") return null;
+  const c = v as Record<string, unknown>;
+  const from = int(c.from, 1, 5), to = int(c.to, 1, 5), string = int(c.string, 1, 6);
+  return from !== null && to !== null && from !== to ? { from, to, ...(string !== null ? { string } : {}) } : null;
+};
+
+const positionNeck = (t: Record<string, unknown>): PlanTool | null => {
+  const key = keyOf(t.key);
+  if (!isScale(t.scale) || key === null) return null;
+  const add = [...new Set(list(t.add).map(keyOf).filter((n): n is number => n !== null))].slice(0, 4);
+  const cross = crossOf(t.cross);
+  const positions = boxesOf(t.positions);
+  const outside = t.outside === "muted" || t.outside === "hidden" ? { outside: t.outside as "muted" | "hidden" } : {};
+  return {
+    type: "position-neck", scale: t.scale, key, ...opt("positions", positions), ...(cross ? { cross } : placementOf(t, positions)),
+    ...opt("add", add), ...outside, ...bool("picker", t.picker), ...marksOf(t, key),
+  };
+};
+
 /** The game's settings, as the query string its view reads; a stored tool keeps its query. */
 const query = (t: Record<string, unknown>, keys: string[]): string => {
   if (typeof t.query === "string" && keys.every((k) => t[k] == null)) return t.query;
@@ -180,6 +202,7 @@ const UNDERS: Under[] = ["chords", "drone", "none"];
 
 export const TOOLS: { [N in ToolName]: ToolSpec } = {
   "scale-neck": { parse: scaleNeck },
+  "position-neck": { parse: positionNeck },
   "chord-shapes": {
     parse(t) {
       const chords = chordList(t.chords, 8);
@@ -340,7 +363,7 @@ export function resolveChordPlacement(sections: Section[]): Section[] {
     : chordTool.voicing === "barre" ? { by: "fret", fret: (parseChordQuery(chordTool.chords[0])!.rootPc - 4 + 12) % 12 }
     : { by: "open" };
   return sections.map((s) => {
-    if (s.type !== "tool" || (s.tool.type !== "scale-neck" && s.tool.type !== "arpeggio-neck") || s.tool.placement?.by !== "chords") return s;
+    if (s.type !== "tool" || (s.tool.type !== "scale-neck" && s.tool.type !== "arpeggio-neck" && s.tool.type !== "position-neck") || s.tool.placement?.by !== "chords") return s;
     const tool = { ...s.tool };
     if (resolved) tool.placement = resolved;
     else delete tool.placement;

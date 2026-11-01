@@ -62,6 +62,8 @@ describe("tools", () => {
   });
   it("parses each tool, set up for the exercise", () => {
     assert.deepEqual(parseTool({ type: "scale-neck", scale: "minor-pentatonic", key: "a", boxes: [2, 1, 9] }), { type: "scale-neck", scale: "minor-pentatonic", key: 9, boxes: [1, 2] });
+    assert.deepEqual(parseTool({ type: "position-neck", scale: "minor-pentatonic", key: "a", cross: { from: 1, to: 2, string: 9 }, placement: { by: "open" }, picker: false }), { type: "position-neck", scale: "minor-pentatonic", key: 9, cross: { from: 1, to: 2 }, picker: false });
+    assert.deepEqual(parseTool({ type: "position-neck", scale: "dorian", key: "d", positions: [3, 1], cross: { from: 2, to: 2 }, outside: "hidden" }), { type: "position-neck", scale: "dorian", key: 2, positions: [1, 3], outside: "hidden" });
     assert.deepEqual(parseTool({ type: "scale-neck", scale: "minor-blues", key: "a", boxes: [1], add: ["c#", "C-sharp", "zz"], enable: ["1", "b3"], highlight: ["1"], others: "hidden" }), { type: "scale-neck", scale: "minor-blues", key: 9, boxes: [1], add: [1], enable: [0, 3], highlight: [0], others: "hidden" });
     assert.deepEqual(parseTool({ type: "chord-shapes", chords: ["G", "Em", "nonsense!", 3], voicing: "barre" }), { type: "chord-shapes", chords: ["G", "Em"], voicing: "barre" });
     assert.deepEqual(parseTool({ type: "staff", scale: "major-ionian", key: "c", voice: "alto" }), { type: "staff", scale: "major-ionian", key: 0, voice: "alto" });

@@ -11,6 +11,7 @@ import { View as MelodySinger } from "@/features/exercises/basics/melody-singer"
 import { View as NoteFinder } from "@/features/exercises/basics/note-finder";
 import { View as RunSinger } from "@/features/exercises/basics/run-singer";
 import { View as ScaleNeck } from "@/features/exercises/basics/scale-neck";
+import { View as PositionNeck } from "@/features/exercises/basics/position-neck";
 import { View as Staff } from "@/features/exercises/basics/staff";
 import { View as StrumAlong } from "@/features/exercises/basics/strum-along";
 import { View as FingerPattern } from "@/features/exercises/basics/finger-pattern";
@@ -49,6 +50,8 @@ function Tool({ tool, voice }: { tool: PlanTool; voice?: Voice }) {
   switch (tool.type) {
     case "scale-neck":
       return <ScaleNeck slug={tool.scale} pc={tool.key} boxes={tool.boxes} placement={tool.placement} add={tool.add} highlight={tool.highlight} mute={tool.mute} hide={tool.hide} others={tool.others} />;
+    case "position-neck":
+      return <PositionNeck slug={tool.scale} pc={tool.key} positions={tool.positions} placement={tool.placement} cross={tool.cross} add={tool.add} enable={tool.enable} highlight={tool.highlight} mute={tool.mute} hide={tool.hide} others={tool.others} outside={tool.outside} picker={tool.picker} />;
     case "chord-shapes":
       return <ChordShapes chords={tool.chords} voicing={tool.voicing} />;
     case "staff":
