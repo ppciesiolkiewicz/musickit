@@ -18,8 +18,8 @@ export function View({ chords, voicing = "open" }: { chords: string[]; voicing?:
   return (
     <div className="flex flex-wrap gap-3">
       {shapes.map(({ name, c }, i) => (
-        <div key={`${name}-${i}`} className="flex w-36 flex-col items-center gap-1">
-          <span className="text-sm text-slate-100">{name}</span>
+        <div key={`${name}-${i}`} className="flex w-48 flex-col items-center gap-1">
+          <span className="text-base font-medium text-slate-100">{name}</span>
           <ChordDiagram shape={c.shape} rootFret={c.fret} onPlay={() => strumShape(c.shape, c.fret)} />
         </div>
       ))}
