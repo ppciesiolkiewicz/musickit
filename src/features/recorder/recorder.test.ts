@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { channelWaveforms, clockTime, extensionFor, inputChannels, peakLevel, pickMimeType, soundGate, SOUND_HOLD_MS, takeFileName, waveformBars } from "./recorder";
+import { channelWaveforms, clockTime, extensionFor, inputChannels, normalGain, peakLevel, pickMimeType, soundGate, SOUND_HOLD_MS, takeFileName, waveformBars } from "./recorder";
 
 describe("recorder", () => {
   it("picks the first format the browser records", () => {
@@ -13,6 +13,12 @@ describe("recorder", () => {
     assert.equal(extensionFor("audio/mp4;codecs=mp4a.40.2"), "m4a");
     assert.equal(extensionFor("audio/ogg;codecs=opus"), "ogg");
     assert.equal(extensionFor(""), "webm");
+  });
+  it("lifts a take's peak to -1 dB, at most +30 dB", () => {
+    assert.equal(normalGain([0, 0.3, -0.45, 0.1]), 2);
+    assert.equal(normalGain([0.9, -0.2]), 1);
+    assert.equal(normalGain([0.001, -0.002]), 32);
+    assert.equal(normalGain([0, 0]), 1);
   });
   it("shows the clock as m:ss", () => {
     assert.equal(clockTime(7.9), "0:07");

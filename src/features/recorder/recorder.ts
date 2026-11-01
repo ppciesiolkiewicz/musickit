@@ -55,6 +55,12 @@ export function channelWaveforms(channels: ArrayLike<number>[], bars: number): n
   return top > 0 ? raw.map((w) => w.map((v) => v / top)) : raw;
 }
 
+/** The gain that lifts a raw take's loudest moment to -1 dB, so a quiet input plays at full level; never more than +30 dB, so a near-silent take doesn't turn into roaring noise. */
+export function normalGain(samples: ArrayLike<number>): number {
+  const peak = peakOf(samples);
+  return peak > 0 ? Math.min(0.9 / peak, 32) : 1;
+}
+
 function peakOf(samples: ArrayLike<number>): number {
   let peak = 0;
   for (let i = 0; i < samples.length; i++) peak = Math.max(peak, Math.abs(samples[i]));

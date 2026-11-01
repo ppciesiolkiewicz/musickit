@@ -3,11 +3,9 @@
 import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent } from "react";
 import Icon from "@/components/Icon";
 import { getAudioContext, getOutputBus } from "@/features/sound";
-import { channelWaveforms, clockTime } from "./recorder";
+import { channelWaveforms, clockTime, normalGain } from "./recorder";
 
 const BARS = 40;
-/** A channel's volume runs 0..200%: the input was recorded raw, with no automatic gain, so a quiet one can be lifted. */
-const MAX_VOLUME = 2;
 
 /** The one take playing: starting another pauses it. */
 let playing: HTMLAudioElement | null = null;
@@ -25,10 +23,12 @@ export default function TakePlayer({ url, seconds, channels, label }: { url: str
   const [time, setTime] = useState(0);
   const [waves, setWaves] = useState<number[][] | null>(null);
   const [volumes, setVolumes] = useState([1, 1]);
+  const volumesNow = useRef(volumes);
+  // the take's lift to full level: the input was recorded raw, with no automatic gain, so 100% is the mix normalised
+  const lift = useRef(1);
   const graph = useRef<{ src: MediaElementAudioSourceNode; gains: GainNode[]; mix: GainNode } | null>(null);
   const duration = seconds || 1;
-  // each channel at half in a two-channel mix, so a mono mic sent to both sides keeps its level
-  const share = 1 / channels;
+  const gainOf = (volume: number) => volume * lift.current;
 
   // the waveforms, decoded once from the take itself
   useEffect(() => {
@@ -36,7 +36,13 @@ export default function TakePlayer({ url, seconds, channels, label }: { url: str
     void fetch(url)
       .then((r) => r.arrayBuffer())
       .then((buf) => getAudioContext().decodeAudioData(buf))
-      .then((b) => live && setWaves(channelWaveforms(Array.from({ length: Math.min(channels, b.numberOfChannels) }, (_, i) => b.getChannelData(i)), BARS)))
+      .then((b) => {
+        if (!live) return;
+        const data = Array.from({ length: Math.min(channels, b.numberOfChannels) }, (_, i) => b.getChannelData(i));
+        lift.current = normalGain(data.length === 2 ? data[0].map((v, i) => v + data[1][i]) : data[0]);
+        graph.current?.gains.forEach((g, i) => g.gain.setTargetAtTime(gainOf(volumesNow.current[i]), g.context.currentTime, 0.02));
+        setWaves(channelWaveforms(data, BARS));
+      })
       .catch(() => live && setWaves(Array.from({ length: channels }, () => Array(BARS).fill(0.3))));
     return () => {
       live = false;
@@ -55,7 +61,7 @@ export default function TakePlayer({ url, seconds, channels, label }: { url: str
     mix.connect(getOutputBus());
     const gains = Array.from({ length: channels }, (_, i) => {
       const g = ctx.createGain();
-      g.gain.value = volumes[i] * share;
+      g.gain.value = gainOf(volumesNow.current[i]);
       g.connect(mix);
       return g;
     });
@@ -72,9 +78,10 @@ export default function TakePlayer({ url, seconds, channels, label }: { url: str
   }, []);
 
   const setVolume = (channel: number, value: number) => {
-    setVolumes((v) => v.map((x, i) => (i === channel ? value : x)));
+    volumesNow.current = volumesNow.current.map((x, i) => (i === channel ? value : x));
+    setVolumes(volumesNow.current);
     const g = graph.current?.gains[channel];
-    g?.gain.setTargetAtTime(value * share, g.context.currentTime, 0.02);
+    g?.gain.setTargetAtTime(gainOf(value), g.context.currentTime, 0.02);
   };
 
   // the clock follows every frame while it plays
@@ -149,13 +156,13 @@ export default function TakePlayer({ url, seconds, channels, label }: { url: str
         {/* the playhead */}
         <span aria-hidden className="pointer-events-none absolute inset-y-0 w-0.5 -translate-x-1/2 rounded-full bg-slate-100 shadow" style={{ left: `${played * 100}%` }} />
       </div>
-      {/* a vertical volume per channel, 0..200%; double-click for 100% */}
+      {/* a vertical volume per channel, 0..100%; double-click for 100% */}
       <div className="flex h-full shrink-0 gap-1">
         {Array.from({ length: channels }, (_, i) => (
           <label key={i} className="flex h-full w-4 flex-col items-center gap-0.5 text-[9px] leading-none tabular-nums text-slate-500" title={`${stereo ? `Channel ${i + 1} volume` : "Volume"}: ${Math.round(volumes[i] * 100)}% (double-click for 100%)`}>
-            <input type="range" min={0} max={MAX_VOLUME} step={0.01} value={volumes[i]} aria-label={`${label} ${name(i)} volume`.replace(/\s+/g, " ")}
+            <input type="range" min={0} max={1} step={0.01} value={volumes[i]} aria-label={`${label} ${name(i)} volume`.replace(/\s+/g, " ")}
               aria-valuetext={`${Math.round(volumes[i] * 100)}%`} onChange={(e) => setVolume(i, Number(e.target.value))} onDoubleClick={() => setVolume(i, 1)}
-              className="take-volume min-h-0 flex-1" style={{ "--fill": `${(volumes[i] / MAX_VOLUME) * 100}%` } as CSSProperties} />
+              className="take-volume min-h-0 flex-1" style={{ "--fill": `${volumes[i] * 100}%` } as CSSProperties} />
             {stereo && <span aria-hidden>{i + 1}</span>}
           </label>
         ))}
