@@ -29,7 +29,7 @@ const ink = { line: "var(--color-slate-500)", glyph: "var(--color-slate-300)", n
  * bar (or the bar crossing a page that turns: `motion`), the passes gone by dropped. The clef and key stay at the left.
  * The voice is a dot with a short fading tail, read off the scale's ladder so it sits on a notehead when in tune.
  */
-export default function StreamStaff({ frame, notes, chords, ladder, clef, beatMs, tapped, onNote, motion }: {
+export default function StreamStaff({ frame, notes, chords, ladder, clef, beatMs, tapped, onNote, motion, scale = 1 }: {
   frame: Frame;
   notes: PlacedNote[];
   chords: MelodyChord[];
@@ -39,6 +39,8 @@ export default function StreamStaff({ frame, notes, chords, ladder, clef, beatMs
   tapped: number | null;
   onNote: (i: number) => void;
   motion: Motion;
+  /** drawn this many times bigger (full screen) */
+  scale?: number;
 }) {
   const wrap = useRef<HTMLDivElement>(null);
   const clip = `stream-staff-${useId().replace(/[^\w-]/g, "")}`;
@@ -65,7 +67,7 @@ export default function StreamStaff({ frame, notes, chords, ladder, clef, beatMs
   const sig = signatureGlyphs(ladder.signature, clef);
   const timeX = 56 + sig.length * 9 + 10;
   const x0 = timeX + 14;
-  const W = width;
+  const W = width / scale;
   const beatW = notes.some((n) => n.beats < 0.5) ? BEAT_W_16TH : BEAT_W;
   const span = Math.max(1, (W - x0 - 12) / beatW);
   const left = camera(frame.s, span, motion);
@@ -80,9 +82,9 @@ export default function StreamStaff({ frame, notes, chords, ladder, clef, beatMs
   const stepOf = (m: number) => locate(rungs, rungSteps, m).step;
 
   return (
-    <div ref={wrap} className="w-full" style={{ minHeight: H }}>
+    <div ref={wrap} className="w-full" style={{ minHeight: H * scale }}>
       {W > 0 && (
-        <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} role="img" aria-label={`A melody in ${ladder.title}: ${notes.map((n) => solfege(n.label)).join(" ")}`}>
+        <svg viewBox={`0 0 ${W} ${H}`} width={width} height={H * scale} role="img" aria-label={`A melody in ${ladder.title}: ${notes.map((n) => solfege(n.label)).join(" ")}`}>
           <defs>
             <clipPath id={clip}>
               <rect x={x0 - 4} y={0} width={W - x0 + 4} height={H} />

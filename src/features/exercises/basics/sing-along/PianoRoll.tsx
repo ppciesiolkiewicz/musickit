@@ -25,7 +25,7 @@ const CHORDS_H = 20;
  * long as it lasts, its passes sliding under the bar like the staff's. The voice leaves a thin line for as long as it
  * is in view, so the whole way the pitch went is there to read; the line drops off with the passes gone by.
  */
-export default function PianoRoll({ frame, notes, chords, ladder, beatMs, tapped, onNote, motion }: {
+export default function PianoRoll({ frame, notes, chords, ladder, beatMs, tapped, onNote, motion, scale = 1 }: {
   frame: Frame;
   notes: PlacedNote[];
   chords: MelodyChord[];
@@ -34,6 +34,8 @@ export default function PianoRoll({ frame, notes, chords, ladder, beatMs, tapped
   tapped: number | null;
   onNote: (i: number) => void;
   motion: Motion;
+  /** drawn this many times bigger (full screen) */
+  scale?: number;
 }) {
   const wrap = useRef<HTMLDivElement>(null);
   const clip = `roll-${useId().replace(/[^\w-]/g, "")}`;
@@ -52,7 +54,7 @@ export default function PianoRoll({ frame, notes, chords, ladder, beatMs, tapped
   const chordsH = chords.length ? CHORDS_H : 0;
   const yOf = (m: number) => chordsH + (hi - Math.max(lo - 0.5, Math.min(hi + 0.5, m)) + 0.5) * ROW_H;
   const H = chordsH + (hi - lo + 1) * ROW_H + 1;
-  const W = width;
+  const W = width / scale;
   const beatW = notes.some((n) => n.beats < 0.5) ? BEAT_W_16TH : BEAT_W;
   const span = Math.max(1, (W - GUTTER) / beatW);
   const left = camera(frame.s, span, motion);
@@ -78,9 +80,9 @@ export default function PianoRoll({ frame, notes, chords, ladder, beatMs, tapped
   }
 
   return (
-    <div ref={wrap} className="w-full" style={{ minHeight: H }}>
+    <div ref={wrap} className="w-full" style={{ minHeight: H * scale }}>
       {W > 0 && (
-        <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} role="img" aria-label={`A piano roll of a melody in ${ladder.title}`}>
+        <svg viewBox={`0 0 ${W} ${H}`} width={width} height={H * scale} role="img" aria-label={`A piano roll of a melody in ${ladder.title}`}>
           <defs>
             <clipPath id={clip}>
               <rect x={GUTTER} y={0} width={W - GUTTER} height={H} />

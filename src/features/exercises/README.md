@@ -20,7 +20,7 @@ migrates; the components, their props and their docs live here.
    one per bar or beat, each holding beat boxes of its strumming pattern, the playing strum lit; its maths in `blocks.ts`). Each has `index.tsx` (the View) and `<name>.props.ts`.
    Shared: `choices.ts`, `arpeggio.ts`, `singer.tsx` (the two singers), `sing-along/` (their player: mute, play, stop and
    mic as icons, a loop set by two markers on a strip of the tune, its passes laid end to end on an endless staff or a
-   piano roll that keeps the voice's line; `passes.ts` is the pure model). Three more are stubs with a placeholder view (`stub.tsx`), their
+   piano roll that keeps the voice's line, and a full screen page modal where the notes slide under a still bar; `passes.ts` is the pure model). Three more are stubs with a placeholder view (`stub.tsx`), their
    props final: `finger-pattern`, `picking-drill`, `legato-trill`.
 
 `docs/` extracts each `@component` props file with the TypeScript compiler API into `docs.generated.json`
