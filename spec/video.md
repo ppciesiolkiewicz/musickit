@@ -67,7 +67,7 @@ npm run video -- <config.json or folder>… [--base http://localhost:3000] [--ou
 - The video's length follows from the timeline: the intro (its music's passes, when it has music), then per tune one countdown bar plus `times` passes, plus a second at the end. At 80 bpm a bar is 3 s.
 - Short and long cuts are separate configs.
 
-Examples: `videos/c-major-first-steps.json` (book 1–3, 4 times each, 85 s) and `videos/c-major-do-re-mi-long.json` (12 tunes, 4 times each, 7 min 28 s). The long one gets slightly harder as it goes: three tunes from each stage up to Sol (book 1, 3, 5 · 8, 10, 12 · 15, 17, 18 · 23, 24, 27), short ones before 4-bar ones within a stage, none rated easier by the book than the tune before.
+Examples: `videos/c-major-first-steps.json` (piano intro with book 3, then book 1–3, 4 times each, 88 s) and `videos/c-major-do-re-mi-long.json` (12 tunes, 4 times each, 7 min 28 s). The long one gets slightly harder as it goes: three tunes from each stage up to Sol (book 1, 3, 5 · 8, 10, 12 · 15, 17, 18 · 23, 24, 27), short ones before 4-bar ones within a stage, none rated easier by the book than the tune before.
 
 ## What fails, and why
 Every failure prints `<config path>: <message>`, renders nothing for that config, and makes the command exit 1; the other configs still render.
