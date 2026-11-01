@@ -21,7 +21,7 @@ const CENTS = [{ value: 30, label: "Easy · 30¢" }, { value: 20, label: "Medium
 const VOICE_OPTIONS = (Object.keys(VOICES) as Voice[]).map((v) => ({ value: v, label: VOICES[v].label }));
 
 /**
- * Under the tuner: tuning without it. Sing the open strings (the string singer, in the singer's voice) to carry their
+ * Tuning a guitar without a tuner. Sing the open strings (the string singer, in the singer's voice) to carry their
  * pitches, then the listening game: is the next string flat, sharp or in tune against the 5th-fret reference.
  */
 export default function TuneByEar() {
@@ -40,8 +40,7 @@ export default function TuneByEar() {
     try { window.localStorage.setItem(VOICE_KEY, JSON.stringify(v)); } catch { /* storage blocked */ }
   };
   return (
-    <div className="mt-6 flex flex-col gap-4">
-      <h2 className="text-lg font-light tracking-wide text-slate-100">Tune by ear</h2>
+    <div className="flex flex-col gap-4">
       <Section title="Sing the open strings" meta="mic" info="Play the drill to hear it, tap a note to hear one, then sing along with the mic on: the strings land in your voice's range, an octave or two from the guitar. Once you can sing E A D G B E, you can hear a string that is off.">
         <div className="flex flex-col gap-3">
           <ChipRow label="Drill">
