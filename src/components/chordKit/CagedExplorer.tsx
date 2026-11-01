@@ -48,6 +48,12 @@ export default function CagedExplorer({ initialRoot = DEFAULT_KEY_PC, initialQua
   const notes = useMemo(() => layerNotes(rootPc, quality, arpKind), [rootPc, quality, arpKind]);
   const keyName = ctx.names[0];
 
+  const criteria = (
+    <BarRow label="Arpeggio" info="Triad uses the three notes of the chord (root, 3rd, 5th). 7th adds the seventh, giving a maj7 chord in major or m7 in minor.">
+      <Chip on={arpKind === "triad"} onClick={() => setArpKind("triad")}>Triad</Chip>
+      <Chip on={arpKind === "seventh"} onClick={() => setArpKind("seventh")}>{quality === "major" ? "Maj7" : "Min7"}</Chip>
+    </BarRow>
+  );
   const bar = (
     <ScaleSettingsBar tonicPc={rootPc} onTonic={setRootPc} side={side} config={{
       scale: {
@@ -57,22 +63,14 @@ export default function CagedExplorer({ initialRoot = DEFAULT_KEY_PC, initialQua
             options={[{ value: "major" as const, label: "Major" }, { value: "minor" as const, label: "Minor" }]} />
         ),
       },
-      rows: (
-        <>
-          <BarRow label="Arpeggio" info="Triad uses the three notes of the chord (root, 3rd, 5th). 7th adds the seventh, giving a maj7 chord in major or m7 in minor.">
-            <Chip on={arpKind === "triad"} onClick={() => setArpKind("triad")}>Triad</Chip>
-            <Chip on={arpKind === "seventh"} onClick={() => setArpKind("seventh")}>{quality === "major" ? "Maj7" : "Min7"}</Chip>
-          </BarRow>
-          <BarRow label="Badges" info="With note names as labels, a badge on each dot gives its interval from the root.">
-            <Chip on={badges && labelSystem === "note"} onClick={() => setBadges((v) => !v)}>Intervals</Chip>
-          </BarRow>
-        </>
-      ),
+      // interval badges on the note-name dots are a labelling choice, so they stay with the labels
+      labels: { extra: <Chip on={badges && labelSystem === "note"} onClick={() => setBadges((v) => !v)} title="With note names as labels, a badge on each dot gives its interval from the root">Interval badges</Chip> },
+      rows: side ? undefined : criteria,
     }} />
   );
 
   return (
-    <WithSettings side={side} bar={bar}>
+    <WithSettings side={side} criteria={criteria} bar={bar}>
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-2xl border border-slate-800 bg-slate-900/40 px-3 py-2.5">
         <DegreeLegend />
         <Info label="What is the CAGED system?">

@@ -74,18 +74,19 @@ export default function TriadsExplorer({ initialTonic = DEFAULT_KEY_PC, initialQ
     setTimeout(() => setPlaying((p) => (p === id ? null : p)), 600);
   };
 
+  const criteria = <>
+    <BarRow label="Triad" info="A triad is three notes stacked in thirds. Major is root, major 3rd, 5th. Minor lowers the 3rd. Diminished lowers the 3rd and the 5th. Augmented raises the 5th.">
+      {TRIAD_QUALITIES.map((t) => <Chip key={t.id} on={t.id === quality} onClick={() => setQuality(t.id)}>{t.label}</Chip>)}
+    </BarRow>
+    <BarRow label="Strings" info="Which three neighbouring strings the triad is played on. Pick several to compare. The 3-2-1 group is the brightest, 6-5-4 the deepest. The other strings are not played.">
+      {STRING_GROUPS.map((g) => <Chip key={g.id} on={groupIds.includes(g.id)} onClick={() => toggleGroup(g.id)}>{g.label}</Chip>)}
+    </BarRow>
+  </>;
   return (
-    <WithSettings side={side} bar={
+    <WithSettings side={side} criteria={criteria} bar={
       <ScaleSettingsBar tonicPc={tonicPc} onTonic={setTonicPc} side={side} config={{
         labels: { extra: <RootSelect /> },
-        rows: <>
-          <BarRow label="Triad" info="A triad is three notes stacked in thirds. Major is root, major 3rd, 5th. Minor lowers the 3rd. Diminished lowers the 3rd and the 5th. Augmented raises the 5th.">
-            {TRIAD_QUALITIES.map((t) => <Chip key={t.id} on={t.id === quality} onClick={() => setQuality(t.id)}>{t.label}</Chip>)}
-          </BarRow>
-          <BarRow label="Strings" info="Which three neighbouring strings the triad is played on. Pick several to compare. The 3-2-1 group is the brightest, 6-5-4 the deepest. The other strings are not played.">
-            {STRING_GROUPS.map((g) => <Chip key={g.id} on={groupIds.includes(g.id)} onClick={() => toggleGroup(g.id)}>{g.label}</Chip>)}
-          </BarRow>
-        </>,
+        rows: side ? undefined : criteria,
       }} />
     }>
         <p className="px-1 text-xs text-slate-400">

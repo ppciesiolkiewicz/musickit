@@ -20,15 +20,21 @@ export const UNDER_BAR = "scroll-mt-48";
  * A scales page with its settings: on wide screens the bar is a column pinned to the right edge of the window,
  * beside the content; on narrow ones (and with `side` off, when embedded in another page) it floats over the top.
  * The bar is rendered once either way, so the pocket tools keep playing across a resize.
+ * With `side`, the column keeps only the basics (key, scale, tempo, labels): the page's own criteria (`criteria`,
+ * the same rows it would put in an embedded bar) sit in a panel at the top of the content. Without `side` they are ignored,
+ * so the host puts them in the bar's `rows` then.
  */
-export function WithSettings({ bar, side, children }: { bar: ReactNode; side: boolean; children: ReactNode }) {
+export function WithSettings({ bar, side, criteria, children }: { bar: ReactNode; side: boolean; criteria?: ReactNode; children: ReactNode }) {
   if (!side) return <div className="flex flex-col gap-5">{bar}{children}</div>;
   return (
     // reaches out over PageShell's right padding so the column sits flush with the window
     <div className="flex flex-col gap-5 lg:-mr-8 lg:grid lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start lg:gap-x-8">
       <div className="contents lg:col-start-2 lg:row-start-1 lg:block lg:sticky lg:top-0">{bar}</div>
       {/* necks that bleed past a centred page would run under the column, so they stay in it here */}
-      <div className="flex min-w-0 flex-col gap-5 lg:col-start-1 lg:row-start-1 lg:[&_.bleed]:mx-0">{children}</div>
+      <div className="flex min-w-0 flex-col gap-5 lg:col-start-1 lg:row-start-1 lg:[&_.bleed]:mx-0">
+        {criteria && <div className="flex flex-col gap-1.5 rounded-2xl border border-slate-800 bg-slate-900/40 px-4 py-3">{criteria}</div>}
+        {children}
+      </div>
     </div>
   );
 }
