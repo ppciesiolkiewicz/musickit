@@ -6,7 +6,8 @@
 import type { Step } from "@/features/sound";
 import { VOICES, buildLadder, clefFor, tuneLadderFor, type Ladder } from "@/features/theory/singing";
 import { BEATS_PER_BAR } from "@/features/theory/singingMelody";
-import { barsOf, parseTune, placeTune, type PlacedNote } from "@/features/theory/singingMelodies";
+import { barsOf, parseTune, type PlacedNote } from "@/features/theory/singingMelodies";
+import { chordSteps, harmoniseTune, type MelodyChord } from "@/features/theory/melodyChords";
 import { solfege } from "@/features/theory/labels";
 import type { Clef } from "@/features/theory/piano/staff";
 import { FPS, type VideoConfig, type VideoIntro } from "./config";
@@ -20,6 +21,8 @@ export interface Segment {
   caption: string;
   label?: string;
   notes: PlacedNote[];
+  /** the chords under one pass, a bar each */
+  chords: MelodyChord[];
   /** one pass, in whole bars */
   tuneBeats: number;
   times: number;
@@ -62,7 +65,8 @@ export function buildScore(c: VideoConfig): Score {
   let startBeat = 0;
   const segments = c.timeline.map((t): Segment => {
     const tune = parseTune(t.tune);
-    const seg = { caption: t.caption, label: t.label, notes: placeTune(tune, tuneLadder, range), tuneBeats: barsOf(tune) * BEATS_PER_BAR, times: t.times, startBeat };
+    const { notes, chords } = harmoniseTune(tune, tuneLadder, range);
+    const seg = { caption: t.caption, label: t.label, notes, chords, tuneBeats: barsOf(tune) * BEATS_PER_BAR, times: t.times, startBeat };
     startBeat += COUNTDOWN_BEATS + seg.tuneBeats * seg.times;
     return seg;
   });
@@ -88,11 +92,20 @@ export function passesOf(g: Segment): PlacedNote[] {
   return Array.from({ length: g.times }, (_, pass) => g.notes.map((n) => ({ ...n, at: n.at + pass * g.tuneBeats }))).flat();
 }
 
-/** The piano (every pass of every tune) and the click (every beat, accented on beat 1), in ms. */
+/** A tune's chords for every pass, the way passesOf writes its notes. */
+export function chordPassesOf(g: Segment): MelodyChord[] {
+  return Array.from({ length: g.times }, (_, pass) => g.chords.map((c) => ({ ...c, at: c.at + pass * g.tuneBeats }))).flat();
+}
+
+/** The piano (every pass of every tune, its chords under it, softer) and the click (every beat, accented on beat 1), in ms. */
 export function soundOf(s: Score): { piano: Step[]; clicks: Click[] } {
-  const piano = s.segments.flatMap((g) =>
-    passesOf(g).map((n) => ({ note: n.midi, at: s.introMs + (g.startBeat + COUNTDOWN_BEATS + n.at) * s.beatMs, hold: n.beats * s.beatMs * 0.9 })),
-  );
+  const piano = s.segments.flatMap((g) => {
+    const start = s.introMs + (g.startBeat + COUNTDOWN_BEATS) * s.beatMs;
+    return [
+      ...passesOf(g).map((n) => ({ note: n.midi, at: start + n.at * s.beatMs, hold: n.beats * s.beatMs * 0.9 })),
+      ...chordSteps(chordPassesOf(g), s.beatMs).map((c) => ({ ...c, at: start + c.at })),
+    ];
+  });
   const clicks = Array.from({ length: s.totalBeats }, (_, b) => ({ at: s.introMs + b * s.beatMs, accent: b % BEATS_PER_BAR === 0 }));
   return { piano, clicks };
 }

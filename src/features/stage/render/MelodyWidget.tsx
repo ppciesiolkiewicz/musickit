@@ -22,6 +22,7 @@ export default function MelodyWidget({ beats }: { beats?: number }) {
     <MelodyStaff
       key={key}
       notes={m.notes}
+      chords={m.chords}
       ladder={m.ladder}
       clef={m.clef}
       live

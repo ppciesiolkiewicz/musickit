@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { COUNTDOWN_BEATS, TAIL_MS, buildScore, frameCount, momentAt, passesOf, solfegeBars, soundOf } from "./score";
+import { COUNTDOWN_BEATS, TAIL_MS, buildScore, chordPassesOf, frameCount, momentAt, passesOf, solfegeBars, soundOf } from "./score";
+import { CHORD_VELOCITY } from "@/features/theory/melodyChords";
 import type { VideoConfig } from "./config";
 
 /** Two 2-bar tunes, two passes each, at 60 bpm so a beat is a second. */
@@ -58,7 +59,10 @@ describe("momentAt", () => {
 
 describe("soundOf", () => {
   const s = buildScore(config());
-  const { piano, clicks } = soundOf(s);
+  const sound = soundOf(s);
+  const { clicks } = sound;
+  // the tune itself; the chords under it are struck softer
+  const piano = sound.piano.filter((p) => p.velocity !== CHORD_VELOCITY);
   it("clicks on every beat, accented on beat 1 of each bar", () => {
     assert.equal(clicks.length, 40);
     assert.deepEqual(clicks.slice(0, 5), [0, 1000, 2000, 3000, 4000].map((at, i) => ({ at, accent: i % 4 === 0 })));
@@ -73,9 +77,17 @@ describe("soundOf", () => {
     const n = g.notes[1];
     assert.ok(piano.some((p) => p.at === (4 + 8 + n.at) * 1000 && p.note === n.midi));
   });
+  it("strikes a chord a bar under every pass, softer than the tune", () => {
+    const chords = sound.piano.filter((p) => p.velocity === CHORD_VELOCITY);
+    // two tunes, two passes, two bars, three notes a chord
+    assert.equal(chords.length, 24);
+    assert.equal(sound.piano.length, 20 + 24);
+    assert.deepEqual([...new Set(chords.map((c) => c.at))].slice(0, 4), [4000, 8000, 12000, 16000]);
+    assert.deepEqual(soundOf(buildScore(config())), sound);
+  });
   it("no note rings into the next tune's play", () => {
     const playStart = (i: number) => (s.segments[i].startBeat + COUNTDOWN_BEATS) * s.beatMs;
-    for (const p of piano) {
+    for (const p of sound.piano) {
       const i = p.at < playStart(1) ? 0 : 1;
       const limit = i === 0 ? playStart(1) : s.totalBeats * s.beatMs;
       assert.ok(p.at + p.hold <= limit, `${p.at} + ${p.hold} > ${limit}`);
@@ -116,5 +128,13 @@ describe("passesOf", () => {
     assert.equal(all.length, g.notes.length * g.times);
     assert.deepEqual(all.map((n) => n.at), [0, 1, 2, 3, 4, 8, 9, 10, 11, 12]);
     assert.deepEqual(all.slice(g.notes.length).map((n) => n.midi), g.notes.map((n) => n.midi));
+  });
+});
+
+describe("chordPassesOf", () => {
+  it("writes a tune's chords out for every pass, a tune's length apart", () => {
+    const g = buildScore(config()).segments[0];
+    assert.deepEqual(g.chords.map((c) => [c.at, c.name]), [[0, "C"], [4, "C"]]);
+    assert.deepEqual(chordPassesOf(g).map((c) => c.at), [0, 4, 8, 12]);
   });
 });

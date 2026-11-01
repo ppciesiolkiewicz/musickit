@@ -6,7 +6,7 @@ import { PLUGINS } from "@/features/creator";
 import { StageWidget, TimelineContext, type StageTimeline } from "@/features/stage";
 import { preloadInstrument, renderOffline } from "@/features/sound";
 import { FORMATS, FPS, parseVideoConfig, type FormatId, type VideoConfig } from "./model/config";
-import { buildScore, frameCount, momentAt, passesOf, solfegeBars, soundOf, type Moment, type Score } from "./model/score";
+import { buildScore, chordPassesOf, frameCount, momentAt, passesOf, solfegeBars, soundOf, type Moment, type Score } from "./model/score";
 import { encodeWav } from "./model/wav";
 
 declare global {
@@ -133,10 +133,11 @@ export function VideoFrame({ config, score, format, time, className = "", style 
   const key = momentKey(shown);
   // one array per tune, so a new pass doesn't hand the staff a new melody
   const written = useMemo(() => score.segments.map(passesOf), [score]);
+  const harmony = useMemo(() => score.segments.map(chordPassesOf), [score]);
 
   const timeline = useMemo<StageTimeline>(
     () => ({
-      melody: { notes: written[shown.segment], ladder: score.ladder, clef: score.clef, beatMs: score.beatMs },
+      melody: { notes: written[shown.segment], chords: harmony[shown.segment], ladder: score.ladder, clef: score.clef, beatMs: score.beatMs },
       // read from the clock itself, so the staff's own frame callback and this page's agree on the time
       gridBeats: () => {
         const m = momentAt(score, time());
@@ -166,7 +167,7 @@ export function VideoFrame({ config, score, format, time, className = "", style 
     }),
     // `key` is the moment's identity: a frame inside the same count or tune keeps the same context
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [score, written, time, key],
+    [score, written, harmony, time, key],
   );
 
   useEffect(() => {
