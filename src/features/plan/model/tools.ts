@@ -13,8 +13,8 @@ import { degreeSemis } from "@/features/exercises/timeline/degrees";
 import type { Degree, Voicing } from "@/features/exercises/timeline/types";
 import { othersOf, type Others } from "@/features/exercises/cues/visibility";
 import { parsePlacement, type Placement } from "@/features/exercises/cues/placement";
-import { checkLink, type CatalogueEntry } from "./catalogue";
-import { migrateTool } from "./migrate";
+import type { CatalogueEntry } from "./catalogue";
+import { migrateTool, toolFromLink } from "./migrate";
 import { notePc } from "./noteText";
 
 /**
@@ -25,7 +25,8 @@ import { notePc } from "./noteText";
  *
  * An exercise is a linear list of sections, shown in order:
  *   heading  a small title            text  a paragraph       list  numbered steps
- *   tool     one of `TOOLS`, set up   link  an attunr page to open
+ *   tool     one of `TOOLS`, set up
+ * Links to attunr pages are not sections: they sit in the exercise's two slots, `learnBefore` and `exploreMore` (migrate.ts).
  */
 
 /* ---------------------------------------------------------------- the tools */
@@ -277,8 +278,7 @@ export type Section =
   | { type: "heading"; text: string; minutes?: number }
   | { type: "text"; text: string }
   | { type: "list"; items: string[] }
-  | { type: "tool"; tool: PlanTool }
-  | { type: "link"; href: string };
+  | { type: "tool"; tool: PlanTool };
 
 const str = (v: unknown, max: number): string => (typeof v === "string" ? v.trim().slice(0, max) : "");
 
@@ -288,7 +288,6 @@ const SECTIONS: { type: Section["type"]; description: string; properties: Record
   { type: "text", description: "A paragraph of plain instructions.", properties: { text: STR }, required: ["text"] },
   { type: "list", description: "Numbered steps the student follows.", properties: { items: { type: "array", items: STR, minItems: 1, maxItems: 8 } }, required: ["items"] },
   { type: "tool", description: "One of the tools below, shown here, in order, already set up. A tool shows what the text just before it talks about.", properties: { tool: { type: "object", description: "{\"type\": <tool name>, …input}" } }, required: ["tool"] },
-  { type: "link", description: "An \"Open page\" link to an attunr page for more (see the pages). Optional; never invent one.", properties: { href: STR }, required: ["href"] },
 ];
 
 /** Exercise tags the AI may set; the page shows them as chips. "multi-octave" is also added by a wide ears tool. */
@@ -335,8 +334,8 @@ export function resolveChordPlacement(sections: Section[]): Section[] {
   });
 }
 
-/** One section from the AI's JSON, checked; null when empty or not showable. `pages` are the attunr pages a link may go to. */
-export function parseSection(raw: unknown, pages: CatalogueEntry[]): Section | null {
+/** One section from the AI's JSON, checked; null when empty or not showable. */
+export function parseSection(raw: unknown): Section | null {
   const s = (raw ?? {}) as Record<string, unknown>;
   switch (s.type) {
     case "heading":
@@ -353,10 +352,6 @@ export function parseSection(raw: unknown, pages: CatalogueEntry[]): Section | n
     case "tool": {
       const tool = parseTool(s.tool);
       return tool ? { type: "tool", tool } : null;
-    }
-    case "link": {
-      const href = checkLink(s.href, pages);
-      return href ? { type: "link", href } : null;
     }
   }
   return null;
@@ -416,7 +411,7 @@ export function offeredInterface(entries: CatalogueEntry[]): { sections: Offered
 }
 
 /**
- * The pages a link may go to, as resources: URI templates with their values, not one line per page. The page list
+ * The pages a link (in `learnBefore` / `exploreMore`) may go to, as resources: URI templates with their values, not one line per page. The page list
  * comes from the catalogue, so a new page or scale shows up here without touching the prompt.
  */
 export function linkResources(entries: CatalogueEntry[]): string[] {
@@ -439,24 +434,10 @@ export function linkResources(entries: CatalogueEntry[]): string[] {
 
 /* ---------------------------------------------------------------- plans from before sections */
 
-/** The tool an older plan's link stands for (a scale page, the notes or ears game, the metronome); null for any other page. */
-export function toolFromLink(link: string | undefined): PlanTool | null {
-  if (!link) return null;
-  const [pathPart, rest = ""] = link.split("?");
-  const path = pathPart.split("#")[0].replace(/\/$/, "");
-  const query = rest.split("#")[0];
-  const scale = path.match(/^\/theory\/scales\/([a-z0-9-]+)\/([a-z-]+)$/);
-  if (scale) {
-    const key = parseKeySlug(scale[2]);
-    return key !== null && isScale(scale[1]) ? { type: "scale-neck", scale: scale[1], key } : null;
-  }
-  if (path === "/theory/notes") return { type: "note-finder", query };
-  if (path === "/theory/ears") return { type: "interval-ears", query, ...(/(^|&)wide=1/.test(query) ? { wide: true } : {}) };
-  if (path === "/theory/metronome-drone") return { type: "backing-band", bpm: 80, key: 9, parts: ["click"] };
-  return null;
-}
-
-/** An exercise written before sections (how / steps / tools, each tool with its `step`) as sections: text, then each step followed by its tools. */
+/**
+ * An exercise written before sections (how / steps / tools, each tool with its `step`) as sections: text, then each
+ * step followed by its tools. Its `link` becomes a tool when it stands for one; otherwise it is a link (`linkSlots`).
+ */
 export function legacySections(e: { how?: string; steps?: string[]; tools?: StoredTool[]; link?: string }): Section[] {
   const out: Section[] = [];
   const linked = toolFromLink(e.link);
@@ -473,7 +454,6 @@ export function legacySections(e: { how?: string; steps?: string[]; tools?: Stor
       tools.filter((t) => t.step === i + 1).forEach((t) => out.push(...tool(t)));
     });
   }
-  if (e.link && (e.tools || !toolFromLink(e.link))) out.push({ type: "link", href: e.link });
   return out;
 }
 
@@ -482,11 +462,13 @@ export type StoredTool = (PlanTool | { type: string; [k: string]: unknown }) & {
 
 /**
  * What an exercise shows, in order: its sections, or, for a plan stored before sections, what its old fields stand for.
- * Stored tools are parsed again, so a tool saved under an old name shows as its component.
+ * Stored tools are parsed again, so a tool saved under an old name shows as its component; an old `link` section is
+ * left out (it is in "Explore more", `linkSlots`).
  */
 export const sectionsOf = (e: { sections?: Section[]; how?: string; steps?: string[]; tools?: StoredTool[]; link?: string }): Section[] =>
   e.sections
     ? e.sections.flatMap((s): Section[] => {
+        if ((s.type as string) === "link") return [];
         if (s.type !== "tool") return [s];
         const tool = parseTool(s.tool, { stored: true });
         return tool ? [{ type: "tool", tool }] : [];

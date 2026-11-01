@@ -11,6 +11,7 @@
     "minutes": 6,
     "tags": ["ear", "theory"],
     "why": "Hearing home and hearing major against minor are the two judgements every later ear skill builds on.",
+    "learnBefore": ["/course/3/major-or-minor"],
     "sections": [
       { "type": "text", "text": "Every tune has a home note, and the note a 3rd above it decides whether home sounds bright or dark." },
       { "type": "heading", "text": "Hear home", "minutes": 2 },
@@ -23,8 +24,8 @@
       { "type": "tool", "tool": { "type": "staff", "scale": "natural-minor-aeolian", "key": "c", "voice": "alto", "notes": ["1", "b3", "5"], "mic": false } },
       { "type": "heading", "text": "Major or minor?", "minutes": 2 },
       { "type": "text", "text": "The game sounds two notes together: a major 3rd (bright) or a minor 3rd (dark). Name each one. Done at eight right in a row." },
-      { "type": "tool", "tool": { "type": "interval-ears", "set": [3, 4], "dir": "together" } },
-      { "type": "link", "href": "/course/3/major-or-minor" }
-    ]
+      { "type": "tool", "tool": { "type": "interval-ears", "set": [3, 4], "dir": "together" } }
+    ],
+    "exploreMore": ["/course/3/intervals"]
   }
 }

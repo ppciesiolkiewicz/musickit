@@ -10,7 +10,7 @@
     "focus": "A minor pentatonic · box 1 · 60 then 80 bpm",
     "minutes": 10,
     "tags": ["technique", "improv"],
-    "why": "Box 1 is the home base most lead playing starts from; knowing where its roots are lets you end a phrase anywhere.",
+    "learnBefore": ["/course/5/pentatonic"],
     "sections": [
       { "type": "text", "text": "Box 1 is the first scale shape most guitarists learn because every note sits under four fingers at the 5th fret." },
       { "type": "heading", "text": "The box at 60", "minutes": 3 },
@@ -25,8 +25,8 @@
       { "type": "tool", "tool": { "type": "backing-band", "bpm": 80, "key": "a", "parts": ["drums", "bass"] } },
       { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "highlight": ["1"], "others": "normal" } },
       { "type": "heading", "text": "Make it up", "minutes": 2 },
-      { "type": "text", "text": "Keep the drums going and play short phrases of three or four notes from the box, leaving a gap after each. End every phrase on a {{1}}. This scale is the one used in blues and rock, so it will sound right whatever you choose." },
-      { "type": "link", "href": "/theory/scales/minor-pentatonic/a" }
-    ]
+      { "type": "text", "text": "Keep the drums going and play short phrases of three or four notes from the box, leaving a gap after each. End every phrase on a {{1}}. This scale is the one used in blues and rock, so it will sound right whatever you choose." }
+    ],
+    "exploreMore": ["/course/8/pentatonic-boxes", "/theory/scales/minor-pentatonic/a"]
   }
 }

@@ -11,7 +11,9 @@ import { expandShape } from "@/features/exercises/shapes";
 import { BOOK, STAGES } from "@/features/theory/singingMelodies";
 import { pickTune } from "@/features/theory/melodyPick";
 import { migrateTool } from "./migrate";
-import { degreeSemis, legacySections, linkResources, parseSection, parseTool, sectionInterface, sectionsOf, toolFromLink, toolInterface } from "./tools";
+import { degreeSemis, legacySections, linkResources, parseSection, parseTool, sectionInterface, sectionsOf, toolInterface } from "./tools";
+import { linkSlots, toolFromLink } from "./migrate";
+import { linkLabel } from "./catalogue";
 import { DEFAULT_ANSWERS } from "./questions";
 import { dayIndex, dayProgress, localDate, weekOver } from "./schedule";
 import type { StoredPlan } from "./types";
@@ -241,10 +243,10 @@ describe("tools", () => {
     assert.ok(!JSON.stringify(r.config).includes("pick"));
   });
   it("heading minutes parse, clamp to 1..60, drop non-numbers", () => {
-    assert.deepEqual(parseSection({ type: "heading", text: "a", minutes: 3.4 }, entries), { type: "heading", text: "a", minutes: 3 });
-    assert.deepEqual(parseSection({ type: "heading", text: "a", minutes: 99 }, entries), { type: "heading", text: "a", minutes: 60 });
-    assert.deepEqual(parseSection({ type: "heading", text: "a", minutes: 0 }, entries), { type: "heading", text: "a", minutes: 1 });
-    assert.deepEqual(parseSection({ type: "heading", text: "a", minutes: "x" }, entries), { type: "heading", text: "a" });
+    assert.deepEqual(parseSection({ type: "heading", text: "a", minutes: 3.4 }), { type: "heading", text: "a", minutes: 3 });
+    assert.deepEqual(parseSection({ type: "heading", text: "a", minutes: 99 }), { type: "heading", text: "a", minutes: 60 });
+    assert.deepEqual(parseSection({ type: "heading", text: "a", minutes: 0 }), { type: "heading", text: "a", minutes: 1 });
+    assert.deepEqual(parseSection({ type: "heading", text: "a", minutes: "x" }), { type: "heading", text: "a" });
   });
 });
 
@@ -268,9 +270,11 @@ describe("sections", () => {
     const r = plan({ sections });
     assert.ok(r.ok);
     const got = r.config.days[0].exercises[0].sections!;
-    assert.deepEqual(got.map((s) => s.type), ["text", "tool", "heading", "list", "link"]);
+    assert.deepEqual(got.map((s) => s.type), ["text", "tool", "heading", "list"]);
     assert.deepEqual(got[3], { type: "list", items: ["a", "b"] });
-    assert.equal(real(r.warnings).length, 1);
+    // an old link section goes to "Explore more"; the made-up one is dropped
+    assert.deepEqual(r.config.days[0].exercises[0].exploreMore, ["/theory/ears"]);
+    assert.equal(real(r.warnings).length, 2);
   });
   it("tags: known ones, plus multi-octave from a wide ears tool", () => {
     const r = plan({ tags: ["ear", "made-up"], sections: [{ type: "tool", tool: { type: "interval-ears", level: 2, wide: true } }] });
@@ -284,26 +288,60 @@ describe("sections", () => {
     const r = plan({ how: "Slide", steps: ["Box 1", "Box 2"], tools: [{ type: "band", bpm: 60, key: "a", parts: ["click"] }, { type: "chords", chords: ["Am"], step: 2 }], link: "/theory/ears" });
     assert.ok(r.ok);
     const got = r.config.days[0].exercises[0].sections!;
-    assert.deepEqual(got.map((s) => s.type), ["tool", "text", "text", "text", "tool", "link"]);
-    assert.deepEqual(got.map((s) => s.type === "tool" ? s.tool.type : ""), ["backing-band", "", "", "", "chord-shapes", ""]);
+    assert.deepEqual(got.map((s) => s.type), ["tool", "text", "text", "text", "tool"]);
+    assert.deepEqual(got.map((s) => s.type === "tool" ? s.tool.type : ""), ["backing-band", "", "", "", "chord-shapes"]);
+    assert.deepEqual(r.config.days[0].exercises[0].exploreMore, ["/theory/ears"]);
   });
   it("a plan stored before sections still shows: its link stands for a tool", () => {
     assert.deepEqual(sectionsOf({ how: "Do it", link: "/theory/scales/dorian/e" }).map((s) => s.type), ["tool", "text"]);
-    assert.deepEqual(legacySections({ link: "/theory/chords" }), [{ type: "link", href: "/theory/chords" }]);
+    assert.deepEqual(legacySections({ link: "/theory/chords" }), []);
     assert.deepEqual(sectionsOf({ sections: [{ type: "text", text: "x" }] }), [{ type: "text", text: "x" }]);
     const stored = sectionsOf({ sections: [{ type: "tool", tool: { type: "sing", scale: "major-ionian", key: 0, voice: "tenor" } }] } as never);
     assert.deepEqual(stored, [{ type: "tool", tool: { type: "staff", scale: "major-ionian", key: 0, voice: "tenor", mic: true } }]);
   });
-  it("parseSection checks links against the pages", () => {
-    assert.equal(parseSection({ type: "link", href: "/theory/ears" }, entries)?.type, "link");
-    assert.equal(parseSection({ type: "link", href: "https://evil.example" }, entries), null);
-    assert.equal(parseSection({ type: "kazoo" }, entries), null);
+  it("parseSection knows no link sections", () => {
+    assert.equal(parseSection({ type: "link", href: "/theory/ears" }), null);
+    assert.equal(parseSection({ type: "kazoo" }), null);
+  });
+});
+
+describe("link slots", () => {
+  const plan = (ex: object) => {
+    const p = JSON.parse(week());
+    p.days[0].exercises[0] = { title: "T", minutes: 5, sections: [{ type: "text", text: "x" }], ...ex };
+    const r = parsePlanConfig(JSON.stringify(p), entries);
+    assert.ok(r.ok);
+    return r;
+  };
+  it("pasted slots are checked, deduped, capped at 3; a link in both stays in Learn before", () => {
+    const r = plan({ learnBefore: ["/course/2/one-minute-changes", "/nope", "/course/2/one-minute-changes"], exploreMore: ["/course/2/one-minute-changes", "/theory/scales/dorian/d", "/theory/ears", "/theory/chords", "/tuner"] });
+    const ex = r.config.days[0].exercises[0];
+    assert.deepEqual(ex.learnBefore, ["/course/2/one-minute-changes"]);
+    assert.deepEqual(ex.exploreMore, ["/theory/scales/dorian/d", "/theory/ears", "/theory/chords"]);
+    assert.ok(r.warnings.some((w) => w.includes('"/nope"')));
+  });
+  it("no slots: no fields", () => {
+    const ex = plan({}).config.days[0].exercises[0];
+    assert.equal(ex.learnBefore, undefined);
+    assert.equal(ex.exploreMore, undefined);
+  });
+  it("a stored plan's old links read as Explore more", () => {
+    assert.deepEqual(linkSlots({ sections: [{ type: "text", text: "x" }, { type: "link", href: "/theory/ears" }] }), { learnBefore: [], exploreMore: ["/theory/ears"] });
+    assert.deepEqual(linkSlots({ link: "/theory/chords" }), { learnBefore: [], exploreMore: ["/theory/chords"] });
+    assert.deepEqual(linkSlots({ link: "/theory/scales/dorian/e" }), { learnBefore: [], exploreMore: [] });
+    assert.deepEqual(linkSlots({ tools: [], link: "/theory/scales/dorian/e" }), { learnBefore: [], exploreMore: ["/theory/scales/dorian/e"] });
+    assert.deepEqual(sectionsOf({ sections: [{ type: "link", href: "/theory/ears" }] as never }), []);
+  });
+  it("links show the page's real name", () => {
+    assert.equal(linkLabel("/course/2/one-minute-changes", entries), "One-minute changes");
+    assert.match(linkLabel("/theory/scales/minor-pentatonic/f-sharp", entries) ?? "", / in F♯$/);
+    assert.equal(linkLabel("/nope", entries), undefined);
   });
 });
 
 describe("the interface the prompt lists", () => {
   it("every section has a schema; the tools are the components' docs", () => {
-    assert.equal(sectionInterface().length, 5);
+    assert.equal(sectionInterface().length, 4);
     const tools = toolInterface().join("\n");
     const listed = [...tools.matchAll(/^- (\S+) : /gm)].map((m) => m[1]).sort();
     const docs = COMPONENT_DOCS.filter((d) => d.kind !== "shape").map((d) => d.name).sort();
@@ -332,8 +370,8 @@ describe("parsePlanConfig", () => {
   it("drops unknown links with a warning, keeps the exercise", () => {
     const r = parsePlanConfig(week(["/nope", "/theory/ears"]), entries);
     assert.ok(r.ok);
-    assert.equal(r.config.days[0].exercises[0].sections?.some((x) => x.type === "link"), false);
-    assert.deepEqual(r.config.days[1].exercises[0].sections?.find((x) => x.type === "link"), { type: "link", href: "/theory/ears" });
+    assert.equal(r.config.days[0].exercises[0].exploreMore, undefined);
+    assert.deepEqual(r.config.days[1].exercises[0].exploreMore, ["/theory/ears"]);
     assert.equal(real(r.warnings).length, 1);
   });
   it("refuses short plans, empty days and bad JSON", () => {

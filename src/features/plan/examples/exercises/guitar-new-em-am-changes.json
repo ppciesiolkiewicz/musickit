@@ -11,6 +11,7 @@
     "minutes": 8,
     "tags": ["technique", "rhythm"],
     "why": "Em and Am share a finger shape, so they are the easiest first change to make automatic.",
+    "learnBefore": ["/course/2/one-minute-changes"],
     "sections": [
       { "type": "text", "text": "Em and Am use the same two fingers side by side: learn to move them as one unit and the change becomes a single motion." },
       { "type": "heading", "text": "Clean shapes", "minutes": 3 },
@@ -24,8 +25,7 @@
       { "type": "text", "text": "Change Em to Am and back as many times as you can in one minute, strumming once on each chord so you hear whether it is clean. Rest, then go again. Do three rounds and note your best count; a clean 20 is better than a buzzy 35." },
       { "type": "heading", "text": "Strum it in time", "minutes": 2 },
       { "type": "text", "text": "Press Play and strum down once on every beat: one bar each, Em, Am, Em, Am. Done when you change without missing the first beat of a bar, four times in a row." },
-      { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "progression", "key": "g", "chords": ["Em", "Am"], "bars": 4, "steps": ["strum"] }, "bpm": 60 } },
-      { "type": "link", "href": "/course/2/one-minute-changes" }
+      { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "progression", "key": "g", "chords": ["Em", "Am"], "bars": 4, "steps": ["strum"] }, "bpm": 60 } }
     ]
   }
 }

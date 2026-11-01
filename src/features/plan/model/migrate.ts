@@ -1,5 +1,8 @@
 import { parseChordQuery } from "@/lib/chordKit/chordSearch";
-import { keySlug } from "@/features/theory/keySlug";
+import { keySlug, parseKeySlug } from "@/features/theory/keySlug";
+import { findPentatonic } from "@/features/theory/pentatonics";
+import { findModePage } from "@/features/theory/scales";
+import type { PlanTool } from "./tools";
 
 /** Old tool names (plans pasted or stored before the learning components) to the component that replaced each. */
 const RENAMED: Record<string, string> = {
@@ -35,4 +38,41 @@ export function migrateTool(raw: Record<string, unknown>): Record<string, unknow
     return { type: "play-along", bpm: raw.bpm ?? 80, view: "neck", shape };
   }
   return raw;
+}
+
+/** The tool an older plan's link stands for (a scale page, the notes or ears game, the metronome); null for any other page. */
+export function toolFromLink(link: string | undefined): PlanTool | null {
+  if (!link) return null;
+  const [pathPart, rest = ""] = link.split("?");
+  const path = pathPart.split("#")[0].replace(/\/$/, "");
+  const query = rest.split("#")[0];
+  const scale = path.match(/^\/theory\/scales\/([a-z0-9-]+)\/([a-z-]+)$/);
+  if (scale) {
+    const key = parseKeySlug(scale[2]);
+    return key !== null && (findPentatonic(scale[1]) || findModePage(scale[1])) ? { type: "scale-neck", scale: scale[1], key } : null;
+  }
+  if (path === "/theory/notes") return { type: "note-finder", query };
+  if (path === "/theory/ears") return { type: "interval-ears", query, ...(/(^|&)wide=1/.test(query) ? { wide: true } : {}) };
+  if (path === "/theory/metronome-drone") return { type: "backing-band", bpm: 80, key: 9, parts: ["click"] };
+  return null;
+}
+
+/** An exercise's links: "Learn before" (prerequisite lessons, shown on top) and "Explore more" (going deeper, at the bottom). */
+export interface LinkSlots { learnBefore: string[]; exploreMore: string[] }
+
+/** At most this many links per slot. */
+export const SLOT_MAX = 3;
+
+/**
+ * The links of a stored exercise, in today's two slots. Older plans kept them elsewhere, and those go to "Explore more":
+ * a `link` section (the bottom of the exercise), or the `link` field from before sections when it didn't stand for a tool
+ * (`toolFromLink`; with `tools` set it never did). A link in both slots stays in "Learn before".
+ */
+export function linkSlots(e: { learnBefore?: unknown; exploreMore?: unknown; sections?: unknown; tools?: unknown; link?: unknown }): LinkSlots {
+  const hrefs = (v: unknown): string[] => (Array.isArray(v) ? v.filter((h): h is string => typeof h === "string" && h !== "") : []);
+  const fromSections = Array.isArray(e.sections) ? e.sections.flatMap((s) => (s?.type === "link" && typeof s.href === "string" ? [s.href] : [])) : [];
+  const link = typeof e.link === "string" && e.link && !Array.isArray(e.sections) && (e.tools || !toolFromLink(e.link)) ? [e.link] : [];
+  const learnBefore = [...new Set(hrefs(e.learnBefore))].slice(0, SLOT_MAX);
+  const exploreMore = [...new Set([...hrefs(e.exploreMore), ...fromSections, ...link])].filter((h) => !learnBefore.includes(h)).slice(0, SLOT_MAX);
+  return { learnBefore, exploreMore };
 }

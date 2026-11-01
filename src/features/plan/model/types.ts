@@ -25,8 +25,9 @@ export interface PlanAnswers {
 export type Level = "new" | "beginner" | "intermediate" | "advanced";
 
 /**
- * One exercise of a day, as the AI wrote it: a title, a focus, minutes, and `sections` in order (text, steps, tools, links;
- * model/tools.ts). Plans stored before sections have `how`, `steps`, `tools` and `link` instead; `sectionsOf` reads both.
+ * One exercise of a day, as the AI wrote it: a title, a focus, minutes, `sections` in order (text, steps, tools;
+ * model/tools.ts) and two link slots. Plans stored before sections have `how`, `steps`, `tools` and `link` instead;
+ * `sectionsOf` and `linkSlots` read both.
  */
 export interface PlanExercise {
   title: string;
@@ -38,6 +39,10 @@ export interface PlanExercise {
   /** what kind of practice it is, from EXERCISE_TAGS ("multi-octave", "ear", …) */
   tags?: string[];
   sections?: Section[];
+  /** attunr pages to read first (prerequisite lessons), shown at the top */
+  learnBefore?: string[];
+  /** attunr pages for going deeper, shown at the bottom */
+  exploreMore?: string[];
   /** before sections */
   how?: string;
   steps?: string[];

@@ -21,8 +21,9 @@ browser.
    per-exercise timer.
 3. **Tools in the section**: each exercise carries 1–2 `tools`, set up by the AI, with nothing to configure: a scale's
    boxes on the neck, chord shapes, a staff with live pitch for singing, a folded play-along band (one Play for only the
-   chosen click / drone / drums / bass), or the notes / ear games with their settings hidden. A `link` is an
-   "Open page" link for more.
+   chosen click / drone / drums / bass), or the notes / ear games with their settings hidden. Links sit in two slots:
+   "Learn before" at the top (prerequisite lessons) and "Explore more" at the bottom (going deeper), each shown as
+   "Learn <the page's name>" and opening in a new tab.
 4. **Plan next week** (mode `"next"`, any time; a banner shows it once the week is over): how did it go, then every
    questionnaire screen again, prefilled with the stored answers, then copy the prompt (it carries this week's exercises,
    done or skipped, the notes and up to three earlier weeks), paste.
@@ -35,9 +36,9 @@ browser.
 model/            pure, no React; tested in model/plan.test.ts
   types.ts        PlanAnswers, PlanConfig (what the AI returns), StoredPlan, PlanState (the stored document)
   questions.ts    the questionnaire's choices and defaults
-  catalogue.ts    the attunr pages a plan may link to; checkLink() keeps only those
+  catalogue.ts    the attunr pages a plan may link to; checkLink() keeps only those; linkLabel() names a link's page
   tools.ts        THE one file for what an exercise is made of, like an MCP server: TOOLS (one parse per learning component; description and props come from the components' COMPONENT_DOCS), the section kinds, tags, link resources; the prompt's interface is generated from it; legacySections reads older plans
-  migrate.ts      migrateTool(): old tool names (scale, chords, sing, band, comp, notes, ears) to today's components
+  migrate.ts      migrateTool(): old tool names (scale, chords, sing, band, comp, notes, ears) to today's components; linkSlots(): an exercise's links in its two slots, old `link` sections and fields as "Explore more"; toolFromLink()
   concepts.ts     the concepts the questionnaire rates, per area and level
   answers.ts      migrateAnswers(): stored answers to today's shape
   focus.ts        focusOptions(), toggleFocus(): the week's focus choices (at most 3)
@@ -68,24 +69,27 @@ reload doesn't lose it; that one stays local.
 ## The plan format
 
 The prompt asks for one JSON object, exactly seven days. An exercise is a linear list of `sections`, shown in order:
-`heading`, `text`, `list` (numbered steps), `tool` (one of the tools below, set up) and `link` (an attunr page). A tool sits
-right after the text it belongs to, so a step that needs another view just adds another tool.
+`heading`, `text`, `list` (numbered steps) and `tool` (one of the tools below, set up). A tool sits right after the text it
+belongs to, so a step that needs another view just adds another tool. Links are not sections: `learnBefore` (lessons to
+read first) and `exploreMore` (going deeper), up to 3 attunr hrefs each; the app shows each with the page's real name.
 
 ```json
 { "title": "…", "summary": "…", "days": [ { "theme": "…", "exercises": [
   { "title": "…", "focus": "A minor pentatonic · boxes 1 & 2", "minutes": 8, "tags": ["technique"], "why": "…",
+    "learnBefore": ["/course/5/pentatonic"],
     "sections": [
       { "type": "text", "text": "…" },
       { "type": "tool", "tool": { "type": "backing-band", "bpm": 60, "key": "a", "parts": ["click", "drone"] } },
       { "type": "list", "items": ["…"] },
-      { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1, 2], "highlight": ["1"] } },
-      { "type": "link", "href": "/theory/scales/minor-pentatonic/a" } ] } ] } ] }
+      { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1, 2], "highlight": ["1"] } } ],
+    "exploreMore": ["/theory/scales/minor-pentatonic/a"] } ] } ] }
 ```
 
 On paste: a code fence or prose around it is fine; minutes are clamped to 1–120; sections and tools that can't be shown
-(unknown scale, unreadable chord, unknown link) are left out with a warning; unknown tags are dropped; fewer than seven
+(unknown scale, unreadable chord) and unknown links are left out with a warning; unknown tags are dropped; fewer than seven
 days or an empty day is refused. Plans pasted before sections (`how`, `steps`, `tools` with a `step`, `link`) are read as
-sections, a step followed by its tools; plans stored that way are converted on display (`sectionsOf`).
+sections, a step followed by its tools; plans stored that way are converted on display (`sectionsOf`). An old `link`
+(a `link` section, or the field before sections when it doesn't stand for a tool) goes to "Explore more" (`linkSlots`).
 
 ## The prompt
 

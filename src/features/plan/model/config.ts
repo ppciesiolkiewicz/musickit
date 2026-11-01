@@ -1,6 +1,7 @@
 import { fitBlocks, blocksOf } from "./blocks";
 import { mixesSingAndPlay } from "./checks";
 import { checkLink, type CatalogueEntry } from "./catalogue";
+import { linkSlots } from "./migrate";
 import { exerciseTags, legacySections, parseSection, parseTool, pickWasInexact, resolveChordPlacement, type Section } from "./tools";
 import { PLAN_DAYS, type PlanConfig, type PlanDay, type PlanExercise } from "./types";
 
@@ -8,9 +9,9 @@ export type ParseResult = { ok: true; config: PlanConfig; warnings: string[] } |
 
 const str = (v: unknown, max = 600): string => (typeof v === "string" ? v.trim().slice(0, max) : "");
 
-/** Sections from the AI's list; what can't be shown (a tool for an unknown scale, an unknown link) is left out with a warning. */
-function parseSections(raw: unknown[], entries: CatalogueEntry[], where: string, warnings: string[]): Section[] {
-  const out = raw.slice(0, 24).map((r) => parseSection(r, entries));
+/** Sections from the AI's list; what can't be shown (a tool for an unknown scale) is left out with a warning. An old `link` section is a link (`parseSlots`). */
+function parseSections(raw: unknown[], where: string, warnings: string[]): Section[] {
+  const out = raw.filter((r) => (r as { type?: unknown })?.type !== "link").slice(0, 24).map((r) => parseSection(r));
   const dropped = out.filter((s) => !s).length;
   if (dropped) warnings.push(`${where}: left out ${dropped} section${dropped > 1 ? "s" : ""} it couldn't show.`);
   const kept = out.filter((s): s is Section => s !== null);
@@ -18,7 +19,20 @@ function parseSections(raw: unknown[], entries: CatalogueEntry[], where: string,
   return kept;
 }
 
-/** An exercise in the earlier shape (how / steps / tools / link), as sections. */
+/** The exercise's link slots, each link checked against the catalogue: an unknown one is dropped with a warning. */
+function parseSlots(e: Record<string, unknown>, entries: CatalogueEntry[], where: string, warnings: string[]): Pick<PlanExercise, "learnBefore" | "exploreMore"> {
+  const check = (hrefs: string[]) => [...new Set(hrefs.flatMap((h) => {
+    const href = checkLink(h, entries);
+    if (!href) warnings.push(`${where}: dropped the link "${h}" (not an attunr page).`);
+    return href ? [href] : [];
+  }))];
+  const raw = linkSlots({ ...e, tools: e.tools ?? [] }); // a pasted old-shape link is a link, never a tool (parseLegacy)
+  const learnBefore = check(raw.learnBefore);
+  const exploreMore = check(raw.exploreMore).filter((h) => !learnBefore.includes(h));
+  return { ...(learnBefore.length ? { learnBefore } : {}), ...(exploreMore.length ? { exploreMore } : {}) };
+}
+
+/** An exercise in the earlier shape (how / steps / tools / link), as sections; its link, unless it stands for a tool, is in `parseSlots`. */
 function parseLegacy(e: Record<string, unknown>, entries: CatalogueEntry[], where: string, warnings: string[]): Section[] {
   const steps = Array.isArray(e.steps) ? e.steps.map((s) => str(s, 240)).filter(Boolean).slice(0, 8) : [];
   const rawTools = Array.isArray(e.tools) ? e.tools.slice(0, 6) : [];
@@ -28,12 +42,7 @@ function parseLegacy(e: Record<string, unknown>, entries: CatalogueEntry[], wher
     return p ? [Number.isInteger(step) && step >= 1 && step <= 8 ? { ...p, step } : p] : [];
   });
   if (tools.length < rawTools.length) warnings.push(`${where}: left out a tool it couldn't show.`);
-  let link: string | undefined;
-  if (e.link != null && e.link !== "") {
-    link = checkLink(e.link, entries);
-    if (!link) warnings.push(`${where}: dropped the link "${String(e.link)}" (not an attunr page).`);
-  }
-  return legacySections({ how: str(e.how), steps, tools, link });
+  return legacySections({ how: str(e.how), steps, tools, link: checkLink(e.link, entries) });
 }
 
 /** The JSON object in what the player pasted: the AI's whole reply is fine (prose, a ```json fence). */
@@ -75,7 +84,7 @@ export function parsePlanConfig(text: string, entries: CatalogueEntry[]): ParseR
       const focus = str(e.focus, 120);
       if (focus) ex.focus = focus;
       const where = `Day ${d + 1}, exercise ${i + 1}`;
-      const sections = resolveChordPlacement(Array.isArray(e.sections) ? parseSections(e.sections, entries, where, warnings) : parseLegacy(e, entries, where, warnings));
+      const sections = resolveChordPlacement(Array.isArray(e.sections) ? parseSections(e.sections, where, warnings) : parseLegacy(e, entries, where, warnings));
       if (!sections.length) {
         warnings.push(`${where}: no instructions.`);
         sections.push({ type: "text", text: title });
@@ -89,6 +98,7 @@ export function parsePlanConfig(text: string, entries: CatalogueEntry[]): ParseR
       if (tags.length) ex.tags = tags;
       const why = str(e.why, 300);
       if (why) ex.why = why;
+      Object.assign(ex, parseSlots(e, entries, where, warnings));
       return [ex];
     });
     if (!exercises.length) return { ok: false, error: `Day ${d + 1} has no exercises.` };

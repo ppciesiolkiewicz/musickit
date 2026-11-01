@@ -1,9 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { useContext, type ReactNode } from "react";
 import { SectionAsideContext } from "./SectionAside";
-import Icon from "@/components/Icon";
 import Explained from "@/components/course/Explained";
 import { explain, type Piece } from "@/features/course/glossary";
 import { inlineNote, noteRootFor, splitNotes, type NoteRoot } from "../model/noteText";
@@ -23,7 +21,7 @@ function NoteText({ pieces, root }: { pieces: Piece[]; root: NoteRoot | null }) 
   );
 }
 
-/** An exercise's sections in the order the AI wrote them: headings, paragraphs, numbered steps, tools and links, top to bottom. */
+/** An exercise's sections in the order the AI wrote them: headings, paragraphs, numbered steps and tools, top to bottom. */
 export default function Sections({ sections, address = "ex" }: { sections: Section[]; /** which exercise, for a `SectionAside` */ address?: string }) {
   const aside = useContext(SectionAsideContext);
   // with an aside (a host's comments), each section carries it; text-like sections shrink to their text so the aside sits at its end
@@ -49,12 +47,6 @@ export default function Sections({ sections, address = "ex" }: { sections: Secti
         );
       case "tool":
         return <div key={i} className="py-1"><ExerciseTool tool={s.tool} /></div>;
-      case "link":
-        return (
-          <Link key={i} href={s.href} className="inline-flex w-fit items-center gap-1 rounded-lg border border-sky-500/40 bg-sky-500/10 px-2.5 py-1 text-xs font-medium text-sky-100 hover:border-sky-400 hover:bg-sky-500/20">
-            Open page <Icon name="chevron-right" size={12} />
-          </Link>
-        );
     }
   };
   // a part per heading: the heading, then everything up to the next one on a rail beside it; what comes before the first heading is the intro

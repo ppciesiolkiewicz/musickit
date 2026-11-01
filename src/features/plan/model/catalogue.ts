@@ -1,6 +1,6 @@
 import { ALL_SECTIONS, sectionHref } from "@/features/course/course";
 import { DEFAULT_KEY_PC } from "@/features/theory/theory";
-import { scaleHref } from "@/features/theory/keySlug";
+import { keyName, parseKeySlug, scaleHref } from "@/features/theory/keySlug";
 import { MODE_PAGES } from "@/features/theory/scales";
 import { PENTATONICS } from "@/features/theory/pentatonics";
 import { THEORY_SECTIONS } from "@/features/theory/sections";
@@ -43,4 +43,20 @@ export function checkLink(link: unknown, entries: CatalogueEntry[]): string | un
   if (known.has(path)) return href;
   const scale = path.match(/^(\/theory\/scales\/[a-z0-9-]+)\/[a-z-]+$/);
   return scale && entries.some((e) => e.href.startsWith(`${scale[1]}/`)) ? href : undefined;
+}
+
+/**
+ * A link's page as the player reads it: the lesson's or page's name ("One-minute changes"), a scale page with its key
+ * ("Minor pentatonic in A"). Undefined when the page isn't in the catalogue.
+ */
+export function linkLabel(href: string, entries: CatalogueEntry[]): string | undefined {
+  const path = pathOf(href);
+  const page = entries.find((e) => pathOf(e.href) === path);
+  const scale = path.match(/^(\/theory\/scales\/[a-z0-9-]+)\/([a-z-]+)$/);
+  const pc = scale ? parseKeySlug(scale[2]) : null;
+  if (scale && pc !== null) {
+    const name = entries.find((e) => e.href.startsWith(`${scale[1]}/`))?.label;
+    if (name) return `${name} in ${keyName(pc)}`;
+  }
+  return page?.label;
 }

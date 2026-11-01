@@ -10,7 +10,7 @@
     "focus": "D Dorian · root on the A and low E strings · Dm7-G7",
     "minutes": 12,
     "tags": ["technique", "improv"],
-    "why": "Dorian is natural minor with a raised 6th; hearing and aiming at that one note is what makes it sound Dorian.",
+    "learnBefore": ["/course/9/modes"],
     "sections": [
       { "type": "text", "text": "Dorian differs from natural minor by one note, so practise that note, not seven." },
       { "type": "heading", "text": "Hear the switch", "minutes": 3 },
@@ -24,8 +24,8 @@
       { "type": "tool", "tool": { "type": "scale-neck", "scale": "dorian", "key": "d", "placement": { "by": "root", "string": 6 }, "highlight": ["1", "6"], "others": "normal" } },
       { "type": "heading", "text": "Improvise over Dm7 to G7", "minutes": 3 },
       { "type": "text", "text": "B is also the 3rd of G7, so Dorian fits Dm7-G7 perfectly. Improvise in either box; land on {{d}} over Dm7 and on {{b}} over G7." },
-      { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "solo-over", "key": "d", "chords": [{ "chord": "Dm7", "scale": "dorian", "target": ["1"] }, { "chord": "G7", "scale": "mixolydian", "target": ["3"], "approach": "land on B on beat 1" }], "bars": 2 }, "bpm": 80, "view": "neck" } },
-      { "type": "link", "href": "/theory/scales/dorian/d" }
-    ]
+      { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "solo-over", "key": "d", "chords": [{ "chord": "Dm7", "scale": "dorian", "target": ["1"] }, { "chord": "G7", "scale": "mixolydian", "target": ["3"], "approach": "land on B on beat 1" }], "bars": 2 }, "bpm": 80, "view": "neck" } }
+    ],
+    "exploreMore": ["/theory/scales/dorian/d", "/course/9/modes-over-drone"]
   }
 }

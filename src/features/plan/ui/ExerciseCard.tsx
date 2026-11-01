@@ -4,6 +4,8 @@ import Icon from "@/components/Icon";
 import { HUE_TONES, hueAt, type Hue } from "@/components/ui";
 import { DISPLAY } from "@/components/landing/Display";
 import Sections from "./Sections";
+import { catalogue, linkLabel, type CatalogueEntry } from "../model/catalogue";
+import { linkSlots } from "../model/migrate";
 import { sectionsOf } from "../model/tools";
 import type { PlanExercise } from "../model/types";
 
@@ -16,15 +18,36 @@ const EDGE: Record<Hue, string> = {
   violet: "border-l-violet-400", teal: "border-l-teal-400", pink: "border-l-pink-400", red: "border-l-red-400",
 };
 
+/** The catalogue, built once for every card's link names. */
+let pages: CatalogueEntry[] | null = null;
+
+/** A link slot: its title, then a link per page, "Learn <the page's name>", each opening in a new tab. */
+function LinkSlot({ title, hrefs }: { title: string; hrefs: string[] }) {
+  if (!hrefs.length) return null;
+  return (
+    <div className="flex flex-wrap items-center gap-1.5">
+      <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">{title}</span>
+      {hrefs.map((href) => (
+        <a key={href} href={href} target="_blank" rel="noopener" className="inline-flex w-fit items-center gap-1.5 rounded-lg border border-sky-500/40 bg-sky-500/10 px-2.5 py-1 text-xs font-medium text-sky-100 hover:border-sky-400 hover:bg-sky-500/20">
+          <Icon name="book-open" size={12} />
+          Learn {linkLabel(href, (pages ??= catalogue())) ?? href}
+        </a>
+      ))}
+    </div>
+  );
+}
+
 /**
  * One exercise as the player sees it: a card coloured by its place in the day (`index`), the title in the display face,
- * focus, tags, its sections (text, steps and tools, set up and ready to play), why, and Mark done when `onToggle` is given.
+ * focus, tags, "Learn before" links, its sections (text, steps and tools, set up and ready to play), why, "Explore more"
+ * links, and Mark done when `onToggle` is given.
  * `now` marks the exercise the day timer is in.
  */
 export default function ExerciseCard({ exercise: e, index, done = false, now = false, onToggle, address }: {
   exercise: PlanExercise; index: number; done?: boolean; now?: boolean; onToggle?: () => void; /** which exercise, for a `SectionAside` */ address?: string;
 }) {
   const hue = hueAt(index);
+  const links = linkSlots(e);
   return (
     <section
       aria-label={e.title}
@@ -43,8 +66,10 @@ export default function ExerciseCard({ exercise: e, index, done = false, now = f
           {e.tags?.map((t) => <span key={t} className={`rounded-full bg-slate-800/80 px-2 py-0.5 text-[11px] font-medium ${HUE_TONES[TAG_HUES[t] ?? "sky"].ink}`}>#{t}</span>)}
         </div>
       )}
+      <LinkSlot title="Learn before" hrefs={links.learnBefore} />
       <Sections sections={sectionsOf(e)} address={address} />
       {e.why && <p className="border-l-2 border-slate-700 pl-3 text-xs italic leading-relaxed text-slate-400">{e.why}</p>}
+      <LinkSlot title="Explore more" hrefs={links.exploreMore} />
       {onToggle && (
         <button
           type="button"
