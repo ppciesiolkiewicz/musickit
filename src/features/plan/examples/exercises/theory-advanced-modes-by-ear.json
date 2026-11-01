@@ -4,7 +4,7 @@
   "areas": ["theory"],
   "level": "advanced",
   "concepts": ["modes"],
-  "note": "Each mode is heard against its parent and pinned to its one colour note, shown with the root on a staff; three modes, three keys, three different listening tasks.",
+  "note": "Each mode is heard against its parent, then its one colour note is tapped on a tenor staff with the root; three modes, three keys, three listening tasks. Each block says what to press and where the changed note shows.",
   "exercise": {
     "title": "Modes by their colour note",
     "focus": "G Mixolydian ♭7 · D Dorian 6 · E Phrygian ♭2, over a drone",
@@ -12,21 +12,20 @@
     "tags": ["ear", "theory"],
     "why": "A mode is easiest to recognise by the one note that differs from plain major or minor.",
     "sections": [
-      { "type": "text", "text": "You do not need to memorise seven scales: each mode is major or minor with one note changed." },
       { "type": "heading", "text": "Major, then Mixolydian", "minutes": 3 },
-      { "type": "text", "text": "Press Play and sing G major for four bars over the G chord, then G Mixolydian for four. The faded note is the one you leave out: F in the first half, F♯ in the second. Listen for the bar where the sound gets looser." },
+      { "type": "text", "text": "Press Play. The backing holds a G chord for eight bars: four in G major, then four in G Mixolydian. Follow the notes view. The faded note is the one left out: F in the first half, F♯ in the second. Listen for the bar where it changes." },
       { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "two-scales", "a": { "key": "g", "scale": "major-ionian" }, "b": { "key": "g", "scale": "mixolydian" }, "bars": 8, "backingChord": "G" }, "bpm": 72, "view": "notes" } },
-      { "type": "text", "text": "The note that changed is {{b7}} (F, not F♯). Tap {{1}}, then {{b7}}, then {{1}} again, and hear it lean down to the root." },
-      { "type": "tool", "tool": { "type": "staff", "scale": "mixolydian", "key": "g", "voice": "baritone", "highlight": ["1", "b7"], "mic": false } },
+      { "type": "text", "text": "The note that changed is {{b7}} (F). Tap {{1}} on the staff, then {{b7}}, then {{1}} again." },
+      { "type": "tool", "tool": { "type": "staff", "scale": "mixolydian", "key": "g", "voice": "tenor", "highlight": ["1", "b7"], "mic": false } },
       { "type": "heading", "text": "Minor, then Dorian", "minutes": 3 },
-      { "type": "text", "text": "Press Play and sing D natural minor, then D Dorian, over the Dm backing. The changed note is {{6}} (B, not B♭); it lifts the minor sound." },
+      { "type": "text", "text": "Press Play. This time it is D natural minor, then D Dorian, over Dm. The changed note is {{6}} (B)." },
       { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "two-scales", "a": { "key": "d", "scale": "natural-minor-aeolian" }, "b": { "key": "d", "scale": "dorian" }, "bars": 8, "backingChord": "Dm" }, "bpm": 72, "view": "notes" } },
-      { "type": "text", "text": "Tap {{1}} and {{6}} on the staff, then the scale up from {{1}}, stopping on {{6}} each time." },
-      { "type": "tool", "tool": { "type": "staff", "scale": "dorian", "key": "d", "voice": "baritone", "highlight": ["1", "6"], "mic": false } },
+      { "type": "text", "text": "Tap {{1}} then {{6}} on the staff. Then tap up the scale from {{1}}, stopping on {{6}}." },
+      { "type": "tool", "tool": { "type": "staff", "scale": "dorian", "key": "d", "voice": "tenor", "highlight": ["1", "6"], "mic": false } },
       { "type": "heading", "text": "Phrygian over a drone", "minutes": 4 },
-      { "type": "text", "text": "Press Play on the drone on E. Phrygian is natural minor with {{b2}} (F) right above the root: the darkest step there is. Tap {{1}} {{b2}} {{1}} slowly against the drone, then the whole scale up and down, and hear how every phrase wants to fall from {{b2}} back to {{1}}." },
+      { "type": "text", "text": "Press Play on the drone on E. Phrygian's colour note is {{b2}} (F), a half step above the root. Tap {{1}} {{b2}} {{1}} on the staff against the drone. Then tap around the whole scale, coming back to {{b2}} whenever you like." },
       { "type": "tool", "tool": { "type": "click-drone", "bpm": 60, "key": "e", "click": false } },
-      { "type": "tool", "tool": { "type": "staff", "scale": "phrygian", "key": "e", "voice": "baritone", "highlight": ["1", "b2"], "mic": false } }
+      { "type": "tool", "tool": { "type": "staff", "scale": "phrygian", "key": "e", "voice": "tenor", "highlight": ["1", "b2"], "mic": false } }
     ]
   }
 }

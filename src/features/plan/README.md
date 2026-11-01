@@ -102,13 +102,16 @@ skill each; `minutes` are the truth and a play-along loops until stopped; exerci
 block changing something real; sing or play, never both; longer singing made musical; every named note lit, the root never
 muted, one chart per step; intervals inside an octave unless tagged `multi-octave`; a progression practised several ways;
 no genre-driven plans), a "Common mistakes" list of wrong → right pairs (box far from open chords, wrong degree highlighted,
-chord tones as prose, muted Do, one chart for five steps, 12 minutes of one tool, sing-and-play, timer vs text),
-then the interface, generated from
+chord tones as prose, muted Do, one chart for five steps, 12 minutes of one tool, sing-and-play, timer vs text, a why
+paragraph, repeat counts and poetic lines, jargon), "How to write an exercise" (drills first with at most one sentence of
+why in `why`; how to use the app over technique; playful, no repeat counts, one action per sentence; targets say which
+chord they land on; syllables only with a reason; "position" for scale shapes; "the staff", explained for beginners;
+non-singing staffs in tenor), then the interface, generated from
 `model/tools.ts`: every section kind and tool as name, description and `inputSchema` (as an MCP server lists tools), and the
 pages a link may go to as a few URI templates (`/theory/scales/{scale}/{key}`, `/course/{stage}/{section}`).
 
 The prompt is built as labelled parts (`promptParts`: intro, student, earlier weeks, how to plan, rules, mistakes,
-exercise format, section and tool interfaces, links, one `example:<id>` part per example, answer format); `buildPrompt` joins them.
+how to write, exercise format, section and tool interfaces, links, one `example:<id>` part per example, answer format); `buildPrompt` joins them.
 
 Examples come from the library (`examples/`), chosen by `model/exampleSelection.ts` (`selectExamples`): every exercise
 example, each labelled `For: <area>, level <level>` under a heading telling the AI to pitch at the student's levels, and

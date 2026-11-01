@@ -4,7 +4,7 @@
   "areas": ["voice"],
   "level": "new",
   "concepts": ["matching-a-pitch", "do-re-mi-steps", "breath-holding-note"],
-  "note": "A first singing exercise in three 2-minute blocks, each a different job (match, step away and back, sustain), with a drone as the reference instead of an instrument and only the notes in play shown on the staff.",
+  "note": "A first singing exercise in three 2-minute blocks, each a different job (match, step away and back, sustain), with a drone as the reference instead of an instrument. Most of the text is how to use the app: the drone, the mic, the pitch line on the staff, explained once.",
   "exercise": {
     "title": "Find Do and stay on it",
     "focus": "Matching Do over a drone in C · Do-Re-Do · holding a note",
@@ -12,19 +12,18 @@
     "tags": ["sing", "ear"],
     "why": "Matching one note and holding it steady is the base every other singing skill stands on.",
     "sections": [
-      { "type": "text", "text": "A drone gives your ear a fixed note to lean on, so you can hear yourself line up with it." },
       { "type": "heading", "text": "Hum the drone note", "minutes": 2 },
-      { "type": "text", "text": "Press Play on the drone. Hum along until the sound stops wobbling against it, then open to \"ah\" on {{1}} and watch your pitch line on the staff sit on the note." },
+      { "type": "text", "text": "Press Play on the drone. Hum along until your voice blends with it. Then start the mic on the staff below: the staff is the five lines of music, where your pitch shows as a line. Sing {{1}} out loud. Watch your line sit on the note." },
       { "type": "tool", "tool": { "type": "click-drone", "bpm": 60, "key": "c", "click": false } },
-      { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "alto", "enable": ["1"], "others": "hidden" } },
+      { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "tenor", "enable": ["1"], "others": "hidden" } },
       { "type": "heading", "text": "Step to Re and home", "minutes": 2 },
-      { "type": "text", "text": "Sing {{1}} for one slow breath, step up to {{2}} for one breath, and back to {{1}}. Do comes home to the drone; Re rubs against it. Five times, slowly." },
+      { "type": "text", "text": "Press Play on the drone. Sing {{1}} for one slow breath. Step up to {{2}} for the next breath. Come back to {{1}}. Watch your line step up, then back down." },
       { "type": "tool", "tool": { "type": "click-drone", "bpm": 60, "key": "c", "click": false } },
-      { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "alto", "notes": ["1", "2"] } },
+      { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "tenor", "notes": ["1", "2"] } },
       { "type": "heading", "text": "One long note", "minutes": 2 },
-      { "type": "text", "text": "Breathe in low for four clicks, then sing {{1}} on \"ah\" for eight clicks, steady in pitch and volume. Rest, then try ten clicks, then twelve. Done when the line on the staff stays flat to the end." },
+      { "type": "text", "text": "Press Play: now a click sounds with the drone. Breathe in for four clicks. Sing {{1}} for as long as feels easy. See how flat you can keep your line to the end." },
       { "type": "tool", "tool": { "type": "click-drone", "bpm": 60, "key": "c" } },
-      { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "alto", "enable": ["1"], "others": "hidden" } }
+      { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "tenor", "enable": ["1"], "others": "hidden" } }
     ]
   }
 }

@@ -92,7 +92,7 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
   const history = previous.slice(0, 3).map(weekReport).join("\n\n");
   return [
     part("intro", "Intro", "intro", [
-      "You are a music teacher writing a 7-day practice plan for one student. They practise with attunr, a web app; each exercise shows the tools it needs right in the plan, between its text.",
+      "You are writing a 7-day drill plan for one student. They practise with attunr, a web app; each exercise is a drill that shows the tools it needs right in the plan, between its text. The lessons live elsewhere (see Links): the exercises say what to do with the tools, not why it works.",
       "",
     ]),
     part("student", "The student", "student", [
@@ -110,14 +110,14 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
       "- Serve their direction AND what a good teacher sees they need: weave in fundamentals (time feel, fretboard or keyboard knowledge, ear) even if they didn't ask, aimed at what they find hard.",
       "- Each day has a theme and 2 to 5 exercises whose minutes add up to about their daily time. Warm-up first, something musical (a song, a groove, improvising) last.",
       "- Vary the days; return to the week's key skill at least three times so it sticks, each time in a new form. Day 7 is a fun review that shows progress.",
-      "- Every exercise has a \"focus\": exactly what it works on, as specific as \"A minor pentatonic · boxes 1 & 2\" or \"G-C-D changes at 70 bpm\".",
-      "- Concrete instructions: tempos, keys, chords, strings, how many reps, and a \"done when\" the student can check. Short, plain language.",
+      "- Every exercise has a \"focus\": exactly what it works on, as specific as \"A minor pentatonic · positions 1 & 2\" or \"G-C-D changes at 70 bpm\".",
+      "- Concrete settings: keys, tempos, chords and strings, set in the tools and named in the text where the student needs them. Write the text as \"How to write an exercise\" below says.",
       "",
     ]),
     part("rules", "Rules for good exercises", "rules", [
       "## Rules for good exercises",
       "- One exercise, one skill. Its \"minutes\" are the truth: the timer runs exactly that long and the play-along loops until the student stops it. Give each exercise the minutes its work needs and no more; never pad a short drill.",
-      "- Variety inside an exercise: an exercise over 5 minutes is 2 or more blocks of 2 to 5 minutes each, and consecutive blocks on one idea change something real (tempo, key, position, direction, which note is lit, hearing it vs from memory). Never one tool for the whole of a long exercise. A block starts with a heading that has \"minutes\"; the block minutes add up to the exercise minutes; a heading without \"minutes\" is a sub-heading inside a block. Example: \"A minor pentatonic, 12 min\" = box 1 at 60 bpm (3) → crossing box 1 to 2 (3) → the same in C (3) → 3 minutes improvising on just those notes.",
+      "- Variety inside an exercise: an exercise over 5 minutes is 2 or more blocks of 2 to 5 minutes each, and consecutive blocks on one idea change something real (tempo, key, position, direction, which note is lit, hearing it vs from memory). Never one tool for the whole of a long exercise. A block starts with a heading that has \"minutes\"; the block minutes add up to the exercise minutes; a heading without \"minutes\" is a sub-heading inside a block. Example: \"A minor pentatonic, 12 min\" = position 1 at 60 bpm (3) → crossing from position 1 to 2 (3) → the same in C (3) → 3 minutes improvising on just those notes.",
       "- Singing or playing: an exercise is one or the other, never both; no step asks the student to sing and play. A week may hold both kinds; tag \"sing\" or the instrument. Singing is a mic tool (staff with live pitch, melody-singer, run-singer) or text that asks to sing. Playing is text that asks to play their instrument. Allowed in either: click-drone, backing-band, a play-along used as accompaniment the student sings or listens over, staff without mic, interval-ears, note-finder; saying note names aloud while playing is fine. A listening-only ear exercise is fine.",
       "- Singing for longer is made musical: sing over chords (a play-along as accompaniment), melody-singer tunes, call and response (the app plays, the student sings back), improvising on chord tones. A bare singing drill (chord tones up and down, a scale up and down) is at most one block of 3 minutes or less. Never use the guitar as the reference pitch (\"play the A, sing it back\").",
       "- Light what you name: every note a step names is lit in the tool after it. The root (Do) is never muted when it is part of the exercise. Two layers mark notes: \"enable\" is the notes the student plays (absent: all of them; the rest are muted, or hidden with \"others\": \"hidden\"), \"highlight\" the few of interest among them (the roots, the one new note, the note that differs between two modes), ringed. Never give both the same notes. One chart per step when the focus changes: step 1 shows Do, step 2 Do + Mi, step 4 the whole line. Reuse a tool when consecutive steps show the same notes; an exercise has at most 6 tools, so split into two exercises rather than exceed 6.",
@@ -127,7 +127,7 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
       "- Strumming chords in time is a strum-along: a metronome and the chords as blocks, one per bar (or beat), the playing one lit. Never a play-along with a progression shape for the student's own strumming.",
       "- Any exercise that asks for a tempo (\"play it at 80\", \"60 bpm\") shows a tool that sounds the beat at that tempo: strum-along for strumming chords, else click-drone, backing-band or a play-along. Its \"bpm\" is the number the text names.",
       "- A line over chords (guide tones, chord tones, an arpeggio part) is a play-along whose steps are those degrees: the app holds the chords under it so the student hears each note against its chord, never just a click, and its neck view keeps the whole line in place with the chord playing standing out. Use play-along's \"under\": \"drone\" only when one key root should sound under everything.",
-      "- When the student's voice type is known, set \"voice\" on every staff, melody-singer and run-singer tool to it.",
+      "- When the student's voice type is known, set \"voice\" on every staff, melody-singer and run-singer tool to it; when it is not, and on every staff in an exercise that does not sing, use \"tenor\".",
       "- You choose what to practise; the app computes notes, frets, tabs and timing. Never write frets or note lists the app can compute.",
       "- Do not put two exercises of the same kind next to each other in a day, and tag each with what kind it is.",
       "- Explained words: the app adds an (i) with a short meaning and an article link to these words, so use them by name where they fit and do not define them in the text. List of words: " + GLOSSARY.map((t) => t.forms[0]).join(", ") + ".",
@@ -135,7 +135,7 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
     ]),
     part("mistakes", "Common mistakes", "rules", [
       "## Common mistakes",
-      "- Wrong: open A7 and D7 chord shapes with an A minor pentatonic scale-neck at \"boxes\": [1] (fret 5, far from the chords). Right: \"placement\": { \"by\": \"chords\" } (or { \"by\": \"open\" }), so the box sits next to the chords.",
+      "- Wrong: open A7 and D7 chord shapes with an A minor pentatonic scale-neck at \"boxes\": [1] (fret 5, far from the chords). Right: \"placement\": { \"by\": \"chords\" } (or { \"by\": \"open\" }), so the position sits next to the chords.",
       "- Wrong: text about C♯ with \"highlight\": [\"b3\"] (that is C). Right: \"add\": [\"c-sharp\"] (lit by itself) or \"highlight\": [\"c-sharp\"].",
       "- Wrong: \"Dm7 has F and C, G7 has B and F\" as prose only. Right: one sentence of why, then a play-along with a chord-steps shape (steps [\"1\",\"3\",\"b7\"]), \"view\": \"tab\", and \"guide\" naming each note.",
       "- Wrong: \"Sing 1 3 5 b7 up and back\" as plain text. Right: \"Sing {{1}} {{3}} {{5}} {{b7}} up and back\".",
@@ -147,7 +147,21 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
       "- Wrong: a 12-minute exercise with one tool and no blocks. Right: four headings with \"minutes\": 3, each changing tempo, key, position or the lit notes.",
       "- Wrong: \"Play the chord, then sing the 3rd\" in one exercise. Right: split it: one exercise plays the chord changes, another sings the 3rd over a play-along accompaniment.",
       "- Wrong: a 3-minute exercise whose text says \"hold each note 8 seconds\" and nothing about how long to keep going. Right: state the minutes per block (\"3 minutes: hold each note 8 seconds, then the next\"), so the text and the timer agree.",
-      "- Wrong: an exercise that starts with steps. Right: its first text says why in one sentence (\"Guide tones move by a half step, so they make the changes audible\").",
+      "- Wrong: a paragraph of why, or the same why in \"why\" and again in the first text. Right: one sentence in \"why\" (\"Guide tones move by a half step, so they make the changes audible.\"); the sections start with the first block.",
+      "- Wrong: \"Do comes home to the drone; Re rubs against it. Five times, slowly.\" Right: \"Sing {{1}}, then step up to {{2}}. Watch your pitch line on the staff step up, then back down.\"",
+      "- Wrong: \"Cross at least once per phrase. Done at four clean runs in a row.\" Right: \"Use the slide on the G string to move between the positions. Land on {{c}} when Cm7 comes round.\"",
+      "",
+    ]),
+    part("writing", "How to write an exercise", "rules", [
+      "## How to write an exercise",
+      "- Drills first. At most one sentence of why, in \"why\" (\"Dorian differs from natural minor by one note, so practise that note.\"). No paragraphs of rationale, no a-ha moments to discover, no step-by-step technique (fingerings, posture, breathing); the tools show fingers and frets.",
+      "- Say how to use the app more than how to play: what to press, what to start, where to look (\"Press Play on the drone. Hum along until your voice blends with it. Then start the mic on the staff to see your pitch.\"). Notes in the text are dots the student can tap to hear, so invite that.",
+      "- Playful and exploratory, not prescriptive: invite the student to try, mix, make up, guess and check. No repeat counts (\"five times\", \"ten right in a row\", \"done at four clean runs\"); the timer sets the length. No poetic lines (\"Re rubs against it\"). One action per sentence: short sentences, not clauses chained with \"and\".",
+      "- Clear phrasing. Say exactly what to do: \"play {{6}}, then {{1}}\", not \"resolve it to Do three times\". No jargon the text does not explain (\"cross at least once per phrase\"), no numbers out of nowhere (\"not seven\"). A target says when: \"land on {{c}} when Cm7 comes round\".",
+      "- A syllable to sing (\"la\", \"ah\") only with its reason (\"sing the names: they help you remember each sound\"); otherwise leave it out.",
+      "- Guitar scale shapes are positions (\"position 1\", \"the position with the root on the A string\"), never boxes or patterns, in titles, headings and text alike; scale-neck's prop is still called \"boxes\".",
+      "- The five-line notation is \"the staff\", never \"music sheet\" or \"stave\". For a new or beginner student, explain it the first time (\"the staff, the five lines of music, where your pitch shows as a line\").",
+      "- Vary the voice work: the same leap or chord tones in a new key and scale per block (a drone with a staff for each), calls and answers, short made-up tunes.",
       "",
     ]),
     part("exercise-format", "Exercise format", "format", [
