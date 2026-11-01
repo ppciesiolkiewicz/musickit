@@ -372,7 +372,7 @@ function Miss({ x, y, to, cents, hit, colour }: { x: number; y: number; to: numb
 }
 
 /** One note with its rhythm: a hollow head from a half up, a stem under a whole, a flag on an eighth, a dot when dotted. */
-function Note({ p, x, y, beats, colour, yOf }: { p: Placed; x: number; y: number; beats: number; colour: string; yOf: (s: number) => number }) {
+export function Note({ p, x, y, beats, colour, yOf }: { p: Placed; x: number; y: number; beats: number; colour: string; yOf: (s: number) => number }) {
   const hollow = beats >= 2;
   const up = p.step < 4;
   const sx = up ? x + 6 : x - 6;
