@@ -300,6 +300,11 @@ export function placeTune(tune: MelodyNote[], ladder: Ladder, range: Range): Pla
  * of a key over a range; the later keys get room above the voice's top, so a run climbing past it isn't clamped.
  */
 export function placeRun(tune: MelodyNote[], tonicPc: number, keys: number, ladderIn: (pc: number, range: Range) => Ladder, range: Range): PlacedNote[] {
+  return runPasses(tune, tonicPc, keys, ladderIn, range).flatMap((p) => p.notes);
+}
+
+/** A run's passes as placeRun places them, each with the ladder of its key (for its chords). */
+export function runPasses(tune: MelodyNote[], tonicPc: number, keys: number, ladderIn: (pc: number, range: Range) => Ladder, range: Range): { ladder: Ladder; notes: PlacedNote[] }[] {
   const ladder = ladderIn(tonicPc, range);
   const first = placeTune(tune, ladder, range);
   // the Do the first pass sits on
@@ -307,9 +312,9 @@ export function placeRun(tune: MelodyNote[], tonicPc: number, keys: number, ladd
   const length = tune.at(-1)!.at + tune.at(-1)!.beats;
   const wide = { low: range.low, high: range.high + 2 * keys + 12 };
   return Array.from({ length: keys }, (_, k) => {
-    if (k === 0) return first;
+    if (k === 0) return { ladder, notes: first };
     const l = ladderIn((tonicPc + k) % 12, wide);
     const root = l.notes.findIndex((n) => n.label === "R" && n.midi === root0 + k);
-    return tune.map((n) => ({ ...l.notes[Math.max(0, Math.min(l.notes.length - 1, root + n.step))], beats: n.beats, at: n.at + k * length }));
-  }).flat();
+    return { ladder: l, notes: tune.map((n) => ({ ...l.notes[Math.max(0, Math.min(l.notes.length - 1, root + n.step))], beats: n.beats, at: n.at + k * length })) };
+  });
 }

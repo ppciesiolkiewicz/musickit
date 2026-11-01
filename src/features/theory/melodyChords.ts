@@ -6,7 +6,7 @@
  */
 import { BEATS_PER_BAR, type MelodyNote } from "./singingMelody";
 import { RANGE_MIN, type Ladder, type Range } from "./singing";
-import { placeTune, type PlacedNote } from "./singingMelodies";
+import { placeTune, runPasses, type PlacedNote } from "./singingMelodies";
 
 export interface MelodyChord {
   /** beat it starts on, from the tune's beat 0 */
@@ -90,6 +90,35 @@ export function tuneChords(tune: MelodyNote[], ladder: Ladder, notes: PlacedNote
 export function harmoniseTune(tune: MelodyNote[], ladder: Ladder, range: Range): { notes: PlacedNote[]; chords: MelodyChord[] } {
   const notes = placeTune(tune, ladder, range);
   return { notes, chords: tuneChords(tune, ladder, notes) };
+}
+
+/**
+ * A run (as placeRun places it) with its chords, each pass's on its own key. Before every key change the held Do is cut
+ * to a quarter: the chord of the bar before rings on under it, this key's home chord is struck on beat 2 and the next
+ * key's on beat 3, held to the bar's end, so the new key is heard before the next pass starts on it. The last pass keeps
+ * its whole-note Do over its home chord.
+ */
+export function harmoniseRun(tune: MelodyNote[], tonicPc: number, keys: number, ladderIn: (pc: number, range: Range) => Ladder, range: Range): { notes: PlacedNote[]; chords: MelodyChord[] } {
+  const passes = runPasses(tune, tonicPc, keys, ladderIn, range);
+  const length = tune.at(-1)!.at + tune.at(-1)!.beats;
+  const barStart = length - BEATS_PER_BAR;
+  const out = passes.map(({ ladder, notes }, k) => {
+    const shifted = notes.map((n) => ({ ...n, at: n.at - k * length }));
+    const chords = tuneChords(tune, ladder, shifted).map((c) => ({ ...c, at: c.at + k * length }));
+    return { ladder, notes, chords, root: doIndex(ladder, tune, shifted) };
+  });
+  return {
+    notes: out.flatMap((p, k) => (k === out.length - 1 ? p.notes : p.notes.map((n, i) => (i === p.notes.length - 1 ? { ...n, beats: 1 } : n)))),
+    chords: out.flatMap((p, k) => {
+      if (k === out.length - 1) return p.chords;
+      const next = out[k + 1];
+      const at = k * length + barStart;
+      const before = p.chords.slice(0, -1).map((c, i, all) => (i === all.length - 1 ? { ...c, beats: c.beats + 1 } : c));
+      const home = triadOn(p.ladder, p.root, 0, p.notes.at(-1)!.midi);
+      const coming = triadOn(next.ladder, next.root, 0, next.notes[0].midi);
+      return [...before, { at: at + 1, beats: 1, ...home }, { at: at + 2, beats: 2, ...coming }];
+    }),
+  };
 }
 
 /**

@@ -1,7 +1,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { BOOK, DIFFICULTIES, RUNS, STAGES, effortOf, parseTune, placeRun, placeTune } from "./singingMelodies";
-import { VOICES, buildLadder, withNotesUnder } from "./singing";
+import { BOOK, DIFFICULTIES, RUNS, STAGES, effortOf, parseTune, placeRun, placeTune, runPasses } from "./singingMelodies";
+import { VOICES, buildLadder, tuneLadderFor, withNotesUnder, type Range } from "./singing";
 
 describe("the melody book", () => {
   it("reads the tune notation", () => {
@@ -121,5 +121,21 @@ describe("difficulty", () => {
     assert.deepEqual(run.filter((_, i) => i % 5 === 0).map((n) => n.midi - run[0].midi), [0, 1, 2]);
     assert.deepEqual(run.slice(5, 10).map((n) => n.spelled.name), ["D♭", "E♭", "F", "E♭", "D♭"]);
     assert.deepEqual(run.slice(10).map((n) => n.at), [16, 17, 18, 19, 20]);
+  });
+});
+
+describe("a run's passes", () => {
+  const ladderIn = (pc: number, r: Range) => tuneLadderFor(buildLadder("major-ionian", pc, r)!, pc, r);
+
+  it("places a run as it always has, every pass ending on a whole-note Do", () => {
+    const run = placeRun(RUNS[0].notes, 0, RUNS[0].keys!, ladderIn, VOICES.soprano);
+    assert.deepEqual(run.map((n) => [n.midi, n.at, n.beats]), [[60,0,0.5],[62,0.5,0.5],[64,1,0.5],[65,1.5,0.5],[67,2,0.5],[65,2.5,0.5],[64,3,0.5],[62,3.5,0.5],[60,4,4],[61,8,0.5],[63,8.5,0.5],[65,9,0.5],[66,9.5,0.5],[68,10,0.5],[66,10.5,0.5],[65,11,0.5],[63,11.5,0.5],[61,12,4],[62,16,0.5],[64,16.5,0.5],[66,17,0.5],[67,17.5,0.5],[69,18,0.5],[67,18.5,0.5],[66,19,0.5],[64,19.5,0.5],[62,20,4],[63,24,0.5],[65,24.5,0.5],[67,25,0.5],[68,25.5,0.5],[70,26,0.5],[68,26.5,0.5],[67,27,0.5],[65,27.5,0.5],[63,28,4],[64,32,0.5],[66,32.5,0.5],[68,33,0.5],[69,33.5,0.5],[71,34,0.5],[69,34.5,0.5],[68,35,0.5],[66,35.5,0.5],[64,36,4]]);
+  });
+
+  it("keeps each pass's ladder beside its notes", () => {
+    const passes = runPasses(RUNS[0].notes, 0, 3, ladderIn, VOICES.soprano);
+    assert.equal(passes.length, 3);
+    assert.deepEqual(passes.map((p) => p.notes[0].at), [0, 8, 16]);
+    assert.deepEqual(passes.map((p) => p.ladder.notes.find((n) => n.midi % 12 === p.notes[0].midi % 12)!.spelled.name), ["C", "D♭", "D"]);
   });
 });
