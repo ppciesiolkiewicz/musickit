@@ -56,6 +56,22 @@ describe("a tune's chords", () => {
     }
   });
 
+  it("moves its root the way the tune moves", () => {
+    const roots = (t: string) => harmoniseTune(parseTune(t), C, VOICES.soprano).chords.map((c) => [c.name, c.midis[0]]);
+    const up = roots("4 6 4 6 | 5 7 2' 7 | 1'w");
+    assert.deepEqual(up.map(([n]) => n), ["F", "G", "C"]);
+    for (let i = 1; i < up.length; i++) assert.ok(up[i][1] > up[i - 1][1], `${up}`);
+    const down = roots("1' 5 3 5 | 2 7, 5, 7, | 1w");
+    assert.deepEqual(down.map(([n]) => n), ["C", "G", "C"]);
+    assert.ok(down[1][1] < down[0][1], `${down}`);
+  });
+
+  it("keeps the same chord where it is", () => {
+    const { chords } = harmoniseTune(parseTune("1 2 3 4 | 5 4 5 1'"), C, VOICES.soprano);
+    assert.deepEqual(chords.map((c) => c.name), ["C", "C"]);
+    assert.equal(chords[0].midis[0], chords[1].midis[0]);
+  });
+
   it("never sinks under the lowest note for a bass", () => {
     const L = ladderIn("major-ionian", 0, VOICES.bass);
     const { chords } = harmoniseTune(parseTune("1 7, 6, 7, | 1w"), L, VOICES.bass);

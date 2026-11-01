@@ -1,7 +1,8 @@
 /**
  * Chords under a sung tune, worked out from its notes: one a bar, the scale's own triad on degree 1, 4 or 5, whichever
  * covers the bar best, its strong beats most. Realised on the ladder the tune is placed on (so its name is spelled the
- * way the notes are) and voiced as a close triad in the middle of the keyboard, under the tune where there is room.
+ * way the notes are) and voiced as a close triad in the middle of the keyboard, under the tune where there is room, its root
+ * moving the way the tune moves from bar to bar.
  * Pure data, no React, no sound (tested).
  */
 import { BEATS_PER_BAR, type MelodyNote } from "./singingMelody";
@@ -26,6 +27,8 @@ const DEGREES = [0, 4, 3] as const;
 /** the lowest a chord's root goes while it can still sit under the tune; under that it moves up into the middle */
 const ROOT_FLOOR = 43;
 const MIDDLE_ROOT = 48;
+/** the highest a chord's root climbs following a rising tune */
+const ROOT_CEILING = 64;
 
 const deg = (step: number) => ((step % 7) + 7) % 7;
 
@@ -56,19 +59,31 @@ export function doIndex(ladder: Ladder, tune: MelodyNote[], notes: PlacedNote[])
   return ladder.notes.findIndex((n) => n.midi === notes[0].midi) - tune[0].step;
 }
 
-/** The triad on `degree` above the Do at `root`, named, voiced under `below` where it fits. */
-export function triadOn(ladder: Ladder, root: number, degree: number, below: number): { name: string; midis: number[] } {
+/**
+ * The triad on `degree` above the Do at `root`, named, voiced under `below` where it fits. After a chord rooted on
+ * `prev.root`, its root steps the way the tune goes (`prev.dir` up or down, 0 to the nearest), between ROOT_FLOOR and
+ * ROOT_CEILING and not over the tune's lowest note (the same chord again stays put); where it can't, it is placed as with
+ * no chord before.
+ */
+export function triadOn(ladder: Ladder, root: number, degree: number, below: number, prev?: { root: number; dir: number }): { name: string; midis: number[] } {
   const [r, t, f] = [0, 2, 4].map((k) => rung(ladder, root + degree + k));
   const third = t.midi - r.midi;
   const fifth = f.midi - r.midi;
   const name = r.name + (fifth === 6 ? "°" : third === 3 ? "m" : "");
   const pc = ((r.midi % 12) + 12) % 12;
+  const voiced = (lo: number) => ({ name, midis: [lo, lo + third, lo + fifth].map((m) => Math.max(RANGE_MIN, m)) });
+  if (prev) {
+    const up = prev.root + 1 + (((pc - prev.root - 1) % 12) + 12) % 12;
+    const down = up - 12;
+    const lo = down === prev.root ? down : prev.dir > 0 ? up : prev.dir < 0 ? down : up - prev.root <= prev.root - down ? up : down;
+    if (lo >= ROOT_FLOOR && lo <= ROOT_CEILING && lo < below) return voiced(lo);
+  }
   // the highest root (C3 and down) whose top stays under the tune, else one in the middle (C3 to B3)
   const middle = MIDDLE_ROOT + (((pc - MIDDLE_ROOT) % 12) + 12) % 12;
   let lo = middle;
   while (lo + fifth >= below && lo - 12 >= ROOT_FLOOR) lo -= 12;
   if (lo + fifth >= below) lo = middle;
-  return { name, midis: [lo, lo + third, lo + fifth].map((m) => Math.max(RANGE_MIN, m)) };
+  return voiced(lo);
 }
 
 /** One chord a bar for a tune placed on `ladder` (`notes` is `tune` as placed). */
@@ -76,14 +91,30 @@ export function tuneChords(tune: MelodyNote[], ladder: Ladder, notes: PlacedNote
   const root = doIndex(ladder, tune, notes);
   const end = tune.at(-1)!.at + tune.at(-1)!.beats;
   const chords: MelodyChord[] = [];
+  let prev: { root: number; height: number } | undefined;
   for (let at = 0; at < end; at += BEATS_PER_BAR) {
     const inBar = (n: { at: number }) => n.at >= at && n.at < at + BEATS_PER_BAR;
     const degree = barChordDegree(tune.filter(inBar), at);
     const sounding = notes.filter((n) => n.at < at + BEATS_PER_BAR && n.at + n.beats > at);
     const below = Math.min(...sounding.map((n) => n.midi));
-    chords.push({ at, beats: Math.min(BEATS_PER_BAR, end - at), ...triadOn(ladder, root, degree, below) });
+    const height = barHeight(notes.filter(inBar), at) ?? prev?.height ?? 0;
+    const chord = triadOn(ladder, root, degree, below, prev && { root: prev.root, dir: Math.sign(height - prev.height) });
+    chords.push({ at, beats: Math.min(BEATS_PER_BAR, end - at), ...chord });
+    prev = { root: chord.midis[0], height };
   }
   return chords;
+}
+
+/** How high a bar's notes sit on average, each counted for the beats it holds in the bar; undefined for a bar of rests. */
+function barHeight(bar: PlacedNote[], barStart: number): number | undefined {
+  let sum = 0;
+  let beats = 0;
+  for (const n of bar) {
+    const b = Math.min(n.beats, barStart + BEATS_PER_BAR - n.at);
+    sum += n.midi * b;
+    beats += b;
+  }
+  return beats ? sum / beats : undefined;
 }
 
 /** A tune placed in a voice (as placeTune places it) with its chords. */
