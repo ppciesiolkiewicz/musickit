@@ -60,5 +60,6 @@ test("a backed progression with no steps shows the backing as played: bass on 1 
   const cs = chordCues(p);
   assert.deepEqual(cs.map((c) => [c.at, c.kind, c.frets.length]), [[0, "note", 1], [1, "strum", 4], [2, "note", 1], [3, "strum", 4]]);
   assert.deepEqual(cs[0].frets, [{ string: 1, fret: 3, finger: 3 }]);
+  assert.ok(cs.every((c, i) => !cs[i + 1] || c.at + c.beats <= cs[i + 1].at), "a ringing bass note is not drawn over the next hit");
   assert.ok(cs[1].frets.every((f) => f.string >= 2));
 });

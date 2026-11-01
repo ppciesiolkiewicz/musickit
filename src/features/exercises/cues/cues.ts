@@ -201,8 +201,9 @@ export function chordCues(t: Timeline, opts: Marks = {}): Cue[] {
     const rootPc = parseChordQuery(c.name)?.rootPc ?? 0;
     if (!c.backing)
       return [{ at: c.at, beats: c.beats, chord: c.name, kind: "note", midi: cells.map((x) => x.midi), frets: cells.map(toFret), ...marked(cells.map((x) => x.midi - rootPc), opts, c) }];
-    return compEvents(v.midi, c.backing, c.beats).map((e) => ({
-      at: c.at + e.beat, beats: e.len, chord: c.name, kind: e.midi.length > 1 ? "strum" : "note", midi: e.midi,
+    // drawn until the next hit: a bass note left ringing under the chord is not lit through it
+    return compEvents(v.midi, c.backing, c.beats).map((e, i, all) => ({
+      at: c.at + e.beat, beats: Math.min(e.len, (all[i + 1]?.beat ?? Infinity) - e.beat), chord: c.name, kind: e.midi.length > 1 ? "strum" : "note", midi: e.midi,
       frets: e.midi.flatMap((m) => cells.filter((x) => x.midi === m).slice(0, 1).map(toFret)), ...marked(e.midi.map((m) => m - rootPc), opts, c),
     }));
   });
