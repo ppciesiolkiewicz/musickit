@@ -134,14 +134,19 @@ export function VideoFrame({ config, score, format, time, className = "", style 
   // one array per tune, so a new pass doesn't hand the staff a new melody
   const written = useMemo(() => score.segments.map(passesOf), [score]);
   const harmony = useMemo(() => score.segments.map(chordPassesOf), [score]);
+  // the intro's music, on the staff while it plays
+  const introWritten = useMemo(() => (score.introMusic ? { notes: passesOf(score.introMusic), chords: chordPassesOf(score.introMusic) } : null), [score]);
+  const listening = shown.phase === "intro" && introWritten !== null;
 
   const timeline = useMemo<StageTimeline>(
     () => ({
-      melody: { notes: written[shown.segment], chords: harmony[shown.segment], ladder: score.ladder, clef: score.clef, beatMs: score.beatMs },
+      melody: { ...(listening ? introWritten! : { notes: written[shown.segment], chords: harmony[shown.segment] }), ladder: score.ladder, clef: score.clef, beatMs: score.beatMs },
       // read from the clock itself, so the staff's own frame callback and this page's agree on the time
       gridBeats: () => {
-        const m = momentAt(score, time());
+        const ms = time();
+        const m = momentAt(score, ms);
         if (m.phase === "play") return m.beats;
+        if (m.phase === "intro" && score.introMusic) return ms / score.beatMs;
         if (m.phase === "intro" || m.phase === "countdown") return 0;
         // the tail holds the bar at the end of the last pass (a hair short: the staff wraps at the passes' length);
         // null would let the staff start the tune again on its own
@@ -150,6 +155,7 @@ export function VideoFrame({ config, score, format, time, className = "", style 
       },
       countdown: shown.phase === "countdown" ? { caption: score.segments[shown.segment].caption, left: shown.left } : null,
       intro: shown.phase === "intro" ? score.intro : null,
+      listening,
       progress:
         shown.phase === "intro"
           ? null
@@ -167,7 +173,7 @@ export function VideoFrame({ config, score, format, time, className = "", style 
     }),
     // `key` is the moment's identity: a frame inside the same count or tune keeps the same context
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [score, written, harmony, time, key],
+    [score, written, harmony, introWritten, listening, time, key],
   );
 
   useEffect(() => {

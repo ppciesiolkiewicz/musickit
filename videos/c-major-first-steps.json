@@ -4,7 +4,7 @@
   "voice": "alto",
   "scale": "major-ionian",
   "bpm": 80,
-  "intro": { "title": "First steps: Do and Re", "text": "3 tunes · sing each 4 times · 80 bpm" },
+  "intro": { "title": "First steps: Do and Re", "text": "3 tunes · sing each 4 times · 80 bpm", "music": { "tune": 3, "times": 1 } },
   "layers": {
     "melody": { "subject": { "kind": "melody", "beats": 4 } },
     "intro": { "subject": { "kind": "intro" } },

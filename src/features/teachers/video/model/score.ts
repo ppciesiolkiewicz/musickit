@@ -32,7 +32,9 @@ export interface Segment {
 
 export interface Score {
   intro: VideoIntro | null;
-  /** the intro's length; every beat comes this much later */
+  /** the tune the piano plays under the intro, from the video's start, with no countdown; null for a silent intro */
+  introMusic: Segment | null;
+  /** the intro's length (its music's, when it has some); every beat comes this much later */
   introMs: number;
   beatMs: number;
   ladder: Ladder;
@@ -61,16 +63,22 @@ export function buildScore(c: VideoConfig): Score {
   const range = VOICES[c.voice];
   const ladder = buildLadder(c.scale, c.tonicPc, range)!;
   const tuneLadder = tuneLadderFor(ladder, c.tonicPc, range);
-  const introMs = c.intro ? c.intro.seconds * 1000 : 0;
-  let startBeat = 0;
-  const segments = c.timeline.map((t): Segment => {
+  const beatMs = 60000 / c.bpm;
+  const place = (t: { tune: string; label?: string; times: number }, caption: string, startBeat: number): Segment => {
     const tune = parseTune(t.tune);
     const { notes, chords } = harmoniseTune(tune, tuneLadder, range);
-    const seg = { caption: t.caption, label: t.label, notes, chords, tuneBeats: barsOf(tune) * BEATS_PER_BAR, times: t.times, startBeat };
+    return { caption, label: t.label, notes, chords, tuneBeats: barsOf(tune) * BEATS_PER_BAR, times: t.times, startBeat };
+  };
+  const music = c.intro?.music;
+  const introMusic = music ? place(music, "", 0) : null;
+  const introMs = introMusic ? introMusic.tuneBeats * introMusic.times * beatMs : c.intro ? c.intro.seconds * 1000 : 0;
+  let startBeat = 0;
+  const segments = c.timeline.map((t): Segment => {
+    const seg = place(t, t.caption, startBeat);
     startBeat += COUNTDOWN_BEATS + seg.tuneBeats * seg.times;
     return seg;
   });
-  return { intro: c.intro ?? null, introMs, beatMs: 60000 / c.bpm, ladder, clef: clefFor(range), segments, totalBeats: startBeat, durationMs: introMs + startBeat * (60000 / c.bpm) + TAIL_MS };
+  return { intro: c.intro ?? null, introMusic, introMs, beatMs, ladder, clef: clefFor(range), segments, totalBeats: startBeat, durationMs: introMs + startBeat * beatMs + TAIL_MS };
 }
 
 /** What is on screen at `ms`: the intro, a countdown number, the tune playing, or the end. */
@@ -97,15 +105,18 @@ export function chordPassesOf(g: Segment): MelodyChord[] {
   return Array.from({ length: g.times }, (_, pass) => g.chords.map((c) => ({ ...c, at: c.at + pass * g.tuneBeats }))).flat();
 }
 
-/** The piano (every pass of every tune, its chords under it, softer) and the click (every beat, accented on beat 1), in ms. */
+/** A segment's notes and chords as piano steps, every pass, from `start` ms. */
+const pianoOf = (g: Segment, start: number, beatMs: number) => [
+  ...passesOf(g).map((n) => ({ note: n.midi, at: start + n.at * beatMs, hold: n.beats * beatMs * 0.9 })),
+  ...chordSteps(chordPassesOf(g), beatMs).map((c) => ({ ...c, at: start + c.at })),
+];
+
+/** The piano (the intro's music, then every pass of every tune, the chords under it softer) and the click (every beat, accented on beat 1), in ms. */
 export function soundOf(s: Score): { piano: Step[]; clicks: Click[] } {
-  const piano = s.segments.flatMap((g) => {
-    const start = s.introMs + (g.startBeat + COUNTDOWN_BEATS) * s.beatMs;
-    return [
-      ...passesOf(g).map((n) => ({ note: n.midi, at: start + n.at * s.beatMs, hold: n.beats * s.beatMs * 0.9 })),
-      ...chordSteps(chordPassesOf(g), s.beatMs).map((c) => ({ ...c, at: start + c.at })),
-    ];
-  });
+  const piano = [
+    ...(s.introMusic ? pianoOf(s.introMusic, 0, s.beatMs) : []),
+    ...s.segments.flatMap((g) => pianoOf(g, s.introMs + (g.startBeat + COUNTDOWN_BEATS) * s.beatMs, s.beatMs)),
+  ];
   const clicks = Array.from({ length: s.totalBeats }, (_, b) => ({ at: s.introMs + b * s.beatMs, accent: b % BEATS_PER_BAR === 0 }));
   return { piano, clicks };
 }

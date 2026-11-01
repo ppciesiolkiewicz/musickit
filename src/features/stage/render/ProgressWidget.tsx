@@ -3,9 +3,16 @@
 import { useContext } from "react";
 import { TimelineContext } from "./TimelineContext";
 
-/** "Tune 3 of 12" over a dot per pass, filled up to the one being sung; nothing outside a timeline or during the intro. */
+/** "Tune 3 of 12" over a dot per pass, filled up to the one being sung; "Listen" while the intro's music plays; nothing outside a timeline or during a silent intro. */
 export default function ProgressWidget() {
-  const p = useContext(TimelineContext)?.progress;
+  const tl = useContext(TimelineContext);
+  const p = tl?.progress;
+  if (tl?.listening)
+    return (
+      <div className="flex flex-col items-center justify-center gap-3 rounded-xl bg-slate-950/80 px-8 py-5 text-center">
+        <span className="text-4xl font-semibold text-slate-50">Listen</span>
+      </div>
+    );
   if (!p) return null;
   return (
     <div className="flex flex-col items-center justify-center gap-3 rounded-xl bg-slate-950/80 px-8 py-5 text-center">

@@ -179,6 +179,18 @@ test("intro", () => {
   bad((c) => (c.intro = { text: "x" }), /^intro\.title: /);
   bad((c) => (c.intro = { title: " " }), /^intro\.title: /);
   bad((c) => (c.intro = { title: "x", text: 5 }), /^intro\.text: /);
+});
+
+test("intro music", () => {
+  const c = valid();
+  c.intro = { title: "Listen", music: { tune: "1 2 3 2 | 1w" } };
+  assert.deepEqual(parseVideoConfig(c, []).intro, { title: "Listen", seconds: 3, music: { tune: "1 2 3 2 | 1w", times: 1 } });
+  c.intro = { title: "Listen", music: { tune: 1, times: 2 } };
+  assert.deepEqual(parseVideoConfig(c, []).intro?.music, { tune: STAGES[0].tunes[0], label: "book 1", times: 2 });
+  bad((c) => (c.intro = { title: "x", music: "1 2 | 1w" }), /^intro\.music: /);
+  bad((c) => (c.intro = { title: "x", music: { tune: "8 1 | 1w" } }), /^intro\.music\.tune: bad note "8"/);
+  bad((c) => (c.intro = { title: "x", music: { tune: "1 2 3" } }), /^intro\.music\.tune: /);
+  bad((c) => (c.intro = { title: "x", music: { tune: "1 2 3 2 | 1w", times: 0 } }), /^intro\.music\.times: /);
   bad((c) => (c.intro = { title: "x", seconds: 0.5 }), /^intro\.seconds: /);
   bad((c) => (c.intro = { title: "x", seconds: 11 }), /^intro\.seconds: /);
 });

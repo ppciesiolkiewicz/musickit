@@ -138,3 +138,28 @@ describe("chordPassesOf", () => {
     assert.deepEqual(chordPassesOf(g).map((c) => c.at), [0, 4, 8, 12]);
   });
 });
+
+describe("with intro music", () => {
+  const music = { tune: "1 2 3 2 | 1w", times: 2 };
+  const s = buildScore({ ...config(), intro: { title: "Listen", seconds: 5, music } });
+  it("lasts as long as the music, whatever the seconds say", () => {
+    assert.equal(s.introMs, 16000);
+    assert.equal(s.durationMs, 16000 + 40000 + TAIL_MS);
+    assert.deepEqual(momentAt(s, 0), { phase: "intro", segment: 0 });
+    assert.deepEqual(momentAt(s, 15999), { phase: "intro", segment: 0 });
+    assert.deepEqual(momentAt(s, 16000), { phase: "countdown", segment: 0, left: 4 });
+  });
+  it("plays the tune and its chords from the start, with no click until the countdown", () => {
+    const { piano, clicks } = soundOf(s);
+    const intro = s.introMusic!;
+    assert.equal(intro.times, 2);
+    assert.equal(piano[0].at, 0);
+    assert.equal(piano[0].note, intro.notes[0].midi);
+    assert.ok(piano.some((p) => p.at === 0 && p.velocity === CHORD_VELOCITY));
+    assert.ok(piano.some((p) => p.at === 8000 && p.note === intro.notes[0].midi));
+    assert.equal(clicks[0].at, 16000);
+  });
+  it("is none without music", () => {
+    assert.equal(buildScore({ ...config(), intro: { title: "Hi", seconds: 3 } }).introMusic, null);
+  });
+});

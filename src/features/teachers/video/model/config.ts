@@ -26,11 +26,19 @@ export interface VideoTune {
   caption: string;
 }
 
-/** Text shown before the first countdown, silent, for `seconds`. */
+/** A tune the piano plays (with its chords) under the intro, `times` times straight on, with no click or countdown. */
+export interface IntroMusic {
+  tune: string;
+  label?: string;
+  times: number;
+}
+
+/** Text shown before the first countdown: silent for `seconds`, or as long as its `music` plays. */
 export interface VideoIntro {
   title: string;
   text?: string;
   seconds: number;
+  music?: IntroMusic;
 }
 
 /** how long an intro can be, in seconds */
@@ -82,8 +90,8 @@ function parseRect(raw: unknown, path: string): FrameRect {
   return { x, y, w, h };
 }
 
-function parseTimelineEntry(raw: unknown, path: string): VideoTune {
-  if (!isObject(raw)) return fail(path, "expected an object");
+/** The `tune` of a timeline entry or the intro's music: notation in whole bars, or a book number (labelled with it). */
+function parseTuneField(raw: Record<string, unknown>, path: string): { tune: string; label?: string } {
   let tune: string;
   let label = typeof raw.label === "string" ? raw.label : undefined;
   if (typeof raw.tune === "number") {
@@ -105,6 +113,12 @@ function parseTimelineEntry(raw: unknown, path: string): VideoTune {
     if (e instanceof VideoConfigError) throw e;
     return fail(`${path}.tune`, e instanceof Error ? e.message : "unreadable tune");
   }
+  return { tune, ...(label !== undefined ? { label } : {}) };
+}
+
+function parseTimelineEntry(raw: unknown, path: string): VideoTune {
+  if (!isObject(raw)) return fail(path, "expected an object");
+  const { tune, label } = parseTuneField(raw, path);
   const times = raw.times;
   if (typeof times !== "number" || !Number.isInteger(times) || times < 1 || times > 16) return fail(`${path}.times`, "expected a whole number from 1 to 16");
   if (raw.caption !== undefined && typeof raw.caption !== "string") return fail(`${path}.caption`, "expected text");
@@ -118,7 +132,14 @@ function parseIntro(raw: unknown): VideoIntro {
   const seconds = raw.seconds ?? INTRO_SECONDS.default;
   if (typeof seconds !== "number" || !Number.isFinite(seconds) || seconds < INTRO_SECONDS.min || seconds > INTRO_SECONDS.max)
     return fail("intro.seconds", `expected a number from ${INTRO_SECONDS.min} to ${INTRO_SECONDS.max}`);
-  return { title: raw.title, ...(raw.text ? { text: raw.text } : {}), seconds };
+  let music: IntroMusic | undefined;
+  if (raw.music !== undefined) {
+    if (!isObject(raw.music)) return fail("intro.music", "expected { tune, times }");
+    const times = raw.music.times ?? 1;
+    if (typeof times !== "number" || !Number.isInteger(times) || times < 1 || times > 16) return fail("intro.music.times", "expected a whole number from 1 to 16");
+    music = { ...parseTuneField(raw.music, "intro.music"), times };
+  }
+  return { title: raw.title, ...(raw.text ? { text: raw.text } : {}), seconds, ...(music ? { music } : {}) };
 }
 
 /** Parses and checks a config; `pluginIds` are the creator's panel ids that a `plugin` layer may name. Throws `VideoConfigError`. */

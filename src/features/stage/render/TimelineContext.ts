@@ -12,6 +12,8 @@ export interface StageTimeline {
   countdown: { caption: string; left: number } | null;
   /** before the first countdown */
   intro: { title: string; text?: string } | null;
+  /** the intro's music is playing: nothing to sing yet */
+  listening: boolean;
   /** from the first countdown on: tune and pass from 1, `pass` null while a tune counts in */
   progress: { tune: number; tunes: number; pass: number | null; times: number } | null;
   /** the tune after the one on the staff, bar by bar in solfège; null on the last */
