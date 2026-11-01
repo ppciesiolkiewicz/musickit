@@ -3,10 +3,10 @@
 import type { Shape } from "@/lib/chordKit/shapes";
 import { toneColourIndex, toneLabel } from "@/features/theory/labels";
 import type { KeyContext } from "@/features/theory/theory";
-import { useChordLabels } from "@/features/theory/useLabelSystem";
+import { useChordDots, useChordLabels } from "@/features/theory/useLabelSystem";
 import { InfoTip } from "@/components/ui";
 import Icon from "@/components/Icon";
-import { diagramLowFret, intervalLabel, OPEN_NOTE, OPEN_PITCH, ROOT_INDEX } from "@/lib/chordKit/shapeTools";
+import { diagramLowFret, intervalLabel, OPEN_NOTE, OPEN_PITCH, ROOT_INDEX, shapeFingers } from "@/lib/chordKit/shapeTools";
 import { boxRowFactor } from "./Fretboard";
 import { useHeardNote } from "./heardNote";
 import { swatchForIndex } from "./palette";
@@ -28,11 +28,13 @@ interface Props {
 }
 
 /**
- * The one chord box: six strings, frets, and one dot per sounding string labelled with its interval.
- * Clicking it or its play button strums it; the chord-tones / in-the-key switch under it is shared by every chord box.
+ * The one chord box: six strings, frets, and one dot per sounding string labelled with the finger that frets it (when
+ * the shape has a fingering) or its interval, coloured by interval either way; a finger held across strings is drawn
+ * as a barre. Clicking it or its play button strums it; the switches under it are shared by every chord box.
  */
 export default function ChordDiagram({ shape, rootFret, onPlay, active, ctx, rootName }: Props) {
   const [mode, setMode] = useChordLabels();
+  const [dots, setDots] = useChordDots();
   // the note the microphone hears, ringed on every string that plays it
   const heard = useHeardNote();
   // chord boxes always show intervals; without a key there is only the chord root to count from
@@ -42,6 +44,8 @@ export default function ChordDiagram({ shape, rootFret, onPlay, active, ctx, roo
   const ri = ROOT_INDEX[shape.rs];
   const rootPc = (OPEN_NOTE[ri] + rootFret) % 12;
   const abs = shape.f.map((v) => (v === null ? null : rootFret + v));
+  const fingers = shapeFingers(shape, rootFret);
+  const byFinger = dots === "finger" && fingers !== null;
   // open strings (fret 0) sit above the nut, so only fretted notes set the size of the box
   const fretted = abs.filter((v): v is number => v !== null && v > 0);
   // any open string pins the box to the nut, so open chords never read as a shape up the neck
@@ -54,6 +58,13 @@ export default function ChordDiagram({ shape, rootFret, onPlay, active, ctx, roo
   const edge = (i: number) => Array.from({ length: i }, (_, k) => rowH(k)).reduce((a, b) => a + b, 0);
   const h = top + edge(rows) + 10;
   const grid = "var(--color-slate-500)";
+  const fretY = (a: number) => top + edge(a - lo) + rowH(a - lo) / 2;
+  // one finger on two or more strings at the same fret is a barre: a bar under the dots, string to string
+  const barres = fingers === null ? [] : [...new Set(fingers.filter((g): g is number => !!g))].flatMap((g) => {
+    const on = abs.flatMap((a, i) => (fingers[i] === g && a !== null && a > 0 ? [{ i, a }] : []));
+    if (on.length < 2 || on.some((o) => o.a !== on[0].a)) return [];
+    return [{ g, a: on[0].a, from: on[0].i, to: on[on.length - 1].i }];
+  });
 
   const svg = (
     <svg viewBox={`0 0 ${w} ${h}`} width="100%" role="img" aria-label="Chord diagram">
@@ -68,6 +79,9 @@ export default function ChordDiagram({ shape, rootFret, onPlay, active, ctx, roo
           {lo}fr
         </text>
       )}
+      {barres.map((b) => (
+        <rect key={`b${b.g}`} x={left + b.from * ss - 9} y={fretY(b.a) - 9} width={(b.to - b.from) * ss + 18} height={18} rx={9} fill="var(--color-slate-700)" stroke={grid} strokeWidth={1} />
+      ))}
       {abs.map((a, i) => {
         const x = left + i * ss;
         if (a === null)
@@ -79,9 +93,10 @@ export default function ChordDiagram({ shape, rootFret, onPlay, active, ctx, roo
         const semi = (((OPEN_PITCH[i] + (shape.f[i] as number) - OPEN_PITCH[ri]) % 12) + 12) % 12;
         const role = intervalLabel(shape, semi);
         const tone = { rootPc, rootName, semi, role, ctx };
-        const label = toneLabel(system, tone, from);
+        const finger = fingers?.[i];
+        const label = byFinger ? (finger ? String(finger) : "") : toneLabel(system, tone, from);
         const sw = swatchForIndex(toneColourIndex(tone, from));
-        const y = a === 0 ? top - 12 : top + edge(a - lo) + rowH(a - lo) / 2;
+        const y = a === 0 ? top - 12 : fretY(a);
         const lit = heard === (OPEN_NOTE[i] + a) % 12;
         // open strings: a small ring above the nut, like the usual "o", so they never crowd each other
         if (a === 0)
@@ -118,7 +133,7 @@ export default function ChordDiagram({ shape, rootFret, onPlay, active, ctx, roo
           {svg}
         </button>
       ) : svg}
-      {(onPlay || ctx) && (
+      {(onPlay || ctx || fingers) && (
         <div className="mt-0.5 flex flex-wrap items-center justify-center gap-1.5">
           {onPlay && (
             <button
@@ -130,6 +145,12 @@ export default function ChordDiagram({ shape, rootFret, onPlay, active, ctx, roo
               <Icon name="play" size={10} fill />
               Play
             </button>
+          )}
+          {fingers && (
+            <span role="group" aria-label="Write on the dots" className="flex h-6 overflow-hidden rounded-md border border-slate-700 text-[10px]">
+              <button type="button" aria-pressed={dots === "finger"} onClick={() => setDots("finger")} className={seg(dots === "finger")}>Fingers</button>
+              <button type="button" aria-pressed={dots === "interval"} onClick={() => setDots("interval")} className={seg(dots === "interval")}>Intervals</button>
+            </span>
           )}
           {ctx && (
             <>

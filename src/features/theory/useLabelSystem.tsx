@@ -1,7 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { DEFAULT_CHORD_LABELS, DEFAULT_LABEL_ROOT, DEFAULT_LABEL_SYSTEM, LABEL_ROOTS, LABEL_SYSTEMS, isChordLabels, isLabelRoot, isLabelSystem, type ChordLabels, type LabelRoot, type LabelSystem } from "./labels";
+import { DEFAULT_CHORD_DOTS, DEFAULT_CHORD_LABELS, DEFAULT_LABEL_ROOT, DEFAULT_LABEL_SYSTEM, LABEL_ROOTS, LABEL_SYSTEMS, isChordDots, isChordLabels, isLabelRoot, isLabelSystem, type ChordDots, type ChordLabels, type LabelRoot, type LabelSystem } from "./labels";
 import { Select, Field } from "@/components/ui";
 
 const KEY = "musickit.labelSystem";
@@ -120,4 +120,34 @@ export function setChordLabels(v: ChordLabels) {
 export function useChordLabels(): [ChordLabels, (v: ChordLabels) => void] {
   const v = useSyncExternalStore(subscribeChord, () => chordLabels, () => DEFAULT_CHORD_LABELS);
   return [v, setChordLabels];
+}
+
+const DOTS_KEY = "musickit.chordDots";
+let chordDots: ChordDots = DEFAULT_CHORD_DOTS;
+let dotsLoaded = false;
+const dotsListeners = new Set<() => void>();
+
+function subscribeDots(fn: () => void) {
+  if (!dotsLoaded && typeof window !== "undefined") {
+    dotsLoaded = true;
+    try {
+      const v = window.localStorage.getItem(DOTS_KEY);
+      if (isChordDots(v)) chordDots = v;
+    } catch { /* storage unavailable */ }
+  }
+  dotsListeners.add(fn);
+  queueMicrotask(fn);
+  return () => { dotsListeners.delete(fn); };
+}
+
+export function setChordDots(v: ChordDots) {
+  chordDots = v;
+  try { window.localStorage.setItem(DOTS_KEY, v); } catch { /* ignore */ }
+  dotsListeners.forEach((f) => f());
+}
+
+/** The chord-box switch between finger numbers and intervals on the dots. One setting behind every chord box, persisted. */
+export function useChordDots(): [ChordDots, (v: ChordDots) => void] {
+  const v = useSyncExternalStore(subscribeDots, () => chordDots, () => DEFAULT_CHORD_DOTS);
+  return [v, setChordDots];
 }

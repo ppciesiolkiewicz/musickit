@@ -1,12 +1,13 @@
 import { makeKeyContext } from "@/features/theory/theory";
 import { arpPositions, buildArpeggio, neckCells, type ArpPosition } from "@/lib/chordKit/arpeggios";
 import { parseChordQuery } from "@/lib/chordKit/chordSearch";
-import { OPEN_MIDI } from "@/lib/chordKit/shapeTools";
+import { OPEN_MIDI, shapeFingers } from "@/lib/chordKit/shapeTools";
 import { compEvents } from "@/lib/practice/comping";
 import type { Place, Timeline, TimelineEvent } from "../timeline/types";
 import { chordShapeFor, type VoicedShape } from "./voicing";
 
-export interface Fret { string: number; fret: number }
+/** A place on the neck; `finger` (1 index ... 4 pinky) when the shape it comes from has a fingering. */
+export interface Fret { string: number; fret: number; finger?: number }
 
 /** One thing to play or draw: a strum, a single note, or a backing hit. String 0 is the low E. */
 export interface Cue {
@@ -27,14 +28,19 @@ interface Cell extends Fret { midi: number }
 const MAX_FRET = 17;
 const mod12 = (n: number) => ((n % 12) + 12) % 12;
 
-/** The sounding strings of a voiced shape. */
+/** The sounding strings of a voiced shape, each with its finger when the shape has a fingering. */
 function shapeCells(v: VoicedShape): Cell[] {
   const out: Cell[] = [];
+  const fingers = shapeFingers(v.shape, v.fret);
   v.shape.f.forEach((off, s) => {
-    if (off !== null) out.push({ string: s, fret: v.fret + off, midi: OPEN_MIDI[s] + v.fret + off });
+    const finger = fingers?.[s];
+    if (off !== null) out.push({ string: s, fret: v.fret + off, midi: OPEN_MIDI[s] + v.fret + off, ...(finger ? { finger } : {}) });
   });
   return out;
 }
+
+/** A cell as a cue's place, keeping its finger. */
+const toFret = ({ string, fret, finger }: Cell): Fret => (finger ? { string, fret, finger } : { string, fret });
 
 /** Every cell of the neck with pitch class `pc`, frets `lo..hi`. */
 function neckOf(pc: number, lo = 0, hi = MAX_FRET): Cell[] {
@@ -116,11 +122,11 @@ export function cuesOf(t: Timeline, opts: { highlight?: number[] } = {}): Cue[] 
     const rootPc = parseChordQuery(c.name)?.rootPc ?? 0;
     if (!c.backing) {
       // the pad: the whole chord once, held for the chord
-      out.push({ at: c.at, beats: c.beats, chord: c.name, kind: "backing", midi: v.midi, frets: cells.map(({ string, fret }) => ({ string, fret })), highlighted: lit(v.midi.map((m) => m - rootPc), c) });
+      out.push({ at: c.at, beats: c.beats, chord: c.name, kind: "backing", midi: v.midi, frets: cells.map(toFret), highlighted: lit(v.midi.map((m) => m - rootPc), c) });
       continue;
     }
     for (const e of compEvents(v.midi, c.backing, c.beats)) {
-      out.push({ at: c.at + e.beat, beats: e.len, chord: c.name, kind: "backing", midi: e.midi, frets: e.midi.flatMap((m) => cells.filter((x) => x.midi === m).slice(0, 1).map(({ string, fret }) => ({ string, fret }))), highlighted: lit(e.midi.map((m) => m - rootPc), c) });
+      out.push({ at: c.at + e.beat, beats: e.len, chord: c.name, kind: "backing", midi: e.midi, frets: e.midi.flatMap((m) => cells.filter((x) => x.midi === m).slice(0, 1).map(toFret)), highlighted: lit(e.midi.map((m) => m - rootPc), c) });
     }
   }
 
@@ -134,7 +140,7 @@ export function cuesOf(t: Timeline, opts: { highlight?: number[] } = {}): Cue[] 
       if (!v) continue;
       const rootPc = parseChordQuery(e.chord)?.rootPc ?? 0;
       const cells = shapeCells(v);
-      out.push({ ...base, kind: "strum", midi: v.midi, frets: cells.map(({ string, fret }) => ({ string, fret })), highlighted: lit(v.midi.map((m) => m - rootPc), c) });
+      out.push({ ...base, kind: "strum", midi: v.midi, frets: cells.map(toFret), highlighted: lit(v.midi.map((m) => m - rootPc), c) });
       continue;
     }
     const q = e.chord ? parseChordQuery(e.chord) : null;
@@ -164,7 +170,7 @@ export function cuesOf(t: Timeline, opts: { highlight?: number[] } = {}): Cue[] 
       }
     }
     if (!cell) continue;
-    out.push({ ...base, kind: "note", midi: [cell.midi], frets: cell.string < 0 ? [] : [{ string: cell.string, fret: cell.fret }], highlighted: lit([cell.midi - (q && e.chord ? q.rootPc : key)], c) });
+    out.push({ ...base, kind: "note", midi: [cell.midi], frets: cell.string < 0 ? [] : [toFret(cell)], highlighted: lit([cell.midi - (q && e.chord ? q.rootPc : key)], c) });
     prev = cell;
   }
   return out.sort((a, b) => a.at - b.at || (a.kind === "backing" ? 1 : 0) - (b.kind === "backing" ? 1 : 0));
@@ -182,6 +188,6 @@ export function chordCues(t: Timeline, opts: { highlight?: number[] } = {}): Cue
     const rootPc = parseChordQuery(c.name)?.rootPc ?? 0;
     const h = opts.highlight ?? c.highlight;
     const highlighted = !h || cells.some((x) => h.map(mod12).includes(mod12(x.midi - rootPc)));
-    return [{ at: c.at, beats: c.beats, chord: c.name, kind: "note" as const, midi: cells.map((x) => x.midi), frets: cells.map(({ string, fret }) => ({ string, fret })), highlighted }];
+    return [{ at: c.at, beats: c.beats, chord: c.name, kind: "note" as const, midi: cells.map((x) => x.midi), frets: cells.map(toFret), highlighted }];
   });
 }

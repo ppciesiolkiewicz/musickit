@@ -2,7 +2,7 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { OPEN_SHAPES } from "./openShapes";
 import { SHAPES, type Shape } from "./shapes";
-import { ALL_SHAPES, OPEN_RICH, RICH_SHAPES, ROOT_INDEX, fitsRoot, openRootPc, rootFretFor, shapeSemitones } from "./shapeTools";
+import { ALL_SHAPES, OPEN_RICH, RICH_SHAPES, ROOT_INDEX, fitsRoot, openRootPc, rootFretFor, shapeFingers, shapeSemitones } from "./shapeTools";
 
 const NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 const label = (s: Shape) => `${NAMES[openRootPc(s) ?? 0]}${s.suf}`;
@@ -127,5 +127,53 @@ describe("review fixes", () => {
     assert.ok(jazz.every((c) => c.shape.tags.includes("jazz")));
     assert.deepEqual(filterChoices(am7, []), am7);
     assert.ok(filterChoices(am7, ["x:easy"]).every((c) => c.shape.diff === "easy"));
+  });
+});
+
+describe("fingers", () => {
+  const sameF = (a: Shape, b: Shape, fret: number) => a.f.every((v, i) => (v === null ? null : fret + v) === (b.f[i] === null ? null : b.at! + b.f[i]!));
+  it("every open chord has one finger per sounding string: 0 on an open string, 1-4 on a fretted one", () => {
+    for (const s of OPEN_SHAPES) {
+      assert.ok(s.fg && s.fg.length === 6, label(s));
+      s.f.forEach((v, i) => {
+        const g = s.fg![i];
+        if (v === null) return assert.equal(g, null, label(s));
+        assert.equal(g === 0, s.at! + v === 0, `${label(s)} string ${i}`);
+        assert.ok(g !== null && g >= 0 && g <= 4, label(s));
+      });
+    }
+  });
+  it("a movable shape's fingering covers each sounding string, the strings at the root fret barred by the index", () => {
+    const fingered = SHAPES.filter((s) => s.fg);
+    assert.ok(fingered.length >= 30);
+    for (const s of fingered) {
+      s.f.forEach((v, i) => {
+        const g = s.fg![i];
+        assert.equal(g === null, v === null, `${s.rs}${s.suf} string ${i}`);
+        if (g !== null) assert.ok(g >= 1 && g <= 4);
+      });
+    }
+  });
+  it("a movable triad or seventh played at the nut fingers like the matching open chord", () => {
+    let checked = 0;
+    // sus chords are left out: open Esus4 takes 2-3-4, the barre shape 1-2-3 over the index
+    for (const s of SHAPES.filter((x) => x.fg && x.fam !== "sus")) {
+      const at0 = s.f.every((v) => v === null || v >= 0);
+      const open = OPEN_SHAPES.find((o) => o.rs === s.rs && o.suf === s.suf && at0 && sameF(s, o, 0));
+      if (!open) continue;
+      checked++;
+      assert.deepEqual(shapeFingers(s, 0), open.fg, `${label(open)} from the ${s.rs}${s.suf} shape`);
+    }
+    assert.ok(checked >= 6, `${checked}`);
+  });
+  it("first chords: Em with fingers 2 and 3, Am adds the index", () => {
+    const em = OPEN_SHAPES.find((s) => label(s) === "Em" && s.stage)!;
+    const am = OPEN_SHAPES.find((s) => label(s) === "Am" && s.stage)!;
+    assert.deepEqual(shapeFingers(em, em.at!), [0, 2, 3, 0, 0, 0]);
+    assert.deepEqual(shapeFingers(am, am.at!), [null, 0, 2, 3, 1, 0]);
+  });
+  it("is null for a shape without fingering", () => {
+    const bare = SHAPES.find((s) => !s.fg)!;
+    assert.equal(shapeFingers(bare, 5), null);
   });
 });

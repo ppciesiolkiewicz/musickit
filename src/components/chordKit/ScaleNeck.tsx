@@ -31,6 +31,8 @@ interface NeckProps {
   states?: (c: ScaleCell) => DotState;
   /** places (`cellKey`) sounding now, lit like `active` */
   sounding?: ReadonlySet<string>;
+  /** the finger that frets a note (1 index ... 4 pinky), shown in a badge; undefined draws none */
+  fingers?: (c: ScaleCell) => number | undefined;
 }
 
 const isActive = (active: string | null, c: ScaleCell) => active !== null && (active === cellKey(c) || active === `d${c.degree}` || active === `pc${c.pc}`);
@@ -42,7 +44,7 @@ function useLit(active: string | null): (c: ScaleCell) => boolean {
 }
 
 /** The whole neck, frets 0-17 (0-12 when compact), with every note of the scale. Tap a note to hear it. */
-export function ScaleNeck({ cells, big, rings = true, focus = null, fadeOutside = true, active, labelSystem, onNote, compact = false, title, states, sounding }: NeckProps) {
+export function ScaleNeck({ cells, big, rings = true, focus = null, fadeOutside = true, active, labelSystem, onNote, compact = false, title, states, sounding, fingers }: NeckProps) {
   const heard = useLit(active);
   const lit = (c: ScaleCell) => heard(c) || !!sounding?.has(cellKey(c));
   const to = compact ? 12 : SCALE_NECK_FRETS;
@@ -71,7 +73,7 @@ export function ScaleNeck({ cells, big, rings = true, focus = null, fadeOutside 
             key={cellKey(c)} c={c} x={g.fx(c.fret)} y={g.sy(c.string)} r={r} ring={!big(c)}
             label={noteLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText })}
             hover={hoverLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText })}
-            active={lit(c)} dim={(focus !== null && fadeOutside && !inFocus.has(cellKey(c))) || states?.(c) === "muted"} accent={states?.(c) === "highlighted"} onNote={onNote}
+            active={lit(c)} dim={(focus !== null && fadeOutside && !inFocus.has(cellKey(c))) || states?.(c) === "muted"} accent={states?.(c) === "highlighted"} finger={fingers?.(c)} onNote={onNote}
           />
         ))}
       </svg>
@@ -83,7 +85,7 @@ export function ScaleNeck({ cells, big, rings = true, focus = null, fadeOutside 
 /** How a note is drawn (see `noteState` in src/features/exercises/cues/visibility.ts). */
 export type DotState = "hidden" | "muted" | "normal" | "highlighted";
 
-export function PositionBox({ position, cells, rings, active, labelSystem, onNote, highlight, states, seam }: {
+export function PositionBox({ position, cells, rings, active, labelSystem, onNote, highlight, states, seam, fingers }: {
   position: ScalePosition; cells: ScaleCell[]; rings: boolean; active: string | null; labelSystem: LabelSystem; onNote: (c: ScaleCell) => void;
   /** pitch classes to stand out: every other note is dimmed (none: all notes alike) */
   highlight?: ReadonlySet<number>;
@@ -91,6 +93,8 @@ export function PositionBox({ position, cells, rings, active, labelSystem, onNot
   states?: (pc: number) => DotState;
   /** places (`cellKey`) circled with a dashed ring: where two boxes join */
   seam?: ReadonlySet<string>;
+  /** the finger that frets a note (1 index ... 4 pinky), shown in a badge; undefined draws none */
+  fingers?: (c: ScaleCell) => number | undefined;
 }) {
   const lit = useLit(active);
   // a box at the first fret also shows the open strings
@@ -107,7 +111,7 @@ export function PositionBox({ position, cells, rings, active, labelSystem, onNot
     <svg viewBox={`0 0 ${g.W} ${g.H}`} style={{ width: "100%", maxWidth: 260, height: "auto" }} className="mx-auto" role="img" aria-label={`Position ${position.number}, frets ${position.from} to ${position.to}`}>
       <VerticalBoard g={g} numbersRight />
       {extra.filter(drawn).map((c) => <Dot key={cellKey(c)} c={c} x={g.sx(c.string)} y={g.fy(c.fret)} r={14} ring label={label(c)} hover={hover(c)} active={lit(c)} dim={dim(c)} accent={accent(c)} onNote={onNote} />)}
-      {position.notes.filter(drawn).map((c) => <Dot key={cellKey(c)} c={c} x={g.sx(c.string)} y={g.fy(c.fret)} r={14} ring={false} label={label(c)} hover={hover(c)} active={lit(c)} dim={dim(c)} accent={accent(c)} onNote={onNote} />)}
+      {position.notes.filter(drawn).map((c) => <Dot key={cellKey(c)} c={c} x={g.sx(c.string)} y={g.fy(c.fret)} r={14} ring={false} label={label(c)} hover={hover(c)} active={lit(c)} dim={dim(c)} accent={accent(c)} finger={fingers?.(c)} onNote={onNote} />)}
       {seam && position.notes.filter((c) => seam.has(cellKey(c))).map((c) => <circle key={`seam-${cellKey(c)}`} cx={g.sx(c.string)} cy={g.fy(c.fret)} r={19} fill="none" stroke="var(--color-amber-300)" strokeWidth={2} strokeDasharray="4 3" pointerEvents="none" />)}
     </svg>
   );

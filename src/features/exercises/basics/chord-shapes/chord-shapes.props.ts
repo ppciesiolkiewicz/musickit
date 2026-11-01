@@ -1,7 +1,8 @@
 import type { Voicing } from "../../timeline/types";
 
 /**
- * One chord diagram per chord, in order; tap a diagram to strum it.
+ * One chord diagram per chord, in order, with the finger that frets each note on its dot (a switch shows intervals
+ * instead); tap a diagram to strum it. Show a fingering with this, never describe it in text.
  * @component chord-shapes basic
  */
 export interface ChordShapesProps {

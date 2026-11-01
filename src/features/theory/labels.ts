@@ -135,6 +135,13 @@ export const DEFAULT_CHORD_LABELS: ChordLabels = "chord";
 
 export const isChordLabels = (v: unknown): v is ChordLabels => v === "chord" || v === "key";
 
+/** What a chord box writes on its dots: the finger that frets each note, or the note's interval. */
+export type ChordDots = "finger" | "interval";
+
+export const DEFAULT_CHORD_DOTS: ChordDots = "finger";
+
+export const isChordDots = (v: unknown): v is ChordDots => v === "finger" || v === "interval";
+
 /** Degree index 0-6 of a role or degree such as "R", "♭3", "5", "♯4", "9"; null when it is not one. */
 export function indexOfDegree(label: string): number | null {
   if (label === "R") return 0;

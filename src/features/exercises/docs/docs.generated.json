@@ -137,7 +137,7 @@
   {
     "name": "chord-shapes",
     "kind": "basic",
-    "description": "One chord diagram per chord, in order; tap a diagram to strum it.",
+    "description": "One chord diagram per chord, in order, with the finger that frets each note on its dot (a switch shows intervals\ninstead); tap a diagram to strum it. Show a fingering with this, never describe it in text.",
     "props": [
       {
         "name": "chords",

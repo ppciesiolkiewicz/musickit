@@ -15,12 +15,12 @@
     "sections": [
       { "type": "text", "text": "Em and Am use the same two fingers side by side: learn to move them as one unit and the change becomes a single motion." },
       { "type": "heading", "text": "Clean shapes", "minutes": 3 },
-      { "type": "list", "items": [
-        "Fret Em: fingers 2 and 3 on the 2nd fret of the A and D strings. Strum once and pick each string; every one should ring.",
-        "Fret Am: move the same two fingers down one string each (D and G strings) and add finger 1 on the 1st fret of the B string. Pick each string again.",
-        "Switch back and forth slowly, 10 times, moving fingers 2 and 3 together without lifting them far from the strings."
-      ] },
       { "type": "tool", "tool": { "type": "chord-shapes", "chords": ["Em", "Am"] } },
+      { "type": "list", "items": [
+        "Fret Em as shown. Strum once and pick each string; every one should ring.",
+        "Fret Am as shown. Pick each string again.",
+        "Switch back and forth slowly, 10 times, moving the two fingers both shapes share together without lifting them far from the strings."
+      ] },
       { "type": "heading", "text": "Strum with the metronome", "minutes": 3 },
       { "type": "text", "text": "Press Play: after one bar of count-in, strum down once on beat 1 of each bar, on the lit chord, and let it ring. Use beats 2 to 4 to get your fingers to the next chord before its bar starts. Done when every change lands on beat 1 for a whole minute." },
       { "type": "tool", "tool": { "type": "strum-along", "chords": ["Em", "Em", "Am", "Am"], "bpm": 60 } },

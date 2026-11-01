@@ -115,6 +115,24 @@ export function shapeMidi(sh: Shape, rootFret: number): number[] {
   return out;
 }
 
+/**
+ * The finger on each string (low E first) of a shape whose root fret is `rootFret`: 1 index ... 4 pinky, 0 open,
+ * null muted; null when the shape has no fingering. A movable shape played at the nut has its index barre on fret 0:
+ * those strings ring open and every other finger moves down one (the E-shape barre at fret 0 is the open E).
+ */
+export function shapeFingers(sh: Shape, rootFret: number): (number | null)[] | null {
+  const fg = sh.fg;
+  if (!fg) return null;
+  const abs = sh.f.map((v) => (v === null ? null : rootFret + v));
+  const nut = sh.at === undefined && abs.some((a, i) => a === 0 && fg[i] === 1);
+  return fg.map((g, i) => {
+    const a = abs[i];
+    if (a === null || g === null) return null;
+    if (a === 0) return 0;
+    return nut ? g - 1 : g;
+  });
+}
+
 /* ---------------------------------------------------------------- names */
 
 export const FULL_NAME: Record<string, string> = {

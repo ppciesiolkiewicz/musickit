@@ -38,10 +38,14 @@ describe("cuesOf: chord steps", () => {
   const t = expandShape({ shape: "chord-steps", bpm: 70, voicing: "barre", chords: [{ chord: "G", steps: ["strum", "1", "6", "1"] }, { chord: "D", steps: ["strum", "4", "5", "4"] }] })!;
   const cues = cuesOf(t);
   it("sorted by at", () => assert.deepEqual(cues.map((c) => c.at), [...cues.map((c) => c.at)].sort((a, b) => a - b)));
-  it("G root on string 0 fret 3", () => {
+  it("G root on string 0 fret 3, under the index of the barre", () => {
     const root = cues.find((c) => c.at === 1)!;
     assert.equal(root.kind, "note");
-    assert.deepEqual(root.frets, [{ string: 0, fret: 3 }]);
+    assert.deepEqual(root.frets, [{ string: 0, fret: 3, finger: 1 }]);
+  });
+  it("a strum keeps the shape's fingering: the E-shape barre", () => {
+    const strum = cues.find((c) => c.kind === "strum" && c.chord === "G")!;
+    assert.deepEqual(strum.frets.map((f) => f.finger), [1, 3, 4, 2, 1, 1]);
   });
   it("the 6th over G is an E with one fret", () => {
     const six = cues.find((c) => c.at === 2)!;

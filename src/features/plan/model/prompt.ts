@@ -141,6 +141,7 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
       "- Wrong: \"Sing 1 3 5 b7 up and back\" as plain text. Right: \"Sing {{1}} {{3}} {{5}} {{b7}} up and back\".",
       "- Wrong: step 1 says \"sing Do\" with Do muted on the chart. Right: Do is lit; the root is never muted when it is part of the exercise.",
       "- Wrong: one chart showing all five steps of the line from the start. Right: a chart per step: step 1 shows Do, step 2 Do + Mi, step 4 the whole line.",
+      "- Wrong: \"Fret Em: fingers 2 and 3 on the 2nd fret of the A and D strings\". Right: a chord-shapes tool with \"Em\" (it shows the finger on each note), and the text says \"Fret Em as shown\".",
       "- Wrong: \"strum down on every beat at 60\" with only chord-shapes, or with a play-along progression. Right: a strum-along with those chords and \"bpm\": 60.",
       "- Wrong: a 12-minute exercise with one tool and no blocks. Right: four headings with \"minutes\": 3, each changing tempo, key, position or the lit notes.",
       "- Wrong: \"Play the chord, then sing the 3rd\" in one exercise. Right: split it: one exercise plays the chord changes, another sings the 3rd over a play-along accompaniment.",
