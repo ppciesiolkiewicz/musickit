@@ -188,15 +188,22 @@ export function cuesOf(t: Timeline, opts: Marks = {}): Cue[] {
 }
 
 /**
- * For a timeline with no steps (a progression only backed, like an old `comp`): one cue per chord, the whole voiced
- * shape held for the chord's beats, so the views show the chord itself (its frets, its notes). Marks as `cuesOf`.
+ * For a timeline with no steps (a progression only backed, like an old `comp`): what the student plays is the backing
+ * itself, so a chord with a comping `backing` gives one cue per hit of the pattern (the bass note alone on 1 and 3 of
+ * "bass-chord", the top strings on 2 and 4), a single note as a `note` and several as a `strum`. A chord without one
+ * gives one cue, the whole voiced shape held for its beats. Marks as `cuesOf`.
  */
 export function chordCues(t: Timeline, opts: Marks = {}): Cue[] {
-  return t.events.filter((e): e is ChordEv => e.type === "chord").sort((a, b) => a.at - b.at).flatMap((c) => {
+  return t.events.filter((e): e is ChordEv => e.type === "chord").sort((a, b) => a.at - b.at).flatMap((c): Cue[] => {
     const v = chordShapeFor(c.name, c.voicing);
     if (!v) return [];
     const cells = shapeCells(v);
     const rootPc = parseChordQuery(c.name)?.rootPc ?? 0;
-    return [{ at: c.at, beats: c.beats, chord: c.name, kind: "note" as const, midi: cells.map((x) => x.midi), frets: cells.map(toFret), ...marked(cells.map((x) => x.midi - rootPc), opts, c) }];
+    if (!c.backing)
+      return [{ at: c.at, beats: c.beats, chord: c.name, kind: "note", midi: cells.map((x) => x.midi), frets: cells.map(toFret), ...marked(cells.map((x) => x.midi - rootPc), opts, c) }];
+    return compEvents(v.midi, c.backing, c.beats).map((e) => ({
+      at: c.at + e.beat, beats: e.len, chord: c.name, kind: e.midi.length > 1 ? "strum" : "note", midi: e.midi,
+      frets: e.midi.flatMap((m) => cells.filter((x) => x.midi === m).slice(0, 1).map(toFret)), ...marked(e.midi.map((m) => m - rootPc), opts, c),
+    }));
   });
 }

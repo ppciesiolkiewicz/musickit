@@ -45,12 +45,20 @@ test("two-scales: both scales shown throughout, the one not playing muted, the c
   assert.deepEqual([first.scale, second.scale], ["D minor", "D Dorian"]);
 });
 
-test("a progression with no steps shows each chord's shape and notes, one per chord", () => {
-  const p = progression({ shape: "progression", key: "a", chords: ["Am", "F", "C", "G"], bars: 4, backing: ["arp-up", "strum"], bpm: 80 })!;
+test("a progression with no steps and no backing shows each chord's shape and notes, one per chord", () => {
+  const p = progression({ shape: "progression", key: "a", chords: ["Am", "F", "C", "G"], bars: 4, bpm: 80 })!;
   assert.ok(!isSolo(p));
   const cs = chordCues(p);
   assert.deepEqual(cs.map((c) => [c.chord, c.at, c.beats]), [["Am", 0, 4], ["F", 4, 4], ["C", 8, 4], ["G", 12, 4]]);
   assert.equal(cs[0].frets.length, cs[0].midi.length);
   assert.ok(cs[0].frets.length >= 5);
   assert.deepEqual([...new Set(cs[0].midi.map((m) => m % 12))].sort((a, b) => a - b), [0, 4, 9]);
+});
+
+test("a backed progression with no steps shows the backing as played: bass on 1 and 3, the top strings on 2 and 4", () => {
+  const p = progression({ shape: "progression", key: "c", chords: ["C"], bars: 1, backing: ["bass-chord"], bpm: 80 })!;
+  const cs = chordCues(p);
+  assert.deepEqual(cs.map((c) => [c.at, c.kind, c.frets.length]), [[0, "note", 1], [1, "strum", 4], [2, "note", 1], [3, "strum", 4]]);
+  assert.deepEqual(cs[0].frets, [{ string: 1, fret: 3, finger: 3 }]);
+  assert.ok(cs[1].frets.every((f) => f.string >= 2));
 });
