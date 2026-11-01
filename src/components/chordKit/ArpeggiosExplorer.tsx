@@ -3,19 +3,18 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { VerticalBoard, vGeometry } from "./VerticalFretboard";
-import { KeyPicker, ModePicker } from "./KeyPicker";
+import { BarRow, ScaleSettingsBar, WithSettings } from "./ScaleSettings";
 import { Badge, FretboardBase, fretGeometry } from "./Fretboard";
 import { DotLabel } from "./DotLabel";
 import { ARP_FRETS, ARP_QUALITIES, arpPositions, arpeggioMidi, stringNumber, buildArpeggio, neckCells, type Arpeggio, type ArpPosition, type NeckCell } from "@/lib/chordKit/arpeggios";
-import { FAMILIES, makeKeyContext } from "@/features/theory/theory";
+import { FAMILIES, makeKeyContext, shortModeName } from "@/features/theory/theory";
 import { MODE_PAGES, degreeColour } from "@/features/theory/scales";
 import { strum } from "@/lib/chordKit/playback";
 import { againstMajor, fmtDegree, hoverLabel, noteLabel, type LabelSystem } from "@/features/theory/labels";
-import { useLabelSystem } from "@/features/theory/useLabelSystem";
-import { LabelsRow } from "@/components/LabelsRow";
+import { RootSelect, useLabelSystem } from "@/features/theory/useLabelSystem";
 import { DEFAULT_KEY_PC } from "@/features/theory/theory";
 import { scaleHref } from "@/features/theory/keySlug";
-import { Chip, ChipRow, Info, Select } from "@/components/ui";
+import { Chip, Info, Select } from "@/components/ui";
 import { DegreeLegend } from "@/components/theory/DegreeLegend";
 import usePhone from "@/components/usePhone";
 
@@ -159,8 +158,11 @@ function ArpBox({ cells, pos, overlay, labelSystem, badges, onNote, onPlay, on, 
     </div>
   );
 }
-/** Arpeggios over any scale or mode: pick the scale, then the arpeggio, and see both on the whole neck. */
-export default function ArpeggiosExplorer({ initialTonic = DEFAULT_KEY_PC, initialFamily = 0, initialMode = 0 }: { initialTonic?: number; initialFamily?: number; initialMode?: number } = {}) {
+/**
+ * Arpeggios over any scale or mode: pick the scale, then the arpeggio, and see both on the whole neck.
+ * `side` puts the settings in a column on the right on wide screens (the arpeggios page); embedded, they float over the top.
+ */
+export default function ArpeggiosExplorer({ initialTonic = DEFAULT_KEY_PC, initialFamily = 0, initialMode = 0, side = false }: { initialTonic?: number; initialFamily?: number; initialMode?: number; side?: boolean } = {}) {
   const [tonicPc, setTonicPc] = useState(initialTonic);
   const [fam, setFam] = useState(initialFamily);
   const [mode, setMode] = useState(initialMode);
@@ -186,32 +188,40 @@ export default function ArpeggiosExplorer({ initialTonic = DEFAULT_KEY_PC, initi
     strum([...up, ...up.slice(0, -1).reverse()], { gapMs: 230, holdMs: 700 });
   };
   const playNote = (c: NeckCell) => strum([c.midi], { gapMs: 0, holdMs: 700 });
+  const pickMode = (f: number, m: number) => { setFam(f); setMode(m); setDegree(0); };
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-2.5 rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
-        <KeyPicker tonicPc={tonicPc} onTonic={setTonicPc} />
-        <ModePicker familyIndex={fam} modeIndex={mode} onChange={(f, m) => { setFam(f); setMode(m); setDegree(0); }} />
-        <p className="text-xs text-slate-400">
-          Scale: <b className="text-slate-200">{ctx.names[0]} {ctx.modeName}</b> · {ctx.names.join(" ")}
-          {page && <> · <Link className="text-sky-300 hover:underline" href={scaleHref(page.slug, tonicPc)}>mode page</Link></>}
-        </p>
-
-        <ChipRow label="Arpeggio on" info="Which note of the scale the arpeggio starts on, shown as a Roman numeral and the note name. An arpeggio is a chord played one note at a time.">
-          {ctx.chords.map((c) => (
-            <Chip key={c.degree} on={degree === c.degree} onClick={() => setDegree(c.degree)}>{c.roman} <span className="text-slate-400">{ctx.names[c.degree]}</span></Chip>
-          ))}
-        </ChipRow>
-        <ChipRow label="Arpeggio type" info="The first three buttons use the chord the scale itself builds on that note: a triad (3 notes), a 7th chord (4) or a 9th chord (5), with every note inside the scale. The rest ignore the scale and put any chord type you choose on the same root. For example, a D major arpeggio over C major, where D is the 2nd note and the scale would give you D minor. Notes that are not in the scale get a dashed red outline, so you can see which notes fit and which clash.">
+    <WithSettings side={side} bar={
+      <ScaleSettingsBar tonicPc={tonicPc} onTonic={setTonicPc} side={side} config={{
+        labels: { extra: <>
+          <RootSelect />
+          <Chip on={overlay} onClick={() => setOverlay((v) => !v)}>Overlay the scale</Chip>
+          <Chip on={badges} onClick={() => setBadges((v) => !v)}>Degree badges</Chip>
+        </> },
+        rows: <>
+          <BarRow label="Family" info="Modes come in three families, named after the scale they are rotations of: the major scale, harmonic minor and melodic minor. Each family has seven modes, one starting on each note of the parent scale.">
+            {FAMILIES.map((f, i) => <Chip key={f.id} on={i === fam} onClick={() => pickMode(i, 0)}>{f.label}</Chip>)}
+          </BarRow>
+          <BarRow label="Mode" info="A mode is a scale built by starting the parent scale on a different note. Dorian, for example, is the major scale started on its 2nd note. Same notes, different home, so a different mood.">
+            {FAMILIES[fam].names.map((n, i) => <Chip key={n} on={i === mode} onClick={() => pickMode(fam, i)}>{shortModeName(n)}</Chip>)}
+          </BarRow>
+          <BarRow label="On" info="Which note of the scale the arpeggio starts on, shown as a Roman numeral and the note name. An arpeggio is a chord played one note at a time.">
+            {ctx.chords.map((c) => (
+              <Chip key={c.degree} on={degree === c.degree} onClick={() => setDegree(c.degree)}>{c.roman} <span className="text-slate-400">{ctx.names[c.degree]}</span></Chip>
+            ))}
+          </BarRow>
+          <BarRow label="Type" info="The first three buttons use the chord the scale itself builds on that note: a triad (3 notes), a 7th chord (4) or a 9th chord (5), with every note inside the scale. The rest ignore the scale and put any chord type you choose on the same root. For example, a D major arpeggio over C major, where D is the 2nd note and the scale would give you D minor. Notes that are not in the scale get a dashed red outline, so you can see which notes fit and which clash.">
           {KINDS.map((k) => <Chip key={k.id} on={kind === k.id} onClick={() => setKind(k.id)}>{k.label}</Chip>)}
           <span className="mx-1 h-4 w-px bg-slate-700" aria-hidden />
           {ARP_QUALITIES.map((q) => <Chip key={q.id} on={kind === q.id} onClick={() => setKind(q.id)}>{q.label}</Chip>)}
-        </ChipRow>
-        <LabelsRow info="Pick how notes are labelled: note names, intervals from the root (R, b3, p5), scale degrees or chord tones. One setting for the whole app. Overlay the scale adds small rings for the other scale notes behind the arpeggio. Badges add the interval on each note-name dot.">
-          <Chip on={overlay} onClick={() => setOverlay((v) => !v)}>Overlay the scale</Chip>
-          <Chip on={badges} onClick={() => setBadges((v) => !v)}>Degree badges</Chip>
-        </LabelsRow>
-      </div>
+          </BarRow>
+        </>,
+      }} />
+    }>
+      <p className="px-1 text-xs text-slate-400">
+        Scale: <b className="text-slate-200">{ctx.names[0]} {ctx.modeName}</b> · {ctx.names.join(" ")}
+        {page && <> · <Link className="text-sky-300 hover:underline" href={scaleHref(page.slug, tonicPc)}>mode page</Link></>}
+      </p>
 
       <section className="bleed rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
         <div className="mb-3 flex flex-wrap items-center gap-3">
@@ -270,6 +280,6 @@ export default function ArpeggiosExplorer({ initialTonic = DEFAULT_KEY_PC, initi
           {positions.map((p) => <ArpBox key={p.id} cells={cells} pos={p} overlay={overlay} labelSystem={labelSystem} badges={badges} onNote={playNote} onPlay={() => playPosition(p)} on={focus === p.id} onPick={() => setFocus(focus === p.id ? null : p.id)} />)}
         </div>
       </section>
-    </div>
+    </WithSettings>
   );
 }

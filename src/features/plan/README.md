@@ -19,6 +19,8 @@ browser.
    and marks that card "Now", and chimes at zero. Its used seconds are saved in the plan (`StoredPlan.elapsed`, per day)
    every 5 seconds, on pause and when the tab hides, so a reload or a later visit picks up where it stopped. There is no
    per-exercise timer.
+   A settings column (the scales pages' `ScaleSettingsBar`, on the right on wide screens, floating on top on narrow ones)
+   holds only how notes are labelled (Labels, Count from): the exercises set their own keys.
 3. **Tools in the section**: each exercise carries 1–2 `tools`, set up by the AI, with nothing to configure: a scale's
    boxes on the neck, chord shapes, a staff with live pitch for singing, a folded play-along band (one Play for only the
    chosen click / drone / drums / bass), or the notes / ear games with their settings hidden. Links sit in two slots:

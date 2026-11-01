@@ -298,9 +298,9 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
   return (
     <div className="flex flex-col gap-5">
       <WithSettings
-        side={false}
+        side
         bar={
-          <ScaleSettingsBar tonicPc={tonicPc} onTonic={setTonicPc} config={{
+          <ScaleSettingsBar tonicPc={tonicPc} onTonic={setTonicPc} side config={{
             scale: { slug: scale, onPick: setScale },
             ...(tab === "runs" ? { keys: false as const } : {}),
             labels: false,

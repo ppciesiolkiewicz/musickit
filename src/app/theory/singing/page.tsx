@@ -15,6 +15,7 @@ export default async function SingingPage({ searchParams }: { searchParams: Prom
   return (
     <PageShell
       active="/theory/singing"
+      full
       devices
       title="Singing"
       intro="Pick a key, a scale and your voice type, tap a note to hear it or play the scale up and down on the beat, then switch the mic on and sing: a dot follows your voice over the scale on the staff, up and down with the pitch and along from one note to the next. The Melodies tab is a book of short tunes in the key to sing back, two bars or four, each ending on a whole-note Do: Do and Re first, then Mi, Fa and Sol, skips, La and Ti, broken chords, and leaps last, each marked Easy to Expert by how it moves."

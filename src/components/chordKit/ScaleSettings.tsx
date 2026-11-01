@@ -68,8 +68,8 @@ export type SettingsConfig = {
     picker?: ReactNode;
     name?: string;
   };
-  /** the Labels row, on unless false (off where the page writes its own labels); `omit` hides label systems the page can't show */
-  labels?: false | { omit?: LabelSystem[] };
+  /** the Labels row, on unless false (off where the page writes its own labels); `omit` hides label systems the page can't show, `extra` goes after the picker */
+  labels?: false | { omit?: LabelSystem[]; extra?: ReactNode };
   /** the pocket tools (click, drone, drums, bass), on unless false */
   pocket?: false | {
     /** the click runs, muted, from the first press on the page (the singing page keeps its bar on it) */
@@ -130,7 +130,9 @@ export function ScaleSettingsBar({ tonicPc, onTonic, side = false, config = {} }
     onStatus?.(s);
   }, [onStatus]);
   const [labels] = useLabelSystem();
-  const keyName = TONICS.find((t) => t.pc === tonicPc)?.name;
+  // no key row at all: a page with neither key chips nor a scale picker (the practice plan)
+  const keyRow = config.keys !== false || !!config.scale;
+  const keyName = keyRow ? TONICS.find((t) => t.pc === tonicPc)?.name : undefined;
   const scaleName = config.scale?.name ?? (scale ? (MODE_PAGES.find((m) => m.slug === scale) ?? findPentatonic(scale))?.name : undefined);
   const labelName = LABEL_SYSTEMS.find((l) => l.id === labels)?.label;
   return (
@@ -169,16 +171,19 @@ export function ScaleSettingsBar({ tonicPc, onTonic, side = false, config = {} }
         <div className="flex min-w-0 flex-1 flex-col gap-1.5">
           {top}
           {/* the scale and its key on one row */}
-          <BarRow label={config.scale ? "Scale" : "Key"} info={KEY_INFO}>
-            {config.scale && (config.scale.picker ?? <ScalePicker slug={scale} tonicPc={tonicPc} onScale={onScale} />)}
-            {config.keys !== false && TONICS.map((t) => (
-              <Chip key={t.pc} on={t.pc === tonicPc} onClick={() => onTonic(t.pc)}>{t.name}</Chip>
-            ))}
-          </BarRow>
+          {keyRow && (
+            <BarRow label={config.scale ? "Scale" : "Key"} info={KEY_INFO}>
+              {config.scale && (config.scale.picker ?? <ScalePicker slug={scale} tonicPc={tonicPc} onScale={onScale} />)}
+              {config.keys !== false && TONICS.map((t) => (
+                <Chip key={t.pc} on={t.pc === tonicPc} onClick={() => onTonic(t.pc)}>{t.name}</Chip>
+              ))}
+            </BarRow>
+          )}
           {rows}
           {labelsRow && (
             <BarRow label="Labels" info={LABEL_INFO}>
               <LabelSelect showLabel={false} omit={labelsRow.omit} />
+              {labelsRow.extra}
             </BarRow>
           )}
         </div>

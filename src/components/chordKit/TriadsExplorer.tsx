@@ -1,16 +1,15 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { KeyPicker } from "./KeyPicker";
+import { BarRow, ScaleSettingsBar, WithSettings } from "./ScaleSettings";
 import { INVERSIONS, STRING_GROUPS, TRIAD_QUALITIES, chordShapesOf, nearbyFourthFifth, triadVoicings, type TriadQuality, type TriadVoicing } from "@/lib/chordKit/triads";
 import { GROUP_SWATCH, swatchFor } from "./palette";
 import { strum } from "@/lib/chordKit/playback";
 import { TONICS } from "@/features/theory/theory";
 import { toneLabel } from "@/features/theory/labels";
-import { useLabelSystem } from "@/features/theory/useLabelSystem";
-import { LabelsRow } from "@/components/LabelsRow";
+import { RootSelect, useLabelSystem } from "@/features/theory/useLabelSystem";
 import { DEFAULT_KEY_PC } from "@/features/theory/theory";
-import { Chip, ChipRow, Info } from "@/components/ui";
+import { Chip, Info } from "@/components/ui";
 
 /** Small chord box for three adjacent strings. */
 export function TriadBox({ v, rootPc, onPlay, active }: { v: TriadVoicing; rootPc: number; onPlay: () => void; active: boolean }) {
@@ -50,7 +49,8 @@ export function TriadBox({ v, rootPc, onPlay, active }: { v: TriadVoicing; rootP
   );
 }
 
-export default function TriadsExplorer({ initialTonic = DEFAULT_KEY_PC, initialQuality = "maj" }: { initialTonic?: number; initialQuality?: TriadQuality } = {}) {
+/** `side` puts the settings in a column on the right on wide screens (the triads page); embedded, they float over the top. */
+export default function TriadsExplorer({ initialTonic = DEFAULT_KEY_PC, initialQuality = "maj", side = false }: { initialTonic?: number; initialQuality?: TriadQuality; side?: boolean } = {}) {
   const [tonicPc, setTonicPc] = useState(initialTonic);
   const [quality, setQuality] = useState<TriadQuality>(initialQuality);
   const [groupIds, setGroupIds] = useState<string[]>(STRING_GROUPS.map((g) => g.id));
@@ -75,23 +75,25 @@ export default function TriadsExplorer({ initialTonic = DEFAULT_KEY_PC, initialQ
   };
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-2.5 rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
-        <KeyPicker tonicPc={tonicPc} onTonic={setTonicPc} />
-        <ChipRow label="Triad" info="A triad is three notes stacked in thirds. Major is root, major 3rd, 5th. Minor lowers the 3rd. Diminished lowers the 3rd and the 5th. Augmented raises the 5th.">
-          {TRIAD_QUALITIES.map((t) => <Chip key={t.id} on={t.id === quality} onClick={() => setQuality(t.id)}>{t.label}</Chip>)}
-        </ChipRow>
-        <ChipRow label="String group" info="Which three neighbouring strings the triad is played on. Pick several to compare. The 3-2-1 group is the brightest, 6-5-4 the deepest. The other strings are not played.">
-          {STRING_GROUPS.map((g) => <Chip key={g.id} on={groupIds.includes(g.id)} onClick={() => toggleGroup(g.id)}>{g.label}</Chip>)}
-        </ChipRow>
-        <LabelsRow />
-        <p className="text-xs text-slate-400">
+    <WithSettings side={side} bar={
+      <ScaleSettingsBar tonicPc={tonicPc} onTonic={setTonicPc} side={side} config={{
+        labels: { extra: <RootSelect /> },
+        rows: <>
+          <BarRow label="Triad" info="A triad is three notes stacked in thirds. Major is root, major 3rd, 5th. Minor lowers the 3rd. Diminished lowers the 3rd and the 5th. Augmented raises the 5th.">
+            {TRIAD_QUALITIES.map((t) => <Chip key={t.id} on={t.id === quality} onClick={() => setQuality(t.id)}>{t.label}</Chip>)}
+          </BarRow>
+          <BarRow label="Strings" info="Which three neighbouring strings the triad is played on. Pick several to compare. The 3-2-1 group is the brightest, 6-5-4 the deepest. The other strings are not played.">
+            {STRING_GROUPS.map((g) => <Chip key={g.id} on={groupIds.includes(g.id)} onClick={() => toggleGroup(g.id)}>{g.label}</Chip>)}
+          </BarRow>
+        </>,
+      }} />
+    }>
+        <p className="px-1 text-xs text-slate-400">
           Showing <b className="text-slate-200">{chordName}</b> ({q.labels.join(" ")}) in every closed voicing on the chosen string groups.
           <Info label="What is a string group?">
             A triad has three notes, so it lives on three neighbouring strings. Each of the four groups gives three shapes by turning the chord upside down: root position (root lowest), 1st inversion (3rd lowest) and 2nd inversion (5th lowest). Closed means the three notes fit inside one octave, so there are no gaps. Each shape repeats an octave higher up the neck.
           </Info>
         </p>
-      </div>
 
       <section className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
         <h3 className="mb-1 flex items-center gap-1 text-sm font-medium text-slate-100">
@@ -153,6 +155,6 @@ export default function TriadsExplorer({ initialTonic = DEFAULT_KEY_PC, initialQ
           </div>
         </section>
       ))}
-    </div>
+    </WithSettings>
   );
 }

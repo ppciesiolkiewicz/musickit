@@ -12,6 +12,8 @@ import { usePlan } from "./store/usePlan";
 import PlanFlow, { savedFlow } from "./ui/PlanFlow";
 import WeekView from "./ui/WeekView";
 import { DISPLAY } from "@/components/landing/Display";
+import { ScaleSettingsBar, WithSettings } from "@/components/chordKit/ScaleSettings";
+import { RootSelect } from "@/features/theory/useLabelSystem";
 
 const newId = () => (typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : String(Date.now()));
 
@@ -88,36 +90,40 @@ export default function PlanApp() {
     );
   }
 
+  // the exercises set their own keys, so the side column only has how notes are labelled
+  const settings = <ScaleSettingsBar tonicPc={0} onTonic={() => {}} side config={{ keys: false, pocket: false, labels: { extra: <RootSelect /> } }} />;
   return (
-    <div className="flex flex-col gap-4 pb-28">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="text-xs font-medium uppercase tracking-wider text-amber-300/90">{over ? "Week done" : `Day ${todayIdx + 1} of ${PLAN_DAYS}`} · started {plan.startedOn}</p>
-          <h2 className="mt-0.5 text-3xl text-slate-50" style={DISPLAY}>{plan.config.title}</h2>
-          {plan.config.summary && <p className="mt-1 max-w-3xl text-sm text-slate-400">{plan.config.summary}</p>}
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Reminder state={state} update={update} />
-          <Button size="sm" onClick={() => setFlow("next")} title="Plan the next days from this week's exercises" className={primary}><Icon name="sparkles" size={12} />Plan next week</Button>
-          <Button size="sm" onClick={() => setFlow("start")} title="Answer the questions again; the prompt leaves out past weeks"><Icon name="rotate-ccw" size={12} />Start anew</Button>
-        </div>
-      </div>
-
-      {over && (
-        <section className="flex flex-wrap items-center gap-3 rounded-2xl border border-l-4 border-slate-700 border-l-sky-400 bg-slate-900/80 p-4">
-          <div className="min-w-0 flex-1">
-            <h2 className="text-base text-slate-100">Ready for next week</h2>
-            <p className="text-sm text-slate-400">Tell us how it went; the next prompt builds on what you did and skipped.</p>
+    <WithSettings side bar={settings}>
+      <div className="flex flex-col gap-4 pb-28">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-xs font-medium uppercase tracking-wider text-amber-300/90">{over ? "Week done" : `Day ${todayIdx + 1} of ${PLAN_DAYS}`} · started {plan.startedOn}</p>
+            <h2 className="mt-0.5 text-3xl text-slate-50" style={DISPLAY}>{plan.config.title}</h2>
+            {plan.config.summary && <p className="mt-1 max-w-3xl text-sm text-slate-400">{plan.config.summary}</p>}
           </div>
-          <Button onClick={() => setFlow("next")} className={primary}><Icon name="sparkles" size={14} />Plan next week</Button>
-        </section>
-      )}
+          <div className="flex flex-wrap items-center gap-2">
+            <Reminder state={state} update={update} />
+            <Button size="sm" onClick={() => setFlow("next")} title="Plan the next days from this week's exercises" className={primary}><Icon name="sparkles" size={12} />Plan next week</Button>
+            <Button size="sm" onClick={() => setFlow("start")} title="Answer the questions again; the prompt leaves out past weeks"><Icon name="rotate-ccw" size={12} />Start anew</Button>
+          </div>
+        </div>
 
-      <WeekView plan={plan} today={over ? PLAN_DAYS - 1 : todayIdx} day={day ?? todayIdx} onDay={setDay} onToggle={toggle} onElapsed={saveElapsed} />
+        {over && (
+          <section className="flex flex-wrap items-center gap-3 rounded-2xl border border-l-4 border-slate-700 border-l-sky-400 bg-slate-900/80 p-4">
+            <div className="min-w-0 flex-1">
+              <h2 className="text-base text-slate-100">Ready for next week</h2>
+              <p className="text-sm text-slate-400">Tell us how it went; the next prompt builds on what you did and skipped.</p>
+            </div>
+            <Button onClick={() => setFlow("next")} className={primary}><Icon name="sparkles" size={14} />Plan next week</Button>
+          </section>
+        )}
 
-      {state.history.length > 0 && <History plans={state.history} onUse={(c) => onPlan(c)} />}
-      {modal}
-    </div>
+        <WeekView plan={plan} today={over ? PLAN_DAYS - 1 : todayIdx} day={day ?? todayIdx} onDay={setDay} onToggle={toggle} onElapsed={saveElapsed} />
+
+        {state.history.length > 0 && <History plans={state.history} onUse={(c) => onPlan(c)} />}
+        {modal}
+      </div>
+    </WithSettings>
   );
 }
 
