@@ -47,7 +47,7 @@
             "sections": [
               { "type": "heading", "text": "Two strums a bar", "minutes": 5 },
               { "type": "text", "text": "Press Play. The lit block shows the chord. Strum short chords on beats 2 and 4, one bar each." },
-              { "type": "tool", "tool": { "type": "strum-along", "chords": ["Dm7", "G7", "Cmaj7", "Cmaj7"], "bpm": 80 } },
+              { "type": "tool", "tool": { "type": "strum-along", "chords": ["Dm7", "G7", "Cmaj7", "Cmaj7"], "bpm": 80, "pattern": ". D . D" } },
               { "type": "heading", "text": "Bass and chord", "minutes": 5 },
               { "type": "text", "text": "Press Play. Now pick each chord's root on beats 1 and 3. Strum the top strings on beats 2 and 4." },
               { "type": "tool", "tool": { "type": "strum-along", "chords": ["Dm7", "G7", "Cmaj7", "Cmaj7"], "bpm": 80 } }
@@ -233,7 +233,7 @@
               { "type": "tool", "tool": { "type": "chord-shapes", "chords": ["Cmaj7", "Am7", "Dm7", "G7"] } },
               { "type": "heading", "text": "Block chords on 2 and 4", "minutes": 4 },
               { "type": "text", "text": "Press Play. The lit block shows the chord. Strum short chords on beats 2 and 4." },
-              { "type": "tool", "tool": { "type": "strum-along", "chords": ["Cmaj7", "Am7", "Dm7", "G7"], "bpm": 80 } },
+              { "type": "tool", "tool": { "type": "strum-along", "chords": ["Cmaj7", "Am7", "Dm7", "G7"], "bpm": 80, "pattern": ". D . D" } },
               { "type": "heading", "text": "Bass and chord", "minutes": 4 },
               { "type": "text", "text": "Press Play. Pick the root on beats 1 and 3. Strum the chord on beats 2 and 4." },
               { "type": "tool", "tool": { "type": "strum-along", "chords": ["Cmaj7", "Am7", "Dm7", "G7"], "bpm": 80 } },

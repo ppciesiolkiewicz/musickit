@@ -134,6 +134,10 @@ describe("tools", () => {
     assert.deepEqual(parseTool({ type: "notes", query: "mode=find" }), { type: "note-finder", query: "mode=find" });
     assert.deepEqual(parseTool({ type: "ears", query: "level=2&wide=1", wide: true }), { type: "interval-ears", query: "level=2&wide=1", wide: true });
   });
+  it("a strum-along keeps a pattern that fills the bar, written by beat", () => {
+    assert.deepEqual(parseTool({ type: "strum-along", chords: ["G"], bpm: 70, pattern: "d . d u . u d u" }), { type: "strum-along", chords: ["G"], bpm: 70, pattern: "D . | D U | . U | D U" });
+    assert.deepEqual(parseTool({ type: "strum-along", chords: ["G"], bpm: 70, beats: 3, pattern: "D D U D U" }), { type: "strum-along", chords: ["G"], bpm: 70, beats: 3 });
+  });
   it("a stored comp tool becomes a play-along progression", () => {
     const t = parseTool({ type: "comp", chords: ["Am", "F", "C", "G"], patterns: ["arp-up", "strum"], bpm: 80, beats: 4 });
     assert.ok(t && t.type === "play-along");

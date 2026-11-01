@@ -78,11 +78,12 @@ export class ClickTrack {
     return 60 / this.params.bpm;
   }
 
-  /** Index of the beat sounding now (0 = the first click), or null when stopped. */
-  beat(): { beat: number; index: number } | null {
+  /** Index of the beat sounding now (0 = the first click) and how far into it (0 to 1), or null when stopped. */
+  beat(): { beat: number; index: number; phase: number } | null {
     if (!this.playing || this.ctx.currentTime < this.startAt) return null;
     const index = beatIndexAt(this.ctx.currentTime, this.anchor, this.params.bpm);
-    return index < 0 ? null : { beat: beatOf(index, this.params.beatsPerBar), index };
+    const phase = Math.min(1, Math.max(0, ((this.ctx.currentTime - this.anchor) * this.params.bpm) / 60 - index));
+    return index < 0 ? null : { beat: beatOf(index, this.params.beatsPerBar), index, phase };
   }
 
   /**

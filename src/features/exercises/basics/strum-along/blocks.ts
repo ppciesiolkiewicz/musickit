@@ -21,3 +21,25 @@ export function strumBars(blocks: number, per: StrumPer, beats: number): number[
   for (let i = 0; i < blocks; i += size) bars.push(Array.from({ length: Math.min(size, blocks - i) }, (_, j) => i + j));
   return bars;
 }
+
+/** Down, up, or a miss: the hand still moves but doesn't touch the strings. */
+export type Stroke = "D" | "U" | ".";
+
+/**
+ * One bar of strokes ("D . D U . U D U"; "|" only for reading) split into beats: 1 to 4 strokes a beat, the same in every beat.
+ * Null when it doesn't read or doesn't fill the bar evenly. No pattern is a down on every beat.
+ */
+export function strumPattern(spec: string | undefined, beats: number): Stroke[][] | null {
+  const steps = (spec ?? "").toUpperCase().trim().split(/\s+/).filter((t) => t && t !== "|");
+  if (!steps.length) return Array.from({ length: beats }, () => ["D"]);
+  if (steps.some((t) => t !== "D" && t !== "U" && t !== ".")) return null;
+  const per = steps.length / beats;
+  if (!Number.isInteger(per) || per > 4) return null;
+  return Array.from({ length: beats }, (_, b) => steps.slice(b * per, (b + 1) * per) as Stroke[]);
+}
+
+/** The count under each stroke of beat `beat` (0 = beat 1): "1", "1 &", "1 & a", "1 e & a". */
+export function strumCounts(beat: number, per: number): string[] {
+  const sub = per === 4 ? ["e", "&", "a"] : per === 3 ? ["&", "a"] : per === 2 ? ["&"] : [];
+  return [String(beat + 1), ...sub];
+}

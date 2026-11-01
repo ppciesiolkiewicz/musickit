@@ -6,6 +6,7 @@ import { VOICES, type Voice } from "@/features/theory/singing";
 import { pickChoices, pickTune, type MelodyPick } from "@/features/theory/melodyPick";
 import { BOOK, RUNS, RUN_STAGES, STAGES, type BookTune, type Stage } from "@/features/theory/singingMelodies";
 import { isRunId, isTuneId } from "@/features/exercises/basics/choices";
+import { strumPattern } from "@/features/exercises/basics/strum-along/blocks";
 import { COMPONENT_DOCS, shortDoc, type ComponentDoc } from "@/features/exercises/docs";
 import type { PlayAlongShape } from "@/features/exercises/play-along/play-along.props";
 import { expandShape } from "@/features/exercises/shapes";
@@ -55,7 +56,7 @@ export type PlanTool =
   | { type: "melody-singer"; tune: number; key: number; voice?: Voice }
   | { type: "run-singer"; run: number; key: number; voice?: Voice }
   | { type: "play-along"; shape: PlayAlongShape; bpm: number; repeats?: number; view?: View; enable?: Degree[]; highlight?: Degree[]; others?: "muted" | "hidden"; under?: Under }
-  | { type: "strum-along"; chords: string[]; bpm: number; per?: "bar" | "beat"; beats?: number }
+  | { type: "strum-along"; chords: string[]; bpm: number; per?: "bar" | "beat"; beats?: number; pattern?: string }
   /* stubs: a placeholder view until the real components exist; strings are numbered 1-6, 6 = low E */
   | { type: "finger-pattern"; fingers: string; fret: number; strings?: number[]; bpm: number }
   | { type: "picking-drill"; strokes: string; notesPerString: number; strings?: number[]; skip?: boolean; bpm: number }
@@ -267,8 +268,14 @@ export const TOOLS: { [N in ToolName]: ToolSpec } = {
     parse(t) {
       const chords = chordList(t.chords, 16);
       const beats = int(t.beats, 2, 6);
+      const strokes = typeof t.pattern === "string" && t.pattern.trim() ? strumPattern(t.pattern, beats ?? 4) : null;
       return chords.length
-        ? { type: "strum-along", chords, bpm: int(t.bpm, 30, 240) ?? 80, ...(t.per === "bar" || t.per === "beat" ? { per: t.per } : {}), ...(beats !== null && beats !== 4 ? { beats } : {}) }
+        ? {
+            type: "strum-along", chords, bpm: int(t.bpm, 30, 240) ?? 80,
+            ...(t.per === "bar" || t.per === "beat" ? { per: t.per } : {}),
+            ...(beats !== null && beats !== 4 ? { beats } : {}),
+            ...(strokes ? { pattern: strokes.map((b) => b.join(" ")).join(" | ") } : {}),
+          }
         : null;
     },
   },

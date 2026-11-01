@@ -255,8 +255,8 @@
           {
             "title": "G-Em-C-D, full pattern", "focus": "Strum pattern over G-Em-C-D at 80 bpm", "minutes": 5, "tags": ["rhythm"], "why": "The week's chords at a faster tempo, to hear how far they have come.",
             "sections": [
-              { "type": "text", "text": "Press Play. Strum down, down-up, up-down-up, one bar per chord. The lit block shows the chord to play." },
-              { "type": "tool", "tool": { "type": "strum-along", "chords": ["G", "Em", "C", "D"], "bpm": 80 } }
+              { "type": "text", "text": "Press Play. Strum down, down-up, up-down-up, one bar per chord. The lit box shows the chord and the strum to play." },
+              { "type": "tool", "tool": { "type": "strum-along", "chords": ["G", "Em", "C", "D"], "bpm": 80, "pattern": "D . D U . U D U" } }
             ]
           },
           {

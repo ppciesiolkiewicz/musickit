@@ -73,7 +73,7 @@ function Tool({ tool, voice }: { tool: PlanTool; voice?: Voice }) {
     case "play-along":
       return <PlayAlong shape={tool.shape} bpm={tool.bpm} repeats={tool.repeats} view={tool.view} enable={tool.enable} highlight={tool.highlight} others={tool.others} under={tool.under} />;
     case "strum-along":
-      return <StrumAlong chords={tool.chords} bpm={tool.bpm} per={tool.per} beats={tool.beats} />;
+      return <StrumAlong chords={tool.chords} bpm={tool.bpm} per={tool.per} beats={tool.beats} pattern={tool.pattern} />;
     case "finger-pattern":
       return <FingerPattern fingers={tool.fingers} fret={tool.fret} strings={tool.strings} bpm={tool.bpm} />;
     case "picking-drill":
