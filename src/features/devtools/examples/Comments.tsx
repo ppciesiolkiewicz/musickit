@@ -182,7 +182,7 @@ export function CommentsBar({ sections }: { sections: Record<string, Section> })
   if (!all.length) return null;
   const outdated = all.filter((c) => stateOf(c, hashes[`${c.example}|${c.address}|${c.index}`]) !== "current").length;
   const copy = () =>
-    void navigator.clipboard.writeText(commentsMarkdown(all, { head: commits?.head, files: commits?.files, hashes })).then(() => {
+    void navigator.clipboard.writeText(commentsMarkdown(all, { files: commits?.files, hashes })).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     });

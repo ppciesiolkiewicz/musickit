@@ -74,20 +74,19 @@ export function readComments(raw: unknown): SectionComment[] {
 }
 
 /**
- * Every comment as one Markdown text to paste into a chat or an issue: grouped by example (with its file and the commit
- * it was read at), in section order, each with its quote and, when the section changed or went since, a note saying so.
+ * Every comment as one Markdown text to paste into a chat or an issue: grouped by example (with its file), in section order, each with its quote and, when the section changed or went since, a note saying so.
  */
-export function commentsMarkdown(comments: SectionComment[], opts: { head?: string; files?: Record<string, { path: string; commit: string; dirty?: boolean }>; hashes?: Record<string, string | undefined> }): string {
+export function commentsMarkdown(comments: SectionComment[], opts: { files?: Record<string, { path: string }>; hashes?: Record<string, string | undefined> }): string {
   const key = (c: SectionComment) => `${c.example}|${c.address}|${c.index}`;
   const byExample = new Map<string, SectionComment[]>();
   for (const c of comments) byExample.set(c.example, [...(byExample.get(c.example) ?? []), c]);
-  const out = [`# Comments on the autoplan examples${opts.head ? ` (HEAD ${opts.head})` : ""}`];
+  const out = ["# Comments on the autoplan examples"];
   for (const [example, list] of byExample) {
     const f = opts.files?.[example];
-    out.push("", `## ${example}${f ? ` (${f.path} @ ${f.commit}${f.dirty ? ", uncommitted edits" : ""})` : ""}`);
+    out.push("", `## ${example}${f ? ` (${f.path})` : ""}`);
     for (const c of [...list].sort((a, b) => a.address.localeCompare(b.address) || a.index - b.index || a.at.localeCompare(b.at))) {
       const state = opts.hashes ? stateOf(c, opts.hashes[key(c)]) : "current";
-      out.push("", `- **${placeOf(c)}** (${c.kind}, commented at ${c.commit}${c.dirty ? "+edits" : ""})`, `  > ${c.quote}`);
+      out.push("", `- **${placeOf(c)}** (${c.kind})`, `  > ${c.quote}`);
       if (state === "changed") out.push("  ⚠ The section has changed since this comment.");
       if (state === "gone") out.push("  ⚠ This section no longer exists.");
       out.push(...c.text.split("\n").map((l) => `  ${l}`));

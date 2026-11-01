@@ -40,12 +40,11 @@ test("readComments drops what isn't a comment", () => {
 test("commentsMarkdown groups by example and flags changed sections", () => {
   const a = c(), b = c({ id: "2", index: 0, text: "Line 1\nLine 2" }), other = c({ id: "3", example: "ex-b" });
   const md = commentsMarkdown([a, b, other], {
-    head: "f00d123",
-    files: { "ex-a": { path: "x/ex-a.json", commit: "abc1234" } },
+    files: { "ex-a": { path: "x/ex-a.json" } },
     hashes: { [hashKey("ex-a", "ex", 2)]: "changed!", [hashKey("ex-a", "ex", 0)]: b.hash },
   });
-  assert.match(md, /HEAD f00d123/);
-  assert.match(md, /## ex-a \(x\/ex-a\.json @ abc1234\)/);
+  assert.match(md, /## ex-a \(x\/ex-a\.json\)\n/);
+  assert.doesNotMatch(md, /commented at|@/);
   assert.ok(md.indexOf("section 1") < md.indexOf("section 3"), "in section order");
   assert.match(md, /section 3[^\n]*\n {2}> Play box 1\n {2}⚠ The section has changed/);
   assert.match(md, /## ex-b/);

@@ -42,7 +42,7 @@ section's hash no longer matches, the comment turns orange ("section changed", w
 is gone shows rose. Comments live in `localStorage` key `musickit.dev.comments`. The bar at the bottom counts them,
 shows HEAD, re-pins them all to the sections as they are now and the files' current commits (*Re-pin all to HEAD*,
 `repinComments`: *keep* for every comment; those on gone sections stay), and copies them all as Markdown
-(`commentsMarkdown`: by example with file and commit, in section order, each with its quote and a warning when outdated);
+(`commentsMarkdown`: by example with file, no git details, in section order, each with its quote and a warning when outdated);
 outdated is checked against every example (`exampleSections`), open or not.
 
 ## Running the prompt
