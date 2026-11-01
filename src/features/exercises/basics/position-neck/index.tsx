@@ -111,9 +111,10 @@ function Neck({ slug, pc, positions: wanted, placement, cross: crossProp, add, e
       <div className="min-w-0 overflow-x-auto">
         <svg viewBox={`0 0 ${g.W} ${g.H}`} width="100%" style={{ minWidth: phone ? 480 : undefined }} role="img" aria-label={`${title}, ${caption}`}>
           <FretboardBase g={g} markerSize={phone ? 4 : 6} />
-          {framed.map((p) => (
-            <Frame key={`f${p.number}`} g={g} notes={p.notes} r={r} stroke={FRAME} fill="rgb(56 189 248 / 0.06)" dashed={!!path} label={`Position ${p.number}`} />
+          {merged(framed).map((group) => (
+            <Frame key={`f${group.map((p) => p.number).join("-")}`} g={g} notes={group.flatMap((p) => p.notes)} r={r} stroke={FRAME} fill="rgb(56 189 248 / 0.06)" dashed={!!path} />
           ))}
+          {framed.map((p) => <PositionLabel key={`l${p.number}`} g={g} p={p} r={r} />)}
           {path && <Frame g={g} notes={path.notes} r={r - 2} stroke={CROSS} fill="rgb(252 211 77 / 0.08)" />}
           {shown.map((c) => {
             const s = state(c);
@@ -194,8 +195,27 @@ function rounded(points: [number, number][], radius: number): string {
   return d + "Z";
 }
 
+/** Positions that share frets, in groups along the neck: each group is framed as one shape. */
+function merged(positions: ScalePosition[]): ScalePosition[][] {
+  const groups: ScalePosition[][] = [];
+  for (const p of [...positions].sort((a, b) => a.from - b.from)) {
+    const last = groups[groups.length - 1];
+    if (last && p.from <= Math.max(...last.map((q) => q.to))) last.push(p);
+    else groups.push([p]);
+  }
+  return groups;
+}
+
+/** "Position N" above the position's notes on the top string. */
+function PositionLabel({ g, p, r }: { g: FretGeometry; p: ScalePosition; r: number }) {
+  const top = Math.max(...p.notes.map((c) => c.string));
+  const frets = p.notes.filter((c) => c.string === top).map((c) => c.fret);
+  const x = (g.fx(Math.min(...frets)) + g.fx(Math.max(...frets))) / 2;
+  return <text x={x} y={g.sy(top) - r - 12} textAnchor="middle" fontSize={11} fontWeight={600} fill={FRAME} pointerEvents="none">Position {p.number}</text>;
+}
+
 /** An outline hugging the notes string by string: the shape of a position (or a crossing) on the neck, stepped where its strings shift. */
-function Frame({ g, notes, r, stroke, fill, dashed = false, label }: { g: FretGeometry; notes: ScaleCell[]; r: number; stroke: string; fill: string; dashed?: boolean; label?: string }) {
+function Frame({ g, notes, r, stroke, fill, dashed = false }: { g: FretGeometry; notes: ScaleCell[]; r: number; stroke: string; fill: string; dashed?: boolean }) {
   const pad = r + 5;
   const rows = [5, 4, 3, 2, 1, 0].map((s) => {
     const frets = notes.filter((c) => c.string === s).map((c) => c.fret);
@@ -217,11 +237,9 @@ function Frame({ g, notes, r, stroke, fill, dashed = false, label }: { g: FretGe
   right.push([last.hi, bottom]);
   left.push([last.lo, bottom]);
   const points = [...right, ...left.reverse()];
-  const lx = (rows[0].lo + rows[0].hi) / 2;
   return (
     <g pointerEvents="none">
       <path d={rounded(points, r * 0.7)} fill={fill} stroke={stroke} strokeWidth={2} strokeDasharray={dashed ? "6 4" : undefined} strokeLinejoin="round" />
-      {label && <text x={lx} y={top - 7} textAnchor="middle" fontSize={11} fontWeight={600} fill={stroke}>{label}</text>}
     </g>
   );
 }
