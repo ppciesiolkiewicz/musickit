@@ -43,9 +43,22 @@ function CopyPlan({ json, note }: { json: string; note?: string }) {
   );
 }
 
+/** The tool types an example uses, walking its JSON for `{ type: "tool", tool: { type } }`, with how often each appears, in first-use order. */
+function toolsUsed(value: unknown, counts = new Map<string, number>()): Map<string, number> {
+  if (Array.isArray(value)) value.forEach((v) => toolsUsed(v, counts));
+  else if (value && typeof value === "object") {
+    const o = value as Record<string, unknown>;
+    const tool = o.tool as { type?: unknown } | undefined;
+    if (o.type === "tool" && typeof tool?.type === "string") counts.set(tool.type, (counts.get(tool.type) ?? 0) + 1);
+    Object.values(o).forEach((v) => toolsUsed(v, counts));
+  }
+  return counts;
+}
+
 /** A card per example; the preview mounts only while open (each one sets up its tools). */
 function ExampleCard({ title, meta, note, json, entries, badge }: { /** the example's id */ title: string; meta?: ReactNode; note?: string; json: string; entries: CatalogueEntry[]; badge?: ReactNode }) {
   const [open, setOpen] = useState(false);
+  const tools = useMemo(() => [...toolsUsed(JSON.parse(json))], [json]);
   return (
     <li className="rounded-xl border border-slate-800 bg-slate-900/40">
       <details open={open} onToggle={(e) => setOpen(e.currentTarget.open)}>
@@ -53,11 +66,16 @@ function ExampleCard({ title, meta, note, json, entries, badge }: { /** the exam
           <span className="flex flex-wrap items-center gap-2">
             <span className="font-mono text-sm text-sky-200">{title}</span>
             {badge}
-            {meta}
             <CommentCount example={title} />
             <CopyPlan json={json} note={note} />
           </span>
+          {meta}
           {note && <span className="text-xs text-slate-400">{note}</span>}
+          {tools.length > 0 && (
+            <span className="flex flex-wrap gap-1">
+              {tools.map(([t, n]) => <span key={t} className="rounded-md border border-amber-500/30 bg-amber-500/10 px-1.5 font-mono text-[11px] text-amber-200">{t}{n > 1 ? <span className="text-amber-200/60"> ×{n}</span> : null}</span>)}
+            </span>
+          )}
         </summary>
         {open && <div className="border-t border-slate-800 p-3"><CommentsFor example={title}><ExamplePreview json={json} entries={entries} /></CommentsFor></div>}
       </details>
