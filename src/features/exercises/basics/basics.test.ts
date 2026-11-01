@@ -8,11 +8,13 @@ describe("basics docs", () => {
   it("lists every basic", () => {
     for (const n of NAMES) assert.equal(COMPONENT_DOCS.find((d) => d.name === n)?.kind, "basic", n);
   });
-  it("documents others as optional normal|muted|hidden", () => {
-    for (const n of ["scale-neck", "staff"]) {
-      const p = docOf(n)!.props.find((x) => x.name === "others");
+  it("documents the two layers, enable and highlight, and others as optional muted|hidden", () => {
+    for (const n of ["scale-neck", "staff", "arpeggio-neck"]) {
+      const props = docOf(n)!.props;
+      for (const k of ["enable", "highlight"]) assert.equal(props.find((x) => x.name === k)?.required, false, `${n} ${k}`);
+      const p = props.find((x) => x.name === "others");
       assert.equal(p?.required, false);
-      assert.equal(p?.type, '"normal" | "muted" | "hidden"');
+      assert.equal(p?.type, '"muted" | "hidden"');
     }
   });
   it("backing-band requires parts", () => {

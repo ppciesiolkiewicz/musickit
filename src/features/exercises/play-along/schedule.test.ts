@@ -4,7 +4,7 @@ import type { Cue } from "../cues/cues";
 import type { Timeline } from "../timeline/types";
 import { barEvents, isFinished, loopsDone } from "./schedule";
 
-const cue = (at: number): Cue => ({ at, beats: 1, chord: "G", kind: "note", midi: [55], frets: [], highlighted: true });
+const cue = (at: number): Cue => ({ at, beats: 1, chord: "G", kind: "note", midi: [55], frets: [], enabled: true, highlighted: false });
 const cues = [0, 3, 4, 5, 7.5, 8, 12].map(cue);
 const t = (repeats?: number): Timeline => ({ bpm: 80, bars: 4, events: [], ...(repeats ? { repeats } : {}) });
 

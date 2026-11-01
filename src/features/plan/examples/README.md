@@ -40,6 +40,8 @@ What there is: one exercise per area and level (`<area>-<level>-<what>.json`), t
   as accompaniment are fine); playing exercises never ask to sing. A bare singing drill is one block of at most 3 minutes.
 - Every note a step names (`{{3}}`, `{{c-sharp}}`) is lit in the tool after it; the root is never muted; a fresh tool
   after a step whenever the focus changes. Staffs in non-singing exercises set `"mic": false`.
+- Two layers, never the same list: `enable` for the notes in play (absent: all), `highlight` for the few that matter
+  among them (the roots, the note just added). `others` only with `enable`.
 - No play-along `repeats` (it loops; the exercise's minutes are the timer). Styles are at most one sentence of colour.
 - Plans: 7 days, each adding up to `minutes` (±2), 2 to 5 exercises, warm-up first and something musical last, no two
   exercises with the same tag side by side, the week's key skill on at least three days in new forms.

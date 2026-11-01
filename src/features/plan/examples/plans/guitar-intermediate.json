@@ -40,10 +40,10 @@
               { "type": "text", "text": "One slide on the G string is all it takes to leave box 1 behind." },
               { "type": "heading", "text": "Box 2 on its own", "minutes": 3 },
               { "type": "text", "text": "Box 2 up and down at 70, one note per click. Its {{1}} notes are on the D and B strings." },
-              { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [2], "highlight": ["1"], "others": "normal" } },
+              { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [2], "highlight": ["1"] } },
               { "type": "heading", "text": "Cross on the G string", "minutes": 4 },
               { "type": "text", "text": "Climb box 1; on the G string slide {{4}} (D, 7th fret) up to {{5}} (E, 9th fret) and finish in box 2. Come back the same way. Four clean runs." },
-              { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1, 2], "highlight": ["1", "4", "5"], "others": "normal" } },
+              { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1, 2], "highlight": ["1", "4", "5"] } },
               { "type": "heading", "text": "At 80", "minutes": 3 },
               { "type": "text", "text": "The same crossing at 80 with the click. Done when the slide lands in time twice in a row." },
               { "type": "tool", "tool": { "type": "backing-band", "bpm": 80, "key": "a", "parts": ["click"] } }
@@ -92,10 +92,10 @@
               { "type": "text", "text": "A bend is only good if it lands on a real note, so always check it against the note you aim for." },
               { "type": "heading", "text": "G string: D up to E", "minutes": 5 },
               { "type": "text", "text": "Play {{5}} (E, 9th fret of the G string) to hear the target. Then bend {{4}} (D, 7th fret) up a whole step with three fingers behind it until it matches. Alternate target and bend ten times." },
-              { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1, 2], "highlight": ["1", "4", "5"], "others": "normal" } },
+              { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1, 2], "highlight": ["1", "4", "5"] } },
               { "type": "heading", "text": "B string: G up to A", "minutes": 5 },
               { "type": "text", "text": "Same on the B string: play {{1}} (A, 10th fret), then bend {{b7}} (G, 8th fret) up to it. Then bend and hold, and pick the high E's {{1}} (5th fret) against it." },
-              { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1, 2], "highlight": ["1", "b7"], "others": "normal" } }
+              { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1, 2], "highlight": ["1", "b7"] } }
             ]
           },
           {
@@ -105,7 +105,7 @@
               { "type": "heading", "text": "One bend per phrase", "minutes": 4 },
               { "type": "text", "text": "Play short phrases in boxes 1 and 2, each with one bend from {{4}} to {{5}} or {{b7}} to {{1}}. Leave a bar of space between phrases." },
               { "type": "tool", "tool": { "type": "backing-band", "bpm": 70, "key": "a", "parts": ["drums", "bass"] } },
-              { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1, 2], "highlight": ["1", "4", "5", "b7"], "others": "normal" } },
+              { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1, 2], "highlight": ["1", "4", "5", "b7"] } },
               { "type": "heading", "text": "Slide into the join", "minutes": 4 },
               { "type": "text", "text": "Now start each phrase with the slide from box 1 into box 2 and end it with a bend. Record a minute and listen back." }
             ]
@@ -153,13 +153,13 @@
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 70, "key": "a", "drone": false } },
               { "type": "heading", "text": "Box 3 on its own", "minutes": 3 },
               { "type": "text", "text": "Box 3 up and down at 70. Find every {{1}} in it first." },
-              { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [3], "highlight": ["1"], "others": "normal" } },
+              { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [3], "highlight": ["1"] } },
               { "type": "heading", "text": "Cross on the B string", "minutes": 4 },
               { "type": "text", "text": "Climb box 2; on the B string slide {{b7}} (G, 8th fret) up to {{1}} (A, 10th fret) and finish in box 3. Back down the same way." },
-              { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [2, 3], "highlight": ["1", "b7"], "others": "normal" } },
+              { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [2, 3], "highlight": ["1", "b7"] } },
               { "type": "heading", "text": "Three boxes in one run", "minutes": 3 },
               { "type": "text", "text": "Start low in box 1, cross into box 2 on the G string, into box 3 on the B string, then all the way back. At 70; done at two clean runs." },
-              { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1, 2, 3], "highlight": ["1"], "others": "normal" } }
+              { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1, 2, 3], "highlight": ["1"] } }
             ]
           },
           {
@@ -209,7 +209,7 @@
               { "type": "tool", "tool": { "type": "legato-trill", "fingers": "13", "string": 3, "fret": 5, "bpm": 80 } },
               { "type": "heading", "text": "Through the box", "minutes": 4 },
               { "type": "text", "text": "Climb box 1 picking only the first note on each string and hammering the second; come down pulling off. Start and end on the low {{1}}." },
-              { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "highlight": ["1"], "others": "normal" } }
+              { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "highlight": ["1"] } }
             ]
           },
           {
@@ -243,10 +243,10 @@
               { "type": "text", "text": "Moving the joins to a new key proves you know the shapes, not the frets." },
               { "type": "heading", "text": "Box 1 at the 3rd fret", "minutes": 3 },
               { "type": "text", "text": "G minor pentatonic box 1 starts two frets lower than A. Up and down at 70, starting on the {{1}}." },
-              { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "g", "boxes": [1], "highlight": ["1"], "others": "normal" } },
+              { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "g", "boxes": [1], "highlight": ["1"] } },
               { "type": "heading", "text": "Both joins", "minutes": 4 },
               { "type": "text", "text": "Same joins as in A: {{4}} to {{5}} on the G string into box 2, {{b7}} to {{1}} on the B string into box 3." },
-              { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "g", "boxes": [1, 2, 3], "highlight": ["1", "4", "5", "b7"], "others": "normal" } },
+              { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "g", "boxes": [1, 2, 3], "highlight": ["1", "4", "5", "b7"] } },
               { "type": "heading", "text": "At 80", "minutes": 3 },
               { "type": "text", "text": "Run all three boxes up and back at 80. Done at two clean runs." },
               { "type": "tool", "tool": { "type": "backing-band", "bpm": 80, "key": "g", "parts": ["click"] } }
@@ -259,10 +259,10 @@
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 70, "key": "g", "drone": false } },
               { "type": "heading", "text": "Box 1", "minutes": 3 },
               { "type": "text", "text": "Play {{1}} {{b3}} {{5}} up and down in box 1, one note per click at 70." },
-              { "type": "tool", "tool": { "type": "arpeggio-neck", "chord": "Gm", "boxes": [1], "highlight": ["1"], "others": "normal" } },
+              { "type": "tool", "tool": { "type": "arpeggio-neck", "chord": "Gm", "boxes": [1], "highlight": ["1"] } },
               { "type": "heading", "text": "Across boxes 1 and 2", "minutes": 4 },
               { "type": "text", "text": "Now across both boxes, crossing at the notes they share. Then play only the {{b3}} in each box: it is the note that makes it minor." },
-              { "type": "tool", "tool": { "type": "arpeggio-neck", "chord": "Gm", "boxes": [1, 2], "highlight": ["1", "b3"], "others": "normal" } }
+              { "type": "tool", "tool": { "type": "arpeggio-neck", "chord": "Gm", "boxes": [1, 2], "highlight": ["1", "b3"] } }
             ]
           },
           {
@@ -309,10 +309,10 @@
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 60, "key": "a", "drone": false } },
               { "type": "heading", "text": "The lick slowly", "minutes": 5 },
               { "type": "text", "text": "Slide {{4}} to {{5}} on the G string, play {{b7}} (G, 8th fret) on the B string, bend it up to {{1}}, release. Four beats at 60, ten times." },
-              { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1, 2], "highlight": ["1", "4", "5", "b7"], "others": "normal" } },
+              { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1, 2], "highlight": ["1", "4", "5", "b7"] } },
               { "type": "heading", "text": "In box 3 too", "minutes": 5 },
               { "type": "text", "text": "Move it up: slide {{b7}} to {{1}} on the B string into box 3, then bend {{4}} up to {{5}} on the high E string (D at the 10th fret up to E)." },
-              { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [2, 3], "highlight": ["1", "4", "5", "b7"], "others": "normal" } }
+              { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [2, 3], "highlight": ["1", "4", "5", "b7"] } }
             ]
           },
           {
@@ -358,10 +358,10 @@
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 80, "key": "a", "drone": false } },
               { "type": "heading", "text": "Without looking", "minutes": 4 },
               { "type": "text", "text": "Run boxes 1 to 3 and back at 80 without the chart. Then check it." },
-              { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1, 2, 3], "highlight": ["1"], "others": "normal" } },
+              { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1, 2, 3], "highlight": ["1"] } },
               { "type": "heading", "text": "In G", "minutes": 4 },
               { "type": "text", "text": "Same in G, starting from the 3rd fret, still without looking." },
-              { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "g", "boxes": [1, 2, 3], "highlight": ["1"], "others": "normal" } }
+              { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "g", "boxes": [1, 2, 3], "highlight": ["1"] } }
             ]
           },
           {

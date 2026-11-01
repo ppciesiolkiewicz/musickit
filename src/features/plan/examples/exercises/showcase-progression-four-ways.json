@@ -25,7 +25,7 @@
       { "type": "tool", "tool": { "type": "backing-band", "bpm": 80, "key": "g", "parts": ["drums", "bass"] } },
       { "type": "heading", "text": "Improvise on the 3rds", "minutes": 3 },
       { "type": "text", "text": "Improvise in G major near the open chords, and land on each chord's 3rd as it arrives: {{b}} over G, {{f-sharp}} over D, {{g}} over Em, {{e}} over C." },
-      { "type": "tool", "tool": { "type": "scale-neck", "scale": "major-ionian", "key": "g", "placement": { "by": "chords" }, "highlight": ["g", "b", "f-sharp", "e"], "others": "normal" } },
+      { "type": "tool", "tool": { "type": "scale-neck", "scale": "major-ionian", "key": "g", "placement": { "by": "chords" }, "highlight": ["g", "b", "f-sharp", "e"] } },
       { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "solo-over", "key": "g", "chords": [{ "chord": "G", "target": ["3"] }, { "chord": "D", "target": ["3"] }, { "chord": "Em", "target": ["b3"] }, { "chord": "C", "target": ["3"] }] }, "bpm": 80, "view": "neck" } }
     ]
   }

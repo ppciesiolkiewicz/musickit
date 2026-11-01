@@ -36,13 +36,13 @@
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 70, "key": "d", "drone": false } },
               { "type": "heading", "text": "Dm7", "minutes": 3 },
               { "type": "text", "text": "Play the Dm7 arpeggio up and down at 70, one note per click: {{1}} {{b3}} {{5}} {{b7}}." },
-              { "type": "tool", "tool": { "type": "arpeggio-neck", "chord": "Dm7", "highlight": ["1"], "others": "normal" } },
+              { "type": "tool", "tool": { "type": "arpeggio-neck", "chord": "Dm7", "highlight": ["1"] } },
               { "type": "heading", "text": "G7", "minutes": 3 },
               { "type": "text", "text": "G7: {{1}} {{3}} {{5}} {{b7}}. Its {{3}} (B) and {{b7}} (F) are a tritone apart, the tension that wants to resolve." },
-              { "type": "tool", "tool": { "type": "arpeggio-neck", "chord": "G7", "highlight": ["1", "3", "b7"], "others": "normal" } },
+              { "type": "tool", "tool": { "type": "arpeggio-neck", "chord": "G7", "highlight": ["1", "3", "b7"] } },
               { "type": "heading", "text": "Cmaj7", "minutes": 4 },
               { "type": "text", "text": "Cmaj7: {{1}} {{3}} {{5}} {{7}}. Then all three in a row, one bar each, without stopping." },
-              { "type": "tool", "tool": { "type": "arpeggio-neck", "chord": "Cmaj7", "highlight": ["1"], "others": "normal" } }
+              { "type": "tool", "tool": { "type": "arpeggio-neck", "chord": "Cmaj7", "highlight": ["1"] } }
             ]
           },
           {
@@ -138,7 +138,7 @@
               { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "two-scales", "a": { "key": "c", "scale": "major-ionian" }, "b": { "key": "a", "scale": "natural-minor-aeolian" }, "bars": 8 }, "bpm": 70, "view": "notes", "under": "none" } },
               { "type": "heading", "text": "La is home", "minutes": 3 },
               { "type": "text", "text": "Tap {{1}} (A) on the staff, then walk up to the C above it: in C major that C is Do, here it is the {{b3}}. A minor is C major starting from La." },
-              { "type": "tool", "tool": { "type": "staff", "scale": "natural-minor-aeolian", "key": "a", "voice": "baritone", "highlight": ["1", "b3"], "others": "normal", "mic": false } }
+              { "type": "tool", "tool": { "type": "staff", "scale": "natural-minor-aeolian", "key": "a", "voice": "baritone", "highlight": ["1", "b3"], "mic": false } }
             ]
           },
           {
@@ -148,10 +148,10 @@
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 80, "key": "a", "drone": false } },
               { "type": "heading", "text": "As A minor", "minutes": 5 },
               { "type": "text", "text": "Play box 1 at the 5th fret up and down at 80, starting and ending on {{1}} (A)." },
-              { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "highlight": ["1"], "others": "normal" } },
+              { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "highlight": ["1"] } },
               { "type": "heading", "text": "As C major", "minutes": 5 },
               { "type": "text", "text": "The same frets, but now the home is {{1}} (C): start and end there, and the box sounds bright." },
-              { "type": "tool", "tool": { "type": "scale-neck", "scale": "major-pentatonic", "key": "c", "placement": { "by": "fret", "fret": 5 }, "highlight": ["1"], "others": "normal" } }
+              { "type": "tool", "tool": { "type": "scale-neck", "scale": "major-pentatonic", "key": "c", "placement": { "by": "fret", "fret": 5 }, "highlight": ["1"] } }
             ]
           },
           {
@@ -194,12 +194,12 @@
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 70, "key": "a", "drone": false } },
               { "type": "heading", "text": "Am7 and D7", "minutes": 5 },
               { "type": "text", "text": "Play the Am7 arpeggio up and down at 70: {{1}} {{b3}} {{5}} {{b7}}." },
-              { "type": "tool", "tool": { "type": "arpeggio-neck", "chord": "Am7", "highlight": ["1"], "others": "normal" } },
+              { "type": "tool", "tool": { "type": "arpeggio-neck", "chord": "Am7", "highlight": ["1"] } },
               { "type": "text", "text": "Then D7: {{1}} {{3}} {{5}} {{b7}}, leaning on its {{3}} (F♯)." },
-              { "type": "tool", "tool": { "type": "arpeggio-neck", "chord": "D7", "highlight": ["1", "3"], "others": "normal" } },
+              { "type": "tool", "tool": { "type": "arpeggio-neck", "chord": "D7", "highlight": ["1", "3"] } },
               { "type": "heading", "text": "Gmaj7, then all three", "minutes": 5 },
               { "type": "text", "text": "Gmaj7: {{1}} {{3}} {{5}} {{7}}. Then all three arpeggios in a row, one bar each, at 70." },
-              { "type": "tool", "tool": { "type": "arpeggio-neck", "chord": "Gmaj7", "highlight": ["1"], "others": "normal" } }
+              { "type": "tool", "tool": { "type": "arpeggio-neck", "chord": "Gmaj7", "highlight": ["1"] } }
             ]
           },
           {
@@ -287,7 +287,7 @@
               { "type": "tool", "tool": { "type": "chord-shapes", "chords": ["A7", "D7", "E7"] } },
               { "type": "heading", "text": "A7's own notes", "minutes": 4 },
               { "type": "text", "text": "Tap the A7 arpeggio: {{1}} {{3}} {{5}} {{b7}}. Its {{3}} is C♯, which is not in A minor pentatonic; that clash is the blues." },
-              { "type": "tool", "tool": { "type": "arpeggio-neck", "chord": "A7", "highlight": ["1", "3", "b7"], "others": "normal" } }
+              { "type": "tool", "tool": { "type": "arpeggio-neck", "chord": "A7", "highlight": ["1", "3", "b7"] } }
             ]
           },
           {
@@ -308,7 +308,7 @@
               { "type": "text", "text": "Adding the chord's 3rd to the pentatonic box makes a blues solo follow the changes." },
               { "type": "heading", "text": "Slide into C♯", "minutes": 4 },
               { "type": "text", "text": "Improvise in box 1. Over A7, slide from {{b3}} (C) up to {{c-sharp}}: not in A minor pentatonic, but the 3rd of A7, so it sounds like the chord. Land on {{1}} to finish phrases." },
-              { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "add": ["c-sharp"], "highlight": ["1", "b3"], "others": "normal" } },
+              { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "add": ["c-sharp"], "highlight": ["1", "b3"] } },
               { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "solo-over", "key": "a", "chords": [{ "chord": "A7", "scale": "minor-pentatonic", "target": ["3"], "approach": "slide from C into C♯" }, { "chord": "D7", "target": ["1"] }], "bars": 2 }, "bpm": 90, "view": "neck" } },
               { "type": "heading", "text": "Over D7", "minutes": 4 },
               { "type": "text", "text": "Same backing; over D7 aim at {{d}}, and over A7 keep sliding into {{c-sharp}}." }

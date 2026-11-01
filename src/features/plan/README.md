@@ -120,13 +120,15 @@ The AI writes an exercise's text and its tools in the same list; the page draws 
 them agree: every note the text plays is in the scale or its `add`, any outside note is named as outside, with why.
 
 Notes on a neck or staff have four states (`noteState` in `exercises/cues/visibility.ts`): hidden, muted, normal,
-highlighted. The AI lists `highlight`, `mute` and `hide` as degrees or note names (`"c-sharp"`, read against the key, or
-the chord on `arpeggio-neck`); `others` (`normal` / `muted` / `hidden`, old `dimmed` reads as `muted`) sets the rest.
-Notes in `add` are highlighted without muting the scale. `scale-neck` and `arpeggio-neck` take a `placement` instead of
-`boxes` (`exercises/cues/placement.ts`): `{ by: "open" | "fret" | "root" | "box" | "chords" }`; `chords` is resolved on
+highlighted, from two layers the AI sets apart: `enable` (the notes the student plays; absent: all) and `highlight` (the
+few of interest among them, ringed; it never mutes anything). It lists them, and `mute` and `hide`, as degrees or note
+names (`"c-sharp"`, read against the key, or the chord on `arpeggio-neck`); `others` (`muted` / `hidden`, old `dimmed`
+reads as `muted`) sets the notes not enabled. A plan from before `enable` with a `highlight` and `others` muted or hidden
+meant "only these": it parses as that `enable` (`layersOf`). Notes in `add` are highlighted without muting the scale.
+`scale-neck` and `arpeggio-neck` take a `placement` instead of `boxes` (`exercises/cues/placement.ts`): `{ by: "open" | "fret" | "root" | "box" | "chords" }`; `chords` is resolved on
 paste from the exercise's chord-shapes or play-along (`resolveChordPlacement`: open voicing → open, barre → the first
 chord's fret). Not yet: `placement` on the shapes' per-chord `place`, and `mute` / `hide` / note names on `play-along`
-(it keeps chord-relative degree `highlight`, `others` muted or hidden).
+(it keeps chord-relative degree `enable` and `highlight`, `others` muted or hidden).
 
 Notes in an exercise's text are written `{{3}}` (a degree) or `{{c-sharp}}` (a note name) and drawn as the fretboard's
 dot inline (`ui/InlineNote.tsx`, the same `NoteDot` the necks use): coloured by degree, labelled by the global label

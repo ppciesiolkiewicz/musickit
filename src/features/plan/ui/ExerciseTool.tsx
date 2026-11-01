@@ -52,7 +52,7 @@ function Tool({ tool, voice }: { tool: PlanTool; voice?: Voice }) {
     case "chord-shapes":
       return <ChordShapes chords={tool.chords} voicing={tool.voicing} />;
     case "staff":
-      return <Staff slug={tool.scale} pc={tool.key} voice={tool.voice ?? voice} notes={tool.notes} highlight={tool.highlight} mute={tool.mute} hide={tool.hide} others={tool.others} mic={tool.mic} />;
+      return <Staff slug={tool.scale} pc={tool.key} voice={tool.voice ?? voice} notes={tool.notes} enable={tool.enable} highlight={tool.highlight} mute={tool.mute} hide={tool.hide} others={tool.others} mic={tool.mic} />;
     case "click-drone":
       return <ClickDrone bpm={tool.bpm} keyPc={tool.key} click={tool.click} drone={tool.drone} />;
     case "backing-band":
@@ -62,13 +62,13 @@ function Tool({ tool, voice }: { tool: PlanTool; voice?: Voice }) {
     case "interval-ears":
       return <IntervalEars query={tool.query} />;
     case "arpeggio-neck":
-      return <ArpeggioNeck chord={tool.chord} boxes={tool.boxes} placement={tool.placement} part={tool.part} highlight={tool.highlight} mute={tool.mute} hide={tool.hide} others={tool.others} />;
+      return <ArpeggioNeck chord={tool.chord} boxes={tool.boxes} placement={tool.placement} part={tool.part} enable={tool.enable} highlight={tool.highlight} mute={tool.mute} hide={tool.hide} others={tool.others} />;
     case "melody-singer":
       return <MelodySinger tune={tool.tune} pc={tool.key} voice={tool.voice ?? voice} />;
     case "run-singer":
       return <RunSinger run={tool.run} pc={tool.key} voice={tool.voice ?? voice} />;
     case "play-along":
-      return <PlayAlong shape={tool.shape} bpm={tool.bpm} repeats={tool.repeats} view={tool.view} highlight={tool.highlight} others={tool.others} under={tool.under} />;
+      return <PlayAlong shape={tool.shape} bpm={tool.bpm} repeats={tool.repeats} view={tool.view} enable={tool.enable} highlight={tool.highlight} others={tool.others} under={tool.under} />;
     case "strum-along":
       return <StrumAlong chords={tool.chords} bpm={tool.bpm} per={tool.per} beats={tool.beats} />;
     case "finger-pattern":

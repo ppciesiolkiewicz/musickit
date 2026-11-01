@@ -21,7 +21,7 @@ const SEMI_DEGREE = [0, 1, 1, 2, 2, 3, 4, 4, 4, 5, 6, 6];
  * A chord's arpeggio in one box, or two neighbouring boxes drawn as one with the shared notes ringed (the seam); only the
  * `part` asked for; tap a note to hear it, ▶ to run it up and down.
  */
-export function View({ chord, boxes: asked, placement, part, highlight, mute, hide, others }: { chord: string; boxes?: number[]; placement?: Placement; part?: Degree[]; highlight?: number[]; mute?: number[]; hide?: number[]; others?: Others }) {
+export function View({ chord, boxes: asked, placement, part, enable, highlight, mute, hide, others }: { chord: string; boxes?: number[]; placement?: Placement; part?: Degree[]; enable?: number[]; highlight?: number[]; mute?: number[]; hide?: number[]; others?: Others }) {
   const [system] = useLabelSystem();
   const { active, play, tap } = useNotePlayer();
   const rootPc = parseChordQuery(chord)?.rootPc ?? 0;
@@ -34,8 +34,8 @@ export function View({ chord, boxes: asked, placement, part, highlight, mute, hi
   // the marks are semitones above the chord root; the states work on pitch classes
   const vis = useMemo((): Visibility => {
     const pcs = (semis?: number[]) => semis?.map((semi) => (rootPc + semi) % 12);
-    return { highlight: pcs(highlight), mute: pcs(mute), hide: pcs(hide), others };
-  }, [rootPc, highlight, mute, hide, others]);
+    return { enable: pcs(enable), highlight: pcs(highlight), mute: pcs(mute), hide: pcs(hide), others };
+  }, [rootPc, enable, highlight, mute, hide, others]);
   const state = useCallback((p: number) => noteState(vis, p), [vis]);
   const litNames = (vis.highlight ?? []).filter((p) => state(p) === "highlighted").map((p) => SHARP[p]);
   const { position, seam } = useMemo(() => {

@@ -17,14 +17,14 @@ const SEMI_TEXT = ["1", "♭2", "2", "♭3", "3", "4", "♯4", "5", "♭6", "6",
 const GAP_FRAMES = 6;
 
 /** The scale on a staff in the voice's range, with the microphone's pitch drawn on it; tap a note to hear it. */
-export function View({ slug, pc, voice, notes, highlight, mute, hide, others, mic: micButton = true }: { slug: string; pc: number; voice: keyof typeof VOICES; notes?: number[]; highlight?: number[]; mute?: number[]; hide?: number[]; others?: Others; mic?: boolean }) {
+export function View({ slug, pc, voice, notes, enable, highlight, mute, hide, others, mic: micButton = true }: { slug: string; pc: number; voice: keyof typeof VOICES; notes?: number[]; enable?: number[]; highlight?: number[]; mute?: number[]; hide?: number[]; others?: Others; mic?: boolean }) {
   const range = VOICES[voice];
-  // a staff has two looks, lit and dimmed: lit are the highlighted notes, or (nothing highlighted) every note not muted
+  // a staff has two looks, lit and dimmed: lit are the highlighted notes, or (nothing highlighted) the enabled ones
   const state = useMemo(() => {
     const pcs = (semis?: number[]) => semis?.map((semi) => (pc + semi) % 12);
-    const v = { highlight: pcs(highlight), mute: pcs(mute), hide: pcs(hide), others };
+    const v = { enable: pcs(enable), highlight: pcs(highlight), mute: pcs(mute), hide: pcs(hide), others };
     return (p: number) => noteState(v, p);
-  }, [pc, highlight, mute, hide, others]);
+  }, [pc, enable, highlight, mute, hide, others]);
   const lit = useMemo(() => {
     const all = Array.from({ length: 12 }, (_, p) => p);
     const on = all.filter((p) => state(p) === (highlight?.length ? "highlighted" : "normal"));

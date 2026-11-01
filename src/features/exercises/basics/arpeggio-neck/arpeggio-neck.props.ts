@@ -3,7 +3,8 @@ import type { Placement } from "../../cues/placement";
 
 /**
  * A chord's arpeggio in one box on the guitar neck, or across two neighbouring boxes with the notes they share marked as
- * the seam; show only part of it, or make some degrees stand out. Tap a note to hear it, play the box up and down.
+ * the seam; show only part of it, say which notes are in play (`enable`) and which of them stand out (`highlight`).
+ * Tap a note to hear it, play the box up and down.
  * @component arpeggio-neck basic
  */
 export interface ArpeggioNeckProps {
@@ -19,12 +20,14 @@ export interface ArpeggioNeckProps {
   placement?: Placement;
   /** only these degrees of the chord (major-relative to the chord root): ["1","b3"] */
   part?: Degree[];
-  /** notes that stand out: degrees (major-relative, from the chord root, not scale-aware) or note names as in `add`: ["3"] or ["c-sharp"] */
+  /** the notes in play: degrees (major-relative, from the chord root) or note names: ["1","3"] or ["c-sharp"]; the rest are muted (see `others`). Absent: every note */
+  enable?: (Degree | string)[];
+  /** the notes of interest, ringed: the roots, the one new note, the note that differs; they stay playable. Never the same list as `enable` */
   highlight?: (Degree | string)[];
-  /** notes drawn faint, same forms as `highlight` */
+  /** notes drawn faint, same forms as `enable` */
   mute?: (Degree | string)[];
-  /** notes not drawn, same forms as `highlight` */
+  /** notes not drawn, same forms as `enable` */
   hide?: (Degree | string)[];
-  /** the notes not listed: "normal", "muted" or "hidden"; default "muted" when something is highlighted, else "normal" */
-  others?: "normal" | "muted" | "hidden";
+  /** the notes not in `enable`: "muted" (default) or "hidden" */
+  others?: "muted" | "hidden";
 }

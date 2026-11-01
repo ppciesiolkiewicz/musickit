@@ -17,6 +17,9 @@ export interface Cue {
   kind: "strum" | "note" | "backing";
   midi: number[];
   frets: Fret[];
+  /** the student plays it: `enable` holds one of its notes, or there is no `enable` */
+  enabled: boolean;
+  /** one of its notes is of interest: `highlight` (or the chord's) holds it */
   highlighted: boolean;
   cue?: string;
 }
@@ -24,6 +27,16 @@ export interface Cue {
 type ChordEv = Extract<TimelineEvent, { type: "chord" }>;
 type StepEv = Extract<TimelineEvent, { type: "step" }>;
 interface Cell extends Fret { midi: number }
+
+/** Semitones above the chord root (the key for a melody): the notes the student plays, and the ones of interest. */
+export interface Marks { enable?: number[]; highlight?: number[] }
+
+/** Whether any of `semis` is enabled (no `enable`: yes) and highlighted (opts, else the chord's own; none: no). */
+function marked(semis: number[], opts: Marks, c?: ChordEv): { enabled: boolean; highlighted: boolean } {
+  const holds = (list: number[]) => semis.some((s) => list.map(mod12).includes(mod12(s)));
+  const h = opts.highlight ?? c?.highlight;
+  return { enabled: !opts.enable || holds(opts.enable), highlighted: !!h && holds(h) };
+}
 
 const MAX_FRET = 17;
 const mod12 = (n: number) => ((n % 12) + 12) % 12;
@@ -93,11 +106,12 @@ function partNotes(name: string, place: Place): Cell[] {
  *   class and takes the cell in its own place nearest the previous cue, so a note both boxes share is reused at the seam.
  * - A melody step (chord "") is the tonic (the key nearest midi 60) plus `semis` exactly (semis carry the octave);
  *   it sits on the neck near the previous fret.
- * - `highlighted` is whether opts/chord `highlight` holds the note's semitones above the root (any note, for chords).
+ * - `enabled` is whether opts `enable` (absent: every note) and `highlighted` whether opts/chord `highlight` (absent: none)
+ *   holds the note's semitones above the root (any note, for chords).
  * - A chord with `backing` adds `backing` cues from `compEvents`; with the timeline's `pad`, a chord without one adds
  *   one `backing` cue: the whole chord held for its beats.
  */
-export function cuesOf(t: Timeline, opts: { highlight?: number[] } = {}): Cue[] {
+export function cuesOf(t: Timeline, opts: Marks = {}): Cue[] {
   const events = [...t.events].sort((a, b) => a.at - b.at);
   const chords = events.filter((e): e is ChordEv => e.type === "chord");
   const scales = events.filter((e): e is Extract<TimelineEvent, { type: "scale" }> => e.type === "scale");
@@ -109,10 +123,7 @@ export function cuesOf(t: Timeline, opts: { highlight?: number[] } = {}): Cue[] 
     if (!voiced.has(k)) voiced.set(k, chordShapeFor(name, c?.voicing ?? "open"));
     return voiced.get(k) ?? null;
   };
-  const lit = (semis: number[], c?: ChordEv) => {
-    const h = opts.highlight ?? c?.highlight;
-    return !h || semis.some((s) => h.map(mod12).includes(mod12(s)));
-  };
+  const lit = (semis: number[], c?: ChordEv) => marked(semis, opts, c);
   const out: Cue[] = [];
 
   for (const c of chords) {
@@ -122,11 +133,11 @@ export function cuesOf(t: Timeline, opts: { highlight?: number[] } = {}): Cue[] 
     const rootPc = parseChordQuery(c.name)?.rootPc ?? 0;
     if (!c.backing) {
       // the pad: the whole chord once, held for the chord
-      out.push({ at: c.at, beats: c.beats, chord: c.name, kind: "backing", midi: v.midi, frets: cells.map(toFret), highlighted: lit(v.midi.map((m) => m - rootPc), c) });
+      out.push({ at: c.at, beats: c.beats, chord: c.name, kind: "backing", midi: v.midi, frets: cells.map(toFret), ...lit(v.midi.map((m) => m - rootPc), c) });
       continue;
     }
     for (const e of compEvents(v.midi, c.backing, c.beats)) {
-      out.push({ at: c.at + e.beat, beats: e.len, chord: c.name, kind: "backing", midi: e.midi, frets: e.midi.flatMap((m) => cells.filter((x) => x.midi === m).slice(0, 1).map(toFret)), highlighted: lit(e.midi.map((m) => m - rootPc), c) });
+      out.push({ at: c.at + e.beat, beats: e.len, chord: c.name, kind: "backing", midi: e.midi, frets: e.midi.flatMap((m) => cells.filter((x) => x.midi === m).slice(0, 1).map(toFret)), ...lit(e.midi.map((m) => m - rootPc), c) });
     }
   }
 
@@ -140,7 +151,7 @@ export function cuesOf(t: Timeline, opts: { highlight?: number[] } = {}): Cue[] 
       if (!v) continue;
       const rootPc = parseChordQuery(e.chord)?.rootPc ?? 0;
       const cells = shapeCells(v);
-      out.push({ ...base, kind: "strum", midi: v.midi, frets: cells.map(toFret), highlighted: lit(v.midi.map((m) => m - rootPc), c) });
+      out.push({ ...base, kind: "strum", midi: v.midi, frets: cells.map(toFret), ...lit(v.midi.map((m) => m - rootPc), c) });
       continue;
     }
     const q = e.chord ? parseChordQuery(e.chord) : null;
@@ -170,7 +181,7 @@ export function cuesOf(t: Timeline, opts: { highlight?: number[] } = {}): Cue[] 
       }
     }
     if (!cell) continue;
-    out.push({ ...base, kind: "note", midi: [cell.midi], frets: cell.string < 0 ? [] : [toFret(cell)], highlighted: lit([cell.midi - (q && e.chord ? q.rootPc : key)], c) });
+    out.push({ ...base, kind: "note", midi: [cell.midi], frets: cell.string < 0 ? [] : [toFret(cell)], ...lit([cell.midi - (q && e.chord ? q.rootPc : key)], c) });
     prev = cell;
   }
   return out.sort((a, b) => a.at - b.at || (a.kind === "backing" ? 1 : 0) - (b.kind === "backing" ? 1 : 0));
@@ -178,16 +189,14 @@ export function cuesOf(t: Timeline, opts: { highlight?: number[] } = {}): Cue[] 
 
 /**
  * For a timeline with no steps (a progression only backed, like an old `comp`): one cue per chord, the whole voiced
- * shape held for the chord's beats, so the views show the chord itself (its frets, its notes). Highlight as `cuesOf`.
+ * shape held for the chord's beats, so the views show the chord itself (its frets, its notes). Marks as `cuesOf`.
  */
-export function chordCues(t: Timeline, opts: { highlight?: number[] } = {}): Cue[] {
+export function chordCues(t: Timeline, opts: Marks = {}): Cue[] {
   return t.events.filter((e): e is ChordEv => e.type === "chord").sort((a, b) => a.at - b.at).flatMap((c) => {
     const v = chordShapeFor(c.name, c.voicing);
     if (!v) return [];
     const cells = shapeCells(v);
     const rootPc = parseChordQuery(c.name)?.rootPc ?? 0;
-    const h = opts.highlight ?? c.highlight;
-    const highlighted = !h || cells.some((x) => h.map(mod12).includes(mod12(x.midi - rootPc)));
-    return [{ at: c.at, beats: c.beats, chord: c.name, kind: "note" as const, midi: cells.map((x) => x.midi), frets: cells.map(toFret), highlighted }];
+    return [{ at: c.at, beats: c.beats, chord: c.name, kind: "note" as const, midi: cells.map((x) => x.midi), frets: cells.map(toFret), ...marked(cells.map((x) => x.midi - rootPc), opts, c) }];
   });
 }

@@ -2,7 +2,7 @@ import type { LabelRoot } from "@/features/theory/labels";
 import { parseChordQuery } from "@/lib/chordKit/chordSearch";
 import type { ScaleCell } from "@/lib/chordKit/scalePositions";
 import { OPEN_MIDI } from "@/lib/chordKit/shapeTools";
-import type { Cue } from "../../cues/cues";
+import type { Cue, Marks } from "../../cues/cues";
 
 export interface ViewProps {
   /** cues to draw (backing left out, hidden ones already removed) */
@@ -13,12 +13,12 @@ export interface ViewProps {
   length: number;
   /** the key's pitch class, when the timeline has one */
   keyPc?: number;
-  /** a highlight was asked for: the highlighted notes get a ring */
-  marked?: boolean;
+  /** the notes enabled and highlighted, semitones above the chord root (the key for a melody) */
+  marks?: Marks;
 }
 
 export const isNow = (c: Cue, pos: number) => pos >= 0 && pos >= c.at && pos < c.at + c.beats;
-export const shade = (c: Cue, now: boolean) => (now ? "var(--color-sky-300)" : c.highlighted ? "var(--color-slate-100)" : "var(--color-slate-600)");
+export const shade = (c: Cue, now: boolean) => (now ? "var(--color-sky-300)" : c.enabled ? "var(--color-slate-100)" : "var(--color-slate-600)");
 
 /** The cue sounding at `pos`, the last one started before it, or (stopped) the first: whose chord the views show as current. */
 export const currentCue = (cues: Cue[], pos: number): Cue | undefined => (pos < 0 ? cues[0] : [...cues].reverse().find((c) => c.at <= pos) ?? cues[0]);

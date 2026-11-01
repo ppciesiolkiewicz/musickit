@@ -128,6 +128,19 @@ describe("example library", () => {
     }
   });
 
+  it("enable and highlight are two layers: never the same notes, others only with enable", () => {
+    for (const { where, ex } of exercises)
+      for (const s of ex.sections!) {
+        if (s.type !== "tool" || !MARKED.includes(s.tool.type)) continue;
+        const t = s.tool as Marked;
+        if (t.enable && t.highlight) assert.notDeepEqual(t.enable, t.highlight, `${where}: ${t.type} enables only what it highlights`);
+      }
+    // as written, before parsing: an `others` with no `enable` is the old way of saying "only the highlighted notes"
+    const tools = (v: unknown): Record<string, unknown>[] =>
+      !v || typeof v !== "object" ? [] : [...(Array.isArray(v) ? [] : [v as Record<string, unknown>]).filter((t) => "others" in t), ...Object.values(v).flatMap(tools)];
+    for (const e of [...EXERCISE_EXAMPLES, ...PLAN_EXAMPLES]) for (const t of tools(e)) assert.ok(t.enable, `${e.id}: ${t.type} has others without enable`);
+  });
+
   it("named notes are lit in the tool after the text, and the root is never muted", () => {
     for (const { where, ex } of exercises) {
       const sections = ex.sections!;
@@ -168,8 +181,10 @@ function lit(tool: PlanTool, semi: number, root: number): boolean {
   if (t.type === "staff" && t.notes && !t.notes.includes(semi)) return false;
   if (t.type === "arpeggio-neck" && t.part && !t.part.some((d) => degreeSemis(d) === semi)) return false;
   const added = t.type === "scale-neck" && t.add?.includes((root + semi) % 12);
-  if (t.highlight?.length && (t.others ?? "muted") !== "normal") return t.highlight.includes(semi) || !!added;
-  return t.others !== "hidden" && t.others !== "muted";
+  if (added || t.highlight?.includes(semi)) return true;
+  // a staff has only lit and dimmed: with a highlight, only the highlighted notes are lit
+  if (t.type === "staff" && t.highlight?.length) return false;
+  return !t.enable || t.enable.includes(semi);
 }
 
 function rootLit(tool: PlanTool): boolean {

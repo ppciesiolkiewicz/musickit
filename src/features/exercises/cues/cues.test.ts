@@ -123,7 +123,14 @@ describe("cuesOf: highlight and melody", () => {
     const cues = cuesOf(t, { highlight: [4] });
     assert.ok(cues.length === 4);
     for (const c of cues) assert.equal(c.highlighted, pc(c.midi[0]) === 4);
-    assert.ok(cuesOf(t).every((c) => c.highlighted));
+    // a highlight marks; it never takes notes out of play
+    assert.ok(cues.every((c) => c.enabled));
+    assert.ok(cuesOf(t).every((c) => c.enabled && !c.highlighted));
+  });
+  it("enable [0, 7] puts only C and G in play; highlight [0] rings C among them", () => {
+    const t = expandShape({ shape: "chord-steps", chords: [{ chord: "C", steps: ["1", "3", "5", "3"] }] })!;
+    const cues = cuesOf(t, { enable: [0, 7], highlight: [0] });
+    assert.deepEqual(cues.map((c) => [pc(c.midi[0]), c.enabled, c.highlighted]), [[0, true, true], [4, false, false], [7, true, false], [4, false, false]]);
   });
   it("melody from key: tonic near 60, steps stay close", () => {
     const t = expandShape({ shape: "melody", key: "G", tune: 1 });

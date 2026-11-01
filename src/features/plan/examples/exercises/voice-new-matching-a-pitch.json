@@ -16,7 +16,7 @@
       { "type": "heading", "text": "Hum the drone note", "minutes": 2 },
       { "type": "text", "text": "Press Play on the drone. Hum along until the sound stops wobbling against it, then open to \"ah\" on {{1}} and watch your pitch line on the staff sit on the note." },
       { "type": "tool", "tool": { "type": "click-drone", "bpm": 60, "key": "c", "click": false } },
-      { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "alto", "highlight": ["1"], "others": "hidden" } },
+      { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "alto", "enable": ["1"], "others": "hidden" } },
       { "type": "heading", "text": "Step to Re and home", "minutes": 2 },
       { "type": "text", "text": "Sing {{1}} for one slow breath, step up to {{2}} for one breath, and back to {{1}}. Do comes home to the drone; Re rubs against it. Five times, slowly." },
       { "type": "tool", "tool": { "type": "click-drone", "bpm": 60, "key": "c", "click": false } },
@@ -24,7 +24,7 @@
       { "type": "heading", "text": "One long note", "minutes": 2 },
       { "type": "text", "text": "Breathe in low for four clicks, then sing {{1}} on \"ah\" for eight clicks, steady in pitch and volume. Rest, then try ten clicks, then twelve. Done when the line on the staff stays flat to the end." },
       { "type": "tool", "tool": { "type": "click-drone", "bpm": 60, "key": "c" } },
-      { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "alto", "highlight": ["1"], "others": "hidden" } }
+      { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "alto", "enable": ["1"], "others": "hidden" } }
     ]
   }
 }

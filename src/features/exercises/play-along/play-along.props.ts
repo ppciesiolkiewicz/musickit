@@ -25,9 +25,11 @@ export interface PlayAlongProps {
   bpm: number;
   /** first view: "tab" (default), "notes" or "neck" */
   view?: "tab" | "notes" | "neck";
-  /** degrees to stand out (major-relative, from the chord root): ["1","3"] */
+  /** the degrees the student plays (major-relative, from the chord root): ["1","3","5"]; the rest are muted (see `others`). Absent: every note */
+  enable?: Degree[];
+  /** the degrees of interest among those, ringed on the neck: ["1"]; never the same list as `enable` */
   highlight?: Degree[];
-  /** the notes not highlighted: "muted" (default) or "hidden" */
+  /** the notes not in `enable`: "muted" (default) or "hidden" */
   others?: "muted" | "hidden";
   /** what sounds under the steps besides the click when the shape has no comping `backing`: "chords" (each chord held; the default when the steps are single notes over chords), "drone" (the key's root held; the shape's key, else the first chord's root) or "none" */
   under?: "chords" | "drone" | "none";

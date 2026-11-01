@@ -2,7 +2,7 @@
   {
     "name": "arpeggio-neck",
     "kind": "basic",
-    "description": "A chord's arpeggio in one box on the guitar neck, or across two neighbouring boxes with the notes they share marked as\nthe seam; show only part of it, or make some degrees stand out. Tap a note to hear it, play the box up and down.",
+    "description": "A chord's arpeggio in one box on the guitar neck, or across two neighbouring boxes with the notes they share marked as\nthe seam; show only part of it, say which notes are in play (`enable`) and which of them stand out (`highlight`).\nTap a note to hear it, play the box up and down.",
     "props": [
       {
         "name": "chord",
@@ -29,28 +29,34 @@
         "description": "only these degrees of the chord (major-relative to the chord root): [\"1\",\"b3\"]"
       },
       {
+        "name": "enable",
+        "type": "(Degree | string)[]",
+        "required": false,
+        "description": "the notes in play: degrees (major-relative, from the chord root) or note names: [\"1\",\"3\"] or [\"c-sharp\"]; the rest are muted (see `others`). Absent: every note"
+      },
+      {
         "name": "highlight",
         "type": "(Degree | string)[]",
         "required": false,
-        "description": "notes that stand out: degrees (major-relative, from the chord root, not scale-aware) or note names as in `add`: [\"3\"] or [\"c-sharp\"]"
+        "description": "the notes of interest, ringed: the roots, the one new note, the note that differs; they stay playable. Never the same list as `enable`"
       },
       {
         "name": "mute",
         "type": "(Degree | string)[]",
         "required": false,
-        "description": "notes drawn faint, same forms as `highlight`"
+        "description": "notes drawn faint, same forms as `enable`"
       },
       {
         "name": "hide",
         "type": "(Degree | string)[]",
         "required": false,
-        "description": "notes not drawn, same forms as `highlight`"
+        "description": "notes not drawn, same forms as `enable`"
       },
       {
         "name": "others",
-        "type": "\"normal\" | \"muted\" | \"hidden\"",
+        "type": "\"muted\" | \"hidden\"",
         "required": false,
-        "description": "the notes not listed: \"normal\", \"muted\" or \"hidden\"; default \"muted\" when something is highlighted, else \"normal\""
+        "description": "the notes not in `enable`: \"muted\" (default) or \"hidden\""
       }
     ]
   },
@@ -474,16 +480,22 @@
         "description": "first view: \"tab\" (default), \"notes\" or \"neck\""
       },
       {
+        "name": "enable",
+        "type": "Degree[]",
+        "required": false,
+        "description": "the degrees the student plays (major-relative, from the chord root): [\"1\",\"3\",\"5\"]; the rest are muted (see `others`). Absent: every note"
+      },
+      {
         "name": "highlight",
         "type": "Degree[]",
         "required": false,
-        "description": "degrees to stand out (major-relative, from the chord root): [\"1\",\"3\"]"
+        "description": "the degrees of interest among those, ringed on the neck: [\"1\"]; never the same list as `enable`"
       },
       {
         "name": "others",
         "type": "\"muted\" | \"hidden\"",
         "required": false,
-        "description": "the notes not highlighted: \"muted\" (default) or \"hidden\""
+        "description": "the notes not in `enable`: \"muted\" (default) or \"hidden\""
       },
       {
         "name": "under",
@@ -600,7 +612,7 @@
   {
     "name": "scale-neck",
     "kind": "basic",
-    "description": "The scale's positions (boxes) on the guitar neck; tap a note to hear it, play a box up and down. Pick which boxes\nto show, add notes from outside the scale, and make some degrees stand out.",
+    "description": "The scale's positions (boxes) on the guitar neck; tap a note to hear it, play a box up and down. Pick which boxes\nto show, add notes from outside the scale, say which notes are in play (`enable`) and which of them stand out\n(`highlight`).",
     "props": [
       {
         "name": "scale",
@@ -633,28 +645,34 @@
         "description": "notes from outside the scale to play too, as note names: [\"e-flat\"] (the blue note, say); they are highlighted"
       },
       {
+        "name": "enable",
+        "type": "(Degree | string)[]",
+        "required": false,
+        "description": "the notes in play: degrees (major-relative, from the key root, not scale-aware) or note names as in `add`: [\"1\",\"b3\"] or [\"c-sharp\"]; the rest are muted (see `others`). Absent: every note"
+      },
+      {
         "name": "highlight",
         "type": "(Degree | string)[]",
         "required": false,
-        "description": "notes that stand out: degrees (major-relative, from the key root, not scale-aware) or note names as in `add`: [\"3\"] or [\"c-sharp\"]"
+        "description": "the notes of interest, ringed: the roots, the one new note, the note that differs; they stay playable. Never the same list as `enable`"
       },
       {
         "name": "mute",
         "type": "(Degree | string)[]",
         "required": false,
-        "description": "notes drawn faint, same forms as `highlight`"
+        "description": "notes drawn faint, same forms as `enable`"
       },
       {
         "name": "hide",
         "type": "(Degree | string)[]",
         "required": false,
-        "description": "notes not drawn, same forms as `highlight`"
+        "description": "notes not drawn, same forms as `enable`"
       },
       {
         "name": "others",
-        "type": "\"normal\" | \"muted\" | \"hidden\"",
+        "type": "\"muted\" | \"hidden\"",
         "required": false,
-        "description": "the notes not listed: \"normal\", \"muted\" or \"hidden\"; default \"muted\" when something is highlighted, else \"normal\""
+        "description": "the notes not in `enable`: \"muted\" (default) or \"hidden\""
       }
     ]
   },
@@ -731,28 +749,34 @@
         "description": "only these degrees are on the staff (major-relative): [\"1\",\"3\",\"5\",\"b7\"]; absent shows the whole scale"
       },
       {
+        "name": "enable",
+        "type": "(Degree | string)[]",
+        "required": false,
+        "description": "the notes in play: degrees (major-relative, from the key root, not scale-aware) or note names: [\"1\",\"5\"] or [\"c-sharp\"]; the rest are muted (see `others`). Absent: every note"
+      },
+      {
         "name": "highlight",
         "type": "(Degree | string)[]",
         "required": false,
-        "description": "notes that stand out: degrees (major-relative, from the key root, not scale-aware) or note names as in `add`: [\"3\"] or [\"c-sharp\"]"
+        "description": "the notes of interest, lit (when nothing is, the enabled notes are): the root, the one new note; never the same list as `enable`"
       },
       {
         "name": "mute",
         "type": "(Degree | string)[]",
         "required": false,
-        "description": "notes drawn faint, same forms as `highlight`"
+        "description": "notes drawn faint, same forms as `enable`"
       },
       {
         "name": "hide",
         "type": "(Degree | string)[]",
         "required": false,
-        "description": "notes not drawn, same forms as `highlight`"
+        "description": "notes not drawn, same forms as `enable`"
       },
       {
         "name": "others",
-        "type": "\"normal\" | \"muted\" | \"hidden\"",
+        "type": "\"muted\" | \"hidden\"",
         "required": false,
-        "description": "the notes not listed: \"normal\", \"muted\" or \"hidden\"; default \"muted\" when something is highlighted, else \"normal\""
+        "description": "the notes not in `enable`: \"muted\" (default) or \"hidden\""
       },
       {
         "name": "mic",

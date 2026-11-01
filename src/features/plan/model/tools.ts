@@ -11,7 +11,7 @@ import type { PlayAlongShape } from "@/features/exercises/play-along/play-along.
 import { expandShape } from "@/features/exercises/shapes";
 import { degreeSemis } from "@/features/exercises/timeline/degrees";
 import type { Degree, Voicing } from "@/features/exercises/timeline/types";
-import { othersOf, type Others } from "@/features/exercises/cues/visibility";
+import { layersOf, othersOf, type Others } from "@/features/exercises/cues/visibility";
 import { parsePlacement, type Placement } from "@/features/exercises/cues/placement";
 import type { CatalogueEntry } from "./catalogue";
 import { migrateTool, toolFromLink } from "./migrate";
@@ -40,7 +40,7 @@ type Under = "chords" | "drone" | "none";
 /**
  * A tool as stored: `type` names the component (src/features/exercises), the rest are its props, parsed: keys as pitch
  * classes, degrees as semitones above the root (major-relative, not scale-aware) except where the view reads the
- * degree strings itself (`arpeggio-neck` `part`, `play-along` `highlight`). A play-along keeps its checked shape, never events.
+ * degree strings itself (`arpeggio-neck` `part`, `play-along` `enable` and `highlight`). A play-along keeps its checked shape, never events.
  */
 export type PlanTool =
   | { type: "scale-neck"; scale: string; key: number; boxes?: number[]; /** pitch classes from outside the scale */ add?: number[]; placement?: Placement } & Marks
@@ -53,7 +53,7 @@ export type PlanTool =
   | { type: "arpeggio-neck"; chord: string; boxes?: number[]; part?: Degree[]; placement?: Placement } & Marks
   | { type: "melody-singer"; tune: number; key: number; voice?: Voice }
   | { type: "run-singer"; run: number; key: number; voice?: Voice }
-  | { type: "play-along"; shape: PlayAlongShape; bpm: number; repeats?: number; view?: View; highlight?: Degree[]; others?: "muted" | "hidden"; under?: Under }
+  | { type: "play-along"; shape: PlayAlongShape; bpm: number; repeats?: number; view?: View; enable?: Degree[]; highlight?: Degree[]; others?: "muted" | "hidden"; under?: Under }
   | { type: "strum-along"; chords: string[]; bpm: number; per?: "bar" | "beat"; beats?: number }
   /* stubs: a placeholder view until the real components exist; strings are numbered 1-6, 6 = low E */
   | { type: "finger-pattern"; fingers: string; fret: number; strings?: number[]; bpm: number }
@@ -62,8 +62,11 @@ export type PlanTool =
 
 export type ToolName = PlanTool["type"];
 
-/** Which notes stand out, fade or go: semitones above the key root (the chord root on `arpeggio-neck`). See `noteState`. */
-export interface Marks { highlight?: number[]; mute?: number[]; hide?: number[]; others?: Others }
+/**
+ * Which notes may be played (`enable`, absent: all), which of them stand out (`highlight`), which fade or go: semitones
+ * above the key root (the chord root on `arpeggio-neck`); `others` is the state of the notes not enabled. See `noteState`.
+ */
+export interface Marks { enable?: number[]; highlight?: number[]; mute?: number[]; hide?: number[]; others?: Exclude<Others, "normal"> }
 
 interface ToolSpec {
   /** the input checked: null when the tool can't be shown. Description and schema are the component's doc (`docOf`). */
@@ -104,12 +107,15 @@ const placementOf = (t: Record<string, unknown>, boxes: number[]): { placement?:
   const placement = boxes.length ? null : parsePlacement(t.placement);
   return placement ? { placement } : {};
 };
-const marksOf = (t: Record<string, unknown>, root: number | null): Marks => {
-  const highlight = marks(t.highlight, root);
-  // `others` is the state of what isn't highlighted: without a highlight it would only fade or blank the whole view
-  const others = highlight.length ? othersOf(t.others) : undefined;
-  return { ...opt("highlight", highlight), ...opt("mute", marks(t.mute, root)), ...opt("hide", marks(t.hide, root)), ...(others ? { others } : {}) };
+/** Two layers: what may be played and what stands out; an older highlight that muted the rest is the enabled set (`layersOf`). */
+const layers = <T>(enable: T[], highlight: T[], others: Others | undefined) => {
+  const l = layersOf({ enable, highlight, others });
+  const rest = l.enable?.length && others !== "normal" ? others : undefined;
+  return { ...opt("enable", l.enable ?? []), ...opt("highlight", l.highlight ?? []), ...(rest ? { others: rest } : {}) };
 };
+const marksOf = (t: Record<string, unknown>, root: number | null): Marks =>
+  // `others` is the state of what isn't enabled: kept only with an `enable`, so a stored tool reads back the same
+  ({ ...layers(marks(t.enable, root), marks(t.highlight, root), othersOf(t.others)), ...opt("mute", marks(t.mute, root)), ...opt("hide", marks(t.hide, root)) });
 const boxesOf = (v: unknown) => [...new Set(list(v).map((b) => int(b, 1, 5)).filter((b): b is number => b !== null))].sort((a, b) => a - b);
 const opt = <K extends string, V>(k: K, v: V[]): { [P in K]?: V[] } => (v.length ? ({ [k]: v } as { [P in K]: V[] }) : {});
 const bool = <K extends string>(k: K, v: unknown): { [P in K]?: boolean } => (typeof v === "boolean" ? ({ [k]: v } as { [P in K]: boolean }) : {});
@@ -225,14 +231,11 @@ export const TOOLS: { [N in ToolName]: ToolSpec } = {
       delete shape.bpm;
       delete shape.repeats;
       if (!expandShape({ ...shape, bpm, ...(repeats !== null ? { repeats } : {}) })) return null;
-      const highlight = degreeStrings(t.highlight);
-      const others = othersOf(t.others);
       return {
         type: "play-along", bpm, shape: shape as unknown as PlayAlongShape,
         ...(repeats !== null ? { repeats } : {}),
         ...(VIEWS.includes(t.view as View) ? { view: t.view as View } : {}),
-        // a play-along has no "normal": what isn't highlighted is muted or hidden
-        ...opt("highlight", highlight), ...(others && others !== "normal" ? { others } : {}),
+        ...layers(degreeStrings(t.enable), degreeStrings(t.highlight), othersOf(t.others)),
         ...(UNDERS.includes(t.under as Under) ? { under: t.under as Under } : {}),
       };
     },
@@ -267,11 +270,11 @@ export const TOOLS: { [N in ToolName]: ToolSpec } = {
 };
 
 /** Degree lists that a stored plan may hold as semitone numbers. */
-const DEGREE_LISTS = ["highlight", "mute", "hide", "notes"] as const;
+const DEGREE_LISTS = ["enable", "highlight", "mute", "hide", "notes"] as const;
 
 /**
  * One tool from the AI's JSON or a stored plan (old names migrated first), checked: null when it can't be shown.
- * Numbers in degree lists (`highlight`, `notes`) are semitones only with `stored` (a plan this app saved, or an old
+ * Numbers in degree lists (`enable`, `highlight`, `notes`) are semitones only with `stored` (a plan this app saved, or an old
  * `sing`); from pasted input they are dropped, since the AI writing `3` means the 3rd, not 3 semitones.
  */
 export function parseTool(raw: unknown, opts: { stored?: boolean } = {}): PlanTool | null {

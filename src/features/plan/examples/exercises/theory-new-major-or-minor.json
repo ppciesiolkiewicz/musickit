@@ -16,7 +16,7 @@
       { "type": "text", "text": "Every tune has a home note, and the note a 3rd above it decides whether home sounds bright or dark." },
       { "type": "heading", "text": "Hear home", "minutes": 2 },
       { "type": "text", "text": "Tap {{1}}, then walk up the scale one note at a time, tapping {{1}} again after each one. Notice how {{1}} sounds finished and the others want to move." },
-      { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "alto", "highlight": ["1"], "others": "normal", "mic": false } },
+      { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "alto", "highlight": ["1"], "mic": false } },
       { "type": "heading", "text": "One note changes everything", "minutes": 2 },
       { "type": "text", "text": "Tap {{1}} {{3}} {{5}} slowly: that is C major, bright." },
       { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "alto", "notes": ["1", "3", "5"], "mic": false } },

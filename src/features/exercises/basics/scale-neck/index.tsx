@@ -32,12 +32,12 @@ function shiftPosition(p: ScalePosition, shift: number): ScalePosition {
  * The scale's positions on the neck, only the boxes asked for, with any added notes played in them; tap a note to hear
  * it, ▶ to run the box up and down.
  */
-export function View({ slug, pc, boxes, placement, add, highlight, mute, hide: hidden, others }: { slug: string; pc: number; boxes?: number[]; placement?: Placement; add?: number[]; highlight?: number[]; mute?: number[]; hide?: number[]; others?: Others }) {
+export function View({ slug, pc, boxes, placement, add, enable, highlight, mute, hide: hidden, others }: { slug: string; pc: number; boxes?: number[]; placement?: Placement; add?: number[]; enable?: number[]; highlight?: number[]; mute?: number[]; hide?: number[]; others?: Others }) {
   // the marks are semitones above the key; the states work on pitch classes
   const vis = useMemo((): Visibility => {
     const pcs = (semis?: number[]) => semis?.map((semi) => (pc + semi) % 12);
-    return { highlight: pcs(highlight), mute: pcs(mute), hide: pcs(hidden), add, others };
-  }, [pc, highlight, mute, hidden, add, others]);
+    return { enable: pcs(enable), highlight: pcs(highlight), mute: pcs(mute), hide: pcs(hidden), add, others };
+  }, [pc, enable, highlight, mute, hidden, add, others]);
   const state = useCallback((p: number) => noteState(vis, p), [vis]);
   const litNames = [...new Set([...(vis.highlight ?? []), ...(add ?? [])])].filter((p) => state(p) === "highlighted").map((p) => SHARP[p]);
   const [system] = useLabelSystem();

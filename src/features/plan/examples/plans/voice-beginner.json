@@ -19,7 +19,7 @@
               { "type": "text", "text": "A steady long note warms up the breath and the ear together." },
               { "type": "text", "text": "Press Play on the drone. Breathe in low for four clicks, sing {{1}} on \"ah\" for eight, rest four. Repeat, aiming for a flat line on the staff." },
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 60, "key": "c" } },
-              { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "alto", "highlight": ["1"], "others": "hidden" } }
+              { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "alto", "enable": ["1"], "others": "hidden" } }
             ]
           },
           {
@@ -101,7 +101,7 @@
               { "type": "text", "text": "A little longer each day builds breath without strain." },
               { "type": "text", "text": "Breathe in for four clicks, sing {{1}} on \"oo\" for ten. Rest and repeat. Stop before you run out; the end of the note should be as steady as the start." },
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 60, "key": "g" } },
-              { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "g", "voice": "alto", "highlight": ["1"], "others": "hidden" } }
+              { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "g", "voice": "alto", "enable": ["1"], "others": "hidden" } }
             ]
           },
           {
@@ -259,7 +259,7 @@
               { "type": "text", "text": "Day 1 was eight clicks; twelve shows the week's progress." },
               { "type": "text", "text": "Breathe in for four clicks, sing {{1}} for twelve. Twice, with a rest between." },
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 60, "key": "d" } },
-              { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "d", "voice": "alto", "highlight": ["1"], "others": "hidden" } }
+              { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "d", "voice": "alto", "enable": ["1"], "others": "hidden" } }
             ]
           },
           {

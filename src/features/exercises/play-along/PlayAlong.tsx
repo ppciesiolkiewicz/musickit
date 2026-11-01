@@ -5,7 +5,7 @@ import Icon from "@/components/Icon";
 import { sbtn } from "@/components/ui";
 import { parseChordQuery } from "@/lib/chordKit/chordSearch";
 import { COMP_PATTERNS, type CompPattern } from "@/lib/practice/comping";
-import { chordCues, cuesOf } from "../cues/cues";
+import { chordCues, cuesOf, type Marks } from "../cues/cues";
 import { chordShapeFor } from "../cues/voicing";
 import { expandShape } from "../shapes";
 import { parseDegrees } from "../timeline/degrees";
@@ -34,7 +34,7 @@ const withBacking = (t: Timeline, p: CompPattern | undefined): Timeline =>
 const stepless = (t: Timeline) => !t.events.some((e) => e.type === "step");
 
 /** A ready timeline played along with: click, piano, and a tab / notes / neck view that follow the playhead. */
-export function PlayAlongTimeline({ timeline, view = "tab", others = "muted", highlight }: { timeline: Timeline; view?: View; others?: "muted" | "hidden"; highlight?: number[] }) {
+export function PlayAlongTimeline({ timeline, view = "tab", others = "muted", marks }: { timeline: Timeline; view?: View; others?: "muted" | "hidden"; marks?: Marks }) {
   const choices = timeline.backingChoices ?? [];
   const [pattern, setPattern] = useState<CompPattern | undefined>(choices[0]);
   const [shown, setShown] = useState<View>(view);
@@ -42,8 +42,8 @@ export function PlayAlongTimeline({ timeline, view = "tab", others = "muted", hi
   const played = useMemo(() => withBacking(timeline, choices.length > 1 ? pattern : undefined), [timeline, pattern, choices.length]);
   const player = useTimelinePlayer(played);
   const cues = useMemo(
-    () => (stepless(played) ? chordCues : cuesOf)(played, highlight ? { highlight } : {}).filter((c) => c.kind !== "backing" && (others !== "hidden" || c.highlighted)),
-    [played, highlight, others],
+    () => (stepless(played) ? chordCues : cuesOf)(played, marks).filter((c) => c.kind !== "backing" && (others !== "hidden" || c.enabled)),
+    [played, marks, others],
   );
   const fellBack = useMemo(() => {
     const names = new Set<string>();
@@ -105,7 +105,7 @@ export function PlayAlongTimeline({ timeline, view = "tab", others = "muted", hi
       {solo ? <SoloView targets={solo} mode={shown} others={others} keyPc={keyPc} /> : <>
       {shown === "tab" && <TabView cues={cues} pos={pos} length={length} />}
       {shown === "notes" && <NotesView cues={cues} pos={pos} length={length} keyPc={keyPc} />}
-      {shown === "neck" && <NeckView cues={cues} pos={pos} length={length} keyPc={keyPc} marked={!!highlight?.length} />}
+      {shown === "neck" && <NeckView cues={cues} pos={pos} length={length} keyPc={keyPc} marks={marks} />}
       </>}
       {fellBack.map((n) => <p key={n} className="text-[11px] text-slate-500">{n}: open chord used, no barre shape.</p>)}
     </div>
@@ -113,12 +113,12 @@ export function PlayAlongTimeline({ timeline, view = "tab", others = "muted", hi
 }
 
 /** `play-along`: a shape expanded to a timeline and played along with, its backing sound set by `under`. */
-export default function PlayAlong({ shape, bpm, repeats, view, highlight, others, under }: PlayAlongProps & { /** loops, from older plans; absent loops until stopped */ repeats?: number }) {
+export default function PlayAlong({ shape, bpm, repeats, view, enable, highlight, others, under }: PlayAlongProps & { /** loops, from older plans; absent loops until stopped */ repeats?: number }) {
   const timeline = useMemo(() => {
     const t = expandShape({ ...shape, bpm, ...(repeats !== undefined ? { repeats } : {}) });
     return t && withBackingSound(clampTimeline(t), under as BackingSound | undefined);
   }, [shape, bpm, repeats, under]);
-  const lit = useMemo(() => (highlight ? parseDegrees(highlight) : undefined), [highlight]);
+  const marks = useMemo((): Marks => ({ ...(enable ? { enable: parseDegrees(enable) } : {}), ...(highlight ? { highlight: parseDegrees(highlight) } : {}) }), [enable, highlight]);
   if (!timeline) return <p className="text-xs text-slate-500">This exercise could not be drawn.</p>;
-  return <PlayAlongTimeline timeline={timeline} view={view} others={others} highlight={lit} />;
+  return <PlayAlongTimeline timeline={timeline} view={view} others={others} marks={marks} />;
 }
