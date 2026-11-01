@@ -15,7 +15,8 @@ migrates; the components, their props and their docs live here.
    `ScaleNeck` with every place of the line at once (the playing chord's enabled notes normal, the highlighted ones
    ringed, the rest muted, the sounding ones lit); the notes view is the shared `SingingStaff`. Both label notes by the label setting and its "count from".
 4. `basics/<name>/` the eleven basics: `scale-neck`, `chord-shapes`, `staff`, `click-drone`, `backing-band`, `note-finder`,
-   `interval-ears`, `arpeggio-neck`, `melody-singer`, `run-singer`, `strum-along` (a metronome and the chords as boxes,
+   `interval-ears`, `arpeggio-neck`, `melody-singer`, `run-singer` (both with a chord a bar under the tune, worked out
+   in `features/theory/melodyChords.ts`; a run announces each new key in its held-Do bar), `strum-along` (a metronome and the chords as boxes,
    one per bar or beat, each holding beat boxes of its strumming pattern, the playing strum lit; its maths in `blocks.ts`). Each has `index.tsx` (the View) and `<name>.props.ts`.
    Shared: `choices.ts`, `arpeggio.ts`, `singer.tsx`. Three more are stubs with a placeholder view (`stub.tsx`), their
    props final: `finger-pattern`, `picking-drill`, `legato-trill`.

@@ -7,6 +7,7 @@ import MicButton from "@/components/theory/singing/MicButton";
 import { getSharedPiano, playSequence, silence, wakeAudio } from "@/features/sound";
 import { VOICES, buildLadder, clefFor, hzToMidi, tuneLadderFor, type Range, type Voice } from "@/features/theory/singing";
 import { BOOK, RUNS, placeRun, placeTune } from "@/features/theory/singingMelodies";
+import { chordSteps, harmoniseRun, harmoniseTune, type MelodyChord } from "@/features/theory/melodyChords";
 import { createSmoother, type Pitch } from "@/features/tuner/pitch";
 
 /** frames without a pitch before the dot goes away */
@@ -16,18 +17,24 @@ const TAP_MS = 900;
 
 /**
  * One tune (or run) from the singing page's books on its melody staff, in a key and voice: play it to hear it, tap a
- * note, switch the mic on and sing along the bar. The singing page's staff, mic and placement; nothing writes the address.
+ * note, switch the mic on and sing along the bar. With `chords` (the default) the piano plays a chord a bar under it, named
+ * over the staff, and a run announces each new key in its held-Do bar. The singing page's staff, mic and placement; nothing writes the address.
  */
-export function SingerView({ n, pc, voice = "soprano" }: { n: number; pc: number; voice?: Voice }) {
+export function SingerView({ n, pc, voice = "soprano", chords = true }: { n: number; pc: number; voice?: Voice; chords?: boolean }) {
   const tune = BOOK.find((t) => t.n === n) ?? RUNS.find((t) => t.n === n);
   const range = VOICES[voice] ?? VOICES.soprano;
   const clef = clefFor(range);
-  const { ladder, notes } = useMemo(() => {
+  const { ladder, notes, harmony } = useMemo(() => {
     const ladderIn = (k: number, r: Range) => tuneLadderFor(buildLadder("major-ionian", k, r)!, k, r);
     const ladder = ladderIn(pc, range);
-    if (!tune) return { ladder, notes: [] };
-    return { ladder, notes: tune.keys ? placeRun(tune.notes, pc, tune.keys, ladderIn, range) : placeTune(tune.notes, ladder, range) };
-  }, [tune, pc, range]);
+    const none: MelodyChord[] = [];
+    if (!tune) return { ladder, notes: [], harmony: none };
+    if (chords) {
+      const h = tune.keys ? harmoniseRun(tune.notes, pc, tune.keys, ladderIn, range) : harmoniseTune(tune.notes, ladder, range);
+      return { ladder, notes: h.notes, harmony: h.chords };
+    }
+    return { ladder, notes: tune.keys ? placeRun(tune.notes, pc, tune.keys, ladderIn, range) : placeTune(tune.notes, ladder, range), harmony: none };
+  }, [tune, pc, range, chords]);
   const beat = 60000 / BPM;
   const [mic, setMic] = useState(false);
   const [playFrom, setPlayFrom] = useState<number | null>(null);
@@ -55,7 +62,10 @@ export function SingerView({ n, pc, voice = "soprano" }: { n: number; pc: number
     silence();
     await wakeAudio();
     const lead = 60;
-    playSequence(notes.map((x) => ({ note: x.midi, at: lead + x.at * beat, hold: x.beats * beat * 0.9 })));
+    playSequence([
+      ...notes.map((x) => ({ note: x.midi, at: lead + x.at * beat, hold: x.beats * beat * 0.9 })),
+      ...chordSteps(harmony, beat).map((x) => ({ ...x, at: x.at + lead })),
+    ]);
     setPlayFrom(performance.now() + lead);
   };
   const tap = async (i: number) => {
@@ -76,7 +86,7 @@ export function SingerView({ n, pc, voice = "soprano" }: { n: number; pc: number
         <MicButton on={mic} onClick={() => { pitch.current = null; setMic((v) => !v); }} offLabel="Sing with the mic" />
         <span>{tune.keys ? "Run" : "Melody"} #{tune.n} · {tune.stage.title} · {ladder.title} · {range.label}{status === "denied" ? " · microphone blocked in the browser" : ""}</span>
       </div>
-      <MelodyStaff notes={notes} ladder={ladder} clef={clef} live pitch={pitch} playFrom={playFrom} beatMs={beat} gridBeats={gridBeats} tapped={tapped} onNote={(i) => void tap(i)} />
+      <MelodyStaff notes={notes} chords={harmony} ladder={ladder} clef={clef} live pitch={pitch} playFrom={playFrom} beatMs={beat} gridBeats={gridBeats} tapped={tapped} onNote={(i) => void tap(i)} />
     </div>
   );
 }

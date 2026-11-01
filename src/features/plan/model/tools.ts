@@ -53,8 +53,8 @@ export type PlanTool =
   | { type: "note-finder"; query: string }
   | { type: "interval-ears"; query: string; /** intervals may span more than an octave */ wide?: boolean }
   | { type: "arpeggio-neck"; chord: string; boxes?: number[]; part?: Degree[]; placement?: Placement } & Marks
-  | { type: "melody-singer"; tune: number; key: number; voice?: Voice }
-  | { type: "run-singer"; run: number; key: number; voice?: Voice }
+  | { type: "melody-singer"; tune: number; key: number; voice?: Voice; chords?: false }
+  | { type: "run-singer"; run: number; key: number; voice?: Voice; chords?: false }
   | { type: "play-along"; shape: PlayAlongShape; bpm: number; repeats?: number; view?: View; enable?: Degree[]; highlight?: Degree[]; others?: "muted" | "hidden"; under?: Under }
   | { type: "strum-along"; chords: string[]; bpm: number; per?: "bar" | "beat"; beats?: number; pattern?: string }
   /* stubs: a placeholder view until the real components exist; strings are numbered 1-6, 6 = low E */
@@ -184,7 +184,9 @@ const singer = (t: Record<string, unknown>, field: "tune" | "run", ok: (n: unkno
   }
   if (!ok(n)) return null;
   const voice = voiceOf(t.voice);
-  const tool: PlanTool = field === "tune" ? { type: "melody-singer", tune: n as number, key, ...(voice ? { voice } : {}) } : { type: "run-singer", run: n as number, key, ...(voice ? { voice } : {}) };
+  // chords are on unless turned off, so only the off is kept
+  const rest = { ...(voice ? { voice } : {}), ...(t.chords === false ? { chords: false as const } : {}) };
+  const tool: PlanTool = field === "tune" ? { type: "melody-singer", tune: n as number, key, ...rest } : { type: "run-singer", run: n as number, key, ...rest };
   if (!exact) INEXACT_PICKS.add(tool);
   return tool;
 };

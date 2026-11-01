@@ -67,9 +67,9 @@ function Tool({ tool, voice }: { tool: PlanTool; voice?: Voice }) {
     case "arpeggio-neck":
       return <ArpeggioNeck chord={tool.chord} boxes={tool.boxes} placement={tool.placement} part={tool.part} enable={tool.enable} highlight={tool.highlight} mute={tool.mute} hide={tool.hide} others={tool.others} />;
     case "melody-singer":
-      return <MelodySinger tune={tool.tune} pc={tool.key} voice={tool.voice ?? voice} />;
+      return <MelodySinger tune={tool.tune} pc={tool.key} voice={tool.voice ?? voice} chords={tool.chords} />;
     case "run-singer":
-      return <RunSinger run={tool.run} pc={tool.key} voice={tool.voice ?? voice} />;
+      return <RunSinger run={tool.run} pc={tool.key} voice={tool.voice ?? voice} chords={tool.chords} />;
     case "play-along":
       return <PlayAlong shape={tool.shape} bpm={tool.bpm} repeats={tool.repeats} view={tool.view} enable={tool.enable} highlight={tool.highlight} others={tool.others} under={tool.under} />;
     case "strum-along":

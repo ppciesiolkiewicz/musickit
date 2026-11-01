@@ -79,6 +79,14 @@ describe("tools", () => {
     assert.ok(!("pick" in picked!));
     assert.deepEqual(parseTool({ type: "run-singer", run: runChoices()[0].id, key: "c" }), { type: "run-singer", run: runChoices()[0].id, key: 0 });
   });
+  it("keeps a singer's chords on unless turned off", () => {
+    const run = runChoices()[0].id;
+    assert.deepEqual(parseTool({ type: "run-singer", run, key: "c", chords: false }), { type: "run-singer", run, key: 0, chords: false });
+    assert.deepEqual(parseTool({ type: "run-singer", run, key: "c", chords: true }), { type: "run-singer", run, key: 0 });
+    assert.deepEqual(parseTool({ type: "run-singer", run, key: "c", chords: "no" }), { type: "run-singer", run, key: 0 });
+    assert.deepEqual(parseTool({ type: "melody-singer", tune: 1, key: "c", chords: false }), { type: "melody-singer", tune: 1, key: 0, chords: false });
+    assert.deepEqual(parseTool({ type: "melody-singer", tune: 1, key: "c" }), { type: "melody-singer", tune: 1, key: 0 });
+  });
   it("reads degrees for highlighting and showing only chosen notes", () => {
     assert.equal(degreeSemis("b7"), 10);
     assert.equal(degreeSemis("♭3"), 3);

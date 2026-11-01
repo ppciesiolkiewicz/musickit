@@ -12,4 +12,6 @@ export interface RunSingerProps {
   key: string;
   /** voice range; default "soprano" */
   voice?: "soprano" | "mezzo" | "alto" | "tenor" | "baritone" | "bass";
+  /** the piano's chords under the tune, one a bar, named over the staff; in a run, the two chords in the held-Do bar that announce each new key. Default true; false for the tune alone */
+  chords?: boolean;
 }
