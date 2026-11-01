@@ -661,7 +661,7 @@
   {
     "name": "solo-over",
     "kind": "shape",
-    "description": "Improvise over chords: per chord an optional scale (named from the chord root), target chord tones shown\nhighlighted (degrees, major-relative), and an optional `approach` hint. The code plays the backing; no fixed\nnotes, nothing graded. Each chord takes `bars` bars (default 1). `bpm` goes on the play-along.\n\nExample: `{ \"shape\": \"solo-over\", \"key\": \"g\", \"chords\": [{ \"chord\": \"Am7\", \"scale\": \"dorian\", \"target\": [\"1\",\"b3\"] }, { \"chord\": \"D7\", \"scale\": \"mixolydian\", \"target\": [\"3\"], \"approach\": \"land on the 3rd on beat 1\" }] }`",
+    "description": "Improvise over chords. The code comps the chords (bass + chord by default). The neck shows one fixed set of notes for\nthe whole progression: the exercise's `scale` (from `key`) plus every chord's own `scale` (from the chord root), or\nthe chord tones when no scale is given. Nothing moves but the highlight: the sounding chord's `target` degrees\n(major-relative, from the chord root), also named above the neck (\"land on B\"), with the optional `approach` hint.\nNo fixed notes, nothing graded. Each chord takes `bars` bars (default 1). `bpm` goes on the play-along.\n\nExample: `{ \"shape\": \"solo-over\", \"key\": \"a\", \"scale\": \"minor-pentatonic\", \"chords\": [{ \"chord\": \"Am7\", \"target\": [\"1\"] }, { \"chord\": \"D7\", \"target\": [\"3\"], \"approach\": \"land on F♯ on beat 1\" }] }`",
     "props": [
       {
         "name": "shape",
@@ -676,10 +676,16 @@
         "description": "key as a note: \"g\""
       },
       {
+        "name": "scale",
+        "type": "string",
+        "required": false,
+        "description": "the scale improvised in, from `key`, for the whole progression: \"minor-pentatonic\", \"dorian\""
+      },
+      {
         "name": "chords",
         "type": "{ chord: string; scale?: string; target: Degree[]; approach?: string }[]",
         "required": true,
-        "description": "chords in order with scale slug, target degrees and optional hint"
+        "description": "chords in order with an optional extra scale slug (from the chord root), target degrees and optional hint"
       },
       {
         "name": "bars",
@@ -790,7 +796,7 @@
   {
     "name": "two-scales",
     "kind": "shape",
-    "description": "Play in one scale, then switch to another at a bar (default halfway), same click throughout. Each side has its own\nkey. `bpm` goes on the play-along.\n\nExample: `{ \"shape\": \"two-scales\", \"a\": { \"key\": \"a\", \"scale\": \"minor-pentatonic\" }, \"b\": { \"key\": \"a\", \"scale\": \"dorian\" }, \"bars\": 8 }`",
+    "description": "Play in one scale, then switch to another at a bar (default halfway), same click throughout. Each side has its own\nkey. The backing chord is comped underneath (without one, a drone on the first key). The neck shows both scales'\nnotes the whole time: the backing chord's tones highlighted, the notes outside the scale playing now muted, so the\nswitch shows as the changed note. `bpm` goes on the play-along.\n\nExample: `{ \"shape\": \"two-scales\", \"a\": { \"key\": \"a\", \"scale\": \"minor-pentatonic\" }, \"b\": { \"key\": \"a\", \"scale\": \"dorian\" }, \"bars\": 8 }`",
     "props": [
       {
         "name": "shape",
@@ -826,7 +832,13 @@
         "name": "backingChord",
         "type": "string",
         "required": false,
-        "description": "optional chord to hold underneath: \"Am\""
+        "description": "optional chord comped underneath: \"Am\""
+      },
+      {
+        "name": "backing",
+        "type": "CompPattern",
+        "required": false,
+        "description": "comping pattern for the backing chord, default \"bass-chord\""
       }
     ]
   }

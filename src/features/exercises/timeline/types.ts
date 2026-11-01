@@ -24,4 +24,9 @@ export interface Timeline {
   pad?: boolean;
   /** a drone on this pitch class sounds under the whole timeline */
   drone?: number;
+  /**
+   * Nothing fixed to play: the student improvises in the scale events' notes, all shown for the whole timeline, the
+   * sounding chord's tones highlighted. "switch" (two scales in turn) mutes the notes outside the scale playing now.
+   */
+  free?: "over-chords" | "switch";
 }

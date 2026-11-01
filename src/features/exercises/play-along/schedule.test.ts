@@ -61,3 +61,13 @@ test("under: none and drone; strums and comped chords get no pad", () => {
   const comped = expandShape({ shape: "progression", key: "g", chords: ["G", "C"], bars: 2, steps: ["1"], backing: ["block"], bpm: 70 })!;
   assert.equal(withBackingSound(comped).pad, undefined);
 });
+
+test("improvised timelines are never silent: chords comped, or a drone without chords", () => {
+  const solo = withBackingSound(expandShape({ shape: "solo-over", key: "c", chords: [{ chord: "Cm7", target: ["1"] }, { chord: "Fm7", target: ["1"] }], bpm: 80 })!);
+  assert.deepEqual([...new Set(cuesOf(solo).filter((c) => c.kind === "backing").map((c) => c.chord))], ["Cm7", "Fm7"]);
+  const held = withBackingSound(expandShape({ shape: "two-scales", a: { key: "d", scale: "natural-minor-aeolian" }, b: { key: "d", scale: "dorian" }, bars: 8, backingChord: "Dm", bpm: 70 })!);
+  assert.ok(cuesOf(held).some((c) => c.kind === "backing" && c.at >= 16));
+  const bare = withBackingSound(expandShape({ shape: "two-scales", a: { key: "g", scale: "major-ionian" }, b: { key: "g", scale: "mixolydian" }, bars: 8, bpm: 70 })!);
+  assert.equal(bare.drone, 7);
+  assert.equal(withBackingSound(expandShape({ shape: "two-scales", a: { key: "g", scale: "major-ionian" }, b: { key: "g", scale: "mixolydian" }, bars: 8, bpm: 70 })!, "none").drone, undefined);
+});

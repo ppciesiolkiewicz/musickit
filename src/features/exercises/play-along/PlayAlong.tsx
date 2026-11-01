@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Icon from "@/components/Icon";
 import { sbtn } from "@/components/ui";
+import { parseChordQuery } from "@/lib/chordKit/chordSearch";
 import { COMP_PATTERNS, type CompPattern } from "@/lib/practice/comping";
 import { chordCues, cuesOf } from "../cues/cues";
 import { chordShapeFor } from "../cues/voicing";
@@ -18,6 +19,7 @@ import SoloView from "./views/SoloView";
 import NeckView from "./views/NeckView";
 import NotesView from "./views/NotesView";
 import TabView from "./views/TabView";
+import { noteOf } from "./views/common";
 
 type View = "tab" | "notes" | "neck";
 const VIEWS: View[] = ["tab", "notes", "neck"];
@@ -59,6 +61,7 @@ export function PlayAlongTimeline({ timeline, view = "tab", others = "muted", hi
   const cueText = pos < 0 ? undefined : [...cues].reverse().find((c) => c.cue && c.at <= pos)?.cue;
   const solo = isSolo(played) ? soloTargets(played, pos) : null;
   const chordNow = now?.chord ?? (pos >= 0 ? solo?.chord : undefined);
+  const aim = solo?.targets.length ? `land on ${solo.targets.map((pc) => noteOf(pc, parseChordQuery(solo.chord)?.rootPc ?? keyPc ?? 0).name).join(" or ")}` : undefined;
   const hint = pos < 0 ? timeline.hints?.[0]?.text : [...(timeline.hints ?? [])].reverse().find((h) => h.at <= pos)?.text;
   const changeTempo = (b: number) => {
     const v = Math.min(MAX_BPM, Math.max(MIN_BPM, b));
@@ -94,10 +97,12 @@ export function PlayAlongTimeline({ timeline, view = "tab", others = "muted", hi
       </div>
       <div className="flex min-h-5 flex-wrap items-baseline gap-2 text-xs">
         {chordNow && <b className="text-slate-100">{chordNow}</b>}
+        {solo?.scale && <span className="text-slate-300">{solo.scale}</span>}
+        {aim && <span className="text-sky-200">{aim}</span>}
         {cueText && <span className="text-sky-200">{cueText}</span>}
         {hint && <span className="text-slate-400">{hint}</span>}
       </div>
-      {solo ? <SoloView targets={solo} mode={shown} others={others} /> : <>
+      {solo ? <SoloView targets={solo} mode={shown} others={others} keyPc={keyPc} /> : <>
       {shown === "tab" && <TabView cues={cues} pos={pos} length={length} />}
       {shown === "notes" && <NotesView cues={cues} pos={pos} length={length} keyPc={keyPc} />}
       {shown === "neck" && <NeckView cues={cues} pos={pos} length={length} keyPc={keyPc} marked={!!highlight?.length} />}

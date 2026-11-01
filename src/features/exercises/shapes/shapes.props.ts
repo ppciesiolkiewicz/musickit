@@ -45,7 +45,9 @@ export interface ProgressionShape extends ShapeCommon {
 
 /**
  * Play in one scale, then switch to another at a bar (default halfway), same click throughout. Each side has its own
- * key. `bpm` goes on the play-along.
+ * key. The backing chord is comped underneath (without one, a drone on the first key). The neck shows both scales'
+ * notes the whole time: the backing chord's tones highlighted, the notes outside the scale playing now muted, so the
+ * switch shows as the changed note. `bpm` goes on the play-along.
  *
  * Example: `{ "shape": "two-scales", "a": { "key": "a", "scale": "minor-pentatonic" }, "b": { "key": "a", "scale": "dorian" }, "bars": 8 }`
  * @component two-scales shape
@@ -60,8 +62,10 @@ export interface TwoScalesShape extends ShapeCommon {
   bars: number;
   /** bar the switch happens at (0-based), default half of bars, kept within 1..bars-1 */
   switchBar?: number;
-  /** optional chord to hold underneath: "Am" */
+  /** optional chord comped underneath: "Am" */
   backingChord?: string;
+  /** comping pattern for the backing chord, default "bass-chord" */
+  backing?: CompPattern;
 }
 
 /**
@@ -128,18 +132,22 @@ export interface MelodyShape extends ShapeCommon {
 }
 
 /**
- * Improvise over chords: per chord an optional scale (named from the chord root), target chord tones shown
- * highlighted (degrees, major-relative), and an optional `approach` hint. The code plays the backing; no fixed
- * notes, nothing graded. Each chord takes `bars` bars (default 1). `bpm` goes on the play-along.
+ * Improvise over chords. The code comps the chords (bass + chord by default). The neck shows one fixed set of notes for
+ * the whole progression: the exercise's `scale` (from `key`) plus every chord's own `scale` (from the chord root), or
+ * the chord tones when no scale is given. Nothing moves but the highlight: the sounding chord's `target` degrees
+ * (major-relative, from the chord root), also named above the neck ("land on B"), with the optional `approach` hint.
+ * No fixed notes, nothing graded. Each chord takes `bars` bars (default 1). `bpm` goes on the play-along.
  *
- * Example: `{ "shape": "solo-over", "key": "g", "chords": [{ "chord": "Am7", "scale": "dorian", "target": ["1","b3"] }, { "chord": "D7", "scale": "mixolydian", "target": ["3"], "approach": "land on the 3rd on beat 1" }] }`
+ * Example: `{ "shape": "solo-over", "key": "a", "scale": "minor-pentatonic", "chords": [{ "chord": "Am7", "target": ["1"] }, { "chord": "D7", "target": ["3"], "approach": "land on F♯ on beat 1" }] }`
  * @component solo-over shape
  */
 export interface SoloOverShape extends ShapeCommon {
   shape: "solo-over";
   /** key as a note: "g" */
   key: string;
-  /** chords in order with scale slug, target degrees and optional hint */
+  /** the scale improvised in, from `key`, for the whole progression: "minor-pentatonic", "dorian" */
+  scale?: string;
+  /** chords in order with an optional extra scale slug (from the chord root), target degrees and optional hint */
   chords: { chord: string; scale?: string; target: Degree[]; approach?: string }[];
   /** bars per chord, default 1 */
   bars?: number;

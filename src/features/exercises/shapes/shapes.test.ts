@@ -51,6 +51,11 @@ describe("twoScales", () => {
   it("switches halfway by default", () => {
     assert.deepEqual(of(twoScales({ shape: "two-scales", bpm: 80, a, b, bars: 8 })!, "scale").map((s) => s.at), [0, 16]);
   });
+  it("comps the backing chord for the whole timeline, and is free", () => {
+    const t = twoScales({ shape: "two-scales", bpm: 80, a, b, bars: 8, backingChord: "Am" })!;
+    assert.deepEqual(of(t, "chord").map((c) => [c.at, c.beats, c.backing]), [[0, 32, "bass-chord"]]);
+    assert.equal(t.free, "switch");
+  });
   it("clamps switchBar", () => {
     assert.deepEqual(of(twoScales({ shape: "two-scales", bpm: 80, a, b, bars: 8, switchBar: 99 })!, "scale").map((s) => s.at), [0, 28]);
   });
@@ -87,6 +92,13 @@ describe("soloOver", () => {
     assert.deepEqual(of(t, "chord").map((c) => c.highlight), [[0, 3], [4]]);
     assert.equal(of(t, "step").length, 0);
     assert.deepEqual(t.hints, [{ at: 0, text: "land on b3" }]);
+    assert.equal(t.free, "over-chords");
+    assert.deepEqual(of(t, "chord").map((c) => c.backing), ["bass-chord", "bass-chord"]);
+  });
+  it("the exercise's scale from the key, first", () => {
+    const t = soloOver({ shape: "solo-over", bpm: 80, key: "c", scale: "minor-pentatonic", backing: "block", chords: [{ chord: "Cm7", target: ["1"] }, { chord: "Fm7", target: ["1"] }] })!;
+    assert.deepEqual(of(t, "scale").map((s) => [s.at, s.key, s.scale]), [[0, 0, "minor-pentatonic"]]);
+    assert.deepEqual(of(t, "chord").map((c) => c.backing), ["block", "block"]);
   });
 });
 

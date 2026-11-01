@@ -27,14 +27,15 @@ export type BackingSound = "chords" | "drone" | "none";
 
 /**
  * The timeline with its backing sound set. Left out, a timeline whose chords have no comping of their own and whose
- * steps are single notes gets "chords", so the student hears the harmony they play over, not just the click. The drone
- * sits on the key (the first scale), else the first chord's root.
+ * steps are single notes (or that is improvised over) gets "chords", so the student hears the harmony they play over,
+ * not just the click; an improvised timeline with no chords at all gets "drone". The drone sits on the key (the first
+ * scale), else the first chord's root.
  */
 export function withBackingSound(t: Timeline, want?: BackingSound): Timeline {
   const chords = t.events.filter((e) => e.type === "chord");
   const bare = chords.some((e) => e.type === "chord" && !e.backing);
   const notes = t.events.some((e) => e.type === "step" && e.chord && e.step.kind === "note");
-  const sound = want ?? (bare && notes ? "chords" : "none");
+  const sound = want ?? (bare && (notes || t.free) ? "chords" : t.free && !chords.length ? "drone" : "none");
   if (sound === "chords") return bare ? { ...t, pad: true } : t;
   if (sound === "drone") {
     const scale = t.events.find((e) => e.type === "scale");

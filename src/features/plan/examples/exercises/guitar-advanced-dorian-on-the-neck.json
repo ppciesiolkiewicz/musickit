@@ -14,7 +14,7 @@
     "sections": [
       { "type": "text", "text": "Dorian differs from natural minor by one note, so practise that note, not seven." },
       { "type": "heading", "text": "Hear the switch", "minutes": 3 },
-      { "type": "text", "text": "Press Play: the first half is D natural minor, the second half D Dorian, over a held Dm. Play along in the neck view and listen for the bar where one note brightens." },
+      { "type": "text", "text": "Press Play and play the scale up and down over the Dm backing: four bars of D natural minor, then four of D Dorian. The neck fades the note you leave out: B in the first half, B♭ in the second. Listen for the bar where B comes in and brightens the sound." },
       { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "two-scales", "a": { "key": "d", "scale": "natural-minor-aeolian" }, "b": { "key": "d", "scale": "dorian" }, "bars": 8, "backingChord": "Dm" }, "bpm": 70, "view": "neck" } },
       { "type": "heading", "text": "Root on the A string", "minutes": 3 },
       { "type": "text", "text": "The note that changed is {{6}}: B, not B♭. Play the box with {{1}} at the 5th fret of the A string up and down, then play {{6}} and resolve it to {{1}} three times." },

@@ -134,8 +134,8 @@
             "sections": [
               { "type": "text", "text": "A minor uses exactly the notes of C major; only the home note changes, and with it the mood." },
               { "type": "heading", "text": "Hear the home move", "minutes": 3 },
-              { "type": "text", "text": "Press Play: four bars of C major over C, then four of A minor over Am. The notes are the same; listen to where each one comes to rest." },
-              { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "two-scales", "a": { "key": "c", "scale": "major-ionian" }, "b": { "key": "a", "scale": "natural-minor-aeolian" }, "bars": 8 }, "bpm": 70, "view": "notes" } },
+              { "type": "text", "text": "Press Play and play C major from C for four bars, then the same notes from A for four: A minor. Only the click plays. Listen to where each one comes to rest." },
+              { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "two-scales", "a": { "key": "c", "scale": "major-ionian" }, "b": { "key": "a", "scale": "natural-minor-aeolian" }, "bars": 8 }, "bpm": 70, "view": "notes", "under": "none" } },
               { "type": "heading", "text": "La is home", "minutes": 3 },
               { "type": "text", "text": "Tap {{1}} (A) on the staff, then walk up to the C above it: in C major that C is Do, here it is the {{b3}}. A minor is C major starting from La." },
               { "type": "tool", "tool": { "type": "staff", "scale": "natural-minor-aeolian", "key": "a", "voice": "baritone", "highlight": ["1", "b3"], "others": "normal", "mic": false } }
