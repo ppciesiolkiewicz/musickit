@@ -68,42 +68,76 @@ const TONE: Record<CommentState, string> = {
   gone: "border-rose-500/60 bg-rose-500/10 text-rose-100",
 };
 
+/** The box a comment is written or changed in: ⌘↵ saves, Esc cancels. */
+function CommentEditor({ initial, onSave, onCancel }: { initial: string; onSave: (text: string) => void; onCancel: () => void }) {
+  const [text, setText] = useState(initial);
+  return (
+    <div className="flex flex-col gap-1.5 rounded-lg border border-amber-400/50 bg-slate-950/60 p-2">
+      <textarea
+        autoFocus
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) onSave(text);
+          if (e.key === "Escape") onCancel();
+        }}
+        rows={2}
+        placeholder="What's wrong or good here? (⌘↵ to save, Esc to cancel)"
+        className="w-full resize-y rounded-md border border-slate-700 bg-slate-900 px-2 py-1 text-sm text-slate-100 placeholder:text-slate-500"
+      />
+      <div className="flex gap-1.5">
+        <button type="button" onClick={() => onSave(text)} className="cursor-pointer rounded-md border border-amber-400/70 bg-amber-500/20 px-2.5 py-0.5 text-xs font-medium text-amber-50 hover:bg-amber-500/30">Save</button>
+        <button type="button" onClick={onCancel} className="cursor-pointer rounded-md border border-slate-700 px-2.5 py-0.5 text-xs text-slate-300 hover:bg-slate-800">Cancel</button>
+      </div>
+    </div>
+  );
+}
+
 /** Comments under one section, and the button (shown on hover, or always once there are some) that adds one. */
 function CommentSlot({ example, address, index, section }: { example: string; address: string; index: number; section: Section }) {
   const all = useComments();
   const commits = useContext(CommitsContext);
-  const [draft, setDraft] = useState<string | null>(null);
+  // the new comment's box is open (its text lives in CommentEditor); `editing` is the comment whose text is being changed
+  const [adding, setAdding] = useState(false);
+  const [editing, setEditing] = useState<string | null>(null);
   const mine = all.filter((c) => c.example === example && c.address === address && c.index === index);
   const hash = sectionHash(section);
   const file = commits?.files[example];
 
-  const add = () => {
-    const text = draft?.trim();
-    if (!text) return setDraft(null);
+  const add = (raw: string) => {
+    const text = raw.trim();
+    if (!text) return setAdding(false);
     const c: SectionComment = {
       id: crypto.randomUUID(), example, address, index, kind: section.type, quote: quoteOf(sectionText(section)), hash,
       commit: file?.commit ?? "unknown", ...(file?.dirty ? { dirty: true } : {}), text, at: new Date().toISOString(),
     };
     write((l) => [...l, c]);
-    setDraft(null);
+    setAdding(false);
   };
 
   return (
     <>
       <button
         type="button"
-        onClick={() => setDraft((d) => d ?? "")}
+        onClick={() => setAdding(true)}
         title="Comment on this section"
         aria-label="Comment on this section"
         className="absolute right-0 top-0 z-10 grid size-6 cursor-pointer place-items-center rounded-md border border-amber-400/50 bg-slate-950/95 text-amber-200 opacity-30 shadow transition group-hover/sec:opacity-100 focus-visible:opacity-100 hover:bg-amber-500/25"
       >
         <Icon name="pencil" size={12} />
       </button>
-      {(mine.length > 0 || draft !== null) && (
+      {(mine.length > 0 || adding) && (
         <div className="mt-2 flex min-w-72 flex-col gap-1.5">
           {mine.map((c) => {
             const state = stateOf(c, hash);
             return (
+              editing === c.id ? (
+                <CommentEditor key={c.id} initial={c.text} onCancel={() => setEditing(null)} onSave={(raw) => {
+                  const text = raw.trim();
+                  if (text) write((l) => l.map((x) => (x.id === c.id ? { ...x, text } : x)));
+                  setEditing(null);
+                }} />
+              ) : (
               <div key={c.id} className={`flex items-start gap-2 rounded-lg border px-2.5 py-1.5 text-xs ${TONE[state]}`}>
                 <p className="min-w-0 flex-1 whitespace-pre-wrap">{c.text}</p>
                 <span className="shrink-0 font-mono text-[10px] opacity-70" title={`Commented ${new Date(c.at).toLocaleString()} at ${c.commit}${c.dirty ? " (file had uncommitted edits)" : ""}`}>
@@ -114,32 +148,17 @@ function CommentSlot({ example, address, index, section }: { example: string; ad
                     keep
                   </button>
                 )}
+                <button type="button" aria-label="Edit comment" title="Edit" onClick={() => setEditing(c.id)} className="shrink-0 cursor-pointer opacity-60 hover:opacity-100">
+                  <Icon name="pencil" size={12} />
+                </button>
                 <button type="button" aria-label="Delete comment" title="Delete" onClick={() => write((l) => l.filter((x) => x.id !== c.id))} className="shrink-0 cursor-pointer opacity-60 hover:opacity-100">
                   <Icon name="x" size={12} />
                 </button>
               </div>
+              )
             );
           })}
-          {draft !== null && (
-            <div className="flex flex-col gap-1.5 rounded-lg border border-amber-400/50 bg-slate-950/60 p-2">
-              <textarea
-                autoFocus
-                value={draft}
-                onChange={(e) => setDraft(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) add();
-                  if (e.key === "Escape") setDraft(null);
-                }}
-                rows={2}
-                placeholder="What's wrong or good here? (⌘↵ to save, Esc to cancel)"
-                className="w-full resize-y rounded-md border border-slate-700 bg-slate-900 px-2 py-1 text-sm text-slate-100 placeholder:text-slate-500"
-              />
-              <div className="flex gap-1.5">
-                <button type="button" onClick={add} className="cursor-pointer rounded-md border border-amber-400/70 bg-amber-500/20 px-2.5 py-0.5 text-xs font-medium text-amber-50 hover:bg-amber-500/30">Save</button>
-                <button type="button" onClick={() => setDraft(null)} className="cursor-pointer rounded-md border border-slate-700 px-2.5 py-0.5 text-xs text-slate-300 hover:bg-slate-800">Cancel</button>
-              </div>
-            </div>
-          )}
+          {adding && <CommentEditor initial="" onSave={add} onCancel={() => setAdding(false)} />}
         </div>
       )}
     </>
