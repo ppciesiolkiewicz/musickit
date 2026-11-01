@@ -7,7 +7,8 @@ import { degreeColour } from "@/features/theory/scales";
 import { solfege } from "@/features/theory/labels";
 import { IN_TUNE_CENTS, locate, type Fit, type Ladder } from "@/features/theory/singing";
 import { BEATS_PER_BAR } from "@/features/theory/singingMelody";
-import type { PlacedNote } from "@/features/theory/singingMelodies";
+import { dueNote, restBeats, type PlacedNote } from "@/features/theory/singingMelodies";
+import type { MelodyChord } from "@/features/theory/melodyChords";
 
 /**
  * A melody on one staff in 4/4, written out with its rhythm (eighths, quarters, halves, dotted notes, the whole-note
@@ -29,6 +30,8 @@ import type { PlacedNote } from "@/features/theory/singingMelodies";
  * `steadyCamera` (videos) moves that view with the bar itself at a steady pace instead of easing after the dot: the bar
  * sits far enough in that the faded half bar is in view from the wrap to beat 1, and the wrap jumps back in one frame.
  * Without the `lead` (videos, where every pass is written out) the faded half bar is left off and the staff starts on beat 1.
+ * `chords` are written by name above the staff where each starts, lit while it sounds; a whole beat no note sounds
+ * through gets a quarter rest, and nothing is due there, so the dot is judged against no note.
  */
 
 type StaffNote = PlacedNote;
@@ -40,6 +43,8 @@ const MIN_BEAT_16TH = 72; // a sixteenth run gets a quarter of the beat, so give
 const PAD = 14; // from a beat's start to its notehead
 const STEM = 34;
 const LABELS_H = 36;
+/** room above the staff for the chord names */
+const CHORDS_H = 22;
 const TAIL_MS = 380;
 const SILENCE_MS = 220;
 /** the voice dot runs this far behind the bar, so a note is heard before it is sung against */
@@ -67,11 +72,10 @@ interface Point { x: number; step: number; t: number }
 interface View { dot: Point | null; cam: number; tail: Point[]; lastHeard: number; now: number; fit: Fit; beat: number | null; hit: boolean; cents: number; target: number }
 const STILL: View = { dot: null, cam: 0, tail: [], lastHeard: -Infinity, now: 0, fit: "between", beat: null, hit: false, cents: 0, target: -1 };
 
-/** The note sounding at a beat, or -1 before the first. */
-const noteAt = (notes: StaffNote[], beat: number) => notes.findLastIndex((n) => n.at <= beat);
-
-export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom, beatMs, gridBeats, tapped, onNote, scale = 1, follow = false, followBeats, steadyCamera = false, lead = true, cents = IN_TUNE_CENTS, lagMs = DOT_LAG_MS }: {
+export default function MelodyStaff({ notes, chords = [], ladder, clef, live, pitch, playFrom, beatMs, gridBeats, tapped, onNote, scale = 1, follow = false, followBeats, steadyCamera = false, lead = true, cents = IN_TUNE_CENTS, lagMs = DOT_LAG_MS }: {
   notes: StaffNote[];
+  /** the chords under the tune, named above the staff */
+  chords?: MelodyChord[];
   live: boolean;
   /** the scale in the singer's range, low to high: the dot's height is read off it */
   ladder: Ladder;
@@ -117,7 +121,8 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
   const rungSteps = ladder.notes.map((n) => place(n.spelled, ladder.signature, clef).step);
   const top = Math.max(8, ...steps.map((s) => s + (s < 4 ? 7 : 0))) + 3;
   const bottom = Math.min(0, ...steps.map((s) => s - (s >= 4 ? 7 : 0))) - 3;
-  const yOf = (step: number) => 6 + (top - step) * HALF;
+  const chordsH = chords.length ? CHORDS_H : 0;
+  const yOf = (step: number) => chordsH + 6 + (top - step) * HALF;
   const labelsY = yOf(bottom) + 8;
   const H = labelsY + LABELS_H;
 
@@ -185,12 +190,12 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
         if (fresh) a.tail = [];
         a.tail.push(a.dot);
         a.lastHeard = now;
-        a.target = Math.max(0, noteAt(notes, beat));
+        // in a rest nothing is due: the dot is drawn but judged against no note
+        a.target = dueNote(notes, beat);
         const due = notes[a.target];
-        a.cents = (m - (due?.midi ?? m)) * 100;
-        const off = Math.abs(a.cents);
-        a.hit = off <= cents;
-        a.fit = a.hit ? "in" : Math.abs(m - Math.round(m)) * 100 <= cents ? "out" : "between";
+        a.cents = due ? (m - due.midi) * 100 : 0;
+        a.hit = !!due && Math.abs(a.cents) <= cents;
+        a.fit = !due ? "between" : a.hit ? "in" : Math.abs(m - Math.round(m)) * 100 <= cents ? "out" : "between";
       } else if (now - a.lastHeard > SILENCE_MS) a.hit = false;
       a.tail = a.tail.filter((p) => now - p.t < TAIL_MS);
       if (steadyCamera && a.beat !== null) {
@@ -229,13 +234,36 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
   const colour = DOT[a.fit];
   // the bar in the faded half bar lights the copy there, not the note it repeats
   const inGhost = a.beat !== null && a.beat < 0;
-  const due = a.beat === null ? -1 : noteAt(notes, a.beat < 0 ? a.beat + total : a.beat);
+  const due = a.beat === null ? -1 : dueNote(notes, a.beat < 0 ? a.beat + total : a.beat);
   // where the note due starts as drawn: its copy in the faded half bar once the dot has crossed there too
   const dueAt = due < 0 || !a.dot ? null : inGhost && a.dot.x < 0 ? Math.max(notes[due].at, total - leadBeats) - total : notes[due].at;
   const guideFrom = showDot && dueAt !== null ? Math.min(bx(dueAt), bx(a.dot!.x)) : 0;
   const guideW = showDot && dueAt !== null ? Math.abs(bx(dueAt) - bx(a.dot!.x)) : 0;
   const guideAhead = showDot && dueAt !== null && dueAt > a.dot!.x;
   const bars = Math.round(total / BEATS_PER_BAR);
+  const rests = restBeats(notes, total);
+  // the beat sounding, the faded half bar read as the end it repeats
+  const nowBeat = a.beat === null ? null : a.beat < 0 ? a.beat + total : a.beat;
+
+  const drawRest = (at: number, ghost: boolean) => {
+    const x = bx(at);
+    if (x < x0 - 20 || x > W + 20) return null;
+    const y = yOf(4);
+    return (
+      <path key={`rest-${ghost ? "ghost-" : ""}${at}`} d={`M ${x + 2} ${y - 13} l -6 7 l 6 6 l -6 7 c -4 -2 -7 2 -2 6`} fill="none" stroke={ink.glyph} strokeWidth={2.2} strokeLinejoin="round" strokeLinecap="round" opacity={ghost ? GHOST_OPACITY : 1} />
+    );
+  };
+
+  const drawChord = (c: MelodyChord, at: number, ghost: boolean) => {
+    const x = bx(at);
+    if (x < x0 - 40 || x > W + 40) return null;
+    const on = nowBeat !== null && nowBeat >= c.at && nowBeat < c.at + c.beats && (a.beat! < 0) === ghost;
+    return (
+      <text key={`chord-${ghost ? "ghost-" : ""}${c.at}`} x={x - 6} y={chordsH - 4} fontSize={15} fontWeight={700} fill={on ? PLAYED : ink.name} opacity={ghost && !on ? GHOST_OPACITY : 1}>
+        {c.name}
+      </text>
+    );
+  };
 
   const drawNote = (i: number, at: number, beats: number, ghost: boolean) => {
     const n = notes[i];
@@ -299,6 +327,10 @@ export default function MelodyStaff({ notes, ladder, clef, live, pitch, playFrom
                 <line x1={bx(a.beat)} x2={bx(a.beat)} y1={yOf(8) - 8} y2={yOf(0) + 8} stroke={PLAYED} strokeOpacity={0.6} strokeWidth={2} />
               </g>
             )}
+            {leadBeats > 0 && rests.filter((b) => b >= total - leadBeats).map((b) => drawRest(b - total, true))}
+            {rests.map((b) => drawRest(b, false))}
+            {leadBeats > 0 && chords.filter((c) => c.at + c.beats > total - leadBeats).map((c) => drawChord(c, Math.max(c.at, total - leadBeats) - total, true))}
+            {chords.map((c) => drawChord(c, c.at, false))}
             {ghosts.map((g) => drawNote(g.i, g.at, g.beats, true))}
             {notes.map((n, i) => drawNote(i, n.at, n.beats, false))}
             {showDot && (

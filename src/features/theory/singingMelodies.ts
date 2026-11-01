@@ -318,3 +318,14 @@ export function runPasses(tune: MelodyNote[], tonicPc: number, keys: number, lad
     return { ladder: l, notes: tune.map((n) => ({ ...l.notes[Math.max(0, Math.min(l.notes.length - 1, root + n.step))], beats: n.beats, at: n.at + k * length })) };
   });
 }
+
+/** The whole beats in `[0, total)` that no note sounds through: where a staff draws a quarter rest. */
+export function restBeats(notes: { at: number; beats: number }[], total: number): number[] {
+  return Array.from({ length: Math.ceil(total) }, (_, b) => b).filter((b) => !notes.some((n) => n.at < b + 1 && n.at + n.beats > b));
+}
+
+/** The note sounding at a beat, or -1 before the first and in a rest. */
+export function dueNote(notes: { at: number; beats: number }[], beat: number): number {
+  const i = notes.findLastIndex((n) => n.at <= beat);
+  return i >= 0 && beat < notes[i].at + notes[i].beats ? i : -1;
+}

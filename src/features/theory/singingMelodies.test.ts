@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { BOOK, DIFFICULTIES, RUNS, STAGES, effortOf, parseTune, placeRun, placeTune, runPasses } from "./singingMelodies";
+import { BOOK, DIFFICULTIES, RUNS, STAGES, dueNote, effortOf, parseTune, placeRun, placeTune, restBeats, runPasses } from "./singingMelodies";
 import { VOICES, buildLadder, tuneLadderFor, withNotesUnder, type Range } from "./singing";
 
 describe("the melody book", () => {
@@ -137,5 +137,22 @@ describe("a run's passes", () => {
     assert.equal(passes.length, 3);
     assert.deepEqual(passes.map((p) => p.notes[0].at), [0, 8, 16]);
     assert.deepEqual(passes.map((p) => p.ladder.notes.find((n) => n.midi % 12 === p.notes[0].midi % 12)!.spelled.name), ["C", "D♭", "D"]);
+  });
+});
+
+describe("rests and the note due", () => {
+  // a run pass cut for its key change: the quarter-note Do on beat 5, then the next pass on beat 8
+  const notes = [...parseTune("1e 2e 3e 4e 5e 4e 3e 2e | 1"), ...parseTune("1e 2e 3e 4e 5e 4e 3e 2e | 1w").map((n) => ({ ...n, at: n.at + 8 }))];
+
+  it("finds the whole beats no note covers", () => {
+    assert.deepEqual(restBeats(notes, 16), [5, 6, 7]);
+    assert.deepEqual(restBeats(parseTune("1 2 3 2 | 1w"), 8), []);
+  });
+
+  it("has nothing due in a rest", () => {
+    assert.equal(dueNote(notes, 4.5), 8);
+    assert.equal(dueNote(notes, 5.5), -1);
+    assert.equal(dueNote(notes, 8), 9);
+    assert.equal(dueNote(notes, -0.5), -1);
   });
 });
