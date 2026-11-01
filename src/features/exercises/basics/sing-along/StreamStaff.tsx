@@ -11,7 +11,7 @@ import { BEATS_PER_BAR } from "@/features/theory/singingMelody";
 import { restBeats, type PlacedNote } from "@/features/theory/singingMelodies";
 import type { MelodyChord } from "@/features/theory/melodyChords";
 import type { Frame } from "./useSingAlong";
-import { DOT, PLAYED, camera, inView, judge, type Motion } from "./view";
+import { DOT, PLAYED, camera, inView, judge } from "./view";
 
 const HALF = 5; // px per staff step
 const BEAT_W = 56;
@@ -26,10 +26,10 @@ const ink = { line: "var(--color-slate-500)", glyph: "var(--color-slate-300)", n
 
 /**
  * The tune on one endless staff: its passes (the loop, or the whole tune) written one after another, sliding under the
- * bar (or the bar crossing a page that turns: `motion`), the passes gone by dropped. The clef and key stay at the left.
+ * bar, the passes gone by dropped. The clef and key stay at the left.
  * The voice is a dot with a short fading tail, read off the scale's ladder so it sits on a notehead when in tune.
  */
-export default function StreamStaff({ frame, notes, chords, ladder, clef, beatMs, tapped, onNote, motion, scale = 1 }: {
+export default function StreamStaff({ frame, notes, chords, ladder, clef, beatMs, tapped, onNote, scale = 1 }: {
   frame: Frame;
   notes: PlacedNote[];
   chords: MelodyChord[];
@@ -38,7 +38,6 @@ export default function StreamStaff({ frame, notes, chords, ladder, clef, beatMs
   beatMs: number;
   tapped: number | null;
   onNote: (i: number) => void;
-  motion: Motion;
   /** drawn this many times bigger (full screen) */
   scale?: number;
 }) {
@@ -70,7 +69,7 @@ export default function StreamStaff({ frame, notes, chords, ladder, clef, beatMs
   const W = width / scale;
   const beatW = notes.some((n) => n.beats < 0.5) ? BEAT_W_16TH : BEAT_W;
   const span = Math.max(1, (W - x0 - 12) / beatW);
-  const left = camera(frame.s, span, motion);
+  const left = camera(frame.s, span);
   const bx = (s: number) => x0 + (s - left) * beatW + PAD;
   const passes = inView(frame.passes, left - 1, left + span + 1);
   const rests = restBeats(notes, total);

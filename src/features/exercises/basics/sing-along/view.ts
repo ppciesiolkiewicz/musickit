@@ -4,21 +4,14 @@ import { DOT_LAG_MS } from "@/components/theory/singing/MelodyStaff";
 import { passAt, type Pass } from "./passes";
 import type { Frame } from "./useSingAlong";
 
-/** how the view keeps up with the bar: the notes slide under a bar that stays put, or the bar crosses a page that turns */
-export type Motion = "notes" | "bar";
-
 /** where the bar stays across a view whose notes move: a quarter in, so most of what shows is still to come */
 export const BAR_AT = 0.25;
 
 export const DOT: Record<Fit, string> = { in: "var(--color-emerald-400)", out: "var(--color-rose-400)", between: "var(--color-amber-300)" };
 export const PLAYED = "var(--color-sky-300)";
 
-/** the stream beat at the view's left edge, `span` beats across */
-export function camera(s: number, span: number, motion: Motion): number {
-  if (motion === "notes") return s - span * BAR_AT;
-  const page = Math.max(1, span - 1);
-  return Math.floor(s / page) * page - 0.5;
-}
+/** the stream beat at the view's left edge, `span` beats across: the notes slide under a bar that stays put */
+export const camera = (s: number, span: number) => s - span * BAR_AT;
 
 /** the passes reaching into [left, right] */
 export const inView = (passes: Pass[], left: number, right: number) => passes.filter((p) => p.start + p.to - p.from > left && p.start < right);

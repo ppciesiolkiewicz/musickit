@@ -10,7 +10,7 @@ import { BEATS_PER_BAR } from "@/features/theory/singingMelody";
 import type { PlacedNote } from "@/features/theory/singingMelodies";
 import type { MelodyChord } from "@/features/theory/melodyChords";
 import type { Frame } from "./useSingAlong";
-import { DOT, PLAYED, camera, inView, judge, type Motion } from "./view";
+import { DOT, PLAYED, camera, inView, judge } from "./view";
 
 const BEAT_W = 56;
 const BEAT_W_16TH = 72;
@@ -25,7 +25,7 @@ const CHORDS_H = 20;
  * long as it lasts, its passes sliding under the bar like the staff's. The voice leaves a thin line for as long as it
  * is in view, so the whole way the pitch went is there to read; the line drops off with the passes gone by.
  */
-export default function PianoRoll({ frame, notes, chords, ladder, beatMs, tapped, onNote, motion, scale = 1 }: {
+export default function PianoRoll({ frame, notes, chords, ladder, beatMs, tapped, onNote, scale = 1 }: {
   frame: Frame;
   notes: PlacedNote[];
   chords: MelodyChord[];
@@ -33,7 +33,6 @@ export default function PianoRoll({ frame, notes, chords, ladder, beatMs, tapped
   beatMs: number;
   tapped: number | null;
   onNote: (i: number) => void;
-  motion: Motion;
   /** drawn this many times bigger (full screen) */
   scale?: number;
 }) {
@@ -57,7 +56,7 @@ export default function PianoRoll({ frame, notes, chords, ladder, beatMs, tapped
   const W = width / scale;
   const beatW = notes.some((n) => n.beats < 0.5) ? BEAT_W_16TH : BEAT_W;
   const span = Math.max(1, (W - GUTTER) / beatW);
-  const left = camera(frame.s, span, motion);
+  const left = camera(frame.s, span);
   const bx = (s: number) => GUTTER + (s - left) * beatW;
   const passes = inView(frame.passes, left - 1, left + span + 1);
   const j = judge(frame, notes, beatMs);

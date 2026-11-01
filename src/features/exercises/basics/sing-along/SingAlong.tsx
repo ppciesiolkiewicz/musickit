@@ -11,7 +11,6 @@ import { passAt } from "./passes";
 import PianoRoll from "./PianoRoll";
 import StreamStaff from "./StreamStaff";
 import { useSingAlong } from "./useSingAlong";
-import type { Motion } from "./view";
 
 type Look = "staff" | "roll";
 
@@ -48,7 +47,6 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, tapped,
   const total = notes[notes.length - 1].at + notes[notes.length - 1].beats;
   const { focus, ...sa } = useSingAlong({ notes, chords, beatMs, total });
   const [look, setLook] = useState<Look>("staff");
-  const [motion, setMotion] = useState<Motion>("notes");
   const [full, setFull] = useState(false);
   const [scale, setScale] = useState(2);
   useEffect(() => {
@@ -67,8 +65,6 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, tapped,
       window.removeEventListener("keydown", onKey);
     };
   }, [full]);
-  // full screen keeps the dot still: the notes move, never the bar
-  const moves: Motion = full ? "notes" : motion;
   const size = full ? scale : 1;
   const pass = sa.playing ? passAt(sa.frame.passes, sa.frame.s) : undefined;
   const at = pass ? pass.from + sa.frame.s - pass.start : null;
@@ -98,12 +94,6 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, tapped,
           <button type="button" className={seg(look === "staff")} aria-pressed={look === "staff"} onClick={() => setLook("staff")}>Staff</button>
           <button type="button" className={seg(look === "roll")} aria-pressed={look === "roll"} onClick={() => setLook("roll")}>Piano roll</button>
         </div>
-        {process.env.NODE_ENV !== "production" && !full && (
-          <label className="flex items-center gap-1 text-[11px] text-fuchsia-300/80" title="Dev only: compare the bar moving over still notes">
-            <input type="checkbox" checked={motion === "bar"} onChange={(e) => setMotion(e.target.checked ? "bar" : "notes")} />
-            bar moves
-          </label>
-        )}
         <span className="ml-1">{info}{sa.status === "denied" ? " · microphone blocked in the browser" : ""}</span>
         <span className="ml-auto" />
         <IconButton on={full} title={full ? "Close full screen (Esc)" : "Full screen"} onClick={() => setFull((v) => !v)}>
@@ -113,9 +103,9 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, tapped,
       {sa.loop && <LoopStrip key={total} notes={notes} total={total} region={sa.region} loop={sa.loop} at={at} onRegion={sa.setRegion} />}
       <div className={full ? "flex min-h-0 flex-1 flex-col justify-center" : "contents"}>
         {look === "staff" ? (
-          <StreamStaff frame={sa.frame} notes={notes} chords={chords} ladder={ladder} clef={clef} beatMs={beatMs} tapped={tapped} onNote={onNote} motion={moves} scale={size} />
+          <StreamStaff frame={sa.frame} notes={notes} chords={chords} ladder={ladder} clef={clef} beatMs={beatMs} tapped={tapped} onNote={onNote} scale={size} />
         ) : (
-          <PianoRoll frame={sa.frame} notes={notes} chords={chords} ladder={ladder} beatMs={beatMs} tapped={tapped} onNote={onNote} motion={moves} scale={size} />
+          <PianoRoll frame={sa.frame} notes={notes} chords={chords} ladder={ladder} beatMs={beatMs} tapped={tapped} onNote={onNote} scale={size} />
         )}
       </div>
     </div>
