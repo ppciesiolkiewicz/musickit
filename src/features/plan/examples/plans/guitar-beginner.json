@@ -5,52 +5,48 @@
   "level": "beginner",
   "minutes": 20,
   "concepts": ["pentatonic-box-1", "power-chords", "guitar-melodies-beginner", "spider", "one-minute-changes", "strumming-patterns"],
-  "note": "A beginner guitar week at 20 minutes a day: a short hands warm-up, chord changes, A minor pentatonic box 1 returning in five new forms (slow, roots, faster, in E, from memory), and every day ending on something musical.",
+  "note": "A beginner guitar week at 20 minutes a day: a short hands warm-up, chord changes over a strum-along, A minor pentatonic position 1 returning in five new forms (slow, roots, faster, in E, from memory), and every day ending on something musical. Each step says what to press and where to look.",
   "plan": {
-    "title": "Week 1: box 1 and clean changes",
-    "summary": "A minor pentatonic box 1 from first notes to improvising, with G-C-D and power chord changes in time and a tune a day.",
+    "title": "Week 1: position 1 and clean changes",
+    "summary": "A minor pentatonic position 1 from first notes to improvising, with G-C-D and power chord changes in time, plus a tune a day.",
     "days": [
       {
-        "theme": "Box 1 meets G, C and D",
+        "theme": "Position 1 meets G, C and D",
         "exercises": [
           {
-            "title": "The spider", "focus": "Fingers 1234 from the 1st fret, every string, 60 bpm", "minutes": 4, "tags": ["technique"],
+            "title": "The spider", "focus": "Fingers 1234 from the 1st fret, every string, 60 bpm", "minutes": 4, "tags": ["technique"], "why": "One finger per fret wakes up all four fingers before you need them.",
             "sections": [
-              { "type": "text", "text": "One finger per fret wakes up all four fingers before you need them." },
-              { "type": "text", "text": "Fingers 1 2 3 4 on frets 1 to 4 of the low E, then the same on each string up to the high E, and back down. One note per click; keep each finger down until the next string. Done when no note buzzes for a whole climb." },
+              { "type": "text", "text": "Press Play. Play fingers 1 2 3 4 on frets 1 to 4 of the low E, one note per click. Move up a string each time, all the way to the high E. Then come back down." },
               { "type": "tool", "tool": { "type": "finger-pattern", "fingers": "1234", "fret": 1, "bpm": 60 } }
             ]
           },
           {
-            "title": "G, C and D in time", "focus": "G-C-D-G changes · down strums at 60 bpm", "minutes": 6, "tags": ["rhythm"],
+            "title": "G, C and D in time", "focus": "G-C-D-G changes · down strums at 60 bpm", "minutes": 6, "tags": ["rhythm"], "why": "G, C and D are the I, IV and V of G major, so these three changes open up hundreds of songs.",
             "sections": [
-              { "type": "text", "text": "G, C and D are the I, IV and V of G major, so these three changes unlock hundreds of songs." },
               { "type": "heading", "text": "The shapes", "minutes": 3 },
-              { "type": "text", "text": "Fret each shape, strum once and pick each string to check it rings. Then switch G to C, C to D, D to G, slowly, five times each." },
+              { "type": "text", "text": "Press a chord box to hear the chord. Fret each shape as shown, then pick the strings one at a time to check they ring. Switch between the shapes slowly, in any order." },
               { "type": "tool", "tool": { "type": "chord-shapes", "chords": ["G", "C", "D"] } },
               { "type": "heading", "text": "In time", "minutes": 3 },
-              { "type": "text", "text": "Press Play and strum down on every beat, one bar per chord. Done when you land every change on beat 1 for two passes." },
-              { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "progression", "key": "g", "numerals": ["I", "IV", "V", "I"], "bars": 4, "steps": ["strum"] }, "bpm": 60 } }
+              { "type": "text", "text": "Press Play. The lit block shows the chord to play. Strum down on every beat, one bar per chord. Use beat 4 to get to the next chord." },
+              { "type": "tool", "tool": { "type": "strum-along", "chords": ["G", "C", "D", "G"], "bpm": 60 } }
             ]
           },
           {
-            "title": "Box 1 at 60", "focus": "A minor pentatonic · box 1 · 60 bpm, then the roots", "minutes": 6, "tags": ["technique"],
+            "title": "Position 1 at 60", "focus": "A minor pentatonic · position 1 · 60 bpm, then the roots", "minutes": 6, "tags": ["technique"], "why": "Position 1 is home base for lead guitar: every note sits under your fingers at the 5th fret.",
             "sections": [
-              { "type": "text", "text": "Box 1 is home base for lead guitar: every note sits under your fingers at the 5th fret." },
               { "type": "heading", "text": "Up and down", "minutes": 3 },
-              { "type": "text", "text": "Play the box from the low {{1}} to the high E string and back, one note per click, alternate picking." },
+              { "type": "text", "text": "Press Play on the click. Play the position from the low {{1}} up to the high E string, then back down, one note per click." },
               { "type": "tool", "tool": { "type": "backing-band", "bpm": 60, "key": "a", "parts": ["click"] } },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "highlight": ["1"] } },
               { "type": "heading", "text": "Only the roots", "minutes": 3 },
-              { "type": "text", "text": "Play only the three {{1}} notes (A) in the box, low to high and back, saying \"A\" each time." },
+              { "type": "text", "text": "Now only the three {{1}} notes (A) are in play. Hop between them low to high, then in any order you like." },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "enable": ["1"] } }
             ]
           },
           {
-            "title": "First phrases", "focus": "Box 1 over drums in A · end on A", "minutes": 4, "tags": ["improv"],
+            "title": "First phrases", "focus": "Position 1 over drums in A · end on A", "minutes": 4, "tags": ["improv"], "why": "Improvising with a few notes is how the position becomes music, not a pattern.",
             "sections": [
-              { "type": "text", "text": "Improvising with a few notes is how the box becomes music and not a pattern." },
-              { "type": "text", "text": "Over the band, play phrases of three notes from box 1 with a gap after each. End every phrase on a {{1}}." },
+              { "type": "text", "text": "Press Play on the band. Play short phrases from position 1, with a gap after each. End your phrases on a {{1}}." },
               { "type": "tool", "tool": { "type": "backing-band", "bpm": 70, "key": "a", "parts": ["drums", "bass"] } },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "highlight": ["1"] } }
             ]
@@ -61,82 +57,74 @@
         "theme": "Power chords",
         "exercises": [
           {
-            "title": "Spider, new order", "focus": "Fingers 1324 from the 3rd fret, 60 bpm", "minutes": 4, "tags": ["technique"],
+            "title": "Spider, new order", "focus": "Fingers 1324 from the 3rd fret, 60 bpm", "minutes": 4, "tags": ["technique"], "why": "Changing the finger order makes each finger move on its own.",
             "sections": [
-              { "type": "text", "text": "Changing the finger order makes each finger move on its own, not just follow the one before." },
-              { "type": "text", "text": "Fingers 1 3 2 4 starting at the 3rd fret, every string up and back. Slow enough that every note rings." },
+              { "type": "text", "text": "Press Play. This time the order is 1 3 2 4, starting at the 3rd fret. Go up every string, then back down. Keep it slow enough that every note rings." },
               { "type": "tool", "tool": { "type": "finger-pattern", "fingers": "1324", "fret": 3, "bpm": 60 } }
             ]
           },
           {
-            "title": "A5, D5, E5", "focus": "Power chords A5-D5-E5 · quarter notes at 70 bpm", "minutes": 6, "tags": ["rhythm"],
+            "title": "A5, D5, E5", "focus": "Power chords A5-D5-E5 · quarter notes at 70 bpm", "minutes": 6, "tags": ["rhythm"], "why": "A power chord is only a root and a 5th, so one shape moves anywhere.",
             "sections": [
-              { "type": "text", "text": "A power chord is only a root and a 5th, so one shape moves anywhere and works in any rock riff." },
               { "type": "heading", "text": "One shape, three places", "minutes": 3 },
-              { "type": "text", "text": "Index on the root, ring finger two frets up on the next string. Mute the other strings with the side of your index. Move between the three shapes ten times." },
+              { "type": "text", "text": "Press a chord box to hear it. All three chords are the same shape, moved to a new string or fret. Move between them at your own pace. Let only the two fretted strings ring." },
               { "type": "tool", "tool": { "type": "chord-shapes", "chords": ["A5", "D5", "E5"] } },
               { "type": "heading", "text": "In time", "minutes": 3 },
-              { "type": "text", "text": "Press Play and strum each chord down once per beat, one bar each. Done at two passes with no ringing open strings." },
-              { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "progression", "key": "a", "chords": ["A5", "D5", "E5", "A5"], "bars": 4, "steps": ["strum"] }, "bpm": 70 } }
+              { "type": "text", "text": "Press Play. The lit block shows the chord. Strum it down once per beat, one bar each." },
+              { "type": "tool", "tool": { "type": "strum-along", "chords": ["A5", "D5", "E5", "A5"], "bpm": 70 } }
             ]
           },
           {
-            "title": "Box 1: roots and 5ths", "focus": "A minor pentatonic · box 1 · 1 and 5 lit", "minutes": 5, "tags": ["technique"],
+            "title": "Position 1: roots and 5ths", "focus": "A minor pentatonic · position 1 · 1 and 5 lit", "minutes": 5, "tags": ["technique"], "why": "The two notes of a power chord are also in position 1, which links your riffs to your solos.",
             "sections": [
-              { "type": "text", "text": "The two notes of a power chord are also in box 1; finding them links your riffs to your solos." },
-              { "type": "text", "text": "Play box 1 up and down once at 70. Then play only {{1}} and {{5}} (A and E), low to high and back, and hear the power chord's sound in single notes." },
+              { "type": "text", "text": "Press Play on the click. Play position 1 up and down at 70. Then play only the ringed {{1}} and {{5}} (A and E), low to high and back." },
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 70, "key": "a", "drone": false } },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "highlight": ["1", "5"] } }
             ]
           },
           {
-            "title": "A five-note tune", "focus": "Sol Fa Mi Re Do in C, from tab", "minutes": 5, "tags": ["song"],
+            "title": "A five-note tune", "focus": "Sol Fa Mi Re Do in C, from tab", "minutes": 5, "tags": ["song"], "why": "Short tunes from tab train your hands to find the notes you hear in your head.",
             "sections": [
-              { "type": "text", "text": "Short tunes from tab train your hands to find notes you hear in your head." },
-              { "type": "text", "text": "A tune walking down from Sol to Do. Press Play to hear it, then play along from the tab. Done at three clean passes." },
+              { "type": "text", "text": "A tune walking down from Sol to Do. Press Play to hear it. Then play along from the tab." },
               { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "melody", "tune": 16, "key": "c" }, "bpm": 70, "view": "tab" } }
             ]
           }
         ]
       },
       {
-        "theme": "Box 1 gets faster",
+        "theme": "Position 1 gets faster",
         "exercises": [
           {
-            "title": "Box 1 at 70, then 80", "focus": "A minor pentatonic · box 1 · 70 → 80 bpm", "minutes": 6, "tags": ["technique"],
+            "title": "Position 1 at 70, then 80", "focus": "A minor pentatonic · position 1 · 70 → 80 bpm", "minutes": 6, "tags": ["technique"], "why": "Speed comes from small steps up in tempo once the slower one feels easy.",
             "sections": [
-              { "type": "text", "text": "Speed comes from small steps up in tempo once a slower one is clean." },
               { "type": "heading", "text": "At 70", "minutes": 3 },
-              { "type": "text", "text": "Box 1 up and down, starting on the low {{1}}, twice clean in a row." },
+              { "type": "text", "text": "Press Play on the click. Play position 1 up and down at 70, starting on the low {{1}}." },
               { "type": "tool", "tool": { "type": "backing-band", "bpm": 70, "key": "a", "parts": ["click"] } },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "highlight": ["1"] } },
               { "type": "heading", "text": "At 80, from the middle", "minutes": 3 },
-              { "type": "text", "text": "Now at 80, starting on the {{1}} on the D string: up to the top, down to the bottom, back up to where you started." },
+              { "type": "text", "text": "Press Play on the faster click. Now start on the {{1}} on the D string. Go up to the top, down to the bottom, then back up to where you started." },
               { "type": "tool", "tool": { "type": "backing-band", "bpm": 80, "key": "a", "parts": ["click"] } },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "highlight": ["1"] } }
             ]
           },
           {
-            "title": "One-minute changes: G and C", "focus": "G-C changes · best count in one minute", "minutes": 4, "tags": ["rhythm"],
+            "title": "One-minute changes: G and C", "focus": "G-C changes · best count in one minute", "minutes": 4, "tags": ["rhythm"], "why": "G to C is the change that trips most beginners, so counting it shows it getting faster.",
             "sections": [
-              { "type": "text", "text": "G to C is the change that trips most beginners; counting it shows you it getting faster." },
-              { "type": "text", "text": "Change G to C and back as many times as you can in one minute, one strum per chord. Three rounds; write down your best clean count." },
+              { "type": "text", "text": "Change from G to C and back for one minute, one strum per chord. Count your clean changes. Rest, then try to beat your count." },
               { "type": "tool", "tool": { "type": "chord-shapes", "chords": ["G", "C"] } }
             ]
           },
           {
-            "title": "Do Mi Sol tune", "focus": "Do Mi Sol Mi Do in C on the neck", "minutes": 5, "tags": ["song"],
+            "title": "Do Mi Sol tune", "focus": "Do Mi Sol Mi Do in C on the neck", "minutes": 5, "tags": ["song"], "why": "A tune on the home chord's notes shows you where a melody sits around the C chord.",
             "sections": [
-              { "type": "text", "text": "A tune on the home chord's notes shows you where a melody sits around the C chord." },
-              { "type": "text", "text": "Press Play and play along in the neck view, then in tab. The tune uses only {{1}} {{3}} {{5}} (C, E, G)." },
+              { "type": "text", "text": "Press Play. The tune uses only {{1}} {{3}} {{5}} (C, E, G). Play along in the neck view, then switch the view to tab." },
               { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "melody", "tune": 22, "key": "c" }, "bpm": 70, "view": "neck" } }
             ]
           },
           {
-            "title": "Call and response in box 1", "focus": "Two-bar phrases in A · box 1 · 80 bpm", "minutes": 5, "tags": ["improv"],
+            "title": "Call and response in position 1", "focus": "Two-bar phrases in A · position 1 · 80 bpm", "minutes": 5, "tags": ["improv"], "why": "Answering your own phrase is the simplest way to make a solo go somewhere.",
             "sections": [
-              { "type": "text", "text": "Answering your own phrase is the simplest way to make a solo sound like it is going somewhere." },
-              { "type": "text", "text": "Play a two-bar phrase, rest two bars, then play an answer that starts like the first and ends on a {{1}}. Keep going for the whole time." },
+              { "type": "text", "text": "Press Play on the band. Play a two-bar phrase, then rest for two bars. Answer it with a phrase that starts the same way but ends on a {{1}}." },
               { "type": "tool", "tool": { "type": "backing-band", "bpm": 80, "key": "a", "parts": ["drums", "bass"] } },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "highlight": ["1"] } }
             ]
@@ -147,39 +135,35 @@
         "theme": "Strumming and a new tune",
         "exercises": [
           {
-            "title": "The spider, higher up", "focus": "Fingers 1234 from the 5th fret, 70 bpm", "minutes": 4, "tags": ["technique"],
+            "title": "The spider, higher up", "focus": "Fingers 1234 from the 5th fret, 70 bpm", "minutes": 4, "tags": ["technique"], "why": "At the 5th fret the frets are closer together, so you can push the tempo a little.",
             "sections": [
-              { "type": "text", "text": "At the 5th fret the frets are closer, so you can push the tempo a little." },
-              { "type": "text", "text": "Fingers 1 2 3 4 from the 5th fret, every string up and back at 70. Keep your thumb behind the neck." },
+              { "type": "text", "text": "Press Play on the click. Play fingers 1 2 3 4 from the 5th fret, up every string, then back down." },
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 70, "key": "a", "drone": false } },
               { "type": "tool", "tool": { "type": "finger-pattern", "fingers": "1234", "fret": 5, "bpm": 70 } }
             ]
           },
           {
-            "title": "G-Em-C-D strumming", "focus": "Down, down-up, up-down-up · G-Em-C-D at 70 bpm", "minutes": 6, "tags": ["rhythm"],
+            "title": "G-Em-C-D strumming", "focus": "Down, down-up, up-down-up · G-Em-C-D at 70 bpm", "minutes": 6, "tags": ["rhythm"], "why": "One strum pattern held steady over the changes is what makes chords sound like a song.",
             "sections": [
-              { "type": "text", "text": "One strum pattern held steady over changes is what makes chords sound like a song." },
               { "type": "heading", "text": "The pattern on one chord", "minutes": 3 },
-              { "type": "text", "text": "On G only, strum down, down-up, up-down-up, counting \"1, 2 and, and 4 and\". Keep your hand moving down and up even when it misses the strings." },
+              { "type": "text", "text": "Try the pattern on G only: down, down-up, up-down-up. Count \"1, 2 and, and 4 and\" out loud to place each strum." },
               { "type": "tool", "tool": { "type": "chord-shapes", "chords": ["G", "Em", "C", "D"] } },
               { "type": "heading", "text": "Over the changes", "minutes": 3 },
-              { "type": "text", "text": "Same pattern, one bar per chord, with the band. Done at two passes without stopping." },
-              { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "progression", "key": "g", "numerals": ["I", "vi", "IV", "V"], "bars": 4, "backing": ["strum"] }, "bpm": 70 } }
+              { "type": "text", "text": "Press Play. The same pattern, one bar per chord. The lit block shows the chord to play." },
+              { "type": "tool", "tool": { "type": "strum-along", "chords": ["G", "Em", "C", "D"], "bpm": 70 } }
             ]
           },
           {
-            "title": "Sol La Sol", "focus": "A tune with La in G, from tab", "minutes": 5, "tags": ["song"],
+            "title": "Sol La Sol", "focus": "A tune with La in G, from tab", "minutes": 5, "tags": ["song"], "why": "La, one step above Sol, gives many folk tunes their lift.",
             "sections": [
-              { "type": "text", "text": "La, one step above Sol, is the note that gives many folk tunes their lift." },
-              { "type": "text", "text": "Press Play to hear it, then play along from the tab: Sol La Sol Mi Do. Then once in the neck view." },
+              { "type": "text", "text": "Press Play to hear it. Then play along from the tab: Sol La Sol Mi Do. When it feels easy, switch the view to the neck." },
               { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "melody", "tune": 36, "key": "g" }, "bpm": 70, "view": "tab" } }
             ]
           },
           {
-            "title": "Box 1 phrases over A", "focus": "Box 1 · phrases ending on C, then on A", "minutes": 5, "tags": ["improv"],
+            "title": "Position 1 phrases over A", "focus": "Position 1 · phrases ending on C, then on A", "minutes": 5, "tags": ["improv"], "why": "The note a phrase ends on changes how finished it sounds.",
             "sections": [
-              { "type": "text", "text": "Changing the note a phrase ends on changes how finished it sounds." },
-              { "type": "text", "text": "Over the band, end four phrases on {{b3}} (C): they sound open. Then end four on {{1}} (A): they sound closed. Alternate the two." },
+              { "type": "text", "text": "Press Play on the band. End a few phrases on {{b3}} (C). Then end a few on {{1}} (A). Switch between the two. Which ones sound finished?" },
               { "type": "tool", "tool": { "type": "backing-band", "bpm": 75, "key": "a", "parts": ["drums", "bass"] } },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "highlight": ["1", "b3"] } }
             ]
@@ -187,43 +171,39 @@
         ]
       },
       {
-        "theme": "The same box in E",
+        "theme": "The same position in E",
         "exercises": [
           {
-            "title": "Spider, 1324", "focus": "Fingers 1324 from the 1st fret, 70 bpm", "minutes": 4, "tags": ["technique"],
+            "title": "Spider, 1324", "focus": "Fingers 1324 from the 1st fret, 70 bpm", "minutes": 4, "tags": ["technique"], "why": "Low on the neck the frets are widest, so this is where the spider builds reach.",
             "sections": [
-              { "type": "text", "text": "Low on the neck the stretch is widest, so this is where the spider builds reach." },
-              { "type": "text", "text": "Fingers 1 3 2 4 from the 1st fret, every string up and back at 70." },
+              { "type": "text", "text": "Press Play on the click. Play fingers 1 3 2 4 from the 1st fret, up every string, then back down." },
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 70, "key": "a", "drone": false } },
               { "type": "tool", "tool": { "type": "finger-pattern", "fingers": "1324", "fret": 1, "bpm": 70 } }
             ]
           },
           {
-            "title": "E5, G5, A5 riff", "focus": "Power chords E5-G5-A5 · 80 bpm", "minutes": 4, "tags": ["rhythm"],
+            "title": "E5, G5, A5 riff", "focus": "Power chords E5-G5-A5 · 80 bpm", "minutes": 4, "tags": ["rhythm"], "why": "These three are the power chords of E minor, so they fit today's scale.",
             "sections": [
-              { "type": "text", "text": "These three are the power chords of E minor, so they fit today's scale." },
-              { "type": "text", "text": "Press Play and strum each chord down on every beat, one bar each, muting with your palm near the bridge. Done at two clean passes." },
-              { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "progression", "key": "e", "chords": ["E5", "G5", "A5", "E5"], "bars": 4, "steps": ["strum"] }, "bpm": 80 } }
+              { "type": "text", "text": "Press Play. The lit block shows the chord. Strum it down on every beat, one bar each. For a chunkier sound, try resting your palm on the strings near the bridge." },
+              { "type": "tool", "tool": { "type": "strum-along", "chords": ["E5", "G5", "A5", "E5"], "bpm": 80 } }
             ]
           },
           {
-            "title": "E minor pentatonic, two places", "focus": "E minor pentatonic · open position, then box 1 at the 12th fret", "minutes": 8, "tags": ["technique"],
+            "title": "E minor pentatonic, two places", "focus": "E minor pentatonic · open position, then position 1 at the 12th fret", "minutes": 8, "tags": ["technique"], "why": "Position 1 is a shape, not a place: move it to have the scale in any key.",
             "sections": [
-              { "type": "text", "text": "Box 1 is a shape, not a place: move it and you have the scale in any key." },
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 70, "key": "e", "drone": false } },
               { "type": "heading", "text": "Open position", "minutes": 4 },
-              { "type": "text", "text": "E minor pentatonic with open strings: play it from the low {{1}} (open E) up and back at 70. Every open string is in the scale." },
+              { "type": "text", "text": "Press Play on the click above. Play E minor pentatonic in open position from the low {{1}} (open E) up, then back down. Every open string is in the scale." },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "e", "placement": { "by": "open" }, "highlight": ["1"] } },
               { "type": "heading", "text": "The same notes at the 12th fret", "minutes": 4 },
-              { "type": "text", "text": "The shape you know from A, moved to the 12th fret: it is the open position again, an octave higher. Up and back at 70, starting on the {{1}}." },
+              { "type": "text", "text": "The shape you know from A, moved to the 12th fret: the open position again, an octave higher. Play it up and back, starting on the {{1}}." },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "e", "placement": { "by": "fret", "fret": 12 }, "highlight": ["1"] } }
             ]
           },
           {
-            "title": "Improvise in E", "focus": "Open E minor pentatonic over drums", "minutes": 4, "tags": ["improv"],
+            "title": "Improvise in E", "focus": "Open E minor pentatonic over drums", "minutes": 4, "tags": ["improv"], "why": "Open strings ring under fretted notes, which is why E is a favourite key for guitar solos.",
             "sections": [
-              { "type": "text", "text": "Open strings ring under fretted notes, which is why E is a favourite key for guitar solos." },
-              { "type": "text", "text": "Over the band, mix fretted notes with open strings; end each phrase on the open low {{1}}." },
+              { "type": "text", "text": "Press Play on the band. Mix fretted notes with open strings. End your phrases on the open low {{1}}." },
               { "type": "tool", "tool": { "type": "backing-band", "bpm": 80, "key": "e", "parts": ["drums", "bass"] } },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "e", "placement": { "by": "open" }, "highlight": ["1"] } }
             ]
@@ -234,40 +214,36 @@
         "theme": "From memory",
         "exercises": [
           {
-            "title": "The spider at 80", "focus": "Fingers 1234 from the 3rd fret, 80 bpm", "minutes": 4, "tags": ["technique"],
+            "title": "The spider at 80", "focus": "Fingers 1234 from the 3rd fret, 80 bpm", "minutes": 4, "tags": ["technique"], "why": "A small step up in tempo shows the week's progress in your fingers.",
             "sections": [
-              { "type": "text", "text": "A small tempo step up shows the week's progress in your fingers." },
-              { "type": "text", "text": "Fingers 1 2 3 4 from the 3rd fret, every string up and back at 80. Drop to 70 if notes start to buzz." },
+              { "type": "text", "text": "Press Play on the click. Play fingers 1 2 3 4 from the 3rd fret, up every string, then back down." },
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 80, "key": "a", "drone": false } },
               { "type": "tool", "tool": { "type": "finger-pattern", "fingers": "1234", "fret": 3, "bpm": 80 } }
             ]
           },
           {
-            "title": "G, C, D: the count", "focus": "G-C and C-D one-minute changes", "minutes": 5, "tags": ["rhythm"],
+            "title": "G, C, D: the count", "focus": "G-C and C-D one-minute changes", "minutes": 5, "tags": ["rhythm"], "why": "Counting again shows how far the changes have come since day 3.",
             "sections": [
-              { "type": "text", "text": "Counting again shows how far the changes have come since day 3." },
-              { "type": "text", "text": "One minute of G to C, then one minute of C to D, one strum per chord. Two rounds each; compare with your day 3 count." },
+              { "type": "text", "text": "One minute of G to C, then one minute of C to D, one strum per chord. Count your clean changes. Compare them with your count from day 3." },
               { "type": "tool", "tool": { "type": "chord-shapes", "chords": ["G", "C", "D"] } }
             ]
           },
           {
-            "title": "Box 1 without the chart", "focus": "A minor pentatonic · box 1 from memory at 80", "minutes": 5, "tags": ["technique"],
+            "title": "Position 1 without the chart", "focus": "A minor pentatonic · position 1 from memory at 80", "minutes": 5, "tags": ["technique"], "why": "Playing a shape without looking is the test that it is really yours.",
             "sections": [
-              { "type": "text", "text": "Playing a shape without looking is the test that it is really yours." },
-              { "type": "text", "text": "Play box 1 up and down at 80 without looking at the chart. Then check against it and fix any wrong note. Last, play only the {{1}} notes from memory." },
+              { "type": "text", "text": "Press Play on the click. Play position 1 up and down without looking at the neck below. Then check against it. Last, play only the {{1}} notes from memory." },
               { "type": "tool", "tool": { "type": "backing-band", "bpm": 80, "key": "a", "parts": ["click"] } },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "highlight": ["1"] } }
             ]
           },
           {
-            "title": "A longer tune", "focus": "A Sol-stage tune in G, tab then neck", "minutes": 6, "tags": ["song"],
+            "title": "A longer tune", "focus": "A Sol-stage tune in G, tab then neck", "minutes": 6, "tags": ["song"], "why": "A longer tune asks you to remember phrases, not single notes.",
             "sections": [
-              { "type": "text", "text": "A longer tune asks you to remember phrases, not single notes." },
               { "type": "heading", "text": "Learn it from tab", "minutes": 3 },
-              { "type": "text", "text": "Press Play to hear it, then play along from the tab one phrase at a time." },
+              { "type": "text", "text": "Press Play to hear it. Then play along from the tab, one phrase at a time." },
               { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "melody", "tune": 20, "key": "g" }, "bpm": 65, "view": "tab" } },
               { "type": "heading", "text": "Play it through", "minutes": 3 },
-              { "type": "text", "text": "Now the whole tune in the neck view at 75. Done at two passes without stopping." },
+              { "type": "text", "text": "Now the whole tune in the neck view, a little faster. If you slip, keep going with the app." },
               { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "melody", "tune": 20, "key": "g" }, "bpm": 75, "view": "neck" } }
             ]
           }
@@ -277,18 +253,16 @@
         "theme": "Show what you've got",
         "exercises": [
           {
-            "title": "G-Em-C-D, full pattern", "focus": "Strum pattern over G-Em-C-D at 80 bpm", "minutes": 5, "tags": ["rhythm"],
+            "title": "G-Em-C-D, full pattern", "focus": "Strum pattern over G-Em-C-D at 80 bpm", "minutes": 5, "tags": ["rhythm"], "why": "The week's chords at a faster tempo, to hear how far they have come.",
             "sections": [
-              { "type": "text", "text": "The week's chords at a faster tempo, to hear how far they have come." },
-              { "type": "text", "text": "Down, down-up, up-down-up, one bar per chord, at 80. Done at four passes without a stop." },
-              { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "progression", "key": "g", "numerals": ["I", "vi", "IV", "V"], "bars": 4, "backing": ["strum"] }, "bpm": 80 } }
+              { "type": "text", "text": "Press Play. Strum down, down-up, up-down-up, one bar per chord. The lit block shows the chord to play." },
+              { "type": "tool", "tool": { "type": "strum-along", "chords": ["G", "Em", "C", "D"], "bpm": 80 } }
             ]
           },
           {
-            "title": "Box 1 in A and E", "focus": "Minor pentatonic box 1 · A, then E at the 12th fret", "minutes": 5, "tags": ["technique"],
+            "title": "Position 1 in A and E", "focus": "Minor pentatonic position 1 · A, then E at the 12th fret", "minutes": 5, "tags": ["technique"], "why": "One shape in two keys back to back shows you know the shape, not the frets.",
             "sections": [
-              { "type": "text", "text": "Playing one shape in two keys back to back proves you know the shape, not the frets." },
-              { "type": "text", "text": "Box 1 in A at 80, up and down, starting on the {{1}}." },
+              { "type": "text", "text": "Press Play on the click. Play position 1 in A up and down, starting on the {{1}}." },
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 80, "key": "a", "drone": false } },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "highlight": ["1"] } },
               { "type": "text", "text": "Now the same shape at the 12th fret, in E, starting on its {{1}}." },
@@ -296,21 +270,19 @@
             ]
           },
           {
-            "title": "Jam over Am and G", "focus": "A minor pentatonic box 1 over Am-G", "minutes": 6, "tags": ["improv"],
+            "title": "Jam over Am and G", "focus": "A minor pentatonic position 1 over Am-G", "minutes": 6, "tags": ["improv"], "why": "Two chords and one position make a real jam, the kind you can play with friends.",
             "sections": [
-              { "type": "text", "text": "Two chords and one box is a real jam, the kind you can play with friends." },
               { "type": "heading", "text": "Land on the roots", "minutes": 3 },
-              { "type": "text", "text": "Press Play and improvise in box 1. Land on {{a}} when Am comes round and on {{g}} when G does." },
+              { "type": "text", "text": "Press Play. Improvise in position 1. Land on {{a}} when Am comes round. Land on {{g}} when G comes round." },
               { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "solo-over", "key": "a", "chords": [{ "chord": "Am", "scale": "minor-pentatonic", "target": ["1"] }, { "chord": "G", "target": ["1"] }], "bars": 2 }, "bpm": 80, "view": "neck" } },
               { "type": "heading", "text": "Free", "minutes": 3 },
-              { "type": "text", "text": "Same backing; now play whatever you like from the box, using the call and response from day 3." }
+              { "type": "text", "text": "Same backing. Now play whatever you like from the position. Try the call and response from day 3." }
             ]
           },
           {
-            "title": "Your tune, for the record", "focus": "Day 6's tune in G at 75 bpm", "minutes": 4, "tags": ["song"],
+            "title": "Your tune, for the record", "focus": "Day 6's tune in G at 75 bpm", "minutes": 4, "tags": ["song"], "why": "Recording a tune you learned this week gives you something to compare next week against.",
             "sections": [
-              { "type": "text", "text": "Recording a tune you learned this week gives you something to compare next week against." },
-              { "type": "text", "text": "Play day 6's tune twice along with the app, then record one take on your phone." },
+              { "type": "text", "text": "Press Play to play day 6's tune along with the app. Then record a take on your phone." },
               { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "melody", "tune": 20, "key": "g" }, "bpm": 75, "view": "tab" } }
             ]
           }
