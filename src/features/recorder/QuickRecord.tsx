@@ -4,7 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import posthog from "posthog-js";
 import Icon from "@/components/Icon";
-import { getAudioContext, readDeviceChoice } from "@/features/sound";
+import InputChip from "@/components/InputChip";
+import { getAudioContext, openLiveInput, readDeviceChoice } from "@/features/sound";
+import { rms } from "@/lib/practice/mic";
 import { clockTime, inputChannels, peakLevel, pickMimeType, soundGate, takeFileName } from "./recorder";
 import TakePlayer from "./TakePlayer";
 
@@ -28,8 +30,8 @@ interface Session {
 /**
  * A quick recorder on most pages: a tab on the right edge opens a card, centred on that edge, that slides in from the right, with one big record
  * button that pulses while it hears sound, its clock, and the takes to play back,
- * download or delete. A two-input interface records both channels apart, so each take mixes them with its own volumes. It records the input chosen in the nav's audio
- * devices menu, raw (no echo cancelling or gain). The page stays usable under it, so you can record over a page's metronome or
+ * download or delete. A two-input interface records both channels apart, so each take mixes them with its own volumes. It records the app's chosen input (the nav's devices
+ * menu, or the input chip on the card, which shows each channel's level while it records), raw (no echo cancelling or gain). The page stays usable under it, so you can record over a page's metronome or
  * drone; it closes only on its own button or Escape, and keeps recording while closed. Lives in the root layout, so takes outlast
  * a move to another page; they are held in memory only and go with the tab.
  */
@@ -89,14 +91,20 @@ export default function QuickRecord() {
     });
     if (!mono) src.connect(split);
     const bytes = new Uint8Array(1024);
+    const floats = new Float32Array(1024);
     const gate = soundGate();
+    // each channel's level for the input chip while recording
+    const live = openLiveInput();
     let raf = 0;
     const tick = () => {
       let loudest = 0;
-      analysers.forEach((an) => {
+      const levels = analysers.map((an) => {
         an.getByteTimeDomainData(bytes);
         loudest = Math.max(loudest, peakLevel(bytes));
+        an.getFloatTimeDomainData(floats);
+        return rms(floats);
       });
+      live.levels(levels, levels.length > 1 && levels[1] > levels[0] ? 1 : 0);
       const sound = String(gate(loudest, performance.now()));
       pulses.current.forEach((p) => p && (p.dataset.sound = sound));
       // whole seconds, so React renders once a second rather than every frame
@@ -115,6 +123,7 @@ export default function QuickRecord() {
     session.current = {
       end: () => {
         cancelAnimationFrame(raf);
+        live.close();
         if (recorder.state !== "inactive") recorder.stop();
         src.disconnect();
         split.disconnect();
@@ -178,13 +187,14 @@ export default function QuickRecord() {
         </div>
 
         <div className="flex flex-col items-center gap-3 rounded-2xl border border-slate-800 bg-slate-900/60 px-4 py-5">
+          <InputChip status={recording ? "on" : "off"} align="right" />
           <button type="button" onClick={recording ? stop : () => void start()} aria-pressed={recording} aria-label={recording ? "Stop recording" : "Start recording"}
             ref={(el) => void (pulses.current[1] = el)} data-sound="false"
             className={`rec-pulse grid h-16 w-16 place-items-center rounded-full border-2 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${recording ? "border-rose-400 bg-rose-500/20" : "border-rose-500/70 bg-slate-900 hover:bg-rose-500/10"}`}>
             {recording ? <span className="h-5 w-5 rounded-sm bg-rose-400" /> : <span className="h-7 w-7 rounded-full bg-rose-500" />}
           </button>
           <p className={`text-2xl font-light tabular-nums ${recording ? "text-rose-100" : "text-slate-400"}`} aria-live="off">{clockTime(recording ? elapsed : 0)}</p>
-          <p className="text-center text-xs text-slate-500">{recording ? "Recording. You can close this and keep playing." : "Records the input from the audio devices menu."}</p>
+          <p className="text-center text-xs text-slate-500">{recording ? "Recording. You can close this and keep playing." : "Records this input, raw. Both inputs of a two-input device, each on its own channel."}</p>
           {error && <p role="alert" className="text-center text-xs text-rose-300">{error}</p>}
         </div>
 
