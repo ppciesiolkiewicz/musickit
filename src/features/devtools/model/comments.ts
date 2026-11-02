@@ -1,35 +1,15 @@
 /**
- * Review comments on the examples page: each pinned to one section of one example by its address and index, with a hash
- * of the section as it was and the example file's commit, so a later change to the section shows the comment as outdated.
- * Pure: the page keeps them in localStorage (`COMMENTS_KEY`).
+ * Notes on the examples page's sections: each pinned to one section of one example by its address and index, with a
+ * hash of the section as it was and the example file's commit, so a later change to the section shows the note as
+ * outdated. They live with every other dev note (`copyNotes.ts`, `section`); this file has what needs the plan model.
  */
 
 import type { CatalogueEntry } from "@/features/plan/model/catalogue";
 import { sectionsOf, type Section } from "@/features/plan/model/tools";
 import { parsePreview } from "./preview";
+import { hashKey, type CopyNote, type NoteSection } from "./copyNotes";
 
-export const COMMENTS_KEY = "musickit.dev.comments";
-
-export interface SectionComment {
-  id: string;
-  /** the example's id (its file name) */
-  example: string;
-  /** where the exercise sits: "ex" for an exercise example, "d2.e1" for day 3, exercise 2 of a plan */
-  address: string;
-  /** the section's index in the exercise's sections */
-  index: number;
-  /** the section's type and its text cut short, so the copied comment reads on its own */
-  kind: string;
-  quote: string;
-  /** `sectionHash` of the section when commented */
-  hash: string;
-  /** the example file's last commit when commented ("uncommitted" when the file was new), and whether it had edits */
-  commit: string;
-  dirty?: boolean;
-  text: string;
-  /** ISO time */
-  at: string;
-}
+export { hashKey };
 
 /** A short stable hash (FNV-1a, 32 bit, hex) of any JSON value. */
 export function sectionHash(section: unknown): string {
@@ -53,54 +33,9 @@ export function sectionText(section: { type: string; [k: string]: unknown }): st
 
 export const quoteOf = (text: string, max = 140) => (text.length > max ? `${text.slice(0, max - 1)}…` : text);
 
-/** Where a section is, for people: "section 4" or "day 3, exercise 2, section 4". */
-export function placeOf(c: Pick<SectionComment, "address" | "index">): string {
-  const m = /^d(\d+)\.e(\d+)$/.exec(c.address);
-  return `${m ? `day ${Number(m[1]) + 1}, exercise ${Number(m[2]) + 1}, ` : ""}section ${c.index + 1}`;
-}
-
-/** How a comment stands against the section now: as commented, changed since, or the section is gone. */
-export type CommentState = "current" | "changed" | "gone";
-export const stateOf = (c: SectionComment, nowHash: string | undefined): CommentState => (nowHash === undefined ? "gone" : nowHash === c.hash ? "current" : "changed");
-
-/** Stored comments, made safe: anything not shaped like a comment is dropped. */
-export function readComments(raw: unknown): SectionComment[] {
-  if (!Array.isArray(raw)) return [];
-  return raw.filter((c): c is SectionComment => {
-    const x = c as SectionComment;
-    return !!x && typeof x.id === "string" && typeof x.example === "string" && typeof x.address === "string" && Number.isInteger(x.index) &&
-      typeof x.hash === "string" && typeof x.text === "string" && typeof x.commit === "string";
-  });
-}
-
-/**
- * Every comment as one Markdown text to paste into a chat or an issue: grouped by example (with its file), in section order, each with its quote and, when the section changed or went since, a note saying so.
- */
-export function commentsMarkdown(comments: SectionComment[], opts: { files?: Record<string, { path: string }>; hashes?: Record<string, string | undefined> }): string {
-  const key = (c: SectionComment) => `${c.example}|${c.address}|${c.index}`;
-  const byExample = new Map<string, SectionComment[]>();
-  for (const c of comments) byExample.set(c.example, [...(byExample.get(c.example) ?? []), c]);
-  const out = ["# Comments on the autoplan examples"];
-  for (const [example, list] of byExample) {
-    const f = opts.files?.[example];
-    out.push("", `## ${example}${f ? ` (${f.path})` : ""}`);
-    for (const c of [...list].sort((a, b) => a.address.localeCompare(b.address) || a.index - b.index || a.at.localeCompare(b.at))) {
-      const state = opts.hashes ? stateOf(c, opts.hashes[key(c)]) : "current";
-      out.push("", `- **${placeOf(c)}** (${c.kind})`, `  > ${c.quote}`);
-      if (state === "changed") out.push("  ⚠ The section has changed since this comment.");
-      if (state === "gone") out.push("  ⚠ This section no longer exists.");
-      out.push(...c.text.split("\n").map((l) => `  ${l}`));
-    }
-  }
-  return out.join("\n");
-}
-
-/** The key `commentsMarkdown` looks hashes up by. */
-export const hashKey = (example: string, address: string, index: number) => `${example}|${address}|${index}`;
-
 /**
  * Every section of every example as the page shows it now, keyed by `hashKey`: an exercise example's sections at "ex",
- * a plan's at "d<day>.e<exercise>". What the comments are checked against and re-pinned to.
+ * a plan's at "d<day>.e<exercise>". What the section notes are checked against and re-pinned to.
  */
 export function exampleSections(examples: { id: string; json: string }[], entries: CatalogueEntry[]): Record<string, Section> {
   const out: Record<string, Section> = {};
@@ -114,7 +49,7 @@ export function exampleSections(examples: { id: string; json: string }[], entrie
   return out;
 }
 
-/** The hash of each of `exampleSections`: what `commentsMarkdown` and `stateOf` compare comments against. */
+/** The hash of each of `exampleSections`: what `copyNotesMarkdown` and `stateOf` compare section notes against. */
 export function exampleHashes(examples: { id: string; json: string }[], entries: CatalogueEntry[]): Record<string, string> {
   return hashesOf(exampleSections(examples, entries));
 }
@@ -123,15 +58,19 @@ export const hashesOf = (sections: Record<string, Section>): Record<string, stri
   Object.fromEntries(Object.entries(sections).map(([k, s]) => [k, sectionHash(s)]));
 
 /**
- * Every comment pinned again to its section as it is now and to its example file's current commit, as *keep* does for
- * one: none reads as changed after. A comment whose section is gone stays as it was.
+ * Every section note pinned again to its section as it is now and to its example file's current commit, as *keep* does
+ * for one: none reads as changed after. A note whose section is gone, and any other note, stays as it was.
  */
-export function repinComments(comments: SectionComment[], sections: Record<string, Section>, files: Record<string, { commit: string; dirty?: boolean }> = {}): SectionComment[] {
-  return comments.map((c) => {
-    const s = sections[hashKey(c.example, c.address, c.index)];
-    if (!s) return c;
-    const f = files[c.example];
-    const { dirty: _, ...rest } = c;
-    return { ...rest, kind: s.type, quote: quoteOf(sectionText(s)), hash: sectionHash(s), commit: f?.commit ?? c.commit, ...((f ? f.dirty : c.dirty) ? { dirty: true } : {}) };
+export function repinSectionNotes(notes: CopyNote[], sections: Record<string, Section>, files: Record<string, { commit: string; dirty?: boolean }> = {}): CopyNote[] {
+  return notes.map((n) => {
+    const s = n.section && sections[hashKey(n.section.example, n.section.address, n.section.index)];
+    return s && n.section ? { ...n, text: quoteOf(sectionText(s)), section: pinSection(n.section, s, files[n.section.example]) } : n;
   });
+}
+
+/** A section note's anchor pinned to the section `s` as it is now and to its file's commit (kept when unknown). */
+export function pinSection(at: NoteSection, s: Section, file?: { commit: string; dirty?: boolean }): NoteSection {
+  const rest: NoteSection = { ...at };
+  delete rest.dirty;
+  return { ...rest, kind: s.type, hash: sectionHash(s), commit: file?.commit ?? at.commit, ...((file ? file.dirty : at.dirty) ? { dirty: true } : {}) };
 }

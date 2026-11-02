@@ -10,7 +10,7 @@ the app's data. Spec: `docs/superpowers/specs/2026-10-31-prompt-devtools-design.
 - **Imports.** Dev tools may import plan internals (`@/features/plan/model/*`, its UI). Nothing outside this folder,
   `src/app/dev` and `src/app/api/dev` imports dev tools.
 - **`server/` is Node only** (`child_process`, `fs`) and is imported only by route files. Pure logic in `model/`, with tests.
-- **Copy notes.** `copy/CopyNotes.tsx` is the one exception to the import rule: the root layout mounts it (dev only) as a floating "Notes" button. It opens this page's notes in a bar like the one on /dev/examples (note a text, copy, re-pin to HEAD, clear); in note mode a click on any text opens a note, tagged inline above its text. Notes are kept in `localStorage` `musickit.dev.copyNotes` (`copy/store.ts`), each with the HEAD it was made at. `/dev/notes` (`copy/NotesPage.tsx`) lists every page's notes in the order of `/sitemap.xml`, with copy, re-pin and clear for one page or all.
+- **Dev notes.** `copy/CopyNotes.tsx` is the one exception to the import rule: the root layout mounts it (dev only) as a floating "Notes" button. It opens the notes bar, the same on every page: all notes' count, this page's, how many are on changed example sections (on /dev/examples), HEAD, *Note a text*, *Re-pin all to HEAD*, *Clear all*, *Copy all notes*; then this page's notes, each linking to its entry on `/dev/notes`. In note mode a click on any text opens a note, tagged inline above its text. Every note, on any page or on an example's section, is in one registry: `localStorage` `musickit.dev.copyNotes` (`copy/store.ts`, `model/copyNotes.ts`), each with the HEAD it was made at. The old `musickit.dev.comments` is moved in once. A note links to its place with `<route>#note-<id>` (`noteHref`): the page scrolls to it and marks it, and /dev/examples opens its card. `/dev/notes` (`copy/NotesPage.tsx`) lists every page's notes in the order of `/sitemap.xml`, each with *Open →*, with copy, re-pin and clear for one page or all. The bar needs no plan code: /dev/examples hands it its section hashes and a `repin` (`useShowSections`).
 - **A new tool** is one entry in `registry.ts` and one page under `src/app/dev/`; the index and the tab bar (`DevNav.tsx`, in the layout) both read the registry.
 
 ## History
@@ -35,16 +35,15 @@ when `selectExamples` picks it for those answers. Opening a card renders it (`mo
 plan's `ExerciseCard`, a plan in the real week view, with the parser's warnings. **Copy as plan** copies any example as a
 complete 7-day plan for `/plan`'s paste step (`planToCopy`: an exercise becomes a week of itself).
 
-**Comments.** Every section of a rendered example has a pencil at its end (`examples/Comments.tsx`, through the plan's
-`SectionAsideContext`): a comment is pinned to the example, the exercise's address (`ex`, or `d2.e1` in a plan) and the
-section's index, with a hash of the section (`model/comments.ts` `sectionHash`) and the example file's last commit from
-`GET /api/dev/commit` (`server/git.ts`: HEAD, and each example file's last commit and uncommitted state). When the
-section's hash no longer matches, the comment turns orange ("section changed", with *keep* to re-pin it); a section that
-is gone shows rose. Comments live in `localStorage` key `musickit.dev.comments`. The bar at the bottom counts them,
-shows HEAD, re-pins them all to the sections as they are now and the files' current commits (*Re-pin all to HEAD*,
-`repinComments`: *keep* for every comment; those on gone sections stay), and copies them all as Markdown
-(`commentsMarkdown`: by example with file, no git details, in section order, each with its quote and a warning when outdated);
-outdated is checked against every example (`exampleSections`), open or not.
+**Section notes.** Every section of a rendered example has a pencil at its end (`examples/Comments.tsx`, through the plan's
+`SectionAsideContext`): a shortcut to a dev note (see *Dev notes*) with a `section` anchor: the example, the exercise's
+address (`ex`, or `d2.e1` in a plan) and the section's index, a hash of the section (`model/comments.ts` `sectionHash`)
+and the example file's last commit from `GET /api/dev/commit` (`server/git.ts`: HEAD, and each example file's last commit
+and uncommitted state). When the section's hash no longer matches, the note turns orange ("section changed", with *keep*
+to re-pin it); a section that is gone shows rose. The Notes bar's *Re-pin all to HEAD* here also re-pins every section
+note to its section as it is now (`repinSectionNotes`; those on gone sections stay), and *Copy all notes* lists section
+notes by example with file, in section order, with a warning when outdated; outdated is checked against every example
+(`exampleSections`), open or not.
 
 ## Running the prompt
 
@@ -71,7 +70,8 @@ returns one.
 - `server/running.ts`: runs in progress (`startRun`, `cancelRun`, `endRun`, `listRunning`), kept on `globalThis`.
 - `server/history.ts`: `saveRun`, `readRun`, `listRuns` over `tools/prompt-history/`.
 - `model/preview.ts`: an example's JSON made parseable and parsed for display; `planToCopy`; `whyOf`.
-- `model/comments.ts`: section comments: hashes, state, Markdown, `exampleSections`, `repinComments`.
+- `model/copyNotes.ts`: the notes registry: shape, Markdown, re-pin, clear, section state, links, the old comments' migration.
+- `model/comments.ts`: what section notes need from the plan model: hashes, `exampleSections`, `repinSectionNotes`.
 - `server/git.ts`: `exampleCommits` (HEAD and the example files' commits), for `GET /api/dev/commit`.
 - `prompt/`: `PromptStudio` (state), `StudioInputs`, `PartList`, `RunPanel`, `PlanPreview`, `HistoryList`, `api.ts` (fetches), `storage.ts` (saved state, `useMounted`).
 - `examples/ExampleViewer.tsx`: the examples page.

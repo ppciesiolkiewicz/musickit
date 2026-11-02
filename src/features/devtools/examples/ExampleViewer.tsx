@@ -13,8 +13,10 @@ import { answersFromText } from "../model/compose";
 import { partAnchor } from "../prompt/PartList";
 import ExamplePreview from "../prompt/ExamplePreview";
 import { planToCopy } from "../model/preview";
-import { exampleSections } from "../model/comments";
-import { CommentCount, CommentsBar, CommentsFor, CommitsProvider, useCommits } from "./Comments";
+import { exampleSections, hashesOf, repinSectionNotes } from "../model/comments";
+import type { CopyNote } from "../model/copyNotes";
+import { useCopyNotes, useLinkedNote, useShowSections } from "../copy/store";
+import { CommentCount, CommentsFor } from "./Comments";
 import Icon from "@/components/Icon";
 import { loadStudio, useMounted } from "../prompt/storage";
 
@@ -57,7 +59,11 @@ function toolsUsed(value: unknown, counts = new Map<string, number>()): Map<stri
 
 /** A card per example; the preview mounts only while open (each one sets up its tools). */
 function ExampleCard({ title, meta, note, json, entries, badge }: { /** the example's id */ title: string; meta?: ReactNode; note?: string; json: string; entries: CatalogueEntry[]; badge?: ReactNode }) {
-  const [open, setOpen] = useState(false);
+  // opened or closed by hand, else open when the page was linked to one of its notes (from the Notes bar or /dev/notes)
+  const [toggled, setOpen] = useState<boolean | null>(null);
+  const linked = useLinkedNote();
+  const linkedHere = useCopyNotes().some((n) => n.id === linked && n.section?.example === title);
+  const open = toggled ?? linkedHere;
   const tools = useMemo(() => [...toolsUsed(JSON.parse(json))], [json]);
   return (
     <li className="rounded-xl border border-slate-800 bg-slate-900/40">
@@ -123,13 +129,15 @@ export default function ExampleViewer() {
     [kind, area, level, showcase, onlyPrompt, inPrompt],
   );
 
-  const commits = useCommits();
-  // every section of every example as it is now, filtered out or not: what the comments are checked against
-  const sections = useMemo(() => exampleSections([...EXERCISE_EXAMPLES, ...PLAN_EXAMPLES].map((e) => ({ id: e.id, json: JSON.stringify(e.kind === "plan" ? e.plan : e.exercise) })), entries), [entries]);
+  // every section of every example as it is now, filtered out or not: what the Notes bar checks section notes against and re-pins them to
+  const shown = useMemo(() => {
+    const sections = exampleSections([...EXERCISE_EXAMPLES, ...PLAN_EXAMPLES].map((e) => ({ id: e.id, json: JSON.stringify(e.kind === "plan" ? e.plan : e.exercise) })), entries);
+    return { hashes: hashesOf(sections), repin: (notes: CopyNote[], files?: Record<string, { commit: string; dirty?: boolean }>) => repinSectionNotes(notes, sections, files) };
+  }, [entries]);
+  useShowSections(shown);
 
   if (!mounted) return <p className="text-sm text-slate-500">Loading…</p>;
   return (
-    <CommitsProvider value={commits}>
     <div className="flex flex-col gap-4">
       <p className="text-xs text-slate-500">
         Answers from the <Link href="/dev/prompt" className="text-sky-300 underline">prompt studio</Link>
@@ -171,8 +179,6 @@ export default function ExampleViewer() {
           {!library.length && <li className="text-sm text-slate-500">No example matches.</li>}
         </ul>
       </div>
-      <CommentsBar sections={sections} />
     </div>
-    </CommitsProvider>
   );
 }

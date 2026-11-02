@@ -1,23 +1,34 @@
 "use client";
 
 import { useEffect, useState, useSyncExternalStore } from "react";
-import { COPY_NOTES_KEY, readCopyNotes, type CopyNote } from "../model/copyNotes";
+import { COPY_NOTES_KEY, noteIdOf, notesOfOldComments, OLD_COMMENTS_KEY, readCopyNotes, type CopyNote } from "../model/copyNotes";
 
 const EVENT = "musickit.dev.copyNotes";
 let cache: { raw: string | null; list: CopyNote[] } = { raw: null, list: [] };
 const EMPTY: CopyNote[] = [];
 
-function snapshot(): CopyNote[] {
-  const raw = localStorage.getItem(COPY_NOTES_KEY);
-  if (raw !== cache.raw) {
-    let parsed: unknown = null;
-    try {
-      parsed = JSON.parse(raw ?? "null");
-    } catch {
-      /* broken: no notes */
-    }
-    cache = { raw, list: readCopyNotes(parsed) };
+const parse = (raw: string | null): unknown => {
+  try {
+    return JSON.parse(raw ?? "null");
+  } catch {
+    return null; // broken: nothing
   }
+};
+
+/** Moves /dev/examples' old section comments into the notes, once (their ids keep a second run from doubling them). */
+function migrate() {
+  const old = localStorage.getItem(OLD_COMMENTS_KEY);
+  if (old === null) return;
+  const notes = readCopyNotes(parse(localStorage.getItem(COPY_NOTES_KEY)));
+  const ids = new Set(notes.map((n) => n.id));
+  localStorage.setItem(COPY_NOTES_KEY, JSON.stringify([...notes, ...notesOfOldComments(parse(old)).filter((n) => !ids.has(n.id))]));
+  localStorage.removeItem(OLD_COMMENTS_KEY);
+}
+
+function snapshot(): CopyNote[] {
+  migrate();
+  const raw = localStorage.getItem(COPY_NOTES_KEY);
+  if (raw !== cache.raw) cache = { raw, list: readCopyNotes(parse(raw)) };
   return cache.list;
 }
 const subscribe = (on: () => void) => {
@@ -38,11 +49,82 @@ export const writeCopyNotes = (change: (l: CopyNote[]) => CopyNote[]) => {
   window.dispatchEvent(new Event(EVENT));
 };
 
-/** The checkout's HEAD (short), from /api/dev/commit; null until it arrives, or without git. */
-export function useHead(): string | null {
-  const [head, setHead] = useState<string | null>(null);
+/** The note the location's hash links to (`noteHref`), or null. */
+export const useLinkedNote = (): string | null =>
+  useSyncExternalStore(
+    (on) => {
+      window.addEventListener("hashchange", on);
+      window.addEventListener("popstate", on);
+      return () => {
+        window.removeEventListener("hashchange", on);
+        window.removeEventListener("popstate", on);
+      };
+    },
+    () => noteIdOf(location.hash),
+    () => null,
+  );
+
+/** Scrolls the element with `id` into the middle of the view once it is there (it may mount after the page). */
+export function useScrollTo(id: string | null) {
   useEffect(() => {
-    fetch("/api/dev/commit").then((r) => (r.ok ? r.json() : null)).then((c: { head?: string } | null) => setHead(c?.head ?? null), () => setHead(null));
-  }, []);
-  return head;
+    if (!id) return;
+    let tries = 0;
+    const timer = setInterval(() => {
+      const el = document.getElementById(id);
+      if (el || ++tries > 20) clearInterval(timer);
+      el?.scrollIntoView({ block: "center" });
+    }, 100);
+    return () => clearInterval(timer);
+  }, [id]);
 }
+
+/* ---- git: HEAD and each example file's last commit, from /api/dev/commit ---- */
+
+export interface Commits {
+  head: string;
+  files: Record<string, { path: string; commit: string; dirty: boolean }>;
+}
+
+let commits: Promise<Commits | null> | null = null;
+
+/** HEAD and the example files' commits, fetched once per page load; null until they arrive (or when git isn't there). */
+export function useCommits(): Commits | null {
+  const [c, setC] = useState<Commits | null>(null);
+  useEffect(() => {
+    commits ??= fetch("/api/dev/commit").then((r) => (r.ok ? r.json() : null), () => null);
+    void commits.then(setC, () => setC(null));
+  }, []);
+  return c;
+}
+
+/* ---- the sections a page notes on (/dev/examples), so the Notes bar can re-pin them and count the outdated ---- */
+
+/** Plain data and a function, so the bar (on every page) needs none of the plan model that /dev/examples uses. */
+export interface NoteSections {
+  /** every section's hash now, by `hashKey` */
+  hashes: Record<string, string>;
+  /** the section notes pinned to their sections as they are now and to the files' commits (`repinSectionNotes`) */
+  repin: (notes: CopyNote[], files?: Commits["files"]) => CopyNote[];
+}
+
+const SECTIONS = "musickit.dev.noteSections";
+let shown: NoteSections | null = null;
+const onSections = (on: () => void) => {
+  window.addEventListener(SECTIONS, on);
+  return () => window.removeEventListener(SECTIONS, on);
+};
+
+/** Tells the Notes bar the sections this page shows, while it is mounted. */
+export function useShowSections(s: NoteSections) {
+  useEffect(() => {
+    shown = s;
+    window.dispatchEvent(new Event(SECTIONS));
+    return () => {
+      if (shown === s) shown = null;
+      window.dispatchEvent(new Event(SECTIONS));
+    };
+  }, [s]);
+}
+
+/** The sections the current page shows (see `useShowSections`), or null on a page without. */
+export const useShownSections = (): NoteSections | null => useSyncExternalStore(onSections, () => shown, () => null);
