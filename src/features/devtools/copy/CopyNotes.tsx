@@ -126,7 +126,7 @@ export default function CopyNotes() {
   const outdated = shown ? outdatedCount(notes, shown.hashes) : 0;
   const repin = () => head && write((l) => (shown ? shown.repin(repinCopyNotes(l, head), commits?.files) : repinCopyNotes(l, head)));
   const copy = () =>
-    void navigator.clipboard.writeText(copyNotesMarkdown(notes, { head: head ?? undefined, files: commits?.files, hashes: shown?.hashes })).then(() => {
+    void navigator.clipboard.writeText(copyNotesMarkdown(notes, { head: head ?? undefined, files: commits?.files, hashes: shown?.hashes, origin: location.origin })).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     });

@@ -70,7 +70,7 @@ export default function NotesPage() {
         <span className="ml-auto flex flex-wrap gap-2">
           <button type="button" disabled={!head || !notes.length} onClick={() => head && write((l) => repinCopyNotes(l, head))} title="Pin every note to the checkout's HEAD: they still hold" className={BTN}>Re-pin all to HEAD</button>
           <button type="button" disabled={!notes.length} onClick={() => confirm("all", () => write(() => []))} className={danger("all")}>{clearing === "all" ? "Click again to delete all" : "Clear all"}</button>
-          <CopyButton primary disabled={!notes.length} label="Copy all" text={() => copyNotesMarkdown(notes, { head: head ?? undefined, files: commits?.files })} />
+          <CopyButton primary disabled={!notes.length} label="Copy all" text={() => copyNotesMarkdown(notes, { head: head ?? undefined, files: commits?.files, origin: location.origin })} />
         </span>
       </div>
 
@@ -84,7 +84,7 @@ export default function NotesPage() {
             <span className="ml-auto flex flex-wrap gap-2">
               <button type="button" disabled={!head} onClick={() => head && write((l) => repinCopyNotes(l, head, route))} className={BTN}>Re-pin to HEAD</button>
               <button type="button" onClick={() => confirm(route, () => write((l) => clearCopyNotes(l, route)))} className={danger(route)}>{clearing === route ? "Click again to clear" : "Clear"}</button>
-              <CopyButton label="Copy" text={() => copyNotesMarkdown(list, { head: head ?? undefined, files: commits?.files })} />
+              <CopyButton label="Copy" text={() => copyNotesMarkdown(list, { head: head ?? undefined, files: commits?.files, origin: location.origin })} />
             </span>
           </div>
           <ul className="mt-2 divide-y divide-slate-800">

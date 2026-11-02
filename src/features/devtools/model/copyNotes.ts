@@ -100,10 +100,12 @@ export interface MarkdownOpts {
   files?: Record<string, { path: string }>;
   /** every section's hash now (by `hashKey`), to flag section notes whose section changed or went */
   hashes?: Record<string, string | undefined>;
+  /** the app's origin ("http://localhost:3000"): each page's heading is followed by its full URL */
+  origin?: string;
 }
 
 /**
- * Notes as Markdown, by page: the wording quoted, then the note; with the HEAD each was pinned to when it differs from
+ * Notes as Markdown, by page (with its URL when `origin` is given): the wording quoted, then the note; with the HEAD each was pinned to when it differs from
  * `head`. Section notes come in section order, named by example (and file) and place, with a warning when outdated.
  */
 export function copyNotesMarkdown(notes: CopyNote[], opts: MarkdownOpts = {}): string {
@@ -121,7 +123,7 @@ export function copyNotesMarkdown(notes: CopyNote[], opts: MarkdownOpts = {}): s
     const warn = state === "changed" ? "\n  ⚠ The section has changed since this note." : state === "gone" ? "\n  ⚠ This section no longer exists." : "";
     return `- "${n.text}" (${s.example}${file ? ` ${file}` : ""}, ${placeOf(s)}, ${s.kind}${at})${warn}\n  → ${n.note.replace(/\n/g, "\n    ")}`;
   };
-  return [...byRoute].map(([route, list]) => `## ${route}\n\n${[...list].sort(order).map(line).join("\n")}`).join("\n\n");
+  return [...byRoute].map(([route, list]) => `## ${route}\n\n${opts.origin ? `${opts.origin}${route}\n\n` : ""}${[...list].sort(order).map(line).join("\n")}`).join("\n\n");
 }
 
 /** Where /dev/examples kept its section comments before they joined these notes; moved over once (`notesOfOldComments`). */

@@ -21,6 +21,7 @@ test("groups the Markdown by route", () => {
   const md = copyNotesMarkdown([note({}), note({ id: "2", route: "/tuner", text: "Tune" }), note({ id: "3", text: "Play" })]);
   assert.equal(md.match(/^## /gm)?.length, 2);
   assert.ok(md.includes('## /plan\n\n- "Sing with the mic" (button)\n  → too long\n- "Play"'));
+  assert.ok(copyNotesMarkdown([note({})], { origin: "http://localhost:3000" }).startsWith('## /plan\n\nhttp://localhost:3000/plan\n\n- "Sing'));
 });
 
 test("re-pins and clears by page or all", () => {
