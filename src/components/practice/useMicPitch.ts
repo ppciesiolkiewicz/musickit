@@ -5,7 +5,7 @@ import { hzToNote, type Pitch } from "@/features/tuner/pitch";
 import { createDetector } from "@/features/tuner/detector";
 import { stablePitch } from "@/lib/practice/noteGame";
 import { acquireStream, createChannelPicker, rms } from "@/lib/practice/mic";
-import { readDeviceChoice, serverDeviceChoice, subscribeDeviceChoice } from "@/features/sound";
+import { openLiveInput, readDeviceChoice, serverDeviceChoice, subscribeDeviceChoice, type LiveInputHandle } from "@/features/sound";
 
 export type MicStatus = "off" | "asking" | "on" | "denied" | "error" | "insecure";
 export interface MicReading { midi: number; t: number }
@@ -27,6 +27,7 @@ export interface MicOptions {
  * `onPitch` gets every raw reading (null when nothing is pitched), for a display that follows the voice continuously.
  * A device with two inputs is heard on the louder one (`auto`); `options` pick another device or one channel of it (an audio
  * interface's Input 1 or 2); a change reopens the input.
+ * While it listens, each input's level is published (`openLiveInput`) for the input chip.
  * Everything is released (tracks stopped, context closed) when disabled or unmounted.
  */
 export function useMicPitch(enabled: boolean, onFrame?: (pc: number | null) => void, onPitch?: (p: Pitch | null) => void, options: MicOptions = {}): { status: MicStatus; heard: number | null } {
@@ -47,6 +48,7 @@ export function useMicPitch(enabled: boolean, onFrame?: (pc: number | null) => v
     if (!enabled) return;
     let stream: MediaStream | null = null;
     let ctx: AudioContext | null = null;
+    let live: LiveInputHandle | null = null;
     let raf = 0;
     let stopped = false;
     queueMicrotask(() => !stopped && setStatus("asking"));
@@ -80,12 +82,16 @@ export function useMicPitch(enabled: boolean, onFrame?: (pc: number | null) => v
         }
         const data = ans.map((an) => new Float32Array(an.fftSize));
         const picker = createChannelPicker();
+        live = openLiveInput();
         setStatus("on");
         const detect = createDetector();
         const tick = () => {
           if (stopped || !ctx) return;
           ans.forEach((an, i) => an.getFloatTimeDomainData(data[i]));
-          const frame = data[data.length > 1 ? picker.pick(data.map(rms)) : 0];
+          const levels = data.map(rms);
+          const heard = data.length > 1 ? picker.pick(levels) : 0;
+          live?.levels(levels, heard);
+          const frame = data[heard];
           // undefined: the last frame is still being read, so nothing new this frame
           void detect(frame, ctx.sampleRate, 70).then((p) => {
             if (stopped || p === undefined) return;
@@ -108,6 +114,7 @@ export function useMicPitch(enabled: boolean, onFrame?: (pc: number | null) => v
     return () => {
       stopped = true;
       cancelAnimationFrame(raf);
+      live?.close();
       stream?.getTracks().forEach((t) => t.stop());
       void ctx?.close().catch(() => undefined);
       buf.current = [];

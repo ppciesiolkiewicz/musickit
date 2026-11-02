@@ -43,10 +43,10 @@ function DeviceList({ icon, title, hint, items, chosen, onPick }: { icon: "mic" 
 
 /**
  * The input and output lists with "Detect devices": the body of the nav's devices menu, and of any page's own devices dialog
- * (the teacher studio's Audio input widget, which picks its inputs itself: `inputs` off). Lists the devices while shown and follows
- * plugging in and out.
+ * (the teacher studio's Audio input widget, which picks its inputs itself: `inputs` off; the input chip: `outputs` off). Lists the
+ * devices while shown and follows plugging in and out.
  */
-export function AudioDevicesPanel({ inputs = true }: { inputs?: boolean }) {
+export function AudioDevicesPanel({ inputs = true, outputs: withOutputs = true }: { inputs?: boolean; outputs?: boolean }) {
   const choice = useSyncExternalStore(subscribeDeviceChoice, readDeviceChoice, serverDeviceChoice);
   const outputs = useSyncExternalStore(subscribeNever, canChooseOutput, () => false);
   const [list, setList] = useState<{ inputs: AudioDevice[]; outputs: AudioDevice[] }>({ inputs: [], outputs: [] });
@@ -84,7 +84,7 @@ export function AudioDevicesPanel({ inputs = true }: { inputs?: boolean }) {
     <>
       <div className="flex flex-col gap-3">
         {inputs && <DeviceList icon="mic" title="Input" hint="what the page hears" items={list.inputs} chosen={input} onPick={(d) => setDeviceChoice({ input: d })} />}
-        {outputs ? (
+        {!withOutputs ? null : outputs ? (
           <DeviceList icon="headphones" title="Output" hint="where the sound plays" items={list.outputs} chosen={output} onPick={(d) => setDeviceChoice({ output: d })} />
         ) : (
           <p className="flex items-center gap-2 px-1 text-xs text-slate-500">
@@ -105,6 +105,21 @@ export function AudioDevicesPanel({ inputs = true }: { inputs?: boolean }) {
   );
 }
 
+/** Close a popover on a press outside `box` or on Escape, while `open`. */
+export function useDismiss(open: boolean, close: () => void, box: React.RefObject<HTMLElement | null>) {
+  useEffect(() => {
+    if (!open) return;
+    const away = (e: PointerEvent) => !box.current?.contains(e.target as Node) && close();
+    const esc = (e: KeyboardEvent) => e.key === "Escape" && close();
+    window.addEventListener("pointerdown", away);
+    window.addEventListener("keydown", esc);
+    return () => {
+      window.removeEventListener("pointerdown", away);
+      window.removeEventListener("keydown", esc);
+    };
+  }, [open, close, box]);
+}
+
 /**
  * The devices button for pages that listen or play: a cog with a headphones and a guitar badge, and the menu it opens to pick the
  * input (the mic the page listens to) and the output (where the sound plays). Nothing opens by itself and no device is opened until
@@ -114,18 +129,7 @@ export default function AudioDevicesButton({ className = "" }: { className?: str
   const choice = useSyncExternalStore(subscribeDeviceChoice, readDeviceChoice, serverDeviceChoice);
   const [open, setOpen] = useState(false);
   const box = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!open) return;
-    const away = (e: PointerEvent) => !box.current?.contains(e.target as Node) && setOpen(false);
-    const esc = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
-    window.addEventListener("pointerdown", away);
-    window.addEventListener("keydown", esc);
-    return () => {
-      window.removeEventListener("pointerdown", away);
-      window.removeEventListener("keydown", esc);
-    };
-  }, [open]);
+  useDismiss(open, useCallback(() => setOpen(false), []), box);
 
   const label = `Audio devices: input ${choice.input ? cleanDeviceName(choice.input.label) : "system default"}, output ${choice.output ? cleanDeviceName(choice.output.label) : "system default"}`;
 
