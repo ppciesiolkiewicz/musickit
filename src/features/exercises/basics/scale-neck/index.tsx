@@ -42,12 +42,12 @@ export function View({ slug, pc, boxes, placement, add, enable, highlight, mute,
   };
   return (
     <div className="flex flex-col gap-2">
-      <p className="text-xs text-slate-400">{title}{litNames.length ? ` · ${litNames.join(" ")} lit` : ""}{boxes?.length ? ` · box${boxes.length > 1 ? "es" : ""} ${boxes.join(" & ")}` : ""}</p>
+      <p className="text-xs text-slate-400">{title}{litNames.length ? ` · ${litNames.join(" ")} lit` : ""}{boxes?.length ? ` · position${boxes.length > 1 ? "s" : ""} ${boxes.join(" & ")}` : ""}</p>
       <div className="grid gap-3 lg:grid-cols-2">
         {shown.map((p) => (
           <div key={p.number} className="flex flex-col gap-1">
             <div className="flex items-center gap-2 text-xs text-slate-300">
-              <span>Box {p.number}</span>
+              <span>Position {p.number}</span>
               <button type="button" onClick={() => (running === `box-${p.number}` ? stop() : run(p))} className="rounded border border-slate-700 px-2 py-0.5 text-[11px] text-slate-300 hover:border-slate-500">{running === `box-${p.number}` ? "■ Stop" : "▶ Play"}</button>
             </div>
             <PositionBox position={p} cells={cells} rings active={active} labelSystem={system} onNote={(c) => tap(cellKey(c), c.midi)} states={state} />
