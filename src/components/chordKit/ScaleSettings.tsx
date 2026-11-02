@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { LabelSelect, useLabelSystem } from "@/features/theory/useLabelSystem";
 import { LABEL_SYSTEMS, type LabelSystem } from "@/features/theory/labels";
@@ -10,8 +10,12 @@ import { PENTATONICS, findPentatonic, pentatonicLabel } from "@/features/theory/
 import { scaleHref, scalesIndexHref } from "@/features/theory/keySlug";
 import { Chip, InfoBox, InfoButton, Select } from "@/components/ui";
 import { DegreeLegend } from "@/components/theory/DegreeLegend";
-import { PocketTools, type PocketStatus } from "@/features/instruments";
+import { POCKET_BUTTON, POCKET_LIT, PocketLine, PocketTools, type PocketStatus } from "@/features/instruments";
 import { PHONE_QUERY } from "@/components/usePhone";
+import Icon from "@/components/Icon";
+import InputChip from "@/components/InputChip";
+import { useMicPitch } from "@/components/practice/useMicPitch";
+import { HeardNote } from "./heardNote";
 
 /** Room the sticky bar takes at the top, for `scroll-mt` on the sections linked to by #hash. */
 export const UNDER_BAR = "scroll-mt-48";
@@ -25,6 +29,21 @@ export const UNDER_BAR = "scroll-mt-48";
  * so the host puts them in the bar's `rows` then.
  */
 export function WithSettings({ bar, side, criteria, children }: { bar: ReactNode; side: boolean; criteria?: ReactNode; children: ReactNode }) {
+  // the note the bar's Input line hears, lit on every neck below
+  const [heard, setHeard] = useState<number | null>(null);
+  return (
+    <SetHeard.Provider value={setHeard}>
+      <HeardNote.Provider value={heard}>
+        <Layout bar={bar} side={side} criteria={criteria}>{children}</Layout>
+      </HeardNote.Provider>
+    </SetHeard.Provider>
+  );
+}
+
+/** Where the bar's Input line hands `WithSettings` the note it hears; none outside one. */
+const SetHeard = createContext<((pc: number | null) => void) | null>(null);
+
+function Layout({ bar, side, criteria, children }: { bar: ReactNode; side: boolean; criteria?: ReactNode; children: ReactNode }) {
   if (!side) return <div className="flex flex-col gap-5">{bar}{children}</div>;
   return (
     // reaches out over PageShell's right padding so the column sits flush with the window
@@ -36,6 +55,30 @@ export function WithSettings({ bar, side, criteria, children }: { bar: ReactNode
         {children}
       </div>
     </div>
+  );
+}
+
+/**
+ * The Input line of the pocket tools: a mic switch (off on every visit, so the mic opens only on a click) and the input chip with its
+ * levels. While on, the steady note it hears goes to `WithSettings`, which lights it on every neck below (`HeardNote`).
+ */
+function InputLine() {
+  const [on, setOn] = useState(false);
+  const { status, heard } = useMicPitch(on);
+  const setHeard = useContext(SetHeard);
+  const note = on ? heard : null;
+  useEffect(() => {
+    setHeard?.(note);
+  }, [setHeard, note]);
+  useEffect(() => () => setHeard?.(null), [setHeard]);
+  return (
+    <PocketLine label="Input">
+      <button type="button" className={`${POCKET_BUTTON} ${on ? POCKET_LIT : ""}`} aria-pressed={on} onClick={() => setOn((v) => !v)}
+        title={on ? "Stop listening" : "Listen: the note you play lights up on the necks"} aria-label={on ? "Stop listening" : "Listen to the input"}>
+        <Icon name="mic" size={14} />
+      </button>
+      <InputChip status={status} align="right" className="min-w-0" />
+    </PocketLine>
   );
 }
 
@@ -83,6 +126,11 @@ export type SettingsConfig = {
     /** their status (tempo, the next beat) for the host as well; keep it stable (a state setter) */
     onStatus?: (s: PocketStatus) => void;
   };
+  /**
+   * an Input line with the pocket tools: a mic switch (off until clicked) and the input chip; the note it hears lights up on the
+   * necks under `WithSettings`. Not on a page with a listener of its own (singing): two would fight over the mic.
+   */
+  input?: boolean;
   /** the host's own rows above the key */
   top?: ReactNode;
   /** the host's own rows under the key */
@@ -194,7 +242,8 @@ export function ScaleSettingsBar({ tonicPc, onTonic, side = false, config = {} }
           )}
         </div>
         {/* play-along tools: under the settings on narrow screens, on the right once there is room */}
-        {pocket && <PocketTools keyPc={tonicPc} onStatus={onPocket} clickAlways={pocket.clickAlways} stacked={side} className={`border-t border-slate-800 pt-2 ${side ? "" : "xl:border-l xl:border-t-0 xl:pl-4 xl:pt-0"}`} />}
+        {pocket && <PocketTools keyPc={tonicPc} onStatus={onPocket} clickAlways={pocket.clickAlways} stacked={side} lines={config.input && <InputLine />} className={`border-t border-slate-800 pt-2 ${side ? "" : "xl:border-l xl:border-t-0 xl:pl-4 xl:pt-0"}`} />}
+        {!pocket && config.input && <div className="border-t border-slate-800 pt-2"><InputLine /></div>}
       </div>
     </div>
   );

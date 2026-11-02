@@ -16,8 +16,11 @@ import BeatDots from "../jam/BeatDots";
 import { NumberField, Select, Slider, inSelectMenu } from "@/components/ui";
 
 const STORAGE_KEY = "musickit.pocket";
-const ibtn = "grid h-7 min-w-7 shrink-0 place-items-center rounded-md border border-slate-700 bg-slate-900 px-1 text-xs text-slate-200 transition hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
-const lit = "!border-emerald-400/70 !bg-emerald-500/20 !text-emerald-100";
+/** the look of a pocket tool's small square button, and of one switched on, for a host's own line (`lines`) */
+export const POCKET_BUTTON = "grid h-7 min-w-7 shrink-0 place-items-center rounded-md border border-slate-700 bg-slate-900 px-1 text-xs text-slate-200 transition hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
+export const POCKET_LIT = "!border-emerald-400/70 !bg-emerald-500/20 !text-emerald-100";
+const ibtn = POCKET_BUTTON;
+const lit = POCKET_LIT;
 
 /** The first save held only a drone and a click; read it so those settings are not lost. */
 type OldSave = { click?: Partial<ClickParams>; drone?: Partial<DroneParams> };
@@ -116,8 +119,8 @@ function PlayButton({ on, label, onClick }: { on: boolean; label: string; onClic
   );
 }
 
-/** One tool on one line: a small label, then its controls. */
-function Tool({ label, children }: { label: string; children: ReactNode }) {
+/** One tool on one line: a small label, then its controls. Exported as `PocketLine` for a host's own lines. */
+export function Tool({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div role="group" aria-label={label} className="flex min-w-0 items-center gap-1">
       <span className="w-12 shrink-0 text-[11px] uppercase tracking-wider text-slate-500">{label}</span>
@@ -153,7 +156,7 @@ export type PocketStatus = {
   setTempo: (bpm: number) => void;
 };
 
-export default function PocketTools({ keyPc, className = "", stacked = false, clickAlways = false, onStatus }: {
+export default function PocketTools({ keyPc, className = "", stacked = false, clickAlways = false, onStatus, lines }: {
   keyPc: number;
   className?: string;
   /** one line per tool at every width, for a narrow side column */
@@ -161,6 +164,8 @@ export default function PocketTools({ keyPc, className = "", stacked = false, cl
   /** the click starts, muted, on the first press anywhere on the page (audio can't start before one), for a host that keeps time by it */
   clickAlways?: boolean;
   onStatus?: (s: PocketStatus) => void;
+  /** the host's own lines (each a `PocketLine`), under the drone: the scales pages' Input */
+  lines?: ReactNode;
 }) {
   const { rig, snap, restored, ready, start, toggle: togglePart } = useJamRig({ storageKey: STORAGE_KEY, restore, save });
   const taps = useRef<number[]>([]);
@@ -354,6 +359,7 @@ export default function PocketTools({ keyPc, className = "", stacked = false, cl
               header={<p className="text-[11px] text-slate-500">The note moves to the page&apos;s key whenever the key changes.</p>} />
           </Popover>
         </Tool>
+        {lines}
 
         {sequencer("drums", "Drums")}
         {sequencer("bass", "Bass")}

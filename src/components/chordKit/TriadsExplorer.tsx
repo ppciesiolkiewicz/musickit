@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { BarRow, ScaleSettingsBar, WithSettings } from "./ScaleSettings";
 import { INVERSIONS, STRING_GROUPS, TRIAD_QUALITIES, chordShapesOf, nearbyFourthFifth, triadVoicings, type TriadQuality, type TriadVoicing } from "@/lib/chordKit/triads";
 import { GROUP_SWATCH, swatchFor } from "./palette";
+import { useHeardNote } from "./heardNote";
 import { strum } from "@/lib/chordKit/playback";
 import { TONICS } from "@/features/theory/theory";
 import { toneLabel } from "@/features/theory/labels";
@@ -11,10 +12,14 @@ import { RootSelect, useLabelSystem } from "@/features/theory/useLabelSystem";
 import { DEFAULT_KEY_PC } from "@/features/theory/theory";
 import { Chip, Info } from "@/components/ui";
 
-/** Small chord box for three adjacent strings. */
+/** the ring on the note the microphone hears (`HeardNote`), as on ChordDiagram */
+const HEARD = "#38bdf8";
+
+/** Small chord box for three adjacent strings; the note the microphone hears (`HeardNote`) is ringed. */
 export function TriadBox({ v, rootPc, onPlay, active }: { v: TriadVoicing; rootPc: number; onPlay: () => void; active: boolean }) {
   const q = TRIAD_QUALITIES.find((x) => x.id === v.quality)!;
   const [system] = useLabelSystem();
+  const heard = useHeardNote();
   const ss = 20, fsz = 24, left = 34, top = 26;
   const fretted = v.frets.filter((f) => f > 0);
   const lo = fretted.length ? Math.min(...fretted) : 1;
@@ -36,9 +41,11 @@ export function TriadBox({ v, rootPc, onPlay, active }: { v: TriadVoicing; rootP
           const sw = v.tones[gi] === 0 ? GROUP_SWATCH.root : swatchFor(role);
           // open strings sit above the nut as a ring
           const y = fret === 0 ? top - 10 : top + (fret - lo) * fsz + fsz / 2;
+          // the note the microphone hears, ringed as on ChordDiagram
+          const lit = heard === (rootPc + q.semis[v.tones[gi]]) % 12;
           return (
             <g key={si}>
-              <circle cx={x} cy={y} r={9} fill={sw.fill} stroke={sw.line} strokeWidth={1.2} />
+              <circle cx={x} cy={y} r={lit ? 10.5 : 9} fill={sw.fill} stroke={lit ? HEARD : sw.line} strokeWidth={lit ? 3 : 1.2} />
               <text x={x} y={y} textAnchor="middle" dominantBaseline="central" fill={sw.text} fontSize={label.length > 2 ? 8 : 10} fontWeight={600}>{label}</text>
             </g>
           );
@@ -87,6 +94,7 @@ export default function TriadsExplorer({ initialTonic = DEFAULT_KEY_PC, initialQ
       <ScaleSettingsBar tonicPc={tonicPc} onTonic={setTonicPc} side={side} config={{
         labels: { extra: <RootSelect /> },
         rows: side ? undefined : criteria,
+        input: true,
       }} />
     }>
         <p className="px-1 text-xs text-slate-400">

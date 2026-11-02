@@ -6,6 +6,7 @@ import { VerticalBoard, vGeometry } from "./VerticalFretboard";
 import { BarRow, ScaleSettingsBar, WithSettings } from "./ScaleSettings";
 import { Badge, FretboardBase, fretGeometry } from "./Fretboard";
 import { DotLabel } from "./DotLabel";
+import { useHeardNote } from "./heardNote";
 import { ARP_FRETS, ARP_QUALITIES, arpPositions, arpeggioMidi, stringNumber, buildArpeggio, neckCells, type Arpeggio, type ArpPosition, type NeckCell } from "@/lib/chordKit/arpeggios";
 import { FAMILIES, makeKeyContext, shortModeName } from "@/features/theory/theory";
 import { MODE_PAGES, degreeColour } from "@/features/theory/scales";
@@ -27,6 +28,8 @@ const GEO = fretGeometry(0, ARP_FRETS, 54, 36);
 // a phone fits the whole neck on screen: narrower frets, so the dots come out bigger once it is scaled down
 const PHONE_GEO = fretGeometry(0, ARP_FRETS, 32, 32);
 const OUT = "#f43f5e";
+/** the ring on the note the microphone hears (`HeardNote`), as on ScaleNeck */
+const HEARD = "#38bdf8";
 
 const ORD = ["", "1st", "2nd", "3rd", "4th", "5th", "6th"];
 const posName = (p: ArpPosition) => `Root on the ${ORD[stringNumber(p.rootString)]} string${p.rootFret === 0 ? ", open" : p.rootFret === 12 ? ", 12th fret" : ""}`;
@@ -62,8 +65,16 @@ function RootStringsDiagram() {
   );
 }
 
+/** An arpeggio note's dot: filled by degree (root ringed in white, a note outside the scale dashed red); the note heard is bigger, ringed blue. */
+function ArpDot({ x, y, c, fill, isRoot, lit }: { x: number; y: number; c: NeckCell; fill: string; isRoot: boolean; lit: boolean }) {
+  const stroke = lit ? HEARD : isRoot ? "var(--color-slate-50)" : c.inScale ? "var(--color-slate-950)" : OUT;
+  const width = lit ? 3.5 : isRoot ? 2.8 : c.inScale ? 1.5 : 2;
+  return <circle cx={x} cy={y} r={lit ? 16.5 : 14} fill={fill} stroke={stroke} strokeWidth={width} strokeDasharray={c.inScale || lit ? undefined : "3.5 2.5"} />;
+}
+
 export function ArpNeck({ cells, arp, overlay, labelSystem, badges, onNote, focus = null }: { cells: NeckCell[]; arp: Arpeggio; overlay: boolean; labelSystem: LabelSystem; badges: boolean; onNote: (c: NeckCell) => void; focus?: ArpPosition | null }) {
   const g = usePhone() ? PHONE_GEO : GEO;
+  const heard = useHeardNote();
   const labelFor = (c: NeckCell) => noteLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText, role: c.arp?.role });
   const showBadge = badges && labelSystem === "note";
   const colour = (c: NeckCell) => (c.inScale ? degreeColour(c.scaleDegree as number) : OUT);
@@ -88,7 +99,7 @@ export function ArpNeck({ cells, arp, overlay, labelSystem, badges, onNote, focu
           const t = labelSystem === "note" ? c.name : noteLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText });
           return (
             <g key={`${c.string}-${c.fret}`} opacity={op(c) * 0.9} onClick={() => onNote(c)} className="cursor-pointer">
-              <circle cx={x} cy={y} r={9} fill="var(--color-slate-950)" stroke={col} strokeWidth={1.6} />
+              <circle cx={x} cy={y} r={9} fill="var(--color-slate-950)" stroke={heard === c.pc ? HEARD : col} strokeWidth={heard === c.pc ? 3 : 1.6} />
               <text x={x} y={y + 0.5} textAnchor="middle" dominantBaseline="central" fontSize={t.length > 2 ? 7 : 8.5} fontWeight={600} fill={col} pointerEvents="none">{t}</text>
             </g>
           );
@@ -98,7 +109,7 @@ export function ArpNeck({ cells, arp, overlay, labelSystem, badges, onNote, focu
           return (
             <g key={`${c.string}-${c.fret}`} opacity={op(c)} onClick={() => onNote(c)} className="group cursor-pointer">
               <circle cx={x} cy={y} r={18} fill="transparent" />
-              <circle cx={x} cy={y} r={14} fill={c.inScale ? colour(c) : "#1b0b12"} stroke={isRoot ? "var(--color-slate-50)" : c.inScale ? "var(--color-slate-950)" : OUT} strokeWidth={isRoot ? 2.8 : c.inScale ? 1.5 : 2} strokeDasharray={c.inScale ? undefined : "3.5 2.5"} />
+              <ArpDot x={x} y={y} c={c} fill={c.inScale ? colour(c) : "#1b0b12"} isRoot={isRoot} lit={heard === c.pc} />
               <DotLabel label={label} hover={hoverLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText })} size={(t) => (t.length > 2 ? 9.5 : 12)} x={x} y={y + 0.5} textAnchor="middle" dominantBaseline="central" fontWeight={700} fill={c.inScale ? "#0d1526" : "#fecdd3"} />
             </g>
           );
@@ -123,6 +134,7 @@ function ArpBox({ cells, pos, overlay, labelSystem, badges, onNote, onPlay, on, 
   const lab = (c: NeckCell) => noteLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText, role: c.arp?.role });
   const rings = overlay ? inWin.filter((c) => !mine.has(key(c)) && c.inScale && !(c.arp && c.string < pos.rootString)) : [];
   const dots = pos.notes;
+  const heard = useHeardNote();
   return (
     <div className={`flex min-w-0 flex-col gap-1 rounded-xl border p-2 transition ${on ? "border-sky-500/70 bg-sky-500/5" : "border-slate-800 bg-slate-950/50"}`}>
       <button type="button" onClick={onPick} aria-pressed={on} className="-m-1 w-[calc(100%+0.5rem)] cursor-pointer rounded-lg px-2 py-2 text-left text-sm font-medium text-slate-100 hover:bg-sky-500/10 hover:text-sky-300" title="Light it up on the neck">
@@ -137,7 +149,7 @@ function ArpBox({ cells, pos, overlay, labelSystem, badges, onNote, onPlay, on, 
           const t = labelSystem === "note" ? c.name : noteLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText });
           return (
             <g key={`${c.string}-${c.fret}`} opacity={0.9} onClick={() => onNote(c)} className="cursor-pointer">
-              <circle cx={x} cy={y} r={9} fill="var(--color-slate-950)" stroke={col} strokeWidth={1.6} />
+              <circle cx={x} cy={y} r={9} fill="var(--color-slate-950)" stroke={heard === c.pc ? HEARD : col} strokeWidth={heard === c.pc ? 3 : 1.6} />
               <text x={x} y={y + 0.5} textAnchor="middle" dominantBaseline="central" fontSize={t.length > 2 ? 7 : 8.5} fontWeight={600} fill={col} pointerEvents="none">{t}</text>
             </g>
           );
@@ -147,7 +159,7 @@ function ArpBox({ cells, pos, overlay, labelSystem, badges, onNote, onPlay, on, 
           return (
             <g key={`${c.string}-${c.fret}`} onClick={() => onNote(c)} className="group cursor-pointer">
               <circle cx={x} cy={y} r={18} fill="transparent" />
-              <circle cx={x} cy={y} r={14} fill={c.inScale ? colour(c) : "#1b0b12"} stroke={isRoot ? "var(--color-slate-50)" : c.inScale ? "var(--color-slate-950)" : OUT} strokeWidth={isRoot ? 2.8 : c.inScale ? 1.5 : 2} strokeDasharray={c.inScale ? undefined : "3.5 2.5"} />
+              <ArpDot x={x} y={y} c={c} fill={c.inScale ? colour(c) : "#1b0b12"} isRoot={isRoot} lit={heard === c.pc} />
               <DotLabel label={label} hover={hoverLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText })} size={(t) => (t.length > 2 ? 9.5 : 12)} x={x} y={y + 0.5} textAnchor="middle" dominantBaseline="central" fontWeight={700} fill={c.inScale ? "#0d1526" : "#fecdd3"} />
             </g>
           );
@@ -214,6 +226,7 @@ export default function ArpeggiosExplorer({ initialTonic = DEFAULT_KEY_PC, initi
       <ScaleSettingsBar tonicPc={tonicPc} onTonic={setTonicPc} side={side} config={{
         // in the column the scale is one picker on the key row; embedded, the family and mode are chip rows of their own
         scale: side ? { name: ctx.modeName, picker: modeSelect } : undefined,
+        input: true,
         labels: { extra: <>
           <RootSelect />
           <Chip on={overlay} onClick={() => setOverlay((v) => !v)}>Overlay the scale</Chip>
