@@ -108,7 +108,7 @@
           {
             "title": "Over G and D", "focus": "Do, Mi and Sol over I and V in G", "minutes": 5, "level": "beginner", "area": "voice", "tags": ["improv"], "why": "Choosing which chord note to sing is the first step of making up a melody.",
             "sections": [
-              { "type": "text", "text": "Start the mic on the staff, then press Play below to start the chords. Sing {{1}} (G) or {{3}} (B) when the G chord comes round. Sing {{5}} (D) when the D chord comes round. Pick a different note each time round." },
+              { "type": "text", "text": "Start the mic on the staff, then press Play below to start the chords. Sing the low {{1}} (G) or {{3}} (B) when the G chord comes round. Sing {{5}} (D) when the D chord comes round. Pick a different note each time round." },
               { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "g", "voice": "tenor", "notes": ["1", "3", "5"] } },
               { "type": "tool", "tool": { "type": "chord-backing", "key": "g", "numerals": ["I", "V"], "backing": ["arp-up"], "bpm": 70 } }
             ]
@@ -121,7 +121,7 @@
           {
             "title": "Siren to Sol", "focus": "Glide Do to Sol and back in F", "minutes": 3, "level": "beginner", "area": "voice", "tags": ["sing"], "why": "A slow glide loosens the voice and shows on the staff where your pitch goes between notes.",
             "sections": [
-              { "type": "text", "text": "Press Start below: the drone and the mic start together. Glide slowly from {{1}} up to {{5}} and back on \"ng\", the sound at the end of \"sing\": it keeps your voice light while it slides. Watch your line curve between the notes. Then sing the two notes on their own, without the glide." },
+              { "type": "text", "text": "Press Start below: the drone and the mic start together. Glide slowly from the low {{1}} up to {{5}} and back on \"ng\", the sound at the end of \"sing\": it keeps your voice light while it slides. Watch your line curve between the notes. Then sing the two notes on their own, without the glide." },
               { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "f", "voice": "tenor", "notes": ["1", "5"], "drone": true } }
             ]
           },
@@ -142,7 +142,7 @@
           {
             "title": "Over F, B♭ and C", "focus": "Chord notes over I-IV-V in F", "minutes": 5, "level": "beginner", "area": "voice", "tags": ["improv"], "why": "Three chords give your voice three notes to find.",
             "sections": [
-              { "type": "text", "text": "Start the mic on the staff, then press Play below to start the chords. Sing {{1}} (F) when the F chord comes round. Sing {{4}} (B♭) when B♭ comes round. Sing {{5}} (C) when C comes round. Hold each note for the whole bar. Then try {{3}} (A) over F instead." },
+              { "type": "text", "text": "Start the mic on the staff, then press Play below to start the chords. Use the lower half of the staff, from the low {{1}} up to {{5}}. Sing {{1}} (F) when the F chord comes round. Sing {{4}} (B♭) when B♭ comes round. Sing {{5}} (C) when C comes round. Hold each note for the whole bar. Then try {{3}} (A) over F instead." },
               { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "f", "voice": "tenor", "notes": ["1", "3", "4", "5"] } },
               { "type": "tool", "tool": { "type": "chord-backing", "key": "f", "numerals": ["I", "IV", "V", "I"], "backing": ["block"], "bpm": 70 } }
             ]
