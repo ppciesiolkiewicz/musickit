@@ -105,11 +105,11 @@ export function AudioDevicesPanel({ inputs = true, outputs: withOutputs = true }
   );
 }
 
-/** Close a popover on a press outside `box` or on Escape, while `open`. */
-export function useDismiss(open: boolean, close: () => void, box: React.RefObject<HTMLElement | null>) {
+/** Close a popover on a press outside `box` (and `also`, a popover rendered elsewhere) or on Escape, while `open`. */
+export function useDismiss(open: boolean, close: () => void, box: React.RefObject<HTMLElement | null>, also?: React.RefObject<HTMLElement | null>) {
   useEffect(() => {
     if (!open) return;
-    const away = (e: PointerEvent) => !box.current?.contains(e.target as Node) && close();
+    const away = (e: PointerEvent) => !box.current?.contains(e.target as Node) && !also?.current?.contains(e.target as Node) && close();
     const esc = (e: KeyboardEvent) => e.key === "Escape" && close();
     window.addEventListener("pointerdown", away);
     window.addEventListener("keydown", esc);
@@ -117,7 +117,7 @@ export function useDismiss(open: boolean, close: () => void, box: React.RefObjec
       window.removeEventListener("pointerdown", away);
       window.removeEventListener("keydown", esc);
     };
-  }, [open, close, box]);
+  }, [open, close, box, also]);
 }
 
 /**

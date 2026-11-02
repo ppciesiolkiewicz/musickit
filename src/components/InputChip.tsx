@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
+import { createPortal } from "react-dom";
 import Icon from "./Icon";
 import { AudioDevicesPanel, useDismiss } from "./AudioDevicesButton";
 import { cleanDeviceName, meterLevel, readDeviceChoice, readLiveInput, serverDeviceChoice, serverLiveInput, subscribeDeviceChoice, subscribeLiveInput } from "@/features/sound";
@@ -31,6 +32,25 @@ function Bar({ level, heard }: { level: number; heard: boolean }) {
   );
 }
 
+const EDGE = 12;
+const GAP = 8;
+
+/**
+ * Where the input list goes on screen: under the chip (over it when there is more room above), as wide as fits up to 20rem, lined up
+ * with the chip's `align` edge and kept inside the viewport.
+ */
+function placeList(chip: DOMRect, align: "left" | "right"): React.CSSProperties {
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const width = Math.min(320, vw - EDGE * 2);
+  const left = Math.min(Math.max(align === "right" ? chip.right - width : chip.left, EDGE), vw - EDGE - width);
+  const below = vh - chip.bottom - GAP - EDGE;
+  const above = chip.top - GAP - EDGE;
+  return below >= 280 || below >= above
+    ? { left, width, top: chip.bottom + GAP, maxHeight: below }
+    : { left, width, bottom: vh - chip.top + GAP, maxHeight: above };
+}
+
 /**
  * The input next to a mic switch: a mic, the chosen input's short name and, while the app listens, a level bar per input of the
  * device (two on an audio interface, the one heard brighter). A press opens the input list (the nav's devices menu, inputs only)
@@ -42,7 +62,22 @@ export default function InputChip({ status = "off", align = "left", className = 
   const live = useSyncExternalStore(subscribeLiveInput, readLiveInput, serverLiveInput);
   const [open, setOpen] = useState(false);
   const box = useRef<HTMLDivElement>(null);
-  useDismiss(open, useCallback(() => setOpen(false), []), box);
+  const list = useRef<HTMLDivElement>(null);
+  useDismiss(open, useCallback(() => setOpen(false), []), box, list);
+  // the list is portalled to the body and placed from the chip's rect, so a host card with a transform or overflow (the quick
+  // recorder, a tuner panel) can't push it off screen or clip it
+  const [place, setPlace] = useState<React.CSSProperties | null>(null);
+  useLayoutEffect(() => {
+    if (!open) return setPlace(null);
+    const update = () => box.current && setPlace(placeList(box.current.getBoundingClientRect(), align));
+    update();
+    window.addEventListener("resize", update);
+    window.addEventListener("scroll", update, true);
+    return () => {
+      window.removeEventListener("resize", update);
+      window.removeEventListener("scroll", update, true);
+    };
+  }, [open, align]);
 
   const name = choice.input ? cleanDeviceName(choice.input.label) : "System mic";
   const message = micStatusMessage(status);
@@ -68,14 +103,15 @@ export default function InputChip({ status = "off", align = "left", className = 
           </span>
         )}
       </button>
-      {open && (
-        <div role="dialog" aria-label="Input" className={`fixed inset-x-3 top-16 z-3000 max-h-[calc(100dvh-5rem)] overflow-y-auto rounded-2xl border border-slate-700 bg-slate-900 p-3 text-slate-200 shadow-2xl sm:absolute sm:inset-x-auto sm:top-full sm:mt-2 sm:w-80 ${align === "right" ? "sm:right-0" : "sm:left-0"}`}>
+      {open && place && createPortal(
+        <div ref={list} role="dialog" aria-label="Input" style={place} className="fixed z-3000 overflow-y-auto overscroll-contain rounded-2xl border border-slate-700 bg-slate-900 p-3 text-slate-200 shadow-2xl">
           <p className="mb-1 px-1 text-base font-medium text-slate-100">Input</p>
           <p className="mb-2 px-1 text-xs text-slate-500">
             {message ?? (levels.length > 1 ? "Two inputs: the louder one is heard." : "Used everywhere the app listens.")}
           </p>
           <AudioDevicesPanel outputs={false} />
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );
