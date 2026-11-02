@@ -2,7 +2,7 @@ import { ClickTrack, DEFAULT_CLICK, beatIndexAt, beatOf, clampClick, type ClickP
 import { clampDrone, type DroneParams } from "../drone/drone";
 import { BASS, DRONE_ID, DRUMS, Sequencer, type SequencerState } from "../sequencer/sequencer";
 import { clampTempo, nextBeat } from "./clock";
-import { InputPool, JamLoop, type InputDevice, type LoopConfig, type LoopView } from "./loops";
+import { InputPool, JamLoop, type AppInput, type InputDevice, type LoopConfig, type LoopView } from "./loops";
 import { MAX_LOOPS } from "./take";
 
 export const JAM_PARTS = ["drone", "drums", "bass"] as const;
@@ -59,6 +59,7 @@ export class JamRig {
   private out: AudioNode | null = null;
   private devices: InputDevice[] = [];
   private onDeviceChange = () => void this.refreshDevices();
+  private unfollowApp: (() => void) | null = null;
   private clickTrack: ClickTrack | null = null;
   private clickOn = false;
   private clickVolume = DEFAULT_CLICK.volume;
@@ -154,12 +155,16 @@ export class JamRig {
     return { bpm: this.bpm, parts: { drone: this.seqs.drone.serialize(), drums: this.seqs.drums.serialize(), bass: this.seqs.bass.serialize() }, loops: this.loops.map((l) => l.config), click: { volume: this.clickVolume, muted: this.clickMuted }, levels: { ...this.levels } };
   }
 
-  /** Make the sound: every part into `out`. Call from a person's click, once the context is running. */
-  attach(ctx: AudioContext, out: AudioNode) {
+  /**
+   * Make the sound: every part into `out`. Call from a person's click, once the context is running. `app` is the app's one input,
+   * which a loop without its own device records (and follows when it changes).
+   */
+  attach(ctx: AudioContext, out: AudioNode, app: AppInput | null = null) {
     if (this.ctx) return;
     this.ctx = ctx;
     this.out = out;
-    this.pool = new InputPool(ctx);
+    this.pool = new InputPool(ctx, app);
+    this.unfollowApp = app?.subscribe(() => this.loops.forEach((l) => l.followAppInput())) ?? null;
     for (const p of JAM_PARTS) {
       this.seqs[p].attach(ctx);
       this.seqs[p].toSpeakers!.connect(out);
@@ -491,6 +496,8 @@ export class JamRig {
     });
     this.loops.forEach((l) => l.dispose());
     this.pool?.dispose();
+    this.unfollowApp?.();
+    this.unfollowApp = null;
     this.clickTrack?.dispose();
     this.clickTrack = null;
     this.clickOn = false;

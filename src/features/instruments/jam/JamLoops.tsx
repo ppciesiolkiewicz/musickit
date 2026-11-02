@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Icon from "@/components/Icon";
+import InputChip from "@/components/InputChip";
 import { LOOP_CHANNELS, type InputDevice, type LoopChannel, type LoopView } from "./loops";
 import { LOOP_BARS, MAX_LOOPS } from "./take";
 import type { JamRig } from "./rig";
@@ -42,6 +43,7 @@ function LoopRow({ rig, loop, n, devices, removable, ready }: { rig: JamRig; loo
   const hasSound = loop.state === "playing" || loop.state === "stopped";
   const set = (patch: Parameters<JamRig["setLoop"]>[1]) => rig.setLoop(loop.id, patch);
   const [editing, setEditing] = useState(false);
+  const own = loop.deviceId !== "";
   const hear = async () => {
     set({ monitor: !loop.monitor });
     // hearing needs the input open: switching it on opens it (this is a person's click)
@@ -102,19 +104,24 @@ function LoopRow({ rig, loop, n, devices, removable, ready }: { rig: JamRig; loo
           disabled={taking}
           onChange={(deviceId) => set({ deviceId })}
           aria-label={`Input device of ${name}`}
-          options={[{ value: "", label: "Default microphone" }, ...options.map((d) => ({ value: d.id, label: d.label }))]}
+          options={[{ value: "", label: "App input" }, ...options.map((d) => ({ value: d.id, label: d.label }))]}
         />
-        <div className="flex items-center gap-2">
-          <span>Channel</span>
-          <div className="flex gap-1" aria-label={`Channel of ${name}`}>
-            {LOOP_CHANNELS.map((c) => {
-              const mono = loop.connected && loop.deviceChannels < 2 && c !== "1";
-              return (
-                <button key={c} type="button" aria-pressed={loop.channel === c} disabled={taking || mono} className={sbtn} onClick={() => set({ channel: c })} title={mono ? "This input has one channel" : c === "mix" ? "Both channels mixed" : `Channel ${c}`}>{CHANNEL_LABEL[c]}</button>
-              );
-            })}
+        {/* the app's input (named on its chip, which changes it for the whole app): both channels; a loop's own device picks its channel */}
+        {!own ? (
+          <InputChip align="right" className="self-start" />
+        ) : (
+          <div className="flex items-center gap-2">
+            <span>Channel</span>
+            <div className="flex gap-1" aria-label={`Channel of ${name}`}>
+              {LOOP_CHANNELS.map((c) => {
+                const mono = loop.connected && loop.deviceChannels < 2 && c !== "1";
+                return (
+                  <button key={c} type="button" aria-pressed={loop.channel === c} disabled={taking || mono} className={sbtn} onClick={() => set({ channel: c })} title={mono ? "This input has one channel" : c === "mix" ? "Both channels mixed" : `Channel ${c}`}>{CHANNEL_LABEL[c]}</button>
+                );
+              })}
+            </div>
           </div>
-        </div>
+        )}
         {loop.connected ? (
           <LiveBar read={() => rig.loopLevel(loop.id)} className="bg-sky-400" />
         ) : (
@@ -145,7 +152,7 @@ export default function JamLoops({ rig, loops, devices, ready }: { rig: JamRig; 
     <div className="flex flex-col gap-3">
       <div>
         <h2 className="text-lg font-light text-slate-50">Loops</h2>
-        <p className="text-xs text-slate-400">Each records its bars from its own input, from the next bar line.</p>
+        <p className="text-xs text-slate-400">Each records its bars from the app&apos;s input, or a device of its own, from the next bar line.</p>
       </div>
       <ul className="flex flex-col gap-3">
         {loops.map((l, i) => <LoopRow key={l.id} rig={rig} loop={l} n={i + 1} devices={devices} removable={loops.length > 1} ready={ready} />)}

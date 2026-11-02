@@ -3,7 +3,8 @@ import { EffectChain } from "../effects/chain";
 import { sanitiseEffects, type EffectSpec } from "../effects/effects";
 
 /**
- * The jam's loops: each records `bars` bars from its own input (a device and one of its channels, or both mixed) on the jam's clock and
+ * The jam's loops: each records `bars` bars from its input on the jam's clock (the app's one input, both channels mixed, unless the
+ * loop names its own device and channel) and
  * then plays them round. Its effects sit between the input and the recorder (they are in the take, like the looper's input effects), and
  * "hear it" sends the same effected signal to the speakers. No React. A device opens only from a person's click (record, or Connect in its input settings); one stream per
  * device is shared by every loop that uses it and stopped when the last one lets go.
@@ -15,8 +16,9 @@ export const LOOP_CHANNELS: readonly LoopChannel[] = ["1", "2", "mix"];
 
 export interface LoopConfig {
   id: string;
-  /** the input device ("" = the browser's default microphone) */
+  /** the loop's own input device, or "" for the app's input (chosen in the devices menu or an input chip; followed when it changes) */
   deviceId: string;
+  /** the channel of the loop's own device; the app's input always records both mixed */
   channel: LoopChannel;
   bars: number;
   volume: number;
@@ -47,6 +49,30 @@ export interface InputDevice {
   label: string;
 }
 
+/** The app's one input, handed in by the page (this file has no React and reads no app state itself). */
+export interface AppInput {
+  /** the chosen input's device id, "" for the system default */
+  id(): string;
+  /** called when the chosen input changes */
+  subscribe(cb: () => void): () => void;
+  /** a stream of the app's input is open: publish its levels for the input chip */
+  publish(): { levels(levels: readonly number[], active?: number): void; close(): void };
+}
+
+/** Where a loop's input comes from: its own device, or the app's input. */
+interface Wanted {
+  id: string;
+  app: boolean;
+}
+const keyOf = (w: Wanted) => (w.app ? `app:${w.id}` : w.id);
+
+/** How loud a frame is (root mean square). */
+function rms(data: Float32Array): number {
+  let sum = 0;
+  for (const v of data) sum += v * v;
+  return data.length ? Math.sqrt(sum / data.length) : 0;
+}
+
 const PROCESSOR = "jam-loop-recorder";
 const WORKLET = `
 class JamLoopRecorder extends AudioWorkletProcessor {
@@ -69,54 +95,103 @@ interface OpenInput {
   /** seconds the device is late (what the browser reports, else 0) */
   latency: number;
   refs: number;
+  /** stops publishing the levels (the app's input only) */
+  unmeter?: () => void;
 }
+
+const closeInput = (i: OpenInput) => {
+  i.unmeter?.();
+  i.source.disconnect();
+  i.stream.getTracks().forEach((t) => t.stop());
+};
 
 /** Device streams shared by the loops, counted, and the recorder worklet loaded once. */
 export class InputPool {
   private open = new Map<string, Promise<OpenInput>>();
   private worklet: Promise<void> | null = null;
 
-  constructor(private ctx: AudioContext) {}
+  constructor(private ctx: AudioContext, private app: AppInput | null = null) {}
+
+  /** What a loop on `deviceId` opens: that device, or the app's input for "". */
+  wanted(deviceId: string): Wanted {
+    return deviceId ? { id: deviceId, app: false } : { id: this.app?.id() ?? "", app: true };
+  }
 
   loadWorklet(): Promise<void> {
     this.worklet ??= this.ctx.audioWorklet.addModule(URL.createObjectURL(new Blob([WORKLET], { type: "application/javascript" })));
     return this.worklet;
   }
 
-  async get(deviceId: string): Promise<OpenInput> {
-    let p = this.open.get(deviceId);
+  async get(w: Wanted): Promise<OpenInput> {
+    const key = keyOf(w);
+    let p = this.open.get(key);
     if (!p) {
-      p = this.openDevice(deviceId);
-      this.open.set(deviceId, p);
-      p.catch(() => this.open.delete(deviceId));
+      p = this.openDevice(w);
+      this.open.set(key, p);
+      p.catch(() => this.open.delete(key));
     }
     const input = await p;
     input.refs++;
     return input;
   }
 
-  private async openDevice(deviceId: string): Promise<OpenInput> {
+  private async openDevice(w: Wanted): Promise<OpenInput> {
     if (!navigator.mediaDevices?.getUserMedia) throw new Error("This browser cannot record (use HTTPS).");
-    // the raw signal: no echo cancelling, noise suppression or auto gain, which would mangle an instrument
-    const audio: MediaTrackConstraints = { echoCancellation: false, noiseSuppression: false, autoGainControl: false, channelCount: { ideal: 2 }, ...(deviceId ? { deviceId: { exact: deviceId } } : {}) };
+    // the raw signal: no echo cancelling, noise suppression or auto gain, which would mangle an instrument. The loop's own device
+    // must be that one; the app's input falls back to another, as everywhere else in the app
+    const device = w.id ? { deviceId: w.app ? { ideal: w.id } : { exact: w.id } } : {};
+    const audio: MediaTrackConstraints = { echoCancellation: false, noiseSuppression: false, autoGainControl: false, channelCount: { ideal: 2 }, ...device };
     const stream = await navigator.mediaDevices.getUserMedia({ audio });
     const settings = (stream.getAudioTracks()[0]?.getSettings?.() ?? {}) as MediaTrackSettings & { latency?: number };
-    return { stream, source: this.ctx.createMediaStreamSource(stream), channels: Math.min(2, settings.channelCount ?? 1) || 1, latency: Number.isFinite(settings.latency) ? settings.latency! : 0, refs: 0 };
+    const input: OpenInput = { stream, source: this.ctx.createMediaStreamSource(stream), channels: Math.min(2, settings.channelCount ?? 1) || 1, latency: Number.isFinite(settings.latency) ? settings.latency! : 0, refs: 0 };
+    if (w.app && this.app) input.unmeter = this.meter(input, this.app);
+    return input;
   }
 
-  release(deviceId: string) {
-    const p = this.open.get(deviceId);
+  /** Publish each channel's level of an open app input (the louder one as heard) until the returned stop. */
+  private meter(input: OpenInput, app: AppInput): () => void {
+    const ctx = this.ctx;
+    const split = ctx.createChannelSplitter(2);
+    input.source.connect(split);
+    const ans = Array.from({ length: input.channels }, (_, i) => {
+      const an = ctx.createAnalyser();
+      an.fftSize = 1024;
+      split.connect(an, i);
+      return an;
+    });
+    const data = ans.map((an) => new Float32Array(an.fftSize));
+    const live = app.publish();
+    const id = setInterval(() => {
+      const levels = ans.map((an, i) => {
+        an.getFloatTimeDomainData(data[i]);
+        return rms(data[i]);
+      });
+      live.levels(levels, levels.length > 1 && levels[1] > levels[0] ? 1 : 0);
+    }, 66);
+    return () => {
+      clearInterval(id);
+      live.close();
+      split.disconnect();
+      try {
+        input.source.disconnect(split);
+      } catch {
+        /* already gone */
+      }
+    };
+  }
+
+  release(key: string) {
+    const p = this.open.get(key);
     if (!p) return;
     void p.then((input) => {
       if (--input.refs > 0) return;
-      this.open.delete(deviceId);
-      input.source.disconnect();
-      input.stream.getTracks().forEach((t) => t.stop());
+      this.open.delete(key);
+      closeInput(input);
     }).catch(() => undefined);
   }
 
   dispose() {
-    for (const p of this.open.values()) void p.then((i) => { i.source.disconnect(); i.stream.getTracks().forEach((t) => t.stop()); }).catch(() => undefined);
+    for (const p of this.open.values()) void p.then(closeInput).catch(() => undefined);
     this.open.clear();
   }
 }
@@ -158,7 +233,8 @@ export class JamLoop {
   private ctx: AudioContext | null = null;
   private pool: InputPool | null = null;
   private input: OpenInput | null = null;
-  private inputDevice: string | null = null;
+  /** the pool's key of the open input */
+  private inputKey: string | null = null;
   private chain: AudioNode[] = [];
   private fx: EffectChain | null = null;
   private monitor: GainNode | null = null;
@@ -209,22 +285,23 @@ export class JamLoop {
     return { ...this.config, state: this.state(now), on: this.on, connected: this.connected, deviceChannels: this.input?.channels ?? 0, error: this.error };
   }
 
-  /** Open the loop's input (the device and channel in its config). Call from a person's click. */
+  /** Open the loop's input (its own device and channel, or the app's input). Call from a person's click. */
   async connect(): Promise<boolean> {
     const { ctx, pool } = this;
     if (!ctx || !pool) return false;
-    if (this.input && this.inputDevice === this.config.deviceId) return true;
+    const wanted = pool.wanted(this.config.deviceId);
+    const key = keyOf(wanted);
+    if (this.input && this.inputKey === key) return true;
     this.disconnect();
-    const deviceId = this.config.deviceId;
     try {
       await pool.loadWorklet();
-      const input = await pool.get(deviceId);
-      if (this.config.deviceId !== deviceId) {
-        pool.release(deviceId);
+      const input = await pool.get(wanted);
+      if (keyOf(pool.wanted(this.config.deviceId)) !== key) {
+        pool.release(key);
         return false;
       }
       this.input = input;
-      this.inputDevice = deviceId;
+      this.inputKey = key;
       this.error = null;
       this.wire();
       return true;
@@ -245,7 +322,8 @@ export class JamLoop {
     mono.channelCount = 1;
     mono.channelCountMode = "explicit";
     input.source.connect(split);
-    const ch = this.config.channel;
+    // the app's input records both channels mixed (a mic, or both inputs of an interface)
+    const ch = this.config.deviceId ? this.config.channel : "mix";
     // a one-channel device has no second channel: it records its only one
     if (ch === "1" || input.channels < 2) split.connect(mono, 0);
     else if (ch === "2") split.connect(mono, 1);
@@ -301,9 +379,14 @@ export class JamLoop {
   /** Close the input (the device stays open while other loops use it). */
   disconnect() {
     this.unwire();
-    if (this.input && this.inputDevice !== null) this.pool?.release(this.inputDevice);
+    if (this.input && this.inputKey !== null) this.pool?.release(this.inputKey);
     this.input = null;
-    this.inputDevice = null;
+    this.inputKey = null;
+  }
+
+  /** The app's input changed: a loop that follows it and has its input open moves to the new one. */
+  followAppInput() {
+    if (this.input && !this.config.deviceId && this.pool && keyOf(this.pool.wanted("")) !== this.inputKey) void this.connect();
   }
 
   setConfig(patch: Partial<Omit<LoopConfig, "id">>) {
