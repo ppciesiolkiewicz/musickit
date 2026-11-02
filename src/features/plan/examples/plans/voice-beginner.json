@@ -16,7 +16,7 @@
           {
             "title": "A long Do", "focus": "One breath on Do over a drone in C", "minutes": 3, "tags": ["sing"], "why": "A long, steady note warms up your breath and your ear together.",
             "sections": [
-              { "type": "text", "text": "Press Play below to start the drone, then start the mic on the staff: the staff is the five lines of music, where your pitch shows as a line. Breathe in for four clicks. Sing {{1}} on \"ah\" for as long as feels easy. Watch your pitch line stay flat. Count the clicks you held it for: you will compare on day 7." },
+              { "type": "text", "text": "Press Play below to start the drone, then start the mic on the staff. Your pitch shows there as a line. Breathe in for four clicks. Sing {{1}} on \"ah\" for as long as feels easy. Watch your pitch line stay flat. Count the clicks you held it for: you will compare on day 7." },
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 60, "key": "c" } },
               { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "tenor", "enable": ["1"], "others": "hidden" } }
             ]

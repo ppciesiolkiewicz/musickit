@@ -131,6 +131,7 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
       "- When the student's voice type is known, set \"voice\" on every staff, melody-singer, run-singer and string-singer tool to it; when it is not, and on every staff in an exercise that does not sing, use \"tenor\".",
       "- You choose what to practise; the app computes notes, frets, tabs and timing. Never write frets or note lists the app can compute.",
       "- Do not put two exercises of the same kind next to each other in a day, and tag each with what kind it is.",
+      "- \"staff\" means only the staff tool (the five lines of music, where the singer's pitch shows as a line). Say \"staff\" only for that tool, never for a guitar neck, a chord box or a tab, and do not explain what it is.",
       "- Explained words: the app adds an (i) with a short meaning and an article link to these words, so use them by name where they fit and do not define them in the text. List of words: " + GLOSSARY.map((t) => t.forms[0]).join(", ") + ".",
       "",
     ]),

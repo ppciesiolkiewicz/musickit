@@ -14,7 +14,7 @@
     "learnBefore": ["/course/3/major-or-minor"],
     "sections": [
       { "type": "heading", "text": "Hear home", "minutes": 2 },
-      { "type": "text", "text": "The staff below shows the C major scale on the five lines of music; tap a note to hear it. Tap {{1}}, then any other note, then {{1}} again. Try it with different notes: which ones sound finished?" },
+      { "type": "text", "text": "The staff below shows the C major scale; tap a note to hear it. Tap {{1}}, then any other note, then {{1}} again. Try it with different notes: which ones sound finished?" },
       { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "tenor", "highlight": ["1"], "mic": false } },
       { "type": "heading", "text": "One note makes major or minor", "minutes": 2 },
       { "type": "text", "text": "Tap {{1}} {{3}} {{5}}: that's C major." },
