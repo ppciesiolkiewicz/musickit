@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import posthog from "posthog-js";
 import Icon from "@/components/Icon";
 import InputChip from "@/components/InputChip";
-import { findDevice, getAudioContext, listAudioDevices, openLiveInput, readDeviceChoice, subscribeDeviceChoice } from "@/features/sound";
+import { getAudioContext, openInputStream, openLiveInput, readDeviceChoice, subscribeDeviceChoice } from "@/features/sound";
 import { rms } from "@/lib/practice/mic";
 import { clockTime, inputChannels, peakLevel, pickMimeType, soundGate, takeFileName } from "./recorder";
 import TakePlayer from "./TakePlayer";
@@ -22,17 +22,8 @@ interface Take {
   channels: 1 | 2;
 }
 
-/**
- * The app's chosen input, raw (no echo cancelling or gain), both channels of a two-input device. The remembered device is looked up
- * in today's list (its id can change, its name stays), and the system default stands in when it is not plugged in.
- */
-async function openChosenInput(): Promise<MediaStream> {
-  const wanted = readDeviceChoice().input;
-  const input = wanted && (findDevice((await listAudioDevices()).inputs, wanted) ?? wanted);
-  return navigator.mediaDevices.getUserMedia({
-    audio: { deviceId: input ? { ideal: input.id } : undefined, channelCount: { ideal: 2 }, echoCancellation: false, noiseSuppression: false, autoGainControl: false },
-  });
-}
+/** The app's chosen input, raw (no echo cancelling or gain), both channels of a two-input device. */
+const openChosenInput = () => openInputStream({ channelCount: { ideal: 2 }, echoCancellation: false, noiseSuppression: false, autoGainControl: false });
 
 /** What one recording holds while it runs: closed with `end`, which hands back the take. */
 interface Session {
@@ -57,8 +48,19 @@ export default function QuickRecord() {
   const session = useRef<Session | null>(null);
   const pulses = useRef<(HTMLElement | null)[]>([]);
   const count = useRef(0);
+  const starting = useRef(false);
 
+  // a second press while the mic opens would start a second take whose clock fights the first one's
   const start = async () => {
+    if (starting.current || session.current) return;
+    starting.current = true;
+    try {
+      await begin();
+    } finally {
+      starting.current = false;
+    }
+  };
+  const begin = async () => {
     setError(null);
     if (typeof MediaRecorder === "undefined") return setError("This browser cannot record audio.");
     let stream: MediaStream;

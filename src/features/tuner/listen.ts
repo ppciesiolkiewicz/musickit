@@ -1,4 +1,4 @@
-import { findDevice, getAudioContext, listAudioDevices, openLiveInput, readDeviceChoice, setDeviceChoice } from "@/features/sound";
+import { findDevice, getAudioContext, listAudioDevices, openInputStream, openLiveInput, readDeviceChoice, setDeviceChoice } from "@/features/sound";
 import { createChannelPicker, rms } from "@/lib/practice/mic";
 import { FRAME_MS } from "./pitch";
 import { oldInputId } from "./choice";
@@ -20,10 +20,7 @@ export interface TunerInput {
  * Asks for the microphone, so call it from a click.
  */
 export async function openTunerInput(): Promise<TunerInput> {
-  const chosen = readDeviceChoice().input;
-  const stream = await navigator.mediaDevices.getUserMedia({
-    audio: { deviceId: chosen ? { ideal: chosen.id } : undefined, channelCount: { ideal: 2 }, echoCancellation: false, noiseSuppression: false, autoGainControl: false },
-  });
+  const stream = await openInputStream({ channelCount: { ideal: 2 }, echoCancellation: false, noiseSuppression: false, autoGainControl: false });
   try {
     const ctx = getAudioContext();
     await ctx.resume();

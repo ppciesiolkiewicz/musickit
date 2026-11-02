@@ -104,6 +104,25 @@ export async function listAudioDevices(): Promise<{ inputs: AudioDevice[]; outpu
   return splitDevices(all);
 }
 
+/**
+ * Open an input with `audio`'s constraints on `wanted` (the app's chosen input unless given). A device plugged in today (by id, then
+ * name) is asked for exactly: as `ideal` it can lose to the other ideals (`channelCount: { ideal: 2 }` picks a stereo default over a
+ * mono built-in mic). One not listed (unplugged, or unnamed before the mic is allowed) is only preferred, and an exact one that fails
+ * falls back to the system default, as everywhere in the app.
+ */
+export async function openInputStream(audio: MediaTrackConstraints, wanted: AudioDevice | null = readDeviceChoice().input): Promise<MediaStream> {
+  const open = (deviceId?: ConstrainDOMString) => navigator.mediaDevices.getUserMedia({ audio: { ...audio, deviceId } });
+  const found = wanted && findDevice((await listAudioDevices()).inputs, wanted);
+  if (!found) return open(wanted ? { ideal: wanted.id } : undefined);
+  try {
+    return await open({ exact: found.id });
+  } catch (e) {
+    const name = (e as { name?: string } | null)?.name;
+    if (name === "OverconstrainedError" || name === "NotFoundError") return open();
+    throw e;
+  }
+}
+
 /** Ask for the microphone once and let it go straight away, so the browser lists every device by name. */
 export async function revealDevices(): Promise<void> {
   const stream = await navigator.mediaDevices.getUserMedia({ audio: true });

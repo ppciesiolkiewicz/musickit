@@ -1,5 +1,6 @@
 import { DEFAULT_LOOP_BARS, clampBars, cutTake, fadeEdges, loopOffset, type Chunk } from "./take";
 import { EffectChain } from "../effects/chain";
+import { openInputStream } from "@/features/sound";
 import { sanitiseEffects, type EffectSpec } from "../effects/effects";
 
 /**
@@ -139,9 +140,8 @@ export class InputPool {
     if (!navigator.mediaDevices?.getUserMedia) throw new Error("This browser cannot record (use HTTPS).");
     // the raw signal: no echo cancelling, noise suppression or auto gain, which would mangle an instrument. The loop's own device
     // must be that one; the app's input falls back to another, as everywhere else in the app
-    const device = w.id ? { deviceId: w.app ? { ideal: w.id } : { exact: w.id } } : {};
-    const audio: MediaTrackConstraints = { echoCancellation: false, noiseSuppression: false, autoGainControl: false, channelCount: { ideal: 2 }, ...device };
-    const stream = await navigator.mediaDevices.getUserMedia({ audio });
+    const raw: MediaTrackConstraints = { echoCancellation: false, noiseSuppression: false, autoGainControl: false, channelCount: { ideal: 2 } };
+    const stream = w.app ? await openInputStream(raw, w.id ? { id: w.id, label: "" } : null) : await navigator.mediaDevices.getUserMedia({ audio: { ...raw, deviceId: { exact: w.id } } });
     const settings = (stream.getAudioTracks()[0]?.getSettings?.() ?? {}) as MediaTrackSettings & { latency?: number };
     const input: OpenInput = { stream, source: this.ctx.createMediaStreamSource(stream), channels: Math.min(2, settings.channelCount ?? 1) || 1, latency: Number.isFinite(settings.latency) ? settings.latency! : 0, refs: 0 };
     if (w.app && this.app) input.unmeter = this.meter(input, this.app);

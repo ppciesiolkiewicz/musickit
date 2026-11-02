@@ -5,7 +5,13 @@ import { hzToNote, type Pitch } from "@/features/tuner/pitch";
 import { createDetector } from "@/features/tuner/detector";
 import { stablePitch } from "@/lib/practice/noteGame";
 import { acquireStream, createChannelPicker, rms } from "@/lib/practice/mic";
-import { openLiveInput, readDeviceChoice, serverDeviceChoice, subscribeDeviceChoice, type LiveInputHandle } from "@/features/sound";
+import { openInputStream, openLiveInput, readDeviceChoice, serverDeviceChoice, subscribeDeviceChoice, type LiveInputHandle } from "@/features/sound";
+
+/** The input to open for `id`: the app's chosen one with its name (found again if its id changed), another device by id, or the default. */
+function wantedInput(id: string | null | undefined) {
+  const chosen = readDeviceChoice().input;
+  return !id ? null : chosen?.id === id ? chosen : { id, label: "" };
+}
 
 export type MicStatus = "off" | "asking" | "on" | "denied" | "error" | "insecure";
 export interface MicReading { midi: number; t: number }
@@ -59,7 +65,7 @@ export function useMicPitch(enabled: boolean, onFrame?: (pc: number | null) => v
         return;
       }
       try {
-        stream = await acquireStream(() => navigator.mediaDevices.getUserMedia({ audio: { deviceId: inputId ? { ideal: inputId } : undefined, channelCount: channel === "sum" ? undefined : { ideal: 2 }, echoCancellation: false, noiseSuppression: false, autoGainControl: false } }), () => stopped);
+        stream = await acquireStream(() => openInputStream({ channelCount: channel === "sum" ? undefined : { ideal: 2 }, echoCancellation: false, noiseSuppression: false, autoGainControl: false }, wantedInput(inputId)), () => stopped);
         if (!stream) return;
         ctx = new AudioContext();
         const src = ctx.createMediaStreamSource(stream);
