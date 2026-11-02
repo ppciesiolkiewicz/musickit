@@ -10,7 +10,7 @@ the app's data. Spec: `docs/superpowers/specs/2026-10-31-prompt-devtools-design.
 - **Imports.** Dev tools may import plan internals (`@/features/plan/model/*`, its UI). Nothing outside this folder,
   `src/app/dev` and `src/app/api/dev` imports dev tools.
 - **`server/` is Node only** (`child_process`, `fs`) and is imported only by route files. Pure logic in `model/`, with tests.
-- **Copy notes.** `copy/CopyNotes.tsx` is the one exception to the import rule: the root layout mounts it (dev only) as a floating "Copy notes" button; in note mode a click on any text on any page opens a note, kept in `localStorage` `musickit.dev.copyNotes` and copied as Markdown by page.
+- **Copy notes.** `copy/CopyNotes.tsx` is the one exception to the import rule: the root layout mounts it (dev only) as a floating "Notes" button. It opens this page's notes in a bar like the one on /dev/examples (note a text, copy, re-pin to HEAD, clear); in note mode a click on any text opens a note, tagged inline above its text. Notes are kept in `localStorage` `musickit.dev.copyNotes` (`copy/store.ts`), each with the HEAD it was made at. `/dev/notes` (`copy/NotesPage.tsx`) lists every page's notes in the order of `/sitemap.xml`, with copy, re-pin and clear for one page or all.
 - **A new tool** is one entry in `registry.ts` and one page under `src/app/dev/`; the index and the tab bar (`DevNav.tsx`, in the layout) both read the registry.
 
 ## History
