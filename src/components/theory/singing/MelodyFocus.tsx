@@ -6,6 +6,8 @@ import { Button } from "@/components/ui";
 import { DIFFICULTIES, lengthLabel, type BookTune } from "@/features/theory/singingMelodies";
 import MelodyStaff from "./MelodyStaff";
 import MicButton from "./MicButton";
+import InputChip from "@/components/InputChip";
+import type { MicStatus } from "@/components/practice/useMicPitch";
 import { ClickButton, RestartButton, ShareButton } from "./MelodyControls";
 
 /** the staff's size for the screen's height: bigger on a tall screen, never under 1.2 times the card's */
@@ -16,7 +18,7 @@ const scaleFor = (h: number) => Math.max(1.2, Math.min(2.4, h / 380));
  * the dot's distance to the note due, the restart and metronome buttons of a card and the page's settings that matter while
  * singing. Previous and next step through the tunes listed (or ← and →, unless a slider has them); Esc closes it.
  */
-export default function MelodyFocus({ tune, index, count, staff, bpm, mic, playing, heard, link, settings, message, onPrev, onNext, onSing, onPlay, onStop, onRestart, onHear, onClose }: {
+export default function MelodyFocus({ tune, index, count, staff, bpm, mic, status, playing, heard, link, settings, message, onPrev, onNext, onSing, onPlay, onStop, onRestart, onHear, onClose }: {
   tune: BookTune;
   /** its place among the tunes listed, from 0 */
   index: number;
@@ -24,6 +26,8 @@ export default function MelodyFocus({ tune, index, count, staff, bpm, mic, playi
   staff: Omit<ComponentProps<typeof MelodyStaff>, "live" | "scale" | "follow">;
   bpm: number;
   mic: boolean;
+  /** the page's listener, for the input chip */
+  status: MicStatus;
   playing: boolean;
   /** the metronome is heard (else muted, still keeping time) */
   heard: boolean;
@@ -76,6 +80,7 @@ export default function MelodyFocus({ tune, index, count, staff, bpm, mic, playi
         <span className="pl-2 text-sm font-medium text-slate-100">#{tune.n}</span>
         <span className="text-xs text-slate-400">{tune.stage.title} · {DIFFICULTIES[tune.difficulty].title} · {lengthLabel(tune)}</span>
         <MicButton on={mic} onClick={onSing} offLabel="Sing" onLabel="Listening" />
+        <InputChip status={status} />
         <Button size="sm" onClick={onPlay} className={playing ? "!border-sky-400/70 !bg-sky-500/20 !text-sky-100" : ""}>
           ▶ Play · {bpm} bpm
         </Button>

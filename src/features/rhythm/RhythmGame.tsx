@@ -8,6 +8,8 @@ import { createJudge, type Grade, type Judge, type Judged, type Summary } from "
 import { DEFAULT_RISE_DB } from "./onset";
 import { heardAt, heardNow } from "./clock";
 import { listenForStrums, type StrumListener } from "./mic";
+import InputChip, { micStatusMessage } from "@/components/InputChip";
+import type { MicStatus } from "@/components/practice/useMicPitch";
 
 type Input = "keys" | "mic";
 type Click = "on" | "count-in";
@@ -185,7 +187,8 @@ export default function RhythmGame() {
   const [summary, setSummary] = useState<Summary | null>(null);
   const [streak, setStreak] = useState(0);
   const [error, setError] = useState<string | null>(null);
-  const [micOn, setMicOn] = useState(false);
+  const [micStatus, setMicStatus] = useState<MicStatus>("off");
+  const micOn = micStatus === "on";
   const canvas = useRef<HTMLCanvasElement>(null);
   const live = useRef<Live | null>(null);
   const mic = useRef<StrumListener | null>(null);
@@ -238,7 +241,7 @@ export default function RhythmGame() {
   const closeMic = useCallback(() => {
     mic.current?.stop();
     mic.current = null;
-    setMicOn(false);
+    setMicStatus("off");
   }, []);
 
   useEffect(() => () => { stop(); closeMic(); }, [stop, closeMic]);
@@ -248,11 +251,19 @@ export default function RhythmGame() {
     const ctx = getAudioContext();
     await ctx.resume().catch(() => undefined);
     if (s.input === "mic" && !mic.current) {
+      if (!navigator.mediaDevices?.getUserMedia) {
+        setMicStatus("insecure");
+        setError(`${micStatusMessage("insecure")} Or play with Space.`);
+        return;
+      }
+      setMicStatus("asking");
       try {
         mic.current = await listenForStrums(ctx, (t) => hit(t), { riseDb: s.riseDb });
-        setMicOn(true);
-      } catch {
-        setError("The microphone could not be opened. Allow microphone access for this site and try again, or play with Space.");
+        setMicStatus("on");
+      } catch (e) {
+        const status: MicStatus = e instanceof DOMException && (e.name === "NotAllowedError" || e.name === "SecurityError") ? "denied" : "error";
+        setMicStatus(status);
+        setError(`${micStatusMessage(status)} Or play with Space.`);
         return;
       }
     }
@@ -335,6 +346,7 @@ export default function RhythmGame() {
             <span aria-hidden className={`h-2 w-2 ${playing ? "rounded-sm bg-rose-300" : "rounded-full bg-emerald-300"}`} />
             {playing ? "Stop" : phase === "done" ? "Play again" : "Start"}
           </button>
+          {s.input === "mic" && <InputChip status={micStatus} />}
           <span className="text-xs text-slate-500">
             {s.input === "keys" ? "Press Space (or tap the lane) as each note reaches the line." : micOn ? "Listening. Strum as each note reaches the line." : "Strum as each note reaches the line. The mic opens on Start."}
           </span>
@@ -370,7 +382,7 @@ export default function RhythmGame() {
 
       <aside aria-label="Setup" className="flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
         <ChipRow label="Play with">
-          <Chip on={s.input === "keys"} onClick={() => { if (!playing) { closeMic(); update({ input: "keys" }); } }}>Space / tap</Chip>
+          <Chip on={s.input === "keys"} onClick={() => { if (!playing) { closeMic(); setError(null); update({ input: "keys" }); } }}>Space / tap</Chip>
           <Chip on={s.input === "mic"} onClick={() => !playing && update({ input: "mic" })}>Strum (mic)</Chip>
         </ChipRow>
         <ChipRow label="Rhythm">

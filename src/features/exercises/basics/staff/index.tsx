@@ -4,6 +4,7 @@ import { noteState, type Others } from "../../cues/visibility";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useMicPitch } from "@/components/practice/useMicPitch";
 import MicButton from "@/components/theory/singing/MicButton";
+import InputChip from "@/components/InputChip";
 import SingingStaff from "@/components/theory/singing/SingingStaff";
 import { getSharedPiano, wakeAudio } from "@/features/sound";
 import { VOICES, buildLadder, clefFor, hzToMidi, spellName } from "@/features/theory/singing";
@@ -104,6 +105,7 @@ export function View({ slug, pc, voice, notes, enable, highlight, mute, hide, ot
           <MicButton on={on} onClick={() => { pitch.current = null; if (!on && backing.length) void wakeAudio(); setOn((v) => !v); }}
             offLabel={backing.length ? "Start" : "Sing with the mic"} onLabel={backing.length ? "Stop" : undefined} />
         )}
+        {micButton && <InputChip status={status} />}
         {backing.length > 0 && <PracticeBacking bpm={bpm} keyPc={pc} parts={backing} on={on} onStop={stop} />}
         <span>{ladder.title} · {VOICES[voice].label}{status === "denied" ? " · microphone blocked in the browser" : ""}</span>
       </div>

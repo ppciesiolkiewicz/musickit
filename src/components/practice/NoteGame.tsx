@@ -12,6 +12,7 @@ import { useMicPitch } from "./useMicPitch";
 import { micGate } from "@/lib/practice/mic";
 import { SetupTag, btn, btnPrimary, panel, readBest, writeBest, writeQuery } from "./shared";
 import { Chip, ChipRow, Stepper } from "@/components/ui";
+import InputChip, { micStatusMessage } from "@/components/InputChip";
 
 const STRING_LETTERS = ["E", "A", "D", "G", "B", "e"];
 const MODES: { id: NoteMode; label: string }[] = [
@@ -152,6 +153,7 @@ export default function NoteGame({ initial, syncUrl = true, bare = false }: { in
   const dim = (string: number, fret: number) => (!s.strings.includes(string) || fret < s.from || fret > s.to ? "rgba(148,163,184,0.06)" : undefined);
   const prompt = !q ? "Press Start" : s.mode === "name" ? "Name the lit note" : s.mode === "every" ? `Find every ${pcName(q.pc, s.flats)} (frets ${s.from}–${s.to})` : `Find ${pcName(q.pc, s.flats)} on the ${STRING_LETTERS[q.string]} string`;
   const choices = answerChoices(s.naturals, q?.pc ?? 0);
+  const micText = micStatusMessage(status);
 
   return (
     <div className="flex flex-col gap-4">
@@ -182,10 +184,11 @@ export default function NoteGame({ initial, syncUrl = true, bare = false }: { in
         <ChipRow label="Answer by">
           <Chip on={!mic} onClick={() => setMic(false)}>Tapping the neck</Chip>
           <Chip on={mic} onClick={() => setMic(true)}>Playing it (mic)</Chip>
+          {mic && <InputChip status={status} />}
         </ChipRow>
         {mic && (
           <p className="text-xs text-slate-400">
-            {s.mode === "every" ? "The mic can't tell which string you used, so “find every one” is answered by tapping." : status === "asking" ? "Allow the microphone in your browser…" : status === "denied" ? "Microphone blocked. Allow it in the browser's site settings, or answer by tapping." : status === "insecure" ? "The browser only allows the microphone on a secure (https) page. Answer by tapping here." : status === "error" ? "No microphone found. Answer by tapping." : status === "on" ? `Listening${heard !== null ? `: hearing ${pcName(heard, s.flats)}` : "…"} Any octave counts.` : "Press Start, then play the note."}
+            {s.mode === "every" ? "The mic can't tell which string you used, so “find every one” is answered by tapping." : micText ? (status === "asking" ? micText : `${micText} Or answer by tapping.`) : status === "on" ? `Listening${heard !== null ? `: hearing ${pcName(heard, s.flats)}` : "…"} Any octave counts.` : "Press Start, then play the note."}
           </p>
         )}
       </section>

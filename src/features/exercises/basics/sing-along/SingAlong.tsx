@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import Icon from "@/components/Icon";
+import InputChip from "@/components/InputChip";
 import type { Clef } from "@/features/theory/piano/staff";
 import type { Ladder } from "@/features/theory/singing";
 import type { PlacedNote } from "@/features/theory/singingMelodies";
@@ -92,6 +93,7 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
         <IconButton on={sa.mic} tone="emerald" title={sa.mic ? "Stop the mic" : "Switch the mic on and sing"} onClick={sa.toggleMic}>
           <Icon name="mic" size={15} />
         </IconButton>
+        <InputChip status={sa.status} />
         <span className="mx-1 h-5 w-px bg-slate-800" />
         <div role="group" aria-label="Heard" className="flex overflow-hidden rounded-lg border border-slate-700">
           {LAYERS.filter((l) => l.id !== "chords" || chords.length).map((l) => {

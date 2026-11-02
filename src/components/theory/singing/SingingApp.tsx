@@ -18,6 +18,7 @@ import MelodyFeed from "./MelodyFeed";
 import MelodyFocus from "./MelodyFocus";
 import { DOT_LAG_MS } from "./MelodyStaff";
 import MicButton from "./MicButton";
+import InputChip, { micStatusMessage } from "@/components/InputChip";
 import IntervalDrill, { type IntervalPrompt } from "./IntervalDrill";
 import { panel, writeQuery } from "@/components/practice/shared";
 
@@ -324,14 +325,11 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
   const focused = tunes[at] ?? ALL.find((t) => t.n === active) ?? tunes[0] ?? book[0];
 
   const message =
-    status === "asking" ? "Allow the microphone in your browser…"
-    : status === "denied" ? "Microphone blocked. Allow it in the browser's site settings and try again."
-    : status === "insecure" ? "The browser only allows the microphone on a secure (https) page."
-    : status === "error" ? "No microphone found."
-    : tuneTab ? (status === "on" ? `Listening on ${tab === "runs" ? "run" : "melody"} #${active}. Sing each note as the bar reaches it: the bar loops in time with the metronome, and the dot turns green on the note under it, red on another.` : "Play a melody or tap its notes to hear it, then press Select on its card: the mic listens while a bar runs over the tune in time with the metronome.")
+    micStatusMessage(status)
+    ?? (tuneTab ? (status === "on" ? `Listening on ${tab === "runs" ? "run" : "melody"} #${active}. Sing each note as the bar reaches it: the bar loops in time with the metronome, and the dot turns green on the note under it, red on another.` : "Play a melody or tap its notes to hear it, then press Select on its card: the mic listens while a bar runs over the tune in time with the metronome.")
     : tab === "intervals" ? null
     : status === "on" ? "Listening. Sing the scale up from the root: the dot turns green on a note of the scale, red on a note outside it."
-    : "Tap a note to hear it, or play the scale up and down on the metronome's tempo. Then press Sing and sing it back.";
+    : "Tap a note to hear it, or play the scale up and down on the metronome's tempo. Then press Sing and sing it back.");
 
   return (
     <div className="flex flex-col gap-5">
@@ -419,6 +417,8 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
               </Button>
             )}
             {tab === "scales" && <MicButton on={mic} onClick={toggleMic} />}
+            {/* the input the mic hears: by the scale's mic button, or for the melodies by the heading (each card has its own Select) */}
+            {tab !== "intervals" && <InputChip status={status} />}
             {message && <p className="min-w-0 basis-full text-sm sm:basis-0 sm:flex-1 text-slate-400" aria-live="polite">{message}</p>}
           </div>
           {tuneTab ? (
@@ -461,7 +461,7 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
               reveal={linked?.n ?? null}
             />
           ) : tab === "intervals" ? (
-            <IntervalDrill ladder={ladder} range={range} clef={clef} pitch={pitch} cents={cents} semis={semis} direction={direction} prompt={prompt} mic={mic} onMic={toggleMic} />
+            <IntervalDrill ladder={ladder} range={range} clef={clef} pitch={pitch} cents={cents} semis={semis} direction={direction} prompt={prompt} mic={mic} micStatus={status} onMic={toggleMic} />
           ) : (
             <SingingStaff ladder={ladder} clef={clef} pitch={pitch} played={played} onNote={(i) => void tap(i)} cents={cents} />
           )}
@@ -488,6 +488,7 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
           }}
           bpm={pocket?.bpm ?? FALLBACK_BPM}
           mic={mic}
+          status={status}
           playing={playing === focused.n}
           message={status === "on" ? "Sing each note as the bar reaches it" : status === "off" ? "Press Sing and sing along with the bar" : message ?? ""}
           onPrev={prev}

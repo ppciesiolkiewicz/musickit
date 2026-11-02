@@ -8,6 +8,8 @@ import type { Ladder, LadderNote, Range } from "@/features/theory/singing";
 import { intervalName, nextIntervalQuestion, type IntervalDirection, type IntervalQuestion } from "@/features/theory/singingIntervals";
 import SingingStaff from "./SingingStaff";
 import MicButton from "./MicButton";
+import InputChip from "@/components/InputChip";
+import type { MicStatus } from "@/components/practice/useMicPitch";
 
 /** how long each note of the interval sounds, in ms */
 const NOTE_MS = 750;
@@ -26,7 +28,7 @@ type Phase = "prompt" | "listening" | "solved" | "shown";
  * to sing named above it. The interval plays (or the root alone, the harder way), then the mic listens; holding the target
  * for a moment counts it, shows it on the staff and plays the interval back. The mic doesn't listen while the prompt plays.
  */
-export default function IntervalDrill({ ladder, range, clef, pitch, cents, semis, direction, prompt, mic, onMic }: {
+export default function IntervalDrill({ ladder, range, clef, pitch, cents, semis, direction, prompt, mic, micStatus, onMic }: {
   ladder: Ladder;
   range: Range;
   clef: Clef;
@@ -37,6 +39,8 @@ export default function IntervalDrill({ ladder, range, clef, pitch, cents, semis
   direction: IntervalDirection;
   prompt: IntervalPrompt;
   mic: boolean;
+  /** the page's listener, for the input chip */
+  micStatus: MicStatus;
   onMic: () => void;
 }) {
   const [q, setQ] = useState<IntervalQuestion | null>(null);
@@ -136,6 +140,7 @@ export default function IntervalDrill({ ladder, range, clef, pitch, cents, semis
         {q && <Button size="sm" onClick={() => void playRoot()}>Root</Button>}
         {q && !found && <Button size="sm" onClick={() => reveal(false)}>Show me</Button>}
         <MicButton on={mic} onClick={onMic} />
+        <InputChip status={micStatus} />
         {score.asked > 0 && <span className="ml-auto text-sm tabular-nums text-slate-400">{score.right}/{score.asked} sung</span>}
       </div>
       {q && staff && (

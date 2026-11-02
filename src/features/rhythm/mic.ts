@@ -1,4 +1,5 @@
-import { readDeviceChoice } from "@/features/sound";
+import { openLiveInput, readDeviceChoice } from "@/features/sound";
+import { rms } from "@/lib/practice/mic";
 import { createOnsetDetector, type OnsetOptions } from "./onset";
 import { heardNow } from "./clock";
 
@@ -29,7 +30,8 @@ export interface StrumListener { stop: () => void; setOptions: (o: OnsetOptions)
 /**
  * Opens the microphone (the input chosen in the nav's devices menu) and calls `onStrum` with the heard time (see clock.ts) of every strum. The mic hears a strum when the
  * audio clock is at t, but the speakers are behind the clock, and the mic itself adds its own delay (reported by some browsers),
- * so both are taken off; what is left over is the player's offset, which the game lets them set.
+ * so both are taken off; what is left over is the player's offset, which the game lets them set. While it listens it publishes
+ * the input's level (see liveInput.ts), so the input chip shows the mic hears.
  */
 export async function listenForStrums(ctx: AudioContext, onStrum: (heard: number) => void, options: OnsetOptions): Promise<StrumListener> {
   const input = readDeviceChoice().input;
@@ -46,7 +48,9 @@ export async function listenForStrums(ctx: AudioContext, onStrum: (heard: number
   // its output is silent; connected so every browser keeps pulling it
   src.connect(tap).connect(ctx.destination);
   let detector = createOnsetDetector(ctx.sampleRate, options);
+  const live = openLiveInput();
   tap.port.onmessage = (e: MessageEvent<{ t: number; samples: Float32Array }>) => {
+    live.levels([rms(e.data.samples)]);
     const found = detector.push(e.data.samples, e.data.t);
     if (!found.length) return;
     const lag = ctx.currentTime - heardNow(ctx);
@@ -56,6 +60,7 @@ export async function listenForStrums(ctx: AudioContext, onStrum: (heard: number
     setOptions: (o) => { detector = createOnsetDetector(ctx.sampleRate, o); },
     stop: () => {
       tap.port.onmessage = null;
+      live.close();
       src.disconnect();
       tap.disconnect();
       stream.getTracks().forEach((t) => t.stop());

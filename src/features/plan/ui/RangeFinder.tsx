@@ -2,7 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui";
-import { getAudioContext, readDeviceChoice } from "@/features/sound";
+import InputChip, { micStatusMessage } from "@/components/InputChip";
+import type { MicStatus } from "@/components/practice/useMicPitch";
+import { getAudioContext, openLiveInput, readDeviceChoice } from "@/features/sound";
+import { rms } from "@/lib/practice/mic";
 import { usePitch } from "@/features/tuner/usePitch";
 import { VOICES, hzToMidi, type Voice } from "@/features/theory/singing";
 import { isHighEnough, nearestVoice, noteName, normaliseRange, steadyNote } from "@/features/theory/voiceRange";
@@ -14,14 +17,18 @@ const FRAME = 4096;
 const STEADY_FRAMES = 30;
 const GIVE_UP_MS = 10_000;
 const MIN_HZ = 60;
+/** how often the input's level is published for the chip */
+const LEVEL_MS = 66;
 
 /**
  * Finds a singing range with the microphone: sing the lowest comfortable note, then the highest, each held for about a second.
- * Reports the range and its nearest voice type. Releases the microphone when done or unmounted.
+ * Reports the range and its nearest voice type. Releases the microphone when done or unmounted. It sits in a modal where the
+ * nav's devices menu can't be reached, so the input chip beside its button shows and changes the input and the level it hears.
  */
 export default function RangeFinder({ onRange }: { onRange: (r: { low: number; high: number }, voice: Voice) => void }) {
   const [step, setStep] = useState<Step>("idle");
   const [message, setMessage] = useState<string | null>(null);
+  const [status, setStatus] = useState<MicStatus>("off");
   const [result, setResult] = useState<{ low: number; high: number; voice: Voice } | null>(null);
   const analyser = useRef<AnalyserNode | null>(null);
   const release = useRef<(() => void) | null>(null);
@@ -33,7 +40,12 @@ export default function RangeFinder({ onRange }: { onRange: (r: { low: number; h
   const listening = step === "low" || step === "high";
   const hz = usePitch(() => analyser.current, MIN_HZ, listening);
 
-  const stop = () => { release.current?.(); release.current = null; analyser.current = null; };
+  const stop = () => {
+    release.current?.();
+    release.current = null;
+    analyser.current = null;
+    if (alive.current) setStatus((st) => (st === "on" || st === "asking" ? "off" : st));
+  };
   useEffect(() => {
     alive.current = true;
     return () => { alive.current = false; stop(); };
@@ -47,6 +59,14 @@ export default function RangeFinder({ onRange }: { onRange: (r: { low: number; h
     setBusy(true);
     setMessage(null);
     let stream: MediaStream | null = null;
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setStatus("insecure");
+      setMessage(micStatusMessage("insecure"));
+      starting.current = false;
+      setBusy(false);
+      return;
+    }
+    setStatus("asking");
     try {
       const input = readDeviceChoice().input;
       stream = await navigator.mediaDevices.getUserMedia({ audio: { deviceId: input ? { ideal: input.id } : undefined, echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
@@ -62,14 +82,29 @@ export default function RangeFinder({ onRange }: { onRange: (r: { low: number; h
       an.fftSize = FRAME;
       src.connect(an);
       analyser.current = an;
-      release.current = () => { src.disconnect(); free(); };
+      // the level, for the input chip
+      const live = openLiveInput();
+      const buf = new Float32Array(an.fftSize);
+      const meter = window.setInterval(() => {
+        an.getFloatTimeDomainData(buf);
+        live.levels([rms(buf)]);
+      }, LEVEL_MS);
+      release.current = () => { window.clearInterval(meter); live.close(); src.disconnect(); free(); };
+      setStatus("on");
       low.current = null;
       history.current = [];
       setStep("low");
-    } catch {
+    } catch (e) {
       stream?.getTracks().forEach((t) => t.stop());
       stop();
-      if (alive.current) giveUp();
+      if (!alive.current) return;
+      // no stream: the mic was blocked or isn't there, so say that rather than "couldn't hear you"
+      if (!stream) {
+        const st: MicStatus = e instanceof DOMException && (e.name === "NotAllowedError" || e.name === "SecurityError") ? "denied" : "error";
+        setStatus(st);
+        setStep("idle");
+        setMessage(`${micStatusMessage(st)} Or pick a type above.`);
+      } else giveUp();
     } finally { starting.current = false; if (alive.current) setBusy(false); }
   };
 
@@ -100,7 +135,10 @@ export default function RangeFinder({ onRange }: { onRange: (r: { low: number; h
 
   return (
     <div className="flex flex-col items-start gap-2" aria-live="polite">
-      {step === "idle" && <Button onClick={start} disabled={busy}>Find my range</Button>}
+      <div className="flex flex-wrap items-center gap-2">
+        {step === "idle" && <Button onClick={start} disabled={busy}>Find my range</Button>}
+        <InputChip status={status} />
+      </div>
       {step === "low" && <p className="text-sm text-slate-200">Sing your lowest comfortable note</p>}
       {step === "high" && <p className="text-sm text-slate-200">Now your highest</p>}
       {step === "done" && result && (
