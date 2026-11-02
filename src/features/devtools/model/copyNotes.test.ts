@@ -100,8 +100,8 @@ test("windowAround cuts a long text round the part", () => {
 });
 
 test("a text note's context goes under its quote in the Markdown", () => {
-  const md = copyNotesMarkdown([note({ context: { under: ["Components", "Arpeggio part"], components: ["ComponentStories", "ArpeggioPart"], around: "Play the notes one by one" } })]);
-  assert.ok(md.includes('- "Sing with the mic" (button)\n  under: Components › Arpeggio part\n  components: ComponentStories › ArpeggioPart\n  around: "Play the notes one by one"\n  → too long'));
+  const md = copyNotesMarkdown([note({ context: { under: ["Components", "Arpeggio part"], components: ["ComponentStories", "ArpeggioPart"], source: "src/a/ArpeggioPart.tsx:12:5", around: "Play the notes one by one" } })]);
+  assert.ok(md.includes('- "Sing with the mic" (button)\n  under: Components › Arpeggio part\n  components: ComponentStories › ArpeggioPart\n  source: src/a/ArpeggioPart.tsx:12:5\n  around: "Play the notes one by one"\n  → too long'));
   assert.deepEqual(contextLines(undefined), []);
   assert.deepEqual(contextLines({ under: [] }), []);
 });

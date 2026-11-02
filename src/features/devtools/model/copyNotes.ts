@@ -28,8 +28,11 @@ export interface NoteSection {
 export interface NoteContext {
   /** the labelled regions (a nav's, a dialog's aria-label) and headings it sits under, outermost first ("Dev tools", "Components") */
   under?: string[];
-  /** the React components that render it, outermost first, the app's own only ("ComponentStories", "ArpeggioPart") */
+  /** the React components that render it, outermost first, the app's own only, each with the file and line of its JSX
+   * round the text when known ("ComponentStories src/features/devtools/stories/ComponentStories.tsx:74") */
   components?: string[];
+  /** the line of JSX that renders the noted element ("src/features/devtools/stories/Controls.tsx:40:9"), when known */
+  source?: string;
   /** the text of the block round it, cut to a window about the noted text */
   around?: string;
 }
@@ -85,6 +88,7 @@ export function contextLines(c: NoteContext | undefined): string[] {
   return [
     ...(strings(c.under).length ? [`under: ${strings(c.under).join(" › ")}`] : []),
     ...(strings(c.components).length ? [`components: ${strings(c.components).join(" › ")}`] : []),
+    ...(typeof c.source === "string" && c.source ? [`source: ${c.source}`] : []),
     ...(typeof c.around === "string" && c.around ? [`around: "${c.around}"`] : []),
   ];
 }

@@ -2,7 +2,7 @@ import { squeeze, windowAround, type NoteContext } from "../model/copyNotes";
 
 /*
  * What's round a text when it is noted, read from the page: the headings and labelled regions it sits under, the React
- * components that render it and the text of the block round it. Saved with the note, so the copied notes tell an AI
+ * components that render it, the line of JSX that made it (`sourcesOf`, in dev) and the text of the block round it. Saved with the note, so the copied notes tell an AI
  * tool (or a person) which screen, component and passage to change, not just the words.
  */
 
@@ -15,6 +15,9 @@ const GENERIC = /^(Link|LinkComponent|Image|Script|Head|ForwardRef|Memo)$|(Provi
 interface Fiber {
   type?: unknown;
   return?: Fiber | null;
+  /** dev only: the component whose JSX made this element, and that JSX call's stack */
+  _debugOwner?: Fiber | null;
+  _debugStack?: { stack?: string } | null;
 }
 
 const nameOf = (type: unknown): string | null => {
@@ -27,17 +30,71 @@ const nameOf = (type: unknown): string | null => {
   return null;
 };
 
-/** The app's components that render `el` (the innermost `max`), outermost first, from React's dev fiber on the element (none in production). */
-function componentsOf(el: Element, max = 6): string[] {
+const fiberOf = (el: Element): Fiber | null => {
   const key = Object.keys(el).find((k) => k.startsWith("__reactFiber$"));
-  const names: string[] = [];
-  for (let f = key ? ((el as unknown as Record<string, Fiber>)[key] ?? null) : null; f && names.length < max; f = f.return ?? null) {
+  return key ? ((el as unknown as Record<string, Fiber>)[key] ?? null) : null;
+};
+
+/** The app's components that render `el` (the innermost `max`), outermost first, from React's dev fiber on the element (none in production). */
+function componentFibersOf(el: Element, max = 6): { name: string; fiber: Fiber }[] {
+  const out: { name: string; fiber: Fiber }[] = [];
+  for (let f = fiberOf(el); f && out.length < max; f = f.return ?? null) {
     const name = nameOf(f.type);
     // short names are minified or generic; a name twice in a row is a wrapper of itself
     if (name && FRAMEWORK.test(name)) break;
-    if (name && name.length > 2 && /^[A-Z]/.test(name) && !GENERIC.test(name) && names[names.length - 1] !== name) names.push(name);
+    if (name && name.length > 2 && /^[A-Z]/.test(name) && !GENERIC.test(name) && out[out.length - 1]?.name !== name) out.push({ name, fiber: f });
   }
-  return names.reverse();
+  return out.reverse();
+}
+
+const componentsOf = (el: Element) => componentFibersOf(el).map((c) => c.name);
+
+/* ---- where in the source: the line of JSX that made an element, from the stack React keeps of that call in dev ---- */
+
+interface Frame {
+  file: string;
+  line1: number;
+  column1: number;
+}
+
+/** The first frame of a JSX call's stack in the app's own bundle (not React's, not a package's): a place in a chunk. */
+function callSiteOf(f: Fiber | null): Frame | null {
+  for (const line of f?._debugStack?.stack?.split("\n").slice(1) ?? []) {
+    const m = /\(?(https?:\/\/[^/]+)?(\/_next\/static\/chunks\/[^:)]+):(\d+):(\d+)\)?\s*$/.exec(line);
+    if (m && !/node_modules|next_dist|react-dom|jsxDEV/.test(m[2] + line)) return { file: m[2], line1: Number(m[3]), column1: Number(m[4]) };
+  }
+  return null;
+}
+
+/**
+ * The noted element's line of JSX ("src/…/Controls.tsx:40:9") and each component's with the file it is in ("Row
+ * src/…/Controls.tsx:12"): a component's place is the nearest element round the noted one that its JSX made. Asks
+ * /api/dev/source to map the bundle back; nothing where it can't (a production build, another bundler).
+ */
+export async function sourcesOf(el: Element): Promise<Pick<NoteContext, "source" | "components">> {
+  const host = fiberOf(el);
+  const comps = componentFibersOf(el);
+  const madeBy = (owner: Fiber) => {
+    for (let f = host; f; f = f.return ?? null) if (typeof f.type === "string" && f._debugOwner === owner) return callSiteOf(f);
+    return null;
+  };
+  const frames = [callSiteOf(host), ...comps.map((c) => madeBy(c.fiber))];
+  const known = frames.filter((f): f is Frame => !!f);
+  if (!known.length) return {};
+  try {
+    const res = await fetch("/api/dev/source", { method: "POST", body: JSON.stringify({ frames: known }) });
+    const mapped = (await res.json()) as (string | null)[];
+    if (!Array.isArray(mapped)) return {};
+    let i = 0;
+    const at = frames.map((f) => (f ? (mapped[i++] ?? null) : null));
+    const [source, ...rest] = at;
+    return {
+      ...(source ? { source } : {}),
+      components: comps.map((c, k) => (rest[k] ? `${c.name} ${rest[k]!.replace(/:\d+$/, "")}` : c.name)),
+    };
+  } catch {
+    return {};
+  }
 }
 
 const HEADING = "h1,h2,h3,h4,h5,h6";

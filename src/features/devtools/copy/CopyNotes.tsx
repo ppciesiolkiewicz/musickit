@@ -9,7 +9,7 @@ import { useCommits, useCopyNotes, useLinkedNote, useRoute, useShownSections, wr
 import { devUi } from "../gate";
 import { NoteBar } from "./NoteBar";
 import { TextNoteMarks, pathOf, placesOf } from "./TextNoteMarks";
-import { contextOf } from "./context";
+import { contextOf, sourcesOf } from "./context";
 
 const ROOT = "data-copy-notes";
 const whereOf = (el: Element) => {
@@ -84,12 +84,17 @@ export default function CopyNotes() {
       if (el) el.style.outline = "2px dashed #fbbf24";
     };
     const click = (e: MouseEvent) => {
-      const el = pick(e);
-      if (!el) return;
+      if (e.target instanceof Element && e.target.closest(`[${ROOT}]`)) return;
+      // in note mode a click on the page only notes: one that hits no block does nothing
       e.preventDefault();
       e.stopPropagation();
+      const el = pick(e);
+      if (!el) return;
       const text = squeeze(el.innerText);
-      setTarget({ text, where: whereOf(el), path: pathOf(el, ROOT), context: contextOf(el, text, ROOT) });
+      const path = pathOf(el, ROOT);
+      setTarget({ text, where: whereOf(el), path, context: contextOf(el, text, ROOT) });
+      // the JSX's file and line come a moment later, from the dev server's source maps
+      void sourcesOf(el).then((src) => setTarget((t) => (t && t.path === path && t.text === text ? { ...t, context: { ...t.context, ...src } } : t)));
       setDraft("");
     };
     const key = (e: KeyboardEvent) => e.key === "Escape" && (setTarget(null), setOn(false));
