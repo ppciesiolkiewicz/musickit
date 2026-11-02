@@ -53,7 +53,8 @@ function placeList(chip: DOMRect, align: "left" | "right"): React.CSSProperties 
 
 /**
  * The input next to a mic switch: a mic, the chosen input's short name and, while the app listens, a level bar per input of the
- * device (two on an audio interface, the one heard brighter). A press opens the input list (the nav's devices menu, inputs only)
+ * device (two on an audio interface, the one heard brighter). A press opens the input list (the nav's devices menu, the output
+ * folded into one row)
  * with what `status` means, so the input can be checked and changed where the mic is used. The choice is the app's one input:
  * every chip and the nav show and change the same one. `status` is the host's listener; without it the chip only shows the input.
  */
@@ -110,7 +111,7 @@ export default function InputChip({ status = "off", align = "left", className = 
           <p className="mb-2 px-1 text-xs text-slate-500">
             {message ?? (levels.length > 1 ? "Two inputs: the louder one is heard." : "Used everywhere the app listens.")}
           </p>
-          <AudioDevicesPanel outputs={false} />
+          <AudioDevicesPanel outputs="collapsed" />
         </div>,
         document.body,
       )}

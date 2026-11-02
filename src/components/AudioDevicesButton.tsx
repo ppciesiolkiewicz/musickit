@@ -43,15 +43,16 @@ function DeviceList({ icon, title, hint, items, chosen, onPick }: { icon: "mic" 
 
 /**
  * The input and output lists with "Detect devices": the body of the nav's devices menu, and of any page's own devices dialog
- * (the teacher studio's Audio input widget, which picks its inputs itself: `inputs` off; the input chip: `outputs` off). Lists the
- * devices while shown and follows plugging in and out.
+ * (the teacher studio's Audio input widget, which picks its inputs itself: `inputs` off; the input chip: `outputs` "collapsed", a
+ * row with the chosen output that opens its list). Lists the devices while shown and follows plugging in and out.
  */
-export function AudioDevicesPanel({ inputs = true, outputs: withOutputs = true }: { inputs?: boolean; outputs?: boolean }) {
+export function AudioDevicesPanel({ inputs = true, outputs: withOutputs = true }: { inputs?: boolean; outputs?: boolean | "collapsed" }) {
   const choice = useSyncExternalStore(subscribeDeviceChoice, readDeviceChoice, serverDeviceChoice);
   const outputs = useSyncExternalStore(subscribeNever, canChooseOutput, () => false);
   const [list, setList] = useState<{ inputs: AudioDevice[]; outputs: AudioDevice[] }>({ inputs: [], outputs: [] });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [outputsOpen, setOutputsOpen] = useState(withOutputs !== "collapsed");
 
   const refresh = useCallback(() => listAudioDevices().then(setList), []);
 
@@ -84,7 +85,21 @@ export function AudioDevicesPanel({ inputs = true, outputs: withOutputs = true }
     <>
       <div className="flex flex-col gap-3">
         {inputs && <DeviceList icon="mic" title="Input" hint="what the page hears" items={list.inputs} chosen={input} onPick={(d) => setDeviceChoice({ input: d })} />}
-        {!withOutputs ? null : outputs ? (
+        {!withOutputs ? null : !outputsOpen ? (
+          <button
+            type="button"
+            aria-expanded={false}
+            onClick={() => setOutputsOpen(true)}
+            className="flex items-center gap-2 rounded-xl px-1 py-1 text-left text-xs text-slate-500 transition hover:text-slate-200 focus-visible:outline-2 focus-visible:outline-sky-400"
+          >
+            <span className="grid size-6 shrink-0 place-items-center rounded-lg bg-sky-500/15 text-sky-300">
+              <Icon name="headphones" size={13} />
+            </span>
+            <span className="font-medium uppercase tracking-wider text-slate-400">Output</span>
+            <span className="min-w-0 flex-1 truncate">{output ? cleanDeviceName(output.label) : "System default"}</span>
+            <Icon name="chevron-right" size={14} className="shrink-0" />
+          </button>
+        ) : outputs ? (
           <DeviceList icon="headphones" title="Output" hint="where the sound plays" items={list.outputs} chosen={output} onPick={(d) => setDeviceChoice({ output: d })} />
         ) : (
           <p className="flex items-center gap-2 px-1 text-xs text-slate-500">
