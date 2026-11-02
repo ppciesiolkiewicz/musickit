@@ -1,11 +1,11 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useSyncExternalStore } from "react";
 import { AudioDevicesPanel } from "@/components/AudioDevicesButton";
 import Icon from "@/components/Icon";
 import type { MicStatus } from "@/components/practice/useMicPitch";
 import { Modal } from "@/components/ui";
-import { cleanDeviceName, listAudioDevices, type AudioDevice } from "@/features/sound";
+import { cleanDeviceName, listAudioDevices, readDeviceChoice, serverDeviceChoice, subscribeDeviceChoice, type AudioDevice } from "@/features/sound";
 import { TunerMeter, hzToNote, type TunerRead } from "@/features/tuner";
 import { CHANNELS, CHANNEL_NAMES, SOURCES, SOURCE_NAMES, type AudioInputSetup, type AudioSource, type SourceSetup } from "../model/audioInput";
 
@@ -37,6 +37,12 @@ const STATUS: Record<MicStatus, string> = {
 
 const seg = (on: boolean) => `px-2.5 py-1 transition ${on ? "bg-slate-700 text-slate-100" : "text-slate-400 hover:text-slate-200"}`;
 
+/** The app's chosen input by name ("App input: Scarlett 2i2"), what a source without its own device listens to. */
+function useAppInputName(): string {
+  const input = useSyncExternalStore(subscribeDeviceChoice, readDeviceChoice, serverDeviceChoice).input;
+  return `App input: ${input ? cleanDeviceName(input.label) : "System mic"}`;
+}
+
 /** The note heard, chromatic: its nearest note and how many cents off it. */
 const readOf = (hz: number | null): TunerRead | null => {
   if (hz === null) return null;
@@ -45,8 +51,9 @@ const readOf = (hz: number | null): TunerRead | null => {
 };
 
 /**
- * The audio input's face: Guitar or Voice, the note heard with how far off it is (the tuner's meter), Listen / Stop, and a cog for
- * each source's device and channel and the output. The notes light up on the pinned and selected widgets.
+ * The audio input's face: Guitar or Voice, the device it listens to (by default the app's input, followed when it changes), the note
+ * heard with how far off it is (the tuner's meter), Listen / Stop, and a cog for the app's input and output and each source's own
+ * device and channel. The notes light up on the pinned and selected widgets.
  */
 export default function MicWidget() {
   const mic = useContext(MicContext);
@@ -54,6 +61,8 @@ export default function MicWidget() {
   const status = mic?.status ?? "off";
   const listening = status === "on" || status === "asking";
   const source = mic?.setup.source ?? "guitar";
+  const appName = useAppInputName();
+  const device = mic?.setup[source].device;
   return (
     <div className="flex flex-col gap-3 rounded-xl border border-slate-800 bg-slate-950 p-4">
       <p className="flex items-center gap-2 text-sm font-medium text-slate-200">
@@ -69,6 +78,11 @@ export default function MicWidget() {
             </button>
           ))}
         </span>
+      )}
+      {mic && (
+        <p data-chrome className="-mt-1 truncate text-xs text-slate-400" title={device ? "This source's own device (change it under the cog)" : "Follows the input chosen in the devices menu"}>
+          {device ? cleanDeviceName(device.label) : appName} · {CHANNEL_NAMES[mic.setup[source].channel]}
+        </p>
       )}
       <div className="flex flex-col items-center">
         <TunerMeter hz={mic?.hz ?? null} read={readOf(mic?.hz ?? null)} size="compact" idle={listening ? "Play a note" : "Not listening"} />
@@ -91,9 +105,10 @@ export default function MicWidget() {
         // the dialog is drawn on the page, but its events still bubble through the widget: keep them from dragging it
         <div onPointerDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
           <Modal title="Audio input" narrow onClose={() => setDevices(false)}>
-            <InputSetup setup={mic.setup} onSetup={mic.onSetup} />
+            {/* the app's input (what a source without its own device hears, here and everywhere else) and output */}
+            <AudioDevicesPanel />
             <div className="mt-4 border-t border-slate-800 pt-3">
-              <AudioDevicesPanel inputs={false} />
+              <InputSetup setup={mic.setup} onSetup={mic.onSetup} />
             </div>
           </Modal>
         </div>
@@ -111,10 +126,11 @@ function InputSetup({ setup, onSetup }: { setup: AudioInputSetup; onSetup: (s: A
     navigator.mediaDevices?.addEventListener?.("devicechange", refresh);
     return () => navigator.mediaDevices?.removeEventListener?.("devicechange", refresh);
   }, []);
+  const appName = useAppInputName();
   const set = (s: AudioSource, patch: Partial<SourceSetup>) => onSetup({ ...setup, [s]: { ...setup[s], ...patch } });
   return (
     <div className="flex flex-col gap-3">
-      <p className="px-1 text-xs text-slate-500">One input feeds every widget. Pick which listens on the widget.</p>
+      <p className="px-1 text-xs text-slate-500">One input feeds every widget. Pick which listens on the widget. Each follows the app&apos;s input unless given a device of its own; Louder hears the louder input of a two-input device.</p>
       {SOURCES.map((s) => {
         const src = setup[s];
         // a remembered device that is not plugged in still shows, by name
@@ -138,7 +154,7 @@ function InputSetup({ setup, onSetup }: { setup: AudioInputSetup; onSetup: (s: A
               onChange={(e) => set(s, { device: options.find((d) => d.id === e.target.value) ?? null })}
               className="rounded-md border border-slate-700 bg-slate-900 px-2 py-1 text-sm text-slate-200"
             >
-              <option value="">The site&apos;s input (devices menu)</option>
+              <option value="">{appName}</option>
               {options.map((d) => (
                 <option key={d.id} value={d.id}>{cleanDeviceName(d.label)}</option>
               ))}

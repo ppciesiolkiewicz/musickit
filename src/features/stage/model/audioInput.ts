@@ -1,11 +1,12 @@
 /**
  * The studio's one audio input: what feeds the widgets (the note heard lights up on the pinned and selected ones). Two sources, as in
- * the looper: a guitar (an audio interface's Input 1) and a voice (a microphone, both channels); one listens at a time. Each source
- * has its own device (null: the input chosen in the nav's devices menu) and channel. Plain data, saved by the studio. Pure.
+ * the looper: a guitar and a voice; one listens at a time. Each source has a device (null, the default: the app's input, chosen in
+ * the devices menu or an input chip, and followed when it changes) and a channel (`auto`, the default: the louder input of a
+ * two-input device, as the rest of the app hears it). Plain data, saved by the studio. Pure.
  */
 
 export type AudioSource = "guitar" | "voice";
-export type InputChannel = "left" | "right" | "sum";
+export type InputChannel = "auto" | "left" | "right" | "sum";
 
 export interface SourceSetup {
   device: { id: string; label: string } | null;
@@ -20,13 +21,13 @@ export interface AudioInputSetup {
 
 export const SOURCES: AudioSource[] = ["guitar", "voice"];
 export const SOURCE_NAMES: Record<AudioSource, string> = { guitar: "Guitar", voice: "Voice" };
-export const CHANNELS: InputChannel[] = ["left", "right", "sum"];
-export const CHANNEL_NAMES: Record<InputChannel, string> = { left: "Input 1", right: "Input 2", sum: "Both" };
+export const CHANNELS: InputChannel[] = ["auto", "left", "right", "sum"];
+export const CHANNEL_NAMES: Record<InputChannel, string> = { auto: "Louder", left: "Input 1", right: "Input 2", sum: "Both" };
 
 export const DEFAULT_AUDIO_INPUT: AudioInputSetup = {
   source: "guitar",
-  guitar: { device: null, channel: "left" },
-  voice: { device: null, channel: "sum" },
+  guitar: { device: null, channel: "auto" },
+  voice: { device: null, channel: "auto" },
 };
 
 const obj = (v: unknown): Record<string, unknown> | null => (typeof v === "object" && v !== null && !Array.isArray(v) ? (v as Record<string, unknown>) : null);
