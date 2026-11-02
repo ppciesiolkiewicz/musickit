@@ -41,6 +41,6 @@ export const TONE_CLASSES: Record<DevTone, { tab: string; active: string; card: 
 export const DEV_TOOLS: DevTool[] = [
   { href: "/dev/prompt", label: "Prompt studio", tone: "prompt", desc: "The autoplan prompt as labelled parts: edit them, run it with the local Claude, see the plan it writes." },
   { href: "/dev/examples", label: "Prompt examples", tone: "prompt", desc: "Every example the prompt carries, rendered as the player would see it." },
-  { href: "/dev/stories", label: "Component stories", tone: "stories", desc: "One learning component in many set-ups, its props editable as JSON: position-neck so far." },
+  { href: "/dev/stories", label: "Component stories", tone: "stories", desc: "Every exercise component in the set-ups the examples use, Storybook-style: controls from its documented props, or edit the JSON." },
   { href: "/dev/notes", label: "Copy notes", tone: "notes", desc: "The notes made on any page with the Notes button, by page in sitemap order: copy, re-pin or clear them." },
 ];

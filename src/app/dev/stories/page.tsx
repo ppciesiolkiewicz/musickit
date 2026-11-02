@@ -1,6 +1,6 @@
 import DevShell from "@/features/devtools/DevShell";
-import PositionNeckStories from "@/features/devtools/stories/PositionNeckStories";
+import ComponentStories from "@/features/devtools/stories/ComponentStories";
 
 export default function StoriesPage() {
-  return <DevShell wide><PositionNeckStories /></DevShell>;
+  return <DevShell wide><ComponentStories /></DevShell>;
 }

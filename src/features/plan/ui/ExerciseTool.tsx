@@ -49,8 +49,8 @@ const params = (tool: PlanTool): object => {
   return rest;
 };
 
-/** `voice` is the student's voice type: the singer tools use it when the AI set none. */
-function Tool({ tool, voice }: { tool: PlanTool; voice?: Voice }) {
+/** `voice` is the student's voice type: the singer tools use it when the AI set none. Also the /dev/stories canvas. */
+export function Tool({ tool, voice }: { tool: PlanTool; voice?: Voice }) {
   switch (tool.type) {
     case "scale-neck":
       return <ScaleNeck slug={tool.scale} pc={tool.key} boxes={tool.boxes} placement={tool.placement} add={tool.add} enable={tool.enable} highlight={tool.highlight} mute={tool.mute} hide={tool.hide} others={tool.others} />;
