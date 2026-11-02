@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Icon from "@/components/Icon";
-import { clearCopyNotes, copyNotesMarkdown, noteHref, repinCopyNotes } from "../model/copyNotes";
+import { clearCopyNotes, copyNotesMarkdown, noteHref, pathOfRoute, repinCopyNotes } from "../model/copyNotes";
 import { useCommits, useCopyNotes, useLinkedNote, useScrollTo, writeCopyNotes as write } from "./store";
 import { NoteBar } from "./NoteBar";
 
@@ -54,10 +54,10 @@ export default function NotesPage() {
   const byRoute = useMemo(() => {
     const m = new Map<string, typeof notes>();
     for (const n of notes) m.set(n.route, [...(m.get(n.route) ?? []), n]);
-    const rank = (r: string) => (sitemap.includes(r) ? sitemap.indexOf(r) : sitemap.length);
+    const rank = (r: string) => (sitemap.includes(pathOfRoute(r)) ? sitemap.indexOf(pathOfRoute(r)) : sitemap.length);
     return [...m].sort((a, b) => rank(a[0]) - rank(b[0]) || a[0].localeCompare(b[0]));
   }, [notes, sitemap]);
-  const empty = sitemap.filter((p) => !byRoute.some(([r]) => r === p));
+  const empty = sitemap.filter((p) => !byRoute.some(([r]) => pathOfRoute(r) === p));
   const confirm = (key: string, run: () => void) => (clearing === key ? (run(), setClearing(null)) : setClearing(key));
   const danger = (key: string) => `${BTN} ${clearing === key ? "!border-rose-400 !bg-rose-500/20 !text-rose-100" : ""}`;
 

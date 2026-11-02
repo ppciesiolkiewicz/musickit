@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useSyncExternalStore } from "react";
-import { COPY_NOTES_KEY, noteIdOf, notesOfOldComments, OLD_COMMENTS_KEY, readCopyNotes, type CopyNote } from "../model/copyNotes";
+import { COPY_NOTES_KEY, noteIdOf, notesOfOldComments, OLD_COMMENTS_KEY, readCopyNotes, routeOf, type CopyNote } from "../model/copyNotes";
 
 const EVENT = "musickit.dev.copyNotes";
 let cache: { raw: string | null; list: CopyNote[] } = { raw: null, list: [] };
@@ -49,20 +49,34 @@ export const writeCopyNotes = (change: (l: CopyNote[]) => CopyNote[]) => {
   window.dispatchEvent(new Event(EVENT));
 };
 
-/** The note the location's hash links to (`noteHref`), or null. */
-export const useLinkedNote = (): string | null =>
-  useSyncExternalStore(
-    (on) => {
-      window.addEventListener("hashchange", on);
-      window.addEventListener("popstate", on);
-      return () => {
-        window.removeEventListener("hashchange", on);
-        window.removeEventListener("popstate", on);
+/* ---- where the page is: path, hash and search, followed through hash links and history.pushState/replaceState too ---- */
+
+const LOCATION = "musickit.dev.location";
+let patched = false;
+const onLocation = (on: () => void) => {
+  // pages such as /dev/stories move by history.replaceState, which fires no event: have it (and pushState) send one,
+  // after the call returns (it may come while React renders)
+  if (!patched) {
+    patched = true;
+    for (const k of ["pushState", "replaceState"] as const) {
+      const orig = history[k];
+      history[k] = function (this: History, ...a: Parameters<History["pushState"]>) {
+        orig.apply(this, a);
+        queueMicrotask(() => window.dispatchEvent(new Event(LOCATION)));
       };
-    },
-    () => noteIdOf(location.hash),
-    () => null,
-  );
+    }
+  }
+  for (const e of ["hashchange", "popstate", LOCATION]) window.addEventListener(e, on);
+  return () => {
+    for (const e of ["hashchange", "popstate", LOCATION]) window.removeEventListener(e, on);
+  };
+};
+
+/** The route this page's notes are kept by (`routeOf`: path, and hash where there is one); "" on the server. */
+export const useRoute = (): string => useSyncExternalStore(onLocation, () => routeOf(location.pathname, location.hash), () => "");
+
+/** The note the location links to (`noteHref`), or null. */
+export const useLinkedNote = (): string | null => useSyncExternalStore(onLocation, () => noteIdOf(location.search, location.hash), () => null);
 
 /** Scrolls the element with `id` into the middle of the view once it is there (it may mount after the page). */
 export function useScrollTo(id: string | null) {

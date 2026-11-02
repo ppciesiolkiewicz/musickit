@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { clearCopyNotes, copyNotesMarkdown, hashKey, notesOfOldComments, outdatedCount, placeOf, readCopyNotes, repinCopyNotes, squeeze, stateOf, type CopyNote, type NoteSection } from "./copyNotes";
+import { clearCopyNotes, copyNotesMarkdown, hashKey, noteHref, noteIdOf, notesOfOldComments, outdatedCount, pathOfRoute, placeOf, readCopyNotes, repinCopyNotes, routeOf, squeeze, stateOf, type CopyNote, type NoteSection } from "./copyNotes";
 
 const note = (o: Partial<CopyNote>): CopyNote => ({ id: "1", route: "/plan", text: "Sing with the mic", where: "button", note: "too long", at: "2026-11-02T00:00:00Z", ...o });
 const sec = (o: Partial<NoteSection> = {}): NoteSection => ({ example: "ex-a", address: "ex", index: 2, kind: "text", hash: "aaaaaaaa", commit: "abc1234", ...o });
@@ -73,4 +73,20 @@ test("old /dev/examples comments become section notes", () => {
   });
   assert.deepEqual(notesOfOldComments("x"), []);
   assert.equal(readCopyNotes([n]).length, 1);
+});
+
+test("routeOf keeps the hash a page moves by, not a note link's", () => {
+  assert.equal(routeOf("/dev/stories", "#guitar-play-along/arpeggio-part~0"), "/dev/stories#guitar-play-along/arpeggio-part~0");
+  assert.equal(routeOf("/plan", ""), "/plan");
+  assert.equal(routeOf("/plan", "#"), "/plan");
+  assert.equal(routeOf("/plan", "#note-abc"), "/plan");
+  assert.equal(pathOfRoute("/dev/stories#a~1"), "/dev/stories");
+});
+
+test("noteHref puts the note before the route's hash, and noteIdOf reads it back", () => {
+  assert.equal(noteHref({ id: "n1", route: "/dev/stories#a~1" }), "/dev/stories?note=n1#a~1");
+  assert.equal(noteHref({ id: "n1", route: "/dev/stories#a~1" }, "/dev/notes"), "/dev/notes?note=n1");
+  assert.equal(noteIdOf("?note=n1", "#a~1"), "n1");
+  assert.equal(noteIdOf("", "#note-old"), "old");
+  assert.equal(noteIdOf("", "#a~1"), null);
 });

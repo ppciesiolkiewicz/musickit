@@ -4,8 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Icon from "@/components/Icon";
-import { copyNotesMarkdown, noteHref, outdatedCount, repinCopyNotes, squeeze } from "../model/copyNotes";
-import { useCommits, useCopyNotes, useLinkedNote, useShownSections, writeCopyNotes as write } from "./store";
+import { copyNotesMarkdown, noteHref, outdatedCount, repinCopyNotes, squeeze, type CopyNote } from "../model/copyNotes";
+import { useCommits, useCopyNotes, useLinkedNote, useRoute, useShownSections, writeCopyNotes as write } from "./store";
 import { devUi } from "../gate";
 import { NoteBar } from "./NoteBar";
 import { TextNoteMarks, pathOf, placesOf } from "./TextNoteMarks";
@@ -28,7 +28,9 @@ const PRIMARY = "inline-flex cursor-pointer items-center gap-1.5 rounded-lg bord
  * on that wording. The pencils on /dev/examples' sections add to the same notes. All pages' notes are on /dev/notes.
  */
 export default function CopyNotes() {
-  const path = usePathname();
+  const pathname = usePathname();
+  // the path and the hash: on a page that moves by its hash (/dev/stories) each place keeps its own notes
+  const path = useRoute() || pathname;
   const notes = useCopyNotes();
   const commits = useCommits();
   const head = commits?.head ?? null;
@@ -45,7 +47,9 @@ export default function CopyNotes() {
   // the note a mark on the page opened the modal at
   const [picked, setPicked] = useState<string | null>(null);
   const hot = useRef<HTMLElement | null>(null);
-  const here = notes.filter((n) => n.route === path);
+  // section notes are kept by the path alone: their sections pin them
+  const onHere = (n: CopyNote) => n.route === (n.section ? pathname : path);
+  const here = notes.filter(onHere);
 
   useEffect(() => {
     if (!on) return;
@@ -99,7 +103,7 @@ export default function CopyNotes() {
   // text may render late, so look again until it is there); section notes are scrolled to by /dev/examples
   useEffect(() => {
     if (!devUi() || !linked || scrolled.current === linked) return;
-    const note = notes.find((n) => n.id === linked && n.route === path);
+    const note = notes.find((n) => n.id === linked && onHere(n));
     if (!note) return;
     setOpen(true);
     setList(true);
@@ -114,7 +118,7 @@ export default function CopyNotes() {
     const timer = setInterval(find, 500);
     find();
     return () => clearInterval(timer);
-  }, [notes, path, linked]);
+  }, [notes, path, pathname, linked]); // eslint-disable-line react-hooks/exhaustive-deps -- onHere is made of path and pathname
 
   if (!devUi()) return null;
 

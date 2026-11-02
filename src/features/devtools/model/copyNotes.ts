@@ -63,11 +63,23 @@ export function squeeze(text: string, max = 160): string {
   return t.length > max ? `${t.slice(0, max - 1)}…` : t;
 }
 
-/** A link to a note where it is: its page, which scrolls to it and marks it (`noteIdOf`). */
-export const noteHref = (n: Pick<CopyNote, "id" | "route">, route = n.route) => `${route}#note-${n.id}`;
+/**
+ * The route a page's notes are kept by: its path, and its hash, which some pages navigate by (/dev/stories'
+ * "#scale-neck~3" is one story, with its own notes). A note link's old "#note-<id>" is not part of it.
+ */
+export const routeOf = (pathname: string, hash: string): string => `${pathname}${hash.length > 1 && !hash.startsWith("#note-") ? hash : ""}`;
 
-/** The note a location hash links to (`#note-<id>`), if any. */
-export const noteIdOf = (hash: string): string | null => /^#note-(.+)$/.exec(hash)?.[1] ?? null;
+/** A route's path, without its hash. */
+export const pathOfRoute = (route: string): string => route.replace(/#.*$/, "");
+
+/** A link to a note where it is: its page (and hash), which scrolls to it and marks it (`noteIdOf`). */
+export const noteHref = (n: Pick<CopyNote, "id" | "route">, route = n.route) => {
+  const path = pathOfRoute(route);
+  return `${path}?note=${encodeURIComponent(n.id)}${route.slice(path.length)}`;
+};
+
+/** The note a location links to (`?note=<id>`, or the older `#note-<id>`), if any. */
+export const noteIdOf = (search: string, hash = ""): string | null => new URLSearchParams(search).get("note") ?? /^#note-(.+)$/.exec(hash)?.[1] ?? null;
 
 /** The key a section's hash is looked up by. */
 export const hashKey = (example: string, address: string, index: number) => `${example}|${address}|${index}`;
