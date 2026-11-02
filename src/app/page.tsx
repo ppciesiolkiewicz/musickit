@@ -10,7 +10,7 @@ import Photo, { type PhotoKey } from "@/components/landing/Photo";
 import StyleDivider from "@/components/landing/StyleDivider";
 import SiteFooter from "@/components/landing/SiteFooter";
 import CourseSoon from "@/components/landing/CourseSoon";
-import { DISPLAY, Eyebrow, H2 } from "@/components/landing/Display";
+import { DISPLAY, Eyebrow, H2, Mark } from "@/components/landing/Display";
 import { LiveLessonMock } from "@/components/landing/LessonMocks";
 import ScaleWheel from "@/components/theory/ScaleWheel";
 import { degreeColour, degreeLabels } from "@/features/theory/scales";
@@ -25,11 +25,11 @@ export const metadata: Metadata = {
  * Why attunr exists, told by its founder. `photo` must be a real photo of the person telling the story: a stock photo next to a
  * name reads as them. With no photo the story shows on its own.
  */
-const STORY: { name: string; detail: string; headline: string; quote: string; before: string[]; after: string[]; photo: PhotoKey | null } = {
+const STORY: { name: string; detail: string; headline: string; quote: ReactNode; before: string[]; after: string[]; photo: PhotoKey | null } = {
   name: "Piotr",
   detail: "founder of attunr",
   headline: "I was stuck, so I built the practice app I needed.",
-  quote: "I practised and practised and wasn't getting better. I kept running out of ideas for what to work on, and the apps that turned practice into a game just didn't work for me. What works is drills: repeating them until my hands know them, and understanding why they work. So I built attunr. It brings me new ideas every day, with interactive exercises and diagrams I can actually practise with. It's not a game. It's practice.",
+  quote: <>I practised and practised and wasn&apos;t getting better. I kept running out of ideas for what to work on, and the apps that turned practice into a game just didn&apos;t work for me. What works is drills: repeating them until my hands know them, and understanding why they work. So I built attunr. It brings me new ideas every day, with interactive exercises and diagrams I can actually practise with. <Mark tone="var(--color-amber-400)">It&apos;s not a game. It&apos;s practice.</Mark></>,
   before: ["Running out of ideas for what to practise", "Apps that felt like a game, not like music", "Practising, but not getting better"],
   after: ["New drills to practise every day", "Interactive exercises and diagrams that show why a drill works", "Repetition that builds muscle memory, not points"],
   photo: null,
@@ -68,11 +68,11 @@ function ProgressPath() {
 }
 
 /** What practice in attunr trains: each skill and the drill that trains it. */
-const SKILLS: { icon: IconName; title: string; text: string; tone: string; href: string; drill: string }[] = [
-  { icon: "repeat", title: "Build muscle memory", text: "Short drills you repeat until your hands know them on their own. Once your fingers move without thinking, you stop hunting for notes and start choosing them.", tone: "bg-teal-500/15 text-teal-300", href: "/theory/scales", drill: "Scale drills" },
-  { icon: "ear", title: "Hear it, sing it in tune", text: "Name an interval the moment you hear it, then sing it back while the app shows your pitch. Your ear sharpens, your voice lands on the note, and melodies start to make sense.", tone: "bg-sky-500/15 text-sky-300", href: "/theory/ears", drill: "Ear training" },
-  { icon: "metronome", title: "Lock in your rhythm", text: "Hit the beat, not just the note. See exactly how early or late you play, and tighten your timing against a metronome or a drone.", tone: "bg-violet-500/15 text-violet-300", href: "/theory/rhythm", drill: "Rhythm drills" },
-  { icon: "guitar", title: "Know the fretboard", text: "Find any note in a second. Learn the neck by name, by colour and by the job each note does, until it stops being a grid of frets and becomes a map you can read.", tone: "bg-amber-500/15 text-amber-300", href: "/theory/notes", drill: "Fretboard notes" },
+const SKILLS: { icon: IconName; title: string; text: ReactNode; tone: string; href: string; drill: string }[] = [
+  { icon: "repeat", title: "Build muscle memory", text: <>Short drills you repeat until your fingers move without thinking. Stop hunting for notes and <Mark tone="var(--color-teal-400)">start choosing them</Mark>.</>, tone: "bg-teal-500/15 text-teal-300", href: "/theory/scales", drill: "Scale drills" },
+  { icon: "ear", title: "Hear it, sing it in tune", text: <>Name an interval the moment you hear it, then sing it back while the app <Mark>shows your pitch</Mark> until your voice lands on the note.</>, tone: "bg-sky-500/15 text-sky-300", href: "/theory/ears", drill: "Ear training" },
+  { icon: "metronome", title: "Lock in your rhythm", text: <>Hit the beat, not just the note. See <Mark tone="var(--color-violet-400)">exactly how early or late</Mark> you play, and tighten up against a metronome or drone.</>, tone: "bg-violet-500/15 text-violet-300", href: "/theory/rhythm", drill: "Rhythm drills" },
+  { icon: "guitar", title: "Know the fretboard", text: <>Find any note in a second. Learn the neck by name, colour and the job each note does, until it&apos;s <Mark tone="var(--color-amber-400)">a map you can read</Mark>.</>, tone: "bg-amber-500/15 text-amber-300", href: "/theory/notes", drill: "Fretboard notes" },
 ];
 
 /** A day of the AI practice plan, drawn for the landing page: what the player sees when they open today's practice. */
@@ -112,7 +112,7 @@ export default function Home() {
               <span className="ls-accent block italic text-sky-300">turns into playing.</span>
             </h1>
             <p className="mt-6 max-w-md text-lg leading-relaxed text-slate-300">
-              Repeat the right drills until your hands know them, and understand why they work. attunr gives you drills for your fingers, ears, voice and timing, plus a fresh plan for what to practise each day.
+              Drills for your <Mark>fingers, ears, voice and timing</Mark>. Repeat them until your hands know them, understand why they work, and open the app to a <Mark>fresh plan every day</Mark>.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link href="/plan" className="ls-btn ls-btn-primary ls-glint inline-flex items-center gap-2 rounded-xl bg-sky-400 px-5 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-sky-500/20 transition hover:bg-sky-300">
@@ -132,34 +132,36 @@ export default function Home() {
         <StyleDivider />
 
         {/* What you'll work on: the skills practice in attunr builds */}
-        <section aria-labelledby="skills-h" className="border-t border-slate-800/70 py-14 sm:py-20">
+        <section aria-labelledby="skills-h" className="border-t border-slate-800/70 py-12 sm:py-16">
           <div className="mx-auto max-w-2xl text-center">
             <Eyebrow>Drills for every part of playing</Eyebrow>
             <H2 id="skills-h">Train the skills <span className="ls-accent italic text-sky-300">behind great playing.</span></H2>
-            <p className="mt-5 text-slate-300">Better musicians are built from drills: repeated until they're automatic, and understood so you can use them in real music. attunr has drills for your hands, your ears, your voice and your timing, because good playing needs all four.</p>
+            <p className="mt-4 text-slate-300">Drills you repeat until they&apos;re <Mark>automatic</Mark>, and understand well enough to use in real music. For your hands, ears, voice and timing, because good playing needs <Mark>all four</Mark>.</p>
           </div>
-          <ul className="mt-12 grid gap-4 md:grid-cols-2">
+          <ul className="mt-10 grid gap-4 md:grid-cols-2">
             {SKILLS.map((s) => (
-              <li key={s.title} className="ls-card flex flex-col gap-4 rounded-3xl border border-slate-800 bg-slate-900/50 p-6">
-                <span className={`grid h-11 w-11 place-items-center rounded-xl ${s.tone}`}><Icon name={s.icon} size={20} /></span>
-                <h3 className="text-2xl text-slate-50" style={DISPLAY}>{s.title}</h3>
+              <li key={s.title} className="ls-card flex flex-col gap-3 rounded-3xl border border-slate-800 bg-slate-900/50 p-5 sm:p-6">
+                <div className="flex items-center gap-3">
+                  <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${s.tone}`}><Icon name={s.icon} size={20} /></span>
+                  <h3 className="text-2xl text-slate-50" style={DISPLAY}>{s.title}</h3>
+                </div>
                 <p className="text-sm leading-relaxed text-slate-400">{s.text}</p>
-                <Link href={s.href} className="mt-auto text-sm text-slate-300 underline decoration-slate-700 underline-offset-4 hover:text-slate-50">Try it: {s.drill} →</Link>
+                <Link href={s.href} className="mt-auto pt-1 text-sm text-slate-300 underline decoration-slate-700 underline-offset-4 hover:text-slate-50">Try it: {s.drill} →</Link>
               </li>
             ))}
           </ul>
         </section>
 
         {/* The AI practice plan */}
-        <section id="plan" aria-labelledby="plan-h" className="scroll-mt-6 border-t border-slate-800/70 py-14 sm:py-20">
+        <section id="plan" aria-labelledby="plan-h" className="scroll-mt-6 border-t border-slate-800/70 py-12 sm:py-16">
           <div className="grid grid-cols-[minmax(0,1fr)] items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-16">
             <div>
               <Eyebrow>AI practice plan</Eyebrow>
               <H2 id="plan-h">Never wonder <span className="ls-accent italic text-sky-300">what to practise.</span></H2>
-              <p className="mt-5 max-w-lg text-slate-300">
-                Tell attunr what you play, how much time you have and where you want to go. Your AI writes a plan built from attunr&apos;s drills, and every day a new set of exercises is waiting for you.
+              <p className="mt-4 max-w-lg text-slate-300">
+                Tell attunr what you play, how much time you have and where you want to go. Your AI builds a plan from attunr&apos;s drills, and <Mark>every day a new set of exercises</Mark> is waiting for you.
               </p>
-              <ul className="mt-7 flex flex-col gap-4">
+              <ul className="mt-6 flex flex-col gap-4">
                 {[
                   { icon: "sparkles" as const, t: "New ideas every day", s: "A fresh mix of drills each day, so practice never goes stale.", c: "bg-sky-500/15 text-sky-300" },
                   { icon: "layers" as const, t: "Each week builds on the last", s: "Next week's plan knows what you practised this week and picks up from there.", c: "bg-teal-500/15 text-teal-300" },
@@ -197,7 +199,7 @@ export default function Home() {
         </section>
 
         {/* Why attunr exists, in the founder's words */}
-        <section aria-labelledby="story-h" className="relative border-t border-slate-800/70 py-14 sm:py-20">
+        <section aria-labelledby="story-h" className="relative border-t border-slate-800/70 py-12 sm:py-16">
             <div className={STORY.photo ? "grid grid-cols-[minmax(0,1fr)] items-center gap-10 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-14" : "mx-auto max-w-3xl"}>
               {STORY.photo && <Photo name={STORY.photo} className="ls-photo aspect-4/5 rounded-3xl border border-slate-800" sizes="(min-width: 1024px) 35vw, 100vw" />}
               <div>
@@ -220,13 +222,13 @@ export default function Home() {
           </section>
 
         {/* The video course: early access and bundles */}
-        <section id="course" aria-labelledby="course-h" className="scroll-mt-6 border-t border-slate-800/70 py-14 sm:py-20">
+        <section id="course" aria-labelledby="course-h" className="scroll-mt-6 border-t border-slate-800/70 py-12 sm:py-16">
           <div className="grid grid-cols-[minmax(0,1fr)] items-end gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
             <div>
               <Eyebrow>The video course · early access</Eyebrow>
               <H2 id="course-h">Learn it step by step, <span className="ls-accent italic text-sky-300">and see it as you go.</span></H2>
-              <p className="mt-5 max-w-xl text-slate-300">
-                Want a guided path from the first note to improvising? Short video lessons take you across the fretboard by ear and by colour, and every exercise is ready to play in the app. Join early: you get the course at the early-access price, and every style course free as it launches.
+              <p className="mt-4 max-w-xl text-slate-300">
+                Want a guided path from the first note to improvising? Short video lessons take you across the fretboard by ear and by colour, and every exercise is ready to play in the app. Join early: you get the course at the <Mark>early-access price</Mark>, and <Mark>every style course free</Mark> as it launches.
               </p>
               <p className="mt-5 inline-flex items-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3 py-1.5 text-sm text-emerald-100">
                 <Icon name="check" size={16} className="text-emerald-400" /> {GUARANTEE}. Not for you? Full refund, no questions asked.
@@ -268,15 +270,15 @@ export default function Home() {
         </section>
 
         {/* Private lessons with professional teachers */}
-        <section id="lessons" aria-labelledby="lessons-h" className="scroll-mt-6 border-t border-slate-800/70 py-14 sm:py-20">
+        <section id="lessons" aria-labelledby="lessons-h" className="scroll-mt-6 border-t border-slate-800/70 py-12 sm:py-16">
           <div className="grid grid-cols-[minmax(0,1fr)] items-center gap-12 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-16">
             <div>
               <Eyebrow tone="text-violet-300">Private lessons</Eyebrow>
               <H2 id="lessons-h">A professional teacher, <span className="ls-accent italic text-violet-300">and progress you can feel.</span></H2>
-              <p className="mt-5 max-w-lg text-slate-300">
-                One-to-one lessons with professional teachers, held right inside attunr. They spot what&apos;s holding you back, show you the sound instead of only telling you, and leave you with exactly what to practise.
+              <p className="mt-4 max-w-lg text-slate-300">
+                One-to-one lessons with professional teachers, held right inside attunr. They spot what&apos;s holding you back, show you the sound instead of only telling you, and leave you with <Mark tone="var(--color-violet-400)">exactly what to practise</Mark>.
               </p>
-              <ul className="mt-7 flex flex-col gap-4">
+              <ul className="mt-6 flex flex-col gap-4">
                 {[
                   { icon: "zap" as const, t: "Faster than practising alone", s: "A pro hears in minutes what you'd take months to notice.", c: "bg-sky-500/15 text-sky-300" },
                   { icon: "eye" as const, t: "See it together", s: "Any scale, neck or groove on both screens in a second; “play the yellow one” just works.", c: "bg-amber-500/15 text-amber-300" },
@@ -298,7 +300,7 @@ export default function Home() {
             </div>
           </div>
 
-          <ul className="mt-14 grid gap-4 md:grid-cols-2">
+          <ul className="mt-10 grid gap-4 md:grid-cols-2">
             <li className="ls-card flex flex-col gap-4 rounded-3xl border border-slate-800 bg-slate-900/50 p-6">
               <p className="text-xl text-slate-50" style={DISPLAY}>Private lessons</p>
               <p className="text-sm text-slate-400">Book a professional teacher when you want one. Each teacher sets their own rate.</p>
@@ -328,12 +330,12 @@ export default function Home() {
         </section>
 
         {/* Seeing the sound, and practising the right thing */}
-        <section aria-labelledby="ideas-h" className="border-t border-slate-800/70 py-14 sm:py-20">
+        <section aria-labelledby="ideas-h" className="border-t border-slate-800/70 py-12 sm:py-16">
           <div className="mx-auto max-w-2xl text-center">
             <Eyebrow>Free in the app</Eyebrow>
             <H2 id="ideas-h">Practice that <span className="ls-accent italic text-sky-300">adds up.</span></H2>
           </div>
-          <ul className="mt-12 grid gap-4 md:grid-cols-3">
+          <ul className="mt-10 grid gap-4 md:grid-cols-3">
             <li className="ls-card flex flex-col gap-4 rounded-3xl border border-slate-800 bg-slate-900/50 p-6">
               <div className="flex h-56 items-center justify-center">
                 <ScaleWheel steps={dorian} labels={degreeLabels(dorian)} compare={MAJOR} size={210} />
@@ -359,7 +361,7 @@ export default function Home() {
                 </ul>
               </div>
               <h3 className="text-2xl text-slate-50" style={DISPLAY}>Every note has a colour</h3>
-              <p className="text-sm leading-relaxed text-slate-400">The home note is always white, the mood note always yellow. Learn what a note does and you&apos;ll find it in any song, in any key.</p>
+              <p className="text-sm leading-relaxed text-slate-400">The home note is always white, the mood note always yellow. Learn what a note does and you&apos;ll find it <Mark tone="var(--color-amber-400)">in any song, in any key</Mark>.</p>
             </li>
             <li className="ls-card flex flex-col gap-4 rounded-3xl border border-slate-800 bg-slate-900/50 p-6">
               <div className="flex h-56 items-center justify-center"><ProgressPath /></div>
