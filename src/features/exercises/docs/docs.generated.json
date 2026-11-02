@@ -391,6 +391,12 @@
         "type": "boolean",
         "required": false,
         "description": "the piano's chords under the tune, one a bar, named over the staff; in a run, the two chords in the held-Do bar that announce each new key. Default true; false for the tune alone"
+      },
+      {
+        "name": "metronome",
+        "type": "boolean",
+        "required": false,
+        "description": "the metronome heard from the start, on the tune's beats (beat 1 of each bar accented); default false. The student can switch it, the tune and the chords on and off in the player either way"
       }
     ]
   },
@@ -703,6 +709,12 @@
         "type": "boolean",
         "required": false,
         "description": "the piano's chords under the tune, one a bar, named over the staff; in a run, the two chords in the held-Do bar that announce each new key. Default true; false for the tune alone"
+      },
+      {
+        "name": "metronome",
+        "type": "boolean",
+        "required": false,
+        "description": "the metronome heard from the start, on the tune's beats (beat 1 of each bar accented); default false. The student can switch it, the tune and the chords on and off in the player either way"
       }
     ]
   },
@@ -899,6 +911,12 @@
         "type": "\"soprano\" | \"mezzo\" | \"alto\" | \"tenor\" | \"baritone\" | \"bass\"",
         "required": false,
         "description": "voice range; default \"tenor\""
+      },
+      {
+        "name": "metronome",
+        "type": "boolean",
+        "required": false,
+        "description": "the metronome heard from the start; default true (it keeps the long notes in time). The student can switch it and the tune on and off in the player either way"
       }
     ]
   },

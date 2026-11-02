@@ -18,8 +18,9 @@ migrates; the components, their props and their docs live here.
    `interval-ears`, `arpeggio-neck`, `melody-singer`, `run-singer` (both with a chord a bar under the tune, worked out
    in `features/theory/melodyChords.ts`; a run announces each new key in its held-Do bar), `strum-along` (a metronome and the chords as boxes,
    one per bar or beat, each holding beat boxes of its strumming pattern, the playing strum lit; its maths in `blocks.ts`), `string-singer` (the guitar's open strings sung along, moved into the voice: the strings, neighbouring pairs or the 5th-fret unisons; `strings.ts`), `tuning-ears` (a listening game: the 5th-fret reference and the next open string, flat, sharp or in tune; `rounds.ts`). Each has `index.tsx` (the View) and `<name>.props.ts`.
-   Shared: `choices.ts`, `arpeggio.ts`, `singer.tsx` (the two singers), `sing-along/` (their player: mute, play, stop and
-   mic as icons, a loop set by two markers on a strip of the tune, its passes laid end to end on an endless staff or a
+   Shared: `choices.ts`, `arpeggio.ts`, `singer.tsx` (the two singers), `sing-along/` (their player: play, stop and
+   mic as icons, what is heard switched on and off as a row (the tune, its chords when it has them, a metronome on the tune's
+   beats: the singers' `metronome` prop, on by default for `string-singer`), a loop set by two markers on a strip of the tune, its passes laid end to end on an endless staff or a
    piano roll that keeps the voice's line, and a full screen page modal where the notes slide under a still bar; `passes.ts` is the pure model). Three more are stubs with a placeholder view (`stub.tsx`), their
    props final: `finger-pattern`, `picking-drill`, `legato-trill`.
 

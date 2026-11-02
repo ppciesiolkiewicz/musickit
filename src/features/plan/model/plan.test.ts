@@ -87,6 +87,12 @@ describe("tools", () => {
     assert.deepEqual(parseTool({ type: "melody-singer", tune: 1, key: "c", chords: false }), { type: "melody-singer", tune: 1, key: 0, chords: false });
     assert.deepEqual(parseTool({ type: "melody-singer", tune: 1, key: "c" }), { type: "melody-singer", tune: 1, key: 0 });
   });
+  it("keeps a melody's metronome off and the open strings' on unless changed", () => {
+    assert.deepEqual(parseTool({ type: "melody-singer", tune: 1, key: "c", metronome: true }), { type: "melody-singer", tune: 1, key: 0, metronome: true });
+    assert.deepEqual(parseTool({ type: "melody-singer", tune: 1, key: "c", metronome: false }), { type: "melody-singer", tune: 1, key: 0 });
+    assert.deepEqual(parseTool({ type: "string-singer", metronome: false }), { type: "string-singer", metronome: false });
+    assert.deepEqual(parseTool({ type: "string-singer", metronome: true }), { type: "string-singer" });
+  });
   it("parses the tuning-by-ear tools", () => {
     assert.deepEqual(parseTool({ type: "string-singer" }), { type: "string-singer" });
     assert.deepEqual(parseTool({ type: "string-singer", drill: "strings", voice: "alto" }), { type: "string-singer", voice: "alto" });

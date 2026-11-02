@@ -10,4 +10,6 @@ export interface StringSingerProps {
   drill?: "strings" | "pairs" | "fifth-fret";
   /** voice range; default "tenor" */
   voice?: "soprano" | "mezzo" | "alto" | "tenor" | "baritone" | "bass";
+  /** the metronome heard from the start; default true (it keeps the long notes in time). The student can switch it and the tune on and off in the player either way */
+  metronome?: boolean;
 }

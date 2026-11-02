@@ -18,9 +18,10 @@ const WHAT: Record<StringDrill, string> = {
 
 /**
  * The guitar's open strings to sing (`SingAlong`), moved into the voice: the strings one by one, neighbouring pairs, or
- * the 5th-fret unisons, so the student carries the pitches to tune by ear. No chords; tap a note to hear it.
+ * the 5th-fret unisons, so the student carries the pitches to tune by ear. No chords; the metronome heard unless turned
+ * off (it keeps the long notes in time, and switches on and off in the player); tap a note to hear it.
  */
-export function View({ drill = "strings", voice = "tenor" }: { drill?: StringDrill; voice?: Voice }) {
+export function View({ drill = "strings", voice = "tenor", metronome = true }: { drill?: StringDrill; voice?: Voice; metronome?: boolean }) {
   const range = VOICES[voice] ?? VOICES.tenor;
   const clef = clefFor(range);
   const { notes, ladder } = useMemo(() => {
@@ -43,7 +44,7 @@ export function View({ drill = "strings", voice = "tenor" }: { drill?: StringDri
     }, TAP_MS);
   };
   return (
-    <SingAlong key={`${drill}-${voice}`} notes={notes} chords={[]} ladder={ladder} clef={clef} beatMs={60000 / BPM} tapped={tapped} onNote={(i) => void tap(i)}
+    <SingAlong key={`${drill}-${voice}-${metronome}`} notes={notes} chords={[]} ladder={ladder} clef={clef} beatMs={60000 / BPM} click={metronome} tapped={tapped} onNote={(i) => void tap(i)}
       info={<>{WHAT[drill]} · {range.label} · {BPM} bpm</>} />
   );
 }

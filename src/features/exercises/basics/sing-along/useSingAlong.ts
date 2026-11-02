@@ -2,9 +2,11 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useMicPitch } from "@/components/practice/useMicPitch";
-import { getSharedPiano, onSilence, wakeAudio } from "@/features/sound";
+import { clickAt } from "@/features/instruments/model";
+import { getAudioContext, getOutputBus, getSharedPiano, onSilence, wakeAudio } from "@/features/sound";
 import { hzToMidi } from "@/features/theory/singing";
 import { CHORD_VELOCITY, type MelodyChord } from "@/features/theory/melodyChords";
+import { BEATS_PER_BAR } from "@/features/theory/singingMelody";
 import type { PlacedNote } from "@/features/theory/singingMelodies";
 import { createSmoother, type Pitch } from "@/features/tuner/pitch";
 import { fill, passEnd, prune, retime, type Pass, type Region } from "./passes";
@@ -19,6 +21,15 @@ const AHEAD = 48;
 const BEHIND = 32;
 /** the first note sounds this long after Play */
 const START_MS = 60;
+const CLICK_VOLUME = 0.5;
+
+/** what of the tune is heard: the piano's tune, its chords, the metronome on the tune's beats (beat 1 of a bar accented) */
+export interface Heard {
+  tune: boolean;
+  chords: boolean;
+  click: boolean;
+}
+export type Layer = keyof Heard;
 
 /** where the voice was at a stream beat: its fractional MIDI note, or null for a gap that breaks the line */
 export interface TrailPoint {
@@ -37,13 +48,13 @@ export interface Frame {
 
 /**
  * One clock for a tune sung along: Play runs the bar over the passes (the loop region again and again, or the whole tune
- * once) with the piano under it unless muted, Stop puts it back at the start. The voice is kept as a trail on the
+ * once) with what is heard of it (`Heard`, each switched on and off while it runs), Stop puts it back at the start. The voice is kept as a trail on the
  * stream's beats while the bar runs; passes and trail long gone by are dropped. A new tune is a new mount (key it).
  */
-export function useSingAlong({ notes, chords, beatMs, total }: { notes: PlacedNote[]; chords: MelodyChord[]; beatMs: number; total: number }) {
+export function useSingAlong({ notes, chords, beatMs, total, click = false }: { notes: PlacedNote[]; chords: MelodyChord[]; beatMs: number; total: number; click?: boolean }) {
   const [mic, setMic] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [muted, setMuted] = useState(false);
+  const [heard, setHeard] = useState<Heard>({ tune: true, chords: true, click });
   const [loop, setLoopState] = useState(true);
   const [region, setRegionState] = useState<Region>({ from: 0, to: total });
   const active = loop ? region : null;
@@ -56,7 +67,9 @@ export function useSingAlong({ notes, chords, beatMs, total }: { notes: PlacedNo
   const trail = useRef<TrailPoint[]>([]);
   const scheduled = useRef(0);
   const ons = useRef<ReturnType<typeof setTimeout>[]>([]);
-  const mutedRef = useRef(muted);
+  const heardRef = useRef(heard);
+  /** the metronome's gain, made on the first click and dropped (cutting the clicks put ahead) by `hush` */
+  const clickOut = useRef<GainNode | null>(null);
   const activeRef = useRef(active);
   const pitch = useRef<number | null>(null);
   const smoother = useRef(createSmoother());
@@ -81,11 +94,13 @@ export function useSingAlong({ notes, chords, beatMs, total }: { notes: PlacedNo
   }, []);
   const { status } = useMicPitch(mic, undefined, onPitch);
 
-  /** cancel the notes not yet sounding and hush the ones ringing */
+  /** cancel the notes and clicks not yet sounding and hush the ones ringing */
   const hush = useCallback(() => {
     ons.current.forEach(clearTimeout);
     ons.current = [];
     getSharedPiano().allOff();
+    clickOut.current?.disconnect();
+    clickOut.current = null;
   }, []);
 
   const restart = useCallback(() => {
@@ -122,20 +137,35 @@ export function useSingAlong({ notes, chords, beatMs, total }: { notes: PlacedNo
       if (!activeRef.current && last && s >= passEnd(last)) return stop();
       const horizon = s + LOOK_MS / beatMs;
       const now = performance.now();
-      const put = (note: number, at: number, beats: number, velocity?: number) => {
-        if (at < scheduled.current || at >= horizon) return;
+      const due = (at: number) => at >= scheduled.current && at < horizon;
+      const put = (layer: "tune" | "chords", note: number, at: number, beats: number, velocity?: number) => {
+        if (!due(at)) return;
         const wait = Math.max(0, t0.current + at * beatMs - now);
         const hold = beats * beatMs * 0.9;
         ons.current.push(setTimeout(() => {
-          if (mutedRef.current || !run.current) return;
+          if (!heardRef.current[layer] || !run.current) return;
           piano.noteOn(note, velocity);
           setTimeout(() => piano.noteOff(note), hold);
         }, wait));
       };
+      // the clicks go on the audio clock, always put, heard through their gain; on the tune's own beats, so a loop
+      // that starts mid-bar keeps its accents on the tune's beat 1
+      const ctx = getAudioContext();
+      if (!clickOut.current) {
+        clickOut.current = ctx.createGain();
+        clickOut.current.gain.value = heardRef.current.click ? CLICK_VOLUME : 0;
+        clickOut.current.connect(getOutputBus());
+      }
+      const beatClick = (at: number, beat: number) => {
+        if (!due(at)) return;
+        const t = ctx.currentTime + (t0.current + at * beatMs - now) / 1000;
+        if (t >= ctx.currentTime - 0.005) clickAt(ctx, clickOut.current!, Math.max(t, ctx.currentTime), beat % BEATS_PER_BAR === 0);
+      };
       for (const p of passes.current) {
         if (p.start >= horizon || passEnd(p) <= scheduled.current) continue;
-        p.notes.forEach((n) => put(notes[n.i].midi, p.start + n.at, n.beats));
-        p.chords.forEach((c) => chords[c.i].midis.forEach((m) => put(m, p.start + c.at, c.beats, CHORD_VELOCITY)));
+        p.notes.forEach((n) => put("tune", notes[n.i].midi, p.start + n.at, n.beats));
+        p.chords.forEach((c) => chords[c.i].midis.forEach((m) => put("chords", m, p.start + c.at, c.beats, CHORD_VELOCITY)));
+        for (let b = Math.ceil(p.from); b < p.to; b++) beatClick(p.start + b - p.from, b);
       }
       scheduled.current = horizon;
       ons.current = ons.current.slice(-256);
@@ -203,7 +233,6 @@ export function useSingAlong({ notes, chords, beatMs, total }: { notes: PlacedNo
     status,
     mic,
     playing,
-    muted,
     loop,
     region,
     play,
@@ -215,11 +244,15 @@ export function useSingAlong({ notes, chords, beatMs, total }: { notes: PlacedNo
       pitch.current = null;
       setMic((v) => !v);
     },
-    toggleMute: () => {
+    heard,
+    /** switch one of what is heard on or off; a piano layer switched off hushes what rings (the other's next notes sound) */
+    toggleHeard: (layer: Layer) => {
       micOn();
-      mutedRef.current = !muted;
-      if (!muted) getSharedPiano().allOff();
-      setMuted(!muted);
+      const next = { ...heard, [layer]: !heard[layer] };
+      heardRef.current = next;
+      if (layer === "click") clickOut.current?.gain.setTargetAtTime(next.click ? CLICK_VOLUME : 0, getAudioContext().currentTime, 0.01);
+      else if (!next[layer]) getSharedPiano().allOff();
+      setHeard(next);
     },
     setLoop: (on: boolean) => {
       setLoopState(on);

@@ -13,9 +13,10 @@ const TAP_MS = 900;
 /**
  * One tune (or run) from the singing page's books, in a key and voice, sung along (`SingAlong`): play it on a loop over
  * the whole tune or a part of it, muted or heard, on an endless staff or a piano roll; tap a note to hear it. With `chords` (the default) the piano plays a chord a bar under it, named
- * over the staff, and a run announces each new key in its held-Do bar. The singing page's placement; nothing writes the address.
+ * over the staff, and a run announces each new key in its held-Do bar; with `metronome` the click is heard from the start (it can be
+ * switched on and off in the player either way). The singing page's placement; nothing writes the address.
  */
-export function SingerView({ n, pc, voice = "soprano", chords = true }: { n: number; pc: number; voice?: Voice; chords?: boolean }) {
+export function SingerView({ n, pc, voice = "soprano", chords = true, metronome = false }: { n: number; pc: number; voice?: Voice; chords?: boolean; metronome?: boolean }) {
   const tune = BOOK.find((t) => t.n === n) ?? RUNS.find((t) => t.n === n);
   const range = VOICES[voice] ?? VOICES.soprano;
   const clef = clefFor(range);
@@ -45,7 +46,7 @@ export function SingerView({ n, pc, voice = "soprano", chords = true }: { n: num
     }, TAP_MS);
   };
   return (
-    <SingAlong key={`${n}-${pc}-${voice}-${chords}`} notes={notes} chords={harmony} ladder={ladder} clef={clef} beatMs={beat} tapped={tapped} onNote={(i) => void tap(i)}
+    <SingAlong key={`${n}-${pc}-${voice}-${chords}-${metronome}`} notes={notes} chords={harmony} ladder={ladder} clef={clef} beatMs={beat} click={metronome} tapped={tapped} onNote={(i) => void tap(i)}
       info={<>{tune.keys ? "Run" : "Melody"} #{tune.n} · {tune.stage.title} · {ladder.title} · {range.label} · {BPM} bpm</>} />
   );
 }

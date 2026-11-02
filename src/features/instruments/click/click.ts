@@ -48,6 +48,19 @@ export function tapTempo(taps: number[]): number | null {
   return Math.round(Math.min(CLICK_MAX_BPM, Math.max(CLICK_MIN_BPM, 60 / gap)));
 }
 
+/** One click at context time `t` into `out`: higher and louder on an accent (beat 1). For a host that keeps its own clock. */
+export function clickAt(ctx: BaseAudioContext, out: AudioNode, t: number, accent: boolean) {
+  const osc = ctx.createOscillator();
+  const env = ctx.createGain();
+  osc.type = "square";
+  osc.frequency.value = accent ? 1760 : 1175;
+  env.gain.setValueAtTime(accent ? 0.5 : 0.3, t);
+  env.gain.exponentialRampToValueAtTime(0.001, t + 0.035);
+  osc.connect(env).connect(out);
+  osc.start(t);
+  osc.stop(t + 0.045);
+}
+
 /** The sounding click. Create it with the context and the node it plays into, then `start`, `set` and `stop`. */
 export class ClickTrack {
   private params: ClickParams = DEFAULT_CLICK;
@@ -137,15 +150,7 @@ export class ClickTrack {
   }
 
   private click(t: number, accent: boolean) {
-    const osc = this.ctx.createOscillator();
-    const env = this.ctx.createGain();
-    osc.type = "square";
-    osc.frequency.value = accent ? 1760 : 1175;
-    env.gain.setValueAtTime(accent ? 0.5 : 0.3, t);
-    env.gain.exponentialRampToValueAtTime(0.001, t + 0.035);
-    osc.connect(env).connect(this.out);
-    osc.start(t);
-    osc.stop(t + 0.045);
+    clickAt(this.ctx, this.out, t, accent);
   }
 
   dispose() {

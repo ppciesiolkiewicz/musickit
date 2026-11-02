@@ -69,11 +69,11 @@ function Tool({ tool, voice }: { tool: PlanTool; voice?: Voice }) {
     case "arpeggio-neck":
       return <ArpeggioNeck chord={tool.chord} boxes={tool.boxes} placement={tool.placement} part={tool.part} enable={tool.enable} highlight={tool.highlight} mute={tool.mute} hide={tool.hide} others={tool.others} />;
     case "melody-singer":
-      return <MelodySinger tune={tool.tune} pc={tool.key} voice={tool.voice ?? voice} chords={tool.chords} />;
+      return <MelodySinger tune={tool.tune} pc={tool.key} voice={tool.voice ?? voice} chords={tool.chords} metronome={tool.metronome} />;
     case "run-singer":
-      return <RunSinger run={tool.run} pc={tool.key} voice={tool.voice ?? voice} chords={tool.chords} />;
+      return <RunSinger run={tool.run} pc={tool.key} voice={tool.voice ?? voice} chords={tool.chords} metronome={tool.metronome} />;
     case "string-singer":
-      return <StringSinger drill={tool.drill} voice={tool.voice ?? voice} />;
+      return <StringSinger drill={tool.drill} voice={tool.voice ?? voice} metronome={tool.metronome} />;
     case "tuning-ears":
       return <TuningEars cents={tool.cents} together={tool.together} />;
     case "play-along":

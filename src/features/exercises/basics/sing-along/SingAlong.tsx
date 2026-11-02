@@ -10,7 +10,7 @@ import LoopStrip from "./LoopStrip";
 import { passAt } from "./passes";
 import PianoRoll from "./PianoRoll";
 import StreamStaff from "./StreamStaff";
-import { useSingAlong } from "./useSingAlong";
+import { useSingAlong, type Layer } from "./useSingAlong";
 
 type Look = "staff" | "roll";
 
@@ -27,15 +27,24 @@ function IconButton({ on, tone = "sky", title, onClick, children }: { on?: boole
   );
 }
 
+const LAYERS: { id: Layer; label: string; icon: "piano" | "music" | "metronome"; what: string }[] = [
+  { id: "tune", label: "Tune", icon: "piano", what: "the tune on the piano" },
+  { id: "chords", label: "Chords", icon: "music", what: "the chords under the tune" },
+  { id: "click", label: "Click", icon: "metronome", what: "the metronome on the tune's beats" },
+];
+
 /**
- * A tune to sing along: mute, play, stop and the mic as icons (any of them switches the mic on), a loop over a part of
+ * A tune to sing along: play, stop and the mic as icons (any button switches the mic on); what is heard (the tune, its
+ * chords when it has them, the metronome) as a row of switches, each on or off while it plays, the bar running either way; a loop over a part of
  * the tune set on a strip of the whole tune (on by default, over all of it; the strip shows only while looping), and the tune drawn on an endless staff or
  * as a piano roll that keeps the line the voice took. Full screen is a page modal (Esc closes it), drawn big, the notes
  * sliding under a bar that stays put so the voice dot holds its place. Key it by the tune: a new one starts over.
  */
-export default function SingAlong({ notes, chords, ladder, clef, beatMs, tapped, onNote, info }: {
+export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, tapped, onNote, info }: {
   notes: PlacedNote[];
   chords: MelodyChord[];
+  /** the metronome heard from the start; off by default */
+  click?: boolean;
   ladder: Ladder;
   clef: Clef;
   beatMs: number;
@@ -45,7 +54,7 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, tapped,
   info: ReactNode;
 }) {
   const total = notes[notes.length - 1].at + notes[notes.length - 1].beats;
-  const { focus, ...sa } = useSingAlong({ notes, chords, beatMs, total });
+  const { focus, ...sa } = useSingAlong({ notes, chords, beatMs, total, click });
   const [look, setLook] = useState<Look>("staff");
   const [full, setFull] = useState(false);
   const [scale, setScale] = useState(2);
@@ -74,9 +83,6 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, tapped,
     <div ref={focus} role={full ? "dialog" : undefined} aria-modal={full || undefined} aria-label={full ? "Sing along" : undefined}
       className={full ? "fixed inset-0 z-[70] flex flex-col gap-4 overflow-hidden bg-slate-950 p-4 sm:p-6" : "flex flex-col gap-2"}>
       <div className="flex flex-wrap items-center gap-1.5 text-xs text-slate-400">
-        <IconButton on={sa.muted} tone="amber" title={sa.muted ? "Unmute the piano" : "Mute the piano (the bar keeps going)"} onClick={sa.toggleMute}>
-          <Icon name={sa.muted ? "volume-x" : "volume-2"} size={15} />
-        </IconButton>
         <IconButton on={sa.playing} title={sa.playing ? "Play from the start" : "Play"} onClick={() => void sa.play()}>
           <Icon name="play" size={15} />
         </IconButton>
@@ -86,6 +92,19 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, tapped,
         <IconButton on={sa.mic} tone="emerald" title={sa.mic ? "Stop the mic" : "Switch the mic on and sing"} onClick={sa.toggleMic}>
           <Icon name="mic" size={15} />
         </IconButton>
+        <span className="mx-1 h-5 w-px bg-slate-800" />
+        <div role="group" aria-label="Heard" className="flex overflow-hidden rounded-lg border border-slate-700">
+          {LAYERS.filter((l) => l.id !== "chords" || chords.length).map((l) => {
+            const on = sa.heard[l.id];
+            return (
+              <button key={l.id} type="button" aria-pressed={on} onClick={() => sa.toggleHeard(l.id)}
+                title={on ? `Mute ${l.what} (the bar keeps going)` : `Hear ${l.what}`}
+                className={`flex items-center gap-1 ${seg(on)} ${on ? "" : "line-through decoration-slate-500"}`}>
+                <Icon name={l.icon} size={13} />{l.label}
+              </button>
+            );
+          })}
+        </div>
         <span className="mx-1 h-5 w-px bg-slate-800" />
         <IconButton on={sa.loop} title={sa.loop ? "Stop looping a part" : "Loop a part"} onClick={() => sa.setLoop(!sa.loop)}>
           <Icon name="repeat" size={15} />
