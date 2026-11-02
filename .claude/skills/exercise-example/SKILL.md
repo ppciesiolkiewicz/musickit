@@ -24,6 +24,8 @@ The prompt shows these examples to the AI as the standard to copy, so any flaw i
    - Each text step says which control to press and where it is ("Press Play below to start the metronome"), then what to play or sing.
    - Mark every note the text names as `{{3}}` or `{{c-sharp}}`, and light it in the tool right after. `enable` lists the notes in play and `highlight` the few that matter. Never give both the same notes. Never mute the root.
    - An exercise is singing or playing, never both. A singing staff has `labels`, and a non-singing staff has `"mic": false`.
+   - Every example has at least one `learnBefore`: the course section(s) that teach what the drill uses (`/course/<stage>/<section>`, from `src/features/course/stages`). A planned stub section counts. If nothing fits, add a stub section to the right stage first (a *planned* section in the **course-article** skill: `section(slug, title, topic, about)` with no blocks), then link it.
+   - A sung or played pattern (Do Mi Sol, a leap, a tune, guide tones) comes back in a second key, in a later block or another staff/tool, with one plain line such as "The notes change, the pattern doesn't." Check the key fits the voice or the position with `npm run -s theory`.
    - `note` (metadata) is one or two sentences on why this is a good example: what each block does and which rule it shows off.
 5. **Register and test.** Add a static import to `examples/index.ts`, then:
    ```

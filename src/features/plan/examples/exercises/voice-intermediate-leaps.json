@@ -11,6 +11,7 @@
     "minutes": 10,
     "tags": ["sing", "ear"],
     "why": "A leap lands in tune once you hear the landing note first, so practise landings over a drone.",
+    "learnBefore": ["/course/3/intervals", "/course/6/singing-leaps"],
     "sections": [
       { "type": "heading", "text": "F major", "minutes": 3 },
       { "type": "text", "text": "Press Start below: the drone and the mic start together, and your pitch shows on the staff. On \"ah\", sing {{1}} up to {{4}}, then {{1}} up to {{5}}. Hear the landing note in your head before you sing it." },

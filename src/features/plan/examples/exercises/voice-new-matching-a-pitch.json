@@ -7,10 +7,11 @@
   "note": "A first singing exercise in three 2-minute blocks, each a different job (match, step away and back, sustain), with a drone as the reference instead of an instrument. Most of the text is how to use the app: the drone, the mic, the pitch line on the staff, explained once.",
   "exercise": {
     "title": "Find Do and stay on it",
-    "focus": "Matching Do over a drone in C · Do-Re-Do · holding a note",
+    "focus": "Matching Do over a drone in C · Do-Re-Do · holding a note over D",
     "minutes": 6,
     "tags": ["sing", "ear"],
     "why": "Matching one note and holding it steady is the base every other singing skill stands on.",
+    "learnBefore": ["/course/3/matching-a-pitch"],
     "sections": [
       { "type": "heading", "text": "Hum the drone note", "minutes": 2 },
       { "type": "text", "text": "Press Start below: the drone and the mic start together. Hum along until your voice blends with the drone; your pitch shows on the staff as a line. Sing {{1}} out loud on \"ah\" and watch your line sit on the note." },
@@ -19,8 +20,8 @@
       { "type": "text", "text": "Press Start below to start the drone and the mic. Sing {{1}} for one slow breath, step up to {{2}} for the next, then come back to {{1}}. Sing the names: they help you remember each sound. Watch your line step up, then back down." },
       { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "tenor", "notes": ["1", "2"], "drone": true } },
       { "type": "heading", "text": "One long note", "minutes": 2 },
-      { "type": "text", "text": "Press Start below: the drone, now with a metronome, and the mic start together. Breathe in for four clicks, then sing {{1}} on \"ah\" for as long as feels easy. See how flat you can keep your line to the end." },
-      { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "tenor", "enable": ["1"], "others": "hidden", "drone": true, "click": true, "bpm": 60 } }
+      { "type": "text", "text": "Press Start below: the drone, now on D with a metronome, and the mic start together. The note changes, the job doesn't. Breathe in for four clicks, then sing {{1}} on \"ah\" for as long as feels easy. See how flat you can keep your line to the end." },
+      { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "d", "voice": "tenor", "enable": ["1"], "others": "hidden", "drone": true, "click": true, "bpm": 60 } }
     ]
   }
 }

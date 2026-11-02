@@ -46,6 +46,10 @@ What there is: one exercise per area and level, three more in the new teaching s
   after a step whenever the focus changes. Staffs in non-singing exercises set `"mic": false`.
 - Two layers, never the same list: `enable` for the notes in play (absent: all), `highlight` for the few that matter
   among them (the roots, the note just added). `others` only with `enable`.
+- Exercise examples have at least one `learnBefore` lesson. If no course section fits, a planned (stub) section is
+  added to the course for it first.
+- A sung or played pattern (Do Mi Sol, a leap, a tune, guide tones) comes back in a second key, in a later block or
+  another tool: the notes change, the pattern doesn't.
 - No guitar-play-along `repeats` (it loops; the exercise's minutes are the timer). Styles are at most one sentence of colour.
 - Plans: 7 days, each adding up to `minutes` (±2), 2 to 5 exercises, warm-up first and something musical last, no two
   exercises with the same tag side by side, the week's key skill on at least three days in new forms.

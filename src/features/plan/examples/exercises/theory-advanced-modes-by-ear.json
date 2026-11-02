@@ -11,6 +11,7 @@
     "minutes": 10,
     "tags": ["ear", "theory"],
     "why": "A mode is easiest to recognise by the one note that differs from plain major or minor.",
+    "learnBefore": ["/course/9/modes-over-drone"],
     "sections": [
       { "type": "heading", "text": "Major, then Mixolydian", "minutes": 3 },
       { "type": "text", "text": "Press Play below. The backing holds a G chord for eight bars: four in G major, then four in G Mixolydian. Follow the notes view and listen for the bar where it changes. The faded note is the one left out: F in the first half, F♯ in the second." },

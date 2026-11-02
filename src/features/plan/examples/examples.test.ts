@@ -42,6 +42,10 @@ describe("example library", () => {
     }
   });
 
+  it("every exercise example has a lesson to learn before", () => {
+    for (const e of EXERCISE_EXAMPLES) assert.ok(parsed(weekOf(e.exercise)).days[0].exercises[0].learnBefore?.length, e.id);
+  });
+
   it("every plan example parses with zero warnings and has 7 days", () => {
     for (const p of PLAN_EXAMPLES) {
       const raw = p.plan as { days: unknown[] };

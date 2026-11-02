@@ -12,6 +12,7 @@
     "minutes": 8,
     "tags": ["technique", "song"],
     "why": "Knowing where Do, Mi and Sol sit around the open chords is the map for playing melodies by ear.",
+    "learnBefore": ["/course/3/solfege", "/course/4/do-mi-sol-neck"],
     "sections": [
       { "type": "heading", "text": "Find Do", "minutes": 2 },
       { "type": "text", "text": "Only {{1}} (C) is in play on the neck. Find it on the A string, then on the B string, and hop between the two." },

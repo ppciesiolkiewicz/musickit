@@ -72,7 +72,7 @@ reload doesn't lose it; that one stays local.
 
 The prompt asks for one JSON object, exactly seven days. An exercise is a linear list of `sections`, shown in order:
 `heading`, `text`, `list` (numbered steps) and `tool` (one of the tools below, set up). A tool sits right after the text it
-belongs to, so a step that needs another view just adds another tool. Links are not sections: `learnBefore` (lessons to
+belongs to, so a step that needs another view just adds another tool. Links are not sections: `learnBefore` (at least one lesson to
 read first) and `exploreMore` (going deeper), up to 3 attunr hrefs each; the app shows each with the page's real name.
 
 ```json

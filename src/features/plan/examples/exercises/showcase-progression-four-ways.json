@@ -12,6 +12,7 @@
     "minutes": 12,
     "tags": ["rhythm", "improv"],
     "why": "I-V-vi-IV is under more pop songs than any other four chords, so it pays to know it from every side.",
+    "learnBefore": ["/course/2/em-and-am", "/course/2/c-d-g"],
     "sections": [
       { "type": "heading", "text": "Hear it, play the roots", "minutes": 3 },
       { "type": "text", "text": "Press Play below to hear the progression as arpeggios. Play only each chord's root on the low strings, one note per bar: G, D, E, C. Then switch the backing to hear it another way." },

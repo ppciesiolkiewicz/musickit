@@ -11,6 +11,7 @@
     "minutes": 12,
     "tags": ["technique", "improv"],
     "why": "Joining positions turns five separate shapes into one neck you can move along mid-phrase.",
+    "learnBefore": ["/course/6/joining"],
     "sections": [
       { "type": "heading", "text": "Position 2 on its own", "minutes": 3 },
       { "type": "text", "text": "Press Play below to start the metronome. Play position 2 of A minor pentatonic up and down, one note per beat. It starts at the 7th fret, and its ringed {{1}} notes sit on the D and B strings." },

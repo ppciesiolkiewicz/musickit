@@ -168,6 +168,7 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
       "- The five-line notation is \"the staff\", never \"music sheet\" or \"stave\". For a new or beginner student, explain it the first time (\"the staff, the five lines of music, where your pitch shows as a line\").",
       "- Singing over a drone or a metronome is one staff with its own \"drone\" and/or \"click\" (and \"bpm\"), never a click-drone next to a staff: its one Start button starts the backing and the mic together, and Stop stops both, so the text says \"Press Start below\". Use click-drone only when nothing listens: playing the instrument over a drone, or listening to one.",
       "- Vary the voice work: the same leap or chord tones in a new key and scale per block (a staff with its drone for each), calls and answers, short made-up tunes.",
+      "- A melody or pattern the student sings or plays (Do Mi Sol, a leap, a tune, guide tones) comes back in a second key, in a later block or another tool, with one plain line: \"The notes change, the pattern doesn't.\"",
       "",
     ]),
     part("exercise-format", "Exercise format", "format", [
@@ -188,7 +189,7 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
     ]),
     part("links", "Links", "links", [
       "### Links (resources for an exercise's \"learnBefore\" and \"exploreMore\"; any key or section value from these templates)",
-      "Each exercise has two optional link slots, up to 3 hrefs each, never invented: \"learnBefore\" for lessons the student should read first because the exercise uses what they teach (shown at the top), \"exploreMore\" for pages that go deeper after it (shown at the bottom). The app shows each link with the page's own name, so write nothing about a link, and don't restate a lesson's content in \"why\" or the text: say what the exercise does.",
+      "Each exercise has two link slots, up to 3 hrefs each, never invented: \"learnBefore\" for lessons the student should read first because the exercise uses what they teach (shown at the top), \"exploreMore\" for pages that go deeper after it (shown at the bottom). Every exercise has at least one \"learnBefore\": the course lesson closest to what it drills (a lesson still being written counts); \"exploreMore\" is optional. The app shows each link with the page's own name, so write nothing about a link, and don't restate a lesson's content in \"why\" or the text: say what the exercise does.",
       ...linkResources(entries),
       "",
     ]),
@@ -206,7 +207,7 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
       "  focus: string;",
       "  why?: string;",
       "  tags?: string[]; // from the tags listed under Exercise format",
-      "  learnBefore?: string[]; // see Links",
+      "  learnBefore: string[]; // at least one, see Links",
       "  sections: Section[]; // see Sections",
       "  exploreMore?: string[]; // see Links",
       "}",
