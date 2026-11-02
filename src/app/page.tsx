@@ -18,7 +18,7 @@ import { FAMILIES, MAJOR, modeSteps } from "@/features/theory/theory";
 
 export const metadata: Metadata = {
   title: "attunr: daily guitar practice for your hands, ears and timing",
-  description: "Drills for muscle memory, ear training, singing in tune and rhythm, with an AI practice plan that gives you something new to practise every day. Plus a video course with a 30-day money-back guarantee.",
+  description: "Drills that build your own guitar senses (hands, ears, voice and timing) and teach you to make up exercises of your own, with an AI practice plan that gives you something new to practise every day. Plus a video course with a 30-day money-back guarantee.",
 };
 
 /**
@@ -31,7 +31,7 @@ const STORY: { name: string; detail: string; headline: string; quote: ReactNode;
   headline: "I was stuck, so I built the practice app I needed.",
   quote: <>I practised and practised and wasn&apos;t getting better. I kept running out of ideas for what to work on, and the apps that turned practice into a game just didn&apos;t work for me. What works is drills: repeating them until my hands know them, and understanding why they work. So I built attunr. It brings me new ideas every day, with interactive exercises and diagrams I can actually practise with. <Mark tone="var(--color-amber-400)">It&apos;s not a game. It&apos;s practice.</Mark></>,
   before: ["Running out of ideas for what to practise", "Apps that felt like a game, not like music", "Practising, but not getting better"],
-  after: ["New drills to practise every day", "Interactive exercises and diagrams that show why a drill works", "Repetition that builds muscle memory, not points"],
+  after: ["New drills to practise every day", "Knowing why a drill works, so I can make up my own", "Repetition that builds muscle memory, not points"],
   photo: null,
 };
 
@@ -69,9 +69,9 @@ function ProgressPath() {
 
 /** What practice in attunr trains: each skill and the drill that trains it. */
 const SKILLS: { icon: IconName; title: string; text: ReactNode; tone: string; href: string; drill: string }[] = [
-  { icon: "repeat", title: "Build muscle memory", text: <>Short drills you repeat until your fingers move without thinking. Stop hunting for notes and <Mark tone="var(--color-teal-400)">start choosing them</Mark>.</>, tone: "bg-teal-500/15 text-teal-300", href: "/theory/scales", drill: "Scale drills" },
-  { icon: "ear", title: "Hear it, sing it in tune", text: <>Name an interval the moment you hear it, then sing it back while the app <Mark>shows your pitch</Mark> until your voice lands on the note.</>, tone: "bg-sky-500/15 text-sky-300", href: "/theory/ears", drill: "Ear training" },
-  { icon: "metronome", title: "Lock in your rhythm", text: <>Hit the beat, not just the note. See <Mark tone="var(--color-violet-400)">exactly how early or late</Mark> you play, and tighten up against a metronome or drone.</>, tone: "bg-violet-500/15 text-violet-300", href: "/theory/rhythm", drill: "Rhythm drills" },
+  { icon: "repeat", title: "Build muscle memory", text: <>Repeat a pattern until your fingers move without thinking, then change the key, the shape or the rhythm and you have <Mark tone="var(--color-teal-400)">a drill of your own</Mark>.</>, tone: "bg-teal-500/15 text-teal-300", href: "/theory/scales", drill: "Scale drills" },
+  { icon: "ear", title: "Hear it, sing it in tune", text: <>Name an interval the moment you hear it and sing it back, until <Mark>your own ear</Mark> tells you when you&apos;re in tune.</>, tone: "bg-sky-500/15 text-sky-300", href: "/theory/ears", drill: "Ear training" },
+  { icon: "metronome", title: "Lock in your rhythm", text: <>Hit the beat, not just the note. Play against a metronome or drone until <Mark tone="var(--color-violet-400)">you feel the pulse</Mark> without one.</>, tone: "bg-violet-500/15 text-violet-300", href: "/theory/rhythm", drill: "Rhythm drills" },
   { icon: "guitar", title: "Know the fretboard", text: <>Find any note in a second. Learn the neck by name, colour and the job each note does, until it&apos;s <Mark tone="var(--color-amber-400)">a map you can read</Mark>.</>, tone: "bg-amber-500/15 text-amber-300", href: "/theory/notes", drill: "Fretboard notes" },
 ];
 
@@ -112,7 +112,7 @@ export default function Home() {
               <span className="ls-accent block italic text-sky-300">turns into playing.</span>
             </h1>
             <p className="mt-6 max-w-md text-lg leading-relaxed text-slate-300">
-              Drills for your <Mark>fingers, ears, voice and timing</Mark>. Repeat them until your hands know them, understand why they work, and open the app to a <Mark>fresh plan every day</Mark>.
+              Drills that build your own <Mark>guitar senses</Mark>: hands that find the note, ears that hear it, timing you feel. Understand why each one works and you&apos;ll soon be <Mark>making up your own</Mark>.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link href="/plan" className="ls-btn ls-btn-primary ls-glint inline-flex items-center gap-2 rounded-xl bg-sky-400 px-5 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-sky-500/20 transition hover:bg-sky-300">
@@ -135,8 +135,8 @@ export default function Home() {
         <section aria-labelledby="skills-h" className="border-t border-slate-800/70 py-12 sm:py-16">
           <div className="mx-auto max-w-2xl text-center">
             <Eyebrow>Drills for every part of playing</Eyebrow>
-            <H2 id="skills-h">Train the skills <span className="ls-accent italic text-sky-300">behind great playing.</span></H2>
-            <p className="mt-4 text-slate-300">Drills you repeat until they&apos;re <Mark>automatic</Mark>, and understand well enough to use in real music. For your hands, ears, voice and timing, because good playing needs <Mark>all four</Mark>.</p>
+            <H2 id="skills-h">Develop your own <span className="ls-accent italic text-sky-300">guitar senses.</span></H2>
+            <p className="mt-4 text-pretty text-slate-300">Not a screen that tells you when you got it right. Drills for your hands, ears, voice and timing that you repeat until <Mark>you can feel it yourself</Mark>, and understand well enough to <Mark>invent your own</Mark>.</p>
           </div>
           <ul className="mt-10 grid gap-4 md:grid-cols-2">
             {SKILLS.map((s) => (
@@ -163,7 +163,7 @@ export default function Home() {
               </p>
               <ul className="mt-6 flex flex-col gap-4">
                 {[
-                  { icon: "sparkles" as const, t: "New ideas every day", s: "A fresh mix of drills each day, so practice never goes stale.", c: "bg-sky-500/15 text-sky-300" },
+                  { icon: "sparkles" as const, t: "New ideas every day", s: "A fresh mix of drills each day, and the idea behind each, so you learn to build your own.", c: "bg-sky-500/15 text-sky-300" },
                   { icon: "layers" as const, t: "Each week builds on the last", s: "Next week's plan knows what you practised this week and picks up from there.", c: "bg-teal-500/15 text-teal-300" },
                   { icon: "bell" as const, t: "A nudge when it's time", s: "Set a daily reminder so practice becomes a habit.", c: "bg-violet-500/15 text-violet-300" },
                 ].map((x) => (
@@ -276,7 +276,7 @@ export default function Home() {
               <Eyebrow tone="text-violet-300">Private lessons</Eyebrow>
               <H2 id="lessons-h">A professional teacher, <span className="ls-accent italic text-violet-300">and progress you can feel.</span></H2>
               <p className="mt-4 max-w-lg text-slate-300">
-                One-to-one lessons with professional teachers, held right inside attunr. They spot what&apos;s holding you back, show you the sound instead of only telling you, and leave you with <Mark tone="var(--color-violet-400)">exactly what to practise</Mark>.
+                One-to-one lessons with professional teachers, held right inside attunr. They spot what&apos;s holding you back, show you the sound instead of only telling you, and leave you with <Mark tone="var(--color-violet-400)">what to practise next</Mark>.
               </p>
               <ul className="mt-6 flex flex-col gap-4">
                 {[
