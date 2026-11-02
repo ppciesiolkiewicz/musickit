@@ -24,7 +24,7 @@
       { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "c", "boxes": [1, 2], "highlight": ["1", "4", "5"] } },
       { "type": "heading", "text": "Improvise across both", "minutes": 3 },
       { "type": "text", "text": "Press Play below to start the backing, which switches between Cm7 and Fm7. Improvise across both positions, using the slide on the G string to move between them. Land on {{c}} when Cm7 comes round and on {{f}} when Fm7 comes round." },
-      { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "solo-over", "key": "c", "chords": [{ "chord": "Cm7", "scale": "minor-pentatonic", "target": ["1"] }, { "chord": "Fm7", "target": ["1"], "approach": "land on F on beat 1" }], "bars": 2 }, "bpm": 80, "view": "neck" } }
+      { "type": "tool", "tool": { "type": "guitar-play-along", "shape": { "shape": "solo-over", "key": "c", "chords": [{ "chord": "Cm7", "scale": "minor-pentatonic", "target": ["1"] }, { "chord": "Fm7", "target": ["1"], "approach": "land on F on beat 1" }], "bars": 2 }, "bpm": 80, "view": "neck" } }
     ]
   }
 }

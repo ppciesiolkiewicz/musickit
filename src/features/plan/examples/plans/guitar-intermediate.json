@@ -51,7 +51,7 @@
             "sections": [
               { "type": "heading", "text": "Land on the roots", "minutes": 4 },
               { "type": "text", "text": "Press Play below to start the backing and improvise in positions 1 and 2. Cross between them once in each phrase. Land on {{a}} when Am7 comes round and on {{d}} when Dm7 comes round." },
-              { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "solo-over", "key": "a", "chords": [{ "chord": "Am7", "scale": "minor-pentatonic", "target": ["1"] }, { "chord": "Dm7", "target": ["1"] }], "bars": 2 }, "bpm": 80, "view": "neck" } },
+              { "type": "tool", "tool": { "type": "guitar-play-along", "shape": { "shape": "solo-over", "key": "a", "chords": [{ "chord": "Am7", "scale": "minor-pentatonic", "target": ["1"] }, { "chord": "Dm7", "target": ["1"] }], "bars": 2 }, "bpm": 80, "view": "neck" } },
               { "type": "heading", "text": "Start in position 2", "minutes": 3 },
               { "type": "text", "text": "Same backing. Now start each phrase in position 2. End it in position 1." }
             ]
@@ -120,7 +120,7 @@
             "sections": [
               { "type": "heading", "text": "Slow, in the neck view", "minutes": 4 },
               { "type": "text", "text": "Press Play below and play the lit note, one per beat: each chord's root, 3rd, 5th, 3rd. Am has a minor 3rd ({{b3}}). F, C and G have major 3rds." },
-              { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "chord-steps", "chords": [
+              { "type": "tool", "tool": { "type": "guitar-play-along", "shape": { "shape": "chord-steps", "chords": [
                 { "chord": "Am", "steps": ["1", "b3", "5", "b3"] },
                 { "chord": "F", "steps": ["1", "3", "5", "3"] },
                 { "chord": "C", "steps": ["1", "3", "5", "3"] },
@@ -128,7 +128,7 @@
               ] }, "bpm": 60, "view": "neck" } },
               { "type": "heading", "text": "Faster, from tab", "minutes": 4 },
               { "type": "text", "text": "Press Play below for the same line at 80, now reading the tab." },
-              { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "chord-steps", "chords": [
+              { "type": "tool", "tool": { "type": "guitar-play-along", "shape": { "shape": "chord-steps", "chords": [
                 { "chord": "Am", "steps": ["1", "b3", "5", "b3"] },
                 { "chord": "F", "steps": ["1", "3", "5", "3"] },
                 { "chord": "C", "steps": ["1", "3", "5", "3"] },
@@ -156,7 +156,7 @@
             "sections": [
               { "type": "heading", "text": "Low to high", "minutes": 4 },
               { "type": "text", "text": "Press Play below to start the backing. Start in position 1. Move up one position every four bars. Land on {{a}} when Am7 comes round and on {{d}} when Dm7 comes round." },
-              { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "solo-over", "key": "a", "chords": [{ "chord": "Am7", "scale": "minor-pentatonic", "target": ["1"] }, { "chord": "Dm7", "target": ["1"] }], "bars": 2 }, "bpm": 85, "view": "neck" } },
+              { "type": "tool", "tool": { "type": "guitar-play-along", "shape": { "shape": "solo-over", "key": "a", "chords": [{ "chord": "Am7", "scale": "minor-pentatonic", "target": ["1"] }, { "chord": "Dm7", "target": ["1"] }], "bars": 2 }, "bpm": 85, "view": "neck" } },
               { "type": "heading", "text": "High to low", "minutes": 3 },
               { "type": "text", "text": "Same backing. Now start in position 3. Come down one position every four bars." }
             ]
@@ -202,10 +202,10 @@
             "sections": [
               { "type": "heading", "text": "Learn it slowly", "minutes": 4 },
               { "type": "text", "text": "Press Play to hear it. The tune climbs from Sol to the high Do, with a quick La-Ti-La-Sol in the middle. Play along from the tab, one phrase at a time." },
-              { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "melody", "tune": 47, "key": "d" }, "bpm": 60, "view": "tab" } },
+              { "type": "tool", "tool": { "type": "guitar-play-along", "shape": { "shape": "melody", "tune": 47, "key": "d" }, "bpm": 60, "view": "tab" } },
               { "type": "heading", "text": "On the neck at tempo", "minutes": 4 },
               { "type": "text", "text": "Now in the neck view, a little faster. Play it higher up the neck, with no open strings." },
-              { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "melody", "tune": 47, "key": "d" }, "bpm": 80, "view": "neck" } }
+              { "type": "tool", "tool": { "type": "guitar-play-along", "shape": { "shape": "melody", "tune": 47, "key": "d" }, "bpm": 80, "view": "neck" } }
             ]
           }
         ]
@@ -251,7 +251,7 @@
             "sections": [
               { "type": "heading", "text": "Aim at the chord", "minutes": 4 },
               { "type": "text", "text": "Press Play below to start the backing. Land on {{g}} or {{b-flat}} when Gm7 comes round and on {{c}} when Cm7 comes round." },
-              { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "solo-over", "key": "g", "chords": [{ "chord": "Gm7", "scale": "minor-pentatonic", "target": ["1", "b3"] }, { "chord": "Cm7", "target": ["1"] }], "bars": 2 }, "bpm": 80, "view": "neck" } },
+              { "type": "tool", "tool": { "type": "guitar-play-along", "shape": { "shape": "solo-over", "key": "g", "chords": [{ "chord": "Gm7", "scale": "minor-pentatonic", "target": ["1", "b3"] }, { "chord": "Cm7", "target": ["1"] }], "bars": 2 }, "bpm": 80, "view": "neck" } },
               { "type": "heading", "text": "Use all three positions", "minutes": 4 },
               { "type": "text", "text": "Same backing. Use all three positions. Cross a join in every phrase." }
             ]
@@ -297,10 +297,10 @@
             "sections": [
               { "type": "heading", "text": "From memory", "minutes": 4 },
               { "type": "text", "text": "Play the tune once without the app. Then press Play and check it." },
-              { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "melody", "tune": 47, "key": "d" }, "bpm": 80, "view": "neck" } },
+              { "type": "tool", "tool": { "type": "guitar-play-along", "shape": { "shape": "melody", "tune": 47, "key": "d" }, "bpm": 80, "view": "neck" } },
               { "type": "heading", "text": "Faster and with a slide", "minutes": 4 },
               { "type": "text", "text": "Press Play below to play it faster, sliding into the high Do instead of picking it." },
-              { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "melody", "tune": 47, "key": "d" }, "bpm": 90, "view": "tab" } }
+              { "type": "tool", "tool": { "type": "guitar-play-along", "shape": { "shape": "melody", "tune": 47, "key": "d" }, "bpm": 90, "view": "tab" } }
             ]
           }
         ]
@@ -342,7 +342,7 @@
             "sections": [
               { "type": "heading", "text": "Chord tones first", "minutes": 4 },
               { "type": "text", "text": "Press Play below to start the backing. Land on {{a}} or {{c}} when Am7 comes round and on {{d}} or {{f}} when Dm7 comes round." },
-              { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "solo-over", "key": "a", "chords": [{ "chord": "Am7", "scale": "minor-pentatonic", "target": ["1", "b3"] }, { "chord": "Dm7", "target": ["1", "b3"] }], "bars": 2 }, "bpm": 85, "view": "neck" } },
+              { "type": "tool", "tool": { "type": "guitar-play-along", "shape": { "shape": "solo-over", "key": "a", "chords": [{ "chord": "Am7", "scale": "minor-pentatonic", "target": ["1", "b3"] }, { "chord": "Dm7", "target": ["1", "b3"] }], "bars": 2 }, "bpm": 85, "view": "neck" } },
               { "type": "heading", "text": "Bends and slides", "minutes": 4 },
               { "type": "text", "text": "Same backing. Play day 6's slide-and-bend lick in every chorus." },
               { "type": "heading", "text": "Record it", "minutes": 4 },

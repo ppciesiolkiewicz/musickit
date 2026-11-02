@@ -21,7 +21,7 @@
       { "type": "heading", "text": "Guide tones", "minutes": 3 },
       { "type": "text", "text": "Start the mic on the staff, then press Play below to start the chords. Sing one long note per chord on \"ah\": {{4}} (F) over Dm7, still {{4}} over G7, then {{3}} (E) over Cmaj7. Then sing the other line: {{1}} (C) over Dm7, {{7}} (B) over G7, and {{7}} again over Cmaj7." },
       { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "tenor", "notes": ["1", "3", "4", "7"] } },
-      { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "progression", "key": "c", "chords": ["Dm7", "G7", "Cmaj7", "Cmaj7"], "bars": 4, "backing": ["block"] }, "bpm": 72 } },
+      { "type": "tool", "tool": { "type": "chord-backing", "chords": ["Dm7", "G7", "Cmaj7", "Cmaj7"], "backing": ["block"], "bpm": 72 } },
       { "type": "heading", "text": "Your own line", "minutes": 3 },
       { "type": "text", "text": "Keep the chords going and make up your own line over them, on any vowel. Start each chord on one of its lit notes: {{4}} or {{1}} over Dm7, {{7}} or {{4}} over G7, {{3}} or {{7}} over Cmaj7. Leave space between phrases." },
       { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "tenor", "highlight": ["1", "3", "4", "7"] } }

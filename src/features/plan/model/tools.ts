@@ -10,7 +10,8 @@ import { STRING_DRILLS, type StringDrill } from "@/features/exercises/basics/str
 import { strumPattern } from "@/features/exercises/basics/strum-along/blocks";
 import { COMPONENT_DOCS, shortDoc, type ComponentDoc } from "@/features/exercises/docs";
 import type { PlayAlongShape } from "@/features/exercises/play-along/play-along.props";
-import { expandShape } from "@/features/exercises/shapes";
+import { expandShape, numeralChord } from "@/features/exercises/shapes";
+import { isCompPattern, type CompPattern } from "@/lib/practice/comping";
 import { degreeSemis } from "@/features/exercises/timeline/degrees";
 import type { Degree, Voicing } from "@/features/exercises/timeline/types";
 import { layersOf, othersOf, type Others } from "@/features/exercises/cues/visibility";
@@ -42,7 +43,7 @@ type Under = "chords" | "drone" | "none";
 /**
  * A tool as stored: `type` names the component (src/features/exercises), the rest are its props, parsed: keys as pitch
  * classes, degrees as semitones above the root (major-relative, not scale-aware) except where the view reads the
- * degree strings itself (`arpeggio-neck` `part`, `play-along` `enable` and `highlight`). A play-along keeps its checked shape, never events.
+ * degree strings itself (`arpeggio-neck` `part`, `guitar-play-along` `enable` and `highlight`). A guitar-play-along keeps its checked shape, never events.
  */
 export type PlanTool =
   | { type: "scale-neck"; scale: string; key: number; boxes?: number[]; /** pitch classes from outside the scale */ add?: number[]; placement?: Placement } & Marks
@@ -58,8 +59,9 @@ export type PlanTool =
   | { type: "run-singer"; run: number; voice?: Voice; chords?: false; metronome?: true }
   | { type: "string-singer"; drill?: StringDrill; voice?: Voice; metronome?: false }
   | { type: "tuning-ears"; cents?: number; together?: boolean }
-  | { type: "play-along"; shape: PlayAlongShape; bpm: number; repeats?: number; view?: View; enable?: Degree[]; highlight?: Degree[]; others?: "muted" | "hidden"; under?: Under }
+  | { type: "guitar-play-along"; shape: PlayAlongShape; bpm: number; repeats?: number; view?: View; enable?: Degree[]; highlight?: Degree[]; others?: "muted" | "hidden"; under?: Under }
   | { type: "strum-along"; chords: string[]; bpm: number; per?: "bar" | "beat"; beats?: number; pattern?: string }
+  | { type: "chord-backing"; chords: string[]; bpm: number; /** pitch class, from the AI's key; with numerals the chords are already read in it */ key?: number; backing?: CompPattern[] }
   /* stubs: a placeholder view until the real components exist; strings are numbered 1-6, 6 = low E */
   | { type: "finger-pattern"; fingers: string; fret: number; strings?: number[]; bpm: number }
   | { type: "picking-drill"; strokes: string; notesPerString: number; strings?: number[]; skip?: boolean; bpm: number }
@@ -265,23 +267,36 @@ export const TOOLS: { [N in ToolName]: ToolSpec } = {
       return { type: "tuning-ears", ...(Number.isFinite(cents) ? { cents: Math.min(50, Math.max(3, Math.round(cents))) } : {}), ...(t.together === true ? { together: true } : {}) };
     },
   },
-  "play-along": {
+  "guitar-play-along": {
     parse(t) {
       if (!t.shape || typeof t.shape !== "object") return null;
       const shape = { ...(t.shape as Record<string, unknown>) };
-      // bpm and repeats belong on the play-along; inside the shape they are a fallback
+      // bpm and repeats belong on the guitar-play-along; inside the shape they are a fallback
       const bpm = int(t.bpm, 30, 240) ?? int(shape.bpm, 30, 240) ?? 80;
       const repeats = int(t.repeats, 1, 50) ?? int(shape.repeats, 1, 50);
       delete shape.bpm;
       delete shape.repeats;
       if (!expandShape({ ...shape, bpm, ...(repeats !== null ? { repeats } : {}) })) return null;
       return {
-        type: "play-along", bpm, shape: shape as unknown as PlayAlongShape,
+        type: "guitar-play-along", bpm, shape: shape as unknown as PlayAlongShape,
         ...(repeats !== null ? { repeats } : {}),
         ...(VIEWS.includes(t.view as View) ? { view: t.view as View } : {}),
         ...layers(degreeStrings(t.enable), degreeStrings(t.highlight), othersOf(t.others)),
         ...(UNDERS.includes(t.under as Under) ? { under: t.under as Under } : {}),
       };
+    },
+  },
+  "chord-backing": {
+    parse(t) {
+      const key = keyOf(t.key);
+      // numerals are read in the key now, so the stored tool holds chords only
+      const chords = key !== null && Array.isArray(t.numerals) && !Array.isArray(t.chords)
+        ? list(t.numerals).map((n) => (typeof n === "string" ? numeralChord(n, key) : null)).filter((c): c is string => !!c).slice(0, 16)
+        : chordList(t.chords, 16);
+      const backing = [...new Set(list(t.backing).filter(isCompPattern))];
+      return chords.length
+        ? { type: "chord-backing", chords, bpm: int(t.bpm, 30, 240) ?? 80, ...(key !== null ? { key } : {}), ...(backing.length ? { backing } : {}) }
+        : null;
     },
   },
   "strum-along": {
@@ -374,14 +389,14 @@ export function exerciseTags(raw: unknown, sections: Section[]): string[] {
 
 /**
  * `{ by: "chords" }` placements, resolved from the exercise's first chord tool (a chord-shapes or strum-along, else a
- * play-along with chords): open voicing → next to the open chords; barre → near the first chord's root on the low E string. No chord
+ * guitar-play-along with chords): open voicing → next to the open chords; barre → near the first chord's root on the low E string. No chord
  * tool: the placement goes.
  */
 export function resolveChordPlacement(sections: Section[]): Section[] {
   const chordTool = sections.flatMap((s) => (s.type === "tool" ? [s.tool] : [])).map((t) => {
     if (t.type === "chord-shapes") return { chords: t.chords, voicing: t.voicing };
     if (t.type === "strum-along") return { chords: t.chords, voicing: undefined };
-    if (t.type !== "play-along") return null;
+    if (t.type !== "guitar-play-along") return null;
     const sh = t.shape as { chords?: (string | { chord?: string })[]; voicing?: Voicing };
     const chords = (sh.chords ?? []).map((c) => (typeof c === "string" ? c : c.chord)).filter((c): c is string => !!c && !!parseChordQuery(c));
     return chords.length ? { chords, voicing: sh.voicing } : null;
@@ -442,11 +457,11 @@ const propLine = (indent: string) => (p: OfferedParam) => `${indent}${p.name}${p
 const TOOL_DOCS = () => COMPONENT_DOCS.filter((d) => d.kind !== "shape");
 const SHAPE_DOCS = () => COMPONENT_DOCS.filter((d) => d.kind === "shape");
 
-/** The tools, as an MCP server would list them: name, description, props; play-along's shapes listed under it. */
+/** The tools, as an MCP server would list them: name, description, props; guitar-play-along's shapes listed under it. */
 export function toolInterface(): string[] {
   return TOOL_DOCS().map((d) => {
     const lines = [`- ${d.name} : ${describe(d)}`, "  props:", ...d.props.map(propLine("    "))];
-    if (d.name === "play-along") {
+    if (d.name === "guitar-play-along") {
       lines.push("  shapes (the \"shape\" object; its \"shape\" field names it):");
       for (const s of SHAPE_DOCS()) lines.push(`    * ${s.name} : ${describe(s)}`, ...s.props.map(propLine("        ")));
     }

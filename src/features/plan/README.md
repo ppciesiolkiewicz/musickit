@@ -98,7 +98,7 @@ sections, a step followed by its tools; plans stored that way are converted on d
 `prompt.ts` writes the student section from the answers (per area: level, then its concepts as `Major scale ★★☆☆☆`, or
 `(unsure)` when unrated; voice type and range in note names; focus; minutes; notes; styles marked "flavour only"), then the
 rules for good exercises (build on high ratings, drill low or unsure, follow `buildsOn`, singing keys inside the range; one
-skill each; `minutes` are the truth and a play-along loops until stopped; exercises over 5 minutes in 2+ timed blocks, each
+skill each; `minutes` are the truth and a guitar-play-along or chord-backing loops until stopped; exercises over 5 minutes in 2+ timed blocks, each
 block changing something real; sing or play, never both; longer singing made musical; every named note lit, the root never
 muted, one chart per step; intervals inside an octave unless tagged `multi-octave`; a progression practised several ways;
 no genre-driven plans), a "Common mistakes" list of wrong → right pairs (box far from open chords, wrong degree highlighted,
@@ -131,8 +131,8 @@ names (`"c-sharp"`, read against the key, or the chord on `arpeggio-neck`); `oth
 reads as `muted`) sets the notes not enabled. A plan from before `enable` with a `highlight` and `others` muted or hidden
 meant "only these": it parses as that `enable` (`layersOf`). Notes in `add` are highlighted without muting the scale.
 `scale-neck` and `arpeggio-neck` take a `placement` instead of `boxes` (`exercises/cues/placement.ts`): `{ by: "open" | "fret" | "root" | "box" | "chords" }`; `chords` is resolved on
-paste from the exercise's chord-shapes or play-along (`resolveChordPlacement`: open voicing → open, barre → the first
-chord's fret). Not yet: `placement` on the shapes' per-chord `place`, and `mute` / `hide` / note names on `play-along`
+paste from the exercise's chord-shapes or guitar-play-along (`resolveChordPlacement`: open voicing → open, barre → the first
+chord's fret). Not yet: `placement` on the shapes' per-chord `place`, and `mute` / `hide` / note names on `guitar-play-along`
 (it keeps chord-relative degree `enable` and `highlight`, `others` muted or hidden).
 
 Notes in an exercise's text are written `{{3}}` (a degree) or `{{c-sharp}}` (a note name) and drawn as the fretboard's
@@ -141,8 +141,9 @@ setting (`useLabelSystem`), the other name on hover, played on tap. `model/noteT
 them against the root of the tool after the text (else the one before); a token it can't read stays as text.
 
 The tools are the learning components of `src/features/exercises` (see its README): `scale-neck`, `chord-shapes`,
-`staff`, `click-drone`, `backing-band`, `note-finder`, `interval-ears`, `arpeggio-neck`, `melody-singer`, `run-singer`, `string-singer`, `tuning-ears`, `strum-along`
-and the guided `play-along` (one shape: `progression`, `two-scales`, `chord-steps`, `arpeggio-part`, `melody`,
+`staff`, `click-drone`, `backing-band`, `note-finder`, `interval-ears`, `arpeggio-neck`, `melody-singer`, `run-singer`, `string-singer`, `tuning-ears`, `strum-along`,
+`chord-backing` (chords for a singer, one a bar as lit boxes; `numerals` are read in its `key` at parse, so it stores
+chords) and the guided `guitar-play-along` (one shape: `progression`, `two-scales`, `chord-steps`, `arpeggio-part`, `melody`,
 `solo-over`). The prompt lists them from `COMPONENT_DOCS`, the debug panel shows each one's short doc (open it for the
 prop table). `melody-singer` and `run-singer` take a `pick` ({ difficulty, stage, index }, `theory/melodyPick.ts`) instead of a number; it is resolved at parse (never stored) and a pick that matched no tune exactly warns. The exercises' `minutes` add up to the day timer. Headings with `minutes` start timed blocks (`blocks.ts`); on paste the block minutes are scaled to add up to the exercise's, and an exercise over 5 minutes with fewer than two blocks gets a warning. An exercise that asks the student to both sing and play their instrument also warns (`checks.ts`, `mixesSingAndPlay`), a narrow heuristic: singing is a mic tool (`melody-singer`, `run-singer`, `string-singer`, a `staff` without `mic: false`) or the word "sing" in text; playing is text only ("play", "strum", "pick the strings", "find it on the guitar"), so an instrument tool shown as a visual doesn't count. Play-along, "press Play" and the app or backing playing are ignored. An exercise whose text asks for a tempo ("60 bpm", "play it at 80") but shows no tool that sounds the beat (a `click-drone` with its click, `backing-band`, `play-along`, `strum-along`) warns too (`tempoWithoutMetronome`); the stubs' `bpm` is no metronome. A `strum-along` `pattern` (one bar of D / U / . strokes, 1-4 a beat) is kept only when it fills the bar evenly, rewritten with a `|` between beats; otherwise dropped (a down a beat). A play-along's `under` picks what sounds under single
 notes (the chords held by default). In development each tool shows its name above it (`DevName`).
@@ -151,7 +152,7 @@ Three tools are stubs, for the course's dexterity basics: `finger-pattern` (the 
 
 Old stored or pasted tools are migrated before parsing (`model/migrate.ts`): `scale` → `scale-neck`, `chords` →
 `chord-shapes`, `sing` → `staff` with the mic, `band` → `backing-band`, `notes` → `note-finder`, `ears` →
-`interval-ears`, `comp` → a `play-along` progression on the neck. Stored sections are parsed again on display.
+`interval-ears`, `play-along` → `guitar-play-along`, `comp` → a `guitar-play-along` progression on the neck. Stored sections are parsed again on display.
 
 To add one: the component with its `@component` doc, its parse in `TOOLS` in `model/tools.ts`, a view in
 `ui/ExerciseTool.tsx` (lazy-load anything with its own sound engine), and a test.

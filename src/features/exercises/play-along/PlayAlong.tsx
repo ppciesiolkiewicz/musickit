@@ -114,7 +114,7 @@ export function PlayAlongTimeline({ timeline, view = "tab", others = "muted", ma
   );
 }
 
-/** `play-along`: a shape expanded to a timeline and played along with, its backing sound set by `under`. */
+/** `guitar-play-along`: a shape expanded to a timeline and played along with, its backing sound set by `under`. */
 export default function PlayAlong({ shape, bpm, repeats, view, enable, highlight, others, under }: PlayAlongProps & { /** loops, from older plans; absent loops until stopped */ repeats?: number }) {
   const timeline = useMemo(() => {
     const t = expandShape({ ...shape, bpm, ...(repeats !== undefined ? { repeats } : {}) });

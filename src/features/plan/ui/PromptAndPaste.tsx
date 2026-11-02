@@ -68,7 +68,7 @@ export function CopyPrompt({ prompt, entries, label = "Copy prompt" }: { prompt:
       {debug && (
         <div className="flex flex-col gap-3 rounded-lg border border-slate-700 bg-slate-950/60 p-3 text-[11px] text-slate-300">
           <DebugList title="Tools offered to the AI" items={offered.tools} />
-          <DebugList title="Play-along shapes" items={offered.shapes} />
+          <DebugList title="Guitar play-along shapes" items={offered.shapes} />
           <DebugList title="Section types" items={offered.sections} />
           <div>
             <h4 className="font-semibold text-slate-400">Link resources ({offered.links.length})</h4>

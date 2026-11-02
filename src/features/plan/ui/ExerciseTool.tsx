@@ -5,6 +5,7 @@ import DevName from "@/components/DevName";
 import { devUi } from "@/features/devtools/gate";
 import { View as ArpeggioNeck } from "@/features/exercises/basics/arpeggio-neck";
 import { View as BackingBand } from "@/features/exercises/basics/backing-band";
+import { View as ChordBacking } from "@/features/exercises/basics/chord-backing";
 import { View as ChordShapes } from "@/features/exercises/basics/chord-shapes";
 import { View as ClickDrone } from "@/features/exercises/basics/click-drone";
 import { View as IntervalEars } from "@/features/exercises/basics/interval-ears";
@@ -24,7 +25,7 @@ import type { PlanTool } from "../model/tools";
 import type { Voice } from "@/features/theory/singing";
 import { usePlan } from "../store/usePlan";
 
-// the play-along carries its own sound engine: loaded only when an exercise shows one
+// the guitar play-along carries its own sound engine: loaded only when an exercise shows one
 const loading = () => <p className="p-3 text-sm text-slate-500">Loading…</p>;
 const PlayAlong = dynamic(() => import("@/features/exercises/play-along/PlayAlong"), { ssr: false, loading });
 
@@ -35,7 +36,7 @@ export default function ExerciseTool({ tool }: { tool: PlanTool }) {
   if (!devUi()) return <Tool tool={tool} voice={voice} />;
   return (
     <div className="flex flex-col gap-1">
-      <DevName name={tool.type === "play-along" ? `play-along · ${tool.shape.shape}` : tool.type} params={params(tool)} />
+      <DevName name={tool.type === "guitar-play-along" ? `guitar-play-along · ${tool.shape.shape}` : tool.type} params={params(tool)} />
       <Tool tool={tool} voice={voice} />
     </div>
   );
@@ -77,8 +78,10 @@ function Tool({ tool, voice }: { tool: PlanTool; voice?: Voice }) {
       return <StringSinger drill={tool.drill} voice={tool.voice ?? voice} metronome={tool.metronome} />;
     case "tuning-ears":
       return <TuningEars cents={tool.cents} together={tool.together} />;
-    case "play-along":
+    case "guitar-play-along":
       return <PlayAlong shape={tool.shape} bpm={tool.bpm} repeats={tool.repeats} view={tool.view} enable={tool.enable} highlight={tool.highlight} others={tool.others} under={tool.under} />;
+    case "chord-backing":
+      return <ChordBacking chords={tool.chords} bpm={tool.bpm} keyPc={tool.key} backing={tool.backing} />;
     case "strum-along":
       return <StrumAlong chords={tool.chords} bpm={tool.bpm} per={tool.per} beats={tool.beats} pattern={tool.pattern} />;
     case "finger-pattern":

@@ -119,7 +119,7 @@ describe("tools", () => {
     assert.deepEqual([m.mute, m.hide, m.others], [[7], [10], "hidden"]);
     assert.deepEqual((parseTool({ type: "arpeggio-neck", chord: "A7", highlight: ["c-sharp", "g"] }) as { highlight?: number[] }).highlight, [4, 10]);
     assert.equal((parseTool({ type: "staff", scale: "major-ionian", key: "c", enable: ["3"], others: "dimmed" }) as { others?: string }).others, "muted");
-    const pa = parseTool({ type: "play-along", bpm: 70, shape: { shape: "progression", key: "a", chords: ["A7", "D7"], bars: 2 }, enable: ["1", "3"], others: "dimmed" }) as { enable?: string[]; others?: string };
+    const pa = parseTool({ type: "guitar-play-along", bpm: 70, shape: { shape: "progression", key: "a", chords: ["A7", "D7"], bars: 2 }, enable: ["1", "3"], others: "dimmed" }) as { enable?: string[]; others?: string };
     assert.deepEqual([pa.enable, pa.others], [["1", "3"], "muted"]);
   });
   it("enable and highlight are two layers: a highlight alone keeps every note in play", () => {
@@ -131,7 +131,7 @@ describe("tools", () => {
     assert.deepEqual(sn({ highlight: ["1"], others: "hidden" }), { type: "scale-neck", scale: "major-ionian", key: 0, enable: [0], others: "hidden" });
     // and it reads back the same once stored
     assert.deepEqual(sn(sn({ highlight: ["1"], others: "hidden" }), true), sn({ highlight: ["1"], others: "hidden" }));
-    const pa = (t: Record<string, unknown>) => parseTool({ type: "play-along", bpm: 70, shape: { shape: "progression", key: "a", chords: ["A7", "D7"], bars: 2 }, ...t }) as Record<string, unknown>;
+    const pa = (t: Record<string, unknown>) => parseTool({ type: "guitar-play-along", bpm: 70, shape: { shape: "progression", key: "a", chords: ["A7", "D7"], bars: 2 }, ...t }) as Record<string, unknown>;
     assert.deepEqual([pa({ highlight: ["1"], others: "hidden" }).enable, pa({ highlight: ["1"], others: "hidden" }).highlight], [["1"], undefined]);
     assert.deepEqual([pa({ enable: ["1", "3", "5"], highlight: ["3"] }).enable, pa({ enable: ["1", "3", "5"], highlight: ["3"] }).highlight], [["1", "3", "5"], ["3"]]);
   });
@@ -163,7 +163,7 @@ describe("tools", () => {
   });
   it("a stored comp tool becomes a play-along progression", () => {
     const t = parseTool({ type: "comp", chords: ["Am", "F", "C", "G"], patterns: ["arp-up", "strum"], bpm: 80, beats: 4 });
-    assert.ok(t && t.type === "play-along");
+    assert.ok(t && t.type === "guitar-play-along");
     assert.equal(t.view, "neck");
     const tl = expandShape({ ...t.shape, bpm: t.bpm });
     assert.ok(tl);
@@ -173,19 +173,19 @@ describe("tools", () => {
   });
   it("an old comp with beats 3 keeps every chord", () => {
     const t = parseTool({ type: "comp", chords: ["C", "Am", "F", "G"], bpm: 80, beats: 3 });
-    assert.ok(t && t.type === "play-along");
+    assert.ok(t && t.type === "guitar-play-along");
     const tl = expandShape({ ...t.shape, bpm: t.bpm })!;
     const names = tl.events.filter((e) => e.type === "chord").map((e) => (e as { name: string }).name);
     assert.deepEqual(names.slice(0, 4), ["C", "Am", "F", "G"]);
     assert.deepEqual(tl.events.filter((e) => e.type === "chord").map((e) => e.at).slice(0, 4), [0, 3, 6, 9]);
   });
   it("play-along bpm/repeats inside the shape are a fallback; top-level wins", () => {
-    const inner = parseTool({ type: "play-along", shape: { shape: "progression", key: "g", chords: ["G", "C"], bars: 4, bpm: 70, repeats: 6 } });
-    assert.ok(inner && inner.type === "play-along");
+    const inner = parseTool({ type: "guitar-play-along", shape: { shape: "progression", key: "g", chords: ["G", "C"], bars: 4, bpm: 70, repeats: 6 } });
+    assert.ok(inner && inner.type === "guitar-play-along");
     assert.equal(inner.bpm, 70);
     assert.equal(inner.repeats, 6);
-    const top = parseTool({ type: "play-along", bpm: 90, repeats: 2, shape: { shape: "progression", key: "g", chords: ["G", "C"], bars: 4, bpm: 70, repeats: 6 } });
-    assert.ok(top && top.type === "play-along");
+    const top = parseTool({ type: "guitar-play-along", bpm: 90, repeats: 2, shape: { shape: "progression", key: "g", chords: ["G", "C"], bars: 4, bpm: 70, repeats: 6 } });
+    assert.ok(top && top.type === "guitar-play-along");
     assert.equal(top.bpm, 90);
     assert.equal(top.repeats, 2);
   });
@@ -218,16 +218,25 @@ describe("tools", () => {
     };
     assert.deepEqual(placed([{ type: "tool", tool: { type: "chord-shapes", chords: ["A7", "D7", "E7"] } }, neck]), { by: "open" });
     assert.deepEqual(placed([{ type: "tool", tool: { type: "chord-shapes", chords: ["A7"], voicing: "barre" } }, neck]), { by: "fret", fret: 5 });
-    assert.deepEqual(placed([{ type: "tool", tool: { type: "play-along", bpm: 80, shape: { shape: "progression", key: "a", chords: ["A7", "D7"], bars: 2, voicing: "barre" } } }, neck]), { by: "fret", fret: 5 });
+    assert.deepEqual(placed([{ type: "tool", tool: { type: "guitar-play-along", bpm: 80, shape: { shape: "progression", key: "a", chords: ["A7", "D7"], bars: 2, voicing: "barre" } } }, neck]), { by: "fret", fret: 5 });
     assert.equal(placed([neck]), undefined);
+  });
+  it("an old play-along reads as a guitar-play-along", () => {
+    const shape = { shape: "progression", key: "g", chords: ["G", "C"], bars: 2 };
+    assert.deepEqual(parseTool({ type: "play-along", bpm: 70, shape }), { type: "guitar-play-along", bpm: 70, shape });
+  });
+  it("a chord-backing reads numerals in its key, keeps known backings, needs chords", () => {
+    assert.deepEqual(parseTool({ type: "chord-backing", key: "d", numerals: ["I", "V"], backing: ["block", "nope", "arp-up"], bpm: 70 }), { type: "chord-backing", chords: ["D", "A"], bpm: 70, key: 2, backing: ["block", "arp-up"] });
+    assert.deepEqual(parseTool({ type: "chord-backing", chords: ["Dm7", "G7", "zz"], bpm: 500 }), { type: "chord-backing", chords: ["Dm7", "G7"], bpm: 80 });
+    assert.equal(parseTool({ type: "chord-backing", numerals: ["I"], bpm: 70 }), null);
   });
   it("parses a play-along by its shape", () => {
     const shape = { shape: "chord-steps", chords: [{ chord: "G", steps: ["strum", "1", "6", "1"] }, { chord: "D", steps: ["strum", "4", "5", "4"] }], voicing: "barre" };
-    const t = parseTool({ type: "play-along", bpm: 70, shape });
+    const t = parseTool({ type: "guitar-play-along", bpm: 70, shape });
     assert.ok(t);
-    assert.deepEqual(t, { type: "play-along", bpm: 70, shape });
+    assert.deepEqual(t, { type: "guitar-play-along", bpm: 70, shape });
     assert.deepEqual(parseTool(t), t);
-    assert.equal(parseTool({ type: "play-along", bpm: 70, shape: { ...shape, shape: "nonsense" } }), null);
+    assert.equal(parseTool({ type: "guitar-play-along", bpm: 70, shape: { ...shape, shape: "nonsense" } }), null);
   });
   it("ears stay inside an octave unless wide", () => {
     assert.deepEqual(parseTool({ type: "interval-ears", set: [3, 4, 7, 10], dir: "down" }), { type: "interval-ears", query: "set=3%2C4%2C7%2C10&dir=down" });
@@ -254,7 +263,7 @@ describe("tools", () => {
     assert.equal(real(r.warnings).length, 1);
   });
   it("the prompt's example play-along exercise keeps its minutes after derivation", () => {
-    const ex = EXERCISE_EXAMPLES.map((e) => e.exercise as { minutes: number; sections: { tool?: { type: string } }[] }).find((e) => e.sections.some((s) => s.tool?.type === "play-along"))!;
+    const ex = EXERCISE_EXAMPLES.map((e) => e.exercise as { minutes: number; sections: { tool?: { type: string } }[] }).find((e) => e.sections.some((s) => s.tool?.type === "guitar-play-along"))!;
     const p = JSON.parse(week());
     p.days[0].exercises[0] = ex;
     const r = parsePlanConfig(JSON.stringify(p), entries);
@@ -269,7 +278,7 @@ describe("tools", () => {
     return r;
   };
   it("an exercise with a play-along repeats keeps its written minutes", () => {
-    const tool = { type: "play-along", bpm: 70, repeats: 2, shape: { shape: "progression", key: "g", chords: ["G", "C"], bars: 4 } };
+    const tool = { type: "guitar-play-along", bpm: 70, repeats: 2, shape: { shape: "progression", key: "g", chords: ["G", "C"], bars: 4 } };
     const r = one({ title: "t", minutes: 10, sections: [{ type: "heading", text: "A", minutes: 5 }, { type: "tool", tool }, { type: "heading", text: "B", minutes: 5 }, { type: "text", text: "x" }] });
     assert.equal(r.config.days[0].exercises[0].minutes, 10);
   });
@@ -293,7 +302,7 @@ describe("tools", () => {
 describe("sections", () => {
   const sections = [
     { type: "text", text: "Listen to the chords" },
-    { type: "tool", tool: { type: "play-along", bpm: 80, shape: { shape: "progression", key: "a", chords: ["Am", "F"], bars: 2 } } },
+    { type: "tool", tool: { type: "guitar-play-along", bpm: 80, shape: { shape: "progression", key: "a", chords: ["Am", "F"], bars: 2 } } },
     { type: "heading", text: "Now sing" },
     { type: "list", items: ["a", "", "b"] },
     { type: "tool", tool: { type: "scale-neck", scale: "nope", key: "a" } },
@@ -466,7 +475,8 @@ describe("schedule", () => {
     assert.match(prompt, /too easy/);
     assert.match(prompt, /\/theory\/notes/);
     assert.match(prompt, /"type":\s*"backing-band"/);
-    assert.match(prompt, /"type":\s*"play-along"/);
+    assert.match(prompt, /"type":\s*"guitar-play-along"/);
+    assert.match(prompt, /"type":\s*"chord-backing"/);
     assert.match(prompt, /Never write frets or note lists the app can compute/);
     for (const old of ["band", "comp", "sing", "scale", "chords"]) assert.ok(!prompt.includes(`"type": "${old}"`), old);
     assert.match(prompt, /Notes outside the scale/);
@@ -499,7 +509,7 @@ describe("the prompt's examples", () => {
     }
   });
   it("play-along's under is kept when known, dropped when not", () => {
-    const base = { type: "play-along", bpm: 70, shape: { shape: "progression", key: "a", chords: ["A7"], bars: 1, steps: ["3"] } };
+    const base = { type: "guitar-play-along", bpm: 70, shape: { shape: "progression", key: "a", chords: ["A7"], bars: 1, steps: ["3"] } };
     assert.equal((parseTool({ ...base, under: "drone" }) as { under?: string }).under, "drone");
     assert.equal((parseTool({ ...base, under: "loud" }) as { under?: string }).under, undefined);
   });

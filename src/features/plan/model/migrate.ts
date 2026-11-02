@@ -11,12 +11,13 @@ const RENAMED: Record<string, string> = {
   band: "backing-band",
   notes: "note-finder",
   ears: "interval-ears",
+  "play-along": "guitar-play-along",
 };
 
 /**
  * A tool as an older plan wrote it, in today's names and props; anything else is returned unchanged. `sing` becomes a
  * `staff` with the mic (its stored `notes`/`highlight` are already semitones and are read as such), `comp` a
- * `play-along` progression on the neck. Pure; `parseTool` calls it first so old and new plans parse alike.
+ * `guitar-play-along` progression on the neck. Pure; `parseTool` calls it first so old and new plans parse alike.
  */
 export function migrateTool(raw: Record<string, unknown>): Record<string, unknown> {
   const type = raw.type;
@@ -35,7 +36,7 @@ export function migrateTool(raw: Record<string, unknown>): Record<string, unknow
       beatsPerChord: beats,
     };
     if (Array.isArray(raw.patterns) && raw.patterns.length) shape.backing = raw.patterns;
-    return { type: "play-along", bpm: raw.bpm ?? 80, view: "neck", shape };
+    return { type: "guitar-play-along", bpm: raw.bpm ?? 80, view: "neck", shape };
   }
   return raw;
 }

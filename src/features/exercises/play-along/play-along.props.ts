@@ -8,15 +8,16 @@ export type PlayAlongShape =
   | NoTempo<ArpeggioPartShape> | NoTempo<MelodyShape> | NoTempo<SoloOverShape>;
 
 /**
- * Play along with a click and piano: the music shown as tab, as note names or on the neck, all following one clock.
+ * Play along on the guitar with a click and piano: the music shown as tab, as note names or on the neck, all following
+ * one clock. For the guitar only: a singer singing over chords gets a chord-backing instead.
  * You choose the musical content as a shape; the app computes the notes, frets, strings and timing. Shapes, by name:
  * `progression`, `two-scales`, `chord-steps`, `arpeggio-part`, `melody`, `solo-over` (see each shape's doc).
  * The student can change tempo and view, and pick a backing when the shape offers more than one. Under single-note
  * steps over chords (guide tones, arpeggio parts) the app holds each chord softly by default, so the student hears the
  * harmony and not just the click; `under` changes that.
  *
- * Example: `{ "type": "play-along", "shape": { "shape": "chord-steps", "voicing": "barre", "chords": [{ "chord": "G", "steps": ["strum","1","6","1"] }, { "chord": "D", "steps": ["strum","4","5","4"] }] }, "bpm": 70 }`
- * @component play-along guided
+ * Example: `{ "type": "guitar-play-along", "shape": { "shape": "chord-steps", "voicing": "barre", "chords": [{ "chord": "G", "steps": ["strum","1","6","1"] }, { "chord": "D", "steps": ["strum","4","5","4"] }] }, "bpm": 70 }`
+ * @component guitar-play-along guided
  */
 export interface PlayAlongProps {
   /** the musical content: one shape object, its `shape` field naming it */

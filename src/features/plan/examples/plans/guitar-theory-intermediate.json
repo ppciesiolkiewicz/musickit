@@ -74,7 +74,7 @@
               { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "tenor", "mic": false } },
               { "type": "heading", "text": "Hear the pull", "minutes": 3 },
               { "type": "text", "text": "Press Play below and listen. The ii moves away, the V leans hard, the I lands. Say each numeral as it arrives." },
-              { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "progression", "key": "c", "numerals": ["ii7", "V7", "Imaj7", "Imaj7"], "bars": 4, "backing": ["arp-updown"] }, "bpm": 70 } }
+              { "type": "tool", "tool": { "type": "guitar-play-along", "shape": { "shape": "progression", "key": "c", "numerals": ["ii7", "V7", "Imaj7", "Imaj7"], "bars": 4, "backing": ["arp-updown"] }, "bpm": 70 } }
             ]
           },
           {
@@ -82,14 +82,14 @@
             "sections": [
               { "type": "heading", "text": "The 3rd-7th line", "minutes": 5 },
               { "type": "text", "text": "Press Play below and play along from the tab, one note per beat: F over Dm7 (its 3rd), F over G7 (its 7th), E over Cmaj7 (its 3rd)." },
-              { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "chord-steps", "chords": [
+              { "type": "tool", "tool": { "type": "guitar-play-along", "shape": { "shape": "chord-steps", "chords": [
                 { "chord": "Dm7", "steps": ["b3", "b3", "b3", "b3"] },
                 { "chord": "G7", "steps": ["b7", "b7", "b7", "b7"] },
                 { "chord": "Cmaj7", "steps": ["3", "3", "3", "3"] }
               ], "guide": ["F: 3rd of Dm7", "", "", "", "F: now the 7th of G7", "", "", "", "E: 3rd of Cmaj7"] }, "bpm": 70, "view": "tab" } },
               { "type": "heading", "text": "The 7th-3rd line", "minutes": 5 },
               { "type": "text", "text": "Now the other line: C over Dm7 (its 7th), B over G7 (its 3rd), B over Cmaj7 (its 7th). Then switch between the two lines." },
-              { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "chord-steps", "chords": [
+              { "type": "tool", "tool": { "type": "guitar-play-along", "shape": { "shape": "chord-steps", "chords": [
                 { "chord": "Dm7", "steps": ["b7", "b7", "b7", "b7"] },
                 { "chord": "G7", "steps": ["3", "3", "3", "3"] },
                 { "chord": "Cmaj7", "steps": ["7", "7", "7", "7"] }
@@ -101,7 +101,7 @@
             "sections": [
               { "type": "heading", "text": "Land on the targets", "minutes": 4 },
               { "type": "text", "text": "Press Play below to start the backing and improvise in C major. Land on a lit target when each chord comes round." },
-              { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "solo-over", "key": "c", "chords": [{ "chord": "Dm7", "scale": "dorian", "target": ["b3", "b7"] }, { "chord": "G7", "scale": "mixolydian", "target": ["3", "b7"] }, { "chord": "Cmaj7", "scale": "major-ionian", "target": ["3", "7"] }], "bars": 2 }, "bpm": 80, "view": "neck" } },
+              { "type": "tool", "tool": { "type": "guitar-play-along", "shape": { "shape": "solo-over", "key": "c", "chords": [{ "chord": "Dm7", "scale": "dorian", "target": ["b3", "b7"] }, { "chord": "G7", "scale": "mixolydian", "target": ["3", "b7"] }, { "chord": "Cmaj7", "scale": "major-ionian", "target": ["3", "7"] }], "bars": 2 }, "bpm": 80, "view": "neck" } },
               { "type": "heading", "text": "Fewer notes", "minutes": 4 },
               { "type": "text", "text": "Same backing. Now use only three or four notes per chord. Include its guide tone each time." }
             ]
@@ -124,7 +124,7 @@
             "sections": [
               { "type": "heading", "text": "Hear the home move", "minutes": 3 },
               { "type": "text", "text": "Press Play below to start the metronome; only the click sounds. Play C major from C for four bars. Then play the same notes from A for four bars: A minor. Where does each one come to rest?" },
-              { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "two-scales", "a": { "key": "c", "scale": "major-ionian" }, "b": { "key": "a", "scale": "natural-minor-aeolian" }, "bars": 8 }, "bpm": 70, "view": "notes", "under": "none" } },
+              { "type": "tool", "tool": { "type": "guitar-play-along", "shape": { "shape": "two-scales", "a": { "key": "c", "scale": "major-ionian" }, "b": { "key": "a", "scale": "natural-minor-aeolian" }, "bars": 8 }, "bpm": 70, "view": "notes", "under": "none" } },
               { "type": "heading", "text": "La is home", "minutes": 3 },
               { "type": "text", "text": "Tap {{1}} (A) on the staff to hear it. Walk up to the C above it. In C major that C is Do; here it is the {{b3}}. A minor is C major starting from La." },
               { "type": "tool", "tool": { "type": "staff", "scale": "natural-minor-aeolian", "key": "a", "voice": "tenor", "highlight": ["1", "b3"], "mic": false } }
@@ -191,7 +191,7 @@
             "sections": [
               { "type": "heading", "text": "Guide tones only", "minutes": 5 },
               { "type": "text", "text": "Press Play below to start the backing. Play only the targets, one long note per chord. Pick either line." },
-              { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "solo-over", "key": "g", "chords": [{ "chord": "Am7", "target": ["b3", "b7"] }, { "chord": "D7", "target": ["3", "b7"] }, { "chord": "Gmaj7", "target": ["3", "7"] }], "bars": 2 }, "bpm": 80, "view": "neck" } },
+              { "type": "tool", "tool": { "type": "guitar-play-along", "shape": { "shape": "solo-over", "key": "g", "chords": [{ "chord": "Am7", "target": ["b3", "b7"] }, { "chord": "D7", "target": ["3", "b7"] }, { "chord": "Gmaj7", "target": ["3", "7"] }], "bars": 2 }, "bpm": 80, "view": "neck" } },
               { "type": "heading", "text": "Fill in around them", "minutes": 5 },
               { "type": "text", "text": "Same backing. Now improvise in G major. Still land on a target at each change. Record the last two minutes." }
             ]
@@ -221,10 +221,10 @@
             "sections": [
               { "type": "heading", "text": "With the chart", "minutes": 4 },
               { "type": "text", "text": "Press Play below and listen. Say each numeral as it arrives: I (Cmaj7), vi (Am7), ii (Dm7), V (G7)." },
-              { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "progression", "key": "c", "numerals": ["Imaj7", "vi7", "ii7", "V7"], "bars": 4, "backing": ["fingerstyle"] }, "bpm": 80 } },
+              { "type": "tool", "tool": { "type": "guitar-play-along", "shape": { "shape": "progression", "key": "c", "numerals": ["Imaj7", "vi7", "ii7", "V7"], "bars": 4, "backing": ["fingerstyle"] }, "bpm": 80 } },
               { "type": "heading", "text": "In a new order", "minutes": 4 },
               { "type": "text", "text": "Now the same four chords in a new order. Look away and press Play. Write down the numerals you hear, then check." },
-              { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "progression", "key": "c", "numerals": ["Imaj7", "ii7", "vi7", "V7"], "bars": 4, "backing": ["block"] }, "bpm": 80 } }
+              { "type": "tool", "tool": { "type": "guitar-play-along", "shape": { "shape": "progression", "key": "c", "numerals": ["Imaj7", "ii7", "vi7", "V7"], "bars": 4, "backing": ["block"] }, "bpm": 80 } }
             ]
           },
           {
@@ -284,7 +284,7 @@
               { "type": "heading", "text": "Slide into C♯", "minutes": 4 },
               { "type": "text", "text": "Press Play below to start the backing. Improvise in position 1. When A7 comes round, slide from {{b3}} (C) up to {{c-sharp}}: the 3rd of A7, not in A minor pentatonic. End your phrases on {{1}}." },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "add": ["c-sharp"], "highlight": ["1", "b3"] } },
-              { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "solo-over", "key": "a", "chords": [{ "chord": "A7", "scale": "minor-pentatonic", "target": ["3"], "approach": "slide from C into C♯" }, { "chord": "D7", "target": ["1"] }], "bars": 2 }, "bpm": 90, "view": "neck" } },
+              { "type": "tool", "tool": { "type": "guitar-play-along", "shape": { "shape": "solo-over", "key": "a", "chords": [{ "chord": "A7", "scale": "minor-pentatonic", "target": ["3"], "approach": "slide from C into C♯" }, { "chord": "D7", "target": ["1"] }], "bars": 2 }, "bpm": 90, "view": "neck" } },
               { "type": "heading", "text": "Over D7", "minutes": 4 },
               { "type": "text", "text": "Same backing. When D7 comes round, aim for {{d}}. When A7 comes round, keep sliding into {{c-sharp}}." }
             ]
@@ -313,7 +313,7 @@
             "sections": [
               { "type": "heading", "text": "Without looking", "minutes": 4 },
               { "type": "text", "text": "Press Play below and play each arpeggio from memory as its chord comes round: root, 3rd, 5th, 7th, one note per beat. Look away from the tab." },
-              { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "chord-steps", "chords": [
+              { "type": "tool", "tool": { "type": "guitar-play-along", "shape": { "shape": "chord-steps", "chords": [
                 { "chord": "Dm7", "steps": ["1", "b3", "5", "b7"] },
                 { "chord": "G7", "steps": ["1", "3", "5", "b7"] },
                 { "chord": "Cmaj7", "steps": ["1", "3", "5", "7"] },
@@ -328,7 +328,7 @@
             "sections": [
               { "type": "heading", "text": "Guide tones", "minutes": 4 },
               { "type": "text", "text": "Press Play below to start the backing. Play one guide tone per chord, either line from day 2." },
-              { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "solo-over", "key": "c", "chords": [{ "chord": "Dm7", "scale": "dorian", "target": ["b3", "b7"] }, { "chord": "G7", "scale": "mixolydian", "target": ["3", "b7"] }, { "chord": "Cmaj7", "scale": "major-ionian", "target": ["3", "7"] }], "bars": 2 }, "bpm": 85, "view": "neck" } },
+              { "type": "tool", "tool": { "type": "guitar-play-along", "shape": { "shape": "solo-over", "key": "c", "chords": [{ "chord": "Dm7", "scale": "dorian", "target": ["b3", "b7"] }, { "chord": "G7", "scale": "mixolydian", "target": ["3", "b7"] }, { "chord": "Cmaj7", "scale": "major-ionian", "target": ["3", "7"] }], "bars": 2 }, "bpm": 85, "view": "neck" } },
               { "type": "heading", "text": "Arpeggio phrases", "minutes": 4 },
               { "type": "text", "text": "Same backing. Start each chord with a run up its arpeggio. Then leave space." },
               { "type": "heading", "text": "Free, and record", "minutes": 4 },

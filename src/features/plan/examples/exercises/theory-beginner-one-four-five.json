@@ -19,10 +19,10 @@
       { "type": "tool", "tool": { "type": "chord-shapes", "chords": ["G", "C", "D"] } },
       { "type": "heading", "text": "Follow the changes", "minutes": 3 },
       { "type": "text", "text": "Press Play below to hear I, IV, V, I, one bar each. Say the numeral out loud as each chord arrives." },
-      { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "progression", "key": "g", "numerals": ["I", "IV", "V", "I"], "bars": 8, "backing": ["strum"] }, "bpm": 80 } },
+      { "type": "tool", "tool": { "type": "guitar-play-along", "shape": { "shape": "progression", "key": "g", "numerals": ["I", "IV", "V", "I"], "bars": 8, "backing": ["strum"] }, "bpm": 80 } },
       { "type": "heading", "text": "A new order", "minutes": 2 },
       { "type": "text", "text": "The same three chords in a new order, with a softer backing. Press Play below and look away from the screen. Name each chord as it arrives, then look back to check." },
-      { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "progression", "key": "g", "numerals": ["I", "V", "IV", "V"], "bars": 8, "backing": ["fingerstyle"] }, "bpm": 80 } }
+      { "type": "tool", "tool": { "type": "guitar-play-along", "shape": { "shape": "progression", "key": "g", "numerals": ["I", "V", "IV", "V"], "bars": 8, "backing": ["fingerstyle"] }, "bpm": 80 } }
     ],
     "exploreMore": ["/course/5/hearing-changes"]
   }
