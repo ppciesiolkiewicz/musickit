@@ -17,6 +17,28 @@ const whereOf = (el: Element) => {
   return `${el.tagName.toLowerCase()}${label ? ` "${label}"` : el.className && typeof el.className === "string" ? `.${el.className.split(/\s+/)[0]}` : ""}`;
 };
 
+/** The blocks a note can be on: text blocks, lists and plain boxes; not page regions (nav, main, section) or SVG. */
+const BLOCKS = "p,h1,h2,h3,h4,h5,h6,li,ul,ol,dl,dt,dd,div,span,blockquote,pre,td,th,caption,figcaption,label,legend,summary,button,a";
+const inline = (el: Element) => getComputedStyle(el).display === "inline";
+
+/** Whether `el` holds text itself: a text node of its own, or one in an inline child (a <strong> or <a> in a <p>), not
+ * only in child blocks. */
+function holdsText(el: Element): boolean {
+  return [...el.childNodes].some((c) =>
+    c.nodeType === Node.TEXT_NODE ? !!c.textContent?.trim() : c instanceof HTMLElement && inline(c) && !c.matches("svg,img") && !!c.innerText?.trim() && (holdsText(c) || !c.children.length),
+  );
+}
+
+/** The block a click on `target` notes: the nearest one round it, itself not inline (an inline bit is its block's), that
+ * holds text itself; none on a page region's padding or a wrapper of other blocks. */
+function blockOf(target: EventTarget | null): HTMLElement | null {
+  for (let el = target instanceof Element ? target : null; el && el !== document.body; el = el.parentElement) {
+    if (el.closest(`[${ROOT}]`)) return null;
+    if (el instanceof HTMLElement && el.matches(BLOCKS) && !inline(el) && holdsText(el)) return el;
+  }
+  return null;
+}
+
 /** The buttons of the bar on /dev/examples, so the notes read as the same tool. */
 const BTN = "inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-slate-700 px-3 py-1 text-xs font-medium text-slate-300 hover:bg-slate-800 disabled:cursor-default disabled:opacity-50";
 const PRIMARY = "inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-amber-400/70 bg-amber-500/20 px-3 py-1 text-xs font-semibold text-amber-50 hover:bg-amber-500/30";
@@ -25,8 +47,8 @@ const PRIMARY = "inline-flex cursor-pointer items-center gap-1.5 rounded-lg bord
  * Dev only. A button at the bottom right opens the notes bar, the same on every page: every note's count (and, where the
  * page shows example sections, how many are on changed ones), HEAD, note a text, re-pin all to HEAD, clear all, copy all;
  * "N on this page" opens a modal with this page's notes. On the page, each text note marks its text (`TextNoteMarks`). Opening the bar turns on
- * note mode ("Note a text" toggles it): hover outlines the text under the pointer, a click (which does nothing else then) opens a box for a note
- * on that wording. The pencils on /dev/examples' sections add to the same notes. All pages' notes are on /dev/notes.
+ * note mode ("Note a text" toggles it): hover outlines the block under the pointer (`blockOf`: a text block, list or box that holds text itself),
+ * a click (which does nothing else then) opens a box for a note on it, keeping its text and its place in the page. The pencils on /dev/examples' sections add to the same notes. All pages' notes are on /dev/notes.
  */
 export default function CopyNotes() {
   const pathname = usePathname();
@@ -54,17 +76,7 @@ export default function CopyNotes() {
 
   useEffect(() => {
     if (!on) return;
-    const textEl = (e: Event) => {
-      const el = e.target instanceof Element ? e.target : null;
-      if (!el || el.closest(`[${ROOT}]`)) return null;
-      return (el.closest("button,a,label,summary,h1,h2,h3,h4,h5,h6,p,li,span,div") as HTMLElement | null) && (el as HTMLElement);
-    };
-    // the innermost element that holds text of its own, so a click on a card names its line, not the whole card
-    const pick = (e: Event) => {
-      let el = textEl(e);
-      while (el && !squeeze(el.innerText ?? "")) el = el.parentElement;
-      return el;
-    };
+    const pick = (e: Event) => blockOf(e.target);
     const over = (e: MouseEvent) => {
       const el = pick(e);
       if (hot.current) hot.current.style.outline = "";
