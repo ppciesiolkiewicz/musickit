@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import posthog from "posthog-js";
 import Icon from "@/components/Icon";
 import InputChip from "@/components/InputChip";
-import { getAudioContext, openLiveInput, readDeviceChoice } from "@/features/sound";
+import { findDevice, getAudioContext, listAudioDevices, openLiveInput, readDeviceChoice, subscribeDeviceChoice } from "@/features/sound";
 import { rms } from "@/lib/practice/mic";
 import { clockTime, inputChannels, peakLevel, pickMimeType, soundGate, takeFileName } from "./recorder";
 import TakePlayer from "./TakePlayer";
@@ -22,6 +22,18 @@ interface Take {
   channels: 1 | 2;
 }
 
+/**
+ * The app's chosen input, raw (no echo cancelling or gain), both channels of a two-input device. The remembered device is looked up
+ * in today's list (its id can change, its name stays), and the system default stands in when it is not plugged in.
+ */
+async function openChosenInput(): Promise<MediaStream> {
+  const wanted = readDeviceChoice().input;
+  const input = wanted && (findDevice((await listAudioDevices()).inputs, wanted) ?? wanted);
+  return navigator.mediaDevices.getUserMedia({
+    audio: { deviceId: input ? { ideal: input.id } : undefined, channelCount: { ideal: 2 }, echoCancellation: false, noiseSuppression: false, autoGainControl: false },
+  });
+}
+
 /** What one recording holds while it runs: closed with `end`, which hands back the take. */
 interface Session {
   end: () => void;
@@ -31,7 +43,7 @@ interface Session {
  * A quick recorder on most pages: a tab on the right edge opens a card, centred on that edge, that slides in from the right, with one big record
  * button that pulses while it hears sound, its clock, and the takes to play back,
  * download or delete. A two-input interface records both channels apart, so each take mixes them with its own volumes. It records the app's chosen input (the nav's devices
- * menu, or the input chip on the card, which shows each channel's level while it records), raw (no echo cancelling or gain). The page stays usable under it, so you can record over a page's metronome or
+ * menu, or the input chip on the card, which shows each channel's level while it records; a change mid-take carries on the take), raw (no echo cancelling or gain). The page stays usable under it, so you can record over a page's metronome or
  * drone; it closes only on its own button or Escape, and keeps recording while closed. Lives in the root layout, so takes outlast
  * a move to another page; they are held in memory only and go with the tab.
  */
@@ -51,10 +63,7 @@ export default function QuickRecord() {
     if (typeof MediaRecorder === "undefined") return setError("This browser cannot record audio.");
     let stream: MediaStream;
     try {
-      const input = readDeviceChoice().input;
-      stream = await navigator.mediaDevices.getUserMedia({
-        audio: { deviceId: input ? { ideal: input.id } : undefined, channelCount: { ideal: 2 }, echoCancellation: false, noiseSuppression: false, autoGainControl: false },
-      });
+      stream = await openChosenInput();
     } catch {
       return setError("The microphone could not be opened. Allow microphone access for this site and try again.");
     }
@@ -63,7 +72,7 @@ export default function QuickRecord() {
     const ctx = getAudioContext();
     await ctx.resume();
     const n = inputChannels(stream.getAudioTracks()[0]?.getSettings().channelCount);
-    const src = ctx.createMediaStreamSource(stream);
+    let src = ctx.createMediaStreamSource(stream);
     const out = ctx.createMediaStreamDestination();
     out.channelCount = n;
     out.channelCountMode = "explicit";
@@ -90,6 +99,49 @@ export default function QuickRecord() {
       return an;
     });
     if (!mono) src.connect(split);
+
+    // a new input chosen mid-take (on the card's chip or the nav) carries on the same take; the take keeps its channel count, so
+    // an input with another count goes through a mixer that spreads or folds it the usual way
+    let ended = false;
+    let mixer: AudioNode | null = null;
+    let switching = Promise.resolve();
+    const switchInput = () => {
+      switching = switching.then(async () => {
+        let next: MediaStream;
+        try {
+          next = await openChosenInput();
+        } catch {
+          return setError("The new input could not be opened, so the take goes on with the last one.");
+        }
+        if (ended) return next.getTracks().forEach((t) => t.stop());
+        const nextSrc = ctx.createMediaStreamSource(next);
+        let head: AudioNode = nextSrc;
+        if (inputChannels(next.getAudioTracks()[0]?.getSettings().channelCount) !== n) {
+          const mix = ctx.createGain();
+          mix.channelCount = n;
+          mix.channelCountMode = "explicit";
+          mix.channelInterpretation = "speakers";
+          nextSrc.connect(mix);
+          head = mix;
+        }
+        head.connect(out);
+        head.connect(mono ? analysers[0] : split);
+        src.disconnect();
+        mixer?.disconnect();
+        stream.getTracks().forEach((t) => t.stop());
+        mixer = head === nextSrc ? null : head;
+        src = nextSrc;
+        stream = next;
+        setError(null);
+      });
+    };
+    let lastInput = readDeviceChoice().input?.id;
+    const unfollow = subscribeDeviceChoice(() => {
+      const id = readDeviceChoice().input?.id;
+      if (id === lastInput) return;
+      lastInput = id;
+      switchInput();
+    });
     const bytes = new Uint8Array(1024);
     const floats = new Float32Array(1024);
     const gate = soundGate();
@@ -122,10 +174,13 @@ export default function QuickRecord() {
     };
     session.current = {
       end: () => {
+        ended = true;
+        unfollow();
         cancelAnimationFrame(raf);
         live.close();
         if (recorder.state !== "inactive") recorder.stop();
         src.disconnect();
+        mixer?.disconnect();
         split.disconnect();
         stream.getTracks().forEach((t) => t.stop());
         pulses.current.forEach((p) => p && (p.dataset.sound = "false"));
