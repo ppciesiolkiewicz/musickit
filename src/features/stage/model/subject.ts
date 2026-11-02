@@ -169,7 +169,8 @@ const MIC_PAGES = ["scale", "modes", "chords", "progressions", "caged"];
 
 /**
  * Whether the audio input lights notes on the widget: it draws fretboards, scale positions or chord boxes, which ring the note heard.
- * Keep in step with the renderers (ScaleNeck, PositionBox, ChordDiagram read `HeardNote`); the rest show nothing.
+ * Keep in step with the renderers (ScaleNeck, PositionBox, ChordDiagram, and on their pages the arpeggio necks and TriadBox read
+ * `HeardNote`); the rest show nothing.
  */
 export function takesMic(s: Subject): boolean {
   switch (s.kind) {

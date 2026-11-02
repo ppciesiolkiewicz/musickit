@@ -68,7 +68,8 @@ export default function InputChip({ status = "off", align = "left", className = 
   // recorder, a tuner panel) can't push it off screen or clip it
   const [place, setPlace] = useState<React.CSSProperties | null>(null);
   useLayoutEffect(() => {
-    if (!open) return setPlace(null);
+    // a stale place from the last opening is replaced before paint, so closing needs no reset
+    if (!open) return;
     const update = () => box.current && setPlace(placeList(box.current.getBoundingClientRect(), align));
     update();
     window.addEventListener("resize", update);
