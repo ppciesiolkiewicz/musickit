@@ -54,3 +54,13 @@ export function readHz(hz: number, c: TunerChoice): TunerRead {
   const s = strings[t.index];
   return { name: s.name, octave: s.octave, cents: t.cents, heard: note, string: t.index };
 }
+
+/** The device the tuner page's old input picker saved (`{ deviceId, channel }`), or null for none, the system default or unreadable. */
+export function oldInputId(raw: string | null): string | null {
+  try {
+    const v = JSON.parse(raw ?? "null") as { deviceId?: unknown } | null;
+    return typeof v?.deviceId === "string" && v.deviceId ? v.deviceId : null;
+  } catch {
+    return null;
+  }
+}

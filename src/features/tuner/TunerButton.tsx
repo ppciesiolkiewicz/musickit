@@ -1,15 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { getAudioContext, readDeviceChoice } from "@/features/sound";
 import { inSelectMenu } from "@/components/ui";
 import { readHz, resolveChoice } from "./choice";
 import { usePitch } from "./usePitch";
 import TunerMeter from "./TunerMeter";
 import TunerSettings from "./TunerSettings";
 import { useTunerChoice } from "./useTunerChoice";
-
-const FRAME = 4096;
+import { openTunerInput } from "./listen";
 
 /** A tuning fork, for the nav button. */
 function Fork({ size = 15 }: { size?: number }) {
@@ -23,7 +21,7 @@ function Fork({ size = 15 }: { size?: number }) {
 
 /**
  * The nav's tuner: a button that pops up a small tuner on any page. Instrument, tuning and A4 are the tuner page's own (one saved
- * choice); it listens to the input chosen in the audio devices menu. The microphone opens only on Start and closes with the panel.
+ * choice); it listens to the app's chosen input (the devices menu), on the louder input of a two-input device, and shows its levels on the input chip. The microphone opens only on Start and closes with the panel.
  */
 export default function TunerButton({ className = "" }: { className?: string }) {
   const [open, setOpen] = useState(false);
@@ -32,29 +30,27 @@ export default function TunerButton({ className = "" }: { className?: string }) 
   const [choice, setChoice] = useTunerChoice("musickit.tuner");
   const box = useRef<HTMLDivElement>(null);
   const stop = useRef<(() => void) | null>(null);
-  const analyser = useRef<AnalyserNode | null>(null);
+  const analyser = useRef<(() => AnalyserNode | null) | null>(null);
 
-  const hz = usePitch(() => analyser.current, resolveChoice(choice).instrument.minHz, running);
+  const shown = useRef(open);
+  useEffect(() => {
+    shown.current = open;
+  }, [open]);
+
+  const hz = usePitch(() => analyser.current?.() ?? null, resolveChoice(choice).instrument.minHz, running);
   const read = hz !== null ? readHz(hz, choice) : null;
 
   const start = useCallback(async () => {
     setError(null);
     try {
-      const input = readDeviceChoice().input;
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: { deviceId: input ? { ideal: input.id } : undefined, echoCancellation: false, noiseSuppression: false, autoGainControl: false },
-      });
-      const ctx = getAudioContext();
-      await ctx.resume();
-      const src = ctx.createMediaStreamSource(stream);
-      const an = ctx.createAnalyser();
-      an.fftSize = FRAME;
-      src.connect(an);
-      analyser.current = an;
+      const opened = await openTunerInput();
+      // the panel closed while the permission prompt was open
+      if (!shown.current) return opened.close();
+      stop.current?.();
+      analyser.current = opened.analyser;
       stop.current = () => {
         analyser.current = null;
-        src.disconnect();
-        stream.getTracks().forEach((t) => t.stop());
+        opened.close();
         setRunning(false);
         stop.current = null;
       };

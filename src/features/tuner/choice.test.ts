@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { clampA4, readHz, sanitiseChoice, TUNER_INSTRUMENTS, withInstrument, DEFAULT_CHOICE } from "./choice";
+import { clampA4, oldInputId, readHz, sanitiseChoice, TUNER_INSTRUMENTS, withInstrument, DEFAULT_CHOICE } from "./choice";
 
 test("offers chromatic and four instruments", () => {
   assert.deepEqual(TUNER_INSTRUMENTS.map((i) => i.id), ["chromatic", "guitar", "bass", "ukulele", "violin"]);
@@ -23,4 +23,11 @@ test("reads against the nearest open string, or the nearest note on chromatic", 
   assert.equal(c.string, null);
   assert.equal(c.name, "A");
   assert.ok(Math.abs(readHz(432, { ...withInstrument(DEFAULT_CHOICE, "chromatic"), a4: 432 }).cents) < 0.01);
+});
+
+test("reads the device the old input picker saved", () => {
+  assert.equal(oldInputId(JSON.stringify({ deviceId: "abc", channel: 0 })), "abc");
+  assert.equal(oldInputId(JSON.stringify({ deviceId: "", channel: "mix" })), null);
+  assert.equal(oldInputId(null), null);
+  assert.equal(oldInputId("{oops"), null);
 });

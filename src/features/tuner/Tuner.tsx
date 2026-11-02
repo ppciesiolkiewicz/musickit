@@ -1,36 +1,24 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { getAudioContext } from "@/features/sound";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { readDeviceChoice, serverDeviceChoice, subscribeDeviceChoice } from "@/features/sound";
 import { midiToHz } from "@/features/theory/tunings";
+import InputChip from "@/components/InputChip";
+import type { MicStatus } from "@/components/practice/useMicPitch";
 import { readHz, resolveChoice, sanitiseChoice } from "./choice";
 import { usePitch } from "./usePitch";
 import TunerMeter from "./TunerMeter";
 import { useTunerChoice } from "./useTunerChoice";
 import { playReference } from "./reference";
 import TunerSettings, { label } from "./TunerSettings";
-import { Select } from "@/components/ui";
+import { migrateOldInput, openTunerInput, type TunerInput } from "./listen";
 
-/** Which microphone or interface, and which of its inputs: "mix" for all of them, or one channel (0 = Input 1). */
-interface InputChoice { deviceId: string; channel: "mix" | number }
-
-const FRAME = 4096;
 const STORE = "musickit.tuner";
-const INPUT_STORE = "musickit.tuner.input";
-const DEFAULT_INPUT: InputChoice = { deviceId: "", channel: "mix" };
-const ALIAS = new Set(["default", "communications"]);
 
 const fromQuery = () => {
   const q = new URLSearchParams(window.location.search);
   return q.has("instrument") ? sanitiseChoice({ instrument: q.get("instrument"), tuning: q.get("tuning"), a4: q.get("a4") ?? undefined }) : null;
 };
-
-function loadInput(): InputChoice {
-  try {
-    const raw = JSON.parse(window.localStorage.getItem(INPUT_STORE) ?? "null") as Partial<InputChoice> | null;
-    return { deviceId: typeof raw?.deviceId === "string" ? raw.deviceId : "", channel: typeof raw?.channel === "number" && raw.channel >= 0 ? raw.channel : "mix" };
-  } catch { return DEFAULT_INPUT; }
-}
 
 /** An input the host already listens to (the teacher studio's one audio input): its pitch, and Start / Stop for it. */
 export interface ExternalInput {
@@ -40,95 +28,70 @@ export interface ExternalInput {
 }
 
 /**
- * A tuner. Pick an instrument (and its tuning) or Chromatic, and the input to listen to; the microphone opens only after Start.
- * Given an `external` input, it opens no microphone and has no input picker: it reads that input, and Start / Stop is the host's.
+ * A tuner. Pick an instrument (and its tuning) or Chromatic; it listens to the app's one input (shown and changed with the input
+ * chip), on the louder input of a two-input device. The microphone opens only after Start, and again on a new input while it runs.
+ * Given an `external` input, it opens no microphone and has no input chip: it reads that input, and Start / Stop is the host's.
  */
 export default function Tuner({ external }: { external?: ExternalInput } = {}) {
-  const [ownRunning, setRunning] = useState(false);
+  const [status, setStatus] = useState<MicStatus>("off");
   const [error, setError] = useState<string | null>(null);
   const [choice, setChoice] = useTunerChoice(STORE, fromQuery);
-  const [input, setInput] = useState<InputChoice>(DEFAULT_INPUT);
-  const [devices, setDevices] = useState<{ id: string; label: string }[]>([]);
-  const [channels, setChannels] = useState(0);
-  const stop = useRef<(() => void) | null>(null);
-  const analyser = useRef<AnalyserNode | null>(null);
+  const inputId = useSyncExternalStore(subscribeDeviceChoice, readDeviceChoice, serverDeviceChoice).input?.id ?? "";
+  const mic = useRef<TunerInput | null>(null);
+  // a press while the permission prompt is open: the newest wins
+  const attempt = useRef(0);
 
   const { instrument, tuning } = resolveChoice(choice);
   const strings = tuning?.strings ?? [];
-  const ownHz = usePitch(() => analyser.current, instrument.minHz, ownRunning && !external);
-  const running = external ? external.listening : ownRunning;
+  const ownHz = usePitch(() => mic.current?.analyser() ?? null, instrument.minHz, status === "on" && !external);
+  const running = external ? external.listening : status === "on" || status === "asking";
   const hz = external ? external.hz : ownHz;
 
-  const listDevices = useCallback(async () => {
-    try {
-      const all = await navigator.mediaDevices.enumerateDevices();
-      setDevices(all.filter((d) => d.kind === "audioinput" && d.deviceId && !ALIAS.has(d.deviceId)).map((d, i) => ({ id: d.deviceId, label: d.label || `Input ${i + 1}` })));
-    } catch { /* no media devices */ }
+  // the old picker's device becomes the app's input, once
+  useEffect(() => {
+    if (!external) void migrateOldInput();
+  }, [external]);
+
+  const stop = useCallback(() => {
+    attempt.current++;
+    mic.current?.close();
+    mic.current = null;
+    setStatus("off");
   }, []);
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- restoring the saved input after hydration
-    setInput(loadInput());
-    void listDevices();
-    navigator.mediaDevices?.addEventListener?.("devicechange", listDevices);
-    return () => navigator.mediaDevices?.removeEventListener?.("devicechange", listDevices);
-  }, [listDevices]);
-
-  const pickInput = (next: InputChoice) => {
-    setInput(next);
-    try { window.localStorage.setItem(INPUT_STORE, JSON.stringify(next)); } catch { /* storage blocked */ }
-  };
-
-  const start = useCallback(async (inp: InputChoice) => {
+  const start = useCallback(async () => {
+    mic.current?.close();
+    mic.current = null;
+    const n = ++attempt.current;
     setError(null);
+    setStatus("asking");
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: { deviceId: inp.deviceId ? { exact: inp.deviceId } : undefined, channelCount: { ideal: 2 }, echoCancellation: false, noiseSuppression: false, autoGainControl: false },
-      });
-      const ctx = getAudioContext();
-      await ctx.resume();
-      const n = stream.getAudioTracks()[0]?.getSettings().channelCount ?? 1;
-      setChannels(n);
-      void listDevices(); // names appear once the microphone is allowed
-      const src = ctx.createMediaStreamSource(stream);
-      const an = ctx.createAnalyser();
-      an.fftSize = FRAME;
-      // one input of an interface (Focusrite Input 1) is one channel of its stream; the analyser mixes the rest down to mono
-      let split: ChannelSplitterNode | null = null;
-      if (inp.channel !== "mix" && n > 1) {
-        split = ctx.createChannelSplitter(n);
-        src.connect(split);
-        split.connect(an, Math.min(inp.channel, n - 1));
-      } else src.connect(an);
-      analyser.current = an;
-      stop.current = () => {
-        analyser.current = null;
-        src.disconnect();
-        split?.disconnect();
-        stream.getTracks().forEach((t) => t.stop());
-        setRunning(false);
-        stop.current = null;
-      };
-      setRunning(true);
+      const opened = await openTunerInput();
+      if (n !== attempt.current) return opened.close();
+      mic.current = opened;
+      setStatus("on");
     } catch (e) {
-      setError((e as Error)?.name === "OverconstrainedError" || (e as Error)?.name === "NotFoundError"
-        ? "That input is not connected. Pick another one and try again."
-        : "The microphone could not be opened. Allow microphone access for this site and try again.");
+      if (n !== attempt.current) return;
+      const name = (e as Error)?.name;
+      const denied = name === "NotAllowedError" || name === "SecurityError";
+      setStatus(!navigator.mediaDevices ? "insecure" : denied ? "denied" : "error");
+      setError(denied ? "The microphone could not be opened. Allow microphone access for this site and try again." : "That input could not be opened. Pick another one and try again.");
     }
-  }, [listDevices]);
+  }, []);
 
-  useEffect(() => () => stop.current?.(), []);
+  useEffect(() => () => mic.current?.close(), []);
 
-  // a new input while listening: reopen on it
-  const switchInput = (next: InputChoice) => {
-    pickInput(next);
-    if (stop.current) { stop.current(); void start(next); }
-  };
+  // a new input chosen while listening: reopen on it
+  const heardOn = useRef(inputId);
+  useEffect(() => {
+    if (heardOn.current === inputId) return;
+    heardOn.current = inputId;
+    if (mic.current) void start();
+  }, [inputId, start]);
 
   const read = hz !== null ? readHz(hz, choice) : null;
   const cents = read?.cents ?? 0;
   const inTune = read !== null && Math.abs(cents) < 5;
-  const knownDevice = !input.deviceId || devices.some((d) => d.id === input.deviceId);
 
   const signed = (c: number) => `${Math.round(c) > 0 ? "+" : ""}${Math.round(c) || 0}`;
 
@@ -158,7 +121,7 @@ export default function Tuner({ external }: { external?: ExternalInput } = {}) {
           </div>
         )}
 
-        <button type="button" onClick={external ? external.onToggle : running ? () => stop.current?.() : () => start(input)}
+        <button type="button" onClick={external ? external.onToggle : running ? stop : () => void start()}
           className={`inline-flex min-w-48 items-center justify-center gap-2 rounded-full border px-6 py-2.5 text-sm font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${running ? "border-rose-500/70 bg-rose-500/15 text-rose-100 hover:bg-rose-500/25" : "border-emerald-500/70 bg-emerald-500/15 text-emerald-100 hover:bg-emerald-500/25"}`}>
           <span aria-hidden className={`h-2 w-2 ${running ? "rounded-sm bg-rose-300" : "rounded-full bg-emerald-300"}`} />
           {running ? "Stop" : "Start tuner"}
@@ -168,28 +131,9 @@ export default function Tuner({ external }: { external?: ExternalInput } = {}) {
 
       <aside aria-label="Setup" className="flex flex-col gap-4 rounded-2xl border border-slate-800 bg-slate-900/40 p-4 lg:order-1">
         <TunerSettings choice={choice} onChange={setChoice} />
-        {!external && <div className="flex flex-col gap-1.5">
+        {!external && <div className="flex flex-col items-start gap-1.5">
           <span className={label}>Input</span>
-          <div className="flex flex-wrap gap-2">
-            <Select
-              size="lg"
-              className="flex-1"
-              aria-label="Input device"
-              value={knownDevice ? input.deviceId : ""}
-              onChange={(deviceId) => switchInput({ deviceId, channel: "mix" })}
-              options={[{ value: "", label: "System default" }, ...devices.map((d) => ({ value: d.id, label: d.label }))]}
-            />
-            {/* an interface's inputs: pick one (a DI guitar on Input 1) or both; offered before Start, when the channel count is not known yet */}
-            {(input.deviceId !== "" || channels > 1 || input.channel !== "mix") && (
-              <Select<number | "mix">
-                size="lg"
-                aria-label="Channel"
-                value={input.channel}
-                onChange={(channel) => switchInput({ ...input, channel })}
-                options={[{ value: "mix", label: channels > 2 ? "All inputs" : "Input 1 + 2" }, ...Array.from({ length: Math.max(2, channels) }, (_, i) => ({ value: i, label: `Input ${i + 1}` }))]}
-              />
-            )}
-          </div>
+          <InputChip status={status} />
         </div>}
       </aside>
     </div>
