@@ -7,3 +7,14 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+## Music theory facts: use the calculator
+
+For any fretboard or theory fact in a plan, lesson or exercise (which triads sit in a CAGED box, the chords of a key or mode, scale positions, which keys fit a progression), run `npm run theory -- help` and use its answers instead of working them out by hand. It calls the same chordKit/theory code the app draws with, so frets and boxes match the screen. Examples:
+
+```
+npm run -s theory -- triads G --box E --group 321,432
+npm run -s theory -- box A minor C
+npm run -s theory -- scale D dorian
+npm run -s theory -- fit Am F C G
+```
