@@ -104,7 +104,7 @@ describe("chord steps", () => {
 
 describe("a run's chords", () => {
   const major = (pc: number, r: Range) => ladderIn("major-ionian", pc, r);
-  const { notes, chords } = harmoniseRun(parseTune("1e 2e 3e 4e 5e 4e 3e 2e | 1w"), 0, 3, major, VOICES.soprano);
+  const { notes, chords } = harmoniseRun(parseTune("1e 2e 3e 4e 5e 4e 3e 2e | 1w"), 3, major, VOICES.soprano);
   const plain = ({ at, beats, name }: MelodyChord) => ({ at, beats, name });
 
   it("cuts the held Do to a quarter before every key change, not after the last pass", () => {
@@ -115,16 +115,17 @@ describe("a run's chords", () => {
 
   it("rings the bar before on under the Do, then strikes this key and the next", () => {
     const nextDo = notes.find((n) => n.at === 8)!.spelled.name;
-    assert.equal(nextDo, "D♭");
+    // the last pass tops out on the soprano's C6, so the run starts in E♭
+    assert.equal(nextDo, "E");
     assert.deepEqual(chords.filter((c) => c.at < 8).map(plain), [
-      { at: 0, beats: 5, name: "C" },
-      { at: 5, beats: 1, name: "C" },
+      { at: 0, beats: 5, name: "E♭" },
+      { at: 5, beats: 1, name: "E♭" },
       { at: 6, beats: 2, name: nextDo },
     ]);
   });
 
   it("ends the last pass on its own home chord, the whole bar", () => {
-    assert.deepEqual(plain(chords.at(-1)!), { at: 20, beats: 4, name: "D" });
+    assert.deepEqual(plain(chords.at(-1)!), { at: 20, beats: 4, name: "F" });
     assert.deepEqual(chords.map((c) => c.at), [0, 5, 6, 8, 13, 14, 16, 20]);
   });
 });

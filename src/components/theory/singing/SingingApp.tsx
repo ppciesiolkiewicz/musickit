@@ -7,8 +7,8 @@ import { Button, Chip, Slider } from "@/components/ui";
 import { createSmoother, type Pitch } from "@/features/tuner/pitch";
 import { getAudioContext, getSharedPiano, midiToName, onSilence, playSequence, silence, wakeAudio } from "@/features/sound";
 import { MAX_BPM, MIN_BPM, type PocketStatus } from "@/features/instruments";
-import { ACCURACIES, IN_TUNE_CENTS, VOICES, buildLadder, clefFor, hzToMidi, savedAccuracy, savedVoice, scaleRun, tuneLadderFor, type Range, type Voice } from "@/features/theory/singing";
-import { BOOK, DIFFICULTIES, RUNS, placeRun, placeTune, type BookTune, type PlacedNote } from "@/features/theory/singingMelodies";
+import { ACCURACIES, IN_TUNE_CENTS, VOICES, buildLadder, clefFor, hzToMidi, savedAccuracy, savedVoice, scaleRun, tuneLadderFor, type Ladder, type Range, type Voice } from "@/features/theory/singing";
+import { BOOK, DIFFICULTIES, RUNS, placeRun, placeTune, runPasses, type BookTune, type PlacedNote } from "@/features/theory/singingMelodies";
 import { chordSteps, harmoniseRun, harmoniseTune, type MelodyChord } from "@/features/theory/melodyChords";
 import { singingQuery, type SingingLink } from "@/features/theory/singingLink";
 import { levelSemis, type IntervalDirection } from "@/features/theory/singingIntervals";
@@ -138,16 +138,21 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
   const ladder = useMemo(() => buildLadder(scale, tonicPc, range) ?? buildLadder("major-ionian", tonicPc, range)!, [scale, tonicPc, range]);
   // the tunes are written in seven-note degrees: a pentatonic sings them in its major or minor; they can dip under the lowest Do
   const tuneLadder = useMemo(() => tuneLadderFor(ladder, tonicPc, range), [ladder, tonicPc, range]);
+  // a run spans the voice whatever the key picked: its last pass tops out on the range's top, its staff in its first pass's key
   const placed = useMemo(() => {
     const ladderIn = (pc: number, r: Range) => tuneLadderFor(buildLadder(scale, pc, r) ?? buildLadder("major-ionian", pc, r)!, pc, r);
     const none: MelodyChord[] = [];
-    return new Map<number, { notes: PlacedNote[]; chords: MelodyChord[] }>([
-      ...BOOK.map((t) => [t.n, chords ? harmoniseTune(t.notes, tuneLadder, range) : { notes: placeTune(t.notes, tuneLadder, range), chords: none }] as const),
-      ...RUNS.map((t) => [t.n, chords ? harmoniseRun(t.notes, tonicPc, t.keys!, ladderIn, range) : { notes: placeRun(t.notes, tonicPc, t.keys!, ladderIn, range), chords: none }] as const),
+    return new Map<number, { notes: PlacedNote[]; chords: MelodyChord[]; ladder: Ladder }>([
+      ...BOOK.map((t) => [t.n, { ...(chords ? harmoniseTune(t.notes, tuneLadder, range) : { notes: placeTune(t.notes, tuneLadder, range), chords: none }), ladder: tuneLadder }] as const),
+      ...RUNS.map((t) => [t.n, {
+        ...(chords ? harmoniseRun(t.notes, t.keys!, ladderIn, range) : { notes: placeRun(t.notes, t.keys!, ladderIn, range), chords: none }),
+        ladder: ladderIn(runPasses(t.notes, t.keys!, ladderIn, range)[0].pc, range),
+      }] as const),
     ]);
-  }, [tuneLadder, range, scale, tonicPc, chords]);
+  }, [tuneLadder, range, scale, chords]);
   const place = useCallback((t: BookTune) => placed.get(t.n)!.notes, [placed]);
   const chordsOf = useCallback((t: BookTune) => placed.get(t.n)!.chords, [placed]);
+  const ladderOf = useCallback((t: BookTune) => placed.get(t.n)!.ladder, [placed]);
   const tunes = useMemo(() => book.filter((t) => level === "all" || t.difficulty === level), [book, level]);
   // the difficulties this book has tunes in
   const levels = useMemo(() => DIFFICULTIES.map((_, i) => i).filter((i) => book.some((t) => t.difficulty === i)), [book]);
@@ -407,7 +412,7 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
         </div>
         <section className={`${panel} flex flex-col gap-3`}>
           <div className="flex flex-wrap items-center gap-3">
-            <h2 className="text-base font-medium text-slate-100">{tuneTab ? `${tab === "runs" ? "Runs" : "Melodies"} in ${tuneLadder.title}` : tab === "intervals" ? `Intervals from ${ladder.title}` : ladder.title}</h2>
+            <h2 className="text-base font-medium text-slate-100">{tab === "runs" ? `Runs across the ${range.label.toLowerCase()} range` : tab === "melodies" ? `Melodies in ${tuneLadder.title}` : tab === "intervals" ? `Intervals from ${ladder.title}` : ladder.title}</h2>
             {tab === "scales" && (
               <Button size="sm" pressed={running} onClick={() => void play()} className={running ? "!border-sky-400/70 !bg-sky-500/20 !text-sky-100" : ""}>
                 {running ? "Stop the scale" : `Play the scale · ${pocket?.bpm ?? FALLBACK_BPM} bpm`}
@@ -421,7 +426,7 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
               tunes={tunes}
               place={place}
               chordsOf={chordsOf}
-              ladder={tuneLadder}
+              ladderOf={ladderOf}
               clef={clef}
               pitch={pitch}
               beatMs={beat}
@@ -470,7 +475,7 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
           staff={{
             notes: place(focused),
             chords: chordsOf(focused),
-            ladder: tuneLadder,
+            ladder: ladderOf(focused),
             clef,
             pitch,
             playFrom: playing === focused.n ? playFrom : null,

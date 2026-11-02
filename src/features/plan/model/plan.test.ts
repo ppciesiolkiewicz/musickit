@@ -77,13 +77,13 @@ describe("tools", () => {
     const picked = parseTool({ type: "melody-singer", pick: { difficulty: "easy" }, key: "a" });
     assert.deepEqual(picked, { type: "melody-singer", tune: pickTune(BOOK, { difficulty: "easy" })!.n, key: 9 });
     assert.ok(!("pick" in picked!));
-    assert.deepEqual(parseTool({ type: "run-singer", run: runChoices()[0].id, key: "c" }), { type: "run-singer", run: runChoices()[0].id, key: 0 });
+    assert.deepEqual(parseTool({ type: "run-singer", run: runChoices()[0].id, key: "c" }), { type: "run-singer", run: runChoices()[0].id });
   });
   it("keeps a singer's chords on unless turned off", () => {
     const run = runChoices()[0].id;
-    assert.deepEqual(parseTool({ type: "run-singer", run, key: "c", chords: false }), { type: "run-singer", run, key: 0, chords: false });
-    assert.deepEqual(parseTool({ type: "run-singer", run, key: "c", chords: true }), { type: "run-singer", run, key: 0 });
-    assert.deepEqual(parseTool({ type: "run-singer", run, key: "c", chords: "no" }), { type: "run-singer", run, key: 0 });
+    assert.deepEqual(parseTool({ type: "run-singer", run, key: "c", chords: false }), { type: "run-singer", run, chords: false });
+    assert.deepEqual(parseTool({ type: "run-singer", run, key: "c", chords: true }), { type: "run-singer", run });
+    assert.deepEqual(parseTool({ type: "run-singer", run, key: "c", chords: "no" }), { type: "run-singer", run });
     assert.deepEqual(parseTool({ type: "melody-singer", tune: 1, key: "c", chords: false }), { type: "melody-singer", tune: 1, key: 0, chords: false });
     assert.deepEqual(parseTool({ type: "melody-singer", tune: 1, key: "c" }), { type: "melody-singer", tune: 1, key: 0 });
   });

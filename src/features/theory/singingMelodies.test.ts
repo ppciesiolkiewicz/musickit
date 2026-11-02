@@ -113,13 +113,15 @@ describe("difficulty", () => {
     }
   });
 
-  it("places a run through the keys, a semitone up each pass, spelled in each key", () => {
+  it("places a run through the keys, a semitone up each pass, spelled in each key, its last pass topping out on the voice's top", () => {
     const ladderIn = (pc: number, r: { low: number; high: number }) => buildLadder("major-ionian", pc, r)!;
     const tune = parseTune("1 2 3 2 | 1w");
-    const run = placeRun(tune, 0, 3, ladderIn, VOICES.tenor);
+    const run = placeRun(tune, 3, ladderIn, VOICES.tenor);
     assert.equal(run.length, 15);
     assert.deepEqual(run.filter((_, i) => i % 5 === 0).map((n) => n.midi - run[0].midi), [0, 1, 2]);
-    assert.deepEqual(run.slice(5, 10).map((n) => n.spelled.name), ["D♭", "E♭", "F", "E♭", "D♭"]);
+    assert.equal(Math.max(...run.map((n) => n.midi)), VOICES.tenor.high);
+    assert.equal(run[12].midi, VOICES.tenor.high);
+    assert.deepEqual(run.slice(5, 10).map((n) => n.spelled.name), ["G", "A", "B", "A", "G"]);
     assert.deepEqual(run.slice(10).map((n) => n.at), [16, 17, 18, 19, 20]);
   });
 });
@@ -127,16 +129,20 @@ describe("difficulty", () => {
 describe("a run's passes", () => {
   const ladderIn = (pc: number, r: Range) => tuneLadderFor(buildLadder("major-ionian", pc, r)!, pc, r);
 
-  it("places a run as it always has, every pass ending on a whole-note Do", () => {
-    const run = placeRun(RUNS[0].notes, 0, RUNS[0].keys!, ladderIn, VOICES.soprano);
-    assert.deepEqual(run.map((n) => [n.midi, n.at, n.beats]), [[60,0,0.5],[62,0.5,0.5],[64,1,0.5],[65,1.5,0.5],[67,2,0.5],[65,2.5,0.5],[64,3,0.5],[62,3.5,0.5],[60,4,4],[61,8,0.5],[63,8.5,0.5],[65,9,0.5],[66,9.5,0.5],[68,10,0.5],[66,10.5,0.5],[65,11,0.5],[63,11.5,0.5],[61,12,4],[62,16,0.5],[64,16.5,0.5],[66,17,0.5],[67,17.5,0.5],[69,18,0.5],[67,18.5,0.5],[66,19,0.5],[64,19.5,0.5],[62,20,4],[63,24,0.5],[65,24.5,0.5],[67,25,0.5],[68,25.5,0.5],[70,26,0.5],[68,26.5,0.5],[67,27,0.5],[65,27.5,0.5],[63,28,4],[64,32,0.5],[66,32.5,0.5],[68,33,0.5],[69,33.5,0.5],[71,34,0.5],[69,34.5,0.5],[68,35,0.5],[66,35.5,0.5],[64,36,4]]);
+  it("places a run across the voice, its top on the range's top, every pass ending on a whole-note Do", () => {
+    const run = placeRun(RUNS[0].notes, RUNS[0].keys!, ladderIn, VOICES.soprano);
+    for (const v of Object.values(VOICES)) assert.equal(Math.max(...placeRun(RUNS[0].notes, RUNS[0].keys!, ladderIn, v).map((n) => n.midi)), v.high);
+    // the shape as it was from C, now starting on D♭ so the fifth pass's Sol is the soprano's C6
+    assert.deepEqual(run.map((n) => [n.midi - 13, n.at, n.beats]), [[60,0,0.5],[62,0.5,0.5],[64,1,0.5],[65,1.5,0.5],[67,2,0.5],[65,2.5,0.5],[64,3,0.5],[62,3.5,0.5],[60,4,4],[61,8,0.5],[63,8.5,0.5],[65,9,0.5],[66,9.5,0.5],[68,10,0.5],[66,10.5,0.5],[65,11,0.5],[63,11.5,0.5],[61,12,4],[62,16,0.5],[64,16.5,0.5],[66,17,0.5],[67,17.5,0.5],[69,18,0.5],[67,18.5,0.5],[66,19,0.5],[64,19.5,0.5],[62,20,4],[63,24,0.5],[65,24.5,0.5],[67,25,0.5],[68,25.5,0.5],[70,26,0.5],[68,26.5,0.5],[67,27,0.5],[65,27.5,0.5],[63,28,4],[64,32,0.5],[66,32.5,0.5],[68,33,0.5],[69,33.5,0.5],[71,34,0.5],[69,34.5,0.5],[68,35,0.5],[66,35.5,0.5],[64,36,4]]);
   });
 
   it("keeps each pass's ladder beside its notes", () => {
-    const passes = runPasses(RUNS[0].notes, 0, 3, ladderIn, VOICES.soprano);
+    const passes = runPasses(RUNS[0].notes, 3, ladderIn, VOICES.soprano);
     assert.equal(passes.length, 3);
     assert.deepEqual(passes.map((p) => p.notes[0].at), [0, 8, 16]);
-    assert.deepEqual(passes.map((p) => p.ladder.notes.find((n) => n.midi % 12 === p.notes[0].midi % 12)!.spelled.name), ["C", "D♭", "D"]);
+    assert.deepEqual(passes.map((p) => p.pc), [3, 4, 5]);
+    assert.deepEqual(passes.map((p) => p.ladder.notes.find((n) => n.midi % 12 === p.notes[0].midi % 12)!.spelled.name), ["E♭", "E", "F"]);
+    assert.deepEqual(passes.map((p) => p.ladder.title), ["E♭ major", "E major", "F major"]);
   });
 });
 

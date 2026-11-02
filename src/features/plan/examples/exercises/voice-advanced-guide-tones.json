@@ -13,8 +13,8 @@
     "why": "Singing the 3rds and 7ths through a ii-V-I trains you to hear the chord changes.",
     "sections": [
       { "type": "heading", "text": "A fast pentatonic run", "minutes": 3 },
-      { "type": "text", "text": "Press Play below to hear the run, then start the mic and sing it lightly on \"ah\" at the tempo shown. It goes from La below Do up to the high Do, and each pass starts a semitone higher: five passes, from C up to E." },
-      { "type": "tool", "tool": { "type": "run-singer", "pick": { "difficulty": "expert", "stage": "pentatonic-run" }, "key": "c", "voice": "tenor" } },
+      { "type": "text", "text": "Press Play below to hear the run, then start the mic and sing it lightly on \"ah\" at the tempo shown. It goes from La below Do up to the high Do, and each pass starts a semitone higher: five passes, the last one reaching the top of your range." },
+      { "type": "tool", "tool": { "type": "run-singer", "pick": { "difficulty": "expert", "stage": "pentatonic-run" }, "voice": "tenor" } },
       { "type": "heading", "text": "Up to the octave", "minutes": 3 },
       { "type": "text", "text": "Press Play below to hear a tune that leaps to the octave, then start the mic and sing it on \"oo\", which keeps the top note light. Watch where your top note lands on the staff." },
       { "type": "tool", "tool": { "type": "melody-singer", "pick": { "difficulty": "hard", "stage": "octave" }, "key": "c", "voice": "tenor" } },

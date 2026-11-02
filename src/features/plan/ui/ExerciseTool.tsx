@@ -72,7 +72,7 @@ function Tool({ tool, voice }: { tool: PlanTool; voice?: Voice }) {
     case "melody-singer":
       return <MelodySinger tune={tool.tune} pc={tool.key} voice={tool.voice ?? voice} chords={tool.chords} metronome={tool.metronome} />;
     case "run-singer":
-      return <RunSinger run={tool.run} pc={tool.key} voice={tool.voice ?? voice} chords={tool.chords} metronome={tool.metronome} />;
+      return <RunSinger run={tool.run} voice={tool.voice ?? voice} chords={tool.chords} metronome={tool.metronome} />;
     case "string-singer":
       return <StringSinger drill={tool.drill} voice={tool.voice ?? voice} metronome={tool.metronome} />;
     case "tuning-ears":

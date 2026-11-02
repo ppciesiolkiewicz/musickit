@@ -15,7 +15,7 @@
  * from the five-note scale to the full octave, numbered on after the melodies so a link names one or the other.
  */
 import { BEATS_PER_BAR, type MelodyLength, type MelodyNote } from "./singingMelody";
-import type { Ladder, LadderNote, Range } from "./singing";
+import { RANGE_MAX, RANGE_MIN, type Ladder, type LadderNote, type Range } from "./singing";
 
 export interface Stage {
   id: string;
@@ -295,27 +295,31 @@ export function placeTune(tune: MelodyNote[], ladder: Ladder, range: Range): Pla
 }
 
 /**
- * A run through `keys` keys, a semitone up each time, as one tune: the first pass placed as placeTune places it, and each
- * key after on the Do a semitone above the last, its notes spelled in that key. `ladderIn` builds the seven-note ladder
- * of a key over a range; the later keys get room above the voice's top, so a run climbing past it isn't clamped.
+ * A run through `keys` keys, a semitone up each time, as one tune, across the voice: the last pass's highest note on the
+ * range's top, so the key it starts in comes from the range (and the run's shape), not from a key picked. Each pass sits
+ * on the Do a semitone above the last, its notes spelled in that key. `ladderIn` builds the seven-note ladder of a key
+ * over a range.
  */
-export function placeRun(tune: MelodyNote[], tonicPc: number, keys: number, ladderIn: (pc: number, range: Range) => Ladder, range: Range): PlacedNote[] {
-  return runPasses(tune, tonicPc, keys, ladderIn, range).flatMap((p) => p.notes);
+export function placeRun(tune: MelodyNote[], keys: number, ladderIn: (pc: number, range: Range) => Ladder, range: Range): PlacedNote[] {
+  return runPasses(tune, keys, ladderIn, range).flatMap((p) => p.notes);
 }
 
-/** A run's passes as placeRun places them, each with the ladder of its key (for its chords). */
-export function runPasses(tune: MelodyNote[], tonicPc: number, keys: number, ladderIn: (pc: number, range: Range) => Ladder, range: Range): { ladder: Ladder; notes: PlacedNote[] }[] {
-  const ladder = ladderIn(tonicPc, range);
-  const first = placeTune(tune, ladder, range);
+/** A run's passes as placeRun places them, each with its key's tonic and ladder (for its chords and its name). */
+export function runPasses(tune: MelodyNote[], keys: number, ladderIn: (pc: number, range: Range) => Ladder, range: Range): { pc: number; ladder: Ladder; notes: PlacedNote[] }[] {
+  // semitones from Do up to the tune's highest step, the same in every key
+  const probe = ladderIn(0, { low: RANGE_MIN, high: RANGE_MAX });
+  const c = probe.notes.findIndex((n) => n.label === "R" && n.midi >= 60);
+  const top = probe.notes[c + Math.max(...tune.map((n) => n.step))].midi - probe.notes[c].midi;
   // the Do the first pass sits on
-  const root0 = ladder.notes[ladder.notes.findIndex((n) => n.midi === first[0].midi) - tune[0].step].midi;
+  const root0 = range.high - (keys - 1) - top;
+  const pc0 = ((root0 % 12) + 12) % 12;
   const length = tune.at(-1)!.at + tune.at(-1)!.beats;
-  const wide = { low: range.low, high: range.high + 2 * keys + 12 };
+  const wide = { low: Math.max(RANGE_MIN, range.low - 12), high: range.high };
   return Array.from({ length: keys }, (_, k) => {
-    if (k === 0) return { ladder, notes: first };
-    const l = ladderIn((tonicPc + k) % 12, wide);
+    const pc = (pc0 + k) % 12;
+    const l = ladderIn(pc, wide);
     const root = l.notes.findIndex((n) => n.label === "R" && n.midi === root0 + k);
-    return { ladder: l, notes: tune.map((n) => ({ ...l.notes[Math.max(0, Math.min(l.notes.length - 1, root + n.step))], beats: n.beats, at: n.at + k * length })) };
+    return { pc, ladder: l, notes: tune.map((n) => ({ ...l.notes[Math.max(0, Math.min(l.notes.length - 1, root + n.step))], beats: n.beats, at: n.at + k * length })) };
   });
 }
 

@@ -55,7 +55,7 @@ export type PlanTool =
   | { type: "interval-ears"; query: string; /** intervals may span more than an octave */ wide?: boolean }
   | { type: "arpeggio-neck"; chord: string; boxes?: number[]; part?: Degree[]; placement?: Placement } & Marks
   | { type: "melody-singer"; tune: number; key: number; voice?: Voice; chords?: false; metronome?: true }
-  | { type: "run-singer"; run: number; key: number; voice?: Voice; chords?: false; metronome?: true }
+  | { type: "run-singer"; run: number; voice?: Voice; chords?: false; metronome?: true }
   | { type: "string-singer"; drill?: StringDrill; voice?: Voice; metronome?: false }
   | { type: "tuning-ears"; cents?: number; together?: boolean }
   | { type: "play-along"; shape: PlayAlongShape; bpm: number; repeats?: number; view?: View; enable?: Degree[]; highlight?: Degree[]; others?: "muted" | "hidden"; under?: Under }
@@ -174,10 +174,10 @@ const pickOf = (v: unknown): MelodyPick | null => {
   return { ...(typeof p.difficulty === "string" ? { difficulty: p.difficulty } : {}), ...(typeof p.stage === "string" ? { stage: p.stage } : {}), ...(index !== undefined ? { index } : {}) };
 };
 
-/** A singer tool with the tune given by number, or by a `pick` (resolved here, never stored). */
+/** A singer tool with the tune given by number, or by a `pick` (resolved here, never stored). A tune needs its key; a run spans the voice, so takes none. */
 const singer = (t: Record<string, unknown>, field: "tune" | "run", ok: (n: unknown) => boolean, book: BookTune[]): PlanTool | null => {
   const key = keyOf(t.key);
-  if (key === null) return null;
+  if (key === null && field === "tune") return null;
   let n = t[field];
   let exact = true;
   const pick = ok(n) ? null : pickOf(t.pick);
@@ -189,7 +189,7 @@ const singer = (t: Record<string, unknown>, field: "tune" | "run", ok: (n: unkno
   const voice = voiceOf(t.voice);
   // chords are on unless turned off, the metronome off unless turned on, so only the change is kept
   const rest = { ...(voice ? { voice } : {}), ...(t.chords === false ? { chords: false as const } : {}), ...(t.metronome === true ? { metronome: true as const } : {}) };
-  const tool: PlanTool = field === "tune" ? { type: "melody-singer", tune: n as number, key, ...rest } : { type: "run-singer", run: n as number, key, ...rest };
+  const tool: PlanTool = field === "tune" ? { type: "melody-singer", tune: n as number, key: key!, ...rest } : { type: "run-singer", run: n as number, ...rest };
   if (!exact) INEXACT_PICKS.add(tool);
   return tool;
 };

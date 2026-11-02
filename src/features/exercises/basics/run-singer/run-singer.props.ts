@@ -1,6 +1,6 @@
 /**
- * A run from the singing page's runs book on a staff, starting in a key and moving up a semitone each pass, in a voice:
- * play it, then sing it with the microphone. Pick the run from `runChoices()` (one per stage).
+ * A run from the singing page's runs book on a staff, moving up a semitone each pass, across a voice: its last pass tops
+ * out on the voice's highest note, so the keys come from the voice, not picked. Play it, then sing it with the microphone. Pick the run from `runChoices()` (one per stage).
  * @component run-singer basic
  */
 export interface RunSingerProps {
@@ -8,8 +8,6 @@ export interface RunSingerProps {
   run?: number;
   /** choose the run by what it is like instead of by number: difficulty (easy, medium, hard, expert), a stage id and which of the matches (index from 0) */
   pick?: { difficulty?: string; stage?: string; index?: number };
-  /** the key the run starts in: "c", "f-sharp", "b-flat" */
-  key: string;
   /** voice range; default "soprano" */
   voice?: "soprano" | "mezzo" | "alto" | "tenor" | "baritone" | "bass";
   /** the piano's chords under the tune, one a bar, named over the staff; in a run, the two chords in the held-Do bar that announce each new key. Default true; false for the tune alone */

@@ -129,8 +129,8 @@ export function harmoniseTune(tune: MelodyNote[], ladder: Ladder, range: Range):
  * key's on beat 3, held to the bar's end, so the new key is heard before the next pass starts on it. The last pass keeps
  * its whole-note Do over its home chord.
  */
-export function harmoniseRun(tune: MelodyNote[], tonicPc: number, keys: number, ladderIn: (pc: number, range: Range) => Ladder, range: Range): { notes: PlacedNote[]; chords: MelodyChord[] } {
-  const passes = runPasses(tune, tonicPc, keys, ladderIn, range);
+export function harmoniseRun(tune: MelodyNote[], keys: number, ladderIn: (pc: number, range: Range) => Ladder, range: Range): { notes: PlacedNote[]; chords: MelodyChord[] } {
+  const passes = runPasses(tune, keys, ladderIn, range);
   const length = tune.at(-1)!.at + tune.at(-1)!.beats;
   const barStart = length - BEATS_PER_BAR;
   const out = passes.map(({ ladder, notes }, k) => {

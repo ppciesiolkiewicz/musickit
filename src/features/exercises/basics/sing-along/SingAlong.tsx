@@ -50,8 +50,8 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
   beatMs: number;
   tapped: number | null;
   onNote: (i: number) => void;
-  /** words about the tune, after the buttons */
-  info: ReactNode;
+  /** words about the tune, after the buttons; a function gets the tune's beat playing (null when stopped) */
+  info: ReactNode | ((at: number | null) => ReactNode);
 }) {
   const total = notes[notes.length - 1].at + notes[notes.length - 1].beats;
   const { focus, ...sa } = useSingAlong({ notes, chords, beatMs, total, click });
@@ -113,7 +113,7 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
           <button type="button" className={seg(look === "staff")} aria-pressed={look === "staff"} onClick={() => setLook("staff")}>Staff</button>
           <button type="button" className={seg(look === "roll")} aria-pressed={look === "roll"} onClick={() => setLook("roll")}>Piano roll</button>
         </div>
-        <span className="ml-1">{info}{sa.status === "denied" ? " · microphone blocked in the browser" : ""}</span>
+        <span className="ml-1">{typeof info === "function" ? info(at) : info}{sa.status === "denied" ? " · microphone blocked in the browser" : ""}</span>
         <span className="ml-auto" />
         <IconButton on={full} title={full ? "Close full screen (Esc)" : "Full screen"} onClick={() => setFull((v) => !v)}>
           <Icon name={full ? "minimize" : "maximize"} size={15} />
