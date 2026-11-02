@@ -22,8 +22,8 @@ const PRIMARY = "inline-flex cursor-pointer items-center gap-1.5 rounded-lg bord
 /**
  * Dev only. A button at the bottom right opens the notes bar, the same on every page: every note's count (and, where the
  * page shows example sections, how many are on changed ones), HEAD, note a text, re-pin all to HEAD, clear all, copy all;
- * then this page's notes. They show only there, not on the page. Opening the bar turns on note mode ("Note a text"
- * toggles it): hover outlines the text under the pointer, a click (which does nothing else then) opens a box for a note
+ * "N on this page" opens a modal with this page's notes; they show only there, not on the page. Opening the bar turns on
+ * note mode ("Note a text" toggles it): hover outlines the text under the pointer, a click (which does nothing else then) opens a box for a note
  * on that wording. The pencils on /dev/examples' sections add to the same notes. All pages' notes are on /dev/notes.
  */
 export default function CopyNotes() {
@@ -36,6 +36,7 @@ export default function CopyNotes() {
   const scrolled = useRef<string | null>(null);
   const [on, setOn] = useState(false);
   const [open, setOpen] = useState(false);
+  const [list, setList] = useState(false);
   const [target, setTarget] = useState<{ text: string; where: string } | null>(null);
   const [draft, setDraft] = useState("");
   const [copied, setCopied] = useState(false);
@@ -83,13 +84,22 @@ export default function CopyNotes() {
     };
   }, [on]);
 
-  // a link to one of this page's notes: open the bar, where it is marked, and bring its text into view, once (the
+  // the modal with this page's notes: Esc closes it (and only it, not note mode)
+  useEffect(() => {
+    if (!list) return;
+    const key = (e: KeyboardEvent) => e.key === "Escape" && (e.stopPropagation(), setList(false));
+    document.addEventListener("keydown", key, true);
+    return () => document.removeEventListener("keydown", key, true);
+  }, [list]);
+
+  // a link to one of this page's notes: open the notes modal, where it is marked, and bring its text into view, once (the
   // text may render late, so look again until it is there); section notes are scrolled to by /dev/examples
   useEffect(() => {
     if (!devUi() || !linked || scrolled.current === linked) return;
     const note = notes.find((n) => n.id === linked && n.route === path);
     if (!note) return;
     setOpen(true);
+    setList(true);
     if (note.section) return void (scrolled.current = linked);
     const find = () => {
       const el = [...document.body.querySelectorAll<HTMLElement>("*")].filter((e) => !e.closest(`[${ROOT}]`) && squeeze(e.innerText ?? "") === note.text).pop();
@@ -120,6 +130,29 @@ export default function CopyNotes() {
 
   return (
     <>
+      {list && (
+        <div {...{ [ROOT]: "" }} onClick={() => setList(false)} className="fixed inset-0 z-[2001] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <div role="dialog" aria-modal="true" aria-label="This page's notes" onClick={(e) => e.stopPropagation()} className="flex max-h-[80vh] w-[44rem] max-w-full flex-col rounded-2xl border border-amber-400/40 bg-slate-950 text-slate-200 shadow-2xl shadow-black/50">
+            <div className="flex items-center gap-2 border-b border-slate-800 px-4 py-2.5">
+              <Icon name="pencil" size={14} className="text-amber-300" />
+              <span className="text-sm text-slate-100">{here.length} note{here.length === 1 ? "" : "s"} on this page</span>
+              <Link href="/dev/notes" className="ml-auto text-xs text-sky-300 underline-offset-2 hover:underline">All pages&apos; notes →</Link>
+              <button type="button" aria-label="Close" onClick={() => setList(false)} className="cursor-pointer text-slate-400 hover:text-slate-100"><Icon name="x" size={14} /></button>
+            </div>
+            <div className="overflow-auto px-4 py-1">
+              {here.length ? here.map((n) => (
+                <div key={n.id} className="flex flex-col gap-1 border-b border-slate-800 py-2 text-xs last:border-0">
+                  <p className="flex gap-2 text-slate-400">
+                    <span className="min-w-0 flex-1 truncate" title={n.text}>{n.section ? <span className="font-mono text-slate-500">{n.where} · </span> : null}“{n.text}”</span>
+                    <Link href={noteHref(n, "/dev/notes")} title="This note in all notes" className="shrink-0 text-sky-300 opacity-70 hover:opacity-100">all notes →</Link>
+                  </p>
+                  <NoteBar note={n} linked={n.id === linked} />
+                </div>
+              )) : <p className="py-3 text-xs text-slate-500">No notes on this page.</p>}
+            </div>
+          </div>
+        </div>
+      )}
       <div {...{ [ROOT]: "" }} className="fixed bottom-3 right-3 z-[2000] flex max-w-[calc(100vw-1.5rem)] flex-col items-end gap-2 text-sm">
         {target && (
           <div className="flex w-80 max-w-full flex-col gap-1.5 rounded-2xl border border-amber-400/40 bg-slate-950/95 p-3 text-slate-100 shadow-2xl shadow-black/50 backdrop-blur">
@@ -144,7 +177,7 @@ export default function CopyNotes() {
             <div className="flex flex-wrap items-center gap-3">
               <Icon name="pencil" size={14} className="text-amber-300" />
               <span className="text-sm text-slate-100">{notes.length} note{notes.length === 1 ? "" : "s"}</span>
-              <span className="rounded-full bg-slate-800 px-2 py-0.5 text-xs text-slate-300">{here.length} on this page</span>
+              <button type="button" disabled={!here.length} onClick={() => setList(true)} title="This page's notes" className="cursor-pointer rounded-full bg-slate-800 px-2 py-0.5 text-xs text-slate-300 hover:bg-slate-700 hover:text-slate-100 disabled:cursor-default disabled:hover:bg-slate-800 disabled:hover:text-slate-300">{here.length} on this page{here.length ? " →" : ""}</button>
               {outdated > 0 && <span className="rounded-full bg-orange-500/15 px-2 py-0.5 text-xs text-orange-200">{outdated} on changed sections</span>}
               {head && <span className="font-mono text-xs text-slate-500" title="The checkout's HEAD; a section note also keeps its example file's commit">HEAD {head}</span>}
               <span className="ml-auto flex flex-wrap gap-2">
@@ -154,19 +187,6 @@ export default function CopyNotes() {
                 <button type="button" disabled={!notes.length} onClick={copy} className={copied ? `${PRIMARY} !border-emerald-400/70 !bg-emerald-500/20 !text-emerald-100` : PRIMARY}><Icon name={copied ? "check" : "copy"} size={12} />{copied ? "Copied" : "Copy all notes"}</button>
               </span>
             </div>
-            {here.length > 0 && (
-              <div className="mt-2 max-h-64 overflow-auto border-t border-slate-800">
-                {here.map((n) => (
-                  <div key={n.id} className="flex flex-col gap-1 border-b border-slate-800 py-1.5 text-xs last:border-0">
-                    <p className="flex gap-2 text-slate-400">
-                      <span className="min-w-0 flex-1 truncate">{n.section ? <span className="font-mono text-slate-500">{n.where} · </span> : null}“{n.text}”</span>
-                      <Link href={noteHref(n, "/dev/notes")} title="This note in all notes" className="shrink-0 text-sky-300 opacity-70 hover:opacity-100">all notes →</Link>
-                    </p>
-                    <NoteBar note={n} linked={n.id === linked} />
-                  </div>
-                ))}
-              </div>
-            )}
             <Link href="/dev/notes" className="mt-2 inline-block text-xs text-sky-300 underline-offset-2 hover:underline">All pages&apos; notes →</Link>
           </div>
         )}
