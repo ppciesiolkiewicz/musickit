@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Icon from "@/components/Icon";
 import { sbtn } from "@/components/ui";
+import { useAudioFocus } from "@/features/sound";
 import { parseChordQuery } from "@/lib/chordKit/chordSearch";
 import { COMP_PATTERNS, type CompPattern } from "@/lib/practice/comping";
 import { chordCues, cuesOf, type Marks } from "../cues/cues";
@@ -41,6 +42,7 @@ export function PlayAlongTimeline({ timeline, view = "tab", others = "muted", ma
   const [tempo, setTempoState] = useState(timeline.bpm);
   const played = useMemo(() => withBacking(timeline, choices.length > 1 ? pattern : undefined), [timeline, pattern, choices.length]);
   const player = useTimelinePlayer(played);
+  const focus = useAudioFocus(player.playing, player.stop);
   const cues = useMemo(
     () => (stepless(played) ? chordCues : cuesOf)(played, marks).filter((c) => c.kind !== "backing" && (others !== "hidden" || c.enabled)),
     [played, marks, others],
@@ -71,7 +73,7 @@ export function PlayAlongTimeline({ timeline, view = "tab", others = "muted", ma
   const pill = (on: boolean) => `rounded-full border px-2.5 py-0.5 text-[11px] transition ${on ? "border-sky-400/70 bg-sky-500/15 text-sky-100" : "border-slate-700 text-slate-500 hover:border-slate-500"}`;
 
   return (
-    <div className="flex flex-col gap-2 rounded-xl border border-slate-800 bg-slate-950/40 p-2.5">
+    <div ref={focus} className="flex flex-col gap-2 rounded-xl border border-slate-800 bg-slate-950/40 p-2.5">
       <div className="flex flex-wrap items-center gap-2">
         <button type="button" disabled={player.starting} onClick={() => (player.playing ? player.stop() : void player.start())} aria-pressed={player.playing}
           className={`inline-flex h-8 items-center gap-1.5 rounded-lg border px-3 text-xs font-medium transition ${player.playing ? "border-emerald-400/70 bg-emerald-500/20 text-emerald-100" : "border-sky-400/60 bg-sky-500/15 text-sky-50 hover:bg-sky-500/25"}`}>

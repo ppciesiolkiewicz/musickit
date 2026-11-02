@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useMicPitch } from "@/components/practice/useMicPitch";
 import { clickAt } from "@/features/instruments/model";
-import { getAudioContext, getOutputBus, getSharedPiano, onSilence, wakeAudio } from "@/features/sound";
+import { getAudioContext, getOutputBus, getSharedPiano, onSilence, useAudioFocus, wakeAudio } from "@/features/sound";
 import { hzToMidi } from "@/features/theory/singing";
 import { CHORD_VELOCITY, type MelodyChord } from "@/features/theory/melodyChords";
 import { BEATS_PER_BAR } from "@/features/theory/singingMelody";
@@ -120,8 +120,7 @@ export function useSingAlong({ notes, chords, beatMs, total, click = false }: { 
   // leaving cuts the piano
   useEffect(() => hush, [hush]);
 
-  /** for the audio focus, once it lands: the element whose leaving the screen stops the tune */
-  const focus = useCallback((el: HTMLElement | null) => void el, []);
+  const focus = useAudioFocus(playing, stop);
   // another sequence silencing the piano stops this one too
   useEffect(() => onSilence(() => run.current && stop()), [stop]);
 

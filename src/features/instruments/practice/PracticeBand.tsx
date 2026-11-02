@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Icon from "@/components/Icon";
 import { Select, Slider, sbtn } from "@/components/ui";
+import { useAudioFocus } from "@/features/sound";
 import { DRONE_MAX_OCTAVE, DRONE_MIN_OCTAVE, NOTE_NAMES } from "../drone/drone";
 import { MAX_BPM, MIN_BPM } from "../jam/clock";
 import { JAM_PARTS, type JamPart, type JamRig } from "../jam/rig";
@@ -45,6 +46,7 @@ export default function PracticeBand({ bpm, keyPc, parts }: { bpm: number; keyPc
     rig.stop(JAM_PARTS);
     rig.setClick(false);
   };
+  const focus = useAudioFocus(on, stop);
   /** choose a part; while the band plays it joins or leaves on the next beat */
   const flip = (p: BandPart) => {
     const next = chosen.includes(p) ? chosen.filter((x) => x !== p) : [...chosen, p];
@@ -59,7 +61,7 @@ export default function PracticeBand({ bpm, keyPc, parts }: { bpm: number; keyPc
   const drone = snap.parts.drone.state.drone;
 
   return (
-    <div className="rounded-xl border border-slate-800 bg-slate-950/40">
+    <div ref={focus} className="rounded-xl border border-slate-800 bg-slate-950/40">
       <div className="flex flex-wrap items-center gap-2 px-2.5 py-2">
         <button type="button" onClick={() => (on ? stop() : void play(chosen))} disabled={!on && !chosen.length} aria-pressed={on}
           className={`inline-flex h-8 items-center gap-1.5 rounded-lg border px-3 text-xs font-medium transition disabled:opacity-40 ${on ? "border-emerald-400/70 bg-emerald-500/20 text-emerald-100" : "border-sky-400/60 bg-sky-500/15 text-sky-50 hover:bg-sky-500/25"}`}>
