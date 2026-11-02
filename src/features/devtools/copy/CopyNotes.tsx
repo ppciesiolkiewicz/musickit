@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Icon from "@/components/Icon";
-import { copyNotesMarkdown, noteHref, outdatedCount, repinCopyNotes, squeeze } from "../model/copyNotes";
+import { copyNotesMarkdown, outdatedCount, repinCopyNotes, squeeze } from "../model/copyNotes";
 import { useCommits, useCopyNotes, useLinkedNote, useShownSections, writeCopyNotes as write } from "./store";
 import { devUi } from "../gate";
 import { NoteBar } from "./NoteBar";
@@ -21,8 +21,8 @@ const PRIMARY = "inline-flex cursor-pointer items-center gap-1.5 rounded-lg bord
 
 /**
  * Dev only. A button at the bottom right opens the notes bar, the same on every page: every note's count (and, where the
- * page shows example sections, how many are on changed ones), HEAD, note a text, re-pin all to HEAD, clear all, copy all;
- * then this page's notes. Opening the bar turns on note mode ("Note a text" toggles it): hover outlines the text under the pointer, a click (which
+ * page shows example sections, how many are on changed ones), HEAD, note a text, re-pin all to HEAD, clear all, copy all.
+ * This page's notes are not listed there: they show on the page. Opening the bar turns on note mode ("Note a text" toggles it): hover outlines the text under the pointer, a click (which
  * does nothing else then) opens a box for a note on that wording, shown as its bar under its text. The pencils on
  * /dev/examples' sections add to the same notes. All pages' notes are on /dev/notes.
  */
@@ -180,19 +180,6 @@ export default function CopyNotes() {
                 <button type="button" disabled={!notes.length} onClick={copy} className={copied ? `${PRIMARY} !border-emerald-400/70 !bg-emerald-500/20 !text-emerald-100` : PRIMARY}><Icon name={copied ? "check" : "copy"} size={12} />{copied ? "Copied" : "Copy all notes"}</button>
               </span>
             </div>
-            {here.length > 0 && (
-              <div className="mt-2 max-h-64 overflow-auto border-t border-slate-800">
-                {here.map((n) => (
-                  <div key={n.id} className="flex flex-col gap-1 border-b border-slate-800 py-1.5 text-xs last:border-0">
-                    <p className="flex gap-2 text-slate-400">
-                      <span className="min-w-0 flex-1 truncate">{n.section ? <span className="font-mono text-slate-500">{n.where} · </span> : null}“{n.text}”</span>
-                      <Link href={noteHref(n, "/dev/notes")} title="This note in all notes" className="shrink-0 text-sky-300 opacity-70 hover:opacity-100">all notes →</Link>
-                    </p>
-                    <NoteBar note={n} />
-                  </div>
-                ))}
-              </div>
-            )}
             <Link href="/dev/notes" className="mt-2 inline-block text-xs text-sky-300 underline-offset-2 hover:underline">All pages&apos; notes →</Link>
           </div>
         )}
