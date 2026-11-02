@@ -8,6 +8,7 @@ import { copyNotesMarkdown, noteHref, outdatedCount, repinCopyNotes, squeeze } f
 import { useCommits, useCopyNotes, useLinkedNote, useShownSections, writeCopyNotes as write } from "./store";
 import { devUi } from "../gate";
 import { NoteBar } from "./NoteBar";
+import { TextNoteMarks } from "./TextNoteMarks";
 
 const ROOT = "data-copy-notes";
 const whereOf = (el: Element) => {
@@ -22,7 +23,7 @@ const PRIMARY = "inline-flex cursor-pointer items-center gap-1.5 rounded-lg bord
 /**
  * Dev only. A button at the bottom right opens the notes bar, the same on every page: every note's count (and, where the
  * page shows example sections, how many are on changed ones), HEAD, note a text, re-pin all to HEAD, clear all, copy all;
- * "N on this page" opens a modal with this page's notes; they show only there, not on the page. Opening the bar turns on
+ * "N on this page" opens a modal with this page's notes. On the page, each text note marks its text (`TextNoteMarks`). Opening the bar turns on
  * note mode ("Note a text" toggles it): hover outlines the text under the pointer, a click (which does nothing else then) opens a box for a note
  * on that wording. The pencils on /dev/examples' sections add to the same notes. All pages' notes are on /dev/notes.
  */
@@ -41,6 +42,8 @@ export default function CopyNotes() {
   const [draft, setDraft] = useState("");
   const [copied, setCopied] = useState(false);
   const [clearing, setClearing] = useState(false);
+  // the note a mark on the page opened the modal at
+  const [picked, setPicked] = useState<string | null>(null);
   const hot = useRef<HTMLElement | null>(null);
   const here = notes.filter((n) => n.route === path);
 
@@ -130,6 +133,7 @@ export default function CopyNotes() {
 
   return (
     <>
+      <TextNoteMarks notes={here} root={ROOT} onOpen={(id) => (setOpen(true), setList(true), setPicked(id))} />
       {list && (
         <div {...{ [ROOT]: "" }} onClick={() => setList(false)} className="fixed inset-0 z-[2001] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
           <div role="dialog" aria-modal="true" aria-label="This page's notes" onClick={(e) => e.stopPropagation()} className="flex max-h-[80vh] w-[44rem] max-w-full flex-col rounded-2xl border border-amber-400/40 bg-slate-950 text-slate-200 shadow-2xl shadow-black/50">
@@ -146,7 +150,7 @@ export default function CopyNotes() {
                     <span className="min-w-0 flex-1 truncate" title={n.text}>{n.section ? <span className="font-mono text-slate-500">{n.where} · </span> : null}“{n.text}”</span>
                     <Link href={noteHref(n, "/dev/notes")} title="This note in all notes" className="shrink-0 text-sky-300 opacity-70 hover:opacity-100">all notes →</Link>
                   </p>
-                  <NoteBar note={n} linked={n.id === linked} />
+                  <NoteBar note={n} linked={n.id === linked || n.id === picked} />
                 </div>
               )) : <p className="py-3 text-xs text-slate-500">No notes on this page.</p>}
             </div>
@@ -177,7 +181,7 @@ export default function CopyNotes() {
             <div className="flex flex-wrap items-center gap-3">
               <Icon name="pencil" size={14} className="text-amber-300" />
               <span className="text-sm text-slate-100">{notes.length} note{notes.length === 1 ? "" : "s"}</span>
-              <button type="button" disabled={!here.length} onClick={() => setList(true)} title="This page's notes" className="cursor-pointer rounded-full bg-slate-800 px-2 py-0.5 text-xs text-slate-300 hover:bg-slate-700 hover:text-slate-100 disabled:cursor-default disabled:hover:bg-slate-800 disabled:hover:text-slate-300">{here.length} on this page{here.length ? " →" : ""}</button>
+              <button type="button" disabled={!here.length} onClick={() => (setPicked(null), setList(true))} title="This page's notes" className="cursor-pointer rounded-full bg-slate-800 px-2 py-0.5 text-xs text-slate-300 hover:bg-slate-700 hover:text-slate-100 disabled:cursor-default disabled:hover:bg-slate-800 disabled:hover:text-slate-300">{here.length} on this page{here.length ? " →" : ""}</button>
               {outdated > 0 && <span className="rounded-full bg-orange-500/15 px-2 py-0.5 text-xs text-orange-200">{outdated} on changed sections</span>}
               {head && <span className="font-mono text-xs text-slate-500" title="The checkout's HEAD; a section note also keeps its example file's commit">HEAD {head}</span>}
               <span className="ml-auto flex flex-wrap gap-2">
