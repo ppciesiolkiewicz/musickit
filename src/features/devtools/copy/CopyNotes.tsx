@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Icon from "@/components/Icon";
-import { copyNotesMarkdown, outdatedCount, repinCopyNotes, squeeze } from "../model/copyNotes";
+import { copyNotesMarkdown, noteHref, outdatedCount, repinCopyNotes, squeeze } from "../model/copyNotes";
 import { useCommits, useCopyNotes, useLinkedNote, useShownSections, writeCopyNotes as write } from "./store";
 import { devUi } from "../gate";
 import { NoteBar } from "./NoteBar";
@@ -21,10 +21,10 @@ const PRIMARY = "inline-flex cursor-pointer items-center gap-1.5 rounded-lg bord
 
 /**
  * Dev only. A button at the bottom right opens the notes bar, the same on every page: every note's count (and, where the
- * page shows example sections, how many are on changed ones), HEAD, note a text, re-pin all to HEAD, clear all, copy all.
- * This page's notes are not listed there: they show on the page. Opening the bar turns on note mode ("Note a text" toggles it): hover outlines the text under the pointer, a click (which
- * does nothing else then) opens a box for a note on that wording, shown as its bar under its text. The pencils on
- * /dev/examples' sections add to the same notes. All pages' notes are on /dev/notes.
+ * page shows example sections, how many are on changed ones), HEAD, note a text, re-pin all to HEAD, clear all, copy all;
+ * then this page's notes. They show only there, not on the page. Opening the bar turns on note mode ("Note a text"
+ * toggles it): hover outlines the text under the pointer, a click (which does nothing else then) opens a box for a note
+ * on that wording. The pencils on /dev/examples' sections add to the same notes. All pages' notes are on /dev/notes.
  */
 export default function CopyNotes() {
   const path = usePathname();
@@ -41,7 +41,6 @@ export default function CopyNotes() {
   const [copied, setCopied] = useState(false);
   const [clearing, setClearing] = useState(false);
   const hot = useRef<HTMLElement | null>(null);
-  const [marks, setMarks] = useState<{ id: string; top: number; left: number; width: number }[]>([]);
   const here = notes.filter((n) => n.route === path);
 
   useEffect(() => {
@@ -84,39 +83,24 @@ export default function CopyNotes() {
     };
   }, [on]);
 
-  // the notes of this page, each shown as its bar just under the text it is about; found again by the text, so they follow layout changes
+  // a link to one of this page's notes: open the bar, where it is marked, and bring its text into view, once (the
+  // text may render late, so look again until it is there); section notes are scrolled to by /dev/examples
   useEffect(() => {
-    if (!devUi()) return;
-    // section notes are shown under their sections (/dev/examples) by the examples page
-    const mine = notes.filter((n) => n.route === path && !n.section);
-    if (!mine.length) return;
-    const scan = () => {
-      const els = [...document.body.querySelectorAll<HTMLElement>("*")].filter((el) => !el.closest(`[${ROOT}]`));
-      const next = mine.flatMap((n) => {
-        const el = els.filter((e) => squeeze(e.innerText ?? "") === n.text).pop();
-        const r = el?.getBoundingClientRect();
-        return r && r.width > 0 && r.height > 0 ? [{ id: n.id, top: Math.round(r.bottom + 4), left: Math.round(r.left), width: Math.round(r.width) }] : [];
-      });
-      setMarks((m) => (JSON.stringify(m) === JSON.stringify(next) ? m : next));
-      // a link to one of these notes: bring its text into view, once
-      const target = linked && scrolled.current !== linked && mine.find((n) => n.id === linked);
-      if (target) {
-        const el = els.filter((e) => squeeze(e.innerText ?? "") === target.text).pop();
-        if (el) {
-          el.scrollIntoView({ block: "center" });
-          scrolled.current = linked;
-        }
-      }
-    };
-    scan();
-    const timer = setInterval(scan, 500);
-    window.addEventListener("scroll", scan, true);
-    window.addEventListener("resize", scan);
-    return () => {
+    if (!devUi() || !linked || scrolled.current === linked) return;
+    const note = notes.find((n) => n.id === linked && n.route === path);
+    if (!note) return;
+    setOpen(true);
+    if (note.section) return void (scrolled.current = linked);
+    const find = () => {
+      const el = [...document.body.querySelectorAll<HTMLElement>("*")].filter((e) => !e.closest(`[${ROOT}]`) && squeeze(e.innerText ?? "") === note.text).pop();
+      if (!el) return;
+      el.scrollIntoView({ block: "center" });
+      scrolled.current = linked;
       clearInterval(timer);
-      window.removeEventListener("scroll", scan, true);
-      window.removeEventListener("resize", scan);
     };
+    const timer = setInterval(find, 500);
+    find();
+    return () => clearInterval(timer);
   }, [notes, path, linked]);
 
   if (!devUi()) return null;
@@ -136,16 +120,6 @@ export default function CopyNotes() {
 
   return (
     <>
-      <div {...{ [ROOT]: "" }} className="pointer-events-none fixed inset-0 z-[1999]">
-        {marks.map((m) => {
-          const n = here.find((x) => x.id === m.id);
-          return n && (
-            <div key={m.id} style={{ top: m.top, left: Math.max(0, m.left), width: Math.max(m.width, 288) }} className="pointer-events-auto absolute max-w-[calc(100vw-1rem)] rounded-lg bg-slate-950 shadow-lg shadow-black/40">
-              <NoteBar note={n} linked={m.id === linked} />
-            </div>
-          );
-        })}
-      </div>
       <div {...{ [ROOT]: "" }} className="fixed bottom-3 right-3 z-[2000] flex max-w-[calc(100vw-1.5rem)] flex-col items-end gap-2 text-sm">
         {target && (
           <div className="flex w-80 max-w-full flex-col gap-1.5 rounded-2xl border border-amber-400/40 bg-slate-950/95 p-3 text-slate-100 shadow-2xl shadow-black/50 backdrop-blur">
@@ -180,6 +154,19 @@ export default function CopyNotes() {
                 <button type="button" disabled={!notes.length} onClick={copy} className={copied ? `${PRIMARY} !border-emerald-400/70 !bg-emerald-500/20 !text-emerald-100` : PRIMARY}><Icon name={copied ? "check" : "copy"} size={12} />{copied ? "Copied" : "Copy all notes"}</button>
               </span>
             </div>
+            {here.length > 0 && (
+              <div className="mt-2 max-h-64 overflow-auto border-t border-slate-800">
+                {here.map((n) => (
+                  <div key={n.id} className="flex flex-col gap-1 border-b border-slate-800 py-1.5 text-xs last:border-0">
+                    <p className="flex gap-2 text-slate-400">
+                      <span className="min-w-0 flex-1 truncate">{n.section ? <span className="font-mono text-slate-500">{n.where} · </span> : null}“{n.text}”</span>
+                      <Link href={noteHref(n, "/dev/notes")} title="This note in all notes" className="shrink-0 text-sky-300 opacity-70 hover:opacity-100">all notes →</Link>
+                    </p>
+                    <NoteBar note={n} linked={n.id === linked} />
+                  </div>
+                ))}
+              </div>
+            )}
             <Link href="/dev/notes" className="mt-2 inline-block text-xs text-sky-300 underline-offset-2 hover:underline">All pages&apos; notes →</Link>
           </div>
         )}
