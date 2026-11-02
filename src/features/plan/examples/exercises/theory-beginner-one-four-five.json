@@ -14,14 +14,14 @@
     "learnBefore": ["/course/5/one-four-five"],
     "sections": [
       { "type": "heading", "text": "Three roots, three chords", "minutes": 3 },
-      { "type": "text", "text": "The staff below shows G major on the five lines of music. Tap a note to hear it. In G major, {{1}} is G, {{4}} is C, {{5}} is D. Tap each one. Then press the chord built on it, in the chord boxes below." },
+      { "type": "text", "text": "The staff below shows G major on the five lines of music; tap a note to hear it. In G major, {{1}} is G, {{4}} is C and {{5}} is D. Tap each one, then press the chord built on it in the chord boxes below." },
       { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "g", "voice": "tenor", "highlight": ["1", "4", "5"], "mic": false } },
       { "type": "tool", "tool": { "type": "chord-shapes", "chords": ["G", "C", "D"] } },
       { "type": "heading", "text": "Follow the changes", "minutes": 3 },
-      { "type": "text", "text": "Press Play: I, IV, V, I, one bar each. Say the numeral out loud as each chord arrives." },
+      { "type": "text", "text": "Press Play below to hear I, IV, V, I, one bar each. Say the numeral out loud as each chord arrives." },
       { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "progression", "key": "g", "numerals": ["I", "IV", "V", "I"], "bars": 8, "backing": ["strum"] }, "bpm": 80 } },
       { "type": "heading", "text": "A new order", "minutes": 2 },
-      { "type": "text", "text": "The same three chords in a new order, with a softer backing. Look away from the screen. Name each chord as it arrives, then look back to check." },
+      { "type": "text", "text": "The same three chords in a new order, with a softer backing. Press Play below and look away from the screen. Name each chord as it arrives, then look back to check." },
       { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "progression", "key": "g", "numerals": ["I", "V", "IV", "V"], "bars": 8, "backing": ["fingerstyle"] }, "bpm": 80 } }
     ],
     "exploreMore": ["/course/5/hearing-changes"]

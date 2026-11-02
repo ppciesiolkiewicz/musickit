@@ -14,16 +14,16 @@
     "learnBefore": ["/course/9/modes"],
     "sections": [
       { "type": "heading", "text": "Hear the switch", "minutes": 3 },
-      { "type": "text", "text": "Press Play. The backing holds Dm for eight bars: four in D natural minor, then four in D Dorian. Play the scale up and down along with the neck. The faded note is the one to leave out: B in the first half, B♭ in the second." },
+      { "type": "text", "text": "Press Play below to start the backing: Dm for eight bars, four in D natural minor, then four in D Dorian. Play the scale up and down along with the neck. The faded note is the one to leave out: B in the first half, B♭ in the second." },
       { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "two-scales", "a": { "key": "d", "scale": "natural-minor-aeolian" }, "b": { "key": "d", "scale": "dorian" }, "bars": 8, "backingChord": "Dm" }, "bpm": 70, "view": "neck" } },
       { "type": "heading", "text": "Position with the root on the A string", "minutes": 3 },
-      { "type": "text", "text": "The note that changed is {{6}} (B). Tap it on the neck to hear it. In this position {{1}} sits at the 5th fret of the A string. Play the position up and down. Then play short phrases that pass through {{6}}." },
+      { "type": "text", "text": "The note that changed is {{6}} (B): tap it on the neck to hear it. In this position {{1}} sits at the 5th fret of the A string. Play the position up and down, then play short phrases that pass through {{6}}." },
       { "type": "tool", "tool": { "type": "scale-neck", "scale": "dorian", "key": "d", "placement": { "by": "root", "string": 5 }, "highlight": ["1", "6"] } },
       { "type": "heading", "text": "Position with the root on the low E", "minutes": 3 },
-      { "type": "text", "text": "The same mode in the next position up: {{1}} sits at the 10th fret of the low E string. Find each ringed {{6}} before you play. Then play the position up and down." },
+      { "type": "text", "text": "The same mode one position up: {{1}} sits at the 10th fret of the low E string. Find each ringed {{6}} before you play, then play the position up and down." },
       { "type": "tool", "tool": { "type": "scale-neck", "scale": "dorian", "key": "d", "placement": { "by": "root", "string": 6 }, "highlight": ["1", "6"] } },
       { "type": "heading", "text": "Improvise over Dm7 to G7", "minutes": 3 },
-      { "type": "text", "text": "Press Play. The backing switches between Dm7 and G7. Improvise in either position. Land on {{d}} when Dm7 comes round. Land on {{b}} when G7 comes round." },
+      { "type": "text", "text": "Press Play below to start the backing, which switches between Dm7 and G7. Improvise in either position. Land on {{d}} when Dm7 comes round and on {{b}} when G7 comes round." },
       { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "solo-over", "key": "d", "chords": [{ "chord": "Dm7", "scale": "dorian", "target": ["1"] }, { "chord": "G7", "scale": "mixolydian", "target": ["3"], "approach": "land on B on beat 1" }], "bars": 2 }, "bpm": 80, "view": "neck" } }
     ],
     "exploreMore": ["/theory/scales/dorian/d", "/course/9/modes-over-drone"]

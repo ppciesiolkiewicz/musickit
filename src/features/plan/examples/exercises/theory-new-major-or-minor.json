@@ -14,15 +14,15 @@
     "learnBefore": ["/course/3/major-or-minor"],
     "sections": [
       { "type": "heading", "text": "Hear home", "minutes": 2 },
-      { "type": "text", "text": "The staff below shows the C major scale on the five lines of music. Tap a note to hear it. Tap {{1}}, then any other note, then {{1}} again. Try it with different notes. Which ones sound finished?" },
+      { "type": "text", "text": "The staff below shows the C major scale on the five lines of music; tap a note to hear it. Tap {{1}}, then any other note, then {{1}} again. Try it with different notes: which ones sound finished?" },
       { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "tenor", "highlight": ["1"], "mic": false } },
       { "type": "heading", "text": "One note makes major or minor", "minutes": 2 },
-      { "type": "text", "text": "Tap {{1}} {{3}} {{5}}: C major." },
+      { "type": "text", "text": "Tap {{1}} {{3}} {{5}}: that's C major." },
       { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "tenor", "notes": ["1", "3", "5"], "mic": false } },
-      { "type": "text", "text": "Now tap {{1}} {{b3}} {{5}}: C minor. Only the middle note moved, by a half step. Switch between the two staffs. Then try it with your eyes closed." },
+      { "type": "text", "text": "Now tap {{1}} {{b3}} {{5}}: C minor. Only the middle note moved, by a half step. Switch between the two staffs, then try it with your eyes closed." },
       { "type": "tool", "tool": { "type": "staff", "scale": "natural-minor-aeolian", "key": "c", "voice": "tenor", "notes": ["1", "b3", "5"], "mic": false } },
       { "type": "heading", "text": "Major or minor?", "minutes": 2 },
-      { "type": "text", "text": "The game plays two notes together: a major 3rd or a minor 3rd. Pick the one you heard." },
+      { "type": "text", "text": "Press Start below. The game plays two notes together, a major 3rd or a minor 3rd: pick the one you heard." },
       { "type": "tool", "tool": { "type": "interval-ears", "set": [3, 4], "dir": "together" } }
     ],
     "exploreMore": ["/course/3/intervals"]

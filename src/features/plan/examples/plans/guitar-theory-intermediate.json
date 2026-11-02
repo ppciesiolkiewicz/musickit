@@ -23,7 +23,7 @@
           {
             "title": "Name the chord", "focus": "Major, minor, 7, maj7, m7 by ear", "minutes": 5, "tags": ["ear"], "why": "Naming a chord's quality by ear is the skill behind working out songs.",
             "sections": [
-              { "type": "text", "text": "Press Start. The game plays a chord. Pick its name. Listen to the top note: a half step under the octave means maj7, a whole step means 7 or m7. The tally under the answers keeps your score." },
+              { "type": "text", "text": "Press Start below and the game plays a chord. Pick its name. Listen to the top note: a half step under the octave means maj7, a whole step means 7 or m7. The tally under the answers keeps your score." },
               { "type": "tool", "tool": { "type": "interval-ears", "kind": "chord" } }
             ]
           },
@@ -32,7 +32,7 @@
             "sections": [
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 70, "key": "d", "drone": false } },
               { "type": "heading", "text": "Dm7", "minutes": 3 },
-              { "type": "text", "text": "Press Play on the click above. Play the Dm7 arpeggio up and down, one note per click: {{1}} {{b3}} {{5}} {{b7}}." },
+              { "type": "text", "text": "Press Play above to start the metronome. Play the Dm7 arpeggio up and down, one note per beat: {{1}} {{b3}} {{5}} {{b7}}." },
               { "type": "tool", "tool": { "type": "arpeggio-neck", "chord": "Dm7", "highlight": ["1"] } },
               { "type": "heading", "text": "G7", "minutes": 3 },
               { "type": "text", "text": "G7: {{1}} {{3}} {{5}} {{b7}}. Lean on its {{3}} (B) and {{b7}} (F): these two notes pull toward Cmaj7." },
@@ -46,10 +46,10 @@
             "title": "Comp the ii-V-I", "focus": "Dm7-G7-Cmaj7-Cmaj7 with the band at 80", "minutes": 10, "tags": ["rhythm"], "why": "Comping means playing the chords in rhythm under a melody, and short, light strums leave room for it.",
             "sections": [
               { "type": "heading", "text": "Two strums a bar", "minutes": 5 },
-              { "type": "text", "text": "Press Play. The lit block shows the chord. Strum short chords on beats 2 and 4, one bar each." },
+              { "type": "text", "text": "Press Play below; the lit block shows the chord. Strum short chords on beats 2 and 4, one bar each." },
               { "type": "tool", "tool": { "type": "strum-along", "chords": ["Dm7", "G7", "Cmaj7", "Cmaj7"], "bpm": 80, "pattern": ". D . D" } },
               { "type": "heading", "text": "Bass and chord", "minutes": 5 },
-              { "type": "text", "text": "Press Play. Now pick each chord's root on beats 1 and 3. Strum the top strings on beats 2 and 4." },
+              { "type": "text", "text": "Press Play below and now pick each chord's root on beats 1 and 3. Strum the top strings on beats 2 and 4." },
               { "type": "tool", "tool": { "type": "strum-along", "chords": ["Dm7", "G7", "Cmaj7", "Cmaj7"], "bpm": 80 } }
             ]
           }
@@ -61,7 +61,7 @@
           {
             "title": "Alternate picking", "focus": "Down-up, three notes per string, 90 bpm", "minutes": 5, "tags": ["technique"], "why": "Three notes per string puts the pick on alternating strokes at each string crossing.",
             "sections": [
-              { "type": "text", "text": "Press Play on the click. Pick three notes per string, down-up, across all six strings and back." },
+              { "type": "text", "text": "Press Play below to start the metronome. Pick three notes per string, down-up, across all six strings and back." },
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 90, "key": "a", "drone": false } },
               { "type": "tool", "tool": { "type": "picking-drill", "strokes": "DU", "notesPerString": 3, "bpm": 90 } }
             ]
@@ -73,7 +73,7 @@
               { "type": "text", "text": "Tap a note on the staff to hear it. Tap {{2}} {{4}} {{6}} {{1}}: Dm7, every other note from D. Then {{5}} {{7}} {{2}} {{4}}: G7. Then {{1}} {{3}} {{5}} {{7}}: Cmaj7." },
               { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "tenor", "mic": false } },
               { "type": "heading", "text": "Hear the pull", "minutes": 3 },
-              { "type": "text", "text": "Press Play and listen. The ii moves away, the V leans hard, the I lands. Say each numeral as it arrives." },
+              { "type": "text", "text": "Press Play below and listen. The ii moves away, the V leans hard, the I lands. Say each numeral as it arrives." },
               { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "progression", "key": "c", "numerals": ["ii7", "V7", "Imaj7", "Imaj7"], "bars": 4, "backing": ["arp-updown"] }, "bpm": 70 } }
             ]
           },
@@ -81,7 +81,7 @@
             "title": "Guide tones on the guitar", "focus": "3rds and 7ths through Dm7-G7-Cmaj7", "minutes": 10, "tags": ["technique"], "why": "The 3rd and 7th of each chord move by a half step or not at all, so two notes are enough to make the changes heard.",
             "sections": [
               { "type": "heading", "text": "The 3rd-7th line", "minutes": 5 },
-              { "type": "text", "text": "Press Play. Play along from the tab, one note per beat: F over Dm7 (its 3rd), F over G7 (its 7th), E over Cmaj7 (its 3rd)." },
+              { "type": "text", "text": "Press Play below and play along from the tab, one note per beat: F over Dm7 (its 3rd), F over G7 (its 7th), E over Cmaj7 (its 3rd)." },
               { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "chord-steps", "chords": [
                 { "chord": "Dm7", "steps": ["b3", "b3", "b3", "b3"] },
                 { "chord": "G7", "steps": ["b7", "b7", "b7", "b7"] },
@@ -100,7 +100,7 @@
             "title": "Improvise on the guide tones", "focus": "Dm7-G7-Cmaj7 · land on 3rds and 7ths", "minutes": 8, "tags": ["improv"], "why": "Starting each chord on a guide tone is the quickest way to make a solo follow the changes.",
             "sections": [
               { "type": "heading", "text": "Land on the targets", "minutes": 4 },
-              { "type": "text", "text": "Press Play. Improvise in C major. Land on a lit target when each chord comes round." },
+              { "type": "text", "text": "Press Play below to start the backing and improvise in C major. Land on a lit target when each chord comes round." },
               { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "solo-over", "key": "c", "chords": [{ "chord": "Dm7", "scale": "dorian", "target": ["b3", "b7"] }, { "chord": "G7", "scale": "mixolydian", "target": ["3", "b7"] }, { "chord": "Cmaj7", "scale": "major-ionian", "target": ["3", "7"] }], "bars": 2 }, "bpm": 80, "view": "neck" } },
               { "type": "heading", "text": "Fewer notes", "minutes": 4 },
               { "type": "text", "text": "Same backing. Now use only three or four notes per chord. Include its guide tone each time." }
@@ -114,7 +114,7 @@
           {
             "title": "Legato warm-up", "focus": "Legato trill · fingers 1-3 · G string, 5th fret", "minutes": 5, "tags": ["technique"], "why": "Hammer-ons and pull-offs build left-hand strength without the pick.",
             "sections": [
-              { "type": "text", "text": "Press Play on the click. Pick once, then hammer finger 3 and pull off to finger 1, one note per click. Rest when the hand gets tired, then go again." },
+              { "type": "text", "text": "Press Play below to start the metronome. Pick once, then hammer finger 3 and pull off to finger 1, one note per beat. Rest when the hand gets tired, then go again." },
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 80, "key": "a", "drone": false } },
               { "type": "tool", "tool": { "type": "legato-trill", "fingers": "13", "string": 3, "fret": 5, "bpm": 80 } }
             ]
@@ -123,7 +123,7 @@
             "title": "C major and A minor, same notes", "focus": "C major → A natural minor over one click", "minutes": 6, "tags": ["theory"], "why": "A minor uses exactly the notes of C major; only the home note changes, and with it the mood.",
             "sections": [
               { "type": "heading", "text": "Hear the home move", "minutes": 3 },
-              { "type": "text", "text": "Press Play. Only the click sounds. Play C major from C for four bars. Then play the same notes from A for four bars: A minor. Where does each one come to rest?" },
+              { "type": "text", "text": "Press Play below to start the metronome; only the click sounds. Play C major from C for four bars. Then play the same notes from A for four bars: A minor. Where does each one come to rest?" },
               { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "two-scales", "a": { "key": "c", "scale": "major-ionian" }, "b": { "key": "a", "scale": "natural-minor-aeolian" }, "bars": 8 }, "bpm": 70, "view": "notes", "under": "none" } },
               { "type": "heading", "text": "La is home", "minutes": 3 },
               { "type": "text", "text": "Tap {{1}} (A) on the staff to hear it. Walk up to the C above it. In C major that C is Do; here it is the {{b3}}. A minor is C major starting from La." },
@@ -135,7 +135,7 @@
             "sections": [
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 80, "key": "a", "drone": false } },
               { "type": "heading", "text": "As A minor", "minutes": 5 },
-              { "type": "text", "text": "Press Play on the click above. Play position 1 at the 5th fret up and down. Start and end on {{1}} (A)." },
+              { "type": "text", "text": "Press Play above to start the metronome. Play position 1 at the 5th fret up and down. Start and end on {{1}} (A)." },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "highlight": ["1"] } },
               { "type": "heading", "text": "As C major", "minutes": 5 },
               { "type": "text", "text": "The same frets, but now home is {{1}} (C). Start and end there. Hear how bright it sounds." },
@@ -146,7 +146,7 @@
             "title": "Major or minor song?", "focus": "C-G-Am-F vs Am-F-C-G by ear and by hand", "minutes": 9, "tags": ["rhythm"], "why": "The same four chords can sound major or minor depending on which one feels like home.",
             "sections": [
               { "type": "heading", "text": "Start on C", "minutes": 4 },
-              { "type": "text", "text": "Press Play. The lit block shows the chord: C, G, Am, F, one bar each. Strum along. Notice that C feels like home." },
+              { "type": "text", "text": "Press Play below; the lit block shows the chord: C, G, Am, F, one bar each. Strum along. Notice that C feels like home." },
               { "type": "tool", "tool": { "type": "strum-along", "chords": ["C", "G", "Am", "F"], "bpm": 80 } },
               { "type": "heading", "text": "Start on Am", "minutes": 5 },
               { "type": "text", "text": "Now Am, F, C, G: the same chords, but Am is home and it sounds minor. Strum along. Then stop: which chord feels finished?" },
@@ -168,7 +168,7 @@
           {
             "title": "b7 or 7?", "focus": "Minor 7th vs major 7th by ear", "minutes": 5, "tags": ["ear"], "why": "The 7th is what separates D7 from Gmaj7, and hearing it alone makes the chords easy to name.",
             "sections": [
-              { "type": "text", "text": "Press Start. The game plays an interval. Pick its name: a minor 7th (as in D7) or a major 7th (as in Gmaj7)." },
+              { "type": "text", "text": "Press Start below and the game plays an interval. Pick its name: a minor 7th (as in D7) or a major 7th (as in Gmaj7)." },
               { "type": "tool", "tool": { "type": "interval-ears", "set": [10, 11], "dir": "up" } }
             ]
           },
@@ -177,7 +177,7 @@
             "sections": [
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 70, "key": "a", "drone": false } },
               { "type": "heading", "text": "Am7 and D7", "minutes": 5 },
-              { "type": "text", "text": "Press Play on the click above. Play the Am7 arpeggio up and down, one note per click: {{1}} {{b3}} {{5}} {{b7}}." },
+              { "type": "text", "text": "Press Play above to start the metronome. Play the Am7 arpeggio up and down, one note per beat: {{1}} {{b3}} {{5}} {{b7}}." },
               { "type": "tool", "tool": { "type": "arpeggio-neck", "chord": "Am7", "highlight": ["1"] } },
               { "type": "text", "text": "Then D7: {{1}} {{3}} {{5}} {{b7}}. Lean on its {{3}} (F♯)." },
               { "type": "tool", "tool": { "type": "arpeggio-neck", "chord": "D7", "highlight": ["1", "3"] } },
@@ -190,7 +190,7 @@
             "title": "Solo over ii-V-I in G", "focus": "Am7-D7-Gmaj7 · guide tones as targets", "minutes": 10, "tags": ["improv"], "why": "Guide tones work the same in a new key: C to C to B, or G to F♯ to F♯.",
             "sections": [
               { "type": "heading", "text": "Guide tones only", "minutes": 5 },
-              { "type": "text", "text": "Press Play. Play only the targets, one long note per chord. Pick either line." },
+              { "type": "text", "text": "Press Play below to start the backing. Play only the targets, one long note per chord. Pick either line." },
               { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "solo-over", "key": "g", "chords": [{ "chord": "Am7", "target": ["b3", "b7"] }, { "chord": "D7", "target": ["3", "b7"] }, { "chord": "Gmaj7", "target": ["3", "7"] }], "bars": 2 }, "bpm": 80, "view": "neck" } },
               { "type": "heading", "text": "Fill in around them", "minutes": 5 },
               { "type": "text", "text": "Same backing. Now improvise in G major. Still land on a target at each change. Record the last two minutes." }
@@ -204,7 +204,7 @@
           {
             "title": "Picking, skip a string", "focus": "Down-up string skipping at 80 bpm", "minutes": 5, "tags": ["technique"], "why": "Arpeggios jump strings, so the pick hand needs to jump accurately.",
             "sections": [
-              { "type": "text", "text": "Press Play on the click. Pick two notes per string, down-up, skipping a string each time." },
+              { "type": "text", "text": "Press Play below to start the metronome. Pick two notes per string, down-up, skipping a string each time." },
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 80, "key": "a", "drone": false } },
               { "type": "tool", "tool": { "type": "picking-drill", "strokes": "DU", "notesPerString": 2, "skip": true, "bpm": 80 } }
             ]
@@ -212,7 +212,7 @@
           {
             "title": "Chord qualities, faster", "focus": "Name 7th chords, 30 seconds a round", "minutes": 5, "tags": ["ear"], "why": "Answering quickly makes chord hearing work at song speed.",
             "sections": [
-              { "type": "text", "text": "Press Start. The game plays a chord. Pick its name as fast as you can for 30 seconds, then rest. Can you beat your tally from day 1?" },
+              { "type": "text", "text": "Press Start below and the game plays a chord. Pick its name as fast as you can for 30 seconds, then rest. Can you beat your tally from day 1?" },
               { "type": "tool", "tool": { "type": "interval-ears", "kind": "chord" } }
             ]
           },
@@ -220,7 +220,7 @@
             "title": "Which numeral?", "focus": "I-vi-ii-V in C by ear", "minutes": 8, "tags": ["theory"], "why": "I-vi-ii-V adds the vi to the ii-V-I, and it is the loop under countless songs.",
             "sections": [
               { "type": "heading", "text": "With the chart", "minutes": 4 },
-              { "type": "text", "text": "Press Play and listen. Say each numeral as it arrives: I (Cmaj7), vi (Am7), ii (Dm7), V (G7)." },
+              { "type": "text", "text": "Press Play below and listen. Say each numeral as it arrives: I (Cmaj7), vi (Am7), ii (Dm7), V (G7)." },
               { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "progression", "key": "c", "numerals": ["Imaj7", "vi7", "ii7", "V7"], "bars": 4, "backing": ["fingerstyle"] }, "bpm": 80 } },
               { "type": "heading", "text": "In a new order", "minutes": 4 },
               { "type": "text", "text": "Now the same four chords in a new order. Look away and press Play. Write down the numerals you hear, then check." },
@@ -232,13 +232,13 @@
             "sections": [
               { "type": "tool", "tool": { "type": "chord-shapes", "chords": ["Cmaj7", "Am7", "Dm7", "G7"] } },
               { "type": "heading", "text": "Block chords on 2 and 4", "minutes": 4 },
-              { "type": "text", "text": "Press Play. The lit block shows the chord. Strum short chords on beats 2 and 4." },
+              { "type": "text", "text": "Press Play below; the lit block shows the chord. Strum short chords on beats 2 and 4." },
               { "type": "tool", "tool": { "type": "strum-along", "chords": ["Cmaj7", "Am7", "Dm7", "G7"], "bpm": 80, "pattern": ". D . D" } },
               { "type": "heading", "text": "Bass and chord", "minutes": 4 },
-              { "type": "text", "text": "Press Play. Pick the root on beats 1 and 3. Strum the chord on beats 2 and 4." },
+              { "type": "text", "text": "Press Play below and pick the root on beats 1 and 3. Strum the chord on beats 2 and 4." },
               { "type": "tool", "tool": { "type": "strum-along", "chords": ["Cmaj7", "Am7", "Dm7", "G7"], "bpm": 80 } },
               { "type": "heading", "text": "Arpeggiated", "minutes": 4 },
-              { "type": "text", "text": "Press Play. Pick each chord low to high in eighth notes. Let the notes ring." },
+              { "type": "text", "text": "Press Play below and pick each chord low to high in eighth notes. Let the notes ring." },
               { "type": "tool", "tool": { "type": "strum-along", "chords": ["Cmaj7", "Am7", "Dm7", "G7"], "bpm": 70 } }
             ]
           }
@@ -250,7 +250,7 @@
           {
             "title": "Legato, fingers 2-4", "focus": "Legato trill · fingers 2-4 · B string, 7th fret", "minutes": 5, "tags": ["technique"], "why": "The weaker finger pair needs the most work.",
             "sections": [
-              { "type": "text", "text": "Press Play on the click. Pick once, then hammer finger 4 and pull off to finger 2, one note per click. Rest when the hand gets tired, then go again." },
+              { "type": "text", "text": "Press Play below to start the metronome. Pick once, then hammer finger 4 and pull off to finger 2, one note per beat. Rest when the hand gets tired, then go again." },
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 70, "key": "a", "drone": false } },
               { "type": "tool", "tool": { "type": "legato-trill", "fingers": "24", "string": 2, "fret": 7, "bpm": 70 } }
             ]
@@ -271,7 +271,7 @@
             "title": "Twelve-bar in A", "focus": "12-bar blues with A7, D7, E7 at 90 bpm", "minutes": 10, "tags": ["rhythm"], "why": "The twelve-bar form is a fixed road map: learn it once and you can join any blues jam.",
             "sections": [
               { "type": "heading", "text": "Follow the form", "minutes": 5 },
-              { "type": "text", "text": "Press Play. The lit block shows the chord: four bars of A7, two of D7, two of A7, then E7, D7, A7, E7. Strum along. Count the bars out loud." },
+              { "type": "text", "text": "Press Play below; the lit block shows the chord: four bars of A7, two of D7, two of A7, then E7, D7, A7, E7. Strum along. Count the bars out loud." },
               { "type": "tool", "tool": { "type": "strum-along", "chords": ["A7", "A7", "A7", "A7", "D7", "D7", "A7", "A7", "E7", "D7", "A7", "E7"], "bpm": 90 } },
               { "type": "heading", "text": "Without counting", "minutes": 5 },
               { "type": "text", "text": "Same form. Pick the bass note on beats 1 and 3. Strum on beats 2 and 4. Keep going without counting out loud." },
@@ -282,7 +282,7 @@
             "title": "Solo with the 3rd", "focus": "A minor pentatonic + C♯ over A7-D7", "minutes": 8, "tags": ["improv"], "why": "Adding the chord's 3rd to the pentatonic position makes a blues solo follow the changes.",
             "sections": [
               { "type": "heading", "text": "Slide into C♯", "minutes": 4 },
-              { "type": "text", "text": "Press Play on the backing below. Improvise in position 1. When A7 comes round, slide from {{b3}} (C) up to {{c-sharp}}: the 3rd of A7, not in A minor pentatonic. End your phrases on {{1}}." },
+              { "type": "text", "text": "Press Play below to start the backing. Improvise in position 1. When A7 comes round, slide from {{b3}} (C) up to {{c-sharp}}: the 3rd of A7, not in A minor pentatonic. End your phrases on {{1}}." },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "add": ["c-sharp"], "highlight": ["1", "b3"] } },
               { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "solo-over", "key": "a", "chords": [{ "chord": "A7", "scale": "minor-pentatonic", "target": ["3"], "approach": "slide from C into C♯" }, { "chord": "D7", "target": ["1"] }], "bars": 2 }, "bpm": 90, "view": "neck" } },
               { "type": "heading", "text": "Over D7", "minutes": 4 },
@@ -304,7 +304,7 @@
           {
             "title": "Ear check", "focus": "Chord qualities, scored by the tally", "minutes": 5, "tags": ["ear"], "why": "The week's ear work as a score to beat next week.",
             "sections": [
-              { "type": "text", "text": "Press Start. The game plays a chord. Pick its name. Play a few rounds, then compare the tally with days 1 and 5." },
+              { "type": "text", "text": "Press Start below and the game plays a chord. Pick its name and play a few rounds, then compare the tally with days 1 and 5." },
               { "type": "tool", "tool": { "type": "interval-ears", "kind": "chord" } }
             ]
           },
@@ -312,7 +312,7 @@
             "title": "Arpeggios from memory", "focus": "Dm7-G7-Cmaj7 arpeggios without the chart", "minutes": 8, "tags": ["technique"], "why": "Playing them without help is the test that the shapes are yours.",
             "sections": [
               { "type": "heading", "text": "Without looking", "minutes": 4 },
-              { "type": "text", "text": "Press Play. Play each arpeggio from memory as its chord comes round: root, 3rd, 5th, 7th, one note per beat. Look away from the tab." },
+              { "type": "text", "text": "Press Play below and play each arpeggio from memory as its chord comes round: root, 3rd, 5th, 7th, one note per beat. Look away from the tab." },
               { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "chord-steps", "chords": [
                 { "chord": "Dm7", "steps": ["1", "b3", "5", "b7"] },
                 { "chord": "G7", "steps": ["1", "3", "5", "b7"] },
@@ -327,7 +327,7 @@
             "title": "ii-V-I jam", "focus": "Guide tones, then free soloing over Dm7-G7-Cmaj7", "minutes": 12, "tags": ["improv"], "why": "Guide tones, arpeggios and the scale together are what make a solo over changes sound sure.",
             "sections": [
               { "type": "heading", "text": "Guide tones", "minutes": 4 },
-              { "type": "text", "text": "Press Play. Play one guide tone per chord, either line from day 2." },
+              { "type": "text", "text": "Press Play below to start the backing. Play one guide tone per chord, either line from day 2." },
               { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "solo-over", "key": "c", "chords": [{ "chord": "Dm7", "scale": "dorian", "target": ["b3", "b7"] }, { "chord": "G7", "scale": "mixolydian", "target": ["3", "b7"] }, { "chord": "Cmaj7", "scale": "major-ionian", "target": ["3", "7"] }], "bars": 2 }, "bpm": 85, "view": "neck" } },
               { "type": "heading", "text": "Arpeggio phrases", "minutes": 4 },
               { "type": "text", "text": "Same backing. Start each chord with a run up its arpeggio. Then leave space." },

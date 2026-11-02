@@ -14,16 +14,16 @@
     "why": "Knowing where Do, Mi and Sol sit around the open chords is the map for playing melodies by ear.",
     "sections": [
       { "type": "heading", "text": "Find Do", "minutes": 2 },
-      { "type": "text", "text": "Only {{1}} (C) is in play on the neck. Find it on the A string. Find it again on the B string. Hop between the two." },
+      { "type": "text", "text": "Only {{1}} (C) is in play on the neck. Find it on the A string, then on the B string, and hop between the two." },
       { "type": "tool", "tool": { "type": "scale-neck", "scale": "major-ionian", "key": "c", "placement": { "by": "open" }, "enable": ["1"] } },
       { "type": "heading", "text": "Do and Mi", "minutes": 2 },
       { "type": "text", "text": "{{3}} (E) joins it, ringed on the neck. From each C, find the nearest {{3}} above it. Play the pair, then play it backwards." },
       { "type": "tool", "tool": { "type": "scale-neck", "scale": "major-ionian", "key": "c", "placement": { "by": "open" }, "enable": ["1", "3"], "highlight": ["3"] } },
       { "type": "heading", "text": "Do, Mi and Sol", "minutes": 2 },
-      { "type": "text", "text": "{{5}} (G) joins them: the open G string. Play {{1}} {{3}} {{5}} {{3}} {{1}} from the low C. Then try it without looking at the neck." },
+      { "type": "text", "text": "{{5}} (G) joins them: it's the open G string. Play {{1}} {{3}} {{5}} {{3}} {{1}} from the low C, then try it without looking at the neck." },
       { "type": "tool", "tool": { "type": "scale-neck", "scale": "major-ionian", "key": "c", "placement": { "by": "open" }, "enable": ["1", "3", "5"], "highlight": ["5"] } },
       { "type": "heading", "text": "The whole line", "minutes": 2 },
-      { "type": "text", "text": "Press Play to hear a short tune made of only these three notes. Play along in the neck view. When it feels easy, switch the view to tab." },
+      { "type": "text", "text": "Press Play below to hear a short tune made of only these three notes, and play along in the neck view. When it feels easy, switch the view to tab." },
       { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "melody", "tune": 22, "key": "c" }, "bpm": 70, "view": "neck" } }
     ]
   }

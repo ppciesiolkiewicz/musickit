@@ -16,7 +16,7 @@
           {
             "title": "The spider", "focus": "Fingers 1234 from the 1st fret, every string, 60 bpm", "minutes": 4, "tags": ["technique"], "why": "One finger per fret wakes up all four fingers before you need them.",
             "sections": [
-              { "type": "text", "text": "Press Play. Play fingers 1 2 3 4 on frets 1 to 4 of the low E, one note per click. Move up a string each time, all the way to the high E. Then come back down." },
+              { "type": "text", "text": "Press Play below to start the metronome. Play frets 1 to 4 of the low E with fingers 1, 2, 3 and 4, one note per beat. Move up a string each time, all the way to the high E. Then come back down." },
               { "type": "tool", "tool": { "type": "finger-pattern", "fingers": "1234", "fret": 1, "bpm": 60 } }
             ]
           },
@@ -27,7 +27,7 @@
               { "type": "text", "text": "Press a chord box to hear the chord. Fret each shape as shown, then pick the strings one at a time to check they ring. Switch between the shapes slowly, in any order." },
               { "type": "tool", "tool": { "type": "chord-shapes", "chords": ["G", "C", "D"] } },
               { "type": "heading", "text": "In time", "minutes": 3 },
-              { "type": "text", "text": "Press Play. The lit block shows the chord to play. Strum down on every beat, one bar per chord. Use beat 4 to get to the next chord." },
+              { "type": "text", "text": "Press Play below; the lit block shows the chord to play. Strum down on every beat, one bar per chord. Use beat 4 to get to the next chord." },
               { "type": "tool", "tool": { "type": "strum-along", "chords": ["G", "C", "D", "G"], "bpm": 60 } }
             ]
           },
@@ -35,7 +35,7 @@
             "title": "Position 1 at 60", "focus": "A minor pentatonic · position 1 · 60 bpm, then the roots", "minutes": 6, "tags": ["technique"], "why": "Position 1 is home base for lead guitar: every note sits under your fingers at the 5th fret.",
             "sections": [
               { "type": "heading", "text": "Up and down", "minutes": 3 },
-              { "type": "text", "text": "Press Play on the click. Play the position from the low {{1}} up to the high E string, then back down, one note per click." },
+              { "type": "text", "text": "Press Play below to start the metronome. Play the position from the low {{1}} up to the high E string, then back down, one note per beat." },
               { "type": "tool", "tool": { "type": "backing-band", "bpm": 60, "key": "a", "parts": ["click"] } },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "highlight": ["1"] } },
               { "type": "heading", "text": "Only the roots", "minutes": 3 },
@@ -46,7 +46,7 @@
           {
             "title": "First phrases", "focus": "Position 1 over drums in A · end on A", "minutes": 4, "tags": ["improv"], "why": "Improvising with a few notes is how the position becomes music, not a pattern.",
             "sections": [
-              { "type": "text", "text": "Press Play on the band. Play short phrases from position 1, with a gap after each. End your phrases on a {{1}}." },
+              { "type": "text", "text": "Press Play below to start the band. Play short phrases from position 1, with a gap after each. End your phrases on a {{1}}." },
               { "type": "tool", "tool": { "type": "backing-band", "bpm": 70, "key": "a", "parts": ["drums", "bass"] } },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "highlight": ["1"] } }
             ]
@@ -59,7 +59,7 @@
           {
             "title": "Spider, new order", "focus": "Fingers 1324 from the 3rd fret, 60 bpm", "minutes": 4, "tags": ["technique"], "why": "Changing the finger order makes each finger move on its own.",
             "sections": [
-              { "type": "text", "text": "Press Play. This time the order is 1 3 2 4, starting at the 3rd fret. Go up every string, then back down. Keep it slow enough that every note rings." },
+              { "type": "text", "text": "Press Play below to start the metronome. This time play the four frets in the order 1, 3, 2, 4, starting at the 3rd fret. Go up every string, then back down. Keep it slow enough that every note rings." },
               { "type": "tool", "tool": { "type": "finger-pattern", "fingers": "1324", "fret": 3, "bpm": 60 } }
             ]
           },
@@ -70,14 +70,14 @@
               { "type": "text", "text": "Press a chord box to hear it. All three chords are the same shape, moved to a new string or fret. Move between them at your own pace. Let only the two fretted strings ring." },
               { "type": "tool", "tool": { "type": "chord-shapes", "chords": ["A5", "D5", "E5"] } },
               { "type": "heading", "text": "In time", "minutes": 3 },
-              { "type": "text", "text": "Press Play. The lit block shows the chord. Strum it down once per beat, one bar each." },
+              { "type": "text", "text": "Press Play below; the lit block shows the chord. Strum it down once per beat, one bar each." },
               { "type": "tool", "tool": { "type": "strum-along", "chords": ["A5", "D5", "E5", "A5"], "bpm": 70 } }
             ]
           },
           {
             "title": "Position 1: roots and 5ths", "focus": "A minor pentatonic · position 1 · 1 and 5 lit", "minutes": 5, "tags": ["technique"], "why": "The two notes of a power chord are also in position 1, which links your riffs to your solos.",
             "sections": [
-              { "type": "text", "text": "Press Play on the click. Play position 1 up and down at 70. Then play only the ringed {{1}} and {{5}} (A and E), low to high and back." },
+              { "type": "text", "text": "Press Play below to start the metronome. Play position 1 up and down at 70. Then play only the ringed {{1}} and {{5}} (A and E), low to high and back." },
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 70, "key": "a", "drone": false } },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "highlight": ["1", "5"] } }
             ]
@@ -98,11 +98,11 @@
             "title": "Position 1 at 70, then 80", "focus": "A minor pentatonic · position 1 · 70 → 80 bpm", "minutes": 6, "tags": ["technique"], "why": "Speed comes from small steps up in tempo once the slower one feels easy.",
             "sections": [
               { "type": "heading", "text": "At 70", "minutes": 3 },
-              { "type": "text", "text": "Press Play on the click. Play position 1 up and down at 70, starting on the low {{1}}." },
+              { "type": "text", "text": "Press Play below to start the metronome. Play position 1 up and down at 70, starting on the low {{1}}." },
               { "type": "tool", "tool": { "type": "backing-band", "bpm": 70, "key": "a", "parts": ["click"] } },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "highlight": ["1"] } },
               { "type": "heading", "text": "At 80, from the middle", "minutes": 3 },
-              { "type": "text", "text": "Press Play on the faster click. Now start on the {{1}} on the D string. Go up to the top, down to the bottom, then back up to where you started." },
+              { "type": "text", "text": "Press Play below to start the faster metronome. Now start on the {{1}} on the D string. Go up to the top, down to the bottom, then back up to where you started." },
               { "type": "tool", "tool": { "type": "backing-band", "bpm": 80, "key": "a", "parts": ["click"] } },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "highlight": ["1"] } }
             ]
@@ -117,14 +117,14 @@
           {
             "title": "Do Mi Sol tune", "focus": "Do Mi Sol Mi Do in C on the neck", "minutes": 5, "tags": ["song"], "why": "A tune on the home chord's notes shows you where a melody sits around the C chord.",
             "sections": [
-              { "type": "text", "text": "Press Play. The tune uses only {{1}} {{3}} {{5}} (C, E, G). Play along in the neck view, then switch the view to tab." },
+              { "type": "text", "text": "Press Play below to hear the tune. It uses only {{1}} {{3}} {{5}} (C, E, G). Play along in the neck view, then switch the view to tab." },
               { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "melody", "tune": 22, "key": "c" }, "bpm": 70, "view": "neck" } }
             ]
           },
           {
             "title": "Call and response in position 1", "focus": "Two-bar phrases in A · position 1 · 80 bpm", "minutes": 5, "tags": ["improv"], "why": "Answering your own phrase is the simplest way to make a solo go somewhere.",
             "sections": [
-              { "type": "text", "text": "Press Play on the band. Play a two-bar phrase, then rest for two bars. Answer it with a phrase that starts the same way but ends on a {{1}}." },
+              { "type": "text", "text": "Press Play below to start the band. Play a two-bar phrase, then rest for two bars. Answer it with a phrase that starts the same way but ends on a {{1}}." },
               { "type": "tool", "tool": { "type": "backing-band", "bpm": 80, "key": "a", "parts": ["drums", "bass"] } },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "highlight": ["1"] } }
             ]
@@ -137,7 +137,7 @@
           {
             "title": "The spider, higher up", "focus": "Fingers 1234 from the 5th fret, 70 bpm", "minutes": 4, "tags": ["technique"], "why": "At the 5th fret the frets are closer together, so you can push the tempo a little.",
             "sections": [
-              { "type": "text", "text": "Press Play on the click. Play fingers 1 2 3 4 from the 5th fret, up every string, then back down." },
+              { "type": "text", "text": "Press Play below to start the metronome. Play four frets from the 5th fret, one finger per fret, up every string and back down." },
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 70, "key": "a", "drone": false } },
               { "type": "tool", "tool": { "type": "finger-pattern", "fingers": "1234", "fret": 5, "bpm": 70 } }
             ]
@@ -149,7 +149,7 @@
               { "type": "text", "text": "Try the pattern on G only: down, down-up, up-down-up. Count \"1, 2 and, and 4 and\" out loud to place each strum." },
               { "type": "tool", "tool": { "type": "chord-shapes", "chords": ["G", "Em", "C", "D"] } },
               { "type": "heading", "text": "Over the changes", "minutes": 3 },
-              { "type": "text", "text": "Press Play. The same pattern, one bar per chord. The lit block shows the chord to play." },
+              { "type": "text", "text": "Press Play below for the same pattern, one bar per chord. The lit block shows the chord to play." },
               { "type": "tool", "tool": { "type": "strum-along", "chords": ["G", "Em", "C", "D"], "bpm": 70 } }
             ]
           },
@@ -163,7 +163,7 @@
           {
             "title": "Position 1 phrases over A", "focus": "Position 1 · phrases ending on C, then on A", "minutes": 5, "tags": ["improv"], "why": "The note a phrase ends on changes how finished it sounds.",
             "sections": [
-              { "type": "text", "text": "Press Play on the band. End a few phrases on {{b3}} (C). Then end a few on {{1}} (A). Switch between the two. Which ones sound finished?" },
+              { "type": "text", "text": "Press Play below to start the band. End a few phrases on {{b3}} (C). Then end a few on {{1}} (A). Switch between the two. Which ones sound finished?" },
               { "type": "tool", "tool": { "type": "backing-band", "bpm": 75, "key": "a", "parts": ["drums", "bass"] } },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "highlight": ["1", "b3"] } }
             ]
@@ -176,7 +176,7 @@
           {
             "title": "Spider, 1324", "focus": "Fingers 1324 from the 1st fret, 70 bpm", "minutes": 4, "tags": ["technique"], "why": "Low on the neck the frets are widest, so this is where the spider builds reach.",
             "sections": [
-              { "type": "text", "text": "Press Play on the click. Play fingers 1 3 2 4 from the 1st fret, up every string, then back down." },
+              { "type": "text", "text": "Press Play below to start the metronome. Play frets 1 to 4 in the order 1, 3, 2, 4, one finger per fret, up every string and back down." },
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 70, "key": "a", "drone": false } },
               { "type": "tool", "tool": { "type": "finger-pattern", "fingers": "1324", "fret": 1, "bpm": 70 } }
             ]
@@ -184,7 +184,7 @@
           {
             "title": "E5, G5, A5 riff", "focus": "Power chords E5-G5-A5 · 80 bpm", "minutes": 4, "tags": ["rhythm"], "why": "These three are the power chords of E minor, so they fit today's scale.",
             "sections": [
-              { "type": "text", "text": "Press Play. The lit block shows the chord. Strum it down on every beat, one bar each. For a chunkier sound, try resting your palm on the strings near the bridge." },
+              { "type": "text", "text": "Press Play below; the lit block shows the chord. Strum it down on every beat, one bar each. For a chunkier sound, try resting your palm on the strings near the bridge." },
               { "type": "tool", "tool": { "type": "strum-along", "chords": ["E5", "G5", "A5", "E5"], "bpm": 80 } }
             ]
           },
@@ -193,7 +193,7 @@
             "sections": [
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 70, "key": "e", "drone": false } },
               { "type": "heading", "text": "Open position", "minutes": 4 },
-              { "type": "text", "text": "Press Play on the click above. Play E minor pentatonic in open position from the low {{1}} (open E) up, then back down. Every open string is in the scale." },
+              { "type": "text", "text": "Press Play above to start the metronome. Play E minor pentatonic in open position from the low {{1}} (open E) up, then back down. Every open string is in the scale." },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "e", "placement": { "by": "open" }, "highlight": ["1"] } },
               { "type": "heading", "text": "The same notes at the 12th fret", "minutes": 4 },
               { "type": "text", "text": "The shape you know from A, moved to the 12th fret: the open position again, an octave higher. Play it up and back, starting on the {{1}}." },
@@ -203,7 +203,7 @@
           {
             "title": "Improvise in E", "focus": "Open E minor pentatonic over drums", "minutes": 4, "tags": ["improv"], "why": "Open strings ring under fretted notes, which is why E is a favourite key for guitar solos.",
             "sections": [
-              { "type": "text", "text": "Press Play on the band. Mix fretted notes with open strings. End your phrases on the open low {{1}}." },
+              { "type": "text", "text": "Press Play below to start the band. Mix fretted notes with open strings. End your phrases on the open low {{1}}." },
               { "type": "tool", "tool": { "type": "backing-band", "bpm": 80, "key": "e", "parts": ["drums", "bass"] } },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "e", "placement": { "by": "open" }, "highlight": ["1"] } }
             ]
@@ -216,7 +216,7 @@
           {
             "title": "The spider at 80", "focus": "Fingers 1234 from the 3rd fret, 80 bpm", "minutes": 4, "tags": ["technique"], "why": "A small step up in tempo shows the week's progress in your fingers.",
             "sections": [
-              { "type": "text", "text": "Press Play on the click. Play fingers 1 2 3 4 from the 3rd fret, up every string, then back down." },
+              { "type": "text", "text": "Press Play below to start the metronome. Play four frets from the 3rd fret, one finger per fret, up every string and back down." },
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 80, "key": "a", "drone": false } },
               { "type": "tool", "tool": { "type": "finger-pattern", "fingers": "1234", "fret": 3, "bpm": 80 } }
             ]
@@ -231,7 +231,7 @@
           {
             "title": "Position 1 without the chart", "focus": "A minor pentatonic · position 1 from memory at 80", "minutes": 5, "tags": ["technique"], "why": "Playing a shape without looking is the test that it is really yours.",
             "sections": [
-              { "type": "text", "text": "Press Play on the click. Play position 1 up and down without looking at the neck below. Then check against it. Last, play only the {{1}} notes from memory." },
+              { "type": "text", "text": "Press Play below to start the metronome. Play position 1 up and down without looking at the neck below. Then check against it. Last, play only the {{1}} notes from memory." },
               { "type": "tool", "tool": { "type": "backing-band", "bpm": 80, "key": "a", "parts": ["click"] } },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "highlight": ["1"] } }
             ]
@@ -255,14 +255,14 @@
           {
             "title": "G-Em-C-D, full pattern", "focus": "Strum pattern over G-Em-C-D at 80 bpm", "minutes": 5, "tags": ["rhythm"], "why": "The week's chords at a faster tempo, to hear how far they have come.",
             "sections": [
-              { "type": "text", "text": "Press Play. Strum down, down-up, up-down-up, one bar per chord. The lit box shows the chord and the strum to play." },
+              { "type": "text", "text": "Press Play below and strum down, down-up, up-down-up, one bar per chord. The lit box shows the chord and the strum to play." },
               { "type": "tool", "tool": { "type": "strum-along", "chords": ["G", "Em", "C", "D"], "bpm": 80, "pattern": "D . D U . U D U" } }
             ]
           },
           {
             "title": "Position 1 in A and E", "focus": "Minor pentatonic position 1 · A, then E at the 12th fret", "minutes": 5, "tags": ["technique"], "why": "One shape in two keys back to back shows you know the shape, not the frets.",
             "sections": [
-              { "type": "text", "text": "Press Play on the click. Play position 1 in A up and down, starting on the {{1}}." },
+              { "type": "text", "text": "Press Play below to start the metronome. Play position 1 in A up and down, starting on the {{1}}." },
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 80, "key": "a", "drone": false } },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "highlight": ["1"] } },
               { "type": "text", "text": "Now the same shape at the 12th fret, in E, starting on its {{1}}." },
@@ -273,7 +273,7 @@
             "title": "Jam over Am and G", "focus": "A minor pentatonic position 1 over Am-G", "minutes": 6, "tags": ["improv"], "why": "Two chords and one position make a real jam, the kind you can play with friends.",
             "sections": [
               { "type": "heading", "text": "Land on the roots", "minutes": 3 },
-              { "type": "text", "text": "Press Play. Improvise in position 1. Land on {{a}} when Am comes round. Land on {{g}} when G comes round." },
+              { "type": "text", "text": "Press Play below to start the backing and improvise in position 1. Land on {{a}} when Am comes round and on {{g}} when G comes round." },
               { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "solo-over", "key": "a", "chords": [{ "chord": "Am", "scale": "minor-pentatonic", "target": ["1"] }, { "chord": "G", "target": ["1"] }], "bars": 2 }, "bpm": 80, "view": "neck" } },
               { "type": "heading", "text": "Free", "minutes": 3 },
               { "type": "text", "text": "Same backing. Now play whatever you like from the position. Try the call and response from day 3." }

@@ -14,18 +14,18 @@
     "learnBefore": ["/course/5/pentatonic"],
     "sections": [
       { "type": "heading", "text": "Position 1 at 60", "minutes": 3 },
-      { "type": "text", "text": "Press Play on the click. Play position 1 from the low {{1}} up to the high E string. Then come back down, one note per click." },
+      { "type": "text", "text": "Press Play below to start the metronome. Play position 1 from the low {{1}} up to the high E string and back down, one note per beat." },
       { "type": "tool", "tool": { "type": "backing-band", "bpm": 60, "key": "a", "parts": ["click"] } },
       { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "highlight": ["1"] } },
       { "type": "heading", "text": "Only the roots", "minutes": 2 },
-      { "type": "text", "text": "Now only the {{1}} notes are in play. Find all three A's on the neck. Hop between them in any order you like." },
+      { "type": "text", "text": "Now only the {{1}} notes are in play. Find all three A's on the neck and hop between them in any order." },
       { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "enable": ["1"] } },
       { "type": "heading", "text": "Over a band at 80", "minutes": 3 },
-      { "type": "text", "text": "Press Play on the band: drums with bass at 80. Play the whole position again. Try starting from a different {{1}} each time." },
+      { "type": "text", "text": "Press Play below to start the band: drums and bass at 80. Play the whole position again, starting from a different {{1}} each time." },
       { "type": "tool", "tool": { "type": "backing-band", "bpm": 80, "key": "a", "parts": ["drums", "bass"] } },
       { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "highlight": ["1"] } },
       { "type": "heading", "text": "Make it up", "minutes": 2 },
-      { "type": "text", "text": "Keep the band going. Play short phrases from the position, with a gap after each. End your phrases on a {{1}}. Any note in the position fits this backing." }
+      { "type": "text", "text": "Keep the band going and play short phrases from the position, with a gap after each. End each phrase on a {{1}}. Any note in the position fits this backing." }
     ],
     "exploreMore": ["/course/8/pentatonic-boxes", "/theory/scales/minor-pentatonic/a"]
   }

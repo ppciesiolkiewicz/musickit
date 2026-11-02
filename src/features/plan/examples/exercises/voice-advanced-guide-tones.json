@@ -4,33 +4,27 @@
   "areas": ["voice"],
   "level": "advanced",
   "concepts": ["fast-runs", "stretch-range", "improvise-melody"],
-  "note": "Advanced singing made musical: a fast run and an octave tune to open the range, then guide tones and improvising over a ii-V-I that the app plays, so the voice always hears the harmony it moves through. Every target is named with the chord it lands on.",
+  "note": "Advanced singing made musical: a fast run and an octave tune to open the range, then guide tones and improvising over a ii-V-I that the app plays as accompaniment, with the line sung from a staff. The run's range is stated, every target is named with the chord it lands on, and each block says what to sing on.",
   "exercise": {
-    "title": "Guide tones and a free line over ii-V-I",
-    "focus": "Pentatonic run · octave tune · guide tones and chord-tone improvising over Dm7-G7-Cmaj7",
+    "title": "Guide tones over ii-V-I, then your own line",
+    "focus": "Pentatonic run · octave tune · guide tones and your own line over Dm7-G7-Cmaj7",
     "minutes": 12,
     "tags": ["sing", "improv"],
     "why": "Singing the 3rds and 7ths through a ii-V-I trains you to hear the chord changes.",
     "sections": [
       { "type": "heading", "text": "A fast pentatonic run", "minutes": 3 },
-      { "type": "text", "text": "Start the mic. Sing the run at the tempo shown, keeping it light. Each pass moves up a semitone." },
+      { "type": "text", "text": "Press Play below to hear the run, then start the mic and sing it lightly on \"ah\" at the tempo shown. It goes from La below Do up to the high Do, and each pass starts a semitone higher: five passes, from C up to E." },
       { "type": "tool", "tool": { "type": "run-singer", "pick": { "difficulty": "expert", "stage": "pentatonic-run" }, "key": "c", "voice": "tenor" } },
       { "type": "heading", "text": "Up to the octave", "minutes": 3 },
-      { "type": "text", "text": "Press Play to hear a tune that leaps to the octave. Then start the mic to sing it. Watch where your top note lands on the staff." },
+      { "type": "text", "text": "Press Play below to hear a tune that leaps to the octave, then start the mic and sing it on \"oo\", which keeps the top note light. Watch where your top note lands on the staff." },
       { "type": "tool", "tool": { "type": "melody-singer", "pick": { "difficulty": "hard", "stage": "octave" }, "key": "c", "voice": "tenor" } },
       { "type": "heading", "text": "Guide tones", "minutes": 3 },
-      { "type": "text", "text": "Press Play. Sing the line in the notes view: {{f}} when Dm7 comes round, still {{f}} over G7, then {{e}} over Cmaj7. Second time round it is {{c}}, then {{b}}, then {{b}} again." },
-      { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "chord-steps", "key": "c", "chords": [
-        { "chord": "Dm7", "steps": ["b3", "b3", "b3", "b3"] },
-        { "chord": "G7", "steps": ["b7", "b7", "b7", "b7"] },
-        { "chord": "Cmaj7", "steps": ["3", "3", "3", "3"] },
-        { "chord": "Dm7", "steps": ["b7", "b7", "b7", "b7"] },
-        { "chord": "G7", "steps": ["3", "3", "3", "3"] },
-        { "chord": "Cmaj7", "steps": ["7", "7", "7", "7"] }
-      ] }, "bpm": 72, "view": "notes" } },
-      { "type": "heading", "text": "Improvise on chord tones", "minutes": 3 },
-      { "type": "text", "text": "Press Play. Make up your own line over the same chords. Start each chord on one of its lit targets, its 3rd or its 7th. Leave space between phrases." },
-      { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "solo-over", "key": "c", "chords": [{ "chord": "Dm7", "target": ["b3", "b7"] }, { "chord": "G7", "target": ["3", "b7"] }, { "chord": "Cmaj7", "target": ["3", "7"] }], "bars": 2 }, "bpm": 72, "view": "notes" } }
+      { "type": "text", "text": "Start the mic on the staff, then press Play below to start the chords. Sing one long note per chord on \"ah\": {{4}} (F) over Dm7, still {{4}} over G7, then {{3}} (E) over Cmaj7. Then sing the other line: {{1}} (C) over Dm7, {{7}} (B) over G7, and {{7}} again over Cmaj7." },
+      { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "tenor", "notes": ["1", "3", "4", "7"] } },
+      { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "progression", "key": "c", "chords": ["Dm7", "G7", "Cmaj7", "Cmaj7"], "bars": 4, "backing": ["block"] }, "bpm": 72 } },
+      { "type": "heading", "text": "Your own line", "minutes": 3 },
+      { "type": "text", "text": "Keep the chords going and make up your own line over them, on any vowel. Start each chord on one of its lit notes: {{4}} or {{1}} over Dm7, {{7}} or {{4}} over G7, {{3}} or {{7}} over Cmaj7. Leave space between phrases." },
+      { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "tenor", "highlight": ["1", "3", "4", "7"] } }
     ]
   }
 }

@@ -14,10 +14,10 @@
     "why": "Tunes that move by step are the easiest to sing in tune, so they come before tunes that skip.",
     "sections": [
       { "type": "heading", "text": "By step", "minutes": 3 },
-      { "type": "text", "text": "A tune on Do, Re and Mi. Press Play to hear it. Then start the mic to sing it: your pitch shows on the staff as you go. Once it feels easy, try singing it before you hear it." },
+      { "type": "text", "text": "A tune on Do, Re and Mi. Press Play to hear it, then start the mic and sing it on the note names; your pitch shows on the staff as you go. Once it feels easy, switch to \"la\" and try singing it before you hear it." },
       { "type": "tool", "tool": { "type": "melody-singer", "pick": { "difficulty": "easy", "stage": "mi" }, "key": "g", "voice": "tenor" } },
       { "type": "heading", "text": "By skip", "minutes": 3 },
-      { "type": "text", "text": "A longer tune that skips through Do, Mi and Sol. Look at the staff first. Guess how it goes. Press Play to check your guess, then sing it with the mic." },
+      { "type": "text", "text": "A longer tune that skips through Do, Mi and Sol. Look at the staff first and guess how it goes. Press Play to check your guess, then start the mic and sing it on \"la\"." },
       { "type": "tool", "tool": { "type": "melody-singer", "pick": { "difficulty": "medium", "stage": "skips" }, "key": "g", "voice": "tenor" } }
     ]
   }

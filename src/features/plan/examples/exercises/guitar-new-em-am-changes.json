@@ -17,15 +17,15 @@
       { "type": "tool", "tool": { "type": "chord-shapes", "chords": ["Em", "Am"] } },
       { "type": "list", "items": [
         "Press a chord box to hear how the chord should sound.",
-        "Fret Em as shown. Pick the strings one at a time to check that each one rings.",
-        "Fret Am as shown. Check it the same way.",
-        "Switch between the two shapes slowly, at your own pace."
+        "Fret Em as shown, then pick the strings one at a time to check that each one rings.",
+        "Fret Am as shown and check it the same way.",
+        "Switch slowly between the two shapes, at your own pace."
       ] },
       { "type": "heading", "text": "Strum with the metronome", "minutes": 3 },
-      { "type": "text", "text": "Press Play. After a bar of count-in, the lit block shows the chord to play. Strum down once on beat 1 of each bar. Use the rest of the bar to move to the next chord." },
+      { "type": "text", "text": "Press Play below. After a bar of count-in, the lit block shows the chord to play. Strum down once on beat 1 of each bar, and use the rest of the bar to move to the next chord." },
       { "type": "tool", "tool": { "type": "strum-along", "chords": ["Em", "Em", "Am", "Am"], "bpm": 60, "pattern": "D . . ." } },
       { "type": "heading", "text": "Strum every beat", "minutes": 2 },
-      { "type": "text", "text": "Now the chord changes every bar. Strum down on every beat. If a change comes late, keep strumming: catch the next beat 1." },
+      { "type": "text", "text": "Press Play below. Now the chord changes every bar: strum down on every beat. If a change comes late, keep strumming and catch the next beat 1." },
       { "type": "tool", "tool": { "type": "strum-along", "chords": ["Em", "Am"], "bpm": 60 } }
     ]
   }

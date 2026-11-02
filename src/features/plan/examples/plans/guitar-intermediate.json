@@ -16,7 +16,7 @@
           {
             "title": "Hammer and pull", "focus": "Legato trill · fingers 1-3 · G string, 5th fret", "minutes": 5, "tags": ["technique"], "why": "Hammer-ons and pull-offs let notes flow without picking, and they build the strength the joins need.",
             "sections": [
-              { "type": "text", "text": "Press Play on the click. Pick the first note only. Then hammer finger 3 and pull back to finger 1, one note per click. Keep both notes equally loud." },
+              { "type": "text", "text": "Press Play below to start the metronome. Pick the first note only. Then hammer finger 3 and pull back to finger 1, one note per beat. Keep both notes equally loud." },
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 80, "key": "a", "drone": false } },
               { "type": "tool", "tool": { "type": "legato-trill", "fingers": "13", "string": 3, "fret": 5, "bpm": 70 } }
             ]
@@ -28,7 +28,7 @@
               { "type": "text", "text": "Press a chord box to hear it. From D, lift your finger off the high E string: that is Dsus2. Put your pinky on the 3rd fret of the high E: that is Dsus4. Switch between them slowly, in any order." },
               { "type": "tool", "tool": { "type": "chord-shapes", "chords": ["D", "Dsus2", "Dsus4"] } },
               { "type": "heading", "text": "As a groove", "minutes": 4 },
-              { "type": "text", "text": "Press Play. The lit block shows the chord. Strum along, one bar each. Keep the strumming hand moving. Change only the one finger." },
+              { "type": "text", "text": "Press Play below; the lit block shows the chord. Strum along, one bar each. Keep the strumming hand moving. Change only the one finger." },
               { "type": "tool", "tool": { "type": "strum-along", "chords": ["D", "Dsus4", "D", "Dsus2"], "bpm": 80 } }
             ]
           },
@@ -42,7 +42,7 @@
               { "type": "text", "text": "Climb position 1. On the G string, slide from {{4}} (D, 7th fret) up to {{5}} (E, 9th fret). Finish the climb in position 2. Come back down the same way." },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1, 2], "highlight": ["1", "4", "5"] } },
               { "type": "heading", "text": "At 80", "minutes": 3 },
-              { "type": "text", "text": "Press Play on the click. Play the same crossing at 80. Land the slide right on a click." },
+              { "type": "text", "text": "Press Play below to start the metronome. Play the same crossing at 80. Land the slide right on a click." },
               { "type": "tool", "tool": { "type": "backing-band", "bpm": 80, "key": "a", "parts": ["click"] } }
             ]
           },
@@ -50,7 +50,7 @@
             "title": "Improvise across the join", "focus": "Positions 1-2 over Am7-Dm7", "minutes": 7, "tags": ["improv"], "why": "Using the join in a solo is what makes it stick.",
             "sections": [
               { "type": "heading", "text": "Land on the roots", "minutes": 4 },
-              { "type": "text", "text": "Press Play. Improvise in positions 1 and 2. Cross between them once in each phrase. Land on {{a}} when Am7 comes round. Land on {{d}} when Dm7 comes round." },
+              { "type": "text", "text": "Press Play below to start the backing and improvise in positions 1 and 2. Cross between them once in each phrase. Land on {{a}} when Am7 comes round and on {{d}} when Dm7 comes round." },
               { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "solo-over", "key": "a", "chords": [{ "chord": "Am7", "scale": "minor-pentatonic", "target": ["1"] }, { "chord": "Dm7", "target": ["1"] }], "bars": 2 }, "bpm": 80, "view": "neck" } },
               { "type": "heading", "text": "Start in position 2", "minutes": 3 },
               { "type": "text", "text": "Same backing. Now start each phrase in position 2. End it in position 1." }
@@ -64,7 +64,7 @@
           {
             "title": "Alternate picking", "focus": "Down-up, four notes per string, 90 bpm", "minutes": 5, "tags": ["technique"], "why": "Strict down-up picking keeps fast lines even.",
             "sections": [
-              { "type": "text", "text": "Press Play on the click. Pick four notes per string, down-up-down-up, one note per click. Go across all six strings and back. Keep the pick motion small." },
+              { "type": "text", "text": "Press Play below to start the metronome. Pick four notes per string, down-up-down-up, one note per beat. Go across all six strings and back. Keep the pick motion small." },
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 90, "key": "a", "drone": false } },
               { "type": "tool", "tool": { "type": "picking-drill", "strokes": "DU", "notesPerString": 4, "bpm": 90 } }
             ]
@@ -76,7 +76,7 @@
               { "type": "text", "text": "Press a chord box to hear it. Keep fingers 3 and 4 on the 3rd fret of the B and high E strings for Cadd9, G and Dsus4. Move only the bass fingers. Lift the two top fingers for Em." },
               { "type": "tool", "tool": { "type": "chord-shapes", "chords": ["Cadd9", "G", "Dsus4", "Em"] } },
               { "type": "heading", "text": "In time", "minutes": 4 },
-              { "type": "text", "text": "Press Play. The lit block shows the chord. Strum along, one bar per chord. Keep the top fingers down through the changes." },
+              { "type": "text", "text": "Press Play below; the lit block shows the chord. Strum along, one bar per chord. Keep the top fingers down through the changes." },
               { "type": "tool", "tool": { "type": "strum-along", "chords": ["Cadd9", "G", "Dsus4", "Em"], "bpm": 80 } }
             ]
           },
@@ -95,7 +95,7 @@
             "title": "Slow blues phrases", "focus": "Bends in A over drums and bass, 70 bpm", "minutes": 8, "tags": ["improv"], "why": "A slow tempo leaves room for each bend to ring out, and this is the scale the blues uses.",
             "sections": [
               { "type": "heading", "text": "One bend per phrase", "minutes": 4 },
-              { "type": "text", "text": "Press Play on the band. Play short phrases in positions 1 and 2. Put one bend in each: {{4}} up to {{5}}, or {{b7}} up to {{1}}. Leave a bar of space after each phrase." },
+              { "type": "text", "text": "Press Play below to start the band. Play short phrases in positions 1 and 2. Put one bend in each: {{4}} up to {{5}}, or {{b7}} up to {{1}}. Leave a bar of space after each phrase." },
               { "type": "tool", "tool": { "type": "backing-band", "bpm": 70, "key": "a", "parts": ["drums", "bass"] } },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1, 2], "highlight": ["1", "4", "5", "b7"] } },
               { "type": "heading", "text": "Slide into the join", "minutes": 4 },
@@ -110,7 +110,7 @@
           {
             "title": "Legato, fingers 2-4", "focus": "Legato trill · fingers 2-4 · B string, 7th fret", "minutes": 5, "tags": ["technique"], "why": "Fingers 2 and 4 are the weaker pair, and position 3 needs them.",
             "sections": [
-              { "type": "text", "text": "Press Play on the click. Pick once, then hammer finger 4 and pull off to finger 2, one note per click. Rest when the hand gets tired, then go again." },
+              { "type": "text", "text": "Press Play below to start the metronome. Pick once, then hammer finger 4 and pull off to finger 2, one note per beat. Rest when the hand gets tired, then go again." },
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 70, "key": "a", "drone": false } },
               { "type": "tool", "tool": { "type": "legato-trill", "fingers": "24", "string": 2, "fret": 7, "bpm": 70 } }
             ]
@@ -119,7 +119,7 @@
             "title": "Chord tones over Am-F-C-G", "focus": "1-3-5 of each chord · play-along in the neck view", "minutes": 8, "tags": ["theory"], "why": "Playing each chord's own notes as it passes trains you to hear the changes in a solo.",
             "sections": [
               { "type": "heading", "text": "Slow, in the neck view", "minutes": 4 },
-              { "type": "text", "text": "Press Play. Play the lit note, one per beat: each chord's root, 3rd, 5th, 3rd. Am has a minor 3rd ({{b3}}). F, C and G have major 3rds." },
+              { "type": "text", "text": "Press Play below and play the lit note, one per beat: each chord's root, 3rd, 5th, 3rd. Am has a minor 3rd ({{b3}}). F, C and G have major 3rds." },
               { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "chord-steps", "chords": [
                 { "chord": "Am", "steps": ["1", "b3", "5", "b3"] },
                 { "chord": "F", "steps": ["1", "3", "5", "3"] },
@@ -127,7 +127,7 @@
                 { "chord": "G", "steps": ["1", "3", "5", "3"] }
               ] }, "bpm": 60, "view": "neck" } },
               { "type": "heading", "text": "Faster, from tab", "minutes": 4 },
-              { "type": "text", "text": "Press Play. The same line at 80, now reading the tab." },
+              { "type": "text", "text": "Press Play below for the same line at 80, now reading the tab." },
               { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "chord-steps", "chords": [
                 { "chord": "Am", "steps": ["1", "b3", "5", "b3"] },
                 { "chord": "F", "steps": ["1", "3", "5", "3"] },
@@ -141,7 +141,7 @@
             "sections": [
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 70, "key": "a", "drone": false } },
               { "type": "heading", "text": "Position 3 on its own", "minutes": 3 },
-              { "type": "text", "text": "Press Play on the click above. Play position 3 up and down, one note per click. Find every {{1}} in it first." },
+              { "type": "text", "text": "Press Play above to start the metronome. Play position 3 up and down, one note per beat. Find every {{1}} in it first." },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [3], "highlight": ["1"] } },
               { "type": "heading", "text": "Cross on the B string", "minutes": 4 },
               { "type": "text", "text": "Climb position 2. On the B string, slide from {{b7}} (G, 8th fret) up to {{1}} (A, 10th fret). Finish in position 3. Come back down the same way." },
@@ -155,7 +155,7 @@
             "title": "Three-position solo", "focus": "Positions 1-3 over Am7-Dm7, 85 bpm", "minutes": 7, "tags": ["improv"], "why": "A solo that climbs through the positions builds like a story.",
             "sections": [
               { "type": "heading", "text": "Low to high", "minutes": 4 },
-              { "type": "text", "text": "Press Play. Start in position 1. Move up one position every four bars. Land on {{a}} when Am7 comes round. Land on {{d}} when Dm7 comes round." },
+              { "type": "text", "text": "Press Play below to start the backing. Start in position 1. Move up one position every four bars. Land on {{a}} when Am7 comes round and on {{d}} when Dm7 comes round." },
               { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "solo-over", "key": "a", "chords": [{ "chord": "Am7", "scale": "minor-pentatonic", "target": ["1"] }, { "chord": "Dm7", "target": ["1"] }], "bars": 2 }, "bpm": 85, "view": "neck" } },
               { "type": "heading", "text": "High to low", "minutes": 3 },
               { "type": "text", "text": "Same backing. Now start in position 3. Come down one position every four bars." }
@@ -169,7 +169,7 @@
           {
             "title": "Picking across strings", "focus": "Down-up, two notes per string, 100 bpm", "minutes": 5, "tags": ["technique"], "why": "Two notes per string makes the pick cross strings on every upstroke, the hardest move for picking.",
             "sections": [
-              { "type": "text", "text": "Press Play on the click. Pick two notes per string, down-up, across all six strings and back." },
+              { "type": "text", "text": "Press Play below to start the metronome. Pick two notes per string, down-up, across all six strings and back." },
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 100, "key": "a", "drone": false } },
               { "type": "tool", "tool": { "type": "picking-drill", "strokes": "DU", "notesPerString": 2, "bpm": 100 } }
             ]
@@ -178,7 +178,7 @@
             "title": "Sus groove in D", "focus": "D-Dsus4-Dsus2 with bass-and-chord picking", "minutes": 10, "tags": ["rhythm"], "why": "Picking the bass note and then the chord makes three shapes sound like a whole arrangement.",
             "sections": [
               { "type": "heading", "text": "Bass, then chord", "minutes": 5 },
-              { "type": "text", "text": "Press Play. The lit block shows the chord, one bar each. Pick the open D string on beats 1 and 3. Strum the top strings on beats 2 and 4." },
+              { "type": "text", "text": "Press Play below; the lit block shows the chord, one bar each. Pick the open D string on beats 1 and 3. Strum the top strings on beats 2 and 4." },
               { "type": "tool", "tool": { "type": "strum-along", "chords": ["D", "Dsus4", "D", "Dsus2"], "bpm": 80 } },
               { "type": "heading", "text": "Add G and A", "minutes": 5 },
               { "type": "text", "text": "Press a chord box to hear it. Then press Play for D, G, A, D with the same picking. Try a sus4 on the last beat of a bar where it fits." },
@@ -216,7 +216,7 @@
           {
             "title": "Cadd9-G-Dsus4-Em, faster", "focus": "Anchor-finger changes at 90 bpm", "minutes": 5, "tags": ["rhythm"], "why": "The same anchor fingers from day 2, now as a warm-up at a faster tempo.",
             "sections": [
-              { "type": "text", "text": "Press Play. The lit block shows the chord. Strum along, one bar per chord. Keep fingers 3 and 4 on the top strings until Em." },
+              { "type": "text", "text": "Press Play below; the lit block shows the chord. Strum along, one bar per chord. Keep fingers 3 and 4 on the top strings until Em." },
               { "type": "tool", "tool": { "type": "strum-along", "chords": ["Cadd9", "G", "Dsus4", "Em"], "bpm": 90 } }
             ]
           },
@@ -230,7 +230,7 @@
               { "type": "text", "text": "The joins are the same as in A. Slide {{4}} to {{5}} on the G string into position 2. Slide {{b7}} to {{1}} on the B string into position 3." },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "g", "boxes": [1, 2, 3], "highlight": ["1", "4", "5", "b7"] } },
               { "type": "heading", "text": "At 80", "minutes": 3 },
-              { "type": "text", "text": "Press Play on the click. Run all three positions up and back at 80." },
+              { "type": "text", "text": "Press Play below to start the metronome. Run all three positions up and back at 80." },
               { "type": "tool", "tool": { "type": "backing-band", "bpm": 80, "key": "g", "parts": ["click"] } }
             ]
           },
@@ -239,7 +239,7 @@
             "sections": [
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 70, "key": "g", "drone": false } },
               { "type": "heading", "text": "Position 1", "minutes": 3 },
-              { "type": "text", "text": "Press Play on the click above. Play {{1}} {{b3}} {{5}} up and down in position 1, one note per click." },
+              { "type": "text", "text": "Press Play above to start the metronome. Play {{1}} {{b3}} {{5}} up and down in position 1, one note per beat." },
               { "type": "tool", "tool": { "type": "arpeggio-neck", "chord": "Gm", "boxes": [1], "highlight": ["1"] } },
               { "type": "heading", "text": "Across positions 1 and 2", "minutes": 4 },
               { "type": "text", "text": "Now across both positions. Cross where they share a note. Then play only the {{b3}} in each position: the note that makes the chord minor." },
@@ -250,7 +250,7 @@
             "title": "Solo in G", "focus": "Positions 1-3 of G minor pentatonic over Gm7-Cm7", "minutes": 8, "tags": ["improv"], "why": "Aiming at the arpeggio's notes while moving through the positions joins today's two skills.",
             "sections": [
               { "type": "heading", "text": "Aim at the chord", "minutes": 4 },
-              { "type": "text", "text": "Press Play. Land on {{g}} or {{b-flat}} when Gm7 comes round. Land on {{c}} when Cm7 comes round." },
+              { "type": "text", "text": "Press Play below to start the backing. Land on {{g}} or {{b-flat}} when Gm7 comes round and on {{c}} when Cm7 comes round." },
               { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "solo-over", "key": "g", "chords": [{ "chord": "Gm7", "scale": "minor-pentatonic", "target": ["1", "b3"] }, { "chord": "Cm7", "target": ["1"] }], "bars": 2 }, "bpm": 80, "view": "neck" } },
               { "type": "heading", "text": "Use all three positions", "minutes": 4 },
               { "type": "text", "text": "Same backing. Use all three positions. Cross a join in every phrase." }
@@ -264,7 +264,7 @@
           {
             "title": "Skip a string", "focus": "Down-up string skipping, 80 bpm", "minutes": 5, "tags": ["technique"], "why": "Skipping a string makes the pick hand jump accurately, which wide phrases need.",
             "sections": [
-              { "type": "text", "text": "Press Play on the click. Pick two notes per string, down-up, skipping a string each time: low E, D, B, then back. Keep the skipped strings quiet." },
+              { "type": "text", "text": "Press Play below to start the metronome. Pick two notes per string, down-up, skipping a string each time: low E, D, B, then back. Keep the skipped strings quiet." },
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 80, "key": "a", "drone": false } },
               { "type": "tool", "tool": { "type": "picking-drill", "strokes": "DU", "notesPerString": 2, "skip": true, "bpm": 80 } }
             ]
@@ -276,7 +276,7 @@
               { "type": "text", "text": "Press a chord box to hear it. On Em, strum down-up-down-up on every beat. Accent beats 2 and 4." },
               { "type": "tool", "tool": { "type": "chord-shapes", "chords": ["Em", "Cadd9", "G", "Dsus4"] } },
               { "type": "heading", "text": "Over the changes", "minutes": 4 },
-              { "type": "text", "text": "Press Play. The lit block shows the chord. Keep the sixteenths going, one bar per chord." },
+              { "type": "text", "text": "Press Play below; the lit block shows the chord. Keep the sixteenths going, one bar per chord." },
               { "type": "tool", "tool": { "type": "strum-along", "chords": ["Em", "Cadd9", "G", "Dsus4"], "bpm": 70 } }
             ]
           },
@@ -285,7 +285,7 @@
             "sections": [
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 60, "key": "a", "drone": false } },
               { "type": "heading", "text": "The lick slowly", "minutes": 5 },
-              { "type": "text", "text": "Press Play on the click above. Slide {{4}} to {{5}} on the G string. Play {{b7}} (G, 8th fret) on the B string. Bend it up to {{1}}, then release. The whole lick takes four clicks." },
+              { "type": "text", "text": "Press Play above to start the metronome. Slide {{4}} to {{5}} on the G string. Play {{b7}} (G, 8th fret) on the B string. Bend it up to {{1}}, then release. The whole lick takes four clicks." },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1, 2], "highlight": ["1", "4", "5", "b7"] } },
               { "type": "heading", "text": "In position 3 too", "minutes": 5 },
               { "type": "text", "text": "Now move it up. Slide {{b7}} to {{1}} on the B string into position 3. Then bend {{4}} up to {{5}} on the high E string (D at the 10th fret, up to E)." },
@@ -299,7 +299,7 @@
               { "type": "text", "text": "Play the tune once without the app. Then press Play and check it." },
               { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "melody", "tune": 47, "key": "d" }, "bpm": 80, "view": "neck" } },
               { "type": "heading", "text": "Faster and with a slide", "minutes": 4 },
-              { "type": "text", "text": "Press Play. Now faster, sliding into the high Do instead of picking it." },
+              { "type": "text", "text": "Press Play below to play it faster, sliding into the high Do instead of picking it." },
               { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "melody", "tune": 47, "key": "d" }, "bpm": 90, "view": "tab" } }
             ]
           }
@@ -311,7 +311,7 @@
           {
             "title": "Legato check", "focus": "Trills 1-3 and 2-4 at 90 bpm", "minutes": 5, "tags": ["technique"], "why": "The week's legato at a faster tempo, to hear the progress.",
             "sections": [
-              { "type": "text", "text": "Press Play on the click. Trill fingers 1 and 3 on the G string for a minute. Then fingers 2 and 4 on the B string for a minute. How does it feel next to day 1?" },
+              { "type": "text", "text": "Press Play below to start the metronome. Trill fingers 1 and 3 on the G string for a minute. Then fingers 2 and 4 on the B string for a minute. How does it feel next to day 1?" },
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 90, "key": "a", "drone": false } },
               { "type": "tool", "tool": { "type": "legato-trill", "fingers": "13", "string": 3, "fret": 5, "bpm": 90 } },
               { "type": "tool", "tool": { "type": "legato-trill", "fingers": "24", "string": 2, "fret": 7, "bpm": 90 } }
@@ -330,7 +330,7 @@
             "sections": [
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 80, "key": "a", "drone": false } },
               { "type": "heading", "text": "Without looking", "minutes": 4 },
-              { "type": "text", "text": "Press Play on the click above. Run positions 1 to 3 and back without looking at the neck below. Then check against it." },
+              { "type": "text", "text": "Press Play above to start the metronome. Run positions 1 to 3 and back without looking at the neck below. Then check against it." },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1, 2, 3], "highlight": ["1"] } },
               { "type": "heading", "text": "In G", "minutes": 4 },
               { "type": "text", "text": "Same in G, starting from the 3rd fret. Still without looking." },
@@ -341,7 +341,7 @@
             "title": "The jam", "focus": "Positions 1-3 with bends and slides over Am7-Dm7", "minutes": 12, "tags": ["improv"], "why": "Everything from the week in one solo: joins, bends, legato and chord tones.",
             "sections": [
               { "type": "heading", "text": "Chord tones first", "minutes": 4 },
-              { "type": "text", "text": "Press Play. Land on {{a}} or {{c}} when Am7 comes round. Land on {{d}} or {{f}} when Dm7 comes round." },
+              { "type": "text", "text": "Press Play below to start the backing. Land on {{a}} or {{c}} when Am7 comes round and on {{d}} or {{f}} when Dm7 comes round." },
               { "type": "tool", "tool": { "type": "play-along", "shape": { "shape": "solo-over", "key": "a", "chords": [{ "chord": "Am7", "scale": "minor-pentatonic", "target": ["1", "b3"] }, { "chord": "Dm7", "target": ["1", "b3"] }], "bars": 2 }, "bpm": 85, "view": "neck" } },
               { "type": "heading", "text": "Bends and slides", "minutes": 4 },
               { "type": "text", "text": "Same backing. Play day 6's slide-and-bend lick in every chorus." },
