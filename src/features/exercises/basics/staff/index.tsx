@@ -7,10 +7,12 @@ import MicButton from "@/components/theory/singing/MicButton";
 import InputChip from "@/components/InputChip";
 import SingingStaff from "@/components/theory/singing/SingingStaff";
 import { getSharedPiano, wakeAudio } from "@/features/sound";
-import { VOICES, buildLadder, clefFor, hzToMidi, spellName } from "@/features/theory/singing";
+import { ACCURACIES, VOICES, buildLadder, clefFor, hzToMidi, spellName } from "@/features/theory/singing";
 import { createSmoother, type Pitch } from "@/features/tuner/pitch";
 import { staffLabelSystem, type SingingLabels } from "@/features/theory/labels";
 import { useLabelSystem } from "@/features/theory/useLabelSystem";
+import { useAccuracy } from "@/features/theory/useAccuracy";
+import { Badge, Chip } from "@/components/ui";
 import dynamic from "next/dynamic";
 
 const PracticeBacking = dynamic(() => import("@/features/instruments").then((m) => m.PracticeBacking), { ssr: false });
@@ -25,7 +27,8 @@ const GAP_FRAMES = 6;
 /**
  * The scale on a staff in the voice's range, with the microphone's pitch drawn on it; tap a note to hear it. With `drone`
  * and/or `click` it has its own backing, and its one button starts (and stops) the backing and the mic together. With the
- * mic the notes are labelled by degree or solfège (`labels`), never by bare name.
+ * mic the notes are labelled by degree or solfège (`labels`), never by bare name. Its settings show as tags (key, voice,
+ * drone, click), and with the mic an accuracy row sets how close counts as on the note (the student's setting, shared).
  */
 export function View({ slug, pc, voice, notes, enable, highlight, mute, hide, others, mic: micButton = true, drone = false, click = false, bpm = 60, labels }: { slug: string; pc: number; voice: keyof typeof VOICES; notes?: number[]; enable?: number[]; highlight?: number[]; mute?: number[]; hide?: number[]; others?: Others; mic?: boolean; drone?: boolean; click?: boolean; bpm?: number; labels?: SingingLabels }) {
   const range = VOICES[voice];
@@ -85,6 +88,7 @@ export function View({ slug, pc, voice, notes, enable, highlight, mute, hide, ot
   }, []);
   const [setting] = useLabelSystem();
   const system = staffLabelSystem(labels, micButton, setting);
+  const [cents, pickAccuracy] = useAccuracy();
   const { status } = useMicPitch(on && micButton, undefined, onPitch);
   if (!ladder) return null;
   const tap = async (i: number) => {
@@ -107,9 +111,22 @@ export function View({ slug, pc, voice, notes, enable, highlight, mute, hide, ot
         )}
         {micButton && <InputChip status={status} />}
         {backing.length > 0 && <PracticeBacking bpm={bpm} keyPc={pc} parts={backing} on={on} onStop={stop} />}
-        <span>{ladder.title} · {VOICES[voice].label}{status === "denied" ? " · microphone blocked in the browser" : ""}</span>
+        {status === "denied" && <span>microphone blocked in the browser</span>}
       </div>
-      <SingingStaff ladder={ladder} clef={clefFor(range)} pitch={pitch} played={played} onNote={(i) => void tap(i)} highlight={lit} labels={system} />
+      <div className="flex flex-wrap items-center gap-1.5">
+        <Badge>{ladder.title}</Badge>
+        <Badge>{VOICES[voice].label}</Badge>
+        {drone && <Badge>Drone on {ladder.title.split(/[: ]/)[0]}</Badge>}
+        {click && <Badge>Click {bpm} bpm</Badge>}
+      </div>
+      {micButton && (
+        <div className="flex flex-wrap items-center gap-1.5 text-xs">
+          <span className="uppercase tracking-wider text-slate-500">Accuracy</span>
+          {ACCURACIES.map((a) => <Chip key={a.title} on={a.cents === cents} onClick={() => pickAccuracy(a.cents)} title={`Within ${a.cents} cents counts as on the note`}>{a.title}</Chip>)}
+          <span className="whitespace-nowrap pl-1 tabular-nums text-slate-500">±{cents}¢</span>
+        </div>
+      )}
+      <SingingStaff ladder={ladder} clef={clefFor(range)} pitch={pitch} played={played} onNote={(i) => void tap(i)} cents={cents} highlight={lit} labels={system} />
     </div>
   );
 }

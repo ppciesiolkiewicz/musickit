@@ -7,9 +7,10 @@ import { Button, Chip, Slider } from "@/components/ui";
 import { createSmoother, type Pitch } from "@/features/tuner/pitch";
 import { getAudioContext, getSharedPiano, midiToName, onSilence, playSequence, silence, wakeAudio } from "@/features/sound";
 import { MAX_BPM, MIN_BPM, type PocketStatus } from "@/features/instruments";
-import { ACCURACIES, IN_TUNE_CENTS, VOICES, buildLadder, clefFor, hzToMidi, savedAccuracy, savedVoice, scaleRun, tuneLadderFor, type Ladder, type Range, type Voice } from "@/features/theory/singing";
+import { ACCURACIES, VOICES, buildLadder, clefFor, hzToMidi, savedVoice, scaleRun, tuneLadderFor, type Ladder, type Range, type Voice } from "@/features/theory/singing";
 import { BOOK, DIFFICULTIES, RUNS, placeRun, placeTune, runPasses, type BookTune, type PlacedNote } from "@/features/theory/singingMelodies";
 import { chordSteps, harmoniseRun, harmoniseTune, type MelodyChord } from "@/features/theory/melodyChords";
+import { useAccuracy } from "@/features/theory/useAccuracy";
 import { singingQuery, type SingingLink } from "@/features/theory/singingLink";
 import { levelSemis, type IntervalDirection } from "@/features/theory/singingIntervals";
 import { EAR_LEVELS } from "@/lib/practice/earGame";
@@ -31,8 +32,6 @@ const TAP_MS = 900;
 const RESTS = [0, 1, 2, 3, 4];
 /** where the voice picked last is kept (once its range, which still reads back) */
 const VOICE_KEY = "singing.range";
-/** where the accuracy picked last is kept, in cents */
-const ACCURACY_KEY = "singing.accuracy";
 /** where the play-ahead picked last is kept, in ms (a testing knob: how far the bar runs ahead of the voice dot) */
 const LAG_KEY = "singing.lag";
 /** whether the piano plays the tunes' chords (on unless turned off) */
@@ -65,34 +64,27 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
   const [tonicPc, setTonicPc] = useState(initial.tonicPc);
   const [scale, setScale] = useState(initial.scale);
   const [voice, setVoice] = useState<Voice>("soprano");
-  // how close counts as on the note
-  const [cents, setCents] = useState<number>(IN_TUNE_CENTS);
+  // how close counts as on the note, shared with the singing tools
+  const [cents, pickAccuracy] = useAccuracy();
   // how far the bar runs ahead of the voice dot on a melody
   const [lagMs, setLagMs] = useState(DOT_LAG_MS);
   // the piano's chords under the tunes
   const [chords, setChords] = useState(true);
-  // the last voice and accuracy come back after hydration; a pick is kept as it is made
+  // the last voice and play-ahead come back after hydration; a pick is kept as it is made
   useEffect(() => {
     let saved: Voice | null = null;
-    let accuracy: number | null = null;
     let lag: number | null = null;
     let withChords: unknown = null;
     try {
       saved = savedVoice(JSON.parse(window.localStorage.getItem(VOICE_KEY) ?? "null"));
-      accuracy = savedAccuracy(JSON.parse(window.localStorage.getItem(ACCURACY_KEY) ?? "null"));
       lag = savedLag(JSON.parse(window.localStorage.getItem(LAG_KEY) ?? "null"));
       withChords = JSON.parse(window.localStorage.getItem(CHORDS_KEY) ?? "null");
     } catch { /* storage blocked */ }
     // eslint-disable-next-line react-hooks/set-state-in-effect -- restoring the saved picks after hydration
     if (saved) setVoice(saved);
-    if (accuracy !== null) setCents(accuracy);
     if (lag !== null) setLagMs(lag);
     if (withChords === false) setChords(false);
   }, []);
-  const pickAccuracy = (c: number) => {
-    setCents(c);
-    try { window.localStorage.setItem(ACCURACY_KEY, JSON.stringify(c)); } catch { /* storage blocked */ }
-  };
   const pickChords = (on: boolean) => {
     setChords(on);
     try { window.localStorage.setItem(CHORDS_KEY, JSON.stringify(on)); } catch { /* storage blocked */ }
