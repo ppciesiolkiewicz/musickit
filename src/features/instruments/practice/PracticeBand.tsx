@@ -9,6 +9,7 @@ import { MAX_BPM, MIN_BPM } from "../jam/clock";
 import { JAM_PARTS, type JamPart, type JamRig } from "../jam/rig";
 import useJamRig from "../jam/useJamRig";
 import BeatDots from "../jam/BeatDots";
+import { useStepPart } from "@/components/practice/exerciseStep";
 
 export type BandPart = "click" | JamPart;
 const PARTS: { id: BandPart; label: string }[] = [
@@ -46,7 +47,9 @@ export default function PracticeBand({ bpm, keyPc, parts }: { bpm: number; keyPc
     rig.stop(JAM_PARTS);
     rig.setClick(false);
   };
-  const focus = useAudioFocus(on, stop);
+  // in an exercise step, "Start exercise" plays the parts the band starts with
+  const group = useStepPart({ kind: parts.includes("drone") ? "drone" : parts.includes("click") && parts.length === 1 ? "click" : "band", on, start: () => play(chosen), stop });
+  const focus = useAudioFocus(on, stop, group);
   /** choose a part; while the band plays it joins or leaves on the next beat */
   const flip = (p: BandPart) => {
     const next = chosen.includes(p) ? chosen.filter((x) => x !== p) : [...chosen, p];

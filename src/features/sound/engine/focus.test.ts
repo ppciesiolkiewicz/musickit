@@ -27,3 +27,15 @@ test("a holder whose stop releases itself leaves the new one holding", () => {
   takeAudioFocus(() => stopped.push("c"));
   assert.deepEqual(stopped, ["a", "b"]);
 });
+
+test("sources in one group play together; a source outside it stops them all", () => {
+  const stopped: string[] = [];
+  takeAudioFocus(() => stopped.push("alone"));
+  takeAudioFocus(() => stopped.push("drone"), "step");
+  takeAudioFocus(() => stopped.push("chords"), "step");
+  assert.deepEqual(stopped, ["alone"]);
+  takeAudioFocus(() => stopped.push("other"), "other step");
+  assert.deepEqual(stopped, ["alone", "drone", "chords"]);
+  takeAudioFocus(() => stopped.push("play-along"));
+  assert.deepEqual(stopped, ["alone", "drone", "chords", "other"]);
+});

@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, type ReactNode } from "react";
+import { Fragment, useContext, type ReactNode } from "react";
 import { SectionAsideContext } from "./SectionAside";
 import Explained from "@/components/course/Explained";
 import { explain, type Piece } from "@/features/course/glossary";
@@ -9,6 +9,7 @@ import InlineNote from "./InlineNote";
 import type { Section } from "../model/tools";
 import { blocksOf } from "../model/blocks";
 import ExerciseTool from "./ExerciseTool";
+import { ExerciseStep, StartExercise } from "@/components/practice/exerciseStep";
 
 /** Explained text with its `{{3}}` / `{{c-sharp}}` notes drawn as dots; a note that can't be read stays as text. */
 function NoteText({ pieces, root }: { pieces: Piece[]; root: NoteRoot | null }) {
@@ -21,7 +22,11 @@ function NoteText({ pieces, root }: { pieces: Piece[]; root: NoteRoot | null }) 
   );
 }
 
-/** An exercise's sections in the order the AI wrote them: headings, paragraphs, numbered steps and tools, top to bottom. */
+/**
+ * An exercise's sections in the order the AI wrote them: headings, paragraphs, numbered steps and tools, top to bottom.
+ * Each step (a heading and what follows it, or the intro) is an `ExerciseStep`: when its tools have more than one kind of
+ * thing to start (the mic and a drone, the mic and chords), a "Start exercise" button sits above its first tool.
+ */
 export default function Sections({ sections, address = "ex" }: { sections: Section[]; /** which exercise, for a `SectionAside` */ address?: string }) {
   const aside = useContext(SectionAsideContext);
   // with an aside (a host's comments), each section carries it; text-like sections shrink to their text so the aside sits at its end
@@ -51,6 +56,11 @@ export default function Sections({ sections, address = "ex" }: { sections: Secti
   };
   // a part per heading: the heading, then everything up to the next one on a rail beside it; what comes before the first heading is the intro
   const parts: { head: number | null; items: number[] }[] = [];
+  // the step's items, "Start exercise" (shown only when there is more than one thing to start) before its first tool
+  const stepItems = (items: number[]) => {
+    const firstTool = items.find((i) => sections[i].type === "tool");
+    return items.map((i) => (i === firstTool ? <Fragment key={i}><StartExercise />{withAside(item(sections[i], i), i)}</Fragment> : withAside(item(sections[i], i), i)));
+  };
   sections.forEach((s, i) => {
     if (s.type === "heading") parts.push({ head: i, items: [] });
     else if (parts.length) parts[parts.length - 1].items.push(i);
@@ -60,19 +70,21 @@ export default function Sections({ sections, address = "ex" }: { sections: Secti
     <div className="flex flex-col gap-7">
       {parts.map((p) => {
         const h = p.head === null ? null : sections[p.head];
-        if (!h || h.type !== "heading") return <div key={`intro-${p.items[0]}`} className="flex flex-col gap-3">{p.items.map((i) => withAside(item(sections[i], i), i))}</div>;
+        if (!h || h.type !== "heading") return <ExerciseStep key={`intro-${p.items[0]}`}><div className="flex flex-col gap-3">{stepItems(p.items)}</div></ExerciseStep>;
         return (
-          <div key={p.head} className="flex flex-col gap-3">
-            {withAside(
-              <h4 key={p.head} className="flex items-center gap-2.5 text-base font-semibold text-slate-50">
-                <span aria-hidden className="size-2.5 shrink-0 rounded-full bg-sky-400 ring-4 ring-sky-400/15" />
-                {h.text}
-                {blockMinutes.has(p.head!) && <span className="rounded-full bg-slate-800 px-2 py-0.5 text-[11px] font-medium tabular-nums text-slate-300">{blockMinutes.get(p.head!)} min</span>}
-              </h4>,
-              p.head!,
-            )}
-            {p.items.length > 0 && <div className="ml-[4px] flex flex-col gap-3 border-l border-slate-700/70 pl-5">{p.items.map((i) => withAside(item(sections[i], i), i))}</div>}
-          </div>
+          <ExerciseStep key={p.head}>
+            <div className="flex flex-col gap-3">
+              {withAside(
+                <h4 key={p.head} className="flex items-center gap-2.5 text-base font-semibold text-slate-50">
+                  <span aria-hidden className="size-2.5 shrink-0 rounded-full bg-sky-400 ring-4 ring-sky-400/15" />
+                  {h.text}
+                  {blockMinutes.has(p.head!) && <span className="rounded-full bg-slate-800 px-2 py-0.5 text-[11px] font-medium tabular-nums text-slate-300">{blockMinutes.get(p.head!)} min</span>}
+                </h4>,
+                p.head!,
+              )}
+              {p.items.length > 0 && <div className="ml-[4px] flex flex-col gap-3 border-l border-slate-700/70 pl-5">{stepItems(p.items)}</div>}
+            </div>
+          </ExerciseStep>
         );
       })}
     </div>

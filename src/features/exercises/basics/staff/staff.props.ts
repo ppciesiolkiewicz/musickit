@@ -2,7 +2,8 @@ import type { Degree } from "../../timeline/types";
 
 /**
  * The scale on a staff in a voice's range, with the microphone's pitch drawn on it; tap a note to hear it. With `drone` and/or
- * `click` it carries its own backing: one Start runs the backing and the mic, so a singing exercise needs no `click-drone` beside it.
+ * `click` it carries its own backing, so a singing exercise needs no `click-drone` beside it: "Start microphone" and the backing's
+ * Play work apart, and the step's "Start exercise" starts both together (Stop exercise stops both).
  * @component staff basic
  */
 export interface StaffProps {
@@ -24,11 +25,11 @@ export interface StaffProps {
   hide?: (Degree | string)[];
   /** the notes not in `enable`: "muted" (default) or "hidden" */
   others?: "muted" | "hidden";
-  /** show the "sing with the mic" button; default true */
+  /** show the "Start microphone" button; default true */
   mic?: boolean;
-  /** a drone on the key's root under the singing: the mic button becomes one Start for the drone and the mic together (Stop stops both); default false */
+  /** a drone on the key's root under the singing, with its own Play; the step's "Start exercise" starts it and the mic together; default false */
   drone?: boolean;
-  /** a metronome click under the singing, started with the mic like `drone`; default false */
+  /** a metronome click under the singing, played like `drone` (with the drone when both are set); default false */
   click?: boolean;
   /** the click's tempo, 30-240; default 60 */
   bpm?: number;

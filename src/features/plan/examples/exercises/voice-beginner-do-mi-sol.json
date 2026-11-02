@@ -14,15 +14,15 @@
     "learnBefore": ["/course/3/solfege", "/course/3/do-mi-sol"],
     "sections": [
       { "type": "heading", "text": "Do Mi Sol over a drone", "minutes": 3 },
-      { "type": "text", "text": "Press Start below: the drone and the mic start together, and your pitch shows on the staff as a line. Sing {{1}} {{3}} {{5}} up and back down on the note names: they help you remember each sound. Then skip straight from {{1}} to {{5}}, holding each note until your line settles on it." },
+      { "type": "text", "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff as a line. Sing {{1}} {{3}} {{5}} up and back down on the note names: they help you remember each sound. Then skip straight from {{1}} to {{5}}, holding each note until your line settles on it." },
       { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "d", "voice": "tenor", "notes": ["1", "3", "5"], "drone": true } },
-      { "type": "text", "text": "Now press Start on the A staff below and sing the same {{1}} {{3}} {{5}} over the new drone. The notes change, the pattern doesn't." },
+      { "type": "text", "text": "Now press Play and Start microphone on the A staff below, and sing the same {{1}} {{3}} {{5}} over the new drone. The notes change, the pattern doesn't." },
       { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "a", "voice": "tenor", "notes": ["1", "3", "5"], "drone": true } },
       { "type": "heading", "text": "A tune that skips", "minutes": 3 },
       { "type": "text", "text": "Press Play to hear the tune, then start the mic and sing it on \"la\". Once it feels easy, sing it before you press Play." },
       { "type": "tool", "tool": { "type": "melody-singer", "pick": { "difficulty": "easy", "stage": "skips" }, "key": "d", "voice": "tenor" } },
       { "type": "heading", "text": "Over the chords", "minutes": 3 },
-      { "type": "text", "text": "Start the mic on the staff, then press Play below to start the chords: D and A take turns, one bar each. On \"ah\", sing {{1}} (D) when the D chord comes round and {{5}} (A) when the A chord comes round. Then try {{3}} (F♯) over D instead." },
+      { "type": "text", "text": "Press Start exercise below to start the mic and the chords: D and A take turns, one bar each. On \"ah\", sing {{1}} (D) when the D chord comes round and {{5}} (A) when the A chord comes round. Then try {{3}} (F♯) over D instead." },
       { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "d", "voice": "tenor", "notes": ["1", "3", "5"] } },
       { "type": "tool", "tool": { "type": "chord-backing", "key": "d", "numerals": ["I", "V"], "backing": ["block", "arp-up"], "bpm": 70 } }
     ]

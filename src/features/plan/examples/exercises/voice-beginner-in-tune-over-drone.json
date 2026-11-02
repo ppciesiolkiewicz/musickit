@@ -15,10 +15,10 @@
     "learnBefore": ["/course/3/home-note"],
     "sections": [
       { "type": "heading", "text": "Hear the wobble", "minutes": 3 },
-      { "type": "text", "text": "Press Start below: the drone and the mic start together, and your pitch shows on the staff as a line. Sing {{1}} on \"ah\" and slide a little above it and below it, until the wobble stops and the sound goes smooth. That smooth spot is in tune. Then find it on {{5}}." },
+      { "type": "text", "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff as a line. Sing {{1}} on \"ah\" and slide a little above it and below it, until the wobble stops and the sound goes smooth. That smooth spot is in tune. Then find it on {{5}}." },
       { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "d", "voice": "tenor", "notes": ["1", "5"], "labels": "solfege", "drone": true } },
       { "type": "heading", "text": "Make up a tune", "minutes": 3 },
-      { "type": "text", "text": "Press Start below: the drone is on A now. Make up short tunes from {{1}}, {{3}} and {{5}}, on \"la\", and end each one on {{1}}. The notes change, the pattern doesn't: listen again for the smooth spot on every note." },
+      { "type": "text", "text": "Press Start exercise below: the drone is on A now. Make up short tunes from {{1}}, {{3}} and {{5}}, on \"la\", and end each one on {{1}}. The notes change, the pattern doesn't: listen again for the smooth spot on every note." },
       { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "a", "voice": "tenor", "notes": ["1", "3", "5"], "labels": "solfege", "drone": true } }
     ],
     "exploreMore": ["/course/3/do-mi-sol"]

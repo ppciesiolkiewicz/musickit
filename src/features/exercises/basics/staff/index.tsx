@@ -13,6 +13,8 @@ import { staffLabelSystem, type SingingLabels } from "@/features/theory/labels";
 import { useLabelSystem } from "@/features/theory/useLabelSystem";
 import { useAccuracy } from "@/features/theory/useAccuracy";
 import { Badge, Chip } from "@/components/ui";
+import Icon from "@/components/Icon";
+import { useStepPart } from "@/components/practice/exerciseStep";
 import dynamic from "next/dynamic";
 
 const PracticeBacking = dynamic(() => import("@/features/instruments").then((m) => m.PracticeBacking), { ssr: false });
@@ -25,8 +27,9 @@ const SEMI_TEXT = ["1", "♭2", "2", "♭3", "3", "4", "♯4", "5", "♭6", "6",
 const GAP_FRAMES = 6;
 
 /**
- * The scale on a staff in the voice's range, with the microphone's pitch drawn on it; tap a note to hear it. With `drone`
- * and/or `click` it has its own backing, and its one button starts (and stops) the backing and the mic together. With the
+ * The scale on a staff in the voice's range, with the microphone's pitch drawn on it; tap a note to hear it. "Start
+ * microphone" switches the mic on and off. With `drone` and/or `click` it has its own backing with its own Play; in an
+ * exercise step both are parts of the step's "Start exercise" (`useStepPart`), which starts them together. With the
  * mic the notes are labelled by degree or solfège (`labels`), never by bare name. Its settings show as tags (key, voice,
  * drone, click), and with the mic an accuracy row sets how close counts as on the note (the student's setting, shared).
  */
@@ -69,8 +72,11 @@ export function View({ slug, pc, voice, notes, enable, highlight, mute, hide, ot
     return kept.length > 1 ? { ...picked, notes: kept } : picked;
   }, [picked, state]);
   const backing = useMemo(() => [...(drone ? ["drone" as const] : []), ...(click ? ["click" as const] : [])], [drone, click]);
-  const [on, setOn] = useState(false);
-  const stop = useCallback(() => setOn(false), []);
+  const backingWords = drone && click ? "drone and the metronome" : drone ? "drone" : "metronome";
+  // the mic and the backing start and stop apart; the step's "Start exercise" starts both
+  const [micOn, setMicOn] = useState(false);
+  const [backingOn, setBackingOn] = useState(false);
+  const stopBacking = useCallback(() => setBackingOn(false), []);
   const [played, setPlayed] = useState<number | null>(null);
   const pitch = useRef<number | null>(null);
   const smoother = useRef(createSmoother());
@@ -89,7 +95,17 @@ export function View({ slug, pc, voice, notes, enable, highlight, mute, hide, ot
   const [setting] = useLabelSystem();
   const system = staffLabelSystem(labels, micButton, setting);
   const [cents, pickAccuracy] = useAccuracy();
-  const { status } = useMicPitch(on && micButton, undefined, onPitch);
+  const { status } = useMicPitch(micOn && micButton, undefined, onPitch);
+  const startMic = () => {
+    pitch.current = null;
+    setMicOn(true);
+  };
+  const startBacking = () => {
+    void wakeAudio();
+    setBackingOn(true);
+  };
+  useStepPart({ kind: micButton && "mic", on: micOn, start: startMic, stop: () => setMicOn(false) });
+  const group = useStepPart({ kind: backing.length > 0 && backing[0], on: backingOn, start: startBacking, stop: stopBacking });
   if (!ladder) return null;
   const tap = async (i: number) => {
     await wakeAudio();
@@ -105,12 +121,18 @@ export function View({ slug, pc, voice, notes, enable, highlight, mute, hide, ot
   return (
     <div className="flex flex-col gap-2">
       <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400">
-        {(micButton || backing.length > 0) && (
-          <MicButton on={on} onClick={() => { pitch.current = null; if (!on && backing.length) void wakeAudio(); setOn((v) => !v); }}
-            offLabel={backing.length ? "Start" : "Sing with the mic"} onLabel={backing.length ? "Stop" : undefined} />
-        )}
+        {micButton && <MicButton on={micOn} onClick={() => (micOn ? setMicOn(false) : startMic())} offLabel="Start microphone" onLabel="Stop microphone" />}
         {micButton && <InputChip status={status} />}
-        {backing.length > 0 && <PracticeBacking bpm={bpm} keyPc={pc} parts={backing} on={on} onStop={stop} />}
+        {backing.length > 0 && (
+          <span className="inline-flex items-center gap-2">
+            <button type="button" onClick={() => (backingOn ? stopBacking() : startBacking())} aria-pressed={backingOn}
+              title={backingOn ? `Stop the ${backingWords}` : `Play the ${backingWords}`}
+              className={`inline-flex h-8 items-center gap-1.5 rounded-lg border px-3 text-xs font-medium transition ${backingOn ? "border-emerald-400/70 bg-emerald-500/20 text-emerald-100" : "border-sky-400/60 bg-sky-500/15 text-sky-50 hover:bg-sky-500/25"}`}>
+              <Icon name={backingOn ? "square" : "play"} size={14} fill />{backingOn ? "Stop" : "Play"}
+            </button>
+            <PracticeBacking bpm={bpm} keyPc={pc} parts={backing} on={backingOn} onStop={stopBacking} group={group} />
+          </span>
+        )}
         {status === "denied" && <span>microphone blocked in the browser</span>}
       </div>
       <div className="flex flex-wrap items-center gap-1.5">

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useMicPitch } from "@/components/practice/useMicPitch";
+import { useStepPart } from "@/components/practice/exerciseStep";
 import { clickAt } from "@/features/instruments/model";
 import { getAudioContext, getOutputBus, getSharedPiano, onSilence, useAudioFocus, wakeAudio } from "@/features/sound";
 import { hzToMidi } from "@/features/theory/singing";
@@ -120,7 +121,12 @@ export function useSingAlong({ notes, chords, beatMs, total, click = false }: { 
   // leaving cuts the piano
   useEffect(() => hush, [hush]);
 
-  const focus = useAudioFocus(playing, stop);
+  // in an exercise step, "Start exercise" plays the tune (and so the mic) and its Stop stops both
+  const group = useStepPart({ kind: "tune", on: playing || mic, start: () => play(), stop: () => {
+    stop();
+    setMic(false);
+  } });
+  const focus = useAudioFocus(playing, stop, group);
   // another sequence silencing the piano stops this one too
   useEffect(() => onSilence(() => run.current && stop()), [stop]);
 

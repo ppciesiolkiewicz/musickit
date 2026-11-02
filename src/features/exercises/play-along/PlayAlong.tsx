@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Icon from "@/components/Icon";
 import { sbtn } from "@/components/ui";
 import { useAudioFocus } from "@/features/sound";
+import { useStepPart } from "@/components/practice/exerciseStep";
 import { parseChordQuery } from "@/lib/chordKit/chordSearch";
 import { COMP_PATTERNS, type CompPattern } from "@/lib/practice/comping";
 import { chordCues, cuesOf, type Marks } from "../cues/cues";
@@ -42,7 +43,8 @@ export function PlayAlongTimeline({ timeline, view = "tab", others = "muted", ma
   const [tempo, setTempoState] = useState(timeline.bpm);
   const played = useMemo(() => withBacking(timeline, choices.length > 1 ? pattern : undefined), [timeline, pattern, choices.length]);
   const player = useTimelinePlayer(played);
-  const focus = useAudioFocus(player.playing, player.stop);
+  const group = useStepPart({ kind: "play", on: player.playing, start: player.start, stop: player.stop });
+  const focus = useAudioFocus(player.playing, player.stop, group);
   const cues = useMemo(
     () => (stepless(played) ? chordCues : cuesOf)(played, marks).filter((c) => c.kind !== "backing" && (others !== "hidden" || c.enabled)),
     [played, marks, others],

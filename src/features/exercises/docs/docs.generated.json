@@ -862,7 +862,7 @@
   {
     "name": "staff",
     "kind": "basic",
-    "description": "The scale on a staff in a voice's range, with the microphone's pitch drawn on it; tap a note to hear it. With `drone` and/or\n`click` it carries its own backing: one Start runs the backing and the mic, so a singing exercise needs no `click-drone` beside it.",
+    "description": "The scale on a staff in a voice's range, with the microphone's pitch drawn on it; tap a note to hear it. With `drone` and/or\n`click` it carries its own backing, so a singing exercise needs no `click-drone` beside it: \"Start microphone\" and the backing's\nPlay work apart, and the step's \"Start exercise\" starts both together (Stop exercise stops both).",
     "props": [
       {
         "name": "scale",
@@ -922,19 +922,19 @@
         "name": "mic",
         "type": "boolean",
         "required": false,
-        "description": "show the \"sing with the mic\" button; default true"
+        "description": "show the \"Start microphone\" button; default true"
       },
       {
         "name": "drone",
         "type": "boolean",
         "required": false,
-        "description": "a drone on the key's root under the singing: the mic button becomes one Start for the drone and the mic together (Stop stops both); default false"
+        "description": "a drone on the key's root under the singing, with its own Play; the step's \"Start exercise\" starts it and the mic together; default false"
       },
       {
         "name": "click",
         "type": "boolean",
         "required": false,
-        "description": "a metronome click under the singing, started with the mic like `drone`; default false"
+        "description": "a metronome click under the singing, played like `drone` (with the drone when both are set); default false"
       },
       {
         "name": "bpm",

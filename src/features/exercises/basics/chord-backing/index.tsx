@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Icon from "@/components/Icon";
 import { sbtn } from "@/components/ui";
 import { useAudioFocus } from "@/features/sound";
+import { useStepPart } from "@/components/practice/exerciseStep";
 import { keySlug } from "@/features/theory/keySlug";
 import { parseChordQuery } from "@/lib/chordKit/chordSearch";
 import { COMP_PATTERNS, type CompPattern } from "@/lib/practice/comping";
@@ -39,7 +40,8 @@ function Strip({ timeline, chords, tempo, setTempo, choices, pattern, setPattern
   choices: CompPattern[]; pattern: CompPattern; setPattern(p: CompPattern): void;
 }) {
   const player = useTimelinePlayer(timeline);
-  const focus = useAudioFocus(player.playing, player.stop);
+  const group = useStepPart({ kind: "chords", on: player.playing, start: player.start, stop: player.stop });
+  const focus = useAudioFocus(player.playing, player.stop, group);
   const at = stripAt(player.beat, chords.length);
   const next = at ? at.next : 0;
   const changeTempo = (b: number) => {

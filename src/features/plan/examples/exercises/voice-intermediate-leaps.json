@@ -14,15 +14,15 @@
     "learnBefore": ["/course/3/intervals", "/course/6/singing-leaps"],
     "sections": [
       { "type": "heading", "text": "Low in A, then high in F", "minutes": 3 },
-      { "type": "text", "text": "Press Start below: the drone and the mic start together, and your pitch shows on the staff. This staff stays low and the \"oo\" keeps your voice light: sing {{1}} up to {{4}}, then {{1}} up to {{5}}. Hear the landing note in your head before you sing it." },
+      { "type": "text", "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff. This staff stays low and the \"oo\" keeps your voice light: sing {{1}} up to {{4}}, then {{1}} up to {{5}}. Hear the landing note in your head before you sing it." },
       { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "a", "voice": "tenor", "notes": ["1", "4", "5"], "drone": true } },
-      { "type": "text", "text": "Now press Start on the F staff below, which runs the whole range. The notes change, the pattern doesn't: sing the same leaps from the low {{1}} on \"ah\", then from the high {{1}} on \"oo\"." },
+      { "type": "text", "text": "Now press Play and Start microphone on the F staff below, which runs the whole range. The notes change, the pattern doesn't: sing the same leaps from the low {{1}} on \"ah\", then from the high {{1}} on \"oo\"." },
       { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "f", "voice": "tenor", "notes": ["1", "4", "5"], "drone": true } },
       { "type": "heading", "text": "D minor: call and answer", "minutes": 3 },
-      { "type": "text", "text": "Press Start below to start the drone on D and the mic. The same leaps now sit in D minor, with {{b3}} added. Sing a short call that leaps up from {{1}}, then answer it with a different leap that ends on {{1}}. Change vowel between the two: the call on \"oo\", the answer on \"ee\"." },
+      { "type": "text", "text": "Press Start exercise below to start the drone on D and the mic. The same leaps now sit in D minor, with {{b3}} added. Sing a short call that leaps up from {{1}}, then answer it with a different leap that ends on {{1}}. Change vowel between the two: the call on \"oo\", the answer on \"ee\"." },
       { "type": "tool", "tool": { "type": "staff", "scale": "natural-minor-aeolian", "key": "d", "voice": "tenor", "notes": ["1", "b3", "4", "5"], "drone": true } },
       { "type": "heading", "text": "G Mixolydian: make up a tune", "minutes": 4 },
-      { "type": "text", "text": "Press Start below to start the drone on G and the mic. Make up a short tune from {{1}}, {{4}}, {{5}} and {{b7}}, leaping between them in any order. Move through the vowels as you go, \"ee-oh-oo-oh-ah\", and watch your pitch line land on each note." },
+      { "type": "text", "text": "Press Start exercise below to start the drone on G and the mic. Make up a short tune from {{1}}, {{4}}, {{5}} and {{b7}}, leaping between them in any order. Move through the vowels as you go, \"ee-oh-oo-oh-ah\", and watch your pitch line land on each note." },
       { "type": "tool", "tool": { "type": "staff", "scale": "mixolydian", "key": "g", "voice": "tenor", "notes": ["1", "4", "5", "b7"], "drone": true } }
     ]
   }
