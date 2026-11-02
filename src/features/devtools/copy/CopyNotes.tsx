@@ -7,6 +7,7 @@ import Icon from "@/components/Icon";
 import { copyNotesMarkdown, noteHref, outdatedCount, repinCopyNotes, squeeze } from "../model/copyNotes";
 import { useCommits, useCopyNotes, useLinkedNote, useShownSections, writeCopyNotes as write } from "./store";
 import { devUi } from "../gate";
+import { NoteBar } from "./NoteBar";
 
 const ROOT = "data-copy-notes";
 const whereOf = (el: Element) => {
@@ -22,7 +23,7 @@ const PRIMARY = "inline-flex cursor-pointer items-center gap-1.5 rounded-lg bord
  * Dev only. A button at the bottom right opens the notes bar, the same on every page: every note's count (and, where the
  * page shows example sections, how many are on changed ones), HEAD, note a text, re-pin all to HEAD, clear all, copy all;
  * then this page's notes. Opening the bar turns on note mode ("Note a text" toggles it): hover outlines the text under the pointer, a click (which
- * does nothing else then) opens a box for a note on that wording, tagged inline above its text. The pencils on
+ * does nothing else then) opens a box for a note on that wording, shown as its bar under its text. The pencils on
  * /dev/examples' sections add to the same notes. All pages' notes are on /dev/notes.
  */
 export default function CopyNotes() {
@@ -40,7 +41,7 @@ export default function CopyNotes() {
   const [copied, setCopied] = useState(false);
   const [clearing, setClearing] = useState(false);
   const hot = useRef<HTMLElement | null>(null);
-  const [marks, setMarks] = useState<{ id: string; note: string; top: number; left: number }[]>([]);
+  const [marks, setMarks] = useState<{ id: string; top: number; left: number; width: number }[]>([]);
   const here = notes.filter((n) => n.route === path);
 
   useEffect(() => {
@@ -83,10 +84,10 @@ export default function CopyNotes() {
     };
   }, [on]);
 
-  // the notes of this page, tagged above the text they are about; found again by the text, so they follow layout changes
+  // the notes of this page, each shown as its bar just under the text it is about; found again by the text, so they follow layout changes
   useEffect(() => {
     if (!devUi()) return;
-    // section notes are shown under their sections (/dev/examples), not tagged
+    // section notes are shown under their sections (/dev/examples) by the examples page
     const mine = notes.filter((n) => n.route === path && !n.section);
     if (!mine.length) return;
     const scan = () => {
@@ -94,7 +95,7 @@ export default function CopyNotes() {
       const next = mine.flatMap((n) => {
         const el = els.filter((e) => squeeze(e.innerText ?? "") === n.text).pop();
         const r = el?.getBoundingClientRect();
-        return r && r.width > 0 && r.height > 0 ? [{ id: n.id, note: n.note, top: Math.round(r.top), left: Math.round(r.left) }] : [];
+        return r && r.width > 0 && r.height > 0 ? [{ id: n.id, top: Math.round(r.bottom + 4), left: Math.round(r.left), width: Math.round(r.width) }] : [];
       });
       setMarks((m) => (JSON.stringify(m) === JSON.stringify(next) ? m : next));
       // a link to one of these notes: bring its text into view, once
@@ -136,12 +137,14 @@ export default function CopyNotes() {
   return (
     <>
       <div {...{ [ROOT]: "" }} className="pointer-events-none fixed inset-0 z-[1999]">
-        {(here.some((n) => !n.section) ? marks : []).map((m) => (
-          <div key={m.id} title={m.note} style={{ top: Math.max(0, m.top - 16), left: Math.max(0, m.left) }} className={`pointer-events-auto absolute flex max-w-56 items-center gap-1 rounded px-1.5 py-px text-[11px] font-medium leading-4 text-slate-950 shadow ${m.id === linked ? "bg-sky-300 ring-2 ring-sky-400" : "bg-amber-400"}`}>
-            <span className="truncate">{m.note}</span>
-            <button type="button" aria-label="Delete note" onClick={() => write((l) => l.filter((x) => x.id !== m.id))} className="cursor-pointer opacity-60 hover:opacity-100"><Icon name="x" size={10} /></button>
-          </div>
-        ))}
+        {marks.map((m) => {
+          const n = here.find((x) => x.id === m.id);
+          return n && (
+            <div key={m.id} style={{ top: m.top, left: Math.max(0, m.left), width: Math.max(m.width, 288) }} className="pointer-events-auto absolute max-w-[calc(100vw-1rem)] rounded-lg bg-slate-950 shadow-lg shadow-black/40">
+              <NoteBar note={n} linked={m.id === linked} />
+            </div>
+          );
+        })}
       </div>
       <div {...{ [ROOT]: "" }} className="fixed bottom-3 right-3 z-[2000] flex max-w-[calc(100vw-1.5rem)] flex-col items-end gap-2 text-sm">
         {target && (
@@ -180,13 +183,12 @@ export default function CopyNotes() {
             {here.length > 0 && (
               <div className="mt-2 max-h-64 overflow-auto border-t border-slate-800">
                 {here.map((n) => (
-                  <div key={n.id} className="flex items-start gap-2 border-b border-slate-800 py-1.5 text-xs last:border-0">
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-slate-400">{n.section ? <span className="font-mono text-slate-500">{n.where} · </span> : null}“{n.text}”</p>
-                      <p className="whitespace-pre-wrap">{n.note}</p>
-                    </div>
-                    <Link href={noteHref(n, "/dev/notes")} title="This note in all notes" className="shrink-0 text-sky-300 opacity-70 hover:opacity-100">all notes →</Link>
-                    <button type="button" aria-label="Delete note" onClick={() => write((l) => l.filter((x) => x.id !== n.id))} className="cursor-pointer opacity-60 hover:opacity-100"><Icon name="x" size={12} /></button>
+                  <div key={n.id} className="flex flex-col gap-1 border-b border-slate-800 py-1.5 text-xs last:border-0">
+                    <p className="flex gap-2 text-slate-400">
+                      <span className="min-w-0 flex-1 truncate">{n.section ? <span className="font-mono text-slate-500">{n.where} · </span> : null}“{n.text}”</span>
+                      <Link href={noteHref(n, "/dev/notes")} title="This note in all notes" className="shrink-0 text-sky-300 opacity-70 hover:opacity-100">all notes →</Link>
+                    </p>
+                    <NoteBar note={n} />
                   </div>
                 ))}
               </div>

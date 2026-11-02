@@ -5,6 +5,7 @@ import Link from "next/link";
 import Icon from "@/components/Icon";
 import { clearCopyNotes, copyNotesMarkdown, noteHref, repinCopyNotes } from "../model/copyNotes";
 import { useCommits, useCopyNotes, useLinkedNote, useScrollTo, writeCopyNotes as write } from "./store";
+import { NoteBar } from "./NoteBar";
 
 const BTN = "inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-slate-700 px-3 py-1 text-xs font-medium text-slate-300 hover:bg-slate-800 disabled:cursor-default disabled:opacity-50";
 const PRIMARY = "inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-amber-400/70 bg-amber-500/20 px-3 py-1 text-xs font-semibold text-amber-50 hover:bg-amber-500/30";
@@ -88,14 +89,12 @@ export default function NotesPage() {
           </div>
           <ul className="mt-2 divide-y divide-slate-800">
             {list.map((n) => (
-              <li key={n.id} id={`note-${n.id}`} className={`flex items-start gap-3 py-2 text-sm ${n.id === linked ? "-mx-2 rounded-lg bg-sky-500/10 px-2 ring-1 ring-sky-400/60" : ""}`}>
-                <div className="min-w-0 flex-1">
-                  <p className="text-slate-400">“{n.text}”</p>
-                  <p className="whitespace-pre-wrap text-slate-100">{n.note}</p>
-                  <p className="mt-0.5 font-mono text-[10px] text-slate-600">{n.where}{n.head ? ` · ${n.head}${head && n.head !== head ? " (older HEAD)" : ""}` : ""}</p>
-                </div>
-                <Link href={noteHref(n)} title="Open the page at this note" className="shrink-0 text-xs text-sky-300 hover:underline">Open →</Link>
-                <button type="button" aria-label="Delete note" onClick={() => write((l) => l.filter((x) => x.id !== n.id))} className="cursor-pointer opacity-60 hover:opacity-100"><Icon name="x" size={14} /></button>
+              <li key={n.id} className="flex flex-col gap-1 py-2 text-sm">
+                <p className="flex gap-3 text-slate-400">
+                  <span className="min-w-0 flex-1">“{n.text}”<span className="ml-2 font-mono text-[10px] text-slate-600">{n.where}{head && n.head && n.head !== head ? " · older HEAD" : ""}</span></span>
+                  <Link href={noteHref(n)} title="Open the page at this note" className="shrink-0 text-xs text-sky-300 hover:underline">Open →</Link>
+                </p>
+                <NoteBar id={`note-${n.id}`} note={n} linked={n.id === linked} />
               </li>
             ))}
           </ul>

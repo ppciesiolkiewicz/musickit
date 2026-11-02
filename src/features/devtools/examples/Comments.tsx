@@ -6,7 +6,8 @@ import Icon from "@/components/Icon";
 import { SectionAsideContext, type SectionAside } from "@/features/plan/ui/SectionAside";
 import type { Section } from "@/features/plan/model/tools";
 import { pinSection, quoteOf, sectionHash, sectionText } from "../model/comments";
-import { placeOf, stateOf, type CommentState, type CopyNote } from "../model/copyNotes";
+import { placeOf, stateOf, type CopyNote } from "../model/copyNotes";
+import { NoteBar, NoteEditor } from "../copy/NoteBar";
 import { useCommits, useCopyNotes, useLinkedNote, useScrollTo, writeCopyNotes as write } from "../copy/store";
 
 /*
@@ -16,46 +17,14 @@ import { useCommits, useCopyNotes, useLinkedNote, useScrollTo, writeCopyNotes as
 
 /* ---- one example's sections, each with its comments ---- */
 
-const TONE: Record<CommentState, string> = {
-  current: "border-amber-400/40 bg-amber-300/10 text-amber-50",
-  changed: "border-orange-500/60 bg-orange-500/10 text-orange-100",
-  gone: "border-rose-500/60 bg-rose-500/10 text-rose-100",
-};
-
-/** The box a comment is written or changed in: ⌘↵ saves, Esc cancels. */
-function CommentEditor({ initial, onSave, onCancel }: { initial: string; onSave: (text: string) => void; onCancel: () => void }) {
-  const [text, setText] = useState(initial);
-  return (
-    <div className="flex flex-col gap-1.5 rounded-lg border border-amber-400/50 bg-slate-950/60 p-2">
-      <textarea
-        autoFocus
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) onSave(text);
-          if (e.key === "Escape") onCancel();
-        }}
-        rows={2}
-        placeholder="What's wrong or good here? (⌘↵ to save, Esc to cancel)"
-        className="w-full resize-y rounded-md border border-slate-700 bg-slate-900 px-2 py-1 text-sm text-slate-100 placeholder:text-slate-500"
-      />
-      <div className="flex gap-1.5">
-        <button type="button" onClick={() => onSave(text)} className="cursor-pointer rounded-md border border-amber-400/70 bg-amber-500/20 px-2.5 py-0.5 text-xs font-medium text-amber-50 hover:bg-amber-500/30">Save</button>
-        <button type="button" onClick={onCancel} className="cursor-pointer rounded-md border border-slate-700 px-2.5 py-0.5 text-xs text-slate-300 hover:bg-slate-800">Cancel</button>
-      </div>
-    </div>
-  );
-}
-
 /** Notes under one section, and the button (shown on hover, or always once there are some) that adds one. */
 function CommentSlot({ example, address, index, section }: { example: string; address: string; index: number; section: Section }) {
   const all = useCopyNotes();
   const commits = useCommits();
   const route = usePathname();
   const linked = useLinkedNote();
-  // the new comment's box is open (its text lives in CommentEditor); `editing` is the comment whose text is being changed
+  // the new comment's box is open (its text lives in NoteEditor)
   const [adding, setAdding] = useState(false);
-  const [editing, setEditing] = useState<string | null>(null);
   const mine = all.filter((n) => n.section?.example === example && n.section.address === address && n.section.index === index);
   const hash = sectionHash(section);
   const file = commits?.files[example];
@@ -88,37 +57,15 @@ function CommentSlot({ example, address, index, section }: { example: string; ad
       {(mine.length > 0 || adding) && (
         <div className="mt-2 flex min-w-72 flex-col gap-1.5">
           {mine.map((c) => {
-            const s = c.section!;
-            const state = stateOf(s, hash);
-            return (
-              editing === c.id ? (
-                <CommentEditor key={c.id} initial={c.note} onCancel={() => setEditing(null)} onSave={(raw) => {
-                  const note = raw.trim();
-                  if (note) write((l) => l.map((x) => (x.id === c.id ? { ...x, note } : x)));
-                  setEditing(null);
-                }} />
-              ) : (
-              <div key={c.id} id={`note-${c.id}`} className={`flex items-start gap-2 rounded-lg border px-2.5 py-1.5 text-xs ${TONE[state]} ${linked === c.id ? "ring-2 ring-sky-400" : ""}`}>
-                <p className="min-w-0 flex-1 whitespace-pre-wrap">{c.note}</p>
-                <span className="shrink-0 font-mono text-[10px] opacity-70" title={`Noted ${new Date(c.at).toLocaleString()} at ${s.commit}${s.dirty ? " (file had uncommitted edits)" : ""}${c.head ? `, HEAD ${c.head}` : ""}`}>
-                  {state === "changed" ? "section changed · " : ""}@{s.commit}{s.dirty ? "+" : ""}
-                </span>
-                {state === "changed" && (
-                  <button type="button" title="The section is still right for this comment: pin it to the section as it is now" onClick={() => write((l) => l.map((x) => (x.id === c.id && x.section ? { ...x, text: quoteOf(sectionText(section)), section: pinSection(x.section, section, file), ...(commits ? { head: commits.head } : {}) } : x)))} className="shrink-0 cursor-pointer text-[10px] underline opacity-80 hover:opacity-100">
-                    keep
-                  </button>
-                )}
-                <button type="button" aria-label="Edit comment" title="Edit" onClick={() => setEditing(c.id)} className="shrink-0 cursor-pointer opacity-60 hover:opacity-100">
-                  <Icon name="pencil" size={12} />
-                </button>
-                <button type="button" aria-label="Delete comment" title="Delete" onClick={() => write((l) => l.filter((x) => x.id !== c.id))} className="shrink-0 cursor-pointer opacity-60 hover:opacity-100">
-                  <Icon name="x" size={12} />
-                </button>
-              </div>
-              )
+            const state = stateOf(c.section!, hash);
+            const keep = state === "changed" && (
+              <button type="button" title="The section is still right for this comment: pin it to the section as it is now" onClick={() => write((l) => l.map((x) => (x.id === c.id && x.section ? { ...x, text: quoteOf(sectionText(section)), section: pinSection(x.section, section, file), ...(commits ? { head: commits.head } : {}) } : x)))} className="shrink-0 cursor-pointer text-[10px] underline opacity-80 hover:opacity-100">
+                keep
+              </button>
             );
+            return <NoteBar key={c.id} id={`note-${c.id}`} note={c} state={state} linked={linked === c.id} extra={keep} />;
           })}
-          {adding && <CommentEditor initial="" onSave={add} onCancel={() => setAdding(false)} />}
+          {adding && <NoteEditor initial="" onSave={add} onCancel={() => setAdding(false)} />}
         </div>
       )}
     </>
