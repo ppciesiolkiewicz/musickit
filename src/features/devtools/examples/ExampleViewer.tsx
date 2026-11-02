@@ -58,7 +58,7 @@ function toolsUsed(value: unknown, counts = new Map<string, number>()): Map<stri
 }
 
 /** A card per example; the preview mounts only while open (each one sets up its tools). */
-function ExampleCard({ title, meta, note, json, entries, badge }: { /** the example's id */ title: string; meta?: ReactNode; note?: string; json: string; entries: CatalogueEntry[]; badge?: ReactNode }) {
+function ExampleCard({ title, meta, note, json, entries, badge, changes, paired }: { /** the example's id */ title: string; meta?: ReactNode; note?: string; json: string; entries: CatalogueEntry[]; badge?: ReactNode; /** what a rewrite changed from the example it rewrites */ changes?: string[]; /** listed right under the example it rewrites */ paired?: boolean }) {
   // opened or closed by hand, else open when the page was linked to one of its notes (from the Notes bar or /dev/notes)
   const [toggled, setOpen] = useState<boolean | null>(null);
   const linked = useLinkedNote();
@@ -66,7 +66,7 @@ function ExampleCard({ title, meta, note, json, entries, badge }: { /** the exam
   const open = toggled ?? linkedHere;
   const tools = useMemo(() => [...toolsUsed(JSON.parse(json))], [json]);
   return (
-    <li className="rounded-xl border border-slate-800 bg-slate-900/40">
+    <li className={`rounded-xl border bg-slate-900/40 ${paired ? "ml-6 border-lime-500/30" : "border-slate-800"}`}>
       <details open={open} onToggle={(e) => setOpen(e.currentTarget.open)}>
         <summary className="flex cursor-pointer flex-col gap-1 px-3 py-2">
           <span className="flex flex-wrap items-center gap-2">
@@ -77,6 +77,11 @@ function ExampleCard({ title, meta, note, json, entries, badge }: { /** the exam
           </span>
           {meta}
           {note && <span className="text-xs text-slate-400">{note}</span>}
+          {changes && changes.length > 0 && (
+            <ul className="ml-4 list-disc text-xs text-lime-200/80">
+              {changes.map((c) => <li key={c}>{c}</li>)}
+            </ul>
+          )}
           {tools.length > 0 && (
             <span className="flex flex-wrap gap-1">
               {tools.map(([t, n]) => <span key={t} className="rounded-md border border-amber-500/30 bg-amber-500/10 px-1.5 font-mono text-[11px] text-amber-200">{t}{n > 1 ? <span className="text-amber-200/60"> ×{n}</span> : null}</span>)}
@@ -104,6 +109,12 @@ const styleOf = (e: { style?: "new" }): Style => e.style ?? "old";
 /** New-style examples stand out; old ones are marked in a muted warm tone so they read as the ones to rewrite. */
 const STYLE_TONE: Record<Style, string> = { new: "text-lime-300", old: "text-amber-400/70" };
 
+/** Library order, except a rewrite comes right after the example it rewrites, so the two read one under the other. */
+function pairRewrites<E extends { id: string; rewrites?: { id: string } }>(list: E[]): E[] {
+  const at = (id: string) => { const i = list.findIndex((x) => x.id === id); return i < 0 ? list.length : i; };
+  return [...list].sort((a, b) => at(a.rewrites?.id ?? a.id) - at(b.rewrites?.id ?? b.id) || Number(!!a.rewrites) - Number(!!b.rewrites));
+}
+
 /**
  * Every example in the library, rendered as the player would see it, with filters. The ones the studio's current answers
  * put in the prompt are tagged "in prompt", a link to that part in the studio.
@@ -127,7 +138,7 @@ export default function ExampleViewer() {
   }, [answers]);
   const library = useMemo(
     () =>
-      [...EXERCISE_EXAMPLES, ...PLAN_EXAMPLES].filter(
+      pairRewrites([...EXERCISE_EXAMPLES, ...PLAN_EXAMPLES]).filter(
         (e) =>
           (!kind || e.kind === kind) && (!area || e.areas.includes(area)) && (!level || e.level === level) &&
           (!showcase || (e.kind === "exercise" && e.showcase === showcase)) && (!onlyPrompt || inPrompt.has(e.id)) &&
@@ -168,6 +179,7 @@ export default function ExampleViewer() {
                 <>
                   <Badge className={e.kind === "plan" ? "text-fuchsia-300" : "text-rose-300"}>{e.kind === "plan" ? "plan example" : "exercise example"}</Badge>
                   <Badge className={STYLE_TONE[styleOf(e)]}>{styleOf(e) === "new" ? "new teaching style" : "old style"}</Badge>
+                  {e.rewrites && <Badge className="text-lime-200/70">rewrites {e.rewrites.id} ↑</Badge>}
                   {inPrompt.has(e.id) && (
                     <Link href={`/dev/prompt#${partAnchor(`example:${e.id}`)}`} title="Open this example's part in the prompt studio" onClick={(ev) => ev.stopPropagation()}>
                       <Badge className="text-emerald-300 hover:text-emerald-200">in prompt →</Badge>
@@ -181,6 +193,8 @@ export default function ExampleViewer() {
                 </span>
               }
               note={e.note}
+              changes={e.rewrites?.changes}
+              paired={!!e.rewrites && library.some((x) => x.id === e.rewrites!.id)}
               json={JSON.stringify(e.kind === "plan" ? e.plan : e.exercise)}
               entries={entries}
             />

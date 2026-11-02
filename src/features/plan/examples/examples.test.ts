@@ -12,11 +12,11 @@ import { parsePlanConfig } from "../model/config";
 import { notePc, splitNotes } from "../model/noteText";
 import type { PlanTool, Section } from "../model/tools";
 import type { Level, PlanConfig, PlanExercise } from "../model/types";
-import { EXERCISE_EXAMPLES, PLAN_EXAMPLES, type ExampleMeta } from "./index";
+import { EXERCISE_EXAMPLES, PLAN_EXAMPLES, type ExerciseExample, type PlanExample } from "./index";
 
 const entries = catalogue();
 const LEVELS: Level[] = ["new", "beginner", "intermediate", "advanced"];
-const ALL: ExampleMeta[] = [...EXERCISE_EXAMPLES, ...PLAN_EXAMPLES];
+const ALL: (ExerciseExample | PlanExample)[] = [...EXERCISE_EXAMPLES, ...PLAN_EXAMPLES];
 
 /** A pasted plan of seven copies of one exercise, so the exercise goes through the real paste path. */
 const weekOf = (exercise: unknown) => JSON.stringify({ title: "W", days: Array.from({ length: 7 }, (_, i) => ({ theme: `D${i + 1}`, exercises: [exercise] })) });
@@ -61,6 +61,12 @@ describe("example library", () => {
       assert.ok(LEVELS.includes(x.level), x.id);
       assert.ok(x.note.trim(), x.id);
       assert.ok(x.style === undefined || x.style === "new", `${x.id}: style`);
+      if (x.rewrites) {
+        const old = ALL.find((o) => o.id === x.rewrites!.id);
+        assert.ok(old && !old.style && old.kind === x.kind && old.level === x.level && old.areas.join() === x.areas.join(), `${x.id}: rewrites ${x.rewrites.id}`);
+        if (old.kind === "plan" && x.kind === "plan") assert.equal(x.minutes, old.minutes, `${x.id}: same minutes as ${old.id}`);
+        assert.ok(x.style === "new" && x.rewrites.changes.length, `${x.id}: a rewrite is new style and lists its changes`);
+      }
     }
   });
 
@@ -95,7 +101,7 @@ describe("example library", () => {
     const plain = EXERCISE_EXAMPLES.filter((e) => !e.showcase);
     for (const a of AREAS) for (const l of LEVELS) assert.ok(plain.some((e) => e.areas[0] === a.id && e.level === l), `${a.id} ${l}`);
     assert.deepEqual(EXERCISE_EXAMPLES.flatMap((e) => (e.showcase ? [e.showcase] : [])).sort(), ["blocks", "pick", "progression"]);
-    assert.equal(PLAN_EXAMPLES.length, 4);
+    assert.equal(PLAN_EXAMPLES.filter((p) => !p.rewrites).length, 4);
   });
 
   it("JSON files import nothing, are named by id, and are all loaded", () => {

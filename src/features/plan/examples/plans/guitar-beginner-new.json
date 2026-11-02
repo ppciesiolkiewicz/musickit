@@ -1,0 +1,1263 @@
+{
+  "id": "guitar-beginner-new",
+  "kind": "plan",
+  "areas": [
+    "guitar"
+  ],
+  "level": "beginner",
+  "minutes": 20,
+  "concepts": [
+    "pentatonic-box-1",
+    "open-chords",
+    "power-chords",
+    "spider"
+  ],
+  "style": "new",
+  "rewrites": {
+    "id": "guitar-beginner",
+    "changes": [
+      "Warm-ups sit where the day's work is (the spider at frets 5 to 8, where position 1 lives), not anywhere on the neck.",
+      "Each why says what the drill trains and why it works (\"a power chord is a root and its 5th, so every chord is a new place for the shape\"), not only what it improves.",
+      "Done is a feel (\"until the new chord lands on beat 1 without a gap\"), never a count, and one-minute changes are rounds, not a tally.",
+      "Blocks end with a turn of the student's own: a riff from two notes, an ending of their choice, last week's A phrase moved to E.",
+      "Day 7 asks the student to make up a position drill by changing one thing, the way every drill this week did."
+    ]
+  },
+  "note": "The guitar-beginner week in the new teaching style: same topic, minutes and tools, but each day is one idea, each why says what the drill trains and why it works, done is a feel, and the week ends with drills the student makes up.",
+  "plan": {
+    "title": "Week 1: position 1 and clean changes, your way",
+    "summary": "A minor pentatonic position 1 and G-C-D and power chord changes, one idea a day: each drill says what it trains and why, and by day 7 you make up drills of your own.",
+    "days": [
+      {
+        "theme": "Position 1: one finger per fret",
+        "exercises": [
+          {
+            "title": "The spider where position 1 lives",
+            "focus": "Fingers 1234 at frets 5 to 8, every string, 60 bpm",
+            "minutes": 4,
+            "tags": [
+              "technique"
+            ],
+            "why": "Position 1 sits at frets 5 to 8, one finger per fret, so warming up right there trains the exact stretch the scale needs.",
+            "sections": [
+              {
+                "type": "text",
+                "text": "Press Play below to start the metronome. Play frets 5 to 8 on the low E with fingers 1, 2, 3 and 4, one note per beat, then move up a string, all the way to the high E and back. Keep going until your hand stays put and only the fingers move."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "finger-pattern",
+                  "fingers": "1234",
+                  "fret": 5,
+                  "bpm": 60
+                }
+              }
+            ]
+          },
+          {
+            "title": "G, C and D in time",
+            "focus": "G-C-D-G changes · down strums at 60 bpm",
+            "minutes": 6,
+            "tags": [
+              "rhythm"
+            ],
+            "why": "G, C and D are the 1, 4 and 5 of G major, the three chords most songs lean on, so a clean change between them opens up more music than any new chord.",
+            "sections": [
+              {
+                "type": "heading",
+                "text": "The shapes",
+                "minutes": 3
+              },
+              {
+                "type": "text",
+                "text": "Tap a chord box to hear the chord, then fret it as shown. Change between two shapes slowly with your eyes closed, then open them to check every string rings."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "chord-shapes",
+                  "chords": [
+                    "G",
+                    "C",
+                    "D"
+                  ]
+                }
+              },
+              {
+                "type": "heading",
+                "text": "In time",
+                "minutes": 3
+              },
+              {
+                "type": "text",
+                "text": "Press Play below to start the metronome; the lit box shows the chord. Strum down on every beat, one bar per chord, and use beat 4 to move. It's working when the new chord lands on beat 1 without a gap."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "strum-along",
+                  "chords": [
+                    "G",
+                    "C",
+                    "D",
+                    "G"
+                  ],
+                  "bpm": 60
+                }
+              }
+            ]
+          },
+          {
+            "title": "Position 1, then your own phrases",
+            "focus": "A minor pentatonic · position 1 · 60 bpm, the roots, phrases over a band",
+            "minutes": 10,
+            "tags": [
+              "technique",
+              "improv"
+            ],
+            "why": "Every phrase in position 1 sounds finished when it lands on A, so knowing where the three A's are lets you make music from day one.",
+            "sections": [
+              {
+                "type": "heading",
+                "text": "Up and down at 60",
+                "minutes": 3
+              },
+              {
+                "type": "text",
+                "text": "Press Play below to start the metronome. Play the position from the low {{1}} up to the high E string and back, one note per beat."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "backing-band",
+                  "bpm": 60,
+                  "key": "a",
+                  "parts": [
+                    "click"
+                  ]
+                }
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "scale-neck",
+                  "scale": "minor-pentatonic",
+                  "key": "a",
+                  "boxes": [
+                    1
+                  ],
+                  "highlight": [
+                    "1"
+                  ]
+                }
+              },
+              {
+                "type": "heading",
+                "text": "Only the roots",
+                "minutes": 3
+              },
+              {
+                "type": "text",
+                "text": "Now only the three {{1}} notes are in play. Hop between them in any order until you can find each one without looking."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "scale-neck",
+                  "scale": "minor-pentatonic",
+                  "key": "a",
+                  "boxes": [
+                    1
+                  ],
+                  "enable": [
+                    "1"
+                  ]
+                }
+              },
+              {
+                "type": "heading",
+                "text": "Your own phrases",
+                "minutes": 4
+              },
+              {
+                "type": "text",
+                "text": "Press Play below to start the band. Make up short phrases from the whole position, with a gap after each, and end every one on a {{1}}. Try ending on another note once, and listen to how it hangs."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "backing-band",
+                  "bpm": 70,
+                  "key": "a",
+                  "parts": [
+                    "drums",
+                    "bass"
+                  ]
+                }
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "scale-neck",
+                  "scale": "minor-pentatonic",
+                  "key": "a",
+                  "boxes": [
+                    1
+                  ],
+                  "highlight": [
+                    "1"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "theme": "Power chords: a root and its 5th",
+        "exercises": [
+          {
+            "title": "Spider, new order",
+            "focus": "Fingers 1324 at frets 5 to 8, 60 bpm",
+            "minutes": 4,
+            "tags": [
+              "technique"
+            ],
+            "why": "Changing the finger order makes each finger move on its own, which is what phrases need once they stop going straight up and down.",
+            "sections": [
+              {
+                "type": "text",
+                "text": "Press Play below to start the metronome. Play frets 5 to 8 in the order 1, 3, 2, 4 on every string, up and back. Keep it slow enough that every note rings, until the order stops needing thought."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "finger-pattern",
+                  "fingers": "1324",
+                  "fret": 5,
+                  "bpm": 60
+                }
+              }
+            ]
+          },
+          {
+            "title": "A5, D5, E5",
+            "focus": "Power chords A5-D5-E5 · down strums at 70 bpm",
+            "minutes": 7,
+            "tags": [
+              "rhythm"
+            ],
+            "why": "A power chord is a root and its 5th, so once your hand knows the one shape, every chord is just a new place for it.",
+            "sections": [
+              {
+                "type": "heading",
+                "text": "One shape, three places",
+                "minutes": 3
+              },
+              {
+                "type": "text",
+                "text": "Tap a chord box to hear it. All three are the same shape, moved to a new string or fret. Let only the two fretted strings ring, and mute the rest with the side of your hand."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "chord-shapes",
+                  "chords": [
+                    "A5",
+                    "D5",
+                    "E5"
+                  ]
+                }
+              },
+              {
+                "type": "heading",
+                "text": "In time",
+                "minutes": 4
+              },
+              {
+                "type": "text",
+                "text": "Press Play below to start the metronome; the lit box shows the chord. Strum it down on every beat, one bar each, until the shape moves without your hand opening up."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "strum-along",
+                  "chords": [
+                    "A5",
+                    "D5",
+                    "E5",
+                    "A5"
+                  ],
+                  "bpm": 70
+                }
+              }
+            ]
+          },
+          {
+            "title": "Roots and 5ths in position 1",
+            "focus": "A minor pentatonic · position 1 · only 1 and 5 in play",
+            "minutes": 5,
+            "tags": [
+              "technique"
+            ],
+            "why": "The two notes of every power chord are also in position 1, so your riffs and your solos live on the same frets.",
+            "sections": [
+              {
+                "type": "text",
+                "text": "Press Play below to start the metronome. Only {{1}} (A) and {{5}} (E) are in play: play them low to high and back, one note per beat, and notice that each pair is the power chord you just played."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "click-drone",
+                  "bpm": 70,
+                  "key": "a",
+                  "drone": false
+                }
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "scale-neck",
+                  "scale": "minor-pentatonic",
+                  "key": "a",
+                  "boxes": [
+                    1
+                  ],
+                  "enable": [
+                    "1",
+                    "5"
+                  ],
+                  "highlight": [
+                    "1"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "title": "A riff of your own",
+            "focus": "A minor pentatonic · roots and 5ths over drums in A",
+            "minutes": 4,
+            "tags": [
+              "improv"
+            ],
+            "why": "A riff is a short phrase repeated, so two notes and a rhythm are all you need to make one up.",
+            "sections": [
+              {
+                "type": "text",
+                "text": "Press Play below to start the band. Make up a short riff from only {{1}} and {{5}} and repeat it until it grooves. Then change one thing: the rhythm, the order or the octave."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "backing-band",
+                  "bpm": 80,
+                  "key": "a",
+                  "parts": [
+                    "drums",
+                    "bass"
+                  ]
+                }
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "scale-neck",
+                  "scale": "minor-pentatonic",
+                  "key": "a",
+                  "boxes": [
+                    1
+                  ],
+                  "enable": [
+                    "1",
+                    "5"
+                  ],
+                  "highlight": [
+                    "1"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "theme": "Position 1 gets faster",
+        "exercises": [
+          {
+            "title": "G to C, smoother each round",
+            "focus": "G-C changes · one-minute rounds",
+            "minutes": 4,
+            "tags": [
+              "rhythm"
+            ],
+            "why": "The change you repeat is the one your hand learns, so short rounds on one change grow faster than long ones on many.",
+            "sections": [
+              {
+                "type": "text",
+                "text": "Tap a chord box to hear it. Change between G and C as smoothly as you can for a minute, rest, and go again. Each round, aim to have the next chord ready a little sooner after the strum."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "chord-shapes",
+                  "chords": [
+                    "G",
+                    "C"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "title": "Position 1 at 70, then 80",
+            "focus": "A minor pentatonic · position 1 · 70 then 80 bpm",
+            "minutes": 6,
+            "tags": [
+              "technique"
+            ],
+            "why": "Speed comes from playing just a little faster than easy, so step up only once the slower tempo feels relaxed.",
+            "sections": [
+              {
+                "type": "heading",
+                "text": "At 70",
+                "minutes": 3
+              },
+              {
+                "type": "text",
+                "text": "Press Play below to start the metronome at 70. Play the position up and down, one note per beat, until it feels relaxed."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "backing-band",
+                  "bpm": 70,
+                  "key": "a",
+                  "parts": [
+                    "click"
+                  ]
+                }
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "scale-neck",
+                  "scale": "minor-pentatonic",
+                  "key": "a",
+                  "boxes": [
+                    1
+                  ],
+                  "highlight": [
+                    "1"
+                  ]
+                }
+              },
+              {
+                "type": "heading",
+                "text": "At 80",
+                "minutes": 3
+              },
+              {
+                "type": "text",
+                "text": "Press Play below to start the metronome at 80. Same position, same {{1}} start. If it feels rushed, go back to 70 for a round."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "backing-band",
+                  "bpm": 80,
+                  "key": "a",
+                  "parts": [
+                    "click"
+                  ]
+                }
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "scale-neck",
+                  "scale": "minor-pentatonic",
+                  "key": "a",
+                  "boxes": [
+                    1
+                  ],
+                  "highlight": [
+                    "1"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "title": "Call and response",
+            "focus": "Position 1 over drums in A · question and answer",
+            "minutes": 5,
+            "tags": [
+              "improv"
+            ],
+            "why": "A phrase that asks and one that answers is how solos talk, so this turns notes into sentences.",
+            "sections": [
+              {
+                "type": "text",
+                "text": "Press Play below to start the band. Play a short phrase that ends anywhere (the question), then answer it with one that ends on {{1}}. Keep the answer close to the question, as if replying."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "backing-band",
+                  "bpm": 80,
+                  "key": "a",
+                  "parts": [
+                    "drums",
+                    "bass"
+                  ]
+                }
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "scale-neck",
+                  "scale": "minor-pentatonic",
+                  "key": "a",
+                  "boxes": [
+                    1
+                  ],
+                  "highlight": [
+                    "1"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "title": "Do Mi Sol tune",
+            "focus": "A tune on the notes of the C chord, on the neck",
+            "minutes": 5,
+            "tags": [
+              "song"
+            ],
+            "why": "This tune uses only the notes of the C chord, so your fingers learn a chord as a melody.",
+            "sections": [
+              {
+                "type": "text",
+                "text": "Press Play below to hear the tune and see each note on the neck. Play along until you can hear the next note before you play it."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "guitar-play-along",
+                  "shape": {
+                    "shape": "melody",
+                    "tune": 22,
+                    "key": "c"
+                  },
+                  "bpm": 70,
+                  "view": "neck"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "theme": "Four chords and the mood of a note",
+        "exercises": [
+          {
+            "title": "The spider, new order again",
+            "focus": "Fingers 1243 at frets 5 to 8, 70 bpm",
+            "minutes": 4,
+            "tags": [
+              "technique"
+            ],
+            "why": "Each new finger order trains a different pair of fingers to work alone, so the hand gets even.",
+            "sections": [
+              {
+                "type": "text",
+                "text": "Press Play below to start the metronome. Play frets 5 to 8 in the order 1, 2, 4, 3 on every string, up and back, one note per beat. Keep it going until fingers 3 and 4 swap without a stumble."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "click-drone",
+                  "bpm": 70,
+                  "key": "a",
+                  "drone": false
+                }
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "finger-pattern",
+                  "fingers": "1243",
+                  "fret": 5,
+                  "bpm": 70
+                }
+              }
+            ]
+          },
+          {
+            "title": "G-Em-C-D strumming",
+            "focus": "G-Em-C-D · down strums at 70 bpm",
+            "minutes": 6,
+            "tags": [
+              "rhythm"
+            ],
+            "why": "G Em C D is the loop behind countless songs, so a steady strum through it lets you play along with them.",
+            "sections": [
+              {
+                "type": "heading",
+                "text": "The shapes",
+                "minutes": 3
+              },
+              {
+                "type": "text",
+                "text": "Tap a chord box to hear it, then fret each one as shown. Change around the loop slowly, until Em to C stops being the slow one."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "chord-shapes",
+                  "chords": [
+                    "G",
+                    "Em",
+                    "C",
+                    "D"
+                  ]
+                }
+              },
+              {
+                "type": "heading",
+                "text": "In time",
+                "minutes": 3
+              },
+              {
+                "type": "text",
+                "text": "Press Play below to start the metronome; the lit box shows the chord. Strum down on every beat, one bar per chord."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "strum-along",
+                  "chords": [
+                    "G",
+                    "Em",
+                    "C",
+                    "D"
+                  ],
+                  "bpm": 70
+                }
+              }
+            ]
+          },
+          {
+            "title": "End on a different note",
+            "focus": "Position 1 over drums in A · end on A or C",
+            "minutes": 5,
+            "tags": [
+              "improv"
+            ],
+            "why": "The last note sets the mood of a phrase, so choosing it is the first step to sounding like you mean it.",
+            "sections": [
+              {
+                "type": "text",
+                "text": "Press Play below to start the band. Play phrases that end on {{1}} (A), then on {{b3}} (C). Listen: A sounds finished, C sounds open and sad. Pick the ending each phrase wants."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "backing-band",
+                  "bpm": 75,
+                  "key": "a",
+                  "parts": [
+                    "drums",
+                    "bass"
+                  ]
+                }
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "scale-neck",
+                  "scale": "minor-pentatonic",
+                  "key": "a",
+                  "boxes": [
+                    1
+                  ],
+                  "highlight": [
+                    "1",
+                    "b3"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "title": "Sol La Sol",
+            "focus": "A short tune in G, from tab",
+            "minutes": 5,
+            "tags": [
+              "song"
+            ],
+            "why": "A tune you can sing in your head is the best check that your hands play what you hear.",
+            "sections": [
+              {
+                "type": "text",
+                "text": "Press Play below to hear the tune, then play along from the tab. Once it's in your hands, hum it first and then play it without Play."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "guitar-play-along",
+                  "shape": {
+                    "shape": "melody",
+                    "tune": 36,
+                    "key": "g"
+                  },
+                  "bpm": 70,
+                  "view": "tab"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "theme": "The same shape in E",
+        "exercises": [
+          {
+            "title": "Spider from the 1st fret",
+            "focus": "Fingers 1324 at frets 1 to 4, 70 bpm",
+            "minutes": 4,
+            "tags": [
+              "technique"
+            ],
+            "why": "Low on the neck the frets are widest, so the same pattern there builds the stretch for open chords.",
+            "sections": [
+              {
+                "type": "text",
+                "text": "Press Play below to start the metronome. Play frets 1 to 4 in the order 1, 3, 2, 4 on every string, up and back, until the stretch feels as easy as it did at the 5th fret."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "click-drone",
+                  "bpm": 70,
+                  "key": "a",
+                  "drone": false
+                }
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "finger-pattern",
+                  "fingers": "1324",
+                  "fret": 1,
+                  "bpm": 70
+                }
+              }
+            ]
+          },
+          {
+            "title": "E5, G5, A5 riff",
+            "focus": "E5-G5-A5 · down strums at 80 bpm",
+            "minutes": 4,
+            "tags": [
+              "rhythm"
+            ],
+            "why": "The power chord shape works on any root, so a riff in E is the same hand you used in A.",
+            "sections": [
+              {
+                "type": "text",
+                "text": "Press Play below to start the metronome; the lit box shows the chord. Strum each power chord down on every beat, one bar each, until the slide between them is smooth."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "strum-along",
+                  "chords": [
+                    "E5",
+                    "G5",
+                    "A5",
+                    "E5"
+                  ],
+                  "bpm": 80
+                }
+              }
+            ]
+          },
+          {
+            "title": "E minor pentatonic, two places",
+            "focus": "E minor pentatonic · open and at the 12th fret",
+            "minutes": 8,
+            "tags": [
+              "technique"
+            ],
+            "why": "A position's shape doesn't change with the key, it just moves, so every shape you know works in all twelve keys.",
+            "sections": [
+              {
+                "type": "heading",
+                "text": "Open position",
+                "minutes": 4
+              },
+              {
+                "type": "text",
+                "text": "Press Play below to start the metronome. Play E minor pentatonic in the open position, up and down, starting and ending on {{1}}."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "click-drone",
+                  "bpm": 70,
+                  "key": "e",
+                  "drone": false
+                }
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "scale-neck",
+                  "scale": "minor-pentatonic",
+                  "key": "e",
+                  "placement": {
+                    "by": "open"
+                  },
+                  "highlight": [
+                    "1"
+                  ]
+                }
+              },
+              {
+                "type": "heading",
+                "text": "At the 12th fret",
+                "minutes": 4
+              },
+              {
+                "type": "text",
+                "text": "The same notes an octave up, in the same shape as position 1 in A. Play it up and down, then hop to the open position and back on the low {{1}}."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "scale-neck",
+                  "scale": "minor-pentatonic",
+                  "key": "e",
+                  "placement": {
+                    "by": "fret",
+                    "fret": 12
+                  },
+                  "highlight": [
+                    "1"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "title": "Your A phrases in E",
+            "focus": "Improvise in E over drums",
+            "minutes": 4,
+            "tags": [
+              "improv"
+            ],
+            "why": "A phrase is a shape on the neck, so a phrase you made in A plays in E just by moving it.",
+            "sections": [
+              {
+                "type": "text",
+                "text": "Press Play below to start the band. Take a phrase you made up in A this week and play it here, then make up new ones ending on {{1}}."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "backing-band",
+                  "bpm": 80,
+                  "key": "e",
+                  "parts": [
+                    "drums",
+                    "bass"
+                  ]
+                }
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "scale-neck",
+                  "scale": "minor-pentatonic",
+                  "key": "e",
+                  "placement": {
+                    "by": "open"
+                  },
+                  "highlight": [
+                    "1"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "theme": "From memory",
+        "exercises": [
+          {
+            "title": "The spider at 80",
+            "focus": "Fingers 1234 at frets 3 to 6, 80 bpm",
+            "minutes": 4,
+            "tags": [
+              "technique"
+            ],
+            "why": "Holding the pattern at a faster tempo shows you how far your hands have come since day 1.",
+            "sections": [
+              {
+                "type": "text",
+                "text": "Press Play below to start the metronome at 80. Play frets 3 to 6 with fingers 1, 2, 3 and 4 on every string, up and back. Notice what feels easier than on day 1."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "click-drone",
+                  "bpm": 80,
+                  "key": "a",
+                  "drone": false
+                }
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "finger-pattern",
+                  "fingers": "1234",
+                  "fret": 3,
+                  "bpm": 80
+                }
+              }
+            ]
+          },
+          {
+            "title": "G, C and D without looking",
+            "focus": "G-C-D-G changes · down strums at 70 bpm",
+            "minutes": 5,
+            "tags": [
+              "rhythm"
+            ],
+            "why": "Looking at your hand is a habit, and a change you can make without looking is one you really own.",
+            "sections": [
+              {
+                "type": "text",
+                "text": "Press Play below to start the metronome. Strum along, but look at the chord boxes instead of your hand. When a change goes wrong, slow down in your head, not on the strings."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "strum-along",
+                  "chords": [
+                    "G",
+                    "C",
+                    "D",
+                    "G"
+                  ],
+                  "bpm": 70
+                }
+              }
+            ]
+          },
+          {
+            "title": "Position 1 without the chart",
+            "focus": "A minor pentatonic · position 1 from memory at 80 bpm",
+            "minutes": 5,
+            "tags": [
+              "technique"
+            ],
+            "why": "A shape you can play without the chart is one you can use in music, so this is the test that matters.",
+            "sections": [
+              {
+                "type": "text",
+                "text": "Press Play below to start the metronome. Play position 1 up and down from memory, starting on the low {{1}}, and glance at the chart only when you're stuck."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "backing-band",
+                  "bpm": 80,
+                  "key": "a",
+                  "parts": [
+                    "click"
+                  ]
+                }
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "scale-neck",
+                  "scale": "minor-pentatonic",
+                  "key": "a",
+                  "boxes": [
+                    1
+                  ],
+                  "highlight": [
+                    "1"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "title": "A longer tune",
+            "focus": "A tune in G · tab at 65, then the neck at 75",
+            "minutes": 6,
+            "tags": [
+              "song"
+            ],
+            "why": "Reading it once from tab and once from the neck links the numbers to the places your fingers go.",
+            "sections": [
+              {
+                "type": "heading",
+                "text": "From tab at 65",
+                "minutes": 3
+              },
+              {
+                "type": "text",
+                "text": "Press Play below to hear the tune and play along from the tab."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "guitar-play-along",
+                  "shape": {
+                    "shape": "melody",
+                    "tune": 20,
+                    "key": "g"
+                  },
+                  "bpm": 65,
+                  "view": "tab"
+                }
+              },
+              {
+                "type": "heading",
+                "text": "On the neck at 75",
+                "minutes": 3
+              },
+              {
+                "type": "text",
+                "text": "Press Play below: now the tune is on the neck, a little faster. Play along until you can play it with your eyes closed."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "guitar-play-along",
+                  "shape": {
+                    "shape": "melody",
+                    "tune": 20,
+                    "key": "g"
+                  },
+                  "bpm": 75,
+                  "view": "neck"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "theme": "Make your own drills",
+        "exercises": [
+          {
+            "title": "G-Em-C-D, full pattern",
+            "focus": "G-Em-C-D · D . D U . U D U at 80 bpm",
+            "minutes": 5,
+            "tags": [
+              "rhythm"
+            ],
+            "why": "This pattern keeps the hand moving down and up on every half beat, so the strings it skips make the groove.",
+            "sections": [
+              {
+                "type": "text",
+                "text": "Press Play below to start the metronome. Strum the pattern on each chord, keeping your hand moving even when it misses the strings, until it swings on its own."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "strum-along",
+                  "chords": [
+                    "G",
+                    "Em",
+                    "C",
+                    "D"
+                  ],
+                  "bpm": 80,
+                  "pattern": "D . D U . U D U"
+                }
+              }
+            ]
+          },
+          {
+            "title": "A position drill of your own",
+            "focus": "A minor pentatonic · position 1 in A and E · your own drill",
+            "minutes": 5,
+            "tags": [
+              "technique"
+            ],
+            "why": "Every drill this week changed one thing (the key, the tempo, the notes in play), so you can make your own by changing one thing yourself.",
+            "sections": [
+              {
+                "type": "text",
+                "text": "Press Play below to start the metronome. Make up a drill from position 1: pick one thing to change (the key, which notes are in play, the direction or the rhythm) and play it until it feels easy. Then change another."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "click-drone",
+                  "bpm": 80,
+                  "key": "a",
+                  "drone": false
+                }
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "scale-neck",
+                  "scale": "minor-pentatonic",
+                  "key": "a",
+                  "boxes": [
+                    1
+                  ],
+                  "highlight": [
+                    "1"
+                  ]
+                }
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "scale-neck",
+                  "scale": "minor-pentatonic",
+                  "key": "e",
+                  "placement": {
+                    "by": "fret",
+                    "fret": 12
+                  },
+                  "highlight": [
+                    "1"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "title": "Jam over Am and G",
+            "focus": "Position 1 over Am-G · land on A",
+            "minutes": 6,
+            "tags": [
+              "improv"
+            ],
+            "why": "Landing on the chord's root as it changes is the simplest way to make a solo follow the chords.",
+            "sections": [
+              {
+                "type": "heading",
+                "text": "Land on A",
+                "minutes": 3
+              },
+              {
+                "type": "text",
+                "text": "Press Play below to start the backing. Improvise from position 1 and land on {{1}} when Am comes round."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "guitar-play-along",
+                  "shape": {
+                    "shape": "solo-over",
+                    "key": "a",
+                    "chords": [
+                      {
+                        "chord": "Am",
+                        "scale": "minor-pentatonic",
+                        "target": [
+                          "1"
+                        ]
+                      },
+                      {
+                        "chord": "G",
+                        "target": [
+                          "1"
+                        ]
+                      }
+                    ],
+                    "bars": 2
+                  },
+                  "bpm": 80,
+                  "view": "neck"
+                }
+              },
+              {
+                "type": "heading",
+                "text": "Your own ending",
+                "minutes": 3
+              },
+              {
+                "type": "text",
+                "text": "Keep the backing going and pick your own landing note for each phrase. Listen for the one you like best over G."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "guitar-play-along",
+                  "shape": {
+                    "shape": "solo-over",
+                    "key": "a",
+                    "chords": [
+                      {
+                        "chord": "Am",
+                        "scale": "minor-pentatonic",
+                        "target": [
+                          "1"
+                        ]
+                      },
+                      {
+                        "chord": "G",
+                        "target": [
+                          "1"
+                        ]
+                      }
+                    ],
+                    "bars": 2
+                  },
+                  "bpm": 80,
+                  "view": "neck"
+                }
+              }
+            ]
+          },
+          {
+            "title": "Your tune, for the record",
+            "focus": "The day 6 tune in G at 75",
+            "minutes": 4,
+            "tags": [
+              "song"
+            ],
+            "why": "Playing the week's tune once more shows you what has changed in your hands.",
+            "sections": [
+              {
+                "type": "text",
+                "text": "Press Play below and play the tune from day 6 along with it. Then play it on your own and change one thing about it: the speed, an octave, or an ending."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "guitar-play-along",
+                  "shape": {
+                    "shape": "melody",
+                    "tune": 20,
+                    "key": "g"
+                  },
+                  "bpm": 75,
+                  "view": "tab"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

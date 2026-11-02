@@ -18,12 +18,12 @@ test("guitar intermediate only: the guitar intermediate plan", () => {
   assert.equal(selectExamples({ ...base, levels: { guitar: "intermediate" } }).plan.id, "guitar-intermediate");
 });
 
-test("guitar beginner: the guitar beginner plan", () => {
-  assert.equal(selectExamples({ ...base, levels: { guitar: "beginner" } }).plan.id, "guitar-beginner");
+test("guitar beginner: the guitar beginner plan, in the new teaching style", () => {
+  assert.equal(selectExamples({ ...base, levels: { guitar: "beginner" } }).plan.id, "guitar-beginner-new");
 });
 
-test("voice advanced only: the beginner voice plan", () => {
-  assert.equal(selectExamples({ ...base, levels: { voice: "advanced" } }).plan.id, "voice-beginner");
+test("voice advanced only: the beginner voice plan, in the new teaching style", () => {
+  assert.equal(selectExamples({ ...base, levels: { voice: "advanced" } }).plan.id, "voice-beginner-new");
 });
 
 test("guitar and theory pick the plan covering both", () => {

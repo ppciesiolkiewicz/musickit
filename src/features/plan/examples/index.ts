@@ -27,6 +27,8 @@ import guitarBeginnerPlan from "./plans/guitar-beginner.json";
 import guitarIntermediatePlan from "./plans/guitar-intermediate.json";
 import voiceBeginnerPlan from "./plans/voice-beginner.json";
 import guitarTheoryIntermediatePlan from "./plans/guitar-theory-intermediate.json";
+import guitarBeginnerNewPlan from "./plans/guitar-beginner-new.json";
+import voiceBeginnerNewPlan from "./plans/voice-beginner-new.json";
 
 export interface ExampleMeta {
   id: string;
@@ -39,6 +41,8 @@ export interface ExampleMeta {
   note: string;
   /** "new": written in the new teaching style (practice and understanding, as on the landing page); absent: the older style */
   style?: "new";
+  /** a new-style rewrite of another example on the same topic: its id, and what changed, one point each */
+  rewrites?: { id: string; changes: string[] };
 }
 
 export interface ExerciseExample extends ExampleMeta {
@@ -83,4 +87,6 @@ export const PLAN_EXAMPLES: PlanExample[] = [
   guitarIntermediatePlan,
   voiceBeginnerPlan,
   guitarTheoryIntermediatePlan,
+  guitarBeginnerNewPlan,
+  voiceBeginnerNewPlan,
 ] as PlanExample[];
