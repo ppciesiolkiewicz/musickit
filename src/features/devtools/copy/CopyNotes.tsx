@@ -21,7 +21,7 @@ const PRIMARY = "inline-flex cursor-pointer items-center gap-1.5 rounded-lg bord
 /**
  * Dev only. A button at the bottom right opens the notes bar, the same on every page: every note's count (and, where the
  * page shows example sections, how many are on changed ones), HEAD, note a text, re-pin all to HEAD, clear all, copy all;
- * then this page's notes. "Note a text" turns on note mode: hover outlines the text under the pointer, a click (which
+ * then this page's notes. Opening the bar turns on note mode ("Note a text" toggles it): hover outlines the text under the pointer, a click (which
  * does nothing else then) opens a box for a note on that wording, tagged inline above its text. The pencils on
  * /dev/examples' sections add to the same notes. All pages' notes are on /dev/notes.
  */
@@ -171,7 +171,7 @@ export default function CopyNotes() {
               {outdated > 0 && <span className="rounded-full bg-orange-500/15 px-2 py-0.5 text-xs text-orange-200">{outdated} on changed sections</span>}
               {head && <span className="font-mono text-xs text-slate-500" title="The checkout's HEAD; a section note also keeps its example file's commit">HEAD {head}</span>}
               <span className="ml-auto flex flex-wrap gap-2">
-                <button type="button" onClick={() => (setOpen(false), setOn(true))} className={BTN}><Icon name="pencil" size={12} />Note a text</button>
+                <button type="button" aria-pressed={on} onClick={() => setOn((v) => !v)} title={on ? "On: click any text on the page to note it" : "Turn on, then click any text on the page to note it"} className={on ? PRIMARY : BTN}><Icon name="pencil" size={12} />Note a text</button>
                 <button type="button" disabled={!head || !notes.length} onClick={repin} title={`Pin every note to the checkout's HEAD: they still hold${shown ? "; section notes also to their sections as they are now (those on gone sections stay)" : ". Section notes are pinned to their sections as they are now only from /dev/examples"}`} className={BTN}>Re-pin all to HEAD</button>
                 <button type="button" disabled={!notes.length} onClick={() => (clearing ? (write(() => []), setClearing(false)) : setClearing(true))} className={`${BTN} ${clearing ? "!border-rose-400 !bg-rose-500/20 !text-rose-100" : ""}`}>{clearing ? "Click again to delete all" : "Clear all"}</button>
                 <button type="button" disabled={!notes.length} onClick={copy} className={copied ? `${PRIMARY} !border-emerald-400/70 !bg-emerald-500/20 !text-emerald-100` : PRIMARY}><Icon name={copied ? "check" : "copy"} size={12} />{copied ? "Copied" : "Copy all notes"}</button>
@@ -196,11 +196,11 @@ export default function CopyNotes() {
         )}
         <button
           type="button"
-          onClick={() => (on ? setOn(false) : setOpen((v) => !v))}
+          onClick={() => (open || on ? (setOpen(false), setOn(false)) : (setOpen(true), setOn(true)))}
           title="Notes on the wording of this page"
           className={`inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-amber-400/50 px-3.5 py-2 text-xs font-semibold shadow-lg ${on ? "bg-amber-400 text-slate-950" : "bg-slate-950/95 text-amber-100"}`}
         >
-          <Icon name="pencil" size={12} />{on ? "Click a text · Esc" : notes.length ? `Notes · ${here.length}/${notes.length}` : "Notes"}
+          <Icon name="pencil" size={12} />{on && !open ? "Click a text · Esc" : notes.length ? `Notes · ${here.length}/${notes.length}` : "Notes"}
         </button>
       </div>
     </>
