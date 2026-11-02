@@ -42,7 +42,7 @@
             "sections": [
               {
                 "type": "text",
-                "text": "Press Start below: the drone and the mic start together, and your pitch shows on the staff as a line. Sing {{1}} on \"ah\" and slide a little above and below it until the wobble stops. Hold the smooth spot for as long as feels easy."
+                "text": "Press Start below: the drone and the mic start together, and your pitch shows on the staff as a line. Sing {{1}} on \"oo\" and slide a little above and below it until the wobble stops. Hold the smooth spot for as long as feels easy."
               },
               {
                 "type": "tool",
@@ -63,7 +63,7 @@
           },
           {
             "title": "Steps or skips?",
-            "focus": "Hear a step (Do-Re) from a skip (Do-Mi)",
+            "focus": "Hear a step (Do-Re) from a skip (Do-Mi, jumping over Re)",
             "minutes": 3,
             "tags": [
               "ear"
