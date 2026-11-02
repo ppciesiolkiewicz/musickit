@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { clearCopyNotes, copyNotesMarkdown, hashKey, noteHref, noteIdOf, notesOfOldComments, outdatedCount, pathOfRoute, placeOf, readCopyNotes, repinCopyNotes, routeOf, squeeze, stateOf, type CopyNote, type NoteSection } from "./copyNotes";
+import { clearCopyNotes, contextLines, copyNotesMarkdown, hashKey, noteHref, noteIdOf, notesOfOldComments, outdatedCount, pathOfRoute, placeOf, readCopyNotes, repinCopyNotes, routeOf, squeeze, stateOf, windowAround, type CopyNote, type NoteSection } from "./copyNotes";
 
 const note = (o: Partial<CopyNote>): CopyNote => ({ id: "1", route: "/plan", text: "Sing with the mic", where: "button", note: "too long", at: "2026-11-02T00:00:00Z", ...o });
 const sec = (o: Partial<NoteSection> = {}): NoteSection => ({ example: "ex-a", address: "ex", index: 2, kind: "text", hash: "aaaaaaaa", commit: "abc1234", ...o });
@@ -89,4 +89,19 @@ test("noteHref puts the note before the route's hash, and noteIdOf reads it back
   assert.equal(noteIdOf("?note=n1", "#a~1"), "n1");
   assert.equal(noteIdOf("", "#note-old"), "old");
   assert.equal(noteIdOf("", "#a~1"), null);
+});
+
+test("windowAround cuts a long text round the part", () => {
+  assert.equal(windowAround("short", "short"), "short");
+  const full = `${"a".repeat(100)} the noted bit ${"b".repeat(100)}`;
+  const w = windowAround(full, "the noted bit", 40);
+  assert.ok(w.startsWith("…") && w.endsWith("…") && w.includes("the noted bit"));
+  assert.ok(windowAround(full, "aaaa", 40).startsWith("aaaa"));
+});
+
+test("a text note's context goes under its quote in the Markdown", () => {
+  const md = copyNotesMarkdown([note({ context: { under: ["Components", "Arpeggio part"], components: ["ComponentStories", "ArpeggioPart"], around: "Play the notes one by one" } })]);
+  assert.ok(md.includes('- "Sing with the mic" (button)\n  under: Components › Arpeggio part\n  components: ComponentStories › ArpeggioPart\n  around: "Play the notes one by one"\n  → too long'));
+  assert.deepEqual(contextLines(undefined), []);
+  assert.deepEqual(contextLines({ under: [] }), []);
 });

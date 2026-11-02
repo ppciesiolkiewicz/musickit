@@ -91,7 +91,7 @@ export default function NotesPage() {
             {list.map((n) => (
               <li key={n.id} className="flex flex-col gap-1 py-2 text-sm">
                 <p className="flex gap-3 text-slate-400">
-                  <span className="min-w-0 flex-1">“{n.text}”<span className="ml-2 font-mono text-[10px] text-slate-600">{n.where}{head && n.head && n.head !== head ? " · older HEAD" : ""}</span></span>
+                  <span className="min-w-0 flex-1">“{n.text}”<span className="ml-2 font-mono text-[10px] text-slate-600">{n.where}{n.context?.components?.length ? ` · ${n.context.components.join(" › ")}` : ""}{head && n.head && n.head !== head ? " · older HEAD" : ""}</span></span>
                   <Link href={noteHref(n)} title="Open the page at this note" className="shrink-0 text-xs text-sky-300 hover:underline">Open →</Link>
                 </p>
                 <NoteBar id={`note-${n.id}`} note={n} linked={n.id === linked} />

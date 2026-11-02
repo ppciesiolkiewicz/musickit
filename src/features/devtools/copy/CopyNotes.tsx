@@ -4,11 +4,12 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Icon from "@/components/Icon";
-import { copyNotesMarkdown, noteHref, outdatedCount, repinCopyNotes, squeeze, type CopyNote } from "../model/copyNotes";
+import { contextLines, copyNotesMarkdown, noteHref, outdatedCount, repinCopyNotes, squeeze, type CopyNote, type NoteContext } from "../model/copyNotes";
 import { useCommits, useCopyNotes, useLinkedNote, useRoute, useShownSections, writeCopyNotes as write } from "./store";
 import { devUi } from "../gate";
 import { NoteBar } from "./NoteBar";
 import { TextNoteMarks, pathOf, placesOf } from "./TextNoteMarks";
+import { contextOf } from "./context";
 
 const ROOT = "data-copy-notes";
 const whereOf = (el: Element) => {
@@ -40,7 +41,7 @@ export default function CopyNotes() {
   const [on, setOn] = useState(false);
   const [open, setOpen] = useState(false);
   const [list, setList] = useState(false);
-  const [target, setTarget] = useState<{ text: string; where: string; path: string } | null>(null);
+  const [target, setTarget] = useState<{ text: string; where: string; path: string; context: NoteContext } | null>(null);
   const [draft, setDraft] = useState("");
   const [copied, setCopied] = useState(false);
   const [clearing, setClearing] = useState(false);
@@ -75,7 +76,8 @@ export default function CopyNotes() {
       if (!el) return;
       e.preventDefault();
       e.stopPropagation();
-      setTarget({ text: squeeze(el.innerText), where: whereOf(el), path: pathOf(el, ROOT) });
+      const text = squeeze(el.innerText);
+      setTarget({ text, where: whereOf(el), path: pathOf(el, ROOT), context: contextOf(el, text, ROOT) });
       setDraft("");
     };
     const key = (e: KeyboardEvent) => e.key === "Escape" && (setTarget(null), setOn(false));
@@ -165,6 +167,7 @@ export default function CopyNotes() {
         {target && (
           <div className="flex w-80 max-w-full flex-col gap-1.5 rounded-2xl border border-amber-400/40 bg-slate-950/95 p-3 text-slate-100 shadow-2xl shadow-black/50 backdrop-blur">
             <p className="text-xs text-slate-400">“{target.text}”</p>
+            {contextLines(target.context).length > 0 && <p className="whitespace-pre-line break-words font-mono text-[10px] text-slate-500" title="Saved with the note, for whoever reads it">{contextLines(target.context).join("\n")}</p>}
             <textarea
               autoFocus
               rows={2}

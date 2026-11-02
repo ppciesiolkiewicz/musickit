@@ -24,6 +24,16 @@ export interface NoteSection {
   dirty?: boolean;
 }
 
+/** Where a text note's text sits, read from the page when noted (`copy/context.ts`). */
+export interface NoteContext {
+  /** the labelled regions (a nav's, a dialog's aria-label) and headings it sits under, outermost first ("Dev tools", "Components") */
+  under?: string[];
+  /** the React components that render it, outermost first, the app's own only ("ComponentStories", "ArpeggioPart") */
+  components?: string[];
+  /** the text of the block round it, cut to a window about the noted text */
+  around?: string;
+}
+
 export interface CopyNote {
   id: string;
   /** the page's path when noted */
@@ -35,6 +45,8 @@ export interface CopyNote {
   /** the clicked element's place in the page, tag and index per level from <body> ("div1>main0>p3"), to find that one
    * when the same text is in several places, or when its text has changed since */
   path?: string;
+  /** what's around the noted text, so a reader (or an AI tool) can tell where it is in the app and the code */
+  context?: NoteContext;
   note: string;
   /** ISO time */
   at: string;
@@ -55,6 +67,26 @@ export function readCopyNotes(raw: unknown): CopyNote[] {
       !!n && typeof n === "object" && ["id", "route", "text", "where", "note", "at"].every((k) => typeof (n as Record<string, unknown>)[k] === "string") &&
       ((n as CopyNote).section === undefined || isSection((n as CopyNote).section)),
   );
+}
+
+/** `full` cut to about `max` characters round where `part` is in it, with "…" where it was cut. */
+export function windowAround(full: string, part: string, max = 280): string {
+  if (full.length <= max) return full;
+  const at = Math.max(0, full.indexOf(part.replace(/…$/, "")));
+  const start = Math.max(0, Math.min(at - Math.floor((max - Math.min(part.length, max)) / 2), full.length - max));
+  return `${start > 0 ? "…" : ""}${full.slice(start, start + max).trim()}${start + max < full.length ? "…" : ""}`;
+}
+
+const strings = (x: unknown): string[] => (Array.isArray(x) ? x.filter((v): v is string => typeof v === "string" && !!v) : []);
+
+/** A text note's context as Markdown lines under its quote; nothing for a note made before notes kept it. */
+export function contextLines(c: NoteContext | undefined): string[] {
+  if (!c || typeof c !== "object") return [];
+  return [
+    ...(strings(c.under).length ? [`under: ${strings(c.under).join(" › ")}`] : []),
+    ...(strings(c.components).length ? [`components: ${strings(c.components).join(" › ")}`] : []),
+    ...(typeof c.around === "string" && c.around ? [`around: "${c.around}"`] : []),
+  ];
 }
 
 /** The text of an element as people read it: whitespace squeezed, cut short. */
@@ -129,7 +161,7 @@ export function copyNotesMarkdown(notes: CopyNote[], opts: MarkdownOpts = {}): s
   const line = (n: CopyNote) => {
     const at = n.head && opts.head && n.head !== opts.head ? `, at ${n.head}` : "";
     const s = n.section;
-    if (!s) return `- "${n.text}" (${n.where}${at})\n  → ${n.note.replace(/\n/g, "\n    ")}`;
+    if (!s) return `- "${n.text}" (${n.where}${at})\n${contextLines(n.context).map((l) => `  ${l}\n`).join("")}  → ${n.note.replace(/\n/g, "\n    ")}`;
     const file = opts.files?.[s.example]?.path;
     const state = opts.hashes ? stateOf(s, opts.hashes[hashKey(s.example, s.address, s.index)]) : "current";
     const warn = state === "changed" ? "\n  ⚠ The section has changed since this note." : state === "gone" ? "\n  ⚠ This section no longer exists." : "";
