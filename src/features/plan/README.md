@@ -9,7 +9,7 @@ browser.
 1. **Start** opens one step modal (`ui/PlanFlow.tsx`, mode `"start"`): the questionnaire (`ui/Questionnaire.tsx`): a level per
    area (Guitar, Voice, Theory & ear, each skippable), one 1-5 star concept screen per area that isn't skipped, your voice
    (with *Find my range*) if Voice isn't skipped, this week's focus (up to 3), minutes a day, notes and styles. Then *Copy your prompt*,
-   then *Paste its reply*. Every screen has the same fixed height (the body scrolls inside), so Back and Next never move.
+   then *Paste your AI's reply*. Every screen has the same fixed height (the body scrolls inside), so Back and Next never move.
    **Build my plan** is enabled once the reply parses.
 2. **The week** (`ui/WeekView.tsx`): seven day buttons; any day can be opened, days ahead are dashed and marked "coming up". The day's
    exercises are colour-coded cards (a hue per position, tags keep their own colour): title in the display face, focus

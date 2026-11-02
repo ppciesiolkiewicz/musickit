@@ -63,7 +63,7 @@ export function CopyPrompt({ prompt, entries, label = "Copy prompt" }: { prompt:
         </Button>
         <Button size="sm" onClick={() => setShow((v) => !v)}>{show ? "Hide" : "Show"} prompt</Button>
         <Button size="sm" onClick={() => setDebug((v) => !v)}>{debug ? "Hide" : "Show"} debug</Button>
-        <span className="text-xs text-slate-500">Paste it into ChatGPT, Claude, Gemini… and copy its reply.</span>
+        <span className="text-xs text-slate-500">Paste it into ChatGPT, Claude, Gemini… copy its whole reply, then press Next to paste it here.</span>
       </div>
       {debug && (
         <div className="flex flex-col gap-3 rounded-lg border border-slate-700 bg-slate-950/60 p-3 text-[11px] text-slate-300">

@@ -83,11 +83,13 @@ export default function PlanFlow({ mode, answers, current, history, entries, onP
   steps.push(
     {
       title: mode === "start" ? "Copy your prompt" : "Copy next week's prompt",
-      hint: mode === "start" ? "Paste it into ChatGPT, Claude, Gemini… Nothing leaves this browser." : "It carries this week's exercises, what you did and skipped, and your notes.",
+      hint: mode === "start"
+        ? "Paste it into ChatGPT, Claude, Gemini… Next, you paste your AI's reply back here."
+        : "It carries this week's exercises, what you did and skipped, and your notes. Next, you paste your AI's reply back here.",
       body: <CopyPrompt prompt={prompt} entries={entries} />,
     },
     {
-      title: "Paste its reply",
+      title: "Paste your AI's reply",
       hint: "The whole reply is fine; we find the plan in it.",
       body: <PasteBox text={text} onText={setText} result={parsed} />,
       canNext: !!parsed?.ok,
