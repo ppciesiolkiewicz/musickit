@@ -1,0 +1,29 @@
+{
+  "id": "guitar-new-notes-on-e-and-a",
+  "kind": "exercise",
+  "areas": ["guitar"],
+  "level": "new",
+  "concepts": ["notes-e-a-strings", "note-names"],
+  "style": "new",
+  "note": "The why says what the drill trains and why it pays off, each block is the same drill turned a new way (find, name, every place), and done is a feel (no counting frets), never a count.",
+  "exercise": {
+    "title": "Notes on the low E and A strings",
+    "focus": "Natural notes on the E and A strings · frets 0 to 12 · find, name, every place",
+    "minutes": 6,
+    "tags": ["theory", "technique"],
+    "why": "The low E and A strings hold the root of almost every chord you will move up the neck, so knowing their notes lets you place any chord fast.",
+    "learnBefore": ["/course/1/notes-on-e-and-a"],
+    "sections": [
+      { "type": "heading", "text": "Find the note", "minutes": 2 },
+      { "type": "text", "text": "Press Start in the game below. It names a note: find it on the low E or the A string and play it, saying its name out loud. Keep going until you stop counting frets from the open string." },
+      { "type": "tool", "tool": { "type": "note-finder", "mode": "find", "from": 0, "to": 12 } },
+      { "type": "heading", "text": "Name the dot", "minutes": 2 },
+      { "type": "text", "text": "Now the other way round: the game lights a fret and you name the note. Play it as you answer, so your hand learns the place while your eyes learn the name." },
+      { "type": "tool", "tool": { "type": "note-finder", "mode": "name", "from": 0, "to": 12 } },
+      { "type": "heading", "text": "Every place", "minutes": 2 },
+      { "type": "text", "text": "Play every place the named note sits on both strings, low to high. Then make up your own round: pick a note, find it on E, then on A, and step up to the next letter." },
+      { "type": "tool", "tool": { "type": "note-finder", "mode": "every", "from": 0, "to": 12 } }
+    ],
+    "exploreMore": ["/theory/notes"]
+  }
+}

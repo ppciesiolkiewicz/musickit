@@ -1,0 +1,29 @@
+{
+  "id": "theory-intermediate-hearing-changes",
+  "kind": "exercise",
+  "areas": ["theory"],
+  "level": "intermediate",
+  "concepts": ["hearing-changes", "chords-in-key"],
+  "style": "new",
+  "note": "The why names the sound to listen for (IV steps away, V leans home), so the learner can use it on any song. Each block turns the same listening drill a new way: two chords, all three, then a new key.",
+  "exercise": {
+    "title": "Hear the 4 and the 5 coming",
+    "focus": "I IV V by ear · G major, then D major · guess before you look",
+    "minutes": 6,
+    "tags": ["ear", "theory"],
+    "why": "The IV chord sounds like stepping away from home and the V like leaning back towards it, so that pull tells you which chord is playing in any song.",
+    "learnBefore": ["/course/5/one-four-five"],
+    "sections": [
+      { "type": "heading", "text": "Away and back", "minutes": 2 },
+      { "type": "text", "text": "Press Play below to start the chords: G and C take turns, then G and D. Listen to how C steps away from G and how D leans back towards it, and call out which one you hear." },
+      { "type": "tool", "tool": { "type": "chord-backing", "chords": ["G", "C", "G", "C", "G", "D", "G", "D"], "bpm": 70 } },
+      { "type": "heading", "text": "Guess, then look", "minutes": 2 },
+      { "type": "text", "text": "Now all three chords, in a new order. Look away from the chord boxes and call out 1, 4 or 5 on each change, then look to check. Keep going until you hear it before you think it." },
+      { "type": "tool", "tool": { "type": "chord-backing", "key": "g", "numerals": ["I", "IV", "V", "I", "V", "IV", "I", "V"], "backing": ["strum", "block"], "bpm": 70 } },
+      { "type": "heading", "text": "Same pull, new key", "minutes": 2 },
+      { "type": "text", "text": "The same order in D major: the chords are new, but the pull is the same, so keep calling out the numbers. Then put on a song you know and listen for the 4 and the 5." },
+      { "type": "tool", "tool": { "type": "chord-backing", "key": "d", "numerals": ["I", "IV", "V", "I", "V", "IV", "I", "V"], "backing": ["strum", "block"], "bpm": 70 } }
+    ],
+    "exploreMore": ["/course/5/hearing-changes"]
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "voice-beginner-in-tune-over-drone",
+  "kind": "exercise",
+  "areas": ["voice"],
+  "level": "beginner",
+  "concepts": ["in-tune-over-drone", "do-mi-sol-skips"],
+  "style": "new",
+  "note": "The why gives the learner the tool to check themselves (smooth means in tune, a wobble means off), the bare drill stays at 3 minutes, and the second block turns it into a tune the learner makes up.",
+  "exercise": {
+    "title": "In tune over a drone: find the smooth spot",
+    "focus": "Do and Sol over a D drone · a made-up Do Mi Sol tune",
+    "minutes": 6,
+    "tags": ["sing", "ear"],
+    "why": "A note in tune with the drone sounds smooth and a note that is off wobbles, so the drone teaches your ear to hear in tune on its own.",
+    "learnBefore": ["/course/3/home-note"],
+    "sections": [
+      { "type": "heading", "text": "Hear the wobble", "minutes": 3 },
+      { "type": "text", "text": "Press Start below: the drone and the mic start together, and your pitch shows on the staff as a line. Sing {{1}} on \"ah\" and slide a little above it and below it, until the wobble stops and the sound goes smooth. That smooth spot is in tune. Then find it on {{5}}." },
+      { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "d", "voice": "tenor", "notes": ["1", "5"], "labels": "solfege", "drone": true } },
+      { "type": "heading", "text": "Make up a tune", "minutes": 3 },
+      { "type": "text", "text": "Keep the drone on and make up short tunes from {{1}}, {{3}} and {{5}}, on \"la\". End each one on {{1}}, and listen for the smooth spot on every note before you move on." },
+      { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "d", "voice": "tenor", "notes": ["1", "3", "5"], "labels": "solfege", "drone": true } }
+    ],
+    "exploreMore": ["/course/3/do-mi-sol"]
+  }
+}

@@ -60,6 +60,7 @@ describe("example library", () => {
       assert.ok(x.areas.length && x.areas.every((a) => AREAS.some((k) => k.id === a)), x.id);
       assert.ok(LEVELS.includes(x.level), x.id);
       assert.ok(x.note.trim(), x.id);
+      assert.ok(x.style === undefined || x.style === "new", `${x.id}: style`);
     }
   });
 

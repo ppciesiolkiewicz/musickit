@@ -20,6 +20,9 @@ import theoryAdvancedModesByEar from "./exercises/theory-advanced-modes-by-ear.j
 import showcaseBlocksDoMiSol from "./exercises/showcase-blocks-do-mi-sol.json";
 import showcasePickStepTunes from "./exercises/showcase-pick-step-tunes.json";
 import showcaseProgressionFourWays from "./exercises/showcase-progression-four-ways.json";
+import guitarNewNotesOnEAndA from "./exercises/guitar-new-notes-on-e-and-a.json";
+import voiceBeginnerInTuneOverDrone from "./exercises/voice-beginner-in-tune-over-drone.json";
+import theoryIntermediateHearingChanges from "./exercises/theory-intermediate-hearing-changes.json";
 import guitarBeginnerPlan from "./plans/guitar-beginner.json";
 import guitarIntermediatePlan from "./plans/guitar-intermediate.json";
 import voiceBeginnerPlan from "./plans/voice-beginner.json";
@@ -34,6 +37,8 @@ export interface ExampleMeta {
   concepts: string[];
   /** why it is a good example, in one or two sentences */
   note: string;
+  /** "new": written in the new teaching style (practice and understanding, as on the landing page); absent: the older style */
+  style?: "new";
 }
 
 export interface ExerciseExample extends ExampleMeta {
@@ -68,6 +73,9 @@ export const EXERCISE_EXAMPLES: ExerciseExample[] = [
   showcaseBlocksDoMiSol,
   showcasePickStepTunes,
   showcaseProgressionFourWays,
+  guitarNewNotesOnEAndA,
+  voiceBeginnerInTuneOverDrone,
+  theoryIntermediateHearingChanges,
 ] as ExerciseExample[];
 
 export const PLAN_EXAMPLES: PlanExample[] = [

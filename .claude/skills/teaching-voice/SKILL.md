@@ -46,7 +46,7 @@ It uses the same chordKit code the app draws with, so the text and the picture a
 ## Words
 
 - Use one word for one thing:
-  - Scale shapes on the neck: exercise text says "position" ("position 1", "the position with the root on the A string"), never "box" or "pattern", even though some props are called `boxes`. Course stage 8 still says "CAGED box" and "pentatonic boxes". In an article, follow the stage you are writing in, and never mix the two words on one page.
+  - Scale shapes on the neck are "positions" everywhere: articles, exercises, titles, headings and captions ("position 1", "the position with the root on the A string"). Never call them "box" or "pattern", even though some props are called `boxes` and the theory calculator says "box". The one place "box" may appear is the explained word's meaning (the `position` entry in `GLOSSARY`), so a learner who meets "box" elsewhere knows it's the same thing. When you touch text that still says "box" for a scale shape (course stage 8 does), change it to "position". "Chord box" is a different thing and stays.
   - "the staff" for the five-line notation. Never "stave" or "music sheet". Never call a neck, chord box or tab a staff.
   - "the metronome" for the click. "one note per beat" for a step.
 - Use note symbols: ♯ ♭ (C♯, B♭). Use "3rd", "5th", "♭7" in prose (exercise JSON writes degrees as `{{b7}}`). In chord names, write the chord the way the app does (Am7, G7, Cmaj7).

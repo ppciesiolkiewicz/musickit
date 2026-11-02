@@ -22,12 +22,16 @@ Each file is the content exactly as the AI returns it, wrapped in metadata:
 
 - `id` is the file name. `areas`: `guitar`, `voice`, `theory` (an exercise has one, a plan may have several). `level`:
   `new`, `beginner`, `intermediate`, `advanced`. `concepts`: ids from `model/concepts.ts`.
+- `"style": "new"` marks an example written in the new teaching style (practice first, a why the student can build
+  their own drill from, each block the same drill turned a new way; see the `teaching-voice` skill). The prompt tells the
+  AI to write like these, and `/dev/examples` badges and filters by style. Absent: the older style.
 - An exercise may have `"showcase"`: `blocks` (a chart per step), `pick` (a voice melody chosen by `pick`) or
   `progression` (one progression worked several ways). These three always go into the prompt.
 - A plan has `"kind": "plan"`, `"minutes"` (the daily time it is written for) and `"plan": { title, summary, days }`,
   the whole `PlanConfig` the AI returns.
 
-What there is: one exercise per area and level (`<area>-<level>-<what>.json`), the three showcases, and four plans:
+What there is: one exercise per area and level, three more in the new teaching style (`guitar-new-notes-on-e-and-a`,
+`voice-beginner-in-tune-over-drone`, `theory-intermediate-hearing-changes`) (`<area>-<level>-<what>.json`), the three showcases, and four plans:
 `guitar-beginner` (20 min), `guitar-intermediate` (30), `voice-beginner` (15), `guitar-theory-intermediate` (30).
 
 ## The rules every example meets

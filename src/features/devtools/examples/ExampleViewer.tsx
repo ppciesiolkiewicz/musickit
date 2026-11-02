@@ -99,6 +99,11 @@ function Filter<V extends string>({ label, value, options, onChange }: { label: 
   );
 }
 
+type Style = "new" | "old";
+const styleOf = (e: { style?: "new" }): Style => e.style ?? "old";
+/** New-style examples stand out; old ones are marked in a muted warm tone so they read as the ones to rewrite. */
+const STYLE_TONE: Record<Style, string> = { new: "text-lime-300", old: "text-amber-400/70" };
+
 /**
  * Every example in the library, rendered as the player would see it, with filters. The ones the studio's current answers
  * put in the prompt are tagged "in prompt", a link to that part in the studio.
@@ -111,6 +116,7 @@ export default function ExampleViewer() {
   const [area, setArea] = useState<Area | null>(null);
   const [level, setLevel] = useState<Level | null>(null);
   const [showcase, setShowcase] = useState<Showcase | null>(null);
+  const [style, setStyle] = useState<Style | null>(null);
 
   const read = useMemo(() => (mounted ? answersFromText(loadStudio().answersText) : null), [mounted]);
   const answers = read && !read.error ? read.answers : null;
@@ -124,9 +130,10 @@ export default function ExampleViewer() {
       [...EXERCISE_EXAMPLES, ...PLAN_EXAMPLES].filter(
         (e) =>
           (!kind || e.kind === kind) && (!area || e.areas.includes(area)) && (!level || e.level === level) &&
-          (!showcase || (e.kind === "exercise" && e.showcase === showcase)) && (!onlyPrompt || inPrompt.has(e.id)),
+          (!showcase || (e.kind === "exercise" && e.showcase === showcase)) && (!onlyPrompt || inPrompt.has(e.id)) &&
+          (!style || styleOf(e) === style),
       ),
-    [kind, area, level, showcase, onlyPrompt, inPrompt],
+    [kind, area, level, showcase, style, onlyPrompt, inPrompt],
   );
 
   // every section of every example as it is now, filtered out or not: what the Notes bar checks section notes against and re-pins them to
@@ -150,6 +157,7 @@ export default function ExampleViewer() {
           <Filter<Area> label="Area" value={area} onChange={setArea} options={AREAS} />
           <Filter<Level> label="Level" value={level} onChange={setLevel} options={LEVELS} />
           <Filter<Showcase> label="Showcase" value={showcase} onChange={setShowcase} options={[{ id: "blocks", label: "Blocks" }, { id: "pick", label: "Pick" }, { id: "progression", label: "Progression" }]} />
+          <Filter<Style> label="Style" value={style} onChange={setStyle} options={[{ id: "new", label: "New teaching style" }, { id: "old", label: "Old style" }]} />
         </div>
         <ul className="flex flex-col gap-2">
           {library.map((e) => (
@@ -159,6 +167,7 @@ export default function ExampleViewer() {
               badge={
                 <>
                   <Badge className={e.kind === "plan" ? "text-fuchsia-300" : "text-rose-300"}>{e.kind === "plan" ? "plan example" : "exercise example"}</Badge>
+                  <Badge className={STYLE_TONE[styleOf(e)]}>{styleOf(e) === "new" ? "new teaching style" : "old style"}</Badge>
                   {inPrompt.has(e.id) && (
                     <Link href={`/dev/prompt#${partAnchor(`example:${e.id}`)}`} title="Open this example's part in the prompt studio" onClick={(ev) => ev.stopPropagation()}>
                       <Badge className="text-emerald-300 hover:text-emerald-200">in prompt →</Badge>

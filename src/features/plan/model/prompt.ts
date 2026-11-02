@@ -68,8 +68,9 @@ function examplePart(e: ExerciseExample | PlanExample, heading: string): PromptP
   const json = JSON.stringify(e.kind === "plan" ? e.plan : e.exercise);
   const areas = e.areas.map((id) => AREAS.find((x) => x.id === id)!.label).join(" + ");
   const forWhom = e.kind === "exercise" ? [`For: ${areas}, level ${labelOf(LEVELS, e.level)}`] : [];
-  const lines = [...(heading ? [heading] : []), `### Example: ${e.id}`, ...forWhom, `Why it's good: ${e.note}`, "```json", json, "```", ""];
-  return { id: `example:${e.id}`, label: `Example: ${e.id}`, kind: e.kind === "plan" ? "plan-example" : "exercise-example", text: lines.join("\n"), example: { id: e.id, json } };
+  const style = e.style === "new" ? ["New teaching style: write like this one (practice first, a why the student can build their own drill from, each block the same drill turned a new way)."] : [];
+  const lines = [...(heading ? [heading] : []), `### Example: ${e.id}`, ...forWhom, `Why it's good: ${e.note}`, ...style, "```json", json, "```", ""];
+  return { id: `example:${e.id}`, label: `Example: ${e.id}${e.style === "new" ? " · new teaching style" : ""}`, kind: e.kind === "plan" ? "plan-example" : "exercise-example", text: lines.join("\n"), example: { id: e.id, json } };
 }
 
 const part = (id: string, label: string, kind: PromptPartKind, lines: string[]): PromptPart => ({ id, label, kind, text: lines.join("\n") });
