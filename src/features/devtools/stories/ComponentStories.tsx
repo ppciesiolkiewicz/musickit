@@ -25,6 +25,9 @@ export default function ComponentStories() {
   const [tab, setTab] = useState<Tab>("controls");
   const [width, setWidth] = useState<keyof typeof WIDTHS>("full");
   const [filter, setFilter] = useState("");
+  // which groups show their stories: apart from the active one, so opening or closing a group never loads a story
+  const [expanded, setExpanded] = useState<Set<string>>(() => new Set([groups[0].id]));
+  const toggle = (id: string) => setExpanded((e) => { const n = new Set(e); if (!n.delete(id)) n.add(id); return n; });
 
   const group = groups[gi];
   const story = group.stories[si] ?? group.stories[0];
@@ -33,6 +36,7 @@ export default function ComponentStories() {
     const p = groups[g].stories[s]?.props ?? {};
     setGi(g);
     setSi(s);
+    setExpanded((e) => e.has(groups[g].id) ? e : new Set(e).add(groups[g].id));
     setProps(p);
     setText(JSON.stringify(p, null, 2));
     if (push) history.replaceState(null, "", `#${groups[g].id}~${s}`);
@@ -59,7 +63,7 @@ export default function ComponentStories() {
 
   return (
     <div className="grid gap-4 lg:grid-cols-[17rem_1fr]">
-      <nav className="flex flex-col gap-3 lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto lg:pr-1" aria-label="Components">
+      <nav className="flex flex-col gap-3 lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto pr-3 [scrollbar-gutter:stable]" aria-label="Components">
         <input value={filter} onChange={(e) => setFilter(e.target.value)} placeholder="Filter components or stories" className="rounded-lg border border-slate-700 bg-slate-950 px-2 py-1 text-sm text-slate-200" />
         {kinds.map((kind) => (
           <div key={kind} className="flex flex-col gap-0.5">
@@ -68,10 +72,10 @@ export default function ComponentStories() {
               if ((g.doc?.kind ?? "stub") !== kind) return null;
               const hits = q ? g.stories.map((s, k) => [s, k] as const).filter(([s]) => g.id.includes(q) || s.name.toLowerCase().includes(q)) : null;
               if (hits && !hits.length) return null;
-              const open = n === gi || (q && hits);
+              const open = expanded.has(g.id) || (q && hits);
               return (
                 <div key={g.id}>
-                  <button type="button" onClick={() => show(n, 0)} className={`flex w-full items-baseline justify-between rounded px-2 py-1 text-left font-mono text-xs ${n === gi ? "bg-emerald-500/15 text-emerald-100" : "text-slate-300 hover:text-slate-100"}`}>
+                  <button type="button" onClick={() => toggle(g.id)} aria-expanded={!!open} className={`flex w-full items-baseline justify-between rounded px-2 py-1 text-left font-mono text-xs ${n === gi ? "bg-emerald-500/15 text-emerald-100" : "text-slate-300 hover:text-slate-100"}`}>
                     <span>{g.shape ? <>play-along · <b>{g.shape}</b></> : g.id}</span>
                     <span className="text-[10px] text-slate-500">{g.stories.length}</span>
                   </button>
