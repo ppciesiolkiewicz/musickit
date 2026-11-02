@@ -7,6 +7,7 @@ import Icon from "@/components/Icon";
 import { copyNotesMarkdown, noteHref, outdatedCount, repinCopyNotes, squeeze } from "../model/copyNotes";
 import { useCommits, useCopyNotes, useLinkedNote, useShownSections, writeCopyNotes as write } from "./store";
 import { devUi } from "../gate";
+import { NoteBar } from "./NoteBar";
 
 const ROOT = "data-copy-notes";
 const whereOf = (el: Element) => {
@@ -21,9 +22,9 @@ const PRIMARY = "inline-flex cursor-pointer items-center gap-1.5 rounded-lg bord
 /**
  * Dev only. A button at the bottom right opens the notes bar, the same on every page: every note's count (and, where the
  * page shows example sections, how many are on changed ones), HEAD, note a text, re-pin all to HEAD, clear all, copy all;
- * then this page's notes. "Note a text" turns on note mode: hover outlines the text under the pointer, a click (which
- * does nothing else then) opens a box for a note on that wording, tagged inline above its text. The pencils on
- * /dev/examples' sections add to the same notes. All pages' notes are on /dev/notes.
+ * "N on this page" opens a modal with this page's notes; they show only there, not on the page. Opening the bar turns on
+ * note mode ("Note a text" toggles it): hover outlines the text under the pointer, a click (which does nothing else then) opens a box for a note
+ * on that wording. The pencils on /dev/examples' sections add to the same notes. All pages' notes are on /dev/notes.
  */
 export default function CopyNotes() {
   const path = usePathname();
@@ -35,12 +36,12 @@ export default function CopyNotes() {
   const scrolled = useRef<string | null>(null);
   const [on, setOn] = useState(false);
   const [open, setOpen] = useState(false);
+  const [list, setList] = useState(false);
   const [target, setTarget] = useState<{ text: string; where: string } | null>(null);
   const [draft, setDraft] = useState("");
   const [copied, setCopied] = useState(false);
   const [clearing, setClearing] = useState(false);
   const hot = useRef<HTMLElement | null>(null);
-  const [marks, setMarks] = useState<{ id: string; note: string; top: number; left: number }[]>([]);
   const here = notes.filter((n) => n.route === path);
 
   useEffect(() => {
@@ -83,39 +84,33 @@ export default function CopyNotes() {
     };
   }, [on]);
 
-  // the notes of this page, tagged above the text they are about; found again by the text, so they follow layout changes
+  // the modal with this page's notes: Esc closes it (and only it, not note mode)
   useEffect(() => {
-    if (!devUi()) return;
-    // section notes are shown under their sections (/dev/examples), not tagged
-    const mine = notes.filter((n) => n.route === path && !n.section);
-    if (!mine.length) return;
-    const scan = () => {
-      const els = [...document.body.querySelectorAll<HTMLElement>("*")].filter((el) => !el.closest(`[${ROOT}]`));
-      const next = mine.flatMap((n) => {
-        const el = els.filter((e) => squeeze(e.innerText ?? "") === n.text).pop();
-        const r = el?.getBoundingClientRect();
-        return r && r.width > 0 && r.height > 0 ? [{ id: n.id, note: n.note, top: Math.round(r.top), left: Math.round(r.left) }] : [];
-      });
-      setMarks((m) => (JSON.stringify(m) === JSON.stringify(next) ? m : next));
-      // a link to one of these notes: bring its text into view, once
-      const target = linked && scrolled.current !== linked && mine.find((n) => n.id === linked);
-      if (target) {
-        const el = els.filter((e) => squeeze(e.innerText ?? "") === target.text).pop();
-        if (el) {
-          el.scrollIntoView({ block: "center" });
-          scrolled.current = linked;
-        }
-      }
-    };
-    scan();
-    const timer = setInterval(scan, 500);
-    window.addEventListener("scroll", scan, true);
-    window.addEventListener("resize", scan);
-    return () => {
+    if (!list) return;
+    const key = (e: KeyboardEvent) => e.key === "Escape" && (e.stopPropagation(), setList(false));
+    document.addEventListener("keydown", key, true);
+    return () => document.removeEventListener("keydown", key, true);
+  }, [list]);
+
+  // a link to one of this page's notes: open the notes modal, where it is marked, and bring its text into view, once (the
+  // text may render late, so look again until it is there); section notes are scrolled to by /dev/examples
+  useEffect(() => {
+    if (!devUi() || !linked || scrolled.current === linked) return;
+    const note = notes.find((n) => n.id === linked && n.route === path);
+    if (!note) return;
+    setOpen(true);
+    setList(true);
+    if (note.section) return void (scrolled.current = linked);
+    const find = () => {
+      const el = [...document.body.querySelectorAll<HTMLElement>("*")].filter((e) => !e.closest(`[${ROOT}]`) && squeeze(e.innerText ?? "") === note.text).pop();
+      if (!el) return;
+      el.scrollIntoView({ block: "center" });
+      scrolled.current = linked;
       clearInterval(timer);
-      window.removeEventListener("scroll", scan, true);
-      window.removeEventListener("resize", scan);
     };
+    const timer = setInterval(find, 500);
+    find();
+    return () => clearInterval(timer);
   }, [notes, path, linked]);
 
   if (!devUi()) return null;
@@ -135,14 +130,29 @@ export default function CopyNotes() {
 
   return (
     <>
-      <div {...{ [ROOT]: "" }} className="pointer-events-none fixed inset-0 z-[1999]">
-        {(here.some((n) => !n.section) ? marks : []).map((m) => (
-          <div key={m.id} title={m.note} style={{ top: Math.max(0, m.top - 16), left: Math.max(0, m.left) }} className={`pointer-events-auto absolute flex max-w-56 items-center gap-1 rounded px-1.5 py-px text-[11px] font-medium leading-4 text-slate-950 shadow ${m.id === linked ? "bg-sky-300 ring-2 ring-sky-400" : "bg-amber-400"}`}>
-            <span className="truncate">{m.note}</span>
-            <button type="button" aria-label="Delete note" onClick={() => write((l) => l.filter((x) => x.id !== m.id))} className="cursor-pointer opacity-60 hover:opacity-100"><Icon name="x" size={10} /></button>
+      {list && (
+        <div {...{ [ROOT]: "" }} onClick={() => setList(false)} className="fixed inset-0 z-[2001] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <div role="dialog" aria-modal="true" aria-label="This page's notes" onClick={(e) => e.stopPropagation()} className="flex max-h-[80vh] w-[44rem] max-w-full flex-col rounded-2xl border border-amber-400/40 bg-slate-950 text-slate-200 shadow-2xl shadow-black/50">
+            <div className="flex items-center gap-2 border-b border-slate-800 px-4 py-2.5">
+              <Icon name="pencil" size={14} className="text-amber-300" />
+              <span className="text-sm text-slate-100">{here.length} note{here.length === 1 ? "" : "s"} on this page</span>
+              <Link href="/dev/notes" className="ml-auto text-xs text-sky-300 underline-offset-2 hover:underline">All pages&apos; notes →</Link>
+              <button type="button" aria-label="Close" onClick={() => setList(false)} className="cursor-pointer text-slate-400 hover:text-slate-100"><Icon name="x" size={14} /></button>
+            </div>
+            <div className="overflow-auto px-4 py-1">
+              {here.length ? here.map((n) => (
+                <div key={n.id} className="flex flex-col gap-1 border-b border-slate-800 py-2 text-xs last:border-0">
+                  <p className="flex gap-2 text-slate-400">
+                    <span className="min-w-0 flex-1 truncate" title={n.text}>{n.section ? <span className="font-mono text-slate-500">{n.where} · </span> : null}“{n.text}”</span>
+                    <Link href={noteHref(n, "/dev/notes")} title="This note in all notes" className="shrink-0 text-sky-300 opacity-70 hover:opacity-100">all notes →</Link>
+                  </p>
+                  <NoteBar note={n} linked={n.id === linked} />
+                </div>
+              )) : <p className="py-3 text-xs text-slate-500">No notes on this page.</p>}
+            </div>
           </div>
-        ))}
-      </div>
+        </div>
+      )}
       <div {...{ [ROOT]: "" }} className="fixed bottom-3 right-3 z-[2000] flex max-w-[calc(100vw-1.5rem)] flex-col items-end gap-2 text-sm">
         {target && (
           <div className="flex w-80 max-w-full flex-col gap-1.5 rounded-2xl border border-amber-400/40 bg-slate-950/95 p-3 text-slate-100 shadow-2xl shadow-black/50 backdrop-blur">
@@ -167,40 +177,26 @@ export default function CopyNotes() {
             <div className="flex flex-wrap items-center gap-3">
               <Icon name="pencil" size={14} className="text-amber-300" />
               <span className="text-sm text-slate-100">{notes.length} note{notes.length === 1 ? "" : "s"}</span>
-              <span className="rounded-full bg-slate-800 px-2 py-0.5 text-xs text-slate-300">{here.length} on this page</span>
+              <button type="button" disabled={!here.length} onClick={() => setList(true)} title="This page's notes" className="cursor-pointer rounded-full bg-slate-800 px-2 py-0.5 text-xs text-slate-300 hover:bg-slate-700 hover:text-slate-100 disabled:cursor-default disabled:hover:bg-slate-800 disabled:hover:text-slate-300">{here.length} on this page{here.length ? " →" : ""}</button>
               {outdated > 0 && <span className="rounded-full bg-orange-500/15 px-2 py-0.5 text-xs text-orange-200">{outdated} on changed sections</span>}
               {head && <span className="font-mono text-xs text-slate-500" title="The checkout's HEAD; a section note also keeps its example file's commit">HEAD {head}</span>}
               <span className="ml-auto flex flex-wrap gap-2">
-                <button type="button" onClick={() => (setOpen(false), setOn(true))} className={BTN}><Icon name="pencil" size={12} />Note a text</button>
+                <button type="button" aria-pressed={on} onClick={() => setOn((v) => !v)} title={on ? "On: click any text on the page to note it" : "Turn on, then click any text on the page to note it"} className={on ? PRIMARY : BTN}><Icon name="pencil" size={12} />Note a text</button>
                 <button type="button" disabled={!head || !notes.length} onClick={repin} title={`Pin every note to the checkout's HEAD: they still hold${shown ? "; section notes also to their sections as they are now (those on gone sections stay)" : ". Section notes are pinned to their sections as they are now only from /dev/examples"}`} className={BTN}>Re-pin all to HEAD</button>
                 <button type="button" disabled={!notes.length} onClick={() => (clearing ? (write(() => []), setClearing(false)) : setClearing(true))} className={`${BTN} ${clearing ? "!border-rose-400 !bg-rose-500/20 !text-rose-100" : ""}`}>{clearing ? "Click again to delete all" : "Clear all"}</button>
                 <button type="button" disabled={!notes.length} onClick={copy} className={copied ? `${PRIMARY} !border-emerald-400/70 !bg-emerald-500/20 !text-emerald-100` : PRIMARY}><Icon name={copied ? "check" : "copy"} size={12} />{copied ? "Copied" : "Copy all notes"}</button>
               </span>
             </div>
-            {here.length > 0 && (
-              <div className="mt-2 max-h-64 overflow-auto border-t border-slate-800">
-                {here.map((n) => (
-                  <div key={n.id} className="flex items-start gap-2 border-b border-slate-800 py-1.5 text-xs last:border-0">
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-slate-400">{n.section ? <span className="font-mono text-slate-500">{n.where} · </span> : null}“{n.text}”</p>
-                      <p className="whitespace-pre-wrap">{n.note}</p>
-                    </div>
-                    <Link href={noteHref(n, "/dev/notes")} title="This note in all notes" className="shrink-0 text-sky-300 opacity-70 hover:opacity-100">all notes →</Link>
-                    <button type="button" aria-label="Delete note" onClick={() => write((l) => l.filter((x) => x.id !== n.id))} className="cursor-pointer opacity-60 hover:opacity-100"><Icon name="x" size={12} /></button>
-                  </div>
-                ))}
-              </div>
-            )}
             <Link href="/dev/notes" className="mt-2 inline-block text-xs text-sky-300 underline-offset-2 hover:underline">All pages&apos; notes →</Link>
           </div>
         )}
         <button
           type="button"
-          onClick={() => (on ? setOn(false) : setOpen((v) => !v))}
+          onClick={() => (open || on ? (setOpen(false), setOn(false)) : (setOpen(true), setOn(true)))}
           title="Notes on the wording of this page"
           className={`inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-amber-400/50 px-3.5 py-2 text-xs font-semibold shadow-lg ${on ? "bg-amber-400 text-slate-950" : "bg-slate-950/95 text-amber-100"}`}
         >
-          <Icon name="pencil" size={12} />{on ? "Click a text · Esc" : notes.length ? `Notes · ${here.length}/${notes.length}` : "Notes"}
+          <Icon name="pencil" size={12} />{on && !open ? "Click a text · Esc" : notes.length ? `Notes · ${here.length}/${notes.length}` : "Notes"}
         </button>
       </div>
     </>
