@@ -1,3 +1,4 @@
+import { readDeviceChoice } from "@/features/sound";
 import { createOnsetDetector, type OnsetOptions } from "./onset";
 import { heardNow } from "./clock";
 
@@ -26,12 +27,13 @@ const loaded = new WeakSet<AudioContext>();
 export interface StrumListener { stop: () => void; setOptions: (o: OnsetOptions) => void }
 
 /**
- * Opens the microphone and calls `onStrum` with the heard time (see clock.ts) of every strum. The mic hears a strum when the
+ * Opens the microphone (the input chosen in the nav's devices menu) and calls `onStrum` with the heard time (see clock.ts) of every strum. The mic hears a strum when the
  * audio clock is at t, but the speakers are behind the clock, and the mic itself adds its own delay (reported by some browsers),
  * so both are taken off; what is left over is the player's offset, which the game lets them set.
  */
 export async function listenForStrums(ctx: AudioContext, onStrum: (heard: number) => void, options: OnsetOptions): Promise<StrumListener> {
-  const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
+  const input = readDeviceChoice().input;
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: { deviceId: input ? { ideal: input.id } : undefined, echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
   if (!loaded.has(ctx)) {
     const url = URL.createObjectURL(new Blob([WORKLET], { type: "application/javascript" }));
     try { await ctx.audioWorklet.addModule(url); } finally { URL.revokeObjectURL(url); }

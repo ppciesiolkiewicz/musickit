@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui";
-import { getAudioContext } from "@/features/sound";
+import { getAudioContext, readDeviceChoice } from "@/features/sound";
 import { usePitch } from "@/features/tuner/usePitch";
 import { VOICES, hzToMidi, type Voice } from "@/features/theory/singing";
 import { isHighEnough, nearestVoice, noteName, normaliseRange, steadyNote } from "@/features/theory/voiceRange";
@@ -48,7 +48,8 @@ export default function RangeFinder({ onRange }: { onRange: (r: { low: number; h
     setMessage(null);
     let stream: MediaStream | null = null;
     try {
-      stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
+      const input = readDeviceChoice().input;
+      stream = await navigator.mediaDevices.getUserMedia({ audio: { deviceId: input ? { ideal: input.id } : undefined, echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
       const got = stream;
       const free = () => got.getTracks().forEach((t) => t.stop());
       if (!alive.current) { free(); return; }
