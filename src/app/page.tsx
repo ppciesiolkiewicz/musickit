@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { devUi } from "@/features/devtools/gate";
 import type { ReactNode } from "react";
 import SiteNav from "@/components/SiteNav";
 import Icon, { type IconName } from "@/components/Icon";
 import PreloadPiano from "@/features/sound/keyboard/PreloadPiano";
 import StringsOfLight from "@/components/landing/StringsOfLight";
 import EarlyAccessForm from "@/components/landing/EarlyAccessForm";
-import Photo from "@/components/landing/Photo";
+import Photo, { type PhotoKey } from "@/components/landing/Photo";
 import StyleDivider from "@/components/landing/StyleDivider";
 import SiteFooter from "@/components/landing/SiteFooter";
 import CourseSoon from "@/components/landing/CourseSoon";
@@ -18,29 +17,31 @@ import { degreeColour, degreeLabels } from "@/features/theory/scales";
 import { FAMILIES, MAJOR, modeSteps } from "@/features/theory/theory";
 
 export const metadata: Metadata = {
-  title: "attunr: your one-stop hub for music drills and theory",
-  description: "A video course, private lessons with professional teachers, and tools that show every sound on the fretboard in colour, so practice finally turns into progress. Early access is open.",
+  title: "attunr: daily guitar practice for your hands, ears and timing",
+  description: "Drills for muscle memory, ear training, singing in tune and rhythm, with an AI practice plan that gives you something new to practise every day. Plus a video course with a 30-day money-back guarantee.",
 };
 
 /**
- * A student's story, told by the student. It must be a real person, with their permission: until it is filled in, `draft` keeps
- * the section to local development so placeholder words and a stock photo never go out as someone's story.
+ * Why attunr exists, told by its founder. `photo` must be a real photo of the person telling the story: a stock photo next to a
+ * name reads as them. With no photo the story shows on its own.
  */
-const STORY = {
-  draft: true,
-  name: "[Name]",
-  detail: "[age], [city]",
-  headline: "[N] years stuck on the same chords. Improvising in [N] months.",
-  quote: "[In their words: what practice felt like before, the moment it clicked, and what they play now.]",
-  before: ["[Learning songs from tabs, one at a time]", "[No idea why a solo worked or didn't]", "[Practising, but not getting better]"],
-  after: ["[Sees the scale under their fingers]", "[Improvises over a loop in any key]", "[Knows what to practise next]"],
+const STORY: { name: string; detail: string; headline: string; quote: string; before: string[]; after: string[]; photo: PhotoKey | null } = {
+  name: "Piotr",
+  detail: "founder of attunr",
+  headline: "I was stuck, so I built the practice app I needed.",
+  quote: "I practised and practised and wasn't getting better. I kept running out of ideas for what to work on, and the apps that turned practice into a game just didn't work for me. What works is drills: repeating them until my hands know them, and understanding why they work. So I built attunr. It brings me new ideas every day, with interactive exercises and diagrams I can actually practise with. It's not a game. It's practice.",
+  before: ["Running out of ideas for what to practise", "Apps that felt like a game, not like music", "Practising, but not getting better"],
+  after: ["New drills to practise every day", "Interactive exercises and diagrams that show why a drill works", "Repetition that builds muscle memory, not points"],
+  photo: null,
 };
 
-/** Bundles at launch; early-access members get the course now and every style course free as it comes out. */
+/** Shown wherever the course is sold. Keep in step with the refund policy: 30 days from purchase, full refund, no reason needed. */
+const GUARANTEE = "30-day money-back guarantee";
+
 const BUNDLES = [
-  { name: "The course", price: "$19.99", text: "The fretboard by ear and by colour: scales, moods, intervals, step by step.", items: ["The core video course", "Exercises in the app"] },
-  { name: "Course + one style", price: "$34.99", text: "The core course plus the style you came for.", items: ["The core video course", "One style course", "Exercises in the app"], styleCourse: true },
-  { name: "Everything", price: "$39.99", text: "The core course and every style course, as each one launches.", items: ["The core video course", "Every style course", "Exercises in the app"], styleCourse: true, best: true },
+  { name: "The course", price: "$19.99", text: "The fretboard by ear and by colour: scales, moods, intervals, step by step.", items: ["The core video course", "Exercises in the app", GUARANTEE] },
+  { name: "Course + one style", price: "$34.99", text: "The core course plus the style you came for.", items: ["The core video course", "One style course", "Exercises in the app", GUARANTEE], styleCourse: true },
+  { name: "Everything", price: "$39.99", text: "The core course and every style course, as each one launches.", items: ["The core video course", "Every style course", "Exercises in the app", GUARANTEE], styleCourse: true, best: true },
 ];
 const STYLES = ["Surf rock", "Funk", "Blues", "Jazz", "Neo-soul", "Metal", "Flamenco", "Bossa nova", "Reggae", "Country", "Indie rock"];
 
@@ -66,13 +67,20 @@ function ProgressPath() {
   );
 }
 
-/** What practice in attunr trains: the skills behind playing well. Marketing copy only, no links. */
-const SKILLS: { icon: IconName; title: string; text: string; tone: string }[] = [
-  { icon: "guitar", title: "Know the fretboard", text: "Find any note in a second. Learn the neck by note name, by colour and by the job each note does in the scale, until it stops being a grid of frets and becomes a map you can read.", tone: "bg-amber-500/15 text-amber-300" },
-  { icon: "repeat", title: "Build muscle memory", text: "Play the same thing again and again until your hands know it on their own. Once they move freely, you stop hunting for notes and have time to choose what to play next.", tone: "bg-teal-500/15 text-teal-300" },
-  { icon: "ear", title: "Train your ear", text: "Hear an interval and know what it is. You'll pick melodies out by ear, and the lines you write will land where you meant them to.", tone: "bg-sky-500/15 text-sky-300" },
-  { icon: "mic", title: "Sing what you play", text: "Your voice is the quickest way to know a note from the inside. Sing scales and melodies in tune and you'll recognise notes faster and write melodies that feel natural to follow.", tone: "bg-rose-500/15 text-rose-300" },
-  { icon: "metronome", title: "Play in time", text: "Hit the beat, not just the note. See exactly how early or late you are, and lock in with a metronome or a drone.", tone: "bg-violet-500/15 text-violet-300" },
+/** What practice in attunr trains: each skill and the drill that trains it. */
+const SKILLS: { icon: IconName; title: string; text: string; tone: string; href: string; drill: string }[] = [
+  { icon: "repeat", title: "Build muscle memory", text: "Short drills you repeat until your hands know them on their own. Once your fingers move without thinking, you stop hunting for notes and start choosing them.", tone: "bg-teal-500/15 text-teal-300", href: "/theory/scales", drill: "Scale drills" },
+  { icon: "ear", title: "Hear it, sing it in tune", text: "Name an interval the moment you hear it, then sing it back while the app shows your pitch. Your ear sharpens, your voice lands on the note, and melodies start to make sense.", tone: "bg-sky-500/15 text-sky-300", href: "/theory/ears", drill: "Ear training" },
+  { icon: "metronome", title: "Lock in your rhythm", text: "Hit the beat, not just the note. See exactly how early or late you play, and tighten your timing against a metronome or a drone.", tone: "bg-violet-500/15 text-violet-300", href: "/theory/rhythm", drill: "Rhythm drills" },
+  { icon: "guitar", title: "Know the fretboard", text: "Find any note in a second. Learn the neck by name, by colour and by the job each note does, until it stops being a grid of frets and becomes a map you can read.", tone: "bg-amber-500/15 text-amber-300", href: "/theory/notes", drill: "Fretboard notes" },
+];
+
+/** A day of the AI practice plan, drawn for the landing page: what the player sees when they open today's practice. */
+const PLAN_DAY: { label: string; mins: number; tone: string; done?: boolean }[] = [
+  { label: "A minor pentatonic, positions 1–2", mins: 10, tone: "bg-teal-400", done: true },
+  { label: "Intervals by ear: 3rds and 5ths", mins: 5, tone: "bg-sky-400", done: true },
+  { label: "Sing the scale over a drone", mins: 5, tone: "bg-rose-400" },
+  { label: "Eighth notes at 80 bpm, on the beat", mins: 5, tone: "bg-violet-400" },
 ];
 
 const DO: { href: string; verb: string; label: string; icon: IconName; tone: string }[] = [
@@ -82,7 +90,6 @@ const DO: { href: string; verb: string; label: string; icon: IconName; tone: str
 ];
 
 export default function Home() {
-  const showStory = !STORY.draft || devUi();
   const dorian = modeSteps(FAMILIES[0], 1);
   return (
     <div className="landing app-bg min-h-screen overflow-hidden text-slate-200">
@@ -95,27 +102,27 @@ export default function Home() {
         {/* Hero */}
         <section className="grid grid-cols-[minmax(0,1fr)] items-center gap-12 py-12 sm:py-16 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:py-20">
           <div className="landing-rise flex flex-col items-start">
-            <a href="#course" className="group mb-6 inline-flex items-center gap-2 rounded-full border border-sky-500/40 bg-sky-500/10 py-1 pl-1.5 pr-3 text-xs text-sky-100 transition hover:border-sky-400">
-              <span className="rounded-full bg-sky-400 px-2 py-0.5 text-[11px] font-semibold text-slate-950">Open</span>
-              Early access to the video course
+            <a href="#plan" className="group mb-6 inline-flex items-center gap-2 rounded-full border border-sky-500/40 bg-sky-500/10 py-1 pl-1.5 pr-3 text-xs text-sky-100 transition hover:border-sky-400">
+              <span className="rounded-full bg-sky-400 px-2 py-0.5 text-[11px] font-semibold text-slate-950">New</span>
+              A fresh AI practice plan, every day
               <span aria-hidden className="transition group-hover:translate-x-0.5">→</span>
             </a>
             <h1 className="text-5xl leading-none tracking-tight text-slate-50 sm:text-7xl" style={DISPLAY}>
-              See what
-              <span className="ls-accent block italic text-sky-300">you hear.</span>
+              Practice that
+              <span className="ls-accent block italic text-sky-300">turns into playing.</span>
             </h1>
             <p className="mt-6 max-w-md text-lg leading-relaxed text-slate-300">
-              Plenty of guitarists practise for years and still feel stuck. attunr shows you what&apos;s really happening on the fretboard, so every practice session turns into progress.
+              Repeat the right drills until your hands know them, and understand why they work. attunr gives you drills for your fingers, ears, voice and timing, plus a fresh plan for what to practise each day.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <a href="#course" className="ls-btn ls-btn-primary ls-glint inline-flex items-center gap-2 rounded-xl bg-sky-400 px-5 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-sky-500/20 transition hover:bg-sky-300">
-                Get early access <Icon name="chevron-right" size={16} />
-              </a>
-              <a href="#lessons" className="ls-btn inline-flex items-center gap-2 rounded-xl border border-slate-600 px-5 py-3 text-sm font-medium text-slate-100 transition hover:border-slate-400 hover:bg-slate-800/40">
-                <Icon name="headphones" size={16} /> Private lessons
+              <Link href="/plan" className="ls-btn ls-btn-primary ls-glint inline-flex items-center gap-2 rounded-xl bg-sky-400 px-5 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-sky-500/20 transition hover:bg-sky-300">
+                Get today&apos;s practice <Icon name="chevron-right" size={16} />
+              </Link>
+              <a href="#course" className="ls-btn inline-flex items-center gap-2 rounded-xl border border-slate-600 px-5 py-3 text-sm font-medium text-slate-100 transition hover:border-slate-400 hover:bg-slate-800/40">
+                <Icon name="graduation-cap" size={16} /> See the course
               </a>
             </div>
-            <Link href="/theory/scales" className="mt-5 text-sm text-slate-400 underline decoration-slate-700 underline-offset-4 hover:text-slate-200">or try the free tools first</Link>
+            <p className="mt-5 text-sm text-slate-400">Free to practise. No sign-up needed.</p>
           </div>
           <div className="landing-rise" style={{ animationDelay: "120ms" }}>
             <StringsOfLight />
@@ -127,33 +134,74 @@ export default function Home() {
         {/* What you'll work on: the skills practice in attunr builds */}
         <section aria-labelledby="skills-h" className="border-t border-slate-800/70 py-14 sm:py-20">
           <div className="mx-auto max-w-2xl text-center">
-            <Eyebrow>What you&apos;ll work on</Eyebrow>
-            <H2 id="skills-h">The skills that make <span className="ls-accent italic text-sky-300">a better player.</span></H2>
+            <Eyebrow>Drills for every part of playing</Eyebrow>
+            <H2 id="skills-h">Train the skills <span className="ls-accent italic text-sky-300">behind great playing.</span></H2>
+            <p className="mt-5 text-slate-300">Better musicians are built from drills: repeated until they're automatic, and understood so you can use them in real music. attunr has drills for your hands, your ears, your voice and your timing, because good playing needs all four.</p>
           </div>
-          {/* two wide cards over three narrower ones on desktop */}
-          <ul className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-6">
-            {SKILLS.map((s, i) => (
-              <li key={s.title} className={`ls-card flex flex-col gap-4 rounded-3xl border border-slate-800 bg-slate-900/50 p-6 ${i < 2 ? "lg:col-span-3" : "lg:col-span-2"} ${i === SKILLS.length - 1 ? "md:col-span-2 lg:col-span-2" : ""}`}>
+          <ul className="mt-12 grid gap-4 md:grid-cols-2">
+            {SKILLS.map((s) => (
+              <li key={s.title} className="ls-card flex flex-col gap-4 rounded-3xl border border-slate-800 bg-slate-900/50 p-6">
                 <span className={`grid h-11 w-11 place-items-center rounded-xl ${s.tone}`}><Icon name={s.icon} size={20} /></span>
                 <h3 className="text-2xl text-slate-50" style={DISPLAY}>{s.title}</h3>
                 <p className="text-sm leading-relaxed text-slate-400">{s.text}</p>
+                <Link href={s.href} className="mt-auto text-sm text-slate-300 underline decoration-slate-700 underline-offset-4 hover:text-slate-50">Try it: {s.drill} →</Link>
               </li>
             ))}
           </ul>
         </section>
 
-        {/* A student's story */}
-        {showStory && (
-          <section aria-labelledby="story-h" className="relative border-t border-slate-800/70 py-14 sm:py-20">
-            {STORY.draft && (
-              <p className="mb-6 w-fit rounded-full border border-amber-500/60 bg-amber-500/15 px-3 py-1 text-xs text-amber-100">
-                Draft: shown only in development. Fill in STORY in src/app/page.tsx with a real student&apos;s story (and their photo, with permission) to publish it.
+        {/* The AI practice plan */}
+        <section id="plan" aria-labelledby="plan-h" className="scroll-mt-6 border-t border-slate-800/70 py-14 sm:py-20">
+          <div className="grid grid-cols-[minmax(0,1fr)] items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-16">
+            <div>
+              <Eyebrow>AI practice plan</Eyebrow>
+              <H2 id="plan-h">Never wonder <span className="ls-accent italic text-sky-300">what to practise.</span></H2>
+              <p className="mt-5 max-w-lg text-slate-300">
+                Tell attunr what you play, how much time you have and where you want to go. Your AI writes a plan built from attunr&apos;s drills, and every day a new set of exercises is waiting for you.
               </p>
-            )}
-            <div className="grid grid-cols-[minmax(0,1fr)] items-center gap-10 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-14">
-              <Photo name="practising" className="ls-photo aspect-4/5 rounded-3xl border border-slate-800" sizes="(min-width: 1024px) 35vw, 100vw" />
+              <ul className="mt-7 flex flex-col gap-4">
+                {[
+                  { icon: "sparkles" as const, t: "New ideas every day", s: "A fresh mix of drills each day, so practice never goes stale.", c: "bg-sky-500/15 text-sky-300" },
+                  { icon: "layers" as const, t: "Each week builds on the last", s: "Next week's plan knows what you practised this week and picks up from there.", c: "bg-teal-500/15 text-teal-300" },
+                  { icon: "bell" as const, t: "A nudge when it's time", s: "Set a daily reminder so practice becomes a habit.", c: "bg-violet-500/15 text-violet-300" },
+                ].map((x) => (
+                  <li key={x.t} className="flex gap-4">
+                    <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl ${x.c}`}><Icon name={x.icon} size={20} /></span>
+                    <span><b className="block font-semibold text-slate-100">{x.t}</b><span className="text-sm text-slate-400">{x.s}</span></span>
+                  </li>
+                ))}
+              </ul>
+              <Link href="/plan" className="ls-btn ls-btn-primary ls-glint mt-8 inline-flex items-center gap-2 rounded-xl bg-sky-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-sky-300">
+                Build my plan <Icon name="chevron-right" size={16} />
+              </Link>
+              <p className="mt-3 text-xs text-slate-500">Works with the AI you already use: attunr gives you the prompt, you paste back the reply.</p>
+            </div>
+            <div className="ls-card rounded-3xl border border-slate-700/60 bg-slate-900/70 p-6" aria-hidden>
+              <div className="flex items-baseline justify-between">
+                <p className="text-xl text-slate-50" style={DISPLAY}>Today · day 3</p>
+                <p className="text-xs text-slate-500">25 min</p>
+              </div>
+              <ul className="mt-5 flex flex-col gap-3">
+                {PLAN_DAY.map((x) => (
+                  <li key={x.label} className="flex items-center gap-3 rounded-2xl border border-slate-800 bg-slate-950/40 p-3">
+                    <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full ${x.done ? `${x.tone} text-slate-950` : "border border-slate-600"}`}>{x.done && <Icon name="check" size={14} />}</span>
+                    <span className={`h-8 w-1 shrink-0 rounded-full ${x.tone}`} />
+                    <span className={`flex-1 text-sm ${x.done ? "text-slate-500 line-through" : "text-slate-200"}`}>{x.label}</span>
+                    <span className="text-xs text-slate-500">{x.mins} min</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-5 h-2 rounded-full bg-slate-800"><div className="h-2 w-1/2 rounded-full bg-linear-to-r from-teal-400 to-sky-400" /></div>
+            </div>
+          </div>
+        </section>
+
+        {/* Why attunr exists, in the founder's words */}
+        <section aria-labelledby="story-h" className="relative border-t border-slate-800/70 py-14 sm:py-20">
+            <div className={STORY.photo ? "grid grid-cols-[minmax(0,1fr)] items-center gap-10 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-14" : "mx-auto max-w-3xl"}>
+              {STORY.photo && <Photo name={STORY.photo} className="ls-photo aspect-4/5 rounded-3xl border border-slate-800" sizes="(min-width: 1024px) 35vw, 100vw" />}
               <div>
-                <Eyebrow tone="text-amber-300">A student&apos;s story</Eyebrow>
+                <Eyebrow tone="text-amber-300">Why I built attunr</Eyebrow>
                 <H2 id="story-h">{STORY.headline}</H2>
                 <blockquote className="mt-6 border-l-2 border-amber-400/60 pl-5 text-lg italic leading-relaxed text-slate-300" style={DISPLAY}>“{STORY.quote}”</blockquote>
                 <p className="mt-3 pl-5 text-sm text-slate-400"><b className="text-slate-200">{STORY.name}</b>, {STORY.detail}</p>
@@ -170,7 +218,6 @@ export default function Home() {
               </div>
             </div>
           </section>
-        )}
 
         {/* The video course: early access and bundles */}
         <section id="course" aria-labelledby="course-h" className="scroll-mt-6 border-t border-slate-800/70 py-14 sm:py-20">
@@ -179,7 +226,10 @@ export default function Home() {
               <Eyebrow>The video course · early access</Eyebrow>
               <H2 id="course-h">Learn it step by step, <span className="ls-accent italic text-sky-300">and see it as you go.</span></H2>
               <p className="mt-5 max-w-xl text-slate-300">
-                Short video lessons that take you across the fretboard by ear and by colour, with every exercise ready to play in the app. Join early: you get the course at the early-access price, and every style course free as it launches.
+                Want a guided path from the first note to improvising? Short video lessons take you across the fretboard by ear and by colour, and every exercise is ready to play in the app. Join early: you get the course at the early-access price, and every style course free as it launches.
+              </p>
+              <p className="mt-5 inline-flex items-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3 py-1.5 text-sm text-emerald-100">
+                <Icon name="check" size={16} className="text-emerald-400" /> {GUARANTEE}. Not for you? Full refund, no questions asked.
               </p>
             </div>
             <Photo name="couch" className="ls-photo aspect-16/10 rounded-3xl border border-slate-800" sizes="(min-width: 1024px) 40vw, 100vw" />
@@ -206,7 +256,7 @@ export default function Home() {
               </li>
             ))}
           </ul>
-          <p className="mt-4 text-xs text-slate-500">Prices may change before launch. Style courses on the way: {STYLES.join(", ")}.</p>
+          <p className="mt-4 text-xs text-slate-500">Every bundle comes with a {GUARANTEE}: email us within 30 days of buying for a full refund, no reason needed. Prices may change before launch. Style courses on the way: {STYLES.join(", ")}.</p>
 
           <div id="join" className="ls-card mt-10 grid scroll-mt-6 grid-cols-[minmax(0,1fr)] items-center gap-6 rounded-3xl border border-slate-700/60 bg-slate-900/70 p-6 sm:p-8 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
             <div>
@@ -332,11 +382,11 @@ export default function Home() {
 
         <section className="pb-16 text-center sm:pb-24">
           <p className="mx-auto max-w-2xl text-4xl leading-tight text-slate-50 sm:text-5xl" style={DISPLAY}>
-            Stop guessing. <span className="ls-accent italic text-sky-300">Start hearing it.</span>
+            Stop noodling. <span className="ls-accent italic text-sky-300">Start practising with a plan.</span>
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <a href="#course" className="ls-btn ls-btn-primary ls-glint inline-flex items-center gap-2 rounded-xl bg-sky-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-sky-300">Get early access <Icon name="chevron-right" size={16} /></a>
-            <a href="#lessons" className="ls-btn inline-flex items-center gap-2 rounded-xl border border-slate-600 px-5 py-3 text-sm font-medium text-slate-100 transition hover:border-slate-400">Private lessons</a>
+            <Link href="/plan" className="ls-btn ls-btn-primary ls-glint inline-flex items-center gap-2 rounded-xl bg-sky-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-sky-300">Get today&apos;s practice <Icon name="chevron-right" size={16} /></Link>
+            <a href="#course" className="ls-btn inline-flex items-center gap-2 rounded-xl border border-slate-600 px-5 py-3 text-sm font-medium text-slate-100 transition hover:border-slate-400">See the course</a>
           </div>
         </section>
 
