@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import Icon from "@/components/Icon";
 import { clearCopyNotes, copyNotesMarkdown, repinCopyNotes, squeeze } from "../model/copyNotes";
 import { useCopyNotes, useHead, writeCopyNotes as write } from "./store";
+import { devUi } from "../gate";
 
 const ROOT = "data-copy-notes";
 const whereOf = (el: Element) => {
@@ -78,7 +79,7 @@ export default function CopyNotes() {
 
   // the notes of this page, tagged above the text they are about; found again by the text, so they follow layout changes
   useEffect(() => {
-    if (process.env.NODE_ENV === "production") return;
+    if (!devUi()) return;
     const mine = notes.filter((n) => n.route === path);
     if (!mine.length) return;
     const scan = () => {
@@ -101,7 +102,7 @@ export default function CopyNotes() {
     };
   }, [notes, path]);
 
-  if (process.env.NODE_ENV === "production") return null;
+  if (!devUi()) return null;
 
   const save = () => {
     const note = draft.trim();

@@ -62,7 +62,7 @@ returns one.
 
 ## Code map
 
-- `gate.ts`: `devOnly`, `devGate`.
+- `gate.ts`: `devOnly`, `devGate`, `devUi` (the overlays on real pages; `npm run dev:clean` sets `NEXT_PUBLIC_DEV_UI=off` to hide them).
 - `registry.ts`: the tools listed on `/dev`.
 - `model/models.ts`: the Claude models a run can use.
 - `model/history.ts`: run records, summaries, ids, request checks, `describeReply`.

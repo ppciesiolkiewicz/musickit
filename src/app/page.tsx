@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { devUi } from "@/features/devtools/gate";
 import type { ReactNode } from "react";
 import SiteNav from "@/components/SiteNav";
 import Icon, { type IconName } from "@/components/Icon";
@@ -81,7 +82,7 @@ const DO: { href: string; verb: string; label: string; icon: IconName; tone: str
 ];
 
 export default function Home() {
-  const showStory = !STORY.draft || process.env.NODE_ENV !== "production";
+  const showStory = !STORY.draft || devUi();
   const dorian = modeSteps(FAMILIES[0], 1);
   return (
     <div className="landing app-bg min-h-screen overflow-hidden text-slate-200">

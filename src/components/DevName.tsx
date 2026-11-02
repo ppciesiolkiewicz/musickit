@@ -1,6 +1,8 @@
+import { devUi } from "@/features/devtools/gate";
+
 /** In development only: the name of the component below (an autoplan tool, a course visual) and the params it got. */
 export default function DevName({ name, params }: { name: string; params?: object }) {
-  if (process.env.NODE_ENV === "production") return null;
+  if (!devUi()) return null;
   const text = params && Object.keys(params).length ? JSON.stringify(params) : "";
   return (
     <span className="flex min-w-0 flex-wrap items-baseline gap-1.5 font-mono text-[10px]">

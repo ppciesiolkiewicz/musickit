@@ -4,7 +4,7 @@ import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
 import NoControlFocus from "@/components/NoControlFocus";
 import CopyNotes from "@/features/devtools/copy/CopyNotes";
-import { devOnly } from "@/features/devtools/gate";
+import { devUi } from "@/features/devtools/gate";
 import QuickRecord from "@/features/recorder/QuickRecord";
 import Spotlight from "@/features/search/Spotlight";
 import { THEME_BOOT } from "@/components/ThemeSwitcher";
@@ -75,7 +75,7 @@ export default function RootLayout({
         {children}
         <QuickRecord />
         <Spotlight />
-        {devOnly() && <CopyNotes />}
+        {devUi() && <CopyNotes />}
         <Analytics />
       </body>
     </html>

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { devGate, devOnly } from "./gate";
+import { devGate, devOnly, devUi } from "./gate";
 
 test("dev tools are off in production only", () => {
   assert.equal(devOnly({ NODE_ENV: "production" }), false);
@@ -11,4 +11,10 @@ test("dev tools are off in production only", () => {
 test("devGate answers 404 in production and lets dev through", () => {
   assert.equal(devGate({ NODE_ENV: "production" })?.status, 404);
   assert.equal(devGate({ NODE_ENV: "development" }), null);
+});
+
+test("devUi is off in production and when NEXT_PUBLIC_DEV_UI=off", () => {
+  assert.equal(devUi({ NODE_ENV: "development" }), true);
+  assert.equal(devUi({ NODE_ENV: "development", NEXT_PUBLIC_DEV_UI: "off" }), false);
+  assert.equal(devUi({ NODE_ENV: "production" }), false);
 });

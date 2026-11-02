@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import DevName from "@/components/DevName";
+import { devUi } from "@/features/devtools/gate";
 import { View as ArpeggioNeck } from "@/features/exercises/basics/arpeggio-neck";
 import { View as BackingBand } from "@/features/exercises/basics/backing-band";
 import { View as ChordShapes } from "@/features/exercises/basics/chord-shapes";
@@ -31,7 +32,7 @@ const PlayAlong = dynamic(() => import("@/features/exercises/play-along/PlayAlon
 export default function ExerciseTool({ tool }: { tool: PlanTool }) {
   const { state } = usePlan();
   const voice = state.answers?.voice?.type;
-  if (process.env.NODE_ENV === "production") return <Tool tool={tool} voice={voice} />;
+  if (!devUi()) return <Tool tool={tool} voice={voice} />;
   return (
     <div className="flex flex-col gap-1">
       <DevName name={tool.type === "play-along" ? `play-along · ${tool.shape.shape}` : tool.type} params={params(tool)} />
