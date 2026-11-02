@@ -8,7 +8,7 @@ import { copyNotesMarkdown, noteHref, outdatedCount, repinCopyNotes, squeeze } f
 import { useCommits, useCopyNotes, useLinkedNote, useShownSections, writeCopyNotes as write } from "./store";
 import { devUi } from "../gate";
 import { NoteBar } from "./NoteBar";
-import { TextNoteMarks } from "./TextNoteMarks";
+import { TextNoteMarks, pathOf, placesOf } from "./TextNoteMarks";
 
 const ROOT = "data-copy-notes";
 const whereOf = (el: Element) => {
@@ -38,7 +38,7 @@ export default function CopyNotes() {
   const [on, setOn] = useState(false);
   const [open, setOpen] = useState(false);
   const [list, setList] = useState(false);
-  const [target, setTarget] = useState<{ text: string; where: string } | null>(null);
+  const [target, setTarget] = useState<{ text: string; where: string; path: string } | null>(null);
   const [draft, setDraft] = useState("");
   const [copied, setCopied] = useState(false);
   const [clearing, setClearing] = useState(false);
@@ -71,7 +71,7 @@ export default function CopyNotes() {
       if (!el) return;
       e.preventDefault();
       e.stopPropagation();
-      setTarget({ text: squeeze(el.innerText), where: whereOf(el) });
+      setTarget({ text: squeeze(el.innerText), where: whereOf(el), path: pathOf(el, ROOT) });
       setDraft("");
     };
     const key = (e: KeyboardEvent) => e.key === "Escape" && (setTarget(null), setOn(false));
@@ -105,7 +105,7 @@ export default function CopyNotes() {
     setList(true);
     if (note.section) return void (scrolled.current = linked);
     const find = () => {
-      const el = [...document.body.querySelectorAll<HTMLElement>("*")].filter((e) => !e.closest(`[${ROOT}]`) && squeeze(e.innerText ?? "") === note.text).pop();
+      const el = placesOf(note, ROOT).pop();
       if (!el) return;
       el.scrollIntoView({ block: "center" });
       scrolled.current = linked;

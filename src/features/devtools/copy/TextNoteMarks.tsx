@@ -6,8 +6,9 @@ import { squeeze, type CopyNote } from "../model/copyNotes";
 
 /*
  * Where this page's text notes sit: a dashed outline round each text a note was made on, with the note beside it; a
- * click opens the page's notes. The text is found again by its wording (as `CopyNotes` saved it), so the marks follow it
- * as it renders, scrolls or moves, and go when it does. Section notes show under their sections and are left out.
+ * click opens the page's notes. The text is found again by its wording and its place in the page (`placesOf`, as
+ * `CopyNotes` saved them), so the marks follow it as it renders, scrolls or moves, and go when it does. Section notes
+ * show under their sections and are left out.
  */
 
 interface Mark {
@@ -24,6 +25,39 @@ function elementsOf(text: string, root: string): HTMLElement[] {
   return hits.filter((e) => !hits.some((o) => o !== e && e.contains(o)));
 }
 
+/** An element's children, leaving out the notes' own (they come and go, and would shift the indexes). */
+const kids = (el: Element, root: string) => [...el.children].filter((c) => !c.hasAttribute(root));
+
+/** Where `el` sits in the page: tag and index among its parent's children, per level from <body> ("div1>main0>p3"). */
+export function pathOf(el: Element, root: string): string {
+  const steps: string[] = [];
+  for (let e: Element | null = el; e && e !== document.body && e.parentElement; e = e.parentElement)
+    steps.unshift(`${e.tagName.toLowerCase()}${kids(e.parentElement, root).indexOf(e)}`);
+  return steps.join(">");
+}
+
+/** The element at `path`, when each level still has that tag there. */
+function atPath(path: string, root: string): Element | null {
+  let el: Element | null = document.body;
+  for (const step of path.split(">")) {
+    const [, tag, i] = /^(.+?)(\d+)$/.exec(step) ?? [];
+    el = el && tag ? kids(el, root)[Number(i)] ?? null : null;
+    if (!el || el.tagName.toLowerCase() !== tag) return null;
+  }
+  return el;
+}
+
+/**
+ * Where a text note's text is now: the element at its path when that one still reads the noted text, else every element
+ * that does; when none does (its text changed, or it was read from an SVG), the element at its path.
+ */
+export function placesOf(note: Pick<CopyNote, "text" | "path">, root: string): Element[] {
+  const hits = elementsOf(note.text, root);
+  const at = note.path ? atPath(note.path, root) : null;
+  if (at && hits.includes(at as HTMLElement)) return [at];
+  return hits.length ? hits : at ? [at] : [];
+}
+
 export function TextNoteMarks({ notes, root, onOpen }: { notes: CopyNote[]; root: string; onOpen: (id: string) => void }) {
   const [marks, setMarks] = useState<Mark[]>([]);
   const texts = notes.filter((n) => !n.section);
@@ -36,7 +70,7 @@ export function TextNoteMarks({ notes, root, onOpen }: { notes: CopyNote[]; root
       frame = requestAnimationFrame(() =>
         setMarks(
           texts.flatMap((note) =>
-            elementsOf(note.text, root).flatMap((el) => {
+            placesOf(note, root).flatMap((el) => {
               const r = el.getBoundingClientRect();
               return r.width || r.height ? [{ note, rect: { top: r.top, left: r.left, width: r.width, height: r.height } }] : [];
             }),
@@ -55,7 +89,7 @@ export function TextNoteMarks({ notes, root, onOpen }: { notes: CopyNote[]; root
       window.removeEventListener("scroll", measure, true);
       window.removeEventListener("resize", measure);
     };
-  }, [texts.map((n) => `${n.id}\u0000${n.text}\u0000${n.note}`).join("\u0001"), root]); // eslint-disable-line react-hooks/exhaustive-deps -- keyed by the notes' content
+  }, [texts.map((n) => `${n.id}\u0000${n.text}\u0000${n.path}\u0000${n.note}`).join("\u0001"), root]); // eslint-disable-line react-hooks/exhaustive-deps -- keyed by the notes' content
 
   if (!texts.length || !marks.length) return null;
   return (

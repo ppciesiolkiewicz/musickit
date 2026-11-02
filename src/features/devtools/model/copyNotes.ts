@@ -32,6 +32,9 @@ export interface CopyNote {
   text: string;
   /** a short hint to find it again: tag, aria-label or classes; for a section, the example and its place */
   where: string;
+  /** the clicked element's place in the page, tag and index per level from <body> ("div1>main0>p3"), to find that one
+   * when the same text is in several places, or when its text has changed since */
+  path?: string;
   note: string;
   /** ISO time */
   at: string;
