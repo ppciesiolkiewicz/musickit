@@ -23,3 +23,36 @@ export const micGate = {
     return { state: { armed, last: heard }, score: false };
   },
 };
+
+/** How loud a frame of samples is (root mean square). */
+export function rms(data: ArrayLike<number>): number {
+  let sum = 0;
+  for (let i = 0; i < data.length; i++) sum += data[i] * data[i];
+  return data.length ? Math.sqrt(sum / data.length) : 0;
+}
+
+/** below this a channel counts as silent (about -50 dBFS) */
+const SILENT = 0.003;
+
+/**
+ * Which of a device's inputs to listen to when it has more than one (an audio interface: a guitar on Input 1, a voice on Input 2):
+ * the louder one. It moves only when another is clearly louder (twice, about 6 dB) for `frames` readings running, so one strum
+ * or breath on the other input does not pull it over, and silence keeps the last choice.
+ */
+export function createChannelPicker(frames = 6) {
+  let current = 0;
+  let run = 0;
+  return {
+    pick(levels: readonly number[]): number {
+      let best = current;
+      levels.forEach((l, i) => l > levels[best] && (best = i));
+      const louder = best !== current && levels[best] > SILENT && levels[best] > 2 * (levels[current] ?? 0);
+      run = louder ? run + 1 : 0;
+      if (run >= frames) {
+        current = best;
+        run = 0;
+      }
+      return current;
+    },
+  };
+}

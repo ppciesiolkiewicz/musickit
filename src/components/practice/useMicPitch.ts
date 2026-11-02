@@ -4,13 +4,16 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { hzToNote, type Pitch } from "@/features/tuner/pitch";
 import { createDetector } from "@/features/tuner/detector";
 import { stablePitch } from "@/lib/practice/noteGame";
-import { acquireStream } from "@/lib/practice/mic";
+import { acquireStream, createChannelPicker, rms } from "@/lib/practice/mic";
 import { readDeviceChoice, serverDeviceChoice, subscribeDeviceChoice } from "@/features/sound";
 
 export type MicStatus = "off" | "asking" | "on" | "denied" | "error" | "insecure";
 export interface MicReading { midi: number; t: number }
-/** which channel of the device to listen to: Input 1, Input 2 (an audio interface's two inputs), or both mixed */
-export type MicChannel = "left" | "right" | "sum";
+/**
+ * which channel of the device to listen to: Input 1, Input 2 (an audio interface's two inputs), both mixed, or `auto`: each input
+ * kept apart and the louder one heard (a guitar on Input 1 and a voice on Input 2 never mix into one confused pitch)
+ */
+export type MicChannel = "left" | "right" | "sum" | "auto";
 export interface MicOptions {
   /** a device id instead of the one chosen in the nav's devices menu */
   deviceId?: string | null;
@@ -22,7 +25,8 @@ export interface MicOptions {
  * Pitch comes from the tuner's detector (CREPE, YIN until the model loads), which keeps reading a voice over room noise where bare YIN goes quiet.
  * `onFrame` is called every frame with the pitch class held for 150 ms, or null when nothing steady is heard.
  * `onPitch` gets every raw reading (null when nothing is pitched), for a display that follows the voice continuously.
- * `options` pick another device or one channel of it (an audio interface's Input 1 or 2); a change reopens the input.
+ * A device with two inputs is heard on the louder one (`auto`); `options` pick another device or one channel of it (an audio
+ * interface's Input 1 or 2); a change reopens the input.
  * Everything is released (tracks stopped, context closed) when disabled or unmounted.
  */
 export function useMicPitch(enabled: boolean, onFrame?: (pc: number | null) => void, onPitch?: (p: Pitch | null) => void, options: MicOptions = {}): { status: MicStatus; heard: number | null } {
@@ -33,7 +37,7 @@ export function useMicPitch(enabled: boolean, onFrame?: (pc: number | null) => v
   const raw = useRef(onPitch);
   const chosenId = useSyncExternalStore(subscribeDeviceChoice, readDeviceChoice, serverDeviceChoice).input?.id;
   const inputId = options.deviceId ?? chosenId;
-  const channel = options.channel ?? "sum";
+  const channel = options.channel ?? "auto";
   useEffect(() => {
     cb.current = onFrame;
     raw.current = onPitch;
@@ -57,23 +61,33 @@ export function useMicPitch(enabled: boolean, onFrame?: (pc: number | null) => v
         if (!stream) return;
         ctx = new AudioContext();
         const src = ctx.createMediaStreamSource(stream);
-        const an = ctx.createAnalyser();
-        an.fftSize = 4096;
-        if (channel === "sum") src.connect(an);
-        else {
-          // one input of the device: a mono device has nothing on Input 2
+        const analyser = () => {
+          const an = ctx!.createAnalyser();
+          an.fftSize = 4096;
+          return an;
+        };
+        const inputs = channel === "auto" ? Math.min(2, stream.getAudioTracks()[0]?.getSettings().channelCount ?? 1) : 1;
+        let ans: AnalyserNode[];
+        if (channel === "sum" || inputs === 1) {
+          ans = [analyser()];
+          src.connect(ans[0]);
+        } else {
+          // the inputs apart: one asked for, or both for `auto` (a mono device has nothing on Input 2)
           const split = ctx.createChannelSplitter(2);
           src.connect(split);
-          split.connect(an, channel === "left" ? 0 : 1);
+          ans = channel === "auto" ? [analyser(), analyser()] : [analyser()];
+          ans.forEach((an, i) => split.connect(an, channel === "right" ? 1 : i));
         }
-        const data = new Float32Array(an.fftSize);
+        const data = ans.map((an) => new Float32Array(an.fftSize));
+        const picker = createChannelPicker();
         setStatus("on");
         const detect = createDetector();
         const tick = () => {
           if (stopped || !ctx) return;
-          an.getFloatTimeDomainData(data);
+          ans.forEach((an, i) => an.getFloatTimeDomainData(data[i]));
+          const frame = data[data.length > 1 ? picker.pick(data.map(rms)) : 0];
           // undefined: the last frame is still being read, so nothing new this frame
-          void detect(data, ctx.sampleRate, 70).then((p) => {
+          void detect(frame, ctx.sampleRate, 70).then((p) => {
             if (stopped || p === undefined) return;
             const now = performance.now();
             raw.current?.(p);
