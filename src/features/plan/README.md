@@ -13,7 +13,7 @@ browser.
    **Build my plan** is enabled once the reply parses.
 2. **The week** (`ui/WeekView.tsx`): seven day buttons; any day can be opened, days ahead are dashed and marked "coming up". The day's
    exercises are colour-coded cards (a hue per position, tags keep their own colour): title in the display face, focus
-   ("A minor pentatonic · boxes 1 & 2"), sections (timed headings show their minutes), why, a Mark done button.
+   ("A minor pentatonic · boxes 1 & 2"), the level (outlined chip), area and kind tags, sections (timed headings show their minutes), why, a Mark done button.
    **One floating day timer** (`ui/DayTimer.tsx`, bottom right) counts down the whole day's minutes: it starts by itself
    for the day shown on page load, can be paused, resumed and reset, shows the exercise the time falls in (`model/dayClock.ts`)
    and marks that card "Now", and chimes at zero. Its used seconds are saved in the plan (`StoredPlan.elapsed`, per day)
@@ -77,7 +77,7 @@ read first) and `exploreMore` (going deeper), up to 3 attunr hrefs each; the app
 
 ```json
 { "title": "…", "summary": "…", "days": [ { "theme": "…", "exercises": [
-  { "title": "…", "focus": "A minor pentatonic · boxes 1 & 2", "minutes": 8, "tags": ["technique"], "why": "…",
+  { "title": "…", "focus": "A minor pentatonic · boxes 1 & 2", "minutes": 8, "level": "beginner", "area": "guitar", "tags": ["technique"], "why": "…",
     "learnBefore": ["/course/5/pentatonic"],
     "sections": [
       { "type": "text", "text": "…" },
@@ -88,7 +88,9 @@ read first) and `exploreMore` (going deeper), up to 3 attunr hrefs each; the app
 ```
 
 On paste: a code fence or prose around it is fine; minutes are clamped to 1–120; sections and tools that can't be shown
-(unknown scale, unreadable chord) and unknown links are left out with a warning; unknown tags are dropped; fewer than seven
+(unknown scale, unreadable chord) and unknown links are left out with a warning; unknown tags are dropped; an exercise without a
+known `level` (new, beginner, intermediate, advanced), `area` (guitar, voice, theory) or kind tag (`EXERCISE_TAGS`)
+warns (`exerciseLevelArea`, `exerciseTags` in `tools.ts`); fewer than seven
 days or an empty day is refused. Plans pasted before sections (`how`, `steps`, `tools` with a `step`, `link`) are read as
 sections, a step followed by its tools; plans stored that way are converted on display (`sectionsOf`). An old `link`
 (a `link` section, or the field before sections when it doesn't stand for a tool) goes to "Explore more" (`linkSlots`).

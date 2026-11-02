@@ -36,6 +36,10 @@ export interface PlanExercise {
   focus?: string;
   /** why: what it improves */
   why?: string;
+  /** who it is pitched at: the student's level in its area; shown as a chip */
+  level?: Level;
+  /** the one area it practises; shown as a chip */
+  area?: Area;
   /** what kind of practice it is, from EXERCISE_TAGS ("multi-octave", "ear", …) */
   tags?: string[];
   sections?: Section[];

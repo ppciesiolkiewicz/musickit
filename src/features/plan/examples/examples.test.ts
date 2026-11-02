@@ -46,6 +46,18 @@ describe("example library", () => {
     for (const e of EXERCISE_EXAMPLES) assert.ok(parsed(weekOf(e.exercise)).days[0].exercises[0].learnBefore?.length, e.id);
   });
 
+  it("every exercise is tagged with the example's level and its area", () => {
+    for (const e of EXERCISE_EXAMPLES) {
+      const ex = parsed(weekOf(e.exercise)).days[0].exercises[0];
+      assert.equal(ex.level, e.level, e.id);
+      assert.equal(ex.area, e.areas[0], e.id);
+    }
+    for (const p of PLAN_EXAMPLES) for (const d of parsed(JSON.stringify(p.plan)).days) for (const ex of d.exercises) {
+      assert.equal(ex.level, p.level, `${p.id}: ${ex.title}`);
+      assert.ok(ex.area && p.areas.includes(ex.area), `${p.id}: ${ex.title}`);
+    }
+  });
+
   it("every plan example parses with zero warnings and has 7 days", () => {
     for (const p of PLAN_EXAMPLES) {
       const raw = p.plan as { days: unknown[] };

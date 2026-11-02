@@ -7,6 +7,8 @@ import Sections from "./Sections";
 import { catalogue, linkLabel, type CatalogueEntry } from "../model/catalogue";
 import { linkSlots } from "../model/migrate";
 import { sectionsOf } from "../model/tools";
+import { AREAS } from "../model/concepts";
+import { LEVELS, labelOf } from "../model/questions";
 import type { PlanExercise } from "../model/types";
 
 /** Each tag keeps its colour wherever it shows. */
@@ -60,9 +62,11 @@ export default function ExerciseCard({ exercise: e, index, done = false, now = f
         {now && <span className="rounded-full bg-sky-400 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-slate-950">Now</span>}
         <span className="ml-auto flex items-center gap-1 text-xs text-slate-400"><Icon name="timer" size={12} />{e.minutes} min</span>
       </div>
-      {(e.focus || e.tags?.length) && (
+      {(e.focus || e.level || e.area || e.tags?.length) && (
         <div className="flex flex-wrap items-center gap-1.5 pl-11">
           {e.focus && <span className="rounded-md border border-sky-500/30 bg-sky-500/10 px-2 py-0.5 text-xs text-sky-100">{e.focus}</span>}
+          {e.level && <span className="rounded-full border border-slate-500/70 px-2 py-px text-[10px] font-semibold uppercase tracking-wider text-slate-200">{labelOf(LEVELS, e.level)}</span>}
+          {e.area && <span className="rounded-full bg-slate-800/80 px-2 py-0.5 text-[11px] font-medium text-slate-300">{labelOf(AREAS, e.area)}</span>}
           {e.tags?.map((t) => <span key={t} className={`rounded-full bg-slate-800/80 px-2 py-0.5 text-[11px] font-medium ${HUE_TONES[TAG_HUES[t] ?? "sky"].ink}`}>#{t}</span>)}
         </div>
       )}

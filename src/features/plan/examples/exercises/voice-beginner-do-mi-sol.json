@@ -9,7 +9,7 @@
     "title": "Do Mi Sol: skip, sing a tune, sing over chords",
     "focus": "Do Mi Sol in D, F and A · an easy skipping tune · Do and Sol over D and A",
     "minutes": 9,
-    "tags": ["sing"],
+    "level": "beginner", "area": "voice", "tags": ["sing"],
     "why": "Most melodies move through the notes of a chord, so Do Mi Sol is the first set to know.",
     "learnBefore": ["/course/3/solfege", "/course/3/do-mi-sol"],
     "sections": [

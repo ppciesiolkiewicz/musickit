@@ -17,7 +17,7 @@ Each file is the content exactly as the AI returns it, wrapped in metadata:
 ```json
 { "id": "guitar-beginner-pentatonic-box1", "kind": "exercise", "areas": ["guitar"], "level": "beginner",
   "concepts": ["pentatonic-box-1"], "note": "Why this is a good example, in one or two sentences.",
-  "exercise": { "title": "…", "focus": "…", "minutes": 10, "tags": ["technique"], "sections": [ … ] } }
+  "exercise": { "title": "…", "focus": "…", "minutes": 10, "level": "beginner", "area": "guitar", "tags": ["technique"], "sections": [ … ] } }
 ```
 
 - `id` is the file name. `areas`: `guitar`, `voice`, `theory` (an exercise has one, a plan may have several). `level`:
@@ -36,6 +36,8 @@ What there is: one exercise per area and level, three more in the new teaching s
 
 ## The rules every example meets
 
+- Every exercise (in a plan too) is tagged: `level` is the example's level, `area` its area (one of a plan's areas;
+  ear training is `theory`), `tags` 1 to 3 kinds from `EXERCISE_TAGS` in `model/tools.ts`. The page shows them as chips.
 - Pasted, it parses with zero warnings: real tools and props only (`COMPONENT_DOCS`), links only to attunr pages,
   picks that match a tune exactly.
 - Over 5 minutes: at least two blocks (headings with `minutes`) of 2 to 5 minutes each, adding up to the exercise's

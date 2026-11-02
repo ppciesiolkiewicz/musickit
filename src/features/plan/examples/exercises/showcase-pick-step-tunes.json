@@ -10,7 +10,7 @@
     "title": "Two tunes: steps, then skips",
     "focus": "An easy Do Re Mi tune, then a medium Do Mi Sol tune in D",
     "minutes": 6,
-    "tags": ["sing", "song"],
+    "level": "beginner", "area": "voice", "tags": ["sing", "song"],
     "why": "Tunes that move by step are the easiest to sing in tune, so they come before tunes that skip.",
     "learnBefore": ["/course/3/step-melodies", "/course/3/do-mi-sol"],
     "sections": [

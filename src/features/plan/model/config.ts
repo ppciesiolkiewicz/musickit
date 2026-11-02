@@ -2,7 +2,7 @@ import { fitBlocks, blocksOf } from "./blocks";
 import { mixesSingAndPlay, tempoWithoutMetronome } from "./checks";
 import { checkLink, type CatalogueEntry } from "./catalogue";
 import { linkSlots } from "./migrate";
-import { exerciseTags, legacySections, parseSection, parseTool, pickWasInexact, resolveChordPlacement, type Section } from "./tools";
+import { exerciseLevelArea, exerciseTags, legacySections, parseSection, parseTool, pickWasInexact, resolveChordPlacement, type Section } from "./tools";
 import { PLAN_DAYS, type PlanConfig, type PlanDay, type PlanExercise } from "./types";
 
 export type ParseResult = { ok: true; config: PlanConfig; warnings: string[] } | { ok: false; error: string };
@@ -95,8 +95,11 @@ export function parsePlanConfig(text: string, entries: CatalogueEntry[]): ParseR
       if (mixesSingAndPlay(fit.sections)) warnings.push(`${where}: asks to both sing and play; keep it to one.`);
       if (tempoWithoutMetronome(fit.sections)) warnings.push(`${where}: asks for a tempo but shows no metronome; add one.`);
       ex.sections = fit.sections;
+      Object.assign(ex, exerciseLevelArea(e));
       const tags = exerciseTags(e.tags, sections);
       if (tags.length) ex.tags = tags;
+      const untagged = [!ex.level && "level", !ex.area && "area", !tags.length && "kind"].filter(Boolean);
+      if (untagged.length) warnings.push(`${where}: no ${untagged.join(", ")} tag.`);
       const why = str(e.why, 300);
       if (why) ex.why = why;
       Object.assign(ex, parseSlots(e, entries, where, warnings));

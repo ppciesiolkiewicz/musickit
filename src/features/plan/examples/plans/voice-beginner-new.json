@@ -35,7 +35,7 @@
             "title": "Find the smooth spot",
             "focus": "Do over a C drone",
             "minutes": 3,
-            "tags": [
+            "level": "beginner", "area": "voice", "tags": [
               "sing"
             ],
             "why": "In tune with the drone sounds smooth and off sounds like a wobble, so the drone lets you check yourself with no one listening.",
@@ -65,7 +65,7 @@
             "title": "Steps or skips?",
             "focus": "Hear a step (Do-Re) from a skip (Do-Mi, jumping over Re)",
             "minutes": 3,
-            "tags": [
+            "level": "beginner", "area": "voice", "tags": [
               "ear"
             ],
             "why": "Melodies move by steps and skips, so hearing which is which tells you where the next note is before you sing it.",
@@ -91,7 +91,7 @@
             "title": "Step tunes, then your own",
             "focus": "Two easy step tunes in C · a tune of your own on Do Re Mi",
             "minutes": 9,
-            "tags": [
+            "level": "beginner", "area": "voice", "tags": [
               "song"
             ],
             "why": "Step tunes use notes right next to each other, so they train your voice to move one note at a time and stay in tune.",
@@ -175,7 +175,7 @@
             "title": "Hum, then open",
             "focus": "Do and Sol over a D drone",
             "minutes": 3,
-            "tags": [
+            "level": "beginner", "area": "voice", "tags": [
               "sing"
             ],
             "why": "Humming keeps the sound small and easy to tune, so opening to \"ah\" from a hum carries the in-tune note with it.",
@@ -205,7 +205,7 @@
             "title": "3rd or 5th?",
             "focus": "Hear Do-Mi from Do-Sol",
             "minutes": 3,
-            "tags": [
+            "level": "beginner", "area": "voice", "tags": [
               "ear"
             ],
             "why": "Mi and Sol are the two notes a skip from Do usually lands on, so telling them apart is half of singing a skip in tune.",
@@ -231,7 +231,7 @@
             "title": "A skipping tune, then over chords",
             "focus": "An easy skipping tune in D · Do and Sol over D and A",
             "minutes": 9,
-            "tags": [
+            "level": "beginner", "area": "voice", "tags": [
               "song",
               "improv"
             ],
@@ -308,7 +308,7 @@
             "title": "A long Do in G",
             "focus": "Do over a G drone, held",
             "minutes": 3,
-            "tags": [
+            "level": "beginner", "area": "voice", "tags": [
               "sing"
             ],
             "why": "A long note shows every wobble in your pitch line, so holding Do steady trains the breath that keeps every note in tune.",
@@ -340,7 +340,7 @@
             "title": "5th or 6th?",
             "focus": "Hear Do-Sol from Do-La",
             "minutes": 3,
-            "tags": [
+            "level": "beginner", "area": "voice", "tags": [
               "ear"
             ],
             "why": "La sits one step above Sol, so hearing the two apart is what lets you sing the step between them.",
@@ -366,7 +366,7 @@
             "title": "Sol La Sol, then over chords",
             "focus": "An easy tune on Sol and La in G · over G and D",
             "minutes": 9,
-            "tags": [
+            "level": "beginner", "area": "voice", "tags": [
               "song",
               "improv"
             ],
@@ -443,7 +443,7 @@
             "title": "Siren to Sol",
             "focus": "Slide from Do to Sol over an F drone",
             "minutes": 3,
-            "tags": [
+            "level": "beginner", "area": "voice", "tags": [
               "sing"
             ],
             "why": "A slow slide passes through every pitch on the way, so it shows your voice the whole distance it needs to skip.",
@@ -473,7 +473,7 @@
             "title": "Skips, falling",
             "focus": "Hear a falling 3rd from a falling 5th",
             "minutes": 3,
-            "tags": [
+            "level": "beginner", "area": "voice", "tags": [
               "ear"
             ],
             "why": "Tunes fall as often as they rise, and a falling skip feels different, so hear it the way down too.",
@@ -499,7 +499,7 @@
             "title": "A tune under Do, then over three chords",
             "focus": "An easy tune that dips under Do in F · over F, B♭ and C",
             "minutes": 9,
-            "tags": [
+            "level": "beginner", "area": "voice", "tags": [
               "song",
               "improv"
             ],
@@ -579,7 +579,7 @@
             "title": "Do Mi Sol in A",
             "focus": "Do Mi Sol over an A drone",
             "minutes": 3,
-            "tags": [
+            "level": "beginner", "area": "voice", "tags": [
               "sing"
             ],
             "why": "Do Mi Sol sounds the same in every key, so moving it to A shows your ear knows the shape, not the notes.",
@@ -610,7 +610,7 @@
             "title": "Steps and skips, mixed",
             "focus": "Hear steps, 3rds and 5ths",
             "minutes": 3,
-            "tags": [
+            "level": "beginner", "area": "voice", "tags": [
               "ear"
             ],
             "why": "Real tunes mix steps and skips, so hearing them mixed is closer to singing a song than hearing them alone.",
@@ -637,7 +637,7 @@
             "title": "A harder skipping tune, then your own",
             "focus": "A medium skipping tune in A · your own skips",
             "minutes": 9,
-            "tags": [
+            "level": "beginner", "area": "voice", "tags": [
               "song"
             ],
             "why": "A harder tune puts the skips closer together, and then making up your own shows which skips you hear best.",
@@ -699,7 +699,7 @@
             "title": "Do Re Mi Re Do",
             "focus": "Do Re Mi and back over a C drone",
             "minutes": 3,
-            "tags": [
+            "level": "beginner", "area": "voice", "tags": [
               "sing"
             ],
             "why": "A step up and back is the shape most tunes start with, so it trains the exact move songs ask for.",
@@ -730,7 +730,7 @@
             "title": "Hear and sing back",
             "focus": "Sing back a 3rd or a 5th",
             "minutes": 3,
-            "tags": [
+            "level": "beginner", "area": "voice", "tags": [
               "ear"
             ],
             "why": "Singing back what you hear links your ear to your voice, which is what learning a tune by ear is.",
@@ -756,7 +756,7 @@
             "title": "Steps, then 3rds",
             "focus": "A medium step tune · an easy tune in 3rds, in C",
             "minutes": 9,
-            "tags": [
+            "level": "beginner", "area": "voice", "tags": [
               "song"
             ],
             "why": "Steps and 3rds are the two moves most tunes use, so a tune of each is the week in two songs.",
@@ -814,7 +814,7 @@
             "title": "A long Do, then and now",
             "focus": "Do over a D drone, held",
             "minutes": 3,
-            "tags": [
+            "level": "beginner", "area": "voice", "tags": [
               "sing"
             ],
             "why": "Holding Do steady is where the week started, so it is the clearest place to feel how far you've come.",
@@ -846,7 +846,7 @@
             "title": "The week's intervals",
             "focus": "Steps, 3rds, 5ths and 6ths",
             "minutes": 3,
-            "tags": [
+            "level": "beginner", "area": "voice", "tags": [
               "ear"
             ],
             "why": "Every interval from this week in one game shows which ones your ear now knows by itself.",
@@ -874,7 +874,7 @@
             "title": "A Sol tune, then your own line",
             "focus": "An easy Sol tune in D · your own line over D, G and A",
             "minutes": 9,
-            "tags": [
+            "level": "beginner", "area": "voice", "tags": [
               "song",
               "improv"
             ],

@@ -9,7 +9,7 @@
     "title": "Join positions 1 and 2",
     "focus": "Minor pentatonic · positions 1 → 2 · A then C",
     "minutes": 12,
-    "tags": ["technique", "improv"],
+    "level": "intermediate", "area": "guitar", "tags": ["technique", "improv"],
     "why": "Joining positions turns five separate shapes into one neck you can move along mid-phrase.",
     "learnBefore": ["/course/6/joining"],
     "sections": [

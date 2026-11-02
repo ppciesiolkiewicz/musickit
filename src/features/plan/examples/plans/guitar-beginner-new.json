@@ -35,7 +35,7 @@
             "title": "The spider where position 1 lives",
             "focus": "Fingers 1234 at frets 5 to 8, every string, 60 bpm",
             "minutes": 4,
-            "tags": [
+            "level": "beginner", "area": "guitar", "tags": [
               "technique"
             ],
             "why": "Position 1 sits at frets 5 to 8, one finger per fret, so warming up right there trains the exact stretch the scale needs.",
@@ -59,7 +59,7 @@
             "title": "G, C and D in time",
             "focus": "G-C-D-G changes · down strums at 60 bpm",
             "minutes": 6,
-            "tags": [
+            "level": "beginner", "area": "guitar", "tags": [
               "rhythm"
             ],
             "why": "G, C and D are the 1, 4 and 5 of G major, the three chords most songs lean on, so a clean change between them opens up more music than any new chord.",
@@ -112,7 +112,7 @@
             "title": "Position 1, then your own phrases",
             "focus": "A minor pentatonic · position 1 · 60 bpm, the roots, phrases over a band",
             "minutes": 10,
-            "tags": [
+            "level": "beginner", "area": "guitar", "tags": [
               "technique",
               "improv"
             ],
@@ -221,7 +221,7 @@
             "title": "Spider, new order",
             "focus": "Fingers 1324 at frets 5 to 8, 60 bpm",
             "minutes": 4,
-            "tags": [
+            "level": "beginner", "area": "guitar", "tags": [
               "technique"
             ],
             "why": "Changing the finger order makes each finger move on its own, which is what phrases need once they stop going straight up and down.",
@@ -245,7 +245,7 @@
             "title": "A5, D5, E5",
             "focus": "Power chords A5-D5-E5 · down strums at 70 bpm",
             "minutes": 7,
-            "tags": [
+            "level": "beginner", "area": "guitar", "tags": [
               "rhythm"
             ],
             "why": "A power chord is a root and its 5th, so once your hand knows the one shape, every chord is just a new place for it.",
@@ -298,7 +298,7 @@
             "title": "Roots and 5ths in position 1",
             "focus": "A minor pentatonic · position 1 · only 1 and 5 in play",
             "minutes": 5,
-            "tags": [
+            "level": "beginner", "area": "guitar", "tags": [
               "technique"
             ],
             "why": "The two notes of every power chord are also in position 1, so your riffs and your solos live on the same frets.",
@@ -340,7 +340,7 @@
             "title": "A riff of your own",
             "focus": "A minor pentatonic · roots and 5ths over drums in A",
             "minutes": 4,
-            "tags": [
+            "level": "beginner", "area": "guitar", "tags": [
               "improv"
             ],
             "why": "A riff is a short phrase repeated, so two notes and a rhythm are all you need to make one up.",
@@ -390,7 +390,7 @@
             "title": "G to C, smoother each round",
             "focus": "G-C changes · one-minute rounds",
             "minutes": 4,
-            "tags": [
+            "level": "beginner", "area": "guitar", "tags": [
               "rhythm"
             ],
             "why": "The change you repeat is the one your hand learns, so short rounds on one change grow faster than long ones on many.",
@@ -415,7 +415,7 @@
             "title": "Position 1 at 70, then 80",
             "focus": "A minor pentatonic · position 1 · 70 then 80 bpm",
             "minutes": 6,
-            "tags": [
+            "level": "beginner", "area": "guitar", "tags": [
               "technique"
             ],
             "why": "Speed comes from playing just a little faster than easy, so step up only once the slower tempo feels relaxed.",
@@ -494,7 +494,7 @@
             "title": "Call and response",
             "focus": "Position 1 over drums in A · question and answer",
             "minutes": 5,
-            "tags": [
+            "level": "beginner", "area": "guitar", "tags": [
               "improv"
             ],
             "why": "A phrase that asks and one that answers is how solos talk, so this turns notes into sentences.",
@@ -535,7 +535,7 @@
             "title": "Do Mi Sol tune",
             "focus": "A tune on the notes of the C chord, on the neck",
             "minutes": 5,
-            "tags": [
+            "level": "beginner", "area": "guitar", "tags": [
               "song"
             ],
             "why": "This tune uses only the notes of the C chord, so your fingers learn a chord as a melody.",
@@ -568,7 +568,7 @@
             "title": "The spider, new order again",
             "focus": "Fingers 1243 at frets 5 to 8, 70 bpm",
             "minutes": 4,
-            "tags": [
+            "level": "beginner", "area": "guitar", "tags": [
               "technique"
             ],
             "why": "Each new finger order trains a different pair of fingers to work alone, so the hand gets even.",
@@ -601,7 +601,7 @@
             "title": "G-Em-C-D strumming",
             "focus": "G-Em-C-D · down strums at 70 bpm",
             "minutes": 6,
-            "tags": [
+            "level": "beginner", "area": "guitar", "tags": [
               "rhythm"
             ],
             "why": "G Em C D is the loop behind countless songs, so a steady strum through it lets you play along with them.",
@@ -655,7 +655,7 @@
             "title": "End on a different note",
             "focus": "Position 1 over drums in A · end on A or C",
             "minutes": 5,
-            "tags": [
+            "level": "beginner", "area": "guitar", "tags": [
               "improv"
             ],
             "why": "The last note sets the mood of a phrase, so choosing it is the first step to sounding like you mean it.",
@@ -697,7 +697,7 @@
             "title": "Sol La Sol",
             "focus": "A short tune in G, from tab",
             "minutes": 5,
-            "tags": [
+            "level": "beginner", "area": "guitar", "tags": [
               "song"
             ],
             "why": "A tune you can sing in your head is the best check that your hands play what you hear.",
@@ -730,7 +730,7 @@
             "title": "Spider from the 1st fret",
             "focus": "Fingers 1324 at frets 1 to 4, 70 bpm",
             "minutes": 4,
-            "tags": [
+            "level": "beginner", "area": "guitar", "tags": [
               "technique"
             ],
             "why": "Low on the neck the frets are widest, so the same pattern there builds the stretch for open chords.",
@@ -763,7 +763,7 @@
             "title": "E5, G5, A5 riff",
             "focus": "E5-G5-A5 · down strums at 80 bpm",
             "minutes": 4,
-            "tags": [
+            "level": "beginner", "area": "guitar", "tags": [
               "rhythm"
             ],
             "why": "The power chord shape works on any root, so a riff in E is the same hand you used in A.",
@@ -791,7 +791,7 @@
             "title": "E minor pentatonic, two places",
             "focus": "E minor pentatonic · open and at the 12th fret",
             "minutes": 8,
-            "tags": [
+            "level": "beginner", "area": "guitar", "tags": [
               "technique"
             ],
             "why": "A position's shape doesn't change with the key, it just moves, so every shape you know works in all twelve keys.",
@@ -858,7 +858,7 @@
             "title": "Your A phrases in E",
             "focus": "Improvise in E over drums",
             "minutes": 4,
-            "tags": [
+            "level": "beginner", "area": "guitar", "tags": [
               "improv"
             ],
             "why": "A phrase is a shape on the neck, so a phrase you made in A plays in E just by moving it.",
@@ -904,7 +904,7 @@
             "title": "The spider at 80",
             "focus": "Fingers 1234 at frets 3 to 6, 80 bpm",
             "minutes": 4,
-            "tags": [
+            "level": "beginner", "area": "guitar", "tags": [
               "technique"
             ],
             "why": "Holding the pattern at a faster tempo shows you how far your hands have come since day 1.",
@@ -937,7 +937,7 @@
             "title": "G, C and D without looking",
             "focus": "G-C-D-G changes · down strums at 70 bpm",
             "minutes": 5,
-            "tags": [
+            "level": "beginner", "area": "guitar", "tags": [
               "rhythm"
             ],
             "why": "Looking at your hand is a habit, and a change you can make without looking is one you really own.",
@@ -965,7 +965,7 @@
             "title": "Position 1 without the chart",
             "focus": "A minor pentatonic · position 1 from memory at 80 bpm",
             "minutes": 5,
-            "tags": [
+            "level": "beginner", "area": "guitar", "tags": [
               "technique"
             ],
             "why": "A shape you can play without the chart is one you can use in music, so this is the test that matters.",
@@ -1005,7 +1005,7 @@
             "title": "A longer tune",
             "focus": "A tune in G · tab at 65, then the neck at 75",
             "minutes": 6,
-            "tags": [
+            "level": "beginner", "area": "guitar", "tags": [
               "song"
             ],
             "why": "Reading it once from tab and once from the neck links the numbers to the places your fingers go.",
@@ -1065,7 +1065,7 @@
             "title": "G-Em-C-D, full pattern",
             "focus": "G-Em-C-D · D . D U . U D U at 80 bpm",
             "minutes": 5,
-            "tags": [
+            "level": "beginner", "area": "guitar", "tags": [
               "rhythm"
             ],
             "why": "This pattern keeps the hand moving down and up on every half beat, so the strings it skips make the groove.",
@@ -1094,7 +1094,7 @@
             "title": "A position drill of your own",
             "focus": "A minor pentatonic · position 1 in A and E · your own drill",
             "minutes": 5,
-            "tags": [
+            "level": "beginner", "area": "guitar", "tags": [
               "technique"
             ],
             "why": "Every drill this week changed one thing (the key, the tempo, the notes in play), so you can make your own by changing one thing yourself.",
@@ -1147,7 +1147,7 @@
             "title": "Jam over Am and G",
             "focus": "Position 1 over Am-G · land on A",
             "minutes": 6,
-            "tags": [
+            "level": "beginner", "area": "guitar", "tags": [
               "improv"
             ],
             "why": "Landing on the chord's root as it changes is the simplest way to make a solo follow the chords.",
@@ -1232,7 +1232,7 @@
             "title": "Your tune, for the record",
             "focus": "The day 6 tune in G at 75",
             "minutes": 4,
-            "tags": [
+            "level": "beginner", "area": "guitar", "tags": [
               "song"
             ],
             "why": "Playing the week's tune once more shows you what has changed in your hands.",

@@ -9,7 +9,7 @@
     "title": "D Dorian: find the 6th",
     "focus": "D Dorian · positions with the root on the A and low E strings · Dm7-G7",
     "minutes": 12,
-    "tags": ["technique", "improv"],
+    "level": "advanced", "area": "guitar", "tags": ["technique", "improv"],
     "why": "Dorian differs from natural minor by one note, so practise that note.",
     "learnBefore": ["/course/9/modes"],
     "sections": [

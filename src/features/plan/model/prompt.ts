@@ -1,6 +1,6 @@
 import { GLOSSARY } from "@/features/course/glossary";
 import type { CatalogueEntry } from "./catalogue";
-import { EXERCISE_TAGS, linkResources, sectionInterface, toolInterface } from "./tools";
+import { EXERCISE_AREAS, EXERCISE_LEVELS, EXERCISE_TAGS, linkResources, sectionInterface, toolInterface } from "./tools";
 import { DEFAULT_ANSWERS, LEVELS, labelOf } from "./questions";
 import { VOICES } from "@/features/theory/singing";
 import { noteName } from "@/features/theory/voiceRange";
@@ -173,7 +173,7 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
     ]),
     part("exercise-format", "Exercise format", "format", [
       "## Exercise format",
-      "An exercise is a linear list of \"sections\", shown top to bottom in the order you write them. A tool shows what the text before it talks about, so put each tool right after that text; to change the view between steps, add another tool after the next step. A backing-band or click-drone keeping time goes first. A guitar-play-along or chord-backing has no length of its own: it loops until the student stops it, and the exercise's \"minutes\" set the timer. A heading with \"minutes\" starts a timed block that runs to the next such heading; the timer shows the block, and the tools do not switch by themselves, so put each block's tools after its heading. Tags (any of: " + Object.keys(EXERCISE_TAGS).join(", ") + ") are optional chips on the exercise. Notes in text: write each note you name as {{3}} (a degree, counted from the root of the tool after the text) or {{c-sharp}} (a note name); the app draws it as a dot the student can tap to hear.",
+      "An exercise is a linear list of \"sections\", shown top to bottom in the order you write them. A tool shows what the text before it talks about, so put each tool right after that text; to change the view between steps, add another tool after the next step. A backing-band or click-drone keeping time goes first. A guitar-play-along or chord-backing has no length of its own: it loops until the student stops it, and the exercise's \"minutes\" set the timer. A heading with \"minutes\" starts a timed block that runs to the next such heading; the timer shows the block, and the tools do not switch by themselves, so put each block's tools after its heading. Every exercise is tagged, and the app shows the tags as chips on it: \"level\" (one of " + EXERCISE_LEVELS.join(", ") + ": the student's level in that area), \"area\" (one of " + EXERCISE_AREAS.join(", ") + ": the one area it practises; theory covers ear training) and \"tags\" (1 to 3 of " + Object.keys(EXERCISE_TAGS).join(", ") + ": what kind of practice it is). Notes in text: write each note you name as {{3}} (a degree, counted from the root of the tool after the text) or {{c-sharp}} (a note name); the app draws it as a dot the student can tap to hear.",
       "",
     ]),
     part("sections", "Section interface", "interface", [
@@ -206,7 +206,9 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
       "  minutes: number;",
       "  focus: string;",
       "  why?: string;",
-      "  tags?: string[]; // from the tags listed under Exercise format",
+      "  level: " + EXERCISE_LEVELS.map((l) => `"${l}"`).join(" | ") + ";",
+      "  area: " + EXERCISE_AREAS.map((a) => `"${a}"`).join(" | ") + ";",
+      "  tags: string[]; // 1 to 3, from the tags listed under Exercise format",
       "  learnBefore: string[]; // at least one, see Links",
       "  sections: Section[]; // see Sections",
       "  exploreMore?: string[]; // see Links",

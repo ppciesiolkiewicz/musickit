@@ -18,6 +18,8 @@ import type { Degree, Voicing } from "@/features/exercises/timeline/types";
 import { layersOf, othersOf, type Others } from "@/features/exercises/cues/visibility";
 import { parsePlacement, type Placement } from "@/features/exercises/cues/placement";
 import type { CatalogueEntry } from "./catalogue";
+import type { Area } from "./concepts";
+import type { Level } from "./types";
 import { migrateTool, toolFromLink } from "./migrate";
 import { notePc } from "./noteText";
 
@@ -386,6 +388,17 @@ export function exerciseTags(raw: unknown, sections: Section[]): string[] {
   const tags = new Set(list(raw).filter((t): t is string => typeof t === "string" && Object.hasOwn(EXERCISE_TAGS, t)));
   for (const s of sections) if (s.type === "tool" && s.tool.type === "interval-ears" && s.tool.wide) tags.add("multi-octave");
   return [...tags].slice(0, 4);
+}
+
+/** The level and area tags every exercise carries (the page shows them as chips before the kind tags). */
+export const EXERCISE_LEVELS: Level[] = ["new", "beginner", "intermediate", "advanced"];
+export const EXERCISE_AREAS: Area[] = ["guitar", "voice", "theory"];
+
+/** The exercise's level and area as the AI set them; an unknown one is left out. */
+export function exerciseLevelArea(e: { level?: unknown; area?: unknown }): { level?: Level; area?: Area } {
+  const level = EXERCISE_LEVELS.find((l) => l === e.level);
+  const area = EXERCISE_AREAS.find((a) => a === e.area);
+  return { ...(level ? { level } : {}), ...(area ? { area } : {}) };
 }
 
 /**

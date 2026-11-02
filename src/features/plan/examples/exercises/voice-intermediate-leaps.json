@@ -9,7 +9,7 @@
     "title": "4ths and 5ths in three scales",
     "focus": "Leaps of a 4th and 5th over a drone · F major · D minor · G Mixolydian",
     "minutes": 10,
-    "tags": ["sing", "ear"],
+    "level": "intermediate", "area": "voice", "tags": ["sing", "ear"],
     "why": "A leap lands in tune once you hear the landing note first, so practise landings over a drone.",
     "learnBefore": ["/course/3/intervals", "/course/6/singing-leaps"],
     "sections": [

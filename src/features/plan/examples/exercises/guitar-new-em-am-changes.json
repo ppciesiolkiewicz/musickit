@@ -9,7 +9,7 @@
     "title": "Em to Am, clean and in time",
     "focus": "Em-Am changes · strumming with the metronome at 60 bpm",
     "minutes": 8,
-    "tags": ["technique", "rhythm"],
+    "level": "new", "area": "guitar", "tags": ["technique", "rhythm"],
     "why": "Em and Am share a finger shape, so they are the easiest first change to make automatic.",
     "learnBefore": ["/course/2/one-minute-changes"],
     "sections": [

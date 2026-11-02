@@ -20,8 +20,8 @@ import type { StoredPlan } from "./types";
 
 const entries = catalogue();
 const day = (n: number, link?: string) => ({ theme: `T${n}`, exercises: [{ title: `Ex ${n}`, minutes: 10, how: "do it", ...(link ? { link } : {}) }] });
-/** Warnings without the one-block nag, which the 10-minute fixtures all trigger. */
-const real = (w: string[]) => w.filter((x) => !x.includes("one block"));
+/** Warnings without the one-block and missing-tag nags, which the fixtures all trigger. */
+const real = (w: string[]) => w.filter((x) => !x.includes("one block") && !/: no [a-z, ]+ tag\.$/.test(x));
 const week = (links: (string | undefined)[] = []) => JSON.stringify({ title: "W", days: Array.from({ length: 7 }, (_, i) => day(i + 1, links[i])) });
 
 describe("plan links", () => {
@@ -329,6 +329,19 @@ describe("sections", () => {
     // an old link section goes to "Explore more"; the made-up one is dropped
     assert.deepEqual(r.config.days[0].exercises[0].exploreMore, ["/theory/ears"]);
     assert.equal(real(r.warnings).length, 2);
+  });
+  it("level and area: kept when known, and a missing tag warns", () => {
+    const r = plan({ level: "beginner", area: "voice", tags: ["sing"], sections: [{ type: "text", text: "Sing." }] });
+    assert.ok(r.ok);
+    const ex = r.config.days[0].exercises[0];
+    assert.equal(ex.level, "beginner");
+    assert.equal(ex.area, "voice");
+    assert.ok(!r.warnings.some((w) => w.startsWith("Day 1, exercise 1: no")));
+    const bad = plan({ level: "expert", area: "drums", sections: [{ type: "text", text: "Play." }] });
+    assert.ok(bad.ok);
+    assert.equal(bad.config.days[0].exercises[0].level, undefined);
+    assert.equal(bad.config.days[0].exercises[0].area, undefined);
+    assert.ok(bad.warnings.includes("Day 1, exercise 1: no level, area, kind tag."));
   });
   it("tags: known ones, plus multi-octave from a wide ears tool", () => {
     const r = plan({ tags: ["ear", "made-up"], sections: [{ type: "tool", tool: { type: "interval-ears", level: 2, wide: true } }] });

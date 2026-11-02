@@ -14,21 +14,21 @@
         "theme": "Three 7th chords",
         "exercises": [
           {
-            "title": "Dm7, G7, Cmaj7 shapes", "focus": "Open ii-V-I shapes in C · slow changes", "minutes": 5, "tags": ["rhythm"], "why": "These three shapes are the ii-V-I in C, the most common chord move in jazz and many ballads.",
+            "title": "Dm7, G7, Cmaj7 shapes", "focus": "Open ii-V-I shapes in C · slow changes", "minutes": 5, "level": "intermediate", "area": "guitar", "tags": ["rhythm"], "why": "These three shapes are the ii-V-I in C, the most common chord move in jazz and many ballads.",
             "sections": [
               { "type": "text", "text": "Press a chord box to hear it. Fret each shape, then pick the strings one at a time to check they ring. Change from Dm7 to G7 to Cmaj7 slowly, four strums each." },
               { "type": "tool", "tool": { "type": "chord-shapes", "chords": ["Dm7", "G7", "Cmaj7"] } }
             ]
           },
           {
-            "title": "Name the chord", "focus": "Major, minor, 7, maj7, m7 by ear", "minutes": 5, "tags": ["ear"], "why": "Naming a chord's quality by ear is the skill behind working out songs.",
+            "title": "Name the chord", "focus": "Major, minor, 7, maj7, m7 by ear", "minutes": 5, "level": "intermediate", "area": "theory", "tags": ["ear"], "why": "Naming a chord's quality by ear is the skill behind working out songs.",
             "sections": [
               { "type": "text", "text": "Press Start below and the game plays a chord. Pick its name. Listen to the top note: a half step under the octave means maj7, a whole step means 7 or m7. The tally under the answers keeps your score." },
               { "type": "tool", "tool": { "type": "interval-ears", "kind": "chord" } }
             ]
           },
           {
-            "title": "Arpeggios of the ii-V-I", "focus": "Dm7, G7 and Cmaj7 arpeggios, one position each", "minutes": 10, "tags": ["technique"], "why": "An arpeggio is the chord one note at a time, so a solo built from it outlines the changes.",
+            "title": "Arpeggios of the ii-V-I", "focus": "Dm7, G7 and Cmaj7 arpeggios, one position each", "minutes": 10, "level": "intermediate", "area": "guitar", "tags": ["technique"], "why": "An arpeggio is the chord one note at a time, so a solo built from it outlines the changes.",
             "sections": [
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 70, "key": "d", "drone": false } },
               { "type": "heading", "text": "Dm7", "minutes": 3 },
@@ -43,7 +43,7 @@
             ]
           },
           {
-            "title": "Comp the ii-V-I", "focus": "Dm7-G7-Cmaj7-Cmaj7 with the band at 80", "minutes": 10, "tags": ["rhythm"], "why": "Comping means playing the chords in rhythm under a melody, and short, light strums leave room for it.",
+            "title": "Comp the ii-V-I", "focus": "Dm7-G7-Cmaj7-Cmaj7 with the band at 80", "minutes": 10, "level": "intermediate", "area": "guitar", "tags": ["rhythm"], "why": "Comping means playing the chords in rhythm under a melody, and short, light strums leave room for it.",
             "sections": [
               { "type": "heading", "text": "Two strums a bar", "minutes": 5 },
               { "type": "text", "text": "Press Play below; the lit block shows the chord. Strum short chords on beats 2 and 4, one bar each." },
@@ -59,7 +59,7 @@
         "theme": "Where the ii-V-I comes from",
         "exercises": [
           {
-            "title": "Alternate picking", "focus": "Down-up, three notes per string, 90 bpm", "minutes": 5, "tags": ["technique"], "why": "Three notes per string puts the pick on alternating strokes at each string crossing.",
+            "title": "Alternate picking", "focus": "Down-up, three notes per string, 90 bpm", "minutes": 5, "level": "intermediate", "area": "guitar", "tags": ["technique"], "why": "Three notes per string puts the pick on alternating strokes at each string crossing.",
             "sections": [
               { "type": "text", "text": "Press Play below to start the metronome. Pick three notes per string, down-up, across all six strings and back." },
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 90, "key": "a", "drone": false } },
@@ -67,7 +67,7 @@
             ]
           },
           {
-            "title": "ii, V and I in the scale", "focus": "C major · chords on 2, 5 and 1", "minutes": 7, "tags": ["theory"], "why": "Stack 3rds on the 2nd, 5th and 1st notes of C major and you get Dm7, G7 and Cmaj7.",
+            "title": "ii, V and I in the scale", "focus": "C major · chords on 2, 5 and 1", "minutes": 7, "level": "intermediate", "area": "theory", "tags": ["theory"], "why": "Stack 3rds on the 2nd, 5th and 1st notes of C major and you get Dm7, G7 and Cmaj7.",
             "sections": [
               { "type": "heading", "text": "Build them", "minutes": 4 },
               { "type": "text", "text": "Tap a note on the staff to hear it. Tap {{2}} {{4}} {{6}} {{1}}: Dm7, every other note from D. Then {{5}} {{7}} {{2}} {{4}}: G7. Then {{1}} {{3}} {{5}} {{7}}: Cmaj7." },
@@ -78,7 +78,7 @@
             ]
           },
           {
-            "title": "Guide tones on the guitar", "focus": "3rds and 7ths through Dm7-G7-Cmaj7", "minutes": 10, "tags": ["technique"], "why": "The 3rd and 7th of each chord move by a half step or not at all, so two notes are enough to make the changes heard.",
+            "title": "Guide tones on the guitar", "focus": "3rds and 7ths through Dm7-G7-Cmaj7", "minutes": 10, "level": "intermediate", "area": "guitar", "tags": ["technique"], "why": "The 3rd and 7th of each chord move by a half step or not at all, so two notes are enough to make the changes heard.",
             "sections": [
               { "type": "heading", "text": "The 3rd-7th line", "minutes": 5 },
               { "type": "text", "text": "Press Play below and play along from the tab, one note per beat: F over Dm7 (its 3rd), F over G7 (its 7th), E over Cmaj7 (its 3rd)." },
@@ -97,7 +97,7 @@
             ]
           },
           {
-            "title": "Improvise on the guide tones", "focus": "Dm7-G7-Cmaj7 · land on 3rds and 7ths", "minutes": 8, "tags": ["improv"], "why": "Starting each chord on a guide tone is the quickest way to make a solo follow the changes.",
+            "title": "Improvise on the guide tones", "focus": "Dm7-G7-Cmaj7 · land on 3rds and 7ths", "minutes": 8, "level": "intermediate", "area": "guitar", "tags": ["improv"], "why": "Starting each chord on a guide tone is the quickest way to make a solo follow the changes.",
             "sections": [
               { "type": "heading", "text": "Land on the targets", "minutes": 4 },
               { "type": "text", "text": "Press Play below to start the backing and improvise in C major. Land on a lit target when each chord comes round." },
@@ -112,7 +112,7 @@
         "theme": "The relative minor",
         "exercises": [
           {
-            "title": "Legato warm-up", "focus": "Legato trill · fingers 1-3 · G string, 5th fret", "minutes": 5, "tags": ["technique"], "why": "Hammer-ons and pull-offs build left-hand strength without the pick.",
+            "title": "Legato warm-up", "focus": "Legato trill · fingers 1-3 · G string, 5th fret", "minutes": 5, "level": "intermediate", "area": "guitar", "tags": ["technique"], "why": "Hammer-ons and pull-offs build left-hand strength without the pick.",
             "sections": [
               { "type": "text", "text": "Press Play below to start the metronome. Pick once, then hammer finger 3 and pull off to finger 1, one note per beat. Rest when the hand gets tired, then go again." },
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 80, "key": "a", "drone": false } },
@@ -120,7 +120,7 @@
             ]
           },
           {
-            "title": "C major and A minor, same notes", "focus": "C major → A natural minor over one click", "minutes": 6, "tags": ["theory"], "why": "A minor uses exactly the notes of C major; only the home note changes, and with it the mood.",
+            "title": "C major and A minor, same notes", "focus": "C major → A natural minor over one click", "minutes": 6, "level": "intermediate", "area": "theory", "tags": ["theory"], "why": "A minor uses exactly the notes of C major; only the home note changes, and with it the mood.",
             "sections": [
               { "type": "heading", "text": "Hear the home move", "minutes": 3 },
               { "type": "text", "text": "Press Play below to start the metronome; only the click sounds. Play C major from C for four bars. Then play the same notes from A for four bars: A minor. Where does each one come to rest?" },
@@ -131,7 +131,7 @@
             ]
           },
           {
-            "title": "One shape, two keys", "focus": "A minor pentatonic position 1 = C major pentatonic", "minutes": 10, "tags": ["technique"], "why": "The relative minor works on the neck too: one pentatonic position serves both keys, with a different root.",
+            "title": "One shape, two keys", "focus": "A minor pentatonic position 1 = C major pentatonic", "minutes": 10, "level": "intermediate", "area": "guitar", "tags": ["technique"], "why": "The relative minor works on the neck too: one pentatonic position serves both keys, with a different root.",
             "sections": [
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 80, "key": "a", "drone": false } },
               { "type": "heading", "text": "As A minor", "minutes": 5 },
@@ -143,7 +143,7 @@
             ]
           },
           {
-            "title": "Major or minor song?", "focus": "C-G-Am-F vs Am-F-C-G by ear and by hand", "minutes": 9, "tags": ["rhythm"], "why": "The same four chords can sound major or minor depending on which one feels like home.",
+            "title": "Major or minor song?", "focus": "C-G-Am-F vs Am-F-C-G by ear and by hand", "minutes": 9, "level": "intermediate", "area": "guitar", "tags": ["rhythm"], "why": "The same four chords can sound major or minor depending on which one feels like home.",
             "sections": [
               { "type": "heading", "text": "Start on C", "minutes": 4 },
               { "type": "text", "text": "Press Play below; the lit block shows the chord: C, G, Am, F, one bar each. Strum along. Notice that C feels like home." },
@@ -159,21 +159,21 @@
         "theme": "The ii-V-I in G",
         "exercises": [
           {
-            "title": "Am7, D7, Gmaj7 shapes", "focus": "Open ii-V-I shapes in G", "minutes": 5, "tags": ["rhythm"], "why": "The same move in a new key: Am7 is ii, D7 is V, Gmaj7 is I in G.",
+            "title": "Am7, D7, Gmaj7 shapes", "focus": "Open ii-V-I shapes in G", "minutes": 5, "level": "intermediate", "area": "guitar", "tags": ["rhythm"], "why": "The same move in a new key: Am7 is ii, D7 is V, Gmaj7 is I in G.",
             "sections": [
               { "type": "text", "text": "Press a chord box to hear it. Fret each shape and pick the strings to check they ring. Then change from Am7 to D7 to Gmaj7, four strums each." },
               { "type": "tool", "tool": { "type": "chord-shapes", "chords": ["Am7", "D7", "Gmaj7"] } }
             ]
           },
           {
-            "title": "b7 or 7?", "focus": "Minor 7th vs major 7th by ear", "minutes": 5, "tags": ["ear"], "why": "The 7th is what separates D7 from Gmaj7, and hearing it alone makes the chords easy to name.",
+            "title": "b7 or 7?", "focus": "Minor 7th vs major 7th by ear", "minutes": 5, "level": "intermediate", "area": "theory", "tags": ["ear"], "why": "The 7th is what separates D7 from Gmaj7, and hearing it alone makes the chords easy to name.",
             "sections": [
               { "type": "text", "text": "Press Start below and the game plays an interval. Pick its name: a minor 7th (as in D7) or a major 7th (as in Gmaj7)." },
               { "type": "tool", "tool": { "type": "interval-ears", "set": [10, 11], "dir": "up" } }
             ]
           },
           {
-            "title": "Arpeggios in G", "focus": "Am7, D7 and Gmaj7 arpeggios", "minutes": 10, "tags": ["technique"], "why": "Moving the arpeggios to G shows they are shapes of degrees, not lists of frets.",
+            "title": "Arpeggios in G", "focus": "Am7, D7 and Gmaj7 arpeggios", "minutes": 10, "level": "intermediate", "area": "guitar", "tags": ["technique"], "why": "Moving the arpeggios to G shows they are shapes of degrees, not lists of frets.",
             "sections": [
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 70, "key": "a", "drone": false } },
               { "type": "heading", "text": "Am7 and D7", "minutes": 5 },
@@ -187,7 +187,7 @@
             ]
           },
           {
-            "title": "Solo over ii-V-I in G", "focus": "Am7-D7-Gmaj7 · guide tones as targets", "minutes": 10, "tags": ["improv"], "why": "Guide tones work the same in a new key: C to C to B, or G to F♯ to F♯.",
+            "title": "Solo over ii-V-I in G", "focus": "Am7-D7-Gmaj7 · guide tones as targets", "minutes": 10, "level": "intermediate", "area": "guitar", "tags": ["improv"], "why": "Guide tones work the same in a new key: C to C to B, or G to F♯ to F♯.",
             "sections": [
               { "type": "heading", "text": "Guide tones only", "minutes": 5 },
               { "type": "text", "text": "Press Play below to start the backing. Play only the targets, one long note per chord. Pick either line." },
@@ -202,7 +202,7 @@
         "theme": "Hearing the changes",
         "exercises": [
           {
-            "title": "Picking, skip a string", "focus": "Down-up string skipping at 80 bpm", "minutes": 5, "tags": ["technique"], "why": "Arpeggios jump strings, so the pick hand needs to jump accurately.",
+            "title": "Picking, skip a string", "focus": "Down-up string skipping at 80 bpm", "minutes": 5, "level": "intermediate", "area": "guitar", "tags": ["technique"], "why": "Arpeggios jump strings, so the pick hand needs to jump accurately.",
             "sections": [
               { "type": "text", "text": "Press Play below to start the metronome. Pick two notes per string, down-up, skipping a string each time." },
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 80, "key": "a", "drone": false } },
@@ -210,14 +210,14 @@
             ]
           },
           {
-            "title": "Chord qualities, faster", "focus": "Name 7th chords, 30 seconds a round", "minutes": 5, "tags": ["ear"], "why": "Answering quickly makes chord hearing work at song speed.",
+            "title": "Chord qualities, faster", "focus": "Name 7th chords, 30 seconds a round", "minutes": 5, "level": "intermediate", "area": "theory", "tags": ["ear"], "why": "Answering quickly makes chord hearing work at song speed.",
             "sections": [
               { "type": "text", "text": "Press Start below and the game plays a chord. Pick its name as fast as you can for 30 seconds, then rest. Can you beat your tally from day 1?" },
               { "type": "tool", "tool": { "type": "interval-ears", "kind": "chord" } }
             ]
           },
           {
-            "title": "Which numeral?", "focus": "I-vi-ii-V in C by ear", "minutes": 8, "tags": ["theory"], "why": "I-vi-ii-V adds the vi to the ii-V-I, and it is the loop under countless songs.",
+            "title": "Which numeral?", "focus": "I-vi-ii-V in C by ear", "minutes": 8, "level": "intermediate", "area": "theory", "tags": ["theory"], "why": "I-vi-ii-V adds the vi to the ii-V-I, and it is the loop under countless songs.",
             "sections": [
               { "type": "heading", "text": "With the chart", "minutes": 4 },
               { "type": "text", "text": "Press Play below and listen. Say each numeral as it arrives: I (Cmaj7), vi (Am7), ii (Dm7), V (G7)." },
@@ -228,7 +228,7 @@
             ]
           },
           {
-            "title": "Comp I-vi-ii-V", "focus": "Cmaj7-Am7-Dm7-G7 · three comping feels", "minutes": 12, "tags": ["rhythm"], "why": "Playing one loop with different comping feels is how a rhythm part stays interesting.",
+            "title": "Comp I-vi-ii-V", "focus": "Cmaj7-Am7-Dm7-G7 · three comping feels", "minutes": 12, "level": "intermediate", "area": "guitar", "tags": ["rhythm"], "why": "Playing one loop with different comping feels is how a rhythm part stays interesting.",
             "sections": [
               { "type": "tool", "tool": { "type": "chord-shapes", "chords": ["Cmaj7", "Am7", "Dm7", "G7"] } },
               { "type": "heading", "text": "Block chords on 2 and 4", "minutes": 4 },
@@ -248,7 +248,7 @@
         "theme": "7ths in a blues",
         "exercises": [
           {
-            "title": "Legato, fingers 2-4", "focus": "Legato trill · fingers 2-4 · B string, 7th fret", "minutes": 5, "tags": ["technique"], "why": "The weaker finger pair needs the most work.",
+            "title": "Legato, fingers 2-4", "focus": "Legato trill · fingers 2-4 · B string, 7th fret", "minutes": 5, "level": "intermediate", "area": "guitar", "tags": ["technique"], "why": "The weaker finger pair needs the most work.",
             "sections": [
               { "type": "text", "text": "Press Play below to start the metronome. Pick once, then hammer finger 4 and pull off to finger 2, one note per beat. Rest when the hand gets tired, then go again." },
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 70, "key": "a", "drone": false } },
@@ -256,7 +256,7 @@
             ]
           },
           {
-            "title": "Why blues uses three 7ths", "focus": "A7, D7, E7 as I7, IV7, V7", "minutes": 7, "tags": ["theory"], "why": "Blues breaks the rule of one dominant per key: every chord is a 7th, which gives the style its restless sound.",
+            "title": "Why blues uses three 7ths", "focus": "A7, D7, E7 as I7, IV7, V7", "minutes": 7, "level": "intermediate", "area": "theory", "tags": ["theory"], "why": "Blues breaks the rule of one dominant per key: every chord is a 7th, which gives the style its restless sound.",
             "sections": [
               { "type": "heading", "text": "The three chords", "minutes": 3 },
               { "type": "text", "text": "A7, D7 and E7 are built on {{1}}, {{4}} and {{5}} of A. Tap those notes on the staff to hear them. Then press each chord box: the same dominant colour three times." },
@@ -268,7 +268,7 @@
             ]
           },
           {
-            "title": "Twelve-bar in A", "focus": "12-bar blues with A7, D7, E7 at 90 bpm", "minutes": 10, "tags": ["rhythm"], "why": "The twelve-bar form is a fixed road map: learn it once and you can join any blues jam.",
+            "title": "Twelve-bar in A", "focus": "12-bar blues with A7, D7, E7 at 90 bpm", "minutes": 10, "level": "intermediate", "area": "guitar", "tags": ["rhythm"], "why": "The twelve-bar form is a fixed road map: learn it once and you can join any blues jam.",
             "sections": [
               { "type": "heading", "text": "Follow the form", "minutes": 5 },
               { "type": "text", "text": "Press Play below; the lit block shows the chord: four bars of A7, two of D7, two of A7, then E7, D7, A7, E7. Strum along. Count the bars out loud." },
@@ -279,7 +279,7 @@
             ]
           },
           {
-            "title": "Solo with the 3rd", "focus": "A minor pentatonic + C♯ over A7-D7", "minutes": 8, "tags": ["improv"], "why": "Adding the chord's 3rd to the pentatonic position makes a blues solo follow the changes.",
+            "title": "Solo with the 3rd", "focus": "A minor pentatonic + C♯ over A7-D7", "minutes": 8, "level": "intermediate", "area": "guitar", "tags": ["improv"], "why": "Adding the chord's 3rd to the pentatonic position makes a blues solo follow the changes.",
             "sections": [
               { "type": "heading", "text": "Slide into C♯", "minutes": 4 },
               { "type": "text", "text": "Press Play below to start the backing. Improvise in position 1. When A7 comes round, slide from {{b3}} (C) up to {{c-sharp}}: the 3rd of A7, not in A minor pentatonic. End your phrases on {{1}}." },
@@ -295,21 +295,21 @@
         "theme": "Review: the week in one jam",
         "exercises": [
           {
-            "title": "ii-V-I shapes in C and G", "focus": "Dm7-G7-Cmaj7 then Am7-D7-Gmaj7", "minutes": 5, "tags": ["rhythm"], "why": "Both keys back to back shows the shapes are under your fingers.",
+            "title": "ii-V-I shapes in C and G", "focus": "Dm7-G7-Cmaj7 then Am7-D7-Gmaj7", "minutes": 5, "level": "intermediate", "area": "guitar", "tags": ["rhythm"], "why": "Both keys back to back shows the shapes are under your fingers.",
             "sections": [
               { "type": "text", "text": "Press a chord box to hear it. Play four strums per chord: the ii-V-I in C, then in G. Change keys without stopping." },
               { "type": "tool", "tool": { "type": "chord-shapes", "chords": ["Dm7", "G7", "Cmaj7", "Am7", "D7", "Gmaj7"] } }
             ]
           },
           {
-            "title": "Ear check", "focus": "Chord qualities, scored by the tally", "minutes": 5, "tags": ["ear"], "why": "The week's ear work as a score to beat next week.",
+            "title": "Ear check", "focus": "Chord qualities, scored by the tally", "minutes": 5, "level": "intermediate", "area": "theory", "tags": ["ear"], "why": "The week's ear work as a score to beat next week.",
             "sections": [
               { "type": "text", "text": "Press Start below and the game plays a chord. Pick its name and play a few rounds, then compare the tally with days 1 and 5." },
               { "type": "tool", "tool": { "type": "interval-ears", "kind": "chord" } }
             ]
           },
           {
-            "title": "Arpeggios from memory", "focus": "Dm7-G7-Cmaj7 arpeggios without the chart", "minutes": 8, "tags": ["technique"], "why": "Playing them without help is the test that the shapes are yours.",
+            "title": "Arpeggios from memory", "focus": "Dm7-G7-Cmaj7 arpeggios without the chart", "minutes": 8, "level": "intermediate", "area": "guitar", "tags": ["technique"], "why": "Playing them without help is the test that the shapes are yours.",
             "sections": [
               { "type": "heading", "text": "Without looking", "minutes": 4 },
               { "type": "text", "text": "Press Play below and play each arpeggio from memory as its chord comes round: root, 3rd, 5th, 7th, one note per beat. Look away from the tab." },
@@ -324,7 +324,7 @@
             ]
           },
           {
-            "title": "ii-V-I jam", "focus": "Guide tones, then free soloing over Dm7-G7-Cmaj7", "minutes": 12, "tags": ["improv"], "why": "Guide tones, arpeggios and the scale together are what make a solo over changes sound sure.",
+            "title": "ii-V-I jam", "focus": "Guide tones, then free soloing over Dm7-G7-Cmaj7", "minutes": 12, "level": "intermediate", "area": "guitar", "tags": ["improv"], "why": "Guide tones, arpeggios and the scale together are what make a solo over changes sound sure.",
             "sections": [
               { "type": "heading", "text": "Guide tones", "minutes": 4 },
               { "type": "text", "text": "Press Play below to start the backing. Play one guide tone per chord, either line from day 2." },

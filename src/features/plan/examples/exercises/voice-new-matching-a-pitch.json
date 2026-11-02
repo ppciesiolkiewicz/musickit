@@ -9,7 +9,7 @@
     "title": "Find Do and stay on it",
     "focus": "Matching Do over a drone in C · Do-Re-Do · holding a note over D",
     "minutes": 6,
-    "tags": ["sing", "ear"],
+    "level": "new", "area": "voice", "tags": ["sing", "ear"],
     "why": "Matching one note and holding it steady is the base every other singing skill stands on.",
     "learnBefore": ["/course/3/matching-a-pitch"],
     "sections": [

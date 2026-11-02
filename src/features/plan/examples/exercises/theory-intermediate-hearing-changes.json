@@ -10,7 +10,7 @@
     "title": "Hear the 4 and the 5 coming",
     "focus": "I IV V by ear · G major, then D major · guess before you look",
     "minutes": 6,
-    "tags": ["ear", "theory"],
+    "level": "intermediate", "area": "theory", "tags": ["ear", "theory"],
     "why": "The IV chord sounds like stepping away from home and the V like leaning back towards it, so that pull tells you which chord is playing in any song.",
     "learnBefore": ["/course/5/one-four-five"],
     "sections": [
