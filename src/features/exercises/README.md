@@ -14,7 +14,7 @@ migrates; the components, their props and their docs live here.
    chords it holds each chord (`withBackingSound`, the `under` prop: chords, drone, none). The neck view is the shared
    `ScaleNeck` with every place of the line at once (the playing chord's enabled notes normal, the highlighted ones
    ringed, the rest muted, the sounding ones lit); the notes view is the shared `SingingStaff`. Both label notes by the label setting and its "count from".
-4. `basics/<name>/` the fourteen basics: `scale-neck`, `chord-shapes`, `staff`, `click-drone`, `backing-band`, `note-finder`,
+4. `basics/<name>/` the fourteen basics: `scale-neck`, `chord-shapes`, `staff` (with `drone` / `click` it has its own backing, one Start for it and the mic; with the mic its notes carry degree or solfège `labels`), `click-drone`, `backing-band`, `note-finder`,
    `interval-ears`, `arpeggio-neck`, `melody-singer`, `run-singer` (both with a chord a bar under the tune, worked out
    in `features/theory/melodyChords.ts`; a run announces each new key in its held-Do bar), `strum-along` (a metronome and the chords as boxes,
    one per bar or beat, each holding beat boxes of its strumming pattern, the playing strum lit; its maths in `blocks.ts`), `string-singer` (the guitar's open strings sung along, moved into the voice: the strings, neighbouring pairs or the 5th-fret unisons; `strings.ts`), `tuning-ears` (a listening game: the 5th-fret reference and the next open string, flat, sharp or in tune; `rounds.ts`), `chord-backing` (chords for a singer: the play-along's player on a progression with a comping backing, shown as chord boxes one per bar, the playing one lit with its beat and the next outlined; `strip.ts`). Each has `index.tsx` (the View) and `<name>.props.ts`.

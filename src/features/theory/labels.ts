@@ -90,6 +90,21 @@ export function isLabelSystem(v: unknown): v is LabelSystem {
   return v === "note" || v === "interval" || v === "degree" || v === "solfege";
 }
 
+/** The labels a singer can read a note by: its scale degree or its solfège syllable, never a bare note name. */
+export type SingingLabels = "degree" | "solfege";
+
+export function isSingingLabels(v: unknown): v is SingingLabels {
+  return v === "degree" || v === "solfege";
+}
+
+/**
+ * How a staff labels its notes: the `labels` it asks for, else the user's setting. A staff with the mic is sung from, so it
+ * never shows bare note names: with no `labels` and the setting on note names, it shows degrees.
+ */
+export function staffLabelSystem(labels: SingingLabels | undefined, mic: boolean, user: LabelSystem): LabelSystem {
+  return labels ?? (mic && user === "note" ? "degree" : user);
+}
+
 const LETTERS = "CDEFGAB";
 const LETTER_PC = [0, 2, 4, 5, 7, 9, 11];
 const ACC: Record<number, string> = { [-2]: "♭♭", [-1]: "♭", 0: "", 1: "♯", 2: "♯♯" };

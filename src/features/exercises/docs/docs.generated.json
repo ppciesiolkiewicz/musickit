@@ -862,7 +862,7 @@
   {
     "name": "staff",
     "kind": "basic",
-    "description": "The scale on a staff in a voice's range, with the microphone's pitch drawn on it; tap a note to hear it.",
+    "description": "The scale on a staff in a voice's range, with the microphone's pitch drawn on it; tap a note to hear it. With `drone` and/or\n`click` it carries its own backing: one Start runs the backing and the mic, so a singing exercise needs no `click-drone` beside it.",
     "props": [
       {
         "name": "scale",
@@ -923,6 +923,30 @@
         "type": "boolean",
         "required": false,
         "description": "show the \"sing with the mic\" button; default true"
+      },
+      {
+        "name": "drone",
+        "type": "boolean",
+        "required": false,
+        "description": "a drone on the key's root under the singing: the mic button becomes one Start for the drone and the mic together (Stop stops both); default false"
+      },
+      {
+        "name": "click",
+        "type": "boolean",
+        "required": false,
+        "description": "a metronome click under the singing, started with the mic like `drone`; default false"
+      },
+      {
+        "name": "bpm",
+        "type": "number",
+        "required": false,
+        "description": "the click's tempo, 30-240; default 60"
+      },
+      {
+        "name": "labels",
+        "type": "\"degree\" | \"solfege\"",
+        "required": false,
+        "description": "the label under each note: \"degree\" (1 2 3) or \"solfege\" (Do Re Mi). Absent: the student's setting, and with the mic never bare note names (degrees then)"
       }
     ]
   },

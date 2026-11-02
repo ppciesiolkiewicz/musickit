@@ -111,6 +111,11 @@ describe("tools", () => {
     assert.deepEqual(parseTool({ type: "staff", scale: "mixolydian", key: "a", notes: ["1", "3", "5", "♭7"] }), { type: "staff", scale: "mixolydian", key: 9, voice: "baritone", notes: [0, 4, 7, 10] });
     assert.equal((parseTool({ type: "staff", scale: "mixolydian", key: "a", notes: ["1"] }) as { notes?: number[] }).notes, undefined);
   });
+  it("staff carries its own drone and click, the click's bpm defaulting to 60", () => {
+    assert.deepEqual(parseTool({ type: "staff", scale: "major-ionian", key: "c", voice: "tenor", drone: true }), { type: "staff", scale: "major-ionian", key: 0, voice: "tenor", drone: true });
+    assert.deepEqual(parseTool({ type: "staff", scale: "major-ionian", key: "c", voice: "tenor", drone: true, click: true }), { type: "staff", scale: "major-ionian", key: 0, voice: "tenor", drone: true, click: true, bpm: 60 });
+    assert.deepEqual(parseTool({ type: "staff", scale: "major-ionian", key: "c", voice: "tenor", click: true, bpm: 300, drone: "yes" }), { type: "staff", scale: "major-ionian", key: 0, voice: "tenor", click: true, bpm: 60 });
+  });
   it("highlights by note name, mutes, hides; dimmed reads as muted", () => {
     const sn = (t: Record<string, unknown>) => parseTool({ type: "scale-neck", scale: "minor-pentatonic", key: "a", ...t }) as Record<string, unknown>;
     assert.deepEqual(sn({ add: ["c-sharp"], highlight: ["c-sharp"] }), { type: "scale-neck", scale: "minor-pentatonic", key: 9, add: [1], highlight: [4] });

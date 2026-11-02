@@ -4,7 +4,7 @@
   "areas": ["voice"],
   "level": "intermediate",
   "concepts": ["leaps", "in-tune-over-drone", "improvise-melody"],
-  "note": "Voice variety from three drone + staff pairs, one per block, each in a new key and scale: a short leap drill in major, then made-up calls and answers in minor, then a made-up tune in Mixolydian. Each staff shows only the notes in play; only the first block is a bare drill.",
+  "note": "Voice variety from three staffs with their own drone, one per block, each in a new key and scale: a short leap drill in major, then made-up calls and answers in minor, then a made-up tune in Mixolydian. Each staff shows only the notes in play; only the first block is a bare drill.",
   "exercise": {
     "title": "4ths and 5ths in three scales",
     "focus": "Leaps of a 4th and 5th over a drone · F major · D minor · G Mixolydian",
@@ -13,17 +13,14 @@
     "why": "A leap lands in tune once you hear the landing note first, so practise landings over a drone.",
     "sections": [
       { "type": "heading", "text": "F major", "minutes": 3 },
-      { "type": "text", "text": "Press Play below to start the drone, then start the mic on the staff to see your pitch. On \"ah\", sing {{1}} up to {{4}}, then {{1}} up to {{5}}. Hear the landing note in your head before you sing it." },
-      { "type": "tool", "tool": { "type": "click-drone", "bpm": 60, "key": "f", "click": false } },
-      { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "f", "voice": "tenor", "notes": ["1", "4", "5"] } },
+      { "type": "text", "text": "Press Start below: the drone and the mic start together, and your pitch shows on the staff. On \"ah\", sing {{1}} up to {{4}}, then {{1}} up to {{5}}. Hear the landing note in your head before you sing it." },
+      { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "f", "voice": "tenor", "notes": ["1", "4", "5"], "drone": true } },
       { "type": "heading", "text": "D minor: call and answer", "minutes": 3 },
-      { "type": "text", "text": "Press Play below to start the drone on D. The same leaps now sit in D minor, with {{b3}} added. Sing a short call that leaps up from {{1}}, then answer it with a different leap that ends on {{1}}. Change vowel between the two: the call on \"oo\", the answer on \"ee\"." },
-      { "type": "tool", "tool": { "type": "click-drone", "bpm": 60, "key": "d", "click": false } },
-      { "type": "tool", "tool": { "type": "staff", "scale": "natural-minor-aeolian", "key": "d", "voice": "tenor", "notes": ["1", "b3", "4", "5"] } },
+      { "type": "text", "text": "Press Start below to start the drone on D and the mic. The same leaps now sit in D minor, with {{b3}} added. Sing a short call that leaps up from {{1}}, then answer it with a different leap that ends on {{1}}. Change vowel between the two: the call on \"oo\", the answer on \"ee\"." },
+      { "type": "tool", "tool": { "type": "staff", "scale": "natural-minor-aeolian", "key": "d", "voice": "tenor", "notes": ["1", "b3", "4", "5"], "drone": true } },
       { "type": "heading", "text": "G Mixolydian: make up a tune", "minutes": 4 },
-      { "type": "text", "text": "Press Play below to start the drone on G. Make up a short tune from {{1}}, {{4}}, {{5}} and {{b7}}, leaping between them in any order. Move through the vowels as you go, \"ee-oh-oo-oh-ah\", and watch your pitch line land on each note." },
-      { "type": "tool", "tool": { "type": "click-drone", "bpm": 60, "key": "g", "click": false } },
-      { "type": "tool", "tool": { "type": "staff", "scale": "mixolydian", "key": "g", "voice": "tenor", "notes": ["1", "4", "5", "b7"] } }
+      { "type": "text", "text": "Press Start below to start the drone on G and the mic. Make up a short tune from {{1}}, {{4}}, {{5}} and {{b7}}, leaping between them in any order. Move through the vowels as you go, \"ee-oh-oo-oh-ah\", and watch your pitch line land on each note." },
+      { "type": "tool", "tool": { "type": "staff", "scale": "mixolydian", "key": "g", "voice": "tenor", "notes": ["1", "4", "5", "b7"], "drone": true } }
     ]
   }
 }

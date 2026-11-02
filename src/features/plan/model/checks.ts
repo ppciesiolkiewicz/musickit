@@ -37,9 +37,9 @@ export function mixesSingAndPlay(sections: Section[]): boolean {
 /** A tempo asked of the student: "60 bpm", "play it at 80" (not "at 80%", "at 5 minutes", "at fret 12"). */
 const TEMPO = /\b\d{2,3}\s*bpm\b|\bat\s+\d{2,3}\b(?!\s*(?:%|percent|sec|min|fret|times|seconds|minutes))/i;
 
-/** The tools that sound the beat: a click-drone with its click, a backing band, a guitar-play-along, a strum-along, a chord-backing. */
+/** The tools that sound the beat: a click-drone with its click, a staff with its click, a backing band, a guitar-play-along, a strum-along, a chord-backing. */
 const keepsTime = (t: Section & { type: "tool" }): boolean =>
-  (t.tool.type === "click-drone" && t.tool.click !== false) || t.tool.type === "backing-band" || t.tool.type === "guitar-play-along" || t.tool.type === "strum-along" || t.tool.type === "chord-backing";
+  (t.tool.type === "click-drone" && t.tool.click !== false) || (t.tool.type === "staff" && t.tool.click === true) || t.tool.type === "backing-band" || t.tool.type === "guitar-play-along" || t.tool.type === "strum-along" || t.tool.type === "chord-backing";
 
 /** True when an exercise asks for a tempo in its text but shows no tool that sounds the beat. */
 export function tempoWithoutMetronome(sections: Section[]): boolean {

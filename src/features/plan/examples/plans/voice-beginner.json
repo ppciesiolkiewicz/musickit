@@ -16,9 +16,8 @@
           {
             "title": "A long Do", "focus": "One breath on Do over a drone in C", "minutes": 3, "tags": ["sing"], "why": "A long, steady note warms up your breath and your ear together.",
             "sections": [
-              { "type": "text", "text": "Press Play below to start the drone, then start the mic on the staff. Your pitch shows there as a line. Breathe in for four clicks. Sing {{1}} on \"ah\" for as long as feels easy. Watch your pitch line stay flat. Count the clicks you held it for: you will compare on day 7." },
-              { "type": "tool", "tool": { "type": "click-drone", "bpm": 60, "key": "c" } },
-              { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "tenor", "enable": ["1"], "others": "hidden" } }
+              { "type": "text", "text": "Press Start below: the drone and the mic start together, and your pitch shows on the staff as a line. Breathe in for four clicks. Sing {{1}} on \"ah\" for as long as feels easy. Watch your pitch line stay flat. Count the clicks you held it for: you will compare on day 7." },
+              { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "tenor", "enable": ["1"], "others": "hidden", "drone": true, "click": true, "bpm": 60 } }
             ]
           },
           {
@@ -31,9 +30,8 @@
           {
             "title": "Do Mi Sol over the drone", "focus": "Do Mi Sol in C, up and back", "minutes": 3, "tags": ["sing"], "why": "Do, Mi and Sol are the notes of the home chord, so most tunes lean on them.",
             "sections": [
-              { "type": "text", "text": "Press Play below to start the drone, then start the mic on the staff. Sing {{1}} {{3}} {{5}}, then back down to {{1}}. Sing the names: they help you remember each sound. Hold each note until your line settles on it." },
-              { "type": "tool", "tool": { "type": "click-drone", "bpm": 60, "key": "c", "click": false } },
-              { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "tenor", "notes": ["1", "3", "5"] } }
+              { "type": "text", "text": "Press Start below: the drone and the mic start together. Sing {{1}} {{3}} {{5}}, then back down to {{1}}. Sing the names: they help you remember each sound. Hold each note until your line settles on it." },
+              { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "tenor", "notes": ["1", "3", "5"], "drone": true } }
             ]
           },
           {
@@ -55,9 +53,8 @@
           {
             "title": "Hum and open", "focus": "Hum to \"ah\" on Do and Sol in D", "minutes": 3, "tags": ["sing"], "why": "Humming lets you find a pitch quietly before you sing it out.",
             "sections": [
-              { "type": "text", "text": "Press Play below to start the drone, then start the mic on the staff. Hum {{1}} until your line sits on the note. Then open the hum to \"ah\" and keep your line where it was. The \"ah\" takes the pitch you found into your full voice. Then try the same on {{5}}." },
-              { "type": "tool", "tool": { "type": "click-drone", "bpm": 60, "key": "d", "click": false } },
-              { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "d", "voice": "tenor", "notes": ["1", "5"] } }
+              { "type": "text", "text": "Press Start below: the drone and the mic start together. Hum {{1}} until your line sits on the note. Then open the hum to \"ah\" and keep your line where it was. The \"ah\" takes the pitch you found into your full voice. Then try the same on {{5}}." },
+              { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "d", "voice": "tenor", "notes": ["1", "5"], "drone": true } }
             ]
           },
           {
@@ -90,9 +87,8 @@
           {
             "title": "A long Do in G", "focus": "One breath on Do over a drone in G", "minutes": 3, "tags": ["sing"], "why": "Coming back to the long note every few days lets your breath grow without strain.",
             "sections": [
-              { "type": "text", "text": "Press Play below to start the drone, then start the mic on the staff. Breathe in for four clicks. Sing {{1}} on \"ah\" for as long as feels easy. Watch your pitch line stay flat. Stop before you run out of breath: the end of the note should be as steady as the start." },
-              { "type": "tool", "tool": { "type": "click-drone", "bpm": 60, "key": "g" } },
-              { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "g", "voice": "tenor", "enable": ["1"], "others": "hidden" } }
+              { "type": "text", "text": "Press Start below: the drone and the mic start together. Breathe in for four clicks. Sing {{1}} on \"ah\" for as long as feels easy. Watch your pitch line stay flat. Stop before you run out of breath: the end of the note should be as steady as the start." },
+              { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "g", "voice": "tenor", "enable": ["1"], "others": "hidden", "drone": true, "click": true, "bpm": 60 } }
             ]
           },
           {
@@ -125,9 +121,8 @@
           {
             "title": "Siren to Sol", "focus": "Glide Do to Sol and back in F", "minutes": 3, "tags": ["sing"], "why": "A slow glide loosens the voice and shows on the staff where your pitch goes between notes.",
             "sections": [
-              { "type": "text", "text": "Press Play below to start the drone, then start the mic on the staff. Glide slowly from {{1}} up to {{5}} and back on \"ng\", the sound at the end of \"sing\": it keeps your voice light while it slides. Watch your line curve between the notes. Then sing the two notes on their own, without the glide." },
-              { "type": "tool", "tool": { "type": "click-drone", "bpm": 60, "key": "f", "click": false } },
-              { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "f", "voice": "tenor", "notes": ["1", "5"] } }
+              { "type": "text", "text": "Press Start below: the drone and the mic start together. Glide slowly from {{1}} up to {{5}} and back on \"ng\", the sound at the end of \"sing\": it keeps your voice light while it slides. Watch your line curve between the notes. Then sing the two notes on their own, without the glide." },
+              { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "f", "voice": "tenor", "notes": ["1", "5"], "drone": true } }
             ]
           },
           {
@@ -160,9 +155,8 @@
           {
             "title": "Long Sol", "focus": "Sol, then Do, held over a drone in A", "minutes": 3, "tags": ["sing"], "why": "Holding a note that is not Do tests your pitch against the drone.",
             "sections": [
-              { "type": "text", "text": "Press Play below to start the drone, then start the mic on the staff. Sing {{5}} on \"ah\" for as long as feels easy. Watch your line stay flat on the note. Then do the same on {{1}}." },
-              { "type": "tool", "tool": { "type": "click-drone", "bpm": 60, "key": "a" } },
-              { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "a", "voice": "tenor", "notes": ["1", "5"] } }
+              { "type": "text", "text": "Press Start below: the drone and the mic start together. Sing {{5}} on \"ah\" for as long as feels easy. Watch your line stay flat on the note. Then do the same on {{1}}." },
+              { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "a", "voice": "tenor", "notes": ["1", "5"], "drone": true, "click": true, "bpm": 60 } }
             ]
           },
           {
@@ -175,9 +169,8 @@
           {
             "title": "Do Mi Sol in A", "focus": "Do Mi Sol up, down and skipped, over a drone in A", "minutes": 3, "tags": ["sing"], "why": "A new key moves every note, but Do Mi Sol sounds the same.",
             "sections": [
-              { "type": "text", "text": "Press Play below to start the drone, then start the mic on the staff. Sing {{1}} {{3}} {{5}} up and back down. Then skip around: {{5}} {{1}} {{3}} {{1}}. Then make up your own order. Hold each note until your line settles on it." },
-              { "type": "tool", "tool": { "type": "click-drone", "bpm": 60, "key": "a", "click": false } },
-              { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "a", "voice": "tenor", "notes": ["1", "3", "5"] } }
+              { "type": "text", "text": "Press Start below: the drone and the mic start together. Sing {{1}} {{3}} {{5}} up and back down. Then skip around: {{5}} {{1}} {{3}} {{1}}. Then make up your own order. Hold each note until your line settles on it." },
+              { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "a", "voice": "tenor", "notes": ["1", "3", "5"], "drone": true } }
             ]
           },
           {
@@ -198,9 +191,8 @@
           {
             "title": "Do Re Mi Re Do", "focus": "Steps over a drone in C", "minutes": 3, "tags": ["sing"], "why": "Most melodies move by step, so steps need to land as cleanly as skips.",
             "sections": [
-              { "type": "text", "text": "Press Play below to start the drone, then start the mic on the staff. Sing {{1}} {{2}} {{3}} {{2}} {{1}}. Sing the names: they help you remember each sound. Watch your line step up, then back down." },
-              { "type": "tool", "tool": { "type": "click-drone", "bpm": 60, "key": "c", "click": false } },
-              { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "tenor", "notes": ["1", "2", "3"] } }
+              { "type": "text", "text": "Press Start below: the drone and the mic start together. Sing {{1}} {{2}} {{3}} {{2}} {{1}}. Sing the names: they help you remember each sound. Watch your line step up, then back down." },
+              { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "tenor", "notes": ["1", "2", "3"], "drone": true } }
             ]
           },
           {
@@ -232,9 +224,8 @@
           {
             "title": "How long is your Do?", "focus": "One breath on Do over a drone in D, counted", "minutes": 3, "tags": ["sing"], "why": "Holding the long note again on the last day shows how your breath has grown.",
             "sections": [
-              { "type": "text", "text": "Press Play below to start the drone, then start the mic on the staff. Breathe in for four clicks. Sing {{1}} on \"ah\" for as long as feels easy. Watch your pitch line stay flat. Count the clicks you held it for. Compare with your count from day 1." },
-              { "type": "tool", "tool": { "type": "click-drone", "bpm": 60, "key": "d" } },
-              { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "d", "voice": "tenor", "enable": ["1"], "others": "hidden" } }
+              { "type": "text", "text": "Press Start below: the drone and the mic start together. Breathe in for four clicks. Sing {{1}} on \"ah\" for as long as feels easy. Watch your pitch line stay flat. Count the clicks you held it for. Compare with your count from day 1." },
+              { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "d", "voice": "tenor", "enable": ["1"], "others": "hidden", "drone": true, "click": true, "bpm": 60 } }
             ]
           },
           {

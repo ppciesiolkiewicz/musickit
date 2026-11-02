@@ -5,7 +5,7 @@ import { place, signatureGlyphs, type Clef } from "@/features/theory/piano/staff
 import ClefGlyph from "./ClefGlyph";
 import { degreeColour } from "@/features/theory/scales";
 import { IN_TUNE_CENTS, fitOf, locate, type Fit, type Ladder } from "@/features/theory/singing";
-import { labelSemi, noteLabel } from "@/features/theory/labels";
+import { labelSemi, noteLabel, type LabelSystem } from "@/features/theory/labels";
 import { useLabelSystem } from "@/features/theory/useLabelSystem";
 
 /**
@@ -41,7 +41,7 @@ interface Point { x: number; step: number; t: number }
 interface View { dot: Point | null; cam: number; tail: Point[]; lastHeard: number; now: number; fit: Fit; nearest: number }
 const STILL: View = { dot: null, cam: 0, tail: [], lastHeard: -Infinity, now: 0, fit: "between", nearest: -1 };
 
-export default function SingingStaff({ ladder, clef, pitch, played, onNote, cents = IN_TUNE_CENTS, highlight, marks, muted, hidden }: {
+export default function SingingStaff({ ladder, clef, pitch, played, onNote, cents = IN_TUNE_CENTS, highlight, marks, muted, hidden, labels }: {
   ladder: Ladder;
   clef: Clef;
   pitch: RefObject<number | null>;
@@ -57,8 +57,11 @@ export default function SingingStaff({ ladder, clef, pitch, played, onNote, cent
   muted?: (i: number) => boolean;
   /** leaves out the note at this index: its slot stays, empty and silent */
   hidden?: (i: number) => boolean;
+  /** labels the notes in this system instead of the user's setting */
+  labels?: LabelSystem;
 }) {
-  const [system] = useLabelSystem();
+  const [setting] = useLabelSystem();
+  const system = labels ?? setting;
   const wrap = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
   useLayoutEffect(() => {

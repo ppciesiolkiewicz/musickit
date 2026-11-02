@@ -8,6 +8,11 @@ import SingingStaff from "@/components/theory/singing/SingingStaff";
 import { getSharedPiano, wakeAudio } from "@/features/sound";
 import { VOICES, buildLadder, clefFor, hzToMidi, spellName } from "@/features/theory/singing";
 import { createSmoother, type Pitch } from "@/features/tuner/pitch";
+import { staffLabelSystem, type SingingLabels } from "@/features/theory/labels";
+import { useLabelSystem } from "@/features/theory/useLabelSystem";
+import dynamic from "next/dynamic";
+
+const PracticeBacking = dynamic(() => import("@/features/instruments").then((m) => m.PracticeBacking), { ssr: false });
 
 const FLAT = ["C", "D♭", "D", "E♭", "E", "F", "G♭", "G", "A♭", "A", "B♭", "B"];
 const SHARP = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"];
@@ -16,8 +21,12 @@ const SEMI_TEXT = ["1", "♭2", "2", "♭3", "3", "4", "♯4", "5", "♭6", "6",
 /** frames without a pitch before the dot on the staff goes away */
 const GAP_FRAMES = 6;
 
-/** The scale on a staff in the voice's range, with the microphone's pitch drawn on it; tap a note to hear it. */
-export function View({ slug, pc, voice, notes, enable, highlight, mute, hide, others, mic: micButton = true }: { slug: string; pc: number; voice: keyof typeof VOICES; notes?: number[]; enable?: number[]; highlight?: number[]; mute?: number[]; hide?: number[]; others?: Others; mic?: boolean }) {
+/**
+ * The scale on a staff in the voice's range, with the microphone's pitch drawn on it; tap a note to hear it. With `drone`
+ * and/or `click` it has its own backing, and its one button starts (and stops) the backing and the mic together. With the
+ * mic the notes are labelled by degree or solfège (`labels`), never by bare name.
+ */
+export function View({ slug, pc, voice, notes, enable, highlight, mute, hide, others, mic: micButton = true, drone = false, click = false, bpm = 60, labels }: { slug: string; pc: number; voice: keyof typeof VOICES; notes?: number[]; enable?: number[]; highlight?: number[]; mute?: number[]; hide?: number[]; others?: Others; mic?: boolean; drone?: boolean; click?: boolean; bpm?: number; labels?: SingingLabels }) {
   const range = VOICES[voice];
   // a staff has two looks, lit and dimmed: lit are the highlighted notes, or (nothing highlighted) the enabled ones
   const state = useMemo(() => {
@@ -55,7 +64,9 @@ export function View({ slug, pc, voice, notes, enable, highlight, mute, hide, ot
     const kept = picked.notes.filter((n) => state(n.midi % 12) !== "hidden");
     return kept.length > 1 ? { ...picked, notes: kept } : picked;
   }, [picked, state]);
-  const [mic, setMic] = useState(false);
+  const backing = useMemo(() => [...(drone ? ["drone" as const] : []), ...(click ? ["click" as const] : [])], [drone, click]);
+  const [on, setOn] = useState(false);
+  const stop = useCallback(() => setOn(false), []);
   const [played, setPlayed] = useState<number | null>(null);
   const pitch = useRef<number | null>(null);
   const smoother = useRef(createSmoother());
@@ -71,7 +82,9 @@ export function View({ slug, pc, voice, notes, enable, highlight, mute, hide, ot
     gaps.current = 0;
     pitch.current = hzToMidi(smoother.current.push(p));
   }, []);
-  const { status } = useMicPitch(mic, undefined, onPitch);
+  const [setting] = useLabelSystem();
+  const system = staffLabelSystem(labels, micButton, setting);
+  const { status } = useMicPitch(on && micButton, undefined, onPitch);
   if (!ladder) return null;
   const tap = async (i: number) => {
     await wakeAudio();
@@ -87,10 +100,14 @@ export function View({ slug, pc, voice, notes, enable, highlight, mute, hide, ot
   return (
     <div className="flex flex-col gap-2">
       <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400">
-        {micButton && <MicButton on={mic} onClick={() => { pitch.current = null; setMic((v) => !v); }} offLabel="Sing with the mic" />}
+        {(micButton || backing.length > 0) && (
+          <MicButton on={on} onClick={() => { pitch.current = null; if (!on && backing.length) void wakeAudio(); setOn((v) => !v); }}
+            offLabel={backing.length ? "Start" : "Sing with the mic"} onLabel={backing.length ? "Stop" : undefined} />
+        )}
+        {backing.length > 0 && <PracticeBacking bpm={bpm} keyPc={pc} parts={backing} on={on} onStop={stop} />}
         <span>{ladder.title} · {VOICES[voice].label}{status === "denied" ? " · microphone blocked in the browser" : ""}</span>
       </div>
-      <SingingStaff ladder={ladder} clef={clefFor(range)} pitch={pitch} played={played} onNote={(i) => void tap(i)} highlight={lit} />
+      <SingingStaff ladder={ladder} clef={clefFor(range)} pitch={pitch} played={played} onNote={(i) => void tap(i)} highlight={lit} labels={system} />
     </div>
   );
 }

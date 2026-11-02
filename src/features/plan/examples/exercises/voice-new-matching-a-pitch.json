@@ -13,17 +13,14 @@
     "why": "Matching one note and holding it steady is the base every other singing skill stands on.",
     "sections": [
       { "type": "heading", "text": "Hum the drone note", "minutes": 2 },
-      { "type": "text", "text": "Press Play below to start the drone and hum along until your voice blends with it. Then start the mic on the staff below: your pitch shows there as a line. Sing {{1}} out loud on \"ah\" and watch your line sit on the note." },
-      { "type": "tool", "tool": { "type": "click-drone", "bpm": 60, "key": "c", "click": false } },
-      { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "tenor", "enable": ["1"], "others": "hidden" } },
+      { "type": "text", "text": "Press Start below: the drone and the mic start together. Hum along until your voice blends with the drone; your pitch shows on the staff as a line. Sing {{1}} out loud on \"ah\" and watch your line sit on the note." },
+      { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "tenor", "enable": ["1"], "others": "hidden", "drone": true } },
       { "type": "heading", "text": "Step to Re and home", "minutes": 2 },
-      { "type": "text", "text": "Press Play below to start the drone. Sing {{1}} for one slow breath, step up to {{2}} for the next, then come back to {{1}}. Sing the names: they help you remember each sound. Watch your line step up, then back down." },
-      { "type": "tool", "tool": { "type": "click-drone", "bpm": 60, "key": "c", "click": false } },
-      { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "tenor", "notes": ["1", "2"] } },
+      { "type": "text", "text": "Press Start below to start the drone and the mic. Sing {{1}} for one slow breath, step up to {{2}} for the next, then come back to {{1}}. Sing the names: they help you remember each sound. Watch your line step up, then back down." },
+      { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "tenor", "notes": ["1", "2"], "drone": true } },
       { "type": "heading", "text": "One long note", "minutes": 2 },
-      { "type": "text", "text": "Press Play below to start the drone, now with a click. Breathe in for four clicks, then sing {{1}} on \"ah\" for as long as feels easy. See how flat you can keep your line to the end." },
-      { "type": "tool", "tool": { "type": "click-drone", "bpm": 60, "key": "c" } },
-      { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "tenor", "enable": ["1"], "others": "hidden" } }
+      { "type": "text", "text": "Press Start below: the drone, now with a metronome, and the mic start together. Breathe in for four clicks, then sing {{1}} on \"ah\" for as long as feels easy. See how flat you can keep your line to the end." },
+      { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "tenor", "enable": ["1"], "others": "hidden", "drone": true, "click": true, "bpm": 60 } }
     ]
   }
 }
