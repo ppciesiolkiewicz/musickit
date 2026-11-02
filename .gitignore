@@ -58,3 +58,5 @@ next-env.d.ts
 
 # dev tools: prompt run history
 /tools/prompt-history/
+
+tasks.txt
