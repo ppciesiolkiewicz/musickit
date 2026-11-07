@@ -74,7 +74,7 @@ function InputLine() {
   return (
     <PocketLine label="Input">
       <button type="button" className={`${POCKET_BUTTON} ${on ? POCKET_LIT : ""}`} aria-pressed={on} onClick={() => setOn((v) => !v)}
-        title={on ? "Stop listening" : "Listen: the note you play lights up on the necks"} aria-label={on ? "Stop listening" : "Listen to the input"}>
+        title={on ? "Stop microphone" : "Start microphone: the note you play lights up on the necks"} aria-label={on ? "Stop microphone" : "Start microphone"}>
         <Icon name="mic" size={14} />
       </button>
       <InputChip status={status} align="right" className="min-w-0" />

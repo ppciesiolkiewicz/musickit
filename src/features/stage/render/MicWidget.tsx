@@ -52,7 +52,7 @@ const readOf = (hz: number | null): TunerRead | null => {
 
 /**
  * The audio input's face: Guitar or Voice, the device it listens to (by default the app's input, followed when it changes), the note
- * heard with how far off it is (the tuner's meter), Listen / Stop, and a cog for the app's input and output and each source's own
+ * heard with how far off it is (the tuner's meter), Start / Stop microphone, and a cog for the app's input and output and each source's own
  * device and channel. The notes light up on the pinned and selected widgets.
  */
 export default function MicWidget() {
@@ -94,7 +94,7 @@ export default function MicWidget() {
             onClick={mic.onToggle}
             className={`flex-1 rounded-md border px-3 py-1.5 text-sm ${listening ? "border-rose-500/60 text-rose-200 hover:bg-rose-500/10" : "border-sky-500/60 text-sky-100 hover:bg-sky-500/10"}`}
           >
-            {listening ? "Stop" : "Listen"}
+            {listening ? "Stop microphone" : "Start microphone"}
           </button>
           <button type="button" title="Inputs and output" aria-label="Inputs and output" onClick={() => setDevices(true)} className="rounded-md border border-slate-700 p-2 text-slate-300 hover:border-slate-500 hover:text-slate-100">
             <Icon name="settings" size={15} />

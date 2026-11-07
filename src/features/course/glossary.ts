@@ -17,7 +17,7 @@ export const GLOSSARY: Term[] = [
   { id: "chord", label: "Chord", forms: ["chord"], short: "Three or more notes played together.", href: "/course/2/what-is-a-chord" },
   { id: "interval", label: "Interval", forms: ["interval"], short: "The distance between two notes, named by counting the letter names from one to the other: C to E is a 3rd.", href: "/course/3/intervals" },
   { id: "solfege", label: "Solfège", forms: ["solfège", "solfege"], short: "Do, Re, Mi, Fa, Sol, La, Ti: names for the notes of a key. Do is always home, so the names work in any key.", href: "/course/3/solfege" },
-  { id: "staff", label: "Staff", forms: ["staff"], short: "The five lines music is written on: a note sits higher on it the higher it sounds. While you sing, your pitch shows on it as a line.", href: "/course/3/do-re-mi" },
+  { id: "staff", label: "Staff", forms: ["staff"], short: "The five lines music is written on: a note sits higher on it the higher it sounds. While you sing, your pitch shows on it as a line.", href: "/course/3/staff" },
   { id: "tab", label: "Tab", forms: ["tab", "tablature"], short: "Guitar notation: six lines for the strings, low E at the bottom, and a number on a line for the fret to press. 0 means the open string.", href: "/course/1/tab-and-chord-boxes" },
   { id: "chord-box", label: "Chord box", forms: ["chord box", "chord diagram"], short: "A diagram of a chord on the neck: the lines are strings and frets, each dot is where a finger presses, O plays a string open and X leaves it out.", href: "/course/1/tab-and-chord-boxes" },
   { id: "eighths", label: "Eighths", forms: ["eighths", "eighth", "eighth note", "8th", "8th note"], short: "Two even notes or strums per beat, counted \"1 & 2 & 3 & 4 &\".", href: "/course/2/all-downstrums" },

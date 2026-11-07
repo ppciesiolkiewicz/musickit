@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import ChordDiagram from "@/components/chordKit/ChordDiagram";
 import NoteNeck from "@/components/theory/NoteNeck";
 import ScaleWheel from "@/components/theory/ScaleWheel";
 import CircleOfFifths from "@/components/theory/CircleOfFifths";
 import MiniPiano from "@/components/theory/MiniPiano";
+import SingingStaff from "@/components/theory/singing/SingingStaff";
+import { buildLadder, clefFor } from "@/features/theory/singing";
 import { strumShape } from "@/lib/chordKit/playback";
 import { playMelody } from "@/features/sound";
 import { degreeLabels } from "@/features/theory/scales";
@@ -23,7 +25,26 @@ function Legend({ items }: { items: { label: string; colour: string }[] }) {
   );
 }
 
-/** A lesson picture: playable chord boxes, a coloured neck, the circle of fifths or mode wheels. */
+/** A scale on the staff, no mic: tapping a note plays it and lights it while it sounds. */
+function LessonStaff({ visual }: { visual: Extract<Visual, { kind: "staff" }> }) {
+  const pitch = useRef<number | null>(null);
+  const [played, setPlayed] = useState<number | null>(null);
+  const range = { low: visual.low, high: visual.high };
+  const ladder = buildLadder(visual.scale, visual.key, range);
+  if (!ladder) return null;
+  const tap = (i: number) => {
+    playMelody([ladder.notes[i].midi], 600);
+    setPlayed(i);
+    setTimeout(() => setPlayed((p) => (p === i ? null : p)), 600);
+  };
+  return (
+    <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-2">
+      <SingingStaff ladder={ladder} clef={clefFor(range)} pitch={pitch} played={played} onNote={tap} />
+    </div>
+  );
+}
+
+/** A lesson picture: playable chord boxes, a coloured neck, the circle of fifths, mode wheels or a scale on the staff. */
 export default function LessonVisual({ visual }: { visual: Visual }) {
   const [key, setKey] = useState<CircleKey | null>({ pc: DEFAULT_KEY_PC, minor: false });
   const [wheel, setWheel] = useState<number | null>(null);
@@ -60,6 +81,7 @@ export default function LessonVisual({ visual }: { visual: Visual }) {
           <MiniPiano lit={visual.keys} from={visual.from} octaves={visual.octaves} onKey={(m) => playMelody([m], 400)} />
         </div>
       )}
+      {visual.kind === "staff" && <LessonStaff visual={visual} />}
       {visual.kind === "wheels" && (
         <div className="grid gap-3 sm:grid-cols-3">
           {visual.wheels.map((w, i) => (

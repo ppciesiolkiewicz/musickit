@@ -15,7 +15,9 @@ export type Visual =
   | { kind: "circle"; caption: string }
   /** keys lit on a small piano, to set beside the same notes on the neck */
   | { kind: "piano"; caption: string; keys: { midi: number; label: string; colour: string }[]; from?: number; octaves?: number }
-  | { kind: "wheels"; caption: string; wheels: { name: string; mood: string; steps: number[] }[] };
+  | { kind: "wheels"; caption: string; wheels: { name: string; mood: string; steps: number[] }[] }
+  /** a scale written on the staff from its lowest root in `low`..`high` (MIDI), in the clef that range reads in; tap a note to hear it */
+  | { kind: "staff"; caption: string; key: number; scale: string; low: number; high: number };
 
 /** Open-string pitch classes, low E (string 0) to high e. */
 export const OPEN_PCS = [4, 9, 2, 7, 11, 4];

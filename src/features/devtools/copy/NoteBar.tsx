@@ -29,7 +29,7 @@ export function NoteEditor({ initial, onSave, onCancel, placeholder = "What's wr
           if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) onSave(text);
           if (e.key === "Escape") onCancel();
         }}
-        rows={2}
+        rows={6}
         placeholder={placeholder}
         className="w-full resize-y rounded-md border border-slate-700 bg-slate-900 px-2 py-1 text-sm text-slate-100 placeholder:text-slate-500"
       />

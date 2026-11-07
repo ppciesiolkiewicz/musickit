@@ -318,10 +318,10 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
 
   const message =
     micStatusMessage(status)
-    ?? (tuneTab ? (status === "on" ? `Listening on ${tab === "runs" ? "run" : "melody"} #${active}. Sing each note as the bar reaches it: the bar loops in time with the metronome, and the dot turns green on the note under it, red on another.` : "Play a melody or tap its notes to hear it, then press Select on its card: the mic listens while a bar runs over the tune in time with the metronome.")
+    ?? (tuneTab ? (status === "on" ? `Listening on ${tab === "runs" ? "run" : "melody"} #${active}. Sing each note as the bar reaches it: the bar loops in time with the metronome, and the dot turns green on the note under it, red on another.` : "Play a melody or tap its notes to hear it, then press Start microphone on its card: the mic listens while a bar runs over the tune in time with the metronome.")
     : tab === "intervals" ? null
     : status === "on" ? "Listening. Sing the scale up from the root: the dot turns green on a note of the scale, red on a note outside it."
-    : "Tap a note to hear it, or play the scale up and down on the metronome's tempo. Then press Sing and sing it back.");
+    : "Tap a note to hear it, or play the scale up and down on the metronome's tempo. Then press Start microphone and sing it back.");
 
   return (
     <div className="flex flex-col gap-5">
@@ -409,7 +409,7 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
               </Button>
             )}
             {tab === "scales" && <MicButton on={mic} onClick={toggleMic} />}
-            {/* the input the mic hears: by the scale's mic button, or for the melodies by the heading (each card has its own Select) */}
+            {/* the input the mic hears: by the scale's mic button, or for the melodies by the heading (each card has its own mic button) */}
             {tab !== "intervals" && <InputChip status={status} />}
             {message && <p className="min-w-0 basis-full text-sm sm:basis-0 sm:flex-1 text-slate-400" aria-live="polite">{message}</p>}
           </div>
@@ -482,7 +482,7 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
           mic={mic}
           status={status}
           playing={playing === focused.n}
-          message={status === "on" ? "Sing each note as the bar reaches it" : status === "off" ? "Press Sing and sing along with the bar" : message ?? ""}
+          message={status === "on" ? "Sing each note as the bar reaches it" : status === "off" ? "Press Start microphone and sing along with the bar" : message ?? ""}
           onPrev={prev}
           onNext={next}
           onSing={toggleMic}

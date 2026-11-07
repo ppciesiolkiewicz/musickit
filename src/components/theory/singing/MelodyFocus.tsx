@@ -79,7 +79,7 @@ export default function MelodyFocus({ tune, index, count, staff, bpm, mic, statu
         </Button>
         <span className="pl-2 text-sm font-medium text-slate-100">#{tune.n}</span>
         <span className="text-xs text-slate-400">{tune.stage.title} · {DIFFICULTIES[tune.difficulty].title} · {lengthLabel(tune)}</span>
-        <MicButton on={mic} onClick={onSing} offLabel="Sing" onLabel="Listening" />
+        <MicButton on={mic} onClick={onSing} />
         <InputChip status={status} />
         <Button size="sm" onClick={onPlay} className={playing ? "!border-sky-400/70 !bg-sky-500/20 !text-sky-100" : ""}>
           ▶ Play · {bpm} bpm

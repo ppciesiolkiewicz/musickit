@@ -48,7 +48,8 @@ const PRIMARY = "inline-flex cursor-pointer items-center gap-1.5 rounded-lg bord
  * page shows example sections, how many are on changed ones), HEAD, note a text, re-pin all to HEAD, clear all, copy all;
  * "N on this page" opens a modal with this page's notes. On the page, each text note marks its text (`TextNoteMarks`). Opening the bar turns on
  * note mode ("Note a text" toggles it): hover outlines the block under the pointer (`blockOf`: a text block, list or box that holds text itself),
- * a click (which does nothing else then) opens a box for a note on it, keeping its text and its place in the page. The pencils on /dev/examples' sections add to the same notes. All pages' notes are on /dev/notes.
+ * a click (which does nothing else then) opens a box for a note on it, keeping its text and its place in the page. The A key
+ * (outside a text box) toggles note mode too. The pencils on /dev/examples' sections add to the same notes. All pages' notes are on /dev/notes.
  */
 export default function CopyNotes() {
   const pathname = usePathname();
@@ -109,6 +110,19 @@ export default function CopyNotes() {
       hot.current = null;
     };
   }, [on]);
+
+  // A (no modifier, not while typing) turns note mode on and off, the "Note a text" button from the keyboard
+  useEffect(() => {
+    if (!devUi()) return;
+    const key = (e: KeyboardEvent) => {
+      if (e.key.toLowerCase() !== "a" || e.metaKey || e.ctrlKey || e.altKey || e.repeat) return;
+      const t = e.target;
+      if (t instanceof HTMLElement && (t.isContentEditable || t.closest("input,textarea,select"))) return;
+      setOn((v) => !v);
+    };
+    window.addEventListener("keydown", key);
+    return () => window.removeEventListener("keydown", key);
+  }, []);
 
   // the modal with this page's notes: Esc closes it (and only it, not note mode)
   useEffect(() => {
@@ -187,7 +201,7 @@ export default function CopyNotes() {
             {contextLines(target.context).length > 0 && <p className="whitespace-pre-line break-words font-mono text-[10px] text-slate-500" title="Saved with the note, for whoever reads it">{contextLines(target.context).join("\n")}</p>}
             <textarea
               autoFocus
-              rows={2}
+              rows={6}
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && (e.metaKey || e.ctrlKey) && save()}
@@ -209,7 +223,7 @@ export default function CopyNotes() {
               {outdated > 0 && <span className="rounded-full bg-orange-500/15 px-2 py-0.5 text-xs text-orange-200">{outdated} on changed sections</span>}
               {head && <span className="font-mono text-xs text-slate-500" title="The checkout's HEAD; a section note also keeps its example file's commit">HEAD {head}</span>}
               <span className="ml-auto flex flex-wrap gap-2">
-                <button type="button" aria-pressed={on} onClick={() => setOn((v) => !v)} title={on ? "On: click any text on the page to note it" : "Turn on, then click any text on the page to note it"} className={on ? PRIMARY : BTN}><Icon name="pencil" size={12} />Note a text</button>
+                <button type="button" aria-pressed={on} onClick={() => setOn((v) => !v)} title={on ? "On: click any text on the page to note it (A turns it off)" : "Turn on, then click any text on the page to note it (or press A)"} className={on ? PRIMARY : BTN}><Icon name="pencil" size={12} />Note a text<kbd className="rounded border border-current px-1 font-mono text-[10px] opacity-70">A</kbd></button>
                 <button type="button" disabled={!head || !notes.length} onClick={repin} title={`Pin every note to the checkout's HEAD: they still hold${shown ? "; section notes also to their sections as they are now (those on gone sections stay)" : ". Section notes are pinned to their sections as they are now only from /dev/examples"}`} className={BTN}>Re-pin all to HEAD</button>
                 <button type="button" disabled={!notes.length} onClick={() => (clearing ? (write(() => []), setClearing(false)) : setClearing(true))} className={`${BTN} ${clearing ? "!border-rose-400 !bg-rose-500/20 !text-rose-100" : ""}`}>{clearing ? "Click again to delete all" : "Clear all"}</button>
                 <button type="button" disabled={!notes.length} onClick={copy} className={copied ? `${PRIMARY} !border-emerald-400/70 !bg-emerald-500/20 !text-emerald-100` : PRIMARY}><Icon name={copied ? "check" : "copy"} size={12} />{copied ? "Copied" : "Copy all notes"}</button>
@@ -221,10 +235,10 @@ export default function CopyNotes() {
         <button
           type="button"
           onClick={() => (open || on ? (setOpen(false), setOn(false)) : (setOpen(true), setOn(true)))}
-          title="Notes on the wording of this page"
+          title="Notes on the wording of this page (A: note a text)"
           className={`inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-amber-400/50 px-3.5 py-2 text-xs font-semibold shadow-lg ${on ? "bg-amber-400 text-slate-950" : "bg-slate-950/95 text-amber-100"}`}
         >
-          <Icon name="pencil" size={12} />{on && !open ? "Click a text · Esc" : notes.length ? `Notes · ${here.length}/${notes.length}` : "Notes"}
+          <Icon name="pencil" size={12} />{on && !open ? "Click a text · A or Esc" : notes.length ? `Notes · ${here.length}/${notes.length}` : "Notes"}
         </button>
       </div>
     </>

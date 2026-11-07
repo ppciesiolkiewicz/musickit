@@ -31,7 +31,7 @@ function Term({ piece }: { piece: Exclude<Piece, string> }) {
           <span className="flex flex-col gap-1.5 rounded-lg border border-slate-700 bg-slate-950 p-2 shadow-xl">
             <span className="font-medium text-slate-100">{piece.term.label}</span>
             <span>{piece.term.short}</span>
-            <Link href={piece.term.href} className="text-sky-300 hover:underline">Read the article →</Link>
+            <Link href={piece.term.href} target="_blank" rel="noopener" className="text-sky-300 hover:underline">Read the article →</Link>
           </span>
         </span>
       )}

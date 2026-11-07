@@ -151,6 +151,18 @@ export const STAGES_0: CourseStage[] = [
         }),
         task("Play the path up and down, saying the solfège names out loud. Then start from the G on the low E (3rd fret) and see how far you get."),
       ]),
+      section("staff", "The staff", "three-views", "The five lines music is written on: a note sits higher the higher it sounds, and each line and space is one letter. G major from the open position, written out.", [
+        text(
+          "The staff is the five lines music is written on. Each line, and each space between two lines, is one letter note, and a note sits higher on the staff the higher it sounds.",
+          "The sign at the start is the treble clef. Its curl wraps round the second line from the bottom and makes that line G. The small 8 under it means the notes sound an octave lower than written, which is where the guitar plays. The ♯ on the top line is the key signature: in G major every F is F♯.",
+        ),
+        visual({ kind: "staff", caption: "G major from the open G string up to the G on the high e, 3rd fret. Tap a note to hear it: each one is the next line or space up.", key: G, scale: "major-ionian", low: 55, high: 67 }),
+        text(
+          "One letter up always moves from a line to the space above it, or from a space to the line above. A half step looks the same as a whole step: B to C and F♯ to G are one fret apart on the guitar, but on the staff they are one step like all the others.",
+        ),
+        task("Play G major from the open G string up to the G on the high e, as in the do-re-mi path, saying each letter. Point to each note on the staff as you play it. Keep going until you can find a note on the staff without counting up from the bottom line."),
+        links([], [{ href: "/theory/singing", label: "Singing", note: "sing the scale and watch your pitch on the staff" }]),
+      ]),
       section("step-melodies", "Step melodies: Do–Re–Mi", "melody", "Short tunes that move one note at a time up and down the scale, sung first and then played."),
       section("do-mi-sol", "Do–Mi–Sol", "melody", "The three notes of the major chord as a tune: leaping between Do, Mi and Sol by ear and with your voice."),
       section("intervals", "Intervals", "three-views", "The distance between two notes: half steps, whole steps and the octave, and how they add up to the scale."),

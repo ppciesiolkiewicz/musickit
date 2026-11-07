@@ -90,7 +90,7 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
         <IconButton title="Stop" onClick={sa.stop}>
           <Icon name="square" size={14} />
         </IconButton>
-        <IconButton on={sa.mic} tone="emerald" title={sa.mic ? "Stop the mic" : "Switch the mic on and sing"} onClick={sa.toggleMic}>
+        <IconButton on={sa.mic} tone="emerald" title={sa.mic ? "Stop microphone" : "Start microphone"} onClick={sa.toggleMic}>
           <Icon name="mic" size={15} />
         </IconButton>
         <InputChip status={sa.status} />

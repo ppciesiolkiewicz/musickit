@@ -121,7 +121,7 @@ export function View({ slug, pc, voice, notes, enable, highlight, mute, hide, ot
   return (
     <div className="flex flex-col gap-2">
       <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400">
-        {micButton && <MicButton on={micOn} onClick={() => (micOn ? setMicOn(false) : startMic())} offLabel="Start microphone" onLabel="Stop microphone" />}
+        {micButton && <MicButton on={micOn} onClick={() => (micOn ? setMicOn(false) : startMic())} />}
         {micButton && <InputChip status={status} />}
         {backing.length > 0 && (
           <span className="inline-flex items-center gap-2">

@@ -129,7 +129,7 @@ export default function IntervalDrill({ ladder, range, clef, pitch, cents, semis
   const status = !q
     ? semis.length ? "Press Start: a root shows on the staff and the interval to sing from it plays. Then sing the top (or bottom) note back." : "Pick a level."
     : phase === "prompt" ? (prompt === "interval" ? "Listen…" : "Here is the root…")
-    : phase === "listening" ? (mic ? "Sing it. Hold the note: the dot turns green on it." : "Start the microphone to sing your answer.")
+    : phase === "listening" ? (mic ? "Sing it. Hold the note: the dot turns green on it." : "Press Start microphone to sing your answer.")
     : phase === "solved" ? `Yes: ${q.target.name}.` : `It was ${q.target.name}.`;
 
   return (

@@ -98,7 +98,7 @@ export default function MelodyFeed({ tunes, place, chordsOf, ladderOf, clef, pit
                 <div className="mb-1 flex flex-wrap items-center gap-2">
                   <span className="text-xs tabular-nums text-slate-500">#{t.n}</span>
                   <span className="text-xs text-slate-400">{DIFFICULTIES[t.difficulty].title} · {lengthLabel(t)}</span>
-                  <MicButton on={live && mic} onClick={() => onSing(t)} offLabel="Select" onLabel="Selected" />
+                  <MicButton on={live && mic} onClick={() => onSing(t)} />
                   <Button size="sm" onClick={() => onPlay(t)} className={on ? "!border-sky-400/70 !bg-sky-500/20 !text-sky-100" : ""}>
                     ▶ Play · {bpm} bpm
                   </Button>
