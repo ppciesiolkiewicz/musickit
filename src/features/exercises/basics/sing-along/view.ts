@@ -28,14 +28,14 @@ export interface Judged {
 }
 
 /** the note due under the bar and how the voice sits against it: green on it, red on another note, amber between */
-export function judge(frame: Frame, notes: PlacedNote[], beatMs: number): Judged {
+export function judge(frame: Frame, notes: PlacedNote[], beatMs: number, tolerance = IN_TUNE_CENTS, lagMs = DOT_LAG_MS): Judged {
   const pass = passAt(frame.passes, frame.s);
   const due = pass ? dueNote(notes, pass.from + frame.s - pass.start) : -1;
-  const dotS = frame.s - DOT_LAG_MS / beatMs;
+  const dotS = frame.s - lagMs / beatMs;
   const m = frame.midi;
   const note = notes[due];
   const cents = m !== null && note ? (m - note.midi) * 100 : 0;
-  const hit = m !== null && !!note && Math.abs(cents) <= IN_TUNE_CENTS;
-  const fit: Fit = m === null || !note ? "between" : hit ? "in" : Math.abs(m - Math.round(m)) * 100 <= IN_TUNE_CENTS ? "out" : "between";
+  const hit = m !== null && !!note && Math.abs(cents) <= tolerance;
+  const fit: Fit = m === null || !note ? "between" : hit ? "in" : Math.abs(m - Math.round(m)) * 100 <= tolerance ? "out" : "between";
   return { pass, due, dotS, fit, hit, cents };
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type PointerEvent, type ReactNode } from "react";
 import Icon from "@/components/Icon";
 import InputChip from "@/components/InputChip";
 import type { Clef } from "@/features/theory/piano/staff";
@@ -17,6 +17,26 @@ type Look = "staff" | "roll";
 
 /** full screen draws the view bigger for the screen's height, never under 1.2 times */
 const scaleFor = (h: number) => Math.max(1.2, Math.min(2.4, h / 380));
+/** a sideways drag this long (px), more sideways than up or down, steps to the previous or next tune */
+const SWIPE_PX = 60;
+
+/** previous and next in a list of tunes, for full screen: arrows on its margins, ← and →, and a swipe */
+export interface SingAlongNav {
+  prev?: () => void;
+  next?: () => void;
+  /** where this tune is in the list ("3 / 40") */
+  label?: ReactNode;
+}
+
+function MarginArrow({ side, onClick }: { side: "left" | "right"; onClick?: () => void }) {
+  const title = side === "left" ? "Previous (←)" : "Next (→)";
+  return (
+    <button type="button" onClick={onClick} disabled={!onClick} title={title} aria-label={title}
+      className={`absolute top-1/2 z-10 grid h-16 w-10 -translate-y-1/2 place-items-center rounded-xl border border-slate-800 bg-slate-900/70 text-slate-300 transition hover:border-slate-500 hover:text-slate-100 disabled:opacity-25 sm:w-12 ${side === "left" ? "left-1 sm:left-2" : "right-1 sm:right-2"}`}>
+      <Icon name={side === "left" ? "chevron-left" : "chevron-right"} size={22} />
+    </button>
+  );
+}
 
 function IconButton({ on, tone = "sky", title, onClick, children }: { on?: boolean; tone?: "sky" | "emerald" | "amber"; title: string; onClick: () => void; children: ReactNode }) {
   const lit = { sky: "border-sky-400/70 bg-sky-500/20 text-sky-100", emerald: "border-emerald-400/70 bg-emerald-500/25 text-emerald-100", amber: "border-amber-400/60 bg-amber-500/15 text-amber-200" }[tone];
@@ -41,7 +61,7 @@ const LAYERS: { id: Layer; label: string; icon: "piano" | "music" | "metronome";
  * as a piano roll that keeps the line the voice took. Full screen is a page modal (Esc closes it), drawn big, the notes
  * sliding under a bar that stays put so the voice dot holds its place. Key it by the tune: a new one starts over.
  */
-export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, tapped, onNote, info }: {
+export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, tapped, onNote, info, cents, lagMs, full: fullProp, onFull, nav, tools, settings }: {
   notes: PlacedNote[];
   chords: MelodyChord[];
   /** the metronome heard from the start; off by default */
@@ -53,19 +73,56 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
   onNote: (i: number) => void;
   /** words about the tune, after the buttons; a function gets the tune's beat playing (null when stopped) */
   info: ReactNode | ((at: number | null) => ReactNode);
+  /** within this many cents counts as on the note (the app's default when left out) */
+  cents?: number;
+  /** how far the voice dot runs behind the bar (the app's default when left out) */
+  lagMs?: number;
+  /** full screen held by the caller (with `onFull`), so it stays open across tunes; left out, the player keeps its own */
+  full?: boolean;
+  onFull?: (on: boolean) => void;
+  /** previous and next tune while full screen */
+  nav?: SingAlongNav;
+  /** more buttons, by the full screen one (a share button, …) */
+  tools?: ReactNode;
+  /** settings shown on a line under the buttons while full screen (tempo, accuracy, …) */
+  settings?: ReactNode;
 }) {
   const total = notes[notes.length - 1].at + notes[notes.length - 1].beats;
   const { focus, ...sa } = useSingAlong({ notes, chords, beatMs, total, click });
   const [look, setLook] = useState<Look>("staff");
-  const [full, setFull] = useState(false);
+  const [ownFull, setOwnFull] = useState(false);
+  const full = fullProp ?? ownFull;
+  const setFull = (on: boolean) => (onFull ? onFull(on) : setOwnFull(on));
+  // the keys and the swipe read the latest of these, so their listener isn't put on again each render
+  const latest = useRef({ setFull, nav });
+  useEffect(() => {
+    latest.current = { setFull, nav };
+  });
+  const swipe = useRef<{ x: number; y: number; id: number } | null>(null);
+  const swipeStart = (e: PointerEvent) => {
+    swipe.current = nav ? { x: e.clientX, y: e.clientY, id: e.pointerId } : null;
+  };
+  const swipeEnd = (e: PointerEvent) => {
+    const s = swipe.current;
+    swipe.current = null;
+    if (!s || s.id !== e.pointerId) return;
+    const dx = e.clientX - s.x;
+    const dy = e.clientY - s.y;
+    if (Math.abs(dx) < SWIPE_PX || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+    (dx > 0 ? nav?.prev : nav?.next)?.();
+  };
   const [scale, setScale] = useState(2);
   useEffect(() => {
     if (!full) return;
     const fit = () => setScale(scaleFor(window.innerHeight));
     const onKey = (e: KeyboardEvent) => {
-      if (e.key !== "Escape") return;
+      const { setFull, nav } = latest.current;
+      if (e.key === "Escape") setFull(false);
+      // a focused slider or menu keeps its arrows
+      else if ((e.key === "ArrowLeft" || e.key === "ArrowRight") && nav && !(e.target as HTMLElement | null)?.closest?.("input, select, [role=slider], [role=listbox], [role=menu]")) {
+        (e.key === "ArrowLeft" ? nav.prev : nav.next)?.();
+      } else return;
       e.preventDefault();
-      setFull(false);
     };
     fit();
     window.addEventListener("resize", fit);
@@ -82,7 +139,9 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
 
   return (
     <div ref={focus} role={full ? "dialog" : undefined} aria-modal={full || undefined} aria-label={full ? "Sing along" : undefined}
-      className={full ? "fixed inset-0 z-[70] flex flex-col gap-4 overflow-hidden bg-slate-950 p-4 sm:p-6" : "flex flex-col gap-2"}>
+      className={full ? `fixed inset-0 z-[70] flex flex-col gap-4 overflow-hidden bg-slate-950 p-4 sm:p-6 ${nav ? "px-12 sm:px-16" : ""}` : "flex flex-col gap-2"}>
+      {full && nav && <MarginArrow side="left" onClick={nav.prev} />}
+      {full && nav && <MarginArrow side="right" onClick={nav.next} />}
       <div className="flex flex-wrap items-center gap-1.5 text-xs text-slate-400">
         <IconButton on={sa.playing} title={sa.playing ? "Play from the start" : "Play"} onClick={() => void sa.play()}>
           <Icon name="play" size={15} />
@@ -115,18 +174,22 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
           <button type="button" className={seg(look === "staff")} aria-pressed={look === "staff"} onClick={() => setLook("staff")}>Staff</button>
           <button type="button" className={seg(look === "roll")} aria-pressed={look === "roll"} onClick={() => setLook("roll")}>Piano roll</button>
         </div>
+        {full && nav?.label && <span className="tabular-nums text-slate-300">{nav.label}</span>}
         <span className="ml-1">{typeof info === "function" ? info(at) : info}{sa.status === "denied" ? " · microphone blocked in the browser" : ""}</span>
         <span className="ml-auto" />
-        <IconButton on={full} title={full ? "Close full screen (Esc)" : "Full screen"} onClick={() => setFull((v) => !v)}>
+        {tools}
+        <IconButton on={full} title={full ? "Close full screen (Esc)" : "Full screen"} onClick={() => setFull(!full)}>
           <Icon name={full ? "minimize" : "maximize"} size={15} />
         </IconButton>
       </div>
+      {full && settings && <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-slate-400">{settings}</div>}
       {sa.loop && <LoopStrip key={total} notes={notes} total={total} region={sa.region} loop={sa.loop} at={at} onRegion={sa.setRegion} />}
-      <div className={full ? "flex min-h-0 flex-1 flex-col justify-center" : "contents"}>
+      <div className={full ? "flex min-h-0 flex-1 touch-pan-y flex-col justify-center" : "contents"}
+        onPointerDown={full ? swipeStart : undefined} onPointerUp={full ? swipeEnd : undefined} onPointerCancel={() => { swipe.current = null; }}>
         {look === "staff" ? (
-          <StreamStaff frame={sa.frame} notes={notes} chords={chords} ladder={ladder} clef={clef} beatMs={beatMs} tapped={tapped} onNote={onNote} scale={size} />
+          <StreamStaff frame={sa.frame} notes={notes} chords={chords} ladder={ladder} clef={clef} beatMs={beatMs} tapped={tapped} onNote={onNote} scale={size} cents={cents} lagMs={lagMs} />
         ) : (
-          <PianoRoll frame={sa.frame} notes={notes} chords={chords} ladder={ladder} beatMs={beatMs} tapped={tapped} onNote={onNote} scale={size} />
+          <PianoRoll frame={sa.frame} notes={notes} chords={chords} ladder={ladder} beatMs={beatMs} tapped={tapped} onNote={onNote} scale={size} cents={cents} lagMs={lagMs} />
         )}
       </div>
     </div>

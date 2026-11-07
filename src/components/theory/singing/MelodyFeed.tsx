@@ -1,25 +1,23 @@
 "use client";
 
-import { useEffect, useRef, useState, type RefObject } from "react";
-import Icon from "@/components/Icon";
-import { Button } from "@/components/ui";
+import { useEffect, useRef, useState } from "react";
 import type { Clef } from "@/features/theory/piano/staff";
 import type { Ladder } from "@/features/theory/singing";
 import { DIFFICULTIES, lengthLabel, type BookTune, type PlacedNote } from "@/features/theory/singingMelodies";
 import type { MelodyChord } from "@/features/theory/melodyChords";
-import MelodyStaff from "./MelodyStaff";
-import MicButton from "./MicButton";
-import { ClickButton, RestartButton, ShareButton } from "./MelodyControls";
+import SingAlong from "@/features/exercises/basics/sing-along/SingAlong";
+import { ShareButton } from "./MelodyControls";
 
 /** cards drawn at first, and added each time the end of the list scrolls into view */
 const PAGE = 6;
 
 /**
- * The melody book as one long list, easiest first, each stage under its own heading: a card per tune with its staff
- * and a play button. More cards are drawn as the end of the list comes into view. The `active` card is the one being
- * sung (the last one picked, played or tapped): only it runs the bar and shows the voice. A click anywhere on a card picks it.
+ * The melody book as one long list, easiest first, each stage under its own heading: a card per tune, each the plan's
+ * sing-along player (`SingAlong`: play, stop, the mic, what is heard, a loop over a part, staff or piano roll), with a
+ * share and a full screen button. More cards are drawn as the end of the list comes into view. The `active` card is the
+ * one picked last (the address keeps it); a press anywhere on a card picks it.
  */
-export default function MelodyFeed({ tunes, place, chordsOf, ladderOf, clef, pitch, beatMs, bpm, active, playing, playFrom, gridBeats, tapped, mic, cents, lagMs, heard, onHear, onPick, onSing, onPlay, onStop, onRestart, onNote, onFocus, linkTo, reveal }: {
+export default function MelodyFeed({ tunes, place, chordsOf, ladderOf, clef, beatMs, bpm, active, cents, lagMs, tapped, onNote, onPick, onFocus, linkTo, reveal }: {
   tunes: BookTune[];
   place: (t: BookTune) => PlacedNote[];
   /** the chords under a tune, named over its staff */
@@ -27,33 +25,16 @@ export default function MelodyFeed({ tunes, place, chordsOf, ladderOf, clef, pit
   /** the ladder a tune's staff is drawn on: the page's key, or for a run the key its first pass is in */
   ladderOf: (t: BookTune) => Ladder;
   clef: Clef;
-  pitch: RefObject<number | null>;
   beatMs: number;
   bpm: number;
   active: number;
-  /** the tune sounding now, by number */
-  playing: number | null;
-  playFrom: number | null;
-  gridBeats: () => number | null;
-  tapped: { n: number; i: number } | null;
-  /** the mic is listening (to the active tune) */
-  mic: boolean;
   /** within this many cents counts as on the note */
   cents: number;
   /** how far the voice dot runs behind the bar */
   lagMs: number;
-  /** the metronome is heard (else muted, still keeping time) */
-  heard: boolean;
-  onHear: (on: boolean) => void;
-  onPick: (t: BookTune) => void;
-  /** the card's mic button: sing this tune, or stop the mic on the one being sung */
-  onSing: (t: BookTune) => void;
-  onPlay: (t: BookTune) => void;
-  /** stop the tune playing (its card shows a stop beside Play while it does) */
-  onStop: () => void;
-  /** back to the tune's start on beat 1, nothing played */
-  onRestart: (t: BookTune) => void;
+  tapped: { n: number; i: number } | null;
   onNote: (t: BookTune, i: number) => void;
+  onPick: (t: BookTune) => void;
   /** open the tune full screen */
   onFocus: (t: BookTune) => void;
   /** a link to the tune, for its share button */
@@ -85,7 +66,8 @@ export default function MelodyFeed({ tunes, place, chordsOf, ladderOf, clef, pit
         {visible.map((t, k) => {
           const first = k === 0 || visible[k - 1].stage !== t.stage;
           const live = t.n === active;
-          const on = playing === t.n;
+          const notes = place(t);
+          const chords = chordsOf(t);
           return (
             <li key={t.n} className="flex flex-col gap-3">
               {first && (
@@ -94,45 +76,23 @@ export default function MelodyFeed({ tunes, place, chordsOf, ladderOf, clef, pit
                   <p className="text-xs text-slate-500">{t.stage.hint}</p>
                 </div>
               )}
-              <div data-tune={t.n} onClick={() => onPick(t)} className={`rounded-xl border p-3 transition ${live ? "border-sky-500/50 bg-slate-900/70" : "cursor-pointer border-slate-800 bg-slate-950/40 hover:border-slate-600"}`}>
-                <div className="mb-1 flex flex-wrap items-center gap-2">
-                  <span className="text-xs tabular-nums text-slate-500">#{t.n}</span>
-                  <span className="text-xs text-slate-400">{DIFFICULTIES[t.difficulty].title} · {lengthLabel(t)}</span>
-                  <MicButton on={live && mic} onClick={() => onSing(t)} />
-                  <Button size="sm" onClick={() => onPlay(t)} className={on ? "!border-sky-400/70 !bg-sky-500/20 !text-sky-100" : ""}>
-                    ▶ Play · {bpm} bpm
-                  </Button>
-                  {on && (
-                    <Button size="sm" onClick={onStop} title="Stop the melody" aria-label="Stop the melody" className="!px-2">
-                      {/* a text line's height, so it matches Play */}
-                      <span className="grid h-4 w-4 place-items-center"><Icon name="square" size={12} fill /></span>
-                    </Button>
-                  )}
-                  <RestartButton onClick={() => onRestart(t)} />
-                  <ClickButton heard={heard} onHear={onHear} />
-                  {live && mic && <span className="text-xs text-emerald-300">Listening</span>}
-                  <span className="ml-auto" />
-                  <ShareButton link={() => linkTo(t)} />
-                  <Button size="sm" onClick={(e) => { e.stopPropagation(); onFocus(t); }} title="Full screen" aria-label="Full screen" className="!px-2">
-                    <span className="grid h-4 w-4 place-items-center"><Icon name="maximize" size={14} /></span>
-                  </Button>
-                </div>
-                <MelodyStaff
-                  notes={place(t)}
-                  chords={chordsOf(t)}
-                  // a run's keys don't loop back round, so no last half bar drawn in front
-                  lead={!t.keys}
+              <div data-tune={t.n} onPointerDownCapture={() => !live && onPick(t)} className={`rounded-xl border p-3 transition ${live ? "border-sky-500/50 bg-slate-900/70" : "border-slate-800 bg-slate-950/40 hover:border-slate-600"}`}>
+                <SingAlong
+                  // a new tune, tempo or placing starts the player over
+                  key={`${t.n}-${beatMs}-${notes.map((n) => n.midi).join(".")}-${chords.length}`}
+                  notes={notes}
+                  chords={chords}
                   ladder={ladderOf(t)}
                   clef={clef}
-                  live={live}
-                  pitch={pitch}
-                  playFrom={on ? playFrom : null}
                   beatMs={beatMs}
-                  gridBeats={gridBeats}
-                  tapped={tapped?.n === t.n ? tapped.i : null}
-                  onNote={(i) => onNote(t, i)}
                   cents={cents}
                   lagMs={lagMs}
+                  tapped={tapped?.n === t.n ? tapped.i : null}
+                  onNote={(i) => onNote(t, i)}
+                  info={<><span className="tabular-nums text-slate-500">#{t.n}</span> · {DIFFICULTIES[t.difficulty].title} · {lengthLabel(t)} · {bpm} bpm</>}
+                  full={false}
+                  onFull={(on) => on && onFocus(t)}
+                  tools={<ShareButton link={() => linkTo(t)} />}
                 />
               </div>
             </li>

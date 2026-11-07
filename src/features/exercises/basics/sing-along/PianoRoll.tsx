@@ -25,7 +25,7 @@ const CHORDS_H = 20;
  * long as it lasts, its passes sliding under the bar like the staff's. The voice leaves a thin line for as long as it
  * is in view, so the whole way the pitch went is there to read; the line drops off with the passes gone by.
  */
-export default function PianoRoll({ frame, notes, chords, ladder, beatMs, tapped, onNote, scale = 1 }: {
+export default function PianoRoll({ frame, notes, chords, ladder, beatMs, tapped, onNote, scale = 1, cents, lagMs }: {
   frame: Frame;
   notes: PlacedNote[];
   chords: MelodyChord[];
@@ -35,6 +35,10 @@ export default function PianoRoll({ frame, notes, chords, ladder, beatMs, tapped
   onNote: (i: number) => void;
   /** drawn this many times bigger (full screen) */
   scale?: number;
+  /** within this many cents counts as on the note (the app's default when left out) */
+  cents?: number;
+  /** how far the voice dot runs behind the bar */
+  lagMs?: number;
 }) {
   const wrap = useRef<HTMLDivElement>(null);
   const clip = `roll-${useId().replace(/[^\w-]/g, "")}`;
@@ -59,8 +63,8 @@ export default function PianoRoll({ frame, notes, chords, ladder, beatMs, tapped
   const left = camera(frame.s, span);
   const bx = (s: number) => GUTTER + (s - left) * beatW;
   const passes = inView(frame.passes, left - 1, left + span + 1);
-  const j = judge(frame, notes, beatMs);
-  const lag = DOT_LAG_MS / beatMs;
+  const j = judge(frame, notes, beatMs, cents, lagMs);
+  const lag = (lagMs ?? DOT_LAG_MS) / beatMs;
   const colour = DOT[j.fit];
   const inScale = new Map(ladder.notes.map((n) => [((n.midi % 12) + 12) % 12, n]));
   const rows = Array.from({ length: hi - lo + 1 }, (_, k) => hi - k);

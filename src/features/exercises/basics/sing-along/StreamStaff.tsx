@@ -29,7 +29,7 @@ const ink = { line: "var(--color-slate-500)", glyph: "var(--color-slate-300)", n
  * bar, the passes gone by dropped. The clef and key stay at the left.
  * The voice is a dot with a short fading tail, read off the scale's ladder so it sits on a notehead when in tune.
  */
-export default function StreamStaff({ frame, notes, chords, ladder, clef, beatMs, tapped, onNote, scale = 1 }: {
+export default function StreamStaff({ frame, notes, chords, ladder, clef, beatMs, tapped, onNote, scale = 1, cents, lagMs }: {
   frame: Frame;
   notes: PlacedNote[];
   chords: MelodyChord[];
@@ -40,6 +40,10 @@ export default function StreamStaff({ frame, notes, chords, ladder, clef, beatMs
   onNote: (i: number) => void;
   /** drawn this many times bigger (full screen) */
   scale?: number;
+  /** within this many cents counts as on the note (the app's default when left out) */
+  cents?: number;
+  /** how far the voice dot runs behind the bar */
+  lagMs?: number;
 }) {
   const wrap = useRef<HTMLDivElement>(null);
   const clip = `stream-staff-${useId().replace(/[^\w-]/g, "")}`;
@@ -73,8 +77,8 @@ export default function StreamStaff({ frame, notes, chords, ladder, clef, beatMs
   const bx = (s: number) => x0 + (s - left) * beatW + PAD;
   const passes = inView(frame.passes, left - 1, left + span + 1);
   const rests = restBeats(notes, total);
-  const j = judge(frame, notes, beatMs);
-  const lag = DOT_LAG_MS / beatMs;
+  const j = judge(frame, notes, beatMs, cents, lagMs);
+  const lag = (lagMs ?? DOT_LAG_MS) / beatMs;
   const colour = DOT[j.fit];
   const tailBeats = TAIL_MS / beatMs;
   const tail = frame.trail.filter((p) => p.s > frame.s - tailBeats);
