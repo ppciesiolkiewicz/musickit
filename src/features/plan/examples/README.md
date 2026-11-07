@@ -50,8 +50,9 @@ What there is: one exercise per area and level, three more in the new teaching s
   among them (the roots, the note just added). `others` only with `enable`.
 - Every exercise, alone or in a plan, has at least one `learnBefore` lesson. If no course section fits, a planned (stub) section is
   added to the course for it first.
-- A sung or played pattern (Do Mi Sol, a leap, a tune, guide tones) comes back in a second key, in a later block or
-  another tool: the notes change, the pattern doesn't.
+- A sung or played pattern (Do Mi Sol, a leap, a tune, guide tones) comes back in a second key: the notes change, the
+  pattern doesn't. The same drill in more keys is one block whose heading lists `keys` (the student taps one and the
+  block's tools move to it); a new key with a new task is a later block or another tool.
 - No guitar-play-along `repeats` (it loops; the exercise's minutes are the timer). Styles are at most one sentence of colour.
 - Plans: 7 days, each adding up to `minutes` (±2), 2 to 5 exercises, warm-up first and something musical last, no two
   exercises with the same tag side by side, the week's key skill on at least three days in new forms.

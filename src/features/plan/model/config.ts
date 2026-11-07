@@ -2,6 +2,7 @@ import { fitBlocks, blocksOf } from "./blocks";
 import { mixesSingAndPlay, tempoWithoutMetronome } from "./checks";
 import { checkLink, type CatalogueEntry } from "./catalogue";
 import { linkSlots } from "./migrate";
+import { keyWarnings } from "./transpose";
 import { exerciseLevelArea, exerciseTags, legacySections, parseSection, parseTool, pickWasInexact, resolveChordPlacement, type Section } from "./tools";
 import { PLAN_DAYS, type PlanConfig, type PlanDay, type PlanExercise } from "./types";
 
@@ -94,6 +95,7 @@ export function parsePlanConfig(text: string, entries: CatalogueEntry[]): ParseR
       if (ex.minutes > 5 && blocksOf(fit.sections).length < 2) warnings.push(`${where}: over 5 minutes in one block; split it.`);
       if (mixesSingAndPlay(fit.sections)) warnings.push(`${where}: asks to both sing and play; keep it to one.`);
       if (tempoWithoutMetronome(fit.sections)) warnings.push(`${where}: asks for a tempo but shows no metronome; add one.`);
+      for (const w of keyWarnings(fit.sections)) warnings.push(`${where}: ${w}`);
       ex.sections = fit.sections;
       Object.assign(ex, exerciseLevelArea(e));
       const tags = exerciseTags(e.tags, sections);

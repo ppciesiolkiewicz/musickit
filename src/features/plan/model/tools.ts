@@ -356,7 +356,7 @@ export function parseTool(raw: unknown, opts: { stored?: boolean } = {}): PlanTo
 /* ---------------------------------------------------------------- the sections */
 
 export type Section =
-  | { type: "heading"; text: string; minutes?: number }
+  | { type: "heading"; text: string; minutes?: number; /** pitch classes the student can move the step's tools to, the first the one they are written in (transpose.ts) */ keys?: number[] }
   | { type: "text"; text: string }
   | { type: "list"; items: string[] }
   | { type: "tool"; tool: PlanTool };
@@ -365,7 +365,7 @@ const str = (v: unknown, max: number): string => (typeof v === "string" ? v.trim
 
 const STR = { type: "string" };
 const SECTIONS: { type: Section["type"]; description: string; properties: Record<string, unknown>; required: string[] }[] = [
-  { type: "heading", description: "A short title inside the exercise (\"Warm-up\", \"Now with the 7th\").", properties: { text: STR, minutes: { type: "integer", minimum: 1, maximum: 60, description: "starts a timed block of this many minutes" } }, required: ["text"] },
+  { type: "heading", description: "A short title inside the exercise (\"Warm-up\", \"Now with the 7th\").", properties: { text: STR, minutes: { type: "integer", minimum: 1, maximum: 60, description: "starts a timed block of this many minutes" }, keys: { type: "array", items: STR, minItems: 2, maxItems: 3, description: "2-3 keys as notes (\"d\", \"b-flat\"), the first the key the block's tools are written in: the student taps a key and every tool in the block moves to it, so one drill is sung or played in each key" } }, required: ["text"] },
   { type: "text", description: "A paragraph of plain instructions.", properties: { text: STR }, required: ["text"] },
   { type: "list", description: "Numbered steps the student follows.", properties: { items: { type: "array", items: STR, minItems: 1, maxItems: 8 } }, required: ["items"] },
   { type: "tool", description: "One of the tools below, shown here, in order, already set up. A tool shows what the text just before it talks about.", properties: { tool: { type: "object", description: "{\"type\": <tool name>, …input}" } }, required: ["tool"] },
@@ -427,6 +427,12 @@ export function resolveChordPlacement(sections: Section[]): Section[] {
   });
 }
 
+/** A heading's 2-3 different keys, in order; null when fewer than two can be read. */
+const keysOf = (v: unknown): number[] | null => {
+  const keys = [...new Set(list(v).map(keyOf).filter((k): k is number => k !== null))].slice(0, 3);
+  return keys.length >= 2 ? keys : null;
+};
+
 /** One section from the AI's JSON, checked; null when empty or not showable. */
 export function parseSection(raw: unknown): Section | null {
   const s = (raw ?? {}) as Record<string, unknown>;
@@ -435,8 +441,10 @@ export function parseSection(raw: unknown): Section | null {
     case "text": {
       const text = str(s.text, s.type === "heading" ? 100 : 700);
       if (!text) return null;
+      if (s.type === "text") return { type: "text", text };
       const m = Math.round(Number(s.minutes));
-      return s.type === "heading" && s.minutes != null && Number.isFinite(m) ? { type: "heading", text, minutes: Math.min(60, Math.max(1, m)) } : { type: s.type, text };
+      const keys = keysOf(s.keys);
+      return { type: "heading", text, ...(s.minutes != null && Number.isFinite(m) ? { minutes: Math.min(60, Math.max(1, m)) } : {}), ...(keys ? { keys } : {}) };
     }
     case "list": {
       const items = list(s.items).map((i) => str(i, 240)).filter(Boolean).slice(0, 8);

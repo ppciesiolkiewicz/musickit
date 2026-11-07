@@ -169,7 +169,7 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
       "- The five-line notation is \"the staff\", never \"music sheet\" or \"stave\". For a new or beginner student, explain it the first time (\"the staff, the five lines of music, where your pitch shows as a line\").",
       "- Singing over a drone or a metronome is one staff with its own \"drone\" and/or \"click\" (and \"bpm\"), never a click-drone next to a staff. The staff has a \"Start microphone\" button and its backing its own Play; when a step has more than one thing to start (the mic and a drone, the mic and a chord-backing), the app puts a \"Start exercise\" button above the step's first tool that starts them all together, and \"Stop exercise\" stops them all. So the text says \"Press Start exercise below\"; a second staff in the same step says \"press Play and Start microphone on the A staff\". Use click-drone only when nothing listens: playing the instrument over a drone, or listening to one.",
       "- Vary the voice work: the same leap or chord tones in a new key and scale per block (a staff with its drone for each), calls and answers, short made-up tunes.",
-      "- A melody or pattern the student sings or plays (Do Mi Sol, a leap, a tune, guide tones) comes back in a second key, in a later block or another tool, with one plain line: \"The notes change, the pattern doesn't.\"",
+      "- A melody or pattern the student sings or plays (Do Mi Sol, a leap, a tune, guide tones) comes back in a second key, with one plain line: \"The notes change, the pattern doesn't.\" When nothing else changes, give the block's heading \"keys\" (2-3 keys, the first the one its tools are written in): the student taps a key and every tool in the block moves to it. When the new key comes with a new task, write a later block or another tool.",
       "",
     ]),
     part("exercise-format", "Exercise format", "format", [
@@ -183,7 +183,7 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
       "",
     ]),
     part("tools", "Tool interface", "interface", [
-      "### Tools (what a \"tool\" section may hold: {\"type\": <tool name>, ...props}; the student gets no settings to change, so set everything the exercise needs; up to 6 per exercise)",
+      "### Tools (what a \"tool\" section may hold: {\"type\": <tool name>, ...props}; the student gets no settings to change, apart from a heading's \"keys\", so set everything the exercise needs; up to 6 per exercise)",
       ...toolInterface(),
       "The tools must agree with the text: every note the steps ask them to play is in the view shown (the scale-neck or its \"add\"), every chord named is in a chord-shapes, guitar-play-along, strum-along or chord-backing tool, the key and tempo match. Notes outside the scale (a chromatic passing note, the major 3rd over a dominant 7 in a minor blues, a borrowed note): say so plainly in the text, naming the note, what it is and why it works (\"C♯, not in A minor blues: the 3rd of A7, so slide into it over the A7\"), and put it in scale-neck's \"add\" (added notes are lit by themselves; don't highlight them again by degree). If the steps first play the plain scale and then extend it, give two scale-neck tools in that order.",
       "",

@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useContext, type ReactNode } from "react";
+import { Fragment, useContext, useState, type ReactNode } from "react";
 import { SectionAsideContext } from "./SectionAside";
 import Explained from "@/components/course/Explained";
 import { explain, type Piece } from "@/features/course/glossary";
@@ -9,6 +9,8 @@ import InlineNote from "./InlineNote";
 import type { Section } from "../model/tools";
 import { blocksOf } from "../model/blocks";
 import ExerciseTool from "./ExerciseTool";
+import KeyChoice from "./KeyChoice";
+import { transposeStep } from "../model/transpose";
 import { ExerciseStep, StartExercise } from "@/components/practice/exerciseStep";
 
 /** Explained text with its `{{3}}` / `{{c-sharp}}` notes drawn as dots; a note that can't be read stays as text. */
@@ -26,9 +28,22 @@ function NoteText({ pieces, root }: { pieces: Piece[]; root: NoteRoot | null }) 
  * An exercise's sections in the order the AI wrote them: headings, paragraphs, numbered steps and tools, top to bottom.
  * Each step (a heading and what follows it, or the intro) is an `ExerciseStep`: when its tools have more than one kind of
  * thing to start (the mic and a drone, the mic and chords), a "Start exercise" button sits above its first tool.
+ * A heading with `keys` gets key chips: the picked key moves the step's tools (and so the dots in its text), remounting them.
  */
-export default function Sections({ sections, address = "ex" }: { sections: Section[]; /** which exercise, for a `SectionAside` */ address?: string }) {
+export default function Sections({ sections: written, address = "ex" }: { sections: Section[]; /** which exercise, for a `SectionAside` */ address?: string }) {
   const aside = useContext(SectionAsideContext);
+  // the key picked per step (by its heading's index); a step not picked yet is in its first key, as written
+  const [picked, setPicked] = useState<Record<number, number>>({});
+  const keyOf = (head: number) => {
+    const h = written[head];
+    return h.type === "heading" && h.keys ? (picked[head] ?? h.keys[0]) : null;
+  };
+  const sections = written.flatMap((s, i) => (s.type === "heading" && s.keys ? [i] : [])).reduce((all, head) => {
+    const next = written.findIndex((s, i) => i > head && s.type === "heading");
+    const end = next < 0 ? all.length : next;
+    const keys = (written[head] as { keys: number[] }).keys;
+    return [...all.slice(0, head + 1), ...transposeStep(all.slice(head + 1, end), keys, keyOf(head)!), ...all.slice(end)];
+  }, written);
   // with an aside (a host's comments), each section carries it; text-like sections shrink to their text so the aside sits at its end
   const withAside = (node: ReactNode, i: number) =>
     aside ? <div key={i} className={`group/sec relative ${sections[i].type === "tool" ? "" : "w-fit max-w-full pr-8"}`}>{node}{aside({ address, index: i, section: sections[i] })}</div> : node;
@@ -38,20 +53,30 @@ export default function Sections({ sections, address = "ex" }: { sections: Secti
   const texts = sections.flatMap((s) => (s.type === "text" ? [s.text] : s.type === "list" ? s.items : []));
   const pieces = explain(texts);
   let n = 0;
+  // in a step with keys, the dots read the step's own (moved) tools first, not a later step's
+  const rootAt = (i: number) => {
+    const head = sections.findLastIndex((h, j) => j < i && h.type === "heading");
+    if (head < 0 || keyOf(head) === null) return noteRootFor(sections, i);
+    const next = sections.findIndex((h, j) => j > head && h.type === "heading");
+    return noteRootFor(sections.slice(head + 1, next < 0 ? undefined : next), i - head - 1) ?? noteRootFor(sections, i);
+  };
   const item = (s: Section, i: number) => {
     switch (s.type) {
       case "heading":
         return null;
       case "text":
-        return <p key={i} className="max-w-3xl text-[15px] leading-relaxed text-slate-300"><NoteText pieces={pieces[n++]} root={noteRootFor(sections, i)} /></p>;
+        return <p key={i} className="max-w-3xl text-[15px] leading-relaxed text-slate-300"><NoteText pieces={pieces[n++]} root={rootAt(i)} /></p>;
       case "list":
         return (
           <ol key={i} className="max-w-3xl list-decimal space-y-1.5 pl-5 text-[15px] leading-relaxed text-slate-300 marker:font-semibold marker:text-sky-400">
-            {s.items.map((_, j) => <li key={j} className="pl-1"><NoteText pieces={pieces[n++]} root={noteRootFor(sections, i)} /></li>)}
+            {s.items.map((_, j) => <li key={j} className="pl-1"><NoteText pieces={pieces[n++]} root={rootAt(i)} /></li>)}
           </ol>
         );
-      case "tool":
-        return <div key={i} className="py-1"><ExerciseTool tool={s.tool} /></div>;
+      case "tool": {
+        // a new key remounts the tool, so what it was playing stops
+        const head = sections.findLastIndex((h, j) => j < i && h.type === "heading");
+        return <div key={`${i}-${head < 0 ? "" : keyOf(head) ?? ""}`} className="py-1"><ExerciseTool tool={s.tool} /></div>;
+      }
     }
   };
   // a part per heading: the heading, then everything up to the next one on a rail beside it; what comes before the first heading is the intro
@@ -82,6 +107,7 @@ export default function Sections({ sections, address = "ex" }: { sections: Secti
                 </h4>,
                 p.head!,
               )}
+              {h.keys && <KeyChoice keys={h.keys} value={keyOf(p.head!)!} onChange={(pc) => setPicked((k) => ({ ...k, [p.head!]: pc }))} />}
               {p.items.length > 0 && <div className="ml-[4px] flex flex-col gap-3 border-l border-slate-700/70 pl-5">{stepItems(p.items)}</div>}
             </div>
           </ExerciseStep>

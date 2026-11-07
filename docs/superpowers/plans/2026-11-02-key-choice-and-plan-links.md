@@ -14,6 +14,9 @@
 
 ## Part A: `key-choice` wrapper
 
+> **Built differently (2026-11-07):** not a nested `key-choice` tool but `keys` on the step's heading (`model/transpose.ts`, `ui/KeyChoice.tsx`). The whole step moves together (a staff with its chord-backing, and the `{{3}}` dots in its text), and `PlanTool` stays flat, so nothing that walks tools needed to change. Chips the student taps, showing the key name only. Done: transposeTool, heading parse, chips, paste warnings (`keyWarnings`), prompt, docs, do-mi-sol. Not done: the voice-range warning (task 4).
+
+
 ### Shape
 
 ```json
@@ -43,12 +46,12 @@ Degree marks (`enable`, `highlight`, `notes`, `{{1}}`) are relative to the key, 
 
 ### Tasks
 
-- [ ] **1. `transposeTool` + tests.** One test per row above, plus enharmonic spelling (F major spells B♭, not A♯) through the existing key-spelling helper. Check chord names against `npm run -s theory -- scale <key>`.
-- [ ] **2. Parse.** Add `key-choice` to `TOOLS` in `model/tools.ts`: check `keys` (2–3, distinct, the first matches the inner tools' key), parse the inner tools with the existing parsers, and drop nested key-choices or keyless tools with a warning.
-- [ ] **3. Component + doc.** `src/features/exercises/cues/KeyChoice.tsx` with an `@component` JSDoc and `key-choice.props.ts`, then `npm run docs:exercises`. Remount the inner tools on a switch (`key={pc}`) so audio and mic stop cleanly, and add it to `ui/ExerciseTool.tsx` and `/dev/stories`.
+- [x] **1. `transposeTool` + tests.** One test per row above, plus enharmonic spelling (F major spells B♭, not A♯) through the existing key-spelling helper. Check chord names against `npm run -s theory -- scale <key>`.
+- [x] **2. Parse.** Add `key-choice` to `TOOLS` in `model/tools.ts`: check `keys` (2–3, distinct, the first matches the inner tools' key), parse the inner tools with the existing parsers, and drop nested key-choices or keyless tools with a warning.
+- [x] **3. Component + doc.** `src/features/exercises/cues/KeyChoice.tsx` with an `@component` JSDoc and `key-choice.props.ts`, then `npm run docs:exercises`. Remount the inner tools on a switch (`key={pc}`) so audio and mic stop cleanly, and add it to `ui/ExerciseTool.tsx` and `/dev/stories`.
 - [ ] **4. Range check.** For staff and melody-singer, a key that pushes the notes out of the voice's range (`VOICES` in `theory/singing.ts`, tenor 48–72) is a parse warning. Test it with a bass voice and A.
-- [ ] **5. Prompt.** In the tools part, change "the student gets no settings to change" to allow the key-choice chips as the one exception. Then make the second-key rule say: "a key-choice with 2–3 keys, or a second tool in a later block".
-- [ ] **6. Examples.** In do-mi-sol, block 1 becomes one key-choice (D, F, A) in place of three staffs, which brings the tool count from 6 down to 4. Leave the other four examples as they are: their second key is a later block, and that is a real change of block. Update their `note`.
+- [x] **5. Prompt.** In the tools part, change "the student gets no settings to change" to allow the key-choice chips as the one exception. Then make the second-key rule say: "a key-choice with 2–3 keys, or a second tool in a later block".
+- [x] **6. Examples.** In do-mi-sol, block 1 becomes one key-choice (D, F, A) in place of three staffs, which brings the tool count from 6 down to 4. Leave the other four examples as they are: their second key is a later block, and that is a real change of block. Update their `note`.
 - [ ] **7. Check in the app.** Paste do-mi-sol into `/plan`. Switch the chips while the drone runs: the drone stops, the staff redraws in F, and Start plays F.
 
 ### Open questions for the user
