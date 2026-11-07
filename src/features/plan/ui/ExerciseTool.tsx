@@ -59,7 +59,7 @@ export function Tool({ tool, voice }: { tool: PlanTool; voice?: Voice }) {
     case "chord-shapes":
       return <ChordShapes chords={tool.chords} voicing={tool.voicing} />;
     case "staff":
-      return <Staff slug={tool.scale} pc={tool.key} voice={tool.voice ?? voice} notes={tool.notes} enable={tool.enable} highlight={tool.highlight} mute={tool.mute} hide={tool.hide} others={tool.others} mic={tool.mic} drone={tool.drone} click={tool.click} bpm={tool.bpm} labels={tool.labels} />;
+      return <Staff slug={tool.scale} pc={tool.key} voice={tool.voice ?? voice} notes={tool.notes} under={tool.under} enable={tool.enable} highlight={tool.highlight} mute={tool.mute} hide={tool.hide} others={tool.others} mic={tool.mic} drone={tool.drone} click={tool.click} bpm={tool.bpm} labels={tool.labels} />;
     case "click-drone":
       return <ClickDrone bpm={tool.bpm} keyPc={tool.key} click={tool.click} drone={tool.drone} />;
     case "backing-band":

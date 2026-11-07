@@ -5,6 +5,7 @@ import { getSharedPiano, wakeAudio } from "@/features/sound";
 import { VOICES, buildLadder, clefFor, tuneLadderFor, type Range, type Voice } from "@/features/theory/singing";
 import { BOOK, RUNS, placeRun, placeTune, runPasses } from "@/features/theory/singingMelodies";
 import { harmoniseRun, harmoniseTune, type MelodyChord } from "@/features/theory/melodyChords";
+import { BEATS_PER_BAR } from "@/features/theory/singingMelody";
 import SingAlong from "./sing-along/SingAlong";
 
 const BPM = 90;
@@ -13,7 +14,7 @@ const TAP_MS = 900;
 /**
  * One tune (or run) from the singing page's books, in a key and voice, sung along (`SingAlong`): play it on a loop over
  * the whole tune or a part of it, muted or heard, on an endless staff or a piano roll; tap a note to hear it. With `chords` (the default) the piano plays a chord a bar under it, named
- * over the staff, and a run announces each new key in its held-Do bar; with `metronome` the click is heard from the start (it can be
+ * over the staff, a run opens with a bar of its first key's I and V and announces each new key in its held-Do bar; with `metronome` the click is heard from the start (it can be
  * switched on and off in the player either way). A run spans the voice, its last pass topping out on the range's top, so it
  * starts in the key that gives (`pc` is only a tune's); its title names the pass playing and its key. The singing page's
  * placement; nothing writes the address.
@@ -30,8 +31,10 @@ export function SingerView({ n, pc = 0, voice = "soprano", chords = true, metron
       const passes = runPasses(tune.notes, tune.keys, ladderIn, range);
       const ladder = ladderIn(passes[0].pc, range);
       if (chords) {
-        const h = harmoniseRun(tune.notes, tune.keys, ladderIn, range);
-        return { ladder, passes, notes: h.notes, harmony: h.chords };
+        // a bar of the first key's I and V before the run, so the key is heard before the singing starts
+        const h = harmoniseRun(tune.notes, tune.keys, ladderIn, range, { intro: true });
+        const later = passes.map((p) => ({ ...p, notes: p.notes.map((x) => ({ ...x, at: x.at + BEATS_PER_BAR })) }));
+        return { ladder, passes: later, notes: h.notes, harmony: h.chords };
       }
       return { ladder, passes, notes: placeRun(tune.notes, tune.keys, ladderIn, range), harmony: none };
     }

@@ -52,7 +52,7 @@ export type PlanTool =
   | { type: "scale-neck"; scale: string; key: number; boxes?: number[]; /** pitch classes from outside the scale */ add?: number[]; placement?: Placement } & Marks
   | { type: "position-neck"; scale: string; key: number; positions?: number[]; placement?: Placement; /** strings 1-6, 6 = low E */ cross?: { from: number; to: number; string?: number }; add?: number[]; outside?: "muted" | "hidden"; picker?: boolean } & Marks
   | { type: "chord-shapes"; chords: string[]; voicing?: Voicing }
-  | { type: "staff"; scale: string; key: number; voice: Voice; /** semitones above the key: only these are on the staff */ notes?: number[]; mic?: boolean; /** its own backing, started with the mic */ drone?: boolean; click?: boolean; bpm?: number; labels?: SingingLabels } & Marks
+  | { type: "staff"; scale: string; key: number; voice: Voice; /** semitones above the key: only these are on the staff */ notes?: number[]; /** also the notes under the lowest Do */ under?: boolean; mic?: boolean; /** its own backing, started with the mic */ drone?: boolean; click?: boolean; bpm?: number; labels?: SingingLabels } & Marks
   | { type: "click-drone"; bpm: number; key: number; click?: boolean; drone?: boolean }
   | { type: "backing-band"; bpm: number; key: number; parts: BandPart[] }
   | { type: "note-finder"; query: string }
@@ -225,7 +225,7 @@ export const TOOLS: { [N in ToolName]: ToolSpec } = {
       const key = keyOf(t.key);
       if (!isScale(t.scale) || key === null) return null;
       const notes = degrees(t.notes);
-      return { type: "staff", scale: t.scale, key, voice: voiceOf(t.voice) ?? "baritone", ...(notes.length > 1 ? { notes } : {}), ...marksOf(t, key), ...bool("mic", t.mic), ...(t.drone === true ? { drone: true } : {}), ...(t.click === true ? { click: true, bpm: int(t.bpm, 30, 240) ?? 60 } : {}), ...(isSingingLabels(t.labels) ? { labels: t.labels } : {}) };
+      return { type: "staff", scale: t.scale, key, voice: voiceOf(t.voice) ?? "baritone", ...(notes.length > 1 ? { notes } : {}), ...(t.under === true ? { under: true } : {}), ...marksOf(t, key), ...bool("mic", t.mic), ...(t.drone === true ? { drone: true } : {}), ...(t.click === true ? { click: true, bpm: int(t.bpm, 30, 240) ?? 60 } : {}), ...(isSingingLabels(t.labels) ? { labels: t.labels } : {}) };
     },
   },
   "click-drone": {

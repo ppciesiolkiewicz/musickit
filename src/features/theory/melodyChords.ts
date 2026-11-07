@@ -127,9 +127,10 @@ export function harmoniseTune(tune: MelodyNote[], ladder: Ladder, range: Range):
  * A run (as placeRun places it) with its chords, each pass's on its own key. Before every key change the held Do is cut
  * to a quarter: the chord of the bar before rings on under it, this key's home chord is struck on beat 2 and the next
  * key's on beat 3, held to the bar's end, so the new key is heard before the next pass starts on it. The last pass keeps
- * its whole-note Do over its home chord.
+ * its whole-note Do over its home chord. With `intro` a bar of two chords comes first, the first key's home chord and
+ * its V (two beats each), so the key is heard before the singing starts; everything after it moves a bar later.
  */
-export function harmoniseRun(tune: MelodyNote[], keys: number, ladderIn: (pc: number, range: Range) => Ladder, range: Range): { notes: PlacedNote[]; chords: MelodyChord[] } {
+export function harmoniseRun(tune: MelodyNote[], keys: number, ladderIn: (pc: number, range: Range) => Ladder, range: Range, { intro = false }: { intro?: boolean } = {}): { notes: PlacedNote[]; chords: MelodyChord[] } {
   const passes = runPasses(tune, keys, ladderIn, range);
   const length = tune.at(-1)!.at + tune.at(-1)!.beats;
   const barStart = length - BEATS_PER_BAR;
@@ -138,6 +139,21 @@ export function harmoniseRun(tune: MelodyNote[], keys: number, ladderIn: (pc: nu
     const chords = tuneChords(tune, ladder, shifted).map((c) => ({ ...c, at: c.at + k * length }));
     return { ladder, notes, chords, root: doIndex(ladder, tune, shifted) };
   });
+  const body = harmoniseRunBody(out, length, barStart);
+  if (!intro) return body;
+  const first = out[0];
+  const below = first.notes[0].midi;
+  const lead: MelodyChord[] = [
+    { at: 0, beats: 2, ...triadOn(first.ladder, first.root, 0, below) },
+    { at: 2, beats: 2, ...triadOn(first.ladder, first.root, 4, below) },
+  ];
+  return {
+    notes: body.notes.map((n) => ({ ...n, at: n.at + BEATS_PER_BAR })),
+    chords: [...lead, ...body.chords.map((c) => ({ ...c, at: c.at + BEATS_PER_BAR }))],
+  };
+}
+
+function harmoniseRunBody(out: { ladder: Ladder; notes: PlacedNote[]; chords: MelodyChord[]; root: number }[], length: number, barStart: number): { notes: PlacedNote[]; chords: MelodyChord[] } {
   return {
     notes: out.flatMap((p, k) => (k === out.length - 1 ? p.notes : p.notes.map((n, i) => (i === p.notes.length - 1 ? { ...n, beats: 1 } : n)))),
     chords: out.flatMap((p, k) => {

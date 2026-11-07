@@ -124,6 +124,16 @@ describe("a run's chords", () => {
     ]);
   });
 
+  it("with an intro, plays the first key's I and V in a bar before the run, then the same run a bar later", () => {
+    const withIntro = harmoniseRun(parseTune("1e 2e 3e 4e 5e 4e 3e 2e | 1w"), 3, major, VOICES.soprano, { intro: true });
+    assert.deepEqual(withIntro.chords.slice(0, 2).map(plain), [
+      { at: 0, beats: 2, name: "E♭" },
+      { at: 2, beats: 2, name: "B♭" },
+    ]);
+    assert.deepEqual(withIntro.notes.map((n) => n.at), notes.map((n) => n.at + 4));
+    assert.deepEqual(withIntro.chords.slice(2).map((c) => c.at), chords.map((c) => c.at + 4));
+  });
+
   it("ends the last pass on its own home chord, the whole bar", () => {
     assert.deepEqual(plain(chords.at(-1)!), { at: 20, beats: 4, name: "F" });
     assert.deepEqual(chords.map((c) => c.at), [0, 5, 6, 8, 13, 14, 16, 20]);

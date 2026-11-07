@@ -7,7 +7,7 @@ import MicButton from "@/components/theory/singing/MicButton";
 import InputChip from "@/components/InputChip";
 import SingingStaff from "@/components/theory/singing/SingingStaff";
 import { getSharedPiano, wakeAudio } from "@/features/sound";
-import { ACCURACIES, VOICES, buildLadder, clefFor, hzToMidi, spellName } from "@/features/theory/singing";
+import { ACCURACIES, VOICES, buildLadder, clefFor, hzToMidi, spellName, withNotesUnder } from "@/features/theory/singing";
 import { createSmoother, type Pitch } from "@/features/tuner/pitch";
 import { staffLabelSystem, type SingingLabels } from "@/features/theory/labels";
 import { useLabelSystem } from "@/features/theory/useLabelSystem";
@@ -33,7 +33,7 @@ const GAP_FRAMES = 6;
  * mic the notes are labelled by degree or solfège (`labels`), never by bare name. Its settings show as tags (key, voice,
  * drone, click), and with the mic an accuracy row sets how close counts as on the note (the student's setting, shared).
  */
-export function View({ slug, pc, voice, notes, enable, highlight, mute, hide, others, mic: micButton = true, drone = false, click = false, bpm = 60, labels }: { slug: string; pc: number; voice: keyof typeof VOICES; notes?: number[]; enable?: number[]; highlight?: number[]; mute?: number[]; hide?: number[]; others?: Others; mic?: boolean; drone?: boolean; click?: boolean; bpm?: number; labels?: SingingLabels }) {
+export function View({ slug, pc, voice, notes, under = false, enable, highlight, mute, hide, others, mic: micButton = true, drone = false, click = false, bpm = 60, labels }: { slug: string; pc: number; voice: keyof typeof VOICES; notes?: number[]; under?: boolean; enable?: number[]; highlight?: number[]; mute?: number[]; hide?: number[]; others?: Others; mic?: boolean; drone?: boolean; click?: boolean; bpm?: number; labels?: SingingLabels }) {
   const range = VOICES[voice];
   // a staff has two looks, lit and dimmed: lit are the highlighted notes, or (nothing highlighted) the enabled ones
   const state = useMemo(() => {
@@ -47,6 +47,11 @@ export function View({ slug, pc, voice, notes, enable, highlight, mute, hide, ot
     return on.length < 12 ? new Set(on) : undefined;
   }, [state, highlight]);
   const picked = useMemo(() => {
+    const ladder = pickLadder();
+    // with `under`, the same notes an octave down, under the lowest Do (Ti under Do), as far as the voice goes
+    return ladder && under ? withNotesUnder(ladder, range) : ladder;
+  }, [slug, pc, range, notes, under]); // eslint-disable-line react-hooks/exhaustive-deps
+  function pickLadder() {
     const full = buildLadder(slug, pc, range);
     if (!full || !notes?.length) return full;
     // only the degrees asked for (the chord tones, say), not the whole scale: a tone outside the scale (the ♭7 over a major scale) is added
@@ -64,7 +69,7 @@ export function View({ slug, pc, voice, notes, enable, highlight, mute, hide, ot
         out.push({ midi, spelled: spellName(name, midi, SEMI_TEXT[semi]), degree: (inScale ?? under).degree, label: SEMI_TEXT[semi] });
       }
     return out.length > 1 ? { ...full, notes: out, pcs: new Set(notes.map((semi) => (pc + semi) % 12)), title: `${full.title.split(" ")[0]}: ${notes.map((v) => SEMI_TEXT[v]).join(" ")}` } : full;
-  }, [slug, pc, range, notes]);
+  }
   // hidden notes leave the staff
   const ladder = useMemo(() => {
     if (!picked) return picked;

@@ -171,7 +171,8 @@ export default function SingingStaff({ ladder, clef, pitch, played, onNote, cent
               const lit = a.nearest === i && showDot;
               const on = played === i;
               const c = degreeColour(n.degree);
-              const bold = lit || on ? 700 : 400;
+              // the sung, played and highlighted notes' names and labels are bold
+              const bold = lit || on || (highlight?.has(n.midi % 12) && !muted?.(i)) ? 700 : 400;
               return (
                 <g
                   key={i}
