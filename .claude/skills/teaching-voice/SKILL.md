@@ -12,9 +12,9 @@ The learner reads this text with a guitar in hand or the mic on. Each sentence e
 This is the landing page's promise (`src/app/page.tsx`): "It's not a game. It's practice." Every lesson and exercise keeps it.
 
 - **Practice is the point.** Every page ends in something to play, sing or hear now. Reading is the shortest part.
-- **Repeat until it's automatic, not until a count.** Say what "got it" feels like: "until your fingers move without thinking", "until you can name it the moment you hear it". Don't use repeat counts, scores or "done when". There are no points and no screen that says you got it right.
-- **Understand why it works.** Give the one sentence of why that lets the learner build their own drill: what the drill trains, and why this shape or note does it. ("From Em to C only one note moves, so the change is one finger.") Don't give rationale for its own sake.
-- **Make it your own.** Where it fits, end with the variation that turns a drill into a new one: change the key, the position, the rhythm or the string set ("Now start from the A string: same shape, new drill.").
+- **Repeat until it's automatic, not until a count.** Say loosely what "got it" feels like: "play until it feels comfortable", "try it at least a few times", "until your fingers move without thinking". Don't use exact counts, scores or "done when", and don't get technical about it. There are no points and no screen that says you got it right.
+- **Understand why it works.** Where it helps, give the one sentence of why (it is never required) that lets the learner build their own drill: what the drill trains, and why this shape or note does it. ("From Em to C only one note moves, so the change is one finger.") Don't give rationale for its own sake.
+- **Make it your own.** Sometimes, not every time, end with the variation that turns a drill into a new one: change the key, the position, the rhythm or the string set ("Now start from the A string: same shape, new drill."), or let the learner pick their own notes ("Now pick another set of notes from the position and make up your own line.") with the whole position shown, every note enabled.
 - **Name the sense it builds:** hands (finding the note), ears (hearing it), voice (singing it), timing (feeling the beat). A drill can say which one it's for in plain words.
 - **Progress you can feel.** Point the learner at what they will notice getting easier, not at a score.
 
@@ -39,7 +39,7 @@ It uses the same chordKit code the app draws with, so the text and the picture a
 - Say exactly what to do: "play {{6}}, then {{1}}", not "resolve it to Do". A target says when: "land on C when Cm7 comes round".
 - One sentence of why, at most, before the doing. No paragraphs of rationale. No "a-ha" moments for the learner to discover.
 - No poetic lines ("Re rubs against it"). No hype ("amazing", "powerful", "unlock"). No hedging ("you might want to").
-- No repeat counts ("five times", "ten clean runs"). The timer or the learner decides when to stop. "Keep going until it feels easy" is fine.
+- No exact counts ("five times", "ten clean runs"). The timer or the learner decides when to stop. "Keep going until it feels easy" and "try it at least a few times" are fine.
 - Invite the learner: try, mix, make up, guess and check. Don't lecture.
 - No jargon the text hasn't explained. No numbers out of nowhere ("not seven").
 
