@@ -1,4 +1,5 @@
 import { canChooseOutput, findDevice, listAudioDevices, readDeviceChoice, subscribeDeviceChoice } from "./devices";
+import { attachMaster } from "./volume";
 
 let audioContext: AudioContext | null = null;
 
@@ -106,7 +107,7 @@ export function getOutputBus(): GainNode {
   const ctx = getAudioContext();
   if (!outputBus) {
     outputBus = ctx.createGain();
-    outputBus.connect(ctx.destination);
+    attachMaster(ctx, outputBus);
   }
   return outputBus;
 }

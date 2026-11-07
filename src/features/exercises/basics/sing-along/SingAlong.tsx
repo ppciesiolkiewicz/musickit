@@ -3,6 +3,10 @@
 import { useEffect, useRef, useState, type PointerEvent, type ReactNode } from "react";
 import Icon from "@/components/Icon";
 import InputChip from "@/components/InputChip";
+import { DropdownSection } from "@/components/ui";
+import ToolSettings, { Volume } from "@/components/practice/ToolSettings";
+import { useExerciseSetting } from "@/components/practice/exerciseSettings";
+import { useAccuracy } from "@/features/theory/useAccuracy";
 import type { Clef } from "@/features/theory/piano/staff";
 import type { Ladder } from "@/features/theory/singing";
 import type { PlacedNote } from "@/features/theory/singingMelodies";
@@ -12,8 +16,6 @@ import { passAt } from "./passes";
 import PianoRoll from "./PianoRoll";
 import StreamStaff from "./StreamStaff";
 import { useSingAlong, type Layer } from "./useSingAlong";
-
-type Look = "staff" | "roll";
 
 /** full screen draws the view bigger for the screen's height, never under 1.2 times */
 const scaleFor = (h: number) => Math.max(1.2, Math.min(2.4, h / 380));
@@ -55,13 +57,13 @@ const LAYERS: { id: Layer; label: string; icon: "piano" | "music" | "metronome";
 ];
 
 /**
- * A tune to sing along: play, stop and the mic as icons (any button switches the mic on); what is heard (the tune, its
- * chords when it has them, the metronome) as a row of switches, each on or off while it plays, the bar running either way; a loop over a part of
+ * A tune to sing along: play, stop and the mic as icons (any button switches the mic on); in the settings dropdown, what is
+ * heard (the tune, its chords when it has them, the metronome) as a row of switches, each on or off while it plays, the bar running either way; a loop over a part of
  * the tune set on a strip of the whole tune (on by default, over all of it; the strip shows only while looping), and the tune drawn on an endless staff or
  * as a piano roll that keeps the line the voice took. Full screen is a page modal (Esc closes it), drawn big, the notes
  * sliding under a bar that stays put so the voice dot holds its place. Key it by the tune: a new one starts over.
  */
-export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, tapped, onNote, info, cents, lagMs, full: fullProp, onFull, nav, tools, settings }: {
+export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, tapped, onNote, info, cents: centsProp, lagMs, full: fullProp, onFull, nav, tools, settings }: {
   notes: PlacedNote[];
   chords: MelodyChord[];
   /** the metronome heard from the start; off by default */
@@ -73,7 +75,7 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
   onNote: (i: number) => void;
   /** words about the tune, after the buttons; a function gets the tune's beat playing (null when stopped) */
   info: ReactNode | ((at: number | null) => ReactNode);
-  /** within this many cents counts as on the note (the app's default when left out) */
+  /** within this many cents counts as on the note (the student's accuracy setting when left out) */
   cents?: number;
   /** how far the voice dot runs behind the bar (the app's default when left out) */
   lagMs?: number;
@@ -82,14 +84,16 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
   onFull?: (on: boolean) => void;
   /** previous and next tune while full screen */
   nav?: SingAlongNav;
-  /** more buttons, by the full screen one (a share button, …) */
+  /** more controls, in the settings dropdown (a share button, …) */
   tools?: ReactNode;
   /** settings shown on a line under the buttons while full screen (tempo, accuracy, …) */
   settings?: ReactNode;
 }) {
   const total = notes[notes.length - 1].at + notes[notes.length - 1].beats;
   const { focus, ...sa } = useSingAlong({ notes, chords, beatMs, total, click });
-  const [look, setLook] = useState<Look>("staff");
+  const [look] = useExerciseSetting("view");
+  const [storedCents] = useAccuracy();
+  const cents = centsProp ?? storedCents;
   const [ownFull, setOwnFull] = useState(false);
   const full = fullProp ?? ownFull;
   const setFull = (on: boolean) => (onFull ? onFull(on) : setOwnFull(on));
@@ -143,6 +147,7 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
       {full && nav && <MarginArrow side="left" onClick={nav.prev} />}
       {full && nav && <MarginArrow side="right" onClick={nav.next} />}
       <div className="flex flex-wrap items-center gap-1.5 text-xs text-slate-400">
+        <span className="flex items-center border-r border-slate-800 pr-2"><Volume /></span>
         <IconButton on={sa.playing} title={sa.playing ? "Play from the start" : "Play"} onClick={() => void sa.play()}>
           <Icon name="play" size={15} />
         </IconButton>
@@ -153,37 +158,37 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
           <Icon name="mic" size={15} />
         </IconButton>
         <InputChip status={sa.status} />
-        <span className="mx-1 h-5 w-px bg-slate-800" />
-        <div role="group" aria-label="Heard" className="flex overflow-hidden rounded-lg border border-slate-700">
-          {LAYERS.filter((l) => l.id !== "chords" || chords.length).map((l) => {
-            const on = sa.heard[l.id];
-            return (
-              <button key={l.id} type="button" aria-pressed={on} onClick={() => sa.toggleHeard(l.id)}
-                title={on ? `Mute ${l.what} (the bar keeps going)` : `Hear ${l.what}`}
-                className={`flex items-center gap-1 ${seg(on)} ${on ? "" : "line-through decoration-slate-500"}`}>
-                <Icon name={l.icon} size={13} />{l.label}
-              </button>
-            );
-          })}
-        </div>
-        <span className="mx-1 h-5 w-px bg-slate-800" />
-        <IconButton on={sa.loop} title={sa.loop ? "Stop looping a part" : "Loop a part"} onClick={() => sa.setLoop(!sa.loop)}>
-          <Icon name="repeat" size={15} />
-        </IconButton>
-        <div className="flex overflow-hidden rounded-lg border border-slate-700">
-          <button type="button" className={seg(look === "staff")} aria-pressed={look === "staff"} onClick={() => setLook("staff")}>Staff</button>
-          <button type="button" className={seg(look === "roll")} aria-pressed={look === "roll"} onClick={() => setLook("roll")}>Piano roll</button>
-        </div>
         {full && nav?.label && <span className="tabular-nums text-slate-300">{nav.label}</span>}
         <span className="ml-1">{typeof info === "function" ? info(at) : info}{sa.status === "denied" ? " · microphone blocked in the browser" : ""}</span>
         <span className="ml-auto" />
-        {tools}
+        <ToolSettings volume={false} accuracy view more={<>
+          <DropdownSection title="Heard">
+            <div role="group" aria-label="Heard" className="flex w-fit overflow-hidden rounded-lg border border-slate-700">
+              {LAYERS.filter((l) => l.id !== "chords" || chords.length).map((l) => {
+                const on = sa.heard[l.id];
+                return (
+                  <button key={l.id} type="button" aria-pressed={on} onClick={() => sa.toggleHeard(l.id)}
+                    title={on ? `Mute ${l.what} (the bar keeps going)` : `Hear ${l.what}`}
+                    className={`flex items-center gap-1 ${seg(on)} ${on ? "" : "line-through decoration-slate-500"}`}>
+                    <Icon name={l.icon} size={13} />{l.label}
+                  </button>
+                );
+              })}
+            </div>
+          </DropdownSection>
+          {tools && <DropdownSection title="Share">{tools}</DropdownSection>}
+        </>} />
         <IconButton on={full} title={full ? "Close full screen (Esc)" : "Full screen"} onClick={() => setFull(!full)}>
           <Icon name={full ? "minimize" : "maximize"} size={15} />
         </IconButton>
       </div>
       {full && settings && <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-slate-400">{settings}</div>}
-      {sa.loop && <LoopStrip key={total} notes={notes} total={total} region={sa.region} loop={sa.loop} at={at} onRegion={sa.setRegion} />}
+      <div className="flex items-center gap-2">
+        <IconButton on={sa.loop} tone="sky" title={sa.loop ? "Stop looping" : "Loop a part of the tune"} onClick={() => sa.setLoop(!sa.loop)}>
+          <Icon name="repeat" size={15} />
+        </IconButton>
+        {sa.loop && <div className="min-w-0 flex-1"><LoopStrip key={total} notes={notes} total={total} region={sa.region} loop={sa.loop} at={at} onRegion={sa.setRegion} /></div>}
+      </div>
       <div className={full ? "flex min-h-0 flex-1 touch-pan-y flex-col justify-center" : "contents"}
         onPointerDown={full ? swipeStart : undefined} onPointerUp={full ? swipeEnd : undefined} onPointerCancel={() => { swipe.current = null; }}>
         {look === "staff" ? (

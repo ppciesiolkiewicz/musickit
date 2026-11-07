@@ -7,12 +7,13 @@ import MicButton from "@/components/theory/singing/MicButton";
 import InputChip from "@/components/InputChip";
 import SingingStaff from "@/components/theory/singing/SingingStaff";
 import { getSharedPiano, wakeAudio } from "@/features/sound";
-import { ACCURACIES, VOICES, buildLadder, clefFor, hzToMidi, spellName, withNotesUnder } from "@/features/theory/singing";
+import ToolSettings from "@/components/practice/ToolSettings";
+import { VOICES, buildLadder, clefFor, hzToMidi, spellName, withNotesUnder } from "@/features/theory/singing";
 import { createSmoother, type Pitch } from "@/features/tuner/pitch";
 import { staffLabelSystem, type SingingLabels } from "@/features/theory/labels";
-import { useLabelSystem } from "@/features/theory/useLabelSystem";
+import { useLabelOverride, useLabelSystem } from "@/features/theory/useLabelSystem";
 import { useAccuracy } from "@/features/theory/useAccuracy";
-import { Badge, Chip } from "@/components/ui";
+import { Badge } from "@/components/ui";
 import Icon from "@/components/Icon";
 import { useStepPart } from "@/components/practice/exerciseStep";
 import dynamic from "next/dynamic";
@@ -98,8 +99,9 @@ export function View({ slug, pc, voice, notes, under = false, enable, highlight,
     pitch.current = hzToMidi(smoother.current.push(p));
   }, []);
   const [setting] = useLabelSystem();
-  const system = staffLabelSystem(labels, micButton, setting);
-  const [cents, pickAccuracy] = useAccuracy();
+  // labels picked for the exercise win over the ones it was written with
+  const system = useLabelOverride()?.value ?? staffLabelSystem(labels, micButton, setting);
+  const [cents] = useAccuracy();
   const { status } = useMicPitch(micOn && micButton, undefined, onPitch);
   const startMic = () => {
     pitch.current = null;
@@ -139,20 +141,16 @@ export function View({ slug, pc, voice, notes, under = false, enable, highlight,
           </span>
         )}
         {status === "denied" && <span>microphone blocked in the browser</span>}
+        <span className="ml-auto" />
+        <ToolSettings labels={system} accuracy={micButton} />
       </div>
       <div className="flex flex-wrap items-center gap-1.5">
         <Badge>{ladder.title}</Badge>
         <Badge>{VOICES[voice].label}</Badge>
         {drone && <Badge>Drone on {ladder.title.split(/[: ]/)[0]}</Badge>}
         {click && <Badge>Click {bpm} bpm</Badge>}
+        {micButton && <Badge>Accuracy ±{cents}¢</Badge>}
       </div>
-      {micButton && (
-        <div className="flex flex-wrap items-center gap-1.5 text-xs">
-          <span className="uppercase tracking-wider text-slate-500">Accuracy</span>
-          {ACCURACIES.map((a) => <Chip key={a.title} on={a.cents === cents} onClick={() => pickAccuracy(a.cents)} title={`Within ${a.cents} cents counts as on the note`}>{a.title}</Chip>)}
-          <span className="whitespace-nowrap pl-1 tabular-nums text-slate-500">±{cents}¢</span>
-        </div>
-      )}
       <SingingStaff ladder={ladder} clef={clefFor(range)} pitch={pitch} played={played} onNote={(i) => void tap(i)} cents={cents} highlight={lit} labels={system} />
     </div>
   );

@@ -4,6 +4,7 @@ import Icon from "@/components/Icon";
 import { HUE_TONES, hueAt, type Hue } from "@/components/ui";
 import { DISPLAY } from "@/components/landing/Display";
 import Sections from "./Sections";
+import { ExerciseSettings } from "@/components/practice/exerciseSettings";
 import { catalogue, linkLabel, type CatalogueEntry } from "../model/catalogue";
 import { linkSlots } from "../model/migrate";
 import { sectionsOf } from "../model/tools";
@@ -71,7 +72,7 @@ export default function ExerciseCard({ exercise: e, index, done = false, now = f
         </div>
       )}
       <LinkSlot title="Learn before" hrefs={links.learnBefore} />
-      <Sections sections={sectionsOf(e)} address={address} />
+      <ExerciseSettings><Sections sections={sectionsOf(e)} address={address} /></ExerciseSettings>
       {e.why && <p className="border-l-2 border-slate-700 pl-3 text-xs italic leading-relaxed text-slate-400">{e.why}</p>}
       <LinkSlot title="Explore more" hrefs={links.exploreMore} />
       {onToggle && (

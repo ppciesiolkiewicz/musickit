@@ -3,7 +3,7 @@
  * Each component lives in its own folder; only that folder's index.ts is public, the other files are its private parts.
  *
  *   atoms      one element with one job: Button, Checkbox, Chip, Badge, Tag, Tile, Select, Slider, NumberField, InfoButton, InfoBox, Popover (and Hue, the colour coding)
- *   molecules  a few atoms working together: ChipRow, Field, Info, InfoTip, Stepper
+ *   molecules  a few atoms working together: ChipRow, Dropdown, Field, Info, InfoTip, Stepper
  *   organisms  self-contained blocks: Section, Modal
  */
 export * from "./atoms/Badge";
@@ -20,6 +20,7 @@ export * from "./atoms/Slider";
 export * from "./atoms/Tag";
 export * from "./atoms/Tile";
 export * from "./molecules/ChipRow";
+export * from "./molecules/Dropdown";
 export * from "./molecules/Field";
 export * from "./molecules/Info";
 export * from "./molecules/InfoTip";

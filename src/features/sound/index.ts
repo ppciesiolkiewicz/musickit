@@ -24,3 +24,5 @@ export { renderOffline, type OfflineClick } from "./playback/offline";
 export { default as Piano, type PianoKeyInfo, type PianoProps } from "./keyboard/Piano";
 export { default as ScalePiano, type ScalePianoProps, type ScalePianoSettings, type ScaleVoice } from "./keyboard/ScalePiano";
 export { SCALES, NOTE_NAMES, KEY_ROWS, MIN_OCTAVE, MAX_OCTAVE, buildKeyMap, clampState as clampScalePiano, scalePitchClasses, type ScalePianoState, type KeyNote } from "./keyboard/scaleKeys";
+export { DEFAULT_VOLUME, getVolume, setVolume } from "./engine/volume";
+export { useVolume } from "./engine/useVolume";
