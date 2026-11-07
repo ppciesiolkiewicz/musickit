@@ -39,6 +39,7 @@
               "technique"
             ],
             "why": "Position 1 sits at frets 5 to 8, one finger per fret, so warming up right there trains the exact stretch the scale needs.",
+            "learnBefore": ["/course/1/spider"],
             "sections": [
               {
                 "type": "text",
@@ -63,6 +64,7 @@
               "rhythm"
             ],
             "why": "G, C and D are the 1, 4 and 5 of G major, the three chords most songs lean on, so a clean change between them opens up more music than any new chord.",
+            "learnBefore": ["/course/2/c-d-g", "/course/2/one-minute-changes"],
             "sections": [
               {
                 "type": "heading",
@@ -117,6 +119,7 @@
               "improv"
             ],
             "why": "Every phrase in position 1 sounds finished when it lands on A, so knowing where the three A's are lets you make music from day one.",
+            "learnBefore": ["/course/5/pentatonic", "/course/5/soloing"],
             "sections": [
               {
                 "type": "heading",
@@ -225,6 +228,7 @@
               "technique"
             ],
             "why": "Changing the finger order makes each finger move on its own, which is what phrases need once they stop going straight up and down.",
+            "learnBefore": ["/course/1/spider"],
             "sections": [
               {
                 "type": "text",
@@ -249,6 +253,7 @@
               "rhythm"
             ],
             "why": "A power chord is a root and its 5th, so once your hand knows the one shape, every chord is just a new place for it.",
+            "learnBefore": ["/course/5/power-chords"],
             "sections": [
               {
                 "type": "heading",
@@ -302,6 +307,7 @@
               "technique"
             ],
             "why": "The two notes of every power chord are also in position 1, so your riffs and your solos live on the same frets.",
+            "learnBefore": ["/course/5/fifths", "/course/5/pentatonic"],
             "sections": [
               {
                 "type": "text",
@@ -344,6 +350,7 @@
               "improv"
             ],
             "why": "A riff is a short phrase repeated, so two notes and a rhythm are all you need to make one up.",
+            "learnBefore": ["/course/5/power-chords"],
             "sections": [
               {
                 "type": "text",
@@ -394,6 +401,7 @@
               "rhythm"
             ],
             "why": "The change you repeat is the one your hand learns, so short rounds on one change grow faster than long ones on many.",
+            "learnBefore": ["/course/2/c-d-g", "/course/2/one-minute-changes"],
             "sections": [
               {
                 "type": "text",
@@ -419,6 +427,7 @@
               "technique"
             ],
             "why": "Speed comes from playing just a little faster than easy, so step up only once the slower tempo feels relaxed.",
+            "learnBefore": ["/course/5/pentatonic", "/course/5/soloing"],
             "sections": [
               {
                 "type": "heading",
@@ -498,6 +507,7 @@
               "improv"
             ],
             "why": "A phrase that asks and one that answers is how solos talk, so this turns notes into sentences.",
+            "learnBefore": ["/course/5/pentatonic", "/course/5/soloing"],
             "sections": [
               {
                 "type": "text",
@@ -539,6 +549,7 @@
               "song"
             ],
             "why": "This tune uses only the notes of the C chord, so your fingers learn a chord as a melody.",
+            "learnBefore": ["/course/4/do-mi-sol-neck"],
             "sections": [
               {
                 "type": "text",
@@ -572,6 +583,7 @@
               "technique"
             ],
             "why": "Each new finger order trains a different pair of fingers to work alone, so the hand gets even.",
+            "learnBefore": ["/course/1/spider"],
             "sections": [
               {
                 "type": "text",
@@ -605,6 +617,7 @@
               "rhythm"
             ],
             "why": "G Em C D is the loop behind countless songs, so a steady strum through it lets you play along with them.",
+            "learnBefore": ["/course/2/c-d-g", "/course/2/island-strum"],
             "sections": [
               {
                 "type": "heading",
@@ -659,6 +672,7 @@
               "improv"
             ],
             "why": "The last note sets the mood of a phrase, so choosing it is the first step to sounding like you mean it.",
+            "learnBefore": ["/course/5/pentatonic", "/course/5/soloing"],
             "sections": [
               {
                 "type": "text",
@@ -701,6 +715,7 @@
               "song"
             ],
             "why": "A tune you can sing in your head is the best check that your hands play what you hear.",
+            "learnBefore": ["/course/3/step-melodies", "/course/3/hearing-do-fa-sol"],
             "sections": [
               {
                 "type": "text",
@@ -734,6 +749,7 @@
               "technique"
             ],
             "why": "Low on the neck the frets are widest, so the same pattern there builds the stretch for open chords.",
+            "learnBefore": ["/course/1/spider"],
             "sections": [
               {
                 "type": "text",
@@ -767,6 +783,7 @@
               "rhythm"
             ],
             "why": "The power chord shape works on any root, so a riff in E is the same hand you used in A.",
+            "learnBefore": ["/course/5/power-chords"],
             "sections": [
               {
                 "type": "text",
@@ -795,6 +812,7 @@
               "technique"
             ],
             "why": "A position's shape doesn't change with the key, it just moves, so every shape you know works in all twelve keys.",
+            "learnBefore": ["/course/5/pentatonic"],
             "sections": [
               {
                 "type": "heading",
@@ -862,6 +880,7 @@
               "improv"
             ],
             "why": "A phrase is a shape on the neck, so a phrase you made in A plays in E just by moving it.",
+            "learnBefore": ["/course/5/pentatonic"],
             "sections": [
               {
                 "type": "text",
@@ -908,6 +927,7 @@
               "technique"
             ],
             "why": "Holding the pattern at a faster tempo shows you how far your hands have come since day 1.",
+            "learnBefore": ["/course/1/spider"],
             "sections": [
               {
                 "type": "text",
@@ -941,6 +961,7 @@
               "rhythm"
             ],
             "why": "Looking at your hand is a habit, and a change you can make without looking is one you really own.",
+            "learnBefore": ["/course/2/c-d-g", "/course/2/one-minute-changes"],
             "sections": [
               {
                 "type": "text",
@@ -969,6 +990,7 @@
               "technique"
             ],
             "why": "A shape you can play without the chart is one you can use in music, so this is the test that matters.",
+            "learnBefore": ["/course/5/pentatonic", "/course/5/soloing"],
             "sections": [
               {
                 "type": "text",
@@ -1009,6 +1031,7 @@
               "song"
             ],
             "why": "Reading it once from tab and once from the neck links the numbers to the places your fingers go.",
+            "learnBefore": ["/course/4/melodies"],
             "sections": [
               {
                 "type": "heading",
@@ -1069,6 +1092,7 @@
               "rhythm"
             ],
             "why": "This pattern keeps the hand moving down and up on every half beat, so the strings it skips make the groove.",
+            "learnBefore": ["/course/2/c-d-g", "/course/2/island-strum"],
             "sections": [
               {
                 "type": "text",
@@ -1098,6 +1122,7 @@
               "technique"
             ],
             "why": "Every drill this week changed one thing (the key, the tempo, the notes in play), so you can make your own by changing one thing yourself.",
+            "learnBefore": ["/course/5/pentatonic", "/course/5/soloing"],
             "sections": [
               {
                 "type": "text",
@@ -1151,6 +1176,7 @@
               "improv"
             ],
             "why": "Landing on the chord's root as it changes is the simplest way to make a solo follow the chords.",
+            "learnBefore": ["/course/5/pentatonic", "/course/5/soloing"],
             "sections": [
               {
                 "type": "heading",
@@ -1236,6 +1262,7 @@
               "song"
             ],
             "why": "Playing the week's tune once more shows you what has changed in your hands.",
+            "learnBefore": ["/course/4/melodies"],
             "sections": [
               {
                 "type": "text",

@@ -42,8 +42,8 @@ describe("example library", () => {
     }
   });
 
-  it("every exercise example has a lesson to learn before", () => {
-    for (const e of EXERCISE_EXAMPLES) assert.ok(parsed(weekOf(e.exercise)).days[0].exercises[0].learnBefore?.length, e.id);
+  it("every exercise, alone or in a plan, has a lesson to learn before", () => {
+    for (const { where, ex } of exercises) assert.ok(ex.learnBefore?.length, where);
   });
 
   it("every exercise is tagged with the example's level and its area", () => {

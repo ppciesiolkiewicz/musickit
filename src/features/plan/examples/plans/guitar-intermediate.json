@@ -15,6 +15,7 @@
         "exercises": [
           {
             "title": "Hammer and pull", "focus": "Legato trill · fingers 1-3 · G string, 5th fret", "minutes": 5, "level": "intermediate", "area": "guitar", "tags": ["technique"], "why": "Hammer-ons and pull-offs let notes flow without picking, and they build the strength the joins need.",
+            "learnBefore": ["/course/4/legato"],
             "sections": [
               { "type": "text", "text": "Press Play below to start the metronome. Pick the first note only. Then hammer finger 3 and pull back to finger 1, one note per beat. Keep both notes equally loud." },
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 80, "key": "a", "drone": false } },
@@ -23,6 +24,7 @@
           },
           {
             "title": "D, Dsus2, Dsus4", "focus": "Sus colours on D · strummed at 80 bpm", "minutes": 8, "level": "intermediate", "area": "guitar", "tags": ["rhythm"], "why": "Sus chords move one finger off and back on, which turns a plain chord into a moving part.",
+            "learnBefore": ["/course/7/sus-add9"],
             "sections": [
               { "type": "heading", "text": "The three shapes", "minutes": 4 },
               { "type": "text", "text": "Press a chord box to hear it. From D, lift your finger off the high E string: that is Dsus2. Put your pinky on the 3rd fret of the high E: that is Dsus4. Switch between them slowly, in any order." },
@@ -34,6 +36,7 @@
           },
           {
             "title": "Position 1 to position 2", "focus": "A minor pentatonic · positions 1 → 2 · 70 then 80 bpm", "minutes": 10, "level": "intermediate", "area": "guitar", "tags": ["technique"], "why": "One slide on the G string is all it takes to leave position 1 behind.",
+            "learnBefore": ["/course/6/joining"],
             "sections": [
               { "type": "heading", "text": "Position 2 on its own", "minutes": 3 },
               { "type": "text", "text": "Play position 2 up and down at your own pace. It starts at the 7th fret. Its ringed {{1}} notes are on the D and B strings." },
@@ -48,6 +51,7 @@
           },
           {
             "title": "Improvise across the join", "focus": "Positions 1-2 over Am7-Dm7", "minutes": 7, "level": "intermediate", "area": "guitar", "tags": ["improv"], "why": "Using the join in a solo is what makes it stick.",
+            "learnBefore": ["/course/6/joining"],
             "sections": [
               { "type": "heading", "text": "Land on the roots", "minutes": 4 },
               { "type": "text", "text": "Press Play below to start the backing and improvise in positions 1 and 2. Cross between them once in each phrase. Land on {{a}} when Am7 comes round and on {{d}} when Dm7 comes round." },
@@ -63,6 +67,7 @@
         "exercises": [
           {
             "title": "Alternate picking", "focus": "Down-up, four notes per string, 90 bpm", "minutes": 5, "level": "intermediate", "area": "guitar", "tags": ["technique"], "why": "Strict down-up picking keeps fast lines even.",
+            "learnBefore": ["/course/1/spider"],
             "sections": [
               { "type": "text", "text": "Press Play below to start the metronome. Pick four notes per string, down-up-down-up, one note per beat. Go across all six strings and back. Keep the pick motion small." },
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 90, "key": "a", "drone": false } },
@@ -71,6 +76,7 @@
           },
           {
             "title": "Cadd9 to Dsus4", "focus": "Cadd9-G-Dsus4-Em at 80 bpm", "minutes": 7, "level": "intermediate", "area": "guitar", "tags": ["rhythm"], "why": "Cadd9, G and Dsus4 share the same two fingers on the top strings, so the changes ring into each other.",
+            "learnBefore": ["/course/7/sus-add9"],
             "sections": [
               { "type": "heading", "text": "Anchor fingers", "minutes": 3 },
               { "type": "text", "text": "Press a chord box to hear it. Keep fingers 3 and 4 on the 3rd fret of the B and high E strings for Cadd9, G and Dsus4. Move only the bass fingers. Lift the two top fingers for Em." },
@@ -82,6 +88,7 @@
           },
           {
             "title": "Bends in tune", "focus": "Whole-step bends in position 1 · D to E, G to A", "minutes": 10, "level": "intermediate", "area": "guitar", "tags": ["technique"], "why": "A bend is only good if it lands on a real note, so always check it against the note you aim for.",
+            "learnBefore": ["/course/5/bends-and-slides"],
             "sections": [
               { "type": "heading", "text": "G string: D up to E", "minutes": 5 },
               { "type": "text", "text": "Play {{5}} (E, 9th fret of the G string) to hear the target. Then bend {{4}} (D, 7th fret) up a whole step until it matches. Switch between the target and the bend." },
@@ -93,6 +100,7 @@
           },
           {
             "title": "Slow blues phrases", "focus": "Bends in A over drums and bass, 70 bpm", "minutes": 8, "level": "intermediate", "area": "guitar", "tags": ["improv"], "why": "A slow tempo leaves room for each bend to ring out, and this is the scale the blues uses.",
+            "learnBefore": ["/course/7/twelve-bar", "/course/7/blues-solo"],
             "sections": [
               { "type": "heading", "text": "One bend per phrase", "minutes": 4 },
               { "type": "text", "text": "Press Play below to start the band. Play short phrases in positions 1 and 2. Put one bend in each: {{4}} up to {{5}}, or {{b7}} up to {{1}}. Leave a bar of space after each phrase." },
@@ -109,6 +117,7 @@
         "exercises": [
           {
             "title": "Legato, fingers 2-4", "focus": "Legato trill · fingers 2-4 · B string, 7th fret", "minutes": 5, "level": "intermediate", "area": "guitar", "tags": ["technique"], "why": "Fingers 2 and 4 are the weaker pair, and position 3 needs them.",
+            "learnBefore": ["/course/4/legato"],
             "sections": [
               { "type": "text", "text": "Press Play below to start the metronome. Pick once, then hammer finger 4 and pull off to finger 2, one note per beat. Rest when the hand gets tired, then go again." },
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 70, "key": "a", "drone": false } },
@@ -117,6 +126,7 @@
           },
           {
             "title": "Chord tones over Am-F-C-G", "focus": "1-3-5 of each chord · play-along in the neck view", "minutes": 8, "level": "intermediate", "area": "guitar", "tags": ["theory"], "why": "Playing each chord's own notes as it passes trains you to hear the changes in a solo.",
+            "learnBefore": ["/course/5/arpeggios", "/course/5/soloing"],
             "sections": [
               { "type": "heading", "text": "Slow, in the neck view", "minutes": 4 },
               { "type": "text", "text": "Press Play below and play the lit note, one per beat: each chord's root, 3rd, 5th, 3rd. Am has a minor 3rd ({{b3}}). F, C and G have major 3rds." },
@@ -138,6 +148,7 @@
           },
           {
             "title": "Position 2 to position 3", "focus": "A minor pentatonic · positions 2 → 3", "minutes": 10, "level": "intermediate", "area": "guitar", "tags": ["technique"], "why": "Position 3 carries the line up to the 13th fret, and its join is a slide on the B string.",
+            "learnBefore": ["/course/6/joining"],
             "sections": [
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 70, "key": "a", "drone": false } },
               { "type": "heading", "text": "Position 3 on its own", "minutes": 3 },
@@ -153,6 +164,7 @@
           },
           {
             "title": "Three-position solo", "focus": "Positions 1-3 over Am7-Dm7, 85 bpm", "minutes": 7, "level": "intermediate", "area": "guitar", "tags": ["improv"], "why": "A solo that climbs through the positions builds like a story.",
+            "learnBefore": ["/course/6/joining"],
             "sections": [
               { "type": "heading", "text": "Low to high", "minutes": 4 },
               { "type": "text", "text": "Press Play below to start the backing. Start in position 1. Move up one position every four bars. Land on {{a}} when Am7 comes round and on {{d}} when Dm7 comes round." },
@@ -168,6 +180,7 @@
         "exercises": [
           {
             "title": "Picking across strings", "focus": "Down-up, two notes per string, 100 bpm", "minutes": 5, "level": "intermediate", "area": "guitar", "tags": ["technique"], "why": "Two notes per string makes the pick cross strings on every upstroke, the hardest move for picking.",
+            "learnBefore": ["/course/1/spider"],
             "sections": [
               { "type": "text", "text": "Press Play below to start the metronome. Pick two notes per string, down-up, across all six strings and back." },
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 100, "key": "a", "drone": false } },
@@ -176,6 +189,7 @@
           },
           {
             "title": "Sus groove in D", "focus": "D-Dsus4-Dsus2 with bass-and-chord picking", "minutes": 10, "level": "intermediate", "area": "guitar", "tags": ["rhythm"], "why": "Picking the bass note and then the chord makes three shapes sound like a whole arrangement.",
+            "learnBefore": ["/course/7/sus-add9"],
             "sections": [
               { "type": "heading", "text": "Bass, then chord", "minutes": 5 },
               { "type": "text", "text": "Press Play below; the lit block shows the chord, one bar each. Pick the open D string on beats 1 and 3. Strum the top strings on beats 2 and 4." },
@@ -188,6 +202,7 @@
           },
           {
             "title": "Legato in the position", "focus": "Hammer-ons and pull-offs in position 1 of A", "minutes": 7, "level": "intermediate", "area": "guitar", "tags": ["technique"], "why": "Legato inside the scale turns runs into smooth phrases.",
+            "learnBefore": ["/course/4/legato"],
             "sections": [
               { "type": "heading", "text": "One trill", "minutes": 3 },
               { "type": "text", "text": "Trill fingers 1 and 3 on the G string at the 5th fret: C to D. Pick only the first note." },
@@ -199,6 +214,7 @@
           },
           {
             "title": "A tune to the high Do", "focus": "A Ti-stage tune in D with eighth notes, up the neck", "minutes": 8, "level": "intermediate", "area": "guitar", "tags": ["song"], "why": "A tune that climbs past the octave makes you shift position mid-phrase.",
+            "learnBefore": ["/course/4/melodies"],
             "sections": [
               { "type": "heading", "text": "Learn it slowly", "minutes": 4 },
               { "type": "text", "text": "Press Play to hear it. The tune climbs from Sol to the high Do, with a quick La-Ti-La-Sol in the middle. Play along from the tab, one phrase at a time." },
@@ -215,6 +231,7 @@
         "exercises": [
           {
             "title": "Cadd9-G-Dsus4-Em, faster", "focus": "Anchor-finger changes at 90 bpm", "minutes": 5, "level": "intermediate", "area": "guitar", "tags": ["rhythm"], "why": "The same anchor fingers from day 2, now as a warm-up at a faster tempo.",
+            "learnBefore": ["/course/7/sus-add9"],
             "sections": [
               { "type": "text", "text": "Press Play below; the lit block shows the chord. Strum along, one bar per chord. Keep fingers 3 and 4 on the top strings until Em." },
               { "type": "tool", "tool": { "type": "strum-along", "chords": ["Cadd9", "G", "Dsus4", "Em"], "bpm": 90 } }
@@ -222,6 +239,7 @@
           },
           {
             "title": "G minor pentatonic, positions 1 to 3", "focus": "Positions 1 → 2 → 3 in G, from the 3rd fret", "minutes": 10, "level": "intermediate", "area": "guitar", "tags": ["technique"], "why": "Moving the joins to a new key shows you know the shapes, not the frets.",
+            "learnBefore": ["/course/5/move-it"],
             "sections": [
               { "type": "heading", "text": "Position 1 at the 3rd fret", "minutes": 3 },
               { "type": "text", "text": "G minor pentatonic position 1 starts at the 3rd fret, two frets lower than A. Play it up and down, starting on the {{1}}." },
@@ -236,6 +254,7 @@
           },
           {
             "title": "Gm arpeggio in two positions", "focus": "G minor arpeggio · positions 1-2", "minutes": 7, "level": "intermediate", "area": "guitar", "tags": ["theory"], "why": "The arpeggio is the skeleton inside the scale: the notes that sound safe over Gm.",
+            "learnBefore": ["/course/5/arpeggios"],
             "sections": [
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 70, "key": "g", "drone": false } },
               { "type": "heading", "text": "Position 1", "minutes": 3 },
@@ -248,6 +267,7 @@
           },
           {
             "title": "Solo in G", "focus": "Positions 1-3 of G minor pentatonic over Gm7-Cm7", "minutes": 8, "level": "intermediate", "area": "guitar", "tags": ["improv"], "why": "Aiming at the arpeggio's notes while moving through the positions joins today's two skills.",
+            "learnBefore": ["/course/5/move-it"],
             "sections": [
               { "type": "heading", "text": "Aim at the chord", "minutes": 4 },
               { "type": "text", "text": "Press Play below to start the backing. Land on {{g}} or {{b-flat}} when Gm7 comes round and on {{c}} when Cm7 comes round." },
@@ -263,6 +283,7 @@
         "exercises": [
           {
             "title": "Skip a string", "focus": "Down-up string skipping, 80 bpm", "minutes": 5, "level": "intermediate", "area": "guitar", "tags": ["technique"], "why": "Skipping a string makes the pick hand jump accurately, which wide phrases need.",
+            "learnBefore": ["/course/8/string-skipping"],
             "sections": [
               { "type": "text", "text": "Press Play below to start the metronome. Pick two notes per string, down-up, skipping a string each time: low E, D, B, then back. Keep the skipped strings quiet." },
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 80, "key": "a", "drone": false } },
@@ -271,6 +292,7 @@
           },
           {
             "title": "Em-Cadd9-G-Dsus4 in sixteenths", "focus": "Sixteenth strumming at 70 bpm", "minutes": 7, "level": "intermediate", "area": "guitar", "tags": ["rhythm"], "why": "Sixteenths double the hand's motion, so the groove stays tight at a slow tempo.",
+            "learnBefore": ["/course/7/sus-add9"],
             "sections": [
               { "type": "heading", "text": "On Em only", "minutes": 3 },
               { "type": "text", "text": "Press a chord box to hear it. On Em, strum down-up-down-up on every beat. Accent beats 2 and 4." },
@@ -282,6 +304,7 @@
           },
           {
             "title": "Slide in, bend out", "focus": "A minor pentatonic · join 1 → 2 with a bend to finish", "minutes": 10, "level": "intermediate", "area": "guitar", "tags": ["technique"], "why": "A slide into position 2 followed by a bend is a classic lead move, and it uses both joins of the week.",
+            "learnBefore": ["/course/5/bends-and-slides"],
             "sections": [
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 60, "key": "a", "drone": false } },
               { "type": "heading", "text": "The lick slowly", "minutes": 5 },
@@ -294,6 +317,7 @@
           },
           {
             "title": "The tune, at tempo", "focus": "Day 4's tune in D at 90 bpm", "minutes": 8, "level": "intermediate", "area": "guitar", "tags": ["song"], "why": "Coming back to the tune two days later shows what stuck.",
+            "learnBefore": ["/course/4/melodies"],
             "sections": [
               { "type": "heading", "text": "From memory", "minutes": 4 },
               { "type": "text", "text": "Play the tune once without the app. Then press Play and check it." },
@@ -310,6 +334,7 @@
         "exercises": [
           {
             "title": "Legato check", "focus": "Trills 1-3 and 2-4 at 90 bpm", "minutes": 5, "level": "intermediate", "area": "guitar", "tags": ["technique"], "why": "The week's legato at a faster tempo, to hear the progress.",
+            "learnBefore": ["/course/4/legato"],
             "sections": [
               { "type": "text", "text": "Press Play below to start the metronome. Trill fingers 1 and 3 on the G string for a minute. Then fingers 2 and 4 on the B string for a minute. How does it feel next to day 1?" },
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 90, "key": "a", "drone": false } },
@@ -319,6 +344,7 @@
           },
           {
             "title": "Sus part for the jam", "focus": "Am7-Dsus2-Dm7 rhythm part", "minutes": 5, "level": "intermediate", "area": "guitar", "tags": ["rhythm"], "why": "A sus chord between Am7 and Dm7 gives the jam a moving rhythm part.",
+            "learnBefore": ["/course/7/sus-add9"],
             "sections": [
               { "type": "text", "text": "Press a chord box to hear it. Then press Play. The lit block shows the chord, one block per beat: Am7 for a whole bar, then Dsus2 and Dm7 for two beats each." },
               { "type": "tool", "tool": { "type": "chord-shapes", "chords": ["Am7", "Dsus2", "Dm7"] } },
@@ -327,6 +353,7 @@
           },
           {
             "title": "Three positions from memory", "focus": "A minor pentatonic positions 1-3 without the chart", "minutes": 8, "level": "intermediate", "area": "guitar", "tags": ["technique"], "why": "The week's key skill without help: the test that it is yours.",
+            "learnBefore": ["/course/6/joining"],
             "sections": [
               { "type": "tool", "tool": { "type": "click-drone", "bpm": 80, "key": "a", "drone": false } },
               { "type": "heading", "text": "Without looking", "minutes": 4 },
@@ -339,6 +366,7 @@
           },
           {
             "title": "The jam", "focus": "Positions 1-3 with bends and slides over Am7-Dm7", "minutes": 12, "level": "intermediate", "area": "guitar", "tags": ["improv"], "why": "Everything from the week in one solo: joins, bends, legato and chord tones.",
+            "learnBefore": ["/course/5/pentatonic", "/course/5/soloing"],
             "sections": [
               { "type": "heading", "text": "Chord tones first", "minutes": 4 },
               { "type": "text", "text": "Press Play below to start the backing. Land on {{a}} or {{c}} when Am7 comes round and on {{d}} or {{f}} when Dm7 comes round." },

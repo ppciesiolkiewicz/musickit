@@ -62,12 +62,12 @@ Degree marks (`enable`, `highlight`, `notes`, `{{1}}`) are relative to the key, 
 
 Draft content: `2026-11-02-plan-learn-before.json` (next to this file), with `planId → "day.exercise" → { title, learnBefore }`. It was drafted from the exercise titles and checked: all 210 hrefs pass `checkLink` against the catalogue. It still needs a person's read. Weak spots to check:
 
-- guitar-theory-intermediate "Arpeggios of the ii-V-I" / "Arpeggios in G" → `/course/5/arpeggios`; `/course/7/sevenths` may fit better.
+- guitar-theory-intermediate arpeggios → applied as `/course/7/sevenths` + `/course/5/arpeggios`.
 - voice "Over G and D", "Over F, B♭ and C", "A tune under Do, then over three chords" → `/course/6/harmony-line` + `/course/9/improvising-a-melody` (both planned stubs).
 - guitar "Alternate picking" / "Picking across strings" → `/course/1/spider` (no picking article yet; maybe add a stub).
 
 ### Tasks
 
-- [ ] **8.** Apply the JSON: insert `"learnBefore"` after each exercise's `why` (or `focus` if there is no `why`), keeping the hand formatting. The script used for the exercise examples did this with a regex insert.
-- [ ] **9.** Change the test "every exercise example has a lesson to learn before" so it covers the plan exercises too (the `exercises` list in `examples.test.ts`). Drop "Exercise examples" from the README rule.
+- [x] **8.** Apply the JSON: insert `"learnBefore"` after each exercise's `why` (or `focus` if there is no `why`), keeping the hand formatting. The script used for the exercise examples did this with a regex insert.
+- [x] **9.** Change the test "every exercise example has a lesson to learn before" so it covers the plan exercises too (the `exercises` list in `examples.test.ts`). Drop "Exercise examples" from the README rule.
 - [ ] **10.** Run the tests and paste one plan into `/plan`. Each card's "Learn before" names a real lesson.

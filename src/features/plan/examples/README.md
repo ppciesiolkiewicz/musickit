@@ -48,7 +48,7 @@ What there is: one exercise per area and level, three more in the new teaching s
   after a step whenever the focus changes. Staffs in non-singing exercises set `"mic": false`.
 - Two layers, never the same list: `enable` for the notes in play (absent: all), `highlight` for the few that matter
   among them (the roots, the note just added). `others` only with `enable`.
-- Exercise examples have at least one `learnBefore` lesson. If no course section fits, a planned (stub) section is
+- Every exercise, alone or in a plan, has at least one `learnBefore` lesson. If no course section fits, a planned (stub) section is
   added to the course for it first.
 - A sung or played pattern (Do Mi Sol, a leap, a tune, guide tones) comes back in a second key, in a later block or
   another tool: the notes change, the pattern doesn't.
