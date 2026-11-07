@@ -10,6 +10,7 @@ import { locate, type Ladder } from "@/features/theory/singing";
 import { BEATS_PER_BAR } from "@/features/theory/singingMelody";
 import { restBeats, type PlacedNote } from "@/features/theory/singingMelodies";
 import type { MelodyChord } from "@/features/theory/melodyChords";
+import { PassStart } from "./PassStart";
 import type { Frame } from "./useSingAlong";
 import { DOT, PLAYED, camera, inView, judge } from "./view";
 
@@ -112,7 +113,11 @@ export default function StreamStaff({ frame, notes, chords, ladder, clef, beatMs
               return (
                 <g key={p.start}>
                   {/* where a pass starts: the loop's seam */}
-                  <line x1={barX(p.from)} x2={barX(p.from)} y1={yOf(8) - 6} y2={yOf(0) + 6} stroke={PLAYED} strokeOpacity={0.5} strokeWidth={2} strokeDasharray="3 3" />
+                  {(() => {
+                    // further left than a barline, so the arrow fits before the first notehead
+                    const gap = Math.min(24, beatW * 0.5);
+                    return <PassStart x={bx(at(p.from)) - gap} y1={yOf(8) - 6} y2={yOf(0) + 6} room={gap - 7} colour={PLAYED} />;
+                  })()}
                   {bars.map((b) => <line key={b} x1={barX(b)} x2={barX(b)} y1={yOf(8)} y2={yOf(0)} stroke={ink.line} />)}
                   {rests.filter((b) => b >= p.from && b < p.to).map((b) => {
                     const x = bx(at(b));

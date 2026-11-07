@@ -9,6 +9,7 @@ import type { Ladder } from "@/features/theory/singing";
 import { BEATS_PER_BAR } from "@/features/theory/singingMelody";
 import type { PlacedNote } from "@/features/theory/singingMelodies";
 import type { MelodyChord } from "@/features/theory/melodyChords";
+import { PassStart } from "./PassStart";
 import type { Frame } from "./useSingAlong";
 import { DOT, PLAYED, camera, inView, judge } from "./view";
 
@@ -116,7 +117,7 @@ export default function PianoRoll({ frame, notes, chords, ladder, beatMs, tapped
                   {beats.map((b) => (
                     <line key={b} x1={bx(at(b))} x2={bx(at(b))} y1={chordsH} y2={H} stroke="var(--color-slate-600)" strokeOpacity={b % BEATS_PER_BAR === 0 ? 0.7 : 0.25} />
                   ))}
-                  <line x1={bx(p.start)} x2={bx(p.start)} y1={0} y2={H} stroke={PLAYED} strokeOpacity={0.5} strokeWidth={2} strokeDasharray="3 3" />
+                  <PassStart x={bx(p.start)} y1={0} y2={H} room={14} colour={PLAYED} />
                   {p.chords.map((c) => {
                     const on = j.pass === p && frame.s >= p.start + c.at && frame.s < p.start + c.at + c.beats;
                     return <text key={`c${c.i}`} x={bx(p.start + c.at) + 3} y={chordsH - 6} fontSize={13} fontWeight={700} fill={on ? PLAYED : "var(--color-slate-200)"}>{chords[c.i].name}</text>;
