@@ -28,18 +28,24 @@ const COLUMNS: { title: string; links: { href: string; label: string }[] }[] = [
       { href: "/teachers/studio", label: "Video studio" },
     ],
   },
+  {
+    title: "Help",
+    links: [
+      { href: "/faq", label: "FAQ" },
+    ],
+  },
 ];
 
 function Heading({ children }: { children: ReactNode }) {
   return <p className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-slate-300">{children}</p>;
 }
 
-/** The site footer, on every page: brand, then Learn, Free tools and Teachers (the teaching pitch and the video studio). */
+/** The site footer, on every page: brand, then Learn, Free tools, Teachers (the teaching pitch and the video studio) and Help. */
 export default function SiteFooter() {
   return (
     <footer className="border-t border-slate-800/70 pt-12 pb-8 text-sm sm:pt-16">
-      <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3 lg:grid-cols-[minmax(0,1.6fr)_repeat(3,minmax(0,1fr))] lg:gap-12">
-        <div className="col-span-2 sm:col-span-3 lg:col-span-1">
+      <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-4 lg:grid-cols-[minmax(0,1.6fr)_repeat(4,minmax(0,1fr))] lg:gap-12">
+        <div className="col-span-2 sm:col-span-4 lg:col-span-1">
           <Link href="/" aria-label="attunr home" className="inline-block rounded focus-visible:outline-2 focus-visible:outline-sky-400">
             <Wordmark className="text-2xl" dots="side" />
           </Link>

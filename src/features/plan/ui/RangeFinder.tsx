@@ -33,6 +33,8 @@ export default function RangeFinder({ onRange }: { onRange: (r: { low: number; h
   const analyser = useRef<AnalyserNode | null>(null);
   const release = useRef<(() => void) | null>(null);
   const low = useRef<number | null>(null);
+  /** the low note once found, for the chart */
+  const [lowNote, setLowNote] = useState<number | null>(null);
   const alive = useRef(true);
   const starting = useRef(false);
   const [busy, setBusy] = useState(false);
@@ -116,7 +118,7 @@ export default function RangeFinder({ onRange }: { onRange: (r: { low: number; h
     if (note === null) return;
     history.current = [];
     // eslint-disable-next-line react-hooks/set-state-in-effect -- the step follows the mic reading
-    if (step === "low") { low.current = note; setStep("high"); return; }
+    if (step === "low") { low.current = note; setLowNote(note); setStep("high"); return; }
     if (low.current !== null && !isHighEnough(low.current, note)) return; // still holding the low note
     stop();
     const range = normaliseRange(low.current ?? note, note);
@@ -133,21 +135,75 @@ export default function RangeFinder({ onRange }: { onRange: (r: { low: number; h
     return () => window.clearTimeout(id);
   }, [listening, step]); // eslint-disable-line react-hooks/exhaustive-deps -- the wait is per step
 
+  const liveMidi = listening && hz !== null ? hzToMidi(hz) : null;
   return (
-    <div className="flex flex-col items-start gap-2" aria-live="polite">
+    <div className="flex w-full flex-col items-start gap-2" aria-live="polite">
       <div className="flex flex-wrap items-center gap-2">
         {step === "idle" && <Button onClick={start} disabled={busy}>Find my range</Button>}
         <InputChip status={status} />
       </div>
-      {step === "low" && <p className="text-sm text-slate-200">Sing your lowest comfortable note</p>}
-      {step === "high" && <p className="text-sm text-slate-200">Now your highest</p>}
+      {listening && (
+        <div className="flex items-center gap-2 text-sm">
+          <StepDot n={1} on={step === "low"} done={step === "high"} label="Lowest" />
+          <span aria-hidden className="h-px w-4 bg-slate-700" />
+          <StepDot n={2} on={step === "high"} done={false} label="Highest" />
+          <span className="ml-2 text-slate-200">{step === "low" ? "Sing your lowest comfortable note and hold it" : "Now your highest, and hold it"}</span>
+        </div>
+      )}
       {step === "done" && result && (
         <div className="flex items-center gap-3">
-          <p className="text-sm text-slate-200">{noteName(result.low)} – {noteName(result.high)} → {VOICES[result.voice].label}</p>
+          <p className="text-sm text-slate-200">{noteName(result.low)} – {noteName(result.high)} → <b className={`font-semibold ${VOICE_STYLE[result.voice].text}`}>{VOICES[result.voice].label}</b></p>
           <Button onClick={() => { setResult(null); setStep("idle"); }}>Retry</Button>
         </div>
       )}
+      {(listening || result) && <RangeChart live={liveMidi} low={step === "high" ? lowNote : result?.low ?? null} high={result?.high ?? null} voice={result?.voice ?? null} />}
       {message && <p role="alert" className="text-xs text-rose-300">{message}</p>}
+    </div>
+  );
+}
+
+const VOICE_STYLE: Record<Voice, { bar: string; text: string }> = {
+  soprano: { bar: "bg-rose-400", text: "text-rose-300" },
+  mezzo: { bar: "bg-pink-400", text: "text-pink-300" },
+  alto: { bar: "bg-violet-400", text: "text-violet-300" },
+  tenor: { bar: "bg-sky-400", text: "text-sky-300" },
+  baritone: { bar: "bg-emerald-400", text: "text-emerald-300" },
+  bass: { bar: "bg-amber-400", text: "text-amber-300" },
+};
+const CHART_LOW = 38, CHART_HIGH = 86;
+const pct = (m: number) => `${(Math.min(Math.max(m, CHART_LOW), CHART_HIGH) - CHART_LOW) / (CHART_HIGH - CHART_LOW) * 100}%`;
+
+function StepDot({ n, on, done, label }: { n: number; on: boolean; done: boolean; label: string }) {
+  return (
+    <span className={`inline-flex items-center gap-1 text-xs ${on ? "text-sky-200" : done ? "text-emerald-300" : "text-slate-500"}`}>
+      <span className={`grid size-5 place-items-center rounded-full border text-[11px] ${on ? "animate-pulse border-sky-400 bg-sky-500/20" : done ? "border-emerald-400 bg-emerald-500/20" : "border-slate-700"}`}>{done ? "✓" : n}</span>
+      {label}
+    </span>
+  );
+}
+
+/** Each voice type's range as a coloured bar on one note axis, with the range found so far and the note heard now drawn over them. */
+function RangeChart({ live, low, high, voice }: { live: number | null; low: number | null; high: number | null; voice: Voice | null }) {
+  const voices = Object.keys(VOICES) as Voice[];
+  return (
+    <div className="w-full rounded-xl border border-slate-800 bg-slate-950/50 p-3">
+      <div className="relative flex flex-col gap-1.5">
+        {low !== null && high !== null && (
+          <div aria-hidden className="absolute inset-y-[-4px] rounded-md border border-slate-200/70 bg-slate-100/10" style={{ left: pct(low), width: `calc(${pct(high)} - ${pct(low)})` }} />
+        )}
+        {low !== null && high === null && <div aria-hidden className="absolute inset-y-[-4px] w-0.5 rounded bg-emerald-300" style={{ left: pct(low) }} />}
+        {live !== null && <div aria-hidden className="absolute inset-y-[-6px] w-0.5 rounded bg-white shadow-[0_0_8px_white] transition-[left] duration-100" style={{ left: pct(live) }} />}
+        {voices.map((v) => (
+          <div key={v} className="relative h-3">
+            <div className={`absolute inset-y-0 rounded-full ${VOICE_STYLE[v].bar} ${voice && voice !== v ? "opacity-25" : "opacity-80"}`} style={{ left: pct(VOICES[v].low), width: `calc(${pct(VOICES[v].high)} - ${pct(VOICES[v].low)})` }} />
+            <span className={`absolute top-1/2 -translate-y-1/2 pl-1 text-[10px] leading-none ${voice === v ? "font-semibold text-slate-950" : "text-slate-950/80"}`} style={{ left: pct(VOICES[v].low) }}>{VOICES[v].label}</span>
+          </div>
+        ))}
+      </div>
+      <div className="relative mt-2 h-3 text-[10px] text-slate-500">
+        {[40, 48, 60, 72, 84].map((m) => <span key={m} className="absolute -translate-x-1/2" style={{ left: pct(m) }}>{noteName(m)}</span>)}
+      </div>
+      {live !== null && <p className="mt-1 text-xs text-slate-300">Hearing <b className="text-slate-100">{noteName(Math.round(live))}</b></p>}
     </div>
   );
 }

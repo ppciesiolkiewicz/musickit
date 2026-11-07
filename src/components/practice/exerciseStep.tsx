@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import Icon from "@/components/Icon";
+import { InfoTip } from "@/components/ui";
 
 /**
  * What a part of a step starts: the microphone, or a sound (a drone, the metronome, a band, chords, a play-along, a tune).
@@ -28,12 +29,17 @@ interface Step {
   groupFor: (id: string) => string | undefined;
   /** the parts "Start exercise" starts: the first of each kind */
   leads: string[];
+  /** the step listens with the mic while it plays a sound, so headphones help */
+  micWithSound: boolean;
   running: boolean;
   start: () => void;
   stop: () => void;
 }
 
 const StepContext = createContext<Step | null>(null);
+
+/** Kinds that play sound the microphone could hear from the speakers. */
+const SOUNDS: StepPartKind[] = ["drone", "click", "band", "chords", "play", "tune"];
 
 /** the first part of each kind, in the order they registered (the page's order) */
 const leadsOf = (parts: Entry[]) => {
@@ -75,6 +81,7 @@ export function ExerciseStep({ children }: { children: ReactNode }) {
     setOn,
     groupFor: (id) => (started && leads.includes(id) ? stepId : undefined),
     leads,
+    micWithSound: parts.some((p) => p.kind === "mic") && parts.some((p) => SOUNDS.includes(p.kind)),
     running: started,
     start: () => {
       setStarted(true);
@@ -85,7 +92,7 @@ export function ExerciseStep({ children }: { children: ReactNode }) {
       setStarted(false);
       for (const h of handlers.current.values()) h.stop();
     },
-  }), [register, setOn, started, leads, stepId]);
+  }), [register, setOn, started, leads, stepId, parts]);
   return <StepContext.Provider value={step}>{children}</StepContext.Provider>;
 }
 
@@ -123,11 +130,27 @@ export function StartExercise() {
   if (!step || step.leads.length < 2) return null;
   const on = step.running;
   return (
-    <button type="button" onClick={on ? step.stop : step.start} aria-pressed={on}
-      title={on ? "Stop everything in this step" : "Start everything in this step at once"}
-      className={`inline-flex h-9 w-fit items-center gap-2 rounded-lg border px-3.5 text-sm font-semibold transition active:scale-[0.97] ${on ? "border-emerald-400/70 bg-emerald-500/20 text-emerald-100 hover:bg-emerald-500/30" : "border-sky-400/70 bg-sky-500/20 text-sky-50 hover:bg-sky-500/30"}`}>
-      <Icon name={on ? "square" : "play"} size={15} fill />
-      {on ? "Stop exercise" : "Start exercise"}
-    </button>
+    <div className="flex flex-wrap items-center gap-2">
+      <button type="button" onClick={on ? step.stop : step.start} aria-pressed={on}
+        title={on ? "Stop everything in this step" : "Start everything in this step at once"}
+        className={`inline-flex h-9 w-fit items-center gap-2 rounded-lg border px-3.5 text-sm font-semibold transition active:scale-[0.97] ${on ? "border-emerald-400/70 bg-emerald-500/20 text-emerald-100 hover:bg-emerald-500/30" : "border-sky-400/70 bg-sky-500/20 text-sky-50 hover:bg-sky-500/30"}`}>
+        <Icon name={on ? "square" : "play"} size={15} fill />
+        {on ? "Stop exercise" : "Start exercise"}
+      </button>
+      {step.micWithSound && <HeadphonesHint />}
+    </div>
+  );
+}
+
+/** Why headphones help when the mic listens while the step plays a drone, a click or chords. */
+function HeadphonesHint() {
+  return (
+    <span className="inline-flex items-center gap-1.5 text-xs text-slate-400">
+      <Icon name="headphones" size={14} />
+      <span className="whitespace-nowrap">Use headphones</span>
+      <InfoTip label="Why headphones" align="center">
+        The mic hears everything in the room. On speakers it also hears the drone or the chords, and can take them for your voice. With headphones it hears only you. No headphones? Turn the sound down and sing close to the mic.
+      </InfoTip>
+    </span>
   );
 }

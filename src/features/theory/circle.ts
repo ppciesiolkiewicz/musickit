@@ -81,3 +81,12 @@ export function neighbours(k: CircleKey): { dominant: CircleKey; subdominant: Ci
 }
 
 export const keyName = (k: CircleKey) => `${tonicName(k.pc)} ${k.minor ? "minor" : "major"}`;
+
+/** A chord's job in its key: home (tonic), moving away (predominant) or tension that pulls home (dominant). */
+export type ChordFunction = "tonic" | "predominant" | "dominant";
+const FUNCTIONS: Record<string, ChordFunction> = {
+  I: "tonic", iii: "tonic", vi: "tonic", ii: "predominant", IV: "predominant", V: "dominant", "vii°": "dominant",
+  i: "tonic", III: "tonic", VI: "tonic", "ii°": "predominant", iv: "predominant", v: "dominant", VII: "dominant",
+};
+/** The function of a chord of a major or natural minor key, from its roman numeral. */
+export const chordFunction = (roman: string): ChordFunction => FUNCTIONS[roman];

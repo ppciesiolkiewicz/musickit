@@ -22,6 +22,7 @@ const PAGES: SearchEntry[] = [
   ...THEORY_SECTIONS.map((s) => ({ href: s.href, label: s.label, desc: s.desc, icon: s.icon, group: "Pages" })),
   { href: "/teachers", label: "For teachers", desc: "attunr in your lessons", icon: "graduation-cap", group: "Pages", words: "teach lesson" },
   { href: "/creator", label: "Creator", desc: "Build your own exercises", icon: "pencil", group: "Pages" },
+  { href: "/faq", label: "FAQ", desc: "Answers to common questions", icon: "info", group: "Pages", words: "help questions microphone headphones refund" },
 ];
 
 /** Every page, course section and scale, in that order. Built on first use: the course data is large. */
