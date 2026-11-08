@@ -218,7 +218,7 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
             );
           })}
         </div>
-        <div className="flex flex-col gap-2">
+        {canPlay && <div className="flex flex-col gap-2">
           <ChipRow label="Answer by" info="Tap the answer, or play the gap on your guitar and let the mic hear it: one note, then the other, starting on any note, up or down. After a played answer the next question comes by itself.">
             <Chip on={!mic} onClick={() => setMic(false)}>Tapping the answer</Chip>
             <Chip on={mic} onClick={() => setMic(true)}>Playing it (mic)</Chip>
@@ -226,10 +226,10 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
           </ChipRow>
           {mic && (
             <p className="text-xs text-slate-400">
-              {!canPlay ? "The mic hears one note at a time, so chord quality is answered by tapping." : micText ? (status === "asking" ? micText : `${micText} Or answer by tapping.`) : status === "on" ? "Headphones keep the question out of the mic." : "Press Start, then play it back."}
+              {micText ? (status === "asking" ? micText : `${micText} Or answer by tapping.`) : status === "on" ? "Headphones keep the question out of the mic." : "Press Start, then play it back."}
             </p>
           )}
-        </div>
+        </div>}
         {answered && q && (
           <div className="flex flex-col gap-2 rounded-2xl border border-slate-800 bg-slate-950/40 p-3 text-sm text-slate-300">
             {info && <p>Memory hook: the start of <i>{info.song}</i>. <Link className="text-sky-300 hover:underline" href={`/theory/basics?interval=${info.semis}#intervals`}>See it on the guitar →</Link></p>}
