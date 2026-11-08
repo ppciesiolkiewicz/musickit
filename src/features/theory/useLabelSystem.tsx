@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useMemo, useSyncExternalStore, type ReactNode } from "react";
+import { useSyncExternalStore } from "react";
 import { DEFAULT_CHORD_DOTS, DEFAULT_CHORD_LABELS, DEFAULT_LABEL_ROOT, DEFAULT_LABEL_SYSTEM, LABEL_ROOTS, LABEL_SYSTEMS, isChordDots, isChordLabels, isLabelRoot, isLabelSystem, type ChordDots, type ChordLabels, type LabelRoot, type LabelSystem } from "./labels";
 import { Select, Field } from "@/components/ui";
 
@@ -32,28 +32,10 @@ export function setLabelSystem(v: LabelSystem) {
   listeners.forEach((f) => f());
 }
 
-type LabelScopeValue = { value: LabelSystem | undefined; set: (v: LabelSystem | undefined) => void };
-const LabelScopeContext = createContext<LabelScopeValue | null>(null);
-
-/**
- * A part of the page (one exercise) with its own label system: inside it `useLabelSystem` reads and writes `value`,
- * and while `value` is unset it follows the global setting.
- */
-export function LabelScope({ value, set, children }: LabelScopeValue & { children: ReactNode }) {
-  const scope = useMemo(() => ({ value, set }), [value, set]);
-  return <LabelScopeContext.Provider value={scope}>{children}</LabelScopeContext.Provider>;
-}
-
-/** The label system chosen in the enclosing `LabelScope`, or undefined when it follows the global setting (or there is no scope). */
-export function useLabelOverride(): LabelScopeValue | null {
-  return useContext(LabelScopeContext);
-}
-
-/** "How are notes labelled": the enclosing `LabelScope`'s choice, else the global setting shared by every page and persisted. */
+/** The global "how are notes labelled" setting, shared by every page and persisted. */
 export function useLabelSystem(): [LabelSystem, (v: LabelSystem) => void] {
   const v = useSyncExternalStore(subscribe, () => current, () => DEFAULT_LABEL_SYSTEM);
-  const scope = useContext(LabelScopeContext);
-  return scope ? [scope.value ?? v, scope.set] : [v, setLabelSystem];
+  return [v, setLabelSystem];
 }
 
 /**

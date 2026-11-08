@@ -14,7 +14,7 @@ migrates; the components, their props and their docs live here.
    chords it holds each chord (`withBackingSound`, the `under` prop: chords, drone, none). The neck view is the shared
    `ScaleNeck` with every place of the line at once (the playing chord's enabled notes normal, the highlighted ones
    ringed, the rest muted, the sounding ones lit); the notes view is the shared `SingingStaff`. Both label notes by the label setting and its "count from".
-4. `basics/<name>/` the fourteen basics: `scale-neck`, `chord-shapes`, `staff` (a "Start microphone" button; with `drone` / `click` its own backing with its own Play; with the mic its notes carry degree or solfège `labels` and an Accuracy row sets the cents that count as on the note, the student's setting shared with the singing page (`theory/useAccuracy.tsx`); its settings show as tags: key, voice, drone, click), `click-drone`, `backing-band`, `note-finder`,
+4. `basics/<name>/` the fourteen basics: `scale-neck`, `chord-shapes`, `staff` (a "Start microphone" button; with `drone` / `click` its own backing with its own Play; with the mic its notes carry degree or solfège `labels`; its settings show as tags: key, voice, drone, click), `click-drone`, `backing-band`, `note-finder`,
    `interval-ears`, `arpeggio-neck`, `melody-singer`, `run-singer` (both with a chord a bar under the tune, worked out
    in `features/theory/melodyChords.ts`; a run announces each new key in its held-Do bar), `strum-along` (a metronome and the chords as boxes,
    one per bar or beat, each holding beat boxes of its strumming pattern, the playing strum lit; its maths in `blocks.ts`), `string-singer` (the guitar's open strings sung along, moved into the voice: the strings, neighbouring pairs or the 5th-fret unisons; `strings.ts`), `tuning-ears` (a listening game: the 5th-fret reference and the next open string, flat, sharp or in tune; `rounds.ts`), `chord-backing` (chords for a singer: the play-along's player on a progression with a comping backing, shown as chord boxes one per bar, the playing one lit with its beat and the next outlined; `strip.ts`). Each has `index.tsx` (the View) and `<name>.props.ts`.
@@ -26,6 +26,8 @@ migrates; the components, their props and their docs live here.
 
 `docs/` extracts each `@component` props file with the TypeScript compiler API into `docs.generated.json`
 (`COMPONENT_DOCS`); a test fails when it is stale. Regenerate with `npm run docs:exercises`.
+
+Settings come in three reaches. App-wide stores: the volume (`useVolume`, a master gain after the output bus, so the looper's tap stays at full level), the singing accuracy (`useAccuracy`) and the note labels (`useLabelSystem`). Per exercise: the melody view (staff or piano roll, the melody and run singers alike; `ExerciseSettings` in `src/components/practice/exerciseSettings.tsx`, wrapped round each plan exercise). Per tool: tempo, metronome, looping, as the tool's own state. `ToolSettings` (`src/components/practice/`) shows them on a tool: the volume inline, the rest behind a sliders button (`Dropdown`); the staff and the sing-along player have it. A staff written with `labels` leaves out the labels choice, since it doesn't follow the setting.
 
 `src/components/practice/exerciseStep.tsx` is an exercise step (the plan's `Sections` wraps each heading and what follows in one):
 a tool hands it what it can start with `useStepPart` (the staff's mic and backing, `chord-backing`, the play-along, the

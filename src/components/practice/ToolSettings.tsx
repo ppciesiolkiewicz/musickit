@@ -6,7 +6,7 @@ import { Dropdown, DropdownSection, Slider, Tile, hueAt } from "@/components/ui"
 import { useVolume } from "@/features/sound";
 import { ACCURACIES } from "@/features/theory/singing";
 import { LABEL_SYSTEMS, type LabelSystem } from "@/features/theory/labels";
-import { useLabelOverride, useLabelSystem } from "@/features/theory/useLabelSystem";
+import { useLabelSystem } from "@/features/theory/useLabelSystem";
 import { useAccuracy } from "@/features/theory/useAccuracy";
 import { useExerciseSetting, type MelodyView } from "./exerciseSettings";
 
@@ -47,7 +47,6 @@ export function Volume() {
  */
 export default function ToolSettings({ labels, accuracy = false, view = false, more, volume = true }: { labels?: LabelSystem; accuracy?: boolean; view?: boolean; more?: ReactNode; /** false when the host shows <Volume /> elsewhere */ volume?: boolean }) {
   const [, setLabels] = useLabelSystem();
-  const override = useLabelOverride();
   const [cents, setCents] = useAccuracy();
   const [melodyView, setView] = useExerciseSetting("view");
   if (!accuracy && !labels && !view && !more) return volume ? <Volume /> : null;
@@ -77,11 +76,6 @@ export default function ToolSettings({ labels, accuracy = false, view = false, m
                 </Tile>
               ))}
             </div>
-            {override?.value && (
-              <button type="button" tabIndex={-1} onClick={() => override.set(undefined)} className="w-fit text-[11px] text-sky-300 hover:text-sky-200">
-                Back to the exercise&apos;s labels
-              </button>
-            )}
           </DropdownSection>
         )}
         {view && (

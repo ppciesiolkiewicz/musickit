@@ -11,7 +11,7 @@ import ToolSettings from "@/components/practice/ToolSettings";
 import { VOICES, buildLadder, clefFor, hzToMidi, spellName, withNotesUnder } from "@/features/theory/singing";
 import { createSmoother, type Pitch } from "@/features/tuner/pitch";
 import { staffLabelSystem, type SingingLabels } from "@/features/theory/labels";
-import { useLabelOverride, useLabelSystem } from "@/features/theory/useLabelSystem";
+import { useLabelSystem } from "@/features/theory/useLabelSystem";
 import { useAccuracy } from "@/features/theory/useAccuracy";
 import { Badge } from "@/components/ui";
 import Icon from "@/components/Icon";
@@ -99,8 +99,7 @@ export function View({ slug, pc, voice, notes, under = false, enable, highlight,
     pitch.current = hzToMidi(smoother.current.push(p));
   }, []);
   const [setting] = useLabelSystem();
-  // labels picked for the exercise win over the ones it was written with
-  const system = useLabelOverride()?.value ?? staffLabelSystem(labels, micButton, setting);
+  const system = staffLabelSystem(labels, micButton, setting);
   const [cents] = useAccuracy();
   const { status } = useMicPitch(micOn && micButton, undefined, onPitch);
   const startMic = () => {
@@ -142,7 +141,8 @@ export function View({ slug, pc, voice, notes, under = false, enable, highlight,
         )}
         {status === "denied" && <span>microphone blocked in the browser</span>}
         <span className="ml-auto" />
-        <ToolSettings labels={system} accuracy={micButton} />
+        {/* labels written into the exercise don't follow the setting, so there is nothing to pick */}
+        <ToolSettings labels={labels ? undefined : system} accuracy={micButton} />
       </div>
       <div className="flex flex-wrap items-center gap-1.5">
         <Badge>{ladder.title}</Badge>
