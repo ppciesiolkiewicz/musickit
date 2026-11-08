@@ -1,5 +1,7 @@
 "use client";
 
+import type { ReactNode } from "react";
+import Icon from "@/components/Icon";
 import { useCallback, useEffect, useRef, useState } from "react";
 import NoteNeck, { type NeckDot } from "@/components/theory/NoteNeck";
 import { OPEN_MIDI } from "@/lib/chordKit/shapeTools";
@@ -10,7 +12,7 @@ import {
 } from "@/lib/practice/noteGame";
 import { useMicPitch } from "./useMicPitch";
 import { micGate } from "@/lib/practice/mic";
-import { SetupTag, btn, btnPrimary, panel, readBest, writeBest, writeQuery } from "./shared";
+import { SetupTag, Stage, Stat, Target, btn, btnBig, panel, readBest, writeBest, writeQuery } from "./shared";
 import { Chip, ChipRow, Stepper } from "@/components/ui";
 import InputChip, { micStatusMessage } from "@/components/InputChip";
 
@@ -151,14 +153,16 @@ export default function NoteGame({ initial, syncUrl = true, bare = false }: { in
     return miss > 0 ? `rgba(244,63,94,${0.2 + 0.5 * miss})` : `rgba(245,158,11,${0.1 + 0.4 * slow})`;
   };
   const dim = (string: number, fret: number) => (!s.strings.includes(string) || fret < s.from || fret > s.to ? "rgba(148,163,184,0.06)" : undefined);
-  const prompt = !q ? "Press Start" : s.mode === "name" ? "Name the lit note" : s.mode === "every" ? `Find every ${pcName(q.pc, s.flats)} (frets ${s.from}–${s.to})` : `Find ${pcName(q.pc, s.flats)} on the ${STRING_LETTERS[q.string]} string`;
+  const prompt: ReactNode = !q ? "Press Start to begin" : s.mode === "name" ? "Name the lit note" : s.mode === "every"
+    ? <>Find every<Target>{pcName(q.pc, s.flats)}</Target><span className="text-base text-slate-400">frets {s.from}–{s.to}</span></>
+    : <>Find<Target>{pcName(q.pc, s.flats)}</Target>on the {STRING_LETTERS[q.string]} string</>;
   const choices = answerChoices(s.naturals, q?.pc ?? 0);
   const micText = micStatusMessage(status);
 
-  return (
-    <div className="flex flex-col gap-4">
-      <section className={`${panel} flex flex-col gap-2`}>
-        {!bare && <>
+  const setup = (
+    <section className={`${panel} flex flex-col gap-2`}>
+      {!bare && <>
+        <h2 className="mb-1 text-xs font-medium uppercase tracking-[0.2em] text-slate-500">Set up the game</h2>
         <ChipRow label="Game">{MODES.map((m) => <Chip key={m.id} on={s.mode === m.id} onClick={() => update({ mode: m.id })}>{m.label}</Chip>)}</ChipRow>
         <ChipRow label="Strings">
           {STRING_LETTERS.map((l, i) => (
@@ -171,50 +175,67 @@ export default function NoteGame({ initial, syncUrl = true, bare = false }: { in
           <Chip on={s.naturals} onClick={() => update({ naturals: !s.naturals })}>Natural notes only</Chip>
           <Chip on={s.flats} onClick={() => update({ flats: !s.flats })}>Flat names</Chip>
         </div>
-        </>}
-        {bare && (
-          <div className="flex flex-wrap items-center gap-1.5" aria-label="Set up as">
-            <SetupTag tone="sky">{MODES.find((m) => m.id === s.mode)!.label}</SetupTag>
-            <SetupTag tone="amber">Strings {s.strings.map((i) => STRING_LETTERS[i]).join(" ")}</SetupTag>
-            <SetupTag tone="teal">Frets {s.from}–{s.to}</SetupTag>
-            {s.naturals && <SetupTag tone="violet">Natural notes</SetupTag>}
-            {s.flats && <SetupTag tone="violet">Flat names</SetupTag>}
-          </div>
-        )}
-        <ChipRow label="Answer by">
-          <Chip on={!mic} onClick={() => setMic(false)}>Tapping the neck</Chip>
-          <Chip on={mic} onClick={() => setMic(true)}>Playing it (mic)</Chip>
-          {mic && <InputChip status={status} />}
-        </ChipRow>
-        {mic && (
-          <p className="text-xs text-slate-400">
-            {s.mode === "every" ? "The mic can't tell which string you used, so “find every one” is answered by tapping." : micText ? (status === "asking" ? micText : `${micText} Or answer by tapping.`) : status === "on" ? `Listening${heard !== null ? `: hearing ${pcName(heard, s.flats)}` : "…"} Any octave counts.` : "Press Start, then play the note."}
-          </p>
-        )}
-      </section>
+      </>}
+      <ChipRow label="Answer by">
+        <Chip on={!mic} onClick={() => setMic(false)}>Tapping the neck</Chip>
+        <Chip on={mic} onClick={() => setMic(true)}>Playing it (mic)</Chip>
+        {mic && <InputChip status={status} />}
+      </ChipRow>
+      {mic && (
+        <p className="text-xs text-slate-400">
+          {s.mode === "every" ? "The mic can't tell which string you used, so “find every one” is answered by tapping." : micText ? (status === "asking" ? micText : `${micText} Or answer by tapping.`) : status === "on" ? `Listening${heard !== null ? `: hearing ${pcName(heard, s.flats)}` : "…"} Any octave counts.` : "Press Start, then play the note."}
+        </p>
+      )}
+    </section>
+  );
 
-      <section className={panel}>
-        <div className="mb-2 flex flex-wrap items-center gap-3">
-          <span className="text-lg text-slate-100">{prompt}</span>
-          {!q ? <button type="button" className={btnPrimary} onClick={() => ask(null)}>Start</button> : <button type="button" className={btn} onClick={() => ask(q)}>Skip</button>}
-          {q && <button type="button" className={`cursor-pointer ${btn}`} onClick={() => { const p = positionsOf(q.pc, s).find((x) => x.string === q.string) ?? positionsOf(q.pc, s)[0]; if (p) playMelody([OPEN_MIDI[p.string] + p.fret], 700); }}>Hear the note</button>}
-          <span className="ml-auto text-sm text-slate-400">streak <b className="text-slate-100">{streak}</b></span>
+  return (
+    <div className="flex flex-col gap-4">
+      <Stage tone="amber">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="min-w-0">
+            {bare && (
+              <div className="mb-2 flex flex-wrap items-center gap-1.5" aria-label="Set up as">
+                <SetupTag tone="sky">{MODES.find((m) => m.id === s.mode)!.label}</SetupTag>
+                <SetupTag tone="amber">Strings {s.strings.map((i) => STRING_LETTERS[i]).join(" ")}</SetupTag>
+                <SetupTag tone="teal">Frets {s.from}–{s.to}</SetupTag>
+                {s.naturals && <SetupTag tone="violet">Natural notes</SetupTag>}
+                {s.flats && <SetupTag tone="violet">Flat names</SetupTag>}
+              </div>
+            )}
+            <p className="text-2xl leading-snug text-slate-50 sm:text-3xl" style={{ fontFamily: "var(--font-display), serif", fontVariationSettings: '"SOFT" 100, "opsz" 96' }}>{prompt}</p>
+          </div>
+          <div className="flex gap-2">
+            <Stat label="streak" value={streak} tone="text-emerald-300" />
+            <Stat label="best" value={best} tone="text-amber-300" />
+            {sprint && <Stat label={sprintLeft > 0 ? "sec left" : "time!"} value={sprintLeft > 0 ? sprintLeft : sprint.count} tone="text-sky-300" />}
+          </div>
         </div>
-        {feedback && <p className={`mb-2 text-sm ${feedback.ok ? "text-emerald-300" : "text-rose-300"}`}>{feedback.text}</p>}
-        <div className="min-w-0">
+        <div className="flex min-h-9 items-center">
+          {feedback ? (
+            <p className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-medium ring-1 ring-inset ${feedback.ok ? "bg-emerald-400/15 text-emerald-200 ring-emerald-400/30" : "bg-rose-400/15 text-rose-200 ring-rose-400/30"}`}>
+              <Icon name={feedback.ok ? "check" : "x"} size={14} />{feedback.text}
+            </p>
+          ) : <p className="text-sm text-slate-500">{q ? (s.mode === "name" ? "Pick the note's name below." : "Tap the neck or play it on your guitar.") : "Pick a game below, then press Start."}</p>}
+        </div>
+        <div className="min-w-0 rounded-2xl border border-slate-800 bg-slate-950/40 p-2">
           <NoteNeck from={0} to={15} dots={dots} onCell={q && s.mode !== "name" ? tap : undefined} cellFill={(st, fr) => (showHeat ? heatFill(st, fr) : undefined) ?? dim(st, fr)} />
         </div>
         {q && s.mode === "name" && (
-          <div className="mt-2 flex flex-wrap gap-1.5">{choices.map((pc) => <Chip key={pc} onClick={() => name(pc)}>{pcName(pc, s.flats)}</Chip>)}</div>
+          <div className="flex flex-wrap gap-2">{choices.map((pc) => <button key={pc} type="button" onClick={() => name(pc)} className="min-w-14 cursor-pointer rounded-xl border-2 border-slate-600 bg-slate-800 px-4 py-2 text-base font-semibold text-slate-50 transition hover:border-amber-400 hover:bg-slate-700 active:scale-[0.96]">{pcName(pc, s.flats)}</button>)}</div>
         )}
-        <div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-slate-400">
-          <button type="button" className={btn} onClick={startSprint} disabled={!!sprint && sprintLeft > 0}>60-second sprint</button>
-          {sprint && <span>{sprintLeft > 0 ? `${sprintLeft}s left · ` : "Time! "}<b className="text-slate-100">{sprint.count}</b> found</span>}
-          <span>best <b className="text-slate-100">{best}</b></span>
-          <Chip on={showHeat} onClick={() => setShowHeat((v) => !v)}>Show weak spots</Chip>
+        <div className="flex flex-wrap items-center gap-2">
+          {!q ? <button type="button" className={btnBig} onClick={() => ask(null)}><Icon name="play" size={16} />Start</button> : <button type="button" className={btnBig} onClick={() => ask(q)}>Skip</button>}
+          {q && <button type="button" className={`${btn} inline-flex items-center gap-1.5 py-2`} onClick={() => { const p = positionsOf(q.pc, s).find((x) => x.string === q.string) ?? positionsOf(q.pc, s)[0]; if (p) playMelody([OPEN_MIDI[p.string] + p.fret], 700); }}><Icon name="volume-2" size={14} />Hear the note</button>}
+          <span className="ml-auto flex flex-wrap items-center gap-2">
+            <button type="button" className={`${btn} py-2`} onClick={startSprint} disabled={!!sprint && sprintLeft > 0}>60-second sprint</button>
+            <Chip on={showHeat} onClick={() => setShowHeat((v) => !v)}>Show weak spots</Chip>
+          </span>
         </div>
-        {showHeat && <p className="mt-1 text-xs text-slate-500">Red cells are where you missed, amber where you were slow. Practise those next: narrow the strings and frets above.</p>}
-      </section>
+        {sprint && sprintLeft === 0 && <p className="text-sm text-slate-300">Time! You found <b className="text-slate-50">{sprint.count}</b>.</p>}
+        {showHeat && <p className="text-xs text-slate-500">Red cells are where you missed, amber where you were slow. Practise those next: narrow the strings and frets in the setup.</p>}
+      </Stage>
+      {setup}
     </div>
   );
 }

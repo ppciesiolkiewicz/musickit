@@ -1,10 +1,12 @@
-import Link from "next/link";
 import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/landing/SiteFooter";
-import { GROUP_LABEL, sectionFor } from "@/features/theory/sections";
+import { GROUP_LABEL, sectionFor, type Tone } from "@/features/theory/sections";
 import type { ReactNode } from "react";
 import PreloadPiano from "@/features/sound/keyboard/PreloadPiano";
 import PracticeReminder from "@/features/plan/PracticeReminder";
+
+/** The short rule under the title, in the page's own colour (full class names so Tailwind sees them). */
+const BAR: Record<Tone, string> = { emerald: "bg-emerald-400", sky: "bg-sky-400", amber: "bg-amber-400", violet: "bg-violet-400", rose: "bg-rose-400", teal: "bg-teal-400", pink: "bg-pink-400", red: "bg-red-400" };
 
 /**
  * Dark page frame with the attunr nav, the page title and the site footer, shared by every page but the looper and the studio.
@@ -14,7 +16,8 @@ import PracticeReminder from "@/features/plan/PracticeReminder";
  * for pages that listen or play.
  */
 export default function PageShell({ title, intro, active, wide = false, full = false, devices = false, header, children }: { title: string; intro?: string; active: string; wide?: boolean; full?: boolean; devices?: boolean; /** replaces the plain title, for pages that open with a hero */ header?: ReactNode; children: ReactNode }) {
-  const section = active.startsWith("/theory/") ? sectionFor(active) : undefined;
+  const section = sectionFor(active);
+  const theory = active.startsWith("/theory/");
   return (
     <div className="app-bg min-h-screen text-slate-200">
       <div className={`mx-auto flex w-full flex-col gap-4 py-3 sm:py-4 ${full ? "px-3 sm:px-6 lg:px-8" : wide ? "max-w-[96rem] px-3 sm:px-5" : "max-w-[80rem] px-3 sm:px-6 lg:px-8"}`}>
@@ -25,7 +28,7 @@ export default function PageShell({ title, intro, active, wide = false, full = f
         </div>
         <header className="pt-1">
           {/* the breadcrumb belongs to the page, so it sits over the title rather than under the logo */}
-          {section && (
+          {section && theory && (
             <nav aria-label="Breadcrumb" className="mb-3 flex w-fit items-center gap-1.5 border-b border-slate-700/70 pb-2 text-xs text-slate-500">
               <span>{GROUP_LABEL[section.group]}</span>
               <span aria-hidden>›</span>
@@ -34,8 +37,9 @@ export default function PageShell({ title, intro, active, wide = false, full = f
           )}
           {header ?? (
             <>
-              <h1 className="text-2xl font-light tracking-wide text-slate-100 sm:text-3xl">{title}</h1>
-              {intro && <p className="mt-1.5 max-w-3xl text-sm leading-relaxed text-slate-400">{intro}</p>}
+              <h1 className="text-3xl leading-tight text-slate-50 text-balance sm:text-4xl" style={{ fontFamily: "var(--font-display), serif", fontVariationSettings: '"SOFT" 100, "opsz" 96' }}>{title}</h1>
+              <span aria-hidden className={`mt-3 block h-0.5 w-12 rounded-full ${section ? BAR[section.tone] : "bg-sky-400"}`} />
+              {intro && <p className="mt-3 max-w-3xl text-sm leading-relaxed text-slate-400 sm:text-base">{intro}</p>}
             </>
           )}
         </header>

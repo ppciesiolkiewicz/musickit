@@ -8,6 +8,7 @@ import { createJudge, type Grade, type Judge, type Judged, type Summary } from "
 import { DEFAULT_RISE_DB } from "./onset";
 import { heardAt, heardNow } from "./clock";
 import { listenForStrums, type StrumListener } from "./mic";
+import { Stage, Stat } from "@/components/practice/shared";
 import InputChip, { micStatusMessage } from "@/components/InputChip";
 import type { MicStatus } from "@/components/practice/useMicPitch";
 
@@ -327,22 +328,26 @@ export default function RhythmGame() {
 
   return (
     <div className="flex flex-col gap-4">
-      <section aria-label="Lane" className="flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-3 sm:p-4">
-        <div className="flex items-center justify-between gap-3 text-sm">
-          <span className="text-slate-400">
-            {pattern.name} · {s.bpm} BPM · <span className="text-slate-500">{pattern.hint}</span>
-          </span>
-          <span className="tabular-nums text-slate-300" aria-live="polite">{playing && streak > 1 ? `Streak ${streak}` : ""}</span>
+      <Stage tone="violet">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-2xl leading-snug text-slate-50 sm:text-3xl" style={{ fontFamily: "var(--font-display), serif", fontVariationSettings: '"SOFT" 100, "opsz" 96' }}>{pattern.name}</p>
+            <p className="mt-1 text-sm text-slate-400">{pattern.hint}</p>
+          </div>
+          <div className="flex gap-2" aria-live="polite">
+            <Stat label="bpm" value={s.bpm} tone="text-violet-300" />
+            <Stat label="streak" value={playing ? streak : 0} tone="text-emerald-300" />
+          </div>
         </div>
         <canvas
           ref={canvas}
           aria-label={s.input === "keys" ? "Rhythm lane: press Space or tap here on each note" : "Rhythm lane: strum on each note"}
           onPointerDown={(e) => { if (settings.current.input === "keys") hit(heardAt(getAudioContext(), e.timeStamp)); }}
-          className="h-40 w-full touch-none select-none rounded-xl bg-slate-950/60 sm:h-48"
+          className="h-40 w-full touch-none select-none rounded-2xl border border-slate-800 bg-slate-950/60 sm:h-48"
         />
         <div className="flex flex-wrap items-center justify-center gap-3">
           <button type="button" onClick={playing ? stop : start}
-            className={`inline-flex min-w-48 items-center justify-center gap-2 rounded-full border px-6 py-2.5 text-sm font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${playing ? "border-rose-500/70 bg-rose-500/15 text-rose-100 hover:bg-rose-500/25" : "border-emerald-500/70 bg-emerald-500/15 text-emerald-100 hover:bg-emerald-500/25"}`}>
+            className={`inline-flex min-w-48 items-center justify-center gap-2 rounded-xl border px-8 py-3 text-base font-semibold shadow-lg transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${playing ? "border-rose-500/70 bg-rose-500/15 text-rose-100 hover:bg-rose-500/25" : "border-emerald-500/70 bg-emerald-500/15 text-emerald-100 hover:bg-emerald-500/25"}`}>
             <span aria-hidden className={`h-2 w-2 ${playing ? "rounded-sm bg-rose-300" : "rounded-full bg-emerald-300"}`} />
             {playing ? "Stop" : phase === "done" ? "Play again" : "Start"}
           </button>
@@ -354,18 +359,17 @@ export default function RhythmGame() {
         {error && <p role="alert" className="text-center text-xs text-rose-300">{error}</p>}
 
         {summary && phase === "done" && (
-          <div className="flex flex-col items-center gap-3 border-t border-slate-800 pt-3 text-sm">
-            <div className="flex items-baseline gap-2">
-              <span className="text-4xl font-light tabular-nums text-slate-100">{summary.score}%</span>
+          <div className="flex flex-col items-center gap-4 border-t border-slate-800 pt-4 text-sm">
+            <div className="flex items-baseline gap-3">
+              <span className="text-5xl font-light tabular-nums text-slate-50" style={{ fontFamily: "var(--font-display), serif" }}>{summary.score}%</span>
               <span className="text-slate-400">best streak {summary.bestStreak}</span>
             </div>
-            <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 tabular-nums">
-              <span className="text-emerald-300">Perfect {summary.perfect}</span>
-              <span className="text-sky-300">Good {summary.good}</span>
-              <span className="text-amber-300">OK {summary.ok}</span>
-              <span className="text-rose-300">Miss {summary.miss}</span>
-              {summary.extra > 0 && <span className="text-slate-400">Extra {summary.extra}</span>}
+            <div className="grid w-full max-w-xl grid-cols-2 gap-2 sm:grid-cols-4">
+              {([["Perfect", summary.perfect, "text-emerald-300 border-emerald-400/30 bg-emerald-400/10"], ["Good", summary.good, "text-sky-300 border-sky-400/30 bg-sky-400/10"], ["OK", summary.ok, "text-amber-300 border-amber-400/30 bg-amber-400/10"], ["Miss", summary.miss, "text-rose-300 border-rose-400/30 bg-rose-400/10"]] as const).map(([l, n, c]) => (
+                <div key={l} className={`flex flex-col items-center rounded-xl border py-2 ${c}`}><span className="text-2xl font-semibold tabular-nums">{n}</span><span className="text-[10px] uppercase tracking-widest">{l}</span></div>
+              ))}
             </div>
+            {summary.extra > 0 && <span className="text-xs text-slate-400">Extra hits {summary.extra}</span>}
             {summary.meanOffset !== null && (
               <div className="flex flex-wrap items-center justify-center gap-2 text-slate-400">
                 <span>On average {early(summary.meanOffset)}.</span>
@@ -378,9 +382,10 @@ export default function RhythmGame() {
             )}
           </div>
         )}
-      </section>
+      </Stage>
 
       <aside aria-label="Setup" className="flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
+        <h2 className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">Set up the round</h2>
         <ChipRow label="Play with">
           <Chip on={s.input === "keys"} onClick={() => { if (!playing) { closeMic(); setError(null); update({ input: "keys" }); } }}>Space / tap</Chip>
           <Chip on={s.input === "mic"} onClick={() => !playing && update({ input: "mic" })}>Strum (mic)</Chip>

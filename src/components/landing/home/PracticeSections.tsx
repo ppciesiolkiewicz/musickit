@@ -4,6 +4,7 @@ import Icon, { type IconName } from "@/components/Icon";
 import { DISPLAY, Eyebrow, H2, Mark } from "@/components/landing/Display";
 import ScaleWheel from "@/components/theory/ScaleWheel";
 import { degreeColour, degreeLabels } from "@/features/theory/scales";
+import { THEORY_SECTIONS, TONE } from "@/features/theory/sections";
 import { FAMILIES, MAJOR, modeSteps } from "@/features/theory/theory";
 
 /*
@@ -49,11 +50,9 @@ const PLAN_DAY: { label: string; mins: number; tone: string; done?: boolean }[] 
   { label: "Eighth notes at 80 bpm, on the beat", mins: 5, tone: "bg-violet-400" },
 ];
 
-const DO: { href: string; verb: string; label: string; icon: IconName; tone: string }[] = [
-  { href: "/theory/metronome-drone", verb: "Keep time", label: "Metronome & drone", icon: "audio-lines", tone: "bg-violet-500/15 text-violet-300" },
-  { href: "/theory/scales", verb: "See", label: "Scales", icon: "sliders-horizontal", tone: "bg-amber-500/15 text-amber-300" },
-  { href: "/looper", verb: "Play", label: "Looper", icon: "repeat", tone: "bg-teal-500/15 text-teal-300" },
-];
+/** The tools the landing page opens straight into. Label, line, icon and colour come from the nav list. */
+const DO_HREFS = ["/theory/singing", "/theory/scales", "/theory/caged", "/theory/chords", "/theory/metronome-drone", "/looper", "/theory/backing", "/tuner"];
+const DO = DO_HREFS.flatMap((href) => THEORY_SECTIONS.filter((s) => s.href === href));
 
 export function SkillsSection({
   eyebrow = "Drills for every part of playing",
@@ -181,13 +180,17 @@ export function IdeasSection({ eyebrow = "Free in the app", title = <>Practice t
           <p className="text-sm leading-relaxed text-slate-400">Practise in an order that builds, one step at a time, so you never wonder whether today&apos;s practice was the right practice.</p>
         </li>
       </ul>
-      <ul className="mt-6 grid gap-3 md:grid-cols-3">
+      <h3 className="mt-14 text-center text-2xl text-slate-50 sm:text-3xl" style={DISPLAY}>Open a tool and <span className="ls-accent italic text-sky-300">start playing.</span></h3>
+      <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {DO.map((d) => (
           <li key={d.href}>
-            <Link href={d.href} className="ls-card group flex items-center gap-4 rounded-2xl border border-slate-800 bg-slate-900/40 p-4 transition hover:-translate-y-0.5 hover:border-slate-600">
-              <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl ${d.tone}`}><Icon name={d.icon} size={20} /></span>
-              <span className="text-lg text-slate-50" style={DISPLAY}><span className="italic">{d.verb}</span> · {d.label}</span>
-              <span aria-hidden className="ml-auto text-slate-600 transition group-hover:translate-x-0.5 group-hover:text-slate-300">→</span>
+            <Link href={d.href} className="ls-card group flex h-full flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-4 transition hover:-translate-y-0.5 hover:border-slate-600">
+              <span className="flex items-center justify-between">
+                <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl ${TONE[d.tone].chip} ${TONE[d.tone].icon}`}><Icon name={d.icon} size={20} /></span>
+                <span aria-hidden className="text-slate-600 transition group-hover:translate-x-0.5 group-hover:text-slate-300">→</span>
+              </span>
+              <span className="text-lg leading-tight text-slate-50" style={DISPLAY}>{d.label}</span>
+              <span className="text-sm leading-snug text-slate-400">{d.desc}</span>
             </Link>
           </li>
         ))}
