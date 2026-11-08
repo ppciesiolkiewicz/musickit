@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState, type PointerEvent, type ReactNode } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type PointerEvent, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import Icon from "@/components/Icon";
 import InputChip from "@/components/InputChip";
 import { DropdownSection } from "@/components/ui";
@@ -21,6 +22,8 @@ import { useSingAlong, type Layer } from "./useSingAlong";
 const scaleFor = (h: number) => Math.max(1.2, Math.min(2.4, h / 380));
 /** a sideways drag this long (px), more sideways than up or down, steps to the previous or next tune */
 const SWIPE_PX = 60;
+
+const noSubscribe = () => () => {};
 
 /** previous and next in a list of tunes, for full screen: arrows on its margins, ← and →, and a swipe */
 export interface SingAlongNav {
@@ -61,7 +64,8 @@ const LAYERS: { id: Layer; label: string; icon: "piano" | "music" | "metronome";
  * heard (the tune, its chords when it has them, the metronome) as a row of switches, each on or off while it plays, the bar running either way; a loop over a part of
  * the tune set on a strip of the whole tune (on by default, over all of it; the strip shows only while looping), and the tune drawn on an endless staff or
  * as a piano roll that keeps the line the voice took. Full screen is a page modal (Esc closes it), drawn big, the notes
- * sliding under a bar that stays put so the voice dot holds its place. Key it by the tune: a new one starts over.
+ * sliding under a bar that stays put so the voice dot holds its place. It is the same player moved over the page, so a
+ * tune playing plays on into full screen and back out of it. Key it by the tune: a new one starts over (a new tempo does not).
  */
 export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, tapped, onNote, info, cents: centsProp, lagMs, full: fullProp, onFull, nav, tools, settings }: {
   notes: PlacedNote[];
@@ -136,13 +140,26 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
       window.removeEventListener("keydown", onKey);
     };
   }, [full]);
+  // full screen is drawn over the page from the body (out of any card's stacking), the same player so a tune plays on;
+  // back in its place it is scrolled into view, so it doesn't stop for being off screen
+  const mounted = useSyncExternalStore(noSubscribe, () => true, () => false);
+  const root = useRef<HTMLDivElement | null>(null);
+  const setRoot = useCallback((el: HTMLDivElement | null) => {
+    root.current = el;
+    focus(el);
+  }, [focus]);
+  const wasFull = useRef(full);
+  useLayoutEffect(() => {
+    if (wasFull.current && !full) root.current?.scrollIntoView({ block: "nearest" });
+    wasFull.current = full;
+  }, [full]);
   const size = full ? scale : 1;
   const pass = sa.playing ? passAt(sa.frame.passes, sa.frame.s) : undefined;
   const at = pass ? pass.from + sa.frame.s - pass.start : null;
   const seg = (on: boolean) => `px-2.5 py-1 text-[11px] transition ${on ? "bg-sky-500/20 text-sky-100" : "text-slate-400 hover:text-slate-200"}`;
 
-  return (
-    <div ref={focus} role={full ? "dialog" : undefined} aria-modal={full || undefined} aria-label={full ? "Sing along" : undefined}
+  const view = (
+    <div ref={setRoot} role={full ? "dialog" : undefined} aria-modal={full || undefined} aria-label={full ? "Sing along" : undefined}
       className={full ? `fixed inset-0 z-[70] flex flex-col gap-4 overflow-hidden bg-slate-950 p-4 sm:p-6 ${nav ? "px-12 sm:px-16" : ""}` : "flex flex-col gap-2"}>
       {full && nav && <MarginArrow side="left" onClick={nav.prev} />}
       {full && nav && <MarginArrow side="right" onClick={nav.next} />}
@@ -199,4 +216,5 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
       </div>
     </div>
   );
+  return full && mounted ? createPortal(view, document.body) : view;
 }

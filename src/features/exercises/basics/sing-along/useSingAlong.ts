@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useMicPitch } from "@/components/practice/useMicPitch";
 import { useStepPart } from "@/components/practice/exerciseStep";
 import { clickAt } from "@/features/instruments/model";
@@ -50,7 +50,8 @@ export interface Frame {
 /**
  * One clock for a tune sung along: Play runs the bar over the passes (the loop region again and again, or the whole tune
  * once) with what is heard of it (`Heard`, each switched on and off while it runs), Stop puts it back at the start. The voice is kept as a trail on the
- * stream's beats while the bar runs; passes and trail long gone by are dropped. A new tune is a new mount (key it).
+ * stream's beats while the bar runs; passes and trail long gone by are dropped. A new tune is a new mount (key it); a new
+ * `beatMs` is not: the bar keeps its place and runs on at the new tempo.
  */
 export function useSingAlong({ notes, chords, beatMs, total, click = false }: { notes: PlacedNote[]; chords: MelodyChord[]; beatMs: number; total: number; click?: boolean }) {
   const [mic, setMic] = useState(false);
@@ -77,7 +78,9 @@ export function useSingAlong({ notes, chords, beatMs, total, click = false }: { 
   const gaps = useRef(0);
   const [frame, setFrame] = useState<Frame>({ s: 0, passes: first, trail: [], midi: null });
 
-  const beatNow = useCallback(() => (run.current ? (performance.now() - t0.current) / beatMs : 0), [beatMs]);
+  // the clock's tempo, moved by the effect below so the bar keeps its place when the tempo changes
+  const beat = useRef(beatMs);
+  const beatNow = useCallback(() => (run.current ? (performance.now() - t0.current) / beat.current : 0), []);
   const draw = useCallback(() => {
     setFrame({ s: beatNow(), passes: passes.current, trail: [...trail.current], midi: pitch.current });
   }, [beatNow]);
@@ -130,6 +133,23 @@ export function useSingAlong({ notes, chords, beatMs, total, click = false }: { 
   // another sequence silencing the piano stops this one too
   useEffect(() => onSilence(() => run.current && stop()), [stop]);
 
+  // a new tempo while the bar runs: the bar stays on its beat, what was put ahead is put again at the new tempo (a note
+  // ringing rings on); the next tick puts them
+  useLayoutEffect(() => {
+    if (beat.current === beatMs) return;
+    if (run.current) {
+      const now = performance.now();
+      const s = (now - t0.current) / beat.current;
+      t0.current = now - s * beatMs;
+      ons.current.forEach(clearTimeout);
+      ons.current = [];
+      clickOut.current?.disconnect();
+      clickOut.current = null;
+      scheduled.current = s;
+    }
+    beat.current = beatMs;
+  }, [beatMs]);
+
   // the piano: notes put on timers a little ahead, the passes kept ahead of the bar
   useEffect(() => {
     if (!playing) return;
@@ -140,6 +160,7 @@ export function useSingAlong({ notes, chords, beatMs, total, click = false }: { 
       passes.current = fill(prune(passes.current, s - BEHIND), activeRef.current, s + AHEAD, notes, chords, total);
       const last = passes.current[passes.current.length - 1];
       if (!activeRef.current && last && s >= passEnd(last)) return stop();
+      const beatMs = beat.current;
       const horizon = s + LOOK_MS / beatMs;
       const now = performance.now();
       const due = (at: number) => at >= scheduled.current && at < horizon;
@@ -178,7 +199,7 @@ export function useSingAlong({ notes, chords, beatMs, total, click = false }: { 
     tick();
     const id = setInterval(tick, TICK_MS);
     return () => clearInterval(id);
-  }, [playing, beatNow, beatMs, notes, chords, total, stop]);
+  }, [playing, beatNow, notes, chords, total, stop]);
 
   // the drawing: every frame while the bar runs or the mic listens
   useEffect(() => {

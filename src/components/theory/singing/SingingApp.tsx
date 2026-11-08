@@ -9,8 +9,7 @@ import { createSmoother, type Pitch } from "@/features/tuner/pitch";
 import { getAudioContext, getSharedPiano, midiToName, onSilence, playSequence, silence, wakeAudio } from "@/features/sound";
 import { MAX_BPM, MIN_BPM, type PocketStatus } from "@/features/instruments";
 import { ACCURACIES, VOICES, buildLadder, clefFor, hzToMidi, savedVoice, scaleRun, tuneLadderFor, type Ladder, type Range, type Voice } from "@/features/theory/singing";
-import { BOOK, DIFFICULTIES, RUNS, lengthLabel, placeRun, placeTune, runPasses, type BookTune, type PlacedNote } from "@/features/theory/singingMelodies";
-import SingAlong from "@/features/exercises/basics/sing-along/SingAlong";
+import { BOOK, DIFFICULTIES, RUNS, placeRun, placeTune, runPasses, type BookTune, type PlacedNote } from "@/features/theory/singingMelodies";
 import { harmoniseRun, harmoniseTune, type MelodyChord } from "@/features/theory/melodyChords";
 import { useAccuracy } from "@/features/theory/useAccuracy";
 import { singingQuery, type SingingLink } from "@/features/theory/singingLink";
@@ -19,7 +18,6 @@ import { EAR_LEVELS } from "@/lib/practice/earGame";
 import SingingStaff from "./SingingStaff";
 import MelodyFeed from "./MelodyFeed";
 import { DOT_LAG_MS } from "./MelodyStaff";
-import { ShareButton } from "./MelodyControls";
 import MicButton from "./MicButton";
 import InputChip, { micStatusMessage } from "@/components/InputChip";
 import IntervalDrill, { type IntervalPrompt } from "./IntervalDrill";
@@ -140,7 +138,8 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
     return new Map<number, { notes: PlacedNote[]; chords: MelodyChord[]; ladder: Ladder }>([
       ...BOOK.map((t) => [t.n, { ...(chords ? harmoniseTune(t.notes, tuneLadder, range) : { notes: placeTune(t.notes, tuneLadder, range), chords: none }), ladder: tuneLadder }] as const),
       ...RUNS.map((t) => [t.n, {
-        ...(chords ? harmoniseRun(t.notes, t.keys!, ladderIn, range) : { notes: placeRun(t.notes, t.keys!, ladderIn, range), chords: none }),
+        // a bar of the first key's I and V before the run, as before each key change, so the key is heard before the singing starts
+        ...(chords ? harmoniseRun(t.notes, t.keys!, ladderIn, range, { intro: true }) : { notes: placeRun(t.notes, t.keys!, ladderIn, range), chords: none }),
         ladder: ladderIn(runPasses(t.notes, t.keys!, ladderIn, range)[0].pc, range),
       }] as const),
     ]);
@@ -261,7 +260,6 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
   }, [tunes, at]);
   const prev = useCallback(() => step(-1), [step]);
   const next = useCallback(() => step(1), [step]);
-  const focused = tunes[at] ?? ALL.find((t) => t.n === active) ?? tunes[0] ?? book[0];
 
   // a tune's card holds its own mic; the page's mic is the scale's and the intervals'
   const message =
@@ -373,6 +371,19 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
               onNote={(t, i) => void tapTune(t, i)}
               onPick={(t) => setActive(t.n)}
               onFocus={openFocus}
+              full={focus}
+              onClose={closeFocus}
+              nav={{ prev: at > 0 ? prev : undefined, next: at >= 0 && at < tunes.length - 1 ? next : undefined, label: `${Math.max(0, at) + 1} / ${tunes.length}` }}
+              fullSettings={<>
+                <label className="flex items-center gap-2">
+                  <span className="uppercase tracking-wider text-slate-500">Tempo</span>
+                  <Slider min={MIN_BPM} max={MAX_BPM} step={1} value={bpm} onChange={(b) => pocket?.setTempo(b)} size="sm" className="w-40" aria-label="Tempo" />
+                  <span className="w-14 tabular-nums text-slate-200">{bpm} bpm</span>
+                </label>
+                <span className="flex items-center gap-1.5"><span className="uppercase tracking-wider text-slate-500">Voice</span>{voiceSelect}</span>
+                <span className="flex items-center gap-1.5"><span className="uppercase tracking-wider text-slate-500">Accuracy</span>{accuracySelect}</span>
+                <label className="flex items-center gap-2"><span className="uppercase tracking-wider text-slate-500">Play-ahead</span>{lagSlider}</label>
+              </>}
               linkTo={linkTo}
               reveal={linked?.n ?? null}
             />
@@ -383,36 +394,6 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
           )}
         </section>
       </WithSettings>
-      {focus && tuneTab && (
-        <SingAlong
-          // a new tune starts the player over; full screen stays open across them
-          key={`focus-${focused.n}-${beat}-${chords}`}
-          notes={place(focused)}
-          chords={chordsOf(focused)}
-          ladder={ladderOf(focused)}
-          clef={clef}
-          beatMs={beat}
-          cents={cents}
-          lagMs={lagMs}
-          tapped={tapped?.n === focused.n ? tapped.i : null}
-          onNote={(i) => void tapTune(focused, i)}
-          info={<>#{focused.n} · {focused.stage.title} · {DIFFICULTIES[focused.difficulty].title} · {lengthLabel(focused)}</>}
-          full
-          onFull={(on) => !on && closeFocus()}
-          nav={{ prev: at > 0 ? prev : undefined, next: at >= 0 && at < tunes.length - 1 ? next : undefined, label: `${Math.max(0, at) + 1} / ${tunes.length}` }}
-          tools={<ShareButton link={() => linkTo(focused)} />}
-          settings={<>
-            <label className="flex items-center gap-2">
-              <span className="uppercase tracking-wider text-slate-500">Tempo</span>
-              <Slider min={MIN_BPM} max={MAX_BPM} step={1} value={bpm} onChange={(b) => pocket?.setTempo(b)} size="sm" className="w-40" aria-label="Tempo" />
-              <span className="w-14 tabular-nums text-slate-200">{bpm} bpm</span>
-            </label>
-            <span className="flex items-center gap-1.5"><span className="uppercase tracking-wider text-slate-500">Voice</span>{voiceSelect}</span>
-            <span className="flex items-center gap-1.5"><span className="uppercase tracking-wider text-slate-500">Accuracy</span>{accuracySelect}</span>
-            <label className="flex items-center gap-2"><span className="uppercase tracking-wider text-slate-500">Play-ahead</span>{lagSlider}</label>
-          </>}
-        />
-      )}
     </div>
   );
 }
