@@ -114,16 +114,16 @@ export default function CopyNotes() {
     };
   }, [on]);
 
-  // A (no modifier, not while typing) turns note mode on and off, the "Note a text" button from the keyboard; N opens and closes the notes
+  // A (no modifier, not while typing) turns note mode on and off, the "Note a text" button from the keyboard; S opens and closes the notes (N is an exercise's Next)
   useEffect(() => {
     if (!devUi()) return;
     const key = (e: KeyboardEvent) => {
       const k = e.key.toLowerCase();
-      if ((k !== "a" && k !== "n") || e.metaKey || e.ctrlKey || e.altKey || e.repeat) return;
+      if ((k !== "a" && k !== "s") || e.metaKey || e.ctrlKey || e.altKey || e.repeat) return;
       const t = e.target;
       if (t instanceof HTMLElement && (t.isContentEditable || t.closest("input,textarea,select"))) return;
       if (k === "a") return void setOn((v) => !v);
-      // N opens or closes the notes panel; closing also leaves note mode and the list
+      // S opens or closes the notes panel; closing also leaves note mode and the list
       if (shut.current) (setOpen(false), setOn(false), setList(false), setTarget(null));
       else (setOpen(true), setOn(true));
     };
@@ -245,7 +245,7 @@ export default function CopyNotes() {
           title="Notes on the wording of this page (N: open or close, A: note a text)"
           className={`inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-amber-400/50 px-3.5 py-2 text-xs font-semibold shadow-lg ${on ? "bg-amber-400 text-slate-950" : "bg-slate-950/95 text-amber-100"}`}
         >
-          <Icon name="pencil" size={12} />{on && !open ? "Click a text · A or Esc" : notes.length ? `Notes · ${here.length}/${notes.length}` : "Notes"}<kbd className="rounded border border-current px-1 font-mono text-[10px] opacity-70">N</kbd>
+          <Icon name="pencil" size={12} />{on && !open ? "Click a text · A or Esc" : notes.length ? `Notes · ${here.length}/${notes.length}` : "Notes"}<kbd className="rounded border border-current px-1 font-mono text-[10px] opacity-70">S</kbd>
         </button>
       </div>
     </>

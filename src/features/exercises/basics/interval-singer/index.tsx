@@ -63,6 +63,23 @@ export function View({ pc = 0, voice = "tenor", intervals = DEFAULT_INTERVALS, d
   };
   useEffect(() => stopTimers, []);
 
+  // N (no modifier, not while typing) is the Start / Next button, for the tool on screen (a plan may hold more than one)
+  const root = useRef<HTMLDivElement>(null);
+  const onN = useRef<() => void>(() => {});
+  useEffect(() => {
+    const key = (e: KeyboardEvent) => {
+      if (e.key.toLowerCase() !== "n" || e.metaKey || e.ctrlKey || e.altKey || e.repeat) return;
+      const t = e.target;
+      if (t instanceof HTMLElement && (t.isContentEditable || t.closest("input,textarea,select"))) return;
+      const box = root.current?.getBoundingClientRect();
+      if (!box || box.bottom < 0 || box.top > window.innerHeight) return;
+      e.preventDefault();
+      onN.current();
+    };
+    window.addEventListener("keydown", key);
+    return () => window.removeEventListener("keydown", key);
+  }, []);
+
   // the mic
   const [micOn, setMicOn] = useState(false);
   const pitch = useRef<number | null>(null);
@@ -117,6 +134,9 @@ export function View({ pc = 0, voice = "tenor", intervals = DEFAULT_INTERVALS, d
     void prompt();
     if (!micOn) startMic();
   };
+  useEffect(() => {
+    onN.current = next;
+  });
   const reveal = (ok: boolean) => {
     if (targetMidi === null) return;
     stopTimers();
@@ -168,9 +188,11 @@ export function View({ pc = 0, voice = "tenor", intervals = DEFAULT_INTERVALS, d
     : phase === "solved" ? `Yes: ${target!.label}, ${target!.spelled.name}.` : `It was ${target!.label}, ${target!.spelled.name}.`;
 
   return (
-    <div className="flex flex-col gap-3">
+    <div ref={root} className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center gap-2">
-        <Button size="sm" onClick={next} className="!border-sky-400/80 !bg-sky-500/25 !text-sky-50">{ask === null ? "Start" : "Next"}</Button>
+        <Button size="sm" onClick={next} title={`${ask === null ? "Start" : "Next interval"} (N)`} className="inline-flex items-center gap-1.5 !border-sky-400/80 !bg-sky-500/25 !text-sky-50">
+          {ask === null ? "Start" : "Next"}<kbd aria-hidden className="rounded border border-current px-1 font-mono text-[10px] opacity-70">N</kbd>
+        </Button>
         {ask !== null && <Button size="sm" onClick={() => void tap(doMidi, -1)}>Hear Do</Button>}
         {ask !== null && !found && <Button size="sm" onClick={() => reveal(false)}>Show me</Button>}
         <MicButton on={micOn} onClick={() => (micOn ? setMicOn(false) : startMic())} />
@@ -182,6 +204,8 @@ export function View({ pc = 0, voice = "tenor", intervals = DEFAULT_INTERVALS, d
       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
         <p className="text-2xl font-semibold text-slate-50">
           Interval · <span className="text-sky-200">{ask === null ? "…" : shortName(ask)}</span>
+          {/* the same interval in solfège: from Do up (or down) to its note */}
+          {ask !== null && <span className="text-slate-300"> · Do {ask > 0 ? "↑" : "↓"} {solfegeOf(ask)}</span>}
         </p>
         {ask !== null && <p className="text-sm text-slate-400">{longName(ask)} from Do ({placed.doNote.spelled.name})</p>}
       </div>
