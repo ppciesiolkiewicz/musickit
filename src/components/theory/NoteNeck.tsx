@@ -21,10 +21,12 @@ interface Props {
   compact?: boolean;
   /** static arrows from note to note, drawn under the dots */
   paths?: NeckPath[];
+  /** use the full width of the container, but never so tall that the low strings drop off the screen */
+  fill?: boolean;
 }
 
 /** A plain fretboard with labelled dots and optional tappable cells. Shared by the basics page, the practice games and the CAGED neighbours. */
-export default function NoteNeck({ from = 0, to, dots, onCell, cellFill, window, compact, paths }: Props) {
+export default function NoteNeck({ from = 0, to, dots, onCell, cellFill, window, compact, paths, fill }: Props) {
   // a phone fits the whole neck on screen: narrower frets, so the dots come out bigger once it is scaled down
   const phone = usePhone();
   // arrows between neighbouring strings need room to show, and dots with a second label are bigger;
@@ -44,7 +46,7 @@ export default function NoteNeck({ from = 0, to, dots, onCell, cellFill, window,
   const colLeft = (f: number) => g.edge(f);
   const colW = (f: number) => g.edge(f + 1) - g.edge(f);
   return (
-    <svg viewBox={`0 0 ${g.W} ${g.H}`} width="100%" role="img" aria-label="Fretboard" style={{ maxWidth: g.W * 1.1 }}>
+    <svg viewBox={`0 0 ${g.W} ${g.H}`} width="100%" role="img" aria-label="Fretboard" style={fill ? { maxHeight: "56vh" } : { maxWidth: g.W * 1.1 }}>
       <FretboardBase g={g} markerSize={compact ? 4 : 6} />
       {window && (
         <rect x={colLeft(Math.max(from, window.from))} y={g.sy(5) - 14} width={g.edge(Math.min(to, window.to) + 1) - colLeft(Math.max(from, window.from))} height={g.sy(0) - g.sy(5) + 28} rx={6} fill={window.colour ?? "#38bdf8"} opacity={0.12} pointerEvents="none" />

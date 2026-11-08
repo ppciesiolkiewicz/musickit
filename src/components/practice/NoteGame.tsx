@@ -12,16 +12,17 @@ import {
 } from "@/lib/practice/noteGame";
 import { useMicPitch } from "./useMicPitch";
 import { micGate } from "@/lib/practice/mic";
-import { SetupTag, Stage, Stat, Target, btn, btnBig, panel, readBest, writeBest, writeQuery } from "./shared";
+import { GameChoice, SetupTag, Stage, Stat, Target, btn, btnBig, panel, readBest, useGameKeys, writeBest, writeQuery } from "./shared";
 import { Chip, ChipRow, Stepper } from "@/components/ui";
 import InputChip, { micStatusMessage } from "@/components/InputChip";
 
 const STRING_LETTERS = ["E", "A", "D", "G", "B", "e"];
-const MODES: { id: NoteMode; label: string }[] = [
-  { id: "find", label: "Find it on a string" },
-  { id: "every", label: "Find every one" },
-  { id: "name", label: "Name the dot" },
+const MODES: { id: NoteMode; title: string; about: string }[] = [
+  { id: "find", title: "Find it on a string", about: "Get a note and a string, and find the fret." },
+  { id: "every", title: "Find every one", about: "Find one note everywhere it sits on your strings." },
+  { id: "name", title: "Name the dot", about: "A dot lights up on the neck. Say which note it is." },
 ];
+const LETTER_PC: Record<string, number> = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
 const BEST_KEY = "musickit.noteGame.best";
 const SPRINT_MS = 60_000;
 
@@ -42,6 +43,7 @@ export default function NoteGame({ initial, syncUrl = true, bare = false }: { in
   const [best, setBest] = useState(0);
   const asked = useRef(0);
   const gate = useRef(micGate.initial);
+  const stage = useRef<HTMLDivElement>(null);
 
   useEffect(() => setBest(readBest(BEST_KEY)), []); // eslint-disable-line react-hooks/set-state-in-effect -- localStorage is only readable after mount
 
@@ -105,6 +107,14 @@ export default function NoteGame({ initial, syncUrl = true, bare = false }: { in
     }
   };
 
+  // name the dot from the keyboard: a letter key answers with that natural note
+  useGameKeys((e) => {
+    const pc = LETTER_PC[e.key.toUpperCase()];
+    if (!q || s.mode !== "name" || pc === undefined) return;
+    e.stopImmediatePropagation(); // the letter is an answer here, not the notes panel's shortcut
+    name(pc);
+  }, !bare);
+
   const onPlayed = useCallback((pc: number | null) => {
     if (!q || s.mode === "every") return;
     const r = micGate.step(gate.current, pc, q.pc);
@@ -131,7 +141,15 @@ export default function NoteGame({ initial, syncUrl = true, bare = false }: { in
     return () => clearInterval(id);
   }, [sprint, best]);
 
+  /** Starting a game on a short screen: bring the whole neck into view, since the low strings can sit below the fold. */
+  const showNeck = () => {
+    const el = stage.current;
+    if (!el || el.getBoundingClientRect().bottom <= window.innerHeight) return;
+    el.scrollIntoView({ block: "start", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  };
+
   const startSprint = () => {
+    showNeck();
     const t = performance.now();
     setSprint({ ends: t + SPRINT_MS, count: 0 });
     setNow(t);
@@ -158,25 +176,14 @@ export default function NoteGame({ initial, syncUrl = true, bare = false }: { in
     : <>Find<Target>{pcName(q.pc, s.flats)}</Target>on the {STRING_LETTERS[q.string]} string</>;
   const choices = answerChoices(s.naturals, q?.pc ?? 0);
   const micText = micStatusMessage(status);
-
-  const setup = (
-    <section className={`${panel} flex flex-col gap-2`}>
-      {!bare && <>
-        <h2 className="mb-1 text-xs font-medium uppercase tracking-[0.2em] text-slate-500">Set up the game</h2>
-        <ChipRow label="Game">{MODES.map((m) => <Chip key={m.id} on={s.mode === m.id} onClick={() => update({ mode: m.id })}>{m.label}</Chip>)}</ChipRow>
-        <ChipRow label="Strings">
-          {STRING_LETTERS.map((l, i) => (
-            <Chip key={l} on={s.strings.includes(i)} onClick={() => update({ strings: s.strings.includes(i) ? s.strings.filter((x) => x !== i) : [...s.strings, i].sort((a, b) => a - b) })}>{l}</Chip>
-          ))}
-        </ChipRow>
-        <div className="flex flex-wrap items-center gap-3">
-          <Stepper label="From fret" value={`from ${s.from}`} onDec={() => update({ from: Math.max(0, s.from - 1) })} onInc={() => update({ from: Math.min(s.to, s.from + 1) })} decDisabled={s.from <= 0} incDisabled={s.from >= s.to} />
-          <Stepper label="To fret" value={`to ${s.to}`} onDec={() => update({ to: Math.max(s.from, s.to - 1) })} onInc={() => update({ to: Math.min(15, s.to + 1) })} decDisabled={s.to <= s.from} incDisabled={s.to >= 15} />
-          <Chip on={s.naturals} onClick={() => update({ naturals: !s.naturals })}>Natural notes only</Chip>
-          <Chip on={s.flats} onClick={() => update({ flats: !s.flats })}>Flat names</Chip>
-        </div>
-      </>}
-      <ChipRow label="Answer by">
+  // only offer what works right now: playing the note does nothing until the mic is on
+  const hint = !q ? (bare ? "Press Start." : "Pick a game above, then press Start.")
+    : s.mode === "name" ? `Pick its name below${bare ? "" : " or press its letter key"}${mic ? ", or play it on your guitar" : ""}.`
+    : mic && s.mode !== "every" ? "Play it on your guitar, or tap the neck."
+    : "Tap the neck.";
+  const answerBy = (
+    <div className="flex flex-col gap-2">
+      <ChipRow label="Answer by" info="Tap the note on the neck, or play it on your guitar and let the mic hear it. With the mic, any octave counts.">
         <Chip on={!mic} onClick={() => setMic(false)}>Tapping the neck</Chip>
         <Chip on={mic} onClick={() => setMic(true)}>Playing it (mic)</Chip>
         {mic && <InputChip status={status} />}
@@ -186,17 +193,39 @@ export default function NoteGame({ initial, syncUrl = true, bare = false }: { in
           {s.mode === "every" ? "The mic can't tell which string you used, so “find every one” is answered by tapping." : micText ? (status === "asking" ? micText : `${micText} Or answer by tapping.`) : status === "on" ? `Listening${heard !== null ? `: hearing ${pcName(heard, s.flats)}` : "…"} Any octave counts.` : "Press Start, then play the note."}
         </p>
       )}
+    </div>
+  );
+
+  const setup = !bare && (
+    <section className={`${panel} flex flex-col gap-2`}>
+        <h2 className="mb-1 text-xs font-medium uppercase tracking-[0.2em] text-slate-400">Set up the game</h2>
+        <ChipRow label="Strings" info="Which strings the questions use. Start with E and A, the roots of most chords, then add the others. The small e is the thin top string.">
+          {STRING_LETTERS.map((l, i) => (
+            <Chip key={l} on={s.strings.includes(i)} onClick={() => update({ strings: s.strings.includes(i) ? s.strings.filter((x) => x !== i) : [...s.strings, i].sort((a, b) => a - b) })}>{l}</Chip>
+          ))}
+        </ChipRow>
+        <ChipRow label="Frets" info="The part of the neck the questions use. Frets outside it are dimmed. Keep it small at first, then widen it as it gets easy.">
+          <Stepper label="From fret" value={`from ${s.from}`} onDec={() => update({ from: Math.max(0, s.from - 1) })} onInc={() => update({ from: Math.min(s.to, s.from + 1) })} decDisabled={s.from <= 0} incDisabled={s.from >= s.to} />
+          <Stepper label="To fret" value={`to ${s.to}`} onDec={() => update({ to: Math.max(s.from, s.to - 1) })} onInc={() => update({ to: Math.min(15, s.to + 1) })} decDisabled={s.to <= s.from} incDisabled={s.to >= 15} />
+        </ChipRow>
+        <ChipRow label="Notes" info="Natural notes have no sharp or flat: A B C D E F G. Flat names call a note B♭ instead of A♯. It is the same note with another name.">
+          <Chip on={s.naturals} onClick={() => update({ naturals: !s.naturals })}>Natural notes only</Chip>
+          <Chip on={s.flats} onClick={() => update({ flats: !s.flats })}>Flat names</Chip>
+        </ChipRow>
+        <p className="mt-1 text-xs text-slate-400">These settings are in the page address. Copy the link to give a student the same exercise.</p>
     </section>
   );
 
   return (
     <div className="flex flex-col gap-4">
+      {!bare && <GameChoice label="Game" options={MODES} value={s.mode} onChange={(mode) => update({ mode })} tone="amber" />}
+      <div ref={stage} className="scroll-mt-4">
       <Stage tone="amber">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
             {bare && (
               <div className="mb-2 flex flex-wrap items-center gap-1.5" aria-label="Set up as">
-                <SetupTag tone="sky">{MODES.find((m) => m.id === s.mode)!.label}</SetupTag>
+                <SetupTag tone="sky">{MODES.find((m) => m.id === s.mode)!.title}</SetupTag>
                 <SetupTag tone="amber">Strings {s.strings.map((i) => STRING_LETTERS[i]).join(" ")}</SetupTag>
                 <SetupTag tone="teal">Frets {s.from}–{s.to}</SetupTag>
                 {s.naturals && <SetupTag tone="violet">Natural notes</SetupTag>}
@@ -207,25 +236,12 @@ export default function NoteGame({ initial, syncUrl = true, bare = false }: { in
           </div>
           <div className="flex gap-2">
             <Stat label="streak" value={streak} tone="text-emerald-300" />
-            <Stat label="best" value={best} tone="text-amber-300" />
+            <Stat label="best sprint" value={best} tone="text-amber-300" />
             {sprint && <Stat label={sprintLeft > 0 ? "sec left" : "time!"} value={sprintLeft > 0 ? sprintLeft : sprint.count} tone="text-sky-300" />}
           </div>
         </div>
-        <div className="flex min-h-9 items-center">
-          {feedback ? (
-            <p className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-medium ring-1 ring-inset ${feedback.ok ? "bg-emerald-400/15 text-emerald-200 ring-emerald-400/30" : "bg-rose-400/15 text-rose-200 ring-rose-400/30"}`}>
-              <Icon name={feedback.ok ? "check" : "x"} size={14} />{feedback.text}
-            </p>
-          ) : <p className="text-sm text-slate-500">{q ? (s.mode === "name" ? "Pick the note's name below." : "Tap the neck or play it on your guitar.") : "Pick a game below, then press Start."}</p>}
-        </div>
-        <div className="min-w-0 rounded-2xl border border-slate-800 bg-slate-950/40 p-2">
-          <NoteNeck from={0} to={15} dots={dots} onCell={q && s.mode !== "name" ? tap : undefined} cellFill={(st, fr) => (showHeat ? heatFill(st, fr) : undefined) ?? dim(st, fr)} />
-        </div>
-        {q && s.mode === "name" && (
-          <div className="flex flex-wrap gap-2">{choices.map((pc) => <button key={pc} type="button" onClick={() => name(pc)} className="min-w-14 cursor-pointer rounded-xl border-2 border-slate-600 bg-slate-800 px-4 py-2 text-base font-semibold text-slate-50 transition hover:border-amber-400 hover:bg-slate-700 active:scale-[0.96]">{pcName(pc, s.flats)}</button>)}</div>
-        )}
         <div className="flex flex-wrap items-center gap-2">
-          {!q ? <button type="button" className={btnBig} onClick={() => ask(null)}><Icon name="play" size={16} />Start</button> : <button type="button" className={btnBig} onClick={() => ask(q)}>Skip</button>}
+          {!q ? <button type="button" className={btnBig} onClick={() => { showNeck(); ask(null); }}><Icon name="play" size={16} />Start</button> : <button type="button" className={btnBig} onClick={() => ask(q)}>Skip</button>}
           {q && <button type="button" className={`${btn} inline-flex items-center gap-1.5 py-2`} onClick={() => { const p = positionsOf(q.pc, s).find((x) => x.string === q.string) ?? positionsOf(q.pc, s)[0]; if (p) playMelody([OPEN_MIDI[p.string] + p.fret], 700); }}><Icon name="volume-2" size={14} />Hear the note</button>}
           <span className="ml-auto flex flex-wrap items-center gap-2">
             <button type="button" className={`${btn} py-2`} onClick={startSprint} disabled={!!sprint && sprintLeft > 0}>60-second sprint</button>
@@ -233,8 +249,23 @@ export default function NoteGame({ initial, syncUrl = true, bare = false }: { in
           </span>
         </div>
         {sprint && sprintLeft === 0 && <p className="text-sm text-slate-300">Time! You found <b className="text-slate-50">{sprint.count}</b>.</p>}
-        {showHeat && <p className="text-xs text-slate-500">Red cells are where you missed, amber where you were slow. Practise those next: narrow the strings and frets in the setup.</p>}
+        <div role="status" className="flex min-h-9 items-center">
+          {feedback ? (
+            <p className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-medium ring-1 ring-inset ${feedback.ok ? "bg-emerald-400/15 text-emerald-200 ring-emerald-400/30" : "bg-rose-400/15 text-rose-200 ring-rose-400/30"}`}>
+              <Icon name={feedback.ok ? "check" : "x"} size={14} />{feedback.text}
+            </p>
+          ) : <p className="text-sm text-slate-400">{hint}</p>}
+        </div>
+        <div className="min-w-0 rounded-2xl border border-slate-800 bg-slate-950/40 p-2">
+          <NoteNeck fill from={0} to={15} dots={dots} onCell={q && s.mode !== "name" ? tap : undefined} cellFill={(st, fr) => (showHeat ? heatFill(st, fr) : undefined) ?? dim(st, fr)} />
+        </div>
+        {q && s.mode === "name" && (
+          <div className="flex flex-wrap gap-2">{choices.map((pc) => <button key={pc} type="button" onClick={() => name(pc)} className="min-w-14 cursor-pointer rounded-xl border-2 border-slate-600 bg-slate-800 px-4 py-2 text-base font-semibold text-slate-50 transition hover:border-amber-400 hover:bg-slate-700 active:scale-[0.96]">{pcName(pc, s.flats)}</button>)}</div>
+        )}
+        {showHeat && <p className="text-xs text-slate-400">Red cells are where you missed, amber where you were slow. Practise those next: narrow the strings and frets in the setup.</p>}
+        {answerBy}
       </Stage>
+      </div>
       {setup}
     </div>
   );

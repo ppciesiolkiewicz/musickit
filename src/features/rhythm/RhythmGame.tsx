@@ -8,7 +8,8 @@ import { createJudge, type Grade, type Judge, type Judged, type Summary } from "
 import { DEFAULT_RISE_DB } from "./onset";
 import { heardAt, heardNow } from "./clock";
 import { listenForStrums, type StrumListener } from "./mic";
-import { Stage, Stat } from "@/components/practice/shared";
+import { GameChoice, Stage, Stat, btnBig } from "@/components/practice/shared";
+import Icon from "@/components/Icon";
 import InputChip, { micStatusMessage } from "@/components/InputChip";
 import type { MicStatus } from "@/components/practice/useMicPitch";
 
@@ -23,6 +24,8 @@ const BAR_CHOICES = [4, 8, 16];
 const OFFSET_LIMIT = 0.25;
 const AHEAD_BARS = 2; // how much of what is coming the lane shows (one bar on a narrow lane, where two would crowd the notes)
 const HIT_AT = 0.18; // the hit line, as a share of the lane's width
+
+const stopBtn = btnBig.replace("border-sky-300/70 bg-sky-500/30", "border-rose-400/70 bg-rose-500/20").replace("text-sky-50 shadow-lg shadow-sky-500/20", "text-rose-50 shadow-lg shadow-rose-500/20").replace("hover:bg-sky-500/45", "hover:bg-rose-500/35");
 
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
 
@@ -191,6 +194,7 @@ export default function RhythmGame() {
   const [micStatus, setMicStatus] = useState<MicStatus>("off");
   const micOn = micStatus === "on";
   const canvas = useRef<HTMLCanvasElement>(null);
+  const results = useRef<HTMLDivElement>(null);
   const live = useRef<Live | null>(null);
   const mic = useRef<StrumListener | null>(null);
   const settings = useRef(s);
@@ -289,6 +293,8 @@ export default function RhythmGame() {
       if (e.code !== "Space" || e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
       const el = e.target as HTMLElement | null;
       if (el?.closest("input, textarea, [contenteditable=true]")) return;
+      // between rounds Space belongs to whatever control has focus. Not the Start button: a player still tapping as a round ends must not start another
+      if (!live.current && el?.closest("button, a, summary") && !el.closest("[data-round-button]")) return;
       e.preventDefault();
       if (settings.current.input !== "keys") return;
       hit(heardAt(getAudioContext(), e.timeStamp));
@@ -322,12 +328,18 @@ export default function RhythmGame() {
     return () => cancelAnimationFrame(raf);
   }, [pattern, s.bpm, phase, finish]);
 
+  // the score is what the round was for: never leave it below the fold
+  useEffect(() => {
+    if (phase === "done") results.current?.scrollIntoView({ block: "nearest", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  }, [phase]);
+
   const playing = phase === "playing";
   const offset = s.offset[s.input];
   const canKeep = summary && summary.meanOffset !== null && summary.perfect + summary.good + summary.ok >= 4 && Math.abs(summary.meanOffset) >= 0.005;
 
   return (
     <div className="flex flex-col gap-4">
+      <GameChoice label="Rhythm" options={PATTERNS.map((p) => ({ id: p.id, title: p.name, about: p.hint }))} value={s.pattern} onChange={(pattern) => update({ pattern })} tone="violet" disabled={playing} />
       <Stage tone="violet">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
@@ -339,27 +351,27 @@ export default function RhythmGame() {
             <Stat label="streak" value={playing ? streak : 0} tone="text-emerald-300" />
           </div>
         </div>
+        <div className="flex flex-wrap items-center gap-3">
+          <button type="button" data-round-button onClick={playing ? stop : start} className={playing ? `${stopBtn} min-w-40 justify-center` : `${btnBig} min-w-40 justify-center`}>
+            {playing ? <span aria-hidden className="h-2.5 w-2.5 rounded-sm bg-rose-300" /> : <Icon name="play" size={16} />}
+            {playing ? "Stop" : phase === "done" ? "Play again" : "Start"}
+          </button>
+          {s.input === "mic" && <InputChip status={micStatus} />}
+          <span className="text-xs text-slate-400">
+            {s.input === "keys" ? "Press Space (or tap the lane) as each note reaches the line." : micOn ? "Listening. Strum as each note reaches the line." : "Strum as each note reaches the line. The mic opens on Start."}
+          </span>
+        </div>
+        {error && <p role="alert" className="text-xs text-rose-300">{error}</p>}
         <canvas
           ref={canvas}
+          role="img"
           aria-label={s.input === "keys" ? "Rhythm lane: press Space or tap here on each note" : "Rhythm lane: strum on each note"}
           onPointerDown={(e) => { if (settings.current.input === "keys") hit(heardAt(getAudioContext(), e.timeStamp)); }}
           className="h-40 w-full touch-none select-none rounded-2xl border border-slate-800 bg-slate-950/60 sm:h-48"
         />
-        <div className="flex flex-wrap items-center justify-center gap-3">
-          <button type="button" onClick={playing ? stop : start}
-            className={`inline-flex min-w-48 items-center justify-center gap-2 rounded-xl border px-8 py-3 text-base font-semibold shadow-lg transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${playing ? "border-rose-500/70 bg-rose-500/15 text-rose-100 hover:bg-rose-500/25" : "border-emerald-500/70 bg-emerald-500/15 text-emerald-100 hover:bg-emerald-500/25"}`}>
-            <span aria-hidden className={`h-2 w-2 ${playing ? "rounded-sm bg-rose-300" : "rounded-full bg-emerald-300"}`} />
-            {playing ? "Stop" : phase === "done" ? "Play again" : "Start"}
-          </button>
-          {s.input === "mic" && <InputChip status={micStatus} />}
-          <span className="text-xs text-slate-500">
-            {s.input === "keys" ? "Press Space (or tap the lane) as each note reaches the line." : micOn ? "Listening. Strum as each note reaches the line." : "Strum as each note reaches the line. The mic opens on Start."}
-          </span>
-        </div>
-        {error && <p role="alert" className="text-center text-xs text-rose-300">{error}</p>}
 
         {summary && phase === "done" && (
-          <div className="flex flex-col items-center gap-4 border-t border-slate-800 pt-4 text-sm">
+          <div ref={results} className="flex scroll-mb-4 flex-col items-center gap-4 border-t border-slate-800 pt-4 text-sm">
             <div className="flex items-baseline gap-3">
               <span className="text-5xl font-light tabular-nums text-slate-50" style={{ fontFamily: "var(--font-display), serif" }}>{summary.score}%</span>
               <span className="text-slate-400">best streak {summary.bestStreak}</span>
@@ -385,25 +397,26 @@ export default function RhythmGame() {
       </Stage>
 
       <aside aria-label="Setup" className="flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
-        <h2 className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">Set up the round</h2>
-        <ChipRow label="Play with">
+        <h2 className="text-xs font-medium uppercase tracking-[0.2em] text-slate-400">Set up the round</h2>
+        {playing && <p className="text-xs text-slate-400">These stay as they are until the round ends. Offset and sensitivity still change as you play.</p>}
+        <div inert={playing} className={`flex flex-col gap-3 transition-opacity ${playing ? "opacity-50" : ""}`}>
+        <ChipRow label="Play with" info="Space or a tap is the quickest way to learn a rhythm. Strum listens to your guitar through the mic, so you practise with your real strumming hand.">
           <Chip on={s.input === "keys"} onClick={() => { if (!playing) { closeMic(); setError(null); update({ input: "keys" }); } }}>Space / tap</Chip>
           <Chip on={s.input === "mic"} onClick={() => !playing && update({ input: "mic" })}>Strum (mic)</Chip>
         </ChipRow>
-        <ChipRow label="Rhythm">
-          {PATTERNS.map((p) => <Chip key={p.id} on={p.id === s.pattern} title={p.hint} onClick={() => !playing && update({ pattern: p.id })}>{p.name}</Chip>)}
-        </ChipRow>
-        <ChipRow label="Tempo">
+        <ChipRow label="Tempo" info="How fast the beat goes, in beats per minute. Start slow enough to hit every note, then raise it a little.">
           <Slider aria-label="Tempo" value={s.bpm} min={MIN_BPM} max={MAX_BPM} step={1} disabled={playing} onChange={(bpm) => update({ bpm })} className="w-48 max-w-full" />
           <span className="flex w-20 items-baseline gap-1 whitespace-nowrap text-xs text-slate-300"><NumberField value={s.bpm} min={MIN_BPM} max={MAX_BPM} disabled={playing} onCommit={(bpm) => update({ bpm })} aria-label="Tempo in beats per minute" className="w-10 py-0.5" />BPM</span>
         </ChipRow>
-        <ChipRow label="Bars">
+        <ChipRow label="Bars" info="How long a round lasts. Short rounds suit a new rhythm. Long rounds show whether you can keep it steady.">
           {BAR_CHOICES.map((b) => <Chip key={b} on={b === s.bars} onClick={() => !playing && update({ bars: b })}>{b}</Chip>)}
         </ChipRow>
         <ChipRow label="Click" info={s.input === "mic" ? "The microphone can hear the click from your speakers and take it for a strum. With headphones, keep the click on; on speakers, let it count you in and keep time yourself." : undefined}>
           <Chip on={s.click[s.input] === "on"} onClick={() => update({ click: { ...s.click, [s.input]: "on" } })}>All the way</Chip>
           <Chip on={s.click[s.input] === "count-in"} onClick={() => update({ click: { ...s.click, [s.input]: "count-in" } })}>Count-in only</Chip>
         </ChipRow>
+        </div>
+        <div className="flex flex-col gap-3 border-t border-slate-800 pt-3">
         <ChipRow label="Offset" info="Speakers, keyboards and microphones add a little delay, so a hit that feels on time can show as late. Play a round as steadily as you can and press Use as my offset, or set it here. Each input keeps its own.">
           <Slider aria-label="Offset" value={Math.round(offset * 1000)} min={-OFFSET_LIMIT * 1000} max={OFFSET_LIMIT * 1000} step={1} onChange={(v) => update({ offset: { ...s.offset, [s.input]: v / 1000 } })} className="w-48 max-w-full" />
           <span className="w-16 text-xs tabular-nums text-slate-300">{Math.round(offset * 1000)} ms</span>
@@ -414,6 +427,7 @@ export default function RhythmGame() {
             <Slider aria-label="Sensitivity" value={20 - s.riseDb} min={4} max={16} step={0.5} onChange={(v) => update({ riseDb: 20 - v })} className="w-48 max-w-full" />
           </ChipRow>
         )}
+        </div>
       </aside>
     </div>
   );

@@ -12,7 +12,7 @@ export default async function NotesPage({ searchParams }: { searchParams: Promis
   const sp = await searchParams;
   const q = new URLSearchParams(Object.entries(sp).flatMap(([k, v]) => (typeof v === "string" ? [[k, v]] : [])));
   return (
-    <PageShell active="/theory/notes" devices title="Fretboard notes" intro="Learn where every note lives. Start with the natural notes on the low E and A strings (they are the roots of most chords), then add strings. Play the note on your guitar with the mic, or tap the neck. The settings are in the page address, so a teacher can set up an exercise and share the link.">
+    <PageShell active="/theory/notes" devices title="Fretboard notes" intro="Learn where every note lives. Start with the natural notes on the low E and A strings (they are the roots of most chords), then add strings. Play the note on your guitar with the mic, or tap the neck.">
       <NoteGame initial={parseNoteSettings(q)} />
     </PageShell>
   );
