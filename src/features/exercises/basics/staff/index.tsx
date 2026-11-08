@@ -36,17 +36,16 @@ const GAP_FRAMES = 6;
  */
 export function View({ slug, pc, voice, notes, under = false, enable, highlight, mute, hide, others, mic: micButton = true, drone = false, click = false, bpm = 60, labels }: { slug: string; pc: number; voice: keyof typeof VOICES; notes?: number[]; under?: boolean; enable?: number[]; highlight?: number[]; mute?: number[]; hide?: number[]; others?: Others; mic?: boolean; drone?: boolean; click?: boolean; bpm?: number; labels?: SingingLabels }) {
   const range = VOICES[voice];
-  // a staff has two looks, lit and dimmed: lit are the highlighted notes, or (nothing highlighted) the enabled ones
+  // three looks: highlighted notes ringed, enabled ones plain, muted ones faint
   const state = useMemo(() => {
     const pcs = (semis?: number[]) => semis?.map((semi) => (pc + semi) % 12);
     const v = { enable: pcs(enable), highlight: pcs(highlight), mute: pcs(mute), hide: pcs(hide), others };
     return (p: number) => noteState(v, p);
   }, [pc, enable, highlight, mute, hide, others]);
-  const lit = useMemo(() => {
-    const all = Array.from({ length: 12 }, (_, p) => p);
-    const on = all.filter((p) => state(p) === (highlight?.length ? "highlighted" : "normal"));
-    return on.length < 12 ? new Set(on) : undefined;
-  }, [state, highlight]);
+  const ringed = useMemo(() => {
+    const on = Array.from({ length: 12 }, (_, p) => p).filter((p) => state(p) === "highlighted");
+    return on.length ? new Set(on) : undefined;
+  }, [state]);
   const picked = useMemo(() => {
     const ladder = pickLadder();
     // with `under`, the same notes an octave down, under the lowest Do (Ti under Do), as far as the voice goes
@@ -151,7 +150,7 @@ export function View({ slug, pc, voice, notes, under = false, enable, highlight,
         {click && <Badge>Click {bpm} bpm</Badge>}
         {micButton && <Badge>Accuracy ±{cents}¢</Badge>}
       </div>
-      <SingingStaff ladder={ladder} clef={clefFor(range)} pitch={pitch} played={played} onNote={(i) => void tap(i)} cents={cents} highlight={lit} labels={system} />
+      <SingingStaff ladder={ladder} clef={clefFor(range)} pitch={pitch} played={played} onNote={(i) => void tap(i)} cents={cents} highlight={ringed} muted={(i) => state(ladder.notes[i].midi % 12) === "muted"} labels={system} />
     </div>
   );
 }

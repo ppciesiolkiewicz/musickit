@@ -947,7 +947,7 @@
         "name": "highlight",
         "type": "(Degree | string)[]",
         "required": false,
-        "description": "the notes of interest, lit (when nothing is, the enabled notes are): the root, the one new note; never the same list as `enable`"
+        "description": "the notes of interest, ringed (the enabled rest stay plain, the muted faint): the root, the one new note; never the same list as `enable`"
       },
       {
         "name": "mute",

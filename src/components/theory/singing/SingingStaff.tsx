@@ -16,7 +16,8 @@ import { useLabelSystem } from "@/features/theory/useLabelSystem";
  * animation frame. Every note is a button (`onNote`); `played` is the ladder index of the note sounding, lit in sky.
  * Under each note its name and, unless the label setting is note names, its label in that setting (Do Re Mi, 1 2 3…),
  * counted from the ladder's root. A ladder may repeat a note (a line of cues); `marks` puts text (a chord name) above
- * a note, `muted` dims single notes, `hidden` leaves a note's slot empty (a note still to be found by ear).
+ * a note. A note has three looks: highlighted (`highlight`: ringed, bold labels), plain, and muted (`muted`: faint);
+ * `hidden` leaves a note's slot empty (a note still to be found by ear).
  */
 
 const HALF = 5; // px per staff step
@@ -49,11 +50,11 @@ export default function SingingStaff({ ladder, clef, pitch, played, onNote, cent
   onNote: (i: number) => void;
   /** within this many cents counts as on the note */
   cents?: number;
-  /** pitch classes to stand out: every other note is dimmed (none: all notes alike) */
+  /** pitch classes to stand out: ringed, with bold labels; the other notes stay plain (dim them with `muted`) */
   highlight?: ReadonlySet<number>;
   /** text above the note at each index (a chord name where it changes) */
   marks?: (string | undefined)[];
-  /** dims the note at this index (wins over `highlight`) */
+  /** fades the note at this index (wins over `highlight`) */
   muted?: (i: number) => boolean;
   /** leaves out the note at this index: its slot stays, empty and silent */
   hidden?: (i: number) => boolean;
@@ -172,14 +173,16 @@ export default function SingingStaff({ ladder, clef, pitch, played, onNote, cent
               const on = played === i;
               const c = degreeColour(n.degree);
               // the sung, played and highlighted notes' names and labels are bold
-              const bold = lit || on || (highlight?.has(n.midi % 12) && !muted?.(i)) ? 700 : 400;
+              const faint = muted?.(i) ?? false;
+              const ringed = !faint && (highlight?.has(n.midi % 12) ?? false);
+              const bold = lit || on || ringed ? 700 : 400;
               return (
                 <g
                   key={i}
                   role="button"
                   aria-label={`Play ${n.spelled.name}`}
                   className="cursor-pointer"
-                  opacity={(muted ? muted(i) : highlight && !highlight.has(n.midi % 12)) ? 0.3 : 1}
+                  opacity={faint ? 0.3 : 1}
                   onClick={() => onNote(i)}
                 >
                   {/* the whole column is the button, not just the notehead */}
@@ -187,6 +190,7 @@ export default function SingingStaff({ ladder, clef, pitch, played, onNote, cent
                   {p.ledgers.map((l) => <line key={l} x1={x - 11} x2={x + 11} y1={yOf(l)} y2={yOf(l)} stroke={ink.line} />)}
                   {p.accidental && <text x={x - 10} y={y + 5} textAnchor="end" fontSize={15} fill={ink.glyph}>{p.accidental}</text>}
                   {on && <circle cx={x} cy={y} r={13} fill={PLAYED} fillOpacity={0.25} stroke={PLAYED} strokeWidth={1.5} />}
+                  {ringed && !on && !lit && <circle cx={x} cy={y} r={10} fill="none" stroke={c} strokeWidth={1.5} />}
                   {lit && <circle cx={x} cy={y} r={12} fill={c} fillOpacity={0.18} stroke={c} strokeOpacity={0.7} />}
                   <ellipse cx={x} cy={y} rx={6.5} ry={5} fill={c} transform={`rotate(-20 ${x} ${y})`} />
                   <text x={x} y={labelsY + 12} textAnchor="middle" fontSize={11} fontWeight={bold} fill={on ? PLAYED : ink.name}>{n.spelled.name}</text>

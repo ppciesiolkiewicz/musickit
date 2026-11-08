@@ -52,7 +52,7 @@ const mod12 = (n: number) => ((n % 12) + 12) % 12;
 
 /**
  * The notes to play from on the guitar's staff, one octave up from the label root and the root again on top, each
- * labelled by the label setting; the highlighted ones stand out and the rest are dimmed. Tap a note to hear it.
+ * labelled by the label setting; the highlighted ones are ringed, the muted ones faint. Tap a note to hear it.
  */
 function SoloStaff({ shown, root, keyPc, stateOf, onNote }: { shown: number[]; root: number; keyPc?: number; stateOf: (pc: number) => DotState; onNote: (midi: number) => void }) {
   const none = useRef<number | null>(null);
@@ -66,9 +66,9 @@ function SoloStaff({ shown, root, keyPc, stateOf, onNote }: { shown: number[]; r
     });
     return { notes, signature: key.signature, pcs: new Set(midis.map((m) => m % 12)), title: "Notes to play from" };
   }, [shown, root, key]);
-  const lit = shown.some((pc) => stateOf(pc) === "highlighted");
+  const ringed = useMemo(() => new Set(shown.filter((pc) => stateOf(pc) === "highlighted")), [shown, stateOf]);
   return (
     <SingingStaff ladder={ladder} clef="treble8" pitch={none} played={null} onNote={(i) => onNote(ladder.notes[i].midi)}
-      muted={(i) => { const st = stateOf(ladder.notes[i].midi % 12); return st === "muted" || (lit && st !== "highlighted"); }} />
+      highlight={ringed} muted={(i) => stateOf(ladder.notes[i].midi % 12) === "muted"} />
   );
 }

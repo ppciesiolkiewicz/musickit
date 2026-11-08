@@ -19,7 +19,7 @@ export interface StaffProps {
   under?: boolean;
   /** the notes in play: degrees (major-relative, from the key root, not scale-aware) or note names: ["1","5"] or ["c-sharp"]; the rest are muted (see `others`). Absent: every note */
   enable?: (Degree | string)[];
-  /** the notes of interest, lit (when nothing is, the enabled notes are): the root, the one new note; never the same list as `enable` */
+  /** the notes of interest, ringed (the enabled rest stay plain, the muted faint): the root, the one new note; never the same list as `enable` */
   highlight?: (Degree | string)[];
   /** notes drawn faint, same forms as `enable` */
   mute?: (Degree | string)[];

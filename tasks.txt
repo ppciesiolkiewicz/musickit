@@ -3,8 +3,6 @@ Ticket content
 
 New:
 
--  DONE: Esc to close 'tool hint' (questionmark icon) on singing and other components.
-Make it reusable component as well as show [Esc] next to  (i) button when it's active
 
 
 
@@ -15,9 +13,6 @@ Make it reusable component as well as show [Esc] next to  (i) button when it's a
 
 
 ======================== Medium ========================
-
-11. Staff note states: enabled / highlighted / muted
-Muted is too muted right now (theory-new-major-or-minor, section 3). Need levels: enabled, highlighted, muted.
 
 12. Drone UI in exercise:
 staff {"scale":"major-ionian","key":0,"voice":"tenor","enable":[0],"others":"hidden","drone":true,"labels":"solfege"}
@@ -30,13 +25,9 @@ Also rethink whether we need "Stop microphone" at all - "Stop exercise" should b
 - Exercises like voice-new-matching-a-pitch ("Hum the drone note") need a voice safety instruction on top + link to an article.
 - Staff ranges must follow user level: e.g. for tenor mute higher notes (high C/B/.. E) depending on accuracy or another level parameter (matching-a-pitch sections 3 and 6). Avoid any voice injuries.
 
-18. Note spelling: text and component disagree
-theory-new-major-or-minor, section 7: text shows D#, staff shows Eb.
-Only sharps? Or one scale provider per section that uses the same scale (possibly nested providers)?
 
 19. Improve copy / add labels - How notes are labelled: note names, intervals from the root (R, b3, p5), scale degrees, or each note's job in the chord. One setting for the whole app; dot colours stay the same either way.
 
-20. Implement exercise stubs. Add a rule that whenever new exercise is added it needs to be added to /dev/stories
 
 ======================== Large ========================
 
@@ -69,6 +60,8 @@ oooooooooooooooooooooo Recent app feedback ooooooooooooooooooooooooo
 
 
 oooooooooooooooooooooooooooooooooo DONE ooooooooooooooooooooooooooooooooooooooooooooooo
+D18. Staff note states: enabled / highlighted / muted
+Done: the staff draws three looks: highlighted notes ringed with bold labels, enabled notes plain, muted notes faint. A highlight no longer dims the other notes; only muted notes (not enabled, or in "mute") fade. Same on the play-along's notes staff. The prompt now says: highlight the few notes of interest, keep notes the student plays or compares against enabled, mute only scale notes of no interest. Checked in the browser on /dev/examples (modes by ear).
 D17. Volume control on staff and other components
 Done: one app-wide volume (speaker to mute + slider) on the staff and the sing-along players, a master gain over every sound. A sliders button opens a dropdown of tiles: accuracy and labels (app-wide), melody view (shared by the exercise's tools: staff or piano roll). Tempo, metronome and looping stay on each tool. A staff written with fixed labels leaves the labels choice out. No density setting. Not checked in the browser after the last change (labels made app-wide).
 D16. Better frames around exercise components (/dev/examples).
@@ -139,3 +132,13 @@ D11. /theory/singing page (done 2026-11-07)
 - Put all settings (difficulty etc.) into the side panel, using more dropdowns instead of so many buttons.
 - Melody feed exercises need the same capabilities as autoplan (looping etc.), coming from the same shared component.
 - Fullscreen melody exercises: arrow/swipe navigation, shown with arrows on the margin.
+
+-  DONE: Esc to close 'tool hint' (questionmark icon) on singing and other components.
+Make it reusable component as well as show [Esc] next to  (i) button when it's active
+
+18. Note spelling: text and component disagree
+theory-new-major-or-minor, section 7: text shows D#, staff shows Eb.
+Only sharps? Or one scale provider per section that uses the same scale (possibly nested providers)?
+
+
+20. Implement exercise stubs. Add a rule that whenever new exercise is added it needs to be added to /dev/stories
