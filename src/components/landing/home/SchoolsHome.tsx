@@ -8,7 +8,7 @@ import StyleDivider from "@/components/landing/StyleDivider";
 import SiteFooter from "@/components/landing/SiteFooter";
 import { DISPLAY, Eyebrow, H2, Mark } from "@/components/landing/Display";
 import { LessonNoteMock, LiveLessonMock } from "@/components/landing/LessonMocks";
-import { Check, IdeasSection, PlanDayCard, SkillsSection } from "./PracticeSections";
+import { Check, IdeasSection, PLAY_TOOLS, PlanDayCard, SkillsSection } from "./PracticeSections";
 
 /*
  * The home page for music schools, at /: the practice core (drills that build muscle memory) plus what a school gets:
@@ -23,18 +23,17 @@ const OFFER: { icon: IconName; title: string; text: string; href: string; tone: 
   { icon: "palette", title: "White-labelling", text: "Your name, logo and colours, so students see your school, not ours.", href: "#white-label", tone: "bg-violet-500/15 text-violet-300" },
 ];
 
-/** The interactive resources a teacher can bring up in a lesson, and a student opens again at home. */
+/**
+ * What a teacher brings up to show something in a lesson, and a student opens again at home. Only the showing tools: the drills
+ * sit on the skill cards and the play-along tools under the colour ideas, so none shows twice on this page.
+ */
 const RESOURCES: { icon: IconName; label: string; href: string }[] = [
   { icon: "sliders-horizontal", label: "Scales and modes", href: "/theory/scales" },
   { icon: "music", label: "Chords in any key", href: "/theory/chords" },
   { icon: "guitar", label: "CAGED shapes", href: "/theory/caged" },
-  { icon: "grid-3x3", label: "Fretboard notes", href: "/theory/notes" },
+  { icon: "triangle", label: "Triads", href: "/theory/triads" },
   { icon: "circle-dot", label: "Circle of fifths", href: "/theory/circle" },
-  { icon: "ear", label: "Ear training", href: "/theory/ears" },
-  { icon: "metronome", label: "Rhythm drills", href: "/theory/rhythm" },
-  { icon: "audio-lines", label: "Metronome & drone", href: "/theory/metronome-drone" },
-  { icon: "repeat", label: "Looper", href: "/looper" },
-  { icon: "gauge", label: "Tuner", href: "/tuner" },
+  { icon: "piano", label: "Piano and staff", href: "/theory/piano" },
 ];
 
 const WHITE_LABEL = [
@@ -119,7 +118,7 @@ export default function SchoolsHome() {
                 Each student gets a practice plan for their level and the time they have: <Mark>new exercises every day</Mark>, each week building on the last. Short sessions with a timer, so ten minutes a day turns into a habit.
               </p>
               <ul className="mt-6 flex flex-col gap-2 text-sm text-slate-300">
-                <Check>Drills for the fretboard, scales, ear and rhythm</Check>
+                <Check>Drills for the fretboard, scales, ear, voice and rhythm</Check>
                 <Check>Every exercise opens with the diagram or backing it needs</Check>
                 <Check>A daily reminder at the time the student picks</Check>
               </ul>
@@ -133,9 +132,9 @@ export default function SchoolsHome() {
           <div className="mx-auto max-w-2xl text-center">
             <Eyebrow tone="text-amber-300">Interactive teaching resources</Eyebrow>
             <H2 id="resources-h">Show the sound, <span className="ls-accent italic text-amber-300">not just the shape.</span></H2>
-            <p className="mt-4 text-pretty text-slate-300">Bring up any scale, chord, position or drone in a second, with no prep and no printouts. Every note plays as you tap it. Students open <Mark tone="var(--color-amber-400)">the same page at home</Mark>, so practice looks just like the lesson.</p>
+            <p className="mt-4 text-pretty text-slate-300">Bring up any scale, chord or position in a second, with no prep and no printouts. Every note plays as you tap it. Students open <Mark tone="var(--color-amber-400)">the same page at home</Mark>, so practice looks just like the lesson.</p>
           </div>
-          <ul className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+          <ul className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3">
             {RESOURCES.map((r) => (
               <li key={r.href}>
                 <Link href={r.href} className="ls-card group flex h-full items-center gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-4 transition hover:-translate-y-0.5 hover:border-slate-600">
@@ -148,7 +147,7 @@ export default function SchoolsHome() {
         </section>
 
         {/* One colour language for teachers and students */}
-        <IdeasSection eyebrow="One method across your teachers" title={<>Switch teachers, <span className="ls-accent italic text-sky-300">keep the same colours.</span></>} />
+        <IdeasSection eyebrow="One method across your teachers" title={<>Switch teachers, <span className="ls-accent italic text-sky-300">keep the same colours.</span></>} tools={[PLAY_TOOLS]} />
 
         {/* Notes creator */}
         <section id="notes" aria-labelledby="notes-h" className="scroll-mt-6 border-t border-slate-800/70 py-12 sm:py-16">

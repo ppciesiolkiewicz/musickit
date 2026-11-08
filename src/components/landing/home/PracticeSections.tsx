@@ -34,12 +34,28 @@ function ProgressPath() {
   );
 }
 
-/** What practice in attunr trains: each skill and the drill that trains it. */
-const SKILLS: { icon: IconName; title: string; text: ReactNode; tone: string; href: string; drill: string }[] = [
-  { icon: "repeat", title: "Build muscle memory", text: <>Repeat a pattern until your fingers move without thinking, then change the key, the shape or the rhythm and you have <Mark tone="var(--color-teal-400)">a drill of your own</Mark>.</>, tone: "bg-teal-500/15 text-teal-300", href: "/theory/scales", drill: "Scale drills" },
-  { icon: "ear", title: "Hear it, sing it in tune", text: <>Name an interval the moment you hear it and sing it back, until <Mark>your own ear</Mark> tells you when you&apos;re in tune.</>, tone: "bg-sky-500/15 text-sky-300", href: "/theory/ears", drill: "Ear training" },
-  { icon: "metronome", title: "Lock in your rhythm", text: <>Hit the beat, not just the note. Play against a metronome or drone until <Mark tone="var(--color-violet-400)">you feel the pulse</Mark> without one.</>, tone: "bg-violet-500/15 text-violet-300", href: "/theory/rhythm", drill: "Rhythm drills" },
-  { icon: "guitar", title: "Know the fretboard", text: <>Find any note in a second. Learn the neck by name, colour and the job each note does, until it&apos;s <Mark tone="var(--color-amber-400)">a map you can read</Mark>.</>, tone: "bg-amber-500/15 text-amber-300", href: "/theory/notes", drill: "Fretboard notes" },
+/** What practice in attunr trains: each skill and the drills that train it. `sing` marks a drill for the voice. */
+const SKILLS: { icon: IconName; title: string; text: ReactNode; tone: string; drills: { href: string; label: string; sing?: boolean }[] }[] = [
+  {
+    icon: "repeat", title: "Build muscle memory", tone: "bg-teal-500/15 text-teal-300",
+    text: <>Repeat a pattern until your fingers or your voice do it without thinking, then change the key, the shape or the rhythm and you have <Mark tone="var(--color-teal-400)">a drill of your own</Mark>.</>,
+    drills: [{ href: "/theory/scales", label: "Scale drills" }, { href: "/theory/singing", label: "Sing a scale", sing: true }, { href: "/theory/singing/runs", label: "Sing runs", sing: true }],
+  },
+  {
+    icon: "ear", title: "Hear it, sing it in tune", tone: "bg-sky-500/15 text-sky-300",
+    text: <>Name an interval the moment you hear it and sing it back, until <Mark>your own ear</Mark> tells you when you&apos;re in tune.</>,
+    drills: [{ href: "/theory/ears", label: "Ear training" }, { href: "/theory/singing/intervals", label: "Sing an interval", sing: true }, { href: "/theory/singing/melodies", label: "Sing melodies", sing: true }],
+  },
+  {
+    icon: "metronome", title: "Lock in your rhythm", tone: "bg-violet-500/15 text-violet-300",
+    text: <>Hit the beat, not just the note. Play against a metronome or drone until <Mark tone="var(--color-violet-400)">you feel the pulse</Mark> without one.</>,
+    drills: [{ href: "/theory/rhythm", label: "Rhythm drills" }, { href: "/theory/improv", label: "Play over a groove" }],
+  },
+  {
+    icon: "guitar", title: "Know the fretboard", tone: "bg-amber-500/15 text-amber-300",
+    text: <>Find any note in a second. Learn the neck by name, colour and the job each note does, until it&apos;s <Mark tone="var(--color-amber-400)">a map you can read</Mark>.</>,
+    drills: [{ href: "/theory/notes", label: "Fretboard notes" }, { href: "/theory/arpeggios", label: "Arpeggios" }, { href: "/theory/tune-by-ear", label: "Tune by ear", sing: true }],
+  },
 ];
 
 /** A day of the AI practice plan, drawn for the landing page: what the player sees when they open today's practice. */
@@ -50,9 +66,14 @@ const PLAN_DAY: { label: string; mins: number; tone: string; done?: boolean }[] 
   { label: "Eighth notes at 80 bpm, on the beat", mins: 5, tone: "bg-violet-400" },
 ];
 
-/** The tools the landing page opens straight into. Label, line, icon and colour come from the nav list. */
-const DO_HREFS = ["/theory/singing", "/theory/scales", "/theory/caged", "/theory/chords", "/theory/metronome-drone", "/looper", "/theory/backing", "/tuner"];
-const DO = DO_HREFS.flatMap((href) => THEORY_SECTIONS.filter((s) => s.href === href));
+/**
+ * The tools the landing page opens straight into, split by what you open them for, so none shows twice. The drills sit on the
+ * skill cards above. Label, line, icon and colour come from the nav list.
+ */
+export type ToolGroup = { label: string; hrefs: string[] };
+export const SEE_TOOLS: ToolGroup = { label: "See it on the neck", hrefs: ["/theory/scales", "/theory/chords", "/theory/caged", "/theory/triads"] };
+export const PLAY_TOOLS: ToolGroup = { label: "Play along", hrefs: ["/theory/metronome-drone", "/theory/backing", "/looper", "/tuner"] };
+const toolsOf = (g: ToolGroup) => g.hrefs.flatMap((href) => THEORY_SECTIONS.filter((s) => s.href === href));
 
 export function SkillsSection({
   eyebrow = "Drills for every part of playing",
@@ -74,7 +95,14 @@ export function SkillsSection({
               <h3 className="text-2xl text-slate-50" style={DISPLAY}>{s.title}</h3>
             </div>
             <p className="text-sm leading-relaxed text-slate-400">{s.text}</p>
-            <Link href={s.href} className="mt-auto pt-1 text-sm text-slate-300 underline decoration-slate-700 underline-offset-4 hover:text-slate-50">Try it: {s.drill} →</Link>
+            <p className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-1.5 pt-1 text-sm">
+              <span className="text-slate-500">Try it:</span>
+              {s.drills.map((d) => (
+                <Link key={d.href} href={d.href} className="inline-flex items-center gap-1 text-slate-300 underline decoration-slate-700 underline-offset-4 hover:text-slate-50">
+                  {d.sing && <Icon name="mic" size={14} className="shrink-0 text-rose-300" />}{d.label}
+                </Link>
+              ))}
+            </p>
           </li>
         ))}
       </ul>
@@ -138,7 +166,7 @@ export function PlanSection() {
   );
 }
 
-export function IdeasSection({ eyebrow = "Free in the app", title = <>Practice that <span className="ls-accent italic text-sky-300">adds up.</span></> }: { eyebrow?: ReactNode; title?: ReactNode }) {
+export function IdeasSection({ eyebrow = "Free in the app", title = <>Practice that <span className="ls-accent italic text-sky-300">adds up.</span></>, tools = [SEE_TOOLS, PLAY_TOOLS] }: { eyebrow?: ReactNode; title?: ReactNode; tools?: ToolGroup[] }) {
   const dorian = modeSteps(FAMILIES[0], 1);
   return (
     <section aria-labelledby="ideas-h" className="border-t border-slate-800/70 py-12 sm:py-16">
@@ -181,20 +209,25 @@ export function IdeasSection({ eyebrow = "Free in the app", title = <>Practice t
         </li>
       </ul>
       <h3 className="mt-14 text-center text-2xl text-slate-50 sm:text-3xl" style={DISPLAY}>Open a tool and <span className="ls-accent italic text-sky-300">start playing.</span></h3>
-      <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {DO.map((d) => (
-          <li key={d.href}>
-            <Link href={d.href} className="ls-card group flex h-full flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-4 transition hover:-translate-y-0.5 hover:border-slate-600">
-              <span className="flex items-center justify-between">
-                <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl ${TONE[d.tone].chip} ${TONE[d.tone].icon}`}><Icon name={d.icon} size={20} /></span>
-                <span aria-hidden className="text-slate-600 transition group-hover:translate-x-0.5 group-hover:text-slate-300">→</span>
-              </span>
-              <span className="text-lg leading-tight text-slate-50" style={DISPLAY}>{d.label}</span>
-              <span className="text-sm leading-snug text-slate-400">{d.desc}</span>
-            </Link>
-          </li>
-        ))}
-      </ul>
+      {tools.map((g) => (
+        <div key={g.label} className="mt-6">
+          <p className="mb-3 text-xs uppercase tracking-widest text-slate-500">{g.label}</p>
+          <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {toolsOf(g).map((d) => (
+              <li key={d.href}>
+                <Link href={d.href} className="ls-card group flex h-full flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-4 transition hover:-translate-y-0.5 hover:border-slate-600">
+                  <span className="flex items-center justify-between">
+                    <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl ${TONE[d.tone].chip} ${TONE[d.tone].icon}`}><Icon name={d.icon} size={20} /></span>
+                    <span aria-hidden className="text-slate-600 transition group-hover:translate-x-0.5 group-hover:text-slate-300">→</span>
+                  </span>
+                  <span className="text-lg leading-tight text-slate-50" style={DISPLAY}>{d.label}</span>
+                  <span className="text-sm leading-snug text-slate-400">{d.desc}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
     </section>
   );
 }
