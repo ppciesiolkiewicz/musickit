@@ -8,6 +8,10 @@ import { GROUP_LABEL, THEORY_SECTIONS, TONE, sectionFor, type SectionGroup, type
 
 const GROUPS = Object.keys(GROUP_LABEL) as SectionGroup[];
 
+/** Only one nav menu is open at a time: this closes whichever is open now, so moving from menu to menu swaps them at once
+ * instead of the old one hanging on through its close delay. */
+let closeOpenMenu: (() => void) | null = null;
+
 /** One theory page as a block: icon, name, one grey line. Used by the menu and the hub. */
 export function SectionBlock({ s, current, onPick, roomy }: { s: TheorySection; current?: boolean; onPick?: () => void; roomy?: boolean }) {
   return (
@@ -62,6 +66,20 @@ export default function TheoryMenu({ active, label, groups = GROUPS, className =
     cancelClose();
     closeTimer.current = setTimeout(() => setOpen(false), 150);
   };
+  const closeNow = useRef(() => {
+    cancelClose();
+    setOpen(false);
+  });
+  /** Open this menu and shut any other one in the same render. */
+  const show = () => {
+    if (closeOpenMenu && closeOpenMenu !== closeNow.current) closeOpenMenu();
+    closeOpenMenu = closeNow.current;
+    setOpen(true);
+  };
+
+  useEffect(() => {
+    if (!open && closeOpenMenu === closeNow.current) closeOpenMenu = null;
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -81,7 +99,13 @@ export default function TheoryMenu({ active, label, groups = GROUPS, className =
       document.removeEventListener("keydown", onKey);
     };
   }, [open]);
-  useEffect(() => cancelClose, []);
+  useEffect(
+    () => () => {
+      cancelClose();
+      if (closeOpenMenu === closeNow.current) closeOpenMenu = null;
+    },
+    [],
+  );
 
   const isCurrent = (s: TheorySection) => (s.href === "/theory" ? active === "/theory" : !s.href.includes("#") && (active === s.href || active.startsWith(`${s.href}/`)));
 
@@ -93,7 +117,7 @@ export default function TheoryMenu({ active, label, groups = GROUPS, className =
         if (e.pointerType !== "mouse") return;
         cancelClose();
         if (!open) hoverOpenedAt.current = performance.now();
-        setOpen(true);
+        show();
       }}
       onPointerLeave={(e) => e.pointerType === "mouse" && closeSoon()}
       onBlur={(e) => {
@@ -110,7 +134,8 @@ export default function TheoryMenu({ active, label, groups = GROUPS, className =
         aria-controls={open ? panelId : undefined}
         onClick={(e) => {
           const pointerType = (e.nativeEvent as PointerEvent).pointerType || "keyboard";
-          setOpen(menuClick({ open, hoverOpenedAt: hoverOpenedAt.current, now: performance.now(), pointerType }));
+          if (menuClick({ open, hoverOpenedAt: hoverOpenedAt.current, now: performance.now(), pointerType })) show();
+          else setOpen(false);
           hoverOpenedAt.current = null;
         }}
         className={`flex items-center gap-1 rounded-lg px-3.5 py-2 text-sm transition ${inTheory ? "bg-sky-500/20 text-sky-100" : "text-slate-400 hover:text-slate-200"}`}
