@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { CHORD_QUALITIES, EAR_LEVELS, activeAnswers, nextEarQuestion, parseEarSettings, recordScore, type EarQuestion } from "./earGame";
+import { CHORD_QUALITIES, EAR_LEVELS, activeAnswers, nextEarQuestion, parseEarSettings, recordScore, type EarQuestion, playedInterval, playedNotes } from "./earGame";
 import { INTERVALS } from "@/lib/chordKit/intervals";
 
 const seeded = (seed: number) => () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
@@ -81,4 +81,36 @@ describe("ear game span", () => {
     }
     assert.equal(spans.size, 2);
   });
+});
+
+const feed = (readings: [number | null, number, boolean?][], start = playedNotes.initial) =>
+  readings.reduce((s, [m, at, gated]) => playedNotes.step(s, m, at, gated), start);
+
+it("a played note counts once it has held, and a pluck's wobble does not", () => {
+  assert.deepEqual(feed([[57, 0], [58, 40], [57, 80], [57, 150]]).notes, []);
+  assert.deepEqual(feed([[57, 0], [57, 200]]).notes, [57]);
+});
+
+it("a note ringing on is one note, and two different notes make the answer", () => {
+  assert.deepEqual(feed([[57, 0], [57, 200], [57, 400], [57, 600]]).notes, [57]);
+  assert.deepEqual(feed([[57, 0], [57, 200], [null, 300], [64, 400], [64, 600]]).notes, [57, 64]);
+});
+
+it("nothing counts while the question sounds", () => {
+  assert.deepEqual(feed([[60, 0, true], [64, 200, true]]).notes, []);
+});
+
+it("a string left ringing is ignored until it stops, then it counts", () => {
+  const ringing: [number | null, number, boolean?][] = [[60, 0, true], [60, 100], [60, 400]];
+  assert.deepEqual(feed(ringing).notes, []);
+  assert.deepEqual(feed([...ringing, [null, 500], [60, 600], [60, 800]]).notes, [60]);
+  assert.deepEqual(feed([...ringing, [67, 500], [67, 700]]).notes, [67]);
+});
+
+it("the gap is named the same up or down, and wide gaps as the simple interval", () => {
+  assert.equal(playedInterval(57, 64), "P5");
+  assert.equal(playedInterval(64, 57), "P5");
+  assert.equal(playedInterval(48, 60), "P8");
+  assert.equal(playedInterval(48, 62), "M2");
+  assert.equal(playedInterval(48, 72), "P8");
 });

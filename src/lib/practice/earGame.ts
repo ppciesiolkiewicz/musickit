@@ -86,3 +86,29 @@ export function recordScore(sc: Score, answer: string, ok: boolean): Score {
   const cur = sc[answer] ?? { right: 0, total: 0 };
   return { ...sc, [answer]: { right: cur.right + (ok ? 1 : 0), total: cur.total + 1 } };
 }
+
+/**
+ * Reading an interval played on an instrument: the notes a stream of mic readings adds up to. A note counts once it has held for
+ * `HOLD_MS`, which skips the wobble of a pluck. A new note must differ from the one before, since a string rings on after it counts.
+ * While `gated` (the question is sounding, or already answered) nothing counts, and whatever is ringing at that moment stays
+ * ignored until it stops or changes, so a string left ringing cannot become the first note of the next answer.
+ */
+export interface PlayedNotes { notes: number[]; candidate: number | null; since: number; ignore: number | null }
+const HOLD_MS = 130;
+export const playedNotes = {
+  initial: { notes: [], candidate: null, since: 0, ignore: null } as PlayedNotes,
+  step(state: PlayedNotes, midi: number | null, t: number, gated = false): PlayedNotes {
+    if (gated) return { notes: [], candidate: null, since: t, ignore: midi ?? state.ignore };
+    const ignore = midi === state.ignore ? state.ignore : null;
+    if (midi === null || midi === ignore) return { ...state, candidate: null, ignore };
+    if (midi !== state.candidate) return { ...state, candidate: midi, since: t, ignore };
+    if (t - state.since < HOLD_MS || midi === state.notes[state.notes.length - 1]) return { ...state, ignore };
+    return { ...state, notes: [...state.notes, midi], ignore };
+  },
+};
+
+/** The name of the gap between two played notes, up or down. Wider than an octave counts as the simple interval, as the wide questions do. */
+export function playedInterval(a: number, b: number): string {
+  const gap = Math.abs(a - b);
+  return shortOf(gap <= 12 ? gap : ((gap - 1) % 12) + 1);
+}
