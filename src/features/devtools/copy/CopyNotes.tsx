@@ -114,7 +114,7 @@ export default function CopyNotes() {
     };
   }, [on]);
 
-  // A (no modifier, not while typing) turns note mode on and off, the "Note a text" button from the keyboard; S opens and closes the notes (N is an exercise's Next)
+  // A (no modifier, not while typing) turns note mode on and off, the "Note a text" button from the keyboard; S opens and closes the notes
   useEffect(() => {
     if (!devUi()) return;
     const key = (e: KeyboardEvent) => {

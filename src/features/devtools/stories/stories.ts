@@ -46,6 +46,8 @@ const HAND: { tool: ToolName; name: string; props: Props }[] = [
   { tool: "string-singer", name: "Fifth fret, no metronome", props: { drill: "fifth-fret", metronome: false } },
   { tool: "interval-singer", name: "Default: M3, P5, P8 up from C", props: {} },
   { tool: "interval-singer", name: "Only the 5th, in G, alto", props: { key: "g", voice: "alto", intervals: [7] } },
+  { tool: "interval-singer", name: "Random key each time: 4ths and 5ths", props: { key: "random", intervals: [5, 7] } },
+  { tool: "interval-singer", name: "C, F and G: 3rds", props: { keys: ["c", "f", "g"], intervals: [3, 4] } },
   { tool: "interval-singer", name: "Hard: no dot, 3rds and 6ths both ways", props: { key: "d", intervals: [3, 4, 8, 9], dir: "both", dot: false } },
   { tool: "tuning-ears", name: "Default: 20 cents, one after the other", props: {} },
   { tool: "tuning-ears", name: "Hard: 5 cents, together", props: { cents: 5, together: true } },

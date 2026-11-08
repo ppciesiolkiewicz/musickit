@@ -101,6 +101,10 @@ describe("tools", () => {
     assert.deepEqual(parseTool({ type: "tuning-ears", cents: 10, together: true }), { type: "tuning-ears", cents: 10, together: true });
     assert.deepEqual(parseTool({ type: "tuning-ears", cents: 500, together: "yes" }), { type: "tuning-ears", cents: 50 });
     assert.deepEqual(parseTool({ type: "tuning-ears" }), { type: "tuning-ears" });
+    assert.deepEqual(parseTool({ type: "interval-singer" }), { type: "interval-singer", key: 0 });
+    assert.deepEqual(parseTool({ type: "interval-singer", key: "g", intervals: [7, 7, 4, 30], dir: "both", dot: false }), { type: "interval-singer", key: 7, intervals: [4, 7], dir: "both", dot: false });
+    assert.deepEqual(parseTool({ type: "interval-singer", keys: ["c", "f", "g"] }), { type: "interval-singer", key: 0, keys: [0, 5, 7] });
+    assert.deepEqual(parseTool({ type: "interval-singer", key: "random" }), { type: "interval-singer", key: 0, keys: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] });
   });
   it("reads degrees for highlighting and showing only chosen notes", () => {
     assert.equal(degreeSemis("b7"), 10);

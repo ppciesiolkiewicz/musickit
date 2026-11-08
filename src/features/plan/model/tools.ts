@@ -63,7 +63,7 @@ export type PlanTool =
   | { type: "run-singer"; run: number; voice?: Voice; chords?: false; metronome?: true }
   | { type: "string-singer"; drill?: StringDrill; voice?: Voice; metronome?: false }
   | { type: "tuning-ears"; cents?: number; together?: boolean }
-  | { type: "interval-singer"; key: number; voice?: Voice; /** semitones from Do, 1-12 */ intervals?: number[]; dir?: IntervalDir; dot?: false }
+  | { type: "interval-singer"; key: number; /** more keys to pick Do from, the first `key`; absent: only `key` */ keys?: number[]; voice?: Voice; /** semitones from Do, 1-12 */ intervals?: number[]; dir?: IntervalDir; dot?: false }
   | { type: "guitar-play-along"; shape: PlayAlongShape; bpm: number; repeats?: number; view?: View; enable?: Degree[]; highlight?: Degree[]; others?: "muted" | "hidden"; under?: Under }
   | { type: "strum-along"; chords: string[]; bpm: number; per?: "bar" | "beat"; beats?: number; pattern?: string }
   | { type: "chord-backing"; chords: string[]; bpm: number; /** pitch class, from the AI's key; with numerals the chords are already read in it */ key?: number; backing?: CompPattern[] }
@@ -272,7 +272,12 @@ export const TOOLS: { [N in ToolName]: ToolSpec } = {
       const intervals = [...new Set(list(t.intervals).map((v) => int(v, 1, 12)).filter((n): n is number => n !== null))].sort((a, b) => a - b).slice(0, 12);
       const dir = INTERVAL_DIRS.includes(t.dir as IntervalDir) && t.dir !== "up" ? { dir: t.dir as IntervalDir } : {};
       // the dot shows unless turned off
-      return { type: "interval-singer", key: keyOf(t.key) ?? 0, ...(voice ? { voice } : {}), ...opt("intervals", intervals), ...dir, ...(t.dot === false ? { dot: false as const } : {}) };
+      // "random" (as key or keys) is all twelve; a list of keys keeps its first as the key
+      const all = t.key === "random" || t.keys === "random";
+      const listed = all ? Array.from({ length: 12 }, (_, k) => k) : list(t.keys).map(keyOf).filter((n): n is number => n !== null);
+      const key = (all ? null : keyOf(t.key)) ?? listed[0] ?? 0;
+      const keys = [...new Set([key, ...listed])];
+      return { type: "interval-singer", key, ...(keys.length > 1 ? { keys } : {}), ...(voice ? { voice } : {}), ...opt("intervals", intervals), ...dir, ...(t.dot === false ? { dot: false as const } : {}) };
     },
   },
   "tuning-ears": {

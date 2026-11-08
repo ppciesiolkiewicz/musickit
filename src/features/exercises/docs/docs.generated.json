@@ -390,13 +390,19 @@
   {
     "name": "interval-singer",
     "kind": "basic",
-    "description": "Sing a given interval from Do: the interval shows by name (\"Interval · P5\"), Do sounds and sits on a piano roll (or a\nstaff, the student's switch), and the student sings the other note with the microphone; held on it, it counts, shows\nand plays back. Next asks another interval from the set. The voice shows as a dot unless `dot` is false (the harder\nway: no picture of the voice, only whether it counted). A singing exercise.",
+    "description": "Sing a given interval from Do: the interval shows by name (\"Interval · P5\"), Do sounds and sits on a piano roll (or a\nstaff, the student's switch), and the student sings the other note with the microphone; held on it, it counts, shows\nand plays back. Next (or Space) asks another interval from the set, in another key when there are several. The voice\nshows as a dot unless `dot` is false (the harder way: no picture of the voice, only whether it counted). A singing\nexercise.",
     "props": [
       {
         "name": "key",
         "type": "string",
         "required": false,
-        "description": "the key: Do's note name, e.g. \"c\", \"f#\", \"bb\"; default \"c\""
+        "description": "the key: Do's note name, e.g. \"c\", \"f#\", \"bb\"; default \"c\". \"random\": any of the 12, a new Do each question"
+      },
+      {
+        "name": "keys",
+        "type": "string[] | \"random\"",
+        "required": false,
+        "description": "several keys to pick Do from at random, a new one each question: [\"c\", \"g\", \"f\"]; or \"random\" for all 12. The student can change them on the tool"
       },
       {
         "name": "voice",

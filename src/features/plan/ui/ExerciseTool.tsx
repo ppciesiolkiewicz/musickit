@@ -78,7 +78,7 @@ export function Tool({ tool, voice }: { tool: PlanTool; voice?: Voice }) {
     case "string-singer":
       return <StringSinger drill={tool.drill} voice={tool.voice ?? voice} metronome={tool.metronome} />;
     case "interval-singer":
-      return <IntervalSinger pc={tool.key} voice={tool.voice ?? voice} intervals={tool.intervals} dir={tool.dir} dot={tool.dot} />;
+      return <IntervalSinger keys={tool.keys ?? [tool.key]} voice={tool.voice ?? voice} intervals={tool.intervals} dir={tool.dir} dot={tool.dot} />;
     case "tuning-ears":
       return <TuningEars cents={tool.cents} together={tool.together} />;
     case "guitar-play-along":
