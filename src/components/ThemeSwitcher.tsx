@@ -5,7 +5,7 @@ import Icon from "./Icon";
 import { DEFAULT_STYLE, SEEN_KEY, STYLES, THEME_KEY, isStyle, readSaved, styleAfterIntroDismiss, styleById, type StyleId } from "@/features/styles/styles";
 import { canFullscreen, enterFullscreen, exitFullscreen, isFullscreen, onFullscreenChange } from "@/lib/fullscreen";
 
-/** Runs before the first paint (inline in <head>) so a saved style never flashes; anything else keeps the Funk set on <html>. */
+/** Runs before the first paint (inline in <head>) so a saved style never flashes; anything else keeps the Default set on <html>. */
 export const THEME_BOOT = `try{var t=localStorage.getItem("${THEME_KEY}");if(${JSON.stringify(STYLES.map((s) => s.id))}.indexOf(t)>=0)document.documentElement.dataset.theme=t}catch(e){}`;
 
 /** The style's own headline face, for its name on the button; Default uses the Fraunces wordmark face. */
@@ -54,7 +54,7 @@ const toggleFullscreen = () => (isFullscreen() ? exitFullscreen() : enterFullscr
 
 /**
  * The palette button, named after the current music style in that style's own font, and the style picker it opens.
- * On a first visit the picker opens by itself with the current pick (Funk) pulsing; closing it without choosing settles on
+ * On a first visit the picker opens by itself with the current pick (Default) pulsing; closing it without choosing settles on
  * Default. Shared by every page; knows nothing about any feature.
  */
 export default function ThemeSwitcher({ className = "", compact = false }: { className?: string; /** only the palette on phones, to leave room for a button beside it */ compact?: boolean }) {

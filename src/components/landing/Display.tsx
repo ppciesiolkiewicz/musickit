@@ -10,7 +10,14 @@ export const DISPLAY: CSSProperties = {
   textTransform: "var(--style-display-case, none)" as CSSProperties["textTransform"],
 };
 
-export function Eyebrow({ children, tone = "text-sky-300" }: { children: ReactNode; tone?: string }) {
+export function Eyebrow({ children, tone = "text-sky-300", big = false }: { children: ReactNode; tone?: string; /** larger, bolder, glowing: for the hero label */ big?: boolean }) {
+  if (big) {
+    return (
+      <p className={`mb-4 text-base font-bold uppercase tracking-[0.22em] sm:text-lg ${tone}`} style={{ textShadow: "0 0 18px color-mix(in oklab, currentColor 70%, transparent), 0 0 4px color-mix(in oklab, currentColor 50%, transparent)" }}>
+        {children}
+      </p>
+    );
+  }
   return <p className={`ls-metal mb-3 text-xs font-medium uppercase tracking-[0.2em] ${tone}`}>{children}</p>;
 }
 

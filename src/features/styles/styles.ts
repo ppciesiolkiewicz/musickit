@@ -70,7 +70,7 @@ export const STYLES: readonly Style[] = [
   { id: "plain", label: "Default", emoji: "🙂", courseSoon: false, divider: null, photos: {} },
 ];
 
-export const DEFAULT_STYLE: StyleId = "funk";
+export const DEFAULT_STYLE: StyleId = "plain";
 export const THEME_KEY = "musickit.theme";
 export const SEEN_KEY = "musickit.styleSeen";
 

@@ -56,7 +56,7 @@ export default function SchoolsHome() {
         {/* Hero */}
         <section className="grid grid-cols-[minmax(0,1fr)] items-center gap-12 py-12 sm:py-16 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:py-20">
           <div className="landing-rise flex flex-col items-start">
-            <Eyebrow>For music schools</Eyebrow>
+            <Eyebrow big>For music schools</Eyebrow>
             <h1 className="text-5xl leading-none tracking-tight text-slate-50 sm:text-7xl" style={DISPLAY}>
               Students who practise
               <span className="ls-accent block italic text-sky-300">keep coming back.</span>
