@@ -17,6 +17,7 @@ export { registerRuntimeInstrument, replaceRuntimeInstruments, unregisterRuntime
 export { createPlayer, type Player, type PlayerOptions, type Voice } from "./engine/player";
 export { midiToHz, midiToName, noteToMidi, type NoteLike } from "./engine/notes";
 export { preloadInstrument } from "./engine/samples";
+export { scheduleNote, type ScheduledNote } from "./engine/scheduled";
 export { takeAudioFocus } from "./engine/focus";
 export { useAudioFocus } from "./engine/useAudioFocus";
 export { getSharedPiano, onSilence, playMelody, playSequence, silence, strum, type Step } from "./playback/sequence";

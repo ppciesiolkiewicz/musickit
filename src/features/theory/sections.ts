@@ -54,6 +54,7 @@ export const THEORY_SECTIONS: TheorySection[] = [
   { group: "singing", href: "/theory/tune-by-ear", tone: "red", label: "Tune by ear", desc: "Sing the open strings, hear a string out of tune", icon: "guitar" },
   { group: "tools", href: "/tuner", tone: "rose", label: "Tuner", desc: "Tune your guitar with the mic", icon: "gauge" },
   { group: "tools", href: "/theory/metronome-drone", tone: "violet", label: "Metronome & drone", desc: "Keep time to a click, hear each degree over a root", icon: "audio-lines" },
+  { group: "tools", href: "/theory/backing", tone: "pink", label: "Backing tracks", desc: "Drums, bass and chords from a progression, any key and style", icon: "drum" },
   { group: "tools", href: "/theory/piano", tone: "sky", label: "Piano", desc: "Play and see notes, intervals and chords on the staff", icon: "piano" },
   { group: "tools", href: "/theory/tunings", tone: "amber", label: "Tunings", desc: "Alternate tunings", icon: "sliders-horizontal" },
   { group: "tools", href: "/teachers/studio?notes=1", tone: "emerald", label: "Notes creator", desc: "Build a page of notes and share it as a link", icon: "file-text" },
