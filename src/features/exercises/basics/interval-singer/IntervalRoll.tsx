@@ -1,0 +1,110 @@
+"use client";
+
+import { useEffect, useState, type RefObject } from "react";
+import { midiToName } from "@/features/sound";
+
+const W = 600;
+const ROW_H = 14;
+const GUTTER = 44;
+/** semitones of room above and below the two notes */
+const ROOM = 2;
+/** how much of the voice's past the trail keeps, in ms */
+const TRAIL_MS = 4000;
+const DO_X = [GUTTER + 12, 290];
+const TARGET_X = [310, W - 40];
+/** the voice is drawn here, the trail running left of it */
+const NOW_X = W - 20;
+const BLACK = new Set([1, 3, 6, 8, 10]);
+
+/**
+ * Do and the note to sing as a piano roll: a row a semitone (black keys darker), Do's bar on the left, the target's on
+ * the right, shown as an empty "?" box until it is found. With `dot` the voice is a dot at the right edge with a line of
+ * the last few seconds behind it, green on the target; without it nothing of the voice shows (the harder way).
+ */
+export default function IntervalRoll({ doMidi, low, high, target, found, doLabel, targetLabel, pitch, cents, dot, live, onNote }: {
+  doMidi: number;
+  /** the lowest and highest note any interval of the set reaches, so the roll keeps its size whichever is asked (its height gives nothing away) */
+  low: number;
+  high: number;
+  /** the note to sing; null before the first question */
+  target: number | null;
+  found: boolean;
+  doLabel: string;
+  targetLabel: string;
+  pitch: RefObject<number | null>;
+  cents: number;
+  dot: boolean;
+  /** the mic is on: the trail runs */
+  live: boolean;
+  /** tapped: "do" or "target" */
+  onNote: (which: "do" | "target") => void;
+}) {
+  const lo = Math.min(doMidi, low) - ROOM;
+  const hi = Math.max(doMidi, high) + ROOM;
+  const H = (hi - lo + 1) * ROW_H + 1;
+  const yOf = (m: number) => (hi - Math.max(lo - 0.5, Math.min(hi + 0.5, m))) * ROW_H + ROW_H / 2;
+  const rows = Array.from({ length: hi - lo + 1 }, (_, k) => hi - k);
+
+  // the voice: the readings of the last few seconds, redrawn every frame while the mic is on
+  const [frame, setFrame] = useState<{ now: number; trail: { t: number; midi: number | null }[] }>({ now: 0, trail: [] });
+  useEffect(() => {
+    if (!live || !dot) return;
+    let id = 0;
+    const step = () => {
+      const t = performance.now();
+      setFrame((f) => ({ now: t, trail: [...f.trail.filter((p) => t - p.t <= TRAIL_MS), { t, midi: pitch.current }] }));
+      id = requestAnimationFrame(step);
+    };
+    id = requestAnimationFrame(step);
+    return () => {
+      cancelAnimationFrame(id);
+      setFrame({ now: 0, trail: [] });
+    };
+  }, [live, dot, pitch]);
+
+  let d = "";
+  let pen = false;
+  for (const p of frame.trail) {
+    if (p.midi === null) {
+      pen = false;
+      continue;
+    }
+    const x = NOW_X - ((frame.now - p.t) / TRAIL_MS) * (NOW_X - GUTTER);
+    d += `${pen ? "L" : "M"}${x.toFixed(1)},${yOf(p.midi).toFixed(1)}`;
+    pen = true;
+  }
+  const m = frame.trail.at(-1)?.midi ?? null;
+  const on = m !== null && target !== null && Math.abs(m - target) * 100 <= cents;
+
+  const bar = (midi: number, [x0, x1]: number[], label: string, which: "do" | "target", shown: boolean) => (
+    <g role="button" tabIndex={0} aria-label={shown ? `${label}, play it` : "The note to sing"} className="cursor-pointer" onClick={() => onNote(which)}
+      onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onNote(which)}>
+      <rect x={x0} y={yOf(midi) - ROW_H / 2 + 1} width={x1 - x0} height={ROW_H - 2} rx={3}
+        fill={shown ? (which === "do" ? "var(--color-sky-500)" : "var(--color-emerald-500)") : "transparent"} fillOpacity={shown ? 0.55 : 0}
+        stroke={shown ? (which === "do" ? "var(--color-sky-300)" : "var(--color-emerald-300)") : "var(--color-slate-500)"} strokeDasharray={shown ? undefined : "4 3"} />
+      <text x={x0 + 8} y={yOf(midi) + 4} fontSize={11} fontWeight={600} fill={shown ? "var(--color-slate-50)" : "var(--color-slate-400)"}>{shown ? label : "?"}</text>
+    </g>
+  );
+
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} className="w-full select-none rounded-lg border border-slate-800 bg-slate-950/60" role="img" aria-label={`Piano roll: ${doLabel} and the note to sing`}>
+      {rows.map((r) => {
+        const y = (hi - r) * ROW_H;
+        const black = BLACK.has(((r % 12) + 12) % 12);
+        const named = r === doMidi || (found && r === target);
+        return (
+          <g key={r}>
+            <rect x={GUTTER} y={y} width={W - GUTTER} height={ROW_H} fill={black ? "var(--color-slate-900)" : "var(--color-slate-800)"} fillOpacity={black ? 0.9 : 0.35} />
+            <rect x={0} y={y} width={GUTTER - 4} height={ROW_H} fill={black ? "var(--color-slate-700)" : "var(--color-slate-300)"} fillOpacity={black ? 1 : 0.85} />
+            {named && <text x={GUTTER - 8} y={y + ROW_H - 3} fontSize={10} textAnchor="end" fill="var(--color-slate-900)" fontWeight={600}>{midiToName(r)}</text>}
+            <line x1={GUTTER} x2={W} y1={y + ROW_H} y2={y + ROW_H} stroke="var(--color-slate-700)" strokeOpacity={0.4} />
+          </g>
+        );
+      })}
+      {bar(doMidi, DO_X, doLabel, "do", true)}
+      {target !== null && bar(target, TARGET_X, targetLabel, "target", found)}
+      {d && <path d={d} fill="none" stroke="var(--color-sky-300)" strokeOpacity={0.8} strokeWidth={2} strokeLinejoin="round" />}
+      {m !== null && <circle cx={NOW_X} cy={yOf(m)} r={6} fill={on ? "var(--color-emerald-400)" : "var(--color-sky-400)"} stroke="var(--color-slate-950)" strokeWidth={1.5} />}
+    </svg>
+  );
+}

@@ -6,6 +6,7 @@ import { VOICES, type Voice } from "@/features/theory/singing";
 import { pickChoices, pickTune, type MelodyPick } from "@/features/theory/melodyPick";
 import { BOOK, RUNS, RUN_STAGES, STAGES, type BookTune, type Stage } from "@/features/theory/singingMelodies";
 import { isRunId, isTuneId } from "@/features/exercises/basics/choices";
+import { INTERVAL_DIRS, type IntervalDir } from "@/features/exercises/basics/interval-singer/asks";
 import { STRING_DRILLS, type StringDrill } from "@/features/exercises/basics/string-singer/strings";
 import { strumPattern } from "@/features/exercises/basics/strum-along/blocks";
 import { COMPONENT_DOCS, shortDoc, type ComponentDoc } from "@/features/exercises/docs";
@@ -62,6 +63,7 @@ export type PlanTool =
   | { type: "run-singer"; run: number; voice?: Voice; chords?: false; metronome?: true }
   | { type: "string-singer"; drill?: StringDrill; voice?: Voice; metronome?: false }
   | { type: "tuning-ears"; cents?: number; together?: boolean }
+  | { type: "interval-singer"; key: number; voice?: Voice; /** semitones from Do, 1-12 */ intervals?: number[]; dir?: IntervalDir; dot?: false }
   | { type: "guitar-play-along"; shape: PlayAlongShape; bpm: number; repeats?: number; view?: View; enable?: Degree[]; highlight?: Degree[]; others?: "muted" | "hidden"; under?: Under }
   | { type: "strum-along"; chords: string[]; bpm: number; per?: "bar" | "beat"; beats?: number; pattern?: string }
   | { type: "chord-backing"; chords: string[]; bpm: number; /** pitch class, from the AI's key; with numerals the chords are already read in it */ key?: number; backing?: CompPattern[] }
@@ -262,6 +264,15 @@ export const TOOLS: { [N in ToolName]: ToolSpec } = {
       const drill = STRING_DRILLS.includes(t.drill as StringDrill) && t.drill !== "strings" ? { drill: t.drill as StringDrill } : {};
       // the metronome is on unless turned off
       return { type: "string-singer", ...drill, ...(voice ? { voice } : {}), ...(t.metronome === false ? { metronome: false as const } : {}) };
+    },
+  },
+  "interval-singer": {
+    parse(t) {
+      const voice = voiceOf(t.voice);
+      const intervals = [...new Set(list(t.intervals).map((v) => int(v, 1, 12)).filter((n): n is number => n !== null))].sort((a, b) => a - b).slice(0, 12);
+      const dir = INTERVAL_DIRS.includes(t.dir as IntervalDir) && t.dir !== "up" ? { dir: t.dir as IntervalDir } : {};
+      // the dot shows unless turned off
+      return { type: "interval-singer", key: keyOf(t.key) ?? 0, ...(voice ? { voice } : {}), ...opt("intervals", intervals), ...dir, ...(t.dot === false ? { dot: false as const } : {}) };
     },
   },
   "tuning-ears": {

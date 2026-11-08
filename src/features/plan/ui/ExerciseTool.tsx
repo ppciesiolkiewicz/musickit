@@ -8,6 +8,7 @@ import { View as BackingBand } from "@/features/exercises/basics/backing-band";
 import { View as ChordBacking } from "@/features/exercises/basics/chord-backing";
 import { View as ChordShapes } from "@/features/exercises/basics/chord-shapes";
 import { View as ClickDrone } from "@/features/exercises/basics/click-drone";
+import { View as IntervalSinger } from "@/features/exercises/basics/interval-singer";
 import { View as IntervalEars } from "@/features/exercises/basics/interval-ears";
 import { View as MelodySinger } from "@/features/exercises/basics/melody-singer";
 import { View as NoteFinder } from "@/features/exercises/basics/note-finder";
@@ -76,6 +77,8 @@ export function Tool({ tool, voice }: { tool: PlanTool; voice?: Voice }) {
       return <RunSinger run={tool.run} voice={tool.voice ?? voice} chords={tool.chords} metronome={tool.metronome} />;
     case "string-singer":
       return <StringSinger drill={tool.drill} voice={tool.voice ?? voice} metronome={tool.metronome} />;
+    case "interval-singer":
+      return <IntervalSinger pc={tool.key} voice={tool.voice ?? voice} intervals={tool.intervals} dir={tool.dir} dot={tool.dot} />;
     case "tuning-ears":
       return <TuningEars cents={tool.cents} together={tool.together} />;
     case "guitar-play-along":

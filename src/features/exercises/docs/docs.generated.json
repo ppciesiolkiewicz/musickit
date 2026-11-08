@@ -388,6 +388,43 @@
     ]
   },
   {
+    "name": "interval-singer",
+    "kind": "basic",
+    "description": "Sing a given interval from Do: the interval shows by name (\"Interval · P5\"), Do sounds and sits on a piano roll (or a\nstaff, the student's switch), and the student sings the other note with the microphone; held on it, it counts, shows\nand plays back. Next asks another interval from the set. The voice shows as a dot unless `dot` is false (the harder\nway: no picture of the voice, only whether it counted). A singing exercise.",
+    "props": [
+      {
+        "name": "key",
+        "type": "string",
+        "required": false,
+        "description": "the key: Do's note name, e.g. \"c\", \"f#\", \"bb\"; default \"c\""
+      },
+      {
+        "name": "voice",
+        "type": "\"soprano\" | \"mezzo\" | \"alto\" | \"tenor\" | \"baritone\" | \"bass\"",
+        "required": false,
+        "description": "voice range; default \"tenor\""
+      },
+      {
+        "name": "intervals",
+        "type": "number[]",
+        "required": false,
+        "description": "the intervals to ask, in semitones from Do (1 to 12): [7] only the 5th, [4, 7, 12] (the default) the major 3rd, 5th and octave"
+      },
+      {
+        "name": "dir",
+        "type": "\"up\" | \"down\" | \"both\"",
+        "required": false,
+        "description": "\"up\" (default): above Do; \"down\": below Do; \"both\""
+      },
+      {
+        "name": "dot",
+        "type": "boolean",
+        "required": false,
+        "description": "show the voice as a dot; default true. false is the harder level: sing without seeing the voice"
+      }
+    ]
+  },
+  {
     "name": "legato-trill",
     "kind": "basic",
     "description": "A legato trill: two fingers on one string, alternating by\nhammer-on and pull-off with no picking after the first note. Use it for legato strength and finger independence.",
