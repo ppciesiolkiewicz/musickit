@@ -2,13 +2,25 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import Wordmark from "@/components/Wordmark";
 
-const COLUMNS: { title: string; links: { href: string; label: string }[] }[] = [
+/** The players' home page (src/app/players/page.tsx); plain / is the music-school one. */
+const PLAYERS = "/players";
+
+type Column = { title: string; links: { href: string; label: string }[] };
+
+const COLUMNS: Column[] = [
+  {
+    title: "attunr for",
+    links: [
+      { href: "/", label: "Music schools" },
+      { href: PLAYERS, label: "Players" },
+    ],
+  },
   {
     title: "Learn",
     links: [
-      { href: "/#course", label: "Video course" },
-      { href: "/#lessons", label: "Private lessons" },
-      { href: "/#lessons", label: "VIP coaching" },
+      { href: `${PLAYERS}#course`, label: "Video course" },
+      { href: `${PLAYERS}#lessons`, label: "Private lessons" },
+      { href: `${PLAYERS}#lessons`, label: "VIP coaching" },
     ],
   },
   {
@@ -24,6 +36,7 @@ const COLUMNS: { title: string; links: { href: string; label: string }[] }[] = [
     title: "Teachers",
     links: [
       { href: "/teach", label: "Teach on attunr" },
+      { href: "/#white-label", label: "White-label for schools" },
       { href: "/teachers/studio", label: "Video studio" },
       { href: "/teachers/studio?notes=1", label: "Notes creator" },
     ],
@@ -40,21 +53,34 @@ function Heading({ children }: { children: ReactNode }) {
   return <p className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-slate-300">{children}</p>;
 }
 
-/** The site footer, on every page: brand, then Learn, Free tools, Teachers (the teaching pitch and the video studio) and Help. */
-export default function SiteFooter() {
+/** The music-school home leaves out what is for players and solo teachers: the Learn column (course, lessons, coaching) and "Teach on attunr". */
+function schoolColumns(): Column[] {
+  return COLUMNS.filter((c) => c.title !== "Learn").map((c) => ({ ...c, links: c.links.filter((l) => l.href !== "/teach") }));
+}
+
+/** Grid classes per column count; written out in full so Tailwind sees them. */
+const GRID: Record<number, { grid: string; brand: string }> = {
+  4: { grid: "sm:grid-cols-4 lg:grid-cols-[minmax(0,1.6fr)_repeat(4,minmax(0,1fr))]", brand: "sm:col-span-4" },
+  5: { grid: "sm:grid-cols-5 lg:grid-cols-[minmax(0,1.6fr)_repeat(5,minmax(0,1fr))]", brand: "sm:col-span-5" },
+};
+
+/** The site footer, on every page: brand, then the two home pages (schools at /, players at /players), Learn, Free tools, Teachers (the teaching pitch and the video studio) and Help. variant="schools" (the music-school home) drops the player and solo-teacher links. */
+export default function SiteFooter({ variant = "default" }: { variant?: "default" | "schools" }) {
+  const columns = variant === "schools" ? schoolColumns() : COLUMNS;
+  const layout = GRID[columns.length];
   return (
     <footer className="border-t border-slate-800/70 pt-12 pb-8 text-sm sm:pt-16">
-      <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-4 lg:grid-cols-[minmax(0,1.6fr)_repeat(4,minmax(0,1fr))] lg:gap-12">
-        <div className="col-span-2 sm:col-span-4 lg:col-span-1">
+      <div className={`grid grid-cols-2 gap-x-6 gap-y-10 ${layout.grid} lg:gap-12`}>
+        <div className={`col-span-2 ${layout.brand} lg:col-span-1`}>
           <Link href="/" aria-label="attunr home" className="inline-block rounded focus-visible:outline-2 focus-visible:outline-sky-400">
             <Wordmark className="text-2xl" dots="side" />
           </Link>
           <p className="mt-4 max-w-xs leading-relaxed text-slate-400">
-            See what you hear. A video course, private lessons and free tools for guitarists who&apos;d rather play.
+            See what you hear. Teaching tools for music schools, and practice, a video course and lessons for guitarists who&apos;d rather play.
           </p>
         </div>
 
-        {COLUMNS.map((c) => (
+        {columns.map((c) => (
           <nav key={c.title} aria-label={c.title}>
             <Heading>{c.title}</Heading>
             <ul className="flex flex-col gap-2.5">

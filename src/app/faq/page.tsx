@@ -45,7 +45,7 @@ const GROUPS: { title: string; items: QA[] }[] = [
   {
     title: "The video course",
     items: [
-      { q: "When does the course open?", a: <>It is in early access now. Join from the <A href="/#course">course section</A> to get the early-access price and every style course free as it launches. Prices may change before launch.</> },
+      { q: "When does the course open?", a: <>It is in early access now. Join from the <A href="/players#course">course section</A> to get the early-access price and every style course free as it launches. Prices may change before launch.</> },
       { q: "Can I get a refund?", a: <>Yes. Every bundle has a 30-day money-back guarantee: email us within 30 days of buying for a full refund, no reason needed.</> },
       { q: "I teach guitar. Can I use attunr?", a: <>Yes. See <A href="/teach">Teach on attunr</A>.</> },
     ],

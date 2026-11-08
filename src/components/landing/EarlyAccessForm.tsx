@@ -18,7 +18,7 @@ type State = { kind: "idle" } | { kind: "sending" } | { kind: "done" } | { kind:
  * Email plus what the player wants first, posted to /api/early-access. `source` names the section the form sits in; a compact form
  * hides the choices and sends `initial` (a teacher's form sends "teaching"). `cta` and `done` let a section word it its own way.
  */
-export default function EarlyAccessForm({ source, compact = false, initial = ["basic-course"], cta = "Get early access", done = "We'll email you once when early access opens, with the early-adopter offer. Meanwhile, every tool on this page is free to use." }: { source: string; compact?: boolean; initial?: Interest[]; cta?: string; done?: string }) {
+export default function EarlyAccessForm({ source, compact = false, initial = ["basic-course"], cta = "Get early access", done = "We'll email you once when early access opens, with the early-adopter offer. Meanwhile, every tool on this page is free to use.", note = "One email when it opens. No spam, unsubscribe any time." }: { source: string; compact?: boolean; initial?: Interest[]; cta?: string; done?: string; note?: string }) {
   const [email, setEmail] = useState("");
   const [website, setWebsite] = useState("");
   const [interests, setInterests] = useState<Interest[]>(initial);
@@ -105,7 +105,7 @@ export default function EarlyAccessForm({ source, compact = false, initial = ["b
       {state.kind === "error" ? (
         <p role="alert" className="text-xs text-rose-300">{state.message}</p>
       ) : (
-        <p className="text-xs text-slate-500">One email when it opens. No spam, unsubscribe any time.</p>
+        <p className="text-xs text-slate-500">{note}</p>
       )}
     </form>
   );
