@@ -8,7 +8,8 @@ import { playMelody, strum } from "@/features/sound";
 import { CHORD_QUALITIES, EAR_LEVELS, activeAnswers, nextEarQuestion, recordScore, type Direction, type EarQuestion, type EarSettings, type Score } from "@/lib/practice/earGame";
 import Icon from "@/components/Icon";
 import { GameChoice, SetupTag, Stage, Stat, btn, btnBig, panel, useGameKeys, writeQuery } from "./shared";
-import { Chip, ChipRow, KeyCap } from "@/components/ui";
+import { Chip, ChipRow, Hint, KeyCap } from "@/components/ui";
+import { useCoverage } from "@/features/guide/useCoverage";
 
 const DIRS: { id: Direction; label: string; mark: string }[] = [
   { id: "up", label: "Rising", mark: "↗" },
@@ -35,6 +36,7 @@ function play(q: EarQuestion) {
 
 /** Interval and chord-quality ear training. Settings live in the URL so a teacher can share a set-up. */
 export default function EarGame({ initial, syncUrl = true, bare = false }: { initial: EarSettings; /** write the settings to the address bar (off when embedded in another page) */ syncUrl?: boolean; /** settings fixed by the host: no settings panel */ bare?: boolean }) {
+  useCoverage({ hints: 4 });
   const [s, setS] = useState(initial);
   const [q, setQ] = useState<EarQuestion | null>(null);
   const [answered, setAnswered] = useState<{ pick: string; ok: boolean } | null>(null);
@@ -93,7 +95,7 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
   const cap = (key: string) => !bare && <KeyCap className="hidden md:inline">{key}</KeyCap>;
 
   const setup = !bare && (
-    <section className={`${panel} flex flex-col gap-2`}>
+    <section data-tour="ears-settings" className={`${panel} flex flex-col gap-2`}>
       <h2 className="mb-1 text-xs font-medium uppercase tracking-[0.2em] text-slate-400">Set up the training</h2>
       {s.kind === "interval" && (
         <>
@@ -117,7 +119,7 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
 
   return (
     <div className="flex flex-col gap-4">
-      {!bare && <GameChoice label="What to train" options={KINDS} value={s.kind} onChange={(kind) => update({ kind })} tone="sky" />}
+      {!bare && <div data-tour="ears-setup"><GameChoice label="What to train" options={KINDS} value={s.kind} onChange={(kind) => update({ kind })} tone="sky" /></div>}
       <Stage tone="sky">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
@@ -137,15 +139,15 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
           </div>
           {total > 0 && <div className="flex gap-2"><Stat label="right" value={right} tone="text-emerald-300" /><Stat label="asked" value={total} /></div>}
         </div>
-        <div className="flex flex-wrap items-center gap-2">
+        <div data-tour="interval-ears-play" className="flex flex-wrap items-center gap-2">
           {!q || answered
-            ? <button type="button" className={btnBig} onClick={next}><Icon name="play" size={16} />{q ? "Next" : "Start"}{cap("Space")}</button>
-            : <button type="button" className={btnBig} onClick={replay}><Icon name="repeat" size={16} />Replay{cap("R")}</button>}
+            ? <Hint title={q ? "Next" : "Start"} description="Plays a new one to name."><button type="button" className={btnBig} onClick={next}><Icon name="play" size={16} />{q ? "Next" : "Start"}{cap("Space")}</button></Hint>
+            : <Hint title="Replay" description="Plays the same one again."><button type="button" className={btnBig} onClick={replay}><Icon name="repeat" size={16} />Replay{cap("R")}</button></Hint>}
           {q && (answered
-            ? <button type="button" className={`${btn} inline-flex items-center gap-1.5 py-2`} onClick={replay}><Icon name="repeat" size={14} />Replay{cap("R")}</button>
-            : <button type="button" className={`${btn} py-2`} onClick={next}>Skip</button>)}
+            ? <Hint title="Replay" description="Plays the same one again."><button type="button" className={`${btn} inline-flex items-center gap-1.5 py-2`} onClick={replay}><Icon name="repeat" size={14} />Replay{cap("R")}</button></Hint>
+            : <Hint title="Skip" description="Moves on to a new one."><button type="button" className={`${btn} py-2`} onClick={next}>Skip</button></Hint>)}
         </div>
-        <div className={`grid gap-2 ${s.kind === "chord" ? "grid-cols-[repeat(auto-fill,minmax(8rem,1fr))]" : "grid-cols-[repeat(auto-fill,minmax(4.5rem,1fr))]"}`}>
+        <div data-tour="interval-ears-answers" className={`grid gap-2 ${s.kind === "chord" ? "grid-cols-[repeat(auto-fill,minmax(8rem,1fr))]" : "grid-cols-[repeat(auto-fill,minmax(4.5rem,1fr))]"}`}>
           {answers.map((a, i) => {
             const isRight = answered && a === q?.answer, wrong = answered && !answered.ok && a === answered.pick;
             return (

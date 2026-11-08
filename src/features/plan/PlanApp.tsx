@@ -103,7 +103,7 @@ export default function PlanApp() {
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Reminder state={state} update={update} />
-            <Button size="sm" onClick={() => setFlow("next")} title="Plan the next days from this week's exercises" className={primary}><Icon name="sparkles" size={12} />Plan next week</Button>
+            <Button data-tour="plan-next" size="sm" onClick={() => setFlow("next")} title="Plan the next days from this week's exercises" className={primary}><Icon name="sparkles" size={12} />Plan next week</Button>
             <Button size="sm" onClick={() => setFlow("start")} title="Answer the questions again; the prompt leaves out past weeks"><Icon name="rotate-ccw" size={12} />Start anew</Button>
           </div>
         </div>

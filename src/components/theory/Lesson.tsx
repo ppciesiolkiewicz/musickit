@@ -6,7 +6,7 @@ export default function Lesson({ why, tryThis, course }: { why: string; tryThis:
   const [stage, section] = course.split("/");
   const r = findSection(stage, section);
   return (
-    <aside className="mb-4 grid gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-3 text-sm sm:grid-cols-[1fr_1fr_auto]">
+    <aside data-tour="lesson" className="mb-4 grid gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-3 text-sm sm:grid-cols-[1fr_1fr_auto]">
       <div>
         <div className="text-xs uppercase tracking-wider text-slate-500">Why it matters</div>
         <p className="text-slate-300">{why}</p>

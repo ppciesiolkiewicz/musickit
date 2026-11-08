@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import PageShell from "@/components/PageShell";
 import Lesson from "@/components/theory/Lesson";
 import { CircleOfFifthsPage } from "@/components/theory/CircleOfFifths";
+import { CIRCLE_TOUR } from "@/features/guide/tours/circle";
 
 export const metadata: Metadata = {
   title: "Circle of fifths · attunr",
@@ -12,6 +13,8 @@ export default function CirclePage() {
   return (
     <PageShell
       active="/theory/circle"
+      pageId="circle"
+      tour={CIRCLE_TOUR}
       title="Circle of fifths"
       intro="The twelve keys a fifth apart. Pick a major or a minor to see its key signature, its seven chords lit on the circle, and the keys next to it. Click any chord to hear it."
     >

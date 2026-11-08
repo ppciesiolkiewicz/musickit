@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import Icon from "@/components/Icon";
+import { Hint } from "@/components/ui";
+import { useCoverage } from "@/features/guide/useCoverage";
 import { getAudioContext, getOutputBus, midiToHz, wakeAudio } from "@/features/sound";
 import { clampCents, describeRound, makeRound, verdictOf, type Round, type Verdict } from "./rounds";
 
@@ -32,6 +34,7 @@ function pluck(midi: number, cents: number, at: number, secs: number) {
  * other or together (listen for the beats); the student says whether the open string is flat, sharp or in tune.
  */
 export function View({ cents, together = false }: { cents?: number; together?: boolean }) {
+  useCoverage({ hints: 2 });
   const off = clampCents(cents);
   const [round, setRound] = useState<Round | null>(null);
   const [answer, setAnswer] = useState<Verdict | null>(null);
@@ -67,18 +70,26 @@ export function View({ cents, together = false }: { cents?: number; together?: b
         {together ? "Both notes ring together: in tune they blend, out of tune they wobble (beat); the faster the wobble, the further out." : "The reference, then the open string: is the open string flat, sharp or in tune?"} {off} cents out when not in tune.
       </p>
       <div className="flex flex-wrap items-center gap-2">
-        <button type="button" onClick={next} className={`${btn} border-sky-400/70 bg-sky-500/20 text-sky-100`}>
-          {round && !answer ? "Skip" : round ? "Next" : "Start"}
-        </button>
-        <button type="button" disabled={!round} onClick={() => round && void play(round)} title="Hear it again" aria-label="Hear it again" className={`${btn} border-slate-700 text-slate-300 hover:border-slate-500`}>
-          <Icon name="repeat" size={15} />
-        </button>
+        <span data-tour="tuning-ears-start" className="flex items-center gap-2">
+          <Hint title={round && !answer ? "Skip" : round ? "Next" : "Start"} description="Plays two new notes to compare.">
+            <button type="button" onClick={next} className={`${btn} border-sky-400/70 bg-sky-500/20 text-sky-100`}>
+              {round && !answer ? "Skip" : round ? "Next" : "Start"}
+            </button>
+          </Hint>
+          <Hint title="Hear it again" description="Plays the same two notes again.">
+            <button type="button" disabled={!round} onClick={() => round && void play(round)} title="Hear it again" aria-label="Hear it again" className={`${btn} border-slate-700 text-slate-300 hover:border-slate-500`}>
+              <Icon name="repeat" size={15} />
+            </button>
+          </Hint>
+        </span>
+        <span data-tour="tuning-ears-answers" className="flex flex-wrap items-center gap-2">
         {(["flat", "in-tune", "sharp"] as Verdict[]).map((v) => (
           <button key={v} type="button" disabled={!round || !!answer} onClick={() => say(v)}
             className={`${btn} ${answer && round && verdictOf(round) === v ? "border-emerald-400/70 bg-emerald-500/25 text-emerald-100" : answer === v ? "border-rose-400/70 bg-rose-500/20 text-rose-100" : "border-slate-700 text-slate-200 hover:border-slate-500"}`}>
             {LABEL[v]}
           </button>
         ))}
+        </span>
         <span className="ml-auto text-xs text-slate-400">{score.right} / {score.asked}</span>
       </div>
       {round && (

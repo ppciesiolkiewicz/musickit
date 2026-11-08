@@ -3,6 +3,7 @@ import PageShell from "@/components/PageShell";
 import Lesson from "@/components/theory/Lesson";
 import TheoryPiano from "@/components/theory/piano/TheoryPiano";
 import LabelSystemsArticle from "@/components/theory/LabelSystemsArticle";
+import { PIANO_TOUR } from "@/features/guide/tours/piano";
 
 export const metadata: Metadata = {
   title: "Piano · attunr",
@@ -13,6 +14,8 @@ export default function PianoPage() {
   return (
     <PageShell
       active="/theory/piano"
+      pageId="piano"
+      tour={PIANO_TOUR}
       title="Piano"
       intro="Pick a key and play: the staff writes each note in that key with its scale degree, joins it to the last few with the interval between them, and names the chord when notes sound together. Use the computer keys, click the keys, or connect a MIDI keyboard."
     >

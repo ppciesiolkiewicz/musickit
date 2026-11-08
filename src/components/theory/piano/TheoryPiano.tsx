@@ -29,7 +29,7 @@ export default function TheoryPiano() {
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5">
+      <div data-tour="piano-key" className="flex flex-wrap items-center gap-2 rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5">
         <label className="flex items-center gap-1.5 text-xs text-slate-400">
           Key
           <Select value={tonicPc} onChange={(pc) => changeKey(pc, scale)} aria-label="Key" options={Array.from({ length: 12 }, (_, pc) => ({ value: pc, label: makeKey(pc, scale).tonic }))} />
@@ -39,11 +39,11 @@ export default function TheoryPiano() {
         <button type="button" onClick={() => setTrail(emptyTrail)} className="ml-auto rounded-md border border-slate-700 px-2.5 py-1 text-xs text-slate-300 hover:border-slate-500">Clear staff</button>
       </div>
 
-      <div className="mx-auto w-full max-w-3xl rounded-2xl border border-slate-800 bg-slate-950/60 p-2">
+      <div data-tour="piano-staff" className="mx-auto w-full max-w-3xl rounded-2xl border border-slate-800 bg-slate-950/60 p-2">
         <GrandStaff steps={trail.steps} signature={key.signature} tonic={key.tonic} numerals={scale !== "chromatic"} />
       </div>
 
-      <div className="overflow-x-auto pb-1">
+      <div data-tour="piano-keys" className="overflow-x-auto pb-1">
         <Piano
           keyInfo={keyInfo}
           onNoteOn={(m) => setTrail((t) => press(t, key, m, performance.now()))}

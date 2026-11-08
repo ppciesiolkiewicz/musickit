@@ -5,6 +5,7 @@ import Lesson from "@/components/theory/Lesson";
 import SingingApp from "@/components/theory/singing/SingingApp";
 import { parseSingingLink } from "@/features/theory/singingLink";
 import { RUNS } from "@/features/theory/singingMelodies";
+import { SINGING_TOUR } from "@/features/guide/tours/singing";
 
 export const metadata: Metadata = {
   title: "Sing a scale · attunr",
@@ -20,6 +21,8 @@ export default async function SingingPage({ searchParams }: { searchParams: Prom
   return (
     <PageShell
       active="/theory/singing"
+      pageId="singing"
+      tour={SINGING_TOUR}
       full
       devices
       title="Sing a scale"

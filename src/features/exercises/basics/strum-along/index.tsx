@@ -2,7 +2,8 @@
 
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import Icon from "@/components/Icon";
-import { sbtn } from "@/components/ui";
+import { Hint, sbtn } from "@/components/ui";
+import { useCoverage } from "@/features/guide/useCoverage";
 import { CLICK_MAX_BPM, CLICK_MIN_BPM, ClickTrack, clampClick } from "@/features/instruments/model";
 import { getAudioContext, getOutputBus, wakeAudio } from "@/features/sound";
 import { strumAt, strumBars, strumCounts, strumPattern, type Stroke, type StrumPer, type StrumPos } from "./blocks";
@@ -19,6 +20,7 @@ const SAY: Record<Stroke, string> = { D: "down", U: "up", ".": "miss" };
  * Its own `ClickTrack` on the app's output, read every frame for the beat and how far into it.
  */
 export function View({ chords, bpm: initial, per = "bar", beats = 4, pattern }: { chords: string[]; bpm: number; per?: StrumPer; beats?: number; pattern?: string }) {
+  useCoverage({ hints: 1 });
   const [bpm, setBpm] = useState(initial);
   const [playing, setPlaying] = useState(false);
   const [at, setAt] = useState<StrumPos | null>(null);
@@ -72,11 +74,13 @@ export function View({ chords, bpm: initial, per = "bar", beats = 4, pattern }: 
   return (
     <div className="flex flex-col gap-2.5 rounded-xl border border-slate-800 bg-slate-950/40 p-2.5">
       <div className="flex flex-wrap items-center gap-2">
-        <button type="button" onClick={() => void toggle()} aria-pressed={playing}
-          className={`inline-flex h-8 items-center gap-1.5 rounded-lg border px-3 text-xs font-medium transition ${playing ? "border-emerald-400/70 bg-emerald-500/20 text-emerald-100" : "border-sky-400/60 bg-sky-500/15 text-sky-50 hover:bg-sky-500/25"}`}>
-          <Icon name={playing ? "square" : "play"} size={14} fill />{playing ? "Stop" : "Play"}
-        </button>
-        <span className="flex items-center gap-1 text-xs text-slate-300">
+        <Hint title={playing ? "Stop" : "Play"} description="Starts the metronome with a count-in, and lights each strum as it comes.">
+          <button type="button" data-tour="strum-along-play" onClick={() => void toggle()} aria-pressed={playing}
+            className={`inline-flex h-8 items-center gap-1.5 rounded-lg border px-3 text-xs font-medium transition ${playing ? "border-emerald-400/70 bg-emerald-500/20 text-emerald-100" : "border-sky-400/60 bg-sky-500/15 text-sky-50 hover:bg-sky-500/25"}`}>
+            <Icon name={playing ? "square" : "play"} size={14} fill />{playing ? "Stop" : "Play"}
+          </button>
+        </Hint>
+        <span data-tour="strum-along-tempo" className="flex items-center gap-1 text-xs text-slate-300">
           <button type="button" className={sbtn} disabled={bpm <= CLICK_MIN_BPM} onClick={() => tempo(bpm - 1)} aria-label="Slower">−</button>
           <span className="w-14 text-center tabular-nums">{bpm} <span className="text-[10px] text-slate-500">bpm</span></span>
           <button type="button" className={sbtn} disabled={bpm >= MAX_BPM} onClick={() => tempo(bpm + 1)} aria-label="Faster">+</button>
@@ -85,7 +89,7 @@ export function View({ chords, bpm: initial, per = "bar", beats = 4, pattern }: 
           {countIn !== null ? <>Count-in <b className="tabular-nums text-amber-200">{countIn}</b></> : playing ? null : `${beats} beats a bar, a chord ${per === "bar" ? "a bar" : "a beat"}`}
         </span>
       </div>
-      <div className="flex flex-wrap items-stretch gap-x-2 gap-y-2" role="list" aria-label={`Chords, strum ${spoken}`}>
+      <div data-tour="strum-along-bars" className="flex flex-wrap items-stretch gap-x-2 gap-y-2" role="list" aria-label={`Chords, strum ${spoken}`}>
         {strumBars(chords.length, per, beats).map((bar, bi) => (
           <Fragment key={bi}>
             {bi > 0 && per === "beat" && <span className="self-center text-lg text-slate-600" aria-hidden>|</span>}

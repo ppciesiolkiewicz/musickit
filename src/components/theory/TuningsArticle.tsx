@@ -34,11 +34,11 @@ function TuningCard({ instrument, tuning }: { instrument: InstrumentId; tuning: 
   );
 }
 
-function Tunings({ instrument, only }: { instrument: InstrumentId; only?: string[] }) {
+function Tunings({ instrument, only, tour }: { instrument: InstrumentId; only?: string[]; tour?: string }) {
   const inst = instrumentById(instrument)!;
   const list = only ? inst.tunings.filter((t) => only.includes(t.id)) : inst.tunings;
   return (
-    <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+    <div data-tour={tour} className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
       {list.map((t) => <TuningCard key={t.id} instrument={instrument} tuning={t} />)}
     </div>
   );
@@ -59,7 +59,7 @@ const SECTIONS = [
 export default function TuningsArticle() {
   return (
     <article className="flex flex-col gap-3">
-      <nav aria-label="On this page" className="flex flex-wrap gap-1.5">
+      <nav data-tour="tunings-nav" aria-label="On this page" className="flex flex-wrap gap-1.5">
         {SECTIONS.map(([id, label]) => <a key={id} href={`#${id}`} className={btnSm}>{label}</a>)}
       </nav>
 
@@ -116,7 +116,7 @@ export default function TuningsArticle() {
         <li><b>Open</b>: the open strings form a major chord (Open G, D, E, C). Barre one finger across for any chord: the home of slide guitar.</li>
         <li><b>Modal</b>: open strings that leave the third out, like DADGAD (a Dsus4), so they ring under both major and minor melodies.</li>
       </ul>
-      <Tunings instrument="guitar" />
+      <Tunings instrument="guitar" tour="tunings-guitar" />
 
       <H2 id="bass">Bass</H2>
       <P>

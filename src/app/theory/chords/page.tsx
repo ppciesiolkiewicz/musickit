@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import PageShell from "@/components/PageShell";
 import Lesson from "@/components/theory/Lesson";
 import ChordKit from "@/components/chordKit/ChordKit";
+import { CHORDS_TOUR } from "@/features/guide/tours/chords";
 
 export const metadata: Metadata = {
   title: "Chord explorer · attunr",
@@ -12,6 +13,8 @@ export default function ChordsPage() {
   return (
     <PageShell
       active="/theory/chords"
+      pageId="chords"
+      tour={CHORDS_TOUR}
       title="Chord explorer"
       intro="Open chords and movable guitar shapes labelled by scale degree, the chords of any key and mode, and progressions with the shapes to use and every position on the neck. New to guitar? Start with the open chords: Em, Am, C, D, G, E, A, Dm."
     >

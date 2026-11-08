@@ -78,7 +78,7 @@ export default function CourseIndex() {
             Start at the beginning <Icon name="chevron-right" size={16} />
           </Link>
         </div>
-        <div className="flex flex-wrap items-center gap-3">
+        <div data-tour="course-layout" className="flex flex-wrap items-center gap-3">
           <Toggle label="Layout" value={layout} onChange={setLayout} options={[{ id: "stage", label: "By stage" }, { id: "topic", label: "By topic" }]} />
           <div className="flex flex-wrap gap-1.5">
             {([["warmup", "🔥 Warm-ups"], ["often", "🔁 Come back often"]] as const).map(([id, label]) => (
@@ -109,7 +109,7 @@ export default function CourseIndex() {
             const colour = stageColour(stage.slug);
             const first = stage.sections.find((x) => x.blocks.length);
             return (
-              <li key={stage.slug} id={`stage-${stage.slug}`} className="relative flex scroll-mt-20 gap-3 sm:gap-5">
+              <li key={stage.slug} id={`stage-${stage.slug}`} data-tour={stage === stages[0].stage ? "course-stage" : undefined} className="relative flex scroll-mt-20 gap-3 sm:gap-5">
                 <span className="relative z-10 grid size-10 shrink-0 place-items-center rounded-full text-sm font-bold text-slate-950 ring-8 ring-slate-950/70 sm:size-12" style={{ background: colour }}>{stage.label}</span>
                 <section aria-labelledby={`s-${stage.slug}`} className="relative min-w-0 flex-1 overflow-hidden rounded-3xl border border-slate-700/70 bg-slate-900/50 p-4 transition hover:border-slate-500 sm:p-5">
                   <div aria-hidden className="pointer-events-none absolute inset-0 opacity-25" style={{ background: `radial-gradient(60% 90% at 100% 0%, ${colour}55, transparent)` }} />

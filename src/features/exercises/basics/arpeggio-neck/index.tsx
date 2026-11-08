@@ -7,6 +7,8 @@ import { useCallback, useMemo } from "react";
 import { PositionBox, cellKey } from "@/components/chordKit/ScaleNeck";
 import { useNotePlayer } from "@/components/chordKit/useNotePlayer";
 import { useLabelSystem } from "@/features/theory/useLabelSystem";
+import { Hint } from "@/components/ui";
+import { useCoverage } from "@/features/guide/useCoverage";
 import { parseChordQuery } from "@/lib/chordKit/chordSearch";
 import type { ScaleCell, ScalePosition } from "@/lib/chordKit/scalePositions";
 import type { Degree } from "../../timeline/types";
@@ -22,6 +24,7 @@ const SEMI_DEGREE = [0, 1, 1, 2, 2, 3, 4, 4, 4, 5, 6, 6];
  * `part` asked for; tap a note to hear it, ▶ to run it up and down.
  */
 export function View({ chord, boxes: asked, placement, part, enable, highlight, mute, hide, others }: { chord: string; boxes?: number[]; placement?: Placement; part?: Degree[]; enable?: number[]; highlight?: number[]; mute?: number[]; hide?: number[]; others?: Others }) {
+  useCoverage({ hints: 1 });
   const [system] = useLabelSystem();
   const { active, running, play, tap, stop } = useNotePlayer();
   const rootPc = parseChordQuery(chord)?.rootPc ?? 0;
@@ -56,9 +59,13 @@ export function View({ chord, boxes: asked, placement, part, enable, highlight, 
     <div className="flex flex-col gap-1">
       <div className="flex flex-wrap items-center gap-2 text-xs text-slate-300">
         <span>{chord} arpeggio · box{shown.length > 1 ? "es" : ""} {shown.join(" & ")}{part?.length ? ` · ${part.join(" ")}` : ""}{litNames.length ? ` · ${litNames.join(" ")} lit` : ""}{seam.size ? " · dashed rings: the notes both boxes share" : ""}</span>
-        <button type="button" onClick={running ? stop : run} className="rounded border border-slate-700 px-2 py-0.5 text-[11px] text-slate-300 hover:border-slate-500">{running ? "■ Stop" : "▶ Play"}</button>
+        <Hint title="Play" description="Runs the arpeggio up and back down.">
+          <button type="button" data-tour="arpeggio-neck-play" onClick={running ? stop : run} className="rounded border border-slate-700 px-2 py-0.5 text-[11px] text-slate-300 hover:border-slate-500">{running ? "■ Stop" : "▶ Play"}</button>
+        </Hint>
       </div>
-      <PositionBox position={position} cells={[]} rings={false} active={active} labelSystem={system} onNote={(c) => tap(cellKey(c), c.midi)} states={state} seam={seam} />
+      <div data-tour="arpeggio-neck-box">
+        <PositionBox position={position} cells={[]} rings={false} active={active} labelSystem={system} onNote={(c) => tap(cellKey(c), c.midi)} states={state} seam={seam} />
+      </div>
     </div>
   );
 }

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import PageShell from "@/components/PageShell";
 import Lesson from "@/components/theory/Lesson";
 import TriadsExplorer from "@/components/chordKit/TriadsExplorer";
+import { TRIADS_TOUR } from "@/features/guide/tours/triads";
 
 export const metadata: Metadata = {
   title: "Triads by string group · attunr",
@@ -12,6 +13,8 @@ export default function TriadsPage() {
   return (
     <PageShell
       active="/theory/triads"
+      pageId="triads"
+      tour={TRIADS_TOUR}
       full
       devices
       title="Triads by string group"

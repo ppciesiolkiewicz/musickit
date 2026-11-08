@@ -339,7 +339,7 @@ export default function RhythmGame() {
 
   return (
     <div className="flex flex-col gap-4">
-      <GameChoice label="Rhythm" options={PATTERNS.map((p) => ({ id: p.id, title: p.name, about: p.hint }))} value={s.pattern} onChange={(pattern) => update({ pattern })} tone="violet" disabled={playing} />
+      <div data-tour="rhythm-pick"><GameChoice label="Rhythm" options={PATTERNS.map((p) => ({ id: p.id, title: p.name, about: p.hint }))} value={s.pattern} onChange={(pattern) => update({ pattern })} tone="violet" disabled={playing} /></div>
       <Stage tone="violet">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
@@ -351,7 +351,7 @@ export default function RhythmGame() {
             <Stat label="streak" value={playing ? streak : 0} tone="text-emerald-300" />
           </div>
         </div>
-        <div className="flex flex-wrap items-center gap-3">
+        <div data-tour="rhythm-start" className="flex flex-wrap items-center gap-3">
           <button type="button" data-round-button onClick={playing ? stop : start} className={playing ? `${stopBtn} min-w-40 justify-center` : `${btnBig} min-w-40 justify-center`}>
             {playing ? <span aria-hidden className="h-2.5 w-2.5 rounded-sm bg-rose-300" /> : <Icon name="play" size={16} />}
             {playing ? "Stop" : phase === "done" ? "Play again" : "Start"}
@@ -363,6 +363,7 @@ export default function RhythmGame() {
         </div>
         {error && <p role="alert" className="text-xs text-rose-300">{error}</p>}
         <canvas
+          data-tour="rhythm-lane"
           ref={canvas}
           role="img"
           aria-label={s.input === "keys" ? "Rhythm lane: press Space or tap here on each note" : "Rhythm lane: strum on each note"}
@@ -396,7 +397,7 @@ export default function RhythmGame() {
         )}
       </Stage>
 
-      <aside aria-label="Setup" className="flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
+      <aside data-tour="rhythm-setup" aria-label="Setup" className="flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
         <h2 className="text-xs font-medium uppercase tracking-[0.2em] text-slate-400">Set up the round</h2>
         {playing && <p className="text-xs text-slate-400">These stay as they are until the round ends. Offset and sensitivity still change as you play.</p>}
         <div inert={playing} className={`flex flex-col gap-3 transition-opacity ${playing ? "opacity-50" : ""}`}>

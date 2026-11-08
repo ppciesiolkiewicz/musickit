@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import PageShell from "@/components/PageShell";
 import { Tuner } from "@/features/tuner";
+import { TUNER_TOUR } from "@/features/guide/tours/tuner";
 
 export const metadata: Metadata = {
   title: "Tuner · attunr",
@@ -9,8 +10,8 @@ export const metadata: Metadata = {
 
 export default function TunerPage() {
   return (
-    <PageShell active="/tuner" title="Tuner" intro="Pick an instrument and tuning (or Chromatic for any note) and the input. Press start and play one string. Tap a string below to hear its pitch.">
-      <Tuner />
+    <PageShell active="/tuner" pageId="tuner" tour={TUNER_TOUR} title="Tuner" intro="Pick an instrument and tuning (or Chromatic for any note) and the input. Press start and play one string. Tap a string below to hear its pitch.">
+      <Tuner guide />
     </PageShell>
   );
 }

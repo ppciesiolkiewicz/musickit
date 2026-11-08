@@ -104,7 +104,7 @@ export default function TriadsExplorer({ initialTonic = DEFAULT_KEY_PC, initialQ
           </Info>
         </p>
 
-      <section className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
+      <section data-tour="triads-essential" className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
         <h3 className="mb-1 flex items-center gap-1 text-sm font-medium text-slate-100">
           Essential triads
           <Info label="Essential triads">
@@ -145,8 +145,8 @@ export default function TriadsExplorer({ initialTonic = DEFAULT_KEY_PC, initialQ
         </div>
       </section>
 
-      {data.map(({ g, inv }) => (
-        <section key={g.id} className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
+      {data.map(({ g, inv }, gi) => (
+        <section key={g.id} data-tour={gi === 0 ? "triads-group" : undefined} className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
           <h3 className="mb-3 text-sm font-medium text-slate-100">{g.label}</h3>
           <div className="grid gap-4 md:grid-cols-3">
             {inv.map(({ inv: iv, list }) => (

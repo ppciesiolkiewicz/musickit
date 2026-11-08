@@ -18,6 +18,7 @@ import { scaleHref } from "@/features/theory/keySlug";
 import { Chip, Info, Select } from "@/components/ui";
 import { DegreeLegend } from "@/components/theory/DegreeLegend";
 import usePhone from "@/components/usePhone";
+import { useLevelAtLeast } from "@/features/guide/Tier";
 
 const KINDS = [
   { id: "triad", label: "Scale triad" },
@@ -174,7 +175,11 @@ function ArpBox({ cells, pos, overlay, labelSystem, badges, onNote, onPlay, on, 
  * Arpeggios over any scale or mode: pick the scale, then the arpeggio, and see both on the whole neck.
  * `side` puts the settings in a column on the right on wide screens (the arpeggios page); embedded, they float over the top.
  */
-export default function ArpeggiosExplorer({ initialTonic = DEFAULT_KEY_PC, initialFamily = 0, initialMode = 0, side = false }: { initialTonic?: number; initialFamily?: number; initialMode?: number; side?: boolean } = {}) {
+export default function ArpeggiosExplorer({ initialTonic = DEFAULT_KEY_PC, initialFamily = 0, initialMode = 0, side = false, guide = false }: {
+  initialTonic?: number; initialFamily?: number; initialMode?: number; side?: boolean;
+  /** on the arpeggios page: the octaves picker is a Standard control, and while it is hidden Play climbs one octave */
+  guide?: boolean;
+} = {}) {
   const [tonicPc, setTonicPc] = useState(initialTonic);
   const [fam, setFam] = useState(initialFamily);
   const [mode, setMode] = useState(initialMode);
@@ -183,7 +188,9 @@ export default function ArpeggiosExplorer({ initialTonic = DEFAULT_KEY_PC, initi
   const [overlay, setOverlay] = useState(true);
   const [labelSystem] = useLabelSystem();
   const [badges, setBadges] = useState(true);
-  const [octaves, setOctaves] = useState(1);
+  const [chosenOctaves, setOctaves] = useState(1);
+  const showOctaves = useLevelAtLeast("standard", !guide);
+  const octaves = showOctaves ? chosenOctaves : 1;
   const [focus, setFocus] = useState<string | null>(null);
 
   const ctx = useMemo(() => makeKeyContext(tonicPc, fam, mode), [tonicPc, fam, mode]);
@@ -248,17 +255,17 @@ export default function ArpeggiosExplorer({ initialTonic = DEFAULT_KEY_PC, initi
         {page && <> · <Link className="text-sky-300 hover:underline" href={scaleHref(page.slug, tonicPc)}>mode page</Link></>}
       </p>
 
-      <section className="bleed rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
+      <section data-tour="arp-neck" className="bleed rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
         <div className="mb-3 flex flex-wrap items-center gap-3">
           <h2 className="text-sm font-medium text-slate-100">{arp.title}</h2>
           <span className="text-xs text-slate-400">
             {arp.notes.map((n) => `${n.name} (${n.role})`).join(" · ")}
           </span>
           <span className="ml-auto flex items-center gap-2">
-            <span className="flex items-center gap-1.5 text-xs text-slate-400">
+            {showOctaves && <span className="flex items-center gap-1.5 text-xs text-slate-400">
               Octaves<Info label="About octaves">How far the played arpeggio climbs. One octave plays the notes up to the next root and back down. Two goes twice as far.</Info>
-              <Select size="xs" value={octaves} onChange={setOctaves} aria-label="Octaves" options={[{ value: 1, label: "1" }, { value: 2, label: "2" }]} />
-            </span>
+              <Select size="xs" value={chosenOctaves} onChange={setOctaves} aria-label="Octaves" options={[{ value: 1, label: "1" }, { value: 2, label: "2" }]} />
+            </span>}
             <button type="button" onClick={playArp} className="cursor-pointer rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25">▶ Play arpeggio</button>
           </span>
         </div>
@@ -276,7 +283,7 @@ export default function ArpeggiosExplorer({ initialTonic = DEFAULT_KEY_PC, initi
         </div>
       </section>
 
-      <section className="rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5">
+      <section data-tour="arp-positions" className="rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5">
         <h2 className="mb-2 text-sm font-medium text-slate-100">
           {arp.title} by position
           <Info label="About positions">Each position starts on the root (Do) on one string and climbs the strings above it, one note at a time, without leaving the hand&apos;s reach. Tap a note to hear it, or Play to hear the position up and back.</Info>

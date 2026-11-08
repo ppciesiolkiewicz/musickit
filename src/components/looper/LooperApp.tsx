@@ -28,6 +28,9 @@ import Link from "next/link";
 import ThemeSwitcher from "../ThemeSwitcher";
 import Icon from "../Icon";
 import { btn as btnPlain, btnBase as btn, ibtn } from "@/components/controls";
+import PageHelp from "@/features/guide/PageHelp";
+import { Tier, useLevelAtLeast } from "@/features/guide/Tier";
+import { LOOPER_TOUR } from "@/features/guide/tours/looper";
 
 /** a small square icon button */
 
@@ -199,8 +202,10 @@ export default function LooperApp() {
   const pageRef = useRef<HTMLDivElement>(null);
   const [macrosOpen, setMacrosOpen] = useState(false);
   const [storedView, setView] = useStored<string>("musickit.looper.view", "canvas");
+  // Simple hides the view menu, so it shows the default view; the saved choice stays and returns at Standard
+  const full = useLevelAtLeast("standard");
   // saved views from before Canvas ("widgets", "lines") open as the canvas
-  const view = toView(storedView);
+  const view = full ? toView(storedView) : "canvas";
   const widgetMode = view === "canvas";
   // an older save only knew "widgets on or off"
   useEffect(() => {
@@ -267,7 +272,7 @@ export default function LooperApp() {
     </>
   );
   const looping = (fill: boolean) => (
-    <section className={`flex flex-col gap-2 rounded-xl border border-slate-800 bg-slate-900/40 p-1.5 ${fill ? "h-full overflow-hidden" : ""}`} aria-label="Looping" data-patch-id="looping">
+    <section className={`flex flex-col gap-2 rounded-xl border border-slate-800 bg-slate-900/40 p-1.5 ${fill ? "h-full overflow-hidden" : ""}`} aria-label="Looping" data-patch-id="looping" data-tour="looper-stage">
       <div className="flex flex-wrap items-center gap-2">
         {loopControls}
       </div>
@@ -282,15 +287,23 @@ export default function LooperApp() {
       <Toasts />
       {addingInput && <AddInputModal engine={engine} snap={snap} onClose={() => setAddingInput(false)} />}
       <div className="pointer-events-none sticky top-0 z-[1100] flex flex-wrap items-start justify-between gap-2 px-1 py-1">
-        <div className="pointer-events-auto"><MetronomeBar engine={engine} snap={snap} ready={ready} /></div>
+        <div className="pointer-events-auto" data-tour="looper-metronome"><MetronomeBar engine={engine} snap={snap} ready={ready} /></div>
         <div className="pointer-events-auto flex flex-wrap justify-end gap-1">
+          <PageHelp pageId="looper" tour={LOOPER_TOUR} />
           <button type="button" className={ibtn} onClick={() => setNewOpen(true)} title="New project" aria-label="New project"><Icon name="file-plus" /></button>
           <button type="button" className={ibtn} disabled={!canUndo} onClick={() => engine.history.undo()} title="Undo (Ctrl+Z)" aria-label="Undo"><Icon name="undo-2" /></button>
           <button type="button" className={ibtn} disabled={!canRedo} onClick={() => engine.history.redo()} title="Redo (Ctrl+Shift+Z)" aria-label="Redo"><Icon name="redo-2" /></button>
-          <button type="button" className={`${ibtn} ${historyOpen ? "border-sky-500" : ""}`} aria-pressed={historyOpen} onClick={() => setHistoryOpen((v) => !v)} title="History" aria-label="History"><Icon name="history" /></button>
-          <button type="button" className={`${ibtn} ${macrosOpen || recording ? "border-sky-500" : ""} ${recording ? "text-rose-300" : ""}`} aria-pressed={macrosOpen} onClick={() => setMacrosOpen((v) => !v)} title={recording ? "Macros (recording)" : "Macros"} aria-label="Macros"><Icon name={recording ? "circle-dot" : "zap"} /></button>
-          <ViewMenu view={view} onChange={setView} btnClass={ibtn} />
-          <button type="button" className={ibtn} onClick={() => setSettingsOpen(true)} title="Settings" aria-label="Settings"><Icon name="settings" /></button>
+          <Tier min="standard">
+            <button type="button" className={`${ibtn} ${historyOpen ? "border-sky-500" : ""}`} aria-pressed={historyOpen} onClick={() => setHistoryOpen((v) => !v)} title="History" aria-label="History"><Icon name="history" /></button>
+          </Tier>
+          {/* a macro recording started at Standard stays visible (and stoppable) at Simple */}
+          <Tier min="standard" force={recording}>
+            <button type="button" className={`${ibtn} ${macrosOpen || recording ? "border-sky-500" : ""} ${recording ? "text-rose-300" : ""}`} aria-pressed={macrosOpen} onClick={() => setMacrosOpen((v) => !v)} title={recording ? "Macros (recording)" : "Macros"} aria-label="Macros"><Icon name={recording ? "circle-dot" : "zap"} /></button>
+          </Tier>
+          <Tier min="standard">
+            <span className="flex" data-tour="looper-view"><ViewMenu view={view} onChange={setView} btnClass={ibtn} /></span>
+          </Tier>
+          <button type="button" className={ibtn} onClick={() => setSettingsOpen(true)} title="Settings" aria-label="Settings" data-tour="looper-settings"><Icon name="settings" /></button>
           <ThemeSwitcher />
           <Link href="/" className={ibtn} title="Back to the home page" aria-label="Back to the home page"><Icon name="x" /></Link>
         </div>
@@ -304,12 +317,12 @@ export default function LooperApp() {
           {mixer(false)}
         </div>
       )}
-      {historyOpen && (
+      {historyOpen && full && (
         <FloatingWindow title="History" storageKey="musickit.looper.historyWindow" onClose={() => setHistoryOpen(false)}>
           <HistoryPanel engine={engine} />
         </FloatingWindow>
       )}
-      {macrosOpen && (
+      {macrosOpen && (full || recording) && (
         <FloatingWindow title="Macros" storageKey="musickit.looper.macrosWindow" onClose={() => setMacrosOpen(false)}>
           <MacroPanel engine={engine} />
         </FloatingWindow>

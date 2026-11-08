@@ -139,6 +139,8 @@ New loops may be 2^n times longer or shorter than any other loop. Not built yet.
 
 The looper page has no site navigation. The top row holds the metronome on the left and, on the right, the settings cog and an x that returns to the home page. The page has the same side gutters as the other pages. On a phone the top row wraps and the tempo slider hides (the number box stays), so the page never scrolls sideways. The home page lists every tool as a card with a piano underneath.
 
+Page help (`PageHelp` from `src/features/guide`, `pageId` `looper`, the page wrapped in `GuideProvider`) sits first in the top bar's right cluster: the Simple / Standard switch, the tour button (steps in `src/features/guide/tours/looper.ts`, targets are `data-tour` attributes: `looper-stage`, `looper-metronome`, `looper-add`, `looper-settings`, `looper-view`). Standard is the looper as it always was. Simple hides History, Macros and the view button, and while they are hidden their windows stay closed and the page shows the Canvas view; the saved view (`musickit.looper.view`) is kept and returns at Standard. A macro recording started at Standard keeps the Macros button (and its window, if open) on show at Simple until it stops, so it is never left recording unseen.
+
 ## Stage zoom
 
 The looping stage is drawn at a fixed size and scaled as a whole (circles, groups and text together). It fits the page width by default; the − and + buttons zoom (40% to 250%), the middle button returns to fit, and the area scrolls when it is larger than the page. The looper page uses the full width with small margins.

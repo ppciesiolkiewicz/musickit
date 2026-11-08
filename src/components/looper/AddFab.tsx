@@ -132,7 +132,7 @@ export default function AddFab({ engine, snap, wires, names, onInput }: { engine
           )}
         </div>
       )}
-      <button type="button" aria-haspopup="menu" aria-expanded={open} aria-label="Add a loop, sequencer, input, bus, tuner or control" title="Add" onClick={() => { setSub(null); setOpen((v) => !v); }} className="pointer-events-auto grid h-12 w-12 place-items-center rounded-full border border-sky-400/60 bg-sky-500 text-slate-950 shadow-lg shadow-black/50 transition hover:bg-sky-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-200">
+      <button type="button" data-tour="looper-add" aria-haspopup="menu" aria-expanded={open} aria-label="Add a loop, sequencer, input, bus, tuner or control" title="Add" onClick={() => { setSub(null); setOpen((v) => !v); }} className="pointer-events-auto grid h-12 w-12 place-items-center rounded-full border border-sky-400/60 bg-sky-500 text-slate-950 shadow-lg shadow-black/50 transition hover:bg-sky-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-200">
         <Icon name="plus" size={22} className={`transition-transform ${open ? "rotate-45" : ""}`} />
       </button>
     </div>

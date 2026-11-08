@@ -4,6 +4,9 @@ import { GROUP_LABEL, sectionFor, type Tone } from "@/features/theory/sections";
 import type { ReactNode } from "react";
 import PreloadPiano from "@/features/sound/keyboard/PreloadPiano";
 import PracticeReminder from "@/features/plan/PracticeReminder";
+import PageHelp from "@/features/guide/PageHelp";
+import { GuideProvider } from "@/features/guide/Tier";
+import type { TourStep } from "@/features/guide/tour";
 
 /** The short rule under the title, in the page's own colour (full class names so Tailwind sees them). */
 const BAR: Record<Tone, string> = { emerald: "bg-emerald-400", sky: "bg-sky-400", amber: "bg-amber-400", violet: "bg-violet-400", rose: "bg-rose-400", teal: "bg-teal-400", pink: "bg-pink-400", red: "bg-red-400" };
@@ -15,9 +18,24 @@ const BAR: Record<Tone, string> = { emerald: "bg-emerald-400", sky: "bg-sky-400"
  * Necks and other wide pieces reach back out with the `bleed` utility. `devices` puts the audio input and output picker in the nav,
  * for pages that listen or play.
  */
-export default function PageShell({ title, intro, active, wide = false, full = false, devices = false, header, children }: { title: string; intro?: string; active: string; wide?: boolean; full?: boolean; devices?: boolean; /** replaces the plain title, for pages that open with a hero */ header?: ReactNode; children: ReactNode }) {
+export default function PageShell({ title, intro, active, wide = false, full = false, devices = false, header, pageId, tour, children }: {
+  title: string; intro?: string; active: string; wide?: boolean; full?: boolean; devices?: boolean;
+  /** replaces the plain title, for pages that open with a hero (such a page places its own PageHelp) */
+  header?: ReactNode;
+  /** turns on the guide: the level switch, tour button and "?" in the title row, and `Tier` knowing this page */
+  pageId?: string;
+  /** the page's tour, walked by the tour button; needs `pageId` */
+  tour?: TourStep[];
+  children: ReactNode;
+}) {
   const section = sectionFor(active);
   const theory = active.startsWith("/theory/");
+  const heading = (
+    <>
+      <h1 className="text-3xl leading-tight text-slate-50 text-balance sm:text-4xl" style={{ fontFamily: "var(--font-display), serif", fontVariationSettings: '"SOFT" 100, "opsz" 96' }}>{title}</h1>
+      <span aria-hidden className={`mt-3 block h-0.5 w-12 rounded-full ${section ? BAR[section.tone] : "bg-sky-400"}`} />
+    </>
+  );
   return (
     <div className="app-bg min-h-screen text-slate-200">
       <div className={`mx-auto flex w-full flex-col gap-4 py-3 sm:py-4 ${full ? "px-3 sm:px-6 lg:px-8" : wide ? "max-w-[96rem] px-3 sm:px-5" : "max-w-[80rem] px-3 sm:px-6 lg:px-8"}`}>
@@ -37,13 +55,19 @@ export default function PageShell({ title, intro, active, wide = false, full = f
           )}
           {header ?? (
             <>
-              <h1 className="text-3xl leading-tight text-slate-50 text-balance sm:text-4xl" style={{ fontFamily: "var(--font-display), serif", fontVariationSettings: '"SOFT" 100, "opsz" 96' }}>{title}</h1>
-              <span aria-hidden className={`mt-3 block h-0.5 w-12 rounded-full ${section ? BAR[section.tone] : "bg-sky-400"}`} />
+              {pageId ? (
+                <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+                  <div>{heading}</div>
+                  <PageHelp pageId={pageId} tour={tour} />
+                </div>
+              ) : (
+                heading
+              )}
               {intro && <p className="mt-3 max-w-3xl text-sm leading-relaxed text-slate-400 sm:text-base">{intro}</p>}
             </>
           )}
         </header>
-        <main className="pb-6">{children}</main>
+        <main className="pb-6">{pageId ? <GuideProvider pageId={pageId}>{children}</GuideProvider> : children}</main>
         <SiteFooter />
       </div>
     </div>

@@ -129,7 +129,7 @@ export default function FreeBoard({ engine, snap, controls, openSeqs, onToggleSe
       back: true,
       title: title("repeat", "Looping"),
       node: (
-        <section className="flex h-full flex-col gap-1.5 overflow-hidden" aria-label="Looping" data-patch-id="looping">
+        <section className="flex h-full flex-col gap-1.5 overflow-hidden" aria-label="Looping" data-patch-id="looping" data-tour="looper-stage">
           <div className="flex flex-wrap items-center gap-2">
             {controls}
           </div>

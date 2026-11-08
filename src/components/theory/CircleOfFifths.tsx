@@ -75,7 +75,9 @@ export default function CircleOfFifths({ value, onChange }: { value: CircleKey |
   return (
     <div className="@container">
       <div className="grid gap-4 @3xl:grid-cols-[minmax(0,1fr)_minmax(16rem,22rem)]">
-        <svg viewBox="0 0 400 400" className="mx-auto w-full max-w-[36rem]" role="group" aria-label="Circle of fifths">
+        {/* the tour lights the wrapper: it finds HTML elements only, not the svg */}
+        <div data-tour="circle-wheel" className="min-w-0">
+        <svg viewBox="0 0 400 400" className="mx-auto block w-full max-w-[36rem]" role="group" aria-label="Circle of fifths">
           {[R_MAJ + 22, R_MIN + 20, R_DIM + 16].map((r) => <circle key={r} cx={C} cy={C} r={r} fill="none" stroke="var(--color-slate-800)" />)}
           {centrePos !== null && <path d={slice(centrePos - 1.5, centrePos + 1.5, R_DIM - 16, R_MAJ + 22)} fill="var(--color-sky-500)" fillOpacity={0.08} stroke="var(--color-sky-500)" strokeOpacity={0.35} />}
           {CIRCLE.map((t, pos) => {
@@ -95,10 +97,11 @@ export default function CircleOfFifths({ value, onChange }: { value: CircleKey |
           <text x={C} y={C - 8} textAnchor="middle" fontSize="15" fontWeight={600} fill="var(--color-slate-100)">{value ? `${tonicName(value.pc)}${value.minor ? "m" : ""}` : "Pick a key"}</text>
           <text x={C} y={C + 12} textAnchor="middle" fontSize="10" fill="var(--color-slate-400)">{value ? signatureText(sig) : "majors outside, minors inside"}</text>
         </svg>
+        </div>
 
         <div className="flex flex-col gap-3 text-sm text-slate-300">
           {value ? <KeyDetails value={value} sig={sig} onChange={pick} /> : <p className="text-slate-400">Click a key on the circle: a major on the outer ring or a minor on the inner one.</p>}
-          <section className="flex flex-col gap-1.5 rounded-xl border border-slate-800 bg-slate-900/40 p-3 text-xs leading-relaxed text-slate-400">
+          <section data-tour="circle-read" className="flex flex-col gap-1.5 rounded-xl border border-slate-800 bg-slate-900/40 p-3 text-xs leading-relaxed text-slate-400">
             <h3 className="text-sm font-medium text-slate-100">How to read it</h3>
             <p><b className="text-slate-200">Clockwise</b> each key is a fifth higher and adds one sharp (or drops a flat). <b className="text-slate-200">Anticlockwise</b> is a fourth higher and adds a flat.</p>
             <p><b className="text-slate-200">Rings.</b> Each major shares its notes with the minor inside it (its relative minor) and the diminished chord on its 7th.</p>
@@ -122,7 +125,7 @@ function KeyDetails({ value, sig, onChange }: { value: CircleKey; sig: number; o
     <button type="button" className={btn} onClick={() => onChange(k)}><span className="text-slate-500">{label}</span> {keyName(k)}</button>
   );
   return (
-    <section className="flex flex-col gap-2.5 rounded-xl border border-slate-800 bg-slate-900/40 p-3">
+    <section data-tour="circle-key" className="flex flex-col gap-2.5 rounded-xl border border-slate-800 bg-slate-900/40 p-3">
       <div className="flex items-center gap-2">
         <h3 className="text-base font-medium text-slate-100">{keyName(value)}</h3>
         <button type="button" className={`cursor-pointer ${btn} ml-auto inline-flex items-center gap-1`} onClick={() => playScale(value)} aria-label={`Play the ${keyName(value)} scale`}><Icon name="play" size={12} fill />Scale</button>

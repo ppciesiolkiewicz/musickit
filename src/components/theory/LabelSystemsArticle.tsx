@@ -78,7 +78,7 @@ function GuitarScale({ ctx, rootFret }: { ctx: KeyContext; rootFret: number }) {
 /** The piano page's article: the four label systems (names, intervals, degrees, solfège) and why piano and guitar players lean on different ones. */
 export default function LabelSystemsArticle() {
   return (
-    <article className="mt-6 flex flex-col gap-3 border-t border-slate-800 pt-4">
+    <article data-tour="piano-labels" className="mt-6 flex flex-col gap-3 border-t border-slate-800 pt-4">
       <nav aria-label="On this page" className="flex flex-wrap gap-1.5">
         {SECTIONS.map(([id, label]) => <a key={id} href={`#${id}`} className={btnSm}>{label}</a>)}
       </nav>

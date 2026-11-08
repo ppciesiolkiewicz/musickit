@@ -13,7 +13,9 @@ import {
 import { useMicPitch } from "./useMicPitch";
 import { micGate } from "@/lib/practice/mic";
 import { GameChoice, SetupTag, Stage, Stat, Target, btn, btnBig, panel, readBest, useGameKeys, writeBest, writeQuery } from "./shared";
-import { Chip, ChipRow, Stepper } from "@/components/ui";
+import { Chip, ChipRow, Hint, Stepper } from "@/components/ui";
+import { useCoverage } from "@/features/guide/useCoverage";
+import { useLevelAtLeast } from "@/features/guide/Tier";
 import InputChip, { micStatusMessage } from "@/components/InputChip";
 
 const STRING_LETTERS = ["E", "A", "D", "G", "B", "e"];
@@ -30,13 +32,18 @@ type Feedback = { ok: boolean; text: string } | null;
 
 /** The fretboard note game: find a named note (tap or play it), find every instance, or name a lit dot. */
 export default function NoteGame({ initial, syncUrl = true, bare = false }: { initial: NoteSettings; /** write the settings to the address bar (off when embedded in another page) */ syncUrl?: boolean; /** settings fixed by the host: only how to answer stays */ bare?: boolean }) {
+  useCoverage({ hints: 1 });
   const [s, setS] = useState(initial);
   const [q, setQ] = useState<NoteQuestion | null>(null);
   const [found, setFound] = useState<string[]>([]);
   const [feedback, setFeedback] = useState<Feedback>(null);
   const [streak, setStreak] = useState(0);
   const [heat, setHeat] = useState<Heat>({});
-  const [showHeat, setShowHeat] = useState(false);
+  const [heatOn, setShowHeat] = useState(false);
+  // the sprint and weak spots are a Standard control in an exercise (`bare`); on the notes page they always show.
+  // Hidden, the weak spots are off.
+  const extras = useLevelAtLeast("standard", !bare);
+  const showHeat = extras && heatOn;
   const [mic, setMic] = useState(false);
   const [sprint, setSprint] = useState<{ ends: number; count: number } | null>(null);
   const [now, setNow] = useState(0);
@@ -182,7 +189,7 @@ export default function NoteGame({ initial, syncUrl = true, bare = false }: { in
     : mic && s.mode !== "every" ? "Play it on your guitar, or tap the neck."
     : "Tap the neck.";
   const answerBy = (
-    <div className="flex flex-col gap-2">
+    <div data-tour="note-finder-answer-by" className="flex flex-col gap-2">
       <ChipRow label="Answer by" info="Tap the note on the neck, or play it on your guitar and let the mic hear it. With the mic, any octave counts.">
         <Chip on={!mic} onClick={() => setMic(false)}>Tapping the neck</Chip>
         <Chip on={mic} onClick={() => setMic(true)}>Playing it (mic)</Chip>
@@ -197,7 +204,7 @@ export default function NoteGame({ initial, syncUrl = true, bare = false }: { in
   );
 
   const setup = !bare && (
-    <section className={`${panel} flex flex-col gap-2`}>
+    <section data-tour="notes-settings" className={`${panel} flex flex-col gap-2`}>
         <h2 className="mb-1 text-xs font-medium uppercase tracking-[0.2em] text-slate-400">Set up the game</h2>
         <ChipRow label="Strings" info="Which strings the questions use. Start with E and A, the roots of most chords, then add the others. The small e is the thin top string.">
           {STRING_LETTERS.map((l, i) => (
@@ -218,7 +225,7 @@ export default function NoteGame({ initial, syncUrl = true, bare = false }: { in
 
   return (
     <div className="flex flex-col gap-4">
-      {!bare && <GameChoice label="Game" options={MODES} value={s.mode} onChange={(mode) => update({ mode })} tone="amber" />}
+      {!bare && <div data-tour="notes-setup"><GameChoice label="Game" options={MODES} value={s.mode} onChange={(mode) => update({ mode })} tone="amber" /></div>}
       <div ref={stage} className="scroll-mt-4">
       <Stage tone="amber">
         <div className="flex flex-wrap items-start justify-between gap-3">
@@ -236,17 +243,19 @@ export default function NoteGame({ initial, syncUrl = true, bare = false }: { in
           </div>
           <div className="flex gap-2">
             <Stat label="streak" value={streak} tone="text-emerald-300" />
-            <Stat label="best sprint" value={best} tone="text-amber-300" />
+            {extras && <Stat label="best sprint" value={best} tone="text-amber-300" />}
             {sprint && <Stat label={sprintLeft > 0 ? "sec left" : "time!"} value={sprintLeft > 0 ? sprintLeft : sprint.count} tone="text-sky-300" />}
           </div>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          {!q ? <button type="button" className={btnBig} onClick={() => { showNeck(); ask(null); }}><Icon name="play" size={16} />Start</button> : <button type="button" className={btnBig} onClick={() => ask(q)}>Skip</button>}
+        <div data-tour="note-finder-start" className="flex flex-wrap items-center gap-2">
+          <Hint title={q ? "Skip" : "Start"} description={q ? "Moves on to the next note." : "Asks for the first note."}>
+            {!q ? <button type="button" className={btnBig} onClick={() => { showNeck(); ask(null); }}><Icon name="play" size={16} />Start</button> : <button type="button" className={btnBig} onClick={() => ask(q)}>Skip</button>}
+          </Hint>
           {q && <button type="button" className={`${btn} inline-flex items-center gap-1.5 py-2`} onClick={() => { const p = positionsOf(q.pc, s).find((x) => x.string === q.string) ?? positionsOf(q.pc, s)[0]; if (p) playMelody([OPEN_MIDI[p.string] + p.fret], 700); }}><Icon name="volume-2" size={14} />Hear the note</button>}
-          <span className="ml-auto flex flex-wrap items-center gap-2">
+          {extras && <span data-tour="note-finder-extras" className="ml-auto flex flex-wrap items-center gap-2">
             <button type="button" className={`${btn} py-2`} onClick={startSprint} disabled={!!sprint && sprintLeft > 0}>60-second sprint</button>
             <Chip on={showHeat} onClick={() => setShowHeat((v) => !v)}>Show weak spots</Chip>
-          </span>
+          </span>}
         </div>
         {sprint && sprintLeft === 0 && <p className="text-sm text-slate-300">Time! You found <b className="text-slate-50">{sprint.count}</b>.</p>}
         <div role="status" className="flex min-h-9 items-center">
@@ -256,7 +265,7 @@ export default function NoteGame({ initial, syncUrl = true, bare = false }: { in
             </p>
           ) : <p className="text-sm text-slate-400">{hint}</p>}
         </div>
-        <div className="min-w-0 rounded-2xl border border-slate-800 bg-slate-950/40 p-2">
+        <div data-tour="note-finder-neck" className="min-w-0 rounded-2xl border border-slate-800 bg-slate-950/40 p-2">
           <NoteNeck fill from={0} to={15} dots={dots} onCell={q && s.mode !== "name" ? tap : undefined} cellFill={(st, fr) => (showHeat ? heatFill(st, fr) : undefined) ?? dim(st, fr)} />
         </div>
         {q && s.mode === "name" && (

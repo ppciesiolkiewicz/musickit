@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import PageShell from "@/components/PageShell";
 import { BackingTrack } from "@/features/backing";
+import { BACKING_TOUR } from "@/features/guide/tours/backing";
 
 export const metadata: Metadata = {
   title: "Backing tracks · attunr",
@@ -9,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function BackingPage() {
   return (
-    <PageShell active="/theory/backing" devices title="Backing tracks" intro="Pick a progression, a key and a style, and play over the band. Change the tempo while it plays; a new chord, key or style comes in on the next bar. Space plays and stops.">
+    <PageShell active="/theory/backing" devices pageId="backing" tour={BACKING_TOUR} title="Backing tracks" intro="Pick a progression, a key and a style, and play over the band. Change the tempo while it plays; a new chord, key or style comes in on the next bar. Space plays and stops.">
       <BackingTrack />
     </PageShell>
   );

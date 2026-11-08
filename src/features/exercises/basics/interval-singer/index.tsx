@@ -8,9 +8,11 @@ import MicButton from "@/components/theory/singing/MicButton";
 import InputChip from "@/components/InputChip";
 import SingingStaff from "@/components/theory/singing/SingingStaff";
 import Icon from "@/components/Icon";
-import { Badge, Button, Checkbox, KeyCap } from "@/components/ui";
+import { Badge, Button, Checkbox, Hint, KeyCap } from "@/components/ui";
+import { useCoverage } from "@/features/guide/useCoverage";
+import { useLevelAtLeast } from "@/features/guide/Tier";
 import { getSharedPiano, playSequence, wakeAudio } from "@/features/sound";
-import { VOICES, buildLadder, clefFor, hzToMidi, spellName, type Ladder, type LadderNote, type Range, type Voice } from "@/features/theory/singing";
+import { IN_TUNE_CENTS, VOICES, buildLadder, clefFor, hzToMidi, spellName, type Ladder, type LadderNote, type Range, type Voice } from "@/features/theory/singing";
 import { spellInterval } from "@/features/theory/singingIntervals";
 import { useAccuracy } from "@/features/theory/useAccuracy";
 import { createSmoother, type Pitch } from "@/features/tuner/pitch";
@@ -48,19 +50,29 @@ const NO_PITCH = { current: null };
  * counted (the harder way); either is a switch on the tool too.
  */
 export function View({ keys: keysProp = [0], voice = "tenor", intervals = DEFAULT_INTERVALS, dir = "up", dot: dotProp = true }: { keys?: number[]; voice?: Voice; intervals?: number[]; dir?: IntervalDir; dot?: boolean }) {
+  useCoverage({ hints: 6 });
   const range = VOICES[voice] ?? VOICES.tenor;
   const clef = clefFor(range);
-  const [look, setLook] = useState<Look>("roll");
-  const [dot, setDot] = useState(dotProp);
-  const [cents] = useAccuracy();
+  // Standard controls, each kept at Simple when the exercise sets it (several keys, the voice dot off); a hidden one
+  // gives its default (the exercise's own setting), and what was picked returns when it shows again
+  const standard = useLevelAtLeast("standard");
+  const showKeys = useLevelAtLeast("standard", keysProp.length > 1);
+  const showDot = useLevelAtLeast("standard", !dotProp);
+  const [lookPicked, setLook] = useState<Look>("roll");
+  const look = standard ? lookPicked : "roll";
+  const [dotPicked, setDot] = useState(dotProp);
+  const dot = showDot ? dotPicked : dotProp;
+  const [storedCents] = useAccuracy();
+  const cents = standard ? storedCents : IN_TUNE_CENTS;
   // the keys picked on the chips, and Random (all twelve) as its own switch over them, so turning Random off gives the
   // picked keys back; all twelve given in the props start as Random over the first. Each question asks in one at random.
-  const [picked, setPicked] = useState(() => {
+  const [first] = useState(() => {
     const ks = keysProp.length ? [...new Set(keysProp)].sort((a, b) => a - b) : [0];
     return ks.length === 12 ? [keysProp[0] ?? 0] : ks;
   });
+  const [picked, setPicked] = useState(first);
   const [random, setRandom] = useState(keysProp.length >= 12);
-  const keys = random ? ALL_KEYS : picked;
+  const keys = showKeys ? (random ? ALL_KEYS : picked) : keysProp.length >= 12 ? ALL_KEYS : first;
   const [pc, setPc] = useState(keys[0]);
   // a chip is one more key or one less, never none
   const toggleKey = (k: number) => setPicked((ks) => (ks.includes(k) ? (ks.length > 1 ? ks.filter((x) => x !== k) : ks) : [...ks, k].sort((a, b) => a - b)));
@@ -224,19 +236,31 @@ export function View({ keys: keysProp = [0], voice = "tenor", intervals = DEFAUL
     <div ref={root} className="flex flex-col gap-3">
       <div className="flex flex-col gap-2 rounded-xl border border-slate-800 bg-slate-900/40 p-2">
       <div className="flex flex-wrap items-center gap-2">
-        <Button size="sm" onClick={next} title={`${ask === null ? "Start" : "Next interval"} (Space)`} className="inline-flex items-center gap-1.5 !border-sky-400/80 !bg-sky-500/25 !text-sky-50">
-          {ask === null ? "Start" : "Next"}<KeyCap>Space</KeyCap>
-        </Button>
+        <span data-tour="interval-singer-start" className="inline-flex">
+          <Hint title={ask === null ? "Start" : "Next"} description="Plays Do, then listens for the interval you sing from it.">
+            <Button size="sm" onClick={next} title={`${ask === null ? "Start" : "Next interval"} (Space)`} className="inline-flex items-center gap-1.5 !border-sky-400/80 !bg-sky-500/25 !text-sky-50">
+              {ask === null ? "Start" : "Next"}<KeyCap>Space</KeyCap>
+            </Button>
+          </Hint>
+        </span>
         {ask !== null && <Button size="sm" onClick={hearDo} title="Hear Do (D)" className="inline-flex items-center gap-1.5">Hear Do<KeyCap>D</KeyCap></Button>}
         {ask !== null && <Button size="sm" onClick={restart} title="The same interval again: Do plays and the mic listens (R)" className="inline-flex items-center gap-1.5">Restart<KeyCap>R</KeyCap></Button>}
         {ask !== null && !found && <Button size="sm" onClick={() => reveal(false)}>Show me</Button>}
-        <MicButton on={micOn} onClick={() => (micOn ? setMicOn(false) : startMic())} />
-        <InputChip status={micStatus} />
+        <span data-tour="interval-singer-mic" className="inline-flex items-center gap-2">
+          <Hint title="Mic" description="Listens to your voice. Start switches it on for you.">
+            <MicButton on={micOn} onClick={() => (micOn ? setMicOn(false) : startMic())} />
+          </Hint>
+          <Hint title="Input" description="The microphone the app listens to. Tap to pick another one and see its level.">
+            <InputChip status={micStatus} />
+          </Hint>
+        </span>
         {score.asked > 0 && <span className="text-sm tabular-nums text-slate-400">{score.right}/{score.asked} sung</span>}
         <span className="ml-auto" />
-        <ToolSettings accuracy />
+        {standard && <Hint title="Settings" description="How close counts as on the note, and the volume."><ToolSettings accuracy /></Hint>}
       </div>
       <div className="flex flex-wrap items-center gap-2 border-t border-slate-800 pt-2 text-xs text-slate-400">
+        {(standard || showKeys || showDot) && <span data-tour="interval-singer-options" className="inline-flex flex-wrap items-center gap-2">
+        {standard && <Hint title="View" description="Shows Do and your note on a piano roll or on the staff.">
         <span role="group" aria-label="View" className="inline-flex rounded-lg border border-slate-800 p-0.5">
           {(["roll", "staff"] as const).map((l) => (
             <button key={l} type="button" aria-pressed={look === l} onClick={() => setLook(l)}
@@ -245,7 +269,10 @@ export function View({ keys: keysProp = [0], voice = "tenor", intervals = DEFAUL
             </button>
           ))}
         </span>
+        </Hint>}
         {/* where Do comes from: the keys picked on the chips, or any of the twelve; switching keeps the keys picked */}
+        {showKeys && <Hint title="Keys" description="Where Do comes from: only the keys picked, or a random one of all twelve each time.">
+        <span className="inline-flex items-center gap-2">
         <span className="text-slate-500">Keys</span>
         <span role="group" aria-label="Keys" className="inline-flex rounded-lg border border-slate-800 p-0.5">
           {([false, true] as const).map((r) => (
@@ -253,7 +280,9 @@ export function View({ keys: keysProp = [0], voice = "tenor", intervals = DEFAUL
               className={`rounded-md px-2 py-1 transition ${random === r ? "bg-sky-500/20 text-sky-100" : "hover:text-slate-200"}`}>{r ? "Random" : "Picked"}</button>
           ))}
         </span>
-        {!random && (
+        </span>
+        </Hint>}
+        {showKeys && !random && (
           <span role="group" aria-label="Keys picked" className="inline-flex flex-wrap items-center gap-0.5">
             {KEY_NAMES.map((name, k) => (
               <button key={k} type="button" aria-pressed={picked.includes(k)} onClick={() => toggleKey(k)}
@@ -262,7 +291,8 @@ export function View({ keys: keysProp = [0], voice = "tenor", intervals = DEFAUL
             ))}
           </span>
         )}
-        <Checkbox checked={dot} onChange={setDot} title="Off is harder: you sing without seeing your voice">Show my voice</Checkbox>
+        {showDot && <Checkbox checked={dot} onChange={setDot} title="Off is harder: you sing without seeing your voice">Show my voice</Checkbox>}
+        </span>}
         <span className="ml-auto" />
         <Badge>{range.label}</Badge>
         {/* plain text, not a badge: a badge's capitals would turn m3 into M3 */}
@@ -278,6 +308,7 @@ export function View({ keys: keysProp = [0], voice = "tenor", intervals = DEFAUL
         {ask !== null && <p className="text-sm text-slate-400">{longName(ask)} from Do ({placed.doNote.spelled.name})</p>}
       </div>
       <p className={`text-sm ${phase === "solved" ? "text-emerald-300" : phase === "shown" ? "text-amber-300" : "text-slate-400"}`} aria-live="polite">{message}</p>
+      <div data-tour="interval-singer-view">
       {look === "roll" ? (
         <IntervalRoll doMidi={doMidi} low={doMidi + Math.min(0, ...placed.asks)} high={doMidi + Math.max(0, ...placed.asks)} target={targetMidi} found={found} doLabel={`Do · ${placed.doNote.spelled.name}`} targetLabel={target ? `${target.label} · ${target.spelled.name}` : ""}
           doName={`${placed.doNote.spelled.name}${placed.doNote.spelled.octave}`} targetName={target ? `${target.spelled.name}${target.spelled.octave}` : ""}
@@ -287,6 +318,7 @@ export function View({ keys: keysProp = [0], voice = "tenor", intervals = DEFAUL
           hidden={(i) => !found && i === staff.targetAt}
           onNote={(i) => void (i === staff.targetAt ? found && targetMidi !== null && tap(targetMidi, -2) : tap(doMidi, -1))} />
       )}
+      </div>
     </div>
   );
 }

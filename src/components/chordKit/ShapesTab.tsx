@@ -32,7 +32,7 @@ export default function ShapesTab({ syncUrl = true }: { syncUrl?: boolean }) {
   const entries = useMemo(() => (chord ? all : all.filter((e) => matchesText(e, q))), [all, chord, q]);
   return (
     <div className="flex flex-col gap-4">
-      <label className="flex flex-col gap-1 text-xs text-slate-400">
+      <label data-tour="chords-search" className="flex flex-col gap-1 text-xs text-slate-400">
         Search
         <input
           type="search"
@@ -42,15 +42,17 @@ export default function ShapesTab({ syncUrl = true }: { syncUrl?: boolean }) {
           className="rounded-lg border border-slate-700 bg-slate-950/60 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:border-sky-500 focus:outline-none"
         />
       </label>
-      {chord ? (
-        <ChordSearchResults rootPc={chord.rootPc} semis={chord.semis} name={chordLabel(q)} />
-      ) : (
-        <ShapeBrowser
-          entries={entries}
-          emptyHint={q.trim() ? `Nothing matches “${q.trim()}”. Try a chord name such as Am7, or a word such as shell, funk or open.` : undefined}
-          header={<p className="text-xs text-slate-400">Open chords first, then every movable shape, drawn once. Slide a movable shape&rsquo;s root fret, tap a diagram to hear it, tap tags to filter.</p>}
-        />
-      )}
+      <div data-tour="chords-results" className="min-w-0">
+        {chord ? (
+          <ChordSearchResults rootPc={chord.rootPc} semis={chord.semis} name={chordLabel(q)} />
+        ) : (
+          <ShapeBrowser
+            entries={entries}
+            emptyHint={q.trim() ? `Nothing matches “${q.trim()}”. Try a chord name such as Am7, or a word such as shell, funk or open.` : undefined}
+            header={<p className="text-xs text-slate-400">Open chords first, then every movable shape, drawn once. Slide a movable shape&rsquo;s root fret, tap a diagram to hear it, tap tags to filter.</p>}
+          />
+        )}
+      </div>
     </div>
   );
 }

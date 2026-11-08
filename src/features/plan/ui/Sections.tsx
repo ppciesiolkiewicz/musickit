@@ -9,6 +9,7 @@ import InlineNote from "./InlineNote";
 import type { Section } from "../model/tools";
 import { blocksOf } from "../model/blocks";
 import ExerciseTool from "./ExerciseTool";
+import ToolTour from "@/features/guide/ToolTour";
 import KeyChoice from "./KeyChoice";
 import { transposeStep } from "../model/transpose";
 import { ExerciseStep, StartExercise } from "@/components/practice/exerciseStep";
@@ -24,16 +25,32 @@ function NoteText({ pieces, root }: { pieces: Piece[]; root: NoteRoot | null }) 
   );
 }
 
-/** A tool framed with its type named above it, in the review view (`SectionAside`), so the boundary between tool and text reads. */
-function ToolFrame({ label, children }: { label: string; children: ReactNode }) {
+/**
+ * A tool framed with its type named above it, in the review view (`SectionAside`), so the boundary between tool and text
+ * reads. Its tour button sits at the end of the caption and walks only this frame.
+ */
+function ToolFrame({ type, children }: { type: string; children: ReactNode }) {
+  const [root, setRoot] = useState<HTMLElement | null>(null);
   return (
-    <figure className="my-1 overflow-hidden rounded-xl border border-slate-600/80 bg-slate-950/60">
+    <figure ref={setRoot} className="my-1 overflow-hidden rounded-xl border border-slate-600/80 bg-slate-950/60">
       <figcaption className="flex items-center gap-2 border-b border-slate-700/70 bg-slate-800/60 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-300">
         <span aria-hidden className="size-1.5 rounded-full bg-amber-400" />
-        {label}
+        {type.replace(/-/g, " ")}
+        <span className="ml-auto normal-case tracking-normal"><ToolTour type={type} root={root} /></span>
       </figcaption>
       <div className="p-2">{children}</div>
     </figure>
+  );
+}
+
+/** A tool on the plan page, unframed: its tour button on a slim row above it, walking only this tool. */
+function ToolBox({ type, children }: { type: string; children: ReactNode }) {
+  const [root, setRoot] = useState<HTMLElement | null>(null);
+  return (
+    <div ref={setRoot} className="flex flex-col gap-1 py-1">
+      <div className="flex justify-end"><ToolTour type={type} root={root} /></div>
+      {children}
+    </div>
   );
 }
 
@@ -92,8 +109,8 @@ export default function Sections({ sections: written, address = "ex" }: { sectio
         const head = sections.findLastIndex((h, j) => j < i && h.type === "heading");
         const key = `${i}-${head < 0 ? "" : keyOf(head) ?? ""}`;
         return framed
-          ? <ToolFrame key={key} label={s.tool.type.replace(/-/g, " ")}><ExerciseTool tool={s.tool} /></ToolFrame>
-          : <div key={key} className="py-1"><ExerciseTool tool={s.tool} /></div>;
+          ? <ToolFrame key={key} type={s.tool.type}><ExerciseTool tool={s.tool} /></ToolFrame>
+          : <ToolBox key={key} type={s.tool.type}><ExerciseTool tool={s.tool} /></ToolBox>;
       }
     }
   };

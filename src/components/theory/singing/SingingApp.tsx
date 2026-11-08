@@ -5,6 +5,7 @@ import { BarRow, ScaleSettingsBar, WithSettings } from "@/components/chordKit/Sc
 import { useMicPitch } from "@/components/practice/useMicPitch";
 import Icon from "@/components/Icon";
 import { Button, Hint, HintProvider, Select, Slider } from "@/components/ui";
+import { useCoverage } from "@/features/guide/useCoverage";
 import { createSmoother, type Pitch } from "@/features/tuner/pitch";
 import { getAudioContext, getSharedPiano, midiToName, onSilence, playSequence, silence, wakeAudio } from "@/features/sound";
 import { MAX_BPM, MIN_BPM, type PocketStatus } from "@/features/instruments";
@@ -49,6 +50,7 @@ export type SingingMode = "scales" | "melodies" | "runs";
  * - "runs": the same with the runs book.
  */
 export default function SingingApp({ mode, initial, lead }: { mode: SingingMode; initial: SingingLink; lead?: ReactNode }) {
+  useCoverage({ hints: 3 });
   const tab = mode;
   const book = tab === "runs" ? RUNS : BOOK;
   const tuneTab = tab === "melodies" || tab === "runs";
@@ -277,8 +279,8 @@ export default function SingingApp({ mode, initial, lead }: { mode: SingingMode;
             <Select size="sm" value={level} onChange={filter} aria-label="Difficulty" title={level === "all" ? undefined : DIFFICULTIES[level].hint} options={difficulties} />
           </div>
         )}
-        <section className={`${panel} flex flex-col gap-3`}>
-          <div className="flex flex-wrap items-center gap-3">
+        <section data-tour="singing-drill" className={`${panel} flex flex-col gap-3`}>
+          <div data-tour="singing-controls" className="flex flex-wrap items-center gap-3">
             <h2 className="text-base font-medium text-slate-100">{tab === "runs" ? `Runs across the ${range.label.toLowerCase()} range` : tab === "melodies" ? `Melodies in ${tuneLadder.title}` : ladder.title}</h2>
             {tab === "scales" && (
               <Hint title={running ? "Stop" : "Play the scale"} description={running ? "Ends the scale." : "Runs it up and down on the metronome's tempo."}>

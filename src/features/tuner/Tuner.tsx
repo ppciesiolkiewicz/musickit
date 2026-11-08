@@ -5,7 +5,8 @@ import { readDeviceChoice, serverDeviceChoice, subscribeDeviceChoice } from "@/f
 import { midiToHz } from "@/features/theory/tunings";
 import InputChip from "@/components/InputChip";
 import type { MicStatus } from "@/components/practice/useMicPitch";
-import { readHz, resolveChoice, sanitiseChoice } from "./choice";
+import { useLevelAtLeast } from "@/features/guide/Tier";
+import { DEFAULT_CHOICE, readHz, resolveChoice, sanitiseChoice } from "./choice";
 import { usePitch } from "./usePitch";
 import TunerMeter from "./TunerMeter";
 import { useTunerChoice } from "./useTunerChoice";
@@ -32,10 +33,16 @@ export interface ExternalInput {
  * chip), on the louder input of a two-input device. The microphone opens only after Start, and again on a new input while it runs.
  * Given an `external` input, it opens no microphone and has no input chip: it reads that input, and Start / Stop is the host's.
  */
-export default function Tuner({ external }: { external?: ExternalInput } = {}) {
+export default function Tuner({ external, guide = false }: {
+  external?: ExternalInput;
+  /** on the tuner page: the reference pitch is a Standard control, and while it is hidden the tuner reads at A4 = 440 Hz */
+  guide?: boolean;
+} = {}) {
   const [status, setStatus] = useState<MicStatus>("off");
   const [error, setError] = useState<string | null>(null);
-  const [choice, setChoice] = useTunerChoice(STORE, fromQuery);
+  const [saved, setChoice] = useTunerChoice(STORE, fromQuery);
+  const showA4 = useLevelAtLeast("standard", !guide);
+  const choice = showA4 ? saved : { ...saved, a4: DEFAULT_CHOICE.a4 };
   const inputId = useSyncExternalStore(subscribeDeviceChoice, readDeviceChoice, serverDeviceChoice).input?.id ?? "";
   const mic = useRef<TunerInput | null>(null);
   // a press while the permission prompt is open: the newest wins
@@ -103,7 +110,7 @@ export default function Tuner({ external }: { external?: ExternalInput } = {}) {
   return (
     <div className="grid items-start gap-4 lg:grid-cols-[minmax(18rem,22rem)_1fr]">
       {/* the meter first on a phone, beside the setup on a wide screen */}
-      <section aria-label="Meter" className="flex flex-col items-center gap-5 rounded-2xl border border-slate-800 bg-slate-900/40 px-4 py-6 sm:px-8 sm:py-8 lg:order-2">
+      <section aria-label="Meter" data-tour="tuner-meter" className="flex flex-col items-center gap-5 rounded-2xl border border-slate-800 bg-slate-900/40 px-4 py-6 sm:px-8 sm:py-8 lg:order-2">
         <TunerMeter hz={hz} read={read} idle={(
           <>
             <span className="text-2xl font-light text-slate-300">{running ? "Play a string" : "Ready to tune"}</span>
@@ -112,7 +119,7 @@ export default function Tuner({ external }: { external?: ExternalInput } = {}) {
         )} />
 
         {strings.length > 0 && (
-          <div className="flex flex-wrap justify-center gap-1.5 sm:gap-2" role="group" aria-label="Strings: tap one to hear it">
+          <div data-tour="tuner-strings" className="flex flex-wrap justify-center gap-1.5 sm:gap-2" role="group" aria-label="Strings: tap one to hear it">
             {strings.map((s, i) => {
               const near = read?.string === i;
               return (
@@ -135,8 +142,9 @@ export default function Tuner({ external }: { external?: ExternalInput } = {}) {
       </section>
 
       <aside aria-label="Setup" className="flex flex-col gap-4 rounded-2xl border border-slate-800 bg-slate-900/40 p-4 lg:order-1">
-        <TunerSettings choice={choice} onChange={setChoice} />
-        {!external && <div className="flex flex-col items-start gap-1.5">
+        {/* hidden, a change keeps the saved A4 for when it shows again */}
+        <TunerSettings choice={choice} onChange={(c) => setChoice(showA4 ? c : { ...c, a4: saved.a4 })} noA4={!showA4} />
+        {!external && <div data-tour="tuner-input" className="flex flex-col items-start gap-1.5">
           <span className={label}>Input</span>
           <InputChip status={status} />
         </div>}

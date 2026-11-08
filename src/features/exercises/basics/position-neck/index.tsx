@@ -11,6 +11,9 @@ import usePhone from "@/components/usePhone";
 import { hoverLabel, noteLabel } from "@/features/theory/labels";
 import { degreeColour } from "@/features/theory/scales";
 import { useLabelSystem } from "@/features/theory/useLabelSystem";
+import { Hint } from "@/components/ui";
+import { useCoverage } from "@/features/guide/useCoverage";
+import { useLevelAtLeast } from "@/features/guide/Tier";
 import { SCALE_NECK_FRETS, type ScaleCell, type ScalePosition } from "@/lib/chordKit/scalePositions";
 import { scaleBoxes, shiftPosition } from "../scale-neck/boxes";
 import { CROSS_STRING, crossingPath, upAndDown, type Crossing } from "./crossing";
@@ -49,6 +52,7 @@ export function View(props: PositionNeckViewProps) {
 }
 
 function Neck({ slug, pc, positions: wanted, placement, cross: crossProp, add, enable, highlight, mute, hide, others, outside = "muted", picker = true }: PositionNeckViewProps) {
+  useCoverage({ hints: 3 });
   const vis = useMemo((): Visibility => {
     const pcs = (semis?: number[]) => semis?.map((semi) => (pc + semi) % 12);
     return { enable: pcs(enable), highlight: pcs(highlight), mute: pcs(mute), hide: pcs(hide), add, others };
@@ -65,7 +69,10 @@ function Neck({ slug, pc, positions: wanted, placement, cross: crossProp, add, e
     const first = wanted?.length ? wanted : crossProp ? [crossProp.from, crossProp.to] : placed ? [placed.number] : [1];
     return first.filter((n) => numbers.includes(n));
   });
-  const [cross, setCross] = useState<Crossing | null>(() => (crossProp ? { from: crossProp.from, to: crossProp.to, string: crossProp.string ? 6 - crossProp.string : CROSS_STRING } : null));
+  // crossing is a Standard control, unless the exercise asks for one: hidden, nothing is crossed
+  const canCross = useLevelAtLeast("standard", !!crossProp);
+  const [picked, setCross] = useState<Crossing | null>(() => (crossProp ? { from: crossProp.from, to: crossProp.to, string: crossProp.string ? 6 - crossProp.string : CROSS_STRING } : null));
+  const cross = canCross ? picked : null;
   const path = useMemo(() => {
     const a = cross && positions.find((p) => p.number === cross.from), b = cross && positions.find((p) => p.number === cross.to);
     return cross && a && b ? crossingPath(a, b, cross.string) : null;
@@ -106,9 +113,11 @@ function Neck({ slug, pc, positions: wanted, placement, cross: crossProp, add, e
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-2 text-xs text-slate-400">
         <span>{title} · {caption}</span>
-        <button type="button" onClick={running ? stop : run} disabled={!playable.size} className="rounded border border-slate-700 px-2 py-0.5 text-[11px] text-slate-300 hover:border-slate-500 disabled:opacity-40">{running ? "■ Stop" : "▶ Play"}</button>
+        <Hint title="Play" description="Runs the framed notes up and back down.">
+          <button type="button" data-tour="position-neck-play" onClick={running ? stop : run} disabled={!playable.size} className="rounded border border-slate-700 px-2 py-0.5 text-[11px] text-slate-300 hover:border-slate-500 disabled:opacity-40">{running ? "■ Stop" : "▶ Play"}</button>
+        </Hint>
       </div>
-      <div className="min-w-0 overflow-x-auto">
+      <div data-tour="position-neck-neck" className="min-w-0 overflow-x-auto">
         <svg viewBox={`0 0 ${g.W} ${g.H}`} width="100%" style={{ minWidth: phone ? 480 : undefined }} role="img" aria-label={`${title}, ${caption}`}>
           <FretboardBase g={g} markerSize={phone ? 4 : 6} />
           {merged(framed).map((group) => (
@@ -133,12 +142,13 @@ function Neck({ slug, pc, positions: wanted, placement, cross: crossProp, add, e
       </div>
       {picker && (
         <div className="flex flex-col gap-2">
-          <div className="flex flex-wrap items-center gap-1" role="group" aria-label="Positions">
+          <div data-tour="position-neck-picker" className="flex flex-wrap items-center gap-1" role="group" aria-label="Positions">
             {positions.map((p, i) => {
               const next = positions[i + 1];
               const crossing = !!cross && !!next && cross.from === p.number && cross.to === next.number;
               return (
                 <div key={p.number} className="flex items-center gap-1">
+                  <Hint title={`Position ${p.number}`} description="Frames this position on the neck. Tap more than one to see them together.">
                   <button
                     type="button" onClick={() => toggle(p.number)} aria-pressed={selected.includes(p.number)}
                     className={`flex flex-col items-center rounded-lg border px-1.5 pb-1 pt-1.5 text-[11px] transition ${selected.includes(p.number) ? "border-sky-400/80 bg-sky-500/10 text-sky-100" : "border-slate-700 text-slate-400 hover:border-slate-500"}`}
@@ -147,14 +157,17 @@ function Neck({ slug, pc, positions: wanted, placement, cross: crossProp, add, e
                     <span>Position {p.number}</span>
                     <span className="text-[10px] text-slate-500">frets {p.from}–{p.to}</span>
                   </button>
-                  {next && (
+                  </Hint>
+                  {next && canCross && (
+                    <Hint title="Cross over" description={`The way from position ${p.number} to ${next.number}, on one string.`}>
                     <button
-                      type="button" onClick={() => crossBetween(p.number, next.number)} aria-pressed={crossing}
+                      type="button" data-tour="position-neck-cross" onClick={() => crossBetween(p.number, next.number)} aria-pressed={crossing}
                       title={`The way across from position ${p.number} to ${next.number}`}
                       className={`rounded-full border px-1.5 py-0.5 text-[11px] transition ${crossing ? "border-amber-300 bg-amber-300/15 text-amber-200" : "border-slate-700 text-slate-500 hover:border-slate-500 hover:text-slate-300"}`}
                     >
                       ⇄
                     </button>
+                    </Hint>
                   )}
                 </div>
               );

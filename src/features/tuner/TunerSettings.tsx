@@ -74,8 +74,10 @@ function A4Presets({ value, onChange }: { value: number; onChange: (hz: number) 
  * The instrument, tuning and A4 of a tuner. `compact` is the narrow form for the looper's tuner widget: selects instead of the
  * row of instrument buttons, `trailing` at the end of the selects' row and `aside` beside A4, and no A4 presets.
  */
-export default function TunerSettings({ choice, onChange, compact, trailing, aside }: {
+export default function TunerSettings({ choice, onChange, compact, trailing, aside, noA4 }: {
   choice: TunerChoice; onChange: (c: TunerChoice) => void; compact?: boolean; trailing?: ReactNode; aside?: ReactNode;
+  /** leaves out the reference pitch group of the full form (the tuner page at Simple) */
+  noA4?: boolean;
 }) {
   const { instrument, tuning } = resolveChoice(choice);
   const pick = (id: InstrumentId) => onChange(withInstrument(choice, id));
@@ -109,7 +111,7 @@ export default function TunerSettings({ choice, onChange, compact, trailing, asi
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-1.5">
+      <div data-tour="tuner-instrument" className="flex flex-col gap-1.5">
         <span className={label}>Instrument</span>
         <div role="radiogroup" aria-label="Instrument" className="grid grid-cols-[repeat(auto-fill,minmax(3.6rem,1fr))] gap-1.5">
           {TUNER_INSTRUMENTS.map((inst) => (
@@ -120,18 +122,18 @@ export default function TunerSettings({ choice, onChange, compact, trailing, asi
         </div>
       </div>
       {tuningSelect && (
-        <label className="flex flex-col gap-1.5">
+        <label data-tour="tuner-tuning" className="flex flex-col gap-1.5">
           <span className={label}>Tuning</span>
           {tuningSelect}
         </label>
       )}
-      <div className="flex flex-col gap-1.5">
+      {!noA4 && <div data-tour="tuner-a4" className="flex flex-col gap-1.5">
         <span className={label}>Reference pitch</span>
         <div className="flex flex-wrap items-center gap-2">
           {a4}
           <A4Presets value={choice.a4} onChange={(hz) => onChange({ ...choice, a4: hz })} />
         </div>
-      </div>
+      </div>}
     </div>
   );
 }

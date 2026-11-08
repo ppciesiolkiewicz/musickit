@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from "react";
 import Icon from "@/components/Icon";
-import { sbtn } from "@/components/ui";
+import { Hint, sbtn } from "@/components/ui";
+import { useCoverage } from "@/features/guide/useCoverage";
 import { useAudioFocus } from "@/features/sound";
 import { useStepPart } from "@/components/practice/exerciseStep";
 import { keySlug } from "@/features/theory/keySlug";
@@ -23,6 +24,7 @@ const show = (c: string) => c.replace("#", "♯");
  * `keyPc` is the key (absent: the first chord's root); `backing` the comping patterns, the first playing first.
  */
 export function View({ chords, bpm, keyPc, backing = ["block"] }: { chords: string[]; bpm: number; keyPc?: number; backing?: CompPattern[] }) {
+  useCoverage({ hints: 1 });
   const choices = backing.length ? backing : (["block"] as CompPattern[]);
   const [pattern, setPattern] = useState<CompPattern>(choices[0]);
   const [tempo, setTempo] = useState(bpm);
@@ -54,10 +56,12 @@ function Strip({ timeline, chords, tempo, setTempo, choices, pattern, setPattern
   return (
     <div ref={focus} className="flex flex-col gap-2.5 rounded-xl border border-slate-800 bg-slate-950/40 p-2.5">
       <div className="flex flex-wrap items-center gap-2">
-        <button type="button" disabled={player.starting} onClick={() => (player.playing ? player.stop() : void player.start())} aria-pressed={player.playing}
-          className={`inline-flex h-8 items-center gap-1.5 rounded-lg border px-3 text-xs font-medium transition ${player.playing ? "border-emerald-400/70 bg-emerald-500/20 text-emerald-100" : "border-sky-400/60 bg-sky-500/15 text-sky-50 hover:bg-sky-500/25"}`}>
-          <Icon name={player.playing ? "square" : "play"} size={14} fill />{player.playing ? "Stop" : "Play"}
-        </button>
+        <Hint title={player.playing ? "Stop" : "Play"} description="Plays the chords, one a bar, round and round.">
+          <button type="button" data-tour="chord-backing-play" disabled={player.starting} onClick={() => (player.playing ? player.stop() : void player.start())} aria-pressed={player.playing}
+            className={`inline-flex h-8 items-center gap-1.5 rounded-lg border px-3 text-xs font-medium transition ${player.playing ? "border-emerald-400/70 bg-emerald-500/20 text-emerald-100" : "border-sky-400/60 bg-sky-500/15 text-sky-50 hover:bg-sky-500/25"}`}>
+            <Icon name={player.playing ? "square" : "play"} size={14} fill />{player.playing ? "Stop" : "Play"}
+          </button>
+        </Hint>
         {choices.length > 1 && (
           <div className="flex flex-wrap gap-1" role="group" aria-label="Backing">
             {choices.map((p) => (
@@ -67,7 +71,7 @@ function Strip({ timeline, chords, tempo, setTempo, choices, pattern, setPattern
             ))}
           </div>
         )}
-        <span className="ml-auto flex items-center gap-1 text-xs text-slate-300">
+        <span data-tour="chord-backing-tempo" className="ml-auto flex items-center gap-1 text-xs text-slate-300">
           <button type="button" className={sbtn} disabled={tempo <= MIN_BPM} onClick={() => changeTempo(tempo - 2)} aria-label="Slower">−</button>
           <span className="w-14 text-center tabular-nums">{tempo} <span className="text-[10px] text-slate-500">bpm</span></span>
           <button type="button" className={sbtn} disabled={tempo >= MAX_BPM} onClick={() => changeTempo(tempo + 2)} aria-label="Faster">+</button>
@@ -77,7 +81,7 @@ function Strip({ timeline, chords, tempo, setTempo, choices, pattern, setPattern
         {at ? <><b className="text-amber-100">{show(chords[at.now])}</b><span className="text-slate-400">next</span><span className="text-sky-200">{show(chords[at.next])}</span></>
           : <span className="text-slate-400">One chord a bar, looping. First: <span className="text-sky-200">{show(chords[0])}</span></span>}
       </div>
-      <div className="flex flex-wrap gap-1.5" role="list" aria-label="Chords">
+      <div data-tour="chord-backing-chords" className="flex flex-wrap gap-1.5" role="list" aria-label="Chords">
         {chords.map((c, i) => {
           const lit = at?.now === i;
           const soon = !lit && next === i;

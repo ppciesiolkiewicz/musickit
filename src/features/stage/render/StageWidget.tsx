@@ -7,6 +7,7 @@ import { KeyScope, PLUGINS, keyContext, type KeyChoice } from "@/features/creato
 import { PocketTools } from "@/features/instruments";
 import type { PlanTool } from "@/features/plan/model/tools";
 import { Tool } from "@/features/plan/ui/Tool";
+import { LevelPin } from "@/features/guide/Tier";
 import { DEFAULT_KEY_PC } from "@/features/theory/theory";
 import { Tuner } from "@/features/tuner";
 import { melodyDesignWidth } from "../model/melody";
@@ -153,11 +154,14 @@ export default function StageWidget({ subject, onSubjectChange, stageKey, onStag
   }
   // the CAGED map runs the whole neck: wider than one box, so its shape names fit over their colours
   const width = subject.kind === "melody" ? melodyDesignWidth(subject.beats) : subject.kind === "caged" && subject.shape === null && !subject.shapes?.length ? 1400 : subject.kind === "plugin" && subject.full ? FULL_WIDTH : WIDTH[subject.kind];
+  // the stage has no level switch: its widgets always show every control, whatever level the teacher set elsewhere
   return (
-    <div className="relative h-full w-full">
-      <FitBox width={width} scroll={(subject.kind === "plugin" && !!subject.full) || (subject.kind === "section" && subject.section === "chords")}>{body}</FitBox>
-      <KeyTags subject={subject} master={stageKey} onChange={onSubjectChange} />
-    </div>
+    <LevelPin level="standard">
+      <div className="relative h-full w-full">
+        <FitBox width={width} scroll={(subject.kind === "plugin" && !!subject.full) || (subject.kind === "section" && subject.section === "chords")}>{body}</FitBox>
+        <KeyTags subject={subject} master={stageKey} onChange={onSubjectChange} />
+      </div>
+    </LevelPin>
   );
 }
 

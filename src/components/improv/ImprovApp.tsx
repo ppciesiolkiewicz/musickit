@@ -33,7 +33,7 @@ export default function ImprovApp() {
 
 function Intro() {
   return (
-    <section className={card} aria-label="About the system">
+    <section data-tour="improv-ideas" className={card} aria-label="About the system">
       <H2 icon="info">Schillinger in two ideas</H2>
       <p className="text-sm text-slate-300">Joseph Schillinger (1895–1943) taught composition as arithmetic on rhythm and pitch, and his students included jazz and film composers such as George Gershwin. Two of his ideas turn straight into improvising exercises:</p>
       <ul className="grid gap-2 text-sm text-slate-300 sm:grid-cols-2">
@@ -85,7 +85,7 @@ function RhythmLab() {
     { label: "=", pts: it.r, col: "#f472b6", key: "r" },
   ];
   return (
-    <section className={card} aria-label="Rhythm lab">
+    <section data-tour="improv-rhythm" className={card} aria-label="Rhythm lab">
       <H2 icon="timer">Rhythm by interference</H2>
       <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400">
         <Select value={a} onChange={setA} aria-label="First pulse" options={[2, 3, 4, 5, 6, 7, 8, 9].map((n) => ({ value: n, label: String(n) }))} />
@@ -132,7 +132,7 @@ function MotiveLab() {
   ];
   const play = (degs: number[]) => playMelody(midi(degs), 280);
   return (
-    <section className={card} aria-label="Motive lab">
+    <section data-tour="improv-motive" className={card} aria-label="Motive lab">
       <H2 icon="repeat">Permuting a motive</H2>
       <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400">
         <Select value={root} onChange={setRoot} aria-label="Key" options={NOTE_NAMES.map((n, i) => ({ value: i, label: n }))} />
@@ -171,7 +171,7 @@ const SEED_KEY = "musickit.improv.stats";
 
 function Games() {
   return (
-    <section className={card} aria-label="Games">
+    <section data-tour="improv-games" className={card} aria-label="Games">
       <H2 icon="drum">Games</H2>
       <div className="grid gap-3 lg:grid-cols-2">
         <Roulette />

@@ -23,7 +23,7 @@ function Naturals() {
     if (NATURALS.includes(pc)) dots.push({ string: 0, fret: f, label: NAMES[pc], fill: pc === 4 ? ROOT : OTHER });
   }
   return (
-    <section className={card}>
+    <section data-tour="basics-notes" className={card}>
       <h2 className="mb-2 text-base font-medium text-slate-100">Strings, frets and notes</h2>
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="space-y-2 text-sm text-slate-300">
@@ -58,7 +58,7 @@ function IntervalViewer({ semis, setSemis }: { semis: number; setSemis: (n: numb
     ...pos.map((p): NeckDot => ({ string: p.string, fret: p.fret, label: info.short, fill: TARGET, outline: p.strings > 0 })),
   ];
   return (
-    <section className={card} id="intervals">
+    <section data-tour="basics-intervals" className={card} id="intervals">
       <h2 className="mb-2 text-base font-medium text-slate-100">Intervals: piano → guitar</h2>
       <div className="flex flex-col gap-2">
         <ChipRow label="Interval">
@@ -110,7 +110,7 @@ export default function BasicsArticle({ initialInterval = 7 }: { initialInterval
     <div className="flex flex-col gap-4">
       <Naturals />
       <IntervalViewer semis={semis} setSemis={setSemis} />
-      <section className={card}>
+      <section data-tour="basics-jumps" className={card}>
         <h2 className="mb-2 text-base font-medium text-slate-100">Jumps worth knowing</h2>
         <div className="grid gap-3 md:grid-cols-3">
           {JUMPS.map((j) => (

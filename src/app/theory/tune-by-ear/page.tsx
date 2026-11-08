@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import PageShell from "@/components/PageShell";
 import TuneByEar from "@/components/theory/TuneByEar";
+import { TUNE_BY_EAR_TOUR } from "@/features/guide/tours/tune-by-ear";
 
 export const metadata: Metadata = {
   title: "Tune by ear · attunr",
@@ -12,6 +13,8 @@ export default function TuneByEarPage() {
     <PageShell
       active="/theory/tune-by-ear"
       devices
+      pageId="tune-by-ear"
+      tour={TUNE_BY_EAR_TOUR}
       title="Tune by ear"
       intro="Sing the guitar's open strings until you carry their pitches, then train your ear on the reference and the next string: flat, sharp or in tune, one after the other or ringing together to hear the beats."
     >

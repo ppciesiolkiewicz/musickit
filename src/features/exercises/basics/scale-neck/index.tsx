@@ -6,6 +6,8 @@ import { useCallback, useMemo } from "react";
 import { PositionBox, cellKey } from "@/components/chordKit/ScaleNeck";
 import { useNotePlayer } from "@/components/chordKit/useNotePlayer";
 import { useLabelSystem } from "@/features/theory/useLabelSystem";
+import { Hint } from "@/components/ui";
+import { useCoverage } from "@/features/guide/useCoverage";
 import { positionLine, type ScalePosition } from "@/lib/chordKit/scalePositions";
 import { SHARP, scaleBoxes, shiftPosition } from "./boxes";
 import { GuitarView } from "./Guitar";
@@ -15,6 +17,7 @@ import { GuitarView } from "./Guitar";
  * it, ▶ to run the box up and down.
  */
 function Boxes({ slug, pc, boxes, placement, add, enable, highlight, mute, hide: hidden, others }: { slug: string; pc: number; boxes?: number[]; placement?: Placement; add?: number[]; enable?: number[]; highlight?: number[]; mute?: number[]; hide?: number[]; others?: Others }) {
+  useCoverage({ hints: 1 });
   // the marks are semitones above the key; the states work on pitch classes
   const vis = useMemo((): Visibility => {
     const pcs = (semis?: number[]) => semis?.map((semi) => (pc + semi) % 12);
@@ -44,12 +47,14 @@ function Boxes({ slug, pc, boxes, placement, add, enable, highlight, mute, hide:
   return (
     <div className="flex flex-col gap-2">
       <p className="text-xs text-slate-400">{title}{litNames.length ? ` · ${litNames.join(" ")} lit` : ""}{boxes?.length ? ` · position${boxes.length > 1 ? "s" : ""} ${boxes.join(" & ")}` : ""}</p>
-      <div className="grid gap-3 lg:grid-cols-2">
+      <div data-tour="scale-neck-boxes" className="grid gap-3 lg:grid-cols-2">
         {shown.map((p) => (
           <div key={p.number} className="flex flex-col gap-1">
             <div className="flex items-center gap-2 text-xs text-slate-300">
               <span>Position {p.number}</span>
-              <button type="button" onClick={() => (running === `box-${p.number}` ? stop() : run(p))} className="rounded border border-slate-700 px-2 py-0.5 text-[11px] text-slate-300 hover:border-slate-500">{running === `box-${p.number}` ? "■ Stop" : "▶ Play"}</button>
+              <Hint title="Play" description="Runs this position up and back down.">
+                <button type="button" data-tour="scale-neck-play" onClick={() => (running === `box-${p.number}` ? stop() : run(p))} className="rounded border border-slate-700 px-2 py-0.5 text-[11px] text-slate-300 hover:border-slate-500">{running === `box-${p.number}` ? "■ Stop" : "▶ Play"}</button>
+              </Hint>
             </div>
             <PositionBox position={p} cells={cells} rings active={active} labelSystem={system} onNote={(c) => tap(cellKey(c), c.midi)} states={state} />
           </div>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import PageShell from "@/components/PageShell";
 import Lesson from "@/components/theory/Lesson";
 import TuningsArticle from "@/components/theory/TuningsArticle";
+import { TUNINGS_TOUR } from "@/features/guide/tours/tunings";
 
 export const metadata: Metadata = {
   title: "Tunings · attunr",
@@ -12,6 +13,8 @@ export default function TuningsPage() {
   return (
     <PageShell
       active="/theory/tunings"
+      pageId="tunings"
+      tour={TUNINGS_TOUR}
       title="Tunings"
       intro="How instruments are tuned: the A4 reference pitch, then the standard and alternate tunings of each instrument. Hear any tuning, or open the tuner on it."
     >

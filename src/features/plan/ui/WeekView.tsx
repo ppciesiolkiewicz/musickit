@@ -31,7 +31,7 @@ export default function WeekView({ plan, today, day, onDay, onToggle, onElapsed 
   };
   return (
     <div className="flex flex-col gap-5">
-      <div className="grid grid-cols-7 gap-1.5" role="tablist" aria-label="Days">
+      <div data-tour="plan-week" className="grid grid-cols-7 gap-1.5" role="tablist" aria-label="Days">
         {Array.from({ length: PLAN_DAYS }, (_, i) => {
           const ahead = i > today;
           const p = dayProgress(plan, i);
@@ -55,7 +55,7 @@ export default function WeekView({ plan, today, day, onDay, onToggle, onElapsed 
         })}
       </div>
 
-      <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+      <div data-tour="plan-day" className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
         <h2 className="text-2xl text-slate-50" style={DISPLAY}>Day {day + 1}: {d.theme}</h2>
         {day > today && <span className="rounded-full border border-dashed border-slate-600 px-2 py-0.5 text-[11px] text-slate-400">Coming up in {day - today} day{day - today > 1 ? "s" : ""}</span>}
         <span className="text-xs text-slate-400">{d.exercises.length} exercises · {total} min</span>

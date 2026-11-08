@@ -76,7 +76,7 @@ export default function BackingTrack() {
   return (
     <div ref={focus} className="flex min-w-0 flex-col gap-4">
       <section aria-label="Backing track" className="flex min-w-0 flex-col gap-5 rounded-2xl border border-sky-500/30 bg-slate-900/60 p-4 sm:p-6">
-        <div className="flex flex-wrap items-center gap-4">
+        <div data-tour="backing-play" className="flex flex-wrap items-center gap-4">
           <button type="button" onClick={() => band.toggle()} aria-pressed={playing} aria-label={playing ? "Stop" : "Play"} title={playing ? "Stop (Space)" : "Play (Space)"}
             className={`grid h-14 w-14 shrink-0 place-items-center rounded-full border transition ${playing ? "border-emerald-400/70 bg-emerald-500/20 text-emerald-100" : "border-sky-400/60 bg-slate-900/60 text-sky-100 hover:bg-sky-500/15"}`}>
             <Icon name={playing ? "square" : "play"} size={22} fill />
@@ -103,7 +103,7 @@ export default function BackingTrack() {
           </span>
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)]">
+        <div data-tour="backing-choose" className="grid gap-3 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)]">
           <Field label="Progression">
             <Select value={settings.progression} groups={PROGRESSION_GROUPS} onChange={(id) => band.set({ progression: id, style: findProgression(id).style })} aria-label="Progression" className="w-full" />
           </Field>
@@ -115,7 +115,7 @@ export default function BackingTrack() {
           </Field>
         </div>
 
-        <ol aria-label="Chords" className="grid grid-cols-4 gap-2">
+        <ol data-tour="backing-chords" aria-label="Chords" className="grid grid-cols-4 gap-2">
           {arrangement.chords.map((c, i) => {
             const on = pos?.chord === i;
             return (
@@ -134,7 +134,7 @@ export default function BackingTrack() {
         </p>
       </section>
 
-      <section aria-label="Band" className="grid gap-2 rounded-2xl border border-slate-700/70 bg-slate-900/60 p-4 sm:grid-cols-3 sm:p-5">
+      <section data-tour="backing-band" aria-label="Band" className="grid gap-2 rounded-2xl border border-slate-700/70 bg-slate-900/60 p-4 sm:grid-cols-3 sm:p-5">
         {(Object.keys(PART_INFO) as Part[]).map((p) => {
           const { volume, muted } = settings.levels[p];
           return (

@@ -106,7 +106,7 @@ function NotesTable({ rootPc, quality, arpKind }: { rootPc: number; quality: Cag
     { title: th.scaleName, notes: fromSemis(th.scale) },
   ];
   return (
-    <section className="rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5" aria-label="Notes of the selection">
+    <section data-tour="caged-notes" className="rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5" aria-label="Notes of the selection">
       <div className="flex flex-col divide-y divide-slate-800/80">
         {rows.map((r) => (
           <div key={r.title} className="flex flex-wrap items-end gap-x-3 gap-y-1 py-2 first:pt-0 last:pb-0">
@@ -233,7 +233,7 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem, selec
   });
   const COL0 = 2; // grid column 1 holds the string names
   return (
-    <section className={`rounded-2xl border border-slate-800 p-2.5 ${embedded ? "bg-slate-950" : "bleed bg-slate-900/40"}`}>
+    <section data-tour="caged-map" className={`rounded-2xl border border-slate-800 p-2.5 ${embedded ? "bg-slate-950" : "bleed bg-slate-900/40"}`}>
       <h2 className="mb-2 flex flex-wrap items-center gap-2 text-sm font-medium text-slate-100">
         <span>
           {keyName} {quality}: the five boxes up the neck
@@ -314,7 +314,7 @@ function BoxCard({ box, index, rootPc, quality, arpKind, labelSystem, badges, no
   const fretText = `frets ${box.from}–${box.to}`;
 
   return (
-    <section id={`box-${box.letter}`} className={`bleed ${UNDER_BAR}`}>
+    <section id={`box-${box.letter}`} data-tour={index === 0 ? "caged-box" : undefined} className={`bleed ${UNDER_BAR}`}>
       <Section
         lead={<>
           <span className="inline-block rounded px-1.5 text-base font-medium" style={{ background: LANE_COLOURS[index % 5], color: DOT_INK }}>{box.letter}</span>

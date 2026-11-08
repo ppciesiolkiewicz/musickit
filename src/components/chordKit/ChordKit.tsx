@@ -19,7 +19,7 @@ export default function ChordKit({ initialTab = "shapes", initialKey, syncUrl = 
   const current = TABS.find((t) => t.id === tab)!;
   return (
     <div className="flex flex-col gap-4">
-      <div role="tablist" aria-label="Chord explorer sections" className="flex flex-wrap gap-1 rounded-xl border border-slate-800 bg-slate-900/60 p-1">
+      <div data-tour="chords-tabs" role="tablist" aria-label="Chord explorer sections" className="flex flex-wrap gap-1 rounded-xl border border-slate-800 bg-slate-900/60 p-1">
         {TABS.map((t) => (
           <button
             key={t.id}

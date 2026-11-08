@@ -3,7 +3,7 @@
 What goes in the teacher studio's 16:9 frame: widget subjects, layers, the palette search and the live widgets. Behaviour spec: `spec/studio.md`. Design: `docs/superpowers/specs/2026-10-19-teacher-studio-design.md`.
 
 ## Keep it separate
-- May import `@/features/theory`, `@/features/sound`, `@/features/instruments` (public index), the creator's public `index.ts` (the pure model may import `@/features/creator/model/key` directly), the plan's pure tool model (`@/features/plan/model/tools`, `transpose`) and its store-free `@/features/plan/ui/Tool` (never the plan store or `usePlan`), `src/lib/chordKit`, `src/components/chordKit`, `@/features/tuner` (public index), `@/lib/site` and shared `@/components`.
+- May import `@/features/theory`, `@/features/sound`, `@/features/instruments` (public index), the creator's public `index.ts` (the pure model may import `@/features/creator/model/key` directly), the plan's pure tool model (`@/features/plan/model/tools`, `transpose`) and its store-free `@/features/plan/ui/Tool` (never the plan store or `usePlan`), the learning components' docs (`@/features/exercises/docs`, for a family's "More" props), `src/lib/chordKit`, `src/components/chordKit`, `@/features/tuner` (public index), the guide's `LevelPin` (`@/features/guide/Tier`: `StageWidget` pins its widgets to the Standard level, as the stage has no level switch), `@/lib/site` and shared `@/components`.
 - Never the looper, the studio page, recording or the editor. Nothing here knows it is being recorded.
 
 ## Data

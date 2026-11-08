@@ -53,6 +53,7 @@ export default function ExerciseCard({ exercise: e, index, done = false, now = f
   const links = linkSlots(e);
   return (
     <section
+      data-tour="plan-exercise"
       aria-label={e.title}
       aria-current={now ? "step" : undefined}
       className={`flex flex-col gap-3 rounded-2xl border border-l-4 p-3 transition sm:p-5 ${EDGE[hue]} ${done ? "border-emerald-500/40 bg-emerald-500/5" : now ? "border-slate-600 bg-slate-900/80 shadow-lg shadow-black/30" : "border-slate-800 bg-slate-900/50"}`}

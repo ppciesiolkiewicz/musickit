@@ -5,6 +5,8 @@ import { createPortal } from "react-dom";
 import Icon from "@/components/Icon";
 import InputChip from "@/components/InputChip";
 import { DropdownSection, Hint, HintToggle } from "@/components/ui";
+import { useCoverage } from "@/features/guide/useCoverage";
+import { useLevelAtLeast } from "@/features/guide/Tier";
 import ToolSettings, { Volume } from "@/components/practice/ToolSettings";
 import { useExerciseSetting } from "@/components/practice/exerciseSettings";
 import { useAccuracy } from "@/features/theory/useAccuracy";
@@ -97,8 +99,11 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
   /** the play-ahead slider, in the settings dropdown (how far the moving bar runs ahead of the voice dot) */
   playAhead?: ReactNode;
 }) {
+  useCoverage({ hints: 8 });
   const total = notes[notes.length - 1].at + notes[notes.length - 1].beats;
-  const { focus, ...sa } = useSingAlong({ notes, chords, beatMs, total, click });
+  // looping a part is a Standard control; hidden, the clock loops the whole tune
+  const looping = useLevelAtLeast("standard");
+  const { focus, ...sa } = useSingAlong({ notes, chords, beatMs, total, click, loopControl: looping });
   const [look] = useExerciseSetting("view");
   const [storedCents] = useAccuracy();
   const cents = centsProp ?? storedCents;
@@ -193,21 +198,25 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
       </div>
       <div aria-hidden className="my-1 h-px w-1/3 bg-slate-700" />
       <div className="flex flex-wrap items-center gap-1.5 text-xs text-slate-400">
-        <Hint title="Play" description="Starts the tune from the start.">
-          <IconButton on={sa.playing} title={sa.playing ? "Play from the start" : "Play"} onClick={() => void sa.play()}>
-            <Icon name="play" size={15} />
-          </IconButton>
-        </Hint>
-        <Hint title="Stop" description="Ends the tune.">
-          <IconButton title="Stop" onClick={sa.stop}>
-            <Icon name="square" size={14} />
-          </IconButton>
-        </Hint>
-        <Hint title="Mic" description="Listens to your voice and marks the note you're on.">
-          <IconButton on={sa.mic} tone="emerald" title={sa.mic ? "Stop microphone" : "Start microphone"} onClick={sa.toggleMic}>
-            <Icon name="mic" size={15} />
-          </IconButton>
-        </Hint>
+        <span data-tour="sing-play" className="inline-flex items-center gap-1.5">
+          <Hint title="Play" description="Starts the tune from the start.">
+            <IconButton on={sa.playing} title={sa.playing ? "Play from the start" : "Play"} onClick={() => void sa.play()}>
+              <Icon name="play" size={15} />
+            </IconButton>
+          </Hint>
+          <Hint title="Stop" description="Ends the tune.">
+            <IconButton title="Stop" onClick={sa.stop}>
+              <Icon name="square" size={14} />
+            </IconButton>
+          </Hint>
+        </span>
+        <span data-tour="sing-mic" className="inline-flex">
+          <Hint title="Mic" description="Listens to your voice and marks the note you're on.">
+            <IconButton on={sa.mic} tone="emerald" title={sa.mic ? "Stop microphone" : "Start microphone"} onClick={sa.toggleMic}>
+              <Icon name="mic" size={15} />
+            </IconButton>
+          </Hint>
+        </span>
         <Hint title="Volume" description="Sets every sound in the app, not just this tune.">
           <span className="ml-1 flex items-center border-l border-slate-800 pl-2"><Volume /></span>
         </Hint>
@@ -238,17 +247,18 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
         </Hint>
       </div>
       {full && settings && <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-slate-400">{settings}</div>}
-      <div className="flex items-center gap-4">
+      {/* the loop control: Standard only (see `looping`) */}
+      {looping && <div data-tour="sing-loop" className="flex items-center gap-4">
         <Hint title="Loop" description="Repeats a part of the tune. Drag its markers on the strip.">
           <IconButton on={sa.loop} tone="sky" title={sa.loop ? "Stop looping" : "Loop a part of the tune"} onClick={() => sa.setLoop(!sa.loop)}>
             <Icon name="repeat" size={15} />
           </IconButton>
         </Hint>
         {sa.loop && <div className="min-w-0 flex-1"><LoopStrip key={total} notes={notes} total={total} region={sa.region} loop={sa.loop} at={at} onRegion={sa.setRegion} /></div>}
-      </div>
+      </div>}
       <div ref={body} className={full ? "flex min-h-0 flex-1 touch-pan-y flex-col overflow-hidden" : "contents"}
         onPointerDown={full ? swipeStart : undefined} onPointerUp={full ? swipeEnd : undefined} onPointerCancel={() => { swipe.current = null; }}>
-        <div className={full ? "my-auto" : "contents"}>
+        <div data-tour="sing-tune" className={full ? "my-auto" : ""}>
         {look === "staff" ? (
           <StreamStaff frame={sa.frame} notes={notes} chords={chords} ladder={ladder} clef={clef} beatMs={beatMs} tapped={tapped} onNote={onNote} scale={size} cents={cents} lagMs={lagMs} />
         ) : (

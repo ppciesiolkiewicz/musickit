@@ -117,7 +117,7 @@ export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey
     if (list.length === 0) return null;
     const total = PENTATONICS.filter((p) => !!p.basic === (id === "pent")).length;
     return (
-      <div id={`part-${id}`} className={UNDER_BAR}>
+      <div id={`part-${id}`} data-tour={id === "pent" ? "scales-pent" : undefined} className={UNDER_BAR}>
         <Section title={PARTS[id].label} meta={`${searching ? `${list.length} of ${total}` : list.length} scales in ${tonicName(tonicPc)}`} open={searching || open[id]} onToggle={() => toggle(id)} accent={PARTS[id].accent}>
           <p className="mb-3 text-xs text-slate-400">{PARTS[id].intro}</p>
           <div className="grid gap-3 xl:grid-cols-2">
@@ -136,7 +136,7 @@ export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey
         Each card is one mode starting on the key you chose. The coloured circles are its seven notes in order: tap one to hear it, or press Play to hear the scale up and back down. The fretboard shows every place the scale falls on the first 12 frets; tap a dot to hear it. Open a mode for its positions on the whole neck: five pentatonic boxes, and the full scale filled into the same five boxes. The small label above each is the scale degree, written against the major scale, so ♭3 means the 3rd is lowered and ♯4 means the 4th is raised. Colour follows the degree: 1 white, 2 teal, 3 amber, 4 lime, 5 blue, 6 violet, 7 rose. Relative major and relative minor are the major and natural minor scales that use exactly the same seven notes.
       </ColourKey>
 
-      <div className="-mb-3 flex items-center gap-2">
+      <div data-tour="scales-search" className="-mb-3 flex items-center gap-2">
         <input
           type="search" value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={(e) => e.key === "Escape" && setQuery("")}
           placeholder="Search scales: dorian, minor, pentatonic…" aria-label="Search scales"
@@ -154,7 +154,7 @@ export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey
       {pentSection("pent", pents.filter((p) => p.basic))}
 
       {shown.map(({ fam, modes }) => (
-        <div key={fam.id} id={`part-${fam.id}`} className={UNDER_BAR}>
+        <div key={fam.id} id={`part-${fam.id}`} data-tour={fam.id === "major" ? "scales-modes" : undefined} className={UNDER_BAR}>
         <Section title={fam.label} meta={`${searching ? `${modes.length} of ${rows.find((r) => r.fam.id === fam.id)!.modes.length}` : modes.length} ${fam.scales ? "scales" : "modes"} in ${modes[0].ctx.names[0]}`} open={searching || open[fam.id]} onToggle={() => toggle(fam.id)} accent={PARTS[fam.id].accent}>
           <p className="mb-3 text-xs text-slate-400">{PARTS[fam.id].intro}</p>
           <div className="grid gap-3 xl:grid-cols-2">
@@ -261,7 +261,7 @@ export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey
       {pentSection("pentMore", pents.filter((p) => !p.basic))}
 
       {!searching && (
-        <div id="part-compare" className={UNDER_BAR}>
+        <div id="part-compare" data-tour="scales-compare" className={UNDER_BAR}>
           <ModeCompare tonicPc={tonicPc} open={open.compare} onToggle={() => toggle("compare")} accent={PARTS.compare.accent} />
         </div>
       )}

@@ -3,6 +3,7 @@ import PageShell from "@/components/PageShell";
 import Lesson from "@/components/theory/Lesson";
 import { Jam } from "@/features/instruments";
 import WireNam from "@/components/WireNam";
+import { METRONOME_DRONE_TOUR } from "@/features/guide/tours/metronome-drone";
 
 export const metadata: Metadata = {
   title: "Metronome & drone · attunr",
@@ -13,6 +14,8 @@ export default function MetronomeDronePage() {
   return (
     <PageShell
       active="/theory/metronome-drone"
+      pageId="metronome-drone"
+      tour={METRONOME_DRONE_TOUR}
       title="Metronome & drone"
       intro="Set a tempo and practise to the click, then hold one note and play a scale, a mode or an arpeggio against it: every mode sounds different over its own root. Add drums and a bass in the drone's key; each starts on the next beat."
     >

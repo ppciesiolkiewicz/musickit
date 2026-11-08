@@ -53,13 +53,18 @@ export interface Frame {
  * stream's beats while the bar runs; passes and trail long gone by are dropped. A new tune is a new mount (key it); a new
  * `beatMs` is not: the bar keeps its place and runs on at the new tempo.
  */
-export function useSingAlong({ notes, chords, beatMs, total, click = false }: { notes: PlacedNote[]; chords: MelodyChord[]; beatMs: number; total: number; click?: boolean }) {
+export function useSingAlong({ notes, chords, beatMs, total, click = false, loopControl = true }: {
+  notes: PlacedNote[]; chords: MelodyChord[]; beatMs: number; total: number; click?: boolean;
+  /** false while the loop control is hidden: the clock loops the whole tune (the default), and the loop and region picked come back when it shows */
+  loopControl?: boolean;
+}) {
   const [mic, setMic] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [heard, setHeard] = useState<Heard>({ tune: true, chords: true, click });
   const [loop, setLoopState] = useState(true);
   const [region, setRegionState] = useState<Region>({ from: 0, to: total });
-  const active = loop ? region : null;
+  const activeFor = (on: boolean, picked: Region): Region | null => (!loopControl ? { from: 0, to: total } : on ? picked : null);
+  const active = activeFor(loop, region);
 
   // the clock's state lives in refs, read by the timers and the frame loop; `frame` is what is drawn
   const t0 = useRef(0);
@@ -252,6 +257,13 @@ export function useSingAlong({ notes, chords, beatMs, total, click = false }: { 
     } else restart();
     draw();
   };
+  // the loop control hidden or shown again: the clock moves to the default (the whole tune) or back to what was picked
+  const shownBefore = useRef(loopControl);
+  useEffect(() => {
+    if (shownBefore.current === loopControl) return;
+    shownBefore.current = loopControl;
+    setActive(activeFor(loop, region));
+  });
 
   return {
     frame,
@@ -282,11 +294,11 @@ export function useSingAlong({ notes, chords, beatMs, total, click = false }: { 
     },
     setLoop: (on: boolean) => {
       setLoopState(on);
-      setActive(on ? region : null);
+      setActive(activeFor(on, region));
     },
     setRegion: (r: Region) => {
       setRegionState(r);
-      if (loop) setActive(r);
+      if (loop && loopControl) setActive(r);
     },
   };
 }

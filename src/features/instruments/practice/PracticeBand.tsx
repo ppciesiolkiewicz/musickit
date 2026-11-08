@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Icon from "@/components/Icon";
-import { Select, Slider, sbtn } from "@/components/ui";
+import { Hint, Select, Slider, sbtn } from "@/components/ui";
+import { useCoverage } from "@/features/guide/useCoverage";
 import { useAudioFocus } from "@/features/sound";
 import { DRONE_MAX_OCTAVE, DRONE_MIN_OCTAVE, NOTE_NAMES } from "../drone/drone";
 import { MAX_BPM, MIN_BPM } from "../jam/clock";
-import { JAM_PARTS, type JamPart, type JamRig } from "../jam/rig";
+import { JAM_PARTS, JamRig, type JamPart, type JamSaved } from "../jam/rig";
 import useJamRig from "../jam/useJamRig";
 import BeatDots from "../jam/BeatDots";
 import { useStepPart } from "@/components/practice/exerciseStep";
@@ -25,14 +26,40 @@ const PARTS: { id: BandPart; label: string }[] = [
  * Unfolded: a tempo slider, the drone's octave and the drum and bass patterns. Its own `JamRig` through `useJamRig`; the
  * host's setup wins over anything saved, so every exercise opens the way it was written.
  */
-export default function PracticeBand({ bpm, keyPc, parts }: { bpm: number; keyPc: number; parts: BandPart[] }) {
+export default function PracticeBand({ bpm, keyPc, parts, more = true }: { bpm: number; keyPc: number; parts: BandPart[]; /** the "More" fold (tempo slider, drone octave, patterns); false hides it, and its settings show folded */ more?: boolean }) {
+  useCoverage({ hints: 1 });
   const restore = (rig: JamRig) => {
     rig.setTempo(Math.min(MAX_BPM, Math.max(MIN_BPM, bpm)));
     rig.setDrone({ root: keyPc });
   };
-  const { rig, snap, start } = useJamRig({ storageKey: "musickit.practiceBand", restore });
+  // while "More" is hidden, the parts as they were set (the drone octave, the patterns), saved in place of the defaults in play
+  const kept = useRef<JamSaved["parts"] | null>(null);
+  const save = (r: JamRig): JamSaved => {
+    const s = r.save();
+    return kept.current ? { ...s, parts: kept.current } : s;
+  };
+  const { rig, snap, start } = useJamRig({ storageKey: "musickit.practiceBand", restore, save });
   const [chosen, setChosen] = useState<BandPart[]>(parts);
   const [open, setOpen] = useState(false);
+  // "More" hidden: the drone octave and the drum and bass patterns go back to a fresh rig's; shown again, what was set returns
+  const [defaults] = useState(() => {
+    const fresh = new JamRig();
+    const p = fresh.save().parts;
+    fresh.dispose();
+    return p;
+  });
+  const wasMore = useRef(more);
+  useEffect(() => {
+    if (wasMore.current === more) return;
+    wasMore.current = more;
+    const now = rig.save();
+    const next = more ? kept.current : defaults;
+    kept.current = more ? null : now.parts;
+    if (!next) return;
+    rig.load({ bpm: now.bpm, levels: now.levels, parts: { drums: next.drums, bass: next.bass } });
+    const octave = next.drone?.drone?.octave;
+    if (octave !== undefined) rig.setDrone({ octave });
+  });
 
   const jamParts = (list: BandPart[]) => JAM_PARTS.filter((p) => list.includes(p));
   const on = snap.click.on || JAM_PARTS.some((p) => snap.parts[p].state.playing);
@@ -66,11 +93,13 @@ export default function PracticeBand({ bpm, keyPc, parts }: { bpm: number; keyPc
   return (
     <div ref={focus} className="rounded-xl border border-slate-800 bg-slate-950/40">
       <div className="flex flex-wrap items-center gap-2 px-2.5 py-2">
-        <button type="button" onClick={() => (on ? stop() : void play(chosen))} disabled={!on && !chosen.length} aria-pressed={on}
-          className={`inline-flex h-8 items-center gap-1.5 rounded-lg border px-3 text-xs font-medium transition disabled:opacity-40 ${on ? "border-emerald-400/70 bg-emerald-500/20 text-emerald-100" : "border-sky-400/60 bg-sky-500/15 text-sky-50 hover:bg-sky-500/25"}`}>
-          <Icon name={on ? "square" : "play"} size={14} fill />{on ? "Stop" : "Play"}
-        </button>
-        <div className="flex flex-wrap gap-1" role="group" aria-label="Parts that play">
+        <Hint title={on ? "Stop" : "Play"} description="Starts the parts that are lit, together on one beat.">
+          <button type="button" data-tour="band-play" onClick={() => (on ? stop() : void play(chosen))} disabled={!on && !chosen.length} aria-pressed={on}
+            className={`inline-flex h-8 items-center gap-1.5 rounded-lg border px-3 text-xs font-medium transition disabled:opacity-40 ${on ? "border-emerald-400/70 bg-emerald-500/20 text-emerald-100" : "border-sky-400/60 bg-sky-500/15 text-sky-50 hover:bg-sky-500/25"}`}>
+            <Icon name={on ? "square" : "play"} size={14} fill />{on ? "Stop" : "Play"}
+          </button>
+        </Hint>
+        <div data-tour="band-parts" className="flex flex-wrap gap-1" role="group" aria-label="Parts that play">
           {PARTS.map((p) => {
             const lit = chosen.includes(p.id);
             return (
@@ -81,18 +110,20 @@ export default function PracticeBand({ bpm, keyPc, parts }: { bpm: number; keyPc
             );
           })}
         </div>
-        <span className="flex items-center gap-1 text-xs text-slate-300">
+        <span data-tour="band-tempo" className="flex items-center gap-1 text-xs text-slate-300">
           <button type="button" className={sbtn} disabled={snap.bpm <= MIN_BPM} onClick={() => rig.setTempo(snap.bpm - 1)} aria-label="Slower">−</button>
           <span className="w-14 text-center tabular-nums">{snap.bpm} <span className="text-[10px] text-slate-500">bpm</span></span>
           <button type="button" className={sbtn} disabled={snap.bpm >= MAX_BPM} onClick={() => rig.setTempo(snap.bpm + 1)} aria-label="Faster">+</button>
         </span>
         <BeatDots rig={rig} playing={on} />
         <span className="text-xs text-slate-400">Key <b className="text-violet-200">{NOTE_NAMES[drone.root]}</b></span>
-        <button type="button" onClick={() => setOpen((v) => !v)} aria-expanded={open} className="ml-auto inline-flex items-center gap-1 text-xs text-slate-500 hover:text-slate-200">
-          {open ? "Less" : "More"} <Icon name="chevron-down" size={12} className={open ? "rotate-180" : ""} />
-        </button>
+        {more && (
+          <button type="button" data-tour="band-more" onClick={() => setOpen((v) => !v)} aria-expanded={open} className="ml-auto inline-flex items-center gap-1 text-xs text-slate-500 hover:text-slate-200">
+            {open ? "Less" : "More"} <Icon name="chevron-down" size={12} className={open ? "rotate-180" : ""} />
+          </button>
+        )}
       </div>
-      {open && (
+      {more && open && (
         <div className="flex flex-col gap-2.5 border-t border-slate-800 px-3 py-2.5 text-xs text-slate-400">
           <label className="flex items-center gap-2">
             <span className="w-14 shrink-0">Tempo</span>

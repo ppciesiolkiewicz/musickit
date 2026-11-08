@@ -309,7 +309,7 @@ export default function PocketTools({ keyPc, className = "", stacked = false, cl
   };
 
   return (
-    <div ref={root} className={`flex min-w-0 items-stretch gap-2 ${stacked ? "lg:flex-col" : ""} ${className}`}>
+    <div ref={root} data-tour="pocket-tools" className={`flex min-w-0 items-stretch gap-2 ${stacked ? "lg:flex-col" : ""} ${className}`}>
       <button type="button" onClick={toggleAll} aria-pressed={anyOn} title={`${anyOn ? "Stop" : "Start"} everything on the next beat (Space stops and brings back)`}
         className={`flex w-12 shrink-0 flex-col items-center justify-center gap-1 rounded-xl border ${stacked ? "lg:w-full lg:flex-row lg:gap-2 lg:py-1.5" : ""} text-[10px] font-medium uppercase tracking-wider transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${anyOn ? "border-emerald-400/70 bg-emerald-500/20 text-emerald-100" : "border-slate-700 bg-slate-900 text-slate-200 hover:border-slate-500"}`}>
         <Icon name={anyOn ? "square" : "play"} size={18} fill />

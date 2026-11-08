@@ -37,9 +37,9 @@ const PART_TONE = {
 type Tone = (typeof PART_TONE)[keyof typeof PART_TONE];
 
 /** A part's card: its colour along the edge and a soft wash from the top corner. */
-function PartCard({ tone, label, children }: { tone: Tone; label: string; children: ReactNode }) {
+function PartCard({ tone, label, tour, children }: { tone: Tone; label: string; tour?: string; children: ReactNode }) {
   return (
-    <section aria-label={label} className={`${card} ${tone.card}`}>
+    <section data-tour={tour} aria-label={label} className={`${card} ${tone.card}`}>
       <div aria-hidden className={`pointer-events-none absolute inset-0 bg-linear-to-br ${tone.wash} via-transparent to-transparent`} />
       <div className="relative flex min-w-0 flex-col gap-4">{children}</div>
     </section>
@@ -114,7 +114,7 @@ export default function Jam() {
 
   return (
     <div className="flex min-w-0 flex-col gap-5 px-1 sm:gap-8 sm:px-2 lg:px-4">
-      <div className="flex flex-wrap items-center gap-x-5 gap-y-3 rounded-2xl border border-slate-800 bg-slate-900/60 px-4 py-4 sm:px-6 sm:py-5 lg:px-8">
+      <div data-tour="jam-all" className="flex flex-wrap items-center gap-x-5 gap-y-3 rounded-2xl border border-slate-800 bg-slate-900/60 px-4 py-4 sm:px-6 sm:py-5 lg:px-8">
         <button type="button" onClick={toggleAll} aria-pressed={anyOn} title={`${anyOn ? "Stop" : "Start"} every part on the next beat (Space)`}
           className={`inline-flex h-12 items-center gap-2.5 rounded-xl border px-5 text-base font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${anyOn ? "border-emerald-400/70 bg-emerald-500/20 text-emerald-100" : "border-sky-400/60 bg-sky-500/15 text-sky-50 shadow-lg shadow-sky-500/10 hover:bg-sky-500/25"}`}>
           <Icon name={anyOn ? "square" : "play"} size={20} fill />{anyOn ? "Stop all" : "Play all"}
@@ -129,7 +129,7 @@ export default function Jam() {
         </span>
       </div>
 
-      <PartCard tone={PART_TONE.click} label="Metronome">
+      <PartCard tone={PART_TONE.click} label="Metronome" tour="jam-metronome">
         <div className="flex flex-wrap items-center gap-3">
           <PlayButton big tone={PART_TONE.click} on={snap.click.on} name="metronome" onClick={() => void toggleClick()} />
           <div className="flex min-w-0 items-center gap-3">
@@ -153,7 +153,7 @@ export default function Jam() {
         </div>
       </PartCard>
 
-      <PartCard tone={PART_TONE.drone} label="Drone">
+      <PartCard tone={PART_TONE.drone} label="Drone" tour="jam-drone">
         <DroneControls value={drone.state.drone} onChange={(patch) => rig.setDrone(patch)} playing={drone.running} analyser={drone.running ? rig.droneAnalyser() : null}
           header={<><PlayButton big tone={PART_TONE.drone} on={drone.state.playing} name="drone" onClick={() => toggle("drone")} /><span className="flex min-w-0 flex-1"><Title tone={PART_TONE.drone} view={drone}>Drone · {droneName(drone.state.drone)}</Title></span><MuteButton name="drone" muted={drone.muted} onMute={(muted) => rig.setLevel("drone", { muted })} /></>} />
       </PartCard>
@@ -162,7 +162,7 @@ export default function Jam() {
         const v = snap.parts[p];
         const inst = rig.instrument(p);
         return (
-          <PartCard key={p} tone={PART_TONE[p]} label={inst.name}>
+          <PartCard key={p} tone={PART_TONE[p]} label={inst.name} tour={p === "drums" ? "jam-band" : undefined}>
             <PatternBar instrument={inst} bars={v.state.bars} onPreset={(id) => rig.loadPreset(p, id)} onBars={(b) => rig.setBars(p, b)} onClear={() => rig.clear(p)}
               leading={<><PlayButton tone={PART_TONE[p]} on={v.state.playing} name={inst.name.toLowerCase()} onClick={() => toggle(p)} /><Title tone={PART_TONE[p]} view={v}>{p === "bass" ? `${inst.name} · ${key} minor pentatonic` : inst.name}</Title></>}
               trailing={<PartLevel name={inst.name.toLowerCase()} volume={v.volume} muted={v.muted} onVolume={(volume) => rig.setLevel(p, { volume })} onMute={(muted) => rig.setLevel(p, { muted })} />} />
@@ -171,7 +171,7 @@ export default function Jam() {
         );
       })}
 
-      <PartCard tone={PART_TONE.loops} label="Loops">
+      <PartCard tone={PART_TONE.loops} label="Loops" tour="jam-loops">
         <JamLoops rig={rig} loops={snap.loops} devices={snap.devices} ready={ready} />
       </PartCard>
     </div>

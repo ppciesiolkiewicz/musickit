@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import PageShell from "@/components/PageShell";
+import { FAQ_TOUR } from "@/features/guide/tours/faq";
 
 export const metadata: Metadata = {
   title: "FAQ · attunr",
@@ -54,14 +55,14 @@ const GROUPS: { title: string; items: QA[] }[] = [
 
 export default function FaqPage() {
   return (
-    <PageShell active="/faq" title="Frequently asked questions" intro="Short answers about the app, the microphone, the practice plan and the course.">
+    <PageShell active="/faq" pageId="faq" tour={FAQ_TOUR} title="Frequently asked questions" intro="Short answers about the app, the microphone, the practice plan and the course.">
       <div className="flex max-w-3xl flex-col gap-8">
-        {GROUPS.map((g) => (
-          <section key={g.title} aria-labelledby={slug(g.title)} className="flex flex-col gap-2">
+        {GROUPS.map((g, gi) => (
+          <section key={g.title} data-tour={gi === 0 ? "faq-group" : undefined} aria-labelledby={slug(g.title)} className="flex flex-col gap-2">
             <h2 id={slug(g.title)} className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">{g.title}</h2>
             <div className="flex flex-col divide-y divide-slate-800 overflow-hidden rounded-xl border border-slate-800 bg-slate-900/40">
-              {g.items.map((it) => (
-                <details key={it.q} className="group">
+              {g.items.map((it, i) => (
+                <details key={it.q} data-tour={gi === 0 && i === 0 ? "faq-question" : undefined} className="group">
                   <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-3 text-sm font-medium text-slate-100 hover:bg-slate-800/40 [&::-webkit-details-marker]:hidden">
                     <span className="flex-1">{it.q}</span>
                     <span aria-hidden className="text-lg leading-none text-slate-500 transition group-open:rotate-45">+</span>

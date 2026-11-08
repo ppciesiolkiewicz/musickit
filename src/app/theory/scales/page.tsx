@@ -3,6 +3,7 @@ import PageShell from "@/components/PageShell";
 import Lesson from "@/components/theory/Lesson";
 import ScalesIndex from "@/components/chordKit/ScalesIndex";
 import { keyOr } from "@/features/theory/keySlug";
+import { SCALES_TOUR } from "@/features/guide/tours/scales";
 
 export const metadata: Metadata = {
   title: "Scales and modes · attunr",
@@ -17,6 +18,8 @@ export default async function ScalesPage({ searchParams }: { searchParams: Promi
   return (
     <PageShell
       active="/theory/scales"
+      pageId="scales"
+      tour={SCALES_TOUR}
       full
       devices
       title="Scales and modes"

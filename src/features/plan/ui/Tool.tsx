@@ -23,6 +23,7 @@ import { View as PickingDrill } from "@/features/exercises/basics/picking-drill"
 import type { PlanTool } from "../model/tools";
 import type { Voice } from "@/features/theory/singing";
 import type { ExternalInput } from "@/features/tuner";
+import { CoverageTool, useCoverage } from "@/features/guide/useCoverage";
 
 // the guitar play-along carries its own sound engine: loaded only when an exercise shows one
 const loading = () => <p className="p-3 text-sm text-slate-500">Loading…</p>;
@@ -31,9 +32,20 @@ const PlayAlong = dynamic(() => import("@/features/exercises/play-along/PlayAlon
 /**
  * One tool as the AI set it up, without the plan store: the plan page and the studio stage both render it. `voice` is the student's
  * voice type: the singer tools use it when the AI set none. `input` is a host's audio input (the studio's): the staff listens to it
- * instead of opening a microphone of its own.
+ * instead of opening a microphone of its own. Also the /dev/stories canvas.
+ * In development the tool registers itself, and what is drawn inside it its levels and hints, for /dev/onboarding
+ * (which reads its tour from `TOOL_TOURS`).
  */
 export function Tool({ tool, voice, input }: { tool: PlanTool; voice?: Voice; input?: ExternalInput }) {
+  useCoverage({}, { kind: "tool", id: tool.type });
+  return (
+    <CoverageTool type={tool.type}>
+      <ToolView tool={tool} voice={voice} input={input} />
+    </CoverageTool>
+  );
+}
+
+function ToolView({ tool, voice, input }: { tool: PlanTool; voice?: Voice; input?: ExternalInput }) {
   switch (tool.type) {
     case "scale-neck":
       return <ScaleNeck slug={tool.scale} pc={tool.key} boxes={tool.boxes} neck={tool.neck} positions={tool.positions} placement={tool.placement} add={tool.add} enable={tool.enable} highlight={tool.highlight} mute={tool.mute} hide={tool.hide} others={tool.others} />;

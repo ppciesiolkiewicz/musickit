@@ -3,6 +3,7 @@ import PageShell from "@/components/PageShell";
 import Lesson from "@/components/theory/Lesson";
 import CagedExplorer from "@/components/chordKit/CagedExplorer";
 import NeighboursView from "@/components/chordKit/NeighboursView";
+import { CAGED_TOUR } from "@/features/guide/tours/caged";
 
 export const metadata: Metadata = {
   title: "CAGED system · attunr",
@@ -14,6 +15,8 @@ export default function CagedPage() {
     <PageShell
       active="/theory/caged"
       full
+      pageId="caged"
+      tour={CAGED_TOUR}
       title="CAGED system"
       intro="Five chord shapes (C, A, G, E, D) link up across the neck. Pick a key and major or minor to see each shape and, in three separate boxes, its arpeggio, scale and pentatonic."
     >

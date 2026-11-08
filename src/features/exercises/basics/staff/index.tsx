@@ -8,13 +8,15 @@ import InputChip from "@/components/InputChip";
 import SingingStaff from "@/components/theory/singing/SingingStaff";
 import { getSharedPiano, wakeAudio } from "@/features/sound";
 import ToolSettings from "@/components/practice/ToolSettings";
-import { VOICES, buildLadder, clefFor, hzToMidi, spellName, withNotesUnder } from "@/features/theory/singing";
+import { IN_TUNE_CENTS, VOICES, buildLadder, clefFor, hzToMidi, spellName, withNotesUnder } from "@/features/theory/singing";
 import { createSmoother, type Pitch } from "@/features/tuner/pitch";
 import type { ExternalInput } from "@/features/tuner";
 import { staffLabelSystem, type SingingLabels } from "@/features/theory/labels";
 import { useLabelSystem } from "@/features/theory/useLabelSystem";
 import { useAccuracy } from "@/features/theory/useAccuracy";
-import { Badge } from "@/components/ui";
+import { Badge, Hint } from "@/components/ui";
+import { useCoverage } from "@/features/guide/useCoverage";
+import { useLevelAtLeast } from "@/features/guide/Tier";
 import Icon from "@/components/Icon";
 import { useStepPart } from "@/components/practice/exerciseStep";
 import dynamic from "next/dynamic";
@@ -38,6 +40,7 @@ const GAP_FRAMES = 6;
  * input's pitch, and Start / Stop is the host's. Not a plan prop: plan output never sets it.
  */
 export function View({ slug, pc, voice, notes, under = false, enable, highlight, mute, hide, others, mic: micButton = true, drone = false, click = false, bpm = 60, labels, external }: { slug: string; pc: number; voice: keyof typeof VOICES; notes?: number[]; under?: boolean; enable?: number[]; highlight?: number[]; mute?: number[]; hide?: number[]; others?: Others; mic?: boolean; drone?: boolean; click?: boolean; bpm?: number; labels?: SingingLabels; external?: ExternalInput }) {
+  useCoverage({ hints: 4 });
   const range = VOICES[voice];
   // three looks: highlighted notes ringed, enabled ones plain, muted ones faint
   const state = useMemo(() => {
@@ -102,7 +105,10 @@ export function View({ slug, pc, voice, notes, under = false, enable, highlight,
   }, []);
   const [setting] = useLabelSystem();
   const system = staffLabelSystem(labels, micButton, setting);
-  const [cents] = useAccuracy();
+  // the settings are a Standard control; hidden, the accuracy is the default one (the stored setting returns with them)
+  const settings = useLevelAtLeast("standard");
+  const [storedCents] = useAccuracy();
+  const cents = settings ? storedCents : IN_TUNE_CENTS;
   const { status } = useMicPitch(micOn && micButton && !external, undefined, onPitch);
   const listening = external ? external.listening : micOn;
   // the host's pitch comes smoothed: drawn as it is
@@ -135,22 +141,40 @@ export function View({ slug, pc, voice, notes, under = false, enable, highlight,
   return (
     <div className="flex flex-col gap-2">
       <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400">
-        {micButton && <MicButton on={listening} onClick={() => (external ? external.onToggle() : micOn ? setMicOn(false) : startMic())} />}
-        {micButton && !external && <InputChip status={status} />}
+        {micButton && (
+          <span data-tour="staff-mic" className="inline-flex items-center gap-2">
+            <Hint title="Mic" description="Listens to your voice and draws the note you sing on the staff.">
+              <MicButton on={listening} onClick={() => (external ? external.onToggle() : micOn ? setMicOn(false) : startMic())} />
+            </Hint>
+            {!external && (
+              <Hint title="Input" description="The microphone the app listens to. Tap to pick another one and see its level.">
+                <InputChip status={status} />
+              </Hint>
+            )}
+          </span>
+        )}
         {backing.length > 0 && (
-          <span className="inline-flex items-center gap-2">
+          <span data-tour="staff-backing" className="inline-flex items-center gap-2">
+            <Hint title={backingOn ? "Stop" : "Play"} description={`Plays the ${backingWords} to sing over.`}>
             <button type="button" onClick={() => (backingOn ? stopBacking() : startBacking())} aria-pressed={backingOn}
               title={backingOn ? `Stop the ${backingWords}` : `Play the ${backingWords}`}
               className={`inline-flex h-8 items-center gap-1.5 rounded-lg border px-3 text-xs font-medium transition ${backingOn ? "border-emerald-400/70 bg-emerald-500/20 text-emerald-100" : "border-sky-400/60 bg-sky-500/15 text-sky-50 hover:bg-sky-500/25"}`}>
               <Icon name={backingOn ? "square" : "play"} size={14} fill />{backingOn ? "Stop" : "Play"}
             </button>
+            </Hint>
             <PracticeBacking bpm={bpm} keyPc={pc} parts={backing} on={backingOn} onStop={stopBacking} group={group} />
           </span>
         )}
         {status === "denied" && <span>microphone blocked in the browser</span>}
         <span className="ml-auto" />
         {/* labels written into the exercise don't follow the setting, so there is nothing to pick */}
-        <ToolSettings labels={labels ? undefined : system} omit={micButton ? ["note"] : []} accuracy={micButton} />
+        {settings && (
+          <span data-tour="staff-settings">
+            <Hint title="Settings" description="How the notes are named, how close counts as on the note, and the volume.">
+              <ToolSettings labels={labels ? undefined : system} omit={micButton ? ["note"] : []} accuracy={micButton} />
+            </Hint>
+          </span>
+        )}
       </div>
       <div className="flex flex-wrap items-center gap-1.5">
         <Badge>{ladder.title}</Badge>
@@ -159,7 +183,9 @@ export function View({ slug, pc, voice, notes, under = false, enable, highlight,
         {click && <Badge>Click {bpm} bpm</Badge>}
         {micButton && <Badge>Accuracy ±{cents}¢</Badge>}
       </div>
+      <div data-tour="staff-notes">
       <SingingStaff ladder={ladder} clef={clefFor(range)} pitch={pitch} played={played} onNote={(i) => void tap(i)} cents={cents} highlight={ringed} muted={(i) => state(ladder.notes[i].midi % 12) === "muted"} labels={system} />
+      </div>
     </div>
   );
 }

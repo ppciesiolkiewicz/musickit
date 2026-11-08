@@ -73,7 +73,7 @@ export default function NeighboursView() {
   ));
 
   return (
-    <section id="neighbours" className="scroll-mt-4 rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
+    <section id="neighbours" data-tour="caged-neighbours" className="scroll-mt-4 rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
       <h2 className="mb-1 text-base font-medium text-slate-100">
         Shape neighbours: a key without moving your hand
         <Info label="About shape neighbours">Each CAGED shape of the I chord pins your hand to a few frets. The other common chords of the key are already there in other CAGED shapes. Going round C → A → G → E → D: if I is shape X, then V is X+2, IV is X−2, vi is the minor form of X+1, ii of X−1 and iii of X−2. At the very bottom or top of the neck a shape can fall off, and the nearest shape is shown instead.</Info>

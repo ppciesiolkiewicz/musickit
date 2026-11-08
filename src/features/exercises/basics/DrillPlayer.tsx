@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import Icon from "@/components/Icon";
+import { Hint } from "@/components/ui";
+import { useCoverage } from "@/features/guide/useCoverage";
 import { getAudioContext, getOutputBus, midiToHz, takeAudioFocus, wakeAudio } from "@/features/sound";
 import { useWidth } from "../play-along/views/common";
 import { stepMidi, type DrillStep } from "./drills";
@@ -87,6 +89,7 @@ function DrillTab({ steps, at, group }: { steps: DrillStep[]; at: number; group:
  * at `bpm`, round and round, the playing cell lit. `hint` says what to watch for.
  */
 function Player({ steps, bpm, hint, group = 4 }: { steps: DrillStep[]; bpm: number; hint: string; group?: number }) {
+  useCoverage({ hints: 1 });
   const [playing, setPlaying] = useState(false);
   const [at, setAt] = useState(0);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -119,13 +122,15 @@ function Player({ steps, bpm, hint, group = 4 }: { steps: DrillStep[]; bpm: numb
   return (
     <div className="flex flex-col gap-3 rounded-xl border border-slate-800 bg-slate-900/40 p-3">
       <div className="flex items-center gap-3">
-        <button type="button" onClick={() => (playing ? stop() : void start())} aria-label={playing ? "Stop" : "Play"} title={playing ? "Stop" : "Play"}
-          className="rounded-lg border border-sky-400/70 bg-sky-500/20 p-2 text-sky-100">
-          <Icon name={playing ? "square" : "play"} size={16} />
-        </button>
+        <Hint title={playing ? "Stop" : "Play"} description="Sounds the drill round and round, lighting the note playing.">
+          <button type="button" data-tour="drill-play" onClick={() => (playing ? stop() : void start())} aria-label={playing ? "Stop" : "Play"} title={playing ? "Stop" : "Play"}
+            className="rounded-lg border border-sky-400/70 bg-sky-500/20 p-2 text-sky-100">
+            <Icon name={playing ? "square" : "play"} size={16} />
+          </button>
+        </Hint>
         <span className="text-xs text-slate-400">{bpm} bpm, one note per half beat · {hint}</span>
       </div>
-      <DrillTab steps={steps} at={playing ? at : -1} group={group} />
+      <div data-tour="drill-tab"><DrillTab steps={steps} at={playing ? at : -1} group={group} /></div>
     </div>
   );
 }

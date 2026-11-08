@@ -51,7 +51,7 @@ function Layout({ bar, side, criteria, children }: { bar: ReactNode; side: boole
       <div className="contents lg:col-start-2 lg:row-start-1 lg:block lg:sticky lg:top-0">{bar}</div>
       {/* necks that bleed past a centred page would run under the column, so they stay in it here */}
       <div className="flex min-w-0 flex-col gap-5 lg:col-start-1 lg:row-start-1 lg:[&_.bleed]:mx-0">
-        {criteria && <div className="flex flex-col gap-1.5 rounded-2xl border border-slate-800 bg-slate-900/40 px-4 py-3">{criteria}</div>}
+        {criteria && <div data-tour="scale-criteria" className="flex flex-col gap-1.5 rounded-2xl border border-slate-800 bg-slate-900/40 px-4 py-3">{criteria}</div>}
         {children}
       </div>
     </div>
@@ -193,7 +193,7 @@ export function ScaleSettingsBar({ tonicPc, onTonic, side = false, config = {} }
   const labelName = LABEL_SYSTEMS.find((l) => l.id === labels)?.label;
   return (
     // breaks out of the page column to span the window, less a small gutter each side; as a side column it fills the window's height
-    <div className={`sticky top-2 z-20 mx-[calc(50%-50vw+0.5rem)] flex flex-col gap-2 rounded-2xl border border-slate-700 bg-slate-950/90 px-4 py-2.5 shadow-lg sm:px-6 sm:py-3 shadow-black/30 backdrop-blur ${side ? SIDE : ""}`}>
+    <div data-tour="scale-settings" className={`sticky top-2 z-20 mx-[calc(50%-50vw+0.5rem)] flex flex-col gap-2 rounded-2xl border border-slate-700 bg-slate-950/90 px-4 py-2.5 shadow-lg sm:px-6 sm:py-3 shadow-black/30 backdrop-blur ${side ? SIDE : ""}`}>
       <button
         type="button"
         onClick={toggle}

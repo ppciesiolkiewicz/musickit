@@ -137,6 +137,23 @@ html.theme-fade *, html.theme-fade *::before, html.theme-fade *::after {
 .take-volume::-webkit-slider-thumb { appearance: none; width: 10px; height: 4px; border-radius: 2px; background: var(--color-slate-100); }
 .take-volume::-moz-range-thumb { width: 10px; height: 4px; border: 0; border-radius: 2px; background: var(--color-slate-100); }
 .take-volume:focus-visible { outline: 2px solid var(--color-sky-400); outline-offset: 2px; }
+/* the tour button until first used (AttentionRing): a style-pulse-like wobble every few seconds, and two staggered
+   wheel-ripple-like rings (hidden until their delay starts, so the late one does not sit still at first) */
+@keyframes tour-wobble {
+  0%, 40%, 100% { transform: none; }
+  8% { transform: scale(1.08) rotate(-6deg); }
+  16% { transform: scale(1) rotate(4deg); }
+  24% { transform: rotate(-2deg); }
+}
+@keyframes tour-ring {
+  from { opacity: 0.9; transform: scale(1); }
+  to { opacity: 0; transform: scale(2.4); }
+}
+.tour-wobble { animation: tour-wobble 2.4s ease-in-out infinite; }
+.tour-ring { opacity: 0; animation: tour-ring 2.4s ease-out infinite; }
 @media (prefers-reduced-motion: reduce) {
-  .landing-rise, .landing-fade, .dot-pop, .wheel-halo, .wheel-ripple, .wheel-spin, .style-pulse, .rec-pulse[data-sound="true"] { animation: none; }
+  .landing-rise, .landing-fade, .dot-pop, .wheel-halo, .wheel-ripple, .wheel-spin, .style-pulse, .rec-pulse[data-sound="true"], .tour-wobble, .tour-ring { animation: none; }
+  /* a still highlighted ring instead of the motion */
+  .tour-wobble { outline: 2px solid var(--color-sky-400); outline-offset: 2px; }
+  .tour-ring { display: none; }
 }

@@ -19,6 +19,7 @@ export default function TuneByEar() {
   const [drill, setDrill] = useState<StringDrill>("strings");
   return (
     <div className="flex flex-col gap-4">
+      <div data-tour="tune-ear-sing">
       <Section title="Sing the open strings" meta="mic" info="Play the drill to hear it, tap a note to hear one, then sing along with the mic on, an octave up or down if the pitch is out of your range. Once you can sing E A D G B E, you can hear a string that is off.">
         <div className="flex flex-col gap-3">
           <ChipRow label="Drill">
@@ -27,6 +28,7 @@ export default function TuneByEar() {
           <StringSinger drill={drill} />
         </div>
       </Section>
+      </div>
     </div>
   );
 }
