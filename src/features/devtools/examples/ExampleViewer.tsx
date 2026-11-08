@@ -66,9 +66,9 @@ function ExampleCard({ title, meta, note, json, entries, badge, changes, paired 
   const open = toggled ?? linkedHere;
   const tools = useMemo(() => [...toolsUsed(JSON.parse(json))], [json]);
   return (
-    <li className={`rounded-xl border bg-slate-900/40 ${paired ? "ml-6 border-lime-500/30" : "border-slate-800"}`}>
+    <li className={`overflow-hidden rounded-2xl border shadow-sm ${paired ? "ml-6 border-lime-500/30" : "border-slate-700"} bg-slate-900/60`}>
       <details open={open} onToggle={(e) => setOpen(e.currentTarget.open)}>
-        <summary className="flex cursor-pointer flex-col gap-1 px-3 py-2">
+        <summary className={`flex cursor-pointer flex-col gap-1 bg-slate-800/50 px-4 py-2.5 hover:bg-slate-800/80 ${open ? "border-b border-slate-700" : ""}`}>
           <span className="flex flex-wrap items-center gap-2">
             <span className="font-mono text-sm text-sky-200">{title}</span>
             {badge}
@@ -88,7 +88,7 @@ function ExampleCard({ title, meta, note, json, entries, badge, changes, paired 
             </span>
           )}
         </summary>
-        {open && <div className="border-t border-slate-800 p-3"><CommentsFor example={title}><ExamplePreview json={json} entries={entries} /></CommentsFor></div>}
+        {open && <div className="bg-slate-950/30 p-4"><CommentsFor example={title}><ExamplePreview json={json} entries={entries} /></CommentsFor></div>}
       </details>
     </li>
   );

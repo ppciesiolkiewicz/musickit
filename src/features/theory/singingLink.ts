@@ -1,6 +1,7 @@
 /**
- * The singing page's address: the key and the scale, and on the Melodies or Runs tab the tune being sung (and `full` while it is open
- * full screen), so a link opens the same tune in the same key: /theory/singing?melody=12&full=1&key=d&scale=major-ionian.
+ * The singing pages' address: the key and the scale, and on the melodies or runs page the tune being sung (and `full` while it
+ * is open full screen), so a link opens the same tune in the same key: /theory/singing/melodies?melody=12&full=1&key=d&scale=major-ionian.
+ * (/theory/singing with a melody redirects to the tune's page, for links from when they were tabs there.)
  * The voice and accuracy stay the singer's own.
  * Pure functions, no React (tested).
  */
@@ -14,13 +15,13 @@ export const DEFAULT_SINGING_SCALE = "major-ionian";
 export interface SingingLink {
   tonicPc: number;
   scale: string;
-  /** the tune, by number in the book; null for the Scales tab */
+  /** the tune, by number in the book; null on the scale page */
   melody: number | null;
   /** the tune opens full screen (only with a tune) */
   full: boolean;
 }
 
-/** The page's settings from its query; anything unreadable falls back to the defaults (C major, the Scales tab). */
+/** The page's settings from its query; anything unreadable falls back to the defaults (C major, no tune). */
 export function parseSingingLink(q: URLSearchParams): SingingLink {
   const scale = q.get("scale") ?? "";
   const n = Number(q.get("melody"));

@@ -22,6 +22,7 @@ describe("theory sections", () => {
     assert.equal(sectionFor("/theory/caged")?.label, "CAGED");
     assert.equal(sectionFor("/tuner")?.group, "tools");
     assert.equal(sectionFor("/theory/singing")?.group, "singing");
+    assert.equal(sectionFor("/theory/singing/runs")?.label, "Sing runs");
     assert.equal(sectionFor("/faq"), undefined);
   });
   it("the course is the first thing to learn", () => {

@@ -156,9 +156,11 @@ export type PocketStatus = {
   setTempo: (bpm: number) => void;
 };
 
-export default function PocketTools({ keyPc, className = "", stacked = false, clickAlways = false, onStatus, lines }: {
+export default function PocketTools({ keyPc, className = "", stacked = false, clickAlways = false, withDrone = true, onStatus, lines }: {
   keyPc: number;
   className?: string;
+  /** the drone's line (and its status); off for a page whose key the drone should not follow */
+  withDrone?: boolean;
   /** one line per tool at every width, for a narrow side column */
   stacked?: boolean;
   /** the click starts, muted, on the first press anywhere on the page (audio can't start before one), for a host that keeps time by it */
@@ -344,6 +346,7 @@ export default function PocketTools({ keyPc, className = "", stacked = false, cl
             <Slider min={MIN_BPM} max={MAX_BPM} step={1} value={snap.bpm} onChange={(bpm) => rig.setTempo(bpm)} size="sm" className="w-full max-w-64 px-1" aria-label="Tempo" title={`${snap.bpm} bpm`} />
           </div>
         </Tool>
+        {withDrone && <>
         <div role="separator" className="col-span-full my-1 border-t border-slate-800" />
 
         <Tool label="Drone">
@@ -359,6 +362,7 @@ export default function PocketTools({ keyPc, className = "", stacked = false, cl
               header={<p className="text-[11px] text-slate-500">The note moves to the page&apos;s key whenever the key changes.</p>} />
           </Popover>
         </Tool>
+        </>}
         {lines}
 
         {sequencer("drums", "Drums")}

@@ -24,6 +24,19 @@ function NoteText({ pieces, root }: { pieces: Piece[]; root: NoteRoot | null }) 
   );
 }
 
+/** A tool framed with its type named above it, in the review view (`SectionAside`), so the boundary between tool and text reads. */
+function ToolFrame({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <figure className="my-1 overflow-hidden rounded-xl border border-slate-600/80 bg-slate-950/60">
+      <figcaption className="flex items-center gap-2 border-b border-slate-700/70 bg-slate-800/60 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-300">
+        <span aria-hidden className="size-1.5 rounded-full bg-amber-400" />
+        {label}
+      </figcaption>
+      <div className="p-2">{children}</div>
+    </figure>
+  );
+}
+
 /**
  * An exercise's sections in the order the AI wrote them: headings, paragraphs, numbered steps and tools, top to bottom.
  * Each step (a heading and what follows it, or the intro) is an `ExerciseStep`: when its tools have more than one kind of
@@ -32,6 +45,8 @@ function NoteText({ pieces, root }: { pieces: Piece[]; root: NoteRoot | null }) 
  */
 export default function Sections({ sections: written, address = "ex" }: { sections: Section[]; /** which exercise, for a `SectionAside` */ address?: string }) {
   const aside = useContext(SectionAsideContext);
+  // the review view (a host gives asides): frames its tools and rules its steps; the plan page keeps the plain layout
+  const framed = !!aside;
   // the key picked per step (by its heading's index); a step not picked yet is in its first key, as written
   const [picked, setPicked] = useState<Record<number, number>>({});
   const keyOf = (head: number) => {
@@ -75,7 +90,10 @@ export default function Sections({ sections: written, address = "ex" }: { sectio
       case "tool": {
         // a new key remounts the tool, so what it was playing stops
         const head = sections.findLastIndex((h, j) => j < i && h.type === "heading");
-        return <div key={`${i}-${head < 0 ? "" : keyOf(head) ?? ""}`} className="py-1"><ExerciseTool tool={s.tool} /></div>;
+        const key = `${i}-${head < 0 ? "" : keyOf(head) ?? ""}`;
+        return framed
+          ? <ToolFrame key={key} label={s.tool.type.replace(/-/g, " ")}><ExerciseTool tool={s.tool} /></ToolFrame>
+          : <div key={key} className="py-1"><ExerciseTool tool={s.tool} /></div>;
       }
     }
   };
@@ -91,26 +109,30 @@ export default function Sections({ sections: written, address = "ex" }: { sectio
     else if (parts.length) parts[parts.length - 1].items.push(i);
     else parts.push({ head: null, items: [i] });
   });
+  // framed (the review view): each step after the first starts under a rule, so the parts of a singing exercise read apart
   return (
-    <div className="flex flex-col gap-7">
-      {parts.map((p) => {
+    <div className={framed ? "flex flex-col" : "flex flex-col gap-7"}>
+      {parts.map((p, k) => {
         const h = p.head === null ? null : sections[p.head];
-        if (!h || h.type !== "heading") return <ExerciseStep key={`intro-${p.items[0]}`}><div className="flex flex-col gap-3">{stepItems(p.items)}</div></ExerciseStep>;
+        const rule = framed && k > 0 ? "mt-7 border-t-2 border-slate-700 pt-6" : "";
+        if (!h || h.type !== "heading") return <div key={`intro-${p.items[0]}`} className={rule}><ExerciseStep><div className="flex flex-col gap-3">{stepItems(p.items)}</div></ExerciseStep></div>;
         return (
-          <ExerciseStep key={p.head}>
-            <div className="flex flex-col gap-3">
-              {withAside(
-                <h4 key={p.head} className="flex items-center gap-2.5 text-base font-semibold text-slate-50">
-                  <span aria-hidden className="size-2.5 shrink-0 rounded-full bg-sky-400 ring-4 ring-sky-400/15" />
-                  {h.text}
-                  {blockMinutes.has(p.head!) && <span className="rounded-full bg-slate-800 px-2 py-0.5 text-[11px] font-medium tabular-nums text-slate-300">{blockMinutes.get(p.head!)} min</span>}
-                </h4>,
-                p.head!,
-              )}
-              {h.keys && <KeyChoice keys={h.keys} value={keyOf(p.head!)!} onChange={(pc) => setPicked((k) => ({ ...k, [p.head!]: pc }))} />}
-              {p.items.length > 0 && <div className="ml-[4px] flex flex-col gap-3 border-l border-slate-700/70 pl-5">{stepItems(p.items)}</div>}
-            </div>
-          </ExerciseStep>
+          <div key={p.head} className={rule}>
+            <ExerciseStep>
+              <div className="flex flex-col gap-3">
+                {withAside(
+                  <h4 key={p.head} className={`flex items-center gap-2.5 font-semibold text-slate-50 ${framed ? "text-lg" : "text-base"}`}>
+                    <span aria-hidden className="size-2.5 shrink-0 rounded-full bg-sky-400 ring-4 ring-sky-400/15" />
+                    {h.text}
+                    {blockMinutes.has(p.head!) && <span className="rounded-full bg-slate-800 px-2 py-0.5 text-[11px] font-medium tabular-nums text-slate-300">{blockMinutes.get(p.head!)} min</span>}
+                  </h4>,
+                  p.head!,
+                )}
+                {h.keys && <KeyChoice keys={h.keys} value={keyOf(p.head!)!} onChange={(pc) => setPicked((k) => ({ ...k, [p.head!]: pc }))} />}
+                {p.items.length > 0 && <div className="ml-[4px] flex flex-col gap-3 border-l border-slate-700/70 pl-5">{stepItems(p.items)}</div>}
+              </div>
+            </ExerciseStep>
+          </div>
         );
       })}
     </div>

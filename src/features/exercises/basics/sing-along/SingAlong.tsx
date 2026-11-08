@@ -4,7 +4,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExter
 import { createPortal } from "react-dom";
 import Icon from "@/components/Icon";
 import InputChip from "@/components/InputChip";
-import { DropdownSection } from "@/components/ui";
+import { DropdownSection, Hint, HintToggle } from "@/components/ui";
 import ToolSettings, { Volume } from "@/components/practice/ToolSettings";
 import { useExerciseSetting } from "@/components/practice/exerciseSettings";
 import { useAccuracy } from "@/features/theory/useAccuracy";
@@ -66,8 +66,10 @@ const LAYERS: { id: Layer; label: string; icon: "piano" | "music" | "metronome";
  * as a piano roll that keeps the line the voice took. Full screen is a page modal (Esc closes it), drawn big, the notes
  * sliding under a bar that stays put so the voice dot holds its place. It is the same player moved over the page, so a
  * tune playing plays on into full screen and back out of it. Key it by the tune: a new one starts over (a new tempo does not).
+ * The (?) arms a shared `HintProvider` (from a host up the tree, e.g. the singing page): once armed, hovering a
+ * control (or tapping it, on touch) shows what it does instead of firing it.
  */
-export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, tapped, onNote, info, cents: centsProp, lagMs, full: fullProp, onFull, nav, tools, settings }: {
+export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, tapped, onNote, info, cents: centsProp, lagMs, full: fullProp, onFull, nav, tools, settings, playAhead }: {
   notes: PlacedNote[];
   chords: MelodyChord[];
   /** the metronome heard from the start; off by default */
@@ -92,6 +94,8 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
   tools?: ReactNode;
   /** settings shown on a line under the buttons while full screen (tempo, accuracy, …) */
   settings?: ReactNode;
+  /** the play-ahead slider, in the settings dropdown (how far the moving bar runs ahead of the voice dot) */
+  playAhead?: ReactNode;
 }) {
   const total = notes[notes.length - 1].at + notes[notes.length - 1].beats;
   const { focus, ...sa } = useSingAlong({ notes, chords, beatMs, total, click });
@@ -153,6 +157,19 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
     if (wasFull.current && !full) root.current?.scrollIntoView({ block: "nearest" });
     wasFull.current = full;
   }, [full]);
+  // full screen never scrolls: the tune shrinks until it fits the room left under the buttons
+  const body = useRef<HTMLDivElement | null>(null);
+  useLayoutEffect(() => {
+    const el = body.current;
+    if (full && el && el.scrollHeight > el.clientHeight + 1 && scale > 0.6) setScale(scale * 0.94);
+  }, [full, scale, look, notes, chords]);
+  // the page behind stays put while full screen is up
+  useEffect(() => {
+    if (!full) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = prev; };
+  }, [full]);
   const size = full ? scale : 1;
   const pass = sa.playing ? passAt(sa.frame.passes, sa.frame.s) : undefined;
   const at = pass ? pass.from + sa.frame.s - pass.start : null;
@@ -160,53 +177,76 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
 
   const view = (
     <div ref={setRoot} role={full ? "dialog" : undefined} aria-modal={full || undefined} aria-label={full ? "Sing along" : undefined}
-      className={full ? `fixed inset-0 z-[70] flex flex-col gap-4 overflow-hidden bg-slate-950 p-4 sm:p-6 ${nav ? "px-12 sm:px-16" : ""}` : "flex flex-col gap-2"}>
+      className={full ? `fixed inset-0 z-[70] flex flex-col gap-4 overflow-hidden bg-slate-950 p-4 pb-2 sm:p-6 sm:pb-3 ${nav ? "px-12 sm:px-16" : ""}` : "flex flex-col gap-2"}>
       {full && nav && <MarginArrow side="left" onClick={nav.prev} />}
       {full && nav && <MarginArrow side="right" onClick={nav.next} />}
+      <div className="flex items-center gap-1.5">
+        <div className="min-w-0 flex-1 text-xs font-medium text-slate-200">
+          {typeof info === "function" ? info(at) : info}{sa.status === "denied" ? " · microphone blocked in the browser" : ""}
+        </div>
+        <HintToggle />
+        <Hint title="Full screen" description="Enlarges the tune. ← and → move between tunes, Esc closes it.">
+          <IconButton on={full} title={full ? "Close full screen (Esc)" : "Full screen"} onClick={() => setFull(!full)}>
+            <Icon name={full ? "minimize" : "maximize"} size={15} />
+          </IconButton>
+        </Hint>
+      </div>
+      <div aria-hidden className="my-1 h-px w-1/3 bg-slate-700" />
       <div className="flex flex-wrap items-center gap-1.5 text-xs text-slate-400">
-        <span className="flex items-center border-r border-slate-800 pr-2"><Volume /></span>
-        <IconButton on={sa.playing} title={sa.playing ? "Play from the start" : "Play"} onClick={() => void sa.play()}>
-          <Icon name="play" size={15} />
-        </IconButton>
-        <IconButton title="Stop" onClick={sa.stop}>
-          <Icon name="square" size={14} />
-        </IconButton>
-        <IconButton on={sa.mic} tone="emerald" title={sa.mic ? "Stop microphone" : "Start microphone"} onClick={sa.toggleMic}>
-          <Icon name="mic" size={15} />
-        </IconButton>
-        <InputChip status={sa.status} />
+        <Hint title="Play" description="Starts the tune from the start.">
+          <IconButton on={sa.playing} title={sa.playing ? "Play from the start" : "Play"} onClick={() => void sa.play()}>
+            <Icon name="play" size={15} />
+          </IconButton>
+        </Hint>
+        <Hint title="Stop" description="Ends the tune.">
+          <IconButton title="Stop" onClick={sa.stop}>
+            <Icon name="square" size={14} />
+          </IconButton>
+        </Hint>
+        <Hint title="Mic" description="Listens to your voice and marks the note you're on.">
+          <IconButton on={sa.mic} tone="emerald" title={sa.mic ? "Stop microphone" : "Start microphone"} onClick={sa.toggleMic}>
+            <Icon name="mic" size={15} />
+          </IconButton>
+        </Hint>
+        <Hint title="Volume" description="Sets every sound in the app, not just this tune.">
+          <span className="ml-1 flex items-center border-l border-slate-800 pl-2"><Volume /></span>
+        </Hint>
+        <Hint title="Input" description="The microphone the app listens to. Tap to pick another one and see its level.">
+          <InputChip status={sa.status} />
+        </Hint>
         {full && nav?.label && <span className="tabular-nums text-slate-300">{nav.label}</span>}
-        <span className="ml-1">{typeof info === "function" ? info(at) : info}{sa.status === "denied" ? " · microphone blocked in the browser" : ""}</span>
         <span className="ml-auto" />
-        <ToolSettings volume={false} accuracy view more={<>
-          <DropdownSection title="Heard">
-            <div role="group" aria-label="Heard" className="flex w-fit overflow-hidden rounded-lg border border-slate-700">
-              {LAYERS.filter((l) => l.id !== "chords" || chords.length).map((l) => {
-                const on = sa.heard[l.id];
-                return (
-                  <button key={l.id} type="button" aria-pressed={on} onClick={() => sa.toggleHeard(l.id)}
-                    title={on ? `Mute ${l.what} (the bar keeps going)` : `Hear ${l.what}`}
-                    className={`flex items-center gap-1 ${seg(on)} ${on ? "" : "line-through decoration-slate-500"}`}>
-                    <Icon name={l.icon} size={13} />{l.label}
-                  </button>
-                );
-              })}
-            </div>
-          </DropdownSection>
-          {tools && <DropdownSection title="Share">{tools}</DropdownSection>}
-        </>} />
-        <IconButton on={full} title={full ? "Close full screen (Esc)" : "Full screen"} onClick={() => setFull(!full)}>
-          <Icon name={full ? "minimize" : "maximize"} size={15} />
-        </IconButton>
+        <Hint title="Sound and view settings" description="Accuracy, melody view, what is heard, play-ahead, share.">
+          <ToolSettings volume={false} accuracy view more={<>
+            <DropdownSection title="Playback">
+              <div role="group" aria-label="Playback" className="flex w-fit overflow-hidden rounded-lg border border-slate-700">
+                {LAYERS.filter((l) => l.id !== "chords" || chords.length).map((l) => {
+                  const on = sa.heard[l.id];
+                  return (
+                    <button key={l.id} type="button" aria-pressed={on} onClick={() => sa.toggleHeard(l.id)}
+                      title={on ? `Mute ${l.what} (the bar keeps going)` : `Hear ${l.what}`}
+                      className={`flex items-center gap-1 ${seg(on)} ${on ? "" : "line-through decoration-slate-500"}`}>
+                      <Icon name={l.icon} size={13} />{l.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </DropdownSection>
+            {playAhead && <DropdownSection title="Play-ahead">{playAhead}</DropdownSection>}
+            {tools && <DropdownSection title="Share">{tools}</DropdownSection>}
+          </>} />
+        </Hint>
       </div>
       {full && settings && <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-slate-400">{settings}</div>}
-      <div className="flex items-center gap-2">
-        <IconButton on={sa.loop} tone="sky" title={sa.loop ? "Stop looping" : "Loop a part of the tune"} onClick={() => sa.setLoop(!sa.loop)}>
-          <Icon name="repeat" size={15} />
-        </IconButton>
+      <div className="flex items-center gap-4">
+        <Hint title="Loop" description="Repeats a part of the tune. Drag its markers on the strip.">
+          <IconButton on={sa.loop} tone="sky" title={sa.loop ? "Stop looping" : "Loop a part of the tune"} onClick={() => sa.setLoop(!sa.loop)}>
+            <Icon name="repeat" size={15} />
+          </IconButton>
+        </Hint>
         {sa.loop && <div className="min-w-0 flex-1"><LoopStrip key={total} notes={notes} total={total} region={sa.region} loop={sa.loop} at={at} onRegion={sa.setRegion} /></div>}
       </div>
-      <div className={full ? "flex min-h-0 flex-1 touch-pan-y flex-col overflow-y-auto" : "contents"}
+      <div ref={body} className={full ? "flex min-h-0 flex-1 touch-pan-y flex-col overflow-hidden" : "contents"}
         onPointerDown={full ? swipeStart : undefined} onPointerUp={full ? swipeEnd : undefined} onPointerCancel={() => { swipe.current = null; }}>
         <div className={full ? "my-auto" : "contents"}>
         {look === "staff" ? (

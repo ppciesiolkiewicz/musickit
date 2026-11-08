@@ -1,26 +1,23 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { BarRow, ScaleSettingsBar, WithSettings } from "@/components/chordKit/ScaleSettings";
 import { useMicPitch } from "@/components/practice/useMicPitch";
 import Icon from "@/components/Icon";
-import { Button, Checkbox, Select, Slider } from "@/components/ui";
+import { Button, Hint, HintProvider, Select, Slider } from "@/components/ui";
 import { createSmoother, type Pitch } from "@/features/tuner/pitch";
 import { getAudioContext, getSharedPiano, midiToName, onSilence, playSequence, silence, wakeAudio } from "@/features/sound";
 import { MAX_BPM, MIN_BPM, type PocketStatus } from "@/features/instruments";
 import { ACCURACIES, VOICES, buildLadder, clefFor, hzToMidi, savedVoice, scaleRun, tuneLadderFor, type Ladder, type Range, type Voice } from "@/features/theory/singing";
-import { BOOK, DIFFICULTIES, RUNS, placeRun, placeTune, runPasses, type BookTune, type PlacedNote } from "@/features/theory/singingMelodies";
+import { BOOK, DIFFICULTIES, RUNS, runPasses, type BookTune, type PlacedNote } from "@/features/theory/singingMelodies";
 import { harmoniseRun, harmoniseTune, type MelodyChord } from "@/features/theory/melodyChords";
 import { useAccuracy } from "@/features/theory/useAccuracy";
 import { singingQuery, type SingingLink } from "@/features/theory/singingLink";
-import { levelSemis, type IntervalDirection } from "@/features/theory/singingIntervals";
-import { EAR_LEVELS } from "@/lib/practice/earGame";
 import SingingStaff from "./SingingStaff";
 import MelodyFeed from "./MelodyFeed";
 import { DOT_LAG_MS } from "./MelodyStaff";
 import MicButton from "./MicButton";
 import InputChip, { micStatusMessage } from "@/components/InputChip";
-import IntervalDrill, { type IntervalPrompt } from "./IntervalDrill";
 import { panel, writeQuery } from "@/components/practice/shared";
 
 /** null readings in a row before the voice counts as stopped (about 100 ms), so one dropped frame doesn't break the line */
@@ -34,33 +31,28 @@ const RESTS = [0, 1, 2, 3, 4];
 const VOICE_KEY = "singing.range";
 /** where the play-ahead picked last is kept, in ms (a testing knob: how far the bar runs ahead of the voice dot) */
 const LAG_KEY = "singing.lag";
-/** whether the piano plays the tunes' chords (on unless turned off) */
-const CHORDS_KEY = "singing.chords";
 const MAX_LAG_MS = 1000;
 const savedLag = (v: unknown): number | null => (typeof v === "number" && v >= 0 && v <= MAX_LAG_MS ? v : null);
-type Tab = "scales" | "melodies" | "runs" | "intervals";
-const TABS: { id: Tab; label: string }[] = [{ id: "scales", label: "Scales" }, { id: "melodies", label: "Melodies" }, { id: "runs", label: "Runs" }, { id: "intervals", label: "Intervals" }];
-const DIRECTIONS: { id: IntervalDirection; label: string }[] = [{ id: "up", label: "Up" }, { id: "down", label: "Down" }, { id: "both", label: "Both" }];
-const PROMPTS: { id: IntervalPrompt; label: string; title: string }[] = [
-  { id: "interval", label: "Both notes", title: "Hear the interval, then sing it back" },
-  { id: "root", label: "Root only", title: "Hear only the root and find the other note yourself" },
-];
-const ALL = [...BOOK, ...RUNS];
+/** which singing page: the scale, the melody book or the runs book (each its own page in the Singing menu) */
+export type SingingMode = "scales" | "melodies" | "runs";
 
 /**
- * Sing the notes of a scale against its staff: pick the key, the scale and the voice type in the side column (with the
- * drone and the metronome from the scales pages, and every drill's own settings as dropdowns). Tap a note to hear it, or
- * play the scale up and down on the metronome's tempo, then switch the mic on and a dot follows your voice over the notes.
- * The Melodies tab is the melody book (written tunes in the key that end on a whole-note Do, in book order, filtered by
- * difficulty), each card the plan's sing-along player (`SingAlong`): play, stop, the mic, a loop over a part, staff or
- * piano roll, at the page's tempo. Full screen holds one tune with arrows on its margins (and ←/→ or a swipe) to step
- * through the tunes listed. The address keeps the key, the scale and the tune picked (and whether it is open full screen),
- * so a copied link (or a card's share button, which always opens full screen) opens the same. The Runs tab is the same with
- * the runs book. The Intervals tab puts a root from the scale on the staff and names an interval to sing from it: the
- * interval plays, then the mic listens for the other note.
+ * Sing against the staff: pick the key, the scale and the voice type in the side column (with the drone and the metronome
+ * from the scales pages, and the page's own settings as dropdowns). `mode` picks the page:
+ * - "scales": tap a note to hear it, or play the scale up and down on the metronome's tempo, then switch the mic on and a
+ *   dot follows your voice over the notes.
+ * - "melodies": the melody book (written tunes in the key that end on a whole-note Do, in book order, filtered by
+ *   difficulty), each card the plan's sing-along player (`SingAlong`): play, stop, the mic, a loop over a part, staff or
+ *   piano roll, at the page's tempo. Full screen holds one tune with arrows on its margins (and ←/→ or a swipe) to step
+ *   through the tunes listed. The address keeps the key, the scale and the tune picked (and whether it is open full
+ *   screen), so a copied link (or a card's share button, which always opens full screen) opens the same.
+ * - "runs": the same with the runs book.
  */
-export default function SingingApp({ initial }: { initial: SingingLink }) {
-  const linked = ALL.find((t) => t.n === initial.melody);
+export default function SingingApp({ mode, initial, lead }: { mode: SingingMode; initial: SingingLink; lead?: ReactNode }) {
+  const tab = mode;
+  const book = tab === "runs" ? RUNS : BOOK;
+  const tuneTab = tab === "melodies" || tab === "runs";
+  const linked = tuneTab ? book.find((t) => t.n === initial.melody) : undefined;
   const [tonicPc, setTonicPc] = useState(initial.tonicPc);
   const [scale, setScale] = useState(initial.scale);
   const [voice, setVoice] = useState<Voice>("soprano");
@@ -68,27 +60,18 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
   const [cents, pickAccuracy] = useAccuracy();
   // how far the bar runs ahead of the voice dot on a melody
   const [lagMs, setLagMs] = useState(DOT_LAG_MS);
-  // the piano's chords under the tunes
-  const [chords, setChords] = useState(true);
   // the last voice and play-ahead come back after hydration; a pick is kept as it is made
   useEffect(() => {
     let saved: Voice | null = null;
     let lag: number | null = null;
-    let withChords: unknown = null;
     try {
       saved = savedVoice(JSON.parse(window.localStorage.getItem(VOICE_KEY) ?? "null"));
       lag = savedLag(JSON.parse(window.localStorage.getItem(LAG_KEY) ?? "null"));
-      withChords = JSON.parse(window.localStorage.getItem(CHORDS_KEY) ?? "null");
     } catch { /* storage blocked */ }
     // eslint-disable-next-line react-hooks/set-state-in-effect -- restoring the saved picks after hydration
     if (saved) setVoice(saved);
     if (lag !== null) setLagMs(lag);
-    if (withChords === false) setChords(false);
   }, []);
-  const pickChords = (on: boolean) => {
-    setChords(on);
-    try { window.localStorage.setItem(CHORDS_KEY, JSON.stringify(on)); } catch { /* storage blocked */ }
-  };
   const pickLag = (ms: number) => {
     setLagMs(ms);
     try { window.localStorage.setItem(LAG_KEY, JSON.stringify(ms)); } catch { /* storage blocked */ }
@@ -105,18 +88,10 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
   };
   const range = VOICES[voice];
   const [rest, setRest] = useState(2);
-  const [tab, setTab] = useState<Tab>(!linked ? "scales" : RUNS.includes(linked) ? "runs" : "melodies");
-  const book = tab === "runs" ? RUNS : BOOK;
-  const tuneTab = tab === "melodies" || tab === "runs";
-  // the Intervals tab: the ear-training level, which way the interval goes, and what is played before singing
-  const [intervalLevel, setIntervalLevel] = useState(1);
-  const [direction, setDirection] = useState<IntervalDirection>("up");
-  const [prompt, setPrompt] = useState<IntervalPrompt>("interval");
-  const semis = useMemo(() => levelSemis(intervalLevel), [intervalLevel]);
   // the tune being sung, by number, and the difficulty whose tunes are listed ("all" for the whole book); a linked tune shows
   // under its own difficulty
-  const [active, setActive] = useState(linked?.n ?? 1);
-  const [level, setLevel] = useState<number | "all">(linked?.difficulty ?? 0);
+  const [active, setActive] = useState(linked?.n ?? book[0].n);
+  const [level, setLevel] = useState<number | "all">(linked?.difficulty ?? book[0].difficulty);
   // one melody full screen, in the page (not the browser's full screen); a shared link opens its tune this way
   const [focus, setFocus] = useState(!!linked && initial.full);
   useEffect(
@@ -134,16 +109,15 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
   // a run spans the voice whatever the key picked: its last pass tops out on the range's top, its staff in its first pass's key
   const placed = useMemo(() => {
     const ladderIn = (pc: number, r: Range) => tuneLadderFor(buildLadder(scale, pc, r) ?? buildLadder("major-ionian", pc, r)!, pc, r);
-    const none: MelodyChord[] = [];
     return new Map<number, { notes: PlacedNote[]; chords: MelodyChord[]; ladder: Ladder }>([
-      ...BOOK.map((t) => [t.n, { ...(chords ? harmoniseTune(t.notes, tuneLadder, range) : { notes: placeTune(t.notes, tuneLadder, range), chords: none }), ladder: tuneLadder }] as const),
+      ...BOOK.map((t) => [t.n, { ...harmoniseTune(t.notes, tuneLadder, range), ladder: tuneLadder }] as const),
       ...RUNS.map((t) => [t.n, {
         // a bar of the first key's I and V before the run, as before each key change, so the key is heard before the singing starts
-        ...(chords ? harmoniseRun(t.notes, t.keys!, ladderIn, range, { intro: true }) : { notes: placeRun(t.notes, t.keys!, ladderIn, range), chords: none }),
+        ...harmoniseRun(t.notes, t.keys!, ladderIn, range, { intro: true }),
         ladder: ladderIn(runPasses(t.notes, t.keys!, ladderIn, range)[0].pc, range),
       }] as const),
     ]);
-  }, [tuneLadder, range, scale, chords]);
+  }, [tuneLadder, range, scale]);
   const place = useCallback((t: BookTune) => placed.get(t.n)!.notes, [placed]);
   const chordsOf = useCallback((t: BookTune) => placed.get(t.n)!.chords, [placed]);
   const ladderOf = useCallback((t: BookTune) => placed.get(t.n)!.ladder, [placed]);
@@ -155,15 +129,6 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
     setLevel(lv);
     const shown = book.filter((t) => lv === "all" || t.difficulty === lv);
     if (shown.length && !shown.some((t) => t.n === active)) setActive(shown[0].n);
-  };
-  // moving between the melodies and the runs starts on the other book's first tune, under its difficulty
-  const switchTab = (id: Tab) => {
-    setTab(id);
-    const next = id === "runs" ? RUNS : id === "melodies" ? BOOK : null;
-    if (next && !next.some((t) => t.n === active)) {
-      setActive(next[0].n);
-      setLevel(next[0].difficulty);
-    }
   };
 
   const pitch = useRef<number | null>(null);
@@ -261,12 +226,11 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
   const prev = useCallback(() => step(-1), [step]);
   const next = useCallback(() => step(1), [step]);
 
-  // a tune's card holds its own mic; the page's mic is the scale's and the intervals'
+  // a tune's card holds its own mic; the page's mic is the scale's
   const message =
-    tuneTab ? "Press play on a melody: a bar runs over it and loops, the mic listens, and the dot turns green on the note under the bar, red on another. The loop button sets the part that repeats."
+    tuneTab ? `Press play on a ${tab === "runs" ? "run" : "melody"}: a bar runs over it and loops, the mic listens, and the dot turns green on the note under the bar, red on another. The loop button sets the part that repeats.`
     : micStatusMessage(status)
-    ?? (tab === "intervals" ? null
-    : status === "on" ? "Listening. Sing the scale up from the root: the dot turns green on a note of the scale, red on a note outside it."
+    ?? (status === "on" ? "Listening. Sing the scale up from the root: the dot turns green on a note of the scale, red on a note outside it."
     : "Tap a note to hear it, or play the scale up and down on the metronome's tempo. Then press Start microphone and sing it back.");
 
   const voiceSelect = (
@@ -280,6 +244,7 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
   const difficulties = [...levels.map((i) => ({ value: i as number | "all", label: DIFFICULTIES[i].title })), { value: "all" as const, label: "All" }];
 
   return (
+    <HintProvider>
     <div className="flex flex-col gap-5">
       <WithSettings
         side
@@ -288,71 +253,51 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
             scale: { slug: scale, onPick: setScale },
             ...(tab === "runs" ? { keys: false as const } : {}),
             labels: false,
-            pocket: { clickAlways: true, onStatus: setPocket },
+            // a tune or run already carries its own harmony (the piano's chords under it); a drone against that only fights it
+            pocket: { clickAlways: true, onStatus: setPocket, ...(tuneTab ? { drone: false as const } : {}) },
             rows: <>
               <BarRow label="Voice">{voiceSelect}</BarRow>
-              <BarRow label="Accuracy">{accuracySelect}</BarRow>
+              {/* the tune tools have their own accuracy in their settings dropdown */}
+              {!tuneTab && <BarRow label="Accuracy">{accuracySelect}</BarRow>}
               {/* the settings of the drill picked, under the ones every drill shares */}
               {tab === "scales" && (
                 <BarRow label="Top rest">
                   <Select size="sm" value={rest} onChange={setRest} aria-label="Rest at the top" options={RESTS.map((n) => ({ value: n, label: n === 0 ? "None" : `${n} beat${n > 1 ? "s" : ""}` }))} />
                 </BarRow>
               )}
-              {tab === "intervals" && (
-                <>
-                  <BarRow label="Level">
-                    <Select size="sm" value={intervalLevel} onChange={setIntervalLevel} aria-label="Level" options={EAR_LEVELS.map((l) => ({ value: l.n, label: `${l.n} · ${l.label}` }))} />
-                  </BarRow>
-                  <BarRow label="Direction">
-                    <Select size="sm" value={direction} onChange={setDirection} aria-label="Direction" options={DIRECTIONS.map((d) => ({ value: d.id, label: d.label }))} />
-                  </BarRow>
-                  <BarRow label="Played">
-                    <Select size="sm" value={prompt} onChange={setPrompt} aria-label="Played first" title={PROMPTS.find((p) => p.id === prompt)?.title} options={PROMPTS.map((p) => ({ value: p.id, label: p.label }))} />
-                  </BarRow>
-                </>
-              )}
-              {tuneTab && (
-                <BarRow label="Difficulty">
-                  <Select size="sm" value={level} onChange={filter} aria-label="Difficulty" title={level === "all" ? undefined : DIFFICULTIES[level].hint} options={difficulties} />
-                </BarRow>
-              )}
-              {/* the mic's timing for the moving bar */}
-              {tuneTab && <BarRow label="Play-ahead">{lagSlider}</BarRow>}
-              {tuneTab && (
-                <BarRow label="Chords">
-                  <Checkbox checked={chords} onChange={pickChords} title="The piano plays a chord a bar under the tune">Piano chords under the tune</Checkbox>
-                </BarRow>
-              )}
             </>,
           }} />
         }
       >
-        {/* which drill; its settings are in the side column with the rest */}
-        <div role="tablist" aria-label="Drill" className="flex flex-wrap gap-1 rounded-xl border border-slate-800 bg-slate-900/60 p-1">
-          {TABS.map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              role="tab"
-              aria-selected={tab === t.id}
-              onClick={() => switchTab(t.id)}
-              className={`whitespace-nowrap rounded-lg px-3 py-1.5 text-sm transition sm:px-4 ${tab === t.id ? "bg-sky-500/20 text-sky-100" : "text-slate-400 hover:text-slate-200"}`}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
+        {/* the page's lead-in sits in the content column, so the settings column starts at the top beside it */}
+        {lead}
+        {tuneTab && (
+          <div role="group" aria-label="Filters" className="flex flex-wrap items-center gap-2 text-xs text-slate-400">
+            <span className="uppercase tracking-wider text-slate-500">Difficulty</span>
+            <Select size="sm" value={level} onChange={filter} aria-label="Difficulty" title={level === "all" ? undefined : DIFFICULTIES[level].hint} options={difficulties} />
+          </div>
+        )}
         <section className={`${panel} flex flex-col gap-3`}>
           <div className="flex flex-wrap items-center gap-3">
-            <h2 className="text-base font-medium text-slate-100">{tab === "runs" ? `Runs across the ${range.label.toLowerCase()} range` : tab === "melodies" ? `Melodies in ${tuneLadder.title}` : tab === "intervals" ? `Intervals from ${ladder.title}` : ladder.title}</h2>
+            <h2 className="text-base font-medium text-slate-100">{tab === "runs" ? `Runs across the ${range.label.toLowerCase()} range` : tab === "melodies" ? `Melodies in ${tuneLadder.title}` : ladder.title}</h2>
             {tab === "scales" && (
-              <Button size="sm" pressed={running} onClick={() => void play()} className={`inline-flex items-center gap-1.5 ${running ? "!border-sky-400/70 !bg-sky-500/20 !text-sky-100" : ""}`}>
-                <Icon name={running ? "square" : "play"} size={13} fill={running} />
-                {running ? "Stop the scale" : `Play the scale · ${bpm} bpm`}
-              </Button>
+              <Hint title={running ? "Stop" : "Play the scale"} description={running ? "Ends the scale." : "Runs it up and down on the metronome's tempo."}>
+                <Button size="sm" pressed={running} onClick={() => void play()} className={`inline-flex items-center gap-1.5 ${running ? "!border-sky-400/70 !bg-sky-500/20 !text-sky-100" : ""}`}>
+                  <Icon name={running ? "square" : "play"} size={13} fill={running} />
+                  {running ? "Stop the scale" : `Play the scale · ${bpm} bpm`}
+                </Button>
+              </Hint>
             )}
-            {tab === "scales" && <MicButton on={mic} onClick={toggleMic} />}
-            {tab === "scales" && <InputChip status={status} />}
+            {tab === "scales" && (
+              <Hint title="Mic" description="Listens to your voice singing the scale.">
+                <MicButton on={mic} onClick={toggleMic} />
+              </Hint>
+            )}
+            {tab === "scales" && (
+              <Hint title="Input" description="The microphone the app listens to. Tap to pick another one and see its level.">
+                <InputChip status={status} />
+              </Hint>
+            )}
             {message && <p className="min-w-0 basis-full text-sm sm:basis-0 sm:flex-1 text-slate-400" aria-live="polite">{message}</p>}
           </div>
           {tuneTab ? (
@@ -367,6 +312,7 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
               active={active}
               cents={cents}
               lagMs={lagMs}
+              playAhead={lagSlider}
               tapped={tapped}
               onNote={(t, i) => void tapTune(t, i)}
               onPick={(t) => setActive(t.n)}
@@ -381,19 +327,16 @@ export default function SingingApp({ initial }: { initial: SingingLink }) {
                   <span className="w-14 tabular-nums text-slate-200">{bpm} bpm</span>
                 </label>
                 <span className="flex items-center gap-1.5"><span className="uppercase tracking-wider text-slate-500">Voice</span>{voiceSelect}</span>
-                <span className="flex items-center gap-1.5"><span className="uppercase tracking-wider text-slate-500">Accuracy</span>{accuracySelect}</span>
-                <label className="flex items-center gap-2"><span className="uppercase tracking-wider text-slate-500">Play-ahead</span>{lagSlider}</label>
               </>}
               linkTo={linkTo}
               reveal={linked?.n ?? null}
             />
-          ) : tab === "intervals" ? (
-            <IntervalDrill ladder={ladder} range={range} clef={clef} pitch={pitch} cents={cents} semis={semis} direction={direction} prompt={prompt} mic={mic} micStatus={status} onMic={toggleMic} />
           ) : (
             <SingingStaff ladder={ladder} clef={clef} pitch={pitch} played={played} onNote={(i) => void tap(i)} cents={cents} />
           )}
         </section>
       </WithSettings>
     </div>
+    </HintProvider>
   );
 }

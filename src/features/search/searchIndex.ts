@@ -18,8 +18,14 @@ export interface SearchEntry {
 
 const PAGES: SearchEntry[] = [
   { href: "/", label: "Home", desc: "The attunr front page", icon: "layout-dashboard", group: "Pages" },
-  { href: "/tuner", label: "Tuner", desc: "Tune your guitar", icon: "gauge", group: "Pages", words: "tune pitch" },
-  ...THEORY_SECTIONS.map((s) => ({ href: s.href, label: s.label, desc: s.desc, icon: s.icon, group: "Pages" })),
+  ...THEORY_SECTIONS.map((s) => ({
+    href: s.href,
+    label: s.label,
+    desc: s.desc,
+    icon: s.icon,
+    group: "Pages",
+    ...(s.href === "/tuner" ? { words: "tune pitch" } : {}),
+  })),
   { href: "/teachers", label: "For teachers", desc: "attunr in your lessons", icon: "graduation-cap", group: "Pages", words: "teach lesson" },
   { href: "/creator", label: "Creator", desc: "Build your own exercises", icon: "pencil", group: "Pages" },
   { href: "/faq", label: "FAQ", desc: "Answers to common questions", icon: "info", group: "Pages", words: "help questions microphone headphones refund" },

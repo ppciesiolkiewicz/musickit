@@ -123,6 +123,8 @@ export type SettingsConfig = {
   pocket?: false | {
     /** the click runs, muted, from the first press on the page (the singing page keeps its bar on it) */
     clickAlways?: boolean;
+    /** the drone's line, on unless false (a page whose sound has no key to drone on, like a melody, leaves it off) */
+    drone?: false;
     /** their status (tempo, the next beat) for the host as well; keep it stable (a state setter) */
     onStatus?: (s: PocketStatus) => void;
   };
@@ -199,13 +201,13 @@ export function ScaleSettingsBar({ tonicPc, onTonic, side = false, config = {} }
         // a rule under the header while the settings show, to set it apart from them
         className={`group flex items-center gap-2 rounded-md text-left text-xs focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${open ? "rounded-b-none border-b border-slate-800 pb-2.5 sm:pb-3" : ""} ${side ? "lg:pointer-events-none lg:rounded-b-none lg:border-b lg:border-slate-800 lg:pb-3" : ""}`}
       >
-        <span className="text-[11px] uppercase tracking-wider text-slate-500">Settings</span>
+        <span className="text-[11px] font-bold uppercase tracking-wider text-slate-100">Settings</span>
         <span className="shrink-0 truncate text-sm font-medium text-slate-100">{keyName}{scaleName ? ` ${scaleName}` : ""}</span>
         {/* the rest of the settings at a glance, as room allows */}
         <span className={`flex min-w-0 flex-1 items-center gap-1.5 overflow-hidden whitespace-nowrap text-slate-400 ${side ? "lg:invisible" : ""}`}>
           {labelsRow && labelName && <Fact from="sm">{labelName}</Fact>}
           {status && <Fact from="md">{status.bpm} bpm</Fact>}
-          {status && <Fact from="lg">Drone {status.drone}</Fact>}
+          {status && pocket?.drone !== false && <Fact from="lg">Drone {status.drone}</Fact>}
           {status && status.playing.length > 0 && (
             <Fact className="!border-emerald-400/50 !text-emerald-200">
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" aria-hidden />
@@ -242,7 +244,7 @@ export function ScaleSettingsBar({ tonicPc, onTonic, side = false, config = {} }
           )}
         </div>
         {/* play-along tools: under the settings on narrow screens, on the right once there is room */}
-        {pocket && <PocketTools keyPc={tonicPc} onStatus={onPocket} clickAlways={pocket.clickAlways} stacked={side} lines={config.input && <InputLine />} className={`border-t border-slate-800 pt-2 ${side ? "" : "xl:border-l xl:border-t-0 xl:pl-4 xl:pt-0"}`} />}
+        {pocket && <PocketTools keyPc={tonicPc} onStatus={onPocket} clickAlways={pocket.clickAlways} withDrone={pocket.drone !== false} stacked={side} lines={config.input && <InputLine />} className={`border-t border-slate-800 pt-2 ${side ? "" : "xl:border-l xl:border-t-0 xl:pl-4 xl:pt-0"}`} />}
         {!pocket && config.input && <div className="border-t border-slate-800 pt-2"><InputLine /></div>}
       </div>
     </div>
