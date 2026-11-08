@@ -14,7 +14,7 @@ import { cagedQualityOf as cagedQuality, describeParts } from "./families";
 
 export { cagedQualityOf } from "./families";
 
-/** Every chord in the key · Modes with the same notes · Scale on guitar */
+/** Every chord in the key · Relative modes · Scale on guitar */
 export type ScaleSection = "chords" | "relatives" | "guitar";
 
 /** The parts of a widget's key changed on the widget: the master no longer moves them. */
@@ -76,10 +76,10 @@ export interface PaletteResult {
   /** a subsection inside the group ("On the fretboard"), shown as a smaller heading */
   sub?: string;
   /**
-   * `add` puts the subject on the stage; `command` runs a studio command; `family` offers a widget family (`families.ts`) in `key`,
-   * its props to pick next. `another` marks the family's "Add another" row: a further widget beside the ones on the stage.
+   * `add` puts the subject on the stage; `command` runs a studio command; `family` offers a widget family (`families.ts`) in `key`:
+   * the palette opens it in place, its props to pick and its widgets on the stage.
    */
-  action: { type: "add"; subject: Subject } | { type: "command"; command: StudioCommand } | { type: "family"; familyId: string; key: KeyChoice; another?: boolean };
+  action: { type: "add"; subject: Subject } | { type: "command"; command: StudioCommand } | { type: "family"; familyId: string; key: KeyChoice };
 }
 
 /** The palette's categories, in the order it lists them, with the name on each separator. */
@@ -97,7 +97,7 @@ export type PaletteGroup = keyof typeof PALETTE_GROUPS;
 
 export const SECTIONS: Record<ScaleSection, string> = {
   chords: "Chords in the key",
-  relatives: "Modes with the same notes",
+  relatives: "Relative modes",
   guitar: "Fretboard positions",
 };
 
@@ -117,7 +117,7 @@ export const PLUGIN_TITLES: Record<string, string> = {
 };
 
 /** A compact panel's name on the stage, where it sits beside other widgets. */
-const PANEL_NAMES: Record<string, string> = { ...PLUGIN_TITLES, scale: "Scale notes", keys: "Piano keys", caged: "CAGED overview" };
+const PANEL_NAMES: Record<string, string> = { ...PLUGIN_TITLES, scale: "Intervals within each mode", keys: "Piano keys", caged: "CAGED overview" };
 
 const POSITION_KINDS: PositionKind[] = ["pentatonic", "scale", "3nps"];
 const POSITION_NAMES: Record<PositionKind, string> = { pentatonic: "Pentatonic box", scale: "Scale position", "3nps": "3 notes per string, position" };

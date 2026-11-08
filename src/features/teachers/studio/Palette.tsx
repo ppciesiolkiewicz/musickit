@@ -8,7 +8,7 @@ import ControlBadge, { MicBadge, PageBadge } from "./ControlBadge";
 import { isLive } from "./notes";
 import FamilyStep, { FamilyEditor, moreOf } from "./FamilyStep";
 import {
-  FAMILIES, PALETTE_GROUPS, addableValues, describeSubject, familyOf, groupResults, isControl, isPage, paletteCatalog, pinAgainst, takesMic, searchPalette, stepValues,
+  FAMILIES, PALETTE_GROUPS, addableValues, describeSubject, familyOf, groupResults, isControl, isPage, paletteCatalog, paletteChoice, pinAgainst, takesMic, searchPalette, stepValues,
   subjectIdentity, withMore, type Family, type FamilyValues, type Layer, type MediaState, type PaletteResult, type Subject,
 } from "@/features/stage";
 
@@ -31,25 +31,32 @@ function rowsOf(results: PaletteResult[], ranked: boolean): { rows: Row[]; flat:
   return { rows, flat };
 }
 
-/** Step two: a family's props being picked for a new widget in `key`. */
-interface Step {
+/** The family open in the list: the props picked for a new widget in `key`. */
+interface Open {
   family: Family;
   key: KeyChoice;
-  another: boolean;
-  /** the key in words, as the row showed it */
-  detail?: string;
   values: FamilyValues;
   moreText: Record<string, string>;
 }
 
 const familyById = (id: string) => FAMILIES.find((f) => f.id === id);
 
+/** The family a row offers, or null. */
+const rowFamily = (r: PaletteResult | undefined) => (r?.action.type === "family" ? familyById(r.action.familyId) ?? null : null);
+
+/** A family row opened: its add form in the row's key. */
+const opened = (r: PaletteResult | undefined): Open | null => {
+  const family = rowFamily(r);
+  return family && r?.action.type === "family" ? { family, key: r.action.key, values: stepValues(family, r.action.key), moreText: {} } : null;
+};
+
 /**
- * The widget picker over the studio. On top, **On the stage**: each family widget there by its row text, an accordion to edit its
- * props in place and a remove button. Below, every widget by section, ticked when it is on the stage: click a row (or Enter) to
- * put it on the stage or take it off; it stays open, so several can be ticked at once. A family row opens step two in the same
- * dialog (its props; Enter adds, Esc or Back returns). Typing searches; Escape or a click outside closes. A studio command (camera,
- * screen share) runs and closes. Rendered on document.body, so it is never inside the recorded frame.
+ * The widget picker over the studio: every widget by section, ticked when it is on the stage. Click a row (or Enter) to put it on
+ * the stage or take it off; it stays open, so several can be ticked at once. A **family** row (Scale, CAGED, Arpeggio...) opens in
+ * place, one at a time: its options, **Add to stage** (or Enter in the search, or on an option), then its widgets on the stage, each
+ * with its options to edit in place and ✕. Typing searches; a key alone ("a dorian") lists the families and opens the first. Escape
+ * closes an open family, then the picker; a click outside closes it. A studio command (camera, screen share) runs and closes.
+ * Rendered on document.body, so it is never inside the recorded frame.
  */
 export default function Palette({ notes = false, pluginIds, stageKey, media, layers, onPick, onUpdate, onRemove, onClose }: {
   /** the notes creator: no camera, screen or audio widgets */
@@ -60,37 +67,42 @@ export default function Palette({ notes = false, pluginIds, stageKey, media, lay
   /** what is on the stage now, to tick its rows and list its family widgets */
   layers: Layer[];
   onPick: (r: PaletteResult) => void;
-  /** a widget on the stage edited in its accordion */
+  /** a widget on the stage edited under its family */
   onUpdate: (layerId: string, subject: Subject) => void;
   onRemove: (layerId: string) => void;
   onClose: () => void;
 }) {
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
-  const [step, setStep] = useState<Step | null>(null);
-  /** the on-stage row whose accordion is open */
-  const [open, setOpen] = useState<string | null>(null);
+  const [open, setOpen] = useState<Open | null>(null);
+  /** the widget whose options are open, under its family */
+  const [editing, setEditing] = useState<string | null>(null);
   const input = useRef<HTMLInputElement>(null);
   const list = useRef<HTMLUListElement>(null);
 
-  /** the families with a widget on the stage: only they offer "Add another" */
-  const familiesOnStage = useMemo(() => new Set(layers.flatMap((l) => familyOf(l.subject)?.id ?? [])), [layers]);
-  const staged = useMemo(() => layers.filter((l) => describeSubject(l.subject) !== null), [layers]);
-
-  const { rows, flat } = useMemo(() => {
-    const q = query.trim();
-    const all = q ? searchPalette(q, pluginIds, stageKey, media) : paletteCatalog(pluginIds, stageKey, media);
-    const shown = all.filter((r) => {
+  const resultsFor = (q: string) => {
+    const all = q.trim() ? searchPalette(q.trim(), pluginIds, stageKey, media) : paletteCatalog(pluginIds, stageKey, media);
+    return all.filter((r) => {
       const a = r.action;
       if (a.type === "family") {
-        if (a.another && !familiesOnStage.has(a.familyId)) return false;
         const f = familyById(a.familyId);
         return !!f && !(notes && isLive(f.make({}, a.key)));
       }
       return !notes || (a.type === "add" && !isLive(a.subject));
     });
-    return rowsOf(shown, !!q);
-  }, [query, pluginIds, stageKey, media, notes, familiesOnStage]);
+  };
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- resultsFor reads exactly these
+  const { rows, flat } = useMemo(() => rowsOf(resultsFor(query), !!query.trim()), [query, pluginIds, stageKey, media, notes]);
+
+  /** the stage's widgets by family, in stage order */
+  const byFamily = useMemo(() => {
+    const m = new Map<string, Layer[]>();
+    for (const l of layers) {
+      const id = familyOf(l.subject)?.id;
+      if (id) m.set(id, [...(m.get(id) ?? []), l]);
+    }
+    return m;
+  }, [layers]);
 
   /** the stage's widgets by identity: a row is ticked when one with its identity is there, whatever its key */
   const onStage = useMemo(() => {
@@ -106,39 +118,88 @@ export default function Palette({ notes = false, pluginIds, stageKey, media, lay
     list.current?.querySelector(`[aria-selected="true"]`)?.scrollIntoView({ block: "nearest" });
   }, [active]);
 
-  const back = () => {
-    setStep(null);
+  const collapse = () => {
+    setOpen(null);
+    setEditing(null);
     input.current?.focus();
   };
 
-  /** step two's widget on the stage, pinned where its key differs from the master; back to step one */
-  const addStep = () => {
-    if (!step) return;
-    const { more, invalid } = moreOf(step.family, step.moreText);
+  /** the open family's new widget on the stage, pinned where its key differs from the master; the family stays open, the widget under it */
+  const addOpen = () => {
+    if (!open) return;
+    const { family, key, values, moreText } = open;
+    const { more, invalid } = moreOf(family, moreText, values);
     for (const name of invalid) delete more[name];
-    const made = withMore(step.family.make(addableValues(step.values), step.key), more).subject;
-    onPick({ id: `family:${step.family.id}`, label: step.family.title, detail: step.detail ?? "", group: step.family.group, action: { type: "add", subject: pinAgainst(made, stageKey, step.key) } });
-    back();
+    const made = withMore(family.make(addableValues(values), key), more).subject;
+    onPick({ id: `family:${family.id}`, label: family.title, detail: "", group: family.group, action: { type: "add", subject: pinAgainst(made, stageKey, key) } });
+    input.current?.focus();
   };
 
-  const toggle = (r: PaletteResult | undefined) => {
+  /** a row picked (click, or Enter in the search): what it does is `paletteChoice` */
+  const pick = (r: PaletteResult | undefined, enter = false) => {
     if (!r) return;
-    if (r.action.type === "family") {
-      const { familyId, key, another = false } = r.action;
-      const family = familyById(familyId);
-      if (family) setStep({ family, key, another, detail: r.detail, values: stepValues(family, key, another), moreText: {} });
-      input.current?.focus();
-      return;
-    }
-    if (r.action.type === "command") {
+    const choice = paletteChoice(r, { enter, openFamily: open?.family.id ?? null, onStage: idsOf(r).length > 0 });
+    if (choice === "add-open") addOpen();
+    else if (choice === "collapse") collapse();
+    else if (choice === "open") {
+      setOpen(opened(r));
+      setEditing(null);
+    } else if (choice === "command") {
       onPick(r);
       onClose();
       return;
-    }
-    const ids = idsOf(r);
-    if (ids.length) ids.forEach(onRemove);
+    } else if (choice === "remove") idsOf(r).forEach(onRemove);
     else onPick(r);
     input.current?.focus();
+  };
+
+  const familyPanel = (o: Open) => {
+    const widgets = byFamily.get(o.family.id) ?? [];
+    return (
+      <div id={`family-panel-${o.family.id}`} role="group" aria-label={`${o.family.title}: options and widgets on the stage`} className="mx-2 mb-1 rounded-md border border-slate-800 bg-slate-950/40">
+        <FamilyStep
+          family={o.family}
+          values={o.values}
+          moreText={o.moreText}
+          onValues={(values) => setOpen((s) => (s ? { ...s, values } : s))}
+          onMoreText={(moreText) => setOpen((s) => (s ? { ...s, moreText } : s))}
+          onSubmit={addOpen}
+        />
+        <div className="flex justify-end px-4 pb-2">
+          <button type="button" onClick={addOpen} className="rounded-md bg-sky-600 px-3 py-1 text-sm font-medium text-white hover:bg-sky-500">
+            Add to stage
+          </button>
+        </div>
+        {widgets.length > 0 && (
+          <ul aria-label={`${o.family.title} on the stage`} className="border-t border-slate-800 py-1">
+            {widgets.map((l) => {
+              const editOpen = editing === l.id;
+              return (
+                <li key={l.id} className="px-2 py-0.5">
+                  <div className={`flex items-center gap-1 rounded-md ${editOpen ? "bg-slate-800/60" : ""}`}>
+                    <button
+                      type="button"
+                      aria-expanded={editOpen}
+                      onClick={() => setEditing(editOpen ? null : l.id)}
+                      title={editOpen ? "Close its options" : "Change its options"}
+                      className="flex min-w-0 flex-1 items-center gap-2.5 rounded-md px-2 py-1.5 text-left text-sm text-slate-100 hover:bg-slate-800"
+                    >
+                      <span aria-hidden className="grid h-4 w-4 shrink-0 place-items-center text-slate-500"><Icon name={editOpen ? "chevron-down" : "pencil"} size={12} /></span>
+                      <span className="truncate">{describeSubject(l.subject)}</span>
+                    </button>
+                    <button type="button" aria-label="Take it off the stage" title="Take it off the stage" onClick={() => onRemove(l.id)} className="rounded-md p-1.5 text-slate-400 hover:bg-slate-800 hover:text-slate-100">
+                      <Icon name="x" size={14} />
+                    </button>
+                  </div>
+                  {/* keyed by the layer: a fresh form for each widget opened */}
+                  {editOpen && <FamilyEditor key={l.id} subject={l.subject} onUpdate={(s) => onUpdate(l.id, s)} />}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
+    );
   };
 
   return createPortal(
@@ -152,7 +213,7 @@ export default function Palette({ notes = false, pluginIds, stageKey, media, lay
           e.stopPropagation();
           if (e.key !== "Escape") return;
           e.preventDefault();
-          if (step) back();
+          if (open) collapse();
           else onClose();
         }}
       >
@@ -160,138 +221,102 @@ export default function Palette({ notes = false, pluginIds, stageKey, media, lay
           ref={input}
           value={query}
           onChange={(e) => {
-            setQuery(e.target.value);
+            const q = e.target.value;
+            setQuery(q);
             setActive(0);
-            setStep(null);
+            setEditing(null);
+            // a key alone ("a dorian", "ionian") lists only families: the first opens
+            const next = resultsFor(q);
+            const onlyFamilies = q.trim() !== "" && next.length > 0 && next.every((r) => r.action.type === "family");
+            setOpen(onlyFamilies ? opened(rowsOf(next, true).flat[0]) : null);
           }}
           onKeyDown={(e) => {
-            if (step) {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                addStep();
-              }
-              return;
-            }
             if (e.key === "ArrowDown") {
               e.preventDefault();
               setActive((i) => Math.min(flat.length - 1, i + 1));
             } else if (e.key === "ArrowUp") {
               e.preventDefault();
               setActive((i) => Math.max(0, i - 1));
-            } else if (e.key === "Enter") toggle(flat[active]);
+            } else if (e.key === "Enter") {
+              e.preventDefault();
+              pick(flat[active], true);
+            }
           }}
-          placeholder="Search: fretboard, a dorian, pent pos 2, e shape, sus iv, metronome, camera…"
+          placeholder="Search: scale, a dorian, pent pos 2, e shape, sus iv, metronome, camera…"
           className="w-full border-b border-slate-800 bg-transparent px-4 py-3 font-mono text-base text-slate-100 outline-none placeholder:text-slate-500"
           aria-label="Search"
         />
-        {step ? (
-          <div role="group" aria-label={step.family.title} className="max-h-[64vh] overflow-auto py-1">
-            <div className="px-2 py-0.5">
-              <button type="button" onClick={back} className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-left text-sm text-slate-300 hover:bg-slate-800">
-                <span aria-hidden className="grid h-4 w-4 shrink-0 place-items-center text-slate-500"><Icon name="chevron-left" size={12} /></span>
-                Back
-              </button>
-            </div>
-            <div className="flex items-baseline gap-2 px-4 pb-1 pt-1.5">
-              <span className="text-sm font-semibold text-slate-100">{step.another ? `Add another: ${step.family.title}` : step.family.title}</span>
-              <span className="text-xs text-slate-500">{step.detail}</span>
-            </div>
-            <FamilyStep
-              family={step.family}
-              values={step.values}
-              moreText={step.moreText}
-              onValues={(values) => setStep((s) => (s ? { ...s, values } : s))}
-              onMoreText={(moreText) => setStep((s) => (s ? { ...s, moreText } : s))}
-              onSubmit={addStep}
-            />
-            <div className="flex justify-end px-4 pb-2 pt-1">
-              <button type="button" onClick={addStep} className="rounded-md bg-sky-600 px-3 py-1 text-sm font-medium text-white hover:bg-sky-500">
-                Add to the stage
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div className="max-h-[64vh] overflow-auto">
-            {!query.trim() && staged.length > 0 && (
-              <section aria-label="On the stage" className="border-b border-slate-800 py-1">
-                <h2 className="px-4 pb-1 pt-2.5 text-[11px] font-semibold uppercase tracking-wide text-slate-400">On the stage</h2>
-                <ul>
-                  {staged.map((l) => {
-                    const expanded = open === l.id;
-                    return (
-                      <li key={l.id} className="px-2 py-0.5">
-                        <div className={`flex items-center gap-1 rounded-md ${expanded ? "bg-slate-800/60" : ""}`}>
-                          <button
-                            type="button"
-                            aria-expanded={expanded}
-                            onClick={() => setOpen(expanded ? null : l.id)}
-                            title={expanded ? "Close its options" : "Change its options"}
-                            className="flex min-w-0 flex-1 items-center gap-2.5 rounded-md px-2 py-1.5 text-left text-sm text-slate-100 hover:bg-slate-800"
-                          >
-                            <span aria-hidden className="grid h-4 w-4 shrink-0 place-items-center text-slate-500"><Icon name={expanded ? "chevron-down" : "chevron-right"} size={12} /></span>
-                            <span className="truncate">{describeSubject(l.subject)}</span>
-                          </button>
-                          <button type="button" aria-label="Take it off the stage" title="Take it off the stage" onClick={() => onRemove(l.id)} className="rounded-md p-1.5 text-slate-400 hover:bg-slate-800 hover:text-slate-100">
-                            <Icon name="x" size={14} />
-                          </button>
-                        </div>
-                        {/* keyed by the layer: a fresh form for each widget opened */}
-                        {expanded && <FamilyEditor key={l.id} subject={l.subject} onUpdate={(s) => onUpdate(l.id, s)} />}
-                      </li>
-                    );
-                  })}
-                </ul>
-              </section>
-            )}
-            <ul ref={list} role="listbox" aria-multiselectable className="py-1">
-              {flat.length === 0 && <li className="px-4 py-2 text-sm text-slate-500">Nothing for that. Try a widget name, a key (a dorian) or a command.</li>}
-              {rows.map((row, k) => {
-                if (row.kind === "group")
-                  return (
-                    <li key={`g:${row.name}`} role="presentation" className={`px-4 pb-1 pt-2.5 text-[11px] font-semibold uppercase tracking-wide text-slate-400 ${k > 0 ? "mt-1 border-t border-slate-800" : ""}`}>
-                      {row.name}
-                    </li>
-                  );
-                if (row.kind === "sub")
-                  return (
-                    <li key={`s:${k}:${row.name}`} role="presentation" className="px-4 pb-0.5 pt-1.5 text-[11px] text-slate-500">
-                      {row.name}
-                    </li>
-                  );
-                const r = row.result, i = row.index;
-                const on = idsOf(r).length > 0;
+        <div className="max-h-[64vh] overflow-auto">
+          <ul ref={list} role="listbox" aria-multiselectable className="py-1">
+            {flat.length === 0 && <li className="px-4 py-2 text-sm text-slate-500">Nothing for that. Try a widget name, a key (a dorian) or a command.</li>}
+            {rows.flatMap((row, k) => {
+              if (row.kind === "group")
                 return (
-                  <li key={r.id} role="option" aria-selected={i === active} aria-checked={r.action.type === "add" ? on : undefined} className="px-2 py-0.5">
-                    <button
-                      type="button"
-                      onPointerEnter={() => setActive(i)}
-                      onClick={() => toggle(r)}
-                      title={r.action.type === "command" ? undefined : r.action.type === "family" ? "Click to pick its options" : on ? "On the stage: click to take it off" : "Click to put it on the stage"}
-                      className={`flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-left text-sm ring-1 ${on ? "ring-emerald-500/70" : "ring-transparent"} ${i === active ? "bg-sky-500/15 text-sky-100" : on ? "bg-emerald-500/5 text-slate-100" : "text-slate-200"}`}
-                    >
-                      {r.action.type === "add" ? (
-                        <span aria-hidden className={`grid h-4 w-4 shrink-0 place-items-center rounded border ${on ? "border-emerald-400 bg-emerald-500 text-slate-950" : "border-slate-600"}`}>
-                          {on && <Icon name="check" size={12} />}
-                        </span>
-                      ) : (
-                        <span aria-hidden className="grid h-4 w-4 shrink-0 place-items-center text-slate-500"><Icon name="chevron-right" size={12} /></span>
-                      )}
-                      <span className="flex min-w-0 flex-1 items-center gap-1.5">
-                        <span className="truncate">{r.label}</span>
-                        {r.action.type === "add" && isControl(r.action.subject) && <ControlBadge />}
-                        {r.action.type === "add" && isPage(r.action.subject) && <PageBadge />}
-                        {r.action.type === "add" && takesMic(r.action.subject) && <MicBadge />}
-                      </span>
-                      {r.detail && <span className="shrink-0 truncate text-xs text-slate-500">{r.detail}</span>}
-                    </button>
+                  <li key={`g:${row.name}`} role="presentation" className={`px-4 pb-1 pt-2.5 text-[11px] font-semibold uppercase tracking-wide text-slate-400 ${k > 0 ? "mt-1 border-t border-slate-800" : ""}`}>
+                    {row.name}
                   </li>
                 );
-              })}
-            </ul>
-          </div>
-        )}
+              if (row.kind === "sub")
+                return (
+                  <li key={`s:${k}:${row.name}`} role="presentation" className="px-4 pb-0.5 pt-1.5 text-[11px] text-slate-500">
+                    {row.name}
+                  </li>
+                );
+              const r = row.result, i = row.index;
+              const fam = r.action.type === "family" ? r.action.familyId : null;
+              const expanded = !!fam && open?.family.id === fam;
+              const count = fam ? (byFamily.get(fam)?.length ?? 0) : 0;
+              const on = idsOf(r).length > 0;
+              const option = (
+                <li
+                  key={r.id}
+                  role="option"
+                  aria-selected={i === active}
+                  aria-checked={r.action.type === "add" ? on : undefined}
+                  className="px-2 py-0.5"
+                >
+                  <button
+                    type="button"
+                    aria-expanded={fam ? expanded : undefined}
+                    aria-controls={expanded ? `family-panel-${fam}` : undefined}
+                    onPointerEnter={() => setActive(i)}
+                    onClick={() => {
+                      setActive(i);
+                      pick(r);
+                    }}
+                    title={r.action.type === "command" ? undefined : fam ? (expanded ? "Close its options" : "Click for its options and its widgets on the stage") : on ? "On the stage: click to take it off" : "Click to put it on the stage"}
+                    className={`flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-left text-sm ring-1 ${on ? "ring-emerald-500/70" : "ring-transparent"} ${i === active ? "bg-sky-500/15 text-sky-100" : on ? "bg-emerald-500/5 text-slate-100" : "text-slate-200"}`}
+                  >
+                    {r.action.type === "add" ? (
+                      <span aria-hidden className={`grid h-4 w-4 shrink-0 place-items-center rounded border ${on ? "border-emerald-400 bg-emerald-500 text-slate-950" : "border-slate-600"}`}>
+                        {on && <Icon name="check" size={12} />}
+                      </span>
+                    ) : (
+                      <span aria-hidden className="grid h-4 w-4 shrink-0 place-items-center text-slate-500"><Icon name={expanded ? "chevron-down" : "chevron-right"} size={12} /></span>
+                    )}
+                    <span className="flex min-w-0 flex-1 items-center gap-1.5">
+                      <span className="truncate">{r.label}</span>
+                      {count > 0 && (
+                        <span title={`${count} on the stage`} className="rounded-full bg-emerald-500/15 px-1.5 text-[10px] font-medium text-emerald-300 ring-1 ring-emerald-500/40">
+                          {count}<span className="sr-only"> on the stage</span>
+                        </span>
+                      )}
+                      {r.action.type === "add" && isControl(r.action.subject) && <ControlBadge />}
+                      {r.action.type === "add" && isPage(r.action.subject) && <PageBadge />}
+                      {r.action.type === "add" && takesMic(r.action.subject) && <MicBadge />}
+                    </span>
+                    {r.detail && <span className="shrink-0 truncate text-xs text-slate-500">{r.detail}</span>}
+                  </button>
+                </li>
+              );
+              return expanded && open ? [option, <li key={`${r.id}:panel`} role="presentation">{familyPanel(open)}</li>] : [option];
+            })}
+          </ul>
+        </div>
         <p className="border-t border-slate-800 px-4 py-1.5 text-[11px] text-slate-500">
-          {step ? "Enter puts it on the stage · Esc goes back" : "Click or Enter to put a widget on the stage or take it off · Esc closes"}
+          {open
+            ? `Enter adds ${open.family.title} to the stage (in the search or on an option) · Space toggles an option · Esc closes its options`
+            : "Click: a widget goes on or comes off · Enter adds · a family opens · Esc closes"}
         </p>
       </div>
     </div>,

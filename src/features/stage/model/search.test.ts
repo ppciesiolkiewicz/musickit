@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { EMPTY_KEY } from "@/features/creator/model/key";
-import { groupResults, paletteCatalog, searchPalette } from "./search";
+import { groupResults, paletteCatalog, paletteChoice, searchPalette } from "./search";
 import { FAMILIES } from "./families";
 import { followMaster, isControl, takesMic, isPage, keyOf, pinAgainst, sanitiseSubject, subjectIdentity, subjectTitle, withKey, withMaster, withOwnKey, type Subject } from "./subject";
 
@@ -22,7 +22,7 @@ test("a key with a mode lists the families that take it, one row each, in that k
   const fams = familyRows("a dorian", E_MINOR);
   assert.deepEqual(fams.map((f) => f.familyId), FAMILIES.map((f) => f.id));
   for (const f of fams) assert.deepEqual(f.key, A_DORIAN);
-  assert.ok(fams.every((f) => !f.another));
+  assert.equal(fams[0].familyId, "scale");
 });
 
 test("a mode alone lists the families, never a command or a flat list of boxes, on the master's root (even none)", () => {
@@ -88,9 +88,11 @@ test("e minor pent pos 1 is one pentatonic widget, box 1 of E minor, with the to
   assert.deepEqual(first("a minor pentatonic box 1"), { kind: "tool", tool: { type: "scale-neck", scale: "minor-pentatonic", key: 9, boxes: [1] }, pinned: ["tonic"] });
 });
 
-test("pent with no mode is the minor pentatonic; without a box it offers the family and boxes 1 to 5", () => {
+test("pent with no mode is the minor pentatonic; without a box it offers the Scale family and boxes 1 to 5", () => {
   const r = add("a pentatonic");
-  assert.ok(r.includes("family:pentatonic"));
+  // one Enter adds box 1; the family is offered too
+  assert.deepEqual(r[0], { kind: "tool", tool: { type: "scale-neck", scale: "minor-pentatonic", key: 9, boxes: [1] }, pinned: ["tonic"] });
+  assert.ok(r.includes("family:scale"));
   const boxes = r.filter((s) => typeof s === "object" && s.kind === "tool") as { tool: { scale: string; key: number; boxes: number[] } }[];
   assert.deepEqual(boxes.map((s) => s.tool.boxes), [[1], [2], [3], [4], [5]]);
   assert.ok(boxes.every((s) => s.tool.scale === "minor-pentatonic" && s.tool.key === 9));
@@ -136,8 +138,20 @@ test("page finds the cheatsheet pages", () => {
   assert.deepEqual(r[0], { kind: "plugin", plugin: "triads", full: true, key: E_MINOR });
 });
 
-test("same notes finds the modes with the same notes", () => {
+test("same notes and relative find the relative modes; intervals finds the intervals panel; whole neck the fretboard", () => {
   assert.deepEqual(first("same notes", E_MINOR), { kind: "section", section: "relatives", key: E_MINOR });
+  assert.deepEqual(first("relative modes", E_MINOR), { kind: "section", section: "relatives", key: E_MINOR });
+  assert.deepEqual(first("intervals", E_MINOR), { kind: "plugin", plugin: "scale", key: E_MINOR });
+  assert.deepEqual(first("whole neck", E_MINOR), { kind: "neck", key: E_MINOR });
+  assert.ok(add("overview", E_MINOR).some((s) => typeof s === "object" && s.kind === "section" && s.section === "guitar"));
+  assert.ok(add("scale", E_MINOR).includes("family:scale"));
+});
+
+test("typed names of the Scale family's single widgets keep their own labels", () => {
+  const label = (q: string) => searchPalette(q, ids, E_MINOR)[0].label;
+  assert.equal(label("pent pos 2"), "Pentatonic box 2");
+  assert.equal(label("scale pos 3"), "Scale position 3");
+  assert.equal(label("3nps pos 6"), "3 notes per string, position 6");
 });
 
 test("camera c offers camera corner", () => {
@@ -165,15 +179,14 @@ test("the catalog lists every widget in the master key, by section, plus camera 
   assert.deepEqual(subjects[0], { kind: "key" });
   assert.ok(subjects.some((s) => s.kind === "band"));
   assert.ok(subjects.some((s) => s.kind === "tuner"));
-  for (const section of ["chords", "relatives", "guitar"]) assert.ok(subjects.some((s) => s.kind === "section" && s.section === section), section);
-  // no per-box rows: one row per family instead, and an Add another row each
-  assert.ok(!subjects.some((s) => s.kind === "position" || s.kind === "caged" || s.kind === "tool"));
+  assert.ok(subjects.some((s) => s.kind === "section" && s.section === "chords"));
+  // no per-box rows and no Scale views: one row per family instead (Scale holds the fretboard, overview, relative modes, intervals)
+  assert.ok(!subjects.some((s) => ["position", "caged", "tool", "neck"].includes(s.kind)));
+  assert.ok(!subjects.some((s) => s.kind === "section" && s.section !== "chords"));
+  assert.ok(!subjects.some((s) => s.kind === "plugin" && s.plugin === "scale" && !s.full));
   const fams = c.flatMap((r) => (r.action.type === "family" ? [r.action] : []));
-  for (const id of ["pentatonic", "scale-positions", "three-nps", "caged"]) {
-    assert.equal(fams.filter((f) => f.familyId === id && !f.another).length, 1, id);
-    assert.equal(fams.filter((f) => f.familyId === id && f.another).length, 1, id);
-  }
-  assert.deepEqual(fams.filter((f) => !f.another).map((f) => f.familyId).sort(), FAMILIES.map((f) => f.id).sort());
+  assert.deepEqual(fams.map((f) => f.familyId), ["scale", "staff", "chord-shapes", "arpeggio", "caged"]);
+  assert.deepEqual(fams.map((f) => f.familyId).sort(), FAMILIES.map((f) => f.id).sort());
   for (const f of fams) assert.deepEqual(f.key, E_MINOR);
   assert.equal(subjects.filter((s) => s.kind === "bubble").length, 7);
   assert.equal(subjects.filter((s) => s.kind === "plugin" && s.full).length, 10);
@@ -188,8 +201,7 @@ test("the catalog lists every widget in the master key, by section, plus camera 
 test("the catalog comes in section order, each section in one run, subsections together", () => {
   const c = paletteCatalog(ids, E_MINOR);
   assert.deepEqual([...new Set(c.map((r) => r.group))], ["setup", "scale", "chords", "caged", "theory", "pages", "brand", "studio"]);
-  const subs = c.filter((r) => r.group === "scale").map((r) => r.sub);
-  assert.deepEqual([...new Set(subs)], ["Notes", "On the fretboard"]);
+  assert.deepEqual(c.filter((r) => r.group === "scale").map((r) => r.label), ["Scale", "Staff"]);
   assert.deepEqual(groupResults(c).flatMap((g) => g.results), c);
 });
 
@@ -268,7 +280,8 @@ test("changing the key on the widget pins what changed; follow drops the pins", 
 });
 
 test("subject titles name the widget and its scale, not the master's root", () => {
-  assert.equal(subjectTitle({ kind: "plugin", plugin: "scale", key: A_DORIAN }), "Scale notes · Dorian");
+  assert.equal(subjectTitle({ kind: "plugin", plugin: "scale", key: A_DORIAN }), "Intervals within each mode · Dorian");
+  assert.equal(subjectTitle({ kind: "section", section: "relatives", key: A_DORIAN }), "Relative modes · Dorian");
   assert.equal(subjectTitle({ kind: "plugin", plugin: "chords", full: true, key: A_DORIAN }), "Chords page · Dorian");
   assert.equal(subjectTitle({ kind: "position", key: E_MINOR, positionKind: "pentatonic", index: 0 }), "Pentatonic box 1 · Aeolian");
   assert.equal(subjectTitle({ kind: "band", key: E_MINOR }), "Metronome");
@@ -288,7 +301,8 @@ test("Key & scale, the metronome, the tuner and the audio input are controls; th
 
 test("the whole cheatsheet pages, Fretboard positions and Chords in the key are pages; the rest are not", () => {
   const pages = paletteCatalog(ids, E_MINOR).flatMap((r) => (r.action.type === "add" && isPage(r.action.subject) ? [r.action.subject] : []));
-  assert.ok(pages.some((s) => s.kind === "section" && s.section === "guitar"));
+  assert.ok(isPage({ kind: "section", section: "guitar", key: E_MINOR }));
+  assert.ok(!isPage({ kind: "section", section: "relatives", key: E_MINOR }));
   assert.ok(pages.some((s) => s.kind === "section" && s.section === "chords"));
   assert.ok(pages.every((s) => (s.kind === "plugin" && s.full) || (s.kind === "section" && s.section !== "relatives")));
   assert.equal(isPage({ kind: "neck", key: E_MINOR }), false);
@@ -332,7 +346,8 @@ test("logo and url are in the catalog and found by name; brand finds both", () =
 
 test("the audio input lights the widgets that draw fretboards and chord boxes", () => {
   const takers = paletteCatalog(ids, E_MINOR).flatMap((r) => (r.action.type === "add" && takesMic(r.action.subject) ? [r.action.subject] : []));
-  for (const kind of ["neck", "bubble"]) assert.ok(takers.some((s) => s.kind === kind), kind);
+  assert.ok(takers.some((s) => s.kind === "bubble"));
+  assert.ok(takesMic({ kind: "neck", key: E_MINOR }));
   assert.ok(takesMic({ kind: "position", key: E_MINOR, positionKind: "3nps", index: 0 }));
   assert.ok(takesMic({ kind: "chord", symbol: "E6" }));
   assert.ok(takesMic({ kind: "section", section: "guitar", key: E_MINOR }));
@@ -342,4 +357,23 @@ test("the audio input lights the widgets that draw fretboards and chord boxes", 
   assert.ok(!takesMic({ kind: "plugin", plugin: "circle", key: E_MINOR }));
   assert.ok(!takesMic({ kind: "caged", shape: "E", key: E_MINOR }));
   for (const kind of ["key", "tuner", "mic", "logo", "url", "camera", "screen"] as const) assert.ok(!takesMic({ kind }), kind);
+});
+
+test("Enter in the search always adds, even a widget already on the stage; a click toggles it", () => {
+  const eShape = searchPalette("e shape", ids, E_MINOR)[0];
+  assert.equal(paletteChoice(eShape, { enter: true, openFamily: null, onStage: true }), "add");
+  assert.equal(paletteChoice(eShape, { enter: false, openFamily: null, onStage: true }), "remove");
+  assert.equal(paletteChoice(eShape, { enter: false, openFamily: null, onStage: false }), "add");
+});
+
+test("with a family open, Enter adds its widget whatever non-family row is active; a family row opens, adds or collapses", () => {
+  const metronome = searchPalette("metronome", ids, E_MINOR)[0];
+  assert.equal(paletteChoice(metronome, { enter: true, openFamily: "scale", onStage: false }), "add-open");
+  assert.equal(paletteChoice(metronome, { enter: false, openFamily: "scale", onStage: false }), "add");
+  const scale = paletteCatalog(ids, E_MINOR).find((r) => r.id === "family:scale")!;
+  const caged = paletteCatalog(ids, E_MINOR).find((r) => r.id === "family:caged")!;
+  assert.equal(paletteChoice(scale, { enter: true, openFamily: "scale", onStage: false }), "add-open");
+  assert.equal(paletteChoice(scale, { enter: false, openFamily: "scale", onStage: false }), "collapse");
+  assert.equal(paletteChoice(caged, { enter: true, openFamily: "scale", onStage: false }), "open");
+  assert.equal(paletteChoice(caged, { enter: false, openFamily: null, onStage: false }), "open");
 });

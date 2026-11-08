@@ -10,8 +10,15 @@ Order is the suggested build order. Each ticket is independent after 1.
    On the stage list; behaviour in `spec/studio.md`). One palette entry per family (Pentatonic, Scale positions, 3 notes per string,
    CAGED); picking it shows its options in the same spotlight; "Add another" on families that repeat; existing widgets listed with
    key and props in the name and props in an accordion. CAGED works like pentatonic. Covers the "3 notes per scale" setup.
+   **Reworked 2026-11-09** after user feedback (plan `../plans/2026-11-09-palette-scale-accordion.md`): no step two, no Add another,
+   no On the stage section. A family row opens in place in the list (options, Add to stage, its widgets on the stage with edit and
+   ✕). One **Scale** family (View: Positions / Whole neck / Overview / Intervals within each mode / Relative modes; Style:
+   Pentatonic / Scale / 3 notes per string) replaces Pentatonic boxes, Scale positions, 3 notes per string, Fretboard and
+   Fretboard positions.
 2. **Small fixes.** Remove Progressions from the palette and cheatsheet list. New Text widget with free text. Labels: "Scale notes"
    → "Intervals within each mode"; "Modes with the same notes" → "Relative modes"; "Fretboard positions" → "Fretboard".
+   (The first two renames done 2026-11-09 with the Scale family; "Fretboard positions" is the Scale family's Overview view and
+   keeps its widget name, as the whole neck is already "Fretboard". Progressions and the Text widget remain.)
 3. **Beta notice.** Disclaimer that this is a beta, with how to scroll and how to add a widget. Closes itself after a few seconds;
    "Don't show this again" (localStorage `musickit.studio.beta`). Copy via the ux-copy skill.
 4. **Minimap.** Small map in a corner of the canvas showing every widget and the visible viewport, so off-screen widgets are findable.

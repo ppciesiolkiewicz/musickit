@@ -79,7 +79,7 @@ test("a key set on the tool pins its tonic; following the master drops the pin",
 
 test("a family widget made on a stage with no root is not pinned, so setting the master moves it", () => {
   const G: KeyChoice = { tonicPc: 7, family: 0, mode: 0 };
-  const made = FAMILIES.find((f) => f.id === "pentatonic")!.make({}, EMPTY_KEY);
+  const made = FAMILIES.find((f) => f.id === "scale")!.make({}, EMPTY_KEY);
   const added = pinAgainst(made, EMPTY_KEY, EMPTY_KEY);
   assert.equal(added.kind === "tool" && added.pinned, undefined);
   const moved = withMaster(added, G);
@@ -90,7 +90,7 @@ test("a family widget is pinned when it was made in a key the master doesn't hav
   const E_MIN: KeyChoice = { tonicPc: 4, family: 0, mode: 5 };
   const C: KeyChoice = { tonicPc: 0, family: 0, mode: 0 };
   // a typed "e minor pent" with no master root
-  const ePent = FAMILIES.find((f) => f.id === "pentatonic")!.make({}, E_MIN);
+  const ePent = FAMILIES.find((f) => f.id === "scale")!.make({}, E_MIN);
   assert.deepEqual(pinAgainst(ePent, EMPTY_KEY, E_MIN), { ...ePent, pinned: ["tonic"] });
   // a typed key that differs from the master
   assert.deepEqual(pinAgainst(ePent, D, E_MIN), { ...ePent, pinned: ["tonic"] });
@@ -126,7 +126,7 @@ test("tool necks and chord boxes ring the heard note; the position neck does not
 });
 
 test("a tool is named by its family; one no family offers by its type and key", () => {
-  assert.equal(subjectTitle({ kind: "tool", tool: pent }), "Minor pentatonic · A minor · positions 1, 2");
+  assert.equal(subjectTitle({ kind: "tool", tool: pent }), "Scale · A minor · pentatonic, 1–2");
   assert.equal(subjectTitle({ kind: "tool", tool: { type: "chord-shapes", chords: ["Am"] } }), "Chord shapes · Am");
   assert.equal(subjectTitle({ kind: "tool", tool: { type: "position-neck", scale: "dorian", key: 2 } }), "position-neck · D");
 });

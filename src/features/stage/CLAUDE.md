@@ -14,7 +14,7 @@ What goes in the teacher studio's 16:9 frame: widget subjects, layers, the palet
 - Camera, screen, the Key & scale widget, the tuner, the logo and the site address exist at most once (`addSubject`, `sanitiseStage`).
 
 ## Renderer
-- The palette's sections and their order are `PALETTE_GROUPS`, subsections a result's `sub`; `groupResults` puts results under them. A new widget is an entry in `entries` (search.ts) with a group, words to find it by and maybe a subsection. A widget family is one `family` row (`fam(id)` in `entries`, plus its "Add another" row); the single variants a typed line names ("pent pos 2", "e shape") are in `variants`, search only.
+- The palette's sections and their order are `PALETTE_GROUPS`, subsections a result's `sub`; `groupResults` puts results under them. A new widget is an entry in `entries` (search.ts) with a group, words to find it by and maybe a subsection. A widget family is one `family` row (`fam(id)` in `entries`; the palette opens it in place with its widgets on the stage); the single variants a typed line names ("pent pos 2", "fretboard", "e shape") are in `variants`, search only. The Scale family spans several subject kinds (`scale-neck` tool, `position`, `neck`, `section`, plugin `scale`): its `update` converts between them, and its `read` must cover any kind it makes.
 - `StageWidget` turns a subject into a live widget. Keep it injectable (props in, callbacks out, no studio state), so the editor can be handed it to draw the widget track.
 
 ## Every change

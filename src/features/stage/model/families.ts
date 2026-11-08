@@ -1,8 +1,9 @@
 /**
- * The palette's widget families: one row each (Pentatonic boxes, Scale positions, CAGED, Arpeggio...), curated here. A family
- * makes a widget from its main props (`controls`: boxes, scale, shapes, chord), reads them back from a widget on the stage and
- * names it in one line ("Major pentatonic · C major · positions 1, 2"). Most families are a learning component of the AI plan (a
- * `tool` subject); CAGED and 3 notes per string wrap the stage's own subjects, which the components can't express. The props a
+ * The palette's widget families: one row each (Scale, CAGED, Arpeggio, Chord shapes, Staff), curated here. A family makes a widget
+ * from its main props (`controls`: view, boxes, shapes, chord), reads them back from a widget on the stage and names it in one line
+ * ("Scale · C major · pentatonic, 1–2"). Most families are a learning component of the AI plan (a `tool` subject); CAGED wraps the
+ * stage's own `caged` subject, and the Scale family's views other than pentatonic and scale positions are the stage's own subjects
+ * (3 notes per string, the whole neck, the overview, the intervals panel, the relative modes), which the components can't express. The props a
  * family doesn't list are its component's other props (`docOf(tool).props`). Pure: no React. Imports only types from subject.ts,
  * which takes its tool names from here.
  */
@@ -34,6 +35,8 @@ export interface FamilyControl {
   /** a `multi` option that stands alone: ticking it clears the others, ticking another clears it (CAGED's Overview) */
   alone?: string | number;
   default: FamilyValue;
+  /** shown only for these values (the Scale family's Style and Position only for its Positions view) */
+  when?: (values: FamilyValues) => boolean;
 }
 
 export interface Family {
@@ -44,13 +47,19 @@ export interface Family {
   /** the palette section and subsection it sits under */
   group: PaletteGroup;
   sub?: string;
-  /** the learning component it makes; absent for the stage's own subjects (CAGED, 3 notes per string) */
+  /** the learning component it makes; absent for the stage's own subjects (CAGED) */
   tool?: ToolName;
+  /** the component these values make, when it depends on them (the Scale family: only its positions are a component) */
+  toolFor?: (values: FamilyValues) => ToolName | undefined;
+  /** props it keeps in its values without a control (the Scale family's scale slug): not offered under "More" */
+  hidden?: string[];
   /** a new widget in `key`; missing values take the control's default, or the key's (its scale, its chord) */
   make(values: FamilyValues, key: KeyChoice): Subject;
   controls: FamilyControl[];
   /** the widget's main props, or null when it is not this family's */
   read(s: Subject): FamilyValues | null;
+  /** the widget with new main props, when the generic `updateSubject` won't do (the Scale family changes the subject's kind) */
+  update?(s: Subject, values: FamilyValues): Subject;
   /** "Major pentatonic · C major · positions 1, 2" */
   describe(s: Subject): string;
 }
@@ -122,85 +131,162 @@ function family(f: Omit<Family, "describe"> & { parts(s: Subject): Parts }): Fam
 
 /* ---------------------------------------------------------------- the families */
 
-const pentScale = (s: Subject) => {
+/* ---------------------------------------------------------------- the Scale family */
+
+/** How a Scale widget draws its scale: the positions (boxes) or one of the stage's whole-scale views. */
+type ScaleView = "positions" | "neck" | "overview" | "intervals" | "relatives";
+type ScaleStyle = "pentatonic" | "scale" | "3nps";
+const VIEWS: { value: ScaleView; label: string }[] = [
+  { value: "positions", label: "Positions" },
+  { value: "neck", label: "Whole neck" },
+  { value: "overview", label: "Overview" },
+  { value: "intervals", label: "Intervals within each mode" },
+  { value: "relatives", label: "Relative modes" },
+];
+const STYLES: { value: ScaleStyle; label: string }[] = [
+  { value: "pentatonic", label: "Pentatonic" },
+  { value: "scale", label: "Scale" },
+  { value: "3nps", label: "3 notes per string" },
+];
+const viewOf = (v: FamilyValues): ScaleView => VIEWS.find((x) => x.value === v.view)?.value ?? "positions";
+const styleOf = (v: FamilyValues): ScaleStyle => STYLES.find((x) => x.value === v.style)?.value ?? "pentatonic";
+const atPositions = (v: FamilyValues) => viewOf(v) === "positions";
+
+/** "1–3, 5": positions in runs */
+function runs(ns: number[]): string {
+  const out: string[] = [];
+  for (let i = 0; i < ns.length; ) {
+    let j = i;
+    while (j + 1 < ns.length && ns[j + 1] === ns[j] + 1) j++;
+    out.push(j > i ? `${ns[i]}–${ns[j]}` : String(ns[i]));
+    i = j + 1;
+  }
+  return out.join(", ");
+}
+
+/** a Scale widget's main props; null when it is not one */
+function scaleRead(s: Subject): FamilyValues | null {
+  const at = (view: ScaleView): FamilyValues => ({ view, style: "pentatonic", boxes: [1], position: [1] });
+  switch (s.kind) {
+    case "tool": {
+      const t = toolOf(s, "scale-neck");
+      if (!t || !(findPentatonic(t.scale) || findModePage(t.scale))) return null;
+      const style: ScaleStyle = findPentatonic(t.scale) ? "pentatonic" : "scale";
+      return { view: "positions", style, boxes: boxesRead(t, range(POSITION_COUNT[style])), position: [1], scale: t.scale };
+    }
+    case "position":
+      // the old single boxes (Pentatonic box 2, Scale position 3) read as positions too
+      return s.positionKind === "3nps"
+        ? { ...at("positions"), style: "3nps", position: [s.index + 1] }
+        : { ...at("positions"), style: s.positionKind, boxes: [s.index + 1] };
+    case "neck":
+      return at("neck");
+    case "section":
+      return s.section === "guitar" ? at("overview") : s.section === "relatives" ? at("relatives") : null;
+    case "plugin":
+      return s.plugin === "scale" && !s.full ? at("intervals") : null;
+    default:
+      return null;
+  }
+}
+
+/** A Scale widget's key as a `KeyChoice`: a tool's tonic in the mode its slug names (a pentatonic: its host mode). */
+function scaleKeyOf(s: Subject): KeyChoice {
+  if (s.kind !== "tool") return "key" in s ? s.key : { tonicPc: null, family: 0, mode: 0 };
+  const t = toolOf(s, "scale-neck")!;
+  const page = findModePage(t.scale);
+  return page ? { tonicPc: t.key, family: page.familyIndex, mode: page.modeIndex } : { tonicPc: t.key, family: 0, mode: findPentatonic(t.scale)?.host ?? 0 };
+}
+
+function scaleMake(v: FamilyValues, key: KeyChoice): Subject {
+  switch (viewOf(v)) {
+    case "neck":
+      return { kind: "neck", key };
+    case "overview":
+      return { kind: "section", section: "guitar", key };
+    case "intervals":
+      return { kind: "plugin", plugin: "scale", key };
+    case "relatives":
+      return { kind: "section", section: "relatives", key };
+  }
+  const chosen = str(v.scale);
+  switch (styleOf(v)) {
+    case "3nps": {
+      // one position: the components frame five positions only, so this stays the stage's `position` subject
+      const n = nums(v.position)?.[0] ?? Number(v.position);
+      const index = Number.isInteger(n) && n >= 1 && n <= POSITION_COUNT["3nps"] ? n - 1 : 0;
+      return { kind: "position", positionKind: "3nps", index, key };
+    }
+    case "scale": {
+      const scale = chosen && findModePage(chosen) ? chosen : modeSlug(key);
+      return toolSubject({ type: "scale-neck", scale, key: tonicOf(key), boxes: nums(v.boxes) ?? [1] });
+    }
+    default: {
+      const scale = chosen && findPentatonic(chosen) ? chosen : cagedQualityOf(key) === "minor" ? "minor-pentatonic" : "major-pentatonic";
+      return toolSubject({ type: "scale-neck", scale, key: tonicOf(key), boxes: nums(v.boxes) ?? [1] });
+    }
+  }
+}
+
+/**
+ * One Scale widget made afresh from new main props, in its own key, its pins carried: a tool keeps only a pinned tonic; a tool
+ * turned into another view keeps its pinned tonic and has its scale pinned, as a tool's scale never followed the master. A scale-neck staying a scale-neck keeps its other props (`add`, `highlight`...).
+ */
+function scaleUpdate(s: Subject, values: FamilyValues): Subject {
+  const current = scaleRead(s);
+  if (!current) return s;
+  const made = scaleMake({ ...current, ...values }, scaleKeyOf(s));
+  const pinned: string[] = "pinned" in s ? (s.pinned ?? []) : [];
+  const tonicPinned = pinned.includes("tonic");
+  if (made.kind === "tool") {
+    let tool: Subject = made;
+    if (s.kind === "tool") {
+      const kept: Record<string, unknown> = { ...s.tool };
+      for (const name of ["scale", "boxes"]) delete kept[name];
+      tool = toolSubject({ ...kept, ...made.tool });
+    }
+    return tonicPinned ? ({ ...tool, pinned: ["tonic"] } as Subject) : tool;
+  }
+  // a tool's scale is its own (its slug never follows the master): as a keyed widget it is pinned, so it keeps it
+  const pins = s.kind === "tool" ? (tonicPinned ? ["tonic", "scale"] : ["scale"]) : pinned;
+  return pins.length ? ({ ...made, pinned: pins } as Subject) : made;
+}
+
+function scaleParts(s: Subject): Parts {
+  const v = scaleRead(s)!;
   const t = toolOf(s, "scale-neck");
-  return t && findPentatonic(t.scale) ? t : null;
-};
-const modeScale = (s: Subject) => {
-  const t = toolOf(s, "scale-neck");
-  return t && findModePage(t.scale) ? t : null;
-};
+  const pent = t ? findPentatonic(t.scale) : null;
+  const key = t ? keyText(t.key, pent ? pentQuality(t.scale) : scaleText(t.scale)) : keyChoiceText(scaleKeyOf(s));
+  const view = viewOf(v);
+  if (view !== "positions") return { name: "Scale", key, detail: VIEWS.find((x) => x.value === view)!.label.toLowerCase() };
+  const style = styleOf(v);
+  // a basic pentatonic is "pentatonic" (the key says major or minor); the others go by name
+  const label = pent && !pent.basic ? pent.name : STYLES.find((x) => x.value === style)!.label.toLowerCase();
+  const ns = style === "3nps" ? nums(v.position) : t && !t.boxes ? null : nums(v.boxes);
+  return { name: "Scale", key, detail: ns?.length ? `${label}, ${runs(ns)}` : label };
+}
 
-const pentatonic = family({
-  id: "pentatonic",
-  title: "Pentatonic boxes",
-  words: ["pentatonic", "pent", "boxes", "box", "position", "pos", "scale", "blues"],
-  group: "scale",
-  sub: "On the fretboard",
-  tool: "scale-neck",
-  controls: [
-    { name: "scale", label: "Scale", kind: "choice", options: PENTATONICS.map((p) => ({ value: p.slug, label: p.name })), default: "minor-pentatonic" },
-    boxesControl(POSITION_COUNT.pentatonic),
+const scale = family({
+  id: "scale",
+  title: "Scale",
+  words: [
+    "scale", "scales", "pentatonic", "pent", "blues", "positions", "position", "pos", "boxes", "box", "3", "three", "notes", "per", "string", "3nps", "nps",
+    "fretboard", "neck", "whole", "overview", "guitar", "intervals", "interval", "degrees", "relative", "relatives", "modes", "mode",
   ],
-  make(v, key) {
-    const chosen = str(v.scale);
-    const scale = chosen && findPentatonic(chosen) ? chosen : cagedQualityOf(key) === "minor" ? "minor-pentatonic" : "major-pentatonic";
-    return toolSubject({ type: "scale-neck", scale, key: tonicOf(key), boxes: nums(v.boxes) ?? [1] });
-  },
-  read(s) {
-    const t = pentScale(s);
-    return t ? { scale: t.scale, boxes: boxesRead(t, range(POSITION_COUNT.pentatonic)) } : null;
-  },
-  parts(s) {
-    const t = pentScale(s)!;
-    return { name: findPentatonic(t.scale)!.name, key: keyText(t.key, pentQuality(t.scale)), detail: numbered("position", t.boxes) };
-  },
-});
-
-const scalePositions = family({
-  id: "scale-positions",
-  title: "Scale positions",
-  words: ["scale", "positions", "position", "pos", "boxes", "box", "mode", "modes"],
   group: "scale",
-  sub: "On the fretboard",
   tool: "scale-neck",
+  toolFor: (v) => (atPositions(v) && styleOf(v) !== "3nps" ? "scale-neck" : undefined),
+  hidden: ["scale"],
   controls: [
-    { name: "scale", label: "Scale", kind: "choice", options: MODE_PAGES.map((m) => ({ value: m.slug, label: m.name })), default: MODE_PAGES[0].slug },
-    boxesControl(POSITION_COUNT.scale, "Positions"),
+    { name: "view", label: "View", kind: "choice", options: VIEWS, default: "positions" },
+    { name: "style", label: "Style", kind: "choice", options: STYLES, default: "pentatonic", when: atPositions },
+    { ...boxesControl(POSITION_COUNT.pentatonic, "Position"), when: (v) => atPositions(v) && styleOf(v) !== "3nps" },
+    { name: "position", label: "Position", kind: "multi", options: numberOptions(POSITION_COUNT["3nps"]), max: 1, default: [1], when: (v) => atPositions(v) && styleOf(v) === "3nps" },
   ],
-  make(v, key) {
-    const chosen = str(v.scale);
-    const scale = chosen && findModePage(chosen) ? chosen : modeSlug(key);
-    return toolSubject({ type: "scale-neck", scale, key: tonicOf(key), boxes: nums(v.boxes) ?? [1] });
-  },
-  read(s) {
-    const t = modeScale(s);
-    return t ? { scale: t.scale, boxes: boxesRead(t, range(POSITION_COUNT.scale)) } : null;
-  },
-  parts(s) {
-    const t = modeScale(s)!;
-    return { name: "Scale positions", key: keyText(t.key, scaleText(t.scale)), detail: numbered("position", t.boxes) };
-  },
-});
-
-/** The learning components frame five positions only, so 3 notes per string stays the stage's `position` subject: one of seven. */
-const threeNps = family({
-  id: "three-nps",
-  title: "3 notes per string",
-  words: ["3", "three", "notes", "per", "string", "3nps", "nps", "position", "pos"],
-  group: "scale",
-  sub: "On the fretboard",
-  controls: [{ name: "position", label: "Position", kind: "choice", options: numberOptions(POSITION_COUNT["3nps"]), default: 1 }],
-  make(v, key) {
-    const n = Number(v.position);
-    const index = Number.isInteger(n) && n >= 1 && n <= POSITION_COUNT["3nps"] ? n - 1 : 0;
-    return { kind: "position", positionKind: "3nps", index, key };
-  },
-  read: (s) => (s.kind === "position" && s.positionKind === "3nps" ? { position: s.index + 1 } : null),
-  parts(s) {
-    const p = s as Extract<Subject, { kind: "position" }>;
-    return { name: "3 notes per string", key: keyChoiceText(p.key), detail: `position ${p.index + 1}` };
-  },
+  make: scaleMake,
+  read: scaleRead,
+  update: scaleUpdate,
+  parts: scaleParts,
 });
 
 const OVERVIEW = "overview";
@@ -295,7 +381,6 @@ const staff = family({
   title: "Staff",
   words: ["staff", "notation", "sing", "singing", "voice", "notes"],
   group: "scale",
-  sub: "Notes",
   tool: "staff",
   controls: [
     {
@@ -319,7 +404,7 @@ const staff = family({
   },
 });
 
-const ALL = [pentatonic, scalePositions, threeNps, caged, arpeggio, chordShapes, staff];
+const ALL = [scale, caged, arpeggio, chordShapes, staff];
 
 /** The palette's families, in its order. */
 export const FAMILIES: Family[] = ALL;
@@ -345,6 +430,7 @@ export function updateSubject(s: Subject, values: FamilyValues): Subject {
   const given = { ...values };
   // a cleared or mistyped chord keeps the one the widget has, never the key's
   if ("chord" in given && !isChord(str(given.chord))) delete given.chord;
+  if (f.update) return f.update(s, given);
   const merged = { ...f.read(s), ...given };
   if (s.kind === "tool") {
     // only the tonic is real here: a tool's scale is a main prop (read above), so a `make` never needs the mode. One that fell
@@ -365,17 +451,13 @@ export function updateSubject(s: Subject, values: FamilyValues): Subject {
 
 type OptionValue = string | number;
 
-/**
- * The values step two starts from in `key`: what the family makes there (the key's scale, its chord, box 1). "Add another"
- * starts with no toggle ticked; adding with none ticked takes the family's default (`addableValues`).
- */
-export function stepValues(f: Family, key: KeyChoice, another = false): FamilyValues {
-  const values = f.read(f.make({}, key)) ?? {};
-  if (!another) return values;
-  const cleared: FamilyValues = { ...values };
-  for (const c of f.controls) if (c.kind === "multi") cleared[c.name] = [];
-  return cleared;
+/** The values a family's add form starts from in `key`: what the family makes there (the key's scale, its chord, box 1). */
+export function stepValues(f: Family, key: KeyChoice): FamilyValues {
+  return f.read(f.make({}, key)) ?? {};
 }
+
+/** The controls shown for these values (a control with `when` only where it applies). */
+export const visibleControls = (f: Family, values: FamilyValues): FamilyControl[] => f.controls.filter((c) => !c.when || c.when(values));
 
 /** The values to make a widget from: a toggle with nothing ticked is left out, so the family's default stands. */
 export function addableValues(values: FamilyValues): FamilyValues {
@@ -416,20 +498,22 @@ export const toggleAll = (c: FamilyControl, current: FamilyValue | undefined): O
 /* ---------------------------------------------------------------- step two: "More", the component's other props */
 
 /**
- * The family's other props, from its component's docs: everything but the main controls and `key` (the master sets it). None for
- * the stage's own subjects (CAGED, 3 notes per string).
+ * The family's other props, from the docs of the component its values make (its own component when none are given): everything but
+ * the main controls, the hidden ones and `key` (the master sets it). None for the stage's own subjects (CAGED, 3 notes per string,
+ * the whole-neck views).
  */
-export function moreProps(f: Family): PropDoc[] {
-  if (!f.tool) return [];
-  const main = new Set([...f.controls.map((c) => c.name), "key", "type"]);
-  return (docOf(f.tool)?.props ?? []).filter((p) => !main.has(p.name));
+export function moreProps(f: Family, values?: FamilyValues): PropDoc[] {
+  const tool = values && f.toolFor ? f.toolFor(values) : f.tool;
+  if (!tool) return [];
+  const main = new Set([...f.controls.map((c) => c.name), ...(f.hidden ?? []), "key", "type"]);
+  return (docOf(tool)?.props ?? []).filter((p) => !main.has(p.name));
 }
 
 /** A tool widget's other props as the "More" fields show them, JSON text by prop name (only the props it has). */
 export function moreValues(s: Subject, f: Family): Record<string, string> {
   if (s.kind !== "tool") return {};
   const tool = s.tool as Record<string, unknown>;
-  return Object.fromEntries(moreProps(f).flatMap((p) => (tool[p.name] === undefined ? [] : [[p.name, JSON.stringify(tool[p.name])]])));
+  return Object.fromEntries(moreProps(f, f.read(s) ?? undefined).flatMap((p) => (tool[p.name] === undefined ? [] : [[p.name, JSON.stringify(tool[p.name])]])));
 }
 
 /**

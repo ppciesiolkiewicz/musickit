@@ -9,7 +9,7 @@ import type { KeyChoice } from "@/features/creator/model/key";
 import { CAGED_LETTERS, type CagedLetter } from "@/lib/chordKit/caged";
 import { POSITION_COUNT } from "@/lib/chordKit/scalePositions";
 import { NO_MEDIA, type MediaState } from "./commands";
-import { FAMILIES, keyChoiceText, type Family } from "./families";
+import { FAMILIES, keyChoiceText, type Family, type FamilyValues } from "./families";
 import { PALETTE_GROUPS, pinAgainst, subjectName, subjectTitle, type PaletteGroup, type PaletteResult, type StudioCommand, type Subject } from "./subject";
 
 const MAX_RESULTS = 12;
@@ -77,10 +77,10 @@ interface Entry {
   box?: number;
 }
 
-function entry(subject: Subject, group: PaletteGroup, detail: string, words: string[], sub?: string): Entry {
-  const result: PaletteResult = { id: `${group}:${JSON.stringify(subject)}`, label: subjectName(subject), detail, group, action: { type: "add", subject } };
+function entry(subject: Subject, group: PaletteGroup, detail: string, words: string[], sub?: string, label = subjectName(subject)): Entry {
+  const result: PaletteResult = { id: `${group}:${JSON.stringify(subject)}`, label, detail, group, action: { type: "add", subject } };
   if (sub) result.sub = sub;
-  return { result, words: [...nameWords(subjectName(subject)), ...words] };
+  return { result, words: [...nameWords(label), ...words] };
 }
 
 const nameWords = (name: string) => name.toLowerCase().split(/[^a-z0-9#]+/).filter(Boolean);
@@ -90,36 +90,38 @@ const familyById = (id: string): Family => {
   return f;
 };
 
-/** A family's row in `key`, or its "Add another" row. */
-function familyEntry(f: Family, key: KeyChoice, another = false): Entry {
-  const result: PaletteResult = {
-    id: `family:${f.id}${another ? ":another" : ""}`,
-    label: another ? `Add another: ${f.title}` : f.title,
-    detail: keyChoiceText(key),
-    group: f.group,
-    action: another ? { type: "family", familyId: f.id, key, another: true } : { type: "family", familyId: f.id, key },
-  };
+/** A family's row in `key`: the palette opens it in place, its options, its add button and its widgets on the stage. */
+function familyEntry(f: Family, key: KeyChoice): Entry {
+  const result: PaletteResult = { id: `family:${f.id}`, label: f.title, detail: keyChoiceText(key), group: f.group, action: { type: "family", familyId: f.id, key } };
   if (f.sub) result.sub = f.sub;
   return { result, words: [...nameWords(f.title), ...f.words] };
 }
 
 const range = (n: number) => Array.from({ length: n }, (_, i) => i + 1);
 
-/** The single widgets of a family a typed line can name: a box, a position, a CAGED shape or the CAGED overview. Search only. */
-function variants(f: Family, key: KeyChoice): Entry[] {
-  const one = (subject: Subject, words: string[], box?: number): Entry => {
-    const e = entry(subject, f.group, "", words, f.sub);
+/**
+ * The single widgets of a family a typed line can name: a box, a position, a Scale view (the fretboard, the overview, the relative
+ * modes, the intervals), a CAGED shape or the CAGED overview. Search only.
+ */
+function variants(f: Family, key: KeyChoice, has: (pluginId: string) => boolean): Entry[] {
+  const one = (subject: Subject, words: string[], box?: number, label?: string): Entry => {
+    const e = entry(subject, f.group, "", words, f.sub, label);
     return box === undefined ? e : { ...e, box };
   };
-  const numbered = (count: number, values: (n: number) => Record<string, number | number[]>, words: string[]) =>
-    range(count).map((n) => one(f.make(values(n), key), [...words, "box", "boxes", "pos", "position", String(n)], n - 1));
+  const numbered = (count: number, label: string, values: (n: number) => FamilyValues, words: string[]) =>
+    range(count).map((n) => one(f.make(values(n), key), [...words, "box", "boxes", "pos", "position", String(n)], n - 1, `${label} ${n}`));
+  const view = (v: string, words: string[]) => one(f.make({ view: v }, key), words);
   switch (f.id) {
-    case "pentatonic":
-      return numbered(POSITION_COUNT.pentatonic, (n) => ({ boxes: [n] }), ["pent", "pentatonic"]);
-    case "scale-positions":
-      return numbered(POSITION_COUNT.scale, (n) => ({ boxes: [n] }), ["scale", "positions"]);
-    case "three-nps":
-      return numbered(POSITION_COUNT["3nps"], (n) => ({ position: n }), ["3nps", "nps", "three"]);
+    case "scale":
+      return [
+        ...numbered(POSITION_COUNT.pentatonic, "Pentatonic box", (n) => ({ style: "pentatonic", boxes: [n] }), ["pent", "pentatonic"]),
+        ...numbered(POSITION_COUNT.scale, "Scale position", (n) => ({ style: "scale", boxes: [n] }), ["scale", "positions"]),
+        ...numbered(POSITION_COUNT["3nps"], "3 notes per string, position", (n) => ({ style: "3nps", position: [n] }), ["3nps", "nps", "three"]),
+        view("neck", ["fretboard", "neck", "scale", "notes", "whole"]),
+        view("overview", ["fretboard", "positions", "guitar", "neck", "overview"]),
+        view("relatives", ["modes", "same", "notes", "relatives", "relative"]),
+        ...(has("scale") ? [view("intervals", ["scale", "notes", "intervals", "interval", "degrees"])] : []),
+      ];
     case "caged":
       return [
         one(f.make({}, key), ["fretboard", "neck", "map", "boxes", "whole", "overview"]),
@@ -131,14 +133,14 @@ function variants(f: Family, key: KeyChoice): Entry[] {
 }
 
 /**
- * Every widget there is, in `key`, by section and subsection. A family is its row and its "Add another" row (the catalog), or its
- * row and its single variants (`search`: "pent pos 2", "e shape").
+ * Every widget there is, in `key`, by section and subsection. A family is its row (the catalog), or its row and its single variants
+ * (`search`: "pent pos 2", "fretboard", "e shape").
  */
 function entries(pluginIds: string[], key: KeyChoice, search = false): Entry[] {
   const has = (id: string) => pluginIds.includes(id);
   const fam = (id: string) => {
     const f = familyById(id);
-    return search ? [familyEntry(f, key), ...variants(f, key)] : [familyEntry(f, key), familyEntry(f, key, true)];
+    return search ? [familyEntry(f, key), ...variants(f, key, has)] : [familyEntry(f, key)];
   };
   const panel = (id: string, group: PaletteGroup, detail: string, sub?: string) => (has(id) ? [entry({ kind: "plugin", plugin: id, key }, group, detail, PLUGIN_WORDS[id] ?? [], sub)] : []);
   const out: Entry[] = [
@@ -146,14 +148,9 @@ function entries(pluginIds: string[], key: KeyChoice, search = false): Entry[] {
     entry({ kind: "band", key }, "setup", "Click, drone, drums and bass", ["metronome", "drone", "band", "drums", "bass", "click", "tempo"]),
     entry({ kind: "tuner" }, "setup", "Tune before you play", ["tuner", "tune", "tuning"]),
     entry({ kind: "mic" }, "setup", "Guitar or voice: lights the notes you play on pinned and selected widgets", ["mic", "microphone", "guitar", "voice", "listen", "input", "audio", "hear", "notes", "accuracy"]),
-    ...panel("scale", "scale", "The notes and their degrees", "Notes"),
-    entry({ kind: "section", section: "relatives", key }, "scale", "The modes that share these notes", ["modes", "same", "notes", "relatives", "relative"], "Notes"),
+    // the Scale family is every scale view: positions, the whole neck, the overview, the intervals, the relative modes
+    ...fam("scale"),
     ...fam("staff"),
-    entry({ kind: "neck", key }, "scale", "Every note of the scale on the neck", ["fretboard", "neck", "scale", "notes"], "On the fretboard"),
-    entry({ kind: "section", section: "guitar", key }, "scale", "The neck with its positions to pick from", ["fretboard", "positions", "guitar", "neck"], "On the fretboard"),
-    ...fam("pentatonic"),
-    ...fam("scale-positions"),
-    ...fam("three-nps"),
   ];
   // a family without a subsection comes first in its section, above the first subsection heading
   out.push(...fam("chord-shapes"));
@@ -253,10 +250,13 @@ const modeOnStage = (p: Parsed, stageKey: KeyChoice): KeyChoice | null =>
 
 /** every typed word starts one of the entry's words */
 const matches = (e: Entry, typed: string[]) => typed.every((w) => e.words.some((x) => x.startsWith(w)));
-/** how many typed words start a word of the name itself: "fretboard" ranks Fretboard and Fretboard positions over CAGED fretboard; ties keep the catalog order */
+/**
+ * How many typed words start a word of the name itself: "fretboard" ranks Fretboard and Fretboard positions over CAGED fretboard. On
+ * a tie a widget beats a family row ("whole neck" is the fretboard, one Enter away), then the catalog order stands.
+ */
 const nameScore = (e: Entry, typed: string[]) => {
   const name = e.result.label.toLowerCase().split(/[^a-z0-9#]+/).filter(Boolean);
-  return typed.filter((w) => name.some((x) => x.startsWith(w))).length * 10 + (name[0]?.startsWith(typed[0] ?? "") ? 5 : 0);
+  return typed.filter((w) => name.some((x) => x.startsWith(w))).length * 10 + (name[0]?.startsWith(typed[0] ?? "") ? 5 : 0) + (e.result.action.type === "add" ? 1 : 0);
 };
 
 function commands(p: Parsed, media: MediaState): PaletteResult[] {
@@ -282,7 +282,7 @@ export function searchPalette(query: string, pluginIds: string[], stageKey: KeyC
   // "e shape": the one CAGED widget, as the CAGED family makes it
   if (p.shapes.length) found = [entry(familyById("caged").make({ shapes: p.shapes }, key ?? stageKey), "caged", "", [])];
   else if (keyOnly) {
-    // in the families' own order: pentatonic boxes first
+    // in the families' own order: Scale first
     const rank = (e: Entry) => FAMILIES.findIndex((f) => e.result.action.type === "family" && f.id === e.result.action.familyId);
     found = key ? all.filter((e) => e.result.action.type === "family").sort((a, b) => rank(a) - rank(b)) : [];
   }
@@ -303,4 +303,23 @@ export function searchPalette(query: string, pluginIds: string[], stageKey: KeyC
   const strong = !keyOnly && cmds.length > 0 && p.words.some((w) => w.length >= 3 && COMMANDS.some((c) => c.words.some((x) => x.startsWith(w))));
   const out = strong ? [...cmds, ...keyed] : [...keyed, ...cmds];
   return out.filter((r, i) => out.findIndex((x) => x.id === r.id) === i).slice(0, MAX_RESULTS);
+}
+
+/** What picking a palette row does (`paletteChoice`). */
+export type PaletteChoice = "open" | "collapse" | "add-open" | "command" | "add" | "remove";
+
+/**
+ * What picking row `r` does. A click: a family opens (or closes when open), a command runs, a widget goes on the stage or, when
+ * one like it is there (`onStage`), comes off. Enter in the search always adds: the open family's widget when its row is active or
+ * the active row is not a family (the footer says Enter adds it), else that row's widget, even one already on the stage.
+ */
+export function paletteChoice(r: PaletteResult, opts: { enter: boolean; openFamily: string | null; onStage: boolean }): PaletteChoice {
+  const { enter, openFamily, onStage } = opts;
+  if (r.action.type === "family") {
+    if (r.action.familyId !== openFamily) return "open";
+    return enter ? "add-open" : "collapse";
+  }
+  if (enter && openFamily !== null) return "add-open";
+  if (r.action.type === "command") return "command";
+  return !enter && onStage ? "remove" : "add";
 }
