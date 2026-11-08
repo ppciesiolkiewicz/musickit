@@ -78,6 +78,9 @@ export interface ScalePosition {
 
 export type PositionKind = "pentatonic" | "scale" | "3nps";
 
+/** How many positions `positionsFor` gives of each kind, in any key: five boxes, five scale positions, seven 3-notes-per-string. */
+export const POSITION_COUNT: Record<PositionKind, number> = { pentatonic: 5, scale: 5, "3nps": 7 };
+
 /** A place a note could be filled into a box: `out` frets past the box, `gap` frets from its string's notes. */
 interface Option {
   c: ScaleCell;

@@ -1,7 +1,7 @@
 "use client";
 
 import { noteState, type Others } from "../../cues/visibility";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useMicPitch } from "@/components/practice/useMicPitch";
 import MicButton from "@/components/theory/singing/MicButton";
 import InputChip from "@/components/InputChip";
@@ -10,6 +10,7 @@ import { getSharedPiano, wakeAudio } from "@/features/sound";
 import ToolSettings from "@/components/practice/ToolSettings";
 import { VOICES, buildLadder, clefFor, hzToMidi, spellName, withNotesUnder } from "@/features/theory/singing";
 import { createSmoother, type Pitch } from "@/features/tuner/pitch";
+import type { ExternalInput } from "@/features/tuner";
 import { staffLabelSystem, type SingingLabels } from "@/features/theory/labels";
 import { useLabelSystem } from "@/features/theory/useLabelSystem";
 import { useAccuracy } from "@/features/theory/useAccuracy";
@@ -33,8 +34,10 @@ const GAP_FRAMES = 6;
  * exercise step both are parts of the step's "Start exercise" (`useStepPart`), which starts them together. With the
  * mic the notes are labelled by degree or solfège (`labels`), never by bare name. Its settings show as tags (key, voice,
  * drone, click), and with the mic an accuracy row sets how close counts as on the note (the student's setting, shared).
+ * Given an `external` input (the teacher studio's one audio input) it opens no microphone and shows no input chip: it draws that
+ * input's pitch, and Start / Stop is the host's. Not a plan prop: plan output never sets it.
  */
-export function View({ slug, pc, voice, notes, under = false, enable, highlight, mute, hide, others, mic: micButton = true, drone = false, click = false, bpm = 60, labels }: { slug: string; pc: number; voice: keyof typeof VOICES; notes?: number[]; under?: boolean; enable?: number[]; highlight?: number[]; mute?: number[]; hide?: number[]; others?: Others; mic?: boolean; drone?: boolean; click?: boolean; bpm?: number; labels?: SingingLabels }) {
+export function View({ slug, pc, voice, notes, under = false, enable, highlight, mute, hide, others, mic: micButton = true, drone = false, click = false, bpm = 60, labels, external }: { slug: string; pc: number; voice: keyof typeof VOICES; notes?: number[]; under?: boolean; enable?: number[]; highlight?: number[]; mute?: number[]; hide?: number[]; others?: Others; mic?: boolean; drone?: boolean; click?: boolean; bpm?: number; labels?: SingingLabels; external?: ExternalInput }) {
   const range = VOICES[voice];
   // three looks: highlighted notes ringed, enabled ones plain, muted ones faint
   const state = useMemo(() => {
@@ -100,7 +103,13 @@ export function View({ slug, pc, voice, notes, under = false, enable, highlight,
   const [setting] = useLabelSystem();
   const system = staffLabelSystem(labels, micButton, setting);
   const [cents] = useAccuracy();
-  const { status } = useMicPitch(micOn && micButton, undefined, onPitch);
+  const { status } = useMicPitch(micOn && micButton && !external, undefined, onPitch);
+  const listening = external ? external.listening : micOn;
+  // the host's pitch comes smoothed: drawn as it is
+  const externalHz = external ? external.hz : undefined;
+  useEffect(() => {
+    if (externalHz !== undefined) pitch.current = externalHz === null ? null : hzToMidi(externalHz);
+  }, [externalHz]);
   const startMic = () => {
     pitch.current = null;
     setMicOn(true);
@@ -109,7 +118,7 @@ export function View({ slug, pc, voice, notes, under = false, enable, highlight,
     void wakeAudio();
     setBackingOn(true);
   };
-  useStepPart({ kind: micButton && "mic", on: micOn, start: startMic, stop: () => setMicOn(false) });
+  useStepPart({ kind: micButton && !external && "mic", on: micOn, start: startMic, stop: () => setMicOn(false) });
   const group = useStepPart({ kind: backing.length > 0 && backing[0], on: backingOn, start: startBacking, stop: stopBacking });
   if (!ladder) return null;
   const tap = async (i: number) => {
@@ -126,8 +135,8 @@ export function View({ slug, pc, voice, notes, under = false, enable, highlight,
   return (
     <div className="flex flex-col gap-2">
       <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400">
-        {micButton && <MicButton on={micOn} onClick={() => (micOn ? setMicOn(false) : startMic())} />}
-        {micButton && <InputChip status={status} />}
+        {micButton && <MicButton on={listening} onClick={() => (external ? external.onToggle() : micOn ? setMicOn(false) : startMic())} />}
+        {micButton && !external && <InputChip status={status} />}
         {backing.length > 0 && (
           <span className="inline-flex items-center gap-2">
             <button type="button" onClick={() => (backingOn ? stopBacking() : startBacking())} aria-pressed={backingOn}

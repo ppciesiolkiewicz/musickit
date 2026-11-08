@@ -2,7 +2,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { EMPTY_KEY } from "@/features/creator/model/key";
 import { CAMERA_CORNER, DEFAULT_VIEW, EMPTY_STAGE, FRAME_ASPECT, FULL, KEEP_IN, MAX_ZOOM, MIN_SIZE, addSubject, drawZ, paintOrder, clampRect, defaultRect, fillRect, fixedRect, hasAspect, panView, resizeFrom, resizeKeepingShape, withAspect, sanitiseStage, stageReducer, zoomAt, type Layer, type Stage } from "./layers";
-import type { Subject } from "./subject";
+import { updateSubject } from "./families";
+import { subjectIdentity, type Subject } from "./subject";
 
 const ids = ["scale", "chords", "circle", "keys", "progressions", "modes", "triads", "caged", "arpeggios", "improv", "tunings"];
 const near = (a: number, b: number) => assert.ok(Math.abs(a - b) < 1e-9, `${a} ≉ ${b}`);
@@ -277,6 +278,31 @@ test("withAspect gives a rect its content's shape, keeping its width and corner 
   const tall = withAspect({ x: 0, y: 0, w: 0.9, h: 0.2 }, 0.5);
   near(tall.h, 1);
   near(shape(tall), 0.5);
+});
+
+test("withAspect moves a rect that would hang out of the frame up and left, keeping its shape", () => {
+  // a tall widget (CAGED two shapes, every pentatonic box) added at its spot near the top
+  const tall = withAspect({ x: 0.3, y: 0.08, w: 0.4, h: 0.3 }, 0.5);
+  near(tall.h, 1);
+  near(tall.y, 0);
+  near(shape(tall), 0.5);
+  const wide = withAspect({ x: 0.8, y: 0.5, w: 0.5, h: 0.2 }, 3);
+  near(wide.x + wide.w, 1);
+  assert.ok(wide.y + wide.h <= 1 + 1e-9);
+  near(shape(wide), 3);
+});
+
+test("two identical tool widgets both stay on the stage, share an identity and update apart", () => {
+  const pent: Subject = { kind: "tool", tool: { type: "scale-neck", scale: "minor-pentatonic", key: 9, boxes: [1] } };
+  let s = addSubject(EMPTY_STAGE, "a", pent);
+  s = addSubject(s, "b", pent);
+  assert.equal(s.layers.length, 2);
+  const kept = sanitiseStage(JSON.parse(JSON.stringify(s)), ids);
+  assert.deepEqual(kept.layers.map((l) => l.subject), [pent, pent]);
+  assert.equal(subjectIdentity(kept.layers[0].subject), subjectIdentity(kept.layers[1].subject));
+  const updated = stageReducer(kept, { type: "swap", id: "b", subject: updateSubject(kept.layers[1].subject, { boxes: [2] }) });
+  assert.deepEqual(updated.layers[0].subject, pent);
+  assert.deepEqual(updated.layers[1].subject, { kind: "tool", tool: { type: "scale-neck", scale: "minor-pentatonic", key: 9, boxes: [2] } });
 });
 
 test("resizeKeepingShape keeps the shape and the opposite corner", () => {

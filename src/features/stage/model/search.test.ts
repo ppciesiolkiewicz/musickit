@@ -2,30 +2,50 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { EMPTY_KEY } from "@/features/creator/model/key";
 import { groupResults, paletteCatalog, searchPalette } from "./search";
+import { FAMILIES } from "./families";
 import { followMaster, isControl, takesMic, isPage, keyOf, pinAgainst, sanitiseSubject, subjectIdentity, subjectTitle, withKey, withMaster, withOwnKey, type Subject } from "./subject";
 
 const ids = ["scale", "chords", "circle", "keys", "progressions", "modes", "triads", "caged", "arpeggios", "improv", "tunings"];
 const E_MINOR = { tonicPc: 4, family: 0, mode: 5 };
 const A_DORIAN = { tonicPc: 9, family: 0, mode: 1 };
 
-const add = (q: string, stageKey = EMPTY_KEY) => searchPalette(q, ids, stageKey).map((r) => (r.action.type === "add" ? r.action.subject : r.action.command));
+const add = (q: string, stageKey = EMPTY_KEY) =>
+  searchPalette(q, ids, stageKey).map((r) => (r.action.type === "add" ? r.action.subject : r.action.type === "family" ? `family:${r.action.familyId}` : r.action.command));
 const first = (q: string, stageKey = EMPTY_KEY) => add(q, stageKey)[0];
 
-test("a key with a mode lists the widgets that follow a key, in that key, with the typed key pinned", () => {
-  const r = add("a dorian", E_MINOR);
-  assert.deepEqual(r[0], { kind: "band", key: A_DORIAN, pinned: ["tonic", "scale"] });
-  assert.deepEqual(r[1], { kind: "plugin", plugin: "scale", key: A_DORIAN, pinned: ["tonic", "scale"] });
-  assert.ok(r.every((s) => typeof s === "object" && "key" in s && s.key.tonicPc === 9 && s.key.mode === 1));
+const familyRows = (q: string, stageKey = EMPTY_KEY) => searchPalette(q, ids, stageKey).flatMap((r) => (r.action.type === "family" ? [r.action] : []));
+
+test("a key with a mode lists the families that take it, one row each, in that key", () => {
+  const r = searchPalette("a dorian", ids, E_MINOR);
+  assert.ok(r.length > 0);
+  assert.ok(r.every((x) => x.action.type === "family"));
+  const fams = familyRows("a dorian", E_MINOR);
+  assert.deepEqual(fams.map((f) => f.familyId), FAMILIES.map((f) => f.id));
+  for (const f of fams) assert.deepEqual(f.key, A_DORIAN);
+  assert.ok(fams.every((f) => !f.another));
 });
 
-test("a mode alone keeps the master's root, even none, and leaves out the metronome", () => {
-  const r = add("dorian");
-  assert.deepEqual(r[0], { kind: "plugin", plugin: "scale", key: { tonicPc: null, family: 0, mode: 1 }, pinned: ["scale"] });
-  assert.ok(!r.some((s) => typeof s === "object" && s.kind === "band"));
+test("a mode alone lists the families, never a command or a flat list of boxes, on the master's root (even none)", () => {
+  for (const q of ["ionian", "dorian", "major"]) {
+    const r = searchPalette(q, ids, EMPTY_KEY);
+    assert.ok(r.length > 0, q);
+    assert.ok(r.every((x) => x.action.type === "family"), q);
+  }
+  assert.deepEqual(familyRows("dorian")[0].key, { tonicPc: null, family: 0, mode: 1 });
+  assert.deepEqual(familyRows("ionian", E_MINOR)[0].key, { tonicPc: 4, family: 0, mode: 0 });
+  assert.equal(new Set(familyRows("ionian").map((f) => f.familyId)).size, familyRows("ionian").length);
 });
 
 test("a mode without a root uses the master's root and pins only the scale", () => {
   assert.deepEqual(first("phrygian fretboard", E_MINOR), { kind: "neck", key: { tonicPc: 4, family: 0, mode: 2 }, pinned: ["scale"] });
+});
+
+test("a pentatonic box found on a stage with no root is not pinned; one typed in a key is", () => {
+  const box2 = add("pent pos 2").find((s) => typeof s === "object" && s.kind === "tool") as Subject;
+  assert.ok(box2 && box2.kind === "tool" && box2.pinned === undefined);
+  const ePent = add("e minor pent pos 2").find((s) => typeof s === "object" && s.kind === "tool") as Subject;
+  assert.ok(ePent && ePent.kind === "tool" && ePent.tool.type === "scale-neck" && ePent.tool.key === 4);
+  assert.deepEqual(ePent.pinned, ["tonic"]);
 });
 
 test("a widget in the master key is not pinned", () => {
@@ -37,15 +57,18 @@ test("fretboard ranks the scale fretboard first, then the others with fretboard 
   assert.deepEqual(r.slice(0, 3), ["Fretboard", "Fretboard positions", "CAGED fretboard"]);
 });
 
-test("e shape is a CAGED box, and its letter is not read as the root", () => {
+test("e shape is a CAGED box as the CAGED family makes it, and its letter is not read as the root", () => {
   assert.deepEqual(add("e shape", E_MINOR), [{ kind: "caged", key: E_MINOR, shape: "E" }]);
+  assert.deepEqual(first("e shape"), { kind: "caged", key: EMPTY_KEY, shape: "E" });
   assert.deepEqual(first("a minor c shape", E_MINOR), { kind: "caged", key: { tonicPc: 9, family: 0, mode: 5 }, shape: "C", pinned: ["tonic"] });
 });
 
-test("caged finds the overview, the fretboard, the five boxes and the page", () => {
-  const r = add("caged", E_MINOR).filter((s) => typeof s === "object") as Subject[];
+test("caged finds the CAGED family, the overview, the fretboard, the five boxes and the page", () => {
+  const all = add("caged", E_MINOR);
+  assert.ok(all.includes("family:caged"));
+  const r = all.filter((s) => typeof s === "object") as Subject[];
   assert.ok(r.some((s) => s.kind === "plugin" && s.plugin === "caged" && !s.full));
-  assert.deepEqual(r.filter((s) => s.kind === "caged").map((s) => (s as { shape: unknown }).shape), [null, "C", "A", "G", "E", "D"]);
+  assert.deepEqual(r.filter((s) => s.kind === "caged").map((s) => (s as { shape: string | null }).shape), [null, "C", "A", "G", "E", "D"]);
   assert.ok(r.some((s) => s.kind === "plugin" && s.plugin === "caged" && s.full));
 });
 
@@ -54,14 +77,27 @@ test("sus gives one circle diagram per chord; a Roman numeral picks one", () => 
   assert.deepEqual(add("sus iv", E_MINOR), [{ kind: "bubble", key: E_MINOR, degree: 3 }]);
 });
 
-test("minor pent pos 1 is box 0 of E aeolian", () => {
-  assert.deepEqual(first("e minor pent pos 1"), { kind: "position", key: E_MINOR, positionKind: "pentatonic", index: 0, pinned: ["tonic", "scale"] });
+test("e minor pent pos 1 is one pentatonic widget, box 1 of E minor, with the tonic pinned", () => {
+  const r = searchPalette("e minor pent pos 1", ids, EMPTY_KEY);
+  assert.equal(r[0].action.type, "add");
+  assert.deepEqual(first("e minor pent pos 1"), { kind: "tool", tool: { type: "scale-neck", scale: "minor-pentatonic", key: 4, boxes: [1] }, pinned: ["tonic"] });
+  // in the master key nothing is pinned
+  assert.deepEqual(first("pent pos 2", E_MINOR), { kind: "tool", tool: { type: "scale-neck", scale: "minor-pentatonic", key: 4, boxes: [2] } });
+  assert.deepEqual(first("c major pent box 3"), { kind: "tool", tool: { type: "scale-neck", scale: "major-pentatonic", key: 0, boxes: [3] }, pinned: ["tonic"] });
+  // the anti-goal: A minor pentatonic box 1 is one search and one Enter
+  assert.deepEqual(first("a minor pentatonic box 1"), { kind: "tool", tool: { type: "scale-neck", scale: "minor-pentatonic", key: 9, boxes: [1] }, pinned: ["tonic"] });
 });
 
-test("pent with no mode is the minor pentatonic; without a box it offers boxes 1 to 5", () => {
-  const boxes = add("a pentatonic").filter((s) => typeof s === "object" && s.kind === "position") as { index: number; key: unknown }[];
-  assert.deepEqual(boxes.map((s) => s.index), [0, 1, 2, 3, 4]);
-  assert.deepEqual(boxes[0].key, { tonicPc: 9, family: 0, mode: 5 });
+test("pent with no mode is the minor pentatonic; without a box it offers the family and boxes 1 to 5", () => {
+  const r = add("a pentatonic");
+  assert.ok(r.includes("family:pentatonic"));
+  const boxes = r.filter((s) => typeof s === "object" && s.kind === "tool") as { tool: { scale: string; key: number; boxes: number[] } }[];
+  assert.deepEqual(boxes.map((s) => s.tool.boxes), [[1], [2], [3], [4], [5]]);
+  assert.ok(boxes.every((s) => s.tool.scale === "minor-pentatonic" && s.tool.key === 9));
+});
+
+test("scale pos 2 is the scale-positions widget in the key's own mode", () => {
+  assert.deepEqual(first("d dorian scale pos 2"), { kind: "tool", tool: { type: "scale-neck", scale: "dorian", key: 2, boxes: [2] }, pinned: ["tonic"] });
 });
 
 test("3nps box 2 gives the second three-notes-per-string position", () => {
@@ -130,9 +166,16 @@ test("the catalog lists every widget in the master key, by section, plus camera 
   assert.ok(subjects.some((s) => s.kind === "band"));
   assert.ok(subjects.some((s) => s.kind === "tuner"));
   for (const section of ["chords", "relatives", "guitar"]) assert.ok(subjects.some((s) => s.kind === "section" && s.section === section), section);
-  assert.equal(subjects.filter((s) => s.kind === "position" && s.positionKind === "pentatonic").length, 5);
+  // no per-box rows: one row per family instead, and an Add another row each
+  assert.ok(!subjects.some((s) => s.kind === "position" || s.kind === "caged" || s.kind === "tool"));
+  const fams = c.flatMap((r) => (r.action.type === "family" ? [r.action] : []));
+  for (const id of ["pentatonic", "scale-positions", "three-nps", "caged"]) {
+    assert.equal(fams.filter((f) => f.familyId === id && !f.another).length, 1, id);
+    assert.equal(fams.filter((f) => f.familyId === id && f.another).length, 1, id);
+  }
+  assert.deepEqual(fams.filter((f) => !f.another).map((f) => f.familyId).sort(), FAMILIES.map((f) => f.id).sort());
+  for (const f of fams) assert.deepEqual(f.key, E_MINOR);
   assert.equal(subjects.filter((s) => s.kind === "bubble").length, 7);
-  assert.deepEqual(subjects.filter((s) => s.kind === "caged").map((s) => (s as { shape: unknown }).shape), [null, "C", "A", "G", "E", "D"]);
   assert.equal(subjects.filter((s) => s.kind === "plugin" && s.full).length, 10);
   // the compact chords and modes panels repeat Chords in the key and Modes with the same notes; no single chords
   assert.ok(!subjects.some((s) => s.kind === "plugin" && !s.full && (s.plugin === "chords" || s.plugin === "modes")));
@@ -146,7 +189,7 @@ test("the catalog comes in section order, each section in one run, subsections t
   const c = paletteCatalog(ids, E_MINOR);
   assert.deepEqual([...new Set(c.map((r) => r.group))], ["setup", "scale", "chords", "caged", "theory", "pages", "brand", "studio"]);
   const subs = c.filter((r) => r.group === "scale").map((r) => r.sub);
-  assert.deepEqual([...new Set(subs)], ["Notes", "On the fretboard", "Pentatonic boxes", "Scale positions", "3 notes per string"]);
+  assert.deepEqual([...new Set(subs)], ["Notes", "On the fretboard"]);
   assert.deepEqual(groupResults(c).flatMap((g) => g.results), c);
 });
 
@@ -289,7 +332,8 @@ test("logo and url are in the catalog and found by name; brand finds both", () =
 
 test("the audio input lights the widgets that draw fretboards and chord boxes", () => {
   const takers = paletteCatalog(ids, E_MINOR).flatMap((r) => (r.action.type === "add" && takesMic(r.action.subject) ? [r.action.subject] : []));
-  for (const kind of ["neck", "position", "bubble"]) assert.ok(takers.some((s) => s.kind === kind), kind);
+  for (const kind of ["neck", "bubble"]) assert.ok(takers.some((s) => s.kind === kind), kind);
+  assert.ok(takesMic({ kind: "position", key: E_MINOR, positionKind: "3nps", index: 0 }));
   assert.ok(takesMic({ kind: "chord", symbol: "E6" }));
   assert.ok(takesMic({ kind: "section", section: "guitar", key: E_MINOR }));
   assert.ok(!takesMic({ kind: "section", section: "relatives", key: E_MINOR }));

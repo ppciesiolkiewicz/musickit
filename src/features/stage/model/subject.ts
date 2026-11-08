@@ -6,8 +6,13 @@
  */
 import { EMPTY_KEY, keyContext, modeName, sanitiseKey, type KeyChoice } from "@/features/creator/model/key";
 import { tonicName } from "@/features/theory";
-import { CAGED_LETTERS, formsFor, type CagedLetter, type CagedQuality } from "@/lib/chordKit/caged";
+import { CAGED_LETTERS, formsFor, type CagedLetter } from "@/lib/chordKit/caged";
 import type { PositionKind } from "@/lib/chordKit/scalePositions";
+import { TOOLS, type PlanTool, type ToolName } from "@/features/plan/model/tools";
+import { STAGE_TOOLS, toolKey, withToolKey } from "./toolKey";
+import { cagedQualityOf as cagedQuality, describeParts } from "./families";
+
+export { cagedQualityOf } from "./families";
 
 /** Every chord in the key · Modes with the same notes · Scale on guitar */
 export type ScaleSection = "chords" | "relatives" | "guitar";
@@ -32,8 +37,13 @@ export type Subject =
   | ({ kind: "bubble"; degree: number } & Keyed)
   /** the scale's notes on the whole neck */
   | ({ kind: "neck" } & Keyed)
-  /** the five CAGED boxes on the whole neck (no shape), or one box: its chord, arpeggio, pentatonic and scale */
-  | ({ kind: "caged"; shape: CagedLetter | null } & Keyed)
+  /** the five CAGED boxes on the whole neck (no shape), or one box: its chord, arpeggio, pentatonic and scale; `shapes` (CAGED order, non-empty) stacks several boxes and wins over `shape` */
+  | ({ kind: "caged"; shape: CagedLetter | null; shapes?: CagedLetter[] } & Keyed)
+  /**
+   * a learning component of the AI plan (`STAGE_TOOLS`), stored as the plan parses it. The master moves its key (tonic) only;
+   * its scale is its own. `pinned` can only hold the tonic.
+   */
+  | { kind: "tool"; tool: PlanTool; pinned?: ["tonic"] }
   | { kind: "key" }
   | { kind: "tuner" }
   /** the studio's one audio input (guitar or voice; saved as "mic"): the notes it hears light up on the pinned and selected widgets */
@@ -65,7 +75,11 @@ export interface PaletteResult {
   group: PaletteGroup;
   /** a subsection inside the group ("On the fretboard"), shown as a smaller heading */
   sub?: string;
-  action: { type: "add"; subject: Subject } | { type: "command"; command: StudioCommand };
+  /**
+   * `add` puts the subject on the stage; `command` runs a studio command; `family` offers a widget family (`families.ts`) in `key`,
+   * its props to pick next. `another` marks the family's "Add another" row: a further widget beside the ones on the stage.
+   */
+  action: { type: "add"; subject: Subject } | { type: "command"; command: StudioCommand } | { type: "family"; familyId: string; key: KeyChoice; another?: boolean };
 }
 
 /** The palette's categories, in the order it lists them, with the name on each separator. */
@@ -111,19 +125,26 @@ const DEGREE_ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII"];
 
 export const isKeyed = (s: Subject): s is Extract<Subject, Keyed> => "key" in s;
 
+type ToolSubject = Extract<Subject, { kind: "tool" }>;
+/** A tool widget moved to the tonic `pc` (none: as it is); its pins stay. */
+const toolTo = (s: ToolSubject, pc: number | null): ToolSubject => (pc === null ? s : { ...s, tool: withToolKey(s.tool, pc) });
+
+/** The subject's `KeyChoice`. A tool widget has none: its key is a pitch class on the tool (`toolKey`) and its scale a slug. */
 export function keyOf(s: Subject): KeyChoice | null {
   return isKeyed(s) ? s.key : null;
 }
 
-/** The subject in another key, nothing pinned or unpinned; subjects without a key (chord, logo, url, camera, screen, tuner, audio input, the Key widget) come back as they are. */
+/** The subject in another key, nothing pinned or unpinned (a tool takes the tonic only); subjects without a key (chord, logo, url, camera, screen, tuner, audio input, the Key widget) come back as they are. */
 export function withKey(s: Subject, key: KeyChoice): Subject {
+  if (s.kind === "tool") return toolTo(s, key.tonicPc);
   return isKeyed(s) ? { ...s, key } : s;
 }
 
 const sameScale = (a: KeyChoice, b: KeyChoice) => a.family === b.family && a.mode === b.mode;
 
-/** The subject after the master Key & scale changed to `master`: every part of its key that is not pinned follows. */
+/** The subject after the master Key & scale changed to `master`: every part of its key that is not pinned follows (a tool's tonic only). */
 export function withMaster(s: Subject, master: KeyChoice): Subject {
+  if (s.kind === "tool") return s.pinned ? s : toolTo(s, master.tonicPc);
   if (!isKeyed(s)) return s;
   const pinned = s.pinned ?? [];
   const tonicPc = pinned.includes("tonic") ? s.key.tonicPc : master.tonicPc;
@@ -133,6 +154,10 @@ export function withMaster(s: Subject, master: KeyChoice): Subject {
 
 /** The subject's key changed on the widget: the parts that changed are pinned, so the master leaves them alone from now on. */
 export function withOwnKey(s: Subject, key: KeyChoice): Subject {
+  if (s.kind === "tool") {
+    const own = toolKey(s.tool);
+    return own === null || key.tonicPc === null || key.tonicPc === own ? s : { ...toolTo(s, key.tonicPc), pinned: ["tonic"] };
+  }
   if (!isKeyed(s)) return s;
   const pins = new Set(s.pinned ?? []);
   if (key.tonicPc !== s.key.tonicPc) pins.add("tonic");
@@ -142,14 +167,25 @@ export function withOwnKey(s: Subject, key: KeyChoice): Subject {
 
 /** Back to following the master in everything. */
 export function followMaster(s: Subject, master: KeyChoice): Subject {
+  if (s.kind === "tool") return withMaster({ kind: "tool", tool: s.tool }, master);
   if (!isKeyed(s)) return s;
   const { pinned: _pinned, ...rest } = s;
   void _pinned;
   return withMaster(rest as Subject, master);
 }
 
-/** A new widget picked with a key of its own ("g dorian fretboard"): what differs from the master is pinned. */
-export function pinAgainst(s: Subject, master: KeyChoice): Subject {
+/**
+ * A new widget picked with a key of its own ("g dorian fretboard"): what differs from the master is pinned. A tool is pinned
+ * when it was made in a key other than the master's (`madeIn`, the master's when not given), or its own key is not that key's
+ * tonic (an arpeggio given G7 in C). A family makes a widget in C when the key has no root, so one made on a stage with no root
+ * is not pinned and follows the master once it is set.
+ */
+export function pinAgainst(s: Subject, master: KeyChoice, madeIn: KeyChoice = master): Subject {
+  if (s.kind === "tool") {
+    const own = toolKey(s.tool);
+    const made = madeIn.tonicPc;
+    return own !== null && (made !== master.tonicPc || own !== (made ?? 0)) ? { ...s, pinned: ["tonic"] } : s;
+  }
   if (!isKeyed(s)) return s;
   const pins: KeyPart[] = [];
   if (s.key.tonicPc !== master.tonicPc) pins.push("tonic");
@@ -170,7 +206,8 @@ const MIC_PAGES = ["scale", "modes", "chords", "progressions", "caged"];
 /**
  * Whether the audio input lights notes on the widget: it draws fretboards, scale positions or chord boxes, which ring the note heard.
  * Keep in step with the renderers (ScaleNeck, PositionBox, ChordDiagram, and on their pages the arpeggio necks and TriadBox read
- * `HeardNote`); the rest show nothing.
+ * `HeardNote`, as do the scale-neck, arpeggio-neck and chord-shapes tools through them); a staff tool draws the input's pitch; the rest
+ * show nothing.
  */
 export function takesMic(s: Subject): boolean {
   switch (s.kind) {
@@ -179,6 +216,10 @@ export function takesMic(s: Subject): boolean {
     case "neck":
     case "bubble":
       return true;
+    case "tool":
+      // the necks and chord boxes ring the note heard (PositionBox, ChordDiagram); the position neck draws its own dots and doesn't.
+      // A staff listens unless its mic is off (on by default), and draws the pitch
+      return s.tool.type === "staff" ? s.tool.mic !== false : ["scale-neck", "arpeggio-neck", "chord-shapes"].includes(s.tool.type);
     case "section":
       return s.section !== "relatives";
     case "plugin":
@@ -190,16 +231,13 @@ export function takesMic(s: Subject): boolean {
 
 /** Which widget a subject is, whatever its key: the palette ticks a row when a widget with the same identity is on the stage. */
 export function subjectIdentity(s: Subject): string {
+  // a tool without its key: moved to C, so an arpeggio keeps its chord's quality but not its root
+  if (s.kind === "tool") return JSON.stringify({ kind: "tool", tool: withToolKey(s.tool, 0) });
   if (!isKeyed(s)) return JSON.stringify(s);
   const { key: _key, pinned: _pinned, ...rest } = s;
   void _key;
   void _pinned;
   return JSON.stringify(rest);
-}
-
-/** CAGED comes in major and minor: a key whose third is minor (Dorian, Aeolian, harmonic minor…) uses the minor shapes. */
-export function cagedQualityOf(key: KeyChoice): CagedQuality {
-  return keyContext({ ...key, tonicPc: key.tonicPc ?? 0 })?.steps[2] === 3 ? "minor" : "major";
 }
 
 const ROOT_STRING: Record<number, string> = { 6: "low E", 5: "A", 4: "D", 3: "G", 1: "high e" };
@@ -230,7 +268,13 @@ export function subjectName(s: Subject): string {
     case "neck":
       return "Fretboard";
     case "caged":
+      if (s.shapes?.length) return s.shapes.length === 1 ? `CAGED ${cagedShapeName(s.shapes[0])}` : `CAGED shapes ${s.shapes.join(", ")}`;
       return s.shape === null ? "CAGED fretboard" : `CAGED ${cagedShapeName(s.shape)}`;
+    case "tool": {
+      // its family's name and main props ("Major pentatonic · positions 1, 2"); a tool no family offers goes by its type
+      const p = describeParts(s);
+      return p ? [p.name, p.detail].filter(Boolean).join(" · ") : s.tool.type;
+    }
     case "key":
       return "Key & scale";
     case "tuner":
@@ -260,14 +304,28 @@ export function subjectName(s: Subject): string {
 
 /** The widget's scale as its title shows it ("Dorian", CAGED "minor"), with the root only when it is pinned off the master's ("G Dorian"). */
 export function keyLabel(s: Subject): string | null {
+  if (s.kind === "tool") {
+    // the key its family names ("C major"), else the tool's own root
+    const p = describeParts(s);
+    if (p) return p.key;
+    const k = toolKey(s.tool);
+    return k === null ? null : tonicName(k);
+  }
   if (!isKeyed(s)) return null;
   const root = s.pinned?.includes("tonic") && s.key.tonicPc !== null ? `${tonicName(s.key.tonicPc)} ` : "";
   if (s.kind === "band") return root ? root.trim() : null;
-  return `${root}${s.kind === "caged" ? cagedQualityOf(s.key) : modeName(s.key)}`;
+  return `${root}${s.kind === "caged" ? cagedQuality(s.key) : modeName(s.key)}`;
 }
 
-/** The widget's title: its name and its scale, never the master's root ("Fretboard · Dorian"). */
+/**
+ * The widget's title: its name and its scale, never the master's root ("Fretboard · Dorian"). A tool widget is the exception: its
+ * title is its row text, key in the middle ("Major pentatonic · C major · positions 1, 2"), as its key and scale are its own props.
+ */
 export function subjectTitle(s: Subject): string {
+  if (s.kind === "tool") {
+    const p = describeParts(s);
+    if (p) return [p.name, p.key, p.detail].filter(Boolean).join(" · ");
+  }
   const label = keyLabel(s);
   return label ? `${subjectName(s)} · ${label}` : subjectName(s);
 }
@@ -311,7 +369,15 @@ export function sanitiseSubject(raw: unknown, pluginIds: string[]): Subject | nu
       return { kind: "neck", ...keyedFrom(o) };
     case "caged": {
       if (o.shape !== null && o.shape !== undefined && !CAGED_LETTERS.includes(o.shape as CagedLetter)) return null;
-      return { kind: "caged", shape: (o.shape as CagedLetter | undefined) ?? null, ...keyedFrom(o) };
+      const shapes = Array.isArray(o.shapes) ? CAGED_LETTERS.filter((l) => (o.shapes as unknown[]).includes(l)) : [];
+      return { kind: "caged", shape: (o.shape as CagedLetter | undefined) ?? null, ...(shapes.length ? { shapes } : {}), ...keyedFrom(o) };
+    }
+    case "tool": {
+      const t = obj(o.tool);
+      if (!t || !STAGE_TOOLS.includes(t.type as ToolName)) return null;
+      const tool = TOOLS[t.type as ToolName].parse(t);
+      if (!tool) return null;
+      return Array.isArray(o.pinned) && o.pinned.includes("tonic") ? { kind: "tool", tool, pinned: ["tonic"] } : { kind: "tool", tool };
     }
     case "key":
     case "tuner":

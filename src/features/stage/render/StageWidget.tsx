@@ -5,6 +5,8 @@ import { CagedBoxPanels, CagedNeckMap } from "@/components/chordKit/CagedExplore
 import { ChordBubble } from "@/components/chordKit/ChordBubbles";
 import { KeyScope, PLUGINS, keyContext, type KeyChoice } from "@/features/creator";
 import { PocketTools } from "@/features/instruments";
+import type { PlanTool } from "@/features/plan/model/tools";
+import { Tool } from "@/features/plan/ui/Tool";
 import { DEFAULT_KEY_PC } from "@/features/theory/theory";
 import { Tuner } from "@/features/tuner";
 import { melodyDesignWidth } from "../model/melody";
@@ -24,7 +26,7 @@ import ProgressWidget from "./ProgressWidget";
 import SectionWidget from "./SectionWidget";
 
 /** design width each kind is laid out at before it is scaled into its rect */
-const WIDTH: Record<Subject["kind"], number> = { chord: 240, plugin: 640, position: 980, band: 360, section: 760, bubble: 900, neck: 980, caged: 1100, key: 760, tuner: 520, mic: 360, logo: 300, url: 520, camera: 0, screen: 0, melody: 0, countdown: 600, intro: 1000, progress: 400, next: 760 };
+const WIDTH: Record<Subject["kind"], number> = { chord: 240, plugin: 640, position: 980, band: 360, section: 760, bubble: 900, neck: 980, caged: 1100, tool: 980, key: 760, tuner: 520, mic: 360, logo: 300, url: 520, camera: 0, screen: 0, melody: 0, countdown: 600, intro: 1000, progress: 400, next: 760 };
 /** a cheatsheet page in full is laid out as wide as on the site */
 const FULL_WIDTH = 1200;
 
@@ -100,9 +102,21 @@ export default function StageWidget({ subject, onSubjectChange, stageKey, onStag
       break;
     case "caged": {
       const rootPc = subject.key.tonicPc ?? DEFAULT_KEY_PC, quality = cagedQualityOf(subject.key);
-      body = subject.shape === null ? <CagedNeckMap rootPc={rootPc} quality={quality} /> : <CagedBoxPanels rootPc={rootPc} quality={quality} letter={subject.shape} />;
+      const letters = subject.shapes?.length ? subject.shapes : subject.shape === null ? [] : [subject.shape];
+      body = letters.length > 1 ? (
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          {letters.map((l) => <CagedBoxPanels key={l} rootPc={rootPc} quality={quality} letter={l} />)}
+        </div>
+      ) : letters.length === 0 ? <CagedNeckMap rootPc={rootPc} quality={quality} /> : <CagedBoxPanels rootPc={rootPc} quality={quality} letter={letters[0]} />;
       break;
     }
+    case "tool":
+      body = (
+        <div className="rounded-xl border border-slate-800 bg-slate-950 p-3">
+          {subject.tool.type === "staff" ? <StudioStaff tool={subject.tool} /> : <Tool tool={subject.tool} />}
+        </div>
+      );
+      break;
     case "logo":
     case "url":
       body = <BrandWidget kind={subject.kind} />;
@@ -138,7 +152,7 @@ export default function StageWidget({ subject, onSubjectChange, stageKey, onStag
       break;
   }
   // the CAGED map runs the whole neck: wider than one box, so its shape names fit over their colours
-  const width = subject.kind === "melody" ? melodyDesignWidth(subject.beats) : subject.kind === "caged" && subject.shape === null ? 1400 : subject.kind === "plugin" && subject.full ? FULL_WIDTH : WIDTH[subject.kind];
+  const width = subject.kind === "melody" ? melodyDesignWidth(subject.beats) : subject.kind === "caged" && subject.shape === null && !subject.shapes?.length ? 1400 : subject.kind === "plugin" && subject.full ? FULL_WIDTH : WIDTH[subject.kind];
   return (
     <div className="relative h-full w-full">
       <FitBox width={width} scroll={(subject.kind === "plugin" && !!subject.full) || (subject.kind === "section" && subject.section === "chords")}>{body}</FitBox>
@@ -152,4 +166,12 @@ function StudioTuner() {
   const mic = useContext(MicContext);
   if (!mic) return <Tuner />;
   return <Tuner external={{ hz: mic.hz, listening: mic.status === "on" || mic.status === "asking", onToggle: mic.onToggle }} />;
+}
+
+/** A staff on the studio's one audio input when there is one, like the tuner; only it reads the input, so the other tools don't redraw with every pitch. */
+function StudioStaff({ tool }: { tool: Extract<PlanTool, { type: "staff" }> }) {
+  const mic = useContext(MicContext);
+  // no studio audio input (the notes creator, the editor's replay): the staff never opens a microphone of its own
+  if (!mic) return <Tool tool={{ ...tool, mic: false }} />;
+  return <Tool tool={tool} input={{ hz: mic.hz, listening: mic.status === "on" || mic.status === "asking", onToggle: mic.onToggle }} />;
 }

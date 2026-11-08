@@ -121,9 +121,13 @@ function shapedSize(w: number, aspect: number): { w: number; h: number } {
   return { w: w / shrink, h: h / shrink };
 }
 
-/** The rect with the shape of its content (`aspect`, width over height in pixels): as wide as it was where it fits, top-left corner in place. */
+/**
+ * The rect with the shape of its content (`aspect`, width over height in pixels): as wide as it was where it fits, top-left corner
+ * in place unless that would leave it hanging out of the frame, when it moves up and left just enough.
+ */
 export function withAspect(r: FrameRect, aspect: number): FrameRect {
-  return clampRect({ x: r.x, y: r.y, ...shapedSize(r.w, aspect) });
+  const { w, h } = shapedSize(r.w, aspect);
+  return clampRect({ x: Math.max(0, Math.min(r.x, 1 - w)), y: Math.max(0, Math.min(r.y, 1 - h)), w, h });
 }
 
 /** Whether a rect already has the content's shape (to within half a percent). */
@@ -177,6 +181,9 @@ function baseRect(s: Subject): FrameRect {
     case "neck":
     case "caged":
       return { x: 0.05, y: 0.08, w: 0.7, h: 0.42 };
+    case "tool":
+      // the necks that run the whole fretboard are wide; the rest are boxes
+      return s.tool.type === "scale-neck" || s.tool.type === "position-neck" ? { x: 0.05, y: 0.08, w: 0.6, h: 0.5 } : { x: 0.05, y: 0.08, w: 0.4, h: 0.4 };
     case "key":
       return { x: 0.02, y: 0.02, w: 0.42, h: 0.16 };
     case "tuner":

@@ -1,12 +1,15 @@
 /**
  * The studio palette: everything that can go on the stage (`paletteCatalog`, by section and subsection) and the search over it
- * ("a dorian", "e minor pent pos 1", "e shape", "sus iv", "metronome", "camera corner"), each result adding a widget or running a
- * studio command. New widgets take the master Key & scale; a key typed in the search is pinned on the widget. Pure: no React, no storage.
+ * ("a dorian", "e minor pent pos 1", "e shape", "sus iv", "metronome", "camera corner"), each result adding a widget, offering a
+ * widget family (`families.ts`: one row each, its props picked next) or running a studio command. The catalog lists families, never
+ * their variants; a typed variant ("pent pos 2", "e shape") still adds that one widget. New widgets take the master Key & scale; a key
+ * typed in the search is pinned on the widget. Pure: no React, no storage.
  */
 import type { KeyChoice } from "@/features/creator/model/key";
 import { CAGED_LETTERS, type CagedLetter } from "@/lib/chordKit/caged";
-import type { PositionKind } from "@/lib/chordKit/scalePositions";
+import { POSITION_COUNT } from "@/lib/chordKit/scalePositions";
 import { NO_MEDIA, type MediaState } from "./commands";
+import { FAMILIES, keyChoiceText, type Family } from "./families";
 import { PALETTE_GROUPS, pinAgainst, subjectName, subjectTitle, type PaletteGroup, type PaletteResult, type StudioCommand, type Subject } from "./subject";
 
 const MAX_RESULTS = 12;
@@ -42,8 +45,6 @@ const MODE_WORDS: Record<string, number> = {
 };
 
 const ROMAN: Record<string, number> = { i: 0, ii: 1, iii: 2, iv: 3, v: 4, vi: 5, vii: 6 };
-const POSITION_COUNT: Record<PositionKind, number> = { pentatonic: 5, scale: 5, "3nps": 7 };
-const POSITION_SUBS: Record<PositionKind, string> = { pentatonic: "Pentatonic boxes", scale: "Scale positions", "3nps": "3 notes per string" };
 
 interface CommandDef {
   label: string;
@@ -72,17 +73,73 @@ const commandResult = (c: CommandDef): PaletteResult => ({ id: `studio:${c.label
 interface Entry {
   result: PaletteResult;
   words: string[];
+  /** a family's variant with one numbered box or position (0-based), which a typed "pos 2" picks */
+  box?: number;
 }
 
 function entry(subject: Subject, group: PaletteGroup, detail: string, words: string[], sub?: string): Entry {
   const result: PaletteResult = { id: `${group}:${JSON.stringify(subject)}`, label: subjectName(subject), detail, group, action: { type: "add", subject } };
   if (sub) result.sub = sub;
-  return { result, words: [...subjectName(subject).toLowerCase().split(/[^a-z0-9#]+/).filter(Boolean), ...words] };
+  return { result, words: [...nameWords(subjectName(subject)), ...words] };
 }
 
-/** Every widget there is, in `key`, by section and subsection. */
-function entries(pluginIds: string[], key: KeyChoice): Entry[] {
+const nameWords = (name: string) => name.toLowerCase().split(/[^a-z0-9#]+/).filter(Boolean);
+const familyById = (id: string): Family => {
+  const f = FAMILIES.find((x) => x.id === id);
+  if (!f) throw new Error(`search: no family ${id}`);
+  return f;
+};
+
+/** A family's row in `key`, or its "Add another" row. */
+function familyEntry(f: Family, key: KeyChoice, another = false): Entry {
+  const result: PaletteResult = {
+    id: `family:${f.id}${another ? ":another" : ""}`,
+    label: another ? `Add another: ${f.title}` : f.title,
+    detail: keyChoiceText(key),
+    group: f.group,
+    action: another ? { type: "family", familyId: f.id, key, another: true } : { type: "family", familyId: f.id, key },
+  };
+  if (f.sub) result.sub = f.sub;
+  return { result, words: [...nameWords(f.title), ...f.words] };
+}
+
+const range = (n: number) => Array.from({ length: n }, (_, i) => i + 1);
+
+/** The single widgets of a family a typed line can name: a box, a position, a CAGED shape or the CAGED overview. Search only. */
+function variants(f: Family, key: KeyChoice): Entry[] {
+  const one = (subject: Subject, words: string[], box?: number): Entry => {
+    const e = entry(subject, f.group, "", words, f.sub);
+    return box === undefined ? e : { ...e, box };
+  };
+  const numbered = (count: number, values: (n: number) => Record<string, number | number[]>, words: string[]) =>
+    range(count).map((n) => one(f.make(values(n), key), [...words, "box", "boxes", "pos", "position", String(n)], n - 1));
+  switch (f.id) {
+    case "pentatonic":
+      return numbered(POSITION_COUNT.pentatonic, (n) => ({ boxes: [n] }), ["pent", "pentatonic"]);
+    case "scale-positions":
+      return numbered(POSITION_COUNT.scale, (n) => ({ boxes: [n] }), ["scale", "positions"]);
+    case "three-nps":
+      return numbered(POSITION_COUNT["3nps"], (n) => ({ position: n }), ["3nps", "nps", "three"]);
+    case "caged":
+      return [
+        one(f.make({}, key), ["fretboard", "neck", "map", "boxes", "whole", "overview"]),
+        ...CAGED_LETTERS.map((l) => one(f.make({ shapes: [l] }, key), ["shape", "box", l.toLowerCase()])),
+      ];
+    default:
+      return [];
+  }
+}
+
+/**
+ * Every widget there is, in `key`, by section and subsection. A family is its row and its "Add another" row (the catalog), or its
+ * row and its single variants (`search`: "pent pos 2", "e shape").
+ */
+function entries(pluginIds: string[], key: KeyChoice, search = false): Entry[] {
   const has = (id: string) => pluginIds.includes(id);
+  const fam = (id: string) => {
+    const f = familyById(id);
+    return search ? [familyEntry(f, key), ...variants(f, key)] : [familyEntry(f, key), familyEntry(f, key, true)];
+  };
   const panel = (id: string, group: PaletteGroup, detail: string, sub?: string) => (has(id) ? [entry({ kind: "plugin", plugin: id, key }, group, detail, PLUGIN_WORDS[id] ?? [], sub)] : []);
   const out: Entry[] = [
     entry({ kind: "key" }, "setup", "The master key and scale every widget follows", ["key", "scale", "master", "root", "mode"]),
@@ -91,22 +148,23 @@ function entries(pluginIds: string[], key: KeyChoice): Entry[] {
     entry({ kind: "mic" }, "setup", "Guitar or voice: lights the notes you play on pinned and selected widgets", ["mic", "microphone", "guitar", "voice", "listen", "input", "audio", "hear", "notes", "accuracy"]),
     ...panel("scale", "scale", "The notes and their degrees", "Notes"),
     entry({ kind: "section", section: "relatives", key }, "scale", "The modes that share these notes", ["modes", "same", "notes", "relatives", "relative"], "Notes"),
+    ...fam("staff"),
     entry({ kind: "neck", key }, "scale", "Every note of the scale on the neck", ["fretboard", "neck", "scale", "notes"], "On the fretboard"),
     entry({ kind: "section", section: "guitar", key }, "scale", "The neck with its positions to pick from", ["fretboard", "positions", "guitar", "neck"], "On the fretboard"),
+    ...fam("pentatonic"),
+    ...fam("scale-positions"),
+    ...fam("three-nps"),
   ];
-  for (const positionKind of ["pentatonic", "scale", "3nps"] as const) {
-    for (let index = 0; index < POSITION_COUNT[positionKind]; index++) {
-      out.push(entry({ kind: "position", key, positionKind, index }, "scale", "", ["position", "pos", "box", positionKind === "pentatonic" ? "pent" : positionKind, String(index + 1)], POSITION_SUBS[positionKind]));
-    }
-  }
+  // a family without a subsection comes first in its section, above the first subsection heading
+  out.push(...fam("chord-shapes"));
   out.push(entry({ kind: "section", section: "chords", key }, "chords", "The chord on every note of the scale", ["chords", "chord", "every", "diatonic", "in", "key"], "In the key"));
   out.push(...panel("triads", "chords", "One chord in three inversions", "In the key"));
   out.push(...panel("arpeggios", "chords", "The chords note by note", "In the key"));
+  out.push(...fam("arpeggio"));
   out.push(...panel("progressions", "chords", "Common progressions in the key", "In the key"));
   for (let degree = 0; degree < 7; degree++) out.push(entry({ kind: "bubble", key, degree }, "chords", "Circle diagram", ["sus", "extensions", "extension", "bubble", "bubbles", Object.keys(ROMAN)[degree]], "Sus & extensions"));
+  out.push(...fam("caged"));
   out.push(...panel("caged", "caged", "The five shapes, compact", "The whole neck"));
-  out.push(entry({ kind: "caged", key, shape: null }, "caged", "The five boxes up the neck", ["fretboard", "neck", "map", "boxes"], "The whole neck"));
-  for (const shape of CAGED_LETTERS) out.push(entry({ kind: "caged", key, shape }, "caged", "Chord, arpeggio, pentatonic and scale", ["shape", "box", shape.toLowerCase()], "One shape"));
   out.push(...panel("circle", "theory", "Keys and their neighbours"));
   out.push(...panel("keys", "theory", "The scale on a piano"));
   out.push(...panel("improv", "theory", "What to play over the key"));
@@ -152,8 +210,8 @@ interface Parsed {
   tonic: number | null;
   mode: number | null;
   box: number | null;
-  /** a CAGED shape named with "shape" after it ("e shape"); that letter is not the tonic */
-  shape: CagedLetter | null;
+  /** CAGED shapes named with "shape" after them ("e shape", "c shape a shape"); those letters are not the tonic */
+  shapes: CagedLetter[];
   /** the words left once the key, the mode and a box number are taken out: what names the widget */
   rest: string[];
 }
@@ -163,12 +221,12 @@ function parse(q: string): Parsed {
   let tonic: number | null = null;
   let mode: number | null = null;
   let box: number | null = null;
-  let shape: CagedLetter | null = null;
+  const shapes: CagedLetter[] = [];
   const rest: string[] = [];
   words.forEach((w, i) => {
     const letter = CAGED_LETTERS.find((l) => l.toLowerCase() === w);
     if (letter && words[i + 1] === "shape") {
-      shape = letter;
+      shapes.push(letter);
       return;
     }
     if (tonic === null && tonicPc(w) !== null) {
@@ -185,7 +243,7 @@ function parse(q: string): Parsed {
     }
     rest.push(w);
   });
-  return { words, tonic, mode, box, shape, rest };
+  return { words, tonic, mode, box, shapes, rest };
 }
 
 const keyFor = (p: Parsed, fallbackMode = 0): KeyChoice | null => (p.tonic === null ? null : { tonicPc: p.tonic, family: 0, mode: p.mode ?? fallbackMode });
@@ -217,28 +275,32 @@ export function searchPalette(query: string, pluginIds: string[], stageKey: KeyC
   const pent = p.rest.some((w) => w === "pent" || w === "pentatonic");
   // a pentatonic with no major/minor word is the minor one, the one guitarists mean
   const key = keyFor(p, pent ? 5 : 0) ?? modeOnStage(p, stageKey);
-  const all = entries(pluginIds, key ?? stageKey);
+  const all = entries(pluginIds, key ?? stageKey, true);
   let found: Entry[];
-  if (p.shape) found = all.filter((e) => e.result.action.type === "add" && e.result.action.subject.kind === "caged" && e.result.action.subject.shape === p.shape);
-  else if (p.rest.length === 0) {
-    // only a key ("a dorian"): every widget that follows a key; the metronome only when a root is typed (it has no mode)
-    found = key ? all.filter((e) => e.result.action.type === "add" && "key" in e.result.action.subject && e.result.group !== "pages" && (p.tonic !== null || e.result.action.subject.kind !== "band")) : [];
-  } else {
+  // only a key or a mode ("a dorian", "ionian"): the families that take it, one row each, in it
+  const keyOnly = p.shapes.length === 0 && p.rest.length === 0;
+  // "e shape": the one CAGED widget, as the CAGED family makes it
+  if (p.shapes.length) found = [entry(familyById("caged").make({ shapes: p.shapes }, key ?? stageKey), "caged", "", [])];
+  else if (keyOnly) {
+    // in the families' own order: pentatonic boxes first
+    const rank = (e: Entry) => FAMILIES.findIndex((f) => e.result.action.type === "family" && f.id === e.result.action.familyId);
+    found = key ? all.filter((e) => e.result.action.type === "family").sort((a, b) => rank(a) - rank(b)) : [];
+  }
+  else {
     const typed = p.rest.filter((w) => !["pos", "position", "box", "shape", "on", "the", "of", "in"].includes(w) || p.rest.length === 1);
     found = all.filter((e) => matches(e, typed));
-    if (p.box !== null) {
-      found = found.filter((e) => e.result.action.type === "add" && e.result.action.subject.kind === "position" && e.result.action.subject.index === p.box);
-    }
+    // a typed box picks that one variant: "pent pos 2" is one Enter away
+    if (p.box !== null) found = found.filter((e) => e.box === p.box);
     found = found.map((e, i) => ({ e, i, score: nameScore(e, typed) })).sort((a, b) => b.score - a.score || a.i - b.i).map((x) => x.e);
   }
   const keyed = found.map((e): PaletteResult => {
     if (e.result.action.type !== "add") return e.result;
-    const subject = pinAgainst(e.result.action.subject, stageKey);
+    const subject = pinAgainst(e.result.action.subject, stageKey, key ?? stageKey);
     return { ...e.result, label: subject === e.result.action.subject ? e.result.label : subjectTitle(subject), action: { type: "add", subject } };
   });
   // a typed word of 3+ letters that starts a command ("camera c", "scr") puts the commands first
   const cmds = commands(p, media);
-  const strong = cmds.length > 0 && p.words.some((w) => w.length >= 3 && COMMANDS.some((c) => c.words.some((x) => x.startsWith(w))));
+  const strong = !keyOnly && cmds.length > 0 && p.words.some((w) => w.length >= 3 && COMMANDS.some((c) => c.words.some((x) => x.startsWith(w))));
   const out = strong ? [...cmds, ...keyed] : [...keyed, ...cmds];
   return out.filter((r, i) => out.findIndex((x) => x.id === r.id) === i).slice(0, MAX_RESULTS);
 }

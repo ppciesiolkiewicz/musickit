@@ -6,7 +6,8 @@ theory on screen quickly. Ticket 1 has its own design: `2026-11-08-studio-widget
 
 Order is the suggested build order. Each ticket is independent after 1.
 
-1. **Widget families in the spotlight** (designed). One palette entry per family (Pentatonic, Scale positions, 3 notes per string,
+1. **Widget families in the spotlight** (done 2026-11-08: `tool` widgets, `stage/model/families.ts`, the palette's step two and
+   On the stage list; behaviour in `spec/studio.md`). One palette entry per family (Pentatonic, Scale positions, 3 notes per string,
    CAGED); picking it shows its options in the same spotlight; "Add another" on families that repeat; existing widgets listed with
    key and props in the name and props in an accordion. CAGED works like pentatonic. Covers the "3 notes per scale" setup.
 2. **Small fixes.** Remove Progressions from the palette and cheatsheet list. New Text widget with free text. Labels: "Scale notes"
@@ -23,6 +24,9 @@ Order is the suggested build order. Each ticket is independent after 1.
    must change to make this work.
 8. **Inline key/scale selector.** Move the per-widget key/scale picker from a framed control into the widget's own header; same
    behaviour (`pinned`, `withOwnKey`, `followMaster`).
+10. **`caged-neck` learning component.** A learning component that draws CAGED shapes by letter (the others number boxes by
+    position), so the CAGED family can be a `tool` widget like the rest and the AI plan can use it. Until then the CAGED family
+    wraps the stage's own `caged` subject (`shapes`). Out of scope for ticket 1.
 9. **Key regions (replaces the master key widget).** Maybe drop the Key & scale master, or make it a region on the canvas: any widget
    inside it, even partly, takes the region's key; dragging a widget out restores its own key. Needs layout (ticket 5) first and a
    change to `withMaster`/`followMaster`/`pinned`. Design separately.

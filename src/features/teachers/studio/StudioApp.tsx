@@ -172,7 +172,8 @@ export default function StudioApp() {
         // picking the audio input is the click that starts it
         if (r.action.subject.kind === "mic") setMicOn(true);
       }
-      else runCommand(r.action.command);
+      // a family row never reaches here: its step two in the palette turns it into an `add`
+      else if (r.action.type === "command") runCommand(r.action.command);
     },
     [dispatch, runCommand],
   );
@@ -420,7 +421,7 @@ export default function StudioApp() {
         </div>
       </main>
 
-      {palette && <Palette notes={notes} pluginIds={PLUGIN_IDS} stageKey={stage.key} media={media} layers={stage.layers} onPick={onPick} onRemove={(id) => dispatch({ type: "remove", id })} onClose={() => setPalette(false)} />}
+      {palette && <Palette notes={notes} pluginIds={PLUGIN_IDS} stageKey={stage.key} media={media} layers={stage.layers} onPick={onPick} onUpdate={(id, subject) => dispatch({ type: "swap", id, subject })} onRemove={(id) => dispatch({ type: "remove", id })} onClose={() => setPalette(false)} />}
       {help && <KeysOverlay onClose={() => setHelp(false)} />}
     </div>
   );
