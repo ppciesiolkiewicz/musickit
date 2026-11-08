@@ -206,13 +206,15 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
         </IconButton>
         {sa.loop && <div className="min-w-0 flex-1"><LoopStrip key={total} notes={notes} total={total} region={sa.region} loop={sa.loop} at={at} onRegion={sa.setRegion} /></div>}
       </div>
-      <div className={full ? "flex min-h-0 flex-1 touch-pan-y flex-col justify-center" : "contents"}
+      <div className={full ? "flex min-h-0 flex-1 touch-pan-y flex-col overflow-y-auto" : "contents"}
         onPointerDown={full ? swipeStart : undefined} onPointerUp={full ? swipeEnd : undefined} onPointerCancel={() => { swipe.current = null; }}>
+        <div className={full ? "my-auto" : "contents"}>
         {look === "staff" ? (
           <StreamStaff frame={sa.frame} notes={notes} chords={chords} ladder={ladder} clef={clef} beatMs={beatMs} tapped={tapped} onNote={onNote} scale={size} cents={cents} lagMs={lagMs} />
         ) : (
           <PianoRoll frame={sa.frame} notes={notes} chords={chords} ladder={ladder} beatMs={beatMs} tapped={tapped} onNote={onNote} scale={size} cents={cents} lagMs={lagMs} />
         )}
+        </div>
       </div>
     </div>
   );

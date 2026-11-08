@@ -45,7 +45,7 @@ export function Volume() {
  * looping) stays on the tool. `labels` is the system the tool shows, to light its tile; leave it out for a tool with
  * no note labels.
  */
-export default function ToolSettings({ labels, accuracy = false, view = false, more, volume = true }: { labels?: LabelSystem; accuracy?: boolean; view?: boolean; more?: ReactNode; /** false when the host shows <Volume /> elsewhere */ volume?: boolean }) {
+export default function ToolSettings({ labels, omit = [], accuracy = false, view = false, more, volume = true }: { labels?: LabelSystem; /** label systems this tool cannot show, left out of the picker */ omit?: LabelSystem[]; accuracy?: boolean; view?: boolean; more?: ReactNode; /** false when the host shows <Volume /> elsewhere */ volume?: boolean }) {
   const [, setLabels] = useLabelSystem();
   const [cents, setCents] = useAccuracy();
   const [melodyView, setView] = useExerciseSetting("view");
@@ -69,7 +69,7 @@ export default function ToolSettings({ labels, accuracy = false, view = false, m
         {labels && (
           <DropdownSection title="Labels" info={<>What the notes are called. Note names (C, E, G) are the letters; intervals (R, b3, p5) and scale degrees (1, b3, 5) count up from the root of the key; solfège (Do, Me, Sol) gives each one a syllable to sing.</>}>
             <div role="radiogroup" aria-label="Note labels" className="grid grid-cols-4 gap-1.5">
-              {LABEL_SYSTEMS.map((s, i) => (
+              {LABEL_SYSTEMS.filter((s) => !omit.includes(s.id)).map((s, i) => (
                 <Tile key={s.id} radio hue={hueAt(i)} on={labels === s.id} onClick={() => setLabels(s.id)} title={`${s.label} (${s.hint})`}
                   icon={<span className="text-sm font-semibold">{LABEL_GLYPH[s.id]}</span>}>
                   {s.label.split(" ")[0]}

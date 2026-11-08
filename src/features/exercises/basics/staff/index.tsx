@@ -142,7 +142,7 @@ export function View({ slug, pc, voice, notes, under = false, enable, highlight,
         {status === "denied" && <span>microphone blocked in the browser</span>}
         <span className="ml-auto" />
         {/* labels written into the exercise don't follow the setting, so there is nothing to pick */}
-        <ToolSettings labels={labels ? undefined : system} accuracy={micButton} />
+        <ToolSettings labels={labels ? undefined : system} omit={micButton ? ["note"] : []} accuracy={micButton} />
       </div>
       <div className="flex flex-wrap items-center gap-1.5">
         <Badge>{ladder.title}</Badge>
