@@ -1,7 +1,8 @@
 import type { IconName } from "@/components/Icon";
 
-/** Every theory page, grouped the way the menu and the hub show them. One list feeds the mega menu, the hub and the breadcrumb. */
-export type SectionGroup = "learn" | "explore" | "practice" | "tools";
+/** Every page the top nav lists, grouped by what you came to do: one top-nav menu per group. One list feeds the menus, the hub
+ * and the breadcrumb. */
+export type SectionGroup = "learn" | "guitar" | "singing" | "tools";
 
 export interface TheorySection {
   href: string;
@@ -9,13 +10,14 @@ export interface TheorySection {
   /** one short line under the label */
   desc: string;
   icon: IconName;
-  /** the page's own colour, so it is remembered by it: no two pages in a group share one */
+  /** the page's own colour, so it is remembered by it: no two pages in one column share one */
   tone: Tone;
   group: SectionGroup;
+  /** a column inside a big menu (Guitar splits into Explore and Practice) */
+  sub?: string;
 }
 
-/* the inner practice group is "Drills": the whole menu is called Practice */
-export const GROUP_LABEL: Record<SectionGroup, string> = { learn: "Learn", explore: "Explore", practice: "Drills", tools: "Tools" };
+export const GROUP_LABEL: Record<SectionGroup, string> = { learn: "Learn", guitar: "Guitar", singing: "Singing", tools: "Tools" };
 
 /** A hue every theme remaps (themes.css), so each page keeps its colour on light pages too. */
 export type Tone = "emerald" | "sky" | "amber" | "violet" | "rose" | "teal" | "pink" | "red";
@@ -37,21 +39,22 @@ export const THEORY_SECTIONS: TheorySection[] = [
   { group: "learn", href: "/plan", tone: "violet", label: "AI practice plan", desc: "A continuous daily plan for your practice", icon: "sparkles" },
   { group: "learn", href: "/theory", tone: "emerald", label: "Start here (old content)", desc: "The course: stages, tracks, songs", icon: "graduation-cap" },
   { group: "learn", href: "/theory/basics", tone: "teal", label: "Guitar basics", desc: "Piano → guitar: notes and intervals", icon: "guitar" },
-  { group: "explore", href: "/theory/chords", tone: "sky", label: "Chords", desc: "Open chords and every movable shape", icon: "grid-3x3" },
-  { group: "explore", href: "/theory/triads", tone: "violet", label: "Triads", desc: "Three-note shapes on string sets", icon: "triangle" },
-  { group: "explore", href: "/theory/scales", tone: "emerald", label: "Scales", desc: "Every mode, its chords and boxes", icon: "waves" },
-  { group: "explore", href: "/theory/circle", tone: "amber", label: "Circle of fifths", desc: "Keys, relatives, neighbours", icon: "circle-dot" },
-  { group: "explore", href: "/theory/caged", tone: "rose", label: "CAGED", desc: "One chord, five shapes up the neck", icon: "layers" },
-  { group: "explore", href: "/theory/caged#neighbours", tone: "pink", label: "Shape neighbours", desc: "I IV V ii vi without moving your hand", icon: "network" },
-  { group: "explore", href: "/theory/arpeggios", tone: "red", label: "Arpeggios", desc: "Chord tones across the neck", icon: "spline" },
-  { group: "practice", href: "/theory/notes", tone: "teal", label: "Fretboard notes", desc: "Find the note, tap or play it", icon: "target" },
-  { group: "practice", href: "/theory/ears", tone: "pink", label: "Ear training", desc: "Name the interval you hear", icon: "ear" },
-  { group: "practice", href: "/theory/improv", tone: "rose", label: "Improv", desc: "Play over a groove", icon: "music" },
-  { group: "practice", href: "/theory/metronome-drone", tone: "violet", label: "Metronome & drone", desc: "Keep time to a click, hear each degree over a root", icon: "audio-lines" },
-  { group: "practice", href: "/theory/piano", tone: "sky", label: "Piano", desc: "Play and see notes, intervals and chords on the staff", icon: "piano" },
-  { group: "practice", href: "/theory/singing", tone: "emerald", label: "Singing", desc: "Sing a scale and watch your voice on the staff", icon: "mic" },
-  { group: "practice", href: "/theory/tune-by-ear", tone: "red", label: "Tune by ear", desc: "Sing the open strings, hear a string out of tune", icon: "guitar" },
-  { group: "practice", href: "/theory/rhythm", tone: "amber", label: "Rhythm", desc: "Tap or strum on the beat", icon: "metronome" },
+  { group: "learn", href: "/theory/circle", tone: "sky", label: "Circle of fifths", desc: "Keys, relatives, neighbours", icon: "circle-dot" },
+  { group: "guitar", sub: "Explore", href: "/theory/chords", tone: "sky", label: "Chords", desc: "Open chords and every movable shape", icon: "grid-3x3" },
+  { group: "guitar", sub: "Explore", href: "/theory/triads", tone: "violet", label: "Triads", desc: "Three-note shapes on string sets", icon: "triangle" },
+  { group: "guitar", sub: "Explore", href: "/theory/scales", tone: "emerald", label: "Scales", desc: "Every mode, its chords and boxes", icon: "waves" },
+  { group: "guitar", sub: "Explore", href: "/theory/caged", tone: "rose", label: "CAGED", desc: "One chord, five shapes up the neck", icon: "layers" },
+  { group: "guitar", sub: "Explore", href: "/theory/caged#neighbours", tone: "pink", label: "Shape neighbours", desc: "I IV V ii vi without moving your hand", icon: "network" },
+  { group: "guitar", sub: "Explore", href: "/theory/arpeggios", tone: "red", label: "Arpeggios", desc: "Chord tones across the neck", icon: "spline" },
+  { group: "guitar", sub: "Practice", href: "/theory/notes", tone: "teal", label: "Fretboard notes", desc: "Find the note, tap or play it", icon: "target" },
+  { group: "guitar", sub: "Practice", href: "/theory/improv", tone: "rose", label: "Improv", desc: "Play over a groove", icon: "music" },
+  { group: "guitar", sub: "Practice", href: "/theory/rhythm", tone: "amber", label: "Rhythm", desc: "Tap or strum on the beat", icon: "metronome" },
+  { group: "singing", href: "/theory/singing", tone: "emerald", label: "Sing a scale", desc: "Sing a scale and watch your voice on the staff", icon: "mic" },
+  { group: "singing", href: "/theory/ears", tone: "pink", label: "Ear training", desc: "Name the interval you hear", icon: "ear" },
+  { group: "singing", href: "/theory/tune-by-ear", tone: "red", label: "Tune by ear", desc: "Sing the open strings, hear a string out of tune", icon: "guitar" },
+  { group: "tools", href: "/tuner", tone: "rose", label: "Tuner", desc: "Tune your guitar with the mic", icon: "gauge" },
+  { group: "tools", href: "/theory/metronome-drone", tone: "violet", label: "Metronome & drone", desc: "Keep time to a click, hear each degree over a root", icon: "audio-lines" },
+  { group: "tools", href: "/theory/piano", tone: "sky", label: "Piano", desc: "Play and see notes, intervals and chords on the staff", icon: "piano" },
   { group: "tools", href: "/theory/tunings", tone: "amber", label: "Tunings", desc: "Alternate tunings", icon: "sliders-horizontal" },
   { group: "tools", href: "/teachers/studio?notes=1", tone: "emerald", label: "Notes creator", desc: "Build a page of notes and share it as a link", icon: "file-text" },
   { group: "tools", href: "/looper", tone: "teal", label: "Looper", desc: "Record loops and stack takes over drums", icon: "repeat" },

@@ -20,7 +20,9 @@ describe("theory sections", () => {
     assert.equal(sectionFor("/theory/scales/dorian")?.label, "Scales");
     assert.equal(sectionFor("/theory")?.label, "Start here (old content)");
     assert.equal(sectionFor("/theory/caged")?.label, "CAGED");
-    assert.equal(sectionFor("/tuner"), undefined);
+    assert.equal(sectionFor("/tuner")?.group, "tools");
+    assert.equal(sectionFor("/theory/singing")?.group, "singing");
+    assert.equal(sectionFor("/faq"), undefined);
   });
   it("the course is the first thing to learn", () => {
     assert.equal(THEORY_SECTIONS.find((s) => s.group === "learn")?.href, "/course");
@@ -28,10 +30,10 @@ describe("theory sections", () => {
 });
 
 describe("section colours", () => {
-  it("no two pages in a group share a colour", () => {
-    for (const g of Object.keys(GROUP_LABEL)) {
-      const tones = THEORY_SECTIONS.filter((s) => s.group === g).map((s) => s.tone);
-      assert.equal(new Set(tones).size, tones.length, g);
+  it("no two pages in a menu column share a colour", () => {
+    for (const col of new Set(THEORY_SECTIONS.map((s) => `${s.group}:${s.sub ?? ""}`))) {
+      const tones = THEORY_SECTIONS.filter((s) => `${s.group}:${s.sub ?? ""}` === col).map((s) => s.tone);
+      assert.equal(new Set(tones).size, tones.length, col);
     }
   });
 });

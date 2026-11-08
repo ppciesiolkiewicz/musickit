@@ -5,10 +5,12 @@ import ThemeSwitcher from "./ThemeSwitcher";
 import TheoryMenu from "./TheoryMenu";
 import Wordmark from "./Wordmark";
 import { SpotlightButton } from "@/features/search/Spotlight";
-export const SITE_LINKS = [
-  { href: "/", label: "Home" },
-  { href: "/tuner", label: "Tuner" },
-];
+import { GROUP_LABEL, type SectionGroup } from "@/features/theory/sections";
+
+export const SITE_LINKS = [{ href: "/", label: "Home" }];
+
+/** The top-nav menus, in order: one per section group. On a phone they fold into one Menu so the bar never wraps. */
+const MENUS: SectionGroup[] = ["learn", "guitar", "singing", "tools"];
 
 const isActive = (active: string, href: string) => (href === "/" ? active === "/" : active === href || active.startsWith(`${href}/`));
 
@@ -34,7 +36,10 @@ export default function SiteNav({ active, devices = false }: { active: string; d
         <Wordmark className="text-[1.7rem]" />
       </Link>
       <NavLink {...home} current={isActive(active, home.href)} />
-      <TheoryMenu active={active} />
+      {MENUS.map((g) => (
+        <TheoryMenu key={g} active={active} label={GROUP_LABEL[g]} groups={[g]} className="hidden desk:block" />
+      ))}
+      <TheoryMenu active={active} label="Menu" groups={MENUS} className="desk:hidden" />
       {rest.map((l) => (
         <NavLink key={l.href} {...l} current={isActive(active, l.href)} />
       ))}

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
 import Icon from "./Icon";
 import { menuClick } from "@/lib/practice/menu";
-import { GROUP_LABEL, THEORY_SECTIONS, TONE, type SectionGroup, type TheorySection } from "@/features/theory/sections";
+import { GROUP_LABEL, THEORY_SECTIONS, TONE, sectionFor, type SectionGroup, type TheorySection } from "@/features/theory/sections";
 
 const GROUPS = Object.keys(GROUP_LABEL) as SectionGroup[];
 
@@ -28,15 +28,31 @@ export function SectionBlock({ s, current, onPick, roomy }: { s: TheorySection; 
   );
 }
 
-/** The "Practice" item of the top nav (the /theory pages): opens a panel with every theory page, on hover (mouse), click, tap or keyboard. */
-export default function TheoryMenu({ active }: { active: string }) {
+/** The columns a menu shows: one per group, and a group with `sub` columns (Guitar: Explore, Practice) splits into those.
+ * A heading is only shown where it tells you something: the group name in a menu of several groups, the sub name always. */
+function columns(groups: SectionGroup[]) {
+  return groups.flatMap((g) => {
+    const items = THEORY_SECTIONS.filter((s) => s.group === g);
+    const subs = [...new Set(items.map((s) => s.sub))];
+    return subs.map((sub) => ({
+      key: `${g}:${sub ?? ""}`,
+      heading: [groups.length > 1 ? GROUP_LABEL[g] : null, sub].filter(Boolean).join(" · "),
+      items: items.filter((s) => s.sub === sub),
+    }));
+  });
+}
+
+/** One item of the top nav: a button that opens a panel of pages from `groups`, on hover (mouse), click, tap or keyboard.
+ * On a phone the panel covers the screen. */
+export default function TheoryMenu({ active, label, groups = GROUPS, className = "" }: { active: string; label: string; groups?: SectionGroup[]; className?: string }) {
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const button = useRef<HTMLButtonElement>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hoverOpenedAt = useRef<number | null>(null);
   const panelId = useId();
-  const inTheory = active === "/theory" || active.startsWith("/theory/");
+  const here = sectionFor(active);
+  const inTheory = !!here && groups.includes(here.group);
 
   const cancelClose = () => {
     if (closeTimer.current) clearTimeout(closeTimer.current);
@@ -72,7 +88,7 @@ export default function TheoryMenu({ active }: { active: string }) {
   return (
     <div
       ref={root}
-      className="static desk:relative"
+      className={`static desk:relative ${className}`}
       onPointerEnter={(e) => {
         if (e.pointerType !== "mouse") return;
         cancelClose();
@@ -99,24 +115,24 @@ export default function TheoryMenu({ active }: { active: string }) {
         }}
         className={`flex items-center gap-1 rounded-lg px-3.5 py-2 text-sm transition ${inTheory ? "bg-sky-500/20 text-sky-100" : "text-slate-400 hover:text-slate-200"}`}
       >
-        Practice
+        {label}
         <Icon name="chevron-down" size={14} className={`transition ${open ? "rotate-180" : ""}`} />
       </button>
       {open && (
         <div
           id={panelId}
-          className="fixed inset-0 z-[2000] overflow-y-auto bg-slate-900 p-3 desk:absolute desk:inset-auto desk:left-0 desk:z-50 desk:mt-1 desk:max-h-[80vh] desk:w-[min(64rem,calc(100vw-2rem))] desk:rounded-2xl desk:border desk:border-slate-700 desk:shadow-2xl"
+          className="fixed inset-0 z-[2000] overflow-y-auto bg-slate-900 p-3 desk:absolute desk:inset-auto desk:left-0 desk:z-50 desk:mt-1 desk:max-h-[80vh] desk:w-max desk:max-w-[calc(100vw-2rem)] desk:rounded-2xl desk:border desk:border-slate-700 desk:shadow-2xl"
         >
           {/* on a phone the panel covers the screen, so it needs its own way out */}
           <div className="mb-2 flex items-center desk:hidden">
-            <span className="px-3 text-base font-medium text-slate-100">Practice</span>
+            <span className="px-3 text-base font-medium text-slate-100">{label}</span>
             <button type="button" onClick={() => setOpen(false)} className="ml-auto rounded-md border border-slate-700 px-2.5 py-1 text-xs text-slate-300">Close ✕</button>
           </div>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {GROUPS.map((g) => (
-              <div key={g} className="flex flex-col gap-0.5">
-                <span className={`px-3 pb-1 text-xs uppercase tracking-wider text-slate-500`}>{GROUP_LABEL[g]}</span>
-                {THEORY_SECTIONS.filter((s) => s.group === g).map((s) => (
+          <div className="grid gap-3 sm:grid-cols-2 desk:grid-flow-col desk:grid-cols-none desk:auto-cols-64">
+            {columns(groups).map((c) => (
+              <div key={c.key} className="flex flex-col gap-0.5">
+                {c.heading && <span className="px-3 pb-1 text-xs uppercase tracking-wider text-slate-500">{c.heading}</span>}
+                {c.items.map((s) => (
                   <SectionBlock key={s.href} s={s} current={isCurrent(s)} onPick={() => setOpen(false)} />
                 ))}
               </div>

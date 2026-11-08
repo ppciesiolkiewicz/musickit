@@ -1,7 +1,7 @@
 import Link from "next/link";
 import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/landing/SiteFooter";
-import { sectionFor } from "@/features/theory/sections";
+import { GROUP_LABEL, sectionFor } from "@/features/theory/sections";
 import type { ReactNode } from "react";
 import PreloadPiano from "@/features/sound/keyboard/PreloadPiano";
 import PracticeReminder from "@/features/plan/PracticeReminder";
@@ -27,7 +27,7 @@ export default function PageShell({ title, intro, active, wide = false, full = f
           {/* the breadcrumb belongs to the page, so it sits over the title rather than under the logo */}
           {section && (
             <nav aria-label="Breadcrumb" className="mb-3 flex w-fit items-center gap-1.5 border-b border-slate-700/70 pb-2 text-xs text-slate-500">
-              <Link href="/theory" className="hover:text-slate-300">Practice</Link>
+              <span>{GROUP_LABEL[section.group]}</span>
               <span aria-hidden>›</span>
               <span className="text-slate-400">{section.label}</span>
             </nav>

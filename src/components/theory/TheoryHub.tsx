@@ -8,7 +8,7 @@ import { degreeLabels } from "@/features/theory/scales";
 import { MAJOR } from "@/features/theory/theory";
 import { COURSE, sectionHref, stageColour } from "@/features/course/course";
 
-const MORE: SectionGroup[] = ["learn", "explore", "practice", "tools"];
+const MORE: SectionGroup[] = ["learn", "guitar", "singing", "tools"];
 
 /** The /theory landing page: a hero, the course stages as a path down the page, then every explorer and practice tool. */
 export default function TheoryHub() {
