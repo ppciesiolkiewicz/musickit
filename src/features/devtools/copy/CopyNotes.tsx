@@ -71,6 +71,9 @@ export default function CopyNotes() {
   // the note a mark on the page opened the modal at
   const [picked, setPicked] = useState<string | null>(null);
   const hot = useRef<HTMLElement | null>(null);
+  // whether anything of the notes UI is showing, for the N key
+  const shut = useRef(false);
+  shut.current = open || on || list;
   // section notes are kept by the path alone: their sections pin them
   const onHere = (n: CopyNote) => n.route === (n.section ? pathname : path);
   const here = notes.filter(onHere);
@@ -111,14 +114,18 @@ export default function CopyNotes() {
     };
   }, [on]);
 
-  // A (no modifier, not while typing) turns note mode on and off, the "Note a text" button from the keyboard
+  // A (no modifier, not while typing) turns note mode on and off, the "Note a text" button from the keyboard; N opens and closes the notes
   useEffect(() => {
     if (!devUi()) return;
     const key = (e: KeyboardEvent) => {
-      if (e.key.toLowerCase() !== "a" || e.metaKey || e.ctrlKey || e.altKey || e.repeat) return;
+      const k = e.key.toLowerCase();
+      if ((k !== "a" && k !== "n") || e.metaKey || e.ctrlKey || e.altKey || e.repeat) return;
       const t = e.target;
       if (t instanceof HTMLElement && (t.isContentEditable || t.closest("input,textarea,select"))) return;
-      setOn((v) => !v);
+      if (k === "a") return void setOn((v) => !v);
+      // N opens or closes the notes panel; closing also leaves note mode and the list
+      if (shut.current) (setOpen(false), setOn(false), setList(false), setTarget(null));
+      else setOpen(true);
     };
     window.addEventListener("keydown", key);
     return () => window.removeEventListener("keydown", key);
@@ -235,7 +242,7 @@ export default function CopyNotes() {
         <button
           type="button"
           onClick={() => (open || on ? (setOpen(false), setOn(false)) : (setOpen(true), setOn(true)))}
-          title="Notes on the wording of this page (A: note a text)"
+          title="Notes on the wording of this page (N: open or close, A: note a text)"
           className={`inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-amber-400/50 px-3.5 py-2 text-xs font-semibold shadow-lg ${on ? "bg-amber-400 text-slate-950" : "bg-slate-950/95 text-amber-100"}`}
         >
           <Icon name="pencil" size={12} />{on && !open ? "Click a text · A or Esc" : notes.length ? `Notes · ${here.length}/${notes.length}` : "Notes"}
