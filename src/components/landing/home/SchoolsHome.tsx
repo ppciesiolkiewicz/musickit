@@ -2,7 +2,7 @@ import Link from "next/link";
 import SiteNav from "@/components/SiteNav";
 import Icon, { type IconName } from "@/components/Icon";
 import PreloadPiano from "@/features/sound/keyboard/PreloadPiano";
-import EarlyAccessForm from "@/components/landing/EarlyAccessForm";
+import ContactForm from "@/components/landing/ContactForm";
 import Photo from "@/components/landing/Photo";
 import StyleDivider from "@/components/landing/StyleDivider";
 import SiteFooter from "@/components/landing/SiteFooter";
@@ -224,7 +224,7 @@ export default function SchoolsHome() {
               <p id="contact-h" className="text-3xl text-slate-50" style={DISPLAY}>Bring attunr to your school</p>
               <p className="mt-2 text-sm text-slate-400">Leave your email and we&apos;ll get in touch to set it up with you for your teachers and students, under your brand if you want it. Your teachers can try the tools today, for free.</p>
             </div>
-            <EarlyAccessForm source="schools" compact initial={["school"]} cta="Get in touch" done="Thanks! We'll email you to talk about your school." note="We only use it to reply. No newsletter." />
+            <ContactForm source="schools" initialMessage={"Hi, I run a music school and I'd like to talk about using attunr for our teachers and students. Could you get in touch?"} cta="Get in touch" done="Thanks! We'll email you to talk about your school." note="We only use your email to reply. No newsletter." />
           </div>
         </section>
 
