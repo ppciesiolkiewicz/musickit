@@ -5,5 +5,5 @@ export default async function OldCheatsheetPage({ searchParams }: { searchParams
   const params = new URLSearchParams();
   for (const [k, v] of Object.entries(await searchParams)) if (typeof v === "string") params.set(k, v);
   const qs = params.toString();
-  redirect(`/cheatsheet${qs ? `?${qs}` : ""}`);
+  redirect(`/cheatsheet`);
 }

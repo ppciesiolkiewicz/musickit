@@ -53,7 +53,7 @@ export const THEORY_SECTIONS: TheorySection[] = [
   { group: "practice", href: "/theory/tune-by-ear", tone: "red", label: "Tune by ear", desc: "Sing the open strings, hear a string out of tune", icon: "guitar" },
   { group: "practice", href: "/theory/rhythm", tone: "amber", label: "Rhythm", desc: "Tap or strum on the beat", icon: "metronome" },
   { group: "tools", href: "/theory/tunings", tone: "amber", label: "Tunings", desc: "Alternate tunings", icon: "sliders-horizontal" },
-  { group: "tools", href: "/cheatsheet", tone: "emerald", label: "Cheatsheet", desc: "Build your own reference sheet", icon: "file-text" },
+  { group: "tools", href: "/teachers/studio?notes=1", tone: "emerald", label: "Notes creator", desc: "Build a page of notes and share it as a link", icon: "file-text" },
   { group: "tools", href: "/looper", tone: "teal", label: "Looper", desc: "Record loops and stack takes over drums", icon: "repeat" },
 ];
 

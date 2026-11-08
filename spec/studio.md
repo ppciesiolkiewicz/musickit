@@ -20,3 +20,7 @@
 
 ## Later (see the plans)
 Recording into tracks, the editor, video import and overdub, audio inputs and DI, scenes.
+
+## Notes creator
+
+`/teachers/studio?notes=1` (the Theory menu's **Notes creator**, which replaced the Cheatsheet builder; `/cheatsheet`, `/creator` and `/theory/cheatsheet` redirect there). The same stage and palette with no video preview, camera, screen share, Audio input or Tuner, and it runs in any browser wide enough to lay out (no recording, so no element-capture check). Its stage is saved apart in `musickit.studio.notes`. **Share as a note** copies `…?notes=1#note=<z|j><base64url>`: the layers and key as JSON, deflated when the browser can (`z`) or plain (`j`); live widgets are dropped. Opening such a link loads that stage in place of the saved one (sanitised like any saved stage). Code: `notes.ts`.

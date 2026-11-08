@@ -41,7 +41,7 @@ export const STAGE_6: CourseStage = {
           "A cheatsheet you made yourself is one you'll look at.",
         ),
         task("Build a sheet with one key: its chords, one shape for each, and its pentatonic box. Print it or keep it open while you play."),
-        links([{ href: "/cheatsheet", label: "Build your own cheatsheet" }]),
+        links([{ href: "/teachers/studio?notes=1", label: "Make your own notes" }]),
       ]),
   ],
 };

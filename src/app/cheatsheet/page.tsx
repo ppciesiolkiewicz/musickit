@@ -1,16 +1,6 @@
-import type { Metadata } from "next";
-import PageShell from "@/components/PageShell";
-import { CreatorApp } from "@/features/creator";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: "Cheatsheet builder · attunr",
-  description: "Build your own theory cheatsheet: every theory page as a panel that follows one key, compact or in full.",
-};
-
+/** The cheatsheet builder became the Notes creator (the studio without video); old links land there. */
 export default function CheatsheetPage() {
-  return (
-    <PageShell wide active="/cheatsheet" title="Cheatsheet builder" intro="Choose a key, or none, then switch on the panels you want and arrange them. Every theory page is here: each panel has a compact view and a full one.">
-      <CreatorApp />
-    </PageShell>
-  );
+  redirect("/teachers/studio?notes=1");
 }

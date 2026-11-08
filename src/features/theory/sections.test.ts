@@ -12,7 +12,7 @@ describe("theory sections", () => {
     (Object.keys(GROUP_LABEL) as (keyof typeof GROUP_LABEL)[]).forEach((g) => assert.ok(THEORY_SECTIONS.some((s) => s.group === g), g));
   });
   it("every page exists", () => {
-    THEORY_SECTIONS.filter((s) => !s.href.includes("#") && s.href !== "/cheatsheet" && s.href !== "/theory" && !NOT_YET.includes(s.href)).forEach((s) =>
+    THEORY_SECTIONS.filter((s) => !s.href.includes("#") && s.href !== "/teachers/studio?notes=1" && s.href !== "/theory" && !NOT_YET.includes(s.href)).forEach((s) =>
       assert.ok(existsSync(`src/app${s.href}`), s.href));
   });
   it("finds the section for a path", () => {

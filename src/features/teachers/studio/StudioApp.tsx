@@ -11,6 +11,7 @@ import KeysPanel, { KeysOverlay } from "./KeysPanel";
 import useCamera from "./media/useCamera";
 import useScreenShare from "./media/useScreenShare";
 import ControlBadge, { MicBadge, PageBadge } from "./ControlBadge";
+import { encodeNote } from "./notes";
 import Palette from "./Palette";
 import useStage from "./useStage";
 
@@ -60,7 +61,21 @@ const isTyping = () => {
 /** The teacher studio: the 16:9 frame in the middle, its layers on the left, the keys that work on the right. */
 export default function StudioApp() {
   const [supported, setSupported] = useState<boolean | null>(null);
-  const [stage, dispatch] = useStage(PLUGIN_IDS);
+  // the notes creator (?notes=1): the same stage without video, camera, screen or microphone, shared as a link
+  const [notes] = useState(() => typeof window !== "undefined" && new URLSearchParams(window.location.search).get("notes") === "1");
+  const [stage, dispatch] = useStage(PLUGIN_IDS, notes);
+  const [shared, setShared] = useState<"copied" | "failed" | null>(null);
+  const shareNote = async () => {
+    try {
+      const url = `${window.location.origin}${window.location.pathname}?notes=1#note=${await encodeNote(stageRef.current)}`;
+      window.history.replaceState(null, "", url);
+      await navigator.clipboard.writeText(url);
+      setShared("copied");
+    } catch {
+      setShared("failed");
+    }
+    window.setTimeout(() => setShared(null), 2500);
+  };
   const [palette, setPalette] = useState(false);
   const [help, setHelp] = useState(false);
   // a video config previewed in place of the stage
@@ -93,8 +108,8 @@ export default function StudioApp() {
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- the browser check needs window, after hydration
-    setSupported(isStudioSupported());
-  }, []);
+    setSupported(notes || isStudioSupported());
+  }, [notes]);
 
   const camera = useCamera();
   const removeKind = useCallback(
@@ -276,9 +291,15 @@ export default function StudioApp() {
           <button type="button" title="Add a widget (/ or ⌘K)" aria-label="Add a widget" onClick={() => setPalette(true)} className="rounded-md border border-slate-700 p-1 text-slate-200 hover:border-slate-500">
             <Icon name="plus" size={14} />
           </button>
-          <button type="button" title="Preview a video config" aria-label="Preview a video config" aria-pressed={!!video} onClick={() => void openVideo()} className={`rounded-md border p-1 hover:border-slate-500 ${video ? "border-sky-500/60 text-sky-200" : "border-slate-700 text-slate-200"}`}>
-            <Icon name="play" size={14} />
-          </button>
+          {notes ? (
+            <button type="button" title="Share as a note" aria-label="Share as a note" onClick={() => void shareNote()} className="rounded-md border border-slate-700 p-1 text-slate-200 hover:border-slate-500">
+              <Icon name="share-2" size={14} />
+            </button>
+          ) : (
+            <button type="button" title="Preview a video config" aria-label="Preview a video config" aria-pressed={!!video} onClick={() => void openVideo()} className={`rounded-md border p-1 hover:border-slate-500 ${video ? "border-sky-500/60 text-sky-200" : "border-slate-700 text-slate-200"}`}>
+              <Icon name="play" size={14} />
+            </button>
+          )}
           <ul className="mt-1 flex flex-col gap-1">
             {[...stage.layers].reverse().map((l) => (
               <li key={l.id} className="flex items-center gap-0.5">
@@ -356,6 +377,12 @@ export default function StudioApp() {
               <span className={`absolute top-0.5 h-3 w-3 rounded-full bg-white transition-all ${keepShape ? "left-3.5" : "left-0.5"}`} />
             </span>
           </button>
+          {notes ? (
+            <button type="button" onClick={() => void shareNote()} title="Copy a link that opens this stage as a note, for anyone" className="mt-2 flex items-center gap-2 rounded-md border border-sky-500/60 bg-sky-500/10 px-2 py-1 text-left text-xs text-sky-100 hover:border-sky-400">
+              <Icon name="share-2" size={12} />
+              <span className="min-w-0 flex-1 truncate">{shared === "copied" ? "Link copied" : shared === "failed" ? "Could not copy" : "Share as a note"}</span>
+            </button>
+          ) : (
           <button
             type="button"
             onClick={() => void openVideo()}
@@ -365,6 +392,7 @@ export default function StudioApp() {
             <Icon name="play" size={12} />
             <span className="min-w-0 flex-1 truncate">{video ? `Video: ${video.name}` : "Preview a video…"}</span>
           </button>
+          )}
           {camera.stream && camera.devices.length > 1 && (
             <label className="mt-2 flex flex-col gap-1 text-xs text-slate-400">
               Camera
@@ -379,10 +407,10 @@ export default function StudioApp() {
       )}
 
       <main className="flex min-w-0 flex-col items-center gap-3">
-        <h1 className="sr-only">Studio</h1>
+        <h1 className="sr-only">{notes ? "Notes creator" : "Studio"}</h1>
         {/* as wide as the column, but never taller than the window */}
         <div className="w-full" style={{ maxWidth: "calc((100vh - 2rem) * 16 / 9)" }}>
-          {video ? (
+          {video && !notes ? (
             <VideoPreview file={video} pluginIds={PLUGIN_IDS} onClose={() => setVideo(null)} />
           ) : (
             <MicContext.Provider value={mic}>
@@ -392,7 +420,7 @@ export default function StudioApp() {
         </div>
       </main>
 
-      {palette && <Palette pluginIds={PLUGIN_IDS} stageKey={stage.key} media={media} layers={stage.layers} onPick={onPick} onRemove={(id) => dispatch({ type: "remove", id })} onClose={() => setPalette(false)} />}
+      {palette && <Palette notes={notes} pluginIds={PLUGIN_IDS} stageKey={stage.key} media={media} layers={stage.layers} onPick={onPick} onRemove={(id) => dispatch({ type: "remove", id })} onClose={() => setPalette(false)} />}
       {help && <KeysOverlay onClose={() => setHelp(false)} />}
     </div>
   );

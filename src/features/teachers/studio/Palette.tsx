@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import Icon from "@/components/Icon";
 import type { KeyChoice } from "@/features/creator";
 import ControlBadge, { MicBadge, PageBadge } from "./ControlBadge";
+import { isLive } from "./notes";
 import { PALETTE_GROUPS, groupResults, isControl, isPage, paletteCatalog, takesMic, searchPalette, subjectIdentity, type Layer, type MediaState, type PaletteResult } from "@/features/stage";
 
 type Row = { kind: "group"; name: string } | { kind: "sub"; name: string } | { kind: "result"; result: PaletteResult; index: number };
@@ -31,7 +32,9 @@ function rowsOf(results: PaletteResult[], ranked: boolean): { rows: Row[]; flat:
  * the stage or take it off; it stays open, so several can be ticked at once. Typing searches; Escape or a click outside closes.
  * A studio command (camera, screen share) runs and closes. Rendered on document.body, so it is never inside the recorded frame.
  */
-export default function Palette({ pluginIds, stageKey, media, layers, onPick, onRemove, onClose }: {
+export default function Palette({ notes = false, pluginIds, stageKey, media, layers, onPick, onRemove, onClose }: {
+  /** the notes creator: no camera, screen or audio widgets */
+  notes?: boolean;
   pluginIds: string[];
   stageKey: KeyChoice;
   media: MediaState;
@@ -48,8 +51,9 @@ export default function Palette({ pluginIds, stageKey, media, layers, onPick, on
 
   const { rows, flat } = useMemo(() => {
     const q = query.trim();
-    return rowsOf(q ? searchPalette(q, pluginIds, stageKey, media) : paletteCatalog(pluginIds, stageKey, media), !!q);
-  }, [query, pluginIds, stageKey, media]);
+    const all = q ? searchPalette(q, pluginIds, stageKey, media) : paletteCatalog(pluginIds, stageKey, media);
+    return rowsOf(notes ? all.filter((r) => (r.action.type === "add" ? !isLive(r.action.subject) : false)) : all, !!q);
+  }, [query, pluginIds, stageKey, media, notes]);
 
   /** the stage's widgets by identity: a row is ticked when one with its identity is there, whatever its key */
   const onStage = useMemo(() => {
