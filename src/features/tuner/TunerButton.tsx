@@ -21,7 +21,7 @@ function Fork({ size = 15 }: { size?: number }) {
 
 /**
  * The nav's tuner: a button that pops up a small tuner on any page. Instrument, tuning and A4 are the tuner page's own (one saved
- * choice); it listens to the app's chosen input (the devices menu), on the louder input of a two-input device, and shows its levels on the input chip. The microphone opens only on Start and closes with the panel.
+ * choice); it listens to the app's chosen input (the devices menu), on the louder input of a two-input device, and shows its levels on the input chip. The microphone opens when the panel opens and closes with it.
  */
 export default function TunerButton({ className = "" }: { className?: string }) {
   const [open, setOpen] = useState(false);
@@ -65,6 +65,7 @@ export default function TunerButton({ className = "" }: { className?: string }) 
       stop.current?.();
       return;
     }
+    void start();
     // the selects' menus are portalled to <body>: picking an instrument is not a press outside
     const away = (e: PointerEvent) => !inSelectMenu(e.target) && !box.current?.contains(e.target as Node) && setOpen(false);
     const esc = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
@@ -74,7 +75,7 @@ export default function TunerButton({ className = "" }: { className?: string }) 
       window.removeEventListener("pointerdown", away);
       window.removeEventListener("keydown", esc);
     };
-  }, [open]);
+  }, [open, start]);
 
   useEffect(() => () => stop.current?.(), []);
 
@@ -95,7 +96,7 @@ export default function TunerButton({ className = "" }: { className?: string }) 
         // the app's own panel, like the audio devices menu, so it follows the style
         <div role="dialog" aria-label="Tuner" className="fixed inset-x-3 top-16 z-3000 flex max-h-[calc(100dvh-5rem)] flex-col items-center gap-2 overflow-y-auto rounded-2xl border border-slate-700 bg-slate-900 p-3 text-slate-200 shadow-2xl sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-2 sm:w-80">
           <TunerSettings choice={choice} onChange={setChoice} compact />
-          <TunerMeter size="compact" hz={hz} read={read} idle={running ? "Play a string" : "Press Start and play"} />
+          <TunerMeter size="compact" hz={hz} read={read} idle={running ? "Play a string" : "Play a string"} />
           <button type="button" onClick={running ? () => stop.current?.() : () => void start()}
             className={`inline-flex min-w-36 items-center justify-center gap-2 rounded-full border px-5 py-2 text-sm font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${running ? "border-rose-500/70 bg-rose-500/15 text-rose-100 hover:bg-rose-500/25" : "border-emerald-500/70 bg-emerald-500/15 text-emerald-100 hover:bg-emerald-500/25"}`}>
             <span aria-hidden className={`h-2 w-2 ${running ? "rounded-sm bg-rose-300" : "rounded-full bg-emerald-300"}`} />

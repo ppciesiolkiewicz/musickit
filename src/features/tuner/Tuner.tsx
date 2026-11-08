@@ -81,6 +81,11 @@ export default function Tuner({ external }: { external?: ExternalInput } = {}) {
 
   useEffect(() => () => mic.current?.close(), []);
 
+  // listen as soon as the page opens
+  useEffect(() => {
+    if (!external) void start();
+  }, [external, start]);
+
   // a new input chosen while listening: reopen on it
   const heardOn = useRef(inputId);
   useEffect(() => {
