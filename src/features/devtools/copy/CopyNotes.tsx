@@ -125,7 +125,7 @@ export default function CopyNotes() {
       if (k === "a") return void setOn((v) => !v);
       // N opens or closes the notes panel; closing also leaves note mode and the list
       if (shut.current) (setOpen(false), setOn(false), setList(false), setTarget(null));
-      else setOpen(true);
+      else (setOpen(true), setOn(true));
     };
     window.addEventListener("keydown", key);
     return () => window.removeEventListener("keydown", key);
