@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, type RefObject } from "react";
-import { midiToName } from "@/features/sound";
 
 const W = 600;
 const ROW_H = 14;
@@ -21,7 +20,7 @@ const BLACK = new Set([1, 3, 6, 8, 10]);
  * the right, shown as an empty "?" box until it is found. With `dot` the voice is a dot at the right edge with a line of
  * the last few seconds behind it, green on the target; without it nothing of the voice shows (the harder way).
  */
-export default function IntervalRoll({ doMidi, low, high, target, found, doLabel, targetLabel, pitch, cents, dot, live, onNote }: {
+export default function IntervalRoll({ doMidi, low, high, target, found, doLabel, targetLabel, doName, targetName, pitch, cents, dot, live, onNote }: {
   doMidi: number;
   /** the lowest and highest note any interval of the set reaches, so the roll keeps its size whichever is asked (its height gives nothing away) */
   low: number;
@@ -31,6 +30,9 @@ export default function IntervalRoll({ doMidi, low, high, target, found, doLabel
   found: boolean;
   doLabel: string;
   targetLabel: string;
+  /** Do's and the target's names with their octave as spelled in the key ("B♭3", not "A#3"), for the gutter */
+  doName: string;
+  targetName: string;
   pitch: RefObject<number | null>;
   cents: number;
   dot: boolean;
@@ -91,12 +93,12 @@ export default function IntervalRoll({ doMidi, low, high, target, found, doLabel
       {rows.map((r) => {
         const y = (hi - r) * ROW_H;
         const black = BLACK.has(((r % 12) + 12) % 12);
-        const named = r === doMidi || (found && r === target);
+        const name = r === doMidi ? doName : found && r === target ? targetName : null;
         return (
           <g key={r}>
             <rect x={GUTTER} y={y} width={W - GUTTER} height={ROW_H} fill={black ? "var(--color-slate-900)" : "var(--color-slate-800)"} fillOpacity={black ? 0.9 : 0.35} />
             <rect x={0} y={y} width={GUTTER - 4} height={ROW_H} fill={black ? "var(--color-slate-700)" : "var(--color-slate-300)"} fillOpacity={black ? 1 : 0.85} />
-            {named && <text x={GUTTER - 8} y={y + ROW_H - 3} fontSize={10} textAnchor="end" fill="var(--color-slate-900)" fontWeight={600}>{midiToName(r)}</text>}
+            {name && <text x={GUTTER - 8} y={y + ROW_H - 3} fontSize={10} textAnchor="end" fill="var(--color-slate-900)" fontWeight={600}>{name}</text>}
             <line x1={GUTTER} x2={W} y1={y + ROW_H} y2={y + ROW_H} stroke="var(--color-slate-700)" strokeOpacity={0.4} />
           </g>
         );

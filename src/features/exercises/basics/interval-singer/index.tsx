@@ -27,6 +27,9 @@ const HOLD_MS = 500;
 const GAP_FRAMES = 6;
 
 type Look = "roll" | "staff";
+/** a key hint on a button */
+const Kbd = ({ children }: { children: string }) => <kbd aria-hidden className="rounded border border-current px-1 font-mono text-[10px] opacity-70">{children}</kbd>;
+const ALL_KEYS = Array.from({ length: 12 }, (_, k) => k);
 const KEY_NAMES = ["C", "D♭", "D", "E♭", "E", "F", "F♯", "G", "A♭", "A", "B♭", "B"];
 
 /** Do in the voice for a key, spelled in it, and the intervals that fit from it */
@@ -52,10 +55,17 @@ export function View({ keys: keysProp = [0], voice = "tenor", intervals = DEFAUL
   const [look, setLook] = useState<Look>("roll");
   const [dot, setDot] = useState(dotProp);
   const [cents] = useAccuracy();
-  // the keys Do is picked from (one at random for each question; the student can change them on the tool), and the one asked
-  const [keys, setKeys] = useState(() => (keysProp.length ? [...new Set(keysProp)].sort((a, b) => a - b) : [0]));
+  // the keys picked on the chips, and Random (all twelve) as its own switch over them, so turning Random off gives the
+  // picked keys back; all twelve given in the props start as Random over the first. Each question asks in one at random.
+  const [picked, setPicked] = useState(() => {
+    const ks = keysProp.length ? [...new Set(keysProp)].sort((a, b) => a - b) : [0];
+    return ks.length === 12 ? [keysProp[0] ?? 0] : ks;
+  });
+  const [random, setRandom] = useState(keysProp.length >= 12);
+  const keys = random ? ALL_KEYS : picked;
   const [pc, setPc] = useState(keys[0]);
-  const toggleKey = (k: number) => setKeys((ks) => (ks.includes(k) ? (ks.length > 1 ? ks.filter((x) => x !== k) : ks) : [...ks, k].sort((a, b) => a - b)));
+  // a chip is one more key or one less, never none
+  const toggleKey = (k: number) => setPicked((ks) => (ks.includes(k) ? (ks.length > 1 ? ks.filter((x) => x !== k) : ks) : [...ks, k].sort((a, b) => a - b)));
 
   const placed = useMemo(() => placeIn(pc, range, intervals, dir), [pc, range, intervals, dir]);
 
@@ -63,6 +73,8 @@ export function View({ keys: keysProp = [0], voice = "tenor", intervals = DEFAUL
   const [phase, setPhase] = useState<Phase>("idle");
   const [score, setScore] = useState({ right: 0, asked: 0 });
   const [tapped, setTapped] = useState<number | null>(null);
+  // whether the question asked has been scored, right or shown
+  const counted = useRef(false);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
   const stopTimers = () => {
     timers.current.forEach(clearTimeout);
@@ -70,19 +82,21 @@ export function View({ keys: keysProp = [0], voice = "tenor", intervals = DEFAUL
   };
   useEffect(() => stopTimers, []);
 
-  // Space (no modifier, not while typing, not on a focused button, which Space already presses) is the Start / Next button,
-  // for the tool on screen (a plan may hold more than one)
+  // the keys, for the tool on screen (a plan may hold more than one), with no modifier and not while typing: Space is
+  // Start / Next (not on a focused button, which Space already presses), D plays Do, R restarts the interval asked
   const root = useRef<HTMLDivElement>(null);
-  const onSpace = useRef<() => void>(() => {});
+  const onKey = useRef<Record<string, () => void>>({});
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
-      if (e.key !== " " || e.metaKey || e.ctrlKey || e.altKey || e.repeat) return;
+      const k = e.key.toLowerCase();
+      if (!(k in onKey.current) || e.metaKey || e.ctrlKey || e.altKey || e.repeat) return;
       const t = e.target;
-      if (t instanceof HTMLElement && (t.isContentEditable || t.closest("input,textarea,select,button,a,[role=button],[role=tab]"))) return;
+      if (t instanceof HTMLElement && (t.isContentEditable || t.closest("input,textarea,select"))) return;
+      if (k === " " && t instanceof HTMLElement && t.closest("button,a,[role=button],[role=tab]")) return;
       const box = root.current?.getBoundingClientRect();
       if (!box || box.bottom < 0 || box.top > window.innerHeight) return;
       e.preventDefault();
-      onSpace.current();
+      onKey.current[k]();
     };
     window.addEventListener("keydown", key);
     return () => window.removeEventListener("keydown", key);
@@ -142,18 +156,27 @@ export function View({ keys: keysProp = [0], voice = "tenor", intervals = DEFAUL
     if (s === null) return;
     setPc(k);
     setAsk(s);
+    counted.current = false;
     setScore((x) => ({ ...x, asked: x.asked + 1 }));
     void prompt(there.doNote.midi);
     if (!micOn) startMic();
   };
+  // the same interval again: the answer hidden, Do played, the mic listening; a second try doesn't count twice
+  const restart = () => {
+    if (ask === null) return;
+    void prompt();
+    if (!micOn) startMic();
+  };
+  const hearDo = () => void tap(doMidi, -1);
   useEffect(() => {
-    onSpace.current = next;
+    onKey.current = { " ": next, ...(ask !== null ? { d: hearDo, r: restart } : {}) };
   });
   const reveal = (ok: boolean) => {
     if (targetMidi === null) return;
     stopTimers();
     setPhase(ok ? "solved" : "shown");
-    if (ok) setScore((x) => ({ ...x, right: x.right + 1 }));
+    if (ok && !counted.current) setScore((x) => ({ ...x, right: x.right + 1 }));
+    counted.current = true;
     sound([doMidi, targetMidi]);
   };
 
@@ -203,9 +226,10 @@ export function View({ keys: keysProp = [0], voice = "tenor", intervals = DEFAUL
     <div ref={root} className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center gap-2">
         <Button size="sm" onClick={next} title={`${ask === null ? "Start" : "Next interval"} (Space)`} className="inline-flex items-center gap-1.5 !border-sky-400/80 !bg-sky-500/25 !text-sky-50">
-          {ask === null ? "Start" : "Next"}<kbd aria-hidden className="rounded border border-current px-1 font-mono text-[10px] opacity-70">Space</kbd>
+          {ask === null ? "Start" : "Next"}<Kbd>Space</Kbd>
         </Button>
-        {ask !== null && <Button size="sm" onClick={() => void tap(doMidi, -1)}>Hear Do</Button>}
+        {ask !== null && <Button size="sm" onClick={hearDo} title="Hear Do (D)" className="inline-flex items-center gap-1.5">Hear Do<Kbd>D</Kbd></Button>}
+        {ask !== null && <Button size="sm" onClick={restart} title="The same interval again: Do plays and the mic listens (R)" className="inline-flex items-center gap-1.5">Restart<Kbd>R</Kbd></Button>}
         {ask !== null && !found && <Button size="sm" onClick={() => reveal(false)}>Show me</Button>}
         <MicButton on={micOn} onClick={() => (micOn ? setMicOn(false) : startMic())} />
         <InputChip status={micStatus} />
@@ -224,6 +248,7 @@ export function View({ keys: keysProp = [0], voice = "tenor", intervals = DEFAUL
       <p className={`text-sm ${phase === "solved" ? "text-emerald-300" : phase === "shown" ? "text-amber-300" : "text-slate-400"}`} aria-live="polite">{message}</p>
       {look === "roll" ? (
         <IntervalRoll doMidi={doMidi} low={doMidi + Math.min(0, ...placed.asks)} high={doMidi + Math.max(0, ...placed.asks)} target={targetMidi} found={found} doLabel={`Do · ${placed.doNote.spelled.name}`} targetLabel={target ? `${target.label} · ${target.spelled.name}` : ""}
+          doName={`${placed.doNote.spelled.name}${placed.doNote.spelled.octave}`} targetName={target ? `${target.spelled.name}${target.spelled.octave}` : ""}
           pitch={pitch} cents={cents} dot={dot} live={micOn} onNote={(w) => void (w === "do" ? tap(doMidi, -1) : targetMidi !== null && found && tap(targetMidi, -2))} />
       ) : (
         <SingingStaff ladder={staff.ladder} clef={clef} pitch={dot ? pitch : NO_PITCH} played={tapped === -1 ? (staff.targetAt === 0 ? 1 : 0) : tapped === -2 ? staff.targetAt : null} cents={cents}
@@ -239,15 +264,22 @@ export function View({ keys: keysProp = [0], voice = "tenor", intervals = DEFAUL
             </button>
           ))}
         </span>
-        <span role="group" aria-label="Keys" className="inline-flex flex-wrap items-center gap-0.5">
-          <span className="mr-1 uppercase tracking-wider text-slate-500">Keys</span>
-          {KEY_NAMES.map((name, k) => (
-            <button key={k} type="button" aria-pressed={keys.includes(k)} onClick={() => toggleKey(k)} title={keys.includes(k) ? `Leave out ${name}` : `Ask in ${name} too`}
-              className={`min-w-7 rounded-md px-1.5 py-1 transition ${keys.includes(k) ? "bg-sky-500/20 text-sky-100" : "text-slate-500 hover:text-slate-200"}`}>{name}</button>
+        {/* where Do comes from: the keys picked on the chips, or any of the twelve; switching keeps the keys picked */}
+        <span role="group" aria-label="Key" className="inline-flex rounded-lg border border-slate-800 p-0.5">
+          {([false, true] as const).map((r) => (
+            <button key={String(r)} type="button" aria-pressed={random === r} onClick={() => setRandom(r)} title={r ? "Any of the 12 keys: a random Do each time" : "Only the keys picked"}
+              className={`rounded-md px-2 py-1 transition ${random === r ? "bg-sky-500/20 text-sky-100" : "hover:text-slate-200"}`}>{r ? "Random" : picked.length > 1 ? "Keys" : "One key"}</button>
           ))}
-          <button type="button" onClick={() => setKeys(keys.length === 12 ? [pc] : KEY_NAMES.map((_, k) => k))} title={keys.length === 12 ? "Back to one key" : "Any key: a random Do each time"}
-            className="ml-1 rounded-md border border-slate-700 px-2 py-1 hover:text-slate-200">{keys.length === 12 ? "One key" : "Random"}</button>
         </span>
+        {!random && (
+          <span role="group" aria-label="Keys picked" className="inline-flex flex-wrap items-center gap-0.5">
+            {KEY_NAMES.map((name, k) => (
+              <button key={k} type="button" aria-pressed={picked.includes(k)} onClick={() => toggleKey(k)}
+                title={picked.includes(k) ? (picked.length > 1 ? `Leave out ${name}` : "At least one key") : `Ask in ${name} too`}
+                className={`min-w-7 rounded-md px-1.5 py-1 transition ${picked.includes(k) ? "bg-sky-500/20 text-sky-100" : "text-slate-500 hover:text-slate-200"}`}>{name}</button>
+            ))}
+          </span>
+        )}
         <Checkbox checked={dot} onChange={setDot} title="Off is harder: you sing without seeing your voice">Show my voice</Checkbox>
         <span className="ml-auto" />
         <Badge>{range.label}</Badge>
