@@ -9,22 +9,22 @@ test("labels and emoji", () => {
   assert.deepEqual(STYLES.map((s) => s.emoji), ["🕺", "⚡", "🎷", "🏄", "🤘", "🎺", "🙂"]);
 });
 
-test("resolveStyle: valid kept, old/garbage/null → funk", () => {
+test("resolveStyle: valid kept, old/garbage/null → plain", () => {
   assert.equal(resolveStyle("metal"), "metal");
-  for (const v of ["dark", "funky", "light", "", "x", null]) assert.equal(resolveStyle(v), "funk");
+  for (const v of ["dark", "funky", "light", "", "x", null]) assert.equal(resolveStyle(v), "plain");
 });
 
-test("readSaved: nothing saved → funk, not chosen, not seen", () => {
-  assert.deepEqual(readSaved({ getItem: () => null }), { style: "funk", chosen: false, seen: false });
+test("readSaved: nothing saved → plain, not chosen, not seen", () => {
+  assert.deepEqual(readSaved({ getItem: () => null }), { style: "plain", chosen: false, seen: false });
 });
 
-test("readSaved: old value → funk, not chosen", () => {
-  assert.deepEqual(readSaved({ getItem: (k) => (k === THEME_KEY ? "dark" : null) }), { style: "funk", chosen: false, seen: false });
+test("readSaved: old value → plain, not chosen", () => {
+  assert.deepEqual(readSaved({ getItem: (k) => (k === THEME_KEY ? "dark" : null) }), { style: "plain", chosen: false, seen: false });
 });
 
-test("readSaved: storage throws → funk defaults", () => {
-  assert.deepEqual(readSaved({ getItem: () => { throw new Error("blocked"); } }), { style: "funk", chosen: false, seen: false });
-  assert.deepEqual(readSaved(null), { style: "funk", chosen: false, seen: false });
+test("readSaved: storage throws → plain defaults", () => {
+  assert.deepEqual(readSaved({ getItem: () => { throw new Error("blocked"); } }), { style: "plain", chosen: false, seen: false });
+  assert.deepEqual(readSaved(null), { style: "plain", chosen: false, seen: false });
 });
 
 test("readSaved: saved style and seen flag", () => {
