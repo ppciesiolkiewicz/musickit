@@ -26,6 +26,7 @@ const COLUMNS: { title: string; links: { href: string; label: string }[] }[] = [
     links: [
       { href: "/teach", label: "Teach on attunr" },
       { href: "/teachers/studio", label: "Video studio" },
+      { href: "/teachers/studio?notes=1", label: "Notes creator" },
     ],
   },
   {

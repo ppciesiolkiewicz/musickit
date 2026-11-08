@@ -54,6 +54,14 @@ export default function TeachersPage() {
             </span>
             <span aria-hidden className="ml-auto text-slate-500 transition group-hover:translate-x-0.5 group-hover:text-slate-300">→</span>
           </Link>
+          <Link href="/teachers/studio?notes=1" className="ls-card mt-3 group flex items-center gap-4 rounded-3xl border border-slate-800 bg-slate-900/40 p-5 transition hover:-translate-y-0.5 hover:border-slate-600 sm:p-6">
+            <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-slate-800 text-slate-300"><Icon name="file-text" size={22} /></span>
+            <span className="min-w-0">
+              <span className="flex items-center gap-2 text-xl text-slate-50" style={DISPLAY}>Notes creator</span>
+              <span className="text-sm text-slate-400">Lay out chords, scales and positions as a page of notes, then share it with a student as a link.</span>
+            </span>
+            <span aria-hidden className="ml-auto text-slate-500 transition group-hover:translate-x-0.5 group-hover:text-slate-300">→</span>
+          </Link>
         </section>
 
         <SiteFooter />
