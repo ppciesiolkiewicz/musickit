@@ -1,5 +1,6 @@
 import { parseChordQuery } from "@/lib/chordKit/chordSearch";
-import { parseKeySlug } from "@/features/theory/keySlug";
+import { keyName, parseKeySlug } from "@/features/theory/keySlug";
+import { spellAbove } from "@/features/theory/labels";
 import { degreeSemis } from "@/features/exercises/timeline/degrees";
 import type { Section } from "./tools";
 
@@ -13,6 +14,14 @@ export type TextPart = string | { note: string };
 const SHARP = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"];
 const SEMI_TEXT = ["1", "♭2", "2", "♭3", "3", "4", "♯4", "5", "♭6", "6", "♭7", "7"];
 const TOKEN = /\{\{([^{}]{1,12})\}\}/g;
+
+/** A note name token as written: "e-flat" is E♭, never D♯. */
+function writtenName(token: string): string | null {
+  const m = /^([a-g])[-_ ]?(sharp|flat|#|♯|♭|b|s)?$/i.exec(token.trim());
+  if (!m) return null;
+  const acc = !m[2] ? "" : ["sharp", "#", "♯", "s"].includes(m[2].toLowerCase()) ? "♯" : "♭";
+  return m[1].toUpperCase() + acc;
+}
 
 /** A note name as in `add` ("c-sharp", "b-flat") as a pitch class; a bare number ("9") is never a note. */
 export const notePc = (s: string): number | null => (/^\s*\d+\s*$/.test(s) ? null : parseKeySlug(s));
@@ -88,16 +97,21 @@ export function inlineNote(token: string, ctx: NoteRoot | null): InlineNoteInfo 
   const asDegree = degreeSemis(token);
   let semi: number;
   let degree: number;
+  let spelled: string | null = null;
+  const root = ctx?.root ?? 0;
   if (asDegree !== null) {
     semi = asDegree % 12;
     degree = (Number(token.match(/\d+/)?.[0] ?? 1) - 1) % 7;
+    // spelled from the key's tonic by letter, as the staff spells it: ♭3 of C is E♭, the 3 of E is G♯
+    if (ctx) spelled = spellAbove(keyName(root), degree + 1, (root + semi) % 12);
   } else {
     const pc = notePc(token);
     if (pc === null || !ctx) return null;
     semi = (pc - ctx.root + 12) % 12;
     // the degree it is named as ("♭3" for C over A), so it takes that degree's colour
     degree = Number(SEMI_TEXT[semi].match(/\d/)![0]) - 1;
+    spelled = writtenName(token);
   }
-  const root = ctx?.root ?? 0;
-  return { semi, name: ctx ? SHARP[(root + semi) % 12] : SEMI_TEXT[semi], degreeText: SEMI_TEXT[semi], degree, midi: 48 + root + semi };
+  const name = ctx ? spelled ?? SHARP[(root + semi) % 12] : SEMI_TEXT[semi];
+  return { semi, name, degreeText: SEMI_TEXT[semi], degree, midi: 48 + root + semi };
 }

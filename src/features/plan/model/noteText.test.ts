@@ -27,6 +27,16 @@ describe("note text", () => {
     assert.equal(inlineNote("zz", { root: 0 }), null);
   });
 
+  it("spells a degree by letter from the key, and a note name as written", () => {
+    assert.equal(inlineNote("b3", { root: 0 })!.name, "E♭");
+    assert.equal(inlineNote("b7", { root: 0 })!.name, "B♭");
+    assert.equal(inlineNote("#4", { root: 0 })!.name, "F♯");
+    assert.equal(inlineNote("3", { root: 4 })!.name, "G♯");
+    assert.equal(inlineNote("3", { root: 8 })!.name, "C");
+    assert.equal(inlineNote("e-flat", { root: 0 })!.name, "E♭");
+    assert.equal(inlineNote("d-sharp", { root: 0 })!.name, "D♯");
+  });
+
   it("takes the root from the tool after the text, else the one before", () => {
     const text: Section = { type: "text", text: "x" };
     assert.deepEqual(noteRootFor([text, { type: "tool", tool: { type: "scale-neck", scale: "minor-pentatonic", key: 9 } }], 0), { root: 9 });
