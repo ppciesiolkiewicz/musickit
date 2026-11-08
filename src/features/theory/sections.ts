@@ -37,7 +37,6 @@ export const TONE: Record<Tone, { icon: string; chip: string }> = {
 export const THEORY_SECTIONS: TheorySection[] = [
   { group: "learn", href: "/course", tone: "amber", label: "Course", desc: "Learn the neck one position at a time", icon: "graduation-cap" },
   { group: "learn", href: "/plan", tone: "violet", label: "AI practice plan", desc: "A continuous daily plan for your practice", icon: "sparkles" },
-  { group: "learn", href: "/theory", tone: "emerald", label: "Start here (old content)", desc: "The course: stages, tracks, songs", icon: "graduation-cap" },
   { group: "learn", href: "/theory/basics", tone: "teal", label: "Guitar basics", desc: "Piano → guitar: notes and intervals", icon: "guitar" },
   { group: "learn", href: "/theory/circle", tone: "sky", label: "Circle of fifths", desc: "Keys, relatives, neighbours", icon: "circle-dot" },
   { group: "guitar", sub: "Explore", href: "/theory/chords", tone: "sky", label: "Chords", desc: "Open chords and every movable shape", icon: "grid-3x3" },
@@ -61,9 +60,8 @@ export const THEORY_SECTIONS: TheorySection[] = [
   { group: "tools", href: "/looper", tone: "teal", label: "Looper", desc: "Record loops and stack takes over drums", icon: "repeat" },
 ];
 
-/** The section a path belongs to: the longest matching href (hash links ignored). "/theory" only matches itself. */
+/** The section a path belongs to: the longest matching href (hash links ignored). */
 export function sectionFor(path: string): TheorySection | undefined {
-  if (path === "/theory") return THEORY_SECTIONS.find((s) => s.href === "/theory");
-  return THEORY_SECTIONS.filter((s) => !s.href.includes("#") && s.href !== "/theory" && (path === s.href || path.startsWith(`${s.href}/`)))
+  return THEORY_SECTIONS.filter((s) => !s.href.includes("#") && (path === s.href || path.startsWith(`${s.href}/`)))
     .sort((a, b) => b.href.length - a.href.length)[0];
 }

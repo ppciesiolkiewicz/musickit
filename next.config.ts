@@ -14,6 +14,8 @@ const nextConfig: NextConfig = {
       { source: "/theory/drone", destination: "/theory/metronome-drone", permanent: true },
       // the four-stage outline was folded into the course
       { source: "/theory/stage/:n", destination: "/course", permanent: true },
+      // the old "Start here" hub was folded into the course
+      { source: "/theory", destination: "/course", permanent: true },
     ];
   },
 };

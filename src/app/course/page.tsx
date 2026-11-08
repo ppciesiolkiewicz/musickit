@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import PageShell from "@/components/PageShell";
 import Icon, { type IconName } from "@/components/Icon";
 import { DISPLAY, Eyebrow } from "@/components/landing/Display";
 import CourseIndex from "@/components/course/CourseIndex";
+import { COURSE, sectionHref } from "@/features/course/course";
 
 export const metadata: Metadata = {
   title: "Course: learn the neck one position at a time · attunr",
@@ -30,6 +32,9 @@ function Hero() {
         <p className="mt-3 max-w-xl text-sm leading-relaxed text-slate-400">
           A rough order, not a ladder. Nothing has to be mastered before you move on, and you can always come back.
         </p>
+        <Link href={sectionHref(COURSE[0].slug, COURSE[0].sections[0].slug)} className="mt-7 inline-flex items-center gap-2 rounded-xl bg-sky-400 px-5 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-sky-500/20 transition hover:bg-sky-300">
+          Start here: {COURSE[0].sections[0].title} <Icon name="chevron-right" size={16} />
+        </Link>
       </div>
       <div className="flex flex-col gap-3">
         <p className="px-1 text-xs font-medium uppercase tracking-[0.2em] text-slate-400">Organise it your way</p>

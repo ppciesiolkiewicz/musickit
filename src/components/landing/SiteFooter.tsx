@@ -14,7 +14,6 @@ const COLUMNS: { title: string; links: { href: string; label: string }[] }[] = [
   {
     title: "Free tools",
     links: [
-      { href: "/theory", label: "Theory" },
       { href: "/theory/scales", label: "Scales" },
       { href: "/theory/metronome-drone", label: "Metronome & drone" },
       { href: "/looper", label: "Looper" },

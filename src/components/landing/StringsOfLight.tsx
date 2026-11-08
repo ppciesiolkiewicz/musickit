@@ -254,7 +254,7 @@ export default function StringsOfLight() {
       </div>
 
       <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
-        <Link href="/theory" className="inline-flex items-center gap-2 rounded-full border border-emerald-500 bg-emerald-500/15 px-4 py-2 text-sm text-emerald-50 transition hover:bg-emerald-500/25">
+        <Link href="/course" className="inline-flex items-center gap-2 rounded-full border border-emerald-500 bg-emerald-500/15 px-4 py-2 text-sm text-emerald-50 transition hover:bg-emerald-500/25">
           Start training <Icon name="chevron-right" size={14} />
         </Link>
         {m && page && (

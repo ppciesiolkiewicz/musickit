@@ -44,7 +44,7 @@ const TOOLS: Tool[] = [
   { href: "/tuner", label: "Tuner", icon: "gauge", text: "Needle and cents for guitar, bass, ukulele, violin or any note.", art: "needle" },
 ];
 const IN_PROGRESS = [
-  { href: "/theory", label: "Theory course" },
+  { href: "/course", label: "Course" },
   { href: "/theory/improv", label: "Improvisation" },
   { href: "/teachers/studio?notes=1", label: "Notes creator" },
 ];

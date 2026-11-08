@@ -22,7 +22,7 @@ const GROUPS: { title: string; items: QA[] }[] = [
     items: [
       { q: "Is attunr free?", a: <>Yes. The tools, theory pages and exercises are free, and you don&apos;t need an account. Only the video course is paid.</> },
       { q: "Where is my practice saved?", a: <>In this browser, on this device. Your plan, settings and progress stay here between visits. If you clear your browser&apos;s site data, or open attunr on another device or browser, you start fresh.</> },
-      { q: "Where do I start?", a: <>Make an <A href="/plan">AI practice plan</A> for a new set of exercises each day, or pick a tool from <A href="/theory">Theory</A>. Tune up first with the <A href="/tuner">tuner</A>.</> },
+      { q: "Where do I start?", a: <>Make an <A href="/plan">AI practice plan</A> for a new set of exercises each day, start the <A href="/course">course</A>, or pick a tool from the menu at the top. Tune up first with the <A href="/tuner">tuner</A>.</> },
     ],
   },
   {
