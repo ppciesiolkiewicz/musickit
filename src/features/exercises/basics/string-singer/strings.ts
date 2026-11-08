@@ -21,7 +21,9 @@ export interface StringNote {
 /**
  * The open strings moved into a voice: up or down by the octaves that keep the most of them inside the range (the
  * lowest such shift on a tie), then any still outside folded in by an octave, so a voice too narrow for two octaves
- * still sings every string.
+ * still sings every string. Folding can drop the top E below the B, so if the strings no longer climb they are laid
+ * out again, still climbing, from the E that leaves the fewest outside the range (the lowest on a tie): a two-octave
+ * voice that does not start on E then has its top note a little out of range, better than a 1st-string E under the B.
  */
 export function stringsInRange(range: Range): number[] {
   let best = 0;
@@ -30,12 +32,21 @@ export function stringsInRange(range: Range): number[] {
     const out = OPEN_STRINGS.filter((m) => m + 12 * k < range.low || m + 12 * k > range.high).length;
     if (out < bestOut) [best, bestOut] = [k, out];
   }
-  return OPEN_STRINGS.map((m) => {
+  const folded = OPEN_STRINGS.map((m) => {
     let n = m + 12 * best;
     while (n < range.low && n + 12 <= range.high) n += 12;
     while (n > range.high && n - 12 >= range.low) n -= 12;
     return n;
   });
+  if (folded.every((n, i) => i === 0 || n > folded[i - 1])) return folded;
+  let pick = folded;
+  let pickOut = Infinity;
+  for (let e = OPEN_STRINGS[0] - 48; e <= OPEN_STRINGS[0] + 48; e += 12) {
+    const set = OPEN_STRINGS.map((m) => m - OPEN_STRINGS[0] + e);
+    const out = set.filter((n) => n < range.low || n > range.high).length;
+    if (out < pickOut) [pick, pickOut] = [set, out];
+  }
+  return pick;
 }
 
 /** Lay notes end to end, each `beats` long. */

@@ -7,13 +7,19 @@ import { OPEN_STRINGS, drillNotes, stringsInRange } from "./strings";
 
 describe("stringsInRange", () => {
   it("keeps the strings' own octave for a bass", () => assert.deepEqual(stringsInRange(VOICES.bass), OPEN_STRINGS));
-  it("puts every string inside each voice, keeping each string's note", () => {
+  it("keeps each string's note", () => {
     for (const v of Object.values(VOICES)) {
       const m = stringsInRange(v);
       m.forEach((n, i) => {
-        assert.ok(n >= v.low && n <= v.high, `${v.label} ${n}`);
         assert.equal(n % 12, OPEN_STRINGS[i] % 12);
       });
+    }
+  });
+  it("keeps the strings climbing, the 1st-string E above the B, with at most one note outside the voice", () => {
+    for (const v of Object.values(VOICES)) {
+      const m = stringsInRange(v);
+      m.forEach((n, i) => i && assert.ok(n > m[i - 1], `${v.label} ${m}`));
+      assert.ok(m.filter((n) => n < v.low || n > v.high).length <= 1, `${v.label} ${m}`);
     }
   });
   it("moves the whole set by octaves when it fits", () => assert.deepEqual(stringsInRange({ low: 52, high: 76 }), OPEN_STRINGS.map((m) => m + 12)));
