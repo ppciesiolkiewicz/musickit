@@ -2,8 +2,8 @@
  * The design system: import everything from "@/components/ui", never from a folder inside it (lint enforces this).
  * Each component lives in its own folder; only that folder's index.ts is public, the other files are its private parts.
  *
- *   atoms      one element with one job: Button, Checkbox, Chip, Badge, Tag, Tile, Select, Slider, NumberField, InfoButton, InfoBox, Popover (and Hue, the colour coding)
- *   molecules  a few atoms working together: ChipRow, Dropdown, Field, Info, InfoTip, Stepper
+ *   atoms      one element with one job: Button, Checkbox, Chip, Badge, Tag, Tile, Select, Slider, NumberField, InfoButton, EscKey, InfoBox, Popover (and Hue, the colour coding)
+ *   molecules  a few atoms working together: ChipRow, Dropdown, Field, Hint, Info, InfoTip, Stepper
  *   organisms  self-contained blocks: Section, Modal
  */
 export * from "./atoms/Badge";
@@ -11,6 +11,7 @@ export * from "./atoms/Button";
 export * from "./atoms/Checkbox";
 export * from "./atoms/Chip";
 export * from "./atoms/Hue";
+export * from "./atoms/EscKey";
 export * from "./atoms/InfoBox";
 export * from "./atoms/InfoButton";
 export * from "./atoms/NumberField";
@@ -22,6 +23,7 @@ export * from "./atoms/Tile";
 export * from "./molecules/ChipRow";
 export * from "./molecules/Dropdown";
 export * from "./molecules/Field";
+export * from "./molecules/Hint";
 export * from "./molecules/Info";
 export * from "./molecules/InfoTip";
 export * from "./molecules/Stepper";

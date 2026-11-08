@@ -1,0 +1,141 @@
+Ticket content
+
+
+New:
+
+-  DONE: Esc to close 'tool hint' (questionmark icon) on singing and other components.
+Make it reusable component as well as show [Esc] next to  (i) button when it's active
+
+
+
+
+======================== Small ========================
+
+
+
+
+======================== Medium ========================
+
+11. Staff note states: enabled / highlighted / muted
+Muted is too muted right now (theory-new-major-or-minor, section 3). Need levels: enabled, highlighted, muted.
+
+12. Drone UI in exercise:
+staff {"scale":"major-ionian","key":0,"voice":"tenor","enable":[0],"others":"hidden","drone":true,"labels":"solfege"}
+The UI does both:
+- start (mic) - starts / stops the mic but when we start the mic we also start the drone
+- drone ui start/stop/mute drone - should use configured drone/metronome component
+Also rethink whether we need "Stop microphone" at all - "Stop exercise" should be enough.
+
+13. Voice safety
+- Exercises like voice-new-matching-a-pitch ("Hum the drone note") need a voice safety instruction on top + link to an article.
+- Staff ranges must follow user level: e.g. for tenor mute higher notes (high C/B/.. E) depending on accuracy or another level parameter (matching-a-pitch sections 3 and 6). Avoid any voice injuries.
+
+18. Note spelling: text and component disagree
+theory-new-major-or-minor, section 7: text shows D#, staff shows Eb.
+Only sharps? Or one scale provider per section that uses the same scale (possibly nested providers)?
+
+19. Improve copy / add labels - How notes are labelled: note names, intervals from the root (R, b3, p5), scale degrees, or each note's job in the chord. One setting for the whole app; dot colours stay the same either way.
+
+20. Implement exercise stubs. Add a rule that whenever new exercise is added it needs to be added to /dev/stories
+
+======================== Large ========================
+
+21. Double stop / Triad exercises as well as double stop triad exercises intertwined with solos.
+Like - seeing chords within a scale!
+
+22. Add hill exercise to singing. Evaluate exercises from old singing.attunr.app
+I can tell you where attunr repository is
+
+src/components/Exercise/PitchExercises
+Include also farinelli exercise in our app
+
+23. After adding all the new voice exercises (attunr / sing interval) - reorganize menu so singing possibly has its own section.
+Use brainstorming to propose the most interactive, intuitive split.
+
+24. Key choice wrapper and learnBefore links on plans
+
+Plan for the bigger change: 2026-11-02-key-choice-and-plan-links.md
+
+Part A, a key-choice wrapper tool: it holds 1–2 tools and shows 2–3 key chips. It needs a pure function that moves each tool type to the new key, and a parse step. The prompt also needs a change, since it currently says the student gets no settings to change. After that, do-mi-sol shrinks from 6 tools to 4. There are two open questions for you:
+Should the student tap the chips, or should the key move on by itself?
+Should a chip show only the key ("F"), or also say Do is F?
+Part B, learnBefore for the plan examples: I drafted links for all 160 plan-example exercises in 2026-11-02-plan-learn-before.json. All 210 links are real course pages. I drafted them from the exercise titles, so they need a read before they go in, and the plan lists the weak spots. Until they're added, the example plan the AI copies has no learnBefore, which goes against the new prompt rule.
+
+25. Rewrite the prompt - add exercises that will use new, unused tools in example exercise content. Use skills written for writing these pages. Use the strongest model for core piece of work.
+
+
+oooooooooooooooooooooo Recent app feedback ooooooooooooooooooooooooo
+
+
+
+oooooooooooooooooooooooooooooooooo DONE ooooooooooooooooooooooooooooooooooooooooooooooo
+D17. Volume control on staff and other components
+Done: one app-wide volume (speaker to mute + slider) on the staff and the sing-along players, a master gain over every sound. A sliders button opens a dropdown of tiles: accuracy and labels (app-wide), melody view (shared by the exercise's tools: staff or piano roll). Tempo, metronome and looping stay on each tool. A staff written with fixed labels leaves the labels choice out. No density setting. Not checked in the browser after the last change (labels made app-wide).
+D16. Better frames around exercise components (/dev/examples).
+Done: on /dev/examples each tool sits in a bordered frame headed by its type (STAFF, MELODY SINGER…), each step of an exercise after the first starts under a rule with a larger heading, and each example card has a shaded header bar over its body. The plan page's layout is unchanged (the framing is keyed to the review view's comment context). The tools' own inner borders were left as they are. Not checked in the browser (extension was not connected).
+D15. Guide-tones / chord singing exercises (voice-advanced-guide-tones)
+- run-singer (section 3) needs 2 chords in front as an introduction too.
+- Section 8: highlight the note we expect to be sung + root note of the chord. Root notes should show on the staff (D is missing). Then the instruction is just "sing highlighted notes" (word explanation optional). Make note name and solfège bolder for the selected note.
+- Section 12: include Ti below low Do (at least for lower levels). Multiple notes can be highlighted if we give the user the option.
+- Call to try singing the notes without the melody. Maybe idea variants under each exercise to inspire (different vowels etc.).
+Done: a run now opens with a bar of its first key's I and V (run-singer); highlighted notes on a staff get bold names and solfège; the guide-tones staff shows the whole scale (D and G roots in), the sung notes and roots lit, A faint; new staff option `under` adds the notes under low Do (Ti), used in "Your own line"; try-it-without-the-tune lines with ideas after the run, the octave tune and the guide tones. Not checked in the browser.
+D14. Pages with a side panel: side panel always on the side, even with the hero (e.g. /theory/singing).
+Done: the singing page's lead-in (Lesson) moved into the content column, so the settings column starts at the top beside it. Not yet checked in the browser (extension was not connected).
+D11. Use headphones disclaimer that shows UI help explaining about audio etc.
+Done: "Use headphones" with an (i) note next to Start exercise, whenever a step uses the mic and plays a sound.
+
+D12. Improve design of voice range finder and circle of fifths - add colors
+Done: circle chords coloured by job (home / away / tension) with a legend; range finder shows coloured voice-type bars, your range and a live pitch marker.
+
+D13. FAQ
+Done: /faq page (getting started, mic and sound, AI plan, course), linked in footer, search and sitemap.
+
+D1. One "Start exercise" button for drone and mic
+
+Problem: Singing exercises tell the student to press Play on the drone and then start the mic on the staff. That is two controls and two sentences in every exercise.
+Proposal: One button starts the backing (drone or click) and the mic together. This would be a combined control in the tool tree, such as a staff option that takes its own drone and click, or a wrapper tool.
+Acceptance: The text says "Press Start below". Stopping stops both. An exercise can still use a drone without the mic.
+Open question: Does this replace the click-drone plus staff pair, or is it a new tool the prompt prefers?
+D2. The run-singer title shows "Run #109 · Pentatonic runs · C major · Tenor"
+
+Problem: The title reads as one fixed run, but the exercise moves up a semitone each pass.
+Proposal: Show the current pass and its key ("Pass 2 of 5 · D♭ major"), or the note range. Drop the run number.
+Acceptance: The title always matches what is currently playing.
+D3. Voice exercises have no progression display in play-along
+
+Problem: The guide-tones exercise uses a play-along as accompaniment, but it shows no chord progression the way strum-along does. The play-along component is also built for guitar playing.
+Proposal: Add a chord-progression strip (current chord lit, one per bar) to a play-along used as accompaniment. Or add a separate "chords" tool for singers.
+Acceptance: A singer sees which chord is playing and what comes next. The text no longer says "play along".
+D4. Staff singing exercises must label notes
+
+Problem: A staff in a singing exercise can show bare notes. I found no rule or option that forces degree or solfège labels.
+Proposal: Add a labels option to the staff tool (degree or solfège), and default it on when mic is true. Add a prompt rule and a validation test over the examples.
+Acceptance: Every staff with a mic in the examples shows labels.
+
+D5. add more components to dev component preview (story book). I'm most interested in exercises.  I'd like to see storybook style controls but happy with our custom implementation
+
+D6. "Read the article" in a help box should open in new tab
+Copy: "Read the article →"
+
+D7. Throughout the app find where microphone is used and replace button labels to be "Start / stop microphone"
+
+D8. Annotation / notes tool
+- [ a ] shortcut button to trigger on/off "Note text" quickly
+- Default "Add note" should open an edit box with more lines (multi-line comments).
+
+D9. Example exercise copy fixes (/dev/examples)
+- guitar-beginner-pentatonic-box1, section 2: could also learnBefore notes & strings, if we have an article like that.
+- guitar-intermediate plan, day 1 ex 1, section 1 ("Pick the first note only. Then hammer finger 3 and pull back..."): instruction reads badly; maybe better once shown with a component.
+- theory-intermediate-seventh-chords, section 4: "C7 has A♯ (B♭)" reads very hard.
+- theory-new-major-or-minor, section 2 ("tap {{1}}, then any other note..."): nice but not quite a drill. Add focus for selling classes.
+
+D10. A course article for "staff"
+
+Problem: The glossary entry has no article of its own to link to.
+Proposal: Write a short article under the notation stage, then repoint the glossary entry at it.
+
+D11. /theory/singing page (done 2026-11-07)
+- "Play the scale" button: add play/stop icon.
+- Put all settings (difficulty etc.) into the side panel, using more dropdowns instead of so many buttons.
+- Melody feed exercises need the same capabilities as autoplan (looping etc.), coming from the same shared component.
+- Fullscreen melody exercises: arrow/swipe navigation, shown with arrows on the margin.

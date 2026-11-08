@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import Icon from "@/components/Icon";
+import { InfoButton } from "../../atoms/InfoButton";
 
 /**
  * A small (i) button that opens a short note below it. Closes on Escape or a click elsewhere.
@@ -13,12 +13,9 @@ export default function InfoTip({ label, children, hover = false, align = "right
   useEffect(() => {
     if (!open) return;
     const away = (e: PointerEvent) => !box.current?.contains(e.target as Node) && setOpen(false);
-    const key = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
     window.addEventListener("pointerdown", away);
-    window.addEventListener("keydown", key);
     return () => {
       window.removeEventListener("pointerdown", away);
-      window.removeEventListener("keydown", key);
     };
   }, [open]);
   return (
@@ -28,9 +25,7 @@ export default function InfoTip({ label, children, hover = false, align = "right
       onPointerEnter={hover ? (e) => e.pointerType === "mouse" && setOpen(true) : undefined}
       onPointerLeave={hover ? (e) => e.pointerType === "mouse" && setOpen(false) : undefined}
     >
-      <button type="button" className="grid h-6 min-w-6 place-items-center rounded-md border border-slate-700/80 bg-slate-900/80 px-1 text-slate-300 hover:border-slate-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400" aria-expanded={open} aria-label={label} title={label} onClick={() => setOpen(!open)}>
-        <Icon name="info" size={12} />
-      </button>
+      <InfoButton open={open} onClick={() => setOpen(!open)} label={label} />
       {open && (
         <>
           {/* Invisible bridge over the gap to the note, so the pointer can cross it without closing the hover. */}
