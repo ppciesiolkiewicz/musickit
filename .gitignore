@@ -60,3 +60,5 @@ next-env.d.ts
 /tools/prompt-history/
 
 tasks.txt
+.tasks.txt.swp
+*.swp
