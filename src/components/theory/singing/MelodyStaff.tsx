@@ -119,12 +119,14 @@ export default function MelodyStaff({ notes, chords = [], ladder, clef, live, pi
   const steps = placed.map((p) => p.step);
   const rungs = ladder.notes.map((n) => n.midi);
   const rungSteps = ladder.notes.map((n) => place(n.spelled, ladder.signature, clef).step);
-  const top = Math.max(8, ...steps.map((s) => s + (s < 4 ? 7 : 0))) + 3;
+  const top = Math.max(8, ...steps.map((s) => s + (s < 4 ? 7 : 0))) + 7;
   const bottom = Math.min(0, ...steps.map((s) => s - (s >= 4 ? 7 : 0))) - 3;
   const chordsH = chords.length ? CHORDS_H : 0;
   const yOf = (step: number) => chordsH + 6 + (top - step) * HALF;
   const labelsY = yOf(bottom) + 8;
   const H = labelsY + LABELS_H;
+  // the voice dot stays on the drawing: too high it stops at the top, too low it sits on the solfege label (Do)
+  const dotY = (step: number) => Math.max(yOf(top), Math.min(labelsY + 23, yOf(step)));
 
   const total = notes.length ? notes[notes.length - 1].at + notes[notes.length - 1].beats : BEATS_PER_BAR;
   const sig = signatureGlyphs(ladder.signature, clef);
@@ -339,16 +341,16 @@ export default function MelodyStaff({ notes, chords = [], ladder, clef, live, pi
                   if (i === 0) return null;
                   const q = a.tail[i - 1];
                   const age = 1 - (now - p.t) / TAIL_MS;
-                  return <line key={p.t} x1={bx(q.x)} y1={yOf(q.step)} x2={bx(p.x)} y2={yOf(p.step)} stroke={colour} strokeWidth={1 + 8 * age} strokeOpacity={0.55 * age} strokeLinecap="round" />;
+                  return <line key={p.t} x1={bx(q.x)} y1={dotY(q.step)} x2={bx(p.x)} y2={dotY(p.step)} stroke={colour} strokeWidth={1 + 8 * age} strokeOpacity={0.55 * age} strokeLinecap="round" />;
                 })}
                 {follow && a.target >= 0 && (
-                  <Miss x={bx(a.dot!.x)} y={yOf(a.dot!.step)} to={yOf(placed[a.target].step)} cents={a.cents} hit={a.hit} colour={colour} />
+                  <Miss x={bx(a.dot!.x)} y={dotY(a.dot!.step)} to={yOf(placed[a.target].step)} cents={a.cents} hit={a.hit} colour={colour} />
                 )}
                 {guideW > 0 && (
-                  <rect x={guideFrom} y={yOf(a.dot!.step) - 1} width={guideW} height={2} fill={guideAhead ? colour : `url(#${guide})`} fillOpacity={guideAhead ? 0.7 : 1} />
+                  <rect x={guideFrom} y={dotY(a.dot!.step) - 1} width={guideW} height={2} fill={guideAhead ? colour : `url(#${guide})`} fillOpacity={guideAhead ? 0.7 : 1} />
                 )}
-                <circle cx={bx(a.dot!.x)} cy={yOf(a.dot!.step)} r={13} fill={colour} fillOpacity={0.18} />
-                <circle cx={bx(a.dot!.x)} cy={yOf(a.dot!.step)} r={7} fill={colour} />
+                <circle cx={bx(a.dot!.x)} cy={dotY(a.dot!.step)} r={13} fill={colour} fillOpacity={0.18} />
+                <circle cx={bx(a.dot!.x)} cy={dotY(a.dot!.step)} r={7} fill={colour} />
               </g>
             )}
           </g>
