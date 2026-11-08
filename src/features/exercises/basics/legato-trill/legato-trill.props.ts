@@ -1,5 +1,5 @@
 /**
- * Stub: shows a placeholder until the real view exists. A legato trill: two fingers on one string, alternating by
+ * A legato trill: two fingers on one string, alternating by
  * hammer-on and pull-off with no picking after the first note. Use it for legato strength and finger independence.
  * @component legato-trill basic
  */

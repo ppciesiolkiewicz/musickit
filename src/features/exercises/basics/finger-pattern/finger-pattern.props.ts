@@ -1,5 +1,5 @@
 /**
- * Stub: shows a placeholder until the real view exists. A finger-pattern drill: the spider and finger permutations,
+ * A finger-pattern drill: the spider and finger permutations,
  * one finger per fret, played on each string in turn. Use it for dexterity and finger independence warm-ups.
  * @component finger-pattern basic
  */

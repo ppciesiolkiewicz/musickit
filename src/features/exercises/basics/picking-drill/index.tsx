@@ -1,6 +1,11 @@
-import { StubView, stringsLabel } from "../stub";
+"use client";
 
-/** Stub: the picking drill's settings in a placeholder box. */
-export function View({ strokes, notesPerString, strings, skip, bpm }: { strokes: string; notesPerString: number; strings?: number[]; skip?: boolean; bpm: number }) {
-  return <StubView name="picking drill" settings={[`strokes ${strokes.split("").join(" ")}`, `${notesPerString} per string`, stringsLabel(strings), ...(skip ? ["skipping strings"] : []), `${bpm} bpm`]} />;
+import { useMemo } from "react";
+import { DrillPlayer } from "../DrillPlayer";
+import { pickingDrillSteps } from "../drills";
+
+/** The picking drill as cells you can play: open strings, the strokes (↓ down, ↑ up) running on across strings. */
+export function View({ strokes, notesPerString = 4, strings, skip = false, bpm }: { strokes: string; notesPerString?: number; strings?: number[]; skip?: boolean; bpm: number }) {
+  const steps = useMemo(() => pickingDrillSteps(strokes, notesPerString, strings, skip), [strokes, notesPerString, strings, skip]);
+  return <DrillPlayer steps={steps} bpm={bpm} hint={`${skip ? "skipping strings, " : ""}strokes ${strokes.split("").join(" ")}`} />;
 }

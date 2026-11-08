@@ -1,5 +1,5 @@
 /**
- * Stub: shows a placeholder until the real view exists. A picking-hand drill: a stroke pattern repeated across the
+ * A picking-hand drill: a stroke pattern repeated across the
  * strings. Use it for alternate picking (strokes "DU") and, with skip, for string skipping.
  * @component picking-drill basic
  */

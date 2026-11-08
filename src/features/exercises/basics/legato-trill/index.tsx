@@ -1,6 +1,11 @@
-import { StubView } from "../stub";
+"use client";
 
-/** Stub: the legato trill's settings in a placeholder box. */
+import { useMemo } from "react";
+import { DrillPlayer } from "../DrillPlayer";
+import { legatoTrillSteps } from "../drills";
+
+/** The legato trill as cells you can play: pick the first note, hammer on and pull off the rest. */
 export function View({ fingers, string, fret, bpm }: { fingers: string; string: number; fret: number; bpm: number }) {
-  return <StubView name="legato trill" settings={[`fingers ${fingers.split("").join("-")}`, `string ${string}`, `from fret ${fret}`, `${bpm} bpm`]} />;
+  const steps = useMemo(() => legatoTrillSteps(fingers, string, fret), [fingers, string, fret]);
+  return <DrillPlayer steps={steps} bpm={bpm} hint={`pick once, then hammer and pull: fingers ${fingers.split("").join("-")}`} />;
 }

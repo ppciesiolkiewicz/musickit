@@ -21,8 +21,7 @@ migrates; the components, their props and their docs live here.
    Shared: `choices.ts`, `arpeggio.ts`, `singer.tsx` (the two singers), `sing-along/` (their player: play, stop and
    mic as icons, what is heard switched on and off as a row (the tune, its chords when it has them, a metronome on the tune's
    beats: the singers' `metronome` prop, on by default for `string-singer`), a loop set by two markers on a strip of the tune, its passes laid end to end on an endless staff or a
-   piano roll that keeps the voice's line, and a full screen page modal where the notes slide under a still bar; `passes.ts` is the pure model). Three more are stubs with a placeholder view (`stub.tsx`), their
-   props final: `finger-pattern`, `picking-drill`, `legato-trill`.
+   piano roll that keeps the voice's line, and a full screen page modal where the notes slide under a still bar; `passes.ts` is the pure model). Three more are guitar drills, each a row of cells (string, fret, finger, stroke) with a play button (`DrillPlayer.tsx`; the pure steps in `drills.ts`): `finger-pattern`, `picking-drill`, `legato-trill`.
 
 `docs/` extracts each `@component` props file with the TypeScript compiler API into `docs.generated.json`
 (`COMPONENT_DOCS`); a test fails when it is stale. Regenerate with `npm run docs:exercises`.

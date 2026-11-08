@@ -273,7 +273,7 @@
   {
     "name": "finger-pattern",
     "kind": "basic",
-    "description": "Stub: shows a placeholder until the real view exists. A finger-pattern drill: the spider and finger permutations,\none finger per fret, played on each string in turn. Use it for dexterity and finger independence warm-ups.",
+    "description": "A finger-pattern drill: the spider and finger permutations,\none finger per fret, played on each string in turn. Use it for dexterity and finger independence warm-ups.",
     "props": [
       {
         "name": "fingers",
@@ -390,7 +390,7 @@
   {
     "name": "legato-trill",
     "kind": "basic",
-    "description": "Stub: shows a placeholder until the real view exists. A legato trill: two fingers on one string, alternating by\nhammer-on and pull-off with no picking after the first note. Use it for legato strength and finger independence.",
+    "description": "A legato trill: two fingers on one string, alternating by\nhammer-on and pull-off with no picking after the first note. Use it for legato strength and finger independence.",
     "props": [
       {
         "name": "fingers",
@@ -520,7 +520,7 @@
   {
     "name": "picking-drill",
     "kind": "basic",
-    "description": "Stub: shows a placeholder until the real view exists. A picking-hand drill: a stroke pattern repeated across the\nstrings. Use it for alternate picking (strokes \"DU\") and, with skip, for string skipping.",
+    "description": "A picking-hand drill: a stroke pattern repeated across the\nstrings. Use it for alternate picking (strokes \"DU\") and, with skip, for string skipping.",
     "props": [
       {
         "name": "strokes",
