@@ -1,6 +1,7 @@
 import type { Section, StoredTool } from "./tools";
 import type { Voice } from "@/features/theory/singing";
 import type { Area } from "./concepts";
+import type { StarRating } from "@/features/progress/stars";
 
 /** How well the player knows a concept: 1 = not at all, 5 = solid. */
 export type Rating = 1 | 2 | 3 | 4 | 5;
@@ -73,6 +74,8 @@ export interface StoredPlan {
   startedOn: string;
   /** exercises ticked off, keyed `${dayIndex}:${exerciseIndex}` */
   done: Record<string, true>;
+  /** how each finished exercise went, same keys as `done`; a rated exercise is also in `done` (older plans only have `done`) */
+  rated?: Record<string, StarRating>;
   /** seconds of each day's countdown already used, keyed by day index; the floating timer saves it every few seconds */
   elapsed?: Record<string, number>;
   /** how the week went, in the player's words, for the next prompt */

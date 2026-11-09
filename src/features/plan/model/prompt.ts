@@ -8,6 +8,7 @@ import { AREAS, conceptById, conceptsFor } from "./concepts";
 import type { ExerciseExample, PlanExample } from "../examples";
 import { selectExamples } from "./exampleSelection";
 import { doneKey } from "./schedule";
+import { starText } from "@/features/progress/stars";
 import { PLAN_DAYS, type PlanAnswers, type StoredPlan } from "./types";
 
 const stars = (n: number) => "★".repeat(n) + "☆".repeat(5 - n);
@@ -39,7 +40,13 @@ function studentLines(a: PlanAnswers): string[] {
 export function weekReport(plan: StoredPlan): string {
   const lines = [`Plan "${plan.config.title}", started ${plan.startedOn}:`];
   plan.config.days.forEach((d, di) => {
-    const ex = d.exercises.map((e, ei) => `${plan.done[doneKey(di, ei)] ? "[done]" : "[skipped]"} ${e.title}`).join("; ");
+    const ex = d.exercises.map((e, ei) => {
+      const k = doneKey(di, ei);
+      const r = plan.rated?.[k];
+      const mark = r ? `[${starText(r.stars)}]` : plan.done[k] ? "[done]" : "[skipped]";
+      const about = [e.level, e.focus].filter(Boolean).join(" · ");
+      return `${mark} ${e.title}${about ? ` (${about})` : ""}`;
+    }).join("; ");
     lines.push(`- Day ${di + 1} (${d.theme}): ${ex}`);
   });
   if (plan.feedback?.trim()) lines.push(`Player's notes on the week: ${plan.feedback.trim()}`);
@@ -101,7 +108,7 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
       profile,
       "",
     ]),
-    ...(history ? [part("history", "Earlier weeks", "history", ["## Earlier weeks (newest first)", history, "", "Build on this: repeat what was skipped or hard in a new form, move on from what was done, and keep the thread of their goals.", ""])] : []),
+    ...(history ? [part("history", "Earlier weeks", "history", ["## Earlier weeks (newest first)", history, "", "Build on this: ratings are how the exercise went. 1-2 stars: make it easier (slower bpm, a lower level, fewer notes, or split it into parts). 3: keep the level and change one thing. 4-5: move on (faster bpm or the next level). Repeat what was skipped in a new form, and keep the thread of their goals.", ""])] : []),
     part("how-to-plan", "How to plan", "rules", [
       "## How to plan",
       "- Build on what they rate high (4-5 stars), drill what is low (1-2) or unsure, and follow the order of ideas: when pentatonic is rated 4 and the major scale 1, build the major scale from the pentatonic. Their focus for the week gets most of the time.",
