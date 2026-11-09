@@ -3,10 +3,10 @@ import type { CatalogueEntry } from "./catalogue";
 import { EXERCISE_AREAS, EXERCISE_LEVELS, EXERCISE_TAGS, linkResources, sectionInterface, toolInterface } from "./tools";
 import { LEVELS, labelOf } from "./questions";
 import { DEFAULT_ANSWERS, levelOf } from "../intake/answers";
-import { topicsFor } from "../intake/topics";
+import { TOPICS, topicById, topicsFor } from "../intake/topics";
 import { VOICES } from "@/features/theory/singing";
 import { noteName } from "@/features/theory/voiceRange";
-import { AREAS } from "./concepts";
+import { AREAS, conceptsOf } from "./concepts";
 import type { ExerciseExample, PlanExample } from "../examples";
 import { selectExamples } from "./exampleSelection";
 import { doneKey } from "./schedule";
@@ -38,9 +38,7 @@ export function weekReport(plan: StoredPlan): string {
   const lines = [`Plan "${plan.config.title}", started ${plan.startedOn}:`];
   plan.config.days.forEach((d, di) => {
     const ex = d.exercises.map((e, ei) => {
-      const k = doneKey(di, ei);
-      const r = plan.rated?.[k];
-      const mark = r ? `[${starText(r.stars)}]` : plan.done[k] ? "[done]" : "[skipped]";
+      const mark = markOf(plan, di, ei);
       const about = [e.level, e.focus].filter(Boolean).join(" · ");
       return `${mark} ${e.title}${about ? ` (${about})` : ""}`;
     }).join("; ");
@@ -50,13 +48,41 @@ export function weekReport(plan: StoredPlan): string {
   return lines.join("\n");
 }
 
+/** How one exercise of a plan went: its stars, "done" for an old tick without stars, or "skipped". */
+function markOf(plan: StoredPlan, day: number, exercise: number): string {
+  const k = doneKey(day, exercise);
+  const r = plan.rated?.[k];
+  return r ? `[${starText(r.stars)}]` : plan.done[k] ? "[done]" : "[skipped]";
+}
+
+/**
+ * The week just finished, grouped by questionnaire topic (in questionnaire order; exercises without a topic under
+ * "Other"): every exercise with its day, how it went, its level and focus. Then the player's notes on the week.
+ */
+export function weekByTopic(plan: StoredPlan): string {
+  const groups = new Map<string, string[]>();
+  plan.config.days.forEach((d, di) => d.exercises.forEach((e, ei) => {
+    const about = [e.level, e.focus].filter(Boolean).join(" · ");
+    const key = e.topic && topicById(e.topic) ? e.topic : "";
+    groups.set(key, [...(groups.get(key) ?? []), `- Day ${di + 1}: ${markOf(plan, di, ei)} ${e.title}${about ? ` (${about})` : ""}`]);
+  }));
+  const lines = [`Plan "${plan.config.title}", started ${plan.startedOn}:`];
+  for (const t of TOPICS) if (groups.has(t.id)) lines.push(`### ${AREAS.find((a) => a.id === t.area)!.label} · ${t.label}`, ...groups.get(t.id)!);
+  if (groups.has("")) lines.push("### Other", ...groups.get("")!);
+  if (plan.feedback?.trim()) lines.push(`Player's notes on the week: ${plan.feedback.trim()}`);
+  return lines.join("\n");
+}
+
+/** How to read the ratings of a finished week. */
+const BUILD_ON = "Build on this: ratings are how the exercise went. 1-2 stars: make it easier (slower bpm, a lower level, fewer notes, or split it into parts). 3: keep the level and change one thing. 4-5: move on (faster bpm or the next level). Repeat what was skipped in a new form, and keep the thread of their goals.";
+
 const EXERCISES_HEADING = [
   "## Examples of good exercises",
   "Examples from every area and level, to show the format and the rules at work. Each says who it is for; pitch the student's exercises at their own levels above, not at these.",
   "",
 ].join("\n");
 
-export type PromptPartKind = "intro" | "student" | "history" | "course" | "rules" | "interface" | "links" | "format" | "exercise-example" | "plan-example";
+export type PromptPartKind = "intro" | "student" | "week" | "progress" | "history" | "course" | "rules" | "interface" | "links" | "format" | "exercise-example" | "plan-example";
 
 /** One labelled piece of the prompt; an example part also carries its JSON so tools can render it. */
 export interface PromptPart {
@@ -94,7 +120,10 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
     : "The player skipped the questionnaire. Before writing the plan, ask them (in one short message) what they play, their level in each area, what they already know, their voice type (if they sing) and minutes a day; then write the plan.";
   const { exercises, plan } = selectExamples(answers ?? DEFAULT_ANSWERS);
   const exerciseParts = exercises.map((e, i) => examplePart(e, i === 0 ? EXERCISES_HEADING : ""));
-  const history = previous.slice(0, 3).map(weekReport).join("\n\n");
+  // the week just finished, with the AI's own summary from it; a plan from before summaries falls back to the last three weeks in full
+  const lastWeek = previous[0];
+  const summary = lastWeek?.config.progress?.trim();
+  const history = summary ? "" : previous.slice(0, 3).map(weekReport).join("\n\n");
   return [
     part("intro", "Intro", "intro", [
       "You are writing a 7-day drill plan for one student. They practise with attunr, a web app; each exercise is a drill that shows the tools it needs right in the plan, between its text. The lessons live elsewhere (see Links): the exercises say what to do with the tools. One sentence of why it works is welcome when it helps the student build their own drill, but it is never required.",
@@ -102,10 +131,20 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
     ]),
     part("student", "The student", "student", [
       "## The student",
+      ...(previous.length && answers ? ["This is what they said when they started. What they rated this week, and your progress summary below, count for more."] : []),
       profile,
       "",
     ]),
-    ...(history ? [part("history", "Earlier weeks", "history", ["## Earlier weeks (newest first)", history, "", "Build on this: ratings are how the exercise went. 1-2 stars: make it easier (slower bpm, a lower level, fewer notes, or split it into parts). 3: keep the level and change one thing. 4-5: move on (faster bpm or the next level). Repeat what was skipped in a new form, and keep the thread of their goals.", ""])] : []),
+    ...(summary ? [
+      part("week", "This week, by topic", "week", ["## This week, by topic", weekByTopic(lastWeek), "", BUILD_ON, ""]),
+      part("progress", "Progress summary", "progress", [
+        "## Your progress summary",
+        "You wrote these notes with last week's plan. They are your memory of this student from all earlier weeks:",
+        summary,
+        "",
+      ]),
+    ] : []),
+    ...(history ? [part("history", "Earlier weeks", "history", ["## Earlier weeks (newest first)", history, "", BUILD_ON, ""])] : []),
     ...(course.length ? [part("course", "Course ratings", "course", [
       "## Course sections they rated",
       ...course.map((r) => `- ${r.title}: ${starText(r.stars)}${r.note ? ` — "${r.note}"` : ""}`),
@@ -117,6 +156,7 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
       "## How to plan",
       "- Plan from the lines they picked above. Spend most of the time on topics where they picked \"Not yet\" or the line after it, and build from what they already do: when they play one pentatonic position and don't know the major scale, build the major scale from the pentatonic. A topic that is not answered is unknown: test it gently before building on it.",
       "- The level beside each area is a rough guide worked out from those lines. Pitch each exercise from the line of its own topic.",
+      "- Keep a progress summary and return it as \"progress\" in the JSON. It is your memory of this student: the next prompt gives it back to you, with the week's ratings, in place of the earlier weeks. Write one line per topic the student plays, starting with the topic's name: where they stand, what moved this week, what is stuck, what to try next. Rewrite it whole each week from your last summary plus this week's ratings; in a first week, write it from what they said above and what this plan starts. Trust ratings over what they said when they started. Keep it under about 300 words. Write it for yourself in plain notes: the student never sees it.",
       "- Singing keys sit inside their voice range; check the lowest and highest note of every exercise against it.",
       "- Never organise a plan around a genre. A style may justify a choice in one sentence (\"the scale used in blues\").",
       "- Serve their direction AND what a good teacher sees they need: weave in fundamentals (time feel, fretboard or keyboard knowledge, ear) even if they didn't ask, aimed at what they find hard.",
@@ -228,7 +268,7 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
       "## Answer format",
       `Reply with ONE JSON code block and nothing else: a PlanConfig with exactly ${PLAN_DAYS} days, shaped like the example plan above.`,
       "```ts",
-      `interface PlanConfig { title: string; summary?: string; days: PlanDay[] } // exactly ${PLAN_DAYS} days`,
+      `interface PlanConfig { title: string; summary?: string; progress: string; days: PlanDay[] } // exactly ${PLAN_DAYS} days; progress: your notes on the student, see How to plan`,
       "interface PlanDay { theme: string; exercises: Exercise[] } // 2 to 5 exercises",
       "interface Exercise {",
       "  title: string;",
@@ -238,11 +278,15 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
       "  level: " + EXERCISE_LEVELS.map((l) => `"${l}"`).join(" | ") + ";",
       "  area: " + EXERCISE_AREAS.map((a) => `"${a}"`).join(" | ") + ";",
       "  tags: string[]; // 1 to 3, from the tags listed under Exercise format",
+      "  topic: string; // the one topic it practises, from the list below: a topic of its area",
+      "  concepts?: string[]; // up to 4 of that topic's concepts, from the list below",
       "  learnBefore: string[]; // at least one, see Links",
       "  sections: Section[]; // see Sections",
       "  exploreMore?: string[]; // see Links",
       "}",
       "```",
+      "Topics, each with its concepts (topic id (name): concept ids):",
+      ...TOPICS.map((t) => `- ${t.id} (${t.label}): ${conceptsOf(t.id).map((c) => c.id).join(", ")}`),
     ]),
   ];
 }

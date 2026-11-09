@@ -1,7 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { catalogue } from "./catalogue";
-import { buildPrompt, promptParts } from "./prompt";
+import { buildPrompt, promptParts, weekByTopic, weekReport } from "./prompt";
+import { TOPICS } from "../intake/topics";
 import { DEFAULT_ANSWERS } from "../intake/answers";
 import { selectExamples } from "./exampleSelection";
 import { EXERCISE_EXAMPLES } from "../examples";
@@ -111,4 +112,70 @@ test("the rules ask for the student's voice type on staff and singer tools", () 
   const rules = promptParts(DEFAULT_ANSWERS, []).filter((p) => p.kind === "rules").map((p) => p.text).join("\n");
   assert.match(rules, /set "voice" on every staff, melody-singer and run-singer tool/);
   assert.match(promptParts(null, []).find((p) => p.id === "student")!.text, /their level in each area/);
+});
+
+const topicWeek = (progress?: string): StoredPlan => ({
+  id: "w", startedOn: "2026-11-01", done: { "0:0": true, "1:0": true }, feedback: "Barre still hurts",
+  rated: { "0:0": { stars: 4, at: "2026-11-02T10:00:00.000Z" }, "1:0": { stars: 2, at: "2026-11-03T10:00:00.000Z" } },
+  config: {
+    title: "Week 1", ...(progress ? { progress } : {}),
+    days: Array.from({ length: 7 }, (_, i) => ({
+      theme: `T${i}`,
+      exercises: [
+        i === 0 ? { title: "Barre drill", minutes: 5, level: "beginner" as const, area: "guitar" as const, topic: "guitar-barre-chords", focus: "F barre" }
+          : i === 1 ? { title: "Spider", minutes: 5, level: "beginner" as const, area: "guitar" as const, topic: "guitar-techniques" }
+          : i === 2 ? { title: "Mystery", minutes: 5 }
+          : { title: `Scale ${i}`, minutes: 5, area: "guitar" as const, topic: "guitar-scales" },
+      ],
+    })),
+  },
+});
+const kinds = (prev: StoredPlan[]) => promptParts(rated, [], prev).map((p) => p.kind);
+const partOf = (prev: StoredPlan[], id: string) => promptParts(rated, [], prev).find((p) => p.id === id)?.text ?? "";
+
+test("first week: no week, progress or history part", () => {
+  for (const k of ["week", "progress", "history"]) assert.ok(!kinds([]).includes(k as never), k);
+});
+
+test("weekByTopic: every exercise under its topic with its stars, skipped ones marked, untagged ones under Other", () => {
+  const t = weekByTopic(topicWeek());
+  assert.match(t, /^Plan "Week 1", started 2026-11-01:/);
+  assert.match(t, /### Guitar · Barre chords\n- Day 1: \[4★ Solid\] Barre drill \(beginner · F barre\)/);
+  assert.match(t, /### Guitar · Techniques\n- Day 2: \[2★ Struggling\] Spider \(beginner\)/);
+  assert.match(t, /### Guitar · Scales\n- Day 4: \[skipped\] Scale 3\n- Day 5: \[skipped\] Scale 4/);
+  assert.match(t, /### Other\n- Day 3: \[skipped\] Mystery/);
+  assert.ok(t.indexOf("Scales") < t.indexOf("Barre chords") && t.indexOf("Techniques") < t.indexOf("### Other"), "topics in questionnaire order, Other last");
+  assert.match(t, /Player's notes on the week: Barre still hurts$/);
+});
+
+test("next week, the last plan has a summary: the week by topic and the summary word for word, no earlier weeks", () => {
+  const prev = [topicWeek("Barre chords: F buzzes less.\nTechniques: spider slow."), last];
+  assert.deepEqual(promptParts(rated, [], prev).map((p) => p.id).slice(0, 5), ["intro", "student", "week", "progress", "how-to-plan"]);
+  assert.ok(!kinds(prev).includes("history"));
+  assert.ok(partOf(prev, "week").includes(weekByTopic(prev[0])));
+  assert.match(partOf(prev, "week"), /1-2 stars: make it easier/);
+  assert.ok(partOf(prev, "progress").includes("Barre chords: F buzzes less.\nTechniques: spider slow."));
+  assert.match(partOf(prev, "student"), /what they said when they started/);
+  assert.doesNotMatch(partOf([], "student"), /when they started/);
+});
+
+test("next week, the last plan has no summary: the earlier weeks as before", () => {
+  const prev = [topicWeek(), last];
+  assert.ok(kinds(prev).includes("history") && !kinds(prev).includes("progress") && !kinds(prev).includes("week"));
+  assert.ok(partOf(prev, "history").includes(weekReport(prev[0])));
+});
+
+test("the prompt asks for the progress summary and the topic tags, and lists every topic with its concepts", () => {
+  for (const prev of [[], [topicWeek("x")]]) {
+    const rules = partOf(prev, "how-to-plan");
+    assert.match(rules, /"progress"/);
+    assert.match(rules, /one line per topic/);
+    assert.match(rules, /under about 300 words/);
+    const format = partOf(prev, "answer-format");
+    assert.match(format, /progress: string;/);
+    assert.match(format, /topic: string;/);
+    assert.match(format, /concepts\?: string\[\];/);
+    for (const t of TOPICS) assert.ok(format.includes(`- ${t.id} (${t.label})`), t.id);
+    assert.match(format, /- guitar-barre-chords \(Barre chords\): bm-f-barre/);
+  }
 });

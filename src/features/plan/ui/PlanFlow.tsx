@@ -3,18 +3,18 @@
 import { useEffect, useMemo, useState } from "react";
 import { StepModal, type ModalStep } from "@/components/ui";
 import type { CatalogueEntry } from "../model/catalogue";
-import { migrateAnswers } from "../intake/answers";
+import { areasMissingTopics, migrateAnswers } from "../intake/answers";
 import { parsePlanConfig } from "../model/config";
 import { buildPrompt } from "../model/prompt";
 import { useAllNotes } from "@/components/course/useCourseNotes";
 import { courseRatings } from "@/features/course/ratings";
 import type { PlanAnswers, PlanConfig, StoredPlan } from "../model/types";
 import { CopyPrompt, PasteBox } from "./PromptAndPaste";
-import { questionSteps } from "../intake/ui/Questionnaire";
+import { areasStep, questionSteps, restSteps, topicSteps } from "../intake/ui/Questionnaire";
 
 /** The flow in progress, kept for the tab's life so a reload or a hot reload reopens it where it was. */
 export const FLOW_KEY = "musickit.plan.flow";
-type Saved = { mode: "start" | "next"; draft: PlanAnswers; feedback: string; text: string; step: number };
+type Saved = { mode: "start" | "next"; draft: PlanAnswers; feedback: string; text: string; step: number; /** "next": the questionnaire screens were asked for */ editing?: boolean };
 
 /** The saved flow, if any (sessionStorage can be blocked). */
 export function savedFlow(): Saved | null {
@@ -37,9 +37,10 @@ export function clearFlow(): void {
 const field = "w-full rounded-lg border border-slate-700 bg-slate-950/60 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-600 focus:border-sky-500 focus:outline-none";
 
 /**
- * Making a plan, as one step modal. "start": every question, then copy the prompt (no past weeks: a fresh start), then paste.
- * "next": how the week went and whether the direction changed, then the prompt with this week's exercises (done or skipped),
- * the notes and earlier weeks, then paste. `onPlan` gets the plan, the answers and, for "next", the notes on the week.
+ * Making a plan, as one step modal. "start": the whole questionnaire, then copy the prompt (no past weeks: a fresh start), then paste.
+ * "next": how the week went, minutes and anything else, then the prompt with this week's ratings by topic and the AI's
+ * progress summary, then paste. The topic screens are left out of "next" (ratings say more than they do), except for an
+ * area with no answer yet (answers kept from before the topics), and unless the player asks with "Change my answers". `onPlan` gets the plan, the answers and, for "next", the notes on the week.
  */
 export default function PlanFlow({ mode, answers, current, history, entries, onPlan, onClose }: {
   mode: "start" | "next";
@@ -59,13 +60,16 @@ export default function PlanFlow({ mode, answers, current, history, entries, onP
   const [feedback, setFeedback] = useState(saved?.feedback ?? current?.feedback ?? "");
   const [text, setText] = useState(saved?.text ?? "");
   const [step, setStep] = useState(saved?.step ?? 0);
+  const [editing, setEditing] = useState(saved?.editing ?? false);
+  // from the stored answers, not the draft: the screen stays while the player answers it
+  const [unanswered] = useState(() => areasMissingTopics(answers));
   useEffect(() => {
     try {
-      window.sessionStorage.setItem(FLOW_KEY, JSON.stringify({ mode, draft, feedback, text, step } satisfies Saved));
+      window.sessionStorage.setItem(FLOW_KEY, JSON.stringify({ mode, draft, feedback, text, step, editing } satisfies Saved));
     } catch {
       /* ignore */
     }
-  }, [mode, draft, feedback, text, step]);
+  }, [mode, draft, feedback, text, step, editing]);
   const set = <K extends keyof PlanAnswers>(k: K, v: PlanAnswers[K]) => setDraft((d) => ({ ...d, [k]: v }));
   const parsed = useMemo(() => (text.trim() ? parsePlanConfig(text, entries) : null), [text, entries]);
 
@@ -79,17 +83,30 @@ export default function PlanFlow({ mode, answers, current, history, entries, onP
     : [
         {
           title: "How did this week go?",
-          hint: "What felt easy, hard, fun. It goes into the prompt with what you ticked off.",
-          body: <textarea autoFocus className={`${field} h-full`} value={feedback} onChange={(e) => setFeedback(e.target.value)} placeholder="Day 3 was too fast, loved the improv, want more songs…" />,
+          hint: "What felt easy, hard, fun. It goes into the prompt with the stars you gave each exercise.",
+          body: (
+            <div className="flex h-full flex-col gap-2">
+              <textarea autoFocus className={`${field} min-h-0 flex-1`} value={feedback} onChange={(e) => setFeedback(e.target.value)} placeholder="Day 3 was too fast, loved the improv, want more songs…" />
+              <button
+                type="button"
+                aria-pressed={editing}
+                onClick={() => setEditing((v) => !v)}
+                className="min-h-11 w-fit cursor-pointer text-left text-sm text-sky-300 underline-offset-2 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400"
+              >
+                {editing ? "Keep my answers as they are" : "Change my answers (what you play, and where you are in each topic)"}
+              </button>
+            </div>
+          ),
         },
-        ...questionSteps(draft, set),
+        ...(editing ? [areasStep(draft, set), ...topicSteps(draft, set)] : topicSteps(draft, set, unanswered)),
+        ...restSteps(draft, set, editing),
       ];
   steps.push(
     {
       title: mode === "start" ? "Copy your prompt" : "Copy next week's prompt",
       hint: mode === "start"
         ? "Paste it into ChatGPT, Claude, Gemini… Next, you paste your AI's reply back here."
-        : "It carries this week's exercises, what you did and skipped, and your notes. Next, you paste your AI's reply back here.",
+        : "It carries the stars you gave this week's exercises, your notes, and your AI's own notes on your progress. Next, you paste your AI's reply back here.",
       body: <CopyPrompt prompt={prompt} entries={entries} />,
     },
     {

@@ -14,6 +14,8 @@ import ExamplePreview from "./ExamplePreview";
 const KIND: Record<PromptPartKind, string> = {
   intro: "text-slate-300",
   student: "text-emerald-300",
+  week: "text-emerald-300",
+  progress: "text-emerald-300",
   history: "text-emerald-300",
   course: "text-emerald-300",
   rules: "text-amber-300",
