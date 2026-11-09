@@ -221,6 +221,22 @@ export default function CoachingHome() {
           </div>
         </section>
 
+        {/* Coming soon: breathwork exercises */}
+        <section id="breathwork" aria-labelledby="breathwork-h" className="scroll-mt-6 sect-rule py-12 sm:py-16">
+          <div className="ls-card mx-auto flex max-w-3xl flex-col items-start gap-4 rounded-3xl border border-slate-800 bg-slate-900/50 p-6 sm:p-8">
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-teal-500/15 text-teal-300"><Icon name="waves" size={20} /></span>
+              <h2 id="breathwork-h" className="text-2xl text-slate-50 sm:text-3xl" style={DISPLAY}>Breathwork exercises</h2>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-sky-400/40 bg-sky-400/10 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider text-sky-300">
+                <span className="size-1.5 rounded-full bg-sky-300" /> Coming soon
+              </span>
+            </div>
+            <p className="max-w-xl text-slate-300">
+              Calm, steady breathing makes for <Mark tone="var(--color-teal-400)">relaxed hands and an even pulse</Mark>. Short guided exercises to settle in before you play, and to hold a note or a phrase for longer.
+            </p>
+          </div>
+        </section>
+
         <IdeasSection />
 
         <section className="pb-16 text-center sm:pb-24">
