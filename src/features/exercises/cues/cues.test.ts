@@ -193,6 +193,10 @@ describe("cuesOf: grips (triads and double stops)", () => {
     assert.deepEqual(cues[3].frets, cues[0].frets);
     for (const n of cues.slice(1, 3)) assert.ok(n.frets[0].fret >= 4 && n.frets[0].fret <= 8, JSON.stringify(n.frets));
   });
+  it("a power chord with its octave is one grip: A5 on strings 6-5-4 at 5-7-7", () => {
+    const [g] = played({ chords: [{ chord: "A5", steps: [{ grip: ["1", "5", "1"], strings: "654" }] }] });
+    assert.deepEqual(g.frets.map((f) => [f.string, f.fret]), [[0, 5], [1, 7], [2, 7]]);
+  });
   it("a grip with the wrong number of strings is dropped", () => {
     // the one note left fills the bar
     assert.ok(played({ chords: [{ chord: "G", steps: [{ grip: ["1", "3", "5"], strings: "21" }, "1"] }] }).every((c) => c.midi.length === 1));

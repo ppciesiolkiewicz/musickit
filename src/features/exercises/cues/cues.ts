@@ -101,11 +101,14 @@ const permutations = <T,>(xs: T[]): T[][] => (xs.length <= 1 ? [xs] : xs.flatMap
 
 /**
  * Where a grip goes: each pitch class on one of `strings` (guitar numbers, low to high), notes rising with the strings
- * inside one octave (closed, as `triadVoicings`), the fretted notes within 4 frets. Of those, the one nearest `near` (a fret), lower frets first on a tie; null when
+ * inside one octave (closed, as `triadVoicings`; a doubled note may be the octave itself, as in a power chord), the
+ * fretted notes within 4 frets. Of those, the one nearest `near` (a fret), lower frets first on a tie; null when
  * the notes don't fit on those strings.
  */
 export function gripCells(pcs: number[], strings: number[], near: number): Cell[] | null {
   const idx = strings.map((n) => 6 - n);
+  // a doubled note (a power chord's root and octave) may sit a whole octave up
+  const maxReach = new Set(pcs).size < pcs.length ? 12 : 11;
   let best: { cells: Cell[]; cost: number; lo: number } | null = null;
   for (const order of permutations(pcs)) {
     const options = idx.map((s, i) => neckOf(order[i]).filter((c) => c.string === s));
@@ -113,7 +116,7 @@ export function gripCells(pcs: number[], strings: number[], near: number): Cell[
       if (i === idx.length) {
         const fretted = acc.filter((c) => c.fret > 0).map((c) => c.fret);
         if (fretted.length && Math.max(...fretted) - Math.min(...fretted) > MAX_GRIP_SPAN) return;
-        if (acc[acc.length - 1].midi - acc[0].midi >= 12) return; // closed: inside one octave
+        if (acc[acc.length - 1].midi - acc[0].midi > maxReach) return; // closed: inside one octave
         const lo = fretted.length ? Math.min(...fretted) : 0;
         const mid = acc.reduce((a, c) => a + c.fret, 0) / acc.length;
         const cost = Math.abs(mid - near);
