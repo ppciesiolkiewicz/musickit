@@ -292,11 +292,10 @@ export default function StudioApp() {
           <button type="button" title="Add a widget (/ or ⌘K)" aria-label="Add a widget" onClick={() => setPalette(true)} className="rounded-md border border-slate-700 p-1 text-slate-200 hover:border-slate-500">
             <Icon name="plus" size={14} />
           </button>
-          {notes ? (
-            <button type="button" title="Share as a note" aria-label="Share as a note" onClick={() => void shareNote()} className="rounded-md border border-slate-700 p-1 text-slate-200 hover:border-slate-500">
-              <Icon name="share-2" size={14} />
-            </button>
-          ) : (
+          <button type="button" title="Share as a note" aria-label="Share as a note" onClick={() => void shareNote()} className="rounded-md border border-slate-700 p-1 text-slate-200 hover:border-slate-500">
+            <Icon name="share-2" size={14} />
+          </button>
+          {!notes && (
             <button type="button" title="Preview a video config" aria-label="Preview a video config" aria-pressed={!!video} onClick={() => void openVideo()} className={`rounded-md border p-1 hover:border-slate-500 ${video ? "border-sky-500/60 text-sky-200" : "border-slate-700 text-slate-200"}`}>
               <Icon name="play" size={14} />
             </button>
@@ -378,12 +377,11 @@ export default function StudioApp() {
               <span className={`absolute top-0.5 h-3 w-3 rounded-full bg-white transition-all ${keepShape ? "left-3.5" : "left-0.5"}`} />
             </span>
           </button>
-          {notes ? (
-            <button type="button" onClick={() => void shareNote()} title="Copy a link that opens this stage as a note, for anyone" className="mt-2 flex items-center gap-2 rounded-md border border-sky-500/60 bg-sky-500/10 px-2 py-1 text-left text-xs text-sky-100 hover:border-sky-400">
-              <Icon name="share-2" size={12} />
-              <span className="min-w-0 flex-1 truncate">{shared === "copied" ? "Link copied" : shared === "failed" ? "Could not copy" : "Share as a note"}</span>
-            </button>
-          ) : (
+          <button type="button" onClick={() => void shareNote()} title="Copy a link that opens this stage as a note, for anyone. Camera, screen and microphone widgets are left out." className="mt-2 flex items-center gap-2 rounded-md border border-sky-500/60 bg-sky-500/10 px-2 py-1 text-left text-xs text-sky-100 hover:border-sky-400">
+            <Icon name="share-2" size={12} />
+            <span className="min-w-0 flex-1 truncate">{shared === "copied" ? "Link copied" : shared === "failed" ? "Could not copy" : "Share as a note"}</span>
+          </button>
+          {!notes && (
           <button
             type="button"
             onClick={() => void openVideo()}
