@@ -42,8 +42,16 @@ function boxCells(start: number): Cell[] {
 }
 const CELLS: Record<Box, Cell[]> = { 1: boxCells(BOX_FRET[1]), 2: boxCells(BOX_FRET[2]) };
 
+/** The loop the mini band plays (the Aeolian vamp in A) and each chord's pitch classes, so the neck can light its notes. */
+const LOOP = [
+  { name: "Am", pcs: [9, 0, 4] },
+  { name: "F", pcs: [5, 9, 0] },
+  { name: "G", pcs: [7, 11, 2] },
+  { name: "Am", pcs: [9, 0, 4] },
+];
+
 /** The box drawn with the app's own note dots: hover names the note, a click plays it. `highlight` is a dot with a pulsing ring. */
-function PentatonicBox({ box = 1, highlight }: { box?: Box; highlight?: [number, number] }) {
+function PentatonicBox({ box = 1, highlight, chordPcs }: { box?: Box; highlight?: [number, number]; chordPcs?: number[] }) {
   const { active, tap } = useNotePlayer();
   return (
     <svg viewBox="0 0 260 132" className="w-full overflow-visible" role="img" aria-label={`A minor pentatonic box ${box} at the ${BOX_FRET[box]}th fret, notes coloured by degree. Click a note to hear it.`}>
@@ -59,7 +67,7 @@ function PentatonicBox({ box = 1, highlight }: { box?: Box; highlight?: [number,
         return (
           <g key={key}>
             {lit && <circle cx={x} cy={y} r={15} fill="none" stroke={degreeColour(c.degree)} strokeWidth={2.5} className="wheel-ripple pointer-events-none" style={{ animationIterationCount: "infinite", animationDuration: "1.6s" }} />}
-            <NoteDot c={c} x={x} y={y} r={lit ? 11 : 9} ring={false} label={c.label} hover={c.name} active={active === key} dim={false} onNote={() => tap(key, c.midi)} />
+            <NoteDot c={c} x={x} y={y} r={lit ? 11 : 9} ring={false} label={c.label} hover={c.name} active={active === key} dim={false} accent={!!chordPcs && chordPcs.includes(c.pc)} onNote={() => tap(key, c.midi)} />
           </g>
         );
       })}
@@ -68,7 +76,7 @@ function PentatonicBox({ box = 1, highlight }: { box?: Box; highlight?: [number,
 }
 
 /** The smallest backing band: one play button over an A minor loop (the app's own band, drums, bass and keys). Its settings are not saved. */
-function MiniBacking() {
+function MiniBacking({ at, onChord }: { at: number | null; onChord: (i: number | null) => void }) {
   const [band] = useState(() => {
     const b = new Band({ context: getAudioContext, destination: getOutputBus, wake: wakeAudio });
     b.set({ progression: "aeolian", tonic: "A", style: "rock", bpm: 80 });
@@ -77,13 +85,35 @@ function MiniBacking() {
   const snap = useSyncExternalStore(band.subscribe, band.getSnapshot, band.getSnapshot);
   useEffect(() => () => band.stop(), [band]);
   const focus = useAudioFocus(snap.playing, () => band.stop());
+  // follow the band's chord while it plays and tell the neck, which lights that chord's notes
+  useEffect(() => {
+    if (!snap.playing) {
+      onChord(null);
+      return;
+    }
+    let raf = 0;
+    let last: number | null = -1;
+    const tick = () => {
+      const i = band.position()?.chord ?? null;
+      if (i !== last) {
+        last = i;
+        onChord(i);
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    tick();
+    return () => cancelAnimationFrame(raf);
+  }, [band, snap.playing, onChord]);
   return (
     <div ref={focus} className="flex items-center gap-3 rounded-xl border border-slate-800 bg-slate-950/60 p-2">
       <button type="button" onClick={() => band.toggle()} aria-pressed={snap.playing}
         className={`inline-flex h-8 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg border px-3 text-xs font-medium transition ${snap.playing ? "border-emerald-400/70 bg-emerald-500/20 text-emerald-100" : "border-sky-400/60 bg-sky-500/15 text-sky-50 hover:bg-sky-500/25"}`}>
         <Icon name={snap.playing ? "square" : "play"} size={14} fill />{snap.playing ? "Stop" : "Backing track"}
       </button>
-      <span className="text-xs text-slate-400">Am F G Am · 80 bpm</span>
+      <span className="flex items-center gap-2 text-xs text-slate-500" aria-live="polite">
+        {LOOP.map((c, i) => <span key={i} className={`rounded px-1.5 py-0.5 font-medium transition ${at === i ? "bg-sky-400/20 text-sky-100" : ""}`}>{c.name}</span>)}
+        <span className="hidden sm:inline">· 80 bpm</span>
+      </span>
     </div>
   );
 }
@@ -92,6 +122,7 @@ function MiniBacking() {
 export function LessonNoteMock({ compact = false }: { compact?: boolean }) {
   type Step = "b1" | "b2" | "imp";
   const [step, setStep] = useState<Step>("b1");
+  const [chord, setChord] = useState<number | null>(null);
   const [done, setDone] = useState<Record<Step, boolean>>({ b1: true, b2: false, imp: false });
   const box: Box = step === "b2" ? 2 : 1;
   const items: { id: Step; t: string }[] = [
@@ -112,7 +143,7 @@ export function LessonNoteMock({ compact = false }: { compact?: boolean }) {
         </div>
         <span className="rounded-full border border-slate-700 px-2 py-0.5 text-[11px] text-slate-400">Preview</span>
       </div>
-      <PentatonicBox box={box} highlight={step === "imp" ? BOX_ROOT[1] : undefined} />
+      <PentatonicBox box={box} highlight={step === "imp" && chord === null ? BOX_ROOT[1] : undefined} chordPcs={step === "imp" && chord !== null ? LOOP[chord].pcs : undefined} />
       <ul className={`flex flex-col gap-0.5 text-slate-300 ${compact ? "mt-2 text-[13px]" : "mt-3 text-sm"}`}>
         {items.map((x) => (
           <li key={x.id}>
@@ -124,7 +155,7 @@ export function LessonNoteMock({ compact = false }: { compact?: boolean }) {
           </li>
         ))}
       </ul>
-      {step === "imp" && <div className="mt-2"><MiniBacking /></div>}
+      {step === "imp" && <div className="mt-2"><MiniBacking at={chord} onChord={setChord} /></div>}
       {!compact && <p className="mt-3 border-t border-slate-800 pt-3 text-xs text-slate-500">Next time: add the ♭5 and it becomes the blues scale.</p>}
     </div>
   );
