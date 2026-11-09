@@ -98,7 +98,7 @@ export default function ComponentStories() {
 
   return (
     <div className="grid gap-4 lg:grid-cols-[17rem_1fr]">
-      <nav className="flex flex-col gap-3 lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto pr-3 [scrollbar-gutter:stable]" aria-label="Components">
+      <nav className="flex flex-col gap-3 lg:sticky lg:top-4 lg:self-start lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto pr-3 [scrollbar-gutter:stable]" aria-label="Components">
         <input value={filter} onChange={(e) => setFilter(e.target.value)} placeholder="Filter components or stories" className="rounded-lg border border-slate-700 bg-slate-950 px-2 py-1 text-sm text-slate-200" />
         <SectionTitle>AI Autoplan Tools</SectionTitle>
         {kinds.map((kind) => (
