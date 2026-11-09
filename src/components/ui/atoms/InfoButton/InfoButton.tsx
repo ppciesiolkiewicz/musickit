@@ -1,12 +1,11 @@
 "use client";
 
-import { EscKey, useEscape } from "../EscKey";
+import { useEscape } from "../EscKey";
 
-/** The small round (i) that opens an explanation. While open, Escape closes it (via `onClick`) and an [Esc] label says so. */
+/** The small round (i) that opens an explanation. While open, Escape closes it (via `onClick`). A label (i) shows no [Esc]; the cursor-helper `HintToggle` does. */
 export function InfoButton({ open, onClick, label }: { open: boolean; onClick: () => void; label: string }) {
   useEscape(open, onClick);
   return (
-    <>
       <button
         type="button"
         onClick={onClick}
@@ -17,7 +16,5 @@ export function InfoButton({ open, onClick, label }: { open: boolean; onClick: (
       >
         i
       </button>
-      {open && <EscKey />}
-    </>
   );
 }

@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { EscKey, useEscape } from "../../atoms/EscKey";
+import { useEscape } from "../../atoms/EscKey";
 
 type HintState = { on: boolean; toggle: () => void };
 const HintContext = createContext<HintState | null>(null);
@@ -23,19 +23,18 @@ export function HintToggle({ label = "What does this do? Hover anything to find 
   useEscape(!!ctx?.on, () => ctx?.toggle());
   if (!ctx) return null;
   return (
-    <>
     <button
       type="button"
       onClick={ctx.toggle}
       aria-pressed={ctx.on}
       title={ctx.on ? "Stop showing what things do" : label}
       aria-label={ctx.on ? "Stop showing what things do" : label}
-      className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border text-[11px] font-semibold transition ${ctx.on ? "border-sky-400 bg-sky-500/20 text-sky-200" : "border-slate-600 text-slate-400 hover:border-slate-400"}`}
+      className={`inline-flex h-6 shrink-0 items-center justify-center overflow-hidden rounded-full border text-[11px] font-semibold transition-all duration-200 ease-out ${ctx.on ? "w-11 gap-1 border-sky-400 bg-sky-500/20 px-1.5 text-sky-200" : "w-6 border-slate-600 text-slate-400 hover:border-slate-400"}`}
     >
-      ?
+      <span>?</span>
+      {/* the circle widens into an oval that holds the Esc cue */}
+      {ctx.on && <span aria-hidden className="text-[9px] font-medium normal-case tracking-normal">Esc</span>}
     </button>
-    {ctx.on && <EscKey />}
-    </>
   );
 }
 
