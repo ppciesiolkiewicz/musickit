@@ -13,7 +13,7 @@ Drums, bass and chords played from a chord progression (`/theory/backing`). Layo
    - `song.ts` `Song`: the arrangement repeating, a new one taking over on the next bar line (`restart` for a new progression).
    - `settings.ts` what is chosen and saved, `clampSettings` validates anything.
 2. **audio/** `Band` only schedules: it asks `Song` for each window's notes, `TempoClock` for their times, and plays them on `PartVoice`s (`voices.ts`). Every change goes through `band.set(patch)`. Voices and the context are injected (`BandDeps`), so a test or another host can swap them.
-3. **ui/** `BackingTrack` + `useBand` (settings saved in localStorage `musickit.backing`, audio focus, stop on unmount).
+3. **ui/** `BackingTrack` (the page: `useBand` with its save in localStorage `musickit.backing`, Space plays) draws `BackingPlayer` (the player and the audio focus). A host that sets the band up itself (the plan's `backing-track` tool) calls `useBand({ initial, storageKey: null })` and draws `BackingPlayer` with its step's focus `group`; `useBand` stops the band on unmount.
 
 ## Adding things
 - **A progression**: one entry in `PROGRESSIONS`; check its chords with `npm run -s theory -- fit <chords>` and that the test "every curated progression parses in every key" passes.
@@ -22,6 +22,6 @@ Drums, bass and chords played from a chord progression (`/theory/backing`). Layo
 - Sound quality: notes are scheduled, never time-stretched; sampled keys go through `scheduleNote` in `@/features/sound`.
 
 ## Imports
-`@/features/sound` (public index), `@/features/instruments/model` (the drum machine), `@/components/ui`, `@/components/Icon`, `@tonaljs/tonal`. Nothing imports the backing feature's internals: use `index.ts`.
+`@/features/sound` (public index), `@/features/instruments/model` (the drum machine), `@/components/ui`, `@/components/Icon`, `@tonaljs/tonal`. Nothing imports the backing feature's internals: use `index.ts`, or `model.ts` from pure code (no audio, no React).
 
 Run `npx tsx --test src/features/backing/*/*.test.ts`, `npx tsc --noEmit` and lint before committing.

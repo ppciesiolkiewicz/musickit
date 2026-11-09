@@ -13,6 +13,7 @@ import { COMPONENT_DOCS, shortDoc, type ComponentDoc } from "@/features/exercise
 import type { PlayAlongShape } from "@/features/exercises/play-along/play-along.props";
 import { expandShape, numeralChord } from "@/features/exercises/shapes";
 import { isCompPattern, type CompPattern } from "@/lib/practice/comping";
+import { MAX_BPM as BACKING_MAX_BPM, MIN_BPM as BACKING_MIN_BPM, PROGRESSIONS, STYLES } from "@/features/backing/model";
 import { degreeSemis } from "@/features/exercises/timeline/degrees";
 import { isSingingLabels, type SingingLabels } from "@/features/theory/labels";
 import type { Degree, Voicing } from "@/features/exercises/timeline/types";
@@ -66,6 +67,7 @@ export type PlanTool =
   | { type: "interval-singer"; key: number; /** more keys to pick Do from, the first `key`; absent: only `key` */ keys?: number[]; voice?: Voice; /** semitones from Do, 1-12 */ intervals?: number[]; dir?: IntervalDir; dot?: false }
   | { type: "guitar-play-along"; shape: PlayAlongShape; bpm: number; repeats?: number; view?: View; enable?: Degree[]; highlight?: Degree[]; others?: "muted" | "hidden"; under?: Under }
   | { type: "strum-along"; chords: string[]; bpm: number; per?: "bar" | "beat"; beats?: number; pattern?: string }
+  | { type: "backing-track"; /** a backing tracks progression id */ progression: string; key: number; /** a backing tracks style id; none: the progression's own */ style?: string; /** none: the style's tempo */ bpm?: number }
   | { type: "chord-backing"; chords: string[]; bpm: number; /** pitch class, from the AI's key; with numerals the chords are already read in it */ key?: number; backing?: CompPattern[] }
   /* stubs: a placeholder view until the real components exist; strings are numbered 1-6, 6 = low E */
   | { type: "finger-pattern"; fingers: string; fret: number; strings?: number[]; show?: "finger" | "pick"; bpm: number }
@@ -302,6 +304,17 @@ export const TOOLS: { [N in ToolName]: ToolSpec } = {
         ...layers(degreeStrings(t.enable), degreeStrings(t.highlight), othersOf(t.others)),
         ...(UNDERS.includes(t.under as Under) ? { under: t.under as Under } : {}),
       };
+    },
+  },
+  "backing-track": {
+    parse(t) {
+      const key = keyOf(t.key);
+      const progression = typeof t.progression === "string" ? t.progression.trim().toLowerCase() : "";
+      if (key === null || !PROGRESSIONS.some((p) => p.id === progression)) return null;
+      const style = typeof t.style === "string" && STYLES.some((x) => x.id === t.style) ? t.style : null;
+      const n = Number(t.bpm);
+      const bpm = t.bpm !== undefined && Number.isFinite(n) ? Math.min(BACKING_MAX_BPM, Math.max(BACKING_MIN_BPM, Math.round(n))) : null;
+      return { type: "backing-track", progression, key, ...(style ? { style } : {}), ...(bpm !== null ? { bpm } : {}) };
     },
   },
   "chord-backing": {

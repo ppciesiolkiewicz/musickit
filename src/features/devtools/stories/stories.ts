@@ -51,6 +51,9 @@ const HAND: { tool: ToolName; name: string; props: Props }[] = [
   { tool: "interval-singer", name: "Hard: no dot, 3rds and 6ths both ways", props: { key: "d", intervals: [3, 4, 8, 9], dir: "both", dot: false } },
   { tool: "tuning-ears", name: "Default: 20 cents, one after the other", props: {} },
   { tool: "tuning-ears", name: "Hard: 5 cents, together", props: { cents: 5, together: true } },
+  { tool: "backing-track", name: "12-bar blues in A, shuffle, 90 bpm", props: { progression: "blues", key: "a", style: "shuffle", bpm: 90 } },
+  { tool: "backing-track", name: "Dorian vamp in D, its own style and tempo", props: { progression: "dorian", key: "d" } },
+  { tool: "backing-track", name: "Andalusian in E minor, bossa", props: { progression: "andalusian", key: "e", style: "bossa", bpm: 110 } },
   { tool: "guitar-play-along", name: "Am arpeggio 1-3-5, box 1 to box 2", props: { shape: { shape: "arpeggio-part", chords: ["Am"], degrees: ["1", "3", "5"], bars: 4, place: [{ box: 1, part: "lower" }, { box: 1, part: "upper" }, { box: 2, part: "lower" }, { box: 2, part: "upper" }] }, bpm: 70, view: "neck" } },
   { tool: "guitar-play-along", name: "C Am F G, 1-3 per chord", props: { shape: { shape: "arpeggio-part", chords: ["C", "Am", "F", "G"], degrees: ["1", "3"], bars: 4 }, bpm: 80 } },
 ];

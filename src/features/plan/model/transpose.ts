@@ -56,6 +56,7 @@ export function transposeTool(tool: PlanTool, by: number): PlanTool {
     case "staff":
     case "click-drone":
     case "backing-band":
+    case "backing-track":
     case "melody-singer":
       return { ...tool, key: pc(tool.key + d) };
     case "interval-singer":

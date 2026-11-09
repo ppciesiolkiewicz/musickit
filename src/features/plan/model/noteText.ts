@@ -60,6 +60,7 @@ function rootOf(s: Section): number | null {
   switch (t.type) {
     case "scale-neck":
     case "staff":
+    case "backing-track":
       return keyRoot(t.key);
     case "arpeggio-neck":
       return chordRoot(t.chord);

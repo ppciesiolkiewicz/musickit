@@ -28,6 +28,8 @@ import { CoverageTool, useCoverage } from "@/features/guide/useCoverage";
 // the guitar play-along carries its own sound engine: loaded only when an exercise shows one
 const loading = () => <p className="p-3 text-sm text-slate-500">Loading…</p>;
 const PlayAlong = dynamic(() => import("@/features/exercises/play-along/PlayAlong"), { ssr: false, loading });
+// so does the backing track (drums, bass and sampled keys)
+const BackingTrack = dynamic(() => import("@/features/exercises/basics/backing-track").then((m) => m.View), { ssr: false, loading });
 
 /**
  * One tool as the AI set it up, without the plan store: the plan page and the studio stage both render it. `voice` is the student's
@@ -77,6 +79,8 @@ function ToolView({ tool, voice, input }: { tool: PlanTool; voice?: Voice; input
       return <TuningEars cents={tool.cents} together={tool.together} />;
     case "guitar-play-along":
       return <PlayAlong shape={tool.shape} bpm={tool.bpm} repeats={tool.repeats} view={tool.view} enable={tool.enable} highlight={tool.highlight} others={tool.others} under={tool.under} />;
+    case "backing-track":
+      return <BackingTrack progression={tool.progression} keyPc={tool.key} style={tool.style} bpm={tool.bpm} />;
     case "chord-backing":
       return <ChordBacking chords={tool.chords} bpm={tool.bpm} keyPc={tool.key} backing={tool.backing} />;
     case "strum-along":

@@ -3,8 +3,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { Scale } from "@tonaljs/tonal";
 import Icon, { type IconName } from "@/components/Icon";
+import { useAudioFocus } from "@/features/sound";
 import { Button, Field, HUE_TONES, NumberField, Select, Slider, type Hue, type SelectGroup } from "@/components/ui";
-import type { Band } from "../audio/band";
+import type { Band, BandSnapshot } from "../audio/band";
 import type { Part } from "../model/arrange";
 import { MAX_BPM, MIN_BPM } from "../model/clock";
 import { MODES, PROGRESSIONS, findProgression } from "../model/progressions";
@@ -61,9 +62,10 @@ function usePosition(band: Band, playing: boolean) {
   return playing ? pos : null;
 }
 
-/** Space plays and stops, unless a text field has the keyboard. */
-function useSpaceToggle(band: Band) {
+/** Space plays and stops, unless a text field has the keyboard. Off when `on` is false. */
+function useSpaceToggle(band: Band, on: boolean) {
   useEffect(() => {
+    if (!on) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.code !== "Space" || e.repeat) return;
       const t = e.target as HTMLElement | null;
@@ -73,7 +75,7 @@ function useSpaceToggle(band: Band) {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [band]);
+  }, [band, on]);
 }
 
 /**
@@ -81,12 +83,22 @@ function useSpaceToggle(band: Band) {
  * without losing sound quality (notes are scheduled, never stretched). Changes made while it plays come in on the next bar.
  */
 export default function BackingTrack() {
-  const { band, snap, focus } = useBand();
+  const { band, snap } = useBand();
+  return <BackingPlayer band={band} snap={snap} spaceKey />;
+}
+
+/**
+ * The player for a band someone else holds (`useBand`): play and tempo, progression, key and style, the chords, the mixer.
+ * It holds the app's audio focus while it plays (another source starting, or the player scrolling away, stops it), in
+ * `group` when an exercise step started it. `spaceKey`: Space plays and stops, for a page with one player.
+ */
+export function BackingPlayer({ band, snap, group, spaceKey = false }: { band: Band; snap: BandSnapshot; group?: string; spaceKey?: boolean }) {
   const { settings, playing, arrangement } = snap;
+  const focus = useAudioFocus(playing, () => band.stop(), group);
   const progression = findProgression(settings.progression);
   const style = findStyle(settings.style);
   const pos = usePosition(band, playing);
-  useSpaceToggle(band);
+  useSpaceToggle(band, spaceKey);
 
   const mode = MODES.find((m) => m.id === progression.mode)!;
   const scale = useMemo(() => Scale.get(`${settings.tonic} ${mode.scale}`).notes.map(pretty), [settings.tonic, mode.scale]);
@@ -97,7 +109,7 @@ export default function BackingTrack() {
       <section aria-label="Backing track" className="relative flex min-w-0 flex-col gap-5 overflow-hidden rounded-2xl border border-slate-700/70 bg-linear-to-b from-sky-500/[0.07] via-slate-900/70 to-slate-900/70 p-4 shadow-xl shadow-black/20 sm:p-6">
         <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-sky-400/60 to-transparent" />
         <div data-tour="backing-play" className="flex flex-wrap items-center gap-x-6 gap-y-4">
-          <button type="button" onClick={() => band.toggle()} aria-pressed={playing} aria-label={playing ? "Stop" : "Play"} title={playing ? "Stop (Space)" : "Play (Space)"}
+          <button type="button" onClick={() => band.toggle()} aria-pressed={playing} aria-label={playing ? "Stop" : "Play"} title={playing ? (spaceKey ? "Stop (Space)" : "Stop") : spaceKey ? "Play (Space)" : "Play"}
             className={`relative grid h-16 w-16 shrink-0 place-items-center rounded-full text-slate-950 shadow-lg transition active:scale-95 ${playing ? "bg-emerald-400 shadow-emerald-500/40 hover:bg-emerald-300" : "bg-sky-400 shadow-sky-500/40 hover:bg-sky-300"}`}>
             {playing && <span aria-hidden className="absolute inset-0 animate-ping rounded-full bg-emerald-400/30 [animation-duration:1.6s]" />}
             <Icon name={playing ? "square" : "play"} size={24} fill className={playing ? "" : "translate-x-0.5"} />

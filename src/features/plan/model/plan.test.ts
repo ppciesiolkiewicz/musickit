@@ -11,6 +11,7 @@ import { expandShape } from "@/features/exercises/shapes";
 import { BOOK, STAGES } from "@/features/theory/singingMelodies";
 import { pickTune } from "@/features/theory/melodyPick";
 import { migrateTool } from "./migrate";
+import { PROGRESSIONS, STYLES } from "@/features/backing/model";
 import { degreeSemis, legacySections, linkResources, parseSection, parseTool, sectionInterface, sectionsOf, toolInterface } from "./tools";
 import { linkSlots, toolFromLink } from "./migrate";
 import { linkLabel } from "./catalogue";
@@ -236,6 +237,21 @@ describe("tools", () => {
     const shape = { shape: "progression", key: "g", chords: ["G", "C"], bars: 2 };
     assert.deepEqual(parseTool({ type: "play-along", bpm: 70, shape }), { type: "guitar-play-along", bpm: 70, shape });
   });
+  it("a backing-track needs a known progression and a key, keeps a known style, clamps its tempo", () => {
+    assert.deepEqual(parseTool({ type: "backing-track", progression: "blues", key: "a", style: "shuffle", bpm: 90 }), { type: "backing-track", progression: "blues", key: 9, style: "shuffle", bpm: 90 });
+    assert.deepEqual(parseTool({ type: "backing-track", progression: "Minor-Blues", key: "e", style: "polka", bpm: 500 }), { type: "backing-track", progression: "minor-blues", key: 4, bpm: 220 });
+    assert.deepEqual(parseTool({ type: "backing-track", progression: "dorian", key: "d" }), { type: "backing-track", progression: "dorian", key: 2 });
+    assert.equal(parseTool({ type: "backing-track", progression: "giant-steps", key: "b" }), null);
+    assert.equal(parseTool({ type: "backing-track", progression: "blues" }), null);
+  });
+
+  it("the backing-track doc names every curated progression and style", () => {
+    const doc = COMPONENT_DOCS.find((d) => d.name === "backing-track");
+    const prop = (n: string) => doc?.props.find((p) => p.name === n)?.description ?? "";
+    for (const p of PROGRESSIONS) assert.match(prop("progression"), new RegExp(`"${p.id}"`), p.id);
+    for (const st of STYLES) assert.match(prop("style"), new RegExp(`"${st.id}"`), st.id);
+  });
+
   it("a chord-backing reads numerals in its key, keeps known backings, needs chords", () => {
     assert.deepEqual(parseTool({ type: "chord-backing", key: "d", numerals: ["I", "V"], backing: ["block", "nope", "arp-up"], bpm: 70 }), { type: "chord-backing", chords: ["D", "A"], bpm: 70, key: 2, backing: ["block", "arp-up"] });
     assert.deepEqual(parseTool({ type: "chord-backing", chords: ["Dm7", "G7", "zz"], bpm: 500 }), { type: "chord-backing", chords: ["Dm7", "G7"], bpm: 80 });
@@ -501,6 +517,7 @@ describe("schedule", () => {
     assert.match(prompt, /"type":\s*"backing-band"/);
     assert.match(prompt, /"type":\s*"guitar-play-along"/);
     assert.match(prompt, /"type":\s*"chord-backing"/);
+    assert.match(prompt, /"type":\s*"backing-track"/);
     assert.match(prompt, /Never write frets or note lists the app can compute/);
     for (const old of ["band", "comp", "sing", "scale", "chords"]) assert.ok(!prompt.includes(`"type": "${old}"`), old);
     assert.match(prompt, /Notes outside the scale/);

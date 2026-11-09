@@ -85,6 +85,12 @@ export const TOOL_TOURS: Record<ToolName, TourStep[]> = {
     { target: "play-along-tempo", title: "Tempo", text: "Make it slower with − until you can play along, then speed it up." },
     { target: "play-along-view", title: "View", text: "Show the part as tab, as notes or on the neck.", minLevel: "standard" },
   ],
+  "backing-track": [
+    { target: "backing-play", title: "Play and tempo", text: "Press Play to start the band. Change the tempo while it plays." },
+    { target: "backing-chords", title: "The chords", text: "The chord playing now lights up. Under the chords, the key and the notes of its scale." },
+    { target: "backing-choose", title: "What the band plays", text: "Pick another progression, key or style. A change comes in on the next bar.", minLevel: "standard" },
+    { target: "backing-band", title: "The band", text: "Turn the drums, bass or keys down, or mute one to play that part yourself." },
+  ],
   "chord-backing": [
     { target: "chord-backing-play", title: "Play", text: "Play starts the chords, one a bar, looping." },
     { target: "chord-backing-chords", title: "The chords", text: "The chord playing now is lit, and the next one is outlined." },
