@@ -13,16 +13,15 @@ import { cellOf, currentCue, isNow, rootOf, type ViewProps } from "./common";
 /**
  * Every place the cues use on the whole neck at once, so nothing jumps: the current chord's enabled notes are drawn in
  * full (the highlighted ones ringed), the other chords' notes and the ones not enabled are muted, and the notes
- * sounding now are lit, the playing chord's notes badged with the finger that frets them. Labels and colours follow the
- * label settings; tap a note to hear it.
+ * sounding now are lit. Labels and colours follow the label settings; tap a note to hear it.
  */
 export default function NeckView({ cues, pos, keyPc, marks }: ViewProps) {
   const [system] = useLabelSystem();
   const [from] = useLabelRoot();
   const { active, tap } = useNotePlayer();
   const chordNow = currentCue(cues, pos)?.chord;
-  const { cells, states, sounding, fingers } = useMemo(() => {
-    const byKey = new Map<string, { cell: ScaleCell; chords: Set<string>; enabled: boolean; highlighted: boolean; finger?: number }>();
+  const { cells, states, sounding } = useMemo(() => {
+    const byKey = new Map<string, { cell: ScaleCell; chords: Set<string>; enabled: boolean; highlighted: boolean }>();
     const sounding = new Set<string>();
     // a cue of several notes is enabled or highlighted when any one is: each place is marked by its own note
     const placeMarks = (c: Cue, f: Fret) => {
@@ -37,8 +36,7 @@ export default function NeckView({ cues, pos, keyPc, marks }: ViewProps) {
       const root = rootOf(c, keyPc, from);
       for (const f of c.frets) {
         const k = cellKey(f);
-        // only the playing chord's fingering: another chord's finger on a shared place would mislead
-        const had = byKey.get(k) ?? { cell: cellOf(f.string, f.fret, root), chords: new Set<string>(), enabled: false, highlighted: false, finger: c.chord === chordNow ? f.finger : undefined };
+        const had = byKey.get(k) ?? { cell: cellOf(f.string, f.fret, root), chords: new Set<string>(), enabled: false, highlighted: false };
         had.chords.add(c.chord);
         const m = placeMarks(c, f);
         had.enabled ||= m.enabled;
@@ -53,8 +51,7 @@ export default function NeckView({ cues, pos, keyPc, marks }: ViewProps) {
       if (!e.enabled || (chordNow !== undefined && !e.chords.has(chordNow))) return "muted";
       return e.highlighted ? "highlighted" : "normal";
     };
-    const fingers = (cell: ScaleCell) => byKey.get(cellKey(cell))?.finger;
-    return { cells: [...byKey.values()].map((e) => e.cell), states, sounding, fingers };
+    return { cells: [...byKey.values()].map((e) => e.cell), states, sounding };
   }, [cues, pos, chordNow, keyPc, from, marks]);
-  return <ScaleNeck cells={cells} big={() => true} active={active} labelSystem={system} onNote={(c) => tap(cellKey(c), c.midi)} title="The notes on the neck" states={states} sounding={sounding} fingers={fingers} />;
+  return <ScaleNeck cells={cells} big={() => true} active={active} labelSystem={system} onNote={(c) => tap(cellKey(c), c.midi)} title="The notes on the neck" states={states} sounding={sounding} />;
 }
