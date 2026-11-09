@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Icon from "@/components/Icon";
 import { Button, Checkbox, Section } from "@/components/ui";
 import { catalogue } from "./model/catalogue";
 import { DEFAULT_ANSWERS } from "./intake/answers";
 import { randomId } from "./model/exerciseIds";
+import { backfill, entryFor } from "./model/progressLog";
+import { useProgress } from "@/features/progress/useProgress";
 import { dayIndex, localDate, ratePlan, startPlan, weekOver } from "./model/schedule";
 import type { Stars } from "@/features/progress/stars";
 import { PLAN_DAYS, type PlanAnswers, type PlanConfig, type PlanState, type StoredPlan } from "./model/types";
@@ -27,6 +29,15 @@ const start = (s: PlanState, config: PlanConfig): PlanState => startPlan(s, conf
  */
 export default function PlanApp() {
   const { state, loaded, update } = usePlan();
+  const progress = useProgress();
+  // ratings given before the log existed: copied into it once, the first time it is found empty
+  const filled = useRef(false);
+  useEffect(() => {
+    if (!loaded || !progress.loaded || filled.current) return;
+    filled.current = true;
+    if (progress.entries.length) return;
+    for (const row of backfill([...(state.current ? [state.current] : []), ...state.history], randomId)) progress.put(row);
+  }, [loaded, progress, state]);
   const entries = useMemo(() => catalogue(), []);
   // a flow left open (reload, hot reload) comes back; the modal only renders after the store loads, so no hydration mismatch
   const [flow, setFlow] = useState<"start" | "next" | null>(() => (typeof window === "undefined" ? null : savedFlow()?.mode ?? null));
@@ -48,7 +59,17 @@ export default function PlanApp() {
     setDay(0);
   };
   const setPlan = (change: (p: StoredPlan) => StoredPlan) => update((s) => (s.current ? { ...s, current: change(s.current) } : s));
-  const rate = (d: number, e: number, stars: Stars | null) => setPlan((p) => ratePlan(p, d, e, stars, new Date().toISOString()));
+  // a rating goes to the plan (what the week view draws) and to the progress log (the lasting record, one row per exercise)
+  const rate = (d: number, e: number, stars: Stars | null) => {
+    const at = new Date().toISOString();
+    setPlan((p) => ratePlan(p, d, e, stars, at));
+    const current = state.current;
+    const id = current?.config.days[d]?.exercises[e]?.id;
+    if (!current || !id) return;
+    const row = stars === null ? null : entryFor(current, d, e, { stars, at }, randomId);
+    if (row) progress.put(row);
+    else progress.remove(id);
+  };
   // the floating day timer's used seconds; ignored when the plan it counted for is no longer the current one
   const saveElapsed = (planId: string, d: number, seconds: number) =>
     update((s) => (s.current?.id === planId && s.current.elapsed?.[String(d)] !== seconds ? { ...s, current: { ...s.current, elapsed: { ...s.current.elapsed, [String(d)]: seconds } } } : s));
