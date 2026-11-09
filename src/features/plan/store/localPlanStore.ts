@@ -2,6 +2,7 @@ import { migrateAnswers } from "../intake/answers";
 import { EMPTY_STATE, type PlanState, type StoredPlan } from "../model/types";
 import type { PlanStore } from "./PlanStore";
 import { cleanRating, type StarRating } from "@/features/progress/stars";
+import { withExerciseIds } from "../model/exerciseIds";
 
 export const PLAN_KEY = "musickit.plan";
 
@@ -10,8 +11,10 @@ const isPlan = (p: unknown): p is StoredPlan => {
   return !!x && typeof x.id === "string" && typeof x.startedOn === "string" && Array.isArray(x.config?.days) && typeof x.done === "object";
 };
 
-/** A plan with its ratings made safe: broken ones are dropped one by one. */
-function cleanPlan(p: StoredPlan): StoredPlan {
+/** A plan with an id on every exercise (plans stored before ids get them here) and its ratings made safe: broken ones are dropped one by one. */
+function cleanPlan(stored: StoredPlan): StoredPlan {
+  const config = withExerciseIds(stored.config);
+  const p = config === stored.config ? stored : { ...stored, config };
   if (p.rated === undefined) return p;
   const rated: Record<string, StarRating> = {};
   if (p.rated && typeof p.rated === "object") for (const [k, v] of Object.entries(p.rated)) { const r = cleanRating(v); if (r) rated[k] = r; }
@@ -38,7 +41,11 @@ export function sanitiseState(raw: unknown): PlanState {
 export const localPlanStore: PlanStore = {
   async load() {
     try {
-      return sanitiseState(JSON.parse(window.localStorage.getItem(PLAN_KEY) ?? "null"));
+      const text = window.localStorage.getItem(PLAN_KEY);
+      const state = sanitiseState(JSON.parse(text ?? "null"));
+      // what loading changed (exercise ids given to an older plan) is stored at once, so it stays the same on the next load
+      if (text !== null && JSON.stringify(state) !== text) await this.save(state);
+      return state;
     } catch {
       return sanitiseState(null);
     }

@@ -13,6 +13,8 @@ export type Level = "new" | "beginner" | "intermediate" | "advanced";
  * `sectionsOf` and `linkSlots` read both.
  */
 export interface PlanExercise {
+  /** set by the app when the plan starts, never by the AI; ratings in the progress log point at it */
+  id?: string;
   title: string;
   minutes: number;
   /** exactly what to work on: "A minor pentatonic · boxes 1 & 2", "G–C–D at 70 bpm" */
@@ -25,6 +27,10 @@ export interface PlanExercise {
   area?: Area;
   /** what kind of practice it is, from EXERCISE_TAGS ("multi-octave", "ear", …) */
   tags?: string[];
+  /** the questionnaire topic it practises (intake/topics.ts), always one of its area */
+  topic?: string;
+  /** the fine concepts it practises (model/concepts.ts), all of its topic, at most 4 */
+  concepts?: string[];
   sections?: Section[];
   /** attunr pages to read first (prerequisite lessons), shown at the top */
   learnBefore?: string[];
@@ -46,6 +52,8 @@ export interface PlanDay {
 export interface PlanConfig {
   title: string;
   summary?: string;
+  /** the AI's own notes on the student's progress, sent back with the next prompt; never shown to the student */
+  progress?: string;
   days: PlanDay[];
 }
 

@@ -5,7 +5,8 @@ import Icon from "@/components/Icon";
 import { Button, Checkbox, Section } from "@/components/ui";
 import { catalogue } from "./model/catalogue";
 import { DEFAULT_ANSWERS } from "./intake/answers";
-import { dayIndex, localDate, ratePlan, weekOver } from "./model/schedule";
+import { randomId } from "./model/exerciseIds";
+import { dayIndex, localDate, ratePlan, startPlan, weekOver } from "./model/schedule";
 import type { Stars } from "@/features/progress/stars";
 import { PLAN_DAYS, type PlanAnswers, type PlanConfig, type PlanState, type StoredPlan } from "./model/types";
 import { askNotifications, notificationsSupported } from "./reminders";
@@ -16,14 +17,8 @@ import { DISPLAY } from "@/components/landing/Display";
 import { ScaleSettingsBar, WithSettings } from "@/components/chordKit/ScaleSettings";
 import { RootSelect } from "@/features/theory/useLabelSystem";
 
-const newId = () => (typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : String(Date.now()));
-
 /** Start `config` today; the running plan, if any, moves to the history. */
-const start = (s: PlanState, config: PlanConfig): PlanState => ({
-  ...s,
-  current: { id: newId(), config, startedOn: localDate(), done: {} },
-  history: s.current ? [s.current, ...s.history].slice(0, 20) : s.history,
-});
+const start = (s: PlanState, config: PlanConfig): PlanState => startPlan(s, config, randomId, localDate());
 
 /**
  * The AI practice plan, a continuous daily plan: Start runs the questions, the prompt for your own AI and the paste in one

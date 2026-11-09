@@ -5,6 +5,12 @@ import { linkSlots } from "./migrate";
 import { keyWarnings } from "./transpose";
 import { exerciseLevelArea, exerciseTags, legacySections, parseSection, parseTool, pickWasInexact, resolveChordPlacement, type Section } from "./tools";
 import { PLAN_DAYS, type PlanConfig, type PlanDay, type PlanExercise } from "./types";
+import { conceptById } from "./concepts";
+import { topicById } from "../intake/topics";
+
+/** The longest progress summary kept from a reply. */
+export const MAX_PROGRESS = 4000;
+const MAX_CONCEPTS = 4;
 
 export type ParseResult = { ok: true; config: PlanConfig; warnings: string[] } | { ok: false; error: string };
 
@@ -57,6 +63,28 @@ function extractJson(text: string): unknown {
 }
 
 /**
+ * An exercise's topic and concepts as the AI tagged them. A topic that is unknown, or belongs to another area than the
+ * exercise's, is dropped with a warning; concepts are kept when they are known and of that topic (at most 4), the rest
+ * named in a warning.
+ */
+function topicTags(e: Record<string, unknown>, area: PlanExercise["area"], where: string, warnings: string[]): Pick<PlanExercise, "topic" | "concepts"> {
+  const out: Pick<PlanExercise, "topic" | "concepts"> = {};
+  const id = str(e.topic, 60);
+  const topic = id ? topicById(id) : undefined;
+  if (id && !topic) warnings.push(`${where}: unknown topic "${id}".`);
+  else if (topic && area && topic.area !== area) warnings.push(`${where}: topic "${id}" is not a ${area} topic.`);
+  else if (topic) out.topic = topic.id;
+  if (!Array.isArray(e.concepts)) return out;
+  const ids = [...new Set(e.concepts.filter((c): c is string => typeof c === "string"))];
+  const fits = (c: string) => !!conceptById(c) && (!out.topic || conceptById(c)!.topic === out.topic);
+  const kept = ids.filter(fits).slice(0, MAX_CONCEPTS);
+  const dropped = ids.filter((c) => !fits(c));
+  if (dropped.length) warnings.push(`${where}: left out concepts that are unknown or of another topic: ${dropped.join(", ")}.`);
+  if (kept.length) out.concepts = kept;
+  return out;
+}
+
+/**
  * A pasted plan, checked and tidied: seven days, each with at least one exercise, minutes 1..120 (block minutes scaled to fit), links only to attunr pages
  * (an unknown link is dropped with a warning, the exercise kept). Extra days are cut, missing ones are an error.
  */
@@ -67,7 +95,7 @@ export function parsePlanConfig(text: string, entries: CatalogueEntry[]): ParseR
   } catch (e) {
     return { ok: false, error: e instanceof SyntaxError ? "That isn't valid JSON. Copy the AI's whole code block again." : (e as Error).message };
   }
-  const obj = raw as { title?: unknown; summary?: unknown; days?: unknown };
+  const obj = raw as { title?: unknown; summary?: unknown; progress?: unknown; days?: unknown };
   if (!obj || typeof obj !== "object" || !Array.isArray(obj.days)) return { ok: false, error: "The plan needs a \"days\" list." };
   if (obj.days.length < PLAN_DAYS) return { ok: false, error: `The plan has ${obj.days.length} days; it needs ${PLAN_DAYS}.` };
   const warnings: string[] = [];
@@ -100,7 +128,8 @@ export function parsePlanConfig(text: string, entries: CatalogueEntry[]): ParseR
       Object.assign(ex, exerciseLevelArea(e));
       const tags = exerciseTags(e.tags, sections);
       if (tags.length) ex.tags = tags;
-      const untagged = [!ex.level && "level", !ex.area && "area", !tags.length && "kind"].filter(Boolean);
+      Object.assign(ex, topicTags(e, ex.area, where, warnings));
+      const untagged = [!ex.level && "level", !ex.area && "area", !tags.length && "kind", !ex.topic && "topic"].filter(Boolean);
       if (untagged.length) warnings.push(`${where}: no ${untagged.join(", ")} tag.`);
       const why = str(e.why, 300);
       if (why) ex.why = why;
@@ -111,5 +140,7 @@ export function parsePlanConfig(text: string, entries: CatalogueEntry[]): ParseR
     days.push({ theme: str(day.theme, 80) || `Day ${d + 1}`, exercises });
   }
   const summary = str(obj.summary, 400);
-  return { ok: true, config: { title: str(obj.title, 80) || "My practice week", ...(summary ? { summary } : {}), days }, warnings };
+  const progress = str(obj.progress, MAX_PROGRESS);
+  if (!progress) warnings.push("No progress summary in the reply.");
+  return { ok: true, config: { title: str(obj.title, 80) || "My practice week", ...(summary ? { summary } : {}), ...(progress ? { progress } : {}), days }, warnings };
 }
