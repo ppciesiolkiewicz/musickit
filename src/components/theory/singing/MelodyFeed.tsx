@@ -18,7 +18,7 @@ const PAGE = 6;
  * one picked last (the address keeps it); a press anywhere on a card picks it. Full screen is the active card's own player
  * drawn over the page, so a tune playing plays on as it opens and closes; stepping to a tune not drawn yet draws it.
  */
-export default function MelodyFeed({ tunes, place, chordsOf, ladderOf, clef, beatMs, bpm, active, cents, lagMs, playAhead, tapped, onNote, onPick, onFocus, full, onClose, nav, fullSettings, linkTo, reveal }: {
+export default function MelodyFeed({ tunes, place, chordsOf, ladderOf, clef, beatMs, bpm, active, listen, cents, lagMs, playAhead, tapped, onNote, onPick, onFocus, full, onClose, nav, fullSettings, linkTo, reveal }: {
   tunes: BookTune[];
   place: (t: BookTune) => PlacedNote[];
   /** the chords under a tune, named over its staff */
@@ -29,6 +29,8 @@ export default function MelodyFeed({ tunes, place, chordsOf, ladderOf, clef, bea
   beatMs: number;
   bpm: number;
   active: number;
+  /** the active tune's mic is on (once a scale is picked); it moves with the tune picked */
+  listen: boolean;
   /** within this many cents counts as on the note */
   cents: number;
   /** how far the voice dot runs behind the bar */
@@ -97,6 +99,7 @@ export default function MelodyFeed({ tunes, place, chordsOf, ladderOf, clef, bea
                   ladder={ladderOf(t)}
                   clef={clef}
                   beatMs={beatMs}
+                  listen={live && listen}
                   cents={cents}
                   lagMs={lagMs}
                   tapped={tapped?.n === t.n ? tapped.i : null}

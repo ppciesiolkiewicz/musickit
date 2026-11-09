@@ -71,11 +71,13 @@ const LAYERS: { id: Layer; label: string; icon: "piano" | "music" | "metronome";
  * The (?) arms a shared `HintProvider` (from a host up the tree, e.g. the singing page): once armed, hovering a
  * control (or tapping it, on touch) shows what it does instead of firing it.
  */
-export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, tapped, onNote, info, cents: centsProp, lagMs, full: fullProp, onFull, nav, tools, settings, playAhead }: {
+export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, listen, tapped, onNote, info, cents: centsProp, lagMs, full: fullProp, onFull, nav, tools, settings, playAhead }: {
   notes: PlacedNote[];
   chords: MelodyChord[];
   /** the metronome heard from the start; off by default */
   click?: boolean;
+  /** the mic goes on when this turns true (or the tune mounts with it) and off when it turns false, e.g. as the tune is picked in a list */
+  listen?: boolean;
   ladder: Ladder;
   clef: Clef;
   beatMs: number;
@@ -103,7 +105,7 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
   const total = notes[notes.length - 1].at + notes[notes.length - 1].beats;
   // looping a part is a Standard control; hidden, the clock loops the whole tune
   const looping = useLevelAtLeast("standard");
-  const { focus, ...sa } = useSingAlong({ notes, chords, beatMs, total, click, loopControl: looping });
+  const { focus, ...sa } = useSingAlong({ notes, chords, beatMs, total, click, listen, loopControl: looping });
   const [look] = useExerciseSetting("view");
   const [storedCents] = useAccuracy();
   const cents = centsProp ?? storedCents;

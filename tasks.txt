@@ -6,8 +6,6 @@ New:
 
 
 
-46. In runs / melodies - just selecting a scale should start the microphone
-
 47. Identify which pages should have guided tour, e.g. runs / melodies 
 and add to these pages. Rank pages and provide me your understanding which pages need it first.
 - Guided tour should always include:
@@ -141,6 +139,9 @@ oooooooooooooooooooooo Recent app feedback ooooooooooooooooooooooooo
 
 
 oooooooooooooooooooooooooooooooooo DONE ooooooooooooooooooooooooooooooooooooooooooooooo
+D35. Runs / melodies: picking a scale starts the microphone (was 46)
+Done: on /theory/singing/melodies and /runs, picking a scale in the side panel switches on the mic of the tune picked, without pressing play. The mic then moves with the tune: picking another card turns the old card's mic off and the new one's on. The mic button still turns it off. Types, lint and sing-along tests clean. Not checked in the browser.
+
 D34. Nav: only one menu item highlighted on nested pages, e.g. Sing an interval (was 40)
 Done: the menu now marks only the page that matches best, so /theory/singing/intervals highlights "Sing an interval" and no longer "Sing a scale" too. The top-level menu button was already right. Types clean. Not checked in the browser.
 

@@ -53,12 +53,19 @@ export interface Frame {
  * stream's beats while the bar runs; passes and trail long gone by are dropped. A new tune is a new mount (key it); a new
  * `beatMs` is not: the bar keeps its place and runs on at the new tempo.
  */
-export function useSingAlong({ notes, chords, beatMs, total, click = false, loopControl = true }: {
+export function useSingAlong({ notes, chords, beatMs, total, click = false, loopControl = true, listen = false }: {
   notes: PlacedNote[]; chords: MelodyChord[]; beatMs: number; total: number; click?: boolean;
+  /** the host's word on the mic: it goes on when this turns true (or the tune mounts with it) and off when it turns false; the mic button still works between */
+  listen?: boolean;
   /** false while the loop control is hidden: the clock loops the whole tune (the default), and the loop and region picked come back when it shows */
   loopControl?: boolean;
 }) {
-  const [mic, setMic] = useState(false);
+  const [mic, setMic] = useState(listen);
+  const [heeded, setHeeded] = useState(listen);
+  if (heeded !== listen) {
+    setHeeded(listen);
+    setMic(listen);
+  }
   const [playing, setPlaying] = useState(false);
   const [heard, setHeard] = useState<Heard>({ tune: true, chords: true, click });
   const [loop, setLoopState] = useState(true);

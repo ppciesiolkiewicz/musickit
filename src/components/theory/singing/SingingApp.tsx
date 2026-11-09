@@ -43,7 +43,7 @@ export type SingingMode = "scales" | "melodies" | "runs";
  *   dot follows your voice over the notes.
  * - "melodies": the melody book (written tunes in the key that end on a whole-note Do, in book order, filtered by
  *   difficulty), each card the plan's sing-along player (`SingAlong`): play, stop, the mic, a loop over a part, staff or
- *   piano roll, at the page's tempo. Full screen holds one tune with arrows on its margins (and ←/→ or a swipe) to step
+ *   piano roll, at the page's tempo. Picking a scale starts the picked tune's mic. Full screen holds one tune with arrows on its margins (and ←/→ or a swipe) to step
  *   through the tunes listed. The address keeps the key, the scale and the tune picked (and whether it is open full
  *   screen), so a copied link (or a card's share button, which always opens full screen) opens the same.
  * - "runs": the same with the runs book.
@@ -101,6 +101,12 @@ export default function SingingApp({ mode, initial, lead }: { mode: SingingMode;
   // a link to a tune in this key and scale, opening full screen, for its share button
   const linkTo = (t: BookTune) => `${window.location.origin}${window.location.pathname}?${singingQuery({ tonicPc, scale, melody: t.n, full: true })}`;
   const [mic, setMic] = useState(false);
+  // the tune picked listens once a scale is picked (a press, so the browser lets the mic start)
+  const [listen, setListen] = useState(false);
+  const pickScale = (slug: typeof scale) => {
+    setScale(slug);
+    if (tuneTab) setListen(true);
+  };
   const [pocket, setPocket] = useState<PocketStatus | null>(null);
   const clef = clefFor(range);
   const ladder = useMemo(() => buildLadder(scale, tonicPc, range) ?? buildLadder("major-ionian", tonicPc, range)!, [scale, tonicPc, range]);
@@ -228,7 +234,7 @@ export default function SingingApp({ mode, initial, lead }: { mode: SingingMode;
 
   // a tune's card holds its own mic; the page's mic is the scale's
   const message =
-    tuneTab ? `Press play on a ${tab === "runs" ? "run" : "melody"}: a bar runs over it and loops, the mic listens, and the dot turns green on the note under the bar, red on another. The loop button sets the part that repeats.`
+    tuneTab ? `Press play on a ${tab === "runs" ? "run" : "melody"}: a bar runs over it and loops, the mic listens (picking a scale starts it too), and the dot turns green on the note under the bar, red on another. The loop button sets the part that repeats.`
     : micStatusMessage(status)
     ?? (status === "on" ? "Listening. Sing the scale up from the root: the dot turns green on a note of the scale, red on a note outside it."
     : "Tap a note to hear it, or play the scale up and down on the metronome's tempo. Then press Start microphone and sing it back.");
@@ -250,7 +256,7 @@ export default function SingingApp({ mode, initial, lead }: { mode: SingingMode;
         side
         bar={
           <ScaleSettingsBar tonicPc={tonicPc} onTonic={setTonicPc} side config={{
-            scale: { slug: scale, onPick: setScale },
+            scale: { slug: scale, onPick: pickScale },
             ...(tab === "runs" ? { keys: false as const } : {}),
             labels: false,
             // a tune or run already carries its own harmony (the piano's chords under it); a drone against that only fights it
@@ -304,6 +310,7 @@ export default function SingingApp({ mode, initial, lead }: { mode: SingingMode;
               beatMs={beat}
               bpm={bpm}
               active={active}
+              listen={listen}
               cents={cents}
               lagMs={lagMs}
               playAhead={lagSlider}
