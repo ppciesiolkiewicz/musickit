@@ -12,6 +12,10 @@ let waking: Promise<void> | null = null;
 const SINK_WAIT_MS = 1000;
 const SETTLE_LOOKS = 5;
 const INAUDIBLE = 1e-6;
+/** The first play on a page starts this much after the press, even with the output already running. */
+const FIRST_PLAY_SECONDS = 0.1;
+/** the page whose first play has been asked for */
+let playedOn: string | null = null;
 
 const wait = (ms: number) => new Promise<void>((done) => setTimeout(done, ms));
 
@@ -30,7 +34,7 @@ export function getAudioContext(): AudioContext {
 /** The output is running and past its first moments, so a sound started now is heard whole. */
 export function audioSettled(): boolean {
   const ctx = getAudioContext();
-  return ctx.state === "running" && !sinkChange && settle!.lead() === 0;
+  return playedOn === location.pathname && ctx.state === "running" && !sinkChange && settle!.lead() === 0;
 }
 
 /**
@@ -40,7 +44,12 @@ export function audioSettled(): boolean {
  */
 export function wakeAudio(): Promise<void> {
   const ctx = getAudioContext();
-  if (ctx.state === "closed" || audioSettled()) return Promise.resolve();
+  if (ctx.state === "closed") return Promise.resolve();
+  if (playedOn !== location.pathname) {
+    playedOn = location.pathname;
+    settle!.hold(FIRST_PLAY_SECONDS);
+  }
+  if (audioSettled()) return Promise.resolve();
   const resumed = ctx.state === "running" ? null : ctx.resume().catch(() => undefined);
   waking ??= (async () => {
     await resumed;
@@ -123,12 +132,13 @@ function watchOutput(ctx: AudioContext) {
     if (ctx.state === "running") wanted = true;
     else if (wanted && ctx.state !== "closed" && document.visibilityState === "visible") void ctx.resume().catch(() => undefined);
   });
+  // only resumes: a click anywhere is not a first play
   const wake = () => {
-    if (wanted || ctx.state === "suspended") void wakeAudio();
+    if ((wanted || ctx.state === "suspended") && ctx.state !== "running" && ctx.state !== "closed") void ctx.resume().catch(() => undefined);
   };
   for (const ev of ["pointerdown", "keydown", "touchend"]) window.addEventListener(ev, wake, { capture: true, passive: true });
   document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "visible" && wanted) void wakeAudio();
+    if (document.visibilityState === "visible" && wanted) wake();
   });
 
   const media = navigator.mediaDevices;

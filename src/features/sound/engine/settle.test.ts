@@ -47,6 +47,18 @@ test("suspending and resuming starts the wait again", () => {
   assert.ok(Math.abs(s.lead() - 0.2) < 1e-9);
 });
 
+test("a hold delays a settled output and never shortens a longer wait", () => {
+  const c = clock("running", 1);
+  const s = createSettle(c, 0.2);
+  s.hold(0.1);
+  assert.ok(Math.abs(s.lead() - 0.2) < 1e-9);
+  c.currentTime = 2;
+  assert.equal(s.lead(), 0);
+  s.hold(0.1);
+  assert.ok(Math.abs(s.lead() - 0.1) < 1e-9);
+  assert.ok(Math.abs(s.startIn() - 0.1) < 1e-9);
+});
+
 test("a reopened output waits again without the context stopping", () => {
   const c = clock("running", 1);
   const s = createSettle(c, 0.2);

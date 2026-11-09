@@ -30,6 +30,11 @@ export function createSettle(ctx: SettleClock, seconds = SETTLE_SECONDS) {
       look();
       settledAt = ctx.currentTime + seconds;
     },
+    /** Nothing starts for at least this long from now. */
+    hold(extra: number) {
+      look();
+      settledAt = Math.max(settledAt, ctx.currentTime + extra);
+    },
     /** Seconds from the clock's "now" to the first moment a sound can start whole. */
     startIn: () => Math.max(lead(), Math.min(MAX_LOOKAHEAD, Math.max(MIN_LOOKAHEAD, ctx.baseLatency || 0))),
   };
