@@ -194,7 +194,7 @@ function rootOf(t: PlanTool): number | null {
   if (t.type === "arpeggio-neck") return parseChordQuery(t.chord)!.rootPc;
   if (t.type === "chord-shapes") return parseChordQuery(t.chords[0])!.rootPc;
   if (t.type === "guitar-play-along") return 0;
-  if (t.type === "chord-backing") return t.key ?? parseChordQuery(t.chords[0])!.rootPc;
+  if (t.type === "backing-track") return t.key;
   return null;
 }
 

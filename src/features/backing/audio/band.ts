@@ -1,7 +1,6 @@
 import { arrange, PARTS, type Arrangement, type Part } from "../model/arrange";
 import { TempoClock } from "../model/clock";
-import { findProgression } from "../model/progressions";
-import { clampSettings, DEFAULT_SETTINGS, type BandSettings, type PartLevel } from "../model/settings";
+import { clampSettings, DEFAULT_SETTINGS, playedNumerals, type BandSettings, type PartLevel } from "../model/settings";
 import { Song, type SongPosition } from "../model/song";
 import { findStyle } from "../model/styles";
 import { bassVoice, drumVoice, keysVoice, type Voices } from "./voices";
@@ -39,7 +38,7 @@ const START_DELAY = 0.08;
 
 const defaultVoices: NonNullable<BandDeps["voices"]> = (ctx, outs, keys) => ({ drums: drumVoice(ctx, outs.drums), bass: bassVoice(ctx, outs.bass), keys: keysVoice(outs.keys, keys) });
 
-const build = (s: BandSettings): Arrangement => arrange(findProgression(s.progression).numerals, s.tonic, findStyle(s.style));
+const build = (s: BandSettings): Arrangement => arrange(playedNumerals(s), s.tonic, findStyle(s.style));
 
 /** The nodes of one run: the parts' gains into one output that fades out on stop, so ringing notes end cleanly. */
 interface Run {
@@ -84,10 +83,11 @@ export class Band {
     const prev = this.snap.settings;
     const levels = Object.fromEntries(PARTS.map((p) => [p, { ...prev.levels[p], ...patch.levels?.[p] }]));
     const next = clampSettings({ ...prev, ...patch, levels }, prev);
-    const trackChanged = next.progression !== prev.progression || next.tonic !== prev.tonic || next.style !== prev.style;
+    const newChords = next.progression !== prev.progression || String(next.numerals) !== String(prev.numerals);
+    const trackChanged = newChords || next.tonic !== prev.tonic || next.style !== prev.style;
     const arrangement = trackChanged ? build(next) : this.snap.arrangement;
     if (trackChanged) {
-      if (this.run) this.song.queue(arrangement, next.progression !== prev.progression);
+      if (this.run) this.song.queue(arrangement, newChords);
       else this.song.reset(arrangement);
     }
     if (this.run && next.bpm !== prev.bpm) this.run.clock.setTempo(next.bpm, this.run.scheduled);

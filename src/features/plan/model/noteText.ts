@@ -66,8 +66,6 @@ function rootOf(s: Section): number | null {
       return chordRoot(t.chord);
     case "chord-shapes":
       return chordRoot(t.chords[0]);
-    case "chord-backing":
-      return t.key ?? chordRoot(t.chords[0]);
     case "guitar-play-along": {
       const sh = t.shape as { key?: unknown; chords?: (string | { chord?: string })[] };
       const first = sh.chords?.[0];

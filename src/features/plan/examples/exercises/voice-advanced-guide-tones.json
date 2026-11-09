@@ -25,12 +25,12 @@
       { "type": "heading", "text": "Guide tones", "minutes": 3 },
       { "type": "text", "text": "Press Start exercise below, then sing the highlighted notes on \"ah\", one long note per chord: {{4}} over Dm7, {{4}} over G7, {{3}} over Cmaj7. Then the other line: {{1}} over Dm7, {{7}} over G7, {{7}} over Cmaj7. The root of each chord is lit too." },
       { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "tenor", "highlight": ["1", "2", "3", "4", "5", "7"] } },
-      { "type": "tool", "tool": { "type": "chord-backing", "chords": ["Dm7", "G7", "Cmaj7", "Cmaj7"], "backing": ["block"], "bpm": 72 } },
+      { "type": "tool", "tool": { "type": "backing-track", "key": "c", "numerals": ["ii7", "V7", "Imaj7", "Imaj7"], "style": "ballad", "mute": ["bass"], "bpm": 72 } },
       { "type": "text", "text": "Now try it with no chords. Sing the same notes, and find each chord in your head before you sing it. Ideas: sing it on \"ee\" or \"mm\", slow it down, or start from the top note and go down." },
       { "type": "heading", "text": "Your own line", "minutes": 3 },
       { "type": "text", "text": "Press Start exercise below to start the mic and the same changes in F: Gm7, C7, Fmaj7. The notes change, the pattern doesn't. Make up your own line on any vowel, starting each chord on one of its lit notes: {{4}} or {{1}} over Gm7, {{7}} or {{4}} over C7, {{3}} or {{7}} over Fmaj7. You can dip to {{7}} under the low {{1}} too. Leave space between phrases." },
       { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "f", "voice": "tenor", "under": true, "highlight": ["1", "3", "4", "7"] } },
-      { "type": "tool", "tool": { "type": "chord-backing", "chords": ["Gm7", "C7", "Fmaj7", "Fmaj7"], "backing": ["block"], "bpm": 72 } }
+      { "type": "tool", "tool": { "type": "backing-track", "key": "f", "numerals": ["ii7", "V7", "Imaj7", "Imaj7"], "style": "ballad", "mute": ["bass"], "bpm": 72 } }
     ]
   }
 }

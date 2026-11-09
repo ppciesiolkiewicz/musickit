@@ -3,7 +3,6 @@
 import dynamic from "next/dynamic";
 import { View as ArpeggioNeck } from "@/features/exercises/basics/arpeggio-neck";
 import { View as BackingBand } from "@/features/exercises/basics/backing-band";
-import { View as ChordBacking } from "@/features/exercises/basics/chord-backing";
 import { View as ChordShapes } from "@/features/exercises/basics/chord-shapes";
 import { View as ClickDrone } from "@/features/exercises/basics/click-drone";
 import { View as IntervalSinger } from "@/features/exercises/basics/interval-singer";
@@ -80,9 +79,7 @@ function ToolView({ tool, voice, input }: { tool: PlanTool; voice?: Voice; input
     case "guitar-play-along":
       return <PlayAlong shape={tool.shape} bpm={tool.bpm} repeats={tool.repeats} view={tool.view} enable={tool.enable} highlight={tool.highlight} others={tool.others} under={tool.under} />;
     case "backing-track":
-      return <BackingTrack progression={tool.progression} keyPc={tool.key} style={tool.style} bpm={tool.bpm} />;
-    case "chord-backing":
-      return <ChordBacking chords={tool.chords} bpm={tool.bpm} keyPc={tool.key} backing={tool.backing} />;
+      return <BackingTrack progression={tool.progression} numerals={tool.numerals} keyPc={tool.key} style={tool.style} bpm={tool.bpm} mute={tool.mute} />;
     case "strum-along":
       return <StrumAlong chords={tool.chords} bpm={tool.bpm} per={tool.per} beats={tool.beats} pattern={tool.pattern} />;
     case "finger-pattern":

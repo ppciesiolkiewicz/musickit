@@ -17,13 +17,19 @@ const RENAMED: Record<string, string> = {
 /**
  * A tool as an older plan wrote it, in today's names and props; anything else is returned unchanged. `sing` becomes a
  * `staff` with the mic (its stored `notes`/`highlight` are already semitones and are read as such), `comp` a
- * `guitar-play-along` progression on the neck. Pure; `parseTool` calls it first so old and new plans parse alike.
+ * `guitar-play-along` progression on the neck, `chord-backing` (chords for a singer) a `backing-track` on its chords with a
+ * gentle style and the bass muted. Pure; `parseTool` calls it first so old and new plans parse alike.
  */
 export function migrateTool(raw: Record<string, unknown>): Record<string, unknown> {
   const type = raw.type;
   if (typeof type !== "string") return raw;
   if (Object.hasOwn(RENAMED, type)) return { ...raw, type: RENAMED[type] };
   if (type === "sing") return { ...raw, type: "staff", mic: true };
+  if (type === "chord-backing") {
+    const out: Record<string, unknown> = { style: "ballad", mute: ["bass"], ...raw, type: "backing-track" };
+    delete out.backing; // its piano patterns: the style plays the keys now
+    return out;
+  }
   if (type === "comp") {
     const chords = Array.isArray(raw.chords) ? raw.chords.filter((c): c is string => typeof c === "string") : [];
     const beats = [2, 3, 4].includes(Number(raw.beats)) ? Number(raw.beats) : 4;

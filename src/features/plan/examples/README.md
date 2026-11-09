@@ -45,7 +45,7 @@ What there is: one exercise per area and level, three more in the new teaching s
   picks that match a tune exactly.
 - Over 5 minutes: at least two blocks (headings with `minutes`) of 2 to 5 minutes each, adding up to the exercise's
   minutes; consecutive blocks change something real (tempo, key, position, which note is lit, the task).
-- Singing or playing, never both. Singing exercises never mention the instrument (drones, the backing and a chord-backing
+- Singing or playing, never both. Singing exercises never mention the instrument (drones, the backing and a backing-track
   are fine); playing exercises never ask to sing. A bare singing drill is one block of at most 3 minutes.
 - Every note a step names (`{{3}}`, `{{c-sharp}}`) is lit in the tool after it; the root is never muted; a fresh tool
   after a step whenever the focus changes. Staffs in non-singing exercises set `"mic": false`.

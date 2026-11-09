@@ -14,7 +14,7 @@ function setup() {
   const ctx = fakeContext();
   const played: { part: Part; ev: NoteEvent; when: number; seconds: number }[] = [];
   const voices = (): Voices => Object.fromEntries((["drums", "bass", "keys"] as Part[]).map((part) => [part, { play: (ev: NoteEvent, when: number, seconds: number) => played.push({ part, ev, when, seconds }) }])) as unknown as Voices;
-  const band = new Band({ context: () => ctx, destination: () => ({}) as AudioNode, voices }, { progression: "pop", tonic: "C", style: "pop", bpm: 120, levels: { drums: { volume: 1, muted: false }, bass: { volume: 1, muted: false }, keys: { volume: 1, muted: false } } });
+  const band = new Band({ context: () => ctx, destination: () => ({}) as AudioNode, voices }, { progression: "pop", numerals: null, tonic: "C", style: "pop", bpm: 120, levels: { drums: { volume: 1, muted: false }, bass: { volume: 1, muted: false }, keys: { volume: 1, muted: false } } });
   /** move the clock on in scheduler-sized steps */
   const advance = (seconds: number) => {
     for (let t = 0; t < seconds; t += 0.025) {

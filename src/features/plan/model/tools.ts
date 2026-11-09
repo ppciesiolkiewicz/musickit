@@ -11,9 +11,8 @@ import { STRING_DRILLS, type StringDrill } from "@/features/exercises/basics/str
 import { strumPattern } from "@/features/exercises/basics/strum-along/blocks";
 import { COMPONENT_DOCS, shortDoc, type ComponentDoc } from "@/features/exercises/docs";
 import type { PlayAlongShape } from "@/features/exercises/play-along/play-along.props";
-import { expandShape, numeralChord } from "@/features/exercises/shapes";
-import { isCompPattern, type CompPattern } from "@/lib/practice/comping";
-import { MAX_BPM as BACKING_MAX_BPM, MIN_BPM as BACKING_MIN_BPM, PROGRESSIONS, STYLES } from "@/features/backing/model";
+import { expandShape } from "@/features/exercises/shapes";
+import { MAX_BPM as BACKING_MAX_BPM, MIN_BPM as BACKING_MIN_BPM, MAX_NUMERALS, PARTS, PROGRESSIONS, STYLES, TONICS, cleanNumerals, numeralOfChord, type Part as BackingPart } from "@/features/backing/model";
 import { degreeSemis } from "@/features/exercises/timeline/degrees";
 import { isSingingLabels, type SingingLabels } from "@/features/theory/labels";
 import type { Degree, Voicing } from "@/features/exercises/timeline/types";
@@ -67,8 +66,7 @@ export type PlanTool =
   | { type: "interval-singer"; key: number; /** more keys to pick Do from, the first `key`; absent: only `key` */ keys?: number[]; voice?: Voice; /** semitones from Do, 1-12 */ intervals?: number[]; dir?: IntervalDir; dot?: false }
   | { type: "guitar-play-along"; shape: PlayAlongShape; bpm: number; repeats?: number; view?: View; enable?: Degree[]; highlight?: Degree[]; others?: "muted" | "hidden"; under?: Under }
   | { type: "strum-along"; chords: string[]; bpm: number; per?: "bar" | "beat"; beats?: number; pattern?: string }
-  | { type: "backing-track"; /** a backing tracks progression id */ progression: string; key: number; /** a backing tracks style id; none: the progression's own */ style?: string; /** none: the style's tempo */ bpm?: number }
-  | { type: "chord-backing"; chords: string[]; bpm: number; /** pitch class, from the AI's key; with numerals the chords are already read in it */ key?: number; backing?: CompPattern[] }
+  | { type: "backing-track"; /** a backing tracks progression id; absent: `numerals` */ progression?: string; /** the lesson's own chords as numerals in `key` (pasted chords are read into numerals at parse) */ numerals?: string[]; key: number; /** a backing tracks style id; none: the progression's own, ballad for numerals */ style?: string; /** none: the style's tempo */ bpm?: number; /** parts that start muted */ mute?: BackingPart[] }
   /* stubs: a placeholder view until the real components exist; strings are numbered 1-6, 6 = low E */
   | { type: "finger-pattern"; fingers: string; fret: number; strings?: number[]; show?: "finger" | "pick"; bpm: number }
   | { type: "picking-drill"; strokes: string; notesPerString: number; strings?: number[]; skip?: boolean; bpm: number }
@@ -308,26 +306,22 @@ export const TOOLS: { [N in ToolName]: ToolSpec } = {
   },
   "backing-track": {
     parse(t) {
-      const key = keyOf(t.key);
       const progression = typeof t.progression === "string" ? t.progression.trim().toLowerCase() : "";
-      if (key === null || !PROGRESSIONS.some((p) => p.id === progression)) return null;
+      const curated = PROGRESSIONS.some((p) => p.id === progression);
+      const chords = curated ? [] : chordList(t.chords, MAX_NUMERALS);
+      const key = keyOf(t.key) ?? (chords.length ? parseChordQuery(chords[0])!.rootPc : null);
+      if (key === null) return null;
+      // the lesson's own chords are kept as numerals in the key, so moving the key moves them
+      const numerals = curated ? null : chords.length ? cleanNumerals(chords.map((c) => numeralOfChord(c, TONICS[key]))) : cleanNumerals(t.numerals);
+      if (!curated && !numerals) return null;
       const style = typeof t.style === "string" && STYLES.some((x) => x.id === t.style) ? t.style : null;
       const n = Number(t.bpm);
       const bpm = t.bpm !== undefined && Number.isFinite(n) ? Math.min(BACKING_MAX_BPM, Math.max(BACKING_MIN_BPM, Math.round(n))) : null;
-      return { type: "backing-track", progression, key, ...(style ? { style } : {}), ...(bpm !== null ? { bpm } : {}) };
-    },
-  },
-  "chord-backing": {
-    parse(t) {
-      const key = keyOf(t.key);
-      // numerals are read in the key now, so the stored tool holds chords only
-      const chords = key !== null && Array.isArray(t.numerals) && !Array.isArray(t.chords)
-        ? list(t.numerals).map((n) => (typeof n === "string" ? numeralChord(n, key) : null)).filter((c): c is string => !!c).slice(0, 16)
-        : chordList(t.chords, 16);
-      const backing = [...new Set(list(t.backing).filter(isCompPattern))];
-      return chords.length
-        ? { type: "chord-backing", chords, bpm: int(t.bpm, 30, 240) ?? 80, ...(key !== null ? { key } : {}), ...(backing.length ? { backing } : {}) }
-        : null;
+      const mute = PARTS.filter((p) => list(t.mute).includes(p));
+      return {
+        type: "backing-track", ...(curated ? { progression } : { numerals: numerals! }), key,
+        ...(style ? { style } : {}), ...(bpm !== null ? { bpm } : {}), ...(mute.length ? { mute } : {}),
+      };
     },
   },
   "strum-along": {

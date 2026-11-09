@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { chordFromNumeral, chordsFromNumerals } from "./numerals";
+import { chordFromNumeral, chordsFromNumerals, numeralOfChord } from "./numerals";
+import { DEFAULT_SETTINGS, bandMode, clampSettings, cleanNumerals, playedNumerals } from "./settings";
 import { PROGRESSIONS, layOut, splitLength } from "./progressions";
 import { STYLES, checkStyle, findStyle } from "./styles";
 import { arrange, bassNote, bassRoot, chordAt, eventsBetween, stepBeat, voiceLead } from "./arrange";
@@ -196,4 +197,27 @@ test("styles: every 4/4 style plays its groove", () => {
     assert.deepEqual(style.drums, groove.drums, style.id);
     assert.deepEqual(style.bass, groove.bass, style.id);
   }
+});
+
+test("chord symbols read as numerals in a key, and back to the same chords", () => {
+  const read = (chords: string[], tonic: string) => chords.map((c) => numeralOfChord(c, tonic));
+  assert.deepEqual(read(["Dm7", "G7", "Cmaj7", "Am", "F", "Bdim", "Bm7b5", "Bbmaj7", "F#dim7"], "C"), ["ii7", "V7", "Imaj7", "vi", "IV", "vii°", "viiø7", "bVIImaj7", "#iv°7"]);
+  assert.deepEqual(read(["Am", "G", "F", "E7", "Esus4"], "A"), ["i", "bVII", "bVI", "V7", "Vsus4"]);
+  assert.deepEqual(read(["Gm7", "C7", "Fmaj7"], "F"), ["ii7", "V7", "Imaj7"]);
+  assert.deepEqual(read(["Eb", "Bb7"], "Eb"), ["I", "V7"]);
+  assert.equal(numeralOfChord("zz", "C"), null);
+});
+
+test("settings: the band's own numerals play instead of the progression until cleared", () => {
+  const own = clampSettings({ ...DEFAULT_SETTINGS, numerals: ["I", "V", "nope", "vi:2"] });
+  assert.deepEqual(own.numerals, ["I", "V", "vi:2"]);
+  assert.deepEqual(playedNumerals(own), ["I", "V", "vi:2"]);
+  assert.equal(bandMode(own), "major");
+  assert.equal(bandMode({ ...own, numerals: ["i", "bVII"] }), "minor");
+  const cleared = clampSettings({ numerals: null, progression: "blues" }, own);
+  assert.equal(cleared.numerals, null);
+  assert.equal(playedNumerals(cleared)[0], "I7");
+  assert.deepEqual(clampSettings({}, own).numerals, own.numerals);
+  assert.equal(cleanNumerals(["nope"]), null);
+  assert.equal(cleanNumerals(Array(30).fill("I"))!.length, 16);
 });

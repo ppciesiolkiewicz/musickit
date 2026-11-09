@@ -9,7 +9,7 @@ export type PlayAlongShape =
 
 /**
  * Play along on the guitar with a click and piano: the music shown as tab, as note names or on the neck, all following
- * one clock. For the guitar only: a singer singing over chords gets a chord-backing instead.
+ * one clock. For the guitar only: a singer singing over chords gets a backing-track instead.
  * You choose the musical content as a shape; the app computes the notes, frets, strings and timing. Shapes, by name:
  * `progression`, `two-scales`, `chord-steps`, `arpeggio-part`, `melody`, `solo-over` (see each shape's doc).
  * The student can change tempo and view, and pick a backing when the shape offers more than one. Under single-note

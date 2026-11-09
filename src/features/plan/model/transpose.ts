@@ -61,8 +61,6 @@ export function transposeTool(tool: PlanTool, by: number): PlanTool {
       return { ...tool, key: pc(tool.key + d) };
     case "interval-singer":
       return { ...tool, key: pc(tool.key + d), ...(tool.keys ? { keys: tool.keys.map((k) => pc(k + d)) } : {}) };
-    case "chord-backing":
-      return { ...tool, chords: tool.chords.map((c) => transposeChord(c, d)), ...(tool.key !== undefined ? { key: pc(tool.key + d) } : {}) };
     case "chord-shapes":
     case "strum-along":
       return { ...tool, chords: tool.chords.map((c) => transposeChord(c, d)) };

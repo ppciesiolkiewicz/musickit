@@ -143,68 +143,49 @@
   {
     "name": "backing-track",
     "kind": "basic",
-    "description": "A full backing track to play or sing over: drums, bass and keys playing a chord progression in a style, looping until\nstopped. It shows the chords as boxes (the one playing lit) and a mixer, so the student can mute a part\nto play it themselves. The student can change the progression, key, style and tempo. Use it to improvise or comp over a\nwhole band (a 12-bar blues shuffle, a minor vamp, a jazz ii-V-I). For hearing a progression on the guitar's own shapes\nuse guitar-play-along; for chords alone under a singer, chord-backing; for a beat or a drone without chords, backing-band.\n\nExample: `{ \"type\": \"backing-track\", \"progression\": \"blues\", \"key\": \"a\", \"style\": \"shuffle\", \"bpm\": 90 }` plays a\n12-bar blues in A as a shuffle: A7 D7 A7 A7 D7 D7 A7 A7 E7 D7 A7 E7",
+    "description": "A backing track to play or sing over: drums, bass and keys playing a chord progression in a style, looping until\nstopped. It shows the chords as boxes (the one playing lit) and a mixer, so the student can mute a part\nto play it themselves. The student can change the progression, key, style and tempo. Use it to improvise or comp over a\nwhole band (a 12-bar blues shuffle, a minor vamp, a jazz ii-V-I), and under a singer singing over chords (guide tones,\nchord notes, a line of their own, next to a staff with the mic). Give a curated `progression`, or the lesson's own\nchords as `chords` or `numerals`, one per bar. For hearing a progression on the guitar's own shapes use\nguitar-play-along; for a beat or a drone without chords, backing-band.\n\nExample: `{ \"type\": \"backing-track\", \"progression\": \"blues\", \"key\": \"a\", \"style\": \"shuffle\", \"bpm\": 90 }` plays a\n12-bar blues in A as a shuffle: A7 D7 A7 A7 D7 D7 A7 A7 E7 D7 A7 E7.\nExample: `{ \"type\": \"backing-track\", \"key\": \"d\", \"numerals\": [\"I\", \"IV\", \"V\", \"I\"], \"style\": \"ballad\", \"mute\": [\"bass\"], \"bpm\": 70 }`\nplays D G A D on piano and soft drums under a singer.",
     "props": [
       {
         "name": "progression",
         "type": "string",
-        "required": true,
+        "required": false,
         "description": "the progression, by id. Major: \"pop\" (I V vi IV), \"fifties\" (I vi IV V), \"three-chord\" (I I IV V), \"canon\" (I V vi iii IV I IV V), \"ii-v-i\" (ii7 V7 Imaj7 Imaj7), \"turnaround\" (Imaj7 vi7 ii7 V7), \"blues\" (12-bar: I7 IV7 I7 I7 IV7 IV7 I7 I7 V7 IV7 I7 V7), \"bossa\" (Imaj7 Imaj7 ii7 V7), \"waltz\" (I IV V7 I, 3/4), \"reggae\" (I IV). Minor: \"andalusian\" (i bVII bVI V), \"minor-pop\" (i bVI bIII bVII), \"minor-ii-v\" (iiø7 V7 i7 i7), \"minor-blues\" (12-bar: i7 iv7 i7 i7 iv7 iv7 i7 i7 bVI7 V7 i7 V7), \"aeolian\" (i bVI bVII i). Modes: \"dorian\" (i7 IV7), \"phrygian\" (i bII), \"lydian\" (Imaj7 II), \"mixolydian\" (I bVII IV I)"
+      },
+      {
+        "name": "chords",
+        "type": "string[]",
+        "required": false,
+        "description": "instead of `progression`: the chords in order, one per bar, looping, up to 16; repeat a chord to hold it longer: [\"D\", \"D\", \"A\", \"A\"]"
+      },
+      {
+        "name": "numerals",
+        "type": "string[]",
+        "required": false,
+        "description": "instead of `progression`: numerals counted on the major scale of `key`, one per bar, up to 16 (I ii iii IV V vi vii°, i for minor, V7, ii7, bVII, iiø7)"
       },
       {
         "name": "key",
         "type": "string",
         "required": true,
-        "description": "the key's root note, the I (or the i of a minor or modal progression): \"a\" with \"minor-blues\" is A minor; \"c\", \"f-sharp\", \"b-flat\""
+        "description": "the key's root note, the I (or the i of a minor or modal progression): \"a\" with \"minor-blues\" is A minor; \"c\", \"f-sharp\", \"b-flat\". With `chords` it may be left out: the first chord's root"
       },
       {
         "name": "style",
         "type": "string",
         "required": false,
-        "description": "how the band plays it (default: the progression's own): \"pop\", \"rock\", \"ballad\", \"swing\", \"shuffle\", \"bossa\", \"funk\", \"reggae\", \"waltz\" (3/4)"
+        "description": "how the band plays it (default: the progression's own, \"ballad\" for chords of the lesson's own): \"pop\", \"rock\", \"ballad\", \"swing\", \"shuffle\", \"bossa\", \"funk\", \"reggae\", \"waltz\" (3/4)"
       },
       {
         "name": "bpm",
         "type": "number",
         "required": false,
         "description": "tempo, 40-220 (default: the style's usual tempo)"
-      }
-    ]
-  },
-  {
-    "name": "chord-backing",
-    "kind": "basic",
-    "description": "Chords for a singer: the app plays a progression on the piano with a click, one chord a bar, looping until stopped,\nand shows it as a row of chord boxes, the one playing lit and the next one outlined, so the singer sees which chord\nsounds now and what comes next. Nothing to play: use it whenever a singer sings over chords (guide tones, chord notes,\na line of their own), next to a staff with the mic. For a guitarist playing over chords, use guitar-play-along.\n\nExample: `{ \"type\": \"chord-backing\", \"chords\": [\"Dm7\", \"G7\", \"Cmaj7\", \"Cmaj7\"], \"bpm\": 72 }` shows\n[ Dm7 · · · · ] [ G7 ] [ Cmaj7 ] [ Cmaj7 ], the bar playing lit with its beat",
-    "props": [
-      {
-        "name": "chords",
-        "type": "string[]",
-        "required": false,
-        "description": "the chords in order, one per bar, looping; repeat a chord to hold it longer: [\"D\", \"D\", \"A\", \"A\"]"
       },
       {
-        "name": "numerals",
-        "type": "string[]",
+        "name": "mute",
+        "type": "(\"drums\" | \"bass\" | \"keys\")[]",
         "required": false,
-        "description": "instead of `chords`: major-key numerals, one per bar (I ii iii IV V vi vii°, V7, bVII), read in `key`"
-      },
-      {
-        "name": "key",
-        "type": "string",
-        "required": false,
-        "description": "the key as a note, needed with `numerals`: \"d\", \"f-sharp\", \"b-flat\""
-      },
-      {
-        "name": "bpm",
-        "type": "number",
-        "required": true,
-        "description": "tempo, 30-240"
-      },
-      {
-        "name": "backing",
-        "type": "CompPattern[]",
-        "required": false,
-        "description": "how the piano plays the chords, the student can switch: \"block\" (default), \"strum\", \"bass-chord\", \"arp-up\", \"arp-down\", \"arp-updown\", \"fingerstyle\"; the first plays first"
+        "description": "the parts that start muted, the student can unmute them: \"drums\", \"bass\", \"keys\". A singer often wants [\"bass\"]"
       }
     ]
   },
@@ -341,7 +322,7 @@
   {
     "name": "guitar-play-along",
     "kind": "guided",
-    "description": "Play along on the guitar with a click and piano: the music shown as tab, as note names or on the neck, all following\none clock. For the guitar only: a singer singing over chords gets a chord-backing instead.\nYou choose the musical content as a shape; the app computes the notes, frets, strings and timing. Shapes, by name:\n`progression`, `two-scales`, `chord-steps`, `arpeggio-part`, `melody`, `solo-over` (see each shape's doc).\nThe student can change tempo and view, and pick a backing when the shape offers more than one. Under single-note\nsteps over chords (guide tones, arpeggio parts) the app holds each chord softly by default, so the student hears the\nharmony and not just the click; `under` changes that.\n\nExample: `{ \"type\": \"guitar-play-along\", \"shape\": { \"shape\": \"chord-steps\", \"voicing\": \"barre\", \"chords\": [{ \"chord\": \"G\", \"steps\": [\"strum\",\"1\",\"6\",\"1\"] }, { \"chord\": \"D\", \"steps\": [\"strum\",\"4\",\"5\",\"4\"] }] }, \"bpm\": 70 }`",
+    "description": "Play along on the guitar with a click and piano: the music shown as tab, as note names or on the neck, all following\none clock. For the guitar only: a singer singing over chords gets a backing-track instead.\nYou choose the musical content as a shape; the app computes the notes, frets, strings and timing. Shapes, by name:\n`progression`, `two-scales`, `chord-steps`, `arpeggio-part`, `melody`, `solo-over` (see each shape's doc).\nThe student can change tempo and view, and pick a backing when the shape offers more than one. Under single-note\nsteps over chords (guide tones, arpeggio parts) the app holds each chord softly by default, so the student hears the\nharmony and not just the click; `under` changes that.\n\nExample: `{ \"type\": \"guitar-play-along\", \"shape\": { \"shape\": \"chord-steps\", \"voicing\": \"barre\", \"chords\": [{ \"chord\": \"G\", \"steps\": [\"strum\",\"1\",\"6\",\"1\"] }, { \"chord\": \"D\", \"steps\": [\"strum\",\"4\",\"5\",\"4\"] }] }, \"bpm\": 70 }`",
     "props": [
       {
         "name": "shape",

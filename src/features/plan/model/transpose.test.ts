@@ -42,16 +42,11 @@ describe("transposeTool", () => {
     assert.equal(t.key, 0);
     assert.deepEqual(t.add, [4]);
   });
-  it("moves a chord-backing's chords and key", () => {
-    const t = transposeTool(tool({ type: "chord-backing", key: "c", chords: ["Dm7", "G7", "Cmaj7"], bpm: 72 }), 5);
-    assert.ok(t.type === "chord-backing");
-    assert.deepEqual(t.chords, ["Gm7", "C7", "Fmaj7"]);
+  it("moves a backing-track's key; its numerals go with it", () => {
+    const t = transposeTool(tool({ type: "backing-track", key: "c", chords: ["Dm7", "G7", "Cmaj7"], bpm: 72 }), 5);
+    assert.ok(t.type === "backing-track");
+    assert.deepEqual(t.numerals, ["ii7", "V7", "Imaj7"]);
     assert.equal(t.key, 5);
-  });
-  it("moves numerals read in the key (stored as chords)", () => {
-    const t = transposeTool(tool({ type: "chord-backing", key: "d", numerals: ["I", "V"], bpm: 70 }), 7);
-    assert.ok(t.type === "chord-backing");
-    assert.deepEqual(t.chords, ["A", "E"]);
   });
   it("moves a melody-singer, an arpeggio-neck and strum-along chords", () => {
     const m = transposeTool(tool({ type: "melody-singer", tune: 1, key: "d" }), 3);
@@ -90,13 +85,12 @@ describe("a heading's keys", () => {
     const step: Section[] = [
       { type: "text", text: "Sing {{1}} {{3}} {{5}}." },
       { type: "tool", tool: tool({ type: "staff", scale: "major-ionian", key: "d", voice: "tenor", notes: ["1", "3", "5"] }) },
-      { type: "tool", tool: tool({ type: "chord-backing", key: "d", numerals: ["I", "V"], bpm: 70 }) },
+      { type: "tool", tool: tool({ type: "backing-track", key: "d", numerals: ["I", "V"], bpm: 70 }) },
     ];
     const moved = transposeStep(step, [2, 9, 0], 0);
     assert.equal(moved[0], step[0]);
     assert.ok(moved[1].type === "tool" && moved[1].tool.type === "staff" && moved[1].tool.key === 0);
-    assert.ok(moved[2].type === "tool" && moved[2].tool.type === "chord-backing");
-    assert.deepEqual((moved[2].tool as { chords: string[] }).chords, ["C", "G"]);
+    assert.ok(moved[2].type === "tool" && moved[2].tool.type === "backing-track" && moved[2].tool.key === 0);
   });
 });
 

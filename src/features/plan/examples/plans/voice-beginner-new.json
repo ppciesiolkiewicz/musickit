@@ -292,14 +292,15 @@
               {
                 "type": "tool",
                 "tool": {
-                  "type": "chord-backing",
+                  "type": "backing-track",
                   "key": "d",
                   "numerals": [
                     "I",
                     "V"
                   ],
-                  "backing": [
-                    "block"
+                  "style": "ballad",
+                  "mute": [
+                    "bass"
                   ],
                   "bpm": 70
                 }
@@ -430,14 +431,15 @@
               {
                 "type": "tool",
                 "tool": {
-                  "type": "chord-backing",
+                  "type": "backing-track",
                   "key": "g",
                   "numerals": [
                     "I",
                     "V"
                   ],
-                  "backing": [
-                    "arp-up"
+                  "style": "ballad",
+                  "mute": [
+                    "bass"
                   ],
                   "bpm": 70
                 }
@@ -567,7 +569,7 @@
               {
                 "type": "tool",
                 "tool": {
-                  "type": "chord-backing",
+                  "type": "backing-track",
                   "key": "f",
                   "numerals": [
                     "I",
@@ -575,8 +577,9 @@
                     "V",
                     "I"
                   ],
-                  "backing": [
-                    "block"
+                  "style": "ballad",
+                  "mute": [
+                    "bass"
                   ],
                   "bpm": 70
                 }
@@ -950,7 +953,7 @@
               {
                 "type": "tool",
                 "tool": {
-                  "type": "chord-backing",
+                  "type": "backing-track",
                   "key": "d",
                   "numerals": [
                     "I",
@@ -958,8 +961,9 @@
                     "V",
                     "I"
                   ],
-                  "backing": [
-                    "arp-up"
+                  "style": "ballad",
+                  "mute": [
+                    "bass"
                   ],
                   "bpm": 70
                 }

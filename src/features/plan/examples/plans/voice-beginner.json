@@ -85,7 +85,7 @@
             "sections": [
               { "type": "text", "text": "Press Start exercise below to start the mic and the chords: D and A take turns, one bar each. Sing {{1}} (D) when the D chord comes round. Sing {{5}} (A) when the A chord comes round. Then try {{3}} (F♯) over D instead." },
               { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "d", "voice": "tenor", "notes": ["1", "3", "5"] } },
-              { "type": "tool", "tool": { "type": "chord-backing", "key": "d", "numerals": ["I", "V"], "backing": ["block"], "bpm": 70 } }
+              { "type": "tool", "tool": { "type": "backing-track", "key": "d", "numerals": ["I", "V"], "style": "ballad", "mute": ["bass"], "bpm": 70 } }
             ]
           }
         ]
@@ -123,7 +123,7 @@
             "sections": [
               { "type": "text", "text": "Press Start exercise below to start the mic and the chords. Sing the low {{1}} (G) or {{3}} (B) when the G chord comes round. Sing {{5}} (D) when the D chord comes round. Pick a different note each time round." },
               { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "g", "voice": "tenor", "notes": ["1", "3", "5"] } },
-              { "type": "tool", "tool": { "type": "chord-backing", "key": "g", "numerals": ["I", "V"], "backing": ["arp-up"], "bpm": 70 } }
+              { "type": "tool", "tool": { "type": "backing-track", "key": "g", "numerals": ["I", "V"], "style": "ballad", "mute": ["bass"], "bpm": 70 } }
             ]
           }
         ]
@@ -161,7 +161,7 @@
             "sections": [
               { "type": "text", "text": "Press Start exercise below to start the mic and the chords. Use the lower half of the staff, from the low {{1}} up to {{5}}. Sing {{1}} (F) when the F chord comes round. Sing {{4}} (B♭) when B♭ comes round. Sing {{5}} (C) when C comes round. Hold each note for the whole bar. Then try {{3}} (A) over F instead." },
               { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "f", "voice": "tenor", "notes": ["1", "3", "4", "5"] } },
-              { "type": "tool", "tool": { "type": "chord-backing", "key": "f", "numerals": ["I", "IV", "V", "I"], "backing": ["block"], "bpm": 70 } }
+              { "type": "tool", "tool": { "type": "backing-track", "key": "f", "numerals": ["I", "IV", "V", "I"], "style": "ballad", "mute": ["bass"], "bpm": 70 } }
             ]
           }
         ]
@@ -276,7 +276,7 @@
             "sections": [
               { "type": "text", "text": "Press Start exercise below to start the mic and the chords. Make up a line from {{1}} {{3}} {{5}} (D, F♯, A), in any order. Lean on {{5}} when the A chord comes round: it is that chord's root. Record yourself on your phone. Listen back." },
               { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "d", "voice": "tenor", "notes": ["1", "3", "5"] } },
-              { "type": "tool", "tool": { "type": "chord-backing", "key": "d", "numerals": ["I", "IV", "V", "I"], "backing": ["arp-up"], "bpm": 70 } }
+              { "type": "tool", "tool": { "type": "backing-track", "key": "d", "numerals": ["I", "IV", "V", "I"], "style": "ballad", "mute": ["bass"], "bpm": 70 } }
             ]
           }
         ]

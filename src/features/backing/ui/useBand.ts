@@ -3,13 +3,14 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { getAudioContext, getOutputBus, wakeAudio } from "@/features/sound";
 import { Band } from "../audio/band";
-import { clampSettings, type BandSettings } from "../model/settings";
+import type { Part } from "../model/arrange";
+import { clampSettings, type BandSettings, type PartLevel } from "../model/settings";
 
 export const BACKING_STORAGE_KEY = "musickit.backing";
 
 export interface UseBandOptions {
   /** the settings it starts with (checked by `clampSettings`); a save, when there is one, wins */
-  initial?: Partial<BandSettings>;
+  initial?: Partial<Omit<BandSettings, "levels">> & { levels?: Partial<Record<Part, Partial<PartLevel>>> };
   /** where the settings are saved in localStorage; `null`: never read or written (a plan's backing starts as the plan set it) */
   storageKey?: string | null;
 }

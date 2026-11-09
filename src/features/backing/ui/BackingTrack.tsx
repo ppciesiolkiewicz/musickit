@@ -9,11 +9,13 @@ import type { Band, BandSnapshot } from "../audio/band";
 import type { Part } from "../model/arrange";
 import { MAX_BPM, MIN_BPM } from "../model/clock";
 import { MODES, PROGRESSIONS, findProgression } from "../model/progressions";
-import { TONICS } from "../model/settings";
+import { TONICS, bandMode } from "../model/settings";
 import { STYLES, findStyle } from "../model/styles";
 import { useBand } from "./useBand";
 
 const PROGRESSION_GROUPS: SelectGroup<string>[] = MODES.map((m) => ({ label: m.label, options: PROGRESSIONS.filter((p) => p.mode === m.id).map((p) => ({ value: p.id, label: p.name })) })).filter((g) => g.options.length);
+/** the progression picker's value for the band's own numerals (a plan's chords) */
+const OWN = "own";
 const TONIC_OPTIONS = TONICS.map((t) => ({ value: t, label: t.replace("b", "♭").replace("#", "♯") }));
 const STYLE_OPTIONS = STYLES.map((s) => ({ value: s.id, label: s.name }));
 const PART_INFO: Record<Part, { label: string; icon: IconName; hue: Hue }> = {
@@ -96,12 +98,15 @@ export default function BackingTrack() {
 export function BackingPlayer({ band, snap, group, spaceKey = false, scale: showScale = true }: { band: Band; snap: BandSnapshot; group?: string; spaceKey?: boolean; scale?: boolean }) {
   const { settings, playing, arrangement } = snap;
   const focus = useAudioFocus(playing, () => band.stop(), group);
-  const progression = findProgression(settings.progression);
   const style = findStyle(settings.style);
   const pos = usePosition(band, playing);
   useSpaceToggle(band, spaceKey);
 
-  const mode = MODES.find((m) => m.id === progression.mode)!;
+  const mode = MODES.find((m) => m.id === bandMode(settings))!;
+  const groups = useMemo(
+    () => (settings.numerals ? [{ label: "This lesson", options: [{ value: OWN, label: settings.numerals.map(pretty).join("–") }] }, ...PROGRESSION_GROUPS] : PROGRESSION_GROUPS),
+    [settings.numerals],
+  );
   const scale = useMemo(() => Scale.get(`${settings.tonic} ${mode.scale}`).notes.map(pretty), [settings.tonic, mode.scale]);
   const bpb = arrangement.beatsPerBar;
 
@@ -143,7 +148,7 @@ export function BackingPlayer({ band, snap, group, spaceKey = false, scale: show
 
         <div data-tour="backing-choose" className="grid gap-3 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)]">
           <Field label="Progression">
-            <Select value={settings.progression} groups={PROGRESSION_GROUPS} onChange={(id) => band.set({ progression: id, style: findProgression(id).style })} aria-label="Progression" className="w-full" />
+            <Select value={settings.numerals ? OWN : settings.progression} groups={groups} onChange={(id) => id !== OWN && band.set({ progression: id, numerals: null, style: findProgression(id).style })} aria-label="Progression" className="w-full" />
           </Field>
           <Field label="Key">
             <Select value={settings.tonic} options={TONIC_OPTIONS} onChange={(tonic) => band.set({ tonic })} aria-label="Key" className="w-full" />

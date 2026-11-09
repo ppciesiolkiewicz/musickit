@@ -252,10 +252,18 @@ describe("tools", () => {
     for (const st of STYLES) assert.match(prop("style"), new RegExp(`"${st.id}"`), st.id);
   });
 
-  it("a chord-backing reads numerals in its key, keeps known backings, needs chords", () => {
-    assert.deepEqual(parseTool({ type: "chord-backing", key: "d", numerals: ["I", "V"], backing: ["block", "nope", "arp-up"], bpm: 70 }), { type: "chord-backing", chords: ["D", "A"], bpm: 70, key: 2, backing: ["block", "arp-up"] });
-    assert.deepEqual(parseTool({ type: "chord-backing", chords: ["Dm7", "G7", "zz"], bpm: 500 }), { type: "chord-backing", chords: ["Dm7", "G7"], bpm: 80 });
-    assert.equal(parseTool({ type: "chord-backing", numerals: ["I"], bpm: 70 }), null);
+  it("a backing-track plays the lesson's own chords as numerals in its key, mutes known parts", () => {
+    assert.deepEqual(parseTool({ type: "backing-track", key: "c", chords: ["Dm7", "G7", "Cmaj7", "zz"], mute: ["bass", "tuba"] }), { type: "backing-track", numerals: ["ii7", "V7", "Imaj7"], key: 0, mute: ["bass"] });
+    assert.deepEqual(parseTool({ type: "backing-track", chords: ["Bb", "F", "Gm", "Eb"] }), { type: "backing-track", numerals: ["I", "V", "vi", "IV"], key: 10 });
+    assert.deepEqual(parseTool({ type: "backing-track", key: "a", numerals: ["i", "bVII", "nope", "V7"], style: "ballad", bpm: 70 }), { type: "backing-track", numerals: ["i", "bVII", "V7"], key: 9, style: "ballad", bpm: 70 });
+    assert.deepEqual(parseTool({ type: "backing-track", progression: "blues", key: "a", numerals: ["I"] }), { type: "backing-track", progression: "blues", key: 9 });
+    assert.equal(parseTool({ type: "backing-track", numerals: ["I", "V"] }), null);
+    assert.equal(parseTool({ type: "backing-track", key: "d", numerals: ["nope"] }), null);
+  });
+  it("an old chord-backing becomes a gentle backing-track on its chords, the bass muted", () => {
+    assert.deepEqual(parseTool({ type: "chord-backing", key: "d", numerals: ["I", "V"], backing: ["block", "arp-up"], bpm: 70 }), { type: "backing-track", numerals: ["I", "V"], key: 2, style: "ballad", bpm: 70, mute: ["bass"] });
+    assert.deepEqual(parseTool({ type: "chord-backing", chords: ["Dm7", "G7"], key: 0, bpm: 72 }, { stored: true }), { type: "backing-track", numerals: ["ii7", "V7"], key: 0, style: "ballad", bpm: 72, mute: ["bass"] });
+    assert.deepEqual(parseTool({ type: "chord-backing", chords: ["G", "C", "D"], bpm: 500 }), { type: "backing-track", numerals: ["I", "IV", "V"], key: 7, style: "ballad", bpm: 220, mute: ["bass"] });
   });
   it("parses a play-along by its shape", () => {
     const shape = { shape: "chord-steps", chords: [{ chord: "G", steps: ["strum", "1", "6", "1"] }, { chord: "D", steps: ["strum", "4", "5", "4"] }], voicing: "barre" };
@@ -516,7 +524,7 @@ describe("schedule", () => {
     assert.match(prompt, /\/theory\/notes/);
     assert.match(prompt, /"type":\s*"backing-band"/);
     assert.match(prompt, /"type":\s*"guitar-play-along"/);
-    assert.match(prompt, /"type":\s*"chord-backing"/);
+    assert.ok(!prompt.includes("chord-backing"));
     assert.match(prompt, /"type":\s*"backing-track"/);
     assert.match(prompt, /Never write frets or note lists the app can compute/);
     for (const old of ["band", "comp", "sing", "scale", "chords"]) assert.ok(!prompt.includes(`"type": "${old}"`), old);

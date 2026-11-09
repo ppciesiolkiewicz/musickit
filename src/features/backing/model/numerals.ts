@@ -60,3 +60,29 @@ export function chordFromNumeral(numeral: string, tonic: string): ChordInKey | n
 
 /** Every numeral in `tonic`; unknown numerals are dropped. */
 export const chordsFromNumerals = (numerals: readonly string[], tonic: string): ChordInKey[] => numerals.flatMap((n) => chordFromNumeral(n, tonic) ?? []);
+
+/** the numeral for each semitone above the tonic, as a major-key reader writes it */
+const DEGREE_OF_SEMIS = ["I", "bII", "II", "bIII", "III", "IV", "#IV", "V", "bVI", "VI", "bVII", "VII"];
+
+const samePcs = (a: number[], b: number[]) => a.length === b.length && a.every((pc) => b.includes(pc));
+
+/**
+ * A chord symbol ("Dm7", "Bb", "F#dim") as a numeral in `tonic` ("ii7", "bVII", "#iv°"), counted on the major scale;
+ * null when it has no root tonal knows or the numeral would not give back the same notes.
+ */
+export function numeralOfChord(symbol: string, tonic: string): string | null {
+  const [root, type] = Chord.tokenize(symbol.trim());
+  const chord = Chord.get(symbol.trim());
+  if (!root || chord.empty) return null;
+  const roman = DEGREE_OF_SEMIS[(chroma(root) - chroma(tonic) + 12) % 12];
+  const t = type.trim();
+  const [minor, suffix] =
+    /^(m7b5|ø7?)$/.test(t) ? [true, "ø7"]
+    : /^(dim7|°7|o7)$/.test(t) ? [true, "°7"]
+    : /^(dim|°|o)$/.test(t) ? [true, "°"]
+    : /^(m|min|-)(?!aj)/.test(t) ? [true, t.replace(/^(min|m|-)/, "")]
+    : [false, t];
+  const numeral = (minor ? roman.toLowerCase() : roman) + suffix;
+  const back = chordFromNumeral(numeral, tonic);
+  return back && back.rootPc === chroma(root) && samePcs(back.pcs, chord.notes.map(chroma)) ? numeral : null;
+}

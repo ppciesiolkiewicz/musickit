@@ -6,7 +6,7 @@ import { Button, HUE_TONES, hueAt, type Hue } from "@/components/ui";
 
 /**
  * The look the exercise players share with the backing track: a card with a sky hairline, a round Play, a labelled
- * tempo, a bar beat meter and chord cards that keep one colour per chord. Strum-along, chord-backing and the play-along.
+ * tempo, a bar beat meter and chord cards that keep one colour per chord. Strum-along and the play-along.
  */
 
 /** The card round a player. */
