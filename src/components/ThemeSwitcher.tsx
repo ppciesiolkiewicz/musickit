@@ -62,14 +62,14 @@ const toggleFullscreen = () => (isFullscreen() ? exitFullscreen() : enterFullscr
  * On a first visit the picker opens by itself with the current pick (Default) pulsing; closing it without choosing settles on
  * Default. Shared by every page; knows nothing about any feature.
  */
-export default function ThemeSwitcher({ className = "", compact = false }: { className?: string; /** only the palette on phones, to leave room for a button beside it */ compact?: boolean }) {
+export default function ThemeSwitcher({ className = "", compact = false, noIntro = false }: { className?: string; /** only the palette on phones, to leave room for a button beside it */ compact?: boolean; /** never open by itself (the music-school home, where the visitor is a buyer, not a player) */ noIntro?: boolean }) {
   const style = useSyncExternalStore(subscribe, readStyle, () => DEFAULT_STYLE);
   const fullscreen = useSyncExternalStore(onFullscreenChange, isFullscreen, () => false);
   const fullscreenable = useSyncExternalStore(onFullscreenChange, canFullscreen, () => false);
   // first visit: the picker opens by itself until it has been closed once (the server renders it closed)
   const unseen = useSyncExternalStore(subscribeNever, readUnseen, () => false);
   const [settled, setSettled] = useState(false);
-  const intro = unseen && !settled;
+  const intro = unseen && !settled && !noIntro;
   const [picked, setPicked] = useState(false);
   const open = intro || picked;
   const box = useRef<HTMLDivElement>(null);

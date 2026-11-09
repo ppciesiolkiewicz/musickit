@@ -35,25 +35,29 @@ function ProgressPath() {
 }
 
 /** What practice in attunr trains: each skill and the drills that train it. `sing` marks a drill for the voice. */
-const SKILLS: { icon: IconName; title: string; text: ReactNode; tone: string; drills: { href: string; label: string; sing?: boolean }[] }[] = [
+const SKILLS: { icon: IconName; title: string; text: ReactNode; schoolText: ReactNode; tone: string; drills: { href: string; label: string; sing?: boolean }[] }[] = [
   {
     icon: "repeat", title: "Build muscle memory", tone: "bg-teal-500/15 text-teal-300",
     text: <>Repeat a pattern until your fingers or your voice do it without thinking, then change the key, the shape or the rhythm and you have <Mark tone="var(--color-teal-400)">a drill of your own</Mark>.</>,
+    schoolText: <>Students repeat a pattern until their fingers or voice do it without thinking, then change the key, shape or rhythm to make <Mark tone="var(--color-teal-400)">a drill of their own</Mark>.</>,
     drills: [{ href: "/theory/scales", label: "Scale drills" }, { href: "/theory/singing", label: "Sing a scale", sing: true }, { href: "/theory/singing/runs", label: "Sing runs", sing: true }],
   },
   {
     icon: "ear", title: "Hear it, sing it in tune", tone: "bg-sky-500/15 text-sky-300",
     text: <>Name an interval the moment you hear it and sing it back, until <Mark>your own ear</Mark> tells you when you&apos;re in tune.</>,
+    schoolText: <>Students name an interval the moment they hear it and sing it back, until <Mark>their own ear</Mark> tells them when they&apos;re in tune.</>,
     drills: [{ href: "/theory/ears", label: "Ear training" }, { href: "/theory/singing/intervals", label: "Sing an interval", sing: true }, { href: "/theory/singing/melodies", label: "Sing melodies", sing: true }],
   },
   {
     icon: "metronome", title: "Lock in your rhythm", tone: "bg-violet-500/15 text-violet-300",
     text: <>Hit the beat, not just the note. Play against a metronome or drone until <Mark tone="var(--color-violet-400)">you feel the pulse</Mark> without one.</>,
+    schoolText: <>Hit the beat, not just the note. Students play against a metronome or drone until <Mark tone="var(--color-violet-400)">they feel the pulse</Mark> without one.</>,
     drills: [{ href: "/theory/rhythm", label: "Rhythm drills" }],
   },
   {
     icon: "guitar", title: "Know the fretboard", tone: "bg-amber-500/15 text-amber-300",
     text: <>Find any note in a second. Learn the neck by name, colour and the job each note does, until it&apos;s <Mark tone="var(--color-amber-400)">a map you can read</Mark>.</>,
+    schoolText: <>Students learn the neck by name, colour and the job each note does, until it&apos;s <Mark tone="var(--color-amber-400)">a map they can read</Mark>.</>,
     drills: [{ href: "/theory/notes", label: "Fretboard notes" }, { href: "/theory/arpeggios", label: "Arpeggios" }, { href: "/theory/tune-by-ear", label: "Tune by ear", sing: true }],
   },
 ];
@@ -75,11 +79,13 @@ export const SEE_TOOLS: ToolGroup = { label: "See it on the neck", hrefs: ["/the
 export const PLAY_TOOLS: ToolGroup = { label: "Play along", hrefs: ["/theory/metronome-drone", "/theory/backing", "/looper"] };
 const toolsOf = (g: ToolGroup) => g.hrefs.flatMap((href) => THEORY_SECTIONS.filter((s) => s.href === href));
 
+/** `school` writes the card text about students (for the music-school page, where "you" is the school). */
 export function SkillsSection({
+  school = false,
   eyebrow = "Drills for every part of playing",
   title = <>Develop your own <span className="ls-accent italic text-sky-300">guitar senses.</span></>,
   intro = <>Not a screen that tells you when you got it right. Drills for your hands, ears, voice and timing that you repeat until <Mark>you can feel it yourself</Mark>, and understand well enough to <Mark>invent your own</Mark>.</>,
-}: { eyebrow?: ReactNode; title?: ReactNode; intro?: ReactNode }) {
+}: { school?: boolean; eyebrow?: ReactNode; title?: ReactNode; intro?: ReactNode }) {
   return (
     <section aria-labelledby="skills-h" className="sect-rule py-12 sm:py-16">
       <div className="mx-auto max-w-2xl text-center">
@@ -94,7 +100,7 @@ export function SkillsSection({
               <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${s.tone}`}><Icon name={s.icon} size={20} /></span>
               <h3 className="text-2xl text-slate-50" style={DISPLAY}>{s.title}</h3>
             </div>
-            <p className="text-sm leading-relaxed text-slate-400">{s.text}</p>
+            <p className="text-sm leading-relaxed text-slate-400">{school ? s.schoolText : s.text}</p>
             <p className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-1.5 pt-1 text-sm">
               <span className="text-slate-500">Try it:</span>
               {s.drills.map((d) => (
@@ -166,7 +172,8 @@ export function PlanSection() {
   );
 }
 
-export function IdeasSection({ eyebrow = "Free in the app", title = <>Practice that <span className="ls-accent italic text-sky-300">adds up.</span></>, tools = [SEE_TOOLS, PLAY_TOOLS] }: { eyebrow?: ReactNode; title?: ReactNode; tools?: ToolGroup[] }) {
+/** `school` writes the card text about students (for the music-school page, where "you" is the school). */
+export function IdeasSection({ school = false, eyebrow = "Free in the app", title = <>Practice that <span className="ls-accent italic text-sky-300">adds up.</span></>, tools = [SEE_TOOLS, PLAY_TOOLS] }: { school?: boolean; eyebrow?: ReactNode; title?: ReactNode; tools?: ToolGroup[] }) {
   const dorian = modeSteps(FAMILIES[0], 1);
   return (
     <section aria-labelledby="ideas-h" className="sect-rule py-12 sm:py-16">
@@ -200,12 +207,12 @@ export function IdeasSection({ eyebrow = "Free in the app", title = <>Practice t
             </ul>
           </div>
           <h3 className="text-2xl text-slate-50" style={DISPLAY}>Every note has a colour</h3>
-          <p className="text-sm leading-relaxed text-slate-400">The home note is always white, the mood note always yellow. Learn what a note does and you&apos;ll find it <Mark tone="var(--color-amber-400)">in any song, in any key</Mark>.</p>
+          <p className="text-sm leading-relaxed text-slate-400">The home note is always white, the mood note always yellow. {school ? <>Once students learn what a note does, they find it <Mark tone="var(--color-amber-400)">in any song, in any key</Mark>, whichever teacher they&apos;re with.</> : <>Learn what a note does and you&apos;ll find it <Mark tone="var(--color-amber-400)">in any song, in any key</Mark>.</>}</p>
         </li>
         <li className="ls-card flex flex-col gap-4 rounded-3xl border border-slate-800 bg-slate-900/50 p-6">
           <div className="flex h-56 items-center justify-center"><ProgressPath /></div>
           <h3 className="text-2xl text-slate-50" style={DISPLAY}>Always know what&apos;s next</h3>
-          <p className="text-sm leading-relaxed text-slate-400">Practise in an order that builds, one step at a time, so you never wonder whether today&apos;s practice was the right practice.</p>
+          <p className="text-sm leading-relaxed text-slate-400">{school ? "Students practise in an order that builds, one step at a time, so nobody wonders whether today's practice was the right practice." : <>Practise in an order that builds, one step at a time, so you never wonder whether today&apos;s practice was the right practice.</>}</p>
         </li>
       </ul>
       <h3 className="mt-14 text-center text-2xl text-slate-50 sm:text-3xl" style={DISPLAY}>Open a tool and <span className="ls-accent italic text-sky-300">start playing.</span></h3>

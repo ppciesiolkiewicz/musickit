@@ -47,7 +47,7 @@ const styleFonts = [funkFont, rockFont, metalFont, bluesFont, jazzFont, surfFont
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "attunr: your one-stop hub for music drills and theory",
+    default: "attunr: guitar and voice drills, theory and practice tools",
     template: "%s",
   },
   description: "Guitar theory, exercises and practice tools: scales and modes in every key, chord shapes, CAGED, a tuner and a looper.",
@@ -86,12 +86,12 @@ export const metadata: Metadata = {
     siteName: "attunr",
     locale: "en_US",
     url: SITE_URL,
-    title: "attunr: your one-stop hub for music drills and theory",
+    title: "attunr: guitar and voice drills, theory and practice tools",
     description: "Guitar theory, exercises and practice tools: scales and modes in every key, chord shapes, CAGED, a tuner and a looper.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "attunr: your one-stop hub for music drills and theory",
+    title: "attunr: guitar and voice drills, theory and practice tools",
     description: "Guitar theory, exercises and practice tools: scales and modes in every key, chord shapes, CAGED, a tuner and a looper.",
   },
 };

@@ -36,8 +36,8 @@ const COLUMNS: Column[] = [
     title: "Teachers",
     links: [
       { href: "/teach", label: "Teach on attunr" },
-      { href: "/#white-label", label: "White-label for schools" },
-      { href: "/teachers/studio", label: "Video studio" },
+      { href: "/#white-label", label: "White-labelling" },
+      { href: "/teachers/studio", label: "Teaching studio" },
       { href: "/teachers/studio?notes=1", label: "Notes creator" },
     ],
   },
@@ -76,7 +76,7 @@ export default function SiteFooter({ variant = "default" }: { variant?: "default
             <Wordmark className="text-2xl" dots="side" />
           </Link>
           <p className="mt-4 max-w-xs leading-relaxed text-slate-400">
-            See what you hear. Teaching tools for music schools, and practice, a video course and lessons for guitarists who&apos;d rather play.
+            See what you hear. Guitar and voice teaching tools for music schools, and practice, a video course and lessons for guitarists who&apos;d rather play.
           </p>
         </div>
 
