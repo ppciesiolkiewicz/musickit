@@ -11,7 +11,7 @@ import Glow from "@/components/landing/Glow";
 import SiteFooter from "@/components/landing/SiteFooter";
 import CourseSoon from "@/components/landing/CourseSoon";
 import { DISPLAY, Eyebrow, H2, Mark } from "@/components/landing/Display";
-import { AfterClassMock, LiveLessonMock } from "@/components/landing/LessonMocks";
+import { LiveLessonMock } from "@/components/landing/LessonMocks";
 import { Check, IdeasSection, PlanSection, SkillsSection } from "./PracticeSections";
 
 /* The home page for players, at /players: practice, the video course and private lessons. */
@@ -186,9 +186,6 @@ export default function CoachingHome() {
             </div>
             <div className="relative pb-40 sm:pb-24">
               <Photo name="teacherTablet" className="ls-photo aspect-4/3 rounded-3xl border border-slate-800" sizes="(min-width: 1024px) 45vw, 100vw" />
-              <div className="absolute -top-3 right-2 w-[58%] sm:-right-5 sm:top-6 sm:w-[44%]">
-                <AfterClassMock />
-              </div>
               <div className="absolute -bottom-2 left-0 w-[88%] sm:-left-6 sm:w-[70%]">
                 <LiveLessonMock />
               </div>

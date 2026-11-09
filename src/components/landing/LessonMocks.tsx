@@ -3,6 +3,9 @@
 import Icon from "@/components/Icon";
 import Photo, { type PhotoKey } from "./Photo";
 import { DISPLAY } from "./Display";
+import { useEffect, useState, useSyncExternalStore } from "react";
+import { Band } from "@/features/backing";
+import { getAudioContext, getOutputBus, useAudioFocus, wakeAudio } from "@/features/sound";
 import { degreeColour } from "@/features/theory/scales";
 import { NoteDot } from "@/components/chordKit/NoteDot";
 import { useNotePlayer } from "@/components/chordKit/useNotePlayer";
@@ -11,32 +14,46 @@ import type { ScaleCell } from "@/lib/chordKit/scalePositions";
 /* Drawn pictures of private lessons inside the kit, not screenshots, so they follow the theme. */
 
 
-/** A minor pentatonic, box 1 at the 5th fret: [string row from high e, fret offset, degree index, label] */
-const BOX: [number, number, number, string][] = [
-  [0, 0, 0, "R"], [0, 3, 2, "♭3"], [1, 0, 4, "5"], [1, 3, 6, "♭7"], [2, 0, 2, "♭3"], [2, 2, 3, "4"],
-  [3, 0, 6, "♭7"], [3, 2, 0, "R"], [4, 0, 3, "4"], [4, 2, 4, "5"], [5, 0, 0, "R"], [5, 3, 2, "♭3"],
-];
 const OPEN_BY_ROW = [64, 59, 55, 50, 45, 40]; // high e down to low E
-const MINOR_SEMI = [0, 2, 3, 5, 7, 8, 10];
 const PC_NAME = ["C", "C♯", "D", "E♭", "E", "F", "F♯", "G", "A♭", "A", "B♭", "B"];
+/** semitones above A -> [degree index in the minor scale, label], for the five notes of A minor pentatonic */
+const PENTA: Record<number, [number, string]> = { 0: [0, "R"], 3: [2, "♭3"], 5: [3, "4"], 7: [4, "5"], 10: [6, "♭7"] };
+const MINOR_SEMI = [0, 2, 3, 5, 7, 8, 10];
+/** Where each box starts on the neck: box 1 at the 5th fret, box 2 at the 7th. */
+const BOX_FRET = { 1: 5, 2: 7 } as const;
+type Box = keyof typeof BOX_FRET;
+/** The root to ring in each box: [string row from high e, fret offset] */
+const BOX_ROOT: Record<Box, [number, number]> = { 1: [0, 0], 2: [3, 0] };
 
-const CELLS: (ScaleCell & { row: number; off: number; label: string })[] = BOX.map(([row, off, d, label]) => {
-  const midi = OPEN_BY_ROW[row] + 5 + off;
-  return { string: 5 - row, fret: 5 + off, midi, pc: midi % 12, degree: d, name: PC_NAME[midi % 12], semi: MINOR_SEMI[d], degreeText: label, row, off, label };
-});
+type Cell = ScaleCell & { row: number; off: number; label: string };
+
+/** A minor pentatonic notes inside a four-fret window starting at `start`. */
+function boxCells(start: number): Cell[] {
+  const out: Cell[] = [];
+  OPEN_BY_ROW.forEach((open, row) => {
+    for (let off = 0; off < 4; off++) {
+      const midi = open + start + off;
+      const semi = (midi - 57 + 120) % 12;
+      const hit = PENTA[semi];
+      if (hit) out.push({ string: 5 - row, fret: start + off, midi, pc: midi % 12, degree: hit[0], name: PC_NAME[midi % 12], semi: MINOR_SEMI[hit[0]], degreeText: hit[1], row, off, label: hit[1] });
+    }
+  });
+  return out;
+}
+const CELLS: Record<Box, Cell[]> = { 1: boxCells(BOX_FRET[1]), 2: boxCells(BOX_FRET[2]) };
 
 /** The box drawn with the app's own note dots: hover names the note, a click plays it. `highlight` is a dot with a pulsing ring. */
-function PentatonicBox({ highlight }: { highlight?: [number, number] }) {
+function PentatonicBox({ box = 1, highlight }: { box?: Box; highlight?: [number, number] }) {
   const { active, tap } = useNotePlayer();
   return (
-    <svg viewBox="0 0 260 132" className="w-full" role="img" aria-label="A minor pentatonic box at the 5th fret, notes coloured by degree. Click a note to hear it.">
+    <svg viewBox="0 0 260 132" className="w-full" role="img" aria-label={`A minor pentatonic box ${box} at the ${BOX_FRET[box]}th fret, notes coloured by degree. Click a note to hear it.`}>
       <rect x={20} y={6} width={232} height={120} rx={6} fill="var(--color-slate-900)" />
       {[0, 1, 2, 3, 4].map((f) => <line key={f} x1={20 + f * 58} x2={20 + f * 58} y1={6} y2={126} stroke="var(--color-slate-700)" strokeWidth={2} />)}
       {[0, 1, 2, 3, 4, 5].map((s) => <line key={s} x1={20} x2={252} y1={16 + s * 20} y2={16 + s * 20} stroke="var(--color-slate-500)" strokeOpacity={0.7} strokeWidth={0.8 + s * 0.3} />)}
-      <text x={8} y={70} fontSize={10} fill="var(--color-slate-500)" textAnchor="middle">5</text>
-      {CELLS.map((c) => {
+      <text x={8} y={70} fontSize={10} fill="var(--color-slate-500)" textAnchor="middle">{BOX_FRET[box]}</text>
+      {CELLS[box].map((c) => {
         const lit = highlight && highlight[0] === c.row && highlight[1] === c.off;
-        const key = `${c.row}-${c.off}`;
+        const key = `${box}-${c.row}-${c.off}`;
         const x = 49 + c.off * 58;
         const y = 16 + c.row * 20;
         return (
@@ -50,30 +67,64 @@ function PentatonicBox({ highlight }: { highlight?: [number, number] }) {
   );
 }
 
-/** What a student gets after a lesson: the shape, the exercises, what comes next. */
+/** The smallest backing band: one play button over an A minor loop (the app's own band, drums, bass and keys). Its settings are not saved. */
+function MiniBacking() {
+  const [band] = useState(() => {
+    const b = new Band({ context: getAudioContext, destination: getOutputBus, wake: wakeAudio });
+    b.set({ progression: "aeolian", tonic: "A", style: "rock", bpm: 80 });
+    return b;
+  });
+  const snap = useSyncExternalStore(band.subscribe, band.getSnapshot, band.getSnapshot);
+  useEffect(() => () => band.stop(), [band]);
+  const focus = useAudioFocus(snap.playing, () => band.stop());
+  return (
+    <div ref={focus} className="flex items-center gap-3 rounded-xl border border-slate-800 bg-slate-950/60 p-2">
+      <button type="button" onClick={() => band.toggle()} aria-pressed={snap.playing}
+        className={`inline-flex h-8 items-center gap-1.5 rounded-lg border px-3 text-xs font-medium transition ${snap.playing ? "border-emerald-400/70 bg-emerald-500/20 text-emerald-100" : "border-sky-400/60 bg-sky-500/15 text-sky-50 hover:bg-sky-500/25"}`}>
+        <Icon name={snap.playing ? "square" : "play"} size={14} fill />{snap.playing ? "Stop" : "Backing track"}
+      </button>
+      <span className="text-xs text-slate-400">A minor loop · Am F G Am · 80 bpm</span>
+    </div>
+  );
+}
+
+/** What a student gets after a lesson: the shape, the plan, what comes next. Tap a plan line and the picture follows; "improvise" brings up a backing track. */
 export function LessonNoteMock() {
+  type Step = "b1" | "b2" | "imp";
+  const [step, setStep] = useState<Step>("b1");
+  const [done, setDone] = useState<Record<Step, boolean>>({ b1: true, b2: false, imp: false });
+  const box: Box = step === "b2" ? 2 : 1;
+  const items: { id: Step; t: string }[] = [
+    { id: "b1", t: "Box 1 up and down, landing on R" },
+    { id: "b2", t: "Box 2, the same way, from the 7th fret" },
+    { id: "imp", t: "Improvise over the A minor loop, 5 min a day" },
+  ];
+  const pick = (id: Step) => {
+    setStep(id);
+    setDone((d) => ({ ...d, [id]: id === step ? !d[id] : true }));
+  };
   return (
     <div className="relative rounded-2xl border border-slate-700/70 bg-slate-950/80 p-4 shadow-2xl shadow-black/30 sm:p-5">
       <div className="mb-3 flex items-center justify-between gap-3">
         <div>
           <p className="text-[11px] uppercase tracking-widest text-slate-500">Lesson note · week 3</p>
-          <p className="text-lg text-slate-100" style={DISPLAY}>Minor pentatonic, box 1</p>
+          <p className="text-lg text-slate-100" style={DISPLAY}>Minor pentatonic, box {box}</p>
         </div>
         <span className="rounded-full border border-slate-700 px-2 py-0.5 text-[11px] text-slate-400">Preview</span>
       </div>
-      <PentatonicBox />
-      <ul className="mt-3 flex flex-col gap-2 text-sm text-slate-300">
-        {[
-          { done: true, t: "Box 1 up and down, landing on R" },
-          { done: true, t: "Bend the 4 up to the 5" },
-          { done: false, t: "Improvise over the A minor loop, 5 min a day" },
-        ].map((x) => (
-          <li key={x.t} className="flex items-start gap-2">
-            <span className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded ${x.done ? "bg-emerald-500 text-slate-950" : "border border-slate-600"}`}>{x.done && <Icon name="check" size={11} />}</span>
-            <span className={x.done ? "text-slate-400 line-through decoration-slate-600" : ""}>{x.t}</span>
+      <PentatonicBox box={box} highlight={step === "imp" ? BOX_ROOT[1] : undefined} />
+      <ul className="mt-3 flex flex-col gap-1 text-sm text-slate-300">
+        {items.map((x) => (
+          <li key={x.id}>
+            <button type="button" role="checkbox" aria-checked={done[x.id]} onClick={() => pick(x.id)}
+              className={`flex w-full items-start gap-2 rounded-lg px-1.5 py-1 text-left transition hover:bg-slate-800/60 ${step === x.id ? "bg-slate-800/50 ring-1 ring-sky-400/40" : ""}`}>
+              <span className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded ${done[x.id] ? "bg-emerald-500 text-slate-950" : "border border-slate-600"}`}>{done[x.id] && <Icon name="check" size={11} />}</span>
+              <span className={done[x.id] ? "text-slate-400 line-through decoration-slate-600" : ""}>{x.t}</span>
+            </button>
           </li>
         ))}
       </ul>
+      {step === "imp" && <div className="mt-2"><MiniBacking /></div>}
       <p className="mt-3 border-t border-slate-800 pt-3 text-xs text-slate-500">Next time: add the ♭5 and it becomes the blues scale.</p>
     </div>
   );
@@ -131,27 +182,6 @@ export function LiveLessonMock() {
           <span key={t.l} className={`rounded-full border px-2 py-0.5 ${t.c}`}>{t.l}</span>
         ))}
         <span className="text-slate-500">one click away</span>
-      </div>
-    </div>
-  );
-}
-
-/** The other half of a lesson: the teacher says what to practise, and an interactive exercise is made from it. A small card to sit beside LiveLessonMock. */
-export function AfterClassMock() {
-  return (
-    <div className="rounded-2xl border border-slate-700/70 bg-slate-900/85 p-3 shadow-2xl shadow-black/30 backdrop-blur">
-      <div className="flex items-center justify-between gap-2">
-        <p className="text-[10px] uppercase tracking-widest text-slate-500">After class</p>
-        <span className="rounded-full border border-violet-500/40 px-2 py-0.5 text-[10px] text-violet-200">Interactive exercise</span>
-      </div>
-      <p className="mt-2 rounded-lg rounded-bl-sm bg-slate-800 px-2.5 py-1.5 text-[11px] italic text-slate-300">&ldquo;Practise box 1 over an A minor loop, landing on the root.&rdquo;</p>
-      <div className="mt-2 rounded-xl border border-slate-800 bg-slate-950/60 p-1.5">
-        <PentatonicBox highlight={[0, 0]} />
-      </div>
-      <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[10px]">
-        <span className="rounded-full border border-teal-500/40 px-2 py-0.5 text-teal-200">A minor loop</span>
-        <span className="rounded-full border border-sky-500/40 px-2 py-0.5 text-sky-200">Box 1 chart</span>
-        <span className="text-slate-500">made from what you said</span>
       </div>
     </div>
   );

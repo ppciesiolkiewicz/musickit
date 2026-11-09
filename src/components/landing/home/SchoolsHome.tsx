@@ -8,7 +8,7 @@ import StyleDivider from "@/components/landing/StyleDivider";
 import Glow from "@/components/landing/Glow";
 import SiteFooter from "@/components/landing/SiteFooter";
 import { BetaBadge, DISPLAY, Eyebrow, H2, Mark } from "@/components/landing/Display";
-import { AfterClassMock, LessonNoteMock, LiveLessonMock } from "@/components/landing/LessonMocks";
+import { LessonNoteMock, LiveLessonMock } from "@/components/landing/LessonMocks";
 import { degreeColour } from "@/features/theory/scales";
 import { Check, IdeasSection, PLAY_TOOLS, PlanDayCard, SkillsSection } from "./PracticeSections";
 
@@ -188,7 +188,7 @@ export default function SchoolsHome() {
           <div className="landing-rise relative pb-40 sm:pb-24" style={{ animationDelay: "120ms" }}>
             <Photo name="teacherTablet" className="ls-photo aspect-4/3 rounded-3xl border border-slate-800" sizes="(min-width: 1024px) 50vw, 100vw" priority />
             <div className="absolute -bottom-2 left-0 w-[88%] sm:-left-6 sm:w-[60%]">
-              <AfterClassMock />
+              <LessonNoteMock />
             </div>
           </div>
         </section>
