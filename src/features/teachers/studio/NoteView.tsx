@@ -20,7 +20,7 @@ export default function NoteView({ note }: { note: string }) {
 
   if (stage === undefined) return null;
   return (
-    <div className="flex flex-col gap-10">
+    <div className="flex flex-col gap-4">
       {stage ? (
         <NoteArticle
           stage={stage}

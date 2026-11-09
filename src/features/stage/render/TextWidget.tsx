@@ -6,7 +6,7 @@ import { TEXT_MAX, type TextBlock } from "../model/subject";
 /** A text widget's blocks as they read in a note: headings, paragraphs. `large` is the stage widget's bigger type, drawn big and then fitted to its box. */
 export function TextBlocks({ blocks, large = false }: { blocks: TextBlock[]; large?: boolean }) {
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-2.5">
       {blocks.map((b, i) =>
         b.type === "h1" ? (
           <h2 key={i} className={`font-semibold leading-tight text-slate-50 ${large ? "text-3xl" : "text-2xl sm:text-3xl"}`}>{b.text}</h2>

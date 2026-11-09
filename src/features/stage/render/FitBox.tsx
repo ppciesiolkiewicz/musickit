@@ -1,7 +1,7 @@
 "use client";
 
 import { useContext, useEffect, useRef, useState, type ReactNode } from "react";
-import { ScrollInBox, ShapeReport } from "./shape";
+import { FlowInBox, ScrollInBox, ShapeReport } from "./shape";
 
 /** a page in a given box is laid out at least this wide (a cheatsheet page's width on the site) */
 const PAGE_WIDTH = 1200;
@@ -18,7 +18,10 @@ const NARROW = 640;
  */
 export default function FitBox({ width, scroll: ownScroll = false, children }: { width: number; scroll?: boolean; children: ReactNode }) {
   const inBox = useContext(ScrollInBox);
-  const scroll = inBox || ownScroll;
+  const flow = useContext(FlowInBox);
+  // a long widget in a flowing page is laid out like one in a given box, but grows to its content instead of scrolling
+  const reflow = inBox || (flow && ownScroll);
+  const scroll = !flow && (inBox || ownScroll);
   const outer = useRef<HTMLDivElement>(null);
   const inner = useRef<HTMLDivElement>(null);
   const [fit, setFit] = useState({ scale: 0, w: width, h: 0, design: width });
@@ -31,7 +34,7 @@ export default function FitBox({ width, scroll: ownScroll = false, children }: {
       const h = i.offsetHeight;
       if (!h) return;
       // content wider than its design width (it does not wrap) is scaled in whole, never cut off on the right
-      const design = !inBox ? width : o.clientWidth < NARROW ? o.clientWidth : Math.max(width, PAGE_WIDTH);
+      const design = !reflow ? width : o.clientWidth < NARROW ? o.clientWidth : Math.max(width, PAGE_WIDTH);
       const w = Math.max(design, i.scrollWidth);
       setFit({ scale: scroll ? o.clientWidth / w : Math.min(o.clientWidth / w, o.clientHeight / h), w, h, design });
       if (!scroll) report?.(w / h);
@@ -41,7 +44,7 @@ export default function FitBox({ width, scroll: ownScroll = false, children }: {
     ro.observe(o);
     ro.observe(i);
     return () => ro.disconnect();
-  }, [width, inBox, scroll, report]);
+  }, [width, reflow, scroll, report]);
 
   return (
     <div ref={outer} className={`flex h-full w-full justify-center ${scroll ? "items-start overflow-y-auto overflow-x-hidden" : "items-center overflow-hidden"}`}>
