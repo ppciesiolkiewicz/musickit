@@ -9,5 +9,5 @@ const PracticeBand = dynamic(() => import("@/features/instruments").then((m) => 
 export function View({ bpm, keyPc, click = true, drone = true }: { bpm: number; keyPc: number; click?: boolean; drone?: boolean }) {
   const more = useLevelAtLeast("standard");
   const parts = [...(click ? ["click" as const] : []), ...(drone ? ["drone" as const] : [])];
-  return <PracticeBand bpm={bpm} keyPc={keyPc} parts={parts} more={more} />;
+  return <PracticeBand view="bar" storageKey="musickit.practiceBand" config={{ parts, bpm, keyPc, show: { more } }} />;
 }

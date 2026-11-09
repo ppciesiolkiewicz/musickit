@@ -20,7 +20,7 @@ import { useLevelAtLeast } from "@/features/guide/Tier";
 import { useStepPart } from "@/components/practice/exerciseStep";
 import dynamic from "next/dynamic";
 
-const PracticeBacking = dynamic(() => import("@/features/instruments").then((m) => m.PracticeBacking), { ssr: false });
+const PracticeBand = dynamic(() => import("@/features/instruments").then((m) => m.PracticeBand), { ssr: false });
 
 const FLAT = ["C", "D♭", "D", "E♭", "E", "F", "G♭", "G", "A♭", "A", "B♭", "B"];
 const SHARP = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"];
@@ -169,7 +169,7 @@ export function View({ slug, pc, voice, notes, under = false, enable, highlight,
         )}
         {backing.length > 0 && (
           <span data-tour="staff-backing" className="inline-flex items-center gap-2">
-            <PracticeBacking bpm={bpm} keyPc={pc} parts={backing} on={backingOn} onToggle={backingOn || !micButton || external ? toggleBacking : () => void startMic()} onStop={stopBacking} group={group} />
+            <PracticeBand view="inline" storageKey="musickit.practiceBand" config={{ parts: backing, bpm, keyPc: pc }} on={backingOn} onToggle={backingOn || !micButton || external ? toggleBacking : () => void startMic()} onStop={stopBacking} group={group} />
           </span>
         )}
         {status === "denied" && <span>microphone blocked in the browser</span>}

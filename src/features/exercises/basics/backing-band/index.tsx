@@ -9,5 +9,5 @@ const PracticeBand = dynamic(() => import("@/features/instruments").then((m) => 
 /** The practice band with the chosen parts. `keyPc` is the root's pitch class. The band's "More" fold is a Standard control. */
 export function View({ bpm, keyPc, parts }: { bpm: number; keyPc: number; parts: BandPart[] }) {
   const more = useLevelAtLeast("standard");
-  return <PracticeBand bpm={bpm} keyPc={keyPc} parts={parts} more={more} />;
+  return <PracticeBand view="bar" storageKey="musickit.practiceBand" config={{ parts, bpm, keyPc, show: { more } }} />;
 }

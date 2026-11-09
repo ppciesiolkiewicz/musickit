@@ -8,8 +8,8 @@
  *   loops/       LoopDeck: the looper on its own, recording loops on a rig's clock (it follows a JamRig); Loops, its rows
  *   click/       ClickTrack, a page's metronome click (the looper keeps its own, tied to its transport)
  *   pocket/      PocketTools: a one-line metronome and drone for a page's settings bar; PocketLine and POCKET_BUTTON for a host's own line
- *   practice/    PracticeBand: a folded play-along band set up by its host (a practice-plan exercise); PracticeBacking: the same
- *                parts with no play button, started by the host's own control (the staff's Start)
+ *   band/        PracticeBand: the play-along band, one rig drawn by a `view` and set up by a `config`; `bar` folds it to one line
+ *                (a practice-plan exercise), `inline` is its parts with no play button, started by the host's own control (the staff's Start)
  *   effects/     the effects (reverb, delay, the NAM amp slot…) of the looper and the jam's loop inputs, and their controls
  *
  * The controls take values and callbacks and own no audio, so each host decides how it starts and stops: the looper from its stage
@@ -25,6 +25,6 @@ export { default as Jam } from "./jam/Jam";
 export { default as Loops } from "./loops/LoopList";
 export { default as useLoopDeck, APP_INPUT } from "./loops/useLoopDeck";
 export { default as PocketTools, PocketDrone, Tool as PocketLine, POCKET_BUTTON, POCKET_LIT, type PocketStatus } from "./pocket/PocketTools";
-export { default as PracticeBand, type BandPart } from "./practice/PracticeBand";
-export { default as PracticeBacking } from "./practice/PracticeBacking";
+export { default as PracticeBand, type PracticeBandProps } from "./band/PracticeBand";
+export type { BandPart } from "./band/config";
 export { default as EffectControls } from "./effects/EffectControls";

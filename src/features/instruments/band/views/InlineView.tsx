@@ -3,25 +3,31 @@
 import { useEffect } from "react";
 import { useAudioFocus } from "@/features/sound";
 import Icon from "@/components/Icon";
-import { MAX_BPM, MIN_BPM } from "../jam/clock";
-import { JAM_PARTS, type JamRig } from "../jam/rig";
-import useJamRig from "../jam/useJamRig";
-import BeatDots from "../jam/BeatDots";
-import { NOTE_NAMES } from "../drone/drone";
-import { MuteButton } from "../sequencer/PartLevel";
-import type { BandPart } from "./PracticeBand";
+import { JAM_PARTS } from "../../jam/rig";
+import BeatDots from "../../jam/BeatDots";
+import { NOTE_NAMES } from "../../drone/drone";
+import { MuteButton } from "../../sequencer/PartLevel";
+import type { ViewProps } from "./types";
+
+export interface InlineProps {
+  /** plays while set: the host keeps it */
+  on: boolean;
+  /** the host's own Play beside it; none, no button */
+  onToggle?: () => void;
+  /** another source took the audio focus, or it scrolled away */
+  onStop: () => void;
+  /** the audio focus group it plays in (`useAudioFocus`) */
+  group?: string;
+}
 
 /**
- * A click and/or drone backing component for practice exercises: it plays while `on`, provides start/stop and
- * mute controls for drone and click, and beat dots. Another source taking the audio focus, or the backing scrolling away,
- * calls `onStop` so the host stops the rest with it. The host's setup wins over the save, as in `PracticeBand`.
+ * The band's parts with no part chips, started by its host (the staff's Play beside the mic): it plays while `on`, shows what
+ * plays, a mute for the drone and the click, and the beat dots. Another source taking the audio focus, or the band scrolling
+ * away, calls `onStop` so the host stops the rest with it.
  */
-export default function PracticeBacking({ bpm, keyPc, parts, on, onToggle, onStop, group }: { bpm: number; keyPc: number; parts: BandPart[]; on: boolean; onToggle?: () => void; onStop: () => void; /** the audio focus group it plays in (`useAudioFocus`) */ group?: string }) {
-  const restore = (rig: JamRig) => {
-    rig.setTempo(Math.min(MAX_BPM, Math.max(MIN_BPM, bpm)));
-    rig.setDrone({ root: keyPc });
-  };
-  const { rig, snap, start } = useJamRig({ storageKey: "musickit.practiceBand", restore });
+export default function InlineView({ band, config, show, on, onToggle, onStop, group }: ViewProps & InlineProps) {
+  const { rig, snap, start } = band;
+  const parts = config.parts;
   const click = parts.includes("click");
   const jam = JAM_PARTS.filter((p) => parts.includes(p));
   const hasDrone = jam.includes("drone");
@@ -57,14 +63,14 @@ export default function PracticeBacking({ bpm, keyPc, parts, on, onToggle, onSto
           {on ? "Stop" : "Play"}
         </button>
       )}
-      {on && hasDrone && (
+      {show.levels && on && hasDrone && (
         <MuteButton
           name="drone"
           muted={snap.parts.drone.muted}
           onMute={(m) => rig.setLevel("drone", { muted: m })}
         />
       )}
-      {on && click && (
+      {show.levels && on && click && (
         <MuteButton
           name="metronome"
           muted={snap.click.muted}
@@ -72,7 +78,7 @@ export default function PracticeBacking({ bpm, keyPc, parts, on, onToggle, onSto
         />
       )}
       <span className="tabular-nums">{what}</span>
-      {click && <BeatDots rig={rig} playing={on} />}
+      {show.beats && click && <BeatDots rig={rig} playing={on} />}
     </span>
   );
 }

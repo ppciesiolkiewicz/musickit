@@ -3,7 +3,7 @@
 import { useState, type ReactNode } from "react";
 import type { PropDoc } from "@/features/exercises/docs";
 import { BackingTrack } from "@/features/backing";
-import { DEFAULT_DRONE, DroneControls, Jam, PocketTools, PracticeBacking, PracticeBand, clampDrone, type BandPart, type DroneParams } from "@/features/instruments";
+import { DEFAULT_DRONE, DroneControls, Jam, PocketTools, PracticeBand, clampDrone, type BandConfig, type BandView, type DroneParams } from "@/features/instruments";
 import type { Props, Story } from "./stories";
 
 /*
@@ -33,22 +33,17 @@ function DroneControlsStory({ value, playing }: { value: Partial<DroneParams>; p
   return <DroneControls value={drone} playing={playing} onChange={(p) => setDrone((d) => clampDrone(p === DEFAULT_DRONE ? p : { ...d, ...p }))} />;
 }
 
-const BAND_PARTS: BandPart[] = ["click", "drone", "drums", "bass"];
-const partsOf = (props: Props, fallback: BandPart[]): BandPart[] => {
-  const list = Array.isArray(props.parts) ? props.parts.filter((p): p is BandPart => BAND_PARTS.includes(p as BandPart)) : [];
-  return list.length ? list : fallback;
+const BAND_VIEWS: BandView[] = ["full", "pocket", "bar", "inline"];
+const viewOf = (props: Props): BandView => (BAND_VIEWS.includes(props.view as BandView) ? (props.view as BandView) : "bar");
+const configOf = (props: Props): BandConfig => {
+  const c = (props.config ?? {}) as Partial<BandConfig>;
+  return { ...c, parts: Array.isArray(c.parts) ? c.parts : ["click", "drone"] };
 };
-const bpmOf = (props: Props) => (typeof props.bpm === "number" ? props.bpm : 80);
-const BAND_PROPS: PropDoc[] = [
-  { name: "bpm", type: "number", required: true, description: "The tempo the host sets; it wins over the save on every mount." },
-  KEY_PC,
-  { name: "parts", type: `("click" | "drone" | "drums" | "bass")[]`, required: true, description: "The parts that play." },
-];
 
-/** PracticeBacking has no play button of its own: this host keeps `on`, as the staff does beside its mic. */
-function PracticeBackingStory({ bpm, keyPc, parts }: { bpm: number; keyPc: number; parts: BandPart[] }) {
+/** The inline view has no play button of its own: this host keeps `on`, as the staff does beside its mic. */
+function InlineBandStory({ config }: { config: BandConfig }) {
   const [on, setOn] = useState(false);
-  return <PracticeBacking bpm={bpm} keyPc={keyPc} parts={parts} on={on} onToggle={() => setOn((v) => !v)} onStop={() => setOn(false)} />;
+  return <PracticeBand view="inline" storageKey="musickit.practiceBand" config={config} on={on} onToggle={() => setOn((v) => !v)} onStop={() => setOn(false)} />;
 }
 
 export const UI_GROUPS: UiGroup[] = [
@@ -97,32 +92,25 @@ export const UI_GROUPS: UiGroup[] = [
     id: "practice-band",
     title: "PracticeBand",
     doc: {
-      description: "A folded play-along band for a plan exercise (the click-drone and backing-band tools): one Play for the chosen parts on one clock, a chip per part, tempo and key. Own JamRig.",
+      description: "The play-along band: click, drone, drums and bass on one JamRig clock, drawn by a view. bar: one folded line for a plan exercise (the click-drone and backing-band tools), a Play for the chosen parts, a chip per part, tempo and key, and \"More\" for the tempo slider, drone octave, groove and patterns. inline: the parts with no part chips, started by its host (the staff's Play beside the mic; this story's host keeps on / onToggle / onStop). full and pocket draw the bar until their views land. Saved in musickit.practiceBand here.",
       props: [
-        ...BAND_PROPS,
-        { name: "more", type: "boolean", required: false, description: "The \"More\" fold (tempo slider, drone octave, patterns); false hides it and plays the defaults." },
+        { name: "view", type: `"full" | "pocket" | "bar" | "inline"`, required: true, description: "How the band looks. In bar and inline the config's bpm, key and groove win over the save on every mount." },
+        { name: "config", type: "JSON", required: true, description: "{ parts: (\"click\" | \"drone\" | \"drums\" | \"bass\")[], bpm?, keyPc? (0 = C), groove? (pop, rock, ballad, swing, shuffle, bossa, funk, reggae), droneOctave?, show? (single flags over the view's, e.g. { more: false }) }" },
       ],
     },
     stories: [
-      hand("Click and drone in A", { bpm: 80, keyPc: 9, parts: ["click", "drone"] }),
-      hand("Full band in E", { bpm: 96, keyPc: 4, parts: ["click", "drone", "drums", "bass"] }),
-      hand("Click only, no More", { bpm: 60, keyPc: 0, parts: ["click"], more: false }),
+      hand("Bar, click and drone in A", { view: "bar", config: { parts: ["click", "drone"], bpm: 80, keyPc: 9 } }),
+      hand("Bar, full band in E", { view: "bar", config: { parts: ["click", "drone", "drums", "bass"], bpm: 96, keyPc: 4 } }),
+      hand("Bar, click only, no More", { view: "bar", config: { parts: ["click"], bpm: 60, keyPc: 0, show: { more: false } } }),
+      hand("Bar, bossa groove", { view: "bar", config: { parts: ["click", "drums", "bass"], bpm: 120, keyPc: 2, groove: "bossa" } }),
+      hand("Inline, drone and click in D", { view: "inline", config: { parts: ["drone", "click"], bpm: 70, keyPc: 2 } }),
+      hand("Inline, click only", { view: "inline", config: { parts: ["click"], bpm: 100, keyPc: 0 } }),
     ],
-    render: (props) => <PracticeBand bpm={bpmOf(props)} keyPc={keyOf(props)} parts={partsOf(props, ["click", "drone"])} more={props.more !== false} />,
-  },
-  {
-    id: "practice-backing",
-    title: "PracticeBacking",
-    doc: {
-      description: "The practice band's parts with no part chips, started by its host (the staff's Play beside the mic): shows what plays, mutes and beat dots. Same JamRig and save as PracticeBand. Its on / onToggle / onStop are kept by this story's host.",
-      props: BAND_PROPS,
+    render: (props) => {
+      const view = viewOf(props);
+      const config = configOf(props);
+      return view === "inline" ? <InlineBandStory config={config} /> : <PracticeBand view={view} storageKey="musickit.practiceBand" config={config} />;
     },
-    stories: [
-      hand("Drone and click in D", { bpm: 70, keyPc: 2, parts: ["drone", "click"] }),
-      hand("Drone only", { bpm: 70, keyPc: 9, parts: ["drone"] }),
-      hand("Click only", { bpm: 100, keyPc: 0, parts: ["click"] }),
-    ],
-    render: (props) => <PracticeBackingStory bpm={bpmOf(props)} keyPc={keyOf(props)} parts={partsOf(props, ["drone", "click"])} />,
   },
   {
     id: "jam",

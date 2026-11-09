@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import type { BandPart as PlanBandPart } from "@/features/plan/model/tools";
 import { MAX_BPM } from "../jam/clock";
 import { JamRig } from "../jam/rig";
-import { VIEW_SHOW, applySetup, hasHostSetup, resolveShow, type BandPart, type BandView, type ShowFlag } from "./config";
+import { VIEW_SHOW, applySetup, hasHostSetup, resolveShow, restoreBand, type BandPart, type BandView, type ShowFlag } from "./config";
 
 // compile-time: the plan's own BandPart and this one must not drift
 const _fromPlan: BandPart[] = [] as PlanBandPart[];
@@ -70,5 +70,49 @@ describe("applySetup", () => {
     const before = JSON.stringify(rig.save());
     applySetup(rig, { parts: ["click"] });
     assert.equal(JSON.stringify(rig.save()), before);
+  });
+});
+
+describe("restoreBand", () => {
+  const saved = (() => {
+    const r = new JamRig();
+    r.setTempo(140);
+    r.setDrone({ root: 7 });
+    r.setGroove("funk");
+    return r.save();
+  })();
+  const config = { parts: ["click", "drums", "bass"] as BandPart[], bpm: 70, keyPc: 2, groove: "bossa" as const };
+  const got = (view: BandView) => {
+    const rig = new JamRig();
+    restoreBand(rig, view, config, saved);
+    const s = rig.snapshot();
+    return [s.bpm, s.parts.drone.state.drone.root, s.groove];
+  };
+
+  it("in bar and inline the host's bpm, key and groove win over the save", () => {
+    assert.deepEqual(got("bar"), [70, 2, "bossa"]);
+    assert.deepEqual(got("inline"), [70, 2, "bossa"]);
+  });
+
+  it("in full and pocket the save wins", () => {
+    assert.deepEqual(got("full"), [140, 7, "funk"]);
+    assert.deepEqual(got("pocket"), [140, 7, "funk"]);
+  });
+
+  it("in bar and inline a saved mute stays behind (the bar has no mute to undo it); full keeps it", () => {
+    const r = new JamRig();
+    r.setLevel("drone", { muted: true });
+    const muted = r.save();
+    for (const [view, want] of [["bar", false], ["inline", false], ["full", true]] as const) {
+      const rig = new JamRig();
+      restoreBand(rig, view, config, muted);
+      assert.equal(rig.snapshot().parts.drone.muted, want, view);
+    }
+  });
+
+  it("with no save, bar still takes the host's setup", () => {
+    const rig = new JamRig();
+    restoreBand(rig, "bar", config, null);
+    assert.equal(rig.snapshot().bpm, 70);
   });
 });

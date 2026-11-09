@@ -1,5 +1,5 @@
 import type { GrooveId } from "../sequencer/grooves";
-import type { JamPart, JamRig } from "../jam/rig";
+import type { JamPart, JamRig, JamSaved } from "../jam/rig";
 
 /** How the band looks: the whole jam page, the pocket tools' lines, one folded line, or the beat dots with the levels only. */
 export type BandView = "full" | "pocket" | "bar" | "inline";
@@ -42,4 +42,17 @@ export function applySetup(rig: JamRig, c: BandConfig) {
   if (c.droneOctave !== undefined) drone.octave = c.droneOctave;
   if (Object.keys(drone).length) rig.setDrone(drone);
   if (c.groove !== undefined) rig.setGroove(c.groove);
+}
+
+/**
+ * A mount's restore: the save, then, in `bar` and `inline`, the host's setup over it; in `full` and `pocket` the save wins.
+ * In `bar` and `inline` the saved part levels stay behind, so every part is heard (the bar has no mute to undo one).
+ */
+export function restoreBand(rig: JamRig, view: BandView, config: BandConfig, saved: Partial<JamSaved> | null) {
+  if (!hasHostSetup(view)) {
+    rig.load(saved);
+    return;
+  }
+  if (saved) rig.load({ ...saved, levels: undefined });
+  applySetup(rig, config);
 }

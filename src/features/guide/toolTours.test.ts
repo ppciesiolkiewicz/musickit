@@ -16,7 +16,7 @@ const TOOL_TOUR_SOURCES: Record<ToolName, string[]> = (() => {
   const basics = (t: string) => `src/features/exercises/basics/${t}`;
   const sing = "src/features/exercises/basics/sing-along";
   const drills = "src/features/exercises/basics/DrillPlayer.tsx";
-  const bandSrc = "src/features/instruments/practice/PracticeBand.tsx";
+  const bandSrc = "src/features/instruments/band/views/BarView.tsx";
   return {
     "scale-neck": [basics("scale-neck")],
     "position-neck": [basics("position-neck")],
