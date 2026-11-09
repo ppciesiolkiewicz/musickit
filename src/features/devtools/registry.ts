@@ -1,5 +1,5 @@
 /** Colour family a tool's nav tab and index card are drawn in; tools of one kind share one. */
-export type DevTone = "index" | "prompt" | "stories" | "notes";
+export type DevTone = "index" | "prompt" | "stories" | "notes" | "data";
 
 /** One local tool under /dev. */
 export interface DevTool {
@@ -35,6 +35,12 @@ export const TONE_CLASSES: Record<DevTone, { tab: string; active: string; card: 
     card: "border-amber-500/30 hover:border-amber-400/70",
     label: "text-amber-200",
   },
+  data: {
+    tab: "text-sky-300/80 hover:bg-sky-500/10 hover:text-sky-200",
+    active: "bg-sky-500/20 text-sky-100",
+    card: "border-sky-500/30 hover:border-sky-400/70",
+    label: "text-sky-200",
+  },
 };
 
 /** The /dev index; a new tool is one entry here and one page under src/app/dev. */
@@ -43,5 +49,6 @@ export const DEV_TOOLS: DevTool[] = [
   { href: "/dev/examples", label: "Prompt examples", tone: "prompt", desc: "Every example the prompt carries, rendered as the player would see it." },
   { href: "/dev/stories", label: "Component stories", tone: "stories", desc: "Every exercise component in the set-ups the examples use, Storybook-style: controls from its documented props, or edit the JSON." },
   { href: "/dev/onboarding", label: "Onboarding coverage", tone: "stories", desc: "Which pages and exercise tools have level tags, a tour and hints, with the gaps marked. Preview a level." },
+  { href: "/dev/data", label: "Data", tone: "data", desc: "Answers, plans, ratings and the AI's summaries in this browser." },
   { href: "/dev/notes", label: "Copy notes", tone: "notes", desc: "The notes made on any page with the Notes button, by page in sitemap order: copy, re-pin or clear them." },
 ];

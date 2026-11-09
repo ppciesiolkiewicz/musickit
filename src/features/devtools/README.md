@@ -45,6 +45,15 @@ note to its section as it is now (`repinSectionNotes`; those on gone sections st
 notes by example with file, in section order, with a warning when outdated; outdated is checked against every example
 (`exampleSections`), open or not.
 
+## Data (`/dev/data`)
+
+What the practice plan keeps in this browser, read-only (`data/DataPage.tsx`, rows from `model/dataView.ts`): the first
+questionnaire's answers (each topic with the line picked), the plans (current and history, with how many exercises are
+rated), the progress log (`musickit.progress`: one row per rated exercise, newest first, with a topic filter), and the
+progress summary the AI returned with each plan, which the app shows nowhere else. Every block has its raw JSON, folded,
+with a copy button. It reads through `localPlanStore` and `localProgressStore` and writes nothing, apart from what
+loading a plan always does (ids for exercises stored without one).
+
 ## Running the prompt
 
 `POST /api/dev/run` runs the local `claude` CLI (`server/claude.ts`) in print mode with no tools, no MCP servers, no
@@ -75,4 +84,5 @@ returns one.
 - `server/git.ts`: `exampleCommits` (HEAD and the example files' commits), for `GET /api/dev/commit`.
 - `prompt/`: `PromptStudio` (state), `StudioInputs`, `PartList`, `RunPanel`, `PlanPreview`, `HistoryList`, `api.ts` (fetches), `storage.ts` (saved state, `useMounted`).
 - `examples/ExampleViewer.tsx`: the examples page.
+- `data/DataPage.tsx`, `model/dataView.ts`: the data page and its rows (`planRows`, `logRows`).
 - Routes: `src/app/api/dev/run`, `src/app/api/dev/history`, `src/app/api/dev/history/[id]`; pages `src/app/dev`.
