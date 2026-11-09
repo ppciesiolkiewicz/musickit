@@ -1,4 +1,4 @@
-import { getAudioContext, getOutputBus, wakeAudio } from "./context";
+import { audioStartTime, getAudioContext, getOutputBus, wakeAudio } from "./context";
 import { getInstrumentConfig, OSCILLATOR_ID } from "./instruments";
 import { midiToHz, noteToMidi, pickSample, type NoteLike } from "./notes";
 import { cachedSample, instrumentSamples, loadSample, preloadInstrument } from "./samples";
@@ -20,7 +20,14 @@ interface Sounding {
   gain: GainNode;
   stop: (at: number) => void;
   release: number;
+  /** when it starts on the audio clock, and how it gets to its peak */
+  at: number;
+  attack: number;
+  peak: number;
 }
+
+/** A tap let go before its note started (the output was still settling) is heard for this long, not lost. */
+const SHORTEST_NOTE = 0.12;
 
 export interface PlayerOptions {
   instrumentId?: string;
@@ -38,7 +45,7 @@ export function createPlayer(options: PlayerOptions = {}): Player {
 
   const start = (midi: number, velocity: number, buffer: AudioBuffer | null, rate: number, attack: number, release: number) => {
     const ctx = getAudioContext();
-    const t = ctx.currentTime;
+    const t = audioStartTime();
     const gain = ctx.createGain();
     const peak = 0.8 * Math.max(0.05, Math.min(1, velocity / 0.8));
     gain.gain.setValueAtTime(0, t);
@@ -54,7 +61,7 @@ export function createPlayer(options: PlayerOptions = {}): Player {
         gain.disconnect();
         if (sounding.get(midi)?.gain === gain) sounding.delete(midi);
       };
-      sounding.set(midi, { gain, release, stop: (at) => src.stop(at) });
+      sounding.set(midi, { gain, release, stop: (at) => src.stop(at), at: t, attack: attack || 0.01, peak });
     } else {
       const osc = ctx.createOscillator();
       osc.type = "triangle";
@@ -66,7 +73,7 @@ export function createPlayer(options: PlayerOptions = {}): Player {
         gain.disconnect();
         if (sounding.get(midi)?.gain === gain) sounding.delete(midi);
       };
-      sounding.set(midi, { gain, release: 0.15, stop: (at) => osc.stop(at) });
+      sounding.set(midi, { gain, release: 0.15, stop: (at) => osc.stop(at), at: t, attack: 0.01, peak: peak * 0.75 });
     }
   };
 
@@ -76,6 +83,14 @@ export function createPlayer(options: PlayerOptions = {}): Player {
     sounding.delete(midi);
     const ctx = getAudioContext();
     const now = ctx.currentTime;
+    if (now < s.at) {
+      if (quick) return s.stop(now); // replaced or silenced before it sounded
+      const off = s.at + Math.max(s.attack, SHORTEST_NOTE);
+      s.gain.gain.setValueAtTime(s.peak, off);
+      s.gain.gain.linearRampToValueAtTime(0.001, off + s.release);
+      s.stop(off + s.release + 0.05);
+      return;
+    }
     const r = quick ? 0.03 : s.release;
     s.gain.gain.cancelScheduledValues(now);
     s.gain.gain.setValueAtTime(s.gain.gain.value, now);
@@ -117,7 +132,7 @@ export function createPlayer(options: PlayerOptions = {}): Player {
     },
     allOff() {
       waiting.clear();
-      [...sounding.keys()].forEach((m) => release(m));
+      [...sounding].forEach(([m, s]) => release(m, getAudioContext().currentTime < s.at));
     },
   };
   return player;

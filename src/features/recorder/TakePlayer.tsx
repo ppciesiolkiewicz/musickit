@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent } from "react";
 import Icon from "@/components/Icon";
-import { getAudioContext, getOutputBus } from "@/features/sound";
+import { getAudioContext, getOutputBus, wakeAudio } from "@/features/sound";
 import { channelWaveforms, clockTime, normalGain } from "./recorder";
 
 const BARS = 40;
@@ -52,7 +52,6 @@ export default function TakePlayer({ url, seconds, channels, label }: { url: str
   // the take plays through the audio graph, built on the first play: split into channels, each through its volume, summed to one
   const route = (a: HTMLAudioElement) => {
     const ctx = getAudioContext();
-    void ctx.resume();
     if (graph.current) return;
     const src = ctx.createMediaElementSource(a);
     const mix = ctx.createGain();
@@ -108,7 +107,9 @@ export default function TakePlayer({ url, seconds, channels, label }: { url: str
     if (playing && playing !== a) playing.pause();
     playing = a;
     if (a.currentTime >= duration - 0.05) a.currentTime = 0;
-    void a.play();
+    void wakeAudio().then(() => {
+      if (playing === a) void a.play();
+    });
   };
   const seek = (t: number) => {
     const a = audio.current;

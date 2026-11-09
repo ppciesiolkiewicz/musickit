@@ -1,4 +1,4 @@
-import { getAudioContext, getOutputBus, wakeAudio } from "@/features/sound";
+import { audioStartTime, getAudioContext, getOutputBus, wakeAudio } from "@/features/sound";
 
 let current: (() => void) | null = null;
 
@@ -10,7 +10,7 @@ export function playReference(hz: number, seconds = 1.6): void {
   current?.();
   const ctx = getAudioContext();
   void wakeAudio();
-  const t = ctx.currentTime;
+  const t = audioStartTime();
   const out = ctx.createGain();
   out.gain.setValueAtTime(0, t);
   out.gain.linearRampToValueAtTime(0.25, t + 0.02);

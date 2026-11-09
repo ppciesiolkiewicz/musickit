@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { getAudioContext, getOutputBus } from "@/features/sound";
+import { getAudioContext, getOutputBus, wakeAudio } from "@/features/sound";
 import { Button, Chip, ChipRow, NumberField, Slider } from "@/components/ui";
 import { MAX_BPM, MIN_BPM, PATTERNS, buildRound, patternById, type Round } from "./patterns";
 import { createJudge, type Grade, type Judge, type Judged, type Summary } from "./judge";
@@ -254,7 +254,7 @@ export default function RhythmGame() {
   const start = async () => {
     setError(null);
     const ctx = getAudioContext();
-    await ctx.resume().catch(() => undefined);
+    await wakeAudio();
     if (s.input === "mic" && !mic.current) {
       if (!navigator.mediaDevices?.getUserMedia) {
         setMicStatus("insecure");

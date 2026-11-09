@@ -64,11 +64,6 @@ Original: "We are adding "custom" level alongside 1-6: Your set is renamed to "I
 - Custom: Included intervals works as "Your set" does now.
 - Where: src/components/practice/EarGame.tsx:156
 
-37. [NEW 2026-11-09 09:46] First note glitches: wait until audio is ready (/theory/ears and other exercises)
-Original: "This and other exercises sometimes glitch on first note played, can we let's say delay start until the entire audio processing is ready?"
-- The first note played sometimes glitches.
-- Delay the start until all audio processing is ready. Look for a shared fix, not one per exercise.
-
 
 43. In guided tour - add [space] to go next (add [space] label to the button)
 
@@ -103,6 +98,8 @@ oooooooooooooooooooooo Recent app feedback ooooooooooooooooooooooooo
 
 
 oooooooooooooooooooooooooooooooooo DONE ooooooooooooooooooooooooooooooooooooooooooooooo
+D30. First note glitches: wait until audio is ready (/theory/ears and other exercises) (was 37)
+Done, in the shared sound engine so every exercise gets it. Main cause, measured in Chrome: after about 30 seconds of silence Chrome swaps the output for a fake one, and the next note reopens the real one, which stalled the audio about 570 ms (0 ms after short gaps). The output now carries an inaudible -120 dB signal while the tab is in view, and after 36 seconds of silence the stall is gone (-2 and 0 ms). Also: wakeAudio now waits until the output has run for 0.2 s, so every `await wakeAudio()` starts clean; notes start one audio buffer ahead of the clock so their attack is not cut to a click; playSequence checks the output every time, not only on first use, so notes no longer stack after a suspend; the rhythm game and take player use wakeAudio, and the tuner reference, improv loop and landing phrase start after the settling; the day timer chime uses the app's one AudioContext, so it now follows the volume. Checked in the browser on /theory/ears only. Not checked by ear, in Safari or Firefox, or on a first click with a suspended context (localhost started it running).
 D29. One button to start the microphone and pick the input (was 41)
 Done: the input chip is now the one mic button. It reads "Start microphone"; a press starts the mic and opens the input list, and Start / Stop microphone sits at the top of that list. Starting an exercise starts the mic without opening the list (Play on a run or melody, Start on Sing an interval, Play on a staff's drone or click, Start exercise). Changed on singing runs, melodies and scale, Sing an interval, the staff, the side panel's Input line, the tuner and the studio's Audio input widget (its Start button and cog are now one button that opens the dialog). A press on a staff with a drone or click also starts that backing, as its mic button did. Kept as plain input pickers, because their own Start or Record opens the mic: rhythm, range finder, note finder, quick record, jam loops. The staff inside the teacher studio keeps a plain mic switch: the studio's input has its own dialog. Checked in the browser: runs, intervals, scale, arpeggios panel, tuner. Not checked in the browser: staff, melodies, studio widget.
 D27. Sing an interval: group the controls above the roll, second pass (/theory/singing/intervals) (was 34)

@@ -1,5 +1,5 @@
 import { createPlayer, type Player } from "../engine/player";
-import { wakeAudio } from "../engine/context";
+import { audioSettled, wakeAudio } from "../engine/context";
 import type { NoteLike } from "../engine/notes";
 
 let shared: Player | null = null;
@@ -46,9 +46,10 @@ let generation = 0;
 const ready = new WeakSet<Player>();
 
 /**
- * Play timed notes on a player (the shared piano by default). A new sequence replaces the one playing. The first time a
- * player is used the notes wait for the audio context to run and the samples to load, so the opening notes of a short
- * sequence (an interval of two) are not lost to a suspended context or a sample still downloading.
+ * Play timed notes on a player (the shared piano by default). A new sequence replaces the one playing. The notes wait for
+ * the output to run and settle, every time (it can stop again: a tab in the background, a new speaker), and the first time a
+ * player is used for its samples to load, so the opening notes of a short sequence (an interval of two) are not lost,
+ * crackled or stacked by a suspended context or a sample still downloading.
  */
 export function playSequence(steps: Step[], player: Player = getSharedPiano()): void {
   silence();
@@ -61,7 +62,7 @@ export function playSequence(steps: Step[], player: Player = getSharedPiano()): 
       timers.push(setTimeout(() => player.noteOff(s.note), s.at + s.hold));
     });
   };
-  if (ready.has(player)) return go();
+  if (ready.has(player) && audioSettled()) return go();
   void Promise.all([wakeAudio(), player.preload().catch(() => undefined)]).then(() => {
     ready.add(player);
     go();

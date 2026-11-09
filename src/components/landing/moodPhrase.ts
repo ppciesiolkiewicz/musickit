@@ -1,4 +1,4 @@
-import { getAudioContext, getOutputBus, silence, wakeAudio } from "@/features/sound";
+import { audioStartTime, getAudioContext, getOutputBus, silence, wakeAudio } from "@/features/sound";
 
 /**
  * A short phrase for each landing mood, in A, over a held chord: a soft plucked synth with a pad underneath and a room
@@ -95,7 +95,7 @@ export function playMoodPhrase(i: number, onNote: (midi: number) => void): () =>
   tone.connect(verb).connect(wet).connect(bus);
 
   const step = 60 / p.bpm / 2;
-  const t0 = ctx.currentTime + 0.08;
+  const t0 = audioStartTime() + 0.08;
   pad(ctx, tone, p.chord.map((s) => BASS + s), t0, p.phrase.length * step + 1.6);
   pluck(ctx, tone, BASS, t0, 2.4, 0.22);
   const timers = p.phrase.map((s, k) => {

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Icon from "@/components/Icon";
 import { Button } from "@/components/ui";
+import { audioStartTime, getAudioContext, getOutputBus, wakeAudio } from "@/features/sound";
 import { dayClock } from "../model/dayClock";
 
 const fmt = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
@@ -11,20 +12,22 @@ const SAVE_EVERY_MS = 5000;
 /** A soft two-note chime when time is up, made on the spot (no sample to load). */
 function chime() {
   try {
-    const ctx = new AudioContext();
+    const ctx = getAudioContext();
+    void wakeAudio();
+    const start = audioStartTime();
     [660, 880].forEach((f, i) => {
       const o = ctx.createOscillator();
       const g = ctx.createGain();
       o.frequency.value = f;
-      const t = ctx.currentTime + i * 0.25;
+      const t = start + i * 0.25;
       g.gain.setValueAtTime(0.0001, t);
       g.gain.exponentialRampToValueAtTime(0.25, t + 0.02);
       g.gain.exponentialRampToValueAtTime(0.0001, t + 0.6);
-      o.connect(g).connect(ctx.destination);
+      o.connect(g).connect(getOutputBus());
       o.start(t);
       o.stop(t + 0.65);
+      o.onended = () => g.disconnect();
     });
-    setTimeout(() => void ctx.close(), 1500);
   } catch {
     /* no audio: the ring still shows it */
   }

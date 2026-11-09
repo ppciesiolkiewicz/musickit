@@ -1,26 +1,82 @@
 import { canChooseOutput, findDevice, listAudioDevices, readDeviceChoice, subscribeDeviceChoice } from "./devices";
+import { createSettle } from "./settle";
 import { attachMaster } from "./volume";
 
 let audioContext: AudioContext | null = null;
+let settle: ReturnType<typeof createSettle> | null = null;
+/** the output is being moved to a chosen device */
+let sinkChange: Promise<void> | null = null;
+let waking: Promise<void> | null = null;
+
+/** A chosen device that does not answer must not hold the sound back for long. */
+const SINK_WAIT_MS = 1000;
+const SETTLE_LOOKS = 5;
+const INAUDIBLE = 1e-6;
+
+const wait = (ms: number) => new Promise<void>((done) => setTimeout(done, ms));
 
 /** The one AudioContext of the whole app. */
 export function getAudioContext(): AudioContext {
   if (!audioContext) {
     audioContext = new AudioContext();
+    settle = createSettle(audioContext);
+    keepOutputOpen(audioContext);
     watchOutput(audioContext);
     followChosenOutput(audioContext);
   }
   return audioContext;
 }
 
+/** The output is running and past its first moments, so a sound started now is heard whole. */
+export function audioSettled(): boolean {
+  const ctx = getAudioContext();
+  return ctx.state === "running" && !sinkChange && settle!.lead() === 0;
+}
+
 /**
- * Make sure the context is running. Not only "suspended": Safari puts it in "interrupted" when the output changes
- * (a Bluetooth speaker or headphones connecting), and it stays silent until resumed.
+ * Make sure the output is running and settled: what plays after this promise starts cleanly and on time. It stays quick once
+ * that is so. Not only "suspended": Safari puts the context in "interrupted" when the output changes (a Bluetooth speaker or
+ * headphones connecting), and it stays silent until resumed. The resume is asked for at once, inside the person's click.
  */
 export function wakeAudio(): Promise<void> {
   const ctx = getAudioContext();
-  if (ctx.state === "running" || ctx.state === "closed") return Promise.resolve();
-  return ctx.resume().catch(() => undefined);
+  if (ctx.state === "closed" || audioSettled()) return Promise.resolve();
+  const resumed = ctx.state === "running" ? null : ctx.resume().catch(() => undefined);
+  waking ??= (async () => {
+    await resumed;
+    if (sinkChange) await Promise.race([sinkChange, wait(SINK_WAIT_MS)]);
+    for (let i = 0; i < SETTLE_LOOKS && settle!.lead() > 0; i++) await wait(Math.ceil(settle!.lead() * 1000));
+  })().finally(() => {
+    waking = null;
+  });
+  return waking;
+}
+
+/**
+ * The audio-clock time for a sound starting "now": never in the part of the clock already rendered, where its attack would be
+ * lost to a click, and past the output's first moments. For code that must start in one go; otherwise `await wakeAudio()` first.
+ */
+export function audioStartTime(): number {
+  const ctx = getAudioContext();
+  return ctx.currentTime + settle!.startIn();
+}
+
+/**
+ * After about 30 seconds of pure silence Chrome swaps the output for a fake one, and reopening the real one on the next sound
+ * stalls the audio for over half a second, right on that first note. So while the tab is in view the output is never quite
+ * silent: a level far under hearing (-120 dB), straight to the speakers, past the volume and anything that records.
+ */
+function keepOutputOpen(ctx: AudioContext) {
+  if (typeof document === "undefined") return;
+  const hum = ctx.createConstantSource();
+  const level = () => (document.visibilityState === "visible" ? INAUDIBLE : 0);
+  hum.offset.value = level();
+  hum.connect(ctx.destination);
+  hum.start();
+  document.addEventListener("visibilitychange", () => {
+    hum.offset.value = level();
+    if (level()) settle?.restart(); // it may have gone idle while away
+  });
 }
 
 type SinkContext = AudioContext & { sinkId?: string | object; setSinkId?: (id: string) => Promise<void> };
@@ -39,9 +95,18 @@ function followChosenOutput(ctx: SinkContext) {
     if (id === applied || ctx.state === "closed") return;
     applied = id;
     await ctx.setSinkId?.(id).catch(() => undefined);
+    settle?.restart();
   };
-  void apply();
-  subscribeDeviceChoice(() => void apply());
+  const follow = () => {
+    const change: Promise<void> = apply()
+      .catch(() => undefined)
+      .finally(() => {
+        if (sinkChange === change) sinkChange = null;
+      });
+    sinkChange = change;
+  };
+  follow();
+  subscribeDeviceChoice(follow);
 }
 
 /**
@@ -54,6 +119,7 @@ function watchOutput(ctx: AudioContext) {
   if (typeof window === "undefined") return;
   let wanted = false; // it has run, so it should be running
   ctx.addEventListener("statechange", () => {
+    settle?.look();
     if (ctx.state === "running") wanted = true;
     else if (wanted && ctx.state !== "closed" && document.visibilityState === "visible") void ctx.resume().catch(() => undefined);
   });
