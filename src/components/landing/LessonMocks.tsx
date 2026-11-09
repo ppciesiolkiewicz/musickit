@@ -137,10 +137,11 @@ function MiniBacking({ pos, onPos }: { pos: Pos | null; onPos: (p: Pos | null) =
   );
 }
 
+type Step = "b1" | "b2" | "imp";
+
 /** What a student gets after a lesson: the shape, the plan, what comes next. Tap a plan line and the picture follows; "improvise" brings up a backing track. */
-export function LessonNoteMock({ compact = false }: { compact?: boolean }) {
-  type Step = "b1" | "b2" | "imp";
-  const [step, setStep] = useState<Step>("b1");
+export function LessonNoteMock({ compact = false, startOn = "b1" }: { compact?: boolean; /** which plan line is open first: a box, or "imp" for the improvise line with the backing track */ startOn?: Step }) {
+  const [step, setStep] = useState<Step>(startOn);
   const [pos, setPos] = useState<Pos | null>(null);
   const chord = pos?.chord ?? null;
   const [done, setDone] = useState<Record<Step, boolean>>({ b1: true, b2: false, imp: false });

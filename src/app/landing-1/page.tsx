@@ -309,7 +309,7 @@ export default function LandingOne() {
 
         {/* Coming next: lessons in the app */}
         <section aria-labelledby="lessons" className="grid items-center gap-10 pb-16 sm:pb-24 lg:grid-cols-2 lg:gap-16">
-          <div className="order-2 lg:order-1"><LessonNoteMock /></div>
+          <div className="order-2 lg:order-1"><LessonNoteMock startOn="imp" /></div>
           <div className="order-1 lg:order-2">
             <Eyebrow>Coming next</Eyebrow>
             <H2><span id="lessons">Lessons that happen inside the kit.</span></H2>

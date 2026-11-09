@@ -292,7 +292,7 @@ export default function SchoolsHome() {
         <section id="notes" aria-labelledby="notes-h" className="scroll-mt-6 sect-rule py-12 sm:py-16">
           <div className="grid grid-cols-[minmax(0,1fr)] items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-16">
             <div className="order-2 lg:order-1">
-              <LessonNoteMock />
+              <LessonNoteMock startOn="imp" />
             </div>
             <div className="order-1 lg:order-2">
               <Eyebrow tone="text-teal-300">Notes creator<BetaBadge /></Eyebrow>
