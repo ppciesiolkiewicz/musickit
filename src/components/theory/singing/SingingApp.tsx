@@ -89,10 +89,9 @@ export default function SingingApp({ mode, initial, lead }: { mode: SingingMode;
   };
   const range = VOICES[voice];
   const [rest, setRest] = useState(2);
-  // the tune being sung, by number, and the difficulty whose tunes are listed ("all" for the whole book); a linked tune shows
-  // under its own difficulty
+  // the tune being sung, by number, and the difficulty whose tunes are listed ("all", the whole book, to start with)
   const [active, setActive] = useState(linked?.n ?? book[0].n);
-  const [level, setLevel] = useState<number | "all">(linked?.difficulty ?? book[0].difficulty);
+  const [level, setLevel] = useState<number | "all">("all");
   // one melody full screen, in the page (not the browser's full screen); a shared link opens its tune this way
   const [focus, setFocus] = useState(!!linked && initial.full);
   useEffect(
