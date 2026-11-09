@@ -1,14 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Chip, ChipRow, Section, Select } from "@/components/ui";
-import { savedVoice, type Voice } from "@/features/theory/singing";
+import { useState } from "react";
+import { Chip, ChipRow, Section } from "@/components/ui";
 import { View as StringSinger } from "@/features/exercises/basics/string-singer";
-import { View as TuningEars } from "@/features/exercises/basics/tuning-ears";
 import type { StringDrill } from "@/features/exercises/basics/string-singer/strings";
-
-/* the singing page's voice: picked there, no selector here */
-const VOICE_KEY = "singing.range";
 
 const DRILLS: { id: StringDrill; label: string }[] = [
   { id: "strings", label: "Open strings" },
@@ -16,43 +11,22 @@ const DRILLS: { id: StringDrill; label: string }[] = [
   { id: "fifth-fret", label: "5th fret" },
 ];
 
-const CENTS = [{ value: 30, label: "Easy · 30¢" }, { value: 20, label: "Medium · 20¢" }, { value: 10, label: "Hard · 10¢" }, { value: 5, label: "Very hard · 5¢" }] as const;
-
 /**
- * Tuning a guitar without a tuner. Sing the open strings (the string singer, in the singer's voice) to carry their
- * pitches, then the listening game: is the next string flat, sharp or in tune against the 5th-fret reference.
+ * Tuning a guitar without a tuner. Sing the open strings (the string singer, at the guitar's own pitch) to carry their
+ * pitches.
  */
 export default function TuneByEar() {
   const [drill, setDrill] = useState<StringDrill>("strings");
-  const [voice, setVoice] = useState<Voice>("tenor");
-  const [cents, setCents] = useState<number>(20);
-  const [together, setTogether] = useState(false);
-  useEffect(() => {
-    let saved: Voice | null = null;
-    try { saved = savedVoice(JSON.parse(window.localStorage.getItem(VOICE_KEY) ?? "null")); } catch { /* storage blocked */ }
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- restoring the saved voice after hydration
-    if (saved) setVoice(saved);
-  }, []);
   return (
     <div className="flex flex-col gap-4">
-      <Section title="Sing the open strings" meta="mic" info="Play the drill to hear it, tap a note to hear one, then sing along with the mic on: the strings land in your voice's range, an octave or two from the guitar. Once you can sing E A D G B E, you can hear a string that is off.">
+      <Section title="Sing the open strings" meta="mic" info="Play the drill to hear it, tap a note to hear one, then sing along with the mic on, an octave up or down if the pitch is out of your range. Once you can sing E A D G B E, you can hear a string that is off.">
         <div className="flex flex-col gap-3">
           <ChipRow label="Drill">
             {DRILLS.map((d) => <Chip key={d.id} on={drill === d.id} onClick={() => setDrill(d.id)}>{d.label}</Chip>)}
           </ChipRow>
-          <StringSinger drill={drill} voice={voice} />
+          <StringSinger drill={drill} />
         </div>
       </Section>
-      <section className="flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
-        <ChipRow label="How far out">
-          <Select value={cents} onChange={setCents} options={CENTS} aria-label="How far out" size="sm" pill />
-        </ChipRow>
-        <ChipRow label="Notes">
-          <Chip on={!together} onClick={() => setTogether(false)}>One after the other</Chip>
-          <Chip on={together} onClick={() => setTogether(true)}>Together</Chip>
-        </ChipRow>
-        <TuningEars key={`${cents}-${together}`} cents={cents} together={together} />
-      </section>
     </div>
   );
 }
