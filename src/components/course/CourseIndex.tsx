@@ -9,7 +9,7 @@ import { noteKey } from "@/features/course/notes";
 import { useAllNotes, useCourseLayout } from "./useCourseNotes";
 import Marks from "./Marks";
 
-type Filter = "warmup" | "often" | null;
+type Filter = "work" | "solid" | null;
 
 /** A section with no blocks yet is planned: marked "soon", with what it will teach under its title. */
 const planned = (r: SectionRef) => r.section.blocks.length === 0;
@@ -61,7 +61,8 @@ export default function CourseIndex() {
   const keep = (r: SectionRef) => {
     if (!filter) return true;
     const n = notes[noteKey(r.stage.slug, r.section.slug)];
-    return filter === "warmup" ? !!n?.warmup : !!n?.often;
+    const stars = n?.stars ?? 0;
+    return filter === "work" ? stars >= 1 && stars <= 2 : stars >= 4;
   };
   const stages = COURSE.map((stage) => ({ stage, items: stage.sections.map((section) => ({ stage, section })).filter(keep) })).filter((g) => g.items.length);
   const topics = byTopic().map((g) => ({ ...g, items: g.items.filter(keep) })).filter((g) => g.items.length);
@@ -81,7 +82,7 @@ export default function CourseIndex() {
         <div data-tour="course-layout" className="flex flex-wrap items-center gap-3">
           <Toggle label="Layout" value={layout} onChange={setLayout} options={[{ id: "stage", label: "By stage" }, { id: "topic", label: "By topic" }]} />
           <div className="flex flex-wrap gap-1.5">
-            {([["warmup", "🔥 Warm-ups"], ["often", "🔁 Come back often"]] as const).map(([id, label]) => (
+            {([["work", "To work on"], ["solid", "Solid"]] as const).map(([id, label]) => (
               <button key={id} type="button" aria-pressed={filter === id} onClick={() => setFilter(filter === id ? null : id)} className={`rounded-full border px-3 py-1.5 text-sm transition ${filter === id ? "border-amber-400 bg-amber-400/15 text-slate-50" : "border-slate-700 text-slate-300 hover:border-slate-500"}`}>
                 {label}
               </button>
@@ -100,7 +101,7 @@ export default function CourseIndex() {
         )}
       </div>
 
-      {empty && <p className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4 text-sm text-slate-400">Nothing marked yet. Use My notes at the end of a section.</p>}
+      {empty && <p className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4 text-sm text-slate-400">Nothing rated here yet. Rate a section with the stars in My notes at its end.</p>}
 
       {layout === "stage" ? (
         <ol className="relative flex flex-col gap-5">

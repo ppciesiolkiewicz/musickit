@@ -2,17 +2,16 @@
 
 import { useSyncExternalStore } from "react";
 import { legacyNoteKey } from "@/features/course/legacy";
-import { EMPTY_NOTES, PRESET_TAGS, hasNotes, parseCustomTags, parseNotesStore, type SectionNotes, type Tag } from "@/features/course/notes";
+import { EMPTY_NOTES, hasNotes, parseNotesStore, type SectionNotes } from "@/features/course/notes";
 
 /**
- * The student's course notes, custom tags and index layout, kept in localStorage and shared by every component on the page
+ * The student's course notes and index layout, kept in localStorage and shared by every component on the page
  * (and other tabs, via the storage event). Server render and first paint use the empty store, so hydration always matches.
  */
 
 /** v2: stage slugs renumbered 1–11; the old store is read once and moved over. */
 const NOTES_KEY = "musickit.course.notes.v2";
 const OLD_NOTES_KEY = "musickit.course.notes";
-const TAGS_KEY = "musickit.course.tags";
 const LAYOUT_KEY = "musickit.course.layout";
 
 export type CourseLayout = "stage" | "topic";
@@ -25,8 +24,6 @@ const write = (k: string, v: string) => {
 };
 
 let notes: Record<string, SectionNotes> = {};
-let custom: Tag[] = [];
-let allTags: Tag[] = PRESET_TAGS;
 let layout: CourseLayout = "stage";
 let loaded = false;
 const listeners = new Set<() => void>();
@@ -38,15 +35,13 @@ function loadAll() {
     notes = Object.fromEntries(Object.entries(parseNotesStore(read(OLD_NOTES_KEY))).map(([k, n]) => [legacyNoteKey(k), n]));
     write(NOTES_KEY, JSON.stringify(notes));
   } else notes = parseNotesStore(stored);
-  custom = parseCustomTags(read(TAGS_KEY));
-  allTags = [...PRESET_TAGS, ...custom];
   layout = read(LAYOUT_KEY) === "topic" ? "topic" : "stage";
 }
 
 const emit = () => listeners.forEach((f) => f());
 
 function onStorage(e: StorageEvent) {
-  if (e.key === NOTES_KEY || e.key === TAGS_KEY || e.key === LAYOUT_KEY) { loadAll(); emit(); }
+  if (e.key === NOTES_KEY || e.key === LAYOUT_KEY) { loadAll(); emit(); }
 }
 
 function subscribe(fn: () => void) {
@@ -78,17 +73,6 @@ export function saveSectionNotes(key: string, patch: Partial<SectionNotes>) {
 export function useSectionNotes(key: string): [SectionNotes, (patch: Partial<SectionNotes>) => void] {
   const all = useAllNotes();
   return [all[key] ?? EMPTY_NOTES, (patch) => saveSectionNotes(key, patch)];
-}
-
-export function useTags(): [Tag[], (t: Tag) => void] {
-  const v = useSyncExternalStore(subscribe, () => allTags, () => PRESET_TAGS);
-  const add = (t: Tag) => {
-    custom = [...custom, t];
-    allTags = [...PRESET_TAGS, ...custom];
-    write(TAGS_KEY, JSON.stringify(custom));
-    emit();
-  };
-  return [v, add];
 }
 
 export function useCourseLayout(): [CourseLayout, (v: CourseLayout) => void] {

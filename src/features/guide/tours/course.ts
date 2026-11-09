@@ -10,7 +10,7 @@ export const COURSE_TOUR: TourStep[] = [
   {
     target: "course-layout",
     title: "Your way",
-    text: "Show the course by stage or by topic, or only the sections you marked as warm-ups or to come back to.",
+    text: "Show the course by stage or by topic, or only the sections you rated: the ones to work on, or the ones you have solid.",
   },
   {
     target: "course-stage",

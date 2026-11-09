@@ -32,7 +32,7 @@ const courseJsonLd = {
 const WAYS: { icon: IconName; label: string; desc: string; tone: string }[] = [
   { icon: "rows-3", label: "By stage", desc: "One position at a time, from the nut up the neck", tone: "text-sky-300 bg-sky-400/10" },
   { icon: "layers", label: "By topic", desc: "All the chords, all the strumming, all the modes together", tone: "text-amber-300 bg-amber-400/10" },
-  { icon: "repeat", label: "Your marks", desc: "Only your warm-ups, or the sections you come back to", tone: "text-violet-300 bg-violet-400/10" },
+  { icon: "repeat", label: "Your marks", desc: "Only the sections you rated to work on, or the ones you have solid", tone: "text-violet-300 bg-violet-400/10" },
 ];
 
 function Hero() {
