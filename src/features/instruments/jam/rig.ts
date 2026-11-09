@@ -1,5 +1,6 @@
 import { ClickTrack, DEFAULT_CLICK, beatIndexAt, beatOf, clampClick, type ClickParams } from "../click/click";
 import { clampDrone, type DroneParams } from "../drone/drone";
+import { findGroove, grooveBassCells, grooveDrumCells, type GrooveId } from "../sequencer/grooves";
 import { BASS, DRONE_ID, DRUMS, Sequencer, type SequencerState } from "../sequencer/sequencer";
 import { clampTempo, nextBeat } from "./clock";
 import { InputPool, JamLoop, type AppInput, type InputDevice, type LoopConfig, type LoopView } from "./loops";
@@ -30,6 +31,8 @@ export interface JamSnapshot {
   bpm: number;
   parts: Record<JamPart, JamPartView>;
   loops: LoopView[];
+  /** the groove last set with `setGroove`; null once a step, preset, clear or bar count of the drums or bass changed it (Custom) */
+  groove: GrooveId | null;
   /** the input devices the browser lists (names only once the microphone is allowed) */
   devices: InputDevice[];
   /** a loop holds sound or records: the tempo stays as it is */
@@ -40,7 +43,7 @@ export interface JamSnapshot {
    */
   click: { on: boolean; running: boolean; volume: number; muted: boolean };
 }
-export interface JamSaved { bpm: number; parts: Partial<Record<JamPart, Partial<SequencerState>>>; loops?: Partial<LoopConfig>[]; click?: { volume?: number; muted?: boolean }; levels?: Partial<Record<JamPart, Partial<PartLevel>>> }
+export interface JamSaved { bpm: number; parts: Partial<Record<JamPart, Partial<SequencerState>>>; loops?: Partial<LoopConfig>[]; click?: { volume?: number; muted?: boolean }; levels?: Partial<Record<JamPart, Partial<PartLevel>>>; groove?: GrooveId | null }
 
 /**
  * Drone, drums and bass on one clock, for a page: what the `Jam` component shows. No React. The first part to start sets the grid;
@@ -66,6 +69,7 @@ export class JamRig {
   private clickMuted: boolean;
   /** the click also plays whenever another part or loop does (the drone page), muted until a person wants it */
   private readonly followClick: boolean;
+  private groove: GrooveId | null = null;
   private levels: Record<JamPart, PartLevel> = { drone: DEFAULT_LEVEL, drums: DEFAULT_LEVEL, bass: DEFAULT_LEVEL };
 
   constructor({ followClick = false }: { followClick?: boolean } = {}) {
@@ -92,6 +96,7 @@ export class JamRig {
     return {
       bpm: this.bpm,
       parts: { drone: view(this.seqs.drone), drums: view(this.seqs.drums), bass: view(this.seqs.bass) },
+      groove: this.groove,
       loops: this.loops.map((l) => l.view(now)),
       devices: this.devices,
       tempoLocked: this.tempoLocked,
@@ -134,6 +139,8 @@ export class JamRig {
       const s = saved.parts?.[p];
       if (s && s.instrumentId === this.seqs[p].state.instrumentId) this.seqs[p].load(s);
     }
+    // the saved cells win: a groove id is only the name they were made from
+    this.groove = typeof saved.groove === "string" && findGroove(saved.groove) ? (saved.groove as GrooveId) : null;
     for (const p of JAM_PARTS) this.setLevel(p, clampLevel(saved.levels?.[p]), false);
     if (saved.click) {
       this.clickVolume = clampClick({ volume: saved.click.volume }).volume;
@@ -152,7 +159,7 @@ export class JamRig {
   }
 
   save(): JamSaved {
-    return { bpm: this.bpm, parts: { drone: this.seqs.drone.serialize(), drums: this.seqs.drums.serialize(), bass: this.seqs.bass.serialize() }, loops: this.loops.map((l) => l.config), click: { volume: this.clickVolume, muted: this.clickMuted }, levels: { ...this.levels } };
+    return { bpm: this.bpm, parts: { drone: this.seqs.drone.serialize(), drums: this.seqs.drums.serialize(), bass: this.seqs.bass.serialize() }, loops: this.loops.map((l) => l.config), click: { volume: this.clickVolume, muted: this.clickMuted }, levels: { ...this.levels }, groove: this.groove };
   }
 
   /**
@@ -462,16 +469,36 @@ export class JamRig {
   setDrone(patch: Partial<DroneParams>) {
     this.seqs.drone.setDrone(patch);
   }
+  /** Drums and bass from a groove: one bar each, its swing on both. The bass cells are degrees, so a key change keeps them. */
+  setGroove(id: GrooveId) {
+    const g = findGroove(id);
+    if (!g) return;
+    this.groove = g.id;
+    for (const [p, cells] of [["drums", grooveDrumCells(g)], ["bass", grooveBassCells(g)]] as const) {
+      this.seqs[p].setBars(1);
+      this.seqs[p].setSwing(g.swing);
+      this.seqs[p].setCells(cells);
+    }
+  }
+  /** a hand edit of the drums or bass leaves the groove behind */
+  private edited(p: JamPart) {
+    if (p !== "drone") this.groove = null;
+  }
   loadPreset(p: JamPart, id: string) {
+    this.edited(p);
+    if (p !== "drone") this.seqs[p].setSwing(0);
     this.seqs[p].loadPreset(id);
   }
   setBars(p: JamPart, bars: number) {
+    this.edited(p);
     this.seqs[p].setBars(bars);
   }
   clear(p: JamPart) {
+    this.edited(p);
     this.seqs[p].clearPattern();
   }
   setStep(p: JamPart, lane: number, step: number, value: number) {
+    this.edited(p);
     this.seqs[p].setStep(lane, step, value);
   }
 
