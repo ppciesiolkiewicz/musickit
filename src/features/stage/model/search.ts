@@ -167,6 +167,7 @@ function entries(pluginIds: string[], key: KeyChoice, search = false): Entry[] {
   for (const id of FULL_PAGES) {
     if (has(id)) out.push(entry({ kind: "plugin", plugin: id, full: true, key }, "pages", "The whole page, as on the cheatsheet", ["page", "full", "cheatsheet", ...(PLUGIN_WORDS[id] ?? [])]));
   }
+  out.push(entry({ kind: "text", text: "" }, "text", "Words between the widgets: headings and paragraphs", ["text", "words", "note", "paragraph", "heading", "title", "write", "article"]));
   out.push(entry({ kind: "logo" }, "brand", "The attunr wordmark", ["logo", "brand", "wordmark", "attunr"]));
   out.push(entry({ kind: "url" }, "brand", "Where to find the site", ["url", "link", "website", "site", "address", "brand"]));
   return out;

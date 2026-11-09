@@ -5,7 +5,7 @@ import { TOOLS, type PlanTool } from "@/features/plan/model/tools";
 import { defaultRect } from "./layers";
 import { FAMILIES } from "./families";
 import { paletteCatalog } from "./search";
-import { followMaster, pinAgainst, sanitiseSubject, subjectIdentity, subjectTitle, takesMic, withMaster, withOwnKey, type Subject } from "./subject";
+import { followMaster, parseText, pinAgainst, sanitiseSubject, subjectIdentity, subjectTitle, takesMic, withMaster, withOwnKey, type Subject } from "./subject";
 import { STAGE_TOOLS, toolKey, withToolKey } from "./toolKey";
 
 test("a melody keeps a whole number of beats across from 2 to 16", () => {
@@ -203,4 +203,28 @@ test("an arpeggio widget follows the master, pins, saves and takes the audio inp
   assert.equal("roots" in sanitiseSubject({ ...arp, roots: [1] }, ids)!, false);
   // hiding the positions needs the neck to show
   assert.equal("positions" in sanitiseSubject({ kind: "arpeggio", key: arp.key, degree: 0, type: "triad", positions: false }, ids)!, false);
+});
+
+test("a text widget keeps its words, cut at the limit, and has a title", () => {
+  assert.deepEqual(sanitiseSubject({ kind: "text", text: "Hello" }, []), { kind: "text", text: "Hello" });
+  assert.equal(sanitiseSubject({ kind: "text" }, []), null);
+  assert.equal((sanitiseSubject({ kind: "text", text: "x".repeat(9000) }, []) as { text: string }).text.length, 4000);
+  assert.equal(subjectTitle({ kind: "text", text: "# The major scale\n\nWords" }), "Text · The major scale");
+  assert.equal(subjectTitle({ kind: "text", text: "" }), "Text");
+});
+
+test("text splits into headings and paragraphs", () => {
+  assert.deepEqual(parseText("# One\n\nFirst line\nsecond line\n\n## Two\nBody"), [
+    { type: "h1", text: "One" },
+    { type: "p", text: "First line\nsecond line" },
+    { type: "h2", text: "Two" },
+    { type: "p", text: "Body" },
+  ]);
+  assert.deepEqual(parseText("  \n\n"), []);
+});
+
+test("the palette offers a text widget once, in its own section", () => {
+  const rows = paletteCatalog([], EMPTY_KEY, { camera: "off", screen: "off" } as never).filter((r) => r.action.type === "add" && r.action.subject.kind === "text");
+  assert.equal(rows.length, 1);
+  assert.equal(rows[0].group, "text");
 });

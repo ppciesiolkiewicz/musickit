@@ -12,7 +12,7 @@ import { LevelPin } from "@/features/guide/Tier";
 import { DEFAULT_KEY_PC } from "@/features/theory/theory";
 import { Tuner } from "@/features/tuner";
 import { melodyDesignWidth } from "../model/melody";
-import { cagedQualityOf, withOwnKey, type Subject } from "../model/subject";
+import { cagedQualityOf, parseText, withOwnKey, type Subject } from "../model/subject";
 import BrandWidget from "./BrandWidget";
 import ChordWidget from "./ChordWidget";
 import CountdownWidget from "./CountdownWidget";
@@ -26,9 +26,10 @@ import NextWidget from "./NextWidget";
 import PositionWidget from "./PositionWidget";
 import ProgressWidget from "./ProgressWidget";
 import SectionWidget from "./SectionWidget";
+import TextWidget, { TextBlocks } from "./TextWidget";
 
 /** design width each kind is laid out at before it is scaled into its rect */
-const WIDTH: Record<Subject["kind"], number> = { chord: 240, plugin: 640, position: 980, band: 360, section: 760, bubble: 900, neck: 980, caged: 1100, arpeggio: 980, tool: 980, key: 760, tuner: 520, mic: 360, logo: 300, url: 520, camera: 0, screen: 0, melody: 0, countdown: 600, intro: 1000, progress: 400, next: 760 };
+const WIDTH: Record<Subject["kind"], number> = { chord: 240, plugin: 640, position: 980, band: 360, section: 760, bubble: 900, neck: 980, caged: 1100, arpeggio: 980, tool: 980, key: 760, tuner: 520, mic: 360, logo: 300, url: 520, text: 760, camera: 0, screen: 0, melody: 0, countdown: 600, intro: 1000, progress: 400, next: 760 };
 /** a cheatsheet page in full is laid out as wide as on the site */
 const FULL_WIDTH = 1200;
 
@@ -43,12 +44,14 @@ export interface StageWidgetProps {
   onStageKey: (k: KeyChoice) => void;
   /** camera and screen layers are drawn by the host, which owns the streams */
   renderMedia?: (s: Subject) => ReactNode;
+  /** a note being read: no key tags, and text is not a box to type in */
+  readOnly?: boolean;
 }
 
 /**
  * A subject as a live widget. Props in, callbacks out, no studio state, so the editor can be handed this to replay the widget track.
  */
-export default function StageWidget({ subject, onSubjectChange, stageKey, onStageKey, renderMedia }: StageWidgetProps) {
+export default function StageWidget({ subject, onSubjectChange, stageKey, onStageKey, renderMedia, readOnly = false }: StageWidgetProps) {
   const ctx = useMemo(() => ("key" in subject ? keyContext(withTonic(subject.key)) : null), [subject]);
   if (subject.kind === "camera" || subject.kind === "screen") return <>{renderMedia?.(subject) ?? null}</>;
   // a key changed from inside the widget (a mode picked in Same notes) is pinned on it, like one changed with its tags
@@ -126,6 +129,9 @@ export default function StageWidget({ subject, onSubjectChange, stageKey, onStag
     case "url":
       body = <BrandWidget kind={subject.kind} />;
       break;
+    case "text":
+      body = readOnly ? <div className="p-5"><TextBlocks blocks={parseText(subject.text)} large /></div> : <TextWidget text={subject.text} onChange={(text) => onSubjectChange({ kind: "text", text })} />;
+      break;
     case "key":
       body = <KeyWidget value={stageKey} onChange={onStageKey} />;
       break;
@@ -163,7 +169,7 @@ export default function StageWidget({ subject, onSubjectChange, stageKey, onStag
     <LevelPin level="standard">
       <div className="relative h-full w-full">
         <FitBox width={width} scroll={(subject.kind === "plugin" && !!subject.full) || (subject.kind === "section" && subject.section === "chords")}>{body}</FitBox>
-        <KeyTags subject={subject} master={stageKey} onChange={onSubjectChange} />
+        {!readOnly && <KeyTags subject={subject} master={stageKey} onChange={onSubjectChange} />}
       </div>
     </LevelPin>
   );

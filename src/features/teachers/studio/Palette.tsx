@@ -109,7 +109,7 @@ export default function Palette({ notes = false, pluginIds, stageKey, media, lay
     for (const l of layers) m.set(subjectIdentity(l.subject), [...(m.get(subjectIdentity(l.subject)) ?? []), l.id]);
     return m;
   }, [layers]);
-  const idsOf = (r: PaletteResult) => (r.action.type === "add" ? onStage.get(subjectIdentity(r.action.subject)) ?? [] : []);
+  const idsOf = (r: PaletteResult) => (r.action.type === "add" && r.action.subject.kind !== "text" ? onStage.get(subjectIdentity(r.action.subject)) ?? [] : []);
 
   useEffect(() => input.current?.focus(), []);
   // the list is long: keep the active row in view while ↑ ↓ move through it

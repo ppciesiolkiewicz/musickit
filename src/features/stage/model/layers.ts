@@ -217,6 +217,8 @@ function baseRect(s: Subject): FrameRect {
       return { x: 0.74, y: 0.05, w: 0.23, h: 0.14 };
     case "next":
       return { x: 0.03, y: 0.84, w: 0.4, h: 0.12 };
+    case "text":
+      return { x: 0.05, y: 0.08, w: 0.9, h: 0.2 };
   }
 }
 

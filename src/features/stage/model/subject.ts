@@ -56,6 +56,8 @@ export type Subject =
   | { kind: "mic" }
   | { kind: "logo" }
   | { kind: "url" }
+  /** a block of words in a note: plain text, `# ` starts a heading and `## ` a subheading, a blank line a new paragraph (`parseText`) */
+  | { kind: "text"; text: string }
   | { kind: "camera" }
   | { kind: "screen" }
   /** widget videos only (not in the palette): the tune's notes across a following staff; `beats` is how many fit across, absent = the staff's default 10 */
@@ -71,6 +73,32 @@ export type Subject =
 
 /** How many beats a melody can show across. */
 export const MELODY_BEATS = { min: 2, max: 16 } as const;
+
+/** The longest text a text widget keeps. */
+export const TEXT_MAX = 4000;
+
+export type TextBlock = { type: "h1" | "h2" | "p"; text: string };
+
+/** A text widget's words as blocks: `# ` heading, `## ` subheading, anything else a paragraph; blank lines separate, a line break inside a paragraph stays. */
+export function parseText(text: string): TextBlock[] {
+  const out: TextBlock[] = [];
+  let para: string[] = [];
+  const flush = () => {
+    if (para.length) out.push({ type: "p", text: para.join("\n") });
+    para = [];
+  };
+  for (const raw of text.split("\n")) {
+    const line = raw.trimEnd();
+    const h = /^(#{1,2})\s+(.+)$/.exec(line);
+    if (h) {
+      flush();
+      out.push({ type: h[1].length === 1 ? "h1" : "h2", text: h[2].trim() });
+    } else if (!line.trim()) flush();
+    else para.push(line);
+  }
+  flush();
+  return out;
+}
 
 export type StudioCommand = "camera-corner" | "camera-full" | "camera-off" | "screen-share" | "screen-corner" | "screen-full" | "screen-stop" | "clear";
 
@@ -96,6 +124,7 @@ export const PALETTE_GROUPS = {
   caged: "CAGED",
   theory: "Theory",
   pages: "Cheatsheet pages",
+  text: "Text",
   brand: "Brand",
   studio: "Studio",
 } as const;
@@ -311,6 +340,10 @@ export function subjectName(s: Subject): string {
       return "Logo";
     case "url":
       return "Site address";
+    case "text": {
+      const first = parseText(s.text)[0]?.text.replace(/\s+/g, " ");
+      return first ? `Text · ${first.length > 24 ? `${first.slice(0, 24)}…` : first}` : "Text";
+    }
     case "camera":
       return "Camera";
     case "screen":
@@ -420,6 +453,8 @@ export function sanitiseSubject(raw: unknown, pluginIds: string[]): Subject | nu
     case "camera":
     case "screen":
       return { kind: o.kind };
+    case "text":
+      return typeof o.text === "string" ? { kind: "text", text: o.text.slice(0, TEXT_MAX) } : null;
     case "melody": {
       const beats = o.beats;
       return typeof beats === "number" && Number.isInteger(beats) && beats >= MELODY_BEATS.min && beats <= MELODY_BEATS.max ? { kind: "melody", beats } : { kind: "melody" };

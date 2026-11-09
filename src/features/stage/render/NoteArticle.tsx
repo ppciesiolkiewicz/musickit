@@ -1,0 +1,51 @@
+"use client";
+
+import { useCallback, useState } from "react";
+import { GRID_COLUMNS, gridLayers, gridSpan, type Layer, type Stage } from "../model/layers";
+import { isPage, parseText } from "../model/subject";
+import { ScrollInBox, ShapeReport } from "./shape";
+import { TextBlocks } from "./TextWidget";
+
+/** Types of widget (a quarter or a third of a row on the grid) are never drawn narrower than this share of the article's column. */
+const MIN_SHARE = 0.4;
+
+/** One widget in the article: as wide as its kind is on the grid (at least MIN_SHARE), in the shape of its own content, centred. A page is a screen tall and scrolls inside. */
+function Figure({ layer, children }: { layer: Layer; children: (readOnly: true) => React.ReactNode }) {
+  const [aspect, setAspect] = useState<number | null>(null);
+  const report = useCallback((a: number) => setAspect((cur) => (cur === a ? cur : a)), []);
+  const page = isPage(layer.subject);
+  const share = page ? 1 : Math.max(MIN_SHARE, gridSpan(layer) / GRID_COLUMNS);
+  return (
+    <figure className="mx-auto w-full" style={{ maxWidth: `${share * 100}%` }}>
+      <div className={`overflow-hidden rounded-xl bg-slate-950 ring-1 ring-slate-800 [container-type:inline-size] ${page ? "h-[80svh]" : ""}`} style={page ? undefined : { aspectRatio: aspect ?? 16 / 9 }}>
+        <ShapeReport.Provider value={report}>
+          <ScrollInBox.Provider value={page}>{children(true)}</ScrollInBox.Provider>
+        </ShapeReport.Provider>
+      </div>
+    </figure>
+  );
+}
+
+/**
+ * A shared note, read as an article: its text and widgets in one column, in the order they were put on the stage's grid, with nothing to
+ * edit, drag, add or share. Widgets still play (a neck rings its notes, a staff plays) but pin nothing and change nothing.
+ */
+export default function NoteArticle({ stage, renderLayer }: { stage: Stage; renderLayer: (l: Layer, readOnly: true) => React.ReactNode }) {
+  const layers = gridLayers(stage).filter((l) => l.visible && !(l.subject.kind === "text" && !l.subject.text.trim()));
+  if (layers.length === 0) return <p className="text-slate-400">This note is empty.</p>;
+  return (
+    <article className="mx-auto flex w-full max-w-4xl flex-col gap-8" aria-label="Note">
+      {layers.map((l) =>
+        l.subject.kind === "text" ? (
+          <div key={l.id} className="mx-auto w-full max-w-2xl">
+            <TextBlocks blocks={parseText(l.subject.text)} />
+          </div>
+        ) : (
+          <Figure key={l.id} layer={l}>
+            {(ro) => renderLayer(l, ro)}
+          </Figure>
+        ),
+      )}
+    </article>
+  );
+}

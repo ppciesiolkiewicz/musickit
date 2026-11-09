@@ -165,7 +165,7 @@ test("the catalog lists every widget in the master key, by section, plus camera 
 
 test("the catalog comes in section order, each section in one run, subsections together", () => {
   const c = paletteCatalog(ids, E_MINOR);
-  assert.deepEqual([...new Set(c.map((r) => r.group))], ["setup", "scale", "chords", "caged", "theory", "pages", "brand", "studio"]);
+  assert.deepEqual([...new Set(c.map((r) => r.group))], ["setup", "scale", "chords", "caged", "theory", "pages", "text", "brand", "studio"]);
   assert.deepEqual(c.filter((r) => r.group === "scale").map((r) => r.label), ["Scale", "Relative modes", "Intervals within each mode", "Staff"]);
   assert.deepEqual(groupResults(c).flatMap((g) => g.results), c);
 });

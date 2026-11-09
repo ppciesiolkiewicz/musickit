@@ -11,7 +11,8 @@ import LayoutSelector from "./LayoutSelector";
 import useCamera from "./media/useCamera";
 import useScreenShare from "./media/useScreenShare";
 import ControlBadge, { MicBadge, PageBadge } from "./ControlBadge";
-import { encodeNote } from "./notes";
+import { encodeNote, noteFromHash } from "./notes";
+import NoteView from "./NoteView";
 import Palette from "./Palette";
 import useStage from "./useStage";
 
@@ -63,8 +64,20 @@ const isTyping = () => {
   return !!el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.tagName === "SELECT" || el.isContentEditable);
 };
 
+/** The studio, or in the notes creator a shared note's link opened as an article to read (`NoteView`). */
+export default function StudioApp({ notes = false }: { notes?: boolean }) {
+  // the link's hash is known only in the browser: until then nothing is drawn, as the studio itself waits for hydration
+  const [note, setNote] = useState<string | null | undefined>(undefined);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- the hash is read after hydration
+    setNote(notes ? noteFromHash(window.location.hash) : null);
+  }, [notes]);
+  if (note === undefined) return null;
+  return note ? <NoteView note={note} /> : <Studio notes={notes} />;
+}
+
 /** The teacher studio: the 16:9 frame in the middle, its layers on the left, the keys that work on the right. */
-export default function StudioApp({ notes = false }: {
+function Studio({ notes = false }: {
   /** the notes creator (?notes=1): the same stage without video, camera, screen or microphone, shared as a link, inside the site's page frame */
   notes?: boolean;
 }) {
@@ -74,7 +87,6 @@ export default function StudioApp({ notes = false }: {
   const shareNote = async () => {
     try {
       const url = `${window.location.origin}${window.location.pathname}?notes=1#note=${await encodeNote(stageRef.current)}`;
-      window.history.replaceState(null, "", url);
       await navigator.clipboard.writeText(url);
       setShared("copied");
     } catch {

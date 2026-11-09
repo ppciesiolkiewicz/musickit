@@ -16,6 +16,7 @@ export { FAMILIES, addableValues, allOptions, describeSubject, familyOf, isAll, 
 export * from "./model/keys";
 export { mediaState, stageCommand, toggleFull, NO_MEDIA, type MediaPlace, type MediaState } from "./model/commands";
 export { default as StageWidget, type StageWidgetProps } from "./render/StageWidget";
+export { default as NoteArticle } from "./render/NoteArticle";
 export { CameraLayer, ScreenLayer, type MediaControls } from "./render/MediaLayer";
 export { MicContext, type MicInput } from "./render/MicWidget";
 export { TimelineContext, type StageTimeline } from "./render/TimelineContext";
