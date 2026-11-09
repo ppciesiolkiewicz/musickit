@@ -3,8 +3,9 @@ import Link from "next/link";
 import PageShell from "@/components/PageShell";
 
 export const metadata: Metadata = {
-  title: "For teachers · attunr",
-  description: "Tools for guitar teachers: record lessons with any theory view on screen.",
+  title: "attunr for Guitar Teachers: Studio & Lesson Tools · attunr",
+  description: "Interactive tools for guitar teachers: record video lessons with synchronized fretboard diagrams, chord shapes, scales, and live backing loops on screen.",
+  alternates: { canonical: "/teachers" },
 };
 
 export default function TeachersPage() {

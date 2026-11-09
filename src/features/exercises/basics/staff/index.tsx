@@ -17,7 +17,6 @@ import { useAccuracy } from "@/features/theory/useAccuracy";
 import { Badge, Hint } from "@/components/ui";
 import { useCoverage } from "@/features/guide/useCoverage";
 import { useLevelAtLeast } from "@/features/guide/Tier";
-import Icon from "@/components/Icon";
 import { useStepPart } from "@/components/practice/exerciseStep";
 import dynamic from "next/dynamic";
 
@@ -40,7 +39,7 @@ const GAP_FRAMES = 6;
  * input's pitch, and Start / Stop is the host's. Not a plan prop: plan output never sets it.
  */
 export function View({ slug, pc, voice, notes, under = false, enable, highlight, mute, hide, others, mic: micButton = true, drone = false, click = false, bpm = 60, labels, external }: { slug: string; pc: number; voice: keyof typeof VOICES; notes?: number[]; under?: boolean; enable?: number[]; highlight?: number[]; mute?: number[]; hide?: number[]; others?: Others; mic?: boolean; drone?: boolean; click?: boolean; bpm?: number; labels?: SingingLabels; external?: ExternalInput }) {
-  useCoverage({ hints: 4 });
+  useCoverage({ hints: 3 });
   const range = VOICES[voice];
   // three looks: highlighted notes ringed, enabled ones plain, muted ones faint
   const state = useMemo(() => {
@@ -83,11 +82,18 @@ export function View({ slug, pc, voice, notes, under = false, enable, highlight,
     return kept.length > 1 ? { ...picked, notes: kept } : picked;
   }, [picked, state]);
   const backing = useMemo(() => [...(drone ? ["drone" as const] : []), ...(click ? ["click" as const] : [])], [drone, click]);
-  const backingWords = drone && click ? "drone and the metronome" : drone ? "drone" : "metronome";
-  // the mic and the backing start and stop apart; the step's "Start exercise" starts both
   const [micOn, setMicOn] = useState(false);
   const [backingOn, setBackingOn] = useState(false);
   const stopBacking = useCallback(() => setBackingOn(false), []);
+  const startBacking = useCallback(() => {
+    void wakeAudio();
+    setBackingOn(true);
+  }, []);
+  const toggleBacking = useCallback(() => {
+    if (backingOn) stopBacking();
+    else startBacking();
+  }, [backingOn, stopBacking, startBacking]);
+
   const [played, setPlayed] = useState<number | null>(null);
   const pitch = useRef<number | null>(null);
   const smoother = useRef(createSmoother());
@@ -116,15 +122,21 @@ export function View({ slug, pc, voice, notes, under = false, enable, highlight,
   useEffect(() => {
     if (externalHz !== undefined) pitch.current = externalHz === null ? null : hzToMidi(externalHz);
   }, [externalHz]);
-  const startMic = () => {
+  const startMic = useCallback(async () => {
+    await wakeAudio();
     pitch.current = null;
     setMicOn(true);
-  };
-  const startBacking = () => {
-    void wakeAudio();
-    setBackingOn(true);
-  };
-  useStepPart({ kind: micButton && !external && "mic", on: micOn, start: startMic, stop: () => setMicOn(false) });
+    if (backing.length > 0 && !backingOn) {
+      startBacking();
+    }
+  }, [backing.length, backingOn, startBacking]);
+  const stopMic = useCallback(() => {
+    setMicOn(false);
+    if (backingOn) {
+      stopBacking();
+    }
+  }, [backingOn, stopBacking]);
+  useStepPart({ kind: micButton && !external && "mic", on: micOn, start: startMic, stop: stopMic });
   const group = useStepPart({ kind: backing.length > 0 && backing[0], on: backingOn, start: startBacking, stop: stopBacking });
   if (!ladder) return null;
   const tap = async (i: number) => {
@@ -150,25 +162,14 @@ export function View({ slug, pc, voice, notes, under = false, enable, highlight,
               </Hint>
             ) : (
               <Hint title="Mic" description="Draws the note you sing on the staff. Starts the microphone and opens the list of inputs, with each input's level. Stop it from the list.">
-                <InputChip status={status} mic={{ on: micOn, onToggle: () => (micOn ? setMicOn(false) : startMic()) }} />
+                <InputChip status={status} mic={{ on: micOn, onToggle: () => (micOn ? stopMic() : void startMic()) }} />
               </Hint>
             )}
           </span>
         )}
         {backing.length > 0 && (
           <span data-tour="staff-backing" className="inline-flex items-center gap-2">
-            <Hint title={backingOn ? "Stop" : "Play"} description={`Plays the ${backingWords} to sing over.`}>
-            <button type="button" onClick={() => {
-              if (backingOn) return stopBacking();
-              startBacking();
-              if (micButton && !external && !micOn) startMic();
-            }} aria-pressed={backingOn}
-              title={backingOn ? `Stop the ${backingWords}` : `Play the ${backingWords}`}
-              className={`inline-flex h-8 items-center gap-1.5 rounded-lg border px-3 text-xs font-medium transition ${backingOn ? "border-emerald-400/70 bg-emerald-500/20 text-emerald-100" : "border-sky-400/60 bg-sky-500/15 text-sky-50 hover:bg-sky-500/25"}`}>
-              <Icon name={backingOn ? "square" : "play"} size={14} fill />{backingOn ? "Stop" : "Play"}
-            </button>
-            </Hint>
-            <PracticeBacking bpm={bpm} keyPc={pc} parts={backing} on={backingOn} onStop={stopBacking} group={group} />
+            <PracticeBacking bpm={bpm} keyPc={pc} parts={backing} on={backingOn} onToggle={backingOn || !micButton || external ? toggleBacking : () => void startMic()} onStop={stopBacking} group={group} />
           </span>
         )}
         {status === "denied" && <span>microphone blocked in the browser</span>}

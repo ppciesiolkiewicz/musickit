@@ -5,8 +5,9 @@ import TriadsExplorer from "@/components/chordKit/TriadsExplorer";
 import { TRIADS_TOUR } from "@/features/guide/tours/triads";
 
 export const metadata: Metadata = {
-  title: "Triads by string group · attunr",
-  description: "Closed-position triads and their inversions on every group of three adjacent strings.",
+  title: "Guitar Triads on String Sets: Inversions & Shapes · attunr",
+  description: "Master closed-position guitar triads and inversions across every adjacent three-string group. Visualize root, 1st, and 2nd inversions on the fretboard.",
+  alternates: { canonical: "/theory/triads" },
 };
 
 export default function TriadsPage() {

@@ -4,8 +4,9 @@ import SiteFooter from "@/components/landing/SiteFooter";
 import { GuideProvider } from "@/features/guide/Tier";
 
 export const metadata: Metadata = {
-  title: "Looper · attunr",
-  description: "A multi-channel audio looper that records from your audio interface.",
+  title: "Online Audio Looper & Multitrack Recorder · attunr",
+  description: "Record, loop, and stack audio takes directly in your browser. Connect any audio interface to build multi-channel guitar loops with synced drum beats.",
+  alternates: { canonical: "/looper" },
 };
 
 export default function LooperPage() {

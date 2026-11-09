@@ -6,8 +6,9 @@ import { keyOr } from "@/features/theory/keySlug";
 import { SCALES_TOUR } from "@/features/guide/tours/scales";
 
 export const metadata: Metadata = {
-  title: "Scales and modes · attunr",
-  description: "All 21 modes, six exotic scales (Persian, double harmonic, Hungarian minor and more) and nine pentatonic scales side by side in any key: scale degrees, notes, step patterns, and relative major and minor.",
+  title: "Guitar Scales & Modes Explorer: 21 Modes & Pentatonics · attunr",
+  description: "Explore 21 modes, pentatonics, and exotic scales side by side in any key. Compare scale degrees, notes, step formulas, fretboard boxes, and relative keys.",
+  alternates: { canonical: "/theory/scales" },
 };
 
 type Search = { key?: string };

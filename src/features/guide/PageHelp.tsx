@@ -11,6 +11,16 @@ function present(target: string): boolean {
   return !!document.querySelector(`[data-tour="${CSS.escape(target)}"]`);
 }
 
+/** The compass on the tour button. */
+export function TourIcon({ size = 12 }: { size?: number }) {
+  return (
+    <svg viewBox="0 0 16 16" width={size} height={size} aria-hidden fill="none" stroke="currentColor" strokeWidth="1.5">
+      <circle cx="8" cy="8" r="6.25" />
+      <path d="M10.5 5.5 9 9 5.5 10.5 7 7Z" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
 /**
  * The page's help cluster for the title row: the tour button (wobbling until it is first clicked) and the hints "?"
  * (which shows only inside a HintProvider). The Simple / Standard switch lives in the theme picker.
@@ -32,10 +42,7 @@ export default function PageHelp({ pageId, tour = [] }: { pageId: string; tour?:
       {tour.length > 0 && (
         <AttentionRing active={!seen}>
           <Button size="icon-sm" className="rounded-full!" onClick={startTour} title="Show me around this page" aria-label="Show me around this page">
-            <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden fill="none" stroke="currentColor" strokeWidth="1.5">
-              <circle cx="8" cy="8" r="6.25" />
-              <path d="M10.5 5.5 9 9 5.5 10.5 7 7Z" fill="currentColor" stroke="none" />
-            </svg>
+            <TourIcon />
           </Button>
         </AttentionRing>
       )}

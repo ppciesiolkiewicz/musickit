@@ -2,8 +2,8 @@ import type { Degree } from "../../timeline/types";
 
 /**
  * The scale on a staff in a voice's range, with the microphone's pitch drawn on it; tap a note to hear it. With `drone` and/or
- * `click` it carries its own backing, so a singing exercise needs no `click-drone` beside it: "Start microphone" and the backing's
- * Play work apart, and the step's "Start exercise" starts both together (Stop exercise stops both).
+ * `click` it carries its own backing, so a singing exercise needs no `click-drone` beside it: starting the mic also starts the drone,
+ * the drone UI provides start/stop and mute controls, and the step's "Start exercise" starts both together (Stop exercise stops both).
  * @component staff basic
  */
 export interface StaffProps {

@@ -5,15 +5,16 @@ import { parseNoteSettings } from "@/lib/practice/noteGame";
 import { NOTES_TOUR } from "@/features/guide/tours/notes";
 
 export const metadata: Metadata = {
-  title: "Fretboard notes · attunr",
-  description: "A game for learning the notes on the guitar neck: find a note by tapping or playing it, find every one, or name a lit note.",
+  title: "Guitar Fretboard Note Trainer: Interactive Practice Game · attunr",
+  description: "Memorize notes on the guitar neck with interactive practice games: tap notes on the fretboard or play into your microphone with instant feedback.",
+  alternates: { canonical: "/theory/notes" },
 };
 
 export default async function NotesPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const sp = await searchParams;
   const q = new URLSearchParams(Object.entries(sp).flatMap(([k, v]) => (typeof v === "string" ? [[k, v]] : [])));
   return (
-    <PageShell active="/theory/notes" devices pageId="notes" tour={NOTES_TOUR} title="Fretboard notes" intro="Learn where every note lives. Start with the natural notes on the low E and A strings (they are the roots of most chords), then add strings. Play the note on your guitar with the mic, or tap the neck.">
+    <PageShell active="/theory/notes" devices mic pageId="notes" tour={NOTES_TOUR} title="Fretboard notes" intro="Find every note on the neck. Try the natural notes on the low E string, then the A string, then add more strings. Play the note on your guitar and the mic checks it, or tap the neck.">
       <NoteGame initial={parseNoteSettings(q)} />
     </PageShell>
   );

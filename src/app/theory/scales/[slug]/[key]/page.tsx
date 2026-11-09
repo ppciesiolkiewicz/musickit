@@ -22,9 +22,11 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   const pent = findPentatonic(slug);
   if (pent && pc !== null) {
     const p = pentatonicContext(pc, pent);
+    const rawDesc = `${p.title}: ${p.names.join(" ")} (${p.formula.join(" ")}). ${pent.mood} Where it comes from, the scales with the same notes, and five positions on the guitar neck.`;
+    const description = rawDesc.length > 160 ? `${rawDesc.slice(0, 157)}...` : rawDesc;
     return {
       title: `${p.title} scale: notes and guitar positions · attunr`,
-      description: `${p.title}: ${p.names.join(" ")} (${p.formula.join(" ")}). ${pent.mood} Where it comes from, the scales with the same notes, and five positions on the guitar neck.`,
+      description,
       alternates: { canonical: scaleHref(slug, pc) },
     };
   }
@@ -32,9 +34,11 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   const ctx = makeKeyContext(pc, page.familyIndex, page.modeIndex);
   const info = FAMILIES[page.familyIndex].info[page.modeIndex];
   const name = `${ctx.names[0]} ${ctx.modeName}`;
+  const rawDesc = `${name}: ${ctx.names.join(" ")}. ${info.mood} Every chord in the key, its relative major and minor, and the scale on the guitar neck.`;
+  const description = rawDesc.length > 160 ? `${rawDesc.slice(0, 157)}...` : rawDesc;
   return {
     title: `${name} scale: notes, chords and guitar positions · attunr`,
-    description: `${name}: ${ctx.names.join(" ")}. ${info.mood} Every chord in the key, its relative major and minor, and the scale on the guitar neck.`,
+    description,
     alternates: { canonical: scaleHref(slug, pc) },
   };
 }

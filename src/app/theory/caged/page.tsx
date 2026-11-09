@@ -6,8 +6,9 @@ import NeighboursView from "@/components/chordKit/NeighboursView";
 import { CAGED_TOUR } from "@/features/guide/tours/caged";
 
 export const metadata: Metadata = {
-  title: "CAGED system · attunr",
-  description: "The five CAGED chord shapes in major and minor, with the arpeggio, scale and pentatonic inside each box.",
+  title: "CAGED System: Guitar Fretboard Shapes & Arpeggios · attunr",
+  description: "Master the CAGED guitar system with interactive major and minor chord shapes, arpeggios, pentatonics, and root transitions across the fretboard.",
+  alternates: { canonical: "/theory/caged" },
 };
 
 export default function CagedPage() {

@@ -5,6 +5,7 @@ import PreloadPiano from "@/features/sound/keyboard/PreloadPiano";
 import ContactForm from "@/components/landing/ContactForm";
 import Photo from "@/components/landing/Photo";
 import StyleDivider from "@/components/landing/StyleDivider";
+import Glow from "@/components/landing/Glow";
 import SiteFooter from "@/components/landing/SiteFooter";
 import { DISPLAY, Eyebrow, H2, Mark } from "@/components/landing/Display";
 import { LessonNoteMock, LiveLessonMock } from "@/components/landing/LessonMocks";
@@ -156,7 +157,12 @@ export default function SchoolsHome() {
         </div>
 
         {/* Hero */}
-        <section className="grid grid-cols-[minmax(0,1fr)] items-center gap-12 py-12 sm:py-16 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:py-20">
+        <section className="relative isolate grid grid-cols-[minmax(0,1fr)] items-center gap-12 py-12 sm:py-16 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:py-20">
+        <Glow spots={[
+          { tone: "sky", at: { right: "-6rem", top: "-8rem" }, size: "46rem", strength: 0.26 },
+          { tone: "violet", at: { left: "-14rem", top: "-4rem" }, size: "34rem", strength: 0.16 },
+          { tone: "teal", at: { right: "8rem", bottom: "-12rem" }, size: "26rem", strength: 0.14 },
+        ]} />
           <div className="landing-rise flex flex-col items-start">
             <Eyebrow big>For music schools</Eyebrow>
             <h1 className="text-5xl leading-none tracking-tight text-slate-50 sm:text-7xl" style={DISPLAY}>
@@ -212,7 +218,7 @@ export default function SchoolsHome() {
         />
 
         {/* Practice every day, from the AI plan */}
-        <section id="practice" aria-labelledby="practice-h" className="scroll-mt-6 border-t border-slate-800/70 py-12 sm:py-16">
+        <section id="practice" aria-labelledby="practice-h" className="scroll-mt-6 sect-rule py-12 sm:py-16">
           <div className="grid grid-cols-[minmax(0,1fr)] items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-16">
             <div>
               <Eyebrow>AI autoplan</Eyebrow>
@@ -260,7 +266,8 @@ export default function SchoolsHome() {
         </section>
 
         {/* Interactive teaching resources */}
-        <section id="resources" aria-labelledby="resources-h" className="scroll-mt-6 border-t border-slate-800/70 py-12 sm:py-16">
+        <section id="resources" aria-labelledby="resources-h" className="relative isolate scroll-mt-6 sect-rule py-12 sm:py-16">
+          <Glow spots={[{ tone: "amber", at: { left: "50%", top: "-4rem", marginLeft: "-20rem" }, size: "40rem", strength: 0.14 }]} />
           <div className="mx-auto max-w-2xl text-center">
             <Eyebrow tone="text-amber-300">Interactive teaching resources</Eyebrow>
             <H2 id="resources-h">Show the sound, <span className="ls-accent italic text-amber-300">not just the shape.</span></H2>
@@ -282,7 +289,7 @@ export default function SchoolsHome() {
         <IdeasSection eyebrow="One method across your teachers" title={<>Switch teachers, <span className="ls-accent italic text-sky-300">keep the same colours.</span></>} tools={[PLAY_TOOLS]} />
 
         {/* Notes creator */}
-        <section id="notes" aria-labelledby="notes-h" className="scroll-mt-6 border-t border-slate-800/70 py-12 sm:py-16">
+        <section id="notes" aria-labelledby="notes-h" className="scroll-mt-6 sect-rule py-12 sm:py-16">
           <div className="grid grid-cols-[minmax(0,1fr)] items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-16">
             <div className="order-2 lg:order-1">
               <LessonNoteMock />
@@ -306,7 +313,7 @@ export default function SchoolsHome() {
         </section>
 
         {/* Tools for online lessons */}
-        <section id="online" aria-labelledby="online-h" className="scroll-mt-6 border-t border-slate-800/70 py-12 sm:py-16">
+        <section id="online" aria-labelledby="online-h" className="scroll-mt-6 sect-rule py-12 sm:py-16">
           <div className="grid grid-cols-[minmax(0,1fr)] items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-16">
             <div>
               <Eyebrow>Online teaching</Eyebrow>
@@ -336,7 +343,8 @@ export default function SchoolsHome() {
         </section>
 
         {/* White-labelling */}
-        <section id="white-label" aria-labelledby="white-label-h" className="scroll-mt-6 border-t border-slate-800/70 py-12 sm:py-16">
+        <section id="white-label" aria-labelledby="white-label-h" className="relative isolate scroll-mt-6 sect-rule py-12 sm:py-16">
+          <Glow spots={[{ tone: "violet", at: { right: "-8rem", top: "0" }, size: "38rem", strength: 0.18 }]} />
           <div className="ls-card grid grid-cols-[minmax(0,1fr)] items-center gap-8 rounded-4xl border border-violet-500/30 bg-violet-500/5 p-6 sm:p-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
             <div>
               <Eyebrow tone="text-violet-300">White-labelling</Eyebrow>
@@ -352,7 +360,7 @@ export default function SchoolsHome() {
         </section>
 
         {/* Contact */}
-        <section id="contact" aria-labelledby="contact-h" className="scroll-mt-6 border-t border-slate-800/70 py-12 sm:py-16">
+        <section id="contact" aria-labelledby="contact-h" className="scroll-mt-6 sect-rule py-12 sm:py-16">
           <div className="ls-card grid grid-cols-[minmax(0,1fr)] items-center gap-6 rounded-3xl border border-slate-700/60 bg-slate-900/70 p-6 sm:p-8 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
             <div>
               <p id="contact-h" className="text-3xl text-slate-50" style={DISPLAY}>Bring attunr to your school</p>

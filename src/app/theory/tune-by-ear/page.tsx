@@ -12,11 +12,11 @@ export default function TuneByEarPage() {
   return (
     <PageShell
       active="/theory/tune-by-ear"
-      devices
+      devices mic
       pageId="tune-by-ear"
       tour={TUNE_BY_EAR_TOUR}
       title="Tune by ear"
-      intro="Sing the guitar's open strings until you carry their pitches, then train your ear on the reference and the next string: flat, sharp or in tune, one after the other or ringing together to hear the beats."
+      intro="Learn the sound of the open strings, then test your ear. Sing each open string until you carry its pitch, then hear the next string and decide if it is flat, sharp or in tune. Let two strings ring together to hear the beats."
     >
       <TuneByEar />
     </PageShell>

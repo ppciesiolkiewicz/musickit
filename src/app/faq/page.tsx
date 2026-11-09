@@ -5,8 +5,72 @@ import PageShell from "@/components/PageShell";
 import { FAQ_TOUR } from "@/features/guide/tours/faq";
 
 export const metadata: Metadata = {
-  title: "FAQ · attunr",
-  description: "Answers to common questions about attunr: what is free, where your practice is saved, the microphone and headphones, browsers, the AI practice plan and the video course.",
+  title: "Frequently Asked Questions · attunr",
+  description: "Answers to common questions about attunr: free tools, browser storage, microphone setup, latency, the AI practice plan, and the video course guarantee.",
+  alternates: { canonical: "/faq" },
+};
+
+const faqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: [
+    {
+      "@type": "Question",
+      name: "Is attunr free?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Yes. The tools, theory pages and exercises are free, and you don't need an account. Only the video course is paid.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Where is my practice saved?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "In this browser, on this device. Your plan, settings and progress stay here between visits. If you clear your browser's site data, or open attunr on another device or browser, you start fresh.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Where do I start?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Make an AI practice plan for a new set of exercises each day, start the course, or pick a tool from the menu at the top. Tune up first with the tuner.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Does attunr record or send my voice?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "No. The tuner and the singing exercises listen in your browser to find the pitch. The sound is not sent anywhere.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Why should I use headphones?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "The mic hears everything in the room. On speakers it also hears the drone, the click or the chords, and can take them for your voice or your guitar. With headphones it hears only you.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Which AI do I need?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Any chat AI you already use, such as ChatGPT, Claude or Gemini. attunr writes the prompt, you paste it into your AI, then paste its reply back. attunr never talks to the AI itself.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Can I get a refund?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Yes. Every bundle has a 30-day money-back guarantee: email us within 30 days of buying for a full refund, no reason needed.",
+      },
+    },
+  ],
 };
 
 const A = ({ href, children }: { href: string; children: ReactNode }) => (
@@ -56,6 +120,10 @@ const GROUPS: { title: string; items: QA[] }[] = [
 export default function FaqPage() {
   return (
     <PageShell active="/faq" pageId="faq" tour={FAQ_TOUR} title="Frequently asked questions" intro="Short answers about the app, the microphone, the practice plan and the course.">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
       <div className="flex max-w-3xl flex-col gap-8">
         {GROUPS.map((g, gi) => (
           <section key={g.title} data-tour={gi === 0 ? "faq-group" : undefined} aria-labelledby={slug(g.title)} className="flex flex-col gap-2">

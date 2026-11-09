@@ -244,3 +244,15 @@
 @media (prefers-reduced-motion: reduce) {
   .landing .ls-glint::after, .landing .ls-accent { animation: none !important; }
 }
+
+/* ---- a decorative rule between sections: a line that fades out at both ends, with a small glowing diamond in the middle ---- */
+.landing .sect-rule { position: relative; }
+.landing .sect-rule::before {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 1px; pointer-events: none;
+  background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--color-sky-400) 35%, transparent) 18%, color-mix(in oklab, var(--color-sky-300) 70%, transparent) 50%, color-mix(in oklab, var(--color-sky-400) 35%, transparent) 82%, transparent);
+}
+.landing .sect-rule::after {
+  content: ""; position: absolute; top: 0; left: 50%; width: 7px; height: 7px; pointer-events: none;
+  transform: translate(-50%, -50%) rotate(45deg); background: var(--color-sky-300);
+  box-shadow: 0 0 0 4px var(--color-slate-950), 0 0 14px color-mix(in oklab, var(--color-sky-400) 80%, transparent);
+}

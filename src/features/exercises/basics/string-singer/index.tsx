@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { getSharedPiano, wakeAudio } from "@/features/sound";
-import { VOICES, buildLadder, clefFor, spellName, withNotesUnder, type Ladder, type Voice } from "@/features/theory/singing";
+import { buildLadder, clefFor, spellName, withNotesUnder, type Ladder } from "@/features/theory/singing";
 import type { PlacedNote } from "@/features/theory/singingMelodies";
 import SingAlong from "../sing-along/SingAlong";
 import { STRING_NAMES, drillNotes, type StringDrill } from "./strings";
@@ -17,15 +17,18 @@ const WHAT: Record<StringDrill, string> = {
 };
 
 /**
- * The guitar's open strings to sing (`SingAlong`), moved into the voice: the strings one by one, neighbouring pairs, or
+ * The guitar's open strings to sing (`SingAlong`), at the guitar's own pitch: the strings one by one, neighbouring pairs, or
  * the 5th-fret unisons, so the student carries the pitches to tune by ear. No chords; the metronome heard unless turned
  * off (it keeps the long notes in time, and switches on and off in the player); tap a note to hear it.
  */
-export function View({ drill = "strings", voice = "tenor", metronome = true }: { drill?: StringDrill; voice?: Voice; metronome?: boolean }) {
-  const range = VOICES[voice] ?? VOICES.tenor;
+/** the open strings, E2 to E4, as the range the staff is drawn for */
+const RANGE = { low: 40, high: 64 };
+
+export function View({ drill = "strings", metronome = true }: { drill?: StringDrill; metronome?: boolean }) {
+  const range = RANGE;
   const clef = clefFor(range);
   const { notes, ladder } = useMemo(() => {
-    const notes: PlacedNote[] = drillNotes(drill, range).map((n) => ({ midi: n.midi, spelled: spellName(STRING_NAMES[n.string], n.midi, n.label), degree: n.string, label: n.label, at: n.at, beats: n.beats }));
+    const notes: PlacedNote[] = drillNotes(drill).map((n) => ({ midi: n.midi, spelled: spellName(STRING_NAMES[n.string], n.midi, n.label), degree: n.string, label: n.label, at: n.at, beats: n.beats }));
     // the staff's rungs: the white keys (C major) through the range, unlabelled
     const white = withNotesUnder(buildLadder("major-ionian", 0, range)!, range);
     const ladder: Ladder = { ...white, title: "the guitar's open strings", notes: white.notes.map((n) => ({ ...n, label: "" })) };
@@ -44,7 +47,7 @@ export function View({ drill = "strings", voice = "tenor", metronome = true }: {
     }, TAP_MS);
   };
   return (
-    <SingAlong key={`${drill}-${voice}-${metronome}`} notes={notes} chords={[]} ladder={ladder} clef={clef} beatMs={60000 / BPM} click={metronome} tapped={tapped} onNote={(i) => void tap(i)}
-      info={<>{WHAT[drill]} · {range.label} · {BPM} bpm</>} />
+    <SingAlong key={`${drill}-${metronome}`} notes={notes} chords={[]} ladder={ladder} clef={clef} beatMs={60000 / BPM} click={metronome} tapped={tapped} onNote={(i) => void tap(i)}
+      info={<>{WHAT[drill]} · {BPM} bpm</>} />
   );
 }

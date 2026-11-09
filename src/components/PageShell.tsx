@@ -4,9 +4,19 @@ import { GROUP_LABEL, sectionFor, type Tone } from "@/features/theory/sections";
 import type { ReactNode } from "react";
 import PreloadPiano from "@/features/sound/keyboard/PreloadPiano";
 import PracticeReminder from "@/features/plan/PracticeReminder";
-import PageHelp from "@/features/guide/PageHelp";
+import PageHelp, { TourIcon } from "@/features/guide/PageHelp";
+import { Notice } from "@/components/ui";
 import { GuideProvider } from "@/features/guide/Tier";
 import type { TourStep } from "@/features/guide/tour";
+
+function MicIcon() {
+  return (
+    <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+      <rect x="5.5" y="1.5" width="5" height="8" rx="2.5" />
+      <path d="M3 7.5a5 5 0 0 0 10 0M8 12.5v2" />
+    </svg>
+  );
+}
 
 /** The short rule under the title, in the page's own colour (full class names so Tailwind sees them). */
 const BAR: Record<Tone, string> = { emerald: "bg-emerald-400", sky: "bg-sky-400", amber: "bg-amber-400", violet: "bg-violet-400", rose: "bg-rose-400", teal: "bg-teal-400", pink: "bg-pink-400", red: "bg-red-400" };
@@ -18,8 +28,10 @@ const BAR: Record<Tone, string> = { emerald: "bg-emerald-400", sky: "bg-sky-400"
  * Necks and other wide pieces reach back out with the `bleed` utility. `devices` puts the audio input and output picker in the nav,
  * for pages that listen or play.
  */
-export default function PageShell({ title, intro, active, wide = false, full = false, devices = false, header, pageId, tour, children }: {
+export default function PageShell({ title, intro, active, wide = false, full = false, devices = false, mic = false, header, pageId, tour, children }: {
   title: string; intro?: string; active: string; wide?: boolean; full?: boolean; devices?: boolean;
+  /** the page listens to the microphone: adds the mic and headphones note under the intro */
+  mic?: boolean;
   /** replaces the plain title, for pages that open with a hero (such a page places its own PageHelp) */
   header?: ReactNode;
   /** turns on the guide: the level switch, tour button and "?" in the title row, and `Tier` knowing this page */
@@ -64,6 +76,20 @@ export default function PageShell({ title, intro, active, wide = false, full = f
                 heading
               )}
               {intro && <p className="mt-3 max-w-3xl text-sm leading-relaxed text-slate-400 sm:text-base">{intro}</p>}
+              {(pageId || mic) && (
+                <div className="mt-4 flex max-w-3xl flex-col gap-2">
+                  {pageId && (
+                    <Notice icon={<TourIcon size={16} />}>
+                      <strong className="font-semibold text-slate-100">New here?</strong> Press the compass button in the top right corner for a guide to this page.
+                    </Notice>
+                  )}
+                  {mic && (
+                    <Notice tone="warn" icon={<MicIcon />}>
+                      <strong className="font-semibold text-slate-100">Uses your microphone.</strong> Wear headphones so it doesn&apos;t hear its own sound.
+                    </Notice>
+                  )}
+                </div>
+              )}
             </>
           )}
         </header>

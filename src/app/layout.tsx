@@ -46,16 +46,85 @@ const styleFonts = [funkFont, rockFont, metalFont, bluesFont, jazzFont, surfFont
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "attunr: your one-stop hub for music drills and theory",
+  title: {
+    default: "attunr: your one-stop hub for music drills and theory",
+    template: "%s",
+  },
   description: "Guitar theory, exercises and practice tools: scales and modes in every key, chord shapes, CAGED, a tuner and a looper.",
-  /* no og title or description here: Next fills them from each page's own,
-     and the image comes from app/opengraph-image.tsx */
+  keywords: [
+    "guitar theory",
+    "guitar practice",
+    "fretboard notes",
+    "CAGED system",
+    "guitar scales",
+    "guitar modes",
+    "guitar chords",
+    "online guitar tuner",
+    "ear training",
+    "guitar triads",
+    "arpeggios",
+    "audio looper",
+    "music school practice",
+  ],
+  authors: [{ name: "attunr" }],
+  creator: "attunr",
+  publisher: "attunr",
+  applicationName: "attunr",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
   openGraph: {
     type: "website",
     siteName: "attunr",
     locale: "en_US",
+    url: SITE_URL,
+    title: "attunr: your one-stop hub for music drills and theory",
+    description: "Guitar theory, exercises and practice tools: scales and modes in every key, chord shapes, CAGED, a tuner and a looper.",
   },
-  twitter: { card: "summary_large_image" },
+  twitter: {
+    card: "summary_large_image",
+    title: "attunr: your one-stop hub for music drills and theory",
+    description: "Guitar theory, exercises and practice tools: scales and modes in every key, chord shapes, CAGED, a tuner and a looper.",
+  },
+};
+
+const siteJsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": `${SITE_URL}/#organization`,
+      name: "attunr",
+      url: SITE_URL,
+      logo: `${SITE_URL}/icon.png`,
+      description: "Music drills, guitar theory, practice tools and interactive fretboard visualizer.",
+    },
+    {
+      "@type": "WebApplication",
+      "@id": `${SITE_URL}/#webapp`,
+      name: "attunr",
+      url: SITE_URL,
+      applicationCategory: "EducationalApplication",
+      operatingSystem: "All",
+      offers: {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "USD",
+      },
+      description: "Guitar theory, exercises and practice tools: scales and modes in every key, chord shapes, CAGED, a tuner and a looper.",
+      publisher: {
+        "@id": `${SITE_URL}/#organization`,
+      },
+    },
+  ],
 };
 
 export default function RootLayout({
@@ -67,6 +136,10 @@ export default function RootLayout({
     <html lang="en" data-theme="plain" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd) }}
+        />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} ${outfit.variable} ${styleFonts} antialiased`}

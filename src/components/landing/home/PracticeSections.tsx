@@ -81,7 +81,7 @@ export function SkillsSection({
   intro = <>Not a screen that tells you when you got it right. Drills for your hands, ears, voice and timing that you repeat until <Mark>you can feel it yourself</Mark>, and understand well enough to <Mark>invent your own</Mark>.</>,
 }: { eyebrow?: ReactNode; title?: ReactNode; intro?: ReactNode }) {
   return (
-    <section aria-labelledby="skills-h" className="border-t border-slate-800/70 py-12 sm:py-16">
+    <section aria-labelledby="skills-h" className="sect-rule py-12 sm:py-16">
       <div className="mx-auto max-w-2xl text-center">
         <Eyebrow>{eyebrow}</Eyebrow>
         <H2 id="skills-h">{title}</H2>
@@ -135,7 +135,7 @@ export function PlanDayCard() {
 
 export function PlanSection() {
   return (
-    <section id="plan" aria-labelledby="plan-h" className="scroll-mt-6 border-t border-slate-800/70 py-12 sm:py-16">
+    <section id="plan" aria-labelledby="plan-h" className="scroll-mt-6 sect-rule py-12 sm:py-16">
       <div className="grid grid-cols-[minmax(0,1fr)] items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-16">
         <div>
           <Eyebrow>AI practice plan</Eyebrow>
@@ -169,7 +169,7 @@ export function PlanSection() {
 export function IdeasSection({ eyebrow = "Free in the app", title = <>Practice that <span className="ls-accent italic text-sky-300">adds up.</span></>, tools = [SEE_TOOLS, PLAY_TOOLS] }: { eyebrow?: ReactNode; title?: ReactNode; tools?: ToolGroup[] }) {
   const dorian = modeSteps(FAMILIES[0], 1);
   return (
-    <section aria-labelledby="ideas-h" className="border-t border-slate-800/70 py-12 sm:py-16">
+    <section aria-labelledby="ideas-h" className="sect-rule py-12 sm:py-16">
       <div className="mx-auto max-w-2xl text-center">
         <Eyebrow>{eyebrow}</Eyebrow>
         <H2 id="ideas-h">{title}</H2>

@@ -61,7 +61,7 @@ export type PlanTool =
   | { type: "arpeggio-neck"; chord: string; boxes?: number[]; part?: Degree[]; placement?: Placement } & Marks
   | { type: "melody-singer"; tune: number; key: number; voice?: Voice; chords?: false; metronome?: true }
   | { type: "run-singer"; run: number; voice?: Voice; chords?: false; metronome?: true }
-  | { type: "string-singer"; drill?: StringDrill; voice?: Voice; metronome?: false }
+  | { type: "string-singer"; drill?: StringDrill; metronome?: false }
   | { type: "tuning-ears"; cents?: number; together?: boolean }
   | { type: "interval-singer"; key: number; /** more keys to pick Do from, the first `key`; absent: only `key` */ keys?: number[]; voice?: Voice; /** semitones from Do, 1-12 */ intervals?: number[]; dir?: IntervalDir; dot?: false }
   | { type: "guitar-play-along"; shape: PlayAlongShape; bpm: number; repeats?: number; view?: View; enable?: Degree[]; highlight?: Degree[]; others?: "muted" | "hidden"; under?: Under }
@@ -259,11 +259,10 @@ export const TOOLS: { [N in ToolName]: ToolSpec } = {
   "run-singer": { parse: (t) => singer(t, "run", isRunId, RUNS) },
   "string-singer": {
     parse(t) {
-      const voice = voiceOf(t.voice);
       // "strings" is the default, so only another drill is kept
       const drill = STRING_DRILLS.includes(t.drill as StringDrill) && t.drill !== "strings" ? { drill: t.drill as StringDrill } : {};
       // the metronome is on unless turned off
-      return { type: "string-singer", ...drill, ...(voice ? { voice } : {}), ...(t.metronome === false ? { metronome: false as const } : {}) };
+      return { type: "string-singer", ...drill, ...(t.metronome === false ? { metronome: false as const } : {}) };
     },
   },
   "interval-singer": {

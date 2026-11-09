@@ -4,8 +4,9 @@ import SingingApp from "@/components/theory/singing/SingingApp";
 import { parseSingingLink } from "@/features/theory/singingLink";
 
 export const metadata: Metadata = {
-  title: "Sing runs · attunr",
-  description: "Scale runs that step up through keys across your whole voice. Sing along and watch your voice as a dot on the staff.",
+  title: "Vocal Agility Runs & Scale Drills with Mic Feedback · attunr",
+  description: "Develop vocal agility with stepwise scale runs across your vocal range. Sing along with live pitch tracking and real-time vocal feedback on the staff.",
+  alternates: { canonical: "/theory/singing/runs" },
 };
 
 export default async function SingRunsPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
@@ -15,9 +16,9 @@ export default async function SingRunsPage({ searchParams }: { searchParams: Pro
     <PageShell
       active="/theory/singing/runs"
       full
-      devices
+      devices mic
       title="Sing runs"
-      intro="Warm-up runs that move through keys, so together they cover your whole voice. A bar of chords sets each new key before you sing it. Press play, sing along, and a dot shows your voice on the staff."
+      intro="Warm up your voice with runs through your keys, so together they cover your whole range. A bar of chords sets each new key before you sing it. Press play, sing along, and a dot shows your voice on the staff."
     >
       <SingingApp mode="runs" initial={parseSingingLink(q)} />
     </PageShell>

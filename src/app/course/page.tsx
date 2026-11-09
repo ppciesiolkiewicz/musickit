@@ -8,9 +8,24 @@ import { COURSE, sectionHref } from "@/features/course/course";
 import PageHelp from "@/features/guide/PageHelp";
 import { COURSE_TOUR } from "@/features/guide/tours/course";
 
+import { SITE_URL } from "@/lib/site";
+
 export const metadata: Metadata = {
-  title: "Course: learn the neck one position at a time · attunr",
-  description: "A guitar course that stays in one position until it makes sense: chords, triads, arpeggios, scales and the paths between them, then out across the neck.",
+  title: "Guitar Course: Master the Neck One Position at a Time · attunr",
+  description: "Learn the guitar neck position by position: master chords, triads, arpeggios, scales, and connecting paths before expanding across the entire fretboard.",
+  alternates: { canonical: "/course" },
+};
+
+const courseJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Course",
+  name: "Guitar Fretboard Course: Learn One Position at a Time",
+  description: "A self-paced guitar course that stays in one fretboard position until it makes sense: chords, triads, arpeggios, scales, and transition paths.",
+  provider: {
+    "@type": "Organization",
+    name: "attunr",
+    sameAs: SITE_URL,
+  },
 };
 
 /** Ways to lay the course out; the index below has a switch and filters for each. */
@@ -60,6 +75,10 @@ function Hero() {
 export default function CoursePage() {
   return (
     <PageShell active="/course" pageId="course" title="Course" header={<Hero />}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(courseJsonLd) }}
+      />
       <CourseIndex />
     </PageShell>
   );

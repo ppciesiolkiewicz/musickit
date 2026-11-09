@@ -51,8 +51,9 @@ export default function ToolSettings({ labels, omit = [], accuracy = false, view
   const [melodyView, setView] = useExerciseSetting("view");
   if (!accuracy && !labels && !view && !more) return volume ? <Volume /> : null;
   return (
-    <span className="inline-flex items-center gap-4">
+    <span className="inline-flex items-center gap-3">
       {volume && <Volume />}
+      {volume && <span aria-hidden className="h-5 w-px bg-slate-700" />}
       <Dropdown label="Sound and view settings" button={<Icon name="sliders-horizontal" size={15} />}>
         {accuracy && (
           <DropdownSection title="Accuracy" info={<>How close your voice has to be to count as on the note. A semitone is 100 cents (¢): Easy takes anything within ±40¢, Pro only ±8¢. Start on Easy and move up when the dot stays green.</>}>

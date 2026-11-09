@@ -5,8 +5,9 @@ import { PLAN_TOUR } from "@/features/guide/tours/plan";
 import { PlanApp } from "@/features/plan";
 
 export const metadata: Metadata = {
-  title: "AI practice plan · attunr",
-  description: "A continuous daily plan for your practice, written by your own AI: answer a few questions, copy the prompt, paste the reply, practise a new set of exercises each day.",
+  title: "AI Guitar Practice Plan: Custom Daily Routines · attunr",
+  description: "Generate a custom daily guitar practice plan with your AI. Answer a few questions, copy the prompt, and get structured daily drills for hands, ears, and timing.",
+  alternates: { canonical: "/plan" },
 };
 
 export default function PlanPage() {

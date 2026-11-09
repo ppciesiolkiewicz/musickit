@@ -120,6 +120,15 @@ export function useStepPart({ kind, on, start, stop }: StepPart): string | undef
   return kind ? step?.groupFor(id) : undefined;
 }
 
+/** Whether the current step provides a "Start exercise" button (starts two or more parts together). */
+export function useStepHasControl(): { hasStartExercise: boolean; running: boolean } {
+  const step = useContext(StepContext);
+  return {
+    hasStartExercise: !!step && step.leads.length >= 2,
+    running: !!step?.running,
+  };
+}
+
 /**
  * "Start exercise": starts everything the step's tools can start (the mic, the drone, the metronome, the chords) at once;
  * while it runs, "Stop exercise" stops all of it, also what was started or stopped by hand. Shown only when the step has

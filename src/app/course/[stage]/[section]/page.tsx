@@ -31,7 +31,14 @@ export function generateStaticParams(): Params[] {
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { stage, section } = await params;
   const r = findSection(stage, section);
-  return r ? { title: `${r.stage.label} · ${r.section.title} · attunr`, description: r.stage.intro } : {};
+  if (!r) return {};
+  const rawDesc = r.section.about || `${r.section.title}: ${r.stage.intro}`;
+  const description = rawDesc.length > 160 ? `${rawDesc.slice(0, 157)}...` : rawDesc;
+  return {
+    title: `${r.section.title} · Stage ${r.stage.label} Guitar Course · attunr`,
+    description,
+    alternates: { canonical: sectionHref(r.stage.slug, r.section.slug) },
+  };
 }
 
 export default async function CourseSectionPage({ params }: { params: Promise<Params> }) {

@@ -1,43 +1,22 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { VOICES } from "@/features/theory/singing";
 import { docOf } from "../../docs";
 import { clampCents, describeRound, makeRound, verdictOf } from "../tuning-ears/rounds";
-import { OPEN_STRINGS, drillNotes, stringsInRange } from "./strings";
-
-describe("stringsInRange", () => {
-  it("keeps the strings' own octave for a bass", () => assert.deepEqual(stringsInRange(VOICES.bass), OPEN_STRINGS));
-  it("keeps each string's note", () => {
-    for (const v of Object.values(VOICES)) {
-      const m = stringsInRange(v);
-      m.forEach((n, i) => {
-        assert.equal(n % 12, OPEN_STRINGS[i] % 12);
-      });
-    }
-  });
-  it("keeps the strings climbing, the 1st-string E above the B, with at most one note outside the voice", () => {
-    for (const v of Object.values(VOICES)) {
-      const m = stringsInRange(v);
-      m.forEach((n, i) => i && assert.ok(n > m[i - 1], `${v.label} ${m}`));
-      assert.ok(m.filter((n) => n < v.low || n > v.high).length <= 1, `${v.label} ${m}`);
-    }
-  });
-  it("moves the whole set by octaves when it fits", () => assert.deepEqual(stringsInRange({ low: 52, high: 76 }), OPEN_STRINGS.map((m) => m + 12)));
-});
+import { drillNotes } from "./strings";
 
 describe("drillNotes", () => {
   it("strings: up and back, end to end", () => {
-    const n = drillNotes("strings", VOICES.bass);
+    const n = drillNotes("strings");
     assert.deepEqual(n.map((x) => x.midi), [40, 45, 50, 55, 59, 64, 59, 55, 50, 45, 40]);
     n.forEach((x, i) => assert.equal(x.at, i * x.beats));
   });
   it("pairs: each two neighbouring strings, fourths and a G-B third", () => {
-    const n = drillNotes("pairs", VOICES.bass);
+    const n = drillNotes("pairs");
     const steps = [0, 2, 4, 6, 8].map((i) => n[i + 1].midi - n[i].midi);
     assert.deepEqual(steps, [5, 5, 5, 4, 5]);
   });
   it("fifth-fret: the same note twice, the 4th fret on G", () => {
-    const n = drillNotes("fifth-fret", VOICES.bass);
+    const n = drillNotes("fifth-fret");
     for (let i = 0; i < n.length; i += 2) assert.equal(n[i].midi, n[i + 1].midi);
     assert.equal(n[6].label, "3rd·4");
     assert.equal(n[0].label, "6th·5");

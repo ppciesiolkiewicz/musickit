@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { BarRow, ScaleSettingsBar, WithSettings } from "./ScaleSettings";
-import { INVERSIONS, STRING_GROUPS, TRIAD_QUALITIES, chordShapesOf, nearbyFourthFifth, triadVoicings, type TriadQuality, type TriadVoicing } from "@/lib/chordKit/triads";
+import { INVERSIONS, STRING_GROUPS, TRIAD_QUALITIES, chordShapesOf, nearbyFourthFifth, triadVoicings, type StringGroup, type TriadQuality, type TriadVoicing } from "@/lib/chordKit/triads";
 import { GROUP_SWATCH, swatchFor } from "./palette";
 import { useHeardNote } from "./heardNote";
 import { strum } from "@/lib/chordKit/playback";
@@ -53,6 +53,18 @@ export function TriadBox({ v, rootPc, onPlay, active }: { v: TriadVoicing; rootP
       </svg>
       <div className="text-xs tabular-nums text-slate-500">fret {v.lowestFret === 0 ? "0 (open)" : v.lowestFret}</div>
     </button>
+  );
+}
+
+/** A string group's heading inside a section: "STRINGS 6-5-4" in the app's small-caps section style, the open-string names as a tag, and a rule to the edge. */
+function GroupHeading({ g }: { g: StringGroup }) {
+  const [, nums, names] = g.label.match(/^Strings ([\d-]+) \((.+)\)$/) ?? [];
+  return (
+    <h4 className="mb-2 flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-slate-300">
+      <span>{nums ? `Strings ${nums}` : g.label}</span>
+      {names && <span className="rounded-md border border-slate-700 bg-slate-950/60 px-1.5 py-px font-mono text-[10px] font-medium normal-case tracking-normal text-slate-400" title="Open-string notes">{names}</span>}
+      <span aria-hidden className="h-px flex-1 bg-slate-800" />
+    </h4>
   );
 }
 
@@ -111,11 +123,11 @@ export default function TriadsExplorer({ initialTonic = DEFAULT_KEY_PC, initialQ
           </Info>
         </h3>
         <p className="mb-3 text-xs text-slate-400">{chordName} in shapes borrowed from open chords, then its IV and V nearby.</p>
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-5">
           {data.map(({ g, inv }) => (
             <div key={g.id}>
-              <h4 className="mb-2 text-xs font-medium text-slate-300">{g.label}</h4>
-              <div className="grid gap-3 md:grid-cols-3">
+              <GroupHeading g={g} />
+              <div className="grid gap-3 md:grid-cols-2">
                 {inv.flatMap(({ inv: iv, list }) => list.map((base, i) => ({ iv, base, i, like: chordShapesOf(base) })))
                   .filter((e) => e.like.length)
                   .sort((a, b) => a.base.lowestFret - b.base.lowestFret)
@@ -144,25 +156,36 @@ export default function TriadsExplorer({ initialTonic = DEFAULT_KEY_PC, initialQ
         </div>
       </section>
 
-      {data.map(({ g, inv }, gi) => (
-        <section key={g.id} data-tour={gi === 0 ? "triads-group" : undefined} className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
-          <h3 className="mb-3 text-sm font-medium text-slate-100">{g.label}</h3>
-          <div className="grid gap-4 md:grid-cols-3">
-            {inv.map(({ inv: iv, list }) => (
-              <div key={iv.id}>
-                <div className="mb-1 flex items-baseline gap-2 text-xs">
-                  <b className="text-slate-200">{iv.label}</b>
-                  <span className="text-slate-500">bass note is the {["root", "3rd", "5th"][iv.id]}</span>
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  {list.length === 0 && <p className="col-span-2 text-xs text-slate-500">No closed shape fits within 4 frets.</p>}
-                  {list.map((v, i) => <TriadBox key={i} v={v} rootPc={tonicPc} active={playing === `${g.id}${iv.id}${i}`} onPlay={() => play(v, `${g.id}${iv.id}${i}`)} />)}
-                </div>
+      <section className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
+        <h3 className="mb-1 flex items-center gap-1 text-sm font-medium text-slate-100">
+          All shapes, by string group
+          <Info label="All shapes, by string group">
+            Every closed {chordName} shape on each chosen string group, sorted by which note is lowest: root position, 1st inversion and 2nd inversion. Click a box to hear it.
+          </Info>
+        </h3>
+        <p className="mb-3 text-xs text-slate-400">{chordName} in root position and both inversions on each string group.</p>
+        <div className="flex flex-col gap-5">
+          {data.map(({ g, inv }, gi) => (
+            <div key={g.id} data-tour={gi === 0 ? "triads-group" : undefined}>
+              <GroupHeading g={g} />
+              <div className="grid gap-4 md:grid-cols-3">
+                {inv.map(({ inv: iv, list }) => (
+                  <div key={iv.id}>
+                    <div className="mb-1 flex items-baseline gap-2 text-xs">
+                      <b className="text-slate-200">{iv.label}</b>
+                      <span className="text-slate-500">bass note is the {["root", "3rd", "5th"][iv.id]}</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      {list.length === 0 && <p className="col-span-2 text-xs text-slate-500">No closed shape fits within 4 frets.</p>}
+                      {list.map((v, i) => <TriadBox key={i} v={v} rootPc={tonicPc} active={playing === `${g.id}${iv.id}${i}`} onPlay={() => play(v, `${g.id}${iv.id}${i}`)} />)}
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </section>
-      ))}
+            </div>
+          ))}
+        </div>
+      </section>
     </WithSettings>
   );
 }

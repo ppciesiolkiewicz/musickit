@@ -7,6 +7,7 @@ import StringsOfLight from "@/components/landing/StringsOfLight";
 import EarlyAccessForm from "@/components/landing/EarlyAccessForm";
 import Photo, { type PhotoKey } from "@/components/landing/Photo";
 import StyleDivider from "@/components/landing/StyleDivider";
+import Glow from "@/components/landing/Glow";
 import SiteFooter from "@/components/landing/SiteFooter";
 import CourseSoon from "@/components/landing/CourseSoon";
 import { DISPLAY, Eyebrow, H2, Mark } from "@/components/landing/Display";
@@ -49,7 +50,12 @@ export default function CoachingHome() {
         </div>
 
         {/* Hero */}
-        <section className="grid grid-cols-[minmax(0,1fr)] items-center gap-12 py-12 sm:py-16 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:py-20">
+        <section className="relative isolate grid grid-cols-[minmax(0,1fr)] items-center gap-12 py-12 sm:py-16 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:py-20">
+        <Glow spots={[
+          { tone: "sky", at: { right: "-6rem", top: "-8rem" }, size: "46rem", strength: 0.26 },
+          { tone: "amber", at: { left: "-14rem", top: "-4rem" }, size: "32rem", strength: 0.13 },
+          { tone: "teal", at: { right: "8rem", bottom: "-12rem" }, size: "26rem", strength: 0.14 },
+        ]} />
           <div className="landing-rise flex flex-col items-start">
             <a href="#plan" className="group mb-6 inline-flex items-center gap-2 rounded-full border border-sky-500/40 bg-sky-500/10 py-1 pl-1.5 pr-3 text-xs text-sky-100 transition hover:border-sky-400">
               <span className="rounded-full bg-sky-400 px-2 py-0.5 text-[11px] font-semibold text-slate-950">New</span>
@@ -85,7 +91,7 @@ export default function CoachingHome() {
         <PlanSection />
 
         {/* Why attunr exists, in the founder's words */}
-        <section aria-labelledby="story-h" className="relative border-t border-slate-800/70 py-12 sm:py-16">
+        <section aria-labelledby="story-h" className="relative sect-rule py-12 sm:py-16">
             <div className={STORY.photo ? "grid grid-cols-[minmax(0,1fr)] items-center gap-10 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-14" : "mx-auto max-w-3xl"}>
               {STORY.photo && <Photo name={STORY.photo} className="ls-photo aspect-4/5 rounded-3xl border border-slate-800" sizes="(min-width: 1024px) 35vw, 100vw" />}
               <div>
@@ -108,7 +114,7 @@ export default function CoachingHome() {
           </section>
 
         {/* The video course: early access and bundles */}
-        <section id="course" aria-labelledby="course-h" className="scroll-mt-6 border-t border-slate-800/70 py-12 sm:py-16">
+        <section id="course" aria-labelledby="course-h" className="scroll-mt-6 sect-rule py-12 sm:py-16">
           <div className="grid grid-cols-[minmax(0,1fr)] items-end gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
             <div>
               <Eyebrow>The video course · early access</Eyebrow>
@@ -156,7 +162,7 @@ export default function CoachingHome() {
         </section>
 
         {/* Private lessons with professional teachers */}
-        <section id="lessons" aria-labelledby="lessons-h" className="scroll-mt-6 border-t border-slate-800/70 py-12 sm:py-16">
+        <section id="lessons" aria-labelledby="lessons-h" className="scroll-mt-6 sect-rule py-12 sm:py-16">
           <div className="grid grid-cols-[minmax(0,1fr)] items-center gap-12 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-16">
             <div>
               <Eyebrow tone="text-violet-300">Private lessons</Eyebrow>

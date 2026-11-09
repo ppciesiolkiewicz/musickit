@@ -6,6 +6,34 @@ New:
 
 
 
+46. In runs / melodies - just selecting a scale should start the microphone
+
+47. Identify which pages should have guided tour, e.g. runs / melodies 
+and add to these pages. Rank pages and provide me your understanding which pages need it first.
+- Guided tour should always include:
+  - "This is guided tour for page.. where you can" - adjust copy
+
+48. add melodies to notes creator
+- we should allow to select which melody we want when adding component (just name + index)
+- widget should have button to go to next melody and when sharing we should share this setting 
+
+
+49. In fullscreen melodies with piano roll: 
+- put chords under the piano roll
+- can do the same for non-fullscreen
+
+ 51. Let's add introduction page with some infromation about how to do exercises:
+ - let's add a guided tour whenever user opens this page that shows how to use introductions 
+ pocket tools etc. 
+ - is this needed tho?
+
+52. In autoplan - tour doesnt work, there're 2 buttons for info in the corner
+- 
+
+
+53. When guide is open - space should navigate to next step,
+- add [space] next to 'next' to indicate
+
 
 ======================== Small ========================
 
@@ -36,9 +64,6 @@ Original: "Lets put it above the game" (ears) / "Move this one above the game" (
 - when widget is on stage - show settings button next to scale selector - this will open pallette search and focus config for selected widget and allow prop
 
 
-40.  [NEW 2026-11-09 09:46]
-When I select "sing interval" or any other scale related menu item then  2 items are highlighted in navbar menu - scale and interval. Fix so only 1 item is highlighted
-
 
 ======================== Medium ========================
 
@@ -65,7 +90,7 @@ Original: "We are adding "custom" level alongside 1-6: Your set is renamed to "I
 - Where: src/components/practice/EarGame.tsx:156
 
 
-43. In guided tour - add [space] to go next (add [space] label to the button)
+43. In guided tour / onboarding - add [space] to go next (add [space] label to the button)
 
 ======================== Large ========================
 
@@ -98,8 +123,19 @@ oooooooooooooooooooooo Recent app feedback ooooooooooooooooooooooooo
 
 
 oooooooooooooooooooooooooooooooooo DONE ooooooooooooooooooooooooooooooooooooooooooooooo
+D34. Nav: only one menu item highlighted on nested pages, e.g. Sing an interval (was 40)
+Done: the menu now marks only the page that matches best, so /theory/singing/intervals highlights "Sing an interval" and no longer "Sing a scale" too. The top-level menu button was already right. Types clean. Not checked in the browser.
+
+D33. Sing an interval: side panel, levels, "?" with interval and solfège (/theory/singing/intervals) (was 50)
+Done: the page's settings moved to a side panel: Voice, Keys, Direction, Level, Intervals, View (with Show my voice). Level is 1-6 (the ear training levels, starts on 1: P5 and octave) or Custom; on a level, Intervals shows only that level's intervals, disabled; on Custom all twelve can be switched, starting from the level it came from. The "?" now reads "? P5 · Sol" on the piano roll, and the staff has a "?" with both under it. Tapping "?" plays the note, and the mic waits it out so the piano can't answer. The voice dot goes green on Do too, and Do itself turns green while the voice is on it and fades back when it leaves. Hear Do and its D key are gone; tapping Do still plays it. Pocket tools left out: the drone and click would reach the mic and Space is Next here. In a plan the tool keeps its own controls, without Hear Do. Checked in the browser with a test tone as the mic: roll, Do's green and fade, dot, tap on "?", levels, Custom, staff view. Not checked: Do's green on the staff, a real voice, by ear.
+D32. Arpeggio in Notes Creator: works like Scale and the arpeggios page (was 47)
+Done: the Arpeggio widget now picks Key, Scale, On (the chord of the key: I · C, ii · D...), Type (scale triad, 7th or 9th, or any quality), Show (neck, positions) and Root on (6th to 2nd string), instead of a typed chord and box numbers. It draws the arpeggios page's neck and position boxes; tap a position's name to light it up on the neck. It follows the master Key & scale, and a key or scale picked on it pins that part. Older typed-chord widgets still load and draw as they were; they become the new widget only when something is changed in their options, on the nearest type (a G9 becomes Dominant 7). Typing a chord name is gone from this widget. Checked in the browser: add, edit, reload, an older G9 widget, no console errors.
+D31. Pocket tools and drone in /dev/stories (was 45)
+Done: /dev/stories has an "AI Autoplan Tools" heading over the tools and a "Components" section with PocketTools (full, stacked, no drone), PocketDrone (the drone line alone) and DroneControls. The pocket tools' tempo slider has a "Tempo" label. The drone line has wider gaps, and its volume moved to its own labelled line so it fits the side column. Triads no longer show the mic Input line; the metronome stays. Types clean; lint clean on the stories and pocket folders.
 D30. First note glitches: wait until audio is ready (/theory/ears and other exercises) (was 37)
 Done, in the shared sound engine so every exercise gets it. Main cause, measured in Chrome: after about 30 seconds of silence Chrome swaps the output for a fake one, and the next note reopens the real one, which stalled the audio about 570 ms (0 ms after short gaps). The output now carries an inaudible -120 dB signal while the tab is in view, and after 36 seconds of silence the stall is gone (-2 and 0 ms). Also: wakeAudio now waits until the output has run for 0.2 s, so every `await wakeAudio()` starts clean; notes start one audio buffer ahead of the clock so their attack is not cut to a click; playSequence checks the output every time, not only on first use, so notes no longer stack after a suspend; the rhythm game and take player use wakeAudio, and the tuner reference, improv loop and landing phrase start after the settling; the day timer chime uses the app's one AudioContext, so it now follows the volume. Checked in the browser on /theory/ears only. Not checked by ear, in Safari or Firefox, or on a first click with a suspended context (localhost started it running).
+D28. triads to small on desktop (was 44)
+Done: "Essential triads" now shows 2 string groups per row on desktop (grid md:grid-cols-2), with the inner shape cards at 2 per group instead of 3 so they stay readable. Not checked in the browser.
 D29. One button to start the microphone and pick the input (was 41)
 Done: the input chip is now the one mic button. It reads "Start microphone"; a press starts the mic and opens the input list, and Start / Stop microphone sits at the top of that list. Starting an exercise starts the mic without opening the list (Play on a run or melody, Start on Sing an interval, Play on a staff's drone or click, Start exercise). Changed on singing runs, melodies and scale, Sing an interval, the staff, the side panel's Input line, the tuner and the studio's Audio input widget (its Start button and cog are now one button that opens the dialog). A press on a staff with a drone or click also starts that backing, as its mic button did. Kept as plain input pickers, because their own Start or Record opens the mic: rhythm, range finder, note finder, quick record, jam loops. The staff inside the teacher studio keeps a plain mic switch: the studio's input has its own dialog. Checked in the browser: runs, intervals, scale, arpeggios panel, tuner. Not checked in the browser: staff, melodies, studio widget.
 D27. Sing an interval: group the controls above the roll, second pass (/theory/singing/intervals) (was 34)

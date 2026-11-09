@@ -4,8 +4,9 @@ import SiteFooter from "@/components/landing/SiteFooter";
 import { StudioApp } from "@/features/teachers/studio";
 
 export const metadata: Metadata = {
-  title: "Studio · attunr",
-  description: "Record a guitar lesson with any chord, scale, position or drone on screen beside your camera.",
+  title: "Teacher Video Studio: Record Guitar Lessons · attunr",
+  description: "Record high-quality guitar lessons with interactive fretboard diagrams, chord shapes, scales, and pitch drones displayed in real time alongside your camera.",
+  alternates: { canonical: "/teachers/studio" },
 };
 
 export default async function StudioPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {

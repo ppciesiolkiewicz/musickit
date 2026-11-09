@@ -95,7 +95,7 @@ describe("tools", () => {
   });
   it("parses the tuning-by-ear tools", () => {
     assert.deepEqual(parseTool({ type: "string-singer" }), { type: "string-singer" });
-    assert.deepEqual(parseTool({ type: "string-singer", drill: "strings", voice: "alto" }), { type: "string-singer", voice: "alto" });
+    assert.deepEqual(parseTool({ type: "string-singer", drill: "strings", voice: "alto" }), { type: "string-singer" });
     assert.deepEqual(parseTool({ type: "string-singer", drill: "pairs" }), { type: "string-singer", drill: "pairs" });
     assert.deepEqual(parseTool({ type: "string-singer", drill: "nope", voice: "x" }), { type: "string-singer" });
     assert.deepEqual(parseTool({ type: "tuning-ears", cents: 10, together: true }), { type: "tuning-ears", cents: 10, together: true });

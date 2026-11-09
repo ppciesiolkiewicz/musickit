@@ -5,8 +5,9 @@ import { CircleOfFifthsPage } from "@/components/theory/CircleOfFifths";
 import { CIRCLE_TOUR } from "@/features/guide/tours/circle";
 
 export const metadata: Metadata = {
-  title: "Circle of fifths · attunr",
-  description: "Every major and minor key on the circle of fifths: key signatures, the chords of each key, relatives and neighbours.",
+  title: "Interactive Circle of Fifths: Keys, Modes & Chords · attunr",
+  description: "Interactive circle of fifths wheel: explore key signatures, relative major and minor keys, diatonic chords, and harmonic progressions in every key.",
+  alternates: { canonical: "/theory/circle" },
 };
 
 export default function CirclePage() {

@@ -8,8 +8,9 @@ import SiteFooter from "@/components/landing/SiteFooter";
 import { DISPLAY, Eyebrow } from "@/components/landing/Display";
 
 export const metadata: Metadata = {
-  title: "Teach on attunr",
-  description: "Teach guitar with every scale, chord, drone and loop a click away, and record lessons in the video studio. Founding teachers set their own rate.",
+  title: "Teach Guitar on attunr: Video Studio & Diagram Tools · attunr",
+  description: "Teach guitar with every scale, chord, drone, and loop a click away. Record lessons in our video studio, build custom student plans, and set your own rates.",
+  alternates: { canonical: "/teach" },
 };
 
 const PERKS = [

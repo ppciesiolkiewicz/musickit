@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function BackingPage() {
   return (
-    <PageShell active="/theory/backing" devices pageId="backing" tour={BACKING_TOUR} title="Backing tracks" intro="Pick a progression, a key and a style, and play over the band. Change the tempo while it plays; a new chord, key or style comes in on the next bar. Space plays and stops.">
+    <PageShell active="/theory/backing" devices pageId="backing" tour={BACKING_TOUR} title="Backing tracks" intro="Play along with a band. Pick a progression, a key and a style, then play a scale or a few chords over it, or make up a line. Change the tempo while it plays; a new chord, key or style comes in on the next bar. Space plays and stops.">
       <BackingTrack />
     </PageShell>
   );

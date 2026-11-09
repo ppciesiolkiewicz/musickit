@@ -13,7 +13,7 @@ export default async function EarsPage({ searchParams }: { searchParams: Promise
   const sp = await searchParams;
   const q = new URLSearchParams(Object.entries(sp).flatMap(([k, v]) => (typeof v === "string" ? [[k, v]] : [])));
   return (
-    <PageShell active="/theory/ears" devices pageId="ears" tour={EARS_TOUR} title="Ear training" intro="Hear two notes and name the gap between them, or hear a chord and name its kind. Each level adds intervals; stay on one until it feels easy. Every question starts on a new random note, so you learn the sound of the gap, not the notes.">
+    <PageShell active="/theory/ears" devices pageId="ears" tour={EARS_TOUR} title="Ear training" intro="Train your ear to name what you hear. Try naming the gap between two notes, or the kind of chord. Stay on one level until it feels easy, then add the next. Every question starts on a new note, so you learn the sound, not the notes.">
       <EarGame initial={parseEarSettings(q)} />
     </PageShell>
   );

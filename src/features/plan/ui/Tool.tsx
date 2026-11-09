@@ -70,7 +70,7 @@ function ToolView({ tool, voice, input }: { tool: PlanTool; voice?: Voice; input
     case "run-singer":
       return <RunSinger run={tool.run} voice={tool.voice ?? voice} chords={tool.chords} metronome={tool.metronome} />;
     case "string-singer":
-      return <StringSinger drill={tool.drill} voice={tool.voice ?? voice} metronome={tool.metronome} />;
+      return <StringSinger drill={tool.drill} metronome={tool.metronome} />;
     case "interval-singer":
       return <IntervalSinger keys={tool.keys ?? [tool.key]} voice={tool.voice ?? voice} intervals={tool.intervals} dir={tool.dir} dot={tool.dot} />;
     case "tuning-ears":

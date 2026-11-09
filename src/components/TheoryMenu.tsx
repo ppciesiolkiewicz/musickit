@@ -107,7 +107,7 @@ export default function TheoryMenu({ active, label, groups = GROUPS, className =
     [],
   );
 
-  const isCurrent = (s: TheorySection) => !s.href.includes("#") && (active === s.href || active.startsWith(`${s.href}/`));
+  const isCurrent = (s: TheorySection) => here?.href === s.href;
 
   return (
     <div

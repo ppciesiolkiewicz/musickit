@@ -4,8 +4,9 @@ import BasicsArticle from "@/components/theory/BasicsArticle";
 import { BASICS_TOUR } from "@/features/guide/tours/basics";
 
 export const metadata: Metadata = {
-  title: "Guitar basics · attunr",
-  description: "Strings, frets and note names, and every interval shown on a piano and then on the guitar: same string and across strings.",
+  title: "Guitar Basics: Fretboard, Notes & Musical Intervals · attunr",
+  description: "Learn guitar fretboard fundamentals: open strings, frets, note names, and musical intervals mapped visually from the piano keyboard to the guitar neck.",
+  alternates: { canonical: "/theory/basics" },
 };
 
 export default async function BasicsPage({ searchParams }: { searchParams: Promise<{ interval?: string }> }) {

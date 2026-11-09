@@ -42,7 +42,7 @@ const HAND: { tool: ToolName; name: string; props: Props }[] = [
   { tool: "position-neck", name: "G major: positions 2, 3, 4", props: { scale: "major-ionian", key: "g", positions: [2, 3, 4] } },
   { tool: "position-neck", name: "C minor pentatonic 1 & 2, no picker", props: { scale: "minor-pentatonic", key: "c", positions: [1, 2], picker: false } },
   { tool: "string-singer", name: "Open strings, up and back", props: {} },
-  { tool: "string-singer", name: "Pairs, bass voice", props: { drill: "pairs", voice: "bass" } },
+  { tool: "string-singer", name: "Pairs", props: { drill: "pairs" } },
   { tool: "string-singer", name: "Fifth fret, no metronome", props: { drill: "fifth-fret", metronome: false } },
   { tool: "interval-singer", name: "Default: M3, P5, P8 up from C", props: {} },
   { tool: "interval-singer", name: "Only the 5th, in G, alto", props: { key: "g", voice: "alto", intervals: [7] } },

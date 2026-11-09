@@ -4,8 +4,9 @@ import SingingApp from "@/components/theory/singing/SingingApp";
 import { parseSingingLink } from "@/features/theory/singingLink";
 
 export const metadata: Metadata = {
-  title: "Sing melodies · attunr",
-  description: "Short tunes that end on Do, easiest first. Sing them back and watch your voice as a dot on the staff, with piano chords under each tune.",
+  title: "Vocal Melody Sight-Singing & Pitch Accuracy Trainer · attunr",
+  description: "Practice sight-singing short melodic phrases. Sing tunes back with piano chord accompaniment and track your vocal pitch accuracy live on the staff.",
+  alternates: { canonical: "/theory/singing/melodies" },
 };
 
 export default async function SingMelodiesPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
@@ -15,9 +16,9 @@ export default async function SingMelodiesPage({ searchParams }: { searchParams:
     <PageShell
       active="/theory/singing/melodies"
       full
-      devices
+      devices mic
       title="Sing melodies"
-      intro="A book of short tunes in your key, two bars or four, each ending on a long Do: Do and Re first, then Mi, Fa and Sol, skips, La and Ti, broken chords, and leaps last. Each is marked Easy to Expert by how it moves. Press play, sing along, and a dot shows your voice on the staff."
+      intro="Sing short tunes in your key, each ending on a long Do. Start with Easy ones on Do and Re, then try skips, broken chords and leaps. Press play, sing along, and a dot shows your voice on the staff."
     >
       <SingingApp mode="melodies" initial={parseSingingLink(q)} />
     </PageShell>

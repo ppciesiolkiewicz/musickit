@@ -5,8 +5,9 @@ import ImprovApp from "@/components/improv/ImprovApp";
 import { IMPROV_TOUR } from "@/features/guide/tours/improv";
 
 export const metadata: Metadata = {
-  title: "Improvisation · attunr",
-  description: "Schillinger's rhythm interference and motive permutation as improvisation exercises, with practice games.",
+  title: "Guitar Improvisation Exercises & Motive Drills · attunr",
+  description: "Learn guitar improvisation through rhythm interference, motive permutation exercises, and interactive practice games over backing grooves.",
+  alternates: { canonical: "/theory/improv" },
 };
 
 export default function ImprovPage() {

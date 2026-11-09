@@ -8,8 +8,9 @@ import { RUNS } from "@/features/theory/singingMelodies";
 import { SINGING_TOUR } from "@/features/guide/tours/singing";
 
 export const metadata: Metadata = {
-  title: "Sing a scale · attunr",
-  description: "Sing a scale and watch your voice as a dot on the staff, moving over the notes as you sing. Tap a note to hear it, play the scale on the beat, with a drone and a metronome to sing against.",
+  title: "Sing a Scale: Vocal Pitch Training with Live Visuals · attunr",
+  description: "Sing vocal scales with real-time pitch detection. Watch your voice trace notes on the musical staff with an accompanying drone and metronome.",
+  alternates: { canonical: "/theory/singing" },
 };
 
 export default async function SingingPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
@@ -24,9 +25,9 @@ export default async function SingingPage({ searchParams }: { searchParams: Prom
       pageId="singing"
       tour={SINGING_TOUR}
       full
-      devices
+      devices mic
       title="Sing a scale"
-      intro="Pick a key, a scale and your voice type, tap a note to hear it or play the scale up and down on the beat, then switch the mic on and sing: a dot follows your voice over the scale on the staff, up and down with the pitch and along from one note to the next."
+      intro="Sing a scale and watch your voice. Pick a key, a scale and your voice type, then tap a note to hear it or play the scale up and down on the beat. Switch the mic on and sing: a dot follows your voice over the scale on the staff."
     >
       <SingingApp
         mode="scales"

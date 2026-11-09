@@ -5,8 +5,9 @@ import ArpeggiosExplorer from "@/components/chordKit/ArpeggiosExplorer";
 import { ARPEGGIOS_TOUR } from "@/features/guide/tours/arpeggios";
 
 export const metadata: Metadata = {
-  title: "Arpeggios · attunr",
-  description: "Arpeggios of any chord overlaid on any scale or mode, across the whole guitar neck.",
+  title: "Guitar Arpeggios Explorer: Neck Shapes & Scale Degrees · attunr",
+  description: "Visualize guitar arpeggio shapes overlaid on scales and modes across the entire neck. Master major, minor, 7th, and extended arpeggios in any key.",
+  alternates: { canonical: "/theory/arpeggios" },
 };
 
 export default function ArpeggiosPage() {
