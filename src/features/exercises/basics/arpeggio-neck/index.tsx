@@ -64,7 +64,7 @@ export function View({ chord, boxes: asked, placement, part, enable, highlight, 
         </Hint>
       </div>
       <div data-tour="arpeggio-neck-box">
-        <PositionBox position={position} cells={[]} rings={false} active={active} labelSystem={system} onNote={(c) => tap(cellKey(c), c.midi)} states={state} seam={seam} />
+        <PositionBox position={position} cells={[]} rings={false} active={active} labelSystem={system} onNote={(c) => tap(cellKey(c), c.midi)} states={state} seam={seam} horizontal />
       </div>
     </div>
   );

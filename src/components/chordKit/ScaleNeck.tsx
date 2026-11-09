@@ -85,7 +85,7 @@ export function ScaleNeck({ cells, big, rings = true, focus = null, fadeOutside 
 /** How a note is drawn (see `noteState` in src/features/exercises/cues/visibility.ts). */
 export type DotState = "hidden" | "muted" | "normal" | "highlighted";
 
-export function PositionBox({ position, cells, rings, active, labelSystem, onNote, highlight, states, seam, fingers }: {
+export function PositionBox({ position, cells, rings, active, labelSystem, onNote, highlight, states, seam, fingers, horizontal = false }: {
   position: ScalePosition; cells: ScaleCell[]; rings: boolean; active: string | null; labelSystem: LabelSystem; onNote: (c: ScaleCell) => void;
   /** pitch classes to stand out: every other note is dimmed (none: all notes alike) */
   highlight?: ReadonlySet<number>;
@@ -95,11 +95,17 @@ export function PositionBox({ position, cells, rings, active, labelSystem, onNot
   seam?: ReadonlySet<string>;
   /** the finger that frets a note (1 index ... 4 pinky), shown in a badge; undefined draws none */
   fingers?: (c: ScaleCell) => number | undefined;
+  /** draw the box lying down, low E at the bottom, like the whole neck (default: standing up, nut at the top) */
+  horizontal?: boolean;
 }) {
   const lit = useLit(active);
   // a box at the first fret also shows the open strings
   const from = position.from <= 1 ? 0 : position.from;
-  const g = vGeometry(from, position.to, 38, 40, 34);
+  const v = vGeometry(from, position.to, 38, 40, 34);
+  const h = fretGeometry(from, position.to, 54, 36, 22);
+  const W = horizontal ? h.W : v.W, H = horizontal ? h.H : v.H;
+  const x = (c: ScaleCell) => (horizontal ? h.fx(c.fret) : v.sx(c.string));
+  const y = (c: ScaleCell) => (horizontal ? h.sy(c.string) : v.fy(c.fret));
   const mine = new Set(position.notes.map(cellKey));
   const extra = rings ? cells.filter((c) => c.fret >= from && c.fret <= position.to && !mine.has(cellKey(c))) : [];
   const label = (c: ScaleCell) => noteLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText });
@@ -108,11 +114,11 @@ export function PositionBox({ position, cells, rings, active, labelSystem, onNot
   const dim = (c: ScaleCell) => (states ? states(c.pc) === "muted" : !!highlight && !highlight.has(c.pc));
   const accent = (c: ScaleCell) => !!states && states(c.pc) === "highlighted";
   return (
-    <svg viewBox={`0 0 ${g.W} ${g.H}`} style={{ width: "100%", maxWidth: 260, height: "auto" }} className="mx-auto" role="img" aria-label={`Position ${position.number}, frets ${position.from} to ${position.to}`}>
-      <VerticalBoard g={g} numbersRight />
-      {extra.filter(drawn).map((c) => <Dot key={cellKey(c)} c={c} x={g.sx(c.string)} y={g.fy(c.fret)} r={14} ring label={label(c)} hover={hover(c)} active={lit(c)} dim={dim(c)} accent={accent(c)} onNote={onNote} />)}
-      {position.notes.filter(drawn).map((c) => <Dot key={cellKey(c)} c={c} x={g.sx(c.string)} y={g.fy(c.fret)} r={14} ring={false} label={label(c)} hover={hover(c)} active={lit(c)} dim={dim(c)} accent={accent(c)} finger={fingers?.(c)} onNote={onNote} />)}
-      {seam && position.notes.filter((c) => seam.has(cellKey(c))).map((c) => <circle key={`seam-${cellKey(c)}`} cx={g.sx(c.string)} cy={g.fy(c.fret)} r={19} fill="none" stroke="var(--color-amber-300)" strokeWidth={2} strokeDasharray="4 3" pointerEvents="none" />)}
+    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", maxWidth: horizontal ? 480 : 260, height: "auto" }} className="mx-auto" role="img" aria-label={`Position ${position.number}, frets ${position.from} to ${position.to}`}>
+      {horizontal ? <FretboardBase g={h} /> : <VerticalBoard g={v} numbersRight />}
+      {extra.filter(drawn).map((c) => <Dot key={cellKey(c)} c={c} x={x(c)} y={y(c)} r={14} ring label={label(c)} hover={hover(c)} active={lit(c)} dim={dim(c)} accent={accent(c)} onNote={onNote} />)}
+      {position.notes.filter(drawn).map((c) => <Dot key={cellKey(c)} c={c} x={x(c)} y={y(c)} r={14} ring={false} label={label(c)} hover={hover(c)} active={lit(c)} dim={dim(c)} accent={accent(c)} finger={fingers?.(c)} onNote={onNote} />)}
+      {seam && position.notes.filter((c) => seam.has(cellKey(c))).map((c) => <circle key={`seam-${cellKey(c)}`} cx={x(c)} cy={y(c)} r={19} fill="none" stroke="var(--color-amber-300)" strokeWidth={2} strokeDasharray="4 3" pointerEvents="none" />)}
     </svg>
   );
 }
