@@ -43,11 +43,11 @@ function boxCells(start: number): Cell[] {
 const CELLS: Record<Box, Cell[]> = { 1: boxCells(BOX_FRET[1]), 2: boxCells(BOX_FRET[2]) };
 
 /** The loop the mini band plays (the Aeolian vamp in A) and each chord's pitch classes, so the neck can light its notes. */
-const AM = { name: "Am", pcs: [9, 0, 4], tones: [["A", "R"], ["C", "♭3"], ["E", "5"]] };
+const AM = { name: "Am", num: "i", quality: "minor", pcs: [9, 0, 4], tones: [["A", "R"], ["C", "♭3"], ["E", "5"]] };
 const LOOP = [
   AM,
-  { name: "F", pcs: [5, 9, 0], tones: [["F", "R"], ["A", "3"], ["C", "5"]] },
-  { name: "G", pcs: [7, 11, 2], tones: [["G", "R"], ["B", "3"], ["D", "5"]] },
+  { name: "F", num: "♭VI", quality: "major", pcs: [5, 9, 0], tones: [["F", "R"], ["A", "3"], ["C", "5"]] },
+  { name: "G", num: "♭VII", quality: "major", pcs: [7, 11, 2], tones: [["G", "R"], ["B", "3"], ["D", "5"]] },
   AM,
 ];
 
@@ -77,7 +77,10 @@ function PentatonicBox({ box = 1, highlight, chordPcs }: { box?: Box; highlight?
 }
 
 /** The smallest backing band: one play button over an A minor loop (the app's own band, drums, bass and keys). Its settings are not saved. */
-function MiniBacking({ at, onChord }: { at: number | null; onChord: (i: number | null) => void }) {
+/** Where the band is: the chord now playing and how far through its bar (0-1). */
+type Pos = { chord: number; frac: number };
+
+function MiniBacking({ pos, onPos }: { pos: Pos | null; onPos: (p: Pos | null) => void }) {
   const [band] = useState(() => {
     const b = new Band({ context: getAudioContext, destination: getOutputBus, wake: wakeAudio });
     b.set({ progression: "aeolian", tonic: "A", style: "rock", bpm: 80 });
@@ -89,32 +92,47 @@ function MiniBacking({ at, onChord }: { at: number | null; onChord: (i: number |
   // follow the band's chord while it plays and tell the neck, which lights that chord's notes
   useEffect(() => {
     if (!snap.playing) {
-      onChord(null);
+      onPos(null);
       return;
     }
     let raf = 0;
-    let last: number | null = -1;
+    let last = "";
     const tick = () => {
-      const i = band.position()?.chord ?? null;
-      if (i !== last) {
-        last = i;
-        onChord(i);
+      const p = band.position();
+      const key = p ? `${p.chord}:${p.beat}` : "";
+      if (key !== last) {
+        last = key;
+        onPos(p ? { chord: p.chord, frac: (p.beat + 1) / p.beatsPerBar } : null);
       }
       raf = requestAnimationFrame(tick);
     };
     tick();
     return () => cancelAnimationFrame(raf);
-  }, [band, snap.playing, onChord]);
+  }, [band, snap.playing, onPos]);
   return (
-    <div ref={focus} className="flex items-center gap-3 rounded-xl border border-slate-800 bg-slate-950/60 p-2">
+    <div ref={focus} className="flex flex-col gap-2 rounded-xl border border-slate-800 bg-slate-950/60 p-2">
+      <div className="flex items-center gap-3">
       <button type="button" onClick={() => band.toggle()} aria-pressed={snap.playing}
         className={`inline-flex h-8 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg border px-3 text-xs font-medium transition ${snap.playing ? "border-emerald-400/70 bg-emerald-500/20 text-emerald-100" : "border-sky-400/60 bg-sky-500/15 text-sky-50 hover:bg-sky-500/25"}`}>
         <Icon name={snap.playing ? "square" : "play"} size={14} fill />{snap.playing ? "Stop" : "Backing track"}
       </button>
-      <span className="flex items-center gap-2 text-xs text-slate-500" aria-live="polite">
-        {LOOP.map((c, i) => <span key={i} className={`rounded px-1.5 py-0.5 font-medium transition ${at === i ? "bg-sky-400/20 text-sky-100" : ""}`}>{c.name}</span>)}
-        <span className="hidden sm:inline">· 80 bpm</span>
-      </span>
+      <span className="text-xs text-slate-500">Aeolian loop · 80 bpm</span>
+      </div>
+      {/* the loop: each chord with its place in A minor and its quality, filling as the bars go by */}
+      <ol className="grid grid-cols-4 gap-1.5" aria-label="Chords of the loop" aria-live="polite">
+        {LOOP.map((c, i) => {
+          const now = pos?.chord === i;
+          const fill = !pos ? 0 : i < pos.chord ? 1 : now ? pos.frac : 0;
+          return (
+            <li key={i} className={`relative overflow-hidden rounded-lg border px-1.5 pb-2 pt-1 text-center transition ${now ? "border-sky-400/70 bg-sky-400/10" : "border-slate-800"}`}>
+              <span className={`block text-sm font-semibold ${now ? "text-sky-100" : "text-slate-300"}`}>{c.name}</span>
+              <span className="block text-xs text-amber-200">{c.num}</span>
+              <span className="block text-[10px] text-slate-500">{c.quality}</span>
+              <span className="absolute inset-x-0 bottom-0 h-1 bg-slate-800"><span className="block h-full bg-sky-400 transition-[width] duration-300" style={{ width: `${fill * 100}%` }} /></span>
+            </li>
+          );
+        })}
+      </ol>
     </div>
   );
 }
@@ -139,7 +157,8 @@ function ChordTones({ at }: { at: number | null }) {
 export function LessonNoteMock({ compact = false }: { compact?: boolean }) {
   type Step = "b1" | "b2" | "imp";
   const [step, setStep] = useState<Step>("b1");
-  const [chord, setChord] = useState<number | null>(null);
+  const [pos, setPos] = useState<Pos | null>(null);
+  const chord = pos?.chord ?? null;
   const [done, setDone] = useState<Record<Step, boolean>>({ b1: true, b2: false, imp: false });
   const box: Box = step === "b2" ? 2 : 1;
   const items: { id: Step; t: string }[] = [
@@ -172,7 +191,7 @@ export function LessonNoteMock({ compact = false }: { compact?: boolean }) {
           </li>
         ))}
       </ul>
-      {step === "imp" && <div className="mt-2"><MiniBacking at={chord} onChord={setChord} /><ChordTones at={chord} /></div>}
+      {step === "imp" && <div className="mt-2"><MiniBacking pos={pos} onPos={setPos} /><ChordTones at={chord} /></div>}
       {!compact && <p className="mt-3 border-t border-slate-800 pt-3 text-xs text-slate-500">Next time: add the ♭5 and it becomes the blues scale.</p>}
     </div>
   );
