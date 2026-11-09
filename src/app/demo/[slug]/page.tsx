@@ -26,10 +26,11 @@ export default async function DemoPage({ params }: { params: Promise<Params> }) 
   const demo = demoPlan((await params).slug);
   if (!demo) notFound();
   return (
-    <HintProvider>
-      <PageShell active="/plan" full devices pageId="plan" tour={PLAN_TOUR} title={`Demo: ${demo.label}`} intro="A week of daily exercises, as the AI wrote them for attunr. Open any day and play with its tools. Nothing here is saved.">
+    <PageShell active="/plan" devices pageId="plan" tour={PLAN_TOUR} title={`Demo: ${demo.label}`} intro="A week of daily exercises, as the AI wrote them for attunr. Open any day and play with its tools. Nothing here is saved.">
+      {/* HintProvider under the shell, so the title row shows no "?" */}
+      <HintProvider>
         <DemoPlan config={demo.config} />
-      </PageShell>
-    </HintProvider>
+      </HintProvider>
+    </PageShell>
   );
 }

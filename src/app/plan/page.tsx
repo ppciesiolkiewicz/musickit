@@ -12,11 +12,11 @@ export const metadata: Metadata = {
 
 export default function PlanPage() {
   return (
-    // one HintProvider over the page, so the "?" by the title arms the hints in every exercise tool
-    <HintProvider>
-      <PageShell active="/plan" full devices pageId="plan" tour={PLAN_TOUR} title="AI practice plan" intro="A continuous daily plan for your practice, written by your own AI. A new set of exercises opens each day, and each week builds on the last.">
+    <PageShell active="/plan" devices pageId="plan" tour={PLAN_TOUR} title="AI practice plan" intro="A continuous daily plan for your practice, written by your own AI. A new set of exercises opens each day, and each week builds on the last.">
+      {/* HintProvider sits under the shell, so the title row shows no "?"; a tool's own toggle (SingAlong's) still arms its hints */}
+      <HintProvider>
         <PlanApp />
-      </PageShell>
-    </HintProvider>
+      </HintProvider>
+    </PageShell>
   );
 }
