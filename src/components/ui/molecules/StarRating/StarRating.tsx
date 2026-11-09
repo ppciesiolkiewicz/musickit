@@ -35,8 +35,9 @@ export function StarRating({ value, onChange, labels, label, size = "md" }: {
               aria-label={`${n} ${n === 1 ? "star" : "stars"}: ${text}`}
               title={text}
               tabIndex={-1}
-              onMouseEnter={() => setHover(n)}
-              onClick={() => onChange(value === n ? null : n)}
+              // preview only with a mouse: on a touch screen the hover would stick after a tap and hide a cleared rating
+              onPointerEnter={(ev) => { if (ev.pointerType === "mouse") setHover(n); }}
+              onClick={() => { setHover(null); onChange(value === n ? null : n); }}
               className="grid size-11 cursor-pointer place-items-center transition active:scale-90"
             >
               <svg width={icon} height={icon} viewBox="0 0 24 24" aria-hidden="true" className={lit ? "fill-amber-400 text-amber-400" : "fill-transparent text-slate-500"}>
