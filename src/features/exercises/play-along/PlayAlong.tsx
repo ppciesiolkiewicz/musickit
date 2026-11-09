@@ -1,8 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Icon from "@/components/Icon";
-import { Hint, sbtn } from "@/components/ui";
+import { Hint } from "@/components/ui";
 import { useCoverage } from "@/features/guide/useCoverage";
 import { useLevelAtLeast } from "@/features/guide/Tier";
 import { useAudioFocus } from "@/features/sound";
@@ -18,6 +17,7 @@ import type { Timeline } from "../timeline/types";
 import type { PlayAlongProps } from "./play-along.props";
 import { withBackingSound, type BackingSound } from "./schedule";
 import { isSolo, soloTargets } from "./solo";
+import { BeatMeter, PlayButton, PlayerCard, TempoControl, pill } from "./PlayerParts";
 import { useTimelinePlayer } from "./useTimelinePlayer";
 import SoloView from "./views/SoloView";
 import NeckView from "./views/NeckView";
@@ -78,17 +78,15 @@ export function PlayAlongTimeline({ timeline, view = "tab", others = "muted", ma
     setTempoState(v);
     player.setTempo(v);
   };
-  const pill = (on: boolean) => `rounded-full border px-2.5 py-0.5 text-[11px] transition ${on ? "border-sky-400/70 bg-sky-500/15 text-sky-100" : "border-slate-700 text-slate-500 hover:border-slate-500"}`;
 
   return (
-    <div ref={focus} className="flex flex-col gap-2 rounded-xl border border-slate-800 bg-slate-950/40 p-2.5">
-      <div className="flex flex-wrap items-center gap-2">
+    <PlayerCard ref={focus}>
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
         <Hint title={player.playing ? "Stop" : "Play"} description="Starts the backing and the part to play along with. It loops until you stop it.">
-          <button type="button" data-tour="play-along-play" disabled={player.starting} onClick={() => (player.playing ? player.stop() : void player.start())} aria-pressed={player.playing}
-            className={`inline-flex h-8 items-center gap-1.5 rounded-lg border px-3 text-xs font-medium transition ${player.playing ? "border-emerald-400/70 bg-emerald-500/20 text-emerald-100" : "border-sky-400/60 bg-sky-500/15 text-sky-50 hover:bg-sky-500/25"}`}>
-            <Icon name={player.playing ? "square" : "play"} size={14} fill />{player.playing ? "Stop" : "Play"}
-          </button>
+          <PlayButton playing={player.playing} disabled={player.starting} onClick={() => (player.playing ? player.stop() : void player.start())} data-tour="play-along-play" />
         </Hint>
+        <TempoControl bpm={tempo} min={MIN_BPM} max={MAX_BPM} step={2} onChange={changeTempo} data-tour="play-along-tempo" />
+        <BeatMeter beats={BEATS_PER_BAR} beat={pos < 0 ? null : pos % BEATS_PER_BAR} />
         {views && (
           <Hint title="View" description="Shows the part as tab, as notes on the staff or on the neck.">
             <div data-tour="play-along-view" className="flex gap-1" role="group" aria-label="View">
@@ -105,11 +103,6 @@ export function PlayAlongTimeline({ timeline, view = "tab", others = "muted", ma
             ))}
           </div>
         )}
-        <span data-tour="play-along-tempo" className="ml-auto flex items-center gap-1 text-xs text-slate-300">
-          <button type="button" className={sbtn} disabled={tempo <= MIN_BPM} onClick={() => changeTempo(tempo - 2)} aria-label="Slower">−</button>
-          <span className="w-14 text-center tabular-nums">{tempo} <span className="text-[10px] text-slate-500">bpm</span></span>
-          <button type="button" className={sbtn} disabled={tempo >= MAX_BPM} onClick={() => changeTempo(tempo + 2)} aria-label="Faster">+</button>
-        </span>
       </div>
       <div className="flex min-h-5 flex-wrap items-baseline gap-2 text-xs">
         {chordNow && <b className="text-slate-100">{chordNow}</b>}
@@ -126,7 +119,7 @@ export function PlayAlongTimeline({ timeline, view = "tab", others = "muted", ma
       </>}
       </div>
       {fellBack.map((n) => <p key={n} className="text-[11px] text-slate-500">{n}: open chord used, no barre shape.</p>)}
-    </div>
+    </PlayerCard>
   );
 }
 

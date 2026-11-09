@@ -13,7 +13,7 @@ migrates; the components, their props and their docs live here.
 3. `play-along/` `PlayAlong`, the `guitar-play-along` tool (one clock, tab / notes / neck views), `schedule`, `solo`. Under single notes over bare
    chords it holds each chord (`withBackingSound`, the `under` prop: chords, drone, none). The neck view is the shared
    `ScaleNeck` with every place of the line at once (the playing chord's enabled notes normal, the highlighted ones
-   ringed, the rest muted, the sounding ones lit); the notes view is the shared `SingingStaff`. Both label notes by the label setting and its "count from".
+   ringed, the rest muted, the sounding ones lit); the notes view is the shared `SingingStaff`. Both label notes by the label setting and its "count from". `PlayerParts.tsx` is the player look shared with the backing track (card, round Play, tempo, beat meter, chord cards that keep one colour a chord), used by the play-along, `strum-along` and `chord-backing`.
 4. `basics/<name>/` the fourteen basics: `scale-neck`, `chord-shapes`, `staff` (a "Start microphone" button; with `drone` / `click` its own backing with its own Play; with the mic its notes carry degree or solfège `labels`; its settings show as tags: key, voice, drone, click), `click-drone`, `backing-band`, `note-finder`,
    `interval-ears`, `arpeggio-neck`, `melody-singer`, `run-singer` (both with a chord a bar under the tune, worked out
    in `features/theory/melodyChords.ts`; a run announces each new key in its held-Do bar), `strum-along` (a metronome and the chords as boxes,
