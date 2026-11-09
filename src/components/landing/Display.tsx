@@ -39,3 +39,8 @@ export function Mark({ children, tone = "var(--color-sky-400)" }: { children: Re
 export function H2({ id, children, className = "" }: { id?: string; children: ReactNode; className?: string }) {
   return <h2 id={id} className={`text-3xl leading-[1.08] text-slate-50 text-balance sm:text-5xl ${className}`} style={DISPLAY}>{children}</h2>;
 }
+
+/** Small "Beta" pill that sits next to a feature's name. */
+export function BetaBadge({ className = "" }: { className?: string }) {
+  return <span className={`ml-2 inline-block rounded-full border border-sky-400/40 bg-sky-400/10 px-1.5 py-px align-middle text-[10px] font-semibold uppercase leading-4 tracking-wider text-sky-300 ${className}`}>Beta</span>;
+}

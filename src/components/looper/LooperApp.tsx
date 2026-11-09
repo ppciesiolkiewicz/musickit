@@ -289,6 +289,7 @@ export default function LooperApp() {
       <div className="pointer-events-none sticky top-0 z-[1100] flex flex-wrap items-start justify-between gap-2 px-1 py-1">
         <div className="pointer-events-auto" data-tour="looper-metronome"><MetronomeBar engine={engine} snap={snap} ready={ready} /></div>
         <div className="pointer-events-auto flex flex-wrap justify-end gap-1">
+          <span className="self-center rounded-full border border-sky-400/40 bg-sky-400/10 px-1.5 py-px text-[10px] font-semibold uppercase tracking-wider text-sky-300">Beta</span>
           <PageHelp pageId="looper" tour={LOOPER_TOUR} />
           <button type="button" className={ibtn} onClick={() => setNewOpen(true)} title="New project" aria-label="New project"><Icon name="file-plus" /></button>
           <button type="button" className={ibtn} disabled={!canUndo} onClick={() => engine.history.undo()} title="Undo (Ctrl+Z)" aria-label="Undo"><Icon name="undo-2" /></button>

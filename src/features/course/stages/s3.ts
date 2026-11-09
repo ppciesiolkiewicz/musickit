@@ -46,7 +46,6 @@ export const STAGE_3: CourseStage = {
         ),
         neck("E minor pentatonic in position 1, over a 12-bar in E.", 0, 3, toneDots(E, [0, 3, 5, 7, 10], 0, 3)),
         task("Loop the 12-bar in E. Play only on the E7 bars, and rest on A7 and B7. Then fill everything."),
-        links([{ href: "/theory/improv", label: "Improv: play over a groove" }]),
       ]),
     section("sus-add9", "sus & add9", "colour", "sus and add9 chords: open, unresolved colours that swap or add a note.", [
       text(

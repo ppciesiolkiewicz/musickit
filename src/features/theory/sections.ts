@@ -46,7 +46,6 @@ export const THEORY_SECTIONS: TheorySection[] = [
   { group: "guitar", sub: "Explore", href: "/theory/caged#neighbours", tone: "pink", label: "Shape neighbours", desc: "I IV V ii vi without moving your hand", icon: "network" },
   { group: "guitar", sub: "Explore", href: "/theory/arpeggios", tone: "red", label: "Arpeggios", desc: "Chord tones across the neck", icon: "spline" },
   { group: "guitar", sub: "Practice", href: "/theory/notes", tone: "teal", label: "Fretboard notes", desc: "Find the note, tap or play it", icon: "target" },
-  { group: "guitar", sub: "Practice", href: "/theory/improv", tone: "rose", label: "Improv", desc: "Play over a groove", icon: "music" },
   { group: "guitar", sub: "Practice", href: "/theory/rhythm", tone: "amber", label: "Rhythm", desc: "Tap or strum on the beat", icon: "metronome" },
   { group: "singing", href: "/theory/singing", tone: "emerald", label: "Sing a scale", desc: "Sing a scale and watch your voice on the staff", icon: "mic" },
   { group: "singing", href: "/theory/singing/melodies", tone: "sky", label: "Sing melodies", desc: "Short tunes that end on Do, easiest first", icon: "music" },

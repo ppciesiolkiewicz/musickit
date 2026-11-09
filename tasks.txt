@@ -31,8 +31,19 @@ and add to these pages. Rank pages and provide me your understanding which pages
 - 
 
 
-53. When guide is open - space should navigate to next step,
+53. [DONE] When guide is open - space should navigate to next step,
 - add [space] next to 'next' to indicate
+
+54. There was somewhere mic audio selector that had: 
+- guitar / voiice
+- louder / channel 1 / channel 2
+
+Let's rethink this ->
+For most pages we are okay to use "both" as default.
+We can have small section channels on each of these to select input.
+Show me design first and then make sure that this is reusable component.
+Add this component to /dev/stories
+
 
 
 ======================== Small ========================

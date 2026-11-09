@@ -130,7 +130,6 @@ export const STAGE_1: CourseStage = {
         paths: [path(PATH.amber, [2, 0], [2, 2]), path(PATH.sky, [3, 0], [3, 2])],
       }),
       task("Record yourself strumming Em for 2 bars, Am for 2 bars, for a minute. Play it back and solo over it with only the pentatonic, landing on E and A as the chords change."),
-      links([{ href: "/theory/improv", label: "Improv: play over a groove", note: "a backing track to solo over" }]),
     ]),
     section("bends-and-slides", "Bends & slides", "soloing", "Bends and slides, the moves that make single notes sing.", [
         text(
@@ -139,7 +138,6 @@ export const STAGE_1: CourseStage = {
         ),
         task("In the E minor pentatonic, bend the D on the B string (3rd fret) up a whole step to E. Check it against the open high e: they should match."),
         task("Slide from the 2nd to the 4th fret on the G string, then improvise over Em with one slide or bend in every phrase."),
-        links([{ href: "/theory/improv", label: "Improv: play over a groove" }]),
       ]),
     section("move-it", "Move it: G minor", "caged", "Moving every position 1 shape up the neck to play in G minor.", [
       text(

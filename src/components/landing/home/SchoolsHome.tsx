@@ -7,8 +7,8 @@ import Photo from "@/components/landing/Photo";
 import StyleDivider from "@/components/landing/StyleDivider";
 import Glow from "@/components/landing/Glow";
 import SiteFooter from "@/components/landing/SiteFooter";
-import { DISPLAY, Eyebrow, H2, Mark } from "@/components/landing/Display";
-import { LessonNoteMock, LiveLessonMock } from "@/components/landing/LessonMocks";
+import { BetaBadge, DISPLAY, Eyebrow, H2, Mark } from "@/components/landing/Display";
+import { AfterClassMock, LessonNoteMock, LiveLessonMock } from "@/components/landing/LessonMocks";
 import { degreeColour } from "@/features/theory/scales";
 import { Check, IdeasSection, PLAY_TOOLS, PlanDayCard, SkillsSection } from "./PracticeSections";
 
@@ -187,8 +187,8 @@ export default function SchoolsHome() {
           </div>
           <div className="landing-rise relative pb-40 sm:pb-24" style={{ animationDelay: "120ms" }}>
             <Photo name="teacherTablet" className="ls-photo aspect-4/3 rounded-3xl border border-slate-800" sizes="(min-width: 1024px) 50vw, 100vw" priority />
-            <div className="absolute -bottom-2 left-0 w-[88%] sm:-left-6 sm:w-[70%]">
-              <LiveLessonMock />
+            <div className="absolute -bottom-2 left-0 w-[88%] sm:-left-6 sm:w-[60%]">
+              <AfterClassMock />
             </div>
           </div>
         </section>
@@ -200,7 +200,7 @@ export default function SchoolsHome() {
               <li key={o.title}>
                 <a href={o.href} className="ls-card group flex h-full flex-col gap-3 rounded-3xl border border-slate-800 bg-slate-900/50 p-5 transition hover:-translate-y-0.5 hover:border-slate-600">
                   <span className={`grid h-10 w-10 place-items-center rounded-xl ${o.tone}`}><Icon name={o.icon} size={20} /></span>
-                  <span className="text-xl text-slate-50" style={DISPLAY}>{o.title}</span>
+                  <span className="text-xl text-slate-50" style={DISPLAY}>{o.title}{o.title === "Notes creator" && <BetaBadge />}</span>
                   <span className="text-sm text-slate-400">{o.text}</span>
                 </a>
               </li>
@@ -221,7 +221,7 @@ export default function SchoolsHome() {
         <section id="practice" aria-labelledby="practice-h" className="scroll-mt-6 sect-rule py-12 sm:py-16">
           <div className="grid grid-cols-[minmax(0,1fr)] items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-16">
             <div>
-              <Eyebrow>AI autoplan</Eyebrow>
+              <Eyebrow>AI autoplan<BetaBadge /></Eyebrow>
               <H2 id="practice-h">No more <span className="ls-accent italic text-sky-300">&ldquo;I didn&apos;t know what to practise.&rdquo;</span></H2>
               <p className="mt-4 max-w-lg text-slate-300">
                 AI builds each student a practice plan for their level and the time they have: <Mark>new exercises every day</Mark>, each week building on the last. Short sessions with a timer, so ten minutes a day turns into a habit.
@@ -295,7 +295,7 @@ export default function SchoolsHome() {
               <LessonNoteMock />
             </div>
             <div className="order-1 lg:order-2">
-              <Eyebrow tone="text-teal-300">Notes creator</Eyebrow>
+              <Eyebrow tone="text-teal-300">Notes creator<BetaBadge /></Eyebrow>
               <H2 id="notes-h">Lesson notes <span className="ls-accent italic text-teal-300">before the student leaves.</span></H2>
               <p className="mt-4 max-w-lg text-slate-300">
                 Lay out today&apos;s chords, scales and positions on one page in the last two minutes of the lesson, then <Mark tone="var(--color-teal-400)">send it to the student as a link</Mark>. No more lost handouts: they open it on any device, and every diagram plays.
@@ -338,7 +338,12 @@ export default function SchoolsHome() {
               </Link>
               <p className="mt-3 text-xs text-slate-500">The studio runs in desktop Chrome or Edge.</p>
             </div>
-            <Photo name="teacherSmile" className="ls-photo aspect-4/3 rounded-3xl border border-slate-800" sizes="(min-width: 1024px) 45vw, 100vw" />
+            <div className="relative pb-40 sm:pb-24">
+              <Photo name="teacherSmile" className="ls-photo aspect-4/3 rounded-3xl border border-slate-800" sizes="(min-width: 1024px) 45vw, 100vw" />
+              <div className="absolute -bottom-2 left-0 w-[88%] sm:-left-6 sm:w-[70%]">
+                <LiveLessonMock />
+              </div>
+            </div>
           </div>
         </section>
 

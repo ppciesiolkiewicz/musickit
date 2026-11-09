@@ -45,7 +45,6 @@ const TOOLS: Tool[] = [
 ];
 const IN_PROGRESS = [
   { href: "/course", label: "Course" },
-  { href: "/theory/improv", label: "Improvisation" },
   { href: "/teachers/studio?notes=1", label: "Notes creator" },
 ];
 

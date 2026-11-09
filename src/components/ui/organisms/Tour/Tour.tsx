@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "../../atoms/Button";
 import { EscKey, useEscape } from "../../atoms/EscKey";
@@ -21,6 +21,15 @@ const EDGE = 10;
 /** How far the lit outline stands off the section itself. */
 const PAD = 6;
 
+/** The small [space] label on Next, saying the space bar does the same. */
+function SpaceKey() {
+  return (
+    <kbd aria-hidden className="shrink-0 rounded border border-sky-400/50 px-1 text-[9px] font-medium normal-case tracking-normal text-sky-200">
+      space
+    </kbd>
+  );
+}
+
 const subscribeNever = () => () => {};
 
 type Rect ={ top: number; left: number; width: number; height: number };
@@ -35,7 +44,7 @@ function findTarget(root: ParentNode | undefined, target: string): HTMLElement |
 /**
  * A spotlight walk through a page's sections. While `open`, the page dims except for one section (found by its
  * `data-tour="<target>"` attribute, inside `root` when given), outlined, with a small card beside it: the step's title
- * and text, dots for progress, and Back / Next (Done on the last step) / Skip. Escape and Skip call `onClose(false)`,
+ * and text, dots for progress, and Back / Next (Done on the last step; Space does the same) / Skip. Escape and Skip call `onClose(false)`,
  * Done calls `onClose(true)`. Each step scrolls its section into view (its top, when it is taller than the window), and
  * the outline and card follow it on scroll and resize; the card stays inside the window like `Hint`'s. Steps whose
  * section is not on the page when the tour opens are left out; if none is there the tour closes at once. Clicks on the
@@ -71,6 +80,23 @@ export function Tour({ steps, root, open, onClose }: { steps: TourStep[]; root?:
   const last = !!shown && i >= shown.length - 1;
   const close = (finished: boolean) => latest.current.onClose(finished);
   useEscape(open && !!step, () => close(false));
+  // Space is Next (Done on the last step); caught first so the page's own Space shortcuts stay quiet mid-tour
+  const advance = useRef(() => {});
+  useLayoutEffect(() => {
+    advance.current = () => (last ? close(true) : setI((n) => n + 1));
+  });
+  const active = open && !!step;
+  useEffect(() => {
+    if (!active) return;
+    const key = (e: KeyboardEvent) => {
+      if (e.key !== " " || e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      advance.current();
+    };
+    window.addEventListener("keydown", key, true);
+    return () => window.removeEventListener("keydown", key, true);
+  }, [active]);
 
   const card = useRef<HTMLDivElement>(null);
   const [rect, setRect] = useState<Rect | null>(null);
@@ -170,7 +196,7 @@ export function Tour({ steps, root, open, onClose }: { steps: TourStep[]; root?:
             className="ml-auto !border-sky-500/70 !bg-sky-500/20 !text-sky-100"
             onClick={() => (last ? close(true) : setI(i + 1))}
           >
-            {last ? "Done" : "Next"}
+            {last ? "Done" : "Next"} <SpaceKey />
           </Button>
         </div>
       </div>

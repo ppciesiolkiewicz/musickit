@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import Icon, { type IconName } from "@/components/Icon";
-import { DISPLAY, Eyebrow, H2, Mark } from "@/components/landing/Display";
+import { BetaBadge, DISPLAY, Eyebrow, H2, Mark } from "@/components/landing/Display";
 import ScaleWheel from "@/components/theory/ScaleWheel";
 import { degreeColour, degreeLabels } from "@/features/theory/scales";
 import { THEORY_SECTIONS, TONE } from "@/features/theory/sections";
@@ -49,7 +49,7 @@ const SKILLS: { icon: IconName; title: string; text: ReactNode; tone: string; dr
   {
     icon: "metronome", title: "Lock in your rhythm", tone: "bg-violet-500/15 text-violet-300",
     text: <>Hit the beat, not just the note. Play against a metronome or drone until <Mark tone="var(--color-violet-400)">you feel the pulse</Mark> without one.</>,
-    drills: [{ href: "/theory/rhythm", label: "Rhythm drills" }, { href: "/theory/improv", label: "Play over a groove" }],
+    drills: [{ href: "/theory/rhythm", label: "Rhythm drills" }],
   },
   {
     icon: "guitar", title: "Know the fretboard", tone: "bg-amber-500/15 text-amber-300",
@@ -138,7 +138,7 @@ export function PlanSection() {
     <section id="plan" aria-labelledby="plan-h" className="scroll-mt-6 sect-rule py-12 sm:py-16">
       <div className="grid grid-cols-[minmax(0,1fr)] items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-16">
         <div>
-          <Eyebrow>AI practice plan</Eyebrow>
+          <Eyebrow>AI practice plan<BetaBadge /></Eyebrow>
           <H2 id="plan-h">Never wonder <span className="ls-accent italic text-sky-300">what to practise.</span></H2>
           <p className="mt-4 max-w-lg text-slate-300">
             Tell attunr what you play, how much time you have and where you want to go. Your AI builds a plan from attunr&apos;s drills, and <Mark>every day a new set of exercises</Mark> is waiting for you.
@@ -220,7 +220,7 @@ export function IdeasSection({ eyebrow = "Free in the app", title = <>Practice t
                     <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl ${TONE[d.tone].chip} ${TONE[d.tone].icon}`}><Icon name={d.icon} size={20} /></span>
                     <span aria-hidden className="text-slate-600 transition group-hover:translate-x-0.5 group-hover:text-slate-300">→</span>
                   </span>
-                  <span className="text-lg leading-tight text-slate-50" style={DISPLAY}>{d.label}</span>
+                  <span className="text-lg leading-tight text-slate-50" style={DISPLAY}>{d.label}{d.href === "/looper" && <BetaBadge />}</span>
                   <span className="text-sm leading-snug text-slate-400">{d.desc}</span>
                 </Link>
               </li>
