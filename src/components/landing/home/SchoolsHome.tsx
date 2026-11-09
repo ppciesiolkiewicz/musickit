@@ -43,6 +43,56 @@ const WHITE_LABEL = [
   "Your students, your teachers, your brand",
 ];
 
+/** A coming-soon card's heading, with the badge that says it isn't here yet. */
+function SoonHeading({ icon, tone, title }: { icon: IconName; tone: string; title: string }) {
+  return (
+    <div className="flex flex-wrap items-center gap-3">
+      <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${tone}`}><Icon name={icon} size={20} /></span>
+      <h3 className="text-2xl text-slate-50" style={DISPLAY}>{title}</h3>
+      <span className="inline-flex items-center gap-1.5 rounded-full border border-sky-400/40 bg-sky-400/10 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider text-sky-300">
+        <span className="size-1.5 rounded-full bg-sky-300" /> Coming soon
+      </span>
+    </div>
+  );
+}
+
+/** Minutes practised each day, drawn for the progress tracker card. Illustration only. */
+const PRACTICE_WEEK = [{ d: "M", mins: 10 }, { d: "T", mins: 20 }, { d: "W", mins: 15 }, { d: "T", mins: 0 }, { d: "F", mins: 25 }, { d: "S", mins: 10 }, { d: "S", mins: 20 }];
+
+function PracticeWeekMock() {
+  return (
+    <div className="mt-auto rounded-2xl border border-slate-800 bg-slate-950/40 p-4" aria-hidden>
+      <div className="flex items-baseline justify-between">
+        <p className="text-sm text-slate-200">This week</p>
+        <p className="text-xs text-slate-500">100 min · 6 days</p>
+      </div>
+      <ul className="mt-3 flex h-24 items-end gap-2">
+        {PRACTICE_WEEK.map((x, i) => (
+          <li key={i} className="flex h-full flex-1 flex-col items-center justify-end gap-1.5">
+            <span className={`w-full rounded-md ${x.mins ? "bg-linear-to-t from-teal-500/60 to-teal-300" : "bg-slate-800"}`} style={{ height: x.mins ? `${(x.mins / 25) * 100}%` : "4px" }} />
+            <span className="text-xs text-slate-500">{x.d}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+/** A nudge as the student would get it, drawn for the accountability card. Illustration only. */
+function ReminderMock() {
+  return (
+    <div className="mt-auto flex h-full min-h-40 items-center rounded-2xl border border-slate-800 bg-slate-950/40 p-4" aria-hidden>
+      <div className="flex w-full gap-3 rounded-2xl border border-slate-700/60 bg-slate-900 p-3 shadow-lg shadow-slate-950/40">
+        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-violet-500/15 text-violet-300"><Icon name="bell" size={18} /></span>
+        <span className="min-w-0 text-sm">
+          <b className="block font-semibold text-slate-100">Three days since your last practice</b>
+          <span className="text-slate-400">Today&apos;s plan is ten minutes. Got time now?</span>
+        </span>
+      </div>
+    </div>
+  );
+}
+
 export default function SchoolsHome() {
   return (
     <div className="landing app-bg min-h-screen overflow-hidden text-slate-200">
@@ -112,19 +162,43 @@ export default function SchoolsHome() {
         <section id="practice" aria-labelledby="practice-h" className="scroll-mt-6 border-t border-slate-800/70 py-12 sm:py-16">
           <div className="grid grid-cols-[minmax(0,1fr)] items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-16">
             <div>
-              <Eyebrow>A plan for every day</Eyebrow>
+              <Eyebrow>AI autoplan</Eyebrow>
               <H2 id="practice-h">No more <span className="ls-accent italic text-sky-300">&ldquo;I didn&apos;t know what to practise.&rdquo;</span></H2>
               <p className="mt-4 max-w-lg text-slate-300">
-                Each student gets a practice plan for their level and the time they have: <Mark>new exercises every day</Mark>, each week building on the last. Short sessions with a timer, so ten minutes a day turns into a habit.
+                AI builds each student a practice plan for their level and the time they have: <Mark>new exercises every day</Mark>, each week building on the last. Short sessions with a timer, so ten minutes a day turns into a habit.
               </p>
               <ul className="mt-6 flex flex-col gap-2 text-sm text-slate-300">
                 <Check>Drills for the fretboard, scales, ear, voice and rhythm</Check>
                 <Check>Every exercise opens with the diagram or backing it needs</Check>
                 <Check>A daily reminder at the time the student picks</Check>
               </ul>
+              <Link href="/plan" className="ls-btn mt-8 inline-flex items-center gap-2 rounded-xl border border-slate-600 px-5 py-3 text-sm font-medium text-slate-100 transition hover:border-slate-400 hover:bg-slate-800/40">
+                <Icon name="sparkles" size={16} /> Try the AI autoplan
+              </Link>
+              <p className="mt-3 text-xs text-slate-500">Works with the AI the student already uses: attunr gives them the prompt, they paste back the reply.</p>
             </div>
             <PlanDayCard />
           </div>
+        </section>
+
+        {/* Coming soon: progress tracker and accountability */}
+        <section id="coming-soon" aria-labelledby="coming-soon-h" className="scroll-mt-6 sect-rule py-12 sm:py-16">
+          <div className="mx-auto max-w-2xl text-center">
+            <Eyebrow>What we&apos;re building next</Eyebrow>
+            <H2 id="coming-soon-h">Practice that <span className="ls-accent italic text-sky-300">doesn&apos;t slip.</span></H2>
+          </div>
+          <ul className="mt-10 grid gap-4 md:grid-cols-2">
+            <li className="ls-card flex flex-col gap-4 rounded-3xl border border-slate-800 bg-slate-900/50 p-5 sm:p-6">
+              <SoonHeading icon="activity" tone="bg-teal-500/15 text-teal-300" title="Progress tracker" />
+              <p className="text-sm leading-relaxed text-slate-400">attunr keeps track of the exercises each student works on. From that it shows <Mark tone="var(--color-teal-400)">how far they&apos;ve come</Mark> and suggests what to practise next.</p>
+              <PracticeWeekMock />
+            </li>
+            <li className="ls-card flex flex-col gap-4 rounded-3xl border border-slate-800 bg-slate-900/50 p-5 sm:p-6">
+              <SoonHeading icon="bell" tone="bg-violet-500/15 text-violet-300" title="Accountability" />
+              <p className="text-sm leading-relaxed text-slate-400">Reminders that keep students practising between lessons, and a nudge after a few quiet days, so <Mark tone="var(--color-violet-400)">one missed day doesn&apos;t become a missed month</Mark>.</p>
+              <ReminderMock />
+            </li>
+          </ul>
         </section>
 
         {/* Interactive teaching resources */}
