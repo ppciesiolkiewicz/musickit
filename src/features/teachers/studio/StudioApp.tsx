@@ -295,6 +295,9 @@ export default function StudioApp() {
           <button type="button" title="Share as a note" aria-label="Share as a note" onClick={() => void shareNote()} className="rounded-md border border-slate-700 p-1 text-slate-200 hover:border-slate-500">
             <Icon name="share-2" size={14} />
           </button>
+          <button type="button" title="Keys (?)" aria-label="Show the keys" onClick={() => setHelp(true)} className="rounded-md border border-slate-700 p-1 text-slate-200 hover:border-slate-500">
+            <Icon name="info" size={14} />
+          </button>
           {!notes && (
             <button type="button" title="Preview a video config" aria-label="Preview a video config" aria-pressed={!!video} onClick={() => void openVideo()} className={`rounded-md border p-1 hover:border-slate-500 ${video ? "border-sky-500/60 text-sky-200" : "border-slate-700 text-slate-200"}`}>
               <Icon name="play" size={14} />
@@ -325,6 +328,9 @@ export default function StudioApp() {
             <div className="min-w-0 flex-1">
               <KeysPanel onAdd={() => setPalette(true)} />
             </div>
+            <button type="button" title="Keys (?)" aria-label="Show the keys" onClick={() => setHelp(true)} className="rounded-md border border-slate-800 px-1 text-slate-400 hover:text-slate-100">
+              <Icon name="info" size={14} />
+            </button>
             <button type="button" title="Fold the panel to a letter or two per widget" aria-label="Fold the panel" aria-expanded onClick={toggleFolded} className="rounded-md border border-slate-800 px-1 text-slate-400 hover:text-slate-100">
               <Icon name="chevron-left" size={14} />
             </button>
