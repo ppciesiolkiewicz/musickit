@@ -3,7 +3,7 @@ import { mixesSingAndPlay, tempoWithoutMetronome } from "./checks";
 import { checkLink, type CatalogueEntry } from "./catalogue";
 import { linkSlots } from "./migrate";
 import { keyWarnings } from "./transpose";
-import { exerciseLevelArea, exerciseTags, legacySections, parseSection, parseTool, pickWasInexact, resolveChordPlacement, type Section } from "./tools";
+import { MAX_TAGS, askedTags, exerciseLevelArea, exerciseTags, legacySections, parseSectionDiag, parseToolDiag, pickWasInexact, resolveChordPlacement, type Section } from "./tools";
 import { PLAN_DAYS, type PlanConfig, type PlanDay, type PlanExercise } from "./types";
 import { conceptById } from "./concepts";
 import { topicById } from "../intake/topics";
@@ -11,17 +11,24 @@ import { topicById } from "../intake/topics";
 /** The longest progress summary kept from a reply. */
 export const MAX_PROGRESS = 4000;
 const MAX_CONCEPTS = 4;
+const MAX_SECTIONS = 24, MAX_TOOLS = 6, MAX_EXERCISES = 8;
+/** What the prompt asks for a day: 2 to 5 exercises. */
+const MIN_DAY = 2, MAX_DAY = 5;
 
 export type ParseResult = { ok: true; config: PlanConfig; warnings: string[] } | { ok: false; error: string };
 
 const str = (v: unknown, max = 600): string => (typeof v === "string" ? v.trim().slice(0, max) : "");
 
-/** Sections from the AI's list; what can't be shown (a tool for an unknown scale) is left out with a warning. An old `link` section is a link (`parseSlots`). */
+/** Sections from the AI's list; what can't be shown (a tool for an unknown scale) is left out with a warning saying why, and what was cut or defaulted is warned. An old `link` section is a link (`parseSlots`). */
 function parseSections(raw: unknown[], where: string, warnings: string[]): Section[] {
-  const out = raw.filter((r) => (r as { type?: unknown })?.type !== "link").slice(0, 24).map((r) => parseSection(r));
-  const dropped = out.filter((s) => !s).length;
-  if (dropped) warnings.push(`${where}: left out ${dropped} section${dropped > 1 ? "s" : ""} it couldn't show.`);
-  const kept = out.filter((s): s is Section => s !== null);
+  const asked = raw.filter((r) => (r as { type?: unknown })?.type !== "link");
+  if (asked.length > MAX_SECTIONS) warnings.push(`${where}: kept the first ${MAX_SECTIONS} of ${asked.length} sections.`);
+  const out = asked.slice(0, MAX_SECTIONS).map(parseSectionDiag);
+  for (const p of out) {
+    for (const n of p.notes) warnings.push(`${where}: ${n}`);
+    if (p.dropped) warnings.push(`${where}: left out ${p.dropped}.`);
+  }
+  const kept = out.flatMap((p) => (p.section ? [p.section] : []));
   for (const s of kept) if (s.type === "tool" && pickWasInexact(s.tool)) warnings.push(`${where}: no tune matched the pick exactly; used ${"run" in s.tool ? `run ${s.tool.run}` : "tune" in s.tool ? `tune ${s.tool.tune}` : "one"}.`);
   return kept;
 }
@@ -44,11 +51,12 @@ function parseLegacy(e: Record<string, unknown>, entries: CatalogueEntry[], wher
   const steps = Array.isArray(e.steps) ? e.steps.map((s) => str(s, 240)).filter(Boolean).slice(0, 8) : [];
   const rawTools = Array.isArray(e.tools) ? e.tools.slice(0, 6) : [];
   const tools = rawTools.flatMap((t) => {
-    const p = parseTool(t);
+    const { tool: p, dropped, notes } = parseToolDiag(t);
+    for (const n of notes) warnings.push(`${where}: ${n}`);
+    if (dropped) warnings.push(`${where}: left out ${dropped}.`);
     const step = Number((t as { step?: unknown })?.step);
     return p ? [Number.isInteger(step) && step >= 1 && step <= 8 ? { ...p, step } : p] : [];
   });
-  if (tools.length < rawTools.length) warnings.push(`${where}: left out a tool it couldn't show.`);
   return legacySections({ how: str(e.how), steps, tools, link: checkLink(e.link, entries) });
 }
 
@@ -104,7 +112,8 @@ export function parsePlanConfig(text: string, entries: CatalogueEntry[]): ParseR
   for (let d = 0; d < PLAN_DAYS; d++) {
     const day = obj.days[d] as { theme?: unknown; exercises?: unknown };
     const list = Array.isArray(day?.exercises) ? day.exercises : [];
-    const exercises: PlanExercise[] = list.slice(0, 8).flatMap((x, i) => {
+    if (list.length > MAX_EXERCISES) warnings.push(`Day ${d + 1}: kept the first ${MAX_EXERCISES} of ${list.length} exercises.`);
+    const exercises: PlanExercise[] = list.slice(0, MAX_EXERCISES).flatMap((x, i) => {
       const e = x as Record<string, unknown>;
       const title = str(e?.title, 120);
       if (!title) return [];
@@ -128,15 +137,22 @@ export function parsePlanConfig(text: string, entries: CatalogueEntry[]): ParseR
       Object.assign(ex, exerciseLevelArea(e));
       const tags = exerciseTags(e.tags, sections);
       if (tags.length) ex.tags = tags;
+      const asked = askedTags(e.tags);
+      if (asked.known.length > MAX_TAGS) warnings.push(`${where}: kept the first ${MAX_TAGS} of ${asked.known.length} kind tags (${asked.known.slice(MAX_TAGS).join(", ")} dropped).`);
+      if (asked.unknown.length) warnings.push(`${where}: dropped unknown kind tags: ${asked.unknown.join(", ")}.`);
       Object.assign(ex, topicTags(e, ex.area, where, warnings));
       const untagged = [!ex.level && "level", !ex.area && "area", !tags.length && "kind", !ex.topic && "topic"].filter(Boolean);
       if (untagged.length) warnings.push(`${where}: no ${untagged.join(", ")} tag.`);
       const why = str(e.why, 300);
       if (why) ex.why = why;
       Object.assign(ex, parseSlots(e, entries, where, warnings));
+      const tools = fit.sections.filter((s) => s.type === "tool").length;
+      if (tools > MAX_TOOLS) warnings.push(`${where}: ${tools} tools; keep it to ${MAX_TOOLS}.`);
+      if (!ex.learnBefore?.length) warnings.push(`${where}: no learnBefore link; add an attunr page to learn first.`);
       return [ex];
     });
     if (!exercises.length) return { ok: false, error: `Day ${d + 1} has no exercises.` };
+    if (exercises.length < MIN_DAY || exercises.length > MAX_DAY) warnings.push(`Day ${d + 1}: ${exercises.length} exercise${exercises.length > 1 ? "s" : ""}; use ${MIN_DAY} to ${MAX_DAY}.`);
     days.push({ theme: str(day.theme, 80) || `Day ${d + 1}`, exercises });
   }
   const summary = str(obj.summary, 400);

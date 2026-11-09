@@ -132,7 +132,7 @@
           },
           {
             "title": "C major and A minor, same notes", "focus": "C major → A natural minor over one click", "minutes": 6, "level": "intermediate", "area": "theory", "tags": ["theory"], "topic": "theory-scales-keys", "why": "A minor uses exactly the notes of C major; only the home note changes, and with it the mood.",
-            "learnBefore": ["/course/10/moving-keys"],
+            "learnBefore": ["/course/3/la-minor-home", "/course/10/moving-keys"],
             "sections": [
               { "type": "heading", "text": "Hear the home move", "minutes": 3 },
               { "type": "text", "text": "Press Play below to start the metronome; only the click sounds. Play C major from C for four bars. Then play the same notes from A for four bars: A minor. Where does each one come to rest?" },
@@ -144,7 +144,7 @@
           },
           {
             "title": "One shape, two keys", "focus": "A minor pentatonic position 1 = C major pentatonic", "minutes": 10, "level": "intermediate", "area": "guitar", "tags": ["technique"], "topic": "guitar-scales", "why": "The relative minor works on the neck too: one pentatonic position serves both keys, with a different root.",
-            "learnBefore": ["/course/10/moving-keys"],
+            "learnBefore": ["/course/5/major-pentatonic"],
             "sections": [
               { "type": "tool", "tool": { "type": "backing-band", "bpm": 80, "key": "a", "parts": { "click": "on" } } },
               { "type": "heading", "text": "As A minor", "minutes": 5 },
@@ -205,7 +205,7 @@
           },
           {
             "title": "Solo over ii-V-I in G", "focus": "Am7-D7-Gmaj7 · guide tones as targets", "minutes": 10, "level": "intermediate", "area": "guitar", "tags": ["improv"], "topic": "guitar-scales", "why": "Guide tones work the same in a new key: C to C to B, or G to F♯ to F♯.",
-            "learnBefore": ["/course/5/chords-from-scale", "/course/11/ii-v-i"],
+            "learnBefore": ["/course/11/ii-v-i", "/course/11/guide-tones"],
             "sections": [
               { "type": "heading", "text": "Guide tones only", "minutes": 5 },
               { "type": "text", "text": "Press Play below to start the backing. Play only the targets, one long note per chord. Pick either line." },
@@ -238,7 +238,7 @@
           },
           {
             "title": "Which numeral?", "focus": "I-vi-ii-V in C by ear", "minutes": 8, "level": "intermediate", "area": "theory", "tags": ["theory"], "topic": "theory-progressions", "why": "I-vi-ii-V adds the vi to the ii-V-I, and it is the loop under countless songs.",
-            "learnBefore": ["/course/5/chords-from-scale", "/course/11/ii-v-i"],
+            "learnBefore": ["/course/5/chords-from-scale", "/course/5/hearing-changes"],
             "sections": [
               { "type": "heading", "text": "With the chart", "minutes": 4 },
               { "type": "text", "text": "Press Play below and listen. Say each numeral as it arrives: I (Cmaj7), vi (Am7), ii (Dm7), V (G7)." },
@@ -280,7 +280,7 @@
           },
           {
             "title": "Why blues uses three 7ths", "focus": "A7, D7, E7 as I7, IV7, V7", "minutes": 7, "level": "intermediate", "area": "theory", "tags": ["theory"], "topic": "theory-progressions", "why": "Blues breaks the rule of one dominant per key: every chord is a 7th, which gives the style its restless sound.",
-            "learnBefore": ["/course/7/twelve-bar", "/course/7/blues-solo"],
+            "learnBefore": ["/course/7/twelve-bar", "/course/7/sevenths"],
             "sections": [
               { "type": "heading", "text": "The three chords", "minutes": 3 },
               { "type": "text", "text": "A7, D7 and E7 are built on {{1}}, {{4}} and {{5}} of A. Tap those notes on the staff to hear them. Then press each chord box: the same dominant colour three times." },
@@ -293,7 +293,7 @@
           },
           {
             "title": "Twelve-bar in A", "focus": "12-bar blues with A7, D7, E7 at 90 bpm", "minutes": 10, "level": "intermediate", "area": "guitar", "tags": ["rhythm"], "topic": "guitar-extended-chords", "why": "The twelve-bar form is a fixed road map: learn it once and you can join any blues jam.",
-            "learnBefore": ["/course/7/twelve-bar", "/course/7/blues-solo"],
+            "learnBefore": ["/course/7/twelve-bar"],
             "sections": [
               { "type": "heading", "text": "Follow the form", "minutes": 5 },
               { "type": "text", "text": "Press Play below; the lit block shows the chord: four bars of A7, two of D7, two of A7, then E7, D7, A7, E7. Strum along. Count the bars out loud." },
@@ -354,7 +354,7 @@
           },
           {
             "title": "ii-V-I jam", "focus": "Guide tones, then free soloing over Dm7-G7-Cmaj7", "minutes": 12, "level": "intermediate", "area": "guitar", "tags": ["improv"], "topic": "guitar-scales", "why": "Guide tones, arpeggios and the scale together are what make a solo over changes sound sure.",
-            "learnBefore": ["/course/5/chords-from-scale", "/course/11/ii-v-i"],
+            "learnBefore": ["/course/11/ii-v-i", "/course/11/guide-tones"],
             "sections": [
               { "type": "heading", "text": "Guide tones", "minutes": 4 },
               { "type": "text", "text": "Press Play below to start the backing. Play one guide tone per chord, either line from day 2." },

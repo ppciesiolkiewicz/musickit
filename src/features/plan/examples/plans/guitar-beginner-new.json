@@ -81,10 +81,7 @@
             ],
             "topic": "guitar-basic-chords",
             "why": "G, C and D are the 1, 4 and 5 chords of G major, the three chords most songs lean on, so a clean change between them opens up more music than any new chord.",
-            "learnBefore": [
-              "/course/2/c-d-g",
-              "/course/2/one-minute-changes"
-            ],
+            "learnBefore": ["/course/2/c-d-g", "/course/2/all-downstrums"],
             "sections": [
               {
                 "type": "heading",
@@ -1445,10 +1442,7 @@
             ],
             "topic": "guitar-basic-chords",
             "why": "Looking at your hand is a habit, and a change you can make without looking is one you really own.",
-            "learnBefore": [
-              "/course/2/c-d-g",
-              "/course/2/one-minute-changes"
-            ],
+            "learnBefore": ["/course/2/c-d-g", "/course/2/all-downstrums"],
             "sections": [
               {
                 "type": "text",

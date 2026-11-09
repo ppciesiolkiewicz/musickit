@@ -62,6 +62,7 @@ model/            pure, no React; tested in model/plan.test.ts
   progressLog.ts  entryFor(), backfill(): a plan's ratings as progress-log rows
   blocks.ts       blocksOf(), fitBlocks(), blockAt(): an exercise's timed blocks
   checks.ts       mixesSingAndPlay(), tempoWithoutMetronome(): paste-time exercise checks
+  fixRequest.ts   fixRequest(warnings): the message the "Copy fix request" button copies, to paste back to the AI
   exampleSelection.ts  selectExamples(): all exercise examples + the plan example for the player's level
   config.ts       parsePlanConfig(): the pasted reply to a checked PlanConfig, with warnings
   prompt.ts       buildPrompt(answers, entries, previous, course), weekByTopic(), weekReport()
@@ -110,8 +111,22 @@ read first) and `exploreMore` (going deeper), up to 3 attunr hrefs each; the app
     "exploreMore": ["/theory/scales/minor-pentatonic/a"] } ] } ] }
 ```
 
-On paste: a code fence or prose around it is fine; minutes are clamped to 1–120; sections and tools that can't be shown
-(unknown scale, unreadable chord) and unknown links are left out with a warning; unknown tags are dropped; an exercise without a
+On paste: a code fence or prose around it is fine; minutes are clamped to 1–120. The parser is forgiving, but it says
+so: everything it changes or drops is a warning in `parsePlanConfig` (`config.ts`), worded to be pasted back to the AI.
+Left out, with why (`parseToolDiag`, `parseSectionDiag`): a tool of an unknown type, or one that can't be shown ("left out a
+scale-neck (unknown scale "x")": each parser in `TOOLS` names its reason where it returns null, `no(d, why)`), an empty
+section, an unknown link, unknown tags or concepts. Cut: a text at 700 characters, a heading 100, a list item 240, a list at
+8 items, 24 sections, 8 exercises, `add` notes at 4, chord lists at 8 or 16, kind tags at 3 (the implied `multi-octave` is
+added after the cut); the schemas in `SECTIONS` carry the same limits (`maxLength`), so the prompt states them. A default
+standing in for something the AI got wrong or left out is named ("backing-band had no key; used A."): `key` and `bpm` of a
+`backing-band`, `bpm` of `strum-along`, `guitar-play-along` and the technique stubs, a staff's `voice` (tenor, the prompt's
+default), an out-of-range `bpm`, `fret` or `cents`; the documented defaults of optional props (an `interval-singer` left
+without a key, a staff `click` without a `bpm`) are silent when left out and warn only when the value is wrong. Rules the prompt
+states are checked: an exercise with more than 6 tools or with no `learnBefore` link left, a day with fewer than 2 or more than
+5 exercises. Stored plans (`stored: true`, `sectionsOf`, `legacySections`) are parsed the same way but never warn, and
+`parseTool` and `parseSection` keep their plain signatures. Beside the warnings the paste step has a "Copy fix request" button
+(`ui/PromptAndPaste.tsx`) that copies `fixRequest(warnings)`: the app checked the plan, these are the problems, send the whole
+plan again as one JSON block. An exercise without a
 known `level` (new, beginner, intermediate, advanced), `area` (guitar, voice, theory) or kind tag (`EXERCISE_TAGS`)
 warns (`exerciseLevelArea`, `exerciseTags` in `tools.ts`); fewer than seven
 days or an empty day is refused. Plans pasted before sections (`how`, `steps`, `tools` with a `step`, `link`) are read as
@@ -138,9 +153,8 @@ non-singing staffs in tenor), then the interface, generated from
 `model/tools.ts`: every section kind and tool as name, description and `inputSchema` (as an MCP server lists tools), and the
 pages a link may go to as a few URI templates (`/theory/scales/{scale}/{key}`, `/course/{stage}/{section}`).
 
-The prompt is built as labelled parts (`promptParts`: intro, student, earlier weeks, how to plan, rules, mistakes,
-how to write, exercise format, the section interface, which tool for what (every tool by what the student does;
-`prompt.test.ts` fails when a tool is missing from it), the tool interface, links, one `example:<id>` part per example, answer format); `buildPrompt` joins them.
+The prompt is built as labelled parts (`promptParts`: intro, student, earlier weeks, how to plan; then the definitions: exercise format, the section interface, which tool for what (every tool by what the student does;
+`prompt.test.ts` fails when a tool is missing from it), the tool interface, links; then the rules that use them: rules, mistakes, how to write; then one `example:<id>` part per example; the answer format last, ending with a short final check the AI runs over its plan; each rule is stated once, and a skipped questionnaire makes the first reply the questions), `buildPrompt` joins them.
 
 Examples come from the library (`examples/`), chosen by `model/exampleSelection.ts` (`selectExamples`): every exercise
 example, each labelled `For: <area>, level <level>` under a heading telling the AI to pitch at the student's levels, and

@@ -22,7 +22,7 @@ import type { StoredPlan } from "./types";
 const entries = catalogue();
 const day = (n: number, link?: string) => ({ theme: `T${n}`, exercises: [{ title: `Ex ${n}`, minutes: 10, how: "do it", ...(link ? { link } : {}) }] });
 /** Warnings without the one-block and missing-tag nags, which the fixtures all trigger. */
-const real = (w: string[]) => w.filter((x) => !x.includes("one block") && !/: no [a-z, ]+ tag\.$/.test(x) && x !== "No progress summary in the reply.");
+const real = (w: string[]) => w.filter((x) => !x.includes("one block") && !/: no [a-z, ]+ tag\.$/.test(x) && x !== "No progress summary in the reply." && !/^Day \d: \d+ exercises?; use /.test(x) && !x.endsWith(": no learnBefore link; add an attunr page to learn first."));
 const week = (links: (string | undefined)[] = []) => JSON.stringify({ title: "W", days: Array.from({ length: 7 }, (_, i) => day(i + 1, links[i])) });
 
 describe("plan links", () => {
@@ -118,7 +118,7 @@ describe("tools", () => {
     assert.equal(degreeSemis("#4"), 6);
     assert.equal(degreeSemis("x"), null);
     assert.deepEqual(parseTool({ type: "scale-neck", scale: "mixolydian", key: "a", highlight: ["1", "3", "5", "b7", "zz"] }), { type: "scale-neck", scale: "mixolydian", key: 9, highlight: [0, 4, 7, 10] });
-    assert.deepEqual(parseTool({ type: "staff", scale: "mixolydian", key: "a", notes: ["1", "3", "5", "♭7"] }), { type: "staff", scale: "mixolydian", key: 9, voice: "baritone", notes: [0, 4, 7, 10] });
+    assert.deepEqual(parseTool({ type: "staff", scale: "mixolydian", key: "a", notes: ["1", "3", "5", "♭7"] }), { type: "staff", scale: "mixolydian", key: 9, voice: "tenor", notes: [0, 4, 7, 10] });
     assert.equal((parseTool({ type: "staff", scale: "mixolydian", key: "a", notes: ["1"] }) as { notes?: number[] }).notes, undefined);
   });
   it("staff carries its own drone and click, the click's bpm defaulting to 60", () => {
@@ -363,7 +363,9 @@ describe("sections", () => {
     assert.deepEqual(got[3], { type: "list", items: ["a", "b"] });
     // an old link section goes to "Explore more"; the made-up one is dropped
     assert.deepEqual(r.config.days[0].exercises[0].exploreMore, ["/theory/ears"]);
-    assert.equal(real(r.warnings).length, 2);
+    assert.equal(real(r.warnings).length, 3);
+    assert.ok(r.warnings.includes('Day 1, exercise 1: left out a scale-neck (unknown scale "nope").'), r.warnings.join("\n"));
+    assert.ok(r.warnings.includes("Day 1, exercise 1: left out a text (it was empty)."));
   });
   it("level and area: kept when known, and a missing tag warns", () => {
     const r = plan({ level: "beginner", area: "voice", tags: ["sing"], topic: "voice-pitch", sections: [{ type: "text", text: "Sing." }] });
@@ -371,7 +373,7 @@ describe("sections", () => {
     const ex = r.config.days[0].exercises[0];
     assert.equal(ex.level, "beginner");
     assert.equal(ex.area, "voice");
-    assert.ok(!r.warnings.some((w) => w.startsWith("Day 1, exercise 1: no")));
+    assert.ok(!r.warnings.some((w) => /^Day 1, exercise 1: no (level|area|kind|topic)/.test(w)));
     const bad = plan({ level: "expert", area: "drums", sections: [{ type: "text", text: "Play." }] });
     assert.ok(bad.ok);
     assert.equal(bad.config.days[0].exercises[0].level, undefined);

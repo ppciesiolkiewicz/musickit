@@ -84,19 +84,49 @@ export type ToolName = PlanTool["type"];
  */
 export interface Marks { enable?: number[]; highlight?: number[]; mute?: number[]; hide?: number[]; others?: Exclude<Others, "normal"> }
 
+/** What a parse says besides the tool: why it gave none (`why`, set by `no`), and what it changed or defaulted (`notes`, "had no key; used A."). Both are written beside the logic that causes them. */
+interface Diag { why?: string; notes: string[] }
+
 interface ToolSpec {
-  /** the input checked: null when the tool can't be shown. Description and schema are the component's doc (`docOf`). */
-  parse(t: Record<string, unknown>): PlanTool | null;
+  /** the input checked: null when the tool can't be shown, with `d.why` set (`no`). Description and schema are the component's doc (`docOf`). */
+  parse(t: Record<string, unknown>, d: Diag): PlanTool | null;
 }
+
+/** Null, saying why: `return no(d, "no key")`. */
+const no = (d: Diag, why: string): null => {
+  d.why = why;
+  return null;
+};
+/** A missing or unreadable value, as a reason: `no key`, `unreadable key "x"`. */
+const bad = (what: string, v: unknown): string => (v == null || v === "" ? `no ${what}` : `unreadable ${what} ${JSON.stringify(v)?.slice(0, 40)}`);
+/** A value the AI left out or got wrong, replaced by `used`: a note, unless it was just left out and `quiet` (an optional prop with a documented default). */
+const defaulted = (d: Diag, what: string, v: unknown, range: string, used: string | number, quiet = false) => {
+  if (v == null || v === "") { if (!quiet) d.notes.push(`had no ${what}; used ${used}.`); }
+  else d.notes.push(`had ${what} ${JSON.stringify(v)?.slice(0, 40)}${range ? ` (${range})` : ""}; used ${used}.`);
+};
 
 const int = (v: unknown, lo: number, hi: number): number | null => {
   const n = Number(v);
   return Number.isInteger(n) && n >= lo && n <= hi ? n : null;
 };
+/** An integer in lo..hi, else `fallback` with a note (`defaulted`). */
+const intOr = (d: Diag, what: string, v: unknown, lo: number, hi: number, fallback: number, quiet = false): number => {
+  const n = int(v, lo, hi);
+  if (n !== null) return n;
+  defaulted(d, what, v, `not a whole number ${lo}-${hi}`, fallback, quiet);
+  return fallback;
+};
 const isScale = (slug: unknown): slug is string => typeof slug === "string" && !!(findPentatonic(slug) || findModePage(slug));
 const keyOf = (v: unknown): number | null => (typeof v === "string" || typeof v === "number" ? parseKeySlug(String(v)) : null);
 const list = (v: unknown): unknown[] => (Array.isArray(v) ? v : []);
-const chordList = (v: unknown, max: number) => list(v).filter((c): c is string => typeof c === "string" && !!parseChordQuery(c)).slice(0, max);
+/** The chords it can read, at most `max`; the unreadable and the extra are named in `d.notes`. */
+const chordList = (v: unknown, max: number, d: Diag) => {
+  const all = list(v);
+  const ok = all.filter((c): c is string => typeof c === "string" && !!parseChordQuery(c));
+  if (ok.length < all.length) d.notes.push(`had chords it couldn't read, left out: ${all.filter((c) => !ok.includes(c as string)).map((c) => JSON.stringify(c)?.slice(0, 20)).join(", ")}.`);
+  if (ok.length > max) d.notes.push(`had more than ${max} chords; kept the first ${max}.`);
+  return ok.slice(0, max);
+};
 const isChord = (v: unknown): v is string => typeof v === "string" && !!parseChordQuery(v);
 
 export { degreeSemis };
@@ -145,6 +175,8 @@ export function bandParts(v: unknown): BandParts {
       if (PART_MODES.includes(m as PartMode)) out[p] = m as PartMode;
     }
   return Object.keys(out).length ? out : { click: "on" };
+}
+
 /**
  * A backing track's parts: a map of part to mode, or, as plans wrote it before modes, `mute` (those "off", the rest "on").
  * Null when every part plays "on", the default, so a plain track stores no `parts`.
@@ -159,14 +191,27 @@ export function backingParts(v: unknown, mute?: unknown): BackingParts | null {
   if (!Object.keys(out).length) for (const p of PARTS) out[p] = list(mute).includes(p) ? "off" : "on";
   return PARTS.every((p) => out[p] === "on") ? null : out;
 }
-}
 
-const scaleNeck = (t: Record<string, unknown>): PlanTool | null => {
+/** The scale and key a neck tool needs; null, saying why. */
+const scaleKey = (t: Record<string, unknown>, d: Diag): { scale: string; key: number } | null => {
   const key = keyOf(t.key);
-  if (!isScale(t.scale) || key === null) return null;
-  const add = [...new Set(list(t.add).map(keyOf).filter((n): n is number => n !== null))].slice(0, 4);
+  if (!isScale(t.scale)) return no(d, t.scale == null ? "no scale" : `unknown scale ${JSON.stringify(t.scale)?.slice(0, 40)}`);
+  return key === null ? no(d, bad("key", t.key)) : { scale: t.scale, key };
+};
+/** The notes from outside the scale, at most 4 (more is noted). */
+const addOf = (t: Record<string, unknown>, d: Diag): number[] => {
+  const add = [...new Set(list(t.add).map(keyOf).filter((n): n is number => n !== null))];
+  if (add.length > 4) d.notes.push(`had ${add.length} add notes; kept the first 4.`);
+  return add.slice(0, 4);
+};
+
+const scaleNeck = (t: Record<string, unknown>, d: Diag): PlanTool | null => {
+  const sk = scaleKey(t, d);
+  if (!sk) return null;
+  const { scale, key } = sk;
+  const add = addOf(t, d);
   const boxes = boxesOf(t.boxes);
-  return { type: "scale-neck", scale: t.scale, key, ...opt("boxes", boxes), ...(t.neck === true ? { neck: true } : {}), ...(t.positions === false ? { positions: false } : {}), ...opt("add", add), ...placementOf(t, boxes), ...marksOf(t, key) };
+  return { type: "scale-neck", scale, key, ...opt("boxes", boxes), ...(t.neck === true ? { neck: true } : {}), ...(t.positions === false ? { positions: false } : {}), ...opt("add", add), ...placementOf(t, boxes), ...marksOf(t, key) };
 };
 
 /** Two different positions 1-5 and maybe a string 1-6 to cross on; null when not. */
@@ -177,15 +222,16 @@ const crossOf = (v: unknown): { from: number; to: number; string?: number } | nu
   return from !== null && to !== null && from !== to ? { from, to, ...(string !== null ? { string } : {}) } : null;
 };
 
-const positionNeck = (t: Record<string, unknown>): PlanTool | null => {
-  const key = keyOf(t.key);
-  if (!isScale(t.scale) || key === null) return null;
-  const add = [...new Set(list(t.add).map(keyOf).filter((n): n is number => n !== null))].slice(0, 4);
+const positionNeck = (t: Record<string, unknown>, d: Diag): PlanTool | null => {
+  const sk = scaleKey(t, d);
+  if (!sk) return null;
+  const { scale, key } = sk;
+  const add = addOf(t, d);
   const cross = crossOf(t.cross);
   const positions = boxesOf(t.positions);
   const outside = t.outside === "muted" || t.outside === "hidden" ? { outside: t.outside as "muted" | "hidden" } : {};
   return {
-    type: "position-neck", scale: t.scale, key, ...opt("positions", positions), ...(cross ? { cross } : placementOf(t, positions)),
+    type: "position-neck", scale, key, ...opt("positions", positions), ...(cross ? { cross } : placementOf(t, positions)),
     ...opt("add", add), ...outside, ...bool("picker", t.picker), ...marksOf(t, key),
   };
 };
@@ -211,9 +257,9 @@ const pickOf = (v: unknown): MelodyPick | null => {
 };
 
 /** A singer tool with the tune given by number, or by a `pick` (resolved here, never stored). A tune needs its key; a run spans the voice, so takes none. */
-const singer = (t: Record<string, unknown>, field: "tune" | "run", ok: (n: unknown) => boolean, book: BookTune[]): PlanTool | null => {
+const singer = (t: Record<string, unknown>, d: Diag, field: "tune" | "run", ok: (n: unknown) => boolean, book: BookTune[]): PlanTool | null => {
   const key = keyOf(t.key);
-  if (key === null && field === "tune") return null;
+  if (key === null && field === "tune") return no(d, bad("key", t.key));
   let n = t[field];
   let exact = true;
   const pick = ok(n) ? null : pickOf(t.pick);
@@ -221,7 +267,7 @@ const singer = (t: Record<string, unknown>, field: "tune" | "run", ok: (n: unkno
     const found = pickTune(book, pick);
     if (found) { n = found.n; exact = found.exact; }
   }
-  if (!ok(n)) return null;
+  if (!ok(n)) return no(d, pick || t.pick != null ? `no ${field} matched the pick` : n == null ? `no ${field} number or pick` : `unknown ${field} ${JSON.stringify(n)?.slice(0, 20)}`);
   const voice = voiceOf(t.voice);
   // chords are on unless turned off, the metronome off unless turned on, so only the change is kept
   const rest = { ...(voice ? { voice } : {}), ...(t.chords === false ? { chords: false as const } : {}), ...(t.metronome === true ? { metronome: true as const } : {}) };
@@ -237,30 +283,48 @@ const fingersOf = (v: unknown, min: number, max: number): string | null => {
 };
 /** Strings 1-6, low E first; none left means all. */
 const stringsOf = (v: unknown) => opt("strings", [...new Set(list(v).map((n) => int(n, 1, 6)).filter((n): n is number => n !== null))].sort((a, b) => b - a));
-const stubBpm = (v: unknown) => int(v, 40, 200) ?? 80;
+const stubBpm = (d: Diag, v: unknown) => intOr(d, "bpm", v, 40, 200, 80);
 
 const VIEWS: View[] = ["tab", "notes", "neck"];
 const UNDERS: Under[] = ["chords", "drone", "none"];
 
-export const TOOLS: { [N in ToolName]: ToolSpec } = {
+/** The reason fingers can't be used: what was written and what is allowed. */
+const badFingers = (v: unknown, min: number, max: number) => `fingers ${JSON.stringify(v)?.slice(0, 20) ?? "missing"} must be ${min === max ? max : `${min}-${max}`} different fingers from 1 to 4`;
+/** The voice, tenor (the prompt's default) when none or an unknown one is written. */
+const voiceOrTenor = (d: Diag, v: unknown): Voice => {
+  const voice = voiceOf(v);
+  if (!voice) defaulted(d, "voice", v, "not a voice", "tenor");
+  return voice ?? "tenor";
+};
+
+const PARSERS: { [N in ToolName]: ToolSpec } = {
   "scale-neck": { parse: scaleNeck },
   "position-neck": { parse: positionNeck },
   "chord-shapes": {
-    parse(t) {
-      const chords = chordList(t.chords, 8);
-      return chords.length ? { type: "chord-shapes", chords, ...(t.voicing === "barre" || t.voicing === "open" ? { voicing: t.voicing } : {}) } : null;
+    parse(t, d) {
+      const chords = chordList(t.chords, 8, d);
+      return chords.length ? { type: "chord-shapes", chords, ...(t.voicing === "barre" || t.voicing === "open" ? { voicing: t.voicing } : {}) } : no(d, "no chord it could read");
     },
   },
   staff: {
-    parse(t) {
-      const key = keyOf(t.key);
-      if (!isScale(t.scale) || key === null) return null;
+    parse(t, d) {
+      const sk = scaleKey(t, d);
+      if (!sk) return null;
+      const { scale, key } = sk;
       const notes = degrees(t.notes);
-      return { type: "staff", scale: t.scale, key, voice: voiceOf(t.voice) ?? "baritone", ...(notes.length > 1 ? { notes } : {}), ...(t.under === true ? { under: true } : {}), ...marksOf(t, key), ...bool("mic", t.mic), ...(t.drone === true ? { drone: true } : {}), ...(t.click === true ? { click: true, bpm: int(t.bpm, 30, 240) ?? 60 } : {}), ...(isSingingLabels(t.labels) ? { labels: t.labels } : {}) };
+      const voice = voiceOrTenor(d, t.voice);
+      // the click's tempo is optional (default 60): only a wrong one is noted
+      const bpm = t.click === true ? intOr(d, "bpm", t.bpm, 30, 240, 60, true) : 0;
+      return { type: "staff", scale, key, voice, ...(notes.length > 1 ? { notes } : {}), ...(t.under === true ? { under: true } : {}), ...marksOf(t, key), ...bool("mic", t.mic), ...(t.drone === true ? { drone: true } : {}), ...(t.click === true ? { click: true, bpm } : {}), ...(isSingingLabels(t.labels) ? { labels: t.labels } : {}) };
     },
   },
   "backing-band": {
-    parse: (t) => ({ type: "backing-band", bpm: int(t.bpm, 30, 240) ?? 80, key: keyOf(t.key) ?? 9, parts: bandParts(t.parts) }),
+    parse(t, d) {
+      const bpm = intOr(d, "bpm", t.bpm, 30, 240, 80);
+      const key = keyOf(t.key);
+      if (key === null) defaulted(d, "key", t.key, "not a key", "A");
+      return { type: "backing-band", bpm, key: key ?? 9, parts: bandParts(t.parts) };
+    },
   },
   "note-finder": { parse: (t) => ({ type: "note-finder", query: query(t, ["mode", "strings", "from", "to"]) }) },
   "interval-ears": {
@@ -272,14 +336,14 @@ export const TOOLS: { [N in ToolName]: ToolSpec } = {
     },
   },
   "arpeggio-neck": {
-    parse(t) {
-      if (!isChord(t.chord)) return null;
+    parse(t, d) {
+      if (!isChord(t.chord)) return no(d, bad("chord", t.chord));
       const boxes = boxesOf(t.boxes).slice(0, 2);
       return { type: "arpeggio-neck", chord: t.chord, ...opt("boxes", boxes), ...opt("part", degreeStrings(t.part)), ...placementOf(t, boxes), ...marksOf(t, parseChordQuery(t.chord)!.rootPc) };
     },
   },
-  "melody-singer": { parse: (t) => singer(t, "tune", isTuneId, BOOK) },
-  "run-singer": { parse: (t) => singer(t, "run", isRunId, RUNS) },
+  "melody-singer": { parse: (t, d) => singer(t, d, "tune", isTuneId, BOOK) },
+  "run-singer": { parse: (t, d) => singer(t, d, "run", isRunId, RUNS) },
   "string-singer": {
     parse(t) {
       // "strings" is the default, so only another drill is kept
@@ -289,7 +353,7 @@ export const TOOLS: { [N in ToolName]: ToolSpec } = {
     },
   },
   "interval-singer": {
-    parse(t) {
+    parse(t, d) {
       const voice = voiceOf(t.voice);
       const intervals = [...new Set(list(t.intervals).map((v) => int(v, 1, 12)).filter((n): n is number => n !== null))].sort((a, b) => a - b).slice(0, 12);
       const dir = INTERVAL_DIRS.includes(t.dir as IntervalDir) && t.dir !== "up" ? { dir: t.dir as IntervalDir } : {};
@@ -298,26 +362,34 @@ export const TOOLS: { [N in ToolName]: ToolSpec } = {
       const all = t.key === "random" || t.keys === "random";
       const listed = all ? Array.from({ length: 12 }, (_, k) => k) : list(t.keys).map(keyOf).filter((n): n is number => n !== null);
       const key = (all ? null : keyOf(t.key)) ?? listed[0] ?? 0;
+      // the key is optional (default C): only a wrong one is noted
+      if (!all && keyOf(t.key) === null) defaulted(d, "key", t.key, "not a key", TONICS[key], true);
       const keys = [...new Set([key, ...listed])];
       return { type: "interval-singer", key, ...(keys.length > 1 ? { keys } : {}), ...(voice ? { voice } : {}), ...opt("intervals", intervals), ...dir, ...(t.dot === false ? { dot: false as const } : {}) };
     },
   },
   "tuning-ears": {
-    parse(t) {
+    parse(t, d) {
       const cents = Number(t.cents);
-      return { type: "tuning-ears", ...(Number.isFinite(cents) ? { cents: Math.min(50, Math.max(3, Math.round(cents))) } : {}), ...(t.together === true ? { together: true } : {}) };
+      const used = Math.min(50, Math.max(3, Math.round(cents)));
+      if (t.cents != null && !Number.isFinite(cents)) d.notes.push(`had cents ${JSON.stringify(t.cents)?.slice(0, 20)}, not a number; used the default.`);
+      else if (Number.isFinite(cents) && used !== cents) defaulted(d, "cents", t.cents, "3-50", used);
+      return { type: "tuning-ears", ...(Number.isFinite(cents) ? { cents: used } : {}), ...(t.together === true ? { together: true } : {}) };
     },
   },
   "guitar-play-along": {
-    parse(t) {
-      if (!t.shape || typeof t.shape !== "object") return null;
+    parse(t, d) {
+      if (!t.shape || typeof t.shape !== "object") return no(d, "no shape");
       const shape = { ...(t.shape as Record<string, unknown>) };
       // bpm and repeats belong on the guitar-play-along; inside the shape they are a fallback
-      const bpm = int(t.bpm, 30, 240) ?? int(shape.bpm, 30, 240) ?? 80;
+      const own = int(t.bpm, 30, 240) ?? int(shape.bpm, 30, 240);
+      if (own === null) defaulted(d, "bpm", t.bpm ?? shape.bpm, "not a whole number 30-240", 80);
+      const bpm = own ?? 80;
       const repeats = int(t.repeats, 1, 50) ?? int(shape.repeats, 1, 50);
+      if (repeats === null && t.repeats != null) d.notes.push(`had repeats ${JSON.stringify(t.repeats)?.slice(0, 20)} (not a whole number 1-50); left it out.`);
       delete shape.bpm;
       delete shape.repeats;
-      if (!expandShape({ ...shape, bpm, ...(repeats !== null ? { repeats } : {}) })) return null;
+      if (!expandShape({ ...shape, bpm, ...(repeats !== null ? { repeats } : {}) })) return no(d, `its shape ${JSON.stringify(shape.shape) ?? "(no shape field)"} does not expand (a field is missing or out of range)`);
       return {
         type: "guitar-play-along", bpm, shape: shape as unknown as PlayAlongShape,
         ...(repeats !== null ? { repeats } : {}),
@@ -328,18 +400,21 @@ export const TOOLS: { [N in ToolName]: ToolSpec } = {
     },
   },
   "backing-track": {
-    parse(t) {
+    parse(t, d) {
       const progression = typeof t.progression === "string" ? t.progression.trim().toLowerCase() : "";
       const curated = PROGRESSIONS.some((p) => p.id === progression);
-      const chords = curated ? [] : chordList(t.chords, MAX_NUMERALS);
+      const chords = curated ? [] : chordList(t.chords, MAX_NUMERALS, d);
       const key = keyOf(t.key) ?? (chords.length ? parseChordQuery(chords[0])!.rootPc : null);
-      if (key === null) return null;
+      if (key === null) return no(d, "no key, and no chord to read it from");
       // the lesson's own chords are kept as numerals in the key, so moving the key moves them
       const numerals = curated ? null : chords.length ? cleanNumerals(chords.map((c) => numeralOfChord(c, TONICS[key]))) : cleanNumerals(t.numerals);
-      if (!curated && !numerals) return null;
+      if (!curated && !numerals) return no(d, progression ? `unknown progression ${JSON.stringify(progression)} and no chord it could read` : "no known progression and no chord it could read");
       const style = typeof t.style === "string" && STYLES.some((x) => x.id === t.style) ? t.style : null;
+      if (t.style != null && !style) d.notes.push(`had an unknown style ${JSON.stringify(t.style)?.slice(0, 20)}; used the progression's own.`);
       const n = Number(t.bpm);
       const bpm = t.bpm !== undefined && Number.isFinite(n) ? Math.min(BACKING_MAX_BPM, Math.max(BACKING_MIN_BPM, Math.round(n))) : null;
+      if (bpm !== null && bpm !== n) defaulted(d, "bpm", t.bpm, `${BACKING_MIN_BPM}-${BACKING_MAX_BPM}`, bpm);
+      else if (bpm === null && t.bpm != null) d.notes.push(`had bpm ${JSON.stringify(t.bpm)?.slice(0, 20)}, not a number; used the style's tempo.`);
       const parts = backingParts(t.parts, t.mute);
       return {
         type: "backing-track", ...(curated ? { progression } : { numerals: numerals! }), key,
@@ -348,55 +423,76 @@ export const TOOLS: { [N in ToolName]: ToolSpec } = {
     },
   },
   "strum-along": {
-    parse(t) {
-      const chords = chordList(t.chords, 16);
+    parse(t, d) {
+      const chords = chordList(t.chords, 16, d);
+      if (!chords.length) return no(d, "no chord it could read");
       const beats = int(t.beats, 2, 6);
       const strokes = typeof t.pattern === "string" && t.pattern.trim() ? strumPattern(t.pattern, beats ?? 4) : null;
-      return chords.length
-        ? {
-            type: "strum-along", chords, bpm: int(t.bpm, 30, 240) ?? 80,
-            ...(t.per === "bar" || t.per === "beat" ? { per: t.per } : {}),
-            ...(beats !== null && beats !== 4 ? { beats } : {}),
-            ...(strokes ? { pattern: strokes.map((b) => b.join(" ")).join(" | ") } : {}),
-          }
-        : null;
+      if (typeof t.pattern === "string" && t.pattern.trim() && !strokes) d.notes.push(`had a pattern that doesn't fill the bar evenly; left it out.`);
+      return {
+        type: "strum-along", chords, bpm: intOr(d, "bpm", t.bpm, 30, 240, 80),
+        ...(t.per === "bar" || t.per === "beat" ? { per: t.per } : {}),
+        ...(beats !== null && beats !== 4 ? { beats } : {}),
+        ...(strokes ? { pattern: strokes.map((b) => b.join(" ")).join(" | ") } : {}),
+      };
     },
   },
   "finger-pattern": {
-    parse: (t) => {
+    parse: (t, d) => {
       const fingers = fingersOf(t.fingers, 2, 4);
-      return fingers ? { type: "finger-pattern", fingers, fret: int(t.fret, 1, 12) ?? 1, ...stringsOf(t.strings), ...(t.show === "finger" || t.show === "pick" ? { show: t.show } : {}), bpm: stubBpm(t.bpm) } : null;
+      if (!fingers) return no(d, badFingers(t.fingers, 2, 4));
+      return { type: "finger-pattern", fingers, fret: intOr(d, "fret", t.fret, 1, 12, 1, true), ...stringsOf(t.strings), ...(t.show === "finger" || t.show === "pick" ? { show: t.show } : {}), bpm: stubBpm(d, t.bpm) };
     },
   },
   "picking-drill": {
-    parse: (t) => {
+    parse: (t, d) => {
       const strokes = typeof t.strokes === "string" && /^[du]{1,8}$/i.test(t.strokes) ? t.strokes.toUpperCase() : null;
-      return strokes ? { type: "picking-drill", strokes, notesPerString: int(t.notesPerString, 1, 4) ?? 4, ...stringsOf(t.strings), ...bool("skip", t.skip), bpm: stubBpm(t.bpm) } : null;
+      if (!strokes) return no(d, `strokes ${JSON.stringify(t.strokes)?.slice(0, 20) ?? "missing"} must be 1-8 letters, each d or u`);
+      return { type: "picking-drill", strokes, notesPerString: intOr(d, "notesPerString", t.notesPerString, 1, 4, 4, true), ...stringsOf(t.strings), ...bool("skip", t.skip), bpm: stubBpm(d, t.bpm) };
     },
   },
   "legato-trill": {
-    parse: (t) => {
+    parse: (t, d) => {
       const fingers = fingersOf(t.fingers, 2, 2), string = int(t.string, 1, 6), fret = int(t.fret, 1, 12);
-      return fingers && string !== null && fret !== null ? { type: "legato-trill", fingers, string, fret, bpm: stubBpm(t.bpm) } : null;
+      if (!fingers) return no(d, badFingers(t.fingers, 2, 2));
+      if (string === null) return no(d, `${bad("string", t.string)} (1-6)`);
+      if (fret === null) return no(d, `${bad("fret", t.fret)} (1-12)`);
+      return { type: "legato-trill", fingers, string, fret, bpm: stubBpm(d, t.bpm) };
     },
   },
 };
 
+/** The tools' parsers; the diagnosis is optional for callers that only want the tool (`parseToolDiag` wants it). */
+export const TOOLS = Object.fromEntries(Object.entries(PARSERS).map(([k, p]) => [k, { parse: (t: Record<string, unknown>, d: Diag = { notes: [] }) => p.parse(t, d) }])) as { [N in ToolName]: { parse(t: Record<string, unknown>, d?: Diag): PlanTool | null } };
+
 /** Degree lists that a stored plan may hold as semitone numbers. */
 const DEGREE_LISTS = ["enable", "highlight", "mute", "hide", "notes"] as const;
 
+/** A tool parsed, with what the parse had to say (`parseToolDiag`): `dropped` names what was left out and why, `notes` what was changed or defaulted. */
+export interface ToolParse { tool: PlanTool | null; dropped?: string; notes: string[] }
+
 /**
- * One tool from the AI's JSON or a stored plan (old names migrated first), checked: null when it can't be shown.
+ * `parseTool` with its diagnosis. When the tool can't be shown `dropped` reads "a scale-neck (unknown scale "x")" or
+ * "a tool of unknown type "y""; `notes` are things the parse changed ("backing-band had no key; used A."), each starting with the tool's type.
+ */
+export function parseToolDiag(raw: unknown, opts: { stored?: boolean } = {}): ToolParse {
+  if (!raw || typeof raw !== "object") return { tool: null, dropped: "a tool that isn't an object", notes: [] };
+  const t = { ...migrateTool(raw as Record<string, unknown>) };
+  if (!opts.stored) for (const k of DEGREE_LISTS) if (Array.isArray(t[k])) t[k] = (t[k] as unknown[]).filter((d) => typeof d !== "number");
+  const spec = typeof t.type === "string" && Object.hasOwn(PARSERS, t.type) ? PARSERS[t.type as ToolName] : null;
+  if (!spec) return { tool: null, dropped: t.type == null ? "a tool with no type" : `a tool of unknown type ${JSON.stringify(t.type)?.slice(0, 40)}`, notes: [] };
+  const d: Diag = { notes: [] };
+  const tool = spec.parse(t, d);
+  const notes = d.notes.map((n) => `${t.type} ${n}`);
+  return tool ? { tool, notes } : { tool, dropped: `${/^[aeiou]/.test(t.type as string) ? "an" : "a"} ${t.type} (${d.why ?? "it can't be shown"})`, notes };
+}
+
+/**
+ * One tool from the AI's JSON or a stored plan (old names migrated first), checked: null when it can't be shown (`parseToolDiag` says why).
  * Numbers in degree lists (`enable`, `highlight`, `notes`) are semitones only with `stored` (a plan this app saved, or an old
  * `sing`); from pasted input they are dropped, since the AI writing `3` means the 3rd, not 3 semitones.
  */
-export function parseTool(raw: unknown, opts: { stored?: boolean } = {}): PlanTool | null {
-  if (!raw || typeof raw !== "object") return null;
-  const t = { ...migrateTool(raw as Record<string, unknown>) };
-  if (!opts.stored) for (const k of DEGREE_LISTS) if (Array.isArray(t[k])) t[k] = (t[k] as unknown[]).filter((d) => typeof d !== "number");
-  const spec = typeof t.type === "string" && Object.hasOwn(TOOLS, t.type) ? TOOLS[t.type as ToolName] : null;
-  return spec ? spec.parse(t) : null;
-}
+export const parseTool = (raw: unknown, opts: { stored?: boolean } = {}): PlanTool | null => parseToolDiag(raw, opts).tool;
 
 /* ---------------------------------------------------------------- the sections */
 
@@ -408,11 +504,14 @@ export type Section =
 
 const str = (v: unknown, max: number): string => (typeof v === "string" ? v.trim().slice(0, max) : "");
 
+/** The longest a heading, a text and a list item may be, and the most items in a list: cut beyond (`parseSection` says so), and told to the AI by the schemas below. */
+export const MAX_HEADING = 100, MAX_TEXT = 700, MAX_ITEM = 240, MAX_ITEMS = 8;
 const STR = { type: "string" };
+const strMax = (maxLength: number) => ({ type: "string", maxLength });
 const SECTIONS: { type: Section["type"]; description: string; properties: Record<string, unknown>; required: string[] }[] = [
-  { type: "heading", description: "A short title inside the exercise (\"Warm-up\", \"Now with the 7th\").", properties: { text: STR, minutes: { type: "integer", minimum: 1, maximum: 60, description: "starts a timed block of this many minutes" }, keys: { type: "array", items: STR, minItems: 2, maxItems: 3, description: "2-3 keys as notes (\"d\", \"b-flat\"), the first the key the block's tools are written in: the student taps a key and every tool in the block moves to it, so one drill is sung or played in each key" } }, required: ["text"] },
-  { type: "text", description: "A paragraph of plain instructions.", properties: { text: STR }, required: ["text"] },
-  { type: "list", description: "Numbered steps the student follows.", properties: { items: { type: "array", items: STR, minItems: 1, maxItems: 8 } }, required: ["items"] },
+  { type: "heading", description: "A short title inside the exercise (\"Warm-up\", \"Now with the 7th\").", properties: { text: strMax(MAX_HEADING), minutes: { type: "integer", minimum: 1, maximum: 60, description: "starts a timed block of this many minutes" }, keys: { type: "array", items: STR, minItems: 2, maxItems: 3, description: "2-3 keys as notes (\"d\", \"b-flat\"), the first the key the block's tools are written in: the student taps a key and every tool in the block moves to it, so one drill is sung or played in each key" } }, required: ["text"] },
+  { type: "text", description: "A paragraph of plain instructions.", properties: { text: strMax(MAX_TEXT) }, required: ["text"] },
+  { type: "list", description: "Numbered steps the student follows.", properties: { items: { type: "array", items: strMax(MAX_ITEM), minItems: 1, maxItems: MAX_ITEMS } }, required: ["items"] },
   { type: "tool", description: "One of the tools below, shown here, in order, already set up. A tool shows what the text just before it talks about.", properties: { tool: { type: "object", description: "{\"type\": <tool name>, …input}" } }, required: ["tool"] },
 ];
 
@@ -428,11 +527,20 @@ export const EXERCISE_TAGS: Record<string, string> = {
   song: "mostly a piece of music",
 };
 
-/** The tags an exercise gets: what the AI set that we know, plus the ones its tools imply. */
+/** The most kind tags the AI may set on an exercise (the prompt says 1 to 3). */
+export const MAX_TAGS = 3;
+
+/** The kind tags the AI wrote that we know (each once, in order) and the ones it wrote that we don't. */
+export function askedTags(raw: unknown): { known: string[]; unknown: string[] } {
+  const all = [...new Set(list(raw).filter((t): t is string => typeof t === "string"))];
+  return { known: all.filter((t) => Object.hasOwn(EXERCISE_TAGS, t)), unknown: all.filter((t) => !Object.hasOwn(EXERCISE_TAGS, t)) };
+}
+
+/** The tags an exercise gets: the first 3 of what the AI set that we know, plus the ones its tools imply (added after the cut, so an implied tag is never the one dropped). */
 export function exerciseTags(raw: unknown, sections: Section[]): string[] {
-  const tags = new Set(list(raw).filter((t): t is string => typeof t === "string" && Object.hasOwn(EXERCISE_TAGS, t)));
+  const tags = new Set(askedTags(raw).known.slice(0, MAX_TAGS));
   for (const s of sections) if (s.type === "tool" && s.tool.type === "interval-ears" && s.tool.wide) tags.add("multi-octave");
-  return [...tags].slice(0, 4);
+  return [...tags];
 }
 
 /** The level and area tags every exercise carries (the page shows them as chips before the kind tags). */
@@ -478,30 +586,49 @@ const keysOf = (v: unknown): number[] | null => {
   return keys.length >= 2 ? keys : null;
 };
 
-/** One section from the AI's JSON, checked; null when empty or not showable. */
-export function parseSection(raw: unknown): Section | null {
+/** A section parsed, with what the parse had to say: `dropped` names what was left out and why, `notes` what was cut or changed. */
+export interface SectionParse { section: Section | null; dropped?: string; notes: string[] }
+
+/** `str`, noting a cut ("a text was cut at 700 characters.") in `notes`. */
+const strNoted = (v: unknown, max: number, what: string, notes: string[]): string => {
+  const out = str(v, max);
+  if (typeof v === "string" && v.trim().length > max) notes.push(`${what} was cut at ${max} characters.`);
+  return out;
+};
+
+/** One section from the AI's JSON, checked, with its diagnosis: what was cut, and why a section was left out. */
+export function parseSectionDiag(raw: unknown): SectionParse {
   const s = (raw ?? {}) as Record<string, unknown>;
+  const notes: string[] = [];
+  const out = (section: Section): SectionParse => ({ section, notes });
+  const empty = (what: string): SectionParse => ({ section: null, dropped: `${what} (it was empty)`, notes });
   switch (s.type) {
     case "heading":
     case "text": {
-      const text = str(s.text, s.type === "heading" ? 100 : 700);
-      if (!text) return null;
-      if (s.type === "text") return { type: "text", text };
+      const text = strNoted(s.text, s.type === "heading" ? MAX_HEADING : MAX_TEXT, s.type === "heading" ? "a heading" : "a text", notes);
+      if (!text) return empty(`a ${s.type}`);
+      if (s.type === "text") return out({ type: "text", text });
       const m = Math.round(Number(s.minutes));
       const keys = keysOf(s.keys);
-      return { type: "heading", text, ...(s.minutes != null && Number.isFinite(m) ? { minutes: Math.min(60, Math.max(1, m)) } : {}), ...(keys ? { keys } : {}) };
+      return out({ type: "heading", text, ...(s.minutes != null && Number.isFinite(m) ? { minutes: Math.min(60, Math.max(1, m)) } : {}), ...(keys ? { keys } : {}) });
     }
     case "list": {
-      const items = list(s.items).map((i) => str(i, 240)).filter(Boolean).slice(0, 8);
-      return items.length ? { type: "list", items } : null;
+      const asked = list(s.items);
+      const items = asked.map((i) => strNoted(i, MAX_ITEM, "a list item", notes)).filter(Boolean);
+      if (items.length > MAX_ITEMS) notes.push(`a list was cut at ${MAX_ITEMS} items.`);
+      return items.length ? out({ type: "list", items: items.slice(0, MAX_ITEMS) }) : empty("a list");
     }
     case "tool": {
-      const tool = parseTool(s.tool);
-      return tool ? { type: "tool", tool } : null;
+      const p = parseToolDiag(s.tool);
+      notes.push(...p.notes);
+      return p.tool ? out({ type: "tool", tool: p.tool }) : { section: null, dropped: p.dropped, notes };
     }
   }
-  return null;
+  return { section: null, dropped: s.type == null ? "a section with no type" : `a section of unknown type ${JSON.stringify(s.type)?.slice(0, 40)}`, notes };
 }
+
+/** One section from the AI's JSON, checked; null when empty or not showable. */
+export const parseSection = (raw: unknown): Section | null => parseSectionDiag(raw).section;
 
 /* ---------------------------------------------------------------- what the prompt says */
 

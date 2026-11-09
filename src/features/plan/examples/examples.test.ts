@@ -19,8 +19,8 @@ const entries = catalogue();
 const LEVELS: Level[] = ["new", "beginner", "intermediate", "advanced"];
 const ALL: (ExerciseExample | PlanExample)[] = [...EXERCISE_EXAMPLES, ...PLAN_EXAMPLES];
 
-/** A pasted plan of seven copies of one exercise, so the exercise goes through the real paste path. */
-const weekOf = (exercise: unknown) => JSON.stringify({ title: "W", progress: "Notes.", days: Array.from({ length: 7 }, (_, i) => ({ theme: `D${i + 1}`, exercises: [exercise] })) });
+/** A pasted plan of seven days of two copies of one exercise (a day needs 2 to 5), so the exercise goes through the real paste path. */
+const weekOf = (exercise: unknown) => JSON.stringify({ title: "W", progress: "Notes.", days: Array.from({ length: 7 }, (_, i) => ({ theme: `D${i + 1}`, exercises: [exercise, exercise] })) });
 
 function parsed(text: string): PlanConfig {
   const r = parsePlanConfig(text, entries);

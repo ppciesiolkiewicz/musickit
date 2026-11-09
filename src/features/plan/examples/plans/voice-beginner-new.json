@@ -527,7 +527,7 @@
             ],
             "level": "beginner", "topic": "voice-melodies",
             "why": "Tunes often dip below Do and come home, so singing under it makes Do feel like home from both sides.",
-            "learnBefore": ["/course/6/harmony-line", "/course/9/improvising-a-melody"],
+            "learnBefore": ["/course/3/home-note", "/course/3/hearing-do-fa-sol"],
             "sections": [
               {
                 "type": "heading",
@@ -640,7 +640,7 @@
             ],
             "level": "beginner", "topic": "voice-intervals",
             "why": "Real tunes mix steps and skips, so hearing them mixed is closer to singing a song than hearing them alone.",
-            "learnBefore": ["/course/3/do-mi-sol"],
+            "learnBefore": ["/course/3/intervals", "/course/3/do-mi-sol"],
             "sections": [
               {
                 "type": "text",
@@ -794,7 +794,7 @@
             ],
             "level": "beginner", "topic": "voice-melodies",
             "why": "Steps and 3rds are the two moves most tunes use, so a tune of each is the week in two songs.",
-            "learnBefore": ["/course/3/intervals"],
+            "learnBefore": ["/course/3/step-melodies", "/course/3/intervals"],
             "sections": [
               {
                 "type": "heading",

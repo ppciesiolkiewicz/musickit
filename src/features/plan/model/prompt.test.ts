@@ -15,7 +15,7 @@ const last: StoredPlan = {
 };
 const EX = selectExamples(DEFAULT_ANSWERS);
 const EXAMPLE_IDS = [...EX.exercises.map((e) => `example:${e.id}`), `example:${EX.plan.id}`];
-const ORDER = ["intro", "student", "how-to-plan", "rules", "mistakes", "writing", "exercise-format", "sections", "which-tool", "tools", "links", ...EXAMPLE_IDS, "answer-format"];
+const ORDER = ["intro", "student", "how-to-plan", "exercise-format", "sections", "which-tool", "tools", "links", "rules", "mistakes", "writing", ...EXAMPLE_IDS, "answer-format"];
 
 test("prompt parts have unique ids in the documented order", () => {
   assert.deepEqual(promptParts(DEFAULT_ANSWERS, []).map((p) => p.id), ORDER);
@@ -102,12 +102,45 @@ test("the prompt drops repeats arithmetic and the old singing rule, and teaches 
   assert.match(all, /split into two exercises rather than exceed 6/);
   assert.doesNotMatch(all, /Always pair singing with playing/);
   assert.match(all, /at most one block of 3 minutes or less/);
-  assert.match(all, /"minutes": 3/);
+  assert.match(all, /blocks of 2 to 5 minutes each/);
   assert.match(all, /Why it's good:/);
 });
 
-test("skipped questionnaire: the student part asks for the answers", () => {
-  assert.match(promptParts(null, []).find((p) => p.id === "student")!.text, /skipped the questionnaire/);
+test("skipped questionnaire: the student part asks for the answers, and the answer format agrees", () => {
+  const parts = promptParts(null, []);
+  const student = parts.find((p) => p.id === "student")!.text;
+  const format = parts.find((p) => p.id === "answer-format")!.text;
+  assert.match(student, /skipped the questionnaire/);
+  assert.match(student, /your first reply is not the plan/);
+  assert.match(student, /The plan follows as one JSON code block after they answer/);
+  assert.match(format, /skipped questionnaire/);
+  assert.match(format, /first reply is then the questions, and the plan follows as one JSON code block after the student answers/);
+  assert.doesNotMatch(promptParts(DEFAULT_ANSWERS, []).find((p) => p.id === "answer-format")!.text, /skipped questionnaire/);
+});
+
+test("definitions come before the rules that use them, the answer format is last and ends with the final check", () => {
+  const ids = promptParts(DEFAULT_ANSWERS, catalogue()).map((p) => p.id);
+  const at = (id: string) => ids.indexOf(id);
+  for (const def of ["exercise-format", "sections", "which-tool", "tools", "links"]) for (const rule of ["rules", "mistakes", "writing"]) assert.ok(at(def) < at(rule), `${def} before ${rule}`);
+  assert.ok(at("how-to-plan") < at("exercise-format"));
+  assert.ok(at("writing") < at(EXAMPLE_IDS[0]));
+  assert.equal(ids.at(-1), "answer-format");
+  const last = promptParts(DEFAULT_ANSWERS, catalogue()).at(-1)!.text;
+  assert.ok(last.trimEnd().split("\n").at(-1)!.startsWith("- "));
+  assert.ok(last.indexOf("Before you reply, check your plan") > last.indexOf("Topics, each with its concepts"));
+  for (const word of ["7 days", "at least one", "6 tools", "sings or plays|sings and plays", "progress"]) assert.match(last.slice(last.indexOf("Before you reply")), new RegExp(word.replace("7 days", `${7} days`)), word);
+});
+
+test("each rule is stated once: the repeats are gone, the mic tools include interval-singer", () => {
+  const own = ["how-to-plan", "exercise-format", "which-tool", "rules", "mistakes", "writing"];
+  const all = promptParts(DEFAULT_ANSWERS, catalogue()).filter((p) => own.includes(p.id)).map((p) => p.text).join("\n");
+  const count = (re: RegExp) => (all.match(re) ?? []).length;
+  assert.equal(count(/loops until the student stops it/g), 1);
+  assert.equal(count(/Never write frets or note lists/g), 1);
+  assert.equal(count(/One chart per step/g), 1);
+  assert.equal(count(/never muted when it is part of the exercise/g), 1);
+  assert.equal(count(/The notes change, the pattern doesn't/g), 1);
+  assert.match(all, /string-singer, interval-singer\) or text that asks to sing/);
 });
 
 test("the rules ask for the student's voice type on staff and singer tools", () => {

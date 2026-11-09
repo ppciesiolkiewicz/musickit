@@ -25,7 +25,7 @@
           },
           {
             "title": "G, C and D in time", "focus": "G-C-D-G changes · down strums at 60 bpm", "minutes": 6, "level": "beginner", "area": "guitar", "tags": ["rhythm"], "topic": "guitar-basic-chords", "why": "G, C and D are the I, IV and V of G major, so these three changes open up hundreds of songs.",
-            "learnBefore": ["/course/2/c-d-g", "/course/2/one-minute-changes"],
+            "learnBefore": ["/course/2/c-d-g", "/course/2/all-downstrums"],
             "sections": [
               { "type": "heading", "text": "The shapes", "minutes": 3 },
               { "type": "text", "text": "Press a chord box to hear the chord. Fret each shape as shown, then pick the strings one at a time to check they ring. Switch between the shapes slowly, in any order." },
@@ -171,7 +171,7 @@
           },
           {
             "title": "Sol La Sol", "focus": "A tune with La in G, from tab", "minutes": 5, "level": "beginner", "area": "guitar", "tags": ["song"], "topic": "guitar-scales", "why": "La, one step above Sol, gives many folk tunes their lift.",
-            "learnBefore": ["/course/3/step-melodies", "/course/3/hearing-do-fa-sol"],
+            "learnBefore": ["/course/4/melodies"],
             "sections": [
               { "type": "text", "text": "Press Play to hear it. Then play along from the tab: Sol La Sol Mi Do. When it feels easy, switch the view to the neck." },
               { "type": "tool", "tool": { "type": "guitar-play-along", "shape": { "shape": "melody", "tune": 36, "key": "g" }, "bpm": 70, "view": "tab" } }

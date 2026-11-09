@@ -9,10 +9,12 @@ import { EMPTY_STATE, type PlanConfig, type StoredPlan } from "./types";
 const tagged = (extra: Record<string, unknown> = {}) => ({ title: "Ex", minutes: 5, sections: [{ type: "text", text: "x" }], level: "beginner", area: "guitar", tags: ["technique"], topic: "guitar-caged", ...extra });
 const reply = (ex: Record<string, unknown>, top: Record<string, unknown> = { progress: "CAGED: two shapes." }) =>
   JSON.stringify({ title: "W", ...top, days: Array.from({ length: 7 }, (_, i) => ({ theme: `T${i}`, exercises: [i === 0 ? ex : tagged()] })) });
+/** The week-shape warnings these one-exercise, link-free fixtures always raise; not what these tests are about. */
+const shape = (w: string) => !/^Day \d: \d+ exercises?; use /.test(w) && !w.endsWith(": no learnBefore link; add an attunr page to learn first.");
 const parse = (ex: Record<string, unknown>, top?: Record<string, unknown>) => {
   const r = parsePlanConfig(reply(ex, top), []);
   assert.ok(r.ok);
-  return { first: r.config.days[0].exercises[0], config: r.config, warnings: r.warnings };
+  return { first: r.config.days[0].exercises[0], config: r.config, warnings: r.warnings.filter(shape) };
 };
 const counter = () => { let n = 0; return () => `id${++n}`; };
 

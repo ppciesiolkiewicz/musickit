@@ -82,7 +82,7 @@
           },
           {
             "title": "Do and Sol over chords", "focus": "Do over D, Sol over A", "minutes": 5, "level": "beginner", "area": "voice", "tags": ["improv"], "topic": "voice-harmony", "why": "Singing a chord's note while the chord sounds is how a voice fits into music.",
-            "learnBefore": ["/course/6/harmony-line", "/course/9/improvising-a-melody"],
+            "learnBefore": ["/course/3/do-mi-sol", "/course/3/hearing-do-fa-sol"],
             "sections": [
               { "type": "text", "text": "Press Start exercise below to start the mic and the chords: D and A take turns, one bar each. Sing {{1}} (D) when the D chord comes round. Sing {{5}} (A) when the A chord comes round. Then try {{3}} (F♯) over D instead." },
               { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "d", "voice": "tenor", "notes": ["1", "3", "5"] } },
@@ -120,7 +120,7 @@
           },
           {
             "title": "Over G and D", "focus": "Do, Mi and Sol over I and V in G", "minutes": 5, "level": "beginner", "area": "voice", "tags": ["improv"], "topic": "voice-harmony", "why": "Choosing which chord note to sing is the first step of making up a melody.",
-            "learnBefore": ["/course/6/harmony-line", "/course/9/improvising-a-melody"],
+            "learnBefore": ["/course/3/do-mi-sol", "/course/3/hearing-do-fa-sol"],
             "sections": [
               { "type": "text", "text": "Press Start exercise below to start the mic and the chords. Sing the low {{1}} (G) or {{3}} (B) when the G chord comes round. Sing {{5}} (D) when the D chord comes round. Pick a different note each time round." },
               { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "g", "voice": "tenor", "notes": ["1", "3", "5"] } },
@@ -142,7 +142,7 @@
           },
           {
             "title": "A tune under Do", "focus": "An easy tune that dips below Do, in F", "minutes": 4, "level": "beginner", "area": "voice", "tags": ["song"], "topic": "voice-melodies", "why": "Many tunes dip under Do before they come home.",
-            "learnBefore": ["/course/3/la-minor-home"],
+            "learnBefore": ["/course/3/home-note", "/course/3/step-melodies"],
             "sections": [
               { "type": "text", "text": "Press Play to hear it and sing along: the mic comes on with it. Watch your line on the staff dip under Do, then come back up to it." },
               { "type": "tool", "tool": { "type": "melody-singer", "pick": { "difficulty": "easy", "stage": "under" }, "key": "f", "voice": "tenor" } }
@@ -158,7 +158,7 @@
           },
           {
             "title": "Over F, B♭ and C", "focus": "Chord notes over I-IV-V in F", "minutes": 5, "level": "beginner", "area": "voice", "tags": ["improv"], "topic": "voice-harmony", "why": "Three chords give your voice three notes to find.",
-            "learnBefore": ["/course/6/harmony-line", "/course/9/improvising-a-melody"],
+            "learnBefore": ["/course/3/hearing-do-fa-sol", "/course/3/do-mi-sol"],
             "sections": [
               { "type": "text", "text": "Press Start exercise below to start the mic and the chords. Use the lower half of the staff, from the low {{1}} up to {{5}}. Sing {{1}} (F) when the F chord comes round. Sing {{4}} (B♭) when B♭ comes round. Sing {{5}} (C) when C comes round. Hold each note for the whole bar. Then try {{3}} (A) over F instead." },
               { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "f", "voice": "tenor", "notes": ["1", "3", "4", "5"] } },
@@ -180,7 +180,7 @@
           },
           {
             "title": "Steps and skips, mixed", "focus": "Major 2nd, major 3rd, perfect 5th by ear", "minutes": 3, "level": "beginner", "area": "voice", "tags": ["ear"], "topic": "voice-intervals", "why": "Mixing the week's intervals checks that your ear knows each one on its own.",
-            "learnBefore": ["/course/3/do-mi-sol"],
+            "learnBefore": ["/course/3/intervals", "/course/3/do-mi-sol"],
             "sections": [
               { "type": "text", "text": "Press Start below and the game plays two notes: a major 2nd (M2), a major 3rd (M3) or a perfect 5th (P5). Pick the one you heard." },
               { "type": "tool", "tool": { "type": "interval-ears", "set": [2, 4, 7], "dir": "up" } }
@@ -273,7 +273,7 @@
           },
           {
             "title": "Your own line over chords", "focus": "Do Mi Sol over I-IV-V-I in D", "minutes": 5, "level": "beginner", "area": "voice", "tags": ["improv"], "topic": "voice-harmony", "why": "Making up a line from notes you know is the reward for the week.",
-            "learnBefore": ["/course/6/harmony-line", "/course/9/improvising-a-melody"],
+            "learnBefore": ["/course/3/do-mi-sol", "/course/9/improvising-a-melody"],
             "sections": [
               { "type": "text", "text": "Press Start exercise below to start the mic and the chords. Make up a line from {{1}} {{3}} {{5}} (D, F♯, A), in any order. Lean on {{5}} when the A chord comes round: it is that chord's root. Record yourself on your phone. Listen back." },
               { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "d", "voice": "tenor", "notes": ["1", "3", "5"] } },

@@ -4,6 +4,7 @@ import { useState } from "react";
 import Icon from "@/components/Icon";
 import { Button } from "@/components/ui";
 import type { ParseResult } from "../model/config";
+import { fixRequest } from "../model/fixRequest";
 import type { CatalogueEntry } from "../model/catalogue";
 import { offeredInterface, type OfferedItem } from "../model/tools";
 
@@ -82,6 +83,34 @@ export function CopyPrompt({ prompt, entries, label = "Copy prompt" }: { prompt:
   );
 }
 
+/** Copies a request that asks the player's AI to fix what the app changed or dropped in its plan; if the clipboard refuses, the message is shown to copy by hand. */
+function CopyFixRequest({ warnings }: { warnings: string[] }) {
+  const [copied, setCopied] = useState(false);
+  const [show, setShow] = useState(false);
+  const message = fixRequest(warnings);
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(message);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setShow(true);
+    }
+  };
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex flex-wrap items-center gap-2">
+        <Button size="sm" onClick={copy} className={primary}>
+          <Icon name={copied ? "check" : "copy"} size={14} />
+          {copied ? "Copied" : "Copy fix request"}
+        </Button>
+        <span className="text-xs text-slate-500">Paste it to your AI to get a corrected plan.</span>
+      </div>
+      {show && <textarea readOnly value={message} onFocus={(e) => e.currentTarget.select()} className="h-32 w-full rounded-lg border border-slate-700 bg-slate-950/60 p-3 font-mono text-[11px] text-slate-300" />}
+    </div>
+  );
+}
+
 /** Step: paste the AI's reply. The parent parses it (to enable Build); this shows the box and why it isn't a plan yet. */
 export function PasteBox({ text, onText, result }: { text: string; onText: (t: string) => void; result: ParseResult | null }) {
   return (
@@ -101,9 +130,12 @@ export function PasteBox({ text, onText, result }: { text: string; onText: (t: s
         </p>
       )}
       {result?.ok && result.warnings.length > 0 && (
-        <ul className="text-xs text-amber-300/90">
-          {result.warnings.map((w) => <li key={w}>{w}</li>)}
-        </ul>
+        <>
+          <ul className="text-xs text-amber-300/90">
+            {result.warnings.map((w, i) => <li key={`${i}-${w}`}>{w}</li>)}
+          </ul>
+          <CopyFixRequest warnings={result.warnings} />
+        </>
       )}
     </div>
   );
