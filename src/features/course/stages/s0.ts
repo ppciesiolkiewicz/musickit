@@ -165,7 +165,24 @@ export const STAGES_0: CourseStage[] = [
       ]),
       section("step-melodies", "Step melodies: Do–Re–Mi", "melody", "Short tunes that move one note at a time up and down the scale, sung first and then played."),
       section("do-mi-sol", "Do–Mi–Sol", "melody", "The three notes of the major chord as a tune: leaping between Do, Mi and Sol by ear and with your voice."),
-      section("intervals", "Intervals", "three-views", "The distance between two notes: half steps, whole steps and the octave, and how they add up to the scale."),
+      section("intervals", "Intervals", "three-views", "The distance between two notes: half steps, whole steps and the octave, and how they add up to the scale.", [
+        text(
+          "An interval is the distance between two notes. The smallest is a half step: one fret, or one piano key to the very next one. Two half steps make a whole step, two frets.",
+          "The major scale is built from them: whole steps everywhere except B–C and E–F, which are half steps. Here is that on the A string.",
+        ),
+        neck("B to C is a half step (one fret), C to D a whole step (two frets). The same on the piano: no black key between B and C.", 0, 5, [
+          { string: 1, fret: 2, label: "B", fill: NOTE_FILL, big: true }, { string: 1, fret: 3, label: "C", fill: PATH.amber }, { string: 1, fret: 5, label: "D", fill: PATH.sky },
+        ], { paths: [path(PATH.amber, [1, 2], [1, 3]), path(PATH.sky, [1, 3], [1, 5])], legend: [{ label: "half step", colour: PATH.amber }, { label: "whole step", colour: PATH.sky }] }),
+        text(
+          "Two bigger jumps to know by shape. The 5th is seven frets on one string, or one string over and two frets up: that is the power chord, a root and its 5th. The octave is the same note higher: twelve frets on one string, or two strings over and two frets up.",
+          "Across the G and B strings, which are tuned a 3rd apart, every shape moves one fret further up.",
+        ),
+        neck("From the low E: its 5th (B) is on the A string, 2nd fret; its octave (E) is on the D string, 2nd fret.", 0, 3, [
+          { string: 0, fret: 0, label: "E", fill: NOTE_FILL, big: true }, { string: 1, fret: 2, label: "5th", fill: PATH.amber }, { string: 2, fret: 2, label: "8ve", fill: PATH.sky },
+        ], { paths: [path(PATH.amber, [0, 0], [1, 2]), path(PATH.sky, [0, 0], [2, 2])], legend: [{ label: "5th", colour: PATH.amber }, { label: "octave", colour: PATH.sky }] }),
+        task("Play the low E, then the 5th above it, then the octave. Play them one after the other and then together; they should sound like the same note, only higher. Now start from the A string: same shapes, new drill."),
+        links([], [{ href: "/theory/ears?set=5,7,12", label: "Ear: 4th, 5th and octave", note: "name the interval you hear" }]),
+      ]),
       section("hearing-do-fa-sol", "Hearing do, fa, sol", "three-views", "Hearing the 1, 4 and 5 of a key by ear, the notes most songs are built on.", [
         text(
           "Do, Fa and Sol (1, 4 and 5) are the three strongest notes of a key. They're the roots of its three main chords: in G major, G, C and D.",
