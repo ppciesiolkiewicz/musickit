@@ -1,14 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import MiniPiano from "@/components/theory/MiniPiano";
 import { INTERVALS, pianoFrom } from "@/lib/chordKit/intervals";
-import { midiToName, playMelody, strum } from "@/features/sound";
-import { hzToNote, type Pitch } from "@/features/tuner/pitch";
-import { useMicPitch } from "./useMicPitch";
-import InputChip, { micStatusMessage } from "@/components/InputChip";
-import { CHORD_QUALITIES, EAR_LEVELS, activeAnswers, nextEarQuestion, playedInterval, playedNotes, recordScore, type Direction, type EarQuestion, type EarSettings, type Score } from "@/lib/practice/earGame";
+import { playMelody, strum } from "@/features/sound";
+import { CHORD_QUALITIES, EAR_LEVELS, activeAnswers, nextEarQuestion, recordScore, type Direction, type EarQuestion, type EarSettings, type Score } from "@/lib/practice/earGame";
 import Icon from "@/components/Icon";
 import { GameChoice, SetupTag, Stage, Stat, btn, btnBig, panel, useGameKeys, writeQuery } from "./shared";
 import { Chip, ChipRow } from "@/components/ui";
@@ -31,14 +28,6 @@ const settingsQuery = (s: EarSettings) =>
   new URLSearchParams({ kind: s.kind, level: String(s.level), dir: s.direction, ...(s.custom ? { set: s.custom.join(",") } : {}), ...(s.wide ? { wide: "1" } : {}) }).toString();
 const labelOf = (answer: string) => CHORD_QUALITIES.find((c) => c.id === answer)?.label ?? INTERVALS.find((i) => i.short === answer)?.name ?? answer;
 
-/** how long a question sounds, in ms */
-const playMs = (q: EarQuestion) => (q.together ? 1600 : q.midi.length * 650);
-/** after a question sounds the mic waits this long, so it doesn't hear the piano's tail from the speakers */
-const TAIL_MS = 500;
-/** after a played answer: the time to take in the result before the next question, as the player's hands are on the guitar */
-const NEXT_AFTER_RIGHT_MS = 2200;
-const NEXT_AFTER_WRONG_MS = 4000;
-
 function play(q: EarQuestion) {
   if (q.together) strum(q.midi, { gapMs: 0, holdMs: 1600 });
   else playMelody(q.midi, 650);
@@ -48,15 +37,7 @@ function play(q: EarQuestion) {
 export default function EarGame({ initial, syncUrl = true, bare = false }: { initial: EarSettings; /** write the settings to the address bar (off when embedded in another page) */ syncUrl?: boolean; /** settings fixed by the host: no settings panel */ bare?: boolean }) {
   const [s, setS] = useState(initial);
   const [q, setQ] = useState<EarQuestion | null>(null);
-  /** `played`: answered on the instrument, with the interval the mic heard */
-  const [answered, setAnswered] = useState<{ pick: string; ok: boolean; played?: boolean } | null>(null);
-  const [mic, setMic] = useState(false);
-  const [listening, setListening] = useState(false);
-  const [firstNote, setFirstNote] = useState<number | null>(null);
-  const [stay, setStay] = useState(false); // they asked to hear it again, so don't move on by yourself
-  const track = useRef(playedNotes.initial);
-  const listenFrom = useRef(0);
-  const listenTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const [answered, setAnswered] = useState<{ pick: string; ok: boolean } | null>(null);
   const [score, setScore] = useState<Score>({});
   const answers = activeAnswers(s);
 
@@ -66,63 +47,23 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
     if (syncUrl) writeQuery(settingsQuery(next));
     setQ(null);
     setAnswered(null);
-    setListening(false);
-    setFirstNote(null);
-    clearTimeout(listenTimer.current);
-  };
-  /** Sound the question, and keep the mic out of it until it has died away. */
-  const ask = (x: EarQuestion) => {
-    play(x);
-    track.current = playedNotes.initial;
-    setFirstNote(null);
-    setListening(false);
-    const wait = playMs(x) + TAIL_MS;
-    listenFrom.current = performance.now() + wait;
-    clearTimeout(listenTimer.current);
-    listenTimer.current = setTimeout(() => setListening(true), wait);
   };
   const next = () => {
     const n = nextEarQuestion(s, Math.random, q ?? undefined);
     setQ(n);
     setAnswered(null);
-    setStay(false);
-    ask(n);
+    play(n);
   };
   const replay = () => {
-    if (!q) return;
-    if (answered) setStay(true);
-    ask(q);
+    if (q) play(q);
   };
-  const pick = (a: string, played = false) => {
+  const pick = (a: string) => {
     if (!q || answered) return;
     const ok = a === q.answer;
-    setAnswered({ pick: a, ok, played });
+    setAnswered({ pick: a, ok });
     setScore((sc) => recordScore(sc, q.answer, ok));
-    if (played && !ok) play(q); // what it should have been, while the hands are still on the strings
   };
 
-  const canPlay = s.kind === "interval";
-  const onPitch = (p: Pitch | null) => {
-    const now = performance.now();
-    const t = playedNotes.step(track.current, p ? hzToNote(p.freq).midi : null, now, !q || !!answered || now < listenFrom.current);
-    track.current = t;
-    setFirstNote(t.notes[0] ?? null);
-    if (t.notes.length >= 2) pick(playedInterval(t.notes[0], t.notes[1]), true);
-  };
-  const { status } = useMicPitch(mic && canPlay && !!q, undefined, onPitch);
-  const micText = micStatusMessage(status);
-
-  // a played answer moves on by itself
-  const latestNext = useRef(next);
-  useEffect(() => {
-    latestNext.current = next;
-  });
-  useEffect(() => {
-    if (!answered?.played || stay) return;
-    const id = setTimeout(() => latestNext.current(), answered.ok ? NEXT_AFTER_RIGHT_MS : NEXT_AFTER_WRONG_MS);
-    return () => clearTimeout(id);
-  }, [answered, stay]);
-  useEffect(() => () => clearTimeout(listenTimer.current), []);
   const toggleCustom = (semis: number) => {
     const cur = s.custom ?? EAR_LEVELS.filter((l) => l.n <= s.level).flatMap((l) => l.semis);
     const set = cur.includes(semis) ? cur.filter((x) => x !== semis) : [...cur, semis];
@@ -144,12 +85,8 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
 
   const total = Object.values(score).reduce((n, v) => n + v.total, 0);
   const right = Object.values(score).reduce((n, v) => n + v.right, 0);
-  const playing = mic && canPlay && status === "on";
   const prompt = !q ? (s.kind === "chord" ? "A chord plays. Name its kind." : "Two notes play. Name the gap between them.")
-    : !playing ? "Replay it as often as you like, then pick an answer."
-    : !listening ? "Listen."
-    : firstNote === null ? "Now play it on your guitar, from any note."
-    : `Heard ${midiToName(firstNote)}. Now play the second note.`;
+    : "Replay it as often as you like, then pick an answer.";
   const question = !q ? "Press Start and listen." : answered ? (answered.ok ? "Right!" : "Not quite.") : s.kind === "chord" ? "What kind of chord?" : "Which interval?";
 
   const setup = !bare && (
@@ -193,7 +130,7 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
               </div>
             )}
             <p className={`text-2xl leading-snug sm:text-3xl ${answered ? (answered.ok ? "text-emerald-300" : "text-rose-300") : "text-slate-50"}`} style={{ fontFamily: "var(--font-display), serif", fontVariationSettings: '"SOFT" 100, "opsz" 96' }}>{question}</p>
-            <p role="status" className="mt-1 min-h-6 text-slate-400">{answered && q ? <span className="text-slate-300">It was <b className="text-slate-50">{labelOf(q.answer)}</b>.{answered.played && !answered.ok && <> You played <b className="text-slate-50">{labelOf(answered.pick)}</b>.</>}{answered.played && !stay && <span className="text-slate-400"> The next one is coming.</span>}</span> : prompt}</p>
+            <p role="status" className="mt-1 min-h-6 text-slate-400">{answered && q ? <span className="text-slate-300">It was <b className="text-slate-50">{labelOf(q.answer)}</b>.</span> : prompt}</p>
           </div>
           {total > 0 && <div className="flex gap-2"><Stat label="right" value={right} tone="text-emerald-300" /><Stat label="asked" value={total} /></div>}
         </div>
@@ -218,18 +155,6 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
             );
           })}
         </div>
-        {canPlay && <div className="flex flex-col gap-2">
-          <ChipRow label="Answer by" info="Tap the answer, or play the gap on your guitar and let the mic hear it: one note, then the other, starting on any note, up or down. After a played answer the next question comes by itself.">
-            <Chip on={!mic} onClick={() => setMic(false)}>Tapping the answer</Chip>
-            <Chip on={mic} onClick={() => setMic(true)}>Playing it (mic)</Chip>
-            {mic && canPlay && <InputChip status={status} />}
-          </ChipRow>
-          {mic && (
-            <p className="text-xs text-slate-400">
-              {micText ? (status === "asking" ? micText : `${micText} Or answer by tapping.`) : status === "on" ? "Headphones keep the question out of the mic." : "Press Start, then play it back."}
-            </p>
-          )}
-        </div>}
         {answered && q && (
           <div className="flex flex-col gap-2 rounded-2xl border border-slate-800 bg-slate-950/40 p-3 text-sm text-slate-300">
             {info && <p>Memory hook: the start of <i>{info.song}</i>. <Link className="text-sky-300 hover:underline" href={`/theory/basics?interval=${info.semis}#intervals`}>See it on the guitar →</Link></p>}
