@@ -1,7 +1,12 @@
+"use client";
+
 import Icon from "@/components/Icon";
 import Photo, { type PhotoKey } from "./Photo";
 import { DISPLAY } from "./Display";
-import { DOT_INK, degreeColour } from "@/features/theory/scales";
+import { degreeColour } from "@/features/theory/scales";
+import { NoteDot } from "@/components/chordKit/NoteDot";
+import { useNotePlayer } from "@/components/chordKit/useNotePlayer";
+import type { ScaleCell } from "@/lib/chordKit/scalePositions";
 
 /* Drawn pictures of private lessons inside the kit, not screenshots, so they follow the theme. */
 
@@ -11,21 +16,33 @@ const BOX: [number, number, number, string][] = [
   [0, 0, 0, "R"], [0, 3, 2, "♭3"], [1, 0, 4, "5"], [1, 3, 6, "♭7"], [2, 0, 2, "♭3"], [2, 2, 3, "4"],
   [3, 0, 6, "♭7"], [3, 2, 0, "R"], [4, 0, 3, "4"], [4, 2, 4, "5"], [5, 0, 0, "R"], [5, 3, 2, "♭3"],
 ];
+const OPEN_BY_ROW = [64, 59, 55, 50, 45, 40]; // high e down to low E
+const MINOR_SEMI = [0, 2, 3, 5, 7, 8, 10];
+const PC_NAME = ["C", "C♯", "D", "E♭", "E", "F", "F♯", "G", "A♭", "A", "B♭", "B"];
 
+const CELLS: (ScaleCell & { row: number; off: number; label: string })[] = BOX.map(([row, off, d, label]) => {
+  const midi = OPEN_BY_ROW[row] + 5 + off;
+  return { string: 5 - row, fret: 5 + off, midi, pc: midi % 12, degree: d, name: PC_NAME[midi % 12], semi: MINOR_SEMI[d], degreeText: label, row, off, label };
+});
+
+/** The box drawn with the app's own note dots: hover names the note, a click plays it. `highlight` is a dot with a pulsing ring. */
 function PentatonicBox({ highlight }: { highlight?: [number, number] }) {
+  const { active, tap } = useNotePlayer();
   return (
-    <svg viewBox="0 0 260 132" className="w-full" role="img" aria-label="A minor pentatonic box at the 5th fret, notes coloured by degree">
+    <svg viewBox="0 0 260 132" className="w-full" role="img" aria-label="A minor pentatonic box at the 5th fret, notes coloured by degree. Click a note to hear it.">
       <rect x={20} y={6} width={232} height={120} rx={6} fill="var(--color-slate-900)" />
       {[0, 1, 2, 3, 4].map((f) => <line key={f} x1={20 + f * 58} x2={20 + f * 58} y1={6} y2={126} stroke="var(--color-slate-700)" strokeWidth={2} />)}
       {[0, 1, 2, 3, 4, 5].map((s) => <line key={s} x1={20} x2={252} y1={16 + s * 20} y2={16 + s * 20} stroke="var(--color-slate-500)" strokeOpacity={0.7} strokeWidth={0.8 + s * 0.3} />)}
       <text x={8} y={70} fontSize={10} fill="var(--color-slate-500)" textAnchor="middle">5</text>
-      {BOX.map(([s, f, d, l]) => {
-        const lit = highlight && highlight[0] === s && highlight[1] === f;
+      {CELLS.map((c) => {
+        const lit = highlight && highlight[0] === c.row && highlight[1] === c.off;
+        const key = `${c.row}-${c.off}`;
+        const x = 49 + c.off * 58;
+        const y = 16 + c.row * 20;
         return (
-          <g key={`${s}-${f}`}>
-            {lit && <circle cx={49 + f * 58} cy={16 + s * 20} r={15} fill="none" stroke={degreeColour(d)} strokeWidth={2.5} className="wheel-ripple" style={{ animationIterationCount: "infinite", animationDuration: "1.6s" }} />}
-            <circle cx={49 + f * 58} cy={16 + s * 20} r={lit ? 11 : 9} fill={degreeColour(d)} stroke={d === 0 ? "var(--color-slate-50)" : "none"} strokeWidth={2} />
-            <text x={49 + f * 58} y={16.5 + s * 20} fontSize={l.length > 1 ? 7.5 : 9} fontWeight={700} fill={DOT_INK} textAnchor="middle" dominantBaseline="central">{l}</text>
+          <g key={key}>
+            {lit && <circle cx={x} cy={y} r={15} fill="none" stroke={degreeColour(c.degree)} strokeWidth={2.5} className="wheel-ripple pointer-events-none" style={{ animationIterationCount: "infinite", animationDuration: "1.6s" }} />}
+            <NoteDot c={c} x={x} y={y} r={lit ? 11 : 9} ring={false} label={c.label} hover={c.name} active={active === key} dim={false} onNote={() => tap(key, c.midi)} />
           </g>
         );
       })}
