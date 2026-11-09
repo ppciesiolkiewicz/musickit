@@ -8,7 +8,7 @@ import { playMelody, strum } from "@/features/sound";
 import { CHORD_QUALITIES, EAR_LEVELS, activeAnswers, nextEarQuestion, recordScore, type Direction, type EarQuestion, type EarSettings, type Score } from "@/lib/practice/earGame";
 import Icon from "@/components/Icon";
 import { GameChoice, SetupTag, Stage, Stat, btn, btnBig, panel, useGameKeys, writeQuery } from "./shared";
-import { Chip, ChipRow } from "@/components/ui";
+import { Chip, ChipRow, KeyCap } from "@/components/ui";
 
 const DIRS: { id: Direction; label: string; mark: string }[] = [
   { id: "up", label: "Rising", mark: "↗" },
@@ -89,6 +89,9 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
     : "Replay it as often as you like, then pick an answer.";
   const question = !q ? "Press Start and listen." : answered ? (answered.ok ? "Right!" : "Not quite.") : s.kind === "chord" ? "What kind of chord?" : "Which interval?";
 
+  /** Key caps only where the keys work: not when embedded, not on touch screens. */
+  const cap = (key: string) => !bare && <KeyCap className="hidden md:inline">{key}</KeyCap>;
+
   const setup = !bare && (
     <section className={`${panel} flex flex-col gap-2`}>
       <h2 className="mb-1 text-xs font-medium uppercase tracking-[0.2em] text-slate-400">Set up the training</h2>
@@ -136,12 +139,11 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {!q || answered
-            ? <button type="button" className={btnBig} onClick={next}><Icon name="play" size={16} />{q ? "Next" : "Start"}</button>
-            : <button type="button" className={btnBig} onClick={replay}><Icon name="repeat" size={16} />Replay</button>}
+            ? <button type="button" className={btnBig} onClick={next}><Icon name="play" size={16} />{q ? "Next" : "Start"}{cap("Space")}</button>
+            : <button type="button" className={btnBig} onClick={replay}><Icon name="repeat" size={16} />Replay{cap("R")}</button>}
           {q && (answered
-            ? <button type="button" className={`${btn} inline-flex items-center gap-1.5 py-2`} onClick={replay}><Icon name="repeat" size={14} />Replay</button>
+            ? <button type="button" className={`${btn} inline-flex items-center gap-1.5 py-2`} onClick={replay}><Icon name="repeat" size={14} />Replay{cap("R")}</button>
             : <button type="button" className={`${btn} py-2`} onClick={next}>Skip</button>)}
-          {!bare && <span className="ml-auto hidden text-xs text-slate-400 md:block">Keys: numbers answer, R replays, Space goes on</span>}
         </div>
         <div className={`grid gap-2 ${s.kind === "chord" ? "grid-cols-[repeat(auto-fill,minmax(8rem,1fr))]" : "grid-cols-[repeat(auto-fill,minmax(4.5rem,1fr))]"}`}>
           {answers.map((a, i) => {
@@ -150,11 +152,12 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
               <button key={a} type="button" onClick={() => pick(a)} disabled={!q}
                 className={`relative cursor-pointer rounded-xl border-2 px-3 py-3 text-base font-semibold transition active:scale-[0.96] disabled:cursor-default disabled:opacity-40 ${isRight ? "border-emerald-400 bg-emerald-500/25 text-emerald-50" : wrong ? "border-rose-400 bg-rose-500/25 text-rose-50" : "border-slate-600 bg-slate-800 text-slate-50 hover:border-sky-400 hover:bg-slate-700"}`}>
                 {s.kind === "chord" ? labelOf(a) : a}
-                {!bare && ANSWER_KEYS[i] && <span aria-hidden className="absolute right-1.5 top-1 hidden text-[10px] font-normal text-slate-400 md:block">{ANSWER_KEYS[i]}</span>}
+                {!bare && ANSWER_KEYS[i] && <KeyCap className="absolute right-1 top-1 hidden md:block">{ANSWER_KEYS[i]}</KeyCap>}
               </button>
             );
           })}
         </div>
+        {!bare && <p className="hidden text-xs text-slate-400 md:block">Keys: numbers answer, R replays, Space goes on</p>}
         {answered && q && (
           <div className="flex flex-col gap-2 rounded-2xl border border-slate-800 bg-slate-950/40 p-3 text-sm text-slate-300">
             {info && <p>Memory hook: the start of <i>{info.song}</i>. <Link className="text-sky-300 hover:underline" href={`/theory/basics?interval=${info.semis}#intervals`}>See it on the guitar →</Link></p>}

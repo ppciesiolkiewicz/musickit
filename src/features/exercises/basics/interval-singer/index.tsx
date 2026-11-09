@@ -8,7 +8,7 @@ import MicButton from "@/components/theory/singing/MicButton";
 import InputChip from "@/components/InputChip";
 import SingingStaff from "@/components/theory/singing/SingingStaff";
 import Icon from "@/components/Icon";
-import { Badge, Button, Checkbox } from "@/components/ui";
+import { Badge, Button, Checkbox, KeyCap } from "@/components/ui";
 import { getSharedPiano, playSequence, wakeAudio } from "@/features/sound";
 import { VOICES, buildLadder, clefFor, hzToMidi, spellName, type Ladder, type LadderNote, type Range, type Voice } from "@/features/theory/singing";
 import { spellInterval } from "@/features/theory/singingIntervals";
@@ -27,8 +27,6 @@ const HOLD_MS = 500;
 const GAP_FRAMES = 6;
 
 type Look = "roll" | "staff";
-/** a key hint on a button */
-const Kbd = ({ children }: { children: string }) => <kbd aria-hidden className="rounded border border-current px-1 font-mono text-[10px] opacity-70">{children}</kbd>;
 const ALL_KEYS = Array.from({ length: 12 }, (_, k) => k);
 const KEY_NAMES = ["C", "D♭", "D", "E♭", "E", "F", "F♯", "G", "A♭", "A", "B♭", "B"];
 
@@ -226,10 +224,10 @@ export function View({ keys: keysProp = [0], voice = "tenor", intervals = DEFAUL
     <div ref={root} className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center gap-2">
         <Button size="sm" onClick={next} title={`${ask === null ? "Start" : "Next interval"} (Space)`} className="inline-flex items-center gap-1.5 !border-sky-400/80 !bg-sky-500/25 !text-sky-50">
-          {ask === null ? "Start" : "Next"}<Kbd>Space</Kbd>
+          {ask === null ? "Start" : "Next"}<KeyCap>Space</KeyCap>
         </Button>
-        {ask !== null && <Button size="sm" onClick={hearDo} title="Hear Do (D)" className="inline-flex items-center gap-1.5">Hear Do<Kbd>D</Kbd></Button>}
-        {ask !== null && <Button size="sm" onClick={restart} title="The same interval again: Do plays and the mic listens (R)" className="inline-flex items-center gap-1.5">Restart<Kbd>R</Kbd></Button>}
+        {ask !== null && <Button size="sm" onClick={hearDo} title="Hear Do (D)" className="inline-flex items-center gap-1.5">Hear Do<KeyCap>D</KeyCap></Button>}
+        {ask !== null && <Button size="sm" onClick={restart} title="The same interval again: Do plays and the mic listens (R)" className="inline-flex items-center gap-1.5">Restart<KeyCap>R</KeyCap></Button>}
         {ask !== null && !found && <Button size="sm" onClick={() => reveal(false)}>Show me</Button>}
         <MicButton on={micOn} onClick={() => (micOn ? setMicOn(false) : startMic())} />
         <InputChip status={micStatus} />
