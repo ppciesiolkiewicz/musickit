@@ -119,20 +119,22 @@ export function LiveLessonMock() {
   );
 }
 
-/** The other half of a lesson: the note that lands after class, with the resources the teacher attached. A small card to sit beside LiveLessonMock. */
+/** The other half of a lesson: the teacher says what to practise, and an interactive exercise is made from it. A small card to sit beside LiveLessonMock. */
 export function AfterClassMock() {
   return (
     <div className="rounded-2xl border border-slate-700/70 bg-slate-900/85 p-3 shadow-2xl shadow-black/30 backdrop-blur">
-      <p className="text-[10px] uppercase tracking-widest text-slate-500">After class · note from your teacher</p>
-      <p className="mt-0.5 text-sm text-slate-100" style={DISPLAY}>Minor pentatonic, box 1</p>
-      <ul className="mt-2 flex flex-col gap-1.5 text-[11px] text-slate-300">
-        <li className="flex items-center gap-1.5"><span className="flex size-3.5 shrink-0 items-center justify-center rounded bg-emerald-500 text-slate-950"><Icon name="check" size={9} /></span><span className="text-slate-400 line-through decoration-slate-600">Box 1 up and down</span></li>
-        <li className="flex items-center gap-1.5"><span className="size-3.5 shrink-0 rounded border border-slate-600" />Improvise over the loop, 5 min a day</li>
-      </ul>
-      <div className="mt-2 flex flex-wrap gap-1.5 border-t border-slate-800 pt-2 text-[10px]">
-        <span className="rounded-full border border-sky-500/40 px-2 py-0.5 text-sky-200">Box 1 chart</span>
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-[10px] uppercase tracking-widest text-slate-500">After class</p>
+        <span className="rounded-full border border-violet-500/40 px-2 py-0.5 text-[10px] text-violet-200">Interactive exercise</span>
+      </div>
+      <p className="mt-2 rounded-lg rounded-bl-sm bg-slate-800 px-2.5 py-1.5 text-[11px] italic text-slate-300">&ldquo;Practise box 1 over an A minor loop, landing on the root.&rdquo;</p>
+      <div className="mt-2 rounded-xl border border-slate-800 bg-slate-950/60 p-1.5">
+        <PentatonicBox highlight={[0, 0]} />
+      </div>
+      <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[10px]">
         <span className="rounded-full border border-teal-500/40 px-2 py-0.5 text-teal-200">A minor loop</span>
-        <span className="rounded-full border border-amber-500/40 px-2 py-0.5 text-amber-200">Reading list</span>
+        <span className="rounded-full border border-sky-500/40 px-2 py-0.5 text-sky-200">Box 1 chart</span>
+        <span className="text-slate-500">made from what you said</span>
       </div>
     </div>
   );
