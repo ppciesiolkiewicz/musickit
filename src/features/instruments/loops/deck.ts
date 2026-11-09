@@ -99,6 +99,11 @@ export class LoopDeck implements GridFollower {
     return this.loops.some((l) => l.take || (l.running && !l.stopping));
   }
 
+  /** a loop plays or is set to, or a take is on its way */
+  on() {
+    return this.loops.some((l) => l.on || !!l.take);
+  }
+
   /** a loop holds sound or records: recorded loops are so many bars of the tempo they were taken at */
   locksTempo() {
     return this.loops.some((l) => l.buffer || l.take);

@@ -3,7 +3,6 @@ import { clampDrone, type DroneParams } from "../drone/drone";
 import { findGroove, grooveBassCells, grooveDrumCells, type GrooveId } from "../sequencer/grooves";
 import { BASS, DRONE_ID, DRUMS, Sequencer, type SequencerState } from "../sequencer/sequencer";
 import { clampTempo, nextBeat } from "./clock";
-import type { LoopConfig } from "../loops/loops";
 
 export const JAM_PARTS = ["drone", "drums", "bass"] as const;
 export type JamPart = (typeof JAM_PARTS)[number];
@@ -33,14 +32,16 @@ export interface JamSnapshot {
   groove: GrooveId | null;
   /** a follower (a loop) holds sound or records: the tempo stays as it is */
   tempoLocked: boolean;
+  /** a follower is on: a loop plays or is about to, or records (a Stop all stops it) */
+  followersOn: boolean;
   /**
    * the metronome click on the same grid: `on` is its own play (`setClick`); `running` is clicking now, which with `followClick` is
    * also whenever another part or a follower plays; `muted` silences it and keeps it going
    */
   click: { on: boolean; running: boolean; volume: number; muted: boolean };
 }
-/** `loops` is the `LoopDeck`'s, written beside the rig's by the page that hosts both (`musickit.jam`); the rig neither reads nor writes it. */
-export interface JamSaved { bpm: number; parts: Partial<Record<JamPart, Partial<SequencerState>>>; loops?: Partial<LoopConfig>[]; click?: { volume?: number; muted?: boolean }; levels?: Partial<Record<JamPart, Partial<PartLevel>>>; groove?: GrooveId | null }
+/** The rig's save. A page that hosts a follower writes its settings beside these (the jam page's `loops`, `jam/page.ts`). */
+export interface JamSaved { bpm: number; parts: Partial<Record<JamPart, Partial<SequencerState>>>; click?: { volume?: number; muted?: boolean }; levels?: Partial<Record<JamPart, Partial<PartLevel>>>; groove?: GrooveId | null }
 
 /** The rig's grid, as a follower sees it (handed over in `JamRig.follow`). */
 export interface GridHost {
@@ -58,6 +59,8 @@ export interface GridHost {
 export interface GridFollower {
   /** it sounds, or a take is on its way: it keeps the grid and the following click */
   busy(): boolean;
+  /** wanted on: it plays or starts on the next beat, or a take is on its way (`busy` when not given) */
+  on?(): boolean;
   /** it holds sound recorded at this tempo */
   locksTempo(): boolean;
   /** the grid's beat 1 moved here (AudioContext time) */
@@ -72,7 +75,7 @@ export interface GridFollower {
 }
 
 /**
- * Drone, drums and bass on one clock, for a page: what the `Jam` component shows. No React. The first part to start sets the grid;
+ * Drone, drums and bass on one clock, for a page: what the `full` PracticeBand shows. No React. The first part to start sets the grid;
  * the others join on its next beat, and stop on the next beat too. The bass plays in the drone's key. Audio is made only after
  * `attach` (call it from a person's click).
  */
@@ -117,6 +120,7 @@ export class JamRig {
       parts: { drone: view(this.seqs.drone), drums: view(this.seqs.drums), bass: view(this.seqs.bass) },
       groove: this.groove,
       tempoLocked: this.tempoLocked,
+      followersOn: this.followers.some((f) => (f.on ? f.on() : f.busy())),
       click: { on: this.clickOn, running: !!this.clickTrack?.playing && !this.clickTrack.ending, volume: this.clickVolume, muted: this.clickMuted },
     };
   }

@@ -4,7 +4,7 @@
  *   model.ts     sound and maths, no React (the looper engine imports only this)
  *   drone/       the drone voice, its controls (DroneControls) and pictures (DroneScope)
  *   sequencer/   the Sequencer, its instruments and patterns, and StepGrid / PatternBar (the pattern editor)
- *   jam/         Jam: drone, drums and bass on one clock for a page, the bass in the drone's key; JamRig and its GridFollower
+ *   jam/         JamRig (drone, drums and bass on one clock, the bass in the drone's key) and its GridFollower; JamPage, the drone page's band and loops
  *   loops/       LoopDeck: the looper on its own, recording loops on a rig's clock (it follows a JamRig); Loops, its rows
  *   click/       ClickTrack, a page's metronome click (the looper keeps its own, tied to its transport)
  *   pocket/      PocketTools: a one-line metronome and drone for a page's settings bar; PocketLine and POCKET_BUTTON for a host's own line
@@ -21,7 +21,7 @@ export { default as DroneControls } from "./drone/DroneControls";
 export { default as DroneScope } from "./drone/DroneScope";
 export { default as StepGrid, PatternBar } from "./sequencer/StepGrid";
 export { default as PartLevel } from "./sequencer/PartLevel";
-export { default as Jam } from "./jam/Jam";
+export { default as JamPage } from "./jam/JamPage";
 export { default as Loops } from "./loops/LoopList";
 export { default as useLoopDeck, APP_INPUT } from "./loops/useLoopDeck";
 export { default as PocketTools, PocketDrone, Tool as PocketLine, POCKET_BUTTON, POCKET_LIT, type PocketStatus } from "./pocket/PocketTools";

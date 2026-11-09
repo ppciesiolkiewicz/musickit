@@ -5,7 +5,7 @@ import { BASS_PRESETS, DRUM_PRESETS, MAX_BARS, MAX_STEPS, fromRows, emptyCells, 
 /**
  * A step sequencer that plays a synthesised instrument in time with the metronome grid. Nothing is downloaded:
  * every sound is built from oscillators and noise. The instrument is swappable; the default is a drum machine.
- * Shared by the looper (a stage circle per sequencer) and the theory pages (`Jam`). No React; it imports only the drone and the
+ * Shared by the looper (a stage circle per sequencer) and the theory pages (`PracticeBand`). No React; it imports only the drone and the
  * pattern maths. `dest`, `x` and `y` of the state are the looper's (where its circle sits); a page ignores them.
  */
 

@@ -130,7 +130,7 @@ export function Tool({ label, gap = "gap-1", children }: { label: string; gap?: 
 }
 
 /**
- * A small play-along band for a page's settings bar: metronome, drone, drums and bass on one clock (the Jam's `JamRig`), each on one
+ * A small play-along band for a page's settings bar: metronome, drone, drums and bass on one clock (the jam page's `JamRig`), each on one
  * line with play, the few controls you reach for and a panel behind the sliders button for the rest (the drone's full `DroneControls`,
  * the sequencers' step grids). Play all starts everything on the next beat. Space stops what plays, and brings it back when pressed
  * again; outside that it leaves Space to the page. The drone (and with it the bass) sits on `keyPc`. Owns its audio, made on the

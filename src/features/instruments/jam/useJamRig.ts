@@ -5,7 +5,7 @@ import { getAudioContext, getOutputBus, wakeAudio } from "@/features/sound";
 import { JamRig, type JamPart, type JamSaved } from "./rig";
 
 /**
- * A `JamRig` for a page, the core both hosts share (the drone page's `Jam` and the `PocketTools`): the rig and its snapshot, the save
+ * A `JamRig` for a page, the core both hosts share (`PracticeBand`, the drone page's `JamPage` and the `PocketTools`): the rig and its snapshot, the save
  * read back after hydration and written on every change, the audio made on a person's click (`ready`), and parts started and stopped
  * on the next beat. `restore` reads the host's save (older saves included); `save` turns the rig into what is stored.
  */

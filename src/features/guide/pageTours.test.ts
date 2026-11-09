@@ -10,7 +10,7 @@ const TOURS = join(ROOT, "src/features/guide/tours");
 
 /**
  * Every `data-tour` value written in the app's source: a plain literal, or each string literal inside a `{...}` expression.
- * A `tour` prop (Jam's `PartCard tour="jam-drone"`, which sets `data-tour={tour}`) counts the same way.
+ * A `tour` prop (the band's `PartCard tour="jam-drone"`, which sets `data-tour={tour}`) counts the same way.
  */
 function dataTourLiterals(): Set<string> {
   const found = new Set<string>();

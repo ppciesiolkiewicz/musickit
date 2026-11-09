@@ -7,6 +7,7 @@ import type { GrooveId } from "../sequencer/grooves";
 import type { PocketStatus } from "../pocket/PocketTools";
 import { resolveShow, restoreBand, type BandConfig, type BandView } from "./config";
 import BarView from "./views/BarView";
+import FullView from "./views/FullView";
 import InlineView from "./views/InlineView";
 import type { Band } from "./views/types";
 
@@ -16,6 +17,8 @@ export interface PracticeBandProps {
   storageKey: string;
   /** share a rig made by the host (the jam page, for its loops); otherwise the band makes its own */
   rig?: Band;
+  /** full: the host's audio for Play all (the rig's and its followers'); the rig's own `ready` when not given */
+  ready?: () => Promise<void>;
   /** inline: played by the host */
   on?: boolean;
   onToggle?: () => void;
@@ -36,12 +39,13 @@ export default function PracticeBand(props: PracticeBandProps): ReactNode {
   return props.rig ? <Views {...props} band={props.rig} /> : <OwnBand {...props} />;
 }
 
-function Views({ band, view, config, on, onToggle, onStop, group }: PracticeBandProps & { band: Band }) {
+function Views({ band, view, config, on, onToggle, onStop, group, ready }: PracticeBandProps & { band: Band }) {
   const show = resolveShow(view, config.show);
   switch (view) {
     case "inline":
       return <InlineView band={band} config={config} show={show} on={on ?? false} onToggle={onToggle} onStop={onStop ?? noop} group={group} />;
-    case "full": // TODO(Task 6): FullView
+    case "full":
+      return <FullView band={band} config={config} show={show} ready={ready} />;
     case "pocket": // TODO(Task 7): PocketView
     case "bar":
       return <BarView band={band} config={config} show={show} />;
@@ -51,7 +55,10 @@ function Views({ band, view, config, on, onToggle, onStop, group }: PracticeBand
 /** what the hidden "More" fold keeps while its parts play at their defaults */
 type Kept = { parts: JamSaved["parts"]; groove: GrooveId | null };
 
-/** The band on its own rig. In `bar` with `show.more` false, the drone octave and the patterns play at a fresh rig's; the saved ones stay and return with "More". */
+/**
+ * The band on its own rig. In `bar` with `show.more` false, the drone octave (unless the host gives `droneOctave`) and the patterns
+ * play at a fresh rig's; the saved ones stay and return with "More".
+ */
 function OwnBand(props: PracticeBandProps) {
   const { view, config, storageKey } = props;
   const hideFold = view === "bar" && !resolveShow(view, config.show).more;
@@ -72,6 +79,8 @@ function OwnBand(props: PracticeBandProps) {
   const atDefaults = (rig: JamRig) => {
     loadParts(rig, { parts: defaults, groove: null });
     if (config.groove) rig.setGroove(config.groove);
+    // the host's octave is setup, not a hidden setting: it holds over the defaults
+    if (config.droneOctave !== undefined) rig.setDrone({ octave: config.droneOctave });
   };
   const keep = (rig: JamRig): Kept => ({ parts: rig.save().parts, groove: rig.snapshot().groove });
 

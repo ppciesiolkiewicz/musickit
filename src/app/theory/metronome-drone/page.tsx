@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import PageShell from "@/components/PageShell";
 import Lesson from "@/components/theory/Lesson";
-import { Jam } from "@/features/instruments";
+import { JamPage } from "@/features/instruments";
 import WireNam from "@/components/WireNam";
 import { METRONOME_DRONE_TOUR } from "@/features/guide/tours/metronome-drone";
 
@@ -21,7 +21,7 @@ export default function MetronomeDronePage() {
     >
       <Lesson course="9/modes-over-drone" why="A drone fixes the root so you can hear how every other note relates to it; it is the quickest way to feel the colour of a mode." tryThis="Start the drone on D and play D Dorian slowly. Stop on the 6th (B) and listen to how it brightens the minor sound." />
       <WireNam />
-      <Jam />
+      <JamPage />
     </PageShell>
   );
 }

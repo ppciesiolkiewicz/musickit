@@ -3,7 +3,7 @@
 import { useState, type ReactNode } from "react";
 import type { PropDoc } from "@/features/exercises/docs";
 import { BackingTrack } from "@/features/backing";
-import { DEFAULT_DRONE, DroneControls, Jam, PocketTools, PracticeBand, clampDrone, type BandConfig, type BandView, type DroneParams } from "@/features/instruments";
+import { DEFAULT_DRONE, DroneControls, JamPage, PocketTools, PracticeBand, clampDrone, type BandConfig, type BandView, type DroneParams } from "@/features/instruments";
 import type { Props, Story } from "./stories";
 
 /*
@@ -92,7 +92,7 @@ export const UI_GROUPS: UiGroup[] = [
     id: "practice-band",
     title: "PracticeBand",
     doc: {
-      description: "The play-along band: click, drone, drums and bass on one JamRig clock, drawn by a view. bar: one folded line for a plan exercise (the click-drone and backing-band tools), a Play for the chosen parts, a chip per part, tempo and key, and \"More\" for the tempo slider, drone octave, groove and patterns. inline: the parts with no part chips, started by its host (the staff's Play beside the mic; this story's host keeps on / onToggle / onStop). full and pocket draw the bar until their views land. Saved in musickit.practiceBand here.",
+      description: "The play-along band: click, drone, drums and bass on one JamRig clock, drawn by a view. bar: one folded line for a plan exercise (the click-drone and backing-band tools), a Play for the chosen parts, a chip per part, tempo and key, and \"More\" for the tempo slider, drone octave, groove and patterns. inline: the parts with no part chips, started by its host (the staff's Play beside the mic; this story's host keeps on / onToggle / onStop). full: the whole band as a page, a card per part with its sound, patterns, groove and levels, and a Play all (Space); the metronome-drone page hosts it on its own rig with loops under it (the JamPage story). pocket draws the bar until its view lands. Saved in musickit.practiceBand here.",
       props: [
         { name: "view", type: `"full" | "pocket" | "bar" | "inline"`, required: true, description: "How the band looks. In bar and inline the config's bpm, key and groove win over the save on every mount." },
         { name: "config", type: "JSON", required: true, description: "{ parts: (\"click\" | \"drone\" | \"drums\" | \"bass\")[], bpm?, keyPc? (0 = C), groove? (pop, rock, ballad, swing, shuffle, bossa, funk, reggae), droneOctave?, show? (single flags over the view's, e.g. { more: false }) }" },
@@ -105,6 +105,7 @@ export const UI_GROUPS: UiGroup[] = [
       hand("Bar, bossa groove", { view: "bar", config: { parts: ["click", "drums", "bass"], bpm: 120, keyPc: 2, groove: "bossa" } }),
       hand("Inline, drone and click in D", { view: "inline", config: { parts: ["drone", "click"], bpm: 70, keyPc: 2 } }),
       hand("Inline, click only", { view: "inline", config: { parts: ["click"], bpm: 100, keyPc: 0 } }),
+      hand("Full, the whole band", { view: "full", config: { parts: ["click", "drone", "drums", "bass"] } }),
     ],
     render: (props) => {
       const view = viewOf(props);
@@ -113,14 +114,14 @@ export const UI_GROUPS: UiGroup[] = [
     },
   },
   {
-    id: "jam",
-    title: "Jam",
+    id: "jam-page",
+    title: "JamPage",
     doc: {
-      description: "The /theory/metronome-drone player: metronome, drone, drums and bass on one JamRig clock, plus recorded loops. No props; saved in musickit.jam.",
+      description: "The /theory/metronome-drone player: the full PracticeBand on a JamRig with a following click, and recorded loops under it on the same clock. No props; saved in musickit.jam.",
       props: [],
     },
     stories: [hand("Default", {})],
-    render: () => <Jam />,
+    render: () => <JamPage />,
   },
   {
     id: "backing-track",
