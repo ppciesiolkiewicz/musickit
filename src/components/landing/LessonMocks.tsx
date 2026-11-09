@@ -144,7 +144,7 @@ export function LessonNoteMock({ compact = false, startOn = "b1" }: { compact?: 
   const [step, setStep] = useState<Step>(startOn);
   const [pos, setPos] = useState<Pos | null>(null);
   const chord = pos?.chord ?? null;
-  const [done, setDone] = useState<Record<Step, boolean>>({ b1: true, b2: false, imp: false });
+  const [done, setDone] = useState<Record<Step, boolean>>({ b1: true, b2: startOn === "imp", imp: false });
   const box: Box = step === "b2" ? 2 : 1;
   const items: { id: Step; t: string }[] = [
     { id: "b1", t: "Box 1 up and down, landing on R" },
