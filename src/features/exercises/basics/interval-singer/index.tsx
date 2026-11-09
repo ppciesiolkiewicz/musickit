@@ -256,7 +256,9 @@ export function View({ keys: keysProp = [0], voice = "tenor", intervals = DEFAUL
         </span>
         {score.asked > 0 && <span className="text-sm tabular-nums text-slate-400">{score.right}/{score.asked} sung</span>}
         <span className="ml-auto" />
-        {standard && <Hint title="Settings" description="How close counts as on the note, and the volume."><ToolSettings accuracy /></Hint>}
+        <Badge>{range.label}</Badge>
+        {/* plain text, not a badge: a badge's capitals would turn m3 into M3 */}
+        <span className="rounded-full border border-slate-700 px-2 py-0.5 text-xs text-slate-300">{[...new Set(placed.asks.map(Math.abs))].sort((a, b) => a - b).map(shortName).join(" ")} {dir === "both" ? "up and down" : dir}</span>
       </div>
       <div className="flex flex-wrap items-center gap-2 border-t border-slate-800 pt-2 text-xs text-slate-400">
         {(standard || showKeys || showDot) && <span data-tour="interval-singer-options" className="inline-flex flex-wrap items-center gap-2">
@@ -277,7 +279,7 @@ export function View({ keys: keysProp = [0], voice = "tenor", intervals = DEFAUL
         <span role="group" aria-label="Keys" className="inline-flex rounded-lg border border-slate-800 p-0.5">
           {([false, true] as const).map((r) => (
             <button key={String(r)} type="button" aria-pressed={random === r} onClick={() => setRandom(r)} title={r ? "Any of the 12 keys: a random Do each time" : "Only the keys picked"}
-              className={`rounded-md px-2 py-1 transition ${random === r ? "bg-sky-500/20 text-sky-100" : "hover:text-slate-200"}`}>{r ? "Random" : "Picked"}</button>
+              className={`rounded-md px-2 py-1 transition ${random === r ? "bg-sky-500/20 text-sky-100" : "hover:text-slate-200"}`}>{r ? "Random" : "Pick"}</button>
           ))}
         </span>
         </span>
@@ -294,9 +296,7 @@ export function View({ keys: keysProp = [0], voice = "tenor", intervals = DEFAUL
         {showDot && <Checkbox checked={dot} onChange={setDot} title="Off is harder: you sing without seeing your voice">Show my voice</Checkbox>}
         </span>}
         <span className="ml-auto" />
-        <Badge>{range.label}</Badge>
-        {/* plain text, not a badge: a badge's capitals would turn m3 into M3 */}
-        <span className="rounded-full border border-slate-700 px-2 py-0.5 text-slate-300">{[...new Set(placed.asks.map(Math.abs))].sort((a, b) => a - b).map(shortName).join(" ")} {dir === "both" ? "up and down" : dir}</span>
+        {standard && <Hint title="Settings" description="How close counts as on the note, and the volume."><ToolSettings accuracy /></Hint>}
       </div>
       </div>
       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">

@@ -9,17 +9,43 @@ New:
 
 ======================== Small ========================
 
+26. [NEW 2026-11-09 09:46] Sing an interval: Restart and Do buttons (/theory/singing/intervals)
+Original: "Restart Should only appear after they correctly guessed interval. "Hear Do" should be called "Play first note (Do)""
+- Restart shows only after the student has sung the interval correctly.
+- Rename "Hear Do" to "Play first note (Do)".
+- Where: src/features/exercises/basics/interval-singer/index.tsx:227
+
+27. [NEW 2026-11-09 09:46] Sing an interval: starting the exercise starts the mic (/theory/singing/intervals)
+Original: "For interval exercise starting exercise should start the microphone"
+
+30. [NEW 2026-11-09 09:46] Hint button: Esc inside the circle, morphs to an oval (/theory/singing/runs and everywhere HintToggle is used)
+Original: "Esc should be within circle and it should just morph into oval - add animation"
+- When the hint is on, the "?" circle morphs into an oval that holds Esc, with an animation.
+- Replaces the [Esc] shown next to the button (see the DONE "Esc to close 'tool hint'" item).
+
+33. [NEW 2026-11-09 09:46] Setup above the game on ears and rhythm (/theory/ears, /theory/rhythm)
+Original: "Lets put it above the game" (ears) / "Move this one above the game" (rhythm) / "Direction is better word for this label than "Played""
+- Move "Set up the training" above the game (src/components/practice/EarGame.tsx:157).
+- Move "Set up the round" above the game (src/features/rhythm/RhythmGame.tsx:400).
+- Ears: rename the "Played" label to "Direction".
 
 
+
+
+39. [NEW 2026-11-09 09:46] Allow reconfiguring widgets in notes creator / video studio
+- when widget is on stage - show settings button next to scale selector - this will open pallette search and focus config for selected widget and allow prop
+
+
+40.  [NEW 2026-11-09 09:46]
+When I select "sing interval" or any other scale related menu item then  2 items are highlighted in navbar menu - scale and interval. Fix so only 1 item is highlighted
+
+
+41. Rework button to start microphone and select input -> this should be one button
+- clicking button to select interface should turn on microphone / audio but also open 
+- just starting exercise should start the microphone as well
+- on pages like e.g. http://localhost:3000/theory/singing/runs?melody=99&key=e&scale=major-ionian
 
 ======================== Medium ========================
-
-12. Drone UI in exercise:
-staff {"scale":"major-ionian","key":0,"voice":"tenor","enable":[0],"others":"hidden","drone":true,"labels":"solfege"}
-The UI does both:
-- start (mic) - starts / stops the mic but when we start the mic we also start the drone
-- drone ui start/stop/mute drone - should use configured drone/metronome component
-Also rethink whether we need "Stop microphone" at all - "Stop exercise" should be enough.
 
 13. Voice safety
 - Exercises like voice-new-matching-a-pitch ("Hum the drone note") need a voice safety instruction on top + link to an article.
@@ -28,6 +54,28 @@ Also rethink whether we need "Stop microphone" at all - "Stop exercise" should b
 
 19. Improve copy / add labels - How notes are labelled: note names, intervals from the root (R, b3, p5), scale degrees, or each note's job in the chord. One setting for the whole app; dot colours stay the same either way.
 
+
+35. [NEW 2026-11-09 09:46] Reusable headphones badge on every exercise that uses headphones
+Original: "We should have disclaimer on each exercise that uses headphones: use reusable componetn; use round frames and headphones icon; this should be like a badge / discalimer"
+- One reusable component, styled as a badge / disclaimer: round frame and headphones icon.
+- Replaces one-off lines such as "Headphones keep the question out of the mic." and builds on the done "Use headphones" note (D11).
+- Note: seen on /theory/ears, but that page has no mic once 31 is done, so it may not need the badge there.
+
+36. [NEW 2026-11-09 09:46] Ear training: "Custom" level (/theory/ears)
+Original: "We are adding "custom" level alongside 1-6: Your set is renamed to "Included intervals"; it's disabled when level 1-6 and only shows already selected notes; when level is custom then behaviour is same as now"
+- Add "Custom" next to levels 1-6.
+- Rename "Your set" to "Included intervals".
+- Levels 1-6: Included intervals is disabled and only shows the level's intervals.
+- Custom: Included intervals works as "Your set" does now.
+- Where: src/components/practice/EarGame.tsx:156
+
+37. [NEW 2026-11-09 09:46] First note glitches: wait until audio is ready (/theory/ears and other exercises)
+Original: "This and other exercises sometimes glitch on first note played, can we let's say delay start until the entire audio processing is ready?"
+- The first note played sometimes glitches.
+- Delay the start until all audio processing is ready. Look for a shared fix, not one per exercise.
+
+
+43. In guided tour - add [space] to go next (add [space] label to the button)
 
 ======================== Large ========================
 
@@ -60,6 +108,25 @@ oooooooooooooooooooooo Recent app feedback ooooooooooooooooooooooooo
 
 
 oooooooooooooooooooooooooooooooooo DONE ooooooooooooooooooooooooooooooooooooooooooooooo
+D27. Sing an interval: group the controls above the roll, second pass (/theory/singing/intervals) (was 34)
+Done: the top row is now the actions (Start, Hear Do, Restart, Show me), mic and input, score, and the voice and interval badges. The second row holds the setup: view, keys, show my voice, and volume + settings at the right. The key switch reads "Keys: Random / Pick". Volume and settings buttons are further apart, in every tool that uses the shared ToolSettings. Types clean; not checked in the browser.
+D25. Melodies: difficulty in the side panel, better section lines (/theory/singing/melodies) (was 38)
+Done: Difficulty moved from the content column into the side panel, under a new "Filter" section; the panel is now Filter, Settings (key, scale, voice, accuracy, labels), then the play-along tools (click, drone). Every section of every side panel now has a heading and a thicker rule between sections (new BarSection in ScaleSettings; the filters option on the settings config). Types clean; not checked in the browser.
+Research, filters that could move into other side panels: nothing clear. The scales, CAGED, triads and arpeggios pages already keep their criteria (shape, position, string group, chord type) in a panel at the top of the content column, so they could move into a Filter section the same way, using the new `filters` option. Singing runs and scales have no filter yet; the range (low/high) for runs is the only candidate. The practice plan panel has only labels and root.
+D26. View selector simple/standard inside the theme selector (was 42)
+Done: the Simplified / Advanced view switch now sits in the theme picker dropdown (still global, applies on every page). Removed it and the "Show more / Show less" links from the page help row. Types and lint clean; not checked in the browser.
+D24. The two (i) buttons (was 41)
+Done: the label (i) (InfoButton) no longer shows [Esc] (Esc still closes it). The cursor-helper (?) (HintToggle) now widens from a circle into an oval with Esc inside, animated. Types clean; not checked in the browser.
+D23. Sing an interval: group the controls above the roll (/theory/singing/intervals) (was 34)
+Done: all controls now sit in one framed block above the roll (buttons and mic on top, view, keys and voice options below). The key switch has a "Keys" label (Random / Picked), and the volume and settings buttons have more space between them. Types clean; not checked in the browser.
+D22. Ear training: shortcuts shown as key caps (/theory/ears) (was 32)
+Done: [Space] on Start and Next, [R] on Replay, [1] [2] ... on the answers, on desktop widths only and not when the game is embedded. The "Keys: ..." line moved below the answers. New KeyCap atom in the design system, which Sing an interval now uses too. Checked in the browser on /theory/ears; lint, types and related tests pass.
+D21. Tune by ear: heading and voice selector removed (/theory/tune-by-ear) (was 28)
+Done: removed the "Flat, sharp or in tune?" section title (the listening game now sits in a plain frame) and the voice selector from the sing-the-strings section; the singing page's saved voice is still used. Lint and types clean; not checked in the browser.
+D20. Tune by ear: notes may be an octave too high (/theory/tune-by-ear) (was 29)
+Done: the "Sing the open strings" section now plays and shows the strings at true guitar pitch (E2 A2 D3 G3 B3 E4, bass clef) and has no voice any more: the string-singer tool lost its voice prop (the plan parser ignores a voice on it, the AI prompt no longer asks for one). The flat/sharp game already played true pitch. tsc and tests pass; not checked in the browser.
+D19. Ear training: no mic answer on Which interval or chord quality (/theory/ears) (was 31)
+Done: tapping is the only way to answer. Removed the "Answer by" row, the mic selector and the "Now play it on your guitar" prompt, plus the page intro's mention of playing it back and the played-note helpers and their tests. Nothing was left on chord quality. Checked in the browser: a round of intervals, then chord quality.
 D18. Staff note states: enabled / highlighted / muted
 Done: the staff draws three looks: highlighted notes ringed with bold labels, enabled notes plain, muted notes faint. A highlight no longer dims the other notes; only muted notes (not enabled, or in "mute") fade. Same on the play-along's notes staff. The prompt now says: highlight the few notes of interest, keep notes the student plays or compares against enabled, mute only scale notes of no interest. Checked in the browser on /dev/examples (modes by ear).
 D17. Volume control on staff and other components
@@ -79,6 +146,9 @@ Done: "Use headphones" with an (i) note next to Start exercise, whenever a step 
 
 D12. Improve design of voice range finder and circle of fifths - add colors
 Done: circle chords coloured by job (home / away / tension) with a legend; range finder shows coloured voice-type bars, your range and a live pitch marker.
+
+D12b. Drone UI in exercise
+Done: moved to done per user confirmation (2026-11-08).
 
 D13. FAQ
 Done: /faq page (getting started, mic and sound, AI plan, course), linked in footer, search and sitemap.
@@ -136,9 +206,7 @@ D11. /theory/singing page (done 2026-11-07)
 -  DONE: Esc to close 'tool hint' (questionmark icon) on singing and other components.
 Make it reusable component as well as show [Esc] next to  (i) button when it's active
 
-18. Note spelling: text and component disagree
-theory-new-major-or-minor, section 7: text shows D#, staff shows Eb.
-Only sharps? Or one scale provider per section that uses the same scale (possibly nested providers)?
-
+D18. Note spelling: text and component disagree
+Done (commit a4ac0a4): text notes spelled by letter from the key tonic using spellAbove (so ♭3 of C reads E♭ matching the staff), and note-name tokens ({{e-flat}}) preserved as written. Also ensured rootOf in noteText parses string keys (keyRoot) for staff and scale-neck.
 
 20. Implement exercise stubs. Add a rule that whenever new exercise is added it needs to be added to /dev/stories
