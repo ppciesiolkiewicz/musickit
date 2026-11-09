@@ -24,7 +24,8 @@ const CHORDS_H = 20;
 /**
  * The tune as a DAW's piano roll: a row a semitone (the scale's rows lighter, named in the gutter), each note a bar as
  * long as it lasts, its passes sliding under the bar like the staff's. The voice leaves a thin line for as long as it
- * is in view, so the whole way the pitch went is there to read; the line drops off with the passes gone by.
+ * is in view, so the whole way the pitch went is there to read; the line drops off with the passes gone by. The chords'
+ * names run in a strip under the rows, each from the beat it starts on.
  */
 export default function PianoRoll({ frame, notes, chords, ladder, beatMs, tapped, onNote, scale = 1, cents, lagMs }: {
   frame: Frame;
@@ -56,8 +57,10 @@ export default function PianoRoll({ frame, notes, chords, ladder, beatMs, tapped
   const lo = Math.min(...midis) - ROOM;
   const hi = Math.max(...midis) + ROOM;
   const chordsH = chords.length ? CHORDS_H : 0;
-  const yOf = (m: number) => chordsH + (hi - Math.max(lo - 0.5, Math.min(hi + 0.5, m)) + 0.5) * ROW_H;
-  const H = chordsH + (hi - lo + 1) * ROW_H + 1;
+  const yOf = (m: number) => (hi - Math.max(lo - 0.5, Math.min(hi + 0.5, m)) + 0.5) * ROW_H;
+  // the rows end here; the chords' names run in a strip under them
+  const rollH = (hi - lo + 1) * ROW_H + 1;
+  const H = rollH + chordsH;
   const W = width / scale;
   const beatW = notes.some((n) => n.beats < 0.5) ? BEAT_W_16TH : BEAT_W;
   const span = Math.max(1, (W - GUTTER) / beatW);
@@ -115,12 +118,12 @@ export default function PianoRoll({ frame, notes, chords, ladder, beatMs, tapped
               return (
                 <g key={p.start}>
                   {beats.map((b) => (
-                    <line key={b} x1={bx(at(b))} x2={bx(at(b))} y1={chordsH} y2={H} stroke="var(--color-slate-600)" strokeOpacity={b % BEATS_PER_BAR === 0 ? 0.7 : 0.25} />
+                    <line key={b} x1={bx(at(b))} x2={bx(at(b))} y1={0} y2={rollH} stroke="var(--color-slate-600)" strokeOpacity={b % BEATS_PER_BAR === 0 ? 0.7 : 0.25} />
                   ))}
                   <PassStart x={bx(p.start)} y1={0} y2={H} room={14} colour={PLAYED} />
                   {p.chords.map((c) => {
                     const on = j.pass === p && frame.s >= p.start + c.at && frame.s < p.start + c.at + c.beats;
-                    return <text key={`c${c.i}`} x={bx(p.start + c.at) + 3} y={chordsH - 6} fontSize={13} fontWeight={700} fill={on ? PLAYED : "var(--color-slate-200)"}>{chords[c.i].name}</text>;
+                    return <text key={`c${c.i}`} x={bx(p.start + c.at) + 3} y={rollH + chordsH - 5} fontSize={13} fontWeight={700} fill={on ? PLAYED : "var(--color-slate-200)"}>{chords[c.i].name}</text>;
                   })}
                   {p.notes.map((c) => {
                     const n = notes[c.i];

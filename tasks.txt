@@ -18,7 +18,7 @@ and add to these pages. Rank pages and provide me your understanding which pages
 - widget should have button to go to next melody and when sharing we should share this setting 
 
 
-49. In fullscreen melodies with piano roll: 
+49. [DONE] In fullscreen melodies with piano roll: 
 - put chords under the piano roll
 - can do the same for non-fullscreen
 
