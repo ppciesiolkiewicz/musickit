@@ -1,6 +1,6 @@
 /**
  * A full backing track to play or sing over: drums, bass and keys playing a chord progression in a style, looping until
- * stopped. It shows the chords as boxes (the one playing lit), the key's scale, and a mixer, so the student can mute a part
+ * stopped. It shows the chords as boxes (the one playing lit) and a mixer, so the student can mute a part
  * to play it themselves. The student can change the progression, key, style and tempo. Use it to improvise or comp over a
  * whole band (a 12-bar blues shuffle, a minor vamp, a jazz ii-V-I). For hearing a progression on the guitar's own shapes
  * use guitar-play-along; for chords alone under a singer, chord-backing; for a beat or a drone without chords, backing-band.

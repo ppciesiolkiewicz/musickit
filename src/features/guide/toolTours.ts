@@ -87,7 +87,7 @@ export const TOOL_TOURS: Record<ToolName, TourStep[]> = {
   ],
   "backing-track": [
     { target: "backing-play", title: "Play and tempo", text: "Press Play to start the band. Change the tempo while it plays." },
-    { target: "backing-chords", title: "The chords", text: "The chord playing now lights up. Under the chords, the key and the notes of its scale." },
+    { target: "backing-chords", title: "The chords", text: "The chord playing now lights up." },
     { target: "backing-choose", title: "What the band plays", text: "Pick another progression, key or style. A change comes in on the next bar.", minLevel: "standard" },
     { target: "backing-band", title: "The band", text: "Turn the drums, bass or keys down, or mute one to play that part yourself." },
   ],

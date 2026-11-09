@@ -203,6 +203,17 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
       ...sectionInterface(),
       "",
     ]),
+    part("which-tool", "Which tool", "rules", [
+      "### Which tool for what (pick by what the student does; the rules above say more about each)",
+      "- Seeing notes on the guitar: scale-neck for a scale's positions; position-neck for one position across the whole neck, or the way from one position to the next (\"cross\"); arpeggio-neck for one chord's notes in a box; chord-shapes for chord grips to fret, with the fingers shown; note-finder for a game of finding notes.",
+      "- Keeping time or key with nothing else playing: click-drone for a metronome and/or a drone while playing the instrument; backing-band for a beat with drums and bass on one key and no chord changes; a singer gets a staff with its own \"drone\" and \"click\" instead of either.",
+      "- Chords sounding under the student. The guitarist plays along with the app's guitar (arpeggios, comping, tab, notes on the neck): guitar-play-along with a progression shape. The guitarist strums the chords: strum-along. The guitarist improvises with the notes to aim for shown on the neck: guitar-play-along with solo-over. The student jams, solos or comps over a whole band (drums, bass, keys) on a common progression (a 12-bar blues, a minor vamp, a ii-V-I): backing-track. A singer sings over chords: chord-backing, with a staff (mic on) for the line.",
+      "- Playing a line on the guitar: guitar-play-along with melody (a tune from the book), arpeggio-part (part of each chord's arpeggio), chord-steps (degrees, grips and strums per chord, a riff) or two-scales (one scale, then the other).",
+      "- Technique for the hands: finger-pattern (fingers on frets, dexterity), picking-drill (alternate picking, string skipping), legato-trill (hammer-ons and pull-offs).",
+      "- Singing: staff with the mic for notes of a scale or chord; melody-singer for a tune; run-singer for a run that climbs a semitone each pass; interval-singer for a named interval from Do; string-singer for the guitar's open strings.",
+      "- Ears, listening only: interval-ears to name intervals or chords; tuning-ears to hear flat, sharp or in tune.",
+      "",
+    ]),
     part("tools", "Tool interface", "interface", [
       "### Tools (what a \"tool\" section may hold: {\"type\": <tool name>, ...props}; the student gets no settings to change, apart from a heading's \"keys\", so set everything the exercise needs; up to 6 per exercise)",
       ...toolInterface(),

@@ -90,9 +90,10 @@ export default function BackingTrack() {
 /**
  * The player for a band someone else holds (`useBand`): play and tempo, progression, key and style, the chords, the mixer.
  * It holds the app's audio focus while it plays (another source starting, or the player scrolling away, stops it), in
- * `group` when an exercise step started it. `spaceKey`: Space plays and stops, for a page with one player.
+ * `group` when an exercise step started it. `spaceKey`: Space plays and stops, for a page with one player. `scale`: the
+ * key and its scale's notes under the chords (the page shows them; a plan exercise says what to play in its own text).
  */
-export function BackingPlayer({ band, snap, group, spaceKey = false }: { band: Band; snap: BandSnapshot; group?: string; spaceKey?: boolean }) {
+export function BackingPlayer({ band, snap, group, spaceKey = false, scale: showScale = true }: { band: Band; snap: BandSnapshot; group?: string; spaceKey?: boolean; scale?: boolean }) {
   const { settings, playing, arrangement } = snap;
   const focus = useAudioFocus(playing, () => band.stop(), group);
   const progression = findProgression(settings.progression);
@@ -166,12 +167,12 @@ export function BackingPlayer({ band, snap, group, spaceKey = false }: { band: B
             );
           })}
         </ol>
-        <div className="flex flex-wrap items-center gap-1.5 text-sm">
+        {showScale && <div className="flex flex-wrap items-center gap-1.5 text-sm">
           <span className="mr-1.5 font-medium text-slate-200">{pretty(settings.tonic)} {mode.label.toLowerCase()}</span>
           {scale.map((n, i) => (
             <span key={n} className={`rounded-md border px-2 py-0.5 text-xs font-medium tabular-nums ${i === 0 ? "border-sky-400/60 bg-sky-500/15 text-sky-100" : "border-slate-700/70 bg-slate-950/40 text-slate-300"}`}>{n}</span>
           ))}
-        </div>
+        </div>}
       </section>
 
       <section data-tour="backing-band" aria-label="Band" className="grid gap-3 sm:grid-cols-3">

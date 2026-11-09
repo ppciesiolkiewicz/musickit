@@ -6,6 +6,7 @@ import { DEFAULT_ANSWERS } from "./questions";
 import { conceptsFor } from "./concepts";
 import { selectExamples } from "./exampleSelection";
 import { EXERCISE_EXAMPLES } from "../examples";
+import { TOOLS } from "./tools";
 import type { PlanAnswers, StoredPlan } from "./types";
 
 const last: StoredPlan = {
@@ -14,13 +15,18 @@ const last: StoredPlan = {
 };
 const EX = selectExamples(DEFAULT_ANSWERS);
 const EXAMPLE_IDS = [...EX.exercises.map((e) => `example:${e.id}`), `example:${EX.plan.id}`];
-const ORDER = ["intro", "student", "how-to-plan", "rules", "mistakes", "writing", "exercise-format", "sections", "tools", "links", ...EXAMPLE_IDS, "answer-format"];
+const ORDER = ["intro", "student", "how-to-plan", "rules", "mistakes", "writing", "exercise-format", "sections", "which-tool", "tools", "links", ...EXAMPLE_IDS, "answer-format"];
 
 test("prompt parts have unique ids in the documented order", () => {
   assert.deepEqual(promptParts(DEFAULT_ANSWERS, []).map((p) => p.id), ORDER);
   const next = promptParts(DEFAULT_ANSWERS, [], [last]).map((p) => p.id);
   assert.deepEqual(next, [...ORDER.slice(0, 2), "history", ...ORDER.slice(2)]);
   assert.equal(new Set(next).size, next.length);
+});
+
+test("the which-tool guide names every tool", () => {
+  const guide = promptParts(DEFAULT_ANSWERS, []).find((p) => p.id === "which-tool")?.text ?? "";
+  for (const t of Object.keys(TOOLS)) assert.match(guide, new RegExp(`\\b${t}\\b`), t);
 });
 
 test("course ratings come after the history, or after the student without one", () => {

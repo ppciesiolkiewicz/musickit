@@ -15,5 +15,5 @@ export function View({ progression, keyPc, style, bpm }: { progression: string; 
     storageKey: null,
   });
   const group = useStepPart({ kind: "band", on: snap.playing, start: () => band.start(), stop: () => band.stop() });
-  return <BackingPlayer band={band} snap={snap} group={group} />;
+  return <BackingPlayer band={band} snap={snap} group={group} scale={false} />;
 }

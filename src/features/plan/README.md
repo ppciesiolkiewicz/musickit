@@ -120,7 +120,8 @@ non-singing staffs in tenor), then the interface, generated from
 pages a link may go to as a few URI templates (`/theory/scales/{scale}/{key}`, `/course/{stage}/{section}`).
 
 The prompt is built as labelled parts (`promptParts`: intro, student, earlier weeks, how to plan, rules, mistakes,
-how to write, exercise format, section and tool interfaces, links, one `example:<id>` part per example, answer format); `buildPrompt` joins them.
+how to write, exercise format, the section interface, which tool for what (every tool by what the student does;
+`prompt.test.ts` fails when a tool is missing from it), the tool interface, links, one `example:<id>` part per example, answer format); `buildPrompt` joins them.
 
 Examples come from the library (`examples/`), chosen by `model/exampleSelection.ts` (`selectExamples`): every exercise
 example, each labelled `For: <area>, level <level>` under a heading telling the AI to pitch at the student's levels, and
