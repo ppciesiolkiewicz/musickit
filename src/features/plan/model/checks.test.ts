@@ -5,7 +5,7 @@ import type { Section } from "./tools";
 
 const text = (t: string): Section => ({ type: "text", text: t });
 const tool = (t: Extract<Section, { type: "tool" }>["tool"]): Section => ({ type: "tool", tool: t });
-const drone: Section = tool({ type: "click-drone", bpm: 60, key: 0 });
+const drone: Section = tool({ type: "backing-band", bpm: 60, key: 0, parts: { click: "on", drone: "on" } });
 
 describe("mixesSingAndPlay", () => {
   it("flags playing a note on the instrument and singing it back", () => {
@@ -58,8 +58,8 @@ describe("tempoWithoutMetronome", () => {
     assert.equal(tempoWithoutMetronome([text("Sing at 80 bpm"), tool({ type: "staff", scale: "major-ionian", key: 0, voice: "tenor", click: true, bpm: 80 })]), false);
     assert.equal(tempoWithoutMetronome([text("Sing at 80 bpm"), tool({ type: "staff", scale: "major-ionian", key: 0, voice: "tenor", drone: true })]), true);
   });
-  it("a click-drone without its click is no metronome", () => {
-    assert.equal(tempoWithoutMetronome([text("Sing at 80 bpm"), tool({ type: "click-drone", bpm: 80, key: 0, click: false })]), true);
+  it("a backing band with only its drone is no metronome", () => {
+    assert.equal(tempoWithoutMetronome([text("Sing at 80 bpm"), tool({ type: "backing-band", bpm: 80, key: 0, parts: { drone: "always" } })]), true);
   });
   it("ignores numbers that are not a tempo", () => {
     assert.equal(tempoWithoutMetronome([text("Play at 12 fret positions? No: at 80% speed, for at 10 minutes"), shapes]), false);

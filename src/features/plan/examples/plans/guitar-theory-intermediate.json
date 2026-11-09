@@ -35,7 +35,7 @@
             "title": "Arpeggios of the ii-V-I", "focus": "Dm7, G7 and Cmaj7 arpeggios, one position each", "minutes": 10, "level": "intermediate", "area": "guitar", "tags": ["technique"], "topic": "guitar-caged", "why": "An arpeggio is the chord one note at a time, so a solo built from it outlines the changes.",
             "learnBefore": ["/course/7/sevenths", "/course/5/arpeggios"],
             "sections": [
-              { "type": "tool", "tool": { "type": "click-drone", "bpm": 70, "key": "d", "drone": false } },
+              { "type": "tool", "tool": { "type": "backing-band", "bpm": 70, "key": "d", "parts": { "click": "on" } } },
               { "type": "heading", "text": "Dm7", "minutes": 3 },
               { "type": "text", "text": "Press Play above to start the metronome. Play the Dm7 arpeggio up and down, one note per beat: {{1}} {{b3}} {{5}} {{b7}}." },
               { "type": "tool", "tool": { "type": "arpeggio-neck", "chord": "Dm7", "highlight": ["1"] } },
@@ -69,7 +69,7 @@
             "learnBefore": ["/course/1/spider"],
             "sections": [
               { "type": "text", "text": "Press Play below to start the metronome. Pick three notes per string, down-up, across all six strings and back." },
-              { "type": "tool", "tool": { "type": "click-drone", "bpm": 90, "key": "a", "drone": false } },
+              { "type": "tool", "tool": { "type": "backing-band", "bpm": 90, "key": "a", "parts": { "click": "on" } } },
               { "type": "tool", "tool": { "type": "picking-drill", "strokes": "DU", "notesPerString": 3, "bpm": 90 } }
             ]
           },
@@ -126,7 +126,7 @@
             "learnBefore": ["/course/4/legato"],
             "sections": [
               { "type": "text", "text": "Put finger 1 on the 5th fret of the G string and finger 3 on the 7th. Press Play below to start the metronome. Pick the 5th fret once. Then, without picking again, hammer finger 3 onto the 7th fret and pull it off back to the 5th, one note per beat. Rest when the hand gets tired, then go again." },
-              { "type": "tool", "tool": { "type": "click-drone", "bpm": 80, "key": "a", "drone": false } },
+              { "type": "tool", "tool": { "type": "backing-band", "bpm": 80, "key": "a", "parts": { "click": "on" } } },
               { "type": "tool", "tool": { "type": "legato-trill", "fingers": "13", "string": 3, "fret": 5, "bpm": 80 } }
             ]
           },
@@ -146,7 +146,7 @@
             "title": "One shape, two keys", "focus": "A minor pentatonic position 1 = C major pentatonic", "minutes": 10, "level": "intermediate", "area": "guitar", "tags": ["technique"], "topic": "guitar-scales", "why": "The relative minor works on the neck too: one pentatonic position serves both keys, with a different root.",
             "learnBefore": ["/course/10/moving-keys"],
             "sections": [
-              { "type": "tool", "tool": { "type": "click-drone", "bpm": 80, "key": "a", "drone": false } },
+              { "type": "tool", "tool": { "type": "backing-band", "bpm": 80, "key": "a", "parts": { "click": "on" } } },
               { "type": "heading", "text": "As A minor", "minutes": 5 },
               { "type": "text", "text": "Press Play above to start the metronome. Play position 1 at the 5th fret up and down. Start and end on {{1}} (A)." },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "highlight": ["1"] } },
@@ -192,7 +192,7 @@
             "title": "Arpeggios in G", "focus": "Am7, D7 and Gmaj7 arpeggios", "minutes": 10, "level": "intermediate", "area": "guitar", "tags": ["technique"], "topic": "guitar-caged", "why": "Moving the arpeggios to G shows they are shapes of degrees, not lists of frets.",
             "learnBefore": ["/course/7/sevenths", "/course/5/arpeggios"],
             "sections": [
-              { "type": "tool", "tool": { "type": "click-drone", "bpm": 70, "key": "a", "drone": false } },
+              { "type": "tool", "tool": { "type": "backing-band", "bpm": 70, "key": "a", "parts": { "click": "on" } } },
               { "type": "heading", "text": "Am7 and D7", "minutes": 5 },
               { "type": "text", "text": "Press Play above to start the metronome. Play the Am7 arpeggio up and down, one note per beat: {{1}} {{b3}} {{5}} {{b7}}." },
               { "type": "tool", "tool": { "type": "arpeggio-neck", "chord": "Am7", "highlight": ["1"] } },
@@ -224,7 +224,7 @@
             "learnBefore": ["/course/8/string-skipping"],
             "sections": [
               { "type": "text", "text": "Press Play below to start the metronome. Pick two notes per string, down-up, skipping a string each time." },
-              { "type": "tool", "tool": { "type": "click-drone", "bpm": 80, "key": "a", "drone": false } },
+              { "type": "tool", "tool": { "type": "backing-band", "bpm": 80, "key": "a", "parts": { "click": "on" } } },
               { "type": "tool", "tool": { "type": "picking-drill", "strokes": "DU", "notesPerString": 2, "skip": true, "bpm": 80 } }
             ]
           },
@@ -274,7 +274,7 @@
             "learnBefore": ["/course/4/legato"],
             "sections": [
               { "type": "text", "text": "Press Play below to start the metronome. Pick once, then hammer finger 4 and pull off to finger 2, one note per beat. Rest when the hand gets tired, then go again." },
-              { "type": "tool", "tool": { "type": "click-drone", "bpm": 70, "key": "a", "drone": false } },
+              { "type": "tool", "tool": { "type": "backing-band", "bpm": 70, "key": "a", "parts": { "click": "on" } } },
               { "type": "tool", "tool": { "type": "legato-trill", "fingers": "24", "string": 2, "fret": 7, "bpm": 70 } }
             ]
           },

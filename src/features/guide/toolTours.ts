@@ -21,10 +21,10 @@ const drill = (watch: string): TourStep[] => [
   { target: "drill-tab", title: "The tab", text: `Each line is a string, high e on top, and the number is the fret. ${watch}` },
 ];
 
-/** The practice band the click-drone and backing-band tools show. */
+/** The practice band the backing-band tool shows. */
 const band = (what: string): TourStep[] => [
   { target: "band-play", title: "Play", text: `Play starts ${what}. Press it again to stop.` },
-  { target: "band-parts", title: "What plays", text: "Tap a part to switch it on or off, even while it plays." },
+  { target: "band-parts", title: "What plays", text: "Tap a part to switch it on or off, even while it plays. A part this exercise always plays stays on." },
   { target: "band-tempo", title: "Tempo", text: "Make it slower or faster with − and +." },
   { target: "band-more", title: "More", text: "More settings: the exact tempo, and each part's own sound.", minLevel: "standard" },
 ];
@@ -54,7 +54,6 @@ export const TOOL_TOURS: Record<ToolName, TourStep[]> = {
     { target: "staff-notes", title: "The notes", text: "Tap a note to hear it, then sing it back." },
     { target: "staff-settings", title: "Settings", text: "How the notes are named and how close counts as on the note.", minLevel: "standard" },
   ],
-  "click-drone": band("the metronome and the drone, or the one this exercise uses"),
   "backing-band": band("the band"),
   "note-finder": [
     { target: "note-finder-start", title: "Start", text: "Press Start and read what to find. Skip moves on to the next one." },

@@ -10,7 +10,7 @@ import { DRONE_MAX_OCTAVE, DRONE_MIN_OCTAVE, NOTE_NAMES } from "../../drone/dron
 import { MAX_BPM, MIN_BPM } from "../../jam/clock";
 import { JAM_PARTS } from "../../jam/rig";
 import BeatDots from "../../jam/BeatDots";
-import type { BandPart } from "../config";
+import { startParts, type BandPart } from "../config";
 import type { ViewProps } from "./types";
 import GrooveSelect from "./GrooveSelect";
 
@@ -22,15 +22,17 @@ const PARTS: { id: BandPart; label: string }[] = [
 ];
 
 /**
- * The band folded to one line, for a plan exercise: a Play that starts only the chosen parts on one clock, a chip per part to
- * choose them (live while playing), the tempo and the key. "More" unfolds a tempo slider, the drone's octave, the groove and
+ * The band folded to one line, for a plan exercise: a Play that starts only the chosen parts on one clock, a chip per offered
+ * part to choose them (live while playing; a locked part's chip stays lit), the tempo and the key. "More" unfolds a tempo slider, the drone's octave, the groove and
  * the drum and bass patterns. The container restores and saves it (`musickit.practiceBand`) and hides "More" with `show.more`.
  */
 export default function BarView({ band, config, show }: ViewProps) {
   useCoverage({ hints: 1 });
   const { rig, snap, start } = band;
   const parts = config.parts;
-  const [chosen, setChosen] = useState<BandPart[]>(parts);
+  const initial = startParts(config);
+  const locked = (p: BandPart) => config.locked?.includes(p) ?? false;
+  const [chosen, setChosen] = useState<BandPart[]>(initial);
   const [open, setOpen] = useState(false);
 
   const jamParts = (list: BandPart[]) => JAM_PARTS.filter((p) => list.includes(p));
@@ -47,10 +49,11 @@ export default function BarView({ band, config, show }: ViewProps) {
     rig.setClick(false);
   };
   // in an exercise step, "Start exercise" plays the parts the band starts with
-  const group = useStepPart({ kind: parts.includes("drone") ? "drone" : parts.includes("click") && parts.length === 1 ? "click" : "band", on, start: () => play(chosen), stop });
+  const group = useStepPart({ kind: initial.includes("drone") ? "drone" : initial.includes("click") && initial.length === 1 ? "click" : "band", on, start: () => play(chosen), stop });
   const focus = useAudioFocus(on, stop, group);
   /** choose a part; while the band plays it joins or leaves on the next beat */
   const flip = (p: BandPart) => {
+    if (locked(p)) return;
     const next = chosen.includes(p) ? chosen.filter((x) => x !== p) : [...chosen, p];
     setChosen(next);
     if (!on) return;
@@ -74,11 +77,12 @@ export default function BarView({ band, config, show }: ViewProps) {
         </Hint>
         {show.partChips && (
           <div data-tour="band-parts" className="flex flex-wrap gap-1" role="group" aria-label="Parts that play">
-            {PARTS.map((p) => {
+            {PARTS.filter((p) => parts.includes(p.id)).map((p) => {
               const lit = chosen.includes(p.id);
+              const fixed = locked(p.id);
               return (
-                <button key={p.id} type="button" aria-pressed={lit} onClick={() => flip(p.id)}
-                  className={`rounded-full border px-2.5 py-0.5 text-[11px] transition ${lit ? "border-sky-400/70 bg-sky-500/15 text-sky-100" : "border-slate-700 text-slate-500 hover:border-slate-500"}`}>
+                <button key={p.id} type="button" aria-pressed={lit} aria-disabled={fixed || undefined} onClick={() => flip(p.id)} title={fixed ? `${p.label} always plays in this exercise` : undefined}
+                  className={`rounded-full border px-2.5 py-0.5 text-[11px] transition ${fixed ? "cursor-default border-sky-400/40 bg-sky-500/25 text-sky-100" : lit ? "border-sky-400/70 bg-sky-500/15 text-sky-100" : "border-slate-700 text-slate-500 hover:border-slate-500"}`}>
                   {p.label}
                 </button>
               );
@@ -108,19 +112,19 @@ export default function BarView({ band, config, show }: ViewProps) {
               <Slider min={MIN_BPM} max={MAX_BPM} step={1} value={snap.bpm} onChange={(v) => rig.setTempo(v)} size="sm" className="max-w-72 flex-1" aria-label="Tempo" />
             </label>
           )}
-          <div className="flex items-center gap-2">
+          {parts.includes("drone") && <div className="flex items-center gap-2">
             <span className="w-14 shrink-0">Drone</span>
             <button type="button" className={sbtn} disabled={drone.octave <= DRONE_MIN_OCTAVE} onClick={() => rig.setDrone({ octave: drone.octave - 1 })} aria-label="Octave down">−</button>
             <span className="w-10 text-center tabular-nums text-slate-200">{NOTE_NAMES[drone.root]}{drone.octave}</span>
             <button type="button" className={sbtn} disabled={drone.octave >= DRONE_MAX_OCTAVE} onClick={() => rig.setDrone({ octave: drone.octave + 1 })} aria-label="Octave up">+</button>
-          </div>
-          {show.groove && (
+          </div>}
+          {show.groove && (parts.includes("drums") || parts.includes("bass")) && (
             <div className="flex items-center gap-2">
               <span className="w-14 shrink-0">Groove</span>
               <GrooveSelect rig={rig} value={snap.groove} />
             </div>
           )}
-          {show.patterns && (["drums", "bass"] as const).map((p) => (
+          {show.patterns && (["drums", "bass"] as const).filter((p) => parts.includes(p)).map((p) => (
             <div key={p} className="flex items-center gap-2">
               <span className="w-14 shrink-0 capitalize">{p}</span>
               <Select size="sm" className="w-44" value="" onChange={(id) => id && rig.loadPreset(p, id)} aria-label={`${p} pattern`}

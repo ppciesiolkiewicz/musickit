@@ -70,8 +70,11 @@ describe("tools", () => {
     assert.deepEqual(parseTool({ type: "scale-neck", scale: "minor-blues", key: "a", boxes: [1], add: ["c#", "C-sharp", "zz"], enable: ["1", "b3"], highlight: ["1"], others: "hidden" }), { type: "scale-neck", scale: "minor-blues", key: 9, boxes: [1], add: [1], enable: [0, 3], highlight: [0], others: "hidden" });
     assert.deepEqual(parseTool({ type: "chord-shapes", chords: ["G", "Em", "nonsense!", 3], voicing: "barre" }), { type: "chord-shapes", chords: ["G", "Em"], voicing: "barre" });
     assert.deepEqual(parseTool({ type: "staff", scale: "major-ionian", key: "c", voice: "alto" }), { type: "staff", scale: "major-ionian", key: 0, voice: "alto" });
-    assert.deepEqual(parseTool({ type: "backing-band", bpm: 70, key: "e", parts: ["drone", "drone", "kazoo"] }), { type: "backing-band", bpm: 70, key: 4, parts: ["drone"] });
-    assert.deepEqual(parseTool({ type: "click-drone", bpm: 60, key: "a", drone: false }), { type: "click-drone", bpm: 60, key: 9, drone: false });
+    assert.deepEqual(parseTool({ type: "backing-band", bpm: 70, key: "e", parts: ["drone", "drone", "kazoo"] }), { type: "backing-band", bpm: 70, key: 4, parts: { drone: "on" } });
+    assert.deepEqual(parseTool({ type: "backing-band", bpm: 70, key: "e", parts: { drone: "always", click: "off", bass: "loud", kazoo: "on" } }), { type: "backing-band", bpm: 70, key: 4, parts: { drone: "always", click: "off" } });
+    assert.deepEqual(parseTool({ type: "backing-band", bpm: 70, key: "e", parts: {} }), { type: "backing-band", bpm: 70, key: 4, parts: { click: "on" } });
+    assert.deepEqual(parseTool({ type: "click-drone", bpm: 60, key: "a", drone: false }), { type: "backing-band", bpm: 60, key: 9, parts: { click: "on" } });
+    assert.deepEqual(parseTool({ type: "click-drone", bpm: 60, key: "a" }), { type: "backing-band", bpm: 60, key: 9, parts: { click: "on", drone: "on" } });
     assert.deepEqual(parseTool({ type: "note-finder", strings: "56", from: 0, to: 5 }), { type: "note-finder", query: "strings=56&from=0&to=5" });
     assert.deepEqual(parseTool({ type: "arpeggio-neck", chord: "Am", boxes: [2, 3], part: ["1", "b3", "zz"], highlight: ["1"] }), { type: "arpeggio-neck", chord: "Am", boxes: [2, 3], part: ["1", "b3"], highlight: [0] });
     assert.equal(parseTool({ type: "arpeggio-neck", chord: "nonsense!" }), null);
@@ -165,7 +168,7 @@ describe("tools", () => {
   it("stored scale, chords, band, notes, ears tools take the new names", () => {
     assert.deepEqual(parseTool({ type: "scale", scale: "dorian", key: 4, highlight: [0, 10] }, { stored: true }), { type: "scale-neck", scale: "dorian", key: 4, highlight: [0, 10] });
     assert.deepEqual(parseTool({ type: "chords", chords: ["G"] }), { type: "chord-shapes", chords: ["G"] });
-    assert.deepEqual(parseTool({ type: "band", bpm: 60, key: 9, parts: ["click"] }), { type: "backing-band", bpm: 60, key: 9, parts: ["click"] });
+    assert.deepEqual(parseTool({ type: "band", bpm: 60, key: 9, parts: ["click"] }), { type: "backing-band", bpm: 60, key: 9, parts: { click: "on" } });
     assert.deepEqual(parseTool({ type: "notes", query: "mode=find" }), { type: "note-finder", query: "mode=find" });
     assert.deepEqual(parseTool({ type: "ears", query: "level=2&wide=1", wide: true }), { type: "interval-ears", query: "level=2&wide=1", wide: true });
   });

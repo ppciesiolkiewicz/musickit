@@ -23,7 +23,6 @@ const TOOL_TOUR_SOURCES: Record<ToolName, string[]> = (() => {
     "arpeggio-neck": [basics("arpeggio-neck")],
     "chord-shapes": [basics("chord-shapes")],
     staff: [basics("staff")],
-    "click-drone": [basics("click-drone"), bandSrc],
     "backing-band": [basics("backing-band"), bandSrc],
     "note-finder": [basics("note-finder"), "src/components/practice/NoteGame.tsx"],
     "interval-ears": [basics("interval-ears"), "src/components/practice/EarGame.tsx"],

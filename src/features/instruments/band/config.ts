@@ -10,7 +10,12 @@ export type BandPart = "click" | JamPart;
 export type ShowFlag = "partChips" | "tempo" | "tempoSlider" | "beats" | "key" | "levels" | "groove" | "patterns" | "droneSound" | "more";
 
 export interface BandConfig {
+  /** the parts the band offers; in `bar` only these get a chip */
   parts: BandPart[];
+  /** in `bar`, the parts lit when it opens; absent: every part in `parts` */
+  start?: BandPart[];
+  /** in `bar`, the parts the student cannot switch off: they play whenever the band plays */
+  locked?: BandPart[];
   bpm?: number;
   keyPc?: number;
   groove?: GrooveId;
@@ -30,6 +35,9 @@ export const VIEW_SHOW: Record<BandView, Record<ShowFlag, boolean>> = {
   bar: row(true, true, true, true, true, false, true, true, false, true),
   inline: row(false, false, false, true, false, true, false, false, false, false),
 };
+
+/** In `bar`, the parts lit when it opens: `start` (or every offered part) and the locked ones, in `parts` order. */
+export const startParts = (c: BandConfig): BandPart[] => c.parts.filter((p) => (c.start ?? c.parts).includes(p) || c.locked?.includes(p));
 
 export const resolveShow = (view: BandView, show?: BandConfig["show"]): Record<ShowFlag, boolean> => ({ ...VIEW_SHOW[view], ...show });
 

@@ -41,7 +41,7 @@
             "sections": [
               { "type": "heading", "text": "Up and down", "minutes": 3 },
               { "type": "text", "text": "Press Play below to start the metronome. Play the position from the low {{1}} up to the high E string, then back down, one note per beat." },
-              { "type": "tool", "tool": { "type": "backing-band", "bpm": 60, "key": "a", "parts": ["click"] } },
+              { "type": "tool", "tool": { "type": "backing-band", "bpm": 60, "key": "a", "parts": { "click": "on" } } },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "highlight": ["1"] } },
               { "type": "heading", "text": "Only the roots", "minutes": 3 },
               { "type": "text", "text": "Now only the three {{1}} notes (A) are in play. Hop between them low to high, then in any order you like." },
@@ -53,7 +53,7 @@
             "learnBefore": ["/course/5/pentatonic", "/course/5/soloing"],
             "sections": [
               { "type": "text", "text": "Press Play below to start the band. Play short phrases from position 1, with a gap after each. End your phrases on a {{1}}." },
-              { "type": "tool", "tool": { "type": "backing-band", "bpm": 70, "key": "a", "parts": ["drums", "bass"] } },
+              { "type": "tool", "tool": { "type": "backing-band", "bpm": 70, "key": "a", "parts": { "drums": "on", "bass": "on" } } },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "highlight": ["1"] } }
             ]
           }
@@ -87,7 +87,7 @@
             "learnBefore": ["/course/5/fifths", "/course/5/pentatonic"],
             "sections": [
               { "type": "text", "text": "Press Play below to start the metronome. Play position 1 up and down at 70. Then play only the ringed {{1}} and {{5}} (A and E), low to high and back." },
-              { "type": "tool", "tool": { "type": "click-drone", "bpm": 70, "key": "a", "drone": false } },
+              { "type": "tool", "tool": { "type": "backing-band", "bpm": 70, "key": "a", "parts": { "click": "on" } } },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "highlight": ["1", "5"] } }
             ]
           },
@@ -110,11 +110,11 @@
             "sections": [
               { "type": "heading", "text": "At 70", "minutes": 3 },
               { "type": "text", "text": "Press Play below to start the metronome. Play position 1 up and down at 70, starting on the low {{1}}." },
-              { "type": "tool", "tool": { "type": "backing-band", "bpm": 70, "key": "a", "parts": ["click"] } },
+              { "type": "tool", "tool": { "type": "backing-band", "bpm": 70, "key": "a", "parts": { "click": "on" } } },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "highlight": ["1"] } },
               { "type": "heading", "text": "At 80, from the middle", "minutes": 3 },
               { "type": "text", "text": "Press Play below to start the faster metronome. Now start on the {{1}} on the D string. Go up to the top, down to the bottom, then back up to where you started." },
-              { "type": "tool", "tool": { "type": "backing-band", "bpm": 80, "key": "a", "parts": ["click"] } },
+              { "type": "tool", "tool": { "type": "backing-band", "bpm": 80, "key": "a", "parts": { "click": "on" } } },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "highlight": ["1"] } }
             ]
           },
@@ -139,7 +139,7 @@
             "learnBefore": ["/course/5/pentatonic", "/course/5/soloing"],
             "sections": [
               { "type": "text", "text": "Press Play below to start the band. Play a two-bar phrase, then rest for two bars. Answer it with a phrase that starts the same way but ends on a {{1}}." },
-              { "type": "tool", "tool": { "type": "backing-band", "bpm": 80, "key": "a", "parts": ["drums", "bass"] } },
+              { "type": "tool", "tool": { "type": "backing-band", "bpm": 80, "key": "a", "parts": { "drums": "on", "bass": "on" } } },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "highlight": ["1"] } }
             ]
           }
@@ -153,7 +153,7 @@
             "learnBefore": ["/course/1/spider"],
             "sections": [
               { "type": "text", "text": "Press Play below to start the metronome. Play four frets from the 5th fret, one finger per fret, up every string and back down." },
-              { "type": "tool", "tool": { "type": "click-drone", "bpm": 70, "key": "a", "drone": false } },
+              { "type": "tool", "tool": { "type": "backing-band", "bpm": 70, "key": "a", "parts": { "click": "on" } } },
               { "type": "tool", "tool": { "type": "finger-pattern", "fingers": "1234", "fret": 5, "bpm": 70 } }
             ]
           },
@@ -182,7 +182,7 @@
             "learnBefore": ["/course/5/pentatonic", "/course/5/soloing"],
             "sections": [
               { "type": "text", "text": "Press Play below to start the band. End a few phrases on {{b3}} (C). Then end a few on {{1}} (A). Switch between the two. Which ones sound finished?" },
-              { "type": "tool", "tool": { "type": "backing-band", "bpm": 75, "key": "a", "parts": ["drums", "bass"] } },
+              { "type": "tool", "tool": { "type": "backing-band", "bpm": 75, "key": "a", "parts": { "drums": "on", "bass": "on" } } },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "highlight": ["1", "b3"] } }
             ]
           }
@@ -196,7 +196,7 @@
             "learnBefore": ["/course/1/spider"],
             "sections": [
               { "type": "text", "text": "Press Play below to start the metronome. Play frets 1 to 4 in the order 1, 3, 2, 4, one finger per fret, up every string and back down." },
-              { "type": "tool", "tool": { "type": "click-drone", "bpm": 70, "key": "a", "drone": false } },
+              { "type": "tool", "tool": { "type": "backing-band", "bpm": 70, "key": "a", "parts": { "click": "on" } } },
               { "type": "tool", "tool": { "type": "finger-pattern", "fingers": "1324", "fret": 1, "bpm": 70 } }
             ]
           },
@@ -212,7 +212,7 @@
             "title": "E minor pentatonic, two places", "focus": "E minor pentatonic · open position, then position 1 at the 12th fret", "minutes": 8, "level": "beginner", "area": "guitar", "tags": ["technique"], "topic": "guitar-scales", "why": "Position 1 is a shape, not a place: move it to have the scale in any key.",
             "learnBefore": ["/course/5/pentatonic"],
             "sections": [
-              { "type": "tool", "tool": { "type": "click-drone", "bpm": 70, "key": "e", "drone": false } },
+              { "type": "tool", "tool": { "type": "backing-band", "bpm": 70, "key": "e", "parts": { "click": "on" } } },
               { "type": "heading", "text": "Open position", "minutes": 4 },
               { "type": "text", "text": "Press Play above to start the metronome. Play E minor pentatonic in open position from the low {{1}} (open E) up, then back down. Every open string is in the scale." },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "e", "placement": { "by": "open" }, "highlight": ["1"] } },
@@ -226,7 +226,7 @@
             "learnBefore": ["/course/5/pentatonic"],
             "sections": [
               { "type": "text", "text": "Press Play below to start the band. Mix fretted notes with open strings. End your phrases on the open low {{1}}." },
-              { "type": "tool", "tool": { "type": "backing-band", "bpm": 80, "key": "e", "parts": ["drums", "bass"] } },
+              { "type": "tool", "tool": { "type": "backing-band", "bpm": 80, "key": "e", "parts": { "drums": "on", "bass": "on" } } },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "e", "placement": { "by": "open" }, "highlight": ["1"] } }
             ]
           }
@@ -240,7 +240,7 @@
             "learnBefore": ["/course/1/spider"],
             "sections": [
               { "type": "text", "text": "Press Play below to start the metronome. Play four frets from the 3rd fret, one finger per fret, up every string and back down." },
-              { "type": "tool", "tool": { "type": "click-drone", "bpm": 80, "key": "a", "drone": false } },
+              { "type": "tool", "tool": { "type": "backing-band", "bpm": 80, "key": "a", "parts": { "click": "on" } } },
               { "type": "tool", "tool": { "type": "finger-pattern", "fingers": "1234", "fret": 3, "bpm": 80 } }
             ]
           },
@@ -257,7 +257,7 @@
             "learnBefore": ["/course/5/pentatonic", "/course/5/soloing"],
             "sections": [
               { "type": "text", "text": "Press Play below to start the metronome. Play position 1 up and down without looking at the neck below. Then check against it. Last, play only the {{1}} notes from memory." },
-              { "type": "tool", "tool": { "type": "backing-band", "bpm": 80, "key": "a", "parts": ["click"] } },
+              { "type": "tool", "tool": { "type": "backing-band", "bpm": 80, "key": "a", "parts": { "click": "on" } } },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "highlight": ["1"] } }
             ]
           },
@@ -291,7 +291,7 @@
             "learnBefore": ["/course/5/pentatonic"],
             "sections": [
               { "type": "text", "text": "Press Play below to start the metronome. Play position 1 in A up and down, starting on the {{1}}." },
-              { "type": "tool", "tool": { "type": "click-drone", "bpm": 80, "key": "a", "drone": false } },
+              { "type": "tool", "tool": { "type": "backing-band", "bpm": 80, "key": "a", "parts": { "click": "on" } } },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "highlight": ["1"] } },
               { "type": "text", "text": "Now the same shape at the 12th fret, in E, starting on its {{1}}." },
               { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "e", "placement": { "by": "fret", "fret": 12 }, "highlight": ["1"] } }

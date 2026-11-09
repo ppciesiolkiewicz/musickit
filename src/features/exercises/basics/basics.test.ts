@@ -2,7 +2,7 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { COMPONENT_DOCS, docOf } from "../docs";
 
-const NAMES = ["scale-neck", "chord-shapes", "staff", "click-drone", "backing-band", "note-finder", "interval-ears", "strum-along"];
+const NAMES = ["scale-neck", "chord-shapes", "staff", "backing-band", "note-finder", "interval-ears", "strum-along"];
 
 describe("basics docs", () => {
   it("lists every basic", () => {

@@ -66,7 +66,7 @@ export const UI_GROUPS: UiGroup[] = [
     id: "practice-band",
     title: "PracticeBand",
     doc: {
-      description: "The play-along band: click, drone, drums and bass on one JamRig clock, drawn by a view. bar: one folded line for a plan exercise (the click-drone and backing-band tools), a Play for the chosen parts, a chip per part, tempo and key, and \"More\" for the tempo slider, drone octave, groove and patterns. inline: the parts with no part chips, started by its host (the staff's Play beside the mic; this story's host keeps on / onToggle / onStop). full: the whole band as a page, a card per part with its sound, patterns, groove and levels, and a Play all (Space); the metronome-drone page hosts it on its own rig with loops under it (the JamPage story). pocket: the band in a page's settings bar (the scales pages, the stage), a tall Play all and one line per part with a sliders button for the rest; stacked (a pocket prop) puts one line per tool for the side column. Saved in musickit.practiceBand here; pocket in musickit.pocket, as on the pages.",
+      description: "The play-along band: click, drone, drums and bass on one JamRig clock, drawn by a view. bar: one folded line for a plan exercise (the backing-band tool), a Play for the chosen parts, a chip per part, tempo and key, and \"More\" for the tempo slider, drone octave, groove and patterns. inline: the parts with no part chips, started by its host (the staff's Play beside the mic; this story's host keeps on / onToggle / onStop). full: the whole band as a page, a card per part with its sound, patterns, groove and levels, and a Play all (Space); the metronome-drone page hosts it on its own rig with loops under it (the JamPage story). pocket: the band in a page's settings bar (the scales pages, the stage), a tall Play all and one line per part with a sliders button for the rest; stacked (a pocket prop) puts one line per tool for the side column. Saved in musickit.practiceBand here; pocket in musickit.pocket, as on the pages.",
       props: [
         { name: "view", type: `"full" | "pocket" | "bar" | "inline"`, required: true, description: "How the band looks. In bar and inline the config's bpm, key and groove win over the save on every mount." },
         { name: "pocket", type: "{ stacked?: boolean, clickAlways?: boolean }", required: false, description: "pocket only: one line per tool for the side column; the click starts, muted, on the first press anywhere on the page." },
@@ -76,6 +76,7 @@ export const UI_GROUPS: UiGroup[] = [
     stories: [
       hand("Bar, click and drone in A", { view: "bar", config: { parts: ["click", "drone"], bpm: 80, keyPc: 9 } }),
       hand("Bar, full band in E", { view: "bar", config: { parts: ["click", "drone", "drums", "bass"], bpm: 96, keyPc: 4 } }),
+      hand("Bar, drone always, click off", { view: "bar", config: { parts: ["click", "drone"], start: [], locked: ["drone"], bpm: 60, keyPc: 4 } }),
       hand("Bar, click only, no More", { view: "bar", config: { parts: ["click"], bpm: 60, keyPc: 0, show: { more: false } } }),
       hand("Bar, bossa groove", { view: "bar", config: { parts: ["click", "drums", "bass"], bpm: 120, keyPc: 2, groove: "bossa" } }),
       hand("Inline, drone and click in D", { view: "inline", config: { parts: ["drone", "click"], bpm: 70, keyPc: 2 } }),

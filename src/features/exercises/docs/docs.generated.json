@@ -118,7 +118,7 @@
   {
     "name": "backing-band",
     "kind": "basic",
-    "description": "A small backing band to play along with: click, drone, drums and bass, in a key at a tempo.",
+    "description": "A metronome, a drone on the key's root, drums and bass to play or listen along with, in a key at a tempo; each part offered\ngets a switch. `parts` says which are offered and how each starts.\nExample: `{ \"type\": \"backing-band\", \"bpm\": 70, \"key\": \"a\", \"parts\": { \"click\": \"on\" } }` is a plain metronome.\nExample: `{ \"type\": \"backing-band\", \"bpm\": 60, \"key\": \"e\", \"parts\": { \"drone\": \"always\", \"click\": \"off\" } }` keeps the drone\nsounding and lets the student add the click.",
     "props": [
       {
         "name": "bpm",
@@ -134,9 +134,9 @@
       },
       {
         "name": "parts",
-        "type": "(\"click\" | \"drone\" | \"drums\" | \"bass\")[]",
+        "type": "{ click?: \"on\" | \"off\" | \"always\"; drone?: \"on\" | \"off\" | \"always\"; drums?: \"on\" | \"off\" | \"always\"; bass?: \"on\" | \"off\" | \"always\" }",
         "required": true,
-        "description": "which instruments play"
+        "description": "the parts offered, \"click\", \"drone\", \"drums\", \"bass\", each with how it starts: \"on\" (playing, the student can switch it\noff), \"off\" (silent, the student can switch it on), \"always\" (playing, no switching it off). A part left out is not there"
       }
     ]
   },
@@ -248,37 +248,6 @@
         "type": "string[]",
         "required": false,
         "description": "cue text per step, in order; missing ones get a default cue on a box change"
-      }
-    ]
-  },
-  {
-    "name": "click-drone",
-    "kind": "basic",
-    "description": "A metronome click and/or a drone on the key's root to play or sing against.",
-    "props": [
-      {
-        "name": "bpm",
-        "type": "number",
-        "required": true,
-        "description": "tempo, 30-240"
-      },
-      {
-        "name": "key",
-        "type": "string",
-        "required": true,
-        "description": "the key's root note: \"c\", \"f-sharp\", \"b-flat\""
-      },
-      {
-        "name": "click",
-        "type": "boolean",
-        "required": false,
-        "description": "play the click; default true"
-      },
-      {
-        "name": "drone",
-        "type": "boolean",
-        "required": false,
-        "description": "play the drone on the root; default true"
       }
     ]
   },
@@ -935,7 +904,7 @@
   {
     "name": "staff",
     "kind": "basic",
-    "description": "The scale on a staff in a voice's range, with the microphone's pitch drawn on it; tap a note to hear it. With `drone` and/or\n`click` it carries its own backing, so a singing exercise needs no `click-drone` beside it: starting the mic also starts the drone,\nthe drone UI provides start/stop and mute controls, and the step's \"Start exercise\" starts both together (Stop exercise stops both).",
+    "description": "The scale on a staff in a voice's range, with the microphone's pitch drawn on it; tap a note to hear it. With `drone` and/or\n`click` it carries its own backing, so a singing exercise needs no `backing-band` beside it: starting the mic also starts the drone,\nthe drone UI provides start/stop and mute controls, and the step's \"Start exercise\" starts both together (Stop exercise stops both).",
     "props": [
       {
         "name": "scale",

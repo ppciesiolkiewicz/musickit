@@ -40,6 +40,10 @@ import { notePc } from "./noteText";
 
 export type BandPart = "click" | "drone" | "drums" | "bass";
 export const BAND_PARTS: BandPart[] = ["click", "drone", "drums", "bass"];
+/** How a band part sits in its tool: "on" starts playing and can be switched off, "off" starts silent and can be switched on, "always" plays and cannot be switched off. A part left out is not offered. */
+export type PartMode = "on" | "off" | "always";
+export const PART_MODES: PartMode[] = ["on", "off", "always"];
+export type BandParts = Partial<Record<BandPart, PartMode>>;
 
 type View = "tab" | "notes" | "neck";
 type Under = "chords" | "drone" | "none";
@@ -54,8 +58,7 @@ export type PlanTool =
   | { type: "position-neck"; scale: string; key: number; positions?: number[]; placement?: Placement; /** strings 1-6, 6 = low E */ cross?: { from: number; to: number; string?: number }; add?: number[]; outside?: "muted" | "hidden"; picker?: boolean } & Marks
   | { type: "chord-shapes"; chords: string[]; voicing?: Voicing }
   | { type: "staff"; scale: string; key: number; voice: Voice; /** semitones above the key: only these are on the staff */ notes?: number[]; /** also the notes under the lowest Do */ under?: boolean; mic?: boolean; /** its own backing, started with the mic */ drone?: boolean; click?: boolean; bpm?: number; labels?: SingingLabels } & Marks
-  | { type: "click-drone"; bpm: number; key: number; click?: boolean; drone?: boolean }
-  | { type: "backing-band"; bpm: number; key: number; parts: BandPart[] }
+  | { type: "backing-band"; bpm: number; key: number; /** the parts offered and how; never empty */ parts: BandParts }
   | { type: "note-finder"; query: string }
   | { type: "interval-ears"; query: string; /** intervals may span more than an octave */ wide?: boolean }
   | { type: "arpeggio-neck"; chord: string; boxes?: number[]; part?: Degree[]; placement?: Placement } & Marks
@@ -131,6 +134,17 @@ const marksOf = (t: Record<string, unknown>, root: number | null): Marks =>
 const boxesOf = (v: unknown) => [...new Set(list(v).map((b) => int(b, 1, 5)).filter((b): b is number => b !== null))].sort((a, b) => a - b);
 const opt = <K extends string, V>(k: K, v: V[]): { [P in K]?: V[] } => (v.length ? ({ [k]: v } as { [P in K]: V[] }) : {});
 const bool = <K extends string>(k: K, v: unknown): { [P in K]?: boolean } => (typeof v === "boolean" ? ({ [k]: v } as { [P in K]: boolean }) : {});
+/** A backing band's parts: a map of part to mode, or a list (each "on", as plans wrote it before modes); none: the click alone. */
+export function bandParts(v: unknown): BandParts {
+  const out: BandParts = {};
+  if (Array.isArray(v)) for (const p of v) if (BAND_PARTS.includes(p as BandPart)) out[p as BandPart] = "on";
+  if (v && typeof v === "object" && !Array.isArray(v))
+    for (const p of BAND_PARTS) {
+      const m = (v as Record<string, unknown>)[p];
+      if (PART_MODES.includes(m as PartMode)) out[p] = m as PartMode;
+    }
+  return Object.keys(out).length ? out : { click: "on" };
+}
 
 const scaleNeck = (t: Record<string, unknown>): PlanTool | null => {
   const key = keyOf(t.key);
@@ -230,14 +244,8 @@ export const TOOLS: { [N in ToolName]: ToolSpec } = {
       return { type: "staff", scale: t.scale, key, voice: voiceOf(t.voice) ?? "baritone", ...(notes.length > 1 ? { notes } : {}), ...(t.under === true ? { under: true } : {}), ...marksOf(t, key), ...bool("mic", t.mic), ...(t.drone === true ? { drone: true } : {}), ...(t.click === true ? { click: true, bpm: int(t.bpm, 30, 240) ?? 60 } : {}), ...(isSingingLabels(t.labels) ? { labels: t.labels } : {}) };
     },
   },
-  "click-drone": {
-    parse: (t) => ({ type: "click-drone", bpm: int(t.bpm, 30, 240) ?? 80, key: keyOf(t.key) ?? 9, ...bool("click", t.click), ...bool("drone", t.drone) }),
-  },
   "backing-band": {
-    parse(t) {
-      const parts = list(t.parts).filter((p): p is BandPart => BAND_PARTS.includes(p as BandPart));
-      return { type: "backing-band", bpm: int(t.bpm, 30, 240) ?? 80, key: keyOf(t.key) ?? 9, parts: parts.length ? [...new Set(parts)] : ["click"] };
-    },
+    parse: (t) => ({ type: "backing-band", bpm: int(t.bpm, 30, 240) ?? 80, key: keyOf(t.key) ?? 9, parts: bandParts(t.parts) }),
   },
   "note-finder": { parse: (t) => ({ type: "note-finder", query: query(t, ["mode", "strings", "from", "to"]) }) },
   "interval-ears": {

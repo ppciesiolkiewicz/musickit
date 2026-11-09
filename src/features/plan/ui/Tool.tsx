@@ -4,7 +4,6 @@ import dynamic from "next/dynamic";
 import { View as ArpeggioNeck } from "@/features/exercises/basics/arpeggio-neck";
 import { View as BackingBand } from "@/features/exercises/basics/backing-band";
 import { View as ChordShapes } from "@/features/exercises/basics/chord-shapes";
-import { View as ClickDrone } from "@/features/exercises/basics/click-drone";
 import { View as IntervalSinger } from "@/features/exercises/basics/interval-singer";
 import { View as IntervalEars } from "@/features/exercises/basics/interval-ears";
 import { View as MelodySinger } from "@/features/exercises/basics/melody-singer";
@@ -56,8 +55,6 @@ function ToolView({ tool, voice, input }: { tool: PlanTool; voice?: Voice; input
       return <ChordShapes chords={tool.chords} voicing={tool.voicing} />;
     case "staff":
       return <Staff slug={tool.scale} pc={tool.key} voice={tool.voice ?? voice} notes={tool.notes} under={tool.under} enable={tool.enable} highlight={tool.highlight} mute={tool.mute} hide={tool.hide} others={tool.others} mic={tool.mic} drone={tool.drone} click={tool.click} bpm={tool.bpm} labels={tool.labels} external={input} />;
-    case "click-drone":
-      return <ClickDrone bpm={tool.bpm} keyPc={tool.key} click={tool.click} drone={tool.drone} />;
     case "backing-band":
       return <BackingBand bpm={tool.bpm} keyPc={tool.key} parts={tool.parts} />;
     case "note-finder":

@@ -160,11 +160,9 @@
               {
                 "type": "tool",
                 "tool": {
-                  "type": "click-drone",
+                  "type": "backing-band",
                   "bpm": 60,
-                  "key": "a",
-                  "drone": false
-                }
+                  "key": "a", "parts": { "click": "on" } }
               },
               {
                 "type": "tool",
@@ -218,10 +216,7 @@
                   "type": "backing-band",
                   "bpm": 70,
                   "key": "a",
-                  "parts": [
-                    "drums",
-                    "bass"
-                  ]
+                  "parts": { "drums": "on", "bass": "on" }
                 }
               },
               {
@@ -575,10 +570,7 @@
                   "type": "backing-band",
                   "bpm": 80,
                   "key": "a",
-                  "parts": [
-                    "drums",
-                    "bass"
-                  ]
+                  "parts": { "drums": "on", "bass": "on" }
                 }
               },
               {
@@ -684,11 +676,9 @@
               {
                 "type": "tool",
                 "tool": {
-                  "type": "click-drone",
+                  "type": "backing-band",
                   "bpm": 70,
-                  "key": "a",
-                  "drone": false
-                }
+                  "key": "a", "parts": { "click": "on" } }
               },
               {
                 "type": "tool",
@@ -716,11 +706,9 @@
               {
                 "type": "tool",
                 "tool": {
-                  "type": "click-drone",
+                  "type": "backing-band",
                   "bpm": 80,
-                  "key": "a",
-                  "drone": false
-                }
+                  "key": "a", "parts": { "click": "on" } }
               },
               {
                 "type": "tool",
@@ -764,10 +752,7 @@
                   "type": "backing-band",
                   "bpm": 80,
                   "key": "a",
-                  "parts": [
-                    "drums",
-                    "bass"
-                  ]
+                  "parts": { "drums": "on", "bass": "on" }
                 }
               },
               {
@@ -1091,10 +1076,7 @@
                   "type": "backing-band",
                   "bpm": 75,
                   "key": "a",
-                  "parts": [
-                    "drums",
-                    "bass"
-                  ]
+                  "parts": { "drums": "on", "bass": "on" }
                 }
               },
               {
@@ -1272,11 +1254,9 @@
               {
                 "type": "tool",
                 "tool": {
-                  "type": "click-drone",
+                  "type": "backing-band",
                   "bpm": 70,
-                  "key": "e",
-                  "drone": false
-                }
+                  "key": "e", "parts": { "click": "on" } }
               },
               {
                 "type": "tool",
@@ -1344,10 +1324,7 @@
                   "type": "backing-band",
                   "bpm": 80,
                   "key": "e",
-                  "parts": [
-                    "drums",
-                    "bass"
-                  ]
+                  "parts": { "drums": "on", "bass": "on" }
                 }
               },
               {
@@ -1816,11 +1793,9 @@
               {
                 "type": "tool",
                 "tool": {
-                  "type": "click-drone",
+                  "type": "backing-band",
                   "bpm": 80,
-                  "key": "a",
-                  "drone": false
-                }
+                  "key": "a", "parts": { "click": "on" } }
               },
               {
                 "type": "tool",

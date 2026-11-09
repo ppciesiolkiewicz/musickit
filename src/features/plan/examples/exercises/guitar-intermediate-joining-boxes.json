@@ -16,7 +16,7 @@
     "sections": [
       { "type": "heading", "text": "Position 2 on its own", "minutes": 3 },
       { "type": "text", "text": "Press Play below to start the metronome. Play position 2 of A minor pentatonic up and down, one note per beat. It starts at the 7th fret, and its ringed {{1}} notes sit on the D and B strings." },
-      { "type": "tool", "tool": { "type": "backing-band", "bpm": 70, "key": "a", "parts": ["click"] } },
+      { "type": "tool", "tool": { "type": "backing-band", "bpm": 70, "key": "a", "parts": { "click": "on" } } },
       { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [2], "highlight": ["1"] } },
       { "type": "heading", "text": "From position 1 to position 2", "minutes": 3 },
       { "type": "text", "text": "Climb position 1 from the low A. On the G string, slide from {{4}} (D, 7th fret) up to {{5}} (E, 9th fret) and finish the climb in position 2. On the way down, slide from {{5}} back to {{4}}." },

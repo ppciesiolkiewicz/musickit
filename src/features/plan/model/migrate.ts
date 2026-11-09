@@ -17,7 +17,7 @@ const RENAMED: Record<string, string> = {
 /**
  * A tool as an older plan wrote it, in today's names and props; anything else is returned unchanged. `sing` becomes a
  * `staff` with the mic (its stored `notes`/`highlight` are already semitones and are read as such), `comp` a
- * `guitar-play-along` progression on the neck, `chord-backing` (chords for a singer) a `backing-track` on its chords with a
+ * `guitar-play-along` progression on the neck, `click-drone` a `backing-band` with its click and drone, `chord-backing` (chords for a singer) a `backing-track` on its chords with a
  * gentle style and the bass muted. Pure; `parseTool` calls it first so old and new plans parse alike.
  */
 export function migrateTool(raw: Record<string, unknown>): Record<string, unknown> {
@@ -25,6 +25,10 @@ export function migrateTool(raw: Record<string, unknown>): Record<string, unknow
   if (typeof type !== "string") return raw;
   if (Object.hasOwn(RENAMED, type)) return { ...raw, type: RENAMED[type] };
   if (type === "sing") return { ...raw, type: "staff", mic: true };
+  if (type === "click-drone") {
+    const { click, drone, ...rest } = raw;
+    return { parts: { ...(click !== false ? { click: "on" } : {}), ...(drone !== false ? { drone: "on" } : {}) }, ...rest, type: "backing-band" };
+  }
   if (type === "chord-backing") {
     const out: Record<string, unknown> = { style: "ballad", mute: ["bass"], ...raw, type: "backing-track" };
     delete out.backing; // its piano patterns: the style plays the keys now
@@ -60,7 +64,7 @@ export function toolFromLink(link: string | undefined): PlanTool | null {
   }
   if (path === "/theory/notes") return { type: "note-finder", query };
   if (path === "/theory/ears") return { type: "interval-ears", query, ...(/(^|&)wide=1/.test(query) ? { wide: true } : {}) };
-  if (path === "/theory/metronome-drone") return { type: "backing-band", bpm: 80, key: 9, parts: ["click"] };
+  if (path === "/theory/metronome-drone") return { type: "backing-band", bpm: 80, key: 9, parts: { click: "on" } };
   return null;
 }
 

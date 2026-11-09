@@ -26,7 +26,7 @@
       { "type": "tool", "tool": { "type": "staff", "scale": "dorian", "key": "d", "voice": "tenor", "highlight": ["1", "6"], "mic": false } },
       { "type": "heading", "text": "Phrygian over a drone", "minutes": 4 },
       { "type": "text", "text": "Press Play below to start the drone on E. Phrygian's colour note is {{b2}} (F), a half step above the root. Tap {{1}} {{b2}} {{1}} on the staff against the drone, then tap around the whole scale, coming back to {{b2}} whenever you like." },
-      { "type": "tool", "tool": { "type": "click-drone", "bpm": 60, "key": "e", "click": false } },
+      { "type": "tool", "tool": { "type": "backing-band", "bpm": 60, "key": "e", "parts": { "drone": "on" } } },
       { "type": "tool", "tool": { "type": "staff", "scale": "phrygian", "key": "e", "voice": "tenor", "highlight": ["1", "b2"], "mic": false } }
     ]
   }
