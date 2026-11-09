@@ -46,7 +46,7 @@ const CELLS: Record<Box, Cell[]> = { 1: boxCells(BOX_FRET[1]), 2: boxCells(BOX_F
 function PentatonicBox({ box = 1, highlight }: { box?: Box; highlight?: [number, number] }) {
   const { active, tap } = useNotePlayer();
   return (
-    <svg viewBox="0 0 260 132" className="w-full" role="img" aria-label={`A minor pentatonic box ${box} at the ${BOX_FRET[box]}th fret, notes coloured by degree. Click a note to hear it.`}>
+    <svg viewBox="0 0 260 132" className="w-full overflow-visible" role="img" aria-label={`A minor pentatonic box ${box} at the ${BOX_FRET[box]}th fret, notes coloured by degree. Click a note to hear it.`}>
       <rect x={20} y={6} width={232} height={120} rx={6} fill="var(--color-slate-900)" />
       {[0, 1, 2, 3, 4].map((f) => <line key={f} x1={20 + f * 58} x2={20 + f * 58} y1={6} y2={126} stroke="var(--color-slate-700)" strokeWidth={2} />)}
       {[0, 1, 2, 3, 4, 5].map((s) => <line key={s} x1={20} x2={252} y1={16 + s * 20} y2={16 + s * 20} stroke="var(--color-slate-500)" strokeOpacity={0.7} strokeWidth={0.8 + s * 0.3} />)}
@@ -80,16 +80,16 @@ function MiniBacking() {
   return (
     <div ref={focus} className="flex items-center gap-3 rounded-xl border border-slate-800 bg-slate-950/60 p-2">
       <button type="button" onClick={() => band.toggle()} aria-pressed={snap.playing}
-        className={`inline-flex h-8 items-center gap-1.5 rounded-lg border px-3 text-xs font-medium transition ${snap.playing ? "border-emerald-400/70 bg-emerald-500/20 text-emerald-100" : "border-sky-400/60 bg-sky-500/15 text-sky-50 hover:bg-sky-500/25"}`}>
+        className={`inline-flex h-8 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg border px-3 text-xs font-medium transition ${snap.playing ? "border-emerald-400/70 bg-emerald-500/20 text-emerald-100" : "border-sky-400/60 bg-sky-500/15 text-sky-50 hover:bg-sky-500/25"}`}>
         <Icon name={snap.playing ? "square" : "play"} size={14} fill />{snap.playing ? "Stop" : "Backing track"}
       </button>
-      <span className="text-xs text-slate-400">A minor loop · Am F G Am · 80 bpm</span>
+      <span className="text-xs text-slate-400">Am F G Am · 80 bpm</span>
     </div>
   );
 }
 
 /** What a student gets after a lesson: the shape, the plan, what comes next. Tap a plan line and the picture follows; "improvise" brings up a backing track. */
-export function LessonNoteMock() {
+export function LessonNoteMock({ compact = false }: { compact?: boolean }) {
   type Step = "b1" | "b2" | "imp";
   const [step, setStep] = useState<Step>("b1");
   const [done, setDone] = useState<Record<Step, boolean>>({ b1: true, b2: false, imp: false });
@@ -104,7 +104,7 @@ export function LessonNoteMock() {
     setDone((d) => ({ ...d, [id]: id === step ? !d[id] : true }));
   };
   return (
-    <div className="relative rounded-2xl border border-slate-700/70 bg-slate-950/80 p-4 shadow-2xl shadow-black/30 sm:p-5">
+    <div className={`relative rounded-2xl border border-slate-700/70 bg-slate-950 shadow-2xl shadow-black/30 ${compact ? "p-3" : "p-4 sm:p-5"}`}>
       <div className="mb-3 flex items-center justify-between gap-3">
         <div>
           <p className="text-[11px] uppercase tracking-widest text-slate-500">Lesson note · week 3</p>
@@ -113,19 +113,19 @@ export function LessonNoteMock() {
         <span className="rounded-full border border-slate-700 px-2 py-0.5 text-[11px] text-slate-400">Preview</span>
       </div>
       <PentatonicBox box={box} highlight={step === "imp" ? BOX_ROOT[1] : undefined} />
-      <ul className="mt-3 flex flex-col gap-1 text-sm text-slate-300">
+      <ul className={`flex flex-col gap-0.5 text-slate-300 ${compact ? "mt-2 text-[13px]" : "mt-3 text-sm"}`}>
         {items.map((x) => (
           <li key={x.id}>
             <button type="button" role="checkbox" aria-checked={done[x.id]} onClick={() => pick(x.id)}
               className={`flex w-full items-start gap-2 rounded-lg px-1.5 py-1 text-left transition hover:bg-slate-800/60 ${step === x.id ? "bg-slate-800/50 ring-1 ring-sky-400/40" : ""}`}>
               <span className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded ${done[x.id] ? "bg-emerald-500 text-slate-950" : "border border-slate-600"}`}>{done[x.id] && <Icon name="check" size={11} />}</span>
-              <span className={done[x.id] ? "text-slate-400 line-through decoration-slate-600" : ""}>{x.t}</span>
+              <span className={done[x.id] ? "text-slate-400" : ""}>{x.t}</span>
             </button>
           </li>
         ))}
       </ul>
       {step === "imp" && <div className="mt-2"><MiniBacking /></div>}
-      <p className="mt-3 border-t border-slate-800 pt-3 text-xs text-slate-500">Next time: add the ♭5 and it becomes the blues scale.</p>
+      {!compact && <p className="mt-3 border-t border-slate-800 pt-3 text-xs text-slate-500">Next time: add the ♭5 and it becomes the blues scale.</p>}
     </div>
   );
 }
