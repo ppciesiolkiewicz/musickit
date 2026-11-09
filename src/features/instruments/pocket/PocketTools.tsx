@@ -120,9 +120,9 @@ function PlayButton({ on, label, onClick }: { on: boolean; label: string; onClic
 }
 
 /** One tool on one line: a small label, then its controls. Exported as `PocketLine` for a host's own lines. */
-export function Tool({ label, children }: { label: string; children: ReactNode }) {
+export function Tool({ label, gap = "gap-1", children }: { label: string; gap?: string; children: ReactNode }) {
   return (
-    <div role="group" aria-label={label} className="flex min-w-0 items-center gap-1">
+    <div role="group" aria-label={label} className={`flex min-w-0 items-center ${gap}`}>
       <span className="w-12 shrink-0 text-[11px] uppercase tracking-wider text-slate-500">{label}</span>
       {children}
     </div>
@@ -349,7 +349,7 @@ export default function PocketTools({ keyPc, className = "", stacked = false, cl
         {withDrone && <>
         <div role="separator" className="col-span-full my-1 border-t border-slate-800" />
 
-        <Tool label="Drone">
+        <Tool label="Drone" gap="gap-2">
           <PlayButton on={snap.parts.drone.state.playing} label="drone" onClick={() => toggle("drone")} />
           <MuteButton className={ibtn} name="drone" muted={snap.parts.drone.muted} onMute={(muted) => rig.setLevel("drone", { muted })} />
           <button type="button" className={ibtn} disabled={drone.octave <= DRONE_MIN_OCTAVE} onClick={() => rig.setDrone({ octave: drone.octave - 1 })} aria-label="Octave down">−</button>

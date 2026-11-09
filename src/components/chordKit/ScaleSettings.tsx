@@ -80,7 +80,7 @@ function InputLine() {
 /** A section of the bar: a heading and its rows, set off from the one above by a rule. */
 function BarSection({ title, first = false, children }: { title?: string; first?: boolean; children: ReactNode }) {
   return (
-    <section aria-label={title} className={`flex flex-col gap-1.5 ${first ? "" : "border-t-2 border-slate-700 pt-3"}`}>
+    <section aria-label={title} className={`flex flex-col gap-1.5 ${first ? "" : "panel-rule pt-5"}`}>
       {title && <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-300">{title}</h3>}
       {children}
     </section>
@@ -231,7 +231,7 @@ export function ScaleSettingsBar({ tonicPc, onTonic, side = false, config = {} }
       </button>
       {/* hidden rather than unmounted, so the pocket tools keep playing while it is folded */}
       <div className={`${open ? "flex" : "hidden"} max-h-[70vh] flex-col gap-2 overflow-y-auto sm:max-h-none sm:overflow-visible ${side ? "lg:flex" : "xl:flex-row xl:items-center"}`}>
-        <div className="flex min-w-0 flex-1 flex-col gap-3">
+        <div className="flex min-w-0 flex-1 flex-col gap-4">
           {filters && (
             <BarSection title="Filter" first>{filters}</BarSection>
           )}
@@ -256,8 +256,8 @@ export function ScaleSettingsBar({ tonicPc, onTonic, side = false, config = {} }
           </BarSection>
         </div>
         {/* play-along tools: under the settings on narrow screens, on the right once there is room */}
-        {pocket && <PocketTools keyPc={tonicPc} onStatus={onPocket} clickAlways={pocket.clickAlways} withDrone={pocket.drone !== false} stacked={side} lines={config.input && <InputLine />} className={`border-t-2 border-slate-700 pt-3 ${side ? "" : "xl:border-l-2 xl:border-t-0 xl:pl-4 xl:pt-0"}`} />}
-        {!pocket && config.input && <div className="border-t-2 border-slate-700 pt-3"><InputLine /></div>}
+        {pocket && <PocketTools keyPc={tonicPc} onStatus={onPocket} clickAlways={pocket.clickAlways} withDrone={pocket.drone !== false} stacked={side} lines={config.input && <InputLine />} className={`panel-rule pt-5 ${side ? "" : "pocket-rule xl:pt-0 xl:pl-6"}`} />}
+        {!pocket && config.input && <div className="panel-rule pt-5"><InputLine /></div>}
       </div>
     </div>
   );
