@@ -4,11 +4,11 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { JamRig, type JamSaved } from "../jam/rig";
 import useJamRig from "../jam/useJamRig";
 import type { GrooveId } from "../sequencer/grooves";
-import type { PocketStatus } from "../pocket/PocketTools";
 import { resolveShow, restoreBand, type BandConfig, type BandView } from "./config";
 import BarView from "./views/BarView";
 import FullView from "./views/FullView";
 import InlineView from "./views/InlineView";
+import PocketView, { type PocketProps } from "./views/PocketView";
 import type { Band } from "./views/types";
 
 export interface PracticeBandProps {
@@ -24,8 +24,8 @@ export interface PracticeBandProps {
   onToggle?: () => void;
   onStop?: () => void;
   group?: string;
-  /** pocket: PocketTools' host props */
-  pocket?: { stacked?: boolean; clickAlways?: boolean; onStatus?: (s: PocketStatus) => void; lines?: ReactNode; className?: string };
+  /** pocket: the settings bar's layout, its click, status and own lines */
+  pocket?: PocketProps;
 }
 
 const noop = () => {};
@@ -33,20 +33,21 @@ const noop = () => {};
 /**
  * The play-along band: click, drone, drums and bass on one `JamRig` clock, drawn by `view` (`config.ts` has what each view
  * shows). With `rig` it plays on the host's rig; otherwise it makes its own, restored from `storageKey` (`restoreBand`: in
- * `bar` and `inline` the host's setup wins over the save on every mount).
+ * `bar` and `inline` the host's setup wins over the save on every mount; `pocket` also reads its first saves).
  */
 export default function PracticeBand(props: PracticeBandProps): ReactNode {
   return props.rig ? <Views {...props} band={props.rig} /> : <OwnBand {...props} />;
 }
 
-function Views({ band, view, config, on, onToggle, onStop, group, ready }: PracticeBandProps & { band: Band }) {
+function Views({ band, view, config, on, onToggle, onStop, group, ready, pocket }: PracticeBandProps & { band: Band }) {
   const show = resolveShow(view, config.show);
   switch (view) {
     case "inline":
       return <InlineView band={band} config={config} show={show} on={on ?? false} onToggle={onToggle} onStop={onStop ?? noop} group={group} />;
     case "full":
       return <FullView band={band} config={config} show={show} ready={ready} />;
-    case "pocket": // TODO(Task 7): PocketView
+    case "pocket":
+      return <PocketView band={band} config={config} show={show} pocket={pocket} />;
     case "bar":
       return <BarView band={band} config={config} show={show} />;
   }

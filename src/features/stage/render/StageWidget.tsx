@@ -5,7 +5,7 @@ import { ArpeggioOnGuitar } from "@/components/chordKit/ArpeggiosExplorer";
 import { CagedBoxPanels, CagedNeckMap } from "@/components/chordKit/CagedExplorer";
 import { ChordBubble } from "@/components/chordKit/ChordBubbles";
 import { KeyScope, PLUGINS, keyContext, type KeyChoice } from "@/features/creator";
-import { PocketTools } from "@/features/instruments";
+import { PracticeBand } from "@/features/instruments";
 import type { PlanTool } from "@/features/plan/model/tools";
 import { Tool } from "@/features/plan/ui/Tool";
 import { LevelPin } from "@/features/guide/Tier";
@@ -81,7 +81,7 @@ export default function StageWidget({ subject, onSubjectChange, stageKey, onStag
     case "band":
       body = (
         <div className="rounded-xl border border-slate-800 bg-slate-950 p-3">
-          <PocketTools keyPc={subject.key.tonicPc ?? DEFAULT_KEY_PC} stacked />
+          <PracticeBand view="pocket" storageKey="musickit.pocket" config={{ parts: ["click", "drone", "drums", "bass"], keyPc: subject.key.tonicPc ?? DEFAULT_KEY_PC }} pocket={{ stacked: true }} />
         </div>
       );
       break;

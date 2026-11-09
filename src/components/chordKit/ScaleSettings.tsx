@@ -10,7 +10,7 @@ import { PENTATONICS, findPentatonic, pentatonicLabel } from "@/features/theory/
 import { scaleHref, scalesIndexHref } from "@/features/theory/keySlug";
 import { Chip, InfoBox, InfoButton, Select } from "@/components/ui";
 import { DegreeLegend } from "@/components/theory/DegreeLegend";
-import { PocketLine, PocketTools, type PocketStatus } from "@/features/instruments";
+import { PocketLine, PracticeBand, type PocketStatus } from "@/features/instruments";
 import { PHONE_QUERY } from "@/components/usePhone";
 import InputChip from "@/components/InputChip";
 import { useMicPitch } from "@/components/practice/useMicPitch";
@@ -256,7 +256,11 @@ export function ScaleSettingsBar({ tonicPc, onTonic, side = false, config = {} }
           </BarSection>
         </div>
         {/* play-along tools: under the settings on narrow screens, on the right once there is room */}
-        {pocket && <PocketTools keyPc={tonicPc} onStatus={onPocket} clickAlways={pocket.clickAlways} withDrone={pocket.drone !== false} stacked={side} lines={config.input && <InputLine />} className={`panel-rule pt-5 ${side ? "" : "pocket-rule xl:pt-0 xl:pl-6"}`} />}
+        {pocket && (
+          <PracticeBand view="pocket" storageKey="musickit.pocket"
+            config={{ parts: pocket.drone === false ? ["click", "drums", "bass"] : ["click", "drone", "drums", "bass"], keyPc: tonicPc }}
+            pocket={{ onStatus: onPocket, clickAlways: pocket.clickAlways, stacked: side, lines: config.input && <InputLine />, className: `panel-rule pt-5 ${side ? "" : "pocket-rule xl:pt-0 xl:pl-6"}` }} />
+        )}
         {!pocket && config.input && <div className="panel-rule pt-5"><InputLine /></div>}
       </div>
     </div>

@@ -3,7 +3,7 @@
 import { useState, type ReactNode } from "react";
 import type { PropDoc } from "@/features/exercises/docs";
 import { BackingTrack } from "@/features/backing";
-import { DEFAULT_DRONE, DroneControls, JamPage, PocketTools, PracticeBand, clampDrone, type BandConfig, type BandView, type DroneParams } from "@/features/instruments";
+import { DEFAULT_DRONE, DroneControls, JamPage, PracticeBand, clampDrone, type BandConfig, type BandView, type DroneParams } from "@/features/instruments";
 import type { Props, Story } from "./stories";
 
 /*
@@ -23,9 +23,7 @@ export interface UiGroup {
   shapeDoc?: undefined;
 }
 
-const KEY_PC: PropDoc = { name: "keyPc", type: "0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11", required: true, description: "The page's key as a pitch class, 0 = C; the drone and bass sit on it." };
 const hand = (name: string, props: Props): Story => ({ name, props, from: "hand" });
-const keyOf = (props: Props) => (typeof props.keyPc === "number" ? props.keyPc : 0);
 
 /** DroneControls owns no state: this host keeps the value, as the looper and the pocket tools do. */
 function DroneControlsStory({ value, playing }: { value: Partial<DroneParams>; playing: boolean }) {
@@ -48,34 +46,10 @@ function InlineBandStory({ config }: { config: BandConfig }) {
 
 export const UI_GROUPS: UiGroup[] = [
   {
-    id: "pocket-tools",
-    title: "PocketTools",
-    doc: {
-      description: "The play-along band in a page's settings bar: click, drone, drums and bass on one clock. Audio starts on the first press.",
-      props: [
-        KEY_PC,
-        { name: "stacked", type: "boolean", required: false, description: "One line per tool at every width, for the narrow side column." },
-        { name: "withDrone", type: "boolean", required: false, description: "The drone's line, on unless false." },
-        { name: "clickAlways", type: "boolean", required: false, description: "The click starts, muted, on the first press anywhere on the page." },
-      ],
-    },
-    stories: [
-      hand("In C", { keyPc: 0 }),
-      hand("Stacked, for the side column", { keyPc: 0, stacked: true }),
-      hand("Without the drone", { keyPc: 7, withDrone: false }),
-    ],
-    render: (props) => {
-      const stacked = props.stacked === true;
-      const tools = <PocketTools keyPc={keyOf(props)} stacked={stacked} withDrone={props.withDrone !== false} clickAlways={props.clickAlways === true} />;
-      // the side column's width (22rem, less its padding), so the story shows what the page shows
-      return stacked ? <div className="max-w-80">{tools}</div> : tools;
-    },
-  },
-  {
     id: "drone-controls",
     title: "DroneControls",
     doc: {
-      description: "The note and sound of a drone: the panel behind the pocket drone's sliders button, also in the looper's drone window. It has no play button and no audio here.",
+      description: "The note and sound of a drone: the panel behind the pocket view's drone sliders button, also in the looper's drone window. It has no play button and no audio here.",
       props: [
         { name: "value", type: "Partial<DroneParams>", required: false, description: "The starting settings; the rest come from the default drone." },
         { name: "playing", type: "boolean", required: false, description: "Makes the pictures move." },
@@ -92,9 +66,10 @@ export const UI_GROUPS: UiGroup[] = [
     id: "practice-band",
     title: "PracticeBand",
     doc: {
-      description: "The play-along band: click, drone, drums and bass on one JamRig clock, drawn by a view. bar: one folded line for a plan exercise (the click-drone and backing-band tools), a Play for the chosen parts, a chip per part, tempo and key, and \"More\" for the tempo slider, drone octave, groove and patterns. inline: the parts with no part chips, started by its host (the staff's Play beside the mic; this story's host keeps on / onToggle / onStop). full: the whole band as a page, a card per part with its sound, patterns, groove and levels, and a Play all (Space); the metronome-drone page hosts it on its own rig with loops under it (the JamPage story). pocket draws the bar until its view lands. Saved in musickit.practiceBand here.",
+      description: "The play-along band: click, drone, drums and bass on one JamRig clock, drawn by a view. bar: one folded line for a plan exercise (the click-drone and backing-band tools), a Play for the chosen parts, a chip per part, tempo and key, and \"More\" for the tempo slider, drone octave, groove and patterns. inline: the parts with no part chips, started by its host (the staff's Play beside the mic; this story's host keeps on / onToggle / onStop). full: the whole band as a page, a card per part with its sound, patterns, groove and levels, and a Play all (Space); the metronome-drone page hosts it on its own rig with loops under it (the JamPage story). pocket: the band in a page's settings bar (the scales pages, the stage), a tall Play all and one line per part with a sliders button for the rest; stacked (a pocket prop) puts one line per tool for the side column. Saved in musickit.practiceBand here; pocket in musickit.pocket, as on the pages.",
       props: [
         { name: "view", type: `"full" | "pocket" | "bar" | "inline"`, required: true, description: "How the band looks. In bar and inline the config's bpm, key and groove win over the save on every mount." },
+        { name: "pocket", type: "{ stacked?: boolean, clickAlways?: boolean }", required: false, description: "pocket only: one line per tool for the side column; the click starts, muted, on the first press anywhere on the page." },
         { name: "config", type: "JSON", required: true, description: "{ parts: (\"click\" | \"drone\" | \"drums\" | \"bass\")[], bpm?, keyPc? (0 = C), groove? (pop, rock, ballad, swing, shuffle, bossa, funk, reggae), droneOctave?, show? (single flags over the view's, e.g. { more: false }) }" },
       ],
     },
@@ -106,11 +81,19 @@ export const UI_GROUPS: UiGroup[] = [
       hand("Inline, drone and click in D", { view: "inline", config: { parts: ["drone", "click"], bpm: 70, keyPc: 2 } }),
       hand("Inline, click only", { view: "inline", config: { parts: ["click"], bpm: 100, keyPc: 0 } }),
       hand("Full, the whole band", { view: "full", config: { parts: ["click", "drone", "drums", "bass"] } }),
+      hand("Pocket, in C", { view: "pocket", config: { parts: ["click", "drone", "drums", "bass"], keyPc: 0 } }),
+      hand("Pocket, stacked for the side column", { view: "pocket", config: { parts: ["click", "drone", "drums", "bass"], keyPc: 0 }, pocket: { stacked: true } }),
+      hand("Pocket, the drone alone", { view: "pocket", config: { parts: ["drone"], keyPc: 7 } }),
     ],
     render: (props) => {
       const view = viewOf(props);
       const config = configOf(props);
-      return view === "inline" ? <InlineBandStory config={config} /> : <PracticeBand view={view} storageKey="musickit.practiceBand" config={config} />;
+      if (view === "inline") return <InlineBandStory config={config} />;
+      if (view !== "pocket") return <PracticeBand view={view} storageKey="musickit.practiceBand" config={config} />;
+      const pocket = (props.pocket ?? {}) as { stacked?: boolean; clickAlways?: boolean };
+      const band = <PracticeBand view="pocket" storageKey="musickit.pocket" config={config} pocket={{ stacked: pocket.stacked === true, clickAlways: pocket.clickAlways === true }} />;
+      // the side column's width (22rem, less its padding), so the story shows what the page shows
+      return pocket.stacked ? <div className="max-w-80">{band}</div> : band;
     },
   },
   {

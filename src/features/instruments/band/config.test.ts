@@ -110,6 +110,17 @@ describe("restoreBand", () => {
     }
   });
 
+  it("pocket reads the first pocket save (only a drone and a click) without losing them", () => {
+    const rig = new JamRig();
+    const old = { click: { bpm: 132, volume: 0.3 }, drone: { root: 9, octave: 3 } };
+    restoreBand(rig, "pocket", { parts: ["click", "drone"] }, old as never);
+    const s = rig.snapshot();
+    assert.equal(s.bpm, 132);
+    assert.equal(s.click.volume, 0.3);
+    assert.equal(s.parts.drone.state.drone.root, 9);
+    assert.equal(s.parts.drone.state.drone.octave, 3);
+  });
+
   it("with no save, bar still takes the host's setup", () => {
     const rig = new JamRig();
     restoreBand(rig, "bar", config, null);
