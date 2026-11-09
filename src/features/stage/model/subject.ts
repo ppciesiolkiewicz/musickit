@@ -205,6 +205,21 @@ export const isControl = (s: Subject): boolean => s.kind === "key" || s.kind ===
 /** A page rather than a single widget: a whole cheatsheet page, or a scale-page section with parts to pick from (Fretboard positions, Chords in the key). */
 export const isPage = (s: Subject): boolean => (s.kind === "plugin" && s.full === true) || (s.kind === "section" && s.section !== "relatives");
 
+/** Whether the widget is mainly a guitar neck, so it reads better wide. A page may hold necks too, but it has its own size. */
+export function hasNeck(s: Subject): boolean {
+  switch (s.kind) {
+    case "position":
+    case "neck":
+    case "caged":
+    case "arpeggio":
+      return true;
+    case "tool":
+      return ["scale-neck", "position-neck", "arpeggio-neck"].includes(s.tool.type);
+    default:
+      return false;
+  }
+}
+
 /** The cheatsheet panels that draw fretboards or chord boxes: compact, and as whole pages. */
 const MIC_PANELS = ["caged"];
 const MIC_PAGES = ["scale", "modes", "chords", "progressions", "caged"];

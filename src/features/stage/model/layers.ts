@@ -3,7 +3,7 @@
  * never pixels, so the same data renders at any size and can be recorded and replayed. Pure: no React, no DOM, no ids made here.
  */
 import { EMPTY_KEY, sanitiseKey, type KeyChoice } from "@/features/creator/model/key";
-import { isPage, sanitiseSubject, withMaster, type Subject } from "./subject";
+import { hasNeck, isPage, sanitiseSubject, withMaster, type Subject } from "./subject";
 
 export interface FrameRect {
   x: number;
@@ -49,6 +49,8 @@ export interface Stage {
   layout?: Layout;
   /** the grid's order, by id; layers not in it follow in list order, so a new widget goes at the end. The Layers list order never changes */
   order?: string[];
+  /** the grid's Auto layout is on: widgets get rows of their own (`gridAutoPlace`); missing = off, each at its `gridSpan` */
+  gridAuto?: true;
 }
 
 export type Layout = "grid" | "free";
@@ -249,7 +251,7 @@ export type StageAction =
   | { type: "setLayout"; layout: Layout }
   /** the grid's order: drop `id` where `over` is */
   | { type: "reorder"; id: string; over: string }
-  /** the free layout: rows inside the frame. The grid is always in line, so there it changes nothing */
+  /** the free layout: rows inside the frame, once. The grid: switches its Auto layout on or off */
   | { type: "autoLayout" };
 
 const edit = (s: Stage, id: string, f: (l: Layer) => Layer): Stage => ({ ...s, layers: s.layers.map((l) => (l.id === id ? f(l) : l)) });
@@ -290,6 +292,20 @@ export function gridSpan(l: Layer): number {
 /** The same on a narrow frame (a phone): a small widget takes half a row, anything bigger all of it. */
 export function gridSpanNarrow(l: Layer): number {
   return gridSpan(l) <= 4 ? GRID_COLUMNS / 2 : GRID_COLUMNS;
+}
+
+/** With the grid's Auto layout on, a widget with a neck takes this share of its row. */
+export const AUTO_NECK_WIDTH = 0.9;
+
+/**
+ * A widget's place with the grid's Auto layout on: `span` columns, and `width` the share of them it fills, centred. Most widgets get a row
+ * of their own: a neck at AUTO_NECK_WIDTH, anything else at its usual width, as it would be too big stretched. A page keeps its whole row,
+ * and a quarter-wide widget (a chord) still shares its row, as a row of one would be mostly empty.
+ */
+export function gridAutoPlace(l: Layer): { span: number; width: number } {
+  const span = gridSpan(l);
+  if (isPage(l.subject) || span <= GRID_COLUMNS / 4) return { span, width: 1 };
+  return { span: GRID_COLUMNS, width: hasNeck(l.subject) ? AUTO_NECK_WIDTH : span / GRID_COLUMNS };
 }
 
 /** A widget's shape (width over height, pixels) until it reports its content's, or when it has none to report. */
@@ -343,9 +359,12 @@ export function arrangeRects(items: { id: string; rect: FrameRect }[]): Map<stri
   }
 }
 
-/** Auto layout in the free layout; the camera and the screen share stay where they are, under the widgets. */
+/** Auto layout: on the grid a switch; in the free layout it arranges once, and the camera and the screen share stay where they are, under the widgets. */
 function autoLayout(s: Stage): Stage {
-  if (layoutOf(s) === "grid") return s;
+  if (layoutOf(s) === "grid") {
+    const { gridAuto, ...rest } = s;
+    return gridAuto ? rest : { ...s, gridAuto: true };
+  }
   const placed = arrangeRects(s.layers.filter((l) => l.visible && onGrid(l) && !isMedia(l)).map((l) => ({ id: l.id, rect: l.rect })));
   return { ...s, layers: s.layers.map((l) => (placed.has(l.id) ? { ...unfill(l), rect: clampRect(placed.get(l.id)!) } : l)) };
 }
@@ -468,5 +487,5 @@ export function sanitiseStage(raw: unknown, pluginIds: string[]): Stage {
   // a stage saved before there were layouts was arranged by hand: it stays as it was made. A new, empty one starts on the grid
   const layout: Layout = o.layout === "grid" || o.layout === "free" ? o.layout : layers.length ? "free" : "grid";
   const order = Array.isArray(o.order) ? o.order.filter((id): id is string => typeof id === "string" && layers.some((l) => l.id === id)) : null;
-  return { layers, selected, key: typeof o.key === "object" && o.key !== null ? sanitiseKey(o.key) : EMPTY_KEY, layout, ...(order ? { order } : {}) };
+  return { layers, selected, key: typeof o.key === "object" && o.key !== null ? sanitiseKey(o.key) : EMPTY_KEY, layout, ...(order ? { order } : {}), ...(o.gridAuto === true ? { gridAuto: true as const } : {}) };
 }

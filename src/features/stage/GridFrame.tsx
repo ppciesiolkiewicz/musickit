@@ -5,7 +5,7 @@ import { SortableContext, rectSortingStrategy, useSortable } from "@dnd-kit/sort
 import { CSS } from "@dnd-kit/utilities";
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type MouseEvent as RMouseEvent, type ReactNode, type TouchEvent as RTouchEvent } from "react";
 import { LayerBody, LayerToolbar, useWidgetZoom } from "./LayerParts";
-import { GRID_COLUMNS, fixedRect, gridAspect, gridLayers, gridSpan, gridSpanNarrow, type Layer, type Stage, type StageAction } from "./model/layers";
+import { GRID_COLUMNS, fixedRect, gridAspect, gridAutoPlace, gridLayers, gridSpan, gridSpanNarrow, type Layer, type Stage, type StageAction } from "./model/layers";
 import { isPage } from "./model/subject";
 import { ScrollInBox } from "./render/shape";
 
@@ -19,6 +19,8 @@ const TOUCH_SLOP = 8;
 const SPACING = "gap-[0.6cqw] p-[0.6cqw] @max-[640px]:gap-2 @max-[640px]:p-1";
 /** Spans come from the CSS variables an item sets, so the frame's width picks between them. */
 const SPAN = "[grid-column:span_var(--span)] @max-[640px]:[grid-column:span_var(--span-narrow)]";
+/** With Auto layout on, the share of its columns a widget fills, centred; a phone-wide frame keeps its usual widths. */
+const AUTO_WIDTH = "w-[var(--auto-width)] justify-self-center @max-[640px]:w-auto @max-[640px]:justify-self-auto";
 /**
  * A page: one screen tall (56.25cqw, less the 2 × 0.6cqw around it), or most of a phone's, with a strip left free on its right where the
  * wheel or a finger still scrolls the frame instead of the page.
@@ -41,10 +43,11 @@ class WidgetTouchSensor extends TouchSensor {
   static activators = [{ eventName: "onTouchStart" as const, handler: ({ nativeEvent: e }: RTouchEvent) => e.touches.length === 1 && !onControl(e.target) }];
 }
 
-function GridItem({ layer: l, selected, aspect, onShape, onAction, children }: { layer: Layer; selected: boolean; aspect: number; onShape: (id: string, aspect: number) => void; onAction: (a: StageAction) => void; children: ReactNode }) {
+function GridItem({ layer: l, selected, aspect, auto, onShape, onAction, children }: { layer: Layer; selected: boolean; aspect: number; auto: boolean; onShape: (id: string, aspect: number) => void; onAction: (a: StageAction) => void; children: ReactNode }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: l.id });
   const media = l.subject.kind === "camera" || l.subject.kind === "screen";
   const page = isPage(l.subject);
+  const place = auto ? gridAutoPlace(l) : null;
   return (
     <div
       ref={setNodeRef}
@@ -54,8 +57,8 @@ function GridItem({ layer: l, selected, aspect, onShape, onAction, children }: {
       tabIndex={-1}
       data-layer={l.id}
       data-selected={selected}
-      className={`group relative outline-none ${SPAN} ${page ? PAGE : ""} ${isDragging ? "z-10 opacity-80" : ""}`}
-      style={{ "--span": gridSpan(l), "--span-narrow": gridSpanNarrow(l), aspectRatio: page ? undefined : aspect, transform: CSS.Translate.toString(transform), transition } as CSSProperties}
+      className={`group relative outline-none ${SPAN} ${page ? PAGE : ""} ${place && !page ? AUTO_WIDTH : ""} ${isDragging ? "z-10 opacity-80" : ""}`}
+      style={{ "--span": place?.span ?? gridSpan(l), "--span-narrow": gridSpanNarrow(l), "--auto-width": place ? `${place.width * 100}%` : undefined, aspectRatio: page ? undefined : aspect, transform: CSS.Translate.toString(transform), transition } as CSSProperties}
       onPointerDownCapture={() => onAction({ type: "select", id: l.id })}
     >
       <LayerBody layer={l} card={!media} onShape={onShape}>
@@ -117,7 +120,7 @@ export default function GridFrame({ stage, renderLayer, onAction }: { stage: Sta
           <SortableContext items={items.map((l) => l.id)} strategy={rectSortingStrategy}>
             <div className={`relative grid items-start ${SPACING}`} style={{ gridTemplateColumns: `repeat(${GRID_COLUMNS}, minmax(0, 1fr))` }}>
               {items.map((l) => (
-                <GridItem key={l.id} layer={l} selected={stage.selected === l.id} aspect={shapes[l.id] ?? gridAspect(l)} onShape={onShape} onAction={onAction}>
+                <GridItem key={l.id} layer={l} selected={stage.selected === l.id} aspect={shapes[l.id] ?? gridAspect(l)} auto={!!stage.gridAuto} onShape={onShape} onAction={onAction}>
                   {renderLayer(l)}
                 </GridItem>
               ))}

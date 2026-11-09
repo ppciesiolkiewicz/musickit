@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { EMPTY_KEY } from "@/features/creator/model/key";
-import { CAMERA_CORNER, DEFAULT_VIEW, EMPTY_STAGE, FRAME_ASPECT, FULL, GRID_COLUMNS, KEEP_IN, arrangeRects, gridAspect, gridLayers, gridSpan, gridSpanNarrow, layoutOf, MAX_ZOOM, MIN_SIZE, addSubject, drawZ, paintOrder, clampRect, defaultRect, fillRect, fixedRect, hasAspect, panView, resizeFrom, resizeKeepingShape, withAspect, sanitiseStage, stageReducer, zoomAt, type Layer, type Stage } from "./layers";
+import { AUTO_NECK_WIDTH, CAMERA_CORNER, DEFAULT_VIEW, EMPTY_STAGE, FRAME_ASPECT, FULL, GRID_COLUMNS, KEEP_IN, arrangeRects, gridAspect, gridAutoPlace, gridLayers, gridSpan, gridSpanNarrow, layoutOf, MAX_ZOOM, MIN_SIZE, addSubject, drawZ, paintOrder, clampRect, defaultRect, fillRect, fixedRect, hasAspect, panView, resizeFrom, resizeKeepingShape, withAspect, sanitiseStage, stageReducer, zoomAt, type Layer, type Stage } from "./layers";
 import { updateSubject } from "./families";
 import { subjectIdentity, type Subject } from "./subject";
 
@@ -445,9 +445,33 @@ test("auto layout in the free layout puts widgets in rows inside the frame, keep
   near(arrangeRects([{ id: "wide", rect: { x: 0, y: 0, w: 1, h: 0.5 } }]).get("wide")!.w, 0.96);
 });
 
-test("auto layout changes nothing on the grid", () => {
+test("auto layout on the grid is a switch that leaves the order alone, and is saved", () => {
   const s = gridOf("a", "b");
-  assert.equal(stageReducer(s, { type: "autoLayout" }), s);
+  const on = stageReducer(s, { type: "autoLayout" });
+  assert.equal(on.gridAuto, true);
+  assert.deepEqual(orderOf(on), orderOf(s));
+  assert.equal(sanitiseStage(JSON.parse(JSON.stringify(on)), []).gridAuto, true);
+  const off = stageReducer(on, { type: "autoLayout" });
+  assert.deepEqual(off, s);
+  assert.equal(sanitiseStage(JSON.parse(JSON.stringify(off)), []).gridAuto, undefined);
+});
+
+test("auto layout in the free layout does not switch the grid's", () => {
+  assert.equal(stageReducer({ ...gridOf("a"), layout: "free" }, { type: "autoLayout" }).gridAuto, undefined);
+});
+
+test("with the grid's auto layout on, a neck takes 90% of its own row, most others keep their width alone on a row", () => {
+  const l = (subject: Subject): Layer => ({ ...layer("x"), subject });
+  const neck = { span: GRID_COLUMNS, width: AUTO_NECK_WIDTH };
+  assert.deepEqual(gridAutoPlace(l({ kind: "neck" } as Subject)), neck);
+  assert.deepEqual(gridAutoPlace(l({ kind: "caged", shape: "E" } as Subject)), neck);
+  assert.deepEqual(gridAutoPlace(l({ kind: "arpeggio" } as Subject)), neck);
+  assert.deepEqual(gridAutoPlace(l({ kind: "position" } as Subject)), neck);
+  assert.deepEqual(gridAutoPlace(l({ kind: "tool", tool: { type: "scale-neck" } } as Subject)), neck);
+  assert.deepEqual(gridAutoPlace(l({ kind: "tool", tool: { type: "staff" } } as Subject)), { span: GRID_COLUMNS, width: 0.5 });
+  assert.deepEqual(gridAutoPlace(l({ kind: "key" })), { span: GRID_COLUMNS, width: 0.5 });
+  assert.deepEqual(gridAutoPlace(l(aChord("x"))), { span: 3, width: 1 }, "a chord still shares its row");
+  assert.deepEqual(gridAutoPlace(l({ kind: "section", section: "chords" } as Subject)), { span: GRID_COLUMNS, width: 1 }, "a page keeps its whole row");
 });
 
 test("the keyboard on the grid: a nudge moves one place, resize keys do nothing", () => {

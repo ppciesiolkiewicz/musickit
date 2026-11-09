@@ -21,7 +21,7 @@ async function pipe(bytes: Uint8Array, stream: CompressionStream | Decompression
 
 /** The stage as a short URL-safe string: its layers and key (no selection, no live widgets), deflated when the browser can. */
 export async function encodeNote(stage: Stage): Promise<string> {
-  const plain = new TextEncoder().encode(JSON.stringify({ layers: stage.layers.filter((l) => !isLive(l.subject)), key: stage.key, layout: stage.layout, order: stage.order }));
+  const plain = new TextEncoder().encode(JSON.stringify({ layers: stage.layers.filter((l) => !isLive(l.subject)), key: stage.key, layout: stage.layout, order: stage.order, gridAuto: stage.gridAuto }));
   if (typeof CompressionStream === "undefined") return `j${toBase64Url(plain)}`;
   return `z${toBase64Url(await pipe(plain, new CompressionStream("deflate-raw")))}`;
 }

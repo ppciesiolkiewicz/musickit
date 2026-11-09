@@ -12,6 +12,11 @@ test("a note round-trips and drops live widgets", async () => {
   const back = await decodeNote(await encodeNote(stage), []);
   assert.deepEqual(back?.layers.map((l) => l.subject.kind), ["logo"]);
 });
+test("a note keeps the grid's auto layout", async () => {
+  const back = await decodeNote(await encodeNote({ ...stage, gridAuto: true }), []);
+  assert.equal(back?.gridAuto, true);
+  assert.equal((await decodeNote(await encodeNote(stage), []))?.gridAuto, undefined);
+});
 test("junk is not a note", async () => {
   assert.equal(await decodeNote("zzz!!", []), null);
   assert.equal(noteFromHash("#note=abc_-1"), "abc_-1");

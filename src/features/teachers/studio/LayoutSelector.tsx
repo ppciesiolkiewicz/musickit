@@ -10,7 +10,8 @@ const LAYOUTS: { id: Layout; label: string; title: string }[] = [
 ];
 
 /** The stage's layout, above the frame's right corner so it is never recorded: which layout, and Auto layout for the one that is on. */
-export default function LayoutSelector({ layout, canArrange, onLayout, onAutoLayout }: { layout: Layout; canArrange: boolean; onLayout: (l: Layout) => void; onAutoLayout: () => void }) {
+export default function LayoutSelector({ layout, canArrange, gridSwitch, gridAuto, onLayout, onAutoLayout }: { layout: Layout; canArrange: boolean; /** on the grid the button is a switch (the notes creator) */ gridSwitch: boolean; gridAuto: boolean; onLayout: (l: Layout) => void; onAutoLayout: () => void }) {
+  const isSwitch = layout === "grid" && gridSwitch;
   return (
     <div data-chrome role="group" aria-label="Layout" className="flex divide-x divide-slate-800 overflow-hidden rounded-md border border-slate-800 bg-slate-950">
       {LAYOUTS.map((m) => (
@@ -22,9 +23,10 @@ export default function LayoutSelector({ layout, canArrange, onLayout, onAutoLay
         type="button"
         disabled={!canArrange}
         onClick={onAutoLayout}
-        title={layout === "grid" ? "Auto layout is for the Free layout: the grid is always in line" : "Auto layout: line the widgets up in rows inside the frame, keeping their shapes"}
+        aria-pressed={isSwitch ? gridAuto : undefined}
+        title={isSwitch ? "Auto layout: most widgets get a row of their own, and a neck takes 90% of the width. Off: widgets share rows at their own size" : layout === "grid" ? "Auto layout is for the Free layout: the grid is always in line" : "Auto layout: line the widgets up in rows inside the frame, keeping their shapes"}
         aria-label="Auto layout"
-        className={`${ITEM} text-slate-300 hover:text-slate-100 disabled:opacity-40`}
+        className={`${ITEM} ${isSwitch && gridAuto ? "bg-sky-500/10 text-sky-100" : "text-slate-300 hover:text-slate-100"} disabled:opacity-40`}
       >
         <Icon name="layout-dashboard" size={13} />
       </button>

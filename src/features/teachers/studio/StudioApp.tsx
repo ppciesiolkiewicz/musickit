@@ -428,7 +428,7 @@ export default function StudioApp() {
             <>
               {/* pr-6 keeps clear of the keys button in the window's corner */}
               <div className="sticky top-2 z-30 mb-2 flex justify-end pr-6 max-md:pr-0">
-                <LayoutSelector layout={layoutOf(stage)} canArrange={layoutOf(stage) === "free" && stage.layers.length > 0} onLayout={(layout) => dispatch({ type: "setLayout", layout })} onAutoLayout={() => dispatch({ type: "autoLayout" })} />
+                <LayoutSelector layout={layoutOf(stage)} canArrange={(layoutOf(stage) === "free" || notes) && stage.layers.length > 0} gridSwitch={notes} gridAuto={!!stage.gridAuto} onLayout={(layout) => dispatch({ type: "setLayout", layout })} onAutoLayout={() => dispatch({ type: "autoLayout" })} />
               </div>
               <MicContext.Provider value={mic}>
                 <StageFrame stage={stage} renderLayer={renderLayer} onAction={dispatch} keepShape={keepShape} />
