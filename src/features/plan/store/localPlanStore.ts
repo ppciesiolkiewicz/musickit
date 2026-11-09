@@ -1,4 +1,4 @@
-import { migrateAnswers } from "../model/answers";
+import { migrateAnswers } from "../intake/answers";
 import { EMPTY_STATE, type PlanState, type StoredPlan } from "../model/types";
 import type { PlanStore } from "./PlanStore";
 import { cleanRating, type StarRating } from "@/features/progress/stars";

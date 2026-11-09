@@ -2,8 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { catalogue } from "./catalogue";
 import { buildPrompt, promptParts } from "./prompt";
-import { DEFAULT_ANSWERS } from "./questions";
-import { conceptsFor } from "./concepts";
+import { DEFAULT_ANSWERS } from "../intake/answers";
 import { selectExamples } from "./exampleSelection";
 import { EXERCISE_EXAMPLES } from "../examples";
 import { TOOLS } from "./tools";
@@ -66,23 +65,27 @@ test("example parts carry parseable JSON, every library exercise first and the p
 });
 
 const rated: PlanAnswers = {
-  levels: { guitar: "intermediate", theory: "beginner", voice: "beginner" },
-  ratings: { "major-scale": 2, pentatonic: 4 },
+  areas: ["guitar", "voice", "theory"],
+  topics: { "guitar-barre-chords": 1, "guitar-basic-chords": 3, "theory-scales-keys": 0 },
   voice: { type: "tenor", range: { low: 48, high: 72 } },
-  focus: ["major-scale"], minutes: 20, styles: "blues", notes: "I rush",
+  minutes: 20, styles: "blues", notes: "I rush",
 };
 const student = (a: PlanAnswers) => promptParts(a, []).find((p) => p.id === "student")!.text;
 
-test("student part: levels, stars, unsure, voice, focus, minutes, styles as flavour", () => {
+test("student part: a rough level per area, the line picked per topic, voice, minutes, styles as flavour", () => {
   const t = student(rated);
-  assert.match(t, /Major scale ★★☆☆☆/);
-  assert.match(t, /Pentatonic \(minor & major\) ★★★★☆/);
-  const unrated = conceptsFor("guitar", "intermediate")[0];
-  assert.ok(t.includes(`${unrated.label} (unsure)`));
+  assert.match(t, /- Guitar \(about Intermediate\):/);
+  assert.match(t, /Barre chords: I can hold an F or Bm, but it buzzes/);
+  assert.match(t, /Basic chords: I play whole songs with open chords and a strumming pattern/);
+  assert.match(t, /Scales: \(not answered\)/);
+  assert.match(t, /Scales & keys: Not yet/);
+  assert.match(t, /- Voice \(about Beginner\):/);
+  assert.doesNotMatch(t, /★|unsure/);
+  assert.doesNotMatch(student({ ...rated, areas: ["guitar"] }), /Tenor|Pitch:/);
   assert.match(t, /Tenor/);
   assert.match(t, /C3/);
   assert.match(t, /C5/);
-  assert.match(t, /Focus this week: Major scale/);
+  assert.doesNotMatch(t, /Focus this week/);
   assert.match(t, /about 20 minutes/);
   assert.match(t, /blues \(flavour only/);
   assert.match(t, /I rush/);

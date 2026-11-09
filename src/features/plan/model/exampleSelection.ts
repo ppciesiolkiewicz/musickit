@@ -1,10 +1,8 @@
 import { EXERCISE_EXAMPLES, PLAN_EXAMPLES, type ExerciseExample, type PlanExample } from "../examples";
-import { AREAS, type Area } from "./concepts";
+import { levelOf } from "../intake/answers";
 import type { Level, PlanAnswers } from "./types";
 
 const ORDER: Level[] = ["new", "beginner", "intermediate", "advanced"];
-
-const areasOf = (a: PlanAnswers): Area[] => AREAS.filter((x) => a.levels[x.id]).map((x) => x.id);
 
 /**
  * The examples the prompt shows: every exercise in the library (each labelled with its area and level in the prompt,
@@ -12,8 +10,8 @@ const areasOf = (a: PlanAnswers): Area[] => AREAS.filter((x) => a.levels[x.id]).
  * the closest level, then the new teaching style over an older one on the same topic.
  */
 export function selectExamples(a: PlanAnswers): { exercises: ExerciseExample[]; plan: PlanExample } {
-  const areas = areasOf(a);
-  const mean = areas.length ? areas.reduce((s, x) => s + ORDER.indexOf(a.levels[x]!), 0) / areas.length : 1;
+  const areas = a.areas;
+  const mean = areas.length ? areas.reduce((s, x) => s + ORDER.indexOf(levelOf(a, x)), 0) / areas.length : 1;
   const score = (p: PlanExample) => [
     p.areas.filter((x) => areas.includes(x)).length,
     -Math.abs(ORDER.indexOf(p.level) - mean),

@@ -3,14 +3,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { StepModal, type ModalStep } from "@/components/ui";
 import type { CatalogueEntry } from "../model/catalogue";
-import { migrateAnswers } from "../model/answers";
+import { migrateAnswers } from "../intake/answers";
 import { parsePlanConfig } from "../model/config";
 import { buildPrompt } from "../model/prompt";
 import { useAllNotes } from "@/components/course/useCourseNotes";
 import { courseRatings } from "@/features/course/ratings";
 import type { PlanAnswers, PlanConfig, StoredPlan } from "../model/types";
 import { CopyPrompt, PasteBox } from "./PromptAndPaste";
-import { questionSteps } from "./Questionnaire";
+import { questionSteps } from "../intake/ui/Questionnaire";
 
 /** The flow in progress, kept for the tab's life so a reload or a hot reload reopens it where it was. */
 export const FLOW_KEY = "musickit.plan.flow";

@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { buildPrompt, promptParts } from "@/features/plan/model/prompt";
-import { DEFAULT_ANSWERS } from "@/features/plan/model/questions";
+import { DEFAULT_ANSWERS } from "@/features/plan/intake/answers";
 import { DEFAULT_STUDIO, answersFromText, composePrompt, readStudio, storedPlanFrom } from "./compose";
 import type { RunRecord } from "./history";
 
@@ -47,7 +47,7 @@ test("answersFromText: broken JSON, null, and a partial object", () => {
   assert.ok(answersFromText("{").error);
   assert.deepEqual(answersFromText("null"), { answers: null });
   const a = answersFromText("{}").answers;
-  assert.ok(a && Object.keys(a.levels).length > 0 && a.minutes > 0);
+  assert.ok(a && a.areas.length > 0 && a.minutes > 0);
 });
 
 test("storedPlanFrom: a past run as last week", () => {

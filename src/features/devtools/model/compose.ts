@@ -1,8 +1,7 @@
-import { migrateAnswers } from "@/features/plan/model/answers";
+import { DEFAULT_ANSWERS, migrateAnswers } from "@/features/plan/intake/answers";
 import type { CatalogueEntry } from "@/features/plan/model/catalogue";
 import { parsePlanConfig } from "@/features/plan/model/config";
 import type { PromptPart } from "@/features/plan/model/prompt";
-import { DEFAULT_ANSWERS } from "@/features/plan/model/questions";
 import type { PlanAnswers, StoredPlan } from "@/features/plan/model/types";
 import type { Overrides, RunRecord } from "./history";
 import { isDevModel, type DevModel } from "./models";

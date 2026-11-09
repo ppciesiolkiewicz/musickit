@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Icon from "@/components/Icon";
 import { Button, Checkbox, Section } from "@/components/ui";
 import { catalogue } from "./model/catalogue";
-import { DEFAULT_ANSWERS } from "./model/questions";
+import { DEFAULT_ANSWERS } from "./intake/answers";
 import { dayIndex, localDate, ratePlan, weekOver } from "./model/schedule";
 import type { Stars } from "@/features/progress/stars";
 import { PLAN_DAYS, type PlanAnswers, type PlanConfig, type PlanState, type StoredPlan } from "./model/types";
