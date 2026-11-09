@@ -143,12 +143,14 @@ export function View({ slug, pc, voice, notes, under = false, enable, highlight,
       <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400">
         {micButton && (
           <span data-tour="staff-mic" className="inline-flex items-center gap-2">
-            <Hint title="Mic" description="Listens to your voice and draws the note you sing on the staff.">
-              <MicButton on={listening} onClick={() => (external ? external.onToggle() : micOn ? setMicOn(false) : startMic())} />
-            </Hint>
-            {!external && (
-              <Hint title="Input" description="The microphone the app listens to. Tap to pick another one and see its level.">
-                <InputChip status={status} />
+            {/* the host's input has its own device dialog, so here it is only a switch */}
+            {external ? (
+              <Hint title="Mic" description="Listens to your voice and draws the note you sing on the staff.">
+                <MicButton on={listening} onClick={external.onToggle} />
+              </Hint>
+            ) : (
+              <Hint title="Mic" description="Draws the note you sing on the staff. Starts the microphone and opens the list of inputs, with each input's level. Stop it from the list.">
+                <InputChip status={status} mic={{ on: micOn, onToggle: () => (micOn ? setMicOn(false) : startMic()) }} />
               </Hint>
             )}
           </span>
@@ -156,7 +158,11 @@ export function View({ slug, pc, voice, notes, under = false, enable, highlight,
         {backing.length > 0 && (
           <span data-tour="staff-backing" className="inline-flex items-center gap-2">
             <Hint title={backingOn ? "Stop" : "Play"} description={`Plays the ${backingWords} to sing over.`}>
-            <button type="button" onClick={() => (backingOn ? stopBacking() : startBacking())} aria-pressed={backingOn}
+            <button type="button" onClick={() => {
+              if (backingOn) return stopBacking();
+              startBacking();
+              if (micButton && !external && !micOn) startMic();
+            }} aria-pressed={backingOn}
               title={backingOn ? `Stop the ${backingWords}` : `Play the ${backingWords}`}
               className={`inline-flex h-8 items-center gap-1.5 rounded-lg border px-3 text-xs font-medium transition ${backingOn ? "border-emerald-400/70 bg-emerald-500/20 text-emerald-100" : "border-sky-400/60 bg-sky-500/15 text-sky-50 hover:bg-sky-500/25"}`}>
               <Icon name={backingOn ? "square" : "play"} size={14} fill />{backingOn ? "Stop" : "Play"}

@@ -17,7 +17,6 @@ import { singingQuery, type SingingLink } from "@/features/theory/singingLink";
 import SingingStaff from "./SingingStaff";
 import MelodyFeed from "./MelodyFeed";
 import { DOT_LAG_MS } from "./MelodyStaff";
-import MicButton from "./MicButton";
 import InputChip, { micStatusMessage } from "@/components/InputChip";
 import { panel, writeQuery } from "@/components/practice/shared";
 
@@ -50,7 +49,7 @@ export type SingingMode = "scales" | "melodies" | "runs";
  * - "runs": the same with the runs book.
  */
 export default function SingingApp({ mode, initial, lead }: { mode: SingingMode; initial: SingingLink; lead?: ReactNode }) {
-  useCoverage({ hints: 3 });
+  useCoverage({ hints: 2 });
   const tab = mode;
   const book = tab === "runs" ? RUNS : BOOK;
   const tuneTab = tab === "melodies" || tab === "runs";
@@ -290,13 +289,8 @@ export default function SingingApp({ mode, initial, lead }: { mode: SingingMode;
               </Hint>
             )}
             {tab === "scales" && (
-              <Hint title="Mic" description="Listens to your voice singing the scale.">
-                <MicButton on={mic} onClick={toggleMic} />
-              </Hint>
-            )}
-            {tab === "scales" && (
-              <Hint title="Input" description="The microphone the app listens to. Tap to pick another one and see its level.">
-                <InputChip status={status} />
+              <Hint title="Mic" description="Starts the microphone and opens the list of inputs, with each input's level. Stop it from the list.">
+                <InputChip status={status} mic={{ on: mic, onToggle: toggleMic }} />
               </Hint>
             )}
             {message && <p className="min-w-0 basis-full text-sm sm:basis-0 sm:flex-1 text-slate-400" aria-live="polite">{message}</p>}

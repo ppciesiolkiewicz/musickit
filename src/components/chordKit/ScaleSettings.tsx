@@ -10,9 +10,8 @@ import { PENTATONICS, findPentatonic, pentatonicLabel } from "@/features/theory/
 import { scaleHref, scalesIndexHref } from "@/features/theory/keySlug";
 import { Chip, InfoBox, InfoButton, Select } from "@/components/ui";
 import { DegreeLegend } from "@/components/theory/DegreeLegend";
-import { POCKET_BUTTON, POCKET_LIT, PocketLine, PocketTools, type PocketStatus } from "@/features/instruments";
+import { PocketLine, PocketTools, type PocketStatus } from "@/features/instruments";
 import { PHONE_QUERY } from "@/components/usePhone";
-import Icon from "@/components/Icon";
 import InputChip from "@/components/InputChip";
 import { useMicPitch } from "@/components/practice/useMicPitch";
 import { HeardNote } from "./heardNote";
@@ -59,7 +58,7 @@ function Layout({ bar, side, criteria, children }: { bar: ReactNode; side: boole
 }
 
 /**
- * The Input line of the pocket tools: a mic switch (off on every visit, so the mic opens only on a click) and the input chip with its
+ * The Input line of the pocket tools: the input chip as the mic button (off on every visit, so the mic opens only on a click) with its
  * levels. While on, the steady note it hears goes to `WithSettings`, which lights it on every neck below (`HeardNote`).
  */
 function InputLine() {
@@ -73,11 +72,7 @@ function InputLine() {
   useEffect(() => () => setHeard?.(null), [setHeard]);
   return (
     <PocketLine label="Input">
-      <button type="button" className={`${POCKET_BUTTON} ${on ? POCKET_LIT : ""}`} aria-pressed={on} onClick={() => setOn((v) => !v)}
-        title={on ? "Stop microphone" : "Start microphone: the note you play lights up on the necks"} aria-label={on ? "Stop microphone" : "Start microphone"}>
-        <Icon name="mic" size={14} />
-      </button>
-      <InputChip status={status} align="right" className="min-w-0" />
+      <InputChip status={status} mic={{ on, onToggle: () => setOn((v) => !v) }} align="right" className="min-w-0" />
     </PocketLine>
   );
 }
@@ -139,7 +134,7 @@ export type SettingsConfig = {
     onStatus?: (s: PocketStatus) => void;
   };
   /**
-   * an Input line with the pocket tools: a mic switch (off until clicked) and the input chip; the note it hears lights up on the
+   * an Input line with the pocket tools: the input chip as the mic button (off until clicked); the note it hears lights up on the
    * necks under `WithSettings`. Not on a page with a listener of its own (singing): two would fight over the mic.
    */
   input?: boolean;

@@ -4,6 +4,7 @@ import { useCallback, useLayoutEffect, useRef, useState, useSyncExternalStore } 
 import { createPortal } from "react-dom";
 import Icon from "./Icon";
 import { AudioDevicesPanel, useDismiss } from "./AudioDevicesButton";
+import MicButton from "./theory/singing/MicButton";
 import { cleanDeviceName, meterLevel, readDeviceChoice, readLiveInput, serverDeviceChoice, serverLiveInput, subscribeDeviceChoice, subscribeLiveInput } from "@/features/sound";
 import type { MicStatus } from "@/components/practice/useMicPitch";
 
@@ -57,8 +58,10 @@ function placeList(chip: DOMRect, align: "left" | "right"): React.CSSProperties 
  * folded into one row)
  * with what `status` means, so the input can be checked and changed where the mic is used. The choice is the app's one input:
  * every chip and the nav show and change the same one. `status` is the host's listener; without it the chip only shows the input.
+ * Given `mic` (the host's own mic switch) it is the one mic button: it reads "Start microphone" while off, a press starts the mic and
+ * opens the list, and the list holds Start / Stop. Without `mic` the host opens the mic itself (on Start, on Record), so a press only opens the list.
  */
-export default function InputChip({ status = "off", align = "left", className = "" }: { status?: MicStatus; align?: "left" | "right"; className?: string }) {
+export default function InputChip({ status = "off", mic, align = "left", className = "" }: { status?: MicStatus; mic?: { on: boolean; onToggle: () => void }; align?: "left" | "right"; className?: string }) {
   const choice = useSyncExternalStore(subscribeDeviceChoice, readDeviceChoice, serverDeviceChoice);
   const live = useSyncExternalStore(subscribeLiveInput, readLiveInput, serverLiveInput);
   const [open, setOpen] = useState(false);
@@ -85,20 +88,27 @@ export default function InputChip({ status = "off", align = "left", className = 
   const message = micStatusMessage(status);
   const blocked = status === "denied" || status === "insecure" || status === "error";
   const levels = live.listening ? live.levels : [];
+  const press = () => {
+    if (!open && mic && !mic.on) mic.onToggle();
+    setOpen(!open);
+  };
+  const tone = blocked ? "border-rose-500/60 bg-rose-500/10 text-rose-200"
+    : mic ? `border-emerald-400/60 hover:bg-emerald-500/20 ${mic.on ? "bg-emerald-500/25 text-emerald-100" : "bg-emerald-500/10 text-emerald-200"}`
+    : "border-slate-700 bg-slate-900/70 text-slate-300 hover:border-slate-500 hover:text-slate-100";
 
   return (
     <div ref={box} className={`relative inline-flex ${className}`}>
       <button
         type="button"
-        onClick={() => setOpen((v) => !v)}
+        onClick={press}
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-label={`Input: ${name}${message ? `. ${message}` : ""}`}
-        title={message ?? "The input the app listens to"}
-        className={`flex h-7 max-w-48 items-center gap-1.5 rounded-full border px-2.5 text-xs transition focus-visible:outline-2 focus-visible:outline-sky-400 ${blocked ? "border-rose-500/60 bg-rose-500/10 text-rose-200" : "border-slate-700 bg-slate-900/70 text-slate-300 hover:border-slate-500 hover:text-slate-100"}`}
+        title={message ?? (mic ? (mic.on ? "Pick the input, or stop the microphone" : "Start the microphone and pick the input") : "The input the app listens to")}
+        className={`flex h-7 max-w-48 items-center gap-1.5 rounded-full border px-2.5 text-xs transition focus-visible:outline-2 focus-visible:outline-sky-400 ${tone}`}
       >
         <Icon name={blocked ? "alert-triangle" : "mic"} size={13} className={`shrink-0 ${status === "asking" ? "animate-pulse" : ""}`} />
-        <span className="min-w-0 truncate">{name}</span>
+        <span className="min-w-0 truncate">{mic && !mic.on ? "Start microphone" : name}</span>
         {levels.length > 0 && (
           <span className="flex shrink-0 items-end gap-0.5">
             {levels.map((l, i) => <Bar key={i} level={l} heard={levels.length === 1 || i === live.active} />)}
@@ -111,7 +121,8 @@ export default function InputChip({ status = "off", align = "left", className = 
           <p className="mb-2 px-1 text-xs text-slate-500">
             {message ?? (levels.length > 1 ? "Two inputs: the louder one is heard." : "Used everywhere the app listens.")}
           </p>
-          <AudioDevicesPanel outputs="collapsed" />
+          {mic && <MicButton on={mic.on} onClick={mic.onToggle} className="mb-3 w-full justify-center" />}
+          <AudioDevicesPanel outputs="collapsed" listening={status === "on"} />
         </div>,
         document.body,
       )}

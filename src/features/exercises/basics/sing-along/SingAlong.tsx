@@ -99,7 +99,7 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
   /** the play-ahead slider, in the settings dropdown (how far the moving bar runs ahead of the voice dot) */
   playAhead?: ReactNode;
 }) {
-  useCoverage({ hints: 8 });
+  useCoverage({ hints: 7 });
   const total = notes[notes.length - 1].at + notes[notes.length - 1].beats;
   // looping a part is a Standard control; hidden, the clock loops the whole tune
   const looping = useLevelAtLeast("standard");
@@ -211,17 +211,12 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
           </Hint>
         </span>
         <span data-tour="sing-mic" className="inline-flex">
-          <Hint title="Mic" description="Listens to your voice and marks the note you're on.">
-            <IconButton on={sa.mic} tone="emerald" title={sa.mic ? "Stop microphone" : "Start microphone"} onClick={sa.toggleMic}>
-              <Icon name="mic" size={15} />
-            </IconButton>
+          <Hint title="Mic" description="Marks the note you're on. Play starts it for you; this button also opens the list of inputs, with each input's level and Stop.">
+            <InputChip status={sa.status} mic={{ on: sa.mic, onToggle: sa.toggleMic }} />
           </Hint>
         </span>
         <Hint title="Volume" description="Sets every sound in the app, not just this tune.">
           <span className="ml-1 flex items-center border-l border-slate-800 pl-2"><Volume /></span>
-        </Hint>
-        <Hint title="Input" description="The microphone the app listens to. Tap to pick another one and see its level.">
-          <InputChip status={sa.status} />
         </Hint>
         {full && nav?.label && <span className="tabular-nums text-slate-300">{nav.label}</span>}
         <span className="ml-auto" />

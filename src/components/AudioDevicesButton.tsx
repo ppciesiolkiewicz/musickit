@@ -44,9 +44,10 @@ function DeviceList({ icon, title, hint, items, chosen, onPick }: { icon: "mic" 
 /**
  * The input and output lists with "Detect devices": the body of the nav's devices menu, and of any page's own devices dialog
  * (the teacher studio's Audio input widget, which picks its inputs itself: `inputs` off; the input chip: `outputs` "collapsed", a
- * row with the chosen output that opens its list). Lists the devices while shown and follows plugging in and out.
+ * row with the chosen output that opens its list). Lists the devices while shown and follows plugging in and out, and again when the
+ * host's mic opens (`listening`), since the browser names them only once it is allowed.
  */
-export function AudioDevicesPanel({ inputs = true, outputs: withOutputs = true }: { inputs?: boolean; outputs?: boolean | "collapsed" }) {
+export function AudioDevicesPanel({ inputs = true, outputs: withOutputs = true, listening = false }: { inputs?: boolean; outputs?: boolean | "collapsed"; listening?: boolean }) {
   const choice = useSyncExternalStore(subscribeDeviceChoice, readDeviceChoice, serverDeviceChoice);
   const outputs = useSyncExternalStore(subscribeNever, canChooseOutput, () => false);
   const [list, setList] = useState<{ inputs: AudioDevice[]; outputs: AudioDevice[] }>({ inputs: [], outputs: [] });
@@ -62,6 +63,9 @@ export function AudioDevicesPanel({ inputs = true, outputs: withOutputs = true }
     navigator.mediaDevices?.addEventListener?.("devicechange", changed);
     return () => navigator.mediaDevices?.removeEventListener?.("devicechange", changed);
   }, [refresh]);
+  useEffect(() => {
+    if (listening) void refresh();
+  }, [listening, refresh]);
 
   const detect = async () => {
     setBusy(true);

@@ -146,7 +146,7 @@ export default function Tuner({ external, guide = false }: {
         <TunerSettings choice={choice} onChange={(c) => setChoice(showA4 ? c : { ...c, a4: saved.a4 })} noA4={!showA4} />
         {!external && <div data-tour="tuner-input" className="flex flex-col items-start gap-1.5">
           <span className={label}>Input</span>
-          <InputChip status={status} />
+          <InputChip status={status} mic={{ on: running, onToggle: running ? stop : () => void start() }} />
         </div>}
       </aside>
     </div>

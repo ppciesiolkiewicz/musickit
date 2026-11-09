@@ -13,7 +13,7 @@ function Mic({ size = 15 }: { size?: number }) {
   );
 }
 
-/** The mic toggle on the scale and on each melody card: "Start microphone" with a mic while it's off, green "Stop microphone" while it listens. */
+/** The mic toggle inside the input chip's list (and for a host's own input, where there is no chip): "Start microphone" with a mic while it's off, green "Stop microphone" while it listens. */
 export default function MicButton({ on, onClick, className = "", offLabel = "Start microphone", onLabel = "Stop microphone" }: { on: boolean; onClick: () => void; className?: string; offLabel?: string; onLabel?: string }) {
   return (
     <Button

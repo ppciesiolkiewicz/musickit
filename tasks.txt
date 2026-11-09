@@ -40,11 +40,6 @@ Original: "Lets put it above the game" (ears) / "Move this one above the game" (
 When I select "sing interval" or any other scale related menu item then  2 items are highlighted in navbar menu - scale and interval. Fix so only 1 item is highlighted
 
 
-41. Rework button to start microphone and select input -> this should be one button
-- clicking button to select interface should turn on microphone / audio but also open 
-- just starting exercise should start the microphone as well
-- on pages like e.g. http://localhost:3000/theory/singing/runs?melody=99&key=e&scale=major-ionian
-
 ======================== Medium ========================
 
 13. Voice safety
@@ -108,6 +103,8 @@ oooooooooooooooooooooo Recent app feedback ooooooooooooooooooooooooo
 
 
 oooooooooooooooooooooooooooooooooo DONE ooooooooooooooooooooooooooooooooooooooooooooooo
+D29. One button to start the microphone and pick the input (was 41)
+Done: the input chip is now the one mic button. It reads "Start microphone"; a press starts the mic and opens the input list, and Start / Stop microphone sits at the top of that list. Starting an exercise starts the mic without opening the list (Play on a run or melody, Start on Sing an interval, Play on a staff's drone or click, Start exercise). Changed on singing runs, melodies and scale, Sing an interval, the staff, the side panel's Input line, the tuner and the studio's Audio input widget (its Start button and cog are now one button that opens the dialog). A press on a staff with a drone or click also starts that backing, as its mic button did. Kept as plain input pickers, because their own Start or Record opens the mic: rhythm, range finder, note finder, quick record, jam loops. The staff inside the teacher studio keeps a plain mic switch: the studio's input has its own dialog. Checked in the browser: runs, intervals, scale, arpeggios panel, tuner. Not checked in the browser: staff, melodies, studio widget.
 D27. Sing an interval: group the controls above the roll, second pass (/theory/singing/intervals) (was 34)
 Done: the top row is now the actions (Start, Hear Do, Restart, Show me), mic and input, score, and the voice and interval badges. The second row holds the setup: view, keys, show my voice, and volume + settings at the right. The key switch reads "Keys: Random / Pick". Volume and settings buttons are further apart, in every tool that uses the shared ToolSettings. Types clean; not checked in the browser.
 D25. Melodies: difficulty in the side panel, better section lines (/theory/singing/melodies) (was 38)

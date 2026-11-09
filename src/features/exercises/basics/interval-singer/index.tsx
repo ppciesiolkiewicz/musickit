@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useMicPitch } from "@/components/practice/useMicPitch";
 import { useStepPart } from "@/components/practice/exerciseStep";
 import ToolSettings from "@/components/practice/ToolSettings";
-import MicButton from "@/components/theory/singing/MicButton";
 import InputChip from "@/components/InputChip";
 import SingingStaff from "@/components/theory/singing/SingingStaff";
 import Icon from "@/components/Icon";
@@ -50,7 +49,7 @@ const NO_PITCH = { current: null };
  * counted (the harder way); either is a switch on the tool too.
  */
 export function View({ keys: keysProp = [0], voice = "tenor", intervals = DEFAULT_INTERVALS, dir = "up", dot: dotProp = true }: { keys?: number[]; voice?: Voice; intervals?: number[]; dir?: IntervalDir; dot?: boolean }) {
-  useCoverage({ hints: 6 });
+  useCoverage({ hints: 5 });
   const range = VOICES[voice] ?? VOICES.tenor;
   const clef = clefFor(range);
   // Standard controls, each kept at Simple when the exercise sets it (several keys, the voice dot off); a hidden one
@@ -247,11 +246,8 @@ export function View({ keys: keysProp = [0], voice = "tenor", intervals = DEFAUL
         {ask !== null && <Button size="sm" onClick={restart} title="The same interval again: Do plays and the mic listens (R)" className="inline-flex items-center gap-1.5">Restart<KeyCap>R</KeyCap></Button>}
         {ask !== null && !found && <Button size="sm" onClick={() => reveal(false)}>Show me</Button>}
         <span data-tour="interval-singer-mic" className="inline-flex items-center gap-2">
-          <Hint title="Mic" description="Listens to your voice. Start switches it on for you.">
-            <MicButton on={micOn} onClick={() => (micOn ? setMicOn(false) : startMic())} />
-          </Hint>
-          <Hint title="Input" description="The microphone the app listens to. Tap to pick another one and see its level.">
-            <InputChip status={micStatus} />
+          <Hint title="Mic" description="Listens to your voice. Start switches it on for you; this button also opens the list of inputs, with each input's level and Stop.">
+            <InputChip status={micStatus} mic={{ on: micOn, onToggle: () => (micOn ? setMicOn(false) : startMic()) }} />
           </Hint>
         </span>
         {score.asked > 0 && <span className="text-sm tabular-nums text-slate-400">{score.right}/{score.asked} sung</span>}
