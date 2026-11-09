@@ -8,6 +8,7 @@ import StyleDivider from "@/components/landing/StyleDivider";
 import SiteFooter from "@/components/landing/SiteFooter";
 import { DISPLAY, Eyebrow, H2, Mark } from "@/components/landing/Display";
 import { LessonNoteMock, LiveLessonMock } from "@/components/landing/LessonMocks";
+import { degreeColour } from "@/features/theory/scales";
 import { Check, IdeasSection, PLAY_TOOLS, PlanDayCard, SkillsSection } from "./PracticeSections";
 
 /*
@@ -46,9 +47,11 @@ const WHITE_LABEL = [
 /** A coming-soon card's heading, with the badge that says it isn't here yet. */
 function SoonHeading({ icon, tone, title }: { icon: IconName; tone: string; title: string }) {
   return (
-    <div className="flex flex-wrap items-center gap-3">
-      <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${tone}`}><Icon name={icon} size={20} /></span>
-      <h3 className="text-2xl text-slate-50" style={DISPLAY}>{title}</h3>
+    <div className="flex flex-col items-start gap-3">
+      <div className="flex items-center gap-3">
+        <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${tone}`}><Icon name={icon} size={20} /></span>
+        <h3 className="text-2xl text-slate-50" style={DISPLAY}>{title}</h3>
+      </div>
       <span className="inline-flex items-center gap-1.5 rounded-full border border-sky-400/40 bg-sky-400/10 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider text-sky-300">
         <span className="size-1.5 rounded-full bg-sky-300" /> Coming soon
       </span>
@@ -61,12 +64,12 @@ const PRACTICE_WEEK = [{ d: "M", mins: 10 }, { d: "T", mins: 20 }, { d: "W", min
 
 function PracticeWeekMock() {
   return (
-    <div className="mt-auto rounded-2xl border border-slate-800 bg-slate-950/40 p-4" aria-hidden>
+    <div className="mt-auto flex flex-1 flex-col rounded-2xl border border-slate-800 bg-slate-950/40 p-4" aria-hidden>
       <div className="flex items-baseline justify-between">
         <p className="text-sm text-slate-200">This week</p>
         <p className="text-xs text-slate-500">100 min · 6 days</p>
       </div>
-      <ul className="mt-3 flex h-24 items-end gap-2">
+      <ul className="mt-3 flex min-h-24 flex-1 items-end gap-2">
         {PRACTICE_WEEK.map((x, i) => (
           <li key={i} className="flex h-full flex-1 flex-col items-center justify-end gap-1.5">
             <span className={`w-full rounded-md ${x.mins ? "bg-linear-to-t from-teal-500/60 to-teal-300" : "bg-slate-800"}`} style={{ height: x.mins ? `${(x.mins / 25) * 100}%` : "4px" }} />
@@ -81,13 +84,63 @@ function PracticeWeekMock() {
 /** A nudge as the student would get it, drawn for the accountability card. Illustration only. */
 function ReminderMock() {
   return (
-    <div className="mt-auto flex h-full min-h-40 items-center rounded-2xl border border-slate-800 bg-slate-950/40 p-4" aria-hidden>
+    <div className="mt-auto flex min-h-40 flex-1 items-center rounded-2xl border border-slate-800 bg-slate-950/40 p-4" aria-hidden>
       <div className="flex w-full gap-3 rounded-2xl border border-slate-700/60 bg-slate-900 p-3 shadow-lg shadow-slate-950/40">
         <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-violet-500/15 text-violet-300"><Icon name="bell" size={18} /></span>
         <span className="min-w-0 text-sm">
           <b className="block font-semibold text-slate-100">Three days since your last practice</b>
           <span className="text-slate-400">Today&apos;s plan is ten minutes. Got time now?</span>
         </span>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * The E-shape box of A minor, high string first, as [fret, degree index], from `theory box A minor E`. Degrees 2 and 6
+ * (index 1 and 5) are the notes the pentatonic leaves out.
+ */
+const A_MINOR_BOX: [number, number][][] = [
+  [[5, 0], [7, 1], [8, 2]],
+  [[5, 4], [6, 5], [8, 6]],
+  [[4, 1], [5, 2], [7, 3]],
+  [[5, 6], [7, 0]],
+  [[5, 3], [7, 4], [8, 5]],
+  [[5, 0], [7, 1], [8, 2]],
+];
+const BOX_DEGREES = ["R", "2", "3", "4", "5", "6", "7"];
+
+/** One neck for the adaptive view card: the pentatonic with only the home note marked, or the full scale with every degree named. */
+function BoxNeck({ full }: { full?: boolean }) {
+  const y = (string: number) => 6 + string * 11;
+  return (
+    <svg viewBox="0 0 200 67" className="w-full">
+      {A_MINOR_BOX.map((_, s) => <line key={s} x1="0" x2="200" y1={y(s)} y2={y(s)} className="stroke-slate-700" strokeWidth="1" />)}
+      {[0, 40, 80, 120, 160, 200].map((x) => <line key={x} x1={x} x2={x} y1={y(0)} y2={y(5)} className="stroke-slate-700" strokeWidth="1" />)}
+      {A_MINOR_BOX.map((notes, s) => notes.filter(([, d]) => full || (d !== 1 && d !== 5)).map(([fret, d]) => {
+        const x = (fret - 4) * 40 + 20;
+        return (
+          <g key={fret}>
+            <circle cx={x} cy={y(s)} r="5" style={{ fill: full || d === 0 ? degreeColour(d) : "var(--color-slate-500)" }} />
+            {full && <text x={x} y={y(s) + 2.3} textAnchor="middle" fontSize="6.5" fontWeight="700" style={{ fill: "var(--color-slate-950)" }}>{BOX_DEGREES[d]}</text>}
+          </g>
+        );
+      }))}
+    </svg>
+  );
+}
+
+/** The same box of A minor at two levels, drawn for the adaptive view card. Illustration only. */
+function AdaptiveViewMock() {
+  return (
+    <div className="mt-auto flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-950/40 p-4" aria-hidden>
+      <div>
+        <p className="mb-2 text-xs text-slate-500">Just starting</p>
+        <BoxNeck />
+      </div>
+      <div>
+        <p className="mb-2 text-xs text-slate-500">Further along</p>
+        <BoxNeck full />
       </div>
     </div>
   );
@@ -187,7 +240,7 @@ export default function SchoolsHome() {
             <Eyebrow>What we&apos;re building next</Eyebrow>
             <H2 id="coming-soon-h">Practice that <span className="ls-accent italic text-sky-300">doesn&apos;t slip.</span></H2>
           </div>
-          <ul className="mt-10 grid gap-4 md:grid-cols-2">
+          <ul className="mt-10 grid gap-4 lg:grid-cols-3">
             <li className="ls-card flex flex-col gap-4 rounded-3xl border border-slate-800 bg-slate-900/50 p-5 sm:p-6">
               <SoonHeading icon="activity" tone="bg-teal-500/15 text-teal-300" title="Progress tracker" />
               <p className="text-sm leading-relaxed text-slate-400">attunr keeps track of the exercises each student works on. From that it shows <Mark tone="var(--color-teal-400)">how far they&apos;ve come</Mark> and suggests what to practise next.</p>
@@ -197,6 +250,11 @@ export default function SchoolsHome() {
               <SoonHeading icon="bell" tone="bg-violet-500/15 text-violet-300" title="Accountability" />
               <p className="text-sm leading-relaxed text-slate-400">Reminders that keep students practising between lessons, and a nudge after a few quiet days, so <Mark tone="var(--color-violet-400)">one missed day doesn&apos;t become a missed month</Mark>.</p>
               <ReminderMock />
+            </li>
+            <li className="ls-card flex flex-col gap-4 rounded-3xl border border-slate-800 bg-slate-900/50 p-5 sm:p-6">
+              <SoonHeading icon="sliders-horizontal" tone="bg-amber-500/15 text-amber-300" title="Adaptive view" />
+              <p className="text-sm leading-relaxed text-slate-400">The screen fits the student&apos;s level. Beginners see <Mark tone="var(--color-amber-400)">fewer notes and less detail</Mark>, and more comes in as they progress, so nobody gets lost in a busy screen.</p>
+              <AdaptiveViewMock />
             </li>
           </ul>
         </section>
