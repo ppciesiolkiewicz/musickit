@@ -10,7 +10,7 @@
     "title": "A minor pentatonic, position 1",
     "focus": "A minor pentatonic · position 1 · 60 then 80 bpm",
     "minutes": 10,
-    "level": "beginner", "area": "guitar", "tags": ["technique", "improv"],
+    "level": "beginner", "area": "guitar", "tags": ["technique", "improv"], "topic": "guitar-scales", "concepts": ["pentatonic-box-1"],
     "why": "Position 1 is the first scale shape most guitarists learn, since every note sits under four fingers at the 5th fret.",
     "learnBefore": ["/course/5/pentatonic", "/course/1/notes-on-e-and-a"],
     "sections": [

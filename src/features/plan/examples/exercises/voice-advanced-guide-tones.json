@@ -10,7 +10,7 @@
     "title": "Guide tones over ii-V-I, then your own line",
     "focus": "Pentatonic run · octave tune · guide tones over Dm7-G7-Cmaj7 · your own line in F",
     "minutes": 12,
-    "level": "advanced", "area": "voice", "tags": ["sing", "improv"],
+    "level": "advanced", "area": "voice", "tags": ["sing", "improv"], "topic": "voice-harmony", "concepts": ["improvise-melody"],
     "why": "Singing the 3rds and 7ths through a ii-V-I trains you to hear the chord changes.",
     "learnBefore": ["/course/11/ii-v-i", "/course/11/guide-tones"],
     "sections": [

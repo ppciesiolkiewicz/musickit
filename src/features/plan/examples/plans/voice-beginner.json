@@ -10,12 +10,13 @@
   "plan": {
     "title": "Week 1: Do Mi Sol, in tune",
     "summary": "Sing in tune over a drone, skip through Do Mi Sol, and use it in tunes and over chords.",
+    "progress": "Pitch: Do and Sol in tune over a drone after a hum. Next: start on the open vowel.\nBreath & range: one breath on Do, longer on day 7 than on day 1. Next: hold Sol and Mi.\nIntervals & leaps: tells 2nds, 3rds, 5ths and 6ths by ear, sings Do Mi Sol up, down and skipped. Next: the 4th.\nMelodies: easy step and skip tunes, a medium tune in A and one in 3rds. Next: medium tunes in new keys.\nHarmony & improvising: chord notes over I, IV and V in D, G and F. Next: a line of their own with passing notes.",
     "days": [
       {
         "theme": "Home over a drone",
         "exercises": [
           {
-            "title": "A long Do", "focus": "One breath on Do over a drone in C", "minutes": 3, "level": "beginner", "area": "voice", "tags": ["sing"], "why": "A long, steady note warms up your breath and your ear together.",
+            "title": "A long Do", "focus": "One breath on Do over a drone in C", "minutes": 3, "level": "beginner", "area": "voice", "tags": ["sing"], "topic": "voice-breath-range", "why": "A long, steady note warms up your breath and your ear together.",
             "learnBefore": ["/course/3/breath-and-holding-a-note"],
             "sections": [
               { "type": "text", "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff as a line. Breathe in for four clicks. Sing {{1}} on \"ah\" for as long as feels easy. Watch your pitch line stay flat. Count the clicks you held it for: you will compare on day 7." },
@@ -23,7 +24,7 @@
             ]
           },
           {
-            "title": "Steps or skips?", "focus": "Major 2nd vs major 3rd by ear", "minutes": 3, "level": "beginner", "area": "voice", "tags": ["ear"], "why": "Hearing whether a melody steps or skips is the first thing your ear needs to sing it back.",
+            "title": "Steps or skips?", "focus": "Major 2nd vs major 3rd by ear", "minutes": 3, "level": "beginner", "area": "voice", "tags": ["ear"], "topic": "voice-intervals", "why": "Hearing whether a melody steps or skips is the first thing your ear needs to sing it back.",
             "learnBefore": ["/course/3/intervals"],
             "sections": [
               { "type": "text", "text": "Press Start below and the game plays two notes: a step (M2, Do to Re) or a skip (M3, Do to Mi). Pick the one you heard. Press Replay to hear it again." },
@@ -31,7 +32,7 @@
             ]
           },
           {
-            "title": "Do Mi Sol over the drone", "focus": "Do Mi Sol in C, up and back", "minutes": 3, "level": "beginner", "area": "voice", "tags": ["sing"], "why": "Do, Mi and Sol are the notes of the home chord, so most tunes lean on them.",
+            "title": "Do Mi Sol over the drone", "focus": "Do Mi Sol in C, up and back", "minutes": 3, "level": "beginner", "area": "voice", "tags": ["sing"], "topic": "voice-intervals", "why": "Do, Mi and Sol are the notes of the home chord, so most tunes lean on them.",
             "learnBefore": ["/course/3/do-mi-sol"],
             "sections": [
               { "type": "text", "text": "Press Start exercise below: the drone and the mic start together. Sing {{1}} {{3}} {{5}}, then back down to {{1}}. Sing the names: they help you remember each sound. Hold each note until your line settles on it." },
@@ -39,7 +40,7 @@
             ]
           },
           {
-            "title": "Two step tunes", "focus": "Easy Do Re Mi tunes in C", "minutes": 6, "level": "beginner", "area": "voice", "tags": ["song"], "why": "Short tunes turn the notes into music you remember.",
+            "title": "Two step tunes", "focus": "Easy Do Re Mi tunes in C", "minutes": 6, "level": "beginner", "area": "voice", "tags": ["song"], "topic": "voice-melodies", "why": "Short tunes turn the notes into music you remember.",
             "learnBefore": ["/course/3/step-melodies"],
             "sections": [
               { "type": "heading", "text": "First tune", "minutes": 3 },
@@ -56,7 +57,7 @@
         "theme": "Skips",
         "exercises": [
           {
-            "title": "Hum and open", "focus": "Hum to \"ah\" on Do and Sol in D", "minutes": 3, "level": "beginner", "area": "voice", "tags": ["sing"], "why": "Humming lets you find a pitch quietly before you sing it out.",
+            "title": "Hum and open", "focus": "Hum to \"ah\" on Do and Sol in D", "minutes": 3, "level": "beginner", "area": "voice", "tags": ["sing"], "topic": "voice-pitch", "why": "Humming lets you find a pitch quietly before you sing it out.",
             "learnBefore": ["/course/3/matching-a-pitch"],
             "sections": [
               { "type": "text", "text": "Press Start exercise below: the drone and the mic start together. Hum {{1}} until your line sits on the note. Then open the hum to \"ah\" and keep your line where it was. The \"ah\" takes the pitch you found into your full voice. Then try the same on {{5}}." },
@@ -64,7 +65,7 @@
             ]
           },
           {
-            "title": "A skipping tune", "focus": "An easy Do Mi Sol tune in D", "minutes": 4, "level": "beginner", "area": "voice", "tags": ["song"], "why": "A tune that skips puts day 1's Do Mi Sol into a melody.",
+            "title": "A skipping tune", "focus": "An easy Do Mi Sol tune in D", "minutes": 4, "level": "beginner", "area": "voice", "tags": ["song"], "topic": "voice-melodies", "why": "A tune that skips puts day 1's Do Mi Sol into a melody.",
             "learnBefore": ["/course/3/do-mi-sol"],
             "sections": [
               { "type": "text", "text": "Press Play to hear it and sing along: the mic comes on with it. When it feels easy, look away from the staff and sing it from memory." },
@@ -72,7 +73,7 @@
             ]
           },
           {
-            "title": "3rd or 5th?", "focus": "Major 3rd vs perfect 5th by ear", "minutes": 3, "level": "beginner", "area": "voice", "tags": ["ear"], "why": "Do to Mi and Do to Sol are the week's two skips, and telling them apart by ear makes them easier to sing.",
+            "title": "3rd or 5th?", "focus": "Major 3rd vs perfect 5th by ear", "minutes": 3, "level": "beginner", "area": "voice", "tags": ["ear"], "topic": "voice-intervals", "why": "Do to Mi and Do to Sol are the week's two skips, and telling them apart by ear makes them easier to sing.",
             "learnBefore": ["/course/3/intervals"],
             "sections": [
               { "type": "text", "text": "Press Start below and the game plays two notes: a major 3rd (M3, Do to Mi) or a perfect 5th (P5, Do to Sol). Sing them back. Then pick the one you heard." },
@@ -80,7 +81,7 @@
             ]
           },
           {
-            "title": "Do and Sol over chords", "focus": "Do over D, Sol over A", "minutes": 5, "level": "beginner", "area": "voice", "tags": ["improv"], "why": "Singing a chord's note while the chord sounds is how a voice fits into music.",
+            "title": "Do and Sol over chords", "focus": "Do over D, Sol over A", "minutes": 5, "level": "beginner", "area": "voice", "tags": ["improv"], "topic": "voice-harmony", "why": "Singing a chord's note while the chord sounds is how a voice fits into music.",
             "learnBefore": ["/course/6/harmony-line", "/course/9/improvising-a-melody"],
             "sections": [
               { "type": "text", "text": "Press Start exercise below to start the mic and the chords: D and A take turns, one bar each. Sing {{1}} (D) when the D chord comes round. Sing {{5}} (A) when the A chord comes round. Then try {{3}} (F♯) over D instead." },
@@ -94,7 +95,7 @@
         "theme": "Sol and La",
         "exercises": [
           {
-            "title": "A long Do in G", "focus": "One breath on Do over a drone in G", "minutes": 3, "level": "beginner", "area": "voice", "tags": ["sing"], "why": "Coming back to the long note every few days lets your breath grow without strain.",
+            "title": "A long Do in G", "focus": "One breath on Do over a drone in G", "minutes": 3, "level": "beginner", "area": "voice", "tags": ["sing"], "topic": "voice-breath-range", "why": "Coming back to the long note every few days lets your breath grow without strain.",
             "learnBefore": ["/course/3/breath-and-holding-a-note"],
             "sections": [
               { "type": "text", "text": "Press Start exercise below: the drone and the mic start together. Breathe in for four clicks. Sing {{1}} on \"ah\" for as long as feels easy. Watch your pitch line stay flat. Stop before you run out of breath: the end of the note should be as steady as the start." },
@@ -102,7 +103,7 @@
             ]
           },
           {
-            "title": "5th or 6th?", "focus": "Perfect 5th vs major 6th by ear", "minutes": 3, "level": "beginner", "area": "voice", "tags": ["ear"], "why": "La sits one step above Sol, so hearing the two apart prepares today's tune.",
+            "title": "5th or 6th?", "focus": "Perfect 5th vs major 6th by ear", "minutes": 3, "level": "beginner", "area": "voice", "tags": ["ear"], "topic": "voice-intervals", "why": "La sits one step above Sol, so hearing the two apart prepares today's tune.",
             "learnBefore": ["/course/3/intervals"],
             "sections": [
               { "type": "text", "text": "Press Start below and the game plays two notes: a perfect 5th (P5, Do to Sol) or a major 6th (M6, Do to La). Pick the one you heard." },
@@ -110,7 +111,7 @@
             ]
           },
           {
-            "title": "Sol La Sol", "focus": "An easy La tune in G", "minutes": 4, "level": "beginner", "area": "voice", "tags": ["song"], "why": "Sol La Sol is the lift at the top of many children's songs.",
+            "title": "Sol La Sol", "focus": "An easy La tune in G", "minutes": 4, "level": "beginner", "area": "voice", "tags": ["song"], "topic": "voice-melodies", "why": "Sol La Sol is the lift at the top of many children's songs.",
             "learnBefore": ["/course/3/step-melodies", "/course/3/hearing-do-fa-sol"],
             "sections": [
               { "type": "text", "text": "Press Play to hear it and sing along: the mic comes on with it. Find Sol La Sol on the staff: the line goes up a step and back." },
@@ -118,7 +119,7 @@
             ]
           },
           {
-            "title": "Over G and D", "focus": "Do, Mi and Sol over I and V in G", "minutes": 5, "level": "beginner", "area": "voice", "tags": ["improv"], "why": "Choosing which chord note to sing is the first step of making up a melody.",
+            "title": "Over G and D", "focus": "Do, Mi and Sol over I and V in G", "minutes": 5, "level": "beginner", "area": "voice", "tags": ["improv"], "topic": "voice-harmony", "why": "Choosing which chord note to sing is the first step of making up a melody.",
             "learnBefore": ["/course/6/harmony-line", "/course/9/improvising-a-melody"],
             "sections": [
               { "type": "text", "text": "Press Start exercise below to start the mic and the chords. Sing the low {{1}} (G) or {{3}} (B) when the G chord comes round. Sing {{5}} (D) when the D chord comes round. Pick a different note each time round." },
@@ -132,7 +133,7 @@
         "theme": "Under Do",
         "exercises": [
           {
-            "title": "Siren to Sol", "focus": "Glide Do to Sol and back in F", "minutes": 3, "level": "beginner", "area": "voice", "tags": ["sing"], "why": "A slow glide loosens the voice and shows on the staff where your pitch goes between notes.",
+            "title": "Siren to Sol", "focus": "Glide Do to Sol and back in F", "minutes": 3, "level": "beginner", "area": "voice", "tags": ["sing"], "topic": "voice-pitch", "why": "A slow glide loosens the voice and shows on the staff where your pitch goes between notes.",
             "learnBefore": ["/course/3/matching-a-pitch"],
             "sections": [
               { "type": "text", "text": "Press Start exercise below: the drone and the mic start together. Glide slowly from the low {{1}} up to {{5}} and back on \"ng\", the sound at the end of \"sing\": it keeps your voice light while it slides. Watch your line curve between the notes. Then sing the two notes on their own, without the glide." },
@@ -140,7 +141,7 @@
             ]
           },
           {
-            "title": "A tune under Do", "focus": "An easy tune that dips below Do, in F", "minutes": 4, "level": "beginner", "area": "voice", "tags": ["song"], "why": "Many tunes dip under Do before they come home.",
+            "title": "A tune under Do", "focus": "An easy tune that dips below Do, in F", "minutes": 4, "level": "beginner", "area": "voice", "tags": ["song"], "topic": "voice-melodies", "why": "Many tunes dip under Do before they come home.",
             "learnBefore": ["/course/3/la-minor-home"],
             "sections": [
               { "type": "text", "text": "Press Play to hear it and sing along: the mic comes on with it. Watch your line on the staff dip under Do, then come back up to it." },
@@ -148,7 +149,7 @@
             ]
           },
           {
-            "title": "Skips, falling", "focus": "Major 3rd and perfect 5th, falling", "minutes": 3, "level": "beginner", "area": "voice", "tags": ["ear"], "why": "Skips come downward too, and they sound different falling.",
+            "title": "Skips, falling", "focus": "Major 3rd and perfect 5th, falling", "minutes": 3, "level": "beginner", "area": "voice", "tags": ["ear"], "topic": "voice-intervals", "why": "Skips come downward too, and they sound different falling.",
             "learnBefore": ["/course/3/do-mi-sol"],
             "sections": [
               { "type": "text", "text": "Press Start below. Day 2's skips, now falling. The game plays two notes: a major 3rd (M3, Mi down to Do) or a perfect 5th (P5, Sol down to Do). Pick the one you heard." },
@@ -156,7 +157,7 @@
             ]
           },
           {
-            "title": "Over F, B♭ and C", "focus": "Chord notes over I-IV-V in F", "minutes": 5, "level": "beginner", "area": "voice", "tags": ["improv"], "why": "Three chords give your voice three notes to find.",
+            "title": "Over F, B♭ and C", "focus": "Chord notes over I-IV-V in F", "minutes": 5, "level": "beginner", "area": "voice", "tags": ["improv"], "topic": "voice-harmony", "why": "Three chords give your voice three notes to find.",
             "learnBefore": ["/course/6/harmony-line", "/course/9/improvising-a-melody"],
             "sections": [
               { "type": "text", "text": "Press Start exercise below to start the mic and the chords. Use the lower half of the staff, from the low {{1}} up to {{5}}. Sing {{1}} (F) when the F chord comes round. Sing {{4}} (B♭) when B♭ comes round. Sing {{5}} (C) when C comes round. Hold each note for the whole bar. Then try {{3}} (A) over F instead." },
@@ -170,7 +171,7 @@
         "theme": "Do Mi Sol in a new key",
         "exercises": [
           {
-            "title": "Long Sol", "focus": "Sol, then Do, held over a drone in A", "minutes": 3, "level": "beginner", "area": "voice", "tags": ["sing"], "why": "Holding a note that is not Do tests your pitch against the drone.",
+            "title": "Long Sol", "focus": "Sol, then Do, held over a drone in A", "minutes": 3, "level": "beginner", "area": "voice", "tags": ["sing"], "topic": "voice-breath-range", "why": "Holding a note that is not Do tests your pitch against the drone.",
             "learnBefore": ["/course/3/breath-and-holding-a-note"],
             "sections": [
               { "type": "text", "text": "Press Start exercise below: the drone and the mic start together. Sing {{5}} on \"ah\" for as long as feels easy. Watch your line stay flat on the note. Then do the same on {{1}}." },
@@ -178,7 +179,7 @@
             ]
           },
           {
-            "title": "Steps and skips, mixed", "focus": "Major 2nd, major 3rd, perfect 5th by ear", "minutes": 3, "level": "beginner", "area": "voice", "tags": ["ear"], "why": "Mixing the week's intervals checks that your ear knows each one on its own.",
+            "title": "Steps and skips, mixed", "focus": "Major 2nd, major 3rd, perfect 5th by ear", "minutes": 3, "level": "beginner", "area": "voice", "tags": ["ear"], "topic": "voice-intervals", "why": "Mixing the week's intervals checks that your ear knows each one on its own.",
             "learnBefore": ["/course/3/do-mi-sol"],
             "sections": [
               { "type": "text", "text": "Press Start below and the game plays two notes: a major 2nd (M2), a major 3rd (M3) or a perfect 5th (P5). Pick the one you heard." },
@@ -186,7 +187,7 @@
             ]
           },
           {
-            "title": "Do Mi Sol in A", "focus": "Do Mi Sol up, down and skipped, over a drone in A", "minutes": 3, "level": "beginner", "area": "voice", "tags": ["sing"], "why": "A new key moves every note, but Do Mi Sol sounds the same.",
+            "title": "Do Mi Sol in A", "focus": "Do Mi Sol up, down and skipped, over a drone in A", "minutes": 3, "level": "beginner", "area": "voice", "tags": ["sing"], "topic": "voice-intervals", "why": "A new key moves every note, but Do Mi Sol sounds the same.",
             "learnBefore": ["/course/3/do-mi-sol"],
             "sections": [
               { "type": "text", "text": "Press Start exercise below: the drone and the mic start together. Sing {{1}} {{3}} {{5}} up and back down. Then skip around: {{5}} {{1}} {{3}} {{1}}. Then make up your own order. Hold each note until your line settles on it." },
@@ -194,7 +195,7 @@
             ]
           },
           {
-            "title": "A harder skipping tune", "focus": "A medium Do Mi Sol tune in A", "minutes": 6, "level": "beginner", "area": "voice", "tags": ["song"], "why": "A longer tune puts the skips inside phrases you have to remember.",
+            "title": "A harder skipping tune", "focus": "A medium Do Mi Sol tune in A", "minutes": 6, "level": "beginner", "area": "voice", "tags": ["song"], "topic": "voice-melodies", "why": "A longer tune puts the skips inside phrases you have to remember.",
             "learnBefore": ["/course/3/do-mi-sol"],
             "sections": [
               { "type": "heading", "text": "Learn it", "minutes": 3 },
@@ -210,7 +211,7 @@
         "theme": "Steps and skips together",
         "exercises": [
           {
-            "title": "Do Re Mi Re Do", "focus": "Steps over a drone in C", "minutes": 3, "level": "beginner", "area": "voice", "tags": ["sing"], "why": "Most melodies move by step, so steps need to land as cleanly as skips.",
+            "title": "Do Re Mi Re Do", "focus": "Steps over a drone in C", "minutes": 3, "level": "beginner", "area": "voice", "tags": ["sing"], "topic": "voice-intervals", "why": "Most melodies move by step, so steps need to land as cleanly as skips.",
             "learnBefore": ["/course/3/step-melodies"],
             "sections": [
               { "type": "text", "text": "Press Start exercise below: the drone and the mic start together. Sing {{1}} {{2}} {{3}} {{2}} {{1}}. Sing the names: they help you remember each sound. Watch your line step up, then back down." },
@@ -218,7 +219,7 @@
             ]
           },
           {
-            "title": "A medium step tune", "focus": "A medium Do Re Mi tune in C", "minutes": 4, "level": "beginner", "area": "voice", "tags": ["song"], "why": "A tune that starts away from Do trains you to hear where home is.",
+            "title": "A medium step tune", "focus": "A medium Do Re Mi tune in C", "minutes": 4, "level": "beginner", "area": "voice", "tags": ["song"], "topic": "voice-melodies", "why": "A tune that starts away from Do trains you to hear where home is.",
             "learnBefore": ["/course/3/step-melodies"],
             "sections": [
               { "type": "text", "text": "Look at the staff first. Sing the tune the way you think it goes. Then press Play to check and sing it with the tune: the mic comes on with it." },
@@ -226,7 +227,7 @@
             ]
           },
           {
-            "title": "Hear and sing back", "focus": "Major 3rd and perfect 5th, sung before answering", "minutes": 3, "level": "beginner", "area": "voice", "tags": ["ear"], "why": "Singing an interval back before you name it ties your ear to your voice.",
+            "title": "Hear and sing back", "focus": "Major 3rd and perfect 5th, sung before answering", "minutes": 3, "level": "beginner", "area": "voice", "tags": ["ear"], "topic": "voice-intervals", "why": "Singing an interval back before you name it ties your ear to your voice.",
             "learnBefore": ["/course/3/intervals"],
             "sections": [
               { "type": "text", "text": "Press Start below and the game plays two notes: a major 3rd (M3) or a perfect 5th (P5). Sing both notes back. Then pick the one you heard." },
@@ -234,7 +235,7 @@
             ]
           },
           {
-            "title": "A tune in 3rds", "focus": "An easy tune climbing in 3rds, in C", "minutes": 5, "level": "beginner", "area": "voice", "tags": ["song"], "why": "Climbing in 3rds mixes steps and skips in one phrase, the way real melodies move.",
+            "title": "A tune in 3rds", "focus": "An easy tune climbing in 3rds, in C", "minutes": 5, "level": "beginner", "area": "voice", "tags": ["song"], "topic": "voice-melodies", "why": "Climbing in 3rds mixes steps and skips in one phrase, the way real melodies move.",
             "learnBefore": ["/course/3/do-mi-sol"],
             "sections": [
               { "type": "text", "text": "Press Play to hear it and sing along: the mic comes on with it. Then sing it a little louder. Keep your line on the notes." },
@@ -247,7 +248,7 @@
         "theme": "Sing it all",
         "exercises": [
           {
-            "title": "How long is your Do?", "focus": "One breath on Do over a drone in D, counted", "minutes": 3, "level": "beginner", "area": "voice", "tags": ["sing"], "why": "Holding the long note again on the last day shows how your breath has grown.",
+            "title": "How long is your Do?", "focus": "One breath on Do over a drone in D, counted", "minutes": 3, "level": "beginner", "area": "voice", "tags": ["sing"], "topic": "voice-breath-range", "why": "Holding the long note again on the last day shows how your breath has grown.",
             "learnBefore": ["/course/3/breath-and-holding-a-note"],
             "sections": [
               { "type": "text", "text": "Press Start exercise below: the drone and the mic start together. Breathe in for four clicks. Sing {{1}} on \"ah\" for as long as feels easy. Watch your pitch line stay flat. Count the clicks you held it for. Compare with your count from day 1." },
@@ -255,7 +256,7 @@
             ]
           },
           {
-            "title": "A Sol tune", "focus": "An easy tune down from Sol, in D", "minutes": 4, "level": "beginner", "area": "voice", "tags": ["song"], "why": "A new tune, sung first from the staff, shows how far your reading has come.",
+            "title": "A Sol tune", "focus": "An easy tune down from Sol, in D", "minutes": 4, "level": "beginner", "area": "voice", "tags": ["song"], "topic": "voice-melodies", "why": "A new tune, sung first from the staff, shows how far your reading has come.",
             "learnBefore": ["/course/3/step-melodies", "/course/3/hearing-do-fa-sol"],
             "sections": [
               { "type": "text", "text": "Sing the tune from the staff before you hear it. Then press Play to check and sing it with the tune: the mic comes on with it." },
@@ -263,7 +264,7 @@
             ]
           },
           {
-            "title": "The week's intervals", "focus": "Major 2nd, major 3rd, perfect 5th, major 6th", "minutes": 3, "level": "beginner", "area": "voice", "tags": ["ear"], "why": "All four of the week's intervals together check your ear.",
+            "title": "The week's intervals", "focus": "Major 2nd, major 3rd, perfect 5th, major 6th", "minutes": 3, "level": "beginner", "area": "voice", "tags": ["ear"], "topic": "voice-intervals", "why": "All four of the week's intervals together check your ear.",
             "learnBefore": ["/course/3/intervals"],
             "sections": [
               { "type": "text", "text": "Press Start below and the game plays two notes: a major 2nd (M2), a major 3rd (M3), a perfect 5th (P5) or a major 6th (M6). Pick the one you heard. The table under the game shows which ones you know best." },
@@ -271,7 +272,7 @@
             ]
           },
           {
-            "title": "Your own line over chords", "focus": "Do Mi Sol over I-IV-V-I in D", "minutes": 5, "level": "beginner", "area": "voice", "tags": ["improv"], "why": "Making up a line from notes you know is the reward for the week.",
+            "title": "Your own line over chords", "focus": "Do Mi Sol over I-IV-V-I in D", "minutes": 5, "level": "beginner", "area": "voice", "tags": ["improv"], "topic": "voice-harmony", "why": "Making up a line from notes you know is the reward for the week.",
             "learnBefore": ["/course/6/harmony-line", "/course/9/improvising-a-melody"],
             "sections": [
               { "type": "text", "text": "Press Start exercise below to start the mic and the chords. Make up a line from {{1}} {{3}} {{5}} (D, F♯, A), in any order. Lean on {{5}} when the A chord comes round: it is that chord's root. Record yourself on your phone. Listen back." },

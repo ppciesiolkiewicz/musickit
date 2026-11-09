@@ -11,7 +11,7 @@
     "title": "Do, Mi, Sol on the neck, one note at a time",
     "focus": "C major in open position · Do → Do Mi → Do Mi Sol → a tune",
     "minutes": 8,
-    "level": "beginner", "area": "guitar", "tags": ["technique", "song"],
+    "level": "beginner", "area": "guitar", "tags": ["technique", "song"], "topic": "guitar-scales", "concepts": ["guitar-melodies-beginner"],
     "why": "Knowing where Do, Mi and Sol sit around the open chords is the map for playing melodies by ear.",
     "learnBefore": ["/course/3/solfege", "/course/4/do-mi-sol-neck"],
     "sections": [

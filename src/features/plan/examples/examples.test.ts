@@ -9,6 +9,7 @@ import { catalogue } from "../model/catalogue";
 import { mixesSingAndPlay, tempoWithoutMetronome } from "../model/checks";
 import { AREAS, conceptById } from "../model/concepts";
 import { parsePlanConfig } from "../model/config";
+import { topicById } from "../intake/topics";
 import { notePc, splitNotes } from "../model/noteText";
 import type { PlanTool, Section } from "../model/tools";
 import type { Level, PlanConfig, PlanExercise } from "../model/types";
@@ -19,7 +20,7 @@ const LEVELS: Level[] = ["new", "beginner", "intermediate", "advanced"];
 const ALL: (ExerciseExample | PlanExample)[] = [...EXERCISE_EXAMPLES, ...PLAN_EXAMPLES];
 
 /** A pasted plan of seven copies of one exercise, so the exercise goes through the real paste path. */
-const weekOf = (exercise: unknown) => JSON.stringify({ title: "W", days: Array.from({ length: 7 }, (_, i) => ({ theme: `D${i + 1}`, exercises: [exercise] })) });
+const weekOf = (exercise: unknown) => JSON.stringify({ title: "W", progress: "Notes.", days: Array.from({ length: 7 }, (_, i) => ({ theme: `D${i + 1}`, exercises: [exercise] })) });
 
 function parsed(text: string): PlanConfig {
   const r = parsePlanConfig(text, entries);
@@ -55,6 +56,28 @@ describe("example library", () => {
     for (const p of PLAN_EXAMPLES) for (const d of parsed(JSON.stringify(p.plan)).days) for (const ex of d.exercises) {
       assert.equal(ex.level, p.level, `${p.id}: ${ex.title}`);
       assert.ok(ex.area && p.areas.includes(ex.area), `${p.id}: ${ex.title}`);
+    }
+  });
+
+  it("every exercise has a topic of its area, and its concepts are of that topic", () => {
+    for (const { where, ex } of exercises) {
+      assert.equal(topicById(ex.topic ?? "")?.area, ex.area, `${where}: topic ${ex.topic}`);
+      for (const c of ex.concepts ?? []) assert.equal(conceptById(c)?.topic, ex.topic, `${where}: concept ${c}`);
+    }
+    for (const e of EXERCISE_EXAMPLES) {
+      const raw = e.exercise as { topic: string; concepts?: string[] };
+      assert.deepEqual(raw.concepts ?? [], e.concepts.filter((c) => conceptById(c)!.topic === raw.topic), `${e.id}: the example's own concepts of its topic`);
+    }
+  });
+
+  it("every plan example has a progress summary: under 300 words, one line per topic its exercises use", () => {
+    for (const p of PLAN_EXAMPLES) {
+      const config = parsed(JSON.stringify(p.plan));
+      const lines = (config.progress ?? "").split("\n");
+      assert.ok(config.progress && config.progress.split(/\s+/).length < 300, p.id);
+      const used = new Set(config.days.flatMap((d) => d.exercises.map((e) => e.topic!)));
+      for (const t of used) assert.ok(lines.some((l) => l.startsWith(`${topicById(t)!.label}: `)), `${p.id}: no line for ${t}`);
+      assert.equal(lines.length, used.size, `${p.id}: one line per topic, no more`);
     }
   });
 

@@ -10,7 +10,7 @@
     "title": "Modes by their colour note",
     "focus": "G Mixolydian ♭7 · D Dorian 6 · E Phrygian ♭2, over a drone",
     "minutes": 10,
-    "level": "advanced", "area": "theory", "tags": ["ear", "theory"],
+    "level": "advanced", "area": "theory", "tags": ["ear", "theory"], "topic": "theory-modes", "concepts": ["modes"],
     "why": "A mode is easiest to recognise by the one note that differs from plain major or minor.",
     "learnBefore": ["/course/9/modes-over-drone"],
     "sections": [

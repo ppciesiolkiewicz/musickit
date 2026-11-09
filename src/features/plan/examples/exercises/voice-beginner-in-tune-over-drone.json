@@ -11,7 +11,7 @@
     "title": "In tune over a drone: find the smooth spot",
     "focus": "Do and Sol over a D drone · a made-up Do Mi Sol tune over A",
     "minutes": 6,
-    "level": "beginner", "area": "voice", "tags": ["sing", "ear"],
+    "level": "beginner", "area": "voice", "tags": ["sing", "ear"], "topic": "voice-pitch", "concepts": ["in-tune-over-drone"],
     "why": "A note in tune with the drone sounds smooth and a note that is off wobbles, so the drone teaches your ear to hear in tune on its own.",
     "learnBefore": ["/course/3/home-note"],
     "sections": [

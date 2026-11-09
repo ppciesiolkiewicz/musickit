@@ -17,7 +17,8 @@ Each file is the content exactly as the AI returns it, wrapped in metadata:
 ```json
 { "id": "guitar-beginner-pentatonic-box1", "kind": "exercise", "areas": ["guitar"], "level": "beginner",
   "concepts": ["pentatonic-box-1"], "note": "Why this is a good example, in one or two sentences.",
-  "exercise": { "title": "…", "focus": "…", "minutes": 10, "level": "beginner", "area": "guitar", "tags": ["technique"], "sections": [ … ] } }
+  "exercise": { "title": "…", "focus": "…", "minutes": 10, "level": "beginner", "area": "guitar", "tags": ["technique"],
+                "topic": "guitar-scales", "concepts": ["pentatonic-box-1"], "sections": [ … ] } }
 ```
 
 - `updated` is the day the example was last written or rewritten (`YYYY-MM-DD`), and `model` the API id of the model
@@ -25,6 +26,11 @@ Each file is the content exactly as the AI returns it, wrapped in metadata:
   tags. Examples older than these fields have the date of their last commit and no `model`.
 - `id` is the file name. `areas`: `guitar`, `voice`, `theory` (an exercise has one, a plan may have several). `level`:
   `new`, `beginner`, `intermediate`, `advanced`. `concepts`: ids from `model/concepts.ts`.
+- Every exercise, alone or in a plan, has a `topic`: the questionnaire topic it practises (`../intake/topics.ts`), always
+  one of its `area`. An exercise example also lists `concepts`: those of the file's own `concepts` that belong to that
+  topic. A plan has a `progress`: the notes the AI keeps on the student after that week, one line per topic the plan's
+  exercises use (`<Topic label>: where they stand. Next: …`), under 300 words. The student never sees it; the next
+  prompt sends it back.
 - `"style": "new"` marks an example written in the new teaching style (practice first, a why the student can build
   their own drill from, each block the same drill turned a new way; see the `teaching-voice` skill). The prompt tells the
   AI to write like these, and `/dev/examples` badges and filters by style. Absent: the older style.

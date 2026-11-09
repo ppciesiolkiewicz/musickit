@@ -10,7 +10,7 @@
     "title": "I, IV and V in G, by ear",
     "focus": "G major · roots G C D · I-IV-V-I by ear",
     "minutes": 8,
-    "level": "beginner", "area": "theory", "tags": ["theory", "ear"],
+    "level": "beginner", "area": "theory", "tags": ["theory", "ear"], "topic": "theory-progressions", "concepts": ["chords-in-key"],
     "why": "Three chords carry thousands of songs, so hearing which one is playing is the start of learning songs by ear.",
     "learnBefore": ["/course/5/one-four-five"],
     "sections": [

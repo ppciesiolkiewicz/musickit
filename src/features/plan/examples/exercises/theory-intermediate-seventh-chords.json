@@ -10,7 +10,7 @@
     "title": "Three 7th chords on C",
     "focus": "Cmaj7 · C7 · Cm7 · naming 7th chords by ear",
     "minutes": 9,
-    "level": "intermediate", "area": "theory", "tags": ["theory", "ear"],
+    "level": "intermediate", "area": "theory", "tags": ["theory", "ear"], "topic": "theory-building-chords", "concepts": ["seventh-chords"],
     "why": "Each of these 7th chords differs from the next by one note, so compare them side by side.",
     "learnBefore": ["/course/7/sevenths"],
     "sections": [

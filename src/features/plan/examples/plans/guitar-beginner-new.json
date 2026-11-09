@@ -34,6 +34,7 @@
   "plan": {
     "title": "Week 1: position 1, clean changes, triads and double stops",
     "summary": "A minor pentatonic position 1, G-C-D changes, and the same chords made smaller: power chords, triads and double stops. One idea a day, each drill says what it trains and why, and by day 7 you make up drills of your own.",
+    "progress": "Techniques: the spider is clean from frets 5 and 1 at a slow tempo; double stops are new. Next: the spider in a new finger order, a little faster.\nBasic chords: G, C, D and Em change in time at 70 with down strums; the full strum pattern at 80 was only met on day 7. Next: keep the pattern, add a new chord.\nScales: A minor pentatonic position 1 from memory at 80, and phrases that end on the root. E minor in the open position is new. Next: position 2, and joining it to position 1.\nCAGED: G, C and D triads on the top strings and one set lower, slowly. Next: the same triads in a second place on the neck.",
     "days": [
       {
         "theme": "Position 1: one finger per fret",
@@ -47,6 +48,7 @@
             "tags": [
               "technique"
             ],
+            "topic": "guitar-techniques",
             "why": "Position 1 sits at frets 5 to 8, one finger per fret, so warming up right there trains the exact stretch the scale needs.",
             "learnBefore": [
               "/course/1/spider"
@@ -77,6 +79,7 @@
             "tags": [
               "rhythm"
             ],
+            "topic": "guitar-basic-chords",
             "why": "G, C and D are the 1, 4 and 5 chords of G major, the three chords most songs lean on, so a clean change between them opens up more music than any new chord.",
             "learnBefore": [
               "/course/2/c-d-g",
@@ -138,6 +141,7 @@
               "technique",
               "improv"
             ],
+            "topic": "guitar-scales",
             "why": "Every phrase in position 1 sounds finished when it lands on A, so knowing where the three A's are lets you make music from day one.",
             "learnBefore": [
               "/course/5/pentatonic",
@@ -250,6 +254,7 @@
             "tags": [
               "technique"
             ],
+            "topic": "guitar-techniques",
             "why": "A new finger order makes each finger move on its own, which is what phrases need once they stop going straight up and down.",
             "learnBefore": [
               "/course/1/spider"
@@ -280,6 +285,7 @@
             "tags": [
               "rhythm"
             ],
+            "topic": "guitar-basic-chords",
             "why": "A power chord is a root and its 5th, so once your hand knows the one shape, every chord is just a new place for it.",
             "learnBefore": [
               "/course/5/power-chords"
@@ -453,6 +459,7 @@
             "tags": [
               "technique"
             ],
+            "topic": "guitar-techniques",
             "why": "In position 1 the B and high e strings have two notes at the same fret in two places, so the scale you know already holds two double stops, each played with one finger.",
             "learnBefore": [
               "/course/5/fifths",
@@ -551,6 +558,7 @@
             "tags": [
               "improv"
             ],
+            "topic": "guitar-scales",
             "why": "A riff is a short phrase repeated, so two notes and a rhythm are all you need to make one up.",
             "learnBefore": [
               "/course/5/power-chords",
@@ -607,6 +615,7 @@
             "tags": [
               "rhythm"
             ],
+            "topic": "guitar-basic-chords",
             "why": "The change you repeat is the one your hand learns, so short rounds on one change grow faster than long ones on many.",
             "learnBefore": [
               "/course/2/c-d-g",
@@ -638,6 +647,7 @@
             "tags": [
               "technique"
             ],
+            "topic": "guitar-scales",
             "why": "Picking down then up plays two notes with one swing of the hand, so the position can speed up without the hand working harder.",
             "learnBefore": [
               "/course/1/spider",
@@ -737,6 +747,7 @@
             "tags": [
               "improv"
             ],
+            "topic": "guitar-scales",
             "why": "A phrase that asks and one that answers is how solos talk, so this turns notes into sentences.",
             "learnBefore": [
               "/course/5/pentatonic",
@@ -784,6 +795,7 @@
             "tags": [
               "song"
             ],
+            "topic": "guitar-scales",
             "why": "A tune keeps its shape when the key changes, so playing it in two keys teaches your fingers the pattern, not a list of frets.",
             "learnBefore": [
               "/course/4/melodies"
@@ -831,6 +843,7 @@
             "tags": [
               "technique"
             ],
+            "topic": "guitar-caged",
             "why": "A triad is the three notes that make a chord, so the same chord can come from one shape slid along the neck or from a new shape right where your hand is.",
             "learnBefore": [
               "/course/5/triads"
@@ -999,6 +1012,7 @@
             "tags": [
               "rhythm"
             ],
+            "topic": "guitar-basic-chords",
             "why": "G Em C D is the loop behind countless songs, so a steady strum through it lets you play along with them.",
             "learnBefore": [
               "/course/2/c-d-g",
@@ -1060,6 +1074,7 @@
             "tags": [
               "improv"
             ],
+            "topic": "guitar-scales",
             "why": "The last note sets the mood of a phrase, so choosing it is the first step to sounding like you mean it.",
             "learnBefore": [
               "/course/5/pentatonic",
@@ -1108,6 +1123,7 @@
             "tags": [
               "song"
             ],
+            "topic": "guitar-scales",
             "why": "This tune uses only the three notes of a triad, one at a time, so your fingers learn today's chords as a melody.",
             "learnBefore": [
               "/course/4/do-mi-sol-neck",
@@ -1157,6 +1173,7 @@
             "tags": [
               "technique"
             ],
+            "topic": "guitar-techniques",
             "why": "Low on the neck the frets are widest, so the spider there builds the stretch that today's open position needs.",
             "learnBefore": [
               "/course/1/spider"
@@ -1187,6 +1204,7 @@
             "tags": [
               "rhythm"
             ],
+            "topic": "guitar-basic-chords",
             "why": "The power chord shape works on any root, so a riff in E is the same hand you used in A.",
             "learnBefore": [
               "/course/5/power-chords"
@@ -1236,6 +1254,7 @@
             "tags": [
               "technique"
             ],
+            "topic": "guitar-scales",
             "why": "A position's shape doesn't change with the key, it only moves, so the shape you know in A is already E minor pentatonic at the 12th fret.",
             "learnBefore": [
               "/course/5/pentatonic"
@@ -1308,6 +1327,7 @@
             "tags": [
               "improv"
             ],
+            "topic": "guitar-scales",
             "why": "A phrase is a shape on the neck, so a phrase you made in A plays in E just by moving it.",
             "learnBefore": [
               "/course/5/pentatonic",
@@ -1360,6 +1380,7 @@
             "tags": [
               "technique"
             ],
+            "topic": "guitar-caged",
             "why": "Every three neighbouring strings hold the same triads in new shapes, so moving a drill one string set over makes a new drill from chords you know.",
             "learnBefore": [
               "/course/5/triads"
@@ -1445,6 +1466,7 @@
             "tags": [
               "rhythm"
             ],
+            "topic": "guitar-basic-chords",
             "why": "Looking at your hand is a habit, and a change you can make without looking is one you really own.",
             "learnBefore": [
               "/course/2/c-d-g",
@@ -1480,6 +1502,7 @@
             "tags": [
               "technique"
             ],
+            "topic": "guitar-caged",
             "why": "A triad and its single notes are one hand shape, so a riff that mixes them sounds full and never makes your hand jump.",
             "learnBefore": [
               "/course/5/triads",
@@ -1677,6 +1700,7 @@
             "tags": [
               "song"
             ],
+            "topic": "guitar-scales",
             "why": "Reading it once from tab and once from the neck links the numbers to the places your fingers go.",
             "learnBefore": [
               "/course/4/melodies"
@@ -1742,6 +1766,7 @@
             "tags": [
               "rhythm"
             ],
+            "topic": "guitar-basic-chords",
             "why": "This pattern keeps the hand moving down and up on every half beat, so the strums it leaves out are what make the groove.",
             "learnBefore": [
               "/course/2/c-d-g",
@@ -1777,6 +1802,7 @@
             "tags": [
               "technique"
             ],
+            "topic": "guitar-scales",
             "why": "Every drill this week changed one thing (the key, the tempo, the notes in play), so you can make your own by changing one thing yourself.",
             "learnBefore": [
               "/course/5/pentatonic",
@@ -1840,6 +1866,7 @@
             "tags": [
               "improv"
             ],
+            "topic": "guitar-scales",
             "why": "Landing on a note of the chord as it changes is the simplest way to make a solo follow the chords.",
             "learnBefore": [
               "/course/5/pentatonic",
@@ -1932,6 +1959,7 @@
             "tags": [
               "song"
             ],
+            "topic": "guitar-scales",
             "why": "Playing the week's tune once more, then somewhere new, shows you what has changed in your hands.",
             "learnBefore": [
               "/course/4/melodies"

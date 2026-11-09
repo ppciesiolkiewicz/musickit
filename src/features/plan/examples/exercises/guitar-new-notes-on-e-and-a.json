@@ -11,7 +11,7 @@
     "title": "Notes on the low E and A strings",
     "focus": "Natural notes on the E and A strings · frets 0 to 12 · find, name, every place",
     "minutes": 6,
-    "level": "new", "area": "guitar", "tags": ["theory", "technique"],
+    "level": "new", "area": "guitar", "tags": ["theory", "technique"], "topic": "guitar-scales", "concepts": ["notes-e-a-strings"],
     "why": "The low E and A strings hold the root of almost every chord you will move up the neck, so knowing their notes lets you place any chord fast.",
     "learnBefore": ["/course/1/notes-on-e-and-a"],
     "sections": [
