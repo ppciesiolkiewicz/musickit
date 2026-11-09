@@ -212,7 +212,7 @@ export function IdeasSection({ eyebrow = "Free in the app", title = <>Practice t
       {tools.map((g) => (
         <div key={g.label} className="mt-6">
           <p className="mb-3 text-xs uppercase tracking-widest text-slate-500">{g.label}</p>
-          <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <ul className={`grid gap-3 ${g.hrefs.length === 3 ? "sm:grid-cols-3" : "sm:grid-cols-2 lg:grid-cols-4"}`}>
             {toolsOf(g).map((d) => (
               <li key={d.href}>
                 <Link href={d.href} className="ls-card group flex h-full flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-4 transition hover:-translate-y-0.5 hover:border-slate-600">
