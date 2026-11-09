@@ -1,12 +1,8 @@
 "use client";
 
 import { useEffect, useState, useSyncExternalStore } from "react";
-import { getAudioContext, getOutputBus, openLiveInput, readDeviceChoice, subscribeDeviceChoice, wakeAudio } from "@/features/sound";
+import { getAudioContext, getOutputBus, wakeAudio } from "@/features/sound";
 import { JamRig, type JamPart, type JamSaved } from "./rig";
-import type { AppInput } from "./loops";
-
-/** The app's one input, for the loops that record it. */
-const APP_INPUT: AppInput = { id: () => readDeviceChoice().input?.id ?? "", subscribe: subscribeDeviceChoice, publish: openLiveInput };
 
 /**
  * A `JamRig` for a page, the core both hosts share (the drone page's `Jam` and the `PocketTools`): the rig and its snapshot, the save
@@ -48,11 +44,12 @@ export default function useJamRig({ storageKey, followClick = false, restore, sa
   const ready = async () => {
     const ctx = getAudioContext();
     await wakeAudio();
-    rig.attach(ctx, getOutputBus(), APP_INPUT);
+    rig.attach(ctx, getOutputBus());
   };
-  const start = async (parts: readonly JamPart[], withLoops = false) => {
+  /** start parts on the next beat, and with `withFollowers` whatever follows the rig (the page's loops) */
+  const start = async (parts: readonly JamPart[], withFollowers = false) => {
     await ready();
-    rig.start(parts, withLoops);
+    rig.start(parts, withFollowers);
   };
   /** a part on or off, on the next beat */
   const toggle = (p: JamPart) => (snap.parts[p].state.playing ? rig.stop([p]) : void start([p]));

@@ -11,3 +11,7 @@ export * from "./effects/effects";
 export * from "./effects/choices";
 export { EffectChain } from "./effects/chain";
 export { MAX_BPM, MIN_BPM } from "./jam/clock";
+export type { GridFollower, GridHost } from "./jam/rig";
+export { LoopDeck, type LoopDeckSnapshot } from "./loops/deck";
+export { LOOP_CHANNELS, MAX_LOOP_EFFECTS, cleanConfig, type AppInput, type InputDevice, type LoopChannel, type LoopConfig, type LoopState, type LoopView } from "./loops/loops";
+export { DEFAULT_LOOP_BARS, LOOP_BARS, MAX_LOOPS, clampBars, loopOffset } from "./loops/take";

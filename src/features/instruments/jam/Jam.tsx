@@ -10,16 +10,22 @@ import { MAX_BPM, MIN_BPM } from "./clock";
 import { NumberField } from "@/components/ui";
 import { BEATS_PER_BAR, JAM_PARTS, type JamRig, type JamPartView, type JamSaved } from "./rig";
 import useJamRig from "./useJamRig";
-import JamLoops from "./JamLoops";
+import Loops from "../loops/LoopList";
+import useLoopDeck from "../loops/useLoopDeck";
+import type { LoopDeck } from "../loops/deck";
 import BeatDots from "./BeatDots";
 
 const KEY = "musickit.jam";
 /** where the drone page kept its drone before the jam: read when there is no jam save, so a saved sound is not lost */
 const OLD_DRONE_KEY = "musickit.drone";
 
-function restore(rig: JamRig) {
+/** The rig's save and the loops' settings beside it, in one `musickit.jam`. */
+function restore(rig: JamRig, deck: LoopDeck) {
   const saved = JSON.parse(window.localStorage.getItem(KEY) ?? "null") as Partial<JamSaved> | null;
-  if (saved && typeof saved === "object") return rig.load(saved);
+  if (saved && typeof saved === "object") {
+    rig.load(saved);
+    return deck.load(saved.loops);
+  }
   const drone = JSON.parse(window.localStorage.getItem(OLD_DRONE_KEY) ?? "null") as Partial<DroneParams> | null;
   if (drone && typeof drone === "object") rig.loadDrone(drone);
 }
@@ -76,9 +82,16 @@ function Title({ children, view, tone }: { children: ReactNode; view: JamPartVie
  * Nothing sounds until a person presses play (the browser needs that).
  */
 export default function Jam() {
-  const { rig, snap, ready, start, toggle } = useJamRig({ storageKey: KEY, followClick: true, restore });
+  // the deck is made below, on this rig; restore and save run later, in effects, once it is there
+  const { rig, snap, ready: rigReady, start, toggle } = useJamRig({ storageKey: KEY, followClick: true, restore: (r) => restore(r, loops.deck), save: (r) => ({ ...r.save(), loops: loops.deck.save() }) });
+  const loops = useLoopDeck(rig);
+  /** the audio of the parts and the loops, made on a person's click */
+  const ready = async () => {
+    await rigReady();
+    loops.ready();
+  };
   // names show only once the microphone is allowed; this never asks
-  useEffect(() => void rig.refreshDevices(), [rig]);
+  useEffect(() => void loops.deck.refreshDevices(), [loops.deck]);
   /** the metronome's own play: pressed to hear it, so it unmutes too */
   const toggleClick = async () => {
     if (snap.click.on) return rig.setClick(false);
@@ -87,9 +100,9 @@ export default function Jam() {
     rig.setClick(true);
   };
   // any part or loop playing makes it a Stop all, so one started on its own can be stopped from here too
-  const anyOn = snap.click.on || JAM_PARTS.some((p) => snap.parts[p].state.playing) || snap.loops.some((l) => l.on || l.state === "countIn" || l.state === "recording");
+  const anyOn = snap.click.on || JAM_PARTS.some((p) => snap.parts[p].state.playing) || loops.snap.loops.some((l) => l.on || l.state === "countIn" || l.state === "recording");
   const toggleAll = () => {
-    if (!anyOn) return void start(JAM_PARTS, true);
+    if (!anyOn) return void ready().then(() => start(JAM_PARTS, true));
     rig.setClick(false);
     rig.stop(JAM_PARTS, true);
   };
@@ -172,7 +185,7 @@ export default function Jam() {
       })}
 
       <PartCard tone={PART_TONE.loops} label="Loops" tour="jam-loops">
-        <JamLoops rig={rig} loops={snap.loops} devices={snap.devices} ready={ready} />
+        <Loops deck={loops.deck} ready={ready} />
       </PartCard>
     </div>
   );

@@ -3,8 +3,7 @@ import { clampDrone, type DroneParams } from "../drone/drone";
 import { findGroove, grooveBassCells, grooveDrumCells, type GrooveId } from "../sequencer/grooves";
 import { BASS, DRONE_ID, DRUMS, Sequencer, type SequencerState } from "../sequencer/sequencer";
 import { clampTempo, nextBeat } from "./clock";
-import { InputPool, JamLoop, type AppInput, type InputDevice, type LoopConfig, type LoopView } from "./loops";
-import { MAX_LOOPS } from "./take";
+import type { LoopConfig } from "../loops/loops";
 
 export const JAM_PARTS = ["drone", "drums", "bass"] as const;
 export type JamPart = (typeof JAM_PARTS)[number];
@@ -30,20 +29,47 @@ export function clampLevel(l: Partial<PartLevel> | null | undefined): PartLevel 
 export interface JamSnapshot {
   bpm: number;
   parts: Record<JamPart, JamPartView>;
-  loops: LoopView[];
   /** the groove last set with `setGroove`; null once a step, preset, clear or bar count of the drums or bass changed it (Custom) */
   groove: GrooveId | null;
-  /** the input devices the browser lists (names only once the microphone is allowed) */
-  devices: InputDevice[];
-  /** a loop holds sound or records: the tempo stays as it is */
+  /** a follower (a loop) holds sound or records: the tempo stays as it is */
   tempoLocked: boolean;
   /**
    * the metronome click on the same grid: `on` is its own play (`setClick`); `running` is clicking now, which with `followClick` is
-   * also whenever another part or loop plays; `muted` silences it and keeps it going
+   * also whenever another part or a follower plays; `muted` silences it and keeps it going
    */
   click: { on: boolean; running: boolean; volume: number; muted: boolean };
 }
+/** `loops` is the `LoopDeck`'s, written beside the rig's by the page that hosts both (`musickit.jam`); the rig neither reads nor writes it. */
 export interface JamSaved { bpm: number; parts: Partial<Record<JamPart, Partial<SequencerState>>>; loops?: Partial<LoopConfig>[]; click?: { volume?: number; muted?: boolean }; levels?: Partial<Record<JamPart, Partial<PartLevel>>>; groove?: GrooveId | null }
+
+/** The rig's grid, as a follower sees it (handed over in `JamRig.follow`). */
+export interface GridHost {
+  /** something keeps the grid: a part, the click or a follower sounds (or a take is on its way) */
+  busy(): boolean;
+  /** the running grid's beat 1, or a new grid `lead` seconds from now (every follower hears it in `onGrid`) */
+  grid(lead?: number): number;
+}
+
+/**
+ * Something that plays on a rig's clock without being one of its parts: the `LoopDeck`. The rig tells it where the grid is and the tempo,
+ * starts and stops it with the parts when asked (`start`/`stop` with `withFollowers`), and asks it whether it keeps the grid and whether
+ * it locks the tempo. `follow` sets `changed` (call it whenever the follower's state changes) and `host`; `unfollow` clears both.
+ */
+export interface GridFollower {
+  /** it sounds, or a take is on its way: it keeps the grid and the following click */
+  busy(): boolean;
+  /** it holds sound recorded at this tempo */
+  locksTempo(): boolean;
+  /** the grid's beat 1 moved here (AudioContext time) */
+  onGrid(anchor: number, beatSeconds: number): void;
+  /** Play all: start on this beat */
+  startAt(at: number): void;
+  /** Stop all: stop on this beat */
+  stopAt(at: number): void;
+  onTempo(bpm: number): void;
+  changed?: () => void;
+  host?: GridHost | null;
+}
 
 /**
  * Drone, drums and bass on one clock, for a page: what the `Jam` component shows. No React. The first part to start sets the grid;
@@ -57,17 +83,12 @@ export class JamRig {
   private ctx: AudioContext | null = null;
   private listeners = new Set<() => void>();
   private snap: JamSnapshot;
-  private loops: JamLoop[] = [];
-  private pool: InputPool | null = null;
-  private out: AudioNode | null = null;
-  private devices: InputDevice[] = [];
-  private onDeviceChange = () => void this.refreshDevices();
-  private unfollowApp: (() => void) | null = null;
+  private followers: GridFollower[] = [];
   private clickTrack: ClickTrack | null = null;
   private clickOn = false;
   private clickVolume = DEFAULT_CLICK.volume;
   private clickMuted: boolean;
-  /** the click also plays whenever another part or loop does (the drone page), muted until a person wants it */
+  /** the click also plays whenever another part or a follower does (the drone page), muted until a person wants it */
   private readonly followClick: boolean;
   private groove: GrooveId | null = null;
   private levels: Record<JamPart, PartLevel> = { drone: DEFAULT_LEVEL, drums: DEFAULT_LEVEL, bass: DEFAULT_LEVEL };
@@ -82,7 +103,6 @@ export class JamRig {
       return q;
     };
     this.seqs = { drone: make("drone", DRONE_ID), drums: make("drums", DRUMS.id), bass: make("bass", BASS.id) };
-    this.loops = [this.makeLoop(null)];
     this.snap = this.build();
   }
 
@@ -92,34 +112,21 @@ export class JamRig {
 
   private build(): JamSnapshot {
     const view = (q: Sequencer): JamPartView => ({ state: q.state, running: q.running, stopping: q.stopping, steps: q.steps, ...this.levels[q.id as JamPart] });
-    const now = this.ctx?.currentTime ?? 0;
     return {
       bpm: this.bpm,
       parts: { drone: view(this.seqs.drone), drums: view(this.seqs.drums), bass: view(this.seqs.bass) },
       groove: this.groove,
-      loops: this.loops.map((l) => l.view(now)),
-      devices: this.devices,
       tempoLocked: this.tempoLocked,
       click: { on: this.clickOn, running: !!this.clickTrack?.playing && !this.clickTrack.ending, volume: this.clickVolume, muted: this.clickMuted },
     };
   }
 
-  private makeLoop(config: Partial<LoopConfig> | null) {
-    const l = new JamLoop(config, () => this.changed());
-    if (this.ctx && this.pool && this.out) l.attach(this.ctx, this.pool, this.out);
-    return l;
-  }
-
   private get tempoLocked() {
-    return this.loops.some((l) => l.buffer || l.take);
-  }
-
-  private get bar() {
-    return this.beat * BEATS_PER_BAR;
+    return this.followers.some((f) => f.locksTempo());
   }
 
   private changed() {
-    if (!this.seqs || !this.loops) return; // while the constructor makes them
+    if (!this.seqs || !this.followers) return; // while the constructor makes them
     this.seqs.bass.key = this.seqs.drone.state.drone.root;
     this.snap = this.build();
     this.listeners.forEach((f) => f());
@@ -130,6 +137,41 @@ export class JamRig {
     return () => this.listeners.delete(f);
   };
   snapshot = () => this.snap;
+
+  /**
+   * Play `f` on this rig's clock: it hears the grid and the tempo, keeps the grid while busy, can lock the tempo, and starts and stops
+   * with the parts when asked. Returns the unfollow.
+   */
+  follow(f: GridFollower): () => void {
+    if (this.followers.includes(f)) return () => this.unfollow(f);
+    this.followers = [...this.followers, f];
+    f.host = this.host;
+    f.changed = () => {
+      this.syncClick();
+      this.changed();
+    };
+    f.onTempo(this.bpm);
+    if (this.anchor !== null) f.onGrid(this.anchor, this.beat);
+    this.changed();
+    return () => this.unfollow(f);
+  }
+
+  private unfollow(f: GridFollower) {
+    if (!this.followers.includes(f)) return;
+    this.followers = this.followers.filter((x) => x !== f);
+    f.changed = undefined;
+    f.host = null;
+    this.syncClick();
+    this.changed();
+  }
+
+  private readonly host: GridHost = { busy: () => this.busy(), grid: (lead) => this.grid(lead) };
+
+  /** The grid's beat 1 moved: every follower hears it. */
+  private setAnchor(a: number) {
+    this.anchor = a;
+    this.followers.forEach((f) => f.onGrid(a, this.beat));
+  }
 
   /** Load what `save` gave, checking every field. */
   load(saved: Partial<JamSaved> | null | undefined) {
@@ -146,10 +188,7 @@ export class JamRig {
       this.clickVolume = clampClick({ volume: saved.click.volume }).volume;
       if (typeof saved.click.muted === "boolean") this.clickMuted = saved.click.muted;
     }
-    if (Array.isArray(saved.loops) && saved.loops.length && !this.loops.some((l) => l.buffer || l.take)) {
-      this.loops.forEach((l) => l.dispose());
-      this.loops = saved.loops.slice(0, MAX_LOOPS).map((c) => this.makeLoop(c));
-    }
+    this.followers.forEach((f) => f.onTempo(this.bpm));
     this.changed();
   }
 
@@ -159,27 +198,19 @@ export class JamRig {
   }
 
   save(): JamSaved {
-    return { bpm: this.bpm, parts: { drone: this.seqs.drone.serialize(), drums: this.seqs.drums.serialize(), bass: this.seqs.bass.serialize() }, loops: this.loops.map((l) => l.config), click: { volume: this.clickVolume, muted: this.clickMuted }, levels: { ...this.levels }, groove: this.groove };
+    return { bpm: this.bpm, parts: { drone: this.seqs.drone.serialize(), drums: this.seqs.drums.serialize(), bass: this.seqs.bass.serialize() }, click: { volume: this.clickVolume, muted: this.clickMuted }, levels: { ...this.levels }, groove: this.groove };
   }
 
-  /**
-   * Make the sound: every part into `out`. Call from a person's click, once the context is running. `app` is the app's one input,
-   * which a loop without its own device records (and follows when it changes).
-   */
-  attach(ctx: AudioContext, out: AudioNode, app: AppInput | null = null) {
+  /** Make the sound: every part into `out`. Call from a person's click, once the context is running. */
+  attach(ctx: AudioContext, out: AudioNode) {
     if (this.ctx) return;
     this.ctx = ctx;
-    this.out = out;
-    this.pool = new InputPool(ctx, app);
-    this.unfollowApp = app?.subscribe(() => this.loops.forEach((l) => l.followAppInput())) ?? null;
     for (const p of JAM_PARTS) {
       this.seqs[p].attach(ctx);
       this.seqs[p].toSpeakers!.connect(out);
       this.applyLevel(p);
     }
-    this.loops.forEach((l) => l.attach(ctx, this.pool!, out));
     this.clickTrack = new ClickTrack(ctx, out);
-    navigator.mediaDevices?.addEventListener?.("devicechange", this.onDeviceChange);
   }
 
   get attached() {
@@ -187,21 +218,18 @@ export class JamRig {
   }
 
   private sounding = (p: JamPart) => this.seqs[p].running && !this.seqs[p].stopping;
-  /** something keeps the grid: a part or a loop sounds, or a take is on its way */
-  private busy = () => this.clickOn || JAM_PARTS.some(this.sounding) || this.loops.some((l) => l.take || (l.running && !l.stopping));
+  /** something keeps the grid: a part or a follower sounds, or a take is on its way */
+  private busy = () => this.clickOn || JAM_PARTS.some(this.sounding) || this.followers.some((f) => f.busy());
 
-  /** The grid to start on: the running one, or a new one from now on (every loop's bar 1 moves to it). */
+  /** The grid to start on: the running one, or a new one from now on (every follower hears it). */
   private grid(lead = 0.06): number {
     const ctx = this.ctx!;
-    if (this.anchor === null || !this.busy()) {
-      this.anchor = ctx.currentTime + lead;
-      this.loops.forEach((l) => (l.origin = this.anchor!));
-    }
-    return this.anchor;
+    if (this.anchor === null || !this.busy()) this.setAnchor(ctx.currentTime + lead);
+    return this.anchor!;
   }
 
-  /** Start parts, and with `withLoops` every loop that holds sound. */
-  start(parts: readonly JamPart[], withLoops = false) {
+  /** Start parts, and with `withFollowers` every follower (each loop that holds sound). */
+  start(parts: readonly JamPart[], withFollowers = false) {
     const ctx = this.ctx;
     if (!ctx) return;
     const anchor = this.grid();
@@ -212,11 +240,11 @@ export class JamRig {
       if (q.stopping) q.cancelStop();
       else if (!q.running) q.start(anchor, at);
     }
-    if (withLoops) this.loops.filter((l) => l.buffer && !l.take).forEach((l) => this.playLoop(l, at));
+    if (withFollowers) this.followers.forEach((f) => f.startAt(at));
     this.syncClick();
   }
 
-  stop(parts: readonly JamPart[], withLoops = false) {
+  stop(parts: readonly JamPart[], withFollowers = false) {
     const ctx = this.ctx;
     const at = ctx && this.anchor !== null ? nextBeat(ctx.currentTime + 0.02, this.anchor, this.beat) : 0;
     for (const p of parts) {
@@ -224,134 +252,8 @@ export class JamRig {
       q.setPlaying(false);
       if (ctx && q.running && this.anchor !== null) q.stopAt(at);
     }
-    if (withLoops) this.loops.forEach((l) => this.stopLoop(l, at));
+    if (withFollowers) this.followers.forEach((f) => f.stopAt(at));
     this.syncClick();
-  }
-
-  private playLoop(l: JamLoop, at: number) {
-    l.on = true;
-    l.play(at);
-    this.changed();
-  }
-
-  private stopLoop(l: JamLoop, at: number) {
-    if (l.take) l.cancelTake();
-    l.on = false;
-    if (l.running && !l.stopping) l.stopAt(Math.max(at, (this.ctx?.currentTime ?? 0) + 0.01));
-    this.changed();
-  }
-
-  private loop(id: string) {
-    return this.loops.find((l) => l.config.id === id);
-  }
-
-  /** Start or stop one loop on the next beat. */
-  toggleLoop(id: string) {
-    const l = this.loop(id), ctx = this.ctx;
-    if (!l || !ctx || !l.buffer) return;
-    if (l.on) this.stopLoop(l, this.anchor === null ? ctx.currentTime : nextBeat(ctx.currentTime + 0.02, this.anchor, this.beat));
-    else {
-      const anchor = this.grid();
-      this.playLoop(l, nextBeat(ctx.currentTime + 0.02, anchor, this.beat));
-    }
-    this.syncClick();
-  }
-
-  /**
-   * Record a loop: open its input (from the person's click), then take its bars from the next bar line. With nothing playing the
-   * grid starts with a one-bar count-in of clicks. Pressed again before the take is in, it is called off.
-   */
-  async record(id: string) {
-    const l = this.loop(id), ctx = this.ctx;
-    if (!l || !ctx) return;
-    if (l.take) {
-      l.cancelTake();
-      return this.syncClick();
-    }
-    if (!(await l.connect())) return;
-    void this.refreshDevices();
-    const now = ctx.currentTime;
-    let start: number;
-    if (this.anchor !== null && this.busy()) start = nextBeat(now + 0.05, this.anchor, this.bar);
-    else {
-      start = this.grid(0.1 + this.bar);
-      this.countIn(start);
-    }
-    l.arm(start, start + l.config.bars * this.bar);
-    this.syncClick();
-  }
-
-  /** A bar of clicks before `start`, the first one higher. */
-  private countIn(start: number) {
-    const ctx = this.ctx!, out = this.out!;
-    for (let i = 0; i < BEATS_PER_BAR; i++) {
-      const t = start - this.bar + i * this.beat;
-      const o = ctx.createOscillator(), g = ctx.createGain();
-      o.frequency.value = i === 0 ? 1500 : 1000;
-      g.gain.setValueAtTime(0.0001, t);
-      g.gain.exponentialRampToValueAtTime(0.3, t + 0.003);
-      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.06);
-      o.connect(g).connect(out);
-      o.start(t);
-      o.stop(t + 0.08);
-    }
-  }
-
-  /** Open a loop's input without recording, so its meter shows the signal. */
-  connectLoop(id: string) {
-    const l = this.loop(id);
-    if (l) void l.connect().then((ok) => { if (ok) void this.refreshDevices(); });
-  }
-
-  setLoop(id: string, patch: Partial<Omit<LoopConfig, "id">>) {
-    const l = this.loop(id);
-    // during a take only the effects and the monitor change (they are heard, and taken, at once)
-    if (!l || (l.take && Object.keys(patch).some((k) => k !== "effects" && k !== "monitor"))) return;
-    // the length is the recording's once there is one
-    if (l.buffer && patch.bars !== undefined) patch = { ...patch, bars: l.config.bars };
-    l.setConfig(patch);
-  }
-
-  clearLoop(id: string) {
-    this.loop(id)?.clear();
-    this.syncClick();
-  }
-
-  /** A new empty loop on the same input as the last one. */
-  addLoop() {
-    if (this.loops.length >= MAX_LOOPS) return;
-    const last = this.loops[this.loops.length - 1]?.config;
-    this.loops = [...this.loops, this.makeLoop(last ? { deviceId: last.deviceId, channel: last.channel, bars: last.bars, effects: last.effects } : null)];
-    this.changed();
-  }
-
-  removeLoop(id: string) {
-    const l = this.loop(id);
-    if (!l || this.loops.length <= 1) return;
-    l.dispose();
-    this.loops = this.loops.filter((x) => x !== l);
-    this.syncClick();
-    this.changed();
-  }
-
-  loopPosition(id: string) {
-    return this.loop(id)?.position() ?? null;
-  }
-  loopLevel(id: string) {
-    return this.loop(id)?.level() ?? 0;
-  }
-
-  /** List the input devices (no prompt: names show once the microphone is allowed). */
-  async refreshDevices() {
-    try {
-      const list = (await navigator.mediaDevices?.enumerateDevices?.()) ?? [];
-      const next = list.filter((d) => d.kind === "audioinput" && d.deviceId && d.deviceId !== "default").map((d, i) => ({ id: d.deviceId, label: d.label || `Input ${i + 1}` }));
-      if (next.length === this.devices.length && next.every((d, i) => d.id === this.devices[i].id && d.label === this.devices[i].label)) return;
-      this.devices = next;
-      this.changed();
-    } catch {
-      /* no device listing here */
-    }
   }
 
   /** A new tempo moves the grid: the parts that play (and the click) start again together on it. */
@@ -359,11 +261,12 @@ export class JamRig {
     // recorded loops are so many bars of the tempo they were taken at
     if (this.tempoLocked) return;
     this.bpm = clampTempo(bpm);
+    this.followers.forEach((f) => f.onTempo(this.bpm));
     const going = JAM_PARTS.filter(this.sounding);
     const clicking = !!this.clickTrack?.playing && !this.clickTrack.ending;
     if (this.ctx && (going.length || clicking)) {
       const a = this.ctx.currentTime + 0.05;
-      this.anchor = a;
+      this.setAnchor(a);
       going.forEach((p) => this.seqs[p].start(a, a));
       if (clicking) this.clickTrack?.start(this.clickParams, a, a);
     }
@@ -374,11 +277,11 @@ export class JamRig {
     return { bpm: this.bpm, beatsPerBar: BEATS_PER_BAR, volume: this.clickMuted ? 0 : this.clickVolume };
   }
 
-  /** another part or loop is meant to play (or a take is on its way) */
-  private othersOn = () => JAM_PARTS.some((p) => this.seqs[p].state.playing) || this.loops.some((l) => l.on || l.take);
+  /** another part or a follower is meant to play (or a take is on its way) */
+  private othersOn = () => JAM_PARTS.some((p) => this.seqs[p].state.playing) || this.followers.some((f) => f.busy());
 
   /**
-   * Click when wanted: its own play, or (with `followClick`) whenever another part or loop plays. It joins the grid on its next beat;
+   * Click when wanted: its own play, or (with `followClick`) whenever another part or a follower plays. It joins the grid on its next beat;
    * it stops with the others on the next beat, or at once when its own play stops without `followClick`.
    */
   private syncClick() {
@@ -438,7 +341,7 @@ export class JamRig {
     if (!ctx) return null;
     const a = ctx.currentTime + lead;
     const anchor = a - from * this.beat;
-    this.anchor = anchor;
+    this.setAnchor(anchor);
     JAM_PARTS.filter(this.sounding).forEach((p) => this.seqs[p].start(anchor, a));
     if (this.clickTrack?.playing && !this.clickTrack.ending) this.clickTrack.start(this.clickParams, anchor, a);
     this.changed();
@@ -521,19 +424,10 @@ export class JamRig {
       this.seqs[p].setPlaying(false);
       this.seqs[p].dispose();
     });
-    this.loops.forEach((l) => l.dispose());
-    this.pool?.dispose();
-    this.unfollowApp?.();
-    this.unfollowApp = null;
     this.clickTrack?.dispose();
     this.clickTrack = null;
     this.clickOn = false;
-    navigator.mediaDevices?.removeEventListener?.("devicechange", this.onDeviceChange);
     this.anchor = null;
     this.ctx = null;
-    this.out = null;
-    this.pool = null;
-    // the settings stay; the recorded sound goes with the audio
-    this.loops = this.loops.map((l) => this.makeLoop(l.config));
   }
 }

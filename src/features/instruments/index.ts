@@ -4,7 +4,8 @@
  *   model.ts     sound and maths, no React (the looper engine imports only this)
  *   drone/       the drone voice, its controls (DroneControls) and pictures (DroneScope)
  *   sequencer/   the Sequencer, its instruments and patterns, and StepGrid / PatternBar (the pattern editor)
- *   jam/         Jam: drone, drums and bass on one clock for a page, the bass in the drone's key
+ *   jam/         Jam: drone, drums and bass on one clock for a page, the bass in the drone's key; JamRig and its GridFollower
+ *   loops/       LoopDeck: the looper on its own, recording loops on a rig's clock (it follows a JamRig); Loops, its rows
  *   click/       ClickTrack, a page's metronome click (the looper keeps its own, tied to its transport)
  *   pocket/      PocketTools: a one-line metronome and drone for a page's settings bar; PocketLine and POCKET_BUTTON for a host's own line
  *   practice/    PracticeBand: a folded play-along band set up by its host (a practice-plan exercise); PracticeBacking: the same
@@ -21,6 +22,8 @@ export { default as DroneScope } from "./drone/DroneScope";
 export { default as StepGrid, PatternBar } from "./sequencer/StepGrid";
 export { default as PartLevel } from "./sequencer/PartLevel";
 export { default as Jam } from "./jam/Jam";
+export { default as Loops } from "./loops/LoopList";
+export { default as useLoopDeck, APP_INPUT } from "./loops/useLoopDeck";
 export { default as PocketTools, PocketDrone, Tool as PocketLine, POCKET_BUTTON, POCKET_LIT, type PocketStatus } from "./pocket/PocketTools";
 export { default as PracticeBand, type BandPart } from "./practice/PracticeBand";
 export { default as PracticeBacking } from "./practice/PracticeBacking";
