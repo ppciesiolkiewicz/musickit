@@ -222,6 +222,7 @@ export function View({ keys: keysProp = [0], voice = "tenor", intervals = DEFAUL
 
   return (
     <div ref={root} className="flex flex-col gap-3">
+      <div className="flex flex-col gap-2 rounded-xl border border-slate-800 bg-slate-900/40 p-2">
       <div className="flex flex-wrap items-center gap-2">
         <Button size="sm" onClick={next} title={`${ask === null ? "Start" : "Next interval"} (Space)`} className="inline-flex items-center gap-1.5 !border-sky-400/80 !bg-sky-500/25 !text-sky-50">
           {ask === null ? "Start" : "Next"}<KeyCap>Space</KeyCap>
@@ -234,6 +235,39 @@ export function View({ keys: keysProp = [0], voice = "tenor", intervals = DEFAUL
         {score.asked > 0 && <span className="text-sm tabular-nums text-slate-400">{score.right}/{score.asked} sung</span>}
         <span className="ml-auto" />
         <ToolSettings accuracy />
+      </div>
+      <div className="flex flex-wrap items-center gap-2 border-t border-slate-800 pt-2 text-xs text-slate-400">
+        <span role="group" aria-label="View" className="inline-flex rounded-lg border border-slate-800 p-0.5">
+          {(["roll", "staff"] as const).map((l) => (
+            <button key={l} type="button" aria-pressed={look === l} onClick={() => setLook(l)}
+              className={`inline-flex items-center gap-1 rounded-md px-2 py-1 transition ${look === l ? "bg-sky-500/20 text-sky-100" : "hover:text-slate-200"}`}>
+              <Icon name={l === "roll" ? "piano" : "music"} size={13} />{l === "roll" ? "Piano roll" : "Staff"}
+            </button>
+          ))}
+        </span>
+        {/* where Do comes from: the keys picked on the chips, or any of the twelve; switching keeps the keys picked */}
+        <span className="text-slate-500">Keys</span>
+        <span role="group" aria-label="Keys" className="inline-flex rounded-lg border border-slate-800 p-0.5">
+          {([false, true] as const).map((r) => (
+            <button key={String(r)} type="button" aria-pressed={random === r} onClick={() => setRandom(r)} title={r ? "Any of the 12 keys: a random Do each time" : "Only the keys picked"}
+              className={`rounded-md px-2 py-1 transition ${random === r ? "bg-sky-500/20 text-sky-100" : "hover:text-slate-200"}`}>{r ? "Random" : "Picked"}</button>
+          ))}
+        </span>
+        {!random && (
+          <span role="group" aria-label="Keys picked" className="inline-flex flex-wrap items-center gap-0.5">
+            {KEY_NAMES.map((name, k) => (
+              <button key={k} type="button" aria-pressed={picked.includes(k)} onClick={() => toggleKey(k)}
+                title={picked.includes(k) ? (picked.length > 1 ? `Leave out ${name}` : "At least one key") : `Ask in ${name} too`}
+                className={`min-w-7 rounded-md px-1.5 py-1 transition ${picked.includes(k) ? "bg-sky-500/20 text-sky-100" : "text-slate-500 hover:text-slate-200"}`}>{name}</button>
+            ))}
+          </span>
+        )}
+        <Checkbox checked={dot} onChange={setDot} title="Off is harder: you sing without seeing your voice">Show my voice</Checkbox>
+        <span className="ml-auto" />
+        <Badge>{range.label}</Badge>
+        {/* plain text, not a badge: a badge's capitals would turn m3 into M3 */}
+        <span className="rounded-full border border-slate-700 px-2 py-0.5 text-slate-300">{[...new Set(placed.asks.map(Math.abs))].sort((a, b) => a - b).map(shortName).join(" ")} {dir === "both" ? "up and down" : dir}</span>
+      </div>
       </div>
       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
         <p className="text-2xl font-semibold text-slate-50">
@@ -253,37 +287,6 @@ export function View({ keys: keysProp = [0], voice = "tenor", intervals = DEFAUL
           hidden={(i) => !found && i === staff.targetAt}
           onNote={(i) => void (i === staff.targetAt ? found && targetMidi !== null && tap(targetMidi, -2) : tap(doMidi, -1))} />
       )}
-      <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400">
-        <span role="group" aria-label="View" className="inline-flex rounded-lg border border-slate-800 p-0.5">
-          {(["roll", "staff"] as const).map((l) => (
-            <button key={l} type="button" aria-pressed={look === l} onClick={() => setLook(l)}
-              className={`inline-flex items-center gap-1 rounded-md px-2 py-1 transition ${look === l ? "bg-sky-500/20 text-sky-100" : "hover:text-slate-200"}`}>
-              <Icon name={l === "roll" ? "piano" : "music"} size={13} />{l === "roll" ? "Piano roll" : "Staff"}
-            </button>
-          ))}
-        </span>
-        {/* where Do comes from: the keys picked on the chips, or any of the twelve; switching keeps the keys picked */}
-        <span role="group" aria-label="Key" className="inline-flex rounded-lg border border-slate-800 p-0.5">
-          {([false, true] as const).map((r) => (
-            <button key={String(r)} type="button" aria-pressed={random === r} onClick={() => setRandom(r)} title={r ? "Any of the 12 keys: a random Do each time" : "Only the keys picked"}
-              className={`rounded-md px-2 py-1 transition ${random === r ? "bg-sky-500/20 text-sky-100" : "hover:text-slate-200"}`}>{r ? "Random" : picked.length > 1 ? "Keys" : "One key"}</button>
-          ))}
-        </span>
-        {!random && (
-          <span role="group" aria-label="Keys picked" className="inline-flex flex-wrap items-center gap-0.5">
-            {KEY_NAMES.map((name, k) => (
-              <button key={k} type="button" aria-pressed={picked.includes(k)} onClick={() => toggleKey(k)}
-                title={picked.includes(k) ? (picked.length > 1 ? `Leave out ${name}` : "At least one key") : `Ask in ${name} too`}
-                className={`min-w-7 rounded-md px-1.5 py-1 transition ${picked.includes(k) ? "bg-sky-500/20 text-sky-100" : "text-slate-500 hover:text-slate-200"}`}>{name}</button>
-            ))}
-          </span>
-        )}
-        <Checkbox checked={dot} onChange={setDot} title="Off is harder: you sing without seeing your voice">Show my voice</Checkbox>
-        <span className="ml-auto" />
-        <Badge>{range.label}</Badge>
-        {/* plain text, not a badge: a badge's capitals would turn m3 into M3 */}
-        <span className="rounded-full border border-slate-700 px-2 py-0.5 text-slate-300">{[...new Set(placed.asks.map(Math.abs))].sort((a, b) => a - b).map(shortName).join(" ")} {dir === "both" ? "up and down" : dir}</span>
-      </div>
     </div>
   );
 }

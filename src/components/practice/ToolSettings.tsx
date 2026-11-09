@@ -51,7 +51,7 @@ export default function ToolSettings({ labels, omit = [], accuracy = false, view
   const [melodyView, setView] = useExerciseSetting("view");
   if (!accuracy && !labels && !view && !more) return volume ? <Volume /> : null;
   return (
-    <span className="inline-flex items-center gap-0.5">
+    <span className="inline-flex items-center gap-2">
       {volume && <Volume />}
       <Dropdown label="Sound and view settings" button={<Icon name="sliders-horizontal" size={15} />}>
         {accuracy && (
