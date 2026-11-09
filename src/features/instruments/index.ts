@@ -21,7 +21,7 @@ export { default as DroneScope } from "./drone/DroneScope";
 export { default as StepGrid, PatternBar } from "./sequencer/StepGrid";
 export { default as PartLevel } from "./sequencer/PartLevel";
 export { default as Jam } from "./jam/Jam";
-export { default as PocketTools, Tool as PocketLine, POCKET_BUTTON, POCKET_LIT, type PocketStatus } from "./pocket/PocketTools";
+export { default as PocketTools, PocketDrone, Tool as PocketLine, POCKET_BUTTON, POCKET_LIT, type PocketStatus } from "./pocket/PocketTools";
 export { default as PracticeBand, type BandPart } from "./practice/PracticeBand";
 export { default as PracticeBacking } from "./practice/PracticeBacking";
 export { default as EffectControls } from "./effects/EffectControls";

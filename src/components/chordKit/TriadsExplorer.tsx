@@ -94,7 +94,6 @@ export default function TriadsExplorer({ initialTonic = DEFAULT_KEY_PC, initialQ
       <ScaleSettingsBar tonicPc={tonicPc} onTonic={setTonicPc} side={side} config={{
         labels: { extra: <RootSelect /> },
         rows: side ? undefined : criteria,
-        input: true,
       }} />
     }>
         <p className="px-1 text-xs text-slate-400">

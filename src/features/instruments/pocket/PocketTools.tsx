@@ -10,7 +10,7 @@ import DroneControls from "../drone/DroneControls";
 import StepGrid, { PatternBar } from "../sequencer/StepGrid";
 import PartLevel, { MuteButton } from "../sequencer/PartLevel";
 import { MAX_BPM, MIN_BPM } from "../jam/clock";
-import { BEATS_PER_BAR, JAM_PARTS, JamRig, type JamPart, type JamSaved } from "../jam/rig";
+import { BEATS_PER_BAR, JAM_PARTS, JamRig, type JamPart, type JamSaved, type JamSnapshot } from "../jam/rig";
 import useJamRig from "../jam/useJamRig";
 import BeatDots from "../jam/BeatDots";
 import { NumberField, Select, Slider, inSelectMenu } from "@/components/ui";
@@ -136,6 +136,41 @@ export function Tool({ label, gap = "gap-1", children }: { label: string; gap?: 
  * again; outside that it leaves Space to the page. The drone (and with it the bass) sits on `keyPc`. Owns its audio, made on the
  * first click; saved in localStorage `musickit.pocket` (settings only; nothing plays on load).
  */
+/** The drone's line: play, mute, octave, volume, and its full `DroneControls` behind the sliders button. */
+function DroneLine({ rig, snap, keyPc, onToggle }: { rig: JamRig; snap: JamSnapshot; keyPc: number; onToggle: () => void }) {
+  const drone = snap.parts.drone.state.drone;
+  return (
+    <Tool label="Drone" gap="gap-2">
+      {/* two lines, as the click's: its buttons, then the volume on a slider under them */}
+      <div className="flex min-w-0 flex-1 flex-col gap-2">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <PlayButton on={snap.parts.drone.state.playing} label="drone" onClick={onToggle} />
+          <MuteButton className={ibtn} name="drone" muted={snap.parts.drone.muted} onMute={(muted) => rig.setLevel("drone", { muted })} />
+          <button type="button" className={ibtn} disabled={drone.octave <= DRONE_MIN_OCTAVE} onClick={() => rig.setDrone({ octave: drone.octave - 1 })} aria-label="Octave down">−</button>
+          <span className="w-12 shrink-0 text-center text-xs tabular-nums text-slate-100" aria-live="polite" title="The drone plays the key's note (another note in the sound panel)">{droneName(drone)}</span>
+          <button type="button" className={ibtn} disabled={drone.octave >= DRONE_MAX_OCTAVE} onClick={() => rig.setDrone({ octave: drone.octave + 1 })} aria-label="Octave up">+</button>
+          <Popover label="Drone sound" wide>
+            {/* Reset hands back DEFAULT_DRONE: keep the key's note rather than its E */}
+            <DroneControls value={drone} onChange={(p) => rig.setDrone(p === DEFAULT_DRONE ? { ...p, root: keyPc } : p)} playing={snap.parts.drone.running} analyser={snap.parts.drone.running ? rig.droneAnalyser() : null}
+              header={<p className="text-[11px] text-slate-500">The note moves to the page&apos;s key whenever the key changes.</p>} />
+          </Popover>
+        </div>
+        <label className="flex min-w-0 items-center gap-2 text-[11px] text-slate-500">
+          <span className="shrink-0">Volume</span>
+          <Slider min={0} max={1} step={0.01} value={drone.level} onChange={(level) => rig.setDrone({ level })} size="sm" className="w-full max-w-64 px-1" aria-label="Drone volume" title="Drone volume" />
+        </label>
+      </div>
+    </Tool>
+  );
+}
+
+/** The pocket tools' drone line on its own, on the same save as `PocketTools`. Mount one or the other: each has its own rig. */
+export function PocketDrone({ keyPc }: { keyPc: number }) {
+  const { rig, snap, restored, toggle } = useJamRig({ storageKey: STORAGE_KEY, restore, save });
+  useEffect(() => rig.setDrone({ root: keyPc }), [rig, keyPc, restored]);
+  return <DroneLine rig={rig} snap={snap} keyPc={keyPc} onToggle={() => toggle("drone")} />;
+}
+
 /**
  * What the pocket tools are doing, for a host to show in its header: the tempo, the drone's note and which parts play;
  * `nextBeat` is when the grid's next beat sounds (AudioContext time), or null when nothing keeps it, for a host to play on the click;
@@ -343,25 +378,16 @@ export default function PocketTools({ keyPc, className = "", stacked = false, cl
                 </div>
               </Popover>
             </div>
-            <Slider min={MIN_BPM} max={MAX_BPM} step={1} value={snap.bpm} onChange={(bpm) => rig.setTempo(bpm)} size="sm" className="w-full max-w-64 px-1" aria-label="Tempo" title={`${snap.bpm} bpm`} />
+            <label className="flex min-w-0 items-center gap-2 text-[11px] text-slate-500">
+              <span className="shrink-0">Tempo</span>
+              <Slider min={MIN_BPM} max={MAX_BPM} step={1} value={snap.bpm} onChange={(bpm) => rig.setTempo(bpm)} size="sm" className="w-full max-w-64 px-1" aria-label="Tempo" title={`${snap.bpm} bpm`} />
+            </label>
           </div>
         </Tool>
         {withDrone && <>
         <div role="separator" className="col-span-full my-1 border-t border-slate-800" />
 
-        <Tool label="Drone" gap="gap-2">
-          <PlayButton on={snap.parts.drone.state.playing} label="drone" onClick={() => toggle("drone")} />
-          <MuteButton className={ibtn} name="drone" muted={snap.parts.drone.muted} onMute={(muted) => rig.setLevel("drone", { muted })} />
-          <button type="button" className={ibtn} disabled={drone.octave <= DRONE_MIN_OCTAVE} onClick={() => rig.setDrone({ octave: drone.octave - 1 })} aria-label="Octave down">−</button>
-          <span className="w-12 shrink-0 text-center text-xs tabular-nums text-slate-100" aria-live="polite" title="The drone plays the key's note (another note in the sound panel)">{droneName(drone)}</span>
-          <button type="button" className={ibtn} disabled={drone.octave >= DRONE_MAX_OCTAVE} onClick={() => rig.setDrone({ octave: drone.octave + 1 })} aria-label="Octave up">+</button>
-          <Slider min={0} max={1} step={0.01} value={drone.level} onChange={(level) => rig.setDrone({ level })} size="sm" className="hidden w-14 px-1 sm:flex" aria-label="Drone volume" title="Drone volume" />
-          <Popover label="Drone sound" wide>
-            {/* Reset hands back DEFAULT_DRONE: keep the key's note rather than its E */}
-            <DroneControls value={drone} onChange={(p) => rig.setDrone(p === DEFAULT_DRONE ? { ...p, root: keyPc } : p)} playing={snap.parts.drone.running} analyser={snap.parts.drone.running ? rig.droneAnalyser() : null}
-              header={<p className="text-[11px] text-slate-500">The note moves to the page&apos;s key whenever the key changes.</p>} />
-          </Popover>
-        </Tool>
+        <DroneLine rig={rig} snap={snap} keyPc={keyPc} onToggle={() => toggle("drone")} />
         </>}
         {lines}
 

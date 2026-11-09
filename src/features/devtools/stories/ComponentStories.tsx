@@ -4,9 +4,11 @@ import { useEffect, useMemo, useState } from "react";
 import { Tool } from "@/features/plan/ui/ExerciseTool";
 import { parseTool } from "@/features/plan/model/tools";
 import Controls from "./Controls";
-import { storyGroups, type Props } from "./stories";
+import { storyGroups, type Props, type StoryGroup } from "./stories";
+import { UI_GROUPS, type UiGroup } from "./uiStories";
 
 type Tab = "controls" | "json" | "parsed";
+type Group = StoryGroup | UiGroup;
 const WIDTHS = { full: "", tablet: "48rem", phone: "390px" } as const;
 
 /** `#scale-neck/3`: the group and story in the address, so a story can be linked and survives a reload. */
@@ -15,9 +17,14 @@ const readHash = (): { group: string; story: number } | null => {
   return m ? { group: m[1], story: Number(m[2] ?? 0) } : null;
 };
 
+/** A heading over a part of the sidebar: the AI's tools, then the other components. */
+const SectionTitle = ({ children }: { children: string }) => (
+  <h2 className="border-b border-slate-700 pb-1 text-xs font-semibold text-slate-200">{children}</h2>
+);
+
 /** Every learning component in many set-ups, Storybook-style: pick a story, change its props with controls or JSON. */
 export default function ComponentStories() {
-  const groups = useMemo(() => storyGroups(), []);
+  const groups = useMemo<Group[]>(() => [...storyGroups(), ...UI_GROUPS], []);
   const [gi, setGi] = useState(0);
   const [si, setSi] = useState(0);
   const [props, setProps] = useState<Props>(groups[0].stories[0].props);
@@ -56,50 +63,59 @@ export default function ComponentStories() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const tool = parseTool({ type: group.tool, ...props });
+  const ui = "render" in group ? group : null;
+  const tool = "render" in group ? null : parseTool({ type: group.tool, ...props });
+  // a component has no parsed form: the tab falls back when moving to one from a tool
+  const shownTab = ui && tab === "parsed" ? "controls" : tab;
   const dirty = JSON.stringify(props) !== JSON.stringify(story.props);
   const q = filter.trim().toLowerCase();
-  const kinds = [...new Set(groups.map((g) => g.doc?.kind ?? "stub"))];
+  const kinds = [...new Set(groups.flatMap((g) => ("render" in g ? [] : [g.doc?.kind ?? "stub"])))];
+
+  const row = (g: Group, n: number) => {
+    const hits = q ? g.stories.map((s, k) => [s, k] as const).filter(([s]) => g.id.includes(q) || s.name.toLowerCase().includes(q)) : null;
+    if (hits && !hits.length) return null;
+    const open = expanded.has(g.id) || (q && hits);
+    return (
+      <div key={g.id}>
+        <button type="button" onClick={() => toggle(g.id)} aria-expanded={!!open} className={`flex w-full items-baseline justify-between rounded px-2 py-1 text-left font-mono text-xs ${n === gi ? "bg-emerald-500/15 text-emerald-100" : "text-slate-300 hover:text-slate-100"}`}>
+          <span>{g.shape ? <>play-along · <b>{g.shape}</b></> : g.id}</span>
+          <span className="text-[10px] text-slate-500">{g.stories.length}</span>
+        </button>
+        {open && (
+          <ul className="mb-1 ml-2 border-l border-slate-800 pl-2">
+            {(hits ?? g.stories.map((s, k) => [s, k] as const)).map(([s, k]) => (
+              <li key={k}>
+                <button type="button" onClick={() => show(n, k)} className={`w-full rounded px-1.5 py-0.5 text-left text-xs ${n === gi && k === si ? "text-emerald-200" : "text-slate-500 hover:text-slate-200"}`}>
+                  {s.name}
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="grid gap-4 lg:grid-cols-[17rem_1fr]">
       <nav className="flex flex-col gap-3 lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto pr-3 [scrollbar-gutter:stable]" aria-label="Components">
         <input value={filter} onChange={(e) => setFilter(e.target.value)} placeholder="Filter components or stories" className="rounded-lg border border-slate-700 bg-slate-950 px-2 py-1 text-sm text-slate-200" />
+        <SectionTitle>AI Autoplan Tools</SectionTitle>
         {kinds.map((kind) => (
           <div key={kind} className="flex flex-col gap-0.5">
             <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-slate-500">{kind}</p>
-            {groups.map((g, n) => {
-              if ((g.doc?.kind ?? "stub") !== kind) return null;
-              const hits = q ? g.stories.map((s, k) => [s, k] as const).filter(([s]) => g.id.includes(q) || s.name.toLowerCase().includes(q)) : null;
-              if (hits && !hits.length) return null;
-              const open = expanded.has(g.id) || (q && hits);
-              return (
-                <div key={g.id}>
-                  <button type="button" onClick={() => toggle(g.id)} aria-expanded={!!open} className={`flex w-full items-baseline justify-between rounded px-2 py-1 text-left font-mono text-xs ${n === gi ? "bg-emerald-500/15 text-emerald-100" : "text-slate-300 hover:text-slate-100"}`}>
-                    <span>{g.shape ? <>play-along · <b>{g.shape}</b></> : g.id}</span>
-                    <span className="text-[10px] text-slate-500">{g.stories.length}</span>
-                  </button>
-                  {open && (
-                    <ul className="mb-1 ml-2 border-l border-slate-800 pl-2">
-                      {(hits ?? g.stories.map((s, k) => [s, k] as const)).map(([s, k]) => (
-                        <li key={k}>
-                          <button type="button" onClick={() => show(n, k)} className={`w-full rounded px-1.5 py-0.5 text-left text-xs ${n === gi && k === si ? "text-emerald-200" : "text-slate-500 hover:text-slate-200"}`}>
-                            {s.name}
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              );
-            })}
+            {groups.map((g, n) => ("render" in g || (g.doc?.kind ?? "stub") !== kind ? null : row(g, n)))}
           </div>
         ))}
+        <SectionTitle>Components</SectionTitle>
+        <div className="flex flex-col gap-0.5">
+          {groups.map((g, n) => ("render" in g ? row(g, n) : null))}
+        </div>
       </nav>
 
       <div className="flex min-w-0 flex-col gap-3">
         <header className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <h2 className="font-mono text-lg text-slate-100">{group.shape ? `guitar-play-along · ${group.shape}` : group.tool}</h2>
+          <h2 className="font-mono text-lg text-slate-100">{"render" in group ? group.title : group.shape ?`guitar-play-along · ${group.shape}` : group.tool}</h2>
           <span className="text-sm text-slate-400">{story.name}</span>
           <span className="text-[11px] text-slate-600">{story.from === "hand" ? "hand-written" : `from ${story.from}`}</span>
           <div className="ml-auto flex items-center gap-1 text-xs">
@@ -113,19 +129,19 @@ export default function ComponentStories() {
 
         <div className="overflow-x-auto rounded-xl border border-slate-700 bg-slate-900/60 p-3">
           <div style={{ maxWidth: WIDTHS[width] || undefined }} className={width === "full" ? "" : "mx-auto rounded-lg outline-1 outline-dashed outline-slate-700"}>
-            {tool ? <Tool key={JSON.stringify(tool)} tool={tool} /> : <p className="text-sm text-rose-300">The tool doesn&apos;t parse: a required prop missing, or a value the parser rejects.</p>}
+            {ui ? <div key={`${ui.id}:${JSON.stringify(props)}`}>{ui.render(props)}</div> : tool ? <Tool key={JSON.stringify(tool)} tool={tool} /> : <p className="text-sm text-rose-300">The tool doesn&apos;t parse: a required prop missing, or a value the parser rejects.</p>}
           </div>
         </div>
 
         <div className="rounded-xl border border-slate-800 bg-slate-950/40">
           <div className="flex gap-1 border-b border-slate-800 px-2 pt-1 text-xs" role="tablist">
-            {(["controls", "json", "parsed"] as Tab[]).map((t) => (
-              <button key={t} type="button" role="tab" aria-selected={t === tab} onClick={() => setTab(t)} className={`rounded-t px-3 py-1.5 capitalize ${t === tab ? "bg-slate-800 text-slate-100" : "text-slate-400 hover:text-slate-200"}`}>{t}</button>
+            {(ui ? ["controls", "json"] : ["controls", "json", "parsed"] as Tab[]).map((t) => (
+              <button key={t} type="button" role="tab" aria-selected={t === shownTab} onClick={() => setTab(t as Tab)} className={`rounded-t px-3 py-1.5 capitalize ${t === shownTab ? "bg-slate-800 text-slate-100" : "text-slate-400 hover:text-slate-200"}`}>{t}</button>
             ))}
             {dirty && <span className="ml-auto self-center text-[11px] text-amber-300">edited</span>}
           </div>
           <div className="p-3">
-            {tab === "controls" && (
+            {shownTab === "controls" && (
               <div className="flex flex-col gap-4">
                 <Controls docs={(group.doc?.props ?? []).filter((d) => !(group.shape && d.name === "shape"))} value={group.shape ? omit(props, "shape") : props} onChange={(p) => edit(group.shape ? { ...p, shape: props.shape } : p)} />
                 {group.shapeDoc && (
@@ -136,10 +152,10 @@ export default function ComponentStories() {
                 )}
               </div>
             )}
-            {tab === "json" && (
+            {shownTab === "json" && (
               <JsonTab text={text} setText={setText} setProps={setProps} />
             )}
-            {tab === "parsed" && <pre className="overflow-x-auto text-[11px] text-slate-400">{tool ? JSON.stringify(tool, null, 2) : "null"}</pre>}
+            {shownTab === "parsed" && <pre className="overflow-x-auto text-[11px] text-slate-400">{tool ? JSON.stringify(tool, null, 2) : "null"}</pre>}
           </div>
         </div>
       </div>
