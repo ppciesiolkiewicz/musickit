@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { AREAS, CONCEPTS, conceptById, conceptsFor } from "./concepts";
+import { AREAS, CONCEPTS, conceptById, conceptsFor, conceptsOf } from "./concepts";
+import { TOPICS, topicById } from "../intake/topics";
 import { catalogue, checkLink } from "./catalogue";
 import type { Level } from "./types";
 
@@ -48,4 +49,15 @@ test("each area at each level has at least 3 concepts", () => {
 test("conceptById finds a concept", () => {
   assert.equal(conceptById("major-scale")?.label, "Major scale");
   assert.equal(conceptById("nope"), undefined);
+});
+
+test("every concept sits in one topic of its own area, and every topic has a concept", () => {
+  for (const c of CONCEPTS) assert.equal(topicById(c.topic)?.area, c.area, c.id);
+  for (const t of TOPICS) assert.ok(conceptsOf(t.id).length > 0, t.id);
+});
+
+test("the topic of a few concepts", () => {
+  assert.equal(conceptById("bm-f-barre")!.topic, "guitar-barre-chords");
+  assert.equal(conceptById("spider")!.topic, "guitar-techniques");
+  assert.equal(conceptById("power-chords")!.topic, "guitar-basic-chords");
 });
