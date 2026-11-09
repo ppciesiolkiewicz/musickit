@@ -257,6 +257,11 @@ export default function SingingApp({ mode, initial, lead }: { mode: SingingMode;
             labels: false,
             // a tune or run already carries its own harmony (the piano's chords under it); a drone against that only fights it
             pocket: { clickAlways: true, onStatus: setPocket, ...(tuneTab ? { drone: false as const } : {}) },
+            ...(tuneTab ? { filters: (
+              <BarRow label="Difficulty">
+                <Select size="sm" value={level} onChange={filter} aria-label="Difficulty" title={level === "all" ? undefined : DIFFICULTIES[level].hint} options={difficulties} />
+              </BarRow>
+            ) } : {}),
             rows: <>
               <BarRow label="Voice">{voiceSelect}</BarRow>
               {/* the tune tools have their own accuracy in their settings dropdown */}
@@ -273,12 +278,6 @@ export default function SingingApp({ mode, initial, lead }: { mode: SingingMode;
       >
         {/* the page's lead-in sits in the content column, so the settings column starts at the top beside it */}
         {lead}
-        {tuneTab && (
-          <div role="group" aria-label="Filters" className="flex flex-wrap items-center gap-2 text-xs text-slate-400">
-            <span className="uppercase tracking-wider text-slate-500">Difficulty</span>
-            <Select size="sm" value={level} onChange={filter} aria-label="Difficulty" title={level === "all" ? undefined : DIFFICULTIES[level].hint} options={difficulties} />
-          </div>
-        )}
         <section data-tour="singing-drill" className={`${panel} flex flex-col gap-3`}>
           <div data-tour="singing-controls" className="flex flex-wrap items-center gap-3">
             <h2 className="text-base font-medium text-slate-100">{tab === "runs" ? `Runs across the ${range.label.toLowerCase()} range` : tab === "melodies" ? `Melodies in ${tuneLadder.title}` : ladder.title}</h2>

@@ -82,6 +82,16 @@ function InputLine() {
   );
 }
 
+/** A section of the bar: a heading and its rows, set off from the one above by a rule. */
+function BarSection({ title, first = false, children }: { title?: string; first?: boolean; children: ReactNode }) {
+  return (
+    <section aria-label={title} className={`flex flex-col gap-1.5 ${first ? "" : "border-t-2 border-slate-700 pt-3"}`}>
+      {title && <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-300">{title}</h3>}
+      {children}
+    </section>
+  );
+}
+
 /** One labelled row of the bar. The chips wrap rather than scroll sideways. */
 export function BarRow({ label, info, children }: { label: string; info?: ReactNode; children: ReactNode }) {
   const [open, setOpen] = useState(false);
@@ -133,6 +143,8 @@ export type SettingsConfig = {
    * necks under `WithSettings`. Not on a page with a listener of its own (singing): two would fight over the mic.
    */
   input?: boolean;
+  /** a Filter section at the top of the side column (the singing page's difficulty); in a bar that is not a column its rows join `rows` */
+  filters?: ReactNode;
   /** the host's own rows above the key */
   top?: ReactNode;
   /** the host's own rows under the key */
@@ -152,7 +164,7 @@ export function ScaleSettingsBar({ tonicPc, onTonic, side = false, config = {} }
   side?: boolean;
   config?: SettingsConfig;
 }) {
-  const { top, rows } = config;
+  const { top, rows, filters } = config;
   const scale = config.scale?.slug;
   const onScale = config.scale?.onPick;
   const labelsRow = config.labels === false ? null : config.labels ?? {};
@@ -224,7 +236,11 @@ export function ScaleSettingsBar({ tonicPc, onTonic, side = false, config = {} }
       </button>
       {/* hidden rather than unmounted, so the pocket tools keep playing while it is folded */}
       <div className={`${open ? "flex" : "hidden"} max-h-[70vh] flex-col gap-2 overflow-y-auto sm:max-h-none sm:overflow-visible ${side ? "lg:flex" : "xl:flex-row xl:items-center"}`}>
-        <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+        <div className="flex min-w-0 flex-1 flex-col gap-3">
+          {filters && (
+            <BarSection title="Filter" first>{filters}</BarSection>
+          )}
+          <BarSection title={filters || pocket ? "Settings" : undefined} first={!filters}>
           {top}
           {/* the scale and its key on one row */}
           {keyRow && (
@@ -242,10 +258,11 @@ export function ScaleSettingsBar({ tonicPc, onTonic, side = false, config = {} }
               {labelsRow.extra}
             </BarRow>
           )}
+          </BarSection>
         </div>
         {/* play-along tools: under the settings on narrow screens, on the right once there is room */}
-        {pocket && <PocketTools keyPc={tonicPc} onStatus={onPocket} clickAlways={pocket.clickAlways} withDrone={pocket.drone !== false} stacked={side} lines={config.input && <InputLine />} className={`border-t border-slate-800 pt-2 ${side ? "" : "xl:border-l xl:border-t-0 xl:pl-4 xl:pt-0"}`} />}
-        {!pocket && config.input && <div className="border-t border-slate-800 pt-2"><InputLine /></div>}
+        {pocket && <PocketTools keyPc={tonicPc} onStatus={onPocket} clickAlways={pocket.clickAlways} withDrone={pocket.drone !== false} stacked={side} lines={config.input && <InputLine />} className={`border-t-2 border-slate-700 pt-3 ${side ? "" : "xl:border-l-2 xl:border-t-0 xl:pl-4 xl:pt-0"}`} />}
+        {!pocket && config.input && <div className="border-t-2 border-slate-700 pt-3"><InputLine /></div>}
       </div>
     </div>
   );
