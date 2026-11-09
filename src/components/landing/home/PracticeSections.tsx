@@ -72,7 +72,7 @@ const PLAN_DAY: { label: string; mins: number; tone: string; done?: boolean }[] 
  */
 export type ToolGroup = { label: string; hrefs: string[] };
 export const SEE_TOOLS: ToolGroup = { label: "See it on the neck", hrefs: ["/theory/scales", "/theory/chords", "/theory/caged", "/theory/triads"] };
-export const PLAY_TOOLS: ToolGroup = { label: "Play along", hrefs: ["/theory/metronome-drone", "/theory/backing", "/looper", "/tuner"] };
+export const PLAY_TOOLS: ToolGroup = { label: "Play along", hrefs: ["/theory/metronome-drone", "/theory/backing", "/looper"] };
 const toolsOf = (g: ToolGroup) => g.hrefs.flatMap((href) => THEORY_SECTIONS.filter((s) => s.href === href));
 
 export function SkillsSection({
