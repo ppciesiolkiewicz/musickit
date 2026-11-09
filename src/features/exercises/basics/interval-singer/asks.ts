@@ -49,6 +49,14 @@ export function placeDo(keyPc: number, range: Range, semis: number[], dir: Inter
   return best && { midi: best.midi, asks: best.asks };
 }
 
+/** One more or one less of a set, kept in order, never none: what a chip of keys or intervals does. */
+export const toggleOne = (xs: number[], x: number): number[] =>
+  xs.includes(x) ? (xs.length > 1 ? xs.filter((y) => y !== x) : xs) : [...xs, x].sort((a, b) => a - b);
+
+/** Whether a sung note (fractional MIDI) is within `cents` of any of these notes. */
+export const onANote = (midi: number, notes: number[], cents: number): boolean =>
+  notes.some((n) => Math.abs(midi - n) * 100 <= cents);
+
 /** The next interval to ask: any from the pool, never the one just asked when there is a choice. */
 export function nextAsk(asks: number[], rand: () => number, prev: number | null): number | null {
   if (!asks.length) return null;

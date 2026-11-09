@@ -1,26 +1,40 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
-import { Select } from "@/components/ui";
+import { BarRow, ScaleSettingsBar, WithSettings } from "@/components/chordKit/ScaleSettings";
+import { Checkbox, Chip, Select } from "@/components/ui";
+import { useLevelAtLeast } from "@/features/guide/Tier";
 import { midiToName } from "@/features/sound";
 import { VOICES, savedVoice, type Voice } from "@/features/theory/singing";
 import { INTERVALS } from "@/lib/chordKit/intervals";
+import { EAR_LEVELS, levelSemis } from "@/lib/practice/earGame";
 import { View as IntervalSinger } from "@/features/exercises/basics/interval-singer";
-import { DEFAULT_INTERVALS, INTERVAL_DIRS, type IntervalDir } from "@/features/exercises/basics/interval-singer/asks";
+import { KeyChips, KeysSwitch, LookSwitch, type Look } from "@/features/exercises/basics/interval-singer/IntervalOptions";
+import { INTERVAL_DIRS, toggleOne, type IntervalDir } from "@/features/exercises/basics/interval-singer/asks";
 import { panel } from "@/components/practice/shared";
 
 /** where the voice picked last is kept, shared with the other singing pages */
 const VOICE_KEY = "singing.range";
 const DIR_LABEL: Record<IntervalDir, string> = { up: "Up", down: "Down", both: "Both" };
+const ALL_KEYS = Array.from({ length: 12 }, (_, k) => k);
+const ONE_TO_TWELVE = INTERVALS.filter((i) => i.semis >= 1 && i.semis <= 12);
+const noTonic = () => {};
 
 /**
- * The Sing an interval page: the plan's `interval-singer` tool on its own, with the voice, the intervals asked and their
- * direction picked above it. The voice is the one the other singing pages keep.
+ * The Sing an interval page: the plan's `interval-singer` tool on its own, with what it asks in the side panel: the
+ * voice (the one the other singing pages keep), the keys, the direction, and the intervals by level or a custom set.
+ * The keys and the view are Standard controls, as they are on the tool.
  */
 export default function IntervalSingerApp({ lead }: { lead?: ReactNode }) {
+  const standard = useLevelAtLeast("standard");
   const [voice, setVoice] = useState<Voice>("tenor");
-  const [intervals, setIntervals] = useState<number[]>(DEFAULT_INTERVALS);
   const [dir, setDir] = useState<IntervalDir>("up");
+  const [level, setLevel] = useState<number | "custom">(1);
+  const [custom, setCustom] = useState<number[] | null>(null);
+  const [picked, setPicked] = useState([0]);
+  const [random, setRandom] = useState(false);
+  const [lookPicked, setLook] = useState<Look>("roll");
+  const [dotPicked, setDot] = useState(true);
   useEffect(() => {
     let saved: Voice | null = null;
     try { saved = savedVoice(JSON.parse(window.localStorage.getItem(VOICE_KEY) ?? "null")); } catch { /* storage blocked */ }
@@ -31,34 +45,59 @@ export default function IntervalSingerApp({ lead }: { lead?: ReactNode }) {
     setVoice(v);
     try { window.localStorage.setItem(VOICE_KEY, JSON.stringify(v)); } catch { /* storage blocked */ }
   };
-  // a chip is one more interval or one less, never none
-  const toggle = (s: number) => setIntervals((xs) => (xs.includes(s) ? (xs.length > 1 ? xs.filter((x) => x !== s) : xs) : [...xs, s].sort((a, b) => a - b)));
+  const intervals = level === "custom" ? custom ?? [] : levelSemis(level);
+  // the first Custom starts from the level it came from; after that it keeps its own set
+  const pickCustom = () => {
+    setCustom((c) => c ?? intervals);
+    setLevel("custom");
+  };
+  const options = {
+    keys: !standard ? [0] : random ? ALL_KEYS : picked,
+    look: standard ? lookPicked : "roll" as Look,
+    dot: standard ? dotPicked : true,
+  };
 
-  return (
-    <div className="flex flex-col gap-4">
-      {lead}
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-slate-400">
-        <span className="flex items-center gap-1.5">
-          <span className="uppercase tracking-wider text-slate-500">Voice</span>
+  const bar = (
+    <ScaleSettingsBar tonicPc={0} onTonic={noTonic} side config={{
+      keys: false,
+      labels: false,
+      pocket: false,
+      rows: <>
+        <BarRow label="Voice">
           <Select size="sm" value={voice} onChange={pickVoice} aria-label="Voice"
             options={(Object.keys(VOICES) as Voice[]).map((v) => ({ value: v, label: `${VOICES[v].label} · ${midiToName(VOICES[v].low)}–${midiToName(VOICES[v].high)}` }))} />
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="uppercase tracking-wider text-slate-500">Direction</span>
+        </BarRow>
+        {standard && <BarRow label="Keys" info="Where Do comes from: only the keys picked, or a random one of all twelve each time.">
+          <KeysSwitch random={random} onRandom={setRandom} />
+          {!random && <KeyChips picked={picked} onToggle={(k) => setPicked((ks) => toggleOne(ks, k))} />}
+        </BarRow>}
+        <BarRow label="Direction">
           <Select size="sm" value={dir} onChange={setDir} aria-label="Direction" options={INTERVAL_DIRS.map((d) => ({ value: d, label: DIR_LABEL[d] }))} />
-        </span>
-        <span role="group" aria-label="Intervals" className="flex flex-wrap items-center gap-0.5">
-          <span className="mr-1 uppercase tracking-wider text-slate-500">Intervals</span>
-          {INTERVALS.filter((i) => i.semis >= 1 && i.semis <= 12).map((i) => (
-            <button key={i.semis} type="button" aria-pressed={intervals.includes(i.semis)} onClick={() => toggle(i.semis)}
-              title={intervals.includes(i.semis) ? (intervals.length > 1 ? `Leave out the ${i.name}` : "At least one interval") : `Ask the ${i.name} too`}
-              className={`min-w-8 rounded-md px-1.5 py-1 transition ${intervals.includes(i.semis) ? "bg-sky-500/20 text-sky-100" : "text-slate-500 hover:text-slate-200"}`}>{i.short}</button>
+        </BarRow>
+        <BarRow label="Level" info="Each level adds intervals to the ones before. Start with the 5th and octave, then the 3rds that make chords major or minor. Custom lets you pick your own.">
+          {EAR_LEVELS.map((l) => <Chip key={l.n} on={level === l.n} onClick={() => setLevel(l.n)} title={l.label}>{l.n}</Chip>)}
+          <Chip on={level === "custom"} onClick={pickCustom}>Custom</Chip>
+        </BarRow>
+        <BarRow label="Intervals">
+          {ONE_TO_TWELVE.filter((i) => level === "custom" || intervals.includes(i.semis)).map((i) => (
+            <Chip key={i.semis} disabled={level !== "custom"} on={intervals.includes(i.semis)} onClick={() => setCustom((c) => toggleOne(c ?? [], i.semis))}
+              title={level !== "custom" ? `The ${i.name}: pick Custom to change the set` : intervals.includes(i.semis) ? (intervals.length > 1 ? `Leave out the ${i.name}` : "At least one interval") : `Ask the ${i.name} too`}>{i.short}</Chip>
           ))}
-        </span>
-      </div>
+        </BarRow>
+        {standard && <BarRow label="View">
+          <LookSwitch look={options.look} onLook={setLook} />
+          <Checkbox checked={options.dot} onChange={setDot} title="Off is harder: you sing without seeing your voice">Show my voice</Checkbox>
+        </BarRow>}
+      </>,
+    }} />
+  );
+
+  return (
+    <WithSettings side bar={bar}>
+      {lead}
       <section className={panel}>
-        <IntervalSinger key={voice} voice={voice} intervals={intervals} dir={dir} />
+        <IntervalSinger key={voice} voice={voice} intervals={intervals} dir={dir} options={options} />
       </section>
-    </div>
+    </WithSettings>
   );
 }

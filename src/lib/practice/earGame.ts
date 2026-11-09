@@ -13,6 +13,10 @@ export const EAR_LEVELS: { n: number; label: string; semis: number[] }[] = [
   { n: 6, label: "All twelve", semis: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] },
 ];
 
+/** The intervals of a level and every level under it, in order. */
+export const levelSemis = (level: number): number[] =>
+  [...new Set(EAR_LEVELS.filter((l) => l.n <= level).flatMap((l) => l.semis))].sort((a, b) => a - b);
+
 export const CHORD_QUALITIES: { id: string; label: string; semis: number[] }[] = [
   { id: "maj", label: "Major", semis: [0, 4, 7] },
   { id: "min", label: "Minor", semis: [0, 3, 7] },
@@ -51,7 +55,7 @@ const shortOf = (semis: number) => INTERVALS.find((i) => i.semis === semis)!.sho
 /** The answers on offer: interval names (P5, m3 …) for the interval kind, chord ids for the chord kind. */
 export function activeAnswers(s: EarSettings): string[] {
   if (s.kind === "chord") return CHORD_QUALITIES.map((c) => c.id);
-  const semis = s.custom ?? [...new Set(EAR_LEVELS.filter((l) => l.n <= s.level).flatMap((l) => l.semis))];
+  const semis = s.custom ?? levelSemis(s.level);
   return [...semis].sort((a, b) => a - b).map(shortOf);
 }
 

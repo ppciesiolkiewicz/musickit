@@ -1,7 +1,8 @@
-import { describe, it } from "node:test";
+import { describe, it, test } from "node:test";
 import assert from "node:assert/strict";
 import { VOICES } from "@/features/theory/singing";
-import { longName, nextAsk, placeDo, shortName, signedOf, solfegeOf } from "./asks";
+import { levelSemis } from "@/lib/practice/earGame";
+import { longName, nextAsk, onANote, placeDo, shortName, signedOf, solfegeOf, toggleOne } from "./asks";
 
 describe("names", () => {
   it("short", () => {
@@ -55,4 +56,23 @@ describe("nextAsk", () => {
   });
   it("repeats the only one", () => assert.equal(nextAsk([7], Math.random, 7), 7));
   it("null for nothing", () => assert.equal(nextAsk([], Math.random, null), null));
+});
+
+test("toggleOne adds in order and removes, but never the last one", () => {
+  assert.deepEqual(toggleOne([4, 12], 7), [4, 7, 12]);
+  assert.deepEqual(toggleOne([4, 7], 7), [4]);
+  assert.deepEqual(toggleOne([7], 7), [7]);
+});
+
+test("onANote is true within the cents of Do or the target, and only there", () => {
+  assert.equal(onANote(60.1, [60, 67], 25), true);
+  assert.equal(onANote(66.9, [60, 67], 25), true);
+  assert.equal(onANote(63, [60, 67], 25), false);
+  assert.equal(onANote(60.3, [60, 67], 25), false);
+});
+
+test("levelSemis adds each level to the ones before", () => {
+  assert.deepEqual(levelSemis(1), [7, 12]);
+  assert.deepEqual(levelSemis(2), [3, 4, 7, 12]);
+  assert.equal(levelSemis(6).length, 12);
 });

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type RefObject } from "react";
+import { onANote } from "./asks";
 
 const W = 600;
 const ROW_H = 14;
@@ -17,10 +18,10 @@ const BLACK = new Set([1, 3, 6, 8, 10]);
 
 /**
  * Do and the note to sing as a piano roll: a row a semitone (black keys darker), Do's bar on the left, the target's on
- * the right, shown as an empty "?" box until it is found. With `dot` the voice is a dot at the right edge with a line of
- * the last few seconds behind it, green on the target; without it nothing of the voice shows (the harder way).
+ * the right, shown as an empty "?" box with the interval and its solfège until it is found; tap either to hear it. With `dot` the
+ * voice is a dot at the right edge with a line of the last few seconds behind it, green on Do and on the target; without it nothing of the voice shows (the harder way).
  */
-export default function IntervalRoll({ doMidi, low, high, target, found, doLabel, targetLabel, doName, targetName, pitch, cents, dot, live, onNote }: {
+export default function IntervalRoll({ doMidi, low, high, target, found, doLabel, targetLabel, targetHint, doName, targetName, pitch, cents, dot, live, onNote }: {
   doMidi: number;
   /** the lowest and highest note any interval of the set reaches, so the roll keeps its size whichever is asked (its height gives nothing away) */
   low: number;
@@ -30,6 +31,8 @@ export default function IntervalRoll({ doMidi, low, high, target, found, doLabel
   found: boolean;
   doLabel: string;
   targetLabel: string;
+  /** beside the "?" until the note is found: the interval and its solfège ("P5 · Sol") */
+  targetHint: string;
   /** Do's and the target's names with their octave as spelled in the key ("B♭3", not "A#3"), for the gutter */
   doName: string;
   targetName: string;
@@ -76,15 +79,22 @@ export default function IntervalRoll({ doMidi, low, high, target, found, doLabel
     pen = true;
   }
   const m = frame.trail.at(-1)?.midi ?? null;
-  const on = m !== null && target !== null && Math.abs(m - target) * 100 <= cents;
+  const on = m !== null && onANote(m, target === null ? [doMidi] : [doMidi, target], cents);
+
+  const onDo = m !== null && onANote(m, [doMidi], cents);
 
   const bar = (midi: number, [x0, x1]: number[], label: string, which: "do" | "target", shown: boolean) => (
-    <g role="button" tabIndex={0} aria-label={shown ? `${label}, play it` : "The note to sing"} className="cursor-pointer" onClick={() => onNote(which)}
+    <g role="button" tabIndex={0} aria-label={shown ? `${label}, play it` : `${targetHint}, the note to sing, play it`} className="cursor-pointer" onClick={() => onNote(which)}
       onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onNote(which)}>
       <rect x={x0} y={yOf(midi) - ROW_H / 2 + 1} width={x1 - x0} height={ROW_H - 2} rx={3}
-        fill={shown ? (which === "do" ? "var(--color-sky-500)" : "var(--color-emerald-500)") : "transparent"} fillOpacity={shown ? 0.55 : 0}
-        stroke={shown ? (which === "do" ? "var(--color-sky-300)" : "var(--color-emerald-300)") : "var(--color-slate-500)"} strokeDasharray={shown ? undefined : "4 3"} />
-      <text x={x0 + 8} y={yOf(midi) + 4} fontSize={11} fontWeight={600} fill={shown ? "var(--color-slate-50)" : "var(--color-slate-400)"}>{shown ? label : "?"}</text>
+        // Do turns green at once while the voice is on it, and fades back when it leaves
+        style={{
+          fill: shown ? (which === "do" && !onDo ? "var(--color-sky-500)" : "var(--color-emerald-500)") : "transparent",
+          stroke: shown ? (which === "do" && !onDo ? "var(--color-sky-300)" : "var(--color-emerald-300)") : "var(--color-slate-500)",
+          transition: onDo ? "fill 100ms, stroke 100ms" : "fill 900ms ease-out, stroke 900ms ease-out",
+        }}
+        fillOpacity={shown ? 0.55 : 0} strokeDasharray={shown ? undefined : "4 3"} />
+      <text x={x0 + 8} y={yOf(midi) + 4} fontSize={11} fontWeight={600} fill={shown ? "var(--color-slate-50)" : "var(--color-slate-400)"}>{shown ? label : `? ${targetHint}`}</text>
     </g>
   );
 

@@ -17,7 +17,7 @@ import { useLabelSystem } from "@/features/theory/useLabelSystem";
  * Under each note its name and, unless the label setting is note names, its label in that setting (Do Re Mi, 1 2 3…),
  * counted from the ladder's root. A ladder may repeat a note (a line of cues); `marks` puts text (a chord name) above
  * a note. A note has three looks: highlighted (`highlight`: ringed, bold labels), plain, and muted (`muted`: faint);
- * `hidden` leaves a note's slot empty (a note still to be found by ear).
+ * `hidden` leaves a note's slot empty (a note still to be found by ear), or with `question` a tappable "?" and those lines under it.
  */
 
 const HALF = 5; // px per staff step
@@ -42,7 +42,7 @@ interface Point { x: number; step: number; t: number }
 interface View { dot: Point | null; cam: number; tail: Point[]; lastHeard: number; now: number; fit: Fit; nearest: number }
 const STILL: View = { dot: null, cam: 0, tail: [], lastHeard: -Infinity, now: 0, fit: "between", nearest: -1 };
 
-export default function SingingStaff({ ladder, clef, pitch, played, onNote, cents = IN_TUNE_CENTS, highlight, marks, muted, hidden, labels }: {
+export default function SingingStaff({ ladder, clef, pitch, played, onNote, cents = IN_TUNE_CENTS, highlight, marks, muted, hidden, question, greens, labels }: {
   ladder: Ladder;
   clef: Clef;
   pitch: RefObject<number | null>;
@@ -58,6 +58,10 @@ export default function SingingStaff({ ladder, clef, pitch, played, onNote, cent
   muted?: (i: number) => boolean;
   /** leaves out the note at this index: its slot stays, empty and silent */
   hidden?: (i: number) => boolean;
+  /** for a hidden note: a "?" in its slot, mid-staff so it doesn't give the note away, with these lines under it */
+  question?: (i: number) => string[] | undefined;
+  /** this note turns green at once while the voice is on it, and fades back when it leaves */
+  greens?: (i: number) => boolean;
   /** labels the notes in this system instead of the user's setting */
   labels?: LabelSystem;
 }) {
@@ -167,7 +171,19 @@ export default function SingingStaff({ ladder, clef, pitch, played, onNote, cent
             {notes.map((n, i) => {
               const p = placed[i];
               const x = sx(i);
-              if (x < x0 - 40 || x > width + 40 || hidden?.(i)) return null;
+              if (x < x0 - 40 || x > width + 40) return null;
+              if (hidden?.(i)) {
+                const lines = question?.(i);
+                if (!lines) return null;
+                return (
+                  <g key={i} role="button" aria-label={`${lines.join(", ")}, the note to sing, play it`} className="cursor-pointer" onClick={() => onNote(i)}>
+                    <rect x={x - slot / 2} y={0} width={slot} height={H} fill="transparent" />
+                    <circle cx={x} cy={yOf(4)} r={11} fill="var(--color-slate-950)" stroke={ink.degree} strokeDasharray="4 3" />
+                    <text x={x} y={yOf(4) + 5} textAnchor="middle" fontSize={14} fontWeight={700} fill={ink.name}>?</text>
+                    {lines.map((l, k) => <text key={k} x={x} y={labelsY + 12 + k * 15} textAnchor="middle" fontSize={11} fontWeight={700} fill={ink.name}>{l}</text>)}
+                  </g>
+                );
+              }
               const y = yOf(p.step);
               const lit = a.nearest === i && showDot;
               const on = played === i;
@@ -192,7 +208,8 @@ export default function SingingStaff({ ladder, clef, pitch, played, onNote, cent
                   {on && <circle cx={x} cy={y} r={13} fill={PLAYED} fillOpacity={0.25} stroke={PLAYED} strokeWidth={1.5} />}
                   {ringed && !on && !lit && <circle cx={x} cy={y} r={10} fill="none" stroke={c} strokeWidth={1.5} />}
                   {lit && <circle cx={x} cy={y} r={12} fill={c} fillOpacity={0.18} stroke={c} strokeOpacity={0.7} />}
-                  <ellipse cx={x} cy={y} rx={6.5} ry={5} fill={c} transform={`rotate(-20 ${x} ${y})`} />
+                  <ellipse cx={x} cy={y} rx={6.5} ry={5} fill={c} transform={`rotate(-20 ${x} ${y})`}
+                    style={greens?.(i) ? { fill: lit ? DOT.in : c, transition: lit ? "fill 100ms" : "fill 900ms ease-out" } : undefined} />
                   <text x={x} y={labelsY + 12} textAnchor="middle" fontSize={11} fontWeight={bold} fill={on ? PLAYED : ink.name}>{n.spelled.name}</text>
                   {system !== "note" && <text x={x} y={labelsY + 27} textAnchor="middle" fontSize={11} fontWeight={bold} fill={lit ? c : on ? PLAYED : ink.degree}>{noteLabel(system, { name: n.spelled.name, semi: labelSemi(n.label), degreeText: n.label })}</text>}
                   {marks?.[i] && <text x={x} y={12} textAnchor="middle" fontSize={11} fontWeight={600} fill={ink.name}>{marks[i]}</text>}

@@ -6,7 +6,6 @@ import { useStepPart } from "@/components/practice/exerciseStep";
 import ToolSettings from "@/components/practice/ToolSettings";
 import InputChip from "@/components/InputChip";
 import SingingStaff from "@/components/theory/singing/SingingStaff";
-import Icon from "@/components/Icon";
 import { Badge, Button, Checkbox, Hint, KeyCap } from "@/components/ui";
 import { useCoverage } from "@/features/guide/useCoverage";
 import { useLevelAtLeast } from "@/features/guide/Tier";
@@ -15,8 +14,9 @@ import { IN_TUNE_CENTS, VOICES, buildLadder, clefFor, hzToMidi, spellName, type 
 import { spellInterval } from "@/features/theory/singingIntervals";
 import { useAccuracy } from "@/features/theory/useAccuracy";
 import { createSmoother, type Pitch } from "@/features/tuner/pitch";
-import { DEFAULT_INTERVALS, longName, nextAsk, placeDo, shortName, solfegeOf, type IntervalDir } from "./asks";
+import { DEFAULT_INTERVALS, longName, nextAsk, placeDo, shortName, solfegeOf, toggleOne, type IntervalDir } from "./asks";
 import IntervalRoll from "./IntervalRoll";
+import { KeyChips, KeysSwitch, LookSwitch, type Look } from "./IntervalOptions";
 
 /** how long Do (and each note played back) sounds, in ms */
 const NOTE_MS = 900;
@@ -27,9 +27,7 @@ const HOLD_MS = 500;
 /** frames without a pitch before the voice counts as gone */
 const GAP_FRAMES = 6;
 
-type Look = "roll" | "staff";
 const ALL_KEYS = Array.from({ length: 12 }, (_, k) => k);
-const KEY_NAMES = ["C", "D♭", "D", "E♭", "E", "F", "F♯", "G", "A♭", "A", "B♭", "B"];
 
 /** Do in the voice for a key, spelled in it, and the intervals that fit from it */
 function placeIn(pc: number, range: Range, intervals: number[], dir: IntervalDir) {
@@ -39,16 +37,17 @@ function placeIn(pc: number, range: Range, intervals: number[], dir: IntervalDir
   const doNote: LadderNote = { midi: p.midi, spelled: spellName(key.notes[0].spelled.name, p.midi, "Do"), degree: 0, label: "Do" };
   return { doNote, asks: p.asks, signature: key.signature };
 }
-type Phase = "idle" | "prompt" | "listening" | "solved" | "shown";
+type Phase = "idle" | "prompt" | "hint" | "listening" | "solved" | "shown";
 const NO_PITCH = { current: null };
 
 /**
  * Sing a named interval from Do: the interval shows as a name ("Interval · P5"), Do sounds and sits on a piano roll (the
  * default) or the staff, and the student sings the other note; held on it for a moment, it counts, shows and plays back.
  * With `dot` (the default) the voice is drawn as a dot; without it the student sings blind and only hears whether it
- * counted (the harder way); either is a switch on the tool too.
+ * counted (the harder way); either is a switch on the tool too. A page with a side panel holds the keys, view and dot
+ * there and hands them in as `options`, and the tool then leaves those controls out.
  */
-export function View({ keys: keysProp = [0], voice = "tenor", intervals = DEFAULT_INTERVALS, dir = "up", dot: dotProp = true }: { keys?: number[]; voice?: Voice; intervals?: number[]; dir?: IntervalDir; dot?: boolean }) {
+export function View({ keys: keysProp = [0], voice = "tenor", intervals = DEFAULT_INTERVALS, dir = "up", dot: dotProp = true, options }: { keys?: number[]; voice?: Voice; intervals?: number[]; dir?: IntervalDir; dot?: boolean; options?: { keys: number[]; look: Look; dot: boolean } }) {
   useCoverage({ hints: 5 });
   const range = VOICES[voice] ?? VOICES.tenor;
   const clef = clefFor(range);
@@ -58,9 +57,9 @@ export function View({ keys: keysProp = [0], voice = "tenor", intervals = DEFAUL
   const showKeys = useLevelAtLeast("standard", keysProp.length > 1);
   const showDot = useLevelAtLeast("standard", !dotProp);
   const [lookPicked, setLook] = useState<Look>("roll");
-  const look = standard ? lookPicked : "roll";
+  const look = options?.look ?? (standard ? lookPicked : "roll");
   const [dotPicked, setDot] = useState(dotProp);
-  const dot = showDot ? dotPicked : dotProp;
+  const dot = options?.dot ?? (showDot ? dotPicked : dotProp);
   const [storedCents] = useAccuracy();
   const cents = standard ? storedCents : IN_TUNE_CENTS;
   // the keys picked on the chips, and Random (all twelve) as its own switch over them, so turning Random off gives the
@@ -71,14 +70,15 @@ export function View({ keys: keysProp = [0], voice = "tenor", intervals = DEFAUL
   });
   const [picked, setPicked] = useState(first);
   const [random, setRandom] = useState(keysProp.length >= 12);
-  const keys = showKeys ? (random ? ALL_KEYS : picked) : keysProp.length >= 12 ? ALL_KEYS : first;
-  const [pc, setPc] = useState(keys[0]);
-  // a chip is one more key or one less, never none
-  const toggleKey = (k: number) => setPicked((ks) => (ks.includes(k) ? (ks.length > 1 ? ks.filter((x) => x !== k) : ks) : [...ks, k].sort((a, b) => a - b)));
+  const keys = options?.keys ?? (showKeys ? (random ? ALL_KEYS : picked) : keysProp.length >= 12 ? ALL_KEYS : first);
+  const [ask, setAsk] = useState<number | null>(null);
+  const [lastPc, setPc] = useState(keys[0]);
+  // before the first question Do follows the keys picked; a question asked keeps its own key
+  const pc = ask !== null || keys.includes(lastPc) ? lastPc : keys[0];
+  const toggleKey = (k: number) => setPicked((ks) => toggleOne(ks, k));
 
   const placed = useMemo(() => placeIn(pc, range, intervals, dir), [pc, range, intervals, dir]);
 
-  const [ask, setAsk] = useState<number | null>(null);
   const [phase, setPhase] = useState<Phase>("idle");
   const [score, setScore] = useState({ right: 0, asked: 0 });
   const [tapped, setTapped] = useState<number | null>(null);
@@ -92,7 +92,7 @@ export function View({ keys: keysProp = [0], voice = "tenor", intervals = DEFAUL
   useEffect(() => stopTimers, []);
 
   // the keys, for the tool on screen (a plan may hold more than one), with no modifier and not while typing: Space is
-  // Start / Next (not on a focused button, which Space already presses), D plays Do, R restarts the interval asked
+  // Start / Next (not on a focused button, which Space already presses), R restarts the interval asked
   const root = useRef<HTMLDivElement>(null);
   const onKey = useRef<Record<string, () => void>>({});
   useEffect(() => {
@@ -176,9 +176,17 @@ export function View({ keys: keysProp = [0], voice = "tenor", intervals = DEFAUL
     void prompt();
     if (!micOn) startMic();
   };
-  const hearDo = () => void tap(doMidi, -1);
+  // the note to sing, on a tap; while it is still to find the mic waits it out as it does Do, so the piano can't answer for the student
+  const hearTarget = () => {
+    if (targetMidi === null) return;
+    if (phase === "solved" || phase === "shown") return void tap(targetMidi, -2);
+    stopTimers();
+    setPhase("hint");
+    void tap(targetMidi, -2);
+    timers.current = [setTimeout(() => setPhase("listening"), NOTE_MS + LISTEN_AFTER_MS)];
+  };
   useEffect(() => {
-    onKey.current = { " ": next, ...(ask !== null ? { d: hearDo, r: restart } : {}) };
+    onKey.current = { " ": next, ...(ask !== null ? { r: restart } : {}) };
   });
   const reveal = (ok: boolean) => {
     if (targetMidi === null) return;
@@ -221,15 +229,18 @@ export function View({ keys: keysProp = [0], voice = "tenor", intervals = DEFAUL
     if (!target || ask === null) return { ladder: { notes: [doNote], signature: placed.signature, pcs: new Set([doNote.midi % 12]), title: "Do" } as Ladder, targetAt: -1 };
     const t: LadderNote = { midi: doNote.midi + ask, spelled: target.spelled, degree: Math.round((((ask % 12) + 12) % 12) * 7 / 12), label: target.label };
     const notes = ask > 0 ? [doNote, t] : [t, doNote];
-    return { ladder: { notes, signature: placed.signature, pcs: new Set([((t.midi % 12) + 12) % 12]), title: longName(ask) } as Ladder, targetAt: ask > 0 ? 1 : 0 };
+    return { ladder: { notes, signature: placed.signature, pcs: new Set([doNote.midi % 12, ((t.midi % 12) + 12) % 12]), title: longName(ask) } as Ladder, targetAt: ask > 0 ? 1 : 0 };
   }, [placed, target, ask]);
 
   if (!placed || !staff) return <p className="text-sm text-rose-300">None of these intervals fits the {range.label.toLowerCase()} voice.</p>;
 
   const message = ask === null ? "Press Start: Do plays, then sing the interval named above from it."
     : phase === "prompt" ? "Here is Do…"
-    : phase === "listening" ? (micOn ? (dot ? "Sing it. Hold the note: the dot turns green on it." : "Sing it and hold the note.") : "Switch the mic on to sing your answer.")
+    : phase === "hint" ? "Here is the note…"
+    : phase === "listening" ? (micOn ? (dot ? "Sing it and hold the note. The dot turns green on Do and on the note." : "Sing it and hold the note.") : "Switch the mic on to sing your answer.")
     : phase === "solved" ? `Yes: ${target!.label}, ${target!.spelled.name}.` : `It was ${target!.label}, ${target!.spelled.name}.`;
+
+  const settings = standard && <Hint title="Settings" description="How close counts as on the note, and the volume."><ToolSettings accuracy /></Hint>;
 
   return (
     <div ref={root} className="flex flex-col gap-3">
@@ -242,7 +253,6 @@ export function View({ keys: keysProp = [0], voice = "tenor", intervals = DEFAUL
             </Button>
           </Hint>
         </span>
-        {ask !== null && <Button size="sm" onClick={hearDo} title="Hear Do (D)" className="inline-flex items-center gap-1.5">Hear Do<KeyCap>D</KeyCap></Button>}
         {ask !== null && <Button size="sm" onClick={restart} title="The same interval again: Do plays and the mic listens (R)" className="inline-flex items-center gap-1.5">Restart<KeyCap>R</KeyCap></Button>}
         {ask !== null && !found && <Button size="sm" onClick={() => reveal(false)}>Show me</Button>}
         <span data-tour="interval-singer-mic" className="inline-flex items-center gap-2">
@@ -252,48 +262,22 @@ export function View({ keys: keysProp = [0], voice = "tenor", intervals = DEFAUL
         </span>
         {score.asked > 0 && <span className="text-sm tabular-nums text-slate-400">{score.right}/{score.asked} sung</span>}
         <span className="ml-auto" />
+        {options ? settings : <>
         <Badge>{range.label}</Badge>
         {/* plain text, not a badge: a badge's capitals would turn m3 into M3 */}
         <span className="rounded-full border border-slate-700 px-2 py-0.5 text-xs text-slate-300">{[...new Set(placed.asks.map(Math.abs))].sort((a, b) => a - b).map(shortName).join(" ")} {dir === "both" ? "up and down" : dir}</span>
+        </>}
       </div>
-      <div className="flex flex-wrap items-center gap-2 border-t border-slate-800 pt-2 text-xs text-slate-400">
+      {!options && <div className="flex flex-wrap items-center gap-2 border-t border-slate-800 pt-2 text-xs text-slate-400">
         {(standard || showKeys || showDot) && <span data-tour="interval-singer-options" className="inline-flex flex-wrap items-center gap-2">
-        {standard && <Hint title="View" description="Shows Do and your note on a piano roll or on the staff.">
-        <span role="group" aria-label="View" className="inline-flex rounded-lg border border-slate-800 p-0.5">
-          {(["roll", "staff"] as const).map((l) => (
-            <button key={l} type="button" aria-pressed={look === l} onClick={() => setLook(l)}
-              className={`inline-flex items-center gap-1 rounded-md px-2 py-1 transition ${look === l ? "bg-sky-500/20 text-sky-100" : "hover:text-slate-200"}`}>
-              <Icon name={l === "roll" ? "piano" : "music"} size={13} />{l === "roll" ? "Piano roll" : "Staff"}
-            </button>
-          ))}
-        </span>
-        </Hint>}
-        {/* where Do comes from: the keys picked on the chips, or any of the twelve; switching keeps the keys picked */}
-        {showKeys && <Hint title="Keys" description="Where Do comes from: only the keys picked, or a random one of all twelve each time.">
-        <span className="inline-flex items-center gap-2">
-        <span className="text-slate-500">Keys</span>
-        <span role="group" aria-label="Keys" className="inline-flex rounded-lg border border-slate-800 p-0.5">
-          {([false, true] as const).map((r) => (
-            <button key={String(r)} type="button" aria-pressed={random === r} onClick={() => setRandom(r)} title={r ? "Any of the 12 keys: a random Do each time" : "Only the keys picked"}
-              className={`rounded-md px-2 py-1 transition ${random === r ? "bg-sky-500/20 text-sky-100" : "hover:text-slate-200"}`}>{r ? "Random" : "Pick"}</button>
-          ))}
-        </span>
-        </span>
-        </Hint>}
-        {showKeys && !random && (
-          <span role="group" aria-label="Keys picked" className="inline-flex flex-wrap items-center gap-0.5">
-            {KEY_NAMES.map((name, k) => (
-              <button key={k} type="button" aria-pressed={picked.includes(k)} onClick={() => toggleKey(k)}
-                title={picked.includes(k) ? (picked.length > 1 ? `Leave out ${name}` : "At least one key") : `Ask in ${name} too`}
-                className={`min-w-7 rounded-md px-1.5 py-1 transition ${picked.includes(k) ? "bg-sky-500/20 text-sky-100" : "text-slate-500 hover:text-slate-200"}`}>{name}</button>
-            ))}
-          </span>
-        )}
+        {standard && <Hint title="View" description="Shows Do and your note on a piano roll or on the staff."><LookSwitch look={look} onLook={setLook} /></Hint>}
+        {showKeys && <Hint title="Keys" description="Where Do comes from: only the keys picked, or a random one of all twelve each time."><KeysSwitch random={random} onRandom={setRandom} /></Hint>}
+        {showKeys && !random && <KeyChips picked={picked} onToggle={toggleKey} />}
         {showDot && <Checkbox checked={dot} onChange={setDot} title="Off is harder: you sing without seeing your voice">Show my voice</Checkbox>}
         </span>}
         <span className="ml-auto" />
-        {standard && <Hint title="Settings" description="How close counts as on the note, and the volume."><ToolSettings accuracy /></Hint>}
-      </div>
+        {settings}
+      </div>}
       </div>
       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
         <p className="text-2xl font-semibold text-slate-50">
@@ -306,13 +290,13 @@ export function View({ keys: keysProp = [0], voice = "tenor", intervals = DEFAUL
       <p className={`text-sm ${phase === "solved" ? "text-emerald-300" : phase === "shown" ? "text-amber-300" : "text-slate-400"}`} aria-live="polite">{message}</p>
       <div data-tour="interval-singer-view">
       {look === "roll" ? (
-        <IntervalRoll doMidi={doMidi} low={doMidi + Math.min(0, ...placed.asks)} high={doMidi + Math.max(0, ...placed.asks)} target={targetMidi} found={found} doLabel={`Do · ${placed.doNote.spelled.name}`} targetLabel={target ? `${target.label} · ${target.spelled.name}` : ""}
+        <IntervalRoll doMidi={doMidi} low={doMidi + Math.min(0, ...placed.asks, ask ?? 0)} high={doMidi + Math.max(0, ...placed.asks, ask ?? 0)} target={targetMidi} found={found} doLabel={`Do · ${placed.doNote.spelled.name}`} targetLabel={target ? `${target.label} · ${target.spelled.name}` : ""} targetHint={ask !== null && target ? `${shortName(ask)} · ${target.label}` : ""}
           doName={`${placed.doNote.spelled.name}${placed.doNote.spelled.octave}`} targetName={target ? `${target.spelled.name}${target.spelled.octave}` : ""}
-          pitch={pitch} cents={cents} dot={dot} live={micOn} onNote={(w) => void (w === "do" ? tap(doMidi, -1) : targetMidi !== null && found && tap(targetMidi, -2))} />
+          pitch={pitch} cents={cents} dot={dot} live={micOn} onNote={(w) => (w === "do" ? void tap(doMidi, -1) : hearTarget())} />
       ) : (
         <SingingStaff ladder={staff.ladder} clef={clef} pitch={dot ? pitch : NO_PITCH} played={tapped === -1 ? (staff.targetAt === 0 ? 1 : 0) : tapped === -2 ? staff.targetAt : null} cents={cents}
-          hidden={(i) => !found && i === staff.targetAt}
-          onNote={(i) => void (i === staff.targetAt ? found && targetMidi !== null && tap(targetMidi, -2) : tap(doMidi, -1))} />
+          greens={(i) => i !== staff.targetAt} hidden={(i) => !found && i === staff.targetAt} question={(i) => (ask !== null && target && i === staff.targetAt ? [shortName(ask), target.label] : undefined)}
+          onNote={(i) => (i === staff.targetAt ? hearTarget() : void tap(doMidi, -1))} />
       )}
       </div>
     </div>

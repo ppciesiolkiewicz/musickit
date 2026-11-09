@@ -15,10 +15,10 @@ export default function SingIntervalPage() {
       full
       devices
       title="Sing an interval"
-      intro="An interval shows by name, like P5 or M3. Do plays. Sing the other note and hold it: when the mic hears it, it shows and plays back. Pick the intervals, the direction and your voice above the tool."
+      intro="An interval shows by name, like P5 or M3. Do plays. Sing the other note and hold it: when the mic hears it, it shows and plays back. Pick your voice, the keys and the intervals in the settings."
     >
       <IntervalSingerApp
-        lead={<Lesson course="6/every-interval" why="Singing an interval from its name ties the name to the sound, so you can hear it in a song and find it on the neck." tryThis="Start with P5 and the octave only. Add M3 once you hit both without the dot, then turn Show my voice off." />}
+        lead={<Lesson course="6/every-interval" why="Singing an interval from its name ties the name to the sound, so you can hear it in a song and find it on the neck." tryThis="Start on level 1, P5 and the octave. Move up a level once both feel easy, and turn Show my voice off when you want it harder." />}
       />
     </PageShell>
   );
