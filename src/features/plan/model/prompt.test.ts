@@ -23,10 +23,21 @@ test("prompt parts have unique ids in the documented order", () => {
   assert.equal(new Set(next).size, next.length);
 });
 
+test("course ratings come after the history, or after the student without one", () => {
+  const course = [{ title: "S › A", stars: 2 as const }];
+  assert.deepEqual(promptParts(DEFAULT_ANSWERS, [], [last], course).map((p) => p.id), [...ORDER.slice(0, 2), "history", "course", ...ORDER.slice(2)]);
+  const parts = promptParts(DEFAULT_ANSWERS, [], [], course);
+  assert.deepEqual(parts.map((p) => p.id), [...ORDER.slice(0, 2), "course", ...ORDER.slice(2)]);
+  const text = parts.find((p) => p.id === "course")!.text;
+  assert.match(text, /## Course sections they rated/);
+  assert.match(text, /- S › A: 2★ Struggling/);
+  assert.match(promptParts(DEFAULT_ANSWERS, [], [], [{ title: "S › B", stars: 4, note: "fast" }]).find((p) => p.id === "course")!.text, /- S › B: 4★ Solid — "fast"/);
+});
+
 test("buildPrompt is the join of its parts", () => {
   const e = catalogue();
   const joined = (a: Parameters<typeof promptParts>) => promptParts(...a).map((p) => p.text).join("\n");
-  const cases: Parameters<typeof promptParts>[] = [[DEFAULT_ANSWERS, e], [null, []], [DEFAULT_ANSWERS, e, [last]]];
+  const cases: Parameters<typeof promptParts>[] = [[DEFAULT_ANSWERS, e], [null, []], [DEFAULT_ANSWERS, e, [last]], [DEFAULT_ANSWERS, e, [last], [{ title: "S › A", stars: 3 }]]];
   for (const a of cases) assert.equal(buildPrompt(...a), joined(a));
 });
 

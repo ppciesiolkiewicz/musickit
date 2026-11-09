@@ -9,6 +9,7 @@ import type { ExerciseExample, PlanExample } from "../examples";
 import { selectExamples } from "./exampleSelection";
 import { doneKey } from "./schedule";
 import { starText } from "@/features/progress/stars";
+import type { CourseRating } from "@/features/course/ratings";
 import { PLAN_DAYS, type PlanAnswers, type StoredPlan } from "./types";
 
 const stars = (n: number) => "★".repeat(n) + "☆".repeat(5 - n);
@@ -59,7 +60,7 @@ const EXERCISES_HEADING = [
   "",
 ].join("\n");
 
-export type PromptPartKind = "intro" | "student" | "history" | "rules" | "interface" | "links" | "format" | "exercise-example" | "plan-example";
+export type PromptPartKind = "intro" | "student" | "history" | "course" | "rules" | "interface" | "links" | "format" | "exercise-example" | "plan-example";
 
 /** One labelled piece of the prompt; an example part also carries its JSON so tools can render it. */
 export interface PromptPart {
@@ -86,12 +87,12 @@ const part = (id: string, label: string, kind: PromptPartKind, lines: string[]):
  * The prompt the player copies into their own AI. It asks for one JSON object only, links only to the catalogue's pages,
  * and balances where the player wants to go with what they need. `previous` (newest first) makes it the next week's prompt.
  */
-export function buildPrompt(answers: PlanAnswers | null, entries: CatalogueEntry[], previous: StoredPlan[] = []): string {
-  return promptParts(answers, entries, previous).map((p) => p.text).join("\n");
+export function buildPrompt(answers: PlanAnswers | null, entries: CatalogueEntry[], previous: StoredPlan[] = [], course: CourseRating[] = []): string {
+  return promptParts(answers, entries, previous, course).map((p) => p.text).join("\n");
 }
 
 /** The prompt as labelled parts, in order; each part's text ends with the blank line before the next heading. */
-export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry[], previous: StoredPlan[] = []): PromptPart[] {
+export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry[], previous: StoredPlan[] = [], course: CourseRating[] = []): PromptPart[] {
   const profile = answers
     ? studentLines(answers).join("\n")
     : "The player skipped the questionnaire. Before writing the plan, ask them (in one short message) what they play, their level in each area, what they already know, their voice type (if they sing) and minutes a day; then write the plan.";
@@ -109,6 +110,13 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
       "",
     ]),
     ...(history ? [part("history", "Earlier weeks", "history", ["## Earlier weeks (newest first)", history, "", "Build on this: ratings are how the exercise went. 1-2 stars: make it easier (slower bpm, a lower level, fewer notes, or split it into parts). 3: keep the level and change one thing. 4-5: move on (faster bpm or the next level). Repeat what was skipped in a new form, and keep the thread of their goals.", ""])] : []),
+    ...(course.length ? [part("course", "Course ratings", "course", [
+      "## Course sections they rated",
+      ...course.map((r) => `- ${r.title}: ${starText(r.stars)}${r.note ? ` — "${r.note}"` : ""}`),
+      "",
+      "These show what they can do from the lessons: pitch exercises on those topics to match, easier where they rated 1-2, further where they rated 4-5.",
+      "",
+    ])] : []),
     part("how-to-plan", "How to plan", "rules", [
       "## How to plan",
       "- Build on what they rate high (4-5 stars), drill what is low (1-2) or unsure, and follow the order of ideas: when pentatonic is rated 4 and the major scale 1, build the major scale from the pentatonic. Their focus for the week gets most of the time.",

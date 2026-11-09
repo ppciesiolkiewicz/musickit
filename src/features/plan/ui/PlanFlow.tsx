@@ -6,6 +6,8 @@ import type { CatalogueEntry } from "../model/catalogue";
 import { migrateAnswers } from "../model/answers";
 import { parsePlanConfig } from "../model/config";
 import { buildPrompt } from "../model/prompt";
+import { useAllNotes } from "@/components/course/useCourseNotes";
+import { courseRatings } from "@/features/course/ratings";
 import type { PlanAnswers, PlanConfig, StoredPlan } from "../model/types";
 import { CopyPrompt, PasteBox } from "./PromptAndPaste";
 import { questionSteps } from "./Questionnaire";
@@ -67,8 +69,10 @@ export default function PlanFlow({ mode, answers, current, history, entries, onP
   const set = <K extends keyof PlanAnswers>(k: K, v: PlanAnswers[K]) => setDraft((d) => ({ ...d, [k]: v }));
   const parsed = useMemo(() => (text.trim() ? parsePlanConfig(text, entries) : null), [text, entries]);
 
+  const notes = useAllNotes();
+  const course = useMemo(() => courseRatings(notes), [notes]);
   const past = mode === "next" && current ? [{ ...current, feedback }, ...history] : [];
-  const prompt = buildPrompt(draft, entries, past);
+  const prompt = buildPrompt(draft, entries, past, course);
 
   const steps: ModalStep[] = mode === "start"
     ? questionSteps(draft, set)
