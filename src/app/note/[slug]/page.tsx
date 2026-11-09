@@ -18,7 +18,7 @@ export default async function NotePage({ params }: { params: Promise<Params> }) 
   const note = presetInfo((await params).slug);
   if (!note) notFound();
   return (
-    <PageShell active="/teachers/studio?notes=1" full title={note.title} intro={note.description}>
+    <PageShell active="/teachers/studio?notes=1" full tight title={note.title} intro={note.description}>
       <PresetNote slug={(await params).slug} />
     </PageShell>
   );

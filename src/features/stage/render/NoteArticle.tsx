@@ -14,7 +14,7 @@ function Figure({ layer, children }: { layer: Layer; children: (readOnly: true) 
   const [aspect, setAspect] = useState<number | null>(null);
   const report = useCallback((a: number) => setAspect((cur) => (cur === a ? cur : a)), []);
   const page = isPage(layer.subject);
-  const share = page ? 1 : Math.max(MIN_SHARE, gridSpan(layer) / GRID_COLUMNS);
+  const share = page || layer.subject.kind === "neck" || layer.subject.kind === "position" ? 1 : Math.max(MIN_SHARE, gridSpan(layer) / GRID_COLUMNS);
   return (
     <figure className="mx-auto w-full" style={{ maxWidth: `${share * 100}%` }}>
       <div className={`overflow-hidden rounded-xl bg-slate-950 ring-1 ring-slate-800 [container-type:inline-size]`} style={{ aspectRatio: aspect ?? 16 / 9 }}>
@@ -34,7 +34,7 @@ export default function NoteArticle({ stage, renderLayer }: { stage: Stage; rend
   const layers = gridLayers(stage).filter((l) => l.visible && !(l.subject.kind === "text" && !l.subject.text.trim()));
   if (layers.length === 0) return <p className="text-slate-400">This note is empty.</p>;
   return (
-    <article className="mx-auto flex w-full max-w-4xl flex-col gap-4" aria-label="Note">
+    <article className="mx-auto flex w-full flex-col gap-4" aria-label="Note">
       {layers.map((l) =>
         l.subject.kind === "text" ? (
           <div key={l.id} className="mx-auto w-full max-w-2xl">

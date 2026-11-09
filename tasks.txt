@@ -38,11 +38,18 @@ and add to these pages. Rank pages and provide me your understanding which pages
 - guitar / voiice
 - louder / channel 1 / channel 2
 
+
+
 Let's rethink this ->
 For most pages we are okay to use "both" as default.
 We can have small section channels on each of these to select input.
 Show me design first and then make sure that this is reusable component.
 Add this component to /dev/stories
+
+
+55.
+Fix pagespeed issues:
+https://pagespeed.web.dev/analysis/https-www-attunr-app/w58ysb4mlo?form_factor=desktop&category=performance&category=accessibility&category=best-practices&category=seo&category=agentic-browsing&hl=en-GB&utm_source=lh-chrome-ext
 
 
 
