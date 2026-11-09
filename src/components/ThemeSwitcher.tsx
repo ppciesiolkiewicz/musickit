@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Icon from "./Icon";
+import { InfoTip } from "@/components/ui";
 import { LEVELS, type Level } from "@/features/guide/levels";
 import { useLevel } from "@/features/guide/useLevel";
 import { DEFAULT_STYLE, SEEN_KEY, STYLES, THEME_KEY, isStyle, readSaved, styleAfterIntroDismiss, styleById, type StyleId } from "@/features/styles/styles";
@@ -13,7 +14,7 @@ export const THEME_BOOT = `try{var t=localStorage.getItem("${THEME_KEY}");if(${J
 /** The style's own headline face, for its name on the button; Default uses the Fraunces wordmark face. */
 const labelFont = (id: StyleId) => (id === "plain" ? "var(--font-display), serif" : `var(--font-${id}), var(--font-display), serif`);
 
-const LEVEL_LABEL: Record<Level, string> = { simple: "Simple", standard: "Standard" };
+const LEVEL_LABEL: Record<Level, string> = { simple: "Simplified", standard: "Advanced" };
 
 const store = (key: string, value: string) => {
   try {
@@ -137,8 +138,12 @@ export default function ThemeSwitcher({ className = "", compact = false }: { cla
               );
             })}
           </div>
-          <div role="group" aria-label="Detail level" className="mt-3 flex items-center justify-center gap-2 border-t border-[#e4e4e7] pt-2.5 text-[13px]">
-            <span className="text-[#71717a]">Detail</span>
+          <div role="group" aria-label="View" className="mt-3 flex items-center justify-center gap-2 border-t border-[#e4e4e7] pt-2.5 text-[13px]">
+            <span className="text-[#71717a]">View</span>
+            <InfoTip label="What the view setting does" align="center">
+              <p>Simplified hides the extra controls and options so each page stays short. Advanced shows everything.</p>
+              <p>It applies on every page.</p>
+            </InfoTip>
             {LEVELS.map((l) => (
               <button key={l} type="button" aria-pressed={level === l} onClick={() => setLevel(l)} title={`${LEVEL_LABEL[l]} on every page`}
                 className={`rounded-full border px-3 py-1 ${level === l ? "border-[#18181b] bg-white font-semibold text-[#18181b]" : "border-[#e4e4e7] bg-[#f0f0f2] text-[#3f3f46] hover:text-[#18181b]"}`}>
