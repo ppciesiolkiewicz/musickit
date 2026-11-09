@@ -2,8 +2,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { parsePlanConfig } from "./config";
 import { withExerciseIds } from "./exerciseIds";
-import { startPlan } from "./schedule";
-import { sanitiseState } from "../store/localPlanStore";
+import { restartPlan, startPlan } from "./schedule";
+import { PLAN_BACKUP_KEY, PLAN_KEY, localPlanStore, sanitiseState } from "../store/localPlanStore";
 import { EMPTY_STATE, type PlanConfig, type StoredPlan } from "./types";
 
 const tagged = (extra: Record<string, unknown> = {}) => ({ title: "Ex", minutes: 5, sections: [{ type: "text", text: "x" }], level: "beginner", area: "guitar", tags: ["technique"], topic: "guitar-caged", ...extra });
@@ -100,4 +100,46 @@ test("starting a plan gives every exercise a new id, also when an old plan is us
   assert.notEqual(again.current!.id, first.current!.id);
   assert.equal(again.current!.startedOn, "2026-11-08");
   assert.deepEqual(again.current!.done, {});
+});
+
+test("using an old plan again keeps the running plan's progress summary, not the old plan's", () => {
+  const withNotes = (notes?: string): PlanConfig => ({ ...config(), ...(notes ? { progress: notes } : {}) });
+  const running = startPlan(EMPTY_STATE, withNotes("Week 5 notes."), counter(), "2026-11-01");
+  const again = restartPlan(running, withNotes("Week 2 notes."), () => "n" + Math.random(), "2026-11-08");
+  assert.equal(again.current!.config.progress, "Week 5 notes.");
+  assert.equal(again.history[0].config.progress, "Week 5 notes.");
+  assert.equal(new Set([...idsOf(again.current!.config), ...idsOf(again.history[0].config)]).size, 28);
+  const noNotes = startPlan(EMPTY_STATE, withNotes(), counter(), "2026-11-01");
+  assert.equal(restartPlan(noNotes, withNotes("Week 2 notes."), counter(), "2026-11-08").current!.config.progress, "Week 2 notes.");
+  assert.equal(restartPlan(EMPTY_STATE, withNotes("Week 2 notes."), counter(), "2026-11-08").current!.config.progress, "Week 2 notes.");
+});
+
+test("a stored day without an exercise list does not break loading, and the other days still get ids", () => {
+  const broken = { id: "b", startedOn: "2026-11-01", done: {}, config: { title: "W", days: [{ theme: "T0" }, ...config().days.slice(1)] } };
+  const s = sanitiseState({ current: broken, history: [] });
+  assert.equal(s.current!.id, "b");
+  assert.ok(s.current!.config.days.slice(1).every((d) => d.exercises.every((e) => e.id)));
+});
+
+test("loading keeps the stored text as a backup before the first save that changes it, once", async () => {
+  const data = new Map<string, string>();
+  const g = globalThis as unknown as { window?: unknown };
+  const had = g.window;
+  g.window = { localStorage: { getItem: (k: string) => data.get(k) ?? null, setItem: (k: string, v: string) => void data.set(k, v) } };
+  try {
+    const old = JSON.stringify({ answers: { levels: { guitar: "advanced" }, ratings: { caged: 5 }, focus: [], minutes: 20, styles: "", notes: "" }, current: null, history: [] });
+    data.set(PLAN_KEY, old);
+    const first = await localPlanStore.load();
+    assert.deepEqual(first.answers!.areas, ["guitar"]);
+    assert.equal(data.get(PLAN_BACKUP_KEY), old);
+    assert.notEqual(data.get(PLAN_KEY), old);
+    const migrated = data.get(PLAN_KEY)!;
+    await localPlanStore.load();
+    assert.equal(data.get(PLAN_KEY), migrated, "a second load changes nothing");
+    data.set(PLAN_KEY, JSON.stringify({ ...JSON.parse(migrated), junk: 1 }));
+    await localPlanStore.load();
+    assert.equal(data.get(PLAN_BACKUP_KEY), old, "the first backup is never overwritten");
+  } finally {
+    g.window = had;
+  }
 });

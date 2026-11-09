@@ -9,6 +9,8 @@ export const randomId = (): string => (typeof crypto !== "undefined" && "randomU
  * comes back as the same object.
  */
 export function withExerciseIds(config: PlanConfig, newId: () => string = randomId, fresh = false): PlanConfig {
-  if (!fresh && config.days.every((d) => d.exercises.every((e) => e.id))) return config;
-  return { ...config, days: config.days.map((d) => ({ ...d, exercises: d.exercises.map((e) => (e.id && !fresh ? e : { ...e, id: newId() })) })) };
+  // a stored day can lack its exercise list (hand-edited or damaged storage): it is left as it is, never a reason to throw
+  const listed = (d: PlanConfig["days"][number]) => Array.isArray(d?.exercises);
+  if (!fresh && config.days.every((d) => !listed(d) || d.exercises.every((e) => e.id))) return config;
+  return { ...config, days: config.days.map((d) => (listed(d) ? { ...d, exercises: d.exercises.map((e) => (e.id && !fresh ? e : { ...e, id: newId() })) } : d)) };
 }

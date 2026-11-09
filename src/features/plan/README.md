@@ -38,8 +38,9 @@ browser.
    **AI's own progress summary** from the last plan, and the course sections the student rated
    (`features/course/ratings.ts`). The summary is the AI's memory of the student: it returns one with every plan
    (`PlanConfig.progress`), the app stores it with the plan and never shows it (only `/dev/data` does), and the next
-   prompt sends it back in place of the earlier weeks. A plan from before summaries falls back to the last three weeks
-   in full.
+   prompt sends it back in place of the earlier weeks. The prompt uses the newest summary any stored plan has (a reply
+   may come without one), with the weeks practised since it in full; with no summary at all, the two weeks before this
+   one go in full. An earlier plan started again keeps the running plan's summary (`restartPlan`).
 5. **Start anew**: the first flow again; its prompt leaves out past weeks. Earlier plans stay listed and can be restarted.
 6. **Reminders**: a daily browser notification at a chosen time while any attunr tab is open.
 
@@ -87,6 +88,8 @@ reload doesn't lose it; that one stays local.
 The progress log has its own store with the same idea (`src/features/progress`: `ProgressStore`, `localProgressStore`
 under `musickit.progress`, `useProgress`, `ProgressStoreProvider`). Exercises get their ids when a plan starts
 (`startPlan`), new ones each time, also for a plan used again from the history; plans stored before ids get them on load.
+Loading saves back at once whatever it changed (ids, answers moved to the topic shape); the document as it was before
+the first such save is kept once under `musickit.plan.backup`.
 
 ## The plan format
 

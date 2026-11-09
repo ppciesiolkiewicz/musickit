@@ -8,7 +8,7 @@ import { DEFAULT_ANSWERS } from "./intake/answers";
 import { randomId } from "./model/exerciseIds";
 import { backfill, entryFor } from "./model/progressLog";
 import { useProgress } from "@/features/progress/useProgress";
-import { dayIndex, localDate, ratePlan, startPlan, weekOver } from "./model/schedule";
+import { dayIndex, localDate, ratePlan, restartPlan, startPlan, weekOver } from "./model/schedule";
 import type { Stars } from "@/features/progress/stars";
 import { PLAN_DAYS, type PlanAnswers, type PlanConfig, type PlanState, type StoredPlan } from "./model/types";
 import { askNotifications, notificationsSupported } from "./reminders";
@@ -58,6 +58,12 @@ export default function PlanApp() {
     setFlow(null);
     setDay(0);
   };
+  // an earlier plan, started again: it keeps the running plan's progress summary (restartPlan)
+  const useAgain = (config: PlanConfig) => {
+    update((s) => restartPlan(s, config, randomId, localDate()));
+    setFlow(null);
+    setDay(0);
+  };
   const setPlan = (change: (p: StoredPlan) => StoredPlan) => update((s) => (s.current ? { ...s, current: change(s.current) } : s));
   // a rating goes to the plan (what the week view draws) and to the progress log (the lasting record, one row per exercise)
   const rate = (d: number, e: number, stars: Stars | null) => {
@@ -95,7 +101,7 @@ export default function PlanApp() {
           </ol>
           <Button onClick={() => setFlow("start")} className={`${primary} px-5 py-2 text-sm`}><Icon name="sparkles" size={16} />Start</Button>
         </section>
-        {state.history.length > 0 && <History plans={state.history} onUse={(c) => onPlan(c)} />}
+        {state.history.length > 0 && <History plans={state.history} onUse={useAgain} />}
         {modal}
       </div>
     );
@@ -131,7 +137,7 @@ export default function PlanApp() {
 
         <WeekView plan={plan} today={over ? PLAN_DAYS - 1 : todayIdx} day={day ?? todayIdx} onDay={setDay} onRate={rate} onElapsed={saveElapsed} />
 
-        {state.history.length > 0 && <History plans={state.history} onUse={(c) => onPlan(c)} />}
+        {state.history.length > 0 && <History plans={state.history} onUse={useAgain} />}
         {modal}
       </div>
     </WithSettings>

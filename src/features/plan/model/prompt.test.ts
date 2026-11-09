@@ -20,7 +20,9 @@ const ORDER = ["intro", "student", "how-to-plan", "rules", "mistakes", "writing"
 test("prompt parts have unique ids in the documented order", () => {
   assert.deepEqual(promptParts(DEFAULT_ANSWERS, []).map((p) => p.id), ORDER);
   const next = promptParts(DEFAULT_ANSWERS, [], [last]).map((p) => p.id);
-  assert.deepEqual(next, [...ORDER.slice(0, 2), "history", ...ORDER.slice(2)]);
+  assert.deepEqual(next, [...ORDER.slice(0, 2), "week", ...ORDER.slice(2)]);
+  const older = promptParts(DEFAULT_ANSWERS, [], [last, { ...last, id: "q" }]).map((p) => p.id);
+  assert.deepEqual(older, [...ORDER.slice(0, 2), "week", "history", ...ORDER.slice(2)]);
   assert.equal(new Set(next).size, next.length);
 });
 
@@ -29,9 +31,9 @@ test("the which-tool guide names every tool", () => {
   for (const t of Object.keys(TOOLS)) assert.match(guide, new RegExp(`\\b${t}\\b`), t);
 });
 
-test("course ratings come after the history, or after the student without one", () => {
+test("course ratings come after the week, or after the student without one", () => {
   const course = [{ title: "S › A", stars: 2 as const }];
-  assert.deepEqual(promptParts(DEFAULT_ANSWERS, [], [last], course).map((p) => p.id), [...ORDER.slice(0, 2), "history", "course", ...ORDER.slice(2)]);
+  assert.deepEqual(promptParts(DEFAULT_ANSWERS, [], [last], course).map((p) => p.id), [...ORDER.slice(0, 2), "week", "course", ...ORDER.slice(2)]);
   const parts = promptParts(DEFAULT_ANSWERS, [], [], course);
   assert.deepEqual(parts.map((p) => p.id), [...ORDER.slice(0, 2), "course", ...ORDER.slice(2)]);
   const text = parts.find((p) => p.id === "course")!.text;
@@ -159,10 +161,28 @@ test("next week, the last plan has a summary: the week by topic and the summary 
   assert.doesNotMatch(partOf([], "student"), /when they started/);
 });
 
-test("next week, the last plan has no summary: the earlier weeks as before", () => {
-  const prev = [topicWeek(), last];
-  assert.ok(kinds(prev).includes("history") && !kinds(prev).includes("progress") && !kinds(prev).includes("week"));
-  assert.ok(partOf(prev, "history").includes(weekReport(prev[0])));
+test("next week, no summary anywhere: the week by topic, then up to two earlier weeks in full, and no word of a summary", () => {
+  const older = (id: string): StoredPlan => ({ ...last, id, config: { ...last.config, title: `Old ${id}` } });
+  const prev = [topicWeek(), older("a"), older("b"), older("c")];
+  assert.deepEqual(promptParts(rated, [], prev).map((p) => p.id).slice(0, 5), ["intro", "student", "week", "history", "how-to-plan"]);
+  assert.ok(partOf(prev, "week").includes(weekByTopic(prev[0])));
+  const history = partOf(prev, "history");
+  assert.ok(history.includes(weekReport(prev[1])) && history.includes(weekReport(prev[2])));
+  assert.ok(!history.includes('Plan "Week 1"') && !history.includes("Old c"));
+  assert.match(partOf(prev, "student"), /what they said when they started/);
+  assert.doesNotMatch(partOf(prev, "student"), /progress summary/);
+});
+
+test("the newest summary is used wherever it sits, with the weeks practised since it in full", () => {
+  const plain = (id: string): StoredPlan => ({ ...last, id, config: { ...last.config, title: `Plain ${id}` } });
+  const prev = [topicWeek(), plain("a"), { ...topicWeek("Scales: position 1 solid."), id: "s", config: { ...topicWeek("Scales: position 1 solid.").config, title: "With summary" } }, { ...topicWeek("Older notes."), id: "o" }];
+  assert.deepEqual(promptParts(rated, [], prev).map((p) => p.id).slice(0, 6), ["intro", "student", "week", "progress", "history", "how-to-plan"]);
+  assert.ok(partOf(prev, "progress").includes("Scales: position 1 solid."));
+  assert.ok(!partOf(prev, "progress").includes("Older notes."));
+  const history = partOf(prev, "history");
+  assert.ok(history.includes(weekReport(prev[1])) && history.includes(weekReport(prev[2])), "the weeks after the summary was written");
+  assert.ok(!history.includes(weekReport(prev[3])));
+  assert.match(partOf(prev, "student"), /your progress summary below/);
 });
 
 test("the prompt asks for the progress summary and the topic tags, and lists every topic with its concepts", () => {

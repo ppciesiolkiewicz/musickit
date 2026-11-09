@@ -120,10 +120,13 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
     : "The player skipped the questionnaire. Before writing the plan, ask them (in one short message) what they play, their level in each area, what they already know, their voice type (if they sing) and minutes a day; then write the plan.";
   const { exercises, plan } = selectExamples(answers ?? DEFAULT_ANSWERS);
   const exerciseParts = exercises.map((e, i) => examplePart(e, i === 0 ? EXERCISES_HEADING : ""));
-  // the week just finished, with the AI's own summary from it; a plan from before summaries falls back to the last three weeks in full
+  // the week just finished goes in by topic. The AI's memory is the newest summary any stored plan carries (a reply may
+  // come without one, and a plan used again carries an old one); the weeks practised since that summary was written go
+  // in full, and with no summary at all the two weeks before this one do.
   const lastWeek = previous[0];
-  const summary = lastWeek?.config.progress?.trim();
-  const history = summary ? "" : previous.slice(0, 3).map(weekReport).join("\n\n");
+  const at = previous.findIndex((p) => p.config.progress?.trim());
+  const summary = at < 0 ? "" : previous[at].config.progress!.trim();
+  const history = previous.slice(1, at < 0 ? 3 : Math.min(at + 1, 4)).map(weekReport).join("\n\n");
   return [
     part("intro", "Intro", "intro", [
       "You are writing a 7-day drill plan for one student. They practise with attunr, a web app; each exercise is a drill that shows the tools it needs right in the plan, between its text. The lessons live elsewhere (see Links): the exercises say what to do with the tools. One sentence of why it works is welcome when it helps the student build their own drill, but it is never required.",
@@ -131,20 +134,18 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
     ]),
     part("student", "The student", "student", [
       "## The student",
-      ...(previous.length && answers ? ["This is what they said when they started. What they rated this week, and your progress summary below, count for more."] : []),
+      ...(previous.length && answers ? [`This is what they said when they started. What they rated this week${summary ? ", and your progress summary below," : ""} counts for more.`] : []),
       profile,
       "",
     ]),
-    ...(summary ? [
-      part("week", "This week, by topic", "week", ["## This week, by topic", weekByTopic(lastWeek), "", BUILD_ON, ""]),
-      part("progress", "Progress summary", "progress", [
-        "## Your progress summary",
-        "You wrote these notes with last week's plan. They are your memory of this student from all earlier weeks:",
-        summary,
-        "",
-      ]),
-    ] : []),
-    ...(history ? [part("history", "Earlier weeks", "history", ["## Earlier weeks (newest first)", history, "", BUILD_ON, ""])] : []),
+    ...(lastWeek ? [part("week", "This week, by topic", "week", ["## This week, by topic", weekByTopic(lastWeek), "", BUILD_ON, ""])] : []),
+    ...(summary ? [part("progress", "Progress summary", "progress", [
+      "## Your progress summary",
+      `You wrote these notes with ${at === 0 ? "last week's plan" : "an earlier plan"}. They are your memory of this student from the weeks before it:`,
+      summary,
+      "",
+    ])] : []),
+    ...(history ? [part("history", "Earlier weeks", "history", [`## Earlier weeks (newest first${summary ? "; practised after those notes were written" : ""})`, history, ""])] : []),
     ...(course.length ? [part("course", "Course ratings", "course", [
       "## Course sections they rated",
       ...course.map((r) => `- ${r.title}: ${starText(r.stars)}${r.note ? ` — "${r.note}"` : ""}`),
@@ -156,7 +157,7 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
       "## How to plan",
       "- Plan from the lines they picked above. Spend most of the time on topics where they picked \"Not yet\" or the line after it, and build from what they already do: when they play one pentatonic position and don't know the major scale, build the major scale from the pentatonic. A topic that is not answered is unknown: test it gently before building on it.",
       "- The level beside each area is a rough guide worked out from those lines. Pitch each exercise from the line of its own topic.",
-      "- Keep a progress summary and return it as \"progress\" in the JSON. It is your memory of this student: the next prompt gives it back to you, with the week's ratings, in place of the earlier weeks. Write one line per topic the student plays, starting with the topic's name: where they stand, what moved this week, what is stuck, what to try next. Rewrite it whole each week from your last summary plus this week's ratings; in a first week, write it from what they said above and what this plan starts. Trust ratings over what they said when they started. Keep it under about 300 words. Write it for yourself in plain notes: the student never sees it.",
+      "- Keep a progress summary and return it as \"progress\" in the JSON. It is your memory of this student: the next prompt gives it back to you, with the week's ratings, in place of the earlier weeks. Write one line per topic the student plays, starting with the topic's name: where they stand, what moved this week, what is stuck, what to try next. Rewrite it whole each week from your last summary (when one is given above) plus this week's ratings; with no summary yet, write it from what they said above, any weeks shown, and what this plan starts. Trust ratings over what they said when they started. Keep it under about 300 words. Write it for yourself in plain notes: the student never sees it.",
       "- Singing keys sit inside their voice range; check the lowest and highest note of every exercise against it.",
       "- Never organise a plan around a genre. A style may justify a choice in one sentence (\"the scale used in blues\").",
       "- Serve their direction AND what a good teacher sees they need: weave in fundamentals (time feel, fretboard or keyboard knowledge, ear) even if they didn't ask, aimed at what they find hard.",

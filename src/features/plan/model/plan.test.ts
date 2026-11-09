@@ -524,7 +524,8 @@ describe("schedule", () => {
     assert.match(weekReport(done), /\[done\] Ex 1/);
     assert.match(weekReport(done), /\[skipped\] Ex 2/);
     const prompt = buildPrompt(DEFAULT_ANSWERS, entries, [done]);
-    assert.match(prompt, /Earlier weeks/);
+    assert.match(prompt, /This week, by topic/);
+    assert.match(prompt, /\[done\] Ex 1/);
     assert.match(prompt, /too easy/);
     assert.match(prompt, /\/theory\/notes/);
     assert.match(prompt, /"type":\s*"backing-band"/);

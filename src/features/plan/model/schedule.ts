@@ -24,6 +24,15 @@ export const startPlan = (s: PlanState, config: PlanConfig, newId: () => string,
   history: s.current ? [s.current, ...s.history].slice(0, 20) : s.history,
 });
 
+/**
+ * Use an earlier plan again. Like `startPlan`, but the plan takes the running plan's progress summary (the AI's newest
+ * notes on the student) in place of the old one it was written with, so the next prompt does not send stale notes.
+ */
+export const restartPlan = (s: PlanState, config: PlanConfig, newId: () => string, today: string): PlanState => {
+  const progress = s.current?.config.progress;
+  return startPlan(s, progress ? { ...config, progress } : config, newId, today);
+};
+
 export const doneKey = (day: number, exercise: number) => `${day}:${exercise}`;
 
 /** Rate one exercise, which also marks it done; `null` clears the rating and un-does it. */

@@ -5,6 +5,8 @@ import { cleanRating, type StarRating } from "@/features/progress/stars";
 import { withExerciseIds } from "../model/exerciseIds";
 
 export const PLAN_KEY = "musickit.plan";
+/** The stored document as it was before the first load that changed it (answers from the old questionnaire, a plan that didn't pass the checks): kept once, never overwritten. */
+export const PLAN_BACKUP_KEY = "musickit.plan.backup";
 
 const isPlan = (p: unknown): p is StoredPlan => {
   const x = p as StoredPlan;
@@ -44,7 +46,10 @@ export const localPlanStore: PlanStore = {
       const text = window.localStorage.getItem(PLAN_KEY);
       const state = sanitiseState(JSON.parse(text ?? "null"));
       // what loading changed (exercise ids given to an older plan) is stored at once, so it stays the same on the next load
-      if (text !== null && JSON.stringify(state) !== text) await this.save(state);
+      if (text !== null && JSON.stringify(state) !== text) {
+        if (window.localStorage.getItem(PLAN_BACKUP_KEY) === null) window.localStorage.setItem(PLAN_BACKUP_KEY, text);
+        await this.save(state);
+      }
       return state;
     } catch {
       return sanitiseState(null);
