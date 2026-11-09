@@ -1,3 +1,4 @@
+import { swingOffset } from "@/features/instruments/model";
 import { layOut, type PlacedChord } from "./progressions";
 import { DRUM_LANES, STEPS_PER_BEAT, type BassRole, type DrumLane, type Style, type Voicing } from "./styles";
 
@@ -37,8 +38,7 @@ const EPS = 1e-9;
 
 /** The beat of a step in the bar, the off-beat eighths pushed late by the swing (fully swung, to the last triplet). */
 export function stepBeat(step: number, swing: number): number {
-  const beat = step / STEPS_PER_BEAT;
-  return step % STEPS_PER_BEAT === 2 ? beat + swing / 6 : beat;
+  return step / STEPS_PER_BEAT + swingOffset(step, swing);
 }
 
 /** The chord sounding at `beat` (0 ≤ beat < the progression's length). */

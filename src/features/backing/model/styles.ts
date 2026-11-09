@@ -1,3 +1,7 @@
+import { findGroove, type BassHit, type BassRole, type Groove } from "@/features/instruments/model";
+
+export type { BassHit, BassRole };
+
 /**
  * Styles: how the band plays one bar, as data. Pure, no audio.
  *
@@ -18,24 +22,6 @@ export type DrumLane = (typeof DRUM_LANES)[number];
  * Its length is a whole number of bars; a two-bar lane alternates.
  */
 export type DrumLine = string;
-
-/**
- * A bass note's role over the chord that sounds when it plays:
- * R root · 3 the chord's third · 5 its fifth · 7 its seventh (the octave on a triad) · b7 a minor 7th above the root ·
- * 6 a major 6th above the root · 8 the octave · A the note a half step below the NEXT chord's root (a walking approach).
- * A note that falls on the first beat of a chord always plays its root.
- */
-export type BassRole = "R" | "3" | "5" | "7" | "b7" | "6" | "8" | "A";
-
-export interface BassHit {
-  /** step in the bar */
-  at: number;
-  /** length in steps */
-  len: number;
-  note: BassRole;
-  /** 0-1, 0.8 by default */
-  vel?: number;
-}
 
 export interface CompHit {
   at: number;
@@ -66,116 +52,60 @@ export interface Style {
   comp: CompHit[];
 }
 
+/** A 4/4 style: the groove (drums, bass, swing, tempo) from the instruments, plus what only the backing track plays. */
+const withGroove = (id: Groove["id"], rest: Omit<Style, keyof Groove | "beatsPerBar">): Style => ({ ...(findGroove(id) as Groove), beatsPerBar: 4, ...rest });
+
 const hits = (spec: [number, number, BassRole, number?][]): BassHit[] => spec.map(([at, len, note, vel]) => ({ at, len, note, ...(vel !== undefined && { vel }) }));
 const stabs = (spec: [number, number, number?][]): CompHit[] => spec.map(([at, len, vel]) => ({ at, len, ...(vel !== undefined && { vel }) }));
 
 export const STYLES: Style[] = [
-  {
-    id: "pop",
-    name: "Pop",
-    beatsPerBar: 4,
-    bpm: 100,
-    swing: 0,
+  withGroove("pop", {
     keys: "PIANO",
     voicing: "close",
-    drums: { kick: "x.......x.x.....", snare: "....X.......X...", hat: "x.x.x.x.x.x.x.x." },
     fill: { kick: "x.......x.......", snare: "....X.......XxXx", hat: "x.x.x.x.x.x....." },
-    bass: hits([[0, 6, "R"], [6, 2, "R", 0.6], [8, 6, "R"], [14, 2, "5", 0.6]]),
     comp: stabs([[0, 6, 0.7], [6, 4, 0.5], [10, 6, 0.6]]),
-  },
-  {
-    id: "rock",
-    name: "Rock",
-    beatsPerBar: 4,
-    bpm: 112,
-    swing: 0,
+  }),
+  withGroove("rock", {
     keys: "PIANO",
     voicing: "close",
-    drums: { kick: "x.....x.x.x.....", snare: "....X.......X...", hat: "x.x.x.x.x.x.x.x." },
     fill: { kick: "x...............", snare: "....X...x.x.XxXx", tom: "........x.x.....", hat: "x.x.x.x........." },
-    bass: hits([[0, 2, "R", 0.9], [2, 2, "R", 0.6], [4, 2, "R", 0.8], [6, 2, "R", 0.6], [8, 2, "R", 0.9], [10, 2, "R", 0.6], [12, 2, "R", 0.8], [14, 2, "R", 0.6]]),
     comp: stabs([[0, 3, 0.7], [4, 3, 0.55], [8, 3, 0.65], [12, 3, 0.55]]),
-  },
-  {
-    id: "ballad",
-    name: "Ballad",
-    beatsPerBar: 4,
-    bpm: 72,
-    swing: 0,
+  }),
+  withGroove("ballad", {
     keys: "PIANO",
     voicing: "close",
-    drums: { kick: "x.......x.......", snare: "....x.......x...", hat: "x.x.x.x.x.x.x.x." },
-    bass: hits([[0, 8, "R"], [8, 8, "5", 0.7]]),
     // a sustained arpeggio: each note rings to the end of the bar, as with the pedal down
     comp: [0, 1, 2, 3, 2, 1, 2, 1].map((voice, i) => ({ at: i * 2, len: 16 - i * 2, voice, vel: i === 0 ? 0.65 : 0.45 })),
-  },
-  {
-    id: "swing",
-    name: "Swing",
-    beatsPerBar: 4,
-    bpm: 140,
-    swing: 1,
+  }),
+  withGroove("swing", {
     keys: "ELEC_PIANO",
     voicing: "shell",
-    // the ride's "spang-a-lang" on the hat, a feathered kick, the hat's foot on 2 and 4 on the clap lane, softly
-    drums: { hat: "X...x.x.X...x.x.", kick: "o...o...o...o...", clap: "....o.......o..." },
-    bass: hits([[0, 4, "R"], [4, 4, "3", 0.7], [8, 4, "5", 0.75], [12, 4, "A", 0.7]]),
     // the Charleston: on 1 and on the "and" of 2
     comp: stabs([[0, 3, 0.6], [6, 2, 0.5]]),
-  },
-  {
-    id: "shuffle",
-    name: "Blues shuffle",
-    beatsPerBar: 4,
-    bpm: 96,
-    swing: 1,
+  }),
+  withGroove("shuffle", {
     keys: "PIANO",
     voicing: "close",
-    drums: { kick: "x.......x.......", snare: "....X.......X...", hat: "x.x.x.x.x.x.x.x." },
     fill: { kick: "x.......x.......", snare: "....X...x.x.x.x.", tom: "..........x...x.", hat: "x.x.x.x........." },
-    // the boogie line: R 3 5 6 ♭7 6 5 3
-    bass: hits([[0, 2, "R"], [2, 2, "3", 0.6], [4, 2, "5", 0.75], [6, 2, "6", 0.6], [8, 2, "b7", 0.75], [10, 2, "6", 0.6], [12, 2, "5", 0.75], [14, 2, "3", 0.6]]),
     comp: stabs([[4, 2, 0.55], [12, 2, 0.55]]),
-  },
-  {
-    id: "bossa",
-    name: "Bossa nova",
-    beatsPerBar: 4,
-    bpm: 120,
-    swing: 0,
+  }),
+  withGroove("bossa", {
     keys: "ELEC_PIANO",
     voicing: "shell",
-    drums: { kick: "x..x....x..x....", clap: "x..x..x...x..x..", hat: "oooooooooooooooo" },
-    bass: hits([[0, 6, "R"], [6, 2, "5", 0.6], [8, 6, "5", 0.75], [14, 2, "R", 0.6]]),
     comp: stabs([[0, 3, 0.55], [3, 3, 0.45], [6, 4, 0.5], [10, 3, 0.45], [13, 3, 0.5]]),
-  },
-  {
-    id: "funk",
-    name: "Funk",
-    beatsPerBar: 4,
-    bpm: 98,
-    swing: 0,
+  }),
+  withGroove("funk", {
     keys: "ELEC_PIANO",
     voicing: "close",
-    drums: { kick: "x.x....x..x.....", snare: "....X..o.o..X..o", hat: "xoxoxoxoxoxoxoxo" },
     fill: { kick: "x.x....x........", snare: "....X..o..x.XxXx", hat: "xoxoxoxo........" },
-    bass: hits([[0, 2, "R"], [3, 1, "R", 0.6], [6, 1, "8", 0.7], [7, 1, "R", 0.6], [10, 2, "b7", 0.7], [12, 1, "R", 0.75], [14, 1, "5", 0.6], [15, 1, "8", 0.65]]),
     comp: stabs([[2, 1, 0.55], [4, 1, 0.6], [7, 1, 0.5], [10, 1, 0.55], [12, 1, 0.6], [15, 1, 0.5]]),
-  },
-  {
-    id: "reggae",
-    name: "Reggae",
-    beatsPerBar: 4,
-    bpm: 76,
-    swing: 0,
+  }),
+  withGroove("reggae", {
     keys: "PIANO",
     voicing: "close",
-    // the one drop: kick and snare together on 3, nothing on 1
-    drums: { kick: "........X.......", clap: "........x.......", hat: "x.x.x.x.x.x.x.x." },
-    bass: hits([[0, 4, "R"], [6, 2, "R", 0.6], [8, 2, "5", 0.75], [10, 4, "8", 0.65]]),
     // the skank on every off-beat
     comp: stabs([[2, 1, 0.55], [6, 1, 0.55], [10, 1, 0.55], [14, 1, 0.55]]),
-  },
+  }),
   {
     id: "waltz",
     name: "Waltz (3/4)",

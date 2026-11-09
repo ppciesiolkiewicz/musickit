@@ -14,6 +14,12 @@ export const stepsInPattern = (bars: number, beatsPerBar: number) => Math.min(MA
 /** Seconds between two steps. */
 export const stepSeconds = (beatSeconds: number) => beatSeconds / STEPS_PER_BEAT;
 
+/** Beats to push a 16th step late for swing: the off-beat eighth (step 2 of a beat) moves up to the last triplet at full swing. */
+export const swingOffset = (step: number, swing: number) => (step % STEPS_PER_BEAT === 2 ? swing / 6 : 0);
+
+/** When step `n` sounds, counting from step 0 at `anchor` (n may be negative); swing 0 is the plain grid. */
+export const stepTime = (anchor: number, n: number, beatSeconds: number, swing: number) => anchor + n * stepSeconds(beatSeconds) + swingOffset(((n % 16) + 16) % 16, swing) * beatSeconds;
+
 /** Which step of the pattern (0 to steps-1) is sounding at `now`, counting from step 0 at `anchor`. Before the anchor it counts back from the end. */
 export function stepAt(now: number, anchor: number, beatSeconds: number, steps: number): number {
   const n = Math.floor((now - anchor) / stepSeconds(beatSeconds) + 1e-9);

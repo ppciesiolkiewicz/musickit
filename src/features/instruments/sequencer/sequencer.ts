@@ -1,6 +1,6 @@
 import { DEFAULT_KEY_PC } from "@/features/theory/theory";
 import { DEFAULT_DRONE, DroneVoice, clampDrone, type DroneParams } from "../drone/drone";
-import { BASS_PRESETS, DRUM_PRESETS, MAX_BARS, MAX_STEPS, fromRows, emptyCells, stepAt, stepSeconds, stepsInPattern, type Cells, type Preset } from "./pattern";
+import { BASS_PRESETS, DRUM_PRESETS, MAX_BARS, MAX_STEPS, fromRows, emptyCells, stepAt, stepSeconds, stepTime, stepsInPattern, type Cells, type Preset } from "./pattern";
 
 /**
  * A step sequencer that plays a synthesised instrument in time with the metronome grid. Nothing is downloaded:
@@ -107,7 +107,7 @@ export const DRUMS: Instrument = {
 };
 
 /** A simple saw bass over a minor pentatonic ladder in the key (E by default), lowest note first. */
-const BASS_SEMIS = [0, 3, 5, 7, 10, 12, 15, 17];
+export const BASS_SEMIS = [0, 3, 5, 7, 10, 12, 15, 17];
 /** the degree of each step of the minor pentatonic ladder: R ♭3 4 5 ♭7 */
 const BASS_DEGREE: Record<number, number> = { 0: 0, 3: 2, 5: 3, 7: 4, 10: 6 };
 const NOTE_NAMES = ["C", "C♯", "D", "E♭", "E", "F", "F♯", "G", "A♭", "A", "B♭", "B"];
@@ -159,6 +159,8 @@ export interface SequencerState {
   /** started by the person: it sounds in time with the metronome, joining and leaving on a beat */
   playing: boolean;
   cells: Cells;
+  /** 0 straight, 1 full triplet swing: the off-beat eighths of a 16-step bar move late */
+  swing: number;
   /** the note and sound, used when the instrument is the drone */
   drone: DroneParams;
 }
@@ -169,7 +171,7 @@ const TICK_MS = 25;
 const findInstrument = (id: string) => INSTRUMENTS.find((i) => i.id === id) ?? DRUMS;
 
 export class Sequencer {
-  state: SequencerState = { dest: "auto", x: 100, y: 100, instrumentId: DRUMS.id, bars: 1, playing: false, cells: fromRows(DRUM_PRESETS[0].rows), drone: DEFAULT_DRONE };
+  state: SequencerState = { dest: "auto", x: 100, y: 100, instrumentId: DRUMS.id, bars: 1, playing: false, cells: fromRows(DRUM_PRESETS[0].rows), swing: 0, drone: DEFAULT_DRONE };
   /** every voice goes into `out`; `toSpeakers` carries it to the master or a group bus, `toRecord` is what the mixer taps */
   out: GainNode | null = null;
   toSpeakers: GainNode | null = null;
@@ -237,7 +239,7 @@ export class Sequencer {
     const inst = findInstrument(String(j.instrumentId));
     const lanes = inst.lanes.length;
     const cells = Array.isArray(j.cells) && j.cells.length === lanes ? j.cells.map((row) => Array.from({ length: 96 }, (_, i) => (Number(row?.[i]) === 2 ? 2 : Number(row?.[i]) === 1 ? 1 : 0))) : fromRows(inst.presets[0].rows);
-    this.state = { dest: j.dest === "record" ? "record" : "auto", x: Number.isFinite(j.x) ? Number(j.x) : this.state.x, y: Number.isFinite(j.y) ? Number(j.y) : this.state.y, instrumentId: inst.id, bars: j.bars === 2 ? 2 : 1, playing: false, cells, drone: clampDrone(j.drone) };
+    this.state = { dest: j.dest === "record" ? "record" : "auto", x: Number.isFinite(j.x) ? Number(j.x) : this.state.x, y: Number.isFinite(j.y) ? Number(j.y) : this.state.y, instrumentId: inst.id, bars: j.bars === 2 ? 2 : 1, playing: false, cells, swing: Number.isFinite(j.swing) ? Math.min(1, Math.max(0, Number(j.swing))) : 0, drone: clampDrone(j.drone) };
   }
 
   private update(patch: Partial<SequencerState>) {
@@ -292,6 +294,10 @@ export class Sequencer {
 
   setBars(bars: number) {
     this.update({ bars: Math.min(MAX_BARS, Math.max(1, Math.round(bars))) });
+  }
+
+  setSwing(v: number) {
+    this.update({ swing: Number.isFinite(v) ? Math.min(1, Math.max(0, v)) : 0 });
   }
 
   setDest(dest: "auto" | "record") {
@@ -360,8 +366,10 @@ export class Sequencer {
     const dt = stepSeconds(beatSeconds);
     const steps = this.steps;
     while (this.anchor + this.next * dt < ctx.currentTime + LOOKAHEAD) {
-      const t = this.anchor + this.next * dt;
-      if (this.stopAtTime !== null && t >= this.stopAtTime - 1e-6) {
+      const grid = this.anchor + this.next * dt;
+      const t = stepTime(this.anchor, this.next, beatSeconds, this.state.swing);
+      // the unswung time decides when to stop, so a swung step never lands after the stop
+      if (this.stopAtTime !== null && grid >= this.stopAtTime - 1e-6) {
         this.stop();
         return;
       }

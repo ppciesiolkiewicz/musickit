@@ -5,6 +5,7 @@
 export * from "./drone/drone";
 export * from "./click/click";
 export * from "./sequencer/pattern";
+export * from "./sequencer/grooves";
 export { BASS, DEFAULT_KEY, DRONE, DRONE_ID, DRUMS, INSTRUMENTS, Sequencer, bassRootMidi, lanesIn, type Instrument, type Lane, type SequencerState } from "./sequencer/sequencer";
 export * from "./effects/effects";
 export * from "./effects/choices";

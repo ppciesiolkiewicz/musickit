@@ -5,6 +5,7 @@ import { PROGRESSIONS, layOut, splitLength } from "./progressions";
 import { STYLES, checkStyle, findStyle } from "./styles";
 import { arrange, bassNote, bassRoot, chordAt, eventsBetween, stepBeat, voiceLead } from "./arrange";
 import { TempoClock, clampBpm } from "./clock";
+import { findGroove } from "@/features/instruments/model";
 import { Song } from "./song";
 
 const symbols = (numerals: string[], tonic: string) => chordsFromNumerals(numerals, tonic).map((c) => c.symbol);
@@ -186,4 +187,13 @@ test("song: a waltz after 4/4 restarts on the bar line", () => {
   assert.ok(notes.some((n) => n.at === 4 && n.ev.lane === "kick"));
   assert.equal(song.position(7)!.beat, 0);
   assert.equal(song.position(7)!.beatsPerBar, 3);
+});
+
+test("styles: every 4/4 style plays its groove", () => {
+  for (const style of STYLES.filter((s) => s.beatsPerBar === 4)) {
+    const groove = findGroove(style.id);
+    assert.ok(groove, style.id);
+    assert.deepEqual(style.drums, groove.drums, style.id);
+    assert.deepEqual(style.bass, groove.bass, style.id);
+  }
 });
