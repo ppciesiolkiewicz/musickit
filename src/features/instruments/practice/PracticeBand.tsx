@@ -7,12 +7,13 @@ import { useCoverage } from "@/features/guide/useCoverage";
 import { useAudioFocus } from "@/features/sound";
 import { DRONE_MAX_OCTAVE, DRONE_MIN_OCTAVE, NOTE_NAMES } from "../drone/drone";
 import { MAX_BPM, MIN_BPM } from "../jam/clock";
-import { JAM_PARTS, JamRig, type JamPart, type JamSaved } from "../jam/rig";
+import { JAM_PARTS, JamRig, type JamSaved } from "../jam/rig";
 import useJamRig from "../jam/useJamRig";
 import BeatDots from "../jam/BeatDots";
 import { useStepPart } from "@/components/practice/exerciseStep";
 
-export type BandPart = "click" | JamPart;
+import type { BandPart } from "../band/config";
+export type { BandPart } from "../band/config";
 const PARTS: { id: BandPart; label: string }[] = [
   { id: "click", label: "Click" },
   { id: "drone", label: "Drone" },
