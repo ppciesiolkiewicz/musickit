@@ -1,6 +1,7 @@
 "use client";
 
 import { useContext, useMemo, type ReactNode } from "react";
+import { ArpeggioOnGuitar } from "@/components/chordKit/ArpeggiosExplorer";
 import { CagedBoxPanels, CagedNeckMap } from "@/components/chordKit/CagedExplorer";
 import { ChordBubble } from "@/components/chordKit/ChordBubbles";
 import { KeyScope, PLUGINS, keyContext, type KeyChoice } from "@/features/creator";
@@ -27,7 +28,7 @@ import ProgressWidget from "./ProgressWidget";
 import SectionWidget from "./SectionWidget";
 
 /** design width each kind is laid out at before it is scaled into its rect */
-const WIDTH: Record<Subject["kind"], number> = { chord: 240, plugin: 640, position: 980, band: 360, section: 760, bubble: 900, neck: 980, caged: 1100, tool: 980, key: 760, tuner: 520, mic: 360, logo: 300, url: 520, camera: 0, screen: 0, melody: 0, countdown: 600, intro: 1000, progress: 400, next: 760 };
+const WIDTH: Record<Subject["kind"], number> = { chord: 240, plugin: 640, position: 980, band: 360, section: 760, bubble: 900, neck: 980, caged: 1100, arpeggio: 980, tool: 980, key: 760, tuner: 520, mic: 360, logo: 300, url: 520, camera: 0, screen: 0, melody: 0, countdown: 600, intro: 1000, progress: 400, next: 760 };
 /** a cheatsheet page in full is laid out as wide as on the site */
 const FULL_WIDTH = 1200;
 
@@ -111,6 +112,9 @@ export default function StageWidget({ subject, onSubjectChange, stageKey, onStag
       ) : letters.length === 0 ? <CagedNeckMap rootPc={rootPc} quality={quality} /> : <CagedBoxPanels rootPc={rootPc} quality={quality} letter={letters[0]} />;
       break;
     }
+    case "arpeggio":
+      body = ctx && <ArpeggioOnGuitar ctx={ctx} degree={subject.degree} type={subject.type} neck={!!subject.neck} positions={subject.positions !== false} roots={subject.roots} />;
+      break;
     case "tool":
       body = (
         <div className="rounded-xl border border-slate-800 bg-slate-950 p-3">

@@ -6,11 +6,12 @@
  */
 import { EMPTY_KEY, keyContext, modeName, sanitiseKey, type KeyChoice } from "@/features/creator/model/key";
 import { tonicName } from "@/features/theory";
+import { ARP_QUALITIES } from "@/lib/chordKit/arpeggios";
 import { CAGED_LETTERS, formsFor, type CagedLetter } from "@/lib/chordKit/caged";
 import type { PositionKind } from "@/lib/chordKit/scalePositions";
 import { TOOLS, type PlanTool, type ToolName } from "@/features/plan/model/tools";
 import { STAGE_TOOLS, toolKey, withToolKey } from "./toolKey";
-import { cagedQualityOf as cagedQuality, describeParts } from "./families";
+import { ARP_ROOT_STRINGS, cagedQualityOf as cagedQuality, describeParts } from "./families";
 
 export { cagedQualityOf } from "./families";
 
@@ -39,6 +40,11 @@ export type Subject =
   | ({ kind: "neck" } & Keyed)
   /** the five CAGED boxes on the whole neck (no shape), or one box: its chord, arpeggio, pentatonic and scale; `shapes` (CAGED order, non-empty) stacks several boxes and wins over `shape` */
   | ({ kind: "caged"; shape: CagedLetter | null; shapes?: CagedLetter[] } & Keyed)
+  /**
+   * an arpeggio of the key, as on the arpeggios page: on a degree (0..6), `type` the scale's own triad, seventh or ninth or an `ARP_QUALITIES` id;
+   * the whole neck (`neck`) and the positions (`positions: false` hides them), `roots` the root strings shown (guitar numbering, 6 is the low E; absent: all)
+   */
+  | ({ kind: "arpeggio"; degree: number; type: string; neck?: boolean; positions?: false; roots?: number[] } & Keyed)
   /**
    * a learning component of the AI plan (`STAGE_TOOLS`), stored as the plan parses it. The master moves its key (tonic) only;
    * its scale is its own. `pinned` can only hold the tonic.
@@ -215,6 +221,7 @@ export function takesMic(s: Subject): boolean {
     case "position":
     case "neck":
     case "bubble":
+    case "arpeggio":
       return true;
     case "tool":
       // the necks and chord boxes ring the note heard (PositionBox, ChordDiagram); the position neck draws its own dots and doesn't.
@@ -270,6 +277,10 @@ export function subjectName(s: Subject): string {
     case "caged":
       if (s.shapes?.length) return s.shapes.length === 1 ? `CAGED ${cagedShapeName(s.shapes[0])}` : `CAGED shapes ${s.shapes.join(", ")}`;
       return s.shape === null ? "CAGED fretboard" : `CAGED ${cagedShapeName(s.shape)}`;
+    case "arpeggio": {
+      const p = describeParts(s);
+      return p ? [p.name, p.detail].filter(Boolean).join(" · ") : "Arpeggio";
+    }
     case "tool": {
       // its family's name and main props ("Major pentatonic · positions 1, 2"); a tool no family offers goes by its type
       const p = describeParts(s);
@@ -371,6 +382,13 @@ export function sanitiseSubject(raw: unknown, pluginIds: string[]): Subject | nu
       if (o.shape !== null && o.shape !== undefined && !CAGED_LETTERS.includes(o.shape as CagedLetter)) return null;
       const shapes = Array.isArray(o.shapes) ? CAGED_LETTERS.filter((l) => (o.shapes as unknown[]).includes(l)) : [];
       return { kind: "caged", shape: (o.shape as CagedLetter | undefined) ?? null, ...(shapes.length ? { shapes } : {}), ...keyedFrom(o) };
+    }
+    case "arpeggio": {
+      const { degree, type } = o;
+      if (typeof degree !== "number" || !Number.isInteger(degree) || degree < 0 || degree > 6) return null;
+      if (typeof type !== "string" || !["triad", "seventh", "ninth", ...ARP_QUALITIES.map((q) => q.id)].includes(type)) return null;
+      const roots = Array.isArray(o.roots) ? ARP_ROOT_STRINGS.filter((n) => (o.roots as unknown[]).includes(n)) : [];
+      return { kind: "arpeggio", degree, type, ...(o.neck === true ? { neck: true } : {}), ...(o.neck === true && o.positions === false ? { positions: false as const } : {}), ...(roots.length ? { roots } : {}), ...keyedFrom(o) };
     }
     case "tool": {
       const t = obj(o.tool);

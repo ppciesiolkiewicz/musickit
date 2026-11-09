@@ -8,7 +8,7 @@ import { Badge, FretboardBase, fretGeometry } from "./Fretboard";
 import { DotLabel } from "./DotLabel";
 import { useHeardNote } from "./heardNote";
 import { ARP_FRETS, ARP_QUALITIES, arpPositions, arpeggioMidi, stringNumber, buildArpeggio, neckCells, type Arpeggio, type ArpPosition, type NeckCell } from "@/lib/chordKit/arpeggios";
-import { FAMILIES, makeKeyContext, shortModeName } from "@/features/theory/theory";
+import { FAMILIES, makeKeyContext, shortModeName, type KeyContext } from "@/features/theory/theory";
 import { MODE_PAGES, degreeColour } from "@/features/theory/scales";
 import { strum } from "@/lib/chordKit/playback";
 import { againstMajor, fmtDegree, hoverLabel, noteLabel, type LabelSystem } from "@/features/theory/labels";
@@ -171,6 +171,56 @@ function ArpBox({ cells, pos, overlay, labelSystem, badges, onNote, onPlay, on, 
     </div>
   );
 }
+/**
+ * One arpeggio of a key as the studio's Arpeggio widget: the page's neck and its positions, set up by props rather than its pickers.
+ * `roots` keeps only the positions with their root on those strings (guitar numbering); absent: all. Tap a position's name to light it up on the neck.
+ */
+export function ArpeggioOnGuitar({ ctx, degree, type, neck, positions: showPositions, roots }: { ctx: KeyContext; degree: number; type: string; neck: boolean; positions: boolean; roots?: number[] }) {
+  const [labelSystem] = useLabelSystem();
+  const [overlay, setOverlay] = useState(true);
+  const [badges, setBadges] = useState(true);
+  const [focus, setFocus] = useState<string | null>(null);
+  const arp = useMemo(() => buildArpeggio(ctx, degree, type), [ctx, degree, type]);
+  const cells = useMemo(() => neckCells(ctx, arp), [ctx, arp]);
+  const positions = useMemo(() => arpPositions(cells).filter((p) => !roots?.length || roots.includes(stringNumber(p.rootString))), [cells, roots]);
+  const focused = showPositions ? positions.find((p) => p.id === focus) ?? null : null;
+  const outside = arp.notes.filter((n) => n.outside);
+  const playNote = (c: NeckCell) => strum([c.midi], { gapMs: 0, holdMs: 700 });
+  const playPosition = (p: ArpPosition) => {
+    const up = p.notes.map((n) => n.midi);
+    strum([...up, ...up.slice(0, -1).reverse()], { gapMs: 230, holdMs: 700 });
+  };
+  return (
+    <section className="flex flex-col gap-2 rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5">
+      <div className="flex flex-wrap items-center gap-3">
+        <h2 className="text-sm font-medium text-slate-100">{arp.title}</h2>
+        <span className="text-xs text-slate-400">{arp.notes.map((n) => `${n.name} (${n.role})`).join(" · ")}</span>
+        <span className="ml-auto flex items-center gap-2">
+          <Chip on={overlay} onClick={() => setOverlay((v) => !v)}>Overlay the scale</Chip>
+          <Chip on={badges} onClick={() => setBadges((v) => !v)}>Degree badges</Chip>
+          <button type="button" onClick={() => strum(arpeggioMidi(arp), { gapMs: 230, holdMs: 700 })} className="cursor-pointer rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25">▶ Play arpeggio</button>
+        </span>
+      </div>
+      {outside.length > 0 && (
+        <p className="text-xs text-rose-300">
+          {outside.map((n) => n.name).join(", ")} {outside.length === 1 ? "is" : "are"} outside {ctx.names[0]} {ctx.modeName}: a chromatic colour note.
+        </p>
+      )}
+      {neck && (
+        <>
+          <ArpNeck cells={cells} arp={arp} overlay={overlay} labelSystem={labelSystem} badges={badges} onNote={playNote} focus={focused} />
+          <DegreeLegend />
+        </>
+      )}
+      {showPositions && (
+        <div className="grid gap-3" style={{ gridTemplateColumns: `repeat(${Math.min(Math.max(positions.length, 1), 5)}, minmax(0, 1fr))` }}>
+          {positions.map((p) => <ArpBox key={p.id} cells={cells} pos={p} overlay={overlay} labelSystem={labelSystem} badges={badges} onNote={playNote} onPlay={() => playPosition(p)} on={focus === p.id} onPick={() => setFocus(focus === p.id ? null : p.id)} />)}
+        </div>
+      )}
+    </section>
+  );
+}
+
 /**
  * Arpeggios over any scale or mode: pick the scale, then the arpeggio, and see both on the whole neck.
  * `side` puts the settings in a column on the right on wide screens (the arpeggios page); embedded, they float over the top.

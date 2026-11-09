@@ -140,10 +140,54 @@ test("one CAGED letter is saved as the single shape older widgets have; it reads
   assert.deepEqual(updateSubject({ kind: "caged", key: C_MAJOR, shape: null, shapes: ["G", "E"] }, { shapes: ["E"] }), { kind: "caged", key: C_MAJOR, shape: "E" });
 });
 
-test("an arpeggio defaults to the key's own chord and reads its boxes", () => {
+test("an arpeggio starts on the key's own 7th chord, every position, in the key and scale", () => {
   const s = family("arpeggio").make({}, A_MINOR);
-  assert.deepEqual(s, { kind: "tool", tool: { type: "arpeggio-neck", chord: "Am", boxes: [1] } });
-  assert.equal(describeSubject(family("arpeggio").make({ chord: "G7", boxes: [2, 3] }, A_MINOR)), "Arpeggio · G7 · boxes 2, 3");
+  assert.deepEqual(s, { kind: "arpeggio", key: A_MINOR, degree: 0, type: "seventh", roots: [6, 5, 4, 3, 2] });
+  assert.equal(describeSubject(s), "Arpeggio · A minor · i Scale 7th, all positions");
+});
+
+test("an arpeggio reads back what it was made from: key, scale, chord, type, what it shows, root strings", () => {
+  const values = { key: 2, scale: "dorian", degree: 4, type: "m7b5", show: ["neck"], roots: [5, 4] };
+  const s = family("arpeggio").make(values, C_MAJOR);
+  assert.deepEqual(s, { kind: "arpeggio", key: D_DORIAN, degree: 4, type: "m7b5", neck: true, positions: false, roots: [5, 4] });
+  assert.deepEqual(family("arpeggio").read(s), values);
+  assert.equal(describeSubject(s), "Arpeggio · D Dorian · v Min7♭5, neck");
+  assert.equal(describeSubject(family("arpeggio").make({ ...values, show: ["neck", "positions"] }, C_MAJOR)), "Arpeggio · D Dorian · v Min7♭5, neck, root on 5th, 4th");
+});
+
+test("an arpeggio's chord list is named in the key and scale picked, and root strings show only with positions", () => {
+  const arp = family("arpeggio");
+  const on = (values: Record<string, string | number | string[] | number[]>) => visibleControls(arp, values).find((c) => c.name === "degree")!.options!;
+  assert.deepEqual(on({ key: 7, scale: "major-ionian" })[4], { value: 4, label: "V · D" });
+  assert.deepEqual(on({ key: 9, scale: "natural-minor-aeolian" })[0], { value: 0, label: "i · A" });
+  assert.ok(visibleControls(arp, { show: ["positions"] }).some((c) => c.name === "roots"));
+  assert.ok(!visibleControls(arp, { show: ["neck"] }).some((c) => c.name === "roots"));
+});
+
+test("an arpeggio made on a stage with no root keeps no root unless a key is picked", () => {
+  const none: KeyChoice = { tonicPc: null, family: 0, mode: 0 };
+  const arp = family("arpeggio");
+  assert.equal(arp.read(arp.make({}, none))!.key, 4);
+  assert.equal((arp.make(stepValues(arp, none), none) as Extract<Subject, { kind: "arpeggio" }>).key.tonicPc, null);
+  assert.equal((arp.make({ ...stepValues(arp, none), key: 7 }, none) as Extract<Subject, { kind: "arpeggio" }>).key.tonicPc, 7);
+});
+
+test("changing an arpeggio pins only the part of its key changed on it", () => {
+  const arp = family("arpeggio").make({}, C_MAJOR);
+  assert.equal("pinned" in updateSubject(arp, { degree: 3, type: "triad", roots: [6] }), false);
+  assert.deepEqual((updateSubject(arp, { key: 7 }) as Extract<Subject, { kind: "arpeggio" }>).pinned, ["tonic"]);
+  assert.deepEqual((updateSubject(arp, { scale: "dorian" }) as Extract<Subject, { kind: "arpeggio" }>).pinned, ["scale"]);
+});
+
+test("an older typed-chord arpeggio reads as the family, stays until really changed, then is made over", () => {
+  const g9: Subject = { kind: "tool", tool: { type: "arpeggio-neck", chord: "G9", boxes: [2, 3] } };
+  assert.equal(describeSubject(g9), "Arpeggio · G9 · boxes 2, 3");
+  assert.deepEqual(family("arpeggio").read(g9), { key: 7, scale: "major-ionian", degree: 0, type: "7", show: ["positions"], roots: [5, 4] });
+  // closing its editor sends back what it read: nothing changes
+  assert.equal(updateSubject(g9, family("arpeggio").read(g9)!), g9);
+  assert.deepEqual(updateSubject(g9, { roots: [6] }), { kind: "arpeggio", key: { tonicPc: 7, family: 0, mode: 0 }, degree: 0, type: "7", roots: [6], pinned: ["scale"] });
+  const am: Subject = { kind: "tool", tool: { type: "arpeggio-neck", chord: "Am", placement: { by: "root", string: 5 } } };
+  assert.deepEqual(family("arpeggio").read(am), { key: 9, scale: "natural-minor-aeolian", degree: 0, type: "min", show: ["positions"], roots: [5] });
 });
 
 test("chord shapes default to the key's I, IV and V", () => {
@@ -163,17 +207,8 @@ test("updating keeps the key and the pins, and changes the props", () => {
   assert.deepEqual(updateSubject(tool, { boxes: [2, 3] }), { kind: "tool", tool: { type: "scale-neck", scale: "minor-pentatonic", key: 4, boxes: [2, 3] }, pinned: ["tonic"] });
   const caged: Subject = { kind: "caged", key: D_DORIAN, pinned: ["scale"], shape: null };
   assert.deepEqual(updateSubject(caged, { shapes: ["A", "D"] }), { kind: "caged", key: D_DORIAN, pinned: ["scale"], shape: null, shapes: ["A", "D"] });
-  const arp: Subject = { kind: "tool", tool: { type: "arpeggio-neck", chord: "Em", boxes: [1] } };
-  assert.deepEqual(updateSubject(arp, { boxes: [2] }), { kind: "tool", tool: { type: "arpeggio-neck", chord: "Em", boxes: [2] } });
   const outside: Subject = { kind: "section", section: "chords", key: C_MAJOR };
   assert.equal(updateSubject(outside, {}), outside);
-});
-
-test("clearing or mistyping an arpeggio's chord keeps the chord it had", () => {
-  const arp: Subject = { kind: "tool", tool: { type: "arpeggio-neck", chord: "Dm7", boxes: [2] } };
-  assert.deepEqual(updateSubject(arp, { chord: "" }), arp);
-  assert.deepEqual(updateSubject(arp, { chord: "Xq9" }), arp);
-  assert.deepEqual(updateSubject(arp, { chord: "G7" }), { kind: "tool", tool: { type: "arpeggio-neck", chord: "G7", boxes: [2] } });
 });
 
 test("updating keeps the props outside the main controls", () => {
@@ -181,24 +216,16 @@ test("updating keeps the props outside the main controls", () => {
   assert.deepEqual(updateSubject(pent, { boxes: [2] }), { kind: "tool", tool: { type: "scale-neck", scale: "minor-pentatonic", key: 9, boxes: [2], add: [3], highlight: [0], enable: [0, 3, 7], others: "hidden" } });
   const staff: Subject = { kind: "tool", tool: { type: "staff", scale: "major-ionian", key: 0, voice: "tenor", mic: true, drone: true } };
   assert.deepEqual(updateSubject(staff, { voice: "alto" }), { kind: "tool", tool: { type: "staff", scale: "major-ionian", key: 0, voice: "alto", mic: true, drone: true } });
-  const arp: Subject = { kind: "tool", tool: { type: "arpeggio-neck", chord: "Am7", boxes: [1], part: ["1", "b3"] } };
-  assert.deepEqual(updateSubject(arp, { boxes: [2, 3] }), { kind: "tool", tool: { type: "arpeggio-neck", chord: "Am7", boxes: [2, 3], part: ["1", "b3"] } });
   // a placement stands in for boxes: it stays until boxes are picked
   const placed: Subject = { kind: "tool", tool: { type: "scale-neck", scale: "dorian", key: 2, placement: { by: "root", string: 5 } } };
   assert.deepEqual(updateSubject(placed, { scale: "phrygian" }), { kind: "tool", tool: { type: "scale-neck", scale: "phrygian", key: 2, placement: { by: "root", string: 5 } } });
-});
-
-test("an arpeggio's boxes control keeps at most two, as the component does", () => {
-  const boxes = family("arpeggio").controls.find((c) => c.name === "boxes")!;
-  assert.equal(boxes.max, 2);
-  assert.deepEqual((family("arpeggio").make({ chord: "Am", boxes: [1, 2, 3] }, A_MINOR) as Extract<Subject, { kind: "tool" }>).tool, { type: "arpeggio-neck", chord: "Am", boxes: [1, 2] });
 });
 
 const control = (id: string, name: string) => family(id).controls.find((c) => c.name === name)!;
 
 test("the add form starts from what the family makes in the key", () => {
   assert.deepEqual(stepValues(family("scale"), A_MINOR), { key: 9, scale: "natural-minor-aeolian", show: ["positions"], boxes: [1, 2, 3, 4, 5] });
-  assert.deepEqual(stepValues(family("arpeggio"), A_MINOR), { chord: "Am", boxes: [1] });
+  assert.deepEqual(stepValues(family("arpeggio"), A_MINOR), { key: 9, scale: "natural-minor-aeolian", degree: 0, type: "seventh", show: ["positions"], roots: [6, 5, 4, 3, 2] });
   assert.deepEqual(stepValues(family("caged"), C_MAJOR), { shapes: ["overview"] });
   // nothing ticked adds the family's default
   assert.deepEqual(addableValues({ scale: "dorian", boxes: [] }), { scale: "dorian" });
@@ -210,13 +237,6 @@ test("toggling a box adds or removes it", () => {
   assert.deepEqual(toggleOption(boxes, [1], 3), [1, 3]);
   assert.deepEqual(toggleOption(boxes, [1, 3], 1), [3]);
   assert.deepEqual(toggleOption(boxes, [], 2), [2]);
-});
-
-test("an arpeggio's boxes keep the two last ticked and have no All", () => {
-  const boxes = control("arpeggio", "boxes");
-  assert.deepEqual(toggleOption(boxes, [1, 2], 3), [2, 3]);
-  assert.equal(allOptions(boxes), null);
-  assert.equal(isAll(boxes, [1, 2]), false);
 });
 
 test("All ticks every box, and again clears them", () => {

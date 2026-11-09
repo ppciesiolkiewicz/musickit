@@ -97,7 +97,7 @@ test("a family widget is pinned when it was made in a key the master doesn't hav
   // made in the master's key: not pinned
   assert.deepEqual(pinAgainst(ePent, { ...E_MIN, mode: 0 }, E_MIN), ePent);
   // an arpeggio given G7 while in C
-  const g7 = FAMILIES.find((f) => f.id === "arpeggio")!.make({ chord: "G7" }, C);
+  const g7: Subject = { kind: "tool", tool: { type: "arpeggio-neck", chord: "G7" } };
   assert.deepEqual(pinAgainst(g7, C, C), { ...g7, pinned: ["tonic"] });
   // an arpeggio given G7 on a stage with no root
   assert.deepEqual(pinAgainst(g7, EMPTY_KEY, EMPTY_KEY), { ...g7, pinned: ["tonic"] });
@@ -186,4 +186,21 @@ test("CAGED shapes: the name lists the letters, the identity ignores the key and
   assert.equal(subjectIdentity(two), subjectIdentity({ ...two, key: EMPTY_KEY }));
   assert.notEqual(subjectIdentity(two), subjectIdentity({ ...two, shapes: ["A", "D"] }));
   assert.notEqual(subjectIdentity(two), subjectIdentity({ kind: "caged", shape: null, key }));
+});
+
+test("an arpeggio widget follows the master, pins, saves and takes the audio input", () => {
+  const arp: Subject = { kind: "arpeggio", key: { tonicPc: 0, family: 0, mode: 0 }, degree: 4, type: "seventh", neck: true, roots: [6, 5] };
+  const dorian = { tonicPc: 2, family: 0, mode: 1 };
+  assert.deepEqual(withMaster(arp, dorian), { ...arp, key: dorian });
+  assert.deepEqual(withMaster({ ...arp, pinned: ["scale"] }, dorian), { ...arp, pinned: ["scale"], key: { tonicPc: 2, family: 0, mode: 0 } });
+  assert.deepEqual(sanitiseSubject(arp, ids), arp);
+  assert.equal(takesMic(arp), true);
+  // what can't be drawn is dropped
+  assert.equal(sanitiseSubject({ ...arp, degree: 7 }, ids), null);
+  assert.equal(sanitiseSubject({ ...arp, type: "nope" }, ids), null);
+  // only real root strings stay; none left is all of them
+  assert.deepEqual(sanitiseSubject({ ...arp, roots: [1, 5, "x"] }, ids), { ...arp, roots: [5] });
+  assert.equal("roots" in sanitiseSubject({ ...arp, roots: [1] }, ids)!, false);
+  // hiding the positions needs the neck to show
+  assert.equal("positions" in sanitiseSubject({ kind: "arpeggio", key: arp.key, degree: 0, type: "triad", positions: false }, ids)!, false);
 });

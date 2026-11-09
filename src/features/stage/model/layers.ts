@@ -179,6 +179,7 @@ function baseRect(s: Subject): FrameRect {
     case "bubble":
       return { x: 0.05, y: 0.08, w: 0.5, h: 0.5 };
     case "neck":
+    case "arpeggio":
     case "caged":
       return { x: 0.05, y: 0.08, w: 0.7, h: 0.42 };
     case "tool":

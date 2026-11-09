@@ -2,17 +2,18 @@
  * The palette's widget families: one row each (Scale, CAGED, Arpeggio, Chord shapes, Staff), curated here. A family makes a widget
  * from its main props (`controls`: key, scale, what to show, boxes, shapes, chord), reads them back from a widget on the stage and
  * names it in one line ("Scale · C major · neck, positions 1–2"). Most families are a learning component of the AI plan (a `tool`
- * subject); CAGED wraps the stage's own `caged` subject. The Scale family is the `scale-neck` tool: the scales page's guitar section,
+ * subject); CAGED and Arpeggio wrap the stage's own `caged` and `arpeggio` subjects (older `arpeggio-neck` tools still read as Arpeggio widgets and are made over when edited). The Scale family is the `scale-neck` tool: the scales page's guitar section,
  * set up by its props; the stage's older neck, overview and position subjects still read as Scale widgets and are made over into the
  * tool when edited. A tool keeps the props a family doesn't list. Pure: no React. Imports only types from subject.ts, which takes its
  * tool names from here.
  */
 import { keyContext, type KeyChoice } from "@/features/creator/model/key";
 import { TOOLS, type PlanTool, type ToolName } from "@/features/plan/model/tools";
-import { FAMILIES as SCALE_FAMILIES, modeAlias, shortModeName, tonicName } from "@/features/theory/theory";
+import { DEFAULT_KEY_PC, FAMILIES as SCALE_FAMILIES, modeAlias, shortModeName, tonicName } from "@/features/theory/theory";
 import { PENTATONICS, findPentatonic } from "@/features/theory/pentatonics";
 import { MODE_PAGES, findModePage } from "@/features/theory/scales";
 import { VOICES, type Voice } from "@/features/theory/singing";
+import { ARP_QUALITIES } from "@/lib/chordKit/arpeggios";
 import { parseChordQuery } from "@/lib/chordKit/chordSearch";
 import { CAGED_LETTERS, type CagedLetter, type CagedQuality } from "@/lib/chordKit/caged";
 import { POSITION_COUNT } from "@/lib/chordKit/scalePositions";
@@ -29,6 +30,8 @@ export interface FamilyControl {
   label: string;
   kind: "choice" | "multi" | "text";
   options?: { value: string | number; label: string }[];
+  /** options that depend on the other values (an arpeggio's chords, named in its key and scale): `visibleControls` fills `options` from it */
+  optionsFor?: (values: FamilyValues) => { value: string | number; label: string }[];
   /** a `multi` that keeps at most this many (the component drops the rest) */
   max?: number;
   /** a `multi` option that stands alone: ticking it clears the others, ticking another clears it (CAGED's Overview) */
@@ -272,32 +275,115 @@ const caged = family({
   },
 });
 
-/** the plan's `arpeggio-neck` takes boxes 1 to 5, one or two neighbours (its parse keeps the first two) */
-const ARPEGGIO_BOXES = 5;
-const ARPEGGIO_MAX_BOXES = 2;
+/* ---------------------------------------------------------------- the Arpeggio family */
+
+const ARP_KINDS = [{ value: "triad", label: "Scale triad" }, { value: "seventh", label: "Scale 7th" }, { value: "ninth", label: "Scale 9th" }];
+const ARP_TYPES = [...ARP_KINDS, ...ARP_QUALITIES.map((q) => ({ value: q.id, label: q.label }))];
+const typeText = (type: string) => ARP_TYPES.find((t) => t.value === type)?.label ?? type;
+/** the strings a position's root can sit on, low to high: guitar numbering, as the arpeggios page counts them */
+export const ARP_ROOT_STRINGS = [6, 5, 4, 3, 2];
+const ORDINAL: Record<number, string> = { 6: "6th", 5: "5th", 4: "4th", 3: "3rd", 2: "2nd" };
+const ARP_SCALES = MODE_PAGES.map((m) => ({ value: m.slug, label: m.name }));
+/** The Key control's value: what the widget draws, the site's default key when it has no root yet. */
+const arpTonic = (key: KeyChoice) => key.tonicPc ?? DEFAULT_KEY_PC;
+
+/** The chords of the key the values name, to start the arpeggio on: "V · G". */
+function arpDegreeOptions(v: FamilyValues) {
+  const page = findModePage(str(v.scale) ?? "");
+  const tonicPc = typeof v.key === "number" ? v.key : DEFAULT_KEY_PC;
+  const ctx = keyContext({ tonicPc, family: page?.familyIndex ?? 0, mode: page?.modeIndex ?? 0 })!;
+  return ctx.chords.map((c) => ({ value: c.degree, label: `${c.roman} · ${ctx.names[c.degree]}` }));
+}
+
+/** An older arpeggio widget (`arpeggio-neck`, a typed chord in one or two boxes) as these controls: the chord's root as the key, on I, the nearest type. */
+function arpLegacyValues(t: ToolOf<"arpeggio-neck">): FamilyValues {
+  const q = parseChordQuery(t.chord);
+  const semis = q?.semis ?? [0, 4, 7];
+  const overlap = (qs: number[]) => qs.filter((n) => semis.includes(n)).length - qs.filter((n) => !semis.includes(n)).length;
+  const nearest = ARP_QUALITIES.reduce((best, x) => (overlap(x.semis) > overlap(best.semis) ? x : best));
+  const fromBoxes = t.boxes?.map((b) => 7 - b).filter((n) => ARP_ROOT_STRINGS.includes(n)) ?? [];
+  const placed = t.placement?.by === "root" ? [t.placement.string] : [];
+  const roots = fromBoxes.length ? fromBoxes : placed.length ? placed : [6];
+  return { key: q?.rootPc ?? 0, scale: semis.includes(3) ? "natural-minor-aeolian" : MODE_PAGES[0].slug, degree: 0, type: nearest.id, show: ["positions"], roots };
+}
+
+function arpRead(s: Subject): FamilyValues | null {
+  if (s.kind === "arpeggio") {
+    const slug = MODE_PAGES.find((m) => m.familyIndex === s.key.family && m.modeIndex === s.key.mode)?.slug ?? MODE_PAGES[0].slug;
+    return { key: arpTonic(s.key), scale: slug, degree: s.degree, type: s.type, show: [...(s.neck ? ["neck"] : []), ...(s.positions === false ? [] : ["positions"])], roots: s.roots ?? ARP_ROOT_STRINGS };
+  }
+  const t = toolOf(s, "arpeggio-neck");
+  return t ? arpLegacyValues(t) : null;
+}
+
+function arpMake(v: FamilyValues, key: KeyChoice): Subject {
+  const page = findModePage(str(v.scale) ?? "");
+  const family = page ? page.familyIndex : key.family;
+  const mode = page ? page.modeIndex : key.mode;
+  // the Key control shows the default for a key with no root: left there it stays no root, so the widget follows the master once it is set
+  const picked = typeof v.key === "number" && Number.isInteger(v.key) && v.key >= 0 && v.key < 12 ? v.key : null;
+  const tonicPc = picked === null || picked === arpTonic(key) ? key.tonicPc : picked;
+  const degree = typeof v.degree === "number" && Number.isInteger(v.degree) && v.degree >= 0 && v.degree <= 6 ? v.degree : 0;
+  const type = ARP_TYPES.find((t) => t.value === v.type)?.value ?? "seventh";
+  const show = strs(v.show);
+  const neck = show.includes("neck");
+  const roots = ARP_ROOT_STRINGS.filter((n) => nums(v.roots)?.includes(n));
+  return {
+    kind: "arpeggio", key: { tonicPc, family, mode }, degree, type,
+    // nothing shown is the positions, as on the Scale family
+    ...(neck ? { neck: true } : {}), ...(neck && !show.includes("positions") ? { positions: false } : {}),
+    ...(roots.length ? { roots } : { roots: ARP_ROOT_STRINGS }),
+  };
+}
+
+/**
+ * New main props in the widget's own key. A key or scale picked here pins that part, as on the widget's tags. An older widget is
+ * made over only when something really changed (closing its editor must not turn a G9 into the nearest type); its scale was never
+ * the master's, so it stays pinned.
+ */
+function arpUpdate(s: Subject, values: FamilyValues): Subject {
+  const current = arpRead(s);
+  if (!current) return s;
+  const merged = { ...current, ...values };
+  const legacy = s.kind === "tool";
+  if (legacy && JSON.stringify(merged) === JSON.stringify(current)) return s;
+  const page = findModePage(str(current.scale) ?? "");
+  const own: KeyChoice = s.kind === "arpeggio" ? s.key : { tonicPc: current.key as number, family: page?.familyIndex ?? 0, mode: page?.modeIndex ?? 0 };
+  const made = arpMake(merged, own);
+  const pins = new Set<"tonic" | "scale">("pinned" in s ? (s.pinned ?? []) : []);
+  if (merged.key !== current.key) pins.add("tonic");
+  if (legacy || merged.scale !== current.scale) pins.add("scale");
+  return pins.size ? ({ ...made, pinned: [...pins] } as Subject) : made;
+}
+
+function arpParts(s: Subject): Parts {
+  const t = toolOf(s, "arpeggio-neck");
+  if (t) return { name: "Arpeggio", key: t.chord, detail: numbered("box", t.boxes) };
+  const a = s as Extract<Subject, { kind: "arpeggio" }>;
+  const roman = keyContext({ ...a.key, tonicPc: arpTonic(a.key) })!.chords[a.degree].roman;
+  const roots = a.roots ?? ARP_ROOT_STRINGS;
+  const where = a.positions === false ? null : roots.length === ARP_ROOT_STRINGS.length ? "all positions" : `root on ${roots.map((n) => ORDINAL[n]).join(", ")}`;
+  return { name: "Arpeggio", key: keyChoiceText(a.key), detail: [`${roman} ${typeText(a.type)}`, a.neck ? "neck" : null, where].filter(Boolean).join(", ") };
+}
+
 const arpeggio = family({
   id: "arpeggio",
   title: "Arpeggio",
-  words: ["arpeggio", "arpeggios", "arp", "arps", "chord", "box", "boxes"],
+  words: ["arpeggio", "arpeggios", "arp", "arps", "chord", "box", "boxes", "root", "string"],
   group: "chords",
   sub: "In the key",
-  tool: "arpeggio-neck",
   controls: [
-    { name: "chord", label: "Chord", kind: "text", default: "" },
-    { ...boxesControl(ARPEGGIO_BOXES), label: "Boxes (one, or two neighbours)", max: ARPEGGIO_MAX_BOXES },
+    { name: "key", label: "Key", kind: "choice", options: KEY_OPTIONS, default: DEFAULT_KEY_PC },
+    { name: "scale", label: "Scale", kind: "choice", options: ARP_SCALES, default: MODE_PAGES[0].slug },
+    { name: "degree", label: "On", kind: "choice", optionsFor: arpDegreeOptions, default: 0 },
+    { name: "type", label: "Type", kind: "choice", options: ARP_TYPES, default: "seventh" },
+    { name: "show", label: "Show", kind: "multi", options: SHOWS, default: ["positions"] },
+    { name: "roots", label: "Root on", kind: "multi", options: ARP_ROOT_STRINGS.map((n) => ({ value: n, label: `${ORDINAL[n]} string` })), default: ARP_ROOT_STRINGS, when: atPositions },
   ],
-  make(v, key) {
-    const typed = str(v.chord);
-    return toolSubject({ type: "arpeggio-neck", chord: isChord(typed) ? typed : chordsOf(key)[0].triadName, boxes: nums(v.boxes) ?? [1] });
-  },
-  read(s) {
-    const t = toolOf(s, "arpeggio-neck");
-    return t ? { chord: t.chord, boxes: boxesRead(t, [1]) } : null;
-  },
-  parts(s) {
-    const t = toolOf(s, "arpeggio-neck")!;
-    return { name: "Arpeggio", key: t.chord, detail: numbered("box", t.boxes) };
-  },
+  make: arpMake,
+  read: arpRead,
+  update: arpUpdate,
+  parts: arpParts,
 });
 
 const chordShapes = family({
@@ -378,11 +464,8 @@ export const describeParts = (s: Subject): Parts | null => familyWithParts(s)?.p
 export function updateSubject(s: Subject, values: FamilyValues): Subject {
   const f = familyOf(s);
   if (!f) return s;
-  const given = { ...values };
-  // a cleared or mistyped chord keeps the one the widget has, never the key's
-  if ("chord" in given && !isChord(str(given.chord))) delete given.chord;
-  if (f.update) return f.update(s, given);
-  const merged = { ...f.read(s), ...given };
+  if (f.update) return f.update(s, values);
+  const merged = { ...f.read(s), ...values };
   if (s.kind === "tool") {
     // only the tonic is real here: a tool's scale is a main prop (read above), so a `make` never needs the mode. One that fell
     // back to the key's quality would get major.
@@ -408,7 +491,8 @@ export function stepValues(f: Family, key: KeyChoice): FamilyValues {
 }
 
 /** The controls shown for these values (a control with `when` only where it applies). */
-export const visibleControls = (f: Family, values: FamilyValues): FamilyControl[] => f.controls.filter((c) => !c.when || c.when(values));
+export const visibleControls = (f: Family, values: FamilyValues): FamilyControl[] =>
+  f.controls.filter((c) => !c.when || c.when(values)).map((c) => (c.optionsFor ? { ...c, options: c.optionsFor(values) } : c));
 
 /** The values to make a widget from: a toggle with nothing ticked is left out, so the family's default stands. */
 export function addableValues(values: FamilyValues): FamilyValues {
