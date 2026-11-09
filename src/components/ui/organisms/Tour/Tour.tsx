@@ -20,6 +20,8 @@ const GAP = 10;
 const EDGE = 10;
 /** How far the lit outline stands off the section itself. */
 const PAD = 6;
+/** How long (ms) a step stays up before Space moves on; Space pressed sooner does nothing. */
+const SPACE_DWELL = 700;
 
 /** The small [space] label on Next, saying the space bar does the same. */
 function SpaceKey() {
@@ -86,12 +88,19 @@ export function Tour({ steps, root, open, onClose }: { steps: TourStep[]; root?:
     advance.current = () => (last ? close(true) : setI((n) => n + 1));
   });
   const active = open && !!step;
+  // when the current step appeared: Space is ignored (still swallowed) for SPACE_DWELL after, so a quick double press
+  // or a press landing just as the step changes cannot skip a step unread
+  const shownAt = useRef(0);
+  useEffect(() => {
+    shownAt.current = performance.now();
+  }, [step]);
   useEffect(() => {
     if (!active) return;
     const key = (e: KeyboardEvent) => {
-      if (e.key !== " " || e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
+      if (e.key !== " " || e.metaKey || e.ctrlKey || e.altKey) return;
       e.preventDefault();
       e.stopImmediatePropagation();
+      if (e.repeat || performance.now() - shownAt.current < SPACE_DWELL) return;
       advance.current();
     };
     window.addEventListener("keydown", key, true);
