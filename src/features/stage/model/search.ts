@@ -9,7 +9,7 @@ import type { KeyChoice } from "@/features/creator/model/key";
 import { CAGED_LETTERS, type CagedLetter } from "@/lib/chordKit/caged";
 import { POSITION_COUNT } from "@/lib/chordKit/scalePositions";
 import { NO_MEDIA, type MediaState } from "./commands";
-import { FAMILIES, keyChoiceText, type Family, type FamilyValues } from "./families";
+import { FAMILIES, keyChoiceText, type Family } from "./families";
 import { PALETTE_GROUPS, pinAgainst, subjectName, subjectTitle, type PaletteGroup, type PaletteResult, type StudioCommand, type Subject } from "./subject";
 
 const MAX_RESULTS = 12;
@@ -19,7 +19,7 @@ const FULL_PAGES = ["scale", "chords", "circle", "progressions", "modes", "triad
 
 /** Other words a plugin goes by. */
 const PLUGIN_WORDS: Record<string, string[]> = {
-  scale: ["scale", "notes"],
+  scale: ["scale", "notes", "intervals", "interval", "degrees"],
   chords: ["chords", "chord", "library", "search", "shapes"],
   circle: ["circle", "fifths"],
   keys: ["keys", "piano", "keyboard"],
@@ -100,27 +100,23 @@ function familyEntry(f: Family, key: KeyChoice): Entry {
 const range = (n: number) => Array.from({ length: n }, (_, i) => i + 1);
 
 /**
- * The single widgets of a family a typed line can name: a box, a position, a Scale view (the fretboard, the overview, the relative
- * modes, the intervals), a CAGED shape or the CAGED overview. Search only.
+ * The single widgets of a family a typed line can name: a 3-notes-per-string position, a Scale view (the fretboard, the overview),
+ * a CAGED shape or the CAGED overview. Search only.
  */
-function variants(f: Family, key: KeyChoice, has: (pluginId: string) => boolean): Entry[] {
+function variants(f: Family, key: KeyChoice): Entry[] {
   const one = (subject: Subject, words: string[], box?: number, label?: string): Entry => {
     const e = entry(subject, f.group, "", words, f.sub, label);
     return box === undefined ? e : { ...e, box };
   };
-  const numbered = (count: number, label: string, values: (n: number) => FamilyValues, words: string[]) =>
-    range(count).map((n) => one(f.make(values(n), key), [...words, "box", "boxes", "pos", "position", String(n)], n - 1, `${label} ${n}`));
-  const view = (v: string, words: string[]) => one(f.make({ view: v }, key), words);
   switch (f.id) {
     case "scale":
       return [
-        ...numbered(POSITION_COUNT.pentatonic, "Pentatonic box", (n) => ({ style: "pentatonic", boxes: [n] }), ["pent", "pentatonic"]),
-        ...numbered(POSITION_COUNT.scale, "Scale position", (n) => ({ style: "scale", boxes: [n] }), ["scale", "positions"]),
-        ...numbered(POSITION_COUNT["3nps"], "3 notes per string, position", (n) => ({ style: "3nps", position: [n] }), ["3nps", "nps", "three"]),
-        view("neck", ["fretboard", "neck", "scale", "notes", "whole"]),
-        view("overview", ["fretboard", "positions", "guitar", "neck", "overview"]),
-        view("relatives", ["modes", "same", "notes", "relatives", "relative"]),
-        ...(has("scale") ? [view("intervals", ["scale", "notes", "intervals", "interval", "degrees"])] : []),
+        // 3 notes per string is one position at a time: the stage's own `position` widget
+        ...range(POSITION_COUNT["3nps"]).map((n) =>
+          one({ kind: "position", positionKind: "3nps", index: n - 1, key }, ["3nps", "nps", "three", "notes", "per", "string", "box", "boxes", "pos", "position", String(n)], n - 1, `3 notes per string, position ${n}`),
+        ),
+        one(f.make({ show: ["neck"] }, key), ["fretboard", "neck", "scale", "notes", "whole"], undefined, "Fretboard"),
+        one(f.make({ show: ["neck", "positions"] }, key), ["fretboard", "positions", "guitar", "neck", "overview"], undefined, "Fretboard positions"),
       ];
     case "caged":
       return [
@@ -140,7 +136,7 @@ function entries(pluginIds: string[], key: KeyChoice, search = false): Entry[] {
   const has = (id: string) => pluginIds.includes(id);
   const fam = (id: string) => {
     const f = familyById(id);
-    return search ? [familyEntry(f, key), ...variants(f, key, has)] : [familyEntry(f, key)];
+    return search ? [familyEntry(f, key), ...variants(f, key)] : [familyEntry(f, key)];
   };
   const panel = (id: string, group: PaletteGroup, detail: string, sub?: string) => (has(id) ? [entry({ kind: "plugin", plugin: id, key }, group, detail, PLUGIN_WORDS[id] ?? [], sub)] : []);
   const out: Entry[] = [
@@ -148,8 +144,10 @@ function entries(pluginIds: string[], key: KeyChoice, search = false): Entry[] {
     entry({ kind: "band", key }, "setup", "Click, drone, drums and bass", ["metronome", "drone", "band", "drums", "bass", "click", "tempo"]),
     entry({ kind: "tuner" }, "setup", "Tune before you play", ["tuner", "tune", "tuning"]),
     entry({ kind: "mic" }, "setup", "Guitar or voice: lights the notes you play on pinned and selected widgets", ["mic", "microphone", "guitar", "voice", "listen", "input", "audio", "hear", "notes", "accuracy"]),
-    // the Scale family is every scale view: positions, the whole neck, the overview, the intervals, the relative modes
+    // the Scale family: the scales page's guitar section (neck and positions) of any key and scale
     ...fam("scale"),
+    entry({ kind: "section", section: "relatives", key }, "scale", "Modes that share the notes", ["relative", "relatives", "modes", "mode", "same", "notes"]),
+    ...panel("scale", "scale", "Every interval of the mode"),
     ...fam("staff"),
   ];
   // a family without a subsection comes first in its section, above the first subsection heading

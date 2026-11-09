@@ -3,7 +3,7 @@
 What goes in the teacher studio's 16:9 frame: widget subjects, layers, the palette search and the live widgets. Behaviour spec: `spec/studio.md`. Design: `docs/superpowers/specs/2026-10-19-teacher-studio-design.md`.
 
 ## Keep it separate
-- May import `@/features/theory`, `@/features/sound`, `@/features/instruments` (public index), the creator's public `index.ts` (the pure model may import `@/features/creator/model/key` directly), the plan's pure tool model (`@/features/plan/model/tools`, `transpose`) and its store-free `@/features/plan/ui/Tool` (never the plan store or `usePlan`), the learning components' docs (`@/features/exercises/docs`, for a family's "More" props), `src/lib/chordKit`, `src/components/chordKit`, `@/features/tuner` (public index), `@/lib/site` and shared `@/components`.
+- May import `@/features/theory`, `@/features/sound`, `@/features/instruments` (public index), the creator's public `index.ts` (the pure model may import `@/features/creator/model/key` directly), the plan's pure tool model (`@/features/plan/model/tools`, `transpose`) and its store-free `@/features/plan/ui/Tool` (never the plan store or `usePlan`), `src/lib/chordKit`, `src/components/chordKit`, `@/features/tuner` (public index), `@/lib/site` and shared `@/components`.
 - Never the looper, the studio page, recording or the editor. Nothing here knows it is being recorded.
 
 ## Data
@@ -14,7 +14,7 @@ What goes in the teacher studio's 16:9 frame: widget subjects, layers, the palet
 - Camera, screen, the Key & scale widget, the tuner, the logo and the site address exist at most once (`addSubject`, `sanitiseStage`).
 
 ## Renderer
-- The palette's sections and their order are `PALETTE_GROUPS`, subsections a result's `sub`; `groupResults` puts results under them. A new widget is an entry in `entries` (search.ts) with a group, words to find it by and maybe a subsection. A widget family is one `family` row (`fam(id)` in `entries`; the palette opens it in place with its widgets on the stage); the single variants a typed line names ("pent pos 2", "fretboard", "e shape") are in `variants`, search only. The Scale family spans several subject kinds (`scale-neck` tool, `position`, `neck`, `section`, plugin `scale`): its `update` converts between them, and its `read` must cover any kind it makes.
+- The palette's sections and their order are `PALETTE_GROUPS`, subsections a result's `sub`; `groupResults` puts results under them. A new widget is an entry in `entries` (search.ts) with a group, words to find it by and maybe a subsection. A widget family is one `family` row (`fam(id)` in `entries`; the palette opens it in place with its widgets on the stage); the single variants a typed line names ("pent pos 2", "fretboard", "e shape") are in `variants`, search only. The Scale family is the `scale-neck` tool (key, scale incl. pentatonics, Show: neck/positions, positions 1–5; drawn by `ScaleOnGuitar`): older `position`, `neck` and guitar-`section` subjects still read as it and `update` makes them the tool. Relative modes and the intervals panel are palette items of their own, not family widgets; 3 notes per string is a search-only `position` widget. A family has no "More" props: a tool keeps the props it has.
 - `StageWidget` turns a subject into a live widget. Keep it injectable (props in, callbacks out, no studio state), so the editor can be handed it to draw the widget track.
 
 ## Every change

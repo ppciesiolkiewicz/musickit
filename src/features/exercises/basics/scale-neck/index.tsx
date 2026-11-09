@@ -8,12 +8,13 @@ import { useNotePlayer } from "@/components/chordKit/useNotePlayer";
 import { useLabelSystem } from "@/features/theory/useLabelSystem";
 import { positionLine, type ScalePosition } from "@/lib/chordKit/scalePositions";
 import { SHARP, scaleBoxes, shiftPosition } from "./boxes";
+import { GuitarView } from "./Guitar";
 
 /**
  * The scale's positions on the neck, only the boxes asked for, with any added notes played in them; tap a note to hear
  * it, ▶ to run the box up and down.
  */
-export function View({ slug, pc, boxes, placement, add, enable, highlight, mute, hide: hidden, others }: { slug: string; pc: number; boxes?: number[]; placement?: Placement; add?: number[]; enable?: number[]; highlight?: number[]; mute?: number[]; hide?: number[]; others?: Others }) {
+function Boxes({ slug, pc, boxes, placement, add, enable, highlight, mute, hide: hidden, others }: { slug: string; pc: number; boxes?: number[]; placement?: Placement; add?: number[]; enable?: number[]; highlight?: number[]; mute?: number[]; hide?: number[]; others?: Others }) {
   // the marks are semitones above the key; the states work on pitch classes
   const vis = useMemo((): Visibility => {
     const pcs = (semis?: number[]) => semis?.map((semi) => (pc + semi) % 12);
@@ -56,4 +57,12 @@ export function View({ slug, pc, boxes, placement, add, enable, highlight, mute,
       </div>
     </div>
   );
+}
+
+type ViewProps = Parameters<typeof Boxes>[0] & { neck?: boolean; positions?: boolean };
+
+/** The boxes alone (the plan's exercises), or with `neck` (or no boxes) the scales page's interactive guitar section. */
+export function View({ neck, positions, ...rest }: ViewProps) {
+  if (neck || positions === false) return <GuitarView slug={rest.slug} pc={rest.pc} boxes={rest.boxes} neck={neck === true} positions={positions !== false} />;
+  return <Boxes {...rest} />;
 }

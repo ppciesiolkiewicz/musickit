@@ -6,10 +6,10 @@ import Icon from "@/components/Icon";
 import type { KeyChoice } from "@/features/creator";
 import ControlBadge, { MicBadge, PageBadge } from "./ControlBadge";
 import { isLive } from "./notes";
-import FamilyStep, { FamilyEditor, moreOf } from "./FamilyStep";
+import FamilyStep, { FamilyEditor } from "./FamilyStep";
 import {
   FAMILIES, PALETTE_GROUPS, addableValues, describeSubject, familyOf, groupResults, isControl, isPage, paletteCatalog, paletteChoice, pinAgainst, takesMic, searchPalette, stepValues,
-  subjectIdentity, withMore, type Family, type FamilyValues, type Layer, type MediaState, type PaletteResult, type Subject,
+  subjectIdentity, type Family, type FamilyValues, type Layer, type MediaState, type PaletteResult, type Subject,
 } from "@/features/stage";
 
 type Row = { kind: "group"; name: string } | { kind: "sub"; name: string } | { kind: "result"; result: PaletteResult; index: number };
@@ -36,7 +36,6 @@ interface Open {
   family: Family;
   key: KeyChoice;
   values: FamilyValues;
-  moreText: Record<string, string>;
 }
 
 const familyById = (id: string) => FAMILIES.find((f) => f.id === id);
@@ -47,7 +46,7 @@ const rowFamily = (r: PaletteResult | undefined) => (r?.action.type === "family"
 /** A family row opened: its add form in the row's key. */
 const opened = (r: PaletteResult | undefined): Open | null => {
   const family = rowFamily(r);
-  return family && r?.action.type === "family" ? { family, key: r.action.key, values: stepValues(family, r.action.key), moreText: {} } : null;
+  return family && r?.action.type === "family" ? { family, key: r.action.key, values: stepValues(family, r.action.key) } : null;
 };
 
 /**
@@ -127,10 +126,8 @@ export default function Palette({ notes = false, pluginIds, stageKey, media, lay
   /** the open family's new widget on the stage, pinned where its key differs from the master; the family stays open, the widget under it */
   const addOpen = () => {
     if (!open) return;
-    const { family, key, values, moreText } = open;
-    const { more, invalid } = moreOf(family, moreText, values);
-    for (const name of invalid) delete more[name];
-    const made = withMore(family.make(addableValues(values), key), more).subject;
+    const { family, key, values } = open;
+    const made = family.make(addableValues(values), key);
     onPick({ id: `family:${family.id}`, label: family.title, detail: "", group: family.group, action: { type: "add", subject: pinAgainst(made, stageKey, key) } });
     input.current?.focus();
   };
@@ -160,9 +157,7 @@ export default function Palette({ notes = false, pluginIds, stageKey, media, lay
         <FamilyStep
           family={o.family}
           values={o.values}
-          moreText={o.moreText}
           onValues={(values) => setOpen((s) => (s ? { ...s, values } : s))}
-          onMoreText={(moreText) => setOpen((s) => (s ? { ...s, moreText } : s))}
           onSubmit={addOpen}
         />
         <div className="flex justify-end px-4 pb-2">

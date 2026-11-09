@@ -28,14 +28,21 @@ export interface PentatonicOnly {
   extra?: ScaleCell[];
 }
 
+/** What a widget shows of it: the whole neck, the positions (only these `boxes`, numbered from 1). The shapes picker is then left out: the full scale in five positions. */
+export interface GuitarView {
+  neck: boolean;
+  positions: boolean;
+  boxes?: number[];
+}
+
 /**
  * A mode on the guitar: the whole neck, then the five positions to learn it in (the pentatonic boxes, or the full scale in those boxes).
  * Tap a note to hear it, play a position up and down, or pick a position to light it up on the neck.
- * With `only`, a pentatonic cut from `ctx` and nothing else.
+ * With `only`, a pentatonic cut from `ctx` and nothing else. With `view`, only the parts it names (the studio's Scale widget).
  */
-export default function ScaleOnGuitar({ ctx, player, only }: { ctx: KeyContext; player: NotePlayer; only?: PentatonicOnly }) {
+export default function ScaleOnGuitar({ ctx, player, only, view }: { ctx: KeyContext; player: NotePlayer; only?: PentatonicOnly; view?: GuitarView }) {
   const [system] = useLabelSystem();
-  const [kind, setKind] = useState<PositionKind>("pentatonic");
+  const [kind, setKind] = useState<PositionKind>(view ? "scale" : "pentatonic");
   const [rings, setRings] = useState(true);
   const [focus, setFocus] = useState<number | null>(null);
   /** positions shown as their v2 (`alt`), by kind and number */
@@ -44,7 +51,13 @@ export default function ScaleOnGuitar({ ctx, player, only }: { ctx: KeyContext; 
 
   const cells = useMemo(() => [...scaleCells(ctx), ...(only?.extra ?? [])], [ctx, only]);
   const pent = useMemo(() => only?.pent ?? pentatonicOf(ctx.steps), [ctx, only]);
-  const positions = useMemo(() => only?.positions ?? positionsFor(ctx, kind), [ctx, kind, only]);
+  const boxes = view?.boxes;
+  const positions = useMemo(() => {
+    const all = only?.positions ?? positionsFor(ctx, kind);
+    return boxes?.length ? all.filter((p) => boxes.includes(p.number)) : all;
+  }, [ctx, kind, only, boxes]);
+  const showNeck = !view || view.neck;
+  const showPositions = !view || view.positions;
   const pentDegrees = new Set(pent.degrees);
   const big = kind === "pentatonic" ? (c: ScaleCell) => pentDegrees.has(c.degree) : () => true;
   const vKey = (p: ScalePosition) => `${only ? "only" : kind}-${p.number}`;
@@ -79,7 +92,7 @@ export default function ScaleOnGuitar({ ctx, player, only }: { ctx: KeyContext; 
   };
 
   return (
-    <section id="guitar" className="bleed scroll-mt-48 rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5">
+    <section id={view ? undefined : "guitar"} className="bleed scroll-mt-48 rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5">
       <h2 className="mb-2 text-sm font-medium text-slate-100">
         {keyName} on the guitar
         <Info label="How do I read the neck?">
@@ -89,13 +102,17 @@ export default function ScaleOnGuitar({ ctx, player, only }: { ctx: KeyContext; 
         </Info>
       </h2>
 
-      <ScaleNeck cells={cells} big={big} rings={rings} focus={focused} active={active} labelSystem={system} onNote={onNote} title={`${keyName} on the guitar neck`} />
-      <div className="mt-2">
-        <DegreeLegend />
-      </div>
+      {showNeck && (
+        <>
+          <ScaleNeck cells={cells} big={big} rings={rings} focus={showPositions ? focused : null} active={active} labelSystem={system} onNote={onNote} title={`${keyName} on the guitar neck`} />
+          <div className="mt-2">
+            <DegreeLegend />
+          </div>
+        </>
+      )}
 
       <div className="mt-4 flex flex-col gap-2">
-        {only ? (
+        {view ? null : only ? (
           <ChipRow label="Shapes" info={only.boxes
             ? "Five positions cover the neck: the five boxes of the major and minor pentatonic, which share these notes. Each is named by the strings its root is on (counting from the low E): 1 has it on E, D and high e; 2 on D and B; 3 on A and B; 4 on A and G; 5 on G, E and high e. They are the same boxes as on the mode pages."
             : "Five positions cover the neck, two notes on every string: one pattern starting on each note of the scale on the low E string, numbered up the neck. This scale is not the major or minor pentatonic in another place, so it does not fit their boxes; two notes a string keeps every pattern within a hand's reach."}>
@@ -115,7 +132,9 @@ export default function ScaleOnGuitar({ ctx, player, only }: { ctx: KeyContext; 
         </ChipRow>
       </div>
 
-      <div className="mt-4 min-h-8">
+      {showPositions && (
+      <>
+      {showNeck && <div className="mt-4 min-h-8">
         {focused ? (
           <div className="flex flex-wrap items-center gap-2">
             <span className="mr-1 text-xs text-slate-300">Position <b className="text-slate-100">{focused.number}</b>{focusedBox?.alt && <> {focused === focusedBox ? "v1" : "v2"}</>}</span>
@@ -126,16 +145,19 @@ export default function ScaleOnGuitar({ ctx, player, only }: { ctx: KeyContext; 
         ) : (
           <p className="text-xs text-slate-400">Pick a position below to outline it on the neck.</p>
         )}
-      </div>
+      </div>}
 
-      <div className={`mt-2 grid gap-3 sm:grid-cols-2 ${!only && kind === "3nps" ? "lg:grid-cols-4 2xl:grid-cols-7" : "lg:grid-cols-3 xl:grid-cols-5"}`}>
+      <div
+        className={view ? "mt-2 grid gap-3" : `mt-2 grid gap-3 sm:grid-cols-2 ${!only && kind === "3nps" ? "lg:grid-cols-4 2xl:grid-cols-7" : "lg:grid-cols-3 xl:grid-cols-5"}`}
+        style={view ? { gridTemplateColumns: `repeat(${Math.min(Math.max(positions.length, 1), 5)}, minmax(0, 1fr))` } : undefined}
+      >
         {positions.map((p) => {
           const on = focus === p.number;
           const box = shown(p);
           return (
             <div key={p.number} className={`flex min-w-0 flex-col gap-1.5 rounded-xl border p-2 transition ${on ? "border-sky-500/70 bg-sky-500/5" : "border-slate-800 bg-slate-950/50"}`}>
               <div className="flex flex-col items-start gap-2">
-                <button type="button" onClick={() => setFocus(on ? null : p.number)} aria-pressed={on} className="text-left text-sm font-medium text-slate-100 hover:text-sky-300" title="Light it up on the neck">
+                <button type="button" onClick={() => setFocus(on ? null : p.number)} aria-pressed={on} className="text-left text-sm font-medium text-slate-100 hover:text-sky-300" title={showNeck ? "Light it up on the neck" : undefined}>
                   Position {p.number}
                   <span className="block text-xs font-normal text-slate-300">
                     {byStart ? <>starts on {ctx.names[p.startDegree]} <span className="text-slate-500">({DEGREE_ORD[p.startDegree]})</span></> : <>root on {rootStrings(p).map((s) => STRING_NAMES[s]).join(", ")}</>}
@@ -168,10 +190,12 @@ export default function ScaleOnGuitar({ ctx, player, only }: { ctx: KeyContext; 
           );
         })}
       </div>
+      </>
+      )}
       <p className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
         <span className="inline-flex items-center gap-1.5"><span className="inline-block h-3 w-3 rounded-full bg-slate-300" />{only ? `in ${keyName}: played` : kind === "pentatonic" ? `in the ${pent.name.toLowerCase()}: played` : "in the position: played"}</span>
         {rings && <span className="inline-flex items-center gap-1.5"><span className="inline-block h-3 w-3 rounded-full border-2 border-slate-400" />{only ? `other notes of ${ctx.modeName}: not played` : kind === "pentatonic" ? `other notes of ${ctx.modeName}: not played` : "scale notes outside the position: not played"}</span>}
-        <span>Play runs up the position from its lowest note and back down; Sample melody plays a short tune using only its notes. Tap a position&apos;s name to see it on the neck.</span>
+        {showPositions && <span>Play runs up the position from its lowest note and back down; Sample melody plays a short tune using only its notes.{showNeck ? " Tap a position's name to see it on the neck." : ""}</span>}
       </p>
     </section>
   );

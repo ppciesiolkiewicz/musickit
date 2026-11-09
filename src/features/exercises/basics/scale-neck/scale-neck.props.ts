@@ -14,6 +14,10 @@ export interface ScaleNeckProps {
   key: string;
   /** which boxes to show (1-based); absent shows all */
   boxes?: number[];
+  /** true also shows the whole neck above the boxes: tap a position's name to light it up there; absent: only the boxes */
+  neck?: boolean;
+  /** false hides the boxes, so with `neck` only the neck shows; absent: the boxes show */
+  positions?: boolean;
   /**
    * where on the neck, instead of `boxes`: { "by": "open" } next to open chords, { "by": "root", "string": 6 } the box
    * with the root on the low E (5: the A string, 4: the D string), { "by": "fret", "fret": 7 }, { "by": "chords" } near the

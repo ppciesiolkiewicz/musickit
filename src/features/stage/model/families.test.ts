@@ -4,7 +4,7 @@ import type { KeyChoice } from "@/features/creator/model/key";
 import { findPentatonic } from "@/features/theory/pentatonics";
 import { CAGED_LETTERS } from "@/lib/chordKit/caged";
 import { POSITION_COUNT } from "@/lib/chordKit/scalePositions";
-import { FAMILIES, addableValues, allOptions, describeSubject, familyOf, isAll, moreProps, moreValues, parseMoreText, stepValues, toggleAll, toggleOption, updateSubject, visibleControls, withMore } from "./families";
+import { FAMILIES, addableValues, allOptions, describeSubject, familyOf, isAll, stepValues, toggleAll, toggleOption, updateSubject, visibleControls } from "./families";
 import { subjectName, subjectTitle, type Subject } from "./subject";
 
 const C_MAJOR: KeyChoice = { tonicPc: 0, family: 0, mode: 0 };
@@ -18,12 +18,12 @@ test("the families, in the palette's order", () => {
 
 test("a major pentatonic with two boxes reads as its scale, key and positions", () => {
   const s: Subject = { kind: "tool", tool: { type: "scale-neck", scale: "major-pentatonic", key: 0, boxes: [1, 2] } };
-  assert.equal(describeSubject(s), "Scale · C major · pentatonic, 1–2");
+  assert.equal(describeSubject(s), "Scale · C major pentatonic · positions 1–2");
 });
 
 test("without boxes the positions part is left out", () => {
   const s: Subject = { kind: "tool", tool: { type: "scale-neck", scale: "major-pentatonic", key: 0 } };
-  assert.equal(describeSubject(s), "Scale · C major · pentatonic");
+  assert.equal(describeSubject(s), "Scale · C major pentatonic · positions");
 });
 
 test("CAGED with two shapes names the key in its CAGED quality and the shapes", () => {
@@ -48,13 +48,13 @@ test("every family's widget belongs to that family, in any key", () => {
   }
 });
 
-test("main controls start at box 1 and offer as many positions as the scale has", () => {
-  const boxes = (id: string, name = "boxes") => family(id).controls.find((c) => c.name === name)!;
-  assert.deepEqual(boxes("scale").default, [1]);
-  assert.deepEqual(boxes("scale").options!.map((o) => o.value), [1, 2, 3, 4, 5].slice(0, POSITION_COUNT.pentatonic));
-  assert.equal(POSITION_COUNT.scale, POSITION_COUNT.pentatonic);
-  assert.deepEqual(boxes("scale", "position").options!.length, POSITION_COUNT["3nps"]);
-  const shapes = family("caged").controls.find((c) => c.name === "shapes")!;
+test("main controls: key, scale, what to show, and as many positions as the scale has", () => {
+  const c = (id: string, name: string) => family(id).controls.find((x) => x.name === name)!;
+  assert.deepEqual(family("scale").controls.map((x) => x.name), ["key", "scale", "show", "boxes"]);
+  assert.deepEqual(c("scale", "boxes").options!.map((o) => o.value), [1, 2, 3, 4, 5].slice(0, POSITION_COUNT.scale));
+  assert.ok(c("scale", "scale").options!.some((o) => o.value === "minor-pentatonic") && c("scale", "scale").options!.some((o) => o.value === "dorian"));
+  assert.equal(c("scale", "key").options!.length, 12);
+  const shapes = c("caged", "shapes");
   assert.deepEqual(shapes.options!.map((o) => o.value), ["overview", ...CAGED_LETTERS]);
 });
 
@@ -62,96 +62,66 @@ test("the minor pentatonic in A is the minor-pentatonic slug on scale-neck", () 
   const s = family("scale").make({ scale: "minor-pentatonic", boxes: [1] }, A_MINOR);
   assert.deepEqual(s, { kind: "tool", tool: { type: "scale-neck", scale: "minor-pentatonic", key: 9, boxes: [1] } });
   assert.ok(findPentatonic("minor-pentatonic"));
-  assert.equal(describeSubject(s), "Scale · A minor · pentatonic, 1");
+  assert.equal(describeSubject(s), "Scale · A minor pentatonic · position 1");
 });
 
-test("a pentatonic with no scale chosen takes the key's quality", () => {
-  const tool = (key: KeyChoice) => (family("scale").make({}, key) as Extract<Subject, { kind: "tool" }>).tool;
-  assert.equal((tool(C_MAJOR) as { scale: string }).scale, "major-pentatonic");
-  assert.equal((tool(A_MINOR) as { scale: string }).scale, "minor-pentatonic");
+test("no scale chosen takes the key's mode, all five positions; a key picked sets the tonic", () => {
+  assert.deepEqual(family("scale").make({}, D_DORIAN), { kind: "tool", tool: { type: "scale-neck", scale: "dorian", key: 2, boxes: [1, 2, 3, 4, 5] } });
+  assert.equal((family("scale").make({ key: 7 }, D_DORIAN) as Extract<Subject, { kind: "tool" }>).tool.type, "scale-neck");
+  assert.equal(describeSubject(family("scale").make({ key: 7, boxes: [2, 3, 5] }, D_DORIAN)), "Scale · G Dorian · positions 2–3, 5");
 });
 
-test("scale positions take the key's mode as the scale slug unless one is chosen", () => {
-  const s = family("scale").make({ style: "scale" }, D_DORIAN);
-  assert.deepEqual(s, { kind: "tool", tool: { type: "scale-neck", scale: "dorian", key: 2, boxes: [1] } });
-  assert.equal(describeSubject(s), "Scale · D Dorian · scale, 1");
-  const minor = family("scale").make({ style: "scale", scale: "natural-minor-aeolian", boxes: [2, 3, 5] }, A_MINOR);
-  assert.equal(describeSubject(minor), "Scale · A minor · scale, 2–3, 5");
+test("Show: the neck, the positions or both; the neck alone has no positions", () => {
+  const make = (show: string[]) => (family("scale").make({ show, boxes: [1, 2] }, C_MAJOR) as Extract<Subject, { kind: "tool" }>).tool;
+  assert.deepEqual(make(["positions"]), { type: "scale-neck", scale: "major-ionian", key: 0, boxes: [1, 2] });
+  assert.deepEqual(make(["neck", "positions"]), { type: "scale-neck", scale: "major-ionian", key: 0, boxes: [1, 2], neck: true });
+  assert.deepEqual(make(["neck"]), { type: "scale-neck", scale: "major-ionian", key: 0, boxes: [1, 2], neck: true, positions: false });
+  assert.equal(describeSubject(family("scale").make({ show: ["neck"] }, C_MAJOR)), "Scale · C major · neck");
+  assert.equal(describeSubject(family("scale").make({ show: ["neck", "positions"], boxes: [1, 2] }, C_MAJOR)), "Scale · C major · neck, positions 1–2");
 });
 
-test("3 notes per string is the position subject, one of seven", () => {
-  const s = family("scale").make({ style: "3nps", position: [7] }, C_MAJOR);
-  assert.deepEqual(s, { kind: "position", positionKind: "3nps", index: 6, key: C_MAJOR });
-  assert.equal(describeSubject(s), "Scale · C major · 3 notes per string, 7");
-  assert.deepEqual(family("scale").make({ style: "3nps", position: 3 }, C_MAJOR), { kind: "position", positionKind: "3nps", index: 2, key: C_MAJOR });
-});
-
-test("the Scale family maps each view to its subject", () => {
-  const make = (view: string) => family("scale").make({ view }, D_DORIAN);
-  assert.deepEqual(make("neck"), { kind: "neck", key: D_DORIAN });
-  assert.deepEqual(make("overview"), { kind: "section", section: "guitar", key: D_DORIAN });
-  assert.deepEqual(make("intervals"), { kind: "plugin", plugin: "scale", key: D_DORIAN });
-  assert.deepEqual(make("relatives"), { kind: "section", section: "relatives", key: D_DORIAN });
-  assert.equal(describeSubject(make("neck")), "Scale · D Dorian · whole neck");
-  assert.equal(describeSubject(make("overview")), "Scale · D Dorian · overview");
-  assert.equal(describeSubject(make("intervals")), "Scale · D Dorian · intervals within each mode");
-  assert.equal(describeSubject(make("relatives")), "Scale · D Dorian · relative modes");
-});
-
-test("every Scale subject reads back as the Scale family, the old single boxes too", () => {
+test("older neck, overview and position subjects read as Scale widgets; the others are widgets of their own", () => {
   const scaleOnes: Subject[] = [
     { kind: "neck", key: C_MAJOR },
     { kind: "section", section: "guitar", key: C_MAJOR },
-    { kind: "section", section: "relatives", key: C_MAJOR },
-    { kind: "plugin", plugin: "scale", key: C_MAJOR },
-    { kind: "position", positionKind: "3nps", index: 2, key: C_MAJOR },
     { kind: "position", positionKind: "pentatonic", index: 1, key: A_MINOR },
     { kind: "position", positionKind: "scale", index: 0, key: C_MAJOR },
   ];
   for (const s of scaleOnes) assert.equal(familyOf(s)?.id, "scale", JSON.stringify(s));
-  assert.deepEqual(family("scale").read({ kind: "position", positionKind: "pentatonic", index: 1, key: A_MINOR }), { view: "positions", style: "pentatonic", boxes: [2], position: [1] });
-  assert.equal(describeSubject({ kind: "position", positionKind: "pentatonic", index: 1, key: A_MINOR }), "Scale · A minor · pentatonic, 2");
-  // the full Scale page and the other sections are not Scale widgets
-  assert.equal(familyOf({ kind: "plugin", plugin: "scale", full: true, key: C_MAJOR }), null);
+  assert.deepEqual(family("scale").read({ kind: "position", positionKind: "pentatonic", index: 1, key: A_MINOR }), { key: 9, scale: "minor-pentatonic", show: ["neck", "positions"], boxes: [2] });
+  assert.equal(describeSubject({ kind: "position", positionKind: "pentatonic", index: 1, key: A_MINOR }), "Scale · A minor · neck, position 2");
+  for (const s of [
+    { kind: "section", section: "relatives", key: C_MAJOR },
+    { kind: "plugin", plugin: "scale", key: C_MAJOR },
+    { kind: "position", positionKind: "3nps", index: 2, key: C_MAJOR },
+    { kind: "plugin", plugin: "scale", full: true, key: C_MAJOR },
+  ] as Subject[]) assert.equal(familyOf(s), null, JSON.stringify(s));
 });
 
-test("switching View converts the subject, keeping its key and pins", () => {
-  const pent: Subject = { kind: "tool", tool: { type: "scale-neck", scale: "minor-pentatonic", key: 4, boxes: [2] }, pinned: ["tonic"] };
-  const E_AEOLIAN = { tonicPc: 4, family: 0, mode: 5 };
-  assert.deepEqual(updateSubject(pent, { view: "neck" }), { kind: "neck", key: E_AEOLIAN, pinned: ["tonic", "scale"] });
-  // unpinned, its scale is still its own: a neck made from a C minor pentatonic keeps C minor when the master moves to D major
-  const free: Subject = { kind: "tool", tool: { type: "scale-neck", scale: "minor-pentatonic", key: 0, boxes: [1] } };
-  assert.deepEqual(updateSubject(free, { view: "neck" }), { kind: "neck", key: { tonicPc: 0, family: 0, mode: 5 }, pinned: ["scale"] });
-  assert.deepEqual(updateSubject(pent, { style: "scale" }), { kind: "tool", tool: { type: "scale-neck", scale: "natural-minor-aeolian", key: 4, boxes: [2] }, pinned: ["tonic"] });
-  assert.deepEqual(updateSubject(pent, { style: "3nps" }), { kind: "position", positionKind: "3nps", index: 0, key: E_AEOLIAN, pinned: ["tonic", "scale"] });
-  const neck: Subject = { kind: "neck", key: D_DORIAN, pinned: ["scale"] };
-  assert.deepEqual(updateSubject(neck, { view: "relatives" }), { kind: "section", section: "relatives", key: D_DORIAN, pinned: ["scale"] });
-  // to a tool: the scale is its own, so only a pinned tonic can stay
-  assert.deepEqual(updateSubject(neck, { view: "positions", style: "scale", boxes: [1, 2] }), { kind: "tool", tool: { type: "scale-neck", scale: "dorian", key: 2, boxes: [1, 2] } });
-  assert.deepEqual(updateSubject({ kind: "neck", key: D_DORIAN, pinned: ["tonic", "scale"] }, { view: "positions" }), { kind: "tool", tool: { type: "scale-neck", scale: "minor-pentatonic", key: 2, boxes: [1] }, pinned: ["tonic"] });
-  const nps: Subject = { kind: "position", positionKind: "3nps", index: 4, key: C_MAJOR };
-  assert.deepEqual(updateSubject(nps, { position: [6] }), { kind: "position", positionKind: "3nps", index: 5, key: C_MAJOR });
-  assert.deepEqual(updateSubject(nps, { view: "overview" }), { kind: "section", section: "guitar", key: C_MAJOR });
+test("editing an older widget makes it the scale-neck tool, its own scale and a pinned tonic kept", () => {
+  const neck: Subject = { kind: "neck", key: D_DORIAN, pinned: ["tonic", "scale"] };
+  assert.deepEqual(updateSubject(neck, { show: ["neck", "positions"], boxes: [1] }), { kind: "tool", tool: { type: "scale-neck", scale: "dorian", key: 2, boxes: [1], neck: true }, pinned: ["tonic"] });
+  assert.deepEqual(updateSubject({ kind: "neck", key: D_DORIAN }, { scale: "minor-pentatonic" }), { kind: "tool", tool: { type: "scale-neck", scale: "minor-pentatonic", key: 2, boxes: [1, 2, 3, 4, 5], neck: true, positions: false } });
 });
 
-test("a pentatonic widget keeps its own pentatonic while the style stays", () => {
+test("changing a tool's key pins its tonic; changing its scale or show keeps its other props", () => {
+  const t: Subject = { kind: "tool", tool: { type: "scale-neck", scale: "minor-pentatonic", key: 4, boxes: [2], neck: true, highlight: [0] } };
+  assert.deepEqual(updateSubject(t, { key: 7 }), { kind: "tool", tool: { type: "scale-neck", scale: "minor-pentatonic", key: 7, boxes: [2], neck: true, highlight: [0] }, pinned: ["tonic"] });
+  assert.deepEqual(updateSubject(t, { show: ["positions"], scale: "dorian" }), { kind: "tool", tool: { type: "scale-neck", scale: "dorian", key: 4, boxes: [2], highlight: [0] } });
+});
+
+test("a pentatonic widget keeps its own pentatonic and other props", () => {
   const blues: Subject = { kind: "tool", tool: { type: "scale-neck", scale: "minor-blues", key: 9, boxes: [1], highlight: [0] } };
   assert.deepEqual(updateSubject(blues, { boxes: [1, 2] }), { kind: "tool", tool: { type: "scale-neck", scale: "minor-blues", key: 9, boxes: [1, 2], highlight: [0] } });
-  assert.equal(describeSubject(blues), "Scale · A minor · Minor pentatonic blues, 1");
+  assert.match(describeSubject(blues)!, /^Scale · A .*blues.* · position 1$/);
 });
 
-test("Style and Position show only for Positions; 3 notes per string has its own seven", () => {
-  const names = (v: Record<string, string>) => visibleControls(family("scale"), v).map((c) => c.name);
-  assert.deepEqual(names({ view: "positions", style: "pentatonic" }), ["view", "style", "boxes"]);
-  assert.deepEqual(names({ view: "positions", style: "3nps" }), ["view", "style", "position"]);
-  assert.deepEqual(names({ view: "neck", style: "pentatonic" }), ["view"]);
+test("Position shows only when the positions are", () => {
+  const names = (v: Record<string, string[]>) => visibleControls(family("scale"), v).map((c) => c.name);
+  assert.deepEqual(names({ show: ["positions"] }), ["key", "scale", "show", "boxes"]);
+  assert.deepEqual(names({ show: ["neck", "positions"] }), ["key", "scale", "show", "boxes"]);
+  assert.deepEqual(names({ show: ["neck"] }), ["key", "scale", "show"]);
   assert.deepEqual(visibleControls(family("caged"), {}).map((c) => c.name), ["shapes"]);
-});
-
-test("3 notes per string keeps one position, with no All", () => {
-  const position = family("scale").controls.find((c) => c.name === "position")!;
-  assert.deepEqual(toggleOption(position, [2], 5), [5]);
-  assert.equal(allOptions(position), null);
 });
 
 test("CAGED letters keep the CAGED order; overview is the whole neck", () => {
@@ -191,7 +161,6 @@ test("a staff is the scale on a staff for a voice", () => {
 test("updating keeps the key and the pins, and changes the props", () => {
   const tool: Subject = { kind: "tool", tool: { type: "scale-neck", scale: "minor-pentatonic", key: 4, boxes: [1] }, pinned: ["tonic"] };
   assert.deepEqual(updateSubject(tool, { boxes: [2, 3] }), { kind: "tool", tool: { type: "scale-neck", scale: "minor-pentatonic", key: 4, boxes: [2, 3] }, pinned: ["tonic"] });
-  assert.deepEqual(updateSubject({ kind: "position", positionKind: "3nps", index: 0, key: D_DORIAN, pinned: ["scale"] }, { position: [2] }), { kind: "position", positionKind: "3nps", index: 1, key: D_DORIAN, pinned: ["scale"] });
   const caged: Subject = { kind: "caged", key: D_DORIAN, pinned: ["scale"], shape: null };
   assert.deepEqual(updateSubject(caged, { shapes: ["A", "D"] }), { kind: "caged", key: D_DORIAN, pinned: ["scale"], shape: null, shapes: ["A", "D"] });
   const arp: Subject = { kind: "tool", tool: { type: "arpeggio-neck", chord: "Em", boxes: [1] } };
@@ -228,15 +197,12 @@ test("an arpeggio's boxes control keeps at most two, as the component does", () 
 const control = (id: string, name: string) => family(id).controls.find((c) => c.name === name)!;
 
 test("the add form starts from what the family makes in the key", () => {
-  assert.deepEqual(stepValues(family("scale"), A_MINOR), { view: "positions", style: "pentatonic", boxes: [1], position: [1], scale: "minor-pentatonic" });
-  assert.deepEqual(stepValues(family("scale"), C_MAJOR).scale, "major-pentatonic");
+  assert.deepEqual(stepValues(family("scale"), A_MINOR), { key: 9, scale: "natural-minor-aeolian", show: ["positions"], boxes: [1, 2, 3, 4, 5] });
   assert.deepEqual(stepValues(family("arpeggio"), A_MINOR), { chord: "Am", boxes: [1] });
   assert.deepEqual(stepValues(family("caged"), C_MAJOR), { shapes: ["overview"] });
   // nothing ticked adds the family's default
   assert.deepEqual(addableValues({ scale: "dorian", boxes: [] }), { scale: "dorian" });
   assert.deepEqual(family("scale").make(addableValues({ ...stepValues(family("scale"), A_MINOR), boxes: [] }), A_MINOR), family("scale").make({}, A_MINOR));
-  // switching the style in the form drops a pentatonic slug that isn't a mode
-  assert.deepEqual(family("scale").make({ ...stepValues(family("scale"), A_MINOR), style: "scale" }, A_MINOR), { kind: "tool", tool: { type: "scale-neck", scale: "natural-minor-aeolian", key: 9, boxes: [1] } });
 });
 
 test("toggling a box adds or removes it", () => {
@@ -269,45 +235,8 @@ test("CAGED's Overview stands alone and All is the five shapes", () => {
   assert.deepEqual(toggleAll(shapes, ["overview"]), [...CAGED_LETTERS]);
 });
 
-test("More lists the component's other props, not the main ones or the key", () => {
-  const names = (id: string) => moreProps(family(id)).map((p) => p.name);
-  assert.deepEqual(names("scale"), ["placement", "add", "enable", "highlight", "mute", "hide", "others"]);
-  // only the Scale family's positions are a component
-  assert.deepEqual(moreProps(family("scale"), { view: "neck" }), []);
-  assert.deepEqual(moreProps(family("scale"), { view: "positions", style: "3nps" }), []);
-  assert.equal(moreProps(family("scale"), { view: "positions", style: "scale" }).length, 7);
-  assert.ok(!names("arpeggio").includes("chord") && names("arpeggio").includes("part"));
-  assert.ok(!names("staff").includes("voice") && names("staff").includes("mic"));
-  assert.deepEqual(names("caged"), []);
-
-});
-
-test("More's fields read a widget's other props as JSON", () => {
-  const s: Subject = { kind: "tool", tool: { type: "scale-neck", scale: "minor-pentatonic", key: 9, boxes: [1], highlight: [0], others: "hidden", enable: [0, 3] } };
-  assert.deepEqual(moreValues(s, family("scale")), { enable: "[0,3]", highlight: "[0]", others: '"hidden"' });
-  assert.deepEqual(moreValues({ kind: "caged", key: C_MAJOR, shape: null }, family("caged")), {});
-});
-
-test("a More field takes JSON or a bare word; blank takes the prop off", () => {
-  assert.deepEqual(parseMoreText('["b3", "5"]'), { ok: true, value: ["b3", "5"] });
-  assert.deepEqual(parseMoreText("muted"), { ok: true, value: "muted" });
-  assert.deepEqual(parseMoreText("true"), { ok: true, value: true });
-  assert.deepEqual(parseMoreText("  "), { ok: true, value: undefined });
-  assert.deepEqual(parseMoreText("[b3, 5"), { ok: false });
-});
-
-test("setting other props parses them as the plan does, keeps the pins and names what it dropped", () => {
-  const s: Subject = { kind: "tool", tool: { type: "scale-neck", scale: "minor-pentatonic", key: 9, boxes: [1], highlight: [0] }, pinned: ["tonic"] };
-  const set = withMore(s, { highlight: undefined, enable: ["1", "b3", "5"], others: "muted" });
-  assert.deepEqual(set, { subject: { kind: "tool", tool: { type: "scale-neck", scale: "minor-pentatonic", key: 9, boxes: [1], enable: [0, 3, 7], others: "muted" }, pinned: ["tonic"] }, dropped: [] });
-  // boxes say where the box is, so a placement beside them is dropped
-  assert.deepEqual(withMore(s, { placement: { by: "root", string: 5 } }).dropped, ["placement"]);
-  const caged: Subject = { kind: "caged", key: C_MAJOR, shape: null };
-  assert.deepEqual(withMore(caged, { enable: [1] }), { subject: caged, dropped: [] });
-});
-
 test("a tool widget's name and title come from its family", () => {
   const s: Subject = { kind: "tool", tool: { type: "scale-neck", scale: "major-pentatonic", key: 0, boxes: [1, 2] } };
-  assert.equal(subjectTitle(s), "Scale · C major · pentatonic, 1–2");
-  assert.equal(subjectName(s), "Scale · pentatonic, 1–2");
+  assert.equal(subjectTitle(s), "Scale · C major pentatonic · positions 1–2");
+  assert.equal(subjectName(s), "Scale · positions 1–2");
 });

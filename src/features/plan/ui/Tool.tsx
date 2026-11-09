@@ -36,7 +36,7 @@ const PlayAlong = dynamic(() => import("@/features/exercises/play-along/PlayAlon
 export function Tool({ tool, voice, input }: { tool: PlanTool; voice?: Voice; input?: ExternalInput }) {
   switch (tool.type) {
     case "scale-neck":
-      return <ScaleNeck slug={tool.scale} pc={tool.key} boxes={tool.boxes} placement={tool.placement} add={tool.add} enable={tool.enable} highlight={tool.highlight} mute={tool.mute} hide={tool.hide} others={tool.others} />;
+      return <ScaleNeck slug={tool.scale} pc={tool.key} boxes={tool.boxes} neck={tool.neck} positions={tool.positions} placement={tool.placement} add={tool.add} enable={tool.enable} highlight={tool.highlight} mute={tool.mute} hide={tool.hide} others={tool.others} />;
     case "position-neck":
       return <PositionNeck slug={tool.scale} pc={tool.key} positions={tool.positions} placement={tool.placement} cross={tool.cross} add={tool.add} enable={tool.enable} highlight={tool.highlight} mute={tool.mute} hide={tool.hide} others={tool.others} outside={tool.outside} picker={tool.picker} />;
     case "chord-shapes":

@@ -50,7 +50,7 @@ type Under = "chords" | "drone" | "none";
  * degree strings itself (`arpeggio-neck` `part`, `guitar-play-along` `enable` and `highlight`). A guitar-play-along keeps its checked shape, never events.
  */
 export type PlanTool =
-  | { type: "scale-neck"; scale: string; key: number; boxes?: number[]; /** pitch classes from outside the scale */ add?: number[]; placement?: Placement } & Marks
+  | { type: "scale-neck"; scale: string; key: number; boxes?: number[]; /** the whole neck above the boxes, a box tapped lights up on it */ neck?: boolean; /** false: no boxes (the neck alone) */ positions?: boolean; /** pitch classes from outside the scale */ add?: number[]; placement?: Placement } & Marks
   | { type: "position-neck"; scale: string; key: number; positions?: number[]; placement?: Placement; /** strings 1-6, 6 = low E */ cross?: { from: number; to: number; string?: number }; add?: number[]; outside?: "muted" | "hidden"; picker?: boolean } & Marks
   | { type: "chord-shapes"; chords: string[]; voicing?: Voicing }
   | { type: "staff"; scale: string; key: number; voice: Voice; /** semitones above the key: only these are on the staff */ notes?: number[]; /** also the notes under the lowest Do */ under?: boolean; mic?: boolean; /** its own backing, started with the mic */ drone?: boolean; click?: boolean; bpm?: number; labels?: SingingLabels } & Marks
@@ -137,7 +137,7 @@ const scaleNeck = (t: Record<string, unknown>): PlanTool | null => {
   if (!isScale(t.scale) || key === null) return null;
   const add = [...new Set(list(t.add).map(keyOf).filter((n): n is number => n !== null))].slice(0, 4);
   const boxes = boxesOf(t.boxes);
-  return { type: "scale-neck", scale: t.scale, key, ...opt("boxes", boxes), ...opt("add", add), ...placementOf(t, boxes), ...marksOf(t, key) };
+  return { type: "scale-neck", scale: t.scale, key, ...opt("boxes", boxes), ...(t.neck === true ? { neck: true } : {}), ...(t.positions === false ? { positions: false } : {}), ...opt("add", add), ...placementOf(t, boxes), ...marksOf(t, key) };
 };
 
 /** Two different positions 1-5 and maybe a string 1-6 to cross on; null when not. */

@@ -816,6 +816,18 @@
         "description": "which boxes to show (1-based); absent shows all"
       },
       {
+        "name": "neck",
+        "type": "boolean",
+        "required": false,
+        "description": "true also shows the whole neck above the boxes: tap a position's name to light it up there; absent: only the boxes"
+      },
+      {
+        "name": "positions",
+        "type": "boolean",
+        "required": false,
+        "description": "false hides the boxes, so with `neck` only the neck shows; absent: the boxes show"
+      },
+      {
         "name": "placement",
         "type": "Placement",
         "required": false,
@@ -905,7 +917,7 @@
   {
     "name": "staff",
     "kind": "basic",
-    "description": "The scale on a staff in a voice's range, with the microphone's pitch drawn on it; tap a note to hear it. With `drone` and/or\n`click` it carries its own backing, so a singing exercise needs no `click-drone` beside it: \"Start microphone\" and the backing's\nPlay work apart, and the step's \"Start exercise\" starts both together (Stop exercise stops both).",
+    "description": "The scale on a staff in a voice's range, with the microphone's pitch drawn on it; tap a note to hear it. With `drone` and/or\n`click` it carries its own backing, so a singing exercise needs no `click-drone` beside it: starting the mic also starts the drone,\nthe drone UI provides start/stop and mute controls, and the step's \"Start exercise\" starts both together (Stop exercise stops both).",
     "props": [
       {
         "name": "scale",

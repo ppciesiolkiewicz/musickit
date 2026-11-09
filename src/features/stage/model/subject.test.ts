@@ -126,7 +126,7 @@ test("tool necks and chord boxes ring the heard note; the position neck does not
 });
 
 test("a tool is named by its family; one no family offers by its type and key", () => {
-  assert.equal(subjectTitle({ kind: "tool", tool: pent }), "Scale · A minor · pentatonic, 1–2");
+  assert.equal(subjectTitle({ kind: "tool", tool: pent }), "Scale · A minor pentatonic · positions 1–2");
   assert.equal(subjectTitle({ kind: "tool", tool: { type: "chord-shapes", chords: ["Am"] } }), "Chord shapes · Am");
   assert.equal(subjectTitle({ kind: "tool", tool: { type: "position-neck", scale: "dorian", key: 2 } }), "position-neck · D");
 });
