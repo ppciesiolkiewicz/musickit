@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useReducer } from "react";
 import { EMPTY_STAGE, sanitiseStage, stageReducer, type Stage, type StageAction } from "@/features/stage";
-import { decodeNote, noteFromHash } from "./notes";
+import { decodeNote, noteFromHash, notesStart } from "./notes";
 
 const STORE = "musickit.studio.stage";
 const NOTES_STORE = "musickit.studio.notes";
@@ -29,6 +29,7 @@ export default function useStage(pluginIds: string[], notes = false): [Stage, (a
     } catch {
       /* storage blocked or a broken save: start empty */
     }
+    if (notes) saved = notesStart(saved);
     // a shared note in the link wins over the last visit
     const note = notes ? noteFromHash(window.location.hash) : null;
     if (note) void decodeNote(note, pluginIds).then((s) => send({ type: "load", stage: s ?? saved }));
