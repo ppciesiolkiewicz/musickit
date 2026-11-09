@@ -162,3 +162,39 @@ describe("cuesOf: melody octaves", () => {
     for (const c of cuesOf(t)) assert.equal(c.frets.length, 1);
   });
 });
+
+describe("cuesOf: grips (triads and double stops)", () => {
+  const played = (raw: object) => cuesOf(expandShape({ shape: "chord-steps", bpm: 70, ...raw })!).filter((c) => c.kind !== "backing");
+  it("a G triad on strings 3-2-1 near the open shape: 4-3-3, as the theory calculator lists it", () => {
+    const [g] = played({ chords: [{ chord: "G", steps: [{ grip: ["1", "3", "5"], strings: "321" }] }] });
+    assert.deepEqual(g.frets.map((f) => [f.string, f.fret]), [[3, 4], [4, 3], [5, 3]]);
+  });
+  it("`fret` moves the grip up the neck, every note a chord tone", () => {
+    const [g] = played({ chords: [{ chord: "G", steps: [{ grip: ["1", "3", "5"], strings: "321", fret: 7 }] }] });
+    assert.ok(g.frets.every((f) => f.fret >= 5 && f.fret <= 10), JSON.stringify(g.frets));
+    assert.deepEqual(new Set(g.midi.map(pc)), new Set([7, 11, 2]));
+  });
+  it("a double stop takes two strings; the notes after it stay under the hand", () => {
+    const cues = played({ chords: [{ chord: "A", steps: [{ grip: ["3", "5"], strings: "21", fret: 9 }, "1", "3"] }] });
+    const [ds, a, cs] = cues;
+    assert.equal(ds.frets.length, 2);
+    assert.deepEqual(ds.frets.map((f) => f.string), [4, 5]);
+    assert.deepEqual(new Set(ds.midi.map(pc)), new Set([1, 4]));
+    for (const n of [a, cs]) assert.ok(Math.abs(n.frets[0].fret - ds.frets[0].fret) <= 4, JSON.stringify(n.frets));
+  });
+  it("the next grip sits near the last one: G then C on 3-2-1", () => {
+    const [g, c] = played({ chords: [{ chord: "G", steps: [{ grip: ["1", "3", "5"], strings: "321", fret: 7 }] }, { chord: "C", steps: [{ grip: ["1", "3", "5"], strings: "321" }] }] });
+    const mid = (x: typeof g) => x.frets.reduce((s, f) => s + f.fret, 0) / x.frets.length;
+    assert.ok(Math.abs(mid(g) - mid(c)) <= 3, `${mid(g)} vs ${mid(c)}`);
+  });
+  it("single notes between grips don't pull the next grip away: A5 split stays at the 5th fret", () => {
+    const P = { grip: ["1", "5"], strings: "65" };
+    const cues = played({ chords: [{ chord: "A5", steps: [{ ...P, fret: 5 }, "1", "5", P] }] });
+    assert.deepEqual(cues[3].frets, cues[0].frets);
+    for (const n of cues.slice(1, 3)) assert.ok(n.frets[0].fret >= 4 && n.frets[0].fret <= 8, JSON.stringify(n.frets));
+  });
+  it("a grip with the wrong number of strings is dropped", () => {
+    // the one note left fills the bar
+    assert.ok(played({ chords: [{ chord: "G", steps: [{ grip: ["1", "3", "5"], strings: "21" }, "1"] }] }).every((c) => c.midi.length === 1));
+  });
+});

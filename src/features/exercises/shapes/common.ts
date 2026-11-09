@@ -25,10 +25,28 @@ export function isPlace(v: unknown): v is Place {
 }
 export const placeOf = (v: unknown): Place | undefined => (isPlace(v) ? (v.part ? { box: v.box, part: v.part } : { box: v.box }) : undefined);
 
-/** "strum" or a degree; unknown entries dropped. */
+/**
+ * A grip as the AI writes it, `{ "grip": ["1","3","5"], "strings": "321" }` (optional `"fret": 7`): as many degrees as
+ * strings, the strings distinct guitar numbers 1-6; null when unusable. Strings come back low to high (6 first).
+ */
+export function parseGrip(s: unknown, from: DegreesFrom): Extract<Step, { kind: "grip" }> | null {
+  if (!isObj(s) || !Array.isArray(s.grip)) return null;
+  const semis = s.grip.map(degreeSemis);
+  const strings = typeof s.strings === "string" || typeof s.strings === "number" ? [...String(s.strings)].map(Number) : [];
+  if (semis.some((x) => x === null) || semis.length < 2 || semis.length !== strings.length) return null;
+  if (strings.some((n) => !Number.isInteger(n) || n < 1 || n > 6) || new Set(strings).size !== strings.length) return null;
+  const fret = typeof s.fret === "number" && s.fret >= 0 && s.fret <= 17 ? { fret: s.fret } : {};
+  return { kind: "grip", semis: semis as number[], strings: [...strings].sort((a, b) => b - a), from, ...fret };
+}
+
+/** "strum", a degree or a grip; unknown entries dropped. */
 export function parseSteps(v: unknown, from: DegreesFrom): Step[] {
   return arr(v).flatMap((s): Step[] => {
     if (s === "strum") return [{ kind: "strum" }];
+    if (isObj(s)) {
+      const g = parseGrip(s, from);
+      return g ? [g] : [];
+    }
     const semis = degreeSemis(s);
     return semis === null ? [] : [{ kind: "note", semis, from }];
   });

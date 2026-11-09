@@ -3,6 +3,7 @@
   "kind": "exercise",
   "areas": ["voice"],
   "level": "new",
+  "updated": "2026-11-02",
   "concepts": ["matching-a-pitch", "do-re-mi-steps", "breath-holding-note"],
   "note": "A first singing exercise in three 2-minute blocks, each a different job (match, step away and back, sustain), with a drone as the reference instead of an instrument. Most of the text is how to use the app: the drone, the mic, the pitch line on the staff, explained once.",
   "exercise": {

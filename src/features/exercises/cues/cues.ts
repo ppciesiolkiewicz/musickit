@@ -96,6 +96,37 @@ function partNotes(name: string, place: Place): Cell[] {
     .map((n) => ({ string: n.string, fret: n.fret, midi: n.midi }));
 }
 
+const MAX_GRIP_SPAN = 4;
+const permutations = <T,>(xs: T[]): T[][] => (xs.length <= 1 ? [xs] : xs.flatMap((x, i) => permutations([...xs.slice(0, i), ...xs.slice(i + 1)]).map((p) => [x, ...p])));
+
+/**
+ * Where a grip goes: each pitch class on one of `strings` (guitar numbers, low to high), notes rising with the strings
+ * inside one octave (closed, as `triadVoicings`), the fretted notes within 4 frets. Of those, the one nearest `near` (a fret), lower frets first on a tie; null when
+ * the notes don't fit on those strings.
+ */
+export function gripCells(pcs: number[], strings: number[], near: number): Cell[] | null {
+  const idx = strings.map((n) => 6 - n);
+  let best: { cells: Cell[]; cost: number; lo: number } | null = null;
+  for (const order of permutations(pcs)) {
+    const options = idx.map((s, i) => neckOf(order[i]).filter((c) => c.string === s));
+    const walk = (i: number, acc: Cell[]) => {
+      if (i === idx.length) {
+        const fretted = acc.filter((c) => c.fret > 0).map((c) => c.fret);
+        if (fretted.length && Math.max(...fretted) - Math.min(...fretted) > MAX_GRIP_SPAN) return;
+        if (acc[acc.length - 1].midi - acc[0].midi >= 12) return; // closed: inside one octave
+        const lo = fretted.length ? Math.min(...fretted) : 0;
+        const mid = acc.reduce((a, c) => a + c.fret, 0) / acc.length;
+        const cost = Math.abs(mid - near);
+        if (!best || cost < best.cost - 1e-9 || (Math.abs(cost - best.cost) < 1e-9 && lo < best.lo)) best = { cells: [...acc], cost, lo };
+        return;
+      }
+      for (const c of options[i]) if (!acc.length || c.midi > acc[acc.length - 1].midi) walk(i + 1, [...acc, c]);
+    };
+    walk(0, []);
+  }
+  return (best as { cells: Cell[] } | null)?.cells ?? null;
+}
+
 /**
  * Turn a timeline into cues, sorted by `at`.
  * - A note step's pitch class is its root (the chord root, or the current scale's key for `from: "key"`) plus `semis`.
@@ -104,6 +135,9 @@ function partNotes(name: string, place: Place): Cell[] {
  *   (box N is `arpPositions` entry N - 1); a pitch outside the arpeggio takes any fret in the box span on the part's strings.
  * - A crossing (placed steps whose place changes mid-chord) needs nothing special: each step keeps its degree's pitch
  *   class and takes the cell in its own place nearest the previous cue, so a note both boxes share is reused at the seam.
+ * - A grip step strikes its notes together, one per string asked for, where `gripCells` puts them: near its `fret`, else
+ *   the last grip (else the last note), else the chord's voiced shape. The note steps after it (until a strum) take the
+ *   pitch nearest the previous note within 3 frets of the grip, closest to the grip's frets on a tie.
  * - A melody step (chord "") is the tonic (the key nearest midi 60) plus `semis` exactly (semis carry the octave);
  *   it sits on the neck near the previous fret.
  * - `enabled` is whether opts `enable` (absent: every note) and `highlighted` whether opts/chord `highlight` (absent: none)
@@ -143,6 +177,10 @@ export function cuesOf(t: Timeline, opts: Marks = {}): Cue[] {
 
   const steps = events.filter((e): e is StepEv => e.type === "step");
   let prev: Cell | null = null;
+  /** the middle fret of the last grip or note, where the next grip looks first */
+  let prevFret: number | null = null;
+  /** the frets of the last grip, until a strum: the single notes after it are looked for there */
+  let gripZone: { lo: number; hi: number } | null = null;
   for (const e of steps) {
     const c = chordAt(e.chord, e.at);
     const base = { at: e.at, beats: e.beats, chord: e.chord, ...(e.cue ? { cue: e.cue } : {}) };
@@ -152,11 +190,25 @@ export function cuesOf(t: Timeline, opts: Marks = {}): Cue[] {
       const rootPc = parseChordQuery(e.chord)?.rootPc ?? 0;
       const cells = shapeCells(v);
       out.push({ ...base, kind: "strum", midi: v.midi, frets: cells.map(toFret), ...lit(v.midi.map((m) => m - rootPc), c) });
+      gripZone = null;
       continue;
     }
     const q = e.chord ? parseChordQuery(e.chord) : null;
     const key = keyAt(e.at);
     const rootPc = e.step.from === "key" || !q ? key : q.rootPc;
+    if (e.step.kind === "grip") {
+      const v = e.chord ? voice(c, e.chord) : null;
+      const near = e.step.fret ?? prevFret ?? (v ? v.fret + 1 : 5);
+      const cells = gripCells(e.step.semis.map((x) => mod12(rootPc + x)), e.step.strings, near);
+      if (!cells) continue;
+      const ref = q && e.chord ? q.rootPc : key;
+      out.push({ ...base, kind: "strum", midi: cells.map((x) => x.midi), frets: cells.map(toFret), ...lit(cells.map((x) => x.midi - ref), c) });
+      prev = cells[cells.length - 1];
+      prevFret = cells.reduce((a, x) => a + x.fret, 0) / cells.length;
+      const fretted = cells.filter((x) => x.fret > 0).map((x) => x.fret);
+      gripZone = fretted.length ? { lo: Math.min(...fretted), hi: Math.max(...fretted) } : { lo: 0, hi: 3 };
+      continue;
+    }
     const pc = mod12(rootPc + e.step.semis);
     let cell: Cell | undefined;
     if (!cell && !e.chord) {
@@ -172,6 +224,15 @@ export function cuesOf(t: Timeline, opts: Marks = {}): Cue[] {
       const inSpan = box ? neckOf(pc, box.from, box.to).filter((x) => (e.place?.part === "lower" ? x.string <= 2 : e.place?.part === "upper" ? x.string >= 3 : true)) : [];
       cell = nearest(part.filter((x) => mod12(x.midi) === pc), prev) ?? nearest(inSpan, prev);
     }
+    if (!cell && gripZone !== null) {
+      // after a grip the line stays under the hand, around the grip's frets
+      const z = gripZone;
+      const off = (x: Cell) => Math.max(0, z.lo - 1 - x.fret, x.fret - z.hi - 1);
+      const ref = prev;
+      cell = neckOf(pc, z.lo - 3, z.hi + 3).sort((a, b) =>
+        (ref ? Math.abs(a.midi - ref.midi) - Math.abs(b.midi - ref.midi) : 0) || off(a) - off(b) || (ref ? Math.abs(a.string - ref.string) - Math.abs(b.string - ref.string) : 0) || a.midi - b.midi,
+      )[0];
+    }
     if (!cell) {
       const v = voice(c, e.chord);
       if (v) {
@@ -183,6 +244,8 @@ export function cuesOf(t: Timeline, opts: Marks = {}): Cue[] {
     if (!cell) continue;
     out.push({ ...base, kind: "note", midi: [cell.midi], frets: cell.string < 0 ? [] : [toFret(cell)], ...lit([cell.midi - (q && e.chord ? q.rootPc : key)], c) });
     prev = cell;
+    // once there is a grip, only grips move where the next one looks; single notes wander around it
+    if (cell.string >= 0 && gripZone === null) prevFret = cell.fret;
   }
   return out.sort((a, b) => a.at - b.at || (a.kind === "backing" ? 1 : 0) - (b.kind === "backing" ? 1 : 0));
 }

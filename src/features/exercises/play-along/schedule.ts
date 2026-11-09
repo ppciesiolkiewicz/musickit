@@ -34,7 +34,7 @@ export type BackingSound = "chords" | "drone" | "none";
 export function withBackingSound(t: Timeline, want?: BackingSound): Timeline {
   const chords = t.events.filter((e) => e.type === "chord");
   const bare = chords.some((e) => e.type === "chord" && !e.backing);
-  const notes = t.events.some((e) => e.type === "step" && e.chord && e.step.kind === "note");
+  const notes = t.events.some((e) => e.type === "step" && e.chord && (e.step.kind === "note" || e.step.kind === "grip"));
   const sound = want ?? (bare && (notes || t.free) ? "chords" : t.free && !chords.length ? "drone" : "none");
   if (sound === "chords") return bare ? { ...t, pad: true } : t;
   if (sound === "drone") {

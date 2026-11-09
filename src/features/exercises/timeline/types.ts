@@ -5,7 +5,15 @@ export type Voicing = "open" | "barre";
 export type DegreesFrom = "key" | "chord";
 export type BoxPart = "lower" | "upper";
 export interface Place { box: number; part?: BoxPart }
-export type Step = { kind: "strum" } | { kind: "note"; semis: number; from: DegreesFrom };
+/**
+ * One beat: the voiced chord strummed, a single note, or a grip: several notes struck together on chosen strings (a
+ * triad on three strings, a double stop on two). `strings` are guitar numbers (1 the high e ... 6 the low E), low to
+ * high, one per note; `fret` steers the grip near that fret.
+ */
+export type Step =
+  | { kind: "strum" }
+  | { kind: "note"; semis: number; from: DegreesFrom }
+  | { kind: "grip"; semis: number[]; strings: number[]; from: DegreesFrom; fret?: number };
 
 /** `at` and `beats` are in beats from the start; `highlight` is semitones above the chord root. */
 export type TimelineEvent =

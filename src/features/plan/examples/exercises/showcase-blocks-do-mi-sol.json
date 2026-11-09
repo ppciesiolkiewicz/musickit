@@ -4,6 +4,7 @@
   "showcase": "blocks",
   "areas": ["guitar"],
   "level": "beginner",
+  "updated": "2026-11-02",
   "concepts": ["major-scale", "guitar-melodies-beginner"],
   "note": "Shows blocks with a chart per step: each block adds one note, and its own neck puts exactly the notes named so far in play (enable) and rings the one just added (highlight), ending on a tune that uses only those notes. The neck shows the frets, so the text names notes, not fret numbers.",
   "exercise": {

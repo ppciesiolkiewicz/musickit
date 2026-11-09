@@ -77,6 +77,8 @@ describe("example library", () => {
       assert.ok(LEVELS.includes(x.level), x.id);
       assert.ok(x.note.trim(), x.id);
       assert.ok(x.style === undefined || x.style === "new", `${x.id}: style`);
+      assert.match(x.updated, /^\d{4}-\d{2}-\d{2}$/, `${x.id}: updated is YYYY-MM-DD`);
+      assert.ok(x.model === undefined || /^claude-[a-z0-9-]+$/.test(x.model), `${x.id}: model is an API id`);
       if (x.rewrites) {
         const old = ALL.find((o) => o.id === x.rewrites!.id);
         assert.ok(old && !old.style && old.kind === x.kind && old.level === x.level && old.areas.join() === x.areas.join(), `${x.id}: rewrites ${x.rewrites.id}`);

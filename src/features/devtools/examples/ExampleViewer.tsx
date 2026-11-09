@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState, type ReactNode } from "react";
-import { Badge, Chip } from "@/components/ui";
+import { Chip } from "@/components/ui";
 import { EXERCISE_EXAMPLES, PLAN_EXAMPLES } from "@/features/plan/examples";
 import { catalogue, type CatalogueEntry } from "@/features/plan/model/catalogue";
 import { AREAS, conceptById, type Area } from "@/features/plan/model/concepts";
@@ -106,8 +106,44 @@ function Filter<V extends string>({ label, value, options, onChange }: { label: 
 
 type Style = "new" | "old";
 const styleOf = (e: { style?: "new" }): Style => e.style ?? "old";
+
+/** One colour family per kind of tag, so a row of pills reads at a glance: border, fill and text together. */
+const TONE = {
+  fuchsia: "border-fuchsia-500/40 bg-fuchsia-500/10 text-fuchsia-200",
+  rose: "border-rose-500/40 bg-rose-500/10 text-rose-200",
+  lime: "border-lime-500/40 bg-lime-500/10 text-lime-200",
+  amber: "border-amber-500/30 bg-amber-500/5 text-amber-300/80",
+  orange: "border-orange-500/40 bg-orange-500/10 text-orange-200",
+  pink: "border-pink-500/40 bg-pink-500/10 text-pink-200",
+  cyan: "border-cyan-500/40 bg-cyan-500/10 text-cyan-200",
+  teal: "border-teal-500/40 bg-teal-500/10 text-teal-200",
+  green: "border-green-500/40 bg-green-500/10 text-green-200",
+  blue: "border-blue-500/40 bg-blue-500/10 text-blue-200",
+  violet: "border-violet-500/40 bg-violet-500/10 text-violet-200",
+  indigo: "border-indigo-400/50 bg-indigo-500/15 text-indigo-100",
+  sky: "border-sky-500/40 bg-sky-500/10 text-sky-200",
+  emerald: "border-emerald-500/40 bg-emerald-500/10 text-emerald-200 hover:bg-emerald-500/25",
+  slate: "border-slate-600 bg-slate-800/40 text-slate-400",
+} as const;
+type Tone = keyof typeof TONE;
+
 /** New-style examples stand out; old ones are marked in a muted warm tone so they read as the ones to rewrite. */
-const STYLE_TONE: Record<Style, string> = { new: "text-lime-300", old: "text-amber-400/70" };
+const STYLE_TONE: Record<Style, Tone> = { new: "lime", old: "amber" };
+const KIND_TONE: Record<Kind, Tone> = { plan: "fuchsia", exercise: "rose" };
+const AREA_TONE: Record<Area, Tone> = { guitar: "orange", voice: "pink", theory: "cyan" };
+const LEVEL_TONE: Record<Level, Tone> = { new: "teal", beginner: "green", intermediate: "blue", advanced: "violet" };
+
+function Pill({ tone, title, children }: { tone: Tone; title?: string; children: ReactNode }) {
+  return <span title={title} className={`inline-block rounded-full border px-1.5 align-middle text-[10px] font-medium uppercase tracking-wider ${TONE[tone]}`}>{children}</span>;
+}
+
+/** "claude-opus-5-5" → "Opus 5.5": the family, then the version numbers joined by dots. */
+function modelLabel(id: string): string {
+  const parts = id.replace(/^claude-/, "").split("-");
+  const words = parts.filter((p) => !/^\d+$/.test(p)).map((w) => w[0].toUpperCase() + w.slice(1));
+  const version = parts.filter((p) => /^\d+$/.test(p)).join(".");
+  return [...words, version].filter(Boolean).join(" ");
+}
 
 /** Library order, except a rewrite comes right after the example it rewrites, so the two read one under the other. */
 function pairRewrites<E extends { id: string; rewrites?: { id: string } }>(list: E[]): E[] {
@@ -177,19 +213,23 @@ export default function ExampleViewer() {
               title={e.id}
               badge={
                 <>
-                  <Badge className={e.kind === "plan" ? "text-fuchsia-300" : "text-rose-300"}>{e.kind === "plan" ? "plan example" : "exercise example"}</Badge>
-                  <Badge className={STYLE_TONE[styleOf(e)]}>{styleOf(e) === "new" ? "new teaching style" : "old style"}</Badge>
-                  {e.rewrites && <Badge className="text-lime-200/70">rewrites {e.rewrites.id} ↑</Badge>}
+                  <Pill tone={KIND_TONE[e.kind]}>{e.kind === "plan" ? "plan example" : "exercise example"}</Pill>
+                  <Pill tone={STYLE_TONE[styleOf(e)]}>{styleOf(e) === "new" ? "new teaching style" : "old style"}</Pill>
+                  {e.areas.map((a) => <Pill key={a} tone={AREA_TONE[a]}>{labelOf(AREAS, a)}</Pill>)}
+                  <Pill tone={LEVEL_TONE[e.level]}>{labelOf(LEVELS, e.level)}</Pill>
+                  {e.model ? <Pill tone="indigo" title={e.model}>{modelLabel(e.model)}</Pill> : <Pill tone="slate" title="Written before the model was recorded">model not recorded</Pill>}
+                  <Pill tone="sky" title="Last written or rewritten">updated {e.updated}</Pill>
+                  {e.rewrites && <Pill tone="lime">rewrites {e.rewrites.id} ↑</Pill>}
                   {inPrompt.has(e.id) && (
                     <Link href={`/dev/prompt#${partAnchor(`example:${e.id}`)}`} title="Open this example's part in the prompt studio" onClick={(ev) => ev.stopPropagation()}>
-                      <Badge className="text-emerald-300 hover:text-emerald-200">in prompt →</Badge>
+                      <Pill tone="emerald">in prompt →</Pill>
                     </Link>
                   )}
                 </>
               }
               meta={
                 <span className="text-xs text-slate-500">
-                  {e.kind === "plan" ? `${e.minutes} min/day · ` : e.showcase ? `showcase: ${e.showcase} · ` : ""}{e.areas.map((a) => labelOf(AREAS, a)).join(" + ")} · {labelOf(LEVELS, e.level)} · {e.concepts.map((c) => conceptById(c)?.label ?? c).join(", ")}
+                  {e.kind === "plan" ? `${e.minutes} min/day · ` : e.showcase ? `showcase: ${e.showcase} · ` : ""}{e.concepts.map((c) => conceptById(c)?.label ?? c).join(", ")}
                 </span>
               }
               note={e.note}

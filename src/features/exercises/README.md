@@ -7,8 +7,9 @@ migrates; the components, their props and their docs live here.
 
 0. `timeline/` pure model: events, degrees, repeats, derived time. No React, no sound.
 1. `shapes/` six play-along shapes (`progression`, `two-scales`, `chord-steps`, `arpeggio-part`, `melody`, `solo-over`);
-   `expandShape` turns a shape into a timeline.
-2. `cues/` voicings, cues, tab and `chordCues`: what to show at each moment; `visibility.ts` (each note hidden, muted,
+   `expandShape` turns a shape into a timeline. A step is "strum", a degree, or a grip (`{ grip: ["1","3","5"], strings: "321" }`:
+   notes struck together on chosen strings, a triad or a double stop), so `chord-steps` and `progression` can mix them into riffs.
+2. `cues/` voicings, cues, tab and `chordCues`: what to show at each moment (`gripCells` puts a grip's notes on its strings, closed and within 4 frets, nearest the last grip); `visibility.ts` (each note hidden, muted,
    normal or highlighted, from two layers: `enable`, the notes in play, and `highlight`, those of interest) and `placement.ts` (which box, maybe an octave down, a `placement` asks for). Pure.
 3. `play-along/` `PlayAlong`, the `guitar-play-along` tool (one clock, tab / notes / neck views), `schedule`, `solo`. Under single notes over bare
    chords it holds each chord (`withBackingSound`, the `under` prop: chords, drone, none). The neck view is the shared

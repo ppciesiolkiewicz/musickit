@@ -199,7 +199,7 @@
   {
     "name": "chord-steps",
     "kind": "shape",
-    "description": "Per chord, a list of steps, one beat each: \"strum\" or a degree. Each chord takes one bar, more when its steps need\nthem. Degrees are major-relative semitones from the chord root (default) or the key (when `key` is given). `guide`\ngives a cue per step, in order. `bpm` goes on the play-along.\n\nExample: `{ \"shape\": \"chord-steps\", \"voicing\": \"barre\", \"chords\": [{ \"chord\": \"G\", \"steps\": [\"strum\",\"1\",\"6\",\"1\"] }, { \"chord\": \"D\", \"steps\": [\"strum\",\"4\",\"5\",\"4\"] }] }`",
+    "description": "Per chord, a list of steps, one beat each: \"strum\", a degree, or a grip (notes struck together on chosen strings: a\ntriad, a double stop). Mix them to make a riff: two notes, a triad, two notes, a double stop. Each chord takes one bar,\nmore when its steps need them. Degrees are major-relative semitones from the chord root (default) or the key (when `key` is given). `guide`\ngives a cue per step, in order. `bpm` goes on the play-along.\n\nExample: `{ \"shape\": \"chord-steps\", \"voicing\": \"barre\", \"chords\": [{ \"chord\": \"G\", \"steps\": [\"strum\",\"1\",\"6\",\"1\"] }, { \"chord\": \"D\", \"steps\": [\"strum\",\"4\",\"5\",\"4\"] }] }`\nRiff: `{ \"shape\": \"chord-steps\", \"chords\": [{ \"chord\": \"G\", \"steps\": [\"5\",\"3\",{ \"grip\": [\"1\",\"3\",\"5\"], \"strings\": \"321\" },{ \"grip\": [\"3\",\"5\"], \"strings\": \"21\" }] }] }`",
     "props": [
       {
         "name": "shape",
@@ -215,7 +215,7 @@
       },
       {
         "name": "chords",
-        "type": "{ chord: string; steps: (\"strum\" | Degree)[]; place?: Place }[]",
+        "type": "{ chord: string; steps: (\"strum\" | Degree | Grip)[]; place?: Place }[]",
         "required": true,
         "description": "chords in order, each with its steps and optional box/part"
       },
@@ -691,7 +691,7 @@
   {
     "name": "progression",
     "kind": "shape",
-    "description": "A chord progression, by chord names or by numerals in a key, cycled to fill `bars`. Optional `steps` repeat over\neach chord's beats, one beat each (\"strum\" or a degree). Degrees are major-relative semitones (\"3\" is always 4),\ncounted from the chord root (`degreesFrom: \"chord\"`, default) or the key. `backing` lists comping patterns, the\nfirst plays first. `place` gives each chord a box and part, in order. `bpm` goes on the play-along.\n\nExample: `{ \"shape\": \"progression\", \"key\": \"g\", \"numerals\": [\"I\",\"IV\",\"V\"], \"steps\": [\"1\",\"3\",\"5\"], \"bars\": 4 }`",
+    "description": "A chord progression, by chord names or by numerals in a key, cycled to fill `bars`. Optional `steps` repeat over\neach chord's beats, one beat each (\"strum\", a degree or a grip). Degrees are major-relative semitones (\"3\" is always 4),\ncounted from the chord root (`degreesFrom: \"chord\"`, default) or the key. `backing` lists comping patterns, the\nfirst plays first. `place` gives each chord a box and part, in order. `bpm` goes on the play-along.\n\nExample: `{ \"shape\": \"progression\", \"key\": \"g\", \"numerals\": [\"I\",\"IV\",\"V\"], \"steps\": [\"1\",\"3\",\"5\"], \"bars\": 4 }`",
     "props": [
       {
         "name": "shape",
@@ -731,9 +731,9 @@
       },
       {
         "name": "steps",
-        "type": "(\"strum\" | Degree)[]",
+        "type": "(\"strum\" | Degree | Grip)[]",
         "required": false,
-        "description": "repeated step template: \"strum\" or a degree like \"1\", \"b3\""
+        "description": "repeated step template: \"strum\", a degree like \"1\", \"b3\", or a grip: { \"grip\": [\"1\",\"3\",\"5\"], \"strings\": \"321\" }"
       },
       {
         "name": "degreesFrom",

@@ -20,6 +20,9 @@ Each file is the content exactly as the AI returns it, wrapped in metadata:
   "exercise": { "title": "…", "focus": "…", "minutes": 10, "level": "beginner", "area": "guitar", "tags": ["technique"], "sections": [ … ] } }
 ```
 
+- `updated` is the day the example was last written or rewritten (`YYYY-MM-DD`), and `model` the API id of the model
+  that wrote it (`claude-opus-5-5`). Set both whenever an example is written or rewritten; `/dev/examples` shows them as
+  tags. Examples older than these fields have the date of their last commit and no `model`.
 - `id` is the file name. `areas`: `guitar`, `voice`, `theory` (an exercise has one, a plan may have several). `level`:
   `new`, `beginner`, `intermediate`, `advanced`. `concepts`: ids from `model/concepts.ts`.
 - `"style": "new"` marks an example written in the new teaching style (practice first, a why the student can build

@@ -39,6 +39,10 @@ export interface ExampleMeta {
   concepts: string[];
   /** why it is a good example, in one or two sentences */
   note: string;
+  /** the day it was last written or rewritten, "YYYY-MM-DD" */
+  updated: string;
+  /** the model that wrote it, as its API id ("claude-opus-5-5"); absent: not recorded (written before this was kept) */
+  model?: string;
   /** "new": written in the new teaching style (practice and understanding, as on the landing page); absent: the older style */
   style?: "new";
   /** a new-style rewrite of another example on the same topic: its id, and what changed, one point each */

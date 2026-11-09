@@ -4,6 +4,7 @@
   "showcase": "pick",
   "areas": ["voice"],
   "level": "beginner",
+  "updated": "2026-11-02",
   "concepts": ["voice-melodies-easy", "do-mi-sol-skips"],
   "note": "Shows choosing melodies by filter: each melody-singer names a difficulty and a stage with pick instead of a tune number, the second a step harder than the first. The text describes the kind of tune, then walks the app: hear it, start the mic, watch the staff.",
   "exercise": {

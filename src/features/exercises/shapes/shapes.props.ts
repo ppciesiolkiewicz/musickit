@@ -11,8 +11,24 @@ export interface ShapeCommon {
 }
 
 /**
+ * Several notes struck together on chosen strings, as one step: a triad on three neighbouring strings
+ * (`{ "grip": ["1","3","5"], "strings": "321" }`, the G, B and e strings) or a double stop on two
+ * (`{ "grip": ["3","5"], "strings": "21" }`). One degree per string; strings are guitar numbers (1 the high e, 6 the low
+ * E). The app picks the frets: the grip nearest the step before it (the first near the chord's open shape), any
+ * inversion, all within 4 frets; `fret` moves it near that fret. Single-note steps after a grip stay around its frets.
+ */
+export interface Grip {
+  /** the degrees struck together, one per string */
+  grip: Degree[];
+  /** the strings, as guitar numbers: "321", "432", "21" */
+  strings: string;
+  /** optional: put the grip near this fret */
+  fret?: number;
+}
+
+/**
  * A chord progression, by chord names or by numerals in a key, cycled to fill `bars`. Optional `steps` repeat over
- * each chord's beats, one beat each ("strum" or a degree). Degrees are major-relative semitones ("3" is always 4),
+ * each chord's beats, one beat each ("strum", a degree or a grip). Degrees are major-relative semitones ("3" is always 4),
  * counted from the chord root (`degreesFrom: "chord"`, default) or the key. `backing` lists comping patterns, the
  * first plays first. `place` gives each chord a box and part, in order. `bpm` goes on the play-along.
  *
@@ -31,8 +47,8 @@ export interface ProgressionShape extends ShapeCommon {
   bars: number;
   /** beats per chord (2, 3 or 4), default 4; in 4/4, 3 lets chords start mid-bar (beats 0, 3, 6, 9...) */
   beatsPerChord?: 2 | 3 | 4;
-  /** repeated step template: "strum" or a degree like "1", "b3" */
-  steps?: ("strum" | Degree)[];
+  /** repeated step template: "strum", a degree like "1", "b3", or a grip: { "grip": ["1","3","5"], "strings": "321" } */
+  steps?: ("strum" | Degree | Grip)[];
   /** what the step degrees count from: "chord" (default) or "key" */
   degreesFrom?: DegreesFrom;
   /** "open" (default) or "barre" */
@@ -69,11 +85,13 @@ export interface TwoScalesShape extends ShapeCommon {
 }
 
 /**
- * Per chord, a list of steps, one beat each: "strum" or a degree. Each chord takes one bar, more when its steps need
- * them. Degrees are major-relative semitones from the chord root (default) or the key (when `key` is given). `guide`
+ * Per chord, a list of steps, one beat each: "strum", a degree, or a grip (notes struck together on chosen strings: a
+ * triad, a double stop). Mix them to make a riff: two notes, a triad, two notes, a double stop. Each chord takes one bar,
+ * more when its steps need them. Degrees are major-relative semitones from the chord root (default) or the key (when `key` is given). `guide`
  * gives a cue per step, in order. `bpm` goes on the play-along.
  *
  * Example: `{ "shape": "chord-steps", "voicing": "barre", "chords": [{ "chord": "G", "steps": ["strum","1","6","1"] }, { "chord": "D", "steps": ["strum","4","5","4"] }] }`
+ * Riff: `{ "shape": "chord-steps", "chords": [{ "chord": "G", "steps": ["5","3",{ "grip": ["1","3","5"], "strings": "321" },{ "grip": ["3","5"], "strings": "21" }] }] }`
  * @component chord-steps shape
  */
 export interface ChordStepsShape extends ShapeCommon {
@@ -81,7 +99,7 @@ export interface ChordStepsShape extends ShapeCommon {
   /** optional key ("g"); needed for degreesFrom "key" */
   key?: string;
   /** chords in order, each with its steps and optional box/part */
-  chords: { chord: string; steps: ("strum" | Degree)[]; place?: Place }[];
+  chords: { chord: string; steps: ("strum" | Degree | Grip)[]; place?: Place }[];
   /** "chord" (default) or "key" */
   degreesFrom?: DegreesFrom;
   /** "open" (default) or "barre" */
