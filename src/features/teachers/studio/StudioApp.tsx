@@ -64,10 +64,11 @@ const isTyping = () => {
 };
 
 /** The teacher studio: the 16:9 frame in the middle, its layers on the left, the keys that work on the right. */
-export default function StudioApp() {
+export default function StudioApp({ notes = false }: {
+  /** the notes creator (?notes=1): the same stage without video, camera, screen or microphone, shared as a link, inside the site's page frame */
+  notes?: boolean;
+}) {
   const [mounted, setMounted] = useState(false);
-  // the notes creator (?notes=1): the same stage without video, camera, screen or microphone, shared as a link
-  const [notes] = useState(() => typeof window !== "undefined" && new URLSearchParams(window.location.search).get("notes") === "1");
   const [stage, dispatch] = useStage(PLUGIN_IDS, notes);
   const [shared, setShared] = useState<"copied" | "failed" | null>(null);
   const shareNote = async () => {
@@ -286,9 +287,12 @@ export default function StudioApp() {
     </HeardNote.Provider>
   );
 
+  // PageShell already holds the notes creator's <main>
+  const Main = notes ? "div" : "main";
   return (
-    <div className={`grid min-h-screen gap-4 p-4 max-md:grid-cols-1 max-md:gap-2 max-md:p-2 ${folded ? "grid-cols-[52px_minmax(0,1fr)]" : "grid-cols-[220px_minmax(0,1fr)]"}`}>
-      <button data-chrome type="button" title="Keys (?)" aria-label="Show the keys" onClick={() => setHelp(true)} className="fixed right-3 top-3 z-30 max-md:hidden rounded-md border border-slate-800 bg-slate-950/80 p-1 text-slate-400 hover:text-slate-100">
+    <div className={`grid gap-4 max-md:grid-cols-1 max-md:gap-2 ${notes ? "relative" : "min-h-screen p-4 max-md:p-2"} ${folded ? "grid-cols-[52px_minmax(0,1fr)]" : "grid-cols-[220px_minmax(0,1fr)]"}`}>
+      {/* in the notes creator the site's nav holds the window's corner, so the button stays in the tool's own */}
+      <button data-chrome type="button" title="Keys (?)" aria-label="Show the keys" onClick={() => setHelp(true)} className={`${notes ? "absolute right-0 top-0" : "fixed right-3 top-3"} z-30 max-md:hidden rounded-md border border-slate-800 bg-slate-950/80 p-1 text-slate-400 hover:text-slate-100`}>
         <Icon name="info" size={14} />
       </button>
       {folded ? (
@@ -418,8 +422,8 @@ export default function StudioApp() {
         </aside>
       )}
 
-      <main className="flex min-w-0 flex-col items-center gap-3">
-        <h1 className="sr-only">{notes ? "Notes creator" : "Studio"}</h1>
+      <Main className="flex min-w-0 flex-col items-center gap-3">
+        {!notes && <h1 className="sr-only">Studio</h1>}
         {/* as wide as the column, but never taller than the window */}
         <div className="w-full max-w-[calc((100vh-4rem)*16/9)] max-md:max-w-none">
           {video && !notes ? (
@@ -436,7 +440,7 @@ export default function StudioApp() {
             </>
           )}
         </div>
-      </main>
+      </Main>
 
       {palette && <Palette notes={notes} pluginIds={PLUGIN_IDS} stageKey={stage.key} media={media} layers={stage.layers} onPick={onPick} onUpdate={(id, subject) => dispatch({ type: "swap", id, subject })} onRemove={(id) => dispatch({ type: "remove", id })} onClose={() => setPalette(false)} />}
       {help && <KeysOverlay onClose={() => setHelp(false)} />}
