@@ -10,6 +10,8 @@ export interface FingerPatternProps {
   fret?: number;
   /** the strings to play, 1-6 (6 = low E); default all six */
   strings?: number[];
+  /** the row under the tab: "finger" (the fretting finger, for beginners) or "pick" (the pick stroke ↓ ↑); unset, the student switches between them, starting on finger */
+  show?: "finger" | "pick";
   /** tempo, 40-200; default 80 */
   bpm: number;
 }

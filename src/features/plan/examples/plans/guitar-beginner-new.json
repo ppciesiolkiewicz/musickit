@@ -33,7 +33,7 @@
         "exercises": [
           {
             "title": "The spider where position 1 lives",
-            "focus": "Fingers 1234 at frets 5 to 8, every string, 60 bpm",
+            "focus": "Frets 5 to 8, one finger per fret, every string, 60 bpm",
             "minutes": 4,
             "level": "beginner", "area": "guitar", "tags": [
               "technique"
@@ -43,7 +43,7 @@
             "sections": [
               {
                 "type": "text",
-                "text": "Press Play below to start the metronome. Play frets 5 to 8 on the low E with fingers 1, 2, 3 and 4, one note per beat, then move up a string, all the way to the high E and back. Keep going until your hand stays put and only the fingers move."
+                "text": "Put finger 1 on the 5th fret of the low E string and the other fingers on the next frets, so finger 4 sits on the 8th. Press Play below to start the metronome, then play the four notes, one note per beat. Do the same on each string up to the high e, then come back down: the tab below shows every note, with the finger under it. Keep going until your hand stays still and only the fingers move."
               },
               {
                 "type": "tool",
@@ -51,6 +51,7 @@
                   "type": "finger-pattern",
                   "fingers": "1234",
                   "fret": 5,
+                  "show": "finger",
                   "bpm": 60
                 }
               }
@@ -240,6 +241,7 @@
                   "type": "finger-pattern",
                   "fingers": "1324",
                   "fret": 5,
+                  "show": "finger",
                   "bpm": 60
                 }
               }

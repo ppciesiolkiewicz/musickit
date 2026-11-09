@@ -68,7 +68,7 @@ export type PlanTool =
   | { type: "strum-along"; chords: string[]; bpm: number; per?: "bar" | "beat"; beats?: number; pattern?: string }
   | { type: "chord-backing"; chords: string[]; bpm: number; /** pitch class, from the AI's key; with numerals the chords are already read in it */ key?: number; backing?: CompPattern[] }
   /* stubs: a placeholder view until the real components exist; strings are numbered 1-6, 6 = low E */
-  | { type: "finger-pattern"; fingers: string; fret: number; strings?: number[]; bpm: number }
+  | { type: "finger-pattern"; fingers: string; fret: number; strings?: number[]; show?: "finger" | "pick"; bpm: number }
   | { type: "picking-drill"; strokes: string; notesPerString: number; strings?: number[]; skip?: boolean; bpm: number }
   | { type: "legato-trill"; fingers: string; string: number; fret: number; bpm: number };
 
@@ -335,7 +335,7 @@ export const TOOLS: { [N in ToolName]: ToolSpec } = {
   "finger-pattern": {
     parse: (t) => {
       const fingers = fingersOf(t.fingers, 2, 4);
-      return fingers ? { type: "finger-pattern", fingers, fret: int(t.fret, 1, 12) ?? 1, ...stringsOf(t.strings), bpm: stubBpm(t.bpm) } : null;
+      return fingers ? { type: "finger-pattern", fingers, fret: int(t.fret, 1, 12) ?? 1, ...stringsOf(t.strings), ...(t.show === "finger" || t.show === "pick" ? { show: t.show } : {}), bpm: stubBpm(t.bpm) } : null;
     },
   },
   "picking-drill": {

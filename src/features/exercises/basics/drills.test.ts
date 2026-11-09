@@ -18,7 +18,11 @@ test("the spider puts finger n on fret + n - 1, on each string", () => {
 test("picking drill: strokes run on across strings; skip takes every other string", () => {
   const s = pickingDrillSteps("DDU", 2, [6, 5]);
   assert.deepEqual(s.map((x) => x.stroke), ["D", "D", "U", "D"]);
-  assert.deepEqual(pickingDrillSteps("DU", 1, undefined, true).map((x) => x.string), [6, 4, 2]);
+  assert.deepEqual(pickingDrillSteps("DU", 1, undefined, true).map((x) => x.string), [6, 4, 2, 4]);
+});
+
+test("drills go up the strings and back down, the turns not doubled", () => {
+  assert.deepEqual(fingerPatternSteps("12", 1).filter((_, i) => i % 2 === 0).map((x) => x.string), [6, 5, 4, 3, 2, 1, 2, 3, 4, 5]);
 });
 
 test("legato trill: only the first note is picked, two frets alternate", () => {

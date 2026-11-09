@@ -16,13 +16,16 @@ export const orderStrings = (strings?: number[]): number[] => {
   return s.length ? s : [6, 5, 4, 3, 2, 1];
 };
 
+/** The strings up and back down, the turns not repeated (6 5 4 3 2 1 2 3 4 5), so a loop of it runs on without a doubled string. */
+export const upAndBack = (list: number[]): number[] => [...list, ...list.slice(1, -1).reverse()];
+
 /** The midi note of a string at a fret. */
 export const stepMidi = (s: DrillStep): number => OPEN_STRINGS[6 - s.string] + s.fret;
 
-/** Each finger on its own fret (finger 1 on `fret`), played in order on each string in turn. Alternate picking. */
+/** Each finger on its own fret (finger 1 on `fret`), played in order on each string in turn, up the strings and back down. Alternate picking. */
 export function fingerPatternSteps(fingers: string, fret: number, strings?: number[]): DrillStep[] {
   const out: DrillStep[] = [];
-  for (const string of orderStrings(strings)) {
+  for (const string of upAndBack(orderStrings(strings))) {
     for (const ch of fingers) {
       const finger = Number(ch);
       out.push({ string, fret: fret + finger - 1, finger, stroke: out.length % 2 === 0 ? "D" : "U" });
@@ -31,12 +34,12 @@ export function fingerPatternSteps(fingers: string, fret: number, strings?: numb
   return out;
 }
 
-/** The strokes repeated `notesPerString` times on each string (open strings); `skip` jumps every other string. The stroke pattern runs on across strings. */
+/** The strokes repeated `notesPerString` times on each string (open strings); `skip` jumps every other string. Up the strings and back down; the stroke pattern runs on across strings. */
 export function pickingDrillSteps(strokes: string, notesPerString: number, strings?: number[], skip = false): DrillStep[] {
   const all = orderStrings(strings);
   const list = skip ? all.filter((_, i) => i % 2 === 0) : all;
   const out: DrillStep[] = [];
-  for (const string of list) for (let i = 0; i < notesPerString; i++) out.push({ string, fret: 0, stroke: strokes[out.length % strokes.length] as "D" | "U" });
+  for (const string of upAndBack(list)) for (let i = 0; i < notesPerString; i++) out.push({ string, fret: 0, stroke: strokes[out.length % strokes.length] as "D" | "U" });
   return out;
 }
 

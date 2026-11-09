@@ -48,6 +48,8 @@ describe("tools", () => {
     assert.deepEqual(parseTool({ type: "finger-pattern", fingers: "1324", bpm: 60 }), { type: "finger-pattern", fingers: "1324", fret: 1, bpm: 60 });
     assert.deepEqual(parseTool({ type: "finger-pattern", fingers: 1234, fret: 5, strings: [1, 6, 6, 9], bpm: "fast" }), { type: "finger-pattern", fingers: "1234", fret: 5, strings: [6, 1], bpm: 80 });
     assert.equal(parseTool({ type: "finger-pattern", fingers: "1155", bpm: 60 }), null);
+    assert.deepEqual(parseTool({ type: "finger-pattern", fingers: "1234", show: "finger", bpm: 60 }), { type: "finger-pattern", fingers: "1234", fret: 1, show: "finger", bpm: 60 });
+    assert.deepEqual(parseTool({ type: "finger-pattern", fingers: "1234", show: "both", bpm: 60 }), { type: "finger-pattern", fingers: "1234", fret: 1, bpm: 60 });
     assert.equal(parseTool({ type: "finger-pattern", fingers: "1", bpm: 60 }), null);
     assert.deepEqual(parseTool({ type: "picking-drill", strokes: "du", bpm: 90, skip: true }), { type: "picking-drill", strokes: "DU", notesPerString: 4, skip: true, bpm: 90 });
     assert.equal(parseTool({ type: "picking-drill", strokes: "DX", bpm: 90 }), null);

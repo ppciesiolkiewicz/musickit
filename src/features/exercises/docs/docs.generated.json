@@ -294,6 +294,12 @@
         "description": "the strings to play, 1-6 (6 = low E); default all six"
       },
       {
+        "name": "show",
+        "type": "\"finger\" | \"pick\"",
+        "required": false,
+        "description": "the row under the tab: \"finger\" (the fretting finger, for beginners) or \"pick\" (the pick stroke ↓ ↑); unset, the student switches between them, starting on finger"
+      },
+      {
         "name": "bpm",
         "type": "number",
         "required": true,

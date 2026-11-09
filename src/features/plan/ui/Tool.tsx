@@ -82,7 +82,7 @@ function ToolView({ tool, voice, input }: { tool: PlanTool; voice?: Voice; input
     case "strum-along":
       return <StrumAlong chords={tool.chords} bpm={tool.bpm} per={tool.per} beats={tool.beats} pattern={tool.pattern} />;
     case "finger-pattern":
-      return <FingerPattern fingers={tool.fingers} fret={tool.fret} strings={tool.strings} bpm={tool.bpm} />;
+      return <FingerPattern fingers={tool.fingers} fret={tool.fret} strings={tool.strings} show={tool.show} bpm={tool.bpm} />;
     case "picking-drill":
       return <PickingDrill strokes={tool.strokes} notesPerString={tool.notesPerString} strings={tool.strings} skip={tool.skip} bpm={tool.bpm} />;
     case "legato-trill":
