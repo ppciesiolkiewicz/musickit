@@ -39,7 +39,7 @@ Six per area. Ids are the builder's (kebab-case, stable). Descriptions are one s
 
 | Area | Topic | Covers |
 |---|---|---|
-| Guitar | Scales | pentatonic boxes, modes, knowing the neck |
+| Guitar | Scales | pentatonic positions, modes, knowing the neck |
 | Guitar | Basic chords | open chords, changing between them, strumming |
 | Guitar | Barre chords | F, Bm and shapes that move |
 | Guitar | Extended chords | 7ths, sus and add9, 9ths and 13ths |
@@ -102,12 +102,18 @@ A new dev page next to the existing ones, showing the stored data.
 
 ### Model
 
-`src/features/plan/model/topics.ts` (new): `Topic { id, area, label, desc, lines: [string, string, string, string] }`,
+**Its own feature inside the plan** (asked for by the user): the cold-start questionnaire lives in
+`src/features/plan/intake/`, with its own README and tests. It holds the topics and their lines (`topics.ts`), the answers
+type, `migrateAnswers` and `levelOf` (`answers.ts`), and the questionnaire screens (`ui/`). The rest of the plan feature
+imports from it; it imports nothing from the plan's prompt, store or week view. `questions.ts`, `answers.ts`, `focus.ts`
+and `ui/Questionnaire.tsx` move there or go. The progress log is separate again, in `src/features/progress/` (below).
+
+`src/features/plan/intake/topics.ts` (new): `Topic { id, area, label, desc, lines: [string, string, string, string] }`,
 `TOPICS`, `topicById`, `topicsFor(area)`. `Rung = 0 | 1 | 2 | 3` is the index of the chosen line.
 
 `concepts.ts`: each concept gains `topic` (one topic id of its own area). The 70 concepts stay; they are no longer asked
 about. **My call** on the less obvious ones:
-- Guitar Scales: pentatonic box 1, all five boxes, joining positions, notes on E and A, finding every note, modes on the
+- Guitar Scales: pentatonic position 1, all five positions, joining positions, notes on E and A, finding every note, modes on the
   neck, the three melody concepts.
 - Guitar Basic chords: open chords, one-minute changes, strumming patterns, power chords.
 - Guitar Extended chords: sus & add9 shapes, shells & comping.
@@ -196,8 +202,6 @@ One entry in `devtools/registry.ts`, page `src/app/dev/data/page.tsx`, read-only
 
 ## Left to the builder
 
-- The 72 statement lines (18 topics × 4) and the 18 descriptions, written with the `teaching-voice` skill; any fretboard
-  or theory fact in them checked with `npm run theory`. The user reads these before they ship.
 - Topic ids, the exact warning texts, the layout of `/dev/data`.
 
 ## Testing
@@ -206,3 +210,31 @@ Unit tests for: `levelOf`, `migrateAnswers` (old shape in, new shape out), the t
 with the new fields, the progress store sanitiser and upsert/remove, the backfill, and the prompt parts (first week has no
 "This week" or summary; next week has both; fallback when the last plan has no summary). Then the flow by hand in dev:
 first plan, rate a few exercises, next-week prompt, `/dev/data`.
+
+## The lines
+
+The first line of every topic is "Not yet". The other three, easiest first:
+
+**Guitar**
+- Scales: I play one pentatonic position / I play a few positions and the major scale / I move between positions all over the neck and play modes
+- Basic chords: I know a few open chords, but changes are slow / I change between open chords in time / I play whole songs with open chords and a strumming pattern
+- Barre chords: I can hold an F or Bm, but it buzzes / F and Bm ring clean and I change to them in time / I move barre shapes anywhere on the neck
+- Extended chords: I play a few 7th chords / I use 7th, sus and add9 chords in songs / I play 9ths and 13ths and keep a rhythm part going with them
+- CAGED: I know one or two of the shapes / I play one chord in all five shapes / I find chords, triads and arpeggios anywhere with the shapes
+- Techniques: I've tried hammer-ons and pull-offs / My hammer-ons, pull-offs and slides sound clean / I use them with bends in my own lines
+
+**Voice**
+- Pitch: I match a note some of the time / I match a note most of the time / I stay in tune through a whole song
+- Intervals & leaps: I sing up and down by step, like Do Re Mi / I sing skips, like Do Mi Sol / I sing 4ths, 5ths and octaves in tune
+- Melodies: I sing easy tunes I know well / I pick up a new tune after hearing it a few times / I sing a tune from the staff
+- Breath & range: I run out of breath on long notes / I hold a long note steady / I sing with ease at the top and bottom of my range
+- Runs: I sing a short run slowly / My slow runs are clean and in tune / I sing fast runs cleanly
+- Harmony & improvising: I hold my note while another one sounds / I sing a harmony line over chords / I make up my own melody over chords
+
+**Theory & ear**
+- Basics: I clap along to a steady beat / I know the note names / I keep time with the metronome and name notes quickly
+- Ear: I can tell major from minor / I hear the home note and some intervals / I hear the chord changes in a song
+- Scales & keys: I know the pentatonic or the major scale / I know major and natural minor and how they relate / I use the circle of fifths and can change key
+- Building chords: I know what a major and a minor chord are made of / I can build 7th and sus chords / I can build diminished, augmented, 9th and 13th chords
+- Progressions & styles: I know the 1, 4 and 5 chords of a key / I know the usual chords of pop, folk or blues songs / I follow ii–V–I and jazz changes
+- Modes & minor colours: I've heard of modes / I know Dorian, Mixolydian or harmonic minor / I use modes and melodic minor on purpose
