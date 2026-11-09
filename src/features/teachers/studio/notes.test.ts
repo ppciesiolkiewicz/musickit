@@ -29,3 +29,12 @@ test("junk is not a note", async () => {
   assert.equal(noteFromHash("#note=abc_-1"), "abc_-1");
   assert.equal(noteFromHash("#x"), null);
 });
+
+test("every preset note survives the sanitiser with all its widgets", async () => {
+  const { PLUGINS } = await import("@/features/creator");
+  const { PRESET_NOTES } = await import("./presetNotes");
+  for (const [slug, p] of Object.entries(PRESET_NOTES)) {
+    const back = await decodeNote(await encodeNote(p.stage), PLUGINS.map((x) => x.id));
+    assert.equal(back?.layers.length, p.stage.layers.length, slug);
+  }
+});

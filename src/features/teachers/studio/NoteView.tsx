@@ -7,18 +7,8 @@ import { decodeNote } from "./notes";
 
 const PLUGIN_IDS = PLUGINS.map((p) => p.id);
 
-/** A shared note, opened from its link: read as an article, never editable, and it leaves the notes creator's own saved stage alone. */
-export default function NoteView({ note }: { note: string }) {
-  const [stage, setStage] = useState<Stage | null | undefined>(undefined);
-  useEffect(() => {
-    let live = true;
-    void decodeNote(note, PLUGIN_IDS).then((s) => live && setStage(s));
-    return () => {
-      live = false;
-    };
-  }, [note]);
-
-  if (stage === undefined) return null;
+/** A note's stage read as an article, never editable, with a way into the notes creator. */
+export function NoteReader({ stage }: { stage: Stage | null }) {
   return (
     <div className="flex flex-col gap-4">
       {stage ? (
@@ -34,4 +24,19 @@ export default function NoteView({ note }: { note: string }) {
       </p>
     </div>
   );
+}
+
+/** A shared note, opened from its link: read as an article, never editable, and it leaves the notes creator's own saved stage alone. */
+export default function NoteView({ note }: { note: string }) {
+  const [stage, setStage] = useState<Stage | null | undefined>(undefined);
+  useEffect(() => {
+    let live = true;
+    void decodeNote(note, PLUGIN_IDS).then((s) => live && setStage(s));
+    return () => {
+      live = false;
+    };
+  }, [note]);
+
+  if (stage === undefined) return null;
+  return <NoteReader stage={stage} />;
 }

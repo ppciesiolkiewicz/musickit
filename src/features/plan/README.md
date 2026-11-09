@@ -32,6 +32,10 @@ browser.
 5. **Start anew**: the first flow again; its prompt leaves out past weeks. Earlier plans stay listed and can be restarted.
 6. **Reminders**: a daily browser notification at a chosen time while any attunr tab is open.
 
+## Demos
+
+`/demo/guitar` and `/demo/voice` open a hand-tuned example plan (`demos.ts`, `DemoPlan.tsx`) from day 1, kept in memory only (a swapped-in `PlanStore`), so a pitch can link to a finished plan. Not indexed; canonical is `/plan`.
+
 ## Code map
 
 ```
