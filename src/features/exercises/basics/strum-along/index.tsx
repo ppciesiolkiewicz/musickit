@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Hint } from "@/components/ui";
 import { useCoverage } from "@/features/guide/useCoverage";
 import { CLICK_MAX_BPM, CLICK_MIN_BPM, ClickTrack, clampClick } from "@/features/instruments/model";
@@ -10,6 +10,9 @@ import { strumAt, strumBars, strumCounts, strumPattern, type Stroke, type StrumP
 
 const MAX_BPM = Math.min(240, CLICK_MAX_BPM);
 const VOLUME = 0.6;
+/** A strum's width in px: at least, and at most once the bars stretch to fill the row. */
+const STROKE_MIN = 20;
+const STROKE_MAX = 56;
 
 const ARROW: Record<Stroke, string> = { D: "↓", U: "↑", ".": "·" };
 const SAY: Record<Stroke, string> = { D: "down", U: "up", ".": "miss" };
@@ -73,6 +76,13 @@ export function View({ chords, bpm: initial, per = "bar", beats = 4, pattern }: 
   const beatNow = block ? block.beat : countIn !== null ? countIn - 1 : null;
   const spoken = strokes.flat().join(" ");
   const hues = useMemo(() => chordHues(chords), [chords]);
+  const bars = strumBars(chords.length, per, beats);
+  // A bar at its narrowest and widest: the bars share the row evenly, wrapping before they get narrower. A chord a beat
+  // gives each beat its own card, which needs room for the chord's name.
+  const beatMin = perBeat * STROKE_MIN + 6;
+  const beatMax = perBeat * STROKE_MAX + 6;
+  const barMin = per === "bar" ? beats * beatMin + 16 : beats * (Math.max(beatMin, 48) + 22);
+  const barMax = per === "bar" ? beats * beatMax + 16 : beats * (Math.max(beatMax, 104) + 22);
   return (
     <PlayerCard>
       <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
@@ -89,27 +99,26 @@ export function View({ chords, bpm: initial, per = "bar", beats = 4, pattern }: 
           ) : playing ? null : `${beats} beats a bar, a chord ${per === "bar" ? "a bar" : "a beat"}`}
         </span>
       </div>
-      <div data-tour="strum-along-bars" className="flex flex-wrap items-stretch gap-x-2 gap-y-2" role="list" aria-label={`Chords, strum ${spoken}`}>
-        {strumBars(chords.length, per, beats).map((bar, bi) => (
-          <Fragment key={bi}>
-            {bi > 0 && per === "beat" && <span className="w-px self-stretch bg-slate-700/80" aria-hidden />}
-            <span className="flex max-w-full flex-wrap gap-1.5">
-              {bar.map((i, j) => {
-                const lit = block?.block === i;
-                const next = countIn !== null && i === 0;
-                const inBox = per === "bar" ? strokes.map((_, b) => b) : [j];
-                return (
-                  <ChordCard key={i} name={chords[i]} hue={hues[i]} lit={lit} next={next}>
-                    <span className="flex flex-wrap gap-1" aria-hidden>
-                      {inBox.map((b) => (
-                        <Beat key={b} beat={b} strokes={strokes[b]} now={lit && block!.beat === b} step={step} />
-                      ))}
-                    </span>
-                  </ChordCard>
-                );
-              })}
-            </span>
-          </Fragment>
+      <div data-tour="strum-along-bars" role="list" aria-label={`Chords, strum ${spoken}`}
+        className={`grid items-stretch ${per === "beat" ? "gap-x-3" : "gap-x-2"} gap-y-2`}
+        style={{ gridTemplateColumns: `repeat(auto-fit, minmax(min(100%, ${barMin}px), 1fr))`, maxWidth: bars.length * barMax }}>
+        {bars.map((bar, bi) => (
+          <span key={bi} className="flex min-w-0 gap-1.5">
+            {bar.map((i, j) => {
+              const lit = block?.block === i;
+              const next = countIn !== null && i === 0;
+              const inBox = per === "bar" ? strokes.map((_, b) => b) : [j];
+              return (
+                <ChordCard key={i} name={chords[i]} hue={hues[i]} lit={lit} next={next} className="min-w-0 flex-1">
+                  <span className="flex gap-1" aria-hidden>
+                    {inBox.map((b) => (
+                      <Beat key={b} beat={b} strokes={strokes[b]} now={lit && block!.beat === b} step={step} />
+                    ))}
+                  </span>
+                </ChordCard>
+              );
+            })}
+          </span>
         ))}
       </div>
     </PlayerCard>
@@ -121,13 +130,13 @@ function Beat({ beat, strokes, now, step }: { beat: number; strokes: Stroke[]; n
   const counts = strumCounts(beat, strokes.length);
   return (
     <span title={strokes.map((s) => SAY[s]).join(", ")}
-      className={`flex rounded-md border px-0.5 py-0.5 transition-colors duration-75 ${now ? "border-white/40 bg-white/10" : "border-slate-700/70 bg-slate-950/60"}`}>
+      className={`flex min-w-0 flex-1 rounded-md border px-0.5 py-0.5 transition-colors duration-75 ${now ? "border-white/40 bg-white/10" : "border-slate-700/70 bg-slate-950/60"}`}>
       {strokes.map((s, k) => {
         const hit = now && step === k;
         return (
-          <span key={k} className={`flex ${strokes.length === 4 ? "w-4" : "w-5"} flex-col items-center rounded leading-none ${hit ? (s === "." ? "bg-slate-500/30" : "bg-white/25") : ""}`}>
-            <span className={`text-base font-bold ${s === "." ? "text-slate-600" : hit ? "text-white" : s === "D" ? "text-slate-100" : "text-sky-200"}`}>{ARROW[s]}</span>
-            <span className={`pb-0.5 text-[9px] tabular-nums ${k === 0 ? "text-slate-300" : "text-slate-500"}`}>{counts[k]}</span>
+          <span key={k} className={`flex min-w-0 flex-1 flex-col items-center gap-0.5 rounded py-0.5 leading-none ${hit ? (s === "." ? "bg-slate-500/30" : "bg-white/25") : ""}`}>
+            <span className={`text-lg font-bold sm:text-xl ${s === "." ? "text-slate-600" : hit ? "text-white" : s === "D" ? "text-slate-100" : "text-sky-200"}`}>{ARROW[s]}</span>
+            <span className={`text-[10px] tabular-nums ${k === 0 ? "text-slate-300" : "text-slate-500"}`}>{counts[k]}</span>
           </span>
         );
       })}
