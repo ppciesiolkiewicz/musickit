@@ -4,10 +4,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { HeardNote } from "@/components/chordKit/heardNote";
 import Icon from "@/components/Icon";
 import { PLUGINS } from "@/features/creator";
-import { CameraLayer, DEFAULT_VIEW, MicContext, sanitiseAudioInput, useAudioInput, NUDGE, NUDGE_BIG, ScreenLayer, StageFrame, StageWidget, mediaState, isControl, isPage, shortcutFor, stageCommand, subjectTitle, takesMic, toggleFull, type AudioInputSetup, type Layer, type MicInput, type PaletteResult, type StudioCommand, type Subject } from "@/features/stage";
+import { CameraLayer, DEFAULT_VIEW, MicContext, sanitiseAudioInput, useAudioInput, NUDGE, NUDGE_BIG, ScreenLayer, StageFrame, StageWidget, layoutOf, mediaState, isControl, isPage, shortcutFor, stageCommand, subjectTitle, takesMic, toggleFull, type AudioInputSetup, type Layer, type MicInput, type PaletteResult, type StudioCommand, type Subject } from "@/features/stage";
 import { VideoPreview, pickVideoConfig, type VideoFile } from "@/features/teachers/video";
-import { isStudioSupported } from "./browserSupport";
 import KeysPanel, { KeysOverlay } from "./KeysPanel";
+import LayoutSelector from "./LayoutSelector";
 import useCamera from "./media/useCamera";
 import useScreenShare from "./media/useScreenShare";
 import ControlBadge, { MicBadge, PageBadge } from "./ControlBadge";
@@ -30,9 +30,14 @@ function savedAudioInput(): AudioInputSetup {
 }
 
 /** whether the side panel is folded to a letter or two per widget: open unless folded before */
+/** Tailwind's md: below it the panel sits above the frame */
+const PHONE_WIDTH = 768;
+
 function savedFolded(): boolean {
   try {
-    return window.localStorage.getItem(PANEL_STORE) === "on";
+    const saved = window.localStorage.getItem(PANEL_STORE);
+    // never chosen: on a phone the frame gets the room
+    return saved === null ? window.innerWidth < PHONE_WIDTH : saved === "on";
   } catch {
     return false;
   }
@@ -60,7 +65,7 @@ const isTyping = () => {
 
 /** The teacher studio: the 16:9 frame in the middle, its layers on the left, the keys that work on the right. */
 export default function StudioApp() {
-  const [supported, setSupported] = useState<boolean | null>(null);
+  const [mounted, setMounted] = useState(false);
   // the notes creator (?notes=1): the same stage without video, camera, screen or microphone, shared as a link
   const [notes] = useState(() => typeof window !== "undefined" && new URLSearchParams(window.location.search).get("notes") === "1");
   const [stage, dispatch] = useStage(PLUGIN_IDS, notes);
@@ -84,7 +89,7 @@ export default function StudioApp() {
     const f = await pickVideoConfig();
     if (f) setVideo(f);
   };
-  // the page renders nothing until the browser check, so reading storage here cannot mismatch the server's render
+  // the page renders nothing until it is mounted, so reading storage here cannot mismatch the server's render
   const [keepShape, setKeepShape] = useState(() => (typeof window === "undefined" ? true : savedKeepShape()));
   const toggleKeepShape = () => {
     const next = !keepShape;
@@ -107,9 +112,9 @@ export default function StudioApp() {
   }, [stage]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- the browser check needs window, after hydration
-    setSupported(notes || isStudioSupported());
-  }, [notes]);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- what is stored and the window's width are known only after hydration
+    setMounted(true);
+  }, []);
 
   const camera = useCamera();
   const removeKind = useCallback(
@@ -251,8 +256,7 @@ export default function StudioApp() {
     return () => window.removeEventListener("keydown", onKey);
   }, [palette, help, video, dispatch, runCommand]);
 
-  if (supported === null) return null;
-  if (!supported) return <p className="mx-auto mt-24 max-w-md text-center text-slate-300">The studio needs desktop Chrome or Edge.</p>;
+  if (!mounted) return null;
 
   const media = mediaState(stage);
   // the audio input feeds the pinned widgets and the selected one
@@ -283,9 +287,12 @@ export default function StudioApp() {
   );
 
   return (
-    <div className={`grid min-h-screen gap-4 p-4 ${folded ? "grid-cols-[52px_minmax(0,1fr)]" : "grid-cols-[220px_minmax(0,1fr)]"}`}>
+    <div className={`grid min-h-screen gap-4 p-4 max-md:grid-cols-1 max-md:gap-2 max-md:p-2 ${folded ? "grid-cols-[52px_minmax(0,1fr)]" : "grid-cols-[220px_minmax(0,1fr)]"}`}>
+      <button data-chrome type="button" title="Keys (?)" aria-label="Show the keys" onClick={() => setHelp(true)} className="fixed right-3 top-3 z-30 max-md:hidden rounded-md border border-slate-800 bg-slate-950/80 p-1 text-slate-400 hover:text-slate-100">
+        <Icon name="info" size={14} />
+      </button>
       {folded ? (
-        <aside data-chrome aria-label="Layers" className="flex flex-col items-center gap-1">
+        <aside data-chrome aria-label="Layers" className="sticky top-4 flex max-h-[calc(100vh-2rem)] flex-col items-center gap-1 self-start overflow-y-auto max-md:static max-md:max-h-none max-md:flex-row max-md:flex-wrap max-md:self-auto">
           <button type="button" title="Unfold the panel" aria-label="Unfold the panel" aria-expanded={false} onClick={toggleFolded} className="rounded-md border border-slate-800 p-1 text-slate-400 hover:text-slate-100">
             <Icon name="chevron-right" size={14} />
           </button>
@@ -295,15 +302,12 @@ export default function StudioApp() {
           <button type="button" title="Share as a note" aria-label="Share as a note" onClick={() => void shareNote()} className="rounded-md border border-slate-700 p-1 text-slate-200 hover:border-slate-500">
             <Icon name="share-2" size={14} />
           </button>
-          <button type="button" title="Keys (?)" aria-label="Show the keys" onClick={() => setHelp(true)} className="rounded-md border border-slate-700 p-1 text-slate-200 hover:border-slate-500">
-            <Icon name="info" size={14} />
-          </button>
           {!notes && (
             <button type="button" title="Preview a video config" aria-label="Preview a video config" aria-pressed={!!video} onClick={() => void openVideo()} className={`rounded-md border p-1 hover:border-slate-500 ${video ? "border-sky-500/60 text-sky-200" : "border-slate-700 text-slate-200"}`}>
               <Icon name="play" size={14} />
             </button>
           )}
-          <ul className="mt-1 flex flex-col gap-1">
+          <ul className="mt-1 flex flex-col gap-1 max-md:mt-0 max-md:flex-row max-md:flex-wrap">
             {[...stage.layers].reverse().map((l) => (
               <li key={l.id} className="flex items-center gap-0.5">
                 <button
@@ -323,14 +327,11 @@ export default function StudioApp() {
           </ul>
         </aside>
       ) : (
-        <aside data-chrome aria-label="Layers" className="flex flex-col gap-2">
+        <aside data-chrome aria-label="Layers" className="sticky top-4 flex max-h-[calc(100vh-2rem)] flex-col gap-2 self-start overflow-y-auto max-md:static max-md:max-h-none max-md:self-auto">
           <div className="flex items-stretch gap-1">
             <div className="min-w-0 flex-1">
               <KeysPanel onAdd={() => setPalette(true)} />
             </div>
-            <button type="button" title="Keys (?)" aria-label="Show the keys" onClick={() => setHelp(true)} className="rounded-md border border-slate-800 px-1 text-slate-400 hover:text-slate-100">
-              <Icon name="info" size={14} />
-            </button>
             <button type="button" title="Fold the panel to a letter or two per widget" aria-label="Fold the panel" aria-expanded onClick={toggleFolded} className="rounded-md border border-slate-800 px-1 text-slate-400 hover:text-slate-100">
               <Icon name="chevron-left" size={14} />
             </button>
@@ -353,12 +354,16 @@ export default function StudioApp() {
                   <button type="button" title={l.visible ? "Hide" : "Show"} onClick={() => dispatch({ type: "toggle", id: l.id })} className="p-0.5 text-slate-400 hover:text-slate-100">
                     <Icon name="eye" size={14} />
                   </button>
+                  {layoutOf(stage) === "free" && (
+                  <>
                   <button type="button" title="Bring forward" onClick={() => dispatch({ type: "raise", id: l.id })} className="p-0.5 text-slate-400 hover:text-slate-100">
                     <Icon name="chevron-down" size={14} className="rotate-180" />
                   </button>
                   <button type="button" title="Send backward" onClick={() => dispatch({ type: "lower", id: l.id })} className="p-0.5 text-slate-400 hover:text-slate-100">
                     <Icon name="chevron-down" size={14} />
                   </button>
+                  </>
+                  )}
                   <button type="button" title="Delete" onClick={() => dispatch({ type: "remove", id: l.id })} className="p-0.5 text-slate-400 hover:text-rose-300">
                     <Icon name="trash" size={14} />
                   </button>
@@ -366,6 +371,7 @@ export default function StudioApp() {
               </li>
             ))}
           </ul>
+          {layoutOf(stage) === "free" && (
           <button
             type="button"
             role="switch"
@@ -383,6 +389,7 @@ export default function StudioApp() {
               <span className={`absolute top-0.5 h-3 w-3 rounded-full bg-white transition-all ${keepShape ? "left-3.5" : "left-0.5"}`} />
             </span>
           </button>
+          )}
           <button type="button" onClick={() => void shareNote()} title="Copy a link that opens this stage as a note, for anyone. Camera, screen and microphone widgets are left out." className="mt-2 flex items-center gap-2 rounded-md border border-sky-500/60 bg-sky-500/10 px-2 py-1 text-left text-xs text-sky-100 hover:border-sky-400">
             <Icon name="share-2" size={12} />
             <span className="min-w-0 flex-1 truncate">{shared === "copied" ? "Link copied" : shared === "failed" ? "Could not copy" : "Share as a note"}</span>
@@ -414,13 +421,19 @@ export default function StudioApp() {
       <main className="flex min-w-0 flex-col items-center gap-3">
         <h1 className="sr-only">{notes ? "Notes creator" : "Studio"}</h1>
         {/* as wide as the column, but never taller than the window */}
-        <div className="w-full" style={{ maxWidth: "calc((100vh - 2rem) * 16 / 9)" }}>
+        <div className="w-full max-w-[calc((100vh-4rem)*16/9)] max-md:max-w-none">
           {video && !notes ? (
             <VideoPreview file={video} pluginIds={PLUGIN_IDS} onClose={() => setVideo(null)} />
           ) : (
-            <MicContext.Provider value={mic}>
-              <StageFrame stage={stage} renderLayer={renderLayer} onAction={dispatch} keepShape={keepShape} />
-            </MicContext.Provider>
+            <>
+              {/* pr-6 keeps clear of the keys button in the window's corner */}
+              <div className="sticky top-2 z-30 mb-2 flex justify-end pr-6 max-md:pr-0">
+                <LayoutSelector layout={layoutOf(stage)} canArrange={layoutOf(stage) === "free" && stage.layers.length > 0} onLayout={(layout) => dispatch({ type: "setLayout", layout })} onAutoLayout={() => dispatch({ type: "autoLayout" })} />
+              </div>
+              <MicContext.Provider value={mic}>
+                <StageFrame stage={stage} renderLayer={renderLayer} onAction={dispatch} keepShape={keepShape} />
+              </MicContext.Provider>
+            </>
           )}
         </div>
       </main>

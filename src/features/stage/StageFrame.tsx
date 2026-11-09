@@ -1,16 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type PointerEvent as RPointerEvent, type ReactNode } from "react";
-import Icon from "@/components/Icon";
-import { DEFAULT_VIEW, drawZ, fixedRect, hasAspect, panView, resizeFrom, resizeKeepingShape, withAspect, zoomAt, type Corner, type FrameRect, type Layer, type Stage, type StageAction } from "./model/layers";
-import { ShapeReport } from "./render/shape";
+import GridFrame from "./GridFrame";
+import { LayerBody, LayerToolbar, useWidgetZoom } from "./LayerParts";
+import { drawZ, fixedRect, hasAspect, layoutOf, resizeFrom, resizeKeepingShape, withAspect, type Corner, type FrameRect, type Layer, type Stage, type StageAction } from "./model/layers";
 
 /** pixels a pointer moves inside a widget before it counts as a drag (below that, the click reaches the widget: a strum, a note) */
 const DRAG_SLOP = 4;
 /** the strip along a widget's top that drags at once */
 const GRAB_STRIP = 16;
-/** how fast ⌘+scroll and pinch zoom: the factor is e^(-deltaY × this) */
-const ZOOM_SPEED = 0.01;
 
 interface Drag {
   id: string;
@@ -43,8 +41,20 @@ function toolbarPlace(l: Layer, card: boolean): CSSProperties {
   return { right: `calc(${right} + 6px)`, top: `calc(${l.rect.y * 100}% + 6px)` };
 }
 
+interface FrameProps {
+  stage: Stage;
+  renderLayer: (l: Layer) => ReactNode;
+  onAction: (a: StageAction) => void;
+  keepShape?: boolean;
+}
+
+/** The 16:9 frame, in the stage's layout. The two share nothing but how a widget is drawn inside its box (`LayerParts`). */
+export default function StageFrame(props: FrameProps) {
+  return layoutOf(props.stage) === "grid" ? <GridFrame stage={props.stage} renderLayer={props.renderLayer} onAction={props.onAction} /> : <FreeFrame {...props} />;
+}
+
 /**
- * The 16:9 frame: exactly what a recording shows. Each visible layer is placed from its rect, a fraction of the frame,
+ * The free layout's 16:9 frame: exactly what a recording shows. Each visible layer is placed from its rect, a fraction of the frame,
  * so the frame can be any size. Layers are drawn in list order and stacked by their `z`, so bringing one to the top never moves its element
  * (a camera or a screen share keeps playing). Nothing outside this element is ever recorded (`data-stage-frame` is the capture target).
  *
@@ -56,17 +66,7 @@ function toolbarPlace(l: Layer, card: boolean): CSSProperties {
  * Widgets are opaque cards (the brand marks and the camera and screen excepted). With `keepShape`, each widget's frame takes the
  * shape of what it shows (reported by its FitBox), and a corner drag keeps that shape. Each widget can fill the frame and go back.
  */
-export default function StageFrame({
-  stage,
-  renderLayer,
-  onAction,
-  keepShape = true,
-}: {
-  stage: Stage;
-  renderLayer: (l: Layer) => ReactNode;
-  onAction: (a: StageAction) => void;
-  keepShape?: boolean;
-}) {
+function FreeFrame({ stage, renderLayer, onAction, keepShape = true }: FrameProps) {
   const frame = useRef<HTMLDivElement>(null);
   const drag = useRef<Drag | null>(null);
   const dragged = useRef(false);
@@ -145,30 +145,7 @@ export default function StageFrame({
     };
   }, [onAction]);
 
-  // wheel: ⌘+scroll and trackpad pinch (which arrives as ctrl+wheel) zoom the widget under the pointer; a plain scroll pans it when zoomed.
-  // Added by hand because React's wheel listener is passive and could not stop the page (or the browser) from zooming.
-  useEffect(() => {
-    const el = frame.current;
-    if (!el) return;
-    const onWheel = (e: WheelEvent) => {
-      const box = (e.target as HTMLElement).closest<HTMLElement>("[data-layer]");
-      const layer = box && layersRef.current.find((l) => l.id === box.dataset.layer);
-      if (!box || !layer) return;
-      const view = layer.view ?? DEFAULT_VIEW;
-      const r = box.getBoundingClientRect();
-      if (e.metaKey || e.ctrlKey) {
-        e.preventDefault();
-        // a trackpad sends small steps; a mouse wheel notch is ~100, capped so one notch is a gentle zoom, not a jump
-        const step = Math.max(-50, Math.min(50, e.deltaY));
-        onAction({ type: "setView", id: layer.id, view: zoomAt(view, Math.exp(-step * ZOOM_SPEED), (e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height) });
-      } else if (view.zoom > 1) {
-        e.preventDefault();
-        onAction({ type: "setView", id: layer.id, view: panView(view, e.deltaX / (r.width * view.zoom), e.deltaY / (r.height * view.zoom)) });
-      }
-    };
-    el.addEventListener("wheel", onWheel, { passive: false });
-    return () => el.removeEventListener("wheel", onWheel);
-  }, [onAction]);
+  useWidgetZoom(frame, stage.layers, onAction);
 
   const start = (e: RPointerEvent, l: Layer, mode: Drag["mode"]) => {
     if (e.button !== 0 || !frame.current) return;
@@ -193,7 +170,6 @@ export default function StageFrame({
         .filter((l) => l.visible)
         .map((l) => {
           const selected = stage.selected === l.id;
-          const v = l.view ?? DEFAULT_VIEW;
           const show = selected ? "opacity-100" : "opacity-0 group-hover:opacity-100";
           // the brand marks have a fixed place: no dragging, no resize dots
           const fixed = !!fixedRect(l.subject);
@@ -217,16 +193,9 @@ export default function StageFrame({
                 }
               }}
             >
-              <div className={`h-full w-full overflow-hidden ${card ? "rounded-xl bg-slate-950" : ""}`}>
-                <div
-                  className="h-full w-full"
-                  style={v.zoom === 1 ? undefined : { transformOrigin: "0 0", transform: `translate(${(0.5 - v.zoom * v.cx) * 100}%, ${(0.5 - v.zoom * v.cy) * 100}%) scale(${v.zoom})` }}
-                >
-                  <LayerShape id={l.id} onShape={onShape}>
-                    {renderLayer(l)}
-                  </LayerShape>
-                </div>
-              </div>
+              <LayerBody layer={l} card={card} onShape={onShape}>
+                {renderLayer(l)}
+              </LayerBody>
               <div className={`pointer-events-none absolute inset-0 rounded-[3px] ring-2 ring-sky-400/80 transition-opacity ${show}`} />
               {!fixed && CORNERS.map(({ c, cls }) => (
                 <div
@@ -246,55 +215,19 @@ export default function StageFrame({
         // drawn over every widget, so one in front never hides it
         const l = stage.layers.find((x) => x.id === hover && x.visible);
         if (!l || l.subject.kind === "camera" || l.subject.kind === "screen") return null;
-        const card = !fixedRect(l.subject);
         return (
-          <div
-            data-chrome
-            className="absolute flex gap-1.5"
-            style={{ ...toolbarPlace(l, card), zIndex: 2 * stage.layers.length + 1 }}
+          <LayerToolbar
+            layer={l}
+            filled={!!l.restore}
+            onAction={onAction}
+            aspect={() => (keepShape ? (aspects.current[l.id] ?? null) : null)}
+            className="absolute"
+            style={{ ...toolbarPlace(l, !fixedRect(l.subject)), zIndex: 2 * stage.layers.length + 1 }}
             onPointerEnter={() => enter(l.id)}
             onPointerLeave={leave}
-            onPointerDown={(e) => e.stopPropagation()}
-          >
-            {card && (
-              <button
-                type="button"
-                title={l.onTop ? "Unpin: let other widgets cover it" : "Pin: keep it over the other widgets, and light the notes the audio input hears on it"}
-                aria-label={l.onTop ? "Unpin" : "Pin"}
-                aria-pressed={!!l.onTop}
-                onClick={() => onAction({ type: "togglePin", id: l.id })}
-                className={`flex h-6 w-6 items-center justify-center rounded-md bg-slate-950/80 ring-1 ring-slate-700 hover:text-sky-300 ${l.onTop ? "text-sky-300" : "text-slate-300"}`}
-              >
-                <Icon name="pin" size={13} />
-              </button>
-            )}
-            {card && (
-              <button
-                type="button"
-                title={l.restore ? "Back to its place" : "Fill the frame"}
-                aria-label={l.restore ? "Back to its place" : "Fill the frame"}
-                onClick={() => {
-                  // selecting brings it to the top, over what it now covers
-                  onAction({ type: "select", id: l.id });
-                  onAction({ type: "toggleFill", id: l.id, aspect: keepShape ? (aspects.current[l.id] ?? null) : null });
-                }}
-                className="flex h-6 w-6 items-center justify-center rounded-md bg-slate-950/80 ring-1 ring-slate-700 text-slate-300 hover:text-sky-300"
-              >
-                <Icon name={l.restore ? "minimize" : "maximize"} size={13} />
-              </button>
-            )}
-            <button type="button" title="Delete the widget" aria-label="Delete the widget" onClick={() => onAction({ type: "remove", id: l.id })} className="flex h-6 w-6 items-center justify-center rounded-md bg-slate-950/80 ring-1 ring-slate-700 text-slate-300 hover:text-rose-300">
-              <Icon name="x" size={13} />
-            </button>
-          </div>
+          />
         );
       })()}
     </div>
   );
-}
-
-/** Hands one layer's FitBox a stable way to report its content's shape. */
-function LayerShape({ id, onShape, children }: { id: string; onShape: (id: string, aspect: number) => void; children: ReactNode }) {
-  const report = useCallback((aspect: number) => onShape(id, aspect), [id, onShape]);
-  return <ShapeReport.Provider value={report}>{children}</ShapeReport.Provider>;
 }

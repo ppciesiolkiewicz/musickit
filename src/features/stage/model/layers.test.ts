@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { EMPTY_KEY } from "@/features/creator/model/key";
-import { CAMERA_CORNER, DEFAULT_VIEW, EMPTY_STAGE, FRAME_ASPECT, FULL, KEEP_IN, MAX_ZOOM, MIN_SIZE, addSubject, drawZ, paintOrder, clampRect, defaultRect, fillRect, fixedRect, hasAspect, panView, resizeFrom, resizeKeepingShape, withAspect, sanitiseStage, stageReducer, zoomAt, type Layer, type Stage } from "./layers";
+import { CAMERA_CORNER, DEFAULT_VIEW, EMPTY_STAGE, FRAME_ASPECT, FULL, GRID_COLUMNS, KEEP_IN, arrangeRects, gridAspect, gridLayers, gridSpan, gridSpanNarrow, layoutOf, MAX_ZOOM, MIN_SIZE, addSubject, drawZ, paintOrder, clampRect, defaultRect, fillRect, fixedRect, hasAspect, panView, resizeFrom, resizeKeepingShape, withAspect, sanitiseStage, stageReducer, zoomAt, type Layer, type Stage } from "./layers";
 import { updateSubject } from "./families";
 import { subjectIdentity, type Subject } from "./subject";
 
@@ -11,7 +11,8 @@ const chord: Subject = { kind: "chord", symbol: "E6" };
 const scale: Subject = { kind: "plugin", plugin: "scale", key: EMPTY_KEY };
 const layer = (id: string, subject: Subject = chord): Layer => ({ id, subject, rect: { x: 0.1, y: 0.1, w: 0.3, h: 0.3 }, visible: true, z: 0 });
 /** a stage painted in list order */
-const withLayers = (...layers: Layer[]): Stage => ({ ...EMPTY_STAGE, layers: layers.map((l, z) => ({ ...l, z })) });
+/** free layout: where a rect is the widget's place */
+const withLayers = (...layers: Layer[]): Stage => ({ ...EMPTY_STAGE, layout: "free", layers: layers.map((l, z) => ({ ...l, z })) });
 const listIds = (s: Stage) => s.layers.map((l) => l.id);
 const paintIds = (s: Stage) => paintOrder(s.layers).map((l) => l.id);
 
@@ -69,10 +70,11 @@ test("swap keeps the id and rect and replaces the subject", () => {
   assert.deepEqual(s.layers[0].subject, scale);
 });
 
-test("move and resize go through clampRect", () => {
-  const moved = stageReducer(withLayers(layer("a")), { type: "move", id: "a", dx: 5, dy: 0 });
+test("move and resize go through clampRect (free layout)", () => {
+  const free = (...l: Layer[]): Stage => ({ ...withLayers(...l), layout: "free" });
+  const moved = stageReducer(free(layer("a")), { type: "move", id: "a", dx: 5, dy: 0 });
   near(moved.layers[0].rect.x, 1 - KEEP_IN);
-  const shrunk = stageReducer(withLayers(layer("a")), { type: "resize", id: "a", dw: -1, dh: -1 });
+  const shrunk = stageReducer(free(layer("a")), { type: "resize", id: "a", dw: -1, dh: -1 });
   near(shrunk.layers[0].rect.w, MIN_SIZE);
 });
 
@@ -357,4 +359,106 @@ test("the audio input exists at most once", () => {
   s = addSubject(s, "m2", { kind: "mic" });
   assert.deepEqual(listIds(s), ["m1"]);
   assert.equal(s.selected, "m1");
+});
+
+// ---- layouts
+const aChord = (name: string): Subject => ({ kind: "chord", name, frets: [0, 0, 0, 0, 0, 0], fingers: [0, 0, 0, 0, 0, 0] }) as unknown as Subject;
+const gridOf = (...ids: string[]): Stage => ({ ...withLayers(...ids.map((id) => layer(id))), layout: "grid" });
+const orderOf = (s: Stage) => gridLayers(s).map((l) => l.id);
+
+test("the grid is the default for a new stage; a stage saved before layouts stays free, as it was arranged", () => {
+  assert.equal(layoutOf(EMPTY_STAGE), "grid");
+  assert.equal(sanitiseStage({ layers: [] }, ids).layout, "grid");
+  assert.equal(sanitiseStage({ layers: [layer("a")] }, ids).layout, "free");
+  assert.equal(sanitiseStage({ layers: [], layout: "free" }, ids).layout, "free");
+});
+
+test("a new widget always goes at the end of the grid, whatever order was dragged", () => {
+  const dragged = stageReducer(gridOf("a", "b", "c"), { type: "reorder", id: "c", over: "a" });
+  assert.deepEqual(orderOf(dragged), ["c", "a", "b"]);
+  assert.deepEqual(orderOf(addSubject(dragged, "new", aChord("x"))), ["c", "a", "b", "new"]);
+});
+
+test("reorder drops a widget where another is, both ways, and leaves the Layers list alone", () => {
+  const s = gridOf("a", "b", "c", "d");
+  assert.deepEqual(orderOf(stageReducer(s, { type: "reorder", id: "a", over: "c" })), ["b", "c", "a", "d"]);
+  assert.deepEqual(orderOf(stageReducer(s, { type: "reorder", id: "d", over: "b" })), ["a", "d", "b", "c"]);
+  assert.deepEqual(listIds(stageReducer(s, { type: "reorder", id: "d", over: "b" })), ["a", "b", "c", "d"]);
+  assert.equal(stageReducer(s, { type: "reorder", id: "a", over: "gone" }), s);
+});
+
+test("a removed widget leaves the order, and a saved order loses ids it no longer has", () => {
+  const s = stageReducer(stageReducer(gridOf("a", "b", "c"), { type: "reorder", id: "c", over: "a" }), { type: "remove", id: "a" });
+  assert.deepEqual(orderOf(s), ["c", "b"]);
+  const saved = sanitiseStage({ layout: "grid", order: ["b", "ghost", 3, "a"], layers: [layer("a"), layer("b")] }, ids);
+  assert.deepEqual(saved.order, ["b", "a"]);
+});
+
+test("a widget's grid size comes from its kind, and the camera's from its preset", () => {
+  const l = (subject: Subject, rect = FULL): Layer => ({ ...layer("x"), subject, rect });
+  assert.equal(gridSpan(l(aChord("x"))), 3);
+  assert.equal(gridSpan(l({ kind: "camera" } as Subject, CAMERA_CORNER)), 3);
+  assert.equal(gridSpan(l({ kind: "neck" } as Subject)), 6);
+  assert.equal(gridSpan(l({ kind: "camera" } as Subject, FULL)), GRID_COLUMNS);
+  near(gridAspect(l({ kind: "camera" } as Subject, FULL)), FRAME_ASPECT);
+});
+
+test("a page takes the grid's whole width; a section that is not a page keeps its kind's", () => {
+  const l = (subject: Subject): Layer => ({ ...layer("x"), subject });
+  assert.equal(gridSpan(l({ kind: "plugin", plugin: "scale", full: true } as Subject)), GRID_COLUMNS);
+  assert.equal(gridSpan(l({ kind: "section", section: "chords" } as Subject)), GRID_COLUMNS);
+  assert.equal(gridSpan(l({ kind: "section", section: "relatives" } as Subject)), 6);
+});
+
+test("on a narrow frame a small widget takes half a row and anything bigger all of it", () => {
+  const l = (subject: Subject): Layer => ({ ...layer("x"), subject });
+  assert.equal(gridSpanNarrow(l(aChord("x"))), 6);
+  assert.equal(gridSpanNarrow(l({ kind: "neck" } as Subject)), GRID_COLUMNS);
+  assert.equal(gridSpanNarrow(l({ kind: "section", section: "chords" } as Subject)), GRID_COLUMNS);
+});
+
+test("the layouts never touch each other's arrangement", () => {
+  const free: Stage = { ...withLayers({ ...layer("a"), rect: { x: 0.5, y: 0.5, w: 0.3, h: 0.3 } }, { ...layer("b"), rect: { x: 0.1, y: 0.1, w: 0.3, h: 0.3 } }), layout: "free" };
+  const grid = stageReducer(free, { type: "setLayout", layout: "grid" });
+  assert.deepEqual(orderOf(grid), ["b", "a"], "first time on the grid: reading order");
+  const dragged = stageReducer(grid, { type: "reorder", id: "a", over: "b" });
+  const back = stageReducer(dragged, { type: "setLayout", layout: "free" });
+  assert.deepEqual(back.layers.map((l) => l.rect), free.layers.map((l) => l.rect));
+  assert.deepEqual(orderOf(stageReducer(stageReducer(back, { type: "autoLayout" }), { type: "setLayout", layout: "grid" })), ["a", "b"]);
+});
+
+test("auto layout in the free layout puts widgets in rows inside the frame, keeping their shapes, and leaves the camera", () => {
+  const rect = { x: 0.5, y: 0.5, w: 0.3, h: 0.3 };
+  const widgets = ["a", "b", "c", "d", "e", "f", "g", "h"].map((id) => ({ ...layer(id), rect }));
+  const cam: Layer = { ...layer("cam"), subject: { kind: "camera" } as Subject, rect: CAMERA_CORNER };
+  const t = stageReducer({ ...withLayers(...widgets, cam), layout: "free" }, { type: "autoLayout" });
+  const placed = t.layers.filter((l) => l.id !== "cam").map((l) => l.rect);
+  for (const r of placed) {
+    assert.ok(r.x >= 0 && r.y >= 0 && r.x + r.w <= 1 + 1e-9 && r.y + r.h <= 1 + 1e-9, "inside the frame");
+    near(r.w / r.h, 1);
+  }
+  for (let i = 0; i < placed.length; i++) for (let j = 0; j < i; j++) {
+    const [p, q] = [placed[i], placed[j]];
+    assert.ok(p.x >= q.x + q.w || q.x >= p.x + p.w || p.y >= q.y + q.h || q.y >= p.y + p.h, "no overlap");
+  }
+  assert.deepEqual(t.layers.find((l) => l.id === "cam")!.rect, CAMERA_CORNER);
+  near(arrangeRects([{ id: "wide", rect: { x: 0, y: 0, w: 1, h: 0.5 } }]).get("wide")!.w, 0.96);
+});
+
+test("auto layout changes nothing on the grid", () => {
+  const s = gridOf("a", "b");
+  assert.equal(stageReducer(s, { type: "autoLayout" }), s);
+});
+
+test("the keyboard on the grid: a nudge moves one place, resize keys do nothing", () => {
+  const s = gridOf("a", "b", "c");
+  assert.deepEqual(orderOf(stageReducer(s, { type: "move", id: "a", dx: 0.01, dy: 0 })), ["b", "a", "c"]);
+  assert.deepEqual(orderOf(stageReducer(s, { type: "move", id: "c", dx: 0, dy: -0.01 })), ["a", "c", "b"]);
+  assert.equal(stageReducer(s, { type: "move", id: "a", dx: -0.01, dy: 0 }), s);
+  assert.equal(stageReducer(s, { type: "resize", id: "a", dw: 0.01, dh: 0 }), s);
+});
+
+test("the brand marks are not on the grid", () => {
+  const s = addSubject(addSubject(EMPTY_STAGE, "logo", { kind: "logo" } as Subject), "a", aChord("x"));
+  assert.deepEqual(orderOf(s), ["a"]);
 });

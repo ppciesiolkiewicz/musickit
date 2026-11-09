@@ -143,7 +143,7 @@ function DroneLine({ rig, snap, keyPc, onToggle }: { rig: JamRig; snap: JamSnaps
     <Tool label="Drone" gap="gap-2">
       {/* two lines, as the click's: its buttons, then the volume on a slider under them */}
       <div className="flex min-w-0 flex-1 flex-col gap-2">
-        <div className="flex min-w-0 items-center gap-2.5">
+        <div className="flex min-w-0 flex-wrap items-center gap-2.5">
           <PlayButton on={snap.parts.drone.state.playing} label="drone" onClick={onToggle} />
           <MuteButton className={ibtn} name="drone" muted={snap.parts.drone.muted} onMute={(muted) => rig.setLevel("drone", { muted })} />
           <button type="button" className={ibtn} disabled={drone.octave <= DRONE_MIN_OCTAVE} onClick={() => rig.setDrone({ octave: drone.octave - 1 })} aria-label="Octave down">−</button>

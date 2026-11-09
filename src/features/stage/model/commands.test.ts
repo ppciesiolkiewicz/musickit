@@ -44,7 +44,7 @@ test("mediaState says whether camera and screen are missing, in a corner or full
   assert.deepEqual(mediaState(stageReducer(s, { type: "addSubject", id: "scr", subject: { kind: "screen" } })), { camera: "full", screen: "full" });
   assert.equal(mediaState(run(s, "camera-corner")).camera, "corner");
   // anything that is not exactly the whole frame counts as minimized
-  assert.equal(mediaState(stageReducer(s, { type: "move", id: "new", dx: 0.01, dy: 0 })).camera, "corner");
+  assert.equal(mediaState(stageReducer({ ...s, layout: "free" }, { type: "move", id: "new", dx: 0.01, dy: 0 })).camera, "corner");
 });
 
 test("toggleFull flips between full frame and the corner", () => {

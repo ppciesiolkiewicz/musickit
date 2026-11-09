@@ -3,7 +3,7 @@
  * never pixels, so the same data renders at any size and can be recorded and replayed. Pure: no React, no DOM, no ids made here.
  */
 import { EMPTY_KEY, sanitiseKey, type KeyChoice } from "@/features/creator/model/key";
-import { sanitiseSubject, withMaster, type Subject } from "./subject";
+import { isPage, sanitiseSubject, withMaster, type Subject } from "./subject";
 
 export interface FrameRect {
   x: number;
@@ -45,9 +45,16 @@ export interface Stage {
   layers: Layer[];
   selected: string | null;
   key: KeyChoice;
+  /** `grid`: a CSS grid, each widget at its own size, in `order`; `free`: each at its `rect`, over each other. Missing = grid */
+  layout?: Layout;
+  /** the grid's order, by id; layers not in it follow in list order, so a new widget goes at the end. The Layers list order never changes */
+  order?: string[];
 }
 
-export const EMPTY_STAGE: Stage = { layers: [], selected: null, key: EMPTY_KEY };
+export type Layout = "grid" | "free";
+export const layoutOf = (s: Stage): Layout => s.layout ?? "grid";
+
+export const EMPTY_STAGE: Stage = { layers: [], selected: null, key: EMPTY_KEY, layout: "grid" };
 
 /** The layers bottom to top, as they are painted. */
 export const paintOrder = (layers: Layer[]): Layer[] => [...layers].sort((a, b) => a.z - b.z);
@@ -238,7 +245,12 @@ export type StageAction =
   | { type: "lower"; id: string }
   | { type: "select"; id: string | null }
   | { type: "clear" }
-  | { type: "setStageKey"; key: KeyChoice };
+  | { type: "setStageKey"; key: KeyChoice }
+  | { type: "setLayout"; layout: Layout }
+  /** the grid's order: drop `id` where `over` is */
+  | { type: "reorder"; id: string; over: string }
+  /** the free layout: rows inside the frame. The grid is always in line, so there it changes nothing */
+  | { type: "autoLayout" };
 
 const edit = (s: Stage, id: string, f: (l: Layer) => Layer): Stage => ({ ...s, layers: s.layers.map((l) => (l.id === id ? f(l) : l)) });
 /** the same, but a fixed brand mark keeps its place, size and zoom */
@@ -248,6 +260,95 @@ const unfill = (l: Layer): Layer => {
   const { restore, ...rest } = l;
   return restore ? rest : l;
 };
+
+/** the columns of the grid layout */
+export const GRID_COLUMNS = 12;
+
+const onGrid = (l: Layer): boolean => !fixedRect(l.subject);
+const isMedia = (l: Layer): boolean => l.subject.kind === "camera" || l.subject.kind === "screen";
+
+/** The grid layout's widgets in order: `order` first, then the rest in list order. The brand marks are not on it: they keep their corner. */
+export function gridLayers(s: Stage): Layer[] {
+  const rest = s.layers.filter(onGrid);
+  const listed = (s.order ?? []).flatMap((id) => rest.filter((l) => l.id === id));
+  return [...listed, ...rest.filter((l) => !listed.includes(l))];
+}
+
+/** The camera and screen take their size from their presets (their `rect`), so full frame still means full width; a widget from its kind. */
+const sizeOf = (l: Layer): FrameRect => (isMedia(l) ? l.rect : baseRect(l.subject));
+
+/**
+ * A widget's width on the grid, in columns: from its kind's own, never resized by hand. Only widths that fill a row together
+ * (a quarter, a third, a half, all of it), so rows do not end in a gap nothing fits. A page takes the whole row.
+ */
+export function gridSpan(l: Layer): number {
+  if (isPage(l.subject)) return GRID_COLUMNS;
+  const { w } = sizeOf(l);
+  return w <= 0.25 ? 3 : w <= 0.35 ? 4 : w <= 0.75 ? 6 : GRID_COLUMNS;
+}
+
+/** The same on a narrow frame (a phone): a small widget takes half a row, anything bigger all of it. */
+export function gridSpanNarrow(l: Layer): number {
+  return gridSpan(l) <= 4 ? GRID_COLUMNS / 2 : GRID_COLUMNS;
+}
+
+/** A widget's shape (width over height, pixels) until it reports its content's, or when it has none to report. */
+export function gridAspect(l: Layer): number {
+  const { w, h } = sizeOf(l);
+  return (w * FRAME_ASPECT) / h;
+}
+
+function reorder(s: Stage, id: string, over: string): Stage {
+  const ids = gridLayers(s).map((l) => l.id);
+  const from = ids.indexOf(id), to = ids.indexOf(over);
+  if (from < 0 || to < 0 || from === to) return s;
+  ids.splice(to, 0, ids.splice(from, 1)[0]);
+  return { ...s, order: ids };
+}
+
+/** A keyboard nudge on the grid: one place earlier or later. */
+function nudgeOrder(s: Stage, id: string, d: number): Stage {
+  const ids = gridLayers(s).map((l) => l.id);
+  const over = ids[ids.indexOf(id) + Math.sign(d)];
+  return over ? reorder(s, id, over) : s;
+}
+
+/** the space around and between widgets after auto layout, as a fraction of the frame */
+const FREE_GAP = 0.02;
+
+/**
+ * In reading order, side by side in rows inside the frame. Every widget keeps its shape; all are scaled down by the same amount when
+ * they would not fit, so the whole set stays in the frame.
+ */
+export function arrangeRects(items: { id: string; rect: FrameRect }[]): Map<string, FrameRect> {
+  const sorted = [...items].sort((a, b) => a.rect.y - b.rect.y || a.rect.x - b.rect.x);
+  const room = 1 - 2 * FREE_GAP;
+  let scale = Math.min(1, room / Math.max(1e-6, ...sorted.map((i) => i.rect.w)), room / Math.max(1e-6, ...sorted.map((i) => i.rect.h)));
+  for (;;) {
+    const out = new Map<string, FrameRect>();
+    let x = FREE_GAP, y = FREE_GAP, row = 0;
+    for (const { id, rect } of sorted) {
+      const w = rect.w * scale, h = rect.h * scale;
+      if (x > FREE_GAP && x + w > 1 - FREE_GAP) {
+        x = FREE_GAP;
+        y += row + FREE_GAP;
+        row = 0;
+      }
+      out.set(id, { x, y, w, h });
+      x += w + FREE_GAP;
+      row = Math.max(row, h);
+    }
+    if (y + row <= 1 - FREE_GAP || scale < 0.1) return out;
+    scale *= 0.95;
+  }
+}
+
+/** Auto layout in the free layout; the camera and the screen share stay where they are, under the widgets. */
+function autoLayout(s: Stage): Stage {
+  if (layoutOf(s) === "grid") return s;
+  const placed = arrangeRects(s.layers.filter((l) => l.visible && onGrid(l) && !isMedia(l)).map((l) => ({ id: l.id, rect: l.rect })));
+  return { ...s, layers: s.layers.map((l) => (placed.has(l.id) ? { ...unfill(l), rect: clampRect(placed.get(l.id)!) } : l)) };
+}
 
 export function stageReducer(s: Stage, a: StageAction): Stage {
   switch (a.type) {
@@ -260,8 +361,10 @@ export function stageReducer(s: Stage, a: StageAction): Stage {
       return { ...s, layers: restack(rest, paintOrder(rest)), selected: s.selected === a.id ? null : s.selected };
     }
     case "move":
+      if (layoutOf(s) === "grid") return nudgeOrder(s, a.id, a.dx || a.dy);
       return place(s, a.id, (l) => ({ ...unfill(l), rect: clampRect({ ...l.rect, x: l.rect.x + a.dx, y: l.rect.y + a.dy }) }));
     case "resize":
+      if (layoutOf(s) === "grid") return s;
       return place(s, a.id, (l) => ({ ...unfill(l), rect: clampRect({ ...l.rect, w: l.rect.w + a.dw, h: l.rect.h + a.dh }) }));
     case "setRect":
       return place(s, a.id, (l) => ({ ...unfill(l), rect: clampRect(a.rect) }));
@@ -297,6 +400,14 @@ export function stageReducer(s: Stage, a: StageAction): Stage {
     }
     case "clear":
       return { ...s, layers: [], selected: null };
+    case "setLayout":
+      if (a.layout === "free") return { ...s, layout: "free" };
+      // the first time on the grid: in the reading order of the free arrangement
+      return { ...s, layout: "grid", order: s.order ?? [...s.layers].sort((x, y) => x.rect.y - y.rect.y || x.rect.x - y.rect.x).map((l) => l.id) };
+    case "reorder":
+      return reorder(s, a.id, a.over);
+    case "autoLayout":
+      return autoLayout(s);
     case "setStageKey":
       // the master Key & scale: every widget follows it, except the parts of its key pinned on the widget
       return { ...s, key: a.key, layers: s.layers.map((l) => ({ ...l, subject: withMaster(l.subject, a.key) })) };
@@ -354,5 +465,8 @@ export function sanitiseStage(raw: unknown, pluginIds: string[]): Stage {
   }
   layers.splice(0, layers.length, ...restack(layers, paintOrder(layers)));
   const selected = typeof o.selected === "string" && layers.some((l) => l.id === o.selected) ? o.selected : null;
-  return { layers, selected, key: typeof o.key === "object" && o.key !== null ? sanitiseKey(o.key) : EMPTY_KEY };
+  // a stage saved before there were layouts was arranged by hand: it stays as it was made. A new, empty one starts on the grid
+  const layout: Layout = o.layout === "grid" || o.layout === "free" ? o.layout : layers.length ? "free" : "grid";
+  const order = Array.isArray(o.order) ? o.order.filter((id): id is string => typeof id === "string" && layers.some((l) => l.id === id)) : null;
+  return { layers, selected, key: typeof o.key === "object" && o.key !== null ? sanitiseKey(o.key) : EMPTY_KEY, layout, ...(order ? { order } : {}) };
 }

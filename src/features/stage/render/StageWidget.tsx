@@ -65,7 +65,7 @@ export default function StageWidget({ subject, onSubjectChange, stageKey, onStag
       const View = subject.full && def.Full ? def.Full : def.Component;
       body = (
         <KeyScope value={subject.key} onChange={ownKey}>
-          <div className="rounded-xl border border-slate-800 bg-slate-950 p-3">
+          <div className="rounded-xl border border-slate-800 bg-slate-950 p-3 @max-[640px]:p-0">
             <View />
           </div>
         </KeyScope>

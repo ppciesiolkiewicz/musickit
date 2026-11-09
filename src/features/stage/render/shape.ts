@@ -7,3 +7,6 @@ import { createContext } from "react";
  * Without a provider (the editor's replay) nobody listens.
  */
 export const ShapeReport = createContext<((aspect: number) => void) | null>(null);
+
+/** The box is given and may be any shape (a page on the grid): the widget fits its width and scrolls inside it, whatever its kind does elsewhere. */
+export const ScrollInBox = createContext(false);
