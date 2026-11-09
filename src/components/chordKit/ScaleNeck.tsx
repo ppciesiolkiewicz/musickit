@@ -113,12 +113,15 @@ export function PositionBox({ position, cells, rings, active, labelSystem, onNot
   const drawn = (c: ScaleCell) => !states || states(c.pc) !== "hidden";
   const dim = (c: ScaleCell) => (states ? states(c.pc) === "muted" : !!highlight && !highlight.has(c.pc));
   const accent = (c: ScaleCell) => !!states && states(c.pc) === "highlighted";
-  return (
-    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", maxWidth: horizontal ? 480 : 260, height: "auto" }} className="mx-auto" role="img" aria-label={`Position ${position.number}, frets ${position.from} to ${position.to}`}>
+  // lying down, the box is drawn at its own size (dots the same size however many frets it spans), shrinking on a narrow
+  // screen only to 60%; past that it scrolls sideways
+  const svg = (
+    <svg viewBox={`0 0 ${W} ${H}`} style={horizontal ? { width: "100%", maxWidth: W, minWidth: W * 0.6, height: "auto" } : { width: "100%", maxWidth: 260, height: "auto" }} className="mx-auto" role="img" aria-label={`Position ${position.number}, frets ${position.from} to ${position.to}`}>
       {horizontal ? <FretboardBase g={h} /> : <VerticalBoard g={v} numbersRight />}
       {extra.filter(drawn).map((c) => <Dot key={cellKey(c)} c={c} x={x(c)} y={y(c)} r={14} ring label={label(c)} hover={hover(c)} active={lit(c)} dim={dim(c)} accent={accent(c)} onNote={onNote} />)}
       {position.notes.filter(drawn).map((c) => <Dot key={cellKey(c)} c={c} x={x(c)} y={y(c)} r={14} ring={false} label={label(c)} hover={hover(c)} active={lit(c)} dim={dim(c)} accent={accent(c)} finger={fingers?.(c)} onNote={onNote} />)}
       {seam && position.notes.filter((c) => seam.has(cellKey(c))).map((c) => <circle key={`seam-${cellKey(c)}`} cx={x(c)} cy={y(c)} r={19} fill="none" stroke="var(--color-amber-300)" strokeWidth={2} strokeDasharray="4 3" pointerEvents="none" />)}
     </svg>
   );
+  return horizontal ? <div className="overflow-x-auto">{svg}</div> : svg;
 }
