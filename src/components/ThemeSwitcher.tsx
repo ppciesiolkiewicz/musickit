@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Icon from "./Icon";
+import { LEVELS, type Level } from "@/features/guide/levels";
+import { useLevel } from "@/features/guide/useLevel";
 import { DEFAULT_STYLE, SEEN_KEY, STYLES, THEME_KEY, isStyle, readSaved, styleAfterIntroDismiss, styleById, type StyleId } from "@/features/styles/styles";
 import { canFullscreen, enterFullscreen, exitFullscreen, isFullscreen, onFullscreenChange } from "@/lib/fullscreen";
 
@@ -10,6 +12,8 @@ export const THEME_BOOT = `try{var t=localStorage.getItem("${THEME_KEY}");if(${J
 
 /** The style's own headline face, for its name on the button; Default uses the Fraunces wordmark face. */
 const labelFont = (id: StyleId) => (id === "plain" ? "var(--font-display), serif" : `var(--font-${id}), var(--font-display), serif`);
+
+const LEVEL_LABEL: Record<Level, string> = { simple: "Simple", standard: "Standard" };
 
 const store = (key: string, value: string) => {
   try {
@@ -68,6 +72,7 @@ export default function ThemeSwitcher({ className = "", compact = false }: { cla
   const [picked, setPicked] = useState(false);
   const open = intro || picked;
   const box = useRef<HTMLDivElement>(null);
+  const { global: level, setGlobal: setLevel } = useLevel();
 
   const close = (dismissed: boolean) => {
     if (intro) {
@@ -131,6 +136,15 @@ export default function ThemeSwitcher({ className = "", compact = false }: { cla
                 </button>
               );
             })}
+          </div>
+          <div role="group" aria-label="Detail level" className="mt-3 flex items-center justify-center gap-2 border-t border-[#e4e4e7] pt-2.5 text-[13px]">
+            <span className="text-[#71717a]">Detail</span>
+            {LEVELS.map((l) => (
+              <button key={l} type="button" aria-pressed={level === l} onClick={() => setLevel(l)} title={`${LEVEL_LABEL[l]} on every page`}
+                className={`rounded-full border px-3 py-1 ${level === l ? "border-[#18181b] bg-white font-semibold text-[#18181b]" : "border-[#e4e4e7] bg-[#f0f0f2] text-[#3f3f46] hover:text-[#18181b]"}`}>
+                {LEVEL_LABEL[l]}
+              </button>
+            ))}
           </div>
           {intro && (
             <button type="button" onClick={() => close(true)} className="mt-3 text-[13px] text-[#71717a] underline underline-offset-[3px] hover:text-[#18181b]">
