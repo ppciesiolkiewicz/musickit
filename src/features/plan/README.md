@@ -6,9 +6,10 @@ browser.
 
 ## The player's path
 
-1. **Start** opens one step modal (`ui/PlanFlow.tsx`, mode `"start"`): the questionnaire (`ui/Questionnaire.tsx`): a level per
-   area (Guitar, Voice, Theory & ear, each skippable), one 1-5 star concept screen per area that isn't skipped, your voice
-   (with *Find my range*) if Voice isn't skipped, this week's focus (up to 3), minutes a day, notes and styles. Then *Copy your prompt*,
+1. **Start** opens one step modal (`ui/PlanFlow.tsx`, mode `"start"`): the first questionnaire (`intake/`, see its
+   README): what you play (Guitar, Voice, Theory & ear), one screen per chosen area with its six topics, each answered by
+   picking the one line of four that sounds like you (or left unanswered), your voice (with *Find my range*) if Voice is
+   chosen, minutes a day, notes and styles. It only has to get week 1 roughly right. Then *Copy your prompt*,
    then *Paste your AI's reply*. Every screen has the same fixed height (the body scrolls inside), so Back and Next never move.
    **Build my plan** is enabled once the reply parses.
 2. **The week** (`ui/WeekView.tsx`): seven day buttons; any day can be opened, days ahead are dashed and marked "coming up". The day's
@@ -16,6 +17,8 @@ browser.
    ("A minor pentatonic · boxes 1 & 2"), the level (outlined chip), area and kind tags, sections (timed headings show their minutes), why, and five stars, "How did it go?" (1 Can't do it yet … 5 Easy now: the
    scale in `src/features/progress/stars.ts`). Rating an exercise marks it done; tapping the same star again clears both
    (`ratePlan`; ratings in `StoredPlan.rated`, done ticks still in `StoredPlan.done`, which older plans only have).
+   Every rating also goes to the **progress log** (`src/features/progress`, one row per rated exercise, by exercise id),
+   which outlives the plan history.
    **One floating day timer** (`ui/DayTimer.tsx`, bottom right) counts down the whole day's minutes: it starts by itself
    for the day shown on page load, can be paused, resumed and reset, shows the exercise the time falls in (`model/dayClock.ts`)
    and marks that card "Now", and chimes at zero. Its used seconds are saved in the plan (`StoredPlan.elapsed`, per day)
@@ -28,10 +31,15 @@ browser.
    chosen click / drone / drums / bass), or the notes / ear games with their settings hidden. Links sit in two slots:
    "Learn before" at the top (prerequisite lessons) and "Explore more" at the bottom (going deeper), each shown as
    "Learn <the page's name>" and opening in a new tab.
-4. **Plan next week** (mode `"next"`, any time; a banner shows it once the week is over): how did it go, then every
-   questionnaire screen again, prefilled with the stored answers, then copy the prompt (it carries this week's exercises
-   with their stars, done or skipped, the notes, up to three earlier weeks, and the course sections the student rated,
-   from `features/course/ratings.ts`), paste.
+4. **Plan next week** (mode `"next"`, any time; a banner shows it once the week is over): how did it go, minutes, notes
+   and styles, then copy the prompt, paste. The topic screens are not shown again (the week's stars say more), except
+   once for an area with no answered topic (answers kept from before the topics) and when the player taps *Change my
+   answers*. The prompt carries this week's exercises grouped by topic with their stars or "skipped", the notes, the
+   **AI's own progress summary** from the last plan, and the course sections the student rated
+   (`features/course/ratings.ts`). The summary is the AI's memory of the student: it returns one with every plan
+   (`PlanConfig.progress`), the app stores it with the plan and never shows it (only `/dev/data` does), and the next
+   prompt sends it back in place of the earlier weeks. A plan from before summaries falls back to the last three weeks
+   in full.
 5. **Start anew**: the first flow again; its prompt leaves out past weeks. Earlier plans stay listed and can be restarted.
 6. **Reminders**: a daily browser notification at a chosen time while any attunr tab is open.
 
@@ -44,26 +52,27 @@ browser.
 ```
 model/            pure, no React; tested in model/plan.test.ts
   types.ts        PlanAnswers, PlanConfig (what the AI returns), StoredPlan, PlanState (the stored document)
-  questions.ts    the questionnaire's choices and defaults
+  questions.ts    LEVELS (what an exercise is pitched at), labelOf()
   catalogue.ts    the attunr pages a plan may link to; checkLink() keeps only those; linkLabel() names a link's page
   tools.ts        THE one file for what an exercise is made of, like an MCP server: TOOLS (one parse per learning component; description and props come from the components' COMPONENT_DOCS), the section kinds, tags, link resources; the prompt's interface is generated from it; legacySections reads older plans
   migrate.ts      migrateTool(): old tool names (scale, chords, sing, band, comp, notes, ears) to today's components; linkSlots(): an exercise's links in its two slots, old `link` sections and fields as "Explore more"; toolFromLink()
-  concepts.ts     the concepts the questionnaire rates, per area and level
-  answers.ts      migrateAnswers(): stored answers to today's shape
-  focus.ts        focusOptions(), toggleFocus(): the week's focus choices (at most 3)
+  concepts.ts     the fine concepts exercises are tagged with, per area and level; each belongs to one questionnaire topic
+  exerciseIds.ts  randomId(), withExerciseIds(): an id on every exercise of a plan
+  progressLog.ts  entryFor(), backfill(): a plan's ratings as progress-log rows
   blocks.ts       blocksOf(), fitBlocks(), blockAt(): an exercise's timed blocks
   checks.ts       mixesSingAndPlay(), tempoWithoutMetronome(): paste-time exercise checks
   exampleSelection.ts  selectExamples(): all exercise examples + the plan example for the player's level
   config.ts       parsePlanConfig(): the pasted reply to a checked PlanConfig, with warnings
-  prompt.ts       buildPrompt(answers, entries, previous, course), weekReport()
-  schedule.ts     local dates, today's day, progress, when the week is over, ratePlan()
+  prompt.ts       buildPrompt(answers, entries, previous, course), weekByTopic(), weekReport()
+  schedule.ts     local dates, today's day, progress, when the week is over, startPlan(), ratePlan()
   dayClock.ts     dayClock(): a day's countdown, which exercise its elapsed time falls in; elapsedOf()
+intake/           the first questionnaire, its own feature: topics.ts (18 topics, four lines each), answers.ts (PlanAnswers, migrateAnswers(), levelOf()), ui/ (the screens, RangeFinder); see its README
 store/
   PlanStore.ts    the storage interface: load() / save() of one PlanState
   localPlanStore.ts  the localStorage implementation ("musickit.plan"), with sanitising
   usePlan.tsx     the hook the UI uses, and PlanStoreProvider to swap the store
 examples/         the example library: exercises/*.json, plans/*.json (standalone JSON), index.ts loads them; see its README
-ui/               PlanFlow, Questionnaire (the question screens), RangeFinder (finds the voice range with the mic), PromptAndPaste, WeekView, Sections (an exercise's sections in order; under a SectionAside, the /dev/examples review view, each tool is framed with its type and each step is ruled off; every tool has its own tour button, `ToolTour` from `features/guide`, walking `TOOL_TOURS` inside that tool only, and only the first unseen one on the page wobbles), DayTimer (the floating day countdown), ExerciseTool
+ui/               PlanFlow, PromptAndPaste, WeekView, Sections (an exercise's sections in order; under a SectionAside, the /dev/examples review view, each tool is framed with its type and each step is ruled off; every tool has its own tour button, `ToolTour` from `features/guide`, walking `TOOL_TOURS` inside that tool only, and only the first unseen one on the page wobbles), DayTimer (the floating day countdown), ExerciseTool
 PlanApp.tsx       the page body: no plan → Start; a plan → header, week, history; the flow modal
 reminders.ts, PracticeReminder.tsx   notifications (PracticeReminder is mounted in PageShell, on every page)
 ```
@@ -74,6 +83,10 @@ The UI only talks to `PlanStore`. To keep plans on a server, write a `PlanStore`
 wrap the page in `<PlanStoreProvider store={apiStore}>`. `PracticeReminder` reads `localPlanStore` directly; point it at
 the same store. The open flow (step, answers, pasted text) is kept in `sessionStorage` (`musickit.plan.flow`) so a
 reload doesn't lose it; that one stays local.
+
+The progress log has its own store with the same idea (`src/features/progress`: `ProgressStore`, `localProgressStore`
+under `musickit.progress`, `useProgress`, `ProgressStoreProvider`). Exercises get their ids when a plan starts
+(`startPlan`), new ones each time, also for a plan used again from the history; plans stored before ids get them on load.
 
 ## The plan format
 
@@ -104,9 +117,12 @@ sections, a step followed by its tools; plans stored that way are converted on d
 
 ## The prompt
 
-`prompt.ts` writes the student section from the answers (per area: level, then its concepts as `Major scale ★★☆☆☆`, or
-`(unsure)` when unrated; voice type and range in note names; focus; minutes; notes; styles marked "flavour only"), then the
-rules for good exercises (build on high ratings, drill low or unsure, follow `buildsOn`, singing keys inside the range; one
+`prompt.ts` writes the student section from the answers (per area: a rough level worked out from the answers, then each
+topic with the line the student picked, or `(not answered)`; voice type and range in note names; minutes; notes; styles
+marked "flavour only"), on a next week the week by topic (`weekByTopic`) and the AI's last progress summary, then how to
+plan (from the lines picked; how to keep the progress summary: one line per topic, rewritten each week, ratings over
+starting answers, under about 300 words) and the
+rules for good exercises (singing keys inside the range; one
 skill each; `minutes` are the truth and a guitar-play-along or backing-track loops until stopped; exercises over 5 minutes in 2+ timed blocks, each
 block changing something real; sing or play, never both; longer singing made musical; every named note lit, the root never
 muted, one chart per step; intervals inside an octave unless tagged `multi-octave`; a progression practised several ways;
