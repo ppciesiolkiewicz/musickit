@@ -104,7 +104,7 @@ const siteJsonLd = {
       "@id": `${SITE_URL}/#organization`,
       name: "attunr",
       url: SITE_URL,
-      logo: `${SITE_URL}/icon.png`,
+      logo: `${SITE_URL}/logo.png`,
       description: "Music drills, guitar theory, practice tools and interactive fretboard visualizer.",
     },
     {
