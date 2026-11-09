@@ -2,7 +2,7 @@
 
 import { useState, type ReactNode } from "react";
 import type { PropDoc } from "@/features/exercises/docs";
-import { DEFAULT_DRONE, DroneControls, PocketDrone, PocketTools, clampDrone, type DroneParams } from "@/features/instruments";
+import { DEFAULT_DRONE, DroneControls, PocketTools, clampDrone, type DroneParams } from "@/features/instruments";
 import type { Props, Story } from "./stories";
 
 /*
@@ -55,16 +55,6 @@ export const UI_GROUPS: UiGroup[] = [
       // the side column's width (22rem, less its padding), so the story shows what the page shows
       return stacked ? <div className="max-w-80">{tools}</div> : tools;
     },
-  },
-  {
-    id: "pocket-tools-drone",
-    title: "PocketDrone",
-    doc: {
-      description: "The drone's line of the pocket tools on its own: play, mute, octave, volume, and the full drone controls behind the sliders button.",
-      props: [KEY_PC],
-    },
-    stories: [hand("In E", { keyPc: 4 }), hand("In A", { keyPc: 9 })],
-    render: (props) => <PocketDrone keyPc={keyOf(props)} />,
   },
   {
     id: "drone-controls",
