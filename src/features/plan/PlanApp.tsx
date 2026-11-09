@@ -5,7 +5,8 @@ import Icon from "@/components/Icon";
 import { Button, Checkbox, Section } from "@/components/ui";
 import { catalogue } from "./model/catalogue";
 import { DEFAULT_ANSWERS } from "./model/questions";
-import { dayIndex, doneKey, localDate, weekOver } from "./model/schedule";
+import { dayIndex, localDate, ratePlan, weekOver } from "./model/schedule";
+import type { Stars } from "@/features/progress/stars";
 import { PLAN_DAYS, type PlanAnswers, type PlanConfig, type PlanState, type StoredPlan } from "./model/types";
 import { askNotifications, notificationsSupported } from "./reminders";
 import { usePlan } from "./store/usePlan";
@@ -52,13 +53,7 @@ export default function PlanApp() {
     setDay(0);
   };
   const setPlan = (change: (p: StoredPlan) => StoredPlan) => update((s) => (s.current ? { ...s, current: change(s.current) } : s));
-  const toggle = (d: number, e: number) =>
-    setPlan((p) => {
-      const done = { ...p.done };
-      if (done[doneKey(d, e)]) delete done[doneKey(d, e)];
-      else done[doneKey(d, e)] = true;
-      return { ...p, done };
-    });
+  const rate = (d: number, e: number, stars: Stars | null) => setPlan((p) => ratePlan(p, d, e, stars, new Date().toISOString()));
   // the floating day timer's used seconds; ignored when the plan it counted for is no longer the current one
   const saveElapsed = (planId: string, d: number, seconds: number) =>
     update((s) => (s.current?.id === planId && s.current.elapsed?.[String(d)] !== seconds ? { ...s, current: { ...s.current, elapsed: { ...s.current.elapsed, [String(d)]: seconds } } } : s));
@@ -118,7 +113,7 @@ export default function PlanApp() {
           </section>
         )}
 
-        <WeekView plan={plan} today={over ? PLAN_DAYS - 1 : todayIdx} day={day ?? todayIdx} onDay={setDay} onToggle={toggle} onElapsed={saveElapsed} />
+        <WeekView plan={plan} today={over ? PLAN_DAYS - 1 : todayIdx} day={day ?? todayIdx} onDay={setDay} onRate={rate} onElapsed={saveElapsed} />
 
         {state.history.length > 0 && <History plans={state.history} onUse={(c) => onPlan(c)} />}
         {modal}

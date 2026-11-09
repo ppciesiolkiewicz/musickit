@@ -13,7 +13,9 @@ browser.
    **Build my plan** is enabled once the reply parses.
 2. **The week** (`ui/WeekView.tsx`): seven day buttons; any day can be opened, days ahead are dashed and marked "coming up". The day's
    exercises are colour-coded cards (a hue per position, tags keep their own colour): title in the display face, focus
-   ("A minor pentatonic · boxes 1 & 2"), the level (outlined chip), area and kind tags, sections (timed headings show their minutes), why, a Mark done button.
+   ("A minor pentatonic · boxes 1 & 2"), the level (outlined chip), area and kind tags, sections (timed headings show their minutes), why, and five stars, "How did it go?" (1 Can't do it yet … 5 Easy now: the
+   scale in `src/features/progress/stars.ts`). Rating an exercise marks it done; tapping the same star again clears both
+   (`ratePlan`; ratings in `StoredPlan.rated`, done ticks still in `StoredPlan.done`, which older plans only have).
    **One floating day timer** (`ui/DayTimer.tsx`, bottom right) counts down the whole day's minutes: it starts by itself
    for the day shown on page load, can be paused, resumed and reset, shows the exercise the time falls in (`model/dayClock.ts`)
    and marks that card "Now", and chimes at zero. Its used seconds are saved in the plan (`StoredPlan.elapsed`, per day)
@@ -27,8 +29,9 @@ browser.
    "Learn before" at the top (prerequisite lessons) and "Explore more" at the bottom (going deeper), each shown as
    "Learn <the page's name>" and opening in a new tab.
 4. **Plan next week** (mode `"next"`, any time; a banner shows it once the week is over): how did it go, then every
-   questionnaire screen again, prefilled with the stored answers, then copy the prompt (it carries this week's exercises,
-   done or skipped, the notes and up to three earlier weeks), paste.
+   questionnaire screen again, prefilled with the stored answers, then copy the prompt (it carries this week's exercises
+   with their stars, done or skipped, the notes, up to three earlier weeks, and the course sections the student rated,
+   from `features/course/ratings.ts`), paste.
 5. **Start anew**: the first flow again; its prompt leaves out past weeks. Earlier plans stay listed and can be restarted.
 6. **Reminders**: a daily browser notification at a chosen time while any attunr tab is open.
 
@@ -52,8 +55,8 @@ model/            pure, no React; tested in model/plan.test.ts
   checks.ts       mixesSingAndPlay(), tempoWithoutMetronome(): paste-time exercise checks
   exampleSelection.ts  selectExamples(): all exercise examples + the plan example for the player's level
   config.ts       parsePlanConfig(): the pasted reply to a checked PlanConfig, with warnings
-  prompt.ts       buildPrompt(), weekReport()
-  schedule.ts     local dates, today's day, progress, when the week is over
+  prompt.ts       buildPrompt(answers, entries, previous, course), weekReport()
+  schedule.ts     local dates, today's day, progress, when the week is over, ratePlan()
   dayClock.ts     dayClock(): a day's countdown, which exercise its elapsed time falls in; elapsedOf()
 store/
   PlanStore.ts    the storage interface: load() / save() of one PlanState

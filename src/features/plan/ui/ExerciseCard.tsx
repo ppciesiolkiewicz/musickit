@@ -1,7 +1,7 @@
 "use client";
 
 import Icon from "@/components/Icon";
-import { HUE_TONES, hueAt, type Hue } from "@/components/ui";
+import { HUE_TONES, StarRating, hueAt, type Hue } from "@/components/ui";
 import { DISPLAY } from "@/components/landing/Display";
 import Sections from "./Sections";
 import { ExerciseSettings } from "@/components/practice/exerciseSettings";
@@ -11,6 +11,7 @@ import { sectionsOf } from "../model/tools";
 import { AREAS } from "../model/concepts";
 import { LEVELS, labelOf } from "../model/questions";
 import type { PlanExercise } from "../model/types";
+import { STARS, STAR_LABELS, isStars, type Stars } from "@/features/progress/stars";
 
 /** Each tag keeps its colour wherever it shows. */
 const TAG_HUES: Record<string, Hue> = { ear: "teal", sing: "pink", rhythm: "violet", technique: "amber", theory: "sky", improv: "emerald", song: "rose", "multi-octave": "red" };
@@ -43,11 +44,14 @@ function LinkSlot({ title, hrefs }: { title: string; hrefs: string[] }) {
 /**
  * One exercise as the player sees it: a card coloured by its place in the day (`index`), the title in the display face,
  * focus, tags, "Learn before" links, its sections (text, steps and tools, set up and ready to play), why, "Explore more"
- * links, and Mark done when `onToggle` is given.
+ * links, and the stars that rate it (and mark it done) when `onRate` is given.
  * `now` marks the exercise the day timer is in.
  */
-export default function ExerciseCard({ exercise: e, index, done = false, now = false, onToggle, address }: {
-  exercise: PlanExercise; index: number; done?: boolean; now?: boolean; onToggle?: () => void; /** which exercise, for a `SectionAside` */ address?: string;
+export default function ExerciseCard({ exercise: e, index, done = false, now = false, rating = null, onRate, address }: {
+  exercise: PlanExercise; index: number; done?: boolean; now?: boolean;
+  /** how the player rated it; null when not rated */ rating?: Stars | null;
+  /** rate it (or clear the rating with null); without it the card has no stars */ onRate?: (stars: Stars | null) => void;
+  /** which exercise, for a `SectionAside` */ address?: string;
 }) {
   const hue = hueAt(index);
   const links = linkSlots(e);
@@ -76,16 +80,11 @@ export default function ExerciseCard({ exercise: e, index, done = false, now = f
       <ExerciseSettings><Sections sections={sectionsOf(e)} address={address} /></ExerciseSettings>
       {e.why && <p className="border-l-2 border-slate-700 pl-3 text-xs italic leading-relaxed text-slate-400">{e.why}</p>}
       <LinkSlot title="Explore more" hrefs={links.exploreMore} />
-      {onToggle && (
-        <button
-          type="button"
-          onClick={onToggle}
-          aria-pressed={done}
-          className={`inline-flex w-fit cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium transition active:scale-[0.97] ${done ? "border-emerald-400/70 bg-emerald-500/20 text-emerald-100 hover:bg-emerald-500/30" : "border-slate-600 bg-slate-800 text-slate-100 hover:border-emerald-400/60 hover:bg-emerald-500/10"}`}
-        >
-          <Icon name="check" size={14} className={done ? "text-emerald-300" : "text-slate-400"} />
-          {done ? "Done" : "Mark done"}
-        </button>
+      {onRate && (
+        <div className="flex flex-col gap-0.5 border-t border-slate-800 pt-3">
+          <p className="text-sm text-slate-400">How did it go?</p>
+          <StarRating value={rating} labels={STARS.map((s) => STAR_LABELS[s])} label="How did it go?" onChange={(v) => onRate(isStars(v) ? v : null)} />
+        </div>
       )}
     </section>
   );

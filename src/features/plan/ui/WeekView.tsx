@@ -8,14 +8,15 @@ import ExerciseCard from "./ExerciseCard";
 import { elapsedOf } from "../model/dayClock";
 import { dayProgress, doneKey } from "../model/schedule";
 import { PLAN_DAYS, type StoredPlan } from "../model/types";
+import type { Stars } from "@/features/progress/stars";
 
 /**
  * The week: a strip of seven days (every day can be opened; days ahead are dashed and marked "coming up") and the chosen day's
  * exercises, each an `ExerciseCard`. One floating timer counts down the whole day (`DayTimer`): it starts by itself for the day shown on page
  * load, its used time is saved with the plan, and the exercise its time falls in is marked "Now".
  */
-export default function WeekView({ plan, today, day, onDay, onToggle, onElapsed }: {
-  plan: StoredPlan; today: number; day: number; onDay: (d: number) => void; onToggle: (day: number, ex: number) => void;
+export default function WeekView({ plan, today, day, onDay, onRate, onElapsed }: {
+  plan: StoredPlan; today: number; day: number; onDay: (d: number) => void; onRate: (day: number, ex: number, stars: Stars | null) => void;
   /** saves the day timer's used seconds; without it (a preview) there is no timer */
   onElapsed?: (planId: string, day: number, seconds: number) => void;
 }) {
@@ -67,7 +68,7 @@ export default function WeekView({ plan, today, day, onDay, onToggle, onElapsed 
           const isNow = now === i && !done;
           return (
             <li key={`${day}:${i}`}>
-              <ExerciseCard exercise={e} index={i} done={done} now={isNow} onToggle={() => onToggle(day, i)} address={`d${day}.e${i}`} />
+              <ExerciseCard exercise={e} index={i} done={done} now={isNow} rating={plan.rated?.[doneKey(day, i)]?.stars ?? null} onRate={(s) => onRate(day, i, s)} address={`d${day}.e${i}`} />
             </li>
           );
         })}
