@@ -9,8 +9,10 @@
  *
  * Example: `{ "type": "backing-track", "progression": "blues", "key": "a", "style": "shuffle", "bpm": 90 }` plays a
  * 12-bar blues in A as a shuffle: A7 D7 A7 A7 D7 D7 A7 A7 E7 D7 A7 E7.
- * Example: `{ "type": "backing-track", "key": "d", "numerals": ["I", "IV", "V", "I"], "style": "ballad", "mute": ["bass"], "bpm": 70 }`
- * plays D G A D on piano and soft drums under a singer.
+ * Example: `{ "type": "backing-track", "key": "d", "numerals": ["I", "IV", "V", "I"], "style": "ballad", "parts": { "drums": "on", "bass": "off", "keys": "always" }, "bpm": 70 }`
+ * plays D G A D on piano and soft drums under a singer; the piano can't be muted, the bass can be added.
+ * Example: `{ "type": "backing-track", "progression": "pop", "key": "g", "parts": { "drums": "always", "bass": "on" } }` leaves
+ * the keys out, so the student plays the chords themselves over drums and bass.
  * @component backing-track basic
  */
 export interface BackingTrackProps {
@@ -26,6 +28,10 @@ export interface BackingTrackProps {
   style?: string;
   /** tempo, 40-220 (default: the style's usual tempo) */
   bpm?: number;
-  /** the parts that start muted, the student can unmute them: "drums", "bass", "keys". A singer often wants ["bass"] */
-  mute?: ("drums" | "bass" | "keys")[];
+  /**
+   * the parts offered, "drums", "bass", "keys", each with how it starts: "on" (playing, the student can mute it), "off" (muted,
+   * the student can unmute it), "always" (playing, no mute). A part left out is not played and has no row. Absent: all three
+   * "on". A singer often wants the bass "off"; a student comping the chords leaves "keys" out
+   */
+  parts?: { drums?: "on" | "off" | "always"; bass?: "on" | "off" | "always"; keys?: "on" | "off" | "always" };
 }

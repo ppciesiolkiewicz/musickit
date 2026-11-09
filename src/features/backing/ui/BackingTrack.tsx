@@ -18,6 +18,9 @@ const PROGRESSION_GROUPS: SelectGroup<string>[] = MODES.map((m) => ({ label: m.l
 const OWN = "own";
 const TONIC_OPTIONS = TONICS.map((t) => ({ value: t, label: t.replace("b", "♭").replace("#", "♯") }));
 const STYLE_OPTIONS = STYLES.map((s) => ({ value: s.id, label: s.name }));
+/** the mixer's columns from sm up, by how many rows it shows */
+const MIXER_COLS: Record<number, string> = { 1: "sm:grid-cols-1", 2: "sm:grid-cols-2", 3: "sm:grid-cols-3" };
+
 const PART_INFO: Record<Part, { label: string; icon: IconName; hue: Hue }> = {
   drums: { label: "Drums", icon: "drum", hue: "rose" },
   bass: { label: "Bass", icon: "waves", hue: "violet" },
@@ -94,8 +97,10 @@ export default function BackingTrack() {
  * It holds the app's audio focus while it plays (another source starting, or the player scrolling away, stops it), in
  * `group` when an exercise step started it. `spaceKey`: Space plays and stops, for a page with one player. `scale`: the
  * key and its scale's notes under the chords (the page shows them; a plan exercise says what to play in its own text).
+ * `parts`: the mixer rows shown, each "on" or "off" (the student mutes and unmutes it) or "always" (no mute button); a part
+ * left out has no row and the host keeps it muted. Absent: every part, all switchable.
  */
-export function BackingPlayer({ band, snap, group, spaceKey = false, scale: showScale = true }: { band: Band; snap: BandSnapshot; group?: string; spaceKey?: boolean; scale?: boolean }) {
+export function BackingPlayer({ band, snap, group, spaceKey = false, scale: showScale = true, parts }: { band: Band; snap: BandSnapshot; group?: string; spaceKey?: boolean; scale?: boolean; parts?: Partial<Record<Part, "on" | "off" | "always">> }) {
   const { settings, playing, arrangement } = snap;
   const focus = useAudioFocus(playing, () => band.stop(), group);
   const style = findStyle(settings.style);
@@ -109,6 +114,7 @@ export function BackingPlayer({ band, snap, group, spaceKey = false, scale: show
   );
   const scale = useMemo(() => Scale.get(`${settings.tonic} ${mode.scale}`).notes.map(pretty), [settings.tonic, mode.scale]);
   const bpb = arrangement.beatsPerBar;
+  const shown = (Object.keys(PART_INFO) as Part[]).filter((p) => !parts || parts[p]);
 
   return (
     <div ref={focus} className="flex min-w-0 flex-col gap-4">
@@ -180,21 +186,28 @@ export function BackingPlayer({ band, snap, group, spaceKey = false, scale: show
         </div>}
       </section>
 
-      <section data-tour="backing-band" aria-label="Band" className="grid gap-3 sm:grid-cols-3">
-        {(Object.keys(PART_INFO) as Part[]).map((p) => {
+      {shown.length > 0 && <section data-tour="backing-band" aria-label="Band" className={`grid gap-3 ${MIXER_COLS[shown.length]}`}>
+        {shown.map((p) => {
           const { volume, muted } = settings.levels[p];
           const { label, icon, hue } = PART_INFO[p];
+          const fixed = parts?.[p] === "always";
           return (
             <div key={p} className={`flex min-w-0 items-center gap-3 rounded-2xl border bg-slate-900/60 p-3 transition ${muted ? "border-slate-800" : BAND_BORDER[hue]}`}>
+              {fixed ? (
+                <span className="grid h-7 w-7 shrink-0 place-items-center" title={`The ${p} always plays in this exercise`}>
+                  <Icon name={icon} size={15} className={HUE_TONES[hue].ink} />
+                </span>
+              ) : (
               <Button size="icon-md" pressed={muted} aria-label={muted ? `Unmute the ${p}` : `Mute the ${p}`} title={muted ? "Unmute" : "Mute"} onClick={() => band.set({ levels: { [p]: { muted: !muted } } })}>
                 <Icon name={muted ? "volume-x" : icon} size={15} className={muted ? "" : HUE_TONES[hue].ink} />
               </Button>
+              )}
               <span className={`w-12 text-sm font-medium ${muted ? "text-slate-500 line-through decoration-slate-600" : "text-slate-200"}`}>{label}</span>
               <Slider value={volume} hue={hue} min={0} max={1} step={0.01} onChange={(v) => band.set({ levels: { [p]: { volume: v } } })} title={`${label} volume`} aria-label={`${label} volume`} className={`min-w-0 flex-1 transition-opacity ${muted ? "opacity-40" : ""}`} />
             </div>
           );
         })}
-      </section>
+      </section>}
     </div>
   );
 }

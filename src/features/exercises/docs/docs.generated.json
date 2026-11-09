@@ -143,7 +143,7 @@
   {
     "name": "backing-track",
     "kind": "basic",
-    "description": "A backing track to play or sing over: drums, bass and keys playing a chord progression in a style, looping until\nstopped. It shows the chords as boxes (the one playing lit) and a mixer, so the student can mute a part\nto play it themselves. The student can change the progression, key, style and tempo. Use it to improvise or comp over a\nwhole band (a 12-bar blues shuffle, a minor vamp, a jazz ii-V-I), and under a singer singing over chords (guide tones,\nchord notes, a line of their own, next to a staff with the mic). Give a curated `progression`, or the lesson's own\nchords as `chords` or `numerals`, one per bar. For hearing a progression on the guitar's own shapes use\nguitar-play-along; for a beat or a drone without chords, backing-band.\n\nExample: `{ \"type\": \"backing-track\", \"progression\": \"blues\", \"key\": \"a\", \"style\": \"shuffle\", \"bpm\": 90 }` plays a\n12-bar blues in A as a shuffle: A7 D7 A7 A7 D7 D7 A7 A7 E7 D7 A7 E7.\nExample: `{ \"type\": \"backing-track\", \"key\": \"d\", \"numerals\": [\"I\", \"IV\", \"V\", \"I\"], \"style\": \"ballad\", \"mute\": [\"bass\"], \"bpm\": 70 }`\nplays D G A D on piano and soft drums under a singer.",
+    "description": "A backing track to play or sing over: drums, bass and keys playing a chord progression in a style, looping until\nstopped. It shows the chords as boxes (the one playing lit) and a mixer, so the student can mute a part\nto play it themselves. The student can change the progression, key, style and tempo. Use it to improvise or comp over a\nwhole band (a 12-bar blues shuffle, a minor vamp, a jazz ii-V-I), and under a singer singing over chords (guide tones,\nchord notes, a line of their own, next to a staff with the mic). Give a curated `progression`, or the lesson's own\nchords as `chords` or `numerals`, one per bar. For hearing a progression on the guitar's own shapes use\nguitar-play-along; for a beat or a drone without chords, backing-band.\n\nExample: `{ \"type\": \"backing-track\", \"progression\": \"blues\", \"key\": \"a\", \"style\": \"shuffle\", \"bpm\": 90 }` plays a\n12-bar blues in A as a shuffle: A7 D7 A7 A7 D7 D7 A7 A7 E7 D7 A7 E7.\nExample: `{ \"type\": \"backing-track\", \"key\": \"d\", \"numerals\": [\"I\", \"IV\", \"V\", \"I\"], \"style\": \"ballad\", \"parts\": { \"drums\": \"on\", \"bass\": \"off\", \"keys\": \"always\" }, \"bpm\": 70 }`\nplays D G A D on piano and soft drums under a singer; the piano can't be muted, the bass can be added.\nExample: `{ \"type\": \"backing-track\", \"progression\": \"pop\", \"key\": \"g\", \"parts\": { \"drums\": \"always\", \"bass\": \"on\" } }` leaves\nthe keys out, so the student plays the chords themselves over drums and bass.",
     "props": [
       {
         "name": "progression",
@@ -182,10 +182,10 @@
         "description": "tempo, 40-220 (default: the style's usual tempo)"
       },
       {
-        "name": "mute",
-        "type": "(\"drums\" | \"bass\" | \"keys\")[]",
+        "name": "parts",
+        "type": "{ drums?: \"on\" | \"off\" | \"always\"; bass?: \"on\" | \"off\" | \"always\"; keys?: \"on\" | \"off\" | \"always\" }",
         "required": false,
-        "description": "the parts that start muted, the student can unmute them: \"drums\", \"bass\", \"keys\". A singer often wants [\"bass\"]"
+        "description": "the parts offered, \"drums\", \"bass\", \"keys\", each with how it starts: \"on\" (playing, the student can mute it), \"off\" (muted,\nthe student can unmute it), \"always\" (playing, no mute). A part left out is not played and has no row. Absent: all three\n\"on\". A singer often wants the bass \"off\"; a student comping the chords leaves \"keys\" out"
       }
     ]
   },

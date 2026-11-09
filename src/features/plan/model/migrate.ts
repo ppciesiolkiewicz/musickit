@@ -18,7 +18,7 @@ const RENAMED: Record<string, string> = {
  * A tool as an older plan wrote it, in today's names and props; anything else is returned unchanged. `sing` becomes a
  * `staff` with the mic (its stored `notes`/`highlight` are already semitones and are read as such), `comp` a
  * `guitar-play-along` progression on the neck, `click-drone` a `backing-band` with its click and drone, `chord-backing` (chords for a singer) a `backing-track` on its chords with a
- * gentle style and the bass muted. Pure; `parseTool` calls it first so old and new plans parse alike.
+ * gentle style and the bass off. Pure; `parseTool` calls it first so old and new plans parse alike.
  */
 export function migrateTool(raw: Record<string, unknown>): Record<string, unknown> {
   const type = raw.type;
@@ -30,7 +30,7 @@ export function migrateTool(raw: Record<string, unknown>): Record<string, unknow
     return { parts: { ...(click !== false ? { click: "on" } : {}), ...(drone !== false ? { drone: "on" } : {}) }, ...rest, type: "backing-band" };
   }
   if (type === "chord-backing") {
-    const out: Record<string, unknown> = { style: "ballad", mute: ["bass"], ...raw, type: "backing-track" };
+    const out: Record<string, unknown> = { style: "ballad", parts: { drums: "on", bass: "off", keys: "on" }, ...raw, type: "backing-track" };
     delete out.backing; // its piano patterns: the style plays the keys now
     return out;
   }

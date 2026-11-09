@@ -44,6 +44,7 @@ export const BAND_PARTS: BandPart[] = ["click", "drone", "drums", "bass"];
 export type PartMode = "on" | "off" | "always";
 export const PART_MODES: PartMode[] = ["on", "off", "always"];
 export type BandParts = Partial<Record<BandPart, PartMode>>;
+export type BackingParts = Partial<Record<BackingPart, PartMode>>;
 
 type View = "tab" | "notes" | "neck";
 type Under = "chords" | "drone" | "none";
@@ -69,7 +70,7 @@ export type PlanTool =
   | { type: "interval-singer"; key: number; /** more keys to pick Do from, the first `key`; absent: only `key` */ keys?: number[]; voice?: Voice; /** semitones from Do, 1-12 */ intervals?: number[]; dir?: IntervalDir; dot?: false }
   | { type: "guitar-play-along"; shape: PlayAlongShape; bpm: number; repeats?: number; view?: View; enable?: Degree[]; highlight?: Degree[]; others?: "muted" | "hidden"; under?: Under }
   | { type: "strum-along"; chords: string[]; bpm: number; per?: "bar" | "beat"; beats?: number; pattern?: string }
-  | { type: "backing-track"; /** a backing tracks progression id; absent: `numerals` */ progression?: string; /** the lesson's own chords as numerals in `key` (pasted chords are read into numerals at parse) */ numerals?: string[]; key: number; /** a backing tracks style id; none: the progression's own, ballad for numerals */ style?: string; /** none: the style's tempo */ bpm?: number; /** parts that start muted */ mute?: BackingPart[] }
+  | { type: "backing-track"; /** a backing tracks progression id; absent: `numerals` */ progression?: string; /** the lesson's own chords as numerals in `key` (pasted chords are read into numerals at parse) */ numerals?: string[]; key: number; /** a backing tracks style id; none: the progression's own, ballad for numerals */ style?: string; /** none: the style's tempo */ bpm?: number; /** the parts offered and how; absent: drums, bass and keys all "on" */ parts?: BackingParts }
   /* stubs: a placeholder view until the real components exist; strings are numbered 1-6, 6 = low E */
   | { type: "finger-pattern"; fingers: string; fret: number; strings?: number[]; show?: "finger" | "pick"; bpm: number }
   | { type: "picking-drill"; strokes: string; notesPerString: number; strings?: number[]; skip?: boolean; bpm: number }
@@ -144,6 +145,20 @@ export function bandParts(v: unknown): BandParts {
       if (PART_MODES.includes(m as PartMode)) out[p] = m as PartMode;
     }
   return Object.keys(out).length ? out : { click: "on" };
+/**
+ * A backing track's parts: a map of part to mode, or, as plans wrote it before modes, `mute` (those "off", the rest "on").
+ * Null when every part plays "on", the default, so a plain track stores no `parts`.
+ */
+export function backingParts(v: unknown, mute?: unknown): BackingParts | null {
+  const out: BackingParts = {};
+  if (v && typeof v === "object" && !Array.isArray(v))
+    for (const p of PARTS) {
+      const m = (v as Record<string, unknown>)[p];
+      if (PART_MODES.includes(m as PartMode)) out[p] = m as PartMode;
+    }
+  if (!Object.keys(out).length) for (const p of PARTS) out[p] = list(mute).includes(p) ? "off" : "on";
+  return PARTS.every((p) => out[p] === "on") ? null : out;
+}
 }
 
 const scaleNeck = (t: Record<string, unknown>): PlanTool | null => {
@@ -325,10 +340,10 @@ export const TOOLS: { [N in ToolName]: ToolSpec } = {
       const style = typeof t.style === "string" && STYLES.some((x) => x.id === t.style) ? t.style : null;
       const n = Number(t.bpm);
       const bpm = t.bpm !== undefined && Number.isFinite(n) ? Math.min(BACKING_MAX_BPM, Math.max(BACKING_MIN_BPM, Math.round(n))) : null;
-      const mute = PARTS.filter((p) => list(t.mute).includes(p));
+      const parts = backingParts(t.parts, t.mute);
       return {
         type: "backing-track", ...(curated ? { progression } : { numerals: numerals! }), key,
-        ...(style ? { style } : {}), ...(bpm !== null ? { bpm } : {}), ...(mute.length ? { mute } : {}),
+        ...(style ? { style } : {}), ...(bpm !== null ? { bpm } : {}), ...(parts ? { parts } : {}),
       };
     },
   },

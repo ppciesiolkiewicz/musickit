@@ -306,9 +306,7 @@
                     "V"
                   ],
                   "style": "ballad",
-                  "mute": [
-                    "bass"
-                  ],
+                  "parts": { "drums": "on", "bass": "off", "keys": "on" },
                   "bpm": 70
                 }
               }
@@ -448,9 +446,7 @@
                     "V"
                   ],
                   "style": "ballad",
-                  "mute": [
-                    "bass"
-                  ],
+                  "parts": { "drums": "on", "bass": "off", "keys": "on" },
                   "bpm": 70
                 }
               }
@@ -591,9 +587,7 @@
                     "I"
                   ],
                   "style": "ballad",
-                  "mute": [
-                    "bass"
-                  ],
+                  "parts": { "drums": "on", "bass": "off", "keys": "on" },
                   "bpm": 70
                 }
               }
@@ -984,9 +978,7 @@
                     "I"
                   ],
                   "style": "ballad",
-                  "mute": [
-                    "bass"
-                  ],
+                  "parts": { "drums": "on", "bass": "off", "keys": "on" },
                   "bpm": 70
                 }
               }
