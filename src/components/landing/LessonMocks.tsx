@@ -43,11 +43,11 @@ function boxCells(start: number): Cell[] {
 const CELLS: Record<Box, Cell[]> = { 1: boxCells(BOX_FRET[1]), 2: boxCells(BOX_FRET[2]) };
 
 /** The loop the mini band plays (the Aeolian vamp in A) and each chord's pitch classes, so the neck can light its notes. */
-const AM = { name: "Am", num: "i", quality: "minor", pcs: [9, 0, 4], tones: [["A", "R"], ["C", "♭3"], ["E", "5"]] };
+const AM = { name: "Am", num: "i", quality: "minor", pcs: [9, 0, 4] };
 const LOOP = [
   AM,
-  { name: "F", num: "♭VI", quality: "major", pcs: [5, 9, 0], tones: [["F", "R"], ["A", "3"], ["C", "5"]] },
-  { name: "G", num: "♭VII", quality: "major", pcs: [7, 11, 2], tones: [["G", "R"], ["B", "3"], ["D", "5"]] },
+  { name: "F", num: "♭VI", quality: "major", pcs: [5, 9, 0] },
+  { name: "G", num: "♭VII", quality: "major", pcs: [7, 11, 2] },
   AM,
 ];
 
@@ -137,22 +137,6 @@ function MiniBacking({ pos, onPos }: { pos: Pos | null; onPos: (p: Pos | null) =
   );
 }
 
-/** The notes of the chord now playing and each one's interval from the chord's root (before play: the first chord). */
-function ChordTones({ at }: { at: number | null }) {
-  const c = LOOP[at ?? 0];
-  return (
-    <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-400" aria-live="polite">
-      <span className="text-slate-500">{c.name} is</span>
-      {c.tones.map(([n, d]) => (
-        <span key={n + d} className="flex items-center gap-1">
-          <span className="font-semibold text-slate-100">{n}</span>
-          <span className="rounded-full border border-amber-300/50 px-1.5 text-[10px] text-amber-200">{d}</span>
-        </span>
-      ))}
-    </p>
-  );
-}
-
 /** What a student gets after a lesson: the shape, the plan, what comes next. Tap a plan line and the picture follows; "improvise" brings up a backing track. */
 export function LessonNoteMock({ compact = false }: { compact?: boolean }) {
   type Step = "b1" | "b2" | "imp";
@@ -191,7 +175,7 @@ export function LessonNoteMock({ compact = false }: { compact?: boolean }) {
           </li>
         ))}
       </ul>
-      {step === "imp" && <div className="mt-2"><MiniBacking pos={pos} onPos={setPos} /><ChordTones at={chord} /></div>}
+      {step === "imp" && <div className="mt-2"><MiniBacking pos={pos} onPos={setPos} /></div>}
       {!compact && <p className="mt-3 border-t border-slate-800 pt-3 text-xs text-slate-500">Next time: add the ♭5 and it becomes the blues scale.</p>}
     </div>
   );
