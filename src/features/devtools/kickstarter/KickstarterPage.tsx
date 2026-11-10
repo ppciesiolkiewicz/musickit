@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { registerAgentTools } from "@/lib/webmcp";
-import { DEFAULT_INPUTS, FACTS, KICKSTARTER_KEY, VOICE, isReply, outreachBrief, readInputs, type DemoLink, type OutreachInputs } from "../model/kickstarter";
+import { DEFAULT_INPUTS, FACTS, KICKSTARTER_KEY, VOICE, isReply, outreachBrief, readInputs, SAMPLE_EMAILS, type DemoLink, type OutreachInputs } from "../model/kickstarter";
 import { useMounted } from "../prompt/storage";
 
 /** What to say to the AI extension. */
@@ -147,6 +147,18 @@ export default function KickstarterPage({ demos, allDemosUrl }: { demos: DemoLin
           <ul className="flex list-disc flex-col gap-1.5 pl-5 text-sm text-slate-200">{FACTS.map((f) => <li key={f}>{f}</li>)}</ul>
         </Block>
       </div>
+      <Block title="Sample emails" about="Emails that went out and read the way these should. The brief gives them to the AI for tone and shape.">
+        <div className="flex flex-col gap-3">
+          {SAMPLE_EMAILS.map((e) => (
+            <details key={e.label} className="rounded-lg border border-slate-800 bg-slate-950/40 p-3">
+              <summary className="cursor-pointer text-sm font-semibold text-slate-100">{e.label}</summary>
+              <p className="mt-1 text-xs text-slate-400">{e.about}</p>
+              <p className="mt-2 whitespace-pre-wrap wrap-break-word font-mono text-xs text-slate-300">{e.text}</p>
+              <div className="mt-2"><CopyButton text={e.text} label="Copy email" /></div>
+            </details>
+          ))}
+        </div>
+      </Block>
       <Block title="Demos" about="The demos listed on /demo, with the public links an email carries.">
         <ul className="grid gap-2 sm:grid-cols-2">
           {demos.map((d) => (

@@ -74,7 +74,7 @@ the project needs, a say in what gets built, the video call with the founder (`C
 has a box for the pasted email thread and an optional one-line note (both kept in `localStorage`
 `musickit.dev.kickstarter`), the line to paste into an AI extension, a *Reply* box, and the brief as plain text on the page
 (`outreachBrief`: the thread, the facts, the voice and every demo `/demo` lists, with public `SITE_URL` links). The details
-about the school come from the thread, not a form, and so does the sender: a reply keeps the name and persona attunr's earlier emails used (they may go out from an outreach tool such as Explee), and signs as the founder only when there are none. With no thread the brief asks for a first email with a subject line.
+about the school come from the thread, not a form, and so does the sender: a reply keeps the name and persona attunr's earlier emails used (they may go out from an outreach tool such as Explee), and signs as the founder only when there are none. With no thread the brief asks for a first email with a subject line. `SAMPLE_EMAILS` are emails that went out (the first: Piotr taking over the Evia Music thread from Alex); the brief carries them for tone and shape only, and the page shows them under *Sample emails*.
 Claude in Chrome reads the brief and types the email into the Reply box; a browser with WebMCP calls
 `get_founding_partner_email_brief` and `submit_founding_partner_email` instead. Nothing is sent from the page: *Copy reply*.
 

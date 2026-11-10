@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { DEFAULT_INPUTS, isReply, outreachBrief, readInputs, type DemoLink } from "./kickstarter";
+import { DEFAULT_INPUTS, isReply, outreachBrief, readInputs, SAMPLE_EMAILS, type DemoLink } from "./kickstarter";
 
 const demos: DemoLink[] = [{ label: "Guitar for a beginner", about: "a week of daily exercises", url: "https://x.test/demo/guitar-beginner" }];
 const brief = (over = {}) => outreachBrief({ ...DEFAULT_INPUTS, ...over }, demos, "https://x.test/demo");
@@ -39,6 +39,12 @@ test("a thread: a reply in their language, the thread fenced, the note when give
   assert.ok(b.includes("## What this email should do\noffer a call"));
   assert.ok(b.includes("[ANSWER:"));
   assert.ok(!brief({ thread: "x" }).includes("What this email should do"));
+});
+
+test("the brief carries every sample email, fenced, as a model not a source", () => {
+  const b = brief();
+  for (const e of SAMPLE_EMAILS) assert.ok(b.includes(`<sample label="${e.label}">\n${e.about}\n\n${e.text}\n</sample>`), e.label);
+  assert.ok(b.includes("not their words"));
 });
 
 test("readInputs keeps good fields and drops the rest", () => {
