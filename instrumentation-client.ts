@@ -8,6 +8,8 @@ if (posthogKey && posthogHost) {
     api_host: posthogHost,
     defaults: "2026-01-30",
     capture_exceptions: true,
+    // no surveys are used; skipping them saves loading surveys.js (~36 KiB) on every page
+    disable_surveys: true,
     debug: process.env.NODE_ENV === "development",
   });
 } else if (process.env.NODE_ENV === "development") {
