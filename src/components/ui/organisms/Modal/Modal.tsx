@@ -11,19 +11,26 @@ export function Modal({ title, onClose, narrow = false, medium = false, large = 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => dismissible && e.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    // Lock the page behind. html is the scroller here (globals.css clips its overflow-x, so body's overflow no longer passes up to the viewport).
+    const root = document.documentElement;
+    const prev = root.style.overflow;
+    root.style.overflow = "hidden";
     return () => {
       window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prev;
+      root.style.overflow = prev;
     };
   }, [onClose, dismissible]);
+  // Focus the dialog's scroller when nothing inside has focus, so Space and the arrow keys scroll the dialog, not the page.
+  const [overlay, setOverlay] = useState<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (overlay && !overlay.contains(document.activeElement)) overlay.focus({ preventScroll: true });
+  }, [overlay]);
   // Drawn on the page itself, not inside whatever opened it: a widget on a zoomed canvas is transformed, which would trap and clip a fixed dialog.
   const [host, setHost] = useState<HTMLElement | null>(null);
   useEffect(() => setHost(document.body), []);
   if (!host) return null;
   return createPortal(
-    <div className="fixed inset-0 z-[2000] flex items-start justify-center overflow-y-auto bg-black/70 desk:p-6" onClick={dismissible ? onClose : undefined}>
+    <div ref={setOverlay} tabIndex={-1} className="fixed inset-0 z-[2000] flex items-start justify-center overflow-y-auto overscroll-contain bg-black/70 outline-none desk:p-6" onClick={dismissible ? onClose : undefined}>
       <div role="dialog" aria-modal="true" aria-label={typeof title === "string" ? title : undefined} onClick={(e) => e.stopPropagation()} className={`min-h-full w-full bg-slate-950 ${large ? "desk:max-w-3xl" : medium ? "desk:max-w-xl" : narrow ? "desk:max-w-md" : "desk:max-w-5xl"} p-3 desk:min-h-0 desk:rounded-2xl desk:border desk:border-slate-700 ${large ? "desk:p-6" : "desk:p-4"} desk:shadow-2xl`}>
         <div className="mb-3 flex items-center gap-2">
           <h2 className="text-base font-medium text-slate-100">{title}</h2>
