@@ -57,7 +57,7 @@ browser.
    may come without one), with the weeks practised since it in full; with no summary at all, the two weeks before this
    one go in full. An earlier plan started again keeps the running plan's summary (`restartPlan`).
 5. **Start anew**: the first flow again; its prompt leaves out past weeks. Earlier plans stay listed and can be restarted.
-6. **Reminders**: a daily browser notification at a chosen time while any attunr tab is open.
+6. **Reminders**: a daily browser notification at a chosen time while any attunr tab is open. Switching it on shows one notification straight away, so the player sees one get through; a permission taken back in the browser shows as blocked.
 
 ## Demos
 

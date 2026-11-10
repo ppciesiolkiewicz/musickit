@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Icon from "@/components/Icon";
-import { Button, Checkbox, Section } from "@/components/ui";
+import { Button, Checkbox, HUE_TONES, Section } from "@/components/ui";
 import { catalogue } from "./model/catalogue";
 import { DEFAULT_ANSWERS } from "./intake/answers";
 import { randomId } from "./model/exerciseIds";
@@ -11,7 +11,7 @@ import { useProgress } from "@/features/progress/useProgress";
 import { dayIndex, localDate, ratePlan, restartPlan, startPlan, weekOver } from "./model/schedule";
 import type { Stars } from "@/features/progress/stars";
 import { PLAN_DAYS, type PlanAnswers, type PlanConfig, type PlanState, type StoredPlan } from "./model/types";
-import { askNotifications, notificationsSupported } from "./reminders";
+import { askNotifications, confirmReminder, notificationsSupported } from "./reminders";
 import { usePlan } from "./store/usePlan";
 import PlanFlow, { savedFlow } from "./ui/PlanFlow";
 import WeekView from "./ui/WeekView";
@@ -85,6 +85,8 @@ export default function PlanApp() {
     <PlanFlow mode={flow} answers={state.answers ?? DEFAULT_ANSWERS} current={plan} history={state.history} entries={entries} onPlan={onPlan} onClose={() => setFlow(null)} />
   );
   const primary = "!border-sky-400/80 !bg-sky-500/25 !text-sky-50 shadow-md shadow-sky-500/20 hover:!bg-sky-500/40";
+  // the header's controls: one height, big enough to hit with a guitar in the other hand
+  const big = "h-10 px-4 text-sm";
 
   if (!plan) {
     return (
@@ -121,8 +123,8 @@ export default function PlanApp() {
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Reminder state={state} update={update} />
-            <Button data-tour="plan-next" size="sm" onClick={() => setFlow("next")} title="Plan the next days from this week's exercises" className={primary}><Icon name="sparkles" size={12} />Plan next week</Button>
-            <Button size="sm" onClick={() => setFlow("start")} title="Answer the questions again; the prompt leaves out past weeks"><Icon name="rotate-ccw" size={12} />Start anew</Button>
+            <Button data-tour="plan-next" onClick={() => setFlow("next")} title="Plan the next days from this week's exercises" className={`${primary} ${big}`}><Icon name="sparkles" size={16} />Plan next week</Button>
+            <Button onClick={() => setFlow("start")} title="Answer the questions again; the prompt leaves out past weeks" className={`${big} hover:!border-violet-500/60 hover:!bg-violet-500/10`}><Icon name="rotate-ccw" size={16} className={HUE_TONES.violet.ink} />Start anew</Button>
           </div>
         </div>
 
@@ -171,31 +173,40 @@ function History({ plans, onUse }: { plans: StoredPlan[]; onUse: (c: PlanConfig)
   );
 }
 
-/** Daily reminder: a time and a switch. Switching on asks the browser for notifications. */
+/**
+ * Daily reminder: a switch and a time. Switching on asks the browser for notifications and shows one straight away, so the
+ * player sees what the reminder looks like. A permission taken back in the browser settings shows as blocked.
+ */
 function Reminder({ state, update }: { state: PlanState; update: (c: (s: PlanState) => PlanState) => void }) {
   const [denied, setDenied] = useState(false);
   // only rendered once the plan has loaded (after mount), so reading the browser here can't mismatch the server render
   if (!notificationsSupported()) return null;
   const r = state.reminder;
+  const blocked = denied || (r.enabled && Notification.permission !== "granted");
   const set = (enabled: boolean) => update((s) => ({ ...s, reminder: { ...s.reminder, enabled } }));
   const flip = async (on: boolean) => {
     if (!on) return set(false);
     const ok = await askNotifications();
     setDenied(!ok);
     set(ok);
+    if (ok) confirmReminder(r.time);
   };
+  const tone = r.enabled && !blocked ? HUE_TONES.amber.on : HUE_TONES.amber.off;
   return (
-    <div className="flex items-center gap-2 rounded-lg border border-slate-800 px-2.5 py-1">
-      <Icon name={r.enabled ? "bell" : "bell-off"} size={14} className={r.enabled ? "text-sky-300" : "text-slate-500"} />
-      <Checkbox checked={r.enabled} onChange={flip} title="A browser notification once a day while attunr is open in a tab">Remind me at</Checkbox>
-      <input
-        type="time"
-        value={r.time}
-        onChange={(e) => e.target.value && update((s) => ({ ...s, reminder: { ...s.reminder, time: e.target.value, lastShownOn: undefined } }))}
-        className="rounded border border-slate-700 bg-slate-950/60 px-1 py-0.5 text-xs text-slate-200"
-        aria-label="Reminder time"
-      />
-      {denied && <span className="text-[11px] text-rose-300">Blocked: allow notifications in the browser settings</span>}
+    // the blocked note floats below the switch, so the header row keeps one height
+    <div className="relative">
+      <div className={`flex h-10 items-center gap-2.5 rounded-lg border px-3 transition-colors [&_[role=checkbox]]:text-sm ${tone}`}>
+        <Icon name={r.enabled ? "bell" : "bell-off"} size={16} className={r.enabled ? "text-amber-300" : "text-slate-500"} />
+        <Checkbox checked={r.enabled} onChange={flip} title="A browser notification once a day. It shows only while attunr is open in a tab.">Remind me at</Checkbox>
+        <input
+          type="time"
+          value={r.time}
+          onChange={(e) => e.target.value && update((s) => ({ ...s, reminder: { ...s.reminder, time: e.target.value, lastShownOn: undefined } }))}
+          className="rounded-md border border-slate-700 bg-slate-950/60 px-1.5 py-1 text-sm text-slate-100 [color-scheme:dark]"
+          aria-label="Reminder time"
+        />
+      </div>
+      {blocked && <span className="absolute left-0 top-full mt-1 w-max max-w-xs text-[11px] text-rose-300">Notifications are blocked. Allow them for attunr in the browser settings.</span>}
     </div>
   );
 }

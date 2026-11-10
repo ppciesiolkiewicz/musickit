@@ -26,6 +26,12 @@ export function reminderDue(state: PlanState, now: Date): boolean {
   return hhmm >= reminder.time;
 }
 
+/** A notification the moment the reminder is switched on, so the player sees one and knows notifications get through. */
+export function confirmReminder(time: string): void {
+  if (!notificationsSupported() || Notification.permission !== "granted") return;
+  new Notification("Reminder on", { body: `attunr reminds you at ${time} each day while a tab is open.`, tag: "attunr-plan", icon: "/icon.png" });
+}
+
 /** Show the daily reminder; clicking it opens the plan. */
 export function showReminder(state: PlanState, now: Date): void {
   if (!notificationsSupported() || Notification.permission !== "granted" || !state.current) return;
