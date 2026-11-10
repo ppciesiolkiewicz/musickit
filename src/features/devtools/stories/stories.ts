@@ -31,6 +31,10 @@ export interface StoryGroup {
 
 /** Set-ups no example has yet; position-neck's are the corners it was built for. */
 const HAND: { tool: ToolName; name: string; props: Props }[] = [
+  { tool: "scale-neck", name: "Position 1 and the neck, roots in play", props: { scale: "minor-pentatonic", key: "a", boxes: [1], parts: { positions: "always", neck: "on" }, enable: ["1"] } },
+  { tool: "scale-neck", name: "Two positions, the neck behind a chip", props: { scale: "minor-pentatonic", key: "a", boxes: [1, 2], parts: { positions: "on", neck: "off" }, highlight: ["1"] } },
+  { tool: "scale-neck", name: "The neck alone", props: { scale: "major-ionian", key: "g", parts: { neck: "always" }, highlight: ["1"] } },
+  { tool: "key-choice", name: "Two keys", props: { keys: ["g", "c"] } },
   { tool: "position-neck", name: "Joining boxes: A minor pentatonic 1 & 2", props: { scale: "minor-pentatonic", key: "a", positions: [1, 2], highlight: ["1", "4", "5"] } },
   { tool: "position-neck", name: "Crossing 1 → 2 (G string)", props: { scale: "minor-pentatonic", key: "a", cross: { from: 1, to: 2 }, highlight: ["4", "5"] } },
   { tool: "position-neck", name: "Crossing 1 → 2 on the B string", props: { scale: "minor-pentatonic", key: "a", cross: { from: 1, to: 2, string: 2 } } },

@@ -239,7 +239,7 @@ const exOf = (e: Record<string, unknown>) => ({ title: "X", minutes: 5, ...e }) 
 test("settingsOf: tools once each in order, keys, tempo range, voice; nothing for no tools", () => {
   const two = exOf({ sections: [tool({ type: "scale-neck", scale: "minor-pentatonic", key: 9 }), tool({ type: "backing-band", bpm: 80, key: 9, parts: { drums: "on" } }), tool({ type: "backing-band", bpm: 60, key: 9, parts: { drums: "on" } })] });
   assert.equal(settingsOf(two), "scale-neck, backing-band · A · 60-80 bpm");
-  const heading = exOf({ sections: [{ type: "heading", text: "H", keys: [4, 6] }, tool({ type: "scale-neck", scale: "minor-pentatonic", key: 4 })] });
+  const heading = exOf({ sections: [{ type: "heading", text: "H" }, tool({ type: "key-choice", keys: [4, 6] }), tool({ type: "scale-neck", scale: "minor-pentatonic", key: 4 })] });
   assert.equal(settingsOf(heading), "scale-neck · E, F♯");
   const sing = exOf({ sections: [tool({ type: "interval-singer", key: 7, voice: "tenor" })] });
   assert.equal(settingsOf(sing), "interval-singer · G · tenor");

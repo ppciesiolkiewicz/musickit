@@ -10,8 +10,7 @@ import type { Section } from "../model/tools";
 import { blocksOf } from "../model/blocks";
 import ExerciseTool from "./ExerciseTool";
 import ToolTour from "@/features/guide/ToolTour";
-import KeyChoice from "./KeyChoice";
-import { transposeStep } from "../model/transpose";
+import { stepKeys, stepsOf, transposeStep, type Step } from "../model/transpose";
 import { ExerciseStep, StartExercise } from "@/components/practice/exerciseStep";
 
 /** Explained text with its `{{3}}` / `{{c-sharp}}` notes drawn as dots; a note that can't be read stays as text. */
@@ -58,24 +57,26 @@ function ToolBox({ type, children }: { type: string; children: ReactNode }) {
  * An exercise's sections in the order the AI wrote them: headings, paragraphs, numbered steps and tools, top to bottom.
  * Each step (a heading and what follows it, or the intro) is an `ExerciseStep`: when its tools have more than one kind of
  * thing to start (the mic and a drone, the mic and chords), a "Start exercise" button sits above its first tool.
- * A heading with `keys` gets key chips: the picked key moves the step's tools (and so the dots in its text), remounting them.
+ * A step with a key-choice tool shows key chips where the tool sits: the picked key moves the step's other tools (and so the dots in its text), remounting them.
  */
 export default function Sections({ sections: written, address = "ex" }: { sections: Section[]; /** which exercise, for a `SectionAside` */ address?: string }) {
   const aside = useContext(SectionAsideContext);
   // the review view (a host gives asides): frames its tools and rules its steps; the plan page keeps the plain layout
   const framed = !!aside;
-  // the key picked per step (by its heading's index); a step not picked yet is in its first key, as written
+  // the key picked per step (by its heading's index, -1 the intro); a step not picked yet is in its first key, as written
   const [picked, setPicked] = useState<Record<number, number>>({});
-  const keyOf = (head: number) => {
-    const h = written[head];
-    return h.type === "heading" && h.keys ? (picked[head] ?? h.keys[0]) : null;
+  const steps = stepsOf(written);
+  const stepAt = (i: number) => steps.find((st) => i >= st.from && i < st.to);
+  /** the step's key now; null when it has no key-choice */
+  const keyOf = (st: Step | undefined) => {
+    const keys = st && stepKeys(written, st);
+    return keys ? (picked[st.head] ?? keys[0]) : null;
   };
-  const sections = written.flatMap((s, i) => (s.type === "heading" && s.keys ? [i] : [])).reduce((all, head) => {
-    const next = written.findIndex((s, i) => i > head && s.type === "heading");
-    const end = next < 0 ? all.length : next;
-    const keys = (written[head] as { keys: number[] }).keys;
-    return [...all.slice(0, head + 1), ...transposeStep(all.slice(head + 1, end), keys, keyOf(head)!), ...all.slice(end)];
-  }, written);
+  const sections = steps.flatMap((st) => {
+    const keys = stepKeys(written, st);
+    const body = keys ? transposeStep(written.slice(st.from, st.to), keys, keyOf(st)!) : written.slice(st.from, st.to);
+    return st.head < 0 ? body : [written[st.head], ...body];
+  });
   // with an aside (a host's comments), each section carries it; text-like sections shrink to their text so the aside sits at its end
   const withAside = (node: ReactNode, i: number) =>
     aside ? <div key={i} className={`group/sec relative ${sections[i].type === "tool" ? "" : "w-fit max-w-full pr-8"}`}>{node}{aside({ address, index: i, section: sections[i] })}</div> : node;
@@ -87,10 +88,9 @@ export default function Sections({ sections: written, address = "ex" }: { sectio
   let n = 0;
   // in a step with keys, the dots read the step's own (moved) tools first, not a later step's
   const rootAt = (i: number) => {
-    const head = sections.findLastIndex((h, j) => j < i && h.type === "heading");
-    if (head < 0 || keyOf(head) === null) return noteRootFor(sections, i);
-    const next = sections.findIndex((h, j) => j > head && h.type === "heading");
-    return noteRootFor(sections.slice(head + 1, next < 0 ? undefined : next), i - head - 1) ?? noteRootFor(sections, i);
+    const st = stepAt(i);
+    if (!st || keyOf(st) === null) return noteRootFor(sections, i);
+    return noteRootFor(sections.slice(st.from, st.to), i - st.from) ?? noteRootFor(sections, i);
   };
   const item = (s: Section, i: number) => {
     switch (s.type) {
@@ -105,9 +105,14 @@ export default function Sections({ sections: written, address = "ex" }: { sectio
           </ol>
         );
       case "tool": {
+        const st = stepAt(i);
+        if (s.tool.type === "key-choice") {
+          // the chips: the first in a step picks its key (a second one, which the parse warns about, follows it); unframed they sit bare on the tool they move
+          const chips = <ExerciseTool tool={s.tool} keyPick={st && keyOf(st) !== null ? { value: keyOf(st)!, onChange: (pc) => setPicked((k) => ({ ...k, [st.head]: pc })) } : undefined} />;
+          return framed ? <ToolFrame key={i} type={s.tool.type}>{chips}</ToolFrame> : <div key={i} className="-mb-1 pt-1">{chips}</div>;
+        }
         // a new key remounts the tool, so what it was playing stops
-        const head = sections.findLastIndex((h, j) => j < i && h.type === "heading");
-        const key = `${i}-${head < 0 ? "" : keyOf(head) ?? ""}`;
+        const key = `${i}-${keyOf(st) ?? ""}`;
         return framed
           ? <ToolFrame key={key} type={s.tool.type}><ExerciseTool tool={s.tool} /></ToolFrame>
           : <ToolBox key={key} type={s.tool.type}><ExerciseTool tool={s.tool} /></ToolBox>;
@@ -145,7 +150,6 @@ export default function Sections({ sections: written, address = "ex" }: { sectio
                   </h4>,
                   p.head!,
                 )}
-                {h.keys && <KeyChoice keys={h.keys} value={keyOf(p.head!)!} onChange={(pc) => setPicked((k) => ({ ...k, [p.head!]: pc }))} />}
                 {p.items.length > 0 && <div className="ml-[4px] flex flex-col gap-3 border-l border-slate-700/70 pl-5">{stepItems(p.items)}</div>}
               </div>
             </ExerciseStep>

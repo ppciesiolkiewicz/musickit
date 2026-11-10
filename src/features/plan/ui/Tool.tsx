@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { View as ArpeggioNeck } from "@/features/exercises/basics/arpeggio-neck";
 import { View as BackingBand } from "@/features/exercises/basics/backing-band";
 import { View as ChordShapes } from "@/features/exercises/basics/chord-shapes";
+import { View as KeyChoice } from "@/features/exercises/basics/key-choice";
 import { View as IntervalSinger } from "@/features/exercises/basics/interval-singer";
 import { View as IntervalEars } from "@/features/exercises/basics/interval-ears";
 import { View as MelodySinger } from "@/features/exercises/basics/melody-singer";
@@ -34,21 +35,25 @@ const BackingTrack = dynamic(() => import("@/features/exercises/basics/backing-t
  * voice type: the singer tools use it when the AI set none. `input` is a host's audio input (the studio's): the staff listens to it
  * instead of opening a microphone of its own. Also the /dev/stories canvas.
  * In development the tool registers itself, and what is drawn inside it its levels and hints, for /dev/onboarding
- * (which reads its tour from `TOOL_TOURS`).
+ * (which reads its tour from `TOOL_TOURS`). `keyPick` is the step's picked key, for a key-choice inside an exercise.
  */
-export function Tool({ tool, voice, input }: { tool: PlanTool; voice?: Voice; input?: ExternalInput }) {
+export interface KeyPick { value: number; onChange: (pc: number) => void }
+
+export function Tool({ tool, voice, input, keyPick }: { tool: PlanTool; voice?: Voice; input?: ExternalInput; keyPick?: KeyPick }) {
   useCoverage({}, { kind: "tool", id: tool.type });
   return (
     <CoverageTool type={tool.type}>
-      <ToolView tool={tool} voice={voice} input={input} />
+      <ToolView tool={tool} voice={voice} input={input} keyPick={keyPick} />
     </CoverageTool>
   );
 }
 
-function ToolView({ tool, voice, input }: { tool: PlanTool; voice?: Voice; input?: ExternalInput }) {
+function ToolView({ tool, voice, input, keyPick }: { tool: PlanTool; voice?: Voice; input?: ExternalInput; keyPick?: KeyPick }) {
   switch (tool.type) {
+    case "key-choice":
+      return <KeyChoice keys={tool.keys} value={keyPick?.value} onChange={keyPick?.onChange} />;
     case "scale-neck":
-      return <ScaleNeck slug={tool.scale} pc={tool.key} boxes={tool.boxes} neck={tool.neck} positions={tool.positions} placement={tool.placement} add={tool.add} enable={tool.enable} highlight={tool.highlight} mute={tool.mute} hide={tool.hide} others={tool.others} />;
+      return <ScaleNeck slug={tool.scale} pc={tool.key} boxes={tool.boxes} parts={tool.parts} neck={tool.neck} positions={tool.positions} placement={tool.placement} add={tool.add} enable={tool.enable} highlight={tool.highlight} mute={tool.mute} hide={tool.hide} others={tool.others} />;
     case "position-neck":
       return <PositionNeck slug={tool.scale} pc={tool.key} positions={tool.positions} placement={tool.placement} cross={tool.cross} add={tool.add} enable={tool.enable} highlight={tool.highlight} mute={tool.mute} hide={tool.hide} others={tool.others} outside={tool.outside} picker={tool.picker} />;
     case "chord-shapes":

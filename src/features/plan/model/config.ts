@@ -3,7 +3,7 @@ import { mixesSingAndPlay, tempoWithoutMetronome } from "./checks";
 import { checkLink, type CatalogueEntry } from "./catalogue";
 import { linkSlots } from "./migrate";
 import { keyWarnings } from "./transpose";
-import { MAX_TAGS, askedTags, exerciseLevelArea, exerciseTags, legacySections, parseSectionDiag, parseToolDiag, pickWasInexact, resolveChordPlacement, type Section } from "./tools";
+import { MAX_TAGS, askedTags, exerciseLevelArea, exerciseTags, legacySections, liftHeadingKeys, parseSectionDiag, parseToolDiag, pickWasInexact, resolveChordPlacement, type Section } from "./tools";
 import { PLAN_DAYS, type PlanConfig, type PlanDay, type PlanExercise } from "./types";
 import { conceptById } from "./concepts";
 import { topicById } from "../intake/topics";
@@ -21,7 +21,7 @@ const str = (v: unknown, max = 600): string => (typeof v === "string" ? v.trim()
 
 /** Sections from the AI's list; what can't be shown (a tool for an unknown scale) is left out with a warning saying why, and what was cut or defaulted is warned. An old `link` section is a link (`parseSlots`). */
 function parseSections(raw: unknown[], where: string, warnings: string[]): Section[] {
-  const asked = raw.filter((r) => (r as { type?: unknown })?.type !== "link");
+  const asked = liftHeadingKeys(raw.filter((r) => (r as { type?: unknown })?.type !== "link"));
   if (asked.length > MAX_SECTIONS) warnings.push(`${where}: kept the first ${MAX_SECTIONS} of ${asked.length} sections.`);
   const out = asked.slice(0, MAX_SECTIONS).map(parseSectionDiag);
   for (const p of out) {
@@ -146,7 +146,7 @@ export function parsePlanConfig(text: string, entries: CatalogueEntry[]): ParseR
       const why = str(e.why, 300);
       if (why) ex.why = why;
       Object.assign(ex, parseSlots(e, entries, where, warnings));
-      const tools = fit.sections.filter((s) => s.type === "tool").length;
+      const tools = fit.sections.filter((s) => s.type === "tool" && s.tool.type !== "key-choice").length; // key chips are no tool to learn
       if (tools > MAX_TOOLS) warnings.push(`${where}: ${tools} tools; keep it to ${MAX_TOOLS}.`);
       if (!ex.learnBefore?.length) warnings.push(`${where}: no learnBefore link; add an attunr page to learn first.`);
       return [ex];

@@ -786,15 +786,21 @@
               {
                 "type": "heading",
                 "text": "The tune",
-                "minutes": 5,
-                "keys": [
-                  "g",
-                  "c"
-                ]
+                "minutes": 5
               },
               {
                 "type": "text",
-                "text": "Press Play below to hear the tune, then play along from the tab. Once you can hum it before you play it, tap C at the top of this step and learn it there. The notes change, the pattern doesn't."
+                "text": "Press Play below to hear the tune, then play along from the tab. Once you can hum it before you play it, tap C in the Key row below and learn it there. The notes change, the pattern doesn't."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "key-choice",
+                  "keys": [
+                    "g",
+                    "c"
+                  ]
+                }
               },
               {
                 "type": "tool",
@@ -1112,16 +1118,22 @@
               {
                 "type": "heading",
                 "text": "The tune",
-                "minutes": 5,
-                "keys": [
-                  "g",
-                  "c",
-                  "d"
-                ]
+                "minutes": 5
               },
               {
                 "type": "text",
-                "text": "Press Play below to hear the tune and see each note on the neck: it is the G triad, one note at a time. Play along until you can hear the next note before you play it. Then tap C, and then D, at the top of this step. The notes change, the pattern doesn't."
+                "text": "Press Play below to hear the tune and see each note on the neck: it is the G triad, one note at a time. Play along until you can hear the next note before you play it. Then tap C, and then D, in the Key row below. The notes change, the pattern doesn't."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "key-choice",
+                  "keys": [
+                    "g",
+                    "c",
+                    "d"
+                  ]
+                }
               },
               {
                 "type": "tool",
@@ -1937,15 +1949,21 @@
               {
                 "type": "heading",
                 "text": "The tune",
-                "minutes": 4,
-                "keys": [
-                  "g",
-                  "a"
-                ]
+                "minutes": 4
               },
               {
                 "type": "text",
-                "text": "Press Play below and play day 6's tune along with it. Then tap A at the top of this step and play it there: the notes change, the pattern doesn't. To finish, play it on your own and change one thing: the speed, the octave or the ending."
+                "text": "Press Play below and play day 6's tune along with it. Then tap A in the Key row below and play it there: the notes change, the pattern doesn't. To finish, play it on your own and change one thing: the speed, the octave or the ending."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "key-choice",
+                  "keys": [
+                    "g",
+                    "a"
+                  ]
+                }
               },
               {
                 "type": "tool",

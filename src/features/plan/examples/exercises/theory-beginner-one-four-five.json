@@ -23,8 +23,9 @@
       { "type": "heading", "text": "Follow the changes", "minutes": 3 },
       { "type": "text", "text": "Press Play below to start the band: G, C, D and back to G, one bar each. Call out 1, 4 or 5 as each chord arrives, with the chord boxes to help. Keep going until you hear a change coming before the box lights." },
       { "type": "tool", "tool": { "type": "backing-track", "key": "g", "numerals": ["I", "IV", "V", "I"], "style": "pop", "bpm": 80 } },
-      { "type": "heading", "text": "A new order", "minutes": 2, "keys": ["g", "c"] },
-      { "type": "text", "text": "Press Play below to start the band: the same three chords in a new order. Look away from the screen and call out the number of each chord, then look back to check. Then tap C at the top of this step and do it again: the chords are new, the numbers sound the same." },
+      { "type": "heading", "text": "A new order", "minutes": 2 },
+      { "type": "text", "text": "Press Play below to start the band: the same three chords in a new order. Look away from the screen and call out the number of each chord, then look back to check. Then tap C in the Key row below and do it again: the chords are new, the numbers sound the same." },
+      { "type": "tool", "tool": { "type": "key-choice", "keys": ["g", "c"] } },
       { "type": "tool", "tool": { "type": "backing-track", "key": "g", "numerals": ["I", "V", "IV", "V"], "style": "ballad", "bpm": 80 } }
     ],
     "exploreMore": ["/course/5/hearing-changes"]

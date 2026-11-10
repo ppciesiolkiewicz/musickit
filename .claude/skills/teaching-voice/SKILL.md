@@ -59,8 +59,8 @@ It uses the same chordKit code the app draws with, so the text and the picture a
 A step is also interface copy: the learner has to find a control with one hand on the guitar. Write it so they never hunt.
 
 - **Name a control by the label on the screen, exactly**: Play, Start, Next, Skip, Start exercise, Start microphone, "Cross on". Read the label in the component (`src/features/exercises/basics/<tool>/index.tsx`, `src/components/practice/`); don't guess it. A game's answers are named as its buttons show them ("pick M3 or m3", "Major 7"), with the plain meaning beside them the first time ("M3 for a major 3rd").
-- **Verb, label, where, what it starts**, in that order: "Press Play below to start the metronome." Never a bare "Press Play." Where is "below", "above", "at the top of this step", "under the neck".
-- **One verb per kind of control.** Press a button or a chord box. Tap a note on a staff or a neck, and a key at the top of a step. Play and sing are for the instrument and the voice, never for the screen.
+- **Verb, label, where, what it starts**, in that order: "Press Play below to start the metronome." Never a bare "Press Play." Where is "below", "above", "in the Key row above the neck", "under the neck".
+- **One verb per kind of control.** Press a button or a chord box. Tap a note on a staff or a neck, and a key in the Key row. Play and sing are for the instrument and the voice, never for the screen.
 - **Say what they will see next**, when it isn't obvious: "After a bar of count-in, the lit box shows the chord to play."
 - **Say what to do when it goes wrong**, inside the step, calmly and as an action: "If a change comes late, keep your strumming hand going and catch the next beat 1." No blame, no "don't worry", no "try again".
 - **One name for each thing on the screen**, the same in every step:

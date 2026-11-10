@@ -14,9 +14,17 @@ export interface ScaleNeckProps {
   key: string;
   /** which boxes to show (1-based); absent shows all */
   boxes?: number[];
-  /** true also shows the whole neck above the boxes: tap a position's name to light it up there; absent: only the boxes */
+  /**
+   * what is drawn, as on a backing-band: "positions" (the boxes) and "neck" (the whole neck lying flat, above them, with
+   * the shown position framed on it and the same notes in play), each "on" (shown, the student can hide it), "off"
+   * (hidden, the student can show it) or "always" (shown, no switch); a part left out is not drawn. Absent: the boxes
+   * alone. { "positions": "always", "neck": "on" } when the exercise is about where a position sits on the neck or how
+   * it moves with the key; { "neck": "always" } for the whole neck alone
+   */
+  parts?: { positions?: "on" | "off" | "always"; neck?: "on" | "off" | "always" };
+  /** older, the studio's Scale widget: true shows the scales page's whole neck above the boxes, without `enable` or `highlight`; exercises use `parts` */
   neck?: boolean;
-  /** false hides the boxes, so with `neck` only the neck shows; absent: the boxes show */
+  /** older, with `neck`: false hides the boxes */
   positions?: boolean;
   /**
    * where on the neck, instead of `boxes`: { "by": "open" } next to open chords, { "by": "root", "string": 6 } the box

@@ -39,10 +39,9 @@ export function settingsOf(e: PlanExercise): string {
   const names: string[] = [], keys: number[] = [], bpms: number[] = [], voices: string[] = [];
   const add = <T,>(to: T[], v: T | undefined) => { if (v !== undefined && !to.includes(v)) to.push(v); };
   for (const s of sectionsOf(e)) {
-    if (s.type === "heading") s.keys?.forEach((k) => add(keys, k));
     if (s.type !== "tool") continue;
     const t = s.tool as Record<string, unknown>;
-    add(names, s.tool.type);
+    if (s.tool.type !== "key-choice") add(names, s.tool.type);
     for (const k of [t.key, ...(Array.isArray(t.keys) ? t.keys : [])]) if (typeof k === "number") add(keys, k);
     if (typeof t.bpm === "number") add(bpms, t.bpm);
     if (typeof t.voice === "string") add(voices, t.voice);
@@ -210,10 +209,11 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
       "- Technique for the hands: finger-pattern (fingers on frets, dexterity), picking-drill (alternate picking, string skipping), legato-trill (hammer-ons and pull-offs).",
       "- Singing: staff with the mic for notes of a scale or chord; melody-singer for a tune; run-singer for a run that climbs a semitone each pass; interval-singer for a named interval from Do; string-singer for the guitar's open strings. Breathing before or apart from singing: breathwork (no mic).",
       "- Ears, listening only: interval-ears to name intervals or chords.",
+      "- The same drill in another key: key-choice, right before the tool it moves.",
       "",
     ]),
     part("tools", "Tool interface", "interface", [
-      "### Tools (what a \"tool\" section may hold: {\"type\": <tool name>, ...props}; the student gets no settings to change, apart from a heading's \"keys\", so set everything the exercise needs; an exercise has at most 6 tools, so split into two exercises rather than exceed 6)",
+      "### Tools (what a \"tool\" section may hold: {\"type\": <tool name>, ...props}; the student gets no settings to change, apart from a key-choice's keys, so set everything the exercise needs; an exercise has at most 6 tools, not counting a key-choice, so split into two exercises rather than exceed 6)",
       ...toolInterface(),
       "The tools must agree with the text: every note the steps ask them to play is in the view shown (the scale-neck or its \"add\"), every chord named is in a chord-shapes, guitar-play-along, strum-along or backing-track tool, the key matches. Notes outside the scale (a chromatic passing note, the major 3rd over a dominant 7 in a minor blues, a borrowed note): say so plainly in the text, naming the note, what it is and why it works (\"C♯, not in A minor blues: the 3rd of A7, so slide into it over the A7\"), and put it in scale-neck's \"add\" (added notes are lit by themselves; don't highlight them again by degree). If the steps first play the plain scale and then extend it, give two scale-neck tools in that order.",
       "",
@@ -283,7 +283,7 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
       "- A run-singer step states the run's range (\"from La below Do up to the high Do\") and that each pass starts a semitone higher.",
       "- Guitar scale shapes are positions (\"position 1\", \"the position with the root on the A string\"), never boxes or patterns, in titles, headings and text alike; scale-neck's prop is still called \"boxes\".",
       "- Say \"staff\" only for the staff tool (the five lines of music, where the singer's pitch shows as a line), never for a guitar neck, a chord box or a tab, and never \"music sheet\" or \"stave\". Do not explain what it is, except for a new or beginner student, the first time (\"the staff, the five lines of music, where your pitch shows as a line\").",
-      "- A melody or pattern the student sings or plays (Do Mi Sol, a leap, a tune, guide tones) comes back in a second key, with one plain line: \"The notes change, the pattern doesn't.\" When nothing else changes, give the block's heading \"keys\" (2-3 keys, the first the one its tools are written in): the student taps a key and every tool in the block moves to it. When the new key comes with a new task, write a later block or another tool.",
+      "- A melody or pattern the student sings or plays (Do Mi Sol, a leap, a tune, guide tones) comes back in a second key, with one plain line: \"The notes change, the pattern doesn't.\" When nothing else changes, put a key-choice tool (\"keys\": 2-3 keys, the first the one the block's tools are written in) right before the tool it moves: the student taps a key and every tool in the block moves to it. Say where to tap by what is under it (\"tap G in the Key row above the neck\"). When the new key comes with a new task, write a later block or another tool.",
       "",
     ]),
     ...exerciseParts,

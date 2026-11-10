@@ -455,6 +455,19 @@
     ]
   },
   {
+    "name": "key-choice",
+    "kind": "basic",
+    "description": "A row of key chips (\"Key  A  G  C\"): the student taps a key and every tool in the same block (heading to heading)\nmoves to it, so one drill is sung or played in each key without a copy of the tool per key. It shows nothing else\nand makes no sound. Put it right before the tool it moves, so the chips sit on that tool. One per block; the block's\nother tools must all be able to change key (not note-finder, interval-ears, run-singer, string-singer, breathwork\nor the finger drills).",
+    "props": [
+      {
+        "name": "keys",
+        "type": "string[]",
+        "required": true,
+        "description": "2-3 different keys as notes: [\"a\", \"g\", \"c\"]; the first is the key the block's tools are written in"
+      }
+    ]
+  },
+  {
     "name": "legato-trill",
     "kind": "basic",
     "description": "A legato trill: two fingers on one string, alternating by\nhammer-on and pull-off with no picking after the first note. Use it for legato strength and finger independence.",
@@ -840,16 +853,22 @@
         "description": "which boxes to show (1-based); absent shows all"
       },
       {
+        "name": "parts",
+        "type": "{ positions?: \"on\" | \"off\" | \"always\"; neck?: \"on\" | \"off\" | \"always\" }",
+        "required": false,
+        "description": "what is drawn, as on a backing-band: \"positions\" (the boxes) and \"neck\" (the whole neck lying flat, above them, with\nthe shown position framed on it and the same notes in play), each \"on\" (shown, the student can hide it), \"off\"\n(hidden, the student can show it) or \"always\" (shown, no switch); a part left out is not drawn. Absent: the boxes\nalone. { \"positions\": \"always\", \"neck\": \"on\" } when the exercise is about where a position sits on the neck or how\nit moves with the key; { \"neck\": \"always\" } for the whole neck alone"
+      },
+      {
         "name": "neck",
         "type": "boolean",
         "required": false,
-        "description": "true also shows the whole neck above the boxes: tap a position's name to light it up there; absent: only the boxes"
+        "description": "older, the studio's Scale widget: true shows the scales page's whole neck above the boxes, without `enable` or `highlight`; exercises use `parts`"
       },
       {
         "name": "positions",
         "type": "boolean",
         "required": false,
-        "description": "false hides the boxes, so with `neck` only the neck shows; absent: the boxes show"
+        "description": "older, with `neck`: false hides the boxes"
       },
       {
         "name": "placement",

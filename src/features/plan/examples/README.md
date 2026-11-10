@@ -61,8 +61,8 @@ What there is: one exercise per area and level (`<area>-<level>-<what>.json`) an
 - Every exercise, alone or in a plan, has at least one `learnBefore` lesson. If no course section fits, a planned (stub) section is
   added to the course for it first.
 - A sung or played pattern (Do Mi Sol, a leap, a tune, guide tones) comes back in a second key: the notes change, the
-  pattern doesn't. The same drill in more keys is one block whose heading lists `keys` (the student taps one and the
-  block's tools move to it); a new key with a new task is a later block or another tool.
+  pattern doesn't. The same drill in more keys is one block with a `key-choice` tool right before the tool it moves (the
+  student taps a key and the block's tools move to it; the text says "tap G in the Key row above the neck"); a new key with a new task is a later block or another tool.
 - The text names a control by the label on the screen and says what it starts and where it is; it never carries frets,
   fingerings or note lists the tool shows. The way from one position to the next is a position-neck with `cross`.
 - No guitar-play-along `repeats` (it loops; the exercise's minutes are the timer). Styles are at most one sentence of colour.

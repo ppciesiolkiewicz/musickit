@@ -46,6 +46,10 @@ export type PartMode = "on" | "off" | "always";
 export const PART_MODES: PartMode[] = ["on", "off", "always"];
 export type BandParts = Partial<Record<BandPart, PartMode>>;
 export type BackingParts = Partial<Record<BackingPart, PartMode>>;
+/** What a scale-neck can draw: its position boxes and the whole neck. Modes as a band's: "on" shows and can be hidden, "off" starts hidden, "always" can't be hidden. */
+export type NeckPart = "positions" | "neck";
+export const NECK_PARTS: NeckPart[] = ["positions", "neck"];
+export type NeckParts = Partial<Record<NeckPart, PartMode>>;
 
 type View = "tab" | "notes" | "neck";
 type Under = "chords" | "drone" | "none";
@@ -56,7 +60,7 @@ type Under = "chords" | "drone" | "none";
  * degree strings itself (`arpeggio-neck` `part`, `guitar-play-along` `enable` and `highlight`). A guitar-play-along keeps its checked shape, never events.
  */
 export type PlanTool =
-  | { type: "scale-neck"; scale: string; key: number; boxes?: number[]; /** the whole neck above the boxes, a box tapped lights up on it */ neck?: boolean; /** false: no boxes (the neck alone) */ positions?: boolean; /** pitch classes from outside the scale */ add?: number[]; placement?: Placement } & Marks
+  | { type: "scale-neck"; scale: string; key: number; boxes?: number[]; /** the views drawn, with the marks on both (index.tsx `Boxes`); absent: the boxes alone, or `neck` / `positions` */ parts?: NeckParts; /** the scales page's guitar section (the studio's Scale widget): the whole neck above the boxes, no marks */ neck?: boolean; /** false: no boxes (the neck alone) */ positions?: boolean; /** pitch classes from outside the scale */ add?: number[]; placement?: Placement } & Marks
   | { type: "position-neck"; scale: string; key: number; positions?: number[]; placement?: Placement; /** strings 1-6, 6 = low E */ cross?: { from: number; to: number; string?: number }; add?: number[]; outside?: "muted" | "hidden"; picker?: boolean } & Marks
   | { type: "chord-shapes"; chords: string[]; voicing?: Voicing }
   | { type: "staff"; scale: string; key: number; voice: Voice; /** semitones above the key: only these are on the staff */ notes?: number[]; /** also the notes under the lowest Do */ under?: boolean; mic?: boolean; /** its own backing, started with the mic */ drone?: boolean; click?: boolean; bpm?: number; labels?: SingingLabels } & Marks
@@ -71,6 +75,7 @@ export type PlanTool =
   | { type: "interval-singer"; key: number; /** more keys to pick Do from, the first `key`; absent: only `key` */ keys?: number[]; voice?: Voice; /** semitones from Do, 1-12 */ intervals?: number[]; dir?: IntervalDir; dot?: false }
   | { type: "guitar-play-along"; shape: PlayAlongShape; bpm: number; repeats?: number; view?: View; enable?: Degree[]; highlight?: Degree[]; others?: "muted" | "hidden"; under?: Under }
   | { type: "strum-along"; chords: string[]; bpm: number; per?: "bar" | "beat"; beats?: number; pattern?: string }
+  | { type: "key-choice"; /** 2-3 pitch classes the student can move the step's tools to, the first the one they are written in (transpose.ts) */ keys: number[] }
   | { type: "backing-track"; /** a backing tracks progression id; absent: `numerals` */ progression?: string; /** the lesson's own chords as numerals in `key` (pasted chords are read into numerals at parse) */ numerals?: string[]; key: number; /** a backing tracks style id; none: the progression's own, ballad for numerals */ style?: string; /** none: the style's tempo */ bpm?: number; /** the parts offered and how; absent: drums, bass and keys all "on" */ parts?: BackingParts }
   /* stubs: a placeholder view until the real components exist; strings are numbered 1-6, 6 = low E */
   | { type: "finger-pattern"; fingers: string; fret: number; strings?: number[]; show?: "finger" | "pick"; bpm: number }
@@ -191,6 +196,27 @@ export function bandParts(v: unknown, d?: Diag): BandParts {
   return Object.keys(out).length ? out : { click: "on" };
 }
 
+/** A scale-neck's parts; null when none is written, or none of them would show anything to start from being offered. */
+function neckParts(v: unknown, d: Diag): NeckParts | null {
+  if (v == null) return null;
+  lostParts(d, v, NECK_PARTS);
+  const out: NeckParts = {};
+  if (Array.isArray(v)) for (const p of NECK_PARTS) if (v.includes(p)) out[p] = "always";
+  if (typeof v === "object" && !Array.isArray(v))
+    for (const p of NECK_PARTS) {
+      const m = (v as Record<string, unknown>)[p];
+      if (PART_MODES.includes(m as PartMode)) out[p] = m as PartMode;
+    }
+  if (!Object.keys(out).length) return null;
+  // nothing to see until a chip is tapped: show the first part offered
+  if (NECK_PARTS.every((p) => !out[p] || out[p] === "off")) {
+    const first = NECK_PARTS.find((p) => out[p])!;
+    out[first] = "on";
+    if (!d.stored) d.notes.push(`"parts" had every part "off"; ${first} set to "on".`);
+  }
+  return out;
+}
+
 /** Notes the `parts` entries it can't read: a part it doesn't know, or a mode that isn't on, off or always. */
 const lostParts = (d: Diag, v: unknown, known: readonly string[]): void => {
   const bad = Array.isArray(v) ? v.filter((p) => !known.includes(p as string)) : v && typeof v === "object" ? Object.entries(v).filter(([p, m]) => !known.includes(p) || !PART_MODES.includes(m as PartMode)).map(([p, m]) => ({ [p]: m })) : [];
@@ -233,7 +259,8 @@ const scaleNeck = (t: Record<string, unknown>, d: Diag): PlanTool | null => {
   const { scale, key } = sk;
   const add = addOf(t, d);
   const boxes = boxesOf(t.boxes, d);
-  return { type: "scale-neck", scale, key, ...opt("boxes", boxes), ...(t.neck === true ? { neck: true } : {}), ...(t.positions === false ? { positions: false } : {}), ...opt("add", add), ...placementOf(t, boxes), ...marksOf(t, key, d) };
+  const parts = neckParts(t.parts, d);
+  return { type: "scale-neck", scale, key, ...opt("boxes", boxes), ...(parts ? { parts } : { ...(t.neck === true ? { neck: true } : {}), ...(t.positions === false ? { positions: false } : {}) }), ...opt("add", add), ...placementOf(t, boxes), ...marksOf(t, key, d) };
 };
 
 /** Two different positions 1-5 and maybe a string 1-6 to cross on; null when not. */
@@ -324,6 +351,13 @@ const voiceOrTenor = (d: Diag, v: unknown): Voice => {
 };
 
 const PARSERS: { [N in ToolName]: ToolSpec } = {
+  "key-choice": {
+    parse(t, d) {
+      lost(d, "keys", t.keys, keyOf);
+      const keys = keysOf(t.keys);
+      return keys ? { type: "key-choice", keys } : no(d, "it needs 2 or 3 different keys");
+    },
+  },
   "scale-neck": { parse: scaleNeck },
   "position-neck": { parse: positionNeck },
   "chord-shapes": {
@@ -541,7 +575,7 @@ export const parseTool = (raw: unknown, opts: { stored?: boolean } = {}): PlanTo
 /* ---------------------------------------------------------------- the sections */
 
 export type Section =
-  | { type: "heading"; text: string; minutes?: number; /** pitch classes the student can move the step's tools to, the first the one they are written in (transpose.ts) */ keys?: number[] }
+  | { type: "heading"; text: string; minutes?: number }
   | { type: "text"; text: string }
   | { type: "list"; items: string[] }
   | { type: "tool"; tool: PlanTool };
@@ -550,10 +584,9 @@ const str = (v: unknown, max: number): string => (typeof v === "string" ? v.trim
 
 /** The longest a heading, a text and a list item may be, and the most items in a list: cut beyond (`parseSection` says so), and told to the AI by the schemas below. */
 export const MAX_HEADING = 100, MAX_TEXT = 700, MAX_ITEM = 240, MAX_ITEMS = 8;
-const STR = { type: "string" };
 const strMax = (maxLength: number) => ({ type: "string", maxLength });
 const SECTIONS: { type: Section["type"]; description: string; properties: Record<string, unknown>; required: string[] }[] = [
-  { type: "heading", description: "A short title inside the exercise (\"Warm-up\", \"Now with the 7th\").", properties: { text: strMax(MAX_HEADING), minutes: { type: "integer", minimum: 1, maximum: 60, description: "starts a timed block of this many minutes" }, keys: { type: "array", items: STR, minItems: 2, maxItems: 3, description: "2-3 keys as notes (\"d\", \"b-flat\"), the first the key the block's tools are written in: the student taps a key and every tool in the block moves to it, so one drill is sung or played in each key" } }, required: ["text"] },
+  { type: "heading", description: "A short title inside the exercise (\"Warm-up\", \"Now with the 7th\").", properties: { text: strMax(MAX_HEADING), minutes: { type: "integer", minimum: 1, maximum: 60, description: "starts a timed block of this many minutes" } }, required: ["text"] },
   { type: "text", description: "A paragraph of plain instructions.", properties: { text: strMax(MAX_TEXT) }, required: ["text"] },
   { type: "list", description: "Numbered steps the student follows.", properties: { items: { type: "array", items: strMax(MAX_ITEM), minItems: 1, maxItems: MAX_ITEMS } }, required: ["items"] },
   { type: "tool", description: "One of the tools below, shown here, in order, already set up. A tool shows what the text just before it talks about.", properties: { tool: { type: "object", description: "{\"type\": <tool name>, …input}" } }, required: ["tool"] },
@@ -624,11 +657,45 @@ export function resolveChordPlacement(sections: Section[]): Section[] {
   });
 }
 
-/** A heading's 2-3 different keys, in order; null when fewer than two can be read. */
-const keysOf = (v: unknown): number[] | null => {
+/** A key-choice's 2-3 different keys, in order; null when fewer than two can be read. */
+function keysOf(v: unknown): number[] | null {
   const keys = [...new Set(list(v).map(keyOf).filter((k): k is number => k !== null))].slice(0, 3);
   return keys.length >= 2 ? keys : null;
-};
+}
+
+/**
+ * Sections written before `key-choice` was a tool, when a heading listed the step's `keys`: the keys leave the heading
+ * and become a key-choice tool right before the step's first tool (at the step's end when it has none). A step that
+ * already has a key-choice just loses the heading's keys. Works on raw (pasted) and stored sections alike.
+ */
+export function liftHeadingKeys<T>(sections: T[]): T[] {
+  type Raw = { type?: unknown; keys?: unknown; tool?: { type?: unknown } };
+  const at = (i: number) => (sections[i] ?? {}) as Raw;
+  if (!sections.some((_, i) => at(i).type === "heading" && Array.isArray(at(i).keys))) return sections;
+  const out: T[] = [];
+  let pending: unknown[] | null = null;
+  const flush = () => {
+    if (pending) out.push({ type: "tool", tool: { type: "key-choice", keys: pending } } as T);
+    pending = null;
+  };
+  sections.forEach((s, i) => {
+    const r = at(i);
+    if (r.type === "heading") {
+      flush();
+      if (Array.isArray(r.keys)) {
+        const { keys, ...rest } = r;
+        const end = sections.findIndex((_, j) => j > i && at(j).type === "heading");
+        const has = sections.slice(i + 1, end < 0 ? undefined : end).some((x) => (x as Raw)?.type === "tool" && (x as Raw).tool?.type === "key-choice");
+        if (!has) pending = keys as unknown[];
+        out.push(rest as T);
+        return;
+      }
+    } else if (r.type === "tool") flush();
+    out.push(s);
+  });
+  flush();
+  return out;
+}
 
 /** A section parsed, with what the parse had to say: `dropped` names what was left out and why, `notes` what was cut or changed. */
 export interface SectionParse { section: Section | null; dropped?: string; notes: string[] }
@@ -653,10 +720,7 @@ export function parseSectionDiag(raw: unknown): SectionParse {
       if (!text) return empty(`a ${s.type}`);
       if (s.type === "text") return out({ type: "text", text });
       const m = Math.round(Number(s.minutes));
-      const keys = keysOf(s.keys);
-      const unread = list(s.keys).filter((k) => keyOf(k) === null);
-      if (unread.length) notes.push(`a heading's "keys" had entries it could not read (${unread.slice(0, 5).map((k) => JSON.stringify(k)?.slice(0, 20)).join(", ")}); left them out.`);
-      return out({ type: "heading", text, ...(s.minutes != null && Number.isFinite(m) ? { minutes: Math.min(60, Math.max(1, m)) } : {}), ...(keys ? { keys } : {}) });
+      return out({ type: "heading", text, ...(s.minutes != null && Number.isFinite(m) ? { minutes: Math.min(60, Math.max(1, m)) } : {}) });
     }
     case "list": {
       const asked = list(s.items);
@@ -786,7 +850,7 @@ export type StoredTool = (PlanTool | { type: string; [k: string]: unknown }) & {
  */
 export const sectionsOf = (e: { sections?: Section[]; how?: string; steps?: string[]; tools?: StoredTool[]; link?: string }): Section[] =>
   e.sections
-    ? e.sections.flatMap((s): Section[] => {
+    ? liftHeadingKeys(e.sections).flatMap((s): Section[] => {
         if ((s.type as string) === "link") return [];
         if (s.type !== "tool") return [s];
         const tool = parseTool(s.tool, { stored: true });

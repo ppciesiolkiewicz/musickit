@@ -182,9 +182,17 @@ describe("list entries it could not read are noted", () => {
     assert.deepEqual(notes({ ...neck, enable: [3, "5", 7] }), ['scale-neck "enable" had numbers (3, 7); write degrees as strings ("3", "b7"); left them out.']);
     assert.deepEqual(notes({ type: "staff", scale: "dorian", key: "a", voice: "alto", notes: [0, 4] }), ['staff "notes" had numbers (0, 4); write degrees as strings ("3", "b7"); left them out.']);
   });
-  it("a heading's keys it could not read", () => {
-    assert.deepEqual(parseSectionDiag({ type: "heading", text: "H", keys: ["c", "d", "zz"] }).notes, ['a heading\'s "keys" had entries it could not read ("zz"); left them out.']);
-    assert.deepEqual(parseSectionDiag({ type: "heading", text: "H", keys: ["c", "d"] }).notes, []);
+  it("a key-choice's keys it could not read", () => {
+    assert.deepEqual(notes({ type: "key-choice", keys: ["c", "d", "zz"] }), ['key-choice "keys" had entries it could not read ("zz"); left them out.']);
+    assert.deepEqual(notes({ type: "key-choice", keys: ["c", "d"] }), []);
+    assert.equal(parseToolDiag({ type: "key-choice", keys: ["c"] }).dropped, "a key-choice (it needs 2 or 3 different keys)");
+  });
+  it("a scale-neck's parts", () => {
+    const neck = (parts: unknown) => ({ type: "scale-neck", scale: "minor-pentatonic", key: "a", parts });
+    assert.deepEqual(parseToolDiag(neck({ positions: "always", neck: "off" })).tool, { type: "scale-neck", scale: "minor-pentatonic", key: 9, parts: { positions: "always", neck: "off" } });
+    assert.deepEqual(parseToolDiag({ ...neck(["neck"]), neck: true }).tool, { type: "scale-neck", scale: "minor-pentatonic", key: 9, parts: { neck: "always" } });
+    assert.deepEqual(notes(neck({ neck: "on", tab: "on", positions: "loud" })), ['scale-neck "parts" had entries it could not read ({"tab":"on"}, {"positions":"loud"}); left them out.']);
+    assert.deepEqual(notes(neck({ positions: "off", neck: "off" })), ['scale-neck "parts" had every part "off"; positions set to "on".']);
   });
   it("a stored tool says nothing, and keeps its semitone numbers", () => {
     const stored = { type: "scale-neck", scale: "dorian", key: 9, boxes: [1, 9], enable: [0, 3, 12], add: ["zz"] };
