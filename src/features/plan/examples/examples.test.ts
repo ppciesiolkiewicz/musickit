@@ -152,7 +152,7 @@ describe("example library", () => {
     const plain = EXERCISE_EXAMPLES.filter((e) => !e.showcase);
     for (const a of AREAS) for (const l of LEVELS) assert.ok(plain.some((e) => e.areas[0] === a.id && e.level === l), `${a.id} ${l}`);
     assert.deepEqual(EXERCISE_EXAMPLES.flatMap((e) => (e.showcase ? [e.showcase] : [])).sort(), ["blocks", "pick", "progression", "stages", "variants"]);
-    assert.equal(PLAN_EXAMPLES.length, 5);
+    assert.equal(PLAN_EXAMPLES.length, 6);
   });
 
   it("JSON files import nothing, are named by id, and are all loaded", () => {

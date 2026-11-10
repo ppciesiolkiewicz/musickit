@@ -27,6 +27,7 @@ import voiceBeginnerInTuneOverDrone from "./exercises/voice-beginner-in-tune-ove
 import theoryIntermediateHearingChanges from "./exercises/theory-intermediate-hearing-changes.json";
 import guitarBeginnerPlan from "./plans/guitar-beginner.json";
 import guitarIntermediatePlan from "./plans/guitar-intermediate.json";
+import guitarAdvancedPlan from "./plans/guitar-advanced.json";
 import voiceBeginnerPlan from "./plans/voice-beginner.json";
 import guitarTheoryIntermediatePlan from "./plans/guitar-theory-intermediate.json";
 import voiceIntermediatePlan from "./plans/voice-intermediate.json";
@@ -104,6 +105,7 @@ export const EXERCISE_EXAMPLES: ExerciseExample[] = [
 export const PLAN_EXAMPLES: PlanExample[] = [
   guitarBeginnerPlan,
   guitarIntermediatePlan,
+  guitarAdvancedPlan,
   voiceBeginnerPlan,
   guitarTheoryIntermediatePlan,
   voiceIntermediatePlan,
