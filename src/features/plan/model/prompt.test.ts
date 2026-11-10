@@ -239,8 +239,10 @@ const exOf = (e: Record<string, unknown>) => ({ title: "X", minutes: 5, ...e }) 
 test("settingsOf: tools once each in order, keys, tempo range, voice; nothing for no tools", () => {
   const two = exOf({ sections: [tool({ type: "scale-neck", scale: "minor-pentatonic", key: 9 }), tool({ type: "backing-band", bpm: 80, key: 9, parts: { drums: "on" } }), tool({ type: "backing-band", bpm: 60, key: 9, parts: { drums: "on" } })] });
   assert.equal(settingsOf(two), "scale-neck, backing-band · A · 60-80 bpm");
-  const heading = exOf({ sections: [{ type: "heading", text: "H" }, tool({ type: "key-choice", keys: [4, 6] }), tool({ type: "scale-neck", scale: "minor-pentatonic", key: 4 })] });
+  const heading = exOf({ sections: [{ type: "heading", text: "H" }, tool({ type: "step-choice", options: [{ key: 4 }, { key: 6 }] }), tool({ type: "scale-neck", scale: "minor-pentatonic", key: 4 })] });
   assert.equal(settingsOf(heading), "scale-neck · E, F♯");
+  const stages = exOf({ sections: [tool({ type: "step-choice", label: "stage", options: [{ key: 4, bpm: 60 }, { key: 6, bpm: 80 }] }), tool({ type: "backing-band", bpm: 60, key: 4, parts: { click: "on" } })] });
+  assert.equal(settingsOf(stages), "backing-band · E, F♯ · 60-80 bpm");
   const sing = exOf({ sections: [tool({ type: "interval-singer", key: 7, voice: "tenor" })] });
   assert.equal(settingsOf(sing), "interval-singer · G · tenor");
   assert.equal(settingsOf(exOf({ sections: [{ type: "text", text: "x" }] })), "");
@@ -253,4 +255,12 @@ test("legacy plans (how / steps / tools) show their settings too", () => {
   assert.match(weekReport(plan), /\[skipped\] X \(beginner · Am pent; backing-band · A · 70 bpm\)/);
   assert.match(weekByTopic(plan), /- Day 1: \[skipped\] X \(beginner · Am pent; backing-band · A · 70 bpm\)/);
   assert.match(weekReport({ ...plan, config: { title: "N", days: [{ theme: "T", exercises: [exOf({})] }] } as never }), /\[skipped\] X$/m);
+});
+
+test("the prompt teaches step-choice, stages and variants, and no longer names key-choice", () => {
+  const p = buildPrompt(rated, catalogue());
+  assert.match(p, /\bstep-choice\b/);
+  assert.match(p, /"label\\?": \\?"stage\\?"/);
+  assert.match(p, /"label\\?": \\?"variant\\?"/);
+  assert.doesNotMatch(p, /key-choice/);
 });

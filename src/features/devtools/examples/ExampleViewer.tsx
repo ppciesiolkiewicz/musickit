@@ -21,7 +21,7 @@ import Icon from "@/components/Icon";
 import { loadStudio, useMounted } from "../prompt/storage";
 
 type Kind = "exercise" | "plan";
-type Showcase = "blocks" | "pick" | "progression";
+type Showcase = "blocks" | "pick" | "progression" | "stages" | "variants";
 
 /** Copies the example as a complete plan (an exercise as a week of itself), ready for /plan's paste step. */
 function CopyPlan({ json, note }: { json: string; note?: string }) {
@@ -223,7 +223,7 @@ export default function ExampleViewer() {
           <Filter<Kind> label="Kind" value={kind} onChange={setKind} options={[{ id: "exercise", label: "Exercise" }, { id: "plan", label: "Plan" }]} />
           <Filter<Area> label="Area" value={area} onChange={setArea} options={AREAS} />
           <Filter<Level> label="Level" value={level} onChange={setLevel} options={LEVELS} />
-          <Filter<Showcase> label="Showcase" value={showcase} onChange={setShowcase} options={[{ id: "blocks", label: "Blocks" }, { id: "pick", label: "Pick" }, { id: "progression", label: "Progression" }]} />
+          <Filter<Showcase> label="Showcase" value={showcase} onChange={setShowcase} options={[{ id: "blocks", label: "Blocks" }, { id: "pick", label: "Pick" }, { id: "progression", label: "Progression" }, { id: "stages", label: "Stages" }, { id: "variants", label: "Variants" }]} />
           <Filter<string> label="Teaching" value={teaching} onChange={setTeaching} options={teachingVersions} />
           <Filter<string> label="Model" value={model} onChange={setModel} options={models} />
         </div>

@@ -4,19 +4,19 @@ import DevName from "@/components/DevName";
 import { devUi } from "@/features/devtools/gate";
 import type { PlanTool } from "../model/tools";
 import { usePlan } from "../store/usePlan";
-import { Tool, type KeyPick } from "./Tool";
+import { Tool, type ChoicePick } from "./Tool";
 
 export { Tool } from "./Tool";
 
 /** One tool of an exercise, as the AI set it up: the component and nothing to configure. In development its name shows above it. */
-export default function ExerciseTool({ tool, keyPick }: { tool: PlanTool; keyPick?: KeyPick }) {
+export default function ExerciseTool({ tool, choicePick }: { tool: PlanTool; choicePick?: ChoicePick }) {
   const { state } = usePlan();
   const voice = state.answers?.voice?.type;
-  if (!devUi()) return <Tool tool={tool} voice={voice} keyPick={keyPick} />;
+  if (!devUi()) return <Tool tool={tool} voice={voice} choicePick={choicePick} />;
   return (
     <div className="flex flex-col gap-1">
       <DevName name={tool.type === "guitar-play-along" ? `guitar-play-along · ${tool.shape.shape}` : tool.type} params={params(tool)} />
-      <Tool tool={tool} voice={voice} keyPick={keyPick} />
+      <Tool tool={tool} voice={voice} choicePick={choicePick} />
     </div>
   );
 }

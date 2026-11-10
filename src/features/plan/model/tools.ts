@@ -51,6 +51,12 @@ export type NeckPart = "positions" | "neck";
 export const NECK_PARTS: NeckPart[] = ["positions", "neck"];
 export type NeckParts = Partial<Record<NeckPart, PartMode>>;
 
+/** How a step-choice names its chips: "Stage 1" (a ladder, each harder than the last) or "Variant 1" (equals to compare); absent: the chips show the one value they set. */
+export type ChoiceLabel = "stage" | "variant";
+export const CHOICE_LABELS: ChoiceLabel[] = ["stage", "variant"];
+/** What one chip of a step-choice sets on the step's tools: a key (pitch class), a tempo, a position 1-5. Every option of a chooser holds the same parts. */
+export interface StepOption { key?: number; bpm?: number; position?: number }
+
 type View = "tab" | "notes" | "neck";
 type Under = "chords" | "drone" | "none";
 
@@ -75,7 +81,7 @@ export type PlanTool =
   | { type: "interval-singer"; key: number; /** more keys to pick Do from, the first `key`; absent: only `key` */ keys?: number[]; voice?: Voice; /** semitones from Do, 1-12 */ intervals?: number[]; dir?: IntervalDir; dot?: false }
   | { type: "guitar-play-along"; shape: PlayAlongShape; bpm: number; repeats?: number; view?: View; enable?: Degree[]; highlight?: Degree[]; others?: "muted" | "hidden"; under?: Under }
   | { type: "strum-along"; chords: string[]; bpm: number; per?: "bar" | "beat"; beats?: number; pattern?: string }
-  | { type: "key-choice"; /** 2-3 pitch classes the student can move the step's tools to, the first the one they are written in (transpose.ts) */ keys: number[] }
+  | { type: "step-choice"; /** how the chips are named; absent: by the one value they set */ label?: ChoiceLabel; /** 2-4 options, the first the one the step's tools are written in (stepChoice.ts) */ options: StepOption[] }
   | { type: "backing-track"; /** a backing tracks progression id; absent: `numerals` */ progression?: string; /** the lesson's own chords as numerals in `key` (pasted chords are read into numerals at parse) */ numerals?: string[]; key: number; /** a backing tracks style id; none: the progression's own, ballad for numerals */ style?: string; /** none: the style's tempo */ bpm?: number; /** the parts offered and how; absent: drums, bass and keys all "on" */ parts?: BackingParts }
   /* stubs: a placeholder view until the real components exist; strings are numbered 1-6, 6 = low E */
   | { type: "finger-pattern"; fingers: string; fret: number; strings?: number[]; show?: "finger" | "pick"; bpm: number }
@@ -351,13 +357,7 @@ const voiceOrTenor = (d: Diag, v: unknown): Voice => {
 };
 
 const PARSERS: { [N in ToolName]: ToolSpec } = {
-  "key-choice": {
-    parse(t, d) {
-      lost(d, "keys", t.keys, keyOf);
-      const keys = keysOf(t.keys);
-      return keys ? { type: "key-choice", keys } : no(d, "it needs 2 or 3 different keys");
-    },
-  },
+  "step-choice": { parse: stepChoiceTool },
   "scale-neck": { parse: scaleNeck },
   "position-neck": { parse: positionNeck },
   "chord-shapes": {
@@ -657,16 +657,62 @@ export function resolveChordPlacement(sections: Section[]): Section[] {
   });
 }
 
-/** A key-choice's 2-3 different keys, in order; null when fewer than two can be read. */
-function keysOf(v: unknown): number[] | null {
-  const keys = [...new Set(list(v).map(keyOf).filter((k): k is number => k !== null))].slice(0, 3);
-  return keys.length >= 2 ? keys : null;
+/** One option of a step-choice: the parts it can read (a key, a tempo clamped to 30-240, a position 1-5); null for a part it holds but can't read. */
+function optionOf(v: unknown, d: Diag): StepOption | null {
+  if (!v || typeof v !== "object" || Array.isArray(v)) return null;
+  const o = v as Record<string, unknown>;
+  const out: StepOption = {};
+  if (o.key != null) {
+    const key = keyOf(o.key);
+    if (key === null) return null;
+    out.key = key;
+  }
+  if (o.bpm != null) {
+    const n = Number(o.bpm);
+    if (!Number.isFinite(n)) return null;
+    out.bpm = Math.min(240, Math.max(30, Math.round(n)));
+    if (out.bpm !== n && !d.stored) defaulted(d, "bpm", o.bpm, "30-240", out.bpm);
+  }
+  if (o.position != null) {
+    const position = int(o.position, 1, 5);
+    if (position === null) return null;
+    out.position = position;
+  }
+  return out;
 }
 
 /**
- * Sections written before `key-choice` was a tool, when a heading listed the step's `keys`: the keys leave the heading
- * and become a key-choice tool right before the step's first tool (at the step's end when it has none). A step that
- * already has a key-choice just loses the heading's keys. Works on raw (pasted) and stored sections alike.
+ * A step-choice: 2 to 4 different options that hold the same parts (option 1's), in order; what it leaves out is noted.
+ * Without a label the chips show the one value they set, so options with more than one part are named "variant".
+ */
+function stepChoiceTool(t: Record<string, unknown>, d: Diag): PlanTool | null {
+  const note = (n: string) => { if (!d.stored) d.notes.push(n); };
+  const raw = list(t.options);
+  const read = raw.map((o) => optionOf(o, d));
+  const first = read.find((o) => o && Object.keys(o).length);
+  const parts = first ? Object.keys(first).sort() : [];
+  const options: StepOption[] = [];
+  const left: unknown[] = [];
+  read.forEach((o, i) => {
+    const same = o && parts.length > 0 && Object.keys(o).sort().join() === parts.join();
+    if (!same) left.push(raw[i]);
+    else if (!options.some((x) => JSON.stringify(x) === JSON.stringify({ ...x, ...o }))) options.push(o);
+  });
+  if (left.length) note(`left out options it could not use (${left.slice(0, 4).map((o) => JSON.stringify(o)?.slice(0, 40)).join(", ")}): every option needs the same parts (key, bpm, position), each readable.`);
+  if (options.length > 4) note("had more than 4 options; a step-choice takes at most 4 options, kept the first 4.");
+  const kept = options.slice(0, 4);
+  if (kept.length < 2) return no(d, "it needs 2 to 4 different options");
+  const known = CHOICE_LABELS.includes(t.label as ChoiceLabel) ? (t.label as ChoiceLabel) : null;
+  if (t.label != null && !known) note(`had label ${JSON.stringify(t.label)?.slice(0, 20)} (it is "stage" or "variant"); left it out.`);
+  const label = known ?? (parts.length > 1 ? "variant" : null);
+  if (!known && label) note('sets more than one part without a label; used "variant" (write "label": "stage" or "variant").');
+  return { type: "step-choice", ...(label ? { label } : {}), options: kept };
+}
+
+/**
+ * Sections written when a heading listed the step's `keys` (before the chooser was a tool): the keys leave the heading
+ * and become a step-choice, an option per key, right before the step's first tool (at the step's end when it has none).
+ * A step that already has a chooser just loses the heading's keys. Works on raw (pasted) and stored sections alike.
  */
 export function liftHeadingKeys<T>(sections: T[]): T[] {
   type Raw = { type?: unknown; keys?: unknown; tool?: { type?: unknown } };
@@ -675,7 +721,7 @@ export function liftHeadingKeys<T>(sections: T[]): T[] {
   const out: T[] = [];
   let pending: unknown[] | null = null;
   const flush = () => {
-    if (pending) out.push({ type: "tool", tool: { type: "key-choice", keys: pending } } as T);
+    if (pending) out.push({ type: "tool", tool: { type: "step-choice", options: pending.map((key) => ({ key })) } } as T);
     pending = null;
   };
   sections.forEach((s, i) => {
@@ -685,7 +731,7 @@ export function liftHeadingKeys<T>(sections: T[]): T[] {
       if (Array.isArray(r.keys)) {
         const { keys, ...rest } = r;
         const end = sections.findIndex((_, j) => j > i && at(j).type === "heading");
-        const has = sections.slice(i + 1, end < 0 ? undefined : end).some((x) => (x as Raw)?.type === "tool" && (x as Raw).tool?.type === "key-choice");
+        const has = sections.slice(i + 1, end < 0 ? undefined : end).some((x) => (x as Raw)?.type === "tool" && ["step-choice", "key-choice"].includes((x as Raw).tool?.type as string));
         if (!has) pending = keys as unknown[];
         out.push(rest as T);
         return;

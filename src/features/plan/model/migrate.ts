@@ -18,12 +18,17 @@ const RENAMED: Record<string, string> = {
  * A tool as an older plan wrote it, in today's names and props; anything else is returned unchanged. `sing` becomes a
  * `staff` with the mic (its stored `notes`/`highlight` are already semitones and are read as such), `comp` a
  * `guitar-play-along` progression on the neck, `click-drone` a `backing-band` with its click and drone, `chord-backing` (chords for a singer) a `backing-track` on its chords with a
- * gentle style and the bass off. Pure; `parseTool` calls it first so old and new plans parse alike.
+ * gentle style and the bass off, `key-choice` (key chips) a `step-choice` whose options each set a key. Pure; `parseTool` calls it first so old and new plans parse alike.
  */
 export function migrateTool(raw: Record<string, unknown>): Record<string, unknown> {
   const type = raw.type;
   if (typeof type !== "string") return raw;
   if (Object.hasOwn(RENAMED, type)) return { ...raw, type: RENAMED[type] };
+  if (type === "key-choice") {
+    // the key chips before step-choice: each key is an option that sets the key
+    const { keys, ...rest } = raw;
+    return { ...rest, type: "step-choice", options: (Array.isArray(keys) ? keys : []).map((key) => ({ key })) };
+  }
   if (type === "sing") return { ...raw, type: "staff", mic: true };
   if (type === "click-drone") {
     const { click, drone, ...rest } = raw;

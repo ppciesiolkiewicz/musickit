@@ -19,7 +19,7 @@
     "sections": [
       { "type": "heading", "text": "By step", "minutes": 3 },
       { "type": "text", "text": "A tune on Do, Re and Mi. Press Play below to hear it: the mic starts with it, and your pitch shows on the staff. Sing along on the note names, which help you remember each sound. Once it feels easy, tap A in the Key row above the staff and sing it there. The notes change, the pattern doesn't." },
-      { "type": "tool", "tool": { "type": "key-choice", "keys": ["g", "a"] } },
+      { "type": "tool", "tool": { "type": "step-choice", "options": [{ "key": "g" }, { "key": "a" }] } },
       { "type": "tool", "tool": { "type": "melody-singer", "pick": { "difficulty": "easy", "stage": "mi" }, "key": "g", "voice": "tenor" } },
       { "type": "heading", "text": "By skip", "minutes": 3 },
       { "type": "text", "text": "A longer tune in D that skips between Do, Mi and Sol, then steps back down. Look at the staff first and guess how it goes. Press Play below to check your guess, then sing along on \"la\"." },

@@ -1,0 +1,29 @@
+{
+  "id": "showcase-variants-same-frets",
+  "kind": "exercise",
+  "showcase": "variants",
+  "areas": ["guitar"],
+  "level": "intermediate",
+  "updated": "2026-11-10",
+  "model": "claude-fable-5-2",
+  "concepts": ["five-pentatonic-boxes"],
+  "docs": { "agents": 1, "teaching": 1 },
+  "note": "Shows a step-choice as variants: each chip sets a key and a position together, so two scales that sit in the same part of the neck can be compared on one neck. The why says what links them (four shared notes), and the text says what to look for between the two (one note moves, the ringed roots change places) instead of asking the learner to find it.",
+  "exercise": {
+    "title": "One place on the neck, two keys",
+    "focus": "A minor pentatonic position 1 and E minor pentatonic position 3 · the same frets · over a drone",
+    "minutes": 4,
+    "level": "intermediate", "area": "guitar", "tags": ["technique", "theory"], "topic": "guitar-scales", "concepts": ["five-pentatonic-boxes"],
+    "why": "A minor and E minor pentatonic share four of their five notes, so in the same part of the neck only one note moves and the root is a new note to end on.",
+    "learnBefore": ["/course/8/pentatonic-boxes", "/course/10/moving-keys"],
+    "sections": [
+      { "type": "heading", "text": "Same frets, new root", "minutes": 4 },
+      { "type": "text", "text": "Press Play below to start the drone. Play the position on the neck up and back down, and end on a ringed {{1}}." },
+      { "type": "tool", "tool": { "type": "backing-band", "bpm": 70, "key": "a", "parts": { "drone": "always" } } },
+      { "type": "tool", "tool": { "type": "step-choice", "label": "variant", "options": [{ "key": "a", "position": 1 }, { "key": "e", "position": 3 }] } },
+      { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "highlight": ["1"] } },
+      { "type": "text", "text": "Then tap Variant 2 above the neck and press Play to start the drone again, now on the new root. Your hand stays in the same part of the neck: one note sits a fret lower, and the ringed notes are in new places. Go back and forth between the two until you can end a phrase on a ringed {{1}} in either." }
+    ],
+    "exploreMore": ["/theory/scales/minor-pentatonic/e"]
+  }
+}

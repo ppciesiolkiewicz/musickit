@@ -20,6 +20,8 @@ import theoryAdvancedModesByEar from "./exercises/theory-advanced-modes-by-ear.j
 import showcaseBlocksDoMiSol from "./exercises/showcase-blocks-do-mi-sol.json";
 import showcasePickStepTunes from "./exercises/showcase-pick-step-tunes.json";
 import showcaseProgressionFourWays from "./exercises/showcase-progression-four-ways.json";
+import showcaseStagesTempoLadder from "./exercises/showcase-stages-tempo-ladder.json";
+import showcaseVariantsSameFrets from "./exercises/showcase-variants-same-frets.json";
 import guitarNewNotesOnEAndA from "./exercises/guitar-new-notes-on-e-and-a.json";
 import voiceBeginnerInTuneOverDrone from "./exercises/voice-beginner-in-tune-over-drone.json";
 import theoryIntermediateHearingChanges from "./exercises/theory-intermediate-hearing-changes.json";
@@ -66,7 +68,7 @@ export interface ExampleMeta {
 export interface ExerciseExample extends ExampleMeta {
   kind: "exercise";
   /** set on the three that show one rule: blocks with a chart per step, a melody by `pick`, a progression worked several ways */
-  showcase?: "blocks" | "pick" | "progression";
+  showcase?: "blocks" | "pick" | "progression" | "stages" | "variants";
   /** one exercise exactly as the AI returns it */
   exercise: unknown;
 }
@@ -95,6 +97,8 @@ export const EXERCISE_EXAMPLES: ExerciseExample[] = [
   showcaseBlocksDoMiSol,
   showcasePickStepTunes,
   showcaseProgressionFourWays,
+  showcaseStagesTempoLadder,
+  showcaseVariantsSameFrets,
   guitarNewNotesOnEAndA,
   voiceBeginnerInTuneOverDrone,
   theoryIntermediateHearingChanges,

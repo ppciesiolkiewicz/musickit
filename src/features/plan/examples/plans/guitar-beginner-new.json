@@ -794,13 +794,7 @@
               },
               {
                 "type": "tool",
-                "tool": {
-                  "type": "key-choice",
-                  "keys": [
-                    "g",
-                    "c"
-                  ]
-                }
+                "tool": { "type": "step-choice", "options": [{ "key": "g" }, { "key": "c" }] }
               },
               {
                 "type": "tool",
@@ -1126,14 +1120,7 @@
               },
               {
                 "type": "tool",
-                "tool": {
-                  "type": "key-choice",
-                  "keys": [
-                    "g",
-                    "c",
-                    "d"
-                  ]
-                }
+                "tool": { "type": "step-choice", "options": [{ "key": "g" }, { "key": "c" }, { "key": "d" }] }
               },
               {
                 "type": "tool",
@@ -1957,13 +1944,7 @@
               },
               {
                 "type": "tool",
-                "tool": {
-                  "type": "key-choice",
-                  "keys": [
-                    "g",
-                    "a"
-                  ]
-                }
+                "tool": { "type": "step-choice", "options": [{ "key": "g" }, { "key": "a" }] }
               },
               {
                 "type": "tool",

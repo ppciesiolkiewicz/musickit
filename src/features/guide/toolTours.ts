@@ -30,8 +30,8 @@ const band = (what: string): TourStep[] => [
 ];
 
 export const TOOL_TOURS: Record<ToolName, TourStep[]> = {
-  "key-choice": [
-    { target: "key-choice-keys", title: "Change the key", text: "Tap a key and everything in this step moves to it. The notes change, the pattern doesn't." },
+  "step-choice": [
+    { target: "step-choice-options", title: "Change this step", text: "Tap one and every tool in this step changes to it: the key, the tempo or the position. What you play stays the same." },
   ],
   "scale-neck": [
     { target: "scale-neck-boxes", title: "The positions", text: "Each picture is one position of the scale on the neck. Tap a dot to hear its note." },

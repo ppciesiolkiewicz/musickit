@@ -21,7 +21,7 @@
       { "type": "tool", "tool": { "type": "backing-track", "key": "g", "numerals": ["I", "IV", "I", "IV", "I", "V", "I", "V"], "style": "pop", "bpm": 70 } },
       { "type": "heading", "text": "Guess, then look", "minutes": 2 },
       { "type": "text", "text": "Press Play below to start the band: all three chords now, in a new order. Look away from the chord boxes and call out 1, 4 or 5 on each change, then look to check. When you hear it before you think it, tap D in the Key row above the band and guess again. The chords change, the pull doesn't." },
-      { "type": "tool", "tool": { "type": "key-choice", "keys": ["g", "d"] } },
+      { "type": "tool", "tool": { "type": "step-choice", "options": [{ "key": "g" }, { "key": "d" }] } },
       { "type": "tool", "tool": { "type": "backing-track", "key": "g", "numerals": ["I", "IV", "V", "I", "V", "IV", "I", "V"], "style": "pop", "bpm": 70 } },
       { "type": "heading", "text": "Chords that stay longer", "minutes": 2 },
       { "type": "text", "text": "Press Play below to start the band, now in A. Some chords stay for two bars, so you can't count your way to the next change: look away and call out the number only when you hear the chord move. Then put on a song you know and listen for the 4 and the 5." },

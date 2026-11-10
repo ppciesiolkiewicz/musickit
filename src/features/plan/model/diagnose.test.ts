@@ -182,10 +182,41 @@ describe("list entries it could not read are noted", () => {
     assert.deepEqual(notes({ ...neck, enable: [3, "5", 7] }), ['scale-neck "enable" had numbers (3, 7); write degrees as strings ("3", "b7"); left them out.']);
     assert.deepEqual(notes({ type: "staff", scale: "dorian", key: "a", voice: "alto", notes: [0, 4] }), ['staff "notes" had numbers (0, 4); write degrees as strings ("3", "b7"); left them out.']);
   });
-  it("a key-choice's keys it could not read", () => {
-    assert.deepEqual(notes({ type: "key-choice", keys: ["c", "d", "zz"] }), ['key-choice "keys" had entries it could not read ("zz"); left them out.']);
-    assert.deepEqual(notes({ type: "key-choice", keys: ["c", "d"] }), []);
-    assert.equal(parseToolDiag({ type: "key-choice", keys: ["c"] }).dropped, "a key-choice (it needs 2 or 3 different keys)");
+  it("an old key-choice says what it lost in the new tool's words", () => {
+    assert.match(notes({ type: "key-choice", keys: ["c", "d", "zz"] }).join("\n"), /^step-choice left out options it could not use \(\{"key":"zz"\}\)/);
+    assert.equal(dropped({ type: "key-choice", keys: ["c"] }), "a step-choice (it needs 2 to 4 different options)");
+  });
+  it("a step-choice: options, parts and label", () => {
+    const sc = (options: unknown[], extra: Record<string, unknown> = {}) => ({ type: "step-choice", options, ...extra });
+    assert.deepEqual(parseToolDiag(sc([{ key: "g" }, { key: "a" }])), { tool: { type: "step-choice", options: [{ key: 7 }, { key: 9 }] }, notes: [] });
+    assert.deepEqual(parseToolDiag(sc([{ bpm: 60 }, { bpm: 80 }, { bpm: 100 }], { label: "stage" })), { tool: { type: "step-choice", label: "stage", options: [{ bpm: 60 }, { bpm: 80 }, { bpm: 100 }] }, notes: [] });
+    // at most four
+    const five = parseToolDiag(sc([60, 70, 80, 90, 100].map((bpm) => ({ bpm }))));
+    assert.equal(five.tool?.type === "step-choice" && five.tool.options.length, 4);
+    assert.match(five.notes.join("\n"), /at most 4 options/);
+    // the same parts in every option; too few left is no chooser
+    const uneven = parseToolDiag(sc([{ key: "g", bpm: 60 }, { key: "a" }, { key: "c", bpm: 80 }]));
+    assert.deepEqual(uneven.tool, { type: "step-choice", label: "variant", options: [{ key: 7, bpm: 60 }, { key: 0, bpm: 80 }] });
+    assert.match(uneven.notes.join("\n"), /every option needs the same parts/);
+    assert.equal(dropped(sc([{ key: "g", bpm: 60 }, { key: "a" }])), "a step-choice (it needs 2 to 4 different options)");
+    assert.equal(dropped(sc([{ key: "g" }, { key: "g" }])), "a step-choice (it needs 2 to 4 different options)");
+    assert.equal(dropped(sc([{}, {}])), "a step-choice (it needs 2 to 4 different options)");
+    // the label
+    const odd = parseToolDiag(sc([{ key: "g" }, { key: "a" }], { label: "level" }));
+    assert.deepEqual(odd.tool, { type: "step-choice", options: [{ key: 7 }, { key: 9 }] });
+    assert.match(odd.notes.join("\n"), /label/);
+    const bare = parseToolDiag(sc([{ key: "g", position: 1 }, { key: "c", position: 4 }]));
+    assert.equal(bare.tool?.type === "step-choice" && bare.tool.label, "variant");
+    assert.match(bare.notes.join("\n"), /variant/);
+    // values out of range
+    const fast = parseToolDiag(sc([{ bpm: 60 }, { bpm: 500 }]));
+    assert.deepEqual(fast.tool, { type: "step-choice", options: [{ bpm: 60 }, { bpm: 240 }] });
+    assert.equal(fast.notes.length, 1);
+    const far = parseToolDiag(sc([{ position: 1 }, { position: 9 }, { position: 2 }]));
+    assert.deepEqual(far.tool, { type: "step-choice", options: [{ position: 1 }, { position: 2 }] });
+    assert.equal(far.notes.length, 1);
+    // a stored plan is read as it is, without notes
+    assert.deepEqual(parseToolDiag({ type: "step-choice", options: [{ key: 7, position: 1 }, { key: 0, position: 4 }] }, { stored: true }), { tool: { type: "step-choice", label: "variant", options: [{ key: 7, position: 1 }, { key: 0, position: 4 }] }, notes: [] });
   });
   it("a scale-neck's parts", () => {
     const neck = (parts: unknown) => ({ type: "scale-neck", scale: "minor-pentatonic", key: "a", parts });

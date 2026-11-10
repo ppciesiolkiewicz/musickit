@@ -39,14 +39,15 @@ Each file is the content exactly as the AI returns it, wrapped in metadata:
   the current two. The prompt tells the AI to write like the examples at the current `teaching` version, and
   `/dev/examples` shows both as tags (amber when behind) and filters by teaching version. Set `docs` only when the
   example is written or rewritten; never raise it by hand.
-- An exercise may have `"showcase"`: `blocks` (a chart per step), `pick` (a voice melody chosen by `pick`) or
-  `progression` (one progression worked several ways). These three always go into the prompt.
+- An exercise may have `"showcase"`: `blocks` (a chart per step), `pick` (a voice melody chosen by `pick`),
+  `progression` (one progression worked several ways), `stages` (a step-choice as a tempo ladder) or `variants` (a
+  step-choice whose chips each set a key and a position). These five always go into the prompt.
 - A plan has `"kind": "plan"`, `"minutes"` (the daily time it is written for) and `"plan": { title, summary, days }`,
   the whole `PlanConfig` the AI returns.
 
 What there is: one exercise per area and level (`<area>-<level>-<what>.json`) and three more (`guitar-new-notes-on-e-and-a`,
 `voice-beginner-in-tune-over-drone`, `theory-intermediate-hearing-changes`), all but `voice-beginner-do-mi-sol` and
-`voice-advanced-guide-tones` in the new teaching style; the three showcases, in the older style; and four plans:
+`voice-advanced-guide-tones` in the new teaching style; the three older showcases and two for the step-choice (`showcase-stages-tempo-ladder`, `showcase-variants-same-frets`); and four plans:
 `guitar-beginner` (20 min), `guitar-intermediate` (30), `voice-beginner` (15), `guitar-theory-intermediate` (30).
 
 ## The rules every example meets
@@ -66,8 +67,14 @@ What there is: one exercise per area and level (`<area>-<level>-<what>.json`) an
 - Every exercise, alone or in a plan, has at least one `learnBefore` lesson. If no course section fits, a planned (stub) section is
   added to the course for it first.
 - A sung or played pattern (Do Mi Sol, a leap, a tune, guide tones) comes back in a second key: the notes change, the
-  pattern doesn't. The same drill in more keys is one block with a `key-choice` tool right before the tool it moves (the
-  student taps a key and the block's tools move to it; the text says "tap G in the Key row above the neck"); a new key with a new task is a later block or another tool.
+  pattern doesn't. The same drill in more keys is one block with a `step-choice` tool right before the tool it moves, an
+  option per key (the student taps a key and the block's tools move to it; the text says "tap G in the Key row above the neck"); a new key with a new task is a later block or another tool.
+- A step-choice also takes one drill up in stages or across variants, without a copy of its tools per version. `"label": "stage"`
+  when each option is harder than the last (a tempo going up): the text says what a stage feels like before the next and
+  what to do when one is too fast. `"label": "variant"` when the options are equals to compare (one pattern in two keys
+  or positions): the text says what to look or listen for between them. The text names the chip by its words and where
+  it is ("tap Stage 2 above the metronome"), says what Play starts again after a tap, and names no tempo, key or
+  position as the only one.
 - The text names a control by the label on the screen and says what it starts and where it is; it never carries frets,
   fingerings or note lists the tool shows. The way from one position to the next is a position-neck with `cross`.
 - No guitar-play-along `repeats` (it loops; the exercise's minutes are the timer). Styles are at most one sentence of colour.

@@ -2,7 +2,7 @@ import { fitBlocks, blocksOf } from "./blocks";
 import { mixesSingAndPlay, tempoWithoutMetronome } from "./checks";
 import { checkLink, type CatalogueEntry } from "./catalogue";
 import { linkSlots } from "./migrate";
-import { keyWarnings } from "./transpose";
+import { choiceWarnings } from "./stepChoice";
 import { MAX_TAGS, askedTags, exerciseLevelArea, exerciseTags, legacySections, liftHeadingKeys, parseSectionDiag, parseToolDiag, pickWasInexact, resolveChordPlacement, type Section } from "./tools";
 import { PLAN_DAYS, type PlanConfig, type PlanDay, type PlanExercise } from "./types";
 import { conceptById } from "./concepts";
@@ -132,7 +132,7 @@ export function parsePlanConfig(text: string, entries: CatalogueEntry[]): ParseR
       if (ex.minutes > 5 && blocksOf(fit.sections).length < 2) warnings.push(`${where}: over 5 minutes in one block; split it.`);
       if (mixesSingAndPlay(fit.sections)) warnings.push(`${where}: asks to both sing and play; keep it to one.`);
       if (tempoWithoutMetronome(fit.sections)) warnings.push(`${where}: asks for a tempo but shows no metronome; add one.`);
-      for (const w of keyWarnings(fit.sections)) warnings.push(`${where}: ${w}`);
+      for (const w of choiceWarnings(fit.sections)) warnings.push(`${where}: ${w}`);
       ex.sections = fit.sections;
       Object.assign(ex, exerciseLevelArea(e));
       const tags = exerciseTags(e.tags, sections);
@@ -146,7 +146,7 @@ export function parsePlanConfig(text: string, entries: CatalogueEntry[]): ParseR
       const why = str(e.why, 300);
       if (why) ex.why = why;
       Object.assign(ex, parseSlots(e, entries, where, warnings));
-      const tools = fit.sections.filter((s) => s.type === "tool" && s.tool.type !== "key-choice").length; // key chips are no tool to learn
+      const tools = fit.sections.filter((s) => s.type === "tool" && s.tool.type !== "step-choice").length; // the chips are no tool to learn
       if (tools > MAX_TOOLS) warnings.push(`${where}: ${tools} tools; keep it to ${MAX_TOOLS}.`);
       if (!ex.learnBefore?.length) warnings.push(`${where}: no learnBefore link; add an attunr page to learn first.`);
       return [ex];

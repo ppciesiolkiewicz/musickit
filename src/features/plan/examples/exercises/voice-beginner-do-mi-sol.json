@@ -18,7 +18,7 @@
     "sections": [
       { "type": "heading", "text": "Skips over a drone", "minutes": 3 },
       { "type": "text", "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff as a line. Start on a {{1}} that sits easily in your voice and sing {{1}} {{3}} {{5}} up and back down on the note names: they help you remember each sound. Then skip straight from {{1}} to {{5}}, and hold each note until your line settles on it." },
-      { "type": "tool", "tool": { "type": "key-choice", "keys": ["d", "a", "c"] } },
+      { "type": "tool", "tool": { "type": "step-choice", "options": [{ "key": "d" }, { "key": "a" }, { "key": "c" }] } },
       { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "d", "voice": "tenor", "notes": ["1", "3", "5"], "labels": "solfege", "drone": true } },
       { "type": "text", "text": "Then tap A in the Key row above the staff and sing the same {{1}} {{3}} {{5}} over the new drone, then the same in C. The notes change, the pattern doesn't." },
       { "type": "heading", "text": "A tune that skips", "minutes": 3 },

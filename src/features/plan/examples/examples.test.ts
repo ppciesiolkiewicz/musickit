@@ -147,10 +147,17 @@ describe("example library", () => {
     for (const { where, ex } of exercises) assert.equal(tempoWithoutMetronome(ex.sections!), false, where);
   });
 
-  it("each area × level has an exercise; three showcases exist", () => {
+  it("no example holds the old key-choice; a step-choice is shown as stages and as variants", () => {
+    const choosers = exercises.flatMap(({ ex }) => (ex.sections ?? []).flatMap((s) => (s.type === "tool" ? [s.tool as { type: string; label?: string }] : [])));
+    assert.equal(choosers.some((t) => t.type === "key-choice"), false);
+    for (const label of ["stage", "variant"]) assert.ok(choosers.some((t) => t.type === "step-choice" && t.label === label), label);
+    assert.doesNotMatch(JSON.stringify([EXERCISE_EXAMPLES, PLAN_EXAMPLES]), /key-choice/);
+  });
+
+  it("each area × level has an exercise; five showcases exist", () => {
     const plain = EXERCISE_EXAMPLES.filter((e) => !e.showcase);
     for (const a of AREAS) for (const l of LEVELS) assert.ok(plain.some((e) => e.areas[0] === a.id && e.level === l), `${a.id} ${l}`);
-    assert.deepEqual(EXERCISE_EXAMPLES.flatMap((e) => (e.showcase ? [e.showcase] : [])).sort(), ["blocks", "pick", "progression"]);
+    assert.deepEqual(EXERCISE_EXAMPLES.flatMap((e) => (e.showcase ? [e.showcase] : [])).sort(), ["blocks", "pick", "progression", "stages", "variants"]);
     assert.equal(PLAN_EXAMPLES.filter((p) => !p.rewrites).length, 4);
   });
 

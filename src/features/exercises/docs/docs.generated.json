@@ -455,19 +455,6 @@
     ]
   },
   {
-    "name": "key-choice",
-    "kind": "basic",
-    "description": "A row of key chips (\"Key  A  G  C\"): the student taps a key and every tool in the same block (heading to heading)\nmoves to it, so one drill is sung or played in each key without a copy of the tool per key. It shows nothing else\nand makes no sound. Put it right before the tool it moves, so the chips sit on that tool. One per block; the block's\nother tools must all be able to change key (not note-finder, interval-ears, run-singer, string-singer, breathwork\nor the finger drills).",
-    "props": [
-      {
-        "name": "keys",
-        "type": "string[]",
-        "required": true,
-        "description": "2-3 different keys as notes: [\"a\", \"g\", \"c\"]; the first is the key the block's tools are written in"
-      }
-    ]
-  },
-  {
     "name": "legato-trill",
     "kind": "basic",
     "description": "A legato trill: two fingers on one string, alternating by\nhammer-on and pull-off with no picking after the first note. Use it for legato strength and finger independence.",
@@ -1051,6 +1038,25 @@
         "type": "\"degree\" | \"solfege\"",
         "required": false,
         "description": "the label under each note: \"degree\" (1 2 3) or \"solfege\" (Do Re Mi). Absent: the student's setting, and with the mic never bare note names (degrees then)"
+      }
+    ]
+  },
+  {
+    "name": "step-choice",
+    "kind": "basic",
+    "description": "A row of chips for the same drill again with one thing changed: the student taps a chip and every tool in the same\nblock (heading to heading) is set to it, so one drill is played faster, in another key or in another position\nwithout a copy of the tool per version. Each option is one chip and sets one or more parts: `key` moves every tool\nin the block to that key, `bpm` sets the tempo of every tool that has one, `position` makes a scale-neck or\nposition-neck show that one position. Every option holds the same parts, and option 1 is how the block's tools are\nwritten. `label` names the chips: \"stage\" (\"Stage 1\", \"Stage 2\": each option harder than the last, such as a tempo\ngoing up) or \"variant\" (\"Variant 1\", \"Variant 2\": equals to compare, such as the same pattern in two keys or\npositions); each named chip also lists what it sets (\"A · 80 bpm\"). Without a label, for options that set one part,\nthe row is named Key, Tempo or Position and each chip shows its value (\"Key  G  A\"). It shows nothing else and makes\nno sound. Put it right before the tool it moves, so the chips sit on that tool. One per block; with `key`, the\nblock's other tools must all be able to change key (not note-finder, interval-ears, run-singer, string-singer,\nbreathwork or the finger drills).",
+    "props": [
+      {
+        "name": "options",
+        "type": "{ key?: string; bpm?: number; position?: number }[]",
+        "required": true,
+        "description": "2-4 different options, each with the same parts: [{ \"bpm\": 60 }, { \"bpm\": 80 }] or [{ \"key\": \"g\", \"position\": 1 }, { \"key\": \"c\", \"position\": 4 }]. `key` is a note (\"a\", \"b-flat\"), `bpm` 30-240, `position` 1-5"
+      },
+      {
+        "name": "label",
+        "type": "\"stage\" | \"variant\"",
+        "required": false,
+        "description": "how the chips are named: \"stage\" or \"variant\"; leave out only when the options set one part"
       }
     ]
   },

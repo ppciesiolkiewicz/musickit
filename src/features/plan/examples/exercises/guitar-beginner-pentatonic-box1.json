@@ -7,7 +7,7 @@
   "model": "claude-fable-5-2",
   "concepts": ["pentatonic-box-1", "pentatonic"],
   "docs": { "agents": 0, "teaching": 1 },
-  "note": "One position, four jobs, each the same shape turned a new way: over a slow metronome, its roots alone in three keys (a key-choice on the neck, which also shows the whole neck so the shape is seen moving), over a band, then free phrases that end on a root. The why says what the roots are for, so the learner knows where to end a phrase in any scale; the root stays ringed or in play in every view.",
+  "note": "One position, four jobs, each the same shape turned a new way: over a slow metronome, its roots alone in three keys (a step-choice on the neck, which also shows the whole neck so the shape is seen moving), over a band, then free phrases that end on a root. The why says what the roots are for, so the learner knows where to end a phrase in any scale; the root stays ringed or in play in every view.",
   "exercise": {
     "title": "A minor pentatonic, position 1",
     "focus": "A minor pentatonic · position 1 · roots in A, G and C · 60 then 80 bpm",
@@ -22,7 +22,7 @@
       { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "highlight": ["1"] } },
       { "type": "heading", "text": "Only the roots", "minutes": 2 },
       { "type": "text", "text": "Now only the {{1}} notes are in play. Hop between them in any order, until you can go to each one without hunting for it." },
-      { "type": "tool", "tool": { "type": "key-choice", "keys": ["a", "g", "c"] } },
+      { "type": "tool", "tool": { "type": "step-choice", "options": [{ "key": "a" }, { "key": "g" }, { "key": "c" }] } },
       { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "parts": { "positions": "always", "neck": "on" }, "enable": ["1"] } },
       { "type": "text", "text": "Then tap G in the Key row above the neck, and after that C. The shape moves along the neck, and the roots keep their places inside it." },
       { "type": "heading", "text": "Over a band at 80", "minutes": 3 },

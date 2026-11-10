@@ -28,7 +28,7 @@
       { "type": "tool", "tool": { "type": "scale-neck", "scale": "major-ionian", "key": "c", "placement": { "by": "open" }, "enable": ["1", "3", "5"], "highlight": ["5"] } },
       { "type": "heading", "text": "A tune from three notes", "minutes": 2 },
       { "type": "text", "text": "Press Play below to hear a short tune made of only these three notes, and play along with the neck. Once you can hum it before you play it, tap G in the Key row above the neck. The notes change, the pattern doesn't." },
-      { "type": "tool", "tool": { "type": "key-choice", "keys": ["c", "g"] } },
+      { "type": "tool", "tool": { "type": "step-choice", "options": [{ "key": "c" }, { "key": "g" }] } },
       { "type": "tool", "tool": { "type": "guitar-play-along", "shape": { "shape": "melody", "tune": 22, "key": "c" }, "bpm": 70, "view": "neck" } }
     ]
   }

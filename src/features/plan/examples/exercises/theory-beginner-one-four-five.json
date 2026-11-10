@@ -25,7 +25,7 @@
       { "type": "tool", "tool": { "type": "backing-track", "key": "g", "numerals": ["I", "IV", "V", "I"], "style": "pop", "bpm": 80 } },
       { "type": "heading", "text": "A new order", "minutes": 2 },
       { "type": "text", "text": "Press Play below to start the band: the same three chords in a new order. Look away from the screen and call out the number of each chord, then look back to check. Then tap C in the Key row below and do it again: the chords are new, the numbers sound the same." },
-      { "type": "tool", "tool": { "type": "key-choice", "keys": ["g", "c"] } },
+      { "type": "tool", "tool": { "type": "step-choice", "options": [{ "key": "g" }, { "key": "c" }] } },
       { "type": "tool", "tool": { "type": "backing-track", "key": "g", "numerals": ["I", "V", "IV", "V"], "style": "ballad", "bpm": 80 } }
     ],
     "exploreMore": ["/course/5/hearing-changes"]
