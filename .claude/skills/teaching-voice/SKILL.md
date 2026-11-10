@@ -1,6 +1,6 @@
 ---
 name: teaching-voice
-version: 1
+version: 2
 description: How musickit teaching text sounds - plain, short, practical English for course articles, exercise text, glossary meanings, about lines and captions. Use whenever writing or editing any learner-facing music text in this repo, alone or from the course-article, exercise-example and review-teaching-text skills. Its "Words about the app" section is also the house wording for interface copy (buttons, tour steps, notices, flow text), read alongside design:ux-copy.
 ---
 
@@ -43,6 +43,8 @@ It uses the same chordKit code the app draws with, so the text and the picture a
 - One sentence of why, at most, before the doing. No paragraphs of rationale. No "a-ha" moments for the learner to discover.
 - No poetic lines ("Re rubs against it"). No hype ("amazing", "powerful", "unlock"). No hedging ("you might want to").
 - Invite the learner: try, mix, make up, guess and check. Don't lecture.
+- **What to do and what to notice sit on separate lines.** A line break in a text (`\n` in the JSON) starts a new line on the screen. Use one between the doing, the next thing to try, and what to notice or do when it goes wrong. The noticing line starts with what the learner just changed: "When you change the key, the chords are new but the numbers sound the same."
+- **Say what stays the same in this drill, never a stock line.** Not "The notes change, the pattern doesn't." on every exercise, but the thing itself: "the slide on the G string is still {{4}} to {{5}}", "the drop is still an octave", "the tune keeps its shape".
 - No jargon the text hasn't explained. No numbers out of nowhere ("not seven").
 
 ## Words
@@ -51,10 +53,11 @@ It uses the same chordKit code the app draws with, so the text and the picture a
   - Scale shapes on the neck are "positions" everywhere: articles, exercises, titles, headings and captions ("position 1", "the position with the root on the A string"). Never call them "box" or "pattern", even though some props are called `boxes` and the theory calculator says "box". The one place "box" may appear is the explained word's meaning (the `position` entry in `GLOSSARY`), so a learner who meets "box" elsewhere knows it's the same thing. When you touch text that still says "box" for a scale shape, change it to "position"; course stages 6, 8, 9 and 10 still have some (`grep -n -i 'box' src/features/course/stages/*.ts`). A slug stays as it is (`pentatonic-boxes`), since links point at it. "Chord box" is a different thing and stays.
   - "the staff" for the five-line notation. Never "stave" or "music sheet". Never call a neck, chord box or tab a staff. Don't explain what it is, except the first time for a new or beginner learner ("the staff, the five lines of music, where your pitch shows as a line").
   - "the metronome" for the click. "one note per beat" for a step.
+  - The thing a drill practises gets one word, the same in every step and heading of the exercise: "the crossing" for the way from one position to the next (not "the way across" in one step and "the slide" in the next), "the tune", "the run". Where it is a word a learner may not know, add it to `GLOSSARY` so the app explains it.
 - Use note symbols: ♯ ♭ (C♯, B♭). Use "3rd", "5th", "♭7" in prose (exercise JSON writes degrees as `{{b7}}`). In chord names, write the chord the way the app does (Am7, G7, Cmaj7).
 - Solfège is Do Re Mi Fa Sol La Ti, capitalised. Do is always the home note.
 - Put guitar fingers with frets: "play frets 1 to 4 with fingers 1, 2, 3 and 4", never "play fingers 1 2 3 4".
-- A singing step says what to sing on: the note names while learning the notes, else a vowel ("on \"ah\""). For a beginner, and for any high note, pick "oo", "ee" or a hum; keep "ah" for low and middle notes.
+- A singing step says what to sing on, in these exact words, which the app explains with an (i): "on the note names" while learning the notes, else a sound ("on \"ah\"", "on \"oo\"", "on \"ee\"", "on \"la\""). Don't explain the phrase in the text. For a beginner, and for any high note, pick "oo", "ee" or a hum; keep "ah" for low and middle notes.
 - Explained words: `GLOSSARY` in `src/features/course/glossary.ts`. In AI plan text the app adds an (i) to these words, so use the word and don't define it there. Course articles get no (i), so an article defines a word the first time the course uses it, or links to the section that does.
 
 ## Words about the app
@@ -62,8 +65,15 @@ It uses the same chordKit code the app draws with, so the text and the picture a
 A step is also interface copy: the learner has to find a control with one hand on the guitar. Write it so they never hunt.
 
 - **Name a control by the label on the screen, exactly**: Play, Start, Next, Skip, Start exercise, Start microphone, "Cross on". Read the label in the component (`src/features/exercises/basics/<tool>/index.tsx`, `src/components/practice/`); don't guess it. A game's answers are named as its buttons show them ("pick M3 or m3", "Major 7"), with the plain meaning beside them the first time ("M3 for a major 3rd").
-- **Verb, label, where, what it starts**, in that order: "Press Play below to start the metronome." Never a bare "Press Play." Where is "below", "above", "in the Key row above the neck", "under the neck".
-- **One verb per kind of control.** Press a button or a chord box. Tap a note on a staff or a neck, and a key in the Key row. Play and sing are for the instrument and the voice, never for the screen.
+- **Verb, label, where, what it starts**, in that order: "Press Play below to start the metronome." Never a bare "Press Play." Where is one word, "below" or "above"; add whose control it is only when the step has two of them ("Press Play on the first tab below", "under the neck").
+- **One control per sentence.** "Press a chord box below to see the new shapes. Then press Play under them to start the metronome.", not both in one sentence. A tune or a run starts the mic with its Play, so it is one control: "Press Play below to hear the tune: the mic starts with it."
+- **One verb per kind of control.** Press a button or a chord box. Tap a note on a staff or a neck. Use a selector. Play and sing are for the instrument and the voice, never for the screen.
+- **The selector: invite, don't operate.** The row of chips a step-choice draws is "the selector", named by the label it shows: "the Key selector", "the Tempo selector", "the Position selector", "the Stage selector", "the Variant selector". The text says what to try and never which chip to tap, and never lists the options:
+  - The reason to move on comes first, as a feel: "Once you can hum it before you play it, try it in another key."
+  - Then the selector, in its own sentence, with what Play starts again after the change: "Use the Key selector below to change the key, then press Play to hear the tune there."
+  - Then, on a new line, what changes and what stays: "When you change the key, the notes change but the tune keeps its shape."
+  - The text that names a selector sits above it, so the selector is always "below".
+  - Wrong: "Tap G in the Key row above the neck below, play the crossing there, then tap C." Right: "Play the same crossing in other keys. Use the Key selector below to change the key."
 - **Say what they will see next**, when it isn't obvious: "After a bar of count-in, the lit box shows the chord to play."
 - **Say what to do when it goes wrong**, inside the step, calmly and as an action: "If a change comes late, keep your strumming hand going and catch the next beat 1." No blame, no "don't worry", no "try again".
 - **One name for each thing on the screen**, the same in every step:
@@ -84,7 +94,7 @@ Read the text aloud in your head as a learner who knows only the earlier section
 
 Then read it once more, one question per pass:
 
-1. **Could I do this step with my hands full?** Each step names the control, where it is and what it starts.
+1. **Could I do this step with my hands full?** Each step names the control, where it is and what it starts, one control to a sentence; a selector is named, its chips are not.
 2. **Could I make up the next drill from the why?** If the why only says the drill is important ("the base every skill stands on"), it isn't one. Say what makes it work ("when your note matches the drone, the two blend into one sound").
 3. **Do I know when to move on?** Somewhere in each block there is a feel to reach, not a count.
 4. **Is anything said twice?** A fret, a fingering or a note list the picture already shows goes.

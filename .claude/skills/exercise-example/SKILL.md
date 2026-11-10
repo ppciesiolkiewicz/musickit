@@ -1,6 +1,6 @@
 ---
 name: exercise-example
-version: 1
+version: 2
 description: Write or fix a hand-tuned exercise or 7-day plan JSON in src/features/plan/examples - the gold standard the AI plan prompt copies - so it meets every example rule and reads well against its tools. Use when asked to add, write, improve or fix an example exercise or plan, or a showcase.
 ---
 
@@ -44,11 +44,11 @@ The prompt shows these examples to the AI as the standard to copy, so any flaw i
    - Keep the singer's range to the level. The staff runs from the lowest Do in the voice's range up to its top, and `mute`/`hide` take a degree away in every octave, so they can't drop only the high notes: the key and the text do that. For a new or beginner singer, every note the text asks for sits three semitones or more under the top of the range (`tenor`: A4 at most). Pick a key where the drill fits low (a tenor's Do Mi Sol fits in C, D and A; in F and G it reaches C5 or B4), or say where to start ("from the low {{1}}"), and give any high note on "oo", which is easier up high than "ah". An intermediate exercise can open eased, the drill in a lower key on "oo", then open the full range in a later staff (see `voice-intermediate-leaps`). Advanced uses the whole range. Check a staff's notes with `buildLadder` in `src/features/theory/singing.ts`.
 
    *A second key*
-   - A sung or played pattern (Do Mi Sol, a leap, a tune, guide tones) comes back in a second key, with one plain line such as "The notes change, the pattern doesn't." The same drill in 2-4 keys is one block with a `{ "type": "step-choice", "options": [{ "key": "d" }, { "key": "a" }, { "key": "c" }] }` tool right before the tool it moves (the first is the key the block's tools are written in; the text says where to tap by what is under the chips: "tap A in the Key row above the staff"); a new key with a new task is a later block or another tool. Check each key fits the voice or the position with `npm run -s theory`.
+   - A sung or played pattern (Do Mi Sol, a leap, a tune, guide tones) comes back in a second key, with one plain line, on a line of its own, that says what stays the same in this drill ("When you change the key, the notes change but the drop is still an octave."), never the stock "The notes change, the pattern doesn't." The same drill in 2-4 keys is one block with a `{ "type": "step-choice", "options": [{ "key": "d" }, { "key": "a" }, { "key": "c" }] }` tool right before the tool it moves (the first is the key the block's tools are written in). The text invites and names the selector, never a chip or the keys: "Then sing it in another key. Use the Key selector below to change the key, then press Play to hear the tune there." A new key with a new task is a later block or another tool. Check each key fits the voice or the position with `npm run -s theory`.
 
    *Stages and variants*
    - A step-choice also carries one drill through 2-4 versions without a copy of its tools: each option sets a `key`, a `bpm`, a `position`, or several of them, and option 1 is how the block's tools are written. `"label": "stage"` when each option is harder than the last, most often a faster tempo (`showcase-stages-tempo-ladder`): say what a stage feels like before the next one, and what to do when a stage is too fast. `"label": "variant"` when the options are equals to compare, such as one pattern in two keys or positions (`showcase-variants-same-frets`): say what to look or listen for between them; don't ask the learner to find it.
-   - Name the chip by its words and where it is ("tap Stage 2 above the metronome"). A tap restarts the block's tools, so say what Play starts again. The text of a block with a step-choice names no tempo, key or position as the only one; `focus` lists them all.
+   - Name the selector, never a chip ("The selector" in **teaching-voice**): "When every note lands on the click, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again." A change restarts the block's tools, so say what Play starts again. All of a block's text that names the selector sits in the text above it, with line breaks between the drill, the invitation and what to do when it goes wrong; no text about the selector comes after the tools. The text of a block with a step-choice names no tempo, key or position as the only one; `focus` lists them all.
    - A change that needs new words or a new task is a later block, not a chip.
 
    *The metadata*
@@ -75,7 +75,10 @@ What usually fails in an older example:
 
 - The why says the skill matters instead of what makes the drill work.
 - The text carries fret numbers or note names the neck already shows ("D, 7th fret").
-- A bare "Press Play below." that doesn't say what starts.
+- A bare "Press Play below." that doesn't say what starts, or two controls in one sentence.
+- A chip named or the options listed ("tap G in the Key row", "tap Stage 2 above the tab"), or text about a selector placed after the tools.
+- "The notes change, the pattern doesn't." instead of what stays the same in this drill; what to notice not on its own line.
+- Two names for the thing practised ("the way across" and "the crossing").
 - No feel to reach in any block, or an exact count ("breathe in for four clicks").
 - A singing staff with no `labels`; a strum-along with no `pattern`.
 - A tool the prompt's "Which tool for what" would not pick (two scale-necks for joining positions, a guitar-play-along in an exercise for any instrument).

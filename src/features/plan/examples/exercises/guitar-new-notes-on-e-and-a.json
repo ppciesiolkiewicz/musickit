@@ -6,7 +6,7 @@
   "updated": "2026-11-10",
   "model": "claude-fable-5-2",
   "concepts": ["notes-e-a-strings", "note-names"],
-  "docs": { "agents": 1, "teaching": 1 },
+  "docs": { "agents": 1, "teaching": 2 },
   "note": "The why says what makes the drill pay off (a moved chord is named by the note under it), each block is the same game turned a new way (find, name, every place), and every step says what to press, who acts (the game) and how the answer is given: by playing into the mic, by a name button, by tapping the neck. Done is a feel (no counting frets), never a count.",
   "exercise": {
     "title": "Notes on the low E and A strings",
@@ -17,7 +17,7 @@
     "learnBefore": ["/course/1/notes-on-e-and-a"],
     "sections": [
       { "type": "heading", "text": "Find the note", "minutes": 2 },
-      { "type": "text", "text": "Under the neck below, press Playing it (mic), then press Start above the neck. The game names a note: find it on the low E or the A string and play it, saying its name out loud. Keep going until you stop counting frets from the open string." },
+      { "type": "text", "text": "Press Playing it (mic) under the neck below. Then press Start above the neck. The game names a note: find it on the low E or the A string and play it, saying its name out loud. Keep going until you stop counting frets from the open string." },
       { "type": "tool", "tool": { "type": "note-finder", "mode": "find", "from": 0, "to": 12 } },
       { "type": "heading", "text": "Name the lit note", "minutes": 2 },
       { "type": "text", "text": "Press Start in the game below. Now the game lights a note on the neck: press its name under the neck. Play the note on your guitar as you answer, so your hand learns the place while your eyes learn the name." },

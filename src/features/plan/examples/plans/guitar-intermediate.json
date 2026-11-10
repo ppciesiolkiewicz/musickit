@@ -17,11 +17,8 @@
   "arpeggios-position",
   "guitar-melodies-intermediate"
  ],
- "docs": {
-  "agents": 1,
-  "teaching": 1
- },
- "note": "The guitar-intermediate week in the current teaching style, built from many tools so no two days look alike: joining positions is the key skill and returns on five days in new forms (position-neck crossings in three keys, a Position row, a new key, with a bend, from memory and in the same frets as another key), warm-ups and tempos climb in step-choice stages, and each day ends in music over a play-along, drums and bass or a backing-track.",
+ "docs": { "agents": 1, "teaching": 2 },
+ "note": "The guitar-intermediate week in the current teaching style, built from many tools so no two days look alike: joining positions is the key skill and returns on five days in new forms (position-neck crossings in three keys, a Position selector, a new key, with a bend, from memory and in the same frets as another key), warm-ups and tempos climb in step-choice stages, and each day ends in music over a play-along, drums and bass or a backing-track.",
  "plan": {
   "title": "Week 1: beyond position 1",
   "summary": "Join the minor pentatonic positions 1 to 3 with a slide, bend in tune at the joins, and keep it musical with sus chords, chord notes and a tune up the neck. Warm-ups and tempos go up in stages you choose.",
@@ -55,7 +52,7 @@
        },
        {
         "type": "text",
-        "text": "Press Play below to start the metronome and follow the tab. Pick the first note once, then hammer finger 3 on and pull it off, one note per beat, with no more picking."
+        "text": "Press Play below to start the metronome and follow the tab. Pick the first note once, then hammer finger 3 on and pull it off, one note per beat, with no more picking.\nWhen both notes sound equally loud, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf the hammered note gets quiet at a new stage, go back one stage and stay there a little longer."
        },
        {
         "type": "tool",
@@ -84,10 +81,6 @@
          "fret": 7,
          "bpm": 60
         }
-       },
-       {
-        "type": "text",
-        "text": "When both notes sound equally loud, tap Stage 2 above the tab and press Play to start the metronome again. If the hammered note gets quiet at a new stage, go back one stage and stay there a little longer."
        }
       ]
      },
@@ -210,12 +203,12 @@
        },
        {
         "type": "heading",
-        "text": "The way across",
+        "text": "The crossing",
         "minutes": 4
        },
        {
         "type": "text",
-        "text": "The neck below shows only the way from position 1 to position 2. Climb position 1 from the low {{1}}. On the G string, slide from {{4}} up to {{5}} and finish the climb in position 2. Come back down the same way, sliding from {{5}} to {{4}}."
+        "text": "The neck below shows only the crossing from position 1 to position 2. Climb position 1 from the low {{1}}. On the G string, slide from {{4}} up to {{5}} and finish the climb in position 2. Come back down the same way, sliding from {{5}} to {{4}}."
        },
        {
         "type": "tool",
@@ -239,7 +232,7 @@
        },
        {
         "type": "text",
-        "text": "Tap G in the Key row above the neck below, play the crossing there, then tap C. The notes change, the pattern doesn't: the slide on the G string is still {{4}} to {{5}}. Stay in each key until the slide lands without you looking for it."
+        "text": "Play the same crossing in other keys. Use the Key selector below to change the key.\nWhen you change the key, the notes change but the slide on the G string is still {{4}} to {{5}}. Stay in each key until the slide lands without you looking for it."
        },
        {
         "type": "tool",
@@ -397,7 +390,7 @@
        },
        {
         "type": "text",
-        "text": "Press Play below to start the metronome. Pick each string down, up, down, up, and follow the arrows under the tab."
+        "text": "Press Play below to start the metronome. Pick each string down, up, down, up, and follow the arrows under the tab.\nWhen your hand swings evenly with no stop between strings, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf the up strokes get quieter than the down strokes, go back one stage."
        },
        {
         "type": "tool",
@@ -425,10 +418,6 @@
          "notesPerString": 4,
          "bpm": 80
         }
-       },
-       {
-        "type": "text",
-        "text": "When your hand swings evenly with no stop between strings, tap Stage 2 above the tab and press Play to start the metronome again. If the up strokes get quieter than the down strokes, go back one stage."
        }
       ]
      },
@@ -696,7 +685,7 @@
        },
        {
         "type": "text",
-        "text": "Press Play below to start the metronome and follow the tab. Pick once, then hammer finger 4 on and pull it off to finger 2, one note per beat. Rest your hand when it gets tired, then go again."
+        "text": "Press Play below to start the metronome and follow the tab. Pick once, then hammer finger 4 on and pull it off to finger 2, one note per beat. Rest your hand when it gets tired, then go again.\nWhen the pulled-off note is as loud as the hammered one, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf a note goes missing at a new stage, go back one stage."
        },
        {
         "type": "tool",
@@ -725,10 +714,6 @@
          "fret": 8,
          "bpm": 60
         }
-       },
-       {
-        "type": "text",
-        "text": "When the pulled-off note is as loud as the hammered one, tap Stage 2 above the tab and press Play to start the metronome again. If a note goes missing at a new stage, go back one stage."
        }
       ]
      },
@@ -914,12 +899,12 @@
        },
        {
         "type": "heading",
-        "text": "The way across",
+        "text": "The crossing",
         "minutes": 3
        },
        {
         "type": "text",
-        "text": "The neck below shows only the way from position 2 to position 3. Climb position 2, then on the G string slide from {{5}} up to {{b7}} and finish the climb in position 3. Come back down the same way."
+        "text": "The neck below shows only the crossing from position 2 to position 3. Climb position 2, then on the G string slide from {{5}} up to {{b7}} and finish the climb in position 3. Come back down the same way."
        },
        {
         "type": "tool",
@@ -943,7 +928,7 @@
        },
        {
         "type": "text",
-        "text": "Press Play below to start the metronome. Play the framed position up and back down, one note per beat, then tap 2 in the Position row above the neck, and then 3. Press Play to start the metronome again after each tap. When each one is steady, play all three without stopping, sliding across on the G string."
+        "text": "Press Play below to start the metronome. Play the framed position up and back down, one note per beat.\nWhen it is steady, play the next position the same way. Use the Position selector below to change the position, then press Play to start the metronome again.\nWhen each one is steady, play all three without stopping, sliding across on the G string."
        },
        {
         "type": "tool",
@@ -1166,7 +1151,7 @@
        },
        {
         "type": "text",
-        "text": "Press a chord box below to see the new shapes, then press Play under them to start the metronome. After G and A, Dsus4 lasts one bar and falls back to D in the next. Listen for how the bar of Dsus4 leans towards D."
+        "text": "Press a chord box below to see the new shapes. Then press Play under them to start the metronome. After G and A, Dsus4 lasts one bar and falls back to D in the next. Listen for how the bar of Dsus4 leans towards D."
        },
        {
         "type": "tool",
@@ -1285,7 +1270,7 @@
        },
        {
         "type": "text",
-        "text": "Press Play below to hear the tune, then play along from the tab. The third bar opens with four quick notes, two per beat."
+        "text": "Press Play below to hear the tune, then play along from the tab. The third bar opens with four quick notes, two per beat.\nWhen you can hum the quick notes before you play them, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the tune again.\nIf the quick notes smear at a new stage, go back one stage."
        },
        {
         "type": "tool",
@@ -1319,17 +1304,13 @@
         }
        },
        {
-        "type": "text",
-        "text": "When you can hum the quick notes before you play them, tap Stage 2 above the tab and press Play to start the tune again. If the quick notes smear at a new stage, go back one stage."
-       },
-       {
         "type": "heading",
         "text": "On the neck, then in G",
         "minutes": 5
        },
        {
         "type": "text",
-        "text": "Press Play below to start the tune, now shown on the neck. Play it there until your eyes are on your hand and not on the screen. Then tap G in the Key row above the neck and learn it again. The notes change, the pattern doesn't."
+        "text": "Press Play below to start the tune, now shown on the neck. Play it there until your eyes are on your hand and not on the screen.\nThen learn it in another key. Use the Key selector below to change the key, then press Play to start the tune again.\nWhen you change the key, the notes change but the tune keeps its shape."
        },
        {
         "type": "tool",
@@ -1387,7 +1368,7 @@
        },
        {
         "type": "text",
-        "text": "Press Play below to start the metronome and follow the tab: frets 3, 5, 4 and 6 with fingers 1, 3, 2 and 4, on every string and back. The row under the tab shows the pick stroke for each note."
+        "text": "Press Play below to start the metronome and follow the tab: frets 3, 5, 4 and 6 with fingers 1, 3, 2 and 4, on every string and back. The row under the tab shows the pick stroke for each note.\nWhen the order needs no thought, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf a finger lands late at a new stage, go back one stage and stay there a little longer."
        },
        {
         "type": "tool",
@@ -1416,10 +1397,6 @@
          "show": "pick",
          "bpm": 70
         }
-       },
-       {
-        "type": "text",
-        "text": "When the order needs no thought, tap Stage 2 above the tab and press Play to start the metronome again. If a finger lands late at a new stage, go back one stage and stay there a little longer."
        }
       ]
      },
@@ -1449,7 +1426,7 @@
        },
        {
         "type": "text",
-        "text": "Press Play below to start the metronome. Strum the pattern in the boxes, one bar per chord: the chords from day 2 in a new order."
+        "text": "Press Play below to start the metronome. Strum the pattern in the boxes, one bar per chord: the chords from day 2 in a new order.\nWhen the change no longer makes your strumming hand wait, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf a change comes late, keep the hand going and catch the next beat 1."
        },
        {
         "type": "tool",
@@ -1482,10 +1459,6 @@
          "bpm": 60,
          "pattern": "D . . U . U D U D . . U . U D U"
         }
-       },
-       {
-        "type": "text",
-        "text": "When the change no longer makes your strumming hand wait, tap Stage 2 above the chord boxes and press Play to start the metronome again. If a change comes late, keep the hand going and catch the next beat 1."
        }
       ]
      },
@@ -1543,7 +1516,7 @@
        },
        {
         "type": "text",
-        "text": "Press Play below to start the metronome. Play the framed position up and back down, one note per beat, then tap 2 in the Position row above the neck, and then 3. Press Play to start the metronome again after each tap."
+        "text": "Press Play below to start the metronome. Play the framed position up and back down, one note per beat.\nWhen it is steady, play the next position the same way. Use the Position selector below to change the position, then press Play to start the metronome again."
        },
        {
         "type": "tool",
@@ -1594,7 +1567,7 @@
        },
        {
         "type": "text",
-        "text": "The neck below shows the way from position 1 to position 2 in G: slide from {{4}} up to {{5}} on the G string, as in A. Then tap ⇄ between Position 2 and Position 3 under the neck and slide across there. To finish, tap another string beside \"Cross on\" under the neck: same move, new drill."
+        "text": "The neck below shows the crossing from position 1 to position 2 in G: slide from {{4}} up to {{5}} on the G string, as in A. Then tap ⇄ between Position 2 and Position 3 under the neck and slide across there. To finish, tap another string beside \"Cross on\" under the neck: same move, new drill."
        },
        {
         "type": "tool",
@@ -1801,7 +1774,7 @@
        },
        {
         "type": "text",
-        "text": "Press Play below to start the metronome. Pick down, up on each string, then jump over the next string, as the tab shows. Keep the strokes small, and let your wrist do the jump."
+        "text": "Press Play below to start the metronome. Pick down, up on each string, then jump over the next string, as the tab shows. Keep the strokes small, and let your wrist do the jump.\nWhen the pick lands on the right string without you looking, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf you hit the string in between, go back one stage."
        },
        {
         "type": "tool",
@@ -1830,10 +1803,6 @@
          "skip": true,
          "bpm": 70
         }
-       },
-       {
-        "type": "text",
-        "text": "When the pick lands on the right string without you looking, tap Stage 2 above the tab and press Play to start the metronome again. If you hit the string in between, go back one stage."
        }
       ]
      },
@@ -2016,7 +1985,7 @@
        },
        {
         "type": "text",
-        "text": "Press Play below to start day 4's tune, and play along from the tab."
+        "text": "Press Play below to start day 4's tune, and play along from the tab.\nWhen the quick notes in the third bar come out even, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the tune again.\nIf they smear, go back one stage."
        },
        {
         "type": "tool",
@@ -2048,10 +2017,6 @@
          "bpm": 80,
          "view": "tab"
         }
-       },
-       {
-        "type": "text",
-        "text": "When the quick notes in the third bar come out even, tap Stage 2 above the tab and press Play to start the tune again. If they smear, go back one stage."
        },
        {
         "type": "heading",
@@ -2106,7 +2071,7 @@
        },
        {
         "type": "text",
-        "text": "Press Play below on the first tab to start the metronome: day 1's trill, starting where day 1 ended. Trill fingers 1 and 3 until both notes are even, then tap the next stage above the tab and press Play to start the metronome again."
+        "text": "Press Play on the first tab below to start the metronome: day 1's trill, starting where day 1 ended. Trill fingers 1 and 3.\nWhen both notes are even, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again."
        },
        {
         "type": "tool",
@@ -2288,7 +2253,7 @@
        },
        {
         "type": "text",
-        "text": "Press Play below to start the drone. Play the position on the neck up and back down, and end on a ringed {{1}}."
+        "text": "Press Play below to start the drone. Play the position on the neck up and back down, and end on a ringed {{1}}.\nThen try the other variant. Use the Variant selector below to change it, then press Play to start the drone again, now on the new root.\nWhen you change the variant, your hand stays in the same frets: this is position 2 of G, and the ringed notes are in new places. Go back and forth until you can end a phrase on a ringed {{1}} in either."
        },
        {
         "type": "tool",
@@ -2331,10 +2296,6 @@
           "1"
          ]
         }
-       },
-       {
-        "type": "text",
-        "text": "Then tap Variant 2 above the neck and press Play to start the drone again, now on the new root. Your hand stays in the same frets: this is position 2 of G, and the ringed notes are in new places. Go back and forth until you can end a phrase on a ringed {{1}} in either."
        }
       ]
      },

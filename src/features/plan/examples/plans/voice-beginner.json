@@ -14,7 +14,7 @@
     "do-re-mi-steps",
     "voice-melodies-easy"
   ],
-  "docs": { "agents": 0, "teaching": 1 },
+  "docs": { "agents": 1, "teaching": 2 },
   "note": "The voice-beginner week in the new teaching style: same keys, tunes and tools, but three exercises a day (warm-up, ear game, one longer musical piece), each why gives the student a way to check themselves, and every day ends with something they make up.",
   "plan": {
     "title": "Week 1: Do Mi Sol, in tune, your way",
@@ -102,7 +102,7 @@
               },
               {
                 "type": "text",
-                "text": "Press Play on the tune to hear it, then start the mic and sing it on the note names: they help you remember each sound."
+                "text": "Press Play below to hear the tune: the mic starts with it. Sing along on the note names."
               },
               {
                 "type": "tool",
@@ -249,7 +249,7 @@
               },
               {
                 "type": "text",
-                "text": "Press Play on the tune to hear it, then start the mic and sing it on the note names."
+                "text": "Press Play below to hear the tune: the mic starts with it. Sing along on the note names."
               },
               {
                 "type": "tool",
@@ -389,7 +389,7 @@
               },
               {
                 "type": "text",
-                "text": "Press Play on the tune to hear it, then start the mic and sing it on the note names."
+                "text": "Press Play below to hear the tune: the mic starts with it. Sing along on the note names."
               },
               {
                 "type": "tool",
@@ -527,7 +527,7 @@
               },
               {
                 "type": "text",
-                "text": "Press Play on the tune to hear it, then start the mic and sing it on the note names."
+                "text": "Press Play below to hear the tune: the mic starts with it. Sing along on the note names."
               },
               {
                 "type": "tool",
@@ -669,7 +669,7 @@
               },
               {
                 "type": "text",
-                "text": "Press Play on the tune to hear it, then start the mic and sing it on \"la\"."
+                "text": "Press Play below to hear the tune: the mic starts with it. Sing along on \"la\"."
               },
               {
                 "type": "tool",
@@ -794,7 +794,7 @@
               },
               {
                 "type": "text",
-                "text": "Press Play on the tune to hear it, then start the mic and sing it on the note names."
+                "text": "Press Play below to hear the tune: the mic starts with it. Sing along on the note names."
               },
               {
                 "type": "tool",
@@ -815,7 +815,7 @@
               },
               {
                 "type": "text",
-                "text": "Press Play on the tune to hear it, then start the mic and sing it on \"la\". Notice where it steps and where it skips."
+                "text": "Press Play below to hear the tune: the mic starts with it. Sing along on \"la\". Notice where it steps and where it skips."
               },
               {
                 "type": "tool",
@@ -919,7 +919,7 @@
               },
               {
                 "type": "text",
-                "text": "Press Play on the tune to hear it, then start the mic and sing it on the note names."
+                "text": "Press Play below to hear the tune: the mic starts with it. Sing along on the note names."
               },
               {
                 "type": "tool",

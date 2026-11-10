@@ -7,8 +7,8 @@
   "updated": "2026-11-10",
   "model": "claude-fable-5-2",
   "concepts": ["voice-melodies-easy", "do-mi-sol-skips"],
-  "docs": { "agents": 1, "teaching": 1 },
-  "note": "Shows choosing melodies by filter: each melody-singer names a difficulty and a stage with pick instead of a tune number, the second a step harder than the first. The why says what makes a step tune easier than a skip, the step tune comes back in A from the Key row, and the text says what Play starts (the tune and the mic) and what to sing on.",
+  "docs": { "agents": 1, "teaching": 2 },
+  "note": "Shows choosing melodies by filter: each melody-singer names a difficulty and a stage with pick instead of a tune number, the second a step harder than the first. The why says what makes a step tune easier than a skip, the step tune comes back in A by the Key selector, and the text says what Play starts (the tune and the mic) and what to sing on.",
   "exercise": {
     "title": "Two tunes: steps, then skips",
     "focus": "An easy Do Re Mi tune in G and A, then a medium Do Mi Sol tune in D",
@@ -18,7 +18,7 @@
     "learnBefore": ["/course/3/step-melodies", "/course/3/do-mi-sol"],
     "sections": [
       { "type": "heading", "text": "By step", "minutes": 3 },
-      { "type": "text", "text": "A tune on Do, Re and Mi. Press Play below to hear it: the mic starts with it, and your pitch shows on the staff. Sing along on the note names, which help you remember each sound. Once it feels easy, tap A in the Key row above the staff and sing it there. The notes change, the pattern doesn't." },
+      { "type": "text", "text": "A tune on Do, Re and Mi. Press Play below to hear it: the mic starts with it, and your pitch shows on the staff. Sing along on the note names.\nOnce it feels easy, try it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but the tune keeps its shape." },
       { "type": "tool", "tool": { "type": "step-choice", "options": [{ "key": "g" }, { "key": "a" }] } },
       { "type": "tool", "tool": { "type": "melody-singer", "pick": { "difficulty": "easy", "stage": "mi" }, "key": "g", "voice": "tenor" } },
       { "type": "heading", "text": "By skip", "minutes": 3 },

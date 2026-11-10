@@ -35,7 +35,8 @@ Each file is the content exactly as the AI returns it, wrapped in metadata:
   `agents` is the `Version:` in the repo's `AGENTS.md`, `teaching` the `version:` shared by the four teaching skills
   (`teaching-voice`, `course-article`, `exercise-example`, `review-teaching-text`); 0 is before a document had versions.
   Teaching 0 is the older style; teaching 1 is practice first, a why the student can build their own drill from, each
-  block the same drill turned a new way (it was `"style": "new"` until 2026-11-10). `DOC_VERSIONS` in `index.ts` holds
+  block the same drill turned a new way (it was `"style": "new"` until 2026-11-10); teaching 2 adds the selector named
+  by its label and never its chips, one control to a sentence, line breaks, and what stays the same said for each drill. `DOC_VERSIONS` in `index.ts` holds
   the current two. The prompt tells the AI to write like the examples at the current `teaching` version, and
   `/dev/examples` shows both as tags (amber when behind) and filters by teaching version. Set `docs` only when the
   example is written or rewritten; never raise it by hand.
@@ -67,16 +68,20 @@ What there is: one exercise per area and level (`<area>-<level>-<what>.json`) an
   among them (the roots, the note just added). `others` only with `enable`.
 - Every exercise, alone or in a plan, has at least one `learnBefore` lesson. If no course section fits, a planned (stub) section is
   added to the course for it first.
-- A sung or played pattern (Do Mi Sol, a leap, a tune, guide tones) comes back in a second key: the notes change, the
-  pattern doesn't. The same drill in more keys is one block with a `step-choice` tool right before the tool it moves, an
-  option per key (the student taps a key and the block's tools move to it; the text says "tap G in the Key row above the neck"); a new key with a new task is a later block or another tool.
+- A sung or played pattern (Do Mi Sol, a leap, a tune, guide tones) comes back in a second key, and a line of its own
+  says what stays the same in this drill ("When you change the key, the notes change but the drop is still an octave.").
+  The same drill in more keys is one block with a `step-choice` tool right before the tool it moves, an option per key
+  (the block's tools move to the picked key). The text invites and names the selector, never a chip or the keys: "Then
+  sing it in another key. Use the Key selector below to change the key." A new key with a new task is a later block or
+  another tool.
 - A step-choice also takes one drill up in stages or across variants, without a copy of its tools per version. `"label": "stage"`
   when each option is harder than the last (a tempo going up): the text says what a stage feels like before the next and
   what to do when one is too fast. `"label": "variant"` when the options are equals to compare (one pattern in two keys
-  or positions): the text says what to look or listen for between them. The text names the chip by its words and where
-  it is ("tap Stage 2 above the metronome"), says what Play starts again after a tap, and names no tempo, key or
-  position as the only one.
-- The text names a control by the label on the screen and says what it starts and where it is; it never carries frets,
+  or positions): the text says what to look or listen for between them. The text names the selector by its label ("Use
+  the Stage selector below to change the tempo"), never a chip, sits above the selector, says what Play starts again
+  after a change, and names no tempo, key or position as the only one.
+- A text may hold line breaks (`\n`): what to do, the next thing to try and what to notice each start a new line.
+- The text names a control by the label on the screen, one control to a sentence, and says what it starts and where it is; it never carries frets,
   fingerings or note lists the tool shows. The way from one position to the next is a position-neck with `cross`.
 - No guitar-play-along `repeats` (it loops; the exercise's minutes are the timer). Styles are at most one sentence of colour.
 - Plans: 7 days, each adding up to `minutes` (±2), 2 to 5 exercises, warm-up first and something musical last, no two

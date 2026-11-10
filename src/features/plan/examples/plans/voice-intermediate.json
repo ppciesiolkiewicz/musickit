@@ -14,11 +14,8 @@
   "harmony-line",
   "sight-singing"
  ],
- "docs": {
-  "agents": 1,
-  "teaching": 1
- },
- "note": "An intermediate voice week at 20 minutes a day, built from every singing tool so no two days look alike: leaps are the key skill and return daily in new forms (heard in the ear game, sung from Do in interval-singer with and without the picture, inside melody-singer tunes in two keys by a step-choice Key row, and in lines over a backing-track), with breathwork to open, runs from run-singer, sight-singing, and a harmony line that comes back faster in step-choice stages.",
+ "docs": { "agents": 1, "teaching": 2 },
+ "note": "An intermediate voice week at 20 minutes a day, built from every singing tool so no two days look alike: leaps are the key skill and return daily in new forms (heard in the ear game, sung from Do in interval-singer with and without the picture, inside melody-singer tunes in two keys by a step-choice Key selector, and in lines over a backing-track), with breathwork to open, runs from run-singer, sight-singing, and a harmony line that comes back faster in step-choice stages.",
  "plan": {
   "title": "Week 1: leaps, runs and a line of your own",
   "summary": "Sing 4ths, 5ths and octaves in tune, first from Do, then inside tunes and over chords. Each day opens with breath, has an ear game or a run in the middle, and ends with a tune in two keys and a line you make up.",
@@ -163,7 +160,7 @@
        },
        {
         "type": "text",
-        "text": "Press Play on the tune below to hear it, then start the mic and sing it on the note names. It starts on Fa and falls a 4th to Do. Then tap F in the Key row above the tune and sing it there. The notes change, the pattern doesn't."
+        "text": "Press Play below to hear the tune: the mic starts with it. Sing along on the note names. The tune starts on Fa and falls a 4th to Do.\nThen sing it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but the fall is still a 4th."
        },
        {
         "type": "tool",
@@ -310,7 +307,7 @@
       "sections": [
        {
         "type": "text",
-        "text": "Press Play on the run below to hear it, then start the mic and sing it on \"ah\": from Do up to Sol and back, two notes per beat. Each pass starts a semitone higher. Change to \"oo\" when the run gets high, and stop where it stops feeling easy."
+        "text": "Press Play below to hear the run: the mic starts with it. Sing along on \"ah\": from Do up to Sol and back, two notes per beat. Each pass starts a semitone higher. Change to \"oo\" when the run gets high, and stop where it stops feeling easy."
        },
        {
         "type": "tool",
@@ -352,7 +349,7 @@
        },
        {
         "type": "text",
-        "text": "Press Play on the tune below to hear it, then start the mic and sing it on the note names. It climbs the notes of the chord to the high Do. Then tap D in the Key row above the tune and sing it there. The notes change, the pattern doesn't."
+        "text": "Press Play below to hear the tune: the mic starts with it. Sing along on the note names. The tune climbs the notes of the chord to the high Do.\nThen sing it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but the tune still climbs the chord to the high Do."
        },
        {
         "type": "tool",
@@ -571,7 +568,7 @@
        },
        {
         "type": "text",
-        "text": "Press Play on the tune below to hear it, then start the mic and sing it on the note names. It starts on the high Do and drops an octave. Then tap F in the Key row above the tune and sing it there. The notes change, the pattern doesn't."
+        "text": "Press Play below to hear the tune: the mic starts with it. Sing along on the note names. The tune starts on the high Do and drops an octave.\nThen sing it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but the drop is still an octave."
        },
        {
         "type": "tool",
@@ -768,7 +765,7 @@
        },
        {
         "type": "text",
-        "text": "Press Start exercise below to start the mic and the band. Over the same chords sing {{3}}, {{4}}, {{2}}, then {{3}} again, one note a bar on \"oo\". The line moves one step at a time, and each note belongs to the chord under it. Then tap F in the Key row above the staff and press Start exercise again. The notes change, the pattern doesn't."
+        "text": "Press Start exercise below to start the mic and the band. Over the same chords sing {{3}}, {{4}}, {{2}}, then {{3}} again, one note a bar on \"oo\". The line moves one step at a time, and each note belongs to the chord under it.\nThen sing it in another key. Use the Key selector below to change the key, then press Start exercise again.\nWhen you change the key, the notes change but the line still moves one step at a time."
        },
        {
         "type": "tool",
@@ -977,7 +974,7 @@
       "sections": [
        {
         "type": "text",
-        "text": "Press Play on the run below to hear it, then start the mic and sing it on \"ah\". It starts on Sol, turns up to La, and comes down to Do with one more turn on the way, four notes per beat. Each pass starts a semitone higher: change to \"oo\" when it gets high, and stop where it stops feeling easy."
+        "text": "Press Play below to hear the run: the mic starts with it. Sing along on \"ah\". The run starts on Sol, turns up to La, and comes down to Do with one more turn on the way, four notes per beat. Each pass starts a semitone higher: change to \"oo\" when it gets high, and stop where it stops feeling easy."
        },
        {
         "type": "tool",
@@ -1016,7 +1013,7 @@
        },
        {
         "type": "text",
-        "text": "Press Play on the tune below to hear it, then start the mic and sing it on the note names. It leaps from Do up to Sol and runs back down. Then tap F in the Key row above the tune and sing it there. The notes change, the pattern doesn't."
+        "text": "Press Play below to hear the tune: the mic starts with it. Sing along on the note names. The tune leaps from Do up to Sol and runs back down.\nThen sing it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but the leap is still Do up to Sol."
        },
        {
         "type": "tool",
@@ -1154,7 +1151,7 @@
       "sections": [
        {
         "type": "text",
-        "text": "Press Play on the run below to hear it, then start the mic and sing it on \"ah\": from Do up to the Re above the high Do and back, four notes per beat. Each pass starts a semitone higher. Change to \"oo\" for the top of the run, and stop where it stops feeling easy."
+        "text": "Press Play below to hear the run: the mic starts with it. Sing along on \"ah\": from Do up to the Re above the high Do and back, four notes per beat. Each pass starts a semitone higher. Change to \"oo\" for the top of the run, and stop where it stops feeling easy."
        },
        {
         "type": "tool",
@@ -1260,7 +1257,7 @@
        },
        {
         "type": "text",
-        "text": "Press Start exercise below to start the mic and the band. Sing day 4's line on \"oo\": {{3}}, {{4}}, {{2}}, then {{3}} again, one note a bar."
+        "text": "Press Start exercise below to start the mic and the band. Sing day 4's line on \"oo\": {{3}}, {{4}}, {{2}}, then {{3}} again, one note a bar.\nWhen each note is ready before its chord arrives, try a faster stage. Use the Stage selector below to change the tempo, then press Start exercise again.\nIf you start arriving late, go back one stage."
        },
        {
         "type": "tool",
@@ -1314,10 +1311,6 @@
           "I"
          ]
         }
-       },
-       {
-        "type": "text",
-        "text": "When each note is ready before its chord arrives, tap Stage 2 above the staff and press Start exercise again. If you start arriving late, go back one stage."
        },
        {
         "type": "heading",
@@ -1462,7 +1455,7 @@
       "sections": [
        {
         "type": "text",
-        "text": "Press Play on the run below to hear it, then start the mic and sing it on \"ah\": from Do up to Sol and back, twice round, four notes per beat. Each pass starts a semitone higher. Notice which notes stay clear now, and change to \"oo\" when it gets high."
+        "text": "Press Play below to hear the run: the mic starts with it. Sing along on \"ah\": from Do up to Sol and back, twice round, four notes per beat. Each pass starts a semitone higher. Notice which notes stay clear now, and change to \"oo\" when it gets high."
        },
        {
         "type": "tool",
@@ -1502,7 +1495,7 @@
        },
        {
         "type": "text",
-        "text": "Press Play on the tune below to hear it, then start the mic and sing it on the note names. It starts on the high Do, drops an octave and dips under Do before it ends. Then tap F in the Key row above the tune and sing it there. The notes change, the pattern doesn't."
+        "text": "Press Play below to hear the tune: the mic starts with it. Sing along on the note names. The tune starts on the high Do, drops an octave and dips under Do before it ends.\nThen sing it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but the tune keeps its shape."
        },
        {
         "type": "tool",

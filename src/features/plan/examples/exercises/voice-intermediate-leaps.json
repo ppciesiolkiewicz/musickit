@@ -6,7 +6,7 @@
   "updated": "2026-11-10",
   "model": "claude-fable-5-2",
   "concepts": ["leaps", "in-tune-over-drone", "improvise-melody"],
-  "docs": { "agents": 0, "teaching": 1 },
+  "docs": { "agents": 1, "teaching": 2 },
   "note": "Voice variety from staffs with their own drone, each block the same job (hear the landing note, then leap) in a new key and scale: a short leap drill that starts eased (A major keeps the staff low, sung on \"oo\") and then opens the full range in F major, made-up calls and answers in minor, then a made-up tune in Mixolydian. Each staff shows only the notes in play, labelled by degree as the text names them; only the first block is a bare drill.",
   "exercise": {
     "title": "4ths and 5ths in three scales",
@@ -19,7 +19,7 @@
       { "type": "heading", "text": "Low in A, then high in F", "minutes": 3 },
       { "type": "text", "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff. Sing {{1}} up to {{4}}, then {{1}} up to {{5}}, on \"oo\", which keeps your voice light. Hear the landing note in your head before each leap, then check where your line lands." },
       { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "a", "voice": "tenor", "notes": ["1", "4", "5"], "labels": "degree", "drone": true } },
-      { "type": "text", "text": "Now press Play and Start microphone on the F staff below, which runs your whole range. The notes change, the pattern doesn't: sing the same leaps from the low {{1}} on \"ah\", then from the high {{1}} on \"oo\"." },
+      { "type": "text", "text": "Press Play on the F staff below, which runs your whole range. Then press Start microphone.\nThe notes are new and the leaps are the same size: sing them from the low {{1}} on \"ah\", then from the high {{1}} on \"oo\"." },
       { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "f", "voice": "tenor", "notes": ["1", "4", "5"], "labels": "degree", "drone": true } },
       { "type": "heading", "text": "D minor: call and answer", "minutes": 3 },
       { "type": "text", "text": "Press Start exercise below to start the drone on D and the mic. The same leaps now sit in D minor, with {{b3}} added. Make up a short call on \"oo\" that leaps up from {{1}}, then answer it on \"ee\" with a different leap that ends on {{1}}." },

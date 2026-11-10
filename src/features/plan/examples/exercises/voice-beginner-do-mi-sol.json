@@ -6,8 +6,8 @@
   "updated": "2026-11-10",
   "model": "claude-fable-5-2",
   "concepts": ["do-mi-sol-skips", "in-tune-over-drone", "voice-melodies-easy"],
-  "docs": { "agents": 1, "teaching": 1 },
-  "note": "Do Mi Sol goes from a bare drill (3 minutes, the cap) to a tune that skips to singing chord notes over a band, so the longer singing time is musical. The drill goes through D, A and C from one Key row, keys that keep a beginner's Do Mi Sol low on the staff. Both staffs label their notes Do Re Mi, as the text names them, the band's chords can't be muted under the singer, and each step says what starts, what to sing on and what to do when an entry comes late.",
+  "docs": { "agents": 1, "teaching": 2 },
+  "note": "Do Mi Sol goes from a bare drill (3 minutes, the cap) to a tune that skips to singing chord notes over a band, so the longer singing time is musical. The drill goes through D, A and C from one Key selector, keys that keep a beginner's Do Mi Sol low on the staff. Both staffs label their notes Do Re Mi, as the text names them, the band's chords can't be muted under the singer, and each step says what starts, what to sing on and what to do when an entry comes late.",
   "exercise": {
     "title": "Do Mi Sol: skip, sing a tune, sing over chords",
     "focus": "Do Mi Sol in D, A and C · an easy skipping tune · Do and Sol over D and A",
@@ -17,10 +17,9 @@
     "learnBefore": ["/course/3/solfege", "/course/3/do-mi-sol"],
     "sections": [
       { "type": "heading", "text": "Skips over a drone", "minutes": 3 },
-      { "type": "text", "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff as a line. Start on a {{1}} that sits easily in your voice and sing {{1}} {{3}} {{5}} up and back down on the note names: they help you remember each sound. Then skip straight from {{1}} to {{5}}, and hold each note until your line settles on it." },
+      { "type": "text", "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff as a line. Start on a {{1}} that sits easily in your voice and sing {{1}} {{3}} {{5}} up and back down on the note names. Then skip straight from {{1}} to {{5}}, and hold each note until your line settles on it.\nThen sing the same {{1}} {{3}} {{5}} in other keys. Use the Key selector below to change the key, then press Start exercise again.\nWhen you change the key, the drone and the notes change but the skips sound the same." },
       { "type": "tool", "tool": { "type": "step-choice", "options": [{ "key": "d" }, { "key": "a" }, { "key": "c" }] } },
       { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "d", "voice": "tenor", "notes": ["1", "3", "5"], "labels": "solfege", "drone": true } },
-      { "type": "text", "text": "Then tap A in the Key row above the staff and sing the same {{1}} {{3}} {{5}} over the new drone, then the same in C. The notes change, the pattern doesn't." },
       { "type": "heading", "text": "A tune that skips", "minutes": 3 },
       { "type": "text", "text": "Press Play below to hear the tune: the mic starts with it. Listen once, then press Play again and sing along on \"la\". Once it feels easy, sing it first and press Play to check." },
       { "type": "tool", "tool": { "type": "melody-singer", "pick": { "difficulty": "easy", "stage": "skips" }, "key": "d", "voice": "tenor" } },

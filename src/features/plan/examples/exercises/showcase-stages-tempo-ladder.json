@@ -7,8 +7,8 @@
   "updated": "2026-11-10",
   "model": "claude-fable-5-2",
   "concepts": ["pentatonic-box-1"],
-  "docs": { "agents": 1, "teaching": 1 },
-  "note": "Shows a step-choice as stages: one drill, three tempos, one chip each, so the metronome and the neck appear once instead of three times. The text names no tempo, says what a stage should feel like before the next one, where the chips are, that Play starts the metronome again, and what to do when a stage is too fast.",
+  "docs": { "agents": 1, "teaching": 2 },
+  "note": "Shows a step-choice as stages: one drill, three tempos, one chip each, so the metronome and the neck appear once instead of three times. The text names no tempo and no chip: it says what a stage should feel like before the next one, invites a faster stage by the Stage selector below it, says that Play starts the metronome again, and what to do when a stage is too fast.",
   "exercise": {
     "title": "Position 1, faster in stages",
     "focus": "A minor pentatonic · position 1 · 60, 72, then 84 bpm",
@@ -18,11 +18,10 @@
     "learnBefore": ["/course/5/pentatonic"],
     "sections": [
       { "type": "heading", "text": "One stage at a time", "minutes": 5 },
-      { "type": "text", "text": "Press Play below to start the metronome. Play position 1 from the lowest {{1}} up to the high E string and back down, one note per beat." },
+      { "type": "text", "text": "Press Play below to start the metronome. Play position 1 from the lowest {{1}} up to the high E string and back down, one note per beat.\nWhen every note lands on the click without you rushing to reach it, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf notes come late at a new stage, go back one stage and stay there a little longer." },
       { "type": "tool", "tool": { "type": "step-choice", "label": "stage", "options": [{ "bpm": 60 }, { "bpm": 72 }, { "bpm": 84 }] } },
       { "type": "tool", "tool": { "type": "backing-band", "bpm": 60, "key": "a", "parts": { "click": "always" } } },
-      { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "highlight": ["1"] } },
-      { "type": "text", "text": "When every note lands on the click without you rushing to reach it, tap Stage 2 above the metronome and press Play to start it again. If notes come late at a new stage, go back one stage and stay there a little longer." }
+      { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "highlight": ["1"] } }
     ],
     "exploreMore": ["/theory/scales/minor-pentatonic/a"]
   }

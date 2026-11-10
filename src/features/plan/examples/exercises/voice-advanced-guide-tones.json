@@ -6,7 +6,7 @@
   "updated": "2026-11-10",
   "model": "claude-fable-5-2",
   "concepts": ["fast-runs", "stretch-range", "improvise-melody"],
-  "docs": { "agents": 1, "teaching": 1 },
+  "docs": { "agents": 1, "teaching": 2 },
   "note": "Advanced singing made musical: a fast run and an octave tune to open the range, then guide tones and a line of the singer's own over a ii-V-I the band plays, read from a staff. The why says what makes guide tones work (each one moves a step or stays), the guide-tone staff shows only those four notes, labelled by degree as the text names them, and the same changes come back in F with the guide tones ringed among the whole scale. The run's range is stated and each block says what to sing on.",
   "exercise": {
     "title": "Guide tones over ii-V-I, then your own line",
@@ -27,7 +27,7 @@
       { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "tenor", "notes": ["1", "3", "4", "7"], "labels": "degree" } },
       { "type": "tool", "tool": { "type": "backing-track", "key": "c", "numerals": ["ii7", "V7", "Imaj7", "Imaj7"], "style": "ballad", "parts": { "drums": "on", "bass": "off", "keys": "always" }, "bpm": 72 } },
       { "type": "heading", "text": "Your own line", "minutes": 3 },
-      { "type": "text", "text": "Press Start exercise below to start the mic and the same changes in F: Gm7, C7, Fmaj7. The notes change, the pattern doesn't. Make up your own line on any vowel, and start each chord on one of its ringed notes: {{4}} or {{1}} over Gm7, {{7}} or {{4}} over C7, {{3}} or {{7}} over Fmaj7. Leave space between phrases." },
+      { "type": "text", "text": "Press Start exercise below to start the mic and the same changes in F: Gm7, C7, Fmaj7. Make up your own line on any vowel, and start each chord on one of its ringed notes: {{4}} or {{1}} over Gm7, {{7}} or {{4}} over C7, {{3}} or {{7}} over Fmaj7. Leave space between phrases." },
       { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "f", "voice": "tenor", "under": true, "highlight": ["1", "3", "4", "7"], "labels": "degree" } },
       { "type": "tool", "tool": { "type": "backing-track", "key": "f", "numerals": ["ii7", "V7", "Imaj7", "Imaj7"], "style": "ballad", "parts": { "drums": "on", "bass": "off", "keys": "always" }, "bpm": 72 } }
     ]

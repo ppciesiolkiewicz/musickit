@@ -116,7 +116,8 @@ export default function Sections({ sections: written, address = "ex" }: { sectio
       case "heading":
         return null;
       case "text":
-        return <p key={i} className="max-w-3xl text-[15px] leading-relaxed text-slate-300"><NoteText pieces={pieces[n++]} root={rootAt(i)} /></p>;
+        // a line break in the text is a new line: what to do, the next thing to try, what to notice
+        return <p key={i} className="max-w-3xl whitespace-pre-line text-[15px] leading-relaxed text-slate-300"><NoteText pieces={pieces[n++]} root={rootAt(i)} /></p>;
       case "list":
         return (
           <ol key={i} className="max-w-3xl list-decimal space-y-1.5 pl-5 text-[15px] leading-relaxed text-slate-300 marker:font-semibold marker:text-sky-400">

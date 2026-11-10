@@ -17,7 +17,7 @@
     "strumming-patterns",
     "spider"
   ],
-  "docs": { "agents": 0, "teaching": 1 },
+  "docs": { "agents": 1, "teaching": 2 },
   "note": "The guitar-beginner week in the new teaching style: each day is one idea, every why says what the drill trains and why it works, and done is a feel. Position 1 returns on six days in new forms, the chords return as power chords, triads and double stops (grip steps in a play-along), tunes move to a second key, and day 7 replays day 1 faster before the student makes up drills.",
   "plan": {
     "title": "Week 1: position 1, clean changes, triads and double stops",
@@ -778,7 +778,7 @@
               },
               {
                 "type": "text",
-                "text": "Press Play below to hear the tune, then play along from the tab. Once you can hum it before you play it, tap C in the Key row below and learn it there. The notes change, the pattern doesn't."
+                "text": "Press Play below to hear the tune, then play along from the tab.\nOnce you can hum it before you play it, learn it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but the tune keeps its shape."
               },
               {
                 "type": "tool",
@@ -1104,7 +1104,7 @@
               },
               {
                 "type": "text",
-                "text": "Press Play below to hear the tune and see each note on the neck: it is the G triad, one note at a time. Play along until you can hear the next note before you play it. Then tap C, and then D, in the Key row below. The notes change, the pattern doesn't."
+                "text": "Press Play below to hear the tune and see each note on the neck: it is the G triad, one note at a time. Play along until you can hear the next note before you play it.\nThen play it in other keys. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but the tune is still a triad, one note at a time."
               },
               {
                 "type": "tool",
@@ -1928,7 +1928,7 @@
               },
               {
                 "type": "text",
-                "text": "Press Play below and play day 6's tune along with it. Then tap A in the Key row below and play it there: the notes change, the pattern doesn't. To finish, play it on your own and change one thing: the speed, the octave or the ending."
+                "text": "Press Play below to start day 6's tune, and play along with it.\nThen play it in another key. Use the Key selector below to change the key, then press Play to start the tune again.\nWhen you change the key, the notes change but the tune keeps its shape.\nTo finish, play it on your own and change one thing: the speed, the octave or the ending."
               },
               {
                 "type": "tool",

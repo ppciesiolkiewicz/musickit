@@ -6,8 +6,8 @@
   "updated": "2026-11-10",
   "model": "claude-fable-5-2",
   "concepts": ["chords-in-key", "major-scale"],
-  "docs": { "agents": 0, "teaching": 1 },
-  "note": "Theory that is heard, not recited: tap the three roots on the staff and hear the chord on each, follow the chords in order, then in a new order and in a second key with the key chips. The why gives the learner the method (listen for the root moving), and one word, the number, names a chord everywhere in the text. Works for any instrument, or none.",
+  "docs": { "agents": 1, "teaching": 2 },
+  "note": "Theory that is heard, not recited: tap the three roots on the staff and hear the chord on each, follow the chords in order, then in a new order and in a second key by the Key selector. The why gives the learner the method (listen for the root moving), and one word, the number, names a chord everywhere in the text. Works for any instrument, or none.",
   "exercise": {
     "title": "The 1, 4 and 5 chords in G, by ear",
     "focus": "G major · roots G C D · 1-4-5-1 by ear · then in C",
@@ -24,7 +24,7 @@
       { "type": "text", "text": "Press Play below to start the band: G, C, D and back to G, one bar each. Call out 1, 4 or 5 as each chord arrives, with the chord boxes to help. Keep going until you hear a change coming before the box lights." },
       { "type": "tool", "tool": { "type": "backing-track", "key": "g", "numerals": ["I", "IV", "V", "I"], "style": "pop", "bpm": 80 } },
       { "type": "heading", "text": "A new order", "minutes": 2 },
-      { "type": "text", "text": "Press Play below to start the band: the same three chords in a new order. Look away from the screen and call out the number of each chord, then look back to check. Then tap C in the Key row below and do it again: the chords are new, the numbers sound the same." },
+      { "type": "text", "text": "Press Play below to start the band: the same three chords in a new order. Look away from the screen and call out the number of each chord, then look back to check.\nThen do it in another key. Use the Key selector below to change the key, then press Play to start the band again.\nWhen you change the key, the chords are new but the numbers sound the same." },
       { "type": "tool", "tool": { "type": "step-choice", "options": [{ "key": "g" }, { "key": "c" }] } },
       { "type": "tool", "tool": { "type": "backing-track", "key": "g", "numerals": ["I", "V", "IV", "V"], "style": "ballad", "bpm": 80 } }
     ],
