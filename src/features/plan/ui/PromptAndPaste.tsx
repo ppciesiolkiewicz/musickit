@@ -113,7 +113,7 @@ function ExtensionSteps({ prompt, agentTools }: { prompt: string; agentTools: bo
           </div>
         </Step>
         <Step tone="violet" n={3} title={agentTools ? "The AI extension reads this page and sends your plan straight to the reply box." : "The AI extension reads this page and pastes your plan into the reply box."} />
-        <Step tone="violet" n={4} title="Check the plan, then press Build my plan." />
+        <Step tone="violet" n={4} title="When your plan shows in the reply box, press Build my plan." />
       </ol>
       <section aria-label="Prompt for the AI" className="border-t border-slate-800 pt-2">
         <h4 className="mb-1 text-[11px] font-medium uppercase tracking-wider text-slate-500">What the AI extension reads</h4>
