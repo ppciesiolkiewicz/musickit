@@ -4,7 +4,7 @@ import type { KeyChoice } from "@/features/creator/model/key";
 import { findPentatonic } from "@/features/theory/pentatonics";
 import { CAGED_LETTERS } from "@/lib/chordKit/caged";
 import { POSITION_COUNT } from "@/lib/chordKit/scalePositions";
-import { FAMILIES, addableValues, allOptions, describeSubject, familyOf, isAll, stepValues, toggleAll, toggleOption, updateSubject, visibleControls } from "./families";
+import { FAMILIES, melodyLabel, melodyPlace, melodyTune, nextMelody, addableValues, allOptions, describeSubject, familyOf, isAll, stepValues, toggleAll, toggleOption, updateSubject, visibleControls } from "./families";
 import { subjectName, subjectTitle, type Subject } from "./subject";
 
 const C_MAJOR: KeyChoice = { tonicPc: 0, family: 0, mode: 0 };
@@ -13,7 +13,7 @@ const D_DORIAN: KeyChoice = { tonicPc: 2, family: 0, mode: 1 };
 const family = (id: string) => FAMILIES.find((f) => f.id === id)!;
 
 test("the families, in the palette's order", () => {
-  assert.deepEqual(FAMILIES.map((f) => f.id), ["scale", "caged", "arpeggio", "chord-shapes", "staff"]);
+  assert.deepEqual(FAMILIES.map((f) => f.id), ["scale", "caged", "arpeggio", "chord-shapes", "staff", "melody"]);
 });
 
 test("a major pentatonic with two boxes reads as its scale, key and positions", () => {
@@ -259,4 +259,37 @@ test("a tool widget's name and title come from its family", () => {
   const s: Subject = { kind: "tool", tool: { type: "scale-neck", scale: "major-pentatonic", key: 0, boxes: [1, 2] } };
   assert.equal(subjectTitle(s), "Scale · C major pentatonic · positions 1–2");
   assert.equal(subjectName(s), "Scale · positions 1–2");
+});
+
+test("a melody is picked by its name and number, in the key, and reads back the same", () => {
+  const s = family("melody").make({ stage: "mi", index: 3, voice: "alto" }, D_DORIAN);
+  assert.deepEqual(s, { kind: "tool", tool: { type: "melody-singer", tune: melodyTune("mi", 3), key: 2, voice: "alto" } });
+  assert.deepEqual(family("melody").read(s), { key: 2, stage: "mi", index: 3, voice: "alto" });
+  assert.equal(describeSubject(s), "Melody · D major · Do Re Mi 3, alto");
+  assert.equal(familyOf(s)?.id, "melody");
+});
+
+test("a melody's number past its last tune is its last; the Number control lists its tunes", () => {
+  const last = melodyTune("do-re", 99);
+  assert.equal(melodyPlace(last)?.stage, "do-re");
+  assert.equal(melodyPlace(last)?.index, melodyPlace(last)?.count);
+  const index = visibleControls(family("melody"), { stage: "mi" }).find((c) => c.name === "index")!;
+  assert.equal(index.options!.length, melodyPlace(melodyTune("mi", 1))!.count);
+});
+
+test("next melody walks the book and wraps round", () => {
+  const first = melodyTune("do-re", 1);
+  assert.equal(nextMelody(first), melodyTune("mi", 1));
+  assert.equal(melodyLabel(nextMelody(first)), "Do Re Mi 1");
+  let n = first, steps = 0;
+  do { n = nextMelody(n); steps++; } while (n !== first && steps < 1000);
+  assert.equal(n, first);
+});
+
+test("a melody's new name starts at its first tune; a picked key pins the tonic", () => {
+  const s = family("melody").make({ stage: "mi", index: 4 }, C_MAJOR);
+  const moved = updateSubject(s, { stage: "fa" });
+  assert.deepEqual(family("melody").read(moved), { key: 0, stage: "fa", index: 1, voice: "baritone" });
+  const keyed = updateSubject(s, { key: 7 });
+  assert.deepEqual(keyed, { kind: "tool", tool: { type: "melody-singer", tune: melodyTune("mi", 4), key: 7, voice: "baritone" }, pinned: ["tonic"] });
 });

@@ -1,5 +1,5 @@
 /**
- * The palette's widget families: one row each (Scale, CAGED, Arpeggio, Chord shapes, Staff), curated here. A family makes a widget
+ * The palette's widget families: one row each (Scale, CAGED, Arpeggio, Chord shapes, Staff, Melody), curated here. A family makes a widget
  * from its main props (`controls`: key, scale, what to show, boxes, shapes, chord), reads them back from a widget on the stage and
  * names it in one line ("Scale · C major · neck, positions 1–2"). Most families are a learning component of the AI plan (a `tool`
  * subject); CAGED and Arpeggio wrap the stage's own `caged` and `arpeggio` subjects (older `arpeggio-neck` tools still read as Arpeggio widgets and are made over when edited). The Scale family is the `scale-neck` tool: the scales page's guitar section,
@@ -13,6 +13,7 @@ import { DEFAULT_KEY_PC, FAMILIES as SCALE_FAMILIES, modeAlias, shortModeName, t
 import { PENTATONICS, findPentatonic } from "@/features/theory/pentatonics";
 import { MODE_PAGES, findModePage } from "@/features/theory/scales";
 import { VOICES, type Voice } from "@/features/theory/singing";
+import { BOOK, STAGES } from "@/features/theory/singingMelodies";
 import { ARP_QUALITIES } from "@/lib/chordKit/arpeggios";
 import { parseChordQuery } from "@/lib/chordKit/chordSearch";
 import { CAGED_LETTERS, type CagedLetter, type CagedQuality } from "@/lib/chordKit/caged";
@@ -441,7 +442,89 @@ const staff = family({
   },
 });
 
-const ALL = [scale, caged, arpeggio, chordShapes, staff];
+/* ---------------------------------------------------------------- the Melody family */
+
+/** The book's stages (a melody's name) and their tunes, in book order. */
+const MELODY_STAGES = STAGES.map((st) => ({ id: st.id, title: st.title, tunes: BOOK.filter((t) => t.stage.id === st.id).map((t) => t.n) }));
+
+/** Where a tune sits: its stage and its place in it (from 1); null for a number outside the book. */
+export function melodyPlace(n: number): { stage: string; title: string; index: number; count: number } | null {
+  for (const st of MELODY_STAGES) {
+    const i = st.tunes.indexOf(n);
+    if (i >= 0) return { stage: st.id, title: st.title, index: i + 1, count: st.tunes.length };
+  }
+  return null;
+}
+
+/** The tune a stage and a place in it name (a place past the end is its last tune); the book's first for an unknown stage. */
+export function melodyTune(stage: string, index: number): number {
+  const st = MELODY_STAGES.find((x) => x.id === stage) ?? MELODY_STAGES[0];
+  return st.tunes[Math.min(Math.max(Math.trunc(index) || 1, 1), st.tunes.length) - 1];
+}
+
+/** The tune after `n` in the book, back to the first after the last. */
+export function nextMelody(n: number): number {
+  const i = BOOK.findIndex((t) => t.n === n);
+  return BOOK[(i + 1) % BOOK.length].n;
+}
+
+/** "Do Re Mi 3" */
+export const melodyLabel = (n: number): string => {
+  const p = melodyPlace(n);
+  return p ? `${p.title} ${p.index}` : `Melody ${n}`;
+};
+
+function melodyMake(v: FamilyValues, key: KeyChoice): Subject {
+  const tonic = typeof v.key === "number" && Number.isInteger(v.key) && v.key >= 0 && v.key < 12 ? v.key : tonicOf(key);
+  const voice = VOICE_IDS.find((x) => x === v.voice) ?? "baritone";
+  const tune = melodyTune(str(v.stage) ?? MELODY_STAGES[0].id, typeof v.index === "number" ? v.index : 1);
+  return toolSubject({ type: "melody-singer", tune, key: tonic, voice });
+}
+
+function melodyRead(s: Subject): FamilyValues | null {
+  const t = toolOf(s, "melody-singer");
+  const p = t && melodyPlace(t.tune);
+  return t && p ? { key: t.key, stage: p.stage, index: p.index, voice: t.voice ?? "baritone" } : null;
+}
+
+const melody = family({
+  id: "melody",
+  title: "Melody",
+  words: ["melody", "melodies", "tune", "tunes", "song", "sing", "singing", "voice", "sight", "solfege", "do", "re", "mi"],
+  group: "scale",
+  tool: "melody-singer",
+  controls: [
+    { name: "key", label: "Key", kind: "choice", options: KEY_OPTIONS, default: 0 },
+    { name: "stage", label: "Melody", kind: "choice", options: MELODY_STAGES.map((st) => ({ value: st.id, label: st.title })), default: MELODY_STAGES[0].id },
+    {
+      name: "index", label: "Number", kind: "choice", default: 1,
+      optionsFor: (v) => numberOptions((MELODY_STAGES.find((st) => st.id === v.stage) ?? MELODY_STAGES[0]).tunes.length),
+    },
+    { name: "voice", label: "Voice", kind: "choice", options: VOICE_IDS.map((v) => ({ value: v, label: VOICES[v].label })), default: "baritone" },
+  ],
+  make: melodyMake,
+  read: melodyRead,
+  update(s, values) {
+    const t = toolOf(s, "melody-singer");
+    const current = melodyRead(s);
+    if (!t || !current) return s;
+    const merged = { ...current, ...values };
+    // a new melody starts at its first tune unless a number was picked with it
+    if (values.stage !== undefined && values.stage !== current.stage && values.index === undefined) merged.index = 1;
+    const made = melodyMake(merged, { tonicPc: t.key, family: 0, mode: 0 });
+    if (made.kind !== "tool") return s;
+    // its other props (chords off, the metronome) stay
+    const tool = toolSubject({ ...t, ...made.tool });
+    const keyPicked = merged.key !== current.key;
+    return s.kind === "tool" && (s.pinned || keyPicked) ? ({ ...tool, pinned: ["tonic"] } as Subject) : tool;
+  },
+  parts(s) {
+    const t = toolOf(s, "melody-singer")!;
+    return { name: "Melody", key: keyText(t.key, "major"), detail: [melodyLabel(t.tune), t.voice].filter(Boolean).join(", ") };
+  },
+});
+
+const ALL = [scale, caged, arpeggio, chordShapes, staff, melody];
 
 /** The palette's families, in its order. */
 export const FAMILIES: Family[] = ALL;

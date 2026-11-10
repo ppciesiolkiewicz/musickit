@@ -11,9 +11,6 @@ and add to these pages. Rank pages and provide me your understanding which pages
 - Guided tour should always include:
   - "This is guided tour for page.. where you can" - adjust copy
 
-48. add melodies to notes creator
-- we should allow to select which melody we want when adding component (just name + index)
-- widget should have button to go to next melody and when sharing we should share this setting 
 
 
 49. [DONE] In fullscreen melodies with piano roll: 
@@ -139,6 +136,10 @@ oooooooooooooooooooooo Recent app feedback ooooooooooooooooooooooooo
 
 
 oooooooooooooooooooooooooooooooooo DONE ooooooooooooooooooooooooooooooooooooooooooooooo
+[DONE] 48. add melodies to notes creator
+- we should allow to select which melody we want when adding component (just name + index)
+- widget should have button to go to next melody and when sharing we should share this setting 
+Done: a Melody family in the notes creator's palette (Scale section): Key, Melody (the book's name, e.g. "Do Re Mi"), Number (its place in it) and Voice. The widget has "Next melody →", which saves the next tune on the widget, so a shared note opens on it (in a note being read it only changes what the reader sees). Checked in the browser on a shared note; adding from the palette covered by tests only.
 D35. Runs / melodies: picking a scale starts the microphone (was 46)
 Done: on /theory/singing/melodies and /runs, picking a scale in the side panel switches on the mic of the tune picked, without pressing play. The mic then moves with the tune: picking another card turns the old card's mic off and the new one's on. The mic button still turns it off. Types, lint and sing-along tests clean. Not checked in the browser.
 

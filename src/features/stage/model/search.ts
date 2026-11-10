@@ -149,6 +149,7 @@ function entries(pluginIds: string[], key: KeyChoice, search = false): Entry[] {
     entry({ kind: "section", section: "relatives", key }, "scale", "Modes that share the notes", ["relative", "relatives", "modes", "mode", "same", "notes"]),
     ...panel("scale", "scale", "Every interval of the mode"),
     ...fam("staff"),
+    ...fam("melody"),
   ];
   // a family without a subsection comes first in its section, above the first subsection heading
   out.push(...fam("chord-shapes"));

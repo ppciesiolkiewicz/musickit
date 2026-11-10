@@ -150,7 +150,7 @@ test("the catalog lists every widget in the master key, by section, plus camera 
   assert.ok(subjects.some((s) => s.kind === "section" && s.section === "relatives"));
   assert.ok(subjects.some((s) => s.kind === "plugin" && s.plugin === "scale" && !s.full));
   const fams = c.flatMap((r) => (r.action.type === "family" ? [r.action] : []));
-  assert.deepEqual(fams.map((f) => f.familyId), ["scale", "staff", "chord-shapes", "arpeggio", "caged"]);
+  assert.deepEqual(fams.map((f) => f.familyId), ["scale", "staff", "melody", "chord-shapes", "arpeggio", "caged"]);
   assert.deepEqual(fams.map((f) => f.familyId).sort(), FAMILIES.map((f) => f.id).sort());
   for (const f of fams) assert.deepEqual(f.key, E_MINOR);
   assert.equal(subjects.filter((s) => s.kind === "bubble").length, 7);
@@ -166,7 +166,7 @@ test("the catalog lists every widget in the master key, by section, plus camera 
 test("the catalog comes in section order, each section in one run, subsections together", () => {
   const c = paletteCatalog(ids, E_MINOR);
   assert.deepEqual([...new Set(c.map((r) => r.group))], ["setup", "scale", "chords", "caged", "theory", "pages", "text", "brand", "studio"]);
-  assert.deepEqual(c.filter((r) => r.group === "scale").map((r) => r.label), ["Scale", "Relative modes", "Intervals within each mode", "Staff"]);
+  assert.deepEqual(c.filter((r) => r.group === "scale").map((r) => r.label), ["Scale", "Relative modes", "Intervals within each mode", "Staff", "Melody"]);
   assert.deepEqual(groupResults(c).flatMap((g) => g.results), c);
 });
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, useMemo, type ReactNode } from "react";
+import { useContext, useMemo, useState, type ReactNode } from "react";
 import { ArpeggioOnGuitar } from "@/components/chordKit/ArpeggiosExplorer";
 import { CagedBoxPanels, CagedNeckMap } from "@/components/chordKit/CagedExplorer";
 import { ChordBubble } from "@/components/chordKit/ChordBubbles";
@@ -11,6 +11,7 @@ import { Tool } from "@/features/plan/ui/Tool";
 import { LevelPin } from "@/features/guide/Tier";
 import { DEFAULT_KEY_PC } from "@/features/theory/theory";
 import { Tuner } from "@/features/tuner";
+import { nextMelody } from "../model/families";
 import { melodyDesignWidth } from "../model/melody";
 import { cagedQualityOf, parseText, withOwnKey, type Subject } from "../model/subject";
 import BrandWidget from "./BrandWidget";
@@ -121,7 +122,13 @@ export default function StageWidget({ subject, onSubjectChange, stageKey, onStag
     case "tool":
       body = (
         <div className="rounded-xl border border-slate-800 bg-slate-950 p-3">
-          {subject.tool.type === "staff" ? <StudioStaff tool={subject.tool} /> : <Tool tool={subject.tool} />}
+          {subject.tool.type === "staff" ? (
+            <StudioStaff tool={subject.tool} />
+          ) : subject.tool.type === "melody-singer" ? (
+            <StudioMelody subject={subject} tool={subject.tool} readOnly={readOnly} onSubjectChange={onSubjectChange} />
+          ) : (
+            <Tool tool={subject.tool} />
+          )}
         </div>
       );
       break;
@@ -188,4 +195,29 @@ function StudioStaff({ tool }: { tool: Extract<PlanTool, { type: "staff" }> }) {
   // no studio audio input (the notes creator, the editor's replay): the staff never opens a microphone of its own
   if (!mic) return <Tool tool={{ ...tool, mic: false }} />;
   return <Tool tool={tool} input={{ hz: mic.hz, listening: mic.status === "on" || mic.status === "asking", onToggle: mic.onToggle }} />;
+}
+
+/**
+ * A tune from the melody book (the tool names it and its number) with **Next melody**: on the stage the next tune is saved on the
+ * widget (and so shared with the note); in a note being read it only changes what this reader sees.
+ */
+function StudioMelody({ subject, tool, readOnly, onSubjectChange }: { subject: Subject; tool: Extract<PlanTool, { type: "melody-singer" }>; readOnly: boolean; onSubjectChange: (s: Subject) => void }) {
+  const [own, setOwn] = useState<{ from: number; tune: number } | null>(null);
+  // a reader's own pick, until the widget's tune changes under it
+  const tune = readOnly && own?.from === tool.tune ? own.tune : tool.tune;
+  const next = () => {
+    const n = nextMelody(tune);
+    if (readOnly) setOwn({ from: tool.tune, tune: n });
+    else onSubjectChange({ ...subject, tool: { ...tool, tune: n } } as Subject);
+  };
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex justify-end">
+        <button type="button" onClick={next} className="rounded-lg border border-slate-700 px-2.5 py-1 text-xs text-slate-200 hover:bg-slate-800">
+          Next melody →
+        </button>
+      </div>
+      <Tool key={tune} tool={{ ...tool, tune }} />
+    </div>
+  );
 }
