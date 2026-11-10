@@ -30,7 +30,7 @@ export default async function NotePage({ params }: { params: Promise<Params> }) 
   const note = presetInfo(slug);
   if (!note) notFound();
   return (
-    <PageShell active="/teachers/studio?notes=1" full tight devices eyebrow="A note from your teacher" title={note.title} intro={note.description}>
+    <PageShell active="/teachers/studio?notes=1" devices eyebrow="A note from your teacher" title={note.title} intro={note.description}>
       <PresetNote slug={slug} />
     </PageShell>
   );

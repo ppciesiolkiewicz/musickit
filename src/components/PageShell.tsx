@@ -28,13 +28,12 @@ const BAR: Record<Tone, string> = { emerald: "bg-emerald-400", sky: "bg-sky-400"
  * Necks and other wide pieces reach back out with the `bleed` utility. `devices` puts the audio input and output picker in the nav,
  * for pages that listen or play.
  */
-export default function PageShell({ title, eyebrow, intro, active, wide = false, full = false, tight = false, devices = false, mic = false, header, pageId, tour, children }: {
+export default function PageShell({ title, eyebrow, intro, active, wide = false, full = false, devices = false, mic = false, header, pageId, tour, children }: {
   title: string;
   /** a short line over the title saying what kind of page this is ("A note from your teacher") */
   eyebrow?: string;
   intro?: string; active: string; wide?: boolean; full?: boolean;
-  /** the smallest side margins, for pages that are one wide article */
-  tight?: boolean; devices?: boolean;
+  devices?: boolean;
   /** the page listens to the microphone: adds the mic and headphones note under the intro */
   mic?: boolean;
   /** replaces the plain title, for pages that open with a hero (such a page places its own PageHelp) */
@@ -56,7 +55,7 @@ export default function PageShell({ title, eyebrow, intro, active, wide = false,
   );
   return (
     <div className="app-bg min-h-screen text-slate-200">
-      <div className={`mx-auto flex w-full flex-col gap-4 py-3 sm:py-4 ${tight ? "px-3 sm:px-5 lg:px-20 xl:px-24" : full ? "px-3 sm:px-6 lg:px-8" : wide ? "max-w-[96rem] px-3 sm:px-5" : "max-w-[80rem] px-3 sm:px-6 lg:px-8"}`}>
+      <div className={`mx-auto flex w-full flex-col gap-4 py-3 sm:py-4 ${full ? "px-3 sm:px-6 lg:px-8" : wide ? "max-w-[96rem] px-3 sm:px-5" : "max-w-[80rem] px-3 sm:px-6 lg:px-8"}`}>
         <PreloadPiano />
         <PracticeReminder />
         <div className="border-b border-slate-800/70 py-1.5 sm:py-2.5">
