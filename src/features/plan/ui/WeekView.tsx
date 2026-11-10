@@ -13,7 +13,7 @@ import type { Stars } from "@/features/progress/stars";
 /**
  * The week: a strip of seven days (every day can be opened; days ahead are dashed and marked "coming up") and the chosen day's
  * exercises, each an `ExerciseCard`. One floating timer counts down the whole day (`DayTimer`): it starts by itself for the day shown on page
- * load, its used time is saved with the plan, and the exercise its time falls in is marked "Now".
+ * load, its used time is saved with the plan, and the card its time falls in is lifted a little (no tag: the timer is a guide).
  */
 export default function WeekView({ plan, today, day, onDay, onRate, onElapsed, corner }: {
   plan: StoredPlan; today: number; day: number; onDay: (d: number) => void; onRate: (day: number, ex: number, stars: Stars | null) => void;

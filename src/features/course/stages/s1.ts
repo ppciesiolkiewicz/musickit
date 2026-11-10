@@ -80,7 +80,7 @@ export const STAGE_1: CourseStage = {
       links([{ href: "/theory/arpeggios", label: "Arpeggios explorer", note: "every chord's arpeggio, anywhere on the neck" }]),
     ]),
     section("chords-from-scale", "Chords from the scale", "paths", "Stacking every other note of the scale makes its chords: Do–Mi–Sol is the 1 chord, Fa–La–Do the 4 and Sol–Ti–Re the 5."),
-    section("one-four-five", "1 → 4 → 5 → 1 & the circle of fifths", "paths", "The 1, 4 and 5 chords most songs use, and how the circle of fifths shows them.", [
+    section("one-four-five", ["1 → 4 → 5 → 1 & the circle of fifths", "1 → 4 → 5 → 1"], "paths", "The 1, 4 and 5 chords most songs use, and how the circle of fifths shows them.", [
       text(
         "Most songs are built on three chords: the one on the home note (1, Do), the one a 4th up (4, Fa), and the one a 5th up (5, Sol). In G major that's G → C → D → G. Here are their roots in position 1, and they're all under your hand.",
         "The 4 feels like a step away from home. The 5 feels like it has to come back. Play the roots on their own and you can already hear the story.",

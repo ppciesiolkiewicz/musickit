@@ -46,7 +46,7 @@ export const STAGES_0: CourseStage[] = [
         links([], [{ href: "/theory/notes?strings=E,A&naturals=1", label: "Find the notes on E and A", note: "a quiz: a note name comes up, tap it on the neck" }]),
       ]),
       section("steady-beat", "Keeping a steady beat", "basics", "Counting beats and bars with a click, then tapping and strumming in time without speeding up or slowing down."),
-      section("spider", "The spider: fingers 1-2-3-4", "technique", "One finger per fret across all six strings with alternate picking, then other finger orders like 1-3-2-4, for strength and control."),
+      section("spider", ["The spider: fingers 1-2-3-4", "The spider"], "technique", "One finger per fret across all six strings with alternate picking, then other finger orders like 1-3-2-4, for strength and control."),
     ],
   },
   {
@@ -141,7 +141,7 @@ export const STAGES_0: CourseStage[] = [
         task("Sing do re mi fa sol la ti do along with the piano, then without it. Then sing it down."),
       ]),
       section("home-note", "Do: the home note", "three-views", "Hearing Do, the home note of a key, over a drone, singing it, and feeling every other note lean back to it."),
-      section("do-re-mi", "The major scale as do-re-mi", "three-views", "G major in the open position, played and sung as Do Re Mi.", [
+      section("do-re-mi", ["The major scale as do-re-mi", "Major scale in solfège"], "three-views", "G major in the open position, played and sung as Do Re Mi.", [
         text(
           "Here is G major in the open position, each note with its number and its solfège name. Play the arrow path from the open G string up to the G on the high e, singing along: Do Re Mi Fa Sol La Ti Do.",
           "Notice the small steps: Mi–Fa (B to C) and Ti–Do (F♯ to G) are one fret apart. Every other step is two frets, or the next string.",
@@ -163,7 +163,7 @@ export const STAGES_0: CourseStage[] = [
         task("Play G major from the open G string up to the G on the high e, as in the do-re-mi path, saying each letter. Point to each note on the staff as you play it. Keep going until you can find a note on the staff without counting up from the bottom line."),
         links([], [{ href: "/theory/singing", label: "Singing", note: "sing the scale and watch your pitch on the staff" }]),
       ]),
-      section("step-melodies", "Step melodies: Do–Re–Mi", "melody", "Short tunes that move one note at a time up and down the scale, sung first and then played."),
+      section("step-melodies", ["Step melodies: Do–Re–Mi", "Step melodies"], "melody", "Short tunes that move one note at a time up and down the scale, sung first and then played."),
       section("do-mi-sol", "Do–Mi–Sol", "melody", "The three notes of the major chord as a tune: leaping between Do, Mi and Sol by ear and with your voice."),
       section("intervals", "Intervals", "three-views", "The distance between two notes: half steps, whole steps and the octave, and how they add up to the scale.", [
         text(
@@ -220,7 +220,7 @@ export const STAGES_0: CourseStage[] = [
       ]),
       section("sing-then-find", "Sing it, then find it", "melody", "Sing a short phrase, then find it on the neck starting from Do, so your ear leads your fingers."),
       section("do-mi-sol-neck", "Do–Mi–Sol on the neck", "melody", "The major chord's three notes played as a melody in position 1, in G and in C."),
-      section("legato", "Hammer-ons, pull-offs & trills", "technique", "Sounding notes with the fretting hand alone: hammer-ons, pull-offs and trills for smooth, connected lines."),
+      section("legato", ["Hammer-ons, pull-offs & trills", "Hammer-ons & pull-offs"], "technique", "Sounding notes with the fretting hand alone: hammer-ons, pull-offs and trills for smooth, connected lines."),
     ],
   },
 ];

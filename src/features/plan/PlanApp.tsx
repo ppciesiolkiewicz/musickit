@@ -108,9 +108,9 @@ export default function PlanApp() {
     );
   }
 
-  // the exercises set their own keys and always count from the scale's root, so the only setting is how notes are labelled,
-  // a small pill floating over the day timer
-  const labels = <LabelSelect className="rounded-xl border border-slate-700 bg-slate-950/90 px-2.5 py-1.5 shadow-xl shadow-black/40 backdrop-blur" />;
+  // the exercises set their own keys and always count from the scale's root, so the only setting is how notes are labelled:
+  // a small pill floating over the day timer, or on a phone a control in the header row, so the corner stays small
+  const labels = <LabelSelect className="rounded-xl border border-slate-700 bg-slate-950/90 px-2.5 py-1.5 shadow-xl shadow-black/40 backdrop-blur max-sm:hidden" />;
   return (
     <FixedLabelRoot value="scale">
       {/* necks keep the page's margins rather than bleeding to the window's edge */}
@@ -123,6 +123,7 @@ export default function PlanApp() {
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Reminder state={state} update={update} />
+            <LabelSelect className="h-10 rounded-lg border border-slate-700 px-3 sm:hidden" />
             <Button data-tour="plan-next" onClick={() => setFlow("next")} title="Plan the next days from this week's exercises" className={`${primary} ${big}`}><Icon name="sparkles" size={16} />Plan next week</Button>
             <Button onClick={() => setFlow("start")} title="Answer the questions again; the prompt leaves out past weeks" className={`${big} hover:!border-violet-500/60 hover:!bg-violet-500/10`}><Icon name="rotate-ccw" size={16} className={HUE_TONES.violet.ink} />Start anew</Button>
           </div>

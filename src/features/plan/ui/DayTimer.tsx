@@ -37,7 +37,9 @@ function chime() {
  * The day's countdown, floating at the side of the page: the whole day's minutes, the exercise the time is in now, pause /
  * resume and reset. It starts by itself when `autoStart` (the day shown on page load), saves the used seconds through `onSave`
  * every few seconds, on pause and when the tab hides, so a reload or a later visit picks up where it stopped. The running
- * exercise goes to `onExercise`; a chime at zero. Time is kept from the clock, so a background tab stays right.
+ * exercise goes to `onExercise`; a chime at zero. Time is kept from the clock, so a background tab stays right. On a phone it
+ * is one short row (ring, time left, the exercise's own time and number, the buttons side by side), so it covers little of
+ * the exercise under it.
  */
 export default function DayTimer({ minutes, titles, label, elapsed: saved, autoStart, onSave, onExercise, above }: {
   minutes: number[]; titles: string[]; label: string; elapsed: number; autoStart: boolean;
@@ -108,26 +110,26 @@ export default function DayTimer({ minutes, titles, label, elapsed: saved, autoS
     <Corner above={above}>
     <aside
       aria-label="Day timer"
-      className="flex w-[min(20rem,calc(100vw-1.5rem))] items-center gap-3 rounded-2xl border border-slate-700 bg-slate-950/90 p-3 shadow-2xl shadow-black/50 backdrop-blur"
+      className="flex items-center gap-2 rounded-2xl border border-slate-700 bg-slate-950/90 p-2 shadow-2xl sm:w-[min(20rem,calc(100vw-1.5rem))] sm:gap-3 sm:p-3 shadow-black/50 backdrop-blur"
     >
-      <span className="relative grid size-14 shrink-0 place-items-center">
+      <span className="relative grid size-10 shrink-0 place-items-center sm:size-14">
         <svg viewBox="0 0 36 36" className="absolute inset-0 -rotate-90" aria-hidden>
           <circle cx="18" cy="18" r="15.5" fill="none" strokeWidth="3" className="stroke-slate-800" />
           <circle cx="18" cy="18" r="15.5" fill="none" strokeWidth="3" strokeLinecap="round" className={finished ? "stroke-emerald-400" : running ? "stroke-sky-400" : "stroke-amber-400"} strokeDasharray={`${p * 97.4} 97.4`} />
         </svg>
-        <Icon name={finished ? "check" : "timer"} size={18} className={finished ? "text-emerald-300" : running ? "text-sky-300" : "text-amber-300"} />
+        <Icon name={finished ? "check" : "timer"} size={16} className={finished ? "text-emerald-300" : running ? "text-sky-300" : "text-amber-300"} />
       </span>
       <div className="min-w-0 flex-1">
-        <p className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-wider text-slate-400">
+        <p className="flex items-center max-sm:hidden gap-1.5 text-[10px] font-medium uppercase tracking-wider text-slate-400">
           {label}
           {!finished && !running && <span className="rounded-full bg-amber-500/15 px-1.5 text-amber-300">paused</span>}
         </p>
-        <p className={`text-2xl font-semibold leading-tight tabular-nums ${finished ? "text-emerald-300" : "text-slate-50"}`} aria-live="off">{fmt(clock.left)}</p>
+        <p className={`text-lg font-semibold sm:text-2xl leading-tight tabular-nums ${finished ? "text-emerald-300" : "text-slate-50"}`} aria-live="off">{fmt(clock.left)}</p>
         <p className="truncate text-xs text-slate-400" title={exercise !== null ? titles[exercise] : undefined}>
-          {finished ? "Day's practice time done" : exercise !== null ? <><span className="tabular-nums text-slate-200">{fmt(clock.leftInExercise)}</span> · <span className="text-sky-300">{exercise + 1}. {titles[exercise]}</span></> : `${minutes.length} exercises · ${Math.round(clock.total / 60)} min`}
+          {finished ? "Day's practice time done" : exercise !== null ? <><span className="tabular-nums text-slate-200">{fmt(clock.leftInExercise)}</span> · <span className="text-sky-300">{exercise + 1}.<span className="max-sm:hidden"> {titles[exercise]}</span></span></> : `${minutes.length} exercises · ${Math.round(clock.total / 60)} min`}
         </p>
       </div>
-      <div className="flex flex-col gap-1">
+      <div className="flex items-center gap-1 sm:flex-col">
         {!finished && (
           <Button size="icon-lg" onClick={running ? pause : start} aria-label={running ? "Pause" : elapsed > 0 ? "Resume" : "Start"} title={running ? "Pause" : elapsed > 0 ? "Resume" : "Start"} className="border-sky-400/70! bg-sky-500/25! text-sky-50! hover:bg-sky-500/40!">
             <Icon name={running ? "pause" : "play"} size={16} />

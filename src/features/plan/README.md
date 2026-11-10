@@ -29,23 +29,26 @@ browser.
    `close_exercise_tool`. Without WebMCP nothing is loaded; the parser and views load on first call.
 2. **The week** (`ui/WeekView.tsx`): seven day buttons; any day can be opened, days ahead are dashed and marked "coming up". The day's
    exercises are colour-coded cards (a hue per position, tags keep their own colour): title in the display face, focus
-   ("A minor pentatonic · boxes 1 & 2"), the level (outlined chip), area and kind tags, sections (timed headings show their minutes), why, and five stars, "How did it go?" (1 Can't do it yet … 5 Easy now: the
+   ("A minor pentatonic · boxes 1 & 2"), the level (outlined chip), area and kind tags (a phone shows only the focus), sections (timed headings show their minutes), why, and five stars, "How did it go?" (1 Can't do it yet … 5 Easy now: the
    scale in `src/features/progress/stars.ts`). Rating an exercise marks it done; tapping the same star again clears both
    (`ratePlan`; ratings in `StoredPlan.rated`, done ticks still in `StoredPlan.done`, which older plans only have).
    Every rating also goes to the **progress log** (`src/features/progress`, one row per rated exercise, by exercise id),
    which outlives the plan history.
    **One floating day timer** (`ui/DayTimer.tsx`, bottom right) counts down the whole day's minutes: it starts by itself
    for the day shown on page load, can be paused, resumed and reset, shows the exercise the time falls in (`model/dayClock.ts`)
-   and marks that card "Now", and chimes at zero. Its used seconds are saved in the plan (`StoredPlan.elapsed`, per day)
+   and lifts that card a little (no tag: the timer is a guide), and chimes at zero. On a phone it is one short row: ring,
+   time left, the exercise's own time and number, the buttons side by side. Its used seconds are saved in the plan (`StoredPlan.elapsed`, per day)
    every 5 seconds, on pause and when the tab hides, so a reload or a later visit picks up where it stopped. There is no
    per-exercise timer.
    No settings column: the exercises set their own keys and always count from the scale's root (`FixedLabelRoot`), so the
-   only setting is the Labels dropdown, floating over the day timer in the bottom-right corner.
+   only setting is the Labels dropdown, floating over the day timer in the bottom-right corner; on a phone it sits in the
+   header row with the reminder instead.
 3. **Tools in the section**: each exercise carries 1–2 `tools`, set up by the AI, with nothing to configure: a scale's
    boxes on the neck, chord shapes, a staff with live pitch for singing, a folded play-along band (one Play for only the
    chosen click / drone / drums / bass), or the notes / ear games with their settings hidden. Links sit in two slots:
    "Learn before" at the top (prerequisite lessons) and "Explore more" at the bottom (going deeper), each shown as
-   "Learn <the page's name>" and opening in a new tab.
+   "Learn <the page's name>" and opening in a new tab. On a phone a link shows only the page's short name (`linkLabel(…,
+   true)`: a course section's `short` title).
 4. **Plan next week** (mode `"next"`, any time; a banner shows it once the week is over): how did it go, minutes, notes
    and styles, then copy the prompt, paste. The topic screens are not shown again (the week's stars say more), except
    once for an area with no answered topic (answers kept from before the topics) and when the player taps *Change my

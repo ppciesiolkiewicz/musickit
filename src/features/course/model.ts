@@ -50,6 +50,8 @@ export type Block =
 export interface CourseSection {
   slug: string;
   title: string;
+  /** a few words for narrow places (the AI plan's "Learn before" links on a phone); the title when that is short already */
+  short: string;
   topic: TopicId;
   /** what the section teaches, or will teach, in a sentence or two: shown on planned sections, and to the AI plan's link list */
   about: string;
@@ -67,5 +69,11 @@ export interface CourseStage {
 /** Pitch class of a fretted note, string 0 = low E. */
 export const pcAt = (string: number, fret: number): number => (OPEN_PCS[string] + fret) % 12;
 
-/** A section with no blocks is planned: its `about` says what it will teach until the content files fill `blocks` in. */
-export const section = (slug: string, title: string, topic: TopicId, about: string, blocks: Block[] = []): CourseSection => ({ slug, title, topic, about, blocks });
+/**
+ * A section with no blocks is planned: its `about` says what it will teach until the content files fill `blocks` in. A long
+ * title comes with its short form, `[title, short]`.
+ */
+export const section = (slug: string, title: string | [string, string], topic: TopicId, about: string, blocks: Block[] = []): CourseSection => {
+  const [full, short] = typeof title === "string" ? [title, title] : title;
+  return { slug, title: full, short, topic, about, blocks };
+};

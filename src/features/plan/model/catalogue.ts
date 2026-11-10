@@ -9,6 +9,8 @@ import { THEORY_SECTIONS } from "@/features/theory/sections";
 export interface CatalogueEntry {
   href: string;
   label: string;
+  /** a few words for narrow screens, when `label` is long (a course section's short title) */
+  short?: string;
   desc: string;
 }
 
@@ -19,6 +21,7 @@ export function catalogue(): CatalogueEntry[] {
   const course = ALL_SECTIONS.map(({ stage, section }) => ({
     href: sectionHref(stage.slug, section.slug),
     label: section.title,
+    ...(section.short !== section.title ? { short: section.short } : {}),
     desc: `Course ${stage.label} · ${stage.title}: ${section.about}${section.blocks.length ? "" : " (planned)"}`,
   }));
   const scales = [...MODE_PAGES.map((m) => ({ slug: m.slug, name: m.name })), ...PENTATONICS.map((p) => ({ slug: p.slug, name: p.name }))]
@@ -47,9 +50,10 @@ export function checkLink(link: unknown, entries: CatalogueEntry[]): string | un
 
 /**
  * A link's page as the player reads it: the lesson's or page's name ("One-minute changes"), a scale page with its key
- * ("Minor pentatonic in A"). Undefined when the page isn't in the catalogue.
+ * ("Minor pentatonic in A"). `short` gives a course section's short title, for a phone. Undefined when the page isn't in the
+ * catalogue.
  */
-export function linkLabel(href: string, entries: CatalogueEntry[]): string | undefined {
+export function linkLabel(href: string, entries: CatalogueEntry[], short = false): string | undefined {
   const path = pathOf(href);
   const page = entries.find((e) => pathOf(e.href) === path);
   const scale = path.match(/^(\/theory\/scales\/[a-z0-9-]+)\/([a-z-]+)$/);
@@ -58,5 +62,5 @@ export function linkLabel(href: string, entries: CatalogueEntry[]): string | und
     const name = entries.find((e) => e.href.startsWith(`${scale[1]}/`))?.label;
     if (name) return `${name} in ${keyName(pc)}`;
   }
-  return page?.label;
+  return short ? page?.short ?? page?.label : page?.label;
 }

@@ -7,7 +7,7 @@ export const STAGE_6: CourseStage = {
   slug: "10", label: "10", title: "Other keys",
   intro: "Everything so far was in E minor and G major. Move it to other keys, with the circle of fifths as the map.",
   sections: [
-    section("moving-keys", "Moving it all to Am/C, Dm/F", "keys", "Moving every shape from E minor to A minor/C and D minor/F.", [
+    section("moving-keys", ["Moving it all to Am/C, Dm/F", "Moving keys"], "keys", "Moving every shape from E minor to A minor/C and D minor/F.", [
       text(
         "In stage 5 you moved the E minor scale up three frets and got G minor. Every shape in this course moves the same way. Slide the position 1 pentatonic up five frets and it's A minor pentatonic, the most famous box in rock and blues. Slide it up ten and it's D minor.",
         "Chords move too, as long as nothing relies on open strings: that's what barres and drop 3 shapes are for. And some keys have their own open position: A minor / C major uses Am, Dm, Em, C, G and F (Fmaj7 until the barre comes), so the stage 5 ideas work there as well.",
@@ -26,7 +26,7 @@ export const STAGE_6: CourseStage = {
         chords("The chords, in position 1.", ["Am", "C", "D", "F", "E"]),
         songs({ title: "House of the Rising Sun", artist: "traditional (The Animals)", chords: ["Am", "C", "D", "F", "E"], progression: "Am C D F · Am C E" }),
       ]),
-    section("circle-map", "The circle as a map between keys", "keys", "Using the circle of fifths as a map from one key to the next.", [
+    section("circle-map", ["The circle as a map between keys", "The circle of keys"], "keys", "Using the circle of fifths as a map from one key to the next.", [
       text(
         "The circle of fifths puts every key in a ring, each one a 5th above the last. Any key's 4 and 5 chords are its neighbours, so a key's three main chords are always three keys in a row: C–G–D for G major, F–C–G for C major.",
         "Neighbouring keys share six of their seven notes, which is why songs move between them so easily. Inside the ring sit the relative minors: Em with G, Am with C, Dm with F. Pick a key below and its whole family lights up.",

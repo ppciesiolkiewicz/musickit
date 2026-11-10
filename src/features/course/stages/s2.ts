@@ -83,7 +83,7 @@ export const STAGE_2: CourseStage = {
       }),
       task("Play the Bm arpeggio, then Em's from stage 5, back and forth: the 5 to the 1 of E minor, one note at a time."),
     ]),
-    section("joining", "Joining positions 1 and 2", "caged", "Running the G major scale from position 1 into position 2.", [
+    section("joining", ["Joining positions 1 and 2", "Joining positions"], "caged", "Running the G major scale from position 1 into position 2.", [
       text(
         "Positions 1 and 2 overlap on frets 2 and 3, so the G major scale runs straight from one into the other. Follow the arrows: start in the open position on the D string, slide your hand up, and finish in position 2.",
         "This is how the neck stops being separate boxes: the same notes, reached from a different spot. Stage 8 does the same with the other three positions.",
@@ -105,7 +105,7 @@ export const STAGE_2: CourseStage = {
       ]),
     section("singing-leaps", "Singing leaps", "three-views", "Singing leaps of a 4th, 5th and octave cleanly, hearing the target note before you sing it."),
     section("sight-singing", "Sight-singing melodies", "melody", "Reading a short melody as do-re-mi and singing it first time."),
-    section("harmony-line", "A harmony line over chords", "three-views", "Singing a second line, a 3rd or 6th away, over the chords of a song."),
+    section("harmony-line", ["A harmony line over chords", "A harmony line"], "three-views", "Singing a second line, a 3rd or 6th away, over the chords of a song."),
     section("vocal-runs", "Runs", "technique", "Singing a quick run of scale notes clearly, slow first and then faster."),
   ],
 };

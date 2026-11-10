@@ -25,7 +25,10 @@ const EDGE: Record<Hue, string> = {
 /** The catalogue, built once for every card's link names. */
 let pages: CatalogueEntry[] | null = null;
 
-/** A link slot: its title, then a link per page, "Learn <the page's name>", each opening in a new tab. */
+/**
+ * A link slot: its title, then a link per page, "Learn <the page's name>", each opening in a new tab. On a phone a link is
+ * only the page's short name: the slot's title already says what it is for.
+ */
 function LinkSlot({ title, hrefs }: { title: string; hrefs: string[] }) {
   if (!hrefs.length) return null;
   return (
@@ -34,7 +37,8 @@ function LinkSlot({ title, hrefs }: { title: string; hrefs: string[] }) {
       {hrefs.map((href) => (
         <a key={href} href={href} target="_blank" rel="noopener" className="inline-flex w-fit items-center gap-1.5 rounded-lg border border-sky-500/40 bg-sky-500/10 px-2.5 py-1 text-xs font-medium text-sky-100 hover:border-sky-400 hover:bg-sky-500/20">
           <Icon name="book-open" size={12} />
-          Learn {linkLabel(href, (pages ??= catalogue())) ?? href}
+          <span className="sm:hidden">{linkLabel(href, (pages ??= catalogue()), true) ?? href}</span>
+          <span className="max-sm:hidden">Learn {linkLabel(href, pages) ?? href}</span>
         </a>
       ))}
     </div>
@@ -44,8 +48,8 @@ function LinkSlot({ title, hrefs }: { title: string; hrefs: string[] }) {
 /**
  * One exercise as the player sees it: a card coloured by its place in the day (`index`), the title in the display face,
  * focus, tags, "Learn before" links, its sections (text, steps and tools, set up and ready to play), why, "Explore more"
- * links, and the stars that rate it (and mark it done) when `onRate` is given.
- * `now` marks the exercise the day timer is in.
+ * links, and the stars that rate it (and mark it done) when `onRate` is given. A phone shows the focus but not the level,
+ * area and tags. `now` (the exercise the day timer is in) only lifts the card a little: the timer is a guide, not a rule.
  */
 export default function ExerciseCard({ exercise: e, index, done = false, now = false, rating = null, onRate, address }: {
   exercise: PlanExercise; index: number; done?: boolean; now?: boolean;
@@ -65,15 +69,14 @@ export default function ExerciseCard({ exercise: e, index, done = false, now = f
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <span className={`grid size-8 shrink-0 place-items-center rounded-full text-sm font-semibold tabular-nums ${HUE_TONES[hue].disc[1]}`}>{index + 1}</span>
         <h3 className={`text-xl ${done ? "text-slate-400 line-through" : "text-slate-50"}`} style={DISPLAY}>{e.title}</h3>
-        {now && <span className="rounded-full bg-sky-400 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-slate-950">Now</span>}
         <span className="ml-auto flex items-center gap-1 text-xs text-slate-400"><Icon name="timer" size={12} />{e.minutes} min</span>
       </div>
       {(e.focus || e.level || e.area || e.tags?.length) && (
-        <div className="flex flex-wrap items-center gap-1.5 pl-11">
+        <div className={`flex flex-wrap items-center gap-1.5 sm:pl-11 ${e.focus ? "" : "max-sm:hidden"}`}>
           {e.focus && <span className="rounded-md border border-sky-500/30 bg-sky-500/10 px-2 py-0.5 text-xs text-sky-100">{e.focus}</span>}
-          {e.level && <span className="rounded-full border border-slate-500/70 px-2 py-px text-[10px] font-semibold uppercase tracking-wider text-slate-200">{labelOf(LEVELS, e.level)}</span>}
-          {e.area && <span className="rounded-full bg-slate-800/80 px-2 py-0.5 text-[11px] font-medium text-slate-300">{labelOf(AREAS, e.area)}</span>}
-          {e.tags?.map((t) => <span key={t} className={`rounded-full bg-slate-800/80 px-2 py-0.5 text-[11px] font-medium ${HUE_TONES[TAG_HUES[t] ?? "sky"].ink}`}>#{t}</span>)}
+          {e.level && <span className="max-sm:hidden rounded-full border border-slate-500/70 px-2 py-px text-[10px] font-semibold uppercase tracking-wider text-slate-200">{labelOf(LEVELS, e.level)}</span>}
+          {e.area && <span className="max-sm:hidden rounded-full bg-slate-800/80 px-2 py-0.5 text-[11px] font-medium text-slate-300">{labelOf(AREAS, e.area)}</span>}
+          {e.tags?.map((t) => <span key={t} className={`max-sm:hidden rounded-full bg-slate-800/80 px-2 py-0.5 text-[11px] font-medium ${HUE_TONES[TAG_HUES[t] ?? "sky"].ink}`}>#{t}</span>)}
         </div>
       )}
       <LinkSlot title="Learn before" hrefs={links.learnBefore} />

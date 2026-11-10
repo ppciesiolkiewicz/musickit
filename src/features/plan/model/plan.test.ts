@@ -442,6 +442,8 @@ describe("link slots", () => {
     assert.equal(linkLabel("/course/2/one-minute-changes", entries), "One-minute changes");
     assert.match(linkLabel("/theory/scales/minor-pentatonic/f-sharp", entries) ?? "", / in F♯$/);
     assert.equal(linkLabel("/nope", entries), undefined);
+    assert.equal(linkLabel("/course/1/spider", entries, true), "The spider");
+    assert.equal(linkLabel("/course/2/one-minute-changes", entries, true), "One-minute changes");
   });
 });
 

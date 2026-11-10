@@ -20,7 +20,7 @@ export const STAGE_4: CourseStage = {
       task("Play G major up and down in each box, starting and ending on a root. Then find the G chord inside each box."),
       links([{ href: "/theory/caged", label: "CAGED explorer", note: "the five shapes of any chord, joined across the neck" }]),
     ]),
-    section("pentatonic-boxes", "The pentatonic in five boxes", "caged", "The pentatonic scale in five boxes that tile the whole neck.", [
+    section("pentatonic-boxes", ["The pentatonic in five boxes", "Pentatonic positions"], "caged", "The pentatonic scale in five boxes that tile the whole neck.", [
         text(
           "The five pentatonic boxes tile the neck, one inside each CAGED shape. Box 1 is the one you know at the nut; the others take over as you climb, each sharing its top notes with the next one's bottom.",
           "Join them with slides along one string and you can solo from the nut to the 15th fret without stopping.",
@@ -29,7 +29,7 @@ export const STAGE_4: CourseStage = {
         task("Play box 1, slide up on the G string into box 2, and come back down. Then the same from box 2 to box 3."),
         links([{ href: "/theory/scales/natural-minor-aeolian", label: "Pentatonic boxes on the scale page" }]),
       ]),
-    section("one-arpeggio", "One arpeggio through all five shapes", "arpeggios", "One arpeggio, G B D, followed through all five CAGED shapes.", [
+    section("one-arpeggio", ["One arpeggio through all five shapes", "Arpeggio in five shapes"], "arpeggios", "One arpeggio, G B D, followed through all five CAGED shapes.", [
       text(
         "Here's the G arpeggio, G B D, across the whole neck, with one path per CAGED shape. Each shape is the arpeggio you'd play from that position, and neighbouring shapes share notes, which is how they lock together.",
         "Same three notes everywhere: Do, Mi, Sol. Once you see that, the neck is one big G chord with five handholds.",
@@ -46,8 +46,8 @@ export const STAGE_4: CourseStage = {
       task("Play the arpeggio in one shape, then slide to the next and play it again, all the way up the neck and back."),
       links([{ href: "/theory/arpeggios", label: "Arpeggios explorer" }]),
     ]),
-    section("do-mi-sol-shapes", "Do–Mi–Sol in every shape", "caged", "Finding the major chord's three notes inside each of the five CAGED shapes, all the way up the neck."),
-    section("triads-everywhere", "Triads on every string set", "triads", "Triads on every set of three neighbouring strings.", [
+    section("do-mi-sol-shapes", ["Do–Mi–Sol in every shape", "Do–Mi–Sol shapes"], "caged", "Finding the major chord's three notes inside each of the five CAGED shapes, all the way up the neck."),
+    section("triads-everywhere", ["Triads on every string set", "Triads on all strings"], "triads", "Triads on every set of three neighbouring strings.", [
       text(
         "Triads aren't only on the top three strings. Any three neighbouring strings hold a G triad somewhere: E–A–D, A–D–G, D–G–B and G–B–e. Each set gives the same chord a different shape and a different register.",
         "On the top strings, G, C and D triads sit a few frets apart, and moving between them takes one or two fingers, just like the triads in position 1.",
