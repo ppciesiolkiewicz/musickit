@@ -18,7 +18,12 @@ browser.
    polyfill), `ui/useBrowserAgentTools.ts` offers two tools while the flow is open: `get_practice_plan_prompt` and
    `submit_practice_plan`; a submitted plan lands in the paste box on the paste step, and the AI reads back
    `agentReply()` (`model/fixRequest.ts`): refused and why, or the warnings to fix and send again. The player still
-   presses Build my plan.
+   presses Build my plan. The prompt it reads starts with `PROMPT_VIA_TOOLS` (`model/agentTools.ts`): send the JSON
+   with the tool instead of replying with a code block. The register and feature check live in `@/lib/webmcp`.
+   **Exercise tools on every page** (`ui/AgentExerciseTools.tsx`, mounted in `PageShell`): with WebMCP the browser's AI
+   also gets `list_exercise_tools` (the prompt's own `toolInterface()`), `show_exercise_tool({ tool })` (checked with
+   `parseToolDiag`, opened in a dialog, `ui/AgentToolModal.tsx`; the AI reads back what was changed or why not) and
+   `close_exercise_tool`. Without WebMCP nothing is loaded; the parser and views load on first call.
 2. **The week** (`ui/WeekView.tsx`): seven day buttons; any day can be opened, days ahead are dashed and marked "coming up". The day's
    exercises are colour-coded cards (a hue per position, tags keep their own colour): title in the display face, focus
    ("A minor pentatonic · boxes 1 & 2"), the level (outlined chip), area and kind tags, sections (timed headings show their minutes), why, and five stars, "How did it go?" (1 Can't do it yet … 5 Easy now: the
