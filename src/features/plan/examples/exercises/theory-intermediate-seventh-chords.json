@@ -6,7 +6,7 @@
   "updated": "2026-11-10",
   "model": "claude-fable-5-2",
   "concepts": ["seventh-chords"],
-  "style": "new",
+  "docs": { "agents": 0, "teaching": 1 },
   "note": "Three 7th chords on one root, each a neck with only its root and the notes that make it different ringed, one view per chord, then named by ear on any root. The why gives the learner the way to tell them apart (which note moved), each step is a tap on the neck instead of a description of the sound, and the game's answers are named as its buttons show them.",
   "exercise": {
     "title": "Three 7th chords on C",

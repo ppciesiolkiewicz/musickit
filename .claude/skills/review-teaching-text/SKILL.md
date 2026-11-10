@@ -1,5 +1,6 @@
 ---
 name: review-teaching-text
+version: 1
 description: Audit learner-facing music text in musickit - a course section, a stage, an exercise or plan example, glossary meanings - for wrong music facts, text that disagrees with its picture or tool, and breaks from the teaching voice. Reports findings, does not rewrite unless asked. Use when asked to review, check, proofread or audit lessons, articles, exercises or examples, and before finishing course-article or exercise-example work.
 ---
 

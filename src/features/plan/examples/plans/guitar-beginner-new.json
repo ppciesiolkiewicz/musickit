@@ -17,7 +17,7 @@
     "strumming-patterns",
     "spider"
   ],
-  "style": "new",
+  "docs": { "agents": 0, "teaching": 1 },
   "rewrites": {
     "id": "guitar-beginner",
     "changes": [

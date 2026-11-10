@@ -13,7 +13,7 @@ import { topicById } from "../intake/topics";
 import { notePc, splitNotes } from "../model/noteText";
 import type { PlanTool, Section } from "../model/tools";
 import type { Level, PlanConfig, PlanExercise } from "../model/types";
-import { EXERCISE_EXAMPLES, PLAN_EXAMPLES, type ExerciseExample, type PlanExample } from "./index";
+import { DOC_VERSIONS, EXERCISE_EXAMPLES, PLAN_EXAMPLES, type ExerciseExample, type PlanExample } from "./index";
 
 const entries = catalogue();
 const LEVELS: Level[] = ["new", "beginner", "intermediate", "advanced"];
@@ -91,6 +91,13 @@ describe("example library", () => {
     }
   });
 
+  it("DOC_VERSIONS is the version written in AGENTS.md and in each teaching skill", () => {
+    const versionIn = (file: string, re: RegExp) => Number(readFileSync(join(process.cwd(), file), "utf8").match(re)?.[1] ?? NaN);
+    assert.equal(versionIn("AGENTS.md", /^Version: (\d+)$/m), DOC_VERSIONS.agents, "AGENTS.md");
+    for (const skill of ["teaching-voice", "course-article", "exercise-example", "review-teaching-text"])
+      assert.equal(versionIn(`.claude/skills/${skill}/SKILL.md`, /^version: (\d+)$/m), DOC_VERSIONS.teaching, skill);
+  });
+
   it("ids unique; concepts exist (conceptById); areas known", () => {
     assert.equal(new Set(ALL.map((x) => x.id)).size, ALL.length);
     for (const x of ALL) {
@@ -99,14 +106,16 @@ describe("example library", () => {
       assert.ok(x.areas.length && x.areas.every((a) => AREAS.some((k) => k.id === a)), x.id);
       assert.ok(LEVELS.includes(x.level), x.id);
       assert.ok(x.note.trim(), x.id);
-      assert.ok(x.style === undefined || x.style === "new", `${x.id}: style`);
+      for (const k of ["agents", "teaching"] as const) assert.ok(Number.isInteger(x.docs?.[k]) && x.docs[k] >= 0 && x.docs[k] <= DOC_VERSIONS[k], `${x.id}: docs.${k} is a version from 0 to ${DOC_VERSIONS[k]}`);
+      assert.deepEqual(Object.keys(x.docs).sort(), ["agents", "teaching"], `${x.id}: docs`);
+      assert.ok(!("style" in x), `${x.id}: "style" is gone, use docs`);
       assert.match(x.updated, /^\d{4}-\d{2}-\d{2}$/, `${x.id}: updated is YYYY-MM-DD`);
       assert.ok(x.model === undefined || /^claude-[a-z0-9-]+$/.test(x.model), `${x.id}: model is an API id`);
       if (x.rewrites) {
         const old = ALL.find((o) => o.id === x.rewrites!.id);
-        assert.ok(old && !old.style && old.kind === x.kind && old.level === x.level && old.areas.join() === x.areas.join(), `${x.id}: rewrites ${x.rewrites.id}`);
+        assert.ok(old && old.docs.teaching < x.docs.teaching && old.kind === x.kind && old.level === x.level && old.areas.join() === x.areas.join(), `${x.id}: rewrites ${x.rewrites.id}`);
         if (old.kind === "plan" && x.kind === "plan") assert.equal(x.minutes, old.minutes, `${x.id}: same minutes as ${old.id}`);
-        assert.ok(x.style === "new" && x.rewrites.changes.length, `${x.id}: a rewrite is new style and lists its changes`);
+        assert.ok(x.rewrites.changes.length, `${x.id}: a rewrite lists its changes`);
       }
     }
   });

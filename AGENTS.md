@@ -8,6 +8,18 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 <!-- END:nextjs-agent-rules -->
 
+## Version
+
+Version: 1
+
+This file and the teaching skills (`teaching-voice`, `course-article`, `exercise-example`, `review-teaching-text`, one shared `version:` in their frontmatter) each carry a version. Every example in `src/features/plan/examples` records the two versions it was written to (`"docs": { "agents": 1, "teaching": 1 }`), so an example written to older rules can be found and rewritten.
+
+- Raise a version by one when a rule changes what gets written: a new rule, a dropped one, a changed word. A typo, a path or a clearer sentence for the same rule is not a new version.
+- Raise it in the same commit in the document and in `DOC_VERSIONS` (`src/features/plan/examples/index.ts`); a test holds the two together. The four teaching skills move as one.
+- Don't raise an example's tags by hand. They change only when the example is rewritten to the current documents.
+
+Version 0 of this file is everything before versions were kept (2026-11-10). Version 0 of the teaching skills is the older style, from before them; version 1 is what they say now, once called the "new teaching style".
+
 ## Where the rules are
 
 This file holds what is true for the whole repo. A feature's own rules are in the `CLAUDE.md` beside its code (`src/features/<feature>/CLAUDE.md`, `src/components/ui/CLAUDE.md`, `src/lib/looper/CLAUDE.md`), and what the feature is and where its parts live is in the `README.md` next to it. Read both before changing a feature, and keep them true in the same commit as the change.

@@ -6,7 +6,7 @@
   "updated": "2026-11-10",
   "model": "claude-fable-5-2",
   "concepts": ["pentatonic-box-1", "pentatonic"],
-  "style": "new",
+  "docs": { "agents": 0, "teaching": 1 },
   "note": "One position, four jobs, each the same shape turned a new way: over a slow metronome, its roots alone in three keys (a key-choice on the neck, which also shows the whole neck so the shape is seen moving), over a band, then free phrases that end on a root. The why says what the roots are for, so the learner knows where to end a phrase in any scale; the root stays ringed or in play in every view.",
   "exercise": {
     "title": "A minor pentatonic, position 1",

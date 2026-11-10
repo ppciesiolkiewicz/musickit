@@ -4,22 +4,25 @@
   "showcase": "pick",
   "areas": ["voice"],
   "level": "beginner",
-  "updated": "2026-11-02",
+  "updated": "2026-11-10",
+  "model": "claude-fable-5-2",
   "concepts": ["voice-melodies-easy", "do-mi-sol-skips"],
-  "note": "Shows choosing melodies by filter: each melody-singer names a difficulty and a stage with pick instead of a tune number, the second a step harder than the first. The text describes the kind of tune, then walks the app: hear it, start the mic, watch the staff.",
+  "docs": { "agents": 1, "teaching": 1 },
+  "note": "Shows choosing melodies by filter: each melody-singer names a difficulty and a stage with pick instead of a tune number, the second a step harder than the first. The why says what makes a step tune easier than a skip, the step tune comes back in A from the Key row, and the text says what Play starts (the tune and the mic) and what to sing on.",
   "exercise": {
     "title": "Two tunes: steps, then skips",
-    "focus": "An easy Do Re Mi tune, then a medium Do Mi Sol tune in D",
+    "focus": "An easy Do Re Mi tune in G and A, then a medium Do Mi Sol tune in D",
     "minutes": 6,
     "level": "beginner", "area": "voice", "tags": ["sing", "song"], "topic": "voice-melodies", "concepts": ["voice-melodies-easy"],
-    "why": "Tunes that move by step are the easiest to sing in tune, so they come before tunes that skip.",
+    "why": "In a tune that moves by step each note sits right next to the last one, while a skip asks you to hear the next note before you jump to it, so the step tune comes first.",
     "learnBefore": ["/course/3/step-melodies", "/course/3/do-mi-sol"],
     "sections": [
       { "type": "heading", "text": "By step", "minutes": 3 },
-      { "type": "text", "text": "A tune on Do, Re and Mi. Press Play to hear it, then start the mic and sing it on the note names; your pitch shows on the staff as you go. Once it feels easy, switch to \"la\" and try singing it before you hear it." },
+      { "type": "text", "text": "A tune on Do, Re and Mi. Press Play below to hear it: the mic starts with it, and your pitch shows on the staff. Sing along on the note names, which help you remember each sound. Once it feels easy, tap A in the Key row above the staff and sing it there. The notes change, the pattern doesn't." },
+      { "type": "tool", "tool": { "type": "key-choice", "keys": ["g", "a"] } },
       { "type": "tool", "tool": { "type": "melody-singer", "pick": { "difficulty": "easy", "stage": "mi" }, "key": "g", "voice": "tenor" } },
       { "type": "heading", "text": "By skip", "minutes": 3 },
-      { "type": "text", "text": "A longer tune that skips through Do, Mi and Sol, now in D: Do is D instead of G, and the names keep their sound. Look at the staff first and guess how it goes. Press Play to check your guess, then start the mic and sing it on \"la\"." },
+      { "type": "text", "text": "A longer tune in D that skips between Do, Mi and Sol, then steps back down. Look at the staff first and guess how it goes. Press Play below to check your guess, then sing along on \"la\"." },
       { "type": "tool", "tool": { "type": "melody-singer", "pick": { "difficulty": "medium", "stage": "skips" }, "key": "d", "voice": "tenor" } }
     ]
   }

@@ -1,5 +1,6 @@
 ---
 name: teaching-voice
+version: 1
 description: How musickit teaching text sounds - plain, short, practical English for course articles, exercise text, glossary meanings, about lines and captions. Use whenever writing or editing any learner-facing music text in this repo, alone or from the course-article, exercise-example and review-teaching-text skills. Its "Words about the app" section is also the house wording for interface copy (buttons, tour steps, notices, flow text), read alongside design:ux-copy.
 ---
 
@@ -89,6 +90,8 @@ Then read it once more, one question per pass:
 4. **Is anything said twice?** A fret, a fingering or a note list the picture already shows goes.
 
 ## When you change a rule here
+
+The four teaching skills share one `version:` (in each one's frontmatter), and every example records the version it was written to. A changed rule is a new version: raise `version:` by one in all four skills and `teaching` in `DOC_VERSIONS` (`src/features/plan/examples/index.ts`) in the same commit. A typo, a path or a clearer sentence for the same rule is not a new version. "Version" in `AGENTS.md` has the whole rule.
 
 The same voice is written down in four more places, each for a different reader. A rule changed in one is changed in all of them, in the same commit:
 

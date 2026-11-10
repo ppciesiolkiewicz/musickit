@@ -6,7 +6,7 @@ fine-tuning app) read the JSON directly. The JSON imports nothing, so it can be 
 ```
 exercises/<id>.json   one exercise each
 plans/<id>.json       one 7-day plan each
-index.ts              loads them for the app and the prompt (EXERCISE_EXAMPLES, PLAN_EXAMPLES); the only TypeScript here
+index.ts              loads them for the app and the prompt (EXERCISE_EXAMPLES, PLAN_EXAMPLES, DOC_VERSIONS); the only TypeScript here
 examples.test.ts      every rule below, checked
 ```
 
@@ -31,9 +31,14 @@ Each file is the content exactly as the AI returns it, wrapped in metadata:
   topic. A plan has a `progress`: the notes the AI keeps on the student after that week, one line per topic the plan's
   exercises use (`<Topic label>: where they stand. Next: …`), under 300 words. The student never sees it; the next
   prompt sends it back.
-- `"style": "new"` marks an example written in the new teaching style (practice first, a why the student can build
-  their own drill from, each block the same drill turned a new way; see the `teaching-voice` skill). The prompt tells the
-  AI to write like these, and `/dev/examples` badges and filters by style. Absent: the older style.
+- `docs` is the versions of the writing rules the example was written to: `"docs": { "agents": 1, "teaching": 1 }`.
+  `agents` is the `Version:` in the repo's `AGENTS.md`, `teaching` the `version:` shared by the four teaching skills
+  (`teaching-voice`, `course-article`, `exercise-example`, `review-teaching-text`); 0 is before a document had versions.
+  Teaching 0 is the older style; teaching 1 is practice first, a why the student can build their own drill from, each
+  block the same drill turned a new way (it was `"style": "new"` until 2026-11-10). `DOC_VERSIONS` in `index.ts` holds
+  the current two. The prompt tells the AI to write like the examples at the current `teaching` version, and
+  `/dev/examples` shows both as tags (amber when behind) and filters by teaching version. Set `docs` only when the
+  example is written or rewritten; never raise it by hand.
 - An exercise may have `"showcase"`: `blocks` (a chart per step), `pick` (a voice melody chosen by `pick`) or
   `progression` (one progression worked several ways). These three always go into the prompt.
 - A plan has `"kind": "plan"`, `"minutes"` (the daily time it is written for) and `"plan": { title, summary, days }`,

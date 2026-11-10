@@ -6,7 +6,7 @@
   "updated": "2026-11-10",
   "model": "claude-fable-5-2",
   "concepts": ["modes-on-neck", "modes"],
-  "style": "new",
+  "docs": { "agents": 0, "teaching": 1 },
   "note": "A mode drilled by its one changed note: hear it change, find it in two positions with the root and the 6th ringed, then aim for it over the chords. The why is the method for any mode (find the note that differs, aim for it), the last step says why that note fits the chord, and positions are named by where the root sits, with the frets left to the neck.",
   "exercise": {
     "title": "D Dorian: find the 6th",

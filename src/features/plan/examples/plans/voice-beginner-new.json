@@ -14,7 +14,7 @@
     "do-re-mi-steps",
     "voice-melodies-easy"
   ],
-  "style": "new",
+  "docs": { "agents": 0, "teaching": 1 },
   "rewrites": {
     "id": "voice-beginner",
     "changes": [

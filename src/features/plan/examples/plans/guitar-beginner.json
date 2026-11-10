@@ -7,6 +7,7 @@
   "model": "claude-fable-5-2",
   "minutes": 20,
   "concepts": ["pentatonic-box-1", "power-chords", "guitar-melodies-beginner", "spider", "one-minute-changes", "strumming-patterns"],
+  "docs": { "agents": 0, "teaching": 0 },
   "note": "A beginner guitar week at 20 minutes a day: a short hands warm-up, chord changes over a strum-along, A minor pentatonic position 1 returning in five new forms (slow, roots, faster, in E, from memory), and every day ending on something musical. Each step says what to press and where to look.",
   "plan": {
     "title": "Week 1: position 1 and clean changes",

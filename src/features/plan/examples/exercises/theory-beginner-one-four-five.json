@@ -6,7 +6,7 @@
   "updated": "2026-11-10",
   "model": "claude-fable-5-2",
   "concepts": ["chords-in-key", "major-scale"],
-  "style": "new",
+  "docs": { "agents": 0, "teaching": 1 },
   "note": "Theory that is heard, not recited: tap the three roots on the staff and hear the chord on each, follow the chords in order, then in a new order and in a second key with the key chips. The why gives the learner the method (listen for the root moving), and one word, the number, names a chord everywhere in the text. Works for any instrument, or none.",
   "exercise": {
     "title": "The 1, 4 and 5 chords in G, by ear",

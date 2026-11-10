@@ -27,11 +27,11 @@ test("guitar intermediate only: the guitar intermediate plan", () => {
   assert.equal(selectExamples(lv({ guitar: "intermediate" })).plan.id, "guitar-intermediate");
 });
 
-test("guitar beginner: the guitar beginner plan, in the new teaching style", () => {
+test("guitar beginner: the guitar beginner plan, the one written to the newer teaching skills", () => {
   assert.equal(selectExamples(lv({ guitar: "beginner" })).plan.id, "guitar-beginner-new");
 });
 
-test("voice advanced only: the beginner voice plan, in the new teaching style", () => {
+test("voice advanced only: the beginner voice plan, the one written to the newer teaching skills", () => {
   assert.equal(selectExamples(lv({ voice: "advanced" })).plan.id, "voice-beginner-new");
 });
 

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState, type ReactNode } from "react";
 import { Chip } from "@/components/ui";
-import { EXERCISE_EXAMPLES, PLAN_EXAMPLES } from "@/features/plan/examples";
+import { DOC_VERSIONS, EXERCISE_EXAMPLES, PLAN_EXAMPLES, type DocVersions } from "@/features/plan/examples";
 import { catalogue, type CatalogueEntry } from "@/features/plan/model/catalogue";
 import { AREAS, conceptById, type Area } from "@/features/plan/model/concepts";
 import { selectExamples } from "@/features/plan/model/exampleSelection";
@@ -104,8 +104,8 @@ function Filter<V extends string>({ label, value, options, onChange }: { label: 
   );
 }
 
-type Style = "new" | "old";
-const styleOf = (e: { style?: "new" }): Style => e.style ?? "old";
+/** An example's teaching-skills version as a filter id ("v1"). */
+const teachingOf = (e: { docs: DocVersions }): string => `v${e.docs.teaching}`;
 
 /** One colour family per kind of tag, so a row of pills reads at a glance: border, fill and text together. */
 const TONE = {
@@ -127,8 +127,8 @@ const TONE = {
 } as const;
 type Tone = keyof typeof TONE;
 
-/** New-style examples stand out; old ones are marked in a muted warm tone so they read as the ones to rewrite. */
-const STYLE_TONE: Record<Style, Tone> = { new: "lime", old: "amber" };
+/** Examples written to a document's current version stand out; older ones are marked in a muted warm tone so they read as the ones to rewrite. */
+const versionTone = (v: number, current: number): Tone => (v === current ? "lime" : "amber");
 const KIND_TONE: Record<Kind, Tone> = { plan: "fuchsia", exercise: "rose" };
 const AREA_TONE: Record<Area, Tone> = { guitar: "orange", voice: "pink", theory: "cyan" };
 const LEVEL_TONE: Record<Level, Tone> = { new: "teal", beginner: "green", intermediate: "blue", advanced: "violet" };
@@ -166,7 +166,7 @@ export default function ExampleViewer() {
   const [area, setArea] = useState<Area | null>(null);
   const [level, setLevel] = useState<Level | null>(null);
   const [showcase, setShowcase] = useState<Showcase | null>(null);
-  const [style, setStyle] = useState<Style | null>(null);
+  const [teaching, setTeaching] = useState<string | null>(null);
   const [model, setModel] = useState<string | null>(null);
   // every model that wrote an example, newest-looking first, then the ones written before the model was recorded
   const models = useMemo(() => {
@@ -177,6 +177,12 @@ export default function ExampleViewer() {
       ...ids.map((id) => ({ id, label: `${modelLabel(id)} (${counted(id)})` })),
       ...(all.some((e) => !e.model) ? [{ id: NO_MODEL, label: `Not recorded (${counted(undefined)})` }] : []),
     ];
+  }, []);
+
+  // every teaching-skills version an example was written to, newest first
+  const teachingVersions = useMemo(() => {
+    const all = [...EXERCISE_EXAMPLES, ...PLAN_EXAMPLES];
+    return [...new Set(all.map((e) => e.docs.teaching))].sort((a, b) => b - a).map((v) => ({ id: `v${v}`, label: `Skills v${v}${v === DOC_VERSIONS.teaching ? " (current)" : ""} (${all.filter((e) => e.docs.teaching === v).length})` }));
   }, []);
 
   const read = useMemo(() => (mounted ? answersFromText(loadStudio().answersText) : null), [mounted]);
@@ -192,9 +198,9 @@ export default function ExampleViewer() {
         (e) =>
           (!kind || e.kind === kind) && (!area || e.areas.includes(area)) && (!level || e.level === level) &&
           (!showcase || (e.kind === "exercise" && e.showcase === showcase)) && (!onlyPrompt || inPrompt.has(e.id)) &&
-          (!style || styleOf(e) === style) && (!model || (e.model ?? NO_MODEL) === model),
+          (!teaching || teachingOf(e) === teaching) && (!model || (e.model ?? NO_MODEL) === model),
       ),
-    [kind, area, level, showcase, style, model, onlyPrompt, inPrompt],
+    [kind, area, level, showcase, teaching, model, onlyPrompt, inPrompt],
   );
 
   // every section of every example as it is now, filtered out or not: what the Notes bar checks section notes against and re-pins them to
@@ -218,7 +224,7 @@ export default function ExampleViewer() {
           <Filter<Area> label="Area" value={area} onChange={setArea} options={AREAS} />
           <Filter<Level> label="Level" value={level} onChange={setLevel} options={LEVELS} />
           <Filter<Showcase> label="Showcase" value={showcase} onChange={setShowcase} options={[{ id: "blocks", label: "Blocks" }, { id: "pick", label: "Pick" }, { id: "progression", label: "Progression" }]} />
-          <Filter<Style> label="Style" value={style} onChange={setStyle} options={[{ id: "new", label: "New teaching style" }, { id: "old", label: "Old style" }]} />
+          <Filter<string> label="Teaching" value={teaching} onChange={setTeaching} options={teachingVersions} />
           <Filter<string> label="Model" value={model} onChange={setModel} options={models} />
         </div>
         <ul className="flex flex-col gap-2">
@@ -229,7 +235,8 @@ export default function ExampleViewer() {
               badge={
                 <>
                   <Pill tone={KIND_TONE[e.kind]}>{e.kind === "plan" ? "plan example" : "exercise example"}</Pill>
-                  <Pill tone={STYLE_TONE[styleOf(e)]}>{styleOf(e) === "new" ? "new teaching style" : "old style"}</Pill>
+                  <Pill tone={versionTone(e.docs.teaching, DOC_VERSIONS.teaching)} title="The version of the teaching skills it was written to">teaching skills v{e.docs.teaching}</Pill>
+                  <Pill tone={versionTone(e.docs.agents, DOC_VERSIONS.agents)} title="The version of AGENTS.md it was written to">AGENTS.md v{e.docs.agents}</Pill>
                   {e.areas.map((a) => <Pill key={a} tone={AREA_TONE[a]}>{labelOf(AREAS, a)}</Pill>)}
                   <Pill tone={LEVEL_TONE[e.level]}>{labelOf(LEVELS, e.level)}</Pill>
                   {e.model ? <Pill tone="indigo" title={e.model}>{modelLabel(e.model)}</Pill> : <Pill tone="slate" title="Written before the model was recorded">model not recorded</Pill>}

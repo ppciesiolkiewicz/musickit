@@ -1,5 +1,6 @@
 ---
 name: exercise-example
+version: 1
 description: Write or fix a hand-tuned exercise or 7-day plan JSON in src/features/plan/examples - the gold standard the AI plan prompt copies - so it meets every example rule and reads well against its tools. Use when asked to add, write, improve or fix an example exercise or plan, or a showcase.
 ---
 
@@ -49,7 +50,7 @@ The prompt shows these examples to the AI as the standard to copy, so any flaw i
    - Every exercise is tagged (the card shows them as chips, and the AI copies them): `"level"` = the file's `level`, `"area"` = its area (in a guitar + theory plan, ear and theory drills are `"theory"`), `"tags"` = 1 to 3 kinds from `EXERCISE_TAGS` (`model/tools.ts`: ear, sing, rhythm, technique, theory, improv, song, multi-octave). Write them as `"level": "beginner", "area": "voice", "tags": ["sing", "ear"]` right after `minutes`; `examples.test.ts` checks level and area match the metadata.
    - Every example has at least one `learnBefore`: the course section(s) that teach what the drill uses (`/course/<stage>/<section>`, from `src/features/course/stages`). A planned stub section counts. If nothing fits, add a stub section to the right stage first (a *planned* section in the **course-article** skill: `section(slug, title, topic, about)` with no blocks), then link it.
    - `note` (metadata) is one or two sentences on why this is a good example: what each block does and which rule it shows off.
-5. **Register and test.** Add a static import to `examples/index.ts`, then:
+5. **Register and test.** A new example gets `"updated"`, `"model"` and `"docs"` as in "Rewriting an example that exists" below. Add a static import to `examples/index.ts`, then:
    ```
    TSX=$(ls ~/.npm/_npx/*/node_modules/.bin/tsx | head -1)
    $TSX --test src/features/plan/examples/*.test.ts src/features/plan/model/*.test.ts
@@ -62,7 +63,7 @@ A rewrite keeps the file, its `id`, `level`, `areas`, `topic`, `concepts` and mi
 
 1. Read the old example against the list below and write down what fails, one line each. If nothing fails, leave it alone.
 2. Fix the tools first (a better tool, a missing `labels`, `pattern`, `key-choice` or `"always"`), then the text around them.
-3. Set `"updated"` to today, `"model"` to your API id and `"style": "new"`, and rewrite `note` to say what the example now shows off.
+3. Set `"updated"` to today, `"model"` to your API id and `"docs"` to the versions you wrote it to (`DOC_VERSIONS` in `examples/index.ts`: the `Version:` in `AGENTS.md` and the `version:` of this skill), and rewrite `note` to say what the example now shows off.
 4. Steps 5 and 6 above.
 
 What usually fails in an older example:

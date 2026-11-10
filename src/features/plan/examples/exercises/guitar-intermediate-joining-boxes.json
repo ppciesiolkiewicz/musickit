@@ -6,7 +6,7 @@
   "updated": "2026-11-10",
   "model": "claude-fable-5-2",
   "concepts": ["joining-positions", "five-pentatonic-boxes"],
-  "style": "new",
+  "docs": { "agents": 0, "teaching": 1 },
   "note": "Position 2 alone, then only the way across (position-neck's cross: the slide on the G string), the same crossing in C and on a string the learner picks, then improvising across both over two chords. The why says what makes the join work, so the learner can find the next one; the text names the notes of the slide and leaves the frets to the neck.",
   "exercise": {
     "title": "Join positions 1 and 2",

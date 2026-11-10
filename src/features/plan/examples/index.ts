@@ -30,6 +30,20 @@ import guitarTheoryIntermediatePlan from "./plans/guitar-theory-intermediate.jso
 import guitarBeginnerNewPlan from "./plans/guitar-beginner-new.json";
 import voiceBeginnerNewPlan from "./plans/voice-beginner-new.json";
 
+/** The versions of the documents an example is written to. */
+export interface DocVersions {
+  /** `Version:` in AGENTS.md at the repo root; 0: before it was versioned */
+  agents: number;
+  /** `version:` of the teaching skills (.claude/skills: teaching-voice, course-article, exercise-example, review-teaching-text); 0: the older style, before them */
+  teaching: number;
+}
+
+/** The versions those documents are at now. Bump one here in the same commit as the document; examples.test.ts holds the two together. */
+export const DOC_VERSIONS: DocVersions = { agents: 1, teaching: 1 };
+
+/** Written to the teaching skills as they are now: the examples the prompt tells the AI to write like. */
+export const isCurrentTeaching = (e: { docs: DocVersions }): boolean => e.docs.teaching === DOC_VERSIONS.teaching;
+
 export interface ExampleMeta {
   id: string;
   /** the areas it practises; an exercise has one */
@@ -43,9 +57,9 @@ export interface ExampleMeta {
   updated: string;
   /** the model that wrote it, as its API id ("claude-opus-5-5"); absent: not recorded (written before this was kept) */
   model?: string;
-  /** "new": written in the new teaching style (practice and understanding, as on the landing page); absent: the older style */
-  style?: "new";
-  /** a new-style rewrite of another example on the same topic: its id, and what changed, one point each */
+  /** the versions of the writing rules it was written to (see DOC_VERSIONS): AGENTS.md and the teaching skills */
+  docs: DocVersions;
+  /** a rewrite, to newer teaching skills, of another example on the same topic: its id, and what changed, one point each */
   rewrites?: { id: string; changes: string[] };
 }
 
