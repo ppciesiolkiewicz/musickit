@@ -36,7 +36,9 @@ Each file is the content exactly as the AI returns it, wrapped in metadata:
   (`teaching-voice`, `course-article`, `exercise-example`, `review-teaching-text`); 0 is before a document had versions.
   Teaching 0 is the older style; teaching 1 is practice first, a why the student can build their own drill from, each
   block the same drill turned a new way (it was `"style": "new"` until 2026-11-10); teaching 2 adds the selector named
-  by its label and never its chips, one control to a sentence, line breaks, and what stays the same said for each drill; teaching 3 adds the underlined care line (`_Don't reach for high notes._`). `DOC_VERSIONS` in `index.ts` holds
+  by its label and never its chips, one control to a sentence, line breaks, and what stays the same said for each drill; teaching 3 adds the underlined care line (`_Don't reach for high notes._`); teaching 4 gives what to sing on its own
+  clause with its own verb (never hung inside another instruction) and spells the moment to move on out as a feel,
+  never "once you know it". `DOC_VERSIONS` in `index.ts` holds
   the current two. The prompt tells the AI to write like the examples at the current `teaching` version, and
   `/dev/examples` shows both as tags (amber when behind) and filters by teaching version. Set `docs` only when the
   example is written or rewritten; never raise it by hand.

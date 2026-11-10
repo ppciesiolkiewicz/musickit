@@ -6,7 +6,7 @@
   ],
   "level": "beginner",
   "updated": "2026-11-10",
-  "model": "claude-fable-5-2",
+  "model": "claude-fable-5",
   "minutes": 15,
   "concepts": [
     "in-tune-over-drone",
@@ -16,7 +16,7 @@
   ],
   "docs": {
     "agents": 1,
-    "teaching": 3
+    "teaching": 4
   },
   "note": "A beginner voice week at 15 minutes a day: a warm-up, an ear game and one longer musical piece that ends in a tune or line the student makes up. Every tune comes back in a second key through a Key selector, Do Mi Sol moves through three keys, one warm-up climbs a tempo ladder of stages and one opens with breathwork. Every note asked for is low in the voice, and where the singer could wander up the staff (the first staff, a slide, a skip up to Sol, a made-up line) one underlined care line says not to reach for high notes.",
   "plan": {
@@ -152,7 +152,7 @@
               },
               {
                 "type": "text",
-                "text": "Press Play below to hear the tune: the mic starts with it. This tune starts on Mi and steps down to Do. Sing along on the note names, then on \"la\" once you know it."
+                "text": "Press Play below to hear the tune: the mic starts with it. This tune starts on Mi and steps down to Do. Sing along on the note names.\nOnce the names come without thinking, sing it again on \"la\"."
               },
               {
                 "type": "tool",
@@ -174,7 +174,7 @@
               },
               {
                 "type": "text",
-                "text": "Press Start exercise below to start the drone and the mic. Make up a short tune from the low {{1}}, {{2}} and {{3}} on \"la\", and end it on {{1}}.\nThen make up another that starts on {{3}}."
+                "text": "Press Start exercise below to start the drone and the mic. Make up a short tune from the low {{1}}, {{2}} and {{3}}, sing it on \"la\", and end it on {{1}}.\nThen make up another that starts on {{3}}."
               },
               {
                 "type": "tool",
@@ -870,7 +870,7 @@
               },
               {
                 "type": "text",
-                "text": "Press Start exercise below to start the drone and the mic. Make up a tune of skips between {{1}}, {{3}} and {{5}} on \"la\", and end it on {{1}}.\n_Don't reach for high notes: the low {{1}}, {{3}} and {{5}} are enough for a tune._"
+                "text": "Press Start exercise below to start the drone and the mic. Make up a tune of skips between {{1}}, {{3}} and {{5}}, sing it on \"la\", and end it on {{1}}.\n_Don't reach for high notes: the low {{1}}, {{3}} and {{5}} are enough for a tune._"
               },
               {
                 "type": "tool",

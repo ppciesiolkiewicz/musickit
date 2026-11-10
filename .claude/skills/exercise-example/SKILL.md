@@ -1,6 +1,6 @@
 ---
 name: exercise-example
-version: 3
+version: 4
 description: Write or fix a hand-tuned exercise or 7-day plan JSON in src/features/plan/examples - the gold standard the AI plan prompt copies - so it meets every example rule and reads well against its tools. Use when asked to add, write, improve or fix an example exercise or plan, or a showcase.
 ---
 
@@ -86,7 +86,8 @@ What usually fails in an older example:
 - A tool the prompt's "Which tool for what" would not pick (two scale-necks for joining positions, a guitar-play-along in an exercise for any instrument).
 - A played or sung pattern that never comes back in a second key.
 - A step that chains more than two actions, or asks the learner to discover something ("Which ones sound finished?").
-- A singing step that doesn't say what to sing on, or a high note on "ah" for a beginner.
+- A singing step that doesn't say what to sing on, hangs the sound inside another instruction instead of its own "sing it on" clause, or puts a high note on "ah" for a beginner.
+- "Once you know it" or another unspelled moment to move on, where the feel itself should be said ("once the names come without thinking").
 - "Box" or "pattern" for a scale position in a title, heading or step.
 - A beginner's slide, made-up tune or skip up to Sol with no underlined care line; an underline used to stress an ordinary instruction.
 

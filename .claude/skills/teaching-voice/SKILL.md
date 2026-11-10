@@ -1,6 +1,6 @@
 ---
 name: teaching-voice
-version: 3
+version: 4
 description: How musickit teaching text sounds - plain, short, practical English for course articles, exercise text, glossary meanings, about lines and captions. Use whenever writing or editing any learner-facing music text in this repo, alone or from the course-article, exercise-example and review-teaching-text skills. Its "Words about the app" section is also the house wording for interface copy (buttons, tour steps, notices, flow text), read alongside design:ux-copy.
 ---
 
@@ -40,6 +40,7 @@ It uses the same chordKit code the app draws with, so the text and the picture a
 
 - Plain, natural English. Short sentences. Two steps that belong together share one sentence ("Find it on the A string, then on the B string, and hop between the two."). Never chain more than two steps. Never write a string of two-word orders.
 - Say exactly what to do: "play {{6}}, then {{1}}", not "resolve it to Do". A target says when: "land on C when Cm7 comes round".
+- **No shorthand the learner must unpack.** What to sing on gets its own clause with its own verb: "Sing along on the note names.", "then sing it on \"la\"" — never hung inside another instruction ("Make up a tune from {{1}}, {{2}} and {{3}} on \"la\""). The moment to move on is the feel itself, spelled out: "once the names come without thinking", never "once you know it".
 - One sentence of why, at most, before the doing. No paragraphs of rationale. No "a-ha" moments for the learner to discover.
 - No poetic lines ("Re rubs against it"). No hype ("amazing", "powerful", "unlock"). No hedging ("you might want to").
 - Invite the learner: try, mix, make up, guess and check. Don't lecture.

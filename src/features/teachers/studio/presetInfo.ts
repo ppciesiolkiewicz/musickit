@@ -2,7 +2,7 @@
 export const PRESET_INFO: Record<string, { title: string; description: string }> = {
   "minor-pentatonic": {
     title: "A minor pentatonic: play it, then sing it",
-    description: "Five notes, on the neck and in your voice: a position to play, the chords and a band to play it over, then two melodies and a run to sing.",
+    description: "Find the five notes of A minor pentatonic in position 1, play them over a band, then sing the same notes.",
   },
 };
 

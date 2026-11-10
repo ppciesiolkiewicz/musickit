@@ -1,6 +1,6 @@
 ---
 name: review-teaching-text
-version: 3
+version: 4
 description: Audit learner-facing music text in musickit - a course section, a stage, an exercise or plan example, glossary meanings - for wrong music facts, text that disagrees with its picture or tool, and breaks from the teaching voice. Reports findings, does not rewrite unless asked. Use when asked to review, check, proofread or audit lessons, articles, exercises or examples, and before finishing course-article or exercise-example work.
 ---
 
@@ -30,7 +30,7 @@ This skill is for text that teaches music. Interface copy with no music in it (a
    - A step that says which chip to tap or lists a selector's options ("tap G in the Key row", "tap Stage 2"), or names a selector that sits above the text.
    - Two names for one thing on the screen (ringed and circled, the band and the backing for the same tool).
    - A heading that could sit on any block ("Warm-up", "Step 2").
-7. **Voice.** The **teaching-voice** skill: repeat counts, poetic lines, hype, a paragraph of why, more than two steps chained, a word used for two things, the stock line "The notes change, the pattern doesn't." where the drill's own thing should be named, what to notice run into the sentence of what to do, "box" or "pattern" for a scale position, a singing step that doesn't say what to sing on, an underlined line (`_…_`) that is not a care line (don't reach for high notes, don't push, stop when it hurts) or more than one of them in an exercise.
+7. **Voice.** The **teaching-voice** skill: repeat counts, poetic lines, hype, a paragraph of why, more than two steps chained, a word used for two things, the stock line "The notes change, the pattern doesn't." where the drill's own thing should be named, what to notice run into the sentence of what to do, "box" or "pattern" for a scale position, a singing step that doesn't say what to sing on or hangs the sound inside another instruction instead of its own "sing it on" clause, a vague "once you know it" where the feel to reach should be spelled out, an underlined line (`_…_`) that is not a care line (don't reach for high notes, don't push, stop when it hurts) or more than one of them in an exercise.
 
 Run the relevant tests too. A failing test is a finding.
 
