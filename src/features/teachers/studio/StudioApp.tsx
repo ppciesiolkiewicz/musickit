@@ -14,7 +14,7 @@ import ControlBadge, { MicBadge, PageBadge } from "./ControlBadge";
 import { encodeNote, noteFromHash } from "./notes";
 import NoteJson from "./NoteJson";
 import NoteView from "./NoteView";
-import { presetNote } from "./presetNotes";
+import { presetStage, savePresetDraft } from "./presetNotes";
 import Palette from "./Palette";
 import useStage from "./useStage";
 
@@ -69,7 +69,7 @@ const isTyping = () => {
 /** The studio, or in the notes creator a shared note's link opened as an article to read (`NoteView`). */
 export default function StudioApp({ notes = false, preset }: {
   notes?: boolean;
-  /** a preset note's slug (`presetNotes.ts`): the notes creator opens on that note, and saves nothing */
+  /** a preset note's slug (`presetNotes.ts`): the notes creator opens on that note and stores nothing; its Save (a dev demo) keeps the note in memory until a reload */
   preset?: string;
 }) {
   // the link's hash is known only in the browser: until then nothing is drawn, as the studio itself waits for hydration
@@ -89,7 +89,16 @@ function Studio({ notes = false, preset }: {
   preset?: string;
 }) {
   const [mounted, setMounted] = useState(false);
-  const [stage, dispatch, load] = useStage(PLUGIN_IDS, notes, preset ? (presetNote(preset)?.stage ?? null) : null);
+  // the preset as this tab last saved it (dev demo), read once: a later Save must not start the stage over
+  const [start] = useState(() => (preset ? presetStage(preset) : null));
+  const [stage, dispatch, load] = useStage(PLUGIN_IDS, notes, start);
+  const [saved, setSaved] = useState(false);
+  const saveDraft = () => {
+    if (!preset) return;
+    savePresetDraft(preset, stageRef.current);
+    setSaved(true);
+    window.setTimeout(() => setSaved(false), 4000);
+  };
   const [json, setJson] = useState(false);
   const grid = layoutOf(stage) === "grid";
   // the Layers list on the grid: the page top to bottom, then what is not on the grid (the brand marks keep their corner)
@@ -490,6 +499,18 @@ function Studio({ notes = false, preset }: {
 
       {palette && <Palette notes={notes} pluginIds={PLUGIN_IDS} stageKey={stage.key} media={media} layers={stage.layers} onPick={onPick} onUpdate={(id, subject) => dispatch({ type: "swap", id, subject })} onRemove={(id) => dispatch({ type: "remove", id })} onClose={() => setPalette(false)} />}
       {help && <KeysOverlay onClose={() => setHelp(false)} />}
+      {preset && (
+        <div data-chrome className="pointer-events-none fixed inset-x-0 bottom-4 z-40 flex flex-col items-center gap-2 px-4">
+          <p role="status" className={`rounded-lg border border-amber-400/50 bg-slate-950/95 px-3 py-1.5 text-center text-xs text-amber-200 shadow-lg ${saved ? "" : "invisible"}`}>
+            Demo page: nothing is stored. Your changes are kept in memory until you reload.
+          </p>
+          <button type="button" onClick={saveDraft} title="Dev demo: keeps this note in memory, so View the note shows it. Nothing is stored: a reload brings the original back." className="pointer-events-auto flex items-center gap-2 rounded-full border border-emerald-400/70 bg-emerald-600 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-black/40 hover:bg-emerald-500">
+            <Icon name="check" size={15} />
+            Save
+            <span className="rounded border border-amber-300/70 bg-slate-950/40 px-1 text-[10px] font-semibold uppercase tracking-wide text-amber-200">dev demo</span>
+          </button>
+        </div>
+      )}
       {json && <NoteJson stage={stage} pluginIds={PLUGIN_IDS} onApply={load} onClose={() => setJson(false)} />}
     </div>
   );

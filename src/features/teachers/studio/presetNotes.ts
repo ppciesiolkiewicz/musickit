@@ -57,3 +57,12 @@ export const PRESET_NOTES: Record<string, { stage: Stage }> = {
 
 /** The preset note behind a slug, or null when there is none. */
 export const presetNote = (slug: string) => (Object.hasOwn(PRESET_NOTES, slug) ? PRESET_NOTES[slug] : null);
+
+/**
+ * Dev demo: a preset as it was last saved from the notes creator (`?edit=true`, **Save**). Kept in this tab's memory only, so moving
+ * between the note and its creator shows the saved version and a reload brings the preset back. Nothing is stored or sent.
+ */
+const saved = new Map<string, Stage>();
+export const savePresetDraft = (slug: string, stage: Stage): void => void saved.set(slug, { ...stage, selected: null });
+/** The preset as the page shows it: its saved draft if this tab has one, else the note in code; null for an unknown slug. */
+export const presetStage = (slug: string): Stage | null => saved.get(slug) ?? presetNote(slug)?.stage ?? null;
