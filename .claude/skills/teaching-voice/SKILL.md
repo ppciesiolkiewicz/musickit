@@ -67,6 +67,7 @@ A step is also interface copy: the learner has to find a control with one hand o
   - "ringed" for a highlighted note, "faded" for a muted one, "lit" for the box or note playing now.
   - "the metronome" (a click), "the drone", "the band" (drums and bass, or a backing-track), "the backing" (a guitar-play-along), "the game" (note-finder, interval-ears).
   - "your line" for the singer's pitch on the staff, "the chord boxes" for chord diagrams.
+- **Name who does it, never a bare "it".** When the one acting is not the learner (an AI extension, the metronome, the game, the band), name it in that sentence: "The AI extension reads this page and pastes your plan into the reply box", not "It reads this page". Use the same name in every step, card and button of one flow: "AI extension" throughout, never "the extension" in one step and "the AI in your browser" in the next.
 - **Titles and headings are labels, not sentences.** A title names what is practised in the learner's words ("Em to Am, clean and in time"). A block heading names that block's task in five words or fewer ("Only the roots", "A new order"): never "Step 1", "Warm-up" or "Exercise". If two headings in one exercise could swap places, they say too little.
 - **Say what to listen for, not how it sounds.** "Listen for the bar where one note changes" tells the learner what to do; "hear how bright it sounds" tells them what to feel.
 

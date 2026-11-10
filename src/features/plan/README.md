@@ -12,7 +12,7 @@ browser.
    chosen, minutes a day, notes and styles. It only has to get week 1 roughly right. Then *Copy your prompt*,
    then *Paste your AI's reply*. Every screen has the same fixed height (the body scrolls inside), so Back and Next never move.
    **Build my plan** is enabled once the reply parses.
-   **Let the AI in your browser do it** (the highlighted card on the prompt step, over "Or use any AI chat: Copy
+   **Let your AI extension do it** (the highlighted card on the prompt step, over "Or use any AI chat: Copy
    prompt"): for an AI extension or AI browser (Claude in Chrome, Gemini in Chrome, ChatGPT Atlas, Comet…) it opens four
    numbered steps, the words to paste into it (with a copy button) and the prompt as plain page text, which it reads,
    then it fills the labelled reply box. The prompt's debug lists live on /dev/prompt only. Where the browser has WebMCP (`document.modelContext`, Chrome behind a flag, or a

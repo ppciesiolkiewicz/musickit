@@ -82,10 +82,10 @@ function BrowserAiHelp({ prompt, agentTools }: { prompt: string; agentTools: boo
   return (
     <div className="flex flex-col gap-3 rounded-xl border border-violet-400/30 bg-slate-950/60 p-3">
       <ol className="flex flex-col gap-3">
-        <Step n={1} title="Open your AI browser extension on this page.">
+        <Step n={1} title="Open your AI extension on this page.">
           <p className="text-xs text-slate-400">For example Claude in Chrome or Gemini in Chrome. AI browsers like ChatGPT Atlas or Comet work too.</p>
         </Step>
-        <Step n={2} title="Copy the prompt below and paste it into the extension:">
+        <Step n={2} title="Copy the prompt below and paste it into the AI extension:">
           <div className="flex items-start gap-2 rounded-lg bg-slate-900 px-2.5 py-2">
             <p className="flex-1 text-sm text-slate-100">&ldquo;{ASK_BROWSER_AI}&rdquo;</p>
             <button
@@ -98,11 +98,11 @@ function BrowserAiHelp({ prompt, agentTools }: { prompt: string; agentTools: boo
             </button>
           </div>
         </Step>
-        <Step n={3} title={agentTools ? "It reads this page and sends your plan straight to the reply box." : "It reads this page and pastes your plan into the reply box."} />
+        <Step n={3} title={agentTools ? "The AI extension reads this page and sends your plan straight to the reply box." : "The AI extension reads this page and pastes your plan into the reply box."} />
         <Step n={4} title="Check the plan, then press Build my plan." />
       </ol>
       <section aria-label="Prompt for the AI" className="border-t border-slate-800 pt-2">
-        <h4 className="mb-1 text-[11px] font-medium uppercase tracking-wider text-slate-500">What the extension reads</h4>
+        <h4 className="mb-1 text-[11px] font-medium uppercase tracking-wider text-slate-500">What the AI extension reads</h4>
         <div className="max-h-32 overflow-y-auto whitespace-pre-wrap break-words font-mono text-[11px] text-slate-400">{prompt}</div>
       </section>
     </div>
@@ -130,7 +130,7 @@ export function CopyPrompt({ prompt, label = "Copy prompt", agentTools = false }
         </span>
         <span className="flex min-w-0 flex-1 flex-col gap-0.5">
           <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-medium text-slate-50">
-            Let the AI in your browser do it
+            Let your AI extension do it
             <span className="rounded-full bg-violet-400/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-violet-100">No copy and paste</span>
           </span>
           <span className="text-xs text-slate-400">{BROWSER_AIS}</span>
