@@ -1,0 +1,40 @@
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { DEFAULT_INPUTS, isReply, outreachBrief, readInputs, type DemoLink } from "./kickstarter";
+
+const demos: DemoLink[] = [{ label: "Guitar for a beginner", about: "a week of daily exercises", url: "https://x.test/demo/guitar-beginner" }];
+const brief = (over = {}) => outreachBrief({ ...DEFAULT_INPUTS, ...over }, demos, "https://x.test/demo");
+
+test("the brief carries the offer, the beta line and every demo link", () => {
+  const b = brief();
+  for (const word of ["founding partners", "locked in", "90 days", "involved in the creation", "beta", "manage more of a music school"]) {
+    assert.ok(b.includes(word), word);
+  }
+  assert.ok(b.includes("Guitar for a beginner (a week of daily exercises): https://x.test/demo/guitar-beginner"));
+  assert.ok(b.includes("All demos: https://x.test/demo"));
+});
+
+test("no thread: a first email with a subject line", () => {
+  const b = brief({ thread: "  " });
+  assert.ok(!isReply({ ...DEFAULT_INPUTS, thread: "  " }));
+  assert.ok(b.includes("first email"));
+  assert.ok(b.includes("Subject:"));
+  assert.ok(!b.includes("<thread>"));
+});
+
+test("a thread: a reply in their language, the thread fenced, the note when given", () => {
+  const b = brief({ thread: " Hi Piotr, how much is it? \n— Anna ", note: "offer a call" });
+  assert.ok(b.includes("Draft the reply"));
+  assert.ok(b.includes("another persona"));
+  assert.ok(!b.includes("Sign it"));
+  assert.ok(b.includes("<thread>\nHi Piotr, how much is it? \n— Anna\n</thread>"));
+  assert.ok(b.includes("language of their last message"));
+  assert.ok(b.includes("## What this email should do\noffer a call"));
+  assert.ok(b.includes("[ANSWER:"));
+  assert.ok(!brief({ thread: "x" }).includes("What this email should do"));
+});
+
+test("readInputs keeps good fields and drops the rest", () => {
+  assert.deepEqual(readInputs(null), DEFAULT_INPUTS);
+  assert.deepEqual(readInputs({ thread: "A", note: 3, school: "old" }), { thread: "A", note: "" });
+});

@@ -56,6 +56,18 @@ size and its value, JSON unfolded; `model/dataView.ts` `storageRows`) and each I
 counts only (sampler audio, NAM models). It reads through `localPlanStore` and `localProgressStore` and writes nothing, apart from what
 loading a plan always does (ids for exercises stored without one).
 
+## Kickstarter (`/dev/kickstarter`)
+
+Replies to music schools that could become founding partners. `model/kickstarter.ts` holds what an email may say (`FACTS`:
+what attunr is, the locked-in price, the 90-day trial, a say in what gets built, that it is a beta) and how it sounds
+(`VOICE`, plus reply-only and first-email-only rules); change the offer there. The page (`kickstarter/KickstarterPage.tsx`)
+has a box for the pasted email thread and an optional one-line note (both kept in `localStorage`
+`musickit.dev.kickstarter`), the line to paste into an AI extension, a *Reply* box, and the brief as plain text on the page
+(`outreachBrief`: the thread, the facts, the voice and every demo `/demo` lists, with public `SITE_URL` links). The details
+about the school come from the thread, not a form, and so does the sender: a reply keeps the name and persona attunr's earlier emails used (they may go out from an outreach tool such as Explee), and signs as the founder only when there are none. With no thread the brief asks for a first email with a subject line.
+Claude in Chrome reads the brief and types the email into the Reply box; a browser with WebMCP calls
+`get_founding_partner_email_brief` and `submit_founding_partner_email` instead. Nothing is sent from the page: *Copy reply*.
+
 ## Running the prompt
 
 `POST /api/dev/run` runs the local `claude` CLI (`server/claude.ts`) in print mode with no tools, no MCP servers, no
@@ -86,5 +98,6 @@ returns one.
 - `server/git.ts`: `exampleCommits` (HEAD and the example files' commits), for `GET /api/dev/commit`.
 - `prompt/`: `PromptStudio` (state), `StudioInputs`, `PartList`, `RunPanel`, `PlanPreview`, `HistoryList`, `api.ts` (fetches), `storage.ts` (saved state, `useMounted`).
 - `examples/ExampleViewer.tsx`: the examples page.
+- `kickstarter/KickstarterPage.tsx`, `model/kickstarter.ts`: the founding-partner reply page; its facts, voice and brief.
 - `data/DataPage.tsx`, `model/dataView.ts`: the data page and its rows (`planRows`, `logRows`).
 - Routes: `src/app/api/dev/run`, `src/app/api/dev/history`, `src/app/api/dev/history/[id]`; pages `src/app/dev`.
