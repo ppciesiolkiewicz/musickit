@@ -8,8 +8,7 @@ How the student says something went, and the record of it.
   `upsert` and `without` change it; an exercise has at most one row, so a new rating replaces the old one and clearing
   the rating removes the row.
 - `ProgressStore.ts`: where the log is kept: `list()`, `put(entry)`, `remove(exerciseId)`, async so an API can replace it.
-- `localProgressStore.ts`: the mock database for now: one JSON list in localStorage under `musickit.progress`
-  (an account logged in on `/dev/account` has its own list, `musickit.progress@<id>`; see `features/account`).
+- `localProgressStore.ts`: the mock database for now: one JSON list in localStorage under `musickit.progress`.
 - `useProgress.tsx`: the hook the UI uses, and `ProgressStoreProvider` to swap the store.
 
 The plan writes to the log when an exercise is rated (`features/plan/PlanApp.tsx`, rows built by

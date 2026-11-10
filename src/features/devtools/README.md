@@ -56,15 +56,6 @@ size and its value, JSON unfolded; `model/dataView.ts` `storageRows`) and each I
 counts only (sampler audio, NAM models). It reads through `localPlanStore` and `localProgressStore` and writes nothing, apart from what
 loading a plan always does (ids for exercises stored without one).
 
-## Accounts (`/dev/account`)
-
-Make a student, teacher or owner account and log in as it (`account/AccountPage.tsx`, over `features/account`): who is
-logged in and what the role may use, the accounts with *Log in* and *Delete account*, and *Create account*. No
-passwords; accounts live in `localStorage` `musickit.dev.accounts`. Logging in is not needed to use the app. While an
-account is logged in, plans and progress are its own (`musickit.plan@<id>`, `musickit.progress@<id>`; `/dev/data` and
-the prompt studio's "Load my /plan answers" read those), and `account/AccountBadge.tsx`, mounted in the root layout
-with the dev overlays, names it at the bottom left of every page. Logging in or out reloads the page.
-
 ## Kickstarter (`/dev/kickstarter`)
 
 Replies to music schools that could become founding partners. `model/kickstarter.ts` holds what an email may say (`FACTS`:

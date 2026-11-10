@@ -1,13 +1,12 @@
 import { cleanEntries, upsert, without, type ProgressEntry } from "./log";
 import type { ProgressStore } from "./ProgressStore";
-import { accountKey } from "@/features/account/localAccountStore";
 
-/** The shared key. A signed-in account (development only) has its own copy: read and write through `accountKey`. */
+/** The one localStorage key the log is kept under. */
 export const PROGRESS_KEY = "musickit.progress";
 
 function read(): ProgressEntry[] {
   try {
-    return cleanEntries(JSON.parse(window.localStorage.getItem(accountKey(PROGRESS_KEY)) ?? "null"));
+    return cleanEntries(JSON.parse(window.localStorage.getItem(PROGRESS_KEY) ?? "null"));
   } catch {
     return [];
   }
@@ -15,7 +14,7 @@ function read(): ProgressEntry[] {
 
 function write(list: ProgressEntry[]): void {
   try {
-    window.localStorage.setItem(accountKey(PROGRESS_KEY), JSON.stringify(list));
+    window.localStorage.setItem(PROGRESS_KEY, JSON.stringify(list));
   } catch {
     /* storage full or blocked: keep going in memory */
   }

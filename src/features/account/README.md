@@ -9,11 +9,10 @@ email them or with Google. There are no passwords.
   (student and teacher: what a person can pick for themself), `Account` (id, name, email, role), `FEATURES` (the parts
   of the app that belong to some roles: the notes creator and AI plans are for teachers and owners) and
   `can(account, feature)`.
-- `AccountStore.ts`: `current()` and `signOut()`, all a page needs. `DevAccountStore` adds the list of browser accounts.
+- `AccountStore.ts`: `current()` and `signOut()`, all a page needs.
 - `serverAccountStore.ts`: the real store, over `/api/auth`. `accountsOpen()` says whether the site has accounts at all.
-- `localAccountStore.ts`: the development store: accounts in localStorage, picked on `/dev/account`, no sign-in.
-- `useAccount.tsx`: `useAccount()` gives `{ account, loaded, can }`. It asks the real session first, then (development
-  only) the browser account.
+- `useAccount.tsx`: `useAccount()` gives `{ account, loaded, can }`. It asks the real session, and nothing at all when
+  there is no session cookie.
 - `ui/`: the screens. `LinkForm` (`/login`, `/register` for students, `/register/teacher`), `ConfirmLink` (`/login/confirm`), `FinishSignup`
   (`/register/finish`), `AccountPanel` (`/account`), `AccountLink` (the corner of the top nav).
 - `server/`: sign-in itself, server only.
@@ -68,12 +67,6 @@ build time whether it has accounts.
 
 No `DATABASE_URL` means no accounts: the nav shows no Log in, `/login` says accounts aren't open, and the routes answer
 503. `useAccount()` gives `account: null`, the local person, who can use everything. This is how the site ran before.
-
-## Development accounts
-
-`/dev/account` (`features/devtools/account`) still makes accounts in the browser and switches between them with no
-sign-in, to try a role quickly. A real session wins over one of these. Only these get their own plans and progress
-(`musickit.plan@<id>`); see below.
 
 ## Not here yet
 

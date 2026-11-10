@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui";
-import { accountKey } from "@/features/account/localAccountStore";
 import { sanitiseState, PLAN_KEY } from "@/features/plan/store/localPlanStore";
 import { DEFAULT_STUDIO, type StudioState } from "../model/compose";
 import type { RunSummary } from "../model/history";
@@ -11,7 +10,7 @@ const field = "w-full rounded-lg border border-slate-700 bg-slate-950/60 p-2 fon
 /** The answers stored by /plan in this browser, as JSON text; null when there are none. Read only. */
 function planAnswersText(): string | null {
   try {
-    const raw = localStorage.getItem(accountKey(PLAN_KEY));
+    const raw = localStorage.getItem(PLAN_KEY);
     const answers = raw ? sanitiseState(JSON.parse(raw)).answers : null;
     return answers ? JSON.stringify(answers, null, 2) : null;
   } catch {

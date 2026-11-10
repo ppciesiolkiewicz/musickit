@@ -2,25 +2,11 @@
 
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import type { AccountStore } from "./AccountStore";
-import { accountsOn, localAccountStore } from "./localAccountStore";
 import { can as canUse, type Account, type Feature } from "./model";
-import { hasSessionHint, serverAccountStore } from "./serverAccountStore";
+import { serverAccountStore } from "./serverAccountStore";
 
-/**
- * The store every page gets: the real session first, then (development only) the account picked on /dev/account.
- * With no session cookie it asks the server nothing, so a visitor costs no request.
- */
-export const siteAccountStore: AccountStore = {
-  async current() {
-    return (await serverAccountStore.current()) ?? (accountsOn() ? localAccountStore.current() : null);
-  },
-  async signOut() {
-    if (hasSessionHint()) await serverAccountStore.signOut();
-    else if (accountsOn()) await localAccountStore.signOut();
-  },
-};
-
-const StoreContext = createContext<AccountStore>(siteAccountStore);
+/** The store every page gets: the real session. With no session cookie it asks the server nothing, so a visitor costs no request. */
+const StoreContext = createContext<AccountStore>(serverAccountStore);
 
 /** Swap the store for a subtree (a test double). */
 export function AccountStoreProvider({ store, children }: { store: AccountStore; children: ReactNode }) {

@@ -60,32 +60,9 @@ export function cleanAccounts(raw: unknown): Account[] {
   });
 }
 
-export interface AccountInput {
-  name: string;
-  email: string;
-  role: Role;
-}
-
-/** Why an account could not be made: no name, not an email address, or the email already has an account. */
-export type AccountError = "name" | "email" | "taken";
-export type AccountResult = { ok: true; account: Account } | { ok: false; error: AccountError };
-
 export const cleanEmail = (email: string): string => email.trim().toLowerCase();
 
 export const isEmail = (email: string): boolean => email.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
 /** A name as it is stored: trimmed, spaces folded, 80 characters at most. Empty when there is nothing left. */
 export const cleanName = (name: unknown): string => (typeof name === "string" ? name.replace(/\s+/g, " ").trim().slice(0, 80) : "");
-
-/** The account the input makes, or what is wrong with it. `id` and `now` are passed in so this stays pure. */
-export function makeAccount(list: Account[], input: AccountInput, id: string, now: string): AccountResult {
-  const name = input.name.trim();
-  const email = cleanEmail(input.email);
-  if (!name) return { ok: false, error: "name" };
-  if (!isEmail(email)) return { ok: false, error: "email" };
-  if (list.some((a) => a.email === email)) return { ok: false, error: "taken" };
-  return { ok: true, account: { id, name, email, role: isRole(input.role) ? input.role : "student", createdAt: now } };
-}
-
-/** The storage key that holds `base` for one account: its own copy when signed in, the shared key when not. */
-export const keyFor = (base: string, accountId: string | null): string => (accountId ? `${base}@${accountId}` : base);

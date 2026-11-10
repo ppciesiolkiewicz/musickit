@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { accountKey } from "@/features/account/localAccountStore";
 import { AREAS } from "@/features/plan/model/concepts";
 import { EMPTY_STATE, type PlanState } from "@/features/plan/model/types";
 import { TOPICS, topicById, topicsFor } from "@/features/plan/intake/topics";
@@ -151,7 +150,7 @@ export default function DataPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <Block title="Answers" about={`The first questionnaire, from localStorage "${accountKey(PLAN_KEY)}".`}>
+      <Block title="Answers" about={`The first questionnaire, from localStorage "${PLAN_KEY}".`}>
         {a ? (
           <div className="flex flex-col gap-3">
             {AREAS.filter((ar) => a.areas.includes(ar.id)).map((ar) => (
@@ -197,7 +196,7 @@ export default function DataPage() {
         <Raw value={{ current: state.current, history: state.history }} />
       </Block>
 
-      <Block title="Progress log" about={`One row per rated exercise, from localStorage "${accountKey(PROGRESS_KEY)}". Rows stay when a plan leaves the history.`}>
+      <Block title="Progress log" about={`One row per rated exercise, from localStorage "${PROGRESS_KEY}". Rows stay when a plan leaves the history.`}>
         <label className="mb-2 flex w-fit items-center gap-2 text-xs text-slate-400">
           Topic
           <select value={topic} onChange={(e) => setTopic(e.target.value)} className="min-h-8 rounded-lg border border-slate-700 bg-slate-950 px-2 py-1 text-sm text-slate-200">
