@@ -38,3 +38,15 @@ test("every preset note survives the sanitiser with all its widgets", async () =
     assert.equal(back?.layers.length, p.stage.layers.length, slug);
   }
 });
+
+test("the tunes a preset note's text describes are still at their numbers in the singing books", async () => {
+  const { BOOK, RUNS, RUN_STAGES, STAGES } = await import("@/features/theory/singingMelodies");
+  const { PRESET_TUNES } = await import("./presetNotes");
+  const at = (stages: typeof STAGES, book: typeof BOOK, n: number) => {
+    const t = book.find((x) => x.n === n)!;
+    return [t.stage.id, stages.find((s) => s.id === t.stage.id)!.tunes[book.filter((x) => x.stage.id === t.stage.id).indexOf(t)]];
+  };
+  assert.deepEqual(at(STAGES, BOOK, PRESET_TUNES.doReMi), ["mi", "3 1 2 3 | 2h 1h | 3 2 1 2 | 1w"]);
+  assert.deepEqual(at(STAGES, BOOK, PRESET_TUNES.solLaSol), ["la", "5 6 5 3 | 1w"]);
+  assert.deepEqual(at(RUN_STAGES, RUNS, PRESET_TUNES.pentatonicRun), ["pentatonic-run", "1's 6s 5s 3s 5s 3s 2s 1s 2h | 1w"]);
+});

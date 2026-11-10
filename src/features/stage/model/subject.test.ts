@@ -55,7 +55,7 @@ test("a tool that can't be shown, or that a stage doesn't hold, is not a subject
   assert.equal(sanitiseSubject({ kind: "tool", tool: { type: "note-finder", query: "" } }, ids), null);
   assert.equal(sanitiseSubject({ kind: "tool" }, ids), null);
   assert.equal(sanitiseSubject({ kind: "tool", tool: "scale-neck" }, ids), null);
-  assert.deepEqual(STAGE_TOOLS, ["scale-neck", "position-neck", "arpeggio-neck", "chord-shapes", "staff", "melody-singer"]);
+  assert.deepEqual(STAGE_TOOLS, ["scale-neck", "position-neck", "arpeggio-neck", "chord-shapes", "staff", "melody-singer", "run-singer"]);
 });
 
 test("the master moves an unpinned tool's key, never a pinned one's, never its scale", () => {

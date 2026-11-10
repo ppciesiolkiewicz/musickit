@@ -14,7 +14,9 @@ function Figure({ layer, children }: { layer: Layer; children: (readOnly: true) 
   const [aspect, setAspect] = useState<number | null>(null);
   const report = useCallback((a: number) => setAspect((cur) => (cur === a ? cur : a)), []);
   const page = isPage(layer.subject);
-  const share = page || layer.subject.kind === "neck" || layer.subject.kind === "position" ? 1 : Math.max(MIN_SHARE, gridSpan(layer) / GRID_COLUMNS);
+  // a tune or a run streams across its staff, so it takes the whole column, as a neck does
+  const sings = layer.subject.kind === "tool" && (layer.subject.tool.type === "melody-singer" || layer.subject.tool.type === "run-singer");
+  const share = page || layer.subject.kind === "neck" || layer.subject.kind === "position" || sings ? 1 : Math.max(MIN_SHARE, gridSpan(layer) / GRID_COLUMNS);
   return (
     <figure className="mx-auto w-full" style={{ maxWidth: `${share * 100}%` }}>
       <div className={`overflow-hidden rounded-xl bg-slate-950 ring-1 ring-slate-800 [container-type:inline-size]`} style={{ aspectRatio: aspect ?? 16 / 9 }}>

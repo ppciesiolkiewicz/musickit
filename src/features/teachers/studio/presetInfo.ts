@@ -1,8 +1,8 @@
 /** What the server needs to know of each preset note (`presetNotes.ts` holds the stage, which only the browser draws): its address, title and line. */
 export const PRESET_INFO: Record<string, { title: string; description: string }> = {
   "minor-pentatonic": {
-    title: "A minor pentatonic in five minutes",
-    description: "One page of notes: the five notes, the first box on the neck, all five boxes, and the chords that go under them.",
+    title: "A minor pentatonic: play it, then sing it",
+    description: "Five notes, on the neck and in your voice: a position to play, the chords and a band to play it over, then two melodies and a run to sing.",
   },
 };
 

@@ -28,8 +28,11 @@ const BAR: Record<Tone, string> = { emerald: "bg-emerald-400", sky: "bg-sky-400"
  * Necks and other wide pieces reach back out with the `bleed` utility. `devices` puts the audio input and output picker in the nav,
  * for pages that listen or play.
  */
-export default function PageShell({ title, intro, active, wide = false, full = false, tight = false, devices = false, mic = false, header, pageId, tour, children }: {
-  title: string; intro?: string; active: string; wide?: boolean; full?: boolean;
+export default function PageShell({ title, eyebrow, intro, active, wide = false, full = false, tight = false, devices = false, mic = false, header, pageId, tour, children }: {
+  title: string;
+  /** a short line over the title saying what kind of page this is ("A note from your teacher") */
+  eyebrow?: string;
+  intro?: string; active: string; wide?: boolean; full?: boolean;
   /** the smallest side margins, for pages that are one wide article */
   tight?: boolean; devices?: boolean;
   /** the page listens to the microphone: adds the mic and headphones note under the intro */
@@ -46,6 +49,7 @@ export default function PageShell({ title, intro, active, wide = false, full = f
   const theory = active.startsWith("/theory/");
   const heading = (
     <>
+      {eyebrow && <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-sky-300">{eyebrow}</p>}
       <h1 className="text-3xl leading-tight text-slate-50 text-balance sm:text-4xl" style={{ fontFamily: "var(--font-display), serif", fontVariationSettings: '"SOFT" 100, "opsz" 96' }}>{title}</h1>
       <span aria-hidden className={`mt-3 block h-0.5 w-12 rounded-full ${section ? BAR[section.tone] : "bg-sky-400"}`} />
     </>
