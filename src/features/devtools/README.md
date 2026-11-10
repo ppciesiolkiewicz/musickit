@@ -51,7 +51,9 @@ What the practice plan keeps in this browser, read-only (`data/DataPage.tsx`, ro
 questionnaire's answers (each topic with the line picked), the plans (current and history, with how many exercises are
 rated), the progress log (`musickit.progress`: one row per rated exercise, newest first, with a topic filter), and the
 progress summary the AI returned with each plan, which the app shows nowhere else. Every block has its raw JSON, folded,
-with a copy button. It reads through `localPlanStore` and `localProgressStore` and writes nothing, apart from what
+with a copy button. Below those, everything else this site keeps: every localStorage and sessionStorage key (sorted, with
+size and its value, JSON unfolded; `model/dataView.ts` `storageRows`) and each IndexedDB database's stores with record
+counts only (sampler audio, NAM models). It reads through `localPlanStore` and `localProgressStore` and writes nothing, apart from what
 loading a plan always does (ids for exercises stored without one).
 
 ## Running the prompt

@@ -8,7 +8,7 @@ import { PLAN_KEY, localPlanStore } from "@/features/plan/store/localPlanStore";
 import { PROGRESS_KEY, localProgressStore } from "@/features/progress/localProgressStore";
 import type { ProgressEntry } from "@/features/progress/log";
 import { starText } from "@/features/progress/stars";
-import { logRows, planRows } from "../model/dataView";
+import { logRows, planRows, sizeLabel, storageRows, type StorageRow } from "../model/dataView";
 
 const BTN = "inline-flex min-h-8 cursor-pointer items-center rounded-lg border border-slate-700 px-3 py-1 text-xs font-medium text-slate-300 hover:bg-slate-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 const TH = "px-2 py-1.5 text-left text-xs font-medium uppercase tracking-wider text-slate-400";
@@ -52,6 +52,78 @@ function Block({ title, about, children }: { title: string; about: string; child
 
 const EMPTY = <p className="text-sm text-slate-500">Nothing stored yet.</p>;
 
+/** Every key of a storage: name, size and its value folded, with the whole storage as raw JSON. */
+function StorageTable({ rows }: { rows: StorageRow[] }) {
+  if (!rows.length) return EMPTY;
+  const total = rows.reduce((n, r) => n + r.size, 0);
+  return (
+    <>
+      <p className="mb-2 text-xs text-slate-400">{rows.length} keys · {sizeLabel(total)}</p>
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse">
+          <thead><tr><th className={TH}>Key</th><th className={TH}>Size</th><th className={TH}>Value</th></tr></thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.key} className="border-t border-slate-800">
+                <td className={`${TD} font-mono text-xs`}>{r.key}</td>
+                <td className={`${TD} whitespace-nowrap tabular-nums text-slate-400`}>{sizeLabel(r.size)}</td>
+                <td className={TD}>
+                  {r.text || typeof r.value !== "object" || r.value === null ? (
+                    <span className="break-all font-mono text-xs text-slate-300">{String(r.value).slice(0, 200)}{String(r.value).length > 200 && "…"}</span>
+                  ) : (
+                    <details>
+                      <summary className="cursor-pointer text-xs text-slate-400 hover:text-slate-200">{Array.isArray(r.value) ? `array of ${r.value.length}` : `object, ${Object.keys(r.value).length} fields`}</summary>
+                      <pre className="mt-1 max-h-72 overflow-auto rounded-lg border border-slate-800 bg-slate-950/60 p-2 text-xs text-slate-300">{JSON.stringify(r.value, null, 2)}</pre>
+                    </details>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <Raw value={Object.fromEntries(rows.map((r) => [r.key, r.value]))} />
+    </>
+  );
+}
+
+/** One IndexedDB object store: its database, name and record count. */
+type IdbRow = { db: string; store: string; count: number };
+
+/** Every IndexedDB database of this origin with its stores and record counts (values are audio and models, so not shown). */
+async function idbRows(): Promise<IdbRow[]> {
+  if (typeof indexedDB === "undefined" || !indexedDB.databases) return [];
+  const rows: IdbRow[] = [];
+  for (const { name } of await indexedDB.databases()) {
+    if (!name) continue;
+    const db = await new Promise<IDBDatabase>((ok, fail) => {
+      const r = indexedDB.open(name);
+      r.onsuccess = () => ok(r.result);
+      r.onerror = () => fail(r.error);
+    }).catch(() => null);
+    if (!db) continue;
+    for (const store of Array.from(db.objectStoreNames)) {
+      const count = await new Promise<number>((ok) => {
+        const r = db.transaction(store, "readonly").objectStore(store).count();
+        r.onsuccess = () => ok(r.result);
+        r.onerror = () => ok(-1);
+      });
+      rows.push({ db: name, store, count });
+    }
+    db.close();
+  }
+  return rows;
+}
+
+/** A storage's rows, or none when the browser blocks it. */
+const readStorage = (get: () => Storage): StorageRow[] => {
+  try {
+    return storageRows(get());
+  } catch {
+    return [];
+  }
+};
+
 /**
  * /dev/data: what the practice plan keeps in this browser, read-only. The questionnaire answers, the plans, the progress
  * log (one row per rated exercise) and the progress summary the AI sent with each plan, which the app shows nowhere else.
@@ -60,9 +132,15 @@ export default function DataPage() {
   const [state, setState] = useState<PlanState>(EMPTY_STATE);
   const [log, setLog] = useState<ProgressEntry[]>([]);
   const [topic, setTopic] = useState("");
+  const [local, setLocal] = useState<StorageRow[]>([]);
+  const [session, setSession] = useState<StorageRow[]>([]);
+  const [idb, setIdb] = useState<IdbRow[] | null>(null);
   useEffect(() => {
     void localPlanStore.load().then(setState);
     void localProgressStore.list().then(setLog);
+    setLocal(readStorage(() => window.localStorage));
+    setSession(readStorage(() => window.sessionStorage));
+    void idbRows().then(setIdb, () => setIdb([]));
   }, []);
 
   const plans = useMemo(() => planRows(state), [state]);
@@ -159,6 +237,33 @@ export default function DataPage() {
           </div>
         ) : EMPTY}
         <Raw value={plans.filter((p) => p.progress).map((p) => ({ id: p.id, title: p.title, startedOn: p.startedOn, progress: p.progress }))} />
+      </Block>
+
+      <Block title="All localStorage" about="Every key this site keeps in localStorage, sorted by name: settings, layouts, notes and the plan keys above.">
+        <StorageTable rows={local} />
+      </Block>
+
+      <Block title="All sessionStorage" about="Kept for this tab only, gone when it closes (the plan questionnaire in progress).">
+        <StorageTable rows={session} />
+      </Block>
+
+      <Block title="IndexedDB" about="Larger data: sampler projects and audio, NAM amp models. Record counts only.">
+        {idb === null ? <p className="text-sm text-slate-500">Reading…</p> : idb.length ? (
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead><tr><th className={TH}>Database</th><th className={TH}>Store</th><th className={TH}>Records</th></tr></thead>
+              <tbody>
+                {idb.map((r) => (
+                  <tr key={`${r.db}/${r.store}`} className="border-t border-slate-800">
+                    <td className={`${TD} font-mono text-xs`}>{r.db}</td>
+                    <td className={`${TD} font-mono text-xs`}>{r.store}</td>
+                    <td className={`${TD} tabular-nums`}>{r.count < 0 ? "?" : r.count}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : EMPTY}
       </Block>
     </div>
   );

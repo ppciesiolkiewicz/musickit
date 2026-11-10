@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { logRows, planRows } from "./dataView";
+import { logRows, planRows, sizeLabel, storageRows } from "./dataView";
 import { EMPTY_STATE, type PlanState, type StoredPlan } from "@/features/plan/model/types";
 import type { ProgressEntry } from "@/features/progress/log";
 
@@ -30,4 +30,21 @@ test("logRows: newest first, filtered by topic; no topic asks for all", () => {
   assert.deepEqual(logRows(rows, "guitar-caged").map((r) => r.id), ["c", "a"]);
   assert.deepEqual(logRows(rows, "voice-pitch"), []);
   assert.deepEqual(rows.map((r) => r.id), ["a", "b", "c"], "the input is not sorted in place");
+});
+
+test("storageRows: every key sorted, JSON parsed, plain strings kept as text", () => {
+  const data: Record<string, string> = { "musickit.theme": "dark", "a.json": '{"x":1}', "musickit.volume": "0.8" };
+  const keys = Object.keys(data);
+  const storage = { length: keys.length, key: (i: number) => keys[i] ?? null, getItem: (k: string) => data[k] ?? null };
+  assert.deepEqual(storageRows(storage), [
+    { key: "a.json", size: 7, value: { x: 1 }, text: false },
+    { key: "musickit.theme", size: 4, value: "dark", text: true },
+    { key: "musickit.volume", size: 3, value: 0.8, text: false },
+  ]);
+});
+
+test("sizeLabel: bytes, kB, MB", () => {
+  assert.equal(sizeLabel(812), "812 B");
+  assert.equal(sizeLabel(4200), "4.2 kB");
+  assert.equal(sizeLabel(1_300_000), "1.3 MB");
 });

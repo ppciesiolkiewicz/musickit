@@ -30,3 +30,38 @@ export const planRows = (state: PlanState): PlanRow[] => [...(state.current ? [r
 /** The progress log, newest rating first; `topic` (a topic id) keeps only that topic's rows. */
 export const logRows = (entries: ProgressEntry[], topic?: string): ProgressEntry[] =>
   entries.filter((e) => !topic || e.topic === topic).sort((a, b) => b.at.localeCompare(a.at));
+
+/** One key in localStorage or sessionStorage as /dev/data lists it. */
+export interface StorageRow {
+  key: string;
+  /** characters in the stored string */
+  size: number;
+  /** the value parsed as JSON, or the plain string when it is not JSON */
+  value: unknown;
+  /** true when `value` is the raw string because it did not parse */
+  text: boolean;
+}
+
+/** The part of the Storage interface the rows need. */
+export type StorageLike = Pick<Storage, "length" | "key" | "getItem">;
+
+/** Every key in a storage, sorted by name, with its value parsed where it is JSON. */
+export function storageRows(storage: StorageLike): StorageRow[] {
+  const rows: StorageRow[] = [];
+  for (let i = 0; i < storage.length; i++) {
+    const key = storage.key(i);
+    if (key === null) continue;
+    const raw = storage.getItem(key) ?? "";
+    let value: unknown = raw;
+    let text = true;
+    try {
+      value = JSON.parse(raw);
+      text = false;
+    } catch {}
+    rows.push({ key, size: raw.length, value, text });
+  }
+  return rows.sort((a, b) => a.key.localeCompare(b.key));
+}
+
+/** A size in characters as a short label: "812 B", "4.2 kB", "1.3 MB" (one character counted as one byte). */
+export const sizeLabel = (n: number): string => (n < 1000 ? `${n} B` : n < 1e6 ? `${(n / 1000).toFixed(1)} kB` : `${(n / 1e6).toFixed(1)} MB`);
