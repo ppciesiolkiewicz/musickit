@@ -6,7 +6,7 @@ import Icon from "@/components/Icon";
 import { JAM_PARTS } from "../../jam/rig";
 import BeatDots from "../../jam/BeatDots";
 import { NOTE_NAMES } from "../../drone/drone";
-import { MuteButton } from "../../sequencer/PartLevel";
+import PartLevel from "../../sequencer/PartLevel";
 import type { ViewProps } from "./types";
 
 export interface InlineProps {
@@ -22,7 +22,7 @@ export interface InlineProps {
 
 /**
  * The band's parts with no part chips, started by its host (the staff's Play beside the mic): it plays while `on`, shows what
- * plays, a mute for the drone and the click, and the beat dots. Another source taking the audio focus, or the band scrolling
+ * plays, a mute and volume for the drone and the click, and the beat dots. Another source taking the audio focus, or the band scrolling
  * away, calls `onStop` so the host stops the rest with it.
  */
 export default function InlineView({ band, config, show, on, onToggle, onStop, group }: ViewProps & InlineProps) {
@@ -64,17 +64,23 @@ export default function InlineView({ band, config, show, on, onToggle, onStop, g
         </button>
       )}
       {show.levels && on && hasDrone && (
-        <MuteButton
+        <PartLevel
           name="drone"
+          volume={snap.parts.drone.volume}
           muted={snap.parts.drone.muted}
+          onVolume={(v) => rig.setLevel("drone", { volume: v })}
           onMute={(m) => rig.setLevel("drone", { muted: m })}
+          sliderClass="w-16 sm:w-20"
         />
       )}
       {show.levels && on && click && (
-        <MuteButton
+        <PartLevel
           name="metronome"
+          volume={snap.click.volume}
           muted={snap.click.muted}
+          onVolume={(v) => rig.setClickVolume(v)}
           onMute={(m) => rig.setClickMuted(m)}
+          sliderClass="w-16 sm:w-20"
         />
       )}
       <span className="tabular-nums">{what}</span>

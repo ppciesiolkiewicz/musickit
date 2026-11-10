@@ -20,11 +20,11 @@ export function MuteButton({ name, muted, onMute, className = ibtn }: { name: st
  * A part's mute and volume, the same in the looper's sequencer window and on a page. Volume is 0 to 1 (a looper strip may hold more;
  * the slider shows it at full).
  */
-export default function PartLevel({ name, volume, muted, onVolume, onMute }: { name: string; volume: number; muted: boolean; onVolume: (v: number) => void; onMute: (muted: boolean) => void }) {
+export default function PartLevel({ name, volume, muted, onVolume, onMute, sliderClass = "w-24" }: { name: string; volume: number; muted: boolean; onVolume: (v: number) => void; onMute: (muted: boolean) => void; /** the slider's width */ sliderClass?: string }) {
   return (
     <span className="flex items-center gap-1.5">
       <MuteButton name={name} muted={muted} onMute={onMute} />
-      <Slider min={0} max={1} step={0.01} value={Math.min(1, volume)} onChange={onVolume} className="w-24" aria-label={`Volume of ${name}`} title={`Volume ${Math.round(volume * 100)}%`} />
+      <Slider min={0} max={1} step={0.01} value={Math.min(1, volume)} onChange={onVolume} className={sliderClass} aria-label={`Volume of ${name}`} title={`Volume ${Math.round(volume * 100)}%`} />
     </span>
   );
 }
