@@ -10,6 +10,7 @@
 export { audioStartTime, getAudioContext, getOutputBus, wakeAudio } from "./engine/context";
 export { canChooseOutput, cleanDeviceName, findDevice, listAudioDevices, openInputStream, readDeviceChoice, revealDevices, serverDeviceChoice, setDeviceChoice, subscribeDeviceChoice, INPUT_CHANNELS, type AudioDevice, type DeviceChoice, type InputChannel } from "./engine/devices";
 export { tapChannels, tapSource, type ChannelTap } from "./engine/channelTap";
+export { judgePair, looksOneInput, UNSURE as UNSURE_PAIR, type PairState, type PairVerdict } from "./engine/inputKind";
 export { meterLevel, openLiveInput, readLiveInput, serverLiveInput, subscribeLiveInput, type LiveInput, type LiveInputHandle } from "./engine/liveInput";
 export { INSTRUMENTS, INSTRUMENT_OPTIONS, OSCILLATOR_ID } from "./engine/instruments";
 export { allInstrumentOptions } from "./engine/instruments";

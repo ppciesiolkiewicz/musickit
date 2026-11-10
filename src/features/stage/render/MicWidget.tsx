@@ -7,7 +7,7 @@ import InputChannels from "@/components/InputChannels";
 import MicButton from "@/components/theory/singing/MicButton";
 import type { MicStatus } from "@/components/practice/useMicPitch";
 import { Modal } from "@/components/ui";
-import { cleanDeviceName, listAudioDevices, readDeviceChoice, serverDeviceChoice, subscribeDeviceChoice, type AudioDevice } from "@/features/sound";
+import { cleanDeviceName, listAudioDevices, looksOneInput, readDeviceChoice, serverDeviceChoice, subscribeDeviceChoice, type AudioDevice } from "@/features/sound";
 import { TunerMeter, hzToNote, type TunerRead } from "@/features/tuner";
 import { CHANNEL_NAMES, SOURCES, SOURCE_NAMES, type AudioInputSetup, type AudioSource, type SourceSetup } from "../model/audioInput";
 
@@ -166,7 +166,7 @@ function InputSetup({ setup, onSetup }: { setup: AudioInputSetup; onSetup: (s: A
                 <option key={d.id} value={d.id}>{cleanDeviceName(d.label)}</option>
               ))}
             </select>
-            {src.device && <InputChannels value={src.channel} onChange={(channel) => set(s, { channel })} />}
+            {src.device && !looksOneInput(src.device.label) && <InputChannels value={src.channel} onChange={(channel) => set(s, { channel })} />}
           </section>
         );
       })}

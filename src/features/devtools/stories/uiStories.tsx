@@ -136,7 +136,7 @@ export const UI_GROUPS: UiGroup[] = [
     id: "input-channels",
     title: "InputChannels",
     doc: {
-      description: "Which channel of a two-input device (an audio interface: guitar on Input 1, voice on Input 2) is heard: Both (the default, mixed), 1 or 2, each with its level beside it. AppInputChannels is the app's own, under the input list in every devices panel (the nav's cog, an input chip): it reads and sets the app's channel and the live levels, and hides for a device heard with one channel (or the system mic until it is heard with two). The studio's sources with a device of their own use InputChannels with their own channel.",
+      description: "Which channel of a two-input device (an audio interface: guitar on Input 1, voice on Input 2) is heard: Both (the default, mixed), 1 or 2, each with its level beside it, and an (i) note on what the channels are for. AppInputChannels is the app's own, under the input list in every devices panel (the nav's cog, an input chip): it reads and sets the app's channel and the live levels, and hides for a one-input device: heard with one channel, named like one mic (MacBook, built-in, webcam, headset), or two channels whose levels stay equal while loud (the browser copying one mic). The system default shows only once its levels differ. The studio's sources with a device of their own use InputChannels with their own channel.",
       props: [
         { name: "value", type: `"both" | "1" | "2"`, required: true, description: "The channel heard." },
         { name: "onChange", type: "(c) => void", required: true, description: "A press on a channel." },
