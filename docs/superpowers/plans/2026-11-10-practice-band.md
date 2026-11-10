@@ -186,7 +186,7 @@
 
 - [ ] **Step 1:** Exercise wrappers render `<PracticeBand view="bar" storageKey="musickit.practiceBand" config={{ parts, bpm, keyPc, show: { more } }} />`; staff renders `view="inline"` with its `on/onToggle/onStop/group`. Groove select goes in the bar's More fold beside the patterns.
 - [ ] **Step 2:** Replace the `PracticeBand`/`PracticeBacking` stories with one `PracticeBand` group whose stories cover `bar` (3 existing set-ups) and `inline` (2), plus a "Bar, bossa groove" story `{ view: "bar", config: { parts: ["click","drums","bass"], bpm: 120, keyPc: 2, groove: "bossa" } }`. Props docs: `view` as `"full" | "pocket" | "bar" | "inline"`, `config` as JSON.
-- [ ] **Step 3: Verify:** all tests, tsc, lint; on `/dev/stories#practice-band` each story looks as before; the bossa story plays bossa drums+bass; a click-drone exercise in `/demo/guitar` opens with its own bpm/key after you changed them in another exercise.
+- [ ] **Step 3: Verify:** all tests, tsc, lint; on `/dev/stories#practice-band` each story looks as before; the bossa story plays bossa drums+bass; a click-drone exercise in `/demo/guitar-beginner` opens with its own bpm/key after you changed them in another exercise.
 - [ ] **Step 4: Commit** `feat(instruments): PracticeBand with bar and inline views`.
 
 ### Task 6: `full` view and the metronome-drone page
