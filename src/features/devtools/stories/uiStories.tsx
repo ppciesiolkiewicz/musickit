@@ -2,7 +2,9 @@
 
 import { useState, type ReactNode } from "react";
 import type { PropDoc } from "@/features/exercises/docs";
+import InputChannels, { AppInputChannels } from "@/components/InputChannels";
 import { BackingTrack } from "@/features/backing";
+import type { InputChannel } from "@/features/sound";
 import { DEFAULT_DRONE, DroneControls, JamPage, PracticeBand, clampDrone, type BandConfig, type BandView, type DroneParams } from "@/features/instruments";
 import type { Props, Story } from "./stories";
 
@@ -44,7 +46,37 @@ function InlineBandStory({ config }: { config: BandConfig }) {
   return <PracticeBand view="inline" storageKey="musickit.practiceBand" config={config} on={on} onToggle={() => setOn((v) => !v)} onStop={() => setOn(false)} />;
 }
 
+/** InputChannels owns no state: this host keeps the channel, as the studio's sources do. */
+function InputChannelsStory({ value, levels }: { value: InputChannel; levels: number[] }) {
+  const [channel, setChannel] = useState<InputChannel>(value);
+  return <div className="max-w-80"><InputChannels value={channel} onChange={setChannel} levels={levels} /></div>;
+}
+
+const channelOf = (v: unknown): InputChannel => (v === "1" || v === "2" ? v : "both");
+
 export const UI_GROUPS: UiGroup[] = [
+  {
+    id: "input-channels",
+    title: "InputChannels",
+    doc: {
+      description: "Which channel of a two-input device (an audio interface: guitar on Input 1, voice on Input 2) is heard: Both (the default, mixed), 1 or 2, each with its level beside it. AppInputChannels is the app's own, under the input list in every devices panel (the nav's cog, an input chip): it reads and sets the app's channel and the live levels, and hides for a device heard with one channel (or the system mic until it is heard with two). The studio's sources with a device of their own use InputChannels with their own channel.",
+      props: [
+        { name: "value", type: `"both" | "1" | "2"`, required: true, description: "The channel heard." },
+        { name: "onChange", type: "(c) => void", required: true, description: "A press on a channel." },
+        { name: "levels", type: "number[]", required: false, description: "Each input's level (root mean square, 0..1) while it is open; without two, no bars." },
+        { name: "label", type: "string", required: false, description: "The label before the buttons (Channel)." },
+        { name: "app", type: "boolean", required: false, description: "Story only: render AppInputChannels, the app's live one (start a mic on another tab to see levels)." },
+      ],
+    },
+    stories: [
+      hand("Both, with levels", { value: "both", levels: [0.05, 0.004] }),
+      hand("Input 2 heard", { value: "2", levels: [0.002, 0.08] }),
+      hand("Input closed, no levels", { value: "both" }),
+      hand("The app's channel, live", { app: true }),
+    ],
+    render: (props) =>
+      props.app === true ? <div className="max-w-80"><AppInputChannels /></div> : <InputChannelsStory key={JSON.stringify(props)} value={channelOf(props.value)} levels={Array.isArray(props.levels) ? props.levels.filter((l): l is number => typeof l === "number") : []} />,
+  },
   {
     id: "drone-controls",
     title: "DroneControls",

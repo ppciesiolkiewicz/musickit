@@ -26,7 +26,7 @@ export function useAudioInput(enabled: boolean, setup: AudioInputSetup): { statu
     }
   }, []);
   const src = activeSource(setup);
-  const { status, heard } = useMicPitch(enabled, undefined, onPitch, { deviceId: src.device?.id ?? null, channel: src.channel });
+  const { status, heard } = useMicPitch(enabled, undefined, onPitch, { deviceId: src.device?.id ?? null, channel: src.device ? src.channel : undefined });
   // another source or a stop starts the meter afresh
   useEffect(() => {
     smooth.current.reset();

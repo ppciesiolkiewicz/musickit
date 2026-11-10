@@ -1,6 +1,6 @@
 /**
  * What the app hears now: how many listeners have the input open, and while one does, the level of each of the device's inputs
- * (one for a mic, two for an audio interface) and which of them is heard. Listeners (`useMicPitch`, the rhythm game, the range
+ * (one for a mic, two for an audio interface); which of them is heard is the app's channel choice (`DeviceChoice.channel`). Listeners (`useMicPitch`, the rhythm game, the range
  * finder) publish; the input chip and anything else that shows the input read it, so the level redraws only the chip, never the page.
  */
 
@@ -9,11 +9,9 @@ export interface LiveInput {
   listening: number;
   /** each input's level (root mean square, 0..1), empty when none publishes */
   levels: readonly number[];
-  /** the input heard, an index into `levels` */
-  active: number;
 }
 
-const IDLE: LiveInput = { listening: 0, levels: [], active: 0 };
+const IDLE: LiveInput = { listening: 0, levels: [] };
 /** levels are published at most this often, so a meter does not redraw every audio frame */
 const EVERY_MS = 66;
 
@@ -33,8 +31,8 @@ export function subscribeLiveInput(cb: () => void): () => void {
 }
 
 export interface LiveInputHandle {
-  /** this listener's levels and the input it hears; throttled */
-  levels(levels: readonly number[], active?: number): void;
+  /** this listener's level of each input; throttled */
+  levels(levels: readonly number[]): void;
   close(): void;
 }
 
@@ -44,11 +42,11 @@ export function openLiveInput(): LiveInputHandle {
   let closed = false;
   set({ ...live, listening: live.listening + 1 });
   return {
-    levels(levels, active = 0) {
+    levels(levels) {
       const now = performance.now();
       if (closed || now - last < EVERY_MS) return;
       last = now;
-      set({ ...live, levels: [...levels], active });
+      set({ ...live, levels: [...levels] });
     },
     close() {
       if (closed) return;

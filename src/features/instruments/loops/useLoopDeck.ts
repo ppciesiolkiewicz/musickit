@@ -7,7 +7,7 @@ import { LoopDeck } from "./deck";
 import type { AppInput } from "./loops";
 
 /** The app's one input, for the loops that record it. */
-export const APP_INPUT: AppInput = { id: () => readDeviceChoice().input?.id ?? "", subscribe: subscribeDeviceChoice, publish: openLiveInput };
+export const APP_INPUT: AppInput = { id: () => readDeviceChoice().input?.id ?? "", channel: () => readDeviceChoice().channel, subscribe: subscribeDeviceChoice, publish: openLiveInput };
 
 /**
  * A `LoopDeck` on `rig`'s clock, for a page: the deck and its snapshot. It follows the rig while mounted and lets go of its audio when

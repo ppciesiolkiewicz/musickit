@@ -4,7 +4,7 @@ import { openInputStream } from "@/features/sound";
 import { sanitiseEffects, type EffectSpec } from "../effects/effects";
 
 /**
- * The jam's loops: each records `bars` bars from its input on the jam's clock (the app's one input, both channels mixed, unless the
+ * The jam's loops: each records `bars` bars from its input on the jam's clock (the app's one input on the app's chosen channel, unless the
  * loop names its own device and channel) and
  * then plays them round. Its effects sit between the input and the recorder (they are in the take, like the looper's input effects), and
  * "hear it" sends the same effected signal to the speakers. No React. A device opens only from a person's click (record, or Connect in its input settings); one stream per
@@ -19,7 +19,7 @@ export interface LoopConfig {
   id: string;
   /** the loop's own input device, or "" for the app's input (chosen in the devices menu or an input chip; followed when it changes) */
   deviceId: string;
-  /** the channel of the loop's own device; the app's input always records both mixed */
+  /** the channel of the loop's own device; the app's input records the app's chosen channel */
   channel: LoopChannel;
   bars: number;
   volume: number;
@@ -54,10 +54,12 @@ export interface InputDevice {
 export interface AppInput {
   /** the chosen input's device id, "" for the system default */
   id(): string;
-  /** called when the chosen input changes */
+  /** the chosen channel: both mixed, Input 1 or Input 2 */
+  channel(): "both" | "1" | "2";
+  /** called when the chosen input or channel changes */
   subscribe(cb: () => void): () => void;
   /** a stream of the app's input is open: publish its levels for the input chip */
-  publish(): { levels(levels: readonly number[], active?: number): void; close(): void };
+  publish(): { levels(levels: readonly number[]): void; close(): void };
 }
 
 /** Where a loop's input comes from: its own device, or the app's input. */
@@ -113,6 +115,13 @@ export class InputPool {
 
   constructor(private ctx: AudioContext, private app: AppInput | null = null) {}
 
+  /** The channel a loop records: its own, or the app's chosen one for the app's input. */
+  channelFor(config: Pick<LoopConfig, "deviceId" | "channel">): LoopChannel {
+    if (config.deviceId) return config.channel;
+    const c = this.app?.channel() ?? "both";
+    return c === "both" ? "mix" : c;
+  }
+
   /** What a loop on `deviceId` opens: that device, or the app's input for "". */
   wanted(deviceId: string): Wanted {
     return deviceId ? { id: deviceId, app: false } : { id: this.app?.id() ?? "", app: true };
@@ -148,7 +157,7 @@ export class InputPool {
     return input;
   }
 
-  /** Publish each channel's level of an open app input (the louder one as heard) until the returned stop. */
+  /** Publish each channel's level of an open app input until the returned stop. */
   private meter(input: OpenInput, app: AppInput): () => void {
     const ctx = this.ctx;
     const split = ctx.createChannelSplitter(2);
@@ -166,7 +175,7 @@ export class InputPool {
         an.getFloatTimeDomainData(data[i]);
         return rms(data[i]);
       });
-      live.levels(levels, levels.length > 1 && levels[1] > levels[0] ? 1 : 0);
+      live.levels(levels);
     }, 66);
     return () => {
       clearInterval(id);
@@ -245,6 +254,8 @@ export class JamLoop {
   private source: AudioBufferSourceNode | null = null;
   private stopAtTime: number | null = null;
   private levelData: Float32Array<ArrayBuffer> | null = null;
+  /** the channel the input is wired to record now */
+  private wiredChannel: LoopChannel | null = null;
 
   constructor(config: Partial<LoopConfig> | null, private changed: () => void) {
     this.config = cleanConfig(config);
@@ -322,8 +333,9 @@ export class JamLoop {
     mono.channelCount = 1;
     mono.channelCountMode = "explicit";
     input.source.connect(split);
-    // the app's input records both channels mixed (a mic, or both inputs of an interface)
-    const ch = this.config.deviceId ? this.config.channel : "mix";
+    // the app's input records the app's chosen channel (both mixed by default: a mic, or both inputs of an interface)
+    const ch = this.pool!.channelFor(this.config);
+    this.wiredChannel = ch;
     // a one-channel device has no second channel: it records its only one
     if (ch === "1" || input.channels < 2) split.connect(mono, 0);
     else if (ch === "2") split.connect(mono, 1);
@@ -384,9 +396,11 @@ export class JamLoop {
     this.inputKey = null;
   }
 
-  /** The app's input changed: a loop that follows it and has its input open moves to the new one. */
+  /** The app's input or channel changed: a loop that follows it and has its input open moves to the new one. */
   followAppInput() {
-    if (this.input && !this.config.deviceId && this.pool && keyOf(this.pool.wanted("")) !== this.inputKey) void this.connect();
+    if (!this.input || this.config.deviceId || !this.pool) return;
+    if (keyOf(this.pool.wanted("")) !== this.inputKey) void this.connect();
+    else if (this.pool.channelFor(this.config) !== this.wiredChannel) this.wire();
   }
 
   setConfig(patch: Partial<Omit<LoopConfig, "id">>) {

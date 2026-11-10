@@ -3,12 +3,13 @@
 import { createContext, useContext, useEffect, useState, useSyncExternalStore } from "react";
 import { AudioDevicesPanel } from "@/components/AudioDevicesButton";
 import Icon from "@/components/Icon";
+import InputChannels from "@/components/InputChannels";
 import MicButton from "@/components/theory/singing/MicButton";
 import type { MicStatus } from "@/components/practice/useMicPitch";
 import { Modal } from "@/components/ui";
 import { cleanDeviceName, listAudioDevices, readDeviceChoice, serverDeviceChoice, subscribeDeviceChoice, type AudioDevice } from "@/features/sound";
 import { TunerMeter, hzToNote, type TunerRead } from "@/features/tuner";
-import { CHANNELS, CHANNEL_NAMES, SOURCES, SOURCE_NAMES, type AudioInputSetup, type AudioSource, type SourceSetup } from "../model/audioInput";
+import { CHANNEL_NAMES, SOURCES, SOURCE_NAMES, type AudioInputSetup, type AudioSource, type SourceSetup } from "../model/audioInput";
 
 /**
  * The studio's one audio input, which the host listens with. It lives with the host, not the widget, so hiding the widget keeps it
@@ -44,6 +45,9 @@ function useAppInputName(): string {
   return `App input: ${input ? cleanDeviceName(input.label) : "System mic"}`;
 }
 
+/** The app's chosen channel, what a source without its own device hears. */
+const useAppChannel = () => useSyncExternalStore(subscribeDeviceChoice, readDeviceChoice, serverDeviceChoice).channel;
+
 /** The note heard, chromatic: its nearest note and how many cents off it. */
 const readOf = (hz: number | null): TunerRead | null => {
   if (hz === null) return null;
@@ -64,6 +68,7 @@ export default function MicWidget() {
   const source = mic?.setup.source ?? "guitar";
   const appName = useAppInputName();
   const device = mic?.setup[source].device;
+  const appChannel = useAppChannel();
   return (
     <div className="flex flex-col gap-3 rounded-xl border border-slate-800 bg-slate-950 p-4">
       <p className="flex items-center gap-2 text-sm font-medium text-slate-200">
@@ -82,7 +87,7 @@ export default function MicWidget() {
       )}
       {mic && (
         <p data-chrome className="-mt-1 truncate text-xs text-slate-400" title={device ? "This source's own device (change it under the cog)" : "Follows the input chosen in the devices menu"}>
-          {device ? cleanDeviceName(device.label) : appName} · {CHANNEL_NAMES[mic.setup[source].channel]}
+          {device ? cleanDeviceName(device.label) : appName} · {CHANNEL_NAMES[device ? mic.setup[source].channel : appChannel]}
         </p>
       )}
       <div className="flex flex-col items-center">
@@ -132,7 +137,7 @@ function InputSetup({ setup, onSetup }: { setup: AudioInputSetup; onSetup: (s: A
   const set = (s: AudioSource, patch: Partial<SourceSetup>) => onSetup({ ...setup, [s]: { ...setup[s], ...patch } });
   return (
     <div className="flex flex-col gap-3">
-      <p className="px-1 text-xs text-slate-500">One input feeds every widget. Pick which listens on the widget. Each follows the app&apos;s input unless given a device of its own; Louder hears the louder input of a two-input device.</p>
+      <p className="px-1 text-xs text-slate-500">One input feeds every widget. Pick which listens on the widget. Each follows the app&apos;s input and channel (above) unless given a device of its own, with its own channel.</p>
       {SOURCES.map((s) => {
         const src = setup[s];
         // a remembered device that is not plugged in still shows, by name
@@ -161,13 +166,7 @@ function InputSetup({ setup, onSetup }: { setup: AudioInputSetup; onSetup: (s: A
                 <option key={d.id} value={d.id}>{cleanDeviceName(d.label)}</option>
               ))}
             </select>
-            <span role="group" aria-label={`${SOURCE_NAMES[s]} channel`} className="flex self-start overflow-hidden rounded-md border border-slate-700 text-xs">
-              {CHANNELS.map((c) => (
-                <button key={c} type="button" aria-pressed={src.channel === c} onClick={() => set(s, { channel: c })} className={seg(src.channel === c)}>
-                  {CHANNEL_NAMES[c]}
-                </button>
-              ))}
-            </span>
+            {src.device && <InputChannels value={src.channel} onChange={(channel) => set(s, { channel })} />}
           </section>
         );
       })}

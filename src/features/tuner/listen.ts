@@ -1,5 +1,4 @@
-import { findDevice, getAudioContext, listAudioDevices, openInputStream, openLiveInput, readDeviceChoice, setDeviceChoice } from "@/features/sound";
-import { createChannelPicker, rms } from "@/lib/practice/mic";
+import { findDevice, getAudioContext, listAudioDevices, openInputStream, openLiveInput, readDeviceChoice, setDeviceChoice, tapChannels } from "@/features/sound";
 import { FRAME_MS } from "./pitch";
 import { oldInputId } from "./choice";
 
@@ -8,15 +7,16 @@ const FRAME = 4096;
 /** The tuner's old input picker kept its own device and channel here; the app's one input replaces it. */
 export const OLD_INPUT_STORE = "musickit.tuner.input";
 
-/** The microphone open for a tuner: the analyser of the input heard now (it can change), and `close`. */
+/** The microphone open for a tuner: the analyser of the input heard, and `close`. */
 export interface TunerInput {
   analyser: () => AnalyserNode | null;
   close: () => void;
 }
 
 /**
- * Open the app's chosen input (the devices menu, or the input chip) for a tuner. A device with two inputs (an audio interface) is
- * heard on the louder one, as the app's other listeners hear it; each input's level is published for the input chip while open.
+ * Open the app's chosen input (the devices menu, or the input chip) for a tuner, on the app's chosen channel (both inputs of an audio
+ * interface mixed, or Input 1 or 2, followed live) as the app's other listeners hear it; each input's level is published for the
+ * input chip while open.
  * Asks for the microphone, so call it from a click.
  */
 export async function openTunerInput(): Promise<TunerInput> {
@@ -24,45 +24,23 @@ export async function openTunerInput(): Promise<TunerInput> {
   try {
     const ctx = getAudioContext();
     await ctx.resume();
-    const inputs = Math.min(2, stream.getAudioTracks()[0]?.getSettings().channelCount ?? 1);
     const src = ctx.createMediaStreamSource(stream);
-    const analyser = () => {
-      const an = ctx.createAnalyser();
-      an.fftSize = FRAME;
-      return an;
-    };
-    let split: ChannelSplitterNode | null = null;
-    let ans: AnalyserNode[];
-    if (inputs < 2) {
-      ans = [analyser()];
-      src.connect(ans[0]);
-    } else {
-      // an interface's two inputs apart (a guitar on Input 1, a voice on Input 2): the louder one is tuned
-      split = ctx.createChannelSplitter(2);
-      src.connect(split);
-      ans = [analyser(), analyser()];
-      ans.forEach((an, i) => split!.connect(an, i));
-    }
-    const data = ans.map((an) => new Float32Array(an.fftSize));
-    const picker = createChannelPicker();
+    const tap = tapChannels(ctx, src, stream.getAudioTracks()[0]?.getSettings().channelCount ?? 1);
+    const an = ctx.createAnalyser();
+    an.fftSize = FRAME;
+    tap.output.connect(an);
     const live = openLiveInput();
-    let heard = 0;
     let closed = false;
-    const id = window.setInterval(() => {
-      ans.forEach((an, i) => an.getFloatTimeDomainData(data[i]));
-      const levels = data.map(rms);
-      heard = levels.length > 1 ? picker.pick(levels) : 0;
-      live.levels(levels, heard);
-    }, FRAME_MS);
+    const id = window.setInterval(() => live.levels(tap.levels()), FRAME_MS);
     return {
-      analyser: () => (closed ? null : ans[heard]),
+      analyser: () => (closed ? null : an),
       close: () => {
         if (closed) return;
         closed = true;
         window.clearInterval(id);
         live.close();
+        tap.close();
         src.disconnect();
-        split?.disconnect();
         stream.getTracks().forEach((t) => t.stop());
       },
     };

@@ -1,12 +1,12 @@
 /**
  * The studio's one audio input: what feeds the widgets (the note heard lights up on the pinned and selected ones). Two sources, as in
  * the looper: a guitar and a voice; one listens at a time. Each source has a device (null, the default: the app's input, chosen in
- * the devices menu or an input chip, and followed when it changes) and a channel (`auto`, the default: the louder input of a
- * two-input device, as the rest of the app hears it). Plain data, saved by the studio. Pure.
+ * the devices menu or an input chip, and followed when it changes, on the app's chosen channel) and a channel of that device, used
+ * only with a device of its own (`both` mixed, the default, or an audio interface's Input 1 or 2). Plain data, saved by the studio. Pure.
  */
 
 export type AudioSource = "guitar" | "voice";
-export type InputChannel = "auto" | "left" | "right" | "sum";
+export type InputChannel = "both" | "1" | "2";
 
 export interface SourceSetup {
   device: { id: string; label: string } | null;
@@ -21,13 +21,15 @@ export interface AudioInputSetup {
 
 export const SOURCES: AudioSource[] = ["guitar", "voice"];
 export const SOURCE_NAMES: Record<AudioSource, string> = { guitar: "Guitar", voice: "Voice" };
-export const CHANNELS: InputChannel[] = ["auto", "left", "right", "sum"];
-export const CHANNEL_NAMES: Record<InputChannel, string> = { auto: "Louder", left: "Input 1", right: "Input 2", sum: "Both" };
+export const CHANNELS: InputChannel[] = ["both", "1", "2"];
+export const CHANNEL_NAMES: Record<InputChannel, string> = { both: "Both", "1": "Input 1", "2": "Input 2" };
+/** channels as older saves named them */
+const OLD_CHANNELS: Record<string, InputChannel> = { auto: "both", sum: "both", left: "1", right: "2" };
 
 export const DEFAULT_AUDIO_INPUT: AudioInputSetup = {
   source: "guitar",
-  guitar: { device: null, channel: "auto" },
-  voice: { device: null, channel: "auto" },
+  guitar: { device: null, channel: "both" },
+  voice: { device: null, channel: "both" },
 };
 
 const obj = (v: unknown): Record<string, unknown> | null => (typeof v === "object" && v !== null && !Array.isArray(v) ? (v as Record<string, unknown>) : null);
@@ -37,7 +39,7 @@ function sourceFrom(raw: unknown, fallback: SourceSetup): SourceSetup {
   if (!o) return fallback;
   const d = obj(o.device);
   const device = d && typeof d.id === "string" && d.id && typeof d.label === "string" ? { id: d.id, label: d.label } : null;
-  const channel = CHANNELS.find((c) => c === o.channel) ?? fallback.channel;
+  const channel = CHANNELS.find((c) => c === o.channel) ?? (typeof o.channel === "string" ? OLD_CHANNELS[o.channel] : undefined) ?? fallback.channel;
   return { device, channel };
 }
 
@@ -52,5 +54,5 @@ export function sanitiseAudioInput(raw: unknown): AudioInputSetup {
   };
 }
 
-/** The setup listening now: the chosen source's device and channel. */
+/** The setup listening now: the chosen source's device and channel (the channel counts only with a device of its own). */
 export const activeSource = (s: AudioInputSetup): SourceSetup => s[s.source];

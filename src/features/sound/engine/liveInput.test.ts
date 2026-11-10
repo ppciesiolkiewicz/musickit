@@ -7,14 +7,13 @@ describe("live input", () => {
     const a = openLiveInput();
     const b = openLiveInput();
     assert.equal(readLiveInput().listening, 2);
-    a.levels([0.1, 0.2], 1);
+    a.levels([0.1, 0.2]);
     assert.deepEqual(readLiveInput().levels, [0.1, 0.2]);
-    assert.equal(readLiveInput().active, 1);
     a.close();
     a.close();
     assert.equal(readLiveInput().listening, 1);
     b.close();
-    assert.deepEqual(readLiveInput(), { listening: 0, levels: [], active: 0 });
+    assert.deepEqual(readLiveInput(), { listening: 0, levels: [] });
   });
 
   it("maps a level onto the meter", () => {

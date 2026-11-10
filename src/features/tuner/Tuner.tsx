@@ -30,7 +30,7 @@ export interface ExternalInput {
 
 /**
  * A tuner. Pick an instrument (and its tuning) or Chromatic; it listens to the app's one input (shown and changed with the input
- * chip), on the louder input of a two-input device. The microphone opens only after Start, and again on a new input while it runs.
+ * chip), on the app's chosen channel (both inputs of a two-input device by default). The microphone opens only after Start, and again on a new input while it runs.
  * Given an `external` input, it opens no microphone and has no input chip: it reads that input, and Start / Stop is the host's.
  */
 export default function Tuner({ external, guide = false }: {

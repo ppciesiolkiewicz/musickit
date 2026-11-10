@@ -21,7 +21,7 @@ function Fork({ size = 15 }: { size?: number }) {
 
 /**
  * The nav's tuner: a button that pops up a small tuner on any page. Instrument, tuning and A4 are the tuner page's own (one saved
- * choice); it listens to the app's chosen input (the devices menu), on the louder input of a two-input device, and shows its levels on the input chip. The microphone opens when the panel opens and closes with it.
+ * choice); it listens to the app's chosen input (the devices menu), on the app's chosen channel (both inputs of a two-input device by default), and shows its levels on the input chip. The microphone opens when the panel opens and closes with it.
  */
 export default function TunerButton({ className = "" }: { className?: string }) {
   const [open, setOpen] = useState(false);

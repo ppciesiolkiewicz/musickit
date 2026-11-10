@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Icon from "./Icon";
+import { AppInputChannels } from "./InputChannels";
 import { canChooseOutput, cleanDeviceName, findDevice, listAudioDevices, readDeviceChoice, revealDevices, serverDeviceChoice, setDeviceChoice, subscribeDeviceChoice, type AudioDevice } from "@/features/sound";
 
 const subscribeNever = () => () => {};
@@ -42,7 +43,7 @@ function DeviceList({ icon, title, hint, items, chosen, onPick }: { icon: "mic" 
 }
 
 /**
- * The input and output lists with "Detect devices": the body of the nav's devices menu, and of any page's own devices dialog
+ * The input and output lists with "Detect devices" (and under the input, its channels: Both, 1, 2): the body of the nav's devices menu, and of any page's own devices dialog
  * (the teacher studio's Audio input widget, which picks its inputs itself: `inputs` off; the input chip: `outputs` "collapsed", a
  * row with the chosen output that opens its list). Lists the devices while shown and follows plugging in and out, and again when the
  * host's mic opens (`listening`), since the browser names them only once it is allowed.
@@ -88,7 +89,13 @@ export function AudioDevicesPanel({ inputs = true, outputs: withOutputs = true, 
   return (
     <>
       <div className="flex flex-col gap-3">
-        {inputs && <DeviceList icon="mic" title="Input" hint="what the page hears" items={list.inputs} chosen={input} onPick={(d) => setDeviceChoice({ input: d })} />}
+        {inputs && (
+          <div className="flex flex-col gap-2">
+            <DeviceList icon="mic" title="Input" hint="what the page hears" items={list.inputs} chosen={input} onPick={(d) => setDeviceChoice({ input: d })} />
+            {/* which channel of a two-input device is heard, with each one's level */}
+            <AppInputChannels className="px-1" />
+          </div>
+        )}
         {!withOutputs ? null : !outputsOpen ? (
           <button
             type="button"

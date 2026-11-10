@@ -24,10 +24,12 @@ test("a remembered device is found by id, then by name, else not at all", () => 
 });
 
 test("the saved choice reads back, and anything broken is the system default", () => {
-  assert.deepEqual(parseChoice(JSON.stringify({ input: { id: "a", label: "Mic" }, output: null })), { input: { id: "a", label: "Mic" }, output: null });
-  assert.deepEqual(parseChoice("{nope"), { input: null, output: null });
-  assert.deepEqual(parseChoice(JSON.stringify({ input: { id: 3 } })), { input: null, output: null });
-  assert.deepEqual(parseChoice(null), { input: null, output: null });
+  assert.deepEqual(parseChoice(JSON.stringify({ input: { id: "a", label: "Mic" }, output: null })), { input: { id: "a", label: "Mic" }, output: null, channel: "both" });
+  assert.equal(parseChoice(JSON.stringify({ input: null, channel: "2" })).channel, "2");
+  assert.equal(parseChoice(JSON.stringify({ channel: "left" })).channel, "both");
+  assert.deepEqual(parseChoice("{nope"), { input: null, output: null, channel: "both" });
+  assert.deepEqual(parseChoice(JSON.stringify({ input: { id: 3 } })), { input: null, output: null, channel: "both" });
+  assert.deepEqual(parseChoice(null), { input: null, output: null, channel: "both" });
 });
 
 test("device names lose the browser's additions", () => {

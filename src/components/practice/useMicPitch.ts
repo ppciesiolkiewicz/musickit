@@ -4,8 +4,8 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { hzToNote, type Pitch } from "@/features/tuner/pitch";
 import { createDetector } from "@/features/tuner/detector";
 import { stablePitch } from "@/lib/practice/noteGame";
-import { acquireStream, createChannelPicker, rms } from "@/lib/practice/mic";
-import { openInputStream, openLiveInput, readDeviceChoice, serverDeviceChoice, subscribeDeviceChoice, type LiveInputHandle } from "@/features/sound";
+import { acquireStream } from "@/lib/practice/mic";
+import { openInputStream, openLiveInput, readDeviceChoice, serverDeviceChoice, subscribeDeviceChoice, tapChannels, type ChannelTap, type InputChannel, type LiveInputHandle } from "@/features/sound";
 
 /** The input to open for `id`: the app's chosen one with its name (found again if its id changed), another device by id, or the default. */
 function wantedInput(id: string | null | undefined) {
@@ -15,15 +15,11 @@ function wantedInput(id: string | null | undefined) {
 
 export type MicStatus = "off" | "asking" | "on" | "denied" | "error" | "insecure";
 export interface MicReading { midi: number; t: number }
-/**
- * which channel of the device to listen to: Input 1, Input 2 (an audio interface's two inputs), both mixed, or `auto`: each input
- * kept apart and the louder one heard (a guitar on Input 1 and a voice on Input 2 never mix into one confused pitch)
- */
-export type MicChannel = "left" | "right" | "sum" | "auto";
 export interface MicOptions {
   /** a device id instead of the one chosen in the nav's devices menu */
   deviceId?: string | null;
-  channel?: MicChannel;
+  /** the channel of that device (both mixed, Input 1 or Input 2) instead of the app's channel choice */
+  channel?: InputChannel;
 }
 
 /**
@@ -31,8 +27,8 @@ export interface MicOptions {
  * Pitch comes from the tuner's detector (CREPE, YIN until the model loads), which keeps reading a voice over room noise where bare YIN goes quiet.
  * `onFrame` is called every frame with the pitch class held for 150 ms, or null when nothing steady is heard.
  * `onPitch` gets every raw reading (null when nothing is pitched), for a display that follows the voice continuously.
- * A device with two inputs is heard on the louder one (`auto`); `options` pick another device or one channel of it (an audio
- * interface's Input 1 or 2); a change reopens the input.
+ * It hears the app's chosen channel (both inputs mixed by default, or an audio interface's Input 1 or 2, followed live); `options`
+ * pick another device or a channel of its own; a change of device reopens the input.
  * While it listens, each input's level is published (`openLiveInput`) for the input chip.
  * Everything is released (tracks stopped, context closed) when disabled or unmounted.
  */
@@ -44,7 +40,7 @@ export function useMicPitch(enabled: boolean, onFrame?: (pc: number | null) => v
   const raw = useRef(onPitch);
   const chosenId = useSyncExternalStore(subscribeDeviceChoice, readDeviceChoice, serverDeviceChoice).input?.id;
   const inputId = options.deviceId ?? chosenId;
-  const channel = options.channel ?? "auto";
+  const channel = options.channel ?? null;
   useEffect(() => {
     cb.current = onFrame;
     raw.current = onPitch;
@@ -55,6 +51,7 @@ export function useMicPitch(enabled: boolean, onFrame?: (pc: number | null) => v
     let stream: MediaStream | null = null;
     let ctx: AudioContext | null = null;
     let live: LiveInputHandle | null = null;
+    let tap: ChannelTap | null = null;
     let raf = 0;
     let stopped = false;
     queueMicrotask(() => !stopped && setStatus("asking"));
@@ -65,39 +62,23 @@ export function useMicPitch(enabled: boolean, onFrame?: (pc: number | null) => v
         return;
       }
       try {
-        stream = await acquireStream(() => openInputStream({ channelCount: channel === "sum" ? undefined : { ideal: 2 }, echoCancellation: false, noiseSuppression: false, autoGainControl: false }, wantedInput(inputId)), () => stopped);
+        stream = await acquireStream(() => openInputStream({ channelCount: { ideal: 2 }, echoCancellation: false, noiseSuppression: false, autoGainControl: false }, wantedInput(inputId)), () => stopped);
         if (!stream) return;
         ctx = new AudioContext();
         const src = ctx.createMediaStreamSource(stream);
-        const analyser = () => {
-          const an = ctx!.createAnalyser();
-          an.fftSize = 4096;
-          return an;
-        };
-        const inputs = channel === "auto" ? Math.min(2, stream.getAudioTracks()[0]?.getSettings().channelCount ?? 1) : 1;
-        let ans: AnalyserNode[];
-        if (channel === "sum" || inputs === 1) {
-          ans = [analyser()];
-          src.connect(ans[0]);
-        } else {
-          // the inputs apart: one asked for, or both for `auto` (a mono device has nothing on Input 2)
-          const split = ctx.createChannelSplitter(2);
-          src.connect(split);
-          ans = channel === "auto" ? [analyser(), analyser()] : [analyser()];
-          ans.forEach((an, i) => split.connect(an, channel === "right" ? 1 : i));
-        }
-        const data = ans.map((an) => new Float32Array(an.fftSize));
-        const picker = createChannelPicker();
+        const channels = stream.getAudioTracks()[0]?.getSettings().channelCount ?? 1;
+        tap = channel ? tapChannels(ctx, src, channels, { read: () => channel, subscribe: () => () => {} }) : tapChannels(ctx, src, channels);
+        const an = ctx.createAnalyser();
+        an.fftSize = 4096;
+        tap.output.connect(an);
+        const frame = new Float32Array(an.fftSize);
         live = openLiveInput();
         setStatus("on");
         const detect = createDetector();
         const tick = () => {
           if (stopped || !ctx) return;
-          ans.forEach((an, i) => an.getFloatTimeDomainData(data[i]));
-          const levels = data.map(rms);
-          const heard = data.length > 1 ? picker.pick(levels) : 0;
-          live?.levels(levels, heard);
-          const frame = data[heard];
+          an.getFloatTimeDomainData(frame);
+          if (tap) live?.levels(tap.levels());
           // undefined: the last frame is still being read, so nothing new this frame
           void detect(frame, ctx.sampleRate, 70).then((p) => {
             if (stopped || p === undefined) return;
@@ -121,6 +102,7 @@ export function useMicPitch(enabled: boolean, onFrame?: (pc: number | null) => v
       stopped = true;
       cancelAnimationFrame(raf);
       live?.close();
+      tap?.close();
       stream?.getTracks().forEach((t) => t.stop());
       void ctx?.close().catch(() => undefined);
       buf.current = [];

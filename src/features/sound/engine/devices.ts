@@ -9,9 +9,18 @@ export interface AudioDevice {
   label: string;
 }
 
+/**
+ * Which channel of the input the app listens to: both mixed (the default; a mic, or both inputs of an audio interface), or only
+ * Input 1 or Input 2 of an interface (a guitar on one, a voice on the other).
+ */
+export type InputChannel = "both" | "1" | "2";
+export const INPUT_CHANNELS: readonly InputChannel[] = ["both", "1", "2"];
+
 export interface DeviceChoice {
   input: AudioDevice | null;
   output: AudioDevice | null;
+  /** the input's channel listened to */
+  channel: InputChannel;
 }
 
 /** What `enumerateDevices()` gives, as far as this reads it. */
@@ -54,13 +63,13 @@ const asDevice = (v: unknown): AudioDevice | null => {
 export function parseChoice(raw: string | null): DeviceChoice {
   try {
     const v = raw ? (JSON.parse(raw) as Record<string, unknown>) : null;
-    return { input: asDevice(v?.input), output: asDevice(v?.output) };
+    return { input: asDevice(v?.input), output: asDevice(v?.output), channel: INPUT_CHANNELS.find((c) => c === v?.channel) ?? "both" };
   } catch {
-    return { input: null, output: null };
+    return { input: null, output: null, channel: "both" };
   }
 }
 
-const NONE: DeviceChoice = { input: null, output: null };
+const NONE: DeviceChoice = { input: null, output: null, channel: "both" };
 let choice: DeviceChoice | null = null;
 const listeners = new Set<() => void>();
 
@@ -84,9 +93,11 @@ export function subscribeDeviceChoice(cb: () => void): () => void {
   return () => listeners.delete(cb);
 }
 
-/** Change the input, the output or both; null goes back to the system default. */
+/** Change the input, the output or the channel; null goes back to the system default. Another input starts on both channels. */
 export function setDeviceChoice(patch: Partial<DeviceChoice>): void {
-  choice = { ...readDeviceChoice(), ...patch };
+  const was = readDeviceChoice();
+  const newInput = patch.input !== undefined && patch.input?.id !== was.input?.id;
+  choice = { ...was, ...(newInput ? { channel: "both" as const } : null), ...patch };
   try {
     localStorage.setItem(DEVICES_KEY, JSON.stringify(choice));
   } catch {}

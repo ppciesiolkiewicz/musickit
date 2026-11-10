@@ -158,7 +158,7 @@ export default function QuickRecord() {
         an.getFloatTimeDomainData(floats);
         return rms(floats);
       });
-      live.levels(levels, levels.length > 1 && levels[1] > levels[0] ? 1 : 0);
+      live.levels(levels);
       const sound = String(gate(loudest, performance.now()));
       pulses.current.forEach((p) => p && (p.dataset.sound = sound));
       // whole seconds, so React renders once a second rather than every frame

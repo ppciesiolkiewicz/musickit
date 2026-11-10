@@ -4,8 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui";
 import InputChip, { micStatusMessage } from "@/components/InputChip";
 import type { MicStatus } from "@/components/practice/useMicPitch";
-import { getAudioContext, openLiveInput, readDeviceChoice } from "@/features/sound";
-import { rms } from "@/lib/practice/mic";
+import { getAudioContext, openInputStream, openLiveInput, tapChannels } from "@/features/sound";
 import { usePitch } from "@/features/tuner/usePitch";
 import { VOICES, hzToMidi, type Voice } from "@/features/theory/singing";
 import { isHighEnough, nearestVoice, noteName, normaliseRange, steadyNote } from "@/features/theory/voiceRange";
@@ -70,8 +69,7 @@ export default function RangeFinder({ onRange }: { onRange: (r: { low: number; h
     }
     setStatus("asking");
     try {
-      const input = readDeviceChoice().input;
-      stream = await navigator.mediaDevices.getUserMedia({ audio: { deviceId: input ? { ideal: input.id } : undefined, echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
+      stream = await openInputStream({ channelCount: { ideal: 2 }, echoCancellation: false, noiseSuppression: false, autoGainControl: false });
       const got = stream;
       const free = () => got.getTracks().forEach((t) => t.stop());
       if (!alive.current) { free(); return; }
@@ -80,18 +78,16 @@ export default function RangeFinder({ onRange }: { onRange: (r: { low: number; h
       await ctx.resume();
       if (!alive.current) { stop(); return; }
       const src = ctx.createMediaStreamSource(got);
+      // the app's chosen channel of the input (both inputs of an interface mixed, or one)
+      const tap = tapChannels(ctx, src, got.getAudioTracks()[0]?.getSettings().channelCount ?? 1);
       const an = ctx.createAnalyser();
       an.fftSize = FRAME;
-      src.connect(an);
+      tap.output.connect(an);
       analyser.current = an;
-      // the level, for the input chip
+      // each input's level, for the input chip
       const live = openLiveInput();
-      const buf = new Float32Array(an.fftSize);
-      const meter = window.setInterval(() => {
-        an.getFloatTimeDomainData(buf);
-        live.levels([rms(buf)]);
-      }, LEVEL_MS);
-      release.current = () => { window.clearInterval(meter); live.close(); src.disconnect(); free(); };
+      const meter = window.setInterval(() => live.levels(tap.levels()), LEVEL_MS);
+      release.current = () => { window.clearInterval(meter); live.close(); tap.close(); src.disconnect(); free(); };
       setStatus("on");
       low.current = null;
       history.current = [];

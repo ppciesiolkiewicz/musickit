@@ -5,7 +5,8 @@ import { createPortal } from "react-dom";
 import Icon from "./Icon";
 import { AudioDevicesPanel, useDismiss } from "./AudioDevicesButton";
 import MicButton from "./theory/singing/MicButton";
-import { cleanDeviceName, meterLevel, readDeviceChoice, readLiveInput, serverDeviceChoice, serverLiveInput, subscribeDeviceChoice, subscribeLiveInput } from "@/features/sound";
+import { LevelBar, channelHeard } from "./InputChannels";
+import { cleanDeviceName, readDeviceChoice, readLiveInput, serverDeviceChoice, serverLiveInput, subscribeDeviceChoice, subscribeLiveInput } from "@/features/sound";
 import type { MicStatus } from "@/components/practice/useMicPitch";
 
 /** What a listener's status means to the person, or null when there is nothing to say (off, or listening). */
@@ -22,15 +23,6 @@ export function micStatusMessage(status: MicStatus): string | null {
     default:
       return null;
   }
-}
-
-/** One input's level: a short bar, bright for the input heard. */
-function Bar({ level, heard }: { level: number; heard: boolean }) {
-  return (
-    <span className="relative h-3 w-1 overflow-hidden rounded-full bg-slate-700" aria-hidden>
-      <span className={`absolute inset-x-0 bottom-0 rounded-full transition-[height] duration-75 ${heard ? "bg-emerald-400" : "bg-slate-400"}`} style={{ height: `${Math.round(meterLevel(level) * 100)}%` }} />
-    </span>
-  );
 }
 
 const EDGE = 12;
@@ -54,7 +46,7 @@ function placeList(chip: DOMRect, align: "left" | "right"): React.CSSProperties 
 
 /**
  * The input next to a mic switch: a mic, the chosen input's short name and, while the app listens, a level bar per input of the
- * device (two on an audio interface, the one heard brighter). A press opens the input list (the nav's devices menu, the output
+ * device (two on an audio interface, the channel heard brighter: both by default). A press opens the input list (the nav's devices menu, the output
  * folded into one row)
  * with what `status` means, so the input can be checked and changed where the mic is used. The choice is the app's one input:
  * every chip and the nav show and change the same one. `status` is the host's listener; without it the chip only shows the input.
@@ -111,7 +103,7 @@ export default function InputChip({ status = "off", mic, align = "left", classNa
         <span className="min-w-0 truncate">{mic && !mic.on ? "Start microphone" : name}</span>
         {levels.length > 0 && (
           <span className="flex shrink-0 items-end gap-0.5">
-            {levels.map((l, i) => <Bar key={i} level={l} heard={levels.length === 1 || i === live.active} />)}
+            {levels.map((l, i) => <LevelBar key={i} level={l} heard={levels.length === 1 || channelHeard(choice.channel, i)} />)}
           </span>
         )}
       </button>
@@ -119,7 +111,7 @@ export default function InputChip({ status = "off", mic, align = "left", classNa
         <div ref={list} role="dialog" aria-label="Input" style={place} className="fixed z-3000 overflow-y-auto overscroll-contain rounded-2xl border border-slate-700 bg-slate-900 p-3 text-slate-200 shadow-2xl">
           <p className="mb-1 px-1 text-base font-medium text-slate-100">Input</p>
           <p className="mb-2 px-1 text-xs text-slate-500">
-            {message ?? (levels.length > 1 ? "Two inputs: the louder one is heard." : "Used everywhere the app listens.")}
+            {message ?? (levels.length > 1 ? "Two inputs: pick the channel the app hears." : "Used everywhere the app listens.")}
           </p>
           {mic && <MicButton on={mic.on} onClick={mic.onToggle} className="mb-3 w-full justify-center" />}
           <AudioDevicesPanel outputs="collapsed" listening={status === "on"} />
