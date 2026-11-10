@@ -145,6 +145,9 @@ function modelLabel(id: string): string {
   return [...words, version].filter(Boolean).join(" ");
 }
 
+/** The Model filter's id for examples written before the model was recorded. */
+const NO_MODEL = "none";
+
 /** Library order, except a rewrite comes right after the example it rewrites, so the two read one under the other. */
 function pairRewrites<E extends { id: string; rewrites?: { id: string } }>(list: E[]): E[] {
   const at = (id: string) => { const i = list.findIndex((x) => x.id === id); return i < 0 ? list.length : i; };
@@ -164,6 +167,17 @@ export default function ExampleViewer() {
   const [level, setLevel] = useState<Level | null>(null);
   const [showcase, setShowcase] = useState<Showcase | null>(null);
   const [style, setStyle] = useState<Style | null>(null);
+  const [model, setModel] = useState<string | null>(null);
+  // every model that wrote an example, newest-looking first, then the ones written before the model was recorded
+  const models = useMemo(() => {
+    const all = [...EXERCISE_EXAMPLES, ...PLAN_EXAMPLES];
+    const ids = [...new Set(all.map((e) => e.model).filter((m): m is string => !!m))].sort().reverse();
+    const counted = (m: string | undefined) => all.filter((e) => e.model === m).length;
+    return [
+      ...ids.map((id) => ({ id, label: `${modelLabel(id)} (${counted(id)})` })),
+      ...(all.some((e) => !e.model) ? [{ id: NO_MODEL, label: `Not recorded (${counted(undefined)})` }] : []),
+    ];
+  }, []);
 
   const read = useMemo(() => (mounted ? answersFromText(loadStudio().answersText) : null), [mounted]);
   const answers = read && !read.error ? read.answers : null;
@@ -178,9 +192,9 @@ export default function ExampleViewer() {
         (e) =>
           (!kind || e.kind === kind) && (!area || e.areas.includes(area)) && (!level || e.level === level) &&
           (!showcase || (e.kind === "exercise" && e.showcase === showcase)) && (!onlyPrompt || inPrompt.has(e.id)) &&
-          (!style || styleOf(e) === style),
+          (!style || styleOf(e) === style) && (!model || (e.model ?? NO_MODEL) === model),
       ),
-    [kind, area, level, showcase, style, onlyPrompt, inPrompt],
+    [kind, area, level, showcase, style, model, onlyPrompt, inPrompt],
   );
 
   // every section of every example as it is now, filtered out or not: what the Notes bar checks section notes against and re-pins them to
@@ -205,6 +219,7 @@ export default function ExampleViewer() {
           <Filter<Level> label="Level" value={level} onChange={setLevel} options={LEVELS} />
           <Filter<Showcase> label="Showcase" value={showcase} onChange={setShowcase} options={[{ id: "blocks", label: "Blocks" }, { id: "pick", label: "Pick" }, { id: "progression", label: "Progression" }]} />
           <Filter<Style> label="Style" value={style} onChange={setStyle} options={[{ id: "new", label: "New teaching style" }, { id: "old", label: "Old style" }]} />
+          <Filter<string> label="Model" value={model} onChange={setModel} options={models} />
         </div>
         <ul className="flex flex-col gap-2">
           {library.map((e) => (
