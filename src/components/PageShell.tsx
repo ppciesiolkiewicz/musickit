@@ -1,6 +1,7 @@
 import SiteNav from "@/components/SiteNav";
+import { PageHeading, PageHeadingRow, PageIntro, pageBar } from "@/components/PageHeading";
 import SiteFooter from "@/components/landing/SiteFooter";
-import { GROUP_LABEL, sectionFor, type Tone } from "@/features/theory/sections";
+import { GROUP_LABEL, sectionFor } from "@/features/theory/sections";
 import type { ReactNode } from "react";
 import PreloadPiano from "@/features/sound/keyboard/PreloadPiano";
 import PracticeReminder from "@/features/plan/PracticeReminder";
@@ -11,8 +12,6 @@ import Icon from "@/components/Icon";
 import { GuideProvider } from "@/features/guide/Tier";
 import type { TourStep } from "@/features/guide/tour";
 
-/** The short rule under the title, in the page's own colour (full class names so Tailwind sees them). */
-const BAR: Record<Tone, string> = { emerald: "bg-emerald-400", sky: "bg-sky-400", amber: "bg-amber-400", violet: "bg-violet-400", rose: "bg-rose-400", teal: "bg-teal-400", pink: "bg-pink-400", red: "bg-red-400" };
 
 /**
  * Dark page frame with the attunr nav, the page title and the site footer, shared by every page but the looper and the studio.
@@ -41,13 +40,7 @@ export default function PageShell({ title, eyebrow, intro, active, wide = false,
 }) {
   const section = sectionFor(active);
   const theory = active.startsWith("/theory/");
-  const heading = (
-    <>
-      {eyebrow && <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-sky-300">{eyebrow}</p>}
-      <h1 className="text-3xl leading-tight text-slate-50 text-balance sm:text-4xl" style={{ fontFamily: "var(--font-display), serif", fontVariationSettings: '"SOFT" 100, "opsz" 96' }}>{title}</h1>
-      <span aria-hidden className={`mt-3 block h-0.5 w-12 rounded-full ${section ? BAR[section.tone] : "bg-sky-400"}`} />
-    </>
-  );
+  const heading = <PageHeading title={title} eyebrow={eyebrow} bar={pageBar(active)} />;
   return (
     <div className="app-bg min-h-screen text-slate-200">
       <div className={`mx-auto flex w-full flex-col gap-4 py-3 sm:py-4 ${full ? "px-3 sm:px-6 lg:px-8" : wide ? "max-w-[96rem] px-3 sm:px-5" : "max-w-[80rem] px-3 sm:px-6 lg:px-8"}`}>
@@ -69,17 +62,11 @@ export default function PageShell({ title, eyebrow, intro, active, wide = false,
           {header ?? (
             <>
               {pageId || action ? (
-                <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-                  <div>{heading}</div>
-                  <div className="flex items-center gap-2">
-                    {action}
-                    {pageId && <PageHelp pageId={pageId} tour={tour} />}
-                  </div>
-                </div>
+                <PageHeadingRow heading={heading} corner={<>{action}{pageId && <PageHelp pageId={pageId} tour={tour} />}</>} />
               ) : (
                 heading
               )}
-              {intro && <p className="mt-3 max-w-3xl text-sm leading-relaxed text-slate-400 sm:text-base">{intro}</p>}
+              {intro && <PageIntro>{intro}</PageIntro>}
               {(pageId || mic) && (
                 <div className="mt-4 flex max-w-3xl flex-col gap-2">
                   {pageId && (

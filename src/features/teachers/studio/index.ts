@@ -3,5 +3,5 @@
  * Imports the stage feature and shared components; nothing imports the studio except its page.
  */
 export { default as StudioApp } from "./StudioApp";
-export { default as PresetNote } from "./PresetNote";
+export { default as PresetNote, PresetHeader } from "./PresetNote";
 export { PRESET_INFO, presetInfo } from "./presetInfo";

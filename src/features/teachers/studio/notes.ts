@@ -86,10 +86,23 @@ export function readNoteText(text: string, pluginIds: string[]): { stage: Stage;
   return { stage: { ...stage, layers: kept, order: (stage.order ?? []).filter((id) => kept.some((k) => k.id === id)) }, left };
 }
 
-/** The note without its opening `# ` title, for a page whose own header shows it (a preset's page). A note that opens with anything else is as it was. */
-export function withoutTitle(stage: Stage): Stage {
+/**
+ * A note's header, when its opening text starts with a `# ` title: the title, the paragraph straight after it (the line about the
+ * note, if there is one) and the note without them, for a page that draws them as its own header (a preset's page). A note that opens
+ * with anything else has no header and its `body` is the note as it was.
+ */
+export function noteHeader(stage: Stage): { title: string | null; intro: string | null; body: Stage } {
   const first = gridLayers(stage)[0];
-  if (first?.subject.kind !== "text" || !/^#\s+\S/.test(first.subject.text)) return stage;
-  const text = first.subject.text.replace(/^#\s+.*\n*/, "");
-  return { ...stage, layers: stage.layers.map((l) => (l.id === first.id ? { ...l, subject: { kind: "text", text } } : l)) };
+  const lines = first?.subject.kind === "text" ? first.subject.text.split("\n") : [];
+  const title = /^#\s+(\S.*)$/.exec(lines[0]?.trimEnd() ?? "")?.[1].trim() ?? null;
+  if (!first || title === null) return { title: null, intro: null, body: stage };
+  let at = 1;
+  const skipBlank = () => { while (at < lines.length && !lines[at].trim()) at++; };
+  skipBlank();
+  const para: string[] = [];
+  // a heading there starts the note's body: only a plain paragraph is the header's line
+  if (at < lines.length && !/^#{1,3}\s+\S/.test(lines[at])) while (at < lines.length && lines[at].trim()) para.push(lines[at++].trim());
+  skipBlank();
+  const text = lines.slice(at).join("\n");
+  return { title, intro: para.length ? para.join(" ") : null, body: { ...stage, layers: stage.layers.map((l) => (l.id === first.id ? { ...l, subject: { kind: "text", text } } : l)) } };
 }

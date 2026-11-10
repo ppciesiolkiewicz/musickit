@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { EMPTY_STAGE } from "@/features/stage";
-import { decodeNote, encodeNote, noteFromHash, noteOf, noteText, notesStart, readNoteText, withoutTitle } from "./notes";
+import { decodeNote, encodeNote, noteFromHash, noteHeader, noteOf, noteText, notesStart, readNoteText } from "./notes";
 
 const stage = { ...EMPTY_STAGE, layers: [
   { id: "a", subject: { kind: "logo" as const }, rect: { x: 0.83, y: 0.03, w: 0.15, h: 0.1 }, visible: true, z: 0 },
@@ -79,11 +79,17 @@ test("a note's text that cannot be read says why, and a widget that cannot be re
   assert.deepEqual(r.stage.order, ["w1", "w5"]);
 });
 
-test("a note loses only its opening title: the words after it stay, and a note that opens otherwise is untouched", () => {
+test("a note's header is its opening title and the paragraph straight after it; the body keeps the rest", () => {
   const key = { tonicPc: 0, family: 0, mode: 0 };
-  const titled = noteOf([{ kind: "text", text: "# The title\n\nFirst words.\n\n## A heading" }, { kind: "text", text: "# Not the opening" }], key);
-  assert.deepEqual(withoutTitle(titled).layers.map((l) => l.subject), [{ kind: "text", text: "First words.\n\n## A heading" }, { kind: "text", text: "# Not the opening" }]);
-  const only = noteOf([{ kind: "text", text: "# Just a title" }], key);
-  assert.deepEqual(withoutTitle(only).layers[0].subject, { kind: "text", text: "" });
-  for (const s of [noteOf([{ kind: "text", text: "## A heading\n\n# Later" }], key), noteOf([{ kind: "neck", key }, { kind: "text", text: "# T" }], key), noteOf([], key)]) assert.equal(withoutTitle(s), s);
+  const texts = (s: ReturnType<typeof noteOf>) => s.layers.map((l) => (l.subject.kind === "text" ? l.subject.text : l.subject.kind));
+  const full = noteHeader(noteOf([{ kind: "text", text: "# The title\n\nThe line about it,\nover two lines.\n\nFirst words.\n\n## A heading" }, { kind: "text", text: "# Not the opening" }], key));
+  assert.equal(full.title, "The title");
+  assert.equal(full.intro, "The line about it, over two lines.");
+  assert.deepEqual(texts(full.body), ["First words.\n\n## A heading", "# Not the opening"]);
+  // a heading straight after the title is the body, not the line
+  const headed = noteHeader(noteOf([{ kind: "text", text: "# T\n\n## Section\n\nWords." }], key));
+  assert.deepEqual([headed.title, headed.intro, texts(headed.body)], ["T", null, ["## Section\n\nWords."]]);
+  const only = noteHeader(noteOf([{ kind: "text", text: "# Just a title" }], key));
+  assert.deepEqual([only.title, only.intro, texts(only.body)], ["Just a title", null, [""]]);
+  for (const s of [noteOf([{ kind: "text", text: "## A heading\n\n# Later" }], key), noteOf([{ kind: "neck", key }, { kind: "text", text: "# T" }], key), noteOf([], key)]) assert.deepEqual(noteHeader(s), { title: null, intro: null, body: s });
 });

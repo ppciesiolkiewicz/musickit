@@ -30,12 +30,13 @@ export const PRESET_TUNES = {
 /**
  * Notes made ahead, opened at `/note/<slug>`: what a pitch can link to. Each is a stage like any shared note (its link is the same
  * page, read as an article), but its address is a plain word and the note is kept here, in code, where it can be read and changed.
- * It opens with its `# ` title, the same as `PRESET_INFO`'s; a heading and its words come before the widget they are about.
+ * It opens with its `# ` title and the line about it, the same as `PRESET_INFO`'s (the page draws them as its header); a heading and its words come before the widget they are about.
  */
 export const PRESET_NOTES: Record<string, { stage: Stage }> = {
   "minor-pentatonic": {
     stage: note([
-      { kind: "text", text: "# A minor pentatonic: play it, then sing it\n\nFive notes are enough for most rock, blues and pop solos: A, C, D, E and G. Find them on the neck first, then sing them, so your ears know the notes your fingers play." },
+      { kind: "text", text: "# A minor pentatonic: play it, then sing it\n\nFive notes, on the neck and in your voice: a position to play, the chords and a band to play it over, then two melodies and a run to sing." },
+      { kind: "text", text: "Five notes are enough for most rock, blues and pop solos: A, C, D, E and G. Find them on the neck first, then sing them, so your ears know the notes your fingers play." },
       { kind: "text", text: "### Position 1\n\nStart here. The root A is on fret 5 of both E strings. Tap a dot below to hear its note, then play the position up and down until your fingers find the notes without looking." },
       { kind: "position", positionKind: "pentatonic", index: 0, ...keyed },
       { kind: "text", text: "### The whole neck\n\nThis is all of A minor. Your five notes run the whole way up, with two more between them, B and F, that the pentatonic leaves out. Find position 1 in it, then follow A, C, D, E and G up the neck." },
