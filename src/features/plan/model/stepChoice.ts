@@ -18,7 +18,7 @@ type Chooser = Extract<PlanTool, { type: "step-choice" }>;
 interface Part {
   /** whether the tool has this part to set */
   follows(tool: PlanTool): boolean;
-  /** the tool set to `value`; `first` is option 1's value (a key moves by the distance from it) */
+  /** the tool set to `value`; `first` is option 1's value (a tool with no key of its own moves by the distance from it) */
   apply(tool: PlanTool, value: number, first: number): PlanTool;
   /** what the tool is written with, to compare with option 1; null when it has no single value */
   written(tool: PlanTool): number | null;
@@ -30,11 +30,15 @@ const pc = (n: number) => ((n % 12) + 12) % 12;
 const hasBpm = (t: PlanTool): t is Extract<PlanTool, { bpm?: number }> =>
   t.type === "staff" ? t.click === true : ["backing-band", "backing-track", "guitar-play-along", "strum-along", "finger-pattern", "picking-drill", "legato-trill"].includes(t.type);
 
+const writtenKey = (t: PlanTool): number | null => ("key" in t && typeof t.key === "number" ? t.key : null);
+
 const PARTS: Record<PartName, Part> = {
   key: {
     follows: canTranspose,
-    apply: (tool, value, first) => transposeTool(tool, value - first),
-    written: (t) => ("key" in t && typeof t.key === "number" ? t.key : null),
+    // from the tool's own key, so the tool lands on the chip's key also when it was written in another one than option 1;
+    // a tool that only has chord names moves by the distance from option 1
+    apply: (tool, value, first) => transposeTool(tool, value - (writtenKey(tool) ?? first)),
+    written: writtenKey,
     none: "no tool that can change key",
   },
   bpm: {
@@ -78,7 +82,7 @@ function applyTo(tool: PlanTool, option: StepOption, first: StepOption): PlanToo
 /**
  * The sections of a step set to option `index` (an index outside the options: option 1): its tools only; text stays (its
  * `{{3}}` dots read the moved tools), and so does the chooser. Option 1 is applied too, so the screen always shows what
- * its chip says, also when the tools were written with another tempo or position.
+ * its chip says, also when the tools were written with another key, tempo or position.
  */
 export function applyOption(sections: Section[], options: StepOption[], index: number): Section[] {
   const first = options[0];

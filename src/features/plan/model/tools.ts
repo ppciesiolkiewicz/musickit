@@ -662,6 +662,8 @@ function optionOf(v: unknown, d: Diag): StepOption | null {
   if (!v || typeof v !== "object" || Array.isArray(v)) return null;
   const o = v as Record<string, unknown>;
   const out: StepOption = {};
+  const unknown = Object.keys(o).filter((k) => !["key", "bpm", "position"].includes(k));
+  if (unknown.length && !d.stored) d.notes.push(`an option had ${unknown.slice(0, 4).map((k) => JSON.stringify(k)).join(", ")}, which it can't set; an option sets key, bpm, position. Left it out.`);
   if (o.key != null) {
     const key = keyOf(o.key);
     if (key === null) return null;
@@ -693,11 +695,14 @@ function stepChoiceTool(t: Record<string, unknown>, d: Diag): PlanTool | null {
   const parts = first ? Object.keys(first).sort() : [];
   const options: StepOption[] = [];
   const left: unknown[] = [];
+  let repeats = 0;
   read.forEach((o, i) => {
     const same = o && parts.length > 0 && Object.keys(o).sort().join() === parts.join();
     if (!same) left.push(raw[i]);
-    else if (!options.some((x) => JSON.stringify(x) === JSON.stringify({ ...x, ...o }))) options.push(o);
+    else if (options.some((x) => JSON.stringify(x) === JSON.stringify({ ...x, ...o }))) repeats++;
+    else options.push(o);
   });
+  if (repeats) note(`left out ${repeats === 1 ? "an option" : `${repeats} options`} the same as an earlier one; the chips after it are numbered one lower, so check the text's "Stage" or "Variant" numbers.`);
   if (left.length) note(`left out options it could not use (${left.slice(0, 4).map((o) => JSON.stringify(o)?.slice(0, 40)).join(", ")}): every option needs the same parts (key, bpm, position), each readable.`);
   if (options.length > 4) note("had more than 4 options; a step-choice takes at most 4 options, kept the first 4.");
   const kept = options.slice(0, 4);

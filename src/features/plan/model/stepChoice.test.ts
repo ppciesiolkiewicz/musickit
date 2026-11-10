@@ -28,6 +28,13 @@ describe("applyOption", () => {
     assert.deepEqual(toolsOf(applyOption(step, options, 1)).map((t) => t.key), [9, 9]);
     assert.deepEqual(applyOption(step, options, 0), step);
   });
+  it("key: a tool written in another key than option 1 still lands on the chip's key", () => {
+    const options = [{ key: 7 }, { key: 9 }];
+    assert.equal(toolsOf(applyOption([staff("a")], options, 0))[0].key, 7);
+    assert.equal(toolsOf(applyOption([staff("a")], options, 1))[0].key, 9);
+    // a tool with no key of its own (chord names) moves by the distance from option 1
+    assert.deepEqual(toolsOf(applyOption([strum()], options, 1))[0].chords, ["A", "D"]);
+  });
   it("bpm: sets the tempo on every tool that has one", () => {
     const step = [band(60), strum(60), staff("d", { click: true, bpm: 60 }), staff("d")];
     const [b, s, clicked, plain] = toolsOf(applyOption(step, [{ bpm: 60 }, { bpm: 80 }], 1));

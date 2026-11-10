@@ -215,6 +215,13 @@ describe("list entries it could not read are noted", () => {
     const far = parseToolDiag(sc([{ position: 1 }, { position: 9 }, { position: 2 }]));
     assert.deepEqual(far.tool, { type: "step-choice", options: [{ position: 1 }, { position: 2 }] });
     assert.equal(far.notes.length, 1);
+    // a part it doesn't know, and an option that repeats another, are named
+    const tempo = parseToolDiag(sc([{ key: "a", tempo: 60 }, { key: "c", tempo: 80 }]));
+    assert.deepEqual(tempo.tool, { type: "step-choice", options: [{ key: 9 }, { key: 0 }] });
+    assert.match(tempo.notes.join("\n"), /"tempo".*key, bpm, position/);
+    const twice = parseToolDiag(sc([{ bpm: 60 }, { bpm: 60 }, { bpm: 80 }], { label: "stage" }));
+    assert.equal(twice.tool?.type === "step-choice" && twice.tool.options.length, 2);
+    assert.match(twice.notes.join("\n"), /the same as an earlier one/);
     // a stored plan is read as it is, without notes
     assert.deepEqual(parseToolDiag({ type: "step-choice", options: [{ key: 7, position: 1 }, { key: 0, position: 4 }] }, { stored: true }), { tool: { type: "step-choice", label: "variant", options: [{ key: 7, position: 1 }, { key: 0, position: 4 }] }, notes: [] });
   });
