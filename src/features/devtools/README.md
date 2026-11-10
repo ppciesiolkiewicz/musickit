@@ -69,8 +69,8 @@ with the dev overlays, names it at the bottom left of every page. Logging in or 
 
 Replies to music schools that could become founding partners. `model/kickstarter.ts` holds what an email may say (`FACTS`:
 what attunr is and what is coming (scheduling, profiles, courses to sell), the locked-in price, the 90-day trial, the 20 partners
-the project needs, a say in what gets built, that it is a beta, that it is an Australian company; the price, the trial length and the 20 come from `src/lib/foundingOffer.ts`, which the public page `/kickstarter` reads too) and how it sounds
-(`VOICE`, plus reply-only and first-email-only rules); change the offer there. The page (`kickstarter/KickstarterPage.tsx`)
+the project needs, a say in what gets built, the video call with the founder (`CALL_MINUTES`: a live demo and a talk about being a founding partner), that it is a beta, that it is an Australian company; the price, the trial length and the 20 come from `src/lib/foundingOffer.ts`, which the public page `/kickstarter` reads too) and how it sounds
+(`VOICE`, plus reply-only and first-email-only rules); change the offer there. The next step an email asks for is that call: offered once, as a question, with the booking link (`CALL_URL`, the Calendly page "Attunr founding partner chat"; `GENERAL_CALL_URL` is for a call about anything else) and no invented time; a first email leads with why attunr is being built (a love of music, and looking for ways to help teachers, students and schools), leaves out the price and the trial, and ends on the call, and a reply offers it when they show interest and not again once it was offered. The page (`kickstarter/KickstarterPage.tsx`)
 has a box for the pasted email thread and an optional one-line note (both kept in `localStorage`
 `musickit.dev.kickstarter`), the line to paste into an AI extension, a *Reply* box, and the brief as plain text on the page
 (`outreachBrief`: the thread, the facts, the voice and every demo `/demo` lists, with public `SITE_URL` links). The details
