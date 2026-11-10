@@ -82,7 +82,9 @@ function BrowserAiHelp({ prompt, agentTools }: { prompt: string; agentTools: boo
   return (
     <div className="flex flex-col gap-3 rounded-xl border border-violet-400/30 bg-slate-950/60 p-3">
       <ol className="flex flex-col gap-3">
-        <Step n={1} title="Open your AI browser extension on this page." />
+        <Step n={1} title="Open your AI browser extension on this page.">
+          <p className="text-xs text-slate-400">For example Claude in Chrome or Gemini in Chrome. AI browsers like ChatGPT Atlas or Comet work too.</p>
+        </Step>
         <Step n={2} title="Copy the prompt below and paste it into the extension:">
           <div className="flex items-start gap-2 rounded-lg bg-slate-900 px-2.5 py-2">
             <p className="flex-1 text-sm text-slate-100">&ldquo;{ASK_BROWSER_AI}&rdquo;</p>
