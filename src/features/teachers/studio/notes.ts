@@ -85,3 +85,11 @@ export function readNoteText(text: string, pluginIds: string[]): { stage: Stage;
   });
   return { stage: { ...stage, layers: kept, order: (stage.order ?? []).filter((id) => kept.some((k) => k.id === id)) }, left };
 }
+
+/** The note without its opening `# ` title, for a page whose own header shows it (a preset's page). A note that opens with anything else is as it was. */
+export function withoutTitle(stage: Stage): Stage {
+  const first = gridLayers(stage)[0];
+  if (first?.subject.kind !== "text" || !/^#\s+\S/.test(first.subject.text)) return stage;
+  const text = first.subject.text.replace(/^#\s+.*\n*/, "");
+  return { ...stage, layers: stage.layers.map((l) => (l.id === first.id ? { ...l, subject: { kind: "text", text } } : l)) };
+}

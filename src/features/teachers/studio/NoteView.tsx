@@ -10,7 +10,7 @@ const PLUGIN_IDS = PLUGINS.map((p) => p.id);
 /** A note's stage read as an article, never editable, with a way into the notes creator. */
 export function NoteReader({ stage }: { stage: Stage | null }) {
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-12 pt-2 sm:pt-4">
       {stage ? (
         <NoteArticle
           stage={stage}
@@ -19,7 +19,7 @@ export function NoteReader({ stage }: { stage: Stage | null }) {
       ) : (
         <p className="text-center text-slate-400">This note link could not be opened.</p>
       )}
-      <p className="text-center text-sm text-slate-500">
+      <p className="border-t border-slate-800/70 pt-6 text-center text-sm text-slate-500">
         <a href="/teachers/studio?notes=1" className="text-sky-300 hover:text-sky-200">Make your own note</a>
       </p>
     </div>

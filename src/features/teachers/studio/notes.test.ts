@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { EMPTY_STAGE } from "@/features/stage";
-import { decodeNote, encodeNote, noteFromHash, noteOf, noteText, notesStart, readNoteText } from "./notes";
+import { decodeNote, encodeNote, noteFromHash, noteOf, noteText, notesStart, readNoteText, withoutTitle } from "./notes";
 
 const stage = { ...EMPTY_STAGE, layers: [
   { id: "a", subject: { kind: "logo" as const }, rect: { x: 0.83, y: 0.03, w: 0.15, h: 0.1 }, visible: true, z: 0 },
@@ -77,4 +77,13 @@ test("a note's text that cannot be read says why, and a widget that cannot be re
   assert.deepEqual(r.left, ["2 (kind no-such)", "3 (kind ?)", "4 (kind camera)"]);
   assert.deepEqual(r.stage.layers.map((l) => l.subject.kind), ["text", "tool"]);
   assert.deepEqual(r.stage.order, ["w1", "w5"]);
+});
+
+test("a note loses only its opening title: the words after it stay, and a note that opens otherwise is untouched", () => {
+  const key = { tonicPc: 0, family: 0, mode: 0 };
+  const titled = noteOf([{ kind: "text", text: "# The title\n\nFirst words.\n\n## A heading" }, { kind: "text", text: "# Not the opening" }], key);
+  assert.deepEqual(withoutTitle(titled).layers.map((l) => l.subject), [{ kind: "text", text: "First words.\n\n## A heading" }, { kind: "text", text: "# Not the opening" }]);
+  const only = noteOf([{ kind: "text", text: "# Just a title" }], key);
+  assert.deepEqual(withoutTitle(only).layers[0].subject, { kind: "text", text: "" });
+  for (const s of [noteOf([{ kind: "text", text: "## A heading\n\n# Later" }], key), noteOf([{ kind: "neck", key }, { kind: "text", text: "# T" }], key), noteOf([], key)]) assert.equal(withoutTitle(s), s);
 });

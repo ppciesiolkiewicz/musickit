@@ -29,6 +29,16 @@ function Figure({ layer, children }: { layer: Layer; children: (readOnly: true) 
 }
 
 /**
+ * The space over a block, so the page reads in sections: a text that opens with a heading starts one, well clear of what came before;
+ * a widget sits close under the words about it; anything else keeps an even step.
+ */
+function spaceOver(l: Layer, before: Layer | undefined): string {
+  if (!before) return "";
+  if (l.subject.kind === "text") return /^(title|h1|h2)$/.test(parseText(l.subject.text)[0]?.type ?? "") ? "mt-12 sm:mt-14" : "mt-6";
+  return before.subject.kind === "text" ? "mt-5" : "mt-6";
+}
+
+/**
  * A shared note, read as an article: its text and widgets in one column, in the order they were put on the stage's grid, with nothing to
  * edit, drag, add or share. Widgets still play (a neck rings its notes, a staff plays) but pin nothing and change nothing.
  */
@@ -36,16 +46,18 @@ export default function NoteArticle({ stage, renderLayer }: { stage: Stage; rend
   const layers = gridLayers(stage).filter((l) => l.visible && !(l.subject.kind === "text" && !l.subject.text.trim()));
   if (layers.length === 0) return <p className="text-slate-400">This note is empty.</p>;
   return (
-    <article className="mx-auto flex w-full flex-col gap-4" aria-label="Note">
-      {layers.map((l) =>
+    <article className="mx-auto flex w-full flex-col" aria-label="Note">
+      {layers.map((l, i) =>
         l.subject.kind === "text" ? (
-          <div key={l.id} className="mx-auto w-full max-w-2xl">
+          <div key={l.id} className={`mx-auto w-full max-w-2xl ${spaceOver(l, layers[i - 1])}`}>
             <TextBlocks blocks={parseText(l.subject.text)} />
           </div>
         ) : (
-          <Figure key={l.id} layer={l}>
-            {(ro) => renderLayer(l, ro)}
-          </Figure>
+          <div key={l.id} className={spaceOver(l, layers[i - 1])}>
+            <Figure layer={l}>
+              {(ro) => renderLayer(l, ro)}
+            </Figure>
+          </div>
         ),
       )}
     </article>
