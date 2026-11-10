@@ -33,6 +33,8 @@ Recording into tracks, the editor, video import and overdub, audio inputs and DI
 
 **Text widget:** subject kind `text` (`{ text }`, up to 4000 characters), in the palette's **Text** section (many allowed, never ticked). On the stage it is a box to type in; in a note it reads as prose: `# ` starts a title (drawn like the page title), `## ` a heading, `### ` a subheading, a blank line a new paragraph (`parseText`). It takes a whole grid row. Empty text is left out of an article.
 
+**Use headphones notice:** subject kind `headphones` (no props, fixed words: `HeadphonesNotice`), in the palette's **Text** section as **Use headphones**, for a note that listens with the microphone while it plays. An amber notice with the headphones icon; in a note it sits in the text column, not in a widget frame. It takes a whole grid row. The `minor-pentatonic` note has one over its first melody.
+
 **Edit as JSON** (notes creator, on the Grid; under Share as a note) opens the note as text in one box, **Note JSON**: `{ "key": …, "widgets": [ … ] }`, the widgets' subjects in page order, with no ids, places or sizes (`noteText`). **Apply** replaces the whole note with what the text says (`readNoteText`, sanitised like a saved stage, on the Grid with One per row on); a widget that cannot be read is left out and named by its place and kind in the dialog's status line, which stays open then; text that is not JSON, or has no `widgets` list, changes nothing and says why. Esc, Cancel or a click outside closes it. Code: `NoteJson.tsx`, `notes.ts`.
 
 ## Preset notes

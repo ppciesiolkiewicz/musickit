@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 export default function TunerPage() {
   return (
-    <PageShell active="/tuner" mic pageId="tuner" tour={TUNER_TOUR} title="Tuner" intro="Tune your instrument. Pick an instrument and tuning (or Chromatic for any note), press Start and play one string. Tap a string below to hear its pitch.">
+    <PageShell active="/tuner" pageId="tuner" tour={TUNER_TOUR} title="Tuner" intro="Tune your instrument. Pick an instrument and tuning (or Chromatic for any note), press Start and play one string. Tap a string below to hear its pitch.">
       <Tuner guide />
     </PageShell>
   );

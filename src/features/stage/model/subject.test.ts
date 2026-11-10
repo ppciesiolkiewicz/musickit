@@ -214,6 +214,11 @@ test("a text widget keeps its words, cut at the limit, and has a title", () => {
   assert.equal(subjectTitle({ kind: "text", text: "" }), "Text");
 });
 
+test("a headphones notice is kept as it is and has a title", () => {
+  assert.deepEqual(sanitiseSubject({ kind: "headphones", text: "x" }, []), { kind: "headphones" });
+  assert.equal(subjectTitle({ kind: "headphones" }), "Use headphones");
+});
+
 test("text splits into headings and paragraphs", () => {
   assert.deepEqual(parseText("# Title\n## One\n\nFirst line\nsecond line\n\n### Two\nBody\n#### Four"), [
     { type: "title", text: "Title" },

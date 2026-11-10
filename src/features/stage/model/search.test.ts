@@ -309,6 +309,13 @@ test("logo and url are in the catalog and found by name; brand finds both", () =
   assert.equal(subjectTitle({ kind: "logo" }), "Logo");
 });
 
+test("the headphones notice is in the catalog's Text section and found by name", () => {
+  const row = paletteCatalog(ids, EMPTY_KEY).find((r) => r.action.type === "add" && r.action.subject.kind === "headphones");
+  assert.equal(row?.group, "text");
+  assert.equal(row?.label, "Use headphones");
+  assert.deepEqual(add("headphones"), [{ kind: "headphones" }]);
+});
+
 test("the audio input lights the widgets that draw fretboards and chord boxes", () => {
   const takers = paletteCatalog(ids, E_MINOR).flatMap((r) => (r.action.type === "add" && takesMic(r.action.subject) ? [r.action.subject] : []));
   assert.ok(takers.some((s) => s.kind === "bubble"));

@@ -13,6 +13,7 @@ What goes in the teacher studio's 16:9 frame: widget subjects, layers, the palet
 - Key-aware subjects carry their own key and the parts of it pinned on the widget (`pinned`: tonic, scale). The Key & scale widget is the master: `setStageKey` moves every widget to it except what is pinned (`withMaster`). A change made on the widget pins what changed (`withOwnKey`); `followMaster` drops the pins. Chord diagrams never change.
 - Names (`subjectName`, `subjectTitle`) never carry the master root, only the widget's scale (and a pinned root). A tool widget's title is its family's row text, key included (`describeSubject`, `model/families.ts`); its `subjectName` leaves the key out. `families.ts` imports only types from `subject.ts` (subject.ts imports it at runtime). The palette ticks a row by `subjectIdentity` (the subject without its key).
 - A `text` subject is words (`parseText`: `# `, `## `, paragraphs); `StageWidget` draws it as a box to type in, or as prose with `readOnly`. `NoteArticle` draws a whole stage as a read-only article (shared notes).
+- A `headphones` subject is the "Use headphones" notice (no props; `HeadphonesNotice`): a notice in a widget on the stage, and in the text column in `NoteArticle`.
 - Camera, screen, the Key & scale widget, the tuner, the logo and the site address exist at most once (`addSubject`, `sanitiseStage`).
 
 ## Renderer

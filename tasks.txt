@@ -19,18 +19,6 @@ and add to these pages. Rank pages and provide me your understanding which pages
 
 
 
-54. There was somewhere mic audio selector that had: 
-- guitar / voiice
-- louder / channel 1 / channel 2
-Let's rethink this ->
-For most pages we are okay to use "both" as default.
-We can have small section channels on each of these to select input.
-Show me design first and then make sure that this is reusable component.
-Add this component to /dev/stories
-
-
-56.
-
 ======================== Small ========================
 
 26. [NEW 2026-11-09 09:46] Sing an interval: Restart and Do buttons (/theory/singing/intervals)
@@ -71,12 +59,6 @@ Original: "Lets put it above the game" (ears) / "Move this one above the game" (
 19. Improve copy / add labels - How notes are labelled: note names, intervals from the root (R, b3, p5), scale degrees, or each note's job in the chord. One setting for the whole app; dot colours stay the same either way.
 
 
-35. [NEW 2026-11-09 09:46] Reusable headphones badge on every exercise that uses headphones
-Original: "We should have disclaimer on each exercise that uses headphones: use reusable componetn; use round frames and headphones icon; this should be like a badge / discalimer"
-- One reusable component, styled as a badge / disclaimer: round frame and headphones icon.
-- Replaces one-off lines such as "Headphones keep the question out of the mic." and builds on the done "Use headphones" note (D11).
-- Note: seen on /theory/ears, but that page has no mic once 31 is done, so it may not need the badge there.
-
 36. [NEW 2026-11-09 09:46] Ear training: "Custom" level (/theory/ears)
 Original: "We are adding "custom" level alongside 1-6: Your set is renamed to "Included intervals"; it's disabled when level 1-6 and only shows already selected notes; when level is custom then behaviour is same as now"
 - Add "Custom" next to levels 1-6.
@@ -86,7 +68,6 @@ Original: "We are adding "custom" level alongside 1-6: Your set is renamed to "I
 - Where: src/components/practice/EarGame.tsx:156
 
 
-43. In guided tour / onboarding - add [space] to go next (add [space] label to the button)
 
 ======================== Large ========================
 
@@ -99,8 +80,6 @@ I can tell you where attunr repository is
 src/components/Exercise/PitchExercises
 Include also farinelli exercise in our app
 
-23. After adding all the new voice exercises (attunr / sing interval) - reorganize menu so singing possibly has its own section.
-Use brainstorming to propose the most interactive, intuitive split.
 
 
 
@@ -108,6 +87,22 @@ Use brainstorming to propose the most interactive, intuitive split.
 
 
 oooooooooooooooooooooooooooooooooo DONE ooooooooooooooooooooooooooooooooooooooooooooooo
+[DONE] 54. There was somewhere mic audio selector that had: 
+- guitar / voiice
+- louder / channel 1 / channel 2
+Let's rethink this ->
+For most pages we are okay to use "both" as default.
+We can have small section channels on each of these to select input.
+Show me design first and then make sure that this is reusable component.
+Add this component to /dev/stories
+- Done 2026-11-10: one app-wide channel under the input list in every devices panel (nav cog, input chips): [Both] [1] [2] with each input's level; Both is the default; hidden for a one-channel device. Every listener follows it (the "louder" auto pick is gone). Reusable InputChannels, in /dev/stories; the studio's sources with their own device use it too.
+
+[DONE] 35. [NEW 2026-11-09 09:46] Reusable headphones badge on every exercise that uses headphones
+Original: "We should have disclaimer on each exercise that uses headphones: use reusable componetn; use round frames and headphones icon; this should be like a badge / discalimer"
+- One reusable component, styled as a badge / disclaimer: round frame and headphones icon.
+- Replaces one-off lines such as "Headphones keep the question out of the mic." and builds on the done "Use headphones" note (D11).
+- Note: seen on /theory/ears, but that page has no mic once 31 is done, so it may not need the badge there.
+Done: the microphone notice under each mic page's intro (PageShell `mic`, one reusable Notice: round tinted frame, warn tone) now shows a headphones icon in its round frame instead of the mic. Exercise steps keep their "Use headphones" hint with the same icon. Types clean. Not checked in the browser.
 [DONE] 52. In autoplan - tour doesnt work, there're 2 buttons for info in the corner
 Done: before a plan is made, the compass on /plan did nothing, because its tour only had steps for a running plan. It now walks two steps there: how the plan is made, and Start. In a plan, a singing tool showed two help buttons in its corner, the tour compass and a "?"; the "?" is gone on /plan, so each tool has one, its tour. Checked in the browser: the tour with no plan, the tour with a plan, the staff and melody singer tours.
 [DONE] 55. Fix pagespeed issues (https://www.attunr.app home)

@@ -14,11 +14,16 @@ const presetParts = (slug: string) => {
 
 /**
  * A preset note's page header, from the note's own opening: its title and the line about it, as the page frame draws any title,
- * with `action` in the right corner. `title` and `intro` are what the server knows (`presetInfo.ts`), shown when the note has none.
+ * with `action` in the right corner. A note that opens with something else (a notice, a widget) keeps its title where it was put, in
+ * the article, so the header is only `eyebrow` and `action`. `title` and `intro` are what the server knows (`presetInfo.ts`), shown when
+ * there is no note.
  */
 export function PresetHeader({ slug, title, intro, eyebrow, bar, action }: { slug: string; title: string; intro: string; eyebrow: string; /** the title rule's colour class (`pageBar`) */ bar: string; action: ReactNode }) {
   const note = presetParts(slug);
-  const line = note?.title ? note.intro : intro;
+  if (note && note.title === null) {
+    return <PageHeadingRow heading={<p className="text-xs font-semibold uppercase tracking-[0.18em] text-sky-300">{eyebrow}</p>} corner={action} />;
+  }
+  const line = note ? note.intro : intro;
   return (
     <>
       <PageHeadingRow heading={<PageHeading title={note?.title ?? title} eyebrow={eyebrow} bar={bar} />} corner={action} />

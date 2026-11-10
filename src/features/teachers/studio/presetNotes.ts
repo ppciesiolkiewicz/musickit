@@ -36,6 +36,7 @@ export const PRESET_NOTES: Record<string, { stage: Stage }> = {
   "minor-pentatonic": {
     stage: note([
       { kind: "text", text: "# A minor pentatonic: play it, then sing it\n\nFive notes, on the neck and in your voice: a position to play, the chords and a band to play it over, then two melodies and a run to sing." },
+      { kind: "headphones" },
       { kind: "text", text: "Five notes are enough for most rock, blues and pop solos: A, C, D, E and G. Find them on the neck first, then sing them, so your ears know the notes your fingers play." },
       { kind: "text", text: "### Position 1\n\nStart here. The root A is on fret 5 of both E strings. Tap a dot below to hear its note, then play the position up and down until your fingers find the notes without looking." },
       { kind: "position", positionKind: "pentatonic", index: 0, ...keyed },

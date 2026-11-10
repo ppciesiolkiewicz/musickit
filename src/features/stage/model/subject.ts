@@ -58,6 +58,8 @@ export type Subject =
   | { kind: "url" }
   /** a block of words in a note: plain text, `# ` starts a title, `## ` a heading and `### ` a subheading, a blank line a new paragraph (`parseText`) */
   | { kind: "text"; text: string }
+  /** a notice in a note: use headphones, so the microphone doesn't hear the app's own sound (fixed words, `HeadphonesNotice`) */
+  | { kind: "headphones" }
   | { kind: "camera" }
   | { kind: "screen" }
   /** widget videos only (not in the palette): the tune's notes across a following staff; `beats` is how many fit across, absent = the staff's default 10 */
@@ -344,6 +346,8 @@ export function subjectName(s: Subject): string {
       const first = parseText(s.text)[0]?.text.replace(/\s+/g, " ");
       return first ? `Text · ${first.length > 24 ? `${first.slice(0, 24)}…` : first}` : "Text";
     }
+    case "headphones":
+      return "Use headphones";
     case "camera":
       return "Camera";
     case "screen":
@@ -450,6 +454,7 @@ export function sanitiseSubject(raw: unknown, pluginIds: string[]): Subject | nu
     case "mic":
     case "logo":
     case "url":
+    case "headphones":
     case "camera":
     case "screen":
       return { kind: o.kind };

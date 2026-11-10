@@ -18,6 +18,7 @@ import BrandWidget from "./BrandWidget";
 import ChordWidget from "./ChordWidget";
 import CountdownWidget from "./CountdownWidget";
 import FitBox from "./FitBox";
+import HeadphonesNotice from "./HeadphonesNotice";
 import IntroWidget from "./IntroWidget";
 import KeyTags from "./KeyTags";
 import KeyWidget from "./KeyWidget";
@@ -30,7 +31,7 @@ import SectionWidget from "./SectionWidget";
 import TextWidget, { TextBlocks } from "./TextWidget";
 
 /** design width each kind is laid out at before it is scaled into its rect */
-const WIDTH: Record<Subject["kind"], number> = { chord: 240, plugin: 640, position: 980, band: 360, section: 760, bubble: 900, neck: 980, caged: 1100, arpeggio: 980, tool: 980, key: 760, tuner: 520, mic: 360, logo: 300, url: 520, text: 760, camera: 0, screen: 0, melody: 0, countdown: 600, intro: 1000, progress: 400, next: 760 };
+const WIDTH: Record<Subject["kind"], number> = { chord: 240, plugin: 640, position: 980, band: 360, section: 760, bubble: 900, neck: 980, caged: 1100, arpeggio: 980, tool: 980, key: 760, tuner: 520, mic: 360, logo: 300, url: 520, text: 760, headphones: 760, camera: 0, screen: 0, melody: 0, countdown: 600, intro: 1000, progress: 400, next: 760 };
 /** a cheatsheet page in full is laid out as wide as on the site */
 const FULL_WIDTH = 1200;
 
@@ -138,6 +139,9 @@ export default function StageWidget({ subject, onSubjectChange, stageKey, onStag
       break;
     case "text":
       body = readOnly ? <div className="p-5"><TextBlocks blocks={parseText(subject.text)} large /></div> : <TextWidget text={subject.text} onChange={(text) => onSubjectChange({ kind: "text", text })} />;
+      break;
+    case "headphones":
+      body = <div className="p-3"><HeadphonesNotice /></div>;
       break;
     case "key":
       body = <KeyWidget value={stageKey} onChange={onStageKey} />;

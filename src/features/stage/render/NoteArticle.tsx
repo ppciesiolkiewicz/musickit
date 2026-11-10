@@ -3,6 +3,7 @@
 import { useCallback, useState } from "react";
 import { GRID_COLUMNS, gridLayers, gridSpan, type Layer, type Stage } from "../model/layers";
 import { isPage, parseText } from "../model/subject";
+import HeadphonesNotice from "./HeadphonesNotice";
 import { FlowInBox, ShapeReport } from "./shape";
 import { TextBlocks } from "./TextWidget";
 
@@ -34,8 +35,9 @@ function Figure({ layer, children }: { layer: Layer; children: (readOnly: true) 
  */
 function spaceOver(l: Layer, before: Layer | undefined): string {
   if (!before) return "";
+  if (l.subject.kind === "headphones") return "mt-6";
   if (l.subject.kind === "text") return /^(title|h1|h2)$/.test(parseText(l.subject.text)[0]?.type ?? "") ? "mt-12 sm:mt-14" : "mt-6";
-  return before.subject.kind === "text" ? "mt-5" : "mt-6";
+  return before.subject.kind === "text" || before.subject.kind === "headphones" ? "mt-5" : "mt-6";
 }
 
 /**
@@ -51,6 +53,11 @@ export default function NoteArticle({ stage, renderLayer }: { stage: Stage; rend
         l.subject.kind === "text" ? (
           <div key={l.id} className={`mx-auto w-full max-w-2xl ${spaceOver(l, layers[i - 1])}`}>
             <TextBlocks blocks={parseText(l.subject.text)} />
+          </div>
+        ) : l.subject.kind === "headphones" ? (
+          // a notice reads with the words, in their column, not as a framed widget
+          <div key={l.id} className={`mx-auto w-full max-w-2xl ${spaceOver(l, layers[i - 1])}`}>
+            <HeadphonesNotice />
           </div>
         ) : (
           <div key={l.id} className={spaceOver(l, layers[i - 1])}>
