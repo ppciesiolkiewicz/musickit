@@ -10,10 +10,10 @@ A course section is one page at `/course/<stage>/<section>`. It is pure data in 
 ## Where things are
 
 - `model.ts`: `CourseStage`, `CourseSection`, `Block`, `TopicId`, and `section(slug, title, topic, about, blocks)`. A section with no blocks is *planned*: only its `about` line shows.
-- `build.ts`: `text(...paras)`, `neck(caption, from, to, dots, { paths, legend, window })`, `chords(caption, list)`, `strum(pattern, chords, caption)`, `melody(...)`, `songs(...)`, `task(text)`, `links(explore, practise)`. Also `toneDot`, `toneDots`, `path`, `PATH` colours, `MAJOR_SEMIS`, `MINOR_SEMIS` and the pitch constants `E G A B C D`.
+- `build.ts`: `text(...paras)`, `neck(caption, from, to, dots, { paths, legend, window })`, `chords(caption, list)`, `strum(pattern, chords, caption)`, `melody(...)` with its notes from `tune(spec)`, `songs(...)`, `task(text)`, `links(explore, practise)`, and `visual(...)` for the other pictures in `visuals.ts`. Also `toneDot`, `toneDots`, `pianoKeys`, `path`, `PATH` colours, `MAJOR_SEMIS`, `MINOR_SEMIS` and the pitch constants `E G A B C D`. Read the signature in the file before you call a helper: this list goes stale.
 - Stage files and URL slugs differ: `s0.ts` holds stages 1–4, `s1.ts` is stage 5 (Position 1), `s2.ts` is 6, … `s7.ts` is 11. Find a section with `grep -n 'section("<slug>"' src/features/course/stages/*.ts`.
 - `glossary.ts`: explained words and the article each points to.
-- `content.test.ts`: checks dots sit on the drawn frets, chord boxes exist, links are real, and written sections have text plus something to look at or do. `DONE` lists the stages whose content is written.
+- `content.test.ts`: checks dots sit on the drawn frets, chord boxes exist, links are real, and written sections have text plus something to look at or do. `DONE` lists the stages whose content is written (all eleven today; a new stage's slug goes there once it is written).
 
 ## Steps
 
@@ -34,4 +34,4 @@ A course section is one page at `/course/<stage>/<section>`. It is pure data in 
    $TSX --test src/features/course/*.test.ts
    npx tsc --noEmit 2>&1 | grep -v '^.next/'
    ```
-   If the stage is newly written, add its slug to `DONE` in `content.test.ts`. Then open `/course/<stage>/<section>` in the dev server and check that every caption matches its picture. Run the **review-teaching-text** skill on the section before you call it done.
+   Then open `/course/<stage>/<section>` in the dev server and check that every caption matches its picture and every note the text names stands out on it. Run the **review-teaching-text** skill on the section before you call it done. If the dev server won't build because of another session's work, say so in your report: don't claim the page was read in the app.

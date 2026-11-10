@@ -7,9 +7,11 @@ description: Audit learner-facing music text in musickit - a course section, a s
 
 Find what is wrong, show the proof, and propose the smallest fix. Don't rewrite text that is fine.
 
+This skill is for text that teaches music. Interface copy with no music in it (a button, a notice, an error) is checked with `design:ux-copy` and check 6 below.
+
 ## What to check, most serious first
 
-1. **Wrong facts.** For every key, chord, note, scale, interval, position and fret, run `npm run -s theory -- …` and compare. Also check dots by hand: in course `neck` blocks, string 0 is low E, and `pcAt(string, fret)` gives the pitch class. A wrong fact is always a finding, however small.
+1. **Wrong facts.** For every key, chord, note, scale, interval, position and fret, run `npm run -s theory -- …` and compare. Also check dots by hand: in course `neck` blocks, string 0 is low E, and `pcAt(string, fret)` in `src/features/course/model.ts` gives the pitch class. A wrong fact is always a finding, however small.
 2. **Text and picture disagree.**
    - A note the text names that isn't lit or drawn in the visual or tool after it.
    - A caption that describes something else.
@@ -26,17 +28,25 @@ Find what is wrong, show the proof, and propose the smallest fix. Don't rewrite 
    - A bare "Press Play." that doesn't say what starts or where it is.
    - Two names for one thing on the screen (ringed and circled, the band and the backing for the same tool).
    - A heading that could sit on any block ("Warm-up", "Step 2").
-7. **Voice.** The **teaching-voice** skill: repeat counts, poetic lines, a paragraph of why, more than two steps chained, a word used for two things.
+7. **Voice.** The **teaching-voice** skill: repeat counts, poetic lines, hype, a paragraph of why, more than two steps chained, a word used for two things, "box" or "pattern" for a scale position, a singing step that doesn't say what to sing on.
 
-Run the relevant tests too (`course/*.test.ts` or `plan/examples/*.test.ts` with the cached tsx, see the other skills). A failing test is a finding.
+Run the relevant tests too. A failing test is a finding.
+
+```
+TSX=$(ls ~/.npm/_npx/*/node_modules/.bin/tsx | head -1)
+$TSX --test src/features/course/*.test.ts
+$TSX --test src/features/plan/examples/*.test.ts src/features/plan/model/*.test.ts
+```
 
 ## Report
 
 One line per finding, most serious first:
 
 ```
-<file>:<line> [fact|mismatch|order|rule|app|voice] <what's wrong> → <fix>
-  proof: <calculator output or the conflicting prop>
+<file>:<line> [fact|mismatch|order|rule|practice|app|voice] <what's wrong> → <fix>
+  proof: <calculator output, the conflicting prop, or the label in the component>
 ```
 
-End with the count per kind. If nothing is wrong, say so in one line. Only edit files when the user asks you to fix the findings.
+The seven kinds are the seven checks above, in the same order. The fix is the new wording itself, not advice ("→ 'Press Play below to start the metronome.'", not "→ say what starts").
+
+End with the count per kind, and one line on what you could not check (a page the dev server wouldn't draw, a fact the calculator can't answer). If nothing is wrong, say so in one line. Only edit files when the user asks you to fix the findings.

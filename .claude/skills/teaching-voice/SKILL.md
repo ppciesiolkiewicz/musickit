@@ -1,18 +1,20 @@
 ---
 name: teaching-voice
-description: How musickit teaching text sounds - plain, short, practical English for course articles, exercise text, glossary meanings, about lines and captions. Use whenever writing or editing any learner-facing music text in this repo, alone or from the course-article, exercise-example and review-teaching-text skills.
+description: How musickit teaching text sounds - plain, short, practical English for course articles, exercise text, glossary meanings, about lines and captions. Use whenever writing or editing any learner-facing music text in this repo, alone or from the course-article, exercise-example and review-teaching-text skills. Its "Words about the app" section is also the house wording for interface copy (buttons, tour steps, notices, flow text), read alongside design:ux-copy.
 ---
 
 # Teaching voice
 
 The learner reads this text with a guitar in hand or the mic on. Each sentence either says what something is, or what to do next.
 
+The sections, in the order to use them: what the text is for, where its facts come from, how its sentences and words go, how it names the app, and the last read before you hand it over. Writing interface copy with no music in it (a button, a notice, a tour step)? "Words about the app" and "Sentences" are the parts that apply.
+
 ## What we teach for: practice and understanding
 
 This is the landing page's promise (`src/app/page.tsx`): "It's not a game. It's practice." Every lesson and exercise keeps it.
 
 - **Practice is the point.** Every page ends in something to play, sing or hear now. Reading is the shortest part.
-- **Repeat until it's automatic, not until a count.** Say loosely what "got it" feels like: "play until it feels comfortable", "try it at least a few times", "until your fingers move without thinking". Don't use exact counts, scores or "done when", and don't get technical about it. There are no points and no screen that says you got it right.
+- **Repeat until it's automatic, not until a count.** Say loosely what "got it" feels like: "play until it feels comfortable", "try it at least a few times", "until your fingers move without thinking". Don't use exact counts ("five times", "ten clean runs"), scores or "done when", and don't get technical about it. The timer or the learner decides when to stop. There are no points and no screen that says you got it right.
 - **Understand why it works.** Where it helps, give the one sentence of why (it is never required) that lets the learner build their own drill: what the drill trains, and why this shape or note does it. ("From Em to C only one note moves, so the change is one finger.") Don't give rationale for its own sake.
 - **Make it your own.** Sometimes, not every time, end with the variation that turns a drill into a new one: change the key, the position, the rhythm or the string set ("Now start from the A string: same shape, new drill."), or let the learner pick their own notes ("Now pick another set of notes from the position and make up your own line.") with the whole position shown, every note enabled.
 - **Name the sense it builds:** hands (finding the note), ears (hearing it), voice (singing it), timing (feeling the beat). A drill can say which one it's for in plain words.
@@ -39,19 +41,19 @@ It uses the same chordKit code the app draws with, so the text and the picture a
 - Say exactly what to do: "play {{6}}, then {{1}}", not "resolve it to Do". A target says when: "land on C when Cm7 comes round".
 - One sentence of why, at most, before the doing. No paragraphs of rationale. No "a-ha" moments for the learner to discover.
 - No poetic lines ("Re rubs against it"). No hype ("amazing", "powerful", "unlock"). No hedging ("you might want to").
-- No exact counts ("five times", "ten clean runs"). The timer or the learner decides when to stop. "Keep going until it feels easy" and "try it at least a few times" are fine.
 - Invite the learner: try, mix, make up, guess and check. Don't lecture.
 - No jargon the text hasn't explained. No numbers out of nowhere ("not seven").
 
 ## Words
 
 - Use one word for one thing:
-  - Scale shapes on the neck are "positions" everywhere: articles, exercises, titles, headings and captions ("position 1", "the position with the root on the A string"). Never call them "box" or "pattern", even though some props are called `boxes` and the theory calculator says "box". The one place "box" may appear is the explained word's meaning (the `position` entry in `GLOSSARY`), so a learner who meets "box" elsewhere knows it's the same thing. When you touch text that still says "box" for a scale shape (course stage 8 does), change it to "position". "Chord box" is a different thing and stays.
-  - "the staff" for the five-line notation. Never "stave" or "music sheet". Never call a neck, chord box or tab a staff.
+  - Scale shapes on the neck are "positions" everywhere: articles, exercises, titles, headings and captions ("position 1", "the position with the root on the A string"). Never call them "box" or "pattern", even though some props are called `boxes` and the theory calculator says "box". The one place "box" may appear is the explained word's meaning (the `position` entry in `GLOSSARY`), so a learner who meets "box" elsewhere knows it's the same thing. When you touch text that still says "box" for a scale shape, change it to "position"; course stages 6, 8, 9 and 10 still have some (`grep -n -i 'box' src/features/course/stages/*.ts`). A slug stays as it is (`pentatonic-boxes`), since links point at it. "Chord box" is a different thing and stays.
+  - "the staff" for the five-line notation. Never "stave" or "music sheet". Never call a neck, chord box or tab a staff. Don't explain what it is, except the first time for a new or beginner learner ("the staff, the five lines of music, where your pitch shows as a line").
   - "the metronome" for the click. "one note per beat" for a step.
 - Use note symbols: ♯ ♭ (C♯, B♭). Use "3rd", "5th", "♭7" in prose (exercise JSON writes degrees as `{{b7}}`). In chord names, write the chord the way the app does (Am7, G7, Cmaj7).
 - Solfège is Do Re Mi Fa Sol La Ti, capitalised. Do is always the home note.
 - Put guitar fingers with frets: "play frets 1 to 4 with fingers 1, 2, 3 and 4", never "play fingers 1 2 3 4".
+- A singing step says what to sing on: the note names while learning the notes, else a vowel ("on \"ah\""). For a beginner, and for any high note, pick "oo", "ee" or a hum; keep "ah" for low and middle notes.
 - Explained words: `GLOSSARY` in `src/features/course/glossary.ts`. In AI plan text the app adds an (i) to these words, so use the word and don't define it there. Course articles get no (i), so an article defines a word the first time the course uses it, or links to the section that does.
 
 ## Words about the app
@@ -85,3 +87,12 @@ Then read it once more, one question per pass:
 2. **Could I make up the next drill from the why?** If the why only says the drill is important ("the base every skill stands on"), it isn't one. Say what makes it work ("when your note matches the drone, the two blend into one sound").
 3. **Do I know when to move on?** Somewhere in each block there is a feel to reach, not a count.
 4. **Is anything said twice?** A fret, a fingering or a note list the picture already shows goes.
+
+## When you change a rule here
+
+The same voice is written down in four more places, each for a different reader. A rule changed in one is changed in all of them, in the same commit:
+
+- `src/features/plan/model/prompt.ts`, the `writing` part: what the AI that writes plans is told. Run `src/features/plan/model/*.test.ts` after.
+- `src/features/plan/examples/README.md` and its `CLAUDE.md`: the rules every example meets.
+- `src/features/plan/CLAUDE.md`: the plan flow's copy.
+- The `course-article`, `exercise-example` and `review-teaching-text` skills, where they repeat it.

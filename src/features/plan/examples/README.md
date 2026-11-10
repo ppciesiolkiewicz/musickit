@@ -72,5 +72,6 @@ What there is: one exercise per area and level (`<area>-<level>-<what>.json`) an
 ## Adding one
 
 Write the JSON, add a static import of it to `index.ts`, and run
-`tsx --test src/features/plan/examples/examples.test.ts`. Then paste it into `/plan` and read every step against its
-tool: are the notes it names lit, is the timer what the text says?
+`tsx --test src/features/plan/examples/examples.test.ts`. Then open `/dev/examples` on the dev server, which draws
+every example with its real tools, and read every step against its tool: are the notes it names lit, is the timer what
+the text says? Don't paste it into `/plan`: that replaces the plan stored in this browser.
