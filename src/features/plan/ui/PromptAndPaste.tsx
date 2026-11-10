@@ -1,12 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import Icon from "@/components/Icon";
 import { Button } from "@/components/ui";
 import type { ParseResult } from "../model/config";
 import { fixRequest } from "../model/fixRequest";
-import type { CatalogueEntry } from "../model/catalogue";
-import { offeredInterface, type OfferedItem } from "../model/tools";
+import type { OfferedItem } from "../model/tools";
 
 const primary = "!border-sky-500/70 !bg-sky-500/20 !text-sky-100 hover:!bg-sky-500/30";
 
@@ -42,75 +41,109 @@ export function DebugList({ title, items }: { title: string; items: OfferedItem[
 
 /** What the player says to the AI in their browser. */
 const ASK_BROWSER_AI = "Write my practice plan from the prompt on this page and put it in the reply box.";
+const BROWSER_AIS = "Claude in Chrome, Gemini in Chrome, ChatGPT Atlas, Comet…";
+
+/** Copies `text`; shows a check for two seconds. False when the clipboard refuses. */
+function useCopy(text: string): [boolean, () => Promise<boolean>] {
+  const [copied, setCopied] = useState(false);
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+  return [copied, copy];
+}
+
+/** One numbered step of the browser AI's how-to. */
+function Step({ n, title, children }: { n: number; title: string; children?: ReactNode }) {
+  return (
+    <li className="flex gap-3">
+      <span aria-hidden className="grid size-6 shrink-0 place-items-center rounded-full bg-violet-500/25 text-xs font-semibold text-violet-100">{n}</span>
+      <div className="flex min-w-0 flex-1 flex-col gap-1.5 pt-0.5">
+        <p className="text-sm text-slate-100">{title}</p>
+        {children}
+      </div>
+    </li>
+  );
+}
 
 /**
- * For an AI built into the browser (Claude in Chrome, Gemini in Chrome, ChatGPT Atlas, Comet…): what to ask it, and the
- * prompt as plain text on the page so it can read it. With WebMCP (`agentTools`) it calls the page's tools instead.
+ * For an AI built into the browser (Claude in Chrome, Gemini in Chrome, ChatGPT Atlas, Comet…): four numbered steps, the
+ * words to ask it (with a copy button), and the prompt as plain text on the page so it can read it. With WebMCP
+ * (`agentTools`) it calls the page's tools instead.
  */
 function BrowserAiHelp({ prompt, agentTools }: { prompt: string; agentTools: boolean }) {
+  const [copied, copy] = useCopy(ASK_BROWSER_AI);
   return (
-    <div className="flex flex-col gap-2 rounded-lg border border-slate-700 bg-slate-950/60 p-3 text-xs text-slate-300">
-      <p>
-        Open the AI in your browser (Claude in Chrome, Gemini in Chrome, ChatGPT Atlas, Comet…) on this page and ask:
-      </p>
-      <p className="rounded bg-slate-900 px-2 py-1 font-medium text-slate-100">&ldquo;{ASK_BROWSER_AI}&rdquo;</p>
-      <p className="text-slate-500">
-        {agentTools
-          ? "Your browser lets the AI read the prompt and send its plan straight back here."
-          : "It reads the prompt below, then presses Next and fills in the reply box."}{" "}
-        You press Build my plan.
-      </p>
-      <section aria-label="Prompt for the AI" className="max-h-40 overflow-y-auto whitespace-pre-wrap break-words border-t border-slate-800 pt-2 font-mono text-[11px] text-slate-400">
-        {prompt}
+    <div className="flex flex-col gap-3 rounded-xl border border-violet-400/30 bg-slate-950/60 p-3">
+      <ol className="flex flex-col gap-3">
+        <Step n={1} title="Open your AI browser extension on this page." />
+        <Step n={2} title="Copy the prompt below and paste it into the extension:">
+          <div className="flex items-start gap-2 rounded-lg bg-slate-900 px-2.5 py-2">
+            <p className="flex-1 text-sm text-slate-100">&ldquo;{ASK_BROWSER_AI}&rdquo;</p>
+            <button
+              type="button"
+              onClick={() => void copy()}
+              aria-label={copied ? "Copied" : "Copy this prompt"}
+              className="grid size-7 shrink-0 cursor-pointer place-items-center rounded-md border border-slate-700 text-slate-300 hover:border-slate-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400"
+            >
+              <Icon name={copied ? "check" : "copy"} size={13} />
+            </button>
+          </div>
+        </Step>
+        <Step n={3} title={agentTools ? "It reads this page and sends your plan straight to the reply box." : "It reads this page and pastes your plan into the reply box."} />
+        <Step n={4} title="Check the plan, then press Build my plan." />
+      </ol>
+      <section aria-label="Prompt for the AI" className="border-t border-slate-800 pt-2">
+        <h4 className="mb-1 text-[11px] font-medium uppercase tracking-wider text-slate-500">What the extension reads</h4>
+        <div className="max-h-32 overflow-y-auto whitespace-pre-wrap break-words font-mono text-[11px] text-slate-400">{prompt}</div>
       </section>
     </div>
   );
 }
 
-/** Step: copy the prompt for the player's own AI, or let the AI in their browser read it. */
-export function CopyPrompt({ prompt, entries, label = "Copy prompt", agentTools = false }: { prompt: string; entries: CatalogueEntry[]; label?: string; agentTools?: boolean }) {
-  const [copied, setCopied] = useState(false);
+/** Step: copy the prompt for the player's own AI, or let the AI in their browser read it (the highlighted card). */
+export function CopyPrompt({ prompt, label = "Copy prompt", agentTools = false }: { prompt: string; label?: string; agentTools?: boolean }) {
+  const [copied, copyPrompt] = useCopy(prompt);
   const [show, setShow] = useState(false);
   const [browserAi, setBrowserAi] = useState(agentTools);
-  const [debug, setDebug] = useState(false);
-  const offered = offeredInterface(entries);
   const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(prompt);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      setShow(true);
-    }
+    if (!(await copyPrompt())) setShow(true);
   };
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-3">
+      <button
+        type="button"
+        aria-expanded={browserAi}
+        onClick={() => setBrowserAi((v) => !v)}
+        className="flex w-full cursor-pointer items-center gap-3 rounded-xl border border-violet-400/50 bg-gradient-to-r from-violet-500/20 to-sky-500/10 p-3 text-left hover:border-violet-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-300"
+      >
+        <span aria-hidden className="grid size-9 shrink-0 place-items-center rounded-full bg-violet-500/25 text-violet-100">
+          <Icon name="sparkles" size={16} />
+        </span>
+        <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+          <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-medium text-slate-50">
+            Let the AI in your browser do it
+            <span className="rounded-full bg-violet-400/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-violet-100">No copy and paste</span>
+          </span>
+          <span className="text-xs text-slate-400">{BROWSER_AIS}</span>
+        </span>
+        <Icon name="chevron-down" size={16} className={`shrink-0 text-violet-200 transition-transform ${browserAi ? "rotate-180" : ""}`} />
+      </button>
+      {browserAi && <BrowserAiHelp prompt={prompt} agentTools={agentTools} />}
       <div className="flex flex-wrap items-center gap-2">
+        <span className="text-xs text-slate-500">Or use any AI chat:</span>
         <Button onClick={copy} className={primary}>
           <Icon name={copied ? "check" : "copy"} size={14} />
           {copied ? "Copied" : label}
         </Button>
         <Button size="sm" onClick={() => setShow((v) => !v)}>{show ? "Hide" : "Show"} prompt</Button>
-        <Button size="sm" aria-pressed={browserAi} onClick={() => setBrowserAi((v) => !v)}>
-          <Icon name="sparkles" size={14} />
-          AI in this browser
-        </Button>
-        <Button size="sm" onClick={() => setDebug((v) => !v)}>{debug ? "Hide" : "Show"} debug</Button>
-        <span className="text-xs text-slate-500">Paste it into ChatGPT, Claude, Gemini… copy its whole reply, then press Next to paste it here.</span>
       </div>
-      {browserAi && <BrowserAiHelp prompt={prompt} agentTools={agentTools} />}
-      {debug && (
-        <div className="flex flex-col gap-3 rounded-lg border border-slate-700 bg-slate-950/60 p-3 text-[11px] text-slate-300">
-          <DebugList title="Tools offered to the AI" items={offered.tools} />
-          <DebugList title="Guitar play-along shapes" items={offered.shapes} />
-          <DebugList title="Section types" items={offered.sections} />
-          <div>
-            <h4 className="font-semibold text-slate-400">Link resources ({offered.links.length})</h4>
-            <ul className="font-mono text-slate-400">{offered.links.map((l) => <li key={l} className="break-words">{l}</li>)}</ul>
-          </div>
-          <p className="text-slate-500">Prompt size: {prompt.length} chars</p>
-        </div>
-      )}
       {show && <textarea readOnly value={prompt} onFocus={(e) => e.currentTarget.select()} className="h-48 w-full rounded-lg border border-slate-700 bg-slate-950/60 p-3 font-mono text-[11px] text-slate-300" />}
     </div>
   );

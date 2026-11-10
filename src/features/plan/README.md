@@ -12,9 +12,10 @@ browser.
    chosen, minutes a day, notes and styles. It only has to get week 1 roughly right. Then *Copy your prompt*,
    then *Paste your AI's reply*. Every screen has the same fixed height (the body scrolls inside), so Back and Next never move.
    **Build my plan** is enabled once the reply parses.
-   **AI in this browser** (a button on the prompt step): for an AI built into the browser (Claude in Chrome, Gemini in
-   Chrome, ChatGPT Atlas, Comet…) the step shows what to ask it and the prompt as plain page text, which it reads, then
-   it fills the labelled reply box. Where the browser has WebMCP (`document.modelContext`, Chrome behind a flag, or a
+   **Let the AI in your browser do it** (the highlighted card on the prompt step, over "Or use any AI chat: Copy
+   prompt"): for an AI extension or AI browser (Claude in Chrome, Gemini in Chrome, ChatGPT Atlas, Comet…) it opens four
+   numbered steps, the words to paste into it (with a copy button) and the prompt as plain page text, which it reads,
+   then it fills the labelled reply box. The prompt's debug lists live on /dev/prompt only. Where the browser has WebMCP (`document.modelContext`, Chrome behind a flag, or a
    polyfill), `ui/useBrowserAgentTools.ts` offers two tools while the flow is open: `get_practice_plan_prompt` and
    `submit_practice_plan`; a submitted plan lands in the paste box on the paste step, and the AI reads back
    `agentReply()` (`model/fixRequest.ts`): refused and why, or the warnings to fix and send again. The player still

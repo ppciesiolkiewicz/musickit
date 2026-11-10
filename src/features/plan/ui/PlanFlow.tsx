@@ -114,9 +114,9 @@ export default function PlanFlow({ mode, answers, current, history, entries, onP
     {
       title: mode === "start" ? "Copy your prompt" : "Copy next week's prompt",
       hint: mode === "start"
-        ? "Paste it into ChatGPT, Claude, Gemini… Next, you paste your AI's reply back here."
-        : "It carries the stars you gave this week's exercises, your notes, and your AI's own notes on your progress. Next, you paste your AI's reply back here.",
-      body: <CopyPrompt prompt={prompt} entries={entries} agentTools={agentTools} />,
+        ? "Your answers, turned into a prompt for an AI. Copy it into ChatGPT, Claude, Gemini…, then paste the reply on the next step."
+        : "It carries this week's stars, your notes and your AI's notes on your progress. Copy it into your AI, then paste the reply on the next step.",
+      body: <CopyPrompt prompt={prompt} agentTools={agentTools} />,
     },
     {
       title: "Paste your AI's reply",
