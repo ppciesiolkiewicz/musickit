@@ -1,28 +1,84 @@
 # Account
 
-Who is using the app, and what their role lets them use. This is the ground for user profiles: students, teachers and
-owners. There is no real sign-in yet.
+Who is using the app, and what their role lets them use: students, teachers and owners. People log in with a link we
+email them or with Google. There are no passwords.
 
-- `model.ts`: `Role` (student, teacher, owner; an owner runs a school and can do all a teacher can), `Account` (id,
-  name, email, role), `FEATURES` (the parts of the app that belong to some roles: the notes creator and AI plans are
-  for teachers and owners) and `can(account, feature)`. `makeAccount` and `cleanAccounts` check input and stored lists.
-- `AccountStore.ts`: where accounts and the signed-in one are kept: `list`, `create`, `remove`, `current`, `signIn`,
-  `signOut`, async so real sign-in can replace it.
-- `localAccountStore.ts`: the store for development: accounts in localStorage (`musickit.dev.accounts`), the signed-in
-  id in `musickit.dev.session`, no passwords. `accountsOn()` is false in a production build. `accountKey(base)` is the
-  key a local data store uses: `base` when nobody is signed in, `base@<account id>` when somebody is.
-- `useAccount.tsx`: `useAccount()` gives `{ account, loaded, can }`; `AccountStoreProvider` swaps the store.
+## Parts
 
-## Two modes
+- `model.ts`: `Role` (student, teacher, owner; an owner runs a school and can do all a teacher can), `SIGNUP_ROLES`
+  (student and teacher: what a person can pick for themself), `Account` (id, name, email, role), `FEATURES` (the parts
+  of the app that belong to some roles: the notes creator and AI plans are for teachers and owners) and
+  `can(account, feature)`.
+- `AccountStore.ts`: `current()` and `signOut()`, all a page needs. `DevAccountStore` adds the list of browser accounts.
+- `serverAccountStore.ts`: the real store, over `/api/auth`. `accountsOpen()` says whether the site has accounts at all.
+- `localAccountStore.ts`: the development store: accounts in localStorage, picked on `/dev/account`, no sign-in.
+- `useAccount.tsx`: `useAccount()` gives `{ account, loaded, can }`. It asks the real session first, then (development
+  only) the browser account.
+- `ui/`: the screens. `LinkForm` (`/login`, `/register`), `ConfirmLink` (`/login/confirm`), `FinishSignup`
+  (`/register/finish`), `AccountPanel` (`/account`), `AccountLink` (the corner of the top nav).
+- `server/`: sign-in itself, server only.
+  - `auth.ts`: the rules, with no HTTP and no SQL in them: `requestEmailLink`, `openEmailLink`, `googleSignIn`,
+    `pendingSignup`, `finishSignup`, `sessionAccount`, `signOut`, `rename`.
+  - `repo.ts`: what those rules need from storage. `repo.drizzle.ts` is Postgres, `repo.memory.ts` is for tests.
+  - `http.ts`: cookies, the same-site check, `auth()` (null when there is no database), `requestAccount(req)`.
+  - `google.ts`: the Google code flow with PKCE. `mail.ts`: the email with the link, sent through Resend.
 
-- **Production**: no accounts and no log-in screen. `useAccount()` gives `account: null`, the local person, who can
-  use everything. Data stays in the shared localStorage keys, as before.
-- **Development**: `/dev/account` (`features/devtools/account`) makes accounts and logs in and out. Logging in is not
-  needed: logged out, the app works as in production. Logged in, plans (`musickit.plan@<id>`) and the progress log
-  (`musickit.progress@<id>`) are the account's own, and a badge at the bottom left of every page says who is logged in.
-  Other settings in the browser (level, tours, tuner, theme) are shared by all accounts.
+The tables are in `src/lib/db/schema.ts` and the migrations in `/drizzle`.
+
+## The flows
+
+| | |
+| --- | --- |
+| Create account by email | `/register`: role, name, email → `POST /api/auth/email-link` (`register: true`) mails a link → `/login/confirm?token=` → Continue → `POST /api/auth/email-link/confirm` makes the account and the session. |
+| Log in by email | `/login`: email → the same two calls. An email with no account lands on `/register/finish`. |
+| Google | `GET /api/auth/google/start` (`?role=` from the register form) → Google → `GET /api/auth/google/callback`. A known Google id, or a Google-verified email that has an account, logs in. A new person with a role gets an account; without one, `/register/finish`. |
+| Finish | `/register/finish`: the email is proven but has no account. `GET /api/auth/signup` gives the email, `POST` (name, role) makes the account. |
+| Session | `GET /api/auth/session` → `{ account }`. `POST /api/auth/logout`. |
+| Account | `PATCH /api/account` (name), `DELETE /api/account`. |
+
+Things that are on purpose:
+
+- **The mailed link does nothing alone.** It opens a page with one button, and the button spends the token. Mail
+  programs open links to scan them, which would use a link up before the person saw it.
+- **Only hashes are stored.** The session cookie and every link carry a random token; the database holds its SHA-256.
+- **Two cookies.** `mk_session` (hidden from scripts) is the session. `mk_in` only tells the page that a session
+  exists, so a visitor's page never asks the server who they are. The server never trusts `mk_in`.
+- **The answer to "email me a link" never says whether the email has an account.**
+- **A role is picked once.** Logging in again, by link or Google, never changes the name or role of an account.
+- **Links are limited**: 3 to one email in 15 minutes. A link lives 20 minutes, a session 30 days from its last use.
+
+## Setting it up
+
+Local, once:
+
+```
+npm run db:up        # Postgres in Docker, port 5433
+npm run db:migrate   # make the tables
+```
+
+and `DATABASE_URL=postgres://musickit:musickit@localhost:5433/musickit` in `.env.local`. Without `RESEND_API_KEY`,
+development mails nothing: the link is shown on the page and printed in the server log. `.env.example` lists the rest
+(`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `AUTH_URL`, `AUTH_FROM_EMAIL`).
+
+A changed table: edit `src/lib/db/schema.ts`, then `npm run db:generate` and `npm run db:migrate`. Commit the new file
+in `/drizzle`. Production: set `DATABASE_URL` (and run `db:migrate` against it) before the deploy; the site reads at
+build time whether it has accounts.
+
+## Without a database
+
+No `DATABASE_URL` means no accounts: the nav shows no Log in, `/login` says accounts aren't open, and the routes answer
+503. `useAccount()` gives `account: null`, the local person, who can use everything. This is how the site ran before.
+
+## Development accounts
+
+`/dev/account` (`features/devtools/account`) still makes accounts in the browser and switches between them with no
+sign-in, to try a role quickly. A real session wins over one of these. Only these get their own plans and progress
+(`musickit.plan@<id>`); see below.
 
 ## Not here yet
 
+- **Plans and progress are not in the account.** A logged-in person's data is still in this browser's shared
+  localStorage keys, the same as a visitor's. Moving it into the database is the next step.
 - No screen asks `can` yet: every tool is open to every role.
-- Which students a teacher has, giving a plan to a student, and the email that tells them are not modelled.
+- Which students a teacher has, schools, and giving a plan to a student are not modelled.
+- Links are limited per email only, not per network address.

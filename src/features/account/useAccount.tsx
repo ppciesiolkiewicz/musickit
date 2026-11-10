@@ -4,16 +4,31 @@ import { createContext, useCallback, useContext, useEffect, useState, type React
 import type { AccountStore } from "./AccountStore";
 import { accountsOn, localAccountStore } from "./localAccountStore";
 import { can as canUse, type Account, type Feature } from "./model";
+import { hasSessionHint, serverAccountStore } from "./serverAccountStore";
 
-const StoreContext = createContext<AccountStore | null>(accountsOn() ? localAccountStore : null);
+/**
+ * The store every page gets: the real session first, then (development only) the account picked on /dev/account.
+ * With no session cookie it asks the server nothing, so a visitor costs no request.
+ */
+export const siteAccountStore: AccountStore = {
+  async current() {
+    return (await serverAccountStore.current()) ?? (accountsOn() ? localAccountStore.current() : null);
+  },
+  async signOut() {
+    if (hasSessionHint()) await serverAccountStore.signOut();
+    else if (accountsOn()) await localAccountStore.signOut();
+  },
+};
 
-/** Swap the store for a subtree (real sign-in, a test double). Without it: the browser store in development, nobody signed in in production. */
+const StoreContext = createContext<AccountStore>(siteAccountStore);
+
+/** Swap the store for a subtree (a test double). */
 export function AccountStoreProvider({ store, children }: { store: AccountStore; children: ReactNode }) {
   return <StoreContext.Provider value={store}>{children}</StoreContext.Provider>;
 }
 
-/** The store behind `useAccount`, for the screens that sign in and out. Null where there are no accounts (production). */
-export const useAccountStore = (): AccountStore | null => useContext(StoreContext);
+/** The store behind `useAccount`, for the screens that sign out. */
+export const useAccountStore = (): AccountStore => useContext(StoreContext);
 
 /**
  * Who is using the app. `account` is null when nobody is signed in: the local person, who may use everything
@@ -23,10 +38,9 @@ export const useAccountStore = (): AccountStore | null => useContext(StoreContex
 export function useAccount() {
   const store = useContext(StoreContext);
   const [account, setAccount] = useState<Account | null>(null);
-  const [loaded, setLoaded] = useState(!store);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    if (!store) return;
     let live = true;
     store.current().then((a) => {
       if (!live) return;

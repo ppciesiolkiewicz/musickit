@@ -10,6 +10,11 @@
     "lint": "eslint",
     "docs:exercises": "tsx scripts/gen-exercise-docs.ts",
     "theory": "npx tsx scripts/theory.ts",
+    "db:up": "docker compose up -d --wait db",
+    "db:down": "docker compose down",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio",
     "deps": "mkdir -p .deps && npx dependency-cruiser src --include-only '^src' --output-type mermaid > .deps/deps.mmd",
     "deps:svg": "mkdir -p .deps && npx dependency-cruiser src --include-only '^src' --output-type dot | dot -T svg > .deps/deps.svg && open .deps/deps.svg",
     "deps:archi": "mkdir -p .deps && npx dependency-cruiser src --include-only '^src' --output-type archi | dot -T svg > .deps/archi.svg && open .deps/archi.svg",
@@ -17,7 +22,7 @@
     "deps:orphans": "npx madge --orphans --extensions ts,tsx --ts-config tsconfig.json src",
     "deps:feature": "f=${F:-plan}; mkdir -p .deps && npx dependency-cruiser src/features/$f --output-type mermaid > .deps/$f.mmd && echo wrote .deps/$f.mmd",
     "video": "node scripts/video/render.mjs",
-    "test": "npx tsx --test src/lib/chordKit/*.test.ts src/lib/looper/*.test.ts src/features/instruments/*/*.test.ts src/lib/improv/*.test.ts src/features/sound/engine/*.test.ts src/features/tuner/*.test.ts src/features/rhythm/*.test.ts src/features/theory/*.test.ts src/features/course/*.test.ts src/features/theory/piano/*.test.ts src/lib/practice/*.test.ts src/features/widgets/*.test.ts src/features/creator/model/*.test.ts src/features/sampler/*.test.ts src/features/sampler/model/*.test.ts src/features/sampler/server/*.test.ts src/features/nam/*.test.ts src/features/nam/server/*.test.ts src/features/earlyAccess/*.test.ts src/features/contact/*.test.ts src/features/styles/*.test.ts src/features/guide/*.test.ts src/features/stage/model/*.test.ts src/features/teachers/video/model/*.test.ts src/features/teachers/studio/*.test.ts src/features/search/*.test.ts src/features/exercises/*/*.test.ts src/features/exercises/*/*/*.test.ts src/features/plan/model/*.test.ts src/features/plan/intake/*.test.ts src/features/progress/*.test.ts src/features/account/*.test.ts src/features/plan/examples/*.test.ts src/features/devtools/*.test.ts src/features/devtools/*/*.test.ts src/features/backing/*/*.test.ts"
+    "test": "npx tsx --test src/lib/chordKit/*.test.ts src/lib/looper/*.test.ts src/features/instruments/*/*.test.ts src/lib/improv/*.test.ts src/features/sound/engine/*.test.ts src/features/tuner/*.test.ts src/features/rhythm/*.test.ts src/features/theory/*.test.ts src/features/course/*.test.ts src/features/theory/piano/*.test.ts src/lib/practice/*.test.ts src/features/widgets/*.test.ts src/features/creator/model/*.test.ts src/features/sampler/*.test.ts src/features/sampler/model/*.test.ts src/features/sampler/server/*.test.ts src/features/nam/*.test.ts src/features/nam/server/*.test.ts src/features/earlyAccess/*.test.ts src/features/contact/*.test.ts src/features/styles/*.test.ts src/features/guide/*.test.ts src/features/stage/model/*.test.ts src/features/teachers/video/model/*.test.ts src/features/teachers/studio/*.test.ts src/features/search/*.test.ts src/features/exercises/*/*.test.ts src/features/exercises/*/*/*.test.ts src/features/plan/model/*.test.ts src/features/plan/intake/*.test.ts src/features/progress/*.test.ts src/features/account/*.test.ts src/features/account/server/*.test.ts src/features/plan/examples/*.test.ts src/features/devtools/*.test.ts src/features/devtools/*/*.test.ts src/features/backing/*/*.test.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -33,7 +38,9 @@
     "@tonaljs/tonal": "^4.10.0",
     "@vercel/analytics": "^2.0.1",
     "@vercel/blob": "^2.8.1",
+    "drizzle-orm": "^0.45.4",
     "next": "^16.4.0",
+    "postgres": "^4.1.0",
     "posthog-js": "^1.440.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0"
@@ -43,6 +50,7 @@
     "@types/node": "^20.19.43",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "drizzle-kit": "^0.31.11",
     "eslint": "^9.39.5",
     "eslint-config-next": "^16.4.0",
     "tailwindcss": "^4.3.3",

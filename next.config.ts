@@ -4,6 +4,8 @@ import type { NextConfig } from "next";
 const THEORY_SECTIONS = ["chords", "triads", "scales", "caged", "arpeggios", "improv"];
 
 const nextConfig: NextConfig = {
+  // Accounts need the database. The pages' own code can't read DATABASE_URL, so it gets this instead (see accountsOpen()).
+  env: { NEXT_PUBLIC_ACCOUNTS: process.env.DATABASE_URL?.trim() ? "on" : "off" },
   async redirects() {
     return [
       ...THEORY_SECTIONS.flatMap((s) => [

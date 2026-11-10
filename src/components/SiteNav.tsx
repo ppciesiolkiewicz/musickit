@@ -1,5 +1,6 @@
 import Link from "next/link";
 import AudioDevicesButton from "./AudioDevicesButton";
+import AccountLink from "@/features/account/ui/AccountLink";
 import { TunerButton } from "@/features/tuner";
 import ThemeSwitcher from "./ThemeSwitcher";
 import TheoryMenu from "./TheoryMenu";
@@ -47,6 +48,7 @@ export default function SiteNav({ active, devices = false }: { active: string; d
       {active !== "/tuner" && <TunerButton className="sm:mr-1.5" />}
       <ThemeSwitcher compact noIntro={active === "/"} />
       {devices && <AudioDevicesButton className="sm:ml-1.5" />}
+      <AccountLink className="sm:ml-1.5" />
     </nav>
   );
 }

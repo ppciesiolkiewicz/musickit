@@ -1,4 +1,4 @@
-import type { AccountStore } from "./AccountStore";
+import type { DevAccountStore } from "./AccountStore";
 import { cleanAccounts, keyFor, makeAccount, type Account } from "./model";
 
 export const ACCOUNTS_KEY = "musickit.dev.accounts";
@@ -46,7 +46,7 @@ export function sessionId(): string | null {
 export const accountKey = (base: string): string => keyFor(base, sessionId());
 
 /** Accounts in this browser's localStorage, for development: no passwords, signing in is picking one. */
-export const localAccountStore: AccountStore = {
+export const localAccountStore: DevAccountStore = {
   async list() {
     return readList();
   },

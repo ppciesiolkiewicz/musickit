@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { Button, Select } from "@/components/ui";
 import { FEATURES, ROLES, ROLE_LABEL, can, type Account, type AccountError, type Feature, type Role } from "@/features/account/model";
-import { useAccountStore } from "@/features/account/useAccount";
+import { accountsOn, localAccountStore } from "@/features/account/localAccountStore";
 
 const FIELD = "w-full rounded-lg border border-slate-700 bg-slate-950/60 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-600 focus-visible:outline-2 focus-visible:outline-sky-400";
 const LABEL = "mb-1 block text-xs font-medium text-slate-400";
@@ -22,7 +22,7 @@ const reload = () => window.location.reload();
 
 /** /dev/account: make accounts, log in to one, log out. Development only; accounts are kept in this browser, with no passwords. */
 export default function AccountPage() {
-  const store = useAccountStore();
+  const store = accountsOn() ? localAccountStore : null;
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [current, setCurrent] = useState<Account | null>(null);
   const [loaded, setLoaded] = useState(false);
