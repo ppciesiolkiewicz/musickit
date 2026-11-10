@@ -215,11 +215,12 @@ test("a text widget keeps its words, cut at the limit, and has a title", () => {
 });
 
 test("text splits into headings and paragraphs", () => {
-  assert.deepEqual(parseText("# One\n\nFirst line\nsecond line\n\n## Two\nBody"), [
+  assert.deepEqual(parseText("# Title\n## One\n\nFirst line\nsecond line\n\n### Two\nBody\n#### Four"), [
+    { type: "title", text: "Title" },
     { type: "h1", text: "One" },
     { type: "p", text: "First line\nsecond line" },
     { type: "h2", text: "Two" },
-    { type: "p", text: "Body" },
+    { type: "p", text: "Body\n#### Four" },
   ]);
   assert.deepEqual(parseText("  \n\n"), []);
 });

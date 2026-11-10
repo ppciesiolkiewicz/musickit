@@ -56,7 +56,7 @@ export type Subject =
   | { kind: "mic" }
   | { kind: "logo" }
   | { kind: "url" }
-  /** a block of words in a note: plain text, `# ` starts a heading and `## ` a subheading, a blank line a new paragraph (`parseText`) */
+  /** a block of words in a note: plain text, `# ` starts a title, `## ` a heading and `### ` a subheading, a blank line a new paragraph (`parseText`) */
   | { kind: "text"; text: string }
   | { kind: "camera" }
   | { kind: "screen" }
@@ -77,9 +77,9 @@ export const MELODY_BEATS = { min: 2, max: 16 } as const;
 /** The longest text a text widget keeps. */
 export const TEXT_MAX = 4000;
 
-export type TextBlock = { type: "h1" | "h2" | "p"; text: string };
+export type TextBlock = { type: "title" | "h1" | "h2" | "p"; text: string };
 
-/** A text widget's words as blocks: `# ` heading, `## ` subheading, anything else a paragraph; blank lines separate, a line break inside a paragraph stays. */
+/** A text widget's words as blocks: `# ` title (drawn like the page title), `## ` heading, `### ` subheading, anything else a paragraph; blank lines separate, a line break inside a paragraph stays. */
 export function parseText(text: string): TextBlock[] {
   const out: TextBlock[] = [];
   let para: string[] = [];
@@ -89,10 +89,10 @@ export function parseText(text: string): TextBlock[] {
   };
   for (const raw of text.split("\n")) {
     const line = raw.trimEnd();
-    const h = /^(#{1,2})\s+(.+)$/.exec(line);
+    const h = /^(#{1,3})\s+(.+)$/.exec(line);
     if (h) {
       flush();
-      out.push({ type: h[1].length === 1 ? "h1" : "h2", text: h[2].trim() });
+      out.push({ type: (["title", "h1", "h2"] as const)[h[1].length - 1], text: h[2].trim() });
     } else if (!line.trim()) flush();
     else para.push(line);
   }
