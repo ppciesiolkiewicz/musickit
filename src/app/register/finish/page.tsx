@@ -8,7 +8,7 @@ export const metadata: Metadata = { title: "Create account · attunr", robots: {
 export default async function FinishPage({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
   const q = await searchParams;
   return (
-    <PageShell title="Create account" active="/register">
+    <PageShell centered title="Create account" active="/register">
       <FinishSignup next={safeNext(q.next)} />
     </PageShell>
   );

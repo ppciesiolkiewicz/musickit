@@ -8,11 +8,12 @@ import { databaseUrl } from "@/lib/db/client";
 
 export const metadata: Metadata = { title: "Create account · attunr", robots: { index: false } };
 
+/** Creates a student account; teachers have their own page, /register/teacher. */
 export default async function RegisterPage({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
   const q = await searchParams;
   return (
-    <PageShell title="Create account" intro="An account for students and teachers. It is free, and every tool also works without one." active="/register">
-      {databaseUrl() ? <LinkForm register google={!!googleConfig()} next={safeNext(q.next)} /> : <p className="text-sm text-slate-400">{NO_ACCOUNTS}</p>}
+    <PageShell centered title="Create account" intro="An account for learning with attunr. It is free, and every tool also works without one." active="/register">
+      {databaseUrl() ? <LinkForm role="student" google={!!googleConfig()} next={safeNext(q.next)} /> : <p className="text-sm text-slate-400">{NO_ACCOUNTS}</p>}
     </PageShell>
   );
 }

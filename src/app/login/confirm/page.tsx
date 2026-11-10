@@ -7,7 +7,7 @@ export const metadata: Metadata = { title: "Log in · attunr", robots: { index: 
 export default async function ConfirmPage({ searchParams }: { searchParams: Promise<{ token?: string }> }) {
   const q = await searchParams;
   return (
-    <PageShell title="Almost there" active="/login">
+    <PageShell centered title="Almost there" active="/login">
       <ConfirmLink token={typeof q.token === "string" ? q.token : ""} />
     </PageShell>
   );

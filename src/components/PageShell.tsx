@@ -18,9 +18,10 @@ import type { TourStep } from "@/features/guide/tour";
  * Pages are 80rem wide with room at the sides; `wide` keeps the full 96rem for tools that fill the screen (the cheatsheet),
  * and `full` spans the whole window (the scales pages, whose settings column sits on the right edge).
  * Necks and other wide pieces reach back out with the `bleed` utility. `devices` puts the audio input and output picker in the nav,
- * for pages that listen or play.
+ * for pages that listen or play. `centered` puts the title, intro and content in the middle, for a page that is one small
+ * form (log in, create account).
  */
-export default function PageShell({ title, eyebrow, intro, active, wide = false, full = false, devices = false, mic = false, action, header, pageId, tour, children }: {
+export default function PageShell({ title, eyebrow, intro, active, wide = false, full = false, devices = false, mic = false, centered = false, action, header, pageId, tour, children }: {
   title: string;
   /** a short line over the title saying what kind of page this is ("A note from your teacher") */
   eyebrow?: string;
@@ -28,6 +29,8 @@ export default function PageShell({ title, eyebrow, intro, active, wide = false,
   devices?: boolean;
   /** the page listens to the microphone: adds the mic and headphones note under the intro */
   mic?: boolean;
+  /** title, intro and content in the middle of the page, for a page that is one small form */
+  centered?: boolean;
   /** a button or link in the title row's right corner ("Edit this note") */
   action?: ReactNode;
   /** replaces the plain title, for pages that open with a hero (such a page places its own PageHelp) */
@@ -40,7 +43,7 @@ export default function PageShell({ title, eyebrow, intro, active, wide = false,
 }) {
   const section = sectionFor(active);
   const theory = active.startsWith("/theory/");
-  const heading = <PageHeading title={title} eyebrow={eyebrow} bar={pageBar(active)} />;
+  const heading = <PageHeading title={title} eyebrow={eyebrow} bar={pageBar(active)} centered={centered} />;
   return (
     <div className="app-bg min-h-screen text-slate-200">
       <div className={`mx-auto flex w-full flex-col gap-4 pt-8 pb-3 sm:pt-12 sm:pb-4 ${full ? "px-3 sm:px-6 lg:px-8" : wide ? "max-w-[96rem] px-3 sm:px-5" : "max-w-[80rem] px-3 sm:px-6 lg:px-8"}`}>
@@ -50,7 +53,7 @@ export default function PageShell({ title, eyebrow, intro, active, wide = false,
         <div className="border-b border-slate-800/70 py-1.5 sm:py-2.5">
           <SiteNav active={active} devices={devices} />
         </div>
-        <header className="pt-6 sm:pt-10">
+        <header className={`pt-6 sm:pt-10 ${centered ? "text-center" : ""}`}>
           {/* the breadcrumb belongs to the page, so it sits over the title rather than under the logo */}
           {section && theory && (
             <nav aria-label="Breadcrumb" className="mb-3 flex w-fit items-center gap-1.5 border-b border-slate-700/70 pb-2 text-xs text-slate-500">
@@ -66,7 +69,7 @@ export default function PageShell({ title, eyebrow, intro, active, wide = false,
               ) : (
                 heading
               )}
-              {intro && <PageIntro>{intro}</PageIntro>}
+              {intro && <PageIntro centered={centered}>{intro}</PageIntro>}
               {(pageId || mic) && (
                 <div className="mt-4 flex max-w-3xl flex-col gap-2">
                   {pageId && (
@@ -84,7 +87,7 @@ export default function PageShell({ title, eyebrow, intro, active, wide = false,
             </>
           )}
         </header>
-        <main className="pb-6">{pageId ? <GuideProvider pageId={pageId}>{children}</GuideProvider> : children}</main>
+        <main className={`pb-6 ${centered ? "flex justify-center" : ""}`}>{pageId ? <GuideProvider pageId={pageId}>{children}</GuideProvider> : children}</main>
         <SiteFooter />
       </div>
     </div>

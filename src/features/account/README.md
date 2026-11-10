@@ -14,7 +14,7 @@ email them or with Google. There are no passwords.
 - `localAccountStore.ts`: the development store: accounts in localStorage, picked on `/dev/account`, no sign-in.
 - `useAccount.tsx`: `useAccount()` gives `{ account, loaded, can }`. It asks the real session first, then (development
   only) the browser account.
-- `ui/`: the screens. `LinkForm` (`/login`, `/register`), `ConfirmLink` (`/login/confirm`), `FinishSignup`
+- `ui/`: the screens. `LinkForm` (`/login`, `/register` for students, `/register/teacher`), `ConfirmLink` (`/login/confirm`), `FinishSignup`
   (`/register/finish`), `AccountPanel` (`/account`), `AccountLink` (the corner of the top nav).
 - `server/`: sign-in itself, server only.
   - `auth.ts`: the rules, with no HTTP and no SQL in them: `requestEmailLink`, `openEmailLink`, `googleSignIn`,
@@ -29,9 +29,9 @@ The tables are in `src/lib/db/schema.ts` and the migrations in `/drizzle`.
 
 | | |
 | --- | --- |
-| Create account by email | `/register`: role, name, email → `POST /api/auth/email-link` (`register: true`) mails a link → `/login/confirm?token=` → Continue → `POST /api/auth/email-link/confirm` makes the account and the session. |
+| Create account by email | `/register` (student) or `/register/teacher`: name, email → `POST /api/auth/email-link` (`register: true`) mails a link → `/login/confirm?token=` → Continue → `POST /api/auth/email-link/confirm` makes the account and the session. |
 | Log in by email | `/login`: email → the same two calls. An email with no account lands on `/register/finish`. |
-| Google | `GET /api/auth/google/start` (`?role=` from the register form) → Google → `GET /api/auth/google/callback`. A known Google id, or a Google-verified email that has an account, logs in. A new person with a role gets an account; without one, `/register/finish`. |
+| Google | `GET /api/auth/google/start` (`?role=` from the role's register page) → Google → `GET /api/auth/google/callback`. A known Google id, or a Google-verified email that has an account, logs in. A new person with a role gets an account; without one, `/register/finish`. |
 | Finish | `/register/finish`: the email is proven but has no account. `GET /api/auth/signup` gives the email, `POST` (name, role) makes the account. |
 | Session | `GET /api/auth/session` → `{ account }`. `POST /api/auth/logout`. |
 | Account | `PATCH /api/account` (name), `DELETE /api/account`. |

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import type { SignupRole } from "../model";
-import { Card, ErrorLine, FIELD, GoogleButton, LABEL, LINK, OrLine, PRIMARY, RoleChoice, errorOf, send } from "./parts";
+import { Card, ErrorLine, FIELD, GoogleButton, LABEL, LINK, OrLine, PRIMARY, errorOf, send } from "./parts";
 
 /** Why Google sent the person back to /login without signing in (`?error=`, set by the callback route). */
 const GOOGLE_ERRORS: Record<string, string> = {
@@ -16,13 +16,14 @@ const GOOGLE_ERRORS: Record<string, string> = {
 type State = { kind: "idle" } | { kind: "sending" } | { kind: "error"; message: string } | { kind: "sent"; email: string; devLink: string | null };
 
 /**
- * /login and /register: one form that mails a link, and "Continue with Google" when the site has Google's keys.
- * `register` adds the name and the role; Google takes the role with it, so a new person needs no second form.
+ * /login, /register (students) and /register/teacher: one form that mails a link, and "Continue with Google" when the site
+ * has Google's keys. A `role` makes it the create-account form for that role, with the name; the role comes from the
+ * address, and Google takes it with it, so a new person needs no second form.
  */
-export default function LinkForm({ register, google, next, error }: { register: boolean; google: boolean; next: string | null; error?: string }) {
+export default function LinkForm({ role, google, next, error }: { role?: SignupRole; google: boolean; next: string | null; error?: string }) {
+  const register = !!role;
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
-  const [role, setRole] = useState<SignupRole | null>(null);
   const [state, setState] = useState<State>(error && GOOGLE_ERRORS[error] ? { kind: "error", message: GOOGLE_ERRORS[error] } : { kind: "idle" });
   const other = `${register ? "/login" : "/register"}${next ? `?next=${encodeURIComponent(next)}` : ""}`;
 
@@ -57,15 +58,17 @@ export default function LinkForm({ register, google, next, error }: { register: 
 
   return (
     <Card>
+      {role && (
+        <Link className={`${LINK} self-end text-sm`} href={`${role === "student" ? "/register/teacher" : "/register"}${next ? `?next=${encodeURIComponent(next)}` : ""}`}>
+          {role === "student" ? "Are you a teacher? Register here" : "Are you a student? Register here"} <span aria-hidden>→</span>
+        </Link>
+      )}
       <form noValidate onSubmit={(e) => void submit(e)} className="flex flex-col gap-4">
         {register && (
-          <>
-            <RoleChoice value={role} onChange={setRole} />
-            <label>
-              <span className={LABEL}>Name</span>
-              <input className={FIELD} value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" maxLength={80} />
-            </label>
-          </>
+          <label>
+            <span className={LABEL}>Name</span>
+            <input className={FIELD} value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" maxLength={80} />
+          </label>
         )}
         <label>
           <span className={LABEL}>Email</span>
@@ -80,7 +83,7 @@ export default function LinkForm({ register, google, next, error }: { register: 
       {google && (
         <>
           <OrLine />
-          <GoogleButton role={register ? role : null} next={next} />
+          <GoogleButton role={role ?? null} next={next} />
         </>
       )}
       <p className="text-sm text-slate-400">
