@@ -20,7 +20,7 @@ const BAR: Record<Tone, string> = { emerald: "bg-emerald-400", sky: "bg-sky-400"
  * Necks and other wide pieces reach back out with the `bleed` utility. `devices` puts the audio input and output picker in the nav,
  * for pages that listen or play.
  */
-export default function PageShell({ title, eyebrow, intro, active, wide = false, full = false, devices = false, mic = false, header, pageId, tour, children }: {
+export default function PageShell({ title, eyebrow, intro, active, wide = false, full = false, devices = false, mic = false, action, header, pageId, tour, children }: {
   title: string;
   /** a short line over the title saying what kind of page this is ("A note from your teacher") */
   eyebrow?: string;
@@ -28,6 +28,8 @@ export default function PageShell({ title, eyebrow, intro, active, wide = false,
   devices?: boolean;
   /** the page listens to the microphone: adds the mic and headphones note under the intro */
   mic?: boolean;
+  /** a button or link in the title row's right corner ("Edit this note") */
+  action?: ReactNode;
   /** replaces the plain title, for pages that open with a hero (such a page places its own PageHelp) */
   header?: ReactNode;
   /** turns on the guide: the level switch, tour button and "?" in the title row, and `Tier` knowing this page */
@@ -64,10 +66,13 @@ export default function PageShell({ title, eyebrow, intro, active, wide = false,
           )}
           {header ?? (
             <>
-              {pageId ? (
+              {pageId || action ? (
                 <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
                   <div>{heading}</div>
-                  <PageHelp pageId={pageId} tour={tour} />
+                  <div className="flex items-center gap-2">
+                    {action}
+                    {pageId && <PageHelp pageId={pageId} tour={tour} />}
+                  </div>
                 </div>
               ) : (
                 heading

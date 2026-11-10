@@ -1,36 +1,44 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import PageShell from "@/components/PageShell";
-import { PRESET_INFO, PresetNote, StudioApp, editablePreset, editableSlug, presetInfo } from "@/features/teachers/studio";
+import Icon from "@/components/Icon";
+import { PRESET_INFO, PresetNote, StudioApp, presetInfo } from "@/features/teachers/studio";
 
 type Params = { slug: string };
+type Search = Record<string, string | string[] | undefined>;
 
 export const dynamicParams = false;
-export const generateStaticParams = (): Params[] => Object.keys(PRESET_INFO).flatMap((slug) => [{ slug }, { slug: editableSlug(slug) }]);
+export const generateStaticParams = (): Params[] => Object.keys(PRESET_INFO).map((slug) => ({ slug }));
 
-export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
-  const { slug } = await params;
-  const edit = editablePreset(slug);
-  if (edit) return { title: `Edit: ${presetInfo(edit)!.title} · attunr`, robots: { index: false } };
-  const note = presetInfo(slug);
-  return note ? { title: `${note.title} · attunr`, description: note.description } : {};
+/** `?edit=true` opens the note in the notes creator. */
+const editing = (search: Search) => search.edit === "true";
+
+export async function generateMetadata({ params, searchParams }: { params: Promise<Params>; searchParams: Promise<Search> }): Promise<Metadata> {
+  const note = presetInfo((await params).slug);
+  if (!note) return {};
+  if (editing(await searchParams)) return { title: `Edit: ${note.title} · attunr`, robots: { index: false } };
+  return { title: `${note.title} · attunr`, description: note.description };
 }
 
-/** A note made ahead, at a plain address such as /note/minor-pentatonic; /note/minor-pentatonic-editable opens the same note in the notes creator. */
-export default async function NotePage({ params }: { params: Promise<Params> }) {
+const ACTION = "inline-flex items-center gap-1.5 rounded-lg border border-slate-700 px-3 py-1.5 text-sm text-slate-200 hover:bg-slate-800";
+
+/** A note made ahead, at a plain address such as /note/minor-pentatonic; with `?edit=true` the same note opens in the notes creator. */
+export default async function NotePage({ params, searchParams }: { params: Promise<Params>; searchParams: Promise<Search> }) {
   const { slug } = await params;
-  const edit = editablePreset(slug);
-  if (edit) {
+  const note = presetInfo(slug);
+  if (!note) notFound();
+  if (editing(await searchParams)) {
     return (
-      <PageShell active="/teachers/studio?notes=1" full title="Notes creator" intro={`“${presetInfo(edit)!.title}”, open to change: add, move or remove widgets, then share it as a link. Nothing here is saved, so a reload brings the note back as it was.`}>
-        <StudioApp notes preset={edit} />
+      <PageShell active="/teachers/studio?notes=1" full title="Notes creator" intro={`“${note.title}”, open to change: add, move or remove widgets, then share it as a link. Nothing here is saved, so a reload brings the note back as it was.`}
+        action={<Link href={`/note/${slug}`} className={ACTION}><Icon name="eye" size={15} />View the note</Link>}>
+        <StudioApp notes preset={slug} />
       </PageShell>
     );
   }
-  const note = presetInfo(slug);
-  if (!note) notFound();
   return (
-    <PageShell active="/teachers/studio?notes=1" devices eyebrow="A note from your teacher" title={note.title} intro={note.description}>
+    <PageShell active="/teachers/studio?notes=1" devices eyebrow="A note from your teacher" title={note.title} intro={note.description}
+      action={<Link href={`/note/${slug}?edit=true`} className={ACTION}><Icon name="pencil" size={15} />Edit this note</Link>}>
       <PresetNote slug={slug} />
     </PageShell>
   );

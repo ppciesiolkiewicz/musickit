@@ -50,12 +50,3 @@ test("the tunes a preset note's text describes are still at their numbers in the
   assert.deepEqual(at(STAGES, BOOK, PRESET_TUNES.solLaSol), ["la", "5 6 5 3 | 1w"]);
   assert.deepEqual(at(RUN_STAGES, RUNS, PRESET_TUNES.pentatonicRun), ["pentatonic-run", "1's 6s 5s 3s 5s 3s 2s 1s 2h | 1w"]);
 });
-
-test("a preset's editable address names the preset, and nothing else does", async () => {
-  const { editablePreset, editableSlug } = await import("./presetInfo");
-  assert.equal(editableSlug("minor-pentatonic"), "minor-pentatonic-editable");
-  assert.equal(editablePreset("minor-pentatonic-editable"), "minor-pentatonic");
-  assert.equal(editablePreset("minor-pentatonic"), null);
-  assert.equal(editablePreset("no-such-note-editable"), null);
-  assert.equal(editablePreset("-editable"), null);
-});
