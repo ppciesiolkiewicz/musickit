@@ -90,7 +90,7 @@ store/
   localPlanStore.ts  the localStorage implementation ("musickit.plan"), with sanitising
   usePlan.tsx     the hook the UI uses, and PlanStoreProvider to swap the store
 examples/         the example library: exercises/*.json, plans/*.json (standalone JSON), index.ts loads them; see its README
-ui/               PlanFlow, PromptAndPaste, WeekView, Sections (an exercise's sections in order; under a SectionAside, the /dev/examples review view, each tool is framed with its type and each step is ruled off; every tool has its own tour button, `ToolTour` from `features/guide`, walking `TOOL_TOURS` inside that tool only, and only the first unseen one on the page wobbles), DayTimer (the floating day countdown), ExerciseTool
+ui/               PlanFlow, PromptAndPaste, WeekView, Sections (an exercise's sections in order, each headed step ending in a small "Top of exercise" button that scrolls back to its card; under a SectionAside, the /dev/examples review view, each tool is framed with its type and each step is ruled off; every tool has its own tour button, `ToolTour` from `features/guide`, walking `TOOL_TOURS` inside that tool only, and only the first unseen one on the page wobbles), DayTimer (the floating day countdown), ExerciseTool
 PlanApp.tsx       the page body: no plan → Start; a plan → header, week, history, a Back to top button; the flow modal
 reminders.ts, PracticeReminder.tsx   notifications (PracticeReminder is mounted in PageShell, on every page)
 ```

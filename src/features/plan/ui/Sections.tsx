@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment, useContext, useState, type ReactNode } from "react";
+import Icon from "@/components/Icon";
 import { SectionAsideContext } from "./SectionAside";
 import Explained from "@/components/course/Explained";
 import { explain, type Piece } from "@/features/course/glossary";
@@ -51,6 +52,23 @@ function ToolBox({ type, children }: { type: string; children: ReactNode }) {
       <div className="flex justify-end"><ToolTour type={type} root={root} /></div>
       {children}
     </div>
+  );
+}
+
+/** A small button at the end of a step that scrolls back to the top of its exercise (the card around it). */
+function ToExerciseTop() {
+  return (
+    <button
+      type="button"
+      onClick={(ev) => {
+        const card = ev.currentTarget.closest("[data-tour='plan-exercise']") ?? ev.currentTarget.closest("section");
+        card?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }}
+      className="inline-flex items-center gap-1 self-end rounded-md px-2 py-0.5 text-[11px] font-medium text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+    >
+      <Icon name="arrow-up" size={12} />
+      Top of exercise
+    </button>
   );
 }
 
@@ -151,7 +169,7 @@ export default function Sections({ sections: written, address = "ex" }: { sectio
                   </h4>,
                   p.head!,
                 )}
-                {p.items.length > 0 && <div className="ml-[4px] flex flex-col gap-3 border-l border-slate-700/70 pl-5">{stepItems(p.items)}</div>}
+                {p.items.length > 0 && <div className="ml-[4px] flex flex-col gap-3 border-l border-slate-700/70 pl-5">{stepItems(p.items)}<ToExerciseTop /></div>}
               </div>
             </ExerciseStep>
           </div>
