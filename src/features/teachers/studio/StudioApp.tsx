@@ -13,6 +13,7 @@ import useScreenShare from "./media/useScreenShare";
 import ControlBadge, { MicBadge, PageBadge } from "./ControlBadge";
 import { encodeNote, noteFromHash } from "./notes";
 import NoteView from "./NoteView";
+import { presetNote } from "./presetNotes";
 import Palette from "./Palette";
 import useStage from "./useStage";
 
@@ -65,7 +66,11 @@ const isTyping = () => {
 };
 
 /** The studio, or in the notes creator a shared note's link opened as an article to read (`NoteView`). */
-export default function StudioApp({ notes = false }: { notes?: boolean }) {
+export default function StudioApp({ notes = false, preset }: {
+  notes?: boolean;
+  /** a preset note's slug (`presetNotes.ts`): the notes creator opens on that note, and saves nothing */
+  preset?: string;
+}) {
   // the link's hash is known only in the browser: until then nothing is drawn, as the studio itself waits for hydration
   const [note, setNote] = useState<string | null | undefined>(undefined);
   useEffect(() => {
@@ -73,20 +78,22 @@ export default function StudioApp({ notes = false }: { notes?: boolean }) {
     setNote(notes ? noteFromHash(window.location.hash) : null);
   }, [notes]);
   if (note === undefined) return null;
-  return note ? <NoteView note={note} /> : <Studio notes={notes} />;
+  return note ? <NoteView note={note} /> : <Studio notes={notes} preset={preset} />;
 }
 
 /** The teacher studio: the 16:9 frame in the middle, its layers on the left, the keys that work on the right. */
-function Studio({ notes = false }: {
+function Studio({ notes = false, preset }: {
   /** the notes creator (?notes=1): the same stage without video, camera, screen or microphone, shared as a link, inside the site's page frame */
   notes?: boolean;
+  preset?: string;
 }) {
   const [mounted, setMounted] = useState(false);
-  const [stage, dispatch] = useStage(PLUGIN_IDS, notes);
+  const [stage, dispatch] = useStage(PLUGIN_IDS, notes, preset ? (presetNote(preset)?.stage ?? null) : null);
   const [shared, setShared] = useState<"copied" | "failed" | null>(null);
   const shareNote = async () => {
     try {
-      const url = `${window.location.origin}${window.location.pathname}?notes=1#note=${await encodeNote(stageRef.current)}`;
+      // a shared note always opens at the notes creator's own address, also when made from a preset's page
+      const url = `${window.location.origin}/teachers/studio?notes=1#note=${await encodeNote(stageRef.current)}`;
       await navigator.clipboard.writeText(url);
       setShared("copied");
     } catch {

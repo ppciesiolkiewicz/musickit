@@ -23,6 +23,7 @@ test("the video widgets are subjects", () => {
 test("names", () => {
   assert.equal(subjectTitle({ kind: "melody", beats: 6 }), "Melody");
   assert.equal(subjectTitle({ kind: "countdown" }), "Countdown");
+  assert.equal(subjectTitle({ kind: "tool", tool: { type: "run-singer", run: 108 } }), "Run");
   assert.equal(subjectTitle({ kind: "intro" }), "Intro");
   assert.equal(subjectTitle({ kind: "progress" }), "Tune progress");
   assert.equal(subjectTitle({ kind: "next" }), "Up next");

@@ -8,3 +8,9 @@ export const PRESET_INFO: Record<string, { title: string; description: string }>
 
 /** The preset note's title and line behind a slug, or null. */
 export const presetInfo = (slug: string) => (Object.hasOwn(PRESET_INFO, slug) ? PRESET_INFO[slug] : null);
+
+/** A preset opened in the notes creator, to change it: `/note/<slug>-editable`. */
+const EDITABLE = "-editable";
+export const editableSlug = (slug: string) => `${slug}${EDITABLE}`;
+/** The preset an editable address names, or null when it is not one. */
+export const editablePreset = (slug: string): string | null => (slug.endsWith(EDITABLE) && presetInfo(slug.slice(0, -EDITABLE.length)) ? slug.slice(0, -EDITABLE.length) : null);

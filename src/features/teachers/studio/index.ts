@@ -4,4 +4,4 @@
  */
 export { default as StudioApp } from "./StudioApp";
 export { default as PresetNote } from "./PresetNote";
-export { PRESET_INFO, presetInfo } from "./presetInfo";
+export { PRESET_INFO, editablePreset, editableSlug, presetInfo } from "./presetInfo";
