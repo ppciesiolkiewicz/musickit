@@ -162,3 +162,34 @@ describe("rules the prompt states", () => {
     assert.ok(!r.warnings.includes("Day 3, exercise 1: no learnBefore link; add an attunr page to learn first."));
   });
 });
+
+describe("list entries it could not read are noted", () => {
+  const neck = { type: "scale-neck", scale: "dorian", key: "a" };
+  it("names the prop and the entries; duplicates are no loss", () => {
+    assert.deepEqual(notes({ ...neck, boxes: [1, 9, "x", 1], positions: [0] }), ['scale-neck "boxes" had entries it could not read (9, "x"); left them out.']);
+    assert.deepEqual(notes({ ...neck, highlight: ["3", "x", "b3", "3"] }), ['scale-neck "highlight" had entries it could not read ("x"); left them out.']);
+    assert.deepEqual(notes({ ...neck, mute: ["c-sharp", "nope"], add: ["c", "zz"] }), ['scale-neck "add" had entries it could not read ("zz"); left them out.', 'scale-neck "mute" had entries it could not read ("nope"); left them out.']);
+    assert.deepEqual(notes({ type: "position-neck", scale: "dorian", key: "a", positions: [6] }), ['position-neck "positions" had entries it could not read (6); left them out.']);
+    assert.deepEqual(notes({ type: "staff", scale: "dorian", key: "a", voice: "alto", notes: ["1", "c-sharp"] }), ['staff "notes" had entries it could not read ("c-sharp"); left them out.']);
+    assert.deepEqual(notes({ type: "guitar-play-along", bpm: 80, shape: { shape: "progression", key: "a", chords: ["Am", "F"], bars: 2 }, enable: ["1", "q"] }), ['guitar-play-along "enable" had entries it could not read ("q"); left them out.']);
+    assert.deepEqual(notes({ type: "finger-pattern", fingers: "12", bpm: 60, strings: [1, 7] }), ['finger-pattern "strings" had entries it could not read (7); left them out.']);
+    assert.deepEqual(notes({ type: "interval-singer", key: "c", keys: ["d", "zz"], intervals: [4, 13] }), ['interval-singer "intervals" had entries it could not read (13); left them out.', 'interval-singer "keys" had entries it could not read ("zz"); left them out.']);
+    assert.deepEqual(notes({ type: "backing-track", progression: "nope", chords: ["Am", "G"], mute: ["drums", "tuba"] }), ['backing-track "mute" had entries it could not read ("tuba"); left them out.']);
+    assert.deepEqual(notes({ type: "backing-band", bpm: 80, key: "a", parts: { click: "on", tuba: "on", bass: "loud" } }), ['backing-band "parts" had entries it could not read ({"tuba":"on"}, {"bass":"loud"}); left them out.']);
+    assert.deepEqual(notes({ type: "backing-band", bpm: 80, key: "a", parts: ["click", "tuba"] }), ['backing-band "parts" had entries it could not read ("tuba"); left them out.']);
+  });
+  it("numbers in degree lists from a paste are reported, with how to write them", () => {
+    assert.deepEqual(notes({ ...neck, enable: [3, "5", 7] }), ['scale-neck "enable" had numbers (3, 7); write degrees as strings ("3", "b7"); left them out.']);
+    assert.deepEqual(notes({ type: "staff", scale: "dorian", key: "a", voice: "alto", notes: [0, 4] }), ['staff "notes" had numbers (0, 4); write degrees as strings ("3", "b7"); left them out.']);
+  });
+  it("a heading's keys it could not read", () => {
+    assert.deepEqual(parseSectionDiag({ type: "heading", text: "H", keys: ["c", "d", "zz"] }).notes, ['a heading\'s "keys" had entries it could not read ("zz"); left them out.']);
+    assert.deepEqual(parseSectionDiag({ type: "heading", text: "H", keys: ["c", "d"] }).notes, []);
+  });
+  it("a stored tool says nothing, and keeps its semitone numbers", () => {
+    const stored = { type: "scale-neck", scale: "dorian", key: 9, boxes: [1, 9], enable: [0, 3, 12], add: ["zz"] };
+    assert.deepEqual(parseToolDiag(stored, { stored: true }).notes, []);
+    assert.deepEqual((parseTool(stored, { stored: true }) as { enable: number[] }).enable, [0, 3]);
+    assert.deepEqual(sectionsOf({ sections: [{ type: "tool", tool: stored as never }] }).length, 1);
+  });
+});

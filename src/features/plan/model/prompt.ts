@@ -1,6 +1,7 @@
 import { GLOSSARY } from "@/features/course/glossary";
 import type { CatalogueEntry } from "./catalogue";
-import { EXERCISE_AREAS, EXERCISE_LEVELS, EXERCISE_TAGS, linkResources, sectionInterface, toolInterface } from "./tools";
+import { keyName } from "@/features/theory/keySlug";
+import { EXERCISE_AREAS, EXERCISE_LEVELS, EXERCISE_TAGS, linkResources, sectionInterface, sectionsOf, toolInterface } from "./tools";
 import { LEVELS, labelOf } from "./questions";
 import { DEFAULT_ANSWERS, levelOf } from "../intake/answers";
 import { TOPICS, topicById, topicsFor } from "../intake/topics";
@@ -12,7 +13,7 @@ import { selectExamples } from "./exampleSelection";
 import { doneKey } from "./schedule";
 import { starText } from "@/features/progress/stars";
 import type { CourseRating } from "@/features/course/ratings";
-import { PLAN_DAYS, type PlanAnswers, type StoredPlan } from "./types";
+import { PLAN_DAYS, type PlanAnswers, type PlanExercise, type StoredPlan } from "./types";
 
 /** The student section's lines: per area a rough level and the line they picked for each topic, then voice, time, notes, styles. */
 function studentLines(a: PlanAnswers): string[] {
@@ -33,14 +34,37 @@ function studentLines(a: PlanAnswers): string[] {
   ];
 }
 
+/** The settings an exercise was practised with, read from its tools: `scale-neck, backing-band · A, E · 60-80 bpm · tenor`; "" with no tools. */
+export function settingsOf(e: PlanExercise): string {
+  const names: string[] = [], keys: number[] = [], bpms: number[] = [], voices: string[] = [];
+  const add = <T,>(to: T[], v: T | undefined) => { if (v !== undefined && !to.includes(v)) to.push(v); };
+  for (const s of sectionsOf(e)) {
+    if (s.type === "heading") s.keys?.forEach((k) => add(keys, k));
+    if (s.type !== "tool") continue;
+    const t = s.tool as Record<string, unknown>;
+    add(names, s.tool.type);
+    for (const k of [t.key, ...(Array.isArray(t.keys) ? t.keys : [])]) if (typeof k === "number") add(keys, k);
+    if (typeof t.bpm === "number") add(bpms, t.bpm);
+    if (typeof t.voice === "string") add(voices, t.voice);
+  }
+  bpms.sort((a, b) => a - b);
+  const tempo = bpms.length ? `${bpms.length > 1 ? `${bpms[0]}-${bpms[bpms.length - 1]}` : bpms[0]} bpm` : "";
+  return [names.join(", "), keys.map(keyName).join(", "), tempo, voices.join(", ")].filter(Boolean).join(" · ");
+}
+
+/** The clause after an exercise's title: ` (level · focus; settings)`, or "" when it has none of them. */
+const aboutOf = (e: PlanExercise): string => {
+  const about = [[e.level, e.focus].filter(Boolean).join(" · "), settingsOf(e)].filter(Boolean).join("; ");
+  return about ? ` (${about})` : "";
+};
+
 /** What happened last week, exercise by exercise, so the next week builds on it. */
 export function weekReport(plan: StoredPlan): string {
   const lines = [`Plan "${plan.config.title}", started ${plan.startedOn}:`];
   plan.config.days.forEach((d, di) => {
     const ex = d.exercises.map((e, ei) => {
       const mark = markOf(plan, di, ei);
-      const about = [e.level, e.focus].filter(Boolean).join(" · ");
-      return `${mark} ${e.title}${about ? ` (${about})` : ""}`;
+      return `${mark} ${e.title}${aboutOf(e)}`;
     }).join("; ");
     lines.push(`- Day ${di + 1} (${d.theme}): ${ex}`);
   });
@@ -62,9 +86,8 @@ function markOf(plan: StoredPlan, day: number, exercise: number): string {
 export function weekByTopic(plan: StoredPlan): string {
   const groups = new Map<string, string[]>();
   plan.config.days.forEach((d, di) => d.exercises.forEach((e, ei) => {
-    const about = [e.level, e.focus].filter(Boolean).join(" · ");
     const key = e.topic && topicById(e.topic) ? e.topic : "";
-    groups.set(key, [...(groups.get(key) ?? []), `- Day ${di + 1}: ${markOf(plan, di, ei)} ${e.title}${about ? ` (${about})` : ""}`]);
+    groups.set(key, [...(groups.get(key) ?? []), `- Day ${di + 1}: ${markOf(plan, di, ei)} ${e.title}${aboutOf(e)}`]);
   }));
   const lines = [`Plan "${plan.config.title}", started ${plan.startedOn}:`];
   for (const t of TOPICS) if (groups.has(t.id)) lines.push(`### ${AREAS.find((a) => a.id === t.area)!.label} · ${t.label}`, ...groups.get(t.id)!);
@@ -74,7 +97,7 @@ export function weekByTopic(plan: StoredPlan): string {
 }
 
 /** How to read the ratings of a finished week. */
-const BUILD_ON = "Build on this: ratings are how the exercise went. 1-2 stars: make it easier (slower bpm, a lower level, fewer notes, or split it into parts). 3: keep the level and change one thing. 4-5: move on (faster bpm or the next level). Repeat what was skipped in a new form, and keep the thread of their goals.";
+const BUILD_ON = "Build on this: ratings are how the exercise went, and the tools, keys, bpm and voice after the semicolon are what they practised with: the baseline to step from. 1-2 stars: make it easier (slower bpm, a lower level, fewer notes, or split it into parts). 3: keep the level and change one thing. 4-5: move on (faster bpm or the next level). Repeat what was skipped in a new form, and keep the thread of their goals.";
 
 const EXERCISES_HEADING = [
   "## Examples of good exercises",

@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { catalogue } from "./catalogue";
-import { buildPrompt, promptParts, weekByTopic, weekReport } from "./prompt";
+import { buildPrompt, promptParts, settingsOf, weekByTopic, weekReport } from "./prompt";
 import { TOPICS } from "../intake/topics";
 import { DEFAULT_ANSWERS } from "../intake/answers";
 import { selectExamples } from "./exampleSelection";
@@ -231,4 +231,26 @@ test("the prompt asks for the progress summary and the topic tags, and lists eve
     for (const t of TOPICS) assert.ok(format.includes(`- ${t.id} (${t.label})`), t.id);
     assert.match(format, /- guitar-barre-chords \(Barre chords\): bm-f-barre/);
   }
+});
+
+const tool = (o: Record<string, unknown>) => ({ type: "tool" as const, tool: o as never });
+const exOf = (e: Record<string, unknown>) => ({ title: "X", minutes: 5, ...e }) as never;
+
+test("settingsOf: tools once each in order, keys, tempo range, voice; nothing for no tools", () => {
+  const two = exOf({ sections: [tool({ type: "scale-neck", scale: "minor-pentatonic", key: 9 }), tool({ type: "backing-band", bpm: 80, key: 9, parts: { drums: "on" } }), tool({ type: "backing-band", bpm: 60, key: 9, parts: { drums: "on" } })] });
+  assert.equal(settingsOf(two), "scale-neck, backing-band · A · 60-80 bpm");
+  const heading = exOf({ sections: [{ type: "heading", text: "H", keys: [4, 6] }, tool({ type: "scale-neck", scale: "minor-pentatonic", key: 4 })] });
+  assert.equal(settingsOf(heading), "scale-neck · E, F♯");
+  const sing = exOf({ sections: [tool({ type: "interval-singer", key: 7, voice: "tenor" })] });
+  assert.equal(settingsOf(sing), "interval-singer · G · tenor");
+  assert.equal(settingsOf(exOf({ sections: [{ type: "text", text: "x" }] })), "");
+});
+
+test("legacy plans (how / steps / tools) show their settings too", () => {
+  const e = exOf({ level: "beginner", focus: "Am pent", how: "h", steps: ["a"], tools: [{ type: "backing-band", bpm: 70, key: 9, parts: { drums: "on" }, step: 1 }] });
+  assert.equal(settingsOf(e), "backing-band · A · 70 bpm");
+  const plan: StoredPlan = { id: "l", startedOn: "2026-11-01", done: {}, config: { title: "Old", days: [{ theme: "T", exercises: [e] }] } as never };
+  assert.match(weekReport(plan), /\[skipped\] X \(beginner · Am pent; backing-band · A · 70 bpm\)/);
+  assert.match(weekByTopic(plan), /- Day 1: \[skipped\] X \(beginner · Am pent; backing-band · A · 70 bpm\)/);
+  assert.match(weekReport({ ...plan, config: { title: "N", days: [{ theme: "T", exercises: [exOf({})] }] } as never }), /\[skipped\] X$/m);
 });
