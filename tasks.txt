@@ -14,9 +14,97 @@ and add to these pages. Rank pages and provide me your understanding which pages
 
 
 
+[DONE] 56. Create kickstarter page available only in dev to /dev paths
+On this page I want to have:
+Voice for generating emails for potential customers trying to find funding.
+Mention: looking to find founding partners that will get price locked in, long trial period before paid period starts (90 days),
+involved in creation. The app is for organising notes and interactive exercises for students but could develop to manage more aspects of music school.
+I'm still improving the website content - it's still a beta product.
+Include links to different demos listed in /demo
+
+57.
+
+Coming soon:
+For online teaching interactive notes are visible on user screen as teacher adds them. (not implemented yet)
+So this is like an online teaching tool
+
+This kickstarter page should interact with my claude extension
 
 
 
+[DONE] 58. Use backing band component in this one, not the one with a drone
+http://localhost:3000/note/minor-pentatonic
+
+
+59. Generate demo exercise for advanced level
+
+
+60.
+How did it go?
+
+
+Improve labels the middle one should kind of mean that we will not go higher speed, count, level
+But this is also maybe already good, give me idea.
+
+
+61. Lets  show "what's your favourite style" automatically on page load only on B2C lp
+
+
+62. Timer on mobile should be smaller and label selector embeded in settings ections above "Day .."
+Remove now tag - timer is just motivational guidance
+
+
+63. Which interval exercise:
+answers look kind of muted compared to "Replay" - improve.
+I'd like the UI to not jump when i move through this exercise.
+
+
+64. Bad content example:
+Press Start below: Do sounds, and the leap to sing shows by name. Hear the landing note in your head first, then sing it on "oo" and hold it until it counts. Press Next for another leap, from a new Do. If a leap misses, press Restart to hear Do again.
+
+Let's also start storing these pieces in like tmp/bad_examples.txt in this project or somewhere, 
+We will use them later to really get the copies right
+
+
+65. hard spaces in  `on "la"` etc.
+Also, the content could be improved, giving example like "la la la".
+The content could give example related to specific sound mentioned,
+.e.g. example would say "ee ee" -> also use phonetic alphabet and if you can
+ include sound playback I can provide elevenlabs key or maybe you have the skill for this?
+
+
+66.
+"Your own, with a leap" exercise - I think we need to improve label to use headphones and add them to more basic components.
+ I can see that later exercise has label but former not because it looks we add it at the wrong level
+
+
+
+70. BIG: 
+RESEARCH RELATION BETWEEN AUTOPLAN AND NOTES - THEY ARE VERY SIMILAR - COULD we merge them into one component?
+
+
+I want to enable schools have
+ability to upload videos to notes and to create courses from sets of notes that have videos and components. 
+A bit like jupyter notebook.
+
+
+
+In exercises like this (and others).
+
+Your own, with a leap
+When we say [space] it has to be inside the button
+
+
+
+
+
+89. Schools selling their own video courses
+Then sets of notes can be bundled in courses and sold
+
+90. Super deferred
+I also want to be able to upload record videos
+directly into the content of the page and be able to upload it to blob.
+This probably could use some sort of injection mechanism or predefined slots.
 
 
 ======================== Small ========================
@@ -75,7 +163,7 @@ Original: "We are adding "custom" level alongside 1-6: Your set is renamed to "I
 Like - seeing chords within a scale!
 
 22. Add hill exercise to singing. Evaluate exercises from old singing.attunr.app
-I can tell you where attunr repository is
+I can tell you where attunr repository is but if you check .. it's the projects dir
 
 src/components/Exercise/PitchExercises
 Include also farinelli exercise in our app
