@@ -10,6 +10,8 @@ import { useAllNotes } from "@/components/course/useCourseNotes";
 import { courseRatings } from "@/features/course/ratings";
 import type { PlanAnswers, PlanConfig, StoredPlan } from "../model/types";
 import { CopyPrompt, PasteBox } from "./PromptAndPaste";
+import { agentReply } from "../model/fixRequest";
+import { hasBrowserAgentApi, useBrowserAgentTools } from "./useBrowserAgentTools";
 import { areasStep, questionSteps, restSteps, topicSteps } from "../intake/ui/Questionnaire";
 
 /** The flow in progress, kept for the tab's life so a reload or a hot reload reopens it where it was. */
@@ -77,6 +79,13 @@ export default function PlanFlow({ mode, answers, current, history, entries, onP
   const course = useMemo(() => courseRatings(notes), [notes]);
   const past = mode === "next" && current ? [{ ...current, feedback }, ...history] : [];
   const prompt = buildPrompt(draft, entries, past, course);
+  const [agentTools] = useState(hasBrowserAgentApi);
+  // the browser's AI (WebMCP) reads the prompt and sends its plan: it lands in the paste box, on the paste step
+  useBrowserAgentTools(prompt, (reply) => {
+    setText(reply);
+    setStep(steps.length - 1);
+    return agentReply(parsePlanConfig(reply, entries));
+  });
 
   const steps: ModalStep[] = mode === "start"
     ? questionSteps(draft, set)
@@ -107,7 +116,7 @@ export default function PlanFlow({ mode, answers, current, history, entries, onP
       hint: mode === "start"
         ? "Paste it into ChatGPT, Claude, Gemini… Next, you paste your AI's reply back here."
         : "It carries the stars you gave this week's exercises, your notes, and your AI's own notes on your progress. Next, you paste your AI's reply back here.",
-      body: <CopyPrompt prompt={prompt} entries={entries} />,
+      body: <CopyPrompt prompt={prompt} entries={entries} agentTools={agentTools} />,
     },
     {
       title: "Paste your AI's reply",

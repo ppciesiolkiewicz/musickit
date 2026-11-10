@@ -40,10 +40,38 @@ export function DebugList({ title, items }: { title: string; items: OfferedItem[
   );
 }
 
-/** Step: copy the prompt for the player's own AI. */
-export function CopyPrompt({ prompt, entries, label = "Copy prompt" }: { prompt: string; entries: CatalogueEntry[]; label?: string }) {
+/** What the player says to the AI in their browser. */
+const ASK_BROWSER_AI = "Write my practice plan from the prompt on this page and put it in the reply box.";
+
+/**
+ * For an AI built into the browser (Claude in Chrome, Gemini in Chrome, ChatGPT Atlas, Comet…): what to ask it, and the
+ * prompt as plain text on the page so it can read it. With WebMCP (`agentTools`) it calls the page's tools instead.
+ */
+function BrowserAiHelp({ prompt, agentTools }: { prompt: string; agentTools: boolean }) {
+  return (
+    <div className="flex flex-col gap-2 rounded-lg border border-slate-700 bg-slate-950/60 p-3 text-xs text-slate-300">
+      <p>
+        Open the AI in your browser (Claude in Chrome, Gemini in Chrome, ChatGPT Atlas, Comet…) on this page and ask:
+      </p>
+      <p className="rounded bg-slate-900 px-2 py-1 font-medium text-slate-100">&ldquo;{ASK_BROWSER_AI}&rdquo;</p>
+      <p className="text-slate-500">
+        {agentTools
+          ? "Your browser lets the AI read the prompt and send its plan straight back here."
+          : "It reads the prompt below, then presses Next and fills in the reply box."}{" "}
+        You press Build my plan.
+      </p>
+      <section aria-label="Prompt for the AI" className="max-h-40 overflow-y-auto whitespace-pre-wrap break-words border-t border-slate-800 pt-2 font-mono text-[11px] text-slate-400">
+        {prompt}
+      </section>
+    </div>
+  );
+}
+
+/** Step: copy the prompt for the player's own AI, or let the AI in their browser read it. */
+export function CopyPrompt({ prompt, entries, label = "Copy prompt", agentTools = false }: { prompt: string; entries: CatalogueEntry[]; label?: string; agentTools?: boolean }) {
   const [copied, setCopied] = useState(false);
   const [show, setShow] = useState(false);
+  const [browserAi, setBrowserAi] = useState(agentTools);
   const [debug, setDebug] = useState(false);
   const offered = offeredInterface(entries);
   const copy = async () => {
@@ -63,9 +91,14 @@ export function CopyPrompt({ prompt, entries, label = "Copy prompt" }: { prompt:
           {copied ? "Copied" : label}
         </Button>
         <Button size="sm" onClick={() => setShow((v) => !v)}>{show ? "Hide" : "Show"} prompt</Button>
+        <Button size="sm" aria-pressed={browserAi} onClick={() => setBrowserAi((v) => !v)}>
+          <Icon name="sparkles" size={14} />
+          AI in this browser
+        </Button>
         <Button size="sm" onClick={() => setDebug((v) => !v)}>{debug ? "Hide" : "Show"} debug</Button>
         <span className="text-xs text-slate-500">Paste it into ChatGPT, Claude, Gemini… copy its whole reply, then press Next to paste it here.</span>
       </div>
+      {browserAi && <BrowserAiHelp prompt={prompt} agentTools={agentTools} />}
       {debug && (
         <div className="flex flex-col gap-3 rounded-lg border border-slate-700 bg-slate-950/60 p-3 text-[11px] text-slate-300">
           <DebugList title="Tools offered to the AI" items={offered.tools} />
@@ -119,6 +152,7 @@ export function PasteBox({ text, onText, result }: { text: string; onText: (t: s
         autoFocus
         value={text}
         onChange={(e) => onText(e.target.value)}
+        aria-label="Your AI's reply: the JSON plan"
         placeholder="Paste your AI's reply here (the JSON block)"
         className="h-40 w-full rounded-lg border border-slate-700 bg-slate-950/60 p-3 font-mono text-xs text-slate-200 placeholder:text-slate-600 focus:border-sky-500 focus:outline-none"
       />

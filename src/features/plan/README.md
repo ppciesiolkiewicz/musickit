@@ -12,6 +12,13 @@ browser.
    chosen, minutes a day, notes and styles. It only has to get week 1 roughly right. Then *Copy your prompt*,
    then *Paste your AI's reply*. Every screen has the same fixed height (the body scrolls inside), so Back and Next never move.
    **Build my plan** is enabled once the reply parses.
+   **AI in this browser** (a button on the prompt step): for an AI built into the browser (Claude in Chrome, Gemini in
+   Chrome, ChatGPT Atlas, Comet…) the step shows what to ask it and the prompt as plain page text, which it reads, then
+   it fills the labelled reply box. Where the browser has WebMCP (`document.modelContext`, Chrome behind a flag, or a
+   polyfill), `ui/useBrowserAgentTools.ts` offers two tools while the flow is open: `get_practice_plan_prompt` and
+   `submit_practice_plan`; a submitted plan lands in the paste box on the paste step, and the AI reads back
+   `agentReply()` (`model/fixRequest.ts`): refused and why, or the warnings to fix and send again. The player still
+   presses Build my plan.
 2. **The week** (`ui/WeekView.tsx`): seven day buttons; any day can be opened, days ahead are dashed and marked "coming up". The day's
    exercises are colour-coded cards (a hue per position, tags keep their own colour): title in the display face, focus
    ("A minor pentatonic · boxes 1 & 2"), the level (outlined chip), area and kind tags, sections (timed headings show their minutes), why, and five stars, "How did it go?" (1 Can't do it yet … 5 Easy now: the
@@ -62,7 +69,7 @@ model/            pure, no React; tested in model/plan.test.ts
   progressLog.ts  entryFor(), backfill(): a plan's ratings as progress-log rows
   blocks.ts       blocksOf(), fitBlocks(), blockAt(): an exercise's timed blocks
   checks.ts       mixesSingAndPlay(), tempoWithoutMetronome(): paste-time exercise checks
-  fixRequest.ts   fixRequest(warnings): the message the "Copy fix request" button copies, to paste back to the AI
+  fixRequest.ts   fixRequest(warnings): the message the "Copy fix request" button copies, to paste back to the AI; agentReply(): what a browser AI reads back after submit_practice_plan
   exampleSelection.ts  selectExamples(): all exercise examples + the plan example for the player's level
   config.ts       parsePlanConfig(): the pasted reply to a checked PlanConfig, with warnings
   prompt.ts       buildPrompt(answers, entries, previous, course), weekByTopic(), weekReport()
