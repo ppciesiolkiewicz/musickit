@@ -90,7 +90,7 @@ export default function PlanApp() {
     return (
       <div className="flex flex-col gap-4">
         <section className="flex flex-col items-start gap-4 rounded-2xl border border-slate-800 bg-slate-900/40 p-6">
-          <ol className="grid w-full gap-3 text-sm text-slate-300 sm:grid-cols-3">
+          <ol data-tour="plan-steps" className="grid w-full gap-3 text-sm text-slate-300 sm:grid-cols-3">
             {["Answer a few questions about where you are and where you want to go", "Copy the prompt into your own AI (ChatGPT, Claude, Gemini…)", "Paste its reply: your exercises, a new set each day"].map((t, i) => (
               <li key={i} className="flex gap-2">
                 <span className="grid size-6 shrink-0 place-items-center rounded-full bg-sky-500/20 text-xs text-sky-200">{i + 1}</span>
@@ -98,7 +98,7 @@ export default function PlanApp() {
               </li>
             ))}
           </ol>
-          <Button onClick={() => setFlow("start")} className={`${primary} px-5 py-2 text-sm`}><Icon name="sparkles" size={16} />Start</Button>
+          <Button data-tour="plan-start" onClick={() => setFlow("start")} className={`${primary} px-5 py-2 text-sm`}><Icon name="sparkles" size={16} />Start</Button>
         </section>
         {state.history.length > 0 && <History plans={state.history} onUse={useAgain} />}
         {modal}
