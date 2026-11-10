@@ -9,13 +9,15 @@ browser.
 1. **Start** opens one step modal (`ui/PlanFlow.tsx`, mode `"start"`): the first questionnaire (`intake/`, see its
    README): what you play (Guitar, Voice, Theory & ear), one screen per chosen area with its six topics, each answered by
    picking the one line of four that sounds like you (or left unanswered), your voice (with *Find my range*) if Voice is
-   chosen, minutes a day, notes and styles. It only has to get week 1 roughly right. Then *Copy your prompt*,
+   chosen, minutes a day, notes and styles. It only has to get week 1 roughly right. Then *Send your prompt to an AI*,
    then *Paste your AI's reply*. Every screen has the same fixed height (the body scrolls inside), so Back and Next never move.
    **Build my plan** is enabled once the reply parses.
-   **Let your AI extension do it** (the highlighted card on the prompt step, over "Or use any AI chat: Copy
-   prompt"): for an AI extension or AI browser (Claude in Chrome, Gemini in Chrome, ChatGPT Atlas, Comet…) it opens four
-   numbered steps, the words to paste into it (with a copy button) and the prompt as plain page text, which it reads,
-   then it fills the labelled reply box. The prompt's debug lists live on /dev/prompt only. Where the browser has WebMCP (`document.modelContext`, Chrome behind a flag, or a
+   The prompt step is a choice of two cards of the same shape, one open at a time (`CopyPrompt`, `ui/PromptAndPaste.tsx`):
+   **Let your AI extension do it** (Recommended, in colour; open first with WebMCP) for an AI extension or AI browser
+   (Claude in Chrome, Gemini in Chrome, ChatGPT Atlas, Comet…): four numbered steps, the words to paste into it (with a
+   copy button) and the prompt as plain page text, which the AI extension reads before it fills the labelled reply box.
+   **Use any AI chat**: four numbered steps, Copy prompt and Show prompt in the first. The flow's dialog is StepModal
+   `medium`. The prompt's debug lists live on /dev/prompt only. Where the browser has WebMCP (`document.modelContext`, Chrome behind a flag, or a
    polyfill), `ui/useBrowserAgentTools.ts` offers two tools while the flow is open: `get_practice_plan_prompt` and
    `submit_practice_plan`; a submitted plan lands in the paste box on the paste step, and the AI reads back
    `agentReply()` (`model/fixRequest.ts`): refused and why, or the warnings to fix and send again. The player still

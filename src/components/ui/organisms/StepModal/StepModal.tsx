@@ -20,8 +20,8 @@ export interface ModalStep {
  * Pass `step`/`onStep` to own the screen number (to restore it after a reload).
  * `bodyHeight` (a height class, e.g. "h-[22rem]") gives every screen that same height, scrolling inside, so Back and Next never move.
  */
-export function StepModal({ title, steps, onFinish, onClose, finishLabel = "Done", step: stepProp, onStep, bodyHeight }: {
-  title: string; steps: ModalStep[]; onFinish: () => void; onClose: () => void; finishLabel?: string; step?: number; onStep?: (i: number) => void; bodyHeight?: string;
+export function StepModal({ title, steps, onFinish, onClose, finishLabel = "Done", step: stepProp, onStep, bodyHeight, medium = false }: {
+  title: string; steps: ModalStep[]; onFinish: () => void; onClose: () => void; finishLabel?: string; step?: number; onStep?: (i: number) => void; bodyHeight?: string; /** a wider dialog (Modal `medium`) */ medium?: boolean;
 }) {
   const [own, setOwn] = useState(0);
   const i = Math.min(stepProp ?? own, steps.length - 1);
@@ -29,7 +29,7 @@ export function StepModal({ title, steps, onFinish, onClose, finishLabel = "Done
   const step = steps[i];
   const last = i >= steps.length - 1;
   return (
-    <Modal title={title} narrow dismissible={false} onClose={onClose}>
+    <Modal title={title} narrow medium={medium} dismissible={false} onClose={onClose}>
       <div className="flex flex-col gap-4">
         <div className="flex gap-1" role="progressbar" aria-valuemin={1} aria-valuemax={steps.length} aria-valuenow={i + 1}>
           {steps.map((_, n) => <span key={n} className={`h-1 flex-1 rounded-full transition-colors ${n <= i ? "bg-sky-400" : "bg-slate-800"}`} />)}

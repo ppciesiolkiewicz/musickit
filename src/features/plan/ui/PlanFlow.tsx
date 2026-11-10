@@ -112,10 +112,10 @@ export default function PlanFlow({ mode, answers, current, history, entries, onP
       ];
   steps.push(
     {
-      title: mode === "start" ? "Copy your prompt" : "Copy next week's prompt",
+      title: mode === "start" ? "Send your prompt to an AI" : "Send next week's prompt to your AI",
       hint: mode === "start"
-        ? "Your answers, turned into a prompt for an AI. Copy it into ChatGPT, Claude, Gemini…, then paste the reply on the next step."
-        : "It carries this week's stars, your notes and your AI's notes on your progress. Copy it into your AI, then paste the reply on the next step.",
+        ? "Your answers, turned into a prompt for an AI. Pick how your AI gets it."
+        : "The prompt carries this week's stars, your notes and your AI's notes on your progress. Pick how your AI gets it.",
       body: <CopyPrompt prompt={prompt} agentTools={agentTools} />,
     },
     {
@@ -132,7 +132,8 @@ export default function PlanFlow({ mode, answers, current, history, entries, onP
       steps={steps}
       finishLabel="Build my plan"
       step={step}
-      bodyHeight="h-[22rem]"
+      bodyHeight="h-[26rem]"
+      medium
       onStep={setStep}
       onClose={() => {
         clearFlow();
