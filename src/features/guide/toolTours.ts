@@ -65,13 +65,14 @@ export const TOOL_TOURS: Record<ToolName, TourStep[]> = {
     { target: "interval-ears-play", title: "Listen", text: "Press Start and listen. Replay plays it again." },
     { target: "interval-ears-answers", title: "Answer", text: "Pick what you heard. A wrong answer shows the right one." },
   ],
-  "tuning-ears": [
-    { target: "tuning-ears-start", title: "Listen", text: "Start plays two notes. The repeat button plays them again." },
-    { target: "tuning-ears-answers", title: "Answer", text: "Is the open string flat, in tune or sharp? Pick one to see." },
-  ],
   "melody-singer": singAlong("the tune", "Tap a note to hear it. The chords play under the tune unless the exercise turns them off."),
   "run-singer": singAlong("the run", "Tap a note to hear it. The run moves through several keys, and the title shows which one is playing."),
   "string-singer": singAlong("the open strings", "Tap a note to hear it. Sing each one and hold it."),
+  breathwork: [
+    { target: "breath-play", title: "Start", text: "Play starts the breathing. A soft tick marks each count and a chime each change, so you can close your eyes." },
+    { target: "breath-circle", title: "Follow the circle", text: "Breathe in as it grows, hold while it stays, breathe out as it shrinks. The number counts down the phase." },
+    { target: "breath-strip", title: "What comes", text: "Every phase of the exercise, in order. The bell at the top switches the sound off." },
+  ],
   "interval-singer": [
     { target: "interval-singer-start", title: "Start", text: "Start plays Do. Then sing the interval named above from it." },
     { target: "interval-singer-mic", title: "The mic", text: "Keep the mic on and hold the note until it says Yes." },

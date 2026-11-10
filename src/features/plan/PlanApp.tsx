@@ -16,8 +16,7 @@ import { usePlan } from "./store/usePlan";
 import PlanFlow, { savedFlow } from "./ui/PlanFlow";
 import WeekView from "./ui/WeekView";
 import { DISPLAY } from "@/components/landing/Display";
-import { ScaleSettingsBar, WithSettings } from "@/components/chordKit/ScaleSettings";
-import { RootSelect } from "@/features/theory/useLabelSystem";
+import { FixedLabelRoot, LabelSelect } from "@/features/theory/useLabelSystem";
 
 /** Start `config` today; the running plan, if any, moves to the history. */
 const start = (s: PlanState, config: PlanConfig): PlanState => startPlan(s, config, randomId, localDate());
@@ -107,11 +106,13 @@ export default function PlanApp() {
     );
   }
 
-  // the exercises set their own keys, so the side column only has how notes are labelled
-  const settings = <ScaleSettingsBar tonicPc={0} onTonic={() => {}} side config={{ keys: false, pocket: false, labels: { extra: <RootSelect /> } }} />;
+  // the exercises set their own keys and always count from the scale's root, so the only setting is how notes are labelled,
+  // a small pill floating over the day timer
+  const labels = <LabelSelect className="rounded-xl border border-slate-700 bg-slate-950/90 px-2.5 py-1.5 shadow-xl shadow-black/40 backdrop-blur" />;
   return (
-    <WithSettings side bar={settings}>
-      <div className="flex flex-col gap-4 pb-28">
+    <FixedLabelRoot value="scale">
+      {/* necks keep the page's margins rather than bleeding to the window's edge */}
+      <div className="flex flex-col gap-4 pb-28 [&_.bleed]:mx-0">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
             <p className="text-xs font-medium uppercase tracking-wider text-amber-300/90">{over ? "Week done" : `Day ${todayIdx + 1} of ${PLAN_DAYS}`} · started {plan.startedOn}</p>
@@ -135,12 +136,17 @@ export default function PlanApp() {
           </section>
         )}
 
-        <WeekView plan={plan} today={over ? PLAN_DAYS - 1 : todayIdx} day={day ?? todayIdx} onDay={setDay} onRate={rate} onElapsed={saveElapsed} />
+        <WeekView plan={plan} today={over ? PLAN_DAYS - 1 : todayIdx} day={day ?? todayIdx} onDay={setDay} onRate={rate} onElapsed={saveElapsed} corner={labels} />
 
         {state.history.length > 0 && <History plans={state.history} onUse={useAgain} />}
+        <div className="flex justify-center">
+          <Button size="sm" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} title="Scroll back to the top of the page">
+            <Icon name="arrow-up" size={12} />Back to top
+          </Button>
+        </div>
         {modal}
       </div>
-    </WithSettings>
+    </FixedLabelRoot>
   );
 }
 

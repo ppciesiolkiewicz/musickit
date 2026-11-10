@@ -24,8 +24,8 @@ browser.
    and marks that card "Now", and chimes at zero. Its used seconds are saved in the plan (`StoredPlan.elapsed`, per day)
    every 5 seconds, on pause and when the tab hides, so a reload or a later visit picks up where it stopped. There is no
    per-exercise timer.
-   A settings column (the scales pages' `ScaleSettingsBar`, on the right on wide screens, floating on top on narrow ones)
-   holds only how notes are labelled (Labels, Count from): the exercises set their own keys.
+   No settings column: the exercises set their own keys and always count from the scale's root (`FixedLabelRoot`), so the
+   only setting is the Labels dropdown, floating over the day timer in the bottom-right corner.
 3. **Tools in the section**: each exercise carries 1–2 `tools`, set up by the AI, with nothing to configure: a scale's
    boxes on the neck, chord shapes, a staff with live pitch for singing, a folded play-along band (one Play for only the
    chosen click / drone / drums / bass), or the notes / ear games with their settings hidden. Links sit in two slots:
@@ -75,7 +75,7 @@ store/
   usePlan.tsx     the hook the UI uses, and PlanStoreProvider to swap the store
 examples/         the example library: exercises/*.json, plans/*.json (standalone JSON), index.ts loads them; see its README
 ui/               PlanFlow, PromptAndPaste, WeekView, Sections (an exercise's sections in order; under a SectionAside, the /dev/examples review view, each tool is framed with its type and each step is ruled off; every tool has its own tour button, `ToolTour` from `features/guide`, walking `TOOL_TOURS` inside that tool only, and only the first unseen one on the page wobbles), DayTimer (the floating day countdown), ExerciseTool
-PlanApp.tsx       the page body: no plan → Start; a plan → header, week, history; the flow modal
+PlanApp.tsx       the page body: no plan → Start; a plan → header, week, history, a Back to top button; the flow modal
 reminders.ts, PracticeReminder.tsx   notifications (PracticeReminder is mounted in PageShell, on every page)
 ```
 
@@ -184,7 +184,7 @@ setting (`useLabelSystem`), the other name on hover, played on tap. `model/noteT
 them against the root of the tool after the text (else the one before); a token it can't read stays as text.
 
 The tools are the learning components of `src/features/exercises` (see its README): `scale-neck`, `chord-shapes`,
-`staff`, `backing-band` (`parts`: each part offered, mapped to `"on"`, `"off"` or `"always"`), `note-finder`, `interval-ears`, `arpeggio-neck`, `melody-singer`, `run-singer`, `string-singer`, `tuning-ears`, `strum-along`,
+`staff`, `backing-band` (`parts`: each part offered, mapped to `"on"`, `"off"` or `"always"`), `note-finder`, `interval-ears`, `arpeggio-neck`, `melody-singer`, `run-singer`, `string-singer`, `breathwork` (`drill`; `from` and `to` kept only for farinelli, `seconds` and `rounds` only for the others; it can't move with a heading's `keys`), `strum-along`,
 `backing-track` (the backing tracks player, drums, bass and keys: a curated `progression` id or the lesson's own `numerals`
 (pasted `chords` are read into numerals in the `key` at parse, so moving the key moves them), `key`, optional `style`,
 `bpm` and `parts` (drums, bass, keys, each `"on"`, `"off"` or `"always"`, a part left out silent with no row; an older

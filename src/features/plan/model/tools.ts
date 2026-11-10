@@ -8,6 +8,7 @@ import { BOOK, RUNS, RUN_STAGES, STAGES, type BookTune, type Stage } from "@/fea
 import { isRunId, isTuneId } from "@/features/exercises/basics/choices";
 import { INTERVAL_DIRS, type IntervalDir } from "@/features/exercises/basics/interval-singer/asks";
 import { STRING_DRILLS, type StringDrill } from "@/features/exercises/basics/string-singer/strings";
+import { BREATH_DRILLS, LIMITS as BREATH_LIMITS, type BreathDrill } from "@/features/exercises/basics/breathwork/breaths";
 import { strumPattern } from "@/features/exercises/basics/strum-along/blocks";
 import { COMPONENT_DOCS, shortDoc, type ComponentDoc } from "@/features/exercises/docs";
 import type { PlayAlongShape } from "@/features/exercises/play-along/play-along.props";
@@ -66,7 +67,7 @@ export type PlanTool =
   | { type: "melody-singer"; tune: number; key: number; voice?: Voice; chords?: false; metronome?: true }
   | { type: "run-singer"; run: number; voice?: Voice; chords?: false; metronome?: true }
   | { type: "string-singer"; drill?: StringDrill; metronome?: false }
-  | { type: "tuning-ears"; cents?: number; together?: boolean }
+  | { type: "breathwork"; drill?: BreathDrill; from?: number; to?: number; seconds?: number; rounds?: number }
   | { type: "interval-singer"; key: number; /** more keys to pick Do from, the first `key`; absent: only `key` */ keys?: number[]; voice?: Voice; /** semitones from Do, 1-12 */ intervals?: number[]; dir?: IntervalDir; dot?: false }
   | { type: "guitar-play-along"; shape: PlayAlongShape; bpm: number; repeats?: number; view?: View; enable?: Degree[]; highlight?: Degree[]; others?: "muted" | "hidden"; under?: Under }
   | { type: "strum-along"; chords: string[]; bpm: number; per?: "bar" | "beat"; beats?: number; pattern?: string }
@@ -371,6 +372,21 @@ const PARSERS: { [N in ToolName]: ToolSpec } = {
   },
   "melody-singer": { parse: (t, d) => singer(t, d, "tune", isTuneId, BOOK) },
   "run-singer": { parse: (t, d) => singer(t, d, "run", isRunId, RUNS) },
+  breathwork: {
+    parse(t) {
+      // "farinelli" is the default, so only another drill is kept; counts for farinelli, seconds and rounds for the rest
+      const drill = BREATH_DRILLS.includes(t.drill as BreathDrill) ? (t.drill as BreathDrill) : "farinelli";
+      const [fromLo, fromHi] = BREATH_LIMITS.from;
+      if (drill === "farinelli") {
+        const from = int(t.from, fromLo, fromHi);
+        const to = int(t.to, Math.max(from ?? fromLo, BREATH_LIMITS.to[0]), BREATH_LIMITS.to[1]);
+        return { type: "breathwork", ...(from !== null ? { from } : {}), ...(to !== null ? { to } : {}) };
+      }
+      const seconds = int(t.seconds, ...BREATH_LIMITS.seconds);
+      const rounds = int(t.rounds, ...BREATH_LIMITS.rounds);
+      return { type: "breathwork", drill, ...(seconds !== null ? { seconds } : {}), ...(rounds !== null ? { rounds } : {}) };
+    },
+  },
   "string-singer": {
     parse(t) {
       // "strings" is the default, so only another drill is kept
@@ -395,15 +411,6 @@ const PARSERS: { [N in ToolName]: ToolSpec } = {
       if (!all && keyOf(t.key) === null) defaulted(d, "key", t.key, "not a key", TONICS[key], true);
       const keys = [...new Set([key, ...listed])];
       return { type: "interval-singer", key, ...(keys.length > 1 ? { keys } : {}), ...(voice ? { voice } : {}), ...opt("intervals", intervals), ...dir, ...(t.dot === false ? { dot: false as const } : {}) };
-    },
-  },
-  "tuning-ears": {
-    parse(t, d) {
-      const cents = Number(t.cents);
-      const used = Math.min(50, Math.max(3, Math.round(cents)));
-      if (t.cents != null && !Number.isFinite(cents)) d.notes.push(`had cents ${JSON.stringify(t.cents)?.slice(0, 20)}, not a number; used the default.`);
-      else if (Number.isFinite(cents) && used !== cents) defaulted(d, "cents", t.cents, "3-50", used);
-      return { type: "tuning-ears", ...(Number.isFinite(cents) ? { cents: used } : {}), ...(t.together === true ? { together: true } : {}) };
     },
   },
   "guitar-play-along": {

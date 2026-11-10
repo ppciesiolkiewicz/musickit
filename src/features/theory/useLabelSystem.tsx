@@ -1,6 +1,6 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { createContext, useContext, useSyncExternalStore, type ReactNode } from "react";
 import { DEFAULT_CHORD_DOTS, DEFAULT_CHORD_LABELS, DEFAULT_LABEL_ROOT, DEFAULT_LABEL_SYSTEM, LABEL_ROOTS, LABEL_SYSTEMS, isChordDots, isChordLabels, isLabelRoot, isLabelSystem, type ChordDots, type ChordLabels, type LabelRoot, type LabelSystem } from "./labels";
 import { Select, Field } from "@/components/ui";
 
@@ -78,8 +78,16 @@ export function setLabelRoot(v: LabelRoot) {
 
 /** The global "count from the scale root or the chord root" setting: intervals, degrees and dot colours follow it. */
 export function useLabelRoot(): [LabelRoot, (v: LabelRoot) => void] {
+  const fixed = useContext(FixedRoot);
   const v = useSyncExternalStore(subscribeRoot, () => root, () => DEFAULT_LABEL_ROOT);
-  return [v, setLabelRoot];
+  return fixed ? [fixed, () => {}] : [v, setLabelRoot];
+}
+
+const FixedRoot = createContext<LabelRoot | null>(null);
+
+/** Pins "count from" for everything inside, whatever the global setting says (the practice plan always counts from the scale's root). */
+export function FixedLabelRoot({ value, children }: { value: LabelRoot; children: ReactNode }) {
+  return <FixedRoot.Provider value={value}>{children}</FixedRoot.Provider>;
 }
 
 /** Scale root / chord root switch. Every instance edits the same global setting. */

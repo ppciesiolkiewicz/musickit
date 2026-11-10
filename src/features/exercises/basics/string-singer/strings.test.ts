@@ -1,7 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { docOf } from "../../docs";
-import { clampCents, describeRound, makeRound, verdictOf } from "../tuning-ears/rounds";
 import { drillNotes } from "./strings";
 
 describe("drillNotes", () => {
@@ -23,24 +22,8 @@ describe("drillNotes", () => {
   });
 });
 
-describe("tuning-ears rounds", () => {
-  it("clamps cents", () => {
-    assert.equal(clampCents(undefined), 20);
-    assert.equal(clampCents(1), 3);
-    assert.equal(clampCents(80), 50);
-  });
-  it("makes flat, in-tune and sharp rounds on the 5th-fret reference", () => {
-    const seq = (xs: number[]) => () => xs.shift()!;
-    const flat = makeRound(10, seq([0, 0]));
-    assert.deepEqual(flat, { string: 0, fret: 5, midi: 45, off: -10 });
-    assert.equal(verdictOf(flat), "flat");
-    const g = makeRound(10, seq([0.7, 0.5]));
-    assert.deepEqual(g, { string: 3, fret: 4, midi: 59, off: 0 });
-    assert.equal(verdictOf(g), "in-tune");
-    assert.equal(describeRound(g), "3rd string, 4th fret → 2nd string open");
-    assert.equal(verdictOf(makeRound(10, seq([0.9, 0.9]))), "sharp");
-  });
-  it("documents both basics", () => {
-    for (const n of ["string-singer", "tuning-ears"]) assert.equal(docOf(n)?.kind, "basic", n);
+describe("string-singer docs", () => {
+  it("documents it as a basic", () => {
+    assert.equal(docOf("string-singer")?.kind, "basic");
   });
 });

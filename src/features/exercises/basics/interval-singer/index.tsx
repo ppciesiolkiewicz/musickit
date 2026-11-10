@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useMicPitch } from "@/components/practice/useMicPitch";
 import { useStepPart } from "@/components/practice/exerciseStep";
+import { useToolKeys } from "@/components/practice/toolKeys";
 import ToolSettings from "@/components/practice/ToolSettings";
 import InputChip from "@/components/InputChip";
 import SingingStaff from "@/components/theory/singing/SingingStaff";
@@ -93,23 +94,13 @@ export function View({ keys: keysProp = [0], voice = "tenor", intervals = DEFAUL
 
   // the keys, for the tool on screen (a plan may hold more than one), with no modifier and not while typing: Space is
   // Start / Next (not on a focused button, which Space already presses), R restarts the interval asked
-  const root = useRef<HTMLDivElement>(null);
   const onKey = useRef<Record<string, () => void>>({});
-  useEffect(() => {
-    const key = (e: KeyboardEvent) => {
-      const k = e.key.toLowerCase();
-      if (!(k in onKey.current) || e.metaKey || e.ctrlKey || e.altKey || e.repeat) return;
-      const t = e.target;
-      if (t instanceof HTMLElement && (t.isContentEditable || t.closest("input,textarea,select"))) return;
-      if (k === " " && t instanceof HTMLElement && t.closest("button,a,[role=button],[role=tab]")) return;
-      const box = root.current?.getBoundingClientRect();
-      if (!box || box.bottom < 0 || box.top > window.innerHeight) return;
-      e.preventDefault();
-      onKey.current[k]();
-    };
-    window.addEventListener("keydown", key);
-    return () => window.removeEventListener("keydown", key);
-  }, []);
+  const hotkeys = useToolKeys((e, onControl) => {
+    const k = e.key.toLowerCase();
+    if (!(k in onKey.current) || (k === " " && onControl)) return;
+    onKey.current[k]();
+    return true;
+  });
 
   // the mic
   const [micOn, setMicOn] = useState(false);
@@ -243,17 +234,17 @@ export function View({ keys: keysProp = [0], voice = "tenor", intervals = DEFAUL
   const settings = standard && <Hint title="Settings" description="How close counts as on the note, and the volume."><ToolSettings accuracy /></Hint>;
 
   return (
-    <div ref={root} className="flex flex-col gap-3">
+    <div ref={hotkeys.ref} className="flex flex-col gap-3">
       <div className="flex flex-col gap-2 rounded-xl border border-slate-800 bg-slate-900/40 p-2">
       <div className="flex flex-wrap items-center gap-2">
         <span data-tour="interval-singer-start" className="inline-flex">
           <Hint title={ask === null ? "Start" : "Next"} description="Plays Do, then listens for the interval you sing from it.">
             <Button size="sm" onClick={next} title={`${ask === null ? "Start" : "Next interval"} (Space)`} className="inline-flex items-center gap-1.5 !border-sky-400/80 !bg-sky-500/25 !text-sky-50">
-              {ask === null ? "Start" : "Next"}<KeyCap>Space</KeyCap>
+              {ask === null ? "Start" : "Next"}{hotkeys.armed && <KeyCap className="hidden md:inline">Space</KeyCap>}
             </Button>
           </Hint>
         </span>
-        {ask !== null && <Button size="sm" onClick={restart} title="The same interval again: Do plays and the mic listens (R)" className="inline-flex items-center gap-1.5">Restart<KeyCap>R</KeyCap></Button>}
+        {ask !== null && <Button size="sm" onClick={restart} title="The same interval again: Do plays and the mic listens (R)" className="inline-flex items-center gap-1.5">Restart{hotkeys.armed && <KeyCap className="hidden md:inline">R</KeyCap>}</Button>}
         {ask !== null && !found && <Button size="sm" onClick={() => reveal(false)}>Show me</Button>}
         <span data-tour="interval-singer-mic" className="inline-flex items-center gap-2">
           <Hint title="Mic" description="Listens to your voice. Start switches it on for you; this button also opens the list of inputs, with each input's level and Stop.">

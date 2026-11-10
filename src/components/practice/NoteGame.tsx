@@ -12,8 +12,9 @@ import {
 } from "@/lib/practice/noteGame";
 import { useMicPitch } from "./useMicPitch";
 import { micGate } from "@/lib/practice/mic";
-import { GameChoice, SetupTag, Stage, Stat, Target, btn, btnBig, panel, readBest, useGameKeys, writeBest, writeQuery } from "./shared";
-import { Chip, ChipRow, Hint, Stepper } from "@/components/ui";
+import { GameChoice, SetupTag, Stage, Stat, Target, btn, btnBig, panel, readBest, writeBest, writeQuery } from "./shared";
+import { useToolKeys } from "./toolKeys";
+import { Chip, ChipRow, Hint, KeyCap, Stepper } from "@/components/ui";
 import { useCoverage } from "@/features/guide/useCoverage";
 import { useLevelAtLeast } from "@/features/guide/Tier";
 import InputChip, { micStatusMessage } from "@/components/InputChip";
@@ -114,13 +115,24 @@ export default function NoteGame({ initial, syncUrl = true, bare = false }: { in
     }
   };
 
-  // name the dot from the keyboard: a letter key answers with that natural note
-  useGameKeys((e) => {
+  // Space starts or skips; naming the dot, a letter key answers with that natural note (and stops the notes panel's
+  // shortcut for it). On a page of several tools, the one last tapped or most on screen takes the keys.
+  const keys = useToolKeys((e, onControl) => {
+    if (e.key === " ") {
+      if (onControl) return;
+      if (q) ask(q);
+      else {
+        showNeck();
+        ask(null);
+      }
+      return true;
+    }
     const pc = LETTER_PC[e.key.toUpperCase()];
     if (!q || s.mode !== "name" || pc === undefined) return;
-    e.stopImmediatePropagation(); // the letter is an answer here, not the notes panel's shortcut
+    e.stopImmediatePropagation();
     name(pc);
-  }, !bare);
+    return true;
+  });
 
   const onPlayed = useCallback((pc: number | null) => {
     if (!q || s.mode === "every") return;
@@ -149,6 +161,8 @@ export default function NoteGame({ initial, syncUrl = true, bare = false }: { in
   }, [sprint, best]);
 
   /** Starting a game on a short screen: bring the whole neck into view, since the low strings can sit below the fold. */
+  /** Key caps only where the keys work: on the tool that has them, not on touch screens. */
+  const cap = (key: string) => keys.armed && <KeyCap className="hidden md:inline">{key}</KeyCap>;
   const showNeck = () => {
     const el = stage.current;
     if (!el || el.getBoundingClientRect().bottom <= window.innerHeight) return;
@@ -185,7 +199,7 @@ export default function NoteGame({ initial, syncUrl = true, bare = false }: { in
   const micText = micStatusMessage(status);
   // only offer what works right now: playing the note does nothing until the mic is on
   const hint = !q ? (bare ? "Press Start." : "Pick a game above, then press Start.")
-    : s.mode === "name" ? `Pick its name below${bare ? "" : " or press its letter key"}${mic ? ", or play it on your guitar" : ""}.`
+    : s.mode === "name" ? `Pick its name below${keys.armed ? " or press its letter key" : ""}${mic ? ", or play it on your guitar" : ""}.`
     : mic && s.mode !== "every" ? "Play it on your guitar, or tap the neck."
     : "Tap the neck.";
   const answerBy = (
@@ -224,7 +238,7 @@ export default function NoteGame({ initial, syncUrl = true, bare = false }: { in
   );
 
   return (
-    <div className="flex flex-col gap-4">
+    <div ref={keys.ref} className="flex flex-col gap-4">
       {!bare && <div data-tour="notes-setup"><GameChoice label="Game" options={MODES} value={s.mode} onChange={(mode) => update({ mode })} tone="amber" /></div>}
       <div ref={stage} className="scroll-mt-4">
       <Stage tone="amber">
@@ -249,7 +263,7 @@ export default function NoteGame({ initial, syncUrl = true, bare = false }: { in
         </div>
         <div data-tour="note-finder-start" className="flex flex-wrap items-center gap-2">
           <Hint title={q ? "Skip" : "Start"} description={q ? "Moves on to the next note." : "Asks for the first note."}>
-            {!q ? <button type="button" className={btnBig} onClick={() => { showNeck(); ask(null); }}><Icon name="play" size={16} />Start</button> : <button type="button" className={btnBig} onClick={() => ask(q)}>Skip</button>}
+            {!q ? <button type="button" className={btnBig} onClick={() => { showNeck(); ask(null); }}><Icon name="play" size={16} />Start{cap("Space")}</button> : <button type="button" className={btnBig} onClick={() => ask(q)}>Skip{cap("Space")}</button>}
           </Hint>
           {q && <button type="button" className={`${btn} inline-flex items-center gap-1.5 py-2`} onClick={() => { const p = positionsOf(q.pc, s).find((x) => x.string === q.string) ?? positionsOf(q.pc, s)[0]; if (p) playMelody([OPEN_MIDI[p.string] + p.fret], 700); }}><Icon name="volume-2" size={14} />Hear the note</button>}
           {extras && <span data-tour="note-finder-extras" className="ml-auto flex flex-wrap items-center gap-2">

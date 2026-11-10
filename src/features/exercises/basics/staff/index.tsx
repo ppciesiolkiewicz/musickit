@@ -14,10 +14,11 @@ import type { ExternalInput } from "@/features/tuner";
 import { staffLabelSystem, type SingingLabels } from "@/features/theory/labels";
 import { useLabelSystem } from "@/features/theory/useLabelSystem";
 import { useAccuracy } from "@/features/theory/useAccuracy";
-import { Badge, Hint } from "@/components/ui";
+import { Badge, Hint, KeyCap } from "@/components/ui";
 import { useCoverage } from "@/features/guide/useCoverage";
 import { useLevelAtLeast } from "@/features/guide/Tier";
 import { useStepPart } from "@/components/practice/exerciseStep";
+import { useToolKeys } from "@/components/practice/toolKeys";
 import dynamic from "next/dynamic";
 
 const PracticeBand = dynamic(() => import("@/features/instruments").then((m) => m.PracticeBand), { ssr: false });
@@ -138,7 +139,15 @@ export function View({ slug, pc, voice, notes, under = false, enable, highlight,
   }, [backingOn, stopBacking]);
   useStepPart({ kind: micButton && !external && "mic", on: micOn, start: startMic, stop: stopMic });
   const group = useStepPart({ kind: backing.length > 0 && backing[0], on: backingOn, start: startBacking, stop: stopBacking });
+  // Space does what the first button does: the mic (with the backing), else the backing alone
+  const space = micButton ? (external ? external.onToggle : () => (micOn ? stopMic() : void startMic())) : backing.length > 0 ? toggleBacking : undefined;
+  const keys = useToolKeys((e, onControl) => {
+    if (e.key !== " " || onControl || !space) return;
+    space();
+    return true;
+  }, !!space);
   if (!ladder) return null;
+  const spaceCap = keys.armed && <KeyCap className="hidden text-slate-400 md:inline">Space</KeyCap>;
   const tap = async (i: number) => {
     await wakeAudio();
     const midi = ladder.notes[i].midi;
@@ -151,7 +160,7 @@ export function View({ slug, pc, voice, notes, under = false, enable, highlight,
     }, 700);
   };
   return (
-    <div className="flex flex-col gap-2">
+    <div ref={keys.ref} className="flex flex-col gap-2">
       <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400">
         {micButton && (
           <span data-tour="staff-mic" className="inline-flex items-center gap-2">
@@ -165,11 +174,13 @@ export function View({ slug, pc, voice, notes, under = false, enable, highlight,
                 <InputChip status={status} mic={{ on: micOn, onToggle: () => (micOn ? stopMic() : void startMic()) }} />
               </Hint>
             )}
+            {spaceCap}
           </span>
         )}
         {backing.length > 0 && (
           <span data-tour="staff-backing" className="inline-flex items-center gap-2">
             <PracticeBand view="inline" storageKey="musickit.practiceBand" config={{ parts: backing, bpm, keyPc: pc }} on={backingOn} onToggle={backingOn || !micButton || external ? toggleBacking : () => void startMic()} onStop={stopBacking} group={group} />
+            {!micButton && spaceCap}
           </span>
         )}
         {status === "denied" && <span>microphone blocked in the browser</span>}

@@ -190,6 +190,43 @@
     ]
   },
   {
+    "name": "breathwork",
+    "kind": "basic",
+    "description": "A breathing exercise for singers, no mic and no instrument: a circle that grows as the student breathes in, stays\nwhile they hold and shrinks as they breathe out, the count ticking in the middle, a soft tick on each count and a\nchime when the phase changes (no spoken voice). A strip under it shows every phase to come. Drills: \"farinelli\"\n(breathe in, hold and breathe out for the same count, one count more each cycle), \"sss-zzz\" and \"zzz-sss\" (a hiss,\nthen the same with voice, to feel where the voice starts), \"cycles\" (in, hold, out, rest), \"long-exhale\" (in for 4,\nout slowly for longer) and \"body-scan\" (breathe into the belly, the ribs, the back).",
+    "props": [
+      {
+        "name": "drill",
+        "type": "\"farinelli\" | \"sss-zzz\" | \"zzz-sss\" | \"cycles\" | \"long-exhale\" | \"body-scan\"",
+        "required": false,
+        "description": "\"farinelli\" (default), \"sss-zzz\", \"zzz-sss\", \"cycles\", \"long-exhale\" or \"body-scan\""
+      },
+      {
+        "name": "from",
+        "type": "number",
+        "required": false,
+        "description": "farinelli only: the first count, 2-12; default 4 (a beginner 2 or 3)"
+      },
+      {
+        "name": "to",
+        "type": "number",
+        "required": false,
+        "description": "farinelli only: the last count, from `from` up to 16; default 8 (a beginner 6, intermediate 10, advanced 12+). Each count is one second, so 4 to 8 takes about 1.5 minutes"
+      },
+      {
+        "name": "seconds",
+        "type": "number",
+        "required": false,
+        "description": "the drill's main length in seconds, 2-16: each sss and zzz (default 3), each in, hold and out of \"cycles\" (default 4), the breath out of \"long-exhale\" (default 8, the breath in is always 4), each part of \"body-scan\" (default 8). Not for farinelli"
+      },
+      {
+        "name": "rounds",
+        "type": "number",
+        "required": false,
+        "description": "rounds, 1-8: sss-zzz and zzz-sss default 3, cycles and long-exhale 4, body-scan 2. Not for farinelli"
+      }
+    ]
+  },
+  {
     "name": "chord-shapes",
     "kind": "basic",
     "description": "One chord diagram per chord, in order, with the finger that frets each note on its dot (a switch shows intervals\ninstead); tap a diagram to strum it. Show a fingering with this, never describe it in text.",
@@ -1051,25 +1088,6 @@
         "type": "string",
         "required": false,
         "description": "one bar of strokes, the same every bar: D down, U up, . a miss (the hand moves, no strings); 1-4 strokes a beat, the\nsame count in every beat, so beats × 1, 2, 3 or 4 strokes. \"D D D D\" downs on the beat, \"D U D U D U D U\" eighths,\n\"D . D U . U D U\" the island strum, \"D . . U . U D U D . . U . U D U\" sixteenths; default a down on every beat"
-      }
-    ]
-  },
-  {
-    "name": "tuning-ears",
-    "kind": "basic",
-    "description": "A listening game for tuning a guitar by ear: it plays the reference (the lower string at the 5th fret, the 4th on G)\nand the next open string, a little out or in tune; the student says flat, sharp or in tune. Fewer cents is harder;\n`together` rings both at once so the student learns to hear the beats. Listening only, no instrument or voice.",
-    "props": [
-      {
-        "name": "cents",
-        "type": "number",
-        "required": false,
-        "description": "how far out the open string is when not in tune, in cents (3 to 50); default 20. 30 is easy, 10 hard, 5 very hard"
-      },
-      {
-        "name": "together",
-        "type": "boolean",
-        "required": false,
-        "description": "ring the two notes together, to hear the beating of strings out of tune; default false: one after the other"
       }
     ]
   },

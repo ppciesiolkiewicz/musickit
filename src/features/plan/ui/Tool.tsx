@@ -12,7 +12,7 @@ import { View as RunSinger } from "@/features/exercises/basics/run-singer";
 import { View as ScaleNeck } from "@/features/exercises/basics/scale-neck";
 import { View as PositionNeck } from "@/features/exercises/basics/position-neck";
 import { View as StringSinger } from "@/features/exercises/basics/string-singer";
-import { View as TuningEars } from "@/features/exercises/basics/tuning-ears";
+import { View as Breathwork } from "@/features/exercises/basics/breathwork";
 import { View as Staff } from "@/features/exercises/basics/staff";
 import { View as StrumAlong } from "@/features/exercises/basics/strum-along";
 import { View as FingerPattern } from "@/features/exercises/basics/finger-pattern";
@@ -69,10 +69,10 @@ function ToolView({ tool, voice, input }: { tool: PlanTool; voice?: Voice; input
       return <RunSinger run={tool.run} voice={tool.voice ?? voice} chords={tool.chords} metronome={tool.metronome} />;
     case "string-singer":
       return <StringSinger drill={tool.drill} metronome={tool.metronome} />;
+    case "breathwork":
+      return <Breathwork drill={tool.drill} from={tool.from} to={tool.to} seconds={tool.seconds} rounds={tool.rounds} />;
     case "interval-singer":
       return <IntervalSinger keys={tool.keys ?? [tool.key]} voice={tool.voice ?? voice} intervals={tool.intervals} dir={tool.dir} dot={tool.dot} />;
-    case "tuning-ears":
-      return <TuningEars cents={tool.cents} together={tool.together} />;
     case "guitar-play-along":
       return <PlayAlong shape={tool.shape} bpm={tool.bpm} repeats={tool.repeats} view={tool.view} enable={tool.enable} highlight={tool.highlight} others={tool.others} under={tool.under} />;
     case "backing-track":

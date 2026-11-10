@@ -10,31 +10,21 @@ New:
 and add to these pages. Rank pages and provide me your understanding which pages need it first.
 - Guided tour should always include:
   - "This is guided tour for page.. where you can" - adjust copy
+  - there's a dev page that accounts for all of them
 
 
 
-49. [DONE] In fullscreen melodies with piano roll: 
-- put chords under the piano roll
-- can do the same for non-fullscreen
 
- 51. Let's add introduction page with some infromation about how to do exercises:
- - let's add a guided tour whenever user opens this page that shows how to use introductions 
- pocket tools etc. 
- - is this needed tho?
+
 
 52. In autoplan - tour doesnt work, there're 2 buttons for info in the corner
 - 
 
 
-53. [DONE] When guide is open - space should navigate to next step,
-- add [space] next to 'next' to indicate
 
 54. There was somewhere mic audio selector that had: 
 - guitar / voiice
 - louder / channel 1 / channel 2
-
-
-
 Let's rethink this ->
 For most pages we are okay to use "both" as default.
 We can have small section channels on each of these to select input.
@@ -42,11 +32,7 @@ Show me design first and then make sure that this is reusable component.
 Add this component to /dev/stories
 
 
-55.
-Fix pagespeed issues:
-https://pagespeed.web.dev/analysis/https-www-attunr-app/w58ysb4mlo?form_factor=desktop&category=performance&category=accessibility&category=best-practices&category=seo&category=agentic-browsing&hl=en-GB&utm_source=lh-chrome-ext
-
-
+56.
 
 ======================== Small ========================
 
@@ -119,135 +105,134 @@ Include also farinelli exercise in our app
 23. After adding all the new voice exercises (attunr / sing interval) - reorganize menu so singing possibly has its own section.
 Use brainstorming to propose the most interactive, intuitive split.
 
-24. Key choice wrapper and learnBefore links on plans
-
-Plan for the bigger change: 2026-11-02-key-choice-and-plan-links.md
-
-Part A, a key-choice wrapper tool: it holds 1–2 tools and shows 2–3 key chips. It needs a pure function that moves each tool type to the new key, and a parse step. The prompt also needs a change, since it currently says the student gets no settings to change. After that, do-mi-sol shrinks from 6 tools to 4. There are two open questions for you:
-Should the student tap the chips, or should the key move on by itself?
-Should a chip show only the key ("F"), or also say Do is F?
-Part B, learnBefore for the plan examples: I drafted links for all 160 plan-example exercises in 2026-11-02-plan-learn-before.json. All 210 links are real course pages. I drafted them from the exercise titles, so they need a read before they go in, and the plan lists the weak spots. Until they're added, the example plan the AI copies has no learnBefore, which goes against the new prompt rule.
-
-25. Rewrite the prompt - add exercises that will use new, unused tools in example exercise content. Use skills written for writing these pages. Use the strongest model for core piece of work.
 
 
-oooooooooooooooooooooo Recent app feedback ooooooooooooooooooooooooo
 
 
 
 oooooooooooooooooooooooooooooooooo DONE ooooooooooooooooooooooooooooooooooooooooooooooo
+[DONE] 55. Fix pagespeed issues (https://www.attunr.app home)
+Done: report was 97 desktop / 73 mobile performance, 100 everywhere else. Mobile LCP (6.1 s) was the first-visit style picker, which only opens after hydration; home already has noIntro on main, it just isn't deployed yet. Landing photos now get an Unsplash srcset (phones fetch ~400-800px instead of 1200, call tiles ~256-384 instead of 600), and a priority photo's default copy loads eagerly with high fetch priority. PostHog surveys turned off (unused, ~36 KiB of unused JS). Left as is: render-blocking CSS (experimental inlineCss would re-send ~36 KiB on every page view for returning players), legacy JS (Next's own polyfill chunk), PostHog config.js 5-minute cache (third party). Not re-measured: PSI API quota was used up and the local dev server was down.
 [DONE] 48. add melodies to notes creator
 - we should allow to select which melody we want when adding component (just name + index)
 - widget should have button to go to next melody and when sharing we should share this setting 
 Done: a Melody family in the notes creator's palette (Scale section): Key, Melody (the book's name, e.g. "Do Re Mi"), Number (its place in it) and Voice. The widget has "Next melody →", which saves the next tune on the widget, so a shared note opens on it (in a note being read it only changes what the reader sees). Checked in the browser on a shared note; adding from the palette covered by tests only.
-D35. Runs / melodies: picking a scale starts the microphone (was 46)
+[DONE] 24. Key choice wrapper and learnBefore links on plans
+Done (commit 5cd7567): Part A discarded (the key choice already exists as "keys" on a block heading). Part B: every exercise in the six plan examples has a learnBefore, all real course pages; the drafted links were read against each exercise and 29 were changed to a closer lesson (down strums, joining positions, bends, ii-V-I and guide tones, blues, singing over chords). Same commit: paste warnings now say what was cut, dropped or defaulted, with a "Copy fix request" button, and the AI prompt defines its tools before its rules. Not checked in the browser.
+[DONE] 49. In fullscreen melodies with piano roll: 
+- put chords under the piano roll
+- can do the same for non-fullscreen
+Done: the piano roll names its chords in a strip under the rows, in full screen and on the cards (commit 47f2b92). Not checked in the browser.
+[DONE] 53. When guide is open - space should navigate to next step,
+- add [space] next to 'next' to indicate
+[DONE] 46. Runs / melodies: picking a scale starts the microphone
 Done: on /theory/singing/melodies and /runs, picking a scale in the side panel switches on the mic of the tune picked, without pressing play. The mic then moves with the tune: picking another card turns the old card's mic off and the new one's on. The mic button still turns it off. Types, lint and sing-along tests clean. Not checked in the browser.
 
-D34. Nav: only one menu item highlighted on nested pages, e.g. Sing an interval (was 40)
+[DONE] 40. Nav: only one menu item highlighted on nested pages, e.g. Sing an interval
 Done: the menu now marks only the page that matches best, so /theory/singing/intervals highlights "Sing an interval" and no longer "Sing a scale" too. The top-level menu button was already right. Types clean. Not checked in the browser.
 
-D33. Sing an interval: side panel, levels, "?" with interval and solfège (/theory/singing/intervals) (was 50)
+[DONE] 50. Sing an interval: side panel, levels, "?" with interval and solfège (/theory/singing/intervals)
 Done: the page's settings moved to a side panel: Voice, Keys, Direction, Level, Intervals, View (with Show my voice). Level is 1-6 (the ear training levels, starts on 1: P5 and octave) or Custom; on a level, Intervals shows only that level's intervals, disabled; on Custom all twelve can be switched, starting from the level it came from. The "?" now reads "? P5 · Sol" on the piano roll, and the staff has a "?" with both under it. Tapping "?" plays the note, and the mic waits it out so the piano can't answer. The voice dot goes green on Do too, and Do itself turns green while the voice is on it and fades back when it leaves. Hear Do and its D key are gone; tapping Do still plays it. Pocket tools left out: the drone and click would reach the mic and Space is Next here. In a plan the tool keeps its own controls, without Hear Do. Checked in the browser with a test tone as the mic: roll, Do's green and fade, dot, tap on "?", levels, Custom, staff view. Not checked: Do's green on the staff, a real voice, by ear.
-D32. Arpeggio in Notes Creator: works like Scale and the arpeggios page (was 47)
+[DONE] 47. Arpeggio in Notes Creator: works like Scale and the arpeggios page
 Done: the Arpeggio widget now picks Key, Scale, On (the chord of the key: I · C, ii · D...), Type (scale triad, 7th or 9th, or any quality), Show (neck, positions) and Root on (6th to 2nd string), instead of a typed chord and box numbers. It draws the arpeggios page's neck and position boxes; tap a position's name to light it up on the neck. It follows the master Key & scale, and a key or scale picked on it pins that part. Older typed-chord widgets still load and draw as they were; they become the new widget only when something is changed in their options, on the nearest type (a G9 becomes Dominant 7). Typing a chord name is gone from this widget. Checked in the browser: add, edit, reload, an older G9 widget, no console errors.
-D31. Pocket tools and drone in /dev/stories (was 45)
+[DONE] 45. Pocket tools and drone in /dev/stories
 Done: /dev/stories has an "AI Autoplan Tools" heading over the tools and a "Components" section with PocketTools (full, stacked, no drone), PocketDrone (the drone line alone) and DroneControls. The pocket tools' tempo slider has a "Tempo" label. The drone line has wider gaps, and its volume moved to its own labelled line so it fits the side column. Triads no longer show the mic Input line; the metronome stays. Types clean; lint clean on the stories and pocket folders.
-D30. First note glitches: wait until audio is ready (/theory/ears and other exercises) (was 37)
+[DONE] 37. First note glitches: wait until audio is ready (/theory/ears and other exercises)
 Done, in the shared sound engine so every exercise gets it. Main cause, measured in Chrome: after about 30 seconds of silence Chrome swaps the output for a fake one, and the next note reopens the real one, which stalled the audio about 570 ms (0 ms after short gaps). The output now carries an inaudible -120 dB signal while the tab is in view, and after 36 seconds of silence the stall is gone (-2 and 0 ms). Also: wakeAudio now waits until the output has run for 0.2 s, so every `await wakeAudio()` starts clean; notes start one audio buffer ahead of the clock so their attack is not cut to a click; playSequence checks the output every time, not only on first use, so notes no longer stack after a suspend; the rhythm game and take player use wakeAudio, and the tuner reference, improv loop and landing phrase start after the settling; the day timer chime uses the app's one AudioContext, so it now follows the volume. Checked in the browser on /theory/ears only. Not checked by ear, in Safari or Firefox, or on a first click with a suspended context (localhost started it running).
-D28. triads to small on desktop (was 44)
+[DONE] 44. triads to small on desktop
 Done: "Essential triads" now shows 2 string groups per row on desktop (grid md:grid-cols-2), with the inner shape cards at 2 per group instead of 3 so they stay readable. Not checked in the browser.
-D29. One button to start the microphone and pick the input (was 41)
+[DONE] 41. One button to start the microphone and pick the input
 Done: the input chip is now the one mic button. It reads "Start microphone"; a press starts the mic and opens the input list, and Start / Stop microphone sits at the top of that list. Starting an exercise starts the mic without opening the list (Play on a run or melody, Start on Sing an interval, Play on a staff's drone or click, Start exercise). Changed on singing runs, melodies and scale, Sing an interval, the staff, the side panel's Input line, the tuner and the studio's Audio input widget (its Start button and cog are now one button that opens the dialog). A press on a staff with a drone or click also starts that backing, as its mic button did. Kept as plain input pickers, because their own Start or Record opens the mic: rhythm, range finder, note finder, quick record, jam loops. The staff inside the teacher studio keeps a plain mic switch: the studio's input has its own dialog. Checked in the browser: runs, intervals, scale, arpeggios panel, tuner. Not checked in the browser: staff, melodies, studio widget.
-D27. Sing an interval: group the controls above the roll, second pass (/theory/singing/intervals) (was 34)
+[DONE] 34. Sing an interval: group the controls above the roll, second pass (/theory/singing/intervals)
 Done: the top row is now the actions (Start, Hear Do, Restart, Show me), mic and input, score, and the voice and interval badges. The second row holds the setup: view, keys, show my voice, and volume + settings at the right. The key switch reads "Keys: Random / Pick". Volume and settings buttons are further apart, in every tool that uses the shared ToolSettings. Types clean; not checked in the browser.
-D25. Melodies: difficulty in the side panel, better section lines (/theory/singing/melodies) (was 38)
+[DONE] 38. Melodies: difficulty in the side panel, better section lines (/theory/singing/melodies)
 Done: Difficulty moved from the content column into the side panel, under a new "Filter" section; the panel is now Filter, Settings (key, scale, voice, accuracy, labels), then the play-along tools (click, drone). Every section of every side panel now has a heading and a thicker rule between sections (new BarSection in ScaleSettings; the filters option on the settings config). Types clean; not checked in the browser.
 Research, filters that could move into other side panels: nothing clear. The scales, CAGED, triads and arpeggios pages already keep their criteria (shape, position, string group, chord type) in a panel at the top of the content column, so they could move into a Filter section the same way, using the new `filters` option. Singing runs and scales have no filter yet; the range (low/high) for runs is the only candidate. The practice plan panel has only labels and root.
-D26. View selector simple/standard inside the theme selector (was 42)
+[DONE] 42. View selector simple/standard inside the theme selector
 Done: the Simplified / Advanced view switch now sits in the theme picker dropdown (still global, applies on every page). Removed it and the "Show more / Show less" links from the page help row. Types and lint clean; not checked in the browser.
-D24. The two (i) buttons (was 41)
+[DONE] 41. The two (i) buttons
 Done: the label (i) (InfoButton) no longer shows [Esc] (Esc still closes it). The cursor-helper (?) (HintToggle) now widens from a circle into an oval with Esc inside, animated. Types clean; not checked in the browser.
-D23. Sing an interval: group the controls above the roll (/theory/singing/intervals) (was 34)
+[DONE] 34. Sing an interval: group the controls above the roll (/theory/singing/intervals)
 Done: all controls now sit in one framed block above the roll (buttons and mic on top, view, keys and voice options below). The key switch has a "Keys" label (Random / Picked), and the volume and settings buttons have more space between them. Types clean; not checked in the browser.
-D22. Ear training: shortcuts shown as key caps (/theory/ears) (was 32)
+[DONE] 32. Ear training: shortcuts shown as key caps (/theory/ears)
 Done: [Space] on Start and Next, [R] on Replay, [1] [2] ... on the answers, on desktop widths only and not when the game is embedded. The "Keys: ..." line moved below the answers. New KeyCap atom in the design system, which Sing an interval now uses too. Checked in the browser on /theory/ears; lint, types and related tests pass.
-D21. Tune by ear: heading and voice selector removed (/theory/tune-by-ear) (was 28)
+[DONE] 28. Tune by ear: heading and voice selector removed (/theory/tune-by-ear)
 Done: removed the "Flat, sharp or in tune?" section title (the listening game now sits in a plain frame) and the voice selector from the sing-the-strings section; the singing page's saved voice is still used. Lint and types clean; not checked in the browser.
-D20. Tune by ear: notes may be an octave too high (/theory/tune-by-ear) (was 29)
+[DONE] 29. Tune by ear: notes may be an octave too high (/theory/tune-by-ear)
 Done: the "Sing the open strings" section now plays and shows the strings at true guitar pitch (E2 A2 D3 G3 B3 E4, bass clef) and has no voice any more: the string-singer tool lost its voice prop (the plan parser ignores a voice on it, the AI prompt no longer asks for one). The flat/sharp game already played true pitch. tsc and tests pass; not checked in the browser.
-D19. Ear training: no mic answer on Which interval or chord quality (/theory/ears) (was 31)
+[DONE] 31. Ear training: no mic answer on Which interval or chord quality (/theory/ears)
 Done: tapping is the only way to answer. Removed the "Answer by" row, the mic selector and the "Now play it on your guitar" prompt, plus the page intro's mention of playing it back and the played-note helpers and their tests. Nothing was left on chord quality. Checked in the browser: a round of intervals, then chord quality.
-D18. Staff note states: enabled / highlighted / muted
+[DONE] 18. Staff note states: enabled / highlighted / muted
 Done: the staff draws three looks: highlighted notes ringed with bold labels, enabled notes plain, muted notes faint. A highlight no longer dims the other notes; only muted notes (not enabled, or in "mute") fade. Same on the play-along's notes staff. The prompt now says: highlight the few notes of interest, keep notes the student plays or compares against enabled, mute only scale notes of no interest. Checked in the browser on /dev/examples (modes by ear).
-D17. Volume control on staff and other components
+[DONE] 17. Volume control on staff and other components
 Done: one app-wide volume (speaker to mute + slider) on the staff and the sing-along players, a master gain over every sound. A sliders button opens a dropdown of tiles: accuracy and labels (app-wide), melody view (shared by the exercise's tools: staff or piano roll). Tempo, metronome and looping stay on each tool. A staff written with fixed labels leaves the labels choice out. No density setting. Not checked in the browser after the last change (labels made app-wide).
-D16. Better frames around exercise components (/dev/examples).
+[DONE] 16. Better frames around exercise components (/dev/examples).
 Done: on /dev/examples each tool sits in a bordered frame headed by its type (STAFF, MELODY SINGER…), each step of an exercise after the first starts under a rule with a larger heading, and each example card has a shaded header bar over its body. The plan page's layout is unchanged (the framing is keyed to the review view's comment context). The tools' own inner borders were left as they are. Not checked in the browser (extension was not connected).
-D15. Guide-tones / chord singing exercises (voice-advanced-guide-tones)
+[DONE] 15. Guide-tones / chord singing exercises (voice-advanced-guide-tones)
 - run-singer (section 3) needs 2 chords in front as an introduction too.
 - Section 8: highlight the note we expect to be sung + root note of the chord. Root notes should show on the staff (D is missing). Then the instruction is just "sing highlighted notes" (word explanation optional). Make note name and solfège bolder for the selected note.
 - Section 12: include Ti below low Do (at least for lower levels). Multiple notes can be highlighted if we give the user the option.
 - Call to try singing the notes without the melody. Maybe idea variants under each exercise to inspire (different vowels etc.).
 Done: a run now opens with a bar of its first key's I and V (run-singer); highlighted notes on a staff get bold names and solfège; the guide-tones staff shows the whole scale (D and G roots in), the sung notes and roots lit, A faint; new staff option `under` adds the notes under low Do (Ti), used in "Your own line"; try-it-without-the-tune lines with ideas after the run, the octave tune and the guide tones. Not checked in the browser.
-D14. Pages with a side panel: side panel always on the side, even with the hero (e.g. /theory/singing).
+[DONE] 14. Pages with a side panel: side panel always on the side, even with the hero (e.g. /theory/singing).
 Done: the singing page's lead-in (Lesson) moved into the content column, so the settings column starts at the top beside it. Not yet checked in the browser (extension was not connected).
-D11. Use headphones disclaimer that shows UI help explaining about audio etc.
+[DONE] 11. Use headphones disclaimer that shows UI help explaining about audio etc.
 Done: "Use headphones" with an (i) note next to Start exercise, whenever a step uses the mic and plays a sound.
 
-D12. Improve design of voice range finder and circle of fifths - add colors
+[DONE] 12. Improve design of voice range finder and circle of fifths - add colors
 Done: circle chords coloured by job (home / away / tension) with a legend; range finder shows coloured voice-type bars, your range and a live pitch marker.
 
-D12b. Drone UI in exercise
+[DONE] 12b. Drone UI in exercise
 Done: moved to done per user confirmation (2026-11-08).
 
-D13. FAQ
+[DONE] 13. FAQ
 Done: /faq page (getting started, mic and sound, AI plan, course), linked in footer, search and sitemap.
 
-D1. One "Start exercise" button for drone and mic
+[DONE] 1. One "Start exercise" button for drone and mic
 
 Problem: Singing exercises tell the student to press Play on the drone and then start the mic on the staff. That is two controls and two sentences in every exercise.
 Proposal: One button starts the backing (drone or click) and the mic together. This would be a combined control in the tool tree, such as a staff option that takes its own drone and click, or a wrapper tool.
 Acceptance: The text says "Press Start below". Stopping stops both. An exercise can still use a drone without the mic.
 Open question: Does this replace the click-drone plus staff pair, or is it a new tool the prompt prefers?
-D2. The run-singer title shows "Run #109 · Pentatonic runs · C major · Tenor"
+[DONE] 2. The run-singer title shows "Run #109 · Pentatonic runs · C major · Tenor"
 
 Problem: The title reads as one fixed run, but the exercise moves up a semitone each pass.
 Proposal: Show the current pass and its key ("Pass 2 of 5 · D♭ major"), or the note range. Drop the run number.
 Acceptance: The title always matches what is currently playing.
-D3. Voice exercises have no progression display in play-along
+[DONE] 3. Voice exercises have no progression display in play-along
 
 Problem: The guide-tones exercise uses a play-along as accompaniment, but it shows no chord progression the way strum-along does. The play-along component is also built for guitar playing.
 Proposal: Add a chord-progression strip (current chord lit, one per bar) to a play-along used as accompaniment. Or add a separate "chords" tool for singers.
 Acceptance: A singer sees which chord is playing and what comes next. The text no longer says "play along".
-D4. Staff singing exercises must label notes
+[DONE] 4. Staff singing exercises must label notes
 
 Problem: A staff in a singing exercise can show bare notes. I found no rule or option that forces degree or solfège labels.
 Proposal: Add a labels option to the staff tool (degree or solfège), and default it on when mic is true. Add a prompt rule and a validation test over the examples.
 Acceptance: Every staff with a mic in the examples shows labels.
 
-D5. add more components to dev component preview (story book). I'm most interested in exercises.  I'd like to see storybook style controls but happy with our custom implementation
+[DONE] 5. add more components to dev component preview (story book). I'm most interested in exercises.  I'd like to see storybook style controls but happy with our custom implementation
 
-D6. "Read the article" in a help box should open in new tab
+[DONE] 6. "Read the article" in a help box should open in new tab
 Copy: "Read the article →"
 
-D7. Throughout the app find where microphone is used and replace button labels to be "Start / stop microphone"
+[DONE] 7. Throughout the app find where microphone is used and replace button labels to be "Start / stop microphone"
 
-D8. Annotation / notes tool
+[DONE] 8. Annotation / notes tool
 - [ a ] shortcut button to trigger on/off "Note text" quickly
 - Default "Add note" should open an edit box with more lines (multi-line comments).
 
-D9. Example exercise copy fixes (/dev/examples)
+[DONE] 9. Example exercise copy fixes (/dev/examples)
 - guitar-beginner-pentatonic-box1, section 2: could also learnBefore notes & strings, if we have an article like that.
 - guitar-intermediate plan, day 1 ex 1, section 1 ("Pick the first note only. Then hammer finger 3 and pull back..."): instruction reads badly; maybe better once shown with a component.
 - theory-intermediate-seventh-chords, section 4: "C7 has A♯ (B♭)" reads very hard.
 - theory-new-major-or-minor, section 2 ("tap {{1}}, then any other note..."): nice but not quite a drill. Add focus for selling classes.
 
-D10. A course article for "staff"
+[DONE] 10. A course article for "staff"
 
 Problem: The glossary entry has no article of its own to link to.
 Proposal: Write a short article under the notation stage, then repoint the glossary entry at it.
 
-D11. /theory/singing page (done 2026-11-07)
+[DONE] 11. /theory/singing page (done 2026-11-07)
 - "Play the scale" button: add play/stop icon.
 - Put all settings (difficulty etc.) into the side panel, using more dropdowns instead of so many buttons.
 - Melody feed exercises need the same capabilities as autoplan (looping etc.), coming from the same shared component.
@@ -256,7 +241,7 @@ D11. /theory/singing page (done 2026-11-07)
 -  DONE: Esc to close 'tool hint' (questionmark icon) on singing and other components.
 Make it reusable component as well as show [Esc] next to  (i) button when it's active
 
-D18. Note spelling: text and component disagree
+[DONE] 18. Note spelling: text and component disagree
 Done (commit a4ac0a4): text notes spelled by letter from the key tonic using spellAbove (so ♭3 of C reads E♭ matching the staff), and note-name tokens ({{e-flat}}) preserved as written. Also ensured rootOf in noteText parses string keys (keyRoot) for staff and scale-neck.
 
 20. Implement exercise stubs. Add a rule that whenever new exercise is added it needs to be added to /dev/stories

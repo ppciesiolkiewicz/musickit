@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import Icon from "@/components/Icon";
 import { Button } from "@/components/ui";
 import { audioStartTime, getAudioContext, getOutputBus, wakeAudio } from "@/features/sound";
@@ -39,9 +39,11 @@ function chime() {
  * every few seconds, on pause and when the tab hides, so a reload or a later visit picks up where it stopped. The running
  * exercise goes to `onExercise`; a chime at zero. Time is kept from the clock, so a background tab stays right.
  */
-export default function DayTimer({ minutes, titles, label, elapsed: saved, autoStart, onSave, onExercise }: {
+export default function DayTimer({ minutes, titles, label, elapsed: saved, autoStart, onSave, onExercise, above }: {
   minutes: number[]; titles: string[]; label: string; elapsed: number; autoStart: boolean;
   onSave: (elapsed: number) => void; onExercise: (index: number | null) => void;
+  /** small controls floating over the timer in the same corner */
+  above?: ReactNode;
 }) {
   const [elapsed, setElapsed] = useState(saved);
   // set while running: the clock time the countdown would have started at, had it never paused
@@ -103,9 +105,10 @@ export default function DayTimer({ minutes, titles, label, elapsed: saved, autoS
   const p = clock.total ? 1 - clock.left / clock.total : 0;
   const finished = clock.left === 0;
   return (
+    <Corner above={above}>
     <aside
       aria-label="Day timer"
-      className="fixed bottom-3 right-3 z-40 flex w-[min(20rem,calc(100vw-1.5rem))] items-center gap-3 rounded-2xl border border-slate-700 bg-slate-950/90 p-3 shadow-2xl shadow-black/50 backdrop-blur sm:bottom-6 sm:right-6"
+      className="flex w-[min(20rem,calc(100vw-1.5rem))] items-center gap-3 rounded-2xl border border-slate-700 bg-slate-950/90 p-3 shadow-2xl shadow-black/50 backdrop-blur"
     >
       <span className="relative grid size-14 shrink-0 place-items-center">
         <svg viewBox="0 0 36 36" className="absolute inset-0 -rotate-90" aria-hidden>
@@ -135,5 +138,25 @@ export default function DayTimer({ minutes, titles, label, elapsed: saved, autoS
         </Button>
       </div>
     </aside>
+    </Corner>
   );
+}
+
+/**
+ * The page's bottom-right corner: `above` (small floating controls) stacked over `children`. Its height (plus a gap) goes to
+ * the `--corner-stack` CSS variable, which lifts the app-wide Rec tab (`QuickRecord`) to sit just above it.
+ */
+export function Corner({ above, children }: { above?: ReactNode; children?: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const shown = !!(above || children);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const root = document.documentElement.style;
+    const ro = new ResizeObserver(() => root.setProperty("--corner-stack", `${el.offsetHeight + 6}px`));
+    ro.observe(el);
+    return () => { ro.disconnect(); root.removeProperty("--corner-stack"); };
+  }, [shown]);
+  if (!shown) return null;
+  return <div ref={ref} className="fixed bottom-6 right-2 z-40 flex flex-col items-end gap-2">{above}{children}</div>;
 }

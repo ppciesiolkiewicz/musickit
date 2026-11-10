@@ -56,7 +56,7 @@ export default function PageShell({ title, eyebrow, intro, active, wide = false,
   );
   return (
     <div className="app-bg min-h-screen text-slate-200">
-      <div className={`mx-auto flex w-full flex-col gap-4 py-3 sm:py-4 ${tight ? "px-2 sm:px-3" : full ? "px-3 sm:px-6 lg:px-8" : wide ? "max-w-[96rem] px-3 sm:px-5" : "max-w-[80rem] px-3 sm:px-6 lg:px-8"}`}>
+      <div className={`mx-auto flex w-full flex-col gap-4 py-3 sm:py-4 ${tight ? "px-3 sm:px-5 lg:px-20 xl:px-24" : full ? "px-3 sm:px-6 lg:px-8" : wide ? "max-w-[96rem] px-3 sm:px-5" : "max-w-[80rem] px-3 sm:px-6 lg:px-8"}`}>
         <PreloadPiano />
         <PracticeReminder />
         <div className="border-b border-slate-800/70 py-1.5 sm:py-2.5">

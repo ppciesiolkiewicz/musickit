@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import Icon from "@/components/Icon";
 import { DISPLAY } from "@/components/landing/Display";
-import DayTimer from "./DayTimer";
+import DayTimer, { Corner } from "./DayTimer";
 import ExerciseCard from "./ExerciseCard";
 import { elapsedOf } from "../model/dayClock";
 import { dayProgress, doneKey } from "../model/schedule";
@@ -15,10 +15,12 @@ import type { Stars } from "@/features/progress/stars";
  * exercises, each an `ExerciseCard`. One floating timer counts down the whole day (`DayTimer`): it starts by itself for the day shown on page
  * load, its used time is saved with the plan, and the exercise its time falls in is marked "Now".
  */
-export default function WeekView({ plan, today, day, onDay, onRate, onElapsed }: {
+export default function WeekView({ plan, today, day, onDay, onRate, onElapsed, corner }: {
   plan: StoredPlan; today: number; day: number; onDay: (d: number) => void; onRate: (day: number, ex: number, stars: Stars | null) => void;
   /** saves the day timer's used seconds; without it (a preview) there is no timer */
   onElapsed?: (planId: string, day: number, seconds: number) => void;
+  /** small controls floating in the bottom-right corner, over the timer */
+  corner?: ReactNode;
 }) {
   const d = plan.config.days[day];
   const [now, setNow] = useState<number | null>(null);
@@ -74,7 +76,7 @@ export default function WeekView({ plan, today, day, onDay, onRate, onElapsed }:
         })}
       </ol>
 
-      {onElapsed && <DayTimer
+      {onElapsed ? <DayTimer
         key={`${plan.id}:${day}`}
         minutes={d.exercises.map((e) => e.minutes)}
         titles={d.exercises.map((e) => e.title)}
@@ -83,7 +85,8 @@ export default function WeekView({ plan, today, day, onDay, onRate, onElapsed }:
         autoStart={autoDay === day}
         onSave={(s) => onElapsed(plan.id, day, s)}
         onExercise={setNow}
-      />}
+        above={corner}
+      /> : <Corner above={corner} />}
     </div>
   );
 }

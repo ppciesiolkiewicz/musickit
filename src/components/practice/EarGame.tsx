@@ -7,7 +7,8 @@ import { INTERVALS, pianoFrom } from "@/lib/chordKit/intervals";
 import { playMelody, strum } from "@/features/sound";
 import { CHORD_QUALITIES, EAR_LEVELS, activeAnswers, nextEarQuestion, recordScore, type Direction, type EarQuestion, type EarSettings, type Score } from "@/lib/practice/earGame";
 import Icon from "@/components/Icon";
-import { GameChoice, SetupTag, Stage, Stat, btn, btnBig, panel, useGameKeys, writeQuery } from "./shared";
+import { GameChoice, SetupTag, Stage, Stat, btn, btnBig, panel, writeQuery } from "./shared";
+import { useToolKeys } from "./toolKeys";
 import { Chip, ChipRow, Hint, KeyCap } from "@/components/ui";
 import { useCoverage } from "@/features/guide/useCoverage";
 
@@ -71,18 +72,27 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
     const set = cur.includes(semis) ? cur.filter((x) => x !== semis) : [...cur, semis];
     if (set.length) update({ custom: set });
   };
-  useGameKeys((e, onControl) => {
+  // Space and Enter go on (or replay while a question waits), R replays, the number keys answer; on a page of several
+  // tools, the one last tapped or most on screen takes them
+  const keys = useToolKeys((e, onControl) => {
     if (e.key === " " || e.key === "Enter") {
       if (onControl) return;
-      e.preventDefault();
       if (q && !answered) replay();
       else next();
-    } else if (q && e.key.toLowerCase() === "r") replay();
-    else if (q) {
-      const a = answers[ANSWER_KEYS.indexOf(e.key)];
-      if (a && e.key.length === 1) pick(a);
+      return true;
     }
-  }, !bare);
+    if (q && e.key.toLowerCase() === "r") {
+      replay();
+      return true;
+    }
+    if (q && !answered && e.key.length === 1) {
+      const a = answers[ANSWER_KEYS.indexOf(e.key)];
+      if (a) {
+        pick(a);
+        return true;
+      }
+    }
+  });
   const info = q && s.kind === "interval" ? INTERVALS.find((i) => i.short === q.answer) : undefined;
 
   const total = Object.values(score).reduce((n, v) => n + v.total, 0);
@@ -91,8 +101,8 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
     : "Replay it as often as you like, then pick an answer.";
   const question = !q ? "Press Start and listen." : answered ? (answered.ok ? "Right!" : "Not quite.") : s.kind === "chord" ? "What kind of chord?" : "Which interval?";
 
-  /** Key caps only where the keys work: not when embedded, not on touch screens. */
-  const cap = (key: string) => !bare && <KeyCap className="hidden md:inline">{key}</KeyCap>;
+  /** Key caps only where the keys work: on the tool that has them, not on touch screens. */
+  const cap = (key: string) => keys.armed && <KeyCap className="hidden md:inline">{key}</KeyCap>;
 
   const setup = !bare && (
     <section data-tour="ears-settings" className={`${panel} flex flex-col gap-2`}>
@@ -118,7 +128,7 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
   );
 
   return (
-    <div className="flex flex-col gap-4">
+    <div ref={keys.ref} className="flex flex-col gap-4">
       {!bare && <div data-tour="ears-setup"><GameChoice label="What to train" options={KINDS} value={s.kind} onChange={(kind) => update({ kind })} tone="sky" /></div>}
       <Stage tone="sky">
         <div className="flex flex-wrap items-start justify-between gap-3">
@@ -154,12 +164,12 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
               <button key={a} type="button" onClick={() => pick(a)} disabled={!q}
                 className={`relative cursor-pointer rounded-xl border-2 px-3 py-3 text-base font-semibold transition active:scale-[0.96] disabled:cursor-default disabled:opacity-40 ${isRight ? "border-emerald-400 bg-emerald-500/25 text-emerald-50" : wrong ? "border-rose-400 bg-rose-500/25 text-rose-50" : "border-slate-600 bg-slate-800 text-slate-50 hover:border-sky-400 hover:bg-slate-700"}`}>
                 {s.kind === "chord" ? labelOf(a) : a}
-                {!bare && ANSWER_KEYS[i] && <KeyCap className="absolute right-1 top-1 hidden md:block">{ANSWER_KEYS[i]}</KeyCap>}
+                {keys.armed && ANSWER_KEYS[i] && <KeyCap className="absolute right-1 top-1 hidden md:block">{ANSWER_KEYS[i]}</KeyCap>}
               </button>
             );
           })}
         </div>
-        {!bare && <p className="hidden text-xs text-slate-400 md:block">Keys: numbers answer, R replays, Space goes on</p>}
+        {keys.armed && <p className="hidden text-xs text-slate-400 md:block">Keys: numbers answer, R replays, Space goes on</p>}
         {answered && q && (
           <div className="flex flex-col gap-2 rounded-2xl border border-slate-800 bg-slate-950/40 p-3 text-sm text-slate-300">
             {info && <p>Memory hook: the start of <i>{info.song}</i>. <Link className="text-sky-300 hover:underline" href={`/theory/basics?interval=${info.semis}#intervals`}>See it on the guitar →</Link></p>}
