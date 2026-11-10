@@ -28,6 +28,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/",
     ...keyHubs,
     "/teachers/studio",
+    "/kickstarter",
     ...cleanSectionHrefs,
     ...ALL_SECTIONS.map((r) => sectionHref(r.stage.slug, r.section.slug)),
   ]);

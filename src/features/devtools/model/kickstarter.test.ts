@@ -7,7 +7,7 @@ const brief = (over = {}) => outreachBrief({ ...DEFAULT_INPUTS, ...over }, demos
 
 test("the brief carries the offer, the beta line and every demo link", () => {
   const b = brief();
-  for (const word of ["founding partners", "locked in", "90 days", "involved in the creation", "beta", "manage more of a music school"]) {
+  for (const word of ["founding partners", "locked in", "90 days", "$360 AUD a year", "change their mind", "100% money-back guarantee", "ABN 48 737 987 261", "at least 20 founding partners", "Australian company", "scheduling", "profiles", "sells it through the attunr website", "/kickstarter", "involved in the creation", "beta", "manage more of a music school"]) {
     assert.ok(b.includes(word), word);
   }
   assert.ok(b.includes("Guitar for a beginner (a week of daily exercises): https://x.test/demo/guitar-beginner"));

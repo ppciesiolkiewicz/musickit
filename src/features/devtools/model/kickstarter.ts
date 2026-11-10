@@ -4,6 +4,9 @@
  * nowhere else.
  */
 
+import { FOUNDING_PARTNERS_NEEDED, FOUNDING_PRICE, FOUNDING_TRIAL_DAYS } from "@/lib/foundingOffer";
+import { SITE_URL } from "@/lib/site";
+
 export const KICKSTARTER_KEY = "musickit.dev.kickstarter";
 
 /** Who signs every email. */
@@ -30,10 +33,15 @@ export interface DemoLink {
 export const FACTS: string[] = [
   "attunr is a web app for music teachers and schools. A teacher organises lesson notes in it and gives students interactive exercises to practise with at home.",
   "A lesson note is one page with today's material on it (scales, chords, exercises the student can play) and goes to the student as a link.",
-  "It could grow to manage more of a music school. What comes next is decided with the founding partners.",
-  "I'm looking for founding partners: a small number of schools and teachers who use it early and help shape it.",
-  "A founding partner's price is locked in: it doesn't go up later.",
-  "A founding partner gets a long trial, 90 days, before any paid period starts.",
+  "What works today is the tools for interactive lesson notes.",
+  "It could grow to manage more of a music school. Coming soon, not built yet and with no date: tools to run a studio, with scheduling (one calendar for every lesson) and profiles (one for each teacher and each student). What comes next is decided with the founding partners.",
+  "Planned after that, not built yet: a teacher builds a course from their interactive notes and their own embedded videos, and sells it through the attunr website.",
+  "I'm looking for founding partners: schools and teachers who use it early and help shape it.",
+  `I need at least ${FOUNDING_PARTNERS_NEEDED} founding partners to start the project.`,
+  `A founding partner's price is ${FOUNDING_PRICE} a year. It is locked in: it doesn't go up later.`,
+  `A founding partner gets a long trial, ${FOUNDING_TRIAL_DAYS} days, before any paid period starts. They are free to change their mind at any time in those ${FOUNDING_TRIAL_DAYS} days, and then they pay nothing. If they have already paid, it is a 100% money-back guarantee: they get all of it back.`,
+  "attunr is an Australian company (ABN 48 737 987 261), and the price is in Australian dollars.",
+  `The offer is on one page: ${SITE_URL}/kickstarter`,
   "A founding partner is involved in the creation: they say what the school needs, and that is built first.",
   "It is a beta product. It works and can be tried today, and I'm still improving it and the content on the website.",
 ];

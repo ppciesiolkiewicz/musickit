@@ -39,6 +39,7 @@ const COLUMNS: Column[] = [
       { href: "/#white-label", label: "White-labelling" },
       { href: "/teachers/studio", label: "Teaching studio" },
       { href: "/teachers/studio?notes=1", label: "Notes creator" },
+      { href: "/kickstarter", label: "Founding partners" },
     ],
   },
   {
@@ -93,7 +94,7 @@ export default function SiteFooter({ variant = "default" }: { variant?: "default
       </div>
 
       <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-slate-800/70 pt-6 text-xs text-slate-500 sm:flex-row">
-        <p>© {new Date().getFullYear()} attunr. All rights reserved.</p>
+        <p>© {new Date().getFullYear()} attunr. ABN 48 737 987 261. All rights reserved.</p>
         <p>Photos from Unsplash. Made for people who&apos;d rather play.</p>
       </div>
     </footer>

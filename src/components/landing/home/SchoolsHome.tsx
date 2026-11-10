@@ -9,6 +9,7 @@ import Glow from "@/components/landing/Glow";
 import SiteFooter from "@/components/landing/SiteFooter";
 import { BetaBadge, DISPLAY, Eyebrow, H2, Mark } from "@/components/landing/Display";
 import { LessonNoteMock, LiveLessonMock } from "@/components/landing/LessonMocks";
+import { SoonHeading, StudioSoonCards } from "@/components/landing/StudioSoon";
 import { degreeColour } from "@/features/theory/scales";
 import { Check, IdeasSection, PLAY_TOOLS, PlanDayCard, SkillsSection } from "./PracticeSections";
 
@@ -44,21 +45,6 @@ const WHITE_LABEL = [
   "On your own web address",
   "Your students, your teachers, your brand",
 ];
-
-/** A coming-soon card's heading, with the badge that says it isn't here yet. */
-function SoonHeading({ icon, tone, title }: { icon: IconName; tone: string; title: string }) {
-  return (
-    <div className="flex flex-col items-start gap-3">
-      <div className="flex items-center gap-3">
-        <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${tone}`}><Icon name={icon} size={20} /></span>
-        <h3 className="text-2xl text-slate-50" style={DISPLAY}>{title}</h3>
-      </div>
-      <span className="inline-flex items-center gap-1.5 rounded-full border border-sky-400/40 bg-sky-400/10 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider text-sky-300">
-        <span className="size-1.5 rounded-full bg-sky-300" /> Coming soon
-      </span>
-    </div>
-  );
-}
 
 /** Minutes practised each day, drawn for the progress tracker card. Illustration only. */
 const PRACTICE_WEEK = [{ d: "M", mins: 10 }, { d: "T", mins: 20 }, { d: "W", mins: 15 }, { d: "T", mins: 0 }, { d: "F", mins: 25 }, { d: "S", mins: 10 }, { d: "S", mins: 20 }];
@@ -240,7 +226,7 @@ export default function SchoolsHome() {
           </div>
         </section>
 
-        {/* Coming soon: progress tracker and accountability */}
+        {/* Coming soon: progress tracker, accountability and adaptive view */}
         <section id="coming-soon" aria-labelledby="coming-soon-h" className="scroll-mt-6 sect-rule py-12 sm:py-16">
           <div className="mx-auto max-w-2xl text-center">
             <Eyebrow>What we&apos;re building next</Eyebrow>
@@ -262,6 +248,11 @@ export default function SchoolsHome() {
               <p className="text-sm leading-relaxed text-slate-400">The screen fits the student&apos;s level. Beginners see <Mark tone="var(--color-amber-400)">fewer notes and less detail</Mark>, and more comes in as they progress, so nobody gets lost in a busy screen.</p>
               <AdaptiveViewMock />
             </li>
+          </ul>
+          {/* Coming soon: running the school (scheduling, profiles), the same cards as /kickstarter */}
+          <p className="mt-12 text-center text-xs font-medium uppercase tracking-[0.2em] text-slate-400">And for running your school</p>
+          <ul className="mt-6 grid gap-4 lg:grid-cols-2">
+            <StudioSoonCards />
           </ul>
         </section>
 

@@ -59,7 +59,8 @@ loading a plan always does (ids for exercises stored without one).
 ## Kickstarter (`/dev/kickstarter`)
 
 Replies to music schools that could become founding partners. `model/kickstarter.ts` holds what an email may say (`FACTS`:
-what attunr is, the locked-in price, the 90-day trial, a say in what gets built, that it is a beta) and how it sounds
+what attunr is and what is coming (scheduling, profiles, courses to sell), the locked-in price, the 90-day trial, the 20 partners
+the project needs, a say in what gets built, that it is a beta, that it is an Australian company; the price, the trial length and the 20 come from `src/lib/foundingOffer.ts`, which the public page `/kickstarter` reads too) and how it sounds
 (`VOICE`, plus reply-only and first-email-only rules); change the offer there. The page (`kickstarter/KickstarterPage.tsx`)
 has a box for the pasted email thread and an optional one-line note (both kept in `localStorage`
 `musickit.dev.kickstarter`), the line to paste into an AI extension, a *Reply* box, and the brief as plain text on the page
