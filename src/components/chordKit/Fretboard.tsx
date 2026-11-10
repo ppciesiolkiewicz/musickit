@@ -39,16 +39,19 @@ export const boxRowFactor = (i: number): number => Math.max(0.75, 1.4 * 0.88 ** 
 export function fretGeometry(from: number, to: number, colW = 56, rowH = 38, top = 22): FretGeometry {
   const cols = to - from + 1;
   const left = 40, right = 14, bottom = 38;
+  // a window that starts up the neck is sized by each column's place in it, not its fret: its first fret is as wide as
+  // the first fret, so a box at fret 7 is not already squeezed
+  const factor = (f: number) => fretWidthFactor(from > 1 ? f - from + 1 : f);
   const edge = (f: number) => {
     let x = left;
-    for (let k = from; k < f; k++) x += colW * fretWidthFactor(k);
+    for (let k = from; k < f; k++) x += colW * factor(k);
     return x;
   };
   return {
     from, to, cols, colW, rowH, left, top, edge,
     W: edge(to + 1) + right,
     H: top + 5 * rowH + bottom,
-    fx: (f) => edge(f) + (colW * fretWidthFactor(f)) / 2,
+    fx: (f) => edge(f) + (colW * factor(f)) / 2,
     sy: (s) => top + (5 - s) * rowH,
   };
 }
