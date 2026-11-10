@@ -6,17 +6,9 @@ import PreloadPiano from "@/features/sound/keyboard/PreloadPiano";
 import PracticeReminder from "@/features/plan/PracticeReminder";
 import PageHelp, { TourIcon } from "@/features/guide/PageHelp";
 import { Notice } from "@/components/ui";
+import Icon from "@/components/Icon";
 import { GuideProvider } from "@/features/guide/Tier";
 import type { TourStep } from "@/features/guide/tour";
-
-function MicIcon() {
-  return (
-    <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-      <rect x="5.5" y="1.5" width="5" height="8" rx="2.5" />
-      <path d="M3 7.5a5 5 0 0 0 10 0M8 12.5v2" />
-    </svg>
-  );
-}
 
 /** The short rule under the title, in the page's own colour (full class names so Tailwind sees them). */
 const BAR: Record<Tone, string> = { emerald: "bg-emerald-400", sky: "bg-sky-400", amber: "bg-amber-400", violet: "bg-violet-400", rose: "bg-rose-400", teal: "bg-teal-400", pink: "bg-pink-400", red: "bg-red-400" };
@@ -89,7 +81,7 @@ export default function PageShell({ title, eyebrow, intro, active, wide = false,
                     </Notice>
                   )}
                   {mic && (
-                    <Notice tone="warn" icon={<MicIcon />}>
+                    <Notice tone="warn" icon={<Icon name="headphones" size={16} />}>
                       <strong className="font-semibold text-slate-100">Uses your microphone.</strong> Wear headphones so it doesn&apos;t hear its own sound.
                     </Notice>
                   )}
