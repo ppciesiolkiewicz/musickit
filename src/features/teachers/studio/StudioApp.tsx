@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { HeardNote } from "@/components/chordKit/heardNote";
 import Icon from "@/components/Icon";
 import { PLUGINS } from "@/features/creator";
-import { CameraLayer, DEFAULT_VIEW, MicContext, sanitiseAudioInput, useAudioInput, NUDGE, NUDGE_BIG, ScreenLayer, StageFrame, StageWidget, layoutOf, mediaState, isControl, isPage, shortcutFor, stageCommand, subjectTitle, takesMic, toggleFull, type AudioInputSetup, type Layer, type MicInput, type PaletteResult, type StudioCommand, type Subject } from "@/features/stage";
+import { CameraLayer, DEFAULT_VIEW, MicContext, sanitiseAudioInput, useAudioInput, NUDGE, NUDGE_BIG, ScreenLayer, StageFrame, StageWidget, gridLayers, layoutOf, mediaState, isControl, isPage, shortcutFor, stageCommand, subjectTitle, takesMic, toggleFull, type AudioInputSetup, type Layer, type MicInput, type PaletteResult, type StudioCommand, type Subject } from "@/features/stage";
 import { VideoPreview, pickVideoConfig, type VideoFile } from "@/features/teachers/video";
 import KeysPanel, { KeysOverlay } from "./KeysPanel";
 import LayoutSelector from "./LayoutSelector";
@@ -12,6 +12,7 @@ import useCamera from "./media/useCamera";
 import useScreenShare from "./media/useScreenShare";
 import ControlBadge, { MicBadge, PageBadge } from "./ControlBadge";
 import { encodeNote, noteFromHash } from "./notes";
+import NoteJson from "./NoteJson";
 import NoteView from "./NoteView";
 import { presetNote } from "./presetNotes";
 import Palette from "./Palette";
@@ -88,7 +89,12 @@ function Studio({ notes = false, preset }: {
   preset?: string;
 }) {
   const [mounted, setMounted] = useState(false);
-  const [stage, dispatch] = useStage(PLUGIN_IDS, notes, preset ? (presetNote(preset)?.stage ?? null) : null);
+  const [stage, dispatch, load] = useStage(PLUGIN_IDS, notes, preset ? (presetNote(preset)?.stage ?? null) : null);
+  const [json, setJson] = useState(false);
+  const grid = layoutOf(stage) === "grid";
+  // the Layers list on the grid: the page top to bottom, then what is not on the grid (the brand marks keep their corner)
+  const onPage = grid ? gridLayers(stage) : [];
+  const listed = grid ? [...onPage, ...stage.layers.filter((l) => !onPage.includes(l))] : [...stage.layers].reverse();
   const [shared, setShared] = useState<"copied" | "failed" | null>(null);
   const shareNote = async () => {
     try {
@@ -362,37 +368,52 @@ function Studio({ notes = false, preset }: {
           <h2 className="mt-2 text-xs font-medium uppercase tracking-wider text-slate-400">Layers</h2>
           {stage.layers.length === 0 && <p className="text-xs text-slate-500">Nothing on the stage yet.</p>}
           <ul className="flex flex-col gap-1">
-            {[...stage.layers].reverse().map((l) => (
+            {/* on the grid the list is the page, top to bottom; on Free it is the stack, the top widget first */}
+            {listed.map((l, i) => {
+              const name = subjectTitle(l.subject);
+              return (
               <li key={l.id}>
                 <div className={`flex items-center gap-1 rounded-md border px-2 py-1 text-sm ${stage.selected === l.id ? "border-sky-500/60 bg-sky-500/10 text-sky-100" : "border-slate-800 text-slate-300"}`}>
                   <button type="button" className={`flex min-w-0 flex-1 items-center gap-1.5 text-left ${l.visible ? "" : "opacity-50"}`} onClick={() => dispatch({ type: "select", id: l.id })}>
-                    <span className="truncate">{subjectTitle(l.subject)}</span>
+                    {i < onPage.length && <span className="w-4 shrink-0 text-right text-xs tabular-nums text-slate-500">{i + 1}</span>}
+                    <span className="truncate">{name}</span>
                     {isControl(l.subject) && <ControlBadge />}
                     {isPage(l.subject) && <PageBadge />}
                     {takesMic(l.subject) && <MicBadge />}
                   </button>
-                  <button type="button" title={l.onTop ? "Unpin" : "Pin over the other widgets (the audio input lights its notes)"} aria-pressed={!!l.onTop} onClick={() => dispatch({ type: "togglePin", id: l.id })} className={`p-0.5 hover:text-slate-100 ${l.onTop ? "text-sky-300" : "text-slate-400"}`}>
+                  <button type="button" title={l.onTop ? "Unpin" : "Pin over the other widgets (the audio input lights its notes)"} aria-label={`${l.onTop ? "Unpin" : "Pin"} ${name}`} aria-pressed={!!l.onTop} onClick={() => dispatch({ type: "togglePin", id: l.id })} className={`p-0.5 hover:text-slate-100 ${l.onTop ? "text-sky-300" : "text-slate-400"}`}>
                     <Icon name="pin" size={14} />
                   </button>
-                  <button type="button" title={l.visible ? "Hide" : "Show"} onClick={() => dispatch({ type: "toggle", id: l.id })} className="p-0.5 text-slate-400 hover:text-slate-100">
+                  <button type="button" title={l.visible ? "Hide" : "Show"} aria-label={`${l.visible ? "Hide" : "Show"} ${name}`} onClick={() => dispatch({ type: "toggle", id: l.id })} className="p-0.5 text-slate-400 hover:text-slate-100">
                     <Icon name="eye" size={14} />
                   </button>
-                  {layoutOf(stage) === "free" && (
+                  {i < onPage.length && (
                   <>
-                  <button type="button" title="Bring forward" onClick={() => dispatch({ type: "raise", id: l.id })} className="p-0.5 text-slate-400 hover:text-slate-100">
+                  <button type="button" title="Move up the page" aria-label={`Move ${name} up`} disabled={i === 0} onClick={() => dispatch({ type: "reorder", id: l.id, over: onPage[i - 1].id })} className="p-0.5 text-slate-400 hover:text-slate-100 disabled:opacity-30">
                     <Icon name="chevron-down" size={14} className="rotate-180" />
                   </button>
-                  <button type="button" title="Send backward" onClick={() => dispatch({ type: "lower", id: l.id })} className="p-0.5 text-slate-400 hover:text-slate-100">
+                  <button type="button" title="Move down the page" aria-label={`Move ${name} down`} disabled={i === onPage.length - 1} onClick={() => dispatch({ type: "reorder", id: l.id, over: onPage[i + 1].id })} className="p-0.5 text-slate-400 hover:text-slate-100 disabled:opacity-30">
                     <Icon name="chevron-down" size={14} />
                   </button>
                   </>
                   )}
-                  <button type="button" title="Delete" onClick={() => dispatch({ type: "remove", id: l.id })} className="p-0.5 text-slate-400 hover:text-rose-300">
+                  {!grid && (
+                  <>
+                  <button type="button" title="Bring forward" aria-label={`Bring ${name} forward`} onClick={() => dispatch({ type: "raise", id: l.id })} className="p-0.5 text-slate-400 hover:text-slate-100">
+                    <Icon name="chevron-down" size={14} className="rotate-180" />
+                  </button>
+                  <button type="button" title="Send backward" aria-label={`Send ${name} backward`} onClick={() => dispatch({ type: "lower", id: l.id })} className="p-0.5 text-slate-400 hover:text-slate-100">
+                    <Icon name="chevron-down" size={14} />
+                  </button>
+                  </>
+                  )}
+                  <button type="button" title="Delete" aria-label={`Delete ${name}`} onClick={() => dispatch({ type: "remove", id: l.id })} className="p-0.5 text-slate-400 hover:text-rose-300">
                     <Icon name="trash" size={14} />
                   </button>
                 </div>
               </li>
-            ))}
+              );
+            })}
           </ul>
           {layoutOf(stage) === "free" && (
           <button
@@ -417,6 +438,12 @@ function Studio({ notes = false, preset }: {
             <Icon name="share-2" size={12} />
             <span className="min-w-0 flex-1 truncate">{shared === "copied" ? "Link copied" : shared === "failed" ? "Could not copy" : "Share as a note"}</span>
           </button>
+          {notes && grid && (
+          <button type="button" onClick={() => setJson(true)} title="The whole note as text: its key and its widgets in page order, to read, change and apply in one go." className="flex items-center gap-2 rounded-md border border-slate-800 px-2 py-1 text-left text-xs text-slate-300 hover:border-slate-600">
+            <Icon name="pencil" size={12} />
+            <span className="min-w-0 flex-1 truncate">Edit as JSON</span>
+          </button>
+          )}
           {!notes && (
           <button
             type="button"
@@ -463,6 +490,7 @@ function Studio({ notes = false, preset }: {
 
       {palette && <Palette notes={notes} pluginIds={PLUGIN_IDS} stageKey={stage.key} media={media} layers={stage.layers} onPick={onPick} onUpdate={(id, subject) => dispatch({ type: "swap", id, subject })} onRemove={(id) => dispatch({ type: "remove", id })} onClose={() => setPalette(false)} />}
       {help && <KeysOverlay onClose={() => setHelp(false)} />}
+      {json && <NoteJson stage={stage} pluginIds={PLUGIN_IDS} onApply={load} onClose={() => setJson(false)} />}
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { EMPTY_STAGE } from "@/features/stage";
-import { decodeNote, encodeNote, noteFromHash, notesStart } from "./notes";
+import { decodeNote, encodeNote, noteFromHash, noteOf, noteText, notesStart, readNoteText } from "./notes";
 
 const stage = { ...EMPTY_STAGE, layers: [
   { id: "a", subject: { kind: "logo" as const }, rect: { x: 0.83, y: 0.03, w: 0.15, h: 0.1 }, visible: true, z: 0 },
@@ -49,4 +49,32 @@ test("the tunes a preset note's text describes are still at their numbers in the
   assert.deepEqual(at(STAGES, BOOK, PRESET_TUNES.doReMi), ["mi", "3 1 2 3 | 2h 1h | 3 2 1 2 | 1w"]);
   assert.deepEqual(at(STAGES, BOOK, PRESET_TUNES.solLaSol), ["la", "5 6 5 3 | 1w"]);
   assert.deepEqual(at(RUN_STAGES, RUNS, PRESET_TUNES.pentatonicRun), ["pentatonic-run", "1's 6s 5s 3s 5s 3s 2s 1s 2h | 1w"]);
+});
+
+test("a note's text is its key and its widgets in page order, and reads back as the same note", () => {
+  const key = { tonicPc: 9, family: 0, mode: 5 };
+  const stage = noteOf([{ kind: "text", text: "## One" }, { kind: "neck", key }, { kind: "text", text: "Two" }], key);
+  // the page order is `order`, not the list's
+  const moved = { ...stage, order: ["w3", "w1", "w2"] };
+  const text = noteText(moved);
+  assert.deepEqual(JSON.parse(text), { key, widgets: [{ kind: "text", text: "Two" }, { kind: "text", text: "## One" }, { kind: "neck", key }] });
+  const back = readNoteText(text, []);
+  assert.ok("stage" in back);
+  assert.deepEqual(back.left, []);
+  assert.deepEqual(back.stage.key, key);
+  assert.equal(back.stage.layout, "grid");
+  assert.equal(back.stage.gridAuto, true);
+  assert.deepEqual(back.stage.order, ["w1", "w2", "w3"]);
+  assert.equal(noteText(back.stage), text);
+});
+
+test("a note's text that cannot be read says why, and a widget that cannot be read is left out and named", () => {
+  assert.match((readNoteText("{ nope", []) as { error: string }).error, /^Not JSON/);
+  assert.match((readNoteText("[]", []) as { error: string }).error, /widgets/);
+  assert.match((readNoteText('{"key":null}', []) as { error: string }).error, /widgets/);
+  const r = readNoteText(JSON.stringify({ widgets: [{ kind: "text", text: "a" }, { kind: "no-such" }, 7, { kind: "camera" }, { kind: "tool", tool: { type: "run-singer", run: 108 } }] }), []);
+  assert.ok("stage" in r);
+  assert.deepEqual(r.left, ["2 (kind no-such)", "3 (kind ?)", "4 (kind camera)"]);
+  assert.deepEqual(r.stage.layers.map((l) => l.subject.kind), ["text", "tool"]);
+  assert.deepEqual(r.stage.order, ["w1", "w5"]);
 });

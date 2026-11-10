@@ -6,7 +6,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type MouseEvent as RMouseEvent, type ReactNode, type TouchEvent as RTouchEvent } from "react";
 import { LayerBody, LayerToolbar, useWidgetZoom } from "./LayerParts";
 import { GRID_COLUMNS, fixedRect, gridAspect, gridAutoPlace, gridLayers, gridSpan, gridSpanNarrow, type Layer, type Stage, type StageAction } from "./model/layers";
-import { isPage } from "./model/subject";
+import { isPage, subjectTitle } from "./model/subject";
 import { ScrollInBox } from "./render/shape";
 
 /** pixels a pointer moves inside a widget before it counts as a drag (below that, the click reaches the widget: a strum, a note) */
@@ -54,6 +54,7 @@ function GridItem({ layer: l, selected, aspect, auto, onShape, onAction, childre
       {...attributes}
       {...listeners}
       role="group"
+      aria-label={subjectTitle(l.subject)}
       tabIndex={-1}
       data-layer={l.id}
       data-selected={selected}
