@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Icon from "@/components/Icon";
 import { Tool } from "@/features/plan/ui/ExerciseTool";
 import { parseTool } from "@/features/plan/model/tools";
 import Controls from "./Controls";
@@ -17,9 +18,36 @@ const readHash = (): { group: string; story: number } | null => {
   return m ? { group: m[1], story: Number(m[2] ?? 0) } : null;
 };
 
-/** A heading over a part of the sidebar: the AI's tools, then the other components. */
-const SectionTitle = ({ children }: { children: string }) => (
-  <h2 className="border-b border-slate-700 pb-1 text-xs font-semibold text-slate-200">{children}</h2>
+/** What the sidebar keeps open between visits: groups and closed sections. A per-browser convenience only. */
+const NAV_KEY = "musickit.dev.storiesNav";
+const readNav = (): { expanded: string[]; closed: string[] } | null => {
+  try {
+    const v = JSON.parse(localStorage.getItem(NAV_KEY) ?? "null") as { expanded?: unknown; closed?: unknown } | null;
+    const list = (x: unknown) => (Array.isArray(x) ? x.filter((i): i is string => typeof i === "string") : []);
+    return v ? { expanded: list(v.expanded), closed: list(v.closed) } : null;
+  } catch {
+    return null;
+  }
+};
+
+const Chevron = ({ open }: { open: boolean }) => <Icon name="chevron-right" size={12} className={`shrink-0 transition-transform ${open ? "rotate-90" : ""}`} />;
+
+/** A heading over a part of the sidebar (the AI's tools, then the other components) that folds it away. */
+const SectionTitle = ({ children, count, open, onToggle }: { children: string; count: number; open: boolean; onToggle: () => void }) => (
+  <button type="button" onClick={onToggle} aria-expanded={open} className="flex w-full items-center gap-1.5 border-b border-slate-700 pb-1 text-left text-xs font-semibold text-slate-200 hover:text-white">
+    <Chevron open={open} />
+    <span className="flex-1">{children}</span>
+    <span className="text-[10px] font-normal text-slate-500">{count}</span>
+  </button>
+);
+
+/** A kind's heading inside the AI tools (basics, guided, …) that folds its tools away. */
+const KindTitle = ({ children, count, open, onToggle }: { children: string; count: number; open: boolean; onToggle: () => void }) => (
+  <button type="button" onClick={onToggle} aria-expanded={open} className="mb-1 flex w-full items-center gap-1 text-left text-[10px] font-semibold uppercase tracking-wide text-slate-500 hover:text-slate-300">
+    <Chevron open={open} />
+    <span className="flex-1">{children}</span>
+    <span className="font-normal normal-case tracking-normal">{count}</span>
+  </button>
 );
 
 /** Every learning component in many set-ups, Storybook-style: pick a story, change its props with controls or JSON. */
@@ -35,6 +63,26 @@ export default function ComponentStories() {
   // which groups show their stories: apart from the active one, so opening or closing a group never loads a story
   const [expanded, setExpanded] = useState<Set<string>>(() => new Set([groups[0].id]));
   const toggle = (id: string) => setExpanded((e) => { const n = new Set(e); if (!n.delete(id)) n.add(id); return n; });
+  // closed sections of the sidebar: "ai", "components", "kind:<kind>"
+  const [closed, setClosed] = useState<Set<string>>(() => new Set());
+  const toggleSection = (key: string) => setClosed((c) => { const n = new Set(c); if (!n.delete(key)) n.add(key); return n; });
+  const [navLoaded, setNavLoaded] = useState(false);
+  useEffect(() => {
+    // read after mount (the server has no storage); the active story's group stays open
+    const saved = readNav();
+    if (saved) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- restoring the browser's saved sidebar once
+      setExpanded((e) => new Set([...e, ...saved.expanded]));
+      setClosed(new Set(saved.closed));
+    }
+    setNavLoaded(true);
+  }, []);
+  useEffect(() => {
+    if (!navLoaded) return;
+    try {
+      localStorage.setItem(NAV_KEY, JSON.stringify({ expanded: [...expanded], closed: [...closed] }));
+    } catch { /* storage off: the sidebar just starts afresh */ }
+  }, [expanded, closed, navLoaded]);
 
   const group = groups[gi];
   const story = group.stories[si] ?? group.stories[0];
@@ -44,6 +92,10 @@ export default function ComponentStories() {
     setGi(g);
     setSi(s);
     setExpanded((e) => e.has(groups[g].id) ? e : new Set(e).add(groups[g].id));
+    // the section holding the shown story opens too
+    const gr = groups[g];
+    const keys = "render" in gr ? ["components"] : ["ai", `kind:${gr.doc?.kind ?? "stub"}`];
+    setClosed((c) => (keys.some((k) => c.has(k)) ? new Set([...c].filter((k) => !keys.includes(k))) : c));
     setProps(p);
     setText(JSON.stringify(p, null, 2));
     if (push) history.replaceState(null, "", `#${groups[g].id}~${s}`);
@@ -71,6 +123,21 @@ export default function ComponentStories() {
   const q = filter.trim().toLowerCase();
   const kinds = [...new Set(groups.flatMap((g) => ("render" in g ? [] : [g.doc?.kind ?? "stub"])))];
 
+  const matches = (g: Group) => !q || g.id.includes(q) || g.stories.some((s) => s.name.toLowerCase().includes(q));
+  const toolsOf = (kind: string) => groups.filter((g) => !("render" in g) && (g.doc?.kind ?? "stub") === kind && matches(g));
+  const uiShown = groups.filter((g) => "render" in g && matches(g));
+  const aiCount = kinds.reduce((n, k) => n + toolsOf(k).length, 0);
+  // a filter opens every section with a hit
+  const isOpen = (key: string) => !!q || !closed.has(key);
+  const expandAll = () => {
+    setExpanded(new Set(groups.map((g) => g.id)));
+    setClosed(new Set());
+  };
+  const collapseAll = () => {
+    setExpanded(new Set());
+    setClosed(new Set(["ai", "components", ...kinds.map((k) => `kind:${k}`)]));
+  };
+
   const row = (g: Group, n: number) => {
     const hits = q ? g.stories.map((s, k) => [s, k] as const).filter(([s]) => g.id.includes(q) || s.name.toLowerCase().includes(q)) : null;
     if (hits && !hits.length) return null;
@@ -78,7 +145,7 @@ export default function ComponentStories() {
     return (
       <div key={g.id}>
         <button type="button" onClick={() => toggle(g.id)} aria-expanded={!!open} className={`flex w-full items-baseline justify-between rounded px-2 py-1 text-left font-mono text-xs ${n === gi ? "bg-emerald-500/15 text-emerald-100" : "text-slate-300 hover:text-slate-100"}`}>
-          <span>{g.shape ? <>play-along · <b>{g.shape}</b></> : g.id}</span>
+          <span className="flex min-w-0 items-center gap-1"><Chevron open={!!open} /><span className="truncate">{g.shape ? <>play-along · <b>{g.shape}</b></> : g.id}</span></span>
           <span className="text-[10px] text-slate-500">{g.stories.length}</span>
         </button>
         {open && (
@@ -99,18 +166,32 @@ export default function ComponentStories() {
   return (
     <div className="grid gap-4 lg:grid-cols-[17rem_1fr]">
       <nav className="flex flex-col gap-3 lg:sticky lg:top-4 lg:self-start lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto pr-3 [scrollbar-gutter:stable]" aria-label="Components">
-        <input value={filter} onChange={(e) => setFilter(e.target.value)} placeholder="Filter components or stories" className="rounded-lg border border-slate-700 bg-slate-950 px-2 py-1 text-sm text-slate-200" />
-        <SectionTitle>AI Autoplan Tools</SectionTitle>
-        {kinds.map((kind) => (
-          <div key={kind} className="flex flex-col gap-0.5">
-            <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-slate-500">{kind}</p>
-            {groups.map((g, n) => ("render" in g || (g.doc?.kind ?? "stub") !== kind ? null : row(g, n)))}
+        <div className="flex flex-col gap-1.5">
+          <input value={filter} onChange={(e) => setFilter(e.target.value)} placeholder="Filter components or stories" className="rounded-lg border border-slate-700 bg-slate-950 px-2 py-1 text-sm text-slate-200" />
+          <div className="flex gap-1 text-[11px]">
+            <button type="button" onClick={expandAll} className="rounded border border-slate-700 px-2 py-0.5 text-slate-400 hover:border-slate-500 hover:text-slate-200">Expand all</button>
+            <button type="button" onClick={collapseAll} className="rounded border border-slate-700 px-2 py-0.5 text-slate-400 hover:border-slate-500 hover:text-slate-200">Collapse all</button>
           </div>
-        ))}
-        <SectionTitle>Components</SectionTitle>
-        <div className="flex flex-col gap-0.5">
-          {groups.map((g, n) => ("render" in g ? row(g, n) : null))}
         </div>
+        {aiCount > 0 && <SectionTitle count={aiCount} open={isOpen("ai")} onToggle={() => toggleSection("ai")}>AI Autoplan Tools</SectionTitle>}
+        {aiCount > 0 && isOpen("ai") && kinds.map((kind) => {
+          const shown = toolsOf(kind);
+          if (!shown.length) return null;
+          const key = `kind:${kind}`;
+          return (
+            <div key={kind} className="flex flex-col gap-0.5">
+              <KindTitle count={shown.length} open={isOpen(key)} onToggle={() => toggleSection(key)}>{kind}</KindTitle>
+              {isOpen(key) && groups.map((g, n) => ("render" in g || (g.doc?.kind ?? "stub") !== kind ? null : row(g, n)))}
+            </div>
+          );
+        })}
+        {uiShown.length > 0 && <SectionTitle count={uiShown.length} open={isOpen("components")} onToggle={() => toggleSection("components")}>Components</SectionTitle>}
+        {uiShown.length > 0 && isOpen("components") && (
+          <div className="flex flex-col gap-0.5">
+            {groups.map((g, n) => ("render" in g ? row(g, n) : null))}
+          </div>
+        )}
+        {q && !aiCount && !uiShown.length && <p className="px-2 text-xs text-slate-500">Nothing matches.</p>}
       </nav>
 
       <div className="flex min-w-0 flex-col gap-3">

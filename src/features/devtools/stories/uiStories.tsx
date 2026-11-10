@@ -2,7 +2,10 @@
 
 import { useState, type ReactNode } from "react";
 import type { PropDoc } from "@/features/exercises/docs";
+import AudioDevicesButton, { AudioDevicesPanel } from "@/components/AudioDevicesButton";
 import InputChannels, { AppInputChannels } from "@/components/InputChannels";
+import InputChip from "@/components/InputChip";
+import { useMicPitch, type MicStatus } from "@/components/practice/useMicPitch";
 import { BackingTrack } from "@/features/backing";
 import type { InputChannel } from "@/features/sound";
 import { DEFAULT_DRONE, DroneControls, JamPage, PracticeBand, clampDrone, type BandConfig, type BandView, type DroneParams } from "@/features/instruments";
@@ -52,9 +55,80 @@ function InputChannelsStory({ value, levels }: { value: InputChannel; levels: nu
   return <div className="max-w-80"><InputChannels value={channel} onChange={setChannel} levels={levels} /></div>;
 }
 
+const MIC_STATUSES: MicStatus[] = ["off", "asking", "on", "denied", "error", "insecure"];
+
+/** The chip as a page uses it: given `live`, this host listens with useMicPitch behind the chip's own mic switch, so the levels and channels move. */
+function InputChipStory({ live, status, align }: { live: boolean; status: MicStatus; align: "left" | "right" }) {
+  const [on, setOn] = useState(false);
+  const mic = useMicPitch(live && on);
+  if (!live) return <InputChip status={status} align={align} />;
+  return (
+    <div className="flex flex-col items-start gap-2">
+      <InputChip status={mic.status} mic={{ on, onToggle: () => setOn((v) => !v) }} align={align} />
+      <p className="text-xs text-slate-500">{on ? `Listening: ${mic.status}. Open the chip for the input list and its channels.` : "Press the chip to start the microphone."}</p>
+    </div>
+  );
+}
+
 const channelOf = (v: unknown): InputChannel => (v === "1" || v === "2" ? v : "both");
 
 export const UI_GROUPS: UiGroup[] = [
+  {
+    id: "input-chip",
+    title: "InputChip",
+    doc: {
+      description: "The audio input next to a mic: a mic icon, the chosen input's short name and, while the app listens, a level bar per input (the channel heard brighter). A press opens the input dialog: what the status means, Start / Stop (given mic), the input list with its channels ([Both] [1] [2], AppInputChannels) and the output folded into one row. The choice is the app's one input (musickit.audio.devices), shared with the nav's cog and every page. The live story really opens the microphone.",
+      props: [
+        { name: "status", type: `"off" | "asking" | "on" | "denied" | "error" | "insecure"`, required: false, description: "The host's listener; a blocked one turns the chip red and says why." },
+        { name: "mic", type: "{ on: boolean, onToggle: () => void }", required: false, description: "The host's own mic switch: the chip reads Start microphone while off, and the dialog holds Start / Stop." },
+        { name: "align", type: `"left" | "right"`, required: false, description: "Which chip edge the dialog lines up with." },
+        { name: "live", type: "boolean", required: false, description: "Story only: a host that listens with useMicPitch behind the chip's mic switch." },
+      ],
+    },
+    stories: [
+      hand("Live, with its own mic switch", { live: true }),
+      hand("Shows the input only", { status: "off" }),
+      hand("Asking for the mic", { status: "asking" }),
+      hand("Blocked", { status: "denied" }),
+      hand("No microphone", { status: "error" }),
+      hand("Live, lined up right", { live: true, align: "right" }),
+    ],
+    render: (props) => (
+      <InputChipStory
+        key={JSON.stringify(props)}
+        live={props.live === true}
+        status={MIC_STATUSES.find((m) => m === props.status) ?? "off"}
+        align={props.align === "right" ? "right" : "left"}
+      />
+    ),
+  },
+  {
+    id: "audio-devices",
+    title: "AudioDevicesPanel",
+    doc: {
+      description: "The input and output lists with Detect devices, and under the input its channels ([Both] [1] [2], shown for a two-input device): the body of the nav's devices menu (AudioDevicesButton, the cog), of the input chip's dialog and of the studio's Audio input dialog. A press changes the app's real input or output.",
+      props: [
+        { name: "inputs", type: "boolean", required: false, description: "Show the input list and its channels (default true)." },
+        { name: "outputs", type: `boolean | "collapsed"`, required: false, description: "Show the output list; collapsed folds it into one row that opens it (the input chip)." },
+        { name: "listening", type: "boolean", required: false, description: "The host's mic is open: lists the devices again, since the browser names them once allowed." },
+        { name: "button", type: "boolean", required: false, description: "Story only: render AudioDevicesButton, the nav's cog that opens this panel." },
+      ],
+    },
+    stories: [
+      hand("Inputs and outputs", {}),
+      hand("Output folded, as in the input chip", { outputs: "collapsed" }),
+      hand("Outputs only", { inputs: false }),
+      hand("The nav's cog", { button: true }),
+    ],
+    render: (props) =>
+      props.button === true ? (
+        <div className="flex min-h-96 justify-end"><AudioDevicesButton /></div>
+      ) : (
+        <div className="max-w-96 rounded-2xl border border-slate-700 bg-slate-900 p-3 text-slate-200">
+          <AudioDevicesPanel inputs={props.inputs !== false} outputs={props.outputs === "collapsed" ? "collapsed" : props.outputs !== false} listening={props.listening === true} />
+        </div>
+      ),
+  },
   {
     id: "input-channels",
     title: "InputChannels",
