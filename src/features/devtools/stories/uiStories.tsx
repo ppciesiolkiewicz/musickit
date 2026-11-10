@@ -58,13 +58,13 @@ function InputChannelsStory({ value, levels }: { value: InputChannel; levels: nu
 const MIC_STATUSES: MicStatus[] = ["off", "asking", "on", "denied", "error", "insecure"];
 
 /** The chip as a page uses it: given `live`, this host listens with useMicPitch behind the chip's own mic switch, so the levels and channels move. */
-function InputChipStory({ live, status, align }: { live: boolean; status: MicStatus; align: "left" | "right" }) {
+function InputChipStory({ live, status, align, mode }: { live: boolean; status: MicStatus; align: "left" | "right"; mode: "modal" | "popover" }) {
   const [on, setOn] = useState(false);
   const mic = useMicPitch(live && on);
-  if (!live) return <InputChip status={status} align={align} />;
+  if (!live) return <InputChip status={status} align={align} mode={mode} />;
   return (
     <div className="flex flex-col items-start gap-2">
-      <InputChip status={mic.status} mic={{ on, onToggle: () => setOn((v) => !v) }} align={align} />
+      <InputChip status={mic.status} mic={{ on, onToggle: () => setOn((v) => !v) }} align={align} mode={mode} />
       <p className="text-xs text-slate-500">{on ? `Listening: ${mic.status}. Open the chip for the input list and its channels.` : "Press the chip to start the microphone."}</p>
     </div>
   );
@@ -77,11 +77,12 @@ export const UI_GROUPS: UiGroup[] = [
     id: "input-chip",
     title: "InputChip",
     doc: {
-      description: "The audio input next to a mic: a mic icon, the chosen input's short name and, while the app listens, a level bar per input (the channel heard brighter). A press opens the input dialog: what the status means, Start / Stop (given mic), the input list with its channels ([Both] [1] [2], AppInputChannels) and the output folded into one row. The choice is the app's one input (musickit.audio.devices), shared with the nav's cog and every page. The live story really opens the microphone.",
+      description: "The audio input next to a mic: a mic icon, the chosen input's short name and, while the app listens, a level bar per input (the channel heard brighter). A press opens the input dialog (a modal by default, or a popover under the chip): what the status means, Start / Stop (given mic), the input list with its channels ([Both] [1] [2], AppInputChannels) and the output folded into one row. The choice is the app's one input (musickit.audio.devices), shared with the nav's cog and every page. The live story really opens the microphone.",
       props: [
         { name: "status", type: `"off" | "asking" | "on" | "denied" | "error" | "insecure"`, required: false, description: "The host's listener; a blocked one turns the chip red and says why." },
         { name: "mic", type: "{ on: boolean, onToggle: () => void }", required: false, description: "The host's own mic switch: the chip reads Start microphone while off, and the dialog holds Start / Stop." },
-        { name: "align", type: `"left" | "right"`, required: false, description: "Which chip edge the dialog lines up with." },
+        { name: "mode", type: `"modal" | "popover"`, required: false, description: "How the dialog opens: modal (default) over the page, the whole screen on a phone; popover under the chip." },
+        { name: "align", type: `"left" | "right"`, required: false, description: "Which chip edge the popover lines up with." },
         { name: "live", type: "boolean", required: false, description: "Story only: a host that listens with useMicPitch behind the chip's mic switch." },
       ],
     },
@@ -91,7 +92,8 @@ export const UI_GROUPS: UiGroup[] = [
       hand("Asking for the mic", { status: "asking" }),
       hand("Blocked", { status: "denied" }),
       hand("No microphone", { status: "error" }),
-      hand("Live, lined up right", { live: true, align: "right" }),
+      hand("Live, as a popover", { live: true, mode: "popover" }),
+      hand("Live, popover lined up right", { live: true, mode: "popover", align: "right" }),
     ],
     render: (props) => (
       <InputChipStory
@@ -99,6 +101,7 @@ export const UI_GROUPS: UiGroup[] = [
         live={props.live === true}
         status={MIC_STATUSES.find((m) => m === props.status) ?? "off"}
         align={props.align === "right" ? "right" : "left"}
+        mode={props.mode === "popover" ? "popover" : "modal"}
       />
     ),
   },

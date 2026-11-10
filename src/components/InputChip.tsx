@@ -3,6 +3,7 @@
 import { useCallback, useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import Icon from "./Icon";
+import { Modal } from "@/components/ui";
 import { AudioDevicesPanel, useDismiss } from "./AudioDevicesButton";
 import MicButton from "./theory/singing/MicButton";
 import { LevelBar, channelHeard } from "./InputChannels";
@@ -52,20 +53,23 @@ function placeList(chip: DOMRect, align: "left" | "right"): React.CSSProperties 
  * every chip and the nav show and change the same one. `status` is the host's listener; without it the chip only shows the input.
  * Given `mic` (the host's own mic switch) it is the one mic button: it reads "Start microphone" while off, a press starts the mic and
  * opens the list, and the list holds Start / Stop. Without `mic` the host opens the mic itself (on Start, on Record), so a press only opens the list.
+ * `mode` "modal" (the default) opens the list as a dialog over the page (the whole screen on a phone); "popover" drops it under the chip.
  */
-export default function InputChip({ status = "off", mic, align = "left", className = "" }: { status?: MicStatus; mic?: { on: boolean; onToggle: () => void }; align?: "left" | "right"; className?: string }) {
+export default function InputChip({ status = "off", mic, align = "left", mode = "modal", className = "" }: { status?: MicStatus; mic?: { on: boolean; onToggle: () => void }; align?: "left" | "right"; mode?: "modal" | "popover"; className?: string }) {
   const choice = useSyncExternalStore(subscribeDeviceChoice, readDeviceChoice, serverDeviceChoice);
   const live = useSyncExternalStore(subscribeLiveInput, readLiveInput, serverLiveInput);
   const [open, setOpen] = useState(false);
   const box = useRef<HTMLDivElement>(null);
   const list = useRef<HTMLDivElement>(null);
-  useDismiss(open, useCallback(() => setOpen(false), []), box, list);
+  const close = useCallback(() => setOpen(false), []);
+  // the modal closes itself (Escape, backdrop, Close); the popover closes on a press outside it
+  useDismiss(open && mode === "popover", close, box, list);
   // the list is portalled to the body and placed from the chip's rect, so a host card with a transform or overflow (the quick
   // recorder, a tuner panel) can't push it off screen or clip it
   const [place, setPlace] = useState<React.CSSProperties | null>(null);
   useLayoutEffect(() => {
     // a stale place from the last opening is replaced before paint, so closing needs no reset
-    if (!open) return;
+    if (!open || mode !== "popover") return;
     const update = () => box.current && setPlace(placeList(box.current.getBoundingClientRect(), align));
     update();
     window.addEventListener("resize", update);
@@ -74,7 +78,7 @@ export default function InputChip({ status = "off", mic, align = "left", classNa
       window.removeEventListener("resize", update);
       window.removeEventListener("scroll", update, true);
     };
-  }, [open, align]);
+  }, [open, align, mode]);
 
   const name = choice.input ? cleanDeviceName(choice.input.label) : "System mic";
   const message = micStatusMessage(status);
@@ -87,6 +91,16 @@ export default function InputChip({ status = "off", mic, align = "left", classNa
   const tone = blocked ? "border-rose-500/60 bg-rose-500/10 text-rose-200"
     : mic ? `border-emerald-400/60 hover:bg-emerald-500/20 ${mic.on ? "bg-emerald-500/25 text-emerald-100" : "bg-emerald-500/10 text-emerald-200"}`
     : "border-slate-700 bg-slate-900/70 text-slate-300 hover:border-slate-500 hover:text-slate-100";
+
+  const body = (
+    <>
+      <p className="mb-2 px-1 text-xs text-slate-500">
+        {message ?? (levels.length > 1 ? "Two inputs: pick the channel the app hears." : "Used everywhere the app listens.")}
+      </p>
+      {mic && <MicButton on={mic.on} onClick={mic.onToggle} className="mb-3 w-full justify-center" />}
+      <AudioDevicesPanel outputs="collapsed" listening={status === "on"} />
+    </>
+  );
 
   return (
     <div ref={box} className={`relative inline-flex ${className}`}>
@@ -107,14 +121,15 @@ export default function InputChip({ status = "off", mic, align = "left", classNa
           </span>
         )}
       </button>
-      {open && place && createPortal(
+      {open && mode === "modal" && (
+        <Modal title="Input" narrow onClose={close}>
+          <div className="text-slate-200">{body}</div>
+        </Modal>
+      )}
+      {open && mode === "popover" && place && createPortal(
         <div ref={list} role="dialog" aria-label="Input" style={place} className="fixed z-3000 overflow-y-auto overscroll-contain rounded-2xl border border-slate-700 bg-slate-900 p-3 text-slate-200 shadow-2xl">
           <p className="mb-1 px-1 text-base font-medium text-slate-100">Input</p>
-          <p className="mb-2 px-1 text-xs text-slate-500">
-            {message ?? (levels.length > 1 ? "Two inputs: pick the channel the app hears." : "Used everywhere the app listens.")}
-          </p>
-          {mic && <MicButton on={mic.on} onClick={mic.onToggle} className="mb-3 w-full justify-center" />}
-          <AudioDevicesPanel outputs="collapsed" listening={status === "on"} />
+          {body}
         </div>,
         document.body,
       )}
