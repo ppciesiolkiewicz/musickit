@@ -54,6 +54,22 @@ It uses the same chordKit code the app draws with, so the text and the picture a
 - Put guitar fingers with frets: "play frets 1 to 4 with fingers 1, 2, 3 and 4", never "play fingers 1 2 3 4".
 - Explained words: `GLOSSARY` in `src/features/course/glossary.ts`. In AI plan text the app adds an (i) to these words, so use the word and don't define it there. Course articles get no (i), so an article defines a word the first time the course uses it, or links to the section that does.
 
+## Words about the app
+
+A step is also interface copy: the learner has to find a control with one hand on the guitar. Write it so they never hunt.
+
+- **Name a control by the label on the screen, exactly**: Play, Start, Next, Skip, Start exercise, Start microphone, "Cross on". Read the label in the component (`src/features/exercises/basics/<tool>/index.tsx`, `src/components/practice/`); don't guess it. A game's answers are named as its buttons show them ("pick M3 or m3", "Major 7"), with the plain meaning beside them the first time ("M3 for a major 3rd").
+- **Verb, label, where, what it starts**, in that order: "Press Play below to start the metronome." Never a bare "Press Play." Where is "below", "above", "at the top of this step", "under the neck".
+- **One verb per kind of control.** Press a button or a chord box. Tap a note on a staff or a neck, and a key at the top of a step. Play and sing are for the instrument and the voice, never for the screen.
+- **Say what they will see next**, when it isn't obvious: "After a bar of count-in, the lit box shows the chord to play."
+- **Say what to do when it goes wrong**, inside the step, calmly and as an action: "If a change comes late, keep your strumming hand going and catch the next beat 1." No blame, no "don't worry", no "try again".
+- **One name for each thing on the screen**, the same in every step:
+  - "ringed" for a highlighted note, "faded" for a muted one, "lit" for the box or note playing now.
+  - "the metronome" (a click), "the drone", "the band" (drums and bass, or a backing-track), "the backing" (a guitar-play-along), "the game" (note-finder, interval-ears).
+  - "your line" for the singer's pitch on the staff, "the chord boxes" for chord diagrams.
+- **Titles and headings are labels, not sentences.** A title names what is practised in the learner's words ("Em to Am, clean and in time"). A block heading names that block's task in five words or fewer ("Only the roots", "A new order"): never "Step 1", "Warm-up" or "Exercise". If two headings in one exercise could swap places, they say too little.
+- **Say what to listen for, not how it sounds.** "Listen for the bar where one note changes" tells the learner what to do; "hear how bright it sounds" tells them what to feel.
+
 ## Picture and text agree
 
 Whenever the text has to carry something a picture could show (frets, note lists, fingerings), the picture is missing. Add a visual or a tool, and cut the text down to one sentence about it. Every note the text names is on the picture after it, and it stands out there.
@@ -61,3 +77,10 @@ Whenever the text has to carry something a picture could show (frets, note lists
 ## Before you hand it over
 
 Read the text aloud in your head as a learner who knows only the earlier sections. Cut every sentence that adds nothing. Check every fact against the calculator output.
+
+Then read it once more, one question per pass:
+
+1. **Could I do this step with my hands full?** Each step names the control, where it is and what it starts.
+2. **Could I make up the next drill from the why?** If the why only says the drill is important ("the base every skill stands on"), it isn't one. Say what makes it work ("when your note matches the drone, the two blend into one sound").
+3. **Do I know when to move on?** Somewhere in each block there is a feel to reach, not a count.
+4. **Is anything said twice?** A fret, a fingering or a note list the picture already shows goes.

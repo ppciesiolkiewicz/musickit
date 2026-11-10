@@ -209,11 +209,11 @@ describe("example library", () => {
   });
 });
 
-const MARKED: PlanTool["type"][] = ["scale-neck", "staff", "arpeggio-neck"];
+const MARKED: PlanTool["type"][] = ["scale-neck", "position-neck", "staff", "arpeggio-neck"];
 
 /** The root the text's degrees count from, as `noteRootFor` reads it (null for tools without one). */
 function rootOf(t: PlanTool): number | null {
-  if (t.type === "scale-neck" || t.type === "staff") return t.key;
+  if (t.type === "scale-neck" || t.type === "position-neck" || t.type === "staff") return t.key;
   if (t.type === "arpeggio-neck") return parseChordQuery(t.chord)!.rootPc;
   if (t.type === "chord-shapes") return parseChordQuery(t.chords[0])!.rootPc;
   if (t.type === "guitar-play-along") return 0;
@@ -221,7 +221,7 @@ function rootOf(t: PlanTool): number | null {
   return null;
 }
 
-type Marked = Extract<PlanTool, { type: "scale-neck" | "staff" | "arpeggio-neck" }>;
+type Marked = Extract<PlanTool, { type: "scale-neck" | "position-neck" | "staff" | "arpeggio-neck" }>;
 
 /** Whether the note `semi` above the tool's root is drawn and not faded. */
 function lit(tool: PlanTool, semi: number, root: number): boolean {
@@ -229,7 +229,7 @@ function lit(tool: PlanTool, semi: number, root: number): boolean {
   if (t.hide?.includes(semi) || t.mute?.includes(semi)) return false;
   if (t.type === "staff" && t.notes && !t.notes.includes(semi)) return false;
   if (t.type === "arpeggio-neck" && t.part && !t.part.some((d) => degreeSemis(d) === semi)) return false;
-  const added = t.type === "scale-neck" && t.add?.includes((root + semi) % 12);
+  const added = (t.type === "scale-neck" || t.type === "position-neck") && t.add?.includes((root + semi) % 12);
   if (added || t.highlight?.includes(semi)) return true;
   // a staff has only lit and dimmed: with a highlight, only the highlighted notes are lit
   if (t.type === "staff" && t.highlight?.length) return false;

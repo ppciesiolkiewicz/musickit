@@ -21,7 +21,12 @@ Find what is wrong, show the proof, and propose the smallest fix. Don't rewrite 
    - Exercises and examples: the `rules`, `mistakes` and `writing` parts of `src/features/plan/model/prompt.ts`, and `src/features/plan/examples/README.md`.
    - Course sections: `src/features/course/content.test.ts` and the course-article skill.
 5. **Practice and understanding.** The page is reading with no drill. Or there's a drill with no why, or a why the learner couldn't use to make up their own. Or "done" is a count or a score instead of a feel.
-6. **Voice.** The **teaching-voice** skill: repeat counts, poetic lines, a paragraph of why, more than two steps chained, a word used for two things.
+6. **App words.** "Words about the app" in the **teaching-voice** skill. Open the tool's component and compare:
+   - A control named differently from its label on the screen, or a game answer named differently from its button.
+   - A bare "Press Play." that doesn't say what starts or where it is.
+   - Two names for one thing on the screen (ringed and circled, the band and the backing for the same tool).
+   - A heading that could sit on any block ("Warm-up", "Step 2").
+7. **Voice.** The **teaching-voice** skill: repeat counts, poetic lines, a paragraph of why, more than two steps chained, a word used for two things.
 
 Run the relevant tests too (`course/*.test.ts` or `plan/examples/*.test.ts` with the cached tsx, see the other skills). A failing test is a finding.
 
@@ -30,7 +35,7 @@ Run the relevant tests too (`course/*.test.ts` or `plan/examples/*.test.ts` with
 One line per finding, most serious first:
 
 ```
-<file>:<line> [fact|mismatch|order|rule|voice] <what's wrong> → <fix>
+<file>:<line> [fact|mismatch|order|rule|app|voice] <what's wrong> → <fix>
   proof: <calculator output or the conflicting prop>
 ```
 

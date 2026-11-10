@@ -39,8 +39,9 @@ Each file is the content exactly as the AI returns it, wrapped in metadata:
 - A plan has `"kind": "plan"`, `"minutes"` (the daily time it is written for) and `"plan": { title, summary, days }`,
   the whole `PlanConfig` the AI returns.
 
-What there is: one exercise per area and level, three more in the new teaching style (`guitar-new-notes-on-e-and-a`,
-`voice-beginner-in-tune-over-drone`, `theory-intermediate-hearing-changes`) (`<area>-<level>-<what>.json`), the three showcases, and four plans:
+What there is: one exercise per area and level (`<area>-<level>-<what>.json`) and three more (`guitar-new-notes-on-e-and-a`,
+`voice-beginner-in-tune-over-drone`, `theory-intermediate-hearing-changes`), all but `voice-beginner-do-mi-sol` and
+`voice-advanced-guide-tones` in the new teaching style; the three showcases, in the older style; and four plans:
 `guitar-beginner` (20 min), `guitar-intermediate` (30), `voice-beginner` (15), `guitar-theory-intermediate` (30).
 
 ## The rules every example meets
@@ -62,6 +63,8 @@ What there is: one exercise per area and level, three more in the new teaching s
 - A sung or played pattern (Do Mi Sol, a leap, a tune, guide tones) comes back in a second key: the notes change, the
   pattern doesn't. The same drill in more keys is one block whose heading lists `keys` (the student taps one and the
   block's tools move to it); a new key with a new task is a later block or another tool.
+- The text names a control by the label on the screen and says what it starts and where it is; it never carries frets,
+  fingerings or note lists the tool shows. The way from one position to the next is a position-neck with `cross`.
 - No guitar-play-along `repeats` (it loops; the exercise's minutes are the timer). Styles are at most one sentence of colour.
 - Plans: 7 days, each adding up to `minutes` (±2), 2 to 5 exercises, warm-up first and something musical last, no two
   exercises with the same tag side by side, the week's key skill on at least three days in new forms.

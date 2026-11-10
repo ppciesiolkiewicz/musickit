@@ -59,6 +59,7 @@ function rootOf(s: Section): number | null {
   const t = s.tool;
   switch (t.type) {
     case "scale-neck":
+    case "position-neck":
     case "staff":
     case "backing-track":
       return keyRoot(t.key);
