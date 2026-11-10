@@ -7,7 +7,7 @@ import type { PlanTool, ToolName } from "@/features/plan/model/tools";
 import { transposeTool } from "@/features/plan/model/transpose";
 
 /** The learning components a stage may hold as widgets; the families draw from these. */
-export const STAGE_TOOLS: ToolName[] = ["scale-neck", "position-neck", "arpeggio-neck", "chord-shapes", "staff", "melody-singer", "run-singer"];
+export const STAGE_TOOLS: ToolName[] = ["scale-neck", "position-neck", "arpeggio-neck", "chord-shapes", "staff", "melody-singer", "run-singer", "backing-track"];
 
 /** The tool's key as a pitch class (an arpeggio's chord root), or null when it has none (chord shapes, games without a key). */
 export function toolKey(tool: PlanTool): number | null {

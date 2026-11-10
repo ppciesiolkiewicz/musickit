@@ -328,9 +328,9 @@ export function subjectName(s: Subject): string {
       return p ? [p.name, p.detail].filter(Boolean).join(" · ") : "Arpeggio";
     }
     case "tool": {
-      // its family's name and main props ("Major pentatonic · positions 1, 2"); a tool no family offers goes by its type (a run, only in preset notes, by a word)
+      // its family's name and main props ("Major pentatonic · positions 1, 2"); a tool no family offers goes by its type (a run or a backing track, only in preset notes, by a word)
       const p = describeParts(s);
-      return p ? [p.name, p.detail].filter(Boolean).join(" · ") : s.tool.type === "run-singer" ? "Run" : s.tool.type;
+      return p ? [p.name, p.detail].filter(Boolean).join(" · ") : s.tool.type === "run-singer" ? "Run" : s.tool.type === "backing-track" ? "Backing track" : s.tool.type;
     }
     case "key":
       return "Key & scale";
