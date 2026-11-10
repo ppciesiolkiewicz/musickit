@@ -5,9 +5,9 @@ import { createPortal } from "react-dom";
 
 /**
  * A simple dialog over the page (the whole screen on a phone): closes on Escape, on the backdrop, or with the close button.
- * `narrow` for a short list or form, `medium` for a step-by-step flow with room to read. `dismissible={false}` leaves only the close button, for a flow that would lose work.
+ * `narrow` for a short list or form, `medium` for a step-by-step flow with room to read, `large` for a long questionnaire with rows of text. `dismissible={false}` leaves only the close button, for a flow that would lose work.
  */
-export function Modal({ title, onClose, narrow = false, medium = false, dismissible = true, children }: { title: ReactNode; onClose: () => void; narrow?: boolean; medium?: boolean; dismissible?: boolean; children: ReactNode }) {
+export function Modal({ title, onClose, narrow = false, medium = false, large = false, dismissible = true, children }: { title: ReactNode; onClose: () => void; narrow?: boolean; medium?: boolean; large?: boolean; dismissible?: boolean; children: ReactNode }) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => dismissible && e.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
@@ -24,7 +24,7 @@ export function Modal({ title, onClose, narrow = false, medium = false, dismissi
   if (!host) return null;
   return createPortal(
     <div className="fixed inset-0 z-[2000] flex items-start justify-center overflow-y-auto bg-black/70 desk:p-6" onClick={dismissible ? onClose : undefined}>
-      <div role="dialog" aria-modal="true" aria-label={typeof title === "string" ? title : undefined} onClick={(e) => e.stopPropagation()} className={`min-h-full w-full bg-slate-950 ${medium ? "desk:max-w-xl" : narrow ? "desk:max-w-md" : "desk:max-w-5xl"} p-3 desk:min-h-0 desk:rounded-2xl desk:border desk:border-slate-700 desk:p-4 desk:shadow-2xl`}>
+      <div role="dialog" aria-modal="true" aria-label={typeof title === "string" ? title : undefined} onClick={(e) => e.stopPropagation()} className={`min-h-full w-full bg-slate-950 ${large ? "desk:max-w-3xl" : medium ? "desk:max-w-xl" : narrow ? "desk:max-w-md" : "desk:max-w-5xl"} p-3 desk:min-h-0 desk:rounded-2xl desk:border desk:border-slate-700 ${large ? "desk:p-6" : "desk:p-4"} desk:shadow-2xl`}>
         <div className="mb-3 flex items-center gap-2">
           <h2 className="text-base font-medium text-slate-100">{title}</h2>
           <button type="button" onClick={onClose} className="ml-auto rounded-md border border-slate-700 px-2.5 py-1 text-xs text-slate-300 hover:border-slate-500">Close ✕</button>

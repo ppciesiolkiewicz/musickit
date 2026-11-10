@@ -132,8 +132,8 @@ export default function PlanFlow({ mode, answers, current, history, entries, onP
       steps={steps}
       finishLabel="Build my plan"
       step={step}
-      bodyHeight="h-[26rem]"
-      medium
+      bodyHeight="h-[34rem] max-h-[60vh]"
+      large
       onStep={setStep}
       onClose={() => {
         clearFlow();

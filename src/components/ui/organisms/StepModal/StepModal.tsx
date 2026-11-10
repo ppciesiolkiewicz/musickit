@@ -3,6 +3,7 @@
 import { useState, type ReactNode } from "react";
 import Icon from "@/components/Icon";
 import { Button } from "../../atoms/Button";
+import { HUE_TONES, type Hue } from "../../atoms/Hue";
 import { Modal } from "../Modal";
 
 /** One screen of a step modal. `canNext` false holds the player on it (a required answer). */
@@ -11,6 +12,8 @@ export interface ModalStep {
   hint?: ReactNode;
   body: ReactNode;
   canNext?: boolean;
+  /** colour codes the screen with a dot by its title (a questionnaire's area, say) */
+  hue?: Hue;
 }
 
 /**
@@ -18,10 +21,11 @@ export interface ModalStep {
  * screen, which calls `onFinish`. Callers keep the answers themselves (the bodies are their own controls); closing just calls `onClose`.
  * Only the Close button closes it (not Escape or a click beside it), so coming back from another window never loses the flow.
  * Pass `step`/`onStep` to own the screen number (to restore it after a reload).
+ * The progress bar shows done screens green, the current one amber. A screen's `hue` puts a coloured dot by its title.
  * `bodyHeight` (a height class, e.g. "h-[22rem]") gives every screen that same height, scrolling inside, so Back and Next never move.
  */
-export function StepModal({ title, steps, onFinish, onClose, finishLabel = "Done", step: stepProp, onStep, bodyHeight, medium = false }: {
-  title: string; steps: ModalStep[]; onFinish: () => void; onClose: () => void; finishLabel?: string; step?: number; onStep?: (i: number) => void; bodyHeight?: string; /** a wider dialog (Modal `medium`) */ medium?: boolean;
+export function StepModal({ title, steps, onFinish, onClose, finishLabel = "Done", step: stepProp, onStep, bodyHeight, medium = false, large = false }: {
+  title: string; steps: ModalStep[]; onFinish: () => void; onClose: () => void; finishLabel?: string; step?: number; onStep?: (i: number) => void; bodyHeight?: string; /** a wider dialog (Modal `medium`) */ medium?: boolean; /** wider still (Modal `large`) */ large?: boolean;
 }) {
   const [own, setOwn] = useState(0);
   const i = Math.min(stepProp ?? own, steps.length - 1);
@@ -29,15 +33,18 @@ export function StepModal({ title, steps, onFinish, onClose, finishLabel = "Done
   const step = steps[i];
   const last = i >= steps.length - 1;
   return (
-    <Modal title={title} narrow medium={medium} dismissible={false} onClose={onClose}>
+    <Modal title={title} narrow medium={medium} large={large} dismissible={false} onClose={onClose}>
       <div className="flex flex-col gap-4">
         <div className="flex gap-1" role="progressbar" aria-valuemin={1} aria-valuemax={steps.length} aria-valuenow={i + 1}>
-          {steps.map((_, n) => <span key={n} className={`h-1 flex-1 rounded-full transition-colors ${n <= i ? "bg-sky-400" : "bg-slate-800"}`} />)}
+          {steps.map((_, n) => <span key={n} className={`h-1.5 flex-1 rounded-full transition-colors ${n < i ? "bg-emerald-400/70" : n === i ? "bg-amber-400" : "bg-slate-800"}`} />)}
         </div>
         <div>
           <p className="text-xs tabular-nums text-slate-500">{i + 1} / {steps.length}</p>
-          <h3 className={`text-lg text-slate-100 ${bodyHeight ? "truncate" : ""}`}>{step.title}</h3>
-          {(step.hint || bodyHeight) && <p className={`text-xs text-slate-500 ${bodyHeight ? "line-clamp-2 h-10" : ""}`}>{step.hint}</p>}
+          <h3 className={`flex items-center gap-2 text-lg text-slate-100 ${large ? "desk:text-xl" : ""}`}>
+            {step.hue && <span aria-hidden className={`size-2.5 shrink-0 rounded-full ${HUE_TONES[step.hue].fill}`} />}
+            <span className={bodyHeight ? "truncate" : ""}>{step.title}</span>
+          </h3>
+          {(step.hint || bodyHeight) && <p className={`${large ? "text-sm" : "text-xs"} text-slate-500 ${bodyHeight ? "line-clamp-2 h-10" : ""}`}>{step.hint}</p>}
         </div>
         {/* keyed so autoFocus and local state start fresh on each screen */}
         <div key={i} className={bodyHeight ? `${bodyHeight} overflow-y-auto pr-3` : "min-h-24"}>{step.body}</div>

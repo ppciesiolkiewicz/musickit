@@ -20,6 +20,8 @@ export interface HueTone {
   ink: string;
   /** the hue as a soft disc behind an icon: [not chosen, chosen] */
   disc: [string, string];
+  /** the hue as a solid fill: a progress segment, a level bar, a dot */
+  fill: string;
 }
 
 export const HUE_TONES: Record<Hue, HueTone> = {
@@ -28,48 +30,56 @@ export const HUE_TONES: Record<Hue, HueTone> = {
     off: "border-slate-800 bg-slate-900/50 text-slate-300 hover:border-sky-500/50 hover:bg-sky-500/5 hover:text-slate-100",
     ink: "text-sky-300",
     disc: ["bg-sky-500/10 text-sky-300", "bg-sky-400/25 text-sky-50"],
+    fill: "bg-sky-400",
   },
   amber: {
     on: "border-amber-400/80 bg-amber-500/20 text-amber-50 shadow-sm shadow-amber-500/20",
     off: "border-slate-800 bg-slate-900/50 text-slate-300 hover:border-amber-500/50 hover:bg-amber-500/5 hover:text-slate-100",
     ink: "text-amber-300",
     disc: ["bg-amber-500/10 text-amber-300", "bg-amber-400/25 text-amber-50"],
+    fill: "bg-amber-400",
   },
   emerald: {
     on: "border-emerald-400/80 bg-emerald-500/20 text-emerald-50 shadow-sm shadow-emerald-500/20",
     off: "border-slate-800 bg-slate-900/50 text-slate-300 hover:border-emerald-500/50 hover:bg-emerald-500/5 hover:text-slate-100",
     ink: "text-emerald-300",
     disc: ["bg-emerald-500/10 text-emerald-300", "bg-emerald-400/25 text-emerald-50"],
+    fill: "bg-emerald-400",
   },
   rose: {
     on: "border-rose-400/80 bg-rose-500/20 text-rose-50 shadow-sm shadow-rose-500/20",
     off: "border-slate-800 bg-slate-900/50 text-slate-300 hover:border-rose-500/50 hover:bg-rose-500/5 hover:text-slate-100",
     ink: "text-rose-300",
     disc: ["bg-rose-500/10 text-rose-300", "bg-rose-400/25 text-rose-50"],
+    fill: "bg-rose-400",
   },
   violet: {
     on: "border-violet-400/80 bg-violet-500/20 text-violet-50 shadow-sm shadow-violet-500/20",
     off: "border-slate-800 bg-slate-900/50 text-slate-300 hover:border-violet-500/50 hover:bg-violet-500/5 hover:text-slate-100",
     ink: "text-violet-300",
     disc: ["bg-violet-500/10 text-violet-300", "bg-violet-400/25 text-violet-50"],
+    fill: "bg-violet-400",
   },
   teal: {
     on: "border-teal-400/80 bg-teal-500/20 text-teal-50 shadow-sm shadow-teal-500/20",
     off: "border-slate-800 bg-slate-900/50 text-slate-300 hover:border-teal-500/50 hover:bg-teal-500/5 hover:text-slate-100",
     ink: "text-teal-300",
     disc: ["bg-teal-500/10 text-teal-300", "bg-teal-400/25 text-teal-50"],
+    fill: "bg-teal-400",
   },
   pink: {
     on: "border-pink-400/80 bg-pink-500/20 text-pink-50 shadow-sm shadow-pink-500/20",
     off: "border-slate-800 bg-slate-900/50 text-slate-300 hover:border-pink-500/50 hover:bg-pink-500/5 hover:text-slate-100",
     ink: "text-pink-300",
     disc: ["bg-pink-500/10 text-pink-300", "bg-pink-400/25 text-pink-50"],
+    fill: "bg-pink-400",
   },
   red: {
     on: "border-red-400/80 bg-red-500/20 text-red-50 shadow-sm shadow-red-500/20",
     off: "border-slate-800 bg-slate-900/50 text-slate-300 hover:border-red-500/50 hover:bg-red-500/5 hover:text-slate-100",
     ink: "text-red-300",
     disc: ["bg-red-500/10 text-red-300", "bg-red-400/25 text-red-50"],
+    fill: "bg-red-400",
   },
 };
 

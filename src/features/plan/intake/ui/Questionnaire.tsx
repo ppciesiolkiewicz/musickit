@@ -1,6 +1,7 @@
 "use client";
 
-import { Chip, type ModalStep } from "@/components/ui";
+import Icon from "@/components/Icon";
+import { Chip, Tile, hueAt, hueClass, type Hue, type ModalStep } from "@/components/ui";
 import { VOICES, type Voice } from "@/features/theory/singing";
 import { AREAS, type Area } from "../../model/concepts";
 import { MINUTES, type PlanAnswers } from "../answers";
@@ -9,6 +10,13 @@ import RangeFinder from "./RangeFinder";
 import TopicStep from "./TopicStep";
 
 const field = "w-full rounded-lg border border-slate-700 bg-slate-950/60 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-600 focus:border-sky-500 focus:outline-none";
+
+/** Each area keeps its colour and icon on every screen of the flow, so the player always sees which part they are in. */
+export const AREA_LOOK: Record<Area, { hue: Hue; icon: "guitar" | "mic" | "ear" }> = {
+  guitar: { hue: "amber", icon: "guitar" },
+  voice: { hue: "rose", icon: "mic" },
+  theory: { hue: "violet", icon: "ear" },
+};
 
 export type SetAnswer = <K extends keyof PlanAnswers>(k: K, v: PlanAnswers[K]) => void;
 
@@ -23,8 +31,12 @@ export function areasStep(a: PlanAnswers, set: SetAnswer): ModalStep {
     hint: "Pick everything you want in your plan. At least one.",
     canNext: a.areas.length > 0,
     body: (
-      <div className="flex flex-wrap gap-2">
-        {AREAS.map((ar) => <Chip key={ar.id} on={a.areas.includes(ar.id)} onClick={() => toggle(ar.id)}>{ar.label}</Chip>)}
+      <div className="grid grid-cols-3 gap-3">
+        {AREAS.map((ar) => (
+          <Tile key={ar.id} hue={AREA_LOOK[ar.id].hue} on={a.areas.includes(ar.id)} onClick={() => toggle(ar.id)} icon={<Icon name={AREA_LOOK[ar.id].icon} size={20} />}>
+            <span className="text-sm">{ar.label}</span>
+          </Tile>
+        ))}
       </div>
     ),
   };
@@ -38,6 +50,7 @@ export function topicSteps(a: PlanAnswers, set: SetAnswer, areas: Area[] = a.are
     return {
       title: `${ar.label}: where are you now?`,
       hint: `For each topic, pick the line that sounds most like you. ${answered} of ${list.length} answered.`,
+      hue: AREA_LOOK[ar.id].hue,
       body: <TopicStep key={ar.id} area={ar.id} topics={a.topics} onTopics={(t) => set("topics", t)} />,
     };
   });
@@ -47,11 +60,12 @@ function voiceStep(a: PlanAnswers, set: SetAnswer): ModalStep {
   const type = a.voice?.type;
   return {
     title: "Your voice",
+    hue: AREA_LOOK.voice.hue,
     hint: "Optional. Pick a type, or find your range with the mic.",
     body: (
       <div className="flex flex-col gap-4">
         <div className="flex flex-wrap gap-2">
-          {(Object.keys(VOICES) as Voice[]).map((v) => <Chip key={v} on={type === v} onClick={() => set("voice", { ...a.voice, type: v })}>{VOICES[v].label}</Chip>)}
+          {(Object.keys(VOICES) as Voice[]).map((v, i) => <Chip key={v} hue={hueAt(i)} on={type === v} onClick={() => set("voice", { ...a.voice, type: v })}>{VOICES[v].label}</Chip>)}
           <Chip on={!type} onClick={() => set("voice", undefined)}>Not sure</Chip>
         </div>
         {type && a.voice?.range && <p className="text-xs text-slate-400">Range found. It is kept with your answers.</p>}
@@ -67,7 +81,23 @@ export function restSteps(a: PlanAnswers, set: SetAnswer, voice = true): ModalSt
     ...(voice && a.areas.includes("voice") ? [voiceStep(a, set)] : []),
     {
       title: "How long can you practise a day?",
-      body: <div className="flex flex-wrap gap-2">{MINUTES.map((m) => <Chip key={m} on={a.minutes === m} onClick={() => set("minutes", m)}>{m} min</Chip>)}</div>,
+      body: (
+        <div role="radiogroup" className="grid grid-cols-3 gap-3 desk:grid-cols-6">
+          {MINUTES.map((m, i) => (
+            <button
+              key={m}
+              type="button"
+              role="radio"
+              aria-checked={a.minutes === m}
+              onClick={() => set("minutes", m)}
+              className={`flex cursor-pointer flex-col items-center rounded-xl border py-3 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${hueClass(hueAt(i), a.minutes === m)}`}
+            >
+              <span className="text-xl font-medium tabular-nums">{m}</span>
+              <span className="text-xs opacity-70">min</span>
+            </button>
+          ))}
+        </div>
+      ),
     },
     {
       title: "Anything else?",
