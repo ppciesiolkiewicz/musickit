@@ -1,6 +1,6 @@
 ---
 name: course-article
-version: 2
+version: 3
 description: Write or rewrite a section (article) of the position course in src/features/course/stages - text, neck and chord visuals, tasks, links - and fill in planned stub sections. Use when asked to write a course article, lesson or section, fill a planned section, or point a glossary word at a new article.
 ---
 

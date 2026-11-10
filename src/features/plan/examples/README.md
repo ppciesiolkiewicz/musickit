@@ -36,7 +36,7 @@ Each file is the content exactly as the AI returns it, wrapped in metadata:
   (`teaching-voice`, `course-article`, `exercise-example`, `review-teaching-text`); 0 is before a document had versions.
   Teaching 0 is the older style; teaching 1 is practice first, a why the student can build their own drill from, each
   block the same drill turned a new way (it was `"style": "new"` until 2026-11-10); teaching 2 adds the selector named
-  by its label and never its chips, one control to a sentence, line breaks, and what stays the same said for each drill. `DOC_VERSIONS` in `index.ts` holds
+  by its label and never its chips, one control to a sentence, line breaks, and what stays the same said for each drill; teaching 3 adds the underlined care line (`_Don't reach for high notes._`). `DOC_VERSIONS` in `index.ts` holds
   the current two. The prompt tells the AI to write like the examples at the current `teaching` version, and
   `/dev/examples` shows both as tags (amber when behind) and filters by teaching version. Set `docs` only when the
   example is written or rewritten; never raise it by hand.
@@ -80,6 +80,9 @@ What there is: one exercise per area and level (`<area>-<level>-<what>.json`) an
   or positions): the text says what to look or listen for between them. The text names the selector by its label ("Use
   the Stage selector below to change the tempo"), never a chip, sits above the selector, says what Play starts again
   after a change, and names no tempo, key or position as the only one.
+- A line written between underscores is underlined on the page. It is a care line only (don't reach for high notes, don't
+  push, stop when it hurts): one short sentence on a line of its own, at most one in an exercise. A beginner's singing
+  exercise has one where the singer could wander up the staff, with the words "reach for high notes", which the app explains.
 - A text may hold line breaks (`\n`): what to do, the next thing to try and what to notice each start a new line.
 - The text names a control by the label on the screen, one control to a sentence, and says what it starts and where it is; it never carries frets,
   fingerings or note lists the tool shows. The way from one position to the next is a position-neck with `cross`.

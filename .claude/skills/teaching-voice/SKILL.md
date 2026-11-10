@@ -1,6 +1,6 @@
 ---
 name: teaching-voice
-version: 2
+version: 3
 description: How musickit teaching text sounds - plain, short, practical English for course articles, exercise text, glossary meanings, about lines and captions. Use whenever writing or editing any learner-facing music text in this repo, alone or from the course-article, exercise-example and review-teaching-text skills. Its "Words about the app" section is also the house wording for interface copy (buttons, tour steps, notices, flow text), read alongside design:ux-copy.
 ---
 
@@ -58,6 +58,7 @@ It uses the same chordKit code the app draws with, so the text and the picture a
 - Solfège is Do Re Mi Fa Sol La Ti, capitalised. Do is always the home note.
 - Put guitar fingers with frets: "play frets 1 to 4 with fingers 1, 2, 3 and 4", never "play fingers 1 2 3 4".
 - A singing step says what to sing on, in these exact words, which the app explains with an (i): "on the note names" while learning the notes, else a sound ("on \"ah\"", "on \"oo\"", "on \"ee\"", "on \"la\""). Don't explain the phrase in the text. For a beginner, and for any high note, pick "oo", "ee" or a hum; keep "ah" for low and middle notes.
+- **The underlined line.** A line written between underscores (`_Don't reach for high notes: sing only where your voice feels easy._`) is drawn over a low band of colour in exercise and plan text. It is for care only: a line that keeps the learner from hurting their voice or hands (reaching for high notes, pushing for volume, playing through pain). Never use it to stress an ordinary instruction, a note, a control or a title. One whole short sentence, on a line of its own, said as what to do; at most one in an exercise, and not in every exercise. For a new or beginner singer it goes where they could wander up the staff: the first staff of a week, a slide, a tune they make up, a skip up to Sol. The words "reach for high notes" are an explained word (the app adds the (i) and the link to the lesson), so write those exact words and vary the rest.
 - Explained words: `GLOSSARY` in `src/features/course/glossary.ts`. In AI plan text the app adds an (i) to these words, so use the word and don't define it there. Course articles get no (i), so an article defines a word the first time the course uses it, or links to the section that does.
 
 ## Words about the app

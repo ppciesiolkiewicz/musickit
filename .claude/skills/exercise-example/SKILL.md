@@ -1,6 +1,6 @@
 ---
 name: exercise-example
-version: 2
+version: 3
 description: Write or fix a hand-tuned exercise or 7-day plan JSON in src/features/plan/examples - the gold standard the AI plan prompt copies - so it meets every example rule and reads well against its tools. Use when asked to add, write, improve or fix an example exercise or plan, or a showcase.
 ---
 
@@ -42,6 +42,8 @@ The prompt shows these examples to the AI as the standard to copy, so any flaw i
    *Singing*
    - An exercise is singing or playing, never both. A singing staff has `labels`, and a non-singing staff has `"mic": false`.
    - Keep the singer's range to the level. The staff runs from the lowest Do in the voice's range up to its top, and `mute`/`hide` take a degree away in every octave, so they can't drop only the high notes: the key and the text do that. For a new or beginner singer, every note the text asks for sits three semitones or more under the top of the range (`tenor`: A4 at most). Pick a key where the drill fits low (a tenor's Do Mi Sol fits in C, D and A; in F and G it reaches C5 or B4), or say where to start ("from the low {{1}}"), and give any high note on "oo", which is easier up high than "ah". An intermediate exercise can open eased, the drill in a lower key on "oo", then open the full range in a later staff (see `voice-intermediate-leaps`). Advanced uses the whole range. Check a staff's notes with `buildLadder` in `src/features/theory/singing.ts`.
+
+   - The staff still shows the notes above the ones a beginner's drill asks for, so where the singer could wander up (the first staff of a plan, a slide, a tune they make up, a skip up to Sol) the text carries the underlined care line ("The underlined line" in **teaching-voice**): `_Don't reach for high notes: sing only where your voice feels easy._`, on a line of its own, at most one in an exercise, with the words "reach for high notes" kept and the rest varied. Underline nothing else.
 
    *A second key*
    - A sung or played pattern (Do Mi Sol, a leap, a tune, guide tones) comes back in a second key, with one plain line, on a line of its own, that says what stays the same in this drill ("When you change the key, the notes change but the drop is still an octave."), never the stock "The notes change, the pattern doesn't." The same drill in 2-4 keys is one block with a `{ "type": "step-choice", "options": [{ "key": "d" }, { "key": "a" }, { "key": "c" }] }` tool right before the tool it moves (the first is the key the block's tools are written in). The text invites and names the selector, never a chip or the keys: "Then sing it in another key. Use the Key selector below to change the key, then press Play to hear the tune there." A new key with a new task is a later block or another tool. Check each key fits the voice or the position with `npm run -s theory`.
@@ -86,6 +88,7 @@ What usually fails in an older example:
 - A step that chains more than two actions, or asks the learner to discover something ("Which ones sound finished?").
 - A singing step that doesn't say what to sing on, or a high note on "ah" for a beginner.
 - "Box" or "pattern" for a scale position in a title, heading or step.
+- A beginner's slide, made-up tune or skip up to Sol with no underlined care line; an underline used to stress an ordinary instruction.
 
 ## A rule the example can't meet
 

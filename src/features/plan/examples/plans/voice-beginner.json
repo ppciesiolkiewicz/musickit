@@ -14,12 +14,15 @@
     "do-re-mi-steps",
     "voice-melodies-easy"
   ],
-  "docs": { "agents": 1, "teaching": 2 },
-  "note": "The voice-beginner week in the new teaching style: same keys, tunes and tools, but three exercises a day (warm-up, ear game, one longer musical piece), each why gives the student a way to check themselves, and every day ends with something they make up.",
+  "docs": {
+    "agents": 1,
+    "teaching": 3
+  },
+  "note": "A beginner voice week at 15 minutes a day: a warm-up, an ear game and one longer musical piece that ends in a tune or line the student makes up. Every tune comes back in a second key through a Key selector, Do Mi Sol moves through three keys, one warm-up climbs a tempo ladder of stages and one opens with breathwork. Every note asked for is low in the voice, and where the singer could wander up the staff (the first staff, a slide, a skip up to Sol, a made-up line) one underlined care line says not to reach for high notes.",
   "plan": {
     "title": "Week 1: Do Mi Sol, in tune, your way",
     "summary": "Sing in tune over a drone and skip through Do Mi Sol, one idea a day: each day a short warm-up, an ear game, and a longer musical piece that ends with a tune or line you make up.",
-    "progress": "Pitch: finds Do over a drone in C, D and F and hears when it settles. Next: the same without the hum first.\nBreath & range: holds Do in G and D for longer than on day 1. Next: hold Sol.\nIntervals & leaps: tells steps from skips, 3rds from 5ths and 5ths from 6ths by ear, and sings Do Mi Sol in A. Falling skips are less sure. Next: sing a 4th.\nMelodies: easy step and skip tunes in C, D, G and F, one medium tune in A. Next: medium tunes in two keys.",
+    "progress": "Pitch: finds the low Do over a drone in C, D and F and hears when it settles; slides and hums into Sol. Next: find Do without the hum first.\nBreath & range: paced breath 3 to 6 counts, holds the low Do in G and D on \"oo\". All notes stayed in the low part of the range, with a line not to reach for high notes. Next: hold Sol, breath 3 to 7.\nIntervals & leaps: tells steps from skips, 3rds from 5ths and 5ths from 6ths by ear, sings Do Mi Sol in A, C and D and Do Re Mi on the beat up to 92 bpm. Falling skips are less sure. Next: sing a 4th.\nMelodies: easy step and skip tunes, each in two keys (C, D, G, A, F), one medium tune in A and D, own lines over two and three chords. Next: medium tunes in two keys.",
     "days": [
       {
         "theme": "Home over a drone",
@@ -28,16 +31,20 @@
             "title": "Find the smooth spot",
             "focus": "Do over a C drone",
             "minutes": 3,
-            "level": "beginner", "area": "voice", "tags": [
+            "level": "beginner",
+            "area": "voice",
+            "tags": [
               "sing"
             ],
-            "level": "beginner", "topic": "voice-pitch",
+            "topic": "voice-pitch",
             "why": "In tune with the drone sounds smooth and off sounds like a wobble, so the drone lets you check yourself with no one listening.",
-            "learnBefore": ["/course/3/home-note"],
+            "learnBefore": [
+              "/course/3/home-note"
+            ],
             "sections": [
               {
                 "type": "text",
-                "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff as a line. Sing {{1}} on \"oo\" and slide a little above and below it until the wobble stops. Hold the smooth spot for as long as feels easy."
+                "text": "Press Start exercise below: the drone and the mic start together. Your pitch shows as a line on the staff, the five lines of music.\nSing the low {{1}} on \"oo\" and slide a little above and below it until the wobble stops. Hold the smooth spot for as long as feels easy.\n_Don't reach for high notes: the low {{1}} is the only note this drill needs._"
               },
               {
                 "type": "tool",
@@ -60,16 +67,20 @@
             "title": "Steps or skips?",
             "focus": "Hear a step (Do-Re) from a skip (Do-Mi, jumping over Re)",
             "minutes": 3,
-            "level": "beginner", "area": "voice", "tags": [
+            "level": "beginner",
+            "area": "voice",
+            "tags": [
               "ear"
             ],
-            "level": "beginner", "topic": "voice-intervals",
+            "topic": "voice-intervals",
             "why": "Melodies move by steps and skips, so hearing which is which tells you where the next note is before you sing it.",
-            "learnBefore": ["/course/3/intervals"],
+            "learnBefore": [
+              "/course/3/intervals"
+            ],
             "sections": [
               {
                 "type": "text",
-                "text": "Press Start below. The game plays two notes, a step or a skip: hum the two back, then answer."
+                "text": "Press Start below to hear two notes, a step or a skip apart. Hum the two back, then answer."
               },
               {
                 "type": "tool",
@@ -86,23 +97,41 @@
           },
           {
             "title": "Step tunes, then your own",
-            "focus": "Two easy step tunes in C · a tune of your own on Do Re Mi",
+            "focus": "Two step tunes on Do Re Mi · the first in C and D · a tune of your own",
             "minutes": 9,
-            "level": "beginner", "area": "voice", "tags": [
+            "level": "beginner",
+            "area": "voice",
+            "tags": [
               "song"
             ],
-            "level": "beginner", "topic": "voice-melodies",
+            "topic": "voice-melodies",
             "why": "Step tunes use notes right next to each other, so they train your voice to move one note at a time and stay in tune.",
-            "learnBefore": ["/course/3/step-melodies"],
+            "learnBefore": [
+              "/course/3/step-melodies"
+            ],
             "sections": [
               {
                 "type": "heading",
-                "text": "A step tune",
+                "text": "Up to Mi and back",
                 "minutes": 3
               },
               {
                 "type": "text",
-                "text": "Press Play below to hear the tune: the mic starts with it. Sing along on the note names."
+                "text": "Press Play below to hear the tune: the mic starts with it. Sing along on the note names.\nOnce you can sing it without the tune leading you, try it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but the tune still climbs two steps and comes home."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "step-choice",
+                  "options": [
+                    {
+                      "key": "c"
+                    },
+                    {
+                      "key": "d"
+                    }
+                  ]
+                }
               },
               {
                 "type": "tool",
@@ -118,12 +147,12 @@
               },
               {
                 "type": "heading",
-                "text": "Another one",
+                "text": "Down from Mi",
                 "minutes": 3
               },
               {
                 "type": "text",
-                "text": "The same kind of tune, a new shape. Sing it on \"la\" once you know it."
+                "text": "Press Play below to hear the tune: the mic starts with it. This tune starts on Mi and steps down to Do. Sing along on the note names, then on \"la\" once you know it."
               },
               {
                 "type": "tool",
@@ -140,12 +169,12 @@
               },
               {
                 "type": "heading",
-                "text": "Your own",
+                "text": "Your own tune",
                 "minutes": 3
               },
               {
                 "type": "text",
-                "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff as a line. Make up a short tune from {{1}}, {{2}} and {{3}} on \"la\", ending on {{1}}. Make another that starts on {{3}}."
+                "text": "Press Start exercise below to start the drone and the mic. Make up a short tune from the low {{1}}, {{2}} and {{3}} on \"la\", and end it on {{1}}.\nThen make up another that starts on {{3}}."
               },
               {
                 "type": "tool",
@@ -172,18 +201,22 @@
         "exercises": [
           {
             "title": "Hum, then open",
-            "focus": "Do and Sol over a D drone",
+            "focus": "Do and Sol over a D drone · a hum opened to \"oo\"",
             "minutes": 3,
-            "level": "beginner", "area": "voice", "tags": [
+            "level": "beginner",
+            "area": "voice",
+            "tags": [
               "sing"
             ],
-            "level": "beginner", "topic": "voice-pitch",
-            "why": "Humming keeps the sound small and easy to tune, so opening to \"ah\" from a hum carries the in-tune note with it.",
-            "learnBefore": ["/course/3/matching-a-pitch"],
+            "topic": "voice-pitch",
+            "why": "Humming keeps the sound small and easy to tune, so opening to \"oo\" from a hum carries the in-tune note with it.",
+            "learnBefore": [
+              "/course/3/matching-a-pitch"
+            ],
             "sections": [
               {
                 "type": "text",
-                "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff as a line. Hum {{1}} with your lips closed, then open to \"ah\" and skip up to {{5}}. Listen for the smooth spot on both."
+                "text": "Press Start exercise below to start the drone and the mic. Hum the low {{1}} with your lips closed, then open it to \"oo\" on the same note.\nThen skip up to {{5}} the same way: hum it first, then open.\n_Don't reach for high notes: {{5}} here is the one just above the low {{1}}._"
               },
               {
                 "type": "tool",
@@ -206,16 +239,20 @@
             "title": "3rd or 5th?",
             "focus": "Hear Do-Mi from Do-Sol",
             "minutes": 3,
-            "level": "beginner", "area": "voice", "tags": [
+            "level": "beginner",
+            "area": "voice",
+            "tags": [
               "ear"
             ],
-            "level": "beginner", "topic": "voice-intervals",
+            "topic": "voice-intervals",
             "why": "Mi and Sol are the two notes a skip from Do usually lands on, so telling them apart is half of singing a skip in tune.",
-            "learnBefore": ["/course/3/intervals"],
+            "learnBefore": [
+              "/course/3/intervals"
+            ],
             "sections": [
               {
                 "type": "text",
-                "text": "Press Start below. The game plays Do and then Mi or Sol: sing the second note back on \"la\", then answer."
+                "text": "Press Start below to hear Do and then Mi or Sol. Sing the second note back on \"la\", then answer."
               },
               {
                 "type": "tool",
@@ -232,15 +269,19 @@
           },
           {
             "title": "A skipping tune, then over chords",
-            "focus": "An easy skipping tune in D · Do and Sol over D and A",
+            "focus": "An easy skipping tune in D and C · Do, Mi and Sol over D and A",
             "minutes": 9,
-            "level": "beginner", "area": "voice", "tags": [
+            "level": "beginner",
+            "area": "voice",
+            "tags": [
               "song",
               "improv"
             ],
-            "level": "beginner", "topic": "voice-melodies",
+            "topic": "voice-melodies",
             "why": "A skip lands on a chord note, so a tune that skips is really the chord sung one note at a time.",
-            "learnBefore": ["/course/3/do-mi-sol"],
+            "learnBefore": [
+              "/course/3/do-mi-sol"
+            ],
             "sections": [
               {
                 "type": "heading",
@@ -249,7 +290,21 @@
               },
               {
                 "type": "text",
-                "text": "Press Play below to hear the tune: the mic starts with it. Sing along on the note names."
+                "text": "Press Play below to hear the tune: the mic starts with it. Sing along on the note names.\nOnce the skips land without a slide, try it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but the tune still skips up the chord and back."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "step-choice",
+                  "options": [
+                    {
+                      "key": "d"
+                    },
+                    {
+                      "key": "c"
+                    }
+                  ]
+                }
               },
               {
                 "type": "tool",
@@ -265,12 +320,12 @@
               },
               {
                 "type": "heading",
-                "text": "Over the chords",
+                "text": "Over D and A",
                 "minutes": 5
               },
               {
                 "type": "text",
-                "text": "Press Start exercise below to start the mic and the chords. On \"ah\", sing {{1}} when D comes round and {{5}} when A does. Then try {{3}} over D and hear how it changes the colour."
+                "text": "Press Start exercise below to start the mic and the band. On \"oo\", sing the low {{1}} when D comes round and {{5}} when A does.\nThen use {{3}} over D too, and make up your own order.\nIf you lose the chord, hold {{1}} and wait for D to come round again."
               },
               {
                 "type": "tool",
@@ -297,7 +352,11 @@
                     "V"
                   ],
                   "style": "ballad",
-                  "parts": { "drums": "on", "bass": "off", "keys": "on" },
+                  "parts": {
+                    "drums": "on",
+                    "bass": "off",
+                    "keys": "always"
+                  },
                   "bpm": 70
                 }
               }
@@ -309,19 +368,40 @@
         "theme": "Sol and La",
         "exercises": [
           {
-            "title": "A long Do in G",
-            "focus": "Do over a G drone, held",
+            "title": "Breathe, then hold Do",
+            "focus": "Breath · 3 counts growing to 6 · then Do held over a G drone",
             "minutes": 3,
-            "level": "beginner", "area": "voice", "tags": [
+            "level": "beginner",
+            "area": "voice",
+            "tags": [
               "sing"
             ],
-            "level": "beginner", "topic": "voice-breath-range",
-            "why": "A long note shows every wobble in your pitch line, so holding Do steady trains the breath that keeps every note in tune.",
-            "learnBefore": ["/course/3/breath-and-holding-a-note"],
+            "topic": "voice-breath-range",
+            "why": "A note stays steady when the air under it does, so pace your breath first and then hold one note on the same slow air.",
+            "learnBefore": [
+              "/course/3/breath-and-holding-a-note"
+            ],
             "sections": [
               {
                 "type": "text",
-                "text": "Press Start exercise below: the drone, the metronome and the mic start together. Sing {{1}} on \"oo\" and hold it while your line stays flat. Breathe when you need to and go again."
+                "text": "Press Start in the circle below. Breathe in, hold and breathe out as the circle grows, stays and shrinks, each for the count shown.\nKeep your shoulders still and let your belly do the moving."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "breathwork",
+                  "drill": "farinelli",
+                  "from": 3,
+                  "to": 6
+                }
+              },
+              {
+                "type": "heading",
+                "text": "Then a long Do"
+              },
+              {
+                "type": "text",
+                "text": "Press Start exercise below to start the drone and the mic. Sing the low {{1}} on \"oo\" and hold it while your line stays flat.\nBreathe when you need to and go again."
               },
               {
                 "type": "tool",
@@ -335,9 +415,7 @@
                     "1"
                   ],
                   "others": "hidden",
-                  "drone": true,
-                  "click": true,
-                  "bpm": 60
+                  "drone": true
                 }
               }
             ]
@@ -346,16 +424,20 @@
             "title": "5th or 6th?",
             "focus": "Hear Do-Sol from Do-La",
             "minutes": 3,
-            "level": "beginner", "area": "voice", "tags": [
+            "level": "beginner",
+            "area": "voice",
+            "tags": [
               "ear"
             ],
-            "level": "beginner", "topic": "voice-intervals",
+            "topic": "voice-intervals",
             "why": "La sits one step above Sol, so hearing the two apart is what lets you sing the step between them.",
-            "learnBefore": ["/course/3/intervals"],
+            "learnBefore": [
+              "/course/3/intervals"
+            ],
             "sections": [
               {
                 "type": "text",
-                "text": "Press Start below. The game plays Do and then Sol or La: hum the second note, then answer."
+                "text": "Press Start below to hear Do and then Sol or La. Hum the second note back, then answer."
               },
               {
                 "type": "tool",
@@ -372,15 +454,20 @@
           },
           {
             "title": "Sol La Sol, then over chords",
-            "focus": "An easy tune on Sol and La in G · over G and D",
+            "focus": "An easy tune on Sol and La in G and A · your own line over G and D",
             "minutes": 9,
-            "level": "beginner", "area": "voice", "tags": [
+            "level": "beginner",
+            "area": "voice",
+            "tags": [
               "song",
               "improv"
             ],
-            "level": "beginner", "topic": "voice-melodies",
+            "topic": "voice-melodies",
             "why": "La is the step above Sol that tunes lean on and fall back from, so a tune on the two is the first move away from the chord.",
-            "learnBefore": ["/course/3/step-melodies", "/course/3/hearing-do-fa-sol"],
+            "learnBefore": [
+              "/course/3/step-melodies",
+              "/course/3/hearing-do-fa-sol"
+            ],
             "sections": [
               {
                 "type": "heading",
@@ -389,7 +476,21 @@
               },
               {
                 "type": "text",
-                "text": "Press Play below to hear the tune: the mic starts with it. Sing along on the note names."
+                "text": "Press Play below to hear the tune: the mic starts with it. Sing along on the note names.\nOnce La sits one clean step above Sol, try it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but La is still one step above Sol."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "step-choice",
+                  "options": [
+                    {
+                      "key": "g"
+                    },
+                    {
+                      "key": "a"
+                    }
+                  ]
+                }
               },
               {
                 "type": "tool",
@@ -410,7 +511,7 @@
               },
               {
                 "type": "text",
-                "text": "Press Start exercise below to start the mic and the chords. On \"ah\", make up a line from the low {{1}}, {{3}} and {{5}} that changes when the chord does."
+                "text": "Press Start exercise below to start the mic and the band. On \"oo\", sing the low {{1}} or {{3}} while G plays and {{5}} when D comes round.\nThen make up your own line from the three, one that moves when the chord does.\n_Don't reach for high notes: start from the low {{1}} and stay near it._"
               },
               {
                 "type": "tool",
@@ -437,7 +538,11 @@
                     "V"
                   ],
                   "style": "ballad",
-                  "parts": { "drums": "on", "bass": "off", "keys": "on" },
+                  "parts": {
+                    "drums": "on",
+                    "bass": "off",
+                    "keys": "always"
+                  },
                   "bpm": 70
                 }
               }
@@ -450,18 +555,22 @@
         "exercises": [
           {
             "title": "Siren to Sol",
-            "focus": "Slide from Do to Sol over an F drone",
+            "focus": "Slide from Do to Sol over an F drone, then the same as a skip",
             "minutes": 3,
-            "level": "beginner", "area": "voice", "tags": [
+            "level": "beginner",
+            "area": "voice",
+            "tags": [
               "sing"
             ],
-            "level": "beginner", "topic": "voice-pitch",
+            "topic": "voice-pitch",
             "why": "A slow slide passes through every pitch on the way, so it shows your voice the whole distance it needs to skip.",
-            "learnBefore": ["/course/3/matching-a-pitch"],
+            "learnBefore": [
+              "/course/3/matching-a-pitch"
+            ],
             "sections": [
               {
                 "type": "text",
-                "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff as a line. On \"oo\", slide slowly from the low {{1}} up to {{5}} and back, like a siren, then sing the two as a clean skip."
+                "text": "Press Start exercise below to start the drone and the mic. On \"oo\", slide slowly from the low {{1}} up to {{5}} and back, like a siren.\nThen sing the two as a clean skip, with no slide between them.\n_Don't reach for high notes: turn the siren round at {{5}}._"
               },
               {
                 "type": "tool",
@@ -484,16 +593,20 @@
             "title": "Skips, falling",
             "focus": "Hear a falling 3rd from a falling 5th",
             "minutes": 3,
-            "level": "beginner", "area": "voice", "tags": [
+            "level": "beginner",
+            "area": "voice",
+            "tags": [
               "ear"
             ],
-            "level": "beginner", "topic": "voice-intervals",
-            "why": "Tunes fall as often as they rise, and a falling skip feels different, so hear it the way down too.",
-            "learnBefore": ["/course/3/do-mi-sol"],
+            "topic": "voice-intervals",
+            "why": "In a falling skip the top note comes first, so your ear has to find the lower note with no Do sounding under it.",
+            "learnBefore": [
+              "/course/3/do-mi-sol"
+            ],
             "sections": [
               {
                 "type": "text",
-                "text": "Press Start below. The game plays a note and then a lower one, a 3rd or a 5th below: hum the lower note back, then answer."
+                "text": "Press Start below to hear a note and then a lower one, a 3rd or a 5th below. Hum the lower note back, then answer."
               },
               {
                 "type": "tool",
@@ -510,15 +623,20 @@
           },
           {
             "title": "A tune under Do, then over three chords",
-            "focus": "An easy tune that dips under Do in F · over F, B♭ and C",
+            "focus": "An easy tune that dips under Do in F and G · Do, Fa and Sol over F, B♭ and C",
             "minutes": 9,
-            "level": "beginner", "area": "voice", "tags": [
+            "level": "beginner",
+            "area": "voice",
+            "tags": [
               "song",
               "improv"
             ],
-            "level": "beginner", "topic": "voice-melodies",
+            "topic": "voice-melodies",
             "why": "Tunes often dip below Do and come home, so singing under it makes Do feel like home from both sides.",
-            "learnBefore": ["/course/3/home-note", "/course/3/hearing-do-fa-sol"],
+            "learnBefore": [
+              "/course/3/home-note",
+              "/course/3/hearing-do-fa-sol"
+            ],
             "sections": [
               {
                 "type": "heading",
@@ -527,7 +645,21 @@
               },
               {
                 "type": "text",
-                "text": "Press Play below to hear the tune: the mic starts with it. Sing along on the note names."
+                "text": "Press Play below to hear the tune: the mic starts with it. Sing along on the note names.\nOnce the notes under Do feel as sure as Do, try it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but the tune still dips two steps under Do and comes home."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "step-choice",
+                  "options": [
+                    {
+                      "key": "f"
+                    },
+                    {
+                      "key": "g"
+                    }
+                  ]
+                }
               },
               {
                 "type": "tool",
@@ -548,7 +680,7 @@
               },
               {
                 "type": "text",
-                "text": "Press Start exercise below to start the mic and the chords. On \"ah\", sing the low {{4}} when B♭ comes round and find your own way back to {{1}}."
+                "text": "Press Start exercise below to start the mic and the band. On \"oo\", sing the low {{1}} over F, the low {{4}} when B♭ comes round and {{5}} over C.\nThen add {{3}} over F and make up your own line.\nIf you lose your place, hold {{1}} until F comes round again."
               },
               {
                 "type": "tool",
@@ -578,7 +710,11 @@
                     "I"
                   ],
                   "style": "ballad",
-                  "parts": { "drums": "on", "bass": "off", "keys": "on" },
+                  "parts": {
+                    "drums": "on",
+                    "bass": "off",
+                    "keys": "always"
+                  },
                   "bpm": 70
                 }
               }
@@ -587,22 +723,43 @@
         ]
       },
       {
-        "theme": "Do Mi Sol in a new key",
+        "theme": "Do Mi Sol in new keys",
         "exercises": [
           {
-            "title": "Do Mi Sol in A",
-            "focus": "Do Mi Sol over an A drone",
+            "title": "Do Mi Sol in three keys",
+            "focus": "Do Mi Sol over a drone · in A, C and D",
             "minutes": 3,
-            "level": "beginner", "area": "voice", "tags": [
+            "level": "beginner",
+            "area": "voice",
+            "tags": [
               "sing"
             ],
-            "level": "beginner", "topic": "voice-intervals",
-            "why": "Do Mi Sol sounds the same in every key, so moving it to A shows your ear knows the shape, not the notes.",
-            "learnBefore": ["/course/3/do-mi-sol"],
+            "topic": "voice-intervals",
+            "why": "Do Mi Sol is two skips of a fixed size, so it sounds the same from any Do, and moving it trains your ear on the shape and not on the notes.",
+            "learnBefore": [
+              "/course/3/do-mi-sol"
+            ],
             "sections": [
               {
                 "type": "text",
-                "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff as a line. Sing {{1}} {{3}} {{5}} up and back on the note names, then skip straight from {{1}} to {{5}}."
+                "text": "Press Start exercise below to start the drone and the mic. Sing {{1}} {{3}} {{5}} up and back on the note names, starting from the low {{1}}.\nOnce the three land without a slide, try them in another key. Use the Key selector below to change the key, then press Start exercise to start the drone there.\nWhen you change the key, the notes change but the two skips are the same size."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "step-choice",
+                  "options": [
+                    {
+                      "key": "a"
+                    },
+                    {
+                      "key": "c"
+                    },
+                    {
+                      "key": "d"
+                    }
+                  ]
+                }
               },
               {
                 "type": "tool",
@@ -626,16 +783,21 @@
             "title": "Steps and skips, mixed",
             "focus": "Hear steps, 3rds and 5ths",
             "minutes": 3,
-            "level": "beginner", "area": "voice", "tags": [
+            "level": "beginner",
+            "area": "voice",
+            "tags": [
               "ear"
             ],
-            "level": "beginner", "topic": "voice-intervals",
+            "topic": "voice-intervals",
             "why": "Real tunes mix steps and skips, so hearing them mixed is closer to singing a song than hearing them alone.",
-            "learnBefore": ["/course/3/intervals", "/course/3/do-mi-sol"],
+            "learnBefore": [
+              "/course/3/intervals",
+              "/course/3/do-mi-sol"
+            ],
             "sections": [
               {
                 "type": "text",
-                "text": "Press Start below. The game plays a step, a 3rd or a 5th: hum it back, then answer."
+                "text": "Press Start below to hear a step, a 3rd or a 5th. Hum it back, then answer."
               },
               {
                 "type": "tool",
@@ -652,24 +814,42 @@
             ]
           },
           {
-            "title": "A harder skipping tune, then your own",
-            "focus": "A medium skipping tune in A · your own skips",
+            "title": "A longer skipping tune, then your own",
+            "focus": "A medium skipping tune in A and D · your own skips on Do, Mi and Sol",
             "minutes": 9,
-            "level": "beginner", "area": "voice", "tags": [
+            "level": "beginner",
+            "area": "voice",
+            "tags": [
               "song"
             ],
-            "level": "beginner", "topic": "voice-melodies",
-            "why": "A harder tune puts the skips closer together, and then making up your own shows which skips you hear best.",
-            "learnBefore": ["/course/3/do-mi-sol"],
+            "topic": "voice-melodies",
+            "why": "A longer tune asks for one skip after another, and making up your own afterwards shows which skips your voice finds by itself.",
+            "learnBefore": [
+              "/course/3/do-mi-sol"
+            ],
             "sections": [
               {
                 "type": "heading",
-                "text": "A harder skipping tune",
+                "text": "A longer skipping tune",
                 "minutes": 5
               },
               {
                 "type": "text",
-                "text": "Press Play below to hear the tune: the mic starts with it. Sing along on \"la\"."
+                "text": "Press Play below to hear the tune: the mic starts with it. Sing along on \"la\".\nOnce the last bar comes out as sure as the first, try it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but the tune still opens with Do Mi Sol."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "step-choice",
+                  "options": [
+                    {
+                      "key": "a"
+                    },
+                    {
+                      "key": "d"
+                    }
+                  ]
+                }
               },
               {
                 "type": "tool",
@@ -690,7 +870,7 @@
               },
               {
                 "type": "text",
-                "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff as a line. Make up a tune of skips between {{1}}, {{3}} and {{5}} on \"la\", ending on {{1}}."
+                "text": "Press Start exercise below to start the drone and the mic. Make up a tune of skips between {{1}}, {{3}} and {{5}} on \"la\", and end it on {{1}}.\n_Don't reach for high notes: the low {{1}}, {{3}} and {{5}} are enough for a tune._"
               },
               {
                 "type": "tool",
@@ -716,19 +896,41 @@
         "theme": "Steps and skips together",
         "exercises": [
           {
-            "title": "Do Re Mi Re Do",
-            "focus": "Do Re Mi and back over a C drone",
+            "title": "Do Re Mi on the beat",
+            "focus": "Do Re Mi and back over a C drone · one note per beat · 60, 76 and 92 bpm",
             "minutes": 3,
-            "level": "beginner", "area": "voice", "tags": [
+            "level": "beginner",
+            "area": "voice",
+            "tags": [
               "sing"
             ],
-            "level": "beginner", "topic": "voice-intervals",
-            "why": "A step up and back is the shape most tunes start with, so it trains the exact move songs ask for.",
-            "learnBefore": ["/course/3/step-melodies"],
+            "topic": "voice-intervals",
+            "why": "A step up and back is the shape most tunes start with, and the metronome shows whether your voice gets to each note on time.",
+            "learnBefore": [
+              "/course/3/step-melodies"
+            ],
             "sections": [
               {
                 "type": "text",
-                "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff as a line. Sing {{1}} {{2}} {{3}} {{2}} {{1}} on the note names, then on \"oo\"."
+                "text": "Press Start exercise below: the drone, the metronome and the mic start together. Sing {{1}} {{2}} {{3}} {{2}} {{1}} on the note names, one note per beat.\nWhen every note lands on the beat, try a faster stage. Use the Stage selector below to change the tempo, then press Start exercise to start the metronome again.\nIf a stage is too fast, go back one and sing it on \"oo\"."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "step-choice",
+                  "label": "stage",
+                  "options": [
+                    {
+                      "bpm": 60
+                    },
+                    {
+                      "bpm": 76
+                    },
+                    {
+                      "bpm": 92
+                    }
+                  ]
+                }
               },
               {
                 "type": "tool",
@@ -743,7 +945,9 @@
                     "2",
                     "3"
                   ],
-                  "drone": true
+                  "drone": true,
+                  "click": true,
+                  "bpm": 60
                 }
               }
             ]
@@ -752,16 +956,20 @@
             "title": "Hear and sing back",
             "focus": "Sing back a 3rd or a 5th",
             "minutes": 3,
-            "level": "beginner", "area": "voice", "tags": [
+            "level": "beginner",
+            "area": "voice",
+            "tags": [
               "ear"
             ],
-            "level": "beginner", "topic": "voice-intervals",
+            "topic": "voice-intervals",
             "why": "Singing back what you hear links your ear to your voice, which is what learning a tune by ear is.",
-            "learnBefore": ["/course/3/intervals"],
+            "learnBefore": [
+              "/course/3/intervals"
+            ],
             "sections": [
               {
                 "type": "text",
-                "text": "Press Start below. The game plays a 3rd or a 5th: sing both notes back on \"la\" before you answer."
+                "text": "Press Start below to hear a 3rd or a 5th. Sing both notes back on \"la\" before you answer."
               },
               {
                 "type": "tool",
@@ -778,23 +986,42 @@
           },
           {
             "title": "Steps, then 3rds",
-            "focus": "A medium step tune · an easy tune in 3rds, in C",
+            "focus": "A step tune from Re in C and D · an easy tune in 3rds in C",
             "minutes": 9,
-            "level": "beginner", "area": "voice", "tags": [
+            "level": "beginner",
+            "area": "voice",
+            "tags": [
               "song"
             ],
-            "level": "beginner", "topic": "voice-melodies",
+            "topic": "voice-melodies",
             "why": "Steps and 3rds are the two moves most tunes use, so a tune of each is the week in two songs.",
-            "learnBefore": ["/course/3/step-melodies", "/course/3/intervals"],
+            "learnBefore": [
+              "/course/3/step-melodies",
+              "/course/3/intervals"
+            ],
             "sections": [
               {
                 "type": "heading",
-                "text": "A step tune",
+                "text": "A tune from Re",
                 "minutes": 4
               },
               {
                 "type": "text",
-                "text": "Press Play below to hear the tune: the mic starts with it. Sing along on the note names."
+                "text": "Press Play below to hear the tune: the mic starts with it. Sing along on the note names. This tune starts on Re, one step above Do.\nOnce you find Re without help, try it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but the tune still starts one step above Do."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "step-choice",
+                  "options": [
+                    {
+                      "key": "c"
+                    },
+                    {
+                      "key": "d"
+                    }
+                  ]
+                }
               },
               {
                 "type": "tool",
@@ -815,7 +1042,7 @@
               },
               {
                 "type": "text",
-                "text": "Press Play below to hear the tune: the mic starts with it. Sing along on \"la\". Notice where it steps and where it skips."
+                "text": "Press Play below to hear the tune: the mic starts with it. Sing along on \"la\". The tune opens with a skip from Do to Mi, then moves by step.\nSing it until the skip and the steps feel as different as they sound."
               },
               {
                 "type": "tool",
@@ -840,16 +1067,20 @@
             "title": "A long Do, then and now",
             "focus": "Do over a D drone, held",
             "minutes": 3,
-            "level": "beginner", "area": "voice", "tags": [
+            "level": "beginner",
+            "area": "voice",
+            "tags": [
               "sing"
             ],
-            "level": "beginner", "topic": "voice-breath-range",
-            "why": "Holding Do steady is where the week started, so it is the clearest place to feel how far you've come.",
-            "learnBefore": ["/course/3/breath-and-holding-a-note"],
+            "topic": "voice-breath-range",
+            "why": "A long note shows every wobble in your pitch line, so holding Do again at the end of the week shows what your breath has learned.",
+            "learnBefore": [
+              "/course/3/breath-and-holding-a-note"
+            ],
             "sections": [
               {
                 "type": "text",
-                "text": "Press Start exercise below: the drone, the metronome and the mic start together. Sing {{1}} on \"ah\" and hold it. Notice how much steadier your line is than on day 1."
+                "text": "Press Start exercise below to start the drone and the mic. Sing the low {{1}} on \"oo\" and hold it while your line stays flat.\nYou held a note like this on day 1 and day 3: look at how flat your line stays now."
               },
               {
                 "type": "tool",
@@ -863,9 +1094,7 @@
                     "1"
                   ],
                   "others": "hidden",
-                  "drone": true,
-                  "click": true,
-                  "bpm": 60
+                  "drone": true
                 }
               }
             ]
@@ -874,16 +1103,20 @@
             "title": "The week's intervals",
             "focus": "Steps, 3rds, 5ths and 6ths",
             "minutes": 3,
-            "level": "beginner", "area": "voice", "tags": [
+            "level": "beginner",
+            "area": "voice",
+            "tags": [
               "ear"
             ],
-            "level": "beginner", "topic": "voice-intervals",
+            "topic": "voice-intervals",
             "why": "Every interval from this week in one game shows which ones your ear now knows by itself.",
-            "learnBefore": ["/course/3/intervals"],
+            "learnBefore": [
+              "/course/3/intervals"
+            ],
             "sections": [
               {
                 "type": "text",
-                "text": "Press Start below. The game plays any interval from this week: sing it back, then answer."
+                "text": "Press Start below to hear any interval from this week. Sing it back on \"la\", then answer."
               },
               {
                 "type": "tool",
@@ -902,24 +1135,43 @@
           },
           {
             "title": "A Sol tune, then your own line",
-            "focus": "An easy Sol tune in D · your own line over D, G and A",
+            "focus": "An easy tune down from Sol in D and C · your own line over D, G and A",
             "minutes": 9,
-            "level": "beginner", "area": "voice", "tags": [
+            "level": "beginner",
+            "area": "voice",
+            "tags": [
               "song",
               "improv"
             ],
-            "level": "beginner", "topic": "voice-melodies",
-            "why": "You have sung Do, Mi, Sol and La over chords this week, so now you can choose them yourself.",
-            "learnBefore": ["/course/3/step-melodies", "/course/3/hearing-do-fa-sol"],
+            "topic": "voice-melodies",
+            "why": "You have sung Do, Mi and Sol over chords this week, so now you can choose them yourself.",
+            "learnBefore": [
+              "/course/3/step-melodies",
+              "/course/3/hearing-do-fa-sol"
+            ],
             "sections": [
               {
                 "type": "heading",
-                "text": "A Sol tune",
+                "text": "Down from Sol",
                 "minutes": 4
               },
               {
                 "type": "text",
-                "text": "Press Play below to hear the tune: the mic starts with it. Sing along on the note names."
+                "text": "Press Play below to hear the tune: the mic starts with it. Sing along on the note names.\nOnce you can start on Sol without hearing it first, try it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but the tune still steps down from Sol to Do."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "step-choice",
+                  "options": [
+                    {
+                      "key": "d"
+                    },
+                    {
+                      "key": "c"
+                    }
+                  ]
+                }
               },
               {
                 "type": "tool",
@@ -940,7 +1192,7 @@
               },
               {
                 "type": "text",
-                "text": "Press Start exercise below to start the mic and the chords. Make up your own line from {{1}}, {{3}} and {{5}} on \"ah\", one that moves when the chords do and ends on {{1}}."
+                "text": "Press Start exercise below to start the mic and the band. On \"oo\", make up your own line from the low {{1}}, {{3}} and {{5}}, one that moves when the chords do and ends on {{1}}.\n_Don't reach for high notes: the three low ones are enough for a line._"
               },
               {
                 "type": "tool",
@@ -969,7 +1221,11 @@
                     "I"
                   ],
                   "style": "ballad",
-                  "parts": { "drums": "on", "bass": "off", "keys": "on" },
+                  "parts": {
+                    "drums": "on",
+                    "bass": "off",
+                    "keys": "always"
+                  },
                   "bpm": 70
                 }
               }

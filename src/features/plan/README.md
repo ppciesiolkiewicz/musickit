@@ -197,7 +197,10 @@ chord's fret). Not yet: `placement` on the shapes' per-chord `place`, and `mute`
 Notes in an exercise's text are written `{{3}}` (a degree) or `{{c-sharp}}` (a note name) and drawn as the fretboard's
 dot inline (`ui/InlineNote.tsx`, the same `NoteDot` the necks use): coloured by degree, labelled by the global label
 setting (`useLabelSystem`), the other name on hover, played on tap. `model/noteText.ts` splits the tokens out and reads
-them against the root of the tool after the text (else the one before); a token it can't read stays as text.
+them against the root of the tool after the text (else the one before); a token it can't read stays as text. A line
+written between underscores (`_Don't reach for high notes._`) is a care line: `markRuns` (same file) pairs the
+underscores across notes and explained words, and `ui/Sections.tsx` draws the line over a low band of amber. The words
+"reach for high notes" are in `GLOSSARY`, so the app adds the (i) and the link to the lesson by itself.
 
 The tools are the learning components of `src/features/exercises` (see its README): `scale-neck`, `chord-shapes`,
 `staff`, `backing-band` (`parts`: each part offered, mapped to `"on"`, `"off"` or `"always"`), `note-finder`, `interval-ears`, `arpeggio-neck`, `melody-singer`, `run-singer`, `string-singer`, `breathwork` (`drill`; `from` and `to` kept only for farinelli, `seconds` and `rounds` only for the others; it can't change key with a `step-choice`), `strum-along`,

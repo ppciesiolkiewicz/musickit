@@ -1,10 +1,21 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { explain } from "@/features/course/glossary";
-import { inlineNote, noteRootFor, splitNotes } from "./noteText";
+import { inlineNote, markRuns, noteRootFor, splitNotes } from "./noteText";
 import type { Section } from "./tools";
 
 describe("note text", () => {
+  it("marks what is written between underscores, across notes and explained words", () => {
+    assert.deepEqual(markRuns(["Sing it. _Don't reach for high notes._ Go on."]), [
+      { marked: false, parts: ["Sing it. "] }, { marked: true, parts: ["Don't reach for high notes."] }, { marked: false, parts: [" Go on."] },
+    ]);
+    const note = { note: "5" };
+    assert.deepEqual(markRuns<{ note: string }>(["_Stop at ", note, "._\nThen rest."]), [{ marked: true, parts: ["Stop at ", note, "."] }, { marked: false, parts: ["\nThen rest."] }]);
+    // an odd underscore is not markup, and a text with none is one plain run
+    assert.deepEqual(markRuns(["a_b and c"]), [{ marked: false, parts: ["a_b and c"] }]);
+    assert.deepEqual(markRuns(["plain"]), [{ marked: false, parts: ["plain"] }]);
+  });
+
   it("splits {{...}} note tokens out of text", () => {
     assert.deepEqual(splitNotes("Sing {{1}} {{3}} {{5}} {{b7}} up and back"), ["Sing ", { note: "1" }, " ", { note: "3" }, " ", { note: "5" }, " ", { note: "b7" }, " up and back"]);
     assert.deepEqual(splitNotes("{{c-sharp}}, then C"), [{ note: "c-sharp" }, ", then C"]);

@@ -6,7 +6,8 @@ import type { Section } from "./tools";
 
 /**
  * Notes written in an exercise's text as `{{3}}` (a degree) or `{{c-sharp}}` (a note name), drawn as the fretboard's dot
- * inline. Pure: which parts of a text are notes, what root they count from, and what each one is.
+ * inline. Pure: which parts of a text are notes, what root they count from, and what each one is. Also the underlined
+ * line: `_Don't reach for high notes._`, a care line the page draws over a low band of colour.
  */
 
 export type TextPart = string | { note: string };
@@ -114,4 +115,33 @@ export function inlineNote(token: string, ctx: NoteRoot | null): InlineNoteInfo 
   }
   const name = ctx ? spelled ?? SHARP[(root + semi) % 12] : SEMI_TEXT[semi];
   return { semi, name, degreeText: SEMI_TEXT[semi], degree, midi: 48 + root + semi };
+}
+
+/** A stretch of a text's parts: `marked` when it was written between underscores (`_…_`), to be drawn underlined. */
+export interface MarkRun<T> { marked: boolean; parts: (string | T)[] }
+
+/**
+ * A text's parts (plain strings, and whatever stands between them: notes, explained words) as runs, the ones written
+ * `_like this_` marked and their underscores dropped. The underscores pair up across the parts, so a marked line may
+ * hold a note or an explained word. An odd number of them is not markup: the text stays as written, in one plain run.
+ */
+export function markRuns<T extends object>(parts: (string | T)[]): MarkRun<T>[] {
+  const count = parts.reduce<number>((n, p) => n + (typeof p === "string" ? p.split("_").length - 1 : 0), 0);
+  if (!count || count % 2) return parts.length ? [{ marked: false, parts }] : [];
+  const runs: MarkRun<T>[] = [];
+  let marked = false;
+  const push = (part: string | T) => {
+    if (part === "") return;
+    const last = runs[runs.length - 1];
+    if (last && last.marked === marked) last.parts.push(part);
+    else runs.push({ marked, parts: [part] });
+  };
+  for (const p of parts) {
+    if (typeof p !== "string") { push(p); continue; }
+    p.split("_").forEach((piece, i) => {
+      if (i > 0) marked = !marked;
+      push(piece);
+    });
+  }
+  return runs;
 }
