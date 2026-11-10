@@ -12,7 +12,7 @@ import { FOUNDING_PARTNERS_JOINED, FOUNDING_PARTNERS_NEEDED, FOUNDING_PRICE, FOU
 /*
  * The founding-partner page, at /kickstarter: the count of founding partners still needed, a founding partner's part in
  * the project, the offer (a locked-in yearly price, with 90 days to change your mind and get all the money back), what works today (interactive lesson notes)
- * and what the partners shape next (scheduling, profiles, courses to sell). Everything is centred and short. It is
+ * and what the partners shape next (scheduling, online payments, profiles, courses to sell). Everything is centred and short. It is
  * written as the founder to one reader, in the voice of the outreach emails (`VOICE` in
  * src/features/devtools/model/kickstarter.ts): "I", plain, no hype, no deadline. The numbers come from
  * src/lib/foundingOffer.ts.
@@ -152,7 +152,7 @@ export default function FoundingHome() {
             <H2 id="coming-soon-h">Tools to <span className="ls-accent italic text-sky-300">run your studio.</span></H2>
             <p className="mx-auto mt-4 max-w-xl text-pretty text-slate-300">Founding partners decide which comes first.</p>
           </div>
-          <ul className="mt-10 grid gap-4 lg:grid-cols-3">
+          <ul className="mt-10 grid gap-4 lg:grid-cols-2">
             <StudioSoonCards />
             <li className={CARD}>
               <SoonHeading icon="book-open" tone="bg-teal-500/15 text-teal-300" title="Courses you can sell" />

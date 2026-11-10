@@ -249,9 +249,9 @@ export default function SchoolsHome() {
               <AdaptiveViewMock />
             </li>
           </ul>
-          {/* Coming soon: running the school (scheduling, profiles), the same cards as /kickstarter */}
+          {/* Coming soon: running the school (scheduling, online payments, profiles), the same cards as /kickstarter */}
           <p className="mt-12 text-center text-xs font-medium uppercase tracking-[0.2em] text-slate-400">And for running your school</p>
-          <ul className="mt-6 grid gap-4 lg:grid-cols-2">
+          <ul className="mt-6 grid gap-4 lg:grid-cols-3">
             <StudioSoonCards />
           </ul>
         </section>

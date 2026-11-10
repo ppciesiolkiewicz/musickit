@@ -2,7 +2,7 @@ import Icon, { type IconName } from "@/components/Icon";
 import { DISPLAY } from "@/components/landing/Display";
 
 /*
- * What is coming for running a school or studio: scheduling and profiles. The music-school home (/) and the
+ * What is coming for running a school or studio: scheduling, online payments and profiles. The music-school home (/) and the
  * founding-partner page (/kickstarter) both show these cards, so the two pages promise the same things.
  */
 
@@ -46,6 +46,27 @@ function ScheduleMock() {
   );
 }
 
+/** A week's lessons with what is paid, drawn for the online payments card. Illustration only. */
+const PAYMENTS: { who: string; when: string; paid: boolean }[] = [
+  { who: "Mia", when: "Mon 4:00", paid: true },
+  { who: "Noah", when: "Mon 5:00", paid: true },
+  { who: "Ava", when: "Wed 3:30", paid: false },
+];
+
+function PaymentsMock() {
+  return (
+    <ul className="mt-auto flex flex-col gap-1.5 rounded-2xl border border-slate-800 bg-slate-950/40 p-4 text-xs text-slate-300" aria-hidden>
+      {PAYMENTS.map((p) => (
+        <li key={p.when} className="flex items-center gap-2 rounded-lg border border-slate-800 bg-slate-900 px-2.5 py-1.5">
+          <b className="font-semibold text-slate-100">{p.who}</b>
+          <span className="min-w-0 truncate text-slate-400">{p.when}</span>
+          <span className={`ml-auto shrink-0 rounded-full border px-2 py-0.5 font-semibold ${p.paid ? "border-emerald-400/40 bg-emerald-400/10 text-emerald-200" : "border-amber-400/40 bg-amber-400/10 text-amber-200"}`}>{p.paid ? "Paid" : "Not paid"}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 /** One student's profile, drawn for the profiles card. Illustration only. */
 function ProfileMock() {
   return (
@@ -65,7 +86,7 @@ function ProfileMock() {
   );
 }
 
-/** The two coming-soon cards for running a school: scheduling and profiles. Renders `<li>`s, so it sits inside the page's own list. */
+/** The three coming-soon cards for running a school: scheduling, online payments and profiles. Renders `<li>`s, so it sits inside the page's own list. */
 export function StudioSoonCards() {
   return (
     <>
@@ -73,6 +94,11 @@ export function StudioSoonCards() {
         <SoonHeading icon="columns-3" tone="bg-sky-500/15 text-sky-300" title="Scheduling" />
         <p className="text-sm leading-relaxed text-slate-400">One calendar for every lesson. Each teacher and each student sees their own week, and a moved lesson shows up for both.</p>
         <ScheduleMock />
+      </li>
+      <li className="ls-card flex flex-col gap-4 rounded-3xl border border-slate-800 bg-slate-900/50 p-5 sm:p-6">
+        <SoonHeading icon="credit-card" tone="bg-emerald-500/15 text-emerald-300" title="Online payments" />
+        <p className="text-sm leading-relaxed text-slate-400">Students pay for their lessons online. Each payment sits with its lesson on the calendar, so you see which lessons are paid.</p>
+        <PaymentsMock />
       </li>
       <li className="ls-card flex flex-col gap-4 rounded-3xl border border-slate-800 bg-slate-900/50 p-5 sm:p-6">
         <SoonHeading icon="graduation-cap" tone="bg-amber-500/15 text-amber-300" title="Profiles" />
