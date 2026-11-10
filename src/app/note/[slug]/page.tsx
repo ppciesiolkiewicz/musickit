@@ -30,7 +30,7 @@ export default async function NotePage({ params, searchParams }: { params: Promi
   if (!note) notFound();
   if (editing(await searchParams)) {
     return (
-      <PageShell active="/teachers/studio?notes=1" full title="Notes creator" intro={`“${note.title}”, open to change: add, move or remove widgets, then share it as a link. Save is a dev demo: it keeps your changes in memory, so View the note shows them, and a reload brings the note back as it was.`}
+      <PageShell active="/teachers/studio?notes=1" full title="Notes creator" intro={`“${note.title}”, open to change: add, move or remove widgets, then share it as a link. This is a demo page: your changes are kept as you make them, so View the note shows them, until you reload.`}
         action={<Link href={`/note/${slug}`} className={ACTION}><Icon name="eye" size={15} />View the note</Link>}>
         <StudioApp notes preset={slug} />
       </PageShell>

@@ -19,9 +19,10 @@ const reduce = (h: Held, a: Msg): Held => (a.type === "load" ? { stage: a.stage,
 
 /**
  * The stage, restored from the last visit after hydration and saved on every change after that. With `preset` (a note made ahead, opened to
- * edit) it starts as that stage on every visit and nothing is read or saved: the creator's own saved stage is left alone.
+ * edit) it starts as that stage and nothing is read or stored, so the creator's own saved stage is left alone; `keep` is handed the stage
+ * on every change instead.
  */
-export default function useStage(pluginIds: string[], notes = false, preset: Stage | null = null): [Stage, (a: StageAction) => void, (stage: Stage) => void] {
+export default function useStage(pluginIds: string[], notes = false, preset: Stage | null = null, keep?: (stage: Stage) => void): [Stage, (a: StageAction) => void, (stage: Stage) => void] {
   const [held, send] = useReducer(reduce, { stage: EMPTY_STAGE, ready: false });
 
   const store = notes ? NOTES_STORE : STORE;
@@ -42,13 +43,15 @@ export default function useStage(pluginIds: string[], notes = false, preset: Sta
   }, []);
 
   useEffect(() => {
-    if (!held.ready || preset) return;
+    if (!held.ready) return;
+    // a preset is never stored: its host keeps it, if it wants to
+    if (preset) return void keep?.(held.stage);
     try {
       window.localStorage.setItem(store, JSON.stringify(held.stage));
     } catch {
       /* ignore */
     }
-  }, [held, store, preset]);
+  }, [held, store, preset, keep]);
 
   const dispatch = useCallback((a: StageAction) => send(a), []);
   /** the whole stage replaced in one go (the note read back from its text) */
