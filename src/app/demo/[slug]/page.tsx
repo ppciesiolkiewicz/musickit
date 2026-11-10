@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   };
 }
 
-/** A ready-made AI plan to look at, at /demo/guitar and /demo/voice. */
+/** A ready-made AI plan to look at, at /demo/<slug> (the slugs of DEMO_PLANS). */
 export default async function DemoPage({ params }: { params: Promise<Params> }) {
   const demo = demoPlan((await params).slug);
   if (!demo) notFound();

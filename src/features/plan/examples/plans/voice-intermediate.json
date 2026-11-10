@@ -1,0 +1,1579 @@
+{
+ "id": "voice-intermediate",
+ "kind": "plan",
+ "areas": [
+  "voice"
+ ],
+ "level": "intermediate",
+ "updated": "2026-11-10",
+ "model": "claude-fable-5-2",
+ "minutes": 20,
+ "concepts": [
+  "leaps",
+  "runs",
+  "harmony-line",
+  "sight-singing"
+ ],
+ "docs": {
+  "agents": 1,
+  "teaching": 1
+ },
+ "note": "An intermediate voice week at 20 minutes a day, built from every singing tool so no two days look alike: leaps are the key skill and return daily in new forms (heard in the ear game, sung from Do in interval-singer with and without the picture, inside melody-singer tunes in two keys by a step-choice Key row, and in lines over a backing-track), with breathwork to open, runs from run-singer, sight-singing, and a harmony line that comes back faster in step-choice stages.",
+ "plan": {
+  "title": "Week 1: leaps, runs and a line of your own",
+  "summary": "Sing 4ths, 5ths and octaves in tune, first from Do, then inside tunes and over chords. Each day opens with breath, has an ear game or a run in the middle, and ends with a tune in two keys and a line you make up.",
+  "progress": "Breath & range: in, hold and out from 4 counts up to 10, a hiss into a buzz, a long even breath out. Next: counts up to 12, and holding the high Do.\nPitch: slides and then leaps cleanly from Do to the high Do over an A drone. Next: the same without the slide first.\nIntervals & leaps: hears 4ths, 5ths and octaves rising and falling, sings them up from Do in C, D and F, also without seeing the voice. Falling leaps are sung only inside tunes so far. Next: sing them down from Do, add the 6th.\nRuns: five-note run in eighths and sixteenths, a run with turns, a nine-note run, each up by semitones. Next: the octave run, slowly.\nMelodies: medium tunes with a 4th, a 5th and an octave in D and F, four short tunes read from the staff before hearing them. Next: longer tunes to read.\nHarmony & improvising: holds roots and a Mi Fa Re Mi line over I-IV-V-I in D and F up to 90, makes up lines from Do Mi Sol over four chords. Next: a line a 3rd above a tune.",
+  "days": [
+   {
+    "theme": "The 4th and the 5th",
+    "exercises": [
+     {
+      "title": "In, hold, out",
+      "focus": "Breath · in, hold and out for the same count · 4 counts growing to 8",
+      "minutes": 3,
+      "level": "intermediate",
+      "area": "voice",
+      "tags": [
+       "sing"
+      ],
+      "topic": "voice-breath-range",
+      "concepts": [
+       "breath-holding-note"
+      ],
+      "why": "The count grows by one each round, so your breath gets longer in steps too small to strain.",
+      "learnBefore": [
+       "/course/3/breath-and-holding-a-note"
+      ],
+      "sections": [
+       {
+        "type": "text",
+        "text": "Press Start in the circle below. Breathe in, hold and breathe out as the circle grows, stays and shrinks, each for the count shown. Keep your shoulders still and let your belly do the moving."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "breathwork",
+         "drill": "farinelli",
+         "from": 4,
+         "to": 8
+        }
+       }
+      ]
+     },
+     {
+      "title": "4th or 5th?",
+      "focus": "Hear Do-Fa from Do-Sol, rising",
+      "minutes": 3,
+      "level": "intermediate",
+      "area": "voice",
+      "tags": [
+       "ear"
+      ],
+      "topic": "voice-intervals",
+      "concepts": [
+       "leaps"
+      ],
+      "why": "Fa and Sol are one step apart, so hearing which one a leap went to is what stops your own leap landing on the wrong one.",
+      "learnBefore": [
+       "/course/6/every-interval",
+       "/course/6/singing-leaps"
+      ],
+      "sections": [
+       {
+        "type": "text",
+        "text": "Press Start below. The game plays Do and then a note a 4th or a 5th above it: hum the second note back, then pick P4 for a 4th or P5 for a 5th."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "interval-ears",
+         "set": [
+          5,
+          7
+         ],
+         "dir": "up"
+        }
+       }
+      ]
+     },
+     {
+      "title": "Sing the 4th and the 5th",
+      "focus": "A 4th and a 5th up from Do · Do moves between C and D",
+      "minutes": 5,
+      "level": "intermediate",
+      "area": "voice",
+      "tags": [
+       "sing"
+      ],
+      "topic": "voice-intervals",
+      "concepts": [
+       "leaps"
+      ],
+      "why": "A leap lands in tune when you hear the landing note before you sing it, so the game gives you only Do and the name of the leap.",
+      "learnBefore": [
+       "/course/6/singing-leaps"
+      ],
+      "sections": [
+       {
+        "type": "text",
+        "text": "Press Start below: Do sounds, and the leap to sing shows by name. Hear the landing note in your head first, then sing it on \"oo\" and hold it until it counts. Press Next for another leap, from a new Do. If a leap misses, press Restart to hear Do again."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "interval-singer",
+         "key": "c",
+         "keys": [
+          "c",
+          "d"
+         ],
+         "voice": "tenor",
+         "intervals": [
+          5,
+          7
+         ],
+         "dir": "up"
+        }
+       }
+      ]
+     },
+     {
+      "title": "A tune that falls a 4th",
+      "focus": "A short tune from Fa down to Do · in D and F · then a tune of your own on Do, Fa and Sol",
+      "minutes": 9,
+      "level": "intermediate",
+      "area": "voice",
+      "tags": [
+       "song"
+      ],
+      "topic": "voice-melodies",
+      "concepts": [
+       "sight-singing"
+      ],
+      "why": "In a tune the leap sits between other notes, so singing one shows whether you can find the 4th without Do sounding first.",
+      "learnBefore": [
+       "/course/6/singing-leaps",
+       "/course/6/sight-singing"
+      ],
+      "sections": [
+       {
+        "type": "heading",
+        "text": "The tune, in two keys",
+        "minutes": 5
+       },
+       {
+        "type": "text",
+        "text": "Press Play on the tune below to hear it, then start the mic and sing it on the note names. It starts on Fa and falls a 4th to Do. Then tap F in the Key row above the tune and sing it there. The notes change, the pattern doesn't."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "step-choice",
+         "options": [
+          {
+           "key": "d"
+          },
+          {
+           "key": "f"
+          }
+         ]
+        }
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "melody-singer",
+         "pick": {
+          "difficulty": "medium",
+          "stage": "fourths"
+         },
+         "key": "d",
+         "voice": "tenor"
+        }
+       },
+       {
+        "type": "heading",
+        "text": "Your own, with a leap",
+        "minutes": 4
+       },
+       {
+        "type": "text",
+        "text": "Press Start exercise below to start the drone and the mic. Make up a short tune from {{1}}, {{4}} and {{5}} on \"la\", with one leap in it, and end on {{1}}. Then make another that starts with a leap down."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "staff",
+         "scale": "major-ionian",
+         "key": "d",
+         "voice": "tenor",
+         "labels": "solfege",
+         "notes": [
+          "1",
+          "4",
+          "5"
+         ],
+         "drone": true
+        }
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "theme": "Five-note runs",
+    "exercises": [
+     {
+      "title": "Hiss, then buzz",
+      "focus": "Breath · a hiss, then the same air with your voice on it",
+      "minutes": 3,
+      "level": "intermediate",
+      "area": "voice",
+      "tags": [
+       "sing"
+      ],
+      "topic": "voice-breath-range",
+      "concepts": [
+       "breath-holding-note"
+      ],
+      "why": "A hiss is air alone and a buzz is the same air with your voice added, so going from one to the other shows how little extra push a note needs.",
+      "learnBefore": [
+       "/course/3/breath-and-holding-a-note"
+      ],
+      "sections": [
+       {
+        "type": "text",
+        "text": "Press Start in the circle below. Hiss on \"sss\", add your voice for \"zzz\", then hiss again, as the circle shows. Keep the air moving at the same speed through all three."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "breathwork",
+         "drill": "sss-zzz"
+        }
+       }
+      ]
+     },
+     {
+      "title": "4th or 5th, falling",
+      "focus": "Hear a falling 4th from a falling 5th",
+      "minutes": 3,
+      "level": "intermediate",
+      "area": "voice",
+      "tags": [
+       "ear"
+      ],
+      "topic": "voice-intervals",
+      "concepts": [
+       "leaps"
+      ],
+      "why": "In a falling leap the top note comes first and there is no Do under it yet, so the ear has to measure downwards.",
+      "learnBefore": [
+       "/course/6/every-interval",
+       "/course/6/singing-leaps"
+      ],
+      "sections": [
+       {
+        "type": "text",
+        "text": "Press Start below. The game plays a note and then one a 4th or a 5th below it: hum the lower note back, then pick P4 or P5."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "interval-ears",
+         "set": [
+          5,
+          7
+         ],
+         "dir": "down"
+        }
+       }
+      ]
+     },
+     {
+      "title": "Five notes up and back",
+      "focus": "A five-note run, Do to Sol and back · two notes per beat · a semitone higher each pass",
+      "minutes": 5,
+      "level": "intermediate",
+      "area": "voice",
+      "tags": [
+       "technique"
+      ],
+      "topic": "voice-runs",
+      "concepts": [
+       "runs"
+      ],
+      "why": "A run is in tune when every note in it is, so it starts slow enough to hear each one, and only then gets quicker.",
+      "learnBefore": [
+       "/course/6/vocal-runs"
+      ],
+      "sections": [
+       {
+        "type": "text",
+        "text": "Press Play on the run below to hear it, then start the mic and sing it on \"ah\": from Do up to Sol and back, two notes per beat. Each pass starts a semitone higher. Change to \"oo\" when the run gets high, and stop where it stops feeling easy."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "run-singer",
+         "pick": {
+          "difficulty": "medium",
+          "stage": "five"
+         },
+         "voice": "tenor"
+        }
+       }
+      ]
+     },
+     {
+      "title": "Do Mi Sol Do, then a run home",
+      "focus": "A chord tune up to the high Do in C and D · a run down from Sol over C, G, Am and F",
+      "minutes": 9,
+      "level": "intermediate",
+      "area": "voice",
+      "tags": [
+       "song",
+       "improv"
+      ],
+      "topic": "voice-melodies",
+      "concepts": [
+       "sight-singing"
+      ],
+      "why": "A run sounds like music when it lands somewhere, so aim its last note at the bar where the home chord comes back.",
+      "learnBefore": [
+       "/course/6/vocal-runs",
+       "/course/6/sight-singing"
+      ],
+      "sections": [
+       {
+        "type": "heading",
+        "text": "The chord as a tune",
+        "minutes": 4
+       },
+       {
+        "type": "text",
+        "text": "Press Play on the tune below to hear it, then start the mic and sing it on the note names. It climbs the notes of the chord to the high Do. Then tap D in the Key row above the tune and sing it there. The notes change, the pattern doesn't."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "step-choice",
+         "options": [
+          {
+           "key": "c"
+          },
+          {
+           "key": "d"
+          }
+         ]
+        }
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "melody-singer",
+         "pick": {
+          "difficulty": "medium",
+          "stage": "arpeggio"
+         },
+         "key": "c",
+         "voice": "tenor"
+        }
+       },
+       {
+        "type": "heading",
+        "text": "Run home over the band",
+        "minutes": 5
+       },
+       {
+        "type": "text",
+        "text": "Press Start exercise below to start the mic and the band: C, G, Am and F, a bar each. On \"ah\", hold {{5}} while the chords go by, then run down through {{4}}, {{3}} and {{2}} to land on {{1}} as C comes round again. Then start the run a bar earlier, and listen for where it lands."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "staff",
+         "scale": "major-ionian",
+         "key": "c",
+         "voice": "tenor",
+         "labels": "solfege",
+         "notes": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ]
+        }
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "backing-track",
+         "key": "c",
+         "style": "ballad",
+         "bpm": 70,
+         "parts": {
+          "drums": "on",
+          "bass": "off",
+          "keys": "always"
+         },
+         "progression": "pop"
+        }
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "theme": "The octave",
+    "exercises": [
+     {
+      "title": "Slide to the high Do",
+      "focus": "Do to the high Do over an A drone · a slide, then a leap",
+      "minutes": 3,
+      "level": "intermediate",
+      "area": "voice",
+      "tags": [
+       "sing"
+      ],
+      "topic": "voice-pitch",
+      "concepts": [
+       "in-tune-over-drone"
+      ],
+      "why": "A slow slide passes through every pitch between two notes, so it shows your voice the whole distance before you leap it.",
+      "learnBefore": [
+       "/course/3/home-note",
+       "/course/6/singing-leaps"
+      ],
+      "sections": [
+       {
+        "type": "text",
+        "text": "Press Start exercise below to start the drone and the mic. On \"oo\", slide slowly from the low {{1}} up to the high {{1}} and back, like a siren, and watch your line pass {{5}} on the way. Then sing the two as one clean leap."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "staff",
+         "scale": "major-ionian",
+         "key": "a",
+         "voice": "tenor",
+         "labels": "solfege",
+         "notes": [
+          "1",
+          "5"
+         ],
+         "drone": true
+        }
+       }
+      ]
+     },
+     {
+      "title": "5th or octave?",
+      "focus": "Hear Do-Sol from Do to the high Do",
+      "minutes": 3,
+      "level": "intermediate",
+      "area": "voice",
+      "tags": [
+       "ear"
+      ],
+      "topic": "voice-intervals",
+      "concepts": [
+       "leaps"
+      ],
+      "why": "The high Do is the same note as Do, so the two blend into one sound where Sol stands apart: listen for the blend.",
+      "learnBefore": [
+       "/course/6/every-interval",
+       "/course/6/singing-leaps"
+      ],
+      "sections": [
+       {
+        "type": "text",
+        "text": "Press Start below. The game plays Do and then a note a 5th or an octave above it: hum the second note back, then pick P5 or P8, the octave."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "interval-ears",
+         "set": [
+          7,
+          12
+         ],
+         "dir": "up"
+        }
+       }
+      ]
+     },
+     {
+      "title": "Sing the 5th and the octave",
+      "focus": "A 5th and an octave up from Do · Do moves between C and D",
+      "minutes": 5,
+      "level": "intermediate",
+      "area": "voice",
+      "tags": [
+       "sing"
+      ],
+      "topic": "voice-intervals",
+      "concepts": [
+       "leaps"
+      ],
+      "why": "The octave is the widest leap in most tunes, and Sol sits a little over halfway up it, so the 5th you know is the marker for the octave you are learning.",
+      "learnBefore": [
+       "/course/6/singing-leaps"
+      ],
+      "sections": [
+       {
+        "type": "text",
+        "text": "Press Start below: Do sounds, and the leap to sing shows by name. For the octave, think of Sol on the way up and go past it. Sing the landing note on \"oo\", hold it until it counts, then press Next. If a leap misses, press Restart to hear Do again."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "interval-singer",
+         "key": "c",
+         "keys": [
+          "c",
+          "d"
+         ],
+         "voice": "tenor",
+         "intervals": [
+          7,
+          12
+         ],
+         "dir": "up"
+        }
+       }
+      ]
+     },
+     {
+      "title": "A tune that drops an octave",
+      "focus": "A short tune from the high Do down to Do · in D and F · then a tune of your own, low and high",
+      "minutes": 9,
+      "level": "intermediate",
+      "area": "voice",
+      "tags": [
+       "song"
+      ],
+      "topic": "voice-melodies",
+      "concepts": [
+       "sight-singing"
+      ],
+      "why": "After a drop of an octave the low note is the one you just sang, lower down, so keep its sound in your ear as you let go of the high one.",
+      "learnBefore": [
+       "/course/6/singing-leaps",
+       "/course/6/sight-singing"
+      ],
+      "sections": [
+       {
+        "type": "heading",
+        "text": "The tune, in two keys",
+        "minutes": 5
+       },
+       {
+        "type": "text",
+        "text": "Press Play on the tune below to hear it, then start the mic and sing it on the note names. It starts on the high Do and drops an octave. Then tap F in the Key row above the tune and sing it there. The notes change, the pattern doesn't."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "step-choice",
+         "options": [
+          {
+           "key": "d"
+          },
+          {
+           "key": "f"
+          }
+         ]
+        }
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "melody-singer",
+         "pick": {
+          "difficulty": "medium",
+          "stage": "octave"
+         },
+         "key": "d",
+         "voice": "tenor"
+        }
+       },
+       {
+        "type": "heading",
+        "text": "Your own, low and high",
+        "minutes": 4
+       },
+       {
+        "type": "text",
+        "text": "Press Start exercise below to start the drone and the mic. Make up a short tune on \"la\" that starts on the low {{1}}, leaps up to the next {{1}} somewhere in the middle and comes home through {{5}} and {{3}}. Sing the high note on \"oo\" if \"la\" feels tight."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "staff",
+         "scale": "major-ionian",
+         "key": "d",
+         "voice": "tenor",
+         "labels": "solfege",
+         "notes": [
+          "1",
+          "3",
+          "5"
+         ],
+         "drone": true
+        }
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "theme": "A harmony line",
+    "exercises": [
+     {
+      "title": "In, hold, out, two counts longer",
+      "focus": "Breath · in, hold and out for the same count · 4 counts growing to 10",
+      "minutes": 3,
+      "level": "intermediate",
+      "area": "voice",
+      "tags": [
+       "sing"
+      ],
+      "topic": "voice-breath-range",
+      "concepts": [
+       "breath-holding-note"
+      ],
+      "why": "Each round adds one count, so going two rounds further than on day 1 makes the breath longer without a jump.",
+      "learnBefore": [
+       "/course/3/breath-and-holding-a-note"
+      ],
+      "sections": [
+       {
+        "type": "text",
+        "text": "Press Start in the circle below. Breathe in, hold and breathe out for the count shown, as on day 1. The last two rounds are new: fill to about 80%, not to the top, so the hold stays easy."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "breathwork",
+         "drill": "farinelli",
+         "from": 4,
+         "to": 10
+        }
+       }
+      ]
+     },
+     {
+      "title": "Two notes at once",
+      "focus": "Hear a 3rd from a 5th when both notes sound together",
+      "minutes": 3,
+      "level": "intermediate",
+      "area": "voice",
+      "tags": [
+       "ear"
+      ],
+      "topic": "voice-harmony",
+      "concepts": [
+       "harmony-line"
+      ],
+      "why": "A harmony is two notes heard together, so your ear has to pull them apart before your voice can hold one of them.",
+      "learnBefore": [
+       "/course/6/harmony-line"
+      ],
+      "sections": [
+       {
+        "type": "text",
+        "text": "Press Start below. The game plays two notes at the same time, a 3rd or a 5th apart: hum the lower one, then the upper one, then pick M3 for a 3rd or P5 for a 5th."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "interval-ears",
+         "set": [
+          4,
+          7
+         ],
+         "dir": "together"
+        }
+       }
+      ]
+     },
+     {
+      "title": "A harmony line over three chords",
+      "focus": "Roots, then a line of Mi Fa Re Mi · over D, G, A and D · in D and F",
+      "minutes": 8,
+      "level": "intermediate",
+      "area": "voice",
+      "tags": [
+       "sing"
+      ],
+      "topic": "voice-harmony",
+      "concepts": [
+       "harmony-line"
+      ],
+      "why": "A harmony line stays on notes of each chord and moves as little as it can, so it is easy to hold and fits every bar.",
+      "learnBefore": [
+       "/course/6/harmony-line"
+      ],
+      "sections": [
+       {
+        "type": "heading",
+        "text": "The roots first",
+        "minutes": 4
+       },
+       {
+        "type": "text",
+        "text": "Press Start exercise below to start the mic and the band: D, G, A and back to D, a bar each. On \"oo\", sing the root of each chord as it comes round: {{1}}, {{4}}, {{5}}, then {{1}} again. Keep going until you hear each change coming before the chord box lights."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "staff",
+         "scale": "major-ionian",
+         "key": "d",
+         "voice": "tenor",
+         "labels": "solfege",
+         "notes": [
+          "1",
+          "4",
+          "5"
+         ]
+        }
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "backing-track",
+         "key": "d",
+         "style": "ballad",
+         "bpm": 70,
+         "parts": {
+          "drums": "on",
+          "bass": "off",
+          "keys": "always"
+         },
+         "numerals": [
+          "I",
+          "IV",
+          "V",
+          "I"
+         ]
+        }
+       },
+       {
+        "type": "heading",
+        "text": "Now the line",
+        "minutes": 4
+       },
+       {
+        "type": "text",
+        "text": "Press Start exercise below to start the mic and the band. Over the same chords sing {{3}}, {{4}}, {{2}}, then {{3}} again, one note a bar on \"oo\". The line moves one step at a time, and each note belongs to the chord under it. Then tap F in the Key row above the staff and press Start exercise again. The notes change, the pattern doesn't."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "step-choice",
+         "options": [
+          {
+           "key": "d"
+          },
+          {
+           "key": "f"
+          }
+         ]
+        }
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "staff",
+         "scale": "major-ionian",
+         "key": "d",
+         "voice": "tenor",
+         "labels": "solfege",
+         "notes": [
+          "2",
+          "3",
+          "4"
+         ]
+        }
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "backing-track",
+         "key": "d",
+         "style": "ballad",
+         "bpm": 70,
+         "parts": {
+          "drums": "on",
+          "bass": "off",
+          "keys": "always"
+         },
+         "numerals": [
+          "I",
+          "IV",
+          "V",
+          "I"
+         ]
+        }
+       }
+      ]
+     },
+     {
+      "title": "Read it before you hear it",
+      "focus": "Two short tunes in C, sung from the staff first, then checked",
+      "minutes": 6,
+      "level": "intermediate",
+      "area": "voice",
+      "tags": [
+       "song"
+      ],
+      "topic": "voice-melodies",
+      "concepts": [
+       "sight-singing"
+      ],
+      "why": "Singing a tune before you hear it makes your ear work out every step, so the check afterwards tells you which leaps you already know.",
+      "learnBefore": [
+       "/course/6/sight-singing"
+      ],
+      "sections": [
+       {
+        "type": "heading",
+        "text": "From the staff",
+        "minutes": 3
+       },
+       {
+        "type": "text",
+        "text": "Before you press Play, tap the first note of the tune below to hear it. Sing the tune from the staff on the note names, at your own pace. Then press Play on the tune and check what you sang against it."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "melody-singer",
+         "pick": {
+          "difficulty": "medium",
+          "stage": "chords"
+         },
+         "key": "c",
+         "voice": "tenor"
+        }
+       },
+       {
+        "type": "heading",
+        "text": "A second one",
+        "minutes": 3
+       },
+       {
+        "type": "text",
+        "text": "The same again with a new tune: tap its first note, sing it from the staff, then press Play on the tune to check. This one ends on the high Do, so sing the top notes on \"oo\"."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "melody-singer",
+         "pick": {
+          "difficulty": "medium",
+          "stage": "chords",
+          "index": 1
+         },
+         "key": "c",
+         "voice": "tenor"
+        }
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "theme": "A run with a turn",
+    "exercises": [
+     {
+      "title": "A long breath out",
+      "focus": "Breath · in for four counts, out slowly and evenly",
+      "minutes": 3,
+      "level": "intermediate",
+      "area": "voice",
+      "tags": [
+       "sing"
+      ],
+      "topic": "voice-breath-range",
+      "concepts": [
+       "breath-holding-note"
+      ],
+      "why": "A long phrase is one slow breath out, so a breath out that lasts longer than the breath in is the phrase without its notes.",
+      "learnBefore": [
+       "/course/3/breath-and-holding-a-note"
+      ],
+      "sections": [
+       {
+        "type": "text",
+        "text": "Press Start in the circle below. Breathe in while the circle grows, then let the air out slowly until the circle is small again. Aim for the same flow of air at the end as at the start."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "breathwork",
+         "drill": "long-exhale"
+        }
+       }
+      ]
+     },
+     {
+      "title": "4th, 5th or octave?",
+      "focus": "Hear the week's three leaps, rising",
+      "minutes": 3,
+      "level": "intermediate",
+      "area": "voice",
+      "tags": [
+       "ear"
+      ],
+      "topic": "voice-intervals",
+      "concepts": [
+       "leaps"
+      ],
+      "why": "With three leaps to choose from a guess stops working, so the ear has to know each one by its own sound.",
+      "learnBefore": [
+       "/course/6/every-interval",
+       "/course/6/singing-leaps"
+      ],
+      "sections": [
+       {
+        "type": "text",
+        "text": "Press Start below. The game plays Do and then a note a 4th, a 5th or an octave above it: sing the second note back on \"la\", then pick P4, P5 or P8."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "interval-ears",
+         "set": [
+          5,
+          7,
+          12
+         ],
+         "dir": "up"
+        }
+       }
+      ]
+     },
+     {
+      "title": "A run with turns",
+      "focus": "A run from Sol down to Do with two turns · four notes per beat · a semitone higher each pass",
+      "minutes": 5,
+      "level": "intermediate",
+      "area": "voice",
+      "tags": [
+       "technique"
+      ],
+      "topic": "voice-runs",
+      "concepts": [
+       "runs"
+      ],
+      "why": "A turn goes one note past where it is heading and comes back, so it trains your voice to change direction without losing the pitch.",
+      "learnBefore": [
+       "/course/6/vocal-runs"
+      ],
+      "sections": [
+       {
+        "type": "text",
+        "text": "Press Play on the run below to hear it, then start the mic and sing it on \"ah\". It starts on Sol, turns up to La, and comes down to Do with one more turn on the way, four notes per beat. Each pass starts a semitone higher: change to \"oo\" when it gets high, and stop where it stops feeling easy."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "run-singer",
+         "pick": {
+          "difficulty": "medium",
+          "stage": "turns"
+         },
+         "voice": "tenor"
+        }
+       }
+      ]
+     },
+     {
+      "title": "A tune with a 5th, then your own line",
+      "focus": "A short tune from Do up to Sol · in D and F · your own line over D, Bm, G and A",
+      "minutes": 9,
+      "level": "intermediate",
+      "area": "voice",
+      "tags": [
+       "song",
+       "improv"
+      ],
+      "topic": "voice-harmony",
+      "why": "Do, Mi and Sol each belong to more than one of these four chords, so a line made from the three fits wherever it leaps.",
+      "learnBefore": [
+       "/course/6/singing-leaps",
+       "/course/6/harmony-line"
+      ],
+      "sections": [
+       {
+        "type": "heading",
+        "text": "The tune, in two keys",
+        "minutes": 4
+       },
+       {
+        "type": "text",
+        "text": "Press Play on the tune below to hear it, then start the mic and sing it on the note names. It leaps from Do up to Sol and runs back down. Then tap F in the Key row above the tune and sing it there. The notes change, the pattern doesn't."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "step-choice",
+         "options": [
+          {
+           "key": "d"
+          },
+          {
+           "key": "f"
+          }
+         ]
+        }
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "melody-singer",
+         "pick": {
+          "difficulty": "medium",
+          "stage": "fifths"
+         },
+         "key": "d",
+         "voice": "tenor"
+        }
+       },
+       {
+        "type": "heading",
+        "text": "Your line over the band",
+        "minutes": 5
+       },
+       {
+        "type": "text",
+        "text": "Press Start exercise below to start the mic and the band: D, Bm, G and A, a bar each. Make up a line from {{1}}, {{3}} and {{5}} on \"ah\", and start each phrase with a leap. When a leap misses, sing only that leap again slowly, then put it back in the line."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "staff",
+         "scale": "major-ionian",
+         "key": "d",
+         "voice": "tenor",
+         "labels": "solfege",
+         "notes": [
+          "1",
+          "3",
+          "5"
+         ]
+        }
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "backing-track",
+         "key": "d",
+         "style": "ballad",
+         "bpm": 72,
+         "parts": {
+          "drums": "on",
+          "bass": "off",
+          "keys": "always"
+         },
+         "progression": "fifties"
+        }
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "theme": "Leaps without the picture",
+    "exercises": [
+     {
+      "title": "Leaps you can't see",
+      "focus": "A 4th, a 5th and an octave up from Do · your voice is not drawn · Do moves between C, D and F",
+      "minutes": 4,
+      "level": "intermediate",
+      "area": "voice",
+      "tags": [
+       "sing"
+      ],
+      "topic": "voice-intervals",
+      "concepts": [
+       "leaps"
+      ],
+      "why": "Without the picture of your voice only your ear can aim the leap, which is how it is in a song.",
+      "learnBefore": [
+       "/course/6/singing-leaps"
+      ],
+      "sections": [
+       {
+        "type": "text",
+        "text": "Press Start below. This time your voice is not drawn: the game only shows whether your note counted. Hear the landing note in your head, then sing it on \"oo\" and hold it. Press Next for another leap, or Show me when you want to see the note."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "interval-singer",
+         "key": "c",
+         "keys": [
+          "c",
+          "d",
+          "f"
+         ],
+         "voice": "tenor",
+         "intervals": [
+          5,
+          7,
+          12
+         ],
+         "dir": "up",
+         "dot": false
+        }
+       }
+      ]
+     },
+     {
+      "title": "Nine notes up and back",
+      "focus": "A nine-note run, Do up to Re above the high Do and back · four notes per beat",
+      "minutes": 4,
+      "level": "intermediate",
+      "area": "voice",
+      "tags": [
+       "technique"
+      ],
+      "topic": "voice-runs",
+      "concepts": [
+       "runs"
+      ],
+      "why": "A nine-note run is day 2's five-note run carried on up the scale, so what kept five notes even keeps nine even: slow first, then quicker.",
+      "learnBefore": [
+       "/course/6/vocal-runs"
+      ],
+      "sections": [
+       {
+        "type": "text",
+        "text": "Press Play on the run below to hear it, then start the mic and sing it on \"ah\": from Do up to the Re above the high Do and back, four notes per beat. Each pass starts a semitone higher. Change to \"oo\" for the top of the run, and stop where it stops feeling easy."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "run-singer",
+         "pick": {
+          "difficulty": "medium",
+          "stage": "nine"
+         },
+         "voice": "tenor"
+        }
+       }
+      ]
+     },
+     {
+      "title": "Read two tunes with a 5th",
+      "focus": "Two short tunes that fall from Sol to Do · sung from the staff first · in D, then F",
+      "minutes": 6,
+      "level": "intermediate",
+      "area": "voice",
+      "tags": [
+       "song"
+      ],
+      "topic": "voice-melodies",
+      "concepts": [
+       "sight-singing"
+      ],
+      "why": "A leap you can read is one you know by its look as well as its sound, so reading two tunes built on one leap ties the two together.",
+      "learnBefore": [
+       "/course/6/sight-singing",
+       "/course/6/singing-leaps"
+      ],
+      "sections": [
+       {
+        "type": "heading",
+        "text": "From the staff",
+        "minutes": 3
+       },
+       {
+        "type": "text",
+        "text": "Before you press Play, tap the first note of the tune below to hear it. It starts on Sol and falls a 5th to Do. Sing it from the staff on the note names, then press Play on the tune to check."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "melody-singer",
+         "pick": {
+          "difficulty": "medium",
+          "stage": "fifths",
+          "index": 1
+         },
+         "key": "d",
+         "voice": "tenor"
+        }
+       },
+       {
+        "type": "heading",
+        "text": "The same leap, a new ending",
+        "minutes": 3
+       },
+       {
+        "type": "text",
+        "text": "This tune starts with the same fall and then dips under Do before it comes home. Tap its first note, sing it from the staff, then press Play on the tune to check. Look for the bar where the two tunes part."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "melody-singer",
+         "pick": {
+          "difficulty": "medium",
+          "stage": "fifths",
+          "index": 2
+         },
+         "key": "f",
+         "voice": "tenor"
+        }
+       }
+      ]
+     },
+     {
+      "title": "The harmony line, then your own",
+      "focus": "Mi Fa Re Mi over F, B♭, C and F · 70, 80, then 90 bpm · then a line you choose",
+      "minutes": 6,
+      "level": "intermediate",
+      "area": "voice",
+      "tags": [
+       "sing",
+       "improv"
+      ],
+      "topic": "voice-harmony",
+      "concepts": [
+       "harmony-line"
+      ],
+      "why": "A faster band gives you less time to find each note, so the line has to be in your ear before the chord arrives.",
+      "learnBefore": [
+       "/course/6/harmony-line"
+      ],
+      "sections": [
+       {
+        "type": "heading",
+        "text": "The line, in stages",
+        "minutes": 3
+       },
+       {
+        "type": "text",
+        "text": "Press Start exercise below to start the mic and the band. Sing day 4's line on \"oo\": {{3}}, {{4}}, {{2}}, then {{3}} again, one note a bar."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "step-choice",
+         "label": "stage",
+         "options": [
+          {
+           "bpm": 70
+          },
+          {
+           "bpm": 80
+          },
+          {
+           "bpm": 90
+          }
+         ]
+        }
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "staff",
+         "scale": "major-ionian",
+         "key": "f",
+         "voice": "tenor",
+         "labels": "solfege",
+         "notes": [
+          "2",
+          "3",
+          "4"
+         ]
+        }
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "backing-track",
+         "key": "f",
+         "style": "ballad",
+         "bpm": 70,
+         "parts": {
+          "drums": "on",
+          "bass": "off",
+          "keys": "always"
+         },
+         "numerals": [
+          "I",
+          "IV",
+          "V",
+          "I"
+         ]
+        }
+       },
+       {
+        "type": "text",
+        "text": "When each note is ready before its chord arrives, tap Stage 2 above the staff and press Start exercise again. If you start arriving late, go back one stage."
+       },
+       {
+        "type": "heading",
+        "text": "A line you choose",
+        "minutes": 3
+       },
+       {
+        "type": "text",
+        "text": "Press Start exercise below to start the mic and the band. Now choose your own note for each chord from {{1}} up to {{5}}, one a bar, and move by step where you can. When you find a line you like, sing it again until you can start it from any bar."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "staff",
+         "scale": "major-ionian",
+         "key": "f",
+         "voice": "tenor",
+         "labels": "solfege",
+         "notes": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ]
+        }
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "backing-track",
+         "key": "f",
+         "style": "ballad",
+         "bpm": 70,
+         "parts": {
+          "drums": "on",
+          "bass": "off",
+          "keys": "always"
+         },
+         "numerals": [
+          "I",
+          "IV",
+          "V",
+          "I"
+         ]
+        }
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "theme": "Then and now",
+    "exercises": [
+     {
+      "title": "Day 4's breath again",
+      "focus": "Breath · in, hold and out for the same count · 4 counts growing to 10",
+      "minutes": 3,
+      "level": "intermediate",
+      "area": "voice",
+      "tags": [
+       "sing"
+      ],
+      "topic": "voice-breath-range",
+      "concepts": [
+       "breath-holding-note"
+      ],
+      "why": "The same counts three days later let you feel the change where it was hardest: in the last rounds.",
+      "learnBefore": [
+       "/course/3/breath-and-holding-a-note"
+      ],
+      "sections": [
+       {
+        "type": "text",
+        "text": "Press Start in the circle below. Breathe in, hold and breathe out for the count shown, as on day 4. Notice how the last two rounds feel now."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "breathwork",
+         "drill": "farinelli",
+         "from": 4,
+         "to": 10
+        }
+       }
+      ]
+     },
+     {
+      "title": "The week's leaps, falling",
+      "focus": "Hear a falling 4th, 5th and octave",
+      "minutes": 3,
+      "level": "intermediate",
+      "area": "voice",
+      "tags": [
+       "ear"
+      ],
+      "topic": "voice-intervals",
+      "concepts": [
+       "leaps"
+      ],
+      "why": "Every leap of the week in one game, the hard way round, shows which ones your ear now knows by itself.",
+      "learnBefore": [
+       "/course/6/every-interval",
+       "/course/6/singing-leaps"
+      ],
+      "sections": [
+       {
+        "type": "text",
+        "text": "Press Start below. The game plays a note and then one a 4th, a 5th or an octave below it: sing the lower note back on \"la\", then pick P4, P5 or P8."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "interval-ears",
+         "set": [
+          5,
+          7,
+          12
+         ],
+         "dir": "down"
+        }
+       }
+      ]
+     },
+     {
+      "title": "Day 2's run, twice as fast",
+      "focus": "The five-note run, Do to Sol and back · four notes per beat · a semitone higher each pass",
+      "minutes": 5,
+      "level": "intermediate",
+      "area": "voice",
+      "tags": [
+       "technique"
+      ],
+      "topic": "voice-runs",
+      "concepts": [
+       "runs"
+      ],
+      "why": "The notes are the ones you learnt slowly on day 2, so the speed is new and the tuning is not.",
+      "learnBefore": [
+       "/course/6/vocal-runs"
+      ],
+      "sections": [
+       {
+        "type": "text",
+        "text": "Press Play on the run below to hear it, then start the mic and sing it on \"ah\": from Do up to Sol and back, twice round, four notes per beat. Each pass starts a semitone higher. Notice which notes stay clear now, and change to \"oo\" when it gets high."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "run-singer",
+         "pick": {
+          "difficulty": "medium",
+          "stage": "five",
+          "index": 2
+         },
+         "voice": "tenor"
+        }
+       }
+      ]
+     },
+     {
+      "title": "An octave tune, then every leap",
+      "focus": "A short tune that drops an octave · in D and F · your own line with a 4th, a 5th and an octave over C, G, Am and F",
+      "minutes": 9,
+      "level": "intermediate",
+      "area": "voice",
+      "tags": [
+       "song",
+       "improv"
+      ],
+      "topic": "voice-harmony",
+      "why": "From Do up to Sol is a 5th, from Sol up to the next Do is a 4th, and Do to Do is an octave, so three notes hold every leap of the week.",
+      "learnBefore": [
+       "/course/6/singing-leaps",
+       "/course/6/harmony-line"
+      ],
+      "sections": [
+       {
+        "type": "heading",
+        "text": "The tune, in two keys",
+        "minutes": 4
+       },
+       {
+        "type": "text",
+        "text": "Press Play on the tune below to hear it, then start the mic and sing it on the note names. It starts on the high Do, drops an octave and dips under Do before it ends. Then tap F in the Key row above the tune and sing it there. The notes change, the pattern doesn't."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "step-choice",
+         "options": [
+          {
+           "key": "d"
+          },
+          {
+           "key": "f"
+          }
+         ]
+        }
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "melody-singer",
+         "pick": {
+          "difficulty": "medium",
+          "stage": "octave",
+          "index": 1
+         },
+         "key": "d",
+         "voice": "tenor"
+        }
+       },
+       {
+        "type": "heading",
+        "text": "Your line, with every leap",
+        "minutes": 5
+       },
+       {
+        "type": "text",
+        "text": "Press Start exercise below to start the mic and the band: C, G, Am and F, a bar each. Make up a line on \"ah\" from {{1}}, {{3}} and {{5}}, and put a 4th, a 5th and an octave somewhere in it. Sing the notes above the middle {{1}} on \"oo\". Notice which leap you now reach for first."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "staff",
+         "scale": "major-ionian",
+         "key": "c",
+         "voice": "tenor",
+         "labels": "solfege",
+         "notes": [
+          "1",
+          "3",
+          "5"
+         ]
+        }
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "backing-track",
+         "key": "c",
+         "style": "ballad",
+         "bpm": 76,
+         "parts": {
+          "drums": "on",
+          "bass": "off",
+          "keys": "always"
+         },
+         "progression": "pop"
+        }
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

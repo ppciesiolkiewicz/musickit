@@ -2,12 +2,14 @@ import { PLAN_EXAMPLES } from "./examples";
 import type { PlanConfig } from "./model/types";
 
 /**
- * The plans anyone can open without writing a prompt, at `/demo/<slug>`: two of the hand-tuned example plans, so a link in a pitch
+ * The plans anyone can open without writing a prompt, at `/demo/<slug>`: four of the hand-tuned example plans, so a link in a pitch
  * shows what the AI plan looks like when it is done. The slug is the link; the plan is the example's `id`.
  */
 export const DEMO_PLANS: Record<string, { example: string; label: string }> = {
-  guitar: { example: "guitar-beginner-new", label: "Guitar for a beginner" },
-  voice: { example: "voice-beginner-new", label: "Voice for a beginner" },
+  "guitar-beginner": { example: "guitar-beginner", label: "Guitar for a beginner" },
+  "voice-beginner": { example: "voice-beginner", label: "Voice for a beginner" },
+  "guitar-intermediate": { example: "guitar-intermediate", label: "Guitar for an intermediate player" },
+  "voice-intermediate": { example: "voice-intermediate", label: "Voice for an intermediate singer" },
 };
 
 /** The demo plan behind a slug, or null when there is none. */

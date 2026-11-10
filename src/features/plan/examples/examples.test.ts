@@ -111,12 +111,6 @@ describe("example library", () => {
       assert.ok(!("style" in x), `${x.id}: "style" is gone, use docs`);
       assert.match(x.updated, /^\d{4}-\d{2}-\d{2}$/, `${x.id}: updated is YYYY-MM-DD`);
       assert.ok(x.model === undefined || /^claude-[a-z0-9-]+$/.test(x.model), `${x.id}: model is an API id`);
-      if (x.rewrites) {
-        const old = ALL.find((o) => o.id === x.rewrites!.id);
-        assert.ok(old && old.docs.teaching < x.docs.teaching && old.kind === x.kind && old.level === x.level && old.areas.join() === x.areas.join(), `${x.id}: rewrites ${x.rewrites.id}`);
-        if (old.kind === "plan" && x.kind === "plan") assert.equal(x.minutes, old.minutes, `${x.id}: same minutes as ${old.id}`);
-        assert.ok(x.rewrites.changes.length, `${x.id}: a rewrite lists its changes`);
-      }
     }
   });
 
@@ -158,7 +152,7 @@ describe("example library", () => {
     const plain = EXERCISE_EXAMPLES.filter((e) => !e.showcase);
     for (const a of AREAS) for (const l of LEVELS) assert.ok(plain.some((e) => e.areas[0] === a.id && e.level === l), `${a.id} ${l}`);
     assert.deepEqual(EXERCISE_EXAMPLES.flatMap((e) => (e.showcase ? [e.showcase] : [])).sort(), ["blocks", "pick", "progression", "stages", "variants"]);
-    assert.equal(PLAN_EXAMPLES.filter((p) => !p.rewrites).length, 4);
+    assert.equal(PLAN_EXAMPLES.length, 5);
   });
 
   it("JSON files import nothing, are named by id, and are all loaded", () => {

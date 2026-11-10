@@ -29,8 +29,7 @@ import guitarBeginnerPlan from "./plans/guitar-beginner.json";
 import guitarIntermediatePlan from "./plans/guitar-intermediate.json";
 import voiceBeginnerPlan from "./plans/voice-beginner.json";
 import guitarTheoryIntermediatePlan from "./plans/guitar-theory-intermediate.json";
-import guitarBeginnerNewPlan from "./plans/guitar-beginner-new.json";
-import voiceBeginnerNewPlan from "./plans/voice-beginner-new.json";
+import voiceIntermediatePlan from "./plans/voice-intermediate.json";
 
 /** The versions of the documents an example is written to. */
 export interface DocVersions {
@@ -61,8 +60,6 @@ export interface ExampleMeta {
   model?: string;
   /** the versions of the writing rules it was written to (see DOC_VERSIONS): AGENTS.md and the teaching skills */
   docs: DocVersions;
-  /** a rewrite, to newer teaching skills, of another example on the same topic: its id, and what changed, one point each */
-  rewrites?: { id: string; changes: string[] };
 }
 
 export interface ExerciseExample extends ExampleMeta {
@@ -109,6 +106,5 @@ export const PLAN_EXAMPLES: PlanExample[] = [
   guitarIntermediatePlan,
   voiceBeginnerPlan,
   guitarTheoryIntermediatePlan,
-  guitarBeginnerNewPlan,
-  voiceBeginnerNewPlan,
+  voiceIntermediatePlan,
 ] as PlanExample[];

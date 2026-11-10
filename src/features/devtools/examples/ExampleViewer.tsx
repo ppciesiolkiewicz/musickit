@@ -58,7 +58,7 @@ function toolsUsed(value: unknown, counts = new Map<string, number>()): Map<stri
 }
 
 /** A card per example; the preview mounts only while open (each one sets up its tools). */
-function ExampleCard({ title, meta, note, json, entries, badge, changes, paired }: { /** the example's id */ title: string; meta?: ReactNode; note?: string; json: string; entries: CatalogueEntry[]; badge?: ReactNode; /** what a rewrite changed from the example it rewrites */ changes?: string[]; /** listed right under the example it rewrites */ paired?: boolean }) {
+function ExampleCard({ title, meta, note, json, entries, badge }: { /** the example's id */ title: string; meta?: ReactNode; note?: string; json: string; entries: CatalogueEntry[]; badge?: ReactNode }) {
   // opened or closed by hand, else open when the page was linked to one of its notes (from the Notes bar or /dev/notes)
   const [toggled, setOpen] = useState<boolean | null>(null);
   const linked = useLinkedNote();
@@ -66,7 +66,7 @@ function ExampleCard({ title, meta, note, json, entries, badge, changes, paired 
   const open = toggled ?? linkedHere;
   const tools = useMemo(() => [...toolsUsed(JSON.parse(json))], [json]);
   return (
-    <li className={`overflow-hidden rounded-2xl border shadow-sm ${paired ? "ml-6 border-lime-500/30" : "border-slate-700"} bg-slate-900/60`}>
+    <li className={`overflow-hidden rounded-2xl border shadow-sm border-slate-700 bg-slate-900/60`}>
       <details open={open} onToggle={(e) => setOpen(e.currentTarget.open)}>
         <summary className={`flex cursor-pointer flex-col gap-1 bg-slate-800/50 px-4 py-2.5 hover:bg-slate-800/80 ${open ? "border-b border-slate-700" : ""}`}>
           <span className="flex flex-wrap items-center gap-2">
@@ -77,11 +77,6 @@ function ExampleCard({ title, meta, note, json, entries, badge, changes, paired 
           </span>
           {meta}
           {note && <span className="text-xs text-slate-400">{note}</span>}
-          {changes && changes.length > 0 && (
-            <ul className="ml-4 list-disc text-xs text-lime-200/80">
-              {changes.map((c) => <li key={c}>{c}</li>)}
-            </ul>
-          )}
           {tools.length > 0 && (
             <span className="flex flex-wrap gap-1">
               {tools.map(([t, n]) => <span key={t} className="rounded-md border border-amber-500/30 bg-amber-500/10 px-1.5 font-mono text-[11px] text-amber-200">{t}{n > 1 ? <span className="text-amber-200/60"> ×{n}</span> : null}</span>)}
@@ -148,12 +143,6 @@ function modelLabel(id: string): string {
 /** The Model filter's id for examples written before the model was recorded. */
 const NO_MODEL = "none";
 
-/** Library order, except a rewrite comes right after the example it rewrites, so the two read one under the other. */
-function pairRewrites<E extends { id: string; rewrites?: { id: string } }>(list: E[]): E[] {
-  const at = (id: string) => { const i = list.findIndex((x) => x.id === id); return i < 0 ? list.length : i; };
-  return [...list].sort((a, b) => at(a.rewrites?.id ?? a.id) - at(b.rewrites?.id ?? b.id) || Number(!!a.rewrites) - Number(!!b.rewrites));
-}
-
 /**
  * Every example in the library, rendered as the player would see it, with filters. The ones the studio's current answers
  * put in the prompt are tagged "in prompt", a link to that part in the studio.
@@ -194,7 +183,7 @@ export default function ExampleViewer() {
   }, [answers]);
   const library = useMemo(
     () =>
-      pairRewrites([...EXERCISE_EXAMPLES, ...PLAN_EXAMPLES]).filter(
+      [...EXERCISE_EXAMPLES, ...PLAN_EXAMPLES].filter(
         (e) =>
           (!kind || e.kind === kind) && (!area || e.areas.includes(area)) && (!level || e.level === level) &&
           (!showcase || (e.kind === "exercise" && e.showcase === showcase)) && (!onlyPrompt || inPrompt.has(e.id)) &&
@@ -241,7 +230,6 @@ export default function ExampleViewer() {
                   <Pill tone={LEVEL_TONE[e.level]}>{labelOf(LEVELS, e.level)}</Pill>
                   {e.model ? <Pill tone="indigo" title={e.model}>{modelLabel(e.model)}</Pill> : <Pill tone="slate" title="Written before the model was recorded">model not recorded</Pill>}
                   <Pill tone="sky" title="Last written or rewritten">updated {e.updated}</Pill>
-                  {e.rewrites && <Pill tone="lime">rewrites {e.rewrites.id} ↑</Pill>}
                   {inPrompt.has(e.id) && (
                     <Link href={`/dev/prompt#${partAnchor(`example:${e.id}`)}`} title="Open this example's part in the prompt studio" onClick={(ev) => ev.stopPropagation()}>
                       <Pill tone="emerald">in prompt →</Pill>
@@ -255,8 +243,6 @@ export default function ExampleViewer() {
                 </span>
               }
               note={e.note}
-              changes={e.rewrites?.changes}
-              paired={!!e.rewrites && library.some((x) => x.id === e.rewrites!.id)}
               json={JSON.stringify(e.kind === "plan" ? e.plan : e.exercise)}
               entries={entries}
             />
