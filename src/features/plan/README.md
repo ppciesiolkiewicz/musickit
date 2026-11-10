@@ -87,7 +87,7 @@ model/            pure, no React; tested in model/plan.test.ts
 intake/           the first questionnaire, its own feature: topics.ts (18 topics, four lines each), answers.ts (PlanAnswers, migrateAnswers(), levelOf()), ui/ (the screens, RangeFinder); see its README
 store/
   PlanStore.ts    the storage interface: load() / save() of one PlanState
-  localPlanStore.ts  the localStorage implementation ("musickit.plan"), with sanitising
+  localPlanStore.ts  the localStorage implementation ("musickit.plan", or the logged-in dev account's own copy: features/account), with sanitising
   usePlan.tsx     the hook the UI uses, and PlanStoreProvider to swap the store
 examples/         the example library: exercises/*.json, plans/*.json (standalone JSON), index.ts loads them; see its README
 ui/               PlanFlow, PromptAndPaste, WeekView, Sections (an exercise's sections in order, each headed step ending in a small "Top of exercise" button that scrolls back to its card; under a SectionAside, the /dev/examples review view, each tool is framed with its type and each step is ruled off; every tool has its own tour button, `ToolTour` from `features/guide`, walking `TOOL_TOURS` inside that tool only, and only the first unseen one on the page wobbles), DayTimer (the floating day countdown), ExerciseTool
