@@ -5,7 +5,8 @@
     "voice"
   ],
   "level": "beginner",
-  "updated": "2026-11-07",
+  "updated": "2026-11-10",
+  "model": "claude-fable-5-2",
   "minutes": 15,
   "concepts": [
     "in-tune-over-drone",
