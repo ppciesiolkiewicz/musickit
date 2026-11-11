@@ -7,7 +7,7 @@ import { useCallback, useEffect, useRef, useState, type CSSProperties, type Mous
 import { LayerBody, LayerToolbar, useWidgetZoom } from "./LayerParts";
 import { GRID_COLUMNS, fixedRect, gridAspect, gridAutoPlace, gridLayers, gridSpan, gridSpanNarrow, type Layer, type Stage, type StageAction } from "./model/layers";
 import { isPage, subjectTitle } from "./model/subject";
-import { ScrollInBox } from "./render/shape";
+import { InGrid, ScrollInBox } from "./render/shape";
 
 /** pixels a pointer moves inside a widget before it counts as a drag (below that, the click reaches the widget: a strum, a note) */
 const DRAG_SLOP = 4;
@@ -32,15 +32,20 @@ const SCREEN_CQW = (100 * 9) / 16;
 const SETTLE_MS = 150;
 const SHOW = "opacity-0 transition-opacity group-hover:opacity-100 group-data-[selected=true]:opacity-100";
 
-const onControl = (target: EventTarget | null) => !!(target as HTMLElement).closest("button,input,select,textarea,a");
+/**
+ * Whether a press lands on a control. Read through shadow roots (`composedPath`): a browser extension's popup over a text box
+ * (a writing or AI helper) is a custom element whose inside the page sees only as its host, and a drag must not start from it either.
+ */
+const onControl = (e: Event) =>
+  e.composedPath().some((n) => n instanceof Element && (n.matches("button,input,select,textarea,a,[contenteditable]") || n.tagName.includes("-")));
 
 /** A widget's own controls work as controls: a drag never starts from them. */
 class WidgetMouseSensor extends MouseSensor {
-  static activators = [{ eventName: "onMouseDown" as const, handler: ({ nativeEvent: e }: RMouseEvent) => e.button === 0 && !onControl(e.target) }];
+  static activators = [{ eventName: "onMouseDown" as const, handler: ({ nativeEvent: e }: RMouseEvent) => e.button === 0 && !onControl(e) }];
 }
 
 class WidgetTouchSensor extends TouchSensor {
-  static activators = [{ eventName: "onTouchStart" as const, handler: ({ nativeEvent: e }: RTouchEvent) => e.touches.length === 1 && !onControl(e.target) }];
+  static activators = [{ eventName: "onTouchStart" as const, handler: ({ nativeEvent: e }: RTouchEvent) => e.touches.length === 1 && !onControl(e) }];
 }
 
 function GridItem({ layer: l, selected, aspect, auto, onShape, onAction, children }: { layer: Layer; selected: boolean; aspect: number; auto: boolean; onShape: (id: string, aspect: number) => void; onAction: (a: StageAction) => void; children: ReactNode }) {
@@ -117,6 +122,7 @@ export default function GridFrame({ stage, renderLayer, onAction }: { stage: Sta
         if (!(e.target as HTMLElement).closest("[data-layer]")) onAction({ type: "select", id: null });
       }}
     >
+        <InGrid.Provider value>
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
           <SortableContext items={items.map((l) => l.id)} strategy={rectSortingStrategy}>
             <div className={`relative grid items-start ${SPACING}`} style={{ gridTemplateColumns: `repeat(${GRID_COLUMNS}, minmax(0, 1fr))` }}>
@@ -128,6 +134,7 @@ export default function GridFrame({ stage, renderLayer, onAction }: { stage: Sta
             </div>
           </SortableContext>
         </DndContext>
+        </InGrid.Provider>
       {marks.map((l) => (
         <div
           key={l.id}

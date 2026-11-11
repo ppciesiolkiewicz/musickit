@@ -13,3 +13,6 @@ export const ScrollInBox = createContext(false);
 
 /** The widget is in a flowing page (a shared note): it takes the height its content needs at the box's width and never scrolls inside. */
 export const FlowInBox = createContext(false);
+
+/** The widget is on the grid, which takes each widget's shape from its content, so a widget may be drawn at its true size there. */
+export const InGrid = createContext(false);

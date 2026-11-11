@@ -1,6 +1,6 @@
 "use client";
 
-import type { CSSProperties } from "react";
+import { useEffect, useRef, type CSSProperties } from "react";
 import { TEXT_MAX, type TextBlock } from "../model/subject";
 
 /** A text widget's blocks as they read in a note: a title in the page title's type, headings, paragraphs. `large` is the stage widget's bigger type, drawn big and then fitted to its box. */
@@ -24,17 +24,46 @@ export function TextBlocks({ blocks, large = false }: { blocks: TextBlock[]; lar
   );
 }
 
-/** The editable text widget on the stage: a box to type in, with its words shown as they will read once the box is left. */
+/**
+ * The editable text widget on the stage: a box to type in, with its words shown as they will read once the box is left.
+ * A plain field with spell check on, so the browser's and extensions' writing and AI helpers work in it. Some of them set the
+ * field's value from a script, which React does not report as a change: a native `input` listener catches those too.
+ */
 export default function TextWidget({ text, onChange }: { text: string; onChange: (text: string) => void }) {
+  const box = useRef<HTMLTextAreaElement>(null);
+  // the words last handed up, so a change reported both by React and by the native listener is sent once
+  const sent = useRef(text);
+  const change = useRef(onChange);
+  useEffect(() => {
+    sent.current = text;
+    change.current = onChange;
+  }, [text, onChange]);
+  const send = (v: string) => {
+    if (v === sent.current) return;
+    sent.current = v;
+    change.current(v);
+  };
+  useEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    const read = () => send(el.value);
+    el.addEventListener("input", read);
+    el.addEventListener("change", read);
+    return () => {
+      el.removeEventListener("input", read);
+      el.removeEventListener("change", read);
+    };
+  }, []);
   // named by its first line, so one text box can be told from the next without seeing the page
   const first = text.split("\n").map((l) => l.replace(/^#{1,3}\s+/, "").trim()).find(Boolean);
   return (
     <div className="rounded-xl border border-slate-800 bg-slate-950 p-5">
       <textarea
+        ref={box}
         value={text}
         maxLength={TEXT_MAX}
         rows={Math.max(3, text.split("\n").length)}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => send(e.target.value)}
         placeholder={"# A title\n\n## A heading\n\nWrite a paragraph. A blank line starts the next one."}
         aria-label={first ? `Text: ${first.slice(0, 60)}` : "Text"}
         spellCheck

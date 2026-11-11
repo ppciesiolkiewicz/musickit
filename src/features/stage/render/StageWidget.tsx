@@ -179,7 +179,7 @@ export default function StageWidget({ subject, onSubjectChange, stageKey, onStag
   return (
     <LevelPin level="standard">
       <div className="relative h-full w-full">
-        <FitBox width={width} scroll={(subject.kind === "plugin" && !!subject.full) || (subject.kind === "section" && subject.section === "chords")}>{body}</FitBox>
+        <FitBox width={width} trueSize={subject.kind === "text" && !readOnly} scroll={(subject.kind === "plugin" && !!subject.full) || (subject.kind === "section" && subject.section === "chords")}>{body}</FitBox>
         {!readOnly && <KeyTags subject={subject} master={stageKey} onChange={onSubjectChange} />}
       </div>
     </LevelPin>

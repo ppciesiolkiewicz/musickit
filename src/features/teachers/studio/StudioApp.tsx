@@ -61,8 +61,10 @@ function initials(title: string): string {
   return words.length > 1 ? (words[0][0] + words[1][0]).toUpperCase() : (words[0] ?? "?").slice(0, 2);
 }
 
+/** Whether a field has the keys, looked for through shadow roots: a browser extension's own box (a writing or AI helper) sits in one. */
 const isTyping = () => {
-  const el = document.activeElement as HTMLElement | null;
+  let el = document.activeElement as HTMLElement | null;
+  while (el?.shadowRoot?.activeElement) el = el.shadowRoot.activeElement as HTMLElement;
   return !!el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.tagName === "SELECT" || el.isContentEditable);
 };
 
