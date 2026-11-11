@@ -18,6 +18,7 @@ import { createSmoother, type Pitch } from "@/features/tuner/pitch";
 import { DEFAULT_INTERVALS, longName, nextAsk, placeDo, shortName, solfegeOf, toggleOne, type IntervalDir } from "./asks";
 import IntervalRoll from "./IntervalRoll";
 import { KeyChips, KeysSwitch, LookSwitch, type Look } from "./IntervalOptions";
+import { useVoice } from "../voiceChoice";
 
 /** how long Do (and each note played back) sounds, in ms */
 const NOTE_MS = 900;
@@ -49,8 +50,9 @@ const NO_PITCH = { current: null };
  * (an exercise does: its keys are set, and a step-choice changes them). A page with a side panel holds the keys, view and dot
  * there and hands them in as `options`, and the tool then leaves those controls out.
  */
-export function View({ keys: keysProp = [0], voice = "tenor", intervals = DEFAULT_INTERVALS, dir = "up", dot: dotProp = true, picker = true, options }: { keys?: number[]; voice?: Voice; intervals?: number[]; dir?: IntervalDir; dot?: boolean; /** the Keys switch and key chips; false: the keys are the ones given, with nothing to pick */ picker?: boolean; options?: { keys: number[]; look: Look; dot: boolean } }) {
+export function View({ keys: keysProp = [0], voice: own = "tenor", intervals = DEFAULT_INTERVALS, dir = "up", dot: dotProp = true, picker = true, options }: { keys?: number[]; voice?: Voice; intervals?: number[]; dir?: IntervalDir; dot?: boolean; /** the Keys switch and key chips; false: the keys are the ones given, with nothing to pick */ picker?: boolean; options?: { keys: number[]; look: Look; dot: boolean } }) {
   useCoverage({ hints: 5 });
+  const voice = useVoice(own);
   const range = VOICES[voice] ?? VOICES.tenor;
   const clef = clefFor(range);
   // Standard controls, each kept at Simple when the exercise sets it (several keys, the voice dot off); a hidden one

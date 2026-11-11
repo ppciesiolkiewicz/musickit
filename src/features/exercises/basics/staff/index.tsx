@@ -20,6 +20,7 @@ import { useLevelAtLeast } from "@/features/guide/Tier";
 import { useStepPart } from "@/components/practice/exerciseStep";
 import { useToolKeys } from "@/components/practice/toolKeys";
 import dynamic from "next/dynamic";
+import { useVoice } from "../voiceChoice";
 
 const PracticeBand = dynamic(() => import("@/features/instruments").then((m) => m.PracticeBand), { ssr: false });
 
@@ -39,8 +40,9 @@ const GAP_FRAMES = 6;
  * Given an `external` input (the teacher studio's one audio input) it opens no microphone and shows no input chip: it draws that
  * input's pitch, and Start / Stop is the host's. Not a plan prop: plan output never sets it.
  */
-export function View({ slug, pc, voice, notes, under = false, enable, highlight, mute, hide, others, mic: micButton = true, drone = false, click = false, bpm = 60, labels, external }: { slug: string; pc: number; voice: keyof typeof VOICES; notes?: number[]; under?: boolean; enable?: number[]; highlight?: number[]; mute?: number[]; hide?: number[]; others?: Others; mic?: boolean; drone?: boolean; click?: boolean; bpm?: number; labels?: SingingLabels; external?: ExternalInput }) {
+export function View({ slug, pc, voice: own, notes, under = false, enable, highlight, mute, hide, others, mic: micButton = true, drone = false, click = false, bpm = 60, labels, external }: { slug: string; pc: number; voice: keyof typeof VOICES; notes?: number[]; under?: boolean; enable?: number[]; highlight?: number[]; mute?: number[]; hide?: number[]; others?: Others; mic?: boolean; drone?: boolean; click?: boolean; bpm?: number; labels?: SingingLabels; external?: ExternalInput }) {
   useCoverage({ hints: 3 });
+  const voice = useVoice(own);
   const range = VOICES[voice];
   // three looks: highlighted notes ringed, enabled ones plain, muted ones faint
   const state = useMemo(() => {

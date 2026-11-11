@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { PageHeading, PageHeadingRow, PageIntro } from "@/components/PageHeading";
+import { VoicePicker } from "@/features/exercises/basics/voiceChoice";
 import { NoteReader } from "./NoteView";
 import { noteHeader } from "./notes";
 import { presetStage } from "./presetNotes";
@@ -32,7 +33,12 @@ export function PresetHeader({ slug, title, intro, eyebrow, bar, action }: { slu
   );
 }
 
-/** A preset note drawn as an article, without its opening title and line (`PresetHeader` shows them); the stage lives in the browser's bundle, the server page only names it. */
+/** A preset note drawn as an article, without its opening title and line (`PresetHeader` shows them), under the Your voice picker when it sings; the stage lives in the browser's bundle, the server page only names it. */
 export default function PresetNote({ slug }: { slug: string }) {
-  return <NoteReader stage={presetParts(slug)?.body ?? null} />;
+  const body = presetParts(slug)?.body ?? null;
+  return (
+    <VoicePicker data={body}>
+      <NoteReader stage={body} />
+    </VoicePicker>
+  );
 }
