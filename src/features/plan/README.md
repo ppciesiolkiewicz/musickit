@@ -64,7 +64,7 @@ browser.
 
 ## Demos
 
-`/demo` lists every demo in `DEMO_PLANS`. `/demo/guitar-beginner`, `/demo/voice-beginner`, `/demo/guitar-intermediate`, `/demo/voice-intermediate` and `/demo/guitar-advanced` each open a hand-tuned example plan (`demos.ts`, `DemoPlan.tsx`) from day 1, kept in memory only (a swapped-in `PlanStore`), so a pitch can link to a finished plan. Not indexed; canonical is `/plan`.
+`/demo` lists every demo in `DEMO_PLANS` as cards (`demoCards()`: level, minutes, the week's title and summary, day themes), grouped by area and easiest first, then a Beta card that links to the AI autoplan at `/plan`, then the teacher notes. `/demo/guitar-beginner`, `/demo/voice-beginner`, `/demo/guitar-intermediate`, `/demo/voice-intermediate` and `/demo/guitar-advanced` each open a hand-tuned example plan (`demos.ts`, `DemoPlan.tsx`) from day 1, kept in memory only (a swapped-in `PlanStore`), so a pitch can link to a finished plan. Not indexed; canonical is `/plan`.
 
 ## Code map
 
