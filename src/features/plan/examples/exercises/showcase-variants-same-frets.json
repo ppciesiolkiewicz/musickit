@@ -13,7 +13,7 @@
   ],
   "docs": {
     "agents": 1,
-    "teaching": 5
+    "teaching": 2
   },
   "note": "Shows a choice as variants: each chip sets a key and a position together, so two scales that sit in the same part of the neck can be compared on one neck. The why says what links them (four shared notes), and the text says what to look for between the two (one note moves, the ringed roots change places) instead of asking the learner to find it.",
   "exercise": {

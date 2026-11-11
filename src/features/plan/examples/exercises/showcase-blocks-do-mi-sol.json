@@ -14,7 +14,7 @@
   ],
   "docs": {
     "agents": 1,
-    "teaching": 5
+    "teaching": 2
   },
   "note": "Shows blocks with a chart per step: each block adds one note, and its own neck puts exactly the notes named so far in play (enable) and rings the one just added (highlight), ending on a tune that uses only those notes and comes back in G by the Key selector. The neck shows the frets and the note names, so the text names only the degrees.",
   "exercise": {

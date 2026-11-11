@@ -141,9 +141,9 @@ doesn't, but a note should be able to add sections").
 - **The teaching version is raised** (`AGENTS.md`: a rule that changes what gets written raises it). The
   `exercise-example` skill and `examples/README.md` describe `heading` sections with `minutes` and a `step-choice`
   tool before the tool it moves; they are rewritten to steps and `choice`, the four teaching skills move together
-  (4 → 5) with `DOC_VERSIONS.teaching` in the same commit, and every example's `docs.teaching` follows, because the
-  rewrite to the new format is exactly a rewrite to the current documents. `isCurrentTeaching` stays true for all of
-  them. `AGENTS.md`'s own version does not move unless its text changes.
+  (4 → 5) with `DOC_VERSIONS.teaching` in the same commit. Every example keeps its own `docs.teaching` (the user's
+  call, 2026-11-12): the mechanical rewrite changes the format, not the text, so an example written to older teaching
+  rules is still marked behind on `/dev/examples`. `AGENTS.md`'s own version does not move unless its text changes.
 
 ### What each note widget becomes
 
