@@ -1,0 +1,31 @@
+{
+  "id": "voice-advanced-hard-leaps",
+  "kind": "exercise",
+  "areas": ["voice"],
+  "level": "advanced",
+  "updated": "2026-11-11",
+  "model": "claude-fable-5-2",
+  "concepts": ["leaps", "singing-intervals"],
+  "docs": { "agents": 1, "teaching": 4 },
+  "note": "Advanced interval singing: no 4ths and 5ths as the set. Each block gives its hard leaps a neighbour the singer already hears (the high Do for the 7ths, Sol for the tritone and the minor 6th), in two keys, and the last block is one interval-singer taken up by a step-choice of levels: the leaps of the major scale, then the hard ones up and down in any key. The text names the Stage selector and what the next stage adds, never a level.",
+  "exercise": {
+    "title": "The hard leaps: 7ths, tritone, minor 6th",
+    "focus": "Minor and major 7th from the high Do · tritone and minor 6th from Sol · then every hard leap, up and down, in any key",
+    "minutes": 10,
+    "level": "advanced", "area": "voice", "tags": ["sing", "ear"], "topic": "voice-intervals", "concepts": ["leaps", "singing-intervals"],
+    "why": "A hard leap lands in tune when you first hear a note you already know right beside it, so each block finds its leaps from a neighbour: the high Do, then Sol.",
+    "learnBefore": ["/course/6/every-interval", "/course/6/singing-leaps"],
+    "sections": [
+      { "type": "heading", "text": "The 7ths, from the high Do", "minutes": 3 },
+      { "type": "text", "text": "Press Start below to hear Do and start the mic. The leap to sing shows by name above the piano roll: m7 is a minor 7th up from Do, M7 a major 7th.\nHear the high Do in your head first: the major 7th lands a half step under it, the minor 7th a whole step under it. Then sing that note on \"oo\" and hold it until Yes shows.\nPress Next below for another leap. When Do moves to a new key, the notes are new but each 7th is still the same distance under the high Do." },
+      { "type": "tool", "tool": { "type": "interval-singer", "key": "c", "keys": ["c", "e-flat"], "voice": "tenor", "intervals": [10, 11] } },
+      { "type": "heading", "text": "Either side of Sol", "minutes": 3 },
+      { "type": "text", "text": "Press Start below to hear Do. The leaps are now TT, the tritone, and m6, the minor 6th.\nHear Sol in your head first: the tritone lands a half step under it, the minor 6th a half step above it. Then sing that note on \"oo\" and hold it until Yes shows.\nIf a note won't come, press Show me below to hear it. Then press Restart below to sing the same leap again." },
+      { "type": "tool", "tool": { "type": "interval-singer", "key": "d", "keys": ["d", "f"], "voice": "tenor", "intervals": [6, 8] } },
+      { "type": "heading", "text": "Every leap, in stages", "minutes": 4 },
+      { "type": "text", "text": "Press Start below to hear Do. The first stage asks the leaps of the major scale, to settle your ear.\nWhen each leap lands on your first try, try the next stage: it asks the leaps from the first two blocks and the minor 3rd, down as well as up, from a new Do each time. Use the Stage selector below to change the stage, then press Start below to hear Do again.\nIf a leap down misses, press Restart below and hear the landing note in your head before you sing." },
+      { "type": "tool", "tool": { "type": "step-choice", "options": [{ "level": "intermediate" }, { "level": "advanced" }] } },
+      { "type": "tool", "tool": { "type": "interval-singer", "level": "intermediate", "key": "c", "voice": "tenor" } }
+    ]
+  }
+}

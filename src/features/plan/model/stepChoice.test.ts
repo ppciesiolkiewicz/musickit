@@ -162,6 +162,9 @@ describe("levels", () => {
   it("level options are read by name, are stages, and warn when no tool takes a level", () => {
     const chooser = tool({ type: "step-choice", options: [{ level: "intermediate" }, { level: "advanced" }] });
     assert.deepEqual(chooser, { type: "step-choice", label: "stage", options: [{ level: 2 }, { level: 3 }] });
+    // a stored plan is parsed again: the options and the levelled tools come back the same
+    assert.deepEqual(parseTool(chooser), chooser);
+    for (const raw of [{ type: "interval-singer", level: "advanced", key: "d" }, { type: "picking-drill", level: "advanced", bpm: 90 }, { type: "note-finder", level: "new" }, { type: "interval-ears", level: "advanced", dir: "down", wide: true }, { type: "breathwork", level: "beginner" }]) assert.deepEqual(parseTool(tool(raw)), tool(raw));
     const sections: Section[] = [{ type: "heading", text: "Leaps", minutes: 3 }, { type: "tool", tool: chooser }, staff("d")];
     assert.ok(choiceWarnings(sections).some((w) => w.includes("level")));
     const off: Section[] = [{ type: "heading", text: "Leaps", minutes: 3 }, { type: "tool", tool: chooser }, sec({ type: "interval-singer", level: "beginner" })];

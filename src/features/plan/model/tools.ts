@@ -571,7 +571,8 @@ for (const type of LEVELED) {
       return inner(type === "interval-ears" ? t : { ...t, level: undefined }, d);
     }
     const written = Object.fromEntries(Object.entries(t).filter(([k, v]) => v != null && k !== "level"));
-    const tool = inner({ ...levelProps(type, t.level, t), ...written }, d);
+    // a stored game keeps its query, which already holds the level's settings
+    const tool = typeof t.query === "string" ? inner(written, d) : inner({ ...levelProps(type, t.level, t), ...written }, d);
     return tool && ({ ...tool, level: t.level } as PlanTool);
   };
 }
@@ -744,8 +745,10 @@ function optionOf(v: unknown, d: Diag): StepOption | null {
     out.position = position;
   }
   if (o.level != null) {
-    if (!isToolLevel(o.level)) return null;
-    out.level = TOOL_LEVELS.indexOf(o.level);
+    // a stored option holds the level as its index
+    const at = isToolLevel(o.level) ? TOOL_LEVELS.indexOf(o.level) : int(o.level, 0, TOOL_LEVELS.length - 1);
+    if (at === null) return null;
+    out.level = at;
   }
   return out;
 }

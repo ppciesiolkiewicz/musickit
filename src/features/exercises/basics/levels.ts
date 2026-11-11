@@ -13,7 +13,7 @@ type Ladder<T> = Record<ToolLevel, T>;
 
 /**
  * interval-singer: the intervals asked (semitones from Do), the direction, and whether Do moves through all twelve keys.
- * The home chord first, then the leaps of the major scale, then the notes outside it, down as well as up.
+ * The home chord first, then the leaps of the major scale, then the leaps that are hard to hear (all but the major 7th are outside the major scale), down as well as up.
  */
 export const INTERVAL_SINGER_LEVELS: Ladder<{ intervals: number[]; dir: "up" | "both"; random: boolean }> = {
   new: { intervals: [4, 7], dir: "up", random: false },

@@ -13,6 +13,7 @@ import voiceNewMatchingAPitch from "./exercises/voice-new-matching-a-pitch.json"
 import voiceBeginnerDoMiSol from "./exercises/voice-beginner-do-mi-sol.json";
 import voiceIntermediateLeaps from "./exercises/voice-intermediate-leaps.json";
 import voiceAdvancedGuideTones from "./exercises/voice-advanced-guide-tones.json";
+import voiceAdvancedHardLeaps from "./exercises/voice-advanced-hard-leaps.json";
 import theoryNewMajorOrMinor from "./exercises/theory-new-major-or-minor.json";
 import theoryBeginnerOneFourFive from "./exercises/theory-beginner-one-four-five.json";
 import theoryIntermediateSeventhChords from "./exercises/theory-intermediate-seventh-chords.json";
@@ -88,6 +89,7 @@ export const EXERCISE_EXAMPLES: ExerciseExample[] = [
   voiceBeginnerDoMiSol,
   voiceIntermediateLeaps,
   voiceAdvancedGuideTones,
+  voiceAdvancedHardLeaps,
   theoryNewMajorOrMinor,
   theoryBeginnerOneFourFive,
   theoryIntermediateSeventhChords,
