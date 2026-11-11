@@ -373,7 +373,6 @@ const voiceOrTenor = (d: Diag, v: unknown): Voice => {
 };
 
 const PARSERS: { [N in ToolName]: ToolSpec } = {
-  "step-choice": { parse: stepChoiceTool },
   "scale-neck": { parse: scaleNeck },
   "position-neck": { parse: positionNeck },
   "chord-shapes": {
@@ -769,17 +768,31 @@ export function resolveChordPlacement(sections: Section[]): Section[] {
   });
 }
 
-/** One option of a step-choice: the parts it can read (a key, a tempo clamped to 30-240, a position 1-5); null for a part it holds but can't read. */
-function optionOf(v: unknown, d: Diag): StepOption | null {
+/* ---------------------------------------------------------------- the choice */
+
+/** The most positions a choice may name (the 3-notes-per-string positions go to 7). */
+const MAX_POSITION = 7;
+const PARTS_WORDS = PART_NAMES.join(", ");
+
+/** One option of a choice: the parts it can read (a key, a scale slug, a tempo clamped to 30-240, a position 1-7, a level); null for a part it holds but can't read. */
+function choiceOption(v: unknown, d: Diag): ChoiceOption | null {
   if (!v || typeof v !== "object" || Array.isArray(v)) return null;
   const o = v as Record<string, unknown>;
-  const out: StepOption = {};
-  const unknown = Object.keys(o).filter((k) => !["key", "bpm", "position", "level"].includes(k));
-  if (unknown.length && !d.stored) d.notes.push(`an option had ${unknown.slice(0, 4).map((k) => JSON.stringify(k)).join(", ")}, which it can't set; an option sets key, bpm, position, level. Left it out.`);
+  const out: ChoiceOption = {};
+  const unknown = Object.keys(o).filter((k) => !(PART_NAMES as string[]).includes(k));
+  if (unknown.length && !d.stored) d.notes.push(`an option had ${unknown.slice(0, 4).map((k) => JSON.stringify(k)).join(", ")}, which it can't set; an option sets ${PARTS_WORDS}. Left it out.`);
   if (o.key != null) {
     const key = keyOf(o.key);
     if (key === null) return null;
     out.key = key;
+  }
+  if (o.scale != null) {
+    const scale = typeof o.scale === "string" && (findPentatonic(o.scale) || findModePage(o.scale)) ? o.scale : null;
+    if (scale === null) {
+      if (!d.stored) d.notes.push(`had a scale it does not know (${JSON.stringify(o.scale)?.slice(0, 30)}).`);
+      return null;
+    }
+    out.scale = scale;
   }
   if (o.bpm != null) {
     const n = Number(o.bpm);
@@ -788,7 +801,7 @@ function optionOf(v: unknown, d: Diag): StepOption | null {
     if (out.bpm !== n && !d.stored) defaulted(d, "bpm", o.bpm, "30-240", out.bpm);
   }
   if (o.position != null) {
-    const position = int(o.position, 1, 5);
+    const position = int(o.position, 1, MAX_POSITION);
     if (position === null) return null;
     out.position = position;
   }
@@ -801,36 +814,67 @@ function optionOf(v: unknown, d: Diag): StepOption | null {
   return out;
 }
 
+/** A choice parsed, with why it gave none. */
+export interface ChoiceParse { choice: Choice | null; dropped?: string }
+
 /**
- * A step-choice: 2 to 4 different options that hold the same parts (option 1's), in order; what it leaves out is noted.
- * Without a label the chips show the one value they set, so options with more than one part are named "variant".
+ * A choice from the AI's JSON or a stored block. With `options`: 2 to 4 different options that hold the same parts
+ * (option 1's), in order; what it leaves out is noted; without a label the chips show the one value they set, so options
+ * with more than one part are named "variant". Without `options`: an open choice, the parts themselves, at least one.
+ * `d.notes` are worded as a tool's are ("choice …" is prefixed by the caller).
  */
-function stepChoiceTool(t: Record<string, unknown>, d: Diag): PlanTool | null {
+export function parseChoiceDiag(raw: unknown, d: Diag): ChoiceParse {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return { choice: null, dropped: "a choice that isn't an object" };
+  const t = raw as Record<string, unknown>;
   const note = (n: string) => { if (!d.stored) d.notes.push(n); };
-  const raw = list(t.options);
-  const read = raw.map((o) => optionOf(o, d));
+  if (t.options === undefined) {
+    const open = choiceOption(t.open !== undefined ? t.open : t, d);
+    return open && Object.keys(open).length ? { choice: { open } } : { choice: null, dropped: "a choice with no part it could read" };
+  }
+  const rawOptions = list(t.options);
+  const read = rawOptions.map((o) => choiceOption(o, d));
   const first = read.find((o) => o && Object.keys(o).length);
   const parts = first ? Object.keys(first).sort() : [];
-  const options: StepOption[] = [];
+  const options: ChoiceOption[] = [];
   const left: unknown[] = [];
   let repeats = 0;
   read.forEach((o, i) => {
     const same = o && parts.length > 0 && Object.keys(o).sort().join() === parts.join();
-    if (!same) left.push(raw[i]);
+    if (!same) left.push(rawOptions[i]);
     else if (options.some((x) => JSON.stringify(x) === JSON.stringify({ ...x, ...o }))) repeats++;
     else options.push(o);
   });
   if (repeats) note(`left out ${repeats === 1 ? "an option" : `${repeats} options`} the same as an earlier one; the chips after it are numbered one lower, so check the text's "Stage" or "Variant" numbers.`);
-  if (left.length) note(`left out options it could not use (${left.slice(0, 4).map((o) => JSON.stringify(o)?.slice(0, 40)).join(", ")}): every option needs the same parts (key, bpm, position, level), each readable.`);
-  if (options.length > 4) note("had more than 4 options; a step-choice takes at most 4 options, kept the first 4.");
+  if (left.length) note(`left out options it could not use (${left.slice(0, 4).map((o) => JSON.stringify(o)?.slice(0, 40)).join(", ")}): every option needs the same parts (${PARTS_WORDS}), each readable.`);
+  if (options.length > 4) note("had more than 4 options; a choice takes at most 4 options, kept the first 4.");
   const kept = options.slice(0, 4);
-  if (kept.length < 2) return no(d, "it needs 2 to 4 different options");
+  if (kept.length < 2) return { choice: null, dropped: "a choice that needs 2 to 4 different options" };
   const known = CHOICE_LABELS.includes(t.label as ChoiceLabel) ? (t.label as ChoiceLabel) : null;
   if (t.label != null && !known) note(`had label ${JSON.stringify(t.label)?.slice(0, 20)} (it is "stage" or "variant"); left it out.`);
   // levels are a ladder, so their chips are stages
   const label = known ?? (parts.includes("level") ? "stage" : parts.length > 1 ? "variant" : null);
   if (!known && label && !parts.includes("level")) note('sets more than one part without a label; used "variant" (write "label": "stage" or "variant").');
-  return { type: "step-choice", ...(label ? { label } : {}), options: kept };
+  return { choice: { ...(label ? { label } : {}), options: kept } };
+}
+
+/** The choice's JSON schema for the prompt: the two shapes. */
+export function choiceSchema(): object {
+  const option = {
+    type: "object",
+    properties: {
+      key: { type: "string", description: "a key, \"a\" or \"f-sharp\"" },
+      scale: { type: "string", description: "a scale slug, as scale-neck takes it" },
+      bpm: { type: "integer", minimum: 30, maximum: 240 },
+      position: { type: "integer", minimum: 1, maximum: MAX_POSITION },
+      level: { type: "string", enum: TOOL_LEVELS },
+    },
+  };
+  return {
+    oneOf: [
+      { type: "object", description: "2 to 4 chips the student picks from; every option holds the same parts, and the tools under the choice are written in option 1", properties: { label: { type: "string", enum: CHOICE_LABELS, description: "\"stage\" when each option is harder than the last, \"variant\" for equals to compare; absent: the chips show the one value they set" }, options: { type: "array", items: option, minItems: 2, maxItems: 4 } }, required: ["options"] },
+      { ...option, description: "an open choice: the key, scale, tempo, position or level every tool under it follows (a tool lists a part in \"pinned\" to keep its own)" },
+    ],
+  };
 }
 
 /**
@@ -928,7 +972,7 @@ function describe(d: ComponentDoc): string {
   return text;
 }
 const propLine = (indent: string) => (p: OfferedParam) => `${indent}${p.name}${p.required ? "" : "?"}: ${p.type}${p.description ? ` (${p.description})` : ""}`;
-const TOOL_DOCS = () => COMPONENT_DOCS.filter((d) => d.kind !== "shape");
+const TOOL_DOCS = () => COMPONENT_DOCS.filter((d) => d.kind !== "shape" && Object.hasOwn(PARSERS, d.name));
 const SHAPE_DOCS = () => COMPONENT_DOCS.filter((d) => d.kind === "shape");
 
 /** The tools, as an MCP server would list them: name, description, props; guitar-play-along's shapes listed under it. */

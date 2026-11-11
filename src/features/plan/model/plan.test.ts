@@ -459,7 +459,7 @@ describe("the interface the prompt lists", () => {
     assert.equal(sectionInterface().length, 4);
     const tools = toolInterface().join("\n");
     const listed = [...tools.matchAll(/^- (\S+) : /gm)].map((m) => m[1]).sort();
-    const docs = COMPONENT_DOCS.filter((d) => d.kind !== "shape").map((d) => d.name).sort();
+    const docs = COMPONENT_DOCS.filter((d) => d.kind !== "shape" && d.name !== "step-choice").map((d) => d.name).sort(); // step-choice is a choice now, no tool (its component is renamed in Task 10)
     assert.deepEqual(listed, docs);
     for (const d of COMPONENT_DOCS.filter((d) => d.kind === "shape")) assert.ok(tools.includes(d.name), d.name);
     assert.ok(tools.includes(STAGES[0].title));
