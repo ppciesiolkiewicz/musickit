@@ -2,15 +2,16 @@ import Link from "next/link";
 import Wordmark from "@/components/Wordmark";
 import Icon from "@/components/Icon";
 import ContactForm from "@/components/landing/ContactForm";
+import AiPrep from "@/components/landing/AiPrep";
 import FoundingBackdrop from "@/components/landing/FoundingBackdrop";
 import SiteFooter from "@/components/landing/SiteFooter";
-import { BetaBadge, DISPLAY, Eyebrow, H2 } from "@/components/landing/Display";
+import { DISPLAY, Eyebrow, H2 } from "@/components/landing/Display";
 import { SoonHeading, StudioSoonCards } from "@/components/landing/StudioSoon";
 import { FOUNDING_PARTNERS_JOINED, FOUNDING_PARTNERS_NEEDED, FOUNDING_PRICE, FOUNDING_TRIAL_DAYS } from "@/lib/foundingOffer";
 
 /*
  * The founding-partner page, at /kickstarter: the count of founding partners still needed, a founding partner's part in
- * the project, the offer (a locked-in yearly price, with 90 days to change your mind and get all the money back), what works today (interactive lesson notes)
+ * the project, what a teacher does in every lesson (the AI practice plan and interactive lesson notes, `AiPrep`), the offer (a locked-in yearly price, with 90 days to change your mind and get all the money back)
  * and what the partners shape next (scheduling, online payments, profiles, courses to sell). Everything is centred and short. It is
  * written as the founder to one reader, in the voice of the outreach emails (`VOICE` in
  * src/features/devtools/model/kickstarter.ts): "I", plain, no hype, no deadline. The numbers come from
@@ -44,7 +45,6 @@ const QUESTIONS: { q: string; a: string }[] = [
 const HERO_FADE = "linear-gradient(to bottom, black calc(100% - 3.5rem), transparent)";
 
 const CARD = "ls-card flex flex-col gap-4 rounded-3xl border border-slate-800 bg-slate-900/50 p-5 sm:p-6";
-const GHOST = "ls-btn inline-flex items-center gap-2 rounded-xl border border-slate-600 px-5 py-3 text-sm font-medium text-slate-100 transition hover:border-slate-400 hover:bg-slate-800/40";
 
 /** The count: how many founding partners are still needed, and a seat for each one. */
 function Countdown() {
@@ -103,6 +103,9 @@ export default function FoundingHome() {
 
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
 
+        {/* First after the hero: what attunr does in every lesson, with AI (the plan today, note drafting soon) */}
+        <AiPrep />
+
         {/* A founding partner's part in the project */}
         <section id="your-part" aria-labelledby="your-part-h" className="scroll-mt-24 sect-rule py-12 text-center sm:py-16">
           <Eyebrow tone="text-amber-300">Your part in it</Eyebrow>
@@ -130,17 +133,6 @@ export default function FoundingHome() {
               </li>
             ))}
           </ul>
-        </section>
-
-        {/* What works today: interactive lesson notes */}
-        <section id="today" aria-labelledby="today-h" className="scroll-mt-24 sect-rule py-12 text-center sm:py-16">
-          <Eyebrow tone="text-teal-300">What you can use today<BetaBadge /></Eyebrow>
-          <H2 id="today-h">Lesson notes <span className="ls-accent italic text-teal-300">the student can play.</span></H2>
-          <p className="mx-auto mt-4 max-w-xl text-pretty text-slate-300">Today&apos;s scales, chords and exercises on one page, sent to the student as a link. Every diagram plays.</p>
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Link href="/note/minor-pentatonic" className={GHOST}><Icon name="file-text" size={16} /> Open a lesson note</Link>
-            <Link href="/teachers/studio?notes=1" className={GHOST}><Icon name="pencil" size={16} /> Open the notes creator</Link>
-          </div>
         </section>
 
         {/* What the founding partners shape next */}
