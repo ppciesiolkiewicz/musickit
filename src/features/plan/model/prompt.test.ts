@@ -15,7 +15,7 @@ const last: StoredPlan = {
 };
 const EX = selectExamples(DEFAULT_ANSWERS);
 const EXAMPLE_IDS = [...EX.exercises.map((e) => `example:${e.id}`), `example:${EX.plan.id}`];
-const ORDER = ["intro", "student", "how-to-plan", "exercise-format", "sections", "which-tool", "levels", "tools", "links", "rules", "mistakes", "writing", ...EXAMPLE_IDS, "answer-format"];
+const ORDER = ["intro", "student", "how-to-plan", "exercise-format", "cells", "which-tool", "levels", "tools", "links", "rules", "mistakes", "writing", ...EXAMPLE_IDS, "answer-format"];
 
 test("prompt parts have unique ids in the documented order", () => {
   assert.deepEqual(promptParts(DEFAULT_ANSWERS, []).map((p) => p.id), ORDER);
@@ -121,7 +121,7 @@ test("skipped questionnaire: the student part asks for the answers, and the answ
 test("definitions come before the rules that use them, the answer format is last and ends with the final check", () => {
   const ids = promptParts(DEFAULT_ANSWERS, catalogue()).map((p) => p.id);
   const at = (id: string) => ids.indexOf(id);
-  for (const def of ["exercise-format", "sections", "which-tool", "tools", "links"]) for (const rule of ["rules", "mistakes", "writing"]) assert.ok(at(def) < at(rule), `${def} before ${rule}`);
+  for (const def of ["exercise-format", "cells", "which-tool", "tools", "links"]) for (const rule of ["rules", "mistakes", "writing"]) assert.ok(at(def) < at(rule), `${def} before ${rule}`);
   assert.ok(at("how-to-plan") < at("exercise-format"));
   assert.ok(at("writing") < at(EXAMPLE_IDS[0]));
   assert.equal(ids.at(-1), "answer-format");
@@ -249,9 +249,16 @@ test("settingsOf: tools once each in order, keys, tempo range, voice; nothing fo
 });
 
 
-test("the prompt teaches step-choice, stages and variants, and no longer names key-choice", () => {
+test("the prompt teaches the choice, stages and variants, cells and hashtags, and never names step-choice, sections or focus", () => {
   const p = buildPrompt(rated, catalogue());
-  assert.match(p, /\bstep-choice\b/);
+  const rules = promptParts(rated, catalogue()).filter((x) => !x.example).map((x) => x.text).join("\n");
+  assert.match(rules, /a section with a "choice" of options/);
+  assert.doesNotMatch(rules, /\bstep-choice\b/);
+  assert.match(p, /### Cells/);
+  assert.match(p, /- section : /);
+  assert.match(p, /#guitar #beginner #technique/);
+  assert.doesNotMatch(rules, /"focus"/);
+  assert.doesNotMatch(rules, /list of "sections"/);
   assert.match(p, /"label\\?": \\?"stage\\?"/);
   assert.match(p, /"label\\?": \\?"variant\\?"/);
   assert.doesNotMatch(p, /key-choice/);

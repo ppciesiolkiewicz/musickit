@@ -1,6 +1,6 @@
 ---
 name: exercise-example
-version: 4
+version: 5
 description: Write or fix a hand-tuned exercise or 7-day plan JSON in src/features/plan/examples - the gold standard the AI plan prompt copies - so it meets every example rule and reads well against its tools. Use when asked to add, write, improve or fix an example exercise or plan, or a showcase.
 ---
 
@@ -19,7 +19,7 @@ The prompt shows these examples to the AI as the standard to copy, so any flaw i
 
 1. **Pick the gap.** Find an area × level × concept, or showcase kind, that no example covers yet. `concepts` ids come from `model/concepts.ts`, links from `model/catalogue.ts`. Never invent either.
 2. **Get the facts from the calculator.** Run `npm run -s theory -- …` for the key, scale, positions and chords. Check that the notes the text names are really in the scale or chord.
-3. **Shape the blocks.** Over 5 minutes means two or more `heading` blocks with `minutes` (2–5 each) that add up to the exercise `minutes`. Each block changes one real thing: tempo, key, position, which notes are lit, or the task. Write the block plan as one line per block before writing any JSON.
+3. **Shape the sections.** An exercise is a block: a `title`, an optional `choice`, and `cells` (text, list, notice, tool, section). A `section` cell has a `heading`, its own `cells`, `minutes` when it is a timed block, and a `choice` when its tools change key, tempo, position or level. Over 5 minutes means two or more sections with `minutes` (2–5 each) that add up to the exercise `minutes`. Each block changes one real thing: tempo, key, position, which notes are lit, or the task. Write the block plan as one line per section before writing any JSON.
 4. **Write it.** The rules below are grouped by what they are about; an example meets all of them.
 
    *The why, the title, the headings*
@@ -28,7 +28,7 @@ The prompt shows these examples to the AI as the standard to copy, so any flaw i
      - Right: "When your note matches the drone, the two blend into one sound, so the drone tells you when you are on the note."
      - Wrong: "Joining positions turns five separate shapes into one neck you can move along mid-phrase."
      - Right: "Position 2 starts on the notes where position 1 ends, so one slide along one string carries a phrase from the first into the second."
-   - `title` names what is practised in the learner's words. `focus` is the spec line, parts joined with " · ": key and scale, what changes block to block, tempos. Each block heading names its task in five words or fewer.
+   - `title` names what is practised in the learner's words; it may end with hashtags for the metadata (`#guitar #beginner #technique`), which the app reads into the fields. There is no `focus`: the title and the first text say what the drill is. Each section's heading names its task in five words or fewer.
 
    *The steps*
    - Each text step says which control to press and where it is ("Press Play below to start the metronome"), then what to play or sing. Controls and game answers carry the label the screen shows (see "Words about the app" in **teaching-voice**): read it in the tool's component before you name it.
@@ -49,7 +49,7 @@ The prompt shows these examples to the AI as the standard to copy, so any flaw i
    - A sung or played pattern (Do Mi Sol, a leap, a tune, guide tones) comes back in a second key, with one plain line, on a line of its own, that says what stays the same in this drill ("When you change the key, the notes change but the drop is still an octave."), never the stock "The notes change, the pattern doesn't." The same drill in 2-4 keys is one block with a `{ "type": "step-choice", "options": [{ "key": "d" }, { "key": "a" }, { "key": "c" }] }` tool right before the tool it moves (the first is the key the block's tools are written in). The text invites and names the selector, never a chip or the keys: "Then sing it in another key. Use the Key selector below to change the key, then press Play to hear the tune there." A new key with a new task is a later block or another tool. Check each key fits the voice or the position with `npm run -s theory`.
 
    *Stages and variants*
-   - A step-choice also carries one drill through 2-4 versions without a copy of its tools: each option sets a `key`, a `bpm`, a `position`, or several of them, and option 1 is how the block's tools are written. `"label": "stage"` when each option is harder than the last, most often a faster tempo (`showcase-stages-tempo-ladder`): say what a stage feels like before the next one, and what to do when a stage is too fast. `"label": "variant"` when the options are equals to compare, such as one pattern in two keys or positions (`showcase-variants-same-frets`): say what to look or listen for between them; don't ask the learner to find it.
+   - A section's `choice` carries one drill through 2-4 versions without a copy of its tools: `"choice": { "label": "stage", "options": [ … ] }` in the section's header, each option a `key`, a `scale`, a `bpm`, a `position`, a `level`, or several of them, and option 1 is how the section's tools are written. A choice with no `options`, only the parts (`"choice": { "key": "a" }`), is open: every tool under it is written in that value and follows it; a tool keeps its own value with `"pinned": ["key"]`. `"label": "stage"` when each option is harder than the last, most often a faster tempo (`showcase-stages-tempo-ladder`): say what a stage feels like before the next one, and what to do when a stage is too fast. `"label": "variant"` when the options are equals to compare, such as one pattern in two keys or positions (`showcase-variants-same-frets`): say what to look or listen for between them; don't ask the learner to find it.
    - Name the selector, never a chip ("The selector" in **teaching-voice**): "When every note lands on the click, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again." A change restarts the block's tools, so say what Play starts again. All of a block's text that names the selector sits in the text above it, with line breaks between the drill, the invitation and what to do when it goes wrong; no text about the selector comes after the tools. The text of a block with a step-choice names no tempo, key or position as the only one; `focus` lists them all.
    - A change that needs new words or a new task is a later block, not a chip.
 
@@ -69,7 +69,7 @@ The prompt shows these examples to the AI as the standard to copy, so any flaw i
 A rewrite keeps the file, its `id`, `level`, `areas`, `topic`, `concepts` and minutes, so nothing that points at it breaks. Do it in this order:
 
 1. Read the old example against the list below and write down what fails, one line each. If nothing fails, leave it alone.
-2. Fix the tools first (a better tool, a missing `labels`, `pattern`, `step-choice` or `"always"`), then the text around them.
+2. Fix the tools first (a better tool, a missing `labels`, `pattern`, `choice` or `"always"`), then the text around them.
 3. Set `"updated"` to today, `"model"` to your API id and `"docs"` to the versions you wrote it to (`DOC_VERSIONS` in `examples/index.ts`: the `Version:` in `AGENTS.md` and the `version:` of this skill), and rewrite `note` to say what the example now shows off.
 4. Steps 5 and 6 above.
 

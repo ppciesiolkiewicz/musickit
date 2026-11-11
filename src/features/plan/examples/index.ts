@@ -43,7 +43,7 @@ export interface DocVersions {
 }
 
 /** The versions those documents are at now. Bump one here in the same commit as the document; examples.test.ts holds the two together. */
-export const DOC_VERSIONS: DocVersions = { agents: 1, teaching: 4 };
+export const DOC_VERSIONS: DocVersions = { agents: 1, teaching: 5 };
 
 /** Written to the teaching skills as they are now: the examples the prompt tells the AI to write like. */
 export const isCurrentTeaching = (e: { docs: DocVersions }): boolean => e.docs.teaching === DOC_VERSIONS.teaching;

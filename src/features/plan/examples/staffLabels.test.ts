@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { staffLabelSystem, type LabelSystem } from "@/features/theory/labels";
 import { catalogue } from "../model/catalogue";
 import { parsePlanConfig } from "../model/config";
-import { parseTool, type PlanTool } from "../model/tools";
+import { parseTool, toolsOf, type PlanTool } from "../model/tools";
 import type { PlanConfig } from "../model/types";
 import { EXERCISE_EXAMPLES, PLAN_EXAMPLES } from "./index";
 
@@ -22,7 +22,7 @@ type Staff = Extract<PlanTool, { type: "staff" }>;
 const staffs: { where: string; tool: Staff }[] = [
   ...EXERCISE_EXAMPLES.map((e) => ({ where: e.id, ex: parsed(weekOf(e.exercise)).days[0].exercises[0] })),
   ...PLAN_EXAMPLES.flatMap((p) => parsed(JSON.stringify(p.plan)).days.flatMap((d, di) => d.exercises.map((ex, xi) => ({ where: `${p.id} day ${di + 1} #${xi + 1}`, ex })))),
-].flatMap(({ where, ex }) => (ex.sections ?? []).flatMap((s) => (s.type === "tool" && s.tool.type === "staff" ? [{ where, tool: s.tool }] : [])));
+].flatMap(({ where, ex }) => toolsOf(ex.cells).flatMap((t) => (t.type === "staff" ? [{ where, tool: t }] : [])));
 
 describe("staff labels", () => {
   it("a staff with labels shows them, whatever the setting", () => {

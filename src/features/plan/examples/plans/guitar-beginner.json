@@ -17,7 +17,10 @@
     "strumming-patterns",
     "spider"
   ],
-  "docs": { "agents": 1, "teaching": 2 },
+  "docs": {
+    "agents": 1,
+    "teaching": 5
+  },
   "note": "The guitar-beginner week in the new teaching style: each day is one idea, every why says what the drill trains and why it works, and done is a feel. Position 1 returns on six days in new forms, the chords return as power chords, triads and double stops (grip steps in a play-along), tunes move to a second key, and day 7 replays day 1 faster before the student makes up drills.",
   "plan": {
     "title": "Week 1: position 1, clean changes, triads and double stops",
@@ -29,7 +32,6 @@
         "exercises": [
           {
             "title": "The spider where position 1 lives",
-            "focus": "Frets 5 to 8 · one finger per fret · every string",
             "minutes": 4,
             "level": "beginner",
             "area": "guitar",
@@ -41,7 +43,7 @@
             "learnBefore": [
               "/course/1/spider"
             ],
-            "sections": [
+            "cells": [
               {
                 "type": "text",
                 "text": "Press Play below to start the metronome and follow the tab: frets 5 to 8 with fingers 1, 2, 3 and 4, one note per beat, on every string and back. The row under the tab shows the finger for each note. Keep going until your hand stays still and only the fingers move."
@@ -60,7 +62,6 @@
           },
           {
             "title": "G, C and D in time",
-            "focus": "G-C-D-G changes · down strums at 60 bpm",
             "minutes": 6,
             "level": "beginner",
             "area": "guitar",
@@ -69,56 +70,62 @@
             ],
             "topic": "guitar-basic-chords",
             "why": "G, C and D are the 1, 4 and 5 chords of G major, the three chords most songs lean on, so a clean change between them opens up more music than any new chord.",
-            "learnBefore": ["/course/2/c-d-g", "/course/2/all-downstrums"],
-            "sections": [
+            "learnBefore": [
+              "/course/2/c-d-g",
+              "/course/2/all-downstrums"
+            ],
+            "cells": [
               {
-                "type": "heading",
-                "text": "The shapes",
-                "minutes": 3
+                "type": "section",
+                "heading": "The shapes",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Tap a chord box to hear the chord, then fret it as shown. Change between two shapes slowly without looking, then look to check that every string rings."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "chord-shapes",
+                      "chords": [
+                        "G",
+                        "C",
+                        "D"
+                      ]
+                    }
+                  }
+                ]
               },
               {
-                "type": "text",
-                "text": "Tap a chord box to hear the chord, then fret it as shown. Change between two shapes slowly without looking, then look to check that every string rings."
-              },
-              {
-                "type": "tool",
-                "tool": {
-                  "type": "chord-shapes",
-                  "chords": [
-                    "G",
-                    "C",
-                    "D"
-                  ]
-                }
-              },
-              {
-                "type": "heading",
-                "text": "In time",
-                "minutes": 3
-              },
-              {
-                "type": "text",
-                "text": "Press Play below to start the metronome; the lit box shows the chord. Strum down on every beat, one bar per chord, and start moving on beat 4. It's working when the new chord lands on beat 1 without a gap."
-              },
-              {
-                "type": "tool",
-                "tool": {
-                  "type": "strum-along",
-                  "chords": [
-                    "G",
-                    "C",
-                    "D",
-                    "G"
-                  ],
-                  "bpm": 60,
-                  "pattern": "D D D D"
-                }
+                "type": "section",
+                "heading": "In time",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the metronome; the lit box shows the chord. Strum down on every beat, one bar per chord, and start moving on beat 4. It's working when the new chord lands on beat 1 without a gap."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "strum-along",
+                      "chords": [
+                        "G",
+                        "C",
+                        "D",
+                        "G"
+                      ],
+                      "bpm": 60,
+                      "pattern": "D D D D"
+                    }
+                  }
+                ]
               }
             ]
           },
           {
             "title": "Position 1, then your own phrases",
-            "focus": "A minor pentatonic · position 1 · 60 bpm, the roots, phrases over a band",
             "minutes": 10,
             "level": "beginner",
             "area": "guitar",
@@ -132,91 +139,104 @@
               "/course/5/pentatonic",
               "/course/5/soloing"
             ],
-            "sections": [
+            "cells": [
               {
-                "type": "heading",
-                "text": "Up and down at 60",
-                "minutes": 3
+                "type": "section",
+                "heading": "Up and down at 60",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the metronome. Play the position from the low {{1}} up to the high e string and back, one note per beat."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "backing-band",
+                      "bpm": 60,
+                      "key": "a",
+                      "parts": {
+                        "click": "on"
+                      }
+                    }
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "scale-neck",
+                      "scale": "minor-pentatonic",
+                      "key": "a",
+                      "boxes": [
+                        1
+                      ],
+                      "highlight": [
+                        "1"
+                      ]
+                    }
+                  }
+                ]
               },
               {
-                "type": "text",
-                "text": "Press Play below to start the metronome. Play the position from the low {{1}} up to the high e string and back, one note per beat."
+                "type": "section",
+                "heading": "Only the roots",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Now only the three {{1}} notes are in play. Hop between them in any order until you can find each one without looking."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "scale-neck",
+                      "scale": "minor-pentatonic",
+                      "key": "a",
+                      "boxes": [
+                        1
+                      ],
+                      "enable": [
+                        "1"
+                      ]
+                    }
+                  }
+                ]
               },
               {
-                "type": "tool",
-                "tool": {
-                  "type": "backing-band",
-                  "bpm": 60,
-                  "key": "a", "parts": { "click": "on" } }
-              },
-              {
-                "type": "tool",
-                "tool": {
-                  "type": "scale-neck",
-                  "scale": "minor-pentatonic",
-                  "key": "a",
-                  "boxes": [
-                    1
-                  ],
-                  "highlight": [
-                    "1"
-                  ]
-                }
-              },
-              {
-                "type": "heading",
-                "text": "Only the roots",
-                "minutes": 3
-              },
-              {
-                "type": "text",
-                "text": "Now only the three {{1}} notes are in play. Hop between them in any order until you can find each one without looking."
-              },
-              {
-                "type": "tool",
-                "tool": {
-                  "type": "scale-neck",
-                  "scale": "minor-pentatonic",
-                  "key": "a",
-                  "boxes": [
-                    1
-                  ],
-                  "enable": [
-                    "1"
-                  ]
-                }
-              },
-              {
-                "type": "heading",
-                "text": "Your own phrases",
-                "minutes": 4
-              },
-              {
-                "type": "text",
-                "text": "Press Play below to start the band. Make up short phrases from the whole position, leave a gap after each, and end every one on a {{1}}. Then end one on another note and hear how it hangs."
-              },
-              {
-                "type": "tool",
-                "tool": {
-                  "type": "backing-band",
-                  "bpm": 70,
-                  "key": "a",
-                  "parts": { "drums": "on", "bass": "on" }
-                }
-              },
-              {
-                "type": "tool",
-                "tool": {
-                  "type": "scale-neck",
-                  "scale": "minor-pentatonic",
-                  "key": "a",
-                  "boxes": [
-                    1
-                  ],
-                  "highlight": [
-                    "1"
-                  ]
-                }
+                "type": "section",
+                "heading": "Your own phrases",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the band. Make up short phrases from the whole position, leave a gap after each, and end every one on a {{1}}. Then end one on another note and hear how it hangs."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "backing-band",
+                      "bpm": 70,
+                      "key": "a",
+                      "parts": {
+                        "drums": "on",
+                        "bass": "on"
+                      }
+                    }
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "scale-neck",
+                      "scale": "minor-pentatonic",
+                      "key": "a",
+                      "boxes": [
+                        1
+                      ],
+                      "highlight": [
+                        "1"
+                      ]
+                    }
+                  }
+                ]
               }
             ]
           }
@@ -227,7 +247,6 @@
         "exercises": [
           {
             "title": "Spider, new order",
-            "focus": "Frets 5 to 8 · fingers 1, 3, 2, 4 · every string",
             "minutes": 4,
             "level": "beginner",
             "area": "guitar",
@@ -239,7 +258,7 @@
             "learnBefore": [
               "/course/1/spider"
             ],
-            "sections": [
+            "cells": [
               {
                 "type": "text",
                 "text": "Press Play below to start the metronome. Same frets as yesterday, but now play frets 5, 7, 6 and 8 with fingers 1, 3, 2 and 4 on every string, up and back. Keep it slow enough that every note rings, until the order stops needing thought."
@@ -258,7 +277,6 @@
           },
           {
             "title": "A5, D5, E5",
-            "focus": "Power chords A5-D5-E5 · the shape, in time at 70 bpm, then split into notes",
             "minutes": 7,
             "level": "beginner",
             "area": "guitar",
@@ -270,169 +288,174 @@
             "learnBefore": [
               "/course/5/power-chords"
             ],
-            "sections": [
+            "cells": [
               {
-                "type": "heading",
-                "text": "One shape, three places",
-                "minutes": 2
-              },
-              {
-                "type": "text",
-                "text": "Tap a chord box to hear it. All three are the same shape, moved to a new string or fret. Strum only the strings with dots, and let the side of your picking hand rest on the others to keep them quiet."
-              },
-              {
-                "type": "tool",
-                "tool": {
-                  "type": "chord-shapes",
-                  "chords": [
-                    "A5",
-                    "D5",
-                    "E5"
-                  ]
-                }
-              },
-              {
-                "type": "heading",
-                "text": "In time",
-                "minutes": 2
-              },
-              {
-                "type": "text",
-                "text": "Press Play below to start the metronome; the lit box shows the chord. Strum down on every beat, one bar per chord, until the shape moves without your hand opening up."
-              },
-              {
-                "type": "tool",
-                "tool": {
-                  "type": "strum-along",
-                  "chords": [
-                    "A5",
-                    "D5",
-                    "E5",
-                    "A5"
-                  ],
-                  "bpm": 70,
-                  "pattern": "D D D D"
-                }
-              },
-              {
-                "type": "heading",
-                "text": "Split it",
-                "minutes": 3
-              },
-              {
-                "type": "text",
-                "text": "Press Play below to start the play-along. Each bar is the whole chord, two of its notes picked on their own, then the chord again: the tab shows every note. Keep the shape held down the whole bar, so the single notes are already under your fingers."
-              },
-              {
-                "type": "tool",
-                "tool": {
-                  "type": "guitar-play-along",
-                  "shape": {
-                    "shape": "chord-steps",
-                    "chords": [
-                      {
-                        "chord": "A5",
-                        "steps": [
-                          {
-                            "grip": [
-                              "1",
-                              "5",
-                              "1"
-                            ],
-                            "strings": "654"
-                          },
-                          "1",
-                          "5",
-                          {
-                            "grip": [
-                              "1",
-                              "5",
-                              "1"
-                            ],
-                            "strings": "654"
-                          }
-                        ]
-                      },
-                      {
-                        "chord": "D5",
-                        "steps": [
-                          {
-                            "grip": [
-                              "1",
-                              "5",
-                              "1"
-                            ],
-                            "strings": "543"
-                          },
-                          "1",
-                          "5",
-                          {
-                            "grip": [
-                              "1",
-                              "5",
-                              "1"
-                            ],
-                            "strings": "543"
-                          }
-                        ]
-                      },
-                      {
-                        "chord": "E5",
-                        "steps": [
-                          {
-                            "grip": [
-                              "1",
-                              "5",
-                              "1"
-                            ],
-                            "strings": "543"
-                          },
-                          "1",
-                          "5",
-                          {
-                            "grip": [
-                              "1",
-                              "5",
-                              "1"
-                            ],
-                            "strings": "543"
-                          }
-                        ]
-                      },
-                      {
-                        "chord": "A5",
-                        "steps": [
-                          {
-                            "grip": [
-                              "1",
-                              "5",
-                              "1"
-                            ],
-                            "strings": "654"
-                          },
-                          "1",
-                          "5",
-                          {
-                            "grip": [
-                              "1",
-                              "5",
-                              "1"
-                            ],
-                            "strings": "654"
-                          }
-                        ]
-                      }
-                    ]
+                "type": "section",
+                "heading": "One shape, three places",
+                "minutes": 2,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Tap a chord box to hear it. All three are the same shape, moved to a new string or fret. Strum only the strings with dots, and let the side of your picking hand rest on the others to keep them quiet."
                   },
-                  "bpm": 70,
-                  "view": "tab"
-                }
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "chord-shapes",
+                      "chords": [
+                        "A5",
+                        "D5",
+                        "E5"
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "In time",
+                "minutes": 2,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the metronome; the lit box shows the chord. Strum down on every beat, one bar per chord, until the shape moves without your hand opening up."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "strum-along",
+                      "chords": [
+                        "A5",
+                        "D5",
+                        "E5",
+                        "A5"
+                      ],
+                      "bpm": 70,
+                      "pattern": "D D D D"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Split it",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the play-along. Each bar is the whole chord, two of its notes picked on their own, then the chord again: the tab shows every note. Keep the shape held down the whole bar, so the single notes are already under your fingers."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "guitar-play-along",
+                      "shape": {
+                        "shape": "chord-steps",
+                        "chords": [
+                          {
+                            "chord": "A5",
+                            "steps": [
+                              {
+                                "grip": [
+                                  "1",
+                                  "5",
+                                  "1"
+                                ],
+                                "strings": "654"
+                              },
+                              "1",
+                              "5",
+                              {
+                                "grip": [
+                                  "1",
+                                  "5",
+                                  "1"
+                                ],
+                                "strings": "654"
+                              }
+                            ]
+                          },
+                          {
+                            "chord": "D5",
+                            "steps": [
+                              {
+                                "grip": [
+                                  "1",
+                                  "5",
+                                  "1"
+                                ],
+                                "strings": "543"
+                              },
+                              "1",
+                              "5",
+                              {
+                                "grip": [
+                                  "1",
+                                  "5",
+                                  "1"
+                                ],
+                                "strings": "543"
+                              }
+                            ]
+                          },
+                          {
+                            "chord": "E5",
+                            "steps": [
+                              {
+                                "grip": [
+                                  "1",
+                                  "5",
+                                  "1"
+                                ],
+                                "strings": "543"
+                              },
+                              "1",
+                              "5",
+                              {
+                                "grip": [
+                                  "1",
+                                  "5",
+                                  "1"
+                                ],
+                                "strings": "543"
+                              }
+                            ]
+                          },
+                          {
+                            "chord": "A5",
+                            "steps": [
+                              {
+                                "grip": [
+                                  "1",
+                                  "5",
+                                  "1"
+                                ],
+                                "strings": "654"
+                              },
+                              "1",
+                              "5",
+                              {
+                                "grip": [
+                                  "1",
+                                  "5",
+                                  "1"
+                                ],
+                                "strings": "654"
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      "bpm": 70,
+                      "view": "tab"
+                    }
+                  }
+                ]
               }
             ]
           },
           {
             "title": "Double stops in position 1",
-            "focus": "A minor pentatonic · position 1 · two notes at once on the B and high e strings",
             "minutes": 5,
             "level": "beginner",
             "area": "guitar",
@@ -445,7 +468,7 @@
               "/course/5/fifths",
               "/course/5/pentatonic"
             ],
-            "sections": [
+            "cells": [
               {
                 "type": "text",
                 "text": "Press Play below to start the play-along. Each bar goes from one pair to the other: both notes together, two single notes, then the next pair. Follow the tab until the jump between the pairs feels easy."
@@ -531,7 +554,6 @@
           },
           {
             "title": "A riff of your own",
-            "focus": "A minor pentatonic · position 1 · only 1 and 5, over drums and bass in A",
             "minutes": 4,
             "level": "beginner",
             "area": "guitar",
@@ -544,7 +566,7 @@
               "/course/5/power-chords",
               "/course/5/fifths"
             ],
-            "sections": [
+            "cells": [
               {
                 "type": "text",
                 "text": "Press Play below to start the band. Only {{1}} and {{5}} are in play, the two notes of today's power chords. Make up a short riff from them, one at a time or both together, and repeat it until it grooves. Then change one thing: the rhythm, the order or the octave."
@@ -555,7 +577,10 @@
                   "type": "backing-band",
                   "bpm": 80,
                   "key": "a",
-                  "parts": { "drums": "on", "bass": "on" }
+                  "parts": {
+                    "drums": "on",
+                    "bass": "on"
+                  }
                 }
               },
               {
@@ -585,7 +610,6 @@
         "exercises": [
           {
             "title": "G to C, smoother each round",
-            "focus": "G-C changes · one-minute rounds",
             "minutes": 4,
             "level": "beginner",
             "area": "guitar",
@@ -598,7 +622,7 @@
               "/course/2/c-d-g",
               "/course/2/one-minute-changes"
             ],
-            "sections": [
+            "cells": [
               {
                 "type": "text",
                 "text": "Tap a chord box to hear it. Change between G and C as smoothly as you can for about a minute, rest, and go again. Each round, try to have the next chord ready a little sooner after the strum."
@@ -617,7 +641,6 @@
           },
           {
             "title": "Position 1 with down-up picking",
-            "focus": "A minor pentatonic · position 1 · down-up picking · 70 then 80 bpm",
             "minutes": 6,
             "level": "beginner",
             "area": "guitar",
@@ -630,90 +653,103 @@
               "/course/1/spider",
               "/course/5/pentatonic"
             ],
-            "sections": [
+            "cells": [
               {
-                "type": "heading",
-                "text": "Down, up on open strings",
-                "minutes": 2
+                "type": "section",
+                "heading": "Down, up on open strings",
+                "minutes": 2,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the metronome. Pick each open string down, up, down, up, and follow the arrows under the tab. Keep going until your hand swings evenly, with no stop between the strokes."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "picking-drill",
+                      "strokes": "DU",
+                      "notesPerString": 4,
+                      "bpm": 70
+                    }
+                  }
+                ]
               },
               {
-                "type": "text",
-                "text": "Press Play below to start the metronome. Pick each open string down, up, down, up, and follow the arrows under the tab. Keep going until your hand swings evenly, with no stop between the strokes."
+                "type": "section",
+                "heading": "Position 1 at 70",
+                "minutes": 2,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the metronome at 70. Play the position up and down from the low {{1}}, one note per beat, picking down, up all the way."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "backing-band",
+                      "bpm": 70,
+                      "key": "a",
+                      "parts": {
+                        "click": "on"
+                      }
+                    }
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "scale-neck",
+                      "scale": "minor-pentatonic",
+                      "key": "a",
+                      "boxes": [
+                        1
+                      ],
+                      "highlight": [
+                        "1"
+                      ]
+                    }
+                  }
+                ]
               },
               {
-                "type": "tool",
-                "tool": {
-                  "type": "picking-drill",
-                  "strokes": "DU",
-                  "notesPerString": 4,
-                  "bpm": 70
-                }
-              },
-              {
-                "type": "heading",
-                "text": "Position 1 at 70",
-                "minutes": 2
-              },
-              {
-                "type": "text",
-                "text": "Press Play below to start the metronome at 70. Play the position up and down from the low {{1}}, one note per beat, picking down, up all the way."
-              },
-              {
-                "type": "tool",
-                "tool": {
-                  "type": "backing-band",
-                  "bpm": 70,
-                  "key": "a", "parts": { "click": "on" } }
-              },
-              {
-                "type": "tool",
-                "tool": {
-                  "type": "scale-neck",
-                  "scale": "minor-pentatonic",
-                  "key": "a",
-                  "boxes": [
-                    1
-                  ],
-                  "highlight": [
-                    "1"
-                  ]
-                }
-              },
-              {
-                "type": "heading",
-                "text": "Position 1 at 80",
-                "minutes": 2
-              },
-              {
-                "type": "text",
-                "text": "Press Play below to start the metronome at 80. Same position, same picking. If it feels rushed, go back to 70 for a round."
-              },
-              {
-                "type": "tool",
-                "tool": {
-                  "type": "backing-band",
-                  "bpm": 80,
-                  "key": "a", "parts": { "click": "on" } }
-              },
-              {
-                "type": "tool",
-                "tool": {
-                  "type": "scale-neck",
-                  "scale": "minor-pentatonic",
-                  "key": "a",
-                  "boxes": [
-                    1
-                  ],
-                  "highlight": [
-                    "1"
-                  ]
-                }
+                "type": "section",
+                "heading": "Position 1 at 80",
+                "minutes": 2,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the metronome at 80. Same position, same picking. If it feels rushed, go back to 70 for a round."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "backing-band",
+                      "bpm": 80,
+                      "key": "a",
+                      "parts": {
+                        "click": "on"
+                      }
+                    }
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "scale-neck",
+                      "scale": "minor-pentatonic",
+                      "key": "a",
+                      "boxes": [
+                        1
+                      ],
+                      "highlight": [
+                        "1"
+                      ]
+                    }
+                  }
+                ]
               }
             ]
           },
           {
             "title": "Call and response",
-            "focus": "Position 1 over drums and bass in A · question and answer",
             "minutes": 5,
             "level": "beginner",
             "area": "guitar",
@@ -726,7 +762,7 @@
               "/course/5/pentatonic",
               "/course/5/soloing"
             ],
-            "sections": [
+            "cells": [
               {
                 "type": "text",
                 "text": "Press Play below to start the band. Play a short phrase that ends anywhere (the question), then answer it with one that ends on {{1}}. Keep the answer close to the question, as if replying."
@@ -737,7 +773,10 @@
                   "type": "backing-band",
                   "bpm": 80,
                   "key": "a",
-                  "parts": { "drums": "on", "bass": "on" }
+                  "parts": {
+                    "drums": "on",
+                    "bass": "on"
+                  }
                 }
               },
               {
@@ -758,7 +797,6 @@
           },
           {
             "title": "Sol La Sol, in two keys",
-            "focus": "A short tune from tab · in G, then in C · 70 bpm",
             "minutes": 5,
             "level": "beginner",
             "area": "guitar",
@@ -770,31 +808,39 @@
             "learnBefore": [
               "/course/4/melodies"
             ],
-            "sections": [
+            "cells": [
               {
-                "type": "heading",
-                "text": "The tune",
-                "minutes": 5
-              },
-              {
-                "type": "text",
-                "text": "Press Play below to hear the tune, then play along from the tab.\nOnce you can hum it before you play it, learn it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but the tune keeps its shape."
-              },
-              {
-                "type": "tool",
-                "tool": { "type": "step-choice", "options": [{ "key": "g" }, { "key": "c" }] }
-              },
-              {
-                "type": "tool",
-                "tool": {
-                  "type": "guitar-play-along",
-                  "shape": {
-                    "shape": "melody",
-                    "tune": 36,
-                    "key": "g"
+                "type": "section",
+                "heading": "The tune",
+                "minutes": 5,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to hear the tune, then play along from the tab.\nOnce you can hum it before you play it, learn it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but the tune keeps its shape."
                   },
-                  "bpm": 70,
-                  "view": "tab"
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "guitar-play-along",
+                      "shape": {
+                        "shape": "melody",
+                        "tune": 36,
+                        "key": "g"
+                      },
+                      "bpm": 70,
+                      "view": "tab"
+                    }
+                  }
+                ],
+                "choice": {
+                  "options": [
+                    {
+                      "key": "g"
+                    },
+                    {
+                      "key": "c"
+                    }
+                  ]
                 }
               }
             ]
@@ -806,7 +852,6 @@
         "exercises": [
           {
             "title": "G, C and D as triads",
-            "focus": "G-C-D-G triads · top three strings · one shape moved, then three shapes · 60 bpm",
             "minutes": 6,
             "level": "beginner",
             "area": "guitar",
@@ -818,164 +863,167 @@
             "learnBefore": [
               "/course/5/triads"
             ],
-            "sections": [
+            "cells": [
               {
-                "type": "heading",
-                "text": "One shape, three chords",
-                "minutes": 3
-              },
-              {
-                "type": "text",
-                "text": "Press Play below to start the play-along. One small shape on the top three strings is G, and the same shape further up the neck is C, then D, just as the power chord shape moved on day 2. Strike the three strings on every beat and follow the tab, until the slide lands on beat 1."
-              },
-              {
-                "type": "tool",
-                "tool": {
-                  "type": "guitar-play-along",
-                  "shape": {
-                    "shape": "chord-steps",
-                    "chords": [
-                      {
-                        "chord": "G",
-                        "steps": [
-                          {
-                            "grip": [
-                              "1",
-                              "3",
-                              "5"
-                            ],
-                            "strings": "321",
-                            "fret": 3
-                          }
-                        ]
-                      },
-                      {
-                        "chord": "C",
-                        "steps": [
-                          {
-                            "grip": [
-                              "1",
-                              "3",
-                              "5"
-                            ],
-                            "strings": "321",
-                            "fret": 8
-                          }
-                        ]
-                      },
-                      {
-                        "chord": "D",
-                        "steps": [
-                          {
-                            "grip": [
-                              "1",
-                              "3",
-                              "5"
-                            ],
-                            "strings": "321",
-                            "fret": 10
-                          }
-                        ]
-                      },
-                      {
-                        "chord": "G",
-                        "steps": [
-                          {
-                            "grip": [
-                              "1",
-                              "3",
-                              "5"
-                            ],
-                            "strings": "321",
-                            "fret": 3
-                          }
-                        ]
-                      }
-                    ]
+                "type": "section",
+                "heading": "One shape, three chords",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the play-along. One small shape on the top three strings is G, and the same shape further up the neck is C, then D, just as the power chord shape moved on day 2. Strike the three strings on every beat and follow the tab, until the slide lands on beat 1."
                   },
-                  "bpm": 60,
-                  "view": "tab"
-                }
-              },
-              {
-                "type": "heading",
-                "text": "Three shapes, one place",
-                "minutes": 3
-              },
-              {
-                "type": "text",
-                "text": "Now your hand stays where it is and the shape changes: the same three chords, all within a few frets. Press Play below and follow the tab. Notice which fingers barely move from one chord to the next."
-              },
-              {
-                "type": "tool",
-                "tool": {
-                  "type": "guitar-play-along",
-                  "shape": {
-                    "shape": "chord-steps",
-                    "chords": [
-                      {
-                        "chord": "G",
-                        "steps": [
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "guitar-play-along",
+                      "shape": {
+                        "shape": "chord-steps",
+                        "chords": [
                           {
-                            "grip": [
-                              "1",
-                              "3",
-                              "5"
-                            ],
-                            "strings": "321"
+                            "chord": "G",
+                            "steps": [
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "5"
+                                ],
+                                "strings": "321",
+                                "fret": 3
+                              }
+                            ]
+                          },
+                          {
+                            "chord": "C",
+                            "steps": [
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "5"
+                                ],
+                                "strings": "321",
+                                "fret": 8
+                              }
+                            ]
+                          },
+                          {
+                            "chord": "D",
+                            "steps": [
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "5"
+                                ],
+                                "strings": "321",
+                                "fret": 10
+                              }
+                            ]
+                          },
+                          {
+                            "chord": "G",
+                            "steps": [
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "5"
+                                ],
+                                "strings": "321",
+                                "fret": 3
+                              }
+                            ]
                           }
                         ]
                       },
-                      {
-                        "chord": "C",
-                        "steps": [
-                          {
-                            "grip": [
-                              "1",
-                              "3",
-                              "5"
-                            ],
-                            "strings": "321"
-                          }
-                        ]
-                      },
-                      {
-                        "chord": "D",
-                        "steps": [
-                          {
-                            "grip": [
-                              "1",
-                              "3",
-                              "5"
-                            ],
-                            "strings": "321"
-                          }
-                        ]
-                      },
-                      {
-                        "chord": "G",
-                        "steps": [
-                          {
-                            "grip": [
-                              "1",
-                              "3",
-                              "5"
-                            ],
-                            "strings": "321"
-                          }
-                        ]
-                      }
-                    ]
+                      "bpm": 60,
+                      "view": "tab"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Three shapes, one place",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Now your hand stays where it is and the shape changes: the same three chords, all within a few frets. Press Play below and follow the tab. Notice which fingers barely move from one chord to the next."
                   },
-                  "bpm": 60,
-                  "view": "tab"
-                }
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "guitar-play-along",
+                      "shape": {
+                        "shape": "chord-steps",
+                        "chords": [
+                          {
+                            "chord": "G",
+                            "steps": [
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "5"
+                                ],
+                                "strings": "321"
+                              }
+                            ]
+                          },
+                          {
+                            "chord": "C",
+                            "steps": [
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "5"
+                                ],
+                                "strings": "321"
+                              }
+                            ]
+                          },
+                          {
+                            "chord": "D",
+                            "steps": [
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "5"
+                                ],
+                                "strings": "321"
+                              }
+                            ]
+                          },
+                          {
+                            "chord": "G",
+                            "steps": [
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "5"
+                                ],
+                                "strings": "321"
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      "bpm": 60,
+                      "view": "tab"
+                    }
+                  }
+                ]
               }
             ]
           },
           {
             "title": "G-Em-C-D strumming",
-            "focus": "G-Em-C-D · down strums at 70 bpm",
             "minutes": 5,
             "level": "beginner",
             "area": "guitar",
@@ -988,56 +1036,59 @@
               "/course/2/c-d-g",
               "/course/2/em-and-am"
             ],
-            "sections": [
+            "cells": [
               {
-                "type": "heading",
-                "text": "The shapes",
-                "minutes": 2
+                "type": "section",
+                "heading": "The shapes",
+                "minutes": 2,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Tap a chord box to hear it, then fret each one as shown. Go round the loop slowly, until Em to C stops being the slow change."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "chord-shapes",
+                      "chords": [
+                        "G",
+                        "Em",
+                        "C",
+                        "D"
+                      ]
+                    }
+                  }
+                ]
               },
               {
-                "type": "text",
-                "text": "Tap a chord box to hear it, then fret each one as shown. Go round the loop slowly, until Em to C stops being the slow change."
-              },
-              {
-                "type": "tool",
-                "tool": {
-                  "type": "chord-shapes",
-                  "chords": [
-                    "G",
-                    "Em",
-                    "C",
-                    "D"
-                  ]
-                }
-              },
-              {
-                "type": "heading",
-                "text": "In time",
-                "minutes": 3
-              },
-              {
-                "type": "text",
-                "text": "Press Play below to start the metronome; the lit box shows the chord. Strum down on every beat, one bar per chord."
-              },
-              {
-                "type": "tool",
-                "tool": {
-                  "type": "strum-along",
-                  "chords": [
-                    "G",
-                    "Em",
-                    "C",
-                    "D"
-                  ],
-                  "bpm": 70,
-                  "pattern": "D D D D"
-                }
+                "type": "section",
+                "heading": "In time",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the metronome; the lit box shows the chord. Strum down on every beat, one bar per chord."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "strum-along",
+                      "chords": [
+                        "G",
+                        "Em",
+                        "C",
+                        "D"
+                      ],
+                      "bpm": 70,
+                      "pattern": "D D D D"
+                    }
+                  }
+                ]
               }
             ]
           },
           {
             "title": "End on a different note",
-            "focus": "Position 1 over drums and bass in A · end on A or on C",
             "minutes": 4,
             "level": "beginner",
             "area": "guitar",
@@ -1050,7 +1101,7 @@
               "/course/5/pentatonic",
               "/course/5/soloing"
             ],
-            "sections": [
+            "cells": [
               {
                 "type": "text",
                 "text": "Press Play below to start the band. Play phrases that end on {{1}}, then phrases that end on {{b3}}, and listen: the first sounds finished, the second stays open. Then pick the ending each phrase wants."
@@ -1061,7 +1112,10 @@
                   "type": "backing-band",
                   "bpm": 75,
                   "key": "a",
-                  "parts": { "drums": "on", "bass": "on" }
+                  "parts": {
+                    "drums": "on",
+                    "bass": "on"
+                  }
                 }
               },
               {
@@ -1083,7 +1137,6 @@
           },
           {
             "title": "Do Mi Sol tune, in G, C and D",
-            "focus": "A tune on the three notes of a triad · in G, C and D · 70 bpm",
             "minutes": 5,
             "level": "beginner",
             "area": "guitar",
@@ -1096,31 +1149,42 @@
               "/course/4/do-mi-sol-neck",
               "/course/5/triads"
             ],
-            "sections": [
+            "cells": [
               {
-                "type": "heading",
-                "text": "The tune",
-                "minutes": 5
-              },
-              {
-                "type": "text",
-                "text": "Press Play below to hear the tune and see each note on the neck: it is the G triad, one note at a time. Play along until you can hear the next note before you play it.\nThen play it in other keys. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but the tune is still a triad, one note at a time."
-              },
-              {
-                "type": "tool",
-                "tool": { "type": "step-choice", "options": [{ "key": "g" }, { "key": "c" }, { "key": "d" }] }
-              },
-              {
-                "type": "tool",
-                "tool": {
-                  "type": "guitar-play-along",
-                  "shape": {
-                    "shape": "melody",
-                    "tune": 22,
-                    "key": "g"
+                "type": "section",
+                "heading": "The tune",
+                "minutes": 5,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to hear the tune and see each note on the neck: it is the G triad, one note at a time. Play along until you can hear the next note before you play it.\nThen play it in other keys. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but the tune is still a triad, one note at a time."
                   },
-                  "bpm": 70,
-                  "view": "neck"
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "guitar-play-along",
+                      "shape": {
+                        "shape": "melody",
+                        "tune": 22,
+                        "key": "g"
+                      },
+                      "bpm": 70,
+                      "view": "neck"
+                    }
+                  }
+                ],
+                "choice": {
+                  "options": [
+                    {
+                      "key": "g"
+                    },
+                    {
+                      "key": "c"
+                    },
+                    {
+                      "key": "d"
+                    }
+                  ]
                 }
               }
             ]
@@ -1132,7 +1196,6 @@
         "exercises": [
           {
             "title": "Spider from the 1st fret",
-            "focus": "Frets 1 to 4 · one finger per fret · every string",
             "minutes": 4,
             "level": "beginner",
             "area": "guitar",
@@ -1144,7 +1207,7 @@
             "learnBefore": [
               "/course/1/spider"
             ],
-            "sections": [
+            "cells": [
               {
                 "type": "text",
                 "text": "Press Play below to start the metronome and follow the tab: frets 1 to 4 with fingers 1, 2, 3 and 4 on every string, up and back. Keep going until the stretch feels as easy as it did at the 5th fret."
@@ -1163,7 +1226,6 @@
           },
           {
             "title": "E5, G5, A5 riff",
-            "focus": "Power chords E5-G5-A5 · down strums at 80 bpm",
             "minutes": 4,
             "level": "beginner",
             "area": "guitar",
@@ -1175,7 +1237,7 @@
             "learnBefore": [
               "/course/5/power-chords"
             ],
-            "sections": [
+            "cells": [
               {
                 "type": "text",
                 "text": "Tap a chord box to see where each chord sits. It is day 2's shape, in three new places."
@@ -1213,7 +1275,6 @@
           },
           {
             "title": "E minor pentatonic, two places",
-            "focus": "E minor pentatonic · the open position, then the 12th fret · 70 bpm",
             "minutes": 8,
             "level": "beginner",
             "area": "guitar",
@@ -1225,66 +1286,73 @@
             "learnBefore": [
               "/course/5/pentatonic"
             ],
-            "sections": [
+            "cells": [
               {
-                "type": "heading",
-                "text": "The open position",
-                "minutes": 4
-              },
-              {
-                "type": "text",
-                "text": "Press Play below to start the metronome. Play E minor pentatonic in the open position, up and down, one note per beat, starting and ending on {{1}}."
-              },
-              {
-                "type": "tool",
-                "tool": {
-                  "type": "backing-band",
-                  "bpm": 70,
-                  "key": "e", "parts": { "click": "on" } }
-              },
-              {
-                "type": "tool",
-                "tool": {
-                  "type": "scale-neck",
-                  "scale": "minor-pentatonic",
-                  "key": "e",
-                  "placement": {
-                    "by": "open"
+                "type": "section",
+                "heading": "The open position",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the metronome. Play E minor pentatonic in the open position, up and down, one note per beat, starting and ending on {{1}}."
                   },
-                  "highlight": [
-                    "1"
-                  ]
-                }
-              },
-              {
-                "type": "heading",
-                "text": "At the 12th fret",
-                "minutes": 4
-              },
-              {
-                "type": "text",
-                "text": "The same notes an octave up, in the shape you know from A. With the metronome above still going, play it up and down, then hop between the two positions, landing on a {{1}} each time."
-              },
-              {
-                "type": "tool",
-                "tool": {
-                  "type": "scale-neck",
-                  "scale": "minor-pentatonic",
-                  "key": "e",
-                  "placement": {
-                    "by": "fret",
-                    "fret": 12
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "backing-band",
+                      "bpm": 70,
+                      "key": "e",
+                      "parts": {
+                        "click": "on"
+                      }
+                    }
                   },
-                  "highlight": [
-                    "1"
-                  ]
-                }
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "scale-neck",
+                      "scale": "minor-pentatonic",
+                      "key": "e",
+                      "placement": {
+                        "by": "open"
+                      },
+                      "highlight": [
+                        "1"
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "At the 12th fret",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "The same notes an octave up, in the shape you know from A. With the metronome above still going, play it up and down, then hop between the two positions, landing on a {{1}} each time."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "scale-neck",
+                      "scale": "minor-pentatonic",
+                      "key": "e",
+                      "placement": {
+                        "by": "fret",
+                        "fret": 12
+                      },
+                      "highlight": [
+                        "1"
+                      ]
+                    }
+                  }
+                ]
               }
             ]
           },
           {
             "title": "Your A phrases in E",
-            "focus": "E minor pentatonic · the open position · over drums and bass in E",
             "minutes": 4,
             "level": "beginner",
             "area": "guitar",
@@ -1297,7 +1365,7 @@
               "/course/5/pentatonic",
               "/course/5/soloing"
             ],
-            "sections": [
+            "cells": [
               {
                 "type": "text",
                 "text": "Press Play below to start the band. Take a phrase you made up in A this week and play it here, then make up new ones that end on {{1}}."
@@ -1308,7 +1376,10 @@
                   "type": "backing-band",
                   "bpm": 80,
                   "key": "e",
-                  "parts": { "drums": "on", "bass": "on" }
+                  "parts": {
+                    "drums": "on",
+                    "bass": "on"
+                  }
                 }
               },
               {
@@ -1334,7 +1405,6 @@
         "exercises": [
           {
             "title": "Triads, one string set lower",
-            "focus": "G-C-D-G triads on the D, G and B strings · 60 bpm",
             "minutes": 4,
             "level": "beginner",
             "area": "guitar",
@@ -1346,7 +1416,7 @@
             "learnBefore": [
               "/course/5/triads"
             ],
-            "sections": [
+            "cells": [
               {
                 "type": "text",
                 "text": "Press Play below to start the play-along. These are day 4's chords, moved from the top three strings to the D, G and B strings: the shapes change, the chords don't. Strike the three strings on every beat, until each new shape lands on beat 1."
@@ -1420,7 +1490,6 @@
           },
           {
             "title": "G, C and D without looking",
-            "focus": "G-C-D-G changes · down strums at 70 bpm",
             "minutes": 5,
             "level": "beginner",
             "area": "guitar",
@@ -1429,8 +1498,11 @@
             ],
             "topic": "guitar-basic-chords",
             "why": "Looking at your hand is a habit, and a change you can make without looking is one you really own.",
-            "learnBefore": ["/course/2/c-d-g", "/course/2/all-downstrums"],
-            "sections": [
+            "learnBefore": [
+              "/course/2/c-d-g",
+              "/course/2/all-downstrums"
+            ],
+            "cells": [
               {
                 "type": "text",
                 "text": "Press Play below to start the metronome. Strum along, but watch the chord boxes instead of your hand. When a change goes wrong, keep strumming and catch the next one."
@@ -1453,7 +1525,6 @@
           },
           {
             "title": "A riff: triad, two notes, double stop",
-            "focus": "G-C-D-G · triads on the top strings, two notes, a double stop · 60 then 70 bpm",
             "minutes": 6,
             "level": "beginner",
             "area": "guitar",
@@ -1466,192 +1537,195 @@
               "/course/5/triads",
               "/course/5/fifths"
             ],
-            "sections": [
+            "cells": [
               {
-                "type": "heading",
-                "text": "G and C at 60",
-                "minutes": 3
-              },
-              {
-                "type": "text",
-                "text": "Press Play below to start the play-along. Each bar is the chord's triad, two of its notes picked on their own, then the triad again. Follow the tab, and keep the shape held down so the single notes are already under your fingers."
-              },
-              {
-                "type": "tool",
-                "tool": {
-                  "type": "guitar-play-along",
-                  "shape": {
-                    "shape": "chord-steps",
-                    "chords": [
-                      {
-                        "chord": "G",
-                        "steps": [
-                          {
-                            "grip": [
-                              "1",
-                              "3",
-                              "5"
-                            ],
-                            "strings": "321"
-                          },
-                          "5",
-                          "3",
-                          {
-                            "grip": [
-                              "1",
-                              "3",
-                              "5"
-                            ],
-                            "strings": "321"
-                          }
-                        ]
-                      },
-                      {
-                        "chord": "C",
-                        "steps": [
-                          {
-                            "grip": [
-                              "1",
-                              "3",
-                              "5"
-                            ],
-                            "strings": "321"
-                          },
-                          "5",
-                          "3",
-                          {
-                            "grip": [
-                              "1",
-                              "3",
-                              "5"
-                            ],
-                            "strings": "321"
-                          }
-                        ]
-                      }
-                    ]
+                "type": "section",
+                "heading": "G and C at 60",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the play-along. Each bar is the chord's triad, two of its notes picked on their own, then the triad again. Follow the tab, and keep the shape held down so the single notes are already under your fingers."
                   },
-                  "bpm": 60,
-                  "view": "tab"
-                }
-              },
-              {
-                "type": "heading",
-                "text": "G, C, D, G at 70",
-                "minutes": 3
-              },
-              {
-                "type": "text",
-                "text": "Now D joins, and the last two bars end on a double stop instead of the triad. Once it flows, make it yours: pick two other notes of the chord in the middle of each bar."
-              },
-              {
-                "type": "tool",
-                "tool": {
-                  "type": "guitar-play-along",
-                  "shape": {
-                    "shape": "chord-steps",
-                    "chords": [
-                      {
-                        "chord": "G",
-                        "steps": [
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "guitar-play-along",
+                      "shape": {
+                        "shape": "chord-steps",
+                        "chords": [
                           {
-                            "grip": [
-                              "1",
-                              "3",
-                              "5"
-                            ],
-                            "strings": "321"
-                          },
-                          "5",
-                          "3",
-                          {
-                            "grip": [
-                              "1",
-                              "3",
-                              "5"
-                            ],
-                            "strings": "321"
-                          }
-                        ]
-                      },
-                      {
-                        "chord": "C",
-                        "steps": [
-                          {
-                            "grip": [
-                              "1",
-                              "3",
-                              "5"
-                            ],
-                            "strings": "321"
-                          },
-                          "5",
-                          "3",
-                          {
-                            "grip": [
-                              "1",
-                              "3",
-                              "5"
-                            ],
-                            "strings": "321"
-                          }
-                        ]
-                      },
-                      {
-                        "chord": "D",
-                        "steps": [
-                          {
-                            "grip": [
-                              "1",
-                              "3",
-                              "5"
-                            ],
-                            "strings": "321"
-                          },
-                          "5",
-                          "3",
-                          {
-                            "grip": [
-                              "1",
-                              "3"
-                            ],
-                            "strings": "21"
-                          }
-                        ]
-                      },
-                      {
-                        "chord": "G",
-                        "steps": [
-                          {
-                            "grip": [
-                              "1",
-                              "3",
-                              "5"
-                            ],
-                            "strings": "321"
-                          },
-                          "5",
-                          "3",
-                          {
-                            "grip": [
+                            "chord": "G",
+                            "steps": [
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "5"
+                                ],
+                                "strings": "321"
+                              },
                               "5",
-                              "1"
-                            ],
-                            "strings": "21"
+                              "3",
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "5"
+                                ],
+                                "strings": "321"
+                              }
+                            ]
+                          },
+                          {
+                            "chord": "C",
+                            "steps": [
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "5"
+                                ],
+                                "strings": "321"
+                              },
+                              "5",
+                              "3",
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "5"
+                                ],
+                                "strings": "321"
+                              }
+                            ]
                           }
                         ]
-                      }
-                    ]
+                      },
+                      "bpm": 60,
+                      "view": "tab"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "G, C, D, G at 70",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Now D joins, and the last two bars end on a double stop instead of the triad. Once it flows, make it yours: pick two other notes of the chord in the middle of each bar."
                   },
-                  "bpm": 70,
-                  "view": "tab"
-                }
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "guitar-play-along",
+                      "shape": {
+                        "shape": "chord-steps",
+                        "chords": [
+                          {
+                            "chord": "G",
+                            "steps": [
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "5"
+                                ],
+                                "strings": "321"
+                              },
+                              "5",
+                              "3",
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "5"
+                                ],
+                                "strings": "321"
+                              }
+                            ]
+                          },
+                          {
+                            "chord": "C",
+                            "steps": [
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "5"
+                                ],
+                                "strings": "321"
+                              },
+                              "5",
+                              "3",
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "5"
+                                ],
+                                "strings": "321"
+                              }
+                            ]
+                          },
+                          {
+                            "chord": "D",
+                            "steps": [
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "5"
+                                ],
+                                "strings": "321"
+                              },
+                              "5",
+                              "3",
+                              {
+                                "grip": [
+                                  "1",
+                                  "3"
+                                ],
+                                "strings": "21"
+                              }
+                            ]
+                          },
+                          {
+                            "chord": "G",
+                            "steps": [
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "5"
+                                ],
+                                "strings": "321"
+                              },
+                              "5",
+                              "3",
+                              {
+                                "grip": [
+                                  "5",
+                                  "1"
+                                ],
+                                "strings": "21"
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      "bpm": 70,
+                      "view": "tab"
+                    }
+                  }
+                ]
               }
             ]
           },
           {
             "title": "A longer tune",
-            "focus": "A tune in G · from tab at 65, then on the neck at 75",
             "minutes": 5,
             "level": "beginner",
             "area": "guitar",
@@ -1663,50 +1737,54 @@
             "learnBefore": [
               "/course/4/melodies"
             ],
-            "sections": [
+            "cells": [
               {
-                "type": "heading",
-                "text": "From tab at 65",
-                "minutes": 2
-              },
-              {
-                "type": "text",
-                "text": "Press Play below to hear the tune and play along from the tab."
-              },
-              {
-                "type": "tool",
-                "tool": {
-                  "type": "guitar-play-along",
-                  "shape": {
-                    "shape": "melody",
-                    "tune": 20,
-                    "key": "g"
+                "type": "section",
+                "heading": "From tab at 65",
+                "minutes": 2,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to hear the tune and play along from the tab."
                   },
-                  "bpm": 65,
-                  "view": "tab"
-                }
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "guitar-play-along",
+                      "shape": {
+                        "shape": "melody",
+                        "tune": 20,
+                        "key": "g"
+                      },
+                      "bpm": 65,
+                      "view": "tab"
+                    }
+                  }
+                ]
               },
               {
-                "type": "heading",
-                "text": "On the neck at 75",
-                "minutes": 3
-              },
-              {
-                "type": "text",
-                "text": "Press Play below: now the tune is on the neck, a little faster. Play along until you can play it with your eyes closed."
-              },
-              {
-                "type": "tool",
-                "tool": {
-                  "type": "guitar-play-along",
-                  "shape": {
-                    "shape": "melody",
-                    "tune": 20,
-                    "key": "g"
+                "type": "section",
+                "heading": "On the neck at 75",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below: now the tune is on the neck, a little faster. Play along until you can play it with your eyes closed."
                   },
-                  "bpm": 75,
-                  "view": "neck"
-                }
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "guitar-play-along",
+                      "shape": {
+                        "shape": "melody",
+                        "tune": 20,
+                        "key": "g"
+                      },
+                      "bpm": 75,
+                      "view": "neck"
+                    }
+                  }
+                ]
               }
             ]
           }
@@ -1717,7 +1795,6 @@
         "exercises": [
           {
             "title": "G-Em-C-D, full pattern",
-            "focus": "G-Em-C-D · D . D U . U D U at 80 bpm",
             "minutes": 5,
             "level": "beginner",
             "area": "guitar",
@@ -1730,7 +1807,7 @@
               "/course/2/c-d-g",
               "/course/2/island-strum"
             ],
-            "sections": [
+            "cells": [
               {
                 "type": "text",
                 "text": "Press Play below to start the metronome. Strum the pattern shown in the boxes on each chord, and keep your hand moving down and up even where it misses the strings. Stay on it until the pattern swings on its own."
@@ -1753,7 +1830,6 @@
           },
           {
             "title": "Position 1: day 1 again, then your own drill",
-            "focus": "A minor pentatonic · position 1 at 80 bpm · a drill you make up",
             "minutes": 5,
             "level": "beginner",
             "area": "guitar",
@@ -1766,7 +1842,7 @@
               "/course/5/pentatonic",
               "/course/5/soloing"
             ],
-            "sections": [
+            "cells": [
               {
                 "type": "text",
                 "text": "Press Play below to start the metronome at 80: on day 1 this was 60. Play position 1 up and down from the low {{1}}, and notice what your hands no longer have to think about."
@@ -1776,7 +1852,11 @@
                 "tool": {
                   "type": "backing-band",
                   "bpm": 80,
-                  "key": "a", "parts": { "click": "on" } }
+                  "key": "a",
+                  "parts": {
+                    "click": "on"
+                  }
+                }
               },
               {
                 "type": "tool",
@@ -1815,7 +1895,6 @@
           },
           {
             "title": "Jam over Am and G",
-            "focus": "Position 1 over Am-G · land on the root, then on a double stop",
             "minutes": 6,
             "level": "beginner",
             "area": "guitar",
@@ -1829,86 +1908,89 @@
               "/course/5/soloing",
               "/course/5/fifths"
             ],
-            "sections": [
+            "cells": [
               {
-                "type": "heading",
-                "text": "Land on the root",
-                "minutes": 3
-              },
-              {
-                "type": "text",
-                "text": "Press Play below to start the backing. Improvise from position 1 and land on the ringed note as each chord comes round: {{1}} for Am."
-              },
-              {
-                "type": "tool",
-                "tool": {
-                  "type": "guitar-play-along",
-                  "shape": {
-                    "shape": "solo-over",
-                    "key": "a",
-                    "chords": [
-                      {
-                        "chord": "Am",
-                        "scale": "minor-pentatonic",
-                        "target": [
-                          "1"
-                        ]
-                      },
-                      {
-                        "chord": "G",
-                        "target": [
-                          "1"
-                        ]
-                      }
-                    ],
-                    "bars": 2
+                "type": "section",
+                "heading": "Land on the root",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the backing. Improvise from position 1 and land on the ringed note as each chord comes round: {{1}} for Am."
                   },
-                  "bpm": 80,
-                  "view": "neck"
-                }
-              },
-              {
-                "type": "heading",
-                "text": "Land on a double stop",
-                "minutes": 3
-              },
-              {
-                "type": "text",
-                "text": "Press Play below to start the same backing. This time end your phrases on one of day 2's double stops on the B and high e strings, and listen for which one suits Am and which suits G."
-              },
-              {
-                "type": "tool",
-                "tool": {
-                  "type": "guitar-play-along",
-                  "shape": {
-                    "shape": "solo-over",
-                    "key": "a",
-                    "chords": [
-                      {
-                        "chord": "Am",
-                        "scale": "minor-pentatonic",
-                        "target": [
-                          "1"
-                        ]
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "guitar-play-along",
+                      "shape": {
+                        "shape": "solo-over",
+                        "key": "a",
+                        "chords": [
+                          {
+                            "chord": "Am",
+                            "scale": "minor-pentatonic",
+                            "target": [
+                              "1"
+                            ]
+                          },
+                          {
+                            "chord": "G",
+                            "target": [
+                              "1"
+                            ]
+                          }
+                        ],
+                        "bars": 2
                       },
-                      {
-                        "chord": "G",
-                        "target": [
-                          "1"
-                        ]
-                      }
-                    ],
-                    "bars": 2
+                      "bpm": 80,
+                      "view": "neck"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Land on a double stop",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the same backing. This time end your phrases on one of day 2's double stops on the B and high e strings, and listen for which one suits Am and which suits G."
                   },
-                  "bpm": 80,
-                  "view": "neck"
-                }
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "guitar-play-along",
+                      "shape": {
+                        "shape": "solo-over",
+                        "key": "a",
+                        "chords": [
+                          {
+                            "chord": "Am",
+                            "scale": "minor-pentatonic",
+                            "target": [
+                              "1"
+                            ]
+                          },
+                          {
+                            "chord": "G",
+                            "target": [
+                              "1"
+                            ]
+                          }
+                        ],
+                        "bars": 2
+                      },
+                      "bpm": 80,
+                      "view": "neck"
+                    }
+                  }
+                ]
               }
             ]
           },
           {
             "title": "Your tune, in a new key",
-            "focus": "Day 6's tune · in G, then in A · 75 bpm",
             "minutes": 4,
             "level": "beginner",
             "area": "guitar",
@@ -1920,31 +2002,39 @@
             "learnBefore": [
               "/course/4/melodies"
             ],
-            "sections": [
+            "cells": [
               {
-                "type": "heading",
-                "text": "The tune",
-                "minutes": 4
-              },
-              {
-                "type": "text",
-                "text": "Press Play below to start day 6's tune, and play along with it.\nThen play it in another key. Use the Key selector below to change the key, then press Play to start the tune again.\nWhen you change the key, the notes change but the tune keeps its shape.\nTo finish, play it on your own and change one thing: the speed, the octave or the ending."
-              },
-              {
-                "type": "tool",
-                "tool": { "type": "step-choice", "options": [{ "key": "g" }, { "key": "a" }] }
-              },
-              {
-                "type": "tool",
-                "tool": {
-                  "type": "guitar-play-along",
-                  "shape": {
-                    "shape": "melody",
-                    "tune": 20,
-                    "key": "g"
+                "type": "section",
+                "heading": "The tune",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start day 6's tune, and play along with it.\nThen play it in another key. Use the Key selector below to change the key, then press Play to start the tune again.\nWhen you change the key, the notes change but the tune keeps its shape.\nTo finish, play it on your own and change one thing: the speed, the octave or the ending."
                   },
-                  "bpm": 75,
-                  "view": "tab"
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "guitar-play-along",
+                      "shape": {
+                        "shape": "melody",
+                        "tune": 20,
+                        "key": "g"
+                      },
+                      "bpm": 75,
+                      "view": "tab"
+                    }
+                  }
+                ],
+                "choice": {
+                  "options": [
+                    {
+                      "key": "g"
+                    },
+                    {
+                      "key": "a"
+                    }
+                  ]
                 }
               }
             ]

@@ -30,7 +30,7 @@ const KIND: Record<PromptPartKind, string> = {
 function Offered({ part, entries }: { part: PromptPart; entries: CatalogueEntry[] }) {
   const o = offeredInterface(entries);
   if (part.id === "tools") return <div className="flex flex-col gap-3"><DebugList title="Tools offered to the AI" items={o.tools} /><DebugList title="Guitar play-along shapes" items={o.shapes} /></div>;
-  if (part.id === "sections") return <DebugList title="Section types" items={o.cells} />;
+  if (part.id === "cells") return <DebugList title="Cell types" items={o.cells} />;
   if (part.id === "links") return <ul className="font-mono text-slate-400">{o.links.map((l) => <li key={l} className="break-words">{l}</li>)}</ul>;
   return null;
 }

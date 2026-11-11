@@ -1,31 +1,102 @@
 {
   "id": "guitar-new-notes-on-e-and-a",
   "kind": "exercise",
-  "areas": ["guitar"],
+  "areas": [
+    "guitar"
+  ],
   "level": "new",
   "updated": "2026-11-10",
   "model": "claude-fable-5-2",
-  "concepts": ["notes-e-a-strings", "note-names"],
-  "docs": { "agents": 1, "teaching": 2 },
+  "concepts": [
+    "notes-e-a-strings",
+    "note-names"
+  ],
+  "docs": {
+    "agents": 1,
+    "teaching": 5
+  },
   "note": "The why says what makes the drill pay off (a moved chord is named by the note under it), each block is the same game turned a new way (find, name, every place), and every step says what to press, who acts (the game) and how the answer is given: by playing into the mic, by a name button, by tapping the neck. Done is a feel (no counting frets), never a count.",
   "exercise": {
     "title": "Notes on the low E and A strings",
-    "focus": "Natural notes on the E and A strings · frets 0 to 12 · find, name, every place",
     "minutes": 6,
-    "level": "new", "area": "guitar", "tags": ["theory", "technique"], "topic": "guitar-scales", "concepts": ["notes-e-a-strings"],
-    "why": "A chord shape moved up the neck is named by the note under it on the low E or the A string, so knowing these notes lets you find any chord you move.",
-    "learnBefore": ["/course/1/notes-on-e-and-a"],
-    "sections": [
-      { "type": "heading", "text": "Find the note", "minutes": 2 },
-      { "type": "text", "text": "Press Playing it (mic) under the neck below. Then press Start above the neck. The game names a note: find it on the low E or the A string and play it, saying its name out loud. Keep going until you stop counting frets from the open string." },
-      { "type": "tool", "tool": { "type": "note-finder", "mode": "find", "from": 0, "to": 12 } },
-      { "type": "heading", "text": "Name the lit note", "minutes": 2 },
-      { "type": "text", "text": "Press Start in the game below. Now the game lights a note on the neck: press its name under the neck. Play the note on your guitar as you answer, so your hand learns the place while your eyes learn the name." },
-      { "type": "tool", "tool": { "type": "note-finder", "mode": "name", "from": 0, "to": 12 } },
-      { "type": "heading", "text": "Every place", "minutes": 2 },
-      { "type": "text", "text": "Press Start in the game below. The game names a note: tap every place it sits on the two strings, then play those places on your guitar, low to high. Now make up your own round: pick any note and find it on both strings." },
-      { "type": "tool", "tool": { "type": "note-finder", "mode": "every", "from": 0, "to": 12 } }
+    "level": "new",
+    "area": "guitar",
+    "tags": [
+      "theory",
+      "technique"
     ],
-    "exploreMore": ["/theory/notes"]
+    "topic": "guitar-scales",
+    "concepts": [
+      "notes-e-a-strings"
+    ],
+    "why": "A chord shape moved up the neck is named by the note under it on the low E or the A string, so knowing these notes lets you find any chord you move.",
+    "learnBefore": [
+      "/course/1/notes-on-e-and-a"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Find the note",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Playing it (mic) under the neck below. Then press Start above the neck. The game names a note: find it on the low E or the A string and play it, saying its name out loud. Keep going until you stop counting frets from the open string."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "note-finder",
+              "mode": "find",
+              "from": 0,
+              "to": 12
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Name the lit note",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start in the game below. Now the game lights a note on the neck: press its name under the neck. Play the note on your guitar as you answer, so your hand learns the place while your eyes learn the name."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "note-finder",
+              "mode": "name",
+              "from": 0,
+              "to": 12
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Every place",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start in the game below. The game names a note: tap every place it sits on the two strings, then play those places on your guitar, low to high. Now make up your own round: pick any note and find it on both strings."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "note-finder",
+              "mode": "every",
+              "from": 0,
+              "to": 12
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/notes"
+    ]
   }
 }

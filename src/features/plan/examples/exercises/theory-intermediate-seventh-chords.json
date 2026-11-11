@@ -1,33 +1,119 @@
 {
   "id": "theory-intermediate-seventh-chords",
   "kind": "exercise",
-  "areas": ["theory"],
+  "areas": [
+    "theory"
+  ],
   "level": "intermediate",
   "updated": "2026-11-10",
   "model": "claude-fable-5-2",
-  "concepts": ["seventh-chords"],
-  "docs": { "agents": 0, "teaching": 1 },
+  "concepts": [
+    "seventh-chords"
+  ],
+  "docs": {
+    "agents": 0,
+    "teaching": 5
+  },
   "note": "Three 7th chords on one root, each a neck with only its root and the notes that make it different ringed, one view per chord, then named by ear on any root. The why gives the learner the way to tell them apart (which note moved), each step is a tap on the neck instead of a description of the sound, and the game's answers are named as its buttons show them.",
   "exercise": {
     "title": "Three 7th chords on C",
-    "focus": "Cmaj7 · C7 · Cm7 · naming 7th chords by ear",
     "minutes": 9,
-    "level": "intermediate", "area": "theory", "tags": ["theory", "ear"], "topic": "theory-building-chords", "concepts": ["seventh-chords"],
-    "why": "The three chords share a root and each differs from the next by one note, so when you can hear which note moved, you can name the chord.",
-    "learnBefore": ["/course/7/sevenths"],
-    "sections": [
-      { "type": "heading", "text": "Maj7 and dominant 7", "minutes": 3 },
-      { "type": "text", "text": "Cmaj7 has a major 7th, {{7}}, a half step under the root. Tap {{1}} then {{7}} on the neck below, then tap through the whole chord." },
-      { "type": "tool", "tool": { "type": "arpeggio-neck", "chord": "Cmaj7", "highlight": ["1", "7"] } },
-      { "type": "text", "text": "C7 lowers that one note to {{b7}}, a whole step under the root. Tap {{1}} then {{b7}}, then the whole chord, and go back to Cmaj7 above to compare." },
-      { "type": "tool", "tool": { "type": "arpeggio-neck", "chord": "C7", "highlight": ["1", "b7"] } },
-      { "type": "heading", "text": "Minor 7", "minutes": 2 },
-      { "type": "text", "text": "Cm7 keeps {{b7}} and lowers the 3rd a half step to {{b3}}. Tap {{1}} {{b3}} {{b7}}, then the whole chord. Go between the three necks until you can say which note moved." },
-      { "type": "tool", "tool": { "type": "arpeggio-neck", "chord": "Cm7", "highlight": ["1", "b3", "b7"] } },
-      { "type": "heading", "text": "Name it by ear", "minutes": 4 },
-      { "type": "text", "text": "Press Start in the game below: it plays a chord on a new root each time, and you pick Major, Minor, Dominant 7, Major 7 or Minor 7. Listen to the top note first: a half step under the octave means Major 7. Keep going until the name comes before you work it out." },
-      { "type": "tool", "tool": { "type": "interval-ears", "kind": "chord" } }
+    "level": "intermediate",
+    "area": "theory",
+    "tags": [
+      "theory",
+      "ear"
     ],
-    "exploreMore": ["/course/7/hearing-sevenths"]
+    "topic": "theory-building-chords",
+    "concepts": [
+      "seventh-chords"
+    ],
+    "why": "The three chords share a root and each differs from the next by one note, so when you can hear which note moved, you can name the chord.",
+    "learnBefore": [
+      "/course/7/sevenths"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Maj7 and dominant 7",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Cmaj7 has a major 7th, {{7}}, a half step under the root. Tap {{1}} then {{7}} on the neck below, then tap through the whole chord."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "arpeggio-neck",
+              "chord": "Cmaj7",
+              "highlight": [
+                "1",
+                "7"
+              ]
+            }
+          },
+          {
+            "type": "text",
+            "text": "C7 lowers that one note to {{b7}}, a whole step under the root. Tap {{1}} then {{b7}}, then the whole chord, and go back to Cmaj7 above to compare."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "arpeggio-neck",
+              "chord": "C7",
+              "highlight": [
+                "1",
+                "b7"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Minor 7",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Cm7 keeps {{b7}} and lowers the 3rd a half step to {{b3}}. Tap {{1}} {{b3}} {{b7}}, then the whole chord. Go between the three necks until you can say which note moved."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "arpeggio-neck",
+              "chord": "Cm7",
+              "highlight": [
+                "1",
+                "b3",
+                "b7"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Name it by ear",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start in the game below: it plays a chord on a new root each time, and you pick Major, Minor, Dominant 7, Major 7 or Minor 7. Listen to the top note first: a half step under the octave means Major 7. Keep going until the name comes before you work it out."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "interval-ears",
+              "kind": "chord"
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/course/7/hearing-sevenths"
+    ]
   }
 }

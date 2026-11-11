@@ -1,6 +1,6 @@
 ---
 name: teaching-voice
-version: 4
+version: 5
 description: How musickit teaching text sounds - plain, short, practical English for course articles, exercise text, glossary meanings, about lines and captions. Use whenever writing or editing any learner-facing music text in this repo, alone or from the course-article, exercise-example and review-teaching-text skills. Its "Words about the app" section is also the house wording for interface copy (buttons, tour steps, notices, flow text), read alongside design:ux-copy.
 ---
 
@@ -70,7 +70,7 @@ A step is also interface copy: the learner has to find a control with one hand o
 - **Verb, label, where, what it starts**, in that order: "Press Play below to start the metronome." Never a bare "Press Play." Where is one word, "below" or "above"; add whose control it is only when the step has two of them ("Press Play on the first tab below", "under the neck").
 - **One control per sentence.** "Press a chord box below to see the new shapes. Then press Play under them to start the metronome.", not both in one sentence. A tune or a run starts the mic with its Play, so it is one control: "Press Play below to hear the tune: the mic starts with it."
 - **One verb per kind of control.** Press a button or a chord box. Tap a note on a staff or a neck. Use a selector. Play and sing are for the instrument and the voice, never for the screen.
-- **The selector: invite, don't operate.** The row of chips a step-choice draws is "the selector", named by the label it shows: "the Key selector", "the Tempo selector", "the Position selector", "the Stage selector", "the Variant selector". The text says what to try and never which chip to tap, and never lists the options:
+- **The selector: invite, don't operate.** The row of chips a section's choice draws is "the selector", named by the label it shows: "the Key selector", "the Tempo selector", "the Position selector", "the Stage selector", "the Variant selector". The text says what to try and never which chip to tap, and never lists the options:
   - The reason to move on comes first, as a feel: "Once you can hum it before you play it, try it in another key."
   - Then the selector, in its own sentence, with what Play starts again after the change: "Use the Key selector below to change the key, then press Play to hear the tune there."
   - Then, on a new line, what changes and what stays: "When you change the key, the notes change but the tune keeps its shape."

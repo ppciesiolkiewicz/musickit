@@ -1,33 +1,141 @@
 {
   "id": "theory-beginner-one-four-five",
   "kind": "exercise",
-  "areas": ["theory"],
+  "areas": [
+    "theory"
+  ],
   "level": "beginner",
   "updated": "2026-11-10",
   "model": "claude-fable-5-2",
-  "concepts": ["chords-in-key", "major-scale"],
-  "docs": { "agents": 1, "teaching": 2 },
+  "concepts": [
+    "chords-in-key",
+    "major-scale"
+  ],
+  "docs": {
+    "agents": 1,
+    "teaching": 5
+  },
   "note": "Theory that is heard, not recited: tap the three roots on the staff and hear the chord on each, follow the chords in order, then in a new order and in a second key by the Key selector. The why gives the learner the method (listen for the root moving), and one word, the number, names a chord everywhere in the text. Works for any instrument, or none.",
   "exercise": {
     "title": "The 1, 4 and 5 chords in G, by ear",
-    "focus": "G major · roots G C D · 1-4-5-1 by ear · then in C",
     "minutes": 8,
-    "level": "beginner", "area": "theory", "tags": ["theory", "ear"], "topic": "theory-progressions", "concepts": ["chords-in-key"],
-    "why": "Each chord is built on one note of the scale, so once you hear the root move from 1 to 4 to 5, you can name the chord that is playing.",
-    "learnBefore": ["/course/5/one-four-five"],
-    "sections": [
-      { "type": "heading", "text": "Three roots, three chords", "minutes": 3 },
-      { "type": "text", "text": "The staff below, the five lines of music, shows G major: tap a note to hear it. Tap the three ringed notes, {{1}}, {{4}} and {{5}}. Then press G, C and D in the chord boxes under the staff: each chord is built on one of those notes." },
-      { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "g", "voice": "tenor", "highlight": ["1", "4", "5"], "mic": false } },
-      { "type": "tool", "tool": { "type": "chord-shapes", "chords": ["G", "C", "D"] } },
-      { "type": "heading", "text": "Follow the changes", "minutes": 3 },
-      { "type": "text", "text": "Press Play below to start the band: G, C, D and back to G, one bar each. Call out 1, 4 or 5 as each chord arrives, with the chord boxes to help. Keep going until you hear a change coming before the box lights." },
-      { "type": "tool", "tool": { "type": "backing-track", "key": "g", "numerals": ["I", "IV", "V", "I"], "style": "pop", "bpm": 80 } },
-      { "type": "heading", "text": "A new order", "minutes": 2 },
-      { "type": "text", "text": "Press Play below to start the band: the same three chords in a new order. Look away from the screen and call out the number of each chord, then look back to check.\nThen do it in another key. Use the Key selector below to change the key, then press Play to start the band again.\nWhen you change the key, the chords are new but the numbers sound the same." },
-      { "type": "tool", "tool": { "type": "step-choice", "options": [{ "key": "g" }, { "key": "c" }] } },
-      { "type": "tool", "tool": { "type": "backing-track", "key": "g", "numerals": ["I", "V", "IV", "V"], "style": "ballad", "bpm": 80 } }
+    "level": "beginner",
+    "area": "theory",
+    "tags": [
+      "theory",
+      "ear"
     ],
-    "exploreMore": ["/course/5/hearing-changes"]
+    "topic": "theory-progressions",
+    "concepts": [
+      "chords-in-key"
+    ],
+    "why": "Each chord is built on one note of the scale, so once you hear the root move from 1 to 4 to 5, you can name the chord that is playing.",
+    "learnBefore": [
+      "/course/5/one-four-five"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Three roots, three chords",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The staff below, the five lines of music, shows G major: tap a note to hear it. Tap the three ringed notes, {{1}}, {{4}} and {{5}}. Then press G, C and D in the chord boxes under the staff: each chord is built on one of those notes."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "g",
+              "voice": "tenor",
+              "highlight": [
+                "1",
+                "4",
+                "5"
+              ],
+              "mic": false
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-shapes",
+              "chords": [
+                "G",
+                "C",
+                "D"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Follow the changes",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band: G, C, D and back to G, one bar each. Call out 1, 4 or 5 as each chord arrives, with the chord boxes to help. Keep going until you hear a change coming before the box lights."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "g",
+              "numerals": [
+                "I",
+                "IV",
+                "V",
+                "I"
+              ],
+              "style": "pop",
+              "bpm": 80
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "A new order",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band: the same three chords in a new order. Look away from the screen and call out the number of each chord, then look back to check.\nThen do it in another key. Use the Key selector below to change the key, then press Play to start the band again.\nWhen you change the key, the chords are new but the numbers sound the same."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "g",
+              "numerals": [
+                "I",
+                "V",
+                "IV",
+                "V"
+              ],
+              "style": "ballad",
+              "bpm": 80
+            }
+          }
+        ],
+        "choice": {
+          "options": [
+            {
+              "key": "g"
+            },
+            {
+              "key": "c"
+            }
+          ]
+        }
+      }
+    ],
+    "exploreMore": [
+      "/course/5/hearing-changes"
+    ]
   }
 }

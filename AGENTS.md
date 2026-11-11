@@ -18,7 +18,7 @@ This file and the teaching skills (`teaching-voice`, `course-article`, `exercise
 - Raise it in the same commit in the document and in `DOC_VERSIONS` (`src/features/plan/examples/index.ts`); a test holds the two together. The four teaching skills move as one.
 - Don't raise an example's tags by hand. They change only when the example is rewritten to the current documents.
 
-Version 0 of this file is everything before versions were kept (2026-11-10). Version 0 of the teaching skills is the older style, from before them; version 1 was once called the "new teaching style"; version 2 (2026-11-10) adds the selector, one control to a sentence, line breaks in a text and no stock lines; version 3 (2026-11-10) is what they say now: it adds the underlined care line (`_Don't reach for high notes._`).
+Version 0 of this file is everything before versions were kept (2026-11-10). Version 0 of the teaching skills is the older style, from before them; version 1 was once called the "new teaching style"; version 2 (2026-11-10) adds the selector, one control to a sentence, line breaks in a text and no stock lines; version 3 (2026-11-10) adds the underlined care line (`_Don't reach for high notes._`); version 5 (2026-11-12) is the block format: `cells` and `section` cells in place of `sections` and headings, a `choice` on a section or the block in place of the `step-choice` tool, hashtags in a title, no `focus`.
 
 ## Where the rules are
 

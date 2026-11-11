@@ -11,7 +11,7 @@ import { AREAS, conceptById } from "../model/concepts";
 import { parsePlanConfig } from "../model/config";
 import { topicById } from "../intake/topics";
 import { notePc, splitNotes } from "../model/noteText";
-import type { PlanTool, Section } from "../model/tools";
+import { cellsOf, toolsOf, type Cell, type PlanTool } from "../model/tools";
 import type { Level, PlanConfig, PlanExercise } from "../model/types";
 import { DOC_VERSIONS, EXERCISE_EXAMPLES, PLAN_EXAMPLES, type ExerciseExample, type PlanExample } from "./index";
 
@@ -116,7 +116,7 @@ describe("example library", () => {
 
   it("block minutes sum to exercise minutes; exercises over 5 min have ≥ 2 blocks of 2-5", () => {
     for (const { where, ex } of exercises) {
-      const blocks = blocksOf(ex.sections!);
+      const blocks = blocksOf(ex.cells);
       if (ex.minutes > 5) assert.ok(blocks.length >= 2, where);
       if (!blocks.length) continue;
       assert.equal(blocks.reduce((n, b) => n + b.minutes, 0), ex.minutes, where);
@@ -134,18 +134,18 @@ describe("example library", () => {
   });
 
   it("no exercise mixes singing and playing", () => {
-    for (const { where, ex } of exercises) assert.equal(mixesSingAndPlay(ex.sections!), false, where);
+    for (const { where, ex } of exercises) assert.equal(mixesSingAndPlay(ex.cells), false, where);
   });
 
   it("an exercise that asks for a tempo shows a metronome", () => {
-    for (const { where, ex } of exercises) assert.equal(tempoWithoutMetronome(ex.sections!), false, where);
+    for (const { where, ex } of exercises) assert.equal(tempoWithoutMetronome(ex.cells), false, where);
   });
 
-  it("no example holds the old key-choice; a step-choice is shown as stages and as variants", () => {
-    const choosers = exercises.flatMap(({ ex }) => (ex.sections ?? []).flatMap((s) => (s.type === "tool" ? [s.tool as { type: string; label?: string }] : [])));
-    assert.equal(choosers.some((t) => t.type === "key-choice"), false);
-    for (const label of ["stage", "variant"]) assert.ok(choosers.some((t) => t.type === "step-choice" && t.label === label), label);
-    assert.doesNotMatch(JSON.stringify([EXERCISE_EXAMPLES, PLAN_EXAMPLES]), /key-choice/);
+  it("no example holds the old key-choice or step-choice; a choice is shown as stages and as variants", () => {
+    const choosers = exercises.flatMap(({ ex }) => [ex.choice, ...ex.cells.flatMap((c) => (c.type === "section" ? [c.choice] : []))].flatMap((c) => (c ? [c as { label?: string }] : [])));
+    assert.equal(choosers.length > 0, true);
+    for (const label of ["stage", "variant"]) assert.ok(choosers.some((t) => t.label === label), label);
+    assert.doesNotMatch(JSON.stringify([EXERCISE_EXAMPLES, PLAN_EXAMPLES]), /key-choice|step-choice|"focus"|"sections"/);
   });
 
   it("each area × level has an exercise; five showcases exist", () => {
@@ -171,15 +171,17 @@ describe("example library", () => {
 
   it("fits the parser's limits, so nothing is cut on paste", () => {
     for (const { where, ex } of exercises) {
-      const tools = ex.sections!.filter((s) => s.type === "tool").length;
+      const tools = toolsOf(ex.cells).length;
       assert.ok(tools <= 6, `${where}: ${tools} tools`);
     }
     const raw = [...EXERCISE_EXAMPLES.map((e) => ({ where: e.id, e: e.exercise })), ...PLAN_EXAMPLES.flatMap((p) => (p.plan as { days: { exercises: unknown[] }[] }).days.flatMap((d) => d.exercises.map((e) => ({ where: p.id, e }))))];
     for (const { where, e } of raw) {
-      const x = e as { title: string; focus?: string; why?: string; sections: { type: string; text?: string; items?: string[] }[] };
-      assert.ok(x.sections.length <= 24 && x.title.length <= 120 && (x.focus ?? "").length <= 120 && (x.why ?? "").length <= 300, `${where}: ${x.title}`);
-      for (const s of x.sections) {
-        if (s.type === "heading") assert.ok(s.text!.length <= 100, `${where}: ${s.text}`);
+      type RawCell = { type: string; text?: string; heading?: string; items?: string[]; cells?: RawCell[] };
+      const x = e as { title: string; why?: string; cells: RawCell[] };
+      const flat = x.cells.flatMap((c) => (c.type === "section" ? c.cells ?? [] : [c]));
+      assert.ok(flat.length <= 24 && x.title.length <= 120 && (x.why ?? "").length <= 300, `${where}: ${x.title}`);
+      for (const s of x.cells) if (s.type === "section") assert.ok(s.heading!.length <= 100, `${where}: ${s.heading}`);
+      for (const s of flat) {
         if (s.type === "text") assert.ok(s.text!.length <= 700, `${where}: ${s.text}`);
         if (s.type === "list") assert.ok(s.items!.length <= 8 && s.items!.every((i) => i.length <= 240), `${where}: ${x.title}`);
       }
@@ -188,7 +190,7 @@ describe("example library", () => {
 
   it("enable and highlight are two layers: never the same notes, others only with enable", () => {
     for (const { where, ex } of exercises)
-      for (const s of ex.sections!) {
+      for (const s of cellsOf(ex.cells)) {
         if (s.type !== "tool" || !MARKED.includes(s.tool.type)) continue;
         const t = s.tool as Marked;
         if (t.enable && t.highlight) assert.notDeepEqual(t.enable, t.highlight, `${where}: ${t.type} enables only what it highlights`);
@@ -201,13 +203,13 @@ describe("example library", () => {
 
   it("named notes are lit in the tool after the text, and the root is never muted", () => {
     for (const { where, ex } of exercises) {
-      const sections = ex.sections!;
-      sections.forEach((s, i) => {
+      const cells = cellsOf(ex.cells);
+      cells.forEach((s, i) => {
         if (s.type === "tool") assert.ok(rootLit(s.tool), `${where}: root muted in ${s.tool.type}`);
         const texts = s.type === "text" ? [s.text] : s.type === "list" ? s.items : [];
         const tokens = texts.flatMap((t) => splitNotes(t).flatMap((p) => (typeof p === "string" ? [] : [p.note])));
         if (!tokens.length) return;
-        const tool = sections.slice(i + 1).find((x): x is Extract<Section, { type: "tool" }> => x.type === "tool" && rootOf(x.tool) !== null)?.tool;
+        const tool = cells.slice(i + 1).find((x): x is Extract<Cell, { type: "tool" }> => x.type === "tool" && rootOf(x.tool) !== null)?.tool;
         if (!tool || !MARKED.includes(tool.type)) return;
         const root = rootOf(tool)!;
         for (const t of tokens) {

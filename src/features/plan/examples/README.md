@@ -17,8 +17,8 @@ Each file is the content exactly as the AI returns it, wrapped in metadata:
 ```json
 { "id": "guitar-beginner-pentatonic-box1", "kind": "exercise", "areas": ["guitar"], "level": "beginner",
   "concepts": ["pentatonic-box-1"], "note": "Why this is a good example, in one or two sentences.",
-  "exercise": { "title": "…", "focus": "…", "minutes": 10, "level": "beginner", "area": "guitar", "tags": ["technique"],
-                "topic": "guitar-scales", "concepts": ["pentatonic-box-1"], "sections": [ … ] } }
+  "exercise": { "title": "…", "minutes": 10, "level": "beginner", "area": "guitar", "tags": ["technique"],
+                "topic": "guitar-scales", "concepts": ["pentatonic-box-1"], "choice": { … }, "cells": [ … ] } }
 ```
 
 - `updated` is the day the example was last written or rewritten (`YYYY-MM-DD`), and `model` the API id of the model
@@ -43,24 +43,27 @@ Each file is the content exactly as the AI returns it, wrapped in metadata:
   `/dev/examples` shows both as tags (amber when behind) and filters by teaching version. Set `docs` only when the
   example is written or rewritten; never raise it by hand.
 - An exercise may have `"showcase"`: `blocks` (a chart per step), `pick` (a voice melody chosen by `pick`),
-  `progression` (one progression worked several ways), `stages` (a step-choice as a tempo ladder) or `variants` (a
-  step-choice whose chips each set a key and a position). These five always go into the prompt.
+  `progression` (one progression worked several ways), `stages` (a choice as a tempo ladder) or `variants` (a
+  choice whose chips each set a key and a position). These five always go into the prompt.
 - A plan has `"kind": "plan"`, `"minutes"` (the daily time it is written for) and `"plan": { title, summary, days }`,
   the whole `PlanConfig` the AI returns.
 
 What there is: one exercise per area and level (`<area>-<level>-<what>.json`) and four more (`guitar-new-notes-on-e-and-a`,
-`voice-beginner-in-tune-over-drone`, `theory-intermediate-hearing-changes`, `voice-advanced-hard-leaps`: an interval-singer taken up by a step-choice of levels), all but `voice-beginner-do-mi-sol` and
-`voice-advanced-guide-tones` in the new teaching style; the three older showcases and two for the step-choice (`showcase-stages-tempo-ladder`, `showcase-variants-same-frets`); and seven plans:
+`voice-beginner-in-tune-over-drone`, `theory-intermediate-hearing-changes`, `voice-advanced-hard-leaps`: an interval-singer taken up by a choice of levels), all but `voice-beginner-do-mi-sol` and
+`voice-advanced-guide-tones` in the new teaching style; the three older showcases and two for the choice (`showcase-stages-tempo-ladder`, `showcase-variants-same-frets`); and seven plans:
 `guitar-beginner` (20 min), `guitar-intermediate` (30), `guitar-advanced` (30), `voice-beginner` (15), `guitar-theory-intermediate` (30),
 `voice-intermediate` (20), `voice-advanced` (25).
 
 ## The rules every example meets
 
 - Every exercise (in a plan too) is tagged: `level` is the example's level, `area` its area (one of a plan's areas;
-  ear training is `theory`), `tags` 1 to 3 kinds from `EXERCISE_TAGS` in `model/tools.ts`. The page shows them as chips.
+  ear training is `theory`), `tags` 1 to 3 kinds from `EXERCISE_TAGS` in `model/tools.ts`. The page shows them as hashtags after the title.
 - Pasted, it parses with zero warnings: real tools and props only (`COMPONENT_DOCS`), links only to attunr pages,
   picks that match a tune exactly.
-- Over 5 minutes: at least two blocks (headings with `minutes`) of 2 to 5 minutes each, adding up to the exercise's
+- An exercise is a block: `title`, an optional `choice`, `cells` (text, list, notice, tool, section). A `section` cell holds a
+  `heading`, `minutes` when it is a timed block, a `choice` when its tools change, and its own `cells`. No `focus`; the
+  title may end with hashtags (`#guitar #beginner #technique`) that stand for the fields.
+- Over 5 minutes: at least two sections with `minutes`, of 2 to 5 minutes each, adding up to the exercise's
   minutes; consecutive blocks change something real (tempo, key, position, which note is lit, the task).
 - Singing or playing, never both. Singing exercises never mention the instrument (drones, the backing and a backing-track
   are fine); playing exercises never ask to sing. A bare singing drill is one block of at most 3 minutes.
@@ -72,11 +75,11 @@ What there is: one exercise per area and level (`<area>-<level>-<what>.json`) an
   added to the course for it first.
 - A sung or played pattern (Do Mi Sol, a leap, a tune, guide tones) comes back in a second key, and a line of its own
   says what stays the same in this drill ("When you change the key, the notes change but the drop is still an octave.").
-  The same drill in more keys is one block with a `step-choice` tool right before the tool it moves, an option per key
-  (the block's tools move to the picked key). The text invites and names the selector, never a chip or the keys: "Then
+  The same drill in more keys is one section with a `choice` in its header, an option per key
+  (the section's tools move to the picked key). The text invites and names the selector, never a chip or the keys: "Then
   sing it in another key. Use the Key selector below to change the key." A new key with a new task is a later block or
   another tool.
-- A step-choice also takes one drill up in stages or across variants, without a copy of its tools per version. `"label": "stage"`
+- A choice also takes one drill up in stages or across variants, without a copy of its tools per version. `"label": "stage"`
   when each option is harder than the last (a tempo going up): the text says what a stage feels like before the next and
   what to do when one is too fast. `"label": "variant"` when the options are equals to compare (one pattern in two keys
   or positions): the text says what to look or listen for between them. The text names the selector by its label ("Use
@@ -85,7 +88,7 @@ What there is: one exercise per area and level (`<area>-<level>-<what>.json`) an
 - A line written between underscores is underlined on the page. It is a care line only (don't reach for high notes, don't
   push, stop when it hurts): one short sentence on a line of its own, at most one in an exercise. A beginner's singing
   exercise has one where the singer could wander up the staff, with the words "reach for high notes", which the app explains.
-- A tool that takes a `level` is set to the exercise's level or to its own harder settings, never left at an easier default. To let the student step up, a step-choice with `level` options (easiest first, option 1 the level the tool is written at) sits before the tool; its chips are stages, so the text names "the Stage selector" and says what the next stage adds, not the level's name.
+- A tool that takes a `level` is set to the exercise's level or to its own harder settings, never left at an easier default. To let the student step up, a choice with `level` options (easiest first, option 1 the level the tool is written at) sits before the tool; its chips are stages, so the text names "the Stage selector" and says what the next stage adds, not the level's name.
 - A text may hold line breaks (`\n`): what to do, the next thing to try and what to notice each start a new line.
 - The text names a control by the label on the screen, one control to a sentence, and says what it starts and where it is; it never carries frets,
   fingerings or note lists the tool shows. The way from one position to the next is a position-neck with `cross`.

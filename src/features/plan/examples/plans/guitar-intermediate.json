@@ -1,2423 +1,2447 @@
 {
- "id": "guitar-intermediate",
- "kind": "plan",
- "areas": [
-  "guitar"
- ],
- "level": "intermediate",
- "updated": "2026-11-10",
- "model": "claude-fable-5-2",
- "minutes": 30,
- "concepts": [
-  "joining-positions",
-  "five-pentatonic-boxes",
-  "bends-slides",
-  "hammer-pull",
-  "sus-add9-shapes",
-  "arpeggios-position",
-  "guitar-melodies-intermediate"
- ],
- "docs": { "agents": 1, "teaching": 2 },
- "note": "The guitar-intermediate week in the current teaching style, built from many tools so no two days look alike: joining positions is the key skill and returns on five days in new forms (position-neck crossings in three keys, a Position selector, a new key, with a bend, from memory and in the same frets as another key), warm-ups and tempos climb in step-choice stages, and each day ends in music over a play-along, drums and bass or a backing-track.",
- "plan": {
-  "title": "Week 1: beyond position 1",
-  "summary": "Join the minor pentatonic positions 1 to 3 with a slide, bend in tune at the joins, and keep it musical with sus chords, chord notes and a tune up the neck. Warm-ups and tempos go up in stages you choose.",
-  "progress": "Techniques: legato trills with fingers 1-3 and 2-4 up to 96, alternate picking to 104, string skipping to 90, whole-step bends matched to a target note and held over a drone. Next: bends inside faster phrases, a half-step bend.\nExtended chords: Dsus2, Dsus4 and Cadd9 in eighth and sixteenth strumming up to 80, an Am7-Dsus2-Dm7 part over drums and bass. Next: 7th chords in the same progressions.\nScales: minor pentatonic positions 1 to 3 joined by slides on the G string in A, G and C, used in solos over Am7-Dm7 and a minor blues; a tune with eighth notes in D and G. Next: positions 4 and 5.\nCAGED: root, 3rd and 5th over Am-F-C-G, the Gm arpeggio inside position 1. Next: the arpeggio of each chord of a progression in one position.",
-  "days": [
-   {
-    "theme": "Position 2 and the way across",
-    "exercises": [
-     {
-      "title": "Hammer and pull, in stages",
-      "focus": "Legato trill · fingers 1 and 3 on the G string · 60, 72, then 84 bpm",
-      "minutes": 4,
-      "level": "intermediate",
-      "area": "guitar",
-      "tags": [
-       "technique"
-      ],
-      "topic": "guitar-techniques",
-      "concepts": [
-       "hammer-pull"
-      ],
-      "why": "A hammer-on sounds a note with the fretting finger alone, so a trill trains that finger to land hard and in time without help from the pick.",
-      "learnBefore": [
-       "/course/4/legato"
-      ],
-      "sections": [
-       {
-        "type": "heading",
-        "text": "One stage at a time",
-        "minutes": 4
-       },
-       {
-        "type": "text",
-        "text": "Press Play below to start the metronome and follow the tab. Pick the first note once, then hammer finger 3 on and pull it off, one note per beat, with no more picking.\nWhen both notes sound equally loud, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf the hammered note gets quiet at a new stage, go back one stage and stay there a little longer."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "step-choice",
-         "label": "stage",
-         "options": [
+  "id": "guitar-intermediate",
+  "kind": "plan",
+  "areas": [
+    "guitar"
+  ],
+  "level": "intermediate",
+  "updated": "2026-11-10",
+  "model": "claude-fable-5-2",
+  "minutes": 30,
+  "concepts": [
+    "joining-positions",
+    "five-pentatonic-boxes",
+    "bends-slides",
+    "hammer-pull",
+    "sus-add9-shapes",
+    "arpeggios-position",
+    "guitar-melodies-intermediate"
+  ],
+  "docs": {
+    "agents": 1,
+    "teaching": 5
+  },
+  "note": "The guitar-intermediate week in the current teaching style, built from many tools so no two days look alike: joining positions is the key skill and returns on five days in new forms (position-neck crossings in three keys, a Position selector, a new key, with a bend, from memory and in the same frets as another key), warm-ups and tempos climb in choice stages, and each day ends in music over a play-along, drums and bass or a backing-track.",
+  "plan": {
+    "title": "Week 1: beyond position 1",
+    "summary": "Join the minor pentatonic positions 1 to 3 with a slide, bend in tune at the joins, and keep it musical with sus chords, chord notes and a tune up the neck. Warm-ups and tempos go up in stages you choose.",
+    "progress": "Techniques: legato trills with fingers 1-3 and 2-4 up to 96, alternate picking to 104, string skipping to 90, whole-step bends matched to a target note and held over a drone. Next: bends inside faster phrases, a half-step bend.\nExtended chords: Dsus2, Dsus4 and Cadd9 in eighth and sixteenth strumming up to 80, an Am7-Dsus2-Dm7 part over drums and bass. Next: 7th chords in the same progressions.\nScales: minor pentatonic positions 1 to 3 joined by slides on the G string in A, G and C, used in solos over Am7-Dm7 and a minor blues; a tune with eighth notes in D and G. Next: positions 4 and 5.\nCAGED: root, 3rd and 5th over Am-F-C-G, the Gm arpeggio inside position 1. Next: the arpeggio of each chord of a progression in one position.",
+    "days": [
+      {
+        "theme": "Position 2 and the way across",
+        "exercises": [
           {
-           "bpm": 60
-          },
-          {
-           "bpm": 72
-          },
-          {
-           "bpm": 84
-          }
-         ]
-        }
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "legato-trill",
-         "fingers": "13",
-         "string": 3,
-         "fret": 7,
-         "bpm": 60
-        }
-       }
-      ]
-     },
-     {
-      "title": "D, Dsus2, Dsus4",
-      "focus": "Sus colours on D · one finger moves · strummed at 80 bpm",
-      "minutes": 7,
-      "level": "intermediate",
-      "area": "guitar",
-      "tags": [
-       "rhythm"
-      ],
-      "topic": "guitar-extended-chords",
-      "concepts": [
-       "sus-add9-shapes"
-      ],
-      "why": "A sus chord swaps the 3rd of the chord for the note next to it, so one finger lifting or landing turns a plain D into a moving part.",
-      "learnBefore": [
-       "/course/7/sus-add9"
-      ],
-      "sections": [
-       {
-        "type": "heading",
-        "text": "The three shapes",
-        "minutes": 3
-       },
-       {
-        "type": "text",
-        "text": "Press a chord box below to hear it, then fret each chord as shown. Change from D to Dsus2 and back, then from D to Dsus4 and back, until only the one finger moves."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "chord-shapes",
-         "chords": [
-          "D",
-          "Dsus2",
-          "Dsus4"
-         ]
-        }
-       },
-       {
-        "type": "heading",
-        "text": "As a groove",
-        "minutes": 4
-       },
-       {
-        "type": "text",
-        "text": "Press Play below to start the metronome. After a bar of count-in, the lit box shows the chord: strum the pattern in the boxes, one bar each. If a change comes late, keep your strumming hand going and catch the next beat 1."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "strum-along",
-         "chords": [
-          "D",
-          "Dsus4",
-          "D",
-          "Dsus2"
-         ],
-         "bpm": 80,
-         "pattern": "D . D U . U D U"
-        }
-       }
-      ]
-     },
-     {
-      "title": "Join positions 1 and 2",
-      "focus": "Minor pentatonic · positions 1 → 2 · a slide on the G string · in A, G and C",
-      "minutes": 10,
-      "level": "intermediate",
-      "area": "guitar",
-      "tags": [
-       "technique"
-      ],
-      "topic": "guitar-scales",
-      "concepts": [
-       "joining-positions",
-       "five-pentatonic-boxes"
-      ],
-      "why": "Position 2 starts on the notes where position 1 ends, so one slide along one string carries a phrase from the first into the second.",
-      "learnBefore": [
-       "/course/6/joining",
-       "/course/8/pentatonic-boxes"
-      ],
-      "sections": [
-       {
-        "type": "heading",
-        "text": "Position 2 on its own",
-        "minutes": 3
-       },
-       {
-        "type": "text",
-        "text": "Press Play below to start the metronome. Play position 2 of A minor pentatonic up and back down, one note per beat, and notice where its ringed {{1}} notes sit. Keep going until the shape feels as familiar as position 1."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "backing-band",
-         "bpm": 70,
-         "key": "a",
-         "parts": {
-          "click": "on"
-         }
-        }
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "scale-neck",
-         "scale": "minor-pentatonic",
-         "key": "a",
-         "boxes": [
-          2
-         ],
-         "highlight": [
-          "1"
-         ]
-        }
-       },
-       {
-        "type": "heading",
-        "text": "The crossing",
-        "minutes": 4
-       },
-       {
-        "type": "text",
-        "text": "The neck below shows only the crossing from position 1 to position 2. Climb position 1 from the low {{1}}. On the G string, slide from {{4}} up to {{5}} and finish the climb in position 2. Come back down the same way, sliding from {{5}} to {{4}}."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "position-neck",
-         "scale": "minor-pentatonic",
-         "key": "a",
-         "cross": {
-          "from": 1,
-          "to": 2
-         },
-         "highlight": [
-          "1"
-         ]
-        }
-       },
-       {
-        "type": "heading",
-        "text": "The same in G and C",
-        "minutes": 3
-       },
-       {
-        "type": "text",
-        "text": "Play the same crossing in other keys. Use the Key selector below to change the key.\nWhen you change the key, the notes change but the slide on the G string is still {{4}} to {{5}}. Stay in each key until the slide lands without you looking for it."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "step-choice",
-         "options": [
-          {
-           "key": "a"
-          },
-          {
-           "key": "g"
-          },
-          {
-           "key": "c"
-          }
-         ]
-        }
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "position-neck",
-         "scale": "minor-pentatonic",
-         "key": "a",
-         "cross": {
-          "from": 1,
-          "to": 2
-         },
-         "highlight": [
-          "1"
-         ]
-        }
-       }
-      ]
-     },
-     {
-      "title": "Solo across the join",
-      "focus": "A minor pentatonic · positions 1 and 2 · over Am7-Dm7, then over drums and bass",
-      "minutes": 9,
-      "level": "intermediate",
-      "area": "guitar",
-      "tags": [
-       "improv"
-      ],
-      "topic": "guitar-scales",
-      "concepts": [
-       "joining-positions"
-      ],
-      "why": "A slide in the middle of a phrase hides the change of position, so a solo is the place to make the join part of the music.",
-      "learnBefore": [
-       "/course/6/joining",
-       "/course/5/soloing"
-      ],
-      "sections": [
-       {
-        "type": "heading",
-        "text": "Land on the roots",
-        "minutes": 5
-       },
-       {
-        "type": "text",
-        "text": "Press Play below to start the backing, which switches between Am7 and Dm7. Improvise in positions 1 and 2 and slide from one to the other in the middle of a phrase. Land on {{a}} when Am7 comes round and on {{d}} when Dm7 comes round."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "guitar-play-along",
-         "shape": {
-          "shape": "solo-over",
-          "key": "a",
-          "scale": "minor-pentatonic",
-          "chords": [
-           {
-            "chord": "Am7",
-            "target": [
-             "1"
-            ]
-           },
-           {
-            "chord": "Dm7",
-            "target": [
-             "1"
+            "title": "Hammer and pull, in stages",
+            "minutes": 4,
+            "level": "intermediate",
+            "area": "guitar",
+            "tags": [
+              "technique"
             ],
-            "approach": "land on D on beat 1"
-           }
-          ],
-          "bars": 2
-         },
-         "bpm": 80,
-         "view": "neck"
-        }
-       },
-       {
-        "type": "heading",
-        "text": "Start high, end low",
-        "minutes": 4
-       },
-       {
-        "type": "text",
-        "text": "Press Play below to start the band: drums and bass in A, with no chords to follow. Start each phrase in position 2 and end it on a ringed {{1}} in position 1. Then turn it round: start low and end high."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "backing-band",
-         "bpm": 80,
-         "key": "a",
-         "parts": {
-          "drums": "on",
-          "bass": "on"
-         }
-        }
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "position-neck",
-         "scale": "minor-pentatonic",
-         "key": "a",
-         "positions": [
-          1,
-          2
-         ],
-         "highlight": [
-          "1"
-         ]
-        }
-       }
-      ]
-     }
-    ]
-   },
-   {
-    "theme": "Bends that reach the note",
-    "exercises": [
-     {
-      "title": "Down-up picking, in stages",
-      "focus": "Alternate picking · four notes per string · 80, 92, then 104 bpm",
-      "minutes": 4,
-      "level": "intermediate",
-      "area": "guitar",
-      "tags": [
-       "technique"
-      ],
-      "topic": "guitar-techniques",
-      "why": "Picking down then up plays two notes with one swing of the hand, so the hand can go faster without working harder.",
-      "learnBefore": [
-       "/course/1/spider"
-      ],
-      "sections": [
-       {
-        "type": "heading",
-        "text": "One stage at a time",
-        "minutes": 4
-       },
-       {
-        "type": "text",
-        "text": "Press Play below to start the metronome. Pick each string down, up, down, up, and follow the arrows under the tab.\nWhen your hand swings evenly with no stop between strings, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf the up strokes get quieter than the down strokes, go back one stage."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "step-choice",
-         "label": "stage",
-         "options": [
-          {
-           "bpm": 80
-          },
-          {
-           "bpm": 92
-          },
-          {
-           "bpm": 104
-          }
-         ]
-        }
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "picking-drill",
-         "strokes": "DU",
-         "notesPerString": 4,
-         "bpm": 80
-        }
-       }
-      ]
-     },
-     {
-      "title": "Cadd9, G, Dsus4, Em",
-      "focus": "Cadd9-G-Dsus4-Em · add9 and sus4 colours · strummed at 80 bpm",
-      "minutes": 6,
-      "level": "intermediate",
-      "area": "guitar",
-      "tags": [
-       "rhythm"
-      ],
-      "topic": "guitar-extended-chords",
-      "concepts": [
-       "sus-add9-shapes"
-      ],
-      "why": "Cadd9 adds one note to C and Dsus4 swaps one note of D, so both sound like the plain chord with a new colour on top.",
-      "learnBefore": [
-       "/course/7/sus-add9"
-      ],
-      "sections": [
-       {
-        "type": "heading",
-        "text": "The four shapes",
-        "minutes": 3
-       },
-       {
-        "type": "text",
-        "text": "Press a chord box below to hear it, then fret the four chords as shown. Change between Cadd9 and G first, then between G and Dsus4, until each pair moves as one shape."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "chord-shapes",
-         "chords": [
-          "Cadd9",
-          "G",
-          "Dsus4",
-          "Em"
-         ]
-        }
-       },
-       {
-        "type": "heading",
-        "text": "In time",
-        "minutes": 3
-       },
-       {
-        "type": "text",
-        "text": "Press Play below to start the metronome. Strum the pattern in the boxes, one bar per chord. Stay on it until the changes stop interrupting your strumming hand."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "strum-along",
-         "chords": [
-          "Cadd9",
-          "G",
-          "Dsus4",
-          "Em"
-         ],
-         "bpm": 80,
-         "pattern": "D . D U . U D U"
-        }
-       }
-      ]
-     },
-     {
-      "title": "Bends in tune",
-      "focus": "Whole-step bends · 4th up to the 5th on the G string, ♭7 up to the root on the B string · over an A drone",
-      "minutes": 10,
-      "level": "intermediate",
-      "area": "guitar",
-      "tags": [
-       "technique"
-      ],
-      "topic": "guitar-techniques",
-      "concepts": [
-       "bends-slides"
-      ],
-      "why": "A bend is in tune when it reaches the sound of the note two frets up, so play that note first, then bend until you match it.",
-      "learnBefore": [
-       "/course/5/bends-and-slides"
-      ],
-      "sections": [
-       {
-        "type": "heading",
-        "text": "Hear the target first",
-        "minutes": 3
-       },
-       {
-        "type": "text",
-        "text": "On the G string, play {{5}} in position 2 and keep its sound in your ear. Then bend {{4}}, the note under it on the same string, up until it sounds the same. Go back and forth between the two until the bend stops on the sound of {{5}} every time."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "scale-neck",
-         "scale": "minor-pentatonic",
-         "key": "a",
-         "boxes": [
-          1,
-          2
-         ],
-         "highlight": [
-          "4",
-          "5"
-         ]
-        }
-       },
-       {
-        "type": "heading",
-        "text": "Against the drone",
-        "minutes": 3
-       },
-       {
-        "type": "text",
-        "text": "Press Play below to start the drone on A. Bend {{4}} up to {{5}} again and hold it at the top. When the bend arrives, the held note and the drone sound steady together; while the bend is short, they sound rough."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "backing-band",
-         "bpm": 60,
-         "key": "a",
-         "parts": {
-          "drone": "always"
-         }
-        }
-       },
-       {
-        "type": "heading",
-        "text": "The B string",
-        "minutes": 4
-       },
-       {
-        "type": "text",
-        "text": "Press Play above to start the drone again. Now the same on the B string: play the ringed {{1}} in position 2, then bend {{b7}} up to it. This bend ends on the drone's own note, so you will hear it settle. Then make up short phrases that end on one of the two bends."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "scale-neck",
-         "scale": "minor-pentatonic",
-         "key": "a",
-         "boxes": [
-          1,
-          2
-         ],
-         "highlight": [
-          "b7",
-          "1"
-         ]
-        }
-       }
-      ]
-     },
-     {
-      "title": "Slow blues, one bend a phrase",
-      "focus": "A minor pentatonic · positions 1 and 2 · 12-bar minor blues in A",
-      "minutes": 10,
-      "level": "intermediate",
-      "area": "guitar",
-      "tags": [
-       "improv"
-      ],
-      "topic": "guitar-scales",
-      "concepts": [
-       "joining-positions"
-      ],
-      "why": "A bend held over a slow band has time to be heard, so one bend per phrase trains you to aim it and wait on it.",
-      "learnBefore": [
-       "/course/5/bends-and-slides",
-       "/course/7/blues-solo"
-      ],
-      "sections": [
-       {
-        "type": "tool",
-        "tool": {
-         "type": "backing-track",
-         "progression": "minor-blues",
-         "key": "a",
-         "style": "shuffle",
-         "bpm": 70
-        }
-       },
-       {
-        "type": "heading",
-        "text": "One bend a phrase",
-        "minutes": 5
-       },
-       {
-        "type": "text",
-        "text": "Press Play above to start the band: a slow 12-bar blues in A minor. Play short phrases from the neck below and put one bend in each: {{4}} up to {{5}}, or {{b7}} up to {{1}}. Hold the bend and let the band move under it before you go on."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "scale-neck",
-         "scale": "minor-pentatonic",
-         "key": "a",
-         "boxes": [
-          1,
-          2
-         ],
-         "highlight": [
-          "4",
-          "b7"
-         ]
-        }
-       },
-       {
-        "type": "heading",
-        "text": "Slide up to answer",
-        "minutes": 5
-       },
-       {
-        "type": "text",
-        "text": "Press Play above to start the band again. Play a phrase low in position 1, then answer it with one that slides up the G string from {{4}} to {{5}} and ends in position 2. Keep the two phrases close, as if one replies to the other."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "position-neck",
-         "scale": "minor-pentatonic",
-         "key": "a",
-         "cross": {
-          "from": 1,
-          "to": 2
-         },
-         "highlight": [
-          "1"
-         ]
-        }
-       }
-      ]
-     }
-    ]
-   },
-   {
-    "theme": "Position 3 and the chords inside",
-    "exercises": [
-     {
-      "title": "Hammer and pull, fingers 2 and 4",
-      "focus": "Legato trill · fingers 2 and 4 on the B string · 60, 72, then 84 bpm",
-      "minutes": 4,
-      "level": "intermediate",
-      "area": "guitar",
-      "tags": [
-       "technique"
-      ],
-      "topic": "guitar-techniques",
-      "concepts": [
-       "hammer-pull"
-      ],
-      "why": "Fingers 2 and 4 are the pair that hammers least in everyday playing, so a trill on those two alone is the quickest way to even them out.",
-      "learnBefore": [
-       "/course/4/legato"
-      ],
-      "sections": [
-       {
-        "type": "heading",
-        "text": "One stage at a time",
-        "minutes": 4
-       },
-       {
-        "type": "text",
-        "text": "Press Play below to start the metronome and follow the tab. Pick once, then hammer finger 4 on and pull it off to finger 2, one note per beat. Rest your hand when it gets tired, then go again.\nWhen the pulled-off note is as loud as the hammered one, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf a note goes missing at a new stage, go back one stage."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "step-choice",
-         "label": "stage",
-         "options": [
-          {
-           "bpm": 60
-          },
-          {
-           "bpm": 72
-          },
-          {
-           "bpm": 84
-          }
-         ]
-        }
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "legato-trill",
-         "fingers": "24",
-         "string": 2,
-         "fret": 8,
-         "bpm": 60
-        }
-       }
-      ]
-     },
-     {
-      "title": "Chord tones over Am-F-C-G",
-      "focus": "Root, 3rd and 5th of each chord · then the 3rds alone · 60 bpm",
-      "minutes": 8,
-      "level": "intermediate",
-      "area": "guitar",
-      "tags": [
-       "theory"
-      ],
-      "topic": "guitar-caged",
-      "concepts": [
-       "arpeggios-position"
-      ],
-      "why": "The 3rd is the note that makes a chord major or minor, so landing on it as the chord changes lets a single line say which chord is playing.",
-      "learnBefore": [
-       "/course/5/arpeggios",
-       "/course/5/soloing"
-      ],
-      "sections": [
-       {
-        "type": "heading",
-        "text": "Root, 3rd, 5th",
-        "minutes": 4
-       },
-       {
-        "type": "text",
-        "text": "Press Play below to start the backing and play the lit note on the neck, one per beat: each chord's root, 3rd, 5th and 3rd again. Am has a minor 3rd, {{b3}}; F, C and G have a major 3rd, {{3}}. Keep going until you can look away for a bar."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "guitar-play-along",
-         "shape": {
-          "shape": "chord-steps",
-          "chords": [
-           {
-            "chord": "Am",
-            "steps": [
-             "1",
-             "b3",
-             "5",
-             "b3"
-            ]
-           },
-           {
-            "chord": "F",
-            "steps": [
-             "1",
-             "3",
-             "5",
-             "3"
-            ]
-           },
-           {
-            "chord": "C",
-            "steps": [
-             "1",
-             "3",
-             "5",
-             "3"
-            ]
-           },
-           {
-            "chord": "G",
-            "steps": [
-             "1",
-             "3",
-             "5",
-             "3"
-            ]
-           }
-          ]
-         },
-         "bpm": 60,
-         "view": "neck"
-        }
-       },
-       {
-        "type": "heading",
-        "text": "Only the 3rds",
-        "minutes": 4
-       },
-       {
-        "type": "text",
-        "text": "Press Play below to start the backing. Now each bar starts on the chord's 3rd and comes back to it. Listen for how that one note changes the colour of every bar. Then stop following the lit note and make up a line that lands on a 3rd at each change."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "guitar-play-along",
-         "shape": {
-          "shape": "chord-steps",
-          "chords": [
-           {
-            "chord": "Am",
-            "steps": [
-             "b3",
-             "b3",
-             "1",
-             "b3"
-            ]
-           },
-           {
-            "chord": "F",
-            "steps": [
-             "3",
-             "3",
-             "1",
-             "3"
-            ]
-           },
-           {
-            "chord": "C",
-            "steps": [
-             "3",
-             "3",
-             "1",
-             "3"
-            ]
-           },
-           {
-            "chord": "G",
-            "steps": [
-             "3",
-             "3",
-             "1",
-             "3"
-            ]
-           }
-          ]
-         },
-         "bpm": 60,
-         "view": "neck"
-        }
-       }
-      ]
-     },
-     {
-      "title": "Join positions 2 and 3",
-      "focus": "A minor pentatonic · positions 2 → 3 · a slide on the G string · positions 1, 2 and 3 in a row",
-      "minutes": 10,
-      "level": "intermediate",
-      "area": "guitar",
-      "tags": [
-       "technique"
-      ],
-      "topic": "guitar-scales",
-      "concepts": [
-       "joining-positions",
-       "five-pentatonic-boxes"
-      ],
-      "why": "Every position ends on the notes the next one starts with, so the slide that joined positions 1 and 2 joins 2 and 3 as well, two notes further up the string.",
-      "learnBefore": [
-       "/course/6/joining",
-       "/course/8/pentatonic-boxes"
-      ],
-      "sections": [
-       {
-        "type": "heading",
-        "text": "Position 3 on its own",
-        "minutes": 3
-       },
-       {
-        "type": "text",
-        "text": "Play position 3 up and back down at your own pace, from the ringed {{1}} on the A string. It is the widest of the five, so let your hand open for the notes on the G and B strings. Keep going until you can start it from any ringed {{1}}."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "scale-neck",
-         "scale": "minor-pentatonic",
-         "key": "a",
-         "boxes": [
-          3
-         ],
-         "highlight": [
-          "1"
-         ]
-        }
-       },
-       {
-        "type": "heading",
-        "text": "The crossing",
-        "minutes": 3
-       },
-       {
-        "type": "text",
-        "text": "The neck below shows only the crossing from position 2 to position 3. Climb position 2, then on the G string slide from {{5}} up to {{b7}} and finish the climb in position 3. Come back down the same way."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "position-neck",
-         "scale": "minor-pentatonic",
-         "key": "a",
-         "cross": {
-          "from": 2,
-          "to": 3
-         },
-         "highlight": [
-          "1"
-         ]
-        }
-       },
-       {
-        "type": "heading",
-        "text": "Three positions in a row",
-        "minutes": 4
-       },
-       {
-        "type": "text",
-        "text": "Press Play below to start the metronome. Play the framed position up and back down, one note per beat.\nWhen it is steady, play the next position the same way. Use the Position selector below to change the position, then press Play to start the metronome again.\nWhen each one is steady, play all three without stopping, sliding across on the G string."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "backing-band",
-         "bpm": 70,
-         "key": "a",
-         "parts": {
-          "click": "on"
-         }
-        }
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "step-choice",
-         "options": [
-          {
-           "position": 1
-          },
-          {
-           "position": 2
-          },
-          {
-           "position": 3
-          }
-         ]
-        }
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "position-neck",
-         "scale": "minor-pentatonic",
-         "key": "a",
-         "positions": [
-          1
-         ],
-         "highlight": [
-          "1"
-         ]
-        }
-       }
-      ]
-     },
-     {
-      "title": "Three-position solo",
-      "focus": "A minor pentatonic · positions 1 to 3 · over Am7-Dm7 at 85 bpm, then over an Am7-D7 band",
-      "minutes": 8,
-      "level": "intermediate",
-      "area": "guitar",
-      "tags": [
-       "improv"
-      ],
-      "topic": "guitar-scales",
-      "concepts": [
-       "joining-positions"
-      ],
-      "why": "A solo that climbs sounds like it is going somewhere, so moving up a position every few bars gives your phrases a shape.",
-      "learnBefore": [
-       "/course/6/joining",
-       "/course/5/soloing"
-      ],
-      "sections": [
-       {
-        "type": "heading",
-        "text": "Low to high",
-        "minutes": 4
-       },
-       {
-        "type": "text",
-        "text": "Press Play below to start the backing. Start in position 1 and move up a position every few bars, until you are in position 3. Land on {{a}} when Am7 comes round and on {{d}} when Dm7 comes round."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "guitar-play-along",
-         "shape": {
-          "shape": "solo-over",
-          "key": "a",
-          "scale": "minor-pentatonic",
-          "chords": [
-           {
-            "chord": "Am7",
-            "target": [
-             "1"
-            ]
-           },
-           {
-            "chord": "Dm7",
-            "target": [
-             "1"
+            "topic": "guitar-techniques",
+            "concepts": [
+              "hammer-pull"
             ],
-            "approach": "land on D on beat 1"
-           }
-          ],
-          "bars": 2
-         },
-         "bpm": 85,
-         "view": "neck"
-        }
-       },
-       {
-        "type": "heading",
-        "text": "High to low",
-        "minutes": 4
-       },
-       {
-        "type": "text",
-        "text": "Press Play below to start the band: drums, bass and keys on Am7 and D7. Start in position 3 and come down a position every few bars. End your last phrase on the lowest ringed {{1}}."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "backing-track",
-         "progression": "dorian",
-         "key": "a",
-         "bpm": 85
-        }
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "position-neck",
-         "scale": "minor-pentatonic",
-         "key": "a",
-         "positions": [
-          1,
-          2,
-          3
-         ],
-         "highlight": [
-          "1"
-         ]
-        }
-       }
-      ]
-     }
-    ]
-   },
-   {
-    "theme": "A tune up the neck",
-    "exercises": [
-     {
-      "title": "Name the notes up the neck",
-      "focus": "Finding notes by name · frets 5 to 12 · all six strings",
-      "minutes": 5,
-      "level": "intermediate",
-      "area": "guitar",
-      "tags": [
-       "theory"
-      ],
-      "topic": "guitar-scales",
-      "why": "A position is easier to move when you know the name of the note it starts on, so naming notes up the neck is what lets you put any shape in any key.",
-      "learnBefore": [
-       "/course/8/every-note"
-      ],
-      "sections": [
-       {
-        "type": "text",
-        "text": "Press Start in the game below. The game names a note: find it in the part of the neck the game shows and play it, saying its name out loud. Keep going until you stop counting up from the open string."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "note-finder",
-         "mode": "find",
-         "from": 5,
-         "to": 12
-        }
-       }
-      ]
-     },
-     {
-      "title": "Sus groove in D",
-      "focus": "D-Dsus4-D-Dsus2 in sixteenths · Dsus4 into D after G and A · 70 then 80 bpm",
-      "minutes": 8,
-      "level": "intermediate",
-      "area": "guitar",
-      "tags": [
-       "rhythm"
-      ],
-      "topic": "guitar-extended-chords",
-      "concepts": [
-       "sus-add9-shapes"
-      ],
-      "why": "A sus chord wants to go back to the plain chord, so placing it just before a change makes the change sound like an arrival.",
-      "learnBefore": [
-       "/course/7/sus-add9",
-       "/course/2/sixteenths"
-      ],
-      "sections": [
-       {
-        "type": "heading",
-        "text": "Sixteenths on D",
-        "minutes": 4
-       },
-       {
-        "type": "text",
-        "text": "Press Play below to start the metronome. Strum the pattern in the boxes: your hand goes down and up four times a beat and misses the strings where the box shows a dot. Change only the one finger between the chords."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "strum-along",
-         "chords": [
-          "D",
-          "Dsus4",
-          "D",
-          "Dsus2"
-         ],
-         "bpm": 70,
-         "pattern": "D . . U . U D U D . . U . U D U"
-        }
-       },
-       {
-        "type": "heading",
-        "text": "Dsus4 into D",
-        "minutes": 4
-       },
-       {
-        "type": "text",
-        "text": "Press a chord box below to see the new shapes. Then press Play under them to start the metronome. After G and A, Dsus4 lasts one bar and falls back to D in the next. Listen for how the bar of Dsus4 leans towards D."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "chord-shapes",
-         "chords": [
-          "G",
-          "A",
-          "Dsus4",
-          "D"
-         ]
-        }
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "strum-along",
-         "chords": [
-          "G",
-          "A",
-          "Dsus4",
-          "D"
-         ],
-         "bpm": 80,
-         "pattern": "D . D U . U D U"
-        }
-       }
-      ]
-     },
-     {
-      "title": "Legato inside position 2",
-      "focus": "Hammer-ons going up, pull-offs coming down · A minor pentatonic position 2",
-      "minutes": 7,
-      "level": "intermediate",
-      "area": "guitar",
-      "tags": [
-       "technique"
-      ],
-      "topic": "guitar-techniques",
-      "concepts": [
-       "hammer-pull"
-      ],
-      "why": "Every string in a pentatonic position has two notes, so each string can be one picked note and one hammered or pulled note.",
-      "learnBefore": [
-       "/course/4/legato",
-       "/course/8/pentatonic-boxes"
-      ],
-      "sections": [
-       {
-        "type": "heading",
-        "text": "The trill, where position 2 sits",
-        "minutes": 3
-       },
-       {
-        "type": "text",
-        "text": "Press Play below to start the metronome and follow the tab: pick once, then hammer on and pull off with no more picking. This is the G string of position 2, so your hand is already where the next block needs it."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "legato-trill",
-         "fingers": "13",
-         "string": 3,
-         "fret": 7,
-         "bpm": 72
-        }
-       },
-       {
-        "type": "heading",
-        "text": "Through the whole position",
-        "minutes": 4
-       },
-       {
-        "type": "text",
-        "text": "Play position 2 from its lowest note at your own pace. Going up, pick the lower note on each string and hammer the higher one. Coming down, pick the higher note and pull off to the lower. Keep going until the hammered notes are as loud as the picked ones."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "scale-neck",
-         "scale": "minor-pentatonic",
-         "key": "a",
-         "boxes": [
-          2
-         ],
-         "highlight": [
-          "1"
-         ]
-        }
-       }
-      ]
-     },
-     {
-      "title": "A tune to the high Do",
-      "focus": "A tune with eighth notes from tab · in D at 60, 72, then 84 bpm · then in G",
-      "minutes": 10,
-      "level": "intermediate",
-      "area": "guitar",
-      "tags": [
-       "song"
-      ],
-      "topic": "guitar-scales",
-      "concepts": [
-       "guitar-melodies-intermediate"
-      ],
-      "why": "A tune is a pattern of steps from Do, so once your ear knows it at a slow tempo, a faster tempo or a new key changes the frets but not the tune.",
-      "learnBefore": [
-       "/course/8/greensleeves",
-       "/course/4/melodies"
-      ],
-      "sections": [
-       {
-        "type": "heading",
-        "text": "Learn it in stages",
-        "minutes": 5
-       },
-       {
-        "type": "text",
-        "text": "Press Play below to hear the tune, then play along from the tab. The third bar opens with four quick notes, two per beat.\nWhen you can hum the quick notes before you play them, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the tune again.\nIf the quick notes smear at a new stage, go back one stage."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "step-choice",
-         "label": "stage",
-         "options": [
-          {
-           "bpm": 60
-          },
-          {
-           "bpm": 72
-          },
-          {
-           "bpm": 84
-          }
-         ]
-        }
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "guitar-play-along",
-         "shape": {
-          "shape": "melody",
-          "tune": 47,
-          "key": "d"
-         },
-         "bpm": 60,
-         "view": "tab"
-        }
-       },
-       {
-        "type": "heading",
-        "text": "On the neck, then in G",
-        "minutes": 5
-       },
-       {
-        "type": "text",
-        "text": "Press Play below to start the tune, now shown on the neck. Play it there until your eyes are on your hand and not on the screen.\nThen learn it in another key. Use the Key selector below to change the key, then press Play to start the tune again.\nWhen you change the key, the notes change but the tune keeps its shape."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "step-choice",
-         "options": [
-          {
-           "key": "d"
-          },
-          {
-           "key": "g"
-          }
-         ]
-        }
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "guitar-play-along",
-         "shape": {
-          "shape": "melody",
-          "tune": 47,
-          "key": "d"
-         },
-         "bpm": 72,
-         "view": "neck"
-        }
-       }
-      ]
-     }
-    ]
-   },
-   {
-    "theme": "The positions in G",
-    "exercises": [
-     {
-      "title": "Fingers 1, 3, 2, 4",
-      "focus": "Finger pattern 1-3-2-4 · frets 3 to 6 · 70, 80, then 90 bpm",
-      "minutes": 4,
-      "level": "intermediate",
-      "area": "guitar",
-      "tags": [
-       "technique"
-      ],
-      "topic": "guitar-techniques",
-      "why": "Fingers 2 and 3 like to move together, so a pattern that sends them one after the other in the wrong order teaches each to move alone.",
-      "learnBefore": [
-       "/course/1/spider"
-      ],
-      "sections": [
-       {
-        "type": "heading",
-        "text": "One stage at a time",
-        "minutes": 4
-       },
-       {
-        "type": "text",
-        "text": "Press Play below to start the metronome and follow the tab: frets 3, 5, 4 and 6 with fingers 1, 3, 2 and 4, on every string and back. The row under the tab shows the pick stroke for each note.\nWhen the order needs no thought, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf a finger lands late at a new stage, go back one stage and stay there a little longer."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "step-choice",
-         "label": "stage",
-         "options": [
-          {
-           "bpm": 70
-          },
-          {
-           "bpm": 80
-          },
-          {
-           "bpm": 90
-          }
-         ]
-        }
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "finger-pattern",
-         "fingers": "1324",
-         "fret": 3,
-         "show": "pick",
-         "bpm": 70
-        }
-       }
-      ]
-     },
-     {
-      "title": "Em, Cadd9, G, Dsus4 in sixteenths",
-      "focus": "Em-Cadd9-G-Dsus4 · sixteenth strumming · 60, 70, then 80 bpm",
-      "minutes": 5,
-      "level": "intermediate",
-      "area": "guitar",
-      "tags": [
-       "rhythm"
-      ],
-      "topic": "guitar-extended-chords",
-      "concepts": [
-       "sus-add9-shapes"
-      ],
-      "why": "In sixteenths the hand never stops, so there is no gap to change chords in: the fingers move during the last up stroke and land on beat 1.",
-      "learnBefore": [
-       "/course/7/sus-add9",
-       "/course/2/sixteenths"
-      ],
-      "sections": [
-       {
-        "type": "heading",
-        "text": "One stage at a time",
-        "minutes": 5
-       },
-       {
-        "type": "text",
-        "text": "Press Play below to start the metronome. Strum the pattern in the boxes, one bar per chord: the chords from day 2 in a new order.\nWhen the change no longer makes your strumming hand wait, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf a change comes late, keep the hand going and catch the next beat 1."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "step-choice",
-         "label": "stage",
-         "options": [
-          {
-           "bpm": 60
-          },
-          {
-           "bpm": 70
-          },
-          {
-           "bpm": 80
-          }
-         ]
-        }
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "strum-along",
-         "chords": [
-          "Em",
-          "Cadd9",
-          "G",
-          "Dsus4"
-         ],
-         "bpm": 60,
-         "pattern": "D . . U . U D U D . . U . U D U"
-        }
-       }
-      ]
-     },
-     {
-      "title": "G minor pentatonic, positions 1 to 3",
-      "focus": "G minor pentatonic · positions 1, 2 and 3 · the two ways across",
-      "minutes": 10,
-      "level": "intermediate",
-      "area": "guitar",
-      "tags": [
-       "technique"
-      ],
-      "topic": "guitar-scales",
-      "concepts": [
-       "joining-positions",
-       "five-pentatonic-boxes"
-      ],
-      "why": "A position is a shape counted from its root, so moving the root from A down to G moves all five positions two frets lower, with the joins between them unchanged.",
-      "learnBefore": [
-       "/course/5/move-it",
-       "/course/8/pentatonic-boxes"
-      ],
-      "sections": [
-       {
-        "type": "heading",
-        "text": "Where it sits in G",
-        "minutes": 3
-       },
-       {
-        "type": "text",
-        "text": "The whole neck is drawn above the position: the framed part is position 1 of G minor pentatonic. Play it up and back down from the low {{1}}, and notice it is the shape you know from A, two frets lower."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "scale-neck",
-         "scale": "minor-pentatonic",
-         "key": "g",
-         "boxes": [
-          1
-         ],
-         "parts": {
-          "positions": "always",
-          "neck": "on"
-         },
-         "highlight": [
-          "1"
-         ]
-        }
-       },
-       {
-        "type": "heading",
-        "text": "One position at a time",
-        "minutes": 3
-       },
-       {
-        "type": "text",
-        "text": "Press Play below to start the metronome. Play the framed position up and back down, one note per beat.\nWhen it is steady, play the next position the same way. Use the Position selector below to change the position, then press Play to start the metronome again."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "backing-band",
-         "bpm": 70,
-         "key": "g",
-         "parts": {
-          "click": "on"
-         }
-        }
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "step-choice",
-         "options": [
-          {
-           "position": 1
-          },
-          {
-           "position": 2
-          },
-          {
-           "position": 3
-          }
-         ]
-        }
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "position-neck",
-         "scale": "minor-pentatonic",
-         "key": "g",
-         "positions": [
-          1
-         ],
-         "highlight": [
-          "1"
-         ]
-        }
-       },
-       {
-        "type": "heading",
-        "text": "Across both joins",
-        "minutes": 4
-       },
-       {
-        "type": "text",
-        "text": "The neck below shows the crossing from position 1 to position 2 in G: slide from {{4}} up to {{5}} on the G string, as in A. Then tap ⇄ between Position 2 and Position 3 under the neck and slide across there. To finish, tap another string beside \"Cross on\" under the neck: same move, new drill."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "position-neck",
-         "scale": "minor-pentatonic",
-         "key": "g",
-         "cross": {
-          "from": 1,
-          "to": 2
-         },
-         "highlight": [
-          "1"
-         ]
-        }
-       }
-      ]
-     },
-     {
-      "title": "The Gm arpeggio inside position 1",
-      "focus": "G minor arpeggio · inside position 1 of G minor pentatonic · then on its own",
-      "minutes": 5,
-      "level": "intermediate",
-      "area": "guitar",
-      "tags": [
-       "theory"
-      ],
-      "topic": "guitar-caged",
-      "concepts": [
-       "arpeggios-position"
-      ],
-      "why": "The notes of Gm are three of the five notes of G minor pentatonic, so the arpeggio is already inside the position: leave two notes out.",
-      "learnBefore": [
-       "/course/6/arpeggios",
-       "/course/5/arpeggios"
-      ],
-      "sections": [
-       {
-        "type": "text",
-        "text": "The ringed notes below are the notes of Gm inside position 1 of G minor pentatonic: {{1}}, {{b3}} and {{5}}. Play only the ringed notes, up and back down, and leave the other two notes of the scale out."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "scale-neck",
-         "scale": "minor-pentatonic",
-         "key": "g",
-         "boxes": [
-          1
-         ],
-         "highlight": [
-          "1",
-          "b3",
-          "5"
-         ]
-        }
-       },
-       {
-        "type": "text",
-        "text": "Now the same arpeggio drawn on its own, with one more note lower down on the A string. Play it up and back down until you can start on any ringed {{1}} and go either way."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "arpeggio-neck",
-         "chord": "Gm",
-         "boxes": [
-          1
-         ],
-         "highlight": [
-          "1"
-         ]
-        }
-       }
-      ]
-     },
-     {
-      "title": "Solo in G",
-      "focus": "G minor pentatonic · positions 1 to 3 · over Gm7-Cm7 at 80 bpm",
-      "minutes": 6,
-      "level": "intermediate",
-      "area": "guitar",
-      "tags": [
-       "improv"
-      ],
-      "topic": "guitar-scales",
-      "concepts": [
-       "joining-positions"
-      ],
-      "why": "Chord notes sound settled and the others sound on the way somewhere, so ending a phrase on a note of the chord makes it sound finished.",
-      "learnBefore": [
-       "/course/5/move-it",
-       "/course/5/soloing"
-      ],
-      "sections": [
-       {
-        "type": "heading",
-        "text": "End on a chord note",
-        "minutes": 3
-       },
-       {
-        "type": "text",
-        "text": "Press Play below to start the backing, which switches between Gm7 and Cm7. Improvise in any of the three positions and end each phrase on a ringed note: the root or the 3rd of the chord playing."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "guitar-play-along",
-         "shape": {
-          "shape": "solo-over",
-          "key": "g",
-          "scale": "minor-pentatonic",
-          "chords": [
-           {
-            "chord": "Gm7",
-            "target": [
-             "1",
-             "b3"
-            ]
-           },
-           {
-            "chord": "Cm7",
-            "target": [
-             "1",
-             "b3"
-            ]
-           }
-          ],
-          "bars": 2
-         },
-         "bpm": 80,
-         "view": "neck"
-        }
-       },
-       {
-        "type": "heading",
-        "text": "Arpeggio, then scale",
-        "minutes": 3
-       },
-       {
-        "type": "text",
-        "text": "Press Play below to start the same backing. Over Gm7, start each phrase with the three notes of the Gm arpeggio, then carry on with the scale. Over Cm7, answer with a phrase that ends on {{c}}."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "guitar-play-along",
-         "shape": {
-          "shape": "solo-over",
-          "key": "g",
-          "scale": "minor-pentatonic",
-          "chords": [
-           {
-            "chord": "Gm7",
-            "target": [
-             "1",
-             "b3",
-             "5"
-            ]
-           },
-           {
-            "chord": "Cm7",
-            "target": [
-             "1"
+            "why": "A hammer-on sounds a note with the fretting finger alone, so a trill trains that finger to land hard and in time without help from the pick.",
+            "learnBefore": [
+              "/course/4/legato"
             ],
-            "approach": "end on C"
-           }
-          ],
-          "bars": 2
-         },
-         "bpm": 80,
-         "view": "neck"
-        }
-       }
-      ]
-     }
-    ]
-   },
-   {
-    "theme": "Slide in, bend out",
-    "exercises": [
-     {
-      "title": "Skip a string",
-      "focus": "Alternate picking with string skips · two notes per string · 70, 80, then 90 bpm",
-      "minutes": 4,
-      "level": "intermediate",
-      "area": "guitar",
-      "tags": [
-       "technique"
-      ],
-      "topic": "guitar-techniques",
-      "concepts": [
-       "string-skipping"
-      ],
-      "why": "Skipping a string makes the pick travel twice as far between notes, so it trains the aim that wide phrases across the positions need.",
-      "learnBefore": [
-       "/course/8/string-skipping"
-      ],
-      "sections": [
-       {
-        "type": "heading",
-        "text": "One stage at a time",
-        "minutes": 4
-       },
-       {
-        "type": "text",
-        "text": "Press Play below to start the metronome. Pick down, up on each string, then jump over the next string, as the tab shows. Keep the strokes small, and let your wrist do the jump.\nWhen the pick lands on the right string without you looking, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf you hit the string in between, go back one stage."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "step-choice",
-         "label": "stage",
-         "options": [
-          {
-           "bpm": 70
-          },
-          {
-           "bpm": 80
-          },
-          {
-           "bpm": 90
-          }
-         ]
-        }
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "picking-drill",
-         "strokes": "DU",
-         "notesPerString": 2,
-         "skip": true,
-         "bpm": 70
-        }
-       }
-      ]
-     },
-     {
-      "title": "Am7, Dsus2, Dm7",
-      "focus": "A rhythm part for tomorrow's jam · Dsus2 as the step between Am7 and Dm7 · 80 bpm",
-      "minutes": 6,
-      "level": "intermediate",
-      "area": "guitar",
-      "tags": [
-       "rhythm"
-      ],
-      "topic": "guitar-extended-chords",
-      "concepts": [
-       "sus-add9-shapes"
-      ],
-      "why": "Dsus2 and Dm7 share their two lowest notes, so moving from one to the other changes only the top of the chord.",
-      "learnBefore": [
-       "/course/7/sus-add9",
-       "/course/7/sevenths"
-      ],
-      "sections": [
-       {
-        "type": "heading",
-        "text": "The three shapes",
-        "minutes": 3
-       },
-       {
-        "type": "text",
-        "text": "Press a chord box below to hear it, then fret each chord as shown. Change from Dsus2 to Dm7 and back until the fingers on the top two strings move together, then add Am7 in front."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "chord-shapes",
-         "chords": [
-          "Am7",
-          "Dsus2",
-          "Dm7"
-         ]
-        }
-       },
-       {
-        "type": "heading",
-        "text": "In time",
-        "minutes": 3
-       },
-       {
-        "type": "text",
-        "text": "Press Play below to start the metronome. Am7 lasts two bars, then Dsus2 and Dm7 get a bar each. Strum the pattern in the boxes and listen for how Dsus2 opens the way to Dm7."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "strum-along",
-         "chords": [
-          "Am7",
-          "Am7",
-          "Dsus2",
-          "Dm7"
-         ],
-         "bpm": 80,
-         "pattern": "D . D U . U D U"
-        }
-       }
-      ]
-     },
-     {
-      "title": "Slide in, bend out",
-      "focus": "A minor pentatonic · slide from position 1 into 2, bend the ♭7 up to the root · then one position higher",
-      "minutes": 10,
-      "level": "intermediate",
-      "area": "guitar",
-      "tags": [
-       "technique"
-      ],
-      "topic": "guitar-techniques",
-      "concepts": [
-       "bends-slides"
-      ],
-      "why": "A slide takes your hand to a new position and a bend finishes the phrase there, so the two together are one move you can use at every join.",
-      "learnBefore": [
-       "/course/5/bends-and-slides",
-       "/course/6/joining"
-      ],
-      "sections": [
-       {
-        "type": "heading",
-        "text": "The move, slowly",
-        "minutes": 4
-       },
-       {
-        "type": "text",
-        "text": "On the neck below, climb position 1 and slide up the G string from {{4}} to {{5}}. You are now in position 2: on the B string, bend {{b7}} up until it sounds like the ringed {{1}} next to it. Play the whole move slowly until the slide and the bend feel like one phrase."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "position-neck",
-         "scale": "minor-pentatonic",
-         "key": "a",
-         "cross": {
-          "from": 1,
-          "to": 2
-         },
-         "highlight": [
-          "1"
-         ]
-        }
-       },
-       {
-        "type": "heading",
-        "text": "Against the drone",
-        "minutes": 3
-       },
-       {
-        "type": "text",
-        "text": "Press Play below to start the drone on A, and play the move again. The bend ends on the drone's own note, so hold it at the top and listen for the two to settle into one sound. If the bend stops short, push a little further and listen again."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "backing-band",
-         "bpm": 60,
-         "key": "a",
-         "parts": {
-          "drone": "always"
-         }
-        }
-       },
-       {
-        "type": "heading",
-        "text": "One position higher",
-        "minutes": 3
-       },
-       {
-        "type": "text",
-        "text": "The same move at the next join. Climb position 2 and slide up the G string from {{5}} to {{b7}} into position 3. On the high E string, bend {{4}} up until it sounds like {{5}}. Same move, new place: now try it going into a position you choose."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "position-neck",
-         "scale": "minor-pentatonic",
-         "key": "a",
-         "cross": {
-          "from": 2,
-          "to": 3
-         },
-         "highlight": [
-          "1"
-         ]
-        }
-       }
-      ]
-     },
-     {
-      "title": "The tune, faster and from memory",
-      "focus": "Day 4's tune in D · 80, 90, then 100 bpm · then from memory over a D drone",
-      "minutes": 10,
-      "level": "intermediate",
-      "area": "guitar",
-      "tags": [
-       "song"
-      ],
-      "topic": "guitar-scales",
-      "concepts": [
-       "guitar-melodies-intermediate"
-      ],
-      "why": "A tune you can play without the tab is one your ear is leading, so the drone replaces the screen and tells you when you are home.",
-      "learnBefore": [
-       "/course/8/greensleeves",
-       "/course/4/melodies"
-      ],
-      "sections": [
-       {
-        "type": "heading",
-        "text": "Faster in stages",
-        "minutes": 5
-       },
-       {
-        "type": "text",
-        "text": "Press Play below to start day 4's tune, and play along from the tab.\nWhen the quick notes in the third bar come out even, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the tune again.\nIf they smear, go back one stage."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "step-choice",
-         "label": "stage",
-         "options": [
-          {
-           "bpm": 80
-          },
-          {
-           "bpm": 90
-          },
-          {
-           "bpm": 100
-          }
-         ]
-        }
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "guitar-play-along",
-         "shape": {
-          "shape": "melody",
-          "tune": 47,
-          "key": "d"
-         },
-         "bpm": 80,
-         "view": "tab"
-        }
-       },
-       {
-        "type": "heading",
-        "text": "From memory",
-        "minutes": 5
-       },
-       {
-        "type": "text",
-        "text": "Press Play below to start the drone on D, and look away from the tab. Play the tune from memory at your own pace, and listen for the last note blending into the drone. Then change one thing: the rhythm of the third bar, or the octave you play it in."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "backing-band",
-         "bpm": 80,
-         "key": "d",
-         "parts": {
-          "drone": "always",
-          "click": "off"
-         }
-        }
-       }
-      ]
-     }
-    ]
-   },
-   {
-    "theme": "Day 1 again, then the jam",
-    "exercises": [
-     {
-      "title": "Hammer and pull, day 1 again",
-      "focus": "Legato trill · fingers 1 and 3, then 2 and 4 · 72, 84, then 96 bpm",
-      "minutes": 4,
-      "level": "intermediate",
-      "area": "guitar",
-      "tags": [
-       "technique"
-      ],
-      "topic": "guitar-techniques",
-      "concepts": [
-       "hammer-pull"
-      ],
-      "why": "The same trill at a faster tempo than on day 1 is the plainest way to feel what a week of hammering has done.",
-      "learnBefore": [
-       "/course/4/legato"
-      ],
-      "sections": [
-       {
-        "type": "heading",
-        "text": "A stage further",
-        "minutes": 4
-       },
-       {
-        "type": "text",
-        "text": "Press Play on the first tab below to start the metronome: day 1's trill, starting where day 1 ended. Trill fingers 1 and 3.\nWhen both notes are even, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "step-choice",
-         "label": "stage",
-         "options": [
-          {
-           "bpm": 72
-          },
-          {
-           "bpm": 84
-          },
-          {
-           "bpm": 96
-          }
-         ]
-        }
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "legato-trill",
-         "fingers": "13",
-         "string": 3,
-         "fret": 7,
-         "bpm": 72
-        }
-       },
-       {
-        "type": "text",
-        "text": "Then press Play on the second tab and do the same with fingers 2 and 4. Notice which pair is weaker now: that is the one to keep for next week."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "legato-trill",
-         "fingers": "24",
-         "string": 2,
-         "fret": 8,
-         "bpm": 72
-        }
-       }
-      ]
-     },
-     {
-      "title": "Comp for the jam",
-      "focus": "Am7-Am7-Dsus2-Dm7 · with the metronome, then over drums and bass",
-      "minutes": 6,
-      "level": "intermediate",
-      "area": "guitar",
-      "tags": [
-       "rhythm"
-      ],
-      "topic": "guitar-extended-chords",
-      "concepts": [
-       "sus-add9-shapes"
-      ],
-      "why": "With no keyboard in the band your guitar is the only thing playing the chords, so the drums and bass show at once whether your changes land on beat 1.",
-      "learnBefore": [
-       "/course/7/sus-add9",
-       "/course/7/sevenths"
-      ],
-      "sections": [
-       {
-        "type": "heading",
-        "text": "With the metronome",
-        "minutes": 3
-       },
-       {
-        "type": "text",
-        "text": "Press Play below to start the metronome. Strum yesterday's part with the pattern in the boxes: two bars of Am7, then Dsus2 and Dm7."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "strum-along",
-         "chords": [
-          "Am7",
-          "Am7",
-          "Dsus2",
-          "Dm7"
-         ],
-         "bpm": 85,
-         "pattern": "D . D U . U D U"
-        }
-       },
-       {
-        "type": "heading",
-        "text": "With the band",
-        "minutes": 3
-       },
-       {
-        "type": "text",
-        "text": "Press Play below to start the band: drums and bass, and the chord boxes light as the bars go by. You are the only one playing the chords. Play Dsus2 in the first bar of Dm7 if you like the sound, and leave it out if you don't."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "backing-track",
-         "chords": [
-          "Am7",
-          "Am7",
-          "Dm7",
-          "Dm7"
-         ],
-         "key": "a",
-         "style": "pop",
-         "bpm": 85,
-         "parts": {
-          "drums": "always",
-          "bass": "on"
-         }
-        }
-       }
-      ]
-     },
-     {
-      "title": "Three positions, two keys, no looking",
-      "focus": "Positions 1 to 3 of A minor pentatonic · then the same frets in G",
-      "minutes": 8,
-      "level": "intermediate",
-      "area": "guitar",
-      "tags": [
-       "technique"
-      ],
-      "topic": "guitar-scales",
-      "concepts": [
-       "joining-positions",
-       "five-pentatonic-boxes"
-      ],
-      "why": "A minor and G minor pentatonic share three of their five notes, so in the same frets the shape changes and your hand has to know which root it is playing from.",
-      "learnBefore": [
-       "/course/6/joining",
-       "/course/8/pentatonic-boxes",
-       "/course/10/moving-keys"
-      ],
-      "sections": [
-       {
-        "type": "heading",
-        "text": "Without looking",
-        "minutes": 4
-       },
-       {
-        "type": "text",
-        "text": "Press Play below to start the metronome. Run positions 1 to 3 of A minor pentatonic and back, one note per beat, with your eyes off the screen. Then check the neck below for any note you were not sure of."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "backing-band",
-         "bpm": 80,
-         "key": "a",
-         "parts": {
-          "click": "on"
-         }
-        }
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "position-neck",
-         "scale": "minor-pentatonic",
-         "key": "a",
-         "positions": [
-          1,
-          2,
-          3
-         ],
-         "highlight": [
-          "1"
-         ]
-        }
-       },
-       {
-        "type": "heading",
-        "text": "Same frets, new root",
-        "minutes": 4
-       },
-       {
-        "type": "text",
-        "text": "Press Play below to start the drone. Play the position on the neck up and back down, and end on a ringed {{1}}.\nThen try the other variant. Use the Variant selector below to change it, then press Play to start the drone again, now on the new root.\nWhen you change the variant, your hand stays in the same frets: this is position 2 of G, and the ringed notes are in new places. Go back and forth until you can end a phrase on a ringed {{1}} in either."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "backing-band",
-         "bpm": 80,
-         "key": "a",
-         "parts": {
-          "drone": "always"
-         }
-        }
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "step-choice",
-         "label": "variant",
-         "options": [
-          {
-           "key": "a",
-           "position": 1
-          },
-          {
-           "key": "g",
-           "position": 2
-          }
-         ]
-        }
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "scale-neck",
-         "scale": "minor-pentatonic",
-         "key": "a",
-         "boxes": [
-          1
-         ],
-         "highlight": [
-          "1"
-         ]
-        }
-       }
-      ]
-     },
-     {
-      "title": "The jam",
-      "focus": "A minor pentatonic · positions 1 to 3 · chord notes, then bends and slides, then your own solo",
-      "minutes": 12,
-      "level": "intermediate",
-      "area": "guitar",
-      "tags": [
-       "improv"
-      ],
-      "topic": "guitar-scales",
-      "concepts": [
-       "joining-positions"
-      ],
-      "why": "Each day gave you one thing to aim a phrase at (a root, a 3rd, a bend, a slide), so a solo is choosing which one each phrase goes for.",
-      "learnBefore": [
-       "/course/5/soloing",
-       "/course/5/bends-and-slides",
-       "/course/6/joining"
-      ],
-      "sections": [
-       {
-        "type": "heading",
-        "text": "Chord notes first",
-        "minutes": 4
-       },
-       {
-        "type": "text",
-        "text": "Press Play below to start the backing. Improvise in any of the three positions and end each phrase on a ringed note: {{a}} or {{c}} when Am7 comes round, {{d}} or {{f}} when Dm7 comes round."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "guitar-play-along",
-         "shape": {
-          "shape": "solo-over",
-          "key": "a",
-          "scale": "minor-pentatonic",
-          "chords": [
-           {
-            "chord": "Am7",
-            "target": [
-             "1",
-             "b3"
+            "cells": [
+              {
+                "type": "section",
+                "heading": "One stage at a time",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the metronome and follow the tab. Pick the first note once, then hammer finger 3 on and pull it off, one note per beat, with no more picking.\nWhen both notes sound equally loud, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf the hammered note gets quiet at a new stage, go back one stage and stay there a little longer."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "legato-trill",
+                      "fingers": "13",
+                      "string": 3,
+                      "fret": 7,
+                      "bpm": 60
+                    }
+                  }
+                ],
+                "choice": {
+                  "label": "stage",
+                  "options": [
+                    {
+                      "bpm": 60
+                    },
+                    {
+                      "bpm": 72
+                    },
+                    {
+                      "bpm": 84
+                    }
+                  ]
+                }
+              }
             ]
-           },
-           {
-            "chord": "Dm7",
-            "target": [
-             "1",
-             "b3"
+          },
+          {
+            "title": "D, Dsus2, Dsus4",
+            "minutes": 7,
+            "level": "intermediate",
+            "area": "guitar",
+            "tags": [
+              "rhythm"
+            ],
+            "topic": "guitar-extended-chords",
+            "concepts": [
+              "sus-add9-shapes"
+            ],
+            "why": "A sus chord swaps the 3rd of the chord for the note next to it, so one finger lifting or landing turns a plain D into a moving part.",
+            "learnBefore": [
+              "/course/7/sus-add9"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "The three shapes",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press a chord box below to hear it, then fret each chord as shown. Change from D to Dsus2 and back, then from D to Dsus4 and back, until only the one finger moves."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "chord-shapes",
+                      "chords": [
+                        "D",
+                        "Dsus2",
+                        "Dsus4"
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "As a groove",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the metronome. After a bar of count-in, the lit box shows the chord: strum the pattern in the boxes, one bar each. If a change comes late, keep your strumming hand going and catch the next beat 1."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "strum-along",
+                      "chords": [
+                        "D",
+                        "Dsus4",
+                        "D",
+                        "Dsus2"
+                      ],
+                      "bpm": 80,
+                      "pattern": "D . D U . U D U"
+                    }
+                  }
+                ]
+              }
             ]
-           }
-          ],
-          "bars": 2
-         },
-         "bpm": 85,
-         "view": "neck"
-        }
-       },
-       {
-        "type": "heading",
-        "text": "Bends and slides",
-        "minutes": 4
-       },
-       {
-        "type": "text",
-        "text": "Press Play below to start the band: the slow blues from day 2. Put yesterday's move in each time round: slide up the G string into the next position and finish with a bend. Notice how much sooner the bend arrives than it did on day 2."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "backing-track",
-         "progression": "minor-blues",
-         "key": "a",
-         "style": "shuffle",
-         "bpm": 70
-        }
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "position-neck",
-         "scale": "minor-pentatonic",
-         "key": "a",
-         "positions": [
-          1,
-          2,
-          3
-         ],
-         "highlight": [
-          "1"
-         ]
-        }
-       },
-       {
-        "type": "heading",
-        "text": "Your own solo",
-        "minutes": 4
-       },
-       {
-        "type": "text",
-        "text": "Press Play below to start the band, now on Am7 and D7. Play one long solo that climbs from position 1 to position 3 and comes back down. Choose what each phrase aims for: a root, a 3rd, a bend or a slide. Keep the one phrase you like best for next week."
-       },
-       {
-        "type": "tool",
-        "tool": {
-         "type": "backing-track",
-         "progression": "dorian",
-         "key": "a",
-         "bpm": 90
-        }
-       }
-      ],
-      "exploreMore": [
-       "/looper"
-      ]
-     }
+          },
+          {
+            "title": "Join positions 1 and 2",
+            "minutes": 10,
+            "level": "intermediate",
+            "area": "guitar",
+            "tags": [
+              "technique"
+            ],
+            "topic": "guitar-scales",
+            "concepts": [
+              "joining-positions",
+              "five-pentatonic-boxes"
+            ],
+            "why": "Position 2 starts on the notes where position 1 ends, so one slide along one string carries a phrase from the first into the second.",
+            "learnBefore": [
+              "/course/6/joining",
+              "/course/8/pentatonic-boxes"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "Position 2 on its own",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the metronome. Play position 2 of A minor pentatonic up and back down, one note per beat, and notice where its ringed {{1}} notes sit. Keep going until the shape feels as familiar as position 1."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "backing-band",
+                      "bpm": 70,
+                      "key": "a",
+                      "parts": {
+                        "click": "on"
+                      }
+                    }
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "scale-neck",
+                      "scale": "minor-pentatonic",
+                      "key": "a",
+                      "boxes": [
+                        2
+                      ],
+                      "highlight": [
+                        "1"
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "The crossing",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "The neck below shows only the crossing from position 1 to position 2. Climb position 1 from the low {{1}}. On the G string, slide from {{4}} up to {{5}} and finish the climb in position 2. Come back down the same way, sliding from {{5}} to {{4}}."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "position-neck",
+                      "scale": "minor-pentatonic",
+                      "key": "a",
+                      "cross": {
+                        "from": 1,
+                        "to": 2
+                      },
+                      "highlight": [
+                        "1"
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "The same in G and C",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Play the same crossing in other keys. Use the Key selector below to change the key.\nWhen you change the key, the notes change but the slide on the G string is still {{4}} to {{5}}. Stay in each key until the slide lands without you looking for it."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "position-neck",
+                      "scale": "minor-pentatonic",
+                      "key": "a",
+                      "cross": {
+                        "from": 1,
+                        "to": 2
+                      },
+                      "highlight": [
+                        "1"
+                      ]
+                    }
+                  }
+                ],
+                "choice": {
+                  "options": [
+                    {
+                      "key": "a"
+                    },
+                    {
+                      "key": "g"
+                    },
+                    {
+                      "key": "c"
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "title": "Solo across the join",
+            "minutes": 9,
+            "level": "intermediate",
+            "area": "guitar",
+            "tags": [
+              "improv"
+            ],
+            "topic": "guitar-scales",
+            "concepts": [
+              "joining-positions"
+            ],
+            "why": "A slide in the middle of a phrase hides the change of position, so a solo is the place to make the join part of the music.",
+            "learnBefore": [
+              "/course/6/joining",
+              "/course/5/soloing"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "Land on the roots",
+                "minutes": 5,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the backing, which switches between Am7 and Dm7. Improvise in positions 1 and 2 and slide from one to the other in the middle of a phrase. Land on {{a}} when Am7 comes round and on {{d}} when Dm7 comes round."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "guitar-play-along",
+                      "shape": {
+                        "shape": "solo-over",
+                        "key": "a",
+                        "scale": "minor-pentatonic",
+                        "chords": [
+                          {
+                            "chord": "Am7",
+                            "target": [
+                              "1"
+                            ]
+                          },
+                          {
+                            "chord": "Dm7",
+                            "target": [
+                              "1"
+                            ],
+                            "approach": "land on D on beat 1"
+                          }
+                        ],
+                        "bars": 2
+                      },
+                      "bpm": 80,
+                      "view": "neck"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Start high, end low",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the band: drums and bass in A, with no chords to follow. Start each phrase in position 2 and end it on a ringed {{1}} in position 1. Then turn it round: start low and end high."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "backing-band",
+                      "bpm": 80,
+                      "key": "a",
+                      "parts": {
+                        "drums": "on",
+                        "bass": "on"
+                      }
+                    }
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "position-neck",
+                      "scale": "minor-pentatonic",
+                      "key": "a",
+                      "positions": [
+                        1,
+                        2
+                      ],
+                      "highlight": [
+                        "1"
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "theme": "Bends that reach the note",
+        "exercises": [
+          {
+            "title": "Down-up picking, in stages",
+            "minutes": 4,
+            "level": "intermediate",
+            "area": "guitar",
+            "tags": [
+              "technique"
+            ],
+            "topic": "guitar-techniques",
+            "why": "Picking down then up plays two notes with one swing of the hand, so the hand can go faster without working harder.",
+            "learnBefore": [
+              "/course/1/spider"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "One stage at a time",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the metronome. Pick each string down, up, down, up, and follow the arrows under the tab.\nWhen your hand swings evenly with no stop between strings, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf the up strokes get quieter than the down strokes, go back one stage."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "picking-drill",
+                      "strokes": "DU",
+                      "notesPerString": 4,
+                      "bpm": 80
+                    }
+                  }
+                ],
+                "choice": {
+                  "label": "stage",
+                  "options": [
+                    {
+                      "bpm": 80
+                    },
+                    {
+                      "bpm": 92
+                    },
+                    {
+                      "bpm": 104
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "title": "Cadd9, G, Dsus4, Em",
+            "minutes": 6,
+            "level": "intermediate",
+            "area": "guitar",
+            "tags": [
+              "rhythm"
+            ],
+            "topic": "guitar-extended-chords",
+            "concepts": [
+              "sus-add9-shapes"
+            ],
+            "why": "Cadd9 adds one note to C and Dsus4 swaps one note of D, so both sound like the plain chord with a new colour on top.",
+            "learnBefore": [
+              "/course/7/sus-add9"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "The four shapes",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press a chord box below to hear it, then fret the four chords as shown. Change between Cadd9 and G first, then between G and Dsus4, until each pair moves as one shape."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "chord-shapes",
+                      "chords": [
+                        "Cadd9",
+                        "G",
+                        "Dsus4",
+                        "Em"
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "In time",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the metronome. Strum the pattern in the boxes, one bar per chord. Stay on it until the changes stop interrupting your strumming hand."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "strum-along",
+                      "chords": [
+                        "Cadd9",
+                        "G",
+                        "Dsus4",
+                        "Em"
+                      ],
+                      "bpm": 80,
+                      "pattern": "D . D U . U D U"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "Bends in tune",
+            "minutes": 10,
+            "level": "intermediate",
+            "area": "guitar",
+            "tags": [
+              "technique"
+            ],
+            "topic": "guitar-techniques",
+            "concepts": [
+              "bends-slides"
+            ],
+            "why": "A bend is in tune when it reaches the sound of the note two frets up, so play that note first, then bend until you match it.",
+            "learnBefore": [
+              "/course/5/bends-and-slides"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "Hear the target first",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "On the G string, play {{5}} in position 2 and keep its sound in your ear. Then bend {{4}}, the note under it on the same string, up until it sounds the same. Go back and forth between the two until the bend stops on the sound of {{5}} every time."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "scale-neck",
+                      "scale": "minor-pentatonic",
+                      "key": "a",
+                      "boxes": [
+                        1,
+                        2
+                      ],
+                      "highlight": [
+                        "4",
+                        "5"
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Against the drone",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the drone on A. Bend {{4}} up to {{5}} again and hold it at the top. When the bend arrives, the held note and the drone sound steady together; while the bend is short, they sound rough."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "backing-band",
+                      "bpm": 60,
+                      "key": "a",
+                      "parts": {
+                        "drone": "always"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "The B string",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play above to start the drone again. Now the same on the B string: play the ringed {{1}} in position 2, then bend {{b7}} up to it. This bend ends on the drone's own note, so you will hear it settle. Then make up short phrases that end on one of the two bends."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "scale-neck",
+                      "scale": "minor-pentatonic",
+                      "key": "a",
+                      "boxes": [
+                        1,
+                        2
+                      ],
+                      "highlight": [
+                        "b7",
+                        "1"
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "Slow blues, one bend a phrase",
+            "minutes": 10,
+            "level": "intermediate",
+            "area": "guitar",
+            "tags": [
+              "improv"
+            ],
+            "topic": "guitar-scales",
+            "concepts": [
+              "joining-positions"
+            ],
+            "why": "A bend held over a slow band has time to be heard, so one bend per phrase trains you to aim it and wait on it.",
+            "learnBefore": [
+              "/course/5/bends-and-slides",
+              "/course/7/blues-solo"
+            ],
+            "cells": [
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "backing-track",
+                  "progression": "minor-blues",
+                  "key": "a",
+                  "style": "shuffle",
+                  "bpm": 70
+                }
+              },
+              {
+                "type": "section",
+                "heading": "One bend a phrase",
+                "minutes": 5,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play above to start the band: a slow 12-bar blues in A minor. Play short phrases from the neck below and put one bend in each: {{4}} up to {{5}}, or {{b7}} up to {{1}}. Hold the bend and let the band move under it before you go on."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "scale-neck",
+                      "scale": "minor-pentatonic",
+                      "key": "a",
+                      "boxes": [
+                        1,
+                        2
+                      ],
+                      "highlight": [
+                        "4",
+                        "b7"
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Slide up to answer",
+                "minutes": 5,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play above to start the band again. Play a phrase low in position 1, then answer it with one that slides up the G string from {{4}} to {{5}} and ends in position 2. Keep the two phrases close, as if one replies to the other."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "position-neck",
+                      "scale": "minor-pentatonic",
+                      "key": "a",
+                      "cross": {
+                        "from": 1,
+                        "to": 2
+                      },
+                      "highlight": [
+                        "1"
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "theme": "Position 3 and the chords inside",
+        "exercises": [
+          {
+            "title": "Hammer and pull, fingers 2 and 4",
+            "minutes": 4,
+            "level": "intermediate",
+            "area": "guitar",
+            "tags": [
+              "technique"
+            ],
+            "topic": "guitar-techniques",
+            "concepts": [
+              "hammer-pull"
+            ],
+            "why": "Fingers 2 and 4 are the pair that hammers least in everyday playing, so a trill on those two alone is the quickest way to even them out.",
+            "learnBefore": [
+              "/course/4/legato"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "One stage at a time",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the metronome and follow the tab. Pick once, then hammer finger 4 on and pull it off to finger 2, one note per beat. Rest your hand when it gets tired, then go again.\nWhen the pulled-off note is as loud as the hammered one, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf a note goes missing at a new stage, go back one stage."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "legato-trill",
+                      "fingers": "24",
+                      "string": 2,
+                      "fret": 8,
+                      "bpm": 60
+                    }
+                  }
+                ],
+                "choice": {
+                  "label": "stage",
+                  "options": [
+                    {
+                      "bpm": 60
+                    },
+                    {
+                      "bpm": 72
+                    },
+                    {
+                      "bpm": 84
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "title": "Chord tones over Am-F-C-G",
+            "minutes": 8,
+            "level": "intermediate",
+            "area": "guitar",
+            "tags": [
+              "theory"
+            ],
+            "topic": "guitar-caged",
+            "concepts": [
+              "arpeggios-position"
+            ],
+            "why": "The 3rd is the note that makes a chord major or minor, so landing on it as the chord changes lets a single line say which chord is playing.",
+            "learnBefore": [
+              "/course/5/arpeggios",
+              "/course/5/soloing"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "Root, 3rd, 5th",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the backing and play the lit note on the neck, one per beat: each chord's root, 3rd, 5th and 3rd again. Am has a minor 3rd, {{b3}}; F, C and G have a major 3rd, {{3}}. Keep going until you can look away for a bar."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "guitar-play-along",
+                      "shape": {
+                        "shape": "chord-steps",
+                        "chords": [
+                          {
+                            "chord": "Am",
+                            "steps": [
+                              "1",
+                              "b3",
+                              "5",
+                              "b3"
+                            ]
+                          },
+                          {
+                            "chord": "F",
+                            "steps": [
+                              "1",
+                              "3",
+                              "5",
+                              "3"
+                            ]
+                          },
+                          {
+                            "chord": "C",
+                            "steps": [
+                              "1",
+                              "3",
+                              "5",
+                              "3"
+                            ]
+                          },
+                          {
+                            "chord": "G",
+                            "steps": [
+                              "1",
+                              "3",
+                              "5",
+                              "3"
+                            ]
+                          }
+                        ]
+                      },
+                      "bpm": 60,
+                      "view": "neck"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Only the 3rds",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the backing. Now each bar starts on the chord's 3rd and comes back to it. Listen for how that one note changes the colour of every bar. Then stop following the lit note and make up a line that lands on a 3rd at each change."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "guitar-play-along",
+                      "shape": {
+                        "shape": "chord-steps",
+                        "chords": [
+                          {
+                            "chord": "Am",
+                            "steps": [
+                              "b3",
+                              "b3",
+                              "1",
+                              "b3"
+                            ]
+                          },
+                          {
+                            "chord": "F",
+                            "steps": [
+                              "3",
+                              "3",
+                              "1",
+                              "3"
+                            ]
+                          },
+                          {
+                            "chord": "C",
+                            "steps": [
+                              "3",
+                              "3",
+                              "1",
+                              "3"
+                            ]
+                          },
+                          {
+                            "chord": "G",
+                            "steps": [
+                              "3",
+                              "3",
+                              "1",
+                              "3"
+                            ]
+                          }
+                        ]
+                      },
+                      "bpm": 60,
+                      "view": "neck"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "Join positions 2 and 3",
+            "minutes": 10,
+            "level": "intermediate",
+            "area": "guitar",
+            "tags": [
+              "technique"
+            ],
+            "topic": "guitar-scales",
+            "concepts": [
+              "joining-positions",
+              "five-pentatonic-boxes"
+            ],
+            "why": "Every position ends on the notes the next one starts with, so the slide that joined positions 1 and 2 joins 2 and 3 as well, two notes further up the string.",
+            "learnBefore": [
+              "/course/6/joining",
+              "/course/8/pentatonic-boxes"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "Position 3 on its own",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Play position 3 up and back down at your own pace, from the ringed {{1}} on the A string. It is the widest of the five, so let your hand open for the notes on the G and B strings. Keep going until you can start it from any ringed {{1}}."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "scale-neck",
+                      "scale": "minor-pentatonic",
+                      "key": "a",
+                      "boxes": [
+                        3
+                      ],
+                      "highlight": [
+                        "1"
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "The crossing",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "The neck below shows only the crossing from position 2 to position 3. Climb position 2, then on the G string slide from {{5}} up to {{b7}} and finish the climb in position 3. Come back down the same way."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "position-neck",
+                      "scale": "minor-pentatonic",
+                      "key": "a",
+                      "cross": {
+                        "from": 2,
+                        "to": 3
+                      },
+                      "highlight": [
+                        "1"
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Three positions in a row",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the metronome. Play the framed position up and back down, one note per beat.\nWhen it is steady, play the next position the same way. Use the Position selector below to change the position, then press Play to start the metronome again.\nWhen each one is steady, play all three without stopping, sliding across on the G string."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "backing-band",
+                      "bpm": 70,
+                      "key": "a",
+                      "parts": {
+                        "click": "on"
+                      }
+                    }
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "position-neck",
+                      "scale": "minor-pentatonic",
+                      "key": "a",
+                      "positions": [
+                        1
+                      ],
+                      "highlight": [
+                        "1"
+                      ]
+                    }
+                  }
+                ],
+                "choice": {
+                  "options": [
+                    {
+                      "position": 1
+                    },
+                    {
+                      "position": 2
+                    },
+                    {
+                      "position": 3
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "title": "Three-position solo",
+            "minutes": 8,
+            "level": "intermediate",
+            "area": "guitar",
+            "tags": [
+              "improv"
+            ],
+            "topic": "guitar-scales",
+            "concepts": [
+              "joining-positions"
+            ],
+            "why": "A solo that climbs sounds like it is going somewhere, so moving up a position every few bars gives your phrases a shape.",
+            "learnBefore": [
+              "/course/6/joining",
+              "/course/5/soloing"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "Low to high",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the backing. Start in position 1 and move up a position every few bars, until you are in position 3. Land on {{a}} when Am7 comes round and on {{d}} when Dm7 comes round."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "guitar-play-along",
+                      "shape": {
+                        "shape": "solo-over",
+                        "key": "a",
+                        "scale": "minor-pentatonic",
+                        "chords": [
+                          {
+                            "chord": "Am7",
+                            "target": [
+                              "1"
+                            ]
+                          },
+                          {
+                            "chord": "Dm7",
+                            "target": [
+                              "1"
+                            ],
+                            "approach": "land on D on beat 1"
+                          }
+                        ],
+                        "bars": 2
+                      },
+                      "bpm": 85,
+                      "view": "neck"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "High to low",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the band: drums, bass and keys on Am7 and D7. Start in position 3 and come down a position every few bars. End your last phrase on the lowest ringed {{1}}."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "backing-track",
+                      "progression": "dorian",
+                      "key": "a",
+                      "bpm": 85
+                    }
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "position-neck",
+                      "scale": "minor-pentatonic",
+                      "key": "a",
+                      "positions": [
+                        1,
+                        2,
+                        3
+                      ],
+                      "highlight": [
+                        "1"
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "theme": "A tune up the neck",
+        "exercises": [
+          {
+            "title": "Name the notes up the neck",
+            "minutes": 5,
+            "level": "intermediate",
+            "area": "guitar",
+            "tags": [
+              "theory"
+            ],
+            "topic": "guitar-scales",
+            "why": "A position is easier to move when you know the name of the note it starts on, so naming notes up the neck is what lets you put any shape in any key.",
+            "learnBefore": [
+              "/course/8/every-note"
+            ],
+            "cells": [
+              {
+                "type": "text",
+                "text": "Press Start in the game below. The game names a note: find it in the part of the neck the game shows and play it, saying its name out loud. Keep going until you stop counting up from the open string."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "note-finder",
+                  "mode": "find",
+                  "from": 5,
+                  "to": 12
+                }
+              }
+            ]
+          },
+          {
+            "title": "Sus groove in D",
+            "minutes": 8,
+            "level": "intermediate",
+            "area": "guitar",
+            "tags": [
+              "rhythm"
+            ],
+            "topic": "guitar-extended-chords",
+            "concepts": [
+              "sus-add9-shapes"
+            ],
+            "why": "A sus chord wants to go back to the plain chord, so placing it just before a change makes the change sound like an arrival.",
+            "learnBefore": [
+              "/course/7/sus-add9",
+              "/course/2/sixteenths"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "Sixteenths on D",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the metronome. Strum the pattern in the boxes: your hand goes down and up four times a beat and misses the strings where the box shows a dot. Change only the one finger between the chords."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "strum-along",
+                      "chords": [
+                        "D",
+                        "Dsus4",
+                        "D",
+                        "Dsus2"
+                      ],
+                      "bpm": 70,
+                      "pattern": "D . . U . U D U D . . U . U D U"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Dsus4 into D",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press a chord box below to see the new shapes. Then press Play under them to start the metronome. After G and A, Dsus4 lasts one bar and falls back to D in the next. Listen for how the bar of Dsus4 leans towards D."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "chord-shapes",
+                      "chords": [
+                        "G",
+                        "A",
+                        "Dsus4",
+                        "D"
+                      ]
+                    }
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "strum-along",
+                      "chords": [
+                        "G",
+                        "A",
+                        "Dsus4",
+                        "D"
+                      ],
+                      "bpm": 80,
+                      "pattern": "D . D U . U D U"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "Legato inside position 2",
+            "minutes": 7,
+            "level": "intermediate",
+            "area": "guitar",
+            "tags": [
+              "technique"
+            ],
+            "topic": "guitar-techniques",
+            "concepts": [
+              "hammer-pull"
+            ],
+            "why": "Every string in a pentatonic position has two notes, so each string can be one picked note and one hammered or pulled note.",
+            "learnBefore": [
+              "/course/4/legato",
+              "/course/8/pentatonic-boxes"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "The trill, where position 2 sits",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the metronome and follow the tab: pick once, then hammer on and pull off with no more picking. This is the G string of position 2, so your hand is already where the next block needs it."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "legato-trill",
+                      "fingers": "13",
+                      "string": 3,
+                      "fret": 7,
+                      "bpm": 72
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Through the whole position",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Play position 2 from its lowest note at your own pace. Going up, pick the lower note on each string and hammer the higher one. Coming down, pick the higher note and pull off to the lower. Keep going until the hammered notes are as loud as the picked ones."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "scale-neck",
+                      "scale": "minor-pentatonic",
+                      "key": "a",
+                      "boxes": [
+                        2
+                      ],
+                      "highlight": [
+                        "1"
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "A tune to the high Do",
+            "minutes": 10,
+            "level": "intermediate",
+            "area": "guitar",
+            "tags": [
+              "song"
+            ],
+            "topic": "guitar-scales",
+            "concepts": [
+              "guitar-melodies-intermediate"
+            ],
+            "why": "A tune is a pattern of steps from Do, so once your ear knows it at a slow tempo, a faster tempo or a new key changes the frets but not the tune.",
+            "learnBefore": [
+              "/course/8/greensleeves",
+              "/course/4/melodies"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "Learn it in stages",
+                "minutes": 5,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to hear the tune, then play along from the tab. The third bar opens with four quick notes, two per beat.\nWhen you can hum the quick notes before you play them, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the tune again.\nIf the quick notes smear at a new stage, go back one stage."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "guitar-play-along",
+                      "shape": {
+                        "shape": "melody",
+                        "tune": 47,
+                        "key": "d"
+                      },
+                      "bpm": 60,
+                      "view": "tab"
+                    }
+                  }
+                ],
+                "choice": {
+                  "label": "stage",
+                  "options": [
+                    {
+                      "bpm": 60
+                    },
+                    {
+                      "bpm": 72
+                    },
+                    {
+                      "bpm": 84
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "section",
+                "heading": "On the neck, then in G",
+                "minutes": 5,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the tune, now shown on the neck. Play it there until your eyes are on your hand and not on the screen.\nThen learn it in another key. Use the Key selector below to change the key, then press Play to start the tune again.\nWhen you change the key, the notes change but the tune keeps its shape."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "guitar-play-along",
+                      "shape": {
+                        "shape": "melody",
+                        "tune": 47,
+                        "key": "d"
+                      },
+                      "bpm": 72,
+                      "view": "neck"
+                    }
+                  }
+                ],
+                "choice": {
+                  "options": [
+                    {
+                      "key": "d"
+                    },
+                    {
+                      "key": "g"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "theme": "The positions in G",
+        "exercises": [
+          {
+            "title": "Fingers 1, 3, 2, 4",
+            "minutes": 4,
+            "level": "intermediate",
+            "area": "guitar",
+            "tags": [
+              "technique"
+            ],
+            "topic": "guitar-techniques",
+            "why": "Fingers 2 and 3 like to move together, so a pattern that sends them one after the other in the wrong order teaches each to move alone.",
+            "learnBefore": [
+              "/course/1/spider"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "One stage at a time",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the metronome and follow the tab: frets 3, 5, 4 and 6 with fingers 1, 3, 2 and 4, on every string and back. The row under the tab shows the pick stroke for each note.\nWhen the order needs no thought, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf a finger lands late at a new stage, go back one stage and stay there a little longer."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "finger-pattern",
+                      "fingers": "1324",
+                      "fret": 3,
+                      "show": "pick",
+                      "bpm": 70
+                    }
+                  }
+                ],
+                "choice": {
+                  "label": "stage",
+                  "options": [
+                    {
+                      "bpm": 70
+                    },
+                    {
+                      "bpm": 80
+                    },
+                    {
+                      "bpm": 90
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "title": "Em, Cadd9, G, Dsus4 in sixteenths",
+            "minutes": 5,
+            "level": "intermediate",
+            "area": "guitar",
+            "tags": [
+              "rhythm"
+            ],
+            "topic": "guitar-extended-chords",
+            "concepts": [
+              "sus-add9-shapes"
+            ],
+            "why": "In sixteenths the hand never stops, so there is no gap to change chords in: the fingers move during the last up stroke and land on beat 1.",
+            "learnBefore": [
+              "/course/7/sus-add9",
+              "/course/2/sixteenths"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "One stage at a time",
+                "minutes": 5,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the metronome. Strum the pattern in the boxes, one bar per chord: the chords from day 2 in a new order.\nWhen the change no longer makes your strumming hand wait, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf a change comes late, keep the hand going and catch the next beat 1."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "strum-along",
+                      "chords": [
+                        "Em",
+                        "Cadd9",
+                        "G",
+                        "Dsus4"
+                      ],
+                      "bpm": 60,
+                      "pattern": "D . . U . U D U D . . U . U D U"
+                    }
+                  }
+                ],
+                "choice": {
+                  "label": "stage",
+                  "options": [
+                    {
+                      "bpm": 60
+                    },
+                    {
+                      "bpm": 70
+                    },
+                    {
+                      "bpm": 80
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "title": "G minor pentatonic, positions 1 to 3",
+            "minutes": 10,
+            "level": "intermediate",
+            "area": "guitar",
+            "tags": [
+              "technique"
+            ],
+            "topic": "guitar-scales",
+            "concepts": [
+              "joining-positions",
+              "five-pentatonic-boxes"
+            ],
+            "why": "A position is a shape counted from its root, so moving the root from A down to G moves all five positions two frets lower, with the joins between them unchanged.",
+            "learnBefore": [
+              "/course/5/move-it",
+              "/course/8/pentatonic-boxes"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "Where it sits in G",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "The whole neck is drawn above the position: the framed part is position 1 of G minor pentatonic. Play it up and back down from the low {{1}}, and notice it is the shape you know from A, two frets lower."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "scale-neck",
+                      "scale": "minor-pentatonic",
+                      "key": "g",
+                      "boxes": [
+                        1
+                      ],
+                      "parts": {
+                        "positions": "always",
+                        "neck": "on"
+                      },
+                      "highlight": [
+                        "1"
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "One position at a time",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the metronome. Play the framed position up and back down, one note per beat.\nWhen it is steady, play the next position the same way. Use the Position selector below to change the position, then press Play to start the metronome again."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "backing-band",
+                      "bpm": 70,
+                      "key": "g",
+                      "parts": {
+                        "click": "on"
+                      }
+                    }
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "position-neck",
+                      "scale": "minor-pentatonic",
+                      "key": "g",
+                      "positions": [
+                        1
+                      ],
+                      "highlight": [
+                        "1"
+                      ]
+                    }
+                  }
+                ],
+                "choice": {
+                  "options": [
+                    {
+                      "position": 1
+                    },
+                    {
+                      "position": 2
+                    },
+                    {
+                      "position": 3
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "section",
+                "heading": "Across both joins",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "The neck below shows the crossing from position 1 to position 2 in G: slide from {{4}} up to {{5}} on the G string, as in A. Then tap ⇄ between Position 2 and Position 3 under the neck and slide across there. To finish, tap another string beside \"Cross on\" under the neck: same move, new drill."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "position-neck",
+                      "scale": "minor-pentatonic",
+                      "key": "g",
+                      "cross": {
+                        "from": 1,
+                        "to": 2
+                      },
+                      "highlight": [
+                        "1"
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "The Gm arpeggio inside position 1",
+            "minutes": 5,
+            "level": "intermediate",
+            "area": "guitar",
+            "tags": [
+              "theory"
+            ],
+            "topic": "guitar-caged",
+            "concepts": [
+              "arpeggios-position"
+            ],
+            "why": "The notes of Gm are three of the five notes of G minor pentatonic, so the arpeggio is already inside the position: leave two notes out.",
+            "learnBefore": [
+              "/course/6/arpeggios",
+              "/course/5/arpeggios"
+            ],
+            "cells": [
+              {
+                "type": "text",
+                "text": "The ringed notes below are the notes of Gm inside position 1 of G minor pentatonic: {{1}}, {{b3}} and {{5}}. Play only the ringed notes, up and back down, and leave the other two notes of the scale out."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "scale-neck",
+                  "scale": "minor-pentatonic",
+                  "key": "g",
+                  "boxes": [
+                    1
+                  ],
+                  "highlight": [
+                    "1",
+                    "b3",
+                    "5"
+                  ]
+                }
+              },
+              {
+                "type": "text",
+                "text": "Now the same arpeggio drawn on its own, with one more note lower down on the A string. Play it up and back down until you can start on any ringed {{1}} and go either way."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "arpeggio-neck",
+                  "chord": "Gm",
+                  "boxes": [
+                    1
+                  ],
+                  "highlight": [
+                    "1"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "title": "Solo in G",
+            "minutes": 6,
+            "level": "intermediate",
+            "area": "guitar",
+            "tags": [
+              "improv"
+            ],
+            "topic": "guitar-scales",
+            "concepts": [
+              "joining-positions"
+            ],
+            "why": "Chord notes sound settled and the others sound on the way somewhere, so ending a phrase on a note of the chord makes it sound finished.",
+            "learnBefore": [
+              "/course/5/move-it",
+              "/course/5/soloing"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "End on a chord note",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the backing, which switches between Gm7 and Cm7. Improvise in any of the three positions and end each phrase on a ringed note: the root or the 3rd of the chord playing."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "guitar-play-along",
+                      "shape": {
+                        "shape": "solo-over",
+                        "key": "g",
+                        "scale": "minor-pentatonic",
+                        "chords": [
+                          {
+                            "chord": "Gm7",
+                            "target": [
+                              "1",
+                              "b3"
+                            ]
+                          },
+                          {
+                            "chord": "Cm7",
+                            "target": [
+                              "1",
+                              "b3"
+                            ]
+                          }
+                        ],
+                        "bars": 2
+                      },
+                      "bpm": 80,
+                      "view": "neck"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Arpeggio, then scale",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the same backing. Over Gm7, start each phrase with the three notes of the Gm arpeggio, then carry on with the scale. Over Cm7, answer with a phrase that ends on {{c}}."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "guitar-play-along",
+                      "shape": {
+                        "shape": "solo-over",
+                        "key": "g",
+                        "scale": "minor-pentatonic",
+                        "chords": [
+                          {
+                            "chord": "Gm7",
+                            "target": [
+                              "1",
+                              "b3",
+                              "5"
+                            ]
+                          },
+                          {
+                            "chord": "Cm7",
+                            "target": [
+                              "1"
+                            ],
+                            "approach": "end on C"
+                          }
+                        ],
+                        "bars": 2
+                      },
+                      "bpm": 80,
+                      "view": "neck"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "theme": "Slide in, bend out",
+        "exercises": [
+          {
+            "title": "Skip a string",
+            "minutes": 4,
+            "level": "intermediate",
+            "area": "guitar",
+            "tags": [
+              "technique"
+            ],
+            "topic": "guitar-techniques",
+            "concepts": [
+              "string-skipping"
+            ],
+            "why": "Skipping a string makes the pick travel twice as far between notes, so it trains the aim that wide phrases across the positions need.",
+            "learnBefore": [
+              "/course/8/string-skipping"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "One stage at a time",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the metronome. Pick down, up on each string, then jump over the next string, as the tab shows. Keep the strokes small, and let your wrist do the jump.\nWhen the pick lands on the right string without you looking, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf you hit the string in between, go back one stage."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "picking-drill",
+                      "strokes": "DU",
+                      "notesPerString": 2,
+                      "skip": true,
+                      "bpm": 70
+                    }
+                  }
+                ],
+                "choice": {
+                  "label": "stage",
+                  "options": [
+                    {
+                      "bpm": 70
+                    },
+                    {
+                      "bpm": 80
+                    },
+                    {
+                      "bpm": 90
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "title": "Am7, Dsus2, Dm7",
+            "minutes": 6,
+            "level": "intermediate",
+            "area": "guitar",
+            "tags": [
+              "rhythm"
+            ],
+            "topic": "guitar-extended-chords",
+            "concepts": [
+              "sus-add9-shapes"
+            ],
+            "why": "Dsus2 and Dm7 share their two lowest notes, so moving from one to the other changes only the top of the chord.",
+            "learnBefore": [
+              "/course/7/sus-add9",
+              "/course/7/sevenths"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "The three shapes",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press a chord box below to hear it, then fret each chord as shown. Change from Dsus2 to Dm7 and back until the fingers on the top two strings move together, then add Am7 in front."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "chord-shapes",
+                      "chords": [
+                        "Am7",
+                        "Dsus2",
+                        "Dm7"
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "In time",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the metronome. Am7 lasts two bars, then Dsus2 and Dm7 get a bar each. Strum the pattern in the boxes and listen for how Dsus2 opens the way to Dm7."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "strum-along",
+                      "chords": [
+                        "Am7",
+                        "Am7",
+                        "Dsus2",
+                        "Dm7"
+                      ],
+                      "bpm": 80,
+                      "pattern": "D . D U . U D U"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "Slide in, bend out",
+            "minutes": 10,
+            "level": "intermediate",
+            "area": "guitar",
+            "tags": [
+              "technique"
+            ],
+            "topic": "guitar-techniques",
+            "concepts": [
+              "bends-slides"
+            ],
+            "why": "A slide takes your hand to a new position and a bend finishes the phrase there, so the two together are one move you can use at every join.",
+            "learnBefore": [
+              "/course/5/bends-and-slides",
+              "/course/6/joining"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "The move, slowly",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "On the neck below, climb position 1 and slide up the G string from {{4}} to {{5}}. You are now in position 2: on the B string, bend {{b7}} up until it sounds like the ringed {{1}} next to it. Play the whole move slowly until the slide and the bend feel like one phrase."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "position-neck",
+                      "scale": "minor-pentatonic",
+                      "key": "a",
+                      "cross": {
+                        "from": 1,
+                        "to": 2
+                      },
+                      "highlight": [
+                        "1"
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Against the drone",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the drone on A, and play the move again. The bend ends on the drone's own note, so hold it at the top and listen for the two to settle into one sound. If the bend stops short, push a little further and listen again."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "backing-band",
+                      "bpm": 60,
+                      "key": "a",
+                      "parts": {
+                        "drone": "always"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "One position higher",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "The same move at the next join. Climb position 2 and slide up the G string from {{5}} to {{b7}} into position 3. On the high E string, bend {{4}} up until it sounds like {{5}}. Same move, new place: now try it going into a position you choose."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "position-neck",
+                      "scale": "minor-pentatonic",
+                      "key": "a",
+                      "cross": {
+                        "from": 2,
+                        "to": 3
+                      },
+                      "highlight": [
+                        "1"
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "The tune, faster and from memory",
+            "minutes": 10,
+            "level": "intermediate",
+            "area": "guitar",
+            "tags": [
+              "song"
+            ],
+            "topic": "guitar-scales",
+            "concepts": [
+              "guitar-melodies-intermediate"
+            ],
+            "why": "A tune you can play without the tab is one your ear is leading, so the drone replaces the screen and tells you when you are home.",
+            "learnBefore": [
+              "/course/8/greensleeves",
+              "/course/4/melodies"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "Faster in stages",
+                "minutes": 5,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start day 4's tune, and play along from the tab.\nWhen the quick notes in the third bar come out even, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the tune again.\nIf they smear, go back one stage."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "guitar-play-along",
+                      "shape": {
+                        "shape": "melody",
+                        "tune": 47,
+                        "key": "d"
+                      },
+                      "bpm": 80,
+                      "view": "tab"
+                    }
+                  }
+                ],
+                "choice": {
+                  "label": "stage",
+                  "options": [
+                    {
+                      "bpm": 80
+                    },
+                    {
+                      "bpm": 90
+                    },
+                    {
+                      "bpm": 100
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "section",
+                "heading": "From memory",
+                "minutes": 5,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the drone on D, and look away from the tab. Play the tune from memory at your own pace, and listen for the last note blending into the drone. Then change one thing: the rhythm of the third bar, or the octave you play it in."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "backing-band",
+                      "bpm": 80,
+                      "key": "d",
+                      "parts": {
+                        "drone": "always",
+                        "click": "off"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "theme": "Day 1 again, then the jam",
+        "exercises": [
+          {
+            "title": "Hammer and pull, day 1 again",
+            "minutes": 4,
+            "level": "intermediate",
+            "area": "guitar",
+            "tags": [
+              "technique"
+            ],
+            "topic": "guitar-techniques",
+            "concepts": [
+              "hammer-pull"
+            ],
+            "why": "The same trill at a faster tempo than on day 1 is the plainest way to feel what a week of hammering has done.",
+            "learnBefore": [
+              "/course/4/legato"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "A stage further",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play on the first tab below to start the metronome: day 1's trill, starting where day 1 ended. Trill fingers 1 and 3.\nWhen both notes are even, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "legato-trill",
+                      "fingers": "13",
+                      "string": 3,
+                      "fret": 7,
+                      "bpm": 72
+                    }
+                  },
+                  {
+                    "type": "text",
+                    "text": "Then press Play on the second tab and do the same with fingers 2 and 4. Notice which pair is weaker now: that is the one to keep for next week."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "legato-trill",
+                      "fingers": "24",
+                      "string": 2,
+                      "fret": 8,
+                      "bpm": 72
+                    }
+                  }
+                ],
+                "choice": {
+                  "label": "stage",
+                  "options": [
+                    {
+                      "bpm": 72
+                    },
+                    {
+                      "bpm": 84
+                    },
+                    {
+                      "bpm": 96
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "title": "Comp for the jam",
+            "minutes": 6,
+            "level": "intermediate",
+            "area": "guitar",
+            "tags": [
+              "rhythm"
+            ],
+            "topic": "guitar-extended-chords",
+            "concepts": [
+              "sus-add9-shapes"
+            ],
+            "why": "With no keyboard in the band your guitar is the only thing playing the chords, so the drums and bass show at once whether your changes land on beat 1.",
+            "learnBefore": [
+              "/course/7/sus-add9",
+              "/course/7/sevenths"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "With the metronome",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the metronome. Strum yesterday's part with the pattern in the boxes: two bars of Am7, then Dsus2 and Dm7."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "strum-along",
+                      "chords": [
+                        "Am7",
+                        "Am7",
+                        "Dsus2",
+                        "Dm7"
+                      ],
+                      "bpm": 85,
+                      "pattern": "D . D U . U D U"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "With the band",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the band: drums and bass, and the chord boxes light as the bars go by. You are the only one playing the chords. Play Dsus2 in the first bar of Dm7 if you like the sound, and leave it out if you don't."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "backing-track",
+                      "chords": [
+                        "Am7",
+                        "Am7",
+                        "Dm7",
+                        "Dm7"
+                      ],
+                      "key": "a",
+                      "style": "pop",
+                      "bpm": 85,
+                      "parts": {
+                        "drums": "always",
+                        "bass": "on"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "Three positions, two keys, no looking",
+            "minutes": 8,
+            "level": "intermediate",
+            "area": "guitar",
+            "tags": [
+              "technique"
+            ],
+            "topic": "guitar-scales",
+            "concepts": [
+              "joining-positions",
+              "five-pentatonic-boxes"
+            ],
+            "why": "A minor and G minor pentatonic share three of their five notes, so in the same frets the shape changes and your hand has to know which root it is playing from.",
+            "learnBefore": [
+              "/course/6/joining",
+              "/course/8/pentatonic-boxes",
+              "/course/10/moving-keys"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "Without looking",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the metronome. Run positions 1 to 3 of A minor pentatonic and back, one note per beat, with your eyes off the screen. Then check the neck below for any note you were not sure of."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "backing-band",
+                      "bpm": 80,
+                      "key": "a",
+                      "parts": {
+                        "click": "on"
+                      }
+                    }
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "position-neck",
+                      "scale": "minor-pentatonic",
+                      "key": "a",
+                      "positions": [
+                        1,
+                        2,
+                        3
+                      ],
+                      "highlight": [
+                        "1"
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Same frets, new root",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the drone. Play the position on the neck up and back down, and end on a ringed {{1}}.\nThen try the other variant. Use the Variant selector below to change it, then press Play to start the drone again, now on the new root.\nWhen you change the variant, your hand stays in the same frets: this is position 2 of G, and the ringed notes are in new places. Go back and forth until you can end a phrase on a ringed {{1}} in either."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "backing-band",
+                      "bpm": 80,
+                      "key": "a",
+                      "parts": {
+                        "drone": "always"
+                      }
+                    }
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "scale-neck",
+                      "scale": "minor-pentatonic",
+                      "key": "a",
+                      "boxes": [
+                        1
+                      ],
+                      "highlight": [
+                        "1"
+                      ]
+                    }
+                  }
+                ],
+                "choice": {
+                  "label": "variant",
+                  "options": [
+                    {
+                      "key": "a",
+                      "position": 1
+                    },
+                    {
+                      "key": "g",
+                      "position": 2
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "title": "The jam",
+            "minutes": 12,
+            "level": "intermediate",
+            "area": "guitar",
+            "tags": [
+              "improv"
+            ],
+            "topic": "guitar-scales",
+            "concepts": [
+              "joining-positions"
+            ],
+            "why": "Each day gave you one thing to aim a phrase at (a root, a 3rd, a bend, a slide), so a solo is choosing which one each phrase goes for.",
+            "learnBefore": [
+              "/course/5/soloing",
+              "/course/5/bends-and-slides",
+              "/course/6/joining"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "Chord notes first",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the backing. Improvise in any of the three positions and end each phrase on a ringed note: {{a}} or {{c}} when Am7 comes round, {{d}} or {{f}} when Dm7 comes round."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "guitar-play-along",
+                      "shape": {
+                        "shape": "solo-over",
+                        "key": "a",
+                        "scale": "minor-pentatonic",
+                        "chords": [
+                          {
+                            "chord": "Am7",
+                            "target": [
+                              "1",
+                              "b3"
+                            ]
+                          },
+                          {
+                            "chord": "Dm7",
+                            "target": [
+                              "1",
+                              "b3"
+                            ]
+                          }
+                        ],
+                        "bars": 2
+                      },
+                      "bpm": 85,
+                      "view": "neck"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Bends and slides",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the band: the slow blues from day 2. Put yesterday's move in each time round: slide up the G string into the next position and finish with a bend. Notice how much sooner the bend arrives than it did on day 2."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "backing-track",
+                      "progression": "minor-blues",
+                      "key": "a",
+                      "style": "shuffle",
+                      "bpm": 70
+                    }
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "position-neck",
+                      "scale": "minor-pentatonic",
+                      "key": "a",
+                      "positions": [
+                        1,
+                        2,
+                        3
+                      ],
+                      "highlight": [
+                        "1"
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Your own solo",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the band, now on Am7 and D7. Play one long solo that climbs from position 1 to position 3 and comes back down. Choose what each phrase aims for: a root, a 3rd, a bend or a slide. Keep the one phrase you like best for next week."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "backing-track",
+                      "progression": "dorian",
+                      "key": "a",
+                      "bpm": 90
+                    }
+                  }
+                ]
+              }
+            ],
+            "exploreMore": [
+              "/looper"
+            ]
+          }
+        ]
+      }
     ]
-   }
-  ]
- }
+  }
 }

@@ -1,35 +1,174 @@
 {
   "id": "theory-advanced-modes-by-ear",
   "kind": "exercise",
-  "areas": ["theory"],
+  "areas": [
+    "theory"
+  ],
   "level": "advanced",
   "updated": "2026-11-10",
   "model": "claude-fable-5-2",
-  "concepts": ["modes"],
-  "docs": { "agents": 0, "teaching": 1 },
+  "concepts": [
+    "modes"
+  ],
+  "docs": {
+    "agents": 0,
+    "teaching": 5
+  },
   "note": "Each mode is heard against its parent, then its one changed note is tapped on a staff beside the root; three modes, three keys, and the last block ends on a line the learner makes up. The why is the method (a mode is major or minor with one note changed), every Play says what it starts, and each step says where the changed note shows.",
   "exercise": {
     "title": "Modes by the one note that changes",
-    "focus": "G Mixolydian ♭7 · D Dorian 6 · E Phrygian ♭2, over a drone",
     "minutes": 10,
-    "level": "advanced", "area": "theory", "tags": ["ear", "theory"], "topic": "theory-modes", "concepts": ["modes"],
+    "level": "advanced",
+    "area": "theory",
+    "tags": [
+      "ear",
+      "theory"
+    ],
+    "topic": "theory-modes",
+    "concepts": [
+      "modes"
+    ],
     "why": "Each mode is plain major or minor with one note changed, so learning to hear that one note is learning to hear the mode.",
-    "learnBefore": ["/course/9/modes-over-drone"],
-    "sections": [
-      { "type": "heading", "text": "Major, then Mixolydian", "minutes": 3 },
-      { "type": "text", "text": "Press Play below to start the backing: a G chord for eight bars, four in G major, then four in G Mixolydian. Follow the notes view and listen for the bar where one note changes. The faded note is the one left out: F in the first half, F♯ in the second." },
-      { "type": "tool", "tool": { "type": "guitar-play-along", "shape": { "shape": "two-scales", "a": { "key": "g", "scale": "major-ionian" }, "b": { "key": "g", "scale": "mixolydian" }, "bars": 8, "backingChord": "G" }, "bpm": 72, "view": "notes" } },
-      { "type": "text", "text": "The note that changed is {{b7}} (F). Tap {{1}}, then {{b7}}, then {{1}} again on the staff below." },
-      { "type": "tool", "tool": { "type": "staff", "scale": "mixolydian", "key": "g", "voice": "tenor", "highlight": ["1", "b7"], "mic": false } },
-      { "type": "heading", "text": "Minor, then Dorian", "minutes": 3 },
-      { "type": "text", "text": "Press Play below to start the backing: D natural minor, then D Dorian, over Dm. This time the note that changes is {{6}} (B)." },
-      { "type": "tool", "tool": { "type": "guitar-play-along", "shape": { "shape": "two-scales", "a": { "key": "d", "scale": "natural-minor-aeolian" }, "b": { "key": "d", "scale": "dorian" }, "bars": 8, "backingChord": "Dm" }, "bpm": 72, "view": "notes" } },
-      { "type": "text", "text": "Tap {{1}} then {{6}} on the staff below, then tap up the scale from {{1}} and stop on {{6}}." },
-      { "type": "tool", "tool": { "type": "staff", "scale": "dorian", "key": "d", "voice": "tenor", "highlight": ["1", "6"], "mic": false } },
-      { "type": "heading", "text": "Phrygian over a drone", "minutes": 4 },
-      { "type": "text", "text": "Press Play below to start the drone on E. Phrygian is natural minor with a lowered 2nd, {{b2}} (F), a half step above the root. Tap {{1}} {{b2}} {{1}} on the staff against the drone. Then tap a line of your own that keeps coming back to {{b2}}." },
-      { "type": "tool", "tool": { "type": "backing-band", "bpm": 60, "key": "e", "parts": { "drone": "always" } } },
-      { "type": "tool", "tool": { "type": "staff", "scale": "phrygian", "key": "e", "voice": "tenor", "highlight": ["1", "b2"], "mic": false } }
+    "learnBefore": [
+      "/course/9/modes-over-drone"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Major, then Mixolydian",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing: a G chord for eight bars, four in G major, then four in G Mixolydian. Follow the notes view and listen for the bar where one note changes. The faded note is the one left out: F in the first half, F♯ in the second."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "two-scales",
+                "a": {
+                  "key": "g",
+                  "scale": "major-ionian"
+                },
+                "b": {
+                  "key": "g",
+                  "scale": "mixolydian"
+                },
+                "bars": 8,
+                "backingChord": "G"
+              },
+              "bpm": 72,
+              "view": "notes"
+            }
+          },
+          {
+            "type": "text",
+            "text": "The note that changed is {{b7}} (F). Tap {{1}}, then {{b7}}, then {{1}} again on the staff below."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "mixolydian",
+              "key": "g",
+              "voice": "tenor",
+              "highlight": [
+                "1",
+                "b7"
+              ],
+              "mic": false
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Minor, then Dorian",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing: D natural minor, then D Dorian, over Dm. This time the note that changes is {{6}} (B)."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "two-scales",
+                "a": {
+                  "key": "d",
+                  "scale": "natural-minor-aeolian"
+                },
+                "b": {
+                  "key": "d",
+                  "scale": "dorian"
+                },
+                "bars": 8,
+                "backingChord": "Dm"
+              },
+              "bpm": 72,
+              "view": "notes"
+            }
+          },
+          {
+            "type": "text",
+            "text": "Tap {{1}} then {{6}} on the staff below, then tap up the scale from {{1}} and stop on {{6}}."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "dorian",
+              "key": "d",
+              "voice": "tenor",
+              "highlight": [
+                "1",
+                "6"
+              ],
+              "mic": false
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Phrygian over a drone",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the drone on E. Phrygian is natural minor with a lowered 2nd, {{b2}} (F), a half step above the root. Tap {{1}} {{b2}} {{1}} on the staff against the drone. Then tap a line of your own that keeps coming back to {{b2}}."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 60,
+              "key": "e",
+              "parts": {
+                "drone": "always"
+              }
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "phrygian",
+              "key": "e",
+              "voice": "tenor",
+              "highlight": [
+                "1",
+                "b2"
+              ],
+              "mic": false
+            }
+          }
+        ]
+      }
     ]
   }
 }

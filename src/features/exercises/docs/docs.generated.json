@@ -474,7 +474,7 @@
         "name": "picker",
         "type": "boolean",
         "required": false,
-        "description": "show the Keys switch and the twelve key chips on the tool, so the student picks the keys; default false: the keys are the ones set here, and a step-choice with `key` options is how the student changes key"
+        "description": "show the Keys switch and the twelve key chips on the tool, so the student picks the keys; default false: the keys are the ones set here, and a choice with `key` options on the section is how the student changes key"
       }
     ]
   },
