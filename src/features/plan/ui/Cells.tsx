@@ -74,19 +74,16 @@ function ToolBox({ type, children }: { type: string; children: ReactNode }) {
   );
 }
 
-/** A small button at the end of a step that scrolls back to the top of its exercise (the card around it). */
-function ToExerciseTop() {
+/** A small button at the end of a section that scrolls back to the top of that section (its heading). */
+function ToSectionTop() {
   return (
     <button
       type="button"
-      onClick={(ev) => {
-        const card = ev.currentTarget.closest("[data-tour='plan-exercise']") ?? ev.currentTarget.closest("section");
-        card?.scrollIntoView({ behavior: "smooth", block: "start" });
-      }}
+      onClick={(ev) => ev.currentTarget.closest("[data-plan-section]")?.scrollIntoView({ behavior: "smooth", block: "start" })}
       className="inline-flex items-center gap-1 self-end rounded-md px-2 py-0.5 text-[11px] font-medium text-slate-400 hover:bg-slate-800 hover:text-slate-200"
     >
       <Icon name="arrow-up" size={12} />
-      Top of exercise
+      Top of section
     </button>
   );
 }
@@ -96,7 +93,7 @@ interface Part { id: string; section: SectionCell | null; choice: Choice | undef
 
 /**
  * A block's cells in the order the AI wrote them: paragraphs, numbered steps, notices and tools, top to bottom, with its
- * sections as steps (a heading on a rail, its minutes when it is a timed block). Each step is an `ExerciseStep`: when its
+ * sections as steps (a heading under a rule, its minutes when it is a timed block). Each step is an `ExerciseStep`: when its
  * tools have more than one kind of thing to start (the mic and a drone, the mic and chords), a "Start exercise" button
  * sits above its first tool. A choice of options (the block's, or a section's own) shows its chips in the step's header:
  * the picked option sets the tools under it (and so the dots in the text), remounting them. An open choice sets its tools
@@ -175,22 +172,23 @@ export default function Cells({ cells, choice, address = "ex" }: { cells: Cell[]
       );
     });
   };
-  // framed (the review view): each step after the first starts under a rule, so the parts of a singing exercise read apart
+  // like an article: each part after the first starts under a thin rule across the width, its heading plain text above
+  // its cells, the minutes quiet beside it
   return (
-    <div className={framed ? "flex flex-col" : "flex flex-col gap-7"}>
+    <div className="flex flex-col">
       {parts.map((p, k) => {
-        const rule = framed && k > 0 ? "mt-7 border-t-2 border-slate-700 pt-6" : "";
+        const rule = k > 0 ? "mt-8 border-t border-slate-700/70 pt-7" : "";
         if (!p.section) return <div key={p.id} className={rule}><ExerciseStep><div className="flex flex-col gap-3">{items(p)}</div></ExerciseStep></div>;
         return (
-          <div key={p.id} className={rule}>
+          <div key={p.id} data-plan-section className={`scroll-mt-4 ${rule}`}>
             <ExerciseStep>
               <div className="flex flex-col gap-3">
-                <h4 className={`flex items-center gap-2.5 font-semibold text-slate-50 ${framed ? "text-lg" : "text-base"}`}>
-                  <span aria-hidden className="size-2.5 shrink-0 rounded-full bg-sky-400 ring-4 ring-sky-400/15" />
+                <h4 className={`flex flex-wrap items-baseline gap-x-3 gap-y-0.5 font-semibold tracking-tight text-slate-50 ${framed ? "text-xl" : "text-lg"}`}>
                   {p.section.heading}
-                  {p.section.minutes && <span className="rounded-full bg-slate-800 px-2 py-0.5 text-[11px] font-medium tabular-nums text-slate-300">{p.section.minutes} min</span>}
+                  {p.section.minutes && <span className="text-xs font-medium tabular-nums tracking-normal text-slate-400">{p.section.minutes} min</span>}
                 </h4>
-                <div className="ml-[4px] flex flex-col gap-3 border-l border-slate-700/70 pl-5">{items(p)}<ToExerciseTop /></div>
+                {items(p)}
+                <ToSectionTop />
               </div>
             </ExerciseStep>
           </div>
