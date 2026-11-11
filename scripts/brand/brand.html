@@ -79,9 +79,9 @@ function letter(size, ink) {
   return col;
 }
 
-/* A social picture: eyebrow, wordmark, tagline and the address in a pill, scaled from a 1080 wide card. */
+/* A social picture: eyebrow, wordmark, tagline and the address in a pill, scaled from a 1080 square card to fit the shorter side. */
 function card(spec, ink) {
-  const s = spec.width / 1080;
+  const s = Math.min(spec.width, spec.height) / 1080;
   const col = el("div", "col", { width: "100%", padding: px(80 * s) });
   col.appendChild(el("div", null, { fontSize: px(30 * s), fontWeight: 600, letterSpacing: px(5 * s), textTransform: "uppercase", color: GOLD }, spec.eyebrow));
   const wm = wordmark(200 * s, ink);
@@ -89,6 +89,16 @@ function card(spec, ink) {
   col.appendChild(wm);
   col.appendChild(el("div", null, { fontSize: px(40 * s), lineHeight: 1.35, marginTop: px(56 * s), maxWidth: px(820 * s), textAlign: "center", color: MUTED }, spec.tagline));
   col.appendChild(el("div", null, { display: "inline-flex", marginTop: px(64 * s), padding: `${px(18 * s)} ${px(44 * s)}`, borderRadius: px(999), background: GOLD, color: spec.bg, fontSize: px(34 * s), fontWeight: 600 }, spec.host));
+  return col;
+}
+
+/* A channel banner: the wide wordmark and the tagline, kept inside the safe area every screen shows (spec.safe, [w, h]). */
+function banner(spec, ink) {
+  const [w, h] = spec.safe;
+  const s = h / 423;
+  const col = el("div", "col", { width: px(w), height: px(h), justifyContent: "center" });
+  col.appendChild(wordmarkSide(150 * s, ink));
+  col.appendChild(el("div", null, { fontSize: px(40 * s), lineHeight: 1.35, marginTop: px(40 * s), textAlign: "center", color: MUTED }, spec.tagline));
   return col;
 }
 
@@ -106,6 +116,7 @@ window.render = async (spec) => {
   });
   const body =
     spec.kind === "card" ? card(spec, ink)
+    : spec.kind === "banner" ? banner(spec, ink)
     : spec.kind === "mark" ? mark(spec.width, ink)
     : spec.kind === "letter" ? letter(spec.width, ink)
     : spec.kind === "side" ? wordmarkSide(spec.fontSize, ink)

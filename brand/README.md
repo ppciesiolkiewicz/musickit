@@ -27,3 +27,10 @@ The square tile.
 - `profile.png`: 1080×1080. Instagram cuts it to a circle; the word and dots sit well inside it.
 - `highlight.png`: 1080×1080, the "a" tile, for story highlight covers.
 - `post.png`: 1080×1080, and `story.png`: 1080×1920. The wordmark with the site's line and address, for a post or a story that has no picture of its own. The words are the link preview's (`src/app/opengraph-image.tsx`); change them in both.
+
+## youtube/
+
+- `profile.png`: 800×800, the channel picture. YouTube cuts it to a circle, as Instagram does.
+- `banner.png`: 2560×1440, the channel banner. TVs show all of it; phones and computers show only the middle 1546×423, so the words sit there and the rest is the dark ground.
+- `watermark.png`: 150×150, the "a" tile, for the branding watermark YouTube puts in a corner of every video.
+- `thumbnail.png`: 1280×720, the post picture in 16:9, for a video that has no thumbnail of its own.

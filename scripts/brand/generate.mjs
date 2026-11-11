@@ -1,6 +1,6 @@
 // npm run brand
 //
-// Draws the attunr brand set into brand/ (the logo, the mark and favicon, Instagram pictures) and the app's own
+// Draws the attunr brand set into brand/ (the logo, the mark and favicon, Instagram and YouTube pictures) and the app's own
 // icons into src/app/ (icon.png, apple-icon.png, favicon.ico), all from brand.html next to this file, in
 // Playwright's Chromium from the npx cache (as scripts/video does), with the site's fonts from src/app/_og.
 // Change the look in the template, run this, commit what it wrote. brand/README.md says what each picture is for.
@@ -35,6 +35,9 @@ const logo = (kind, ink, bg, fontSize = 400) => ({ kind, ink, bg, fontSize, pad:
 /** a post or a story: the wordmark with the site's line and address */
 const card = (width, height) => ({ kind: "card", width, height, bg: DARK, eyebrow: EYEBROW, tagline: TAGLINE, host: HOST });
 
+/** a YouTube channel banner: 2560×1440, the words inside the 1546×423 middle that phones and computers show */
+const banner = () => ({ kind: "banner", width: 2560, height: 1440, bg: DARK, safe: [1546, 423], tagline: TAGLINE });
+
 /** Every PNG: where it goes (under brand/, or an absolute path) and how the template draws it. */
 const PICTURES = [
   // the logo: the word over its dots; light ink for dark grounds, dark ink for light ones
@@ -54,6 +57,11 @@ const PICTURES = [
   { out: "instagram/highlight.png", ...tile("letter", 1080, DARK, false) },
   { out: "instagram/post.png", ...card(1080, 1080) },
   { out: "instagram/story.png", ...card(1080, 1920) },
+  // youtube: the channel picture is cut to a circle; the watermark sits in a corner of every video
+  { out: "youtube/profile.png", ...tile("mark", 800, DARK, false) },
+  { out: "youtube/banner.png", ...banner() },
+  { out: "youtube/watermark.png", ...tile("letter", 150) },
+  { out: "youtube/thumbnail.png", ...card(1280, 720) },
   // the app's own icons, where Next picks them up
   { out: join(APP, "icon.png"), ...tile("letter", 96) },
   { out: join(APP, "apple-icon.png"), ...tile("mark", 180) },
