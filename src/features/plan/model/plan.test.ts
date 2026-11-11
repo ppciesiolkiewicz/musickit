@@ -10,17 +10,15 @@ import { COMPONENT_DOCS } from "@/features/exercises/docs";
 import { expandShape } from "@/features/exercises/shapes";
 import { BOOK, STAGES } from "@/features/theory/singingMelodies";
 import { pickTune } from "@/features/theory/melodyPick";
-import { migrateTool } from "./migrate";
 import { PROGRESSIONS, STYLES } from "@/features/backing/model";
-import { degreeSemis, legacySections, linkResources, parseSection, parseTool, parseToolDiag, sectionInterface, sectionsOf, toolInterface } from "./tools";
-import { linkSlots, toolFromLink } from "./migrate";
+import { cellInterface, cellsOf, degreeSemis, linkResources, parseCellDiag, parseTool, parseToolDiag, toolInterface, toolsOf, type Cell } from "./tools";
 import { linkLabel } from "./catalogue";
 import { DEFAULT_ANSWERS } from "../intake/answers";
 import { dayIndex, dayProgress, localDate, weekOver } from "./schedule";
 import type { StoredPlan } from "./types";
 
 const entries = catalogue();
-const day = (n: number, link?: string) => ({ theme: `T${n}`, exercises: [{ title: `Ex ${n}`, minutes: 10, how: "do it", ...(link ? { link } : {}) }] });
+const day = (n: number, link?: string) => ({ theme: `T${n}`, exercises: [{ title: `Ex ${n}`, minutes: 10, cells: [{ type: "text", text: "do it" }], ...(link ? { exploreMore: [link] } : {}) }] });
 /** Warnings without the one-block and missing-tag nags, which the fixtures all trigger. */
 const real = (w: string[]) => w.filter((x) => !x.includes("one block") && !/: no [a-z, ]+ tag\.$/.test(x) && x !== "No progress summary in the reply." && !/^Day \d: \d+ exercises?; use /.test(x) && !x.endsWith(": no learnBefore link; add an attunr page to learn first."));
 const week = (links: (string | undefined)[] = []) => JSON.stringify({ title: "W", days: Array.from({ length: 7 }, (_, i) => day(i + 1, links[i])) });
@@ -80,8 +78,6 @@ describe("tools", () => {
     assert.deepEqual(parseTool({ type: "backing-band", bpm: 70, key: "e", parts: ["drone", "drone", "kazoo"] }), { type: "backing-band", bpm: 70, key: 4, parts: { drone: "on" } });
     assert.deepEqual(parseTool({ type: "backing-band", bpm: 70, key: "e", parts: { drone: "always", click: "off", bass: "loud", kazoo: "on" } }), { type: "backing-band", bpm: 70, key: 4, parts: { drone: "always", click: "off" } });
     assert.deepEqual(parseTool({ type: "backing-band", bpm: 70, key: "e", parts: {} }), { type: "backing-band", bpm: 70, key: 4, parts: { click: "on" } });
-    assert.deepEqual(parseTool({ type: "click-drone", bpm: 60, key: "a", drone: false }), { type: "backing-band", bpm: 60, key: 9, parts: { click: "on" } });
-    assert.deepEqual(parseTool({ type: "click-drone", bpm: 60, key: "a" }), { type: "backing-band", bpm: 60, key: 9, parts: { click: "on", drone: "on" } });
     assert.deepEqual(parseTool({ type: "note-finder", strings: "56", from: 0, to: 5 }), { type: "note-finder", query: "strings=56&from=0&to=5" });
     assert.deepEqual(parseTool({ type: "arpeggio-neck", chord: "Am", boxes: [2, 3], part: ["1", "b3", "zz"], highlight: ["1"] }), { type: "arpeggio-neck", chord: "Am", boxes: [2, 3], part: ["1", "b3"], highlight: [0] });
     assert.equal(parseTool({ type: "arpeggio-neck", chord: "nonsense!" }), null);
@@ -171,37 +167,9 @@ describe("tools", () => {
     assert.equal(h(["9", "11"]), undefined);
     assert.deepEqual((parseTool({ type: "arpeggio-neck", chord: "C7", highlight: ["9", "3"] }) as { highlight?: number[] }).highlight, [4]);
   });
-  it("a stored sing tool becomes a staff with the mic, its semitones kept", () => {
-    assert.deepEqual(parseTool({ type: "sing", scale: "major-ionian", key: 0, voice: "tenor", notes: [0, 4, 7], highlight: [4] }, { stored: true }), { type: "staff", scale: "major-ionian", key: 0, voice: "tenor", notes: [0, 4, 7], highlight: [4], mic: true });
-  });
-  it("stored scale, chords, band, notes, ears tools take the new names", () => {
-    assert.deepEqual(parseTool({ type: "scale", scale: "dorian", key: 4, highlight: [0, 10] }, { stored: true }), { type: "scale-neck", scale: "dorian", key: 4, highlight: [0, 10] });
-    assert.deepEqual(parseTool({ type: "chords", chords: ["G"] }), { type: "chord-shapes", chords: ["G"] });
-    assert.deepEqual(parseTool({ type: "band", bpm: 60, key: 9, parts: ["click"] }), { type: "backing-band", bpm: 60, key: 9, parts: { click: "on" } });
-    assert.deepEqual(parseTool({ type: "notes", query: "mode=find" }), { type: "note-finder", query: "mode=find" });
-    assert.deepEqual(parseTool({ type: "ears", query: "level=2&wide=1", wide: true }), { type: "interval-ears", query: "level=2&wide=1", wide: true });
-  });
   it("a strum-along keeps a pattern that fills the bar, written by beat", () => {
     assert.deepEqual(parseTool({ type: "strum-along", chords: ["G"], bpm: 70, pattern: "d . d u . u d u" }), { type: "strum-along", chords: ["G"], bpm: 70, pattern: "D . | D U | . U | D U" });
     assert.deepEqual(parseTool({ type: "strum-along", chords: ["G"], bpm: 70, beats: 3, pattern: "D D U D U" }), { type: "strum-along", chords: ["G"], bpm: 70, beats: 3 });
-  });
-  it("a stored comp tool becomes a play-along progression", () => {
-    const t = parseTool({ type: "comp", chords: ["Am", "F", "C", "G"], patterns: ["arp-up", "strum"], bpm: 80, beats: 4 });
-    assert.ok(t && t.type === "guitar-play-along");
-    assert.equal(t.view, "neck");
-    const tl = expandShape({ ...t.shape, bpm: t.bpm });
-    assert.ok(tl);
-    assert.deepEqual(tl.backingChoices, ["arp-up", "strum"]);
-    assert.equal(tl.bars, 4);
-    assert.deepEqual(migrateTool({ type: "comp", chords: ["Am", "F", "C"], patterns: ["arp-up"], bpm: 72, beats: 2 }).shape, { shape: "progression", key: "a", chords: ["Am", "F", "C"], bars: 2, beatsPerChord: 2, backing: ["arp-up"] });
-  });
-  it("an old comp with beats 3 keeps every chord", () => {
-    const t = parseTool({ type: "comp", chords: ["C", "Am", "F", "G"], bpm: 80, beats: 3 });
-    assert.ok(t && t.type === "guitar-play-along");
-    const tl = expandShape({ ...t.shape, bpm: t.bpm })!;
-    const names = tl.events.filter((e) => e.type === "chord").map((e) => (e as { name: string }).name);
-    assert.deepEqual(names.slice(0, 4), ["C", "Am", "F", "G"]);
-    assert.deepEqual(tl.events.filter((e) => e.type === "chord").map((e) => e.at).slice(0, 4), [0, 3, 6, 9]);
   });
   it("play-along bpm/repeats inside the shape are a fallback; top-level wins", () => {
     const inner = parseTool({ type: "guitar-play-along", shape: { shape: "progression", key: "g", chords: ["G", "C"], bars: 4, bpm: 70, repeats: 6 } });
@@ -218,14 +186,10 @@ describe("tools", () => {
     assert.deepEqual((parseTool(raw) as { highlight?: number[] }).highlight, [7]);
     assert.deepEqual((parseTool(raw, { stored: true }) as { highlight?: number[] }).highlight, [3, 7]);
     const p = JSON.parse(week());
-    p.days[0].exercises[0] = { title: "x", minutes: 5, sections: [{ type: "tool", tool: raw }] };
+    p.days[0].exercises[0] = { title: "x", minutes: 5, cells: [{ type: "tool", tool: raw }] };
     const r = parsePlanConfig(JSON.stringify(p), entries);
     assert.ok(r.ok);
-    assert.deepEqual((r.config.days[0].exercises[0].sections?.[0] as { tool: { highlight?: number[] } }).tool.highlight, [7]);
-    const stored = sectionsOf({ sections: [{ type: "tool", tool: raw }] } as never);
-    assert.deepEqual((stored[0] as { tool: { highlight?: number[] } }).tool.highlight, [3, 7]);
-    const legacy = sectionsOf({ tools: [{ type: "sing", scale: "major-ionian", key: 0, voice: "tenor", notes: [0, 3, 7] }] } as never);
-    assert.deepEqual((legacy[0] as { tool: { notes?: number[] } }).tool.notes, [0, 3, 7]);
+    assert.deepEqual((r.config.days[0].exercises[0].cells[0] as { tool: { highlight?: number[] } }).tool.highlight, [7]);
   });
   it("placement: boxes win; by chords resolves from the exercise's chords", () => {
     const both = parseTool({ type: "scale-neck", scale: "minor-pentatonic", key: "a", boxes: [2], placement: { by: "open" } }) as Record<string, unknown>;
@@ -234,20 +198,16 @@ describe("tools", () => {
     const neck = { type: "tool", tool: { type: "scale-neck", scale: "minor-pentatonic", key: "a", add: ["c-sharp"], placement: { by: "chords" } } };
     const placed = (sections: unknown[]) => {
       const p = JSON.parse(week());
-      p.days[0].exercises[0] = { title: "x", minutes: 5, sections };
+      p.days[0].exercises[0] = { title: "x", minutes: 5, cells: sections };
       const r = parsePlanConfig(JSON.stringify(p), entries);
       assert.ok(r.ok);
-      const s = r.config.days[0].exercises[0].sections!.find((x) => x.type === "tool" && x.tool.type === "scale-neck") as { tool: { placement?: unknown } };
+      const s = r.config.days[0].exercises[0].cells.find((x) => x.type === "tool" && x.tool.type === "scale-neck") as { tool: { placement?: unknown } };
       return s.tool.placement;
     };
     assert.deepEqual(placed([{ type: "tool", tool: { type: "chord-shapes", chords: ["A7", "D7", "E7"] } }, neck]), { by: "open" });
     assert.deepEqual(placed([{ type: "tool", tool: { type: "chord-shapes", chords: ["A7"], voicing: "barre" } }, neck]), { by: "fret", fret: 5 });
     assert.deepEqual(placed([{ type: "tool", tool: { type: "guitar-play-along", bpm: 80, shape: { shape: "progression", key: "a", chords: ["A7", "D7"], bars: 2, voicing: "barre" } } }, neck]), { by: "fret", fret: 5 });
     assert.equal(placed([neck]), undefined);
-  });
-  it("an old play-along reads as a guitar-play-along", () => {
-    const shape = { shape: "progression", key: "g", chords: ["G", "C"], bars: 2 };
-    assert.deepEqual(parseTool({ type: "play-along", bpm: 70, shape }), { type: "guitar-play-along", bpm: 70, shape });
   });
   it("a backing-track needs a known progression and a key, keeps a known style, clamps its tempo", () => {
     assert.deepEqual(parseTool({ type: "backing-track", progression: "blues", key: "a", style: "shuffle", bpm: 90 }), { type: "backing-track", progression: "blues", key: 9, style: "shuffle", bpm: 90 });
@@ -274,11 +234,6 @@ describe("tools", () => {
     assert.equal(parseTool({ type: "backing-track", numerals: ["I", "V"] }), null);
     assert.equal(parseTool({ type: "backing-track", key: "d", numerals: ["nope"] }), null);
   });
-  it("an old chord-backing becomes a gentle backing-track on its chords, the bass off", () => {
-    assert.deepEqual(parseTool({ type: "chord-backing", key: "d", numerals: ["I", "V"], backing: ["block", "arp-up"], bpm: 70 }), { type: "backing-track", numerals: ["I", "V"], key: 2, style: "ballad", bpm: 70, parts: { drums: "on", bass: "off", keys: "on" } });
-    assert.deepEqual(parseTool({ type: "chord-backing", chords: ["Dm7", "G7"], key: 0, bpm: 72 }, { stored: true }), { type: "backing-track", numerals: ["ii7", "V7"], key: 0, style: "ballad", bpm: 72, parts: { drums: "on", bass: "off", keys: "on" } });
-    assert.deepEqual(parseTool({ type: "chord-backing", chords: ["G", "C", "D"], bpm: 500 }), { type: "backing-track", numerals: ["I", "IV", "V"], key: 7, style: "ballad", bpm: 220, parts: { drums: "on", bass: "off", keys: "on" } });
-  });
   it("parses a play-along by its shape", () => {
     const shape = { shape: "chord-steps", chords: [{ chord: "G", steps: ["strum", "1", "6", "1"] }, { chord: "D", steps: ["strum", "4", "5", "4"] }], voicing: "barre" };
     const t = parseTool({ type: "guitar-play-along", bpm: 70, shape });
@@ -297,22 +252,8 @@ describe("tools", () => {
     assert.equal(parseTool({ type: "chord-shapes", chords: [] }), null);
     assert.equal(parseTool({ type: "kazoo" }), null);
   });
-  it("reads an older plan's link as a tool", () => {
-    assert.deepEqual(toolFromLink("/theory/scales/minor-pentatonic/a"), { type: "scale-neck", scale: "minor-pentatonic", key: 9 });
-    assert.deepEqual(toolFromLink("/theory/notes?mode=find#x"), { type: "note-finder", query: "mode=find" });
-    assert.equal(toolFromLink("/theory/metronome-drone")?.type, "backing-band");
-    assert.equal(toolFromLink("/theory/chords"), null);
-  });
-  it("a pasted plan keeps the tools it can show, with a warning for the rest", () => {
-    const p = JSON.parse(week());
-    p.days[0].exercises[0].tools = [{ type: "chords", chords: ["G", "C"] }, { type: "scale", scale: "nope", key: "a" }];
-    const r = parsePlanConfig(JSON.stringify(p), entries);
-    assert.ok(r.ok);
-    assert.deepEqual(r.config.days[0].exercises[0].sections?.filter((x) => x.type === "tool"), [{ type: "tool", tool: { type: "chord-shapes", chords: ["G", "C"] } }]);
-    assert.equal(real(r.warnings).length, 1);
-  });
   it("the prompt's example play-along exercise keeps its minutes after derivation", () => {
-    const ex = EXERCISE_EXAMPLES.map((e) => e.exercise as { minutes: number; sections: { tool?: { type: string } }[] }).find((e) => e.sections.some((s) => s.tool?.type === "guitar-play-along"))!;
+    const ex = EXERCISE_EXAMPLES.map((e) => e.exercise as { minutes: number; cells: { tool?: { type: string } }[] }).find((e) => cellsOf(e.cells as Cell[]).some((s) => s.type === "tool" && s.tool.type === "guitar-play-along"))!;
     const p = JSON.parse(week());
     p.days[0].exercises[0] = ex;
     const r = parsePlanConfig(JSON.stringify(p), entries);
@@ -328,35 +269,32 @@ describe("tools", () => {
   };
   it("an exercise with a play-along repeats keeps its written minutes", () => {
     const tool = { type: "guitar-play-along", bpm: 70, repeats: 2, shape: { shape: "progression", key: "g", chords: ["G", "C"], bars: 4 } };
-    const r = one({ title: "t", minutes: 10, sections: [{ type: "heading", text: "A", minutes: 5 }, { type: "tool", tool }, { type: "heading", text: "B", minutes: 5 }, { type: "text", text: "x" }] });
+    const r = one({ title: "t", minutes: 10, cells: [{ type: "heading", text: "A", minutes: 5 }, { type: "tool", tool }, { type: "heading", text: "B", minutes: 5 }, { type: "text", text: "x" }] });
     assert.equal(r.config.days[0].exercises[0].minutes, 10);
   });
   it("paste warns on a 12-minute exercise with one block", () => {
-    const r = one({ title: "t", minutes: 12, sections: [{ type: "text", text: "x" }] });
+    const r = one({ title: "t", minutes: 12, cells: [{ type: "text", text: "x" }] });
     assert.ok(r.warnings.some((w) => w.includes("over 5 minutes in one block")));
   });
   it("warns when a melody pick matched no tune exactly, and stores no pick", () => {
-    const r = one({ title: "t", minutes: 4, sections: [{ type: "tool", tool: { type: "melody-singer", pick: { difficulty: "easy", stage: "nope" }, key: "c" } }] });
+    const r = one({ title: "t", minutes: 4, cells: [{ type: "tool", tool: { type: "melody-singer", pick: { difficulty: "easy", stage: "nope" }, key: "c" } }] });
     assert.ok(r.warnings.some((w) => w.includes("no tune matched the pick exactly; used tune")));
     assert.ok(!JSON.stringify(r.config).includes("pick"));
   });
-  it("heading minutes parse, clamp to 1..60, drop non-numbers", () => {
-    assert.deepEqual(parseSection({ type: "heading", text: "a", minutes: 3.4 }), { type: "heading", text: "a", minutes: 3 });
-    assert.deepEqual(parseSection({ type: "heading", text: "a", minutes: 99 }), { type: "heading", text: "a", minutes: 60 });
-    assert.deepEqual(parseSection({ type: "heading", text: "a", minutes: 0 }), { type: "heading", text: "a", minutes: 1 });
-    assert.deepEqual(parseSection({ type: "heading", text: "a", minutes: "x" }), { type: "heading", text: "a" });
-  });
 });
 
-describe("sections", () => {
-  const sections = [
+describe("cells", () => {
+  const cells = [
     { type: "text", text: "Listen to the chords" },
     { type: "tool", tool: { type: "guitar-play-along", bpm: 80, shape: { shape: "progression", key: "a", chords: ["Am", "F"], bars: 2 } } },
-    { type: "heading", text: "Now sing" },
-    { type: "list", items: ["a", "", "b"] },
-    { type: "tool", tool: { type: "scale-neck", scale: "nope", key: "a" } },
+    { type: "section", heading: "Now sing", minutes: 3, choice: { options: [{ key: "d" }, { key: "a" }] }, cells: [
+      { type: "list", items: ["a", "", "b"] },
+      { type: "tool", tool: { type: "scale-neck", scale: "nope", key: "a" } },
+      { type: "section", heading: "Deeper", cells: [{ type: "text", text: "no" }] },
+      { type: "notice", notice: "headphones" },
+    ] },
+    { type: "heading", text: "Old" },
     { type: "link", href: "/theory/ears" },
-    { type: "link", href: "/made-up" },
     { type: "text", text: "" },
   ];
   const plan = (ex: object) => {
@@ -364,64 +302,74 @@ describe("sections", () => {
     p.days[0].exercises[0] = { title: "T", minutes: 5, ...ex };
     return parsePlanConfig(JSON.stringify(p), entries);
   };
-  it("keeps the order, drops what can't be shown and says so", () => {
-    const r = plan({ sections });
+  it("parses each kind, a section with its choice and cells, and says what it left out", () => {
+    const got = cells.map((c) => parseCellDiag(c));
+    assert.deepEqual(got.map((p) => p.cell?.type ?? null), ["text", "tool", "section", null, null, null]);
+    const section = got[2].cell as Extract<Cell, { type: "section" }>;
+    assert.equal(section.heading, "Now sing");
+    assert.equal(section.minutes, 3);
+    assert.deepEqual(section.choice, { options: [{ key: 2 }, { key: 9 }] });
+    assert.deepEqual(section.cells, [{ type: "list", items: ["a", "b"] }, { type: "notice", notice: "headphones" }]);
+    assert.ok(got[2].notes.includes('"Now sing": left out a scale-neck (unknown scale "nope").'), got[2].notes.join("|"));
+    assert.ok(got[2].notes.includes('"Now sing": left out a section inside a section.'), got[2].notes.join("|"));
+    assert.equal(got[3].dropped, 'a cell of type "heading" (write a section instead)');
+    assert.equal(got[4].dropped, 'a cell of unknown type "link"');
+    assert.equal(got[5].dropped, "a text (it was empty)");
+    assert.equal(parseCellDiag({ type: "notice", notice: "coffee" }).dropped, 'a notice of unknown kind "coffee"');
+    assert.equal(parseCellDiag({ type: "section", heading: "", cells: [{ type: "text", text: "x" }] }).dropped, "a section with no heading");
+    assert.equal(parseCellDiag({ type: "section", heading: "H", cells: [{ type: "text", text: "" }] }).dropped, 'the section "H" (no cell in it could be shown)');
+    assert.deepEqual(toolsOf([cells[1], got[2].cell!] as Cell[]).map((t) => t.type), ["guitar-play-along"]);
+    assert.deepEqual(cellsOf([got[0].cell!, got[2].cell!]).map((c) => c.type), ["text", "list", "notice"]);
+  });
+  it("in a plan: keeps the order, drops what can't be shown and says so", () => {
+    const r = plan({ cells });
     assert.ok(r.ok);
-    const got = r.config.days[0].exercises[0].sections!;
-    assert.deepEqual(got.map((s) => s.type), ["text", "tool", "heading", "list"]);
-    assert.deepEqual(got[3], { type: "list", items: ["a", "b"] });
-    // an old link section goes to "Explore more"; the made-up one is dropped
-    assert.deepEqual(r.config.days[0].exercises[0].exploreMore, ["/theory/ears"]);
-    assert.equal(real(r.warnings).length, 3);
-    assert.ok(r.warnings.includes('Day 1, exercise 1: left out a scale-neck (unknown scale "nope").'), r.warnings.join("\n"));
+    const got = r.config.days[0].exercises[0].cells;
+    assert.deepEqual(got.map((s) => s.type), ["text", "tool", "section"]);
+    assert.ok(r.warnings.includes('Day 1, exercise 1: "Now sing": left out a scale-neck (unknown scale "nope").'), r.warnings.join("\n"));
     assert.ok(r.warnings.includes("Day 1, exercise 1: left out a text (it was empty)."));
+    assert.ok(r.warnings.includes('Day 1, exercise 1: left out a cell of type "heading" (write a section instead).'));
+  });
+  it("a reply still written with sections gets its title as one text cell and a warning saying so", () => {
+    const r = plan({ sections: [{ type: "text", text: "x" }] });
+    assert.ok(r.ok);
+    assert.deepEqual(r.config.days[0].exercises[0].cells, [{ type: "text", text: "T" }]);
+    assert.ok(r.warnings.includes('Day 1, exercise 1: has no cells (did you write "sections"?).'), r.warnings.join("\n"));
   });
   it("level and area: kept when known, and a missing tag warns", () => {
-    const r = plan({ level: "beginner", area: "voice", tags: ["sing"], topic: "voice-pitch", sections: [{ type: "text", text: "Sing." }] });
+    const r = plan({ level: "beginner", area: "voice", tags: ["sing"], topic: "voice-pitch", cells: [{ type: "text", text: "Sing." }] });
     assert.ok(r.ok);
     const ex = r.config.days[0].exercises[0];
     assert.equal(ex.level, "beginner");
     assert.equal(ex.area, "voice");
     assert.ok(!r.warnings.some((w) => /^Day 1, exercise 1: no (level|area|kind|topic)/.test(w)));
-    const bad = plan({ level: "expert", area: "drums", sections: [{ type: "text", text: "Play." }] });
+    const bad = plan({ level: "expert", area: "drums", cells: [{ type: "text", text: "Play." }] });
     assert.ok(bad.ok);
     assert.equal(bad.config.days[0].exercises[0].level, undefined);
     assert.equal(bad.config.days[0].exercises[0].area, undefined);
     assert.ok(bad.warnings.includes("Day 1, exercise 1: no level, area, kind, topic tag."));
   });
-  it("tags: known ones, plus multi-octave from a wide ears tool", () => {
-    const r = plan({ tags: ["ear", "made-up"], sections: [{ type: "tool", tool: { type: "interval-ears", level: 2, wide: true } }] });
+  it("tags: known ones, plus multi-octave from a wide ears tool, also inside a section", () => {
+    const r = plan({ tags: ["ear", "made-up"], cells: [{ type: "section", heading: "H", cells: [{ type: "tool", tool: { type: "interval-ears", level: 2, wide: true } }] }] });
     assert.ok(r.ok);
     assert.deepEqual(r.config.days[0].exercises[0].tags, ["ear", "multi-octave"]);
-    const plain = plan({ sections: [{ type: "tool", tool: { type: "interval-ears", level: 2 } }] });
+    const plain = plan({ cells: [{ type: "tool", tool: { type: "interval-ears", level: 2 } }] });
     assert.ok(plain.ok);
     assert.equal(plain.config.days[0].exercises[0].tags, undefined);
   });
-  it("an older exercise (how / steps / tools) becomes sections, each step followed by its tools", () => {
-    const r = plan({ how: "Slide", steps: ["Box 1", "Box 2"], tools: [{ type: "band", bpm: 60, key: "a", parts: ["click"] }, { type: "chords", chords: ["Am"], step: 2 }], link: "/theory/ears" });
+  it("more than 24 cells are cut, sections' cells counted", () => {
+    const many = Array.from({ length: 30 }, (_, i) => ({ type: "text", text: `t${i}` }));
+    const r = plan({ cells: [{ type: "section", heading: "H", cells: many.slice(0, 20) }, ...many.slice(20)] });
     assert.ok(r.ok);
-    const got = r.config.days[0].exercises[0].sections!;
-    assert.deepEqual(got.map((s) => s.type), ["tool", "text", "text", "text", "tool"]);
-    assert.deepEqual(got.map((s) => s.type === "tool" ? s.tool.type : ""), ["backing-band", "", "", "", "chord-shapes"]);
-    assert.deepEqual(r.config.days[0].exercises[0].exploreMore, ["/theory/ears"]);
-  });
-  it("a plan stored before sections still shows: its link stands for a tool", () => {
-    assert.deepEqual(sectionsOf({ how: "Do it", link: "/theory/scales/dorian/e" }).map((s) => s.type), ["tool", "text"]);
-    assert.deepEqual(legacySections({ link: "/theory/chords" }), []);
-    assert.deepEqual(sectionsOf({ sections: [{ type: "text", text: "x" }] }), [{ type: "text", text: "x" }]);
-    const stored = sectionsOf({ sections: [{ type: "tool", tool: { type: "sing", scale: "major-ionian", key: 0, voice: "tenor" } }] } as never);
-    assert.deepEqual(stored, [{ type: "tool", tool: { type: "staff", scale: "major-ionian", key: 0, voice: "tenor", mic: true } }]);
-  });
-  it("parseSection knows no link sections", () => {
-    assert.equal(parseSection({ type: "link", href: "/theory/ears" }), null);
-    assert.equal(parseSection({ type: "kazoo" }), null);
+    assert.equal(cellsOf(r.config.days[0].exercises[0].cells).length, 24);
+    assert.ok(r.warnings.includes("Day 1, exercise 1: kept the first 24 of 30 cells."));
   });
 });
 
 describe("link slots", () => {
   const plan = (ex: object) => {
     const p = JSON.parse(week());
-    p.days[0].exercises[0] = { title: "T", minutes: 5, sections: [{ type: "text", text: "x" }], ...ex };
+    p.days[0].exercises[0] = { title: "T", minutes: 5, cells: [{ type: "text", text: "x" }], ...ex };
     const r = parsePlanConfig(JSON.stringify(p), entries);
     assert.ok(r.ok);
     return r;
@@ -438,13 +386,6 @@ describe("link slots", () => {
     assert.equal(ex.learnBefore, undefined);
     assert.equal(ex.exploreMore, undefined);
   });
-  it("a stored plan's old links read as Explore more", () => {
-    assert.deepEqual(linkSlots({ sections: [{ type: "text", text: "x" }, { type: "link", href: "/theory/ears" }] }), { learnBefore: [], exploreMore: ["/theory/ears"] });
-    assert.deepEqual(linkSlots({ link: "/theory/chords" }), { learnBefore: [], exploreMore: ["/theory/chords"] });
-    assert.deepEqual(linkSlots({ link: "/theory/scales/dorian/e" }), { learnBefore: [], exploreMore: [] });
-    assert.deepEqual(linkSlots({ tools: [], link: "/theory/scales/dorian/e" }), { learnBefore: [], exploreMore: ["/theory/scales/dorian/e"] });
-    assert.deepEqual(sectionsOf({ sections: [{ type: "link", href: "/theory/ears" }] as never }), []);
-  });
   it("links show the page's real name", () => {
     assert.equal(linkLabel("/course/2/one-minute-changes", entries), "One-minute changes");
     assert.match(linkLabel("/theory/scales/minor-pentatonic/f-sharp", entries) ?? "", / in F♯$/);
@@ -456,7 +397,7 @@ describe("link slots", () => {
 
 describe("the interface the prompt lists", () => {
   it("every section has a schema; the tools are the components' docs", () => {
-    assert.equal(sectionInterface().length, 4);
+    assert.equal(cellInterface().length, 5);
     const tools = toolInterface().join("\n");
     const listed = [...tools.matchAll(/^- (\S+) : /gm)].map((m) => m[1]).sort();
     const docs = COMPONENT_DOCS.filter((d) => d.kind !== "shape" && d.name !== "step-choice").map((d) => d.name).sort(); // step-choice is a choice now, no tool (its component is renamed in Task 10)

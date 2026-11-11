@@ -1,9 +1,8 @@
 import { fitBlocks, blocksOf } from "./blocks";
 import { mixesSingAndPlay, tempoWithoutMetronome } from "./checks";
 import { checkLink, type CatalogueEntry } from "./catalogue";
-import { linkSlots } from "./migrate";
 import { choiceWarnings } from "./stepChoice";
-import { MAX_TAGS, askedTags, exerciseLevelArea, exerciseTags, legacySections, liftHeadingKeys, parseSectionDiag, parseToolDiag, pickWasInexact, resolveChordPlacement, type Section } from "./tools";
+import { MAX_CELLS, MAX_TAGS, askedTags, cellsOf, exerciseLevelArea, exerciseTags, parseCellDiag, pickWasInexact, resolveChordPlacement, toolsOf, type Cell } from "./tools";
 import { PLAN_DAYS, type PlanConfig, type PlanDay, type PlanExercise } from "./types";
 import { conceptById } from "./concepts";
 import { topicById } from "../intake/topics";
@@ -11,7 +10,7 @@ import { topicById } from "../intake/topics";
 /** The longest progress summary kept from a reply. */
 export const MAX_PROGRESS = 4000;
 const MAX_CONCEPTS = 4;
-const MAX_SECTIONS = 24, MAX_TOOLS = 6, MAX_EXERCISES = 8;
+const MAX_TOOLS = 6, MAX_EXERCISES = 8;
 /** What the prompt asks for a day: 2 to 5 exercises. */
 const MIN_DAY = 2, MAX_DAY = 5;
 
@@ -19,45 +18,43 @@ export type ParseResult = { ok: true; config: PlanConfig; warnings: string[] } |
 
 const str = (v: unknown, max = 600): string => (typeof v === "string" ? v.trim().slice(0, max) : "");
 
-/** Sections from the AI's list; what can't be shown (a tool for an unknown scale) is left out with a warning saying why, and what was cut or defaulted is warned. An old `link` section is a link (`parseSlots`). */
-function parseSections(raw: unknown[], where: string, warnings: string[]): Section[] {
-  const asked = liftHeadingKeys(raw.filter((r) => (r as { type?: unknown })?.type !== "link"));
-  if (asked.length > MAX_SECTIONS) warnings.push(`${where}: kept the first ${MAX_SECTIONS} of ${asked.length} sections.`);
-  const out = asked.slice(0, MAX_SECTIONS).map(parseSectionDiag);
+/** The most links a slot keeps. */
+export const SLOT_MAX = 3;
+
+/** Cells from the AI's list; what can't be shown (a tool for an unknown scale) is left out with a warning saying why, and what was cut or defaulted is warned. Sections' cells count towards the cap. */
+function parseCells(raw: unknown[], where: string, warnings: string[]): Cell[] {
+  const out = raw.map((r) => parseCellDiag(r));
   for (const p of out) {
     for (const n of p.notes) warnings.push(`${where}: ${n}`);
     if (p.dropped) warnings.push(`${where}: left out ${p.dropped}.`);
   }
-  const kept = out.flatMap((p) => (p.section ? [p.section] : []));
-  for (const s of kept) if (s.type === "tool" && pickWasInexact(s.tool)) warnings.push(`${where}: no tune matched the pick exactly; used ${"run" in s.tool ? `run ${s.tool.run}` : "tune" in s.tool ? `tune ${s.tool.tune}` : "one"}.`);
+  let kept = out.flatMap((p) => (p.cell ? [p.cell] : []));
+  let count = 0;
+  const total = cellsOf(kept).length;
+  if (total > MAX_CELLS) {
+    warnings.push(`${where}: kept the first ${MAX_CELLS} of ${total} cells.`);
+    kept = kept.flatMap((c): Cell[] => {
+      if (count >= MAX_CELLS) return [];
+      if (c.type !== "section") { count++; return [c]; }
+      const cells = c.cells.slice(0, MAX_CELLS - count);
+      count += cells.length;
+      return cells.length ? [{ ...c, cells }] : [];
+    });
+  }
+  for (const t of toolsOf(kept)) if (pickWasInexact(t)) warnings.push(`${where}: no tune matched the pick exactly; used ${"run" in t ? `run ${t.run}` : "tune" in t ? `tune ${t.tune}` : "one"}.`);
   return kept;
 }
 
-/** The exercise's link slots, each link checked against the catalogue: an unknown one is dropped with a warning. */
+/** The exercise's link slots, each link checked against the catalogue: an unknown one is dropped with a warning; each slot keeps 3, and a link in both stays in Learn before. */
 function parseSlots(e: Record<string, unknown>, entries: CatalogueEntry[], where: string, warnings: string[]): Pick<PlanExercise, "learnBefore" | "exploreMore"> {
-  const check = (hrefs: string[]) => [...new Set(hrefs.flatMap((h) => {
+  const check = (raw: unknown) => [...new Set((Array.isArray(raw) ? raw : []).filter((h): h is string => typeof h === "string").flatMap((h) => {
     const href = checkLink(h, entries);
     if (!href) warnings.push(`${where}: dropped the link "${h}" (not an attunr page).`);
     return href ? [href] : [];
   }))];
-  const raw = linkSlots({ ...e, tools: e.tools ?? [] }); // a pasted old-shape link is a link, never a tool (parseLegacy)
-  const learnBefore = check(raw.learnBefore);
-  const exploreMore = check(raw.exploreMore).filter((h) => !learnBefore.includes(h));
+  const learnBefore = check(e.learnBefore).slice(0, SLOT_MAX);
+  const exploreMore = check(e.exploreMore).filter((h) => !learnBefore.includes(h)).slice(0, SLOT_MAX);
   return { ...(learnBefore.length ? { learnBefore } : {}), ...(exploreMore.length ? { exploreMore } : {}) };
-}
-
-/** An exercise in the earlier shape (how / steps / tools / link), as sections; its link, unless it stands for a tool, is in `parseSlots`. */
-function parseLegacy(e: Record<string, unknown>, entries: CatalogueEntry[], where: string, warnings: string[]): Section[] {
-  const steps = Array.isArray(e.steps) ? e.steps.map((s) => str(s, 240)).filter(Boolean).slice(0, 8) : [];
-  const rawTools = Array.isArray(e.tools) ? e.tools.slice(0, 6) : [];
-  const tools = rawTools.flatMap((t) => {
-    const { tool: p, dropped, notes } = parseToolDiag(t);
-    for (const n of notes) warnings.push(`${where}: ${n}`);
-    if (dropped) warnings.push(`${where}: left out ${dropped}.`);
-    const step = Number((t as { step?: unknown })?.step);
-    return p ? [Number.isInteger(step) && step >= 1 && step <= 8 ? { ...p, step } : p] : [];
-  });
-  return legacySections({ how: str(e.how), steps, tools, link: checkLink(e.link, entries) });
 }
 
 /** The JSON object in what the player pasted: the AI's whole reply is fine (prose, a ```json fence). */
@@ -122,9 +119,9 @@ export function parsePlanConfig(text: string, entries: CatalogueEntry[]): ParseR
       const focus = str(e.focus, 120);
       if (focus) ex.focus = focus;
       const where = `Day ${d + 1}, exercise ${i + 1}`;
-      const sections = resolveChordPlacement(Array.isArray(e.sections) ? parseSections(e.sections, where, warnings) : parseLegacy(e, entries, where, warnings));
+      const sections = resolveChordPlacement(Array.isArray(e.cells) ? parseCells(e.cells, where, warnings) : []);
       if (!sections.length) {
-        warnings.push(`${where}: no instructions.`);
+        warnings.push(Array.isArray(e.sections) && !Array.isArray(e.cells) ? `${where}: has no cells (did you write "sections"?).` : `${where}: no instructions.`);
         sections.push({ type: "text", text: title });
       }
       const fit = fitBlocks(sections, ex.minutes);
@@ -133,7 +130,7 @@ export function parsePlanConfig(text: string, entries: CatalogueEntry[]): ParseR
       if (mixesSingAndPlay(fit.sections)) warnings.push(`${where}: asks to both sing and play; keep it to one.`);
       if (tempoWithoutMetronome(fit.sections)) warnings.push(`${where}: asks for a tempo but shows no metronome; add one.`);
       for (const w of choiceWarnings(fit.sections)) warnings.push(`${where}: ${w}`);
-      ex.sections = fit.sections;
+      ex.cells = fit.sections;
       Object.assign(ex, exerciseLevelArea(e));
       const tags = exerciseTags(e.tags, sections);
       if (tags.length) ex.tags = tags;
@@ -146,7 +143,7 @@ export function parsePlanConfig(text: string, entries: CatalogueEntry[]): ParseR
       const why = str(e.why, 300);
       if (why) ex.why = why;
       Object.assign(ex, parseSlots(e, entries, where, warnings));
-      const tools = fit.sections.filter((s) => s.type === "tool" && s.tool.type !== "step-choice").length; // the chips are no tool to learn
+      const tools = toolsOf(fit.sections).length;
       if (tools > MAX_TOOLS) warnings.push(`${where}: ${tools} tools; keep it to ${MAX_TOOLS}.`);
       if (!ex.learnBefore?.length) warnings.push(`${where}: no learnBefore link; add an attunr page to learn first.`);
       return [ex];

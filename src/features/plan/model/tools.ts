@@ -23,7 +23,6 @@ import { parsePlacement, type Placement } from "@/features/exercises/cues/placem
 import type { CatalogueEntry } from "./catalogue";
 import type { Area } from "./concepts";
 import type { Level } from "./types";
-import { migrateTool, toolFromLink } from "./migrate";
 import { notePc } from "./noteText";
 import { canTranspose } from "./transpose";
 
@@ -626,7 +625,7 @@ export interface ToolParse { tool: PlanTool | null; dropped?: string; notes: str
  */
 export function parseToolDiag(raw: unknown, opts: { stored?: boolean } = {}): ToolParse {
   if (!raw || typeof raw !== "object") return { tool: null, dropped: "a tool that isn't an object", notes: [] };
-  const t = { ...migrateTool(raw as Record<string, unknown>) };
+  const t = { ...(raw as Record<string, unknown>) };
   const numbers: string[] = [];
   if (!opts.stored)
     for (const k of DEGREE_LISTS)
@@ -684,24 +683,29 @@ export type Cell =
 /** A step of an exercise: a heading, minutes when it is a timed block, a choice that sets its tools, its cells. */
 export interface SectionCell { type: "section"; heading: string; minutes?: number; choice?: Choice; cells: Exclude<Cell, SectionCell>[] }
 
-/** until Task 4 moves the parsers to cells */
-export type Section =
-  | { type: "heading"; text: string; minutes?: number }
-  | { type: "text"; text: string }
-  | { type: "list"; items: string[] }
-  | { type: "tool"; tool: PlanTool };
+/** A cell that is not a section: what a section holds. */
+export type PlainCell = Exclude<Cell, SectionCell>;
 
 const str = (v: unknown, max: number): string => (typeof v === "string" ? v.trim().slice(0, max) : "");
 
-/** The longest a heading, a text and a list item may be, and the most items in a list: cut beyond (`parseSection` says so), and told to the AI by the schemas below. */
+/** The longest a heading, a text and a list item may be, and the most items in a list: cut beyond (`parseCellDiag` says so), and told to the AI by the schemas below. */
 export const MAX_HEADING = 100, MAX_TEXT = 700, MAX_ITEM = 240, MAX_ITEMS = 8;
+/** The most cells a block may hold, sections' cells counted. */
+export const MAX_CELLS = 24;
 const strMax = (maxLength: number) => ({ type: "string", maxLength });
-const SECTIONS: { type: Section["type"]; description: string; properties: Record<string, unknown>; required: string[] }[] = [
-  { type: "heading", description: "A short title inside the exercise (\"Warm-up\", \"Now with the 7th\").", properties: { text: strMax(MAX_HEADING), minutes: { type: "integer", minimum: 1, maximum: 60, description: "starts a timed block of this many minutes" } }, required: ["text"] },
+const NOTICES = ["headphones"] as const;
+const CELLS = (): { type: Cell["type"]; description: string; properties: Record<string, unknown>; required: string[] }[] => [
   { type: "text", description: "A paragraph of plain instructions.", properties: { text: strMax(MAX_TEXT) }, required: ["text"] },
   { type: "list", description: "Numbered steps the student follows.", properties: { items: { type: "array", items: strMax(MAX_ITEM), minItems: 1, maxItems: MAX_ITEMS } }, required: ["items"] },
+  { type: "notice", description: "A fixed notice: \"headphones\" asks the student to use headphones, for a block that listens with the microphone while it plays.", properties: { notice: { type: "string", enum: [...NOTICES] } }, required: ["notice"] },
   { type: "tool", description: "One of the tools below, shown here, in order, already set up. A tool shows what the text just before it talks about.", properties: { tool: { type: "object", description: "{\"type\": <tool name>, …input}" } }, required: ["tool"] },
+  { type: "section", description: "One step of the exercise: a heading, its minutes when it is a timed block, a choice that sets its tools, and its own cells (any kind but section).", properties: { heading: strMax(MAX_HEADING), minutes: { type: "integer", minimum: 1, maximum: 60, description: "a timed block of this many minutes" }, choice: choiceSchema(), cells: { type: "array", items: { type: "object", description: "a text, list, notice or tool cell" }, minItems: 1 } }, required: ["heading", "cells"] },
 ];
+
+/** Every tool cell of a block, sections' cells inline, in order. */
+export const toolsOf = (cells: Cell[]): PlanTool[] => cellsOf(cells).flatMap((c) => (c.type === "tool" ? [c.tool] : []));
+/** The block's cells flattened: a section's cells stand where the section was, so no section cell remains. */
+export const cellsOf = (cells: Cell[]): PlainCell[] => cells.flatMap((c) => (c.type === "section" ? c.cells : [c]));
 
 /** Exercise tags the AI may set; the page shows them as chips. "multi-octave" is also added by a wide ears tool. */
 export const EXERCISE_TAGS: Record<string, string> = {
@@ -725,9 +729,9 @@ export function askedTags(raw: unknown): { known: string[]; unknown: string[] } 
 }
 
 /** The tags an exercise gets: the first 3 of what the AI set that we know, plus the ones its tools imply (added after the cut, so an implied tag is never the one dropped). */
-export function exerciseTags(raw: unknown, sections: Section[]): string[] {
+export function exerciseTags(raw: unknown, cells: Cell[]): string[] {
   const tags = new Set(askedTags(raw).known.slice(0, MAX_TAGS));
-  for (const s of sections) if (s.type === "tool" && s.tool.type === "interval-ears" && s.tool.wide) tags.add("multi-octave");
+  for (const t of toolsOf(cells)) if (t.type === "interval-ears" && t.wide) tags.add("multi-octave");
   return [...tags];
 }
 
@@ -747,8 +751,8 @@ export function exerciseLevelArea(e: { level?: unknown; area?: unknown }): { lev
  * guitar-play-along with chords): open voicing → next to the open chords; barre → near the first chord's root on the low E string. No chord
  * tool: the placement goes.
  */
-export function resolveChordPlacement(sections: Section[]): Section[] {
-  const chordTool = sections.flatMap((s) => (s.type === "tool" ? [s.tool] : [])).map((t) => {
+export function resolveChordPlacement<T extends Cell>(cells: T[]): T[] {
+  const chordTool = toolsOf(cells).map((t) => {
     if (t.type === "chord-shapes") return { chords: t.chords, voicing: t.voicing };
     if (t.type === "strum-along") return { chords: t.chords, voicing: undefined };
     if (t.type !== "guitar-play-along") return null;
@@ -759,13 +763,15 @@ export function resolveChordPlacement(sections: Section[]): Section[] {
   const resolved: Placement | null = !chordTool ? null
     : chordTool.voicing === "barre" ? { by: "fret", fret: (parseChordQuery(chordTool.chords[0])!.rootPc - 4 + 12) % 12 }
     : { by: "open" };
-  return sections.map((s) => {
+  const place = <C extends Cell>(s: C): C => {
+    if (s.type === "section") return { ...s, cells: s.cells.map(place) };
     if (s.type !== "tool" || (s.tool.type !== "scale-neck" && s.tool.type !== "arpeggio-neck" && s.tool.type !== "position-neck") || s.tool.placement?.by !== "chords") return s;
     const tool = { ...s.tool };
     if (resolved) tool.placement = resolved;
     else delete tool.placement;
-    return { type: "tool", tool };
-  });
+    return { type: "tool", tool } as C;
+  };
+  return cells.map(place);
 }
 
 /* ---------------------------------------------------------------- the choice */
@@ -877,42 +883,8 @@ export function choiceSchema(): object {
   };
 }
 
-/**
- * Sections written when a heading listed the step's `keys` (before the chooser was a tool): the keys leave the heading
- * and become a step-choice, an option per key, right before the step's first tool (at the step's end when it has none).
- * A step that already has a chooser just loses the heading's keys. Works on raw (pasted) and stored sections alike.
- */
-export function liftHeadingKeys<T>(sections: T[]): T[] {
-  type Raw = { type?: unknown; keys?: unknown; tool?: { type?: unknown } };
-  const at = (i: number) => (sections[i] ?? {}) as Raw;
-  if (!sections.some((_, i) => at(i).type === "heading" && Array.isArray(at(i).keys))) return sections;
-  const out: T[] = [];
-  let pending: unknown[] | null = null;
-  const flush = () => {
-    if (pending) out.push({ type: "tool", tool: { type: "step-choice", options: pending.map((key) => ({ key })) } } as T);
-    pending = null;
-  };
-  sections.forEach((s, i) => {
-    const r = at(i);
-    if (r.type === "heading") {
-      flush();
-      if (Array.isArray(r.keys)) {
-        const { keys, ...rest } = r;
-        const end = sections.findIndex((_, j) => j > i && at(j).type === "heading");
-        const has = sections.slice(i + 1, end < 0 ? undefined : end).some((x) => (x as Raw)?.type === "tool" && ["step-choice", "key-choice"].includes((x as Raw).tool?.type as string));
-        if (!has) pending = keys as unknown[];
-        out.push(rest as T);
-        return;
-      }
-    } else if (r.type === "tool") flush();
-    out.push(s);
-  });
-  flush();
-  return out;
-}
-
-/** A section parsed, with what the parse had to say: `dropped` names what was left out and why, `notes` what was cut or changed. */
-export interface SectionParse { section: Section | null; dropped?: string; notes: string[] }
+/** A cell parsed, with what the parse had to say: `dropped` names what was left out and why, `notes` what was cut or changed (a section's notes name the cells inside it). */
+export interface CellParse { cell: Cell | null; dropped?: string; notes: string[] }
 
 /** `str`, noting a cut ("a text was cut at 700 characters.") in `notes`. */
 const strNoted = (v: unknown, max: number, what: string, notes: string[]): string => {
@@ -921,20 +893,21 @@ const strNoted = (v: unknown, max: number, what: string, notes: string[]): strin
   return out;
 };
 
-/** One section from the AI's JSON, checked, with its diagnosis: what was cut, and why a section was left out. */
-export function parseSectionDiag(raw: unknown): SectionParse {
+/**
+ * One cell from the AI's JSON or a stored block, checked, with its diagnosis: what was cut, and why a cell was left out.
+ * `inSection`: the cell sits in a section, so a section is left out ("a section inside a section"). A section's own cells
+ * are parsed the same way; what they drop is noted on the section ("left out a text (it was empty)"), and a section left
+ * with no cell is dropped.
+ */
+export function parseCellDiag(raw: unknown, opts: { inSection?: boolean } = {}): CellParse {
   const s = (raw ?? {}) as Record<string, unknown>;
   const notes: string[] = [];
-  const out = (section: Section): SectionParse => ({ section, notes });
-  const empty = (what: string): SectionParse => ({ section: null, dropped: `${what} (it was empty)`, notes });
+  const out = (cell: Cell): CellParse => ({ cell, notes });
+  const empty = (what: string): CellParse => ({ cell: null, dropped: `${what} (it was empty)`, notes });
   switch (s.type) {
-    case "heading":
     case "text": {
-      const text = strNoted(s.text, s.type === "heading" ? MAX_HEADING : MAX_TEXT, s.type === "heading" ? "a heading" : "a text", notes);
-      if (!text) return empty(`a ${s.type}`);
-      if (s.type === "text") return out({ type: "text", text });
-      const m = Math.round(Number(s.minutes));
-      return out({ type: "heading", text, ...(s.minutes != null && Number.isFinite(m) ? { minutes: Math.min(60, Math.max(1, m)) } : {}) });
+      const text = strNoted(s.text, MAX_TEXT, "a text", notes);
+      return text ? out({ type: "text", text }) : empty("a text");
     }
     case "list": {
       const asked = list(s.items);
@@ -942,25 +915,50 @@ export function parseSectionDiag(raw: unknown): SectionParse {
       if (items.length > MAX_ITEMS) notes.push(`a list was cut at ${MAX_ITEMS} items.`);
       return items.length ? out({ type: "list", items: items.slice(0, MAX_ITEMS) }) : empty("a list");
     }
+    case "notice": {
+      const notice = NOTICES.find((n) => n === s.notice);
+      return notice ? out({ type: "notice", notice }) : { cell: null, dropped: `a notice of unknown kind ${JSON.stringify(s.notice)?.slice(0, 30)}`, notes };
+    }
     case "tool": {
       const p = parseToolDiag(s.tool);
       notes.push(...p.notes);
-      return p.tool ? out({ type: "tool", tool: p.tool }) : { section: null, dropped: p.dropped, notes };
+      return p.tool ? out({ type: "tool", tool: p.tool }) : { cell: null, dropped: p.dropped, notes };
     }
+    case "section": {
+      if (opts.inSection) return { cell: null, dropped: "a section inside a section", notes };
+      const heading = strNoted(s.heading, MAX_HEADING, "a heading", notes);
+      if (!heading) return { cell: null, dropped: "a section with no heading", notes };
+      const m = Math.round(Number(s.minutes));
+      const d: Diag = { notes: [] };
+      const choice = s.choice === undefined ? null : parseChoiceDiag(s.choice, d);
+      notes.push(...d.notes.map((n) => `the choice of "${heading}" ${n}`));
+      if (choice?.dropped) notes.push(`"${heading}": left out ${choice.dropped}.`);
+      const cells: PlainCell[] = [];
+      for (const c of list(s.cells)) {
+        const p = parseCellDiag(c, { inSection: true });
+        notes.push(...p.notes);
+        if (p.dropped) notes.push(`"${heading}": left out ${p.dropped}.`);
+        if (p.cell && p.cell.type !== "section") cells.push(p.cell);
+      }
+      if (!cells.length) return { cell: null, dropped: `the section "${heading}" (no cell in it could be shown)`, notes };
+      return out({ type: "section", heading, ...(s.minutes != null && Number.isFinite(m) ? { minutes: Math.min(60, Math.max(1, m)) } : {}), ...(choice?.choice ? { choice: choice.choice } : {}), cells });
+    }
+    case "heading":
+      return { cell: null, dropped: 'a cell of type "heading" (write a section instead)', notes };
   }
-  return { section: null, dropped: s.type == null ? "a section with no type" : `a section of unknown type ${JSON.stringify(s.type)?.slice(0, 40)}`, notes };
+  return { cell: null, dropped: s.type == null ? "a cell with no type" : `a cell of unknown type ${JSON.stringify(s.type)?.slice(0, 40)}`, notes };
 }
 
-/** One section from the AI's JSON, checked; null when empty or not showable. */
-export const parseSection = (raw: unknown): Section | null => parseSectionDiag(raw).section;
+/** One cell from the AI's JSON, checked; null when empty or not showable. */
+export const parseCell = (raw: unknown): Cell | null => parseCellDiag(raw).cell;
 
 /* ---------------------------------------------------------------- what the prompt says */
 
 const schema = (properties: Record<string, unknown>, required: string[] = []) => JSON.stringify({ type: "object", properties, ...(required.length ? { required } : {}) });
 
 /** The blocks an exercise is made of, as the prompt lists them: name, what it is, input schema. */
-export function sectionInterface(): string[] {
-  return SECTIONS.map((s) => `- ${s.type} : ${s.description}\n  inputSchema: ${schema({ type: { const: s.type }, ...s.properties }, ["type", ...s.required])}`);
+export function cellInterface(): string[] {
+  return CELLS().map((s) => `- ${s.type} : ${s.description}\n  inputSchema: ${schema({ type: { const: s.type }, ...s.properties }, ["type", ...s.required])}`);
 }
 
 const pickLine = (what: string, stages: Stage[]) => `${what} is chosen with pick {difficulty?, stage?, index?} (index from 0, wraps; no tune number). ${pickChoices(stages)}`;
@@ -998,9 +996,9 @@ const sectionParams = (properties: Record<string, unknown>, required: string[]):
   });
 
 /** What the prompt offers the AI, for the debug view: the same `COMPONENT_DOCS` the prompt renders. */
-export function offeredInterface(entries: CatalogueEntry[]): { sections: OfferedItem[]; tools: OfferedItem[]; shapes: OfferedItem[]; links: string[] } {
+export function offeredInterface(entries: CatalogueEntry[]): { cells: OfferedItem[]; tools: OfferedItem[]; shapes: OfferedItem[]; links: string[] } {
   return {
-    sections: SECTIONS.map((s) => ({ name: s.type, description: s.description, short: `${s.type}: ${s.description}`, params: sectionParams(s.properties, s.required) })),
+    cells: CELLS().map((s) => ({ name: s.type, description: s.description, short: `${s.type}: ${s.description}`, params: sectionParams(s.properties, s.required) })),
     tools: TOOL_DOCS().map(offered),
     shapes: SHAPE_DOCS().map(offered),
     links: linkResources(entries).map((l) => l.replace(/^- /, "")),
@@ -1028,46 +1026,3 @@ export function linkResources(entries: CatalogueEntry[]): string[] {
     ...[...stages].map(([n, s]) => `- /course/${n}/{section} : ${s.label}; section ∈ ${s.sections.join(", ")}`),
   ];
 }
-
-/* ---------------------------------------------------------------- plans from before sections */
-
-/**
- * An exercise written before sections (how / steps / tools, each tool with its `step`) as sections: text, then each
- * step followed by its tools. Its `link` becomes a tool when it stands for one; otherwise it is a link (`linkSlots`).
- */
-export function legacySections(e: { how?: string; steps?: string[]; tools?: StoredTool[]; link?: string }): Section[] {
-  const out: Section[] = [];
-  const linked = toolFromLink(e.link);
-  const tools: StoredTool[] = e.tools ?? (linked ? [linked] : []);
-  const tool = (t: StoredTool): Section[] => {
-    const p = parseTool(t, { stored: true });
-    return p ? [{ type: "tool", tool: p }] : [];
-  };
-  tools.filter((t) => !t.step).forEach((t) => out.push(...tool(t))); // a band keeping time goes first
-  if (e.how) out.push({ type: "text", text: e.how });
-  if (e.steps?.length) {
-    e.steps.forEach((text, i) => {
-      out.push({ type: "text", text: `${i + 1}. ${text}` });
-      tools.filter((t) => t.step === i + 1).forEach((t) => out.push(...tool(t)));
-    });
-  }
-  return out;
-}
-
-/** A tool as a stored plan holds it: today's `PlanTool`, or an older one (`scale`, `comp`, …) that `parseTool` migrates. */
-export type StoredTool = (PlanTool | { type: string; [k: string]: unknown }) & { step?: number };
-
-/**
- * What an exercise shows, in order: its sections, or, for a plan stored before sections, what its old fields stand for.
- * Stored tools are parsed again, so a tool saved under an old name shows as its component; an old `link` section is
- * left out (it is in "Explore more", `linkSlots`).
- */
-export const sectionsOf = (e: { sections?: Section[]; how?: string; steps?: string[]; tools?: StoredTool[]; link?: string }): Section[] =>
-  e.sections
-    ? liftHeadingKeys(e.sections).flatMap((s): Section[] => {
-        if ((s.type as string) === "link") return [];
-        if (s.type !== "tool") return [s];
-        const tool = parseTool(s.tool, { stored: true });
-        return tool ? [{ type: "tool", tool }] : [];
-      })
-    : legacySections(e);

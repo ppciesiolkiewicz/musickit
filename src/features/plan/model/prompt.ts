@@ -1,7 +1,7 @@
 import { GLOSSARY } from "@/features/course/glossary";
 import type { CatalogueEntry } from "./catalogue";
 import { keyName } from "@/features/theory/keySlug";
-import { EXERCISE_AREAS, EXERCISE_LEVELS, EXERCISE_TAGS, linkResources, sectionInterface, sectionsOf, toolInterface } from "./tools";
+import { EXERCISE_AREAS, EXERCISE_LEVELS, EXERCISE_TAGS, cellInterface, linkResources, toolInterface, toolsOf } from "./tools";
 import { LEVELS, labelOf } from "./questions";
 import { DEFAULT_ANSWERS, levelOf } from "../intake/answers";
 import { TOPICS, topicById, topicsFor } from "../intake/topics";
@@ -38,15 +38,18 @@ function studentLines(a: PlanAnswers): string[] {
 export function settingsOf(e: PlanExercise): string {
   const names: string[] = [], keys: number[] = [], bpms: number[] = [], voices: string[] = [];
   const add = <T,>(to: T[], v: T | undefined) => { if (v !== undefined && !to.includes(v)) to.push(v); };
-  for (const s of sectionsOf(e)) {
-    if (s.type !== "tool") continue;
-    const t = s.tool as Record<string, unknown>;
-    // a step-choice is no tool to name: its options are more keys and tempos the step was practised in
-    const options = s.tool.type === "step-choice" ? s.tool.options : [];
-    if (s.tool.type !== "step-choice") add(names, s.tool.type);
-    for (const k of [t.key, ...(Array.isArray(t.keys) ? t.keys : []), ...options.map((o) => o.key)]) if (typeof k === "number") add(keys, k);
-    for (const b of [t.bpm, ...options.map((o) => o.bpm)]) if (typeof b === "number") add(bpms, b);
+  for (const tool of toolsOf(e.cells)) {
+    const t = tool as Record<string, unknown>;
+    add(names, tool.type);
+    for (const k of [t.key, ...(Array.isArray(t.keys) ? t.keys : [])]) if (typeof k === "number") add(keys, k);
+    if (typeof t.bpm === "number") add(bpms, t.bpm);
     if (typeof t.voice === "string") add(voices, t.voice);
+  }
+  // a choice is no tool to name: its options are more keys and tempos the step was practised in
+  const choices = [e.choice, ...e.cells.flatMap((c) => (c.type === "section" ? [c.choice] : []))].flatMap((c) => (c ? ["options" in c ? c.options : [c.open]] : []));
+  for (const o of choices.flat()) {
+    if (typeof o.key === "number") add(keys, o.key);
+    if (typeof o.bpm === "number") add(bpms, o.bpm);
   }
   bpms.sort((a, b) => a - b);
   const tempo = bpms.length ? `${bpms.length > 1 ? `${bpms[0]}-${bpms[bpms.length - 1]}` : bpms[0]} bpm` : "";
@@ -198,7 +201,7 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
     ]),
     part("sections", "Section interface", "interface", [
       "### Sections (each is an object with \"type\" and its inputSchema)",
-      ...sectionInterface(),
+      ...cellInterface(),
       "",
     ]),
     part("which-tool", "Which tool", "rules", [
