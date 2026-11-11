@@ -21,6 +21,9 @@ const STYLE_OPTIONS = STYLES.map((s) => ({ value: s.id, label: s.name }));
 /** the mixer's columns from sm up, by how many rows it shows */
 const MIXER_COLS: Record<number, string> = { 1: "sm:grid-cols-1", 2: "sm:grid-cols-2", 3: "sm:grid-cols-3" };
 
+/** On phones the three pickers stack, so their captions share a width and the boxes line up. */
+const LABEL = "inline-block min-w-[4.5rem] sm:min-w-0";
+
 const PART_INFO: Record<Part, { label: string; icon: IconName; hue: Hue }> = {
   drums: { label: "Drums", icon: "drum", hue: "rose" },
   bass: { label: "Bass", icon: "waves", hue: "violet" },
@@ -44,6 +47,21 @@ const STRIPE: Record<Hue, string> = {
 
 const pretty = (s: string) => s.replace(/b(?=[^a-z]|$)/g, "♭").replace(/#/g, "♯");
 const prettyChord = (s: string) => s.replace(/^([A-G])b/, "$1♭").replace(/^([A-G])#/, "$1♯").replace("m7b5", "m7♭5");
+
+/** The bar's beats as bars, the downbeat taller, the one playing lit. */
+function BeatMeter({ beats, beat, className = "" }: { beats: number; beat?: number; className?: string }) {
+  return (
+    <span className={`items-end gap-1.5 rounded-xl border border-slate-700/60 bg-slate-950/50 px-3 py-1.5 sm:py-2 ${className}`} aria-hidden>
+      {Array.from({ length: beats }, (_, i) => {
+        const on = beat === i;
+        const down = i === 0;
+        return (
+          <span key={i} className={`w-2 rounded-full transition-all duration-75 ${down ? "h-4 sm:h-6" : "h-2.5 sm:h-4"} ${down ? (on ? "bg-amber-300 shadow-[0_0_10px] shadow-amber-400/80" : "bg-amber-400/30") : on ? "bg-sky-300 shadow-[0_0_10px] shadow-sky-400/80" : "bg-sky-400/25"}`} />
+        );
+      })}
+    </span>
+  );
+}
 
 /** The band's place, read every frame; React re-renders only when the chord or the beat changes. */
 function usePosition(band: Band, playing: boolean) {
@@ -120,7 +138,7 @@ export function BackingPlayer({ band, snap, group, spaceKey = false, scale: show
     <div ref={focus} className="flex min-w-0 flex-col gap-4">
       <section aria-label="Backing track" className="relative flex min-w-0 flex-col gap-5 overflow-hidden rounded-2xl border border-slate-700/70 bg-linear-to-b from-sky-500/[0.07] via-slate-900/70 to-slate-900/70 p-4 shadow-xl shadow-black/20 sm:p-6">
         <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-sky-400/60 to-transparent" />
-        <div data-tour="backing-play" className="flex flex-wrap items-center gap-x-6 gap-y-4">
+        <div data-tour="backing-play" className="flex items-center gap-4 sm:gap-6">
           <button type="button" onClick={() => band.toggle()} aria-pressed={playing} aria-label={playing ? "Stop" : "Play"} title={playing ? (spaceKey ? "Stop (Space)" : "Stop") : spaceKey ? "Play (Space)" : "Play"}
             className={`relative grid h-16 w-16 shrink-0 place-items-center rounded-full text-slate-950 shadow-lg transition active:scale-95 ${playing ? "bg-emerald-400 shadow-emerald-500/40 hover:bg-emerald-300" : "bg-sky-400 shadow-sky-500/40 hover:bg-sky-300"}`}>
             {playing && <span aria-hidden className="absolute inset-0 animate-ping rounded-full bg-emerald-400/30 [animation-duration:1.6s]" />}
@@ -128,7 +146,10 @@ export function BackingPlayer({ band, snap, group, spaceKey = false, scale: show
           </button>
           <div className="flex min-w-0 flex-1 flex-col gap-2">
             <div className="flex flex-wrap items-center gap-2 text-sm text-slate-300">
-              <span className="mr-1 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Tempo</span>
+              <span className="mr-1 flex w-full items-center justify-between text-xs font-semibold uppercase tracking-[0.14em] text-slate-500 sm:w-auto">
+                Tempo
+                <BeatMeter beats={bpb} beat={pos?.beat} className="flex h-7 sm:hidden" />
+              </span>
               <Button size="icon-sm" aria-label="Slower" title="Slower" onClick={() => band.set({ bpm: band.getSnapshot().settings.bpm - 5 })}><Icon name="minus" size={14} /></Button>
               <NumberField value={settings.bpm} min={MIN_BPM} max={MAX_BPM} onCommit={(bpm) => band.set({ bpm })} aria-label="Tempo in beats per minute" className="w-16 text-center text-base font-semibold tabular-nums" />
               <Button size="icon-sm" aria-label="Faster" title="Faster" onClick={() => band.set({ bpm: band.getSnapshot().settings.bpm + 5 })}><Icon name="plus" size={14} /></Button>
@@ -139,27 +160,19 @@ export function BackingPlayer({ band, snap, group, spaceKey = false, scale: show
                 </button>
               )}
             </div>
-            <Slider value={settings.bpm} min={MIN_BPM} max={MAX_BPM} step={1} onChange={(bpm) => band.set({ bpm })} title="Tempo" aria-label="Tempo" className="max-w-md" />
+            <Slider value={settings.bpm} min={MIN_BPM} max={MAX_BPM} step={1} onChange={(bpm) => band.set({ bpm })} title="Tempo" aria-label="Tempo" className="w-full max-w-md" />
           </div>
-          <span className="flex h-10 items-end gap-1.5 rounded-xl border border-slate-700/60 bg-slate-950/50 px-3 py-2" aria-hidden>
-            {Array.from({ length: bpb }, (_, i) => {
-              const on = pos?.beat === i;
-              const down = i === 0;
-              return (
-                <span key={i} className={`w-2 rounded-full transition-all duration-75 ${down ? "h-6" : "h-4"} ${down ? (on ? "bg-amber-300 shadow-[0_0_10px] shadow-amber-400/80" : "bg-amber-400/30") : on ? "bg-sky-300 shadow-[0_0_10px] shadow-sky-400/80" : "bg-sky-400/25"}`} />
-              );
-            })}
-          </span>
+          <BeatMeter beats={bpb} beat={pos?.beat} className="hidden h-10 sm:flex" />
         </div>
 
         <div data-tour="backing-choose" className="grid gap-3 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)]">
-          <Field label="Progression">
+          <Field label={<span className={LABEL}>Progression</span>}>
             <Select value={settings.numerals ? OWN : settings.progression} groups={groups} onChange={(id) => id !== OWN && band.set({ progression: id, numerals: null, style: findProgression(id).style })} aria-label="Progression" className="w-full" />
           </Field>
-          <Field label="Key">
+          <Field label={<span className={LABEL}>Key</span>}>
             <Select value={settings.tonic} options={TONIC_OPTIONS} onChange={(tonic) => band.set({ tonic })} aria-label="Key" className="w-full" />
           </Field>
-          <Field label="Style">
+          <Field label={<span className={LABEL}>Style</span>}>
             <Select value={settings.style} options={STYLE_OPTIONS} onChange={(id) => band.set({ style: id })} aria-label="Style" className="w-full" />
           </Field>
         </div>
