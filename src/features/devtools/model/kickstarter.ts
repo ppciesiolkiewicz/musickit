@@ -29,6 +29,7 @@ export interface DemoLink {
 /** What is true about attunr and the offer. An email says nothing about either that isn't here. */
 export const FACTS: string[] = [
   "The vision for attunr is a web app for music teachers and schools. A teacher organises lesson notes in it and gives students interactive exercises to practise with at home.",
+  "In one line: attunr is a tool that supports teachers in creating practice plans for their students, and in the future it will support studios with many parts of running them.",
   "Why I'm building it: I love music, and I'm looking for ways to make teaching better for teachers, practice better for students, and the work easier for music schools.",
   "A lesson note is one page with today's material on it (scales, chords, exercises the student can play) and goes to the student as a link.",
   "attunr is in demo mode today. What can be tried now is the demos: interactive lesson notes, weekly practice plans and the free tools on the website.",
