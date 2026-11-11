@@ -3,26 +3,19 @@ Ticket content
 
 New:
 
+64. Bad content example:
+Press Start below: Do sounds, and the leap to sing shows by name. Hear the landing note in your head first, then sing it on "oo" and hold it until it counts. Press Next for another leap, from a new Do. If a leap misses, press Restart to hear Do again.
 
+Let's also start storing these pieces in like tmp/bad_examples.txt in this project or somewhere, 
+We will use them later to really get the copies right
 
-47. Identify which pages should have guided tour, e.g. runs / melodies 
-and add to these pages. Rank pages and provide me your understanding which pages need it first.
-- Guided tour should always include:
-  - "This is guided tour for page.. where you can" - adjust copy
-  - there's a dev page that accounts for all of them
+66.
+"Your own, with a leap" exercise - I think we need to improve label to use headphones and add them to more basic components.
+ I can see that later exercise has label but former not because it looks we add it at the wrong level
 
-
-
-57. Coming soon:
-For online teaching interactive notes are visible on user screen 
-as teacher adds them. (not implemented yet)
-So this is like an online teaching tool
-
-
-
-
-[DONE] 59. Generate demo exercise for advanced level
-
+63. Which interval exercise:
+answers look kind of muted compared to "Replay" - improve.
+I'd like the UI to not jump when i move through this exercise.
 
 60.
 How did it go?
@@ -31,57 +24,32 @@ How did it go?
 Improve labels the middle one should kind of mean that we will not go higher speed, count, level
 But this is also maybe already good, give me idea.
 
-
-[DONE] 61. Lets  show "what's your favourite style" automatically on page load only on B2C lp
-
-
-[DONE] 62. Timer on mobile should be smaller and label selector embeded in settings ections above "Day .."
-Remove now tag - timer is just motivational guidance
-
-
-63. Which interval exercise:
-answers look kind of muted compared to "Replay" - improve.
-I'd like the UI to not jump when i move through this exercise.
-
-
-64. Bad content example:
-Press Start below: Do sounds, and the leap to sing shows by name. Hear the landing note in your head first, then sing it on "oo" and hold it until it counts. Press Next for another leap, from a new Do. If a leap misses, press Restart to hear Do again.
-
-Let's also start storing these pieces in like tmp/bad_examples.txt in this project or somewhere, 
-We will use them later to really get the copies right
-
-
 65. hard spaces in  `on "la"` etc.
 Also, the content could be improved, giving example like "la la la".
 The content could give example related to specific sound mentioned,
 .e.g. example would say "ee ee" -> also use phonetic alphabet and if you can
  include sound playback I can provide elevenlabs key or maybe you have the skill for this?
 
+91. Remove sampler and sampler env
 
-66.
-"Your own, with a leap" exercise - I think we need to improve label to use headphones and add them to more basic components.
- I can see that later exercise has label but former not because it looks we add it at the wrong level
+47. Identify which pages should have guided tour, e.g. runs / melodies 
+and add to these pages. Rank pages and provide me your understanding which pages need it first.
+- Guided tour should always include:
+  - "This is guided tour for page.. where you can" - adjust copy
+  - there's a dev page that accounts for all of them
 
+67. mirror camera
 
+68. Video tool for note creator and notes
+- recording new video capability for note creator (saving etc.)
+- choosing from existing videos for autoplan
 
-70. BIG: 
-RESEARCH RELATION BETWEEN AUTOPLAN AND NOTES - THEY ARE VERY SIMILAR - COULD we merge them into one component?
+69. Reusable notes and plans, reusable videosx1
 
-
-I want to enable schools have
-ability to upload videos to notes and to create courses from sets of notes that have videos and components. 
-A bit like jupyter notebook.
-
-
-
-In exercises like this (and others).
-
-Your own, with a leap
-When we say [space] it has to be inside the button
-
-
-
-
+57. Coming soon:
+For online teaching interactive notes are visible on user screen 
+as teacher adds them. (not implemented yet)
+So this is like an online teaching tool
 
 89. Schools selling their own video courses
 Then sets of notes can be bundled in courses and sold
@@ -91,10 +59,14 @@ I also want to be able to upload record videos
 directly into the content of the page and be able to upload it to blob.
 This probably could use some sort of injection mechanism or predefined slots.
 
-91. Remove sampler and sampler env
-
 
 ======================== Small ========================
+
+33. [NEW 2026-11-09 09:46] Setup above the game on ears and rhythm (/theory/ears, /theory/rhythm)
+Original: "Lets put it above the game" (ears) / "Move this one above the game" (rhythm) / "Direction is better word for this label than "Played""
+- Move "Set up the training" above the game (src/components/practice/EarGame.tsx:157).
+- Move "Set up the round" above the game (src/features/rhythm/RhythmGame.tsx:400).
+- Ears: rename the "Played" label to "Direction".
 
 26. [NEW 2026-11-09 09:46] Sing an interval: Restart and Do buttons (/theory/singing/intervals)
 Original: "Restart Should only appear after they correctly guessed interval. "Hear Do" should be called "Play first note (Do)""
@@ -105,23 +77,13 @@ Original: "Restart Should only appear after they correctly guessed interval. "He
 27. [NEW 2026-11-09 09:46] Sing an interval: starting the exercise starts the mic (/theory/singing/intervals)
 Original: "For interval exercise starting exercise should start the microphone"
 
+39. [NEW 2026-11-09 09:46] Allow reconfiguring widgets in notes creator / video studio
+- when widget is on stage - show settings button next to scale selector - this will open pallette search and focus config for selected widget and allow prop
+
 30. [NEW 2026-11-09 09:46] Hint button: Esc inside the circle, morphs to an oval (/theory/singing/runs and everywhere HintToggle is used)
 Original: "Esc should be within circle and it should just morph into oval - add animation"
 - When the hint is on, the "?" circle morphs into an oval that holds Esc, with an animation.
 - Replaces the [Esc] shown next to the button (see the DONE "Esc to close 'tool hint'" item).
-
-33. [NEW 2026-11-09 09:46] Setup above the game on ears and rhythm (/theory/ears, /theory/rhythm)
-Original: "Lets put it above the game" (ears) / "Move this one above the game" (rhythm) / "Direction is better word for this label than "Played""
-- Move "Set up the training" above the game (src/components/practice/EarGame.tsx:157).
-- Move "Set up the round" above the game (src/features/rhythm/RhythmGame.tsx:400).
-- Ears: rename the "Played" label to "Direction".
-
-
-
-
-39. [NEW 2026-11-09 09:46] Allow reconfiguring widgets in notes creator / video studio
-- when widget is on stage - show settings button next to scale selector - this will open pallette search and focus config for selected widget and allow prop
-
 
 
 ======================== Medium ========================
@@ -129,10 +91,6 @@ Original: "Lets put it above the game" (ears) / "Move this one above the game" (
 13. Voice safety
 - Exercises like voice-new-matching-a-pitch ("Hum the drone note") need a voice safety instruction on top + link to an article.
 - Staff ranges must follow user level: e.g. for tenor mute higher notes (high C/B/.. E) depending on accuracy or another level parameter (matching-a-pitch sections 3 and 6). Avoid any voice injuries.
-
-
-19. Improve copy / add labels - How notes are labelled: note names, intervals from the root (R, b3, p5), scale degrees, or each note's job in the chord. One setting for the whole app; dot colours stay the same either way.
-
 
 36. [NEW 2026-11-09 09:46] Ear training: "Custom" level (/theory/ears)
 Original: "We are adding "custom" level alongside 1-6: Your set is renamed to "Included intervals"; it's disabled when level 1-6 and only shows already selected notes; when level is custom then behaviour is same as now"
@@ -142,12 +100,12 @@ Original: "We are adding "custom" level alongside 1-6: Your set is renamed to "I
 - Custom: Included intervals works as "Your set" does now.
 - Where: src/components/practice/EarGame.tsx:156
 
+19. Improve copy / add labels - How notes are labelled: note names, intervals from the root (R, b3, p5), scale degrees, or each note's job in the chord. One setting for the whole app; dot colours stay the same either way.
+
+20. Implement exercise stubs. Add a rule that whenever new exercise is added it needs to be added to /dev/stories
 
 
 ======================== Large ========================
-
-21. Double stop / Triad exercises as well as double stop triad exercises intertwined with solos.
-Like - seeing chords within a scale!
 
 22. Add hill exercise to singing. Evaluate exercises from old singing.attunr.app
 I can tell you where attunr repository is but if you check .. it's the projects dir
@@ -155,13 +113,19 @@ I can tell you where attunr repository is but if you check .. it's the projects 
 src/components/Exercise/PitchExercises
 Include also farinelli exercise in our app
 
-
-
-
+21. Double stop / Triad exercises as well as double stop triad exercises intertwined with solos.
+Like - seeing chords within a scale!
 
 
 
 oooooooooooooooooooooooooooooooooo DONE tasks below ooooooooooooooooooooooooooooooooooooooooooooooo
+[DONE] 62. Timer on mobile should be smaller and label selector embeded in settings ections above "Day .."
+Remove now tag - timer is just motivational guidance
+
+[DONE] 61. Lets  show "what's your favourite style" automatically on page load only on B2C lp
+
+[DONE] 59. Generate demo exercise for advanced level
+
 [DONE] 54. There was somewhere mic audio selector that had: 
 - guitar / voiice
 - louder / channel 1 / channel 2
@@ -313,7 +277,6 @@ Make it reusable component as well as show [Esc] next to  (i) button when it's a
 [DONE] 18. Note spelling: text and component disagree
 Done (commit a4ac0a4): text notes spelled by letter from the key tonic using spellAbove (so ♭3 of C reads E♭ matching the staff), and note-name tokens ({{e-flat}}) preserved as written. Also ensured rootOf in noteText parses string keys (keyRoot) for staff and scale-neck.
 
-20. Implement exercise stubs. Add a rule that whenever new exercise is added it needs to be added to /dev/stories
 
 
 

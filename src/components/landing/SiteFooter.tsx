@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import Wordmark from "@/components/Wordmark";
+import { devOnly } from "@/features/devtools/gate";
 
 /** The players' home page (src/app/players/page.tsx); plain / is the music-school one. */
 const PLAYERS = "/players";
@@ -37,7 +38,8 @@ const COLUMNS: Column[] = [
     links: [
       { href: "/teach", label: "Teach on attunr" },
       { href: "/#white-label", label: "White-labelling" },
-      { href: "/teachers/studio", label: "Teaching studio" },
+      // the video studio is dev-only for now, like its card on /teach
+      ...(devOnly() ? [{ href: "/teachers/studio", label: "Teaching studio" }] : []),
       { href: "/teachers/studio?notes=1", label: "Notes creator" },
       { href: "/kickstarter", label: "Founding partners" },
     ],
@@ -65,7 +67,7 @@ const GRID: Record<number, { grid: string; brand: string }> = {
   5: { grid: "sm:grid-cols-5 lg:grid-cols-[minmax(0,1.6fr)_repeat(5,minmax(0,1fr))]", brand: "sm:col-span-5" },
 };
 
-/** The site footer, on every page: brand, then the two home pages (schools at /, players at /players), Learn, Free tools, Teachers (the teaching pitch and the video studio) and Help. variant="schools" (the music-school home) drops the player and solo-teacher links. */
+/** The site footer, on every page: brand, then the two home pages (schools at /, players at /players), Learn, Free tools, Teachers (the teaching pitch, the notes creator, and the video studio in dev only) and Help. variant="schools" (the music-school home) drops the player and solo-teacher links. */
 export default function SiteFooter({ variant = "default" }: { variant?: "default" | "schools" }) {
   const columns = variant === "schools" ? schoolColumns() : COLUMNS;
   const layout = GRID[columns.length];
