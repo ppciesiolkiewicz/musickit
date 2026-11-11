@@ -28,8 +28,8 @@ browser.
    `parseToolDiag`, opened in a dialog, `ui/AgentToolModal.tsx`; the AI reads back what was changed or why not) and
    `close_exercise_tool`. Without WebMCP nothing is loaded; the parser and views load on first call.
 2. **The week** (`ui/WeekView.tsx`): seven day buttons; any day can be opened, days ahead are dashed and marked "coming up". The day's
-   exercises are colour-coded cards (a hue per position, tags keep their own colour): title in the display face, focus
-   ("A minor pentatonic · boxes 1 & 2"), the level (outlined chip), area and kind tags (a phone shows only the focus), sections (timed headings show their minutes), why, and five stars, "How did it go?" (1 Can't do it yet … 5 Easy now: the
+   exercises are colour-coded cards (a hue per position): title in the display face, its hashtags (area, level, kind) small
+   under it, its cells (a section shows its heading, its minutes and the chips of its choice), why, and five stars, "How did it go?" (1 Can't do it yet … 5 Easy now: the
    scale in `src/features/progress/stars.ts`). Rating an exercise marks it done; tapping the same star again clears both
    (`ratePlan`; ratings in `StoredPlan.rated`, done ticks still in `StoredPlan.done`, which older plans only have).
    Every rating also goes to the **progress log** (`src/features/progress`, one row per rated exercise, by exercise id),
@@ -73,13 +73,13 @@ model/            pure, no React; tested in model/plan.test.ts
   types.ts        PlanAnswers, PlanConfig (what the AI returns), StoredPlan, PlanState (the stored document)
   questions.ts    LEVELS (what an exercise is pitched at), labelOf()
   catalogue.ts    the attunr pages a plan may link to; checkLink() keeps only those; linkLabel() names a link's page
-  tools.ts        THE one file for what an exercise is made of, like an MCP server: TOOLS (one parse per learning component; description and props come from the components' COMPONENT_DOCS), the section kinds, tags, link resources; the prompt's interface is generated from it; legacySections reads older plans
-  migrate.ts      migrateTool(): old tool names (scale, chords, sing, band, comp, notes, ears) to today's components; linkSlots(): an exercise's links in its two slots, old `link` sections and fields as "Explore more"; toolFromLink()
+  tools.ts        THE one file for what an exercise is made of, like an MCP server: TOOLS (one parse per learning component; description and props come from the components' COMPONENT_DOCS), the cell kinds, the choice, tags, link resources; the prompt's interface is generated from it; legacySections reads older plans
+  hashtags.ts     readTitle(): the hashtags at the end of a title as area, level and kind tags; hashtagLine(): them written back
   concepts.ts     the fine concepts exercises are tagged with, per area and level; each belongs to one questionnaire topic
   exerciseIds.ts  randomId(), withExerciseIds(): an id on every exercise of a plan
   progressLog.ts  entryFor(), backfill(): a plan's ratings as progress-log rows
   blocks.ts       blocksOf(), fitBlocks(), blockAt(): an exercise's timed blocks
-  stepChoice.ts   applyOption(), choiceWarnings(): a step-choice's picked option set on the step's other tools; transpose.ts moves a tool to another key, `setLevel` (tools.ts) to another level
+  choice.ts       applyChoice(), choiceWarnings(), resolvedChoice(): a choice's value set on the tools under it (one `PARTS` entry per part); transpose.ts moves a tool to another key, `setLevel` (tools.ts) to another level
   checks.ts       mixesSingAndPlay(), tempoWithoutMetronome(): paste-time exercise checks
   fixRequest.ts   fixRequest(warnings): the message the "Copy fix request" button copies, to paste back to the AI; agentReply(): what a browser AI reads back after submit_practice_plan
   exampleSelection.ts  selectExamples(): all exercise examples + the plan example for the player's level
@@ -93,7 +93,7 @@ store/
   localPlanStore.ts  the localStorage implementation ("musickit.plan"), with sanitising
   usePlan.tsx     the hook the UI uses, and PlanStoreProvider to swap the store
 examples/         the example library: exercises/*.json, plans/*.json (standalone JSON), index.ts loads them; see its README
-ui/               PlanFlow, PromptAndPaste, WeekView, Sections (an exercise's sections in order, each headed step ending in a small "Top of exercise" button that scrolls back to its card; under a SectionAside, the /dev/examples review view, each tool is framed with its type and each step is ruled off; every tool has its own tour button, `ToolTour` from `features/guide`, walking `TOOL_TOURS` inside that tool only, and only the first unseen one on the page wobbles), DayTimer (the floating day countdown), ExerciseTool
+ui/               PlanFlow, PromptAndPaste, WeekView, Cells (a block's cells in order, each section a headed step ending in a small "Top of exercise" button that scrolls back to its card; under a SectionAside, the /dev/examples review view, each tool is framed with its type and each step is ruled off; every tool has its own tour button, `ToolTour` from `features/guide`, walking `TOOL_TOURS` inside that tool only, and only the first unseen one on the page wobbles), DayTimer (the floating day countdown), ExerciseTool
 PlanApp.tsx       the page body: no plan → Start; a plan → header, week, history, a Back to top button; the flow modal
 reminders.ts, PracticeReminder.tsx   notifications (PracticeReminder is mounted in PageShell, on every page)
 ```
@@ -113,44 +113,75 @@ the first such save is kept once under `musickit.plan.backup`.
 
 ## The plan format
 
-The prompt asks for one JSON object, exactly seven days. An exercise is a linear list of `sections`, shown in order:
-`heading`, `text`, `list` (numbered steps) and `tool` (one of the tools below, set up). A tool sits right after the text it
-belongs to, so a step that needs another view just adds another tool. Links are not sections: `learnBefore` (at least one lesson to
-read first) and `exploreMore` (going deeper), up to 3 attunr hrefs each; the app shows each with the page's real name.
+The prompt asks for one JSON object, exactly seven days. An exercise is a **block** (`model/types.ts`: `Block`, the
+content; `ExerciseMeta`, what the plan knows about it; `PlanExercise = Block & ExerciseMeta & { id? }`): a `title`, an
+optional `choice`, and `cells` shown in order. A cell is `text`, `list` (numbered steps), `notice` (`headphones`), `tool`
+(one of the tools below, set up) or `section`: a step with a `heading`, `minutes` when it is a timed block, its own
+`choice` and its own `cells` (any kind but section). A tool sits right after the text it belongs to, so a step that needs
+another view just adds another tool. Links are not cells: `learnBefore` (at least one lesson to read first) and
+`exploreMore` (going deeper), up to 3 attunr hrefs each; the app shows each with the page's real name. A title may end
+with hashtags that stand for the fields (`"Barre drill #guitar #beginner #technique"`, `model/hashtags.ts`): the parser
+reads them into `area`, `level` and `tags` (a field written as a field wins), stores the title without them, and the
+card shows them after the title. There is no `focus`. Design: `docs/superpowers/specs/2026-11-12-blocks-notes-plan-merge-design.md`.
 
 ```json
 { "title": "…", "summary": "…", "days": [ { "theme": "…", "exercises": [
-  { "title": "…", "focus": "A minor pentatonic · boxes 1 & 2", "minutes": 8, "level": "beginner", "area": "guitar", "tags": ["technique"], "why": "…",
+  { "title": "A minor pentatonic, positions 1 and 2 #guitar #beginner #technique", "minutes": 8, "why": "…",
+    "choice": { "key": "a", "scale": "minor-pentatonic" },
     "learnBefore": ["/course/5/pentatonic"],
-    "sections": [
+    "cells": [
       { "type": "text", "text": "…" },
-      { "type": "tool", "tool": { "type": "backing-band", "bpm": 60, "key": "a", "parts": { "click": "on", "drone": "on" } } },
-      { "type": "list", "items": ["…"] },
-      { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1, 2], "highlight": ["1"] } } ],
+      { "type": "section", "heading": "Position 1", "minutes": 4, "cells": [
+        { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1] } },
+        { "type": "list", "items": ["…"] } ] },
+      { "type": "section", "heading": "Position 2, in D", "minutes": 4,
+        "choice": { "label": "variant", "options": [ { "key": "d" }, { "key": "a" } ] },
+        "cells": [
+          { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "d", "boxes": [2] } },
+          { "type": "tool", "tool": { "type": "backing-band", "key": "a", "pinned": ["key"], "bpm": 60, "parts": { "click": "on" } } } ] } ],
     "exploreMore": ["/theory/scales/minor-pentatonic/a"] } ] } ] }
 ```
 
+**The choice** (`model/choice.ts`) is a layer over the tools under it: the block's reaches every cell, a section's own
+wins inside that section. Two shapes (`parseChoiceDiag` in `tools.ts`): `options`, 2–4 chips the student picks from,
+every option holding the same parts, the tools written as option 1 (what `step-choice` was); and open, the parts
+themselves (`{ "key": "a", "scale": "minor-pentatonic" }`), any value, which every tool under it is written in and
+follows (stored as `{ open: {…} }`). The parts are `key`, `scale`, `bpm`, `position` and `level` (`PART_NAMES`, one
+`PARTS` entry each); a tool keeps its own value for a part it lists in `pinned` (`canFollowPart`). Tools are stored
+complete (their own key, scale, tempo); `applyChoice(cells, choice, index)` sets a part's tools on draw, as before, and
+`choiceWarnings(block)` warns on paste about a choice with nothing to move, a part no tool has, an option 1 that isn't how
+the tools are written, or a tool written in another value than an open choice ("staff written in G under a choice in A;
+it will follow A."). The tools know nothing about the chooser.
+
 On paste: a code fence or prose around it is fine; minutes are clamped to 1–120. The parser is forgiving, but it says
-so: everything it changes or drops is a warning in `parsePlanConfig` (`config.ts`), worded to be pasted back to the AI.
-Left out, with why (`parseToolDiag`, `parseSectionDiag`): a tool of an unknown type, or one that can't be shown ("left out a
-scale-neck (unknown scale "x")": each parser in `TOOLS` names its reason where it returns null, `no(d, why)`), an empty
-section, an unknown link, unknown tags or concepts. Cut: a text at 700 characters, a heading 100, a list item 240, a list at
-8 items, 24 sections, 8 exercises, `add` notes at 4, chord lists at 8 or 16, kind tags at 3 (the implied `multi-octave` is
-added after the cut); the schemas in `SECTIONS` carry the same limits (`maxLength`), so the prompt states them. A default
-standing in for something the AI got wrong or left out is named ("backing-band had no key; used A."): `key` and `bpm` of a
-`backing-band`, `bpm` of `strum-along`, `guitar-play-along` and the technique stubs, a staff's `voice` (tenor, the prompt's
-default), an out-of-range `bpm`, `fret` or `cents`; the documented defaults of optional props (an `interval-singer` left
-without a key, a staff `click` without a `bpm`) are silent when left out and warn only when the value is wrong. A list prop that lost entries it couldn't read names them (`scale-neck "highlight" had entries it could not read (9, "x"); left them out.`): `boxes`, `positions`, `enable`, `highlight`, `mute`, `hide`, a staff's `notes`, `add`, `strings`, an `interval-singer`'s `intervals` and `keys`, an `arpeggio-neck`'s `part`, a backing band's or track's `parts` and `mute`, a scale-neck's `parts` (`lost` in `tools.ts`; duplicates are no loss); a step-choice names the options it left out. Numbers in the degree lists are removed from pasted input before parsing (the AI's `3` means the 3rd, not 3 semitones) and reported, saying to write degrees as strings ("3", "b7"). No voice-range check exists on purpose: every singing tool places its notes inside the voice by construction (the staff, runs, tunes and interval-singer fit the key to the range), so no key can be out of range. Rules the prompt
-states are checked: an exercise with more than 6 tools or with no `learnBefore` link left, a day with fewer than 2 or more than
-5 exercises. Stored plans (`stored: true`, `sectionsOf`, `legacySections`) are parsed the same way but never warn, and
-`parseTool` and `parseSection` keep their plain signatures. Beside the warnings the paste step has a "Copy fix request" button
-(`ui/PromptAndPaste.tsx`) that copies `fixRequest(warnings)`: the app checked the plan, these are the problems, send the whole
-plan again as one JSON block. An exercise without a
-known `level` (new, beginner, intermediate, advanced), `area` (guitar, voice, theory) or kind tag (`EXERCISE_TAGS`)
-warns (`exerciseLevelArea`, `exerciseTags` in `tools.ts`); fewer than seven
-days or an empty day is refused. Plans pasted before sections (`how`, `steps`, `tools` with a `step`, `link`) are read as
-sections, a step followed by its tools; plans stored that way are converted on display (`sectionsOf`). An old `link`
-(a `link` section, or the field before sections when it doesn't stand for a tool) goes to "Explore more" (`linkSlots`).
+so: everything it changes or drops is a warning in `parsePlanConfig` (`config.ts`; `parseExercise` does one block),
+worded to be pasted back to the AI. Left out, with why (`parseToolDiag`, `parseCellDiag`): a tool of an unknown type, or
+one that can't be shown ("left out a scale-neck (unknown scale "x")": each parser in `TOOLS` names its reason where it
+returns null, `no(d, why)`), an empty cell, a section with no heading or no cell it could show, a section inside a
+section, a `heading` cell ("write a section instead"), an unknown link, unknown tags or hashtags or concepts. Cut: a text
+at 700 characters, a heading 100, a list item 240, a list at 8 items, 24 cells (sections' cells counted), 8 exercises,
+`add` notes at 4, chord lists at 8 or 16, kind tags at 3 (the implied `multi-octave` is added after the cut); the schemas
+in `CELLS` carry the same limits (`maxLength`), so the prompt states them. A default standing in for something the AI
+got wrong or left out is named ("backing-band had no key; used A."): `key` and `bpm` of a `backing-band`, `bpm` of
+`strum-along`, `guitar-play-along` and the technique stubs, a staff's `voice` (tenor, the prompt's default), an
+out-of-range `bpm`, `fret` or `cents`; the documented defaults of optional props (an `interval-singer` left without a
+key, a staff `click` without a `bpm`) are silent when left out and warn only when the value is wrong. A list prop that
+lost entries it couldn't read names them (`scale-neck "highlight" had entries it could not read (9, "x"); left them
+out.`): `boxes`, `positions`, `enable`, `highlight`, `mute`, `hide`, a staff's `notes`, `add`, `strings`, an
+`interval-singer`'s `intervals` and `keys`, an `arpeggio-neck`'s `part`, a backing band's or track's `parts` and `mute`,
+a scale-neck's `parts`, a tool's `pinned` (`lost` in `tools.ts`; duplicates are no loss); a choice names the options it
+left out. Numbers in the degree lists are removed from pasted input before parsing (the AI's `3` means the 3rd, not 3
+semitones) and reported, saying to write degrees as strings ("3", "b7"). No voice-range check exists on purpose: every
+singing tool places its notes inside the voice by construction (the staff, runs, tunes and interval-singer fit the key
+to the range), so no key can be out of range. Rules the prompt states are checked: an exercise with more than 6 tools or
+with no `learnBefore` link left, a day with fewer than 2 or more than 5 exercises. A reply still written with `sections`
+gets its title as one text cell and the warning "has no cells (did you write "sections"?)". Beside the warnings the paste
+step has a "Copy fix request" button (`ui/PromptAndPaste.tsx`) that copies `fixRequest(warnings)`: the app checked the
+plan, these are the problems, send the whole plan again as one JSON block. An exercise without a known `level` (new,
+beginner, intermediate, advanced), `area` (guitar, voice, theory) or kind tag (`EXERCISE_TAGS`) warns
+(`exerciseLevelArea`, `exerciseTags` in `tools.ts`); fewer than seven days or an empty day is refused. Nothing older is
+read: a stored plan whose exercises have no `cells` is dropped on load (`localPlanStore`, the document backed up once
+under `musickit.plan.backup`), and there is no migration of old tool names or shapes (`migrate.ts` is gone).
 
 ## The prompt
 
@@ -202,26 +233,23 @@ dot inline (`ui/InlineNote.tsx`, the same `NoteDot` the necks use): coloured by 
 setting (`useLabelSystem`), the other name on hover, played on tap. `model/noteText.ts` splits the tokens out and reads
 them against the root of the tool after the text (else the one before); a token it can't read stays as text. A line
 written between underscores (`_Don't reach for high notes._`) is a care line: `markRuns` (same file) pairs the
-underscores across notes and explained words, and `ui/Sections.tsx` draws the line over a low band of amber. The words
+underscores across notes and explained words, and `ui/Cells.tsx` draws the line over a low band of amber. The words
 "reach for high notes" are in `GLOSSARY`, so the app adds the (i) and the link to the lesson by itself.
 
 The tools are the learning components of `src/features/exercises` (see its README): `scale-neck`, `chord-shapes`,
-`staff`, `backing-band` (`parts`: each part offered, mapped to `"on"`, `"off"` or `"always"`), `note-finder`, `interval-ears`, `arpeggio-neck`, `melody-singer`, `run-singer`, `string-singer`, `breathwork` (`drill`; `from` and `to` kept only for farinelli, `seconds` and `rounds` only for the others; it can't change key with a `step-choice`), `strum-along`,
+`staff`, `backing-band` (`parts`: each part offered, mapped to `"on"`, `"off"` or `"always"`), `note-finder`, `interval-ears`, `arpeggio-neck`, `melody-singer`, `run-singer`, `string-singer`, `breathwork` (`drill`; `from` and `to` kept only for farinelli, `seconds` and `rounds` only for the others; it can't change key with a choice), `strum-along`,
 `backing-track` (the backing tracks player, drums, bass and keys: a curated `progression` id or the lesson's own `numerals`
 (pasted `chords` are read into numerals in the `key` at parse, so moving the key moves them), `key`, optional `style`,
-`bpm` and `parts` (drums, bass, keys, each `"on"`, `"off"` or `"always"`, a part left out silent with no row; an older
-`mute` list reads as those parts `"off"`; all `"on"` stores no `parts`); with neither a known progression nor chords the tool
-is dropped; an old `chord-backing` migrates to one with the ballad style and the bass `"off"`; nothing is saved, so it opens as the plan set it; a "band" part
+`bpm` and `parts` (drums, bass, keys, each `"on"`, `"off"` or `"always"`, a part left out silent with no row; all `"on"` stores no `parts`); with neither a known progression nor chords the tool
+is dropped; nothing is saved, so it opens as the plan set it; a "band" part
 of its step) and the guided `guitar-play-along` (one shape: `progression`, `two-scales`, `chord-steps`, `arpeggio-part`, `melody`,
 `solo-over`). The prompt lists them from `COMPONENT_DOCS`, the debug panel shows each one's short doc (open it for the
-prop table). Eight tools take a `level` (`new`, `beginner`, `intermediate`, `advanced`: `interval-singer`, `interval-ears`, `note-finder`, `string-singer`, `breathwork`, `finger-pattern`, `picking-drill`, `legato-trill`): a short way to write the settings in `exercises/basics/levels.ts`. The parse fills in what the tool leaves out (a prop written beside the level wins) and keeps the level on the tool, so a step-choice with `level` options can move it (`setLevel`, which replaces the level's settings). The prompt's "Levels" part says what each level means by area, what a next stage is against a next level, and that the student chooses with a step-choice, not from a list on a tool (`interval-singer` shows its key chips only with `picker`). `melody-singer` and `run-singer` take a `pick` ({ difficulty, stage, index }, `theory/melodyPick.ts`) instead of a number; it is resolved at parse (never stored) and a pick that matched no tune exactly warns. The exercises' `minutes` add up to the day timer. Headings with `minutes` start timed blocks (`blocks.ts`); on paste the block minutes are scaled to add up to the exercise's, and an exercise over 5 minutes with fewer than two blocks gets a warning. An exercise that asks the student to both sing and play their instrument also warns (`checks.ts`, `mixesSingAndPlay`), a narrow heuristic: singing is a mic tool (`melody-singer`, `run-singer`, `string-singer`, a `staff` without `mic: false`) or the word "sing" in text; playing is text only ("play", "strum", "pick the strings", "find it on the guitar"), so an instrument tool shown as a visual doesn't count. Play-along, "press Play" and the app or backing playing are ignored. An exercise whose text asks for a tempo ("60 bpm", "play it at 80") but shows no tool that sounds the beat (a `backing-band` offering its click or drums, `play-along`, `strum-along`) warns too (`tempoWithoutMetronome`); the stubs' `bpm` is no metronome. A `strum-along` `pattern` (one bar of D / U / . strokes, 1-4 a beat) is kept only when it fills the bar evenly, rewritten with a `|` between beats; otherwise dropped (a down a beat). A `staff` can carry its own backing (`drone`, `click`, `bpm`; `PracticeBand` `view="inline"`, with its own Play beside the staff's "Start microphone"). Each step (a heading and what follows) is an `ExerciseStep` (`src/components/practice/exerciseStep.tsx`): when its tools have more than one kind of thing to start (the mic and a drone, the mic and chords) a "Start exercise" button above the first tool starts them all and "Stop exercise" stops them all, so a singing exercise says "Press Start exercise below" instead of pairing a `backing-band` with a staff; the prompt prefers it and keeps `backing-band` for a drone or click with no mic listening. A staff with its `click` counts as a metronome for `tempoWithoutMetronome`. A `step-choice` tool lists 2-4 `options`, one chip each; an option holds parts (`key` stored as a pitch class, `bpm`, `position`), the same parts in every option, and option 1 is how the step's tools are written. It is drawn as chips where it sits in the step (`exercises/basics/step-choice`, written right before the tool it moves): with `label` `"stage"` or `"variant"` the chips read "Stage 1", "Variant 2" over what each sets ("A · 80 bpm · Position 2"); without a label, for options of one part, the row is named Key, Tempo or Position and the chips show the values. `Sections` owns the picked option (an index), and `applyOption` (`model/stepChoice.ts`, one `PARTS` entry per part) sets every other tool in the step: a key moves them by the same interval (`model/transpose.ts`: keys, chord names, a play-along shape's `key`/`chord`/`chords` at any depth; degrees stay), a tempo is set on every tool that has one (a staff only with its click; a backing-track within its own range), a position on a `scale-neck`'s `boxes` and a `position-neck`'s `positions` (not one with `cross`). The tools remount so what played stops, and the `{{3}}` dots in the step's text follow, since they read the moved tools. On paste (`choiceWarnings`) a step warns for a second step-choice, no tool to move, a key with a tool that can't change key (an ear game, a run), a tempo or position no tool in the step has, or an option 1 that isn't how the tools are written; the parser drops options it can't read or that hold other parts than option 1, keeps 4, and names a chooser of several parts "variant" when it has no label. A step-choice doesn't count toward the 6 tools. It replaced `key-choice` (2026-11-10): a `key-choice`, pasted or stored, is read as a step-choice with an option per key (`migrateTool`), and a heading's `keys`, the form before that, become one before the step's first tool (`liftHeadingKeys`). A `scale-neck` takes `parts` like a band's (`positions`, `neck`, each `"on"`, `"off"` or `"always"`, a part left out not drawn): the whole neck lies above the position boxes with the same marks (`enable`, `highlight`, `add`) and the shown position framed, and chips show or hide the parts that aren't `"always"`; with `parts` the older `neck` / `positions` booleans (the scales page's guitar section, kept for the studio's Scale widget, no marks) are not stored. A staff's `labels` (`degree` or `solfege`) labels its notes whatever the student's label setting; a staff with the mic and no `labels` never shows bare note names (degrees when the setting is note names; `staffLabelSystem` in `theory/labels.ts`). The prompt asks for `labels` on every mic staff, and `examples/staffLabels.test.ts` checks every mic staff in the examples shows labels. A play-along's `under` picks what sounds under single
+prop table). Eight tools take a `level` (`new`, `beginner`, `intermediate`, `advanced`: `interval-singer`, `interval-ears`, `note-finder`, `string-singer`, `breathwork`, `finger-pattern`, `picking-drill`, `legato-trill`): a short way to write the settings in `exercises/basics/levels.ts`. The parse fills in what the tool leaves out (a prop written beside the level wins) and keeps the level on the tool, so a choice with `level` options can move it (`setLevel`, which replaces the level's settings). The prompt's "Levels" part says what each level means by area, what a next stage is against a next level, and that the student chooses with a choice on the section, not from a list on a tool (`interval-singer` shows its key chips only with `picker`). `melody-singer` and `run-singer` take a `pick` ({ difficulty, stage, index }, `theory/melodyPick.ts`) instead of a number; it is resolved at parse (never stored) and a pick that matched no tune exactly warns. The exercises' `minutes` add up to the day timer. Sections with `minutes` are timed blocks (`blocks.ts`); on paste the block minutes are scaled to add up to the exercise's, and an exercise over 5 minutes with fewer than two blocks gets a warning. An exercise that asks the student to both sing and play their instrument also warns (`checks.ts`, `mixesSingAndPlay`), a narrow heuristic: singing is a mic tool (`melody-singer`, `run-singer`, `string-singer`, a `staff` without `mic: false`) or the word "sing" in text; playing is text only ("play", "strum", "pick the strings", "find it on the guitar"), so an instrument tool shown as a visual doesn't count. Play-along, "press Play" and the app or backing playing are ignored. An exercise whose text asks for a tempo ("60 bpm", "play it at 80") but shows no tool that sounds the beat (a `backing-band` offering its click or drums, `play-along`, `strum-along`) warns too (`tempoWithoutMetronome`); the stubs' `bpm` is no metronome. A `strum-along` `pattern` (one bar of D / U / . strokes, 1-4 a beat) is kept only when it fills the bar evenly, rewritten with a `|` between beats; otherwise dropped (a down a beat). A `staff` can carry its own backing (`drone`, `click`, `bpm`; `PracticeBand` `view="inline"`, with its own Play beside the staff's "Start microphone"). Each section (and the block's own cells) is an `ExerciseStep` (`src/components/practice/exerciseStep.tsx`): when its tools have more than one kind of thing to start (the mic and a drone, the mic and chords) a "Start exercise" button above the first tool starts them all and "Stop exercise" stops them all, so a singing exercise says "Press Start exercise below" instead of pairing a `backing-band` with a staff; the prompt prefers it and keeps `backing-band` for a drone or click with no mic listening. A staff with its `click` counts as a metronome for `tempoWithoutMetronome`. The choice is described under "The plan format"; its chips are `exercises/basics/choice` (not a tool), drawn by `Cells` in the section's header (or above the block's own cells), and `Cells` owns the picked option per part. The tools remount on a pick so what played stops, and the `{{3}}` dots in the text follow, since they read the moved tools. A `scale-neck` takes `parts` like a band's (`positions`, `neck`, each `"on"`, `"off"` or `"always"`, a part left out not drawn): the whole neck lies above the position boxes with the same marks (`enable`, `highlight`, `add`) and the shown position framed, and chips show or hide the parts that aren't `"always"`; with `parts` the older `neck` / `positions` booleans (the scales page's guitar section, kept for the studio's Scale widget, no marks) are not stored. A staff's `labels` (`degree` or `solfege`) labels its notes whatever the student's label setting; a staff with the mic and no `labels` never shows bare note names (degrees when the setting is note names; `staffLabelSystem` in `theory/labels.ts`). The prompt asks for `labels` on every mic staff, and `examples/staffLabels.test.ts` checks every mic staff in the examples shows labels. A play-along's `under` picks what sounds under single
 notes (the chords held by default). In development each tool shows its name above it (`DevName`).
 Three tools are stubs, for the course's dexterity basics: `finger-pattern` (the spider), `picking-drill` and
 `legato-trill`. The AI can use them now; until their real views exist they show a "Stub exercise: …" box with their settings.
 
-Old stored or pasted tools are migrated before parsing (`model/migrate.ts`): `scale` → `scale-neck`, `chords` →
-`chord-shapes`, `sing` → `staff` with the mic, `band` → `backing-band`, `click-drone` → `backing-band` with its click and drone (a list of `parts` reads as each `"on"`), `notes` → `note-finder`, `ears` →
-`interval-ears`, `play-along` → `guitar-play-along`, `comp` → a `guitar-play-along` progression on the neck. Stored sections are parsed again on display.
+No old tool name or shape is read (`migrate.ts` is gone): stored plans hold today's tools, and the demo plans (`demos.ts`) parse their example through `parsePlanConfig` once.
 
 To add one: the component with its `@component` doc, its parse in `TOOLS` in `model/tools.ts`, a view in
 `ui/ExerciseTool.tsx` (lazy-load anything with its own sound engine), and a test.

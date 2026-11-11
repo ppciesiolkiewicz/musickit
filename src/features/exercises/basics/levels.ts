@@ -1,7 +1,7 @@
 /**
  * What a `level` means on each tool that takes one: the settings it stands for, easiest first. Pure data, no React.
  * A level is a short way to write those settings: the plan's parser fills them in (`src/features/plan/model/tools.ts`),
- * and a step-choice with levels moves a tool from one to the next (`setLevel` there). The views never see a level.
+ * and a choice with levels moves a tool from one to the next (`setLevel` there). The views never see a level.
  * The ladder each tool's `level` prop describes in its `*.props.ts` is this table in words, and the plan prompt reads
  * those props: change both together.
  */
