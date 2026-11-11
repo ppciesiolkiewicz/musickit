@@ -539,7 +539,7 @@
        },
        {
         "type": "text",
-        "text": "This tune starts on the Sol under Do and leaps up to Fa, a minor 7th with no Do in it. Tap its first note below to hear it. Sing the tune from the staff on the note names, then press Play below to check.\nIf the first leap misses, sing Do between the two notes: Sol, Do, Fa. Then sing the leap again and only think the Do."
+        "text": "This tune starts on the Sol under Do and leaps up to Fa, a minor 7th with no Do in it. Tap its first note below to hear it. Sing the tune from the staff on the note names, then press Play below to hear it.\nIf the first leap misses, sing Do between the two notes: Sol, Do, Fa. Then sing the leap again and only think the Do."
        },
        {
         "type": "tool",
@@ -696,7 +696,7 @@
       "sections": [
        {
         "type": "text",
-        "text": "Press Play below to hear the run: two chords set the key, and the mic starts with them. The run climbs the chord from the Sol under Do to the high Do, holds it, and comes down the same way, four notes per beat. Each pass starts a semitone higher, and the last one reaches the top of your range.\nSing it on \"ah\", and move to \"oo\" for the held note when a pass feels tight."
+        "text": "Press Play below to hear the run: two chords set the key, and the mic starts with them. The run climbs the chord from the Sol under Do to the high Do, holds it, and comes back down the chord to the Sol under Do, four notes per beat. Each pass starts a semitone higher, and the last one reaches the top of your range.\nSing it on \"ah\", and move to \"oo\" for the held note when a pass feels tight."
        },
        {
         "type": "tool",
@@ -734,7 +734,7 @@
       "sections": [
        {
         "type": "heading",
-        "text": "Two lines, one with a leap",
+        "text": "Both lines, one leap",
         "minutes": 5
        },
        {
@@ -961,7 +961,7 @@
       "sections": [
        {
         "type": "text",
-        "text": "Press Play below to hear the run: two chords set the key, and the mic starts with them. The run climbs the whole scale from Do to the high Do and comes straight back, past Do to the Ti under it, four notes per beat. Each pass starts a semitone higher, and the last one reaches the top of your range.\nSing it lightly on \"ah\". If the notes smear into each other, sing one pass on \"da\", then go back to \"ah\"."
+        "text": "Press Play below to hear the run: two chords set the key, and the mic starts with them. The run climbs the whole scale from Do to the high Do and comes straight back, past Do to the Ti under it, four notes per beat. Each pass starts a semitone higher, and the last one reaches the top of your range.\nSing it lightly on \"ah\". If the notes smear into each other, sing one pass on \"la\", then go back to \"ah\"."
        },
        {
         "type": "tool",
@@ -997,7 +997,7 @@
       "sections": [
        {
         "type": "heading",
-        "text": "Up an octave, down an octave",
+        "text": "Octave up, octave down",
         "minutes": 5
        },
        {
@@ -1034,12 +1034,12 @@
        },
        {
         "type": "heading",
-        "text": "An octave, then a minor 6th",
+        "text": "Octave, then minor 6th",
         "minutes": 5
        },
        {
         "type": "text",
-        "text": "This tune starts on the Sol under Do and leaps up an octave, and its second bar opens with Mi up to the high Do, a minor 6th. Tap its first note below to hear it. Sing the tune from the staff on the note names, then press Play below to check.\nIf the minor 6th misses, sing Sol on the way: Mi, Sol, then the high Do. Then sing the leap again and only think the Sol."
+        "text": "This tune starts on the Sol under Do and leaps up an octave, and its second bar opens with Mi up to the high Do, a minor 6th. Tap its first note below to hear it. Sing the tune from the staff on the note names, then press Play below to hear it.\nIf the minor 6th misses, sing Sol on the way: Mi, Sol, then the high Do. Then sing the leap again and only think the Sol."
        },
        {
         "type": "tool",
@@ -1199,7 +1199,7 @@
       "sections": [
        {
         "type": "text",
-        "text": "Press Play below to hear the run: two chords set the key, and the mic starts with them. The run holds Sol for a beat, turns up to the high Do and tumbles down to Do, then dips to the La under it, four notes per beat. Each pass starts a semitone higher, and the last one reaches the top of your range.\nSing it lightly on \"ah\", and move to \"oo\" when a pass feels tight."
+        "text": "Press Play below to hear the run: two chords set the key, and the mic starts with them. The run holds Sol for a beat, turns up to the high Do and runs down to Do, then dips to the La under it, four notes per beat. Each pass starts a semitone higher, and the last one reaches the top of your range.\nSing it lightly on \"ah\", and move to \"oo\" when a pass feels tight."
        },
        {
         "type": "tool",
@@ -1442,7 +1442,7 @@
       "sections": [
        {
         "type": "heading",
-        "text": "Do up to the high Re",
+        "text": "Up to the high Re",
         "minutes": 4
        },
        {
@@ -1479,12 +1479,12 @@
        },
        {
         "type": "heading",
-        "text": "Do up to the high Mi",
+        "text": "Up to the high Mi",
         "minutes": 4
        },
        {
         "type": "text",
-        "text": "This tune opens with Do up to the high Mi, a 10th, and its third bar leaps from Re to the same high Mi. Tap its first note below to hear it. Sing the tune from the staff on the note names, then press Play below to check.\nIf the 10th misses, sing Do, Mi and the high Mi as three notes. Then leave out the middle one."
+        "text": "This tune opens with Do up to the high Mi, a 10th, and its third bar leaps from Re to the same high Mi. Tap its first note below to hear it. Sing the tune from the staff on the note names, then press Play below to hear it.\nIf the 10th misses, sing Do, Mi and the high Mi as three notes. Then leave out the middle one."
        },
        {
         "type": "tool",
