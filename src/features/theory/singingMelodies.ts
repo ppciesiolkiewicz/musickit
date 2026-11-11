@@ -2,7 +2,7 @@
  * The melody book for the singing page: written-out tunes in 4/4, easiest first, every one ending on a whole-note Do.
  * The order follows the notes and the jumps: Do and Re, then Mi, turns around Fa, Sol stepping down home, skips through
  * Do Mi Sol and climbing 3rds, then La, Ti up to the high Do, the home chord broken up to the high Do and the chords
- * next door (Fa La Do, Sol Ti Re), the notes under Do, then leaps of a 4th, 5th, 6th and the octave. Each stage mixes
+ * next door (Fa La Do, Sol Ti Re), the notes under Do, then leaps of a 4th, 5th, 6th, 7th, the octave and past it. Each stage mixes
  * its moves so no tune just rocks between two notes. Rhythm stays plain early and picks up eighths and dotted notes at
  * the end. Each tune also gets a difficulty from how it moves (effortOf), so one that starts on Do and keeps to the
  * chord can be Easy deep in the book.
@@ -112,10 +112,22 @@ export const STAGES: Stage[] = [
     tunes: ["1 6 5s 4s 3s 2s 3 | 1w", "1 6 4 2 | 1w", "5, 3 2 7, | 1w", "1 6 5 4 | 3 1' 7 6e 5e | 6 4 2 7, | 1w", "3 1' 7s 6s 5s 4s 3 | 5h. 3 | 6q. 5e 4 2 | 1w", "3h 1'h | 7 5 6 4 | 5e 4e 3 6, 7, | 1w", "5, 3 2 1e 2e | 3 1' 6 5 | 4 2 7, 2 | 1w"],
   },
   {
+    id: "sevenths",
+    title: "7ths",
+    hint: "Do up to Ti, Re up to the high Do, and the Sol under Do up to Fa",
+    tunes: ["1 7 6 7 | 1'w", "5, 4 3 2 | 1w", "1' 2 3 2 | 1w", "1 7 6 5 | 2 1' 7 6 | 5 4e 3e 2 7, | 1w", "5, 4 3 1 | 7,q. 1e 2 1' | 7 5 6 7 | 1'w", "1e 7 6e 5 3 | 2e 1' 7e 6 4 | 5 4e 3e 2 7, | 1w", "1' 2 3 5 | 4 5, 6, 7, | 1 7 6e 5e 4e 2e | 1w"],
+  },
+  {
     id: "octave",
     title: "The octave",
-    hint: "Do to the high Do and back: the widest leap, with eighths, dotted notes and sixteenth runs",
+    hint: "Do to the high Do and back, with eighths, dotted notes and sixteenth runs",
     tunes: ["1 1' 2's 1's 7s 6s 7 | 1'w", "1' 1 3 2 | 1w", "1' 1 2 7, | 1w", "5, 5 4 2 | 3 1' 7h | 6 5e 4e 3 2 | 1w", "1 1' 7 6e 7e | 5h 5,h | 6, 7, 2 7, | 1w", "6, 6 5 3 | 4q. 2e 7, 1 | 5 5, 6,s 7,s 1s 2s 2 | 1w", "5, 5 3 1 | 1' 1 2e 3e 2 | 4 2 7, 2 | 1w"],
+  },
+  {
+    id: "tenths",
+    title: "Past the octave",
+    hint: "Do up to the high Re and the high Mi: the widest leaps, with notes that start between the beats",
+    tunes: ["1 3' 2' 7 | 1'w", "1 2' 1' 7 | 1'w", "3' 1 3 2 | 1w", "1 3 5 3' | 2' 1' 7 5 | 1 2' 1'e 7e 6 | 1'w", "1 3' 2' 1' | 7q. 6e 5 3 | 2 3' 2'e 1'e 7 | 1'w", "1e 3' 2'e 1' 5 | 3e 2' 1'e 7 5 | 6 4 3 2 | 1w", "3' 1 2 3 | 5 2' 1' 7 | 1's 7s 6s 5s 4 3 2 | 1w"],
   },
 ];
 
