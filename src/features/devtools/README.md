@@ -60,14 +60,9 @@ loading a plan always does (ids for exercises stored without one).
 
 Replies to music schools that could become founding partners. `model/kickstarter.ts` holds what an email may say (`FACTS`:
 what attunr is and what is coming (scheduling, profiles, courses to sell), the locked-in price, the 90-day trial, the 20 partners
-the project needs, a say in what gets built, the video call with the founder (`CALL_MINUTES`: a live demo and a talk about being a founding partner), that it is a beta, that it is an Australian company; the price, the trial length and the 20 come from `src/lib/foundingOffer.ts`, which the public page `/kickstarter` reads too) and how it sounds
+the project needs, a say in what gets built, the video call with the founder (`CALL_MINUTES`: a live demo and a talk about being a founding partner), that it is still in demo mode (what isn't built is told as "the vision for attunr"), that it is an Australian company; the price, the trial length and the 20 come from `src/lib/foundingOffer.ts`, which the public page `/kickstarter` reads too) and how it sounds
 (`VOICE`, plus reply-only and first-email-only rules); change the offer there. The next step an email asks for is that call: offered once, as a question, with the booking link (`CALL_URL`, the Calendly page "Attunr founding partner chat"; `GENERAL_CALL_URL` is for a call about anything else) and no invented time; a first email leads with why attunr is being built (a love of music, and looking for ways to help teachers, students and schools), leaves out the price and the trial, and ends on the call, and a reply offers it when they show interest and not again once it was offered. The page (`kickstarter/KickstarterPage.tsx`)
-has a box for the pasted email thread and an optional one-line note (both kept in `localStorage`
-`musickit.dev.kickstarter`), the line to paste into an AI extension, a *Reply* box, and the brief as plain text on the page
-(`outreachBrief`: the thread, the facts, the voice and every demo `/demo` lists, with public `SITE_URL` links). The details
-about the school come from the thread, not a form, and so does the sender: a reply keeps the name and persona attunr's earlier emails used (they may go out from an outreach tool such as Explee), and signs as the founder only when there are none. With no thread the brief asks for a first email with a subject line. `SAMPLE_EMAILS` are emails that went out (the first: Piotr taking over the Evia Music thread from Alex); the brief carries them for tone and shape only, and the page shows them under *Sample emails*.
-Claude in Chrome reads the brief and types the email into the Reply box; a browser with WebMCP calls
-`get_founding_partner_email_brief` and `submit_founding_partner_email` instead. Nothing is sent from the page: *Copy reply*.
+shows the brief as plain text with *Copy brief* (`outreachBrief`: the facts, the voice, the rules for a reply and for a first email, the sample emails, and every demo `/demo` lists plus the Farinelli breathing page, with public `SITE_URL` links), then what goes into it: *Voice*, *Facts*, *Sample emails*, *Demos*. The brief is pasted into an AI chat, with the thread when there is one; the details about the school come from the thread, and so does the sender: a reply keeps the name and persona attunr's earlier emails used (they may go out from an outreach tool such as Explee), and signs as the founder only when there are none. With no thread the AI writes a first email with a subject line. `SAMPLE_EMAILS` are emails that went out (the first: Piotr taking over the Evia Music thread from Alex); the brief carries them for tone and shape only.
 
 ## Running the prompt
 
@@ -99,6 +94,6 @@ returns one.
 - `server/git.ts`: `exampleCommits` (HEAD and the example files' commits), for `GET /api/dev/commit`.
 - `prompt/`: `PromptStudio` (state), `StudioInputs`, `PartList`, `RunPanel`, `PlanPreview`, `HistoryList`, `api.ts` (fetches), `storage.ts` (saved state, `useMounted`).
 - `examples/ExampleViewer.tsx`: the examples page.
-- `kickstarter/KickstarterPage.tsx`, `model/kickstarter.ts`: the founding-partner reply page; its facts, voice and brief.
+- `kickstarter/KickstarterPage.tsx`, `model/kickstarter.ts`: the founding-partner email brief; its facts, voice and samples.
 - `data/DataPage.tsx`, `model/dataView.ts`: the data page and its rows (`planRows`, `logRows`).
 - Routes: `src/app/api/dev/run`, `src/app/api/dev/history`, `src/app/api/dev/history/[id]`; pages `src/app/dev`.
